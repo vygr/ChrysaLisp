@@ -25,12 +25,12 @@
 		(with-read-lock file_a
 			(if file_b
 				(with-read-lock file_b
-					(when (and (defq a (file-stream file_a)) (defq b (file-stream file_b)))
+					(and (defq a (file-stream file_a)) (defq b (file-stream file_b))
 						(if opt_s
 							(stream-diff b a (io-stream 'stdout))
 							(stream-diff a b (io-stream 'stdout))))
 					(setq a :nil b :nil))
-				(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
+				(and (defq a (file-stream file_a)) (defq b (io-stream 'stdin))
 					(if opt_s
 						(stream-diff b a (io-stream 'stdout))
 						(stream-diff a b (io-stream 'stdout))))

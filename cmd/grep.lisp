@@ -119,7 +119,7 @@
 				opt_x :nil opt_c :nil opt_m :nil
 				opt_v :nil opt_i :nil opt_n :nil
 				opt_j 1 args (options stdio usage)))
-		(when (and (eql pattern "") (> (length args) 1))
+		(and (eql pattern "") (> (length args) 1)
 			(defq pattern (second args) args (erase args 1 2)))
 		(if opt_c (setq pattern (hex-decode pattern)))
 		(when (bind '(search meta &ignore) (query pattern opt_w opt_x opt_i))

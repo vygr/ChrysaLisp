@@ -21,9 +21,9 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
-			(defq opt_l :nil args (options stdio usage)))
+			(defq opt_l :nil args (options stdio usage))
 		(cond
 			(opt_l (each (lambda ((name &ignore))
 				(print "0x" (sym-code-hex (+ +sf_base (!))) " " name)) *symbols*))

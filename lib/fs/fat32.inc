@@ -105,7 +105,7 @@
 	;the power of 2 that n is, :nil if it is not one
 	(defq shift 0)
 	(while (< (<< 1 shift) n) (setq shift (inc shift)))
-	(if (and (> n 0) (= (<< 1 shift) n)) shift))
+	(and (> n 0) (= (<< 1 shift) n) shift))
 
 (defun fat32-mount (device)
 	; (fat32-mount path | stream) -> :nil | vol
@@ -252,12 +252,12 @@
 
 (defun fat32-list (vol path)
 	; (fat32-list vol path) -> :nil | ((name dir size start no_fat index count) ...)
-	(when (and (defq entry (fat32-find vol path)) (second entry))
+	(and (defq entry (fat32-find vol path)) (second entry)
 		(fat32-dir vol entry)))
 
 (defun fat32-load (vol path)
 	; (fat32-load vol path) -> :nil | str
-	(when (and (defq entry (fat32-find vol path)) (not (second entry)))
+	(and (defq entry (fat32-find vol path)) (not (second entry))
 		(fat32-data vol (elem-get entry 3) (third entry))))
 
 (defun fat32-walk (vol path fnc)

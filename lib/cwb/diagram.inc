@@ -122,7 +122,7 @@
 	(push items (cwb-shape (cwb-d "M" 0 band "L" 0 8 "Q" 0 0 8 0 "L" (- width 8.0) 0 "Q" width 0 width 8 "L" width band "Z")
 		:fill (ifn fill +dia_band) :stroke +dia_line :width 1.4))
 	(push items (dia-words title pad 24.0 18 :t))
-	(if (and under (nempty? under)) (push items (dia-words under pad 40.0 11 :nil +dia_dim)))
+	(and under (nempty? under) (push items (dia-words under pad 40.0 11 :nil +dia_dim)))
 	(each (# (push items %0)) body)
 	(list (cwb-group items) width height))
 
@@ -132,7 +132,7 @@
 	;line when they would be wider than max_width. Top left at 0 0
 	(defq x 0.0 y 0.0 high 0.0 wide 0.0 items (list))
 	(each (lambda ((item w h))
-		(when (and (> x 0.0) (> (+ x w) max_width))
+		(and (> x 0.0) (> (+ x w) max_width)
 			(setq x 0.0 y (+ y high gap) high 0.0))
 		(push items (dia-move (list item) x y))
 		(setq x (+ x w gap) high (max high h) wide (max wide (- x gap))))

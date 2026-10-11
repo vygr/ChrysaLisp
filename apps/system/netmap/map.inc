@@ -105,7 +105,7 @@
 	;by its own clock, and half of what that was before, so it does not
 	;flicker. A node that gives no time, time of 0, is left as it is
 	(defq span (- time (get :time node)))
-	(when (and (/= (get :time node) 0) (> span 0))
+	(and (/= (get :time node) 0) (> span 0)
 		(def node :busy (* +real_1/2 (+ (get :busy node)
 			(/ (n2r (max 0 (min span (- span (- idle (get :idle node)))))) (n2r span))))))
 	(def node :idle idle :time time)

@@ -25,10 +25,10 @@
 	(defq out '(-1 -1 -1))
 	(when stream
 		(defq header (read-blk stream +tga_size))
-		(when (and (= (length header) +tga_size)
+		(and (= (length header) +tga_size)
 				(= (getf header +tga_type) 2)
 				(or (= (getf header +tga_depth) 24)
-					(= (getf header +tga_depth) 32)))
+					(= (getf header +tga_depth) 32))
 			; load the tuple directly
 			(setq out (getf-> header +tga_width +tga_height +tga_depth))))
 	out)

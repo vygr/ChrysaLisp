@@ -221,6 +221,6 @@
 	(pipe-run "lisp -r (write-line (io-stream (quote stderr)) {oops, on stderr}) (print {said})" (# (push pipe_out %0)))
 	(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
 	(unless (find "oops, on stderr" pipe_said) (++ pipe_lost))
-	(if (and (find "oops, on stderr" pipe_said) (find "said" pipe_said)) (++ pipe_both)))
+	(and (find "oops, on stderr" pipe_said) (find "said" pipe_said) (++ pipe_both)))
 (assert-eq "of 60 commands that say a thing on their stderr as they end, what not one says is lost" 0 pipe_lost)
 (assert-eq "and each says what it said on its stdout as well" 60 pipe_both)

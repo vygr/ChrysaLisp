@@ -64,9 +64,9 @@
 	(bind '(id title points user time_ago comments_count url domain) story)
 	(defq lines (list (cat "# " title) ""
 		(cat "**" (str points) " points** by *" user "* " time_ago " | **" (str comments_count) " comments** | `" (if (nempty? domain) domain "hacker-news") "`") ""))
-	(when (and url (not (starts-with "item?id=" url)))
+	(and url (not (starts-with "item?id=" url))
 		(push lines (cat "**Article Link**: `" url "`") ""))
-	(when (and post_content (nempty? (trim post_content)))
+	(and post_content (nempty? (trim post_content))
 		(push lines "---" "" (clean-hn-text post_content) ""))
 	(push lines "---" "")
 	(ifn comments
@@ -284,7 +284,7 @@
 							(. *comments_cache* :insert item_id comments)
 							(. *post_content_cache* :insert item_id post_content)
 							(def (. *status_label* :dirty) :text "Loaded discussion")
-							(when (and *selected_story* (= (first *selected_story*) item_id))
+							(and *selected_story* (= (first *selected_story*) item_id)
 								(render-detail-pane *selected_story* post_content comments))))
 					(def (. *status_label* :dirty) :text "Fetch error")
 					(.-> *status_label* :layout :dirty)))

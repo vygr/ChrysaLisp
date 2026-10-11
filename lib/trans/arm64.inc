@@ -726,7 +726,7 @@
 						(and x (find x %0 1)))
 					:fail)))
 			(list emit_list) :nil idx (max 9 (- idx +arm64_lookback_window))))
-	(if (and res (nql res :fail)) res))
+	(and res (nql res :fail) res))
 
 (redefun emit-prepass (emit_list)
 	;one sweep does call fusion, load/store pair fusion and copy fusion.

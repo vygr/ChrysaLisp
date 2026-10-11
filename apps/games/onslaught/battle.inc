@@ -169,7 +169,7 @@
 			(defq dir (get :sp_dir *player_man*))
 			(when (defq pt (getxy 16 8 dir))
 				(bind '(x y) pt)
-				(when (and (>= x 0) (< x (const (- (* +map_width +tile_width) 16))))
+				(and (>= x 0) (< x (const (- (* +map_width +tile_width) 16)))
 					(unless (sprite-collide *layer_bans* (- x 28) y 72 8 +ftp_enemy_fire)
 						(defq mine (Mine))
 						(. mine :sp_set_pos x y)

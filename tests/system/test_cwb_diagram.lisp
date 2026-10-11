@@ -29,14 +29,14 @@
 (defun dg-at (name)
 	;where the pill of a name is, the top left of its group, by its words
 	(some (lambda (item)
-		(if (and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
-				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items)))
+		(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
+				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
 			(map (const n2i) (slice (elem-get item +cwb_m) 2 3))))
 		(elem-get dg_tree +cwb_items)))
 (defun dg-xy (name)
 	(some (lambda (item)
-		(if (and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
-				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items)))
+		(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
+				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
 			(list (elem-get (elem-get item +cwb_m) 2) (elem-get (elem-get item +cwb_m) 5))))
 		(elem-get dg_tree +cwb_items)))
 (assert-true "what comes of a thing is to the right of it, and its own further right still"
@@ -82,7 +82,7 @@
 (assert-list-eq "a line to a box beside leaves by the side that faces it and arrives at the side that faces back"
 	'(100 120 300 120) (dg-line-ends (first (first dg_scene))))
 (assert-list-eq "and to one below, from the bottom to the top" '(50 140 50 300)
-	(dg-line-ends (some (# (if (and (cwb-group? %0) (= (length (elem-get %0 +cwb_items)) 1)) %0)) (first dg_scene))))
+	(dg-line-ends (some (# (and (cwb-group? %0) (= (length (elem-get %0 +cwb_items)) 1) %0)) (first dg_scene))))
 (assert-eq "a line to a name that is not there is no line: two lines and the words of one" 3 (length (first dg_scene)))
 (defq dg_sdoc (dia-scene-doc dg_scene))
 (assert-true "the document of a scene has what lies under first, then its lines, then its boxes"

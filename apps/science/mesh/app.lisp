@@ -153,7 +153,7 @@
 	;can and it is wanted, the g key says. :t if there is no more to do for
 	;this frame, it was drawn, or the GPU is busy and it is to be tried
 	;again. :nil if the frame is to be drawn by the nodes, or here
-	(when (and *use_gpu* (not gpu_pair) (not gpu_failed))
+	(and *use_gpu* (not gpu_pair) (not gpu_failed)
 		;the pair of shaders, the first time, the driver builds it in its
 		;own time
 		(unless (setq gpu_pair (shader-gui-pair (shader-load (first +scene_shiny_files))
@@ -196,8 +196,8 @@
 			(setq farming :t last_farm now)
 			(. *main_widget* :fill 0)
 			(strips draws :t))
-		(:t (if (and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
-					(> (length (lisp-nodes :t)) 1))
+		(:t (and (not no_farm) (not warming) (/= (canvas-key *main_widget*) 0)
+					(> (length (lisp-nodes :t)) 1)
 				(warm-farm draws))
 			(.-> scene (:draw *main_widget* draws))
 			(. *main_widget* :swap +swap_write))))
@@ -272,7 +272,7 @@
 						(draw-faces)
 						(. scene :render *main_widget* (* canvas_size canvas_scale)
 							+left +right +top +bottom +near +far :nil)))
-				(if (and farm (= (setq ticks (% (inc ticks) 30)) 0))
+				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
 					(. farm :refresh retry_timeout)))
 			((= idx +select_farm_task)
 				;a child of the farm has started

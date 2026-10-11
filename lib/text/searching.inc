@@ -33,7 +33,7 @@
 	;for it. An empty pattern stays empty, and matches as it would without.
 	(if _i (setq _p (to-lower _p)))
 	(if (eql _p "") (setq _w :nil))
-	(if (and _w (not _x))
+	(and _w (not _x)
 		(setq _p (escape-regexp _p)))
 	(defq _e (if (or _w _x) +regexp +substr))
 	(list _e (if _w (. _e :compile _p :t) (. _e :compile _p))

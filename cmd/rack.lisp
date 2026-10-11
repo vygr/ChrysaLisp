@@ -33,10 +33,10 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
 			(defq opt_b :nil opt_l "" opt_d "" opt_u :nil
-				args (options stdio usage)))
+				args (options stdio usage))
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
 			(each (const print) (rack-run (join (rest args) " ")

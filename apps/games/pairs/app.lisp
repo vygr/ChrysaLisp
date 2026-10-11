@@ -97,7 +97,7 @@
 				  *locked* :nil)
 
 			; Handle legacy string data if present
-			(if (and (nempty? *values*) (str? (first *values*)))
+			(and (nempty? *values*) (str? (first *values*))
 				 (setq *values* (map code *values*)))
 
 			; Find currently selected tiles (state 1)
@@ -123,8 +123,8 @@
 			:score *score*))))
 
 (defun try-click (index)
-	(when (and (not *locked*)
-			   (= (elem-get *states* index) 0)) ; Can only click hidden tiles
+	(and (not *locked*)
+			   (= (elem-get *states* index) 0) ; Can only click hidden tiles
 		(if *first_pick*
 			; Second selection
 			(progn

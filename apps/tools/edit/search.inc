@@ -68,7 +68,7 @@
 			(defq match (elem-get found sy))
 			(when (defq match (some (lambda (m)
 						(bind '(x x1) (first m))
-						(if (and (= x sx) (= x1 sx1)) m)) match))
+						(and (= x sx) (= x1 sx1) m)) match))
 				(defq edit (first (replace-edits (elem-get lines sy) (list match) rep_meta)))
 				(undoable (. *edit* :get_buffer)
 					(.-> *edit*

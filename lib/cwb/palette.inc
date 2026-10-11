@@ -158,7 +158,7 @@
 		;glass, it is the right way up whichever way the board is
 		(bind '(ox oy) (get :origin this))
 		(defq zoom (get :zoom (get :board this)) turn (get :view_turn (get :board this)))
-		(Mat3x2-point (if (and turn (/= turn 0.0)) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
+		(Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
 
 	(defmethod :wedge_at (px py)
 		; (. palette :wedge_at px py) -> :nil | :hub | wedge
@@ -168,13 +168,13 @@
 		(if (< a 0.0) (setq a (+ a +fp_2pi)))
 		(cond
 			((<= r +pal_hub) :hub)
-			(:t (some (# (if (and (>= r (elem-get %0 +wedge_r0)) (<= r (elem-get %0 +wedge_r1))
-					(>= a (elem-get %0 +wedge_a0)) (< a (elem-get %0 +wedge_a1))) %0))
+			(:t (some (# (and (>= r (elem-get %0 +wedge_r0)) (<= r (elem-get %0 +wedge_r1))
+					(>= a (elem-get %0 +wedge_a0)) (< a (elem-get %0 +wedge_a1)) %0))
 				(. this :get_wedges)))))
 
 	(defmethod :find_wedge (what val)
 		; (. palette :find_wedge what val) -> :nil | wedge
-		(some (# (if (and (eql (elem-get %0 +wedge_what) what) (eql (elem-get %0 +wedge_val) val)) %0))
+		(some (# (and (eql (elem-get %0 +wedge_what) what) (eql (elem-get %0 +wedge_val) val) %0))
 			(. this :get_wedges)))
 
 	(defmethod :where (what &optional val)
@@ -366,7 +366,7 @@
 		(bind '(ox oy) (get :origin this))
 		(defq turn (get :view_turn board)
 			base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
-				(Mat3x2-mul (if (and turn (/= turn 0.0)) (Mat3x2-rot (neg turn))) (Mat3x2-scale (/ 1.0 (get :zoom board)))))))
+				(Mat3x2-mul (and turn (/= turn 0.0) (Mat3x2-rot (neg turn))) (Mat3x2-scale (/ 1.0 (get :zoom board)))))))
 		;the outer ring first, so one that is part open is under those inside it
 		(each (lambda (k)
 			(defq open (. this :ring_scale k))
@@ -409,7 +409,7 @@
 	;paper for it
 	(setd kind :mouse id 0)
 	(defq stage (. board :get_stage) x (n2f x) y (n2f y))
-	(each (# (if (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id)) (. %0 :close)))
+	(each (# (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id) (. %0 :close)))
 		(. stage :get_actors))
 	(. stage :add (defq palette (Palette board x y kind id)))
 	(. board :touch +board_dirty_overlay)

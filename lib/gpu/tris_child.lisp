@@ -58,7 +58,7 @@
 			pixel (shader-load (slice files vfile_length -1))
 			pipeline (shader-vp-pipeline vertex pixel)))
 	(defq pixmap (attach pixels_key width height)
-		depth (if (and pixmap (> y1 y)) (shader-vp-depth width (- y1 y)))
+		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
 		attrs (elem-get (third pipeline) 2))
 	(times draws
 		(bind '(id vlen plen dy dy1) (getf-> (slice msg at (+ at +strip_draw_size))
@@ -68,7 +68,7 @@
 		;and not asked for till it is. A strip of no rows asks for them all
 		(defq blocks (+ at +strip_draw_blocks)
 			verts (if (or (= y1 y) (and (< dy y1) (> dy1 y))) (mesh id ask)))
-		(if (and depth verts)
+		(and depth verts
 			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 attrs)) pixmap depth
 				(shader-unpack vertex (slice msg blocks (+ blocks vlen)))
 				(shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))

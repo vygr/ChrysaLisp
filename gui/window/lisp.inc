@@ -138,7 +138,7 @@
 		;on to here, as it does any it does not know, and the window does
 		;its part, the fonts of its symbols. One that has acts on
 		;+event_theme itself, and calls :theme, or not, as it sees fit
-		(if (and (= type +ev_type_action) (= (getf event +ev_msg_target_id) +event_theme))
+		(and (= type +ev_type_action) (= (getf event +ev_msg_target_id) +event_theme)
 			(. this :theme (slice event +ev_msg_theme_name -1)))
 		(when target
 			(cond

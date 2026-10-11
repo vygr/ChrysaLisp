@@ -114,8 +114,8 @@
 (defun config-load ()
 	(defq loaded :nil)
 	(with-read-lock +config_file
-		(when (and (defq data (tree-load (file-stream +config_file)))
-				   (= (length (. data :find :board)) +tile_count))
+		(and (defq data (tree-load (file-stream +config_file)))
+				   (= (length (. data :find :board)) +tile_count)
 			(setq *board* (. data :find :board)
 				  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
 				  *selected* (. data :find :selected)

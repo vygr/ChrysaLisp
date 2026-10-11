@@ -55,7 +55,7 @@
 	(elem-set peer +mesh_peer_t_seen now)
 	(unless (elem-get peer +mesh_peer_said_hello)
 		(elem-set peer +mesh_peer_dialler dials)
-		(elem-set peer +mesh_peer_knows_me (if (and dials i_beacon) :t)))
+		(elem-set peer +mesh_peer_knows_me (and dials i_beacon :t)))
 	peer)
 
 (defun mesh-hello (peers my_sys now)
@@ -66,8 +66,8 @@
 	;for ever
 	(defq out (list "CHRYSA_HELLO " my_sys (ascii-char 10)))
 	(. peers :each (lambda (sys peer)
-		(if (and (> (elem-get peer +mesh_peer_port) 0)
-				(< (- now (elem-get peer +mesh_peer_t_heard)) +mesh_alive))
+		(and (> (elem-get peer +mesh_peer_port) 0)
+				(< (- now (elem-get peer +mesh_peer_t_heard)) +mesh_alive)
 			(push out sys " " (elem-get peer +mesh_peer_ip) " "
 				(str (elem-get peer +mesh_peer_port)) (ascii-char 10)))))
 	(apply (const cat) out))
@@ -131,8 +131,8 @@
 	;it is not dialled, and it is as one never met. If it comes back its
 	;beacon, or word of it, says where it is
 	(. peers :each (lambda (sys peer)
-		(when (and (> (elem-get peer +mesh_peer_port) 0)
-				(> (- now (elem-get peer +mesh_peer_t_seen)) +mesh_alive))
+		(and (> (elem-get peer +mesh_peer_port) 0)
+				(> (- now (elem-get peer +mesh_peer_t_seen)) +mesh_alive)
 			(each (# (elem-set peer %0 %1))
 				(static-q (0 1 2 3 4 5 6 9)) (static-q ("" 0 :nil :nil :nil 0 0 0))))))
 	peers)

@@ -12,7 +12,7 @@
 (import "lib/math/vector.inc")
 (import "lib/date/date.inc")
 
-(if (and (not *env_clock_analog*) (not *env_clock_digital*))
+(and (not *env_clock_analog*) (not *env_clock_digital*)
 	(setq *env_clock_analog* :t))
 
 

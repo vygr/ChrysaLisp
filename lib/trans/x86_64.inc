@@ -680,7 +680,7 @@
 						(and x (find x %0 1)))
 					:fail)))
 			(list emit_list) :nil idx (max 9 (- idx +x64_lookback_window))))
-	(if (and res (nql res :fail)) res))
+	(and res (nql res :fail) res))
 
 (defun x64-find-load (emit_list idx s d)
 	(defq res (some! (#
@@ -698,7 +698,7 @@
 						(starts-with "emit-cpy-r" (str op)))
 					:fail)))
 			(list emit_list) :nil idx (max 9 (- idx +x64_lookback_window))))
-	(if (and res (nql res :fail)) res))
+	(and res (nql res :fail) res))
 
 (defun x64-reg-dead? (emit_list idx s)
 	(eql (some! (#

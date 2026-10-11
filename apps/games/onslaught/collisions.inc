@@ -35,7 +35,7 @@
 		hit_pnt (get :sp_hitpnt hit)
 		drag_xv 0)
 	(each (lambda (comp)
-		(when (and (env? comp) (def? 'vx comp))
+		(and (env? comp) (def? 'vx comp)
 			(setq drag_xv (get 'vx comp))))
 		(get :sp_components hit))
 	(if (bits? hit_type +ftp_tower +ftp_carpet +ftp_skeleton_horse)
@@ -131,7 +131,7 @@
 	(if (> new_enemy_hp 0)
 		(def hit :sp_hitpnt new_enemy_hp)
 		(play-death-score hit)
-		(when (and (>= missile_hp 500) (eql (get :sp_death hit) dt-kill-enemy))
+		(and (>= missile_hp 500) (eql (get :sp_death hit) dt-kill-enemy)
 			(def hit :sp_death dt-kill-zap))
 		(. hit :sp_kill)))
 
@@ -149,7 +149,7 @@
 	(if (> hp 0)
 		(def hit :sp_hitpnt hp)
 		(play-death-score hit)
-		(when (and (>= dmg 500) (eql (get :sp_death hit) dt-kill-enemy))
+		(and (>= dmg 500) (eql (get :sp_death hit) dt-kill-enemy)
 			(def hit :sp_death dt-kill-zap))
 		(. hit :sp_kill)))
 

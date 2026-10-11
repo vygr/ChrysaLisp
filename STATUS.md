@@ -4,6 +4,38 @@
 
 ------
 
+`check`: a `(when)` or an `(if)` of an `(and)` and one form is the `(and)`.
+
+Chris: "how about (when (and . . .) .) ie the when is surplus ?" and "or
+(if (and .....) .) ? same issue." It is, to the value: `(when (and a b)
+x)`, `(if (and a b) x)` and `(and a b x)` give the same with every test
+so, with either not, and with x `:nil`, a test holds the four cases. Only
+with the one form: with two the `(when)` is doing something.
+
+The style check says it, and the tree had 242, 94 of a `(when)` and 148 of
+an `(if)`, in 106 files. Each was rewritten by a script that matches
+brackets, past strings and comments: the head goes, and the bracket that
+closed the `(and)`. One came out `(and (eql which at) reg reg)`, made
+`(and (eql which at) reg)` by hand. `lib/text/format.inc` was then run
+through `fmt`, which its own test asks of it.
+
+The form moves to where a test of the `(and)` is, the first thing of a
+list once the `(and)` is a `(condn)`, which is the one place a name of a
+function of the system is taken as the function. Chris: "I thought that
+only danger was if you used a shadow func name as the first element of a
+list ?" It is that and no other, the `(and)` is what makes the list. The
+shadow check was run over all 242 after: none.
+
+Run: `files | check` says nothing; lint clean; the boot image is the same
+to the byte as before the 242; `make docs`; every module on the M4, the
+x64 Mac and the Pi, 6,078 and 0 failed. The M4's run left no note in
+/tmp, the first full one there since the leak was mended.
+
+Not seen: any of the apps it touched on a desktop, 34 of the 242 are in
+`apps/`. The tests load every app and run none.
+
+------
+
 `check`: an `(ifn)` with no else is not an `(if)` of a `(not)` with none.
 
 Chris, of the style check: "style, ifn has the reverse tests that 'if

@@ -198,7 +198,7 @@
 	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale)))
 	;the pair of shaders a thing with none of its own is drawn with, the
 	;pair the balls are, and the pair the bars are, on the GPU, the first time
-	(when (and (not gpu_pair) (not gpu_failed))
+	(and (not gpu_pair) (not gpu_failed)
 		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
 					(shader-load +scene_pixel_file) :t))
 				(setq gpu_shiny (shader-gui-pair (shader-load (first +scene_shiny_files))

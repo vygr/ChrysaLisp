@@ -213,7 +213,7 @@
 	(bind '(rx ry rw rh) (. *world_scroll* :get_relative this))
 	(bind '(ww wh) (. *world_scroll* :get_size))
 	(when (or (< rx (neg rw)) (>= rx ww) (< ry (neg rh)) (>= ry wh))
-		(when (and (< rx 0) (< (get :sp_dir this) 0))
+		(and (< rx 0) (< (get :sp_dir this) 0)
 			(when (< (length *enemy_stack*) +max_enemy_stack)
 				(push *enemy_stack* (get :sp_type this))))
 		(-- *enemy_count*)

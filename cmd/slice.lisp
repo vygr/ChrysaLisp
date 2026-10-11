@@ -16,9 +16,9 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
-			(defq opt_s 0 opt_e -1 args (options stdio usage)))
+			(defq opt_s 0 opt_e -1 args (options stdio usage))
 		;slice stdin
 		(lines! (lambda (line)
 				(defq len (length line)

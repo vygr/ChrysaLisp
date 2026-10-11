@@ -237,14 +237,14 @@
 
 (defun canvas-info (file)
 	; (canvas-info file) -> (width height type) | (-1 -1 -1)
-	(or (if (and (defq kind (canvas-loader-of file)) (defq stream (file-stream file)))
+	(or (and (defq kind (canvas-loader-of file)) (defq stream (file-stream file))
 			((second kind) stream))
 		(list -1 -1 -1)))
 
 (defun canvas-save (canvas file type &rest optionals)
 	; (canvas-save canvas file type [optionals...]) -> :nil | canvas
-	(if (and (defq kind (canvas-loader-of file)) (defq save (elem-get kind 3))
-			(defq stream (file-stream file +file_open_write)))
+	(and (defq kind (canvas-loader-of file)) (defq save (elem-get kind 3))
+			(defq stream (file-stream file +file_open_write))
 		(apply save (cat (list canvas stream type) optionals))))
 
 (defun canvas-load (file flags &optional swap_mode)

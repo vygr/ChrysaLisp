@@ -31,9 +31,9 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
-			(defq opt_f :nil args (options stdio usage)))
+			(defq opt_f :nil args (options stdio usage))
 		(if (<= (length args) 1)
 			;cat from stdin
 			(lines! cat-file (io-stream 'stdin))

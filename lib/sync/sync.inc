@@ -127,7 +127,7 @@
 					;not there, so nothing is below it, and it will be made
 					((not kind) (setq end -1))
 					((eql kind (if is_last "8" "4"))
-						(if (and real (not is_last)) (. real :insert next)))
+						(and real (not is_last) (. real :insert next)))
 					(:t (setq ok :nil)))))
 		(setq at next)
 		(or (not ok) (= end -1)))
@@ -160,7 +160,7 @@
 	;task that stays, a service. The file is then read the once, and is
 	;what is there when the task starts again
 	(defq cache (ifn live (Fmap 101)) dirty :nil now (/ (pii-time) 1000000) text :nil)
-	(when (and kept (= (. cache :size) 0) (setq text (load kept)))
+	(and kept (= (. cache :size) 0) (setq text (load kept))
 		(each (lambda (line)
 			(when (>= (length (defq parts (split line " "))) 4)
 				(. cache :insert (join (slice parts 3 -1) " ")
@@ -178,7 +178,7 @@
 			;the mode is who may read, write and run it, the low 9 bits
 			(push out (list path size (third hit) (logand (third info) 511)))))
 		(sync-walk root rules))
-	(if (and kept dirty) (save (join lines (ascii-char 10)) kept))
+	(and kept dirty (save (join lines (ascii-char 10)) kept))
 	out)
 
 (defun sync-tree (root rules &optional kept no_modes live)

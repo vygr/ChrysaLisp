@@ -173,12 +173,12 @@
 			& fill_rule & fill_opacity & stroke_opacity & transform &ignore)
 		(get :bucket entry))
 	;cheaky bind of the front of the Pmap :bucket !
-	(when (and (/= fill 0) (/= fill_opacity 0.0))
+	(and (/= fill 0) (/= fill_opacity 0.0)
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
 				(map (lambda ((f p)) (path-transform transform p (cat p))) paths))))
-	(when (and (/= stroke 0) (/= stroke_opacity 0.0))
+	(and (/= stroke 0) (/= stroke_opacity 0.0)
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule

@@ -41,11 +41,11 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
 			(defq opt_w :nil opt_e :nil opt_r "" opt_g :nil opt_x :nil opt_i :nil
 				args (options stdio usage))
-			opt_e)
+			opt_e
 		(when (bind '(engine find_meta &ignore) (query opt_e opt_w opt_x opt_i))
 			(defq rep_meta (replace-compile opt_r))
 			(if (empty? (defq files (rest args)))

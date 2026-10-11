@@ -56,8 +56,8 @@
 		; Find the correct position to insert the new node to maintain the descending sort order.
 		(defq insert_pos (some! (# (if (> (first new_node) (first %0))
 										(!)
-											(if (and (= (first new_node) (first %0))
-												(> (last new_node) (last %0)))
+											(and (= (first new_node) (first %0))
+												(> (last new_node) (last %0))
 												(!))))
 								(list nodes)))
 

@@ -110,7 +110,7 @@
 	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) *env_terminal_prompt*))
 	(defq *margin_x* *cursor_x*)
 	(while *running*
-		(when (and *needs_refresh* (not (input-poll))) (refresh))
+		(and *needs_refresh* (not (input-poll)) (refresh))
 		(bind '(*msg* idx) (input-select))
 		(cond
 			((= idx +select_pipe)

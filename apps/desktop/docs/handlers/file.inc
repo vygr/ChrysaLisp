@@ -14,7 +14,7 @@
 			(setq *mem_stream* (memory-stream))
 			(with-read-lock file_path
 				(when (defq stream (file-stream file_path))
-					(when (and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream)))
+					(and start_exp (defq line (lines! (# (if (found? %0 start_exp) (trim %0 "\r"))) stream))
 						(write-line *mem_stream* line))
 					;skip to end
 					(cond
@@ -43,7 +43,7 @@
 			(defq margin +max_int lines (. buffer :get_buffer_lines))
 			(each (# (and (defq m (find "(" %0)) (setq margin (min m margin)))) lines)
 			;strip the common margin in-place
-			(when (and (/= margin 0) (/= margin +max_int))
+			(and (/= margin 0) (/= margin +max_int)
 				(each (lambda (line)
 					(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 

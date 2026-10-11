@@ -30,7 +30,7 @@
 				((= *esc_state_out* 2)
 					; In CSI sequence
 					(pii-write-char 1 c)
-					(if (and (>= c 64) (<= c 126)) ; 0x40-0x7E terminates CSI sequence
+					(and (>= c 64) (<= c 126) ; 0x40-0x7E terminates CSI sequence
 						(setq *esc_state_out* 0)))
 				((= c 27) ; ESC
 					(setq *esc_state_out* 1)

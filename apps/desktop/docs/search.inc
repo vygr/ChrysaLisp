@@ -36,7 +36,7 @@
 	(setd step 0)
 	(refresh-matches)
 	(bind '(search meta pattern) (query (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*))
-	(defq found (if (and meta (nql pattern ""))
+	(defq found (and meta (nql pattern "")
 		(filter (# (. search :match? (if *ignore_case* (to-lower (get :text %0)) (get :text %0)) meta)) *search_widgets*))
 		cur_match (and *last_widget*
 			(some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))

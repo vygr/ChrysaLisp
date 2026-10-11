@@ -207,8 +207,8 @@
 				((and but (find (elem-get item +cwb_id) but)))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
-					(if (and (vector-collide-boxes-2d reach (Mat3x2-box box full))
-							(poly-convex-hit? (first (cwb-mat-paths full (list (board-hull item)))) swept_hull))
+					(and (vector-collide-boxes-2d reach (Mat3x2-box box full))
+							(poly-convex-hit? (first (cwb-mat-paths full (list (board-hull item)))) swept_hull)
 						(setq pieces (board-bite-shape item full m swept tol)))))
 			(cond
 				(pieces
@@ -227,7 +227,7 @@
 	(each (lambda (items)
 		(when (some (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)))) items)
 			(defq out (filter (# (not (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))))) items))
-			(each (# (if (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))) (push gone (elem-get %0 +cwb_id)))) items)
+			(each (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)) (push gone (elem-get %0 +cwb_id)))) items)
 			(clear items)
 			(each (# (push items %0)) out)))
 		(reverse seen))
@@ -306,8 +306,8 @@
 		;kept for it
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
-					(some (# (= (elem-get (first %0) +cwb_id) item_id)) things))
+			(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
+					(some (# (= (elem-get (first %0) +cwb_id) item_id)) things)
 				(setq found (list id state)))))
 		found)
 
@@ -341,7 +341,7 @@
 		(when (and any (defq grab (get :grab this)))
 			(bind '(ida idb) (elem-get grab 3))
 			(defq a (. this :state ida) b (. this :state idb))
-			(def this :grab (if (and a b (elem-get a +stroke_item) (elem-get b +stroke_item))
+			(def this :grab (and a b (elem-get a +stroke_item) (elem-get b +stroke_item)
 				(list (list (elem-get a +stroke_last_x) (elem-get a +stroke_last_y))
 					(list (elem-get b +stroke_last_x) (elem-get b +stroke_last_y))
 					(map (# (list (first %0) (elem-get (first %0) +cwb_m))) (elem-get a +stroke_item))
@@ -353,7 +353,7 @@
 		;every item some hand has hold of now
 		(defq out (list))
 		(. (get :states this) :each (lambda (id state)
-			(if (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item)))
+			(and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
 				(each (# (push out (elem-get (first %0) +cwb_id))) things))))
 		out)
 
@@ -404,7 +404,7 @@
 		;a pointer that has hold of what is selected
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item))
+			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
 				(setq found id))))
 		found)
 
@@ -432,12 +432,12 @@
 				;that is not filled, or a thin line, is hard to be on. Not
 				;while another hand has hold of things: what is selected is
 				;then what each has, and the box round it all is nobody's
-				(if (and (not hit) (not holding) (nempty? (defq items (. board :selected_items)))
+				(and (not hit) (not holding) (nempty? (defq items (. board :selected_items)))
 						(defq box (cwb-bounds items))
-						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3)))
+						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3))
 					(setq hit (list (first items) 0 :nil)))
 				;a finger in the box of a thing is on the thing
-				(if (and (not hit) (eql kind :touch)) (setq hit (cwb-hit-box (get :doc board) x y)))
+				(and (not hit) (eql kind :touch) (setq hit (cwb-hit-box (get :doc board) x y)))
 				(cond
 					((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
 						;what another has hold of. First come first served:
@@ -457,7 +457,7 @@
 						;back, below, and is to do that and no more. Chris: "i'd
 						;like to keep the right button push to back action. We
 						;have esc or min to get out of jail"
-						(if (and (not holding) (find id_hit selected) (/= buttons +pev_right))
+						(and (not holding) (find id_hit selected) (/= buttons +pev_right)
 							(elem-set state +stroke_again :t))
 						(cond
 							(holding
@@ -498,7 +498,7 @@
 					(:t ;on nothing. With nothing selected, and nothing put
 						;away by it, it may be a tap, see (:end). What
 						;other hands have hold of is selected, and is left so
-						(if (and (not shut) (or holding (empty? (get :selected board))))
+						(and (not shut) (or holding (empty? (get :selected board)))
 							(elem-set state +stroke_snap :tap))
 						(unless holding (. board :select (list))))))
 			(:eraser (unless holding (. board :select (list))) (. board :snapshot))
@@ -516,7 +516,7 @@
 				;what is drawn next is not to be given to it
 				;Unless a hand has hold of it, a finger that holds a thing
 				;still while a pen draws
-				(if (and (not holding) (nempty? (get :selected board))) (. board :select (list)))
+				(and (not holding) (nempty? (get :selected board)) (. board :select (list)))
 				(elem-set state +stroke_x (. board :snap_x x))
 				(elem-set state +stroke_y (. board :snap_y y))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
@@ -603,7 +603,7 @@
 			(:idle)
 			(:hand
 				(cond
-					(item (if (and (eql snap :t) (not moved)) (. board :forget))
+					(item (and (eql snap :t) (not moved) (. board :forget))
 						;a tap on what was selected already, the hand up where
 						;it went down, is asking for the board's menu, if it
 						;has one. It is how the menu is had where there is
@@ -611,8 +611,8 @@
 						;all there is to see, on a board with no toolbars. The
 						;first tap on such a thing selects it, the next asks
 						(defq near (/ +board_near (get :zoom board)))
-						(if (and (elem-get state +stroke_again) (defq menu (get :menu board))
-								(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+						(and (elem-get state +stroke_again) (defq menu (get :menu board))
+								(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
 							(unless (and (eql kind :touch) (. board :dismiss event))
 								(menu board x y event)))
 						;put down, it is selected still, and in flight still.
@@ -622,8 +622,8 @@
 						;things it has them still
 						(defq others :nil shared :nil)
 						(. (get :states this) :each (lambda (oid ostate)
-							(when (and (/= oid id) (eql (elem-get ostate +stroke_tool) :hand)
-									(defq theirs (elem-get ostate +stroke_item)))
+							(and (/= oid id) (eql (elem-get ostate +stroke_tool) :hand)
+									(defq theirs (elem-get ostate +stroke_item))
 								(if (. this :same_things item theirs) (setq shared :t) (setq others :t)))))
 						(when (and others (not shared))
 							(defq mine (map (# (elem-get (first %0) +cwb_id)) item))
@@ -659,8 +659,8 @@
 				;rubbed nothing out, is the board's menu, as a tap of a hand
 				;is. Not the other end of a pen, which is an eraser and no more
 				(defq near (/ +board_near (get :zoom board)))
-				(if (and (not moved) (eql kind :pen) (defq menu (get :menu board))
-						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+				(and (not moved) (eql kind :pen) (defq menu (get :menu board))
+						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
 					(menu board x y event))
 				(. board :touch +board_dirty_overlay))
 			(:pan)
@@ -715,7 +715,7 @@
 		(raise :board)
 		(defq hands (list) grab (get :grab this) pair :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item))
+			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
 				(push hands (list id state)))))
 		;in the order they came, a contact that lands later has the bigger
 		;number. What is kept of them comes in no order, and the two must be
@@ -730,8 +730,8 @@
 		(unless (or pair grab)
 			(each (lambda ((ida sa))
 				(each (lambda ((idb sb))
-					(if (and (not pair) (/= ida idb)
-							(. this :same_things (elem-get sa +stroke_item) (elem-get sb +stroke_item)))
+					(and (not pair) (/= ida idb)
+							(. this :same_things (elem-get sa +stroke_item) (elem-get sb +stroke_item))
 						(setq pair (list (list ida sa) (list idb sb)))))
 					hands))
 				hands))
@@ -794,7 +794,7 @@
 		;is. Of one thing, its own box and its own matrix. Of several, the
 		;box round them and no change
 		(raise :board)
-		(when (and (eql (get :mode board) :select) (nempty? (defq items (. board :selected_items))))
+		(and (eql (get :mode board) :select) (nempty? (defq items (. board :selected_items)))
 			(cond
 				((= (length items) 1)
 					(defq item (first items)
@@ -810,7 +810,7 @@
 				(cwb-shape? (defq item (first items)))
 				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
 			(defq parts (split (elem-get item +cwb_d) " "))
-			(if (and (= (length parts) 6) (eql (first parts) "M") (eql (elem-get parts 3) "L"))
+			(and (= (length parts) 6) (eql (first parts) "M") (eql (elem-get parts 3) "L")
 				(list item (map (# (n2f (str-to-num (elem-get parts %0)))) '(1 2 4 5))))))
 
 	(defmethod :corners ()
@@ -854,7 +854,7 @@
 		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
 		(some (lambda (spot)
 			(bind '(kind sx sy &ignore) spot)
-			(if (and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach)) spot))
+			(and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach) spot))
 			(ifn (. this :spots) (list))))
 
 	(defmethod :hit (x y)
@@ -909,7 +909,7 @@
 								scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- qx ax) w0))
 								scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- qy ay) h0)))
 							;a corner keeps the shape of the box unless the board says not
-							(if (and (/= fx 0) (/= fy 0) (get :keep_shape board))
+							(and (/= fx 0) (/= fy 0) (get :keep_shape board)
 								(setq scx (if (> (abs scx) (abs scy)) scx (* (abs scy) (if (< scx 0.0) -1.0 1.0)))
 									scy (* (abs scx) (if (< scy 0.0) -1.0 1.0))))
 							(if (= scx 0.0) (setq scx 0.001))
@@ -1037,7 +1037,7 @@
 		;these items are selected, and so in flight, in front of the
 		;document or with back behind it
 		(. this :select ids)
-		(def this :float_back (if (and back (nempty? ids)) :t))
+		(def this :float_back (and back (nempty? ids) :t))
 		(. this :touch +board_dirty_overlay))
 
 	(defmethod :changed (ids)
@@ -1251,7 +1251,7 @@
 			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil
 			mode (get :rub_mode this))
 		;a bite is another thing altogether
-		(if (and (eql mode :bite) (not lines)) (setq done (. this :bite (path x y) r)))
+		(and (eql mode :bite) (not lines) (setq done (. this :bite (path x y) r)))
 		(when (find mode '(:part :lines))
 			(each (lambda ((name flags items))
 				(unless (or (bits? flags 1) (bits? flags 2))
@@ -1290,7 +1290,7 @@
 						(each (# (push items %0)) out))))
 				(cwb-layers doc)))
 		;what is not a line has a bite out
-		(if (and (eql mode :part) (not lines) (. this :bite (path x y) r)) (setq done :t))
+		(and (eql mode :part) (not lines) (. this :bite (path x y) r) (setq done :t))
 		(when (and (not done) (not lines) (find mode '(:lines :whole))
 				(defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
 			(. this :remove (list (elem-get (first hit) +cwb_id)))
@@ -1314,7 +1314,7 @@
 				(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t)))
 				(range 0 (inc steps))))
 		;the bite, all of the way at once, what it covers from the one to the other
-		(if (and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r)) (setq done :t))
+		(and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r) (setq done :t))
 		done)
 
 	(defmethod :bite (points &optional r shape)
@@ -1605,7 +1605,7 @@
 					(. contacts :insert (elem-get event +pev_id) (list (elem-get event +pev_x) (elem-get event +pev_y)))
 					(. contacts :erase (elem-get event +pev_id)))))
 			events)
-		(if (and seen (get :show_contacts this)) (. this :touch +board_dirty_overlay))
+		(and seen (get :show_contacts this) (. this :touch +board_dirty_overlay))
 		(. (get :stage this) :pointers events)
 		(. this :hovering events)
 		this)
@@ -1671,7 +1671,7 @@
 		(each (# (if (or (not pick) (pick %0)) (. %0 :draw canvas m))) (. (get :stage this) :get_actors))
 		;the catch of an edge that would have a pen that is near, if it went down
 		(each (lambda ((actor edge))
-			(if (and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge)))
+			(and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge))
 				(cwb-draw-items canvas (list shape) (Mat3x2-mul m (. actor :matrix)))))
 			(partition (get :hover_shown this) 2))
 		;and over them all, a ring where each finger is on the board,

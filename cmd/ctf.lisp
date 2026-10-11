@@ -753,10 +753,10 @@
 					(is_cff
 						(when (defq cff_item (get-cff-index-item buf charstrings_idx g_index))
 							(bind '(g_offset g_len) cff_item)
-							(when (and (> g_offset 0) (> g_len 0))
+							(and (> g_offset 0) (> g_len 0)
 								(setq glyph_db (parse-cff-glyph buf g_offset g_len scale_factor)))))
 					(:t (bind '(g_offset g_len) (get-ttf-glyph-offset-and-len buf tables index_to_loc_format g_index))
-						(when (and (> g_offset 0) (> g_len 0))
+						(and (> g_offset 0) (> g_len 0)
 							(setq glyph_db (parse-ttf-glyph buf g_offset g_len scale_factor)))))
 				(unless glyph_db
 					(setq glyph_db (scatter (Lmap)

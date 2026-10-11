@@ -114,7 +114,7 @@
 				(+net_rpc_listen_port port)))
 		(mail-send svc req)
 		(defq reply (mail-read-timeout reply_mbox))
-		(if (and reply (= (getf reply +net_rpc_reply_status) 0))
+		(and reply (= (getf reply +net_rpc_reply_status) 0)
 			(setq handle (getf reply +net_rpc_reply_handle))))
 	handle)
 

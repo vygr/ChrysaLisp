@@ -42,8 +42,10 @@
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),
-            the other way about; and a (cond) or a (condn)
-            of one clause.
+            the other way about; a (cond) or a (condn) of
+            one clause; and (when (and ...) form), or an
+            (if) of one with no else, the (and) with the
+            form as the last of it.
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.
@@ -99,17 +101,17 @@
 			(eql (first (defq arg (elem-get forms at))) :string1))
 		;the string as it is read, a \t in it a tab
 		(defq cls (catch (first (read (string-stream (third arg)))) :t))
-		(if (and (str? cls) (> (length cls) 1) (nql cls (char-class cls)))
+		(and (str? cls) (> (length cls) 1) (nql cls (char-class cls))
 			(found file arg "class" (third arg) " given to (" head ") is not in order, (char-class " (third arg) ")"))))
 
 (defun check-zero (file node)
 	;a number with a sign before it is read as a symbol by the tree
-	(when (and (find (first node) '(:number :symbol)) (nempty? (defq text (third node)))
+	(and (find (first node) '(:number :symbol)) (nempty? (defq text (third node)))
 			(defq digits (if (find (first text) "+-") (rest text) text))
 			(nempty? digits) (find (first digits) "0123456789.")
 			(find "." digits) (not (find "x" digits)) (not (find "e" digits))
 			(/= (bskipn +char_class_nonzero digits 0) (length digits))
-			(num? (defq val (catch (str-to-num digits) :t))) (= val 0))
+			(num? (defq val (catch (str-to-num digits) :t))) (= val 0)
 		(found file node "zero" text " is too small for a fixed, it is 0")))
 
 (defun check-shadow (file forms head)
@@ -118,7 +120,7 @@
 	;function is taken as a call of it, the name is bound to the function
 	;as the code is read, and the variable is never looked at
 	(each (lambda (node)
-		(if (and (eql (first node) :symbol) (. *root_names* :find (third node)))
+		(and (eql (first node) :symbol) (. *root_names* :find (third node))
 			(found file node "shadow" (third node) " as a test of (" head ") is taken as the function of the system, not the variable")))
 		(cond
 			((find head '("and" "or")) (rest forms))
@@ -130,12 +132,12 @@
 	;in a (defq), a + name, a ' and nothing but, and a list
 	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
 	(each (lambda (name quote lst)
-		(if (and (eql (first name) :symbol) (starts-with "+" (third name))
+		(and (eql (first name) :symbol) (starts-with "+" (third name))
 				(eql (first quote) :symbol) (eql (third quote) "'") (eql (first lst) :form)
 				;one that begins with a string or a number is no form to run,
 				;one that begins with a name may be meant as one
 				(nempty? (defq in (forms-of (third lst))))
-				(find (first (first in)) '(:string1 :string2 :number)))
+				(find (first (first in)) '(:string1 :string2 :number))
 			(found file name "const" (third name) " is a list quoted once, ''(...)")))
 		kids (rest kids) (rest (rest kids))))
 
@@ -156,6 +158,11 @@
 			(found file node "style" "(" head " (not tst) form else ...) is an (" other " tst form else ...)"))
 		((and (find head '("if" "ifn")) (= (length forms) 3) (tree-form? (second forms) "not"))
 			(found file node "style" "(" head " (not tst) form) with no else is a (" runs_not " tst form)"))
+		;(when (and a b) form) is (and a b form), and so is an (if) of one
+		;with no else: the (and) gives the last of its tests if every one
+		;before is so, and :nil if not, as the (when) does of its one form
+		((and (find head '("when" "if")) (= (length forms) 3) (tree-form? (second forms) "and"))
+			(found file node "style" "(" head " (and ...) form) is an (and ... form)"))
 		((and (find head '("cond" "condn")) (= (length forms) 2) (eql (first (second forms)) :form))
 			(found file node "style" "a (" head ") of one clause"))))
 
@@ -197,7 +204,7 @@
 			(defq takes (filter (# (not (eql (first %0) :quoted))) (forms-of (third (third forms))))
 				;what must be given: what is before an & of the definition,
 				;and before a [ or a ... of the comment
-				need (ifn (some (# (if (and (eql (first %0) :symbol) (starts-with "&" (third %0))) (!))) takes)
+				need (ifn (some (# (and (eql (first %0) :symbol) (starts-with "&" (third %0)) (!))) takes)
 					(length takes))
 				says (ifn (some (# (if (or (starts-with "[" %0) (starts-with "..." %0) (starts-with "{" %0)) (!))) (rest words))
 					(dec (length words))))
@@ -236,12 +243,12 @@
 					(when (defq kids (tree-form? node))
 						(push todo kids)
 						(defq forms (forms-of kids)
-							head (if (and (nempty? forms) (eql (first (first forms)) :symbol)) (third (first forms))))
+							head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
 						(when head
 							(if (find "progn" checks) (check-progn file forms head))
 							(if (find "class" checks) (check-class file forms head))
 							(if (find "shadow" checks) (check-shadow file forms head))
-							(if (and (find "const" checks) (eql head "defq")) (check-const file kids))
+							(and (find "const" checks) (eql head "defq") (check-const file kids))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at)))))
 					nodes))

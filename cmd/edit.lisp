@@ -131,7 +131,7 @@
 			(with-read-lock opt_s
 				(write-blk script_stream (load opt_s))))
 
-		(when (and (>= (stream-seek script_stream 0 0) 0) (nempty? jobs))
+		(and (>= (stream-seek script_stream 0 0) 0) (nempty? jobs)
 			(if (<= (length jobs) opt_j)
 				(progn
 					(cond

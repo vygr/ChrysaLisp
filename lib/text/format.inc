@@ -436,8 +436,9 @@
 					name
 						(and (elem-get rule +r_pairs)
 							(/= (elem-get c 4) (elem-get rule +r_low))
-							(some (# (if (and (= (first %0) (first c))
-											(= (second %0) (dec (second c)))) %0))
+							(some (# (and (= (first %0) (first c))
+										(= (second %0) (dec (second c)))
+										%0))
 								cands)))
 				(second (ifn name c))))
 		chain))
@@ -748,7 +749,8 @@
 		(unless instr
 			(when (/= (length (defq trimmed (trim-end body +cls_space))) (length body))
 				(setq body trimmed)
-				(if (and (nempty? tokens) (eql (first (last tokens)) :cmt))
+				(and (nempty? tokens)
+					(eql (first (last tokens)) :cmt)
 					(elem-set (last tokens) 2 (length body)))))
 		;close brackets at the start of a line join the line above
 		(defq moved :nil)

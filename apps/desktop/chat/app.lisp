@@ -224,7 +224,7 @@
 	; "global" synthetic row always first, then all known (sys_id, name) pairs
 	(setq *channel_index* (list (list :nil "global")))
 	(. *chats* :each (lambda (sys_id_hex name_map)
-		(when (and sys_id_hex (nql sys_id_hex "global"))
+		(and sys_id_hex (nql sys_id_hex "global")
 			(. name_map :each (lambda (cname &ignore)
 				(unless (eql cname "global")
 					(push *channel_index* (list sys_id_hex cname)))))))))
@@ -291,7 +291,7 @@
 			(:t ; peer channel: delete from *chats*
 				(when (defq sys_map (. *chats* :find sys_id_hex))
 					(. sys_map :erase cname)
-					(when (and (eql *current_sys_id* sys_id_hex) (eql *current_name* cname))
+					(and (eql *current_sys_id* sys_id_hex) (eql *current_name* cname)
 						(setq *current_sys_id* :nil *current_name* :nil)))))
 		(config-save)
 		(render-channel-list)
@@ -390,9 +390,9 @@
 		; direct message: send only to the matched peer, never self
 		(each (lambda (triple)
 			(bind '(cname mbox_hex sys_id_hex) triple)
-			(when (and (eql cname target_cname)
+			(and (eql cname target_cname)
 					(eql sys_id_hex target_sys_id)
-					(nql mbox_hex my_mbox_hex))
+					(nql mbox_hex my_mbox_hex)
 				(mail-send (hex-decode mbox_hex) text))) snap)
 		; global broadcast: send to all nodes except self
 		(each (lambda (triple)

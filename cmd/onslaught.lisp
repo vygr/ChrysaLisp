@@ -53,7 +53,7 @@
 		((enemy-tile? (elem-get tiles (+ x (* y 16)))) +fkey_keya)
 		((/= ox -1)
 			;only legal move is back
-			(some (lambda ((nx ny key tile)) (if (and (= nx ox) (= ny oy)) key)) moves))
+			(some (lambda ((nx ny key tile)) (and (= nx ox) (= ny oy) key)) moves))
 		((some (lambda ((nx ny key tile)) (if (enemy-tile? tile) key)) moves))
 		(:t (third (elem-get moves (random (length moves)))))))
 

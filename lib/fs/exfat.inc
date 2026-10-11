@@ -116,7 +116,7 @@
 	;whole blocks from the device, :nil if they are not all there
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
-	(if (and (defq data (read-blk stream len)) (= (length data) len)) data))
+	(and (defq data (read-blk stream len)) (= (length data) len) data))
 
 (defun exfat-raw-write (vol offset data)
 	;whole sectors to the device
@@ -463,7 +463,7 @@
 
 (defun exfat-list (vol path)
 	; (exfat-list vol path) -> :nil | ((name dir size start no_fat index count) ...)
-	(when (and (defq entry (exfat-find vol path)) (second entry))
+	(and (defq entry (exfat-find vol path)) (second entry)
 		(exfat-dir vol entry)))
 
 (defun exfat-load (vol path)

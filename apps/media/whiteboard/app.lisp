@@ -165,15 +165,15 @@
 (defun sync-ui ()
 	;the toolbars show what the board has, which a palette on it may have changed
 	(defq at (find (get :mode *board*) *modes*))
-	(if (and at (not (eql at (. *mode_toolbar* :get_selected)))) (. *mode_toolbar* :set_selected at))
+	(and at (not (eql at (. *mode_toolbar* :get_selected))) (. *mode_toolbar* :set_selected at))
 	(setq at (find (get :color *board*) *palette*))
-	(if (and at (not (eql at (. *ink_toolbar* :get_selected)))) (. *ink_toolbar* :set_selected at))
+	(and at (not (eql at (. *ink_toolbar* :get_selected))) (. *ink_toolbar* :set_selected at))
 	(setq at (some (# (if (= %0 (get :width *board*)) (!))) *widths*))
-	(if (and at (not (eql at (. *radius_toolbar* :get_selected)))) (. *radius_toolbar* :set_selected at))
+	(and at (not (eql at (. *radius_toolbar* :get_selected))) (. *radius_toolbar* :set_selected at))
 	(defq on (/= (get :snap *board*) 0.0))
 	;the palette puts the snap on as the grid of the document: here it is
 	;what the paper has at the zoom there is
-	(if (and on (/= (get :snap *board*) (snap-gap))) (def *board* :snap (snap-gap)))
+	(and on (/= (get :snap *board*) (snap-gap)) (def *board* :snap (snap-gap)))
 	(unless (eql on *snap*)
 		(setq *snap* on)
 		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))))
@@ -432,7 +432,7 @@
 
 (defun bars-tick ()
 	;the bars are set if they are behind, and no hand is on one
-	(if (and *bars_stale* (> (- (pii-time) *bars_at*) 400000)) (bars-update)))
+	(and *bars_stale* (> (- (pii-time) *bars_at*) 400000) (bars-update)))
 
 (defun view-changed ()
 	;the pan or the zoom is another: the board and its view are told,
@@ -529,7 +529,7 @@
 	;a part of the way there is still to go. Is there more
 	(bind '(gx gy) *pan_go*)
 	;somebody has taken something in hand: it goes no further
-	(when (and (or (/= gx 0.0) (/= gy 0.0)) (. *board* :busy?))
+	(and (or (/= gx 0.0) (/= gy 0.0)) (. *board* :busy?)
 		(setq *pan_go* (list 0.0 0.0) gx 0.0 gy 0.0))
 	(when (or (/= gx 0.0) (/= gy 0.0))
 		(defq mx (if (< (abs gx) 1.0) gx (* gx 0.3)) my (if (< (abs gy) 1.0) gy (* gy 0.3)))
@@ -704,7 +704,7 @@
 		(bind '(sx sy sw sh) (. *board_stack* :get_bounds))
 		(defq bw (first (. (get :vslider *image_scroll*) :get_size)) bh (second (. (get :hslider *image_scroll*) :get_size)))
 		;a frame not yet laid out shows nothing, and nothing is to go for that
-		(if (and (> fw bw) (> fh bh))
+		(and (> fw bw) (> fh bh)
 			(setq seen (list (max 0 (neg sx)) (max 0 (neg sy)) (min sw (- fw bw sx)) (min sh (- fh bh sy))))))
 	(when seen
 		(bind '(vx vy vx1 vy1) seen)
@@ -765,7 +765,7 @@
 		(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
 		(. *backdrop* :dirty_all))
 	(bind '(w h) (canvas-size))
-	(defq shift (if (and flying (empty? down)) (catch (flight-shift) :t)))
+	(defq shift (and flying (empty? down) (catch (flight-shift) :t)))
 	(cond
 		((list? shift)
 			;only moved: the canvas is put where they now are, as it is
@@ -789,7 +789,7 @@
 			(defq room (if back 34 4)
 				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
 				bx1 (+ (n2i (floor bx1)) room 1) by1 (+ (n2i (floor by1)) room 1))
-			(when (and (<= (- bx1 bx) w) (<= (- by1 by) h))
+			(and (<= (- bx1 bx) w) (<= (- by1 by) h)
 				(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
 					oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
 		;on the canvas that is seen, if it is where it is to be, or on the other
@@ -804,7 +804,7 @@
 				(cwb-layers (. *board* :get_doc))))
 		(if flying (. *board* :draw_flight onto m))
 		;taken to the back, its box and handles are at the back with it
-		(if (and flying back) (. *board* :draw_selected onto m))
+		(and flying back (. *board* :draw_selected onto m))
 		;what is on it, where each thing was when it was put there, and how
 		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))

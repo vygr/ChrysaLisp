@@ -94,8 +94,8 @@
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" %0) p (list))
 	(lines! (lambda (%0)
-		(when (and (> (length %0) 10) (eql "(" (first %0))
-				(<= 2 (length (defq s (split %0 (const (char-class " '()\q\r"))))) 4))
+		(and (> (length %0) 10) (eql "(" (first %0))
+				(<= 2 (length (defq s (split %0 (const (char-class " '()\q\r"))))) 4)
 			(case (first s)
 				(("include" "import")
 					(push d (path-to-absolute (second s) file)))

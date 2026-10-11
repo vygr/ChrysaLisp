@@ -194,14 +194,14 @@
 		; (. board_view :mouse_up event) -> board_view
 		(defq held (get :held this))
 		(def this :held 0 :drag :nil)
-		(if (and (/= held 0) (/= held +pev_middle)) (. this :mouse_pointer event 0))
+		(and (/= held 0) (/= held +pev_middle) (. this :mouse_pointer event 0))
 		this)
 
 	(defmethod :mouse_wheel (event)
 		; (. board_view :mouse_wheel event) -> board_view
 		;a turn of the wheel, or a swipe on a mouse that has a top to
 		;swipe, moves what is seen, the way a scroll goes: 16 pixels a turn
-		(if (and (defq on_wheel (get :on_wheel this)) (not (. (get :board this) :busy?)))
+		(and (defq on_wheel (get :on_wheel this)) (not (. (get :board this) :busy?))
 			(on_wheel (* -16 (getf event +ev_msg_wheel_x)) (* 16 (getf event +ev_msg_wheel_y))))
 		this)
 
@@ -232,7 +232,7 @@
 		;was zoomed it comes to rest, about where the two last were
 		(when (and grip (not (and (. fingers :find (first grip)) (. fingers :find (second grip)))))
 			(bind '(ida idb mx my apart zoom zoomed &ignore) grip)
-			(if (and zoomed (defq on_rest (get :on_rest this))) (on_rest (- mx margin) (- my margin)))
+			(and zoomed (defq on_rest (get :on_rest this)) (on_rest (- mx margin) (- my margin)))
 			(def this :grip (setq grip :nil)))
 		(unless grip
 			;the first two, in the order they came, that are on nothing
@@ -267,7 +267,7 @@
 			;middle of them has gone since it was last told
 			(elem-set grip 2 nx)
 			(elem-set grip 3 ny)
-			(if (and on_pan (not (and (= nx mx) (= ny my))))
+			(and on_pan (not (and (= nx mx) (= ny my)))
 				(on_pan (- nx mx) (- ny my)))
 			;apart or together: it is zoomed by how far apart they are
 			;against how far they were, about the middle of them. Not till

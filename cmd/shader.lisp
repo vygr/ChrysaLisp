@@ -138,9 +138,9 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
-			(defq opt_t "glsl" opt_v :nil opt_p :nil opt_o :nil args (options stdio usage)))
+			(defq opt_t "glsl" opt_v :nil opt_p :nil opt_o :nil args (options stdio usage))
 		(cond
 			((and opt_p (= (length args) 2))
 				;a pair, the two files in either order

@@ -64,7 +64,7 @@
 		(:insert "\n") :bottom (:insert "\n"))
 	(defq margin +max_int lines (. buffer :get_buffer_lines))
 	(each (# (and (defq m (find "(" %0)) (setq margin (min m margin)))) lines)
-	(when (and (/= margin 0) (/= margin +max_int))
+	(and (/= margin 0) (/= margin +max_int)
 		(each (lambda (line)
 			(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 	(bind '(w h) (. buffer :get_size))
@@ -167,14 +167,14 @@
 	(when *cat_bar*
 		(. *cat_bar* :set_selected (category-to-idx cat_name)))
 	(render-sidebar)
-	(if (and *filtered_algos* (nempty? *filtered_algos*))
+	(and *filtered_algos* (nempty? *filtered_algos*)
 		(unless (some (# (eql (first %0) *selected_id*)) *filtered_algos*)
 			(select-algorithm (first (first *filtered_algos*))))))
 
 (defun search-updated (query_str)
 	(setq *search_query* (trim (or query_str "")))
 	(render-sidebar)
-	(if (and *filtered_algos* (nempty? *filtered_algos*))
+	(and *filtered_algos* (nempty? *filtered_algos*)
 		(unless (some (# (eql (first %0) *selected_id*)) *filtered_algos*)
 			(select-algorithm (first (first *filtered_algos*))))))
 

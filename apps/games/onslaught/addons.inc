@@ -400,7 +400,7 @@
 			(play-death-score sp)))
 		(. *layer_missiles* :children))
 	(each (lambda (sp)
-		(if (and (Sprite? sp) (= (get :sp_type sp) +ftp_enemy_fire))
+		(and (Sprite? sp) (= (get :sp_type sp) +ftp_enemy_fire)
 			(. sp :sp_kill)))
 		(. *layer_bans* :children))
 	(play-sfx *sfx_spell* man))

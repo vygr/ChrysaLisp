@@ -127,7 +127,7 @@
 	;sits on the edge of its bubble and so reaches a little past it
 	(each (lambda (by r)
 		(setq r (* r 1.25))
-		(if (and (> (+ by r) fy) (< (- by r) fy1)) (push near (!)))) sy sr)
+		(and (> (+ by r) fy) (< (- by r) fy1) (push near (!)))) sy sr)
 	;far to near. Two as far away as each other go by their number, so
 	;that every slice draws them in the one order
 	(sort near (lambda (a b)

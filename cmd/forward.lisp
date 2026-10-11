@@ -57,7 +57,7 @@
 								((eql ch "(") (++ depth) (setq after_open :t))
 								((eql ch ")") (-- depth) (setq after_open :nil)
 									;the end of a definition
-									(if (and (nempty? open) (<= depth (second (last open)))) (pop open)))
+									(and (nempty? open) (<= depth (second (last open))) (pop open)))
 								((find ch " \t"))
 								((setq after_open :nil)))) tok))
 						(:symbol

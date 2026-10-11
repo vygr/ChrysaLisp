@@ -32,8 +32,8 @@
 				find_txt replace_txt files macros wwords regx icase zoom)
 			(gather *meta_map* :x :y :width :height :version
 				:file :find :replace :files :macros :whole_words :regexp :ignore_case :zoom))
-		(if (and x y) (setq *x* x *y* y))
-		(if (and width height) (setq *width* width *height* height))
+		(and x y (setq *x* x *y* y))
+		(and width height (setq *width* width *height* height))
 		(if zoom (def *window* :zoom zoom))
 		(if find_txt (. *find_text* :set_text find_txt))
 		(if replace_txt (. *replace_text* :set_text replace_txt))

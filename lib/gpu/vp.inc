@@ -73,7 +73,7 @@
 	;with a list as the stack of what is still to be looked at
 	(defq stack (list tree) found :nil)
 	(while (and (not found) (nempty? stack))
-		(when (and (list? (defq node (pop stack))) (nempty? node))
+		(and (list? (defq node (pop stack))) (nempty? node)
 			(if (and (find (first node) '(:setq :setsw)) (> (length node) 1) (eql (second node) name))
 				(setq found :t)
 				(each (# (push stack %0)) node))))
@@ -686,11 +686,11 @@
 		(push finfo (list name label offsets ret_offset))
 		;what the main of a vertex shader returns goes where the vertex
 		;is to be written
-		(if (and (nempty? *sv_maps*) (eql name 'main))
+		(and (nempty? *sv_maps*) (eql name 'main)
 			(push *sv_maps* (list ret_offset (+ ret_offset 32) :r10 0)))
 		;a function Lisp calls reads a reals arg where it is, if it never
 		;sets it, and what it gives goes where it is to go
-		(when (and *sv_entry* (eql name (first *sv_entry*)))
+		(and *sv_entry* (eql name (first *sv_entry*))
 			(each! (lambda ((which reg))
 				(cond
 					((eql which :ret)
@@ -703,7 +703,7 @@
 		(sv-emit 'vp-label (sv-q label))
 		(sv-block block)
 		;a return that is the last thing has no jump to make
-		(if (and (eql (first (last code)) 'vp-jmp) (eql (second (second (last code))) ret_label))
+		(and (eql (first (last code)) 'vp-jmp) (eql (second (second (last code))) ret_label)
 			(pop code))
 		(sv-emit 'vp-label (sv-q ret_label))
 		(sv-emit 'vp-ret)) funcs)
@@ -1436,7 +1436,7 @@
 	;to find out. The numbers are written last, after the function is
 	;whole, so if they are there it is
 	(defq obj (cat (load-path) name))
-	(when (and (/= (age obj) 0) (defq info (load (cat obj ".info"))))
+	(and (/= (age obj) 0) (defq info (load (cat obj ".info")))
 		(list (ffi name) (first (read (string-stream info))))))
 
 (defun sv-keep (name func info)
@@ -1499,7 +1499,7 @@
 		;each arg to its slots of the frame, the bits as they are, or the
 		;register it is reached by set to where it is
 		copies (map (lambda ((pname ptype) offset)
-			(defq at (!) reg (some! (lambda ((which reg)) (if (and (eql which at) reg) reg)) (list *sv_entry*) :nil 1))
+			(defq at (!) reg (some! (lambda ((which reg)) (and (eql which at) reg)) (list *sv_entry*) :nil 1))
 			(cat tab "(vp-cpy-ir :r1 " (str (* at 8)) " :r2)" lf
 				(cond
 					(reg (cat tab "(vp-cpy-ir :r2 +array_begin " (str reg) ")" lf))
@@ -1724,7 +1724,7 @@
 			(max x 0) (max y depth_y 0) (min x1 width) (min y1 height)
 			(cond ((not cull) 0) ((eql cull :front) 2) (1)) depth_y))
 	(each (# (set-long frame (+ s_vary (* (!) 8)) %0)) offsets)
-	(if (and (nempty? tris) (nempty? placed))
+	(and (nempty? tris) (nempty? placed)
 		((first fill) frame placed tris pixmap depth))
 	pixmap)
 

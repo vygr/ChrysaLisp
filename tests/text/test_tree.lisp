@@ -90,6 +90,13 @@
 	'("(1) style: (ifn tst (progn ...)) with no else is a (unless)" "(2) style: (ifn (not tst) form else ...) is an (if tst form else ...)"
 		"(3) style: a (condn) of one clause" "(5) style: (ifn (not tst) form) with no else is a (when tst form)")
 	(tt-check "style" "(ifn a (progn b c))" "(ifn (not a) b c)" "(condn ((a) b))" "(condn ((a) b) (:t c))" "(ifn (not a) b)" "(ifn a b c)"))
+(assert-list-eq "style: a when, or an if with no else, of an and and one form; not with two forms, nor an if with an else"
+	'("(1) style: (when (and ...) form) is an (and ... form)" "(2) style: (if (and ...) form) is an (and ... form)")
+	(tt-check "style" "(when (and a b) c)" "(if (and a b) c)" "(when (and a b) c d)" "(if (and a b) c d)" "(when (or a b) c)" "(when a (and b c))"))
+(assert-list-eq "and they are the same thing: what each gives, with every test so, with one not, and with the form :nil"
+	'((3 3 3) (:nil :nil :nil) (:nil :nil :nil) (:nil :nil :nil))
+	;check off, the forms themselves are what is tried
+	(map (lambda ((a b x)) (list (when (and a b) x) (if (and a b) x) (and a b x))) '((1 2 3) (:nil 2 3) (1 :nil 3) (1 2 :nil))))
 ;why the two are told apart: an (ifn) with no else is not an (if) of a (not) with none
 (assert-list-eq "an (ifn) with an else is the (if) of a (not); with none it gives its test, the (if) gave :nil, as an (unless) does"
 	'(1 2 1 2 7 :nil :nil)

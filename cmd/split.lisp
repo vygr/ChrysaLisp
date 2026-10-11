@@ -19,13 +19,13 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
-			(defq opt_s "\t ," opt_e :nil args (options stdio usage)))
+			(defq opt_s "\t ," opt_e :nil args (options stdio usage))
 		;split stdin
 		(lines! (#
 			(defq elms (split %0 (char-class opt_s)))
-			(if (and opt_e (> (length elms) opt_e))
+			(and opt_e (> (length elms) opt_e)
 				(setq elms (list (elem-get elms opt_e))))
 			(each (const print) elms)
 			:nil) (io-stream 'stdin))))

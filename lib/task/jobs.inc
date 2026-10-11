@@ -71,7 +71,7 @@
 (defun idle ()
 	;every child that is up and has no job is given one
 	(. (get :farm this) :each (lambda (key val)
-		(if (and (get :child val) (not (get :job val)))
+		(and (get :child val) (not (get :job val))
 			(dispatch key val)))))
 
 (defclass Jobs (path task_mbox reply_mbox &optional size away) :nil

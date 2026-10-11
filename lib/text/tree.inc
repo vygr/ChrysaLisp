@@ -74,8 +74,8 @@
 	(cond
 		((= (second node) line)
 			;past a note on the end of its line
-			(if (and (< (inc at) (length nodes)) (eql (first (defq next (elem-get nodes (inc at)))) :comment)
-					(= (second next) line))
+			(and (< (inc at) (length nodes)) (eql (first (defq next (elem-get nodes (inc at)))) :comment)
+					(= (second next) line)
 				(++ at))
 			(while (and (< (++ at) (length nodes))
 					(eql (first (defq next (elem-get nodes at))) :comment)

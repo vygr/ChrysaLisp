@@ -43,10 +43,10 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
 			(defq opt_a 0 opt_g 0 opt_t 0 opt_i :nil opt_s :nil opt_n 0 opt_x :nil opt_o :nil
-				args (options stdio usage)))
+				args (options stdio usage))
 		(cond
 			(opt_i
 				(print "pid: " (pii-pid))

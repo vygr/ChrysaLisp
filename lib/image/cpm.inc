@@ -24,8 +24,8 @@
 	(defq out '(-1 -1 -1))
 	(when stream
 		(defq header (read-blk stream +cpm_size))
-		(when (and (= (length header) +cpm_size)
-				(find (char (getf header +cpm_ident) +int_size) '("MPC." "MLF.")))
+		(and (= (length header) +cpm_size)
+				(find (char (getf header +cpm_ident) +int_size) '("MPC." "MLF."))
 			(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))
 	out)
 

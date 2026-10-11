@@ -173,7 +173,7 @@
 					(setq wb (+ wb (elem-get edges (+ o +poly_wind))))))
 				active)
 			;after the last edge nothing is wound round, so a piece that is open ends at it
-			(if (and (>= gid 0) (= inside 1)) (push out lx0 lx1 gx0 gx1 lid gid))
+			(and (>= gid 0) (= inside 1) (push out lx0 lx1 gx0 gx1 lid gid))
 			out)))
 
 ;the native one, lib/math/lisp.vp
@@ -288,7 +288,7 @@
 					(defq j (pop l))
 					(if (= 0 (elem-get used j)) (setq i j))))
 			;and round to its start, the last may go on along the first
-			(if (and (> (length ids) 1) (= (first ids) (last ids)))
+			(and (> (length ids) 1) (= (first ids) (last ids))
 				(setq ring (slice ring 2 -1)))
 			;a point that is on the line from the one before it to the one
 			;after it is not a corner, two edges that lay along each other met there
@@ -578,7 +578,7 @@
 						(defq d1 (- (* dx (- ry py)) (* dy (- rx px))) d2 (- (* dx (- sy py)) (* dy (- sx px)))
 							ex (- sx rx) ey (- sy ry)
 							d3 (- (* ex (- py ry)) (* ey (- px rx))) d4 (- (* ex (- qy ry)) (* ey (- qx rx))))
-						(if (and (or (<= d1 0 d2) (<= d2 0 d1)) (or (<= d3 0 d4) (<= d4 0 d3)))
+						(and (or (<= d1 0 d2) (<= d2 0 d1)) (or (<= d3 0 d4) (<= d4 0 d3))
 							(setq hit :t)))
 					(setq j (+ j 4)))
 				(setq i (+ i 4)))

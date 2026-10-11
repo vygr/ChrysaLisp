@@ -151,7 +151,7 @@
 		(:t (setq upath "/")))
 	;normalization
 	(if (= port 0) (setq port (if (nql scheme "") (url-scheme-port scheme) 80)))
-	(if (and (eql upath "") (nql host "")) (setq upath "/"))
+	(and (eql upath "") (nql host "") (setq upath "/"))
 	(pmap :scheme scheme :user user :host host :port port :path upath
 		:query uquery :params (url-query-parse uquery) :fragment fragment))
 
@@ -176,7 +176,7 @@
 	(if (and (find ":" host) (not (starts-with "[" host)))
 		(push parts "[" host "]")
 		(push parts host))
-	(if (and (/= port 0) (/= port (if (nql scheme "") (url-scheme-port scheme) 80)))
+	(and (/= port 0) (/= port (if (nql scheme "") (url-scheme-port scheme) 80))
 		(push parts ":" (str port)))
 	(if (and (eql upath "") (nql host ""))
 		(push parts "/")

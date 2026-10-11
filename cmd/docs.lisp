@@ -86,7 +86,7 @@
 											(eql (first (second to)) :string1))
 										(sym (path-to-absolute (trim (third (second to)) "\q") file))))
 								info (said node nodes at))
-							(if (and vp_path (nempty? info)) (push ffi_list (list vp_path info))))
+							(and vp_path (nempty? info) (push ffi_list (list vp_path info))))
 						((not name))
 						((eql type 'defclass)
 							(push class_list (list name (parent? kids (second node))

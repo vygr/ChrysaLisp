@@ -253,7 +253,7 @@
 					(:t
 						(cond
 							((<= y1 py)
-								(if (and (> y2 py) (> d 0)) (++ winding)))
+								(and (> y2 py) (> d 0) (++ winding)))
 							((and (<= y2 py) (< d 0))
 								(-- winding)))
 						(setq p1 p2)

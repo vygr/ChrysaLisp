@@ -163,7 +163,7 @@
 							(defq target (slice msg +net_rpc_link_target -1)
 								child (net-start-link net_key target))
 							;what listens is told to go if the key is ever another
-							(if (and child (starts-with ":" target) (/= (get-long child 0) 0)) (push gates child))
+							(and child (starts-with ":" target) (/= (get-long child 0) 0) (push gates child))
 							(if (and child (/= (get-long child 0) 0))
 								(progn
 									(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
@@ -174,7 +174,7 @@
 									(+net_rpc_reply_status -1)))))
 						(+net_rpc_type_beacon
 							(defq port (getf msg +net_rpc_beacon_port))
-							(when (and net_key (= beacon_socket 0))
+							(and net_key (= beacon_socket 0)
 								(setq beacon_socket (net-udp-bind 0)))
 							(if (and net_key (> beacon_socket 0))
 								(progn
@@ -199,9 +199,9 @@
 							(setq mesh (if net_key *net_can_mesh*))
 							;a service that makes a mesh says so to every machine. @Net is
 							;for this machine and is not seen from another, a * name is
-							(if (and mesh (not mesh_service))
+							(and mesh (not mesh_service)
 								(setq mesh_service (mail-declare (task-mbox) "*Mesh" "Mesh 0.1")))
-							(when (and mesh (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0))
+							(and mesh (= disco_socket 0) (/= (getf msg +net_rpc_discover_udp) 0)
 								(setq disco_socket (net-udp-bind +disco_udp_port)))
 							(if (and mesh (or (> disco_socket 0) (= (getf msg +net_rpc_discover_udp) 0)))
 								(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
@@ -251,7 +251,7 @@
 									(:t (mail-send gate "")
 										(setq next_join (+ now +mesh_retry)))))))
 					; Broadcast beacons if advertising
-					(when (and (> beacon_socket 0) (nempty? beacon_ports))
+					(and (> beacon_socket 0) (nempty? beacon_ports)
 						(when (> (- now last_beacon_time) +beacon_interval)
 							(setq last_beacon_time now active :t)
 							(. beacon_ports :each (lambda (p)

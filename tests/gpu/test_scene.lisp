@@ -17,7 +17,7 @@
 	(each (lambda (i)
 		(defq p (get-uint pixels i))
 		(if (/= (logand p 0xffffff) 0) (setq lit (inc lit)))
-		(if (and (> (logand p 0xff) 230) (> (logand (>> p 8) 0xff) 230) (> (logand (>> p 16) 0xff) 230))
+		(and (> (logand p 0xff) 230) (> (logand (>> p 8) 0xff) 230) (> (logand (>> p 16) 0xff) 230)
 			(setq white (inc white))))
 		(range 0 (length pixels) 4))
 	(list lit white))

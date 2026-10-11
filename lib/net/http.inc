@@ -131,7 +131,7 @@
 		path_query (url-path-query u) res :nil attempts 0)
 	(while (and (not res) (< attempts 2))
 		(++ attempts)
-		(when (and host (> (length host) 0))
+		(and host (> (length host) 0)
 			(when (defq pooled (http-pool-checkout host port))
 				(bind '(conn from_pool) pooled)
 				(bind '(in out) conn)
@@ -153,12 +153,12 @@
 					(push req_lines (cat k_name ": " v)))
 					(partition headers 2))
 				; 4. Append Content-Length if body is present
-				(when (and body (not (sym? body)) (> (length body) 0))
+				(and body (not (sym? body)) (> (length body) 0)
 					(unless (pfind headers :content-length)
 						(push req_lines (cat "Content-Length: " (str (length body))))))
 				; 5. Send header block and body
 				(write-blk out (cat (join req_lines +crlf) +crlf +crlf))
-				(when (and body (not (sym? body)) (> (length body) 0))
+				(and body (not (sym? body)) (> (length body) 0)
 					(write-blk out body))
 				(stream-flush out)
 				; 6. Read Status Line

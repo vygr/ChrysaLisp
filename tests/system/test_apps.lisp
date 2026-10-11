@@ -16,7 +16,7 @@
 			(cond
 				((starts-with "(defq" text) (setq ap_in :t))
 				((not (starts-with "+" text)) (setq ap_in :nil)))
-			(if (and ap_in (nempty? (matches text "\\+[a-z_0-9]+ '\\(")) (empty? (matches text "\\+[a-z_0-9]+ ''\\(")))
+			(and ap_in (nempty? (matches text "\\+[a-z_0-9]+ '\\(")) (empty? (matches text "\\+[a-z_0-9]+ ''\\("))
 				(push ap_found (cat file " " text)))
 			:nil)
 		(file-stream file)))

@@ -323,10 +323,10 @@
 							(defq c64 (elem-get newbrd 64) c65 (elem-get newbrd 65) c66 (elem-get newbrd 66) c67 (elem-get newbrd 67))
 							(if (eql piece "K") (setq c64 "x" c65 "x"))
 							(if (eql piece "k") (setq c66 "x" c67 "x"))
-							(if (and (eql piece "R") (= index 0)) (setq c65 "x"))
-							(if (and (eql piece "R") (= index 7)) (setq c64 "x"))
-							(if (and (eql piece "r") (= index 56)) (setq c67 "x"))
-							(if (and (eql piece "r") (= index 63)) (setq c66 "x"))
+							(and (eql piece "R") (= index 0) (setq c65 "x"))
+							(and (eql piece "R") (= index 7) (setq c64 "x"))
+							(and (eql piece "r") (= index 56) (setq c67 "x"))
+							(and (eql piece "r") (= index 63) (setq c66 "x"))
 							(if (= newindex 0) (setq c65 "x"))
 							(if (= newindex 7) (setq c64 "x"))
 							(if (= newindex 56) (setq c67 "x"))
@@ -345,7 +345,7 @@
 									(setq newbrd (cat (slice newbrd 0 newindex) piece (slice newbrd (inc newindex) -1)))
 									(unless (in-check newbrd color)
 										(push yield newbrd))))
-							(if (and (= flag +may_capture) (/= newtype +empty))
+							(and (= flag +may_capture) (/= newtype +empty)
 								;may capture and we did so !
 								(setq len 0)))))
 				(:t ;gone off the board

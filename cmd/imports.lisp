@@ -51,7 +51,7 @@
 				in_stream)
 			(setq in_stream :nil)))
 	;overwrite the file if we actually performed any optimizations
-	(when (and changed opt_w)
+	(and changed opt_w
 		(with-write-lock file
 			(stream-seek out_stream 0 0)
 			(when (defq dest (file-stream file +file_open_write))

@@ -122,7 +122,7 @@
 		(push edges yt yb xt xb (if (= 0 (pg-rnd 2)) 1 -1) (pg-rnd 2) (/ (length edges) +poly_edge) 0 0 0)
 		(push active (length active)))
 	;now and then one over another
-	(when (and (> n 2) (= 0 (pg-rnd 3)))
+	(and (> n 2) (= 0 (pg-rnd 3))
 		(each (# (elem-set edges (+ +poly_edge %0) (elem-get edges %0))) (range 0 4)))
 	(shuffle active)
 	(each (lambda (mode)

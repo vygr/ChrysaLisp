@@ -69,8 +69,10 @@ Usage: check [options] [path] ...
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),
-            the other way about; and a (cond) or a (condn)
-            of one clause.
+            the other way about; a (cond) or a (condn) of
+            one clause; and (when (and ...) form), or an
+            (if) of one with no else, the (and) with the
+            form as the last of it.
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.

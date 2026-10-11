@@ -67,10 +67,10 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
 			(defq opt_i :nil opt_head :nil opt_s :nil opt_X :nil opt_headers (list) opt_d :nil
-				args (options stdio usage)))
+				args (options stdio usage))
 		(if (<= (length args) 1)
 			;read urls from stdin
 			(lines! (lambda (line) (curl-fetch line opt_i opt_head opt_s opt_X opt_headers opt_d))

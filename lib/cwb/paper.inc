@@ -25,22 +25,22 @@
 		;paper, and a background that is not solid goes over it
 		(.-> canvas (:set_color (if (= (logand back 0xff000000) 0xff000000) back +cwb_paper_col))
 			(:fbox 0 y width rows))
-		(if (and (/= back 0) (/= (logand back 0xff000000) 0xff000000))
+		(and (/= back 0) (/= (logand back 0xff000000) 0xff000000)
 			(.-> canvas (:set_color back) (:fbox 0 y width rows)))
 		(. canvas :set_color +cwb_paper_ink)
 		(defq gap (max 2 gap))
 		(case style
 			(:grid
 				(each (# (. canvas :fbox %0 y 1 rows)) (range gap width gap))
-				(each (# (if (and (>= %0 y) (< %0 y1)) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
+				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
 			(:lines
-				(each (# (if (and (>= %0 y) (< %0 y1)) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
+				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox 0 %0 width 1))) (range gap height gap)))
 			(:axis
 				;the two lines through the middle, on the grid, and marks along them
 				(defq cx (* (/ (/ width 2) gap) gap) cy (* (/ (/ height 2) gap) gap))
 				(. canvas :fbox cx y 1 rows)
-				(if (and (>= cy y) (< cy y1)) (. canvas :fbox 0 cy width 1))
+				(and (>= cy y) (< cy y1) (. canvas :fbox 0 cy width 1))
 				(each (# (. canvas :fbox %0 (max y (- cy 3)) 1 (max 0 (- (min y1 (+ cy 4)) (max y (- cy 3))))))
 					(range gap width gap))
-				(each (# (if (and (>= %0 y) (< %0 y1)) (. canvas :fbox (- cx 3) %0 7 1))) (range gap height gap)))))
+				(each (# (and (>= %0 y) (< %0 y1) (. canvas :fbox (- cx 3) %0 7 1))) (range gap height gap)))))
 	canvas)

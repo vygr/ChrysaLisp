@@ -182,7 +182,7 @@
 	(defq e (penv) insts (memoize function
 		(when (> (age (defq obj_path (cat +obj_dir function))) 0)
 			(defq loaded_insts (first (read (file-stream obj_path))))
-			(if (and opt_i loaded_insts)
+			(and opt_i loaded_insts
 				(check-insts-integrity function loaded_insts))
 			loaded_insts) 101))
 	(when insts
@@ -197,8 +197,8 @@
 (defun get-dependencies (function)
 	;scan the compiled VP object
 	(defq deps (list))
-	(when (and (nql function :indirect) (nql function :abicall)
-			(defq insts (get-function-insts function)))
+	(and (nql function :indirect) (nql function :abicall)
+			(defq insts (get-function-insts function))
 		(each! (lambda (inst)
 				(cond
 					((find (defq c :nil m :nil op (first inst)) '(emit-call-p emit-jmp-p))
@@ -498,12 +498,12 @@
 												(print "\tDocumented: " doc_set)
 												(print "\tCalculated: " calc_set)
 												(print "\tFile: \q" file "\q Line: " line_num)
-												(when (and opt_w file (str? file) (nql file "none") (nql line_num 0))
+												(and opt_w file (str? file) (nql file "none") (nql line_num 0)
 													(. file_edits :update file
 														(# (if %0 (push %0 (list line_num calc_set))
 															(list (list line_num calc_set))))))))))))
 							functions)
-						(when (and opt_w (not (. file_edits :empty?)))
+						(and opt_w (not (. file_edits :empty?))
 							(. file_edits :each (lambda (file edits)
 								(with-write-lock file
 									(when (defq in_s (file-stream file))

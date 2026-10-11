@@ -45,7 +45,7 @@
 		((= na 0) (write-line c (str ha "a" (diff-range (inc hb) (+ hb nb)))))
 		(:t (write-line c (str (diff-range (inc ha) (+ ha na)) "c" (diff-range (inc hb) (+ hb nb))))))
 	(each (# (write-line c (str "< " %0))) dels)
-	(if (and (> na 0) (> nb 0)) (write-line c "---"))
+	(and (> na 0) (> nb 0) (write-line c "---"))
 	(each (# (write-line c (str "> " %0))) adds))
 
 (defun stream-diff (a b c)

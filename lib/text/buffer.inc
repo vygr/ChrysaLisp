@@ -967,7 +967,7 @@
 		(raise :buffer_lines)
 		(undoable this
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
-					(when (and (= cx ax) (= cy ay))
+					(and (= cx ax) (= cy ay)
 						; no selection - move start point back
 						(cond
 							((> cx 0) (setq cx (dec cx)))

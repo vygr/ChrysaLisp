@@ -136,7 +136,7 @@
 					;the time is told to the board as the lines go, microseconds
 					(lines! (lambda (line)
 						(defq words (split line (const (char-class " \t\r"))))
-						(if (and (= (length words) 2) (eql (first words) "wait") (defq ms (str-to-num (second words))))
+						(and (= (length words) 2) (eql (first words) "wait") (defq ms (str-to-num (second words)))
 							(setq clock (+ clock (* (n2i ms) 1000))))
 						(if (defq events (pointer-events line)) (. board :pointers events))
 						(. board :tick (setq clock (+ (max clock (get :time board)) 16667)))
@@ -160,5 +160,5 @@
 					(if (canvas-save canvas opt_o 32)
 						(print opt_o " " w "x" h)
 						(print "Not a kind of picture that can be made, .tga or .cpm: " opt_o)))
-				(when (and changed (not opt_k))
+				(and changed (not opt_k)
 					(cwb-save doc (file-stream file +file_open_write)))))))

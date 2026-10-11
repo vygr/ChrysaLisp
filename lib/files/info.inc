@@ -198,9 +198,9 @@
 									:trashes "none"))
 								(if (defq f_entry (. func_db :find dec_func_name))
 									(progn
-										(when (and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none"))
+										(and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none")
 											(. f_entry :insert :inputs dec_inputs))
-										(when (and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none"))
+										(and (eql (. f_entry :find :outputs) "none") (nql dec_outputs "none")
 											(. f_entry :insert :outputs dec_outputs)))
 									(. func_db :insert dec_func_name (setq f_entry (scatter (Emap)
 										:implements (list)

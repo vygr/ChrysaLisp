@@ -360,7 +360,7 @@
 					(elem-set state +tool_state_last_angle (path-angle (- px cx) (- py cy))))
 				(defq shape (. board :new_shape event :line))
 				;round an arc, a slice or a circle that is filled is all of its colour
-				(if (and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle)))
+				(and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle))
 					(cwb-set shape :fill (cwb-get shape :stroke) :stroke 0))
 				(elem-set state +tool_state_shape shape))
 			(region (elem-set state +tool_state_what (first region))
@@ -505,7 +505,7 @@
 					(elem-set state +tool_state_angle (get :angle this))
 					(elem-set state +tool_state_length (. this :extent))) hands)))
 		;the two that came first
-		(if (and (not pair) (>= (length hands) 2)) (setq pair (slice hands 0 2)))
+		(and (not pair) (>= (length hands) 2) (setq pair (slice hands 0 2)))
 		(cond
 			((not pair))
 			(:t (defq a (second (first pair)) b (second (second pair))
@@ -624,7 +624,7 @@
 		(while (<= at (+ (* 2.0 inset) 0.01))
 			(defq tick (cond ((= (% n 16) 0) 14.0) ((= (% n 8) 0) 11.0) ((= (% n 4) 0) 8.0) ((= (% n 2) 0) 6.0) (:t 4.0)))
 			(push ticks (cwb-d "M" (- inset at) bot "L" (- inset at) (- bot tick)))
-			(if (and (= (% n 16) 0) (< at (- (* 2.0 inset) 6.0)))
+			(and (= (% n 16) 0) (< at (- (* 2.0 inset) 6.0))
 				(push marks (flip (cwb-text-mid (str (/ n 16)) 0 0 :font_size 13) (- inset at (if (= n 0) 6.0 0.0)) (- bot 22.0))))
 			(setq n (inc n) at (/ (* (n2f n) inch) 16.0)))
 		(push marks (cwb-shape (join ticks " ") :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
@@ -700,7 +700,7 @@
 			(push ticks "M" (* r c) (* r s) "L" (* (- r tick) c) (* (- r tick) s))
 			;numbered every ten both ways, as a protractor is: from the right
 			;round the outside, and under those, smaller, from the left
-			(when (and (= (% deg 10) 0) (> deg 0) (< deg 180))
+			(and (= (% deg 10) 0) (> deg 0) (< deg 180)
 				(push marks (cwb-text-mid (str deg) (* (- r (* by 27.0)) c) (* (- r (* by 27.0)) s) :font_size (n2i (* by 12.0)))
 					(cwb-text-mid (str (- 180 deg)) (* (- r (* by 44.0)) c) (* (- r (* by 44.0)) s) :font_size (n2i (* by 9.0))))))
 			(range 0 181))
@@ -710,7 +710,7 @@
 			(defq a (neg (* (n2f deg) (const (/ +fp_pi 180.0)))) c (cos a) s (sin a)
 				tick (* by (if (= (% deg 10) 0) 8.0 4.0)))
 			(push ticks "M" (* in1 c) (* in1 s) "L" (* (- in1 tick) c) (* (- in1 tick) s))
-			(if (and (= (% deg 30) 0) (> deg 0) (< deg 180))
+			(and (= (% deg 30) 0) (> deg 0) (< deg 180)
 				(push marks (cwb-text-mid (str (- 180 deg)) (* (- in1 (* by 17.0)) c) (* (- in1 (* by 17.0)) s) :font_size (n2i (* by 10.0))))))
 			(range 0 181 5))
 		;its middle, on the straight side, and the line straight up from it

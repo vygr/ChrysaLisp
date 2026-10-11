@@ -216,8 +216,9 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 *	`style`, `(if tst (progn ...))` with no else, a `(when)`; `(if (not tst)
 	form else ...)`, an `(ifn)`, and with no else an `(unless)`, not an
 	`(ifn)`: `(ifn 7 1)` is 7 where `(if (not 7) 1)` is `:nil`; the same of
-	an `(ifn)`, the other way about; and a `(cond)` or a `(condn)` of one
-	clause.
+	an `(ifn)`, the other way about; a `(cond)` or a `(condn)` of one
+	clause; and `(when (and a b) form)`, or an `(if)` of one with no else,
+	which is `(and a b form)`.
 *	`doc`, a `; (name args) -> result` comment under a `(defun)` or
 	`(defmacro)` that is of another name, or of more or fewer things than
 	it takes.

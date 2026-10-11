@@ -98,9 +98,9 @@
 		; (. bindings :find event) -> :nil | what
 		(bind '(id kind buttons &ignore) event)
 		(some (lambda ((rkind rid rbuttons what))
-			(if (and (or (not rkind) (eql rkind kind))
+			(and (or (not rkind) (eql rkind kind))
 					(or (not rid) (= rid (ptr-device id)))
-					(or (not rbuttons) (= (logand buttons rbuttons) rbuttons)))
+					(or (not rbuttons) (= (logand buttons rbuttons) rbuttons))
 				what))
 			(get :rules this)))
 
@@ -252,16 +252,16 @@
 			;one that is not down on an actor is the frontmost's it is over
 			(unless owner (setq owner (. this :hit x y)))
 			;it goes down on that actor, and is its till it comes up
-			(if (and owner (not held) (/= buttons 0)) (. owners :insert id owner))
-			(if (and held (= buttons 0)) (push up id))
+			(and owner (not held) (/= buttons 0) (. owners :insert id owner))
+			(and held (= buttons 0) (push up id))
 			;what it was over and is not now is told
 			(defq was (. over :find id))
-			(if (and was (not (eql was owner))) (. was :leave this id))
+			(and was (not (eql was owner)) (. was :leave this id))
 			(cond
 				;a finger that is up is gone, it is over nothing
 				((and (eql kind :touch) (= buttons 0))
 					(. over :erase id)
-					(if (and owner (not held)) (setq owner :nil)))
+					(and owner (not held) (setq owner :nil)))
 				(owner (. over :insert id owner))
 				(:t (. over :erase id)))
 			(when owner

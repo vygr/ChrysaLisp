@@ -21,7 +21,7 @@
 (defun glide (current target)
 	; Smoothly relaxes current towards target using integer division
 	(defq diff (- target current) step (/ diff 10))
-	(if (and (= step 0) (/= diff 0))
+	(and (= step 0) (/= diff 0)
 		(setq step (if (> diff 0) 1 -1)))
 	(+ current step))
 

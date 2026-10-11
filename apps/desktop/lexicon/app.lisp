@@ -64,7 +64,7 @@
 
 (defun format-word-markdown (word phonetic defs syns ants)
 	(defq lines (list (cat "# " (to-lower word)) ""))
-	(when (and phonetic (nempty? (trim phonetic)))
+	(and phonetic (nempty? (trim phonetic))
 		(push lines (cat "*Pronunciation:* `/" (trim phonetic) "/`") ""))
 	(push lines "---" "")
 	(if (empty? defs)

@@ -20,10 +20,10 @@
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
-	(when (and
+	(and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage))
-			(> (length (defq nodes (lisp-nodes))) 0))
+			(> (length (defq nodes (lisp-nodes))) 0)
 		(if (<= (length args) 1)
 			;convert from stdin
 			(lines! launch (io-stream 'stdin))

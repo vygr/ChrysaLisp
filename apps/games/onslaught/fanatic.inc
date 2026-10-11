@@ -175,7 +175,7 @@
 	(cond
 		; active jump trajectory (committed arc, can use non-floor items)
 		(man_jump
-			(when (and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
+			(and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*)
 				(use-current-item this :t))
 			(bind '(jf jv) (elem-get +jump_offsets man_jump))
 			(. this :sp_set_frame jf)
@@ -203,7 +203,7 @@
 					(when (bits? (get :sp_flags this) +fsp_action)
 						(def this :sp_flags (logand (get :sp_flags this) (lognot +fsp_action)))
 						(set man_at 'table :nil 'speed 0))
-					(when (and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*))
+					(and (bits? *game_controls* +fkey_keya) (not *test_addon_pressed*)
 						(use-current-item this :t))
 					(. this :sp_set_frame +frm_fanatic_l_fall)
 					(setq yv (min 10 (inc yv)) x (+ x xv) y (+ y yv))

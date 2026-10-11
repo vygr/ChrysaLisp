@@ -242,7 +242,7 @@
 			cap1 (cwb-cap-of (elem-get shape +cwb_cap1)) cap2 (cwb-cap-of (elem-get shape +cwb_cap2)))
 		(if (/= (elem-get shape +cwb_fill) 0)
 			(each (lambda ((closed p)) (if (>= (length p) 6) (push fills p))) outline))
-		(if (and (/= (elem-get shape +cwb_stroke) 0) (> radius 0.0))
+		(and (/= (elem-get shape +cwb_stroke) 0) (> radius 0.0)
 			(each (lambda ((closed p))
 				(cond
 					((every (# (eql %0 (first (partition p 2)))) (partition p 2))
@@ -375,7 +375,7 @@
 	;an item by its id, with the layer it is in and the list that holds it
 	(defq found :nil)
 	(cwb-each doc (lambda (item layer_index holder)
-		(if (and (not found) (= (elem-get item +cwb_id) id))
+		(and (not found) (= (elem-get item +cwb_id) id)
 			(setq found (list item layer_index holder)))))
 	found)
 
@@ -538,7 +538,7 @@
 	; (cwb-in data) -> :nil | doc
 	;a document from the tree of one, (cwb-out). One from before this
 	;version is made into one of this. Anything else is not a document
-	(when (and (Emap? data) (defq version (. data :find :version)) (num? version))
+	(and (Emap? data) (defq version (. data :find :version)) (num? version)
 		(cond
 			((< version 2) :nil)
 			((< version +cwb_version) (cwb-old-in data))
@@ -586,7 +586,7 @@
 	;draw every layer that is not hidden, the first at the back. skip is
 	;ids, of items of the layers, that are not drawn, those being moved
 	;about, which are drawn over the rest
-	(defq count 0 skip (if (and skip (nempty? skip)) (cwb-id-set skip)))
+	(defq count 0 skip (and skip (nempty? skip) (cwb-id-set skip)))
 	(each (lambda ((name flags items))
 		(unless (bits? flags 1)
 			(setq count (+ count (cwb-draw-items canvas
@@ -756,7 +756,7 @@
 				(unless found
 					(defq hit :nil)
 					(cwb-walk (list item) m (lambda (shape sm)
-						(if (and (not hit) (cwb-shape-hit? shape sm x y tol)) (setq hit shape))))
+						(and (not hit) (cwb-shape-hit? shape sm x y tol) (setq hit shape))))
 					(if hit (setq found (list item layer_index hit)))))
 				(list items) -1 0)))
 		(list (cwb-layers doc)) -1 0)
@@ -775,8 +775,8 @@
 			(each (lambda (item)
 				(when (defq box (cwb-bounds (list item) m))
 					(bind '(bx by bx1 by1) box)
-					(when (and (>= x bx) (>= y by) (<= x bx1) (<= y by1)
-							(or (not area) (<= (* (- bx1 bx) (- by1 by)) area)))
+					(and (>= x bx) (>= y by) (<= x bx1) (<= y by1)
+							(or (not area) (<= (* (- bx1 bx) (- by1 by)) area))
 						(setq area (* (- bx1 bx) (- by1 by)) found (list item layer_index :nil)))))
 				items)))
 		(cwb-layers doc))
@@ -827,7 +827,7 @@
 			(each (lambda (item)
 				(defq hit :nil)
 				(cwb-walk (list item) m (lambda (shape sm)
-					(if (and (not hit) (cwb-shape-touch? shape sm box)) (setq hit :t))))
+					(and (not hit) (cwb-shape-touch? shape sm box) (setq hit :t))))
 				(if hit (push out (list item layer_index))))
 				items)))
 		(cwb-layers doc))
@@ -843,8 +843,8 @@
 			(defq layer_index (!))
 			(each (lambda (item)
 				(when (defq ib (cwb-bounds (list item) m))
-					(if (and (>= (first ib) (first box)) (>= (second ib) (second box))
-							(<= (third ib) (third box)) (<= (elem-get ib 3) (elem-get box 3)))
+					(and (>= (first ib) (first box)) (>= (second ib) (second box))
+							(<= (third ib) (third box)) (<= (elem-get ib 3) (elem-get box 3))
 						(push out (list item layer_index)))))
 				items)))
 		(cwb-layers doc))

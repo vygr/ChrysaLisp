@@ -243,7 +243,7 @@
 			((eql word "</l>") (setq link :nil link_end last_text))
 			((= (defq next_state (word-state word state)) -1)
 				;a full stop or a comma straight after a link sits against it
-				(if (and link_end (find (first word) ",.;:!?)"))
+				(and link_end (find (first word) ",.;:!?)")
 					(def link_end :text (sym (trim-end (str (get :text link_end))))))
 				(setq link_end :nil)
 				(defq text (create-word word state search_widgets flow :nil link)
@@ -390,7 +390,7 @@
 		; (. link :mouse_up event) -> link
 		(bind '(w h) (. this :get_size))
 		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry))
-		(if (and (>= rx 0) (>= ry 0) (< rx w) (< ry h)) (. this :emit))
+		(and (>= rx 0) (>= ry 0) (< rx w) (< ry h) (. this :emit))
 		this)
 	)
 

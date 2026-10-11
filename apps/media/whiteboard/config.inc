@@ -44,7 +44,7 @@
 		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data)
 			(gather config :x :y :width :height :scroll_x :scroll_y :zoom :mode :ink :radius :style
 				:snap :snap_angle :keep_shape :text :file :tools :doc))
-		(when (and data (defq doc (cwb-in data)))
+		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
 		(view-from-doc)

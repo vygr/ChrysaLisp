@@ -31,7 +31,7 @@
 			(setq *meta_map* data))
 			(setq *meta_map* default)))
 	(bind '(history zoom) (gather *meta_map* :history :zoom))
-	(when (and zoom (get '*window*))
+	(and zoom (get '*window*)
 		(def *window* :zoom zoom))
 	(length history))
 
