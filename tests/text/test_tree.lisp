@@ -56,4 +56,13 @@
 		tt_file " (4) a (progn) round the else of an (ifn)" (ascii-char 10)
 		tt_file " (5) a (progn) is all the body of a (when)" (ascii-char 10))
 	(join tt_said ""))
+;a quote before a form is not a form, and what it quotes is code being
+;made, not a (progn) that is run: (if tst `(progn ~body)) has no else at all
+(save (cat "(if a `(progn ~e))" (ascii-char 10) "(if a `(progn b) `(progn c))" (ascii-char 10)
+	"(if a b 'x (progn c))" (ascii-char 10) "(when a `(progn ,b))" (ascii-char 10)) tt_file)
+(setq tt_said (list))
+(pipe-run (cat "progns " tt_file) (# (push tt_said %0)))
+(assert-eq "a quoted (progn) is not said, one after a quoted thing is"
+	(cat tt_file " (3) a (progn) round the else of an (if)" (ascii-char 10))
+	(join tt_said ""))
 (pipe-run (cat "rm " tt_file) (lambda (&) :nil))

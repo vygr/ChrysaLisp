@@ -315,6 +315,8 @@
 	;:r1 = return value object (ptr)
 	;trashes
 	;:r1-:r7, :r9-:r14, :f0-:f15
+	;info
+	;a time of 0 takes away every timeout there is for the mailbox
 
 	(entry :sys_mail :lisp_timeout '(:r0 :r1))
 
@@ -324,7 +326,10 @@
 	(list-bind-args :r1 '(:r12 :r13 :r14) '(:obj :num :num))
 	;remove or create ?
 	(vpif '(:r13 = 0))
-		;remove from timeout list
+		;remove from timeout list, every one there is for this mailbox. A
+		;mailbox can have more than one, each set adds one, and only the
+		;soonest of them was taken off: one set twice and cancelled once
+		;still fired, a tip that came up after the mouse had left
 		(fn-bind 'sys/statics/statics :r5)
 		(load-net-id :r12 +str_data :r9 :r10 :r11)
 		(loop-list-forward :r5 statics_sys_mail_timeout_list :r5 :r7)
@@ -338,10 +343,10 @@
 			;remove from timeout list
 			(vp-cpy-rr :r5 :r0)
 			(ln-remove-node :r5 :r4)
-			(vp-push :r12)
+			(vp-push :r7 :r9 :r10 :r11 :r12)
 			(call :sys_mail :free '(:r0))
-			(vp-pop :r12)
-		(endswitch)
+			(vp-pop :r7 :r9 :r10 :r11 :r12)
+		(loop-end)
 	(else)
 		;calculate wake time
 		(call :host_os :pii_time :nil '(:r0))

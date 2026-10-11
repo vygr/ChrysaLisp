@@ -4,6 +4,44 @@
 
 ------
 
+A timeout cancelled is every timeout the mailbox has.
+
+Chris, of the pipe's timer never put away: "we had the same problem with
+(mail-read-timeout) !", and then, when I had called a second timeout on
+a mailbox a fault: "Addig a second isn't a bug though ! You may want that
+second timeout ? does setting it to 0 clear ALL existing ones or just
+the first it finds ?" The first, the soonest due: three set with ids 1 2
+3 and one cancel, 2 and 3 still came. He: "i'd have 0 clear all ? I
+noticed a while back, months ago, that there was ocations when a tooltip
+would pop up when you though it had canceled !" That is it: a button's
+tip is set as the mouse comes over it and cancelled as it leaves, and
+one set twice was cancelled once.
+
+`:sys_mail :lisp_timeout`, `sys/mail/lisp.vp`: a time of 0 goes on down
+the list and takes every one of that mailbox. A set still adds one, each
+comes with its own id, soonest first.
+
+Looked at, every `(mail-timeout)` of the tree, some 120: the timer of an
+event loop set again as it comes, a child's set each time round and
+cancelled as work comes, the tips. One that sets again with one still to
+come, the Chat app's heartbeat on Connect, which then beats twice as
+often; not changed, not asked.
+
+The `progns` check said a quoted `(progn)` was the else of an `(if)`, six
+times in the tree, `(if tst `(progn ~body))`: a quote before a form is a
+thing of its own in the tree and was counted as a form. And the test I
+first wrote for a quote gave `(bskip)` a plain string of four characters,
+not a `(char-class)`, and matched nothing. Both put right, with cases in
+`tests/text/test_tree.lisp`. `files | progns` says nothing of the tree.
+
+Run: lint clean; `make all boot` on the M4, the x64 Mac and the Pi; every
+module on all three, 6,066 and 0 failed.
+
+Not seen: a tip that no longer comes up after the mouse has left, it was
+never made to happen on purpose.
+
+------
+
 A task that ran command after command grew slower as it went, found.
 
 Chris, of 62 (f): "track that down". Seen first measuring root.inc: each

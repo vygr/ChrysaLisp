@@ -37,9 +37,21 @@
 				(each (lambda (node)
 					(when (defq kids (tree-form? node))
 						(push todo kids)
-						;what is in it that is not a comment or an empty line
-						(defq forms (filter (# (not (find (first %0) '(:comment :blank)))) kids)
-							head (if (and (nempty? forms) (eql (first (first forms)) :symbol)) (third (first forms))))
+						;what is in it that is not a comment or an empty line. A
+						;quote before a form, ' ` , or ~, is a thing of its own in the
+						;tree, and is no form: it is left out, and the form after
+						;it is not looked at as a (progn), it is a list or code that
+						;is being made, `(progn ~body)
+						(defq forms (list) quoted :nil)
+						(each (lambda (kid)
+							(cond
+								((find (first kid) '(:comment :blank)))
+								((and (eql (first kid) :symbol) (= (bskip (const (char-class "'`,~")) (third kid) 0) (length (third kid))))
+									(setq quoted :t))
+								(quoted (push forms (list :quoted (second kid))) (setq quoted :nil))
+								((push forms kid))))
+							kids)
+						(defq head (if (and (nempty? forms) (eql (first (first forms)) :symbol)) (third (first forms))))
 						(cond
 							;(if tst form else ...), the first of the else forms
 							((and (find head '("if" "ifn")) (> (length forms) 3)
