@@ -407,6 +407,49 @@ macOS: `blocks`, `members`, `paths`, `pins`, `store` are there to see, a
 block's SHA-256 by the Mac's own `shasum` is its name, and the Mac's checker
 says the volume is OK.
 
+**Members meeting, the rules of it**, in `lib/storage/store.inc`, 2026-10-11.
+No mail yet: what one member does with what another tells it.
+
+```
+(store-join store members [retired])   members only grow, and so do the retired
+(store-members store)                  who they are meant to be, away or not
+(store-meet store entries)             another's path map set against mine
+(store-keeps store a b)                of two written apart, which keeps the path
+(store-most? store entry)              do most members have it
+(store-other-name entry)               path~ and the start of its object's name
+(store-digest store)                   two with the same have nothing to tell
+(store-holders store name [among])     the members that keep a block
+```
+
+An entry's `seen` is the members known to have it. An entry of another's
+that comes after mine is taken, one that comes before is not, the same one
+makes each know the other has it. Two written apart: one keeps the path,
+with the counts of both so that it comes after both, and the other, if it is
+an object and not a delete, is kept under `path~` and eight of its object's
+name. Which keeps it: the one most members have; else the one written more
+times; else the one whose object's name is greater, only so all choose the
+same.
+
+Who the members are is two lists that only grow, those joined and those
+retired, so two members put theirs together the same whichever way round,
+and one that is retired stays so.
+
+Where a block is kept needs no table. Each member is given a number, the
+SHA-256 of the block's name and the member's id, and the three with the
+greatest keep it. Every member works out the same. When one goes, only what
+it kept has another keeper: of 300 blocks over five members each keeps about
+180, and with one gone the blocks that move are the ones it kept, each to
+one new keeper.
+
+What the tests hold, `tests/system/test_store_meet.lisp`: a laptop's own
+paths are taken when it comes back and there are no other names; two that
+write a path apart come to the same, and what did not keep the path is had
+under its other name on both; what two of three had keeps the path over what
+the one away wrote three times; a delete by most beats a write apart, and
+the write is kept; a write by most beats a delete apart, and nothing is
+kept; three that each wrote a path come to the same in whatever order they
+are told, with all three objects there.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -424,8 +467,7 @@ says the volume is OK.
 
 ## Open
 
-* Members meeting, comparing path maps, and the counts of who has an entry.
-* What the name of an entry that did not keep its path is.
+* The service doing it: members finding each other, and meeting by mail.
 * Where a block is kept, copying up to three, and a member that goes and
   comes back.
 * A query sent on from member to member.

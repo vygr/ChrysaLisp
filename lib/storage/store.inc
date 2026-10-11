@@ -20,9 +20,10 @@
 ; written the path, as far as the writer of this entry knew: one entry
 ; comes after another if it has as many or more of every member's, and two
 ; that each have more of some member's were written apart, neither knowing
-; of the other. writer is the member that made it, and seen how many
-; members are known to have it. One that is deleted stays, with no object,
-; so that a member who was away does not bring the object back.
+; of the other. writer is the member that made it, and seen the members
+; that are known to have it, this one among them. One that is deleted
+; stays, with no object, so that a member who was away does not bring the
+; object back.
 ;
 ; There is one way to write: a path is set to an object provided it is
 ; now what the writer says it is, (store-commit).
@@ -31,6 +32,7 @@
 ;
 ;	store		what it is: the store's id, the member's, the block size
 ;	members		the members, a line each
+;	retired		those that were members and are no more
 ;	pins		the paths this member holds all of, a line each
 ;	paths		the path map, a line an entry
 ;	blocks/xx/y	a block, its name in hex, xx the first two of it
@@ -135,15 +137,15 @@
 (defun store-entry-line (entry)
 	;the path is last, it may have spaces in it
 	(bind '(name hash size vv writer seen deleted) entry)
-	(join (list (if (eql hash "") "-" (hex-encode hash)) (str size) (store-vv-text vv) writer (str seen)
-		(if deleted "1" "0") name) " "))
+	(join (list (if (eql hash "") "-" (hex-encode hash)) (str size) (store-vv-text vv) writer
+		(if (empty? seen) "-" (join seen ",")) (if deleted "1" "0") name) " "))
 
 (defun store-entry-read (line)
 	(defq parts (split line " "))
 	(when (>= (length parts) 7)
 		(bind '(hash size vv writer seen deleted) (slice parts 0 6))
 		(list (join (slice parts 6 -1) " ") (if (eql hash "-") "" (hex-decode hash)) (str-as-num size)
-			(store-vv-read vv) writer (str-as-num seen) (eql deleted "1"))))
+			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (eql deleted "1"))))
 
 (defun store-save (store)
 	; (store-save store) -> store
@@ -153,6 +155,7 @@
 	(exfat-begin vol)
 	(exfat-save vol "paths" (store-text (sort lines)))
 	(exfat-save vol "members" (store-text (get :members store)))
+	(exfat-save vol "retired" (store-text (get :retired store)))
 	(exfat-save vol "pins" (store-text (get :pins store)))
 	(exfat-end vol)
 	store)
@@ -167,7 +170,7 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies +store_copies
-			:map (Fmap 11) :members (list member) :pins (list))
+			:map (Fmap 11) :members (list member) :retired (list) :pins (list))
 		(exfat-begin vol)
 		(store-head-save store)
 		(exfat-mkdir vol "blocks")
@@ -187,7 +190,7 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :members (list) :pins (list))
+			:map (Fmap 101) :members (list) :retired (list) :pins (list))
 		(defq had "")
 		(each (lambda (line)
 			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
@@ -198,6 +201,7 @@
 				((eql key "copies") (def store :copies (str-as-num val)))))
 			(rest head))
 		(def store :members (store-lines (exfat-load vol "members"))
+			:retired (store-lines (exfat-load vol "retired"))
 			:pins (store-lines (exfat-load vol "pins")))
 		(each (lambda (line)
 			(if (defq entry (store-entry-read line))
@@ -315,7 +319,7 @@
 	(cond
 		((and from (nql from (store-now store name))) (list :stale (store-stat store name)))
 		(:t (defq entry (list name hash size
-				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member 1 deleted))
+				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted))
 			(. (get :map store) :insert name entry)
 			(store-save store)
 			(list :ok entry))))
@@ -422,6 +426,142 @@
 			(push out entry))))
 	(sort out (# (cmp (first %0) (first %1)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; members, and two of them comparing notes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun store-members (store)
+	; (store-members store) -> (member ...)
+	;who the members are meant to be, in order: every one that was ever
+	;joined and has not been retired, away or not
+	(sort (filter (# (not (find %0 (get :retired store)))) (get :members store))))
+
+(defun store-join (store members &optional retired)
+	; (store-join store members [retired]) -> :nil | :t
+	;these are members too, and those are retired, as another member has
+	;it. Both only ever grow, so two that are put together are the same
+	;whichever way round, and a member that is retired stays retired. Was
+	;there anything new
+	(defq new :nil)
+	(each (lambda (who) (unless (find who (get :members store)) (push (get :members store) who) (setq new :t))) members)
+	(each (lambda (who) (unless (find who (get :retired store)) (push (get :retired store) who) (setq new :t)))
+		(ifn retired (list)))
+	(when new
+		(def store :members (sort (get :members store)) :retired (sort (get :retired store)))
+		(store-save store)
+		:t))
+
+(defun store-most? (store entry)
+	; (store-most? store entry) -> :nil | :t
+	;do most of the members have this entry, as far as is known here. At
+	;most one of two entries written apart can be so
+	(defq members (store-members store))
+	(> (* 2 (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen)))) (length members)))
+
+(defun store-other-name (entry)
+	; (store-other-name entry) -> path
+	;the name an entry is kept under when another keeps its path: the
+	;path, and the start of the name of its object. Every member makes
+	;the same name of it
+	(cat (elem-get entry +store_entry_path) "~" (slice (hex-encode (elem-get entry +store_entry_hash)) 0 8)))
+
+(defun store-keeps (store a b)
+	; (store-keeps store a b) -> a | b
+	;of two entries for a path that were written apart, the one that
+	;keeps it. One that most members have, over one that they have not.
+	;Else the one written more times, and else the one whose object has
+	;the greater name: that is only so that every member chooses the same
+	(defq most_a (store-most? store a) most_b (store-most? store b)
+		total_a (store-vv-total (elem-get a +store_entry_vv)) total_b (store-vv-total (elem-get b +store_entry_vv)))
+	(cond
+		((and most_a (not most_b)) a)
+		((and most_b (not most_a)) b)
+		((> total_a total_b) a)
+		((> total_b total_a) b)
+		((>= (cmp (elem-get a +store_entry_hash) (elem-get b +store_entry_hash)) 0) a)
+		(b)))
+
+(defun store-seen (a b)
+	; (store-seen a b) -> (member ...)
+	;the members that are in either list, once each, in order
+	(defq out (cat a))
+	(each (# (unless (find %0 out) (push out %0))) b)
+	(sort out))
+
+(defun store-meet (store entries)
+	; (store-meet store entries) -> (changed ...)
+	;what another member has in its path map is set against what this one
+	;has. The paths that are not as they were here, their entries now.
+	;
+	;An entry of theirs that comes after mine is taken, one that comes
+	;before is not, mine will be taken there. The same entry: each now
+	;knows the other has it. Two written apart: one keeps the path,
+	;(store-keeps), with the counts of both, so that it comes after both
+	;and whoever meets it next takes it; the other, if it is an object and
+	;not a delete, is kept under another name, (store-other-name). Both
+	;members come to the same, whichever does this
+	(defq map (get :map store) me (get :member store) changed (list))
+	(each (lambda (theirs)
+		(bind '(name hash bytes vv writer seen deleted) theirs)
+		(defq mine (. map :find name) now :nil)
+		(cond
+			((not mine)
+				(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted)))
+			(:t (defq how (store-vv-cmp vv (elem-get mine +store_entry_vv)) my_hash (elem-get mine +store_entry_hash))
+				(cond
+					((eql how :after)
+						(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted)))
+					((eql how :before))
+					((and (eql how :same) (eql hash my_hash))
+						;the one entry, and who has it is more than either knew
+						(defq both (store-seen seen (elem-get mine +store_entry_seen)))
+						(unless (= (length both) (length (elem-get mine +store_entry_seen)))
+							(setq now (cat (slice mine 0 +store_entry_seen) (list both) (slice mine (inc +store_entry_seen) -1)))))
+					(:t ;written apart, or come to the same counts by two ways
+						(defq keeps (store-keeps store theirs mine) other (if (eql keeps theirs) mine theirs)
+							both_vv (store-vv-merge vv (elem-get mine +store_entry_vv)))
+						(setq now (list name (elem-get keeps +store_entry_hash) (elem-get keeps +store_entry_bytes) both_vv
+							(elem-get keeps +store_entry_writer) (list me) (elem-get keeps +store_entry_deleted)))
+						(unless (or (elem-get other +store_entry_deleted)
+								(eql (elem-get other +store_entry_hash) (elem-get keeps +store_entry_hash)))
+							(defq aside (store-other-name other))
+							(unless (. map :find aside)
+								(. map :insert aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
+									(slice other (inc +store_entry_seen) -1))))
+								(push changed kept)))))))
+		(when now
+			(. map :insert name now)
+			(push changed now)))
+		entries)
+	(if (nempty? changed) (store-save store))
+	changed)
+
+(defun store-digest (store)
+	; (store-digest store) -> hash
+	;the path map and the members, as one name: two members with the same
+	;have nothing to tell each other
+	(defq lines (list))
+	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
+	(sha256 (store-text (cat (sort lines) (list "members") (store-members store) (list "retired") (sort (cat (get :retired store)))))))
+
+(defun store-entries (store)
+	; (store-entries store) -> (entry ...)
+	;every entry of the path map, those deleted too, what is told to
+	;another member
+	(store-list store "" :t))
+
+(defun store-holders (store name &optional among)
+	; (store-holders store name [among]) -> (member ...)
+	;the members that are to keep a block of that name, as many as there
+	;are to be copies, of the members, or of those given, the ones that
+	;are there. Each member is given a number made from its id and the
+	;name, and those with the greatest keep it: so every member works out
+	;the same, nobody has to be asked, and when a member comes or goes
+	;only the blocks that are its share move
+	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) (ifn among (store-members store)))
+		(# (cmp (first %1) (first %0)))))
+	(map (const second) (slice scored 0 (min (get :copies store) (length scored)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,6 +639,8 @@
 
 ;module
 (export-symbols '(store-make store-open store-close store-save
+	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
+	store-entries store-holders store-seen
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-get store-read store-fold store-walk store-list

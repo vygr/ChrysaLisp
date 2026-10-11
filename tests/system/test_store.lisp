@@ -69,7 +69,7 @@
 (defq so_e (store-stat so "a/big"))
 (assert-eq "an entry has how long it is" 10000 (elem-get so_e +store_entry_bytes))
 (assert-eq "who wrote it" "aaaa" (elem-get so_e +store_entry_writer))
-(assert-eq "and that the one member has it" 1 (elem-get so_e +store_entry_seen))
+(assert-list-eq "and that the one member has it" '("aaaa") (elem-get so_e +store_entry_seen))
 (assert-list-eq "the big one is three blocks, in order, the last short"
 	(list 3 4096 4096 1808)
 	(progn (defq so_m (store-manifest so (elem-get so_e +store_entry_hash)))
@@ -178,8 +178,8 @@
 		(store-vv-cmp (store-vv-merge '(("a" 5) ("b" 1)) '(("a" 4) ("b" 2))) '(("a" 4) ("b" 2)))))
 (assert-eq "how many times a path has been written" 7 (store-vv-total '(("a" 5) ("b" 2))))
 (assert-list-eq "an entry written as a line is read as it was, a path with spaces in it too"
-	(list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" 2 :nil)
-	(store-entry-read (store-entry-line (list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" 2 :nil))))
+	(list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil)
+	(store-entry-read (store-entry-line (list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; deleted, and swept
