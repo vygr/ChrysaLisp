@@ -216,12 +216,13 @@
 			(. onto :fill 0)
 			(. tool :draw onto (Mat3x2-mul (Mat3x2-translate (+ (n2f px) fx) (+ (n2f py) fy))
 				(Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg ox) (neg oy)))))
-			;its picture is shown while it is not seen, then it is put
-			;where the other was, and the other taken out: one step, no
-			;screen is made between with the new picture at the old place
+			;its picture is shown while it is not seen. That call lets
+			;other tasks run, the screen may be made then: so the one
+			;that is seen is left where it is, as it is, till every
+			;instrument has its new picture, and then they change places
+			;all at once, (draw-tools). Chris: "keep the old canvas around
+			;until the new one is read and then switch over"
 			((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
-			(if canvas (. canvas :sub))
-			(. *backdrop* :add_child onto)
 			(. onto :set_bounds (- ix px) (- iy py) w h)
 			(elem-set entry +tv_canvas onto)
 			(elem-set entry +tv_spare canvas)
@@ -246,7 +247,20 @@
 			(if (elem-get entry +tv_canvas) (. (elem-get entry +tv_canvas) :sub))))
 		was)
 	(unless (and (= (length was) (length *tools*)) (every (const eql) was *tools*)) (setq restack :t))
-	(each (# (if (tool-show %0) (setq restack :t))) *tools*)
+	;each that is drawn again is drawn where it is not seen, the one that
+	;is seen still there. Then, with nothing between that lets the screen
+	;be made, the old ones are taken out and the new put in, in their order
+	(defq swapped (list))
+	(each (lambda (entry)
+		(defq old (elem-get entry +tv_canvas))
+		(when (tool-show entry)
+			(push swapped (list old (elem-get entry +tv_canvas)))
+			(setq restack :t)))
+		*tools*)
+	(each (lambda ((old new))
+		(if old (. old :sub))
+		(. *backdrop* :add_child new))
+		swapped)
 	(if restack (tools-stack)))
 
 (defun board-resized ()

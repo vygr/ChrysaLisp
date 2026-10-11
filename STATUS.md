@@ -4,6 +4,49 @@
 
 ------
 
+Chris at the desktop, with a recorder in: the instruments, a flicker,
+the wheel, and what an infinite canvas is.
+
+"The instruments look good, no cebter jitter on rotation. Notice the
+ocational fliker on rebuild... might need douible buffering ? keep the
+old canvas around until the new one is read and then switch over ?" I
+had drawn each new picture where it was not seen, but changed each
+instrument over as its own was ready, and the call that shows a picture
+lets the screen be made: with two drawn again in one go, one could be
+out and its new one not yet in. Now all are drawn first, the old ones
+left where they are, and then they change places in one step,
+`(draw-tools)`. Of the redraw at the exact place when one comes to
+rest: "again, that's what I did, it's the best compromise."
+
+"I can't do middle button on this Magic Mouse ?" It has one switch, it
+can not say two buttons at once. Its swipe is the wheel. "swipe is ok,
+but the canvas needs to acept the wheel event !" The record showed the
+turns arriving and the scroll going from 0 to 96 and no further: his
+paper was 332 square, the desk fitted the window, there was nowhere to
+go. The board's view has a `(:mouse_wheel)` of its own now, that gives
+the turn to the scroll and has it all shown again.
+
+Then what he had meant all along, which I had wrong twice in an hour.
+"When I said the canvas was infite, I ment that the shapes live in an
+infite 2d cord space, the canvas is still a finiite size view." "The
+canvas/paper is just a background with a paticular colour and a
+drawing grid or line, with the snap interaction. But it's not the
+parent of the shapes in a scene graph sence." The grid "belongs to the
+paper", and on his wall panels it answered to zoom, angle and pan as
+an effect: "as you zoom the 'half' bright grid lines gradualy became
+fully opaque and took over". "you do need zoom magnets for that effect
+to work well", "you don't want to lave the board with all lines 75%
+opaque !" And: "we probably need to extend the Backdrop widget". "go,
+ease to the magnet on release. it's better than a jump."
+
+That is the next piece, begun after this. The recorder is out, it was
+never committed, a hook of this checkout alone refuses a commit with
+its lines in.
+
+The app's tests, 95, on the M4.
+
+------
+
 Two fingers on empty board move the view and zoom it.
 
 Chris: "How do I pan/zoom/rotate the entire canvas ?" There was the

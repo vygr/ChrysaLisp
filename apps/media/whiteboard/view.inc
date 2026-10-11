@@ -27,6 +27,7 @@
 (import "gui/view/lisp.inc")
 (import "lib/cwb/board.inc")
 
+
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view
 	;it draws nothing, what is under it shows. A view with a colour that is
@@ -178,6 +179,17 @@
 						(elem-set grip 3 ny)
 						(elem-set grip 5 (ifn (get :value hslider) 0))
 						(elem-set grip 6 (ifn (get :value vslider) 0))))))
+		this)
+
+	(defmethod :mouse_wheel (event)
+		; (. board_view :mouse_wheel event) -> board_view
+		;a turn of the wheel, or a swipe on a mouse that has a top to
+		;swipe, moves the board about in its scroll. It is given to the
+		;scroll by name, not left to be found on the way up from here
+		(when (defq scroll (get :scroll this))
+			(. scroll :mouse_wheel event)
+			;and all of it shown again, as when the middle button moves it
+			(.-> scroll :layout :dirty_all))
 		this)
 
 	(defmethod :mouse_hover (event)
