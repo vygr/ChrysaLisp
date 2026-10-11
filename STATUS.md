@@ -4,6 +4,34 @@
 
 ------
 
+The Whiteboard's two window buttons mean something.
+
+Chris: "Wat does min/max buton do on Whiteboard ? What is the
+significance of the darker surroundin area of the 'paper' ? I think
+min should shrink evrything and position so that the window is tight
+as possible around the paper, max is a bit of a debate as to what makes
+sense ?"
+
+What they did: min made the window as small as its toolbars let it be,
+max as big as the paper, and neither moved what was seen, so the paper
+could be half out of a window made to fit it. The darker space is the
+desk the paper lies on, 240 each side, not part of the document, where
+an instrument lies half off the paper and is seen.
+
+Now, `(window-round)` in `apps/media/whiteboard/ui.inc`: min is the
+paper and no desk, as tight as the toolbars and the screen allow. Max
+is all of the desk, the paper and its margin, or as much as fits. Both
+leave the paper in the middle of what is shown. Max is my pick, of a
+thing he calls a debate: it is the other thing there is to see.
+
+`docs/apps/whiteboard.md` says what the desk is and what the two do.
+
+Not run at all: it needs a screen, the app's test has none and
+`(view-fit)` throws there, as it did for the old two. The app's tests
+pass, 94, with the file loaded. To be seen by Chris.
+
+------
+
 Do two shapes touch, asked of their hulls first: GJK.
 
 Chris: "/Users/Chris/Documents/C++/gjk.cpp interesting paper for you,

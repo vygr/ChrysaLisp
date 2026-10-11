@@ -5,17 +5,30 @@
 (defun action-close ()
 	(setq *running* :nil))
 
-(defun action-minimise ()
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
-
-(defun action-maximise ()
-	;as big as shows all of the board, or as will fit
+(defun window-round (room)
+	;the window is made to show the paper with that much room round it,
+	;or as much of that as the screen has, and the paper in the middle
+	;of what it shows
 	(bind '(cw ch) (canvas-size))
-	(def *image_scroll* :min_width cw :min_height ch)
+	(def *image_scroll* :min_width (+ cw room room) :min_height (+ ch room room))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h)
-	(def *image_scroll* :min_width +min_width :min_height +min_height))
+	(def *image_scroll* :min_width +min_width :min_height +min_height)
+	(bind '(sw sh) (. *image_scroll* :get_size))
+	(def (get :hslider *image_scroll*) :value (max 0 (- *margin* (/ (- sw cw) 2))))
+	(def (get :vslider *image_scroll*) :value (max 0 (- *margin* (/ (- sh ch) 2))))
+	(.-> *image_scroll* :layout :dirty_all))
+
+(defun action-minimise ()
+	;as tight round the paper as it can be: the paper and no more. Chris:
+	;"I think min should shrink evrything and position so that the window
+	;is tight as possible around the paper"
+	(window-round 0))
+
+(defun action-maximise ()
+	;all of the desk: the paper and the margin round it, where an
+	;instrument can lie half off the paper, or as much as will fit
+	(window-round *margin*))
 
 (defun action-undo () (. *board* :undo))
 (defun action-redo () (. *board* :redo))

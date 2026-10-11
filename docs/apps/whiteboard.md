@@ -123,6 +123,18 @@ where it is.
 New, the first button, is an empty board. Like a change of size it is a step
 that undo takes back, with all that was on the board.
 
+## The paper, the desk, and the window
+
+The paper is the document. The darker space round it is the desk it lies
+on, and is not part of the document: an instrument can lie half off the
+paper there, as a ruler does on a real desk, and a thing can be dragged
+out onto it and back.
+
+The two buttons of the title bar size the window to those. The smaller
+makes it as tight round the paper as it can be, the paper and no desk.
+The bigger shows all of the desk, the paper in its middle, or as much as
+the screen has room for.
+
 ## The paper is the size of what is on it
 
 When a board is saved the paper is made the size of what is drawn, with a
