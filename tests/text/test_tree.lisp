@@ -1,0 +1,40 @@
+(import "lib/text/tree.inc")
+
+(report-header "Tree: source nested by its brackets, comments kept")
+
+(defun tt-read (text) (tree-read (string-stream text)))
+
+(bind '(tt_nodes tt_open) (tt-read (cat
+	";a file" (ascii-char 10)
+	(ascii-char 10)
+	"(defun add (a b)" (ascii-char 10)
+	"	; (add a b) -> num" (ascii-char 10)
+	"	;both of them" (ascii-char 10)
+	"	(+ a b)) ;after" (ascii-char 10)
+	"(defq s \q(not ; a form)\q k :key n 12)" (ascii-char 10))))
+(assert-eq "nothing left open" 0 tt_open)
+(assert-eq "a comment, an empty line, a form, a comment after it, a form" "(:comment :blank :form :comment :form)" (str (map (const first) tt_nodes)))
+(assert-eq "the lines a form is on" "(3 6)" (str (list (second (third tt_nodes)) (elem-get (third tt_nodes) 3))))
+(defq tt_fn (tree-form? (third tt_nodes) "defun"))
+(assert-true "it is a defun" tt_fn)
+(assert-true "and not a defq" (not (tree-form? (third tt_nodes) "defq")))
+(assert-eq "its name" "add" (third (second tt_fn)))
+(assert-eq "its parameters" "(a b)" (tree-text (third tt_fn)))
+(assert-eq "what is said of it" "(\q(add a b) -> num\q \qboth of them\q)" (str (tree-comments tt_fn)))
+(assert-eq "it on a line" "(defun add (a b) (+ a b))" (tree-text (third tt_nodes)))
+(assert-eq "brackets and a ; in a string are of the string" "(:symbol :symbol :string1 :symbol :keysym :symbol :number)"
+	(str (map (const first) (third (last tt_nodes)))))
+(assert-eq "one not closed" 2 (second (tt-read "(a (b c")))
+(assert-eq "one closed that was not open is left out" "(0 1)" (str (list (second (defq tt_r (tt-read "a) (b)"))) (length (filter (# (eql (first %0) :form)) (first tt_r))))))
+;a string in braces that goes over lines and ends with the first character of one
+(bind '(tt_nodes tt_open) (tt-read (cat "(cat {one (" (ascii-char 10) "} x {two" (ascii-char 10) "})" (ascii-char 10) "(b)")))
+(assert-eq "it ends there, and what is after is code" "(0 2)" (str (list tt_open (length tt_nodes))))
+;every source file of the system is whole
+(import "lib/files/files.inc")
+(defq tt_bad (list))
+(each (lambda (file)
+	(when (defq s (file-stream file))
+		(if (/= 0 (second (tree-read s))) (push tt_bad file)))
+	(task-slice))
+	(files-all "./lib" '(".inc" ".vp" ".lisp")))
+(assert-eq "no file of lib has a bracket left open" "()" (str tt_bad))

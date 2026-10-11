@@ -4032,13 +4032,34 @@ the default, or 1 non zero
 the paths with each number as the whole number it is held as
 ```
 
-### poly-rings
+### poly-rings-ref
 
 ```code
-(poly-rings segs) -> ((x y ...) ...)
+(poly-rings-ref segs) -> ((x y ...) ...)
 
 the lines, 5 numbers each, joined end to start into rings. Lines that
 follow one another with the one number are one line
+```
+
+### poly-scan-ref
+
+```code
+(poly-scan-ref edges ys openl openr mode segs) -> segs
+
+every band, from the top to the bottom, its lines put on segs
+```
+
+### poly-segs
+
+```code
+(poly-segs op a b [mode_a mode_b]) -> segs
+
+the lines of what (poly-op) gives, 5 numbers each, not yet joined
+into rings: where one starts and ends, and the edge it is of
+op is :union, :intersect, :difference, a and not b, or :xor.
+a and b are lists of paths, either may be empty. A mode is the
+winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
+the default, or 1 non zero
 ```
 
 ### poly-support
@@ -6247,6 +6268,16 @@ transfer a list of [key val]
 (tree-collection? type) -> :nil | type
 ```
 
+### tree-comments
+
+```code
+(tree-comments nodes) -> (str ...)
+
+the comments that are the first things of what is in a form after
+where its code begins: those said of it. Each without its ; and the
+space after
+```
+
 ### tree-decode
 
 ```code
@@ -6257,6 +6288,15 @@ transfer a list of [key val]
 
 ```code
 (tree-encode atom) -> atom
+```
+
+### tree-form?
+
+```code
+(tree-form? node [head]) -> :nil | nodes
+
+what is in a form, if it is one, and, given a head, if the first
+thing in it is that symbol, "defun" say
 ```
 
 ### tree-load
@@ -6273,10 +6313,28 @@ transfer a list of [key val]
 (tree-node ((type [buckets])) -> collection
 ```
 
+### tree-read
+
+```code
+(tree-read stream) -> (nodes open)
+
+the nodes of a file, and how many brackets were not closed, 0 for one
+that is whole. A bracket that closes nothing is left out
+```
+
 ### tree-save
 
 ```code
 (tree-save stream tree [key_filters]) -> tree | :nil
+```
+
+### tree-text
+
+```code
+(tree-text node) -> str
+
+a node as it would be written on one line, comments and empty lines
+left out. A list of what is left to write, it does not call itself
 ```
 
 ### tree-type

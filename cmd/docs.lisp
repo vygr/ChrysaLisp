@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
+(import "lib/text/tree.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -17,47 +18,102 @@
 (("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
-;extract parent class name
-(defun parent? (line_split)
+;the first of the words of a class's first line, after its name, that has
+;a capital in it: the class it comes of
+(defun parent? (nodes line)
 	(some! (# (if (bfind %0 +char_class_upper) (sym %0)))
-		(list line_split) :nil 2))
+		(list (split (join (map (const tree-text) (filter (# (= (second %0) line)) nodes)) " ")
+			(const (char-class " ()'\t\r\q")))) :nil 2))
+
+;what is said of a definition: the comments that are the first things in
+;it after its name and what it takes, or, of one that is all on a line,
+;those on the lines after it. Each without its ; and the space after
+(defun said (node nodes at)
+	(defq out (list) kids (third node) line (elem-get node 3))
+	(cond
+		((= (second node) line)
+			(while (and (< (++ at) (length nodes))
+					(eql (first (defq next (elem-get nodes at))) :comment)
+					(= (second next) (++ line)))
+				(push out (trim-start (third next) " ;"))))
+		;not one on the end of its first line, that is a note
+		((and (defq i (some (# (if (eql (first %0) :comment) (!))) kids))
+				(<= i (if (eql (third (first kids)) "defclass") 4 3))
+				(> (second (elem-get kids i)) (second node)))
+			(while (and (< i (length kids)) (eql (first (defq next (elem-get kids i))) :comment))
+				(push out (trim-start (third next) " ;"))
+				(++ i))))
+	out)
+
+;the keys of a key map, a line of the file each: a key and what it does
+(defun map-keys (node)
+	(defq out (list) line -1)
+	(each (lambda (kid)
+		(unless (find (first kid) '(:comment :blank))
+			(cond
+				;what is on the line the map begins on is not a key
+				((= (second kid) (second node)))
+				((= (second kid) line) (push out (cat (pop out) " " (tree-text kid))))
+				((push out (tree-text kid))))
+			(setq line (second kid))))
+		(third node))
+	out)
 
 ;do the work on a file
 (defun work (file)
-	(defq state :nil info :nil methods :nil)
-	(lines! (lambda (line)
-		(when (find state '(:function :macro :class :method :ffi))
-			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
-				(push info (trim-start line_trim " ;"))
-				(setq state :nil)))
-		(when (eql state :keys)
-			(if (nempty? (split line +char_class_space))
-				(push info (trim line (const (char-class (cat ")" +char_class_space)))))
-				(setq state :nil)))
-		(when (eql state :nil)
-			(defq line_split (split line (const (char-class " ()'\t\r\q")))
-				type (sym (first line_split)) name (sym (second line_split)))
-			(when (= 0 (rbskipn (const (char-class "'`,~")) name -1))
-				(case type
-					((*key_map* *key_map_shift* *key_map_control*)
-						(push key_list (list (sym file) type (setq state :keys info (list)))))
-					(ffi
-						(push ffi_list (list name (setq state :ffi info (list)))))
-					(defclass
-						(push class_list (list name (parent? line_split)
-							(setq methods (list)) (setq state :class info (list)))))
-					((defmethod deffimethod defabstractmethod defproxymethod)
-						(if methods (push methods (list name (setq state :method info (list))))))
-					(defgetmethod
-						(push methods (list (sym (cat ":get_" (rest name))) (setq state :method info (list)))))
-					(defsetmethod
-						(push methods (list (sym (cat ":set_" (rest name))) (setq state :method info (list)))))
-					(defun
-						(push function_list (list name (setq state :function info (list)))))
-					(defmacro
-						(push macro_list (list name (setq state :macro info (list))))))))
-		:nil)
-		(file-stream file)))
+	;The file is read as a tree, lib/text/tree.inc, and every form of it
+	;looked at, in the order they are written, those inside others too.
+	;A list of where it is in each list of nodes it is part way through,
+	;each (nodes at methods), methods those of the class it is in
+	(defq todo (list (list (first (tree-read (file-stream file))) -1 :nil)))
+	(while (defq frame (pop todo))
+		(bind '(nodes at methods) frame)
+		(when (< (++ at) (length nodes))
+			(push todo (list nodes at methods))
+			(defq node (elem-get nodes at) kids (tree-form? node))
+			(cond
+				;a key map is a name in a (defq) and the form after it
+				((and (eql (first node) :symbol)
+						(find (third node) '("*key_map*" "*key_map_shift*" "*key_map_control*"))
+						(< (inc at) (length nodes)) (tree-form? (defq next (elem-get nodes (inc at))))
+						(= (second next) (second node)))
+					(push key_list (list (sym file) (sym (third node)) (map-keys next))))
+				;a form with a ' before it is a list, not a definition
+				((and kids (> at 0) (eql (first (defq before (elem-get nodes (dec at)))) :symbol)
+						(= (bskip "'" (third before) 0) (length (third before)))))
+				((and kids (> (length kids) 1) (eql (first (first kids)) :symbol)
+						(find (first (defq named (second kids))) '(:symbol :keysym :string1 :form)))
+					(defq type (sym (third (first kids)))
+						name (if (eql (first named) :form) :nil (sym (trim (third named) "\q"))))
+					(cond
+						;a name with a , in it is of a macro's making
+						((and name (/= 0 (rbskipn (const (char-class "'`,~")) name -1))))
+						((eql type 'ffi)
+							;by the VP function it is, as the VP docs look for it,
+							;a path, or one from where this file is. One with
+							;nothing said of it has nothing to give
+							(defq path (cond
+									(name)
+									((and (defq path (tree-form? named "path-to-absolute")) (> (length path) 1)
+											(eql (first (second path)) :string1))
+										(sym (path-to-absolute (trim (third (second path)) "\q") file))))
+								info (said node nodes at))
+							(if (and path (nempty? info)) (push ffi_list (list path info))))
+						((not name))
+						((eql type 'defclass)
+							(push class_list (list name (parent? kids (second node))
+								(setq methods (list)) (said node nodes at))))
+						((find type '(defmethod deffimethod defabstractmethod defproxymethod))
+							(if methods (push methods (list name (said node nodes at)))))
+						((eql type 'defgetmethod)
+							(if methods (push methods (list (sym (cat ":get_" (rest name))) (said node nodes at)))))
+						((eql type 'defsetmethod)
+							(if methods (push methods (list (sym (cat ":set_" (rest name))) (said node nodes at)))))
+						((eql type 'defun)
+							(push function_list (list name (said node nodes at))))
+						((eql type 'defmacro)
+							(push macro_list (list name (said node nodes at)))))))
+			(if kids (push todo (list kids -1 methods))))))
 
 ;merge child work
 (defun merge-work ((job result))

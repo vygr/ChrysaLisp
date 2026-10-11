@@ -1452,7 +1452,7 @@
 									:stroke
 									0
 									:text
-									"[lisp_kill]"
+									"[pii-alive]"
 									:font_size
 									12
 								)
@@ -1471,7 +1471,7 @@
 									:stroke
 									0
 									:text
-									"[pii-alive]"
+									"[pii-chmod]"
 									:font_size
 									12
 								)
@@ -1490,7 +1490,7 @@
 									:stroke
 									0
 									:text
-									"[pii-chmod]"
+									"[pii-cpus]"
 									:font_size
 									12
 								)
@@ -1509,7 +1509,7 @@
 									:stroke
 									0
 									:text
-									"[pii-cpus]"
+									"[pii-dirlist]"
 									:font_size
 									12
 								)
@@ -1528,7 +1528,7 @@
 									:stroke
 									0
 									:text
-									"[pii-dirlist]"
+									"[pii-exit]"
 									:font_size
 									12
 								)
@@ -1547,7 +1547,7 @@
 									:stroke
 									0
 									:text
-									"[pii-exit]"
+									"[pii-fstat]"
 									:font_size
 									12
 								)
@@ -1566,7 +1566,7 @@
 									:stroke
 									0
 									:text
-									"[pii-fstat]"
+									"[pii-host]"
 									:font_size
 									12
 								)
@@ -1585,7 +1585,7 @@
 									:stroke
 									0
 									:text
-									"[pii-host]"
+									"[pii-kill]"
 									:font_size
 									12
 								)

@@ -1979,7 +1979,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-fbox]"
+									"[canvas-clear]"
 									:font_size
 									12
 								)
@@ -1998,7 +1998,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-fill]"
+									"[canvas-fbox]"
 									:font_size
 									12
 								)
@@ -2017,7 +2017,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-flip-x]"
+									"[canvas-fill]"
 									:font_size
 									12
 								)
@@ -2036,7 +2036,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-fpoly]"
+									"[canvas-flip-x]"
 									:font_size
 									12
 								)
@@ -2055,7 +2055,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-mesh-create]"
+									"[canvas-fpoly]"
 									:font_size
 									12
 								)
@@ -2074,7 +2074,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-mesh-destroy]"
+									"[canvas-mesh-create]"
 									:font_size
 									12
 								)
@@ -2093,7 +2093,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-next-frame]"
+									"[canvas-mesh-destroy]"
 									:font_size
 									12
 								)
@@ -2112,7 +2112,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-pair-create]"
+									"[canvas-next-frame]"
 									:font_size
 									12
 								)
@@ -2131,7 +2131,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-plot]"
+									"[canvas-pair-create]"
 									:font_size
 									12
 								)
@@ -2150,7 +2150,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-resize]"
+									"[canvas-plot]"
 									:font_size
 									12
 								)
@@ -2169,7 +2169,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-shade]"
+									"[canvas-resize]"
 									:font_size
 									12
 								)
@@ -2188,7 +2188,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-shader-create]"
+									"[canvas-shade]"
 									:font_size
 									12
 								)
@@ -2207,7 +2207,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-shader-destroy]"
+									"[canvas-shader-create]"
 									:font_size
 									12
 								)
@@ -2226,7 +2226,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-shader-format]"
+									"[canvas-shader-destroy]"
 									:font_size
 									12
 								)
@@ -2245,7 +2245,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-swap]"
+									"[canvas-shader-format]"
 									:font_size
 									12
 								)
@@ -2264,7 +2264,7 @@
 									:stroke
 									0
 									:text
-									"[canvas-tile]"
+									"[canvas-swap]"
 									:font_size
 									12
 								)
@@ -2283,7 +2283,7 @@
 									:stroke
 									0
 									:text
-									"[create-canvas]"
+									"[canvas-tile]"
 									:font_size
 									12
 								)
@@ -2302,7 +2302,7 @@
 									:stroke
 									0
 									:text
-									"[create-canvas-pixmap]"
+									"[create-canvas]"
 									:font_size
 									12
 								)
@@ -2321,7 +2321,7 @@
 									:stroke
 									0
 									:text
-									"[lisp_clear]"
+									"[create-canvas-pixmap]"
 									:font_size
 									12
 								)

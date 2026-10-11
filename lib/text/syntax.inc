@@ -24,10 +24,28 @@
 		((is-symbol-char? %0) :symbol)
 		(:text)))
 
+;the words that have a colour of their own, each with the name of the ink
+;it is in. From the boot environment, made once as this is read and the
+;same map for every syntax there is: making it is most of what making one
+;was, and a scan of many files makes one for each
+(defq +syntax_keywords (pmap))
+(each (lambda ((k v))
+	(pinsert +syntax_keywords k
+		(cond
+			((lambda-func? v) :ink_keyword2)
+			((macro-func? v) :ink_keyword3)
+			((func? v) :ink_keyword1))))
+	(tolist *root_env*))
+(each (# (pinsert +syntax_keywords %0 :ink_keyword4))
+	'(:t :nil &rest &optional &most &ignore
+	byte ubyte short ushort int uint long real ptr union struct
+	pbyte pubyte pshort pushort pint puint plong preal pptr
+	nodeid netid offset enum bit))
+
 (defclass Syntax () :nil
 	; (Syntax) -> syntax
 	;default colours and state
-	(def this :keywords (defq keywords (pmap)) :state :text
+	(def this :keywords +syntax_keywords :state :text
 		:ink_keyword1 (num (<< (pixmap-from-argb32 +argb_magenta 15) 32))
 		:ink_keyword2 (num (<< (pixmap-from-argb32 +argb_red 15) 32))
 		:ink_keyword3 (num (<< (pixmap-from-argb32 +argb_green 15) 32))
@@ -39,20 +57,6 @@
 		:ink_globals (num (<< (pixmap-from-argb32 +argb_steel 15) 32))
 		:ink_comments (num (<< (pixmap-from-argb32 +argb_grey12 15) 32))
 		:ink_text (num (<< (pixmap-from-argb32 +argb_white 15) 32)))
-	;defaults from boot environment
-	(each (lambda ((k v))
-		(pinsert keywords k
-			(cond
-				((lambda-func? v) (get :ink_keyword2 this))
-				((macro-func? v) (get :ink_keyword3 this))
-				((func? v) (get :ink_keyword1 this)))))
-		(tolist *root_env*))
-	(each (# (pinsert keywords %0 (get :ink_keyword4 this)))
-		'(:t :nil &rest &optional &most &ignore
-		byte ubyte short ushort int uint long real ptr union struct
-		pbyte pubyte pshort pushort pint puint plong preal pptr
-		nodeid netid offset enum bit))
-
 	(defgetmethod :keywords)
 	(defgetmethod :state)
 	(defsetmethod :state)
@@ -64,14 +68,17 @@
 
 	(defmethod :tokenize (line)
 		; (. syntax :tokenize line) -> (token_list state_list)
+		;a string that began on a line before can end with the first
+		;character of this one, one that begins here not with its first
 		(defq j 0 l (length line) state (get :state this) i 0
-			token_list (list) state_list (cap l (list)))
+			token_list (list) state_list (cap l (list))
+			from (if (find state '(:string1 :string2)) 0 1))
 		(while (< j l)
 			(case state
 				(:text
-					(while (and (< j l)
-							(eql (setq state (is-text-char? (elem-get line j))) :text))
-						(++ j))
+					;spaces and brackets are all that is text, past them in one go
+					(if (< (setq j (bskip +char_class_not_symbol line j)) l)
+						(setq state (is-text-char? (elem-get line j))))
 					(when (/= i j)
 						(push state_list :text)
 						(push token_list (slice line i (setq i j)))))
@@ -95,14 +102,16 @@
 					(push token_list (slice line i (setq state :text j l))))
 				(:string1
 					(push state_list :string1)
-					(if (setq j (find "\q" line (inc i)))
+					(if (setq j (find "\q" line (+ i from)))
 						(push token_list (slice line i (setq state :text j (inc j) i j)))
-						(push token_list (slice line i (setq j l)))))
+						(push token_list (slice line i (setq j l))))
+					(setq from 1))
 				(:string2
 					(push state_list :string2)
-					(push token_list (if (setq j (find "}" line (inc i)))
+					(push token_list (if (setq j (find "}" line (+ i from)))
 						(slice line i (setq state :text j (inc j) i j))
-						(slice line i (setq j l)))))))
+						(slice line i (setq j l))))
+					(setq from 1))))
 		(set this :state state)
 		(list token_list state_list))
 
@@ -115,9 +124,9 @@
 			(case type
 				(:symbol
 					(cond
-						((defq ink (pfind (get :keywords this) (sym token)))
-							;present in keyword map
-							(push state ink))
+						((defq ink (pfind +syntax_keywords (sym token)))
+							;present in keyword map, the ink of that name
+							(push state (get ink this)))
 						((eql (first token) "+")
 							;is a constant symbol
 							(push state (get :ink_constants this)))

@@ -8,6 +8,8 @@ docs/reference/vp_classes/canvas.cwb
 
 ## Lisp Bindings
 
+### (canvas-clear canvas argb x y w h)
+
 ### (create-canvas width height scale)
 
 ### (create-canvas-pixmap pixmap)

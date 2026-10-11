@@ -20,6 +20,8 @@ docs/reference/vp_classes/host_os.cwb
 
 ### (pii-host) -> str
 
+### (pii-kill pid)
+
 ### (pii-memory) -> bytes
 
 ### (pii-pid) -> pid

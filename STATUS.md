@@ -4,6 +4,48 @@
 
 ------
 
+Source as a tree, and the doc scanner reads it. Chris: "Editor colours
+look good, commit it".
+
+Chris: "for the doc scanner and the class database info scanner
+lib/files/info.inc we may switch to correct Syntax aware scanning, too
+many benifits to ignore." And, when I had said a reader that keeps
+comments was wanted: "But useing the Syntax class does NOT throws
+comments away !" "We don't want (read) doing this, as that has other
+quite different and demanding roles." "Carefull on how the tree stuff
+works ? recursive calls not a good plan..." "This fits our priniple of
+continuoes consolidation."
+
+`lib/text/tree.inc`, `(tree-read stream)`: the tokens of `(Syntax)` nested
+by their brackets, a comment and an empty line kept where they fell,
+each node with its line. No function in it calls itself. `(read)` is not
+touched.
+
+`(Syntax)`, his "the code is old now": a string carried from the line
+before could not end with the first character of a line, `lib/gpu/vp.inc`
+has one, wrong in the Editor too; runs of spaces and brackets are passed
+in one go; the table of keywords is made once and is the same for every
+syntax, it holds the name of an ink and not the ink. All 939 source
+files as tokens 392ms to 274ms, as trees 892ms to 484ms, one core of the
+M4. `(read)` of them is 39ms.
+
+`cmd/docs.lisp` scans the tree. Held to what the line scanner gave for
+the 160 files of a doc build, 1,612 entries: classes, macros and keys
+the same. Other: an ffi by `(path-to-absolute)` is by its real path, 12
+of them were all named path-to-absolute; two functions named defmethod
+that were lists with a ' are gone; an ffi with nothing said of it is
+left out, and so (canvas-clear) and (pii-kill) have their lines in the
+VP docs, each had been hidden by an empty one. A docs build is 650ms of
+scanning where it was 117ms, on one node.
+
+Run: tests text 1,253 on the M4, the x64 Mac and the Pi, make docs,
+forward and imports clean; every line of every source file coloured by
+the old and the new, the same but for 675 lines of `lib/gpu/vp.inc`, the
+string that was not seen to end. Not done: `lib/files/info.inc`. Not
+run: the `edit` command itself, the tests of what it is made of pass.
+
+------
+
 All of a set operation of polygons is native, and min puts the document
 back in the middle. Chris, of the eraser after it: "great perforemance
 !" Of min: "min recenter works well, commit it".
