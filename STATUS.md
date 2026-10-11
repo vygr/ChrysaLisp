@@ -4,6 +4,65 @@
 
 ------
 
+The eraser bites lines too, and each instrument has a canvas of its own.
+
+Chris, of the eraser as I had just made it, lines cut and the rest
+bitten: "erase should take bites out of lines as well ! No cutting of
+things, a line is just flatterned to a polygon like all else if erase
+takes a bite, this is why correct bounding box then polygon to polygon
+colision hearchy is important..."
+
+So a board's `:rub_mode` is `:bite`: every thing the eraser touches, a
+line too, has what it covers taken out and is flat from then on. Found
+by its box, then by its polygons, as it was. `:part`, lines cut and the
+rest bitten, `:lines` and `:whole` are still there to ask for. The app
+keeps no mode in `whiteboard.tre` any more, and takes none from one: a
+file saved since last night has `:rub :part` in it, from when that was
+what a board had.
+
+Chris, of the instruments: "Are the instruments flattened and the
+flattened polygons cached ? Do we go so far as to cache those drawn
+polygon into a pixmap per instrument ?" I timed a draw of each on the
+M4, half a millisecond to one, every time anything over the document
+changed, and said a canvas each, laid over by what puts the screen
+together. "bingo, that's what I did previously ! Let the compositor
+deal with it." And: "the instrument has to co-ordinate the offset of
+that cache canvas/pixmap/texture so that rotations don't look back, ie
+the center point of the protractor dosn't move around during rotate
+actions... as drag is pixle based (due to mouse position) we don't
+have subpixel positioning to worry about."
+
+`apps/media/whiteboard/app.lisp`, `(draw-tools)` and `(tool-show)`:
+
+* an instrument has a canvas as big as the box round it, turned and
+sized as it is, in steps of 32;
+* it is drawn when its angle, its length, its mode, the zoom or the
+angle it says is another. Not when it is moved, and not when a handle,
+a hover or another instrument changes: its canvas is put where it is;
+* where on the canvas its own `0 0` falls is kept, and the canvas is
+put so that is on the pixel it was on;
+* a new picture is drawn on a canvas that is not seen, shown there,
+and the two change places, as what is in flight does;
+* moving, it is at whole pixels, up to half of one from true. At rest,
+the next time the board looks, it is drawn once more to an eighth;
+* a palette and the rings where fingers are have a canvas in front of
+the instruments, drawn only when there is one to draw.
+
+`(. board :draw_actors canvas [m pick])` draws only the actors `pick`
+says. `lib/cwb` knows nothing more of it, `cwb -o` draws them as it did.
+
+The cwb modules 558, the whiteboard's 94: it has the ruler on a canvas
+of its own, no bigger than it, in the margin, and the order they lie
+in. `files | forward` clean. Every test on the three machines, through
+the mesh: 5906 each.
+
+Not seen, and it is the kind of thing that has to be: a desktop. An
+instrument dragged, turned, sized; one over another; the palette over
+one; a pen along an edge at rest. Not timed in the app either, what a
+move costs now is a view moved.
+
+------
+
 The eraser bites shapes, and the toolbar's instruments are grouped.
 
 Chris, trying the eraser: "I tried earse throush a shape and the whole

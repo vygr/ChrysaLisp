@@ -51,6 +51,15 @@
 	;The new picture is drawn on the one that is not seen, *flight_spare*,
 	;and shown there, and then the two change places, which is one step
 	*flight_spare* :nil
+	;An instrument has a canvas of its own, as big as it is, and what puts
+	;the screen together lays it over the rest. It is drawn when it is
+	;turned, sized, or says another angle, and not when it is moved, nor
+	;when anything else is: then its canvas is only put where it now is.
+	;*tools* is one of these for each instrument on the board, back first
+	*tools* (list)
+	;and what is over the instruments, a palette, the rings where fingers
+	;are, is on a canvas in front of them all
+	*top* :nil *top_used* :nil *top_show* :nil
 	;is only a part of the document's picture drawn again when only a part
 	;changed, (draw-damage). It is if a part of a canvas can be made clear,
 	;(. canvas :clear), which a system from before that was written can not
@@ -137,6 +146,109 @@
 		vv (ifn (get :value (get :vslider *image_scroll*)) 0))
 	(list (/ (n2f (- (+ hv (/ (min sw cw) 2)) *margin*)) *zoom*) (/ (n2f (- (+ vv (/ (min sh ch) 2)) *margin*)) *zoom*)))
 
+;what is kept for an instrument: it, the canvas it is on and one not
+;seen to draw the next on, what it was when it was drawn, where on the
+;canvas its own 0 0 is, the part of a pixel it was drawn at, and where it
+;was when this last looked
+(enums +tv 0
+	(enum tool canvas spare key px py fx fy ox oy))
+
+(defun tools-stack ()
+	;every canvas there is, taken out and put back in the order they lie
+	;in, each where it was. One added goes behind those there. From the
+	;front: *top*, the instruments, *overlay*, and the three of the document
+	(defq all (cat (list *top*) (map (# (elem-get %0 +tv_canvas)) (reverse *tools*)) (list *overlay*)
+			(if *flight_back* (list *committed* *flight_clip* *paper*) (list *flight_clip* *committed* *paper*)))
+		all (filter (const identity) all) bounds (map (# (. %0 :get_bounds)) all))
+	(each (# (. %0 :sub)) all)
+	(each (# (. *backdrop* :add_child %0)) all)
+	(each (lambda (view (x y w h)) (. view :set_bounds x y w h)) all bounds)
+	(. *backdrop* :dirty_all))
+
+(defun tool-show (entry)
+	; (tool-show entry) -> :nil | :t
+	;an instrument is seen where it is and as it is. Is its canvas another
+	;one now, to be put in its place among the rest
+	(defq tool (elem-get entry +tv_tool))
+	(unless (get :body tool) (. tool :built))
+	(. tool :readout)
+	(bind '(ox oy) (get :origin tool))
+	;where its own 0 0 is on the screen, the pixel, and the part of one
+	;over, to an eighth. A canvas is put at whole pixels
+	(defq sx (+ (* ox *zoom*) (n2f *margin*)) sy (+ (* oy *zoom*) (n2f *margin*))
+		ix (n2i (floor (+ sx 0.5))) iy (n2i (floor (+ sy 0.5)))
+		fx (/ (n2f (n2i (floor (+ (* (- sx (n2f ix)) 8.0) 0.5)))) 8.0)
+		fy (/ (n2f (n2i (floor (+ (* (- sy (n2f iy)) 8.0) 0.5)))) 8.0)
+		key (str (list (get :angle tool) (get :length tool) (get :size tool) (get :mode tool) *zoom*
+			(first (get :said tool))))
+		canvas (elem-get entry +tv_canvas)
+		same (and canvas (eql key (elem-get entry +tv_key)))
+		moved (not (and (eql ox (elem-get entry +tv_ox)) (eql oy (elem-get entry +tv_oy))))
+		exact (and (eql fx (elem-get entry +tv_fx)) (eql fy (elem-get entry +tv_fy))))
+	(elem-set entry +tv_ox ox)
+	(elem-set entry +tv_oy oy)
+	(cond
+		((and same (or exact moved))
+			;as it was drawn, or it has only been moved: the canvas is put
+			;where it is now. While it moves it may be up to half a pixel
+			;from true. When it has come to rest, the next time this looks,
+			;it is drawn again just where it is
+			(bind '(x y w h) (. canvas :get_bounds))
+			(defq nx (- ix (elem-get entry +tv_px)) ny (- iy (elem-get entry +tv_py)))
+			(unless (and (= x nx) (= y ny)) (. canvas :change_dirty nx ny w h))
+			:nil)
+		(:t ;drawn. The box round it as it is turned and sized, with a
+			;little room, is how big the canvas is, and where in that its
+			;own 0 0 falls is kept: turned about that, it stays on the
+			;one pixel
+			(bind '(bx by bx1 by1) (Mat3x2-box (third (cwb-flat (get :body tool)))
+				(Mat3x2-mul (Mat3x2-scale *zoom*)
+					(Mat3x2-mul (Mat3x2-rot (get :angle tool)) (Mat3x2-scale (get :size tool))))))
+			(defq x0 (- (n2i (floor (+ bx fx))) 3) y0 (- (n2i (floor (+ by fy))) 3)
+				;in steps of 32, so that one turned a little is as big as it was
+				w (logand (+ (- (n2i (floor (+ bx1 fx))) x0) 4 31) -32)
+				h (logand (+ (- (n2i (floor (+ by1 fy))) y0) 4 31) -32)
+				px (neg x0) py (neg y0) spare (elem-get entry +tv_spare)
+				onto (if (and spare (eql (str (slice (. spare :get_bounds) 2 4)) (str (list w h)))) spare
+					(Canvas w h 1)))
+			(. onto :set_canvas_flags +canvas_flag_antialias)
+			(def onto :color 0)
+			(. onto :fill 0)
+			(. tool :draw onto (Mat3x2-mul (Mat3x2-translate (+ (n2f px) fx) (+ (n2f py) fy))
+				(Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg ox) (neg oy)))))
+			;its picture is shown while it is not seen, then it is put
+			;where the other was, and the other taken out: one step, no
+			;screen is made between with the new picture at the old place
+			((const (ffi "gui/canvas/lisp_swap")) onto +swap_write)
+			(if canvas (. canvas :sub))
+			(. *backdrop* :add_child onto)
+			(. onto :set_bounds (- ix px) (- iy py) w h)
+			(elem-set entry +tv_canvas onto)
+			(elem-set entry +tv_spare canvas)
+			(elem-set entry +tv_key key)
+			(elem-set entry +tv_px px)
+			(elem-set entry +tv_py py)
+			(elem-set entry +tv_fx fx)
+			(elem-set entry +tv_fy fy)
+			:t)))
+
+(defun draw-tools ()
+	;the instruments on the board, each on its canvas, in the order they
+	;lie in. One that has gone has its canvas taken away
+	(defq was *tools* restack :nil)
+	(setq *tools* (map (lambda (tool)
+			(or (some (# (if (eql (elem-get %0 +tv_tool) tool) %0)) was)
+				(list tool :nil :nil :nil 0 0 :nil :nil :nil :nil)))
+		(filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
+	(each (lambda (entry)
+		(unless (find entry *tools*)
+			(setq restack :t)
+			(if (elem-get entry +tv_canvas) (. (elem-get entry +tv_canvas) :sub))))
+		was)
+	(unless (and (= (length was) (length *tools*)) (every (const eql) was *tools*)) (setq restack :t))
+	(each (# (if (tool-show %0) (setq restack :t))) *tools*)
+	(if restack (tools-stack)))
+
 (defun board-resized ()
 	;the board is another size on the screen, the document's or the zoom
 	;has changed. New canvases of that size take the place of those there
@@ -147,17 +259,19 @@
 	;	*flight*	what is in flight: a thing as it is moved, a line as
 	;				it is drawn. It is in front of the document's, or
 	;				put behind it for what was taken to the back
-	;	*overlay*	the handles and the instruments, which are drawn as
-	;				they are and are in no other picture, with the
-	;				margin round it
+	;	*overlay*	the handles, with the margin round it
+	;	*tools*		a canvas for each instrument, as big as it is, put
+	;				where it lies, (draw-tools)
+	;	*top*		a palette, and the rings where fingers are
 	(bind '(w h) (setq *canvas_size* (canvas-size)))
 	;the pixels of the one the nodes can reach are let go of by name, they
 	;last till then, whatever becomes of this task
 	(when *committed* (. *committed* :sub) (. *committed* :free))
-	(each (# (if %0 (. %0 :sub))) (list *overlay* *flight_clip* *paper*))
+	(each (# (if %0 (. %0 :sub))) (list *overlay* *flight_clip* *paper* *top*))
 	;the pixels of the document's are shared, if the host has that, for the nodes
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
 		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1)
+		*top* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1) *top_used* :t
 		*flight* (Canvas w h 1) *paper* (Canvas w h 1) *paper_dirty* :t *flight_used* :nil *flight_back* :nil
 		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1))
 	(. *flight_spare* :set_canvas_flags +canvas_flag_antialias)
@@ -167,10 +281,11 @@
 	(. *flight_clip* :add_child *flight*)
 	(. *flight* :set_bounds 0 0 w h)
 	(each (# (. %0 :set_canvas_flags +canvas_flag_antialias) (def %0 :color 0))
-		(list *committed* *overlay* *flight* *paper*))
+		(list *committed* *overlay* *flight* *paper* *top*))
 	(. *flight* :fill 0)
+	(. *top* :fill 0)
 	;a child that is added goes behind those there are, so the front one first
-	(.-> *backdrop* (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*) (:add_child *paper*))
+	(.-> *backdrop* (:add_child *top*) (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*) (:add_child *paper*))
 	;the document's, and the two behind it, are in from the corner by the margin
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
 	(def *board* :zoom *zoom*)
@@ -180,6 +295,8 @@
 	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
 	(.-> *image_scroll* :layout :dirty_all)
+	;the canvases of the instruments are in front of the new ones still
+	(if (nempty? *tools*) (tools-stack))
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 (defun step-zoom (step)
@@ -225,7 +342,18 @@
 	;it has been taken to the back: then they are with it, (draw-flight)
 	(. *board* :draw_overlay *overlay* (over-matrix) :t (get :float_back *board*))
 	(. *overlay* :set_clip 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
-	(. *board* :draw_actors *overlay* (over-matrix)))
+	;an instrument is not drawn here, it has a canvas of its own, in
+	;front of this one. What is on the stage and is not one, a palette,
+	;and the rings where fingers are, are on the canvas in front of those,
+	;which is drawn only if it has something on it, or had
+	(draw-tools)
+	(defq used (or (get :show_contacts *board*)
+		(some (# (not (Instrument? %0))) (. (. *board* :get_stage) :get_actors))))
+	(when (or used *top_used*)
+		(. *top* :fill 0)
+		(. *board* :draw_actors *top* (over-matrix) (# (not (Instrument? %0))))
+		(setq *top_show* :t))
+	(setq *top_used* used))
 
 (defun flight-shift ()
 	; (flight-shift) -> :nil | (x y)
@@ -423,7 +551,10 @@
 	(if show_parts (show-parts *committed* show_parts))
 	(if show_paper (. *paper* :swap +swap_write))
 	(if show_under (. *flight* :swap +swap_write))
-	(if show_over (. *overlay* :swap +swap_write)))
+	(if show_over (. *overlay* :swap +swap_write))
+	(when *top_show*
+		(setq *top_show* :nil)
+		(. *top* :swap +swap_write)))
 
 (defun frame-done (said)
 	;what the stripes said of what came to them: :done, the nodes have

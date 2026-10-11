@@ -30,9 +30,10 @@ apps/media/whiteboard/widgets.inc *window* 512 512
 The second row of buttons says what the pen draws: a line by hand, a straight
 line, an arrow, an arrow at both ends, a box, an ellipse, either of those
 filled, words, and last the eraser. The eraser rubs out what it is dragged over
-and leaves the rest. A line is cut, and what is left of it is lines
-still. A box, a filled shape or words have a bite taken out of them, just
-where the eraser went, and are then flat: the outline of what was left.
+and leaves the rest: a bite is taken out of each thing it touches, a
+line, a box, a filled shape, words, just where the eraser went. A thing
+that has lost a bite is flat from then on, the outline of what was left
+of it. Undo brings it back as it was.
 The row of colours says in what, and the three dots how thick.
 
 Words are typed into the field on that row, and put down where the pen next
@@ -41,7 +42,7 @@ goes down.
 Lines drawn by hand one soon after another, as the letters of a word are,
 are put in a group as they are drawn, so a word that was written is picked
 up and moved as one thing. Ungroup breaks it into its lines again. The
-eraser still rubs out one line of it at a time.
+eraser still takes its bite out of just the lines it touches.
 
 How it is done, and the other ways a board can be set to rub out, are
 in [`docs/ai_digest/whiteboard.md`](../ai_digest/whiteboard.md), an eraser that bites.

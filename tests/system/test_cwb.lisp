@@ -500,8 +500,10 @@
 (. wb_board :draw_overlay wb_canvas)
 (assert-true "what has changed is said once" (and (. wb_board :dirty? +board_dirty_doc) (not (. wb_board :dirty? +board_dirty_doc))))
 
-;rubbing out part of a line, as the eraser does unless it is set not to
+;rubbing out part of a line, a line cut and lines still, :rub_mode :part
 (defq rb_board (Board (cwb-doc 400 300)) rb_doc (. rb_board :get_doc))
+(assert-eq "a board takes a bite out of all it rubs, lines too, unless it is told" :bite (get :rub_mode rb_board))
+(def rb_board :rub_mode :part)
 (defun rb-ds () (map (# (cwb-get %0 :d)) (cwb-items rb_doc)))
 (assert-list-eq "a line of points cut by a circle is what is outside it, cut where it meets it"
 	'((0 0 40 0) (60 0 100 0)) (map (# (map (const n2i) %0)) (cwb-rub-points (path 0.0 0.0 100.0 0.0) 50.0 0.0 10.0)))
@@ -548,7 +550,7 @@
 (. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200)))
 (. rb_board :rub 100 150 10)
 (assert-eq "a box, though not filled, goes whole" 0 (length (cwb-items rb_doc)))
-;as a board is, :part: a line is cut and is lines still, anything else has a bite out
+;:part: a line is cut and is lines still, anything else has a bite out
 (def rb_board :rub_mode :part)
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00))
@@ -729,6 +731,7 @@
 (wr-stroke 1 :pen 50 350 100000) (wr-stroke 1 :pen 80 350 100000)
 (assert-list-eq "with no time allowed nothing is put in a group" '(:pen :pen) (slice (wr-shape) -3 -1))
 ;the eraser on a word rubs the line it is on, not the word
+(def wr_board :rub_mode :part)
 (defq wr_word (first (cwb-items wr_doc)) wr_id (elem-get wr_word +cwb_id) wr_parts (length (elem-get wr_word +cwb_items)))
 (defq wr_box (cwb-bounds (slice (elem-get wr_word +cwb_items) 0 1) (elem-get wr_word +cwb_m)))
 (. wr_board :rub (* 0.5 (+ (first wr_box) (third wr_box))) (- (elem-get wr_box 3) 1.5) 6)

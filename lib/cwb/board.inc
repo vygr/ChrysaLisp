@@ -736,7 +736,7 @@
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
-		:rub_reach 8.0 :rub_mode :part :rubber :nil
+		:rub_reach 8.0 :rub_mode :bite :rubber :nil
 		;a line drawn by hand that is begun within this long of the end of
 		;the last, by the same pointer, is put in a group with it, a word
 		;that is written is one thing. Microseconds, 0 for not at all. It
@@ -1366,11 +1366,13 @@
 		(each (# (if (. %0 :dismiss event) (setq went :t))) (cat (. (get :stage this) :get_actors)))
 		went)
 
-	(defmethod :draw_actors (canvas &optional m)
-		; (. board :draw_actors canvas [m]) -> board
+	(defmethod :draw_actors (canvas &optional m pick)
+		; (. board :draw_actors canvas [m pick]) -> board
 		;what is on the stage and not of the document, a ruler, a palette,
-		;the back one first. After (:draw_overlay), it is over that
-		(each (# (. %0 :draw canvas m)) (. (get :stage this) :get_actors))
+		;the back one first. After (:draw_overlay), it is over that. With
+		;pick, a function of an actor, only those it says: an app that has
+		;some of them drawn another way, the Whiteboard its instruments
+		(each (# (if (or (not pick) (pick %0)) (. %0 :draw canvas m))) (. (get :stage this) :get_actors))
 		;and over them all, a ring where each finger is on the board,
 		;:show_contacts. A finger hides what is under it on a screen, and
 		;is not on the screen at all on a pad beside it: this is where the

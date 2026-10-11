@@ -191,14 +191,15 @@ a line go whole too, as it did.
 
 The eraser Chris's boards had: what the eraser covers is taken out of
 whatever it touches, a box, a filled thing, words, a thing in a group, and
-no more than it covers. It is what a board does to anything that is not a
-line. `:rub_mode` says which way a board rubs out:
+no more than it covers, a line too. `:rub_mode` says which way a board
+rubs out:
 
-* `:part`, what a board has. A line is cut where the eraser went, and what
-  is left is lines still, with a width and ends. Anything else has a bite
-  out.
+* `:bite`, what a board has. Chris: "erase should take bites out of lines
+  as well ! No cutting of things, a line is just flatterned to a polygon
+  like all else if erase takes a bite".
 
-* `:bite`. A line has a bite out too, and is a line no more.
+* `:part`. A line is cut where the eraser went, and what is left is lines
+  still, with a width and ends. Anything else has a bite out.
 
 * `:lines`. Only a line is cut. If none was touched, the thing on top
   goes whole. It is what the eraser was before there was a bite.
@@ -219,8 +220,8 @@ That picture is made by the board, as it is each time the docs are made.
   of a hand.
 
 * `(. board :rub)` and `(. board :rub_along)` do it, so the eraser tool,
-  the eraser end of a pen and `cwb -p` all bite. `(:rub_along)` cuts the
-  lines a step at a time, and takes the bite of all its way at once.
+  the eraser end of a pen and `cwb -p` all bite. `(:rub_along)` takes the
+  bite of all its way at once.
 
 * A thing that loses a bite is flat from then on. It is one shape for what
   is left of its fill and one for what is left of its line, each a filled
@@ -243,8 +244,7 @@ That picture is made by the board, as it is each time the docs are made.
 What it costs is the set logic, a millisecond or two for a thing and each
 move of the eraser, 12ms for a line of 3,000 points.
 
-The app has no button for the mode. `:rub` in `whiteboard.tre`, in the
-user's folder, set with the app closed, is what it opens with.
+The app has no button for the mode and keeps none, it is the board's.
 
 Not done of what he told: the shape of what touches the board is not
 known, the eraser is a circle; and the work is done by the board's own
@@ -269,9 +269,24 @@ of the document or behind it, `:float_back`: a thing taken hold of comes to
 the front of its layer, one taken by the right button goes to the back, and
 it stays there while its handles are used. It lands when it is let go of.
 The app has a canvas for each: the paper, the document, what is in flight,
-which it puts in front of the document's or behind, and the handles and
-instruments. What is put on top of the top layer is `:appended`, and can be
-drawn onto what is already there.
+which it puts in front of the document's or behind, and the handles. What
+is put on top of the top layer is `:appended`, and can be drawn onto what
+is already there.
+
+Each instrument has a canvas of its own, as big as the instrument is, and
+what puts the screen together lays it over the rest. It is Chris's, from
+his old boards: "that's what I did before ;) And had the instruments
+bounds be the size of the pixmap/canvas, the instrument has to
+co-ordinate the offset of that cache canvas/pixmap/texture so that
+rotations don't look back", and "Let the compositor deal with it." An
+instrument is drawn when it is turned, sized, or says another angle. Moved,
+or with anything else on the board changing, its canvas is only put where
+it now is, at whole pixels, and nothing is drawn. Where on the canvas the
+instrument's own `0 0` falls is kept, so turned about that it stays on the
+one pixel. While it moves it can be half a pixel from true, and when it
+comes to rest it is drawn once more just where it is, to an eighth of a
+pixel. `(draw-tools)` and `(tool-show)` in `app.lisp`. A palette, and the
+rings where fingers are, are on one more canvas in front of them all.
 
 ## The instruments
 

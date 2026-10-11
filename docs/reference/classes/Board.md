@@ -112,10 +112,12 @@ the document, on a canvas, by the matrix it is seen by
 ### :draw_actors
 
 ```code
-(. board :draw_actors canvas [m]) -> board
+(. board :draw_actors canvas [m pick]) -> board
 
 what is on the stage and not of the document, a ruler, a palette,
-the back one first. After (:draw_overlay), it is over that
+the back one first. After (:draw_overlay), it is over that. With
+pick, a function of an actor, only those it says: an app that has
+some of them drawn another way, the Whiteboard its instruments
 ```
 
 ### :draw_flight

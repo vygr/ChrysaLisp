@@ -23,7 +23,7 @@
 (defun bt-in? (board x y) (if (cwb-hit (. board :get_doc) x y 0) :t :nil))
 
 (defq bt (bt-board))
-(assert-eq "a board rubs out as it did unless it is told" :part (get :rub_mode bt))
+(assert-eq "it is how a board rubs out" :bite (get :rub_mode bt))
 (def bt :rub_mode :bite)
 (defq bt_was (bt-said bt))
 (. bt :snapshot)
