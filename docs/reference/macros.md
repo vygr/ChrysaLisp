@@ -311,6 +311,12 @@ its file. If the load throws, the task has no main, and would go with
 the pipe still waiting to hear it was up. So it is caught, here, in
 the command's own task, which then takes its stdio from the pipe as
 its main would have, says what went wrong on its stderr, and goes
+
+The stdio is held, in a name, till the task goes. Not held, it was let
+go of the moment it had been looked at, before a word was written: its
+streams said they were stopping, and what was then written came after
+that. A pipe on another node had now and then closed by then, on both
+stopping, and the error was lost: once in a hundred or two
 ```
 
 ### inc

@@ -4,6 +4,51 @@
 
 ------
 
+**The other pipe failure, found: a command that would not load let go of
+its stdio before it said why.**
+
+"and the pipe is told why", on the x64 Mac, once in the soak and once in
+30 runs alone. A recorder in a copy of the test, in a folder of its own
+on the x64, 600 runs of the pipe test alone, wrote down what the pipe
+had heard the one time it failed:
+
+	took 1435 parts 2 said []
+
+Two things read, both nothing, in a millisecond and a half. So the
+command's two streams had said they were stopping and nothing else.
+
+`(import-cmd)`, `class/lisp/root.inc`, of 9 October: when a command's
+file throws as it loads it takes its stdio and writes why,
+
+	(when (create-stdio) (write-line (io-stream 'stderr) _) ...)
+
+and the stdio is in no name. It is the value of the test and no more, so
+it is let go of as soon as it has been looked at, and letting go of a
+stdio is its streams saying they are stopping. The error was written
+after that. A pipe on another node, another process, that read both
+stoppings before the line came, closed, and the line was lost.
+
+Made to happen every time, two commands of a line each with a fifth of a
+second before they write:
+
+	the stdio not held:  (2 "")
+	the stdio held:      (3 "late text\n")
+
+It is held now, `(defq *cmd_stdio* (create-stdio))`.
+
+It was not tonight's. It is a fault of mine of two days ago that needed
+the reader to win by a few microseconds, on another core.
+
+`check` has it, `held`: a `(create-stdio)` that is not kept in a name by
+a `(defq)`. The tree had the one. Ten checks.
+
+Run: every module on the M4, 6,389 and 0 failed; the pipe test on the
+x64 and the Pi; a desktop started on the Pi with the changed root file.
+The scratch folders on the x64 are gone. The three standing nodes are
+started again.
+
+------
+
 The Pi's pipe failure, measured: a second was too little for it, and no
 fault.
 

@@ -231,6 +231,10 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 	the other's: `(walk name (lambda (x) (visit x)))` when `(walk)` takes
 	`visit`.
 
+*	`held`, a `(create-stdio)` that is not kept in a name by a `(defq)`. It
+	is let go of as soon as it has been looked at, its streams say they are
+	stopping, and what is written after may not be read.
+
 A test of the very thing has a comment that begins `;check off` on its line,
 or on the line before, and nothing is said of it.
 

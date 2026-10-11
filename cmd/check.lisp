@@ -52,6 +52,10 @@
     enum    a field of an (enums) named size: the name it
             makes is the one the (enums) makes for how many
             fields there are.
+    held    a (create-stdio) that is not kept in a name, by a
+            (defq). It is let go of as soon as it has been
+            looked at, its streams say they are stopping, and
+            what is written after may not be read.
     capture a function written where it is given to another
             of this file, that uses a name the other has as
             a parameter. A name is found where a function is
@@ -63,7 +67,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -284,6 +288,14 @@
 				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a parameter of (" head "), it is that one it has")) taken)))
 			(rest forms))))
 
+(defun check-held (file forms head)
+	;(when (create-stdio) ...): the stdio is the value of the test and no more
+	(unless (find head '("defq" "setq" "bind"))
+		(each (lambda (form)
+			(and (defq inner (tree-form? form "create-stdio")) (= (length (forms-of inner)) 1)
+				(found file form "held" "a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")))
+			forms)))
+
 ;do the work on a file
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
@@ -332,7 +344,8 @@
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
-							(if (find "capture" checks) (check-capture file forms head)))))
+							(if (find "capture" checks) (check-capture file forms head))
+							(if (find "held" checks) (check-held file forms head)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))

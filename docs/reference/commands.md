@@ -79,6 +79,10 @@ Usage: check [options] [path] ...
     enum    a field of an (enums) named size: the name it
             makes is the one the (enums) makes for how many
             fields there are.
+    held    a (create-stdio) that is not kept in a name, by a
+            (defq). It is let go of as soon as it has been
+            looked at, its streams say they are stopping, and
+            what is written after may not be read.
     capture a function written where it is given to another
             of this file, that uses a name the other has as
             a parameter. A name is found where a function is
