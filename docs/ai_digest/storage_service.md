@@ -1,10 +1,14 @@
 # The Storage Service, Notes On An Idea
 
-None of this is built. These are notes from a conversation between Chris and
-Claude on 2026-10-07, to put some flesh on the bones of the idea, and the
-reason the file system work, `lib/fs/exfat.inc` and `lib/fs/fat32.inc`, is
-being done. Where a thing is Chris's wish it says so. The rest is what was
-talked over, and is open.
+These began as notes from a conversation between Chris and Claude on
+2026-10-07, to put some flesh on the bones of the idea, and the reason the
+file system work, `lib/fs/exfat.inc` and `lib/fs/fat32.inc`, is being done.
+Where a thing is Chris's wish it says so.
+
+On 2026-10-11 Chris said to start building it, and the questions were gone
+through. What was settled then is under Settled, and what is built is under
+Built, each as it lands. The sections between are the talk of the 7th, left
+as they were said: where they and Settled differ, Settled is how it is.
 
 ## The Idea
 
@@ -212,6 +216,143 @@ are what a signature is put on, sign the entries of the path map and all
 that is under them is covered. And a node is only ever reached by messages
 over its links, so a link is where trust would be checked.
 
+## Settled
+
+Chris, 2026-10-11, in his words where they are quoted.
+
+**Who is a member.** "system_id is member ?" Yes. One service a system, so a
+member is a system id, and the members of a store are a list of them. A
+machine becomes one by being told to join a store, is one while it is away,
+and stops being one only when it is retired on purpose: a laptop taken home
+is still one of the five. And "the image carries the store id and member
+id": a volume opened by another member than the one it was, a machine given a
+new id, a disk moved to another machine, has that member take the place of
+the one it was. There is not one more member, and nothing is copied.
+
+**Two machines write a path while apart.** He asked of three things, not
+taking any as given: a lock service for the whole store, a time all agree on,
+and transactions.
+
+* A lock every machine honours is the same agreement again: who has it, and
+  when the lock of one that has died is no lock. It can be had with no
+  primary, by most of the members saying yes, and then a machine that can
+  not reach most of them can not write.
+* A time, from the clocks, no: they differ, and the later of two is a guess
+  that throws a write away when it is wrong. A count, yes: how many times
+  each member has written the path, as far as the writer knew. It says what
+  no time can, whether one write was made knowing of the other, or the two
+  were made apart.
+* A transaction, the path set to B provided it is A, stops a write being
+  lost between machines that can reach each other, with no lock held. It
+  does not settle the machine that is cut off.
+
+Then his: "If the cut off machine does a write and the Storage node he asks,
+directs his write to a node he is still in contact with ... does he ever know
+he was cut off ?" No. Being cut off looks the same as the others being
+switched off. Of the blocks it does not matter, a block is right wherever it
+is. Of the path it is known only by counting heads before, or by comparing
+the counts after.
+
+So:
+
+* There is one way to write, a path is set to an object provided it is now
+  what the writer says it is, and every entry has the counts.
+* The store always takes the write, and says how many members have it:
+  seen by 1 of 5.
+* When members meet, an entry that most members had keeps the path over one
+  that they had not. "so your going with the majority wins the write ?" Yes:
+  at most one side of a split can have most of the members, so a writer who
+  waited for most is promised its write stays. Between two that neither had,
+  the counts, then the member's id, only so that all choose the same.
+* The one that does not keep the path is kept under another name. It is
+  never thrown away.
+* It only bites where both sides wrote the same path. "if I pull a laptop
+  from the rack, and take it home, when I come back, I really ought to be on
+  the losing side of any stuff I write locally", yes, and "I could work on my
+  user/me/xxxxx and then come in to work and nothing is going to go wrong at
+  all ?", yes.
+
+**Pins.** A machine holds only its share of the blocks, so away from the rack
+part of anything would be out of reach. A member can pin the start of a
+path, `user/me/`, and holds all of every object under it beside the copies
+there are, and does not let go of it. It can say if what is pinned is all
+there yet. Chris: "yes, pinning is how I'd expect it to work".
+
+**A query is a thing that walks.** Chris asked what a query does that reads
+more than one block: "does it get to the end of a block say on machine a, and
+then hits the 'next_buffer' and get moved over to where the next block is on
+machine b.... that could be interesting ?" A task that is running can not be
+moved, what it is doing is in its stack. What can be moved is a function and
+what it has so far. So a query is that: what it has, and a function given
+that and a block, which gives what it has now and which block it wants next,
+or that it is done. A member runs it over the blocks it holds, and when the
+next is one it does not hold, sends the function and what it has on to a
+member that does. The last sends the answer straight to who asked.
+
+Chris: "exactly ! ... you have to form a query task, and that has
+rules/packaged_state as well as the programm that runs the state machine and
+decides when it found it result or finish it's search etc. Provided we can
+ensure the rule, we can transport the task all over the place from block to
+block.... now that would make other systems weep !" and "It's like you send
+off a gopher task in to the network and it just runs around until it gets
+what it wants and then comes directly back to you !"
+
+Because the function says where to go next, it need not go in order. A search
+of a sorted object by halves reads three or four blocks of it and no more,
+wherever they are.
+
+**Taken as they were put, not yet talked over:** blocks of 64KB cut at fixed
+places, named by SHA-256; three copies; where a block is kept worked out from
+the members by a hash rule, no table; five minutes before the blocks of a
+machine that has gone are made up; no encryption and no error correction
+yet; a member sweeps its own blocks that nothing is made of.
+
+## Built
+
+**The store, one member alone**, `lib/storage/store.inc`, 2026-10-11. All
+that a member holds, and all there is when there is the one. It knows nothing
+of mail or of another member.
+
+An exFAT volume, a file of the host or a disk, with on it:
+
+```
+store         what it is: the store's id, the member's, the block size
+members       the members, a line each
+pins          the paths this member holds all of
+paths         the path map, a line an entry
+blocks/xx/y   a block, its name in hex, xx the first two of it
+```
+
+An object is a manifest, how long it is and the names of its blocks in
+order, and is a block itself. A path is set to the name of one. An entry of
+the path map is `(path hash bytes vv writer seen deleted)`.
+
+```
+(store-make device size id member [block_size])   a new store
+(store-open device member) -> store               :was says who it was
+(store-put store path data [from])                (:ok entry) (:stale entry) (:full)
+(store-commit store path names bytes [from])      of blocks kept already
+(store-get store path)   (store-read store path offset len)
+(store-walk store path state visit [at])          a block at a time, where it says
+(store-fold store path state step)                in order
+(store-delete store path [from])   (store-list store [prefix deleted])
+(store-sweep store)                               blocks nothing is made of
+(store-check store [mend])                        blocks that are not their names
+(store-pin store prefix [off])   (store-pins-missing store)
+```
+
+`from` is what the writer says the path is now, the name of an object, `""`
+for none, and not given, not to say.
+
+What the tests hold, `tests/system/test_store.lisp`: a block is had back as
+it was, and one changed on the disk is not given and is found; two objects
+of the same bytes are the one; 2MB of a pattern that comes round fits a
+store of 1MB; a write from what the path was, by one who did not see it
+change, is refused and told what it is now; a deleted path stays as an entry;
+a sweep lets go of what nothing is made of and of nothing else; a store
+opened by another member is that member's, in the place of the one it was;
+and a search by halves of an object of eight blocks reads four at most.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -229,11 +370,16 @@ over its links, so a link is where trust would be checked.
 
 ## Open
 
-* What happens when two machines have both written a path while apart.
-* A leader for the path map, or versions.
-* How a block that nothing refers to is found, over machines.
-* Whether the store may show that two blocks are the same.
-* Where the keys are kept.
-* How an object is cut into blocks.
-* What an app's request looks like, and whether a path is all an object is
-  known by.
+* The service, and what an app's request looks like.
+* Members meeting, comparing path maps, and the counts of who has an entry.
+* What the name of an entry that did not keep its path is.
+* Where a block is kept, copying up to three, and a member that goes and
+  comes back.
+* A query sent on from member to member.
+* How a block that nothing refers to is found, over machines, while a write
+  is on its way.
+* Whether the store may show that two blocks are the same, and where the
+  keys are kept, when there is encryption.
+* Cutting an object where its content says, not every 64KB.
+* A manifest of a very long object is itself long, it is one block of any
+  size for now.

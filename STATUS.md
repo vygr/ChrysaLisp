@@ -4,6 +4,40 @@
 
 ------
 
+**Storage, begun. The store of one member alone.**
+
+Chris: "For your solo activity tonight I want to start building the
+Storage system ! Great stuff to work on, so we should get all the
+questions out and thought about." 20 questions, each with what I would
+take if he said nothing. He talked through who a member is, what happens
+when two machines write a path while apart, and pins, and those are
+settled; the rest stand as they were put. All of it, his words with it,
+is in `docs/ai_digest/storage_service.md` under Settled. Then: "begin with
+the write-up and the single-service store".
+
+`lib/storage/store.inc`: blocks named by the SHA-256 of them on an exFAT
+volume, objects as manifests, a path map whose entries carry how many
+times each member has written the path, one way to write, a path set to
+an object provided it is what the writer says it is, deletes that stay as
+entries, a sweep, a check of blocks against their names, pins, and a
+volume opened by another member taken over by it.
+
+And the query he asked for, "are we going to trey any send the query
+'lisp' to do the action at the block idea now ?": `(store-walk)`, a
+function given what it has and a block, that says which block it wants
+next or that it is done. With one member it runs here. It is the shape
+that is sent on, what it has and the function are all there is of it.
+
+Found writing it: a field of an `(enums)` named `size` is the enum's own
+size; and a lambda handed to a function must not use a name that function
+has as a parameter, `step` in a fold built on a walk was the walk's.
+
+Run: `test_store` 124 on the M4. `check` and `forward` say nothing of it.
+
+Not done: the service, any second member, the flash stick.
+
+------
+
 The emulator means one thing by a shift and by a real made an integer.
 
 Chris, of 62 (h): "worth doing, that won't affect speed as it's emulated
