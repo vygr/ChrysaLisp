@@ -245,7 +245,7 @@
 	"(setq *margin* 240) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
 	"(print (list (. *board_stack* :get_size) (. *committed* :get_bounds) (. *overlay* :get_bounds)))"
 	"(wa-mode :rect) (wa-drag 1 340 340 440 400) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
-	"(print (map (const n2i) (cwb-mat-point (over-matrix) 0 0)))"
+	"(print (map (const n2i) (Mat3x2-point (over-matrix) 0 0)))"
 	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* -60 100)))"
 	;a line being drawn, from off the document's left to on it, with the ruler there
 	"(wa-mode :line) (wa-mouse :down 60 700 1) (wa-mouse :move 500 700 1)"
@@ -354,7 +354,7 @@
 	"(print (list *framing* (if (get :jobs *stripes*) :started :not) (wa-same)))"
 	"(print (list (wa-pump (lambda () (. *stripes* :ready?))) (. *stripes* :cheap?)))"
 	;a change, and the nodes draw it
-	"(. *board* :select (list 5 6)) (. *board* :transform (cwb-mat-move 100 80)) (. *board* :select (list))"
+	"(. *board* :select (list 5 6)) (. *board* :transform (Mat3x2-translate 100 80)) (. *board* :select (list))"
 	"(. *committed* :fill 0) (wa-redraw) (print (list *framing* (. *stripes* :busy?)))"
 	;changed again while they do, it is drawn again when they have
 	"(. *board* :add (cwb-shape (cwb-d-ellipse 500 400 90 60) :fill 0xff00ff00))"
@@ -415,7 +415,7 @@
 	;and put down again
 	"(. *board* :select (list)) (draw-damage (. *board* :take_damage) (view-matrix)) (print (eql (pic) p0))"
 	;one at the corner of the paper, part of it off it
-	"(. *board* :select (list 1)) (. *board* :transform (cwb-mat-move -150.0 -150.0)) (. *board* :select (list)) (. *board* :take_damage) (draw-local (view-matrix)) (defq p3 (pic))"
+	"(. *board* :select (list 1)) (. *board* :transform (Mat3x2-translate -150.0 -150.0)) (. *board* :select (list)) (. *board* :take_damage) (draw-local (view-matrix)) (defq p3 (pic))"
 	"(. *board* :select (list 1)) (draw-damage (. *board* :take_damage) (view-matrix)) (defq p4 (pic)) (draw-local (view-matrix)) (print (list (eql p4 (pic)) (eql p4 p3)))")))
 (assert-eq "one thing taken up: that part of the picture is made clear and drawn, and the picture is then what all of it drawn again is, and not what it was. The canvas is left whole to draw on"
 	"(:t ((197 197 404 404)) :t :t :nil (0 0 1024 768))" (first wa_part))

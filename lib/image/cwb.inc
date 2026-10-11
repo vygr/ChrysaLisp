@@ -27,7 +27,7 @@
 	(when (and (defq doc (cwb-load stream)) (> (. doc :find :width) 0) (> (. doc :find :height) 0))
 		(defq canvas (Canvas (. doc :find :width) (. doc :find :height) scale))
 		(.-> canvas (:set_canvas_flags +canvas_flag_antialias) (:fill (. doc :find :background)))
-		(cwb-draw canvas doc (if (= scale 1) :nil (cwb-mat-scale scale)))
+		(cwb-draw canvas doc (if (= scale 1) :nil (Mat3x2-scale scale)))
 		(if (= scale 1) canvas
 			(progn
 				;drawn big, and made the size it is to be

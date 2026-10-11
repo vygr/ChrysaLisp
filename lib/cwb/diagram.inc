@@ -46,7 +46,7 @@
 (defun dia-move (items x y)
 	; (dia-move items x y) -> group
 	;items as one thing, put at a point
-	(cwb-group items :m (cwb-mat-move x y)))
+	(cwb-group items :m (Mat3x2-translate x y)))
 
 (defun dia-pill (text &optional size bold fill)
 	; (dia-pill text [size bold fill]) -> (group width height)

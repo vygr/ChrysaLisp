@@ -69,7 +69,7 @@
 (defq bt (bt-board) bt_doc (. bt :get_doc))
 (def bt :rub_mode :bite)
 (defq bt_g (cwb-group (list (cwb-shape (cwb-d-rect 300 150 360 190) :fill 0xffff8080 :stroke 0))))
-(cwb-set bt_g :m (cwb-mat-turn 0.5 330 170))
+(cwb-set bt_g :m (Mat3x2-rot 0.5 330 170))
 (cwb-add bt_doc bt_g)
 (defq bt_all (bt-area bt 0xffff8080))
 (assert-true "the box in the group is 60 by 40 where it lies turned" (< 2399.9 bt_all 2400.1))

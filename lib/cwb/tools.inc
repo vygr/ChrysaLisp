@@ -91,20 +91,6 @@
 			(setq n (inc n) at (+ at step))))
 	(apply (const cwb-d) out))
 
-(defun tool-nearest-on-line (x y x0 y0 x1 y1)
-	; (tool-nearest-on-line x y x0 y0 x1 y1) -> (px py t)
-	;the point of a line nearest a point, and how far along it that is, 0 to 1
-	(defq dx (- x1 x0) dy (- y1 y0) len2 (+ (* dx dx) (* dy dy))
-		along (if (= len2 0.0) 0.0 (max 0.0 (min 1.0 (/ (+ (* (- x x0) dx) (* (- y y0) dy)) len2)))))
-	(list (+ x0 (* along dx)) (+ y0 (* along dy)) along))
-
-(defun tool-angle-wrap (a)
-	; (tool-angle-wrap a) -> a
-	;an angle as one of more than -pi and no more than pi
-	(while (> a +fp_pi) (setq a (- a +fp_2pi)))
-	(while (<= a (neg +fp_pi)) (setq a (+ a +fp_2pi)))
-	a)
-
 ;what is kept for a pointer that is down on an instrument, a list
 (enums +tool_state 0
 	(enum what part edge x y origin angle length shape near turned last_angle last_x last_y))
@@ -176,8 +162,8 @@
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
 					(filter (# (not (or (find (first %0) '(:move :close :mode)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
-					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (cwb-mat-mul (cwb-mat-move (second glyph) (third glyph))
-						(cwb-mat-turn (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
+					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (Mat3x2-mul (Mat3x2-translate (second glyph) (third glyph))
+						(Mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
@@ -186,16 +172,16 @@
 		; (. instrument :matrix) -> matrix
 		;from its own space to the board's
 		(bind '(ox oy) (get :origin this))
-		(cwb-mat-mul (cwb-mat-move ox oy)
-			(cwb-mat-mul (cwb-mat-turn (get :angle this)) (cwb-mat-scale (get :size this)))))
+		(Mat3x2-mul (Mat3x2-translate ox oy)
+			(Mat3x2-mul (Mat3x2-rot (get :angle this)) (Mat3x2-scale (get :size this)))))
 
 	(defmethod :to_own (x y)
 		; (. instrument :to_own x y) -> (x y)
-		(cwb-mat-point (cwb-mat-invert (. this :matrix)) x y))
+		(Mat3x2-point (Mat3x2-invert (. this :matrix)) x y))
 
 	(defmethod :to_board (x y)
 		; (. instrument :to_board x y) -> (x y)
-		(cwb-mat-point (. this :matrix) x y))
+		(Mat3x2-point (. this :matrix) x y))
 
 	(defmethod :edge_near (x y)
 		; (. instrument :edge_near x y) -> :nil | (edge px py)
@@ -219,11 +205,11 @@
 				(defq a (path-angle (- x cx) (- y cy)))
 				;an arc that is not all the way round ends where it ends
 				(when (< (- a1 a0) (const (- +fp_2pi 0.001)))
-					(defq mid (* 0.5 (+ a0 a1)) half (* 0.5 (- a1 a0)) off (tool-angle-wrap (- a mid)))
+					(defq mid (* 0.5 (+ a0 a1)) half (* 0.5 (- a1 a0)) off (vector-angle-wrap (- a mid)))
 					(setq a (+ mid (max (neg half) (min half off)))))
 				(list (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
 			(:t (bind '(kind x0 y0 x1 y1) edge)
-				(most (tool-nearest-on-line x y x0 y0 x1 y1)))))
+				(most (vector-nearest-on-line-2d x y x0 y0 x1 y1)))))
 
 	(defmethod :part_at (x y)
 		; (. instrument :part_at x y) -> :nil | (what shape pivot)
@@ -249,7 +235,7 @@
 			(:arc (bind '(kind cx cy r &ignore) edge)
 				(defq a (path-angle (- px cx) (- py cy))
 					turned (+ (elem-get state +tool_state_turned)
-						(tool-angle-wrap (- a (elem-get state +tool_state_last_angle))))
+						(vector-angle-wrap (- a (elem-get state +tool_state_last_angle))))
 					a_from (path-angle (- sx cx) (- sy cy)))
 				(elem-set state +tool_state_turned turned)
 				(elem-set state +tool_state_last_angle a)
@@ -328,16 +314,16 @@
 			(:turn
 				(when (and (= (. this :held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
-					(defq pivot (third region) m0 (cwb-mat-mul (cwb-mat-move (first origin) (second origin))
-						(cwb-mat-mul (cwb-mat-turn angle) (cwb-mat-scale (get :size this)))))
-					(bind '(bx by) (if (nempty? pivot) (cwb-mat-point m0 (first pivot) (second pivot)) origin))
-					(defq turn (tool-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
+					(defq pivot (third region) m0 (Mat3x2-mul (Mat3x2-translate (first origin) (second origin))
+						(Mat3x2-mul (Mat3x2-rot angle) (Mat3x2-scale (get :size this)))))
+					(bind '(bx by) (if (nempty? pivot) (Mat3x2-point m0 (first pivot) (second pivot)) origin))
+					(defq turn (vector-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (get :snap_angle board))
 					;with angles that snap it is at a step and nowhere else. If
 					;not, it is free, but for the pull of the angles that matter
 					(setq turn (- (if (/= snap 0.0) (board-snap (+ angle turn) snap) (tool-magnet (+ angle turn))) angle))
 					(def this :angle (+ angle turn)
-						:origin (cwb-mat-point (cwb-mat-turn turn bx by) (first origin) (second origin)))
+						:origin (Mat3x2-point (Mat3x2-rot turn bx by) (first origin) (second origin)))
 					(. board :touch +board_dirty_overlay)))
 			(:size
 				(when (and (= (. this :held) 1) (not (get :grab this)) (= (length (third region)) 1))
@@ -447,22 +433,22 @@
 					d1 (sqrt (+ (* (- (first pb) (first pa)) (- (first pb) (first pa)))
 						(* (- (second pb) (second pa)) (- (second pb) (second pa)))))
 					by (/ (. (. this :set_extent (* length (/ d1 d0))) :extent) length))
-				(defq turn (tool-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
+				(defq turn (vector-angle-wrap (- (path-angle (- (first pb) (first pa)) (- (second pb) (second pa)))
 						(path-angle (- (first pb0) (first pa0)) (- (second pb0) (second pa0)))))
 					;pulled to the angles that matter, as it is by one pointer
 					turn (- (tool-magnet (+ angle turn)) angle)
 					m0x (* 0.5 (+ (first pa0) (first pb0))) m0y (* 0.5 (+ (second pa0) (second pb0)))
 					m1x (* 0.5 (+ (first pa) (first pb))) m1y (* 0.5 (+ (second pa) (second pb)))
-					m (cwb-mat-mul (cwb-mat-move (- m1x m0x) (- m1y m0y))
-						(cwb-mat-mul (cwb-mat-turn turn m0x m0y) (cwb-mat-scale by by m0x m0y))))
-				(def this :angle (+ angle turn) :origin (cwb-mat-point m (first origin) (second origin)))
+					m (Mat3x2-mul (Mat3x2-translate (- m1x m0x) (- m1y m0y))
+						(Mat3x2-mul (Mat3x2-rot turn m0x m0y) (Mat3x2-scale by by m0x m0y))))
+				(def this :angle (+ angle turn) :origin (Mat3x2-point m (first origin) (second origin)))
 				(. (get :board this) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
 		; (. instrument :draw canvas [m]) -> instrument
 		;on a canvas, by the matrix the board is seen by
 		(unless (get :body this) (. this :built))
-		(defq m (cwb-mat-mul m (. this :matrix)))
+		(defq m (Mat3x2-mul m (. this :matrix)))
 		(cwb-draw-items canvas (list (get :body this)) m)
 		(cwb-draw-items canvas (get :zones this) m)
 		(cwb-draw-items canvas (get :marks this) m)
@@ -487,8 +473,8 @@
 		(unless (and said (= (length (first said)) (length says)) (every (const eql) (first said) says))
 			(def this :said (setq said (list says (map (lambda (at text)
 				(defq shape (cwb-text-mid text 0 0 :font_size 13))
-				(elem-set shape +cwb_m (cwb-mat-mul (cwb-mat-move (first at) (second at))
-					(cwb-mat-mul (cwb-mat-turn (if (> (length at) 2) (third at) 0.0)) (elem-get shape +cwb_m))))
+				(elem-set shape +cwb_m (Mat3x2-mul (Mat3x2-translate (first at) (second at))
+					(Mat3x2-mul (Mat3x2-rot (if (> (length at) 2) (third at) 0.0)) (elem-get shape +cwb_m))))
 				shape) (get :readouts this) says)))))
 		(second said))
 	)
@@ -545,7 +531,7 @@
 		(defq inch (* 25.4 +tool_mm) ticks (list (tool-ticks (neg inset) top inset top 0.0 1.0 +tool_mm))
 			n 0 at 0.0 flip (lambda (shape x y)
 				;words, about their own middle, turned half round, and put at a point
-				(elem-set shape +cwb_m (cwb-mat-mul (cwb-mat-move x y) (cwb-mat-mul (cwb-mat-turn +fp_pi) (elem-get shape +cwb_m))))
+				(elem-set shape +cwb_m (Mat3x2-mul (Mat3x2-translate x y) (Mat3x2-mul (Mat3x2-rot +fp_pi) (elem-get shape +cwb_m))))
 				shape))
 		(while (<= at (+ (* 2.0 inset) 0.01))
 			(defq tick (cond ((= (% n 16) 0) 14.0) ((= (% n 8) 0) 11.0) ((= (% n 4) 0) 8.0) ((= (% n 2) 0) 6.0) (:t 4.0)))

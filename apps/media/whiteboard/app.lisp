@@ -116,14 +116,14 @@
 (defun view-matrix ()
 	; (view-matrix) -> :nil | matrix
 	;from the document to the canvas
-	(if (= *zoom* 1.0) :nil (cwb-mat-scale *zoom*)))
+	(if (= *zoom* 1.0) :nil (Mat3x2-scale *zoom*)))
 
 (defun over-matrix ()
 	; (over-matrix) -> :nil | matrix
 	;from the document to the canvas of what is over it, which has the
 	;margin round it
 	(if (= *margin* 0) (view-matrix)
-		(cwb-mat-mul (cwb-mat-move *margin* *margin*) (view-matrix))))
+		(Mat3x2-mul (Mat3x2-translate *margin* *margin*) (view-matrix))))
 
 (defun view-middle ()
 	; (view-middle) -> (x y)
@@ -301,7 +301,7 @@
 				(setq whole :t ox (cond ((< bx 0) (neg bx)) ((> bx1 w) (- w bx1)) (:t 0))
 					oy (cond ((< by 0) (neg by)) ((> by1 h) (- h by1)) (:t 0)))))
 		;on the canvas that is seen, if it is where it is to be, or on the other
-		(defq m (if (and (= ox 0) (= oy 0)) (view-matrix) (cwb-mat-mul (cwb-mat-move ox oy) (view-matrix)))
+		(defq m (if (and (= ox 0) (= oy 0)) (view-matrix) (Mat3x2-mul (Mat3x2-translate ox oy) (view-matrix)))
 			moved (not (eql (str (. *flight* :get_bounds)) (str (list (neg ox) (neg oy) w h))))
 			onto (if moved *flight_spare* *flight*))
 		(. onto :fill 0)

@@ -416,7 +416,7 @@
 (. wt_canvas :set_canvas_flags +canvas_flag_antialias)
 (. wt_canvas :fill 0)
 (. (Ruler wt_board 400 300) :draw wt_canvas)
-(. (Protractor wt_board 400 300) :draw wt_canvas (cwb-mat-scale 0.5))
+(. (Protractor wt_board 400 300) :draw wt_canvas (Mat3x2-scale 0.5))
 (. wt_set :draw wt_canvas)
 (assert-true "each draws on a canvas" :t)
 

@@ -129,7 +129,7 @@
 						(first (pal-point (- r1 3.0) (- a1 gap gap))) (second (pal-point (- r1 3.0) (- a1 gap gap))))
 						:stroke +pal_mark :width 3.5 :cap1 :round :cap2 :round)
 					(if (nempty? (defq icon (pal-icon what val)))
-						(cwb-group icon :m (cwb-mat-move cx cy))))))
+						(cwb-group icon :m (Mat3x2-translate cx cy))))))
 				entries))
 			(list (map (# (list :tool %0)) +pal_tools)
 				(cat (map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors))
@@ -337,7 +337,7 @@
 			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
 			snap (/= (get :snap board) 0.0))
 		(bind '(ox oy) (get :origin this))
-		(defq base (cwb-mat-mul m (cwb-mat-mul (cwb-mat-move ox oy) (cwb-mat-scale (/ 1.0 (get :zoom board))))))
+		(defq base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy) (Mat3x2-scale (/ 1.0 (get :zoom board))))))
 		;the outer ring first, so one that is part open is under those inside it
 		(each (lambda (k)
 			(defq open (. this :ring_scale k))
@@ -355,8 +355,8 @@
 								(:action (and (eql val :snap) snap)))
 							(push items (elem-get wedge +wedge_mark)))))
 					wedges)
-				(cwb-draw-items canvas items (cwb-mat-mul base
-					(cwb-mat-mul (cwb-mat-scale open) (cwb-mat-turn (* (- 1.0 open) -0.8)))))))
+				(cwb-draw-items canvas items (Mat3x2-mul base
+					(Mat3x2-mul (Mat3x2-scale open) (Mat3x2-rot (* (- 1.0 open) -0.8)))))))
 			'(2 1 0))
 		;the middle, a spot of the colour, as wide as the width
 		(defq open (. this :ring_scale 0))
@@ -366,7 +366,7 @@
 					:stroke +pal_ink :width 1.5)
 				(cwb-shape (cwb-d-ellipse 0 0 (max 2.0 (min 16.0 (* 0.5 (n2f width)))))
 					:fill color :stroke +pal_ink :width 1.0))
-				(cwb-mat-mul base (cwb-mat-scale open))))
+				(Mat3x2-mul base (Mat3x2-scale open))))
 		this)
 	)
 

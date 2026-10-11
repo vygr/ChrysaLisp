@@ -101,7 +101,7 @@
 		fills (cwb-mat-paths full fills) strokes (cwb-mat-paths full strokes))
 	(when (or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
 			(and (nempty? strokes) (nempty? (poly-intersect strokes swept 1 1))))
-		(defq out (list) back (cwb-mat-invert m))
+		(defq out (list) back (Mat3x2-invert m))
 		(each (lambda (polys mode color)
 			(when (nempty? polys)
 				(defq left (poly-difference polys swept mode 1))
@@ -131,10 +131,10 @@
 			(cond
 				((cwb-group? item)
 					;what is in it, in its own space, later
-					(push todo (list (elem-get item +cwb_items) (cwb-mat-mul m (elem-get item +cwb_m)))))
+					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
 				((defq box (third (cwb-flat item)))
-					(defq full (cwb-mat-mul m (elem-get item +cwb_m)))
-					(if (cwb-box-meet? reach (cwb-box-of box full))
+					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
+					(if (vector-collide-boxes-2d reach (Mat3x2-box box full))
 						(setq pieces (board-bite-shape item full m swept)))))
 			(cond
 				(pieces
@@ -166,7 +166,7 @@
 	(defq m (elem-get group +cwb_m) size 1.0 touched :nil out (list))
 	(when m
 		(setq size (max 0.001 (sqrt (abs (- (* (elem-get m 0) (elem-get m 4)) (* (elem-get m 1) (elem-get m 3))))))))
-	(bind '(lx ly) (cwb-mat-point (cwb-mat-invert m) x y))
+	(bind '(lx ly) (Mat3x2-point (Mat3x2-invert m) x y))
 	(each (lambda (item)
 		(cond
 			((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
@@ -183,7 +183,7 @@
 	(when (defq box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
 		(bind '(x y x1 y1) box)
 		(defq m (elem-get item +cwb_m))
-		(cat (cwb-mat-point m x y) (cwb-mat-point m x1 y) (cwb-mat-point m x1 y1) (cwb-mat-point m x y1))))
+		(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
 
 (defun board-two-point-mat (a0 b0 a1 b1)
 	; (board-two-point-mat a0 b0 a1 b1) -> matrix
@@ -196,9 +196,9 @@
 		scale (/ l1 l0) angle (- (path-angle v1x v1y) (path-angle v0x v0y))
 		m0x (* 0.5 (+ (first a0) (first b0))) m0y (* 0.5 (+ (second a0) (second b0)))
 		m1x (* 0.5 (+ (first a1) (first b1))) m1y (* 0.5 (+ (second a1) (second b1))))
-	(cwb-mat-mul (cwb-mat-move m1x m1y)
-		(cwb-mat-mul (cwb-mat-turn angle)
-			(cwb-mat-mul (cwb-mat-scale scale) (cwb-mat-move (neg m0x) (neg m0y))))))
+	(Mat3x2-mul (Mat3x2-translate m1x m1y)
+		(Mat3x2-mul (Mat3x2-rot angle)
+			(Mat3x2-mul (Mat3x2-scale scale) (Mat3x2-translate (neg m0x) (neg m0y))))))
 
 ;;;;;;;;;;;;;
 ; the surface
@@ -386,8 +386,8 @@
 						(when box
 							(setq mx (- (. board :snap_x (+ (first box) mx)) (first box))
 								my (- (. board :snap_y (+ (second box) my)) (second box))))
-						(defq move (cwb-mat-move mx my))
-						(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) item)
+						(defq move (Mat3x2-translate mx my))
+						(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
 						(. board :touch +board_dirty_overlay))
 					(:t ;a box is dragged out round things, this pointer's own
@@ -552,7 +552,7 @@
 						(list (first (first pair)) (first (second pair)))))))
 				(bind '(pa0 pb0 things &ignore) grab)
 				(defq move (board-two-point-mat pa0 pb0 pa pb))
-				(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul move m0))) things)
+				(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) things)
 				(each (lambda ((id state)) (elem-set state +stroke_moved :t)) pair)
 				(. board :touch +board_dirty_overlay))))
 	)
@@ -594,8 +594,8 @@
 				((= (length items) 1)
 					(defq item (first items)
 						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
-					(if box (list (ifn (elem-get item +cwb_m) (cwb-mat)) box)))
-				((defq box (cwb-bounds items)) (list (cwb-mat) box)))))
+					(if box (list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
+				((defq box (cwb-bounds items)) (list (Mat3x2) box)))))
 
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
@@ -613,7 +613,7 @@
 		;the four corners of the frame, where they are on the board
 		(when (defq frame (. this :frame))
 			(bind '(m (x y x1 y1)) frame)
-			(cat (cwb-mat-point m x y) (cwb-mat-point m x1 y) (cwb-mat-point m x1 y1) (cwb-mat-point m x y1))))
+			(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
 
 	(defmethod :spots ()
 		; (. handles :spots) -> ((kind x y fx fy) ...)
@@ -625,19 +625,19 @@
 			((defq ends (. this :ends))
 				(bind '(item (x y x1 y1)) ends)
 				(defq m (elem-get item +cwb_m))
-				(list (cat (list :end) (cwb-mat-point m x y) (list 0 0))
-					(cat (list :end) (cwb-mat-point m x1 y1) (list 1 0))))
+				(list (cat (list :end) (Mat3x2-point m x y) (list 0 0))
+					(cat (list :end) (Mat3x2-point m x1 y1) (list 1 0))))
 			((defq frame (. this :frame))
 				(bind '(m (x y x1 y1)) frame)
 				(defq mx (* 0.5 (+ x x1)) my (* 0.5 (+ y y1))
-					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (cwb-mat-point m lx ly) (list fx fy)))
+					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (Mat3x2-point m lx ly) (list fx fy)))
 						(list (list x y -1 -1) (list mx y 0 -1) (list x1 y 1 -1)
 							(list x my -1 0) (list x1 my 1 0)
 							(list x y1 -1 1) (list mx y1 0 1) (list x1 y1 1 1))))
 				;the one to turn it by is out from the middle of its top side,
 				;the way that side faces
-				(bind '(tx ty) (cwb-mat-point m mx y))
-				(bind '(cx cy) (cwb-mat-point m mx my))
+				(bind '(tx ty) (Mat3x2-point m mx y))
+				(bind '(cx cy) (Mat3x2-point m mx my))
 				(defq ux (- tx cx) uy (- ty cy) len (sqrt (+ (* ux ux) (* uy uy)))
 					gap (/ +board_turn_gap (get :zoom board)))
 				(if (= len 0.0) (setq ux 0.0 uy -1.0 len 1.0))
@@ -677,26 +677,26 @@
 							(defq m0 (second (first things)))
 							(when (/= step 0.0)
 								;the line is at an angle that is a step, as long as it is pulled
-								(bind '(ox oy) (if (= fx 0) (cwb-mat-point m0 lx1 ly1) (cwb-mat-point m0 lx ly)))
+								(bind '(ox oy) (if (= fx 0) (Mat3x2-point m0 lx1 ly1) (Mat3x2-point m0 lx ly)))
 								(defq vx (- px ox) vy (- py oy) len (sqrt (+ (* vx vx) (* vy vy)))
 									angle (board-snap (path-angle vx vy) step))
 								(setq px (+ ox (* len (cos angle))) py (+ oy (* len (sin angle)))))
-							(bind '(qx qy) (cwb-mat-point (cwb-mat-invert m0) px py))
+							(bind '(qx qy) (Mat3x2-point (Mat3x2-invert m0) px py))
 							(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
 						(:turn ;about the middle of the frame
 							(bind '(fm (bx by bx1 by1)) frame)
-							(bind '(cx cy) (cwb-mat-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
+							(bind '(cx cy) (Mat3x2-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
 							(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy))))
 							(while (> angle +fp_pi) (setq angle (- angle +fp_2pi)))
 							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
 							(if (/= step 0.0) (setq angle (board-snap angle step)))
-							(defq m (cwb-mat-turn angle cx cy))
-							(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things))
+							(defq m (Mat3x2-rot angle cx cy))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things))
 						(:t ;sized in the frame: the pointer is taken into it, and the
 							;side or corner across from the handle stays where it is
 							(bind '(fm (bx by bx1 by1)) frame)
-							(defq inv (cwb-mat-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
-							(bind '(qx qy) (cwb-mat-point inv px py))
+							(defq inv (Mat3x2-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
+							(bind '(qx qy) (Mat3x2-point inv px py))
 							(defq ax (cond ((< fx 0) bx1) ((> fx 0) bx) (:t cx))
 								ay (cond ((< fy 0) by1) ((> fy 0) by) (:t cy))
 								w0 (- (cond ((< fx 0) bx) ((> fx 0) bx1) (:t cx)) ax)
@@ -710,8 +710,8 @@
 							(if (= scx 0.0) (setq scx 0.001))
 							(if (= scy 0.0) (setq scy 0.001))
 							;in the frame, so out of it, sized, and back into it
-							(defq m (cwb-mat-mul fm (cwb-mat-mul (cwb-mat-scale scx scy ax ay) inv)))
-							(each (lambda ((thing m0)) (elem-set thing +cwb_m (cwb-mat-mul m m0))) things)))
+							(defq m (Mat3x2-mul fm (Mat3x2-mul (Mat3x2-scale scx scy ax ay) inv)))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things)))
 					(. board :touch +board_dirty_overlay)
 					(when (= buttons 0)
 						(. this :set_state id :nil)))))
@@ -998,7 +998,7 @@
 				(= (elem-get (defq under (elem-get items -3)) +cwb_id) (elem-get before 1)))
 			(cond
 				((and (cwb-group? under) (eql (elem-get under +cwb_name) "written")
-						(or (not (defq gm (elem-get under +cwb_m))) (every (const =) gm (cwb-mat))))
+						(or (not (defq gm (elem-get under +cwb_m))) (every (const =) gm (Mat3x2))))
 					(pop items)
 					(push (elem-get under +cwb_items) item)
 					(setq target (elem-get under +cwb_id)))
@@ -1043,7 +1043,7 @@
 						(cond
 							((and (cwb-rub? item)
 									(defq box (cwb-bounds (list item)))
-									(cwb-box-meet? reach (list (- (first box) 1.0) (- (second box) 1.0)
+									(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
 										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
 									(defq pieces (cwb-rub item x y r)))
 								(setq changed :t done :t)
@@ -1055,7 +1055,7 @@
 							;at a time, not taken whole. A group with nothing left goes
 							((and (cwb-group? item)
 									(defq box (cwb-bounds (list item)))
-									(cwb-box-meet? reach (list (- (first box) 1.0) (- (second box) 1.0)
+									(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
 										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
 									(defq left (board-rub-group doc item x y r)))
 								(setq changed :t done :t)
@@ -1149,7 +1149,7 @@
 		(each (lambda ((name flags items))
 			(unless (bits? flags 2)
 				(each (lambda (item)
-					(unless (and (defq box (cwb-bounds (list item))) (cwb-box-meet? paper box))
+					(unless (and (defq box (cwb-bounds (list item))) (vector-collide-boxes-2d paper box))
 						(push gone (elem-get item +cwb_id))))
 					items)))
 			(cwb-layers doc))
@@ -1192,7 +1192,7 @@
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
-			(each (# (elem-set %0 +cwb_m (cwb-mat-mul m (elem-get %0 +cwb_m)))) items)
+			(each (# (elem-set %0 +cwb_m (Mat3x2-mul m (elem-get %0 +cwb_m)))) items)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
@@ -1240,7 +1240,7 @@
 					kept (reduce (lambda (out item)
 						(if (= (elem-get item +cwb_id) id)
 							(each (lambda (kid)
-								(elem-set kid +cwb_m (cwb-mat-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))
+								(elem-set kid +cwb_m (Mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))
 								(push ids (elem-get kid +cwb_id))
 								(push out kid)) (elem-get group +cwb_items))
 							(push out item))
@@ -1284,7 +1284,7 @@
 							(:hcenter (- (* 0.5 (+ ax ax1)) (* 0.5 (+ x x1)))) (:t 0.0))
 						dy (case how (:top (- ay y)) (:bottom (- ay1 y1))
 							(:vcenter (- (* 0.5 (+ ay ay1)) (* 0.5 (+ y y1)))) (:t 0.0)))
-					(elem-set item +cwb_m (cwb-mat-mul (cwb-mat-move dx dy) (elem-get item +cwb_m)))))
+					(elem-set item +cwb_m (Mat3x2-mul (Mat3x2-translate dx dy) (elem-get item +cwb_m)))))
 				items)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
@@ -1295,14 +1295,14 @@
 		;and the copy is what is selected
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
-			(defq doc (get :doc this) move (cwb-mat-move (ifn dx 16) (ifn dy 16)) ids (list))
+			(defq doc (get :doc this) move (Mat3x2-translate (ifn dx 16) (ifn dy 16)) ids (list))
 			(each (lambda (copy)
 				;a copy and all in it has ids of its own
 				(defq todo (list copy))
 				(while (defq next (pop todo))
 					(elem-set next +cwb_id 0)
 					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
-				(elem-set copy +cwb_m (cwb-mat-mul move (elem-get copy +cwb_m)))
+				(elem-set copy +cwb_m (Mat3x2-mul move (elem-get copy +cwb_m)))
 				(cwb-add doc copy (. this :layer_index))
 				(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))

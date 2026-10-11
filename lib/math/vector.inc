@@ -264,3 +264,52 @@
 		(if (= winding_mode +winding_odd_even)
 			(/= (logand winding 1) 0)
 			(/= winding 0))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; boxes of the plane, a list (x y x1 y1), lines against them, and angles
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun vector-box-join-2d (a b)
+	; (vector-box-join-2d a b) -> box | :nil
+	;the box round two boxes, either can be :nil
+	(cond
+		((not a) b)
+		((not b) a)
+		(:t (list (min (first a) (first b)) (min (second a) (second b))
+			(max (third a) (third b)) (max (elem-get a 3) (elem-get b 3))))))
+
+(defun vector-collide-boxes-2d (a b)
+	; (vector-collide-boxes-2d a b) -> :t | :nil
+	(and a b (< (first a) (elem-get b 2)) (< (first b) (elem-get a 2))
+		(< (second a) (elem-get b 3)) (< (second b) (elem-get a 3))))
+
+(defun vector-collide-line-box-2d (x0 y0 x1 y1 bx by bx1 by1)
+	; (vector-collide-line-box-2d x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
+	;does a line from one point to another touch a box, be in it, cross
+	;it or end in it. The line is cut to each side of the box in turn, and
+	;touches if anything of it is left
+	(defq dx (- x1 x0) dy (- y1 y0) t0 0.0 t1 1.0 ok :t)
+	(each (lambda ((p q))
+		(when ok
+			(cond
+				((= p 0.0) (if (< q 0.0) (setq ok :nil)))
+				(:t (defq r (/ q p))
+					(cond
+						((< p 0.0) (cond ((> r t1) (setq ok :nil)) ((> r t0) (setq t0 r))))
+						(:t (cond ((< r t0) (setq ok :nil)) ((< r t1) (setq t1 r)))))))))
+		(list (list (neg dx) (- x0 bx)) (list dx (- bx1 x0)) (list (neg dy) (- y0 by)) (list dy (- by1 y0))))
+	ok)
+
+(defun vector-nearest-on-line-2d (x y x0 y0 x1 y1)
+	; (vector-nearest-on-line-2d x y x0 y0 x1 y1) -> (px py t)
+	;the point of a line nearest a point, and how far along it that is, 0 to 1
+	(defq dx (- x1 x0) dy (- y1 y0) len2 (+ (* dx dx) (* dy dy))
+		along (if (= len2 0.0) 0.0 (max 0.0 (min 1.0 (/ (+ (* (- x x0) dx) (* (- y y0) dy)) len2)))))
+	(list (+ x0 (* along dx)) (+ y0 (* along dy)) along))
+
+(defun vector-angle-wrap (a)
+	; (vector-angle-wrap a) -> a
+	;an angle as one of more than -pi and no more than pi
+	(while (> a +fp_pi) (setq a (- a +fp_2pi)))
+	(while (<= a (neg +fp_pi)) (setq a (+ a +fp_2pi)))
+	a)

@@ -9,7 +9,7 @@
 		(defq g (cwb-group (list
 			(cwb-shape (cwb-d-ellipse 320 110 40 30) :fill 0xffff9090 :stroke 0xff202428 :width 3)
 			(cwb-shape (cwb-d "M" 280 110 "L" 360 110) :stroke 0xff202428 :width 3))))
-		(cwb-set g :m (cwb-mat-turn 0.5 320 110))
+		(cwb-set g :m (Mat3x2-rot 0.5 320 110))
 		(cwb-add doc g)
 		doc)
 	before (wb-bite-doc) after (wb-bite-doc) board (Board after)
@@ -22,7 +22,7 @@
 (defq left (cwb-group (cat (cwb-items before)
 		(map (lambda ((way r)) (cwb-shape (join (map (# (cwb-d-points %0 :t))
 			(poly-sweep (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) way)) " ") :stroke 0xffc03030 :width 1.0)) ways)))
-	right (cwb-group (cwb-items after) :m (cwb-mat-move 440 0)))
+	right (cwb-group (cwb-items after) :m (Mat3x2-translate 440 0)))
 (cwb-add doc left)
 (cwb-add doc right)
 (cwb-add doc (cwb-text {three strokes of an eraser, in red, where they will go} 20 310 :font_size 12))

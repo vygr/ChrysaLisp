@@ -4,6 +4,38 @@
 
 ------
 
+The geometry the Whiteboard wrote for itself is in `lib/math`.
+
+Chris: "did any lib/math/vector.inc lib come in handy for that work ?
+should we enhance the lib/math/ lib where needed to allow cwb to tools
+it needs ?" It had used two functions of it and written the rest. And:
+"yes, go ahead, keep the :nil convention".
+
+Moved, not written again, the code is what `lib/cwb` had:
+
+* `lib/math/matrix.inc`, the 3x2 matrix of the plane, six fixeds, what
+`(path-transform)` takes: `(Mat3x2)`, `-mul`, `-translate`, `-scale`,
+`-rot`, `-invert`, `-point`, `-box`. `:nil` is the matrix of no change
+to each of them, as it was.
+
+* `lib/math/vector.inc`: `(vector-box-join-2d)`,
+`(vector-collide-boxes-2d)`, `(vector-collide-line-box-2d)`,
+`(vector-nearest-on-line-2d)`, `(vector-angle-wrap)`.
+
+`lib/cwb` has none of its own now but `(cwb-mat-paths)`, which needs the
+GUI's paths, and `lib/math` does not import the GUI. Every use in the
+tree has the new name, 17 files. The old names are gone: a script kept
+outside the tree that used `cwb-mat-move` and the like must change.
+
+`tests/system/test_matrix.lisp`, new, 32. Every test on the x64 Mac and
+the Pi: 5888 passed on each. On the M4 the matrix, cwb and whiteboard
+modules, as the Test user.
+
+Not seen: the Whiteboard itself with this, by a hand. Not done: the
+twenty or so places in `lib/cwb` that work out a distance in line.
+
+------
+
 The options library is in the root, and who wrote the floating point.
 
 Chris, of a core discipline, continuous consolidation: "adding (import

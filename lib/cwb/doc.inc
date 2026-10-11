@@ -27,7 +27,7 @@
 (import "gui/path/lisp.inc")
 (import "gui/canvas/struct.inc")
 (import "gui/font/lisp.inc")
-(import "././math/vector.inc")
+(import "././math/matrix.inc")
 (import "././collections/collections.inc")
 
 (defq +cwb_version 4)
@@ -55,64 +55,8 @@
 ; matrices
 ;;;;;;;;;;
 
-;a matrix is six numbers, a b tx c d ty: x' = ax + by + tx, y' = cx + dy + ty,
-;as (path-transform) takes it. :nil where a matrix can be is no change
-
-(defun cwb-mat (&optional a b tx c d ty)
-	; (cwb-mat [a b tx c d ty]) -> matrix
-	(fixeds (ifn a 1.0) (ifn b 0.0) (ifn tx 0.0) (ifn c 0.0) (ifn d 1.0) (ifn ty 0.0)))
-
-(defun cwb-mat-mul (ma mb)
-	; (cwb-mat-mul ma mb) -> matrix | :nil
-	;the one matrix that does what mb does and then what ma does
-	(cond
-		((not ma) mb)
-		((not mb) ma)
-		(:t (bind '(a0 a1 a2 a3 a4 a5) ma)
-			(bind '(b0 b1 b2 b3 b4 b5) mb)
-			(fixeds (+ (* a0 b0) (* a1 b3)) (+ (* a0 b1) (* a1 b4)) (+ (* a0 b2) (* a1 b5) a2)
-				(+ (* a3 b0) (* a4 b3)) (+ (* a3 b1) (* a4 b4)) (+ (* a3 b2) (* a4 b5) a5)))))
-
-(defun cwb-mat-move (tx ty)
-	; (cwb-mat-move tx ty) -> matrix
-	(fixeds 1.0 0.0 (n2f tx) 0.0 1.0 (n2f ty)))
-
-(defun cwb-mat-scale (sx &optional sy cx cy)
-	; (cwb-mat-scale sx [sy cx cy]) -> matrix
-	;about a point, default the origin
-	(setd sy sx cx 0.0 cy 0.0)
-	(setq sx (n2f sx) sy (n2f sy) cx (n2f cx) cy (n2f cy))
-	(fixeds sx 0.0 (- cx (* sx cx)) 0.0 sy (- cy (* sy cy))))
-
-(defun cwb-mat-turn (angle &optional cx cy)
-	; (cwb-mat-turn angle [cx cy]) -> matrix
-	;by an angle in radians, the way from the x axis to the y axis, about
-	;a point, default the origin
-	(setd cx 0.0 cy 0.0)
-	(setq cx (n2f cx) cy (n2f cy))
-	(defq c (cos (n2f angle)) s (sin (n2f angle)))
-	(fixeds c (neg s) (- cx (- (* c cx) (* s cy))) s c (- cy (+ (* s cx) (* c cy)))))
-
-(defun cwb-mat-invert (m)
-	; (cwb-mat-invert m) -> matrix | :nil
-	;the matrix that undoes it. One that flattens everything to a line
-	;has none, and that of no change is given
-	(when m
-		(bind '(a b tx c d ty) m)
-		(defq det (- (* a d) (* b c)))
-		(if (= det 0.0) (cwb-mat)
-			(progn
-				(defq ia (/ d det) ib (/ (neg b) det) ic (/ (neg c) det) id (/ a det))
-				(fixeds ia ib (neg (+ (* ia tx) (* ib ty))) ic id (neg (+ (* ic tx) (* id ty))))))))
-
-(defun cwb-mat-point (m x y)
-	; (cwb-mat-point m x y) -> (x y)
-	(setq x (n2f x) y (n2f y))
-	(if m
-		(progn
-			(bind '(a b tx c d ty) m)
-			(list (+ (* a x) (* b y) tx) (+ (* c x) (* d y) ty)))
-		(list x y)))
+;a matrix is the 3x2 of lib/math/matrix.inc, (Mat3x2), six numbers, as
+;(path-transform) takes it. :nil where a matrix can be is no change
 
 (defun cwb-mat-paths (m paths)
 	; (cwb-mat-paths m paths) -> paths
@@ -165,7 +109,7 @@
 	;words, their left end and the line they sit on at that point. :font
 	;and :font_size say which letters, they are filled, black unless it is said
 	(defq item (cwb-item :shape (cat (list :kind :text :text text :fill 0xff000000 :stroke 0) key_vals)))
-	(elem-set item +cwb_m (cwb-mat-mul (cwb-mat-move x y) (elem-get item +cwb_m)))
+	(elem-set item +cwb_m (Mat3x2-mul (Mat3x2-translate x y) (elem-get item +cwb_m)))
 	item)
 
 (defun cwb-group (items &rest key_vals)
@@ -324,7 +268,7 @@
 	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
 	(when (defq box (third (cwb-flat item)))
 		(bind '(bx by bx1 by1) box)
-		(elem-set item +cwb_m (cwb-mat-move (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
+		(elem-set item +cwb_m (Mat3x2-translate (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
 	item)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -341,37 +285,10 @@
 	(defq todo (map (# (list %0 m)) (reverse items)))
 	(while (defq next (pop todo))
 		(bind '(item m) next)
-		(defq m (cwb-mat-mul m (elem-get item +cwb_m)))
+		(defq m (Mat3x2-mul m (elem-get item +cwb_m)))
 		(if (cwb-group? item)
 			(each (# (push todo (list %0 m))) (reverse (elem-get item +cwb_items)))
 			(fnc item m))))
-
-(defun cwb-box-of (box m)
-	; (cwb-box-of box m) -> (x y x1 y1)
-	;the box round a box that a matrix has moved. Each side is the least
-	;or the most of what each of its two parts can come to
-	(cond
-		(m (bind '(x y x1 y1) box)
-			(bind '(a b tx c d ty) m)
-			(defq ax (* a x) ax1 (* a x1) by (* b y) by1 (* b y1)
-				cx (* c x) cx1 (* c x1) dy (* d y) dy1 (* d y1))
-			(list (+ (min ax ax1) (min by by1) tx) (+ (min cx cx1) (min dy dy1) ty)
-				(+ (max ax ax1) (max by by1) tx) (+ (max cx cx1) (max dy dy1) ty)))
-		(:t box)))
-
-(defun cwb-box-join (a b)
-	; (cwb-box-join a b) -> box | :nil
-	;the box round two boxes, either can be :nil
-	(cond
-		((not a) b)
-		((not b) a)
-		(:t (list (min (first a) (first b)) (min (second a) (second b))
-			(max (third a) (third b)) (max (elem-get a 3) (elem-get b 3))))))
-
-(defun cwb-box-meet? (a b)
-	; (cwb-box-meet? a b) -> :t | :nil
-	(and a b (< (first a) (elem-get b 2)) (< (first b) (elem-get a 2))
-		(< (second a) (elem-get b 3)) (< (second b) (elem-get a 3))))
 
 (defun cwb-bounds (items &optional m)
 	; (cwb-bounds items [m]) -> (x y x1 y1) | :nil
@@ -379,7 +296,7 @@
 	(defq box :nil)
 	(cwb-walk items m (lambda (shape m)
 		(if (defq flat_box (third (cwb-flat shape)))
-			(setq box (cwb-box-join box (cwb-box-of flat_box m))))))
+			(setq box (vector-box-join-2d box (Mat3x2-box flat_box m))))))
 	box)
 
 ;;;;;;;;;;;
@@ -605,8 +522,8 @@
 		groups)
 	(when (defq box (cwb-bounds (cwb-items doc)))
 		(bind '(x y x1 y1) box)
-		(defq margin (max 10.0 (* 0.05 (max (- x1 x) (- y1 y)))) move (cwb-mat-move (- margin x) (- margin y)))
-		(each (# (elem-set %0 +cwb_m (cwb-mat-mul move (elem-get %0 +cwb_m)))) (cwb-items doc))
+		(defq margin (max 10.0 (* 0.05 (max (- x1 x) (- y1 y)))) move (Mat3x2-translate (- margin x) (- margin y)))
+		(each (# (elem-set %0 +cwb_m (Mat3x2-mul move (elem-get %0 +cwb_m)))) (cwb-items doc))
 		(. doc :insert :width (n2i (+ (- x1 x) margin margin)))
 		(. doc :insert :height (n2i (+ (- y1 y) margin margin))))
 	(. doc :insert :style :plain)
@@ -648,7 +565,7 @@
 	(defq count 0)
 	(cwb-walk items m (lambda (shape m)
 		(bind '(fills strokes box) (cwb-flat shape))
-		(when (and box (or (not clip) (cwb-box-meet? clip (cwb-box-of box m))))
+		(when (and box (or (not clip) (vector-collide-boxes-2d clip (Mat3x2-box box m))))
 			(++ count)
 			(if (nempty? fills)
 				(.-> canvas (:set_color (elem-get shape +cwb_fill))
@@ -686,14 +603,14 @@
 	;document with nothing in it, which is left as it is
 	(setd pad 16)
 	(defq box :nil pad (n2f pad))
-	(each (lambda ((name flags items)) (setq box (cwb-box-join box (cwb-bounds items)))) (cwb-layers doc))
+	(each (lambda ((name flags items)) (setq box (vector-box-join-2d box (cwb-bounds items)))) (cwb-layers doc))
 	(when box
 		(bind '(x y x1 y1) box)
 		;by whole pixels, so what was sharp on the grid is sharp still
-		(defq dx (- pad (floor x)) dy (- pad (floor y)) move (cwb-mat-move dx dy))
+		(defq dx (- pad (floor x)) dy (- pad (floor y)) move (Mat3x2-translate dx dy))
 		(unless (and (= dx 0.0) (= dy 0.0))
 			(each (lambda ((name flags items))
-				(each (# (elem-set %0 +cwb_m (cwb-mat-mul move (elem-get %0 +cwb_m)))) items))
+				(each (# (elem-set %0 +cwb_m (Mat3x2-mul move (elem-get %0 +cwb_m)))) items))
 				(cwb-layers doc)))
 		(. doc :insert :width (max 1 (n2i (+ (- (+ x1 dx) 0.0) pad 0.9999))))
 		(. doc :insert :height (max 1 (n2i (+ (- (+ y1 dy) 0.0) pad 0.9999))))
@@ -760,12 +677,12 @@
 	;item like it, none if all of it went. :nil if none of it was that
 	;near. An end that was its own keeps how that end was drawn, an arrow
 	;say, and an end that was cut is round
-	(defq m (elem-get item +cwb_m) inv (cwb-mat-invert m) size 1.0)
+	(defq m (elem-get item +cwb_m) inv (Mat3x2-invert m) size 1.0)
 	(when m
 		(bind '(a b &ignore) m)
 		(defq c (elem-get m 3) d (elem-get m 4))
 		(setq size (max 0.001 (sqrt (abs (- (* a d) (* b c)))))))
-	(bind '(lx ly) (cwb-mat-point inv x y))
+	(bind '(lx ly) (Mat3x2-point inv x y))
 	;as near as its own edge, half its width more than its middle
 	(defq lr (+ (/ (n2f r) size) (* 0.5 (n2f (elem-get item +cwb_width))))
 		pieces (list) cut :nil)
@@ -804,15 +721,15 @@
 	(setq x (n2f x) y (n2f y))
 	(defq tol (n2f (ifn tol 0)))
 	(when (and box (progn
-			(bind '(bx by bx1 by1) (cwb-box-of box m))
+			(bind '(bx by bx1 by1) (Mat3x2-box box m))
 			(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
 		;the point is taken into the shape's own space, what it is drawn
 		;with is not moved
-		(defq inv (cwb-mat-invert m)
+		(defq inv (Mat3x2-invert m)
 			pts (if (> tol 0.0)
-				(map (lambda ((dx dy)) (cwb-mat-point inv (+ x (* dx tol)) (+ y (* dy tol))))
+				(map (lambda ((dx dy)) (Mat3x2-point inv (+ x (* dx tol)) (+ y (* dy tol))))
 					'((0.0 0.0) (1.0 0.0) (-1.0 0.0) (0.0 1.0) (0.0 -1.0) (0.7 0.7) (-0.7 0.7) (0.7 -0.7) (-0.7 -0.7)))
-				(list (cwb-mat-point inv x y)))
+				(list (Mat3x2-point inv x y)))
 			rule (if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero))
 		(some (lambda ((px py))
 			(defq p (path px py))
@@ -860,23 +777,6 @@
 		(cwb-layers doc))
 	found)
 
-(defun cwb-seg-box? (x0 y0 x1 y1 bx by bx1 by1)
-	; (cwb-seg-box? x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
-	;does a line from one point to another touch a box, be in it, cross
-	;it or end in it. The line is cut to each side of the box in turn, and
-	;touches if anything of it is left
-	(defq dx (- x1 x0) dy (- y1 y0) t0 0.0 t1 1.0 ok :t)
-	(each (lambda ((p q))
-		(when ok
-			(cond
-				((= p 0.0) (if (< q 0.0) (setq ok :nil)))
-				(:t (defq r (/ q p))
-					(cond
-						((< p 0.0) (cond ((> r t1) (setq ok :nil)) ((> r t0) (setq t0 r))))
-						(:t (cond ((< r t0) (setq ok :nil)) ((< r t1) (setq t1 r)))))))))
-		(list (list (neg dx) (- x0 bx)) (list dx (- bx1 x0)) (list (neg dy) (- y0 by)) (list dy (- by1 y0))))
-	ok)
-
 (defun cwb-shape-touch? (shape m box)
 	; (cwb-shape-touch? shape m box) -> :t | :nil
 	;does what a shape draws, its fill or its stroke, touch a box of the
@@ -885,7 +785,7 @@
 	;not touched by a box in one of the other corners
 	(bind '(fills strokes sbox) (cwb-flat shape))
 	(when sbox
-		(bind '(sx sy sx1 sy1) (cwb-box-of sbox m))
+		(bind '(sx sy sx1 sy1) (Mat3x2-box sbox m))
 		(bind '(bx by bx1 by1) (map (const n2f) box))
 		(cond
 			;nowhere near
@@ -902,7 +802,7 @@
 							(defq px (elem-get p (- n 2)) py (elem-get p (dec n)))
 							(while (and (not hit) (< i n))
 								(defq x (elem-get p i) y (elem-get p (inc i)))
-								(if (cwb-seg-box? px py x y bx by bx1 by1) (setq hit :t))
+								(if (vector-collide-line-box-2d px py x y bx by bx1 by1) (setq hit :t))
 								(setq px x py y i (+ i 2))))
 						hit) (cat fills strokes))
 					;or the box is inside it, no edge near

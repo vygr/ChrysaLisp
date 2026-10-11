@@ -99,7 +99,7 @@
 				(unless bands (setq bands (make-bands)))
 				;a row more each way, an edge that lies on the line between
 				;two rows can shade the one it is not in
-				(defq m (if (= zoom 1.0) :nil (cwb-mat-scale zoom))
+				(defq m (if (= zoom 1.0) :nil (Mat3x2-scale zoom))
 					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1))))
 				(reduce (lambda (count (flags rows none))
 						(if (bits? flags 1) count

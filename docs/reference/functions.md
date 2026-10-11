@@ -32,6 +32,67 @@
 each pixel is scale by scale samples, default 1
 ```
 
+### Mat3x2
+
+```code
+(Mat3x2 [a b tx c d ty]) -> matrix
+```
+
+### Mat3x2-box
+
+```code
+(Mat3x2-box box m) -> (x y x1 y1)
+
+the box round a box that a matrix has moved. Each side is the least
+or the most of what each of its two parts can come to
+```
+
+### Mat3x2-invert
+
+```code
+(Mat3x2-invert m) -> matrix | :nil
+
+the matrix that undoes it. One that flattens everything to a line
+has none, and that of no change is given
+```
+
+### Mat3x2-mul
+
+```code
+(Mat3x2-mul ma mb) -> matrix | :nil
+
+the one matrix that does what mb does and then what ma does
+```
+
+### Mat3x2-point
+
+```code
+(Mat3x2-point m x y) -> (x y)
+```
+
+### Mat3x2-rot
+
+```code
+(Mat3x2-rot angle [cx cy]) -> matrix
+
+by an angle in radians, the way from the x axis to the y axis, about
+a point, default the origin
+```
+
+### Mat3x2-scale
+
+```code
+(Mat3x2-scale sx [sy cx cy]) -> matrix
+
+about a point, default the origin
+```
+
+### Mat3x2-translate
+
+```code
+(Mat3x2-translate tx ty) -> matrix
+```
+
 ### SVG-info
 
 ```code
@@ -765,29 +826,6 @@ the items, a group and then what is in it
 the box round all that the items draw, :nil if they draw nothing
 ```
 
-### cwb-box-join
-
-```code
-(cwb-box-join a b) -> box | :nil
-
-the box round two boxes, either can be :nil
-```
-
-### cwb-box-meet?
-
-```code
-(cwb-box-meet? a b) -> :t | :nil
-```
-
-### cwb-box-of
-
-```code
-(cwb-box-of box m) -> (x y x1 y1)
-
-the box round a box that a matrix has moved. Each side is the least
-or the most of what each of its two parts can come to
-```
-
 ### cwb-d
 
 ```code
@@ -1035,64 +1073,12 @@ a file that is not a tree at all throws as it is read, where there
 are errors to throw
 ```
 
-### cwb-mat
-
-```code
-(cwb-mat [a b tx c d ty]) -> matrix
-```
-
-### cwb-mat-invert
-
-```code
-(cwb-mat-invert m) -> matrix | :nil
-
-the matrix that undoes it. One that flattens everything to a line
-has none, and that of no change is given
-```
-
-### cwb-mat-move
-
-```code
-(cwb-mat-move tx ty) -> matrix
-```
-
-### cwb-mat-mul
-
-```code
-(cwb-mat-mul ma mb) -> matrix | :nil
-
-the one matrix that does what mb does and then what ma does
-```
-
 ### cwb-mat-paths
 
 ```code
 (cwb-mat-paths m paths) -> paths
 
 new paths, each moved by the matrix, the same ones if it is :nil
-```
-
-### cwb-mat-point
-
-```code
-(cwb-mat-point m x y) -> (x y)
-```
-
-### cwb-mat-scale
-
-```code
-(cwb-mat-scale sx [sy cx cy]) -> matrix
-
-about a point, default the origin
-```
-
-### cwb-mat-turn
-
-```code
-(cwb-mat-turn angle [cx cy]) -> matrix
-
-by an angle in radians, the way from the x axis to the y axis, about
-a point, default the origin
 ```
 
 ### cwb-new-id
@@ -1212,16 +1198,6 @@ not, each is all there or not there
 
 ```code
 (cwb-save doc stream) -> stream
-```
-
-### cwb-seg-box?
-
-```code
-(cwb-seg-box? x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
-
-does a line from one point to another touch a box, be in it, cross
-it or end in it. The line is cut to each side of the box in turn, and
-touches if anything of it is left
 ```
 
 ### cwb-set
@@ -6156,14 +6132,6 @@ form must be broken, and its operator, kept on the end of it. They are
 worked out the once, the first time the token is come to.
 ```
 
-### tool-angle-wrap
-
-```code
-(tool-angle-wrap a) -> a
-
-an angle as one of more than -pi and no more than pi
-```
-
 ### tool-glyph
 
 ```code
@@ -6183,14 +6151,6 @@ to draw: an arc, a slice of pie, or a circle, either of those filled
 an angle, in radians, or the one that matters that it is near
 by 180 and then over pi, and back by pi and then over 180: a degree
 in radians is too small a number to be held well
-```
-
-### tool-nearest-on-line
-
-```code
-(tool-nearest-on-line x y x0 y0 x1 y1) -> (px py t)
-
-the point of a line nearest a point, and how far along it that is, 0 to 1
 ```
 
 ### tool-ticks
@@ -6402,6 +6362,14 @@ reads the comments under a definition, and the lines of a key map.
 (usort list [fcmp start end]) -> list
 ```
 
+### vector-angle-wrap
+
+```code
+(vector-angle-wrap a) -> a
+
+an angle as one of more than -pi and no more than pi
+```
+
 ### vector-bounds-2d
 
 ```code
@@ -6418,6 +6386,38 @@ reads the comments under a definition, and the lines of a key map.
 
 ```code
 (vector-bounds-sphere verts [stride]) -> (center_v3 radius)
+```
+
+### vector-box-join-2d
+
+```code
+(vector-box-join-2d a b) -> box | :nil
+
+the box round two boxes, either can be :nil
+```
+
+### vector-collide-boxes-2d
+
+```code
+(vector-collide-boxes-2d a b) -> :t | :nil
+```
+
+### vector-collide-line-box-2d
+
+```code
+(vector-collide-line-box-2d x0 y0 x1 y1 bx by bx1 by1) -> :t | :nil
+
+does a line from one point to another touch a box, be in it, cross
+it or end in it. The line is cut to each side of the box in turn, and
+touches if anything of it is left
+```
+
+### vector-nearest-on-line-2d
+
+```code
+(vector-nearest-on-line-2d x y x0 y0 x1 y1) -> (px py t)
+
+the point of a line nearest a point, and how far along it that is, 0 to 1
 ```
 
 ### vector-point-in-polygon

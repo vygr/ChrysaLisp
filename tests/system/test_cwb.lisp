@@ -55,12 +55,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (assert-true "a move, then twice the size about the origin"
-	(wb-near? (cwb-mat-point (cwb-mat-mul (cwb-mat-scale 2) (cwb-mat-move 10 5)) 1 1) '(22.0 12.0)))
-(assert-true "a quarter turn about a point" (wb-near? (cwb-mat-point (cwb-mat-turn +fp_hpi 10 10) 20 10) '(10.0 20.0) 0.001))
-(defq wb_m (cwb-mat-mul (cwb-mat-turn 0.7 3 4) (cwb-mat-scale 2.5 0.5 1 1)))
+	(wb-near? (Mat3x2-point (Mat3x2-mul (Mat3x2-scale 2) (Mat3x2-translate 10 5)) 1 1) '(22.0 12.0)))
+(assert-true "a quarter turn about a point" (wb-near? (Mat3x2-point (Mat3x2-rot +fp_hpi 10 10) 20 10) '(10.0 20.0) 0.001))
+(defq wb_m (Mat3x2-mul (Mat3x2-rot 0.7 3 4) (Mat3x2-scale 2.5 0.5 1 1)))
 (assert-true "a matrix and the one that undoes it"
-	(wb-near? (apply (const cwb-mat-point) (cat (list (cwb-mat-invert wb_m)) (cwb-mat-point wb_m 12 -7))) '(12.0 -7.0) 0.001))
-(assert-eq "no matrix and a matrix is the matrix" wb_m (cwb-mat-mul :nil wb_m))
+	(wb-near? (apply (const Mat3x2-point) (cat (list (Mat3x2-invert wb_m)) (Mat3x2-point wb_m 12 -7))) '(12.0 -7.0) 0.001))
+(assert-eq "no matrix and a matrix is the matrix" wb_m (Mat3x2-mul :nil wb_m))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; paths of common shapes
@@ -80,10 +80,10 @@
 
 (defq wb_doc (cwb-doc 200 100)
 	wb_a (cwb-add wb_doc (cwb-shape (cwb-d-rect 10 10 60 40) :fill 0xffff0000 :stroke 0xff000000 :width 4 :join :miter))
-	wb_b (cwb-add wb_doc (cwb-shape (cwb-d-line 0 0 100 0) :m (cwb-mat-move 50 80)))
+	wb_b (cwb-add wb_doc (cwb-shape (cwb-d-line 0 0 100 0) :m (Mat3x2-translate 50 80)))
 	wb_g (cwb-add wb_doc (cwb-group (list (cwb-shape (cwb-d-rect 0 0 10 10) :fill 0xff00ff00 :stroke 0)
 		(cwb-group (list (cwb-shape (cwb-d-rect 20 0 30 10) :fill 0xff0000ff :stroke 0)) :name "inner"))
-		:m (cwb-mat-move 150 50) :name "outer")))
+		:m (Mat3x2-translate 150 50) :name "outer")))
 (assert-list-eq "each item of a layer has an id" '(1 2 3) (wb-ids wb_doc))
 (assert-list-eq "those in a group too, in the order they are in" '(4 5 6)
 	(list (elem-get (first (cwb-get wb_g :items)) +cwb_id) (elem-get (second (cwb-get wb_g :items)) +cwb_id)
@@ -389,7 +389,7 @@
 
 ;one thing has its handles in its own frame. A box turned an eighth of a turn
 (defq wb_doc2 (. wb_board :get_doc) wb_turned (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
-	:m (cwb-mat-mul (cwb-mat-move 400 400) (cwb-mat-turn (/ +fp_pi 4.0))))))
+	:m (Mat3x2-mul (Mat3x2-translate 400 400) (Mat3x2-rot (/ +fp_pi 4.0))))))
 (. wb_board :select (list wb_turned))
 (defq wb_spots (. wb_handles :spots) wb_r (/ 100.0 (sqrt 2.0)))
 (assert-true "turned, its handles are at its own corners, not those of the box round it"
@@ -429,7 +429,7 @@
 	(progn (defq wb_parts (map (const str-to-num) (filter (# (not (find %0 '("M" "L")))) (split (cwb-get wb_line :d) " "))))
 		(and (wb-near? (elem-get wb_parts 3) 60.0 0.05) (wb-near? (elem-get wb_parts 2) (+ 520.0 (sqrt (+ (* 180.0 180.0) 16.0))) 0.05))))
 (def wb_board :snap_angle 0.0)
-(. wb_board :transform (cwb-mat-move 0 100))
+(. wb_board :transform (Mat3x2-translate 0 100))
 (wb-drag 0 :mouse 1 (list (slice (second (. wb_handles :spots)) 1 3) '(700 300)))
 (assert-true "a line that has been moved has its end go to where the pointer is, not that far in its own space"
 	(wb-near? (slice (second (. wb_handles :spots)) 1 3) '(700 300) 0.05))
@@ -529,7 +529,7 @@
 ;a line that has been moved and made twice the size
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 2
-	:m (cwb-mat-mul (cwb-mat-move 50 200) (cwb-mat-scale 2.0))))
+	:m (Mat3x2-mul (Mat3x2-translate 50 200) (Mat3x2-scale 2.0))))
 (. rb_board :rub 150 200 10)
 (assert-list-eq "a line that is twice the size is cut in its own space, half as far" '("M 0 0 L 44 0" "M 56 0 L 100 0") (rb-ds))
 (assert-true "and what is left is where it was on the board"
@@ -593,7 +593,7 @@
 (defq ft_doc (cwb-doc 800 600))
 (assert-eq "a document with nothing in it is left as it is" :nil (cwb-fit ft_doc))
 (cwb-add ft_doc (cwb-shape (cwb-d-rect 300 200 400 260) :fill 0xffff0000 :stroke 0))
-(cwb-add ft_doc (cwb-group (list (cwb-shape (cwb-d-rect 0 0 50 40) :fill 0xff00ff00 :stroke 0)) :m (cwb-mat-move 500 300)))
+(cwb-add ft_doc (cwb-group (list (cwb-shape (cwb-d-rect 0 0 50 40) :fill 0xff00ff00 :stroke 0)) :m (Mat3x2-translate 500 300)))
 (assert-list-eq "fitted, all of it is moved so the box round it is 16 in from the top left" '(-284 -184) (map (const n2i) (cwb-fit ft_doc)))
 (assert-list-eq "the box round it is then 16 in" '(16 16 266 156) (map (const n2i) (cwb-bounds (cwb-items ft_doc))))
 (assert-list-eq "and the paper is that box and 16 all round" '(282 172) (list (. ft_doc :find :width) (. ft_doc :find :height)))
@@ -704,7 +704,7 @@
 (assert-list-eq "a box is not written, nor is a line by hand joined to a box" '(("written" 4) ("written" 2) :pen :rect :pen) (wr-shape))
 ;a word that has been moved is done with
 (. wr_board :select (list (elem-get (first (cwb-items wr_doc)) +cwb_id)))
-(. wr_board :transform (cwb-mat-move 0 200))
+(. wr_board :transform (Mat3x2-translate 0 200))
 (. wr_board :select (list))
 (def wr_board :mode :select)
 (. wr_board :ungroup)
@@ -723,7 +723,7 @@
 ;several things selected each have their own box, a group that was broken up is seen to be its parts
 (defq ug_board (Board (cwb-doc 400 300)))
 (. ug_board :add (cwb-group (list (cwb-shape (cwb-d-rect 40 40 100 80) :fill 0xffff0000 :stroke 0)
-	(cwb-shape (cwb-d-rect 200 100 260 140) :fill 0xff00ff00 :stroke 0 :m (cwb-mat-turn 0.5 230 120)))))
+	(cwb-shape (cwb-d-rect 200 100 260 140) :fill 0xff00ff00 :stroke 0 :m (Mat3x2-rot 0.5 230 120)))))
 (def ug_board :mode :select)
 (. ug_board :select (list 1))
 (. ug_board :ungroup)
@@ -890,7 +890,7 @@
 	tb_id (elem-get (cwb-add tb_doc (cwb-shape (cwb-d-rect 150 130 250 170) :fill 0xff0000ff :stroke 0)) +cwb_id)
 	tb_canvas (Canvas 400 300 1))
 (. tb_board :select (list tb_id))
-(. tb_board :transform (cwb-mat-turn (/ +fp_pi 4.0) 200.0 150.0))
+(. tb_board :transform (Mat3x2-rot (/ +fp_pi 4.0) 200.0 150.0))
 (. tb_canvas :fill 0) (. tb_board :draw_overlay tb_canvas :nil :t)
 ;the box square to the board round it would have a line down x 147 or so, from y 97 to y 203. Its own box has none there
 (assert-list-eq "the line round a thing turned an eighth of a turn is along its own sides, not a square box round it"

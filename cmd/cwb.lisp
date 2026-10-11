@@ -146,7 +146,7 @@
 				(when opt_o
 					(defq zoom (n2f (ifn opt_z 1)) w (max 1 (n2i (* (n2f (. doc :find :width)) zoom)))
 						h (max 1 (n2i (* (n2f (. doc :find :height)) zoom)))
-						canvas (Canvas w h 1) m (if (= zoom 1.0) :nil (cwb-mat-scale zoom)))
+						canvas (Canvas w h 1) m (if (= zoom 1.0) :nil (Mat3x2-scale zoom)))
 					(.-> canvas (:set_canvas_flags +canvas_flag_antialias)
 						(:fill (ifn opt_b (. doc :find :background))))
 					(. board :draw canvas m)
