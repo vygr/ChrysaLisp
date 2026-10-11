@@ -1129,6 +1129,10 @@ Usage: tests [options] [path] ...
             The task of a batch is run with this.
         -a --all: run every module, whatever the cache has.
         -s --stale: list the modules that would be run, run none.
+        -w --watch: say at the end the longest a task was kept
+            from running on each node, while the modules ran.
+            One that does not give way for a second or two is
+            why a test with a deadline fails now and then.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.

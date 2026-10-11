@@ -82,6 +82,7 @@
 	; (ed-inv a) -> 1 over a, a new number
 	(defq c (ed-copy a) n 254)
 	(while (>= (setq n (dec n)) 0)
+		(task-slice)
 		(ed-mul c c c)
 		(unless (or (= n 2) (= n 4)) (ed-mul c c a)))
 	c)
@@ -90,6 +91,7 @@
 	; (ed-pow2523 a) -> a to the power of (p-5)/8, a new number
 	(defq c (ed-copy a) n 251)
 	(while (>= (setq n (dec n)) 0)
+		(task-slice)
 		(ed-mul c c c)
 		(unless (= n 1) (ed-mul c c a)))
 	c)
@@ -158,6 +160,8 @@
 	(defq p (list (ed-copy *ed_zero*) (ed-copy *ed_one*) (ed-copy *ed_one*) (ed-copy *ed_zero*))
 		q (map (const ed-copy) q) n 256)
 	(while (>= (setq n (dec n)) 0)
+		;255 of these is half a second of a small machine: it gives way
+		(task-slice)
 		(if (= 0 (logand (>> (code scalar 1 (>> n 3)) (logand n 7)) 1))
 			(progn (ed-add q p) (ed-add p p))
 			(ed-add p q) (ed-add q q)))

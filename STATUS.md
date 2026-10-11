@@ -4,6 +4,51 @@
 
 ------
 
+`tests -w`, the longest a task was kept from running, and what is left
+of the Pi's flake.
+
+The soak of 24 after the formatter was made to give way: 70 of 72. Both
+the pipe test: the Pi, "a pipe let go of open is gone", a second by the
+clock; and the x64 Mac, "and the pipe is told why", which is no deadline
+and no slow machine.
+
+What I did to find if tonight made it:
+
+*	The pipe test alone, 30 runs on each machine: the M4 0, the Pi 0,
+	the x64 1, the same line.
+*	On the x64, this morning's tree, `cb00cfbc6`, built in a folder of
+	its own, 100 runs: 0. The tree as it is, 100 runs: 0.
+
+So 1 in 130 alone on the x64 as it is, 0 in 100 as it was, and that is
+not two numbers that can be told apart. I can not say tonight made it
+and can not say it did not. What changed tonight that a pipe goes
+through: `(. pipe :close)` puts its timer away; a timeout of 0 takes
+every timeout of the mailbox; and three of the commands the test runs,
+`cat`, `head`, `echo`, had `(when (and ...) form)` made `(and ... form)`.
+The line that fails on the Pi runs `files` and `sort`, which did not
+change, and lets go of a pipe without closing it, which is none of the
+three.
+
+`tests -w`, `--watch`: a task on each node that sleeps a hundredth of a
+second and notes how late it wakes, `(test-watch)` in `tests/suite.inc`,
+and at the end
+
+	Waited: 620 295 241 134 ms, the longest a task was kept from running, each node
+
+which is the Pi, with every module. The M4 is 60 at most. A module now
+gives way each time it holds a thing to be so, `(test-pass)`, and the
+signature arithmetic, `lib/crypto/ed25519.inc`, in its loops of 255.
+
+The Pi's longest is still 0.6 of a second: one thing that takes that
+long with nowhere in it to give way, the palette of the Whiteboard drawn
+and the symbol font made. A test that gives a second by the clock, with
+two tasks each 0.6 late, fails. That is where the Pi's are, I think, and
+it is not shown.
+
+Run: every module on the M4 and the Pi with `-w`, 6,383 and 0 failed.
+
+------
+
 **Why one run in sixty failed on the Pi: a test that held its node for
 three seconds.**
 

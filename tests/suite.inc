@@ -51,6 +51,10 @@
 ;;;;;;;;;;;
 
 (defun test-pass (name)
+	;a module gives way to the others of its node between one thing held
+	;to and the next. One that works for a second with never a mail is a
+	;second that every task on its node is late by, (test-watch)
+	(task-slice)
 	(++ *test_passes*)
 	(if *test_verbose* (print "[PASS] " name)))
 
@@ -326,14 +330,45 @@
 			(setq *test_module* cmd)
 			(test-fail "batch" "to run to the end" "no result"))))
 
-(defun run-suite (modules &optional verbose frames jobs child all stale)
-	; (run-suite modules [verbose frames jobs child all stale]) -> :t | :nil
+(defun test-watch (nodes)
+	; (test-watch nodes) -> (stop back)
+	;a task on each of these nodes that sleeps a hundredth of a second
+	;and notes how late it wakes, till it is told to stop. A task gives
+	;way to the others of its node only when it says so, and one that
+	;does not for a second or two is why a test with a deadline fails
+	;now and then, on a small machine, with nothing wrong in it
+	(defq back (mail-mbox) said (mail-mbox))
+	(list (map (lambda (node)
+			(open-task (str `(progn (defq back (hex-decode ,(hex-encode back)) worst 0 going :t)
+					(while going
+						(defq t1 (pii-time))
+						(task-sleep 10000)
+						(defq late (- (pii-time) t1 10000))
+						(if (> late worst) (setq worst late))
+						(if (mail-poll (list (task-mbox))) (setq going :nil)))
+					(mail-send back (str worst))))
+				node +kn_call_pin 0 said)
+			(getf (mail-read said) +kn_msg_reply_id))
+		nodes) back))
+
+(defun test-watched (watch)
+	; (test-watched watch) -> (ms ...)
+	;the watchers are stopped, and the longest each was kept waiting
+	(bind '(stop back) watch)
+	(each (# (mail-send %0 "stop")) stop)
+	(sort (map (lambda (&) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
+		(# (- %1 %0))))
+
+(defun run-suite (modules &optional verbose frames jobs child all stale watch)
+	; (run-suite modules [verbose frames jobs child all stale watch]) -> :t | :nil
 	;run the modules, at most jobs of them to a task. If they all fit in
 	;one batch they run here, one after another. A child is the task of a
 	;batch, it ends with a line of counts in place of the summary.
 	;A module whose result is in the cache, and still stands, is not run,
 	;unless all are asked for. With stale the modules that would be run
-	;are listed and none is.
+	;are listed and none is. With watch, the longest a task was kept
+	;waiting on each node while the modules ran is said at the end,
+	;(test-watch).
 	(setd jobs 1)
 	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
 		*test_verbose* verbose *test_frames* frames *test_child* child)
@@ -361,7 +396,8 @@
 	;a module in tests/solo/ changes the network, adds a node say, which
 	;would upset the others, so those run here, one at a time, at the end
 	(defq solo (filter (# (starts-with "tests/solo/" %0)) run)
-		others (filter (# (not (starts-with "tests/solo/" %0))) run))
+		others (filter (# (not (starts-with "tests/solo/" %0))) run)
+		watching (and watch (not child) (nempty? others) (test-watch (lisp-nodes :t))) waits :nil)
 	(cond
 		((or child (<= (length run) jobs))
 			(each (const test-run-counted) others))
@@ -373,6 +409,8 @@
 			(each (lambda ((cmd out)) (. outs :insert cmd out))
 				(pipe-farm (cat cmds) +test_retry))
 			(each (# (test-collect %0 (. outs :find %0))) cmds)))
+	;the watchers go before the modules that count the nodes and what is on them
+	(if watching (setq waits (test-watched watching)))
 	(each (const test-run-counted) solo)
 	;what ran to its end with nothing failed is kept. What failed is
 	;not, so it is run again the next time, whatever has changed
@@ -398,5 +436,6 @@
 			(print "Skipped: " *test_skips*
 				(if (or *test_checked* (= *test_skips* 0)) ""
 					", release build, no error checks to test"))
+			(if waits (print "Waited: " (join (map (const str) waits) " ") " ms, the longest a task was kept from running, each node"))
 			(print "RESULT: " (if (= *test_failures* 0) "SUCCESS" "FAILURE"))))
 	(= *test_failures* 0))

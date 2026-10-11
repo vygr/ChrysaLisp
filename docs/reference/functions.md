@@ -2036,12 +2036,18 @@ the cluster that follows this one, from the allocation table
 (exfat-path vol path) -> :nil | (root ... entry)
 
 the entries from the root down to a path
+every file that is found, saved or removed comes by here, and many
+of them in one batch touch the device not at all: it gives way here too
 ```
 
 ### exfat-raw-read
 
 ```code
-whole blocks from the device, :nil if they are not all there
+whole blocks from the device, :nil if they are not all there. Each
+
+time the device is gone to, the task gives way first: a volume at
+work is a great deal of reading and writing, and the node is not its
+alone
 ```
 
 ### exfat-raw-write
@@ -5629,6 +5635,10 @@ is kept is not it: it has gone wrong, and is no use to anyone
 
 ```code
 (store-block-has? store name) -> :nil | :t
+
+is a block of that name kept here. The names of what is kept are
+held, read from the volume once as it is opened: to look one up on
+the volume is to read two directories of it
 ```
 
 ### store-block-put
@@ -5645,7 +5655,7 @@ there is no more to do. :nil if there is no room for it
 ```code
 (store-blocks store) -> (name ...)
 
-every block that is kept here, whatever is in it
+every block that is kept here, whatever is in it, as the volume has it
 ```
 
 ### store-check
@@ -5748,6 +5758,15 @@ the step below would be this very lambda
 all of an object
 ```
 
+### store-held
+
+```code
+(store-held store) -> (name ...)
+
+the names of the blocks kept here, as they are held: what
+(store-block-has?) goes by. No reading of the volume
+```
+
 ### store-holders
 
 ```code
@@ -5822,7 +5841,9 @@ that long. copies is how many members keep a block, 3
 ```code
 (store-manifest store hash) -> :nil | (size names)
 
-the object of that name, if its manifest is kept here
+the object of that name, if its manifest is kept here. One that has
+been read is held: a name is of the one thing for ever, and what an
+object is made of is asked again and again
 ```
 
 ### store-manifest-text
