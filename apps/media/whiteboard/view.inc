@@ -27,13 +27,14 @@
 ; board is told to give up what each was doing, a box dragged out, a tap.
 ;
 ; The app is what has the pan and the zoom, and makes them so. It is
-; called: :on_pan by how many pixels, :on_zoom to what zoom and about
-; what point of the paper, :on_rest when a zoom is let go of, about what
-; point.
+; called: :on_pan by how many pixels, :on_wheel by how many more for a
+; turn of the wheel, :on_zoom to what zoom and about what point of the
+; paper, :on_rest when a zoom is let go of, about what point.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
 (import "lib/cwb/board.inc")
+
 
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view
@@ -47,7 +48,7 @@
 		;fingers that are down, each where it is in the view. The two that
 		;have hold of what is seen, and how they and it were when they
 		;took it. And what the app is called by, see above
-		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_zoom :nil :on_rest :nil)
+		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil)
 
 	(defmethod :to_doc (rx ry)
 		; (. board_view :to_doc rx ry) -> (x y)
@@ -118,8 +119,8 @@
 		; (. board_view :mouse_wheel event) -> board_view
 		;a turn of the wheel, or a swipe on a mouse that has a top to
 		;swipe, moves what is seen, the way a scroll goes: 16 pixels a turn
-		(if (defq on_pan (get :on_pan this))
-			(on_pan (* -16 (getf event +ev_msg_wheel_x)) (* 16 (getf event +ev_msg_wheel_y))))
+		(if (defq on_wheel (get :on_wheel this))
+			(on_wheel (* -16 (getf event +ev_msg_wheel_x)) (* 16 (getf event +ev_msg_wheel_y))))
 		this)
 
 	(defmethod :pointer (event)

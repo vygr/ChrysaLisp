@@ -46,6 +46,7 @@
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
 		(view-from-doc)
+		(def *board* :zoom *zoom*)
 		(setq *file* (if (str? file) file) *snap* (if snap :t) *snap_angle* (if snap_angle :t))
 		(def *board* :snap (if *snap* (snap-gap) 0.0)
 			:snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0)

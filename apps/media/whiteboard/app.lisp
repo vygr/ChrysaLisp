@@ -44,6 +44,9 @@
 	;*zoom* how big it is seen. *zoom_to* is where the zoom is going,
 	;(zoom x y), a little each tick till it is there, and about what point
 	*pan_x* 0.0 *pan_y* 0.0 *zoom_to* :nil
+	;how far what is seen has yet to go for the turns of a wheel there
+	;have been, pixels: a wheel says so many steps, and it glides them
+	*pan_go* (list 0.0 0.0)
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil *canvas_size* :nil
@@ -220,7 +223,9 @@
 		ix (n2i (floor (+ sx 0.5))) iy (n2i (floor (+ sy 0.5)))
 		fx (/ (n2f (n2i (floor (+ (* (- sx (n2f ix)) 8.0) 0.5)))) 8.0)
 		fy (/ (n2f (n2i (floor (+ (* (- sy (n2f iy)) 8.0) 0.5)))) 8.0)
-		key (str (list (get :angle tool) (get :length tool) (get :size tool) (get :mode tool) *zoom*
+		;how big it is on the screen, not its size and the zoom apart: it
+		;is the same picture at any zoom, it stays the size it is there
+		key (str (list (get :angle tool) (get :length tool) (n2i (* (get :size tool) *zoom* 4096.0)) (get :mode tool)
 			(first (get :said tool))))
 		canvas (elem-get entry +tv_canvas)
 		same (and canvas (eql key (elem-get entry +tv_key)))
@@ -365,19 +370,57 @@
 	(setq *paper_dirty* :t *flight_at* :nil)
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
+(defun tools-held ()
+	; (tools-held) -> ((instrument x y on) ...)
+	;where each instrument is on the screen, and how big it is there.
+	;An instrument is not of the document, it lies on the glass over
+	;it: what is seen goes by under it, and gets bigger and smaller
+	;under it, and it stays where it is and the size it is. Chris:
+	;"Instrument move with the whell, that's definately not wanted."
+	(map (lambda (tool)
+			(bind '(ox oy) (get :origin tool))
+			(list tool (* (- ox *pan_x*) *zoom*) (* (- oy *pan_y*) *zoom*) (* (get :size tool) *zoom*)))
+		(filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
+
+(defun tools-hold (held)
+	;each is put back where it was on the screen, the size it was there,
+	;now that the pan and the zoom are another, (tools-held)
+	(each (lambda ((tool sx sy on))
+		(def tool :origin (list (+ *pan_x* (/ sx *zoom*)) (+ *pan_y* (/ sy *zoom*))) :size (/ on *zoom*)))
+		held))
+
 (defun pan-by (dx dy)
 	;what is seen is moved by that many pixels of the screen, as far as
 	;is asked: the things of a document are anywhere, there is no edge
+	(defq held (tools-held))
 	(setq *pan_x* (- *pan_x* (/ (n2f dx) *zoom*)) *pan_y* (- *pan_y* (/ (n2f dy) *zoom*)))
+	(tools-hold held)
 	(view-changed))
+
+(defun pan-glide (dx dy)
+	;so many pixels more to go, for a turn of a wheel: gone a part of
+	;the way each tick, (pan-tick), not in steps the size of a turn,
+	;which are the size of the paper's lines and look like a snap
+	(setq *pan_go* (list (+ (first *pan_go*) (n2f dx)) (+ (second *pan_go*) (n2f dy)))))
+
+(defun pan-tick ()
+	; (pan-tick) -> :t | :nil
+	;a part of the way there is still to go. Is there more
+	(bind '(gx gy) *pan_go*)
+	(when (or (/= gx 0.0) (/= gy 0.0))
+		(defq mx (if (< (abs gx) 1.0) gx (* gx 0.3)) my (if (< (abs gy) 1.0) gy (* gy 0.3)))
+		(setq *pan_go* (list (- gx mx) (- gy my)))
+		(pan-by mx my)
+		:t))
 
 (defun zoom-set (zoom cx cy)
 	;the zoom is that, and the point of the document that is at cx cy of
 	;the paper stays there
 	(setq zoom (max (first +zooms) (min (last +zooms) (n2f zoom))))
 	(unless (= zoom *zoom*)
-		(defq dx (+ *pan_x* (/ (n2f cx) *zoom*)) dy (+ *pan_y* (/ (n2f cy) *zoom*)))
+		(defq dx (+ *pan_x* (/ (n2f cx) *zoom*)) dy (+ *pan_y* (/ (n2f cy) *zoom*)) held (tools-held))
 		(setq *zoom* zoom *pan_x* (- dx (/ (n2f cx) zoom)) *pan_y* (- dy (/ (n2f cy) zoom)))
+		(tools-hold held)
 		(view-changed)))
 
 (defun zoom-pinch (zoom cx cy)
@@ -403,7 +446,9 @@
 	;a step of the way to where the zoom is going. Is it still going
 	(when *zoom_to*
 		(bind '(zoom cx cy) *zoom_to*)
-		(defq next (+ *zoom* (* (- zoom *zoom*) 0.3)))
+		;an eighth of what is left each tick, most of a second in all:
+		;slow enough for the lines of the paper to be seen to change
+		(defq next (+ *zoom* (* (- zoom *zoom*) 0.125)))
 		(cond
 			((< (abs (- (/ next zoom) 1.0)) 0.01)
 				(setq *zoom_to* :nil)
@@ -426,7 +471,7 @@
 
 ;the wheel, the middle button and two fingers move what is seen, two
 ;fingers zoom it, and when they let go it comes to rest, view.inc
-(def *board_view* :on_pan pan-by :on_zoom zoom-pinch :on_rest zoom-rest)
+(def *board_view* :on_pan pan-by :on_wheel pan-glide :on_zoom zoom-pinch :on_rest zoom-rest)
 
 (defun draw-paper ()
 	;what is behind the document to work on, not part of it: a colour,
@@ -733,7 +778,7 @@
 	;a document is seen as it was when it was saved, one that does not
 	;say from 0 0 at 1. Its zoom is one it rests at
 	(defq view (. (. *board* :get_doc) :find :view))
-	(setq *zoom_to* :nil *pan_x* 0.0 *pan_y* 0.0 *zoom* 1.0)
+	(setq *zoom_to* :nil *pan_go* (list 0.0 0.0) *pan_x* 0.0 *pan_y* 0.0 *zoom* 1.0)
 	(when (and (list? view) (= (length view) 3) (every (const num?) view))
 		(setq *pan_x* (n2f (first view)) *pan_y* (n2f (second view)) *zoom* (zoom-magnet (n2f (third view))))))
 
@@ -810,8 +855,10 @@
 				(def *board* :text (. *text_field* :get_text))
 				;what is on the board that moves by itself is told the time
 				(. *board* :tick (pii-time))
-				;and the zoom, if it is on its way somewhere
+				;and the zoom, if it is on its way somewhere, and what is
+				;seen, if a wheel has it going
 				(zoom-tick)
+				(pan-tick)
 				(redraw)
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)

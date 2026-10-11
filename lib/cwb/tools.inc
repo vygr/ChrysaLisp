@@ -121,7 +121,10 @@
 	;				that, and says the angle that much on: a ruler seen
 	;				from its other side
 	(def this :board board :origin (list (n2f x) (n2f y)) :angle 0.0
-		:length 400.0 :min_length 150.0 :max_length 2000.0 :size 1.0 :readouts (list) :said :nil
+		:length 400.0 :min_length 150.0 :max_length 2000.0 :readouts (list) :said :nil
+		;it is the size it is on the screen, whatever the zoom the board
+		;is seen at: it lies on the glass, it is not of the document
+		:size (/ 1.0 (n2f (ifn (get :zoom board) 1.0)))
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
 		:mode :line :body :nil :regions :nil :zones :nil :grab :nil)
 

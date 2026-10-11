@@ -4,6 +4,40 @@
 
 ------
 
+Chris's first look at the view: instruments stay on the glass, the
+wheel glides, the zoom takes its time.
+
+"drag without snap still looked like it snapped, never see that smooth
+line fades effect. Could be the wheel distance is just aligned with the
+drid". "Instrument move with the whell, that's definately not wanted."
+And of saving, which still makes the paper the size of what is drawn:
+"yes, definately, with the small broder area. So that diagrams get
+minsize and a easy edge." So that stays.
+
+The record of his session: every place the view came to rest was a
+whole 8 of the document at twice, 16 pixels, the size of a turn of the
+wheel and half the gap of the paper's lines. And the zoom got where it
+was going in a sixth of a second.
+
+* The wheel says how far and what is seen glides there, a third of
+what is left each tick, `(pan-glide)`.
+
+* The zoom goes an eighth of what is left each tick, most of a second,
+so the lines are seen to change.
+
+* An instrument lies on the glass. When the pan or the zoom changes its
+place in the document and its `:size` are made what keeps it where it
+was on the screen, the size it was. A new one is the size it is on the
+screen at the zoom there is, `lib/cwb/tools.inc`. Its picture is kept
+by how big it is on the screen, so a zoom does not draw it again.
+
+The app's tests, 99: an instrument through a move, a zoom and a glide
+is where it was on the screen and the size it was. The cwb modules.
+
+Not seen: by Chris, yet.
+
+------
+
 The things of a board are anywhere, and the paper is a view of them.
 
 Chris: "the shapes live in an infite 2d cord space, the canvas is still

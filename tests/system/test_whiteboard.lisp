@@ -211,6 +211,12 @@
 	"(print (list (cwb-get (last (cwb-items (. *board* :get_doc))) :d) *pan_x* *pan_y*))"
 	;the paper's lines are where the document's 0 0 is seen, and at a zoom it rests at they are the grid, half of it at half strength, and no finer
 	"(draw-paper) (print (list (get :origin_x *paper*) (get :origin_y *paper*) (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*))))"
+	;an instrument lies on the glass: what is seen is moved and zoomed under it, and it is where it was on the screen, the size it was
+	"(defun wa-on () (map (# (n2i (+ %0 0.5))) (first (map (# (list (second %0) (third %0) (* 100.0 (elem-get %0 3)))) (tools-held)))))"
+	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* 300 200))) (defq on0 (wa-on))"
+	"(pan-by 70 -20) (defq on1 (wa-on)) (zoom-set 0.5 100 100) (defq on2 (wa-on)) (pan-glide 32 0) (while (pan-tick)) (defq on3 (wa-on))"
+	"(print (list on0 on1 on2 on3 (map (const n2i) (get :origin ruler)) (get :size ruler) (n2i *pan_x*)))"
+	"(. (. *board* :get_stage) :sub ruler) (zoom-set 2.0 0 0)"
 	;part way between two zooms it rests at, the finer rulings are part way up
 	"(zoom-set 3.0 0 0) (draw-paper) (print (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*)))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
@@ -221,8 +227,10 @@
 	"(\qM 75 85 L 175 85 175 185 75 185 Z\q -25.00000 -15.00000)" (elem-get wa_out 4))
 (assert-eq "the paper's lines are drawn from where the document's 0 0 is seen: the grid full, half of it at half, a quarter of it not at all"
 	"(50.00000 30.00000 ((8.00000 0) (16.00000 127) (32.00000 255)))" (elem-get wa_out 5))
+(assert-eq "an instrument lies on the glass: what is seen moved, zoomed and glided under it, it is where it was on the screen and the size it was there, and so twice the size in the document at half"
+	"((650 430 100) (650 430 100) (650 430 100) (650 430 100) (1026 705) 2.00000 -274)" (elem-get wa_out 6))
 (assert-eq "half way to the next zoom the lines are half as far apart again, the next finer three quarters up and the finest a quarter"
-	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 6))
+	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 7))
 
 
 ;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it

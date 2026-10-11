@@ -367,8 +367,26 @@ all of what was drawn, from wherever it was looked at.
   "set the magnets for angles on the canvas as 90 degrees, full locks",
   "the action and the final jump of the canvas is enough".
 
-* Saving still makes the paper the size of what is drawn and brings it to
-  the top left, as it did when the paper was what things were on.
+Saving makes the paper the size of what is drawn, with a little room
+round it, and brings it to the top left, as it did. Chris: "yes,
+definately, with the small broder area. So that diagrams get minsize and
+a easy edge."
+
+### Instruments lie on the glass
+
+An instrument is not of the document. What is seen goes by under it and
+is zoomed under it, and it stays where it is on the screen, the size it
+is there. Chris: "Instrument move with the whell, that's definately not
+wanted." So when the pan or the zoom is another, each instrument's place
+in the document and its `:size` are made what keeps it so, `(tools-held)`
+and `(tools-hold)`, and a new one is made the size it is on the screen at
+the zoom there is. Its marks are then of the screen: a ruler's
+millimetres are a real ruler's on the glass, not the document's.
+
+A turn of the wheel is 16 pixels, which is half the gap of the lines at
+rest, and moved in steps of that the board looked as if it snapped. So
+the wheel says how far and what is seen glides there, `(pan-glide)` and
+`(pan-tick)`, a third of what is left each tick.
 
 ## The instruments
 
