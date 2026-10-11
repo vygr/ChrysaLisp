@@ -16,6 +16,22 @@
 
 (import "./app.inc")
 
+(defq +gopher_ahead 32)
+
+(defun go-to (names at members)
+	; (go-to names at members) -> :nil | netid
+	;of the members that have the block it wants, the one that has the
+	;longest run of the blocks after it too: it is not sent on again till
+	;it must be. Each is asked the one thing, which of the next so many it
+	;has
+	(defq ahead (slice names at (min (length names) (+ at +gopher_ahead))) best :nil most 0)
+	(each (lambda (where)
+		(defq has (ifn (storage-ask where +storage_type_has (apply (const cat) (cat (list "") ahead))) "")
+			run (ifn (find "0" has) (length has)))
+		(when (> run most) (setq most run best where)))
+		members)
+	best)
+
 (defun main ()
 	(defq msg (mail-read (task-mbox)) lines (split msg +storage_lf)
 		asker (hex-decode (first lines)) svc (hex-decode (second lines))
@@ -42,8 +58,7 @@
 						;that has it is found, and all there is of the gopher, where
 						;it is, what it has, its function and where it has been, is
 						;sent there, to carry on. This one is done, it says nothing
-						((defq next (some (# (if (eql (storage-ask %0 +storage_type_has want) "1") %0))
-								(storage-where want svc)))
+						((defq next (go-to names at (storage-where want svc)))
 							(defq said (mail-mbox))
 							(open-task "service/storage/gopher.lisp" (slice next +mailbox_id_size -1) +kn_call_pin 0 said)
 							(defq there (getf (mail-read-timeout said (task-timeout 5)) +kn_msg_reply_id))

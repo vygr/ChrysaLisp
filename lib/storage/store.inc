@@ -160,16 +160,16 @@
 	(exfat-end vol)
 	store)
 
-(defun store-make (device size id member &optional block_size label)
-	; (store-make path | stream size id member [block_size label]) -> :nil | :t
+(defun store-make (device size id member &optional block_size label copies)
+	; (store-make path | stream size id member [block_size label copies]) -> :nil | :t
 	;a new store with nothing in it, on a new volume of that many bytes.
 	;id is the store's, any str with no space in it, member the id of the
 	;member whose it is, the system id of its machine in hex. A path is a
 	;new file of the host, a stream is written where it is and must be
-	;that long
+	;that long. copies is how many members keep a block, 3
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
-			:block_size (ifn block_size +store_block_size) :copies +store_copies
+			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
 			:map (Fmap 11) :members (list member) :retired (list) :pins (list))
 		(exfat-begin vol)
 		(store-head-save store)

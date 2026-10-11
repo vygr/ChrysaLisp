@@ -5808,13 +5808,13 @@ the paths that begin so, in order, with those deleted if asked
 ### store-make
 
 ```code
-(store-make path | stream size id member [block_size label]) -> :nil | :t
+(store-make path | stream size id member [block_size label copies]) -> :nil | :t
 
 a new store with nothing in it, on a new volume of that many bytes.
 id is the store's, any str with no space in it, member the id of the
 member whose it is, the system id of its machine in hex. A path is a
 new file of the host, a stream is written where it is and must be
-that long
+that long. copies is how many members keep a block, 3
 ```
 
 ### store-manifest

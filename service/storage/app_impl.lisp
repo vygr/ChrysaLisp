@@ -73,8 +73,8 @@
 	(each (lambda (line)
 		(if (defq at (find " " line)) (. opts :insert (sym (cat ":" (slice line 0 at))) (slice line (inc at) -1))))
 		(split (mail-read (task-mbox)) +storage_lf))
-	(bind '(ready image name size id block force group member tick grace)
-		(gather opts :ready :image :name :size :id :block :force :group :member :tick :grace))
+	(bind '(ready image name size id block force group member tick grace copies)
+		(gather opts :ready :image :name :size :id :block :force :group :member :tick :grace :copies))
 	(defq ready (hex-decode ready) size (if size (str-as-num size) 0) block (if block (str-as-num block) 0)
 		id (ifn id "store") name (ifn name +storage_name) group (ifn group +storage_group)
 		member (ifn member (hex-encode (system-id)))
@@ -84,7 +84,8 @@
 	;is no store, only if it was said to
 	(and (not store) (> size 0) (or (= (age image) 0) force)
 		;the volume has the store's id as its label, as much of it as a label holds
-		(store-make image size id member (if (> block 0) block) (slice id 0 (min 11 (length id))))
+		(store-make image size id member (if (> block 0) block) (slice id 0 (min 11 (length id)))
+			(if copies (str-as-num copies)))
 		(setq store (store-open image member)))
 	(cond
 		((or (not store) (nempty? (mail-enquire (cat name ","))))

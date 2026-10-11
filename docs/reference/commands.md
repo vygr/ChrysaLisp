@@ -1007,6 +1007,16 @@ Usage: storage [options] [path]
             default store.
         -F --format: with -s and -m, make a store of what is
             there even if it is something else, a disk.
+        -k --copies num: with -m, how many members keep a
+            block, default 3.
+        -q --query form: send a gopher to path with that
+            function, in double quotes,
+            "(lambda (state data at count) ...)", which gives
+            (state next). What it comes back with, and the
+            members it went to.
+        -M --members: who the members are, and which are
+            there now. With +id or -id as path, one is
+            joined or retired.
         -x --stop: stop the service.
         -l --list: the objects whose paths begin with path,
             all of them if none is given.

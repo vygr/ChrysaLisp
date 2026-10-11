@@ -4,6 +4,38 @@
 
 ------
 
+**Storage: on the three machines.**
+
+A service in the standing node of each, the M4, the x64 Mac and the Pi,
+`./rack.sh run "storage -s /tmp/cl_store_trial.img -m 64 -i trial -k 2"`,
+two copies a block. They found each other, by `*Storage`, with nothing
+done to join them:
+
+	the three listed as members by each         after 6 s
+	boot image 250KB and STATUS.md 633KB at M4  1/3, then 3/3 after 8 s
+	blocks kept                                 9, 12, 13: two each of 14, and the manifests
+	had from the Pi and from the x64            the M4's files, by SHA-256
+	a gopher from the Pi, lines of STATUS.md    13,881, as wc -l, by way of Pi x64 M4 x64
+	the Pi stopped, a file put at the x64       2/3
+	the Pi started again                        has it, 3/3, after 8 s, as it was put
+
+The services are stopped and their files removed. Nothing is left running
+of it on any machine.
+
+And: how many members keep a block is the store's, `:copies`, `storage
+-k`; the gopher goes to the member with the longest run of the blocks
+ahead, it had gone back and forth between two; `storage -M` the members
+and which are there, `storage -q` a gopher from the command line, and
+the listing says how many members have each path, `2/3`.
+
+Run: the four storage modules, 293, on all three machines.
+
+Not seen: a member gone for the five minutes after which what it kept is
+kept by others, on real machines; the test of five members does it with
+no wait. A split of real machines, the same.
+
+------
+
 **Storage: a store of many members.**
 
 Chris, going to bed: "If the single store looks good then start to extend

@@ -234,7 +234,7 @@
 
 (defun storage-start (image &rest opts)
 	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
-	;	:group str :member str :tick us :grace us]) -> :nil | netid
+	;	:group str :member str :tick us :grace us :copies num]) -> :nil | netid
 	;the service is started on this node, to keep the store that is in
 	;that file of the host. If there is none there and a size is given,
 	;one is made of that many bytes, the store id, and this system its
@@ -257,7 +257,7 @@
 				(defq lines (list (cat "ready " (hex-encode said)) (cat "image " image) (cat "name " name)))
 				(each (lambda (key)
 					(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
-					'(:size :id :block :force :group :member :tick :grace))
+					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
 				(if (eql (mail-read-timeout said (task-timeout 30)) "ok") (storage-service name))))))
 

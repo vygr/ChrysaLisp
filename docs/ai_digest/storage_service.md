@@ -519,6 +519,29 @@ only when told so that every step is done when it says:
 * A member is stopped: every block is kept by three of the four that are
   left, and it is still a member. Started again: three of the five.
 
+**On three machines**, the night of 2026-10-11. A service started in the
+standing node of the M4, the x64 Mac and the Raspberry Pi 4, each on a store
+of 64MB in a file of its own, the one store id, two copies a block so that no
+machine would have all of anything. Nothing else was done to join them.
+
+* Six seconds after they were started each listed the three as members.
+* The boot image, 250KB, and `STATUS.md`, 633KB, put at the M4: `1/3`. Eight
+  seconds later `3/3` on all three, and 9, 12 and 13 blocks kept, 34, which is
+  two copies of the 14 and the two manifests on each.
+* The boot image had from the Pi's store and `STATUS.md` from the x64's are
+  the M4's files, by SHA-256.
+* A gopher sent from the Pi to count the lines of `STATUS.md` came back with
+  13,881, which `wc -l` says too, by way of the Pi, the x64, the M4 and the
+  x64 again.
+* The Pi's service stopped, a file put at the x64: `2/3`. The Pi's started
+  again on its store: eight seconds later it has the path, `3/3`, and the
+  file is had from it as it was put.
+
+A gopher goes, of the members that have the block it wants, to the one with
+the longest run of the blocks after it, so that it is not sent on again till
+it must be. How many members keep a block is the store's, said when it is
+made, `:copies`, `storage -k`, three if it is not.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -536,8 +559,8 @@ only when told so that every step is done when it says:
 
 ## Open
 
-* It is not started by itself, and has run on one machine only: the three
-  machines, each with its own, is next.
+* It is not started by itself. On the three machines it was started by
+  hand, in the standing nodes, and stopped after.
 * The whole path map is sent when two members differ. `lib/hash/tree.inc`,
   which sync has, would send only what differs.
 * A member is one by a store of that id being made on it. Retiring one is
