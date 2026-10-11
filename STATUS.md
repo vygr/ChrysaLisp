@@ -4,6 +4,32 @@
 
 ------
 
+Whiteboard: the side button of a pen rubs out, and the right button on a
+thing sends it to the back and no more.
+
+Chris, of whether the barrel button of a pen should be the eraser: "yes
+it should." It was the hand. `(bindings-default)` in
+`lib/cwb/pointer.inc`. A hand's tap on nothing was how a pen came to its
+ring menu, so a tap of the side button on nothing, that rubbed nothing
+out, opens it; the other end of a pen does not, it is an eraser and no
+more.
+
+And of a right button tap on a thing that was selected already, which
+sent it to the back and opened the ring too: "i'd like to keep the right
+button push to back action. We have esc or min to get out of jail". It
+sends it to the back. A tap on what is selected still asks for the ring
+when it is not by the right button alone, a finger, or the left button
+with the arrow. With a mouse, on a board that is all of the screen with a
+thing over all of it, out is Esc or min.
+
+Also a test that min puts the middle of the document in the middle of the
+paper, plain and turned, which he had seen work.
+
+Run: cwb 591, whiteboard 116, on the M4, the x64 Mac and the Pi. Not
+seen: a pen, there is none here.
+
+------
+
 `make vp` with no mode is release, as the VP64 is wherever it is built.
 
 Chris, of item 52: "release debug validate, should all be options on the

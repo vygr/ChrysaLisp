@@ -247,6 +247,26 @@
 (pl-drag pl_board 0 :mouse +pev_left 210 160 260 200)
 (assert-list-eq "dragged, it is moved, and no palette opens" '(0 1) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
 
+;the right button on a thing sends it to the back, and that is all it does, selected or not
+(defq pr_board (Board (cwb-doc 400 300)) pr_doc (. pr_board :get_doc))
+(palette-enable pr_board)
+(. pr_board :add (cwb-shape (cwb-d-rect 50 50 200 150) :fill 0xff808080 :stroke 0))
+(. pr_board :add (cwb-shape (cwb-d-rect 100 80 200 150) :fill 0xff404040 :stroke 0))
+(defq pr_top (elem-get (last (cwb-items pr_doc)) +cwb_id))
+(pl-tap pr_board 0 :mouse +pev_right 150 120)
+(assert-list-eq "the one in front, tapped by the right button, is selected and behind, and no palette opens"
+	(list (list pr_top) :t 0)
+	(list (. pr_board :get_selected) (eql (elem-get (first (cwb-items pr_doc)) +cwb_id) pr_top) (length (palettes pr_board))))
+;where only the other is: it is selected, and tapped again now it is selected there is still no palette
+(defq pr_low (elem-get (first (filter (# (/= (elem-get %0 +cwb_id) pr_top)) (cwb-items pr_doc))) +cwb_id))
+(pl-tap pr_board 0 :mouse +pev_right 60 60)
+(assert-list-eq "the other, where it is alone, is selected by the right button" (list (list pr_low) 0)
+	(list (. pr_board :get_selected) (length (palettes pr_board))))
+(pl-tap pr_board 0 :mouse +pev_right 60 60)
+(assert-list-eq "tapped again now it is selected: it is selected still, behind still, and no palette opens"
+	(list (list pr_low) :t 0)
+	(list (. pr_board :get_selected) (eql (elem-get (first (cwb-items pr_doc)) +cwb_id) pr_low) (length (palettes pr_board))))
+
 ;the button on the side of a pen rubs out, and only a tap of it on nothing is the menu
 (defq pb_board (Board (cwb-doc 800 600)))
 (palette-enable pb_board)

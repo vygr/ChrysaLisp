@@ -208,7 +208,10 @@ The escape key does the same.
 
 * The palette opens where you tap on nothing. If there is nothing that is
 nothing, a thing covers all there is to see, tap the thing to select it
-and tap it again: a tap on what is selected opens the palette too.
+and tap it again: a tap on what is selected opens the palette too, by a
+finger, or by the left button with the arrow. Not by the right button of
+the mouse: that on a thing sends it to the back, and does only that. With
+a mouse alone the escape key, or min, is the way out.
 
 ## The paper is the size of what is on it
 

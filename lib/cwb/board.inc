@@ -452,8 +452,13 @@
 							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
 							(elem-set state +stroke_tool :idle)))
 					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
-						;on what was selected already, and no other hand at work
-						(if (and (not holding) (find id_hit selected)) (elem-set state +stroke_again :t))
+						;on what was selected already, and no other hand at work.
+						;Not by the right button alone: that sends a thing to the
+						;back, below, and is to do that and no more. Chris: "i'd
+						;like to keep the right button push to back action. We
+						;have esc or min to get out of jail"
+						(if (and (not holding) (find id_hit selected) (/= buttons +pev_right))
+							(elem-set state +stroke_again :t))
 						(cond
 							(holding
 								;other hands have hold of other things. This
