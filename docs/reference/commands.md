@@ -560,8 +560,9 @@ Usage: lint [options]
     trashes, and says where that is not what its header has
     written down. It is only right on a debug build, so this
     makes one, 'make vp debug' then 'make apps debug', runs
-    'files obj/vp/ | trace -i -l', and puts the release
-    build back, 'make apps' then 'make all boot'.
+    'files obj/vp/ | trace -i -l', and puts the builds
+    back as they are with no mode, 'make vp', 'make apps'
+    then 'make all boot'.
 
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.
@@ -624,9 +625,9 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     fmt:        format all the source files, with the fmt command.
 
     A mode goes with any build, and all that is built is built
-    in it. With none: 'it' and 'apps' build the VP64 in release
-    and the rest in debug, 'vp' builds it in debug, and the
-    others build this platform in debug.
+    in it. With none it is debug for all, and the VP64 is in
+    release: so for 'it', 'apps' and 'vp', and the others
+    build this platform, in debug.
 ```
 ## mesh
 ```code
@@ -759,6 +760,25 @@ Usage: patch [options] file_a [file_b]
 
     If no second file is given it will
     be read from stdin.
+```
+## progns
+```code
+Usage: progns [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+
+    Scan source files for a (progn) where there is one
+    already: round the else forms of an (if) or an (ifn),
+    or as the whole body of a (when), (unless), (while)
+    or (until). Each of those takes as many forms as are
+    given, the (progn) says nothing and costs a call.
+
+    What is in a comment or a string is not looked at.
+
+    If no paths given on command line
+    then will test files from stdin.
 ```
 ## rack
 ```code

@@ -188,15 +188,21 @@ echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f
 ### Standard Sanity Tools
 
 The standard sanity test tools from the TUI are `includes`, `forward`,
-`brackets` and `trace`:
+`brackets`, `progns` and `trace`:
 
 ```sh
 echo "files | includes" | ./run_tui.sh -f
 echo "files | forward" | ./run_tui.sh -f
 echo "files | brackets -q" | ./run_tui.sh -f
+echo "files | progns" | ./run_tui.sh -f
 ```
 
-`trace` must only be run on debug VP objects: `make vp` for the system, and
+`progns` says where a `(progn)` is round the else forms of an `(if)` or an
+`(ifn)`, or is all the body of a `(when)`, `(unless)`, `(while)` or
+`(until)`: each of those takes as many forms as it is given. It must say
+nothing.
+
+`trace` must only be run on debug VP objects: `make vp debug` for the system, and
 `make apps debug` for the `apps/` VP functions, which `make vp` does not
 build. Running it against release objects reports spurious mismatches, and
 `trace -w` would then write wrong trashes into the source. Always follow

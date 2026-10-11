@@ -43,3 +43,17 @@
 	(task-slice))
 	(files-all "./lib" '(".inc" ".vp" ".lisp")))
 (assert-eq "no file of lib has a bracket left open" "()" (str tt_bad))
+
+;the progns command, cmd/progns.lisp, reads the tree: a (progn) where there is one already
+(defq tt_file "tmp_progns_test.lisp")
+(save (cat "(if a b (progn c d))" (ascii-char 10) "(ifn a b" (ascii-char 10) "	;note" (ascii-char 10) "	(progn c))" (ascii-char 10)
+	"(when a (progn b c))" (ascii-char 10) "(if a (progn b) c)" (ascii-char 10) "(while x (progn y) z)" (ascii-char 10)
+	"{(if a b (progn c))}" (ascii-char 10) ";(if a b (progn c))" (ascii-char 10)) tt_file)
+(defq tt_said (list))
+(pipe-run (cat "progns " tt_file) (# (push tt_said %0)))
+(assert-eq "round the else of an if and of an ifn, and all of the body of a when; not the first form of an if, nor one in a string or a comment"
+	(cat tt_file " (1) a (progn) round the else of an (if)" (ascii-char 10)
+		tt_file " (4) a (progn) round the else of an (ifn)" (ascii-char 10)
+		tt_file " (5) a (progn) is all the body of a (when)" (ascii-char 10))
+	(join tt_said ""))
+(pipe-run (cat "rm " tt_file) (lambda (&) :nil))
