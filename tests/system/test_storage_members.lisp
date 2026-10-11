@@ -89,9 +89,14 @@
 			(list (reduce (# (+ %0 (code data 1 %1))) (range (% (- 97 (% (* at 4096) 97)) 97) (length data) 97) sum) (inc at)))
 			:nil 30 (sn-of "m-a")))
 	(assert-eq "a gopher sent to an object no member has all of comes back with the answer" sn_sum (first sn_back))
-	(assert-true "it had to go to more than one member for it" (> (length (reduce (# (if (find %1 %0) %0 (push %0 %1))) (second sn_back) (list))) 1))
-	(assert-eq "it began at the member it was sent from" "m-a" (first (second sn_back)))
-	(assert-true "and went only to members" (every (# (find %0 sn_ids)) (second sn_back)))
+	(defq sn_went (map (const first) (second sn_back)))
+	(assert-true "it had to go to more than one member for it" (> (length (reduce (# (if (find %1 %0) %0 (push %0 %1))) sn_went (list))) 1))
+	(assert-list-eq "it began at the member it was sent from, at the first block" '("m-a" 0) (first (second sn_back)))
+	(assert-true "and went only to members" (every (# (find %0 sn_ids)) sn_went))
+	(assert-true "each time it was sent on it was for a block no earlier, and the member it went to has that block"
+		(every (lambda ((who at) (was before)) (and (>= at before)
+				(eql (storage-ask (sn-of who) +storage_type_has (elem-get sn_names at)) "1")))
+			(rest (second sn_back)) (second sn_back)))
 
 	;;;;;;;;;;;;;;;;;;;;
 	; one is cut off

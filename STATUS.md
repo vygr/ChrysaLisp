@@ -4,6 +4,31 @@
 
 ------
 
+**Storage: an app to look at it.**
+
+Chris, going to bed: "I just know you'l have a full distrubuted demo ready
+with visualisation GUI app ready to show me."
+
+`apps/system/storage/app.lisp`, Storage, under System in the launcher.
+The members down the side, the blocks of an object across, a square in a
+member's colour where it keeps a block, the objects under with how many
+members have each. With no Storage service on the system it starts five
+members of a store of their own on its node and puts three objects. Put,
+Next, Gopher, Stop, Start, Cut, Heal, Fork.
+
+The gopher's trail is now each member and the block it came to it for,
+`((member at) ...)`, which is what the line is drawn from.
+
+Seen by me on the Pi's desktop, two pictures: three squares in every
+column; a member stopped, grey, "not there", and the others with its
+blocks; the line of a gopher through four of them.
+
+Not seen: by him. Any button pressed by a hand: the Pi's copy was made to
+send a gopher and stop a member by itself for the picture. Cut, Heal and
+Fork not at all on a screen, the test of five members does those.
+
+------
+
 **Storage: on the three machines.**
 
 A service in the standing node of each, the M4, the x64 Mac and the Pi,

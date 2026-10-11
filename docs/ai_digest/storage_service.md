@@ -542,6 +542,35 @@ the longest run of the blocks after it, so that it is not sent on again till
 it must be. How many members keep a block is the store's, said when it is
 made, `:copies`, `storage -k`, three if it is not.
 
+**To look at**, `apps/system/storage/app.lisp`, Storage in the launcher under
+System. The members of a store down the side, the blocks of one object
+across, and a square in a member's colour where it keeps a block: three in
+every column. Under it the objects, and how many of the members have each.
+
+It shows the store this system is a member of, if its service is running. If
+not, it starts five members of a store of their own on its own node, each
+with a store of 4MB in a file under `obj/`, and puts three objects: all that
+a store of five machines does, on the one. Then:
+
+```
+Put      an object of 10 to 31 blocks is put at one of the members
+Next     the next object is the one shown
+Gopher   a gopher is sent to it from one of them, to add up its bytes:
+         the line drawn is where it went, member to member, block by block
+Stop     a member is switched off, and in 3 seconds its blocks are others'
+Start    those that are off are on
+Cut      a member can reach none of the others, nor they it
+Heal     all can reach all
+Fork     a path is written at two members at once: with one cut off,
+         neither knows of the other, and Heal shows which keeps it
+```
+
+Seen on the Pi's desktop: the five rows with three squares to a column,
+`5 of 5` against each object, a member that was stopped grey and "not
+there" with its blocks made up by the rest, and the line of a gopher through
+four members. Its buttons were not pressed by anyone, a copy of it on the Pi
+was made to send the gopher and stop the member by itself.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

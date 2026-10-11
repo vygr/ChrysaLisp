@@ -78,7 +78,7 @@
 		(list (cat "a " (ascii-char 34) "b" (ascii-char 34) " c 3"))
 		(sg-walk "a/big" (cat "a " (ascii-char 34) "b" (ascii-char 34) " c")
 			'(lambda (state data at count) (list (cat state " " (str count)) :nil)) :nil :nil sg_svc))
-	(assert-list-eq "and it says where it had been, the one member" (list (hex-encode (system-id)))
+	(assert-list-eq "and it says where it had been, the one member, from the first block" (list (list (hex-encode (system-id)) 0))
 		(second (storage-walk "a/big" 0 '(lambda (state data at count) (list state (inc at))) :nil :nil sg_svc)))
 	(assert-eq "one sent to what there is none of comes back with nothing" :nil
 		(storage-walk "a/nothing" 0 '(lambda (state data at count) (list state :nil)) :nil :nil sg_svc))

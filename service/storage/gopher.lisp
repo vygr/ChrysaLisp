@@ -46,7 +46,8 @@
 			;Chris: "keep the original source so you can send it on with
 			;the state", and one that had been would not read back
 			(defq visit (exec (copy source)) me (storage-state svc))
-			(push trail (if me (. me :find :member) "?"))
+			;where it has been: each member, and the block it came to it for
+			(push trail (list (if me (. me :find :member) "?") at))
 			(when (defq object (storage-manifest name svc))
 				(defq names (second object) count (length names) lost :nil sent :nil)
 				(while (and at (not lost) (not sent) (< -1 at count))

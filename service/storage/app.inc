@@ -187,7 +187,8 @@
 	;given what it has, the block, which block it is and how many there
 	;are, and gives what it has now and the block to go to next, :nil when
 	;it is done. What it has then comes straight back here, with its
-	;trail, the members it was at, in the order it went to them: where
+	;trail, ((member at) ...), the members it was at in the order it went
+	;to them and the block it came to each for: where
 	;a block it wants is not kept by the member it is at, it is sent on,
 	;as it is, to one that keeps it, and carries on there.
 	;:nil if there is no such object, a block it went to could not be had,

@@ -103,7 +103,7 @@
 					back (if (list? form) (storage-walk name :nil form :nil 60 svc)))
 				(cond
 					(back (print (first back))
-						(print "by way of " (join (map (# (slice %0 0 8)) (second back)) " ")))
+						(print "by way of " (join (map (# (cat (slice (first %0) 0 8) "@" (str (second %0)))) (second back)) " ")))
 					((print "It did not come back."))))
 			(opt_M
 				(if (or (starts-with "+" name) (starts-with "-" name)) (setq members (storage-members name svc)))
