@@ -4,6 +4,45 @@
 
 ------
 
+The notes and link files a run of the tests left in /tmp, found.
+
+Chris, of 62 (g): "need to find why", then "go with the session note
+leak". A soak of 12 that evening left 72 notes on the M4, six a run,
+all empty, every process of them gone. Three causes, each its own:
+
+*	A node that started nothing wrote an empty note, `(node-start)` in
+	`sys/lisp.inc`: every node that came up alone. It writes none now,
+	and takes away one of its name from long ago.
+*	A network stopped by name, `(node-stop)`, had its lines taken out of
+	the note and the note saved, empty if that was all of it. It is
+	removed.
+*	A session of a rack run, `lib/rack/session.lisp`, cleared its own
+	note and no other. A node of it that started nodes of its own left
+	a note, with the names of their link files: `test_gone`'s node that
+	starts six, 7 files, and one of a single node. The session now goes
+	through its note, the notes of the nodes it names, and theirs, by a
+	list, and removes them and the link files they name.
+
+Counted on the x64 Mac and the Pi over two runs of every module by the
+mesh: six notes a run before, two after the first two, none after the
+third, and no link file more. What had been left before was 3,707 link
+files on the x64 Mac and 44 on the Pi, removed, as `stop.sh` does. The
+M4 has 12 and a desktop up, left.
+
+Under a launch script, `run_tui.sh`, each solo module by itself leaves
+no note of a process that has gone, `test_nets` left one.
+
+Run: every module on the x64 Mac and the Pi twice, 6,060 and 0 failed;
+solo 117 on both after; `test_rack`, `test_nets`, `test_gone` on the M4.
+A line in `test_nets` says the note of its node is gone or has something
+in it; it does not fail on the code of before, the counts are what hold
+this.
+
+Not seen: Windows, which keeps no notes. The M4 over a soak, his desktop
+is up.
+
+------
+
 Network Map: a link does not shine, its color is how hot it is.
 
 Chris, with the map up: "the link specular is interfearing with seeing

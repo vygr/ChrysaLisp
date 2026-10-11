@@ -98,3 +98,9 @@
 		(while (and (some (const pii-alive) nt_first) (< (- (pii-time) nt_t0) (task-timeout 10)))
 			(task-sleep 100000))
 		(assert-true "and its process ends" (notany (const pii-alive) nt_first))))
+
+;a network stopped by name is taken out of the note of the node that added
+;it, and a note with nothing left in it goes. An empty one was left each time
+(defq nn_note (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session"))
+(assert-true "the note of this node is gone, or has something in it"
+	(or (= (age nn_note) 0) (nempty? (ifn (load nn_note) ""))))

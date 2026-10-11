@@ -121,14 +121,21 @@
 		;that is there is some other process's of long ago, with the
 		;number this one has now, and names what is not this node's
 		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session")
-			noted (get '*node_noted*))
+			noted (get '*node_noted*)
+			text (cat (if (and noted (/= (age file) 0)) (load file) "")
+				(if net (cat "net " net (ascii-char 10)) "")
+				(join (map (lambda (pid)
+					(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")
+						(str pid) (ascii-char 10)) "")) pids) "")
+				(join (map (# (cat "link " %0 (ascii-char 10))) names) "")))
 		(def *root_env* '*node_noted* :t)
-		(save (cat (if (and noted (/= (age file) 0)) (load file) "")
-			(if net (cat "net " net (ascii-char 10)) "")
-			(join (map (lambda (pid)
-				(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")
-					(str pid) (ascii-char 10)) "")) pids) "")
-			(join (map (# (cat "link " %0 (ascii-char 10))) names) "")) file))
+		;a node that started nothing leaves no note, there is nothing to
+		;stop or clear away for it. An empty one was left by every node
+		;that came up alone, and by no launch script was it cleared: six
+		;a run of the tests. One of that name from long ago still goes
+		(cond
+			((nempty? text) (save text file))
+			((/= (age file) 0) (pii-remove file))))
 	pids)
 
 (defun node-wait (want)
@@ -320,12 +327,15 @@
 				;the note, less this network's lines
 				;each line that stays ends as it did, what is noted next goes on
 				;the end of the file and would run on from a last line that did not
-				(defq keep :t)
-				(save (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
+				;and with nothing left in it the note goes too, an empty one
+				;was left for each network stopped by name
+				(defq keep :t left (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
 						(cond
+							((empty? line) :nil)
 							((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
 							(keep)))
-					(split (ifn (load file) "") (ascii-char 10)))))) file)
+					(split (ifn (load file) "") (ascii-char 10)))))))
+				(if (nempty? left) (save left file) (pii-remove file))
 				(setq told (+ told (length pids)))))
 			(list found) -1 0)
 		told))
