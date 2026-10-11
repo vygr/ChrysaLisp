@@ -92,8 +92,9 @@ All of this, from cold, on each machine there is, each CPU and each OS.
   with a wait in it fails each time. A module at a time they all pass, in
   six and a half minutes.
 * `lint`, which must say `lint: clean`. It is `make vp debug`, `make apps
-  debug`, then `files obj/vp/ | trace -i -l`, and then `make apps` and
-  `make all boot` to leave the release build, all in the one session.
+  debug`, then `files obj/vp/ | trace -i -l`, and then `make vp`, `make
+  apps` and `make all boot` to leave the builds as they are with no mode,
+  all in the one session.
 * RISC-V and LoongArch under QEMU. The host program is built there first,
   from the source as it is, one left from an older tree has a shorter table
   of calls than the boot image expects and the node dies of it. Then, from

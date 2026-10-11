@@ -28,9 +28,9 @@
     fmt:        format all the source files, with the fmt command.
 
     A mode goes with any build, and all that is built is built
-    in it. With none: 'it' and 'apps' build the VP64 in release
-    and the rest in debug, 'vp' builds it in debug, and the
-    others build this platform in debug.")
+    in it. With none it is debug for all, and the VP64 is in
+    release: so for 'it', 'apps' and 'vp', and the others
+    build this platform, in debug.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 

@@ -586,9 +586,8 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 
 *	`release`, `debug` or `validate` after any of these builds all of it in
 	that mode: `make it validate`, `make all boot release`, `make vp release`.
-	With none, `it` and `apps` build the `VP64` in release and the rest in
-	debug, `vp` builds it in debug, and the others build this platform in
-	debug.
+	With none it is debug for all and the `VP64` is in release: so for `it`,
+	`apps` and `vp`, and the others build this platform, in debug.
 
 *	`make vp`, the same as `make vp debug` — compile the debug VP64 emulator
 	image (`*build_mode* = 1`) used with `trace` (`cmd/trace.lisp`) for register clobber analysis. (Must never

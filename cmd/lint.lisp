@@ -17,8 +17,9 @@
     trashes, and says where that is not what its header has
     written down. It is only right on a debug build, so this
     makes one, 'make vp debug' then 'make apps debug', runs
-    'files obj/vp/ | trace -i -l', and puts the release
-    build back, 'make apps' then 'make all boot'.
+    'files obj/vp/ | trace -i -l', and puts the builds
+    back as they are with no mode, 'make vp', 'make apps'
+    then 'make all boot'.
 
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.")
@@ -51,6 +52,7 @@
 		(build-errors "make apps debug" said)
 		(each (# (push said %0)) (run-step "files obj/vp/ | trace -i -l"))
 		(unless opt_k
+			(build-errors "make vp" said)
 			(build-errors "make apps" said)
 			(build-errors "make all boot" said))
 		(each (const print) said)

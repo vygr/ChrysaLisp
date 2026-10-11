@@ -190,10 +190,11 @@
 	(action files 'VP64 'vp64))
 
 (defun make-vp (action &optional mode files)
-	;only the VP64, in a mode, debug if none is given: it is made by
-	;itself for the lint, which is only right on a debug build
+	;only the VP64, in a mode, release if none is given, as it is with
+	;none wherever it is built. The lint, which is only right on a debug
+	;build, asks for debug
 	(setd files (all-vp-files))
-	(defq *build_mode* (ifn mode 1))
+	(defq *build_mode* (ifn mode 0))
 	(action files 'VP64 'vp64))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))

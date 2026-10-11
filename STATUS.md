@@ -4,6 +4,23 @@
 
 ------
 
+`make vp` with no mode is release, as the VP64 is wherever it is built.
+
+Chris, of item 52: "release debug validate, should all be options on the
+'vp' 'it' 'apps' and if you don't say then it's debug for all native
+cpu's and VP64 gets release."
+
+The modes were on all three already. What was other was `make vp` alone,
+which I had left as debug, for the lint. It is release, `(make-vp)` in
+`lib/asm/asm.inc`. `lint` asked for `make vp debug` by name already, and
+now puts the VP64 back after, `make vp`, where it had left it in debug
+till the next `make it`.
+
+Run on the M4, the VP64 image by its size: no mode 178,004, debug
+208,900, after `lint` 178,004, release 178,004; `lint: clean`.
+
+------
+
 What is in the boot image is a choice, written down with its numbers.
 
 Chris, asked of `poly-hit`: "Do we need this in the boot image though ?"
