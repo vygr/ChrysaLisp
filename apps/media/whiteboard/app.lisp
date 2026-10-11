@@ -493,6 +493,16 @@
 	(tools-hold held)
 	(view-changed))
 
+(defun view-home ()
+	;the middle of the document is in the middle of the paper again, at
+	;the zoom there is. Not while anybody is drawing a line
+	(unless (. *board* :busy?)
+		(defq doc (. *board* :get_doc) held (tools-held)
+			w (/ (n2f (max 1 (. doc :find :width))) 2.0) h (/ (n2f (max 1 (. doc :find :height))) 2.0))
+		(setq *pan_go* (list 0.0 0.0) *pan_x* (- w (/ w *zoom*)) *pan_y* (- h (/ h *zoom*)))
+		(tools-hold held)
+		(view-changed)))
+
 (defun bars-moved ()
 	;a bar was moved by hand: what is seen is where its thumb says, from
 	;where all there is began when the bars were last set. They are not

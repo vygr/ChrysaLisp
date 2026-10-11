@@ -67,7 +67,10 @@
 	;as tight round the paper as it can be: the paper and no more. Chris:
 	;"I think min should shrink evrything and position so that the window
 	;is tight as possible around the paper"
+	;and what is on it back in the middle of it: "min size should
+	;recenter the canvas in the viewport"
 	(full-window)
+	(view-home)
 	(window-round 0))
 
 (defun action-maximise ()

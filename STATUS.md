@@ -6,7 +6,7 @@
 
 All of a set operation of polygons is native, and min puts the document
 back in the middle. Chris, of the eraser after it: "great perforemance
-!" Min is not committed with this, he has not said he has seen it.
+!" Of min: "min recenter works well, commit it".
 
 Chris: "lets look at 64, the eraser band loop in VP. lets see how much
 boot image space that will take. But that action is the most common
