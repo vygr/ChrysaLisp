@@ -94,8 +94,11 @@
 (assert-eq "the first to listen on a port has it" "1" tl_has1)
 (assert-eq "the second has not" "0" tl_has2)
 (mail-send tl_gate1 "")
-(task-sleep 500000)
-(bind '(tl_gate3 tl_has3) (tl-gate 34582))
+;it looks for mail between looks at the port, so it is asked for till it is had
+(defq tl_t0 (pii-time) tl_gate3 :nil tl_has3 :nil)
+(while (and (not (eql tl_has3 "1")) (< (- (pii-time) tl_t0) (task-timeout 5)))
+	(task-sleep 20000)
+	(bind '(tl_gate3 tl_has3) (tl-gate 34582)))
 (assert-eq "the first told to go, the next has it" "1" tl_has3)
 (mail-send tl_gate3 "")
 (task-sleep 200000)

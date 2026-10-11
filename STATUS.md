@@ -4,6 +4,40 @@
 
 ------
 
+Where a run of the tests goes, and two fixed waits made to ask.
+
+Chris: "What takes the most time in these runs ? Is it the Pi4 or a
+paticular stage of the tests ?" Both. The three machines run at once, so
+a run is as long as the Pi's, 52 s to the Macs' 38. And on each the 8
+modules of `tests/solo/` are some 30 s, one after another, the other 127
+some 7 s over the nodes of the M4. The solo ones take the same on the
+Pi, they are waiting, so its 15 s more is in the others.
+
+Of the solo ones `test_tcp_link` was 11.0 s and `test_gone` 7.1 s. Chris:
+"look inside test_tcp_link and test_gone for fixed waits", then "trace
+the 4.9s, but the polling might get us back sevrel secodns with no
+serious issues ?" Less than that, 1.4 s:
+
+*	`test_gone`, 6.1 s: the sleep of 2.5 s before the two counters were
+	asked is gone, they are asked till both have all 250, and not for
+	ever. Each asking is at a new mailbox.
+*	`test_tcp_link`, 10.6 s: the sleep of 0.5 s before the third
+	listener is a port asked for till it is had.
+
+The 4.9 s after the links are dropped is the kernel's: a node whose link
+is closed, and whose process is not known to have gone, is given the
+spread, 1 s, and `ping_window`, 3 s, to be heard another way, `:sys_mail
+:kick`, and nodes past their time are looked for once a second. Not
+changed. Nor the 4 s the link is watched to stay up, which is the test,
+nor two of 0.8 s in `test_gone` for the ways round to be worked out,
+which Lisp can not see.
+
+Run: the solo modules 6 times on the M4, the x64 Mac and the Pi, 117 and
+0 failed each. Before it, with the M4's desktop down, a soak of 12 of
+every module on all three, 36 of 36 clean.
+
+------
+
 A window that has had no shadow and has one again is not all solid.
 
 Chris: "fix it ! good catch." `Window :layout` set the flag that says a

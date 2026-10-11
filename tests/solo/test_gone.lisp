@@ -52,11 +52,12 @@
 (assert-eq "a ring of 4 is three more" 3 (length gn_ring))
 ;the ways round are worked out from the pings, give them a moment
 (task-sleep 800000)
+;a counter counts each "x" it is sent. Any other mail is a mailbox, and it
+;says there how many it has
 (defq gn_counters (map (lambda (node)
-	(open-task (str `(progn (defq n 0 back (hex-decode ,(hex-encode gn_mbox)))
-			(mail-send back (task-mbox))
-			(while (nql (mail-read (task-mbox)) "report") (++ n))
-			(mail-send back (str n))))
+	(open-task (str `(progn (defq n 0)
+			(mail-send (hex-decode ,(hex-encode gn_mbox)) (task-mbox))
+			(while :t (if (eql (defq msg (mail-read (task-mbox))) "x") (++ n) (mail-send msg (str n))))))
 		node +kn_call_pin 0 (mail-mbox))
 	(mail-read-timeout gn_mbox (task-timeout 5))) gn_others))
 (assert-true "a counter on each of the other two" (every (const identity) gn_counters))
@@ -64,11 +65,21 @@
 	gn_victim +kn_call_pin 0 (mail-mbox))
 (task-sleep 200000)
 (times 250 (each (# (mail-send %0 "x")) gn_counters))
-;it goes, its links find that it has within a beat, and what was on them is posted again
-(task-sleep (+ 800000 1000000 700000))
-(each (# (mail-send %0 "report")) gn_counters)
+;it goes, its links find that it has within a beat, and what was on them is
+;posted again. The counters are asked till they have it all, and not for
+;ever, each time at a new mailbox, so a late answer to an earlier asking is
+;not read
+(defun gn-counts ()
+	(map (lambda (counter)
+		(defq said (mail-mbox))
+		(mail-send counter said)
+		(ifn (mail-read-timeout said (task-timeout 2)) "none")) gn_counters))
+(defq gn_t0 (pii-time) gn_counts :nil)
+(while (and (notevery (# (eql %0 "250")) (setq gn_counts (gn-counts)))
+		(< (- (pii-time) gn_t0) (task-timeout 10)))
+	(task-sleep 50000))
 (assert-list-eq "of 250 sent to each of the two, all arrive, what went by way of the one that has gone too"
-	'("250" "250") (map (lambda (&) (ifn (mail-read-timeout gn_mbox (task-timeout 5)) "none")) gn_counters))
+	'("250" "250") gn_counts)
 ;each is told to go, by node. A network is stopped by name from the note
 ;of it, (node-stop), and no note is kept on Windows
 (each (# (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
