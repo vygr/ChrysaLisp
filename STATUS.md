@@ -4,6 +4,30 @@
 
 ------
 
+The store gives way, and a soak of 24: 71 of 72.
+
+The soak after the lighter tests was again 35 of 36, the Pi again, the
+pipe test again, another line of it: "closes at once after eof". Two of
+24, where 24 of that morning had none. A store did everything between
+one mail and the next with never a `(task-slice)`: a member's tender at
+work, or a test of the store, held its node for as long as it took, and
+a command of the pipe test on that node was late for a deadline of a
+second and a half. `lib/storage/store.inc` gives way at each block put,
+had or placed, each entry met and each save. A service has to, tests or
+no tests.
+
+That it was the cause is not shown. On the Pi the pipe test beside the
+storage tests on two nodes, six runs with and six without: no failure
+either way. What I have is the soak of 24 after: no failure of the pipe
+test, 71 of 72.
+
+The one: the Pi, `system/test_lock`, four lines of it in the one run,
+claims of keys that were free not granted in 2 seconds. That one is in
+the list of old as "59 of 60, the one was test_lock on the Pi". Tonight
+there is a measure of it, below.
+
+------
+
 A soak of 12 with the store in it: 35 of 36, and why not 36.
 
 One failure, on the Pi, `system/test_pipe`, "a pipe let go of open is

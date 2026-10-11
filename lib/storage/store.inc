@@ -39,6 +39,12 @@
 ;
 ; Nothing here calls itself, and nothing here knows of mail or of another
 ; member: service/storage/ is that.
+;
+; A task gives way to the others of its node only when it says so, and a
+; store does a great deal between one mail and the next: every block that is
+; put, had or looked over, and every entry that is met, gives way first,
+; (task-slice). Without it a store at work held its node for seconds, and
+; whatever else was on the node was late.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/fs/exfat.inc")
@@ -150,6 +156,7 @@
 (defun store-save (store)
 	; (store-save store) -> store
 	;the path map, the members and the pins, as they are now
+	(task-slice)
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 	(exfat-begin vol)
@@ -248,6 +255,7 @@
 	; (store-block-put store data) -> :nil | name
 	;a block of this data is kept, and its name. If it is kept already
 	;there is no more to do. :nil if there is no room for it
+	(task-slice)
 	(defq vol (get :vol store) name (sha256 data) file (store-block-file name)
 		folder (slice file 0 (const (length "blocks/xx"))))
 	(cond
@@ -264,6 +272,7 @@
 	; (store-block-get store name) -> :nil | data
 	;the block of that name. :nil if it is not kept here, and :nil if what
 	;is kept is not it: it has gone wrong, and is no use to anyone
+	(task-slice)
 	(defq found (exfat-load (get :vol store) (store-block-file name)))
 	(and found (eql (sha256 found) name) found))
 
@@ -526,6 +535,7 @@
 	;members come to the same, whichever does this
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
+		(task-slice)
 		(bind '(name hash bytes vv writer seen deleted) theirs)
 		(defq mine (. map :find name) now :nil)
 		(cond
@@ -582,6 +592,7 @@
 	;name, and those with the greatest keep it: so every member works out
 	;the same, nobody has to be asked, and when a member comes or goes
 	;only the blocks that are its share move
+	(task-slice)
 	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) (ifn among (store-members store)))
 		(# (cmp (first %1) (first %0)))))
 	(map (const second) (slice scored 0 (min (get :copies store) (length scored)))))
