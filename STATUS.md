@@ -4,6 +4,47 @@
 
 ------
 
+Do two shapes touch, asked of their hulls first: GJK.
+
+Chris: "/Users/Chris/Documents/C++/gjk.cpp interesting paper for you,
+2D is same idea as 3D. There is this idea of hill climbing encoding of
+polygon/object verts, that let this idea go fast."
+
+I measured before writing any: a page of 300 strokes as written by
+hand and 40 slanted lines, the eraser moved 60 times. The boxes said
+touched 330 times. 51 were. The other 279 each cost a run of the set
+logic to be told no, 140 millionths of a second, two thirds of all the
+time the eraser took.
+
+`lib/math/polygon.inc`: `(poly-convex-hit? hull_a hull_b)`, GJK in the
+plane, and `(poly-support hull at dx dy)`, the furthest point of a hull
+some way, climbed to from where it was last. In fixeds, as the paths
+are: a sum a hair wrong matters only to shapes a hair apart, what is in
+doubt is said to touch, and the set logic has the last word.
+
+`lib/cwb/board.inc`, `(board-bite)`: box, then hull against the hull
+of what the eraser covers, then the polygons. `(board-hull)` works a
+shape's hull out when first asked and keeps it with its polygons. What
+takes `(cwb-flat)` apart ends with `&ignore` now, there may be more.
+
+On the same page the hulls said touched 52 times, for the 51, and none
+that touched was said to be apart. 10 millionths of a second a pair, in
+Lisp, a fourteenth. The board's 60 drags of the eraser: 112ms without
+it, 92ms with, the bites themselves are the rest.
+
+600 pairs of hulls of random points, held to the set logic, in
+`tests/system/test_polygon.lisp`, 48. Every test on the x64 Mac and the
+Pi: 5917 each. The cwb, whiteboard and polygon modules on the M4.
+
+Not done: native. And the same question is asked, the dear way, by a
+box dragged to select and by the hand that picks a thing up.
+
+Chris, the same hour: "Martyn reports all is looking good on Windows as
+of about 9.00pm last night." That is before last night's fill and all
+of today's network: Windows has not had those.
+
+------
+
 A session that ends could stop a process that was not its own.
 
 Found because the desktop I had started for Chris was gone, twice,

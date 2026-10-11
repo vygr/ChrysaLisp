@@ -354,6 +354,16 @@ items that can be changed and leave those they were copied from as
 they were. What a shape is flattened to goes with it, it is the same
 ```
 
+### board-hull
+
+```code
+(board-hull item) -> :nil | path
+
+the hull of all a shape draws, in its own space, a path with no dent
+in it that the shape is inside. Kept with what else is kept of the
+shape, (cwb-flat), and worked out only when first asked for
+```
+
 ### board-item-corners
 
 ```code
@@ -949,6 +959,8 @@ document with nothing in it, which is left as it is
 ```code
 (cwb-flat shape) -> (fills strokes (x y x1 y1) | :nil)
 
+there may be more after those three, kept with them: take it apart
+with &ignore last. (board-hull) keeps the hull of a shape there
 the polygons a shape is drawn with, those of its fill and those of
 its stroke, and the box they are all in, in its own space. :nil for
 the box of a shape that draws nothing. Worked out once and kept
@@ -3897,6 +3909,15 @@ This is the reference, in Lisp, and is not what is used: the native
 together on every machine, a band at a time.
 ```
 
+### poly-convex-hit?
+
+```code
+(poly-convex-hit? hull_a hull_b) -> :t | :nil
+
+do two paths with no dent in them touch, (poly-hull) gives such a
+path. :nil only if they are apart for sure
+```
+
 ### poly-cuts-ref
 
 ```code
@@ -3988,6 +4009,16 @@ the paths with each number as the whole number it is held as
 
 the lines, 5 numbers each, joined end to start into rings. Lines that
 follow one another with the one number are one line
+```
+
+### poly-support
+
+```code
+(poly-support hull at dx dy) -> at
+
+the point of a hull that is furthest the way of a vector, as where
+it is in the hull, an even index. Climbed to from at, where it was
+when last asked, 0 if never
 ```
 
 ### poly-sweep

@@ -90,6 +90,16 @@
 ; outline. A thing not touched is left as it is.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun board-hull (item)
+	; (board-hull item) -> :nil | path
+	;the hull of all a shape draws, in its own space, a path with no dent
+	;in it that the shape is inside. Kept with what else is kept of the
+	;shape, (cwb-flat), and worked out only when first asked for
+	(defq cache (cwb-flat item))
+	(when (third cache)
+		(if (< (length cache) 4) (push cache (poly-hull (cat (first cache) (second cache)))))
+		(elem-get cache 3)))
+
 (defun board-bite-shape (item full m swept)
 	; (board-bite-shape item full m swept) -> :nil | (shape ...)
 	;a shape with what swept covers taken out of it. swept is paths in
@@ -98,7 +108,7 @@
 	;not touched. What is to stand in its place, in the space it is in:
 	;nothing if all of it went, or all but a sliver, and the shape is then
 	;out of the document
-	(bind '(fills strokes _) (cwb-flat item))
+	(bind '(fills strokes &ignore) (cwb-flat item))
 	(defq mode (if (eql (elem-get item +cwb_rule) :evenodd) 0 1)
 		fills (cwb-mat-paths full fills) strokes (cwb-mat-paths full strokes))
 	(when (or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
@@ -126,7 +136,13 @@
 	;nothing was touched. A group whose things have all gone goes. A list
 	;of what is left to do, no function here calls itself
 	(bind '((x y) (x1 y1)) (vector-bounds-2d swept))
-	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list))
+	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list)
+		;what is swept, with no dent in it. A thing is found by its box,
+		;then by its hull against this, (poly-convex-hit?), and only then
+		;by all of its polygons, which is the dear one. Most things near
+		;an eraser are not touched by it, a line that slants has a box
+		;far bigger than it is
+		swept_hull (poly-hull swept))
 	(each (lambda ((name flags items))
 		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items :nil))))
 		(cwb-layers doc))
@@ -142,7 +158,8 @@
 				((and lines (cwb-rub? item)))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
-					(if (vector-collide-boxes-2d reach (Mat3x2-box box full))
+					(if (and (vector-collide-boxes-2d reach (Mat3x2-box box full))
+							(poly-convex-hit? (first (cwb-mat-paths full (list (board-hull item)))) swept_hull))
 						(setq pieces (board-bite-shape item full m swept)))))
 			(cond
 				(pieces

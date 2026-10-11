@@ -230,6 +230,8 @@
 
 (defun cwb-flat (shape)
 	; (cwb-flat shape) -> (fills strokes (x y x1 y1) | :nil)
+	;there may be more after those three, kept with them: take it apart
+	;with &ignore last. (board-hull) keeps the hull of a shape there
 	;the polygons a shape is drawn with, those of its fill and those of
 	;its stroke, and the box they are all in, in its own space. :nil for
 	;the box of a shape that draws nothing. Worked out once and kept
@@ -564,7 +566,7 @@
 	;not drawn. How many shapes were drawn
 	(defq count 0)
 	(cwb-walk items m (lambda (shape m)
-		(bind '(fills strokes box) (cwb-flat shape))
+		(bind '(fills strokes box &ignore) (cwb-flat shape))
 		(when (and box (or (not clip) (vector-collide-boxes-2d clip (Mat3x2-box box m))))
 			(++ count)
 			(if (nempty? fills)
@@ -717,7 +719,7 @@
 	; (cwb-shape-hit? shape m x y [tol]) -> :t | :nil
 	;is a point on what a shape draws, its fill or its stroke, or within
 	;tol of it, default 0
-	(bind '(fills strokes box) (cwb-flat shape))
+	(bind '(fills strokes box &ignore) (cwb-flat shape))
 	(setq x (n2f x) y (n2f y))
 	(defq tol (n2f (ifn tol 0)))
 	(when (and box (progn
@@ -783,7 +785,7 @@
 	;space m puts it in: is in it, crosses it, or has it inside. Not the
 	;box round the shape: a line that goes corner to corner of its box is
 	;not touched by a box in one of the other corners
-	(bind '(fills strokes sbox) (cwb-flat shape))
+	(bind '(fills strokes sbox &ignore) (cwb-flat shape))
 	(when sbox
 		(bind '(sx sy sx1 sy1) (Mat3x2-box sbox m))
 		(bind '(bx by bx1 by1) (map (const n2f) box))

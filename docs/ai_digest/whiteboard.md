@@ -230,8 +230,16 @@ That picture is made by the board, as it is each time the docs are made.
   any is. It is not a box, a line or words any more, a line has no width
   to change and words can not be typed again.
 
-* A thing that is not touched is not changed. Found by its box first, then
-  by what it draws.
+* A thing that is not touched is not changed. It is found in three steps,
+  the cheap ones first: its box against the box of what the eraser
+  covers; its hull against the eraser's, `(poly-convex-hit?)`, GJK; and
+  only then all of its polygons, the set logic. Chris: "this is why
+  correct bounding box then polygon to polygon colision hearchy is
+  important". On a page of 300 strokes written by hand and 40 slanted
+  lines, the boxes said touched 330 times for 60 moves of the eraser and
+  51 were. The hulls said 52, at a fourteenth of what the set logic takes
+  to say no. A shape's hull is worked out when first asked for and kept
+  with its polygons, `(board-hull)`.
 
 * It is a step like any other. The eraser makes one as it goes down, and
   undo brings back the things as they were, not flat.

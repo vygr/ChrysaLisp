@@ -413,6 +413,87 @@
 	(each (# (push out %0 %1)) xs ys)
 	(first (poly-fixed (list out))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Do two shapes with no dent in them touch: GJK
+;
+; The set logic above is exact and is not cheap. Before it, to throw out
+; what is near and does not touch, the hulls of two things are asked this.
+; It is the method of Gilbert, Johnson and Keerthi, in the plane, after
+; the 3D one Chris gave, gjk.cpp: the points of one shape less the points
+; of the other are a shape too, with no dent, and the two touch if 0 0
+; is in it. That shape is never made. All that is asked of it is its
+; furthest point some way, which is the furthest point of the one that
+; way less the furthest of the other the other way. Three such points
+; are a triangle, and each turn the triangle is moved toward 0 0, till
+; it has it in it, or a point is found that is short of 0 0 the way it
+; was asked for, and then nothing of the shape is past it: they are apart.
+;
+; The furthest point of a hull is found by climbing. Its points go
+; round, so how far each is the way asked rises to one top and falls
+; again: from where it was last time, step to the neighbour that is
+; further till neither is. The way asked turns only a little from one
+; turn to the next, so that is a step or two, however many points.
+;
+; It is in fixeds, as the paths are. A sum that comes out a hair wrong
+; can only matter to two shapes a hair apart, and what is in doubt is
+; said to touch: the set logic then has the last word.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun poly-support (hull at dx dy)
+	; (poly-support hull at dx dy) -> at
+	;the point of a hull that is furthest the way of a vector, as where
+	;it is in the hull, an even index. Climbed to from at, where it was
+	;when last asked, 0 if never
+	(defq n (length hull) best (+ (* (elem-get hull at) dx) (* (elem-get hull (inc at)) dy)) moved :nil)
+	(when (> n 2)
+		(while (progn (defq next (% (+ at 2) n)
+				d (+ (* (elem-get hull next) dx) (* (elem-get hull (inc next)) dy))) (> d best))
+			(setq at next best d moved :t))
+		(unless moved
+			(while (progn (defq next (% (+ at (- n 2)) n)
+					d (+ (* (elem-get hull next) dx) (* (elem-get hull (inc next)) dy))) (> d best))
+				(setq at next best d))))
+	at)
+
+(defun poly-convex-hit? (ha hb)
+	; (poly-convex-hit? hull_a hull_b) -> :t | :nil
+	;do two paths with no dent in them touch, (poly-hull) gives such a
+	;path. :nil only if they are apart for sure
+	(defq ia 0 ib 0 hit :t turns 0
+		far (lambda (dx dy)
+			;the furthest point that way of the one less the other
+			(setq ia (poly-support ha ia dx dy) ib (poly-support hb ib (neg dx) (neg dy)))
+			(list (- (elem-get ha ia) (elem-get hb ib)) (- (elem-get ha (inc ia)) (elem-get hb (inc ib))))))
+	(bind '(cx cy) (far 1.0 0.0))
+	(cond
+		((< cx 0.0) (setq hit :nil))
+		((and (= cx 0.0) (= cy 0.0)))
+		(:t (bind '(bx by) (far (neg cx) (neg cy)))
+			(cond
+				((> (+ (* bx cx) (* by cy)) 0.0) (setq hit :nil))
+				(:t ;a line, b to c. The way to look next is square to it, toward 0 0
+					(defq dx (- by cy) dy (- cx bx))
+					(if (> (+ (* dx bx) (* dy by)) 0.0) (setq dx (neg dx) dy (neg dy)))
+					(while (and hit (< turns 32) (not (and (= dx 0.0) (= dy 0.0))))
+						(setq turns (inc turns))
+						(bind '(ax ay) (far dx dy))
+						(cond
+							((< (+ (* ax dx) (* ay dy)) 0.0) (setq hit :nil))
+							(:t ;a triangle, a b c. Is 0 0 outside its side a b, or a c
+								(defq abx (- bx ax) aby (- by ay) acx (- cx ax) acy (- cy ay)
+									px (neg aby) py abx qx (neg acy) qy acx)
+								;square to a b, away from c, and to a c, away from b
+								(if (> (+ (* px acx) (* py acy)) 0.0) (setq px (neg px) py (neg py)))
+								(if (> (+ (* qx abx) (* qy aby)) 0.0) (setq qx (neg qx) qy (neg qy)))
+								(cond
+									((< (+ (* px ax) (* py ay)) 0.0)
+										(setq cx bx cy by bx ax by ay dx px dy py))
+									((< (+ (* qx ax) (* qy ay)) 0.0)
+										(setq bx ax by ay dx qx dy qy))
+									;inside it
+									(:t (setq turns 32))))))))))
+	hit)
+
 (defun poly-sweep (shape points)
 	; (poly-sweep shape points) -> paths
 	;what a shape covers as it is moved along a line. shape is a path
