@@ -4,6 +4,31 @@
 
 ------
 
+The class database scanner reads the tree too.
+
+Chris, of `lib/files/info.inc`: "yeah lets go the whole way."
+
+`(unified-pass)` walks each VP file as a tree. What a `(dec-method)`
+takes and gives is its forms, not a regular expression over the rest of
+its line, and what a function says of itself is `(tree-said)`, now in
+`lib/text/tree.inc` and what `cmd/docs.lisp` uses too, `(tree-comments)`
+is gone. No state is carried from line to line.
+
+Held to what the line scanner made: `class_db.tre` the same byte for
+byte, `func_db.tre` the same but for one entry gone, a function named
+f-path, which was `(def-func (f-path %0 :vtable))` in a macro of
+`lib/asm/class.inc`. Making the two is 501ms where it was 341ms.
+
+Is it cleaner, he asked. `info.inc` is 20 lines less and has no pattern
+matching of text in it. `cmd/docs.lisp` is 42 lines more than the line
+scanner was: it now knows the class a method is in, a list from a
+definition, and a path from a name, and says each.
+
+Run: lint clean on the M4, the x64 Mac and the Pi, tests text 1,256 on
+the three, make docs, forward and imports clean.
+
+------
+
 Source as a tree, and the doc scanner reads it. Chris: "Editor colours
 look good, commit it".
 

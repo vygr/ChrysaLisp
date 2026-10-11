@@ -25,25 +25,11 @@
 		(list (split (join (map (const tree-text) (filter (# (= (second %0) line)) nodes)) " ")
 			(const (char-class " ()'\t\r\q")))) :nil 2))
 
-;what is said of a definition: the comments that are the first things in
-;it after its name and what it takes, or, of one that is all on a line,
-;those on the lines after it. Each without its ; and the space after
+;what is said of a definition, (tree-said), each line of it without its ;
+;and the space after
 (defun said (node nodes at)
-	(defq out (list) kids (third node) line (elem-get node 3))
-	(cond
-		((= (second node) line)
-			(while (and (< (++ at) (length nodes))
-					(eql (first (defq next (elem-get nodes at))) :comment)
-					(= (second next) (++ line)))
-				(push out (trim-start (third next) " ;"))))
-		;not one on the end of its first line, that is a note
-		((and (defq i (some (# (if (eql (first %0) :comment) (!))) kids))
-				(<= i (if (eql (third (first kids)) "defclass") 4 3))
-				(> (second (elem-get kids i)) (second node)))
-			(while (and (< i (length kids)) (eql (first (defq next (elem-get kids i))) :comment))
-				(push out (trim-start (third next) " ;"))
-				(++ i))))
-	out)
+	(map (# (trim-start (third %0) " ;"))
+		(tree-said node nodes at (if (tree-form? node "defclass") 4 3))))
 
 ;the keys of a key map, a line of the file each: a key and what it does
 (defun map-keys (node)

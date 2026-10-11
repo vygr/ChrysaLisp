@@ -61,16 +61,31 @@
 			(and (nempty? nodes) (eql (first (first nodes)) :symbol) (eql (third (first nodes)) head)))
 		nodes))
 
-(defun tree-comments (nodes)
-	; (tree-comments nodes) -> (str ...)
-	;the comments that are the first things of what is in a form after
-	;where its code begins: those said of it. Each without its ; and the
-	;space after
-	(defq out (list) i (some (# (if (eql (first %0) :comment) (!))) nodes))
-	(when i
-		(while (and (< i (length nodes)) (eql (first (defq node (elem-get nodes i))) :comment))
-			(push out (trim-start (trim-start (third node) ";") " "))
-			(++ i)))
+(defun tree-said (node nodes at &optional most)
+	; (tree-said node nodes at [most]) -> (comment_node ...)
+	;what is said of a form, node, which is nodes at at: the comments
+	;on the lines after its first. Of one that is all on a line, those on
+	;the lines after it, the next things in nodes. Of one that goes on,
+	;the first comments in it, if no more than most things are before
+	;them, default 3, its head, a name and what it takes, and they are
+	;not on its first line, a note on the end of that is not of it
+	(setd most 3)
+	(defq out (list) kids (third node) line (elem-get node 3))
+	(cond
+		((= (second node) line)
+			;past a note on the end of its line
+			(if (and (< (inc at) (length nodes)) (eql (first (defq next (elem-get nodes (inc at)))) :comment)
+					(= (second next) line))
+				(++ at))
+			(while (and (< (++ at) (length nodes))
+					(eql (first (defq next (elem-get nodes at))) :comment)
+					(= (second next) (++ line)))
+				(push out next)))
+		((and (defq i (some (# (if (eql (first %0) :comment) (!))) kids))
+				(<= i most) (> (second (elem-get kids i)) (second node)))
+			(while (and (< i (length kids)) (eql (first (defq next (elem-get kids i))) :comment))
+				(push out next)
+				(++ i))))
 	out)
 
 (defun tree-text (node)
@@ -95,5 +110,5 @@
 	(apply (const cat) (push text "")))
 
 ;module
-(export-symbols '(tree-read tree-form? tree-comments tree-text))
+(export-symbols '(tree-read tree-form? tree-said tree-text))
 (env-pop)

@@ -2743,6 +2743,14 @@ what a folder's hash is the hash of, and what goes in a message
 the path of every thing in a folder and in the folders below it
 ```
 
+### header-pass
+
+```code
+what a function says of itself in the comments after its first line:
+
+inputs, outputs, each a line for a register, and trashes
+```
+
 ### held-mouse-id
 
 ```code
@@ -3382,6 +3390,15 @@ start a shared memory link on this node. The node at the other end
 starts one of the same name.
 ```
 
+### node-name
+
+```code
+(node-name node file) -> :nil | str
+
+the name a node gives: a symbol, with no ' before it, a string, with
+no quotes, or a (path-to-absolute "./name"), from where the file is
+```
+
 ### node-net
 
 ```code
@@ -3408,6 +3425,14 @@ the networks added to this machine's sessions by name, (node-net)
 with an id, each with the processes of its nodes, the names of its
 links, the note it is in, and its system id, :nil if it has this
 machine's. Whichever node of the machine started them
+```
+
+### node-regs
+
+```code
+(node-regs node) -> "none" | str
+
+the registers a (dec-method) says, a list of them, or :nil for none
 ```
 
 ### node-shape
@@ -6268,16 +6293,6 @@ transfer a list of [key val]
 (tree-collection? type) -> :nil | type
 ```
 
-### tree-comments
-
-```code
-(tree-comments nodes) -> (str ...)
-
-the comments that are the first things of what is in a form after
-where its code begins: those said of it. Each without its ; and the
-space after
-```
-
 ### tree-decode
 
 ```code
@@ -6320,6 +6335,19 @@ thing in it is that symbol, "defun" say
 
 the nodes of a file, and how many brackets were not closed, 0 for one
 that is whole. A bracket that closes nothing is left out
+```
+
+### tree-said
+
+```code
+(tree-said node nodes at [most]) -> (comment_node ...)
+
+what is said of a form, node, which is nodes at at: the comments
+on the lines after its first. Of one that is all on a line, those on
+the lines after it, the next things in nodes. Of one that goes on,
+the first comments in it, if no more than most things are before
+them, default 3, its head, a name and what it takes, and they are
+not on its first line, a note on the end of that is not of it
 ```
 
 ### tree-save
@@ -6416,6 +6444,16 @@ blank, a comment, follows a comment, is in a string or the help text
 of a command, or starts with a form the source scanners look for.
 A frozen line is one that must not then be broken. The doc builder
 reads the comments under a definition, and the lines of a key map.
+```
+
+### unified-pass
+
+```code
+Each file is read as a tree, lib/text/tree.inc, and every form of it
+
+looked at in the order they are written, those inside others too, a
+(def-func) in an (errorcase) say. A list of where it is in each list
+of nodes it is part way through, each (nodes at)
 ```
 
 ### unique
