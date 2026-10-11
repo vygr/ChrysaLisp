@@ -321,8 +321,10 @@ itself with its middle. A finger moves things
 ### board-bite
 
 ```code
-(board-bite doc swept) -> :nil | (made gone)
+(board-bite doc swept [lines]) -> :nil | (made gone)
 
+with lines :t a line, a thing part of which can be rubbed out as a
+line, (cwb-rub?), is left as it is, it is cut another way
 what swept covers, paths in the space of the document, taken out of
 every thing of the layers that can be changed. The ids of the shapes
 that were made, and of those they stand in the place of, :nil if

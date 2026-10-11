@@ -29,8 +29,10 @@ apps/media/whiteboard/widgets.inc *window* 512 512
 
 The second row of buttons says what the pen draws: a line by hand, a straight
 line, an arrow, an arrow at both ends, a box, an ellipse, either of those
-filled, words, and last the eraser. The eraser rubs out the part of a line it
-is dragged over, and leaves the rest. A box, a filled shape or words go whole.
+filled, words, and last the eraser. The eraser rubs out what it is dragged over
+and leaves the rest. A line is cut, and what is left of it is lines
+still. A box, a filled shape or words have a bite taken out of them, just
+where the eraser went, and are then flat: the outline of what was left.
 The row of colours says in what, and the three dots how thick.
 
 Words are typed into the field on that row, and put down where the pen next
@@ -41,9 +43,8 @@ are put in a group as they are drawn, so a word that was written is picked
 up and moved as one thing. Ungroup breaks it into its lines again. The
 eraser still rubs out one line of it at a time.
 
-There is a second eraser, not yet on a button, that takes out of anything
-just what it is drawn over: a notch out of a box, half a letter. See
-[`docs/ai_digest/whiteboard.md`](../ai_digest/whiteboard.md), an eraser that bites.
+How it is done, and the other ways a board can be set to rub out, are
+in [`docs/ai_digest/whiteboard.md`](../ai_digest/whiteboard.md), an eraser that bites.
 
 The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
@@ -134,7 +135,7 @@ paper. A thing that is partly on it stays. It can be undone.
 
 The ruler, the protractor, the whole protractor, a circle of 360 degrees,
 and the two set squares, one of 30 and 60 degrees and one of 45, are on
-the second row. Each is put on the board, over what is drawn, and is not part of the document. What
+the second row, the two protractors together and then the two set squares. Each is put on the board, over what is drawn, and is not part of the document. What
 is drawn with it is.
 
 * Run the pen along an edge of one and what is drawn is that edge, from where

@@ -4,6 +4,38 @@
 
 ------
 
+The eraser bites shapes, and the toolbar's instruments are grouped.
+
+Chris, trying the eraser: "I tried earse throush a shape and the whole
+shape disapeard ? stokes are clean bite out erase now, but shapes need
+to do that as well." And of the toolbar: "setsquares look good, but I'd
+group the 2 protractors together, and the setsqures on the toolbar."
+
+What a board does now, `:rub_mode :part`, which is still what it has:
+a line is cut where the eraser went, as it was, and is lines still;
+anything else, a box, a filled shape, words, has a bite taken out, by
+the set logic of polygons. It had gone whole. Dragged, the lines are
+cut a step at a time and the bite is of all the way at once.
+
+The other ways: `:bite`, a line is bitten too and is flat; `:lines`,
+what `:part` was till now, only a line is cut and what is not one goes
+whole; `:whole`. `(board-bite)` leaves lines alone when told to.
+
+The name `:part` was kept for what a board has so that a
+`whiteboard.tre` with `:rub :part` in it, as one saved since last night
+has, opens with the new eraser.
+
+The toolbar: ruler, protractor, whole protractor, set square of 30 and
+60, set square of 45.
+
+The cwb modules, 557, and the whiteboard's, 94, on the M4 as the Test
+user. Every test on the x64 Mac and the Pi: 5905 each.
+
+Not seen: by Chris, a bite out of a shape. Close the Whiteboard and
+open it again for both.
+
+------
+
 The M4 has the network work, a session can be told to keep to itself,
 and a link's record says if it is over the network.
 

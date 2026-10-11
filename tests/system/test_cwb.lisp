@@ -525,6 +525,8 @@
 (assert-eq "rubbed at an end, the end is shorter" "M 12 100 L 88 100" (first (rb-ds)))
 (. rb_board :rub_along 12 100 88 100 10)
 (assert-list-eq "rubbed all along, it is gone" (list "M 112 100 L 200 100" (cwb-d-rect 250 50 350 150)) (rb-ds))
+;:lines, the eraser that only cuts lines: what is not a line goes whole
+(def rb_board :rub_mode :lines)
 (assert-list-eq "on the box, with no line there, the box goes whole" '(:t 1) (list (. rb_board :rub 300 100 10) (length (cwb-items rb_doc))))
 ;a line that has been moved and made twice the size
 (. rb_board :clear)
@@ -546,6 +548,21 @@
 (. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200)))
 (. rb_board :rub 100 150 10)
 (assert-eq "a box, though not filled, goes whole" 0 (length (cwb-items rb_doc)))
+;as a board is, :part: a line is cut and is lines still, anything else has a bite out
+(def rb_board :rub_mode :part)
+(. rb_board :clear)
+(. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00))
+(. rb_board :add (cwb-shape "M 50 250 L 250 250" :width 4))
+(assert-eq "a filled box rubbed at its side" :t (. rb_board :rub 100 150 10))
+(assert-eq "has a bite out, and is flat: its fill and its line, a shape each" 3 (length (cwb-items rb_doc)))
+(assert-true "it is where it was" (wb-near? (cwb-bounds (slice (cwb-items rb_doc) 0 2)) '(100 100 200 200) 3.0))
+(assert-true "and has no line of its own now, each is a fill" (every (# (= (elem-get %0 +cwb_stroke) 0)) (slice (cwb-items rb_doc) 0 2)))
+(. rb_board :rub_along 150 240 150 260 6)
+(assert-list-eq "the line, rubbed across, is two lines, with a line's width still" '(4 4)
+	(map (# (n2i (elem-get %0 +cwb_width))) (filter (# (/= (elem-get %0 +cwb_stroke) 0)) (cwb-items rb_doc))))
+(. rb_board :rub_along 90 120 210 120 6)
+(assert-true "rubbed right across the box, it is in two, above and below"
+	(>= (length (filter (# (= (elem-get %0 +cwb_stroke) 0)) (cwb-items rb_doc))) 2))
 ;the eraser itself, a pointer
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-line 100 20 100 280) :width 4))

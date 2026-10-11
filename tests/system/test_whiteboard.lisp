@@ -196,7 +196,7 @@
 	"(wa-ptr 0x10001 3 1 70 80) (wa-ptr 0x10002 3 1 230 200)"
 	"(wa-ptr 0x10001 3 0 70 80) (wa-ptr 0x10002 3 0 230 200)"
 	"(print (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
-	;the other end of the pen rubs it out
+	;the other end of the pen takes a bite out of its side
 	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
 	"(print (wa-ids))"
 	;zoomed, a point of the view is a point of the document over the zoom
@@ -204,7 +204,7 @@
 	"(print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
 (assert-eq "two fingers on what it drew make it twice the size" "(47 57 253 223)" (elem-get wa_out 1))
-(assert-eq "and the other end of the pen rubs it out" "()" (elem-get wa_out 2))
+(assert-eq "and the other end of the pen takes a bite out of it, it is another shape, flat" "(3)" (elem-get wa_out 2))
 (assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 
 

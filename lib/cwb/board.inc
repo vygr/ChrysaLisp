@@ -81,7 +81,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a bite: what an eraser covers taken out of what it touches, exactly
 ;
-; The other way to rub out, :rub_mode :bite. What the eraser covers as it
+; What the eraser does to anything that is not a line, and with
+; :rub_mode :bite to a line too. What the eraser covers as it
 ; is moved is a polygon, (poly-sweep), and that is taken out of every
 ; thing it touches, (poly-difference), lib/math/polygon.inc. A thing that
 ; loses a bite is not what it was: it is flat, one shape for what was
@@ -111,8 +112,10 @@
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
 		out))
 
-(defun board-bite (doc swept)
-	; (board-bite doc swept) -> :nil | (made gone)
+(defun board-bite (doc swept &optional lines)
+	; (board-bite doc swept [lines]) -> :nil | (made gone)
+	;with lines :t a line, a thing part of which can be rubbed out as a
+	;line, (cwb-rub?), is left as it is, it is cut another way
 	;what swept covers, paths in the space of the document, taken out of
 	;every thing of the layers that can be changed. The ids of the shapes
 	;that were made, and of those they stand in the place of, :nil if
@@ -132,6 +135,7 @@
 				((cwb-group? item)
 					;what is in it, in its own space, later
 					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
+				((and lines (cwb-rub? item)))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(if (vector-collide-boxes-2d reach (Mat3x2-box box full))
@@ -1023,19 +1027,26 @@
 		(def this :selected (filter (# (not (cwb-id? gone %0))) (get :selected this)))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
-	(defmethod :rub (x y &optional r)
-		; (. board :rub x y [r]) -> :t | :nil
+	(defmethod :rub (x y &optional r lines)
+		; (. board :rub x y [r lines]) -> :t | :nil
 		;rub out at a point, as the eraser does, r is how far it reaches,
 		;default the board's by its zoom. Of a line that is near, the part
 		;that is within r goes, and what is left of it is lines in its
-		;place. If no line was touched, the thing on top at the point goes
-		;whole. With :rub_mode :whole a line goes whole too. No step is
-		;made. Was anything rubbed out
+		;place, still lines. Anything else it touches, a box, a filled
+		;shape, words, has a bite taken out of it, (:bite). That is
+		;:rub_mode :part, what a board has. With :lines only a line is
+		;cut, and if none was touched the thing on top at the point goes
+		;whole. With :whole a line goes whole too. With :bite a line has a
+		;bite out as the rest have, and is a line no more. With lines :t
+		;only the lines are cut, whatever the mode, (:rub_along) takes the
+		;bite of all its way at once. No step is made. Was anything
+		;rubbed out
 		(defq doc (get :doc this) r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
-			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil)
+			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil
+			mode (get :rub_mode this))
 		;a bite is another thing altogether
-		(if (eql (get :rub_mode this) :bite) (setq done (. this :bite (path x y) r)))
-		(when (eql (get :rub_mode this) :part)
+		(if (and (eql mode :bite) (not lines)) (setq done (. this :bite (path x y) r)))
+		(when (find mode '(:part :lines))
 			(each (lambda ((name flags items))
 				(unless (or (bits? flags 1) (bits? flags 2))
 					(defq out (list) changed :nil)
@@ -1072,7 +1083,9 @@
 						(clear items)
 						(each (# (push items %0)) out))))
 				(cwb-layers doc)))
-		(when (and (not done) (not (eql (get :rub_mode this) :bite))
+		;what is not a line has a bite out
+		(if (and (eql mode :part) (not lines) (. this :bite (path x y) r)) (setq done :t))
+		(when (and (not done) (not lines) (find mode '(:lines :whole))
 				(defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
 			(. this :remove (list (elem-get (first hit) +cwb_id)))
 			(setq done :t))
@@ -1086,14 +1099,16 @@
 		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			x (n2f x) y (n2f y) dx (- (n2f x1) x) dy (- (n2f y1) y)
 			steps (max 1 (n2i (/ (sqrt (+ (* dx dx) (* dy dy))) (* 0.5 r)))) done :nil)
-		(cond
-			((eql (get :rub_mode this) :bite)
-				;all of the way at once, what it covers from the one to the other
-				(setq done (. this :bite (path x y (n2f x1) (n2f y1)) r)))
-			(:t (each (lambda (i)
-					(defq f (/ (n2f i) (n2f steps)))
-					(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r) (setq done :t)))
-					(range 0 (inc steps)))))
+		(defq mode (get :rub_mode this))
+		(unless (eql mode :bite)
+			;the lines, a step at a time. And with them what is not a line,
+			;if it goes whole
+			(each (lambda (i)
+				(defq f (/ (n2f i) (n2f steps)))
+				(if (. this :rub (+ x (* dx f)) (+ y (* dy f)) r (eql mode :part)) (setq done :t)))
+				(range 0 (inc steps))))
+		;the bite, all of the way at once, what it covers from the one to the other
+		(if (and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r)) (setq done :t))
 		done)
 
 	(defmethod :bite (points &optional r shape)
@@ -1105,7 +1120,8 @@
 		;board's reach by its zoom. No step is made. Was anything touched
 		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			swept (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points))
-		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept)))
+		;a line is left to be cut as a line unless all is to be bitten
+		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite)))))
 			(bind '(made gone) did)
 			(def this :selected (filter (# (not (find %0 gone))) (get :selected this)))
 			(. this :changed made)

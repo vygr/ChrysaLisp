@@ -7,7 +7,7 @@
 	(enum snap snap_angle keep_shape)
 	(enum radius ink)
 	(enum mode)
-	(enum ruler protractor set_square full_protractor set_square45)
+	(enum ruler protractor full_protractor set_square set_square45)
 	(enum group ungroup delete duplicate to_front to_back
 		align_left align_hcenter align_right align_top align_vcenter align_bottom)
 	(enum size text))
@@ -45,7 +45,7 @@
 			(:color *env_toolbar2_col*)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:color *env_toolbar2_col*)
-			(ui-buttons (+sym_ruler +sym_protractor +sym_set_square +sym_full_protractor +sym_set_square45) +event_ruler))
+			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45) +event_ruler))
 		(. (ui-textfield *text_field* (:color +argb_white :hint_text "words to put down" :clear_text ""
 			:min_width 160)) :connect +event_text)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
@@ -86,7 +86,7 @@
 	'("thin" "medium" "thick"))
 
 (ui-tool-tips *tool_toolbar*
-	'("ruler" "protractor" "set square, 30 and 60" "whole protractor" "set square, 45"))
+	'("ruler" "protractor" "whole protractor" "set square, 30 and 60" "set square, 45"))
 
 
 (ui-tool-tips *selection_toolbar*

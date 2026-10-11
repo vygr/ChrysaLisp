@@ -282,14 +282,20 @@ the paper is that size, what is on it stays, and it can be undone
 ### :rub
 
 ```code
-(. board :rub x y [r]) -> :t | :nil
+(. board :rub x y [r lines]) -> :t | :nil
 
 rub out at a point, as the eraser does, r is how far it reaches,
 default the board's by its zoom. Of a line that is near, the part
 that is within r goes, and what is left of it is lines in its
-place. If no line was touched, the thing on top at the point goes
-whole. With :rub_mode :whole a line goes whole too. No step is
-made. Was anything rubbed out
+place, still lines. Anything else it touches, a box, a filled
+shape, words, has a bite taken out of it, (:bite). That is
+:rub_mode :part, what a board has. With :lines only a line is
+cut, and if none was touched the thing on top at the point goes
+whole. With :whole a line goes whole too. With :bite a line has a
+bite out as the rest have, and is a line no more. With lines :t
+only the lines are cut, whatever the mode, (:rub_along) takes the
+bite of all its way at once. No step is made. Was anything
+rubbed out
 ```
 
 ### :rub_along

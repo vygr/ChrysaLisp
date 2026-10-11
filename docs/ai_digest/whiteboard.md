@@ -189,9 +189,21 @@ a line go whole too, as it did.
 
 ### An eraser that bites
 
-`:rub_mode :bite` is the other eraser, the one Chris's boards had: what the
-eraser covers is taken out of whatever it touches, a box, a filled thing,
-words, a thing in a group, and no more than it covers.
+The eraser Chris's boards had: what the eraser covers is taken out of
+whatever it touches, a box, a filled thing, words, a thing in a group, and
+no more than it covers. It is what a board does to anything that is not a
+line. `:rub_mode` says which way a board rubs out:
+
+* `:part`, what a board has. A line is cut where the eraser went, and what
+  is left is lines still, with a width and ends. Anything else has a bite
+  out.
+
+* `:bite`. A line has a bite out too, and is a line no more.
+
+* `:lines`. Only a line is cut. If none was touched, the thing on top
+  goes whole. It is what the eraser was before there was a bite.
+
+* `:whole`. A line goes whole as well.
 
 ```image
 docs/diagrams/wb_bite.cwb
@@ -206,8 +218,9 @@ That picture is made by the board, as it is each time the docs are made.
   `r`, or `shape`, a path about `0 0` with no dent in it: a cloth, the side
   of a hand.
 
-* With `:rub_mode :bite`, `(. board :rub)` and `(. board :rub_along)` are
-  that, so the eraser tool, the eraser end of a pen and `cwb -p` all bite.
+* `(. board :rub)` and `(. board :rub_along)` do it, so the eraser tool,
+  the eraser end of a pen and `cwb -p` all bite. `(:rub_along)` cuts the
+  lines a step at a time, and takes the bite of all its way at once.
 
 * A thing that loses a bite is flat from then on. It is one shape for what
   is left of its fill and one for what is left of its line, each a filled
@@ -230,10 +243,8 @@ That picture is made by the board, as it is each time the docs are made.
 What it costs is the set logic, a millisecond or two for a thing and each
 move of the eraser, 12ms for a line of 3,000 points.
 
-It is not what the eraser tool does unless it is asked for. The board's
-default is `:part`, and the app has no button for it yet: where that goes
-is Chris's to say. Till then `:rub :bite` in `whiteboard.tre`, in the
-user's folder, with the app closed, turns it on, and `:rub :part` off.
+The app has no button for the mode. `:rub` in `whiteboard.tre`, in the
+user's folder, set with the app closed, is what it opens with.
 
 Not done of what he told: the shape of what touches the board is not
 known, the eraser is a circle; and the work is done by the board's own
