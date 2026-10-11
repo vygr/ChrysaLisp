@@ -1595,6 +1595,7 @@
 (import "lib/text/searching.inc")
 (import "sys/lisp.inc")
 (import "././lisp.inc")
+(import "lib/options/options.inc")
 
 ;useful frequency trackers
 ;; (defq *freq_map* (Fmap 101))

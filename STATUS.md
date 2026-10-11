@@ -4,6 +4,36 @@
 
 ------
 
+The options library is in the root, and who wrote the floating point.
+
+Chris, of a core discipline, continuous consolidation: "adding (import
+...) to the end of root.inc means those libraries are now in the root
+environment of all tasks, shared in memory on that VP node... we still
+have the disapline of have correct (import) lines in all files, BUT
+presence within the root.inc mean they are instantly found and
+available." And: "yes, try options and lock as the first pair."
+
+`lib/options/options.inc` is now the last import of
+`class/lisp/root.inc`. 63 files import it, every command. The lock
+library, `service/lock/app.inc`, needed nothing: `sys/lisp.inc` imports
+it, and the root imports that, so it has been in the root all along.
+
+Measured on the M4, one node, `echo x` run through a pipe 5,000 times:
+491ms before, 335ms after, 98 to 67 millionths of a second a command.
+Every test on the x64 Mac and the Pi: 5856 passed on each.
+
+Seen while measuring, and not looked into: each 5,000 runs in the one
+task take about 80ms longer than the last 5,000, before the change and
+after it. Something a pipe leaves grows.
+
+Not seen: the tests on the M4, Chris has a desktop up there. A node
+that was up before this has the root it started with.
+
+`docs/history/history.md`: Andy Stout also wrote the IEEE floating
+point libraries at Tao, in software. Chris said so today.
+
+------
+
 A second soak, the two other CPUs, and a fault in the LoongArch
 translator.
 

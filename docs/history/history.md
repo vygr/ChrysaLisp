@@ -238,7 +238,7 @@ So, as plainly as it can be put:
 | Andy Henson      | The first true translator, for the T800. Later the first work on the Java to VP translator. |
 | Andy Thomason    | The first Intel translator, for the 386. The PostScript RIP. |
 | Tim Moore        | The ray tracer. The BASIC interpreter.                 |
-| Andy Stout       | The C standard libraries for Taos and intent. The console hardware, with Chris. |
+| Andy Stout       | The C standard libraries for Taos and intent. The IEEE floating point libraries, in software. The console hardware, with Chris. |
 | Nik Spicer       | No code. The first to understand it, and the one who told the world. |
 | Francis Charig   | Chairman. The funding, the business, and Japan.        |
 | Dr Ian Thomas    | The brief that explains Taos, now [in this repository](../intro/taos.md). |
@@ -421,7 +421,8 @@ understood it fully too.
 
 And Andy Stout. He was working on a transputer system of his own, called
 Mercury. He was shown Taos one day, and gave up his own project to work on
-it. He went on to write the C standard libraries for Taos and for intent.
+it. He went on to write the C standard libraries for Taos and for intent, and
+the IEEE floating point libraries, done in software.
 
 The running joke at Tao was that one day Andy would finish writing `printf`.
 At a spoof ceremony the company once held he won the Tao Printf Award. He was
