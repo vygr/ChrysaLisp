@@ -190,3 +190,34 @@
 (assert-true "and each of them has one new keeper, the other two as they were"
 	(every (# (= 2 (length (filter (lambda (who) (find who (store-holders sm_h %0 sm_four))) (store-holders sm_h %0))))) sm_moved))
 (assert-eq "with fewer members than copies, they all keep it" 2 (length (store-holders sm_h (first sm_names) '("aaaa" "bbbb"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; a member's share of it
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;an object of 20 blocks, put at one of five members, which has all of it
+(defq sm_s1 (sm-new "aaaa" sm_five) sm_s2 (sm-new "bbbb" sm_five)
+	sm_obj (apply (const cat) (map (# (cat (sha256 (str "share" %0)) (exfat-zeros 4064))) (range 0 20))))
+(store-put sm_s1 "big" sm_obj)
+(bind '(sm_wants sm_extras) (store-share sm_s1 sm_five))
+(assert-list-eq "the one it was put at wants nothing, it has it all" '() sm_wants)
+(assert-true "some of its blocks are for others to keep, not it" (< 0 (length sm_extras) 20))
+(assert-true "each of those with the three that are to, and it not one of them"
+	(every (lambda ((name holders)) (and (= (length holders) 3) (not (find "aaaa" holders)))) sm_extras))
+(assert-eq "what it is to keep and what it is not are all 20" 20
+	(+ (length sm_extras) (length (filter (# (find "aaaa" (store-holders sm_s1 %0))) (second (store-manifest sm_s1 (store-now sm_s1 "big")))))))
+;another member is told of the path, and has none of it
+(store-meet sm_s2 (store-entries sm_s1))
+(bind '(sm_wants2 sm_extras2) (store-share sm_s2 sm_five))
+(assert-list-eq "one that has only heard of the path wants its manifest, and can not yet know what else"
+	(list (store-now sm_s1 "big")) sm_wants2)
+(store-block-put sm_s2 (store-block-get sm_s1 (store-now sm_s1 "big")))
+(bind '(sm_wants2 sm_extras2) (store-share sm_s2 sm_five))
+(assert-true "with the manifest, it wants the blocks it is one of the keepers of, and no others"
+	(and (nempty? sm_wants2) (every (# (find "bbbb" (store-holders sm_s2 %0))) sm_wants2)))
+(assert-list-eq "and has nothing that is not its to keep" '() sm_extras2)
+(store-pin sm_s2 "big")
+(assert-eq "pinned, it wants all 20" 20 (length (first (store-share sm_s2 sm_five))))
+(store-pin sm_s2 "big" :t)
+;with only two of the members there, they keep everything between them
+(assert-list-eq "with two members there, a member has nothing that is not its to keep" '() (second (store-share sm_s1 '("aaaa" "bbbb"))))

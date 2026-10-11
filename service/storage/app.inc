@@ -17,13 +17,18 @@
 
 (enums +storage_type 0
 	(enum info stat list has block_put block_get commit delete
-		pin pins_missing sweep check walk stop))
+		pin pins_missing sweep check walk stop
+		;what members ask of each other, and a tender of its own service
+		state entries merge share block_drop where peers members cut))
 
 (structure +storage_rpc 0
 	(netid reply_id)
 	(uint type))
 
-(defq +storage_name "@Storage" +storage_wait 10 +storage_lf (ascii-char 10)
+(defq +storage_name "@Storage" +storage_group "*Storage" +storage_wait 10 +storage_lf (ascii-char 10)
+	;how often a tender looks, and how long a member is not heard from
+	;before what it kept is kept by others, microseconds
+	+storage_tick 2000000 +storage_grace 300000000
 	;how long a block is, in hex, as a name is sent
 	+storage_hex 64)
 
@@ -89,12 +94,29 @@
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_list (ifn prefix "")))
 		(map (const store-entry-read) (filter (const nempty?) (split answer +storage_lf)))))
 
+(defun storage-block-at (hash svc)
+	; (storage-block-at name svc) -> :nil | data
+	;a block by its name, if that service has it. It is checked against
+	;its name here too, what came may not be what was sent
+	(and (defq data (storage-ask svc +storage_type_block_get hash))
+		(nempty? data) (eql (sha256 data) hash) data))
+
+(defun storage-where (hash &optional svc)
+	; (storage-where name [svc]) -> (netid ...)
+	;the other members a block of that name may be had from, those that
+	;are to keep it first. The service says who, it does not ask them
+	(map (const hex-decode) (filter (const nempty?)
+		(split (ifn (storage-ask (ifn svc (storage-service)) +storage_type_where hash) "") +storage_lf))))
+
 (defun storage-block (hash &optional svc)
 	; (storage-block name [svc]) -> :nil | data
-	;a block by its name, if the service has it. It is checked against
-	;its name here too, what came may not be what was sent
-	(and (defq data (storage-ask (ifn svc (storage-service)) +storage_type_block_get hash))
-		(nempty? data) (eql (sha256 data) hash) data))
+	;a block by its name, from the service if it has it, and if not from
+	;another member that has. The asker goes to the other member, a
+	;service never asks another and waits: two that did, each of the
+	;other, would wait for ever
+	(setd svc (storage-service))
+	(or (storage-block-at hash svc)
+		(some (# (storage-block-at hash %0)) (storage-where hash svc))))
 
 (defun storage-put (name data &optional from svc)
 	; (storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
@@ -157,14 +179,17 @@
 		(cat (storage-from from) +storage_lf name))))
 
 (defun storage-walk (name state visit &optional at wait svc)
-	; (storage-walk path state visit [at wait svc]) -> :nil | (state)
+	; (storage-walk path state visit [at wait svc]) -> :nil | (state trail)
 	; visit is '(lambda (state data at count) ... (list state next))
 	;a gopher is sent to an object. It is a task of its own, that has
 	;what it was given, state, and a function, visit, and goes to the
 	;blocks of the object one at a time, the first, or at: the function is
 	;given what it has, the block, which block it is and how many there
 	;are, and gives what it has now and the block to go to next, :nil when
-	;it is done. What it has then comes straight back here, in a list.
+	;it is done. What it has then comes straight back here, with its
+	;trail, the members it was at, in the order it went to them: where
+	;a block it wants is not kept by the member it is at, it is sent on,
+	;as it is, to one that keeps it, and carries on there.
 	;:nil if there is no such object, a block it went to could not be had,
 	;the function threw, or nothing came back in the time, seconds.
 	;
@@ -176,7 +201,7 @@
 	(when svc
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
-			(str (list name (ifn at 0) state visit))))
+			(str (list name (ifn at 0) state visit (list)))))
 		(and (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
 			(starts-with "(" answer)
 			(first (read (string-stream answer))))))
@@ -207,26 +232,87 @@
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_check (if mend "mend" "") 120))
 		(filter (const nempty?) (split answer +storage_lf))))
 
-(defun storage-start (image &optional size id name block_size force)
-	; (storage-start image [size id name block_size force]) -> :nil | netid
+(defun storage-start (image &rest opts)
+	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
+	;	:group str :member str :tick us :grace us]) -> :nil | netid
 	;the service is started on this node, to keep the store that is in
 	;that file of the host. If there is none there and a size is given,
 	;one is made of that many bytes, the store id, and this system its
 	;member. :nil if there is no store and none could be made. What is
 	;there and is not a store is left as it is, unless force: then it is
 	;made one, and what was there is gone, a disk that is to be a store.
-	;If the service of that name is there already, it is that one
-	(setd name +storage_name)
+	;If the service of that name is there already, it is that one.
+	;
+	;name is what it is known by on this system, @Storage. group is what
+	;the members of a store find each other by, over every machine,
+	;*Storage. member is who it is, this system: another only for a test
+	;of several members on the one machine. tick is how often its tender
+	;looks, 0 for only when it is told to, and grace how long a member is
+	;not heard from before what it kept is kept by others
+	(defq opts (apply (const scatter) (cat (list (Emap)) opts)) name (ifn (. opts :find :name) +storage_name))
 	(cond
 		((storage-service name))
 		(:t (defq said (mail-mbox) task (open-child "service/storage/app.lisp" +kn_call_pin))
 			(when (/= 0 (get-long task 0))
-				;no part of it is nothing, a line of nothing is not a line
-				(mail-send task (join (list (hex-encode said) name image (str (ifn size 0))
-					(if (and id (nempty? id)) id "store") (str (ifn block_size 0)) (if force "1" "0")) +storage_lf))
+				(defq lines (list (cat "ready " (hex-encode said)) (cat "image " image) (cat "name " name)))
+				(each (lambda (key)
+					(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
+					'(:size :id :block :force :group :member :tick :grace))
+				(mail-send task (join lines +storage_lf))
 				(if (eql (mail-read-timeout said (task-timeout 30)) "ok") (storage-service name))))))
 
 (defun storage-stop (&optional svc)
 	; (storage-stop [svc]) -> :nil | :t
 	;the service puts what it has on the volume and goes
 	(if (storage-ask (ifn svc (storage-service)) +storage_type_stop) :t))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a store of more than one member
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun storage-state (&optional svc)
+	; (storage-state [svc]) -> :nil | emap
+	;what a member is, as its tender and other members ask it: :member
+	;:store :digest :members :retired :cut :tender
+	(when (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_state))
+		(defq state (Emap))
+		(each (lambda (line)
+			(defq at (ifn (find " " line) (length line)) key (sym (cat ":" (slice line 0 at)))
+				val (if (< at (length line)) (slice line (inc at) -1) ""))
+			(. state :insert key (if (find key '(:members :retired :cut)) (split val " ") val)))
+			(split answer +storage_lf))
+		state))
+
+(defun storage-members (&optional change svc)
+	; (storage-members [change svc]) -> :nil | (member ...)
+	;who the members of the store are meant to be. With a change, "+id"
+	;a machine is joined to it, "-id" one is retired: it is told to this
+	;member, and the others hear of it as they meet
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_members (ifn change "")))
+		(split answer " ")))
+
+(defun storage-seen (name &optional svc)
+	; (storage-seen path [svc]) -> :nil | (seen members)
+	;how many of the members are known to have what a path is now, and
+	;how many members there are: seen by 4 of 5
+	(setd svc (storage-service))
+	(and (defq answer (storage-ask svc +storage_type_stat (cat "?" name))) (nempty? answer)
+		(defq entry (store-entry-read answer)) (defq members (storage-members :nil svc))
+		(list (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen))) (length members))))
+
+(defun storage-settle (&optional svc wait)
+	; (storage-settle [svc wait]) -> :nil | (met fetched dropped)
+	;the member's tender is told to look now, and what it did is waited
+	;for: how many members it compared notes with and found something
+	;new, how many blocks it fetched, and how many it let go of
+	(when (and (defq state (storage-state svc)) (nempty? (defq tender (. state :find :tender))))
+		(defq mbox (mail-mbox))
+		(mail-send (hex-decode tender) (cat "pass " (hex-encode mbox)))
+		(if (defq answer (mail-read-timeout mbox (task-timeout (ifn wait 60))))
+			(map (const str-as-num) (split answer " ")))))
+
+(defun storage-cut (members &optional svc)
+	; (storage-cut members [svc]) -> :nil | :t
+	;for a test: the member is as if it could not reach those members,
+	;its tender does not look at them. None, and it can reach all again
+	(if (storage-ask (ifn svc (storage-service)) +storage_type_cut (join members " ")) :t))

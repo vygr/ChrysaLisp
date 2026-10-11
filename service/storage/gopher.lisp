@@ -23,20 +23,36 @@
 		text (slice msg (+ (length (first lines)) (length (second lines)) 2) -1)
 		answer "none")
 	(catch (progn
-			(bind '(name at state source) (first (read (string-stream text))))
+			(bind '(name at state source trail) (first (read (string-stream text))))
 			;the function as it was sent is kept, to send on with what it
 			;has then. What is run is a copy of it: to be run a form has
 			;its macros done and its names bound, in the form itself,
 			;Chris: "keep the original source so you can send it on with
 			;the state", and one that had been would not read back
-			(defq visit (exec (copy source)))
+			(defq visit (exec (copy source)) me (storage-state svc))
+			(push trail (if me (. me :find :member) "?"))
 			(when (defq object (storage-manifest name svc))
-				(defq names (second object) count (length names) lost :nil)
-				(while (and at (not lost) (< -1 at count))
+				(defq names (second object) count (length names) lost :nil sent :nil)
+				(while (and at (not lost) (not sent) (< -1 at count))
+					(defq want (elem-get names at))
 					(cond
-						((defq data (storage-block (elem-get names at) svc))
+						((defq data (storage-block-at want svc))
 							(bind '(state at) (visit state data at count)))
+						;the block is not kept here. The gopher goes to it: a member
+						;that has it is found, and all there is of the gopher, where
+						;it is, what it has, its function and where it has been, is
+						;sent there, to carry on. This one is done, it says nothing
+						((defq next (some (# (if (eql (storage-ask %0 +storage_type_has want) "1") %0))
+								(storage-where want svc)))
+							(defq said (mail-mbox))
+							(open-task "service/storage/gopher.lisp" (slice next +mailbox_id_size -1) +kn_call_pin 0 said)
+							(defq there (getf (mail-read-timeout said (task-timeout 5)) +kn_msg_reply_id))
+							(mail-send there (cat (hex-encode asker) +storage_lf (hex-encode next) +storage_lf
+								(str (list name at state source trail))))
+							(setq sent :t))
 						((setq lost :t))))
-				(unless lost (setq answer (str (list state))))))
+				(cond
+					(sent (setq answer :nil))
+					((not lost) (setq answer (str (list state trail)))))))
 		:t)
-	(mail-send asker answer))
+	(if answer (mail-send asker answer)))

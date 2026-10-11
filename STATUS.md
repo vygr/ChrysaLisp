@@ -4,6 +4,48 @@
 
 ------
 
+**Storage: a store of many members.**
+
+Chris, going to bed: "If the single store looks good then start to extend
+the idea to the 3 machines."
+
+`lib/storage/store.inc`: what a member does with what another tells it,
+`(store-meet)`, which of two entries written apart keeps a path,
+`(store-keeps)`, the other kept as `path~` and eight of its object's
+name, members joined and retired as two lists that only grow, where a
+block is kept worked out from the members with no table,
+`(store-holders)`, and a member's share, `(store-share)`.
+
+`service/storage/`: a service is a member, found by the others as
+`*Storage` with the store's id. It only answers. Its **tender**, a task
+of its own, is what asks: finds the members, compares notes with each
+that differs, fetches what is this member's to keep, lets go of what is
+others' once each of them has it. The **gopher** now goes to the blocks:
+where the one it wants is not kept, all there is of it is mailed to a
+new gopher at a member that has it, and the last answers who asked, with
+where it has been.
+
+Five members on one node, `tests/system/test_storage_members.lisp`, 46:
+every block on three of five; an object had whole from a member that has
+a third of it; a gopher that went to more than one member for a sum; a
+member cut off, 1 of 5 against 4 of 5, and when it is back its own paths
+there, the path both wrote the rack's, and its own under another name; a
+pin; a member stopped, three of the four left keep every block, started,
+three of five.
+
+All of that passed the first time it ran but for the tests' own slips,
+and one thing: a name known over every machine is told with its system,
+four parts and not three.
+
+Run: `test_store` 124, `test_store_meet` 71, `test_storage` 52,
+`test_storage_members` 46, on the M4, the x64 Mac and the Pi. The gate
+tools say nothing of the files.
+
+Not done: three real machines, each with its own. It is not started by
+itself anywhere.
+
+------
+
 **Storage: the service, a gopher, and the flash stick.**
 
 `service/storage/`: the service that keeps a store and is asked by mail,

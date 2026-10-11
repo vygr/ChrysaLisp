@@ -450,6 +450,75 @@ the write is kept; a write by most beats a delete apart, and nothing is
 kept; three that each wrote a path come to the same in whatever order they
 are told, with all three objects there.
 
+**A store of many members**, `service/storage/`, 2026-10-11.
+
+A service is a member. It is known to the others by the name of their
+group, `*Storage`, with the store's id and its own after it, on whatever
+machine it is: the same directory of services everything else is found by.
+Any service of the same store id in the group is a member to it, and who the
+members are is put together as they meet. So a machine joins a store by a
+store of that id being made on it.
+
+A service only ever answers. It asks nothing of another member and waits,
+for two that did, each of the other, would wait for ever. What a member has
+to ask is asked by its **tender**, `tender.lisp`, a task of its own, as a
+gopher is. Each time it looks, every two seconds, and at once when its member
+is written to:
+
+* It finds the other members, and tells its service who is there.
+* With each that is not as it is, by the one name of all it has,
+  `(store-digest)`, it compares notes: what the other has is taken here, and
+  what this one has, with that, is taken there. The two are then the same.
+  Chris's picture of it, from the mesh: people with notepads who "just meet
+  and compare what they have and swap some pages between them".
+* It asks its service for its share, `(store-share)`, among the members that
+  are there: every manifest, the blocks it is one of the three keepers of,
+  and all the blocks of what it has pinned. What it wants and has not, it
+  fetches from a member that has. What it has that is others' to keep, it
+  lets go of once each of those says it has it.
+
+A member not heard from is still there for a while, five minutes, before
+what it kept is kept by others: a machine turned off and on is no reason to
+copy its share.
+
+A write is taken by the one member and is done. The others have it when
+they next meet, and `(storage-seen path)` is how far it has got, `(4 5)`,
+seen by four of five.
+
+A block the member asked has not got is had from one that has: the service
+says who, `(storage-where)`, and it is the asker that goes there.
+
+**The gopher goes to the blocks.** When the block it wants is not kept by the
+member it is at, it finds a member that has it, and all there is of it,
+where it is, what it has, its function as it was sent, and where it has been,
+is mailed to a new gopher task there. The one that sent it is done and says
+nothing. The last mails the answer, and the trail, straight to who asked.
+
+```
+(storage-walk "big" 0 '(lambda (sum data at count) ...))
+-> (4611 ("m-a" "m-c" "m-a" "m-d" "m-b" ...))
+```
+
+What the tests hold, `tests/system/test_storage_members.lisp`, five members
+on one node, each with a store in a file of its own, their tenders looking
+only when told so that every step is done when it says:
+
+* Three members meet and each knows the three. An object of 20 blocks put at
+  one is seen by 1 of 3, and when they have met by 3 of 3.
+* Two more members: every block is kept by three of the five, no more and no
+  fewer, 60 copies of the 20; the manifest by all five; the member it was put
+  at has let go of what is others' to keep; it is had whole from any of them.
+* A gopher sent to it from a member that has not all of it comes back with
+  the right sum, having been to more than one member.
+* One member is cut off and writes a path of its own and one the rack also
+  writes, twice: 1 of 5, and 4 of 5. It comes back: its own path is on the
+  rack, the path both wrote is the rack's, and what it wrote last is under
+  the other name on a member that was never away. The five are the same.
+* A member pins the object and has all 20 blocks, unpins and every block is
+  back to three keepers.
+* A member is stopped: every block is kept by three of the four that are
+  left, and it is still a member. Started again: three of the five.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -467,14 +536,20 @@ are told, with all three objects there.
 
 ## Open
 
-* The service doing it: members finding each other, and meeting by mail.
-* Where a block is kept, copying up to three, and a member that goes and
-  comes back.
-* A query sent on from member to member.
+* It is not started by itself, and has run on one machine only: the three
+  machines, each with its own, is next.
+* The whole path map is sent when two members differ. `lib/hash/tree.inc`,
+  which sync has, would send only what differs.
+* A member is one by a store of that id being made on it. Retiring one is
+  `(storage-members "-id")`, and what it kept is then others' to keep.
 * How a block that nothing refers to is found, over machines, while a write
-  is on its way.
+  is on its way: a sweep is only when asked.
+* A write is done when the one member has it. Waiting till its blocks are on
+  three is not there yet, only how many have its path.
 * Whether the store may show that two blocks are the same, and where the
   keys are kept, when there is encryption.
 * Cutting an object where its content says, not every 64KB.
 * A manifest of a very long object is itself long, it is one block of any
   size for now.
+* A gopher's function can do anything a task can. What it may do is not
+  fenced.

@@ -5695,6 +5695,24 @@ there is no object of that name from now, provided it is from, as
 (store-commit). Its blocks are there till they are swept
 ```
 
+### store-digest
+
+```code
+(store-digest store) -> hash
+
+the path map and the members, as one name: two members with the same
+have nothing to tell each other
+```
+
+### store-entries
+
+```code
+(store-entries store) -> (entry ...)
+
+every entry of the path map, those deleted too, what is told to
+another member
+```
+
 ### store-entry-line
 
 ```code
@@ -5730,12 +5748,47 @@ the step below would be this very lambda
 all of an object
 ```
 
+### store-holders
+
+```code
+(store-holders store name [among]) -> (member ...)
+
+the members that are to keep a block of that name, as many as there
+are to be copies, of the members, or of those given, the ones that
+are there. Each member is given a number made from its id and the
+name, and those with the greatest keep it: so every member works out
+the same, nobody has to be asked, and when a member comes or goes
+only the blocks that are its share move
+```
+
 ### store-info
 
 ```code
 (store-info store) -> (objects blocks free)
 
 how many objects, how many blocks kept, and the room left in bytes
+```
+
+### store-join
+
+```code
+(store-join store members [retired]) -> :nil | :t
+
+these are members too, and those are retired, as another member has
+it. Both only ever grow, so two that are put together are the same
+whichever way round, and a member that is retired stays retired. Was
+there anything new
+```
+
+### store-keeps
+
+```code
+(store-keeps store a b) -> a | b
+
+of two entries for a path that were written apart, the one that
+keeps it. One that most members have, over one that they have not.
+Else the one written more times, and else the one whose object has
+the greater name: that is only so that every member chooses the same
 ```
 
 ### store-lines
@@ -5780,6 +5833,41 @@ the object of that name, if its manifest is kept here
 what is kept for an object: how long it is, and its blocks in order
 ```
 
+### store-meet
+
+```code
+(store-meet store entries) -> (changed ...)
+
+what another member has in its path map is set against what this one
+has. The paths that are not as they were here, their entries now.
+
+An entry of theirs that comes after mine is taken, one that comes
+before is not, mine will be taken there. The same entry: each now
+knows the other has it. Two written apart: one keeps the path,
+(store-keeps), with the counts of both, so that it comes after both
+and whoever meets it next takes it; the other, if it is an object and
+not a delete, is kept under another name, (store-other-name). Both
+members come to the same, whichever does this
+```
+
+### store-members
+
+```code
+(store-members store) -> (member ...)
+
+who the members are meant to be, in order: every one that was ever
+joined and has not been retired, away or not
+```
+
+### store-most?
+
+```code
+(store-most? store entry) -> :nil | :t
+
+do most of the members have this entry, as far as is known here. At
+most one of two entries written apart can be so
+```
+
 ### store-now
 
 ```code
@@ -5799,6 +5887,16 @@ the member it was made for, or last opened by. Opened by another, a
 machine given a new id, a disk moved to another machine, that member
 takes the place of the one it was, in the members too: there is not
 one more member, and (get :was store) is who it was
+```
+
+### store-other-name
+
+```code
+(store-other-name entry) -> path
+
+the name an entry is kept under when another keeps its path: the
+path, and the start of the name of its object. Every member makes
+the same name of it
 ```
 
 ### store-pin
@@ -5851,12 +5949,36 @@ part of an object, only the blocks that part is in are read
 the path map, the members and the pins, as they are now
 ```
 
+### store-seen
+
+```code
+(store-seen a b) -> (member ...)
+
+the members that are in either list, once each, in order
+```
+
 ### store-set
 
 ```code
 the one way a path is changed here. from is what the writer says it
 
 is now, :nil if it does not say
+```
+
+### store-share
+
+```code
+(store-share store among) -> (wants extras)
+
+this member's share, among the members that are there: the blocks it
+is to keep and has not got, names, and those it has and is not to
+keep, each (name holders), the members that are to.
+
+It is to keep every manifest, a member has to know what an object is
+made of to look after any of it. Of the blocks of an object, those
+whose keepers it is one of, (store-holders), and all of them if its
+path is pinned. A block that no object is made of is neither, that
+is for (store-sweep)
 ```
 
 ### store-stat

@@ -3,20 +3,28 @@
 ;
 ; It keeps one store, lib/storage/store.inc, and does what it is asked of
 ; it by mail, service/storage/app.inc. One of a name for a system, @Storage
-; if it is not given another.
+; if it is not given another. It is a member of the store, and is known to
+; the other members by the name of their group, *Storage, with the store's
+; id and its own after it.
 ;
-; The first mail it has says what it is to keep: who to tell when it is
-; ready, its name, the file of the host the store is in, and, if there may
-; be none there yet, how big to make one, the store's id, its block
-; size, and whether what is there and is no store is to be made one.
+; The first mail it has says what it is to keep, a line each, a word and
+; what it is: ready, who to tell when it is; image, the file of the host
+; the store is in; name; and, if they are given, size, how big to make a
+; store where there is none, id, block, force, group, member, tick, grace,
+; (storage-start).
 ;
 ; It does each thing asked before it looks at the next, so a write is all
-; done or not begun as far as any other asker can see. A gopher is not run
-; here, it is a task of its own, ./gopher.lisp, that asks this one for the
-; blocks: what it does and how long it takes are its own affair.
+; done or not begun as far as any other asker can see. And it only ever
+; answers. It asks nothing of another member and waits: two services that
+; did, each of the other, would wait for ever. What a member has to ask of
+; the others, to compare notes and to fetch its share, its tender asks,
+; ./tender.lisp, a task of its own that this starts. A gopher is a task of
+; its own too, ./gopher.lisp.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./app.inc")
+
+(defq +share_most 64)
 
 (defun names-of (text)
 	;names sent one after another, 32 bytes each
@@ -38,27 +46,57 @@
 (defun info-text (store)
 	(bind '(objects blocks free) (store-info store))
 	(join (list (cat "id " (get :id store)) (cat "member " (get :member store))
-		(cat "members " (join (get :members store) " "))
+		(cat "members " (join (store-members store) " "))
 		(cat "block_size " (str (get :block_size store))) (cat "copies " (str (get :copies store)))
 		(cat "objects " (str objects)) (cat "blocks " (str blocks)) (cat "free " (str free)))
 		+storage_lf))
 
+(defun notes-text (store)
+	;what one member tells another: who the members are, and its path map
+	(join (cat (list (cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
+		(map (const store-entry-line) (store-entries store))) +storage_lf))
+
+(defun notes-take (store text)
+	;what another member told, taken in. How many paths are not as they were
+	(defq lines (split text +storage_lf) entries (list))
+	(each (lambda (line)
+		(cond
+			((starts-with "members" line) (store-join store (rest (split line " "))))
+			((starts-with "retired" line) (store-join store (list) (rest (split line " "))))
+			((defq entry (store-entry-read line)) (push entries entry))))
+		lines)
+	(length (store-meet store entries)))
+
 (defun main ()
-	(bind '(ready name image size id block_size force) (split (mail-read (task-mbox)) +storage_lf))
-	(defq ready (hex-decode ready) size (str-as-num size) block_size (str-as-num block_size)
-		member (hex-encode (system-id))
+	;what it is to keep
+	(defq opts (Emap))
+	(each (lambda (line)
+		(if (defq at (find " " line)) (. opts :insert (sym (cat ":" (slice line 0 at))) (slice line (inc at) -1))))
+		(split (mail-read (task-mbox)) +storage_lf))
+	(bind '(ready image name size id block force group member tick grace)
+		(gather opts :ready :image :name :size :id :block :force :group :member :tick :grace))
+	(defq ready (hex-decode ready) size (if size (str-as-num size) 0) block (if block (str-as-num block) 0)
+		id (ifn id "store") name (ifn name +storage_name) group (ifn group +storage_group)
+		member (ifn member (hex-encode (system-id)))
 		;the store that is there
 		store (if (/= (age image) 0) (store-open image member)))
 	;or a new one, where there is nothing. Where there is something that
 	;is no store, only if it was said to
-	(and (not store) (> size 0) (or (= (age image) 0) (eql force "1"))
+	(and (not store) (> size 0) (or (= (age image) 0) force)
 		;the volume has the store's id as its label, as much of it as a label holds
-		(store-make image size id member (if (> block_size 0) block_size) (slice id 0 (min 11 (length id))))
+		(store-make image size id member (if (> block 0) block) (slice id 0 (min 11 (length id))))
 		(setq store (store-open image member)))
 	(cond
 		((or (not store) (nempty? (mail-enquire (cat name ","))))
 			(mail-send ready "no"))
-		(:t (defq service (mail-declare (task-mbox) name "Storage Service 0.1") running :t)
+		(:t (defq service (mail-declare (task-mbox) name "Storage Service 0.2")
+				;how the members of a store find each other, whatever machine they are on
+				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
+				running :t cut (list) peers (list)
+				tender (open-child "service/storage/tender.lisp" +kn_call_pin))
+			(if (/= 0 (get-long tender 0))
+				(mail-send tender (join (list (hex-encode (task-mbox)) group (ifn tick (str +storage_tick))
+					(ifn grace (str +storage_grace))) +storage_lf)))
 			(mail-send ready "ok")
 			(while running
 				(defq msg (mail-read (task-mbox)) reply (getf msg +storage_rpc_reply_id)
@@ -66,7 +104,10 @@
 				;a thing asked that throws is said to have, and the service goes on
 				(defq answer (catch (case type
 						(+storage_type_info (info-text store))
-						(+storage_type_stat (if (defq entry (store-stat store body)) (store-entry-line entry) ""))
+						(+storage_type_stat
+							;with a ? before the path, what it is though it be deleted
+							(defq entry (if (starts-with "?" body) (store-find store (rest body)) (store-stat store body)))
+							(if entry (store-entry-line entry) ""))
 						(+storage_type_list
 							(join (map (const store-entry-line) (store-list store body)) +storage_lf))
 						(+storage_type_has
@@ -74,12 +115,18 @@
 								(map (# (if (store-block-has? store %0) "1" "0")) (names-of body)))))
 						(+storage_type_block_put (ifn (store-block-put store body) ""))
 						(+storage_type_block_get (ifn (store-block-get store body) ""))
+						(+storage_type_block_drop (if (store-block-drop store body) "1" "0"))
 						(+storage_type_commit
 							(bind '(from bytes path &rest names) (split body +storage_lf))
-							(said (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from))))
+							(defq result (said (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from))))
+							;its tender is to tell the others, now and not at its next look
+							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+							result)
 						(+storage_type_delete
-							(defq at (find +storage_lf body))
-							(said (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at)))))
+							(defq at (find +storage_lf body)
+								result (said (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at)))))
+							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+							result)
 						(+storage_type_pin
 							(store-pin store (rest body) (eql (first body) "-"))
 							(join (get :pins store) +storage_lf))
@@ -94,9 +141,49 @@
 							(if (/= 0 (get-long gopher 0))
 								(mail-send gopher (cat (hex-encode reply) +storage_lf (hex-encode (task-mbox)) +storage_lf body)))
 							:nil)
+						(+storage_type_state
+							(join (list (cat "member " member) (cat "store " (get :id store))
+								(cat "digest " (hex-encode (store-digest store)))
+								(cat "members " (join (store-members store) " "))
+								(cat "retired " (join (get :retired store) " "))
+								(cat "cut " (join cut " "))
+								(cat "tender " (if (/= 0 (get-long tender 0)) (hex-encode tender) "")))
+								+storage_lf))
+						(+storage_type_entries (notes-text store))
+						(+storage_type_merge (str (notes-take store body)))
+						(+storage_type_share
+							;its share among the members that are there: what it wants,
+							;a line of -, and what it has that is others' to keep, each
+							;with who they are. No more than so many at a time
+							(bind '(wants extras) (store-share store (split body " ")))
+							(join (cat (map (const hex-encode) (slice wants 0 (min +share_most (length wants))))
+								(list "-")
+								(map (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " "))
+									(slice extras 0 (min +share_most (length extras)))))
+								+storage_lf))
+						(+storage_type_where
+							;the other members a block may be had from, those that are
+							;to keep it first, then the rest
+							(defq holders (store-holders store body (cat (list member) (map (const first) peers))))
+							(join (map (const second) (sort (cat peers)
+								(# (- (if (find (first %0) holders) 0 1) (if (find (first %1) holders) 0 1))))) +storage_lf))
+						(+storage_type_peers
+							;its tender says who is there: member and where, a line each
+							(if (nempty? body)
+								(setq peers (map (# (split %0 " ")) (filter (const nempty?) (split body +storage_lf)))))
+							(if (eql body "-") (setq peers (list)))
+							(join (map (# (join %0 " ")) peers) +storage_lf))
+						(+storage_type_members
+							(cond
+								((starts-with "+" body) (store-join store (list (rest body))))
+								((starts-with "-" body) (store-join store (list) (list (rest body)))))
+							(join (store-members store) " "))
+						(+storage_type_cut (setq cut (split body " ")) "ok")
 						(+storage_type_stop (setq running :nil) "ok")
 						(:t "error"))
 					(progn (prin "Storage: " (slice (str _) 0 200)) (print) "error")))
 				(if answer (mail-send reply answer)))
+			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(mail-forget service)
+			(mail-forget known)
 			(store-close store))))

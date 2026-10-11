@@ -60,7 +60,9 @@
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
-		(if opt_s (unless (storage-start opt_s (* opt_m 1048576) opt_i :nil :nil opt_F)
+		(if opt_s (unless (apply (const storage-start) (cat (list opt_s)
+				(if (> opt_m 0) (list :size (* opt_m 1048576)) (list))
+				(if opt_i (list :id opt_i) (list)) (if opt_F (list :force :t) (list))))
 			(print "No store at " opt_s ", and none made.")))
 		(defq svc (storage-service))
 		(cond
@@ -90,6 +92,7 @@
 					(defq info (storage-info svc))
 					(print "Store:   " (. info :find :id))
 					(print "Member:  " (. info :find :member) ", of " (length (. info :find :members)))
+					(each (# (print "         with " %0)) (filter (# (nql %0 (. info :find :member))) (. info :find :members)))
 					(print "Blocks:  " (. info :find :blocks) " of " (. info :find :block_size) " bytes or less")
 					(print "Free:    " (/ (. info :find :free) 1048576) "MB")
 					(print "Objects: " (. info :find :objects)))

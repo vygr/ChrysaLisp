@@ -583,6 +583,33 @@
 		(store-list store prefix))
 	(list held missing))
 
+(defun store-share (store among)
+	; (store-share store among) -> (wants extras)
+	;this member's share, among the members that are there: the blocks it
+	;is to keep and has not got, names, and those it has and is not to
+	;keep, each (name holders), the members that are to.
+	;
+	;It is to keep every manifest, a member has to know what an object is
+	;made of to look after any of it. Of the blocks of an object, those
+	;whose keepers it is one of, (store-holders), and all of them if its
+	;path is pinned. A block that no object is made of is neither, that
+	;is for (store-sweep)
+	(defq me (get :member store) wanted (Fset 101) others (Fmap 101) wants (list) extras (list))
+	(each (lambda (entry)
+		(defq hash (elem-get entry +store_entry_hash) pinned (store-pinned? store (first entry)))
+		(. wanted :insert hash)
+		(when (defq object (store-manifest store hash))
+			(each (lambda (name)
+				(defq holders (store-holders store name among))
+				(if (or pinned (find me holders)) (. wanted :insert name) (. others :insert name holders)))
+				(second object))))
+		(store-list store))
+	(. wanted :each (lambda (name) (unless (store-block-has? store name) (push wants name))))
+	;a block that is another's to keep for one object may be mine for another
+	(. others :each (lambda (name holders)
+		(if (and (not (. wanted :find name)) (store-block-has? store name)) (push extras (list name holders)))))
+	(list wants extras))
+
 (defun store-sweep (store)
 	; (store-sweep store) -> num
 	;the blocks that no object is made of are let go of, how many. Not
@@ -640,7 +667,7 @@
 ;module
 (export-symbols '(store-make store-open store-close store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
-	store-entries store-holders store-seen
+	store-entries store-holders store-seen store-share
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-get store-read store-fold store-walk store-list

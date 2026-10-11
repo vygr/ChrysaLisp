@@ -6,7 +6,12 @@
 ;not the system's, and two runs at once are not each other's
 (defq sg_name (cat "@StoreTest" (str (pii-pid)))
 	sg_image (cat "tests/scratch/store_" (str (pii-pid)) ".img")
-	sg_svc (storage-start sg_image 0x400000 "testing" sg_name 4096))
+	sg_group (cat "*StoreTest" (str (pii-pid)))
+	sg_svc (storage-start sg_image :size 0x400000 :id "testing" :name sg_name :block 4096 :group sg_group :tick 0))
+
+(defun sg-walk (&rest args)
+	;what a gopher came back with, in a list, less where it had been
+	(if (defq back (apply (const storage-walk) args)) (list (first back))))
 
 (defun sg-bytes (len seed)
 	(defq out (cat (str-alloc len)))
@@ -21,7 +26,7 @@
 	(assert-list-eq "the one member" (list (hex-encode (system-id))) (. sg_info :find :members))
 	(assert-eq "the block size" 4096 (. sg_info :find :block_size))
 	(assert-eq "and that there is nothing in it" 0 (. sg_info :find :objects))
-	(assert-eq "started again by that name, it is the one there is" sg_svc (storage-start sg_image 0 "x" sg_name))
+	(assert-eq "started again by that name, it is the one there is" sg_svc (storage-start sg_image :name sg_name))
 
 	;objects
 	(defq sg_small (sg-bytes 100 1) sg_big (sg-bytes 10000 2))
@@ -59,20 +64,22 @@
 	;a gopher
 	(assert-list-eq "a gopher sent to an object goes to each block in turn and comes back with what it has"
 		'(((0 4096) (1 4096) (2 1808)))
-		(storage-walk "a/big" (list) '(lambda (state data at count) (list (push state (list at (length data))) (inc at)))
+		(sg-walk "a/big" (list) '(lambda (state data at count) (list (push state (list at (length data))) (inc at)))
 			:nil :nil sg_svc))
 	(assert-list-eq "one that says it is done at the first block" '((0 3))
-		(storage-walk "a/big" :nil '(lambda (state data at count) (list (list at count) :nil)) :nil :nil sg_svc))
+		(sg-walk "a/big" :nil '(lambda (state data at count) (list (list at count) :nil)) :nil :nil sg_svc))
 	(assert-list-eq "one told to begin at the last" '(2)
-		(storage-walk "a/big" :nil '(lambda (state data at count) (list at :nil)) 2 :nil sg_svc))
+		(sg-walk "a/big" :nil '(lambda (state data at count) (list at :nil)) 2 :nil sg_svc))
 	(assert-eq "the sum of every byte, worked out where the blocks are"
 		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
 			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	(assert-list-eq "what it has can be a str with spaces and quotes in it, and comes back as it was"
 		(list (cat "a " (ascii-char 34) "b" (ascii-char 34) " c 3"))
-		(storage-walk "a/big" (cat "a " (ascii-char 34) "b" (ascii-char 34) " c")
+		(sg-walk "a/big" (cat "a " (ascii-char 34) "b" (ascii-char 34) " c")
 			'(lambda (state data at count) (list (cat state " " (str count)) :nil)) :nil :nil sg_svc))
+	(assert-list-eq "and it says where it had been, the one member" (list (hex-encode (system-id)))
+		(second (storage-walk "a/big" 0 '(lambda (state data at count) (list state (inc at))) :nil :nil sg_svc)))
 	(assert-eq "one sent to what there is none of comes back with nothing" :nil
 		(storage-walk "a/nothing" 0 '(lambda (state data at count) (list state :nil)) :nil :nil sg_svc))
 	(assert-eq "one whose function throws comes back with nothing, and the service is still there" :nil
@@ -109,7 +116,7 @@
 	(defq sg_t0 (pii-time))
 	(while (and (storage-service sg_name) (< (- (pii-time) sg_t0) (task-timeout 5))) (task-sleep 10000))
 	(assert-eq "and is not there" :nil (storage-service sg_name))
-	(assert-true "started again on the store" (setq sg_svc (storage-start sg_image 0 "" sg_name)))
+	(assert-true "started again on the store" (setq sg_svc (storage-start sg_image :name sg_name :group sg_group :tick 0)))
 	(assert-eq "what was put is there" sg_big (storage-get "b/copy" sg_svc))
 	(assert-eq "what was deleted is not" :nil (storage-get "c/x" sg_svc))
 	(assert-eq "it is the store it was" "testing" (. (storage-info sg_svc) :find :id))
