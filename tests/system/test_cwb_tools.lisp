@@ -343,6 +343,24 @@
 	(wt-near? (slice (wt-numbers (wt-last-d)) 2 4) wt_zero 0.05))
 (. wt_stage :sub wt_set)
 
+;the set square of 45 degrees, the same thing with its two square sides the same
+(defq wt_set45 (Setsquare45 wt_board 400 300))
+(. wt_stage :add wt_set45)
+(. wt_set45 :built)
+(assert-true "it is a set square, and one of 45" (and (Setsquare? wt_set45) (Setsquare45? wt_set45) (not (Setsquare45? wt_set))))
+(assert-eq "with three edges" 3 (length (get :edges wt_set45)))
+(bind '(kind ax ay bx by) (elem-get (get :edges wt_set45) 1))
+(defq wt_from (. wt_set45 :to_board (+ (* 0.75 ax) (* 0.25 bx)) (- (+ (* 0.75 ay) (* 0.25 by)) 3.0))
+	wt_to (. wt_set45 :to_board (+ (* 0.25 ax) (* 0.75 bx)) (- (+ (* 0.25 ay) (* 0.75 by)) 3.0)))
+(wt-go (cat '(1 :pen 1) wt_from)) (wt-go (cat '(1 :pen 1) wt_to)) (wt-go (cat '(1 :pen 0) wt_to))
+(bind '(x0 y0 x1 y1) (wt-numbers (wt-last-d)))
+(assert-true "a line along its long side is at 45 degrees"
+	(wt-near? (abs (/ (- y1 y0) (- x1 x0))) 1.0 0.002))
+(defun wt-words (tool) (map (# (elem-get %0 +cwb_text)) (filter (# (elem-get %0 +cwb_text)) (get :marks tool))))
+(assert-true "each sharp corner says 45" (= 2 (length (filter (# (eql %0 "45")) (wt-words wt_set45)))))
+(assert-true "and those of the other say 30 and 60" (and (find "30" (wt-words wt_set)) (find "60" (wt-words wt_set))))
+(. wt_stage :sub wt_set45)
+
 ;the whole protractor, a circle, and what an instrument draws is set on it
 (defq wt_circle (Circle wt_board 400 300))
 (. wt_stage :add wt_circle)

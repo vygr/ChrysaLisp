@@ -1,17 +1,17 @@
 ((:Emap 1)
 	:version 4
 	:width 288
-	:height 533
+	:height 589
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 63
+	:next_id 71
 	:layers
 	((:list 1)
 		((:list 3)
 			"[Layer 1]"
 			0
-			((:list 6)
+			((:list 8)
 				((:list 7)
 					:group
 					:id
@@ -261,7 +261,7 @@
 							:id
 							20
 							:items
-							((:list 42)
+							((:list 43)
 								((:list 11)
 									:shape
 									:id
@@ -983,6 +983,25 @@
 									:stroke
 									0
 									:text
+									"[:ratio]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									60
+									:m
+									((:path 6)
+										1.00000 0.00000 98.43408 0.00000 1.00000 404.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[:readouts]"
 									:font_size
 									12
@@ -990,7 +1009,7 @@
 								((:list 13)
 									:shape
 									:id
-									60
+									61
 									:d
 									"[M 0 418 L 188.1527 418]"
 									:stroke
@@ -1005,7 +1024,7 @@
 								((:list 17)
 									:shape
 									:id
-									61
+									62
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 434.00000
@@ -1026,7 +1045,7 @@
 								((:list 15)
 									:shape
 									:id
-									62
+									63
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 453.00000
@@ -1041,6 +1060,99 @@
 									:rebuild
 									:font_size
 									12
+								)
+							)
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					64
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 544.00000
+					)
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[1 class comes of it]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+				)
+				((:list 7)
+					:group
+					:id
+					65
+					:m
+					((:path 6)
+						1.00000 0.00000 13.00000 0.00000 1.00000 552.00000
+					)
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							66
+							:items
+							((:list 1)
+								((:list 7)
+									:group
+									:id
+									67
+									:m
+									((:path 6)
+										1.00000 0.00000 0.00000 0.00000 1.00000 0.00000
+									)
+									:items
+									((:list 1)
+										((:list 5)
+											:group
+											:id
+											68
+											:items
+											((:list 2)
+												((:list 11)
+													:shape
+													:id
+													69
+													:d
+													"[M 6 0 L 80.78515 0 A 6 6 0 0 1 86.78515 6 L 86.78515 18 A 6 6 0 0 1 80.78515 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													:fill
+													4294112502
+													:stroke
+													4282140240
+													:width
+													1.19999
+												)
+												((:list 15)
+													:shape
+													:id
+													70
+													:m
+													((:path 6)
+														1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
+													)
+													:kind
+													:text
+													:fill
+													4280296488
+													:stroke
+													0
+													:text
+													Setsquare45
+													:font_size
+													12
+												)
+											)
+										)
+									)
 								)
 							)
 						)

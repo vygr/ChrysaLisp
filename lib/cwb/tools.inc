@@ -701,17 +701,22 @@
 (defclass Setsquare (board x y) (Instrument board x y)
 	; (Setsquare board x y) -> setsquare
 	;a triangle with a square corner, each of its three sides is an edge.
-	;:length is its longest square side, the other is that over the root
-	;of 3, so its corners are 30, 60 and 90 degrees. The two sharp corners
+	;:length is its longest square side, the other is that times :ratio,
+	;one over the root of 3, so its corners are 30, 60 and 90 degrees.
+	;(Setsquare45) has a ratio of 1, and two corners of 45. The two sharp corners
 	;turn it about its middle, the square by its square corner makes it
 	;bigger or smaller, and so does the strip along each side, where its
 	;numbers are. Its middle moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
 	;a little below its top corner, numbered in centimetres
-	(def this :length 360.0 :min_length 200.0 :max_length 2000.0)
+	(def this :length 360.0 :min_length 200.0 :max_length 2000.0 :ratio 0.57735)
 
 	(defmethod :rebuild ()
-		(defq w (get :length this) h (* w 0.57735)
+		(defq w (get :length this) h (* w (get :ratio this))
+			;the angle of the corner at the end of the long square side, and
+			;of the other sharp corner, and the first in degrees
+			angle_b (path-angle w h) angle_c (- +fp_hpi angle_b)
+			deg_b (n2i (+ (/ (* angle_b 180.0) +fp_pi) 0.5))
 			;the square corner is bottom left, its middle is the middle of the three
 			ax (* w -0.33333) ay (* h 0.33333) bx (* w 0.66667) by ay cx ax cy (* h -0.66667)
 			;a corner, cut off a quarter of the way along its two sides
@@ -763,11 +768,13 @@
 		(defq arc_b (* 0.25 w) arc_c (* 0.25 h))
 		(push marks (cwb-shape (cat
 				(cwb-d "M" (* 0.38 ax) (* 0.38 ay) "L" (* 0.38 bx) (* 0.38 by) (* 0.38 cx) (* 0.38 cy) "Z")
-				" " (cwb-d-arc bx by (* 0.6 arc_b) +fp_pi (+ +fp_pi (/ +fp_pi 6.0)))
-				" " (cwb-d-arc cx cy (* 0.6 arc_c) (/ +fp_pi 6.0) +fp_hpi))
+				" " (cwb-d-arc bx by (* 0.6 arc_b) +fp_pi (+ +fp_pi angle_b))
+				" " (cwb-d-arc cx cy (* 0.6 arc_c) angle_b +fp_hpi))
 			:stroke 0xff000000 :width 0.8 :join :miter))
-		(push marks (cwb-text-mid "30" (- bx (* 0.78 arc_b)) (- by (* 0.11 arc_b)) :font_size 12))
-		(push marks (cwb-text-mid "60" (+ cx (* 0.2 arc_c)) (+ cy (* 0.82 arc_c)) :font_size 12))
+		;the angle of each, half way round its arc and out past it, clear of the sign that turns
+		(defq mid_b (+ +fp_pi (* 0.5 angle_b)) mid_c (+ angle_b (* 0.5 angle_c)))
+		(push marks (cwb-text-mid (str deg_b) (+ bx (* 1.0 arc_b (cos mid_b))) (+ by (* 1.0 arc_b (sin mid_b))) :font_size 12))
+		(push marks (cwb-text-mid (str (- 90 deg_b)) (+ cx (* 1.4 arc_c (cos mid_c))) (+ cy (* 1.4 arc_c (sin mid_c))) :font_size 12))
 		(defq n 1 at (* 10.0 +tool_mm))
 		(while (< at (- w 60.0))
 			;no number where a corner has its arc and its angle
@@ -779,3 +786,9 @@
 		(def this :marks marks :readouts (list (list -14.0 17.0)))
 		this)
 	)
+
+(defclass Setsquare45 (board x y) (Setsquare board x y)
+	; (Setsquare45 board x y) -> setsquare45
+	;the other set square of a pair: its two square sides are the same,
+	;and its corners are 45, 45 and 90 degrees
+	(def this :length 300.0 :ratio 1.0))

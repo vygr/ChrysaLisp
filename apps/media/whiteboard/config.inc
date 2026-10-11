@@ -29,7 +29,8 @@
 		:rub (get :rub_mode *board*)
 		:text (. *text_field* :get_text) :file *file*
 		;an instrument is what it is, where, turned how far, how long, and what it draws
-		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor) (:t :set_square))
+		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
+				((Setsquare45? %0) :set_square45) (:t :set_square))
 				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
 			(filter (const Instrument?) (. (. *board* :get_stage) :get_actors)))
 		:doc (cwb-out doc)))
@@ -69,8 +70,8 @@
 		(each (lambda (tool)
 			(when (and (list? tool) (= (length tool) 5))
 				(bind '(kind origin angle extent mode) tool)
-				(when (defq at (find kind '(:ruler :protractor :circle :set_square)))
-					(defq tool ((elem-get (list Ruler Protractor Circle Setsquare) at)
+				(when (defq at (find kind '(:ruler :protractor :circle :set_square :set_square45)))
+					(defq tool ((elem-get (list Ruler Protractor Circle Setsquare Setsquare45) at)
 						*board* (first origin) (second origin)))
 					(def tool :angle angle :mode mode)
 					(. tool :set_extent extent)

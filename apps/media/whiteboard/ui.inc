@@ -96,6 +96,7 @@
 (defun action-protractor () (add-instrument (apply (const Protractor) (cat (list *board*) (view-middle)))))
 (defun action-full-protractor () (add-instrument (apply (const Circle) (cat (list *board*) (view-middle)))))
 (defun action-set-square () (add-instrument (apply (const Setsquare) (cat (list *board*) (view-middle)))))
+(defun action-set-square45 () (add-instrument (apply (const Setsquare45) (cat (list *board*) (view-middle)))))
 
 (defun action-group () (. *board* :group))
 (defun action-ungroup () (. *board* :ungroup))

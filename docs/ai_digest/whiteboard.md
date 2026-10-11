@@ -297,7 +297,8 @@ draws along it does not move it, and nor does the pen. Two pointers on its
 parts move and turn it together.
 
 `Ruler`, `Protractor`, `Circle`, the whole protractor, which is a
-`Protractor`, and `Setsquare` are each a `:rebuild` that fills in that
+`Protractor`, `Setsquare` and `Setsquare45`, a `Setsquare` with another
+`:ratio` of its two square sides, are each a `:rebuild` that fills in that
 table from `:length`. Another instrument is another table.
 
 ## The palette
@@ -315,8 +316,8 @@ set to select. `(palette-enable board)` is what makes a board do it, the app
 and the `cwb` command both do.
 
 It is three rings about the point. The tools. The colours and the widths.
-Things to do: undo, redo, a ruler, a protractor, a set square, snap,
-duplicate, delete. The wedge of what is set has a line of light at its rim,
+Things to do: undo, redo, a ruler, a protractor, a whole protractor, the
+two set squares, snap, duplicate, delete. The wedge of what is set has a line of light at its rim,
 and the spot in the middle is the colour, as wide as the width. A tap on a
 tool sets it and puts the palette away. A colour or a width is set and it
 stays. A tap on its middle, or anywhere off it, puts it away.

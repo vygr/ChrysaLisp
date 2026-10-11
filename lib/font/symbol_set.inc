@@ -204,7 +204,9 @@
 	(list "lock" (cat (s-rrect 5.5 11 18.5 20 1.5) (s-line 8.5 11 8.5 8 10.5 5 13.5 5 15.5 8 15.5 11)
 		(s-line 12 14.5 12 16.5)))
 	(list "full_protractor" (cat (s-ring 12 12 8.5) (s-line 12 3.5 12 7) (s-line 20.5 12 17 12)
-		(s-line 12 20.5 12 17) (s-line 3.5 12 7 12) (s-line 11 12 13 12) (s-line 12 11 12 13)))))
+		(s-line 12 20.5 12 17) (s-line 3.5 12 7 12) (s-line 11 12 13 12) (s-line 12 11 12 13)))
+	;the set square of 45 degrees, its long side down
+	(list "set_square45" (cat (s-loop 2.5 18 21.5 18 12 8.5) (s-loop 9 15.5 15 15.5 12 12.5)))))
 
 ;;;;;;;;;;;;
 ; the themes

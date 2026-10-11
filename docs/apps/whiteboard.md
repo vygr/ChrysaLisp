@@ -64,8 +64,8 @@ side held, and the left button when the arrow is the tool.
 * The next is the colours, and four widths. Pick as many as you like, the
 spot in the middle shows what you have.
 
-* The outer ring is undo, redo, a ruler, a protractor, a whole protractor, a
-set square, snap to the grid, duplicate and delete.
+* The outer ring is undo, redo, a ruler, a protractor, a whole protractor,
+the two set squares, snap to the grid, duplicate and delete.
 
 * Click its middle, or anywhere off it, to put it away.
 
@@ -133,7 +133,8 @@ paper. A thing that is partly on it stays. It can be undone.
 ## The instruments
 
 The ruler, the protractor, the whole protractor, a circle of 360 degrees,
-and the set square are on the second row. Each is put on the board, over what is drawn, and is not part of the document. What
+and the two set squares, one of 30 and 60 degrees and one of 45, are on
+the second row. Each is put on the board, over what is drawn, and is not part of the document. What
 is drawn with it is.
 
 * Run the pen along an edge of one and what is drawn is that edge, from where

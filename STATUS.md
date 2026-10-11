@@ -4,6 +4,38 @@
 
 ------
 
+A set square of 45 degrees.
+
+Chris: "Add a 45° C set squared."
+
+`(Setsquare45)`, `lib/cwb/tools.inc`, is a `(Setsquare)` whose two
+square sides are the same: the set square has a `:ratio` now, of its
+short square side to its long, and works out its corners, their arcs
+and what each says from it, where it had 30 and 60 written in. All it
+did the other does: three edges to draw along, the two sharp corners
+turn it, the strips and the square size it, its middle moves it.
+
+It is on the instruments of the second row, after the whole
+protractor, with a symbol of its own, `+sym_set_square45`, the symbol
+fonts made again with `symbols`; in the palette's outer ring, ten
+things to do now; and kept in `whiteboard.tre` as `:set_square45`.
+
+The number at each sharp corner, of both, is further out along the
+middle of its arc than it was. It lay on the sign that turns.
+
+The picture of the palette in the two Whiteboard pages is made again:
+it was of before the whole protractor.
+
+Looked at as a picture, both side by side at twice the size. The cwb
+modules, 551, on the M4 as the Test user. Every test on the x64 Mac
+and the Pi: 5893 passed on each.
+
+Not seen: by a hand on a desktop, a pen along its long side, the
+button, the palette's new wedge. A Whiteboard that is open has the old
+toolbar: close it and open it again.
+
+------
+
 The rest of the `(progn)` round the else of an `(if)`, 78 of them.
 
 Chris: "yes, clean them up in one pass. 'ifn' same rule applies." Done

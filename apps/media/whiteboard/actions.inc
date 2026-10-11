@@ -32,6 +32,7 @@
 	+event_protractor action-protractor
 	+event_full_protractor action-full-protractor
 	+event_set_square action-set-square
+	+event_set_square45 action-set-square45
 	+event_group action-group
 	+event_ungroup action-ungroup
 	+event_delete action-delete
