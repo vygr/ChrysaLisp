@@ -141,9 +141,9 @@ matches is to be:
 ```
 
 The first rule that matches is the one. `(bindings-default)` is how a board
-starts: a pen draws, its other end rubs out, and with the button on its side
-held it moves things; the mouse draws with its left button and moves things
-with its right; a finger moves things. A pointer that is a `:pen` draws what
+starts: a pen draws, and rubs out with its other end or with the button on
+its side held; the mouse draws with its left button and moves things with
+its right; a finger moves things. A pointer that is a `:pen` draws what
 it is bound to, `:mode`, or what the board is set to.
 
 ## The board
@@ -591,9 +591,10 @@ apps/media/whiteboard/data/palette.cwb
 Chris: "Animating interactive pellets and menu's, mostly keep the surface
 clear for the user to work unhindered". A hand that goes down and comes up
 where there is nothing, with nothing selected, opens a `Palette` there,
-`lib/cwb/palette.inc`. The hand is the right button of a mouse, a finger, a
-pen with the button on its side held, or the left button when the board is
-set to select. `(palette-enable board)` is what makes a board do it, the app
+`lib/cwb/palette.inc`. The hand is the right button of a mouse, a finger,
+or the left button when the board is set to select. A pen has no hand of
+its own: the button on its side rubs out, and a tap of that on nothing,
+that rubbed nothing out, opens the palette for it. `(palette-enable board)` is what makes a board do it, the app
 and the `cwb` command both do.
 
 It is three rings about the point. The tools. The colours and the widths.

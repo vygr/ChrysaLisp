@@ -649,6 +649,14 @@
 				(setq moved (or moved (elem-get state +stroke_moved)))
 				(unless moved (. board :forget))
 				(def board :rubber :nil)
+				;a pen rubs out with the button on its side held, and it has
+				;no other way to its menu: a tap of that on nothing, that
+				;rubbed nothing out, is the board's menu, as a tap of a hand
+				;is. Not the other end of a pen, which is an eraser and no more
+				(defq near (/ +board_near (get :zoom board)))
+				(if (and (not moved) (eql kind :pen) (defq menu (get :menu board))
+						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+					(menu board x y event))
 				(. board :touch +board_dirty_overlay))
 			(:pan)
 			(:t ;what was drawn goes into the document, if it is anything

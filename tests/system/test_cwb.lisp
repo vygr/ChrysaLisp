@@ -214,6 +214,7 @@
 (defq wb_bind (bindings-default))
 (assert-eq "a pen draws" :pen (. wb_bind :value (ptr-event 1 :pen 1 0 0) :tool))
 (assert-eq "its other end rubs out" :eraser (. wb_bind :value (ptr-event 2 :eraser 1 0 0) :tool))
+(assert-eq "and so does the button on its side" :eraser (. wb_bind :value (ptr-event 1 :pen +pev_right 0 0) :tool))
 (assert-eq "a finger moves things" :hand (. wb_bind :value (ptr-event 3 :touch 1 0 0) :tool))
 (assert-eq "the mouse draws with its left button" :pen (. wb_bind :value (ptr-event 0 :mouse +pev_left 0 0) :tool))
 (assert-eq "and moves things with its right" :hand (. wb_bind :value (ptr-event 0 :mouse +pev_right 0 0) :tool))

@@ -53,6 +53,9 @@ The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.
 
+A pen with a button on its side rubs out while that is held, as its other
+end does if it has one.
+
 ## Moving about and zooming
 
 What is drawn is not on the paper as ink is. The things of a board are
@@ -115,8 +118,8 @@ apps/media/whiteboard/data/palette.cwb
 ```
 
 Click the right button where there is nothing, with nothing selected, and a
-palette opens there. So does a tap of a finger, a pen with the button on its
-side held, and the left button when the arrow is the tool.
+palette opens there. So does a tap of a finger, a tap of a pen with the
+button on its side held, and the left button when the arrow is the tool.
 
 * The inner ring is the tools. Pick one and the palette goes.
 

@@ -161,7 +161,7 @@
 (. pl_board :tick 4000000)
 (pl-tap pl_board 9 :pen +pev_right 300 300)
 (defq pl_pal (first (palettes pl_board)))
-(assert-list-eq "a pen with the button on its side held is a hand, and opens its own" '(:pen 9)
+(assert-list-eq "a pen with the button on its side held rubs out, and a tap of it on nothing opens its own" '(:pen 9)
 	(list (get :kind pl_pal) (get :id pl_pal)))
 (pl-pick pl_board pl_pal 9 :pen +pev_left :color 0xff2f9e44)
 (pl-pick pl_board pl_pal 9 :pen +pev_left :width 12.0)
@@ -246,3 +246,23 @@
 ;dragged, it is moved and nothing opens
 (pl-drag pl_board 0 :mouse +pev_left 210 160 260 200)
 (assert-list-eq "dragged, it is moved, and no palette opens" '(0 1) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
+
+;the button on the side of a pen rubs out, and only a tap of it on nothing is the menu
+(defq pb_board (Board (cwb-doc 800 600)))
+(palette-enable pb_board)
+(. pb_board :tick 0)
+(pl-drag pb_board 9 :pen +pev_left 100 300 500 300)
+(defq pb_before (length (cwb-items (. pb_board :get_doc)))
+	pb_d (str (cwb-get (first (cwb-items (. pb_board :get_doc))) :d)))
+(pl-drag pb_board 9 :pen +pev_right 300 250 300 350)
+(. pb_board :tick 100000)
+(defq pb_items (cwb-items (. pb_board :get_doc)))
+(assert-true "dragged across a line it takes a bite out of it"
+	(or (/= (length pb_items) pb_before) (not (eql pb_d (str (cwb-get (first pb_items) :d))))))
+(assert-eq "and no menu is opened by that" 0 (length (palettes pb_board)))
+(pl-tap pb_board 9 :pen +pev_right 600 500)
+(assert-list-eq "a tap of it on nothing is that pen's menu" '(1 :pen 9)
+	(list (length (palettes pb_board)) (get :kind (first (palettes pb_board))) (get :id (first (palettes pb_board)))))
+(. (first (palettes pb_board)) :close)
+(pl-tap pb_board 7 :eraser +pev_left 600 100)
+(assert-eq "a tap of the other end of a pen on nothing opens none, it is an eraser and no more" 0 (length (palettes pb_board)))

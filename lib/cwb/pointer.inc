@@ -113,15 +113,16 @@
 
 (defun bindings-default ()
 	; (bindings-default) -> bindings
-	;how a board starts out. A pen draws and its other end rubs out, and
-	;with the button on its side held it moves things. The mouse draws
-	;with its left button, moves things with its right and the board
-	;itself with its middle. A finger moves things
+	;how a board starts out. A pen draws, and rubs out with its other end
+	;or with the button on its side held, Chris: "I frequently had left
+	;pen bound to draw and right pen button bound to erase !" The mouse
+	;draws with its left button, moves things with its right and the
+	;board itself with its middle. A finger moves things
 	(.-> (Bindings)
 		(:bind :nil :nil :nil '(:tool :pen))
 		(:bind :touch :nil :nil '(:tool :hand))
 		(:bind :eraser :nil :nil '(:tool :eraser))
-		(:bind :pen :nil +pev_right '(:tool :hand))
+		(:bind :pen :nil +pev_right '(:tool :eraser))
 		(:bind :mouse :nil +pev_middle '(:tool :pan))
 		(:bind :mouse :nil +pev_right '(:tool :hand))))
 
