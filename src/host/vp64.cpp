@@ -103,9 +103,14 @@ enum Opcodes {
 #define vp_and_cr(c, dr) vp_op_cr(&, c, dr)
 #define vp_or_cr(c, dr) vp_op_cr(|, c, dr)
 #define vp_xor_cr(c, dr) vp_op_cr(^, c, dr)
-#define vp_shl_cr(c, dr) vp_op_cr(<<, c, dr)
-#define vp_shr_cr(c, dr) regs[dr] = (uint64_t)regs[dr] >> (c)
-#define vp_asr_cr(c, dr) vp_op_cr(>>, c, dr)
+// a shift means the one thing on every CPU, as a divide does. It is by the
+// low 6 bits of what it is given, so by 64 is by 0 and by -1 is by 63, which
+// is what x86-64, ARM64 and RISC-V each do with a count in a register. Left
+// to C++ a shift of 64 or more has no meaning, and what came of it was the
+// compiler's to choose
+#define vp_shl_cr(c, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] << ((c) & 63))
+#define vp_shr_cr(c, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] >> ((c) & 63))
+#define vp_asr_cr(c, dr) regs[dr] = regs[dr] >> ((c) & 63)
 #define vp_seq_cr(c, dr) vp_op_cr(==, c, dr)
 #define vp_sne_cr(c, dr) vp_op_cr(!=, c, dr)
 #define vp_slt_cr(c, dr) vp_op_cr(<, c, dr)
@@ -123,13 +128,26 @@ enum Opcodes {
 #define vp_and_rr(sr, dr) vp_op_rr(&, sr, dr)
 #define vp_or_rr(sr, dr) vp_op_rr(|, sr, dr)
 #define vp_xor_rr(sr, dr) vp_op_rr(^, sr, dr)
-#define vp_shl_rr(sr, dr) vp_op_rr(<<, sr, dr)
-#define vp_shr_rr(sr, dr) regs[dr] = (uint64_t)regs[dr] >> regs[sr]
-#define vp_asr_rr(sr, dr) vp_op_rr(>>, sr, dr)
+#define vp_shl_rr(sr, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] << (regs[sr] & 63))
+#define vp_shr_rr(sr, dr) regs[dr] = (int64_t)((uint64_t)regs[dr] >> (regs[sr] & 63))
+#define vp_asr_rr(sr, dr) regs[dr] = regs[dr] >> (regs[sr] & 63)
 #define vp_lnot_rr(sr, dr) regs[dr] = !regs[dr]
 #define vp_land_rr(sr, dr) vp_op_rr(&&, sr, dr)
 #define vp_swp_rr(sr, dr) { int64_t t = regs[dr]; regs[dr] = regs[sr]; regs[sr] = t; }
 #define vp_ext_rr(sr, dr) regs[dr] = (regs[sr] >> 63)
+
+// a real made an integer means the one thing too, and here the CPUs do not
+// agree: one too big to be an integer is the most negative number on x86-64
+// and the biggest on ARM64, and what is not a number is that or 0. Left to
+// C++ it has no meaning. Here it is toward 0, the biggest or the most
+// negative integer for one past either, and 0 for what is not a number
+static inline int64_t vp_f2i(double f)
+{
+	if (f != f) return 0;
+	if (f >= 9223372036854775808.0) return INT64_MAX;
+	if (f <= -9223372036854775808.0) return INT64_MIN;
+	return (int64_t)f;
+}
 
 // a divide means the one thing on every CPU, whatever the CPU would do itself.
 // It is a number of 64 bits that is divided, most CPUs have no divide of 128,
@@ -257,7 +275,7 @@ enum Opcodes {
 #define vp_cpy_fd(sr, br, ir) vp_mem_fd(sr, br, ir, double)
 
 #define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
-#define vp_cvt_fr(sr, dr) regs[dr] = (int64_t)fregs[sr]
+#define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
 #define vp_cpy_ff(sr, dr) fregs[dr] = fregs[sr]
 #define vp_cpy_rf(sr, dr) *(int64_t*)&fregs[dr] = regs[sr]
 #define vp_cpy_fr(sr, dr) regs[dr] = *(int64_t*)&fregs[sr]

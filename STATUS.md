@@ -4,6 +4,40 @@
 
 ------
 
+The emulator means one thing by a shift and by a real made an integer.
+
+Chris, of 62 (h): "worth doing, that won't affect speed as it's emulated
+anyway, make it predictable." `src/host/vp64.cpp` left both to C++, where
+neither has a meaning past its range, as a divide was before it was
+pinned.
+
+*	A shift is by the low 6 bits of its count: by 64 is by 0, by -1 is by
+	63. That is what x86-64, ARM64 and RISC-V each do with a count in a
+	register, so the emulator now says what every native CPU says.
+*	A real made an integer is toward 0, the biggest integer for one too
+	big, the most negative for one too far below, 0 for what is not a
+	number.
+
+On the second the CPUs themselves do not agree, and that is not changed:
+`(n2i)` of a real of 10 to the 27 is the most negative integer on the
+x64 Mac and the biggest on the M4 and the Pi. The emulator on the x64 Mac
+gave the x64's answer before, and gives the one answer now, read there
+both ways:
+
+	native    -9223372036854775808
+	emulated   9223372036854775807
+
+Run: hosts built on the M4, the x64 Mac and the Pi; tests math 318 on all
+three, the shifts among them; `test_integer_edges` 101 on the emulator on
+the M4 and on the x64 Mac, the two lines of the emulator's own among
+them.
+
+Not seen: Windows, whose host programs in `snapshot.zip` are as they
+were. What is not a number made an integer, I had no way to make one from
+Lisp to try.
+
+------
+
 `check`: a `(when)` or an `(if)` of an `(and)` and one form is the `(and)`.
 
 Chris: "how about (when (and . . .) .) ie the when is surplus ?" and "or

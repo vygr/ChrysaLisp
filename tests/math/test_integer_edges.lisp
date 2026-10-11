@@ -87,3 +87,24 @@
 	(str-as-num "007") 7
 	(str-as-num "") 0
 	(str-as-num "9223372036854775807") edge_max)
+
+; --- a shift is by the low 6 bits of its count, on every CPU and on the emulator ---
+(assert-eq "left by 64 is by 0" 1 (<< 1 64))
+(assert-eq "left by 65 is by 1" 2 (<< 1 65))
+(assert-eq "left by -1 is by 63" (<< 3 63) (<< 3 -1))
+(assert-eq "right by 64 is by 0" -1 (>> -1 64))
+(assert-eq "right by 68 is by 4" (>> -1 4) (>> -1 68))
+(assert-eq "right, keeping the sign, by 66 is by 2" -4 (>>> -16 66))
+(assert-eq "and by -62 is by 2" -4 (>>> -16 -62))
+
+; --- a real made an integer is toward 0 ---
+(assert-eq "2.9 is 2" 2 (n2i (n2r 2.9)))
+(assert-eq "-2.9 is -2" -2 (n2i (n2r -2.9)))
+;one too big to be an integer is not the same on every CPU, the most
+;negative number on x86-64 and the biggest on ARM64. The emulator is the
+;one thing on whatever it runs: the biggest, and the most negative for one
+;too far the other way
+(defq ie_big (* (n2r 1000000000) (n2r 1000000000) (n2r 1000000000)))
+(when (starts-with "obj/vp64" (load-path))
+	(assert-eq "emulated, a real too big is the biggest integer" 9223372036854775807 (n2i ie_big))
+	(assert-eq "emulated, one too far below is the most negative" (<< 1 63) (n2i (- (n2r 0) ie_big))))
