@@ -147,13 +147,20 @@
 (assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
 
 ;a pipe let go of while open ends its stdin and goes, it is not waited on
-;for ever. One that had not been read, one mid way, and one written to
+;for ever. One that had not been read, one mid way, and one written to.
+;
+;Gone is when its commands have ended, and not for ever is all that is
+;held to: there is no timer in letting go, so no time that would mean a
+;fault short of never. It was a second by the clock. On a Pi with every
+;test running, 48 of these over 12 runs were 12 to 110ms but for those of
+;files | sort, the one with work to finish: 226, 263, 274 and 885ms. And
+;so over the second once in some twenty runs, which is what a soak showed
 (each (lambda (cmdline)
 	(defq pd (Pipe cmdline) pipe_t0 (pii-time))
 	(if (eql cmdline "cat") (. pd :write "abc"))
 	(if (eql cmdline "echo one two") (. pd :read))
 	(setq pd :nil)
-	(assert-true (cat "a pipe let go of open is gone, " cmdline) (< (- (pii-time) pipe_t0) 1000000)))
+	(assert-true (cat "a pipe let go of open is gone, " cmdline) (< (- (pii-time) pipe_t0) (task-timeout 5))))
 	(list "echo one two" "echo one | cat" "cat" "files cmd/ .lisp | sort"))
 (setq pipe_out (list))
 (pipe-run "echo one two" (# (push pipe_out %0)))

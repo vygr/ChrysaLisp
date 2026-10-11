@@ -4,6 +4,38 @@
 
 ------
 
+The Pi's pipe failure, measured: a second was too little for it, and no
+fault.
+
+A soak of 24 after `tests -w`: 71 of 72, the one the Pi, "a pipe let go
+of open is gone, files cmd/ .lisp | sort", for the third soak of four.
+The test makes a pipe, lets go of it without closing it, and holds that
+it is gone within a second by the clock.
+
+How long that takes was written down on the Pi, a recorder in its copy
+of the test and not in the tree, over 12 runs of every module, 48 pipes
+let go of:
+
+	cat, echo one two, echo one | cat       12 to 115 ms
+	files cmd/ .lisp | sort                 12 to 274 ms, and one of 885
+
+Letting go waits for the commands to end, and that one has the work to
+finish. Its times run on up toward the second with no step in them, and
+there is no timer in letting go for a time to be mistaken for. So the
+second was the fault. The comment said what is held to, "not waited on
+for ever", and the number did not: it is `(task-timeout 5)`, with the
+measure in the comment.
+
+Why it showed tonight and not this morning I do not know. Four modules
+more are in the stage that is run over the Pi's four cores.
+
+Still running as this is written, on the x64 Mac in a folder of its own:
+the pipe test alone 600 times, with a recorder for what the pipe heard
+when it was not told why a command would not load. 1 in 130 so far,
+alone, is all there is of that one.
+
+------
+
 `tests -w`, the longest a task was kept from running, and what is left
 of the Pi's flake.
 
