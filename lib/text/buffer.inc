@@ -195,13 +195,12 @@
 					(list cursors)))
 		; if no cursor intersects or is below, all are above.
 		(list len len)
-		(progn
-			; find end index (ei): First cursor starting strictly after end_y.
-			; optimization: scanning from si.
-			(defq ei (some! (# (if (> (second (csr-sort %0)) end_y) (!)))
-						(list cursors) :nil si))
-			; bracket the range: include one neighbor on each side
-			(list (max 0 (dec si)) (min len (inc (ifn ei len)))))))
+		; find end index (ei): First cursor starting strictly after end_y.
+		; optimization: scanning from si.
+		(defq ei (some! (# (if (> (second (csr-sort %0)) end_y) (!)))
+					(list cursors) :nil si))
+		; bracket the range: include one neighbor on each side
+		(list (max 0 (dec si)) (min len (inc (ifn ei len))))))
 
 ;;;;;;;;;;;
 ; meta data
@@ -496,10 +495,9 @@
 					; map tail values if required
 					(defq tail (if (= (defq dy (- cy ay)) 0)
 						(slice cursors ei -1)
-						(progn
-							(defq delta (nums 0 dy 0 dy 0))
-							(map! (# (nums-add %0 delta))
-								(list cursors) ei -1))))
+						(defq delta (nums 0 dy 0 dy 0))
+						(map! (# (nums-add %0 delta))
+							(list cursors) ei -1)))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -555,10 +553,9 @@
 					; map tail values if required
 					(defq tail (if (= dy 0)
 						(slice cursors ei -1)
-						(progn
-							(defq delta (nums 0 dy 0 dy 0))
-							(map! (# (nums-add %0 delta))
-								(list cursors) ei -1))))
+						(defq delta (nums 0 dy 0 dy 0))
+						(map! (# (nums-add %0 delta))
+							(list cursors) ei -1)))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -776,7 +773,7 @@
 					; skip white space
 					(defq cy (some! (lambda (line)
 							(if (/= (setq cx (bskip +char_class_white_space line cx)) (length line))
-								(!) (progn (setq cx 0) :nil)))
+								(!) (setq cx 0) :nil))
 						(list buffer_lines) :nil cy h))
 					(ifn cy (setq cx 0 cy h))
 					(nums cx cy cx cy -1))
@@ -794,7 +791,7 @@
 					(defq cy (some! (lambda (line)
 							(if (/= (setq cx (rbskip +char_class_white_space line
 										(min cx (length line)))) 0)
-								(!) (progn (setq cx +max_int) :nil)))
+								(!) (setq cx +max_int) :nil))
 						(list buffer_lines) :nil (inc cy) 0))
 					(ifn cy (setq cx 0 cy 0))
 					(nums cx cy cx cy -1))
@@ -812,7 +809,7 @@
 					; skip white space
 					(setq ncy (some! (lambda (line)
 							(if (/= (setq ncx (bskip +char_class_white_space line ncx)) (length line))
-								(!) (progn (setq ncx 0) :nil)))
+								(!) (setq ncx 0) :nil))
 						(list buffer_lines) :nil ncy h))
 					(ifn ncy (setq ncx 0 ncy h))
 					(nums ncx ncy ax ay ncx))
@@ -830,7 +827,7 @@
 					(setq ncy (some! (lambda (line)
 							(if (/= (setq ncx (rbskip +char_class_white_space line
 										(min ncx (length line)))) 0)
-								(!) (progn (setq ncx +max_int) :nil)))
+								(!) (setq ncx +max_int) :nil))
 						(list buffer_lines) :nil (inc ncy) 0))
 					(ifn ncy (setq ncx 0 ncy 0))
 					(nums ncx ncy ax ay ncx))

@@ -5,7 +5,7 @@
 	(static-qq (lambda (args arg)
 		(if (and (nempty? args) (some (# (find %0 "0123456789")) (first args)) (not (starts-with "-" (first args))))
 			(progn (setq ,opt_var (str-as-num (first args))) (rest args))
-			(progn (setq ,opt_var 3333) args)))))
+			(setq ,opt_var 3333) args))))
 
 (defq usage `(
 (("-h" "--help")

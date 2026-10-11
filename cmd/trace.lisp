@@ -145,35 +145,34 @@
 		(defq op (first inst) args (rest inst))
 		(ifn (defq spec (. +inst_specs :find op))
 			(print "INTEGRITY WARNING: " function " at pc " pc ": unknown instruction " inst)
-			(progn
-				(defq s_idx 0 a_idx 0 is_rest :nil is_opt :nil err :nil)
-				(while (and (< a_idx (length args)) (not err))
-					(defq expected (if (< s_idx (length spec)) (elem-get spec s_idx) :nil)
-						actual (elem-get args a_idx))
-					(cond
-						((eql expected '&rest)
-							(setq is_rest (elem-get spec (inc s_idx))))
-						((eql expected '&optional)
-							(setq is_opt :t
-								expected (elem-get spec (inc s_idx))
-								s_idx (inc s_idx))))
-					(defq exp_type (if is_rest is_rest expected))
-					(cond
-						((not exp_type)
-							(setq err (str "too many arguments, unexpected " actual)))
-						((not (check-op-type exp_type actual))
-							(setq err (str "argument " a_idx " (" actual ") does not match expected type " exp_type)))
-						(:t (ifn is_rest (++ s_idx))
-							(++ a_idx))))
-				(unless err
-					(while (and (< s_idx (length spec))
-								(nql (elem-get spec s_idx) '&optional)
-								(nql (elem-get spec s_idx) '&rest))
-						(setq err (str "missing required argument of type " (elem-get spec s_idx)))
-						(++ s_idx)))
-				(when err
-					(print "INTEGRITY ERROR: " function " at pc " pc ": " inst)
-					(print "\t" err))))))
+			(defq s_idx 0 a_idx 0 is_rest :nil is_opt :nil err :nil)
+			(while (and (< a_idx (length args)) (not err))
+				(defq expected (if (< s_idx (length spec)) (elem-get spec s_idx) :nil)
+					actual (elem-get args a_idx))
+				(cond
+					((eql expected '&rest)
+						(setq is_rest (elem-get spec (inc s_idx))))
+					((eql expected '&optional)
+						(setq is_opt :t
+							expected (elem-get spec (inc s_idx))
+							s_idx (inc s_idx))))
+				(defq exp_type (if is_rest is_rest expected))
+				(cond
+					((not exp_type)
+						(setq err (str "too many arguments, unexpected " actual)))
+					((not (check-op-type exp_type actual))
+						(setq err (str "argument " a_idx " (" actual ") does not match expected type " exp_type)))
+					(:t (ifn is_rest (++ s_idx))
+						(++ a_idx))))
+			(unless err
+				(while (and (< s_idx (length spec))
+							(nql (elem-get spec s_idx) '&optional)
+							(nql (elem-get spec s_idx) '&rest))
+					(setq err (str "missing required argument of type " (elem-get spec s_idx)))
+					(++ s_idx)))
+			(when err
+				(print "INTEGRITY ERROR: " function " at pc " pc ": " inst)
+				(print "\t" err)))))
 
 (defun check-insts-integrity (function insts)
 	(each! (# (check-inst-integrity function (!) %0)) (list insts)))
@@ -523,9 +522,8 @@
 											(. doc :stream_save out_s)
 											(stream-flush out_s)
 											(setq out_s :nil))))))))
-					(progn
-						(each (lambda (function)
-							(when (defq entry (. db :find function))
-								(print function " -> " (format-trashes (second entry)))))
-							functions)))))))
+					(each (lambda (function)
+						(when (defq entry (. db :find function))
+							(print function " -> " (format-trashes (second entry)))))
+						functions))))))
 

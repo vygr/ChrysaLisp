@@ -109,34 +109,31 @@
 
 (defun arm64-limm (%0)
 	(if (or (= 0 %0) (= -1 %0)) -1
-		(progn
-			(defq s 64 e :t)
-			(while e
-				(defq s (>> s 1) m (dec (<< 1 s)))
-				(if (/= (logand %0 m) (logand (>> %0 s) m))
-					(setq s (* s 2) e :nil)
-					(if (<= s 2)
-						(setq e :nil))))
-			(defq m (>> -1 (- 64 s)) %0 (logand %0 m))
-			(if (arm64-is-shifted-mask %0)
-				(progn
-					(defq i (ntz %0))
-					(if (>= i 64)
-						(setq e :t)
-						(defq cto (nto (>> %0 i)))))
-				(progn
-					(setq %0 (logior %0 (lognot m)))
-					(if (not (arm64-is-shifted-mask (lognot %0)))
-						(setq e :t)
-						(defq clo (nlo %0) i (- 64 clo)
-							cto (- (+ clo (nto %0)) (- 64 s))))))
-			(if (or e (<= s i)) -1
-				(progn
-					(defq _r (logand (- s i) (dec s))
-						_s (<< (lognot (dec s)) 1)
-						_s (logior _s (dec cto))
-						n (logxor (logand (>> _s 6) 1) 1))
-					(+ (<< n 12) (<< _r 6) (logand _s 0x3f)))))))
+		(defq s 64 e :t)
+		(while e
+			(defq s (>> s 1) m (dec (<< 1 s)))
+			(if (/= (logand %0 m) (logand (>> %0 s) m))
+				(setq s (* s 2) e :nil)
+				(if (<= s 2)
+					(setq e :nil))))
+		(defq m (>> -1 (- 64 s)) %0 (logand %0 m))
+		(if (arm64-is-shifted-mask %0)
+			(progn
+				(defq i (ntz %0))
+				(if (>= i 64)
+					(setq e :t)
+					(defq cto (nto (>> %0 i)))))
+			(setq %0 (logior %0 (lognot m)))
+			(if (not (arm64-is-shifted-mask (lognot %0)))
+				(setq e :t)
+				(defq clo (nlo %0) i (- 64 clo)
+					cto (- (+ clo (nto %0)) (- 64 s)))))
+		(if (or e (<= s i)) -1
+			(defq _r (logand (- s i) (dec s))
+				_s (<< (lognot (dec s)) 1)
+				_s (logior _s (dec cto))
+				n (logxor (logand (>> _s 6) 1) 1))
+			(+ (<< n 12) (<< _r 6) (logand _s 0x3f)))))
 
 (defun emit-cpy-rr (s d)
 	(cond
@@ -201,9 +198,8 @@
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0xb2000000 (<< i 10) (<< r 5) r))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(emit-or-rr +arm64_rtmp r))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(emit-or-rr +arm64_rtmp r)))))
 
 (defun emit-and-cr (c r)
 	(cond
@@ -214,15 +210,13 @@
 				(progn
 					(emit-cpy-rr +arm64_rsp +arm64_rtmp)
 					(emitm-int (+ 0x92000000 (<< i 10) (<< +arm64_rtmp 5) r)))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(emit-and-rr +arm64_rtmp r))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(emit-and-rr +arm64_rtmp r)))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0x92000000 (<< i 10) (<< r 5) r))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(emit-and-rr +arm64_rtmp r))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(emit-and-rr +arm64_rtmp r)))))
 
 (defun emit-xor-cr (c r)
 	(cond
@@ -230,9 +224,8 @@
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0xd2000000 (<< i 10) (<< r 5) r))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(emit-xor-rr +arm64_rtmp r))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(emit-xor-rr +arm64_rtmp r)))))
 
 (defun emit-cpy-ir (s c d) (arm64-ir 3 0xf8400000 s c d))
 (defun emit-cpy-ri (s d c) (arm64-ri 3 0xf8000000 s d c))
@@ -583,9 +576,8 @@
 		((defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0x92000000 (<< i 10) (<< s 5) d))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(arm64-rrr 0x8a000000 +arm64_rtmp s d))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(arm64-rrr 0x8a000000 +arm64_rtmp s d)))))
 
 (defun emit-arm64-or-crr (c s d)
 	(cond
@@ -594,9 +586,8 @@
 		((defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0xb2000000 (<< i 10) (<< s 5) d))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(arm64-rrr 0xaa000000 +arm64_rtmp s d))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(arm64-rrr 0xaa000000 +arm64_rtmp s d)))))
 
 (defun emit-arm64-xor-crr (c s d)
 	(cond
@@ -604,9 +595,8 @@
 		((defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0xd2000000 (<< i 10) (<< s 5) d))
-				(progn
-					(arm64-mov-cr c +arm64_rtmp)
-					(arm64-rrr 0xca000000 +arm64_rtmp s d))))))
+				(arm64-mov-cr c +arm64_rtmp)
+				(arm64-rrr 0xca000000 +arm64_rtmp s d)))))
 
 ;call fusion emitters, see lib/trans/vp.inc
 

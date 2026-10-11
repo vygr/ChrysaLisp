@@ -100,10 +100,9 @@
 				(bind '(code len) code_info)
 				(write-bits out_stream write_pool_state code len))
 			; Token is not yet seen (NYT).
-			(progn
-				(bind '(code len) (. codebook :find NYT_TOKEN))
-				(write-bits out_stream write_pool_state code len)
-				(write-bits out_stream write_pool_state token token_bits)))
+			(bind '(code len) (. codebook :find NYT_TOKEN))
+			(write-bits out_stream write_pool_state code len)
+			(write-bits out_stream write_pool_state token token_bits))
 
 		; Symmetrically update the frequency map AFTER processing the token.
 		(. freq_map :update token (# (if %0 (inc %0) 1))))

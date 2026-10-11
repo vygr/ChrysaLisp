@@ -37,11 +37,10 @@
 				; Write the repeated run: control token and the token itself
 				(write-bits out_stream write_pool_state (logior (dec run_length) sign_bit_mask) run_bits)
 				(write-bits out_stream write_pool_state token token_bits))
-			(progn
-				; Not a long enough run, treat as literal
-				(push literals token)
-				(when (= (length literals) max_literals)
-					(flush_literals out_stream write_pool_state literals token_bits run_bits))))
+			; Not a long enough run, treat as literal
+			(push literals token)
+			(when (= (length literals) max_literals)
+				(flush_literals out_stream write_pool_state literals token_bits run_bits)))
 		; Slide the window forward
 		(setq token next_token))
 	; After loop, flush any remaining literals

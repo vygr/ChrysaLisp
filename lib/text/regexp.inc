@@ -202,18 +202,16 @@
 		;not a split
 		(push current (array 0))
 		;a split
-		(progn
-			(insertelem meta current (list) (array 0) elem)
-			current)))
+		(insertelem meta current (list) (array 0) elem)
+		current))
 
 (defun firstelem-no-trace (meta current)
 	(if (first (defq elem (first meta)))
 		;not a split
 		(push current 0)
 		;a split
-		(progn
-			(insertelem-no-trace meta current 0 elem)
-			current)))
+		(insertelem-no-trace meta current 0 elem)
+		current))
 
 (defun search (text meta start)
 	; (search text meta start) -> (list submatches {-1 | end})

@@ -140,12 +140,11 @@
 										class_entry (. class_db :find class_name))
 									(if class_entry
 										(. class_entry :insert :parent parent_name)
-										(progn
-											(setq class_entry (scatter (Emap)
-												:parent parent_name
-												:subclasses (list)
-												:methods (Emap)))
-											(. class_db :insert class_name class_entry)))
+										(setq class_entry (scatter (Emap)
+											:parent parent_name
+											:subclasses (list)
+											:methods (Emap)))
+										(. class_db :insert class_name class_entry))
 									(unless (eql parent_name :nil)
 										(defq parent_entry (. class_db :find parent_name))
 										(unless parent_entry

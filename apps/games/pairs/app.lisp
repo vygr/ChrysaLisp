@@ -142,18 +142,16 @@
 						(setq *score* (+ *score* *match_score*)
 							  *first_pick* :nil)
 						(update-view))
-					(progn
-						; Mismatch
-						(setq *score* (- *score* *mismatch_penalty*)
-							  *locked* :t)
-						; Set timer to hide cards after delay
-						(mail-timeout (elem-get select +select_timer) 1000000 0)
-						(update-view))))
+					; Mismatch
+					(setq *score* (- *score* *mismatch_penalty*)
+						  *locked* :t)
+					; Set timer to hide cards after delay
+					(mail-timeout (elem-get select +select_timer) 1000000 0)
+					(update-view)))
 			; First selection
-			(progn
-				(setq *first_pick* index)
-				(elem-set *states* index 1)
-				(update-view)))))
+			(setq *first_pick* index)
+			(elem-set *states* index 1)
+			(update-view))))
 
 (defun solve ()
 	; Cheat function: reveal all

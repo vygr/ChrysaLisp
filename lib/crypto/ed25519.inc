@@ -160,7 +160,7 @@
 	(while (>= (setq n (dec n)) 0)
 		(if (= 0 (logand (>> (code scalar 1 (>> n 3)) (logand n 7)) 1))
 			(progn (ed-add q p) (ed-add p p))
-			(progn (ed-add p q) (ed-add q q))))
+			(ed-add p q) (ed-add q q)))
 	p)
 
 (defun ed-encode (p)

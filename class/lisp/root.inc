@@ -945,10 +945,9 @@
 	; (rotate seq start mid end) -> seq
 	(if (and (msafe? s) (msafe? i) (msafe? j) (msafe? k))
 		(static-qq (splice ,s ,s (nums 0 ,i ,j ,k ,i ,j ,k -1)))
-		(progn
-			(defq _s (gensym) _i  (gensym) _j (gensym) _k (gensym))
-			(static-qq (splice (defq ,_s ,s) ,_s
-				(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1))))))
+		(defq _s (gensym) _i  (gensym) _j (gensym) _k (gensym))
+		(static-qq (splice (defq ,_s ,s) ,_s
+			(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1)))))
 
 (defmacro lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
@@ -1085,10 +1084,9 @@
 (defun nlz (%0)
 	; (nlz num) -> num
 	(if (= %0 0) 64
-		(progn
-			(defq n 0)
-			(while (> %0 0)
-				(setq n (inc n) %0 (<< %0 1))) n)))
+		(defq n 0)
+		(while (> %0 0)
+			(setq n (inc n) %0 (<< %0 1))) n))
 
 (defun nlo (%0)
 	; (nlo num) -> num

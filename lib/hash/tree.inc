@@ -60,7 +60,7 @@
 			;if it is there the ones above are too
 			(if (some (# (and (eql (elem-get %0 +hash_kid_kind) "d") (eql (first %0) name))) made)
 				(setq folder "")
-				(progn (push made (list name "d" "" "-")) (setq folder above)))))
+				(push made (list name "d" "" "-")) (setq folder above))))
 		things)
 	;the deepest folders first, so that a folder's folders have their hashes
 	(defq paths (list))

@@ -7,7 +7,7 @@
 
 (defun macro-playback (actions)
 	(every (# (if (find (first %0) (const `'(,action-find-up ,action-find-down)))
-			(setq running (eval %0)) (progn (eval %0) :t)))
+			(setq running (eval %0)) (eval %0) :t))
 		actions))
 
 (defun macro-record (action)

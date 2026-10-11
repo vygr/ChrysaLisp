@@ -25,8 +25,7 @@
 					(unless (eql ll nl)
 						(print (setq ll nl)))))
 			;from args
-			(progn
-				(print (defq ll (second args)))
-				(each (lambda (nl)
-					(unless (eql ll nl)
-						(print (setq ll nl)))) (slice args 2 -1))))))
+			(print (defq ll (second args)))
+			(each (lambda (nl)
+				(unless (eql ll nl)
+					(print (setq ll nl)))) (slice args 2 -1)))))

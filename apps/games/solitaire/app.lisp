@@ -138,36 +138,35 @@
 		; Clicked self -> deselect
 		(progn (setq *selected* :nil) (update-view))
 		; Else try logic
-		(progn
-			(defq x1 (% from_idx +grid_w) y1 (/ from_idx +grid_w)
-				  x2 (% to_idx +grid_w) y2 (/ to_idx +grid_w)
-				  dx (- x2 x1) dy (- y2 y1))
+		(defq x1 (% from_idx +grid_w) y1 (/ from_idx +grid_w)
+			  x2 (% to_idx +grid_w) y2 (/ to_idx +grid_w)
+			  dx (- x2 x1) dy (- y2 y1))
 
-			; Valid jump? Distance must be 2 in one axis, 0 in other
-			(if (or (and (= (abs dx) 2) (= dy 0))
-					(and (= (abs dy) 2) (= dx 0)))
-				(progn
-					; Calculate middle index
-					(defq mid_idx (+ x1 (/ dx 2) (* (+ y1 (/ dy 2)) +grid_w)))
+		; Valid jump? Distance must be 2 in one axis, 0 in other
+		(if (or (and (= (abs dx) 2) (= dy 0))
+				(and (= (abs dy) 2) (= dx 0)))
+			(progn
+				; Calculate middle index
+				(defq mid_idx (+ x1 (/ dx 2) (* (+ y1 (/ dy 2)) +grid_w)))
 
-					; Check: To is empty, Mid has peg
-					(if (and (= (elem-get *board* to_idx) +state_empty)
-							 (= (elem-get *board* mid_idx) +state_peg))
-						(progn
-							; Save state for Undo
-							(push *undo_stack* (list *selected* (copy *board*)))
-							; Execute Move
-							(elem-set *board* from_idx +state_empty) ; Remove from origin
-							(elem-set *board* mid_idx +state_empty)	 ; Remove jumped
-							(elem-set *board* to_idx +state_peg)	 ; Place at dest
-							; Update
-							(setq *selected* :nil)
-							(update-gamestate)
-							(update-view))
-						; Invalid logic target
-						(progn (setq *selected* :nil) (update-view))))
-				; Invalid distance
-				(progn (setq *selected* :nil) (update-view))))))
+				; Check: To is empty, Mid has peg
+				(if (and (= (elem-get *board* to_idx) +state_empty)
+						 (= (elem-get *board* mid_idx) +state_peg))
+					(progn
+						; Save state for Undo
+						(push *undo_stack* (list *selected* (copy *board*)))
+						; Execute Move
+						(elem-set *board* from_idx +state_empty) ; Remove from origin
+						(elem-set *board* mid_idx +state_empty)	 ; Remove jumped
+						(elem-set *board* to_idx +state_peg)	 ; Place at dest
+						; Update
+						(setq *selected* :nil)
+						(update-gamestate)
+						(update-view))
+					; Invalid logic target
+					(setq *selected* :nil) (update-view)))
+			; Invalid distance
+			(setq *selected* :nil) (update-view))))
 
 (defun handle-click (index)
 	(defq val (elem-get *board* index))

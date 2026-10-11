@@ -70,11 +70,10 @@
 	(bind '(types src dst index)
 		(reduce! (# (if (eql %1 '&&)
 			(++ index_offset +ptr_size)
-			(progn
-				(push (first %0) %1)
-				(push (second %0) %2)
-				(push (third %0) %3)
-				(push (last %0) (- %4 index_offset))))
+			(push (first %0) %1)
+			(push (second %0) %2)
+			(push (third %0) %3)
+			(push (last %0) (- %4 index_offset)))
 			%0) (list types src dst index) (lists 4)))
 	;load from args list
 	(defq i (last src))

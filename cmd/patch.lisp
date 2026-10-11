@@ -32,10 +32,9 @@
 							(stream-patch b a (io-stream 'stdout))
 							(stream-patch a b (io-stream 'stdout))))
 					(setq a :nil b :nil))
-				(progn
-					(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
-						(if opt_s
-							(stream-patch b a (io-stream 'stdout))
-							(stream-patch a b (io-stream 'stdout))))
-					(setq a :nil))))))
+				(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
+					(if opt_s
+						(stream-patch b a (io-stream 'stdout))
+						(stream-patch a b (io-stream 'stdout))))
+				(setq a :nil)))))
 

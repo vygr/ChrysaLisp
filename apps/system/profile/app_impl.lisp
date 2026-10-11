@@ -36,26 +36,25 @@
 			(def *hslider* :value _)
 			(setq selected_index _)
 			(vdu-print *vdu* (elem-get (elem-get buf_list selected_index) +profile_rec_buf) ""))
-		(progn
-			(clear buf_list)
-			(clear buf_keys)
-			(setq selected_index :nil)
-			(. *vdu* :load '(
-				{ChrysaLisp Profile 0.2}
-				{Toolbar1 buttons act on a single task.}
-				{Toolbar2 buttons act on all tasks.}
-				{Slider to switch between tasks.}
-				{}
-				{In Lisp files:}
-				{}
-				{add (import "lib/debug/profile.inc")}
-				{to profile all functions/methods.}
-				{}
-				{Use:}
-				{}
-				{(profile-report name [reset])}
-				{}
-				{to send the report.}) 0 0 0 1000)))
+		(clear buf_list)
+		(clear buf_keys)
+		(setq selected_index :nil)
+		(. *vdu* :load '(
+			{ChrysaLisp Profile 0.2}
+			{Toolbar1 buttons act on a single task.}
+			{Toolbar2 buttons act on all tasks.}
+			{Slider to switch between tasks.}
+			{}
+			{In Lisp files:}
+			{}
+			{add (import "lib/debug/profile.inc")}
+			{to profile all functions/methods.}
+			{}
+			{Use:}
+			{}
+			{(profile-report name [reset])}
+			{}
+			{to send the report.}) 0 0 0 1000))
 	(set-slider-values))
 
 ;import actions, bindings and app ui classes

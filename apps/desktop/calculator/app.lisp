@@ -128,12 +128,11 @@
 
 (defun num-to-base-str (n base chars)
 	(if (= n 0) "0"
-		(progn
-			(defq result "" temp "")
-			(when (< n 0) (setq result "-" n (abs n)))
-			(while (> n 0)
-				(setq temp (cat (elem-get chars (% n base)) temp) n (/ n base)))
-			(cat result temp))))
+		(defq result "" temp "")
+		(when (< n 0) (setq result "-" n (abs n)))
+		(while (> n 0)
+			(setq temp (cat (elem-get chars (% n base)) temp) n (/ n base)))
+		(cat result temp)))
 
 (defun str-to-num-base (s base)
 	(defq n 0 neg :nil valid :t)
@@ -166,13 +165,12 @@
 
 (defun apply-op ()
 	(if (< (length *operands*) 2) :error
-		(progn
-			(defq op (pop *operators*)
-				v2 (pop *operands*) v1 (pop *operands*)
-				result (do_op op v2 v1))
-			(if (eql result :error)
-				:error
-				(push *operands* result)))))
+		(defq op (pop *operators*)
+			v2 (pop *operands*) v1 (pop *operands*)
+			result (do_op op v2 v1))
+		(if (eql result :error)
+			:error
+			(push *operands* result))))
 
 (defun key-to-op (key mod base)
 	(defq op
@@ -217,58 +215,56 @@
 (defun action-input (op)
 	(if (and *error_state* (nql op "AC"))
 		:nil
-		(progn
-			(defq digit (find op +digit_list))
-			(cond
-				((eql op "AC")
-					(setq *operands* (list) *operators* (list) *current_number* "0" *error_state* :nil *new_entry* :t))
-				((eql op "CE")
-					(setq *current_number* "0" *error_state* :nil *new_entry* :t))
-				((eql op "BACK")
-					(setq *current_number* (if (> (length *current_number*) 1) (most *current_number*) "0")))
-				((eql op "NEG")
-					(setq *current_number* (format-number (neg (str-to-num-base *current_number* *base*)) *base*)))
-				((eql op "NOT")
-					(setq *current_number* (format-number (lognot (str-to-num-base *current_number* *base*)) *base*)))
-				((eql op "<<")
-					(setq *current_number* (format-number (<< (str-to-num-base *current_number* *base*) 1) *base*)))
-				((eql op ">>")
-					(setq *current_number* (format-number (>> (str-to-num-base *current_number* *base*) 1) *base*)))
-				((eql op ">>>")
-					(setq *current_number* (format-number (>>> (str-to-num-base *current_number* *base*) 1) *base*)))
-				((eql op "M+")
-					(++ *memory* (str-to-num-base *current_number* *base*))
-					(setq *new_entry* :t))
-				((eql op "M-")
-					(-- *memory* (str-to-num-base *current_number* *base*))
-					(setq *new_entry* :t))
-				((eql op "MR")
-					(setq *current_number* (format-number *memory* *base*) *new_entry* :nil))
-				((eql op "MC")
-					(setq *memory* 0 *new_entry* :t))
-				((and digit (< digit *base*))
-					(setq *current_number* (if (or *new_entry* (eql *current_number* "0")) op (cat *current_number* op))
-						  *new_entry* :nil))
-				((or (find op +operators) (eql op "="))
-					(unless *new_entry*
-						(push *operands* (str-to-num-base *current_number* *base*)))
-					(if (eql op "=")
-						(progn
-							(while (and (not *error_state*) (nempty? *operators*))
-								(if (eql (apply-op) :error) (setq *error_state* :t)))
-							(unless *error_state*
-								(defq result (if (nempty? *operands*) (first *operands*) 0))
-								(setq *operands* (list result) *operators* (list) *current_number* (format-number result *base*) *new_entry* :t)))
-						(progn
-							(while (and (not *error_state*) (nempty? *operators*)
-										(defq top_prec (. +precedence :find (first *operators*)))
-										(defq new_prec (. +precedence :find op))
-										(and top_prec new_prec (>= top_prec new_prec)))
-								 (if (eql (apply-op) :error) (setq *error_state* :t)))
-							(unless *error_state*
-								(push *operators* op)
-								(setq *new_entry* :t))))))
-			(update-display))))
+		(defq digit (find op +digit_list))
+		(cond
+			((eql op "AC")
+				(setq *operands* (list) *operators* (list) *current_number* "0" *error_state* :nil *new_entry* :t))
+			((eql op "CE")
+				(setq *current_number* "0" *error_state* :nil *new_entry* :t))
+			((eql op "BACK")
+				(setq *current_number* (if (> (length *current_number*) 1) (most *current_number*) "0")))
+			((eql op "NEG")
+				(setq *current_number* (format-number (neg (str-to-num-base *current_number* *base*)) *base*)))
+			((eql op "NOT")
+				(setq *current_number* (format-number (lognot (str-to-num-base *current_number* *base*)) *base*)))
+			((eql op "<<")
+				(setq *current_number* (format-number (<< (str-to-num-base *current_number* *base*) 1) *base*)))
+			((eql op ">>")
+				(setq *current_number* (format-number (>> (str-to-num-base *current_number* *base*) 1) *base*)))
+			((eql op ">>>")
+				(setq *current_number* (format-number (>>> (str-to-num-base *current_number* *base*) 1) *base*)))
+			((eql op "M+")
+				(++ *memory* (str-to-num-base *current_number* *base*))
+				(setq *new_entry* :t))
+			((eql op "M-")
+				(-- *memory* (str-to-num-base *current_number* *base*))
+				(setq *new_entry* :t))
+			((eql op "MR")
+				(setq *current_number* (format-number *memory* *base*) *new_entry* :nil))
+			((eql op "MC")
+				(setq *memory* 0 *new_entry* :t))
+			((and digit (< digit *base*))
+				(setq *current_number* (if (or *new_entry* (eql *current_number* "0")) op (cat *current_number* op))
+					  *new_entry* :nil))
+			((or (find op +operators) (eql op "="))
+				(unless *new_entry*
+					(push *operands* (str-to-num-base *current_number* *base*)))
+				(if (eql op "=")
+					(progn
+						(while (and (not *error_state*) (nempty? *operators*))
+							(if (eql (apply-op) :error) (setq *error_state* :t)))
+						(unless *error_state*
+							(defq result (if (nempty? *operands*) (first *operands*) 0))
+							(setq *operands* (list result) *operators* (list) *current_number* (format-number result *base*) *new_entry* :t)))
+					(while (and (not *error_state*) (nempty? *operators*)
+								(defq top_prec (. +precedence :find (first *operators*)))
+								(defq new_prec (. +precedence :find op))
+								(and top_prec new_prec (>= top_prec new_prec)))
+						 (if (eql (apply-op) :error) (setq *error_state* :t)))
+					(unless *error_state*
+						(push *operators* op)
+						(setq *new_entry* :t)))))
+		(update-display)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Entry Point

@@ -7,35 +7,33 @@
 (defun action-undo ()
 	(ifn (defq transaction (pop *global_undo_stack*))
 		(. *edit* :undo)
-		(progn
-			;if the active file is in the transaction, swap it to the end
-			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
-				(swap transaction idx (dec (length transaction))))
-			;undo each modified buffer ending back where we are
-			(push *refresh_mode* +refresh_mode_hidden)
-			(each (lambda ((file old_mark &))
-					(ifn (eql file *current_file*) (switch-file file))
-					(. *edit* :rewind old_mark))
-				transaction)
-			(push *global_redo_stack* transaction)
-			(pop *refresh_mode*)))
+		;if the active file is in the transaction, swap it to the end
+		(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
+			(swap transaction idx (dec (length transaction))))
+		;undo each modified buffer ending back where we are
+		(push *refresh_mode* +refresh_mode_hidden)
+		(each (lambda ((file old_mark &))
+				(ifn (eql file *current_file*) (switch-file file))
+				(. *edit* :rewind old_mark))
+			transaction)
+		(push *global_redo_stack* transaction)
+		(pop *refresh_mode*))
 	(refresh))
 
 (defun action-redo ()
 	(ifn (defq transaction (pop *global_redo_stack*))
 		(. *edit* :redo)
-		(progn
-			;if the active file is in the transaction, swap it to the end
-			(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
-				(swap transaction idx (dec (length transaction))))
-			;redo each modified buffer ending back where we are
-			(push *refresh_mode* +refresh_mode_hidden)
-			(each (lambda ((file & new_mark))
-					(ifn (eql file *current_file*) (switch-file file))
-					(. *edit* :forwardwind new_mark))
-				transaction)
-			(push *global_undo_stack* transaction)
-			(pop *refresh_mode*)))
+		;if the active file is in the transaction, swap it to the end
+		(if (defq idx (some (# (if (eql (first %0) *current_file*) (!))) transaction))
+			(swap transaction idx (dec (length transaction))))
+		;redo each modified buffer ending back where we are
+		(push *refresh_mode* +refresh_mode_hidden)
+		(each (lambda ((file & new_mark))
+				(ifn (eql file *current_file*) (switch-file file))
+				(. *edit* :forwardwind new_mark))
+			transaction)
+		(push *global_undo_stack* transaction)
+		(pop *refresh_mode*))
 	(refresh))
 
 (defun action-rewind ()

@@ -31,10 +31,9 @@
 		(defq p (get :bucket this))
 		(if (defq i (pfindi p key))
 			(elem-get p (inc i))
-			(progn
-				(defq val (callback fnc (penv)))
-				(pinsert p key val)
-				val)))
+			(defq val (callback fnc (penv)))
+			(pinsert p key val)
+			val))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap

@@ -33,10 +33,9 @@
 		(defq p (elem-get (get :buckets this) (% (hash key) (get :num_buckets this))))
 		(if (defq i (pfindi p key))
 			(elem-get p (inc i))
-			(progn
-				(defq val (callback fnc (penv)))
-				(pinsert p key val)
-				val)))
+			(defq val (callback fnc (penv)))
+			(pinsert p key val)
+			val))
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap

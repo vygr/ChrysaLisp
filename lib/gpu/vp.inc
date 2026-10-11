@@ -117,7 +117,7 @@
 		(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
 				(sv-emit 'vp-cpy-if base at (defq r (sv-getf))) r)
 			(range 0 (ifn (shader-dim type) 1)))
-		(progn (sv-emit 'vp-cpy-ir :r13 offset (defq r (sv-getr))) (list r))))
+		(sv-emit 'vp-cpy-ir :r13 offset (defq r (sv-getr))) (list r)))
 
 (defun sv-store (regs type offset)
 	(if (sh-float? type)
@@ -1451,8 +1451,8 @@
 	;the first time this CPU has been given this program.
 	(defq name (sv-name "s" program))
 	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
-		(progn (bind '(text frame_size) (sv-source (shader-full program) name))
-			(sv-keep name (sv-native name text) (list frame_size)))))
+		(bind '(text frame_size) (sv-source (shader-full program) name))
+		(sv-keep name (sv-native name text) (list frame_size))))
 
 (defun shader-vp-vertex (program)
 	; (shader-vp-vertex program) -> (place frame_size attr_slots out_slots)
@@ -1462,8 +1462,8 @@
 	(unless (eql (shader-stage program) :vertex) (sh-err "not a vertex shader" 'main))
 	(defq name (sv-name "v" program))
 	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
-		(progn (bind '(text frame_size attr_slots out_slots) (sv-vertex-source (shader-full program) name))
-			(sv-keep name (sv-native name text) (list frame_size attr_slots out_slots)))))
+		(bind '(text frame_size attr_slots out_slots) (sv-vertex-source (shader-full program) name))
+		(sv-keep name (sv-native name text) (list frame_size attr_slots out_slots))))
 
 (defun sv-func-source (program fname name)
 	; -> text
@@ -1603,8 +1603,8 @@
 	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
 	(defq name (sv-name "t" program))
 	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
-		(progn (bind '(text frame_size params vary_slots) (sv-fill-source (shader-full program) name))
-			(sv-keep name (sv-native name text) (list frame_size params vary_slots)))))
+		(bind '(text frame_size params vary_slots) (sv-fill-source (shader-full program) name))
+		(sv-keep name (sv-native name text) (list frame_size params vary_slots))))
 
 (defun shader-vp-pipeline (vertex pixel)
 	; (shader-vp-pipeline vertex pixel) -> pipeline

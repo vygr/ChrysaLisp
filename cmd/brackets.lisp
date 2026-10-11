@@ -10,7 +10,7 @@
 				(not (starts-with "-" (first args)))
 				(defq n (catch (str-as-num (first args)) :nil)))
 			(progn (setq ,opt_var n) (rest args))
-			(progn (setq ,opt_var (if (num? ,opt_var) (max 1 (inc ,opt_var)) 1)) args)))))
+			(setq ,opt_var (if (num? ,opt_var) (max 1 (inc ,opt_var)) 1)) args))))
 
 (defq usage `(
 (("-h" "--help")

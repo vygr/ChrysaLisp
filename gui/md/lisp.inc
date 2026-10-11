@@ -232,9 +232,8 @@
 				(def text :text (cat (num-to-utf8 +sym_small) " ") :font (get :font_symbol flow))
 				(def style_text :text (slice style (bskip +char_class_white_space style -1) -1))
 				(.-> flow (:add_child indent_text) (:add_child text) (:add_child style_text)))
-			(progn
-				(def text :text (cat indent indent style))
-				(. flow :add_child text)))
+			(def text :text (cat indent indent style))
+			(. flow :add_child text))
 		(setq cnt (setq indent_width (first (. flow :pref_size)))))
 	(each (lambda (word)
 		(cond

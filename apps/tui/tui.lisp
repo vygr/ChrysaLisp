@@ -110,13 +110,13 @@
 							(progn ; End of the command's input, exit when it is done
 								(setq *eof* :t)
 								(. cmd :eof))
-							(progn ; Exit shell
-								(print +CR +LF "Exiting..." +CR +LF)
-								(pii-exit)))
-						(progn ; Delete char at cursor
-							(when (< cursor (length buffer))
-								(setq buffer (erase buffer cursor (inc cursor)))
-								(unless (mail-poll *select*) (redraw-line))))))
+							; Exit shell
+							(print +CR +LF "Exiting..." +CR +LF)
+							(pii-exit))
+						; Delete char at cursor
+						(when (< cursor (length buffer))
+							(setq buffer (erase buffer cursor (inc cursor)))
+							(unless (mail-poll *select*) (redraw-line)))))
 				((= c 18) ; Ctrl-R, the latest of the history with what is typed in it
 					(when (and (not cmd) (defq found (history-find buffer)))
 						(setq buffer found cursor (length buffer))

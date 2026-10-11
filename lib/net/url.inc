@@ -99,14 +99,13 @@
 		((list?? q) (partition q 2))
 		((list))))
 	(if (empty? items) ""
-		(progn
-			(defq pairs (list))
-			(each (lambda ((k v))
-				(defq k_str (str k)
-					k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
-				(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
-				items)
-			(join pairs "&"))))
+		(defq pairs (list))
+		(each (lambda ((k v))
+			(defq k_str (str k)
+				k_clean (if (starts-with ":" k_str) (rest k_str) k_str))
+			(push pairs (cat (url-encode k_clean :t) "=" (url-encode (str v) :t))))
+			items)
+		(join pairs "&")))
 
 (defun url-parse (url_str)
 	; (url-parse url_str) -> pmap

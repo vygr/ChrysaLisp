@@ -418,19 +418,17 @@
 			(defq resolved_points (list))
 			(if (third (first c_points))
 				(setq resolved_points c_points)
-				(progn
-					(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
-					(if first_on_idx
-						(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
-						(progn
-							(defq p0 (last c_points) pi 0)
-							(times c_num_points
-								(defq p1 (elem-get c_points pi)
-									mx (* (+ (first p0) (first p1)) +real_1/2)
-									my (* (+ (second p0) (second p1)) +real_1/2))
-								(push resolved_points (list mx my :t) p1)
-								(setq p0 p1)
-								(++ pi))))))
+				(defq first_on_idx (some! (# (if (third %0) (!))) c_points))
+				(if first_on_idx
+					(setq resolved_points (cat (slice c_points first_on_idx -1) (slice c_points 0 first_on_idx)))
+					(defq p0 (last c_points) pi 0)
+					(times c_num_points
+						(defq p1 (elem-get c_points pi)
+							mx (* (+ (first p0) (first p1)) +real_1/2)
+							my (* (+ (second p0) (second p1)) +real_1/2))
+						(push resolved_points (list mx my :t) p1)
+						(setq p0 p1)
+						(++ pi))))
 			(when (nempty? resolved_points)
 				(push resolved_points (first resolved_points))
 				(defq p0 (first resolved_points)
@@ -1224,14 +1222,13 @@
 			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
 			(each (const work) jobs)
-			(progn
-				(defq range_args (if (empty? opt_r) ""
-					(apply (const cat) (map (# (str " -r " (first %0) " " (second %0))) opt_r))))
-				(each (lambda ((job result)) (prin result))
-					(pipe-farm (map (# (str (first args)
-							" -j " opt_j
-							" -v " opt_v
-							(if opt_c " -c" "")
-							range_args
-							" " (slice (str %0) 1 -2)))
-						(partition jobs opt_j))))))))
+			(defq range_args (if (empty? opt_r) ""
+				(apply (const cat) (map (# (str " -r " (first %0) " " (second %0))) opt_r))))
+			(each (lambda ((job result)) (prin result))
+				(pipe-farm (map (# (str (first args)
+						" -j " opt_j
+						" -v " opt_v
+						(if opt_c " -c" "")
+						range_args
+						" " (slice (str %0) 1 -2)))
+					(partition jobs opt_j)))))))

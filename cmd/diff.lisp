@@ -30,10 +30,9 @@
 							(stream-diff b a (io-stream 'stdout))
 							(stream-diff a b (io-stream 'stdout))))
 					(setq a :nil b :nil))
-				(progn
-					(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
-						(if opt_s
-							(stream-diff b a (io-stream 'stdout))
-							(stream-diff a b (io-stream 'stdout))))
-					(setq a :nil))))))
+				(when (and (defq a (file-stream file_a)) (defq b (io-stream 'stdin)))
+					(if opt_s
+						(stream-diff b a (io-stream 'stdout))
+						(stream-diff a b (io-stream 'stdout))))
+				(setq a :nil)))))
 

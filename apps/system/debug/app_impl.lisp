@@ -58,26 +58,25 @@
 			(def *hslider* :value %0)
 			(setq selected_index %0)
 			(vdu-print *vdu* (elem-get (elem-get buf_list selected_index) +debug_rec_buf) ""))
-		(progn
-			(clear buf_list)
-			(clear buf_keys)
-			(setq selected_index :nil)
-			(. *vdu* :load '(
-				{ChrysaLisp Debug 0.5}
-				{Toolbar1 buttons act on a single task.}
-				{Toolbar2 buttons act on all tasks.}
-				{Slider to switch between tasks.}
-				{}
-				{In Lisp files:}
-				{}
-				{add (import "lib/debug/debug.inc")}
-				{to debug all functions/methods.}
-				{}
-				{Use:}
-				{}
-				{(debug-brk condtion)}
-				{}
-				{as a conditional breakpoint.}) 0 0 0 1000)))
+		(clear buf_list)
+		(clear buf_keys)
+		(setq selected_index :nil)
+		(. *vdu* :load '(
+			{ChrysaLisp Debug 0.5}
+			{Toolbar1 buttons act on a single task.}
+			{Toolbar2 buttons act on all tasks.}
+			{Slider to switch between tasks.}
+			{}
+			{In Lisp files:}
+			{}
+			{add (import "lib/debug/debug.inc")}
+			{to debug all functions/methods.}
+			{}
+			{Use:}
+			{}
+			{(debug-brk condtion)}
+			{}
+			{as a conditional breakpoint.}) 0 0 0 1000))
 	(set-slider-values))
 
 ;import actions, bindings and app ui classes

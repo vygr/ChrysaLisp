@@ -4,6 +4,25 @@
 
 ------
 
+The rest of the `(progn)` round the else of an `(if)`, 78 of them.
+
+Chris: "yes, clean them up in one pass. 'ifn' same rule applies." Done
+by a program, that reads each file as forms, strings and comments left
+alone, and where the third argument of an `(if)` or `(ifn)` is a
+`(progn)` takes it off and moves what it held one tab left. 78 places
+in 43 files: apps, commands, libraries, the root, the ARM64 and x86_64
+translators. None left when it is run again.
+
+All six CPUs built on the x64 Mac before and after: the six boot images
+are the same to the byte. Every test on the x64 Mac and the Pi: 5888
+passed on each. `files | forward` as it was.
+
+Not seen: the apps it touched that no test opens, by a hand: the
+Calculator, News, Lexicon, Solitaire, Pairs, Chess, the Viewer, the
+Profile and Debug windows. The M4, Chris has a desktop up there.
+
+------
+
 Three `(progn)` that an `(if)` did not need.
 
 Chris: "CWB-load 'if' has implicit progn." "for else forms". The else

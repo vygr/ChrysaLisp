@@ -118,9 +118,8 @@
 
 	(if pass
 		(print "\n=== LOOPBACK TEST RESULT: SUCCESS ===")
-		(progn
-			(print "\n=== LOOPBACK TEST RESULT: FAILED ===")
-			(throw "loopback test verification failed" :nil))))
+		(print "\n=== LOOPBACK TEST RESULT: FAILED ===")
+		(throw "loopback test verification failed" :nil)))
 
 (catch
 	(run-test)

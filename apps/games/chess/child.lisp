@@ -478,12 +478,11 @@
 									(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
 								(reply "e" (cat (LF) "** Draw **" (LF))))
 							(:t (reply "b" new_brd))))
-					(progn
-						;get moves
-						;return list of legal boards for `color`
-						(defq legal_boards (all-moves brd color))
-						(if (empty? legal_boards)
-							(if (in-check brd color)
-								(reply "e" (cat (LF) "** Checkmate **" (LF)))
-								(reply "e" (cat (LF) "** Stalemate **" (LF))))
-							(reply "m" (apply (const cat) legal_boards)))))))))
+					;get moves
+					;return list of legal boards for `color`
+					(defq legal_boards (all-moves brd color))
+					(if (empty? legal_boards)
+						(if (in-check brd color)
+							(reply "e" (cat (LF) "** Checkmate **" (LF)))
+							(reply "e" (cat (LF) "** Stalemate **" (LF))))
+						(reply "m" (apply (const cat) legal_boards))))))))

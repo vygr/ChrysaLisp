@@ -421,8 +421,8 @@
 			(bind '(da db dc) (map (# (elem-get ds (% (+ %0 turn) 3))) '(0 1 2)))
 			(if (= count 1)
 				(list (list a (cpu-edge-cut a b da db) (cpu-edge-cut a c da dc)))
-				(progn (defq ac (cpu-edge-cut a c da dc) bc (cpu-edge-cut b c db dc))
-					(list (list a b bc) (list a bc ac)))))))
+				(defq ac (cpu-edge-cut a c da dc) bc (cpu-edge-cut b c db dc))
+				(list (list a b bc) (list a bc ac))))))
 
 (defun cpu-share (pixel share)
 	;that much of a 32 bit argb pixel, a share of 0 to 256

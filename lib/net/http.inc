@@ -75,26 +75,24 @@
 				(defq chunk_line (read-line in))
 				(ifn chunk_line
 					(setq running :nil)
-					(progn
-						; Chunk header: hex size [;ext]
-						(defq hex_part (first (split (trim (trim-end chunk_line "\r")) ";"))
-							chunk_size (if (nql hex_part "") (str-to-num (cat "0x" hex_part)) 0))
-						(cond
-							((= chunk_size 0)
-								; Read trailers until empty line
-								(while (and (defq trailer (read-line in))
-											(nql (trim-end trailer "\r") "")))
-								(setq running :nil))
-							(:t (defq rem chunk_size)
-								(while (> rem 0)
-									(defq blk (read-blk in (min rem +http_buf_size)))
-									(ifn blk
-										(setq rem 0 running :nil)
-										(progn
-											(write-blk out blk)
-											(setq rem (- rem (length blk))))))
-								; Consume trailing CRLF after chunk payload
-								(read-line in)))))))
+					; Chunk header: hex size [;ext]
+					(defq hex_part (first (split (trim (trim-end chunk_line "\r")) ";"))
+						chunk_size (if (nql hex_part "") (str-to-num (cat "0x" hex_part)) 0))
+					(cond
+						((= chunk_size 0)
+							; Read trailers until empty line
+							(while (and (defq trailer (read-line in))
+										(nql (trim-end trailer "\r") "")))
+							(setq running :nil))
+						(:t (defq rem chunk_size)
+							(while (> rem 0)
+								(defq blk (read-blk in (min rem +http_buf_size)))
+								(ifn blk
+									(setq rem 0 running :nil)
+									(write-blk out blk)
+									(setq rem (- rem (length blk)))))
+							; Consume trailing CRLF after chunk payload
+							(read-line in))))))
 		; 2. Content-Length Framing
 		(cl
 			(defq rem (str-to-num cl))
@@ -102,16 +100,15 @@
 				(defq blk (read-blk in (min rem +http_buf_size)))
 				(ifn blk
 					(setq rem 0)
-					(progn
-						(write-blk out blk)
-						(setq rem (- rem (length blk)))))))
+					(write-blk out blk)
+					(setq rem (- rem (length blk))))))
 		; 3. Connection: close (read until stream EOF)
 		(:t (while (defq blk (read-blk in +http_buf_size))
 				(write-blk out blk))))
 	(stream-flush out)
 	(if dest_stream
 		dest_stream
-		(progn (stream-seek out 0 0) out)))
+		(stream-seek out 0 0) out))
 
 (defun http-body-str (resp)
 	; (http-body-str resp) -> str
