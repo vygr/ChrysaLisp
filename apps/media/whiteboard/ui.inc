@@ -7,16 +7,13 @@
 
 (defun window-round (room)
 	;the window is made to show the paper with that much room round it,
-	;or as much of that as the screen has, and the paper in the middle
-	;of what it shows
+	;or as much of that as the screen has. The paper is in the middle of
+	;what it shows, it always is
 	(bind '(cw ch) (canvas-size))
 	(def *image_scroll* :min_width (+ cw room room) :min_height (+ ch room room))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h)
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
-	(bind '(sw sh) (. *image_scroll* :get_size))
-	(def (get :hslider *image_scroll*) :value (max 0 (- *margin* (/ (- sw cw) 2))))
-	(def (get :vslider *image_scroll*) :value (max 0 (- *margin* (/ (- sh ch) 2))))
 	(.-> *image_scroll* :layout :dirty_all))
 
 (defun action-minimise ()

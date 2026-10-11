@@ -216,7 +216,19 @@
 	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* 300 200))) (defq on0 (wa-on))"
 	"(pan-by 70 -20) (defq on1 (wa-on)) (zoom-set 0.5 100 100) (defq on2 (wa-on)) (pan-glide 32 0) (while (pan-tick)) (defq on3 (wa-on))"
 	"(print (list on0 on1 on2 on3 (map (const n2i) (get :origin ruler)) (get :size ruler) (n2i *pan_x*)))"
-	"(. (. *board* :get_stage) :sub ruler) (zoom-set 2.0 0 0)"
+	;an instrument none of which shows, with no hand on it, is put away: it is how one is thrown away. One that shows a little, or is held, is not
+	"(defun wa-tools () (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))"
+	"(draw-over) (defq seen (list 0 0 1024 768) c0 (tools-cull seen) n0 (wa-tools))"
+	"(bind (quote (bx by bw bh)) (. (elem-get (first *tools*) +tv_canvas) :get_bounds))"
+	"(defq c1 (tools-cull (list (+ bx bw -4) 0 2000 2000)) c2 (tools-cull (list (+ bx bw 4) 0 2000 2000)) n2 (wa-tools))"
+	"(print (list c0 n0 c1 c2 n2))"
+	"(zoom-set 2.0 0 0)"
+	;the bars: all of one is what is drawn and what is seen, its thumb is what is seen. Things from 75 across, seen from 300 on at twice, 512 of it
+	"(defun wa-bars () (map (# (list (get :maximum %0) (get :portion %0) (get :value %0))) (list (get :hslider *image_scroll*) (get :vslider *image_scroll*))))"
+	"(setq *pan_x* 300.0 *pan_y* -15.0) (view-changed) (bars-update) (print (list (first (wa-bars)) (first *bars_from*)))"
+	;the bar moved back by hand to 200: what is seen is from 100 on from where there is anything, and the bars are left as they are while it goes on
+	"(def (get :hslider *image_scroll*) :value 200) (bars-moved) (print (list *pan_x* (first (wa-bars)) *bars_stale*))"
+	"(setq *pan_x* -25.0 *pan_y* -15.0 *bars_at* 0) (view-changed)"
 	;part way between two zooms it rests at, the finer rulings are part way up
 	"(zoom-set 3.0 0 0) (draw-paper) (print (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*)))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
@@ -229,8 +241,14 @@
 	"(50.00000 30.00000 ((8.00000 0) (16.00000 127) (32.00000 255)))" (elem-get wa_out 5))
 (assert-eq "an instrument lies on the glass: what is seen moved, zoomed and glided under it, it is where it was on the screen and the size it was there, and so twice the size in the document at half"
 	"((650 430 100) (650 430 100) (650 430 100) (650 430 100) (1026 705) 2.00000 -274)" (elem-get wa_out 6))
+(assert-eq "an instrument that shows is left; with four pixels of it showing it is left; with none of it showing it is put away"
+	"(0 1 0 1 0)" (elem-get wa_out 7))
+(assert-eq "a bar is all there is to see that way, from the first thing drawn, at 47, to the end of the view, at twice: 506 more than shows, the 1024 that shows its thumb, at the end"
+	"((506 1024 506) 47.00000)" (elem-get wa_out 8))
+(assert-eq "moved back by hand to 200, what is seen is from 100 on from the first thing, and the bar is not set again under the hand"
+	"(147.00000 (506 1024 200) :t)" (elem-get wa_out 9))
 (assert-eq "half way to the next zoom the lines are half as far apart again, the next finer three quarters up and the finest a quarter"
-	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 7))
+	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 10))
 
 
 ;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it

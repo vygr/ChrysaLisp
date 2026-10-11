@@ -4,6 +4,47 @@
 
 ------
 
+The bars of the Whiteboard move what is seen, and an instrument thrown
+off the edge is put away.
+
+Chris, of the view as it was after his first look: "Looks good !
+instruments stay still, canvas moves smoothly, zoom in/out nicely eased
+movments." Of the width of a line drawn at a zoom, where I said a width
+is the document's: "That point about pen width is a document property
+is a killer arguement !" So widths are as they were, the document's.
+
+Then: "What do the scroll bars of the main vbiew now mean ?" Nothing
+that the rest of the app does: they moved the paper in the window.
+"they just don't marry up with what you do in the app." "Having them
+showing makes the use rthink they can control somthing by interacting
+with them ... so what would that be ?" I said the one thing they could
+mean. "bars that pan, with the thumb showing where you are".
+
+`Board-frame` in the app's `view.inc`, in place of a Scroll. The paper
+and its desk are in the middle of it, always. Its two bars move what
+is seen, as the wheel does: all of a bar is what is drawn and what is
+seen now, from the first of either to the last, its thumb is what is
+seen. A view moved out past the drawing is part of what there is, so
+a bar has no end. While a thumb is in the hand the bars are not set
+again, `(bars-update)`, `(bars-moved)`, `(bars-tick)`. A mouse with no
+wheel and no middle button can move about a board now.
+
+And: "How do I cope when I drag a math tool completely off the document
+into empty space ?" "Do we cull them imediatly ?" As it is let go: an
+instrument no hand has, none of which shows, is put away,
+`(tools-cull)`. It is how one is thrown away. Held, it can go off and
+come back.
+
+He, of the bars: "Yeah, that works well."
+
+The app's tests, 102: a bar's range and thumb, a bar moved by hand; an
+instrument with a little showing is left and with none is gone. Every
+test on the x64 Mac and the Pi, 5935 each.
+
+Not seen by him that I know: an instrument thrown off the edge.
+
+------
+
 Chris's first look at the view: instruments stay on the glass, the
 wheel glides, the zoom takes its time.
 

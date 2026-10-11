@@ -47,6 +47,10 @@
 	;how far what is seen has yet to go for the turns of a wheel there
 	;have been, pixels: a wheel says so many steps, and it glides them
 	*pan_go* (list 0.0 0.0)
+	;the bars: where all there is to see begins, which a bar's 0 is; when
+	;one was last moved by hand, while that is going on they are left as
+	;they are; and whether they are behind what is seen now
+	*bars_from* (list 0.0 0.0) *bars_at* 0 *bars_stale* :t
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil *canvas_size* :nil
@@ -152,16 +156,10 @@
 
 (defun view-middle ()
 	; (view-middle) -> (x y)
-	;the point of the document that is in the middle of what shows
-	(bind '(sw sh) (. *image_scroll* :get_size))
+	;the point of the document that is in the middle of the paper, which
+	;is the middle of what shows: the paper is always in the middle of it
 	(bind '(cw ch) (canvas-size))
-	;a scroll that has not been laid out yet shows all of it
-	(if (<= sw 0) (setq sw cw))
-	(if (<= sh 0) (setq sh ch))
-	(defq hv (ifn (get :value (get :hslider *image_scroll*)) 0)
-		vv (ifn (get :value (get :vslider *image_scroll*)) 0))
-	(list (+ *pan_x* (/ (n2f (- (+ hv (/ (min sw cw) 2)) *margin*)) *zoom*))
-		(+ *pan_y* (/ (n2f (- (+ vv (/ (min sh ch) 2)) *margin*)) *zoom*))))
+	(list (+ *pan_x* (/ (n2f (/ cw 2)) *zoom*)) (+ *pan_y* (/ (n2f (/ ch 2)) *zoom*))))
 
 (defun zoom-level (zoom)
 	; (zoom-level zoom) -> (level part)
@@ -359,6 +357,30 @@
 	(if (nempty? *tools*) (tools-stack))
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
+(defun bars-update ()
+	;the bars say what is seen of all there is to see. All there is, each
+	;way, is from the first of what is drawn or of the view, whichever is
+	;first, to the last of either: so there is never an end to come to,
+	;a view moved out past the drawing is part of what there is. The
+	;thumb is the view
+	(bind '(cw ch) (canvas-size))
+	(defq vw (/ (n2f cw) *zoom*) vh (/ (n2f ch) *zoom*)
+		box (ifn (cwb-bounds (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers (. *board* :get_doc))))))
+			(list *pan_x* *pan_y* (+ *pan_x* vw) (+ *pan_y* vh)))
+		x0 (min *pan_x* (first box)) y0 (min *pan_y* (second box))
+		x1 (max (+ *pan_x* vw) (third box)) y1 (max (+ *pan_y* vh) (elem-get box 3)))
+	(setq *bars_from* (list x0 y0) *bars_stale* :nil)
+	(def (get :hslider *image_scroll*) :maximum (max 0 (n2i (* (- (- x1 x0) vw) *zoom*))) :portion cw
+		:value (max 0 (n2i (* (- *pan_x* x0) *zoom*))))
+	(def (get :vslider *image_scroll*) :maximum (max 0 (n2i (* (- (- y1 y0) vh) *zoom*))) :portion ch
+		:value (max 0 (n2i (* (- *pan_y* y0) *zoom*))))
+	(. (get :hslider *image_scroll*) :dirty_all)
+	(. (get :vslider *image_scroll*) :dirty_all))
+
+(defun bars-tick ()
+	;the bars are set if they are behind, and no hand is on one
+	(if (and *bars_stale* (> (- (pii-time) *bars_at*) 400000)) (bars-update)))
+
 (defun view-changed ()
 	;the pan or the zoom is another: the board and its view are told,
 	;the snap is the grid there is at that zoom, and all of it is drawn
@@ -367,7 +389,7 @@
 	(def *board* :zoom *zoom*)
 	(def *board_view* :zoom *zoom* :pan (list *pan_x* *pan_y*))
 	(if *snap* (def *board* :snap (snap-gap)))
-	(setq *paper_dirty* :t *flight_at* :nil)
+	(setq *paper_dirty* :t *flight_at* :nil *bars_stale* :t)
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 (defun tools-held ()
@@ -396,6 +418,15 @@
 	(setq *pan_x* (- *pan_x* (/ (n2f dx) *zoom*)) *pan_y* (- *pan_y* (/ (n2f dy) *zoom*)))
 	(tools-hold held)
 	(view-changed))
+
+(defun bars-moved ()
+	;a bar was moved by hand: what is seen is where its thumb says, from
+	;where all there is began when the bars were last set. They are not
+	;set again while it goes on, a thumb is not to change under the hand
+	(setq *bars_at* (pii-time))
+	(bind '(x0 y0) *bars_from*)
+	(pan-by (* (- *pan_x* (+ x0 (/ (n2f (get :value (get :hslider *image_scroll*))) *zoom*))) *zoom*)
+		(* (- *pan_y* (+ y0 (/ (n2f (get :value (get :vslider *image_scroll*))) *zoom*))) *zoom*)))
 
 (defun pan-glide (dx dy)
 	;so many pixels more to go, for a turn of a wheel: gone a part of
@@ -458,20 +489,16 @@
 
 (defun step-zoom (step)
 	;to the next zoom up or down, twice or half, what is in the middle
-	;of what shows stays there
+	;of the paper stays there
 	(defq zoom (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))
 		at (ifn (find zoom +zooms) (find 1.0 +zooms)))
-	(bind '(sw sh) (. *image_scroll* :get_size))
 	(bind '(cw ch) (canvas-size))
-	(if (<= sw 0) (setq sw cw))
-	(if (<= sh 0) (setq sh ch))
-	(zoom-go (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step))))
-		(- (+ (ifn (get :value (get :hslider *image_scroll*)) 0) (/ (min sw (+ cw *margin* *margin*)) 2)) *margin*)
-		(- (+ (ifn (get :value (get :vslider *image_scroll*)) 0) (/ (min sh (+ ch *margin* *margin*)) 2)) *margin*)))
+	(zoom-go (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step)))) (/ cw 2) (/ ch 2)))
 
 ;the wheel, the middle button and two fingers move what is seen, two
 ;fingers zoom it, and when they let go it comes to rest, view.inc
 (def *board_view* :on_pan pan-by :on_wheel pan-glide :on_zoom zoom-pinch :on_rest zoom-rest)
+(def *image_scroll* :on_bar bars-moved)
 
 (defun draw-paper ()
 	;what is behind the document to work on, not part of it: a colour,
@@ -532,6 +559,36 @@
 		(. *board* :draw_actors *top* (over-matrix) (# (not (Instrument? %0))))
 		(setq *top_show* :t))
 	(setq *top_used* used))
+
+(defun tools-cull (&optional seen)
+	; (tools-cull [seen]) -> num
+	;an instrument that no hand has hold of, and none of which shows, is
+	;put away: one dragged off the edge and let go, or left outside by a
+	;window made smaller. It is how one is thrown away, and it is never
+	;lost where it can not be got at. While it is held it can go off and
+	;come back. seen is the part of the desk that shows, (x y x1 y1) of
+	;where the canvases lie, worked out from the frame if not given. How
+	;many went
+	(defq gone 0)
+	(unless seen
+		(bind '(fw fh) (. *image_scroll* :get_size))
+		(bind '(sx sy sw sh) (. *board_stack* :get_bounds))
+		(defq bw (first (. (get :vslider *image_scroll*) :get_size)) bh (second (. (get :hslider *image_scroll*) :get_size)))
+		;a frame not yet laid out shows nothing, and nothing is to go for that
+		(if (and (> fw bw) (> fh bh))
+			(setq seen (list (max 0 (neg sx)) (max 0 (neg sy)) (min sw (- fw bw sx)) (min sh (- fh bh sy))))))
+	(when seen
+		(bind '(vx vy vx1 vy1) seen)
+		(each (lambda (entry)
+			(defq tool (elem-get entry +tv_tool) canvas (elem-get entry +tv_canvas))
+			(when (and canvas (= (. tool :held) 0))
+				(bind '(x y w h) (. canvas :get_bounds))
+				(unless (and (< x vx1) (< vx (+ x w)) (< y vy1) (< vy (+ y h)))
+					(. (. *board* :get_stage) :sub tool)
+					(setq gone (inc gone)))))
+			(cat *tools*))
+		(if (> gone 0) (. *board* :touch +board_dirty_overlay)))
+	gone)
 
 (defun flight-shift ()
 	; (flight-shift) -> :nil | (x y)
@@ -696,6 +753,8 @@
 	;what keeps the nodes' copies in step is told of every change
 	(if (or doc_dirty append_dirty) (. *stripes* :note))
 	;what has been let go of since this last looked is landing
+	;what is drawn is another, the bars may be
+	(if (or doc_dirty append_dirty) (setq *bars_stale* :t))
 	(when doc_dirty
 		(defq now (get :floating *board*) held (cwb-id-set now))
 		(setq *landing* (cat *landing* (filter (# (not (cwb-id? held %0))) *flown*)) *flown* (cat now)))
@@ -832,8 +891,6 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	;it opens where the view was, or on the corner of the document, a
 	;little of what is round it showing
-	(def (get :hslider *image_scroll*) :value (max 0 (if (list? config) (elem-get config 4) (- *margin* 24))))
-	(def (get :vslider *image_scroll*) :value (max 0 (if (list? config) (elem-get config 5) (- *margin* 24))))
 	(.-> *image_scroll* :layout :dirty_all)
 
 	;main event loop
@@ -859,6 +916,8 @@
 				;seen, if a wheel has it going
 				(zoom-tick)
 				(pan-tick)
+				(bars-tick)
+				(tools-cull)
 				(redraw)
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)

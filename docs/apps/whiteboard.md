@@ -66,6 +66,12 @@ between them.
 
 * The two zoom buttons make what is seen twice the size, or half.
 
+* The bar along the bottom and the one up the side move what is seen
+too. All of a bar is all there is to see that way, what is drawn and
+where you are looking now, and its thumb is what you see of that: how
+much, and where in it. Move out past the drawing and the bar takes that
+in, it has no end to come to.
+
 The paper does not grow when it is zoomed, what is seen on it does. And
 the zoom always comes to rest at twice or half of where it was, however
 far the fingers went: it eases there when they let go. That is for the
@@ -243,7 +249,9 @@ up.
 * Take hold of an instrument and it comes in front of the others. Press the
 right button on one and it goes behind them, to get at one that is under it.
 
-* The ring with the cross puts it away.
+* The ring with the cross puts it away. So does dragging it off the edge
+of what shows and letting go: when none of it can be seen it is gone.
+While you still have hold of it, it can go off and come back.
 
 More than one pen can draw along an instrument at once. One that is being
 held still is not moved by a pen that draws along it.

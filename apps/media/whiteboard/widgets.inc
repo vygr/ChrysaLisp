@@ -59,8 +59,8 @@
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
 				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush)
 				(:font *env_medium_symbol_font* :color *env_toolbar2_col*)) :connect +event_ink))
-	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width +min_width :min_height +min_height)
+	(ui-element *image_scroll* (Board-frame)
+			(:min_width +min_width :min_height +min_height :color *env_slider_col*)
 		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
 			(ui-element *board_view* (Board-view *board*))
 			;what is round the document, the desk it lies on

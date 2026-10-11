@@ -322,6 +322,24 @@ it has every pointer, and is asked which are on nothing,
 `(. board :pointer_free? id)`; the first two take the view, and the board
 is told to give up what each was doing, `(. board :pointer_idle id)`.
 
+### The bars
+
+The paper and the desk round it lie in a `Board-frame`, `view.inc`, in the
+middle of it, with a bar along the bottom and one up the side. The bars
+do not move the paper, which is what a scroll's would do and is not what
+anything else here does. Chris: "they just don't marry up with what you
+do in the app." They move what is seen, as the wheel does, and are there
+for a mouse that has no wheel, and to say where one is.
+
+`(bars-update)`. All of a bar is all there is to see that way: from the
+first of what is drawn or of the view, whichever is first, to the last of
+either. Its thumb is the view. So a view moved out past the drawing is
+part of what there is, and no bar has an end to come to. A bar moved by
+hand, `(bars-moved)`, puts what is seen where its thumb says, and while
+that goes on the bars are not set again: a thumb is not to change size
+under the hand that has it. They are set when the hand has gone, a tick
+after, `(bars-tick)`.
+
 ### The zooms it rests at, and the paper's lines
 
 ```vdu
@@ -382,6 +400,12 @@ in the document and its `:size` are made what keeps it so, `(tools-held)`
 and `(tools-hold)`, and a new one is made the size it is on the screen at
 the zoom there is. Its marks are then of the screen: a ruler's
 millimetres are a real ruler's on the glass, not the document's.
+
+An instrument that no hand has hold of and none of which shows is put
+away, `(tools-cull)`, each tick. It is how one is thrown away, and it is
+why one can not be lost where it can not be got at, now that moving what
+is seen does not bring it back. Chris: "Do we cull them imediatly ?" As
+it is let go, not while it is held.
 
 A turn of the wheel is 16 pixels, which is half the gap of the lines at
 rest, and moved in steps of that the board looked as if it snapped. So

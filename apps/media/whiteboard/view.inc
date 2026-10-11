@@ -33,8 +33,59 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
+(import "gui/backdrop/lisp.inc")
+(import "gui/slider/lisp.inc")
 (import "lib/cwb/board.inc")
 
+
+(defclass Board-frame () (Backdrop)
+	; (Board-frame) -> board_frame
+	;what the paper and the desk round it lie in, in the window, with a
+	;bar along the bottom and one up the side. The paper is in the middle
+	;of what is left, whatever size that is: with room to spare its own
+	;colour shows round it, with too little it is cut off the same each
+	;side.
+	;
+	;The bars do not move the paper. They move what is seen on it, as the
+	;wheel does. All of a bar is all there is to see that way, what is
+	;drawn and where the view is now, and its thumb is the view: how much
+	;of it shows, and where in it. The app sets them, and is called when
+	;one is moved, :on_bar. Chris, of bars that moved the paper: "they just
+	;don't marry up with what you do in the app."
+	(def this :child :nil :min_width 0 :min_height 0 :on_bar :nil
+		:vslider (Slider) :hslider (Slider))
+	(each (# (. %0 :connect (. this :get_id)) (. this :add_front %0))
+		(list (get :vslider this) (get :hslider this)))
+
+	(defmethod :add_child (child)
+		; (. board_frame :add_child child) -> board_frame
+		(. child :set_flags +view_flag_subtree +view_flag_subtree)
+		(if (defq old_child (get :child this)) (. old_child :sub))
+		(. this :add_back (set this :child child)))
+
+	(defmethod :action (data)
+		; (. board_frame :action data) -> board_frame
+		;a bar has been moved
+		(if (defq on_bar (get :on_bar this)) (on_bar))
+		this)
+
+	(defmethod :constraint ()
+		; (. board_frame :constraint) -> (width height)
+		(list (+ (ifn (def? :min_width this) 0) (first (. (get :vslider this) :get_constraint)))
+			(+ (ifn (def? :min_height this) 0) (second (. (get :hslider this) :get_constraint)))))
+
+	(defmethod :layout ()
+		; (. board_frame :layout) -> board_frame
+		(bind '(w h) (. this :get_size))
+		(defq vslider (get :vslider this) hslider (get :hslider this)
+			sw (first (. vslider :get_constraint)) sh (second (. hslider :get_constraint)))
+		(. vslider :set_bounds (- w sw) 0 sw (- h sh))
+		(. hslider :set_bounds 0 (- h sh) (- w sw) sh)
+		(when (defq child (get :child this))
+			(bind '(cw ch) (. child :get_size))
+			(. child :set_bounds (/ (- (- w sw) cw) 2) (/ (- (- h sh) ch) 2) cw ch))
+		this)
+	)
 
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view

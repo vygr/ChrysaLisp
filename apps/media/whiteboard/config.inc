@@ -21,8 +21,8 @@
 	(scatter (Emap) :version +config_version
 		:x x :y y :width w :height h
 		:zoom *zoom*
-		:scroll_x (ifn (get :value (get :hslider *image_scroll*)) 0)
-		:scroll_y (ifn (get :value (get :vslider *image_scroll*)) 0)
+		;there is no scroll now, these are for a board kept before
+		:scroll_x 0 :scroll_y 0
 		:mode (. *mode_toolbar* :get_selected) :ink (. *ink_toolbar* :get_selected)
 		:radius (. *radius_toolbar* :get_selected) :style (. *style_toolbar* :get_selected)
 		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
