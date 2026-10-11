@@ -121,18 +121,38 @@
 (bt-go (ptr-event 0x1000000 :touch 1 150 150)) (bt-go (ptr-event 0x1000000 :touch 1 150 250))
 (assert-eq "another's finger on it, dragged, does nothing to it" "(110 100 210 200)" (str (bt-at)))
 (assert-eq "and has nothing in hand: no box is dragged out by it" 0 (. (get :bands bt) :size))
-;another's eraser goes through it: nothing
+;an eraser goes through it as it is held: it is bitten, and what is left is in the hand still, and selected
 (. bt :bite (path 100.0 150.0 300.0 150.0) 10.0)
-(assert-eq "another's eraser through it leaves it whole, its middle still there" "(:t (110 100 210 200))"
-	(str (list (if (cwb-hit bt_doc 160 150 0) :t) (bt-at))))
-;the pen that has it goes on moving it, with the finger still down
+(assert-true "held, the eraser takes its bite out of it: its middle is gone, above and below are there"
+	(and (not (cwb-hit bt_doc 160 150 0)) (cwb-hit bt_doc 160 120 0) (cwb-hit bt_doc 160 180 0)))
+(assert-eq "it is where it was, and what is left of it is what is selected" "((110 100 210 200) 1 :t)"
+	(str (list (bt-at) (length (. bt :get_selected)) (eql (str (. bt :get_selected)) (str (map (# (elem-get %0 +cwb_id)) (cwb-items bt_doc)))))))
+;the pen that has it goes on moving it, from where it is, with no jump, the finger still down
 (bt-go (ptr-event 0x2000001 :pen 1 180 150))
-(assert-eq "the one that has it still has it" "(130 100 230 200)" (str (bt-at)))
+(assert-eq "the one that has it still has it, what is left of it: moved 20 more it is 20 on" "(130 100 230 200)" (str (bt-at)))
 (bt-go (ptr-event 0x1000000 :touch 0 150 250)) (bt-go (ptr-event 0x2000001 :pen 0 180 150))
-;let go, it is anybody's: the eraser bites it, and the finger takes it
-(. bt :bite (path 100.0 150.0 300.0 150.0) 10.0)
-(assert-true "let go, the eraser takes its bite: its middle is gone, above and below are there"
-	(and (not (cwb-hit bt_doc 180 150 0)) (cwb-hit bt_doc 180 120 0) (cwb-hit bt_doc 180 180 0)))
+;an eraser that takes all of what is held: the hand has nothing, and moved it does nothing
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 120 120) :fill 0xff00ff00 :stroke 0))
+(def bt :mode :select)
+(bt-go (ptr-event 0x2000001 :pen 1 110 110))
+(. bt :bite (path 110.0 110.0) 40.0)
+(bt-go (ptr-event 0x2000001 :pen 1 200 200)) (bt-go (ptr-event 0x2000001 :pen 0 200 200))
+(assert-eq "all of it rubbed out of the hand, there is nothing, and no box was dragged out by the hand that had it" "(0 0 0)"
+	(str (list (length (cwb-items bt_doc)) (length (. bt :get_selected)) (. (get :bands bt) :size))))
+;two fingers turning a thing, and an eraser through it: they go on turning what is left
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
+(def bt :mode :select)
+(bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
+(bt-go (ptr-event 0x1000000 :touch 1 120 160)) (bt-go (ptr-event 0x1000001 :touch 1 180 140))
+(defq bt_turned (bt-at))
+(. bt :bite (path 150.0 60.0 150.0 240.0) 6.0)
+(defq bt_bitten (bt-at))
+(bt-go (ptr-event 0x1000000 :touch 1 130 160)) (bt-go (ptr-event 0x1000001 :touch 1 190 140))
+(assert-eq "two fingers have turned it, the eraser has cut it in two, it has not jumped, and moved 10 on by both fingers it is 10 on, both halves"
+	(str (list bt_turned (+ (first bt_turned) 10) (+ (third bt_turned) 10)))
+	(str (list bt_bitten (first (bt-at)) (third (bt-at)))))
 ;two fingers of the one device on a thing still move it between them
 (defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
@@ -140,3 +160,31 @@
 (bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
 (bt-go (ptr-event 0x1000000 :touch 1 90 150)) (bt-go (ptr-event 0x1000001 :touch 1 210 150))
 (assert-true "two fingers of the one device on a thing size it between them, as they did" (> (- (third (bt-at)) (first (bt-at))) 150))
+
+;the eraser's way is kept as it goes, and one bite of all of it is taken at a tick, or as it lifts: the hand is not kept waiting
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 300 200) :fill 0xff00ff00 :stroke 0))
+(def bt :mode :eraser)
+(defun bt-d () (cwb-get (first (cwb-items bt_doc)) :d))
+(defq bt_was (bt-d))
+(bt-go (ptr-event 0 :mouse +pev_left 150 50)) (bt-go (ptr-event 0 :mouse +pev_left 150 150)) (bt-go (ptr-event 0 :mouse +pev_left 250 150))
+(assert-true "the eraser has gone down the box and along it, and nothing is rubbed out yet" (eql bt_was (bt-d)))
+(assert-eq "its way is kept, three places, and how far it reaches, three times the width the board draws with" "(6 9.00000)"
+	(str (list (length (first (. (get :rub_todo bt) :find 0))) (second (. (get :rub_todo bt) :find 0)))))
+(. bt :tick 1000)
+(assert-true "at the tick the bite is taken, of all the way at once: down and along are both gone"
+	(and (not (eql bt_was (bt-d))) (not (cwb-hit bt_doc 150 120 0)) (not (cwb-hit bt_doc 200 150 0)) (cwb-hit bt_doc 280 120 0)))
+(assert-eq "and no way is kept" :nil (. (get :rub_todo bt) :find 0))
+(bt-go (ptr-event 0 :mouse +pev_left 250 250)) (bt-go (ptr-event 0 :mouse 0 250 250))
+(assert-true "the rest of its way is bitten as it lifts, with no tick" (not (cwb-hit bt_doc 250 180 0)))
+(. bt :undo)
+(assert-true "and it is all one step, undone it is the box" (eql bt_was (bt-d)))
+;a long line of many points is thinned before it is bitten: what is left has far fewer points than what it was drawn with
+(defq bt (Board (cwb-doc 1200 600)) bt_doc (. bt :get_doc) bt_pts (list))
+(each (# (push bt_pts (+ 100.0 (* 0.9 (n2f %0))) (+ 300.0 (* 100.0 (sin (* 0.05 (n2f %0))))))) (range 0 1000))
+(. bt :add (cwb-shape (board-pen-d bt_pts) :width 3 :kind :pen))
+(defq bt_n (/ (length (first (second (cwb-flat (first (cwb-items bt_doc)))))) 2))
+(. bt :bite (path 500.0 100.0 500.0 500.0) 8.0)
+(defq bt_m (reduce (# (+ %0 (/ (length %1) 2))) (first (cwb-flat (first (cwb-items bt_doc)))) 0))
+(assert-true "a line of a thousand points is drawn with nearly eight thousand, and bitten what is left has little more than half of them" (and (> bt_n 5000) (< bt_m (/ (* bt_n 6) 10))))
+(assert-true "it is cut where the eraser went and there each side" (and (not (cwb-hit bt_doc 500 (+ 300 (n2i (* 100.0 (sin (* 0.05 444.0))))) 1)) (cwb-hit bt_doc 300 (+ 300 (n2i (* 100.0 (sin (* 0.05 222.2))))) 2)))

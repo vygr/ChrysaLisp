@@ -332,8 +332,12 @@ itself with its middle. A finger moves things
 ### board-bite
 
 ```code
-(board-bite doc swept [lines but]) -> :nil | (made gone)
+(board-bite doc swept [lines but tol]) -> :nil | (made gone swaps)
 
+swaps is what stands in the place of each thing that was bitten,
+((id (shape ...)) ...), for whoever had hold of it
+tol, how near a line a point of a thing may be and be left out, see
+(board-bite-shape)
 but, the ids of things that are left as they are whatever covers
 them: what somebody has hold of is theirs till they let it go
 with lines :t a line, a thing part of which can be rubbed out as a
@@ -348,14 +352,21 @@ of what is left to do, no function here calls itself
 ### board-bite-shape
 
 ```code
-(board-bite-shape item full m swept) -> :nil | (shape ...)
+(board-bite-shape item full m swept [tol]) -> :nil | (shape ...)
 
 a shape with what swept covers taken out of it. swept is paths in
 the space of the document, full the matrix that puts the shape there,
 m the one that puts the space the shape is in there. :nil if it is
 not touched. What is to stand in its place, in the space it is in:
 nothing if all of it went, or all but a sliver, and the shape is then
-out of the document
+out of the document.
+
+What a line drawn by hand is drawn with has a great many points, ten
+for each of its own, the round of every join: a long squiggle has
+twenty thousand, and all that is done here is by how many there are.
+So those that are within tol of the line between their neighbours
+are left out first, a quarter of a pixel if not given, which is not
+seen and is most of them
 ```
 
 ### board-copy-items

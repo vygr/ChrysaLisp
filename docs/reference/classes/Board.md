@@ -294,6 +294,18 @@ where each finger that is down is, is kept, to be shown, (:draw_actors)
 
 ### :put_state
 
+### :reach
+
+```code
+(. board :reach [width]) -> r
+
+how far an eraser reaches, in the document, for a pointer that
+draws that wide, default the board's width: three times the
+width, so 9, 18 and 36 for the three widths of the app, and not
+less than :rub_reach. It is that many pixels on the screen
+whatever the zoom, as an instrument is the size it is
+```
+
 ### :redo
 
 ```code

@@ -118,6 +118,42 @@
 ;its colours are those of the ink bar that are solid, and four more
 (palette-enable *board* (cat (slice *palette* 0 8) '(0xff7f7f7f 0xfff08c00 0xff7048e8 0xff8d5524)))
 
+(defun zoom-level (zoom)
+	; (zoom-level zoom) -> (level part)
+	;a zoom as how many times 1 was doubled to get to the rest zoom at
+	;or under it, less than 0 for halved, and how far it is from that
+	;one to the next, 0 up to 1
+	(defq level 0)
+	(while (>= zoom 2.0) (setq zoom (/ zoom 2.0) level (inc level)))
+	(while (< zoom 1.0) (setq zoom (* zoom 2.0) level (dec level)))
+	(list level (- zoom 1.0)))
+
+(defun zoom-magnet (zoom)
+	; (zoom-magnet zoom) -> zoom
+	;the zoom to rest at that is nearest, of the zooms there are
+	(defq best (first +zooms))
+	(each (# (if (< (abs (- (/ zoom %0) 1.0)) (abs (- (/ zoom best) 1.0))) (setq best %0))) +zooms)
+	best)
+
+(defun snap-gap ()
+	; (snap-gap) -> gap
+	;what a thing goes to when the snap is on: every line of the paper
+	;that shows at the zoom it rests at, the fine ones, at half, as well
+	;as the coarse. Chris: "Snap are gird lines, should be to the 5mm !"
+	;So half the grid of the document, halved again for each time the
+	;zoom is doubled
+	(bind '(level &ignore) (zoom-level (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))))
+	(defq gap (* 0.5 (n2f (. (. *board* :get_doc) :find :grid))))
+	(times (abs level) (setq gap (if (> level 0) (/ gap 2.0) (* gap 2.0))))
+	gap)
+
+;what is kept for an instrument: it, the canvas it is on and one not
+;seen to draw the next on, what it was when it was drawn, where on the
+;canvas its own 0 0 is, the part of a pixel it was drawn at, and where it
+;was when this last looked
+(enums +tv 0
+	(enum tool canvas spare key px py fx fy ox oy))
+
 (defun sync-ui ()
 	;the toolbars show what the board has, which a palette on it may have changed
 	(defq at (find (get :mode *board*) *modes*))
@@ -127,6 +163,9 @@
 	(setq at (some (# (if (= %0 (get :width *board*)) (!))) *widths*))
 	(if (and at (not (eql at (. *radius_toolbar* :get_selected)))) (. *radius_toolbar* :set_selected at))
 	(defq on (/= (get :snap *board*) 0.0))
+	;the palette puts the snap on as the grid of the document: here it is
+	;what the paper has at the zoom there is
+	(if (and on (/= (get :snap *board*) (snap-gap))) (def *board* :snap (snap-gap)))
 	(unless (eql on *snap*)
 		(setq *snap* on)
 		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))))
@@ -169,42 +208,6 @@
 	;is the middle of what shows: the paper is always in the middle of it
 	(bind '(cw ch) (canvas-size))
 	(list (+ *pan_x* (/ (n2f (/ cw 2)) *zoom*)) (+ *pan_y* (/ (n2f (/ ch 2)) *zoom*))))
-
-(defun zoom-level (zoom)
-	; (zoom-level zoom) -> (level part)
-	;a zoom as how many times 1 was doubled to get to the rest zoom at
-	;or under it, less than 0 for halved, and how far it is from that
-	;one to the next, 0 up to 1
-	(defq level 0)
-	(while (>= zoom 2.0) (setq zoom (/ zoom 2.0) level (inc level)))
-	(while (< zoom 1.0) (setq zoom (* zoom 2.0) level (dec level)))
-	(list level (- zoom 1.0)))
-
-(defun zoom-magnet (zoom)
-	; (zoom-magnet zoom) -> zoom
-	;the zoom to rest at that is nearest, of the zooms there are
-	(defq best (first +zooms))
-	(each (# (if (< (abs (- (/ zoom %0) 1.0)) (abs (- (/ zoom best) 1.0))) (setq best %0))) +zooms)
-	best)
-
-(defun snap-gap ()
-	; (snap-gap) -> gap
-	;what a thing goes to when the snap is on: every line of the paper
-	;that shows at the zoom it rests at, the fine ones, at half, as well
-	;as the coarse. Chris: "Snap are gird lines, should be to the 5mm !"
-	;So half the grid of the document, halved again for each time the
-	;zoom is doubled
-	(bind '(level &ignore) (zoom-level (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))))
-	(defq gap (* 0.5 (n2f (. (. *board* :get_doc) :find :grid))))
-	(times (abs level) (setq gap (if (> level 0) (/ gap 2.0) (* gap 2.0))))
-	gap)
-
-;what is kept for an instrument: it, the canvas it is on and one not
-;seen to draw the next on, what it was when it was drawn, where on the
-;canvas its own 0 0 is, the part of a pixel it was drawn at, and where it
-;was when this last looked
-(enums +tv 0
-	(enum tool canvas spare key px py fx fy ox oy))
 
 (defun tools-stack ()
 	;every canvas there is, taken out and put back in the order they lie

@@ -252,7 +252,7 @@
 	"(zoom-set 3.0 0 0) (draw-paper) (print (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*)))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
 (assert-eq "two fingers on what it drew make it twice the size" "(47 57 253 223)" (elem-get wa_out 1))
-(assert-eq "and the other end of the pen takes a bite out of it, it is another shape, flat" "(3)" (elem-get wa_out 2))
+(assert-eq "and the other end of the pen takes a bite out of it, one bite for all the way it went, it is another shape, flat" "(2)" (elem-get wa_out 2))
 (assert-eq "zoomed to twice, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
 (assert-eq "moved 50 and 30 on the screen at twice, it is seen from 25 and 15 back, and a pen in the same place draws that much back in the document"
 	"(\qM 75 85 L 175 85 175 185 75 185 Z\q -25.00000 -15.00000)" (elem-get wa_out 4))
@@ -550,13 +550,16 @@
 ;max is the board and nothing else, all of the screen: no title, no toolbars, no bars, the paper the size of the screen. The palette has one more thing to do then, the window back
 (defq wa_out (wa-run (cat
 	"(setq *margin* 240) (. *board* :new 400 300) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 30 40 w h)"
-	"(defun wa-look () (list (. *window* :get_bounds) (length (. (get :child *window*) :children)) (canvas-size) (get :border *window*) (if (get :bare *image_scroll*) :bare) (if (get :on_window *board*) :t)"
+	"(defun wa-look () (list (. *window* :get_bounds) (length (. (get :child *window*) :children)) (canvas-size) (if (get :bare *image_scroll*) :bare) (if (get :on_window *board*) :t)"
 	" (length (. (Palette *board* 100 100) :get_wedges))))"
 	"(defq w0 (wa-look)) (full-screen 1280 800) (defq w1 (wa-look))"
+	;where the frame the board lies in is on the screen: the window's place and the frame's place in it
+	"(bind (quote (wx wy ww wh)) (. *window* :get_bounds)) (bind (quote (fx fy fw fh)) (. *window* :get_relative *image_scroll*))"
+	"(defq on (list (+ wx fx) (+ wy fy) fw fh) off (list (< wx 0) (< wy 0) (> ww 1280) (> wh 800)))"
 	;the palette's wedge asks, and it is done on the next tick
 	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
-	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print w1)")))
-(assert-eq "a window: a title, four rows and the board in it, a paper of 400 by 300, an edge, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
-	"(:t :t (6 (400 300) 1 :nil :nil 37))" (first wa_out))
-(assert-eq "all of the screen: the board alone in it, the paper the size of the screen, no edge, no bars, and one more thing on the palette, the window back"
-	"((0 0 1280 800) 1 (1280 800) 0 :bare :t 38)" (second wa_out))
+	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print (list on off (rest w1)))")))
+(assert-eq "a window: a title, four rows and the board in it, a paper of 400 by 300, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
+	"(:t :t (6 (400 300) :nil :nil 37))" (first wa_out))
+(assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more thing on the palette, the window back"
+	"((0 0 1280 800) (:t :t :t :t) (6 (1280 800) :bare :t 38))" (second wa_out))

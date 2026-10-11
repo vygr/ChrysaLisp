@@ -33,7 +33,9 @@ filled, words, and last the eraser. The eraser rubs out what it is dragged over
 and leaves the rest: a bite is taken out of each thing it touches, a
 line, a box, a filled shape, words, just where the eraser went. A thing
 that has lost a bite is flat from then on, the outline of what was left
-of it. Undo brings it back as it was.
+of it. Undo brings it back as it was. The eraser is as big as the pen
+is thick: with the thin pen it rubs out a little, with the thick one a
+lot. Its ring shows how much.
 The row of colours says in what, and the three dots how thick.
 
 Words are typed into the field on that row, and put down where the pen next
@@ -90,7 +92,11 @@ they have done. Somebody who is holding a thing does not stop it, and
 what they hold stays in their hand as the board moves under it.
 
 A thing is the one's who took hold of it first, till they let it go.
-Another's hand on it does nothing, and another's eraser leaves it.
+Another's hand on it does nothing.
+
+The eraser bites what is held as it bites anything, and what is left of
+it stays in the hand. So a thing can be picked up, turned, and shaped
+with the eraser as it is held.
 
 One finger on empty board drags a box out to select with, as it did.
 

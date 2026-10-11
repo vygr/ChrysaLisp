@@ -17,49 +17,43 @@
 	(.-> *image_scroll* :layout :dirty_all))
 
 (defun full-screen (&optional sw sh)
-	;the board is all there is on the screen: no title, no toolbars, no
-	;bars, no edge, and the paper the size of the screen. Chris: "the
-	;canvas is made to be the only thing visibale on the screen !" What
-	;is done there is done with the palette, the ring that opens where a
-	;hand taps on nothing, and it has one more thing to do while this is
-	;so: have the window back
+	;the board is all there is on the screen, the paper the size of the
+	;screen. Chris: "the canvas is made to be the only thing visibale on
+	;the screen !" The window is not taken apart for it. It is made big
+	;enough that the frame the board lies in is the size of the screen,
+	;and put where that frame is on the screen and all else of it is off
+	;the edges: its title, its toolbars, its edge. "Why are we removeing
+	;the Window widget at all ? It can be just places outside the screen
+	;edge and larger than the screen ?" What is done there is done with
+	;the palette, and it has one more thing to do while this is so: have
+	;the window back
 	(unless (and sw sh) (bind '(& & sw sh) (gui-info)))
 	(unless *full*
-		(defq flow (get :child *window*) doc (. *board* :get_doc)
-			others (filter (# (not (eql %0 *image_scroll*))) (. flow :children)))
-		(setq *full* (list (. *window* :get_bounds) others (get :border *window*) (get :shadow *window*)
-			(. doc :find :width) (. doc :find :height) (get :resizable *window*)))
-		(each (# (. %0 :sub)) others)
-		(def *window* :border 0 :shadow 0 :resizable :nil)
-		(def *image_scroll* :bare :t)
+		(defq doc (. *board* :get_doc))
+		(setq *full* (list (. *window* :get_bounds) (. doc :find :width) (. doc :find :height)))
+		;no bars, and it is to be the size of the screen
+		(def *image_scroll* :bare :t :min_width sw :min_height sh)
 		(.-> doc (:insert :width sw) (:insert :height sh))
 		(def *board* :on_window (# (setq *full_go* :t)))
-		(. *window* :change_dirty 0 0 sw sh)
+		;laid out at the size that makes it so, to find where the frame
+		;is in it, and put so the frame is at the corner of the screen
+		(bind '(w h) (. *window* :pref_size))
+		(. *window* :change 0 0 w h)
+		(bind '(fx fy &ignore) (. *window* :get_relative *image_scroll*))
+		(. *window* :change_dirty (neg fx) (neg fy) w h)
+		(def *image_scroll* :min_width +min_width :min_height +min_height)
 		(board-resized)
 		(view-changed)))
 
 (defun full-window ()
-	;it is a window again, as it was, where it was, the paper the size
-	;it was
+	;it is a window again, where it was, the size it was, and the paper
+	;the size it was
 	(when *full*
-		(bind '(bounds others border shadow pw ph resizable) *full*)
+		(bind '(bounds pw ph) *full*)
 		(setq *full* :nil)
-		(defq flow (get :child *window*) doc (. *board* :get_doc))
-		;put back in the order they were made in: one added goes after those there
-		(. *image_scroll* :sub)
-		(each (# (. flow :add_child %0)) others)
-		(. flow :add_child *image_scroll*)
-		(def *window* :border border :shadow shadow :resizable resizable)
 		(def *image_scroll* :bare :nil)
-		(.-> doc (:insert :width pw) (:insert :height ph))
+		(.-> (. *board* :get_doc) (:insert :width pw) (:insert :height ph))
 		(undef *board* :on_window)
-		;with no edge it was all solid, and said so, (. window :layout).
-		;With its edge and its shadow back it is not: what is behind
-		;shows through the shadow, and has to be drawn there. So it is
-		;told it is not solid before it is laid out again, and all of
-		;it is drawn again where it now is. Chris: "the window border
-		;shows old remains of canvas through !"
-		(. *window* :set_flags 0 +view_flag_opaque)
 		(bind '(x y w h) bounds)
 		(. *window* :change_dirty x y w h)
 		(. *window* :dirty_all)

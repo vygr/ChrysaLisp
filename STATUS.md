@@ -4,6 +4,67 @@
 
 ------
 
+The eraser keeps up with the hand, bites what is held, and is as big
+as the pen is thick; full screen leaves the window whole.
+
+Chris: "a very long sqiggle of strokes chugs the erase action", "halt
+the cursor as soon as the erase shape touches the stroke, and then
+chugs across it. Very likely hitting limits of exponential compute, may
+need to drop to VP", "may need a way to que the erase actions so the
+mouse remains smooth while the erase catches up".
+
+Measured first. Not exponential: by how many points the thing is drawn
+with, and a line drawn by hand is drawn with ten for each of its own. A
+squiggle of 2,000 points was 22,085, and each move of the eraser did
+all of the set logic on them: 160ms. Per bite, a hull 29ms, do they
+share anything 38, what is left 66, to text and back 18, an area 4.
+
+What was done, 160ms to 45:
+
+* The way the eraser goes is kept, and one bite of all of it is taken
+at the next tick or as it lifts, `(. surface :rub_flush)`. The eraser
+is where the hand is whatever a bite costs. It is one step still.
+* Points within a quarter of a pixel of the line between their
+neighbours are left out before a bite, about half.
+* What is left keeps the hull of what it was and the polygons just
+worked out.
+* Of a thing already bitten, is it touched is one sum, and only its
+rings near what is swept are worked on.
+
+He: "erase action is now much much smoother."
+
+Not done, and it is what would do most: the loop of the set logic, a
+band at a time, is Lisp, 7,000 bands for a bite of a long line. And the
+bite is the board's own task's.
+
+"I had the shape/grouop you are holding can be erased by yourself !
+That was a nice feeling UI, you could pick up and hold somthing, turn
+it and shape it with the eraser... that REALLY impressed people !" "You
+pick up an Apple and take a bite out of it with the large araser, and
+the pupils all laugh so much !" I had the eraser leave what anybody
+held, since the afternoon. It bites it, and what is left is in the hand
+and selected, `(. surface :swapped)`, one hand or two, from where it is.
+Whose eraser it is can not be known, so anybody's does.
+
+"The eraser mode, should use the current pen size ?" Three times the
+width its pointer draws with, 9, 18 and 36 pixels on the screen,
+`(. board :reach)`.
+
+Full screen: "Why are we removeing the Window widget at all ? It can be
+just places outside the screen edge and larger than the screen ?" It
+is: the window is made the size that makes the board's frame the
+screen, and put where the frame is at its corner. Nothing is taken out
+of it, and what I had got round on the way back can not happen. "full
+screen togle working."
+
+Snap picked on the palette was the grid of the document whatever the
+zoom. It is what the paper shows.
+
+The cwb modules 583, the app's 106. Every test on the x64 Mac and the
+Pi.
+
+------
+
 The Whiteboard has a full screen, and its palette is under the hand.
 
 Chris, of the two buttons of the title bar: "min, fine. max only maxes

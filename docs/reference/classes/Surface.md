@@ -89,6 +89,15 @@ a pointer that has hold of what is selected
 (. surface :pointers stage events) -> surface
 ```
 
+### :rub_flush
+
+```code
+(. surface :rub_flush) -> :t | :nil
+
+the bite of every way an eraser has gone since the last. Was
+anything rubbed out
+```
+
 ### :same_things
 
 ```code
@@ -113,12 +122,30 @@ the path of what a pointer is drawing, now it is at a point
 a pointer that is down has moved, or come up
 ```
 
+### :swapped
+
+```code
+(. surface :swapped swaps) -> surface
+
+things have been made other things, ((id (shape ...)) ...), a
+bite out of each. A hand that had hold of one has hold of what
+stands in its place, from where things are now: it goes on moving
+them, and two hands on them go on turning them, with no jump. If
+nothing is left of what it held it holds nothing, and does nothing
+```
+
 ### :things
 
 ```code
 (. surface :things) -> ((item matrix) ...)
 
 what is selected, each with where it is now, to be moved from there
+```
+
+### :tick
+
+```code
+(. surface :tick time) -> :nil
 ```
 
 ### :two_hands

@@ -250,9 +250,41 @@ That picture is made by the board, as it is each time the docs are made.
 * Things on a layer that is hidden or locked are left.
 
 What it costs is the set logic, a millisecond or two for a thing and each
-move of the eraser, 12ms for a line of 3,000 points.
+move of the eraser, and by how many points the thing is drawn with. A
+line drawn by hand is drawn with ten for each of its own, the round of
+every join: a squiggle of 2,000 points is 22,000, and a bite of it took
+160ms, each move of the eraser. Chris: "large squggly strokes, halt the
+cursor as soon as the erase shape touches the stroke, and then chugs
+across it." What was done for that, 160ms to 45:
+
+* The eraser's way is kept as it goes and one bite of all of it is taken
+  at the next tick, or as it lifts, `(. surface :rub_flush)`. However
+  long a bite takes, the eraser is where the hand is, and ten moves of it
+  are one bite, not ten.
+
+* The points of a thing that are within a quarter of a pixel of the line
+  between their neighbours are left out before it is bitten,
+  `(path-filter)`. Half of them, of a smooth line.
+
+* What is left of a thing keeps the hull of what it was, which has it in
+  it, and the polygons that were just worked out, in place of reading its
+  path back from its text.
+
+* Of a thing a bite has left, is it touched is the one sum: what is left
+  is less than there was, or not. And only its rings that are near what
+  is swept are worked on.
+
+Not done, and what would do most: the set logic's own loop, a band at a
+time, is Lisp, with the three native functions called from it. A bite of
+a long line is 7,000 bands. And the bite is taken by the board's own task.
 
 The app has no button for the mode and keeps none, it is the board's.
+
+How far the eraser reaches is the width its pointer draws with, three
+times it, `(. board :reach [width])`: 9, 18 and 36 pixels for the app's
+three widths, and that on the screen whatever the zoom. Chris: "The
+eraser mode, should use the current pen size ?" Each pen has its own
+width, so each has its own eraser.
 
 Not done of what he told: the shape of what touches the board is not
 known, the eraser is a circle; and the work is done by the board's own
@@ -355,8 +387,19 @@ First come first served, for a thing as for the view. Chris: "and first
 come first served for who is manipulating what shapes/groups !" What one
 has hold of is theirs till they let it go: another's hand that goes down
 on it does nothing, it does not take it, share it, or drag a box out from
-it, and another's eraser that goes through it leaves it whole. "Another"
-is another device, a second pen, a mouse, a person far away. A second
+it. "Another" is another device, a second pen, a mouse, a person far away.
+
+Not the eraser. Chris: "I had the shape/grouop you are holding can be
+erased by yourself ! That was a nice feeling UI, you could pick up and
+hold somthing, turn it and shape it with the eraser... that REALLY
+impressed people !" "You pick up an Apple and take a bite out of it with
+the large araser, and the pupils all laugh so much !" A thing that is
+held is bitten as any is, and what is left of it is in the hand still
+and selected still, `(. surface :swapped)`: the hand goes on moving it,
+and two hands go on turning it, from where it is, with no jump. If
+nothing is left the hand has nothing. Whose eraser it is can not be
+known, a finger that holds and a pen that rubs out are two devices and
+may be one person, so anybody's eraser does. A second
 finger of the device that has it is the same one's other hand, and the
 two of them move, turn and size it between them as they did. An id is a
 device and which of its contacts, `lib/cwb/pointer.inc`.
@@ -367,15 +410,22 @@ Chris: "Why don't see say that max mean fullscreen mode ? the canvas is
 made to be the only thing visibale on the screen ! BUT we need a way on
 the ring menu to go restore back to the Window with furtiture look."
 
-`(full-screen)` and `(full-window)`, `ui.inc`. All that is in the window
-but the frame the board lies in is taken out and kept, the window has no
-edge and is the size of the screen, the frame has no bars, `:bare`, and
-the paper is made the size of the screen: it is a view, it is no change
-to what is drawn. The board is given `:on_window`, and a palette that
-finds a board with that has one more thing to do, `:window`,
-`lib/cwb/palette.inc`. It asks, and the app does it on its next tick, not
-in the middle of what the palette is doing. Closed while it is so, it is
-made a window first, and is kept as one.
+`(full-screen)` and `(full-window)`, `ui.inc`. The window is not taken
+apart. Chris: "Why are we removeing the Window widget at all ? It can be
+just places outside the screen edge and larger than the screen ? NO need
+to break the widget heiarchy at all." And: "we are allow to place the
+window wherever we want ! The gui calls are just info, not restrictions."
+So the frame the board lies in is asked to be the size of the screen, the
+window is made the size that gives it, and is put where that frame is at
+the corner of the screen: its title, its toolbars and its edge are off
+the edges. The frame has no bars, `:bare`, and the paper is made the size
+of the screen: it is a view, it is no change to what is drawn.
+
+The board is given `:on_window`, and a palette that finds a board with
+that has one more thing to do, `:window`, `lib/cwb/palette.inc`. It asks,
+and the app does it on its next tick, not in the middle of what the
+palette is doing. The escape key does the same. Closed while it is so,
+it is made a window first, and is kept as one.
 
 ### The bars
 

@@ -572,7 +572,7 @@
 (defq rb_steps (length (get :undo_stack rb_board)))
 (. rb_board :pointers (list (ptr-event 2 :eraser 1 40 150)))
 (. rb_board :pointers (list (ptr-event 2 :eraser 1 260 150)))
-(assert-true "while it rubs, the eraser is to be drawn where it is" (wb-near? (get :rubber rb_board) '(260 150 8) 0.01))
+(assert-true "while it rubs, the eraser is to be drawn where it is, as big as it is: three times the width the board draws with" (wb-near? (get :rubber rb_board) '(260 150 9) 0.01))
 (. rb_board :pointers (list (ptr-event 2 :eraser 0 260 150)))
 (assert-eq "the eraser dragged across two lines in one move cuts both, it rubs all the way it went" 4 (length (cwb-items rb_doc)))
 (assert-eq "and is not drawn when it is up" :nil (get :rubber rb_board))

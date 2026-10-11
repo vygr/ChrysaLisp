@@ -100,34 +100,80 @@
 		(if (< (length cache) 4) (push cache (poly-hull (cat (first cache) (second cache)))))
 		(elem-get cache 3)))
 
-(defun board-bite-shape (item full m swept)
-	; (board-bite-shape item full m swept) -> :nil | (shape ...)
+(defun board-bite-shape (item full m swept &optional tol)
+	; (board-bite-shape item full m swept [tol]) -> :nil | (shape ...)
 	;a shape with what swept covers taken out of it. swept is paths in
 	;the space of the document, full the matrix that puts the shape there,
 	;m the one that puts the space the shape is in there. :nil if it is
 	;not touched. What is to stand in its place, in the space it is in:
 	;nothing if all of it went, or all but a sliver, and the shape is then
-	;out of the document
+	;out of the document.
+	;
+	;What a line drawn by hand is drawn with has a great many points, ten
+	;for each of its own, the round of every join: a long squiggle has
+	;twenty thousand, and all that is done here is by how many there are.
+	;So those that are within tol of the line between their neighbours
+	;are left out first, a quarter of a pixel if not given, which is not
+	;seen and is most of them
 	(bind '(fills strokes &ignore) (cwb-flat item))
-	(defq mode (if (eql (elem-get item +cwb_rule) :evenodd) 0 1)
-		fills (cwb-mat-paths full fills) strokes (cwb-mat-paths full strokes))
-	(when (or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
-			(and (nempty? strokes) (nempty? (poly-intersect strokes swept 1 1))))
-		(defq out (list) back (Mat3x2-invert m))
+	(defq mode (if (eql (elem-get item +cwb_rule) :evenodd) 0 1) tol (ifn tol 0.25)
+		thin (# (filter (# (>= (length %0) 6)) (map (# (if (> (length %0) 64) (path-filter tol %0 (path)) %0)) %0)))
+		fills (thin (cwb-mat-paths full fills)) strokes (thin (cwb-mat-paths full strokes)))
+	;and of a thing that is many rings, a line that has been bitten into
+	;lengths, only the rings near what is swept are worked on. The rest go
+	;as they are. That is so of a thing filled by odd and even, which is
+	;what a bite leaves: each ring turns what is in it over, in or out,
+	;and one that is nowhere near what is swept does that the same before
+	;and after. Not of one filled the other way, its rings are not apart
+	(bind '((bx by) (bx1 by1)) (vector-bounds-2d swept))
+	(defq far (list))
+	(when (and (= mode 0) (> (length fills) 1))
+		(defq near (list))
+		(each (lambda (ring)
+			(bind '((x y) (x1 y1)) (vector-bounds-2d (list ring)))
+			(push (if (and (< x bx1) (< bx x1) (< y by1) (< by y1)) near far) ring))
+			fills)
+		(setq fills near))
+	;is it touched at all. Of a thing that is only rings filled by odd and
+	;even, and those are apart, what is left is worked out and is less
+	;than there was, or it is not: one sum, not two. Of any other, do
+	;they share anything is asked first
+	(defq whole (and (= mode 0) (empty? strokes) (nempty? fills)) first_left :nil)
+	(when (if whole
+			(progn (setq first_left (poly-difference fills swept 0 1))
+				(< (poly-area first_left) (- (poly-area fills) 0.01)))
+			(or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
+				(and (nempty? strokes) (nempty? (poly-intersect strokes swept 1 1)))))
+		(defq out (list) back (Mat3x2-invert m)
+			;the hull of what it was has what is left of it in it, and
+			;does for that: not worked out again for each bite
+			hull (if (defq was (board-hull item)) (first (cwb-mat-paths (elem-get item +cwb_m) (list was)))))
 		(each (lambda (polys mode color)
 			(when (nempty? polys)
-				(defq left (poly-difference polys swept mode 1))
+				(defq left (if (and first_left (eql polys fills)) first_left (poly-difference polys swept mode 1)))
+				;with the rings that were not near
+				(if (eql polys fills) (setq left (cat left far)))
 				;what is left has to be something: a sliver of less than a
 				;square unit of the document is not seen, and would stay
 				;for ever as a shape that is not there
 				(when (and (nempty? left) (>= (poly-area left) 1.0))
-					(push out (cwb-shape (join (map (# (cwb-d-points %0 :t)) (cwb-mat-paths back left)) " ")
-						:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name))))))
+					(defq own (cwb-mat-paths back left)
+						shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
+							:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name)))
+					;what it is drawn with is what was just worked out: kept,
+					;so its path is not read back from its text to find it
+					(bind '((x y) (x1 y1)) (vector-bounds-2d own))
+					(elem-set shape +cwb_cache (if hull (list own (list) (list x y x1 y1) hull) (list own (list) (list x y x1 y1))))
+					(push out shape))))
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
 		out))
 
-(defun board-bite (doc swept &optional lines but)
-	; (board-bite doc swept [lines but]) -> :nil | (made gone)
+(defun board-bite (doc swept &optional lines but tol)
+	; (board-bite doc swept [lines but tol]) -> :nil | (made gone swaps)
+	;swaps is what stands in the place of each thing that was bitten,
+	;((id (shape ...)) ...), for whoever had hold of it
+	;tol, how near a line a point of a thing may be and be left out, see
+	;(board-bite-shape)
 	;but, the ids of things that are left as they are whatever covers
 	;them: what somebody has hold of is theirs till they let it go
 	;with lines :t a line, a thing part of which can be rubbed out as a
@@ -138,7 +184,7 @@
 	;nothing was touched. A group whose things have all gone goes. A list
 	;of what is left to do, no function here calls itself
 	(bind '((x y) (x1 y1)) (vector-bounds-2d swept))
-	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list)
+	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list) swaps (list)
 		;what is swept, with no dent in it. A thing is found by its box,
 		;then by its hull against this, (poly-convex-hit?), and only then
 		;by all of its polygons, which is the dear one. Most things near
@@ -163,11 +209,12 @@
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(if (and (vector-collide-boxes-2d reach (Mat3x2-box box full))
 							(poly-convex-hit? (first (cwb-mat-paths full (list (board-hull item)))) swept_hull))
-						(setq pieces (board-bite-shape item full m swept)))))
+						(setq pieces (board-bite-shape item full m swept tol)))))
 			(cond
 				(pieces
 					(setq changed :t)
 					(push gone (elem-get item +cwb_id))
+					(push swaps (list (elem-get item +cwb_id) pieces))
 					(each (# (push out (cwb-adopt doc %0)) (push made (elem-get %0 +cwb_id))) pieces))
 				(:t (push out item))))
 			items)
@@ -184,7 +231,7 @@
 			(clear items)
 			(each (# (push items %0)) out)))
 		(reverse seen))
-	(if (nempty? gone) (list made gone)))
+	(if (nempty? gone) (list made gone swaps)))
 
 (defun board-rub-group (doc group x y r)
 	; (board-rub-group doc group x y r) -> :nil | items
@@ -264,6 +311,43 @@
 				(setq found (list id state)))))
 		found)
 
+	(defmethod :swapped (swaps)
+		; (. surface :swapped swaps) -> surface
+		;things have been made other things, ((id (shape ...)) ...), a
+		;bite out of each. A hand that had hold of one has hold of what
+		;stands in its place, from where things are now: it goes on moving
+		;them, and two hands on them go on turning them, with no jump. If
+		;nothing is left of what it held it holds nothing, and does nothing
+		(defq any :nil)
+		(. (get :states this) :each (lambda (id state)
+			(when (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
+					(some (lambda ((thing m0)) (some (# (= (first %0) (elem-get thing +cwb_id))) swaps)) things))
+				(setq any :t)
+				(defq now (list))
+				(each (lambda ((thing m0))
+					(if (defq swap (some (# (if (= (first %0) (elem-get thing +cwb_id)) %0)) swaps))
+						(each (# (push now (list %0 (elem-get %0 +cwb_m)))) (second swap))
+						(push now (list thing (elem-get thing +cwb_m)))))
+					things)
+				(elem-set state +stroke_x (elem-get state +stroke_last_x))
+				(elem-set state +stroke_y (elem-get state +stroke_last_y))
+				(elem-set state +stroke_box :nil)
+				(cond
+					((empty? now) (elem-set state +stroke_item :nil) (elem-set state +stroke_tool :idle))
+					(:t (elem-set state +stroke_item now))))))
+		;two that had hold of them together go on from where they and the
+		;things are now, with what is left: begun again here, before
+		;either of them moves again, or that move would be lost
+		(when (and any (defq grab (get :grab this)))
+			(bind '(ida idb) (elem-get grab 3))
+			(defq a (. this :state ida) b (. this :state idb))
+			(def this :grab (if (and a b (elem-get a +stroke_item) (elem-get b +stroke_item))
+				(list (list (elem-get a +stroke_last_x) (elem-get a +stroke_last_y))
+					(list (elem-get b +stroke_last_x) (elem-get b +stroke_last_y))
+					(map (# (list (first %0) (elem-get (first %0) +cwb_m))) (elem-get a +stroke_item))
+					(list ida idb)))))
+		this)
+
 	(defmethod :held_ids ()
 		; (. surface :held_ids) -> (id ...)
 		;every item some hand has hold of now
@@ -280,6 +364,26 @@
 			(= (elem-get (first (first a)) +cwb_id) (elem-get (first (first b)) +cwb_id))))
 
 	(defmethod :hit (x y) :t)
+
+	(defmethod :rub_flush ()
+		; (. surface :rub_flush) -> :t | :nil
+		;the bite of every way an eraser has gone since the last. Was
+		;anything rubbed out
+		(raise :board)
+		(defq todo (get :rub_todo board) ways (list) done :nil)
+		(. todo :each (lambda (id (way reach)) (push ways (list id way reach))))
+		(each (lambda ((id way reach))
+			(. todo :erase id)
+			(when (. board :bite way reach)
+				(setq done :t)
+				(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
+			ways)
+		done)
+
+	(defmethod :tick (time)
+		; (. surface :tick time) -> :nil
+		(. this :rub_flush)
+		:nil)
 
 	(defmethod :drawing? ()
 		; (. surface :drawing?) -> :t | :nil
@@ -452,11 +556,27 @@
 						(. (get :bands board) :insert id (list (min sx x) (min sy y) (max sx x) (max sy y)))
 						(. board :touch +board_dirty_overlay))))
 			(:eraser
-				;from where it was to where it is, and it is shown there
+				;from where it was to where it is, and it is shown there.
+				;A bite is not taken for each move of the hand: on a thing
+				;of many points one takes longer than the next move is in
+				;coming, and the hand is then left behind. The way it has
+				;gone is kept, and one bite of all of it is taken when
+				;there is time, (:rub_flush): at the next tick, or as the
+				;eraser lifts. However far behind, the eraser is where the
+				;hand is
 				(bind '(ox oy) points)
-				(if (. board :rub_along ox oy x y) (elem-set state +stroke_moved :t))
+				;how far it reaches is the width this pointer draws with:
+				;thin, it rubs out a little, thick, a lot. Chris: "The
+				;eraser mode, should use the current pen size ?"
+				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board))))
+				(cond
+					((eql (get :rub_mode board) :bite)
+						(defq todo (get :rub_todo board) going (. todo :find id))
+						(unless going (. todo :insert id (setq going (list (path ox oy) reach))))
+						(push (first going) x y))
+					((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
 				(elem-set state +stroke_points (list x y))
-				(def board :rubber (list x y (/ (get :rub_reach board) (get :zoom board))))
+				(def board :rubber (list x y reach))
 				(. board :touch +board_dirty_overlay))
 			(:pan
 				(def board :pan (list (- x sx) (- y sy))))
@@ -524,7 +644,10 @@
 									kept (if holding (get :selected board) (list)))
 								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
 						(. board :touch +board_dirty_overlay))))
-			(:eraser (unless moved (. board :forget))
+			(:eraser
+				(if (. this :rub_flush) (setq moved :t))
+				(setq moved (or moved (elem-get state +stroke_moved)))
+				(unless moved (. board :forget))
 				(def board :rubber :nil)
 				(. board :touch +board_dirty_overlay))
 			(:pan)
@@ -801,7 +924,7 @@
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
-		:rub_reach 8.0 :rub_mode :bite :rubber :nil
+		:rub_reach 8.0 :rub_mode :bite :rubber :nil :rub_todo (Fmap 11)
 		;a line drawn by hand that is begun within this long of the end of
 		;the last, by the same pointer, is put in a group with it, a word
 		;that is written is one thing. Microseconds, 0 for not at all. It
@@ -1186,10 +1309,25 @@
 		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			swept (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points))
 		;a line is left to be cut as a line unless all is to be bitten
+		;What a hand has hold of is bitten as anything is, and what is left
+		;of it is in the hand still, and selected still: a thing can be
+		;held, and turned, and shaped with the eraser as it is. Chris: "I
+		;had the shape/grouop you are holding can be erased by yourself !
+		;That was a nice feeling UI, you could pick up and hold somthing,
+		;turn it and shape it with the eraser... that REALLY impressed
+		;people !" Whose eraser it is is not known, a pen and a finger
+		;are two devices and may be one person, so anybody's does
 		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
-				(. (get :surface this) :held_ids))))
-			(bind '(made gone) did)
-			(def this :selected (filter (# (not (find %0 gone))) (get :selected this)))
+				:nil (/ 0.25 (get :zoom this)))))
+			(bind '(made gone swaps) did)
+			(def this :selected (reduce (lambda (out id)
+					(cond
+						((defq swap (some (# (if (= (first %0) id) %0)) swaps))
+							(each (# (push out (elem-get %0 +cwb_id))) (second swap)))
+						((find id gone))
+						(:t (push out id)))
+					out) (get :selected this) (list)))
+			(. (get :surface this) :swapped swaps)
 			(. this :changed made)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			:t))
@@ -1408,6 +1546,15 @@
 		;comes with me ! It is 'in flight'", what shows the board sees to
 		;that
 		(some (# (. %0 :drawing?)) (. (get :stage this) :get_actors)))
+
+	(defmethod :reach (&optional width)
+		; (. board :reach [width]) -> r
+		;how far an eraser reaches, in the document, for a pointer that
+		;draws that wide, default the board's width: three times the
+		;width, so 9, 18 and 36 for the three widths of the app, and not
+		;less than :rub_reach. It is that many pixels on the screen
+		;whatever the zoom, as an instrument is the size it is
+		(/ (max (n2f (get :rub_reach this)) (* 3.0 (n2f (ifn width (get :width this))))) (get :zoom this)))
 
 	(defmethod :pointer_free? (id)
 		; (. board :pointer_free? id) -> :t | :nil
