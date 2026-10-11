@@ -993,6 +993,37 @@ Usage: stats [options]
 
     Some simple object statistics.
 ```
+## storage
+```code
+Usage: storage [options] [path]
+
+    options:
+        -h --help: this help info.
+        -s --start image: start the service of this system on
+            the store in that file of the host, or disk.
+        -m --make megabytes: with -s, if there is no store
+            there, make one that big.
+        -i --id name: with -m, the id of the new store,
+            default store.
+        -F --format: with -s and -m, make a store of what is
+            there even if it is something else, a disk.
+        -x --stop: stop the service.
+        -l --list: the objects whose paths begin with path,
+            all of them if none is given.
+        -p --put file: path is set to what is in that file
+            of the host.
+        -g --get file: what path is, to that file of the host,
+            to stdout if the file is -.
+        -d --delete: there is no object of that path from now.
+        -w --sweep: let go of the blocks no object is made of.
+        -c --check: say which blocks are not what their names
+            say. -C to let go of them too.
+        -P --pin: this system holds all of what begins with
+            path. -U no longer.
+
+    The Storage service of this system, an object store. With
+    no option, what the store is and what is in it.
+```
 ## symbols
 ```code
 Usage: symbols [options]

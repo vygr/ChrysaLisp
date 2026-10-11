@@ -251,12 +251,12 @@
 ; no room
 ;;;;;;;;;
 
-(bind '(so_tiny so_tiny_stream) (so-new 0x100000 "tiny" "aaaa" 4096))
+(bind '(so_tiny so_tiny_stream) (so-new 0x100000 "tiny" "aaaa" 32768))
 (assert-eq "an object that fits" :ok (so-is (store-put so_tiny "x" (so-bytes 20000 6))))
 (assert-eq "an object of a pattern that comes round is few blocks, however long: 2MB in a store of 1MB" :ok
 	(so-is (store-put so_tiny "round" (so-bytes 0x200000 7))))
 ;bytes of which no two blocks are the same
-(defq so_much (apply (const cat) (map (# (sha256 (str "much" %0))) (range 0 (/ 0x200000 32)))))
+(defq so_much (apply (const cat) (map (# (sha256 (str "much" %0))) (range 0 (/ 0x140000 32)))))
 (assert-eq "one there is no room for" :full (so-is (store-put so_tiny "y" so_much)))
 (assert-eq "has no path" :nil (store-stat so_tiny "y"))
 (assert-eq "and what was there is" (so-bytes 20000 6) (store-get so_tiny "x"))

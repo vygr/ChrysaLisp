@@ -4,6 +4,41 @@
 
 ------
 
+**Storage: the service, a gopher, and the flash stick.**
+
+`service/storage/`: the service that keeps a store and is asked by mail,
+`app.inc` the asking, all an app imports, and `gopher.lisp`. `storage`,
+the command, by hand. Not started by itself: nothing of anyone's session
+changes till it is asked for.
+
+A gopher, Chris's word, "you send off a gopher task in to the network and
+it just runs around until it gets what it wants and then comes directly
+back to you", is a task of its own, mailed who asked, where the blocks
+are, what it has and its function as text. `(storage-walk path state
+'(lambda (state data at count) ... (list state next)))`.
+
+Two things of his put it right as it was written. The function, read from
+text, had none of its macros done, `(inc at)` ran as a call that gave a
+form: he, "(macrobind ...)", it is `(exec)`. And `(exec)` does that in the
+form itself, I tried it, the form after reads `(#lambda ... (#add at
+1))`: he, "you will need to (copy) the goffer task, then (macrobind)
+before eval the copy !!! keep the original source so you can send it on
+with the state !" It keeps the source and runs `(exec (copy source))`.
+
+The stick, which he offered, unmounted by me while the screen was not
+locked: a store of the whole 4GB made through `/dev/rdisk4s1` in 0.6 s,
+1MB of the tree put in 4.0 s and had back the same in 0.2, a gopher's
+count of the lines of `STATUS.md` 13,804 and the file's 13,804. macOS then
+mounted it, a block's `shasum -a 256` is its name, and `fsck_exfat` says
+"appears to be OK". It is left unmounted, a store named ChrysaLisp.
+
+Run: `test_storage` 51 and `test_store` 124 on the M4, the x64 Mac and
+the Pi. `check`, `forward`, `imports` say nothing of the new files.
+
+Not done: a second member.
+
+------
+
 **Storage, begun. The store of one member alone.**
 
 Chris: "For your solo activity tonight I want to start building the

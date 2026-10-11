@@ -5602,6 +5602,357 @@ stop a child
 stop a child
 ```
 
+### store-block-drop
+
+```code
+(store-block-drop store name) -> :nil | :t
+```
+
+### store-block-file
+
+```code
+(store-block-file name) -> path
+
+where on the volume a block of that name is kept
+```
+
+### store-block-get
+
+```code
+(store-block-get store name) -> :nil | data
+
+the block of that name. :nil if it is not kept here, and :nil if what
+is kept is not it: it has gone wrong, and is no use to anyone
+```
+
+### store-block-has?
+
+```code
+(store-block-has? store name) -> :nil | :t
+```
+
+### store-block-put
+
+```code
+(store-block-put store data) -> :nil | name
+
+a block of this data is kept, and its name. If it is kept already
+there is no more to do. :nil if there is no room for it
+```
+
+### store-blocks
+
+```code
+(store-blocks store) -> (name ...)
+
+every block that is kept here, whatever is in it
+```
+
+### store-check
+
+```code
+(store-check store [mend]) -> (name ...)
+
+the blocks kept here that are not what their names say, gone wrong
+on the disk. With mend they are let go of, to be had again from
+another member that has them right
+```
+
+### store-close
+
+```code
+(store-close store) -> :nil
+
+all that it has is on the device
+```
+
+### store-commit
+
+```code
+(store-commit store path names size [from]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:missing names)
+
+a path is set to the object of these blocks, which are kept here
+already, provided it is now the object from: "" for none, :nil not
+to say. :stale with what it is if it is not. :missing with those of
+the blocks that are not kept here
+```
+
+### store-cut
+
+```code
+(store-cut store data) -> (block ...)
+
+an object as the blocks it is kept in, each the block size but the
+last. One of nothing is no blocks
+```
+
+### store-delete
+
+```code
+(store-delete store path [from]) -> (:ok entry) | (:stale entry) | (:none :nil)
+
+there is no object of that name from now, provided it is from, as
+(store-commit). Its blocks are there till they are swept
+```
+
+### store-entry-line
+
+```code
+the path is last, it may have spaces in it
+```
+
+### store-find
+
+```code
+(store-find store path) -> :nil | entry
+
+what a path is now, one that is deleted too
+```
+
+### store-fold
+
+```code
+(store-fold store path state step) -> :nil | (state)
+
+(step state data index) -> state
+an object read a block at a time, in order, each given to a function
+with what the last one gave: what it gives at the end, as (store-walk).
+A name is found where a function is called from, not where it is
+written: what (store-walk) calls its function must not be step, or
+the step below would be this very lambda
+```
+
+### store-get
+
+```code
+(store-get store path) -> :nil | data
+
+all of an object
+```
+
+### store-info
+
+```code
+(store-info store) -> (objects blocks free)
+
+how many objects, how many blocks kept, and the room left in bytes
+```
+
+### store-lines
+
+```code
+(store-lines text) -> (line ...)
+```
+
+### store-list
+
+```code
+(store-list store [prefix deleted]) -> (entry ...)
+
+the paths that begin so, in order, with those deleted if asked
+```
+
+### store-make
+
+```code
+(store-make path | stream size id member [block_size label]) -> :nil | :t
+
+a new store with nothing in it, on a new volume of that many bytes.
+id is the store's, any str with no space in it, member the id of the
+member whose it is, the system id of its machine in hex. A path is a
+new file of the host, a stream is written where it is and must be
+that long
+```
+
+### store-manifest
+
+```code
+(store-manifest store hash) -> :nil | (size names)
+
+the object of that name, if its manifest is kept here
+```
+
+### store-manifest-text
+
+```code
+(store-manifest-text size names) -> data
+
+what is kept for an object: how long it is, and its blocks in order
+```
+
+### store-now
+
+```code
+(store-now store path) -> hash
+
+the name of the object a path is now, "" if there is none: what a
+writer says it is setting it from
+```
+
+### store-open
+
+```code
+(store-open path | stream member) -> :nil | store
+
+a store that is there. :nil if the volume is not one. It is opened by
+the member it was made for, or last opened by. Opened by another, a
+machine given a new id, a disk moved to another machine, that member
+takes the place of the one it was, in the members too: there is not
+one more member, and (get :was store) is who it was
+```
+
+### store-pin
+
+```code
+(store-pin store prefix [off]) -> store
+
+this member holds all of every object whose path begins so, wherever
+else it is kept, and does not let go of it. With off it no longer
+does
+```
+
+### store-pinned?
+
+```code
+(store-pinned? store path) -> :nil | :t
+```
+
+### store-pins-missing
+
+```code
+(store-pins-missing store) -> (name ...)
+
+the blocks of what is pinned that are not kept here yet, in hex.
+None, and what is pinned is all here: the machine can be taken away
+```
+
+### store-put
+
+```code
+(store-put store path data [from]) -> (:ok entry) | (:stale entry) | (:full :nil)
+
+a path is set to an object of this data, provided it is now from, as
+(store-commit). Nothing is kept if it is not
+```
+
+### store-read
+
+```code
+(store-read store path offset len) -> :nil | data
+
+part of an object, only the blocks that part is in are read
+```
+
+### store-save
+
+```code
+(store-save store) -> store
+
+the path map, the members and the pins, as they are now
+```
+
+### store-set
+
+```code
+the one way a path is changed here. from is what the writer says it
+
+is now, :nil if it does not say
+```
+
+### store-stat
+
+```code
+(store-stat store path) -> :nil | entry
+
+what a path is now, :nil if there is no object of that name
+```
+
+### store-sweep
+
+```code
+(store-sweep store) -> num
+
+the blocks that no object is made of are let go of, how many. Not
+while an object is half written: its blocks are kept before its path
+is set
+```
+
+### store-text
+
+```code
+(store-text lines) -> text
+```
+
+### store-vv-bump
+
+```code
+(store-vv-bump vv member) -> vv
+
+one more write by a member. A vv is ((member count) ...), in the
+order of the members' ids, so two that say the same are the same
+```
+
+### store-vv-cmp
+
+```code
+(store-vv-cmp a b) -> :same | :after | :before | :apart
+
+a against b: after it, it has as many or more of every member's
+writes, before it, or apart, each has some the other has not
+```
+
+### store-vv-count
+
+```code
+(store-vv-count vv member) -> num
+```
+
+### store-vv-merge
+
+```code
+(store-vv-merge a b) -> vv
+
+the most of each member's writes that either has
+```
+
+### store-vv-total
+
+```code
+(store-vv-total vv) -> num
+
+how many times the path has been written, as far as it knows
+```
+
+### store-walk
+
+```code
+(store-walk store path state visit [at]) -> :nil | (state)
+
+(visit state data at count) -> (state next)
+an object read a block at a time, where the reading says to go. The
+function is given what it had, a block, which block it is and how
+many there are, and gives what it has now and the block to read
+next, :nil when it is done. It starts at the first, or at at. What
+it has at the end is given in a list, so that an end of :nil can be
+told from :nil: there is no such object, or a block it went to is
+not kept here. A block there is not, past the end, is the end.
+
+This is how a search is sent to the data: what it has is small, and
+with the function is all there is of it, so it can be carried on by
+whoever has the next block
+```
+
+### store-wanted
+
+```code
+(store-wanted store [prefix]) -> (held missing)
+
+the blocks the objects of these paths are made of, as two sets of
+names in hex: those kept here, and those that are not. An object
+whose manifest is not kept here is one block missing, what its other
+blocks are is not known
+```
+
 ### str-as-num
 
 ```code

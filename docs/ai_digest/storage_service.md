@@ -353,6 +353,60 @@ a sweep lets go of what nothing is made of and of nothing else; a store
 opened by another member is that member's, in the place of the one it was;
 and a search by halves of an object of eight blocks reads four at most.
 
+**The service, and a gopher**, `service/storage/`, 2026-10-11. One of a name
+for a system, `@Storage` unless given another. It keeps one store and does
+what it is asked by mail, a thing at a time, so a write is all done or not
+begun as far as another asker can see. `(storage-start image [size id])`
+starts it on a file of the host or a disk, and it is not started by itself
+yet: nothing of a session changes till someone asks for it.
+
+An object goes to it a block at a time and comes from it so, and only the
+blocks it has not got are sent: a mail is never longer than a block and a
+little, and one member will ask another for blocks the same way an app does.
+
+```
+(storage-put path data [from])    (:ok entry) (:stale entry) (:full) (:lost)
+(storage-get path)   (storage-read path offset len)
+(storage-stat path)  (storage-list [prefix])   (storage-delete path [from])
+(storage-walk path state visit [at wait])      a gopher, see below
+(storage-pin prefix [off])   (storage-pins-missing)
+(storage-sweep)   (storage-check [mend])   (storage-info)
+```
+
+`service/storage/app.inc` is all an app imports. `storage`, the command, is
+the same by hand: `storage -s image -m 64`, `storage -p file path`, `storage
+-g file path`, `storage`.
+
+A gopher is a task of its own, `service/storage/gopher.lisp`, so that what it
+does and how long it takes are not the service's affair: one whose function
+throws, or never ends, harms nothing but itself. It is mailed who asked, the
+service that has the blocks, and as text the path, the block to begin at,
+what it has, and the function. It asks the service for each block it goes
+to, and mails what it has at the end straight to who asked.
+
+```
+(storage-walk "logs/today" 0
+    '(lambda (n data at count)
+        (list (+ n (length (filter (# (eql %0 (ascii-char 10))) data))) (inc at))))
+-> (13804)
+```
+
+The function is written out, quoted, and sent as text: what it has and that
+text are all there is of the gopher, which is what lets it be sent on. To be
+run a form has its macros done and its names bound, and that is done in the
+form itself, so the gopher keeps the function as it came and runs a copy,
+`(exec (copy source))`. Chris: "keep the original source so you can send it
+on with the state". What it has must print as it reads, numbers, strs, lists
+of them.
+
+**On a real disk.** Chris's 4GB flash stick, through its raw device, on the
+M4: a store made of the whole of it in 0.6 seconds, eight files of the tree,
+1MB, put in 4.0 seconds and had back the same in 0.2, and a gopher that
+counted the lines of one of them where its blocks were. Then mounted by
+macOS: `blocks`, `members`, `paths`, `pins`, `store` are there to see, a
+block's SHA-256 by the Mac's own `shasum` is its name, and the Mac's checker
+says the volume is OK.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -370,7 +424,6 @@ and a search by halves of an object of eight blocks reads four at most.
 
 ## Open
 
-* The service, and what an app's request looks like.
 * Members meeting, comparing path maps, and the counts of who has an entry.
 * What the name of an entry that did not keep its path is.
 * Where a block is kept, copying up to three, and a member that goes and
