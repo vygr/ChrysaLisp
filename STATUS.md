@@ -4,6 +4,23 @@
 
 ------
 
+A window that has had no shadow and has one again is not all solid.
+
+Chris: "fix it ! good catch." `Window :layout` set the flag that says a
+view is all solid when it had no shadow, and with one it made the solid
+patch inside the shadow again but left the flag set. So a window that
+went to no shadow and back, as the Whiteboard's first full screen did,
+kept the old picture in its edge: his "the window border shows old
+remains of canvas through". The layout was run, it was what it did. Each
+way is now said in full, a colour that can be seen through too.
+
+`tests/system/test_gui_nodesk.lisp` holds it: shadow, none, shadow back,
+and a see-through colour. Run on the code of before, the last two fail.
+Tests gui 45 on the M4, the x64 Mac and the Pi, and a desktop started on
+the Pi, its windows as they were.
+
+------
+
 Whiteboard: the side button of a pen rubs out, and the right button on a
 thing sends it to the back and no more.
 

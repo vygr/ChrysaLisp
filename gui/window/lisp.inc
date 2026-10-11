@@ -45,13 +45,17 @@
 		(when child
 			(. child :set_bounds (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
-		;adjust window transparency details based on color and shadow
-		(when (= (>> (get :color this) 24) 0xff)
-			(cond
-				((= shadow 0)
-					(. this :set_flags +view_flag_opaque +view_flag_opaque))
-				(:t (.-> this :clr_opaque (:add_opaque shadow shadow
-						(- w (* 2 shadow)) (- h (* 2 shadow))))))))
+		;adjust window transparency details based on color and shadow. Each
+		;way is said in full, a window that was all solid, with no shadow,
+		;and now has one is not all solid still: the flag that says it is
+		;was left set, and what was behind its shadow was not drawn again
+		(cond
+			((/= (>> (get :color this) 24) 0xff)
+				(.-> this (:set_flags 0 +view_flag_opaque) :clr_opaque))
+			((= shadow 0)
+				(. this :set_flags +view_flag_opaque +view_flag_opaque))
+			(:t (.-> this (:set_flags 0 +view_flag_opaque) :clr_opaque
+					(:add_opaque shadow shadow (- w (* 2 shadow)) (- h (* 2 shadow)))))))
 
 	(defmethod :drag_mode (rx ry)
 		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)

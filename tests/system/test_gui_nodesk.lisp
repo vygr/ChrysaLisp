@@ -55,3 +55,28 @@
 (assert-eq "a text field given a shorter text, and clicked where the end of the longer was, does not throw" :ok
 	(catch (progn (. nd_field :mouse_down nd_click) (. nd_field :mouse_move nd_click) (. nd_field :mouse_up nd_click) :ok) :threw))
 (assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))
+
+;a window says how much of itself is solid each time it is laid out. One with
+;no shadow is all solid, and has the flag that says so. Given a shadow again
+;it is not, what is behind its shadow shows, and the flag has to go: it was
+;left set, and a window that had been to no shadow and back left the old
+;picture in its edge
+(defun nd-solid? (window) (/= 0 (logand (. window :get_flags) +view_flag_opaque)))
+(ui-window nd_win2 (:min_width 0 :min_height 0 :color 0xffc0c0c0)
+	(ui-backdrop _ (:color +argb_grey1 :style :plain :min_width 100 :min_height 60)))
+(bind '(nd_w nd_h) (. nd_win2 :pref_size))
+(. nd_win2 :change 0 0 nd_w nd_h)
+(defq nd_shadow (get :shadow nd_win2))
+(assert-true "a window has a shadow" (> nd_shadow 0))
+(assert-true "with it, it is not all solid" (not (nd-solid? nd_win2)))
+(def nd_win2 :shadow 0)
+(. nd_win2 :layout)
+(assert-true "with none, it is" (nd-solid? nd_win2))
+(def nd_win2 :shadow nd_shadow)
+(. nd_win2 :layout)
+(assert-true "with its shadow back it is not all solid again" (not (nd-solid? nd_win2)))
+(def nd_win2 :shadow 0)
+(. nd_win2 :layout)
+(def nd_win2 :color 0x80c0c0c0)
+(. nd_win2 :layout)
+(assert-true "nor is one of a colour that can be seen through, shadow or none" (not (nd-solid? nd_win2)))
