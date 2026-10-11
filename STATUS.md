@@ -4,6 +4,33 @@
 
 ------
 
+`check`: two more, from the two things that stopped me writing the store.
+
+Chris, that evening: "this new tool is great, we should add to it every
+time we spot and issue it would have seen."
+
+*	`enum`, a field of an `(enums)` named `size`. `+name_size` is what
+	the `(enums)` makes for how many fields there are, and it is made
+	last, so the field is that number. Found: the Whiteboard's
+	`+event_size`, the event of its size field, was the count of its
+	events, one past the last of them. It worked, the field and what acts
+	on it both had the wrong number and nothing else had it. It is
+	`+event_paper_size`.
+*	`capture`, a `(lambda)` or a `(#)` written where it is given to
+	another function of the same file, that uses a name the other has as
+	a parameter. A name is found where a function is called from, so it
+	has the other's. Found: three in `lib/gpu/`, each given the same
+	thing it would have had, so no fault; marked `;check off`.
+
+Run: `files | check` says nothing of the tree, nine checks; the boot
+image the same to the byte; lint clean; every module on the M4, the x64
+Mac and the Pi, 6,383 and 0 failed, 139 modules.
+
+Not seen: the Whiteboard's size field on a desktop since its event was
+given another name; its test of the field passes.
+
+------
+
 **Storage: an app to look at it.**
 
 Chris, going to bed: "I just know you'l have a full distrubuted demo ready

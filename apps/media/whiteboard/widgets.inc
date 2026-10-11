@@ -10,7 +10,7 @@
 	(enum ruler protractor full_protractor set_square set_square45)
 	(enum group ungroup delete duplicate to_front to_back
 		align_left align_hcenter align_right align_top align_vcenter align_bottom)
-	(enum size text))
+	(enum paper_size text))
 
 (defun trans (%0)
 	;transparent colour
@@ -37,7 +37,7 @@
 		(ui-tool-bar *zoom_toolbar* (:color *env_toolbar2_col*)
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-textfield *size_field* (:color +argb_white :hint_text "width x height" :clear_text "1024x768"
-			:min_width 120)) :connect +event_size)
+			:min_width 120)) :connect +event_paper_size)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_pen +sym_line +sym_arrow +sym_double_arrow

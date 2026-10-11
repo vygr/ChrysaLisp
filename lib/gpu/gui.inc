@@ -59,9 +59,11 @@
 			(apply (const cat) (map (# (char (shader-size (second %0)) 1)) (shader-attrs vertex))))
 		pair (case (canvas-shader-format)
 			(1 (bind '(vertex_text fragment_text) (shader-gui-pair-text vertex pixel +gui_msl_by ".msl"
+					;check off, the two it is called with are the two this was
 					(# (shader-msl-pair vertex pixel))))
 				(canvas-pair-create vertex_text fragment_text layout))
 			(2 (bind '(vertex_module fragment_module) (shader-gui-pair-text vertex pixel +gui_spirv_by ".spv"
+					;check off, as above
 					(# (shader-spirv-pair vertex pixel))))
 				(canvas-pair-create vertex_module fragment_module layout))
 			(:t 0)))

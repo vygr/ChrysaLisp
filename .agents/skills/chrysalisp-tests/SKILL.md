@@ -223,6 +223,14 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 	`(defmacro)` that is of another name, or of more or fewer things than
 	it takes.
 
+*	`enum`, a field of an `(enums)` named `size`: `+name_size` is what the
+	`(enums)` makes for how many fields there are.
+*	`capture`, a `(lambda)` or `(#)` written where it is given to another
+	function of the same file, that uses a name the other has as a
+	parameter. A name is found where a function is called from, so it has
+	the other's: `(walk name (lambda (x) (visit x)))` when `(walk)` takes
+	`visit`.
+
 A test of the very thing has a comment that begins `;check off` on its line,
 or on the line before, and nothing is said of it.
 

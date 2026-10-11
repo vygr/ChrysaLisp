@@ -49,6 +49,13 @@
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.
+    enum    a field of an (enums) named size: the name it
+            makes is the one the (enums) makes for how many
+            fields there are.
+    capture a function written where it is given to another
+            of this file, that uses a name the other has as
+            a parameter. A name is found where a function is
+            called from, so it is the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.")
@@ -56,7 +63,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -216,6 +223,67 @@
 				((or (< says need) (and (> says need) (= need (length takes))))
 					(found file (first said) "doc" "(" name ") is said to take " (str says) ", it takes " (str need)))))))
 
+(defun check-enum (file node forms)
+	;(enums +name base (enum a b size)): +name_size is how many there are
+	(each (lambda (line)
+		(when (defq fields (tree-form? line "enum"))
+			(each (lambda (field)
+				(and (eql (first field) :symbol) (eql (third field) "size")
+					(found file field "enum" "a field named size is the (enums)'s own count of its fields")))
+				(rest (forms-of fields)))))
+		(rest forms)))
+
+(defun params-of (node)
+	; (params-of node) -> (name ...)
+	;the names a list of parameters gives, those in lists in it too
+	(defq out (list) todo (list node))
+	(while (defq node (pop todo))
+		(cond
+			((eql (first node) :symbol)
+				(unless (or (starts-with "&" (third node)) (eql (third node) "_")) (push out (third node))))
+			((eql (first node) :form) (each (# (push todo %0)) (third node)))))
+	out)
+
+(defun uses-of (body)
+	; (uses-of nodes) -> (used made)
+	;the names used in some forms, not as the first thing of a form,
+	;which is a call, and the names made in them: the parameters of a
+	;(lambda) there, and what a (defq) or a (bind) names
+	(defq used (list) made (list) todo (list body))
+	(while (defq nodes (pop todo))
+		(defq forms (forms-of nodes)
+			head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+		(cond
+			((find head '("lambda" "macro"))
+				(if (> (length forms) 1) (each (# (push made %0)) (params-of (second forms)))))
+			((eql head "defq")
+				(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push made (third %0)))) (rest forms)))
+			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
+				(each (# (push made %0)) (params-of (third (second forms))))))
+		(each (lambda (form)
+			(cond
+				((eql (first form) :form) (push todo (third form)))
+				;the first thing of a form is a call. A name of the system
+				;there is bound to its function as the code is read, any
+				;other is looked for when it is called, as a variable is
+				((and (eql (first form) :symbol) (or (> (!) 0) (not head) (not (. *root_names* :find (third form)))))
+					(push used (third form)))))
+			forms))
+	(list used made))
+
+(defun check-capture (file forms head)
+	;(fn ... (lambda (a) (... x ...)) ...) where fn, of this file, has a
+	;parameter x: the x the lambda has when fn calls it is fn's
+	(when (defq theirs (. *defuns* :find head))
+		(each (lambda (arg)
+			(when (and (defq kids (tree-form? arg)) (nempty? (defq inner (forms-of kids)))
+					(eql (first (first inner)) :symbol) (find (third (first inner)) '("lambda" "#")))
+				(bind '(used made) (uses-of kids))
+				(defq taken (list))
+				(each (# (and (find %0 theirs) (not (find %0 made)) (not (find %0 taken)) (push taken %0))) used)
+				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a parameter of (" head "), it is that one it has")) taken)))
+			(rest forms))))
+
 ;do the work on a file
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
@@ -223,7 +291,19 @@
 	;function here calls itself
 	(with-read-lock file
 		(when (defq in (file-stream file))
-			(defq todo (list (first (tree-read in))) *found* (list) off (Fset 11))
+			(defq top (first (tree-read in)) todo (list top) *found* (list) off (Fset 11)
+				;the functions of this file, and what each takes
+				*defuns* (Fmap 31) scan (list top))
+			(when (find "capture" checks)
+				(while (defq nodes (pop scan))
+					(each (lambda (node)
+						(when (defq kids (tree-form? node))
+							(push scan kids)
+							(defq forms (forms-of kids))
+							(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
+								(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
+								(. *defuns* :insert (third (second forms)) (params-of (third forms))))))
+						nodes)))
 			(while (defq nodes (pop todo))
 				(task-slice)
 				(defq quoted :nil)
@@ -250,7 +330,9 @@
 							(if (find "shadow" checks) (check-shadow file forms head))
 							(and (find "const" checks) (eql head "defq") (check-const file kids))
 							(if (find "style" checks) (check-style file node forms head))
-							(if (find "doc" checks) (check-doc file node forms head nodes at)))))
+							(if (find "doc" checks) (check-doc file node forms head nodes at))
+							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
+							(if (find "capture" checks) (check-capture file forms head)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))

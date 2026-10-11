@@ -329,6 +329,7 @@
 	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
 	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
 	(each (lambda ((name type params block))
+		;check off, the type it is called with is the type this was
 		(spv-function (. spv_fmap :find name) type (map (const second) params) (lambda (pids)
 			(each (lambda ((pname ptype) pid)
 				(spv-op spv_body 62 (spv-local pname ptype) pid)) params pids)

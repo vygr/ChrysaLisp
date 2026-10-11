@@ -153,8 +153,8 @@
 	"(print (list (wa-zoom +event_zoom_out) (wa-zoom +event_zoom_out) *zoom* (canvas-size)))"
 	"(print (list (wa-zoom +event_zoom_in) *zoom* (canvas-size) (wa-draw)))"
 	;the size of the board, by the size field
-	"(. *size_field* :set_text {800x500}) (print (list (wa-do +event_size) (canvas-size) (. (. *board* :get_doc) :find :width)))"
-	"(. *size_field* :set_text {nonsense}) (print (list (wa-do +event_size) (canvas-size)))"
+	"(. *size_field* :set_text {800x500}) (print (list (wa-do +event_paper_size) (canvas-size) (. (. *board* :get_doc) :find :width)))"
+	"(. *size_field* :set_text {nonsense}) (print (list (wa-do +event_paper_size) (canvas-size)))"
 	;what is done to what is selected
 	"(. *board* :select_all) (print (map (const wa-do) (list +event_align_left +event_group)))"
 	"(print (list (length (wa-ids)) (wa-do +event_ungroup) (length (wa-ids)) (wa-do +event_duplicate) (length (wa-ids))"

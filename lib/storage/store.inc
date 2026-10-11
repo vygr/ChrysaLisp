@@ -607,7 +607,7 @@
 	(. wanted :each (lambda (name) (unless (store-block-has? store name) (push wants name))))
 	;a block that is another's to keep for one object may be mine for another
 	(. others :each (lambda (name holders)
-		(if (and (not (. wanted :find name)) (store-block-has? store name)) (push extras (list name holders)))))
+		(and (not (. wanted :find name)) (store-block-has? store name) (push extras (list name holders)))))
 	(list wants extras))
 
 (defun store-sweep (store)

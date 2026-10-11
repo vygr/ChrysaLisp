@@ -76,6 +76,13 @@ Usage: check [options] [path] ...
     doc     a ; (name args) -> result comment under a
             (defun) or (defmacro) that is of another name,
             or of more or fewer things than it takes.
+    enum    a field of an (enums) named size: the name it
+            makes is the one the (enums) makes for how many
+            fields there are.
+    capture a function written where it is given to another
+            of this file, that uses a name the other has as
+            a parameter. A name is found where a function is
+            called from, so it is the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.

@@ -107,6 +107,16 @@
 	(tt-check "doc" "(defun g (a b &optional c)" "	; (h a b [c]) -> x" "	1)" "(defun k (a b)" "	; (k a) -> x" "	1)"
 		"(defun m (a b)" "	; (m a b c) -> x" "	1)" "(defun n (a &rest b)" "	; (n a b c) -> x" "	1)"
 		"(defun o (a)" "	; (o (x y) | z) -> x" "	1)" "(defmacro p (a &optional b)" "	; (p a [b]) -> x" "	1)"))
+(assert-list-eq "enum: a field named size"
+	'("(2) enum: a field named size is the (enums)'s own count of its fields")
+	(tt-check "enum" "(enums +x 0" "	(enum a size b))" "(enums +y 0 (enum a sizes b))"))
+(assert-list-eq "capture: a function given to another of the file that uses a name the other has as a parameter, called or not; not one of its own, nor one the other has not"
+	'("(5) capture: visit in the function given to (walk) is a parameter of (walk), it is that one it has"
+		"(9) capture: name in the function given to (walk) is a parameter of (walk), it is that one it has")
+	(tt-check "capture" "(defun walk (name visit) (visit name))" "(defun fold (name step)" "	(walk name (lambda (x) (step x))))"
+		"(defun fold2 (name visit)" "	(walk name (lambda (x) (visit x))))" "(defun fold3 (thing step)"
+		"	(walk thing (lambda (name) (defq visit 1) (list name visit step))))" "(defun fold4 (thing)"
+		"	(walk thing (# (cat %0 name))))" "(defun fold5 (thing)" "	(walk thing (lambda (x) (list x))))"))
 (assert-list-eq "nothing is said of a line with a comment that begins ;check off, nor of the line after one"
 	'("(3) style: a (cond) of one clause")
 	(tt-check "style" "(cond ((a) b)) ;check off, tried on purpose" "(cond ((a) b))" "(cond ((a) b))"))

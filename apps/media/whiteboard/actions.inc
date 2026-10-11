@@ -45,7 +45,7 @@
 	+event_align_top action-align-top
 	+event_align_vcenter action-align-vcenter
 	+event_align_bottom action-align-bottom
-	+event_size action-size
+	+event_paper_size action-size
 	+event_text action-text)
 
 *key_map* (scatter (Fmap)
