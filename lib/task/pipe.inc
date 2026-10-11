@@ -164,7 +164,7 @@
 		(setq streams (rest streams))
 		;wait for stdout and stderr streams to stop
 		;if it goes on too long, then abort !
-		(mail-timeout (last (push select (mail-mbox))) +pipe_abort_delay 0)
+		(mail-timeout (defq timer (last (push select (mail-mbox)))) +pipe_abort_delay 0)
 		(defq user_select_len (length (get :user_select this)) at (length streams))
 		;a stream that has stopped already has no more to say, and is not
 		;waited for. After (. pipe :eof) a stderr can stop, and be read as
@@ -180,6 +180,11 @@
 			(if (>= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
+		;the timer is put away. Left, it was kept by the kernel till its
+		;time came, 2 seconds, one for every pipe that had closed in them,
+		;and each new one was put in its place among those: a task that
+		;ran command after command grew slower as it went
+		(mail-timeout timer 0 0)
 		;did we break out due to the abort timer ?
 		(when (nempty? streams)
 			(lower :select :streams)

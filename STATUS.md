@@ -4,6 +4,33 @@
 
 ------
 
+A task that ran command after command grew slower as it went, found.
+
+Chris, of 62 (f): "track that down". Seen first measuring root.inc: each
+5,000 runs of a command in one task took 80 ms longer than the last.
+
+`(. pipe :close)` in `lib/task/pipe.inc` sets a timer of 2 seconds, to
+abort a pipe that does not stop, and did not put it away when the pipe
+had stopped. The kernel kept each till its time came, one for every pipe
+closed in those 2 seconds, and a new one is put in its place among them.
+It is put away now, as the timer of `(. pipe :read)` already was.
+
+5,000 runs of `echo hi` in one task, six times over, on the M4:
+
+	as it was   331 411 490 570 647 679 ms, memory 4.0 to 6.9 MB
+	now         291 285 290 286 288 287 ms, memory 3.1 MB, the same each
+
+178 bytes a run were kept, none now. And a run is a seventh quicker from
+the first.
+
+Run: every module on the x64 Mac and the Pi, 6,061 and 0 failed;
+`test_pipe`, `test_jobs`, `test_services` on the M4.
+
+No test holds it: what can be seen of it from Lisp is the memory of the
+whole node and the time, and both move with what else the node is doing.
+
+------
+
 The notes and link files a run of the tests left in /tmp, found.
 
 Chris, of 62 (g): "need to find why", then "go with the session note
