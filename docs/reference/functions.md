@@ -341,7 +341,8 @@ a shape with what swept covers taken out of it. swept is paths in
 the space of the document, full the matrix that puts the shape there,
 m the one that puts the space the shape is in there. :nil if it is
 not touched. What is to stand in its place, in the space it is in:
-nothing if all of it went
+nothing if all of it went, or all but a sliver, and the shape is then
+out of the document
 ```
 
 ### board-copy-items

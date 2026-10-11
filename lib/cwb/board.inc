@@ -96,7 +96,8 @@
 	;the space of the document, full the matrix that puts the shape there,
 	;m the one that puts the space the shape is in there. :nil if it is
 	;not touched. What is to stand in its place, in the space it is in:
-	;nothing if all of it went
+	;nothing if all of it went, or all but a sliver, and the shape is then
+	;out of the document
 	(bind '(fills strokes _) (cwb-flat item))
 	(defq mode (if (eql (elem-get item +cwb_rule) :evenodd) 0 1)
 		fills (cwb-mat-paths full fills) strokes (cwb-mat-paths full strokes))
@@ -106,7 +107,10 @@
 		(each (lambda (polys mode color)
 			(when (nempty? polys)
 				(defq left (poly-difference polys swept mode 1))
-				(when (nempty? left)
+				;what is left has to be something: a sliver of less than a
+				;square unit of the document is not seen, and would stay
+				;for ever as a shape that is not there
+				(when (and (nempty? left) (>= (poly-area left) 1.0))
 					(push out (cwb-shape (join (map (# (cwb-d-points %0 :t)) (cwb-mat-paths back left)) " ")
 						:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name))))))
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))

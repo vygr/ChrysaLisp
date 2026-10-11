@@ -78,6 +78,10 @@ first served, the first to start. The others are by themselves, and
 `mesh` in one of them says it has not joined. When the first is closed
 another takes its place, within ten seconds or so.
 
+```image
+docs/diagrams/mesh_sessions.cwb
+```
+
 A session started with `-a`, `./run_tui.sh -a`, alone, never does: it is
 for a script or a run of the tests, that is not to become the machine's
 member for the few seconds it is up.
@@ -136,7 +140,8 @@ each machine it hears that proves it has the key. `mesh -j` asks it to
 again, the two commands `link -l 3333 -a` and `link -a`, and `mesh -k` is
 `link -k`. The `link` command has more, a port of your choice, a link to
 one named machine and no more. `link -h` lists it, and
-[`docs/intro/intro.md`](intro.md) has the detail.
+[`docs/intro/intro.md`](intro.md) has the detail. How the service does all of it, with
+pictures, is [`docs/ai_digest/mesh_net.md`](../ai_digest/mesh_net.md).
 
 A subnet started as a system of its own, `nodes -s cube -o`, is not the
 machine's: it has none of its key and is off the network, whatever the

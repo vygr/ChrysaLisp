@@ -4,6 +4,44 @@
 
 ------
 
+Pictures of the mesh, and a shape rubbed all away is out of the document.
+
+Chris: "Be nice to have some great looking diagrams of the Mesh net and
+how the services, like net, sync etc do there jobs." And of the eraser:
+"Erase is now beuatiful !!!", then "One possible optimizastion to the
+erase. When all the polygon is gone, delete the shape from the
+document." "Still undoable !"
+
+Six pictures, each a script in `docs/diagrams/`, made again with the
+docs, and a page for them, `docs/ai_digest/mesh_net.md`, how the Net
+service does what the guide says happens:
+
+* `net_parts`, what the service is made of, and what each part says to
+another machine;
+* `mesh_states`, off the network, has a key, the member, and what
+moves a session between them;
+* `door_proof`, what the two ends of a connection say to prove the key;
+* `mesh_dial`, who dials whom, the hello, the back off, the forgetting;
+* `mesh_sessions`, the sessions of one machine and which is its member,
+in the guide `docs/intro/mesh.md` too;
+* `services_scope`, the `@` names of a machine and the `*` names of the
+mesh.
+
+The picture of three joined machines no longer says `mesh -j`. I looked
+at each of the six as a picture.
+
+The eraser: a shape all of which was covered was already taken out of
+the document. One with a sliver left was not, and stayed, a shape that
+could not be seen. What is left of a fill or of a line now has to be a
+square unit of the document or it is nothing, `(board-bite-shape)`. It
+is in the eraser's step, undo has the shape back as it was, tested.
+
+The cwb modules 561 on the M4. Every test on the x64 Mac and the Pi.
+
+Not seen: the pictures in Docs, by Chris.
+
+------
+
 The eraser bites lines too, and each instrument has a canvas of its own.
 
 Chris, of the eraser as I had just made it, lines cut and the rest

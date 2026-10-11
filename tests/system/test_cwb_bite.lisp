@@ -92,3 +92,18 @@
 
 ;the picture of it in the docs is made by this, so it is what a board does
 (assert-true "the docs have a picture of it" (nempty? (cwb-items (cwb-load (file-stream "docs/diagrams/wb_bite.cwb")))))
+
+;all but a sliver gone: the shape is out of the document, and undo has it back
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 120 120) :fill 0xff00ff00 :stroke 0))
+(. bt :add (cwb-shape (cwb-d-rect 200 100 220 120) :fill 0xff00ff00 :stroke 0))
+(. bt :snapshot)
+;an eraser that is a box, that leaves a strip of a tenth by twenty of the first
+(. bt :bite (path 110.0 110.0) 1.0 (path -10.0 -15.0 9.9 -15.0 9.9 15.0 -10.0 15.0))
+(assert-eq "a strip of 2 square units is left, a shape still" 2 (length (cwb-items bt_doc)))
+;and of the second a strip of a twenty fifth by twenty, less than one square unit
+(. bt :bite (path 210.0 110.0) 1.0 (path -10.0 -15.0 9.96 -15.0 9.96 15.0 -10.0 15.0))
+(assert-eq "a sliver of less than one is nothing, the shape has gone from the document" 1 (length (cwb-items bt_doc)))
+(. bt :undo)
+(assert-eq "and undo has both back, as they were" (str (list (cwb-d-rect 100 100 120 120) (cwb-d-rect 200 100 220 120)))
+	(str (map (# (elem-get %0 +cwb_d)) (cwb-items bt_doc))))
