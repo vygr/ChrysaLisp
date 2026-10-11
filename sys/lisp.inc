@@ -117,8 +117,13 @@
 	;leave the pids and the link names for the launch script that started
 	;this node's session, it stops what its nodes started, see funcs.sh
 	(unless (eql (os) 'Windows)
-		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session"))
-		(save (cat (if (/= (age file) 0) (load file) "")
+		;the first note this node leaves is a new file. One of that name
+		;that is there is some other process's of long ago, with the
+		;number this one has now, and names what is not this node's
+		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session")
+			noted (get '*node_noted*))
+		(def *root_env* '*node_noted* :t)
+		(save (cat (if (and noted (/= (age file) 0)) (load file) "")
 			(if net (cat "net " net (ascii-char 10)) "")
 			(join (map (lambda (pid)
 				(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")

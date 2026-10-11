@@ -4,6 +4,46 @@
 
 ------
 
+A session that ends could stop a process that was not its own.
+
+Found because the desktop I had started for Chris was gone, twice,
+with nobody having closed it that I know of. Not proved to be this,
+but this was there to find.
+
+A node that starts nodes leaves a note of them, a file named for its
+own process number, `/tmp/chrysalisp_<pid>.session`, and the launch
+script, when the session ends, stops every process the notes name,
+`kill -KILL`. A session that is killed leaves its notes. On the M4
+there were 1,390 of them, none of a process still running, 989 from
+yesterday alone. The machine gives process numbers round again, so a
+new node could have the number of an old note, add its own lines to
+it, and at the end have everything in it stopped: processes of another
+session, or of anything of the user's at all.
+
+Three things, each enough alone:
+
+* `funcs.sh`, `session_stop` stops a process only if it is `main_tui`
+or `main_gui`;
+* `funcs.sh`, each launch first takes away the notes of sessions whose
+process is not running, and the files of their links;
+* `sys/lisp.inc`, `(node-start)`: the first note a node leaves is a new
+file, not what was there added to.
+
+The 1,390 are gone from the M4, 477 from the Pi, none were on the x64
+Mac. Every test on the three machines: 5909 each.
+
+On the Pi a `rack` session of 09:31 was still up, 9 nodes, at the test
+of a subnet with a system id of its own: it was the run in which
+`(net-drop)` took shared memory links, mended since. Stopped by its
+process numbers. Last night's, stuck at the same test, was before
+there was a `(net-drop)`: not explained.
+
+Not known: where so many notes come from. A `rack` session clears its
+own, `lib/rack/session.lisp`. Not looked for. And Windows has its own
+script, `funcs.ps1`, not read for this.
+
+------
+
 Pictures of the mesh, and a shape rubbed all away is out of the document.
 
 Chris: "Be nice to have some great looking diagrams of the Mesh net and

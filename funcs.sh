@@ -107,13 +107,47 @@ function session_stop
 	session_scan
 	for pid in $scan_pids
 	do
-		kill -KILL $pid 2>/dev/null
+		#only a node of ChrysaLisp. A note left by a session that did not
+		#clear up can name a process number the machine has since given
+		#to something else
+		case "$(ps -p $pid -o comm= 2>/dev/null)" in
+			*main_tui*|*main_gui*) kill -KILL $pid 2>/dev/null ;;
+		esac
 	done
 	for val in $scan_links
 	do
 		rm -f "$TEMP/$val"
 	done
 	rm -f $scan_files
+}
+
+function session_sweep
+{
+	#the notes of sessions that have gone and did not clear up, one that
+	#was killed say: the process a note is named for is not running.
+	#Left, a note would be read as its own by a new node given that
+	#process number, and what it names stopped with that node's session
+	local file
+	local pid
+	local what
+	local val
+	for file in "$TEMP"/chrysalisp_*.session
+	do
+		[ -f "$file" ] || continue
+		pid=${file##*chrysalisp_}
+		pid=${pid%.session}
+		if ! kill -0 "$pid" 2>/dev/null
+		then
+			while read what val
+			do
+				if [ "$what" == "link" ] && [ -n "$val" ]
+				then
+					rm -f "$TEMP/$val"
+				fi
+			done < "$file"
+			rm -f "$file"
+		fi
+	done
 }
 
 function session_watch
@@ -283,4 +317,8 @@ function main
 	#where the links, and the files of a session, are kept
 	export TEMP=/tmp/
 	mkdir -p $TEMP
+	if [ "$help" == "" ]
+	then
+		session_sweep
+	fi
 }
