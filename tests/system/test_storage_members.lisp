@@ -113,6 +113,11 @@
 	(storage-put "rack/only" "written on the rack" :nil (sn-of "m-d"))
 	(sn-settle)
 	(assert-list-eq "what the one away wrote, it alone has: seen by 1 of 5" '(1 5) (storage-seen "plan" (sn-of "m-b")))
+	(assert-eq "a writer there that waits for most to have it is told they have not, and does not wait for ever" :nil
+		(storage-wait "plan" 0 :nil (sn-of "m-b")))
+	(assert-list-eq "one on the rack that waits is told they have, at once" '(4 5) (storage-wait "plan" 0 :nil (sn-of "m-a")))
+	(assert-list-eq "one that asks for only itself has that anywhere" '(1 5) (storage-wait "plan" 0 1 (sn-of "m-b")))
+	(assert-eq "and for all five, not while one is away" :nil (storage-wait "plan" 0 5 (sn-of "m-a")))
 	(assert-list-eq "what the rack wrote, the four have: 4 of 5" '(4 5) (storage-seen "plan" (sn-of "m-c")))
 	(assert-eq "the one away has not heard of what the rack wrote" :nil (storage-stat "rack/only" (sn-of "m-b")))
 	(assert-eq "nor the rack of what it wrote" :nil (storage-stat "user/me/notes" (sn-of "m-a")))
@@ -129,6 +134,7 @@
 	(assert-true "and what it wrote is kept under another name" sn_aside)
 	(assert-eq "as it last wrote it, on a member that was never away" "the laptop's plan, again" (storage-get sn_aside (sn-of "m-d")))
 	(assert-list-eq "all five have the path as it is now" '(5 5) (storage-seen "plan" (sn-of "m-b")))
+	(assert-list-eq "and a wait for all five is answered" '(5 5) (storage-wait "plan" 0 5 (sn-of "m-b")))
 	(assert-eq "the five are the same" 1
 		(length (reduce (# (if (find %1 %0) %0 (push %0 %1))) (map (# (. (storage-state %0) :find :digest)) sn_svcs) (list))))
 	(assert-eq "and it can have the big one again" sn_big (storage-get "big" (sn-of "m-b")))

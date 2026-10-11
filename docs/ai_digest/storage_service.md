@@ -483,7 +483,10 @@ copy its share.
 
 A write is taken by the one member and is done. The others have it when
 they next meet, and `(storage-seen path)` is how far it has got, `(4 5)`,
-seen by four of five.
+seen by four of five. `(storage-wait path [wait want])` waits till most of the
+members have it, or as many as are asked for, and is `:nil` if they have
+not in the time: a member cut off from most of the others has that every
+time, which is how a writer that must not have its write set aside knows.
 
 A block the member asked has not got is had from one that has: the service
 says who, `(storage-where)`, and it is the asker that goes there.
@@ -596,8 +599,8 @@ was made to send the gopher and stop the member by itself.
   `(storage-members "-id")`, and what it kept is then others' to keep.
 * How a block that nothing refers to is found, over machines, while a write
   is on its way: a sweep is only when asked.
-* A write is done when the one member has it. Waiting till its blocks are on
-  three is not there yet, only how many have its path.
+* `(storage-wait)` is for how many members have the path. That its blocks
+  are on three of them is not asked yet, they follow in a tender's own time.
 * Whether the store may show that two blocks are the same, and where the
   keys are kept, when there is encryption.
 * Cutting an object where its content says, not every 64KB.

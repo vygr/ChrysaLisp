@@ -301,6 +301,25 @@
 		(defq entry (store-entry-read answer)) (defq members (storage-members :nil svc))
 		(list (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen))) (length members))))
 
+(defun storage-wait (name &optional wait want svc)
+	; (storage-wait path [wait want svc]) -> :nil | (seen members)
+	;wait till most of the members have what a path is now, or as many as
+	;want, and not longer than wait, seconds, 10. :nil if they have not by
+	;then: a member that is cut off from most of the others has that
+	;every time, and that is how a writer knows.
+	;
+	;A write is taken by the one member whoever can be reached. One that
+	;most members have keeps its path when members that were apart meet,
+	;(store-keeps), so a writer that must not have its write set aside
+	;waits for this, and takes :nil as not written
+	(setd svc (storage-service) wait 10)
+	(defq t0 (pii-time) seen (storage-seen name svc))
+	(while (and seen (not (>= (first seen) (ifn want (inc (/ (second seen) 2)))))
+			(< (- (pii-time) t0) (task-timeout wait)))
+		(task-sleep 100000)
+		(setq seen (storage-seen name svc)))
+	(and seen (>= (first seen) (ifn want (inc (/ (second seen) 2)))) seen))
+
 (defun storage-settle (&optional svc wait)
 	; (storage-settle [svc wait]) -> :nil | (met fetched dropped)
 	;the member's tender is told to look now, and what it did is waited
