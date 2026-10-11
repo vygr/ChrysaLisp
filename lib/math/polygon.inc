@@ -51,7 +51,7 @@
 ;set, and that the edges are to be ordered by their middle and not tried
 ;for crossing
 (defq +poly_op_union 0 +poly_op_intersect 1 +poly_op_difference 2 +poly_op_xor 3
-	+poly_mode_a 4 +poly_mode_b 8 +poly_by_middle 16)
+	+poly_mode_a 4 +poly_mode_b 8 +poly_by_middle 16 +poly_goes_on 32)
 
 (defun poly-raw (paths)
 	; (poly-raw paths) -> ((x y ...) ...)
@@ -261,8 +261,8 @@
 (ffi (path-to-absolute "./poly_lines") poly-lines)
 ; (poly-lines out y0 y1 above below segs openl openr) -> below
 
-(defun poly-rings (segs)
-	; (poly-rings segs) -> ((x y ...) ...)
+(defun poly-rings-ref (segs)
+	; (poly-rings-ref segs) -> ((x y ...) ...)
 	;the lines, 5 numbers each, joined end to start into rings. Lines that
 	;follow one another with the one number are one line
 	(defq n (/ (length segs) 5) from (Fmap (max 31 n)) used (cap n (list)) out (list) s 0)
@@ -303,27 +303,14 @@
 		(setq s (inc s)))
 	out)
 
-(defun poly-op (op a b &optional mode_a mode_b)
-	; (poly-op op a b [mode_a mode_b]) -> paths
-	;op is :union, :intersect, :difference, a and not b, or :xor.
-	;a and b are lists of paths, either may be empty. A mode is the
-	;winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
-	;the default, or 1 non zero
-	(setd mode_a 0 mode_b 0)
-	(defq ys (list) found (list) segs (nums) above (nums) below (nums) out (nums) edges (nums)
-		openl (nums) openr (nums) cuts (nums)
-		mode (+ (case op (:union +poly_op_union) (:intersect +poly_op_intersect)
-				(:difference +poly_op_difference) (:t +poly_op_xor))
-			(if (= mode_a 0) 0 +poly_mode_a) (if (= mode_b 0) 0 +poly_mode_b)))
-	(poly-edges (poly-raw a) 0 found ys)
-	(poly-edges (poly-raw b) 1 found ys)
-	(setq ys (usort ys (const -)))
-	;the edges, the highest first, each with its place for a number
-	(each (lambda ((yt yb xt xb wind set))
-			(push edges yt yb xt xb wind set (!) 0 0 0)
-			(push openl -1) (push openr -1))
-		(sort found (# (- (first %0) (first %1)))))
-	(defq next 0 n (length found) active (nums) yi 0 swap :nil)
+(ffi (path-to-absolute "./poly_rings") poly-rings)
+; (poly-rings segs) -> paths
+
+(defun poly-scan-ref (edges ys openl openr mode segs)
+	; (poly-scan-ref edges ys openl openr mode segs) -> segs
+	;every band, from the top to the bottom, its lines put on segs
+	(defq above (nums) below (nums) out (nums) cuts (nums))
+	(defq next 0 n (length openl) active (nums) yi 0 swap :nil)
 	(while (< yi (dec (length ys)))
 		(defq ya (elem-get ys yi) yb (elem-get ys (inc yi)))
 		;those that begin here come, those that end here (poly-band) takes out
@@ -350,7 +337,38 @@
 	(when (nempty? ys)
 		(clear out)
 		(poly-lines out (last ys) (last ys) above below segs openl openr))
-	(poly-fixed (poly-rings segs)))
+	segs)
+
+(ffi (path-to-absolute "./poly_scan") poly-scan)
+; (poly-scan edges ys openl openr mode segs) -> segs
+
+(ffi (path-to-absolute "./poly_setup") poly-setup)
+; (poly-setup a b edges ys openl openr) -> edges
+
+(defun poly-segs (op a b &optional mode_a mode_b)
+	; (poly-segs op a b [mode_a mode_b]) -> segs
+	;the lines of what (poly-op) gives, 5 numbers each, not yet joined
+	;into rings: where one starts and ends, and the edge it is of
+	;op is :union, :intersect, :difference, a and not b, or :xor.
+	;a and b are lists of paths, either may be empty. A mode is the
+	;winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
+	;the default, or 1 non zero
+	(setd mode_a 0 mode_b 0)
+	(defq ys (nums) edges (nums) openl (nums) openr (nums)
+		mode (+ (case op (:union +poly_op_union) (:intersect +poly_op_intersect)
+				(:difference +poly_op_difference) (:t +poly_op_xor))
+			(if (= mode_a 0) 0 +poly_mode_a) (if (= mode_b 0) 0 +poly_mode_b)))
+	;the edges, the highest first, each with its place for a number
+	(poly-setup a b edges ys openl openr)
+	(poly-scan edges ys openl openr mode (nums)))
+
+(defun poly-op (op a b &optional mode_a mode_b)
+	; (poly-op op a b [mode_a mode_b]) -> paths
+	;op is :union, :intersect, :difference, a and not b, or :xor.
+	;a and b are lists of paths, either may be empty. A mode is the
+	;winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
+	;the default, or 1 non zero
+	(poly-rings (poly-segs op a b mode_a mode_b)))
 
 (defun poly-union (a b &optional mode_a mode_b) (poly-op :union a b mode_a mode_b))
 (defun poly-intersect (a b &optional mode_a mode_b) (poly-op :intersect a b mode_a mode_b))

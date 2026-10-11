@@ -161,8 +161,8 @@ is, every part of it crosses every other.
 
 ## The native code
 
-The work of a band is three functions in `lib/math/lisp.vp`, 2,856 bytes
-of ARM64 in the boot image:
+All of a set operation is six functions in `lib/math/lisp.vp`, 7,672
+bytes of ARM64 in a boot image of 254,268. The work of a band is three:
 
 * `(poly-band edges active y0 y1 mode out)`, the pieces of the answer in a
   band: it drops the edges that have ended, works out where each of the
@@ -176,10 +176,29 @@ of ARM64 in the boot image:
   pieces: down the left of each, up its right, and across where the band
   above differs.
 
+And round them, three more, the whole of what was left in Lisp:
+
+* `(poly-setup a b edges ys openl openr)`, the edges of both sets from
+  their paths, in order of where they start, and every y a point is at,
+  in order, each once. A path's numbers are held as the whole numbers the
+  bands work in, so nothing is changed on the way. The order is by a
+  merge sort that is in the function, of records of any size, which keeps
+  those that are the same in the order they came.
+
+* `(poly-scan edges ys openl openr mode segs)`, every band from the top to
+  the bottom. It makes the lists of arguments of the three above once,
+  with a number in each for the two ys, and for each band puts the ys in
+  those numbers and calls them. It tells `(poly-band)`, with
+  `+poly_goes_on` in the mode, when the band before ended where this one
+  begins: then where an edge is at the top of this band is where it was
+  at the bottom of that, and is not divided for again.
+
+* `(poly-rings segs)`, the lines joined end to start into rings, each a
+  path. A line is found by where it starts in a table of buckets.
+
 The edges are one array of whole numbers, ten to an edge, and so is all
-that passes between Lisp and these, so nothing is made and thrown away for
-each band. What is left in Lisp runs once for each y a point is at, and
-then joins the lines into rings.
+that passes between these, so nothing is made and thrown away for each
+band. All that is in Lisp now is `(poly-op)`, three calls.
 
 Each has the Lisp it was written from beside it in `polygon.inc`, with
 `-ref` on its name. That is not used. It is there to say what the native
@@ -209,13 +228,32 @@ How it got fast, in the order it was done:
 5. `(poly-cuts)` native, which only a band that edges cross in needs: the
    scribble of 200 from 10 seconds to 61ms.
 
+6. The rest, 2026-10-11. Chris, of the eraser: "that action is the most
+   common repoerted 'bug' from users. They don't know what it takes to do
+   polygon subtraction math !!!" A long line drawn by hand, 8,700 points
+   of outline, less one sweep of the eraser, was 38.5ms, and the time was
+   not where it had been thought to be. The bands were 10ms of it. Making
+   the edges and putting them in order, with a Lisp function for the
+   sort, was 15.6ms, and joining the lines into rings, a map of where
+   each starts, was 14ms. `(poly-rings)` native: 14ms to 0.2ms.
+   `(poly-setup)`: 15.6ms to 0.7ms. `(poly-scan)`, and one division for
+   an edge in a band where there were two: 10ms to 4.9ms. The whole
+   38.5ms to 5.7ms, and on a 2019 x64 MacBook 79ms to 16ms. It cost 4,240
+   bytes of boot image, 1.7%.
+
+   What is left is the bands by the edges in each, in `(poly-band)` and
+   `(poly-lines)`. Less than that is another way of doing it, one that
+   only looks at an edge where something happens to it.
+
 ## Tests
 
 `tests/system/test_polygon.lisp`: the squares above, shared sides, a
 shape with itself, a hole and what fills it, the two winding rules on a
 star, 40 pairs of random polygons each tried at 40 points with all four
 ops and their areas summed, a line with a bite out of it, the hull and
-the sweep, and the native code held to its Lisp.
+the sweep, and the native code held to its Lisp: the bands, and for 300
+pairs of random shapes each the lines of every band and the rings they
+join into.
 
 ## Do two shapes touch: GJK
 

@@ -4,6 +4,43 @@
 
 ------
 
+All of a set operation of polygons is native, and min puts the document
+back in the middle. Chris, of the eraser after it: "great perforemance
+!" Min is not committed with this, he has not said he has seen it.
+
+Chris: "lets look at 64, the eraser band loop in VP. lets see how much
+boot image space that will take. But that action is the most common
+repoerted 'bug' from users. They don't know what it takes to do polygon
+subtraction math !!!"
+
+It was measured first, one difference of 8,700 points, 38.5ms on the M4:
+the band loop was 10ms of it, making and sorting the edges 15.6ms, and
+joining the lines into rings 14ms. So three functions were added to
+`lib/math/lisp.vp`, not one: `(poly-setup)`, `(poly-scan)` and
+`(poly-rings)`, and `(poly-band)` no longer divides twice for an edge in
+a band that goes on from the one before. `(poly-op)` is three calls. The
+Lisp of the loop and of the rings is kept as `(poly-scan-ref)` and
+`(poly-rings-ref)`, and the tests hold the native to them on 300 pairs
+of random shapes each.
+
+38.5ms to 5.7ms on the M4, 79ms to 16ms on the x64 MacBook. The boot
+image is 254,268 bytes of ARM64 from 250,028, 4,240 more, 1.7%: rings
+1,264, setup 1,424, scan 2,096, and 32 more in the band. I had said 2 to
+2.5KB. What is left is the bands by the edges in each, inside the native
+code, and less than that is another algorithm.
+
+And: "I think min size should recenter the canvas in the viewport ? nice
+usability thing to do." `(view-home)`, the middle of the document in the
+middle of the paper at the zoom there is, done by min, not while anybody
+is drawing.
+
+Run: make all boot, lint clean, includes clean, forward clean but for
+the traps file, on the x64 Mac; polygon 54, cwb 583, whiteboard 113 on
+the M4, the x64 Mac and the Pi. Not seen: the eraser in the hand on a
+long line, and min, both by Chris; no test of `(view-home)`.
+
+------
+
 The board turns a quarter.
 
 Chris: "go ahead with the quarter turn gesture, I'll make a cup of tea
