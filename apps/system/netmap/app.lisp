@@ -196,20 +196,23 @@
 (defun draw-frame ()
 	;a frame, by the GPU of the GUI if it has one that can, else here
 	(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size +scale)))
-	;the pair of shaders the bars are drawn with, and the pair the balls
-	;are, on the GPU, the first time
+	;the pair of shaders a thing with none of its own is drawn with, the
+	;pair the balls are, and the pair the bars are, on the GPU, the first time
 	(when (and (not gpu_pair) (not gpu_failed))
 		(unless (and (setq gpu_pair (shader-gui-pair (shader-load +scene_vertex_file)
 					(shader-load +scene_pixel_file) :t))
 				(setq gpu_shiny (shader-gui-pair (shader-load (first +scene_shiny_files))
-					(shader-load (second +scene_shiny_files)) :t)))
+					(shader-load (second +scene_shiny_files)) :t))
+				(setq gpu_matte (shader-gui-pair (shader-load (first +scene_matte_files))
+					(shader-load (second +scene_matte_files)) :t)))
 			(setq gpu_pair :nil gpu_failed :t)))
 	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
 		(map (lambda ((id vblock pblock &optional y y1 files))
 			(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
 			(unless (elem-get gpu_meshes id)
 				(elem-set gpu_meshes id (shader-gui-mesh (. scene :mesh id))))
-			(list (if files gpu_shiny gpu_pair) (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
+			(list (cond ((not files) gpu_pair) ((eql (second files) (second +scene_matte_files)) gpu_matte) (:t gpu_shiny))
+				(ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
 	(cond
 		((eql drawn :error) (setq gpu_pair :nil gpu_failed :t))
 		(drawn (setq gpu_drawn :t))
@@ -229,14 +232,16 @@
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
 		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
 		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0
-		gpu_pair :nil gpu_shiny :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
+		gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_drawn :nil gpu_failed :nil gpu_meshes (list)
 		ball_mesh (Mesh-sphere +real_1 16) bar_mesh (Mesh-cylinder +real_1 +real_1 8)
 		ball_proto (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0))
 		bar_proto (Scene-object bar_mesh (fixeds 1.0 1.0 1.0 1.0))
 		scene (Scene "root") world (Scene-node "world"))
 	;the two meshes are made ready once, and every ball and bar shares them.
-	;A ball is lit smooth, and shines
+	;A ball is lit smooth, and shines. A bar does not: a highlight is white
+	;whatever is under it, and a bar's color is how hot the link is
 	(def ball_proto :smooth :t :shaders +scene_shiny_files)
+	(def bar_proto :shaders +scene_matte_files)
 	(.-> world (:add_node ball_proto) (:add_node bar_proto))
 	(.-> scene (:add_node world)
 		(:set_translation +real_0 +real_0 (const (- +real_0 +focal_dist +real_2))))
@@ -302,4 +307,5 @@
 	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
 	(if gpu_shiny (canvas-shader-destroy gpu_shiny))
+	(if gpu_matte (canvas-shader-destroy gpu_matte))
 	(gui-sub-rpc *window*))

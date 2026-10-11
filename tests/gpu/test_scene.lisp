@@ -50,3 +50,17 @@
 (assert-true "that is small, a spot and not the ball"
 	(< (second (sc-lit sc_shiny)) (/ (first (sc-lit sc_shiny)) 8)))
 (assert-eq "the same scene drawn again is the same to the bit" sc_shiny (second (sc-frame :t sc_files)))
+
+;one that is not to shine: its color is what it says, a link of the
+;Network Map, whose color is how hot it is
+(bind '(sc_draws sc_matte) (sc-frame :t +scene_matte_files))
+(assert-eq "an object that is not to shine has its files on the end" +scene_matte_files (last (first sc_draws)))
+(assert-eq "it covers the same pixels" (first (sc-lit sc_flat)) (first (sc-lit sc_matte)))
+(assert-eq "and none of it is white, there is no highlight" 0 (second (sc-lit sc_matte)))
+(defun sc-red? (pixels)
+	;no pixel has more green or blue than a fifth of its red
+	(every (lambda (i) (defq p (get-uint pixels i) r (logand (>> p 16) 0xff))
+		(and (<= (* 5 (logand (>> p 8) 0xff)) (+ r 5)) (<= (* 5 (logand p 0xff)) (+ r 5))))
+		(range 0 (length pixels) 4)))
+(assert-true "a red ball that does not shine is red all over" (sc-red? sc_matte))
+(assert-true "with the scene's own shaders it is not, where it is turned to the light it is washed out" (not (sc-red? sc_smooth)))

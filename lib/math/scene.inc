@@ -6,10 +6,12 @@
 (import "././gpu/vp.inc")
 
 ;the two shaders the faces of a scene are drawn with. And the two for a
-;scene, or an object, that is to shine, a highlight as Phong has it
+;scene, or an object, that is to shine, a highlight as Phong has it, and
+;the two for one that is not to at all, its color is what it says
 (defq +scene_vertex_file "lib/gpu/shaders/mesh_vertex.shader"
 	+scene_pixel_file "lib/gpu/shaders/mesh_lit.shader"
-	+scene_shiny_files ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader"))
+	+scene_shiny_files ''("lib/gpu/shaders/shiny_vertex.shader" "lib/gpu/shaders/shiny_lit.shader")
+	+scene_matte_files ''("lib/gpu/shaders/mesh_vertex.shader" "lib/gpu/shaders/mesh_matte.shader"))
 
 ;module
 (env-push)

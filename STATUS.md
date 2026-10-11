@@ -4,6 +4,34 @@
 
 ------
 
+Network Map: a link does not shine, its color is how hot it is.
+
+Chris, with the map up: "the link specular is interfearing with seeing
+the heat colour of the link !" The links were drawn with the scene's own
+shaders, `mesh_lit.shader`, which add a highlight where a face is turned
+to the light, and a highlight is white whatever is under it.
+
+`lib/gpu/shaders/mesh_matte.shader`, new: the color of the object and
+nothing but, less of it turned from the light and further off.
+`+scene_matte_files` in `lib/math/scene.inc`, and the map's bars have
+them, a third pair on the GPU. The balls shine as they did, and nothing
+else is drawn with it.
+
+Chris: "matte works better, looks ok."
+
+He also asked why the two nodes of the M4, which have no link between
+them, sit close. No link: the map's own springs on those four nodes and
+five links come to rest with the two 0.27 apart and each linked pair
+about 0.5, both are held to the same two others, all are drawn to the
+middle, and the push between two that are not linked is small. He: "not
+quite a tetrahedron, but not flat." Not changed.
+
+Run: tests gpu 463 on the M4, the x64 Mac and the Pi, a red ball with
+the new shaders red in every pixel and with the scene's own not. On a
+GPU it was seen by him on the M4 only.
+
+------
+
 A machine with two addresses linked to itself, and the Network Map fell
 over at it.
 
