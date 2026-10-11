@@ -4,6 +4,44 @@
 
 ------
 
+What is in the boot image is a choice, written down with its numbers.
+
+Chris, asked of `poly-hit`: "Do we need this in the boot image though ?"
+Then: "The entire boot image can be dynamic bound... it's just that we
+don't do that normally." "how much do we want to be in the boot image ?
+It's personal choice, the favctor that drives me is the distribution ease
+and what needs to go into snapshot.zip for the install proceedure to work
+with no errors ?" "30KB isn't much to bother is it ?" And: "I am
+emotionaly attached to the boot image size, for no reason other than
+numbers. If we create a document that explains that the system has these
+capernilities and quotes these dynamic bounds size in the
+evindence_not_faith docs then I will try hard to get over my emotioanl
+attachment to putting code in the boot image, and then you can put
+everything but apps/ VP into the boot image."
+
+`docs/ai_digest/evidence_not_faith.md` has a section for it, and today's
+image sizes. All of it measured on the Pi 4 in scratch trees, nothing of
+the repo or of `snapshot.zip` changed: the least image for each of the six
+targets, 27,132 to 40,828 bytes against 178,004 to 298,036; the whole test
+suite on the least arm64 image, 6,006 passed; sessions on it a few
+milliseconds quicker than on the full one; and what an install uses, 527
+of 944 functions, found by asking the host which files an install from the
+least image opened, an image of those 112,436 bytes, and a clean install
+from that alone.
+
+The images stay as they are, every function outside `apps/`.
+
+I said for a while that a commit of today had broken `make install`. None
+had. My copy of the tree was made with `rsync --exclude obj`, which leaves
+out `class/obj/` too, and a tree without it hangs at boot and says
+nothing. A clean checkout of each of today's commits installs.
+
+Not measured, and the document says so: many nodes at once, a desktop,
+any machine but the Pi 4, how near the loader's reloc buffer came to full.
+The 4 KB Chris says it could come to is his, not built.
+
+------
+
 Do two sets of polygons touch, of any shape, native.
 
 Chris: "\"A general poly-hit?\" that would be a good thing, I can see a 2D

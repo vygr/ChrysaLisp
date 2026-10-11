@@ -190,19 +190,25 @@ smaller system, and had not been measured again till now.
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
 minimal `boot_image` binaries across all supported architectures:
 
-* `obj/vp64/VP64/sys/boot_image`: **160,764 bytes**
+* `obj/vp64/VP64/sys/boot_image`: **178,004 bytes**
 
-* `obj/x86_64/AMD64/sys/boot_image`: **218,524 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **242,380 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **219,076 bytes**
+* `obj/x86_64/WIN64/sys/boot_image`: **242,956 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **233,164 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **255,868 bytes**
 
-* `obj/riscv64/RISCV64/sys/boot_image`: **270,540 bytes**
+* `obj/riscv64/RISCV64/sys/boot_image`: **298,036 bytes**
 
-* `obj/la64/LA64/sys/boot_image`: **270,108 bytes**
+* `obj/la64/LA64/sys/boot_image`: **297,156 bytes**
 
-These are the sizes on 2026-10-06, about 5% up on those of 2026-10-03.
+These are the sizes on 2026-10-11, about 10% up on those of 2026-10-06,
+which were 160,764, 218,524, 219,076, 233,164, 270,540 and 270,108. The
+network, the whiteboard's set logic of polygons and the crypto of the mesh
+went in between. Each holds every function of the system that is not an
+application's own, 944 of them. Everything is packed into the image purely
+for convenience. None of it has to be there, and the next section is what
+the image comes to when it is not.
 
 The three link register targets include call fusion, see `lib/trans/vp.inc`.
 It was measured when it went in, on 2026-10-03. The images were then 221,900,
@@ -213,10 +219,105 @@ nodes went from a mean of 0.0714 to 0.0723 seconds over 8 interleaved runs
 each, and the bootstrap install from 1.79 to 1.82 seconds, as they were that
 day. Both differences are inside the run to run noise.
 
-Because these complete system images are from 160 to 270 KB, they fit entirely
+Because these complete system images are from 178 to 298 KB, they fit entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
 stalls on main memory access during core execution, resulting in near-zero memory
 bus latency.
+
+## The Image Is A Choice: Any Function Can Be Bound When It Is First Needed
+
+The boot image is not a linked program. It is a list of functions laid end
+to end, each with the paths of the functions it calls, `sys/mem/alloc`,
+`class/str/create`, and the loader, `sys/load/`, turns those paths into
+addresses. A function that is in the image is found there. One that is not
+is read from its own file, `obj/<cpu>/<abi>/<path>`, into the same blocks
+of memory, the first time anything asks for it, and what it calls is bound
+the same way in turn. The system has always been able to do this. It is how
+the functions of an application under `apps/` arrive, they are never in the
+image.
+
+So what is in the image is what was chosen to be bound ahead of time, and
+nothing more than that. **The images pack in everything outside `apps/`
+purely for convenience:** one file to ship, one file to boot from, and no
+list to keep of what an install will ask for. It is not a need of the
+system, and it is not for speed. The loader's `init` does not even hold the kernel:
+it binds `sys/kernel/kernel` by its name, as it would any function, once it
+has its statics and its buffer for relocating paths.
+
+**How small it can be.** `(boot-image)` given no list of functions makes an
+image of the three the loader starts from, `sys/load/init`,
+`sys/statics/statics` and `sys/kernel/kernel`, and what they call. Built on
+2026-10-11, beside the full image of the same tree:
+
+| Target | Every function | The least |
+|---|---|---|
+| VP64 | 178,004 | 27,132 |
+| x86_64 AMD64 | 242,380 | 31,972 |
+| x86_64 WIN64 | 242,956 | 32,084 |
+| arm64 ARM64 | 255,868 | 35,036 |
+| riscv64 RISCV64 | 298,036 | 40,828 |
+| la64 LA64 | 297,156 | 40,764 |
+
+About a seventh. Its author puts the floor lower still, about 4 KB, if a few
+more of what `init` reaches were bound by name as the kernel is. That has
+not been built or measured.
+
+**It runs.** On a Raspberry Pi 4, arm64, with the least image in place of
+the full one and the function files in `obj/` beside it:
+
+* **The whole test suite passes:** 135 modules, 6,006 tests, none failed, on
+  four nodes. Everything they use was bound as it was asked for.
+
+* **It is no slower.** A one node session started, given a command and
+  ended, timed from outside. The first run after an image is changed is
+  left out, it is slow with either image, 340 ms and 2.6 seconds, a cache
+  being filled:
+
+| Command | Full image | The least image |
+|---|---|---|
+| `echo up`, five runs | 132 to 133 ms | 121 to 122 ms |
+| `tests -m polygon`, three runs | 172 to 173 ms | 160 to 163 ms |
+| `make`, nothing to do, four runs | 373 to 377 ms | 354 to 357 ms |
+
+  The files are in the host's own cache after the first read, and a smaller
+  image is less to map. The session that ran `tests -m polygon` on the least
+  image made 1,428 calls to open a file, the host's count, the shell that
+  starts it among them.
+
+**What an install needs.** `snapshot.zip` holds the VP64 image and no
+function files, so an install has nothing to bind from: its image has to
+hold every function the install uses. Which those are was measured, not
+reasoned out. An emulated install was run from the least VP64 image with
+the VP64 function files beside it, and the host was asked which files it
+opened: 527 of the 944. An image of those 527 alone is **112,436 bytes**,
+and a clean tree with that image and nothing else under `obj/` installs:
+complete in 37 seconds on the Pi 4, one emulated node, the native image it
+builds the same 255,868 bytes.
+
+| The VP64 image of the snapshot | Functions | Bytes | Zipped |
+|---|---|---|---|
+| Every function, as it is shipped | 944 | 178,004 | 76,485 |
+| What an install uses | 527 | 112,436 | 46,459 |
+
+What an install never touches is nearly all of the GUI, the services, and
+the set logic of polygons. What it does touch that might not be guessed is
+`random-bytes` and SHA-256, for the key a machine is given the day it is
+installed.
+
+**Why the full image is what is shipped: convenience.** The saving is 30 KB
+of download.
+Against it, the list of 527 is true of one tree on one day, and an image
+that is one function short of it fails on a clean machine, which is the
+worst place there is to fail. An image with everything in it can not be
+short. So the images hold every function outside `apps/`, by choice, and
+the numbers above are what that choice costs: about 220 KB of memory a
+node, and nothing that was measured in time.
+
+**What was not measured.** Many nodes starting at once, each binding the
+same files; a desktop, which binds far more at its start than a terminal
+session; a machine other than the Pi 4; and how near the deepest chain of
+functions binding one another came to the end of the loader's buffer for
+relocating paths, which is two pages and is used as a stack.
 
 ## The VP64 Target: A Blueprint for Silicon
 
