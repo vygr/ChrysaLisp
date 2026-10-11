@@ -4,6 +4,40 @@
 
 ------
 
+Do two sets of polygons touch, of any shape, native.
+
+Chris: "\"A general poly-hit?\" that would be a good thing, I can see a 2D
+pysics engine fore the game hooking into that."
+
+`(poly-hit? a b [mode_a mode_b])` in `lib/math/polygon.inc`: lists of
+paths with dents and holes, each by its winding rule, `:t` if any point
+is of both, a corner on a corner too. Exact, in the whole numbers a path
+is held as.
+
+I wrote it in Lisp first, boxes, then hulls and GJK, then edges, then a
+point of each path in the other. It was 67us for two shapes of 12 sides,
+and the native set logic says all of what they share in 3us. So it is
+native, `poly_hit` in `lib/math/lisp.vp`, with no hull: the box that is
+in both boxes, the edges that have a part in it, and the winding of one
+point. 108ns to 801ns for what was tried, two stars of 200 points the
+last. 1,688 bytes, the boot image 255,868 from 254,268. The Lisp is
+`(poly-hit-ref?)`.
+
+`(vector-point-in-polygon)` asked for `+winding_odd_even`, a constant of
+the canvas that `lib/math/vector.inc` does not import, and so failed in
+a task with no GUI. It asks for 0.
+
+Not in it: where they touch, how deep, which way apart. That is what a
+thing that bounces wants next, and is not started.
+
+Run: make all boot, lint clean, includes and imports clean, forward
+clean but for the traps file, polygon 70, cwb 583, whiteboard 113 on the
+M4, the x64 Mac and the Pi. The tests: 14 by hand, a C, a ring, a star by
+both rules, and 400 pairs of random shapes held to the set logic and to
+the Lisp.
+
+------
+
 The canvas and its loaders need no order, and Syntax is in the root
 environment. Chris, his own desktop started on it: "desktop is up,
 commit it".

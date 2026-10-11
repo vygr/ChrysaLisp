@@ -3999,10 +3999,50 @@ the edges of a set, each (ytop ybot xtop xbot wind set), those that
 lie flat left out, and every y a point is at
 ```
 
+### poly-edges-in
+
+```code
+(poly-edges-in raw x0 y0 x1 y1) -> nums
+
+the edges of raw paths that have any part in a box, or on it, 4
+numbers each, where one starts and where it ends
+```
+
 ### poly-fixed
 
 ```code
 (poly-fixed ((x y ...) ...)) -> paths
+```
+
+### poly-hit-ref?
+
+```code
+(poly-hit-ref? a b [mode_a mode_b]) -> :t | :nil
+
+do two sets of polygons touch: have they any point that is of both,
+an edge or a corner that only meets the other counts. a and b are
+lists of paths, of any shape, with holes, as (poly-op) takes them,
+and a mode is the winding rule a set is filled by, as there.
+
+It is told the cheap way first. Their boxes are apart, or their
+hulls are, (poly-convex-hit?), and they do not. Then an edge of the
+one meets an edge of the other, and only the edges that are in the
+box both boxes share are looked at, in whole numbers, so it is exact.
+If none do, no line of either is on a line of the other, and each
+path is all in the other set or all out of it: one point of it says.
+
+This is the reference, in Lisp, and is not what is used: the native
+(poly-hit?) below tells the same, and a test holds the two together
+```
+
+### poly-hit?
+
+```code
+(poly-hit? a b [mode_a mode_b]) -> :t | :nil
+
+do two sets of polygons touch, as (poly-hit-ref?) above tells it, in
+native code. Not a hull is made for it: an edge of the one that has
+no part in the box of the other is passed over, and that is enough
 ```
 
 ### poly-hull

@@ -512,6 +512,94 @@
 									(:t (setq turns 32))))))))))
 	hit)
 
+(defun poly-edges-in (raw x0 y0 x1 y1)
+	; (poly-edges-in raw x0 y0 x1 y1) -> nums
+	;the edges of raw paths that have any part in a box, or on it, 4
+	;numbers each, where one starts and where it ends
+	(defq out (nums))
+	(each (lambda (p)
+		(defq n (length p) ax (elem-get p (- n 2)) ay (elem-get p (- n 1)) i 0)
+		(while (< i n)
+			(defq bx (elem-get p i) by (elem-get p (inc i)))
+			(unless (or (< (max ax bx) x0) (> (min ax bx) x1) (< (max ay by) y0) (> (min ay by) y1))
+				(push out ax ay bx by))
+			(setq ax bx ay by i (+ i 2))))
+		raw)
+	out)
+
+(defun poly-hit-ref? (a b &optional mode_a mode_b)
+	; (poly-hit-ref? a b [mode_a mode_b]) -> :t | :nil
+	;do two sets of polygons touch: have they any point that is of both,
+	;an edge or a corner that only meets the other counts. a and b are
+	;lists of paths, of any shape, with holes, as (poly-op) takes them,
+	;and a mode is the winding rule a set is filled by, as there.
+	;
+	;It is told the cheap way first. Their boxes are apart, or their
+	;hulls are, (poly-convex-hit?), and they do not. Then an edge of the
+	;one meets an edge of the other, and only the edges that are in the
+	;box both boxes share are looked at, in whole numbers, so it is exact.
+	;If none do, no line of either is on a line of the other, and each
+	;path is all in the other set or all out of it: one point of it says.
+	;
+	;This is the reference, in Lisp, and is not what is used: the native
+	;(poly-hit?) below tells the same, and a test holds the two together
+	(setd mode_a 0 mode_b 0)
+	(defq a (filter (# (>= (length %0) 6)) a) b (filter (# (>= (length %0) 6)) b) hit :nil)
+	(when (and (nempty? a) (nempty? b))
+		(defq ra (poly-raw a) rb (poly-raw b)
+			box (lambda (raw)
+				(defq x0 (first (first raw)) y0 (second (first raw)) x1 x0 y1 y0)
+				(each (lambda (p)
+					(defq i 0 n (length p))
+					(while (< i n)
+						(defq x (elem-get p i) y (elem-get p (inc i)))
+						(setq x0 (min x0 x) x1 (max x1 x) y0 (min y0 y) y1 (max y1 y) i (+ i 2))))
+					raw)
+				(list x0 y0 x1 y1)))
+		(bind '(ax0 ay0 ax1 ay1) (box ra))
+		(bind '(bx0 by0 bx1 by1) (box rb))
+		;the box that is in both
+		(defq x0 (max ax0 bx0) y0 (max ay0 by0) x1 (min ax1 bx1) y1 (min ay1 by1))
+		(when (and (<= x0 x1) (<= y0 y1)
+				(or (< (length (defq ha (poly-hull a))) 6) (< (length (defq hb (poly-hull b))) 6)
+					(poly-convex-hit? ha hb)))
+			(defq ea (poly-edges-in ra x0 y0 x1 y1) eb (poly-edges-in rb x0 y0 x1 y1)
+				na (length ea) nb (length eb) i 0)
+			(while (and (not hit) (< i na))
+				(defq px (elem-get ea i) py (elem-get ea (+ i 1)) qx (elem-get ea (+ i 2)) qy (elem-get ea (+ i 3))
+					lx (min px qx) hx (max px qx) ly (min py qy) hy (max py qy)
+					dx (- qx px) dy (- qy py) j 0)
+				(while (and (not hit) (< j nb))
+					(defq rx (elem-get eb j) ry (elem-get eb (+ j 1)) sx (elem-get eb (+ j 2)) sy (elem-get eb (+ j 3)))
+					(unless (or (< (max rx sx) lx) (> (min rx sx) hx) (< (max ry sy) ly) (> (min ry sy) hy))
+						;which side of each line the ends of the other are. The
+						;boxes of the two meet, so two ends that are on a line,
+						;or either side of it, both ways, is the two meeting
+						(defq d1 (- (* dx (- ry py)) (* dy (- rx px))) d2 (- (* dx (- sy py)) (* dy (- sx px)))
+							ex (- sx rx) ey (- sy ry)
+							d3 (- (* ex (- py ry)) (* ey (- px rx))) d4 (- (* ex (- qy ry)) (* ey (- qx rx))))
+						(if (and (or (<= d1 0 d2) (<= d2 0 d1)) (or (<= d3 0 d4) (<= d4 0 d3)))
+							(setq hit :t)))
+					(setq j (+ j 4)))
+				(setq i (+ i 4)))
+			;no edge meets an edge. Is a path of the one in the other
+			(unless hit
+				(setq hit (or
+					(some (# (vector-point-in-polygon (slice %0 0 2) b mode_b)) a)
+					(some (# (vector-point-in-polygon (slice %0 0 2) a mode_a)) b)))
+				(if hit (setq hit :t)))))
+	hit)
+
+(ffi (path-to-absolute "./poly_hit") poly-hit)
+; (poly-hit a b mode_a mode_b) -> :t | :nil
+
+(defun poly-hit? (a b &optional mode_a mode_b)
+	; (poly-hit? a b [mode_a mode_b]) -> :t | :nil
+	;do two sets of polygons touch, as (poly-hit-ref?) above tells it, in
+	;native code. Not a hull is made for it: an edge of the one that has
+	;no part in the box of the other is passed over, and that is enough
+	(poly-hit a b (ifn mode_a 0) (ifn mode_b 0)))
+
 (defun poly-sweep (shape points)
 	; (poly-sweep shape points) -> paths
 	;what a shape covers as it is moved along a line. shape is a path

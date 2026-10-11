@@ -162,7 +162,7 @@ is, every part of it crosses every other.
 ## The native code
 
 All of a set operation is six functions in `lib/math/lisp.vp`, 7,672
-bytes of ARM64 in a boot image of 254,268. The work of a band is three:
+bytes of ARM64 in a boot image of 255,868. The work of a band is three:
 
 * `(poly-band edges active y0 y1 mode out)`, the pieces of the answer in a
   band: it drops the edges that have ended, works out where each of the
@@ -255,7 +255,50 @@ the sweep, and the native code held to its Lisp: the bands, and for 300
 pairs of random shapes each the lines of every band and the rings they
 join into.
 
-## Do two shapes touch: GJK
+## Do two shapes touch, of any shape
+
+`(poly-hit? a b [mode_a mode_b]) -> :t | :nil`. Two sets of polygons, lists
+of paths as `(poly-op)` takes them, dents and holes and all, each filled
+by its winding rule. `:t` if they have any point that is of both. An edge
+or a corner that only meets the other counts: for a thing that is to
+stop when it comes against another, that is the moment.
+
+It is exact, and it is native, `poly_hit` in `lib/math/lisp.vp`, 1,688
+bytes of ARM64:
+
+* The box round each, and the box that is in both. None, and they do not
+  touch.
+* Does an edge of the one meet an edge of the other. Only an edge of `a`
+  that has a part in that box is taken, and against it only the edges of
+  `b` whose own box meets its box. Which side of each line the ends of
+  the other are on, in the whole numbers a path is held as, so there is
+  no "nearly".
+* If none do, no line of either is on a line of the other, and each path
+  is all in the other set or all out of it. Its first point says which,
+  by how many times the other set is wound round it.
+
+On one core of an Apple M4 Max:
+
+| | hit | the set logic asked what they share |
+|---|---|---|
+| two boxes apart | 108ns | under 1us |
+| two of 12 sides that cross | 157ns | 2us |
+| a star of 20 points and another, near | 127ns | 4us |
+| one of 12 sides inside one of 64 | 256ns | 5us |
+| two stars of 200 points that cross | 801ns | 1,274us |
+
+It was written in Lisp first, with the hulls asked before the edges,
+and that was 67us for the two of 12 sides, thirty times what the native
+set logic took to say what they share. A hull is a sort. The native one
+makes no hull: the box does what the hull was for. The Lisp is kept,
+`(poly-hit-ref?)`, and a test holds the two together and to the set
+logic, on 400 pairs of random shapes at fractions of a unit: they touch
+if and only if what they share has a size.
+
+What it does not say is where, or how deep, or which way to push them
+apart, which a thing that bounces wants next.
+
+## Do two hulls touch: GJK
 
 The set logic says exactly what two shapes share, and to ask it only "do
 they touch" is dear, 140 millionths of a second for a line drawn by hand

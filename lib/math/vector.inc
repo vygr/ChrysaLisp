@@ -261,7 +261,9 @@
 				(list pth)))
 			(list paths))
 		:t
-		(if (= winding_mode +winding_odd_even)
+		;0 is odd and even, +winding_odd_even of the canvas, which this
+		;has no need of to be used
+		(if (= winding_mode 0)
 			(/= (logand winding 1) 0)
 			(/= winding 0))))
 
