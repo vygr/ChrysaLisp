@@ -83,6 +83,14 @@ full and the fine ones half, never between.
 
 With snap on, things go to the coarse lines as they are at that zoom.
 
+What is seen is everybody's, and more than one can be at a board. So
+none of these moves it while anybody is drawing a line: it moves when
+they have done. Somebody who is holding a thing does not stop it, and
+what they hold stays in their hand as the board moves under it.
+
+A thing is the one's who took hold of it first, till they let it go.
+Another's hand on it does nothing, and another's eraser leaves it.
+
 One finger on empty board drags a box out to select with, as it did.
 
 How a board was last seen is kept in its file, and it opens so.

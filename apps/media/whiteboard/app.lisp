@@ -388,6 +388,10 @@
 	;picture, it is in another place on its canvas
 	(def *board* :zoom *zoom*)
 	(def *board_view* :zoom *zoom* :pan (list *pan_x* *pan_y*))
+	;what a hand holds is in flight and stays in the hand, Chris: "If I
+	;hold a shape, and somone else moves the canvas, my shape comes with
+	;me !" Each pointer that is down is told to the board where it is now
+	(. *board_view* :resend)
 	(if *snap* (def *board* :snap (snap-gap)))
 	(setq *paper_dirty* :t *flight_at* :nil *bars_stale* :t)
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -423,10 +427,14 @@
 	;a bar was moved by hand: what is seen is where its thumb says, from
 	;where all there is began when the bars were last set. They are not
 	;set again while it goes on, a thumb is not to change under the hand
-	(setq *bars_at* (pii-time))
-	(bind '(x0 y0) *bars_from*)
-	(pan-by (* (- *pan_x* (+ x0 (/ (n2f (get :value (get :hslider *image_scroll*))) *zoom*))) *zoom*)
-		(* (- *pan_y* (+ y0 (/ (n2f (get :value (get :vslider *image_scroll*))) *zoom*))) *zoom*)))
+	(cond
+		;not while anybody has something in hand on the board, what is
+		;seen is everybody's: the bar is put back where it was
+		((. *board* :busy?) (setq *bars_at* 0 *bars_stale* :t))
+		(:t (setq *bars_at* (pii-time))
+			(bind '(x0 y0) *bars_from*)
+			(pan-by (* (- *pan_x* (+ x0 (/ (n2f (get :value (get :hslider *image_scroll*))) *zoom*))) *zoom*)
+				(* (- *pan_y* (+ y0 (/ (n2f (get :value (get :vslider *image_scroll*))) *zoom*))) *zoom*)))))
 
 (defun pan-glide (dx dy)
 	;so many pixels more to go, for a turn of a wheel: gone a part of
@@ -438,6 +446,9 @@
 	; (pan-tick) -> :t | :nil
 	;a part of the way there is still to go. Is there more
 	(bind '(gx gy) *pan_go*)
+	;somebody has taken something in hand: it goes no further
+	(when (and (or (/= gx 0.0) (/= gy 0.0)) (. *board* :busy?))
+		(setq *pan_go* (list 0.0 0.0) gx 0.0 gy 0.0))
 	(when (or (/= gx 0.0) (/= gy 0.0))
 		(defq mx (if (< (abs gx) 1.0) gx (* gx 0.3)) my (if (< (abs gy) 1.0) gy (* gy 0.3)))
 		(setq *pan_go* (list (- gx mx) (- gy my)))
@@ -481,7 +492,10 @@
 		;slow enough for the lines of the paper to be seen to change
 		(defq next (+ *zoom* (* (- zoom *zoom*) 0.125)))
 		(cond
-			((< (abs (- (/ next zoom) 1.0)) 0.01)
+			;or, somebody has taken something in hand, all of it at once:
+			;what is seen is not to move under them, nor is the paper to
+			;be left with its lines part way while they draw
+			((or (< (abs (- (/ next zoom) 1.0)) 0.01) (. *board* :busy?))
 				(setq *zoom_to* :nil)
 				(zoom-set zoom cx cy))
 			(:t (zoom-set next cx cy)))
@@ -493,7 +507,9 @@
 	(defq zoom (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))
 		at (ifn (find zoom +zooms) (find 1.0 +zooms)))
 	(bind '(cw ch) (canvas-size))
-	(zoom-go (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step)))) (/ cw 2) (/ ch 2)))
+	;not while anybody has something in hand on the board
+	(unless (. *board* :busy?)
+		(zoom-go (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step)))) (/ cw 2) (/ ch 2))))
 
 ;the wheel, the middle button and two fingers move what is seen, two
 ;fingers zoom it, and when they let go it comes to rest, view.inc

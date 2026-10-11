@@ -171,6 +171,14 @@
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
 
+	(defmethod :drawing? ()
+		; (. instrument :drawing?) -> :t | :nil
+		;is any pen drawing along an edge of it
+		(defq found :nil)
+		(. (get :states this) :each (lambda (id state)
+			(if (eql (elem-get state +tool_state_what) :draw) (setq found :t))))
+		found)
+
 	(defmethod :matrix ()
 		; (. instrument :matrix) -> matrix
 		;from its own space to the board's

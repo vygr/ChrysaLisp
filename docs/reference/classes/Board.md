@@ -37,6 +37,21 @@ filled outline of what was left of it. The eraser is a path about
 board's reach by its zoom. No step is made. Was anything touched
 ```
 
+### :busy?
+
+```code
+(. board :busy?) -> :t | :nil
+
+is anybody drawing: a line not yet done, along an instrument or
+free, or the eraser going. Many work at a board at once, and what
+is done to all of it, a move of the view, waits for that. Chris:
+"lock the view while anyone is drawing, that onlt applie to the
+global actions !" It does not wait for a hand that holds a thing:
+"If I hold a shape, and somone else moves the canvas, my shape
+comes with me ! It is 'in flight'", what shows the board sees to
+that
+```
+
 ### :changed
 
 ```code

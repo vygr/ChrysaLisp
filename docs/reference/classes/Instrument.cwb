@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 83
+	:next_id 84
 	:layers
 	((:list 1)
 		((:list 3)
@@ -171,7 +171,7 @@
 							:id
 							13
 							:items
-							((:list 54)
+							((:list 55)
 								((:list 11)
 									:shape
 									:id
@@ -872,7 +872,7 @@
 									:stroke
 									0
 									:text
-									:edge_d
+									:drawing?
 									:font_size
 									12
 								)
@@ -891,7 +891,7 @@
 									:stroke
 									0
 									:text
-									:edge_near
+									:edge_d
 									:font_size
 									12
 								)
@@ -910,7 +910,7 @@
 									:stroke
 									0
 									:text
-									:end
+									:edge_near
 									:font_size
 									12
 								)
@@ -929,7 +929,7 @@
 									:stroke
 									0
 									:text
-									:extent
+									:end
 									:font_size
 									12
 								)
@@ -948,7 +948,7 @@
 									:stroke
 									0
 									:text
-									:hit
+									:extent
 									:font_size
 									12
 								)
@@ -967,7 +967,7 @@
 									:stroke
 									0
 									:text
-									:matrix
+									:hit
 									:font_size
 									12
 								)
@@ -986,7 +986,7 @@
 									:stroke
 									0
 									:text
-									:on_edge
+									:matrix
 									:font_size
 									12
 								)
@@ -1005,7 +1005,7 @@
 									:stroke
 									0
 									:text
-									:part_at
+									:on_edge
 									:font_size
 									12
 								)
@@ -1024,7 +1024,7 @@
 									:stroke
 									0
 									:text
-									:pointers
+									:part_at
 									:font_size
 									12
 								)
@@ -1043,7 +1043,7 @@
 									:stroke
 									0
 									:text
-									:readout
+									:pointers
 									:font_size
 									12
 								)
@@ -1062,7 +1062,7 @@
 									:stroke
 									0
 									:text
-									:rebuild
+									:readout
 									:font_size
 									12
 								)
@@ -1081,7 +1081,7 @@
 									:stroke
 									0
 									:text
-									:restack
+									:rebuild
 									:font_size
 									12
 								)
@@ -1100,7 +1100,7 @@
 									:stroke
 									0
 									:text
-									:set_extent
+									:restack
 									:font_size
 									12
 								)
@@ -1119,7 +1119,7 @@
 									:stroke
 									0
 									:text
-									:step
+									:set_extent
 									:font_size
 									12
 								)
@@ -1138,7 +1138,7 @@
 									:stroke
 									0
 									:text
-									:to_board
+									:step
 									:font_size
 									12
 								)
@@ -1157,7 +1157,7 @@
 									:stroke
 									0
 									:text
-									:to_own
+									:to_board
 									:font_size
 									12
 								)
@@ -1168,6 +1168,25 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 90.88134 0.00000 1.00000 538.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:to_own
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									68
+									:m
+									((:path 6)
+										1.00000 0.00000 90.88134 0.00000 1.00000 555.00000
 									)
 									:kind
 									:text
@@ -1187,7 +1206,7 @@
 				((:list 17)
 					:shape
 					:id
-					68
+					69
 					:m
 					((:path 6)
 						1.00000 0.00000 13.00000 0.00000 1.00000 646.00000
@@ -1208,7 +1227,7 @@
 				((:list 7)
 					:group
 					:id
-					69
+					70
 					:m
 					((:path 6)
 						1.00000 0.00000 13.00000 0.00000 1.00000 654.00000
@@ -1218,13 +1237,13 @@
 						((:list 5)
 							:group
 							:id
-							70
+							71
 							:items
 							((:list 3)
 								((:list 7)
 									:group
 									:id
-									71
+									72
 									:m
 									((:path 6)
 										1.00000 0.00000 0.00000 0.00000 1.00000 0.00000
@@ -1234,13 +1253,13 @@
 										((:list 5)
 											:group
 											:id
-											74
+											75
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													77
+													78
 													:d
 													"[M 6 0 L 67.80371 0 A 6 6 0 0 1 73.80371 6 L 73.80371 18 A 6 6 0 0 1 67.80371 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1253,7 +1272,7 @@
 												((:list 15)
 													:shape
 													:id
-													78
+													79
 													:m
 													((:path 6)
 														1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -1276,7 +1295,7 @@
 								((:list 7)
 									:group
 									:id
-									72
+									73
 									:m
 									((:path 6)
 										1.00000 0.00000 81.80371 0.00000 1.00000 0.00000
@@ -1286,13 +1305,13 @@
 										((:list 5)
 											:group
 											:id
-											75
+											76
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													79
+													80
 													:d
 													"[M 6 0 L 39.76367 0 A 6 6 0 0 1 45.76367 6 L 45.76367 18 A 6 6 0 0 1 39.76367 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1305,7 +1324,7 @@
 												((:list 15)
 													:shape
 													:id
-													80
+													81
 													:m
 													((:path 6)
 														1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -1328,7 +1347,7 @@
 								((:list 7)
 									:group
 									:id
-									73
+									74
 									:m
 									((:path 6)
 										1.00000 0.00000 135.56738 0.00000 1.00000 0.00000
@@ -1338,13 +1357,13 @@
 										((:list 5)
 											:group
 											:id
-											76
+											77
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													81
+													82
 													:d
 													"[M 6 0 L 66.69335 0 A 6 6 0 0 1 72.69335 6 L 72.69335 18 A 6 6 0 0 1 66.69335 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -1357,7 +1376,7 @@
 												((:list 15)
 													:shape
 													:id
-													82
+													83
 													:m
 													((:path 6)
 														1.00000 0.00000 10.00000 0.00000 1.00000 16.00000

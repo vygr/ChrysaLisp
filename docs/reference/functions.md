@@ -332,8 +332,10 @@ itself with its middle. A finger moves things
 ### board-bite
 
 ```code
-(board-bite doc swept [lines]) -> :nil | (made gone)
+(board-bite doc swept [lines but]) -> :nil | (made gone)
 
+but, the ids of things that are left as they are whatever covers
+them: what somebody has hold of is theirs till they let it go
 with lines :t a line, a thing part of which can be rubbed out as a
 line, (cwb-rub?), is left as it is, it is cut another way
 what swept covers, paths in the space of the document, taken out of

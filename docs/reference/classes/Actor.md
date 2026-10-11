@@ -29,6 +29,15 @@ on a canvas, over the document, by the matrix the board is seen
 by, one that has anything to draw
 ```
 
+### :drawing?
+
+```code
+(. actor :drawing?) -> :t | :nil
+
+is any pointer that is down on it drawing something, a line that
+is not yet done. One that has anything to draw with says
+```
+
 ### :held
 
 ```code

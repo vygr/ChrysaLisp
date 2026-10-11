@@ -229,6 +229,25 @@
 	;the bar moved back by hand to 200: what is seen is from 100 on from where there is anything, and the bars are left as they are while it goes on
 	"(def (get :hslider *image_scroll*) :value 200) (bars-moved) (print (list *pan_x* (first (wa-bars)) *bars_stale*))"
 	"(setq *pan_x* -25.0 *pan_y* -15.0 *bars_at* 0) (view-changed)"
+	;what is seen is everybody's: while a pen has a line in hand the wheel, the zoom button, two fingers and a bar do nothing to it
+	"(defun wa-seen () (list (n2i *pan_x*) (n2i *pan_y*) *zoom* (if *zoom_to* :going)))"
+	"(defun wa-wheel (x y) (. *board_view* :mouse_wheel (setf-> (str-alloc +ev_msg_wheel_size) (+ev_msg_type +ev_type_wheel) (+ev_msg_wheel_x x) (+ev_msg_wheel_y y))))"
+	"(wa-mode :pen) (defq s0 (wa-seen)) (wa-ptr 0x20001 1 1 300 300) (wa-ptr 0x20001 1 1 340 320)"
+	"(defq b0 (. *board* :busy?)) (wa-wheel 2 3) (while (pan-tick)) (wa-zoom +event_zoom_in)"
+	"(wa-ptr 0x10001 3 1 600 20) (wa-ptr 0x10002 3 1 700 20) (wa-ptr 0x10001 3 1 660 60) (wa-ptr 0x10002 3 1 860 60)"
+	"(def (get :hslider *image_scroll*) :value 5) (bars-moved)"
+	"(defq s1 (wa-seen))"
+	;the pen lifts: the two fingers that are still down have it from where they are, and the wheel works
+	"(wa-ptr 0x20001 1 0 340 320) (defq b1 (. *board* :busy?))"
+	"(wa-ptr 0x10001 3 1 670 70) (wa-ptr 0x10002 3 1 870 70) (defq s2 (wa-seen))"
+	"(wa-ptr 0x10001 3 0 670 70) (wa-ptr 0x10002 3 0 870 70) (wa-wheel 0 2) (while (pan-tick)) (defq s3 (wa-seen))"
+	"(print (list b0 (eql (str s0) (str s1)) b1 s0 s2 s3)) (setq *pan_x* -25.0 *pan_y* -15.0 *bars_at* 0) (view-changed)"
+	;a hand that holds a thing does not stop what is seen being moved, and what it holds stays in the hand: it is in flight
+	"(. *board* :clear) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect 100 100 140 140) :fill 0xff808080 :stroke 0)) (wa-mode :select)"
+	"(defun wa-box () (bind (quote (bx by bx1 by1)) (cwb-bounds (cwb-items (. *board* :get_doc)))) (list (n2i (* (- bx *pan_x*) *zoom*)) (n2i (* (- by *pan_y*) *zoom*)) (n2i bx)))"
+	"(wa-mouse :down 290 270 1) (defq h0 (wa-box) hb (. *board* :busy?)) (pan-by 60 20) (defq h1 (wa-box)) (zoom-set 1.0 290 270) (defq h2 (wa-box))"
+	"(wa-mouse :up 290 270 0) (pan-by 10 0) (defq h3 (wa-box))"
+	"(print (list hb h0 h1 h2 h3)) (zoom-set 2.0 0 0) (setq *pan_x* -25.0 *pan_y* -15.0) (view-changed)"
 	;part way between two zooms it rests at, the finer rulings are part way up
 	"(zoom-set 3.0 0 0) (draw-paper) (print (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*)))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
@@ -248,7 +267,11 @@
 (assert-eq "moved back by hand to 200, what is seen is from 100 on from the first thing, and the bar is not set again under the hand"
 	"(147.00000 (506 1024 200) :t)" (elem-get wa_out 9))
 (assert-eq "half way to the next zoom the lines are half as far apart again, the next finer three quarters up and the finest a quarter"
-	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 10))
+	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 12))
+(assert-eq "a hand that holds a thing does not stop what is seen being moved; moved, the thing is where it was on the screen, in the hand, and another place in the document; zoomed about the hand, the place of it the hand has is still under the hand; let go, it goes with what is seen"
+	"(:nil (250 230 100) (250 230 70) (270 250 70) (280 250 70))" (elem-get wa_out 11))
+(assert-eq "what is seen is everybody's: while a pen has a line in hand the wheel, the zoom button, two fingers and a bar do nothing to it; when it lifts the two fingers move it from where they are, with no jump, and the wheel moves it"
+	"(:t :t :nil (-25 -15 2.00000 :nil) (-30 -20 2.00000 :nil) (-30 -36 2.00000 :nil))" (elem-get wa_out 10))
 
 
 ;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it

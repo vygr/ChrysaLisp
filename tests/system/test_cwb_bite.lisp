@@ -107,3 +107,36 @@
 (. bt :undo)
 (assert-eq "and undo has both back, as they were" (str (list (cwb-d-rect 100 100 120 120) (cwb-d-rect 200 100 220 120)))
 	(str (map (# (elem-get %0 +cwb_d)) (cwb-items bt_doc))))
+
+;first come first served: what one has hold of is theirs till they let go
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
+(def bt :mode :select)
+(defun bt-go (&rest events) (. bt :pointers events))
+(defun bt-at () (map (const n2i) (cwb-bounds (cwb-items bt_doc))))
+;a pen takes hold of the box and moves it 10
+(bt-go (ptr-event 0x2000001 :pen 1 150 150)) (bt-go (ptr-event 0x2000001 :pen 1 160 150))
+(assert-eq "a pen has hold of the box, and moved it" "(110 100 210 200)" (str (bt-at)))
+;another's finger goes down on it and drags: nothing
+(bt-go (ptr-event 0x1000000 :touch 1 150 150)) (bt-go (ptr-event 0x1000000 :touch 1 150 250))
+(assert-eq "another's finger on it, dragged, does nothing to it" "(110 100 210 200)" (str (bt-at)))
+(assert-eq "and has nothing in hand: no box is dragged out by it" 0 (. (get :bands bt) :size))
+;another's eraser goes through it: nothing
+(. bt :bite (path 100.0 150.0 300.0 150.0) 10.0)
+(assert-eq "another's eraser through it leaves it whole, its middle still there" "(:t (110 100 210 200))"
+	(str (list (if (cwb-hit bt_doc 160 150 0) :t) (bt-at))))
+;the pen that has it goes on moving it, with the finger still down
+(bt-go (ptr-event 0x2000001 :pen 1 180 150))
+(assert-eq "the one that has it still has it" "(130 100 230 200)" (str (bt-at)))
+(bt-go (ptr-event 0x1000000 :touch 0 150 250)) (bt-go (ptr-event 0x2000001 :pen 0 180 150))
+;let go, it is anybody's: the eraser bites it, and the finger takes it
+(. bt :bite (path 100.0 150.0 300.0 150.0) 10.0)
+(assert-true "let go, the eraser takes its bite: its middle is gone, above and below are there"
+	(and (not (cwb-hit bt_doc 180 150 0)) (cwb-hit bt_doc 180 120 0) (cwb-hit bt_doc 180 180 0)))
+;two fingers of the one device on a thing still move it between them
+(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
+(def bt :mode :select)
+(bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
+(bt-go (ptr-event 0x1000000 :touch 1 90 150)) (bt-go (ptr-event 0x1000001 :touch 1 210 150))
+(assert-true "two fingers of the one device on a thing size it between them, as they did" (> (- (third (bt-at)) (first (bt-at))) 150))

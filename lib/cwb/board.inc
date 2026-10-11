@@ -126,8 +126,10 @@
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
 		out))
 
-(defun board-bite (doc swept &optional lines)
-	; (board-bite doc swept [lines]) -> :nil | (made gone)
+(defun board-bite (doc swept &optional lines but)
+	; (board-bite doc swept [lines but]) -> :nil | (made gone)
+	;but, the ids of things that are left as they are whatever covers
+	;them: what somebody has hold of is theirs till they let it go
 	;with lines :t a line, a thing part of which can be rubbed out as a
 	;line, (cwb-rub?), is left as it is, it is cut another way
 	;what swept covers, paths in the space of the document, taken out of
@@ -156,6 +158,7 @@
 					;what is in it, in its own space, later
 					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
 				((and lines (cwb-rub? item)))
+				((and but (find (elem-get item +cwb_id) but)))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(if (and (vector-collide-boxes-2d reach (Mat3x2-box box full))
@@ -250,14 +253,24 @@
 	(def this :board board :grab :nil)
 
 	(defmethod :holder (item_id)
-		; (. surface :holder item_id) -> :nil | state
-		;the hand that has hold of an item, what is kept for it
+		; (. surface :holder item_id) -> :nil | (id state)
+		;the hand that has hold of an item, the pointer it is and what is
+		;kept for it
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
 			(if (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item))
 					(some (# (= (elem-get (first %0) +cwb_id) item_id)) things))
-				(setq found state))))
+				(setq found (list id state)))))
 		found)
+
+	(defmethod :held_ids ()
+		; (. surface :held_ids) -> (id ...)
+		;every item some hand has hold of now
+		(defq out (list))
+		(. (get :states this) :each (lambda (id state)
+			(if (and (eql (elem-get state +stroke_tool) :hand) (defq things (elem-get state +stroke_item)))
+				(each (# (push out (elem-get (first %0) +cwb_id))) things))))
+		out)
 
 	(defmethod :same_things (a b)
 		; (. surface :same_things things things) -> :t | :nil
@@ -266,6 +279,15 @@
 			(= (elem-get (first (first a)) +cwb_id) (elem-get (first (first b)) +cwb_id))))
 
 	(defmethod :hit (x y) :t)
+
+	(defmethod :drawing? ()
+		; (. surface :drawing?) -> :t | :nil
+		;is any pointer drawing, or rubbing out: it has a tool that is not
+		;the hand. A hand that holds a thing or drags a box out is not
+		(defq found :nil)
+		(. (get :states this) :each (lambda (id state)
+			(unless (find (elem-get state +stroke_tool) '(:hand :idle :pan)) (setq found :t))))
+		found)
 
 	(defmethod :things ()
 		; (. surface :things) -> ((item matrix) ...)
@@ -313,9 +335,17 @@
 				(if (and (not hit) (eql kind :touch)) (setq hit (cwb-hit-box (get :doc board) x y)))
 				(cond
 					((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
-						;a second hand on what another has hold of, the two
-						;of them move it, see (:two_hands). It has the same things
-						(elem-set state +stroke_item (elem-get other +stroke_item)))
+						;what another has hold of. First come first served:
+						;a thing is the one's who took it, till they let it
+						;go, and nobody else's hand does anything to it.
+						;Unless it is the same one's other hand, a second
+						;finger of the device that has it: then the two of
+						;them move it, see (:two_hands), it has the same
+						;things. An id is its device and which of its
+						;contacts, lib/cwb/pointer.inc
+						(if (= (>> id 24) (>> (first other) 24))
+							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
+							(elem-set state +stroke_tool :idle)))
 					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
 						(cond
 							(holding
@@ -1142,7 +1172,8 @@
 		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			swept (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points))
 		;a line is left to be cut as a line unless all is to be bitten
-		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite)))))
+		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
+				(. (get :surface this) :held_ids))))
 			(bind '(made gone) did)
 			(def this :selected (filter (# (not (find %0 gone))) (get :selected this)))
 			(. this :changed made)
@@ -1351,6 +1382,18 @@
 	;;;;;;;;;;
 	; pointers
 	;;;;;;;;;;
+
+	(defmethod :busy? ()
+		; (. board :busy?) -> :t | :nil
+		;is anybody drawing: a line not yet done, along an instrument or
+		;free, or the eraser going. Many work at a board at once, and what
+		;is done to all of it, a move of the view, waits for that. Chris:
+		;"lock the view while anyone is drawing, that onlt applie to the
+		;global actions !" It does not wait for a hand that holds a thing:
+		;"If I hold a shape, and somone else moves the canvas, my shape
+		;comes with me ! It is 'in flight'", what shows the board sees to
+		;that
+		(some (# (. %0 :drawing?)) (. (get :stage this) :get_actors)))
 
 	(defmethod :pointer_free? (id)
 		; (. board :pointer_free? id) -> :t | :nil

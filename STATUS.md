@@ -4,6 +4,58 @@
 
 ------
 
+Many at one board: what is everybody's waits for a line, what is held
+stays in the hand, and a thing is the one's who took it.
+
+Chris: "multi users want here own instruments !!! you have to imaginbe
+that there are mutiple monkeys all stood at the board and doing drawing
+and using instruments... and none of it has to conflict." It is the
+first rule of the board, and I had it wrong three ways in an afternoon:
+an idea to bring one ruler back instead of adding another; a view that
+one could move under another's pen; and a lock I worded so that it read
+as if holding a shape locked the others out. "no, definatelty no lock
+as people move shapes around ! or draw, or selecting !"
+
+What is built, as he said it.
+
+* "lock the view while anyone is drawing, that onlt applie to the
+global actions !" "activly stroking onto the canvas is another matter,
+that's just rude (to move the canvas)". Each actor says if a pointer on
+it is drawing, `(:drawing?)`, and the board, `(. board :busy?)`. While
+it is, the wheel, the middle button, the bars and the zoom buttons do
+nothing, and two fingers on the view wait and then go on from where
+they are. Nothing else is ever locked.
+
+* "If I hold a shape, and somone else moves the canvas, my shape/group
+comes with me ! It is 'in flight'" "I could select and pick up a bunch
+of shapes and sombody else move the canvas to a scratch area they want
+me to put it down on". When what is seen has moved, the app's view
+tells the board every pointer that is down again, where it is in the
+view, `(. board_view :resend)`. A thing held is moved to the hand. A
+box being dragged out still ends at the hand, its first corner goes
+with the document.
+
+* "and first come first served for who is manipulating what
+shapes/groups !" A thing is the device's that took it. Another device's
+hand on it does nothing, another's eraser leaves it whole. A second
+contact of the same device shares it, as two fingers did.
+
+He tried the first two with the one mouse, the right button held and a
+swipe, and the left: "That felt good." The third he has not seen, it
+wants a second device.
+
+And for later, item 63: "We could eventually have mtuiple users
+controlling a Whiteboard via remote connections and the document is
+'braodcast' to all people acting on it", "each persons mouse comes in
+as sepearte dev_id's", "we may even has viewports onto the canvas that
+are at different places !" The pan and the zoom are the app's view's,
+not the board's, for that.
+
+The app's tests, 104, the cwb modules, 568. Every test on the x64 Mac
+and the Pi.
+
+------
+
 The bars of the Whiteboard move what is seen, and an instrument thrown
 off the edge is put away.
 

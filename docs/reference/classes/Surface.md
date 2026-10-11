@@ -31,6 +31,15 @@ nobody's palette, nor lets go of what somebody else has hold of
 a pointer has gone down
 ```
 
+### :drawing?
+
+```code
+(. surface :drawing?) -> :t | :nil
+
+is any pointer drawing, or rubbing out: it has a tool that is not
+the hand. A hand that holds a thing or drags a box out is not
+```
+
 ### :end
 
 ```code
@@ -47,14 +56,23 @@ a pointer has come up
 is a pointer one of two that have hold of the same things, (:two_hands)
 ```
 
+### :held_ids
+
+```code
+(. surface :held_ids) -> (id ...)
+
+every item some hand has hold of now
+```
+
 ### :hit
 
 ### :holder
 
 ```code
-(. surface :holder item_id) -> :nil | state
+(. surface :holder item_id) -> :nil | (id state)
 
-the hand that has hold of an item, what is kept for it
+the hand that has hold of an item, the pointer it is and what is
+kept for it
 ```
 
 ### :holding

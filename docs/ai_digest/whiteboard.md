@@ -322,6 +322,45 @@ it has every pointer, and is asked which are on nothing,
 `(. board :pointer_free? id)`; the first two take the view, and the board
 is told to give up what each was doing, `(. board :pointer_idle id)`.
 
+### Nobody's hand is moved under
+
+Chris: "you have to imaginbe that there are mutiple monkeys all stood at
+the board and doing drawing and using instruments... and none of it has
+to conflict." What each does is their own, their pen, their instruments,
+what they have hold of, and nothing one does stops another: "no,
+definatelty no lock as people move shapes around ! or draw, or selecting
+! none of those actions locks out the other users."
+
+What is seen is not anybody's own, there is one pan and one zoom for the
+board. Two things keep a move of it from being done to somebody:
+
+* While anybody is drawing a line it is not moved at all,
+  `(. board :busy?)`, which asks each actor `(:drawing?)`: "lock the view
+  while anyone is drawing, that onlt applie to the global actions !" The
+  wheel, the middle button, the bars and the zoom buttons do nothing
+  then. Two fingers that have hold of the view do nothing till the line
+  is done, and then go on from where they are. A zoom that is on its way
+  when somebody begins a line goes all the way at once, and a glide
+  stops.
+
+* A hand that holds a thing does not stop it, and what it holds stays in
+  the hand: "If I hold a shape, and somone else moves the canvas, my
+  shape/group comes with me ! It is 'in flight'". When what is seen has
+  moved, the app's view tells the board every pointer that is down again,
+  where it is in the view, which is now another place of the document,
+  `(. board_view :resend)`. So a thing held is moved to the hand, and a
+  box being dragged out still ends at it.
+
+First come first served, for a thing as for the view. Chris: "and first
+come first served for who is manipulating what shapes/groups !" What one
+has hold of is theirs till they let it go: another's hand that goes down
+on it does nothing, it does not take it, share it, or drag a box out from
+it, and another's eraser that goes through it leaves it whole. "Another"
+is another device, a second pen, a mouse, a person far away. A second
+finger of the device that has it is the same one's other hand, and the
+two of them move, turn and size it between them as they did. An id is a
+device and which of its contacts, `lib/cwb/pointer.inc`.
+
 ### The bars
 
 The paper and the desk round it lie in a `Board-frame`, `view.inc`, in the

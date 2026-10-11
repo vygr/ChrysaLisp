@@ -66,6 +66,14 @@ that much on
 on a canvas, by the matrix the board is seen by
 ```
 
+### :drawing?
+
+```code
+(. instrument :drawing?) -> :t | :nil
+
+is any pen drawing along an edge of it
+```
+
 ### :edge_d
 
 ```code

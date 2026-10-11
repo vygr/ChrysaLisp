@@ -26,6 +26,13 @@
 ; staying between them. When they let go the zoom comes to rest. The
 ; board is told to give up what each was doing, a box dragged out, a tap.
 ;
+; What is seen is everybody's, and many work at a board at once. So none
+; of this moves it while anybody is drawing a line, (. board :busy?): it
+; is done when they have done. A hand that holds a thing does not stop
+; it. What it holds is in flight, and stays in the hand: when what is
+; seen has moved, every pointer that is down is told to the board again
+; where it is, which is now another place of the document, (:resend).
+;
 ; The app is what has the pan and the zoom, and makes them so. It is
 ; called: :on_pan by how many pixels, :on_wheel by how many more for a
 ; turn of the wheel, :on_zoom to what zoom and about what point of the
@@ -99,7 +106,10 @@
 		;fingers that are down, each where it is in the view. The two that
 		;have hold of what is seen, and how they and it were when they
 		;took it. And what the app is called by, see above
-		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil)
+		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil
+		;every pointer that is down, the mouse too: its kind, what it
+		;holds, where it is in the view and how hard it is pressed
+		:down (Fmap 11))
 
 	(defmethod :to_doc (rx ry)
 		; (. board_view :to_doc rx ry) -> (x y)
@@ -112,8 +122,24 @@
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view
 		;an event of the mouse, with these buttons held, to the board
-		(bind '(x y) (. this :to_doc (getf event +ev_msg_mouse_rx) (getf event +ev_msg_mouse_ry)))
+		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry))
+		(if (/= buttons 0) (. (get :down this) :insert 0 (list :mouse buttons rx ry :nil)) (. (get :down this) :erase 0))
+		(bind '(x y) (. this :to_doc rx ry))
 		(. (get :board this) :pointers (list (ptr-event 0 :mouse buttons x y)))
+		this)
+
+	(defmethod :resend ()
+		; (. board_view :resend) -> board_view
+		;what is seen has moved. Each pointer that is down is where it was
+		;in the view, and that is another place of the document now: the
+		;board is told so, as if each had moved there. So a thing that is
+		;held stays in the hand that holds it, and a box that is being
+		;dragged out still ends at the hand
+		(defq events (list))
+		(. (get :down this) :each (lambda (id (kind buttons rx ry pressure))
+			(bind '(x y) (. this :to_doc rx ry))
+			(push events (if pressure (ptr-event id kind buttons x y pressure) (ptr-event id kind buttons x y)))))
+		(if (nempty? events) (. (get :board this) :pointers events))
 		this)
 
 	(defmethod :mouse_down (event)
@@ -155,7 +181,7 @@
 					(bind '(sx sy) drag)
 					(defq x (getf event +ev_msg_mouse_x) y (getf event +ev_msg_mouse_y))
 					(def this :drag (list x y))
-					(unless (and (= x sx) (= y sy)) (on_pan (- x sx) (- y sy)))))
+					(unless (or (and (= x sx) (= y sy)) (. (get :board this) :busy?)) (on_pan (- x sx) (- y sy)))))
 			((/= held 0) (. this :mouse_pointer event held)))
 		this)
 
@@ -170,7 +196,7 @@
 		; (. board_view :mouse_wheel event) -> board_view
 		;a turn of the wheel, or a swipe on a mouse that has a top to
 		;swipe, moves what is seen, the way a scroll goes: 16 pixels a turn
-		(if (defq on_wheel (get :on_wheel this))
+		(if (and (defq on_wheel (get :on_wheel this)) (not (. (get :board this) :busy?)))
 			(on_wheel (* -16 (getf event +ev_msg_wheel_x)) (* 16 (getf event +ev_msg_wheel_y))))
 		this)
 
@@ -178,12 +204,13 @@
 		; (. board_view :pointer event) -> board_view
 		;a pen or a finger, as the GUI tells of one, to the board as it is:
 		;its own id, its kind, what it has held and how hard it is pressed
-		(bind '(x y) (. this :to_doc (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
-		(. (get :board this) :pointers (list (ptr-event
-			(getf event +ev_msg_pointer_id)
-			(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
-			(getf event +ev_msg_pointer_buttons) x y
-			(/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))))
+		(defq id (getf event +ev_msg_pointer_id) buttons (getf event +ev_msg_pointer_buttons)
+			kind (elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
+			rx (getf event +ev_msg_pointer_rx) ry (getf event +ev_msg_pointer_ry)
+			pressure (/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))
+		(if (/= buttons 0) (. (get :down this) :insert id (list kind buttons rx ry pressure)) (. (get :down this) :erase id))
+		(bind '(x y) (. this :to_doc rx ry))
+		(. (get :board this) :pointers (list (ptr-event id kind buttons x y pressure)))
 		(if (= (min 3 (getf event +ev_msg_pointer_kind)) 3) (. this :finger event))
 		this)
 
@@ -223,19 +250,25 @@
 			(bind '(ax ay) (. fingers :find ida))
 			(bind '(bx by) (. fingers :find idb))
 			(defq nx (/ (+ ax bx) 2) ny (/ (+ ay by) 2)
-				by_far (/ (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))) apart))
+				by_far (/ (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))) apart)
+				;somebody is drawing: these two do nothing to what is seen
+				;till they have done, and then go on from where they are,
+				;not from where they were
+				on_pan (if (. board :busy?) :nil (get :on_pan this))
+				on_zoom (if on_pan (get :on_zoom this)))
+			(unless on_pan (elem-set grip 4 (max 1.0 (* by_far apart))) (elem-set grip 5 (get :zoom this)))
 			;moved together: what is seen goes with them, by how far the
 			;middle of them has gone since it was last told
 			(elem-set grip 2 nx)
 			(elem-set grip 3 ny)
-			(if (and (defq on_pan (get :on_pan this)) (not (and (= nx mx) (= ny my))))
+			(if (and on_pan (not (and (= nx mx) (= ny my))))
 				(on_pan (- nx mx) (- ny my)))
 			;apart or together: it is zoomed by how far apart they are
 			;against how far they were, about the middle of them. Not till
 			;that is a twelfth more or less: two fingers that only move a
 			;thing do not keep their distance. From there on it is by how
 			;far past that they have gone, so it does not jump as it starts
-			(when (defq on_zoom (get :on_zoom this))
+			(when on_zoom
 				(cond
 					((> by_far 1.08) (setq by_far (/ by_far 1.08)))
 					((< by_far 0.92) (setq by_far (/ by_far 0.92)))
