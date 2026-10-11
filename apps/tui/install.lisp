@@ -7,6 +7,15 @@
 (pipe-run "make -v 1 all boot | time -s"
 	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))))
 (print)
+;a machine has a key from the day it is installed, and one it has is left
+;as it is. Only machines with the same key join each other, so a new one
+;is by itself till it is given the key of the others, the file mesh_key
+(unless (pii-fstat "mesh_key")
+	(import "lib/crypto/random.inc")
+	(save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
+	(print "This machine has been given a key, the file mesh_key.")
+	(print "To join it to your other machines put their mesh_key in its place.")
+	(print))
 (print "Install complete.")
 (print)
 (print "If on MacOS or Linux you may now run:")

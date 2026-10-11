@@ -57,6 +57,10 @@ static void set_nonblocking(socket_t fd) {
 #else
 	int flags = fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	// a socket is this process's own. A node that is started from this
+	// one, pii_spawn, is not to have it: a listener it was left holding
+	// kept the port after the node that listened had gone
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 }
 

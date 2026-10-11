@@ -4,6 +4,106 @@
 
 ------
 
+The network sets itself up: a key at install, joined at the start, and
+a key that is changed is seen.
+
+Chris: "on install we should look if a mesh_key exists, if not we should
+create one. we start the becon and listner automatically on system
+startup. if a system changes its mesh_key, that should be spotted by the
+@Net service and it should drop it existing links, and join the new
+mesh." Of no key: "If the key is deleted, it drops of the network until
+the user puts it back." Of two sessions on one machine: "first come
+first served." And of sessions that must not join: "we have the ability
+to launch subnets with there own system_id... we are heading to using
+that idea as a container for apps and maybe OLE style embeding...does
+that have relaventce here ?"
+
+What is done.
+
+* `apps/tui/install.lisp`, what `make install` ends with, makes
+`mesh_key` if there is none, and says so. One that is there is left.
+
+* The Net service, `service/net/app_impl.lisp`, every two seconds looks
+at the age of the key file. If it is another, or gone, or come: what
+listens is told to go, the beacon and the discovery sockets are closed,
+the peers are forgotten, and every link over the network is dropped.
+Then it joins with the key it now has, or with none stays off.
+
+* It joins by itself: it starts a listener on port 3333, and if it has
+the port it beacons, hears beacons, and makes the mesh, what
+`mesh -j` asked for. If another session of the machine has the port it
+is not the member, and asks again every ten seconds, so when the first
+goes the next has it.
+
+* With no key there is no link: `link` says why, the beacon and
+discovery are refused. Open links are gone.
+
+* A link is dropped by a new native function, `(net-drop)`,
+`service/net/lisp.vp`: each link with no process at its other end, so
+not shared memory, is marked closed, as its own tasks mark it when the
+wire fails. It gives how many, and is called till it gives 0, a ping
+that comes at that moment can undo one.
+
+* `service/net/gate.lisp`, the listener, says if it has the port, and
+goes when it is sent anything more.
+
+* A system with an id of its own is not the machine's. `(node-start)`,
+`sys/lisp.inc`, tells each node of one its id, `*env_node_sid*`, and the
+nodes those start are of it too. A Net service there has no key, so no
+network. That is the answer to his question for a container: nothing to
+switch off, it has no key.
+
+Two faults found on the way, both old.
+
+* A node started from another, `pii_spawn`, was left holding its
+sockets. A listener so held kept port 3333 after the node that listened
+had gone: on the Pi a test session of last night, stuck 11 hours, had
+it, and no new session could listen. `src/host/net.cpp`, each socket is
+closed on exec now. The host programs have to be made again, `make`.
+Windows is not changed, and there a second listener on a port may not
+be refused at all, not looked at.
+
+* The record of a TCP link did not set its process to none, it had what
+was on the stack. `service/net/link.vp`.
+
+Run, on the x64 Mac and the Pi, their standing nodes down, a plain
+session on each and nothing typed but `mesh`:
+
+* each found the other, and the M4, in 20 seconds;
+* the Pi's key made another: at the next look the Pi was alone and the
+x64 Mac had lost it; put back, both had each other again, 15 seconds;
+* the Pi with no key: "off the network", and `link` says why;
+* two sessions on the x64 Mac: the first joined, the second said not;
+the first closed, and the second had joined when next asked.
+
+`tests/solo/test_tcp_link.lisp` has the drop and first come first
+served in it now, 14. Lint clean, includes, imports and forward clean,
+on the x64 Mac. Every test there and on the Pi: 5899 each.
+
+Not as it should be yet.
+
+* A test session is the machine's own system, it has to be, it tests
+the network. So with no standing node up it is first come, joins the
+mesh, and two machines running the tests at once then see each other's
+`*` services: `test_services` failed so on the x64 Mac, once, and
+passed with the standing nodes back. A session of its own system id
+would be off the network but could test none of it. It wants a way to
+say "do not join by yourself". Asked of Chris.
+
+* The M4 has none of this running. Its boot image and host programs
+are as they were, Chris has a desktop up, and that desktop was started
+from the standing node, so the standing node can not be restarted
+either. To do when the desktop is down: `make`, `make all boot`, lint,
+the tests, restart the standing node.
+
+* Windows: `install.bat` runs the same install script, so it makes the
+key. Nothing of this was run there.
+
+Not seen: by Chris. A desktop joining by itself. Two real machines
+given a key by hand.
+
+------
+
 A set square of 45 degrees.
 
 Chris: "Add a 45° C set squared."

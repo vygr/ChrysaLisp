@@ -11,6 +11,8 @@
 (when (empty? (mail-enquire "@Net,")) (open-child "service/net/app.lisp" +kn_call_run) (task-sleep 200000))
 (net-quiet 300000 4)
 (save (str (pii-pid)) "/tmp/chrysalisp_rack.pid")
+;the Net service joins the mesh by itself, if this is the first session
+;of the machine. This asks again, for one that started without
 (pipe-run "link -l 3333 -a" (const prin))
 (pipe-run "link -a" (const prin))
 (pipe-run "sync -a" (const prin))

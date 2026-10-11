@@ -33,6 +33,9 @@
 ;It is the state a machine is in between new source and make all boot
 (defq *net_can_mesh* (eql :there (catch (progn (ffi "service/net/lisp_links" net-links) :there) :not)))
 ; (net-links) -> (link ...), a link is the fields of lib/net/links.inc
+;and the same of this one, without it a change of key is not acted on
+(defq *net_can_drop* (eql :there (catch (progn (ffi "service/net/lisp_drop" net-drop) :there) :not)))
+; (net-drop) -> num, the links over the network are told they are closed
 
 (bits +net_poll 0
 	(bit in out error))
@@ -41,7 +44,10 @@
 	(enum main timer))
 
 (defq +sleep_min 1000 +sleep_max 20000 +stream_timeout 60000000)
-(defq +disco_udp_port 3334 +beacon_interval 2000000)
+(defq +disco_udp_port 3334 +beacon_interval 2000000
+	;where this machine listens for the others, and how long till it tries
+	;again for that port when another session of the machine has it
+	+mesh_tcp_port 3333 +mesh_retry 10000000)
 
 (defun session-close (sessions handle)
 	(net-close handle)
@@ -51,15 +57,13 @@
 	(. sessions :erase handle))
 
 (defun net-start-link (key target)
-	; (net-start-link key target) -> net_id
-	;a link, ":port" to listen or "host:port" to dial. On a machine with a
-	;key it is through the door, service/net/door.inc, each end proves it
-	;has the key before the link carries anything. With none, as it was
+	; (net-start-link key target) -> :nil | net_id
+	;a link, ":port" to listen or "host:port" to dial. It is through the
+	;door, service/net/door.inc, each end proves it has the key before
+	;the link carries anything. A machine with no key has no links over
+	;the network, :nil
 	(cond
-		((not key)
-			(defq child (open-child "service/net/link" +kn_call_pin))
-			;a copy goes, the link cuts the str where it lies
-			(if (/= (get-long child 0) 0) (mail-send child (cat target))))
+		((not key) (defq child :nil))
 		((starts-with ":" target)
 			(defq child (open-child "service/net/gate.lisp" +kn_call_pin))
 			(if (/= (get-long child 0) 0)
@@ -77,8 +81,16 @@
 		beacon_socket 0
 		last_beacon_time 0
 		disco_socket 0
-		;the key of this machine, if it has one, worked out the once
-		net_key (door-key)
+		;a session with a system id of its own, a subnet, a container, is
+		;not this machine's and has none of its key: (node-start) says so
+		;to each node of one. The key of this machine, if it has one, is
+		;worked out the once, and again when the file is another
+		own (not (get '*env_node_sid*))
+		key_age (age +door_key_file)
+		net_key (if own (door-key))
+		;is this the session that listens for the machine, its member of
+		;the mesh, what listens for it, and when to try to be if not
+		member :nil gates (list) next_join 0 dropping :nil last_watch_time 0
 		mesh :nil
 		mesh_service :nil
 		mesh_peers (Fmap 31)
@@ -147,7 +159,9 @@
 						(+net_rpc_type_link
 							(defq target (slice msg +net_rpc_link_target -1)
 								child (net-start-link net_key target))
-							(if (/= (get-long child 0) 0)
+							;what listens is told to go if the key is ever another
+							(if (and child (starts-with ":" target) (/= (get-long child 0) 0)) (push gates child))
+							(if (and child (/= (get-long child 0) 0))
 								(progn
 									(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
 										(+net_rpc_reply_handle 0)
@@ -157,9 +171,9 @@
 									(+net_rpc_reply_status -1)))))
 						(+net_rpc_type_beacon
 							(defq port (getf msg +net_rpc_beacon_port))
-							(when (= beacon_socket 0)
+							(when (and net_key (= beacon_socket 0))
 								(setq beacon_socket (net-udp-bind 0)))
-							(if (> beacon_socket 0)
+							(if (and net_key (> beacon_socket 0))
 								(progn
 									(. beacon_ports :insert port)
 									(mail-send reply_id (setf-> (str-alloc +net_rpc_reply_size)
@@ -178,7 +192,8 @@
 						(+net_rpc_type_hello
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover
-							(setq mesh *net_can_mesh*)
+							;a machine with no key is not on the network at all
+							(setq mesh (if net_key *net_can_mesh*))
 							;a service that makes a mesh says so to every machine. @Net is
 							;for this machine and is not seen from another, a * name is
 							(if (and mesh (not mesh_service))
@@ -195,6 +210,43 @@
 				; 2. I/O Polling Pump
 				((= idx +select_timer)
 					(defq active :nil now (pii-time))
+					; The key, and this machine's place in the mesh
+					(when (> (- now last_watch_time) +beacon_interval)
+						(setq last_watch_time now)
+						;the key is another, or has gone, or has come. What was
+						;made with the old one ends: what listens, the beacon, the
+						;links. Then, below, it joins those who have the new one,
+						;and with none it stays off the network till it has
+						(when (and own (/= (defq new_age (age +door_key_file)) key_age))
+							(setq key_age new_age net_key (door-key) active :t)
+							(each (# (mail-send %0 "")) gates)
+							(when (> beacon_socket 0) (net-close beacon_socket))
+							(when (> disco_socket 0) (net-close disco_socket))
+							(if mesh_service (mail-forget mesh_service))
+							(setq gates (list) beacon_socket 0 beacon_ports (Fset 7) disco_socket 0
+								mesh :nil mesh_service :nil mesh_peers (Fmap 31)
+								member :nil dropping *net_can_drop* next_join 0))
+						;a link is told it is closed till none is left to tell
+						(if dropping (setq dropping (/= (net-drop) 0) active :t))
+						;first come first served: the session that has the port
+						;listens for the machine, says so to the network, and looks
+						;for the others. One that finds the port taken asks again
+						;later, the session that had it may have gone
+						(when (and net_key *net_can_mesh* (not member) (not dropping) (>= now next_join))
+							(defq said (mail-mbox) gate (open-child "service/net/gate.lisp" +kn_call_pin))
+							(when (/= (get-long gate 0) 0)
+								(mail-send gate (cat net_key (str +mesh_tcp_port) " " (hex-encode said)))
+								(cond
+									((eql (mail-read-timeout said 2000000) "1")
+										(push gates gate)
+										(setq member :t mesh :t active :t)
+										(if (= beacon_socket 0) (setq beacon_socket (net-udp-bind 0)))
+										(. beacon_ports :insert +mesh_tcp_port)
+										(unless mesh_service
+											(setq mesh_service (mail-declare (task-mbox) "*Mesh" "Mesh 0.1")))
+										(if (= disco_socket 0) (setq disco_socket (net-udp-bind +disco_udp_port))))
+									(:t (mail-send gate "")
+										(setq next_join (+ now +mesh_retry)))))))
 					; Broadcast beacons if advertising
 					(when (and (> beacon_socket 0) (nempty? beacon_ports))
 						(when (> (- now last_beacon_time) +beacon_interval)

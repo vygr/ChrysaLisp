@@ -8,6 +8,16 @@
 
 (import "lib/task/pipe.inc")
 (import "lib/net/links.inc")
+(import "lib/crypto/random.inc")
+(import "service/net/app.inc")
+
+;a machine with no key has no links. One that has never been installed,
+;a tree of cross built images say, is given one for the test, and the
+;Net service a moment to see it
+(defq tl_made_key (not (pii-fstat "mesh_key")))
+(when tl_made_key
+	(save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
+	(task-sleep 3000000))
 
 (defq tl_before (lisp-nodes) tl_reply (mail-mbox) tl_new :nil)
 (pipe-run "link -l 34581" (const identity))
@@ -48,8 +58,46 @@
 	;taken, the node would be dropped
 	(task-sleep (task-timeout 4))
 	(assert-true "four seconds on it is still seen" (find tl_new (lisp-nodes)))
-	(open-task "(pii-exit)" tl_new +kn_call_pin 0 (mail-mbox))
+	;the links over the network are dropped, as the Net service does when
+	;the key of the machine is another. A link is told it is closed till
+	;there is none to tell
+	;a link is the node's that made it, the one the Net service is on
+	(defq tl_said (mail-mbox) tl_net_node (slice (net-service) +mailbox_id_size -1))
+	(defun tl-drop ()
+		(open-task (str `(progn (ffi "service/net/lisp_drop" net-drop)
+				(mail-send (hex-decode ,(hex-encode tl_said)) (str (net-drop)))))
+			tl_net_node +kn_call_pin 0 (mail-mbox))
+		(str-as-num (ifn (mail-read-timeout tl_said (task-timeout 2)) "-1")))
+	(assert-true "there is a link over the network to drop" (> (tl-drop) 0))
 	(setq tl_t0 (pii-time))
-	(while (and (pii-alive tl_pid) (< (- (pii-time) tl_t0) (task-timeout 5)))
+	(while (and (/= (tl-drop) 0) (< (- (pii-time) tl_t0) (task-timeout 5)))
+		(task-sleep 100000))
+	(assert-eq "dropped, there is none" 0 (tl-drop))
+	(while (and (find tl_new (lisp-nodes)) (< (- (pii-time) tl_t0) (task-timeout 15)))
+		(task-sleep 100000))
+	(assert-true "and the node at its other end is not seen any more" (not (find tl_new (lisp-nodes))))
+	;the other end sees it is alone, and goes
+	(while (and (pii-alive tl_pid) (< (- (pii-time) tl_t0) (task-timeout 25)))
 		(task-sleep 10000))
-	(assert-eq "told to exit, its process ends" :nil (pii-alive tl_pid)))
+	(assert-eq "left alone, its process ends" :nil (pii-alive tl_pid)))
+
+;first come first served: one listener has a port, a second is told it
+;has not, and when the first is told to go the port is there to have
+(import "service/net/door.inc")
+(defun tl-gate (port)
+	; -> (gate has_port)
+	(defq said (mail-mbox) gate (open-child "service/net/gate.lisp" +kn_call_pin))
+	(mail-send gate (cat (door-key) (str port) " " (hex-encode said)))
+	(list gate (mail-read-timeout said (task-timeout 5))))
+(bind '(tl_gate1 tl_has1) (tl-gate 34582))
+(bind '(tl_gate2 tl_has2) (tl-gate 34582))
+(assert-eq "the first to listen on a port has it" "1" tl_has1)
+(assert-eq "the second has not" "0" tl_has2)
+(mail-send tl_gate1 "")
+(task-sleep 500000)
+(bind '(tl_gate3 tl_has3) (tl-gate 34582))
+(assert-eq "the first told to go, the next has it" "1" tl_has3)
+(mail-send tl_gate3 "")
+(task-sleep 200000)
+
+(when tl_made_key (pii-remove "mesh_key"))

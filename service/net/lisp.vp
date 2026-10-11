@@ -596,3 +596,51 @@
 	(jump :lisp :repl_error '(:r1 "(net-links)" +error_msg_wrong_types)))
 
 (def-func-end)
+
+(def-method :host_net :lisp_drop)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r4, :r14, :f0-:f15
+
+	;every link of this node that is over the network, and not shared
+	;memory to a node of this machine, is told it is closed. Its tasks see
+	;that and go, and its connection is closed after them. Such a link has
+	;no process at its other end that the host can be asked of. How many
+	;there were is given: a ping that comes as this is done can undo it,
+	;so it is called till it gives 0
+
+	(entry :host_net :lisp_drop '(:r0 :r1))
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sys_mail_links_array)) '(:r0))
+	(call :array :get_both '(:r0) '(_ :r1 :r2))
+	(vp-xor-rr :r3 :r3)
+	(loop-start)
+		(breakif '(:r1 = :r2))
+		(assign '((:r1 0)) '(:r0))
+		(vp-add-cr +ptr_size :r1)
+		(assign '((:r0 lk_node_peer_pid ui)) '(:r4))
+		(vpif '(:r4 = 0))
+			(vp-cpy-cr -1 :r4)
+			(assign '(:r4) '((:r0 lk_node_task_count i)))
+			(vp-add-cr 1 :r3)
+		(endif)
+	(loop-end)
+	(call :num :create '(:r3) '(:r1))
+	(vp-pop :r0)
+
+	(exit :host_net :lisp_drop '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(net-drop)" +error_msg_wrong_types)))
+
+(def-func-end)

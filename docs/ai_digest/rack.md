@@ -47,8 +47,10 @@ stop it and start it.
 
 A member takes a sync, so any machine that can link to it can write to its
 tree. Not outside it, a sync is fenced to the tree, [`docs/ai_digest/sync.md`](sync.md).
-With a `mesh_key` file only a machine with the same key can link at all,
-[`docs/intro/intro.md`](../intro/intro.md), "A Key", and a member should have one. It is not
+Only a machine with the same `mesh_key` file can link at all,
+[`docs/intro/intro.md`](../intro/intro.md), "A Key". The machine's member of the mesh is the
+first of its sessions to start, so start this before a desktop if it is
+to be the one. It is not
 started unless asked for, and nothing starts it at boot unless you have it
 do so.
 

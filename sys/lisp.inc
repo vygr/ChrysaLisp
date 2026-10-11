@@ -82,10 +82,17 @@
 		;a vertical tab, which the reader takes for white space as it does
 		;anything up to a space
 		user (get '*env_node_user*) tab (ascii-char 11)
-		tell (if user (cat "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})"))
-		told (if user (cat " -run " tell) "")
+		;and so with a system id that is not the machine's. A node of such
+		;a system has it in *env_node_sid*, the nodes it starts are of the
+		;same system, and its Net service knows it is not the machine's
+		;own and keeps off the network, service/net/app_impl.lisp
+		sid (ifn sid (get '*env_node_sid*))
+		tell (if (or user sid) (cat "(def" tab "*root_env*"
+			(if user (cat tab "'*env_node_user*" tab "{" user "}") "")
+			(if sid (cat tab "'*env_node_sid*" tab "{" sid "}") "") ")"))
+		told (if tell (cat " -run " tell) "")
 		run (cond
-			((and script user) (cat " -run (progn" tab tell tab
+			((and script tell) (cat " -run (progn" tab tell tab
 				(if (starts-with "(" script) script (cat "(import" tab "{" script "})")) ")"))
 			(script (cat " -run " script))
 			(:t told)))

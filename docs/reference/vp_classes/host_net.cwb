@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 44
+	:next_id 45
 	:layers
 	((:list 1)
 		((:list 3)
@@ -27,7 +27,7 @@
 							:id
 							2
 							:items
-							((:list 41)
+							((:list 42)
 								((:list 11)
 									:shape
 									:id
@@ -635,7 +635,7 @@
 									:stroke
 									0
 									:text
-									"[net-init]"
+									"[net-drop]"
 									:font_size
 									12
 								)
@@ -654,7 +654,7 @@
 									:stroke
 									0
 									:text
-									"[net-links]"
+									"[net-init]"
 									:font_size
 									12
 								)
@@ -673,7 +673,7 @@
 									:stroke
 									0
 									:text
-									"[net-listen]"
+									"[net-links]"
 									:font_size
 									12
 								)
@@ -692,7 +692,7 @@
 									:stroke
 									0
 									:text
-									"[net-poll]"
+									"[net-listen]"
 									:font_size
 									12
 								)
@@ -711,7 +711,7 @@
 									:stroke
 									0
 									:text
-									"[net-recv]"
+									"[net-poll]"
 									:font_size
 									12
 								)
@@ -730,7 +730,7 @@
 									:stroke
 									0
 									:text
-									"[net-send]"
+									"[net-recv]"
 									:font_size
 									12
 								)
@@ -749,7 +749,7 @@
 									:stroke
 									0
 									:text
-									"[net-udp-bind]"
+									"[net-send]"
 									:font_size
 									12
 								)
@@ -768,7 +768,7 @@
 									:stroke
 									0
 									:text
-									"[net-udp-recv]"
+									"[net-udp-bind]"
 									:font_size
 									12
 								)
@@ -779,6 +779,25 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 96.50927 0.00000 1.00000 404.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[net-udp-recv]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									44
+									:m
+									((:path 6)
+										1.00000 0.00000 96.50927 0.00000 1.00000 421.00000
 									)
 									:kind
 									:text

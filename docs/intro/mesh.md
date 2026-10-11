@@ -4,31 +4,33 @@ Two or more machines running ChrysaLisp on the same network can join into
 one. Every node of every machine sees all the others, a build spreads over
 all their cores, and the Network Map shows the lot. This is how to do it.
 
-It is three steps, and the first you do once.
+It is one thing to do: give them the same key. The rest they do by
+themselves.
 
-## 1. Make a key, once
+## 1. Give them the same key
 
 A key is a small file that says which machines belong together. Only
 machines with the same key will join each other.
 
-On one machine, start ChrysaLisp, open a Terminal, and type:
+Every machine has one from the day it is installed, `make install` makes
+it: the file `mesh_key` in the ChrysaLisp folder, next to `run.sh`. Each
+machine's is its own, so a new machine is by itself, and nothing on your
+network can join it.
 
-```code
-mesh -k
-```
+Pick one machine. Copy its `mesh_key` into the ChrysaLisp folder of each
+other machine, in the same place, over the one that is there. Use a USB
+stick, AirDrop, a shared folder, whatever you have. ChrysaLisp never
+sends it for you, and git does not track it.
 
-That makes a file called `mesh_key` in the ChrysaLisp folder, next to
-`run.sh`.
+That is all. A machine that is running sees the file change, within a
+few seconds: it ends the links it had, and joins the machines that have
+the new key. One that is not running joins when it is next started.
 
-Copy that file into the ChrysaLisp folder of each other machine, in the
-same place. Use a USB stick, AirDrop, a shared folder, whatever you have.
-ChrysaLisp never sends it for you, and git does not track it.
+Take the file away and the machine is off the network till it is put
+back. There is no joining without a key.
 
-If ChrysaLisp was already running on a machine when you copied the key
-there, stop it and start it again. The key is read at the start.
-
-You can skip the key. Then any machine on your network that runs
-ChrysaLisp and joins will be let in. On a network you share, make a key.
+A tree that was never installed, or was installed before this, may have
+no key. `mesh -k` makes one.
 
 ## 2. Have every machine on the same version
 
@@ -43,16 +45,17 @@ Machines on different versions may link and then not see each other. If
 that happens `mesh` says so, it names the machine and says it is on a
 different build.
 
-## 3. Join, on each machine
+## 3. See who is there
 
-On every machine, start ChrysaLisp, open a Terminal, and type:
+On any machine, open a Terminal, and type:
 
 ```code
-mesh -j
+mesh
 ```
 
-It listens for the others, tells the network it is there, and looks for
-them. After a few seconds, up to half a minute, it lists who it has found:
+A machine listens for the others, tells the network it is there, and
+looks for them, from when it starts. After a few seconds, up to half a
+minute, they have found each other:
 
 ```image
 docs/diagrams/mesh_join.cwb
@@ -67,8 +70,13 @@ Machines:
     C96A1B10    8 nodes  x86_64/Darwin
 ```
 
-That is it. You join again each time you start ChrysaLisp, it does not
-join by itself.
+## More than one ChrysaLisp on a machine
+
+You can have a desktop and a terminal session up on one machine, or two
+of either. One of them is the machine's member of the mesh: first come,
+first served, the first to start. The others are by themselves, and
+`mesh` in one of them says it has not joined. When the first is closed
+another takes its place, within ten seconds or so.
 
 ## See it
 
@@ -84,11 +92,11 @@ lists every node there is.
 
 `mesh` on each machine tells you most of it. Go down this list:
 
-* **Has it joined?** `mesh -j` on that machine too. Every machine has to.
+* **Has it joined?** `mesh` on that machine too. If it says it has not,
+  and it has a key, another ChrysaLisp on that machine is its member.
 
 * **The key.** Both have the file `mesh_key`, the same file, in the
-  ChrysaLisp folder, or neither has. And ChrysaLisp was started after the
-  file was put there.
+  ChrysaLisp folder.
 
 * **The version.** `git pull` and `make install` on both. `mesh` names a
   machine it can hear that is on a different build.
@@ -107,22 +115,28 @@ lists every node there is.
 mesh -t 192.168.1.100
 ```
 
-  It joins by way of that machine, which tells it who the others are. The
-  machine named must have joined already.
+  It joins by way of that machine, which tells it who the others are.
 
 ## What joining lets in
 
 A machine that has joined runs tasks for the others, that is the point of
-it. With a key, only the machines you gave the key to. It does not let
-them write to its files, that is a separate thing you would have to turn
-on, `sync -a`, and is not needed to join.
+it, and only for the machines you gave its key to. It does not let them
+write to its files, that is a separate thing you would have to turn on,
+`sync -a`, and is not needed to join.
 
 ## Under it
 
-`mesh -j` is two commands, `link -l 3333 -a` and `link -a`, and `mesh -k`
-is `link -k`. The `link` command has more, a port of your choice, a link
-to one named machine and no more. `link -h` lists it, and
+The Net service, which every session starts, does it: it watches the key
+file, listens on TCP port 3333, calls out on UDP port 3334, and links to
+each machine it hears that proves it has the key. `mesh -j` asks it to
+again, the two commands `link -l 3333 -a` and `link -a`, and `mesh -k` is
+`link -k`. The `link` command has more, a port of your choice, a link to
+one named machine and no more. `link -h` lists it, and
 [`docs/intro/intro.md`](intro.md) has the detail.
+
+A subnet started as a system of its own, `nodes -s cube -o`, is not the
+machine's: it has none of its key and is off the network, whatever the
+machine it is on has joined.
 
 Windows has all of this in it and has been tried the least. If it does not
 work there, the list above first, then tell us.

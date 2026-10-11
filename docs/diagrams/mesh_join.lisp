@@ -2,7 +2,7 @@
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (each (lambda (i)
 	(defq x (elem-get '(0 250 500) i) y (elem-get '(110 0 110) i))
-	(dia-put s (sym (cat "m" (str i))) (dia-box (list (elem-get '("a Mac" "another Mac" "a Raspberry Pi") i) "mesh -j" "the same mesh_key") 170 62 (if (= i 1) gold blue) 11 :first) x y))
+	(dia-put s (sym (cat "m" (str i))) (dia-box (list (elem-get '("a Mac" "another Mac" "a Raspberry Pi") i) "joins by itself" "the same mesh_key") 170 62 (if (= i 1) gold blue) 11 :first) x y))
 	'(0 1 2))
 (dia-join s 'm0 'm1 "" :both)
 (dia-join s 'm1 'm2 "" :both)

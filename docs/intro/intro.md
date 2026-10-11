@@ -541,17 +541,21 @@ A link, once made, is trusted with everything. The machine at the other end
 can mail any service and start a task on any node. So a network of machines
 that are not alone on their wire wants a key.
 
+An install makes one, and
+
 ```code
 link -k
 ```
 
-makes one, the file `mesh_key` at the root of the tree, 64 hex digits. Put
+does where there is none: the file `mesh_key` at the root of the tree, 64 hex digits. Put
 the same file on every machine of the network, by hand, it is never sent
 over a link and `sync` leaves it out. Any other text in the file is taken
 as a passphrase, and is made into a key the slow way on purpose, so that it
 is dear to guess, 0.4 seconds on an Apple M4 Max and 3.7 on a Raspberry Pi
-4, the once, as the Net service starts. A key of hex takes no time. Start
-each machine again after, the Net service reads the key as it starts.
+4, the once, as the Net service starts. A key of hex takes no time. The
+Net service sees the file change, and ends its links and joins the
+machines that have the new key. A machine with no key has no links at
+all, it is off the network till it has one.
 
 A machine with a key links only to machines with the same key. When two
 connect, each proves to the other that it has it, before a byte of mail

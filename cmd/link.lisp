@@ -30,14 +30,17 @@
         link 127.0.0.1:3333   ; Connect to peer on specified port
         link server.local     ; Connect to peer by DNS/mDNS hostname
 
-    Every machine that runs both link -l 3333 -a and link -a finds the
+    A machine does the first two of these by itself as it starts, the
+    mesh command says how it stands. Every machine that does finds the
     others and has one link to each, none is on the way between two.
 
-    A machine with a key, the file mesh_key at the root of the tree, links
-    only to machines with the same key, each end proves it has it before
-    the link carries anything. link -k makes one, 64 hex digits. Put the
-    same file on every machine of the network, by hand, it is never sent.
-    Start the Net service again after, it reads the key as it starts.
+    A machine links only to machines with the same key, the file mesh_key
+    at the root of the tree, each end proves it has it before the link
+    carries anything. An install makes one, and link -k does if there is
+    none, 64 hex digits. Put the same file on every machine of the
+    network, by hand, it is never sent. The Net service sees the file
+    change: it ends the links it has and joins those with the new key.
+    With no key a machine has no links, it is off the network.
 
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.")
@@ -55,7 +58,10 @@
 
 (defun start-link (target verbose)
 	(when verbose (print "Starting network link: " target))
-	(net-link-rpc target))
+	(unless (eql (net-link-rpc target) 0)
+		(print "link: no link. "
+			(if (pii-fstat "mesh_key") "The Net service could not start it."
+				"This machine has no key, the file mesh_key, and is off the network till it has. link -k makes one."))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

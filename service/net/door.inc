@@ -10,9 +10,9 @@
 ; The key is the file mesh_key at the root of the tree, 64 hex
 ; digits, 32 bytes, or any other text, a passphrase, which is made
 ; into a key with PBKDF2. Every machine of a network has the same
-; one, put there by hand, it is never sent. With no such file a link
-; is as it always was, open, and the two kinds do not mix, a machine
-; with a key and one without do not link.
+; one, put there by hand, it is never sent. An install makes a machine
+; one of its own. With no such file a machine has no links at all, the
+; Net service makes none, service/net/app_impl.lisp.
 ;
 ; The proof. Each end sends a word and 16 bytes it has just made
 ; up, a nonce. Each then sends an HMAC SHA-256, under the key, of

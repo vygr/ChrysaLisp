@@ -529,14 +529,17 @@ Usage: link [options] [host[:port] ...]
         link 127.0.0.1:3333   ; Connect to peer on specified port
         link server.local     ; Connect to peer by DNS/mDNS hostname
 
-    Every machine that runs both link -l 3333 -a and link -a finds the
+    A machine does the first two of these by itself as it starts, the
+    mesh command says how it stands. Every machine that does finds the
     others and has one link to each, none is on the way between two.
 
-    A machine with a key, the file mesh_key at the root of the tree, links
-    only to machines with the same key, each end proves it has it before
-    the link carries anything. link -k makes one, 64 hex digits. Put the
-    same file on every machine of the network, by hand, it is never sent.
-    Start the Net service again after, it reads the key as it starts.
+    A machine links only to machines with the same key, the file mesh_key
+    at the root of the tree, each end proves it has it before the link
+    carries anything. An install makes one, and link -k does if there is
+    none, 64 hex digits. Put the same file on every machine of the
+    network, by hand, it is never sent. The Net service sees the file
+    change: it ends the links it has and joins those with the new key.
+    With no key a machine has no links, it is off the network.
 
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.
@@ -631,21 +634,31 @@ Usage: mesh [options]
 
     options:
         -h --help: this help info.
-        -j --join: join this machine to the others on the network.
+        -j --join: join this machine to the others on the network, now.
+            It does by itself as it starts, this is to ask again.
         -t --to host: join by way of one machine, its name or address,
             for when the others are not found by themselves.
-        -k --key: make a key, the file mesh_key, if there is none.
+        -k --key: make a key, the file mesh_key, if there is none. An
+            install has made one.
 
-    Join the machines on a network into one, and say how it stands.
+    The machines of a network that have the same key join into one, by
+    themselves. This says how it stands.
 
     With no options, say how it stands: if this machine has a key, if it
     has joined, and each machine there is, how many nodes it has, and
     what it is. If something looks wrong it says what to look at.
 
-        mesh -k           ; once, on one machine, then copy mesh_key to
-                          ; the same place on the others, by hand
-        mesh -j           ; on each machine, each time it is started
+    A machine has a key from its install, its own, and is by itself. To
+    join it to the others copy their mesh_key to the same place on it,
+    by hand. It sees the file change, and joins. Take the file away and
+    it is off the network till it is put back.
+
+    Of the sessions of one machine, a desktop and a terminal say, the
+    first to start is its member of the mesh. Another takes its place
+    when it has gone.
+
         mesh              ; who is there ?
+        mesh -t address   ; join by way of that machine
 
     docs/intro/mesh.md is the guide.
 ```

@@ -14,6 +14,8 @@ docs/reference/vp_classes/host_net.cwb
 
 ### (net-deinit)
 
+### (net-drop)
+
 ### (net-init)
 
 ### (net-links) -> (link ...)
