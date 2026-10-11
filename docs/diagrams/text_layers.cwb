@@ -800,4 +800,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

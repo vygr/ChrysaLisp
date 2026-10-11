@@ -285,6 +285,17 @@ are of a line, or a part of one that begins at the char start.
 (atom? o) -> :t | :nil
 ```
 
+### backdrop-lines
+
+```code
+(backdrop-lines origin gap extent) -> (pos ...)
+
+where the lines of a ruling fall across an extent of pixels, 0 up to
+it: one is at origin, and the rest are gap apart each way from it.
+origin and gap can be whole numbers or have parts, a line is on the
+pixel nearest where it falls. None if they are too close to tell apart
+```
+
 ### ball-rows
 
 ```code
@@ -902,7 +913,10 @@ a box from one corner to the other, its corners round by r if given
 a new document, of one empty layer. The background is a colour, 0
 for none, what is behind shows. The style is what the app draws
 behind it to work on, :plain :grid :lines or :axis, with :grid the
-gap, it is not part of the picture
+gap, it is not part of the picture. Nor is :view, how it was last
+looked at, (x y zoom): the point of it at the top left of what
+showed it, and how big. The things of a document are anywhere, what
+shows it is a view of some of that, and :nil is from 0 0 at 1
 ```
 
 ### cwb-draw

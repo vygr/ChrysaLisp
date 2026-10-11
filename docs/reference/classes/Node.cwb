@@ -670,4 +670,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

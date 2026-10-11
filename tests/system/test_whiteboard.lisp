@@ -28,6 +28,8 @@
 	" (case kind (:down (. *board_view* :mouse_down e)) (:move (. *board_view* :mouse_move e)) (:up (. *board_view* :mouse_up e))))"
 	" (defun wa-drag (button x y x1 y1) (wa-mouse :down x y button) (wa-mouse :move x1 y1 (case button (3 4) (:t button))) (wa-mouse :up x1 y1 0))"
 	" (defun wa-do (id) (task-slice) (catch (progn ((. *event_map* :find id)) :ok) :threw))"
+	;a zoom goes a little of the way each tick of the app's timer, there is none here: it is run to where it is going
+	" (defun wa-zoom (id) (defq said (wa-do id)) (while (zoom-tick)) said)"
 	" (defun wa-mode (mode) (. *mode_toolbar* :set_selected (find mode *modes*)) (wa-do +event_mode))"
 	" (defun wa-ids () (map (# (elem-get %0 +cwb_id)) (cwb-items (. *board* :get_doc))))"))
 
@@ -45,14 +47,14 @@
 (defq wa_cfg (wa-run (cat
 	"(wa-drag 1 100 100 220 120) (wa-mode :rect) (wa-drag 1 300 100 420 200)"
 	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (. *radius_toolbar* :set_selected 2) (wa-do +event_radius)"
-	"(wa-do +event_snap) (wa-do +event_keep_shape) (wa-do +event_zoom_in) (. *text_field* :set_text {Hello})"
+	"(wa-do +event_snap) (wa-do +event_keep_shape) (wa-zoom +event_zoom_in) (. *text_field* :set_text {Hello})"
 	"(wa-do +event_full_protractor) (defq tool (last (. (. *board* :get_stage) :get_actors)))"
 	"(def tool :angle 0.5 :mode :pie :origin (list 300.0 200.0)) (. tool :set_extent 260.0)"
 	"(defq was (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
 	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
 	;another board altogether
 	"(. *board* :set_doc (cwb-doc 200 100)) (. (. *board* :get_stage) :sub tool) (wa-mode :pen)"
-	"(. *ink_toolbar* :set_selected 0) (wa-do +event_ink) (wa-do +event_snap) (wa-do +event_keep_shape) (wa-do +event_zoom_out) (. *text_field* :set_text {})"
+	"(. *ink_toolbar* :set_selected 0) (wa-do +event_ink) (wa-do +event_snap) (wa-do +event_keep_shape) (wa-zoom +event_zoom_out) (. *text_field* :set_text {})"
 	"(defq place (config-apply (tree-load (string-stream text))))"
 	"(defq now (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
 	"(print (list (str was) (eql (str was) (str now))))"
@@ -101,6 +103,8 @@
 	"(wa-mode :pen) (wa-mouse :down 600 500 1) (wa-mouse :move 640 520 1) (wa-mouse :move 640 520 3) (wa-mouse :move 660 540 5)"
 	"(print (list (get :held *board_view*) (wa-ids)))"
 	"(wa-mouse :move 700 600 4) (wa-mouse :up 700 600 0) (print (list (get :held *board_view*) (wa-ids)))"
+	;what is seen went with the mouse, 40 and 60. It is put back for what follows
+	"(print (list *pan_x* *pan_y*)) (setq *pan_x* 0.0 *pan_y* 0.0) (view-changed)"
 	;the eraser bites: a box, the eraser drawn through it, and undo. The mode is the board's, the app keeps none
 	"(. *board* :clear) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect 200 200 400 300) :fill 0xff808080 :stroke 0))"
 	"(defq bite_was (wa-ids)) (def *board* :rub_mode :bite) (wa-mode :eraser) (wa-drag 1 300 150 300 350)"
@@ -144,10 +148,10 @@
 	"(print (list (wa-do +event_snap) (get :snap *board*) (wa-do +event_snap) (get :snap *board*)))"
 	"(print (list (wa-do +event_snap_angle) (> (get :snap_angle *board*) 0.2)))"
 	;zoom, in and out and back, and the canvases are the size of it
-	"(print (list (wa-do +event_zoom_in) *zoom* (canvas-size) (. *committed* :pref_size) (get :zoom *board*)))"
+	"(print (list (wa-zoom +event_zoom_in) *zoom* (canvas-size) (. *committed* :pref_size) (get :zoom *board*)))"
 	"(wa-mouse :down 150 150 1) (wa-mouse :up 150 150 0)"
-	"(print (list (wa-do +event_zoom_out) (wa-do +event_zoom_out) *zoom* (canvas-size)))"
-	"(print (list (wa-do +event_zoom_in) *zoom* (canvas-size) (wa-draw)))"
+	"(print (list (wa-zoom +event_zoom_out) (wa-zoom +event_zoom_out) *zoom* (canvas-size)))"
+	"(print (list (wa-zoom +event_zoom_in) *zoom* (canvas-size) (wa-draw)))"
 	;the size of the board, by the size field
 	"(. *size_field* :set_text {800x500}) (print (list (wa-do +event_size) (canvas-size) (. (. *board* :get_doc) :find :width)))"
 	"(. *size_field* :set_text {nonsense}) (print (list (wa-do +event_size) (canvas-size)))"
@@ -168,8 +172,8 @@
 (assert-eq "a tap on the protractor's own part for it says what it draws" "(:ok :pie)" (elem-get wa_out 2))
 (assert-eq "snap is on, to the grid of the document, and off" "(:ok 32.00000 :ok 0.00000)" (elem-get wa_out 3))
 (assert-eq "angles snap" "(:ok :t)" (elem-get wa_out 4))
-(assert-eq "zoomed in, the board is that much bigger on the screen, and the canvases are" "(:ok 1.50000 (1536 1152) (1536 1152) 1.50000)" (elem-get wa_out 5))
-(assert-eq "out twice is three quarters" "(:ok :ok 0.75000 (768 576))" (elem-get wa_out 6))
+(assert-eq "zoomed in is twice, and the paper and its canvases are the size they were: it is what is seen on it that is bigger" "(:ok 2.00000 (1024 768) (1024 768) 2.00000)" (elem-get wa_out 5))
+(assert-eq "out twice is a half" "(:ok :ok 0.50000 (1024 768))" (elem-get wa_out 6))
 (assert-eq "and in again is where it was, to the pixel" "(:ok 1.00000 (1024 768) 3)" (elem-get wa_out 7))
 (assert-eq "the size field sets the size of the board" "(:ok (800 500) 800)" (elem-get wa_out 8))
 (assert-eq "and what is not a size leaves it" "(:ok (800 500))" (elem-get wa_out 9))
@@ -199,13 +203,26 @@
 	;the other end of the pen takes a bite out of its side
 	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
 	"(print (wa-ids))"
-	;zoomed, a point of the view is a point of the document over the zoom
-	"(wa-do +event_zoom_in) (wa-ptr 0x20001 1 1 150 150) (wa-ptr 0x20001 1 1 300 300) (wa-ptr 0x20001 1 0 300 300)"
-	"(print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))")))
+	;zoomed about its top left, a point of the view is a point of the document over the zoom
+	"(zoom-set 2.0 0 0) (wa-ptr 0x20001 1 1 200 200) (wa-ptr 0x20001 1 1 400 400) (wa-ptr 0x20001 1 0 400 400)"
+	"(print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
+	;and moved, 50 across and 30 down on the screen: what was at 100 is seen 25 further across, so the same place on the screen is 25 less
+	"(pan-by 50 30) (wa-ptr 0x20001 1 1 200 200) (wa-ptr 0x20001 1 1 400 400) (wa-ptr 0x20001 1 0 400 400)"
+	"(print (list (cwb-get (last (cwb-items (. *board* :get_doc))) :d) *pan_x* *pan_y*))"
+	;the paper's lines are where the document's 0 0 is seen, and at a zoom it rests at they are the grid, half of it at half strength, and no finer
+	"(draw-paper) (print (list (get :origin_x *paper*) (get :origin_y *paper*) (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*))))"
+	;part way between two zooms it rests at, the finer rulings are part way up
+	"(zoom-set 3.0 0 0) (draw-paper) (print (map (# (list (first %0) (>> (second %0) 24))) (get :rules *paper*)))")))
 (assert-eq "a pen, told of by the GUI, draws" "((1) \qM 100 100 L 200 100 200 180 100 180 Z\q)" (elem-get wa_out 0))
 (assert-eq "two fingers on what it drew make it twice the size" "(47 57 253 223)" (elem-get wa_out 1))
 (assert-eq "and the other end of the pen takes a bite out of it, it is another shape, flat" "(3)" (elem-get wa_out 2))
-(assert-eq "zoomed to one and a half, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
+(assert-eq "zoomed to twice, a pen draws where it is in the document" "M 100 100 L 200 100 200 200 100 200 Z" (elem-get wa_out 3))
+(assert-eq "moved 50 and 30 on the screen at twice, it is seen from 25 and 15 back, and a pen in the same place draws that much back in the document"
+	"(\qM 75 85 L 175 85 175 185 75 185 Z\q -25.00000 -15.00000)" (elem-get wa_out 4))
+(assert-eq "the paper's lines are drawn from where the document's 0 0 is seen: the grid full, half of it at half, a quarter of it not at all"
+	"(50.00000 30.00000 ((8.00000 0) (16.00000 127) (32.00000 255)))" (elem-get wa_out 5))
+(assert-eq "half way to the next zoom the lines are half as far apart again, the next finer three quarters up and the finest a quarter"
+	"((12.00000 63) (24.00000 191) (48.00000 255))" (elem-get wa_out 6))
 
 
 ;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it
@@ -463,8 +480,7 @@
 	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
 	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
 	"(setq *margin* 240 *zoom* 1.0) (. *board* :new 1024 768) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
-	"(defun wa-view () (list (ifn (get :value (get :hslider *image_scroll*)) 0) (ifn (get :value (get :vslider *image_scroll*)) 0) *zoom*))"
-	"(def (get :hslider *image_scroll*) :value 300) (def (get :vslider *image_scroll*) :value 200) (.-> *image_scroll* :layout)"
+	"(defun wa-view () (list (n2i *pan_x*) (n2i *pan_y*) *zoom* (if *zoom_to* (first *zoom_to*))))"
 	"(defq was (wa-view) ids (wa-ids))"
 	;two fingers down on empty paper, and both moved 60 right and 40 down
 	"(wa-mode :select) (wa-ptr 0x10001 3 1 600 500) (wa-ptr 0x10002 3 1 700 500)"
@@ -475,6 +491,8 @@
 	"(each (lambda (i) (wa-ptr 0x10001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x10002 3 1 (+ 760 (* i 5)) 540)) (range 1 11))"
 	"(defq zoomed (wa-view))"
 	"(wa-ptr 0x10001 3 0 610 540) (wa-ptr 0x10002 3 0 810 540)"
-	"(print (list was moved (third zoomed) (eql (str ids) (str (wa-ids))) (. *board* :get_selected) (length (palettes *board*)) (. (get :bands *board*) :size)))")))
-(assert-eq "the view goes the way the two fingers went, zooms to twice when they are twice as far apart, and nothing of the board was done: no box, no palette, nothing selected"
-	"((300 200 1.00000) (240 160 1.00000) 2.00000 :t () 0 0)" (last wa_out))
+	;let go, it is on its way to the zoom it rests at, and gets there
+	"(defq going (wa-view)) (while (zoom-tick)) (defq rested (wa-view))"
+	"(print (list was moved (third zoomed) (elem-get going 3) (third rested) (eql (str ids) (str (wa-ids))) (. *board* :get_selected) (length (palettes *board*)) (. (get :bands *board*) :size)))")))
+(assert-eq "what is seen goes the way the two fingers went; twice as far apart it is zoomed, not quite twice as the first twelfth is let go by; let go it is on its way to twice and gets there; and nothing of the board was done: no box, no palette, nothing selected"
+	"((0 0 1.00000 :nil) (-60 -40 1.00000 :nil) 1.85186 2.00000 2.00000 :t () 0 0)" (last wa_out))

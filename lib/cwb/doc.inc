@@ -310,11 +310,14 @@
 	;a new document, of one empty layer. The background is a colour, 0
 	;for none, what is behind shows. The style is what the app draws
 	;behind it to work on, :plain :grid :lines or :axis, with :grid the
-	;gap, it is not part of the picture
+	;gap, it is not part of the picture. Nor is :view, how it was last
+	;looked at, (x y zoom): the point of it at the top left of what
+	;showed it, and how big. The things of a document are anywhere, what
+	;shows it is a view of some of that, and :nil is from 0 0 at 1
 	(scatter (Emap) :version +cwb_version
 		:width (ifn width 1024) :height (ifn height 768)
 		:background 0 :style :grid :grid 32 :next_id 1
-		:layers (list (list "Layer 1" 0 (list))) :props :nil))
+		:layers (list (list "Layer 1" 0 (list))) :props :nil :view :nil))
 
 (defun cwb-layers (doc) (. doc :find :layers))
 
@@ -496,7 +499,8 @@
 		:next_id (. doc :find :next_id)
 		:layers (map (lambda ((name flags items))
 			(list name flags (map (const cwb-item-out) items))) (cwb-layers doc))
-		:props (. doc :find :props)))
+		:props (. doc :find :props)
+		:view (. doc :find :view)))
 
 (defun cwb-save (doc stream)
 	; (cwb-save doc stream) -> stream
@@ -541,7 +545,7 @@
 			((< version +cwb_version) (cwb-old-in data))
 			(:t (defq doc (cwb-doc))
 				(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
-					'(:width :height :background :style :grid :next_id :props))
+					'(:width :height :background :style :grid :next_id :props :view))
 				(. doc :insert :layers (map (lambda ((name flags items))
 					(list name flags (map (const cwb-item-in) items))) (ifn (. data :find :layers) (list))))
 				;an item with no id, one written by hand, is given one

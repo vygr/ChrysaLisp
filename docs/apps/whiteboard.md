@@ -51,11 +51,35 @@ The left button of the mouse is the pen. The right button is the hand: it
 picks up what it is on and moves it, whatever the pen is set to. The middle
 button moves the board about in its window.
 
-Two fingers down on empty board have hold of the view. Moved together
-they move the board about, as the middle button does. Moved apart, or
-together, they zoom it, a step at a time, and what is between them stays
-between them. One finger on empty board drags a box out to select with,
-as it did.
+## Moving about and zooming
+
+What is drawn is not on the paper as ink is. The things of a board are
+anywhere, as far out as you like, and the paper is a view of some of
+them: a colour and some lines to work on.
+
+* The middle button, dragged, moves what is seen. So does the wheel, or
+a swipe on a mouse that has a top to swipe. There is no edge to come to.
+
+* Two fingers down on empty board move what is seen as they move, and
+zoom it as they are moved apart or together, what is between them staying
+between them.
+
+* The two zoom buttons make what is seen twice the size, or half.
+
+The paper does not grow when it is zoomed, what is seen on it does. And
+the zoom always comes to rest at twice or half of where it was, however
+far the fingers went: it eases there when they let go. That is for the
+lines of the paper. They are drawn as the board is seen, so a thing on a
+line stays on its line, and as the zoom goes finer lines come up between
+the coarse ones, faint at first, till they are the coarse ones and
+fainter ones are coming up between them. At rest the coarse lines are
+full and the fine ones half, never between.
+
+With snap on, things go to the coarse lines as they are at that zoom.
+
+One finger on empty board drags a box out to select with, as it did.
+
+How a board was last seen is kept in its file, and it opens so.
 
 ## The palette
 

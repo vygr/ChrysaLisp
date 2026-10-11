@@ -16,6 +16,7 @@
 	;what the board is now
 	(defq doc (. *board* :get_doc))
 	(. doc :insert :style *style*)
+	(view-to-doc)
 	(bind '(x y w h) (. *window* :get_bounds))
 	(scatter (Emap) :version +config_version
 		:x x :y y :width w :height h
@@ -43,9 +44,10 @@
 				:snap :snap_angle :keep_shape :text :file :tools :doc))
 		(when (and data (defq doc (cwb-in data)))
 			(. *board* :set_doc doc))
-		(if (find zoom +zooms) (setq *zoom* zoom))
+		;how it was seen is kept with the document
+		(view-from-doc)
 		(setq *file* (if (str? file) file) *snap* (if snap :t) *snap_angle* (if snap_angle :t))
-		(def *board* :snap (if *snap* (n2f (. (. *board* :get_doc) :find :grid)) 0.0)
+		(def *board* :snap (if *snap* (snap-gap) 0.0)
 			:snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0)
 			:keep_shape (if keep_shape :t))
 		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))

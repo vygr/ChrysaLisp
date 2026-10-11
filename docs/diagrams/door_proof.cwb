@@ -911,4 +911,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

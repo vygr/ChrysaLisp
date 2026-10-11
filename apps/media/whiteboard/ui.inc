@@ -77,7 +77,7 @@
 
 (defun action-snap ()
 	(setq *snap* (not *snap*))
-	(def *board* :snap (if *snap* (n2f (. (. *board* :get_doc) :find :grid)) 0.0))
+	(def *board* :snap (if *snap* (snap-gap) 0.0))
 	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
 
 (defun action-snap-angle ()

@@ -2293,4 +2293,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

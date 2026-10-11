@@ -3,30 +3,37 @@
 ;
 ; It lies over the canvases the board is drawn on, and takes every event
 ; of the mouse there. Each is made a pointer event, lib/cwb/pointer.inc, in
-; the space of the document, a point of the view over the zoom, and given
-; to the board. The mouse is pointer 0, of kind :mouse, with the buttons
-; it has held.
+; the space of the document, and given to the board. The mouse is pointer
+; 0, of kind :mouse, with the buttons it has held.
 ;
-; The middle button is not the board's. It moves the view about in its
-; scroll, by how far the mouse has gone on the screen, not in the view,
-; which moves under it. The left and the right held together are the
-; middle, for a mouse that has none: what the first of them had begun is
-; let go and not kept.
+; The things of a document are anywhere, and this is a view of some of
+; them: :pan is the point of the document at its top left, and :zoom how
+; big it is seen. A point of the view is taken to the document by those.
+;
+; The middle button is not the board's. It moves what is seen, by how
+; far the mouse has gone, as far as is asked, there is no edge. So does
+; the wheel, or a swipe on a mouse that has a top to swipe. The left and
+; the right held together are the middle, for a mouse that has none:
+; what the first of them had begun is let go and not kept.
 ;
 ; A pen or a finger comes as a pointer event of the GUI, :pointer, with an
 ; id and a kind of its own, and is given to the board as that. Nothing
 ; below this knows which it was.
 ;
 ; Two fingers down on nothing are not the board's either. They have hold
-; of the view: moved together they move it about in its scroll, as the
-; middle button does, and moved apart or together they zoom it, a step of
-; the zooms at a time, what is between them staying between them. The
+; of what is seen: moved together they move it, as the middle button
+; does, and moved apart or together they zoom it, what is between them
+; staying between them. When they let go the zoom comes to rest. The
 ; board is told to give up what each was doing, a box dragged out, a tap.
+;
+; The app is what has the pan and the zoom, and makes them so. It is
+; called: :on_pan by how many pixels, :on_zoom to what zoom and about
+; what point of the paper, :on_rest when a zoom is let go of, about what
+; point.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/view/lisp.inc")
 (import "lib/cwb/board.inc")
-
 
 (defclass Board-view (board) (View)
 	; (Board-view board) -> board_view
@@ -36,20 +43,25 @@
 	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
 		:board board :zoom 1.0 :margin 0 :held 0 :scroll :nil :drag :nil :color 0
-		;the fingers that are down, each where it is on the screen and
-		;in the view; the two that have hold of the view, and how it and
-		;they were when they took it; the zooms there are, and what to
-		;call to have another, (zoom x y), the point of what the scroll
-		;shows that is to stay where it is
-		:fingers (Fmap 11) :grip :nil :zooms :nil :pinch :nil)
+		;the point of the document at the top left of the paper. The
+		;fingers that are down, each where it is in the view. The two that
+		;have hold of what is seen, and how they and it were when they
+		;took it. And what the app is called by, see above
+		:pan (list 0.0 0.0) :fingers (Fmap 11) :grip :nil :on_pan :nil :on_zoom :nil :on_rest :nil)
+
+	(defmethod :to_doc (rx ry)
+		; (. board_view :to_doc rx ry) -> (x y)
+		;a point of the view as a point of the document. The paper is in
+		;from the corner of the view by :margin
+		(defq zoom (get :zoom this) margin (get :margin this))
+		(bind '(px py) (get :pan this))
+		(list (+ px (/ (n2f (- rx margin)) zoom)) (+ py (/ (n2f (- ry margin)) zoom))))
 
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view
 		;an event of the mouse, with these buttons held, to the board
-		;the document is in from the corner of the view by :margin
-		(defq zoom (get :zoom this) margin (get :margin this))
-		(. (get :board this) :pointers (list (ptr-event 0 :mouse buttons
-			(/ (n2f (- (getf event +ev_msg_mouse_rx) margin)) zoom) (/ (n2f (- (getf event +ev_msg_mouse_ry) margin)) zoom))))
+		(bind '(x y) (. this :to_doc (getf event +ev_msg_mouse_rx) (getf event +ev_msg_mouse_ry)))
+		(. (get :board this) :pointers (list (ptr-event 0 :mouse buttons x y)))
 		this)
 
 	(defmethod :mouse_down (event)
@@ -66,11 +78,8 @@
 
 	(defmethod :pan_from (event)
 		; (. board_view :pan_from event) -> board_view
-		;the view is moved about from here: where the mouse is on the
-		;screen, and where the view is in its scroll
-		(when (defq scroll (get :scroll this))
-			(def this :drag (list (getf event +ev_msg_mouse_x) (getf event +ev_msg_mouse_y)
-				(ifn (get :value (get :hslider scroll)) 0) (ifn (get :value (get :vslider scroll)) 0))))
+		;what is seen is moved from here, where the mouse is on the screen
+		(def this :drag (list (getf event +ev_msg_mouse_x) (getf event +ev_msg_mouse_y)))
 		this)
 
 	(defmethod :mouse_move (event)
@@ -89,11 +98,12 @@
 			(. this :pan_from event))
 		(cond
 			((= held +pev_middle)
-				(when (and (defq scroll (get :scroll this)) (defq drag (get :drag this)))
-					(bind '(sx sy hv vv) drag)
-					(def (get :hslider scroll) :value (max 0 (- hv (- (getf event +ev_msg_mouse_x) sx))))
-					(def (get :vslider scroll) :value (max 0 (- vv (- (getf event +ev_msg_mouse_y) sy))))
-					(.-> scroll :layout :dirty_all)))
+				;by how far the mouse has gone since it was last told
+				(when (and (defq on_pan (get :on_pan this)) (defq drag (get :drag this)))
+					(bind '(sx sy) drag)
+					(defq x (getf event +ev_msg_mouse_x) y (getf event +ev_msg_mouse_y))
+					(def this :drag (list x y))
+					(unless (and (= x sx) (= y sy)) (on_pan (- x sx) (- y sy)))))
 			((/= held 0) (. this :mouse_pointer event held)))
 		this)
 
@@ -104,16 +114,23 @@
 		(if (and (/= held 0) (/= held +pev_middle)) (. this :mouse_pointer event 0))
 		this)
 
+	(defmethod :mouse_wheel (event)
+		; (. board_view :mouse_wheel event) -> board_view
+		;a turn of the wheel, or a swipe on a mouse that has a top to
+		;swipe, moves what is seen, the way a scroll goes: 16 pixels a turn
+		(if (defq on_pan (get :on_pan this))
+			(on_pan (* -16 (getf event +ev_msg_wheel_x)) (* 16 (getf event +ev_msg_wheel_y))))
+		this)
+
 	(defmethod :pointer (event)
 		; (. board_view :pointer event) -> board_view
 		;a pen or a finger, as the GUI tells of one, to the board as it is:
 		;its own id, its kind, what it has held and how hard it is pressed
-		(defq zoom (get :zoom this) margin (get :margin this) buttons (getf event +ev_msg_pointer_buttons))
+		(bind '(x y) (. this :to_doc (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
 		(. (get :board this) :pointers (list (ptr-event
 			(getf event +ev_msg_pointer_id)
 			(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
-			buttons
-			(/ (n2f (- (getf event +ev_msg_pointer_rx) margin)) zoom) (/ (n2f (- (getf event +ev_msg_pointer_ry) margin)) zoom)
+			(getf event +ev_msg_pointer_buttons) x y
 			(/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))))
 		(if (= (min 3 (getf event +ev_msg_pointer_kind)) 3) (. this :finger event))
 		this)
@@ -121,75 +138,59 @@
 	(defmethod :finger (event)
 		; (. board_view :finger event) -> board_view
 		;a finger, after the board has had it. Two that are on nothing
-		;take hold of the view, and have it till one of them comes up
+		;take hold of what is seen, and have it till one of them comes up
 		(defq fingers (get :fingers this) id (getf event +ev_msg_pointer_id) board (get :board this)
-			scroll (get :scroll this) grip (get :grip this))
+			grip (get :grip this) margin (get :margin this))
 		(if (/= (getf event +ev_msg_pointer_buttons) 0)
-			(. fingers :insert id (list (getf event +ev_msg_pointer_x) (getf event +ev_msg_pointer_y)
-				(getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
+			(. fingers :insert id (list (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
 			(. fingers :erase id))
-		(when scroll
-			(defq hslider (get :hslider scroll) vslider (get :vslider scroll))
-			;one of the two has come up, the view is let go of
-			(if (and grip (not (and (. fingers :find (first grip)) (. fingers :find (second grip)))))
-				(def this :grip (setq grip :nil)))
-			(unless grip
-				;the first two, in the order they came, that are on nothing
-				(defq free (list))
-				(. fingers :each (lambda (fid at) (if (. board :pointer_free? fid) (push free fid))))
-				(when (>= (length free) 2)
-					(sort free (const -))
-					(defq ida (first free) idb (second free))
-					(. board :pointer_idle ida)
-					(. board :pointer_idle idb)
-					(bind '(ax ay &ignore) (. fingers :find ida))
-					(bind '(bx by &ignore) (. fingers :find idb))
-					;who they are, the middle of them on the screen, how far
-					;apart, where the view was in its scroll, and its zoom
-					(def this :grip (setq grip (list ida idb (/ (+ ax bx) 2) (/ (+ ay by) 2)
-						(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
-						(ifn (get :value hslider) 0) (ifn (get :value vslider) 0) (get :zoom this))))))
-			(when grip
-				(bind '(ida idb mx my apart hv vv zoom) grip)
-				(bind '(ax ay arx ary) (. fingers :find ida))
-				(bind '(bx by brx bry) (. fingers :find idb))
-				(defq nx (/ (+ ax bx) 2) ny (/ (+ ay by) 2)
-					now (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
-				;moved together: the view goes with them, by how far they
-				;have gone on the screen, the view moves under them
-				(def hslider :value (max 0 (- hv (- nx mx))))
-				(def vslider :value (max 0 (- vv (- ny my))))
-				(.-> scroll :layout :dirty_all)
-				;apart or together: the zoom that is nearest what they ask
-				;for. If it is another, the app makes it so, with what is
-				;between them where it was, and the view is moved from there
-				(when (and (defq zooms (get :zooms this)) (defq pinch (get :pinch this)))
-					(defq want (* zoom (/ now apart)) best (get :zoom this))
-					(each (# (if (< (abs (- (/ want %0) 1.0)) (abs (- (/ want best) 1.0))) (setq best %0))) zooms)
-					;not for a hair past half way, or it would flicker there,
-					;and not till they are a fifth nearer or further than they
-					;were: two fingers that move a view do not keep their distance
-					(when (and (/= best (get :zoom this))
-							(or (/= (get :zoom this) zoom) (> (abs (- (/ now apart) 1.0)) 0.2))
-							(< (abs (- (/ want best) 1.0)) (* 0.8 (abs (- (/ want (get :zoom this)) 1.0)))))
-						(pinch best (- (/ (+ arx brx) 2) (ifn (get :value hslider) 0)) (- (/ (+ ary bry) 2) (ifn (get :value vslider) 0)))
-						;how far apart they were, and the zoom then, are kept: the
-						;zoom is by how far apart they are now against that
-						(elem-set grip 2 nx)
-						(elem-set grip 3 ny)
-						(elem-set grip 5 (ifn (get :value hslider) 0))
-						(elem-set grip 6 (ifn (get :value vslider) 0))))))
-		this)
-
-	(defmethod :mouse_wheel (event)
-		; (. board_view :mouse_wheel event) -> board_view
-		;a turn of the wheel, or a swipe on a mouse that has a top to
-		;swipe, moves the board about in its scroll. It is given to the
-		;scroll by name, not left to be found on the way up from here
-		(when (defq scroll (get :scroll this))
-			(. scroll :mouse_wheel event)
-			;and all of it shown again, as when the middle button moves it
-			(.-> scroll :layout :dirty_all))
+		;one of the two has come up: what is seen is let go of, and if it
+		;was zoomed it comes to rest, about where the two last were
+		(when (and grip (not (and (. fingers :find (first grip)) (. fingers :find (second grip)))))
+			(bind '(ida idb mx my apart zoom zoomed) grip)
+			(if (and zoomed (defq on_rest (get :on_rest this))) (on_rest (- mx margin) (- my margin)))
+			(def this :grip (setq grip :nil)))
+		(unless grip
+			;the first two, in the order they came, that are on nothing
+			(defq free (list))
+			(. fingers :each (lambda (fid at) (if (. board :pointer_free? fid) (push free fid))))
+			(when (>= (length free) 2)
+				(sort free (const -))
+				(defq ida (first free) idb (second free))
+				(. board :pointer_idle ida)
+				(. board :pointer_idle idb)
+				(bind '(ax ay) (. fingers :find ida))
+				(bind '(bx by) (. fingers :find idb))
+				;who they are, the middle of them, how far apart they
+				;are, the zoom there is, and that it has not been zoomed
+				(def this :grip (setq grip (list ida idb (/ (+ ax bx) 2) (/ (+ ay by) 2)
+					(max 1.0 (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))))
+					(get :zoom this) :nil)))))
+		(when grip
+			(bind '(ida idb mx my apart zoom zoomed) grip)
+			(bind '(ax ay) (. fingers :find ida))
+			(bind '(bx by) (. fingers :find idb))
+			(defq nx (/ (+ ax bx) 2) ny (/ (+ ay by) 2)
+				by_far (/ (sqrt (n2f (+ (* (- bx ax) (- bx ax)) (* (- by ay) (- by ay))))) apart))
+			;moved together: what is seen goes with them, by how far the
+			;middle of them has gone since it was last told
+			(elem-set grip 2 nx)
+			(elem-set grip 3 ny)
+			(if (and (defq on_pan (get :on_pan this)) (not (and (= nx mx) (= ny my))))
+				(on_pan (- nx mx) (- ny my)))
+			;apart or together: it is zoomed by how far apart they are
+			;against how far they were, about the middle of them. Not till
+			;that is a twelfth more or less: two fingers that only move a
+			;thing do not keep their distance. From there on it is by how
+			;far past that they have gone, so it does not jump as it starts
+			(when (defq on_zoom (get :on_zoom this))
+				(cond
+					((> by_far 1.08) (setq by_far (/ by_far 1.08)))
+					((< by_far 0.92) (setq by_far (/ by_far 0.92)))
+					(:t (setq by_far 1.0)))
+				(when (or zoomed (/= by_far 1.0))
+					(elem-set grip 6 :t)
+					(on_zoom (* zoom by_far) (- nx margin) (- ny margin)))))
 		this)
 
 	(defmethod :mouse_hover (event)

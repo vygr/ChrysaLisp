@@ -1986,4 +1986,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

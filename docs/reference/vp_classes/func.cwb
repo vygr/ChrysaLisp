@@ -504,4 +504,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

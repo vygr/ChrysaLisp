@@ -31,9 +31,19 @@
 	(enum main picker timer tip))
 
 ;the zooms there are, stepped through, so that in and then out is where it was
-(defq +zooms ''(0.125 0.25 0.5 0.75 1.0 1.5 2.0 3.0 4.0 6.0 8.0))
+;the zooms it comes to rest at, each twice the last: at one of these the
+;lines of the paper are as they should be, the coarse ones full and the
+;fine ones half, and between two of them they are part way. So it is
+;never left between, (zoom-magnet)
+(defq +zooms ''(0.125 0.25 0.5 1.0 2.0 4.0 8.0))
 
 (defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil
+	;the things of a document are anywhere. The paper is a view of some of
+	;that, of the size the document says, and is not what they are on:
+	;*pan_x* *pan_y* is the point of the document at its top left, and
+	;*zoom* how big it is seen. *zoom_to* is where the zoom is going,
+	;(zoom x y), a little each tick till it is there, and about what point
+	*pan_x* 0.0 *pan_y* 0.0 *zoom_to* :nil
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*flight_back* :nil *canvas_size* :nil
@@ -107,10 +117,10 @@
 
 (defun canvas-size ()
 	; (canvas-size) -> (width height)
-	;the size of the board on the screen, the document's by the zoom
+	;the size of the paper on the screen, what the document says. The
+	;zoom does not make it bigger, it makes what is seen on it bigger
 	(defq doc (. *board* :get_doc))
-	(list (max 1 (n2i (* (n2f (. doc :find :width)) *zoom*)))
-		(max 1 (n2i (* (n2f (. doc :find :height)) *zoom*)))))
+	(list (max 1 (. doc :find :width)) (max 1 (. doc :find :height))))
 
 (defun field-size ()
 	; (field-size) -> (width height)
@@ -124,8 +134,11 @@
 
 (defun view-matrix ()
 	; (view-matrix) -> :nil | matrix
-	;from the document to the canvas
-	(if (= *zoom* 1.0) :nil (Mat3x2-scale *zoom*)))
+	;from the document to the canvas: what is at the pan is at its top
+	;left, and it is as big as the zoom
+	(cond
+		((and (= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0)) :nil)
+		(:t (Mat3x2-mul (Mat3x2-scale *zoom*) (Mat3x2-translate (neg *pan_x*) (neg *pan_y*))))))
 
 (defun over-matrix ()
 	; (over-matrix) -> :nil | matrix
@@ -144,7 +157,35 @@
 	(if (<= sh 0) (setq sh ch))
 	(defq hv (ifn (get :value (get :hslider *image_scroll*)) 0)
 		vv (ifn (get :value (get :vslider *image_scroll*)) 0))
-	(list (/ (n2f (- (+ hv (/ (min sw cw) 2)) *margin*)) *zoom*) (/ (n2f (- (+ vv (/ (min sh ch) 2)) *margin*)) *zoom*)))
+	(list (+ *pan_x* (/ (n2f (- (+ hv (/ (min sw cw) 2)) *margin*)) *zoom*))
+		(+ *pan_y* (/ (n2f (- (+ vv (/ (min sh ch) 2)) *margin*)) *zoom*))))
+
+(defun zoom-level (zoom)
+	; (zoom-level zoom) -> (level part)
+	;a zoom as how many times 1 was doubled to get to the rest zoom at
+	;or under it, less than 0 for halved, and how far it is from that
+	;one to the next, 0 up to 1
+	(defq level 0)
+	(while (>= zoom 2.0) (setq zoom (/ zoom 2.0) level (inc level)))
+	(while (< zoom 1.0) (setq zoom (* zoom 2.0) level (dec level)))
+	(list level (- zoom 1.0)))
+
+(defun zoom-magnet (zoom)
+	; (zoom-magnet zoom) -> zoom
+	;the zoom to rest at that is nearest, of the zooms there are
+	(defq best (first +zooms))
+	(each (# (if (< (abs (- (/ zoom %0) 1.0)) (abs (- (/ zoom best) 1.0))) (setq best %0))) +zooms)
+	best)
+
+(defun snap-gap ()
+	; (snap-gap) -> gap
+	;what a thing goes to when the snap is on: the coarse lines of the
+	;paper as they are at the zoom it rests at, the grid of the document
+	;halved for each time the zoom is doubled
+	(bind '(level &ignore) (zoom-level (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))))
+	(defq gap (n2f (. (. *board* :get_doc) :find :grid)))
+	(times (abs level) (setq gap (if (> level 0) (/ gap 2.0) (* gap 2.0))))
+	gap)
 
 ;what is kept for an instrument: it, the canvas it is on and one not
 ;seen to draw the next on, what it was when it was drawn, where on the
@@ -175,7 +216,7 @@
 	(bind '(ox oy) (get :origin tool))
 	;where its own 0 0 is on the screen, the pixel, and the part of one
 	;over, to an eighth. A canvas is put at whole pixels
-	(defq sx (+ (* ox *zoom*) (n2f *margin*)) sy (+ (* oy *zoom*) (n2f *margin*))
+	(defq sx (+ (* (- ox *pan_x*) *zoom*) (n2f *margin*)) sy (+ (* (- oy *pan_y*) *zoom*) (n2f *margin*))
 		ix (n2i (floor (+ sx 0.5))) iy (n2i (floor (+ sy 0.5)))
 		fx (/ (n2f (n2i (floor (+ (* (- sx (n2f ix)) 8.0) 0.5)))) 8.0)
 		fy (/ (n2f (n2i (floor (+ (* (- sy (n2f iy)) 8.0) 0.5)))) 8.0)
@@ -286,7 +327,7 @@
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
 		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1)
 		*top* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1) *top_used* :t
-		*flight* (Canvas w h 1) *paper* (Canvas w h 1) *paper_dirty* :t *flight_used* :nil *flight_back* :nil
+		*flight* (Canvas w h 1) *paper* (Backdrop) *paper_dirty* :t *flight_used* :nil *flight_back* :nil
 		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1))
 	(. *flight_spare* :set_canvas_flags +canvas_flag_antialias)
 	(def *flight_spare* :color 0)
@@ -295,7 +336,7 @@
 	(. *flight_clip* :add_child *flight*)
 	(. *flight* :set_bounds 0 0 w h)
 	(each (# (. %0 :set_canvas_flags +canvas_flag_antialias) (def %0 :color 0))
-		(list *committed* *overlay* *flight* *paper* *top*))
+		(list *committed* *overlay* *flight* *top*))
 	(. *flight* :fill 0)
 	(. *top* :fill 0)
 	;a child that is added goes behind those there are, so the front one first
@@ -303,7 +344,7 @@
 	;the document's, and the two behind it, are in from the corner by the margin
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
 	(def *board* :zoom *zoom*)
-	(def *board_view* :zoom *zoom* :margin *margin*)
+	(def *board_view* :zoom *zoom* :margin *margin* :pan (list *pan_x* *pan_y*))
 	(defq doc (. *board* :get_doc))
 	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
 	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
@@ -313,41 +354,103 @@
 	(if (nempty? *tools*) (tools-stack))
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
+(defun view-changed ()
+	;the pan or the zoom is another: the board and its view are told,
+	;the snap is the grid there is at that zoom, and all of it is drawn
+	;again, the paper too. What is in flight is drawn, not moved as a
+	;picture, it is in another place on its canvas
+	(def *board* :zoom *zoom*)
+	(def *board_view* :zoom *zoom* :pan (list *pan_x* *pan_y*))
+	(if *snap* (def *board* :snap (snap-gap)))
+	(setq *paper_dirty* :t *flight_at* :nil)
+	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
+
+(defun pan-by (dx dy)
+	;what is seen is moved by that many pixels of the screen, as far as
+	;is asked: the things of a document are anywhere, there is no edge
+	(setq *pan_x* (- *pan_x* (/ (n2f dx) *zoom*)) *pan_y* (- *pan_y* (/ (n2f dy) *zoom*)))
+	(view-changed))
+
+(defun zoom-set (zoom cx cy)
+	;the zoom is that, and the point of the document that is at cx cy of
+	;the paper stays there
+	(setq zoom (max (first +zooms) (min (last +zooms) (n2f zoom))))
+	(unless (= zoom *zoom*)
+		(defq dx (+ *pan_x* (/ (n2f cx) *zoom*)) dy (+ *pan_y* (/ (n2f cy) *zoom*)))
+		(setq *zoom* zoom *pan_x* (- dx (/ (n2f cx) zoom)) *pan_y* (- dy (/ (n2f cy) zoom)))
+		(view-changed)))
+
+(defun zoom-pinch (zoom cx cy)
+	;as two fingers ask, as they move. Near a zoom it would rest at it is
+	;that one, they are felt as an instrument feels its angles
+	(setq *zoom_to* :nil)
+	(defq rest (zoom-magnet zoom))
+	(zoom-set (if (< (abs (- (/ (n2f zoom) rest) 1.0)) 0.06) rest zoom) cx cy))
+
+(defun zoom-go (zoom cx cy)
+	;the zoom is to be that, by way of what is between: a little of the
+	;way each tick, (zoom-tick). Not a jump, Chris: "ease to the magnet on
+	;release. it's better than a jump."
+	(setq *zoom_to* (list (max (first +zooms) (min (last +zooms) (n2f zoom))) cx cy))
+	(if *snap* (def *board* :snap (snap-gap))))
+
+(defun zoom-rest (cx cy)
+	;the fingers have let go: it goes to the zoom it rests at that is nearest
+	(zoom-go (zoom-magnet *zoom*) cx cy))
+
+(defun zoom-tick ()
+	; (zoom-tick) -> :t | :nil
+	;a step of the way to where the zoom is going. Is it still going
+	(when *zoom_to*
+		(bind '(zoom cx cy) *zoom_to*)
+		(defq next (+ *zoom* (* (- zoom *zoom*) 0.3)))
+		(cond
+			((< (abs (- (/ next zoom) 1.0)) 0.01)
+				(setq *zoom_to* :nil)
+				(zoom-set zoom cx cy))
+			(:t (zoom-set next cx cy)))
+		:t))
+
 (defun step-zoom (step)
-	;to the next zoom up or down, what is in the middle of the view stays there
-	(defq at (ifn (find *zoom* +zooms) (find 1.0 +zooms))
-		zoom (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step)))))
-	(unless (= zoom *zoom*)
-		(bind '(mx my) (view-middle))
-		(setq *zoom* zoom)
-		(board-resized)
-		(bind '(sw sh) (. *image_scroll* :get_size))
-		(def (get :hslider *image_scroll*) :value (max 0 (- (+ (n2i (* mx *zoom*)) *margin*) (/ sw 2))))
-		(def (get :vslider *image_scroll*) :value (max 0 (- (+ (n2i (* my *zoom*)) *margin*) (/ sh 2))))
-		(.-> *image_scroll* :layout :dirty_all)))
+	;to the next zoom up or down, twice or half, what is in the middle
+	;of what shows stays there
+	(defq zoom (zoom-magnet (if *zoom_to* (first *zoom_to*) *zoom*))
+		at (ifn (find zoom +zooms) (find 1.0 +zooms)))
+	(bind '(sw sh) (. *image_scroll* :get_size))
+	(bind '(cw ch) (canvas-size))
+	(if (<= sw 0) (setq sw cw))
+	(if (<= sh 0) (setq sh ch))
+	(zoom-go (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at step))))
+		(- (+ (ifn (get :value (get :hslider *image_scroll*)) 0) (/ (min sw (+ cw *margin* *margin*)) 2)) *margin*)
+		(- (+ (ifn (get :value (get :vslider *image_scroll*)) 0) (/ (min sh (+ ch *margin* *margin*)) 2)) *margin*)))
 
-(defun zoom-at (zoom sx sy)
-	;the zoom is that, and the point of the document that is at sx sy of
-	;what the scroll shows stays there: between two fingers that pinch
-	(unless (= zoom *zoom*)
-		(defq hslider (get :hslider *image_scroll*) vslider (get :vslider *image_scroll*)
-			dx (/ (n2f (- (+ (ifn (get :value hslider) 0) sx) *margin*)) *zoom*)
-			dy (/ (n2f (- (+ (ifn (get :value vslider) 0) sy) *margin*)) *zoom*))
-		(setq *zoom* zoom)
-		(board-resized)
-		(def hslider :value (max 0 (- (+ (n2i (* dx *zoom*)) *margin*) sx)))
-		(def vslider :value (max 0 (- (+ (n2i (* dy *zoom*)) *margin*) sy)))
-		(.-> *image_scroll* :layout :dirty_all)))
-
-;two fingers on nothing zoom the view by this, apps/media/whiteboard/view.inc
-(def *board_view* :zooms +zooms :pinch zoom-at)
+;the wheel, the middle button and two fingers move what is seen, two
+;fingers zoom it, and when they let go it comes to rest, view.inc
+(def *board_view* :on_pan pan-by :on_zoom zoom-pinch :on_rest zoom-rest)
 
 (defun draw-paper ()
-	;what is behind the document to work on, not part of it, lib/cwb/paper.inc
-	(defq doc (. *board* :get_doc))
-	(bind '(w h) (canvas-size))
-	(cwb-paper *paper* w h (. doc :find :background) *style*
-		(max 2 (n2i (* (n2f (. doc :find :grid)) *zoom*)))))
+	;what is behind the document to work on, not part of it: a colour,
+	;and lines by a style. It is the paper's, not the document's, and is
+	;drawn as the document is seen, moved and zoomed, so a thing on a
+	;line stays on it. Chris, of his wall panels: "as you zoom the 'half'
+	;bright grid lines gradualy became fully opaque and took over". So
+	;three rulings, each half the gap of the last: the coarse one full,
+	;the next from half to full as the zoom goes from one it rests at to
+	;the next, and the finest from nothing to half. At rest that is full,
+	;half and none, and at the next rest it is the same with each ruling
+	;in the place of the one before
+	(defq doc (. *board* :get_doc) back (. doc :find :background)
+		ink (logand +cwb_paper_ink 0xffffff))
+	(bind '(level part) (zoom-level *zoom*))
+	(defq gap (* (n2f (. doc :find :grid)) (+ 1.0 part))
+		shade (# (+ (<< (max 0 (min 255 (n2i (* %0 255.0)))) 24) ink)))
+	(def *paper* :color (if (= (logand back 0xff000000) 0xff000000) back +cwb_paper_col)
+		:style (if (eql *style* :plain) :nil *style*)
+		:origin_x (* (neg *pan_x*) *zoom*) :origin_y (* (neg *pan_y*) *zoom*)
+		:spacing gap :ink_color (shade 1.0)
+		:rules (list (list (/ gap 4.0) (shade (* 0.5 part))) (list (/ gap 2.0) (shade (+ 0.5 (* 0.5 part))))
+			(list gap (shade 1.0))))
+	(. *paper* :dirty))
 
 (defun draw-local (m)
 	;all of the document, by this task, and how long it took. It is not
@@ -450,7 +553,8 @@
 		(defq now (if flying (. *board* :selected_items) (list)) ox 0 oy 0 whole :nil
 			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
 		(when (and quiet (defq box (cwb-bounds now)))
-			(bind '(bx by bx1 by1) (map (# (* %0 *zoom*)) box))
+			(bind '(bx by bx1 by1) (list (* (- (first box) *pan_x*) *zoom*) (* (- (second box) *pan_y*) *zoom*)
+				(* (- (third box) *pan_x*) *zoom*) (* (- (elem-get box 3) *pan_y*) *zoom*)))
 			;with room for its handles, if they are drawn with it
 			(defq room (if back 34 4)
 				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
@@ -501,8 +605,8 @@
 	(defq doc (. *board* :get_doc) skip (get :floating *board*) parts (list))
 	(each (lambda ((x y x1 y1))
 		;in pixels of the canvas, and a little more for the soft edge of a line
-		(defq cx (max 0 (- (n2i (floor (* x *zoom*))) 3)) cy (max 0 (- (n2i (floor (* y *zoom*))) 3))
-			cx1 (min w (+ (n2i (floor (* x1 *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* y1 *zoom*))) 4)))
+		(defq cx (max 0 (- (n2i (floor (* (- x *pan_x*) *zoom*))) 3)) cy (max 0 (- (n2i (floor (* (- y *pan_y*) *zoom*))) 3))
+			cx1 (min w (+ (n2i (floor (* (- x1 *pan_x*) *zoom*))) 4)) cy1 (min h (+ (n2i (floor (* (- y1 *pan_y*) *zoom*))) 4)))
 		(when (and (< cx cx1) (< cy cy1))
 			(. *committed* :clear 0 cx cy (- cx1 cx) (- cy1 cy))
 			(. *committed* :set_clip cx cy cx1 cy1)
@@ -523,7 +627,10 @@
 	;is the document one for the nodes to draw: it took this task a while
 	;last time, the pixels are where they can reach, and it has not kept
 	;going wrong
-	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)))
+	;and it is seen from 0 0 at 1: the nodes do not know of a pan, and
+	;draw rows of a canvas that is the document's own size
+	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)
+		(= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0)))
 
 (defun redraw ()
 	;draw what has changed. All of the document; or only what was put on
@@ -579,7 +686,6 @@
 	;shown last, when all else is done
 	(if show (. *committed* :swap +swap_write))
 	(if show_parts (show-parts *committed* show_parts))
-	(if show_paper (. *paper* :swap +swap_write))
 	(if show_under (. *flight* :swap +swap_write))
 	(if show_over (. *overlay* :swap +swap_write))
 	(when *top_show*
@@ -619,14 +725,30 @@
 		(. *stripes* :close)
 		(frame-done :failed)))
 
+(defun view-to-doc ()
+	;how the document is seen now is kept with it, when it is saved
+	(. (. *board* :get_doc) :insert :view (list *pan_x* *pan_y* *zoom*)))
+
+(defun view-from-doc ()
+	;a document is seen as it was when it was saved, one that does not
+	;say from 0 0 at 1. Its zoom is one it rests at
+	(defq view (. (. *board* :get_doc) :find :view))
+	(setq *zoom_to* :nil *pan_x* 0.0 *pan_y* 0.0 *zoom* 1.0)
+	(when (and (list? view) (= (length view) 3) (every (const num?) view))
+		(setq *pan_x* (n2f (first view)) *pan_y* (n2f (second view)) *zoom* (zoom-magnet (n2f (third view))))))
+
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
 	(. (. *board* :get_doc) :insert :style *style*)
 	;the paper is made the size of what is on it, so the file, shown as a
 	;picture, is all that was drawn and no more
 	(. *board* :fit)
+	;what was drawn is at the top left of the paper now, and is seen from there
+	(setq *pan_x* 0.0 *pan_y* 0.0)
+	(view-to-doc)
 	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write))
-	(board-resized))
+	(board-resized)
+	(view-changed))
 
 (defun board-load (file)
 	(when (and (ends-with ".cwb" file) (defq doc (cwb-load (file-stream file))))
@@ -635,11 +757,13 @@
 		;the paper is the size of what is on it, whatever size the file said
 		(. *board* :fit)
 		(. *board* :forget)
+		(view-from-doc)
 		;it is worked on as it was last
 		(when (defq at (find (. doc :find :style) *styles*))
 			(setq *style* (elem-get *styles* at))
 			(. *style_toolbar* :set_selected at))
-		(board-resized)))
+		(board-resized)
+		(view-changed)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -686,6 +810,8 @@
 				(def *board* :text (. *text_field* :get_text))
 				;what is on the board that moves by itself is told the time
 				(. *board* :tick (pii-time))
+				;and the zoom, if it is on its way somewhere
+				(zoom-tick)
 				(redraw)
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)

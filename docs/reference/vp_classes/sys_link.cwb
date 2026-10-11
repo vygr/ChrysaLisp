@@ -195,4 +195,5 @@
 		)
 	)
 	:props :nil
+	:view :nil
 )

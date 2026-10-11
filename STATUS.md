@@ -4,6 +4,65 @@
 
 ------
 
+The things of a board are anywhere, and the paper is a view of them.
+
+Chris: "the shapes live in an infite 2d cord space, the canvas is still
+a finiite size view." "The canvas/paper is just a background with a
+paticular colour and a drawing grid or line, with the snap interaction.
+But it's not the parent of the shapes in a scene graph sence." Of the
+grid: "as you zoom the 'half' bright grid lines gradualy became fully
+opaque and took over the the old", "you do need zoom magnets for that
+effect to work well". "we probably need to extend the Backdrop widget".
+"go, ease to the magnet on release." And as it was being built: "Rather
+than literaly changing the co-ords of all the shapes, we could still
+have a matrix for the canvas". It is that, a matrix, no shape is
+changed.
+
+What is built.
+
+* `gui/backdrop/lisp.inc`: a Backdrop can be given where its lines
+start, `:origin_x :origin_y`, more rulings than one, `:rules`, each a
+gap, which can have parts of a pixel, and a colour, and `:turned` for
+lines that go up and down. One that is given none of them draws as it
+did. `(backdrop-lines)` is where the lines of a ruling fall, tested.
+
+* The Whiteboard's paper is a Backdrop now, not a canvas of pixels drawn
+by `(cwb-paper)`.
+
+* The app has a pan and a zoom, one matrix of them, `(view-matrix)`. The
+canvases are the size of the paper whatever the zoom: a zoom makes no
+canvas. The middle button, the wheel and two fingers move what is seen,
+with no edge. Two fingers zoom it, smoothly now, it is only drawn again.
+
+* The zooms it rests at are each twice the last. Fingers feel one when
+near, let go it eases to the nearest, and the buttons ease to the next.
+Between two the paper's three rulings are part way, and at rest the
+coarse are full, the fine half, the finest none.
+
+* Snap is to the coarse lines of the zoom it rests at.
+
+* How a document was seen is kept in it, `:view`, a new key of a `.cwb`.
+One without it is seen from `0 0` at 1.
+
+What I got wrong on the way. I had said a smooth zoom needed what puts
+the screen together to scale a picture. It needs nothing: the canvases
+do not change size, so it is drawn again at each zoom.
+
+The app's tests, 98: zoom is twice and the paper the size it was; a pen
+draws where it is in the document zoomed and moved; the paper's lines
+at rest and half way; two fingers move what is seen, zoom it, and let
+go it gets to twice; the middle button moves it. The Backdrop's, 10.
+Every test on the x64 Mac and the Pi, 5931 each; the cwb, backdrop,
+whiteboard and app modules on the M4.
+
+Not seen: any of it on a screen. A see-through line on a Backdrop has
+never been drawn here before, the fade is worked out, not looked at.
+
+Not done: the nodes' stripes when the view is not from `0 0` at 1;
+turning the board; saving still fits the paper to what is drawn.
+
+------
+
 Chris at the desktop, with a recorder in: the instruments, a flicker,
 the wheel, and what an infinite canvas is.
 

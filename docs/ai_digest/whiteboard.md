@@ -296,33 +296,79 @@ comes to rest it is drawn once more just where it is, to an eighth of a
 pixel. `(draw-tools)` and `(tool-show)` in `app.lisp`. A palette, and the
 rings where fingers are, are on one more canvas in front of them all.
 
-## Two fingers on nothing
+## The view: a pan and a zoom
 
-Two fingers down on empty board are not the board's, they have hold of
-the view, `apps/media/whiteboard/view.inc`, `(:finger)`. The board has
-each finger first, as it has every pointer, and is then asked which are
-on nothing, `(. board :pointer_free? id)`: the first two that are take
-the view, and the board is told to give up what each was doing, a box
-dragged out, a tap that opens the palette, `(. board :pointer_idle id)`.
+The things of a document are anywhere. The paper is not what they are
+on, in the sense that a view is what its children are on: it is a
+background, a colour and lines, of a size, and the document is seen
+through it from some point at some zoom. Chris: "the shapes live in an
+infite 2d cord space, the canvas is still a finiite size view", and "The
+canvas/paper is just a background with a paticular colour and a drawing
+grid or line, with the snap interaction. But it's not the parent of the
+shapes in a scene graph sence."
 
-Moved together, the view is moved in its scroll by how far the middle of
-the two has gone on the screen, not in the view, which moves under them.
-Moved apart or together, the zoom wanted is the zoom there was by how far
-apart they are now over how far they were. The nearest of the zooms there
-are is taken, once it is clearly nearer than the one there is, and not
-till the two are a fifth nearer or further than they began: two fingers
-that only move a view do not keep their distance. The app makes the
-zoom, `(zoom-at)`, new canvases and all drawn again, with the point of the
-document between the fingers left where it was.
+So the app has `*pan_x* *pan_y*`, the point of the document at the top
+left of the paper, and `*zoom*`, and one matrix of them, `(view-matrix)`,
+that everything is drawn through. No shape is changed by a move of the
+view. A point of the view is taken to the document the other way,
+`(. board_view :to_doc)`. The canvases are the size of the paper whatever
+the zoom, so a zoom makes none, it is only all drawn again.
 
-It is a step of the zooms at a time and not smooth. For it to be, what
-puts the screen together would have to draw a picture at another size
-while the fingers move, and `(. view :ctx_blit)` can not: it draws a
-texture point for point, cut to the parts of the view that show.
+What moves the view is in `view.inc`, and calls the app: the middle
+button and the wheel, `:on_pan` by so many pixels, `(pan-by)`; two
+fingers on nothing, `:on_pan` and `:on_zoom`, `(zoom-pinch)`, and when
+they let go `:on_rest`, `(zoom-rest)`. The board has each finger first, as
+it has every pointer, and is asked which are on nothing,
+`(. board :pointer_free? id)`; the first two take the view, and the board
+is told to give up what each was doing, `(. board :pointer_idle id)`.
 
-Turning the board is not here. Chris: "Full canvas rotation is a rae
-thing to do", "set the magnets for angles on the canvas as 90 degrees,
-full locks", "the action and the final jump of the canvas is enough".
+### The zooms it rests at, and the paper's lines
+
+```vdu
+zoom:       1     1.5     2     3      4
+coarse:     32    48      32    48     32     pixels apart, full
+fine:       16    24      16    24     16     half ... three quarters ... half
+finest:     8     12      8     12     8      none ... a quarter ... none
+```
+
+`(draw-paper)`. The paper is a `Backdrop`, `gui/backdrop/lisp.inc`, with
+an origin, where the document's `0 0` is seen, and three rulings, each
+half the gap of the last. From one zoom it rests at to the next the gap
+of each goes to twice, the coarse one stays full, the next goes from half
+to full and the finest from nothing to half: which is where it began,
+with each ruling in the place of the one before. So it never ends.
+
+It is only right at rest. Chris: "you do need zoom magnets for that
+effect to work well", "you don't want to lave the board with all lines
+75% opaque !" The zooms it rests at are `+zooms`, each twice the last.
+Fingers that pinch feel one when they are within a sixteenth of it. Let
+go, the zoom goes to the nearest, a third of the way each tick,
+`(zoom-go)` and `(zoom-tick)`: "ease to the magnet on release. it's
+better than a jump." The zoom buttons go to the next the same way.
+
+The snap is to the coarse lines of the zoom it rests at, `(snap-gap)`.
+
+### Kept with the document
+
+`:view` of a document, `(x y zoom)`, is how it was last seen. The app
+writes it as it saves and reads it as it loads. It is not a step that is
+undone, and nothing of `lib/cwb` reads it: a `.cwb` shown as a picture is
+all of what was drawn, from wherever it was looked at.
+
+### Not here
+
+* The nodes that draw a big board in stripes do not know of a pan or a
+  zoom. They draw one that is seen from `0 0` at 1, and the app's own
+  task draws it otherwise.
+
+* A move of the view draws all of it again. Nothing is slid.
+
+* Turning the board. Chris: "Full canvas rotation is a rae thing to do",
+  "set the magnets for angles on the canvas as 90 degrees, full locks",
+  "the action and the final jump of the canvas is enough".
+
+* Saving still makes the paper the size of what is drawn and brings it to
+  the top left, as it did when the paper was what things were on.
 
 ## The instruments
 
