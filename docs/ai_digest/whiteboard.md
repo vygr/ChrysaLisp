@@ -567,6 +567,20 @@ along an edge past its 0. A protractor has `:mode`, `:line`, `:pie`, `:fpie`,
 one no circle, and a part of it, `:mode`, that a tap takes to the next. The
 instrument says what it does, no toolbar does.
 
+Near is `+tool_band`, 6 pixels of the screen either side of the edge at any
+zoom, so the catch of an edge is as wide across as the widest line the
+Whiteboard draws. With the board's `:hover_edges`, on as a board is made, a
+pen or a mouse that is near and not down is shown the catch of the one edge
+that would hold it if it went down, a thin blue dotted line round it,
+`(. instrument :catch_shape edge)`. Nothing is shown over the body of the
+instrument, where a pointer would take hold of it, nor for an instrument
+that another is in front of there, nor to a pointer bound to something
+other than the pen. The board keeps where each such pointer is in
+`:hovers` and what is shown in `:hover_shown`, `(. board :hovering
+events)`, and draws them in `(:draw_actors)`. The Whiteboard keeps the
+setting in `whiteboard.tre`, `:hover_edges`, 1 or 0, and sends the board a
+mouse that moves with nothing held.
+
 A `:size` part with a third thing, -1.0 or 1.0, is an end: dragged along
 the instrument, that end goes with the pointer and the other end stays
 where it is on the board. The two ends of a ruler are.

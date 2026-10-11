@@ -184,7 +184,10 @@
 					(defq x (getf event +ev_msg_mouse_x) y (getf event +ev_msg_mouse_y))
 					(def this :drag (list x y))
 					(unless (or (and (= x sx) (= y sy)) (. (get :board this) :busy?)) (on_pan (- x sx) (- y sy)))))
-			((/= held 0) (. this :mouse_pointer event held)))
+			((/= held 0) (. this :mouse_pointer event held))
+			;with nothing held it is near, not down: the board shows what
+			;would catch it
+			((get :hover_edges (get :board this)) (. this :mouse_pointer event 0)))
 		this)
 
 	(defmethod :mouse_up (event)

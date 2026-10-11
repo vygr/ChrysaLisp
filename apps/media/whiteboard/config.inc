@@ -26,6 +26,8 @@
 		:mode (. *mode_toolbar* :get_selected) :ink (. *ink_toolbar* :get_selected)
 		:radius (. *radius_toolbar* :get_selected) :style (. *style_toolbar* :get_selected)
 		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
+		;is a pen that is near shown where an instrument would catch it
+		:hover_edges (if (get :hover_edges *board*) 1 0)
 		:text (. *text_field* :get_text) :file *file*
 		;an instrument is what it is, where, turned how far, how long, and what it draws
 		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
@@ -51,6 +53,8 @@
 		(def *board* :snap (if *snap* (snap-gap) 0.0)
 			:snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0)
 			:keep_shape (if keep_shape :t))
+		;a board kept before there was this has none, and it is on
+		(def *board* :hover_edges (not (eql (. config :find :hover_edges) 0)))
 		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))
 		(when (and (num? style) (< -1 style (length *styles*)))
 			(. *style_toolbar* :set_selected style)

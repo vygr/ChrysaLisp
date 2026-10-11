@@ -4,6 +4,44 @@
 
 ------
 
+Whiteboard: a pen that is near is shown the catch of the edge that would
+hold it, item 57.
+
+Chris, of the list: "57. yes, would like to see that done." Of his old
+board he had said "I had hover, show the edge detection polygons in
+dotted thin lines... that was a config option".
+
+First made, all the edges of an instrument a pointer was within four
+catches of, in orange. Chris, looking: they showed "very early. They
+should only show on contact hover", "blue, not red", and then "The edge
+detectors should not show until a click down WOULD be detected by them
+and cause and edge draw", "They should only show if the hover is over
+that edge detector, not the instrument itslef." So: the one edge, and
+only where a pointer that went down would be had by that instrument,
+held to that edge and drawing along it. Not over its body, not behind
+another instrument, not to the rubbing end of a pen.
+
+And of how wide: "still a bit too wide", "make them the width of the
+large pen stroke". `+tool_band` is 6 where it was 14, the catch is 12
+across. That is how near a pen has to go down, not only what is drawn.
+
+`lib/cwb/tools.inc` `(tool-catch)`, `(tool-dots)`, `(. instrument
+:catch_shape edge)`; `lib/cwb/board.inc` `:hover_edges`, `(:hovering)`,
+drawn in `(:draw_actors)`; the app sends a mouse that moves with nothing
+held, and keeps `:hover_edges` in `whiteboard.tre`. The lines are as wide
+and their dots as long on the screen at any zoom.
+
+Chris: "hover edges look good now, commit it".
+
+Run: tests cwb 617 on the M4, the x64 Mac and the Pi, whiteboard 116 on
+the M4. Four tests of before went down further from an edge than 6 and
+were moved in.
+
+Known: a mouse that leaves the board while it is at an edge leaves the
+line shown till it comes back, the board is told nothing more of it.
+
+------
+
 A window gone to the whole screen stopped the desktop at a box from SDL.
 
 Chris, with a picture of it, "Assertion failure at SDL_SetGPUViewport

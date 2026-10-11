@@ -30,8 +30,10 @@
 
 (import "./board.inc")
 
-;how near an edge a pen has to go down to be held to it, as the screen has it
-(defq +tool_band 14.0)
+;how near an edge a pen has to go down to be held to it, as the screen has
+;it: the catch of an edge is as wide, across it, as the widest line the
+;Whiteboard draws, 12
+(defq +tool_band 6.0)
 
 ;an instrument that is turned is pulled to the angles that matter, when it
 ;is near one. Each is how far apart the angles are and from how far off
@@ -91,6 +93,65 @@
 			(setq n (inc n) at (+ at step))))
 	(apply (const cwb-d) out))
 
+;where an edge catches a pen is shown when one is in its catch and not down,
+;and would be held to that edge if it went down: a thin dotted line round
+;the edge, the board's :hover_edges. A dot and the gap after it are that long,
+;and the line that wide and that colour, all as the screen has it, at any
+;zoom
+(defq +tool_dot 4.0 +tool_gap 4.0 +tool_dot_width 1.2 +tool_dot_ink 0xff0050ff)
+
+(defun tool-arc-points (out cx cy r a0 a1 seg)
+	; (tool-arc-points out cx cy r a0 a1 seg) -> out
+	;points round part of a circle, from one angle to the other, whichever
+	;way that is, no further apart than seg, pushed on a list as x y
+	(defq n (max 2 (n2i (+ 0.9999 (/ (* (abs (- a1 a0)) (max r 0.0)) seg)))) i -1)
+	(while (<= (++ i) n)
+		(defq a (+ a0 (/ (* (- a1 a0) (n2f i)) (n2f n))))
+		(push out (+ cx (* r (cos a))) (+ cy (* r (sin a)))))
+	out)
+
+(defun tool-catch (edge band)
+	; (tool-catch edge band) -> (points ...)
+	;the outlines of where an edge catches a pen: every point no more than
+	;the band from it. Each a closed line, x y x y ...
+	(defq seg (* band 0.25))
+	(case (first edge)
+		(:arc (bind '(kind cx cy r a0 a1) edge)
+			(cond
+				((>= (- a1 a0) (const (- +fp_2pi 0.001)))
+					;all the way round, a ring
+					(cat (list (tool-arc-points (list) cx cy (+ r band) 0.0 +fp_2pi seg))
+						(if (> r band) (list (tool-arc-points (list) cx cy (- r band) 0.0 +fp_2pi seg)) (list))))
+				(:t ;round the outside, about the end, back round the inside, about the start
+					(defq out (tool-arc-points (list) cx cy (+ r band) a0 a1 seg))
+					(tool-arc-points out (+ cx (* r (cos a1))) (+ cy (* r (sin a1))) band a1 (+ a1 +fp_pi) seg)
+					(if (> r band) (tool-arc-points out cx cy (- r band) a1 a0 seg))
+					(tool-arc-points out (+ cx (* r (cos a0))) (+ cy (* r (sin a0))) band (+ a0 +fp_pi) (+ a0 +fp_2pi) seg)
+					(list out))))
+		(:t (bind '(kind x0 y0 x1 y1) edge)
+			(defq a (path-angle (- x1 x0) (- y1 y0))
+				out (tool-arc-points (list) x1 y1 band (- a +fp_hpi) (+ a +fp_hpi) seg))
+			(list (tool-arc-points out x0 y0 band (+ a +fp_hpi) (+ a +fp_hpi +fp_pi) seg)))))
+
+(defun tool-dots (out points dot gap)
+	; (tool-dots out points dot gap) -> out
+	;a closed line as dots, each that long with that gap after, the parts
+	;of a path pushed on a list
+	(defq x (first points) y (second points) pen :t left dot)
+	(push out "M" x y)
+	(each (lambda ((x1 y1))
+		(defq dx (- x1 x) dy (- y1 y) len (sqrt (+ (* dx dx) (* dy dy))) at 0.0)
+		(while (> (- len at) left)
+			(setq at (+ at left))
+			(push out (if pen "L" "M") (+ x (* dx (/ at len))) (+ y (* dy (/ at len))))
+			(setq pen (not pen) left (if pen dot gap)))
+		(setq left (- left (- len at)) x x1 y y1)
+		(if pen (push out "L" x1 y1)))
+		(partition (cat (slice points 2 -1) (slice points 0 2)) 2))
+	;a dot that begins as the line ends is no dot
+	(if (eql (elem-get out (- (length out) 3)) "M") (times 3 (pop out)))
+	out)
+
 ;what is kept for a pointer that is down on an instrument, a list
 (enums +tool_state 0
 	(enum what part edge x y origin angle length shape near turned last_angle last_x last_y))
@@ -126,7 +187,7 @@
 		;is seen at: it lies on the glass, it is not of the document
 		:size (/ 1.0 (n2f (ifn (get :zoom board) 1.0)))
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
-		:mode :line :body :nil :regions :nil :zones :nil :grab :nil)
+		:mode :line :body :nil :regions :nil :zones :nil :grab :nil :dotted :nil)
 
 	(defmethod :rebuild ()
 		; (. instrument :rebuild) -> instrument
@@ -168,8 +229,24 @@
 					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (Mat3x2-mul (Mat3x2-translate (second glyph) (third glyph))
 						(Mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
+		(def this :dotted :nil)
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
+
+	(defmethod :catch_shape (edge)
+		; (. instrument :catch_shape edge) -> :nil | shape
+		;where one of its edges catches a pen, as a thin dotted line, in
+		;its own space. Made again only when it, or how big it is seen, is
+		;not what it was. :nil for an edge that is not one of its now
+		(unless (get :body this) (. this :built))
+		(defq by (* (get :zoom (get :board this)) (get :size this)) kept (get :dotted this))
+		(unless (and kept (= (first kept) by))
+			(def this :dotted (setq kept (list by (map (lambda (edge)
+				(defq out (list))
+				(each (# (tool-dots out %0 (/ +tool_dot by) (/ +tool_gap by))) (tool-catch edge (/ +tool_band by)))
+				(cwb-shape (apply (const cwb-d) out) :stroke +tool_dot_ink :width (/ +tool_dot_width by) :fill 0))
+				(get :edges this))))))
+		(if (defq at (some (# (if (eql %0 edge) (!))) (get :edges this))) (elem-get (second kept) at)))
 
 	(defmethod :drawing? ()
 		; (. instrument :drawing?) -> :t | :nil

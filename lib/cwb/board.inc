@@ -945,7 +945,12 @@
 		;none does none of it
 		:auto_group 1500000 :last_stroke :nil
 		:temp (Fmap 11) :bands (Fmap 11) :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
-		:contacts (Fmap 11) :show_contacts :t :floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
+		:contacts (Fmap 11) :show_contacts :t
+		;a pen or a mouse that is near and not down, where it is, and
+		;:hover_edges: it is shown the catch of the edge of an instrument
+		;that would have it if it went down, those are :hover_shown
+		:hovers (Fmap 11) :hover_edges :t :hover_shown (list)
+		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -1602,6 +1607,40 @@
 			events)
 		(if (and seen (get :show_contacts this)) (. this :touch +board_dirty_overlay))
 		(. (get :stage this) :pointers events)
+		(. this :hovering events)
+		this)
+
+	(defmethod :hovering (events)
+		; (. board :hovering events) -> board
+		;a pen or a mouse with nothing held is near, not down: its kind
+		;and where it is are kept. If it went down where it is, and was
+		;had by an instrument, held to an edge of it, to draw along that
+		;edge, then the catch of that edge is shown, (:draw_actors), and
+		;not till then. :hover_shown is those, instrument edge ... A
+		;finger is never near, it is down or it is not there
+		(defq hovers (get :hovers this) was (get :hover_shown this) now (list)
+			stage (get :stage this) bindings (get :bindings this))
+		(each (lambda (event)
+			(unless (eql (elem-get event +pev_kind) :touch)
+				(if (ptr-down? event)
+					(. hovers :erase (elem-get event +pev_id))
+					(. hovers :insert (elem-get event +pev_id)
+						(list (elem-get event +pev_kind) (elem-get event +pev_x) (elem-get event +pev_y))))))
+			events)
+		(when (get :hover_edges this)
+			(. hovers :each (lambda (id (kind x y))
+				;the one it would go down on, the one in front there, and
+				;what it would be if it did, with its first button
+				(when (and (defq actor (. stage :hit x y)) (def? :edges actor)
+						(eql (. bindings :value (ptr-event id kind +pev_left x y) :tool :pen) :pen))
+					(bind '(lx ly) (. actor :to_own x y))
+					(when (defq near (. actor :edge_near lx ly))
+						(defq edge (first near))
+						(unless (some (lambda ((a e)) (and (eql a actor) (eql e edge))) (partition now 2))
+							(push now actor edge)))))))
+		(unless (and (= (length now) (length was)) (every (const eql) now was))
+			(def this :hover_shown now)
+			(. this :touch +board_dirty_overlay))
 		this)
 
 	(defmethod :tick (time)
@@ -1630,6 +1669,11 @@
 		;pick, a function of an actor, only those it says: an app that has
 		;some of them drawn another way, the Whiteboard its instruments
 		(each (# (if (or (not pick) (pick %0)) (. %0 :draw canvas m))) (. (get :stage this) :get_actors))
+		;the catch of an edge that would have a pen that is near, if it went down
+		(each (lambda ((actor edge))
+			(if (and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge)))
+				(cwb-draw-items canvas (list shape) (Mat3x2-mul m (. actor :matrix)))))
+			(partition (get :hover_shown this) 2))
 		;and over them all, a ring where each finger is on the board,
 		;:show_contacts. A finger hides what is under it on a screen, and
 		;is not on the screen at all on a pad beside it: this is where the
