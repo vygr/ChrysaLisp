@@ -220,6 +220,19 @@ nothing was done after all, the last (:snapshot) is dropped
 what is selected becomes one group, where the top one of them was
 ```
 
+### :hovering
+
+```code
+(. board :hovering events) -> board
+
+a pen or a mouse with nothing held is near, not down: its kind
+and where it is are kept. If it went down where it is, and was
+had by an instrument, held to an edge of it, to draw along that
+edge, then the catch of that edge is shown, (:draw_actors), and
+not till then. :hover_shown is those, instrument edge ... A
+finger is never near, it is down or it is not there
+```
+
 ### :in_flight?
 
 ```code

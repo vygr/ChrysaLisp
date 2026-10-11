@@ -188,19 +188,39 @@ echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f
 ### Standard Sanity Tools
 
 The standard sanity test tools from the TUI are `includes`, `forward`,
-`brackets`, `progns` and `trace`:
+`brackets`, `check` and `trace`:
 
 ```sh
 echo "files | includes" | ./run_tui.sh -f
 echo "files | forward" | ./run_tui.sh -f
 echo "files | brackets -q" | ./run_tui.sh -f
-echo "files | progns" | ./run_tui.sh -f
+echo "files | check" | ./run_tui.sh -f
 ```
 
-`progns` says where a `(progn)` is round the else forms of an `(if)` or an
-`(ifn)`, or is all the body of a `(when)`, `(unless)`, `(while)` or
-`(until)`: each of those takes as many forms as it is given. It must say
-nothing.
+`check` reads each file as a tree, `lib/text/tree.inc`, and says what can be
+seen to be wrong from the source alone, a line each, the file, the line, the
+check and what it found. It must say nothing. `-c` names the checks to run:
+
+*	`progn`, a `(progn)` round the else forms of an `(if)` or an `(ifn)`, or
+	all the body of a `(when)`, `(unless)`, `(while)` or `(until)`: each of
+	those takes as many forms as it is given.
+*	`class`, a string of characters not in order given where a class of
+	them is looked up, `(bskip)`, `(bfind)`, `(trim)`, `(split)`: only some
+	of it is found. `(char-class)` puts one in order.
+*	`zero`, a number written with a point that is too small for a fixed,
+	`0.000001`, and so is 0.
+*	`shadow`, a variable with the name of a function or macro of the system
+	as a test of an `(and)`, an `(or)` or a clause of a `(cond)`: there the
+	function is what is taken, and it is always true. `(and path x)`.
+*	`const`, a `+` constant given a list of strings or numbers quoted once.
+*	`style`, `(if tst (progn ...))` with no else, `(if (not tst) ...)`, and a
+	`(cond)` of one clause.
+*	`doc`, a `; (name args) -> result` comment under a `(defun)` or
+	`(defmacro)` that is of another name, or of more or fewer things than
+	it takes.
+
+A test of the very thing has a comment that begins `;check off` on its line,
+or on the line before, and nothing is said of it.
 
 `trace` must only be run on debug VP objects: `make vp debug` for the system, and
 `make apps debug` for the `apps/` VP functions, which `make vp` does not

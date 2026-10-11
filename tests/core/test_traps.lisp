@@ -15,7 +15,7 @@
 (assert-error "a parameter with the name of a macro"
 	(eval (read (string-stream "(progn (defun tr-f4 (bits) bits) (tr-f4 5))"))))
 
-(defun tr-and-fn (&optional num) (and num (> num 0)))
+(defun tr-and-fn (&optional num) (and num (> num 0))) ;check off, the trap itself
 (defun tr-and-ok (&optional cnt) (and cnt (> cnt 0)))
 (if (starts-with "obj/vp64" (load-path))
 	(test-skip "a local with the name of a function, alone in an and" "needs an error checked build")
@@ -115,7 +115,7 @@
 (assert-eq "a predicate with two asks if it is that class itself" :t (list?? (list)))
 (assert-eq "and a map is not" :nil (list?? (Fmap 1)))
 
-(assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n")))
+(assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n"))) ;check off, the trap itself
 (assert-eq "with a class of them it does" "ab" (trim (cat "  ab " (ascii-char 10)) (char-class " \t\r\n")))
 (assert-eq "find of a str in a str is of its first character" 1 (find "elx" "hello"))
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))

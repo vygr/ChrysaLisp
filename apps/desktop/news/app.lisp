@@ -69,7 +69,7 @@
 	(when (and post_content (nempty? (trim post_content)))
 		(push lines "---" "" (clean-hn-text post_content) ""))
 	(push lines "---" "")
-	(if (not comments)
+	(ifn comments
 		(push lines "*Fetching discussion from Hacker News...*")
 		(if (empty? comments)
 			(push lines "*No comments posted yet.*")

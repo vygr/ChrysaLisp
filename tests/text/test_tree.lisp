@@ -44,25 +44,59 @@
 	(files-all "./lib" '(".inc" ".vp" ".lisp")))
 (assert-eq "no file of lib has a bracket left open" "()" (str tt_bad))
 
-;the progns command, cmd/progns.lisp, reads the tree: a (progn) where there is one already
-(defq tt_file "tmp_progns_test.lisp")
-(save (cat "(if a b (progn c d))" (ascii-char 10) "(ifn a b" (ascii-char 10) "	;note" (ascii-char 10) "	(progn c))" (ascii-char 10)
-	"(when a (progn b c))" (ascii-char 10) "(if a (progn b) c)" (ascii-char 10) "(while x (progn y) z)" (ascii-char 10)
-	"{(if a b (progn c))}" (ascii-char 10) ";(if a b (progn c))" (ascii-char 10)) tt_file)
-(defq tt_said (list))
-(pipe-run (cat "progns " tt_file) (# (push tt_said %0)))
-(assert-eq "round the else of an if and of an ifn, and all of the body of a when; not the first form of an if, nor one in a string or a comment"
-	(cat tt_file " (1) a (progn) round the else of an (if)" (ascii-char 10)
-		tt_file " (4) a (progn) round the else of an (ifn)" (ascii-char 10)
-		tt_file " (5) a (progn) is all the body of a (when)" (ascii-char 10))
-	(join tt_said ""))
+;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
+(defq tt_file "tmp_check_test.lisp" tt_lf (ascii-char 10))
+(defun tt-check (checks &rest lines)
+	;what check says of a file of these lines, each line it says less the name of the file
+	(save (apply (const cat) (map (# (cat %0 tt_lf)) lines)) tt_file)
+	(defq said (list))
+	(pipe-run (cat "check -c " checks " " tt_file) (# (push said %0)))
+	(map (# (slice %0 (inc (length tt_file)) -1)) (filter (const nempty?) (split (join said "") tt_lf))))
+(assert-list-eq "progn: round the else of an if and of an ifn, and all of the body of a when; not the first form of an if, nor one in a string or a comment"
+	'("(1) progn: a (progn) round the else of an (if)" "(4) progn: a (progn) round the else of an (ifn)"
+		"(5) progn: a (progn) is all the body of a (when)")
+	(tt-check "progn" "(if a b (progn c d))" "(ifn a b" "	;note" "	(progn c))" "(when a (progn b c))" "(if a (progn b) c)"
+		"(while x (progn y) z)" "{(if a b (progn c))}" ";(if a b (progn c))"))
 ;a quote before a form is not a form, and what it quotes is code being
 ;made, not a (progn) that is run: (if tst `(progn ~body)) has no else at all
-(save (cat "(if a `(progn ~e))" (ascii-char 10) "(if a `(progn b) `(progn c))" (ascii-char 10)
-	"(if a b 'x (progn c))" (ascii-char 10) "(when a `(progn ,b))" (ascii-char 10)) tt_file)
-(setq tt_said (list))
-(pipe-run (cat "progns " tt_file) (# (push tt_said %0)))
-(assert-eq "a quoted (progn) is not said, one after a quoted thing is"
-	(cat tt_file " (3) a (progn) round the else of an (if)" (ascii-char 10))
-	(join tt_said ""))
+(assert-list-eq "progn: a quoted one is not said, one after a quoted thing is, and nothing inside a quoted form"
+	'("(3) progn: a (progn) round the else of an (if)")
+	(tt-check "progn" "(if a `(progn ~e))" "(if a `(progn b) `(progn c))" "(if a b 'x (progn c))" "(when a `(progn ,b))"
+		"(str `(if a b (progn c)))"))
+(assert-list-eq "class: a string of characters not in order, given where a class is looked up; one in order, one of one, and a (char-class) are not"
+	(list (cat "(2) class: " (ascii-char 34) "ba" (ascii-char 34) " given to (bskip) is not in order, (char-class " (ascii-char 34) "ba" (ascii-char 34) ")")
+		(cat "(5) class: " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) " given to (trim) is not in order, (char-class " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) ")"))
+	(tt-check "class" (cat "(bskip " (ascii-char 34) "ab" (ascii-char 34) " s 0)") (cat "(bskip " (ascii-char 34) "ba" (ascii-char 34) " s 0)")
+		(cat "(bfind c " (ascii-char 34) "x" (ascii-char 34) ")") (cat "(split s (char-class " (ascii-char 34) "ba" (ascii-char 34) "))")
+		(cat "(trim s " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) ")")))
+(assert-list-eq "zero: a number with a point that is 0 as a fixed, and is not written 0"
+	'("(1) zero: 0.000001 is too small for a fixed, it is 0" "(3) zero: -0.00001 is too small for a fixed, it is 0")
+	(tt-check "zero" "(n2r 0.000001)" "(+ 0.0 0.5 0.00002 100 0)" "(* x -0.00001)"))
+(assert-list-eq "shadow: a name of the system as a test of an and, an or, or a clause of a cond; not where it is given to a function"
+	'("(1) shadow: first as a test of (and) is taken as the function of the system, not the variable"
+		"(2) shadow: list as a test of (or) is taken as the function of the system, not the variable"
+		"(3) shadow: cat as a test of (cond) is taken as the function of the system, not the variable")
+	(tt-check "shadow" "(and first (> x 0))" "(or x list)" "(cond (cat 1) ((cat) 2) (mine 3))" "(if first 1 2)" "(and (first x) mine)"))
+(assert-list-eq "const: a + name given a list of strings or of numbers quoted once; not one quoted twice, nor one that begins with a name"
+	'("(1) const: +a is a list quoted once, ''(...)" "(4) const: +n is a list quoted once, ''(...)")
+	(tt-check "const" (cat "(defq +a '(" (ascii-char 34) ".md" (ascii-char 34) ") b '(1 2)")
+		(cat "	+c ''(" (ascii-char 34) ".md" (ascii-char 34) ")") "	+d '(lambda))" "(defq +n '(1 2 3))"))
+(assert-list-eq "style: an if of a progn with no else, an if of a not, a cond of one clause"
+	'("(1) style: (if tst (progn ...)) with no else is a (when)" "(2) style: (if (not tst) ...) is an (ifn tst ...)"
+		"(3) style: a (cond) of one clause")
+	(tt-check "style" "(if a (progn b c))" "(if (not a) b c)" "(cond ((a) b))" "(if a (progn b) c)" "(cond ((a) b) (:t c))" "(cond)"))
+(assert-list-eq "doc: a comment of another name, or of more or fewer things than it takes; a list or a choice is one thing, a rest may be named"
+	'("(2) doc: says (h ...), this is (g ...)" "(5) doc: (k) is said to take 1, it takes 2" "(8) doc: (m) is said to take 3, it takes 2")
+	(tt-check "doc" "(defun g (a b &optional c)" "	; (h a b [c]) -> x" "	1)" "(defun k (a b)" "	; (k a) -> x" "	1)"
+		"(defun m (a b)" "	; (m a b c) -> x" "	1)" "(defun n (a &rest b)" "	; (n a b c) -> x" "	1)"
+		"(defun o (a)" "	; (o (x y) | z) -> x" "	1)" "(defmacro p (a &optional b)" "	; (p a [b]) -> x" "	1)"))
+(assert-list-eq "nothing is said of a line with a comment that begins ;check off, nor of the line after one"
+	'("(3) style: a (cond) of one clause")
+	(tt-check "style" "(cond ((a) b)) ;check off, tried on purpose" "(cond ((a) b))" "(cond ((a) b))"))
+(assert-list-eq "all the checks are run when none are named"
+	'("(1) progn: a (progn) round the else of an (if)" "(2) zero: 0.000001 is too small for a fixed, it is 0")
+	(progn (save (cat "(if a b (progn c))" tt_lf "(n2r 0.000001)" tt_lf) tt_file)
+		(defq tt_said (list))
+		(pipe-run (cat "check " tt_file) (# (push tt_said %0)))
+		(map (# (slice %0 (inc (length tt_file)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf)))))
 (pipe-run (cat "rm " tt_file) (lambda (&) :nil))

@@ -90,7 +90,7 @@
 	(uint type))
 
 (defun gui-rpc (view cmd)
-	; (gui-rpc (view cmd) -> :nil | view
+	; (gui-rpc view cmd) -> :nil | view
 	(when (nempty? (defq service (mail-enquire "Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))

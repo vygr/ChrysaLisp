@@ -35,7 +35,7 @@
 			;paragraph count logic
 			(if (empty? words_on_line)
 				(setq in_paragraph_flag :nil)
-				(if (not in_paragraph_flag)
+				(ifn in_paragraph_flag
 					(setq paragraph_count (inc paragraph_count) in_paragraph_flag :t)))
 			:nil)
 			stream)

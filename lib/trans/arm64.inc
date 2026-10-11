@@ -124,7 +124,7 @@
 					(setq e :t)
 					(defq cto (nto (>> %0 i)))))
 			(setq %0 (logior %0 (lognot m)))
-			(if (not (arm64-is-shifted-mask (lognot %0)))
+			(ifn (arm64-is-shifted-mask (lognot %0))
 				(setq e :t)
 				(defq clo (nlo %0) i (- 64 clo)
 					cto (- (+ clo (nto %0)) (- 64 s)))))

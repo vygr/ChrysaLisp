@@ -120,7 +120,7 @@
 				  *undo_stack* (ifn (defq u (. data :find :undo)) (list) u)
 				  *selected* (. data :find :selected)
 				  loaded :t)))
-	(if (not loaded)
+	(ifn loaded
 		(init-game))
 	(update-gamestate)
 	(update-view))

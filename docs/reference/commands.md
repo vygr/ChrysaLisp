@@ -30,6 +30,52 @@ Usage: cat [options] [path] ...
     If no paths given on command line
     then paths are read from stdin.
 ```
+## check
+```code
+Usage: check [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -j --jobs num: max jobs per batch, default 1.
+        -c --checks names: only these checks, a , between
+            them, default all of them.
+
+    Scan source files for what can be seen to be wrong,
+    or better said another way, from the source alone.
+    Each file is read as a tree, lib/text/tree.inc, so
+    what is in a comment or a string is not looked at.
+    Each thing found is a line: the file, the line, the
+    check and what it found. Nothing is said of a line
+    that has, or comes after, a comment that begins
+    ;check off
+
+    progn   a (progn) where there is one already, round
+            the else forms of an (if) or an (ifn), or as
+            the whole body of a (when), (unless), (while)
+            or (until).
+    class   a class of characters, written as a string,
+            that is not in order: (bskip), (bfind), (trim)
+            and (split) look one up by halves, and find
+            only some of it. (char-class) puts it in order.
+    zero    a number written with a point that is too
+            small for a fixed to hold, and so is 0.
+    shadow  a variable with the name of a function or a
+            macro of the system, as a test of an (and), an
+            (or) or a clause of a (cond): there it is taken
+            as the function, and is always true.
+    const   a + constant given a list of strings or numbers
+            quoted once: it is run as a form where the
+            constant is used, and is no form.
+    style   (if tst (progn ...)) with no else, a (when);
+            (if (not tst) ...), an (ifn); and a (cond) of
+            one clause.
+    doc     a ; (name args) -> result comment under a
+            (defun) or (defmacro) that is of another name,
+            or of more or fewer things than it takes.
+
+    If no paths given on command line
+    then will test files from stdin.
+```
 ## cluster
 ```code
 Usage: cluster [options]
@@ -760,25 +806,6 @@ Usage: patch [options] file_a [file_b]
 
     If no second file is given it will
     be read from stdin.
-```
-## progns
-```code
-Usage: progns [options] [path] ...
-
-    options:
-        -h --help: this help info.
-        -j --jobs num: max jobs per batch, default 1.
-
-    Scan source files for a (progn) where there is one
-    already: round the else forms of an (if) or an (ifn),
-    or as the whole body of a (when), (unless), (while)
-    or (until). Each of those takes as many forms as are
-    given, the (progn) says nothing and costs a call.
-
-    What is in a comment or a string is not looked at.
-
-    If no paths given on command line
-    then will test files from stdin.
 ```
 ## rack
 ```code

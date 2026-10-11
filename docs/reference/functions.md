@@ -2667,7 +2667,7 @@ start children till the herd is the size the worker nodes call for
 ### gui-rpc
 
 ```code
-(gui-rpc (view cmd) -> :nil | view
+(gui-rpc view cmd) -> :nil | view
 ```
 
 ### gui-theme-rpc
@@ -6287,6 +6287,33 @@ the theme a user has from now on
 the token that opens a form, with the rule of the form, whether the
 form must be broken, and its operator, kept on the end of it. They are
 worked out the once, the first time the token is come to.
+```
+
+### tool-arc-points
+
+```code
+(tool-arc-points out cx cy r a0 a1 seg) -> out
+
+points round part of a circle, from one angle to the other, whichever
+way that is, no further apart than seg, pushed on a list as x y
+```
+
+### tool-catch
+
+```code
+(tool-catch edge band) -> (points ...)
+
+the outlines of where an edge catches a pen: every point no more than
+the band from it. Each a closed line, x y x y ...
+```
+
+### tool-dots
+
+```code
+(tool-dots out points dot gap) -> out
+
+a closed line as dots, each that long with that gap after, the parts
+of a path pushed on a list
 ```
 
 ### tool-glyph

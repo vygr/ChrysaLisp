@@ -112,7 +112,7 @@
 					; Was saved during a mismatch/lock state. Reset these specific tiles to hidden.
 					(each (# (elem-set *states* %0 0)) picks)))
 			(setq loaded :t)))
-	(if (not loaded)
+	(ifn loaded
 		(scramble)))
 
 (defun config-save ()

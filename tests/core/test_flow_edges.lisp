@@ -31,10 +31,10 @@
 ; --- cond and case ---
 (test-cases
 	(cond) :nil
-	(cond (:nil 1)) :nil
+	(cond (:nil 1)) :nil ;check off, a (cond) of one clause is what is tried
 	;a clause with no body gives its test value
-	(cond (:t)) :t
-	(cond (5)) 5
+	(cond (:t)) :t ;check off
+	(cond (5)) 5 ;check off
 	(cond ((= 1 2) 1) ((= 1 1))) :t
 	(cond (:nil 1) (:t 2 3)) 3
 	(case 3 (1 :a) (2 :b)) :nil

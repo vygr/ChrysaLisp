@@ -78,7 +78,9 @@
 (defun tan (x)
 	; Tangent of angle in radians
 	(defq c (cos x))
-	(if (< (abs c) 0.000001)
+	;the least that is not 0 to a fixed is 0.00002: a number written
+	;smaller than that is 0, and nothing is less than it
+	(if (< (abs c) 0.0001)
 		(* (sign (sin x)) 1000000.0)
 		(/ (sin x) c)))
 
@@ -98,7 +100,7 @@
 		lambda_deg (+ l_deg (* 1.915 (sin m_rad)) (* 0.020 (sin (* 2.0 m_rad))))
 		lambda_rad (geo-deg-to-rad lambda_deg)
 		; Obliquity of ecliptic
-		eps_deg (- 23.439 (* 0.00000036 d))
+		eps_deg (- 23.439 (/ (* 0.36 d) 1000000.0))
 		eps_rad (geo-deg-to-rad eps_deg)
 		; Solar declination delta
 		sin_delta (* (sin eps_rad) (sin lambda_rad))
@@ -162,8 +164,8 @@
 		delta (geo-deg-to-rad sun_lat_deg)
 		cos_zenith -0.0145439 ; cos(90.833 deg)
 		denom (* (cos phi) (cos delta)))
-	(if (< (abs denom) 0.00001)
-		(setq denom 0.00001))
+	(if (< (abs denom) 0.0001)
+		(setq denom 0.0001))
 	(defq cos_h0 (/ (- cos_zenith (* (sin phi) (sin delta))) denom)
 		noon_utc (+ (- 12.0 (/ lon_deg 15.0)) (/ (neg eot_min) 60.0))
 		noon_utc (% (+ (% noon_utc 24.0) 24.0) 24.0))

@@ -73,7 +73,7 @@
 					max_val (max max_val %0)))
 				flt_pts)
 			(defq val_range (- max_val min_val))
-			(if (<= val_range 0.000001) (setq val_range 1.0))
+			(if (<= val_range 0.0) (setq val_range 1.0))
 			(defq chart_w (- w (* margin_x 2.0))
 				chart_h (- h (* margin_y 2.0))
 				n_pts (length flt_pts)
@@ -161,7 +161,7 @@
 (defun update-ui ()
 	(when (> (length *coins_data*) 0)
 		(defq selected_coin (some (# (if (eql (first %0) *selected_symbol*) %0)) *coins_data*))
-		(if (not selected_coin)
+		(ifn selected_coin
 			(setq selected_coin (first *coins_data*)
 				*selected_symbol* (first selected_coin)))
 		(bind '(coin_sym name price change rank spark) selected_coin)

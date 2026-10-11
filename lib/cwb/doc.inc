@@ -258,10 +258,9 @@
 		(setq strokes (filter (# (>= (length %0) 6)) strokes))
 		(defq polys (cat fills strokes))
 		(elem-set shape +cwb_cache (setq cache (list fills strokes
-			(if (nempty? polys)
-				(progn
-					(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
-					(list x y x1 y1)))))))
+			(when (nempty? polys)
+				(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
+				(list x y x1 y1))))))
 	cache)
 
 (defun cwb-text-mid (text x y &rest key_vals)

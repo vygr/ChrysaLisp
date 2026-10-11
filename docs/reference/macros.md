@@ -726,7 +726,7 @@ print the time for the body
 ### ui-stroke
 
 ```code
-(ui-text name [props]) -> stroke
+(ui-stroke name [props]) -> stroke
 ```
 
 ### ui-text

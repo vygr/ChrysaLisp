@@ -118,7 +118,7 @@
 	(when stream
 		(lines! (lambda (line)
 			(when (starts-with (cat "(structure +" name " +") line)
-				(defq from (trim (slice line (length (cat "(structure +" name " +")) -1) " \t\r)")
+				(defq from (trim (slice line (length (cat "(structure +" name " +")) -1) (const (char-class " \t\r)")))
 					cut (find "_" from))
 				(if (and cut (not (ends-with "_size" from)))
 					(setq out (cat (slice from (inc cut) -1) " of :" (slice from 0 cut)))))

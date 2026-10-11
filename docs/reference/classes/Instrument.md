@@ -48,6 +48,16 @@ not what a hand changes:
 its length or what it is has changed, it is made again
 ```
 
+### :catch_shape
+
+```code
+(. instrument :catch_shape edge) -> :nil | shape
+
+where one of its edges catches a pen, as a thin dotted line, in
+its own space. Made again only when it, or how big it is seen, is
+not what it was. :nil for an edge that is not one of its now
+```
+
 ### :degrees
 
 ```code

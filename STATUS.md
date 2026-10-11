@@ -4,6 +4,56 @@
 
 ------
 
+`check`, what can be seen to be wrong from the source, seven checks.
+
+Chris: "now we have the syntax aware scanning, we could extend the
+cmd/progn.lisp to do many more checks ?" I gave eight. Of two he said
+"that's not allways a bug though !", a `(defq)` in a `#` lambda, and "how
+do you know what will call it ?", a `#` lambda with no `%0`: neither is
+one, both dropped. Then: "yes, build all six into a check tool" and "So
+are we renaming the progn.lisp ?" Yes: `cmd/progns.lisp` is
+`cmd/check.lisp`, `files | check`, and what it did is its `progn` check.
+
+*	`progn`, as it was.
+*	`class`, a string of characters not in order given to `(bskip)`,
+	`(bfind)`, `(trim)`, `(split)`. Found: `cmd/make.lisp`, a trim that
+	did not.
+*	`zero`, a number written too small for a fixed. Found five: in the
+	sun clock a guard against a divide by nothing that was `(< (abs c)
+	0)`, never so, another that set 0 to 0, and the yearly drift of the
+	tilt of the earth times 0; in the crypto app a range less than 0.
+*	`shadow`. Not what I first built. A variable named as a function of
+	the system is read as the variable everywhere, I tried it, but one
+	place: a test of an `(and)`, an `(or)` or a clause of a `(cond)`.
+	`(and x y)` is `(condn (x) (y))`, a list that begins with a
+	function's name is bound as a call of it as the code is read, and it
+	is always true. That was `catch` in the hover code earlier tonight.
+	Found: `path` in `cmd/docs.lisp`, mine of this morning.
+*	`const`, a `+` constant given a list of strings or numbers quoted
+	once. One that begins with a name may be meant as a form, the
+	assembler has three. Found none.
+*	`style`, `(if tst (progn ...))` with no else, `(if (not tst) ...)`, a
+	`(cond)` of one clause. Found 13, each made a `(when)` or an `(ifn)`.
+*	`doc`, the `; (name args) -> result` comment against the definition
+	under it. Found two: `(ui-stroke)` said it was `(ui-text)`, and
+	`(gui-rpc)` had a bracket too many.
+
+A quote before a form is no form, and a quoted form and what is in it are
+not looked at. A comment that begins `;check off` has nothing said of its
+line or the next: five lines of the tests that try these things.
+
+The tree says nothing under it. `make docs` run, the reference has it,
+and the cards of the Board and the Instrument have tonight's properties.
+
+Run: the boot image is the same to the byte with the changed
+`lib/trans/arm64.inc`; every module on the M4, the x64 Mac and the Pi,
+6,074 and 0 failed; includes, imports and forward as they were.
+
+Not seen: the sun clock and the crypto app on a desktop, each has
+numbers that are not what they were, by a little.
+
+------
+
 A timeout cancelled is every timeout the mailbox has.
 
 Chris, of the pipe's timer never put away: "we had the same problem with

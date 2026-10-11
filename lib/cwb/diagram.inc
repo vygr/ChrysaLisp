@@ -168,8 +168,8 @@
 	;a leaf has the next line down, what has things come of it is half
 	;way between the first and the last of them. From the last back, so
 	;that those are placed before it is
-	(each (lambda (name) (if (empty? (. kids :find name))
-		(progn (. place :insert name (* pitch (n2f slot))) (setq slot (inc slot)))))
+	(each (lambda (name) (when (empty? (. kids :find name))
+		(. place :insert name (* pitch (n2f slot))) (setq slot (inc slot))))
 		order)
 	(each (lambda (name)
 		(when (nempty? (defq mine (. kids :find name)))

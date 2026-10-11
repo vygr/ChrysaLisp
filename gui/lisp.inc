@@ -171,7 +171,7 @@
 	(static-qqp (ui-element ,n (Text) ,p)))
 
 (defmacro ui-stroke (n &optional p)
-	; (ui-text name [props]) -> stroke
+	; (ui-stroke name [props]) -> stroke
 	(static-qqp (ui-element ,n (Stroke) ,p)))
 
 (defmacro ui-label (n &optional p &rest x)

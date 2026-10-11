@@ -78,13 +78,15 @@
 							;by the VP function it is, as the VP docs look for it,
 							;a path, or one from where this file is. One with
 							;nothing said of it has nothing to give
-							(defq path (cond
+							;it is not named path: that is a function of the system, and as
+							;a test of an (and) the function is what is taken, always true
+							(defq vp_path (cond
 									(name)
-									((and (defq path (tree-form? named "path-to-absolute")) (> (length path) 1)
-											(eql (first (second path)) :string1))
-										(sym (path-to-absolute (trim (third (second path)) "\q") file))))
+									((and (defq to (tree-form? named "path-to-absolute")) (> (length to) 1)
+											(eql (first (second to)) :string1))
+										(sym (path-to-absolute (trim (third (second to)) "\q") file))))
 								info (said node nodes at))
-							(if (and path (nempty? info)) (push ffi_list (list path info))))
+							(if (and vp_path (nempty? info)) (push ffi_list (list vp_path info))))
 						((not name))
 						((eql type 'defclass)
 							(push class_list (list name (parent? kids (second node))
