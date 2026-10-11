@@ -4,6 +4,37 @@
 
 ------
 
+The canvas and its loaders need no order, and Syntax is in the root
+environment. Chris, his own desktop started on it: "desktop is up,
+commit it".
+
+Chris: "untangle the loop".
+
+`gui/canvas/lisp.inc` named the loaders of pictures in a `(const)` and so
+had to have them as it was read. It has a list, `*canvas_loaders*`, and
+names none. Each of `lib/image/` cpm, tga, svg and cwb says what it
+reads as it is read, `(canvas-loader ext info load [save])`. The canvas
+still imports them, last of all, so whoever has a canvas can load a
+picture, and they still import it, they make one. Whichever is come to
+first, it works: tried each way round, and a test for each.
+`(canvas-save)` to a name no loader writes no longer makes an empty file
+of it.
+
+Then what stopped a desktop this morning was done again.
+`lib/text/syntax.inc` imports `gui/pixmap/lisp.inc`, not the canvas
+widget and every loader, and `class/lisp/root.inc` imports it: 0.7ms a
+task that used it, now nothing, 127 more symbols in the root
+environment.
+
+Each of the three steps, the list, the import, the promotion, by a
+desktop started on the Pi with no error in its log, and for the last
+its screen looked at: the wallpaper, a picture, is there.
+
+Run: tests -a, 5,994, on the M4, the x64 Mac and the Pi; lint, includes,
+imports clean, forward clean but for the traps file; make docs.
+
+------
+
 Includes reads by Syntax and the line scanner is gone. Syntax is not in
 the root environment: I put it there and stopped Chris's desktop from
 starting.

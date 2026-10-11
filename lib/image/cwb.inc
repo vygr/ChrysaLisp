@@ -33,6 +33,9 @@
 			(bind '(w h) (. canvas :pref_size))
 			(. (Canvas w h 1) :resize canvas))))
 
+;the canvas is told what this reads
+(canvas-loader ".cwb" CWB-info CWB-load)
+
 ;module
 (export-symbols '(CWB-load CWB-info))
 (env-pop)

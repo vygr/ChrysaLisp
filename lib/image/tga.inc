@@ -66,6 +66,9 @@
 	(pixmap-write (pixmap-as-argb pixmap) stream 32)
 	canvas)
 
+;the canvas is told what this reads
+(canvas-loader ".tga" TGA-info TGA-load TGA-save)
+
 ;module
 (export-symbols '(TGA-load TGA-info TGA-save))
 (env-pop)

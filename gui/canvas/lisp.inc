@@ -6,13 +6,27 @@
 (import "././view/lisp.inc")
 (import "././texture/lisp.inc")
 (import "././pixmap/lisp.inc")
-(import "lib/image/svg.inc")
-(import "lib/image/cwb.inc")
-(import "lib/image/tga.inc")
-(import "lib/image/cpm.inc")
 
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))
+
+;the kinds of picture file there are, each (ext info load save). A loader,
+;lib/image/, says what it is for as it is read, (canvas-loader), so this
+;file names none of them and needs none of them to be there as it is
+;read. They import this, they make a canvas, and this imports them, last
+;of all, so that whoever has a canvas can load a picture: whichever of
+;the two is come to first, it works
+(defq *canvas_loaders* (list))
+
+(defun canvas-loader (ext info load &optional save)
+	; (canvas-loader ext info load [save])
+	;files whose names end ext are read by these, (info stream) and
+	;(load stream), and written by (save canvas stream type ...) if given
+	(push *canvas_loaders* (list ext info load save)))
+
+(defun canvas-loader-of (file)
+	; (canvas-loader-of file) -> :nil | (ext info load save)
+	(some (# (if (ends-with (first %0) file) %0)) *canvas_loaders*))
 
 (defun canvas-darker (col)
 	; (canvas-darker col) -> col
@@ -223,18 +237,15 @@
 
 (defun canvas-info (file)
 	; (canvas-info file) -> (width height type) | (-1 -1 -1)
-	(or (if (defq stream (file-stream file))
-			(some (# (if (ends-with %0 file) (%1 stream)))
-				'(".cpm" ".flm" ".tga" ".svg" ".cwb")
-				(const `'(,CPM-info ,CPM-info ,TGA-info ,SVG-info ,CWB-info))))
+	(or (if (and (defq kind (canvas-loader-of file)) (defq stream (file-stream file)))
+			((second kind) stream))
 		(list -1 -1 -1)))
 
 (defun canvas-save (canvas file type &rest optionals)
 	; (canvas-save canvas file type [optionals...]) -> :nil | canvas
-	(if (defq stream (file-stream file +file_open_write))
-		(some (# (if (ends-with %0 file)
-					(apply %1 (cat (list canvas stream type) optionals))))
-			'(".cpm" ".tga") (const `'(,CPM-save ,TGA-save)))))
+	(if (and (defq kind (canvas-loader-of file)) (defq save (elem-get kind 3))
+			(defq stream (file-stream file +file_open_write)))
+		(apply save (cat (list canvas stream type) optionals))))
 
 (defun canvas-load (file flags &optional swap_mode)
 	; (canvas-load file flags [swap_mode]) -> :nil | canvas
@@ -248,10 +259,7 @@
 			(defq stream (if (bits? flags +load_flag_film)
 				(string-stream (load file)) (file-stream file))))
 		;load and maybe add to cache
-		(defq this
-			(some (# (if (ends-with %0 file) (%1 stream)))
-				'(".svg" ".cwb" ".tga" ".cpm" ".flm")
-				(const `'(,SVG-load ,CWB-load ,TGA-load ,CPM-load ,CPM-load))))
+		(defq this (if (defq kind (canvas-loader-of file)) ((third kind) stream)))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
 			(if (bits? flags +load_flag_shared)
@@ -306,3 +314,10 @@
 		(if (> (getf val +obj_count 0) 4)
 			(. new_cache :insert key val))))
 	(def *root_env* '*pixmap_cache* new_cache))
+
+;the loaders, see *canvas_loaders* above. Last, all of this file is there
+;for them
+(import "lib/image/svg.inc")
+(import "lib/image/cwb.inc")
+(import "lib/image/tga.inc")
+(import "lib/image/cpm.inc")

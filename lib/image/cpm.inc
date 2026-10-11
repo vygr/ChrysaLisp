@@ -123,6 +123,10 @@
 			(mail-read handshake_mbox)))
 	canvas)
 
+;the canvas is told what this reads
+(canvas-loader ".cpm" CPM-info CPM-load CPM-save)
+(canvas-loader ".flm" CPM-info CPM-load)
+
 ;module
 (export-symbols '(CPM-load CPM-info CPM-save))
 (env-pop)

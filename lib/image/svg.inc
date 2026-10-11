@@ -312,6 +312,9 @@
 		(lambda (text)))
 	(list width height 32))
 
+;the canvas is told what this reads
+(canvas-loader ".svg" SVG-info SVG-load)
+
 ;module
 (export-symbols '(SVG-load SVG-info))
 (env-pop)

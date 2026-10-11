@@ -2,7 +2,8 @@
 ; syntax highlighter object
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "gui/canvas/lisp.inc")
+;the inks are pixels as a pixmap has them, that is all of the GUI wanted here
+(import "gui/pixmap/lisp.inc")
 (import "././consts/chars.inc")
 (import "././consts/colors.inc")
 

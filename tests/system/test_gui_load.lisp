@@ -32,3 +32,16 @@
 (assert-eq "every file of the GUI loads by itself, in the order the service has them, and a picture of each kind is loaded by it"
 	"loaded\ninfoload\ninfoload\ninfoload\ninfoload\n" gl_said)
 (assert-true "and none of them says there is an error" (empty? (substr gl_said "Error")))
+
+;The canvas and the loaders of pictures, lib/image/, import each other.
+;Whichever of them a task comes to first, every kind of picture is loaded:
+;a loader says what it reads to the canvas as it is read, (canvas-loader),
+;and the canvas names none of them
+(each (lambda (first_file)
+	(assert-eq (cat "pictures load when " first_file " is come to first") "(:t :t :t :t :t)\n"
+		(test-output (cat
+			"(import {" first_file "}) (import {gui/canvas/lisp.inc})"
+			" (print (map (lambda (file) (and (> (first (canvas-info file)) 0) (if (canvas-load file +load_flag_noswap) :t)))"
+			" (list {apps/demos/boing/data/taoball_1.cpm} {apps/media/films/data/captive.flm} {apps/media/images/data/wallpaper.tga}"
+			" {apps/media/images/data/burger.svg} {apps/media/whiteboard/data/palette.cwb})))"))))
+	'("gui/canvas/lisp.inc" "lib/image/cpm.inc" "lib/image/tga.inc" "lib/image/svg.inc" "lib/image/cwb.inc"))

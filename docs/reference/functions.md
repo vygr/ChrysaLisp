@@ -530,6 +530,21 @@ they are its own
 (canvas-load file flags [swap_mode]) -> :nil | canvas
 ```
 
+### canvas-loader
+
+```code
+(canvas-loader ext info load [save])
+
+files whose names end ext are read by these, (info stream) and
+(load stream), and written by (save canvas stream type ...) if given
+```
+
+### canvas-loader-of
+
+```code
+(canvas-loader-of file) -> :nil | (ext info load save)
+```
+
 ### canvas-mesh-create
 
 ```code
