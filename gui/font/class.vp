@@ -15,7 +15,7 @@
 	;outputs
 	;:r0 = 0 if error, else font object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r11, :r14, :f0-:f15
 (gen-vtable :font)
 
 (def-method :font :open)
@@ -24,7 +24,7 @@
 	;outputs
 	;:r0 = 0 if error, else font object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r11, :r14, :f0-:f15
 
 	(def-vars
 		(ptr this name flat_set data)
@@ -76,7 +76,7 @@
 	;:r0 = font object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r11, :r14, :f0-:f15
 
 	(def-vars
 		(ptr this name data)
@@ -119,7 +119,7 @@
 	;outputs
 	;:r0 = font object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r2, :f0-:f15
 
 	(entry :font :deinit '(:r0))
 
@@ -367,7 +367,7 @@
 	;:r2 = width (pixels)
 	;:r3 = height (pixels)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r13, :f0-:f15
 
 	(defun trans_xy (rx ry)
 		(vp-add-rr ox rx)
@@ -603,7 +603,7 @@
 
 (def-method :font :flush)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r5, :r14, :f0-:f15
 
 	(def-vars
 		(ptr font new_map flat_set tmp statics)

@@ -177,4 +177,5 @@
 (pipe-run "locals -t 0 -c 3 tests/scratch_locals_probe" (# (push tt_said %0)))
 (assert-true "locals -c: what is called and what it costs is said, after the sums"
 	(found? (join tt_said "") "What is called, and what it costs those that call it"))
+;if the classes can not be read, another has the lock of them too long, it says that and not nothing
 (pii-remove tt_probe)

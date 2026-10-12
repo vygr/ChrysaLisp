@@ -6,7 +6,7 @@
 	(dec-method :type class/num/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
 	(dec-method :hash class/num/hash :override :nil :nil (:r1-:r4) (:r1-:r4))
 	(dec-method :eql class/num/eql :final :nil :nil (:r1-:r3) (:r1-:r3))
-	(dec-method :print class/num/print :override :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
+	(dec-method :print class/num/print :override :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :vcreate class/num/create :virtual (:r0) (:r0) (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :add class/num/add :virtual (:r0 :r1) (:r0) (:r0-:r4 :r14 :f0-:f15) (:r0-:r4 :r14 :f0-:f15))
 	(dec-method :sub class/num/sub :virtual (:r0 :r1) (:r0) (:r0-:r4 :r14 :f0-:f15) (:r0-:r4 :r14 :f0-:f15))

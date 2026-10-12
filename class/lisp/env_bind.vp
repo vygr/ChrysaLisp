@@ -42,7 +42,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = hmap object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r6, :f0-:f15
 	;info
 	;if no other has a ref to the environment, and it is as it was made,
 	;a single bucket that has not grown, its keys and values are dropped,

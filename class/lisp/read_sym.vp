@@ -12,7 +12,7 @@
 	;:r1 = return value object (ptr)
 	;:r2 = next char (uint)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r11, :r14, :f0-:f15
 
 	(vp-rdef (this stm c buf bufp bufe first))
 

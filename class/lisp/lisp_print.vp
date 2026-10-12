@@ -10,7 +10,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :lisp :lisp_prin '(:r0 :r1))
 
@@ -50,7 +50,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :lisp :lisp_print '(:r0 :r1))
 

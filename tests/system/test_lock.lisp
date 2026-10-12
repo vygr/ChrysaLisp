@@ -235,9 +235,13 @@
 	(le-claim "le/a b") :t
 	(lock-release-rpc "le/a b") :t)
 
-;the empty key is the root, so covers every key
+;the empty key is the root, so covers every key. Every key anyone has:
+;another test that is going on beside this one may hold a lock, the
+;(locals) command does while it reads the classes again, some seconds on
+;a slow machine, and the root waits for it. So this claim is given longer.
+;It failed on the Pi, three asserts, twice in a night for that
 (test-cases
-	(le-claim "") :t
+	(if (lock-claim-rpc "" :nil (task-timeout 30)) :t) :t
 	(le-blocked "le/under_root") :t
 	(lock-release-rpc "") :t
 	(le-claim "le/under_root") :t

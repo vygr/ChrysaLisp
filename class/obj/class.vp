@@ -9,8 +9,7 @@
 	;inputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
-
+	;:r0-:r2, :f0-:f15
 	;info
 	;an object is destroyed from inside the destroying of what held it: a
 	;list in a list in a list, and each is a call further down the task's
@@ -25,17 +24,34 @@
 	;by, one after another and no deeper, till there are none. So all is
 	;destroyed before the first destroy comes back, as it was, however
 	;deep it went.
+	;
+	;And it leaves every register but :r0 to :r2 as it was, whatever the
+	;object is: they are put on the stack round its deinit, which may do
+	;anything, and brought back. So a deref trashes what a free does and
+	;no more, and what calls one need not go by what it happens to know
+	;of the object. That is 96 bytes of stack for each one inside
+	;another, so with the usual stack about the thirtieth deep is the
+	;first to be put by.
 
 	(entry :obj :destroy '(:r0))
 
-	;only :r0 to :r2 and :r14 are used here, what the free of the object
-	;trashes whatever it is: there is code that goes by what the destroy
-	;of the thing it knows it has trashes, and not by what any may
+	;an object with nothing of its own to let go of, a number, a str, is
+	;most of what is destroyed: its deinit is the one that does nothing,
+	;and it is freed, no more
+	(assign '((:r0 +obj_vtable)) '(:r1))
+	(assign `((:r1 ,(last (method-lookup :obj :deinit)))) '(:r1))
+	(fn-bind (f-path :obj :null) :r2)
+	(vpif '(:r1 = :r2))
+		(jump :sys_mem :free '(:r0))
+	(endif)
+
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
 	(vpif '(:r2 = 0))
 		;before there are tasks
+		(vp-push :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 		(call :obj :deinit '(:r0) '(:r0))
+		(vp-pop :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 		(jump :sys_mem :free '(:r0))
 	(endif)
 	(assign '((:r2 +tk_node_dying)) '(:r1))
@@ -60,13 +76,16 @@
 				(vp-ret)
 			(endif)
 		(endif)
+		(vp-push :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 		(call :obj :deinit '(:r0) '(:r0))
+		(vp-pop :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 		(jump :sys_mem :free '(:r0))
 	(endif)
 
 	;the first: 1 is the end of the list, and says one is going on
 	(vp-cpy-cr 1 :r1)
 	(assign '(:r1) '((:r2 +tk_node_dying)))
+	(vp-push :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(loop-start)
 		(call :obj :deinit '(:r0) '(:r0))
 		(call :sys_mem :free '(:r0))
@@ -82,6 +101,7 @@
 		(call :sys_mem :free '(:r0))
 		(vp-pop :r0)
 	(loop-end)
+	(vp-pop :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	(vp-xor-rr :r0 :r0)
 	(assign '(:r0) '((:r1 +tk_node_dying)))
 	(vp-ret)
@@ -138,7 +158,7 @@
 	;inputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r2, :f0-:f15
 
 	(entry :obj :deref '(:r0))
 
@@ -178,7 +198,7 @@
 	;inputs
 	;:r0 = 0, else object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r2, :f0-:f15
 
 	(entry :obj :deref_if '(:r0))
 
@@ -216,7 +236,7 @@
 	;outputs
 	;:r0 = object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r9, :r14, :f0-:f15
 
 	(entry :obj :print '(:r0 :r1))
 

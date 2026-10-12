@@ -450,6 +450,9 @@
 			", read " (- kept_loads told_loads_all) ", written before a call " told_spills_all)
 		(print "Of frames made by hand, not named locals: read " hand_loads ", written " hand_stores)
 		(print "Functions it can not follow: " noted)
+		;the classes are read under a lock, and it may not be had in the time
+		(and (> opt_c 0) (not trashes)
+			(print "What is called, and what it costs those that call it: not known, the classes could not be read."))
 		(when (and (> opt_c 0) trashes)
 			(defq costs (list))
 			(. (third trashes) :each (lambda (name entry) (push costs (cat (list name) entry))))

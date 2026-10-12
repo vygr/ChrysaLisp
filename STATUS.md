@@ -4,6 +4,57 @@
 
 ------
 
+**`:obj :destroy`, and so a deref, trashes three registers where it trashed fifteen. 190 functions trash less for it.**
+
+Chris, when `locals -c` put `:obj :deref` at the top of what costs its
+callers: "Actually :destroy doing the call and save may be a killer
+optimisation ! Why did I never do that... I have that exact idea in the
+:sys_heap :alloc ! ... we HAVE to try that !" And, going to bed: "if this
+fix works ok, then carry on with the register optimizations work ... let
+this great :deref work ripple out."
+
+`class/obj/class.vp`, `:obj :destroy`:
+
+* An object whose deinit is the one that does nothing, a number, a str,
+  is freed and no more. That is most of what dies, and it is less than
+  it was: no call through the vtable.
+* For any other, `:r3` to `:r14` are pushed round the deinit and popped.
+  The stack is safe for it now, the entry before this: about the
+  thirtieth object deep is the first to be put by, 96 bytes each.
+
+So it trashes `:r0` to `:r2`, what `:sys_mem :free` does, and the float
+registers, whatever the object is. What code took of the destroy of a
+thing it knew, see below, is now so of any.
+
+The ripple, by `trace -w` on a debug build and not by hand: 190
+functions' trashes are less, comments and declarations, in 81 files.
+`lint` clean.
+
+What it is worth, `locals`, with locals in any register: reads of the
+stack 868 to 719, writes 731 to 613, and calls that would move nothing
+486 to 598 of 791. `:obj :deref`, `:obj :destroy` and the four writes of
+a stream are gone from the top of `locals -c`; `sys/task/sleep` and
+`class/lisp/repl_apply` head it now.
+
+What it costs: the build benchmark, five runs each, 59.8 ms as it was;
+60.3 and 60.9 with the push and pop only; 59.7, 58.8, 59.7 and then 60.2,
+60.1 with the short way for a number or a str as well. Within what one
+run differs from the next. I can not say it is faster or slower.
+
+Run: 6,537 tests, 0 failed, built on each of the three machines. Six
+targets build.
+
+**The lock test that failed on the Pi, read.** Three asserts of
+`tests/system/test_lock.lisp`, twice tonight, both in a full run just
+after `class.inc` files had changed. It is not the destroy. The test
+claims the root, every key there is, and gives it 2 seconds. `locals`,
+which a test of mine runs since this afternoon, holds a write lock while
+it reads the classes again, and on the Pi that is longer than 2 seconds.
+The claim of the root is given 30. Run with the classes made stale on
+purpose: passed on all three.
+
+------
+
 **An object 250 deep in others was the end of its task when let go of. It is not now, at any depth.**
 
 Found while looking at what `:obj :deref` costs its callers. Chris wanted

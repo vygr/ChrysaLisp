@@ -9,7 +9,7 @@
 	;outputs
 	;:r0 = 0 if error, else fstream object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r5, :r14, :f0-:f15
 (gen-vtable :fstream)
 (gen-type :fstream)
 	;inputs
@@ -30,7 +30,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r5, :f0-:f15
 
 	(structure local 0
 		(ptr this vtable path buf))
@@ -75,7 +75,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r2, :r14, :f0-:f15
 
 	(entry :fstream :deinit '(:r0))
 

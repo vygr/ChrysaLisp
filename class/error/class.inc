@@ -7,8 +7,8 @@
 	(dec-method :create class/error/create :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6) (:r0) (:r0-:r8 :r14 :f0-:f15))
 	(dec-method :init class/error/init :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8) :nil (:r1-:r5 :f0-:f15))
 	(dec-method :get_msg class/error/get_msg :static (:r0) (:r0 :r1) (:r1-:r5))
-	(dec-method :print class/error/print :final :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
-	(dec-method :deinit class/error/deinit :final :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15)))
+	(dec-method :print class/error/print :final :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
+	(dec-method :deinit class/error/deinit :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15)))
 
 ;;;;;;;;;;;;
 ; error msgs

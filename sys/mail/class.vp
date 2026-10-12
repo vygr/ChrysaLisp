@@ -503,7 +503,7 @@
 	;outputs
 	;:r0 = service entry str object (ptr)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0-:r7, :r14, :f0-:f15
 
 	(def-vars
 		(ptr name id info cat tmp1 tmp2 sys_str sys_hex))

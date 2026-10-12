@@ -5,7 +5,7 @@
 	(dec-method :vtable class/real/vtable)
 	(dec-method :type class/real/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
 	(dec-method :create class/real/create :static :nil :nil (:r0-:r2 :r14 :f0-:f15))
-	(dec-method :print class/real/print :final :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
+	(dec-method :print class/real/print :final :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :vcreate class/real/create :final :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :random class/real/random :final :nil :nil (:r0-:r4 :r14 :f0-:f15) (:r0-:r4 :r14 :f0-:f15))
 	(dec-method :add class/real/add :final :nil :nil (:r0-:r2 :r4 :r14 :f0-:f15) (:r0-:r2 :r4 :r14 :f0-:f15))

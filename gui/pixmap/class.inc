@@ -3,7 +3,7 @@
 
 (def-class :pixmap :obj
 	(dec-method :vtable gui/pixmap/vtable)
-	(dec-method :deinit gui/pixmap/deinit :override :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
+	(dec-method :deinit gui/pixmap/deinit :override :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :create gui/pixmap/create :static (:r0 :r1 :r2) (:r0) (:r0-:r7 :f0-:f15))
 	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1) (:r1-:r3))
 	(dec-method :upload gui/pixmap/upload :static (:r0 :r1) (:r0) (:r1-:r14 :f0-:f15))
@@ -24,5 +24,5 @@
 	(dec-method :lisp_to_argb32 gui/pixmap/lisp_to_argb32 :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15))
 	(dec-method :lisp_from_argb32 gui/pixmap/lisp_from_argb32 :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_read gui/pixmap/lisp_read :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :f0-:f15))
-	(dec-method :lisp_write gui/pixmap/lisp_write :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
+	(dec-method :lisp_write gui/pixmap/lisp_write :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :lisp_shared gui/pixmap/lisp_shared :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15)))
