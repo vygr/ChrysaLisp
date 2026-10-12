@@ -57,7 +57,7 @@
 (defun def-func (*func_name* &optional *func_align* *func_stack*)
 	(defq *func_align* (ifn *func_align* stack_align)
 		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '())
+		*links* (clear '()) *emit_list* (clear '()) *locals* (list)
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -102,7 +102,10 @@
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(defq *emit_code* (emit-vp-code *emit_list*))
 	(when (or *build_emit* (eql *cpu* 'vp64))
-		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"))
+		;the instructions, and after them, where what reads only the one
+		;form does not see it, what the frames of named locals were
+		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"
+			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")))
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *build_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))

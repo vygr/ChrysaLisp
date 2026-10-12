@@ -645,6 +645,34 @@ Usage: lisp [options] [path] ...
     If no paths given on command line
     then will REPL from stdin.
 ```
+## locals
+```code
+Usage: locals [options] [function] ...
+
+    options:
+        -h --help: this help info.
+        -v --verbose: a line for every function that has
+            locals, not only the sum.
+        -t --top num: the functions that move most to and
+            from the stack, that many of them, default 10.
+
+    What the named locals of each VP function cost, and what
+    of that a compiler that kept them in registers could save.
+    It reads the instructions of a function as they were
+    assembled, obj/vp/, which a build of the VP64 leaves,
+    'make vp', and sees the function whole: where its frame
+    is made and let go of, each place in the frame that is
+    read or written, a local, which of them have their
+    address taken, and, by where control goes, which are
+    still wanted after each call.
+
+    A local that never has its address taken could be kept
+    in a register. One that is not wanted after any call
+    could be in any. One that is has to be in a register the
+    call leaves alone, or be put by for the call.
+
+    With no function named, all there are.
+```
 ## locks
 ```code
 Usage: locks [options]

@@ -4,6 +4,43 @@
 
 ------
 
+**vpx, stage 3: a function is seen whole, and what its named locals cost is counted.**
+
+Of the leftovers I listed, Chris: "go for it." This is the third of them,
+and the third stage of the compiler: before anything keeps a local in a
+register, something has to see the whole function. It changes no byte.
+
+`lib/asm/scopes.inc`, `(scope-note)`: as `(push-scope)` makes a frame, what
+its named locals are is kept with the function, and `lib/asm/func.inc`
+writes it after the instructions in `obj/vp/`, a second form, `(locals
+...)`, which what reads the first does not see: lint is clean.
+
+`cmd/locals.lisp`, new: reads a function as assembled, follows control
+from its entry to know what frames there are at each instruction, takes
+each read and write through the stack pointer as of a local, by name, and
+works out which are still wanted after each call. The numbers for the
+tree are in `docs/ai_digest/cscript_compiler.md`, "A function seen whole":
+837 named locals in 93 functions, 3,431 instructions that read or write
+one, 3,308 of them of locals that could be registers, and nine reads in
+ten are of one wanted after a call.
+
+A test in `tests/text/test_tree.lisp`: a function made up, three locals,
+one read before a call, one after, one a struct with its address taken,
+and it says what I had worked out by hand.
+
+Found by running it, and a rule for `check` I have not written: a `(#
+...)` with no `%0` in it, given to `(map)`, takes no argument and is
+called with one. Chris struck that rule once, "how do you know what will
+call it ?", and for `(map)` and `(each)` it is known. His to say.
+
+Run: every platform built and hashed, the same but the function that
+shuffles itself. Lint, imports, forward, check. Every module, built on
+each first: 6,483 and 0 failed on the M4, the x64 Mac and the Pi.
+
+Not done: stage 4, which uses it.
+
+------
+
 **(lines!) where a loop read a line at a time.**
 
 Chris, as trivia: "(while (defq raw_line (read-line in)).    Why not using

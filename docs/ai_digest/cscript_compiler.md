@@ -61,6 +61,56 @@ is how it is. The rest of this page, and the examples in the other pages
 that show braces, say how it was: the meaning is the same, only how an
 expression is written has changed.
 
+## A function seen whole (2026-10-12)
+
+Each `(assign)` is compiled by itself, and a named local lives on the
+stack: read from it, worked on, written back. To do better a compiler has
+to see the whole function. That it now can, though it does nothing with
+it yet.
+
+* A function's instructions, as assembled, are left as text in `obj/vp/`
+  by a build of the VP64. After them is now a second form, `(locals ...)`,
+  what each frame of named locals was: which of the function's allocs it
+  is, how big, and each local's name, place and type, a struct's `""`.
+  `(scope-note)` in `lib/asm/scopes.inc` keeps it as `(push-scope)` makes
+  the frame. The instructions alone do not say where one local ends, nor
+  that a place is part of a struct.
+* `cmd/locals.lisp` reads that. It follows control from the entry, so it
+  knows which frames there are at each instruction, a return in the middle
+  lets go of them and what is after it still has them. Each read and write
+  through the stack pointer is of a local. One whose address is taken, or
+  that is a struct, stays in memory. And it works out, going backwards
+  till nothing changes, which locals are still wanted after each
+  instruction, and so which are wanted after a call.
+
+```code
+locals              ;the sum for every function, and the ten that move most
+locals -v sys/mail/ping
+```
+
+What it says of the tree, 964 functions:
+
+| | |
+|---|---|
+| with a frame | 193 |
+| with named locals | 93 |
+| named locals | 837 |
+| of them in memory, a struct or their address taken | 27 |
+| instructions that read a named local from the stack | 2,151 |
+| that write one | 1,280 |
+| of locals that could be kept in a register: read, written | 2,083, 1,225 |
+| of those, not wanted after any call | 197, 263 |
+| of those, wanted after a call | 1,886, 962 |
+| frames made by hand, `(vp-alloc)`: read, written | 864, 711 |
+| functions it can not follow, the stack pointer used as a number | 47, 3 of them with named locals |
+
+So nine in ten of the reads of a named local are of one that is wanted
+after a call. To keep those in registers is to keep them in registers a
+call leaves alone, or put them by round it: Chris, "we have to honors the
+'trashes' statements of all our calls, and we would have to try to line up
+the inputs and outputs... that's a 'real' compilers job." The kernel's
+task is the most of it, 221 of its 1,257 instructions.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - tokenizer, reverse-polish converter, code generator,

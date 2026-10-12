@@ -145,3 +145,22 @@
 		(pipe-run (cat "check " tt_file) (# (push tt_said %0)))
 		(map (# (slice %0 (inc (length tt_file)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf)))))
 (pipe-run (cat "rm " tt_file) (lambda (&) :nil))
+
+;(locals), what a function's named locals cost: a function made up for it,
+;as an assembled one is left in obj/vp/, with a frame of three, a, b and
+;a struct s. a is read before the call, b after it, s has its address
+;taken, and the last write of a is of nothing that is read
+(defq tt_probe "obj/vp/tests/scratch_locals_probe")
+(save (cat "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _8 _9 4096)" tt_lf
+	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-cpy-ri :r0 :rsp 0)" tt_lf "(emit-cpy-ri :r1 :rsp 8)" tt_lf
+	"(emit-cpy-ir :rsp 0 :r0)" tt_lf "(emit-call-p _7)" tt_lf "(emit-cpy-ir :rsp 8 :r1)" tt_lf
+	"(emit-lea-i :rsp 16 :r2)" tt_lf "(emit-cpy-ri :r1 :rsp 24)" tt_lf "(emit-beq-cr 0 :r1 _2)" tt_lf
+	"(emit-cpy-ri :r1 :rsp 0)" tt_lf "(emit-label '_2)" tt_lf "(emit-free 32)" tt_lf "(emit-ret)" tt_lf
+	"(emit-label '_8)" tt_lf "(emit-label '_9))" tt_lf
+	"(locals (1 32 ((a 0 \qp\q) (b 8 \qp\q) (s 16 \q\q))))" tt_lf) tt_probe)
+(defq tt_said (list))
+(pipe-run "locals -v -t 0 tests/scratch_locals_probe" (# (push tt_said %0)))
+(assert-eq "locals: the frame, its named locals, what is read and written, what could be registers, what is wanted after a call, and what is in memory"
+	"tests/scratch_locals_probe: frames 32 bytes, named locals 3, read 2 written 4, could be registers: read 2 written 3, of those wanted after a call: read 1 written 1, 1 are in memory, a struct or their address taken"
+	(first (split (join tt_said "") tt_lf)))
+(pii-remove tt_probe)

@@ -17,12 +17,27 @@
 (defun scope-offset (level)
 	(reduce! (# (+ %0 (first %1))) (list *scopes*) 0 (inc level) -2))
 
+(defun scope-note (scope)
+	;a frame of named locals has been made. What it is is kept with the
+	;function, *locals*, for whatever reads the function whole after it is
+	;assembled, the (locals) command: which of the function's allocs this
+	;one is, counted from 1, how big the frame is, and each local, its
+	;name, where in the frame it is, and its type, "" for a struct. The
+	;instructions do not say where one local ends and the next begins,
+	;nor that a place is part of a struct whose address is given away
+	(push *locals* (list
+		(reduce (# (if (eql (first %1) 'emit-alloc) (inc %0) %0)) *emit_list* 0)
+		(first scope)
+		(map (lambda ((name (level kind offset type &ignore))) (list name offset (if (str? type) type "")))
+			(filter (lambda ((name attrib)) (eql (second attrib) 'var)) (partition (last scope) 2))))))
+
 (defun push-scope ()
 	(elem-set (elem-get (scope-new) -3) 0
 		(setq *scopes_sp* (align *scopes_sp* stack_align)))
 	(when (/= *scopes_sp* 0)
 		(if *build_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
+		(scope-note (elem-get *scopes* -3))
 		(setq *scopes_sp* 0)))
 
 (defun pop-scope-syms ()
