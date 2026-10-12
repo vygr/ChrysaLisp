@@ -3,7 +3,7 @@
 
 (def-class :num :obj
 	(dec-method :vtable class/num/vtable)
-	(dec-method :type class/num/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/num/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :hash class/num/hash :override :nil :nil (:r1-:r4) (:r1-:r4))
 	(dec-method :eql class/num/eql :final :nil :nil (:r1-:r3) (:r1-:r3))
 	(dec-method :print class/num/print :override :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))

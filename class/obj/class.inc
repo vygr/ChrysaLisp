@@ -4,7 +4,7 @@
 (def-class :obj :nil
 	(dec-method :vtable class/obj/vtable)
 	(dec-method :deinit class/obj/null :virtual (:r0) (:r0) (:r1-:r14 :f0-:f15) ())
-	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1) (:r1-:r5 :f0-:f15) (:r1-:r3 :f0-:f15))
+	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1) (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1) (:r1-:r4) (:r1))
 	(dec-method :eql class/obj/eql :virtual (:r0 :r1) (:r0 :r1) (:r1-:r6) (:r1))
 	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0) (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
@@ -24,7 +24,7 @@
 	(dec-method :lisp_hash class/obj/lisp_hash :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r14 :f0-:f15))
 	(dec-method :lisp_weak_ref class/obj/lisp_wref :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15))
 	(dec-method :lisp_obj_ref class/obj/lisp_oref :static (:r0 :r1) (:r0 :r1) (:r1-:r3))
-	(dec-method :lisp_type class/obj/lisp_type :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15)))
+	(dec-method :lisp_type class/obj/lisp_type :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

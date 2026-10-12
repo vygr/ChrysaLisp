@@ -3,7 +3,7 @@
 
 (def-class :reals :fixeds
 	(dec-method :vtable class/reals/vtable)
-	(dec-method :type class/reals/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/reals/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/reals/create :static :nil :nil (:r0-:r2 :f0-:f15))
 	(dec-method :vcreate class/reals/create :final :nil :nil (:r0-:r2 :f0-:f15) (:r0-:r2 :f0-:f15))
 	(dec-method :velement class/real/create :final :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))

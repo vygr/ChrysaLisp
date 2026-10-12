@@ -3,9 +3,9 @@
 
 (def-class :list :array
 	(dec-method :vtable class/list/vtable)
-	(dec-method :type class/list/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/list/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/list/create :static :nil :nil (:r0-:r2 :f0-:f15))
-	(dec-method :copy class/list/copy :static (:r0) (:r0 :r1) (:r1-:r14 :f0-:f15))
+	(dec-method :copy class/list/copy :static (:r0) (:r0 :r1) (:r1-:r4 :r6-:r14 :f0-:f15))
 	(dec-method :min_length class/list/min_length :static (:r0) (:r0 :r1) (:r1-:r5 :r14))
 	(dec-method :ref_all class/list/ref_all :static (:r0) (:r0) (:r1-:r4))
 	(dec-method :collect class/list/collect :static (:r0 :r1 :r2) (:r0) (:r1-:r6 :r8-:r11 :r14 :f0-:f15))
@@ -13,11 +13,11 @@
 	(dec-method :deinit class/list/deinit :override :nil :nil (:r1-:r4 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :ref_elem class/list/ref_elem :final :nil :nil (:r1-:r2) (:r1-:r2))
 	(dec-method :cat class/list/cat :final :nil :nil (:r0-:r9 :r14 :f0-:f15) (:r0-:r9 :r14 :f0-:f15))
-	(dec-method :slice class/list/slice :final :nil :nil (:r0-:r8 :r14 :f0-:f15) (:r0-:r8 :r14 :f0-:f15))
+	(dec-method :slice class/list/slice :final :nil :nil (:r0-:r4 :r6-:r8 :r14 :f0-:f15) (:r0-:r4 :r6-:r8 :r14 :f0-:f15))
 	(dec-method :clear class/list/clear :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :ref_back class/list/ref_back :final :nil :nil (:r1-:r2) (:r1-:r2))
 	(dec-method :set_elem class/list/set_elem :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
-	(dec-method :append class/list/append :final :nil :nil (:r1-:r9 :f0-:f15) (:r1-:r9 :f0-:f15))
+	(dec-method :append class/list/append :final :nil :nil (:r1-:r3 :r6-:r9 :f0-:f15) (:r1-:r3 :r6-:r9 :f0-:f15))
 	(dec-method :print class/list/print :final :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :find class/list/find :final :nil :nil (:r2-:r9) (:r2-:r9))
 	(dec-method :rfind class/list/rfind :final :nil :nil (:r2-:r9) (:r2-:r9))
@@ -28,7 +28,7 @@
 	(dec-method :lisp_merge class/list/lisp_merge :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :f0-:f15))
 	(dec-method :lisp_pivot class/list/lisp_pivot :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_match class/list/lisp_match :static (:r0 :r1) (:r0 :r1) (:r1-:r6))
-	(dec-method :lisp_copy class/list/lisp_copy :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15)))
+	(dec-method :lisp_copy class/list/lisp_copy :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r6-:r14 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers

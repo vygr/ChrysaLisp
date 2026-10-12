@@ -3,7 +3,7 @@
 
 (def-class :pmap :pset
 	(dec-method :vtable class/pmap/vtable)
-	(dec-method :type class/pmap/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/pmap/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/pmap/create :static :nil :nil (:r0-:r2 :f0-:f15))
 	(dec-method :vcreate class/pmap/create :final :nil :nil (:r0-:r2 :f0-:f15) (:r0-:r2 :f0-:f15))
 	(dec-method :pfind class/pmap/find :final (:r0 :r1) (:r0 :r1 :r7 :r8) (:r1-:r10) (:r1-:r10))

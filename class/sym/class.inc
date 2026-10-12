@@ -3,7 +3,7 @@
 
 (def-class :sym :str
 	(dec-method :vtable class/sym/vtable)
-	(dec-method :type class/sym/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/sym/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :eql class/obj/eql :final :nil :nil (:r1) (:r1))
 	(dec-method :print class/sym/print :final :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :statics_init class/sym/statics_init :static :nil :nil (:r0-:r11 :r14 :f0-:f15))

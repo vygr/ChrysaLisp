@@ -3,7 +3,7 @@
 
 (def-class :pset :list
 	(dec-method :vtable class/pset/vtable)
-	(dec-method :type class/pset/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/pset/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	;a set is itself and no other, whatever the two hold, class/hset/class.inc
 	(dec-method :eql class/obj/eql :final :nil :nil (:r1) (:r1))
 	(dec-method :create class/pset/create :static :nil :nil (:r0-:r2 :f0-:f15))

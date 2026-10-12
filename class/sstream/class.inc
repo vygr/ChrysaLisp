@@ -3,7 +3,7 @@
 
 (def-class :sstream :stream
 	(dec-method :vtable class/sstream/vtable)
-	(dec-method :type class/sstream/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/sstream/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/sstream/create :static (:r0) (:r0) (:r0-:r5 :r14 :f0-:f15))
 	(dec-method :init class/sstream/init :static (:r0 :r1 :r2) :nil (:r1 :r3-:r5))
 	(dec-method :ref_string class/sstream/ref_string :static (:r0) (:r0 :r1) (:r1-:r2))

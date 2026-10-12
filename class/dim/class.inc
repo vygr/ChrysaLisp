@@ -3,7 +3,7 @@
 
 (def-class :dim :obj
 	(dec-method :vtable class/dim/vtable)
-	(dec-method :type class/dim/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/dim/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/dim/create :static (:r0 :r1) (:r0) (:r0-:r3 :r14 :f0-:f15))
 	(dec-method :init class/dim/init :static (:r0 :r1 :r2 :r3) :nil (:r1))
 	(dec-method :deinit class/dim/deinit :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))

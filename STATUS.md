@@ -4,6 +4,38 @@
 
 ------
 
+**A push to an array or list trashes nothing but what it gives back, room or no. The growing of the block keeps the registers it uses.**
+
+Chris: "there may be a genuine argument for making the set_capacity
+preserve the extra registers it uses if it decides to grow the block
+... we loose nothing, stand to gain somthing, and we get a clean none
+cheating lint."
+
+`:array :set_cap` pushes `:r3` to `:r5` round its realloc, the rare
+path, with the `this` it pushed there already. The path with room is as
+it was. So what was a thing a caller knew of the path, that a push
+after the capacity is set cannot go the long way, is now what the
+declaration says of every path:
+
+* `:set_cap` trashes `:r1-:r2`, was `:r1-:r5`.
+* `:push_back` trashes `:r2-:r3`, which are what it gives back, was
+  `:r2-:r5`. `:push_back2` `:r3-:r4`, was `:r3-:r5`.
+* `:append` of array and list leave `:r4 :r5`, `:slice` and `:list
+  :copy` leave `:r5`, and the `:type` of every class trashes `:r1-:r3`,
+  was `:r1-:r5`.
+
+47 declarations and 46 function headers narrower, in 69 files, all
+written by `trace -w`. It took two goes of `trace -w` to have them all,
+the second for what calls what the first narrowed.
+
+Run: `lint` clean, `relies` with it. `make all platforms boot`. 6,538
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi.
+`make test` five times 58.3 to 59.8 ms, was 59.4 to 60.6.
+
+Not seen: no soak, the emulators were not run, and no desktop was
+started. No function has been written again to use the registers this
+frees: that is the next thing.
+
 **Lint runs `relies` too, and it is clean. Two more places, in what only a debug build has, one of them a fault.**
 
 Chris: "Make the lint the truth." `relies` on a debug build, which has

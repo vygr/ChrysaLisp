@@ -3,7 +3,7 @@
 
 (def-class :nums :array
 	(dec-method :vtable class/nums/vtable)
-	(dec-method :type class/nums/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/nums/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :hash class/nums/hash :override :nil :nil (:r1-:r4) (:r1-:r4))
 	(dec-method :vcreate class/nums/create :override :nil :nil (:r0-:r2 :f0-:f15) (:r0-:r2 :f0-:f15))
 	(dec-method :add class/nums/add :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r7 :f0-:f1) (:r1-:r7))

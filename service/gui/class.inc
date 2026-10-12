@@ -39,7 +39,7 @@
 	(dec-method :lisp_deinit service/gui/lisp_deinit :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_update service/gui/lisp_update :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_event service/gui/lisp_event :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
-	(dec-method :lisp_info service/gui/lisp_info :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r7-:r11 :r14 :f0-:f15)))
+	(dec-method :lisp_info service/gui/lisp_info :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r7-:r11 :r14 :f0-:f15)))
 
 (defun host-gui-call (%0 %1 &optional %2 %3 %4 %5)
 	;%0 = class name

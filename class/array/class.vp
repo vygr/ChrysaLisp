@@ -17,7 +17,7 @@
 	;:r0 = array object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r3, :f0-:f15
 
 (def-method :array :deinit)
 	;inputs
@@ -166,7 +166,7 @@
 	;:r2 = begin element iter (plong)
 	;:r3 = end element iter (plong)
 	;trashes
-	;:r2-:r5, :f0-:f15
+	;:r2-:r3, :f0-:f15
 
 	(vp-rdef (this elm begin end))
 
@@ -206,7 +206,7 @@
 	;:r3 = begin element iter (plong)
 	;:r4 = end element iter (plong)
 	;trashes
-	;:r3-:r5, :f0-:f15
+	;:r3-:r4, :f0-:f15
 
 	(vp-rdef (this elm1 elm2 begin end))
 
@@ -289,7 +289,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r2, :f0-:f15
 
 	(vp-rdef (begin end this new_cap cur_cap) '(:r4 :r5))
 
@@ -298,8 +298,10 @@
 	;do we already have room ?
 	(assign `((,this +array_capacity)) `(,cur_cap))
 	(vpif `(,new_cap > ,cur_cap))
-		;realloc the elements with double capacity
-		(vp-push this)
+		;realloc the elements with double capacity, the rare path, so all
+		;it uses beyond what the path with room does is kept: a caller
+		;may hold :r3 to :r5 over a push, room or no
+		(vp-push :r3 :r4 :r5 this)
 		(vp-swp-rr new_cap cur_cap)
 		(vp-shl-cr (log2 +long_size) new_cap)
 		(vp-shl-cr (inc (log2 +long_size)) cur_cap)
@@ -317,7 +319,7 @@
 			(vp-pop this new_cap)
 		(endif)
 		(vp-cpy-rr this cur_cap)
-		(vp-pop this)
+		(vp-pop :r3 :r4 :r5 this)
 		(vp-shr-cr (log2 +long_size) new_cap)
 		(assign `(,cur_cap ,new_cap) `((,this +array_begin) (,this +array_capacity)))
 	(endif)
@@ -482,7 +484,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r3, :r6-:r9, :f0-:f15
 
 	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
 		'(:r6 :r7 :r8 :r9))
@@ -714,7 +716,7 @@
 	;outputs
 	;:r0 = slice array object (ptr)
 	;trashes
-	;:r0-:r8, :r14, :f0-:f15
+	;:r0-:r3, :r6-:r8, :r14, :f0-:f15
 
 	(vp-rdef (src si ei this di total) '(:r6 :r7 :r8))
 

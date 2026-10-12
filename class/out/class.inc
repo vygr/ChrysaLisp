@@ -3,7 +3,7 @@
 
 (def-class :out :stream
 	(dec-method :vtable class/out/vtable)
-	(dec-method :type class/out/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/out/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/out/create :static (:r0 :r1 :r2) (:r0) (:r0-:r6 :r14 :f0-:f15))
 	(dec-method :init class/out/init :static (:r0 :r1 :r2 :r3 :r4) :nil (:r1-:r6 :f0-:f15))
 	(dec-method :set_state class/out/set_state :static (:r0 :r1) (:r0) (:r1-:r9 :f0-:f15))

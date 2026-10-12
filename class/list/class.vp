@@ -16,7 +16,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = type list object (ptr)
 	;trashes
-	;:r1-:r5, :f0-:f15
+	;:r1-:r3, :f0-:f15
 
 (def-method :list :deinit)
 	;inputs
@@ -145,7 +145,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f15
+	;:r1-:r3, :r6-:r9, :f0-:f15
 
 	(vp-rdef (saved_that saved_si saved_ei di this that si ei)
 		'(:r6 :r7 :r8 :r9))
@@ -321,7 +321,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = copy list object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r4, :r6-:r14, :f0-:f15
 
 	(vp-rdef (vtable stack iter_begin iter_end cnt this that)
 		'(:r9 :r10 :r11 :r12 :r13))
@@ -515,7 +515,7 @@
 	;outputs
 	;:r0 = slice list object (ptr)
 	;trashes
-	;:r0-:r8, :r14, :f0-:f15
+	;:r0-:r4, :r6-:r8, :r14, :f0-:f15
 
 	(entry :list :slice '(:r0 :r1 :r2))
 

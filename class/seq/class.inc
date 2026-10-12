@@ -3,7 +3,7 @@
 
 (def-class :seq :obj
 	(dec-method :vtable class/seq/vtable)
-	(dec-method :type class/seq/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/seq/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :get_length class/obj/null :virtual (:r0) (:r0 :r1) (:r1) ())
 	(dec-method :ref_elem class/obj/null :virtual (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15) ())
 	(dec-method :slice class/obj/null :virtual (:r0 :r1 :r2) (:r0) (:r0-:r8 :r14 :f0-:f15) ())

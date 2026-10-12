@@ -3,7 +3,7 @@
 
 (def-class :hset :list
 	(dec-method :vtable class/hset/vtable)
-	(dec-method :type class/hset/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/hset/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	;a set is itself and no other, whatever the two hold. A list is the
 	;same as another by what is in it, and this is not a list to those
 	;who use it

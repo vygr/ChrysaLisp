@@ -7,7 +7,7 @@
 
 (def-class :lisp :obj
 	(dec-method :vtable class/lisp/vtable)
-	(dec-method :type class/lisp/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :type class/lisp/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :deinit class/lisp/deinit :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/lisp/create :static (:r0 :r1 :r2 :r3) (:r0) (:r0-:r14 :f0-:f15))
 	(dec-method :init class/lisp/init :static (:r0 :r1 :r2 :r3 :r4 :r5) :nil (:r1-:r14 :f0-:f15))
@@ -60,7 +60,7 @@
 	(dec-method :lisp_env_push class/lisp/lisp_env_push :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r13-:r14 :f0-:f15))
 	(dec-method :lisp_env_pop class/lisp/lisp_env_pop :static (:r0 :r1) (:r0 :r1) (:r1-:r3))
 	(dec-method :lisp_identity class/lisp/lisp_identity :static (:r0 :r1) (:r0 :r1) (:r1-:r2))
-	(dec-method :lisp_repl_info class/lisp/lisp_repl_info :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r11-:r14 :f0-:f15))
+	(dec-method :lisp_repl_info class/lisp/lisp_repl_info :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r11-:r14 :f0-:f15))
 	(dec-method :run class/lisp/run :static :nil :nil (:r0-:r14 :f0-:f15)))
 
 (defun lisp-this (r)
