@@ -23,10 +23,10 @@
 	(call :sys_task :count '(-3))
 
 	;init and add link node to link array
-	(assign {@sys/statics/statics} {statics})
-	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
 	(vp-rdef (node zero))
-	(assign {&lk_node, 0} `(,node ,zero))
+	(assign (vpx (& lk_node) 0) `(,node ,zero))
 	(save-fields node
 			`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
 			,(+ lk_node_peer_node_id +node_id_node1)
@@ -34,49 +34,49 @@
 			,(+ lk_node_peer_system_id +node_id_node1)
 			,(+ lk_node_peer_system_id +node_id_node2))
 		`(,zero ,zero ,zero ,zero ,zero ,zero ,zero ,zero))
-	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
+	(call :array :push_back (vpx (.> statics statics_sys_mail_links_array) (& lk_node)))
 
 	;read params msg from kernel
-	(call :sys_mail :mymail :nil {params, pdata})
+	(call :sys_mail :mymail :nil (vpx params pdata))
 
 	;open shared memory file
-	(call :host_os :pii_open_shared {pdata, lk_shmem_size} {handle})
+	(call :host_os :pii_open_shared (vpx pdata lk_shmem_size) (vpx handle))
 
 	;map shared object
-	(call :host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
+	(call :host_os :pii_mmap (vpx lk_shmem_size handle +mmap_shared) (vpx mem))
 
 	;no shared memory, no link. The host gives 0 or -1 for one it could
 	;not make or map, and there is nothing at either to claim
-	(vpif {mem + 1 > 1})
+	(vpif (vpx (> (+ mem 1) 1)))
 		;try to claim host_a (embedded in chan_1 alignment padding)
-		(vpifnot {mem->lk_shmem_host_a.+node_id_node1})
-			(assign {node_id.+node_id_node1, node_id.+node_id_node2}
-				{mem->lk_shmem_host_a.+node_id_node1, mem->lk_shmem_host_a.+node_id_node2})
+		(vpifnot (vpx (. (.> mem lk_shmem_host_a) +node_id_node1)))
+			(assign (vpx (. node_id +node_id_node1) (. node_id +node_id_node2))
+				(vpx (. (.> mem lk_shmem_host_a) +node_id_node1) (. (.> mem lk_shmem_host_a) +node_id_node2)))
 			;wait a fraction for bus propagation / simultaneous write collisions
 			(call :sys_task :sleep '(100))
 		(endif)
 
 		;verify who won host_a
-		(assign {1} {is_owner})
-		(vpif {mem->lk_shmem_host_a.+node_id_node1 /= node_id.+node_id_node1})
-			(assign {0} {is_owner})
+		(assign (vpx 1) (vpx is_owner))
+		(vpif (vpx (/= (. (.> mem lk_shmem_host_a) +node_id_node1) (. node_id +node_id_node1))))
+			(assign (vpx 0) (vpx is_owner))
 			;register as guest in host_b
-			(assign {node_id.+node_id_node1, node_id.+node_id_node2}
-				{mem->lk_shmem_host_b.+node_id_node1, mem->lk_shmem_host_b.+node_id_node2})
+			(assign (vpx (. node_id +node_id_node1) (. node_id +node_id_node2))
+				(vpx (. (.> mem lk_shmem_host_b) +node_id_node1) (. (.> mem lk_shmem_host_b) +node_id_node2)))
 		(endif)
 
 		;start out link and send params
-		(call :sys_mail :alloc {24} {msg, data})
-		(call :sys_task :start (cat {@} (f-path :sys_link :out)) '(_ _ :r2 :r3 :r4))
-		(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
+		(call :sys_mail :alloc (vpx 24) (vpx msg data))
+		(call :sys_task :start (vpx (@ ,(f-path :sys_link :out))) '(_ _ :r2 :r3 :r4))
+		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
 		(save-net-id :r0 +msg_dest)
 		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
 		(call :sys_mail :send '(:r0))
 
 		;start in link and send params
-		(call :sys_mail :alloc {24} {msg, data})
-		(call :sys_task :start (cat {@} (f-path :sys_link :in)) '(_ _ :r2 :r3 :r4))
-		(assign {msg, data, &lk_node, mem, is_owner} '(:r0 :r1 :r5 :r6 :r7))
+		(call :sys_mail :alloc (vpx 24) (vpx msg data))
+		(call :sys_task :start (vpx (@ ,(f-path :sys_link :in))) '(_ _ :r2 :r3 :r4))
+		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
 		(save-net-id :r0 +msg_dest)
 		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
 		(call :sys_mail :send '(:r0))
@@ -84,35 +84,35 @@
 		;wait till link dies or told to quit...
 		(loop-start)
 			(call :sys_task :sleep '(100000))
-			(breakif {lk_node.lk_node_task_count = -1})
+			(breakif (vpx (= (. lk_node lk_node_task_count) (- 1))))
 		(loop-end)
 
 		;wait for in link to exit before unmapping
 		(call :sys_task :sleep '(10000))
 
 		;unmap object
-		(call :host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
+		(call :host_os :pii_munmap (vpx mem lk_shmem_size +mmap_shared))
 	(else)
 		(call :host_os :pii_write_str '(2 "Link: no shared memory !\n"))
 	(endif)
 
 	;remove link node from link array
-	(call :array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
-	(loop-while {iter_begin /= iter_end})
-		(vpif {*iter_begin = &lk_node})
-			(call :array :erase {statics->statics_sys_mail_links_array, iter_begin})
+	(call :array :get_both (vpx (.> statics statics_sys_mail_links_array)) (vpx _ iter_begin iter_end))
+	(loop-while (vpx (/= iter_begin iter_end)))
+		(vpif (vpx (= (* iter_begin) (& lk_node))))
+			(call :array :erase (vpx (.> statics statics_sys_mail_links_array) iter_begin))
 			(break)
 		(endif)
-		(assign {iter_begin + +ptr_size} {iter_begin})
+		(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
 	(loop-end)
 
 	;close it
-	(vpif {handle + 1 > 1})
-		(call :host_os :pii_close_shared {pdata, handle})
+	(vpif (vpx (> (+ handle 1) 1)))
+		(call :host_os :pii_close_shared (vpx pdata handle))
 	(endif)
 
 	;free params msg
-	(call :sys_mail :free {params})
+	(call :sys_mail :free (vpx params))
 
 	;restore task count
 	(call :sys_task :count '(3))
@@ -134,37 +134,37 @@
 	(push-scope)
 
 	;read params msg
-	(call :sys_mail :mymail :nil {msg, data})
-	(assign {ptr(data + 0)} {lk_node})
-	(assign {ptr(data + +ptr_size)} {rx})
-	(assign {ptr(data + (2 * +ptr_size))} {is_owner})
-	(call :sys_mail :free {msg})
+	(call :sys_mail :mymail :nil (vpx msg data))
+	(assign (vpx (ptr (+ data 0))) (vpx lk_node))
+	(assign (vpx (ptr (+ data +ptr_size))) (vpx rx))
+	(assign (vpx (ptr (+ data (* 2 +ptr_size)))) (vpx is_owner))
+	(call :sys_mail :free (vpx msg))
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
 
 	;assign rx channel deterministically based on leadership
-	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(vpif {is_owner})
-		(assign {rx + lk_shmem_chan_2} {rx})
+	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
+	(vpif (vpx is_owner))
+		(assign (vpx (+ rx lk_shmem_chan_2)) (vpx rx))
 	(else)
-		(assign {rx + lk_shmem_chan_1} {rx})
+		(assign (vpx (+ rx lk_shmem_chan_1)) (vpx rx))
 	(endif)
-	(assign {rx, lk_sleep_min, 0} {head, sleep_time, quiet})
+	(assign (vpx rx lk_sleep_min 0) (vpx head sleep_time quiet))
 
 	;read messages from the shared buffer
 	(loop-start)
 		;check for received message
-		(loop-while {(head->lk_buf_status => status) /= lk_chan_status_ready})
+		(loop-while (vpx (/= (=> (.> head lk_buf_status) status) lk_chan_status_ready)))
 			;just a skip ?
 			(vp-sync)
-			(assign {head->lk_buf_length} {length})
-			(gotoif {status = lk_chan_status_skip} 'skip)
+			(assign (vpx (.> head lk_buf_length)) (vpx length))
+			(gotoif (vpx (= status lk_chan_status_skip)) 'skip)
 
-			(vpif {status = lk_chan_status_ping})
+			(vpif (vpx (= status lk_chan_status_ping)))
 				;read neighbor task count, process id, peer node id, and peer system id
 				(vp-rdef (src dst t0 t1 t2 t3 t4 t5))
-				(assign {&head->lk_buf_size, lk_node} `(,src ,dst))
+				(assign (vpx (& (.> head lk_buf_size)) lk_node) `(,src ,dst))
 				(assign-fields
 					src
 						`(,(+ lk_node_peer_node_id +node_id_node1) ,(+ lk_node_peer_node_id +node_id_node2)
@@ -177,22 +177,20 @@
 					`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5))
 				;clear status
 			(vp-label 'skip)
-				(assign {lk_chan_status_ready} {head->lk_buf_status})
-			(elseif {status = lk_chan_status_frag})
+				(assign (vpx lk_chan_status_ready) (vpx (.> head lk_buf_status)))
+			(elseif (vpx (= status lk_chan_status_frag)))
 				;reset to min poling
-				(assign {lk_sleep_min, 0} {sleep_time, quiet})
+				(assign (vpx lk_sleep_min 0) (vpx sleep_time quiet))
 
 				;is this msg part of a parcel for this node
-				(vpif {head->lk_buf_size.lk_frag_total
-					&& head->lk_buf_size.lk_frag_dest.+net_id_node_id.+node_id_node1 = node_id.+node_id_node1
-					&& head->lk_buf_size.lk_frag_dest.+net_id_node_id.+node_id_node2 = node_id.+node_id_node2})
+				(vpif (vpx (&& (. (.> head lk_buf_size) lk_frag_total) (= (. (.> head lk_buf_size) lk_frag_dest +net_id_node_id +node_id_node1) (. node_id +node_id_node1)) (= (. (.> head lk_buf_size) lk_frag_dest +net_id_node_id +node_id_node2) (. node_id +node_id_node2)))))
 					;copy direct from link buffer to parcel !
-					(call :sys_mail :in {&head->lk_buf_size, head, rx, lk_chan_size})
+					(call :sys_mail :in (vpx (& (.> head lk_buf_size)) head rx lk_chan_size))
 				(else)
 					;allocate msg, copy frag data
-					(call :sys_mail :alloc {head->lk_buf_size.lk_frag_length} {msg, data})
+					(call :sys_mail :alloc (vpx (. (.> head lk_buf_size) lk_frag_length)) (vpx msg data))
 					(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
-					(assign {msg, &head->lk_buf_size} `(,msg ,rx_frag))
+					(assign (vpx msg (& (.> head lk_buf_size))) `(,msg ,rx_frag))
 					(assign-fields
 						rx_frag
 							`(lk_frag_length lk_frag_offset lk_frag_total
@@ -211,28 +209,28 @@
 							,(+ +msg_src +net_id_node_id +node_id_node1)
 							,(+ +msg_src +net_id_node_id +node_id_node2))
 						`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
-					(call :sys_mem :copy_from_ring {&head->lk_buf_size.lk_frag_size,
-						data, head->lk_buf_size.lk_frag_length, lk_chan_size, rx})
+					(call :sys_mem :copy_from_ring (vpx (& (. (.> head lk_buf_size) lk_frag_size))
+						data (. (.> head lk_buf_size) lk_frag_length) lk_chan_size rx))
 
 					;clear status
 					;overlap the :send with new receive !
 					(vp-sync)
-					(assign {lk_chan_status_ready} {head->lk_buf_status})
+					(assign (vpx lk_chan_status_ready) (vpx (.> head lk_buf_status)))
 
 					;send onwards
-					(call :sys_mail :send {msg})
+					(call :sys_mail :send (vpx msg))
 				(endif)
 			(endif)
 
 			;move on to next transfer
 			(vp-rdef (head rx len))
-			(assign {head, rx, length} `(,head ,rx ,len))
+			(assign (vpx head rx length) `(,head ,rx ,len))
 			(vp-add-cr lk_chan_size rx)
 			(vp-add-rr len head)
 			(vpif `(,head >= ,rx))
 				(vp-sub-cr lk_chan_size head)
 			(endif)
-			(assign `(,head) {head})
+			(assign `(,head) (vpx head))
 
 			;let other links run
 			(call :sys_task :sleep '(0))
@@ -242,19 +240,19 @@
 		;the sleep doubles, to lk_sleep_max, so mail goes through quickly
 		;while there is some. A link that has had none for lk_quiet sleeps
 		;goes on to lk_sleep_idle, an idle network should not be busy.
-		(call :sys_task :sleep {sleep_time})
-		(assign {sleep_time << 1, quiet + 1} {sleep_time, quiet})
-		(vpif {quiet > lk_quiet})
-			(assign {lk_quiet + 1} {quiet})
-			(vpif {sleep_time > lk_sleep_idle})
-				(assign {lk_sleep_idle} {sleep_time})
+		(call :sys_task :sleep (vpx sleep_time))
+		(assign (vpx (<< sleep_time 1) (+ quiet 1)) (vpx sleep_time quiet))
+		(vpif (vpx (> quiet lk_quiet)))
+			(assign (vpx (+ lk_quiet 1)) (vpx quiet))
+			(vpif (vpx (> sleep_time lk_sleep_idle)))
+				(assign (vpx lk_sleep_idle) (vpx sleep_time))
 			(endif)
-		(elseif {sleep_time > lk_sleep_max})
-			(assign {lk_sleep_max} {sleep_time})
+		(elseif (vpx (> sleep_time lk_sleep_max)))
+			(assign (vpx lk_sleep_max) (vpx sleep_time))
 		(endif)
 
 		;exit if link closed
-		(breakif {lk_node->lk_node_task_count = -1})
+		(breakif (vpx (= (.> lk_node lk_node_task_count) (- 1))))
 	(loop-end)
 
 	(pop-scope)
@@ -269,8 +267,8 @@
 	;taken from the node map, they are left in it with no way to them, not
 	;listed, till the kick the ping task gives as it sees the link change
 	;runs their time out. See +node_hops_none in sys/mail/class.inc.
-	(call :hmap :each {statics->statics_sys_mail_node_map, $behind_callback,
-		&lk_node->lk_node_peer_node_id}))
+	(call :hmap :each (vpx (.> statics statics_sys_mail_node_map) ($ behind_callback)
+		(& (.> lk_node lk_node_peer_node_id)))))
 
 (def-method :sys_link :out)
 	;trashes
@@ -286,39 +284,39 @@
 
 	(push-scope)
 
-	(assign {@sys/statics/statics} {statics})
-	(call :nodeid :create '(0) {key})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(call :nodeid :create '(0) (vpx key))
 
 	;read params msg
-	(call :sys_mail :mymail :nil {msg, data})
-	(assign {ptr(data + 0)} {lk_node})
-	(assign {ptr(data + +ptr_size)} {tx})
-	(assign {ptr(data + (2 * +ptr_size))} {is_owner})
-	(call :sys_mail :free {msg})
+	(call :sys_mail :mymail :nil (vpx msg data))
+	(assign (vpx (ptr (+ data 0))) (vpx lk_node))
+	(assign (vpx (ptr (+ data +ptr_size))) (vpx tx))
+	(assign (vpx (ptr (+ data (* 2 +ptr_size)))) (vpx is_owner))
+	(call :sys_mail :free (vpx msg))
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_out_link_priority))
 
 	;assign tx channel deterministically based on leadership
-	(call :sys_kernel :id :nil {node_id.+node_id_node1, node_id.+node_id_node2})
-	(call :sys_kernel :system_id :nil {system_id.+node_id_node1, system_id.+node_id_node2})
-	(vpif {is_owner})
-		(assign {tx + lk_shmem_chan_1} {tx})
+	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
+	(call :sys_kernel :system_id :nil (vpx (. system_id +node_id_node1) (. system_id +node_id_node2)))
+	(vpif (vpx is_owner))
+		(assign (vpx (+ tx lk_shmem_chan_1)) (vpx tx))
 	(else)
-		(assign {tx + lk_shmem_chan_2} {tx})
+		(assign (vpx (+ tx lk_shmem_chan_2)) (vpx tx))
 	(endif)
-	(call :host_os :pii_time :nil {then})
-	(assign {tx, tx, lk_sleep_min, 0, 0} {head, tail, sleep_time, last_count, quiet})
-	(assign {tx, then, then, 0, 0, lk_timeout} {last_tail, now, beat, seen, down, timeout})
-	(call :host_os :pii_pid :nil {pid})
-	(assign {then, 1} {checked, alive})
+	(call :host_os :pii_time :nil (vpx then))
+	(assign (vpx tx tx lk_sleep_min 0 0) (vpx head tail sleep_time last_count quiet))
+	(assign (vpx tx then then 0 0 lk_timeout) (vpx last_tail now beat seen down timeout))
+	(call :host_os :pii_pid :nil (vpx pid))
+	(assign (vpx then 1) (vpx checked alive))
 
 	;write messages through the shared buffer
 	(loop-start)
-		(loop-while {head->lk_buf_status = lk_chan_status_ready} 'sleep)
+		(loop-while (vpx (= (.> head lk_buf_status) lk_chan_status_ready)) 'sleep)
 			;reclaim space, calculate free
 			(vp-rdef (head tail tx free status len))
-			(assign {head, tail, tx} `(,head ,tail ,tx))
+			(assign (vpx head tail tx) `(,head ,tail ,tx))
 			(vp-add-cr lk_chan_size tx)
 			(loop-while `(,tail /= ,head))
 				(assign `((,tail lk_buf_status)) `(,status))
@@ -330,53 +328,53 @@
 					(vp-sub-cr lk_chan_size tail)
 				(endif)
 			(loop-end)
-			(assign `(,tail) {tail})
+			(assign `(,tail) (vpx tail))
 			(vp-sub-rr head tail)
 			(vpif `(,tail <= 0))
 				(vp-add-cr lk_chan_size tail)
 			(endif)
-			(assign `(,tail) {free})
+			(assign `(,tail) (vpx free))
 
 			;the peer is alive if it has taken something from the buffer, or
 			;there is nothing left in it to take. That resets the timeout,
 			;room in the buffer does not, a dead peer leaves plenty. A peer
 			;that has yet to take anything may not have started, so wait.
-			(vpif {tail /= last_tail})
+			(vpif (vpx (/= tail last_tail)))
 				;it has, so if the link was down it is up again. And learn
 				;from how long the peer left it, a busy node is not a dead
 				;one, so allow this peer twice as long from now on.
-				(vpif {seen})
-					(assign {(now - then) * 2} {gap})
-					(vpif {gap > lk_timeout_max})
-						(assign {lk_timeout_max} {gap})
+				(vpif (vpx seen))
+					(assign (vpx (* (- now then) 2)) (vpx gap))
+					(vpif (vpx (> gap lk_timeout_max)))
+						(assign (vpx lk_timeout_max) (vpx gap))
 					(endif)
-					(vpif {gap > timeout})
-						(assign {gap} {timeout})
+					(vpif (vpx (> gap timeout)))
+						(assign (vpx gap) (vpx timeout))
 					(endif)
 				(endif)
-				(assign {1, 0} {seen, down})
+				(assign (vpx 1 0) (vpx seen down))
 			(endif)
-			(vpif {tail /= last_tail || tail = head || seen = 0})
-				(assign {tail, now} {last_tail, then})
+			(vpif (vpx (|| (/= tail last_tail) (= tail head) (= seen 0))))
+				(assign (vpx tail now) (vpx last_tail then))
 			(endif)
 
 			;need to send a ping ? If my task count has changed, or as a
 			;heartbeat, so there is always something for a live peer to take
-			(vpif {statics->statics_sys_task_task_count /= last_count || (seen && down = 0 && now - beat > lk_beat)})
+			(vpif (vpx (|| (/= (.> statics statics_sys_task_task_count) last_count) (&& seen (= down 0) (> (- now beat) lk_beat)))))
 				;wait for at least one lk_node, plus buf header as we
 				;must write another lk_chan_status_ready to halt the :in !
-				(breakif {free < (lk_node_size + lk_buf_size)} 'sleep)
-				(assign {now} {beat})
+				(breakif (vpx (< free (+ lk_node_size lk_buf_size))) 'sleep)
+				(assign (vpx now) (vpx beat))
 
 				;what was learned of a busy peer fades, so one that then
 				;dies is not waited on for long
-				(assign {timeout - ((timeout - lk_timeout) >> 4)} {timeout})
+				(assign (vpx (- timeout (>> (- timeout lk_timeout) 4))) (vpx timeout))
 
 				;write my load, process id, node id, and system id
 				(vp-rdef (dst cnt t0 t1 t2 t3 t4))
-				(assign {&head->lk_buf_size, statics->statics_sys_task_task_count + statics->statics_sys_task_lag,
-						node_id.+node_id_node1, node_id.+node_id_node2,
-						system_id.+node_id_node1, system_id.+node_id_node2, pid}
+				(assign (vpx (& (.> head lk_buf_size)) (+ (.> statics statics_sys_task_task_count) (.> statics statics_sys_task_lag))
+						(. node_id +node_id_node1) (. node_id +node_id_node2)
+						(. system_id +node_id_node1) (. system_id +node_id_node2) pid)
 					`(,dst ,cnt ,t0 ,t1 ,t2 ,t3 ,t4))
 				(save-fields
 					dst
@@ -385,35 +383,35 @@
 						,(+ lk_node_peer_system_id +node_id_node1) ,(+ lk_node_peer_system_id +node_id_node2)
 						lk_node_peer_pid)
 					`(,cnt ,t0 ,t1 ,t2 ,t3 ,t4))
-				(assign {statics->statics_sys_task_task_count} {last_count})
+				(assign (vpx (.> statics statics_sys_task_task_count)) (vpx last_count))
 
 				;write buf ping, wrap head and trigger :in
-				(call 'write_buf {head, tx, lk_chan_status_ping, lk_buf_size + lk_node_size} {head})
+				(call 'write_buf (vpx head tx lk_chan_status_ping (+ lk_buf_size lk_node_size)) (vpx head))
 				(goto 'yield)
 			(endif)
 
 			;wait for at least one max fragment, plus buf header as we
 			;must write another lk_chan_status_ready to halt the :in !
-			(breakif {free < (lk_buf_size + lk_frag_size + lk_data_size + lk_buf_size)})
+			(breakif (vpx (< free (+ lk_buf_size lk_frag_size lk_data_size lk_buf_size))))
 
 			;see if any mail for this link
 			(vp-rdef (node1 node2 key lk_node) (method-input :sys_mail :ready))
 			(vp-rdef (msg) (method-output :sys_mail :ready))
-			(assign {lk_node, key} `(,lk_node ,key))
+			(assign (vpx lk_node key) `(,lk_node ,key))
 			(load-node-id lk_node lk_node_peer_node_id node1 node2)
 			(call :sys_mail :ready `(,node1 ,node2 ,key) `(,msg))
 			(breakif `(,msg = 0))
-			(assign `(,msg) {msg})
+			(assign `(,msg) (vpx msg))
 
 			;how much this link has carried
-			(assign {lk_node->lk_node_sent + msg->+msg_length} {lk_node->lk_node_sent})
+			(assign (vpx (+ (.> lk_node lk_node_sent) (.> msg +msg_length))) (vpx (.> lk_node lk_node_sent)))
 
 			;reset to min poling
-			(assign {lk_sleep_min, 0} {sleep_time, quiet})
+			(assign (vpx lk_sleep_min 0) (vpx sleep_time quiet))
 
 			;copy frag data
 			(vp-rdef (msg tx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
-			(assign {msg, &head->lk_buf_size} `(,msg ,tx_frag))
+			(assign (vpx msg (& (.> head lk_buf_size))) `(,msg ,tx_frag))
 			(assign-fields
 				msg
 					`(+msg_length +msg_offset +msg_total
@@ -432,27 +430,27 @@
 					,(+ lk_frag_src +net_id_node_id +node_id_node1)
 					,(+ lk_frag_src +net_id_node_id +node_id_node2))
 				`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
-			(call :sys_mem :copy_to_ring {msg->+msg_data,
-					&head->lk_buf_size.lk_frag_size,
-					msg->+msg_length, lk_chan_size, tx})
+			(call :sys_mem :copy_to_ring (vpx (.> msg +msg_data)
+					(& (. (.> head lk_buf_size) lk_frag_size))
+					(.> msg +msg_length) lk_chan_size tx))
 
 			;write buf frag, wrap head and trigger :in
-			(call 'write_buf {head, tx, lk_chan_status_frag,
-				(msg->+msg_length + lk_buf_size + lk_frag_size + +long_size - 1) & (- +long_size)} {head})
+			(call 'write_buf (vpx head tx lk_chan_status_frag
+				(& (- (+ (.> msg +msg_length) lk_buf_size lk_frag_size +long_size) 1) (- +long_size))) (vpx head))
 
 			;free message
-			(call :sys_mail :free {msg})
+			(call :sys_mail :free (vpx msg))
 
 		(vp-label 'yield)
 			;do we have enough headroom, as only msg data can wrap ?
 			(vp-rdef (head tx status tx_end head_end))
-			(assign {head, tx} `(,head ,tx))
+			(assign (vpx head tx) `(,head ,tx))
 			(vp-lea-i tx lk_chan_size tx_end)
 			(vp-lea-i head (+ lk_buf_size lk_frag_size) head_end)
 			(vpif `(,head_end > ,tx_end))
 				;write buf skip, wrap head and trigger :in
 				(vp-sub-rr head tx_end)
-				(call 'write_buf `(,head ,tx lk_chan_status_skip ,tx_end) {head})
+				(call 'write_buf `(,head ,tx lk_chan_status_skip ,tx_end) (vpx head))
 			(endif)
 
 			;let other links run
@@ -463,32 +461,32 @@
 		;the sleep doubles, to lk_sleep_max, so mail goes through quickly
 		;while there is some. A link that has had none for lk_quiet sleeps
 		;goes on to lk_sleep_idle, an idle network should not be busy.
-		(call :sys_task :sleep {sleep_time})
-		(assign {sleep_time << 1, quiet + 1} {sleep_time, quiet})
-		(vpif {quiet > lk_quiet})
-			(assign {lk_quiet + 1} {quiet})
-			(vpif {sleep_time > lk_sleep_idle})
-				(assign {lk_sleep_idle} {sleep_time})
+		(call :sys_task :sleep (vpx sleep_time))
+		(assign (vpx (<< sleep_time 1) (+ quiet 1)) (vpx sleep_time quiet))
+		(vpif (vpx (> quiet lk_quiet)))
+			(assign (vpx (+ lk_quiet 1)) (vpx quiet))
+			(vpif (vpx (> sleep_time lk_sleep_idle)))
+				(assign (vpx lk_sleep_idle) (vpx sleep_time))
 			(endif)
-		(elseif {sleep_time > lk_sleep_max})
-			(assign {lk_sleep_max} {sleep_time})
+		(elseif (vpx (> sleep_time lk_sleep_max)))
+			(assign (vpx lk_sleep_max) (vpx sleep_time))
 		(endif)
 
 		;if I have not run for a while, this node was busy, or was
 		;stopped, that time says nothing about the peer
-		(assign {now} {last})
-		(call :host_os :pii_time :nil {now})
-		(vpif {now - last > lk_stall})
-			(assign {then + (now - last)} {then})
+		(assign (vpx now) (vpx last))
+		(call :host_os :pii_time :nil (vpx now))
+		(vpif (vpx (> (- now last) lk_stall)))
+			(assign (vpx (+ then (- now last))) (vpx then))
 		(endif)
 
 		;a peer that is not taking from the link is busy, and can not say
 		;so. So count the ms it has left the link as its load, till it
 		;next says what its load is.
-		(vpif {seen && down = 0})
-			(assign {(now - then) / lag_per_task} {gap})
-			(vpif {gap > lk_node->lk_node_task_count})
-				(assign {gap} {lk_node->lk_node_task_count})
+		(vpif (vpx (&& seen (= down 0))))
+			(assign (vpx (/ (- now then) lag_per_task)) (vpx gap))
+			(vpif (vpx (> gap (.> lk_node lk_node_task_count))))
+				(assign (vpx gap) (vpx (.> lk_node lk_node_task_count)))
 			(endif)
 		(endif)
 
@@ -498,18 +496,18 @@
 		;one that takes nothing for the max timeout, it is stuck. If its
 		;process is not known, it is down if it has taken nothing for
 		;longer than the timeout.
-		(assign {0} {drop})
-		(vpif {down = 0 && seen})
-			(vpif {lk_node->lk_node_peer_pid})
-				(vpif {now - checked > lk_beat})
-					(assign {now} {checked})
-					(call :host_os :pii_alive {lk_node->lk_node_peer_pid} {alive})
+		(assign (vpx 0) (vpx drop))
+		(vpif (vpx (&& (= down 0) seen)))
+			(vpif (vpx (.> lk_node lk_node_peer_pid)))
+				(vpif (vpx (> (- now checked) lk_beat)))
+					(assign (vpx now) (vpx checked))
+					(call :host_os :pii_alive (vpx (.> lk_node lk_node_peer_pid)) (vpx alive))
 				(endif)
-				(vpif {alive = 0 || now - then > lk_timeout_max})
-					(assign {1} {drop})
+				(vpif (vpx (|| (= alive 0) (> (- now then) lk_timeout_max))))
+					(assign (vpx 1) (vpx drop))
 				(endif)
-			(elseif {now - then > timeout})
-				(assign {1} {drop})
+			(elseif (vpx (> (- now then) timeout)))
+				(assign (vpx 1) (vpx drop))
 			(endif)
 		(endif)
 
@@ -517,8 +515,8 @@
 		;way, and the ping task sees the change and kicks the network. If
 		;the peer was just busy, the :in sets it again when it next hears
 		;from it, and the link is up again.
-		(vpif {drop})
-			(vpifnot {alive})
+		(vpif (vpx drop))
+			(vpifnot (vpx alive))
 				;its process is gone, that is certain
 				(lk-forget-peer)
 				;what was put on the link for it and it never took is not
@@ -526,13 +524,13 @@
 				;another link to take if there is another way there. Only
 				;when the process has gone: one that is only busy may yet
 				;take what is here, and then it would arrive twice
-				(assign {tail} {walk})
-				(loop-while {walk /= head})
-					(assign {walk->lk_buf_status, walk->lk_buf_length} {status, length})
-					(vpif {status = lk_chan_status_frag})
-						(call :sys_mail :alloc {walk->lk_buf_size.lk_frag_length} {msg, data})
+				(assign (vpx tail) (vpx walk))
+				(loop-while (vpx (/= walk head)))
+					(assign (vpx (.> walk lk_buf_status) (.> walk lk_buf_length)) (vpx status length))
+					(vpif (vpx (= status lk_chan_status_frag)))
+						(call :sys_mail :alloc (vpx (. (.> walk lk_buf_size) lk_frag_length)) (vpx msg data))
 						(vp-rdef (msg rx_frag t0 t1 t2 t3 t4 t5 t6 t7 t8))
-						(assign {msg, &walk->lk_buf_size} `(,msg ,rx_frag))
+						(assign (vpx msg (& (.> walk lk_buf_size))) `(,msg ,rx_frag))
 						(assign-fields
 							rx_frag
 								`(lk_frag_length lk_frag_offset lk_frag_total
@@ -551,21 +549,21 @@
 								,(+ +msg_src +net_id_node_id +node_id_node1)
 								,(+ +msg_src +net_id_node_id +node_id_node2))
 							`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
-						(call :sys_mem :copy_from_ring {&walk->lk_buf_size.lk_frag_size,
-							data, walk->lk_buf_size.lk_frag_length, lk_chan_size, tx})
-						(call :sys_mail :send {msg})
+						(call :sys_mem :copy_from_ring (vpx (& (. (.> walk lk_buf_size) lk_frag_size))
+							data (. (.> walk lk_buf_size) lk_frag_length) lk_chan_size tx))
+						(call :sys_mail :send (vpx msg))
 					(endif)
-					(assign {lk_chan_status_ready} {walk->lk_buf_status})
-					(assign {walk + length} {walk})
-					(vpif {walk >= tx + lk_chan_size})
-						(assign {walk - lk_chan_size} {walk})
+					(assign (vpx lk_chan_status_ready) (vpx (.> walk lk_buf_status)))
+					(assign (vpx (+ walk length)) (vpx walk))
+					(vpif (vpx (>= walk (+ tx lk_chan_size))))
+						(assign (vpx (- walk lk_chan_size)) (vpx walk))
 					(endif)
 				(loop-end)
-				(assign {head, head} {tail, last_tail})
+				(assign (vpx head head) (vpx tail last_tail))
 			(endif)
-			(assign {1, 1} {down, alive})
+			(assign (vpx 1 1) (vpx down alive))
 			(vp-rdef (node zero))
-			(assign {lk_node, 0} `(,node ,zero))
+			(assign (vpx lk_node 0) `(,node ,zero))
 			(save-fields node
 					`(lk_node_peer_pid
 					,(+ lk_node_peer_node_id +node_id_node1)
@@ -576,27 +574,27 @@
 		(endif)
 
 		;exit if link closed
-		(breakif {lk_node->lk_node_task_count = -1})
+		(breakif (vpx (= (.> lk_node lk_node_task_count) (- 1))))
 	(loop-end)
 
 	;the link was closed. A peer that is exiting closes its links first,
 	;so if its process is known, give it a moment to go, and if it has,
 	;the node is gone too. If it runs on, it only closed the link.
-	(vpif {lk_node->lk_node_peer_pid})
-		(assign {20} {quiet})
+	(vpif (vpx (.> lk_node lk_node_peer_pid)))
+		(assign (vpx 20) (vpx quiet))
 		(loop-start)
-			(call :host_os :pii_alive {lk_node->lk_node_peer_pid} {alive})
-			(breakifnot {alive})
-			(assign {quiet - 1} {quiet})
-			(breakifnot {quiet})
-			(call :sys_task :sleep {10000})
+			(call :host_os :pii_alive (vpx (.> lk_node lk_node_peer_pid)) (vpx alive))
+			(breakifnot (vpx alive))
+			(assign (vpx (- quiet 1)) (vpx quiet))
+			(breakifnot (vpx quiet))
+			(call :sys_task :sleep (vpx 10000))
 		(loop-end)
-		(vpifnot {alive})
+		(vpifnot (vpx alive))
 			(lk-forget-peer)
 		(endif)
 	(endif)
 
-	(call :nodeid :destroy {key})
+	(call :nodeid :destroy (vpx key))
 
 	(pop-scope)
 	(return)

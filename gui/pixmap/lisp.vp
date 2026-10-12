@@ -119,9 +119,9 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(push-scope)
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) {pixmap, stream, type})
+	(assign `(,pixmap ,stream ,type) (vpx pixmap stream type))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -131,22 +131,22 @@
 	(vpif `(,type = 15))
 		(vp-cpy-cr 16 num_bits)
 	(endif)
-	(assign `(,num_bits) {num_bits})
+	(assign `(,num_bits) (vpx num_bits))
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) {bit_pool, bit_pool_size, last_conv})
+	(assign `(,args ,args ,args) (vpx bit_pool bit_pool_size last_conv))
 	(vp-sub-cr 1 args)
-	(assign `(,args) {last_col})
+	(assign `(,args) (vpx last_col))
 
 	;data region
-	(assign {pixmap} `(,data))
+	(assign (vpx pixmap) `(,data))
 	(assign `((,data +pixmap_width) (,data +pixmap_height)) `(,w ,h))
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
 	(vp-lea-d data w data_end)
-	(assign `(,data_end) {data_end})
+	(assign `(,data_end) (vpx data_end))
 
 	;loop for pixels
 	(loop-while `(,data /= ,data_end))
@@ -154,40 +154,40 @@
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :from_argb32))
 		(vp-cpy-ir-ui data 0 col)
 		(vp-add-cr +int_size data)
-		(assign `(,data) {data})
+		(assign `(,data) (vpx data))
 
 		;convert pixel, with cache
-		(assign {last_col} `(,last_col))
+		(assign (vpx last_col) `(,last_col))
 		(vpif `(,col = ,last_col))
-			(assign {last_conv} `(,col))
+			(assign (vpx last_conv) `(,col))
 		(else)
-			(assign {type} `(,type))
-			(assign `(,col) {last_col})
+			(assign (vpx type) `(,type))
+			(assign `(,col) (vpx last_col))
 			(call :pixmap :from_argb32 `(,col ,type) `(,col))
-			(assign `(,col) {last_conv})
+			(assign `(,col) (vpx last_conv))
 		(endif)
 
 		;write pixel
 		(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
 		(assign `(,col) `(,val))
-		(assign {stream, num_bits, bit_pool, bit_pool_size}
+		(assign (vpx stream num_bits bit_pool bit_pool_size)
 			`(,stream ,num_bits ,bit_pool ,bit_pool_size))
 		(call :stream :write_bits `(,stream ,val ,num_bits ,bit_pool ,bit_pool_size)
-			{_, bit_pool, bit_pool_size})
+			(vpx _ bit_pool bit_pool_size))
 
-		(assign {data, data_end} `(,data ,data_end))
+		(assign (vpx data data_end) `(,data ,data_end))
 	(loop-end)
 
 	; flush bits
 	(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
-	(assign {stream, bit_pool, bit_pool_size} `(,stream ,bit_pool ,bit_pool_size))
+	(assign (vpx stream bit_pool bit_pool_size) `(,stream ,bit_pool ,bit_pool_size))
 	(vpif `(,bit_pool_size > 0))
 		(vp-cpy-cr 8 num_bits)
 		(vp-sub-rr bit_pool_size num_bits)
 		(call :stream :write_bits `(,stream 0 ,num_bits ,bit_pool ,bit_pool_size))
 	(endif)
 
-	(assign {this, pixmap} `(,this ,args))
+	(assign (vpx this pixmap) `(,this ,args))
 	(class/obj/ref args w)
 	(exit :pixmap :lisp_write `(,this ,args))
 	(pop-scope)
@@ -223,9 +223,9 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(push-scope)
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) {pixmap, stream, type})
+	(assign `(,pixmap ,stream ,type) (vpx pixmap stream type))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -235,61 +235,61 @@
 	(vpif `(,type = 15))
 		(vp-cpy-cr 16 num_bits)
 	(endif)
-	(assign `(,num_bits) {num_bits})
+	(assign `(,num_bits) (vpx num_bits))
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) {bit_pool, bit_pool_size, last_conv})
+	(assign `(,args ,args ,args) (vpx bit_pool bit_pool_size last_conv))
 	(vp-sub-cr 1 args)
-	(assign `(,args) {last_col})
+	(assign `(,args) (vpx last_col))
 
 	;data region
-	(assign {pixmap} `(,data))
+	(assign (vpx pixmap) `(,data))
 	(assign `((,data +pixmap_width) (,data +pixmap_height)) `(,w ,h))
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
 	(vp-lea-d data w data_end)
-	(assign `(,data_end) {data_end})
+	(assign `(,data_end) (vpx data_end))
 
 	;loop for pixels
 	(loop-while `(,data /= ,data_end))
-		(assign `(,data) {data})
+		(assign `(,data) (vpx data))
 
 		;read pixel
 		(vp-rdef (stream val bit_pool bit_pool_size) (method-input :stream :read_bits))
-		(assign {stream, num_bits, bit_pool, bit_pool_size}
+		(assign (vpx stream num_bits bit_pool bit_pool_size)
 			`(,stream ,val ,bit_pool ,bit_pool_size))
 		(call :stream :read_bits `(,stream ,val ,bit_pool ,bit_pool_size)
 			`(,stream ,val ,bit_pool ,bit_pool_size))
 		(gotoif `(,val = -1) 'eof)
-		(assign `(,bit_pool ,bit_pool_size) {bit_pool, bit_pool_size})
+		(assign `(,bit_pool ,bit_pool_size) (vpx bit_pool bit_pool_size))
 
 		;convert pixel, with cache
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :to_argb32))
 		(assign `(,val) `(,col))
 
-		(assign {last_col} `(,last_col))
+		(assign (vpx last_col) `(,last_col))
 		(vpif `(,col = ,last_col))
-			(assign {last_conv} `(,col))
+			(assign (vpx last_conv) `(,col))
 		(else)
-			(assign {type} `(,type))
-			(assign `(,col) {last_col})
+			(assign (vpx type) `(,type))
+			(assign `(,col) (vpx last_col))
 			(call :pixmap :to_argb32 `(,col ,type) `(,col))
-			(assign `(,col) {last_conv})
+			(assign `(,col) (vpx last_conv))
 		(endif)
 
 		;write pixel
-		(assign {data, data_end} `(,data ,data_end))
+		(assign (vpx data data_end) `(,data ,data_end))
 		(vp-cpy-ri-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
-	(assign {this, pixmap} `(,this ,args))
+	(assign (vpx this pixmap) `(,this ,args))
 	(goto 'exit)
 
 (vp-label 'eof)
-	(assign {this} `(,this))
+	(assign (vpx this) `(,this))
 	(assign `((,this +lisp_sym_nil)) `(,args))
 (vp-label 'exit)
 	(class/obj/ref args w)

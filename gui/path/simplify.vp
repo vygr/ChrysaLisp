@@ -22,62 +22,62 @@
 		(uint length))
 
 	(push-scope)
-	(entry :path :simplify {this, that, eps})
+	(entry :path :simplify (vpx this that eps))
 
 	;distances are compared squared, as the filters do
-	(assign {eps *> eps} {eps})
+	(assign (vpx (*> eps eps)) (vpx eps))
 
 	;any point doing anything ?
-	(d-call :path :get_length {that} {_, length})
-	(vpif {length <= 4})
+	(d-call :path :get_length (vpx that) (vpx _ length))
+	(vpif (vpx (<= length 4)))
 		;just append to output
-		(d-call :path :append {this, that, 0, length})
+		(d-call :path :append (vpx this that 0 length))
 	(else)
 		;first span
-		(assign {0, length - 2} {first, last})
+		(assign (vpx 0 (- length 2)) (vpx first last))
 
 		;output first point
-		(call :path :get_first2 {that} {_, p1x, p1y})
-		(call :path :push_back2 {this, p1x, p1y})
+		(call :path :get_first2 (vpx that) (vpx _ p1x p1y))
+		(call :path :push_back2 (vpx this p1x p1y))
 
-		(call :array :create :nil {stack})
+		(call :array :create :nil (vpx stack))
 		(loop-start)
 			(switch 'out)
-			(vpcase {last - first > 2})
+			(vpcase (vpx (> (- last first) 2)))
 				;find max distance point
-				(assign {eps, first + 2} {max, length})
-				(call :path :get_elem2 {that, first} {_, p2x, p2y})
-				(call :path :get_elem2 {that, last} {_, p3x, p3y})
+				(assign (vpx eps (+ first 2)) (vpx max length))
+				(call :path :get_elem2 (vpx that first) (vpx _ p2x p2y))
+				(call :path :get_elem2 (vpx that last) (vpx _ p3x p3y))
 				(loop-start)
-					(call :path :get_elem2 {that, length} {_, p1x, p1y})
-					(call :sys_math :f_dist_sqd {p1x, p1y, p2x, p2y, p3x, p3y} {dist})
-					(vpif {dist > max})
-						(assign {dist, length} {max, index})
+					(call :path :get_elem2 (vpx that length) (vpx _ p1x p1y))
+					(call :sys_math :f_dist_sqd (vpx p1x p1y p2x p2y p3x p3y) (vpx dist))
+					(vpif (vpx (> dist max)))
+						(assign (vpx dist length) (vpx max index))
 					(endif)
-				(loop-until {(length + 2 => length) = last})
+				(loop-until (vpx (= (=> (+ length 2) length) last)))
 
 				;continue subdivision ?
-				(vpif {max > eps})
-					(assign {last} {rlast})
-					(assign {index} {last})
-					(call :path :push_back2 {stack, :span, span})
+				(vpif (vpx (> max eps)))
+					(assign (vpx last) (vpx rlast))
+					(assign (vpx index) (vpx last))
+					(call :path :push_back2 (vpx stack :span span))
 					(break 'out)
 				(endif)
 			(default)
 				;output point
-				(call :path :get_elem2 {that, last} {_, p1x, p1y})
-				(call :path :push_back2 {this, p1x, p1y})
+				(call :path :get_elem2 (vpx that last) (vpx _ p1x p1y))
+				(call :path :push_back2 (vpx this p1x p1y))
 			(endswitch)
 
 			;next span
-			(d-call :array :get_length {stack} {_, length})
-			(breakifnot {length})
-			(call :array :pop_back {stack} {_, span})
+			(d-call :array :get_length (vpx stack) (vpx _ length))
+			(breakifnot (vpx length))
+			(call :array :pop_back (vpx stack) (vpx _ span))
 		(loop-end)
-		(call :array :deref {stack})
+		(call :array :deref (vpx stack))
 	(endif)
 
-	(exit :path :simplify {this})
+	(exit :path :simplify (vpx this))
 	(pop-scope)
 	(return)
 

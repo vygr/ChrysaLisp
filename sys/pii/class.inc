@@ -121,14 +121,14 @@
 		(def-vars
 			(ptr _a _b _c))
 		(push-scope)
-		(assign '(:r0 :r1 :r2) {_a, _b, _c})
+		(assign '(:r0 :r1 :r2) (vpx _a _b _c))
 		(fn-string (cat s ": ") :r1)
 		(call :host_os :pii_write_str '(2 :r1))
-		(assign {_a, _b, _c} '(:r0 :r1 :r2))
+		(assign (vpx _a _b _c) '(:r0 :r1 :r2))
 		(assign n '(:r1))
 		(call :host_os :pii_write_num '(2 :r1 16))
 		(call :host_os :pii_write_char '(2 10))
-		(assign {_a, _b, _c} '(:r0 :r1 :r2))
+		(assign (vpx _a _b _c) '(:r0 :r1 :r2))
 		(pop-scope)))
 
 (defun debug-str (s)
@@ -136,11 +136,11 @@
 		(def-vars
 			(ptr _a _b))
 		(push-scope)
-		(assign '(:r0 :r1) {_a, _b})
+		(assign '(:r0 :r1) (vpx _a _b))
 		(assign s '(:r1))
 		(call :host_os :pii_write_str '(2 :r1))
 		(call :host_os :pii_write_char '(2 10))
-		(assign {_a, _b} '(:r0 :r1))
+		(assign (vpx _a _b) '(:r0 :r1))
 		(pop-scope)))
 
 (defcvar 's_ifmt 0xf000)

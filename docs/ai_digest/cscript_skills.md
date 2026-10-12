@@ -1,5 +1,10 @@
 # CScript and VP LLM Skills
 
+*From 2026-10-12 an expression is a form, `(vpx (+ (.> this +field) 1))`, not
+text in braces: see "Forms, not strings" in
+[`cscript_compiler.md`](cscript_compiler.md) for the table. The examples
+below show the braces it had. They mean what they meant.*
+
 To effectively write mixed CScript and lower-level VP register code, it is
 essential to understand what the CScript compiler produces and how it affects
 manual register definitions and assignment code.

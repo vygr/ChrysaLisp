@@ -7,7 +7,7 @@
 (defmacro read-uint32 (src dst)
 	`(progn
 		(vp-rdef (buf mask i val t))
-		(assign (cat ,src ", 0") `(,buf ,mask ,i ,val))
+		(assign (cat ,src '(0)) `(,buf ,mask ,i ,val))
 		(times 4
 			(vp-and-rr mask i)
 			(vp-cpy-dr-ub buf i t)
@@ -19,7 +19,7 @@
 (defmacro subroutine (addr)
 	(defq ret_label (gensym))
 	`(progn
-		(assign (cat {$} ',ret_label) {ret_adr})
+		(assign (vpx ($ ,ret_label)) (vpx ret_adr))
 		(vp-jmp ',addr)
 	(vp-label ',ret_label)))
 
@@ -46,54 +46,54 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 
 	(push-scope)
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(vp-rdef (buf pos chunk hash_table))
 	(list-bind-args :r1 `(,buf ,pos ,chunk ,hash_table) '(:obj :num :obj :obj))
-	(assign `(,buf ,pos ,chunk ,hash_table) {buf, pos, chunk, hash_table})
+	(assign `(,buf ,pos ,chunk ,hash_table) (vpx buf pos chunk hash_table))
 
-	(assign {buf->+str_length, chunk->+str_length} {cap, c_len})
-	(assign {cap - 1, &buf->+str_data, &chunk->+str_data, hash_table->+array_begin}
-		{mask, buf, chunk, hash_table})
+	(assign (vpx (.> buf +str_length) (.> chunk +str_length)) (vpx cap c_len))
+	(assign (vpx (- cap 1) (& (.> buf +str_data)) (& (.> chunk +str_data)) (.> hash_table +array_begin))
+		(vpx mask buf chunk hash_table))
 
 	; --- 1. Write chunk into logical ring buffer ---
-	(call :sys_mem :copy_to_ring {chunk, buf + (pos & mask), c_len, cap, buf})
+	(call :sys_mem :copy_to_ring (vpx chunk (+ buf (& pos mask)) c_len cap buf))
 
 	; --- 2. Allocate token buffer (Worst-case LZ4 expansion size) ---
-	(call :str :create_from_buffer {0, (c_len / 255) + c_len + 32} {tok_buf})
-	(assign {&tok_buf->+str_data, 0} {t, t_pos})
+	(call :str :create_from_buffer (vpx 0 (+ (/ c_len 255) c_len 32)) (vpx tok_buf))
+	(assign (vpx (& (.> tok_buf +str_data)) 0) (vpx t t_pos))
 
 	; --- 3. Encode Loop ---
-	(assign {pos, pos, 2654435761} {i, anchor, hmul})
-	(vpif {c_len >= 12})
-		(assign {pos + c_len - 12, pos + c_len - 5} {end_limit, match_limit})
+	(assign (vpx pos pos 2654435761) (vpx i anchor hmul))
+	(vpif (vpx (>= c_len 12)))
+		(assign (vpx (- (+ pos c_len) 12) (- (+ pos c_len) 5)) (vpx end_limit match_limit))
 	(else)
-		(assign {pos, pos} {end_limit, match_limit})
+		(assign (vpx pos pos) (vpx end_limit match_limit))
 	(endif)
 
-	(loop-while {i < end_limit} 'next)
+	(loop-while (vpx (< i end_limit)) 'next)
 		;read 32-bit unaligned across ring buffer
-		(read-uint32 {buf, mask, i} {val})
+		(read-uint32 (vpx buf mask i) (vpx val))
 
 		;hash lookup (absolute logical position avoids ever needing to slide/clear the hash table!)
 		(vp-rdef (m_pos i hptr))
-		(assign {hash_table + ((((val * hmul) >> 19) & 8191) * +long_size), i} `(,hptr ,i))
+		(assign (vpx (+ hash_table (* (& (>> (* val hmul) 19) 8191) +long_size)) i) `(,hptr ,i))
 		(assign `((,hptr 0)) `(,m_pos))
 		(assign `(,i) `((,hptr 0)))
 		(vp-sub-rr m_pos i)
-		(assign `(,m_pos ,i) {m_pos, offset})
+		(assign `(,m_pos ,i) (vpx m_pos offset))
 		(vpif `(,i <= 65535))
 			;read 32-bit unaligned across ring buffer
-			(read-uint32 {buf, mask, m_pos} {m_val})
+			(read-uint32 (vpx buf mask m_pos) (vpx m_val))
 
-			(vpif {val = m_val})
+			(vpif (vpx (= val m_val)))
 				;match found
 				(vp-rdef (buf mask ptr_i ptr_m match_limit v1 v2 i m_pos match_limit buf mask anchor))
-				(assign {i, m_pos, match_limit, anchor}
+				(assign (vpx i m_pos match_limit anchor)
 					`(,i ,m_pos ,match_limit ,anchor))
 				(vp-simd vp-lea-i `(,i ,m_pos) '(4) `(,ptr_i ,ptr_m))
 				(vpif `(,ptr_i < ,match_limit))
-					(assign {buf, mask} `(,buf ,mask))
+					(assign (vpx buf mask) `(,buf ,mask))
 					(loop-start)
 						(vp-simd vp-cpy-rr `(,ptr_m ,ptr_i) `(,v2 ,v1))
 						(vp-simd vp-and-rr `(,mask) `(,v2 ,v1))
@@ -102,40 +102,40 @@
 						(vp-simd vp-add-cr '(1) `(,ptr_m ,ptr_i))
 					(loop-until `(,ptr_i = ,match_limit))
 				(endif)
-				(assign `(,i) {i})
+				(assign `(,i) (vpx i))
 				(vp-sub-rr i ptr_i)
 				(vp-sub-rr anchor i)
-				(assign `(,ptr_i ,i) {m_len, lit_len})
+				(assign `(,ptr_i ,i) (vpx m_len lit_len))
 
 				;subroutine call while keeping stack context !
 				(subroutine literals)
 
-				(assign {(i + m_len) => anchor} {i})
+				(assign (vpx (=> (+ i m_len) anchor)) (vpx i))
 				(continue 'next)
 			(endif)
 		(endif)
-		(assign {i + 1} {i})
+		(assign (vpx (+ i 1)) (vpx i))
 	(loop-end)
 
 	; --- Final Literals ---
-	(assign {pos + c_len - anchor, 0, 0} {lit_len, match_nibble, offset})
+	(assign (vpx (- (+ pos c_len) anchor) 0 0) (vpx lit_len match_nibble offset))
 
 	;subroutine call while keeping stack context !
 	(subroutine literals)
 
 	;truncate buffer size
-	(assign {t_pos} {tok_buf->+str_length})
+	(assign (vpx t_pos) (vpx (.> tok_buf +str_length)))
 
-	(call :num :create {pos + c_len} {ret_adr})
-	(call :list :create :nil {args})
-	(call :list :push_back2 {args, tok_buf, ret_adr})
+	(call :num :create (vpx (+ pos c_len)) (vpx ret_adr))
+	(call :list :create :nil (vpx args))
+	(call :list :push_back2 (vpx args tok_buf ret_adr))
 
-	(exit {this, args})
+	(exit (vpx this args))
 	(return)
 
 (vp-label 'literals)
 	(vp-rdef (lit_len v t_pos t c lit_nibble match_nibble offset m_len))
-	(assign {lit_len, offset, m_len, t, t_pos, match_nibble}
+	(assign (vpx lit_len offset m_len t t_pos match_nibble)
 		`(,lit_len ,offset ,m_len ,t ,t_pos ,match_nibble))
 	(vp-add-rr t t_pos)
 
@@ -163,17 +163,17 @@
 	(endif)
 
 	(vp-sub-rr t t_pos)
-	(assign `(,t_pos) {t_pos})
+	(assign `(,t_pos) (vpx t_pos))
 
-	(vpif {lit_len > 0})
-		(call :sys_mem :copy_from_ring {buf + (anchor & mask), t + t_pos, lit_len, cap, buf})
-		(assign {t_pos + lit_len} {t_pos})
+	(vpif (vpx (> lit_len 0)))
+		(call :sys_mem :copy_from_ring (vpx (+ buf (& anchor mask)) (+ t t_pos) lit_len cap buf))
+		(assign (vpx (+ t_pos lit_len)) (vpx t_pos))
 	(endif)
 
 	(vp-rdef (offset m_len t_pos t v c t1 t2))
-	(assign {offset} `(,offset))
+	(assign (vpx offset) `(,offset))
 	(vpif `(,offset > 0))
-		(assign {m_len, t_pos, t, 255} `(,m_len ,t_pos ,t ,c))
+		(assign (vpx m_len t_pos t 255) `(,m_len ,t_pos ,t ,c))
 		(vp-add-rr t t_pos)
 		(vp-simd vp-cpy-rr `(,offset) `(,t1 ,t2))
 		(vp-and-rr c t1)
@@ -191,10 +191,10 @@
 			(vp-add-cr 1 t_pos)
 		(endif)
 		(vp-sub-rr t t_pos)
-		(assign `(,t_pos ,m_len) {t_pos, m_len})
+		(assign `(,t_pos ,m_len) (vpx t_pos m_len))
 	(endif)
 
-	(assign {ret_adr} '(:r0))
+	(assign (vpx ret_adr) '(:r0))
 	(vp-jmp-r :r0)
 
 	(pop-scope-syms)
@@ -230,7 +230,7 @@
 
 	(push-scope)
 	;spill this and args to CScript stack
-	(assign `(,this ,args) {saved_this, saved_args})
+	(assign `(,this ,args) (vpx saved_this saved_args))
 
 	(list-bind-args args `(,buf ,pos ,chunk) '(:obj :num :obj))
 	(assign `((,chunk +str_length) (,buf +str_length) (& ,chunk +str_data) (& ,buf +str_data))
@@ -343,7 +343,7 @@
 	(loop-end)
 	(call :num :create `(,pos) `(,args))
 
-	(assign {saved_this} `(,this))
+	(assign (vpx saved_this) `(,this))
 	(exit `(,this ,args))
 	(pop-scope)
 	(return)
@@ -378,26 +378,26 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 
 	(push-scope)
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(vp-rdef (buf pos stm in_len))
 	(list-bind-args args `(,buf ,pos ,stm ,in_len) '(:obj :num :stream :num))
-	(assign `(,buf ,pos ,stm ,in_len) {buf, pos, stm, in_len})
+	(assign `(,buf ,pos ,stm ,in_len) (vpx buf pos stm in_len))
 
-	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
-	(assign {pos & (cap - 1)} {start})
-	(assign {cap - start} {space})
+	(assign (vpx (.> buf +str_length) (& (.> buf +str_data))) (vpx cap buf))
+	(assign (vpx (& pos (- cap 1))) (vpx start))
+	(assign (vpx (- cap start)) (vpx space))
 
-	(vpif {in_len <= space})
-		(call :stream :read {stm, buf + start, in_len})
+	(vpif (vpx (<= in_len space)))
+		(call :stream :read (vpx stm (+ buf start) in_len))
 	(else)
-		(call :stream :read {stm, buf + start, space})
-		(call :stream :read {stm, buf, in_len - space})
+		(call :stream :read (vpx stm (+ buf start) space))
+		(call :stream :read (vpx stm buf (- in_len space)))
 	(endif)
 
-	(call :num :create {pos + in_len} {args})
+	(call :num :create (vpx (+ pos in_len)) (vpx args))
 
-	(exit {this, args})
+	(exit (vpx this args))
 	(return)
 
 	(pop-scope-syms)
@@ -431,25 +431,25 @@
 	(errorif-lisp-args-sig 'error :r1 4)
 
 	(push-scope)
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(vp-rdef (buf pos stm out_len))
 	(list-bind-args args `(,buf ,pos ,stm ,out_len) '(:obj :num :stream :num))
-	(assign `(,buf ,pos ,stm ,out_len) {buf, pos, stm, out_len})
+	(assign `(,buf ,pos ,stm ,out_len) (vpx buf pos stm out_len))
 
-	(assign {buf->+str_length, &buf->+str_data} {cap, buf})
-	(assign {(pos - out_len) & (cap - 1)} {start})
-	(assign {cap - start} {space})
-	(vpif {out_len <= space})
-		(call :stream :write {stm, buf + start, out_len})
+	(assign (vpx (.> buf +str_length) (& (.> buf +str_data))) (vpx cap buf))
+	(assign (vpx (& (- pos out_len) (- cap 1))) (vpx start))
+	(assign (vpx (- cap start)) (vpx space))
+	(vpif (vpx (<= out_len space)))
+		(call :stream :write (vpx stm (+ buf start) out_len))
 	(else)
-		(call :stream :write {stm, buf + start, space})
-		(call :stream :write {stm, buf, out_len - space})
+		(call :stream :write (vpx stm (+ buf start) space))
+		(call :stream :write (vpx stm buf (- out_len space)))
 	(endif)
 
-	(call :num :create {pos} {args})
+	(call :num :create (vpx pos) (vpx args))
 
-	(exit {this, args})
+	(exit (vpx this args))
 	(return)
 
 	(pop-scope-syms)

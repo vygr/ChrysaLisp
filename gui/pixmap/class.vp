@@ -133,17 +133,17 @@
 		(ptr statics))
 
 	(push-scope)
-	(entry :pixmap :upload {frame.local_this, frame.local_flags})
+	(entry :pixmap :upload (vpx (. frame local_this) (. frame local_flags)))
 
 	;a node with no GUI has no driver to make a texture with. The pixmap
 	;is left with none, as one that was never uploaded, and whoever asked
 	;finds none: a font gives no glyphs, a canvas shows nothing
-	(assign {@sys/statics/statics} {statics})
-	(vpif {statics->statics_sys_load_host_gui_funcs})
-		(call :sys_task :callback {&frame, $callback})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(vpif (vpx (.> statics statics_sys_load_host_gui_funcs)))
+		(call :sys_task :callback (vpx (& frame) ($ callback)))
 	(endif)
 
-	(exit :pixmap :upload {frame.local_this})
+	(exit :pixmap :upload (vpx (. frame local_this)))
 	(pop-scope)
 	(return)
 
@@ -158,22 +158,22 @@
 	(vp-cpy-rr :rsp :r1)
 	(push-scope)
 	(vp-and-cr -16 :rsp)
-	(entry {user, old_stack})
+	(entry (vpx user old_stack))
 
 	;free any texture
-	(assign {user->local_this} {this})
-	(call :texture :deref_if {this->+pixmap_texture})
+	(assign (vpx (.> user local_this)) (vpx this))
+	(call :texture :deref_if (vpx (.> this +pixmap_texture)))
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call :host_gui :create_texture {this->+pixmap_data,
-			this->+pixmap_width, this->+pixmap_height,
-			this->+pixmap_stride, user->local_flags}
-		{tex_id})
+	(host-gui-call :host_gui :create_texture (vpx (.> this +pixmap_data)
+			(.> this +pixmap_width) (.> this +pixmap_height)
+			(.> this +pixmap_stride) (.> user local_flags))
+		(vpx tex_id))
 
 	;new texture
-	(call :texture :create {tex_id, this->+pixmap_width, this->+pixmap_height} {this->+pixmap_texture})
+	(call :texture :create (vpx tex_id (.> this +pixmap_width) (.> this +pixmap_height)) (vpx (.> this +pixmap_texture)))
 
-	(assign {old_stack} '(:rsp))
+	(assign (vpx old_stack) '(:rsp))
 	(pop-scope-syms)
 	(return)
 

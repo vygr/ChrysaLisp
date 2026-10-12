@@ -8,6 +8,59 @@ function, which dispatches between four code-generation modes depending on
 whether its source and destination arguments are strings (CScript expressions)
 or Lisp lists (raw VP register/memory descriptors).
 
+## Forms, not strings (2026-10-12)
+
+An expression is no longer text in braces. It is a form, inside `(vpx ...)`:
+
+```vdu
+(assign {this->+stream_bufp + len} {end})          ;as it was
+(assign (vpx (+ (.> this +stream_bufp) len)) (vpx end))   ;as it is
+```
+
+`(vpx a b c)` is a list of expressions, where a string of them with commas
+between was. Everything that took a string takes one: `(assign)`, `(call)`,
+`(entry)`, `(exit)`, `(vpif)`, `(loop-while)`, `(gotoif)` and the rest.
+
+| was | is |
+|---|---|
+| `a->b->c` | `(.> a b c)` |
+| `a.b` | `(. a b)` |
+| `a[i]` | `(elem a i)` |
+| `&a` | `(& a)` |
+| `*a` | `(* a)` |
+| `-a` | `(- a)` |
+| `~a` | `(lognot a)` |
+| `!a` | `(! a)` |
+| `ptr a`, `long a`, ... | `(ptr a)`, `(long a)`, ... |
+| `a => b` | `(=> a b)` |
+| `@path` | `(@ path)` |
+| `$label` | `($ label)` |
+| `"words"` | `"words"` |
+| `a + b`, and every other of two | `(+ a b)`, the same sign first |
+| `_` in a list of results | `_` |
+
+More than two is from the left, `(+ a b c)`. A number with a point in it,
+`0.01`, is its 16.16 bits as a whole number, as it was.
+
+`(vpx)` is quasi quoted. An expression that was put together as the file
+was assembled, `(cat {obj->+obj_vtable = @} (f-path :str :vtable))`, is
+`(vpx (= (.> obj +obj_vtable) (@ ,(f-path :str :vtable))))`.
+
+Why: a form is read by the reader, so `check`, `forward`, the formatter and
+anything else that reads the source sees into it, and a Lisp program that
+generates VP can build one as it builds any list. The tokenizer and the
+reverse polish of the text are gone from `lib/asm/cscript.inc`. What a form
+compiles to is exactly what the text did: on the day of the change every
+function of every one of the six targets assembled the same to the byte,
+but one that shuffles its own instructions at random.
+
+This is the first step of making it a real compiler, Chris, 2026-10-12:
+"it for VP code level, NOT compiling Lisp ! And it's still more for
+prototyping and mid level lowering from Lisp". What is under this heading
+is how it is. The rest of this page, and the examples in the other pages
+that show braces, say how it was: the meaning is the same, only how an
+expression is written has changed.
+
 Implementation files:
 
 - `lib/asm/cscript.inc` - tokenizer, reverse-polish converter, code generator,

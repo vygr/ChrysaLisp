@@ -25,45 +25,45 @@
 	(vp-cpy-rr :rsp :r0)
 	(push-scope)
 	(vp-and-cr -16 :rsp)
-	(entry {old_stack})
+	(entry (vpx old_stack))
 
 	;inited gui compositor ?
-	(assign {@sys/statics/statics} {statics})
-	(vpifnot {statics->statics_gui_screen})
-		(assign {old_stack} '(:rsp))
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(vpifnot (vpx (.> statics statics_gui_screen)))
+		(assign (vpx old_stack) '(:rsp))
 		(return)
 	(endif)
 
-	(vpifnot {statics->statics_gui_init})
+	(vpifnot (vpx (.> statics statics_gui_init)))
 		;init
-		(assign {0, 0, statics->statics_gui_screen->+view_w, statics->statics_gui_screen->+view_h}
-			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
-		(host-gui-call :host_gui :init {&rect, 1})
-		(assign {1, rect.host_gui_rect_w, rect.host_gui_rect_h}
-			{statics->statics_gui_init, statics->statics_gui_screen->+view_w, statics->statics_gui_screen->+view_h})
+		(assign (vpx 0 0 (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h))
+			(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
+		(host-gui-call :host_gui :init (vpx (& rect) 1))
+		(assign (vpx 1 (. rect host_gui_rect_w) (. rect host_gui_rect_h))
+			(vpx (.> statics statics_gui_init) (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h)))
 	(endif)
 
 	;resize back buffer etc ?
-	(vpif {statics->statics_gui_flags})
+	(vpif (vpx (.> statics statics_gui_flags)))
 		;resize back buffer and redraw in full
-		(host-gui-call :host_gui :resize {statics->statics_gui_screen->+view_w, statics->statics_gui_screen->+view_h})
+		(host-gui-call :host_gui :resize (vpx (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h)))
 	(endif)
 
 	;update screen
-	(vpif {statics->statics_gui_dirty_flag})
+	(vpif (vpx (.> statics statics_gui_dirty_flag)))
 		;render to the backbuffer
 		(host-gui-call :host_gui :begin_composite)
-		(call :host_gui :composite {statics->statics_gui_screen}
-			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
+		(call :host_gui :composite (vpx (.> statics statics_gui_screen))
+			(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
 		(host-gui-call :host_gui :end_composite)
 
 		;flush backbuffer, clear temps and dirty flag
-		(host-gui-call :host_gui :flush {&rect})
-		(call :list :clear {statics->statics_gui_temps})
-		(assign {0} {statics->statics_gui_dirty_flag})
+		(host-gui-call :host_gui :flush (vpx (& rect)))
+		(call :list :clear (vpx (.> statics statics_gui_temps)))
+		(assign (vpx 0) (vpx (.> statics statics_gui_dirty_flag)))
 	(endif)
 
-	(assign {old_stack} '(:rsp))
+	(assign (vpx old_stack) '(:rsp))
 	(pop-scope-syms)
 	(return)
 

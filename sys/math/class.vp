@@ -282,7 +282,7 @@
 	(else)
 		(vec-set 4)
 		(vec-add 2)
-		(vec-load 1 {0.5})
+		(vec-load 1 (vpx 0.5))
 		(vec-fscale 2)
 		(exit :sys_math :f_intersect (vec-pop 2))
 	(endif)
@@ -307,14 +307,14 @@
 		(int px py p1x p1y p2x p2y))
 
 	(push-scope)
-	(entry :sys_math :f_dist_sqd {px, py, p1x, p1y, p2x, p2y})
+	(entry :sys_math :f_dist_sqd (vpx px py p1x p1y p2x p2y))
 
 	(vec-set 0)
-	(vec-load 2 {px, py})
+	(vec-load 2 (vpx px py))
 	(defq p (vec-top 2))
-	(vec-load 2 {p1x, p1y})
+	(vec-load 2 (vpx p1x p1y))
 	(defq p1 (vec-top 2))
-	(vec-load 2 {p2x, p2y})
+	(vec-load 2 (vpx p2x p2y))
 	(defq p2 (vec-top 2))
 
 	(vec-dup 2)

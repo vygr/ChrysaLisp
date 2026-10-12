@@ -289,46 +289,46 @@
 		(uint width))
 
 	(push-scope)
-	(entry :stream :lisp_readchar {this, args})
+	(entry :stream :lisp_readchar (vpx this args))
 
-	(d-call :array :get_length {args} {_, length})
-	(errorifnot {length = 1 || length = 2} 'error1)
-	(call :list :get_begin {args} {_, iter_begin})
+	(d-call :array :get_length (vpx args) (vpx _ length))
+	(errorifnot (vpx (|| (= length 1) (= length 2))) 'error1)
+	(call :list :get_begin (vpx args) (vpx _ iter_begin))
 
 (errorcase
-	(call :obj :inst_of (cat {iter_begin[0], @} (f-path :stream :vtable)) '(_ tmp))
+	(call :obj :inst_of (vpx (elem iter_begin 0) (@ ,(f-path :stream :vtable))) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error2))
 
-	(assign {length, 1, -1} '(:r0 :r1 :r2))
-	(assign '(:r2) {type})
+	(assign (vpx length 1 (- 1)) '(:r0 :r1 :r2))
+	(assign '(:r2) (vpx type))
 	(vpif '(:r0 = 2))
-		(assign {iter_begin[+ptr_size]} '(:r0))
+		(assign (vpx (elem iter_begin +ptr_size)) '(:r0))
 	(errorcase
 		(assign `((@ ,(f-path :num :vtable)) (:r0 +obj_vtable)) '(:r1 :r2))
 		(gotoif '(:r1 /= :r2) 'error3))
 		(assign '((:r0 +num_value)) '(:r1))
-		(assign '(:r1) {type})
+		(assign '(:r1) (vpx type))
 		(vp-abs-rr :r1 :r1)
 		(vp-sub-cr 1 :r1)
 		(vp-and-cr 7 :r1)
 		(vp-add-cr 1 :r1)
 	(endif)
-	(assign '(:r1) {width})
+	(assign '(:r1) (vpx width))
 
-	(call :num :create '(0) {value})
-	(assign {value, width} '(:r0 :r2))
+	(call :num :create '(0) (vpx value))
+	(assign (vpx value width) '(:r0 :r2))
 	(vp-add-cr +num_value :r0)
 	(vp-add-rr :r0 :r2)
-	(assign '(:r2) {chars_end})
+	(assign '(:r2) (vpx chars_end))
 	(loop-start)
-		(assign '(:r0) {chars})
-		(call :stream :read_char {iter_begin[0]} '(_ :r1))
+		(assign '(:r0) (vpx chars))
+		(call :stream :read_char (vpx (elem iter_begin 0)) '(_ :r1))
 		(vpif '(:r1 = -1))
-			(call :obj :deref {value})
-			(call :obj :ref {this->+lisp_sym_nil} {value})
+			(call :obj :deref (vpx value))
+			(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
 			(goto 'exit)
 		(endif)
-		(assign {chars, chars_end} '(:r0 :r2))
+		(assign (vpx chars chars_end) '(:r0 :r2))
 		(vp-cpy-ri-b :r1 :r0 0)
 		(vp-add-cr 1 :r0)
 	(loop-until '(:r0 = :r2))
@@ -337,7 +337,7 @@
 	(vp-shl-cr 63 :r1)
 	(vp-asr-cr 63 :r1)
 	(gotoif '(:r1 >= 0) 'exit)
-	(assign {value, type} '(:r2 :r3))
+	(assign (vpx value type) '(:r2 :r3))
 	(gotoif '(:r3 <= 0) 'exit)
 	(vp-add-cr (+ +num_value +long_size) :r2)
 	(gotoif '(:r0 = :r2) 'exit)
@@ -347,7 +347,7 @@
 	(loop-until '(:r0 = :r2))
 
 (vp-label 'exit)
-	(exit :stream :lisp_readchar {this, value})
+	(exit :stream :lisp_readchar (vpx this value))
 	(return)
 
 (errorcase
@@ -361,7 +361,7 @@
 (vp-label 'error3)
 	(vp-cpy-cr +error_msg_not_a_number (last in))
 (vp-label 'error)
-	(assign {args} (slice in 0 1))
+	(assign (vpx args) (slice in 0 1))
 	(jump :lisp :repl_error `(,(first in) "(read-char stream [width])" ,(last in))))
 
 	(pop-scope-syms)
@@ -411,19 +411,19 @@
 			(uint width total))
 		(push-scope)
 		(class/array/get_both value iter_begin iter_end)
-		(assign `(,this ,stream ,iter_end ,width) {this, stream, iter_end, width})
+		(assign `(,this ,stream ,iter_end ,width) (vpx this stream iter_end width))
 		(vp-sub-rr iter_begin iter_end)
 		(vp-shr-cr (log2 +long_size) iter_end)
 		(vp-mul-rr width iter_end)
-		(assign `(,iter_end) {total})
+		(assign `(,iter_end) (vpx total))
 		(loop-start)
-			(assign `(,iter_begin) {iter_begin})
-			(call :stream :write {stream, &iter_begin[0]->+num_value ,width})
-			(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
+			(assign `(,iter_begin) (vpx iter_begin))
+			(call :stream :write (vpx stream (& (.> (elem iter_begin 0) +num_value)) width))
+			(assign (vpx iter_begin iter_end) `(,iter_begin ,iter_end))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
-		(call :num :create {total} `(,stream))
-		(assign {this} `(,this))
+		(call :num :create (vpx total) `(,stream))
+		(assign (vpx this) `(,this))
 		(pop-scope)
 	(else)
 	(errorcase
@@ -435,10 +435,10 @@
 			(ptr this)
 			(uint width))
 		(push-scope)
-		(assign `(,this ,width) {this, width})
+		(assign `(,this ,width) (vpx this width))
 		(call :stream :write `(,stream (& ,value +num_value) ,width))
-		(call :num :create {width} `(,stream))
-		(assign {this} `(,this))
+		(call :num :create (vpx width) `(,stream))
+		(assign (vpx this) `(,this))
 		(pop-scope)
 	(endif)
 
@@ -478,18 +478,18 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
-	(assign `(,this) {this})
+	(assign `(,this) (vpx this))
 	(list-bind-args args `(,stream ,len) '(:stream :num))
 	(call :str :create_from_buffer `(0 ,len) '(tmp))
-	(assign `(,tmp) {buf})
+	(assign `(,tmp) (vpx buf))
 	(call :stream :read `(,stream (& ,tmp +str_data) ,len) '(_ tmp))
 	(vpif `(,tmp = -1))
-		(call :obj :deref {buf})
-		(assign {this} `(,this))
+		(call :obj :deref (vpx buf))
+		(assign (vpx this) `(,this))
 		(assign `((,this +lisp_sym_nil)) `(,buf))
 		(class/obj/ref buf stream)
 	(else)
-		(assign {this, buf} `(,this ,buf))
+		(assign (vpx this buf) `(,this ,buf))
 		(assign `(,tmp) `((,buf +str_length)))
 	(endif)
 	(pop-scope)
@@ -522,13 +522,13 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
-	(assign '(:r0) {this})
+	(assign '(:r0) (vpx this))
 	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj &&))
-	(assign `(,(second in)) {buf})
+	(assign `(,(second in)) (vpx buf))
 	(call :stream :write `(,(first in) (& ,(second in) +str_data) (,(second in) +str_length)))
-	(call :num :create {buf->+str_length} '(:r1))
-	(assign {this} '(:r0))
+	(call :num :create (vpx (.> buf +str_length)) '(:r1))
+	(assign (vpx this) '(:r0))
 	(pop-scope)
 
 	(exit :stream :lisp_writeblk '(:r0 :r1))
@@ -593,16 +593,16 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
-	(assign '(:r0) {this})
+	(assign '(:r0) (vpx this))
 	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj &&))
-	(assign `(,(second in)) {buf})
+	(assign `(,(second in)) (vpx buf))
 	(call :stream :write `(,(first in) (& ,(second in) +str_data) (,(second in) +str_length)) '(tmp))
 	(call :stream :write_char `(,tmp 10))
-	(assign {buf->+str_length} '(:r0))
+	(assign (vpx (.> buf +str_length)) '(:r0))
 	(vp-add-cr 1 :r0)
 	(call :num :create '(:r0) '(:r1))
-	(assign {this} '(:r0))
+	(assign (vpx this) '(:r0))
 	(pop-scope)
 
 	(exit :stream :lisp_writeline '(:r0 :r1))
@@ -633,7 +633,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(assign '(:r0 :r1) {this, args})
+	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
 (errorcase
@@ -642,21 +642,21 @@
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1))
 
-	(assign '(:r0) {stream})
+	(assign '(:r0) (vpx stream))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) {iter_begin})
+	(assign '(:r3) (vpx iter_begin))
 	(call :stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
-	(assign {iter_begin} '(:r4))
+	(assign (vpx iter_begin) '(:r4))
 	(assign '(:r2 :r3) '((:r4 0) (:r4 +long_size)))
 	(call :num :create '(:r1) '(:r1))
-	(assign {this} '(:r0))
+	(assign (vpx this) '(:r0))
 
 	(exit :stream :lisp_read_bits '(:r0 :r1))
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(assign {this, args} '(:r0 :r1))
+	(assign (vpx this args) '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM)))
@@ -683,7 +683,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(assign '(:r0 :r1) {this, args})
+	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
 (errorcase
@@ -692,13 +692,13 @@
 	(assign '((:r3 +array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1))
 
-	(assign '(:r0) {stream})
+	(assign '(:r0) (vpx stream))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) {iter_begin})
+	(assign '(:r3) (vpx iter_begin))
 	(call :stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
-	(assign {iter_begin} '(:r3))
+	(assign (vpx iter_begin) '(:r3))
 	(assign '(:r1 :r2) '((:r3 0) (:r3 +long_size)))
-	(assign {this, stream} '(:r0 :r1))
+	(assign (vpx this stream) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :stream :lisp_write_bits '(:r0 :r1))
@@ -706,7 +706,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(assign {this, args} '(:r0 :r1))
+	(assign (vpx this args) '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM)))
@@ -734,12 +734,12 @@
 
 	(push-scope)
 	(entry :stream :lisp_fill_bits `(,this ,args))
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
-	(assign `(,stream ,parray ,data ,num_bits ,cnt) {stream, parray, data, num_bits, cnt})
+	(assign `(,stream ,parray ,data ,num_bits ,cnt) (vpx stream parray data num_bits cnt))
 
 (errorcase
 	(assign `((,parray +array_length)) `(,len))
@@ -751,31 +751,31 @@
 	(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,bit_pool ,bit_pool_size))
 
 	;loop for fill
-	(assign {stream} `(,stream))
+	(assign (vpx stream) `(,stream))
 	(loop-while `(,cnt /= 0))
-		(assign `(,cnt) {cnt})
+		(assign `(,cnt) (vpx cnt))
 
 		;write data
-		(assign {data, num_bits} `(,data ,num_bits))
+		(assign (vpx data num_bits) `(,data ,num_bits))
 		(call :stream :write_bits `(,stream ,data ,num_bits ,bit_pool ,bit_pool_size)
 			`(,stream ,bit_pool ,bit_pool_size))
 
-		(assign {cnt} `(,cnt))
+		(assign (vpx cnt) `(,cnt))
 		(vp-sub-cr 1 cnt)
 	(loop-end)
 
 	;save write pool state
-	(assign {parray->+array_begin} `(,pool_state))
+	(assign (vpx (.> parray +array_begin)) `(,pool_state))
 	(vp-simd vp-cpy-ri `(,bit_pool ,bit_pool_size) `(,pool_state) `(0 ,+long_size))
 
-	(assign {this, stream} `(,this ,args))
+	(assign (vpx this stream) `(,this ,args))
 	(class/obj/ref args cnt)
 	(exit :stream :lisp_fill_bits `(,this ,args))
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {args, "(fill-bits stream parray data num_bits cnt)", +error_msg_wrong_types})
+	(jump :lisp :repl_error (vpx args "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -801,7 +801,7 @@
 
 	(push-scope)
 	(entry :stream :lisp_copy_bits `(,this ,args))
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
@@ -816,42 +816,42 @@
 
 	(vp-simd vp-cpy-ir `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
 	(assign `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
-		{wstream, rstream, wparray, rparray, num_bits, cnt})
+		(vpx wstream rstream wparray rparray num_bits cnt))
 
 	;loop for copy
 	(vp-rdef (wstream wval wnum_bits wbit_pool wbit_pool_size) (method-input :stream :write_bits))
 	(vp-rdef (rstream rnum_bits rbit_pool rbit_pool_size) (method-input :stream :read_bits))
 	(loop-while `(,cnt /= 0))
-		(assign `(,cnt) {cnt})
+		(assign `(,cnt) (vpx cnt))
 
 		;read data
-		(assign {rparray, rstream, num_bits} `(,pool_state ,rstream ,rnum_bits))
+		(assign (vpx rparray rstream num_bits) `(,pool_state ,rstream ,rnum_bits))
 		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
 		(call :stream :read_bits `(,rstream ,rnum_bits ,rbit_pool ,rbit_pool_size)
 			`(_ rval rbit_pool rbit_pool_size))
-		(assign {rparray} `(,pool_state))
+		(assign (vpx rparray) `(,pool_state))
 		(vp-simd vp-cpy-ri `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
 		;write data
-		(assign {wparray, wstream, num_bits} `(,pool_state ,wstream ,wnum_bits))
+		(assign (vpx wparray wstream num_bits) `(,pool_state ,wstream ,wnum_bits))
 		(vp-simd vp-cpy-ir `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
 		(call :stream :write_bits `(,wstream ,rval ,wnum_bits ,wbit_pool ,wbit_pool_size)
 			`(_ wbit_pool wbit_pool_size))
-		(assign {wparray} `(,pool_state))
+		(assign (vpx wparray) `(,pool_state))
 		(vp-simd vp-cpy-ri `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
-		(assign {cnt} `(,cnt))
+		(assign (vpx cnt) `(,cnt))
 		(vp-sub-cr 1 cnt)
 	(loop-end)
 
-	(assign {this, wstream} `(,this ,args))
+	(assign (vpx this wstream) `(,this ,args))
 	(class/obj/ref args cnt)
 	(exit :stream :lisp_copy_bits `(,this ,args))
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {args, "(copy-bits wstream rstream parray parray num_bits cnt)", +error_msg_wrong_types})
+	(jump :lisp :repl_error (vpx args "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM)))
 
 	(pop-scope-syms)
@@ -877,7 +877,7 @@
 
 	(push-scope)
 	(entry :stream :lisp_each `(,this ,args))
-	(assign `(,this ,args) {this, args})
+	(assign `(,this ,args) (vpx this args))
 
 	(errorif-lisp-args-sig 'error1 :r1 2 4)
 
@@ -890,7 +890,7 @@
 	(else)
 		(list-bind-args args `(,func ,stream ,start ,end) '(:obj :stream :num :num))
 	(endif)
-	(assign `(,func ,stream ,start ,end) {func, stream, start, end})
+	(assign `(,func ,stream ,start ,end) (vpx func stream start end))
 
 (errorcase
 	(gotoif `(,start < 0) 'error2)
@@ -898,42 +898,42 @@
 
 	(assign '(0) `(,idx))
 	(assign `((,this +lisp_seq_idx)) `(,old_idx))
-	(assign `(,old_idx) {old_idx})
+	(assign `(,old_idx) (vpx old_idx))
 
 	(loop-start)
-		(assign {end} `(,end))
+		(assign (vpx end) `(,end))
 		(breakif `(,idx >= ,end))
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 
-		(call :stream :read_line {stream} {_, value})
-		(breakifnot {value})
+		(call :stream :read_line (vpx stream) (vpx _ value))
+		(breakifnot (vpx value))
 
-		(assign {this, start} `(,this ,start))
+		(assign (vpx this start) `(,this ,start))
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vpif `(,idx < ,start))
-			(call :obj :deref {value})
+			(call :obj :deref (vpx value))
 		(else)
-			(call :list :create :nil {call_args})
-			(call :list :push_back {call_args, value})
-			(call :lisp :repl_apply {this, call_args, func} {_, value})
-			(call :obj :deref {call_args})
+			(call :list :create :nil (vpx call_args))
+			(call :list :push_back (vpx call_args value))
+			(call :lisp :repl_apply (vpx this call_args func) (vpx _ value))
+			(call :obj :deref (vpx call_args))
 
-			(assign {this, value} `(,this ,value))
+			(assign (vpx this value) `(,this ,value))
 			(assign `((,this +lisp_sym_nil)) `(,vt1))
 			(gotoif `(,vt1 /= ,value) 'exit)
 
-			(call :obj :deref {value})
+			(call :obj :deref (vpx value))
 		(endif)
 
-		(assign {this} `(,this))
+		(assign (vpx this) `(,this))
 		(assign `((,this +lisp_seq_idx)) `(,idx))
 		(vp-add-cr 1 idx)
 	(loop-end)
-	(call :obj :ref {this->+lisp_sym_nil} {value})
+	(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
 
 (vp-label 'exit)
-	(assign {this, value} `(,this ,args))
-	(assign {old_idx} `(,old_idx))
+	(assign (vpx this value) `(,this ,args))
+	(assign (vpx old_idx) `(,old_idx))
 	(assign `(,old_idx) `((,this +lisp_seq_idx)))
 
 	(exit :stream :lisp_each `(,this ,args))
@@ -941,9 +941,9 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error {args, "(lines! lambda stream [start end])", +error_msg_wrong_types})
+	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
-	(jump :lisp :repl_error {args, "(lines! lambda stream [start end])", +error_msg_not_valid_index})
+	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :stream :NUM :NUM)))
 
 	(pop-scope-syms)

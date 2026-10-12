@@ -146,15 +146,15 @@
 		(gotoif `(,sizes /= ,offset) 'error1)
 	(endif))
 
-	(assign `(,this ,obj) {this, obj})
+	(assign `(,this ,obj) (vpx this obj))
 	(assign `((,val +num_value)) `(,num))
 	(switch 'exit)
 	(vpcase `(,type >= 0))
 		(vpif `(,type = 0))
 			;object reference
-			(assign `(,val ,offset) {val, offset})
+			(assign `(,val ,offset) (vpx val offset))
 			(call :obj :deref_if `((,obj ,offset)))
-			(assign {this, obj, val, offset} `(,this ,obj ,val ,offset))
+			(assign (vpx this obj val offset) `(,this ,obj ,val ,offset))
 			(assign `((,this +lisp_sym_nil)) `(,this))
 			(vpif `(,val = ,this))
 				(vp-xor-rr val val)
@@ -188,7 +188,7 @@
 	(default)
 		(assign `(,num) `((,obj ,offset)))
 	(endswitch)
-	(assign {this, obj} `(,this ,obj))
+	(assign (vpx this obj) `(,this ,obj))
 	(class/obj/ref obj type)
 	(pop-scope)
 

@@ -1,124 +1,20 @@
-;;;;;;;;;;;;;;;;;;;
-; C-Script compiler
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; expressions over named locals, compiled to VP
+;
+; What was C-Script. An expression was text, {this->+field + 1}, with a
+; tokenizer and a reverse polish of its own here. It is a form now,
+; (vpx (+ (.> this +field) 1)), read by the reader and seen by whatever
+; reads the source, and made by a Lisp program as any list is. What it
+; compiles to is what it was: every function assembled the same to the
+; byte, on six targets, the day the text went, 2026-10-12.
+;
+; It is of the VP, not of Lisp: named locals, (def-vars), fields, pointers
+; and numbers. Each (assign) is compiled by itself, a value is loaded from
+; the stack and stored back to it. That is the next thing to change.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
 (env-push)
-
-;;;;;;;;;;;
-; tokenizer
-;;;;;;;;;;;
-
-(defq +symbol_chars (char-class "A-Za-z0-9+:_/")
-	+op_chars (char-class "-+*/%~^<=>!&|.")
-	+follow_on_op_chars (char-class "/%<=>&|")
-	+bracket_chars (char-class "()[]")
-	+stringy_chars (char-class "\q$@"))
-
-(defmacro is-symbol-char? (%0) (static-qqp (bfind ,%0 +symbol_chars)))
-(defmacro is-path-char? (%0) (static-qqp (bfind ,%0 +char_class_path)))
-(defmacro is-label-char? (%0) (static-qqp (bfind ,%0 +char_class_word)))
-(defmacro is-digit-char? (%0) (static-qqp (bfind ,%0 +char_class_digit)))
-(defmacro is-op-char? (%0) (static-qqp (bfind ,%0 +op_chars)))
-(defmacro is-bracket-char? (%0) (static-qqp (bfind ,%0 +bracket_chars)))
-(defmacro is-stringy-char? (%0) (static-qqp (bfind ,%0 +stringy_chars)))
-
-(defun cscript-tokenize (line)
-	(defq i 0 j 0 c 0 l (length line) state :space unary :t
-		out_types (clear '()) out_tokens (clear '()))
-	(while (< i l)
-		(case state
-			(:space
-				(when (< (setq i (bskip +char_class_white_space line i)) l)
-					(setq c (elem-get line i))
-					(cond
-						((setq j (is-stringy-char? c))
-							(setq state (elem-get '(:string :label :path) j) i (inc i)))
-						((and (eql c "+") unary) (setq state :symbol))
-						((is-op-char? c) (setq state :operator))
-						((is-digit-char? c) (setq state :number))
-						((is-symbol-char? c) (setq state :symbol))
-						((setq j (is-bracket-char? c))
-							(push out_types (elem-get '(:lrb :rrb :lsb :rsb) j))
-							(push out_tokens c)
-							(setq i (inc i) unary (elem-get '(:t :nil :t :nil) j))))))
-			(:number
-				(push out_types :number)
-				(push out_tokens (slice line i (setq state :space unary :nil i
-					(bskip +char_class_digit_base line (inc i))))))
-			(:path
-				(push out_types :path)
-				(push out_tokens (slice line i (setq state :space unary :nil i
-					(bskip +char_class_path line i)))))
-			(:label
-				(push out_types :label)
-				(push out_tokens (slice line i (setq state :space unary :nil i
-					(bskip +char_class_word line i)))))
-			(:string
-				(push out_types :string)
-				(push out_tokens (slice line i (setq state :space j
-					(bskipn "\q" line i))))
-				(setq unary :nil i (inc j)))
-			(:symbol
-				(push out_types
-					(if (find (last (push out_tokens (slice line i (setq state :space unary :nil i
-							(bskip +symbol_chars line (inc i))))))
-						'("pptr" "byte" "ubyte" "short" "ushort"
-						"int" "uint" "long" "ptr" "real" "fixed"))
-					:operator :symbol)))
-			(:operator
-				(push out_types :operator)
-				(setq c (slice line i (setq state :space j
-					(bskip +follow_on_op_chars line (inc i)) i j)))
-				(cond
-					(unary
-						(if (setq j (find (first c) "-*&~!"))
-							(push out_tokens (elem-get "_#:~!" j))
-							(throw "Unknown unary operator !" (first c))))
-					(:t (push out_tokens c)
-						(setq unary :t))))))
-	(list out_tokens out_types))
-
-;;;;;;;;;;;;;;;;
-; reverse polish
-;;;;;;;;;;;;;;;;
-
-(defun cscript-reverse-polish (tokenize_output)
-	(defq token_stack '() out_tokens (clear '()) out_types (clear '()))
-	(each! (lambda (token type)
-		(case type
-			((:lrb :lsb)
-				(push token_stack token))
-			(:rrb
-				(while (and (nql "(" (setq token (pop token_stack))) token)
-					(push out_tokens token)
-					(push out_types :operator)))
-			(:rsb
-				(while (and (nql "[" (setq token (pop token_stack))) token)
-					(push out_tokens token)
-					(push out_types :operator))
-				(push out_tokens "[]")
-				(push out_types :operator))
-			(:operator
-				;precedence
-				(unless (defq s (scope-get token))
-					(throw "Operator not defined !" token))
-				(defq v (- (third s) (elem-get s 3)) x :t)
-				(while (and x (/= 0 (length token_stack)))
-					(setq s (scope-get (last token_stack)))
-					(cond
-						((>= v (third s))
-							(push out_tokens (pop token_stack))
-							(push out_types :operator))
-						(:t (setq x :nil))))
-				(push token_stack token))
-			(:t ;number, symbol, string, path, label
-				(push out_tokens token)
-				(push out_types type)))) tokenize_output)
-	(while (defq _ (pop token_stack))
-		(push out_tokens _)
-		(push out_types :operator))
-	(list out_tokens out_types))
 
 ;;;;;;;;;;;;;
 ; compilation
@@ -360,16 +256,109 @@
 	(each! (lambda (token type)
 		(case type
 			(:operator (compile-operator (sym token)))
-			(:number (compile-const (str-as-num token)))
+			(:const (compile-const token))
 			(:symbol (compile-ref (sym token)))
 			(:path (compile-bind (sym token)))
 			(:label (compile-label (sym token)))
 			(:string (compile-string token)))) rpn_output))
 
-(defun cscript (%0)
-	(cscript-compile (cscript-reverse-polish (cscript-tokenize %0))))
+;;;;;;;
+; forms
+;;;;;;;
 
-;define C-Script operators...
+;(vpx expr ...) is a list of expressions, (vpx (.> this +stream_bufp) len),
+;what (assign), (call), (entry), (exit), (vpif) and the rest take where
+;they take registers. It is quasi quoted, so a part of one can be worked
+;out as it is assembled, (vpx (= (.> obj +obj_vtable) (@ ,(f-path :str :vtable)))).
+;
+;	(.> a b ...)	what a points at, its b, and of what that points at...
+;	(. a b ...)		a, which is a struct, its b
+;	(elem a i)		a[i]
+;	(& a)			where a is
+;	(* a)			what a points at
+;	(- a)			a negated
+;	(lognot a) (! a)	a with every bit the other way, and 1 if a is 0
+;	(ptr a) (long a) (int a) (uint a) (short a) (ushort a) (byte a)
+;	(ubyte a) (pptr a) (real a) (fixed a)	a as that
+;	(=> a b)		b is set to a, and it is a
+;	(@ path) ($ label) "str" number name
+;	(+ a b ...) (- a b ...) (* a b ...) (/ a b) (% a b) (// a b) (%% a b)
+;	(*> a b) (</ a b) (<< a b) (>> a b) (>>> a b)
+;	(< a b) (> a b) (<= a b) (>= a b) (= a b) (/= a b)
+;	(& a b ...) (^ a b ...) (| a b ...) (&& a b ...) (|| a b ...)
+;
+;More than two is from the left, (+ a b c) is (+ (+ a b) c). A number with
+;a point in it is its 16.16 bits. A form is made into reverse polish, and
+;that is compiled
+
+(defmacro vpx (&rest %0) (list 'quasi-quote (cat '(:vpx) %0)))
+
+(defun vpx? (%0)
+	; (vpx? form) -> :nil | :t
+	(and (list? %0) (nempty? %0) (eql (first %0) :vpx)))
+
+(defq +form_unary (scatter (Fmap 11) '& ":" '- "_" '* "#" 'lognot "~" '! "!"
+		'ptr "ptr" 'byte "byte" 'ubyte "ubyte" 'short "short" 'ushort "ushort" 'int "int" 'uint "uint"
+		'long "long" 'pptr "pptr" 'real "real" 'fixed "fixed")
+	+form_binary (scatter (Fmap 11) '.> "->" '. "." 'elem "[]" '=> "=>"
+		'+ "+" '- "-" '* "*" '/ "/" '% "%" '// "//" '%% "%%" '*> "*>" '</ "</"
+		'<< "<<" '>> ">>" '>>> ">>>" '< "<" '> ">" '<= "<=" '>= ">=" '= "=" '/= "/="
+		'& "&" '^ "^" '| "|" '&& "&&" '|| "||"))
+
+(defun cscript-form-polish (form)
+	; (cscript-form-polish form) -> (tokens types)
+	;a form as reverse polish. No function here calls itself: what is
+	;still to do is a list, the last of it next, each a form or (:op token)
+	(defq out_tokens (list) out_types (list) todo (list form))
+	(while (defq item (pop todo))
+		(cond
+			;a number with a point in it is a fixed to the reader. Here it
+			;is what the text gave, its 16.16 bits as a whole number
+			((num? item)
+				(push out_tokens (if (find :fixed (type-of item)) (n2i (* item 65536.0)) item))
+				(push out_types :const))
+			;a name first: a name is a str too, to (str?)
+			((sym? item) (push out_tokens item) (push out_types :symbol))
+			((str? item) (push out_tokens item) (push out_types :string))
+			((not (list? item)) (throw "Not a form !" item))
+			((eql (first item) :op) (push out_tokens (second item)) (push out_types :operator))
+			((empty? item) (throw "An empty form !" form))
+			((eql (defq head (first item)) '@) (push out_tokens (second item)) (push out_types :path))
+			((eql head '$) (push out_tokens (second item)) (push out_types :label))
+			((= (length item) 2)
+				(unless (defq token (. +form_unary :find head)) (throw "Not an operator of one !" item))
+				(push todo (list :op token) (second item)))
+			((defq token (. +form_binary :find head))
+				;a b op c op ..., so the last of them is put on first
+				(reach (# (push todo (list :op token) %0)) (slice item 2 -1))
+				(push todo (second item)))
+			((throw "Not an operator !" item))))
+	(list out_tokens out_types))
+
+(defun cscript-form (%0)
+	; (cscript-form form)
+	(cscript-compile (cscript-form-polish %0)))
+
+(defun script? (%0)
+	; (script? x) -> :nil | :t
+	;is it expressions to compile, and not registers
+	(vpx? %0))
+
+(defun script-items (%0)
+	; (script-items x) -> (form ...)
+	(rest %0))
+
+(defun script-ignored? (%0)
+	; (script-ignored? form) -> :nil | :t
+	;is it the _ that says a result is not wanted
+	(eql %0 '_))
+
+(defun script-compile (%0)
+	; (script-compile form)
+	(cscript-form %0))
+
+;the operators, by the token each is in the reverse polish. The two numbers
+;were its precedence and which side it bound to, for text
 (scope-new)
 (scope-operator "ptr" 0 1 compile-cast)
 (scope-operator "byte" 0 1 compile-cast)
@@ -422,7 +411,7 @@
 
 ;module
 (export-symbols
-	'(cscript
+	'(cscript-form vpx vpx? script? script-items script-ignored? script-compile
 	reset-reg-stack def-reg-map
 	compile-deref? compile-arrow))
 (env-pop)

@@ -36,13 +36,13 @@
 	(push-scope)
 	(entry :real :print '(:r0 :r1))
 
-	(assign '(:r0 :r1) {this, stream})
+	(assign '(:r0 :r1) (vpx this stream))
 	(call :stream :write_cstr '(:r1 "0x"))
-	(call :str :create_from_long {this->+num_value, -16} {tmp})
-	(call :stream :write {stream, &tmp->+str_data, tmp->+str_length})
-	(call :obj :deref {tmp})
+	(call :str :create_from_long (vpx (.> this +num_value) (- 16)) (vpx tmp))
+	(call :stream :write (vpx stream (& (.> tmp +str_data)) (.> tmp +str_length)))
+	(call :obj :deref (vpx tmp))
 
-	(exit :real :print {this})
+	(exit :real :print (vpx this))
 	(pop-scope)
 	(return)
 

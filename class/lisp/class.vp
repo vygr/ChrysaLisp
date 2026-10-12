@@ -54,77 +54,77 @@
 		(long ok))
 
 	(push-scope)
-	(entry :lisp :init {this, vtable, script, stdin, stdout, stderr})
+	(entry :lisp :init (vpx this vtable script stdin stdout stderr))
 
 	;init parent
-	(s-call :lisp :init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call :lisp :init (vpx this vtable) (vpx _ ok))
+	(vpif (vpx ok))
 		;init myself
-		(assign {script} {this->+lisp_script_name})
-		(call :obj :ref {stdin} {this->+lisp_stdin})
-		(call :obj :ref {stdout} {this->+lisp_stdout})
-		(call :obj :ref {stderr} {this->+lisp_stderr})
-		(assign {0} {this->+lisp_seq_idx})
-		(assign {0} {this->+lisp_stream_line})
-		(assign {0} {this->+lisp_nextsym})
-		(assign {0} {this->+lisp_args_pool})
-		(assign {0} {this->+lisp_env_pool})
+		(assign (vpx script) (vpx (.> this +lisp_script_name)))
+		(call :obj :ref (vpx stdin) (vpx (.> this +lisp_stdin)))
+		(call :obj :ref (vpx stdout) (vpx (.> this +lisp_stdout)))
+		(call :obj :ref (vpx stderr) (vpx (.> this +lisp_stderr)))
+		(assign (vpx 0) (vpx (.> this +lisp_seq_idx)))
+		(assign (vpx 0) (vpx (.> this +lisp_stream_line)))
+		(assign (vpx 0) (vpx (.> this +lisp_nextsym)))
+		(assign (vpx 0) (vpx (.> this +lisp_args_pool)))
+		(assign (vpx 0) (vpx (.> this +lisp_env_pool)))
 
 		;tls stack, object tls, error vtable
-		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
-		(assign {this} {func->+tk_node_lisp})
-		(assign {@class/error/vtable} {this->+lisp_error})
+		(assign (vpx (. (@ sys/statics/statics) statics_sys_task_current_tcb)) (vpx func))
+		(assign (vpx this) (vpx (.> func +tk_node_lisp)))
+		(assign (vpx (@ class/error/vtable)) (vpx (.> this +lisp_error)))
 
 		;spin lock if boot env busy
-		(loop-while {@sys/statics/statics.statics_lisp_root_env = -1})
-			(call :sys_task :sleep {100})
+		(loop-while (vpx (= (. (@ sys/statics/statics) statics_lisp_root_env) (- 1))))
+			(call :sys_task :sleep (vpx 100))
 		(loop-end)
 
 		;do we have a shared boot env yet ?
-		(vpifnot {@sys/statics/statics.statics_lisp_root_env})
+		(vpifnot (vpx (. (@ sys/statics/statics) statics_lisp_root_env)))
 			;mark as busy
-			(assign {-1} {@sys/statics/statics.statics_lisp_root_env})
+			(assign (vpx (- 1)) (vpx (. (@ sys/statics/statics) statics_lisp_root_env)))
 
 			;intern standard built in symbols
 			;slot caching kills it here, so 1 bucket, no div !
-			(call :hmap :create {1} {this->+lisp_environment})
+			(call :hmap :create (vpx 1) (vpx (.> this +lisp_environment)))
 
 			;local defines and symbols
-			(call 'create_env_info {this})
-			(call 'create_env_funcs {this})
+			(call 'create_env_info (vpx this))
+			(call 'create_env_funcs (vpx this))
 
 			;run any root.inc
-			(call 'import {this, "class/lisp/root.inc"} {ok})
-			(vpifnot {ok})
+			(call 'import (vpx this "class/lisp/root.inc") (vpx ok))
+			(vpifnot (vpx ok))
 				;mark as free
-				(assign {0} {@sys/statics/statics.statics_lisp_root_env})
+				(assign (vpx 0) (vpx (. (@ sys/statics/statics) statics_lisp_root_env)))
 			(vp-label 'error)
 				;deinit myself and parent
-				(call :lisp :deinit {this})
+				(call :lisp :deinit (vpx this))
 			(else)
 				;save shared boot env
-				(call :obj :ref {this->+lisp_environment} {@sys/statics/statics.statics_lisp_root_env})
+				(call :obj :ref (vpx (.> this +lisp_environment)) (vpx (. (@ sys/statics/statics) statics_lisp_root_env)))
 				(goto 'local_env)
 			(endif)
 		(else)
 			;boot env is my parent env
-			(call :obj :ref {@sys/statics/statics.statics_lisp_root_env} {this->+lisp_environment})
+			(call :obj :ref (vpx (. (@ sys/statics/statics) statics_lisp_root_env)) (vpx (.> this +lisp_environment)))
 		(vp-label 'local_env)
-			(call :hmap :create {19} {func})
-			(call :hmap :set_parent {func, this->+lisp_environment} {this->+lisp_environment})
+			(call :hmap :create (vpx 19) (vpx func))
+			(call :hmap :set_parent (vpx func (.> this +lisp_environment)) (vpx (.> this +lisp_environment)))
 			;local defines and symbols
-			(call 'create_env_info {this})
-			(call 'lookup_env_funcs {this})
+			(call 'create_env_info (vpx this))
+			(call 'lookup_env_funcs (vpx this))
 			;run any task.inc
-			(call 'import {this, "class/lisp/task.inc"} {ok})
-			(gotoifnot {ok} 'error)
+			(call 'import (vpx this "class/lisp/task.inc") (vpx ok))
+			(gotoifnot (vpx ok) 'error)
 			;run any script
-			(call 'import {this, &script->+str_data} {ok})
-			(gotoifnot {ok} 'error)
+			(call 'import (vpx this (& (.> script +str_data))) (vpx ok))
+			(gotoifnot (vpx ok) 'error)
 		(endif)
 	(endif)
 
-	(exit :lisp :init {this, ok})
+	(exit :lisp :init (vpx this ok))
 	(pop-scope)
 	(return)
 
@@ -135,43 +135,43 @@
 		(uint is_inline))
 
 	(push-scope)
-	(entry {this, obj})
+	(entry (vpx this obj))
 
 	;import a file or inline string
-	(assign {0} {is_inline})
-	(vpif {obj[0] = +char_lrb})
-		(assign {1} {is_inline})
-		(call :str :create_from_cstr {obj} {stream})
-		(vpif {stream})
-			(call :sstream :create {stream} {func})
-			(vpifnot {func})
-				(call :obj :deref {stream})
+	(assign (vpx 0) (vpx is_inline))
+	(vpif (vpx (= (elem obj 0) +char_lrb)))
+		(assign (vpx 1) (vpx is_inline))
+		(call :str :create_from_cstr (vpx obj) (vpx stream))
+		(vpif (vpx stream))
+			(call :sstream :create (vpx stream) (vpx func))
+			(vpifnot (vpx func))
+				(call :obj :deref (vpx stream))
 			(endif)
-			(assign {func} {stream})
+			(assign (vpx func) (vpx stream))
 		(endif)
 	(else)
-		(call :fstream :create {obj, +file_open_read} {stream})
+		(call :fstream :create (vpx obj +file_open_read) (vpx stream))
 	(endif)
-	(vpif {stream})
-		(call :list :create :nil {args})
-		(vpif {is_inline})
-			(call :str :create_from_cstr {"(inline)"} {obj})
+	(vpif (vpx stream))
+		(call :list :create :nil (vpx args))
+		(vpif (vpx is_inline))
+			(call :str :create_from_cstr (vpx "(inline)") (vpx obj))
 		(else)
-			(call :str :create_from_cstr {obj} {obj})
+			(call :str :create_from_cstr (vpx obj) (vpx obj))
 		(endif)
-		(call :list :push_back2 {args, stream, obj})
-		(call :lisp :lisp_repl {this, args} {_, obj})
-		(vpif {obj->+obj_vtable = this->+lisp_error})
-			(call :lisp :repl_print {this, this->+lisp_stderr, obj, 1})
-			(call :stream :write_char {this->+lisp_stderr, +char_lf})
-			(call :stream :flush {this->+lisp_stderr})
-			(assign {0} {stream})
+		(call :list :push_back2 (vpx args stream obj))
+		(call :lisp :lisp_repl (vpx this args) (vpx _ obj))
+		(vpif (vpx (= (.> obj +obj_vtable) (.> this +lisp_error))))
+			(call :lisp :repl_print (vpx this (.> this +lisp_stderr) obj 1))
+			(call :stream :write_char (vpx (.> this +lisp_stderr) +char_lf))
+			(call :stream :flush (vpx (.> this +lisp_stderr)))
+			(assign (vpx 0) (vpx stream))
 		(endif)
-		(call :obj :deref {args})
-		(call :obj :deref {obj})
+		(call :obj :deref (vpx args))
+		(call :obj :deref (vpx obj))
 	(endif)
 
-	(exit {stream})
+	(exit (vpx stream))
 	(pop-scope)
 	(return)
 
@@ -180,18 +180,18 @@
 		(ptr this symbol table))
 
 	(push-scope)
-	(entry {this})
+	(entry (vpx this))
 
 	;create standard built in symbols
-	(assign {$built_ins} {table})
-	(loop-while {table->built_in_symbol})
-		(call :sym :intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
-		(assign {symbol} {ptr(this + table->built_in_field)})
-		(assign {table + built_in_size} {table})
+	(assign (vpx ($ built_ins)) (vpx table))
+	(loop-while (vpx (.> table built_in_symbol)))
+		(call :sym :intern_cstr (vpx (+ (& (.> table built_in_symbol)) (.> table built_in_symbol))) (vpx symbol))
+		(assign (vpx symbol) (vpx (ptr (+ this (.> table built_in_field)))))
+		(assign (vpx (+ table built_in_size)) (vpx table))
 	(loop-end)
 
 	;defines
-	(call :str :create_from_buffer {"ChrysaLisp", 10} {this->+lisp_stream_name})
+	(call :str :create_from_buffer (vpx "ChrysaLisp" 10) (vpx (.> this +lisp_stream_name)))
 
 	(pop-scope)
 	(return)
@@ -201,18 +201,18 @@
 		(ptr this))
 
 	(push-scope)
-	(entry {this})
+	(entry (vpx this))
 
-	(call :func :create (cat {@} (f-path :lisp :lisp_ffi) {+ +func_type_args_raw}) {this->+lisp_func_ffi})
-	(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_ffi, this->+lisp_func_ffi})
-	(call :func :create (cat {@} (f-path :lisp :lisp_lambda) {+ +func_type_args_raw}) {this->+lisp_func_lambda})
-	(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_lambda, this->+lisp_func_lambda})
-	(call :func :create (cat {@} (f-path :lisp :lisp_macro) {+ +func_type_args_raw}) {this->+lisp_func_macro})
-	(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_macro, this->+lisp_func_macro})
-	(call :func :create (cat {@} (f-path :lisp :lisp_quote) {+ +func_type_args_raw}) {this->+lisp_func_quote})
-	(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_quote, this->+lisp_func_quote})
-	(call :func :create (cat {@} (f-path :lisp :lisp_qquote) {+ +func_type_args_raw}) {this->+lisp_func_qquote})
-	(call :hmap :pinsert {this->+lisp_environment, this->+lisp_sym_qquote, this->+lisp_func_qquote})
+	(call :func :create (vpx (+ (@ ,(f-path :lisp :lisp_ffi)) +func_type_args_raw)) (vpx (.> this +lisp_func_ffi)))
+	(call :hmap :pinsert (vpx (.> this +lisp_environment) (.> this +lisp_sym_ffi) (.> this +lisp_func_ffi)))
+	(call :func :create (vpx (+ (@ ,(f-path :lisp :lisp_lambda)) +func_type_args_raw)) (vpx (.> this +lisp_func_lambda)))
+	(call :hmap :pinsert (vpx (.> this +lisp_environment) (.> this +lisp_sym_lambda) (.> this +lisp_func_lambda)))
+	(call :func :create (vpx (+ (@ ,(f-path :lisp :lisp_macro)) +func_type_args_raw)) (vpx (.> this +lisp_func_macro)))
+	(call :hmap :pinsert (vpx (.> this +lisp_environment) (.> this +lisp_sym_macro) (.> this +lisp_func_macro)))
+	(call :func :create (vpx (+ (@ ,(f-path :lisp :lisp_quote)) +func_type_args_raw)) (vpx (.> this +lisp_func_quote)))
+	(call :hmap :pinsert (vpx (.> this +lisp_environment) (.> this +lisp_sym_quote) (.> this +lisp_func_quote)))
+	(call :func :create (vpx (+ (@ ,(f-path :lisp :lisp_qquote)) +func_type_args_raw)) (vpx (.> this +lisp_func_qquote)))
+	(call :hmap :pinsert (vpx (.> this +lisp_environment) (.> this +lisp_sym_qquote) (.> this +lisp_func_qquote)))
 
 	(pop-scope)
 	(return)
@@ -222,13 +222,13 @@
 		(ptr this))
 
 	(push-scope)
-	(entry {this})
+	(entry (vpx this))
 
-	(call :hmap :get {this->+lisp_environment, this->+lisp_sym_ffi} {_, this->+lisp_func_ffi})
-	(call :hmap :get {this->+lisp_environment, this->+lisp_sym_lambda} {_ , this->+lisp_func_lambda})
-	(call :hmap :get {this->+lisp_environment, this->+lisp_sym_macro} {_ , this->+lisp_func_macro})
-	(call :hmap :get {this->+lisp_environment, this->+lisp_sym_quote} {_ , this->+lisp_func_quote})
-	(call :hmap :get {this->+lisp_environment, this->+lisp_sym_qquote} {_ , this->+lisp_func_qquote})
+	(call :hmap :get (vpx (.> this +lisp_environment) (.> this +lisp_sym_ffi)) (vpx _ (.> this +lisp_func_ffi)))
+	(call :hmap :get (vpx (.> this +lisp_environment) (.> this +lisp_sym_lambda)) (vpx _ (.> this +lisp_func_lambda)))
+	(call :hmap :get (vpx (.> this +lisp_environment) (.> this +lisp_sym_macro)) (vpx _ (.> this +lisp_func_macro)))
+	(call :hmap :get (vpx (.> this +lisp_environment) (.> this +lisp_sym_quote)) (vpx _ (.> this +lisp_func_quote)))
+	(call :hmap :get (vpx (.> this +lisp_environment) (.> this +lisp_sym_qquote)) (vpx _ (.> this +lisp_func_qquote)))
 
 	(pop-scope)
 	(return)
@@ -273,11 +273,11 @@
 		(pptr iter))
 
 	(push-scope)
-	(entry :lisp :deinit {this})
+	(entry :lisp :deinit (vpx this))
 
 	;free the chain of args lists, each is empty, and holds the next in
 	;its first element
-	(assign {this} '(:r0))
+	(assign (vpx this) '(:r0))
 	(loop-start)
 		(assign '((:r0 +lisp_args_pool)) '(:r1))
 		(breakif '(:r1 = 0))
@@ -285,7 +285,7 @@
 		(assign '((:r2 0)) '(:r2))
 		(assign '(:r2) '((:r0 +lisp_args_pool)))
 		(call :obj :deref '(:r1))
-		(assign {this} '(:r0))
+		(assign (vpx this) '(:r0))
 	(loop-end)
 
 	;and the chain of environments, each is empty, and holds the next as
@@ -297,17 +297,17 @@
 		(assign '((:r1 +hmap_parent)) '(:r2))
 		(assign '(:r2 :r3) '((:r0 +lisp_env_pool) (:r1 +hmap_parent)))
 		(call :obj :deref '(:r1))
-		(assign {this} '(:r0))
+		(assign (vpx this) '(:r0))
 	(loop-end)
 
 	;deinit myself
-	(assign {&this->+lisp_stdin} {iter})
+	(assign (vpx (& (.> this +lisp_stdin))) (vpx iter))
 	(loop-start)
-		(call :obj :deref {*iter})
-	(loop-until {(iter + +ptr_size => iter) = &this->+lisp_error})
+		(call :obj :deref (vpx (* iter)))
+	(loop-until (vpx (= (=> (+ iter +ptr_size) iter) (& (.> this +lisp_error)))))
 
 	;deinit parent
-	(s-jump :lisp :deinit {this})
+	(s-jump :lisp :deinit (vpx this))
 
 	(pop-scope-syms)
 

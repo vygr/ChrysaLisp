@@ -295,23 +295,23 @@
 		(long tcb_size))
 
 	(push-scope)
-	(entry :sys_task :start {func})
+	(entry :sys_task :start (vpx func))
 
 	;increment task count
 	(call :sys_task :count '(1))
 
 	;create new task control block and stack
-	(call :sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + +tk_node_size} {tcb, tcb_size})
+	(call :sys_mem :alloc (vpx (+ (ushort (- func (ubyte (- func +byte_size)) +short_size)) +tk_node_size)) (vpx tcb tcb_size))
 (errorcase
 	;fill with test pattern so we can show max extent in netmon
-	(call :sys_mem :fill {tcb, tcb_size, tk_stack_canary}))
+	(call :sys_mem :fill (vpx tcb tcb_size tk_stack_canary)))
 
 	;alloc task mailbox and set its owner to itself
-	(call :sys_mail :alloc_mbox :nil {tcb->+tk_node_mbox_id, tcb->+tk_node_mbox_addr})
-	(assign {0, tcb} {tcb->+tk_node_lisp, tcb->+tk_node_mbox_addr->+mbox_owner_tcb})
+	(call :sys_mail :alloc_mbox :nil (vpx (.> tcb +tk_node_mbox_id) (.> tcb +tk_node_mbox_addr)))
+	(assign (vpx 0 tcb) (vpx (.> tcb +tk_node_lisp) (.> tcb +tk_node_mbox_addr +mbox_owner_tcb)))
 
 	;init task control block stack, pc and stop address's
-	(assign {func, tcb, tcb + tcb_size, -1, tk_app_priority, 0} '(:r1 :r4 :r0 :r2 :r3 :r6))
+	(assign (vpx func tcb (+ tcb tcb_size) (- 1) tk_app_priority 0) '(:r1 :r4 :r0 :r2 :r3 :r6))
 	(fn-bind 'sys/statics/statics :r5)
 	(assign '(:r2) '((:r4 +tk_node_time)))
 	(vp-add-cr statics_sys_task_suspend_list :r5)
@@ -319,17 +319,17 @@
 	(save-fields :r4 '(+tk_node_priority +tk_node_stack_top +tk_node_flags) '(:r3 :r0 :r6))
 	(f-bind :sys_task :stop :r2)
 	(vp-stack-init :r0 :r1 :r2)
-	(assign '(:r0) {tcb->+tk_node_stack})
+	(assign '(:r0) (vpx (.> tcb +tk_node_stack)))
 
 	;resume new task
-	(call :sys_task :resume {tcb})
+	(call :sys_task :resume (vpx tcb))
 
 	;return tcb and mailbox info
-	(assign {@sys/statics/statics} {statics})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
 	(exit :sys_task :start
-		{tcb, tcb->+tk_node_mbox_addr, tcb->+tk_node_mbox_id,
-		statics->statics_sys_task_kernel_node_id.+node_id_node1,
-		statics->statics_sys_task_kernel_node_id.+node_id_node2})
+		(vpx tcb (.> tcb +tk_node_mbox_addr) (.> tcb +tk_node_mbox_id)
+		(. (.> statics statics_sys_task_kernel_node_id) +node_id_node1)
+		(. (.> statics statics_sys_task_kernel_node_id) +node_id_node2)))
 	(pop-scope)
 	(return)
 
@@ -350,18 +350,18 @@
 	(call :sys_task :count '(-1))
 
 	;free task mailbox and tls
-	(assign {@sys/statics/statics} {statics})
-	(assign {statics->statics_sys_task_current_tcb} {tcb})
-	(call :sys_mail :free_mbox {tcb->+tk_node_mbox_id})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(assign (vpx (.> statics statics_sys_task_current_tcb)) (vpx tcb))
+	(call :sys_mail :free_mbox (vpx (.> tcb +tk_node_mbox_id)))
 
 	;remove task control block
 	(vp-rdef (tcb next_tcb))
-	(assign {tcb} (list tcb))
+	(assign (vpx tcb) (list tcb))
 	(ln-remove-node tcb next_tcb)
 
 	;free our task control block, but our stack is inside it, so move onto
 	;the kernel task's stack first, below its saved state, for the call
-	(assign {tcb} (list tcb))
+	(assign (vpx tcb) (list tcb))
 	(fn-bind 'sys/statics/statics next_tcb)
 	(assign `((,next_tcb statics_sys_task_kernel_tcb)) `(,next_tcb))
 	(assign `((,next_tcb +tk_node_stack)) '(:rsp))

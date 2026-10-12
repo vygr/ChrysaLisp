@@ -72,7 +72,7 @@
 
 (defun assign-ignored-to-script ()
 	(defq s (list) d (list))
-	(each (# (unless (eql %1 "_") (push s %0) (push d %1))) src dst)
+	(each (# (unless (script-ignored? %1) (push s %0) (push d %1))) src dst)
 	(setq src s dst d))
 
 (defun assign-topology-sort ()
@@ -154,12 +154,12 @@
 	(and (list?? %0) (not (lambda? (first %0))) (print (ascii-char 9) %0)))
 
 (defun assign-asm-to-script (src dst %2)
-	(unless (= (length src) (length (setq dst (map (const trim) (split dst ",")))))
+	(unless (= (length src) (length (setq dst (script-items dst))))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
 		(reset-reg-stack (length src))
-		(each (# (cscript %0) (compile-arrow)) dst)
+		(each (# (script-compile %0) (compile-arrow)) dst)
 		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
@@ -171,11 +171,11 @@
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-asm (src dst %2)
-	(unless (= (length (setq src (split src ","))) (length dst))
+	(unless (= (length (setq src (script-items src))) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)
-		(each (# (cscript %0) (compile-deref?)) src)
+		(each (# (script-compile %0) (compile-deref?)) src)
 		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
@@ -187,14 +187,14 @@
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-script (src dst %2)
-	(setq src (split src ",") dst (map (const trim) (split dst ",")))
+	(setq src (script-items src) dst (script-items dst))
 	(unless (= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)
-		(each cscript src)
-		(reach (# (cscript %0) (compile-arrow)) dst)
+		(each (const script-compile) src)
+		(reach (# (script-compile %0) (compile-arrow)) dst)
 		(when *build_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))
@@ -207,11 +207,11 @@
 
 (defun assign (&optional src dst %2)
 	;optional src, dst, compiler regs
-	(if (str? (setq src (ifn src '())))
-		(if (str? (setq dst (ifn dst '())))
+	(if (script? (setq src (ifn src '())))
+		(if (script? (setq dst (ifn dst '())))
 			(assign-script-to-script src dst %2)
 			(assign-script-to-asm src dst %2))
-		(if (str? (setq dst (ifn dst '())))
+		(if (script? (setq dst (ifn dst '())))
 			(assign-asm-to-script src dst %2)
 			(assign-asm-to-asm src dst))))
 

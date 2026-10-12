@@ -537,18 +537,18 @@
 
 	(push-scope)
 	(entry :str :print `(,this ,saved_stream))
-	(assign `(,this) {this})
+	(assign `(,this) (vpx this))
 
-	(call :str :create_from_buffer {0, this->+str_length * 2} `(,escaped))
-	(assign {this} `(,this))
-	(call :str :escape `(,this ,escaped) {_, escaped})
+	(call :str :create_from_buffer (vpx 0 (* (.> this +str_length) 2)) `(,escaped))
+	(assign (vpx this) `(,this))
+	(call :str :escape `(,this ,escaped) (vpx _ escaped))
 	(call :stream :write_char `(,saved_stream +char_double_quote) `(,stream))
-	(assign {escaped} `(,escaped))
+	(assign (vpx escaped) `(,escaped))
 	(call :stream :write `(,stream (& ,escaped +str_data) (,escaped +str_length)) `(,stream))
 	(call :stream :write_char `(,stream +char_double_quote))
-	(call :str :destroy {escaped})
+	(call :str :destroy (vpx escaped))
 
-	(exit :str :print {this})
+	(exit :str :print (vpx this))
 	(pop-scope)
 	(return)
 

@@ -19,27 +19,27 @@
 		(uint length))
 
 	(push-scope)
-	(entry :path :filter_polyline {this, that, eps})
+	(entry :path :filter_polyline (vpx this that eps))
 
 	;room for all of the source, before any pointer is taken, and what
 	;is not filtered below, a point or none, is the source as it is
-	(vpif {this /= that})
-		(d-call :path :get_length {that} {_, length})
-		(d-call :path :clear {this})
-		(d-call :path :append {this, that, 0, length})
+	(vpif (vpx (/= this that)))
+		(d-call :path :get_length (vpx that) (vpx _ length))
+		(d-call :path :clear (vpx this))
+		(d-call :path :append (vpx this that 0 length))
 	(endif)
 
-	(call :path :get_both {that} {_, iter_begin, iter_end})
-	(call :path :get_begin {this} {_, iter_this})
+	(call :path :get_both (vpx that) (vpx _ iter_begin iter_end))
+	(call :path :get_begin (vpx this) (vpx _ iter_this))
 
 	(vec-set 0)
-	(vec-load 2 {iter_end, iter_begin})
+	(vec-load 2 (vpx iter_end iter_begin))
 	(vec-dup 2)
 	(vec-dif 2)
 	(vpif (list (first (vec-pop 1)) '> (* 2 +long_size)))
-		(vec-load 1 {eps})
+		(vec-load 1 (vpx eps))
 		(vec-fsquare 1)
-		(vec-load 1 {iter_this})
+		(vec-load 1 (vpx iter_this))
 		(bind '(e i x j) (vec-top 4))
 		(loop-start 'outer_loop)
 			(vpif `(,i /= ,j))
@@ -55,11 +55,11 @@
 			(loop-until (list (first (vec-pop 1)) '>= x))
 			(vp-add-cr (* 2 +long_size) j)
 		(loop-end)
-		(vec-store 1 {iter_end})
-		(call :path :set_length {this, (iter_end - iter_this >> 3) + 2})
+		(vec-store 1 (vpx iter_end))
+		(call :path :set_length (vpx this (+ (>> (- iter_end iter_this) 3) 2)))
 	(endif)
 
-	(exit :path :filter_polyline {this})
+	(exit :path :filter_polyline (vpx this))
 	(pop-scope)
 	(return)
 

@@ -108,29 +108,29 @@
 		(long res))
 
 	(push-scope)
-	(entry :lstream :fill {this})
+	(entry :lstream :fill (vpx this))
 
 	;what was read is let go of
-	(call :obj :deref_if {this->+stream_object})
-	(assign {0, 0, 0} {this->+stream_object, this->+stream_bufp, this->+stream_bufe})
+	(call :obj :deref_if (vpx (.> this +stream_object)))
+	(assign (vpx 0 0 0) (vpx (.> this +stream_object) (.> this +stream_bufp) (.> this +stream_bufe)))
 
 	;the next of it is asked for
-	(call :list :create :nil {args})
-	(call :lisp :repl_apply {this->+lstream_lisp, args, this->+lstream_fill} {_, value})
-	(call :obj :deref {args})
+	(call :list :create :nil (vpx args))
+	(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_fill)) (vpx _ value))
+	(call :obj :deref (vpx args))
 
 	;a str with something in it is more, anything else is the end
-	(assign {-1} {res})
-	(vpif (cat {value->+obj_vtable = @} (f-path :str :vtable)))
-		(vpif {value->+str_length})
-			(assign {value, &value->+str_data} {this->+stream_object, this->+stream_bufp})
-			(assign {this->+stream_bufp + value->+str_length} {this->+stream_bufe})
-			(assign {0, 0} {res, value})
+	(assign (vpx (- 1)) (vpx res))
+	(vpif (vpx (= (.> value +obj_vtable) (@ ,(f-path :str :vtable)))))
+		(vpif (vpx (.> value +str_length)))
+			(assign (vpx value (& (.> value +str_data))) (vpx (.> this +stream_object) (.> this +stream_bufp)))
+			(assign (vpx (+ (.> this +stream_bufp) (.> value +str_length))) (vpx (.> this +stream_bufe)))
+			(assign (vpx 0 0) (vpx res value))
 		(endif)
 	(endif)
-	(call :obj :deref_if {value})
+	(call :obj :deref_if (vpx value))
 
-	(exit :lstream :fill {this, res})
+	(exit :lstream :fill (vpx this res))
 	(pop-scope)
 	(return)
 
@@ -176,35 +176,35 @@
 		(long offset whence pos))
 
 	(push-scope)
-	(entry :lstream :seek_to {this, offset, whence})
+	(entry :lstream :seek_to (vpx this offset whence))
 
-	(assign {-1} {pos})
-	(vpif {this->+lstream_seek})
+	(assign (vpx (- 1)) (vpx pos))
+	(vpif (vpx (.> this +lstream_seek)))
 		;from where it is: that is what has been read of it, which is less
 		;than what has been asked for by what is left of the last str
-		(vpif {whence = 1})
-			(assign {offset - (this->+stream_bufe - this->+stream_bufp)} {offset})
+		(vpif (vpx (= whence 1)))
+			(assign (vpx (- offset (- (.> this +stream_bufe) (.> this +stream_bufp)))) (vpx offset))
 		(endif)
 
-		(call :list :create :nil {args})
-		(call :num :create {offset} {value})
-		(call :list :push_back {args, value})
-		(call :num :create {whence} {value})
-		(call :list :push_back {args, value})
-		(call :lisp :repl_apply {this->+lstream_lisp, args, this->+lstream_seek} {_, value})
-		(call :obj :deref {args})
+		(call :list :create :nil (vpx args))
+		(call :num :create (vpx offset) (vpx value))
+		(call :list :push_back (vpx args value))
+		(call :num :create (vpx whence) (vpx value))
+		(call :list :push_back (vpx args value))
+		(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_seek)) (vpx _ value))
+		(call :obj :deref (vpx args))
 
 		;a number is where it is now, anything else and it did not
-		(vpif (cat {value->+obj_vtable = @} (f-path :num :vtable)))
-			(assign {value->+num_value} {pos})
+		(vpif (vpx (= (.> value +obj_vtable) (@ ,(f-path :num :vtable)))))
+			(assign (vpx (.> value +num_value)) (vpx pos))
 			;what was read is let go of, the next read is from there
-			(call :obj :deref_if {this->+stream_object})
-			(assign {0, 0, 0} {this->+stream_object, this->+stream_bufp, this->+stream_bufe})
+			(call :obj :deref_if (vpx (.> this +stream_object)))
+			(assign (vpx 0 0 0) (vpx (.> this +stream_object) (.> this +stream_bufp) (.> this +stream_bufe)))
 		(endif)
-		(call :obj :deref {value})
+		(call :obj :deref (vpx value))
 	(endif)
 
-	(exit :lstream :seek_to {this, pos})
+	(exit :lstream :seek_to (vpx this pos))
 	(pop-scope)
 	(return)
 

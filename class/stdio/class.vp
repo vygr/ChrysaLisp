@@ -40,54 +40,54 @@
 
 	;read init args
 	(push-scope)
-	(entry :stdio :init {this, vtable})
+	(entry :stdio :init (vpx this vtable))
 
 	;init parent
-	(s-call :stdio :init {this, vtable} {_, ok})
-	(vpif {ok})
+	(s-call :stdio :init (vpx this vtable) (vpx _ ok))
+	(vpif (vpx ok))
 		;init myself
-		(call :sys_mail :mymail :nil {msg, data})
-		(vpif {msg->+msg_length})
+		(call :sys_mail :mymail :nil (vpx msg data))
+		(vpif (vpx (.> msg +msg_length)))
 			;create stdin, stdout, stderr
 			;stdin has its own mailbox, leaving the task mailbox free
-			(call :in :create {0} {this->+stdio_stdin})
+			(call :in :create (vpx 0) (vpx (.> this +stdio_stdin)))
 			(call :out :create
-				{data->+stdio_msg_init_stdout.+net_id_mbox_id,
-				data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node1,
-				data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node2}
-				{this->+stdio_stdout})
+				(vpx (. (.> data +stdio_msg_init_stdout) +net_id_mbox_id)
+				(. (.> data +stdio_msg_init_stdout) +net_id_node_id +node_id_node1)
+				(. (.> data +stdio_msg_init_stdout) +net_id_node_id +node_id_node2))
+				(vpx (.> this +stdio_stdout)))
 			(call :out :create
-				{data->+stdio_msg_init_stderr.+net_id_mbox_id,
-				data->+stdio_msg_init_stderr.+net_id_node_id.+node_id_node1,
-				data->+stdio_msg_init_stderr.+net_id_node_id.+node_id_node2}
-				{this->+stdio_stderr})
+				(vpx (. (.> data +stdio_msg_init_stderr) +net_id_mbox_id)
+				(. (.> data +stdio_msg_init_stderr) +net_id_node_id +node_id_node1)
+				(. (.> data +stdio_msg_init_stderr) +net_id_node_id +node_id_node2))
+				(vpx (.> this +stdio_stderr)))
 
 			;create args string
-			(call :str :create_from_buffer {&data->+stdio_msg_init_args, msg->+msg_length - +stdio_msg_init_size} {this->+stdio_args})
+			(call :str :create_from_buffer (vpx (& (.> data +stdio_msg_init_args)) (- (.> msg +msg_length) +stdio_msg_init_size)) (vpx (.> this +stdio_args)))
 
 			;send back ack with stdin mailbox
-			(assign {data->+stdio_msg_init_ack.+net_id_mbox_id,
-					data->+stdio_msg_init_ack.+net_id_node_id.+node_id_node1,
-					data->+stdio_msg_init_ack.+net_id_node_id.+node_id_node2}
-				{msg->+msg_dest.+net_id_mbox_id,
-					msg->+msg_dest.+net_id_node_id.+node_id_node1,
-					msg->+msg_dest.+net_id_node_id.+node_id_node2})
-			(assign {this->+stdio_stdin->+in_mbox_id}
-				{data->+stdio_msg_init_stdout.+net_id_mbox_id})
+			(assign (vpx (. (.> data +stdio_msg_init_ack) +net_id_mbox_id)
+					(. (.> data +stdio_msg_init_ack) +net_id_node_id +node_id_node1)
+					(. (.> data +stdio_msg_init_ack) +net_id_node_id +node_id_node2))
+				(vpx (. (.> msg +msg_dest) +net_id_mbox_id)
+					(. (.> msg +msg_dest) +net_id_node_id +node_id_node1)
+					(. (.> msg +msg_dest) +net_id_node_id +node_id_node2)))
+			(assign (vpx (.> this +stdio_stdin +in_mbox_id))
+				(vpx (. (.> data +stdio_msg_init_stdout) +net_id_mbox_id)))
 			(call :sys_kernel :id :nil
-				{data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node1,
-				data->+stdio_msg_init_stdout.+net_id_node_id.+node_id_node2})
-			(assign {+stdio_msg_init_reply} {msg->+msg_length})
-			(call :sys_mail :send {msg})
+				(vpx (. (.> data +stdio_msg_init_stdout) +net_id_node_id +node_id_node1)
+				(. (.> data +stdio_msg_init_stdout) +net_id_node_id +node_id_node2)))
+			(assign (vpx +stdio_msg_init_reply) (vpx (.> msg +msg_length)))
+			(call :sys_mail :send (vpx msg))
 		(else)
 			;abort
-			(call :sys_mail :free {msg})
-			(s-call :stdio :deinit {this})
-			(assign {0} {ok})
+			(call :sys_mail :free (vpx msg))
+			(s-call :stdio :deinit (vpx this))
+			(assign (vpx 0) (vpx ok))
 		(endif)
 	(endif)
 
-	(exit :stdio :init {this, ok})
+	(exit :stdio :init (vpx this ok))
 	(pop-scope)
 	(return)
 

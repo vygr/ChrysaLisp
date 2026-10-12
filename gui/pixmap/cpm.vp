@@ -19,71 +19,71 @@
 
 	;save inputs
 	(push-scope)
-	(entry :pixmap :next_frame {this})
+	(entry :pixmap :next_frame (vpx this))
 
-	(vpif {this->+pixmap_stream} 'error)
+	(vpif (vpx (.> this +pixmap_stream)) 'error)
 		;remember what to seek back to !
-		(vpifnot {this->+pixmap_bufp})
-			(assign {this->+pixmap_stream->+stream_bufp} {this->+pixmap_bufp})
+		(vpifnot (vpx (.> this +pixmap_bufp)))
+			(assign (vpx (.> this +pixmap_stream +stream_bufp)) (vpx (.> this +pixmap_bufp)))
 		(endif)
 
 		;must be premul
-		(call :pixmap :as_premul {this})
+		(call :pixmap :as_premul (vpx this))
 
 		;decode according to type
-		(assign {this->+pixmap_stream_type} {num_bits})
-		(vpif {num_bits = 12})
-			(assign {16} {num_bits})
+		(assign (vpx (.> this +pixmap_stream_type)) (vpx num_bits))
+		(vpif (vpx (= num_bits 12)))
+			(assign (vpx 16) (vpx num_bits))
 		(endif)
-		(vpif {num_bits = 15})
-			(assign {16} {num_bits})
+		(vpif (vpx (= num_bits 15)))
+			(assign (vpx 16) (vpx num_bits))
 		(endif)
-		(assign {this->+pixmap_data} {data})
-		(assign {data + this->+pixmap_height * this->+pixmap_stride} {data_end})
-		(assign {0, 0} {bit_pool, bit_pool_size})
+		(assign (vpx (.> this +pixmap_data)) (vpx data))
+		(assign (vpx (+ data (* (.> this +pixmap_height) (.> this +pixmap_stride)))) (vpx data_end))
+		(assign (vpx 0 0) (vpx bit_pool bit_pool_size))
 
 		(vp-rdef (stream len bit_pool bit_pool_size col data data_end)
 			(method-input :stream :read_bits))
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)
-				(call :stream :read_bits {this->+pixmap_stream, 8, bit_pool, bit_pool_size}
+				(call :stream :read_bits (vpx (.> this +pixmap_stream) 8 bit_pool bit_pool_size)
 					`(,stream ,len ,bit_pool ,bit_pool_size))
 				(breakif `(,len /= -1))
-				(assign {this->+pixmap_bufp, 0, 0}
-					{this->+pixmap_stream->+stream_bufp, bit_pool, bit_pool_size})
+				(assign (vpx (.> this +pixmap_bufp) 0 0)
+					(vpx (.> this +pixmap_stream +stream_bufp) bit_pool bit_pool_size))
 			(loop-end)
-			(assign `(,bit_pool ,bit_pool_size) {bit_pool, bit_pool_size})
+			(assign `(,bit_pool ,bit_pool_size) (vpx bit_pool bit_pool_size))
 
 			;decode token
 			(vpif `(,len >= 128))
 				;skip
-				(assign {data, data_end} `(,data ,data_end))
+				(assign (vpx data data_end) `(,data ,data_end))
 				(vp-sub-cr 256 len)
 				(vp-shl-cr (log2 +int_size) len)
 				(vp-sub-rr len data)
 			(else)
 				;block of pixels
 				(loop-start)
-					(assign `(,len) {len})
-					(call :stream :read_bits {this->+pixmap_stream, num_bits, bit_pool, bit_pool_size}
-						{_, col, bit_pool, bit_pool_size})
-					(breakif {col = -1} 'error)
-					(call :pixmap :to_argb32 {col, this->+pixmap_stream_type} `(,col))
+					(assign `(,len) (vpx len))
+					(call :stream :read_bits (vpx (.> this +pixmap_stream) num_bits bit_pool bit_pool_size)
+						(vpx _ col bit_pool bit_pool_size))
+					(breakif (vpx (= col (- 1))) 'error)
+					(call :pixmap :to_argb32 (vpx col (.> this +pixmap_stream_type)) `(,col))
 					(call :pixmap :to_premul `(,col) `(,col))
-					(assign {len, data, data_end} `(,len ,data ,data_end))
+					(assign (vpx len data data_end) `(,len ,data ,data_end))
 					(breakif `(,data >= ,data_end) 'error)
 					(vp-cpy-ri-i col data 0)
 					(vp-sub-cr 1 len)
 					(vp-add-cr +int_size data)
-					(assign `(,data) {data})
+					(assign `(,data) (vpx data))
 				(loop-until `(,len = 0))
 			(endif)
-			(assign `(,data) {data})
+			(assign `(,data) (vpx data))
 		(loop-until `(,data = ,data_end))
 	(endif)
 
-	(exit :pixmap :next_frame {this})
+	(exit :pixmap :next_frame (vpx this))
 	(pop-scope)
 	(return)
 

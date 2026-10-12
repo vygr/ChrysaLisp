@@ -160,50 +160,50 @@
 		(int flags))
 
 	(push-scope)
-	(entry :canvas :swap {this, flags})
+	(entry :canvas :swap (vpx this flags))
 
 	;a negative number is the other way, the texture back to the pixmap
-	(assign {this->+canvas_pixmap} {pixmap})
-	(vpif {flags < 0})
-		(call :canvas :read {this})
+	(assign (vpx (.> this +canvas_pixmap)) (vpx pixmap))
+	(vpif (vpx (< flags 0)))
+		(call :canvas :read (vpx this))
 	;a canvas that has freed its pixmap has nothing new to show
-	(elseif {pixmap})
-	(vpifnot {flags & +swap_flag_keep})
+	(elseif (vpx pixmap))
+	(vpifnot (vpx (& flags +swap_flag_keep)))
 		;must be in premul alpha format
-		(call :pixmap :as_premul {pixmap})
+		(call :pixmap :as_premul (vpx pixmap))
 
 		;scale the pixmap if needed
-		(vpif {this->+canvas_scale = 1})
-			(call :pixmap :ref {pixmap} {pixmap})
+		(vpif (vpx (= (.> this +canvas_scale) 1)))
+			(call :pixmap :ref (vpx pixmap) (vpx pixmap))
 		(else)
-			(call :pixmap :create {pixmap->+pixmap_width / this->+canvas_scale,
-				pixmap->+pixmap_height / this->+canvas_scale, -32} {pixmap})
-			(call :pixmap :resize {pixmap, this->+canvas_pixmap})
+			(call :pixmap :create (vpx (/ (.> pixmap +pixmap_width) (.> this +canvas_scale))
+				(/ (.> pixmap +pixmap_height) (.> this +canvas_scale)) (- 32)) (vpx pixmap))
+			(call :pixmap :resize (vpx pixmap (.> this +canvas_pixmap)))
 		(endif)
 
 		;upload then ref_if the texture
-		(call :pixmap :upload {pixmap, flags & 0xff})
-		(assign {this->+canvas_texture} {texture})
-		(call :texture :ref_if {pixmap->+pixmap_texture} {this->+canvas_texture})
-		(call :texture :deref_if {texture})
-		(call :pixmap :deref {pixmap})
+		(call :pixmap :upload (vpx pixmap (& flags 0xff)))
+		(assign (vpx (.> this +canvas_texture)) (vpx texture))
+		(call :texture :ref_if (vpx (.> pixmap +pixmap_texture)) (vpx (.> this +canvas_texture)))
+		(call :texture :deref_if (vpx texture))
+		(call :pixmap :deref (vpx pixmap))
 
 		;the texture is now not one a shader can draw into
-		(assign {(this->+canvas_flags | +canvas_flag_shader) ^ +canvas_flag_shader} {this->+canvas_flags})
+		(assign (vpx (^ (| (.> this +canvas_flags) +canvas_flag_shader) +canvas_flag_shader)) (vpx (.> this +canvas_flags)))
 	(endif)
 
 		;free the pixmap if asked. One that is shared lives on in the
 		;cache, this only lets go of it. The clip is left as one that
 		;nothing is inside, so every draw call is clipped away.
-		(vpif {flags & +swap_flag_free})
-			(call :pixmap :deref {this->+canvas_pixmap})
-			(assign {0, 0x7fffffff, 0x7fffffff, 0, 0}
-				{this->+canvas_pixmap, this->+canvas_cx, this->+canvas_cy,
-				this->+canvas_cx1, this->+canvas_cy1})
+		(vpif (vpx (& flags +swap_flag_free)))
+			(call :pixmap :deref (vpx (.> this +canvas_pixmap)))
+			(assign (vpx 0 0x7fffffff 0x7fffffff 0 0)
+				(vpx (.> this +canvas_pixmap) (.> this +canvas_cx) (.> this +canvas_cy)
+				(.> this +canvas_cx1) (.> this +canvas_cy1)))
 		(endif)
 	(endif)
 
-	(exit :canvas :swap {this})
+	(exit :canvas :swap (vpx this))
 	(pop-scope)
 	(return)
 
@@ -231,34 +231,34 @@
 		(uint w h))
 
 	(push-scope)
-	(entry :canvas :read {this})
+	(entry :canvas :read (vpx this))
 
-	(assign {this->+canvas_texture} {texture})
-	(vpif {texture})
+	(assign (vpx (.> this +canvas_texture)) (vpx texture))
+	(vpif (vpx texture))
 		;a pixmap the size of the texture, for the host GUI driver to fill
-		(assign {texture->+texture_width, texture->+texture_height} {w, h})
-		(call :pixmap :create {w, h, -32} {pixmap})
-		(assign {this, pixmap, texture->+texture_handle, 0}
-			{frame.local_this, frame.local_pixmap, frame.local_handle, frame.local_ok})
-		(call :sys_task :callback {&frame, $callback})
-		(vpif {frame.local_ok})
+		(assign (vpx (.> texture +texture_width) (.> texture +texture_height)) (vpx w h))
+		(call :pixmap :create (vpx w h (- 32)) (vpx pixmap))
+		(assign (vpx this pixmap (.> texture +texture_handle) 0)
+			(vpx (. frame local_this) (. frame local_pixmap) (. frame local_handle) (. frame local_ok)))
+		(call :sys_task :callback (vpx (& frame) ($ callback)))
+		(vpif (vpx (. frame local_ok)))
 			;the pixmap of a canvas is its texture times the scale
-			(vpif {this->+canvas_scale /= 1})
-				(assign {pixmap} {old})
-				(call :pixmap :create {w * this->+canvas_scale, h * this->+canvas_scale, -32} {pixmap})
-				(call :pixmap :resize {pixmap, old})
-				(call :pixmap :deref {old})
+			(vpif (vpx (/= (.> this +canvas_scale) 1)))
+				(assign (vpx pixmap) (vpx old))
+				(call :pixmap :create (vpx (* w (.> this +canvas_scale)) (* h (.> this +canvas_scale)) (- 32)) (vpx pixmap))
+				(call :pixmap :resize (vpx pixmap old))
+				(call :pixmap :deref (vpx old))
 			(endif)
-			(call :pixmap :deref_if {this->+canvas_pixmap})
-			(assign {pixmap} {this->+canvas_pixmap})
+			(call :pixmap :deref_if (vpx (.> this +canvas_pixmap)))
+			(assign (vpx pixmap) (vpx (.> this +canvas_pixmap)))
 			;and all of it can be drawn on
-			(call :canvas :set_clip {this, 0, 0, pixmap->+pixmap_width, pixmap->+pixmap_height})
+			(call :canvas :set_clip (vpx this 0 0 (.> pixmap +pixmap_width) (.> pixmap +pixmap_height)))
 		(else)
-			(call :pixmap :deref {pixmap})
+			(call :pixmap :deref (vpx pixmap))
 		(endif)
 	(endif)
 
-	(exit :canvas :read {this})
+	(exit :canvas :read (vpx this))
 	(pop-scope)
 	(return)
 
@@ -273,15 +273,15 @@
 	(vp-cpy-rr :rsp :r1)
 	(push-scope)
 	(vp-and-cr -16 :rsp)
-	(entry {user, old_stack})
+	(entry (vpx user old_stack))
 
-	(assign {user->local_pixmap} {pixmap})
-	(host-gui-call :host_gui :read_texture {user->local_handle, pixmap->+pixmap_data,
-			pixmap->+pixmap_width, pixmap->+pixmap_height, pixmap->+pixmap_stride}
-		{ok})
-	(assign {ok} {user->local_ok})
+	(assign (vpx (.> user local_pixmap)) (vpx pixmap))
+	(host-gui-call :host_gui :read_texture (vpx (.> user local_handle) (.> pixmap +pixmap_data)
+			(.> pixmap +pixmap_width) (.> pixmap +pixmap_height) (.> pixmap +pixmap_stride))
+		(vpx ok))
+	(assign (vpx ok) (vpx (.> user local_ok)))
 
-	(assign {old_stack} '(:rsp))
+	(assign (vpx old_stack) '(:rsp))
 	(pop-scope-syms)
 	(return)
 
@@ -534,31 +534,31 @@
 		(int x y w h))
 
 	(push-scope)
-	(entry :canvas :fbox {this, x, y, w, h})
+	(entry :canvas :fbox (vpx this x y w h))
 
 	;clip check
 	(switch)
-	(breakif {w <= 0 || h <= 0})
-	(assign {x + w, y + h} {w, h})
-	(breakif {x >= this->+canvas_cx1 || w <= this->+canvas_cx || y >= this->+canvas_cy1 || h <= this->+canvas_cy})
-		(vpif {x < this->+canvas_cx})
-			(assign {this->+canvas_cx} {x})
+	(breakif (vpx (|| (<= w 0) (<= h 0))))
+	(assign (vpx (+ x w) (+ y h)) (vpx w h))
+	(breakif (vpx (|| (>= x (.> this +canvas_cx1)) (<= w (.> this +canvas_cx)) (>= y (.> this +canvas_cy1)) (<= h (.> this +canvas_cy)))))
+		(vpif (vpx (< x (.> this +canvas_cx))))
+			(assign (vpx (.> this +canvas_cx)) (vpx x))
 		(endif)
-		(vpif {w > this->+canvas_cx1})
-			(assign {this->+canvas_cx1} {w})
+		(vpif (vpx (> w (.> this +canvas_cx1))))
+			(assign (vpx (.> this +canvas_cx1)) (vpx w))
 		(endif)
-		(vpif {y < this->+canvas_cy})
-			(assign {this->+canvas_cy} {y})
+		(vpif (vpx (< y (.> this +canvas_cy))))
+			(assign (vpx (.> this +canvas_cy)) (vpx y))
 		(endif)
-		(vpif {h > this->+canvas_cy1})
-			(assign {this->+canvas_cy1} {h})
+		(vpif (vpx (> h (.> this +canvas_cy1))))
+			(assign (vpx (.> this +canvas_cy1)) (vpx h))
 		(endif)
 		(loop-start)
-			(call :canvas :span_noclip {this, 0x80, x, y, w})
-		(loop-until {(y + 1 => y) = h})
+			(call :canvas :span_noclip (vpx this 0x80 x y w))
+		(loop-until (vpx (= (=> (+ y 1) y) h)))
 	(endswitch)
 
-	(exit :canvas :fbox {this})
+	(exit :canvas :fbox (vpx this))
 	(pop-scope)
 	(return)
 

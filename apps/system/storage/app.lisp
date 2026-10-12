@@ -56,7 +56,7 @@
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000)
 
-(ui-window *window* ()
+(ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Storage" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* (:font *env_body_font*)
 		(each (lambda (label event) (. (ui-button _ (:text label :min_width 62)) :connect event))

@@ -17,10 +17,10 @@
 	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_frag total))
 
 	(push-scope)
-	(entry :sys_mail :in {rx_frag, rx_buf, rx_ring, rx_extent})
+	(entry :sys_mail :in (vpx rx_frag rx_buf rx_ring rx_extent))
 
 	;look up parcel in mailbox
-	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_frag} `(,parcels ,rx_frag))
+	(assign (vpx (. (@ sys/statics/statics) statics_sys_mail_parcel_list) rx_frag) `(,parcels ,rx_frag))
 	(load-net-id rx_frag lk_frag_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
 		(load-net-id node +msg_src psrc1 psrc2 psrc3)
@@ -34,31 +34,31 @@
 		(assign-net-id rx_frag lk_frag_src node +msg_src src1 src2 src3)
 		(lh-add-at-tail parcels node next)
 	(endif)
-	(assign `(,node) {msg})
+	(assign `(,node) (vpx msg))
 
 	;timestamp last change
-	(call :host_os :pii_time :nil {msg->+msg_timestamp})
+	(call :host_os :pii_time :nil (vpx (.> msg +msg_timestamp)))
 
 	;copy fragment data
-	(assign {rx_frag->lk_frag_length} {len})
-	(assign {msg->+msg_offset + len} {msg->+msg_offset})
-	(assign {msg->+msg_total - len} {msg->+msg_total})
-	(call :sys_mem :copy_from_ring {&rx_frag->lk_frag_size,
-		msg->+msg_data + rx_frag->lk_frag_offset, len, rx_extent, rx_ring})
+	(assign (vpx (.> rx_frag lk_frag_length)) (vpx len))
+	(assign (vpx (+ (.> msg +msg_offset) len)) (vpx (.> msg +msg_offset)))
+	(assign (vpx (- (.> msg +msg_total) len)) (vpx (.> msg +msg_total)))
+	(call :sys_mem :copy_from_ring (vpx (& (.> rx_frag lk_frag_size))
+		(+ (.> msg +msg_data) (.> rx_frag lk_frag_offset)) len rx_extent rx_ring))
 
 	;clear status
 	;overlap the :send with new receive !
-	(vpif {rx_buf})
+	(vpif (vpx rx_buf))
 		(vp-sync)
-		(assign {lk_chan_status_ready} {rx_buf->lk_buf_status})
+		(assign (vpx lk_chan_status_ready) (vpx (.> rx_buf lk_buf_status)))
 	(endif)
 
 	;got all needed ?
-	(vpifnot {msg->+msg_total})
+	(vpifnot (vpx (.> msg +msg_total)))
 		;yes, remove parcel and post it
-		(assign {msg} `(,node))
+		(assign (vpx msg) `(,node))
 		(ln-remove-node node next)
-		(call :sys_mail :send {msg})
+		(call :sys_mail :send (vpx msg))
 	(endif)
 
 	(pop-scope)

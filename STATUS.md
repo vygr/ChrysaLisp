@@ -4,6 +4,53 @@
 
 ------
 
+**C-Script: an expression is a form, the text and its parser are gone.**
+
+Chris asked what I thought of removing the C-Script compiler: "I feel it's
+again somthing I'm emotionaly attached to and we no longer need it ? Or we
+have to make it way more like a real compiler ?" Then: "Yeah lets go with
+making this a REAL compiler option, but again careful, it for VP code
+level, NOT compiling Lisp ! And it's still more for prototyping and mid
+level lowering from Lisp..." And: "yes, brace strings become forms, start
+stages 1 and 2. It's not really going to be called CSript anymore is
+it..... ;)"
+
+Stage 1, a baseline: `make all platforms boot`, and the SHA-256 of every
+assembled function and boot image of the six targets, 8,406 files.
+
+Stage 2: `{this->+stream_bufp + len}` is `(vpx (+ (.> this +stream_bufp)
+len))`. `lib/asm/cscript.inc` compiles a form by making it the reverse
+polish the text made, with no function that calls itself; `(assign)`, the
+conditions and the calls take one where they took a string. 2,734 strings
+in 57 files were rewritten by a program of mine that has the tokenizer
+and the reverse polish of the compiler in it step for step, 34 that were
+put together as the file assembled by hand. Then the tokenizer and the
+reverse polish were taken out, 428 lines to 417 with the new in.
+
+The proof: every platform built again and every file hashed. With forms
+and the text both in: 0 of 8,406 differ. With the text out: 6 differ, the
+one function on each target, `apps/system/netspeed/vops`, which shuffles
+its own instructions with `(random)`; built twice the same way it is the
+same. Nothing else.
+
+What the build said on the way, each mine: a name is a str too, to
+`(str?)`, so every name was compiled as words; a str that was a whole
+item was taken for text; and `0.01` in the text was its 16.16 bits as a
+whole number, 655, where the reader makes it a fixed.
+
+Run: lint clean, includes, imports, forward, check, nothing to say. Every
+module, 6,482 and 0 failed, on the M4, and on the x64 Mac and the Pi
+built there first, their boot images the length they were.
+
+Not done: its name, `vpx` is mine and one word to change. The pages that
+show braces say so at the top of the two that are about it and are not
+rewritten. Stages 3 to 5, where the code it makes gets better.
+
+And: the Storage window is not to be sized, Chris: "No point having the
+storage app resizeable".
+
+------
+
 **LoongArch and RISC-V: the kernel did not build, the passes of the assembler never ended.**
 
 Found by me, building every platform for a baseline before any work on

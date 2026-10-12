@@ -25,13 +25,13 @@
 		(long regs_vops memory_vops reals_vops start end cnt))
 
 	(push-scope)
-	(entry {this, args})
+	(entry (vpx this args))
 
 	(errorif-lisp-args-sig 'error :r1 0)
 
 	;reg ops test
-	(call :host_os :pii_time :nil {start})
-	(assign {0} {cnt})
+	(call :host_os :pii_time :nil (vpx start))
+	(assign (vpx 0) (vpx cnt))
 	(loop-start)
 
 		;this mix allows up to oct issue opportunities !
@@ -77,18 +77,18 @@
 		(loop-until `(,loop = 1000))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil {end})
-		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
-	(loop-until {end >= 100000})
-	(call :num :create {1000000 * cnt / end} {regs_vops})
+		(call :host_os :pii_time :nil (vpx end))
+		(assign (vpx (- end start) (+ (* 1000 1000) cnt)) (vpx end cnt))
+	(loop-until (vpx (>= end 100000)))
+	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx regs_vops))
 
 	;memory ops test
-	(call :host_os :pii_time :nil {start})
-	(assign {0} {cnt})
+	(call :host_os :pii_time :nil (vpx start))
+	(assign (vpx 0) (vpx cnt))
 	(loop-start)
 
 		(vp-rdef (loop r1 r2 r3 r4))
-		(assign {&mem1, &mem2} `(,r1 ,r2))
+		(assign (vpx (& mem1) (& mem2)) `(,r1 ,r2))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
 			(test-block 1000
@@ -112,14 +112,14 @@
 		(loop-until `(,loop = 1000))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil {end})
-		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
-	(loop-until {end >= 100000})
-	(call :num :create {1000000 * cnt / end} {memory_vops})
+		(call :host_os :pii_time :nil (vpx end))
+		(assign (vpx (- end start) (+ (* 1000 1000) cnt)) (vpx end cnt))
+	(loop-until (vpx (>= end 100000)))
+	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx memory_vops))
 
 	;reals ops test
-	(call :host_os :pii_time :nil {start})
-	(assign {0} {cnt})
+	(call :host_os :pii_time :nil (vpx start))
+	(assign (vpx 0) (vpx cnt))
 	(loop-start)
 
 		(vp-rdef (loop r1 r2 r3 r4))
@@ -141,21 +141,21 @@
 		(loop-until `(,loop = 100))
 		(call :sys_task :sleep '(0))
 
-		(call :host_os :pii_time :nil {end})
-		(assign {end - start, 24 * 100 + cnt} {end, cnt})
-	(loop-until {end >= 100000})
-	(call :num :create {1000000 * cnt / end} {reals_vops})
+		(call :host_os :pii_time :nil (vpx end))
+		(assign (vpx (- end start) (+ (* 24 100) cnt)) (vpx end cnt))
+	(loop-until (vpx (>= end 100000)))
+	(call :num :create (vpx (/ (* 1000000 cnt) end)) (vpx reals_vops))
 
-	(call :list :create :nil {args})
-	(call :list :push_back2 {args, regs_vops, memory_vops})
-	(call :list :push_back {args, reals_vops})
+	(call :list :create :nil (vpx args))
+	(call :list :push_back2 (vpx args regs_vops memory_vops))
+	(call :list :push_back (vpx args reals_vops))
 
-	(exit {this, args})
+	(exit (vpx this args))
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error {args, "(vops)", +error_msg_wrong_types})
+	(jump :lisp :repl_error (vpx args "(vops)" +error_msg_wrong_types))
 	(signature '()))
 
 	(pop-scope-syms)

@@ -57,14 +57,14 @@
 	;%0 = in parameters
 	(cond
 		((not %0))
-		((str? %0) (assign (slice +vp_rregs_0_14 0 (length (split %0 ","))) %0))
+		((script? %0) (assign (slice +vp_rregs_0_14 0 (length (script-items %0))) %0))
 		((assign (slice +vp_rregs_0_14 0 (length %0)) %0))))
 
 (defun l-exit (%0)
 	;%0 = out parameters
 	(cond
 		((not %0))
-		((str? %0) (assign %0 (slice +vp_rregs_0_14 0 (length (split %0 ",")))))
+		((script? %0) (assign %0 (slice +vp_rregs_0_14 0 (length (script-items %0)))))
 		((assign %0 (slice +vp_rregs_0_14 0 (length %0))))))
 
 ;;;;;;;;;;;;;;;;;;
@@ -161,12 +161,12 @@
 		(:t ;l-call
 			(cond
 				((not %1))
-				((str? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (split %1 ",")))))
+				((script? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (script-items %1)))))
 				((assign %1 (slice +vp_rregs_0_14 0 (length %1)))))
 			(vp-call %0)
 			(cond
 				((not %2))
-				((str? %2) (assign (slice +vp_rregs_0_14 0 (length (split %2 ","))) %2))
+				((script? %2) (assign (slice +vp_rregs_0_14 0 (length (script-items %2))) %2))
 				((assign (slice +vp_rregs_0_14 0 (length %2)) %2))))))
 
 (defun jump (%0 %1 &optional %2 %3)
@@ -374,12 +374,12 @@
 	;%2 = out parameters
 	(cond
 		((not %1))
-		((str? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (split %1 ",")))))
+		((script? %1) (assign %1 (slice +vp_rregs_0_14 0 (length (script-items %1)))))
 		((assign %1 (slice +vp_rregs_0_14 0 (length %1)))))
 	(vp-call %0)
 	(cond
 		((not %2))
-		((str? %2) (assign (slice +vp_rregs_0_14 0 (length (split %2 ","))) %2))
+		((script? %2) (assign (slice +vp_rregs_0_14 0 (length (script-items %2))) %2))
 		((assign (slice +vp_rregs_0_14 0 (length %2)) %2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;

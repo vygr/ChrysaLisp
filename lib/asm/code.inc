@@ -17,7 +17,7 @@
 
 (defun gotoif (e l)
 	(bind '(d o s) (cond
-		((str? e) (assign e '(:r0)) '(:r0 /= 0))
+		((script? e) (assign e '(:r0)) '(:r0 /= 0))
 		(e)))
 	(defq e (find o '(= /= <= >= > <)))
 	(case (assign-src-type s)
@@ -31,7 +31,7 @@
 
 (defun gotoifnot (e l)
 	(bind '(d o s) (cond
-		((str? e) (assign e '(:r0)) '(:r0 /= 0))
+		((script? e) (assign e '(:r0)) '(:r0 /= 0))
 		(e)))
 	(defq e (find o '(/= = > < <= >=)))
 	(case (assign-src-type s)
