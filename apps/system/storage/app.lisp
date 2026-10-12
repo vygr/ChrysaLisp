@@ -30,8 +30,9 @@
 ;		it and keeps it: a gopher that gets there goes no further.
 ;		Again, and it is pinned nowhere
 ;	Tree	a new store of five, with room, and every file of the
-;		ChrysaLisp folder is put in it at one of them, as a stream,
-;		then read back as a stream and compared: ./tree.lisp
+;		ChrysaLisp folder is put in it, as a stream, by a farm of
+;		workers, at all the members at once, each file at the next
+;		of them, then read back as a stream and compared: ./tree.lisp
 ;	Step	the members look at each other only when told, and then,
 ;		each press, the next of them looks: it compares notes with
 ;		the others, fetches what is its to keep, lets go of what is not
@@ -361,9 +362,8 @@
 					(say name " is pinned at " (first member) ": it fetches all of it and keeps it. Send a gopher."))))))
 
 (defun action-tree ()
-	;a new store with room, and the folder this was started in is put in
-	;it at one of the members, by a task of its own that says how it goes
-	;Of a store that is not a demo, it is put at this system's own member
+	;the folder this was started in is put in the store, by a task of its
+	;own that says how it goes: of a demo, a new one with room
 	(when *tree* (mail-send *tree* "stop") (setq *tree* :nil))
 	(when *demo*
 		;five stores with room are some seconds in the making, said first
@@ -371,13 +371,13 @@
 		(demo-stop)
 		(setq *big* :t)
 		(demo-start))
-	(when (nempty? (defq at (if *demo* (running)
-			(if (defq mine (storage-service)) (list (list "this machine" mine)) (list)))))
-		(defq member (elem-get at (random (length at))))
+	;put at all the members there are, each in turn, by a farm of workers
+	(when (nempty? (defq at (running)))
 		(setq *tree* (open-child "apps/system/storage/tree.lisp" +kn_call_run))
-		(mail-send *tree* (join (list (hex-encode (elem-get *select* +select_tree)) (hex-encode (second member)) "." "tree/")
-			(ascii-char 10)))
-		(say (if *demo* "A store of five with room. " "") "Every file of this folder is being put at " (first member) ".")))
+		(mail-send *tree* (join (list (hex-encode (elem-get *select* +select_tree)) "." "tree/"
+			(join (map (# (hex-encode (second %0))) at) " ")) (ascii-char 10)))
+		(say (if *demo* "A store of five with room. " "") "Every file of this folder is being put, at all "
+			(str (length at)) " members at once.")))
 
 (defun tree-said (msg)
 	;how the putting and the reading back are going

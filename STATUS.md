@@ -4,6 +4,36 @@
 
 ------
 
+**Storage: the tree is put by a farm, at all the members at once.**
+
+Chris: "in the Tree demo, is the puttin done serialy ? ... Would/Could it
+work using a Farm of workers each putting in a file as jobs ? like any
+other jobs demo ?" It was one task and one file at a time, at one member.
+"yes, build it, farm across ALL the members !"
+
+`apps/system/storage/tree.lisp` is now `(Jobs)`, a job a file, a farm of
+two workers a member on the nodes of this machine,
+`apps/system/storage/tree_child.lisp`, each file put at the next member in
+turn, and when all are in, each a job again to be read back as a stream at
+the member it was put at and compared. The watcher asks the members all at
+once and waits 1.5 s for them at the most.
+
+With no screen, on eight nodes, five members: 1,976 of 1,976 put in 10 s,
+the same read back in 6 s, 159MB, written by the five 396, 395, 395, 395
+and 395. One at a time it was 66 s and 122 s. An earlier run of mine said
+35 s and 121 s, and 5 not put: its own stores, 256MB each, were in the
+folder it was putting.
+
+Seen by him on the desktop: "Beautiful watching this demo now."
+
+Known, and next: while it runs the members are too busy to say how they
+are, the watcher had one answer in 16 s. Each tender fetches the whole
+path map from each other member at every look and each merge writes the
+whole map. He said to do both: only what changed is exchanged, and what
+is learnt from another member is not written at once.
+
+------
+
 **check: brackets that do not pair.**
 
 A bracket of mine was dropped in `apps/system/storage/watch.lisp`. A file

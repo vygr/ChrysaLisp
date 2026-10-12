@@ -26,7 +26,9 @@
 
 ;how often it looks, at the most, and how many blocks of an object the
 ;app has room to draw
-(defq +rate 500000 +columns 115)
+(defq +rate 500000 +columns 115
+	;how long, in all, the members are waited for at a look
+	+patience 1500000)
 
 (defun name-key (name)
 	;a name and the number it ends with, so that 2 is before 10
@@ -50,11 +52,20 @@
 		(and (defq mine (storage-service)) (defq info (storage-info mine))
 			(setq there (filter (# (eql (third %0) (. info :find :id))) there))))
 	(sort there (# (cmp (first %0) (first %1))))
-	(defq members (map (lambda ((id where &ignore))
-			(defq info (storage-info where) state (storage-state where))
-			(list id where (if info (. info :find :blocks) 0) (if state (. state :find :cut) (list))
-				(if state (. state :find :digest) "")))
-		there)
+	;each is asked how it is, all of them at once, and not waited for
+	;past a time: one that is busy is slow to say, and is then as it last
+	;said it was
+	(defq asked (map (lambda ((id where &ignore))
+			(list (storage-send where +storage_type_info) (storage-send where +storage_type_state))) there)
+		by (+ (pii-time) +patience)
+		members (map (lambda ((id where &ignore) (info_box state_box))
+			(defq info (storage-info-read (mail-read-timeout info_box (max 1000 (- by (pii-time)))))
+				state (storage-state-read (mail-read-timeout state_box (max 1000 (- by (pii-time)))))
+				was (ifn (. *last* :find id) (list 0 (list) "")))
+			(. *last* :insert id (defq is (list (if info (. info :find :blocks) (first was))
+				(if state (. state :find :cut) (second was)) (if state (. state :find :digest) (third was)))))
+			(cat (list id where) is))
+		there asked)
 		objects *objects* names (list) changed :nil now (pii-time))
 	;what each has, asked again only of one that is not as it was, and
 	;when there is a lot of it not at every look: (digest entries paths)
@@ -62,10 +73,13 @@
 		(setq *listed* now)
 		(each (lambda ((id where blocks cut digest))
 			(unless (and (defq had (. *seen* :find id)) (eql (first had) digest))
-				(defq entries (ifn (storage-list "" where) (list)) paths (Fmap 1021))
-				(each (# (. paths :insert (first %0) (elem-get %0 +store_entry_hash))) entries)
-				(. *seen* :insert id (list digest entries paths))
-				(setq changed :t)))
+				;one that does not say in the time is as it was, and is asked again
+				(when (defq answer (storage-ask where +storage_type_list "" 3))
+					(defq entries (map (const store-entry-read) (filter (const nempty?) (split answer +storage_lf)))
+						paths (Fmap 1021))
+					(each (# (. paths :insert (first %0) (elem-get %0 +store_entry_hash))) entries)
+					(. *seen* :insert id (list digest entries paths))
+					(setq changed :t))))
 			members)
 		(unless (= (length members) *members*) (setq changed :t *members* (length members))))
 	(when changed
@@ -75,14 +89,14 @@
 				(unless (. known :find (first entry))
 					(. known :insert (first entry) :t)
 					(push keyed (list (name-key (first entry)) entry))))
-				(second (. *seen* :find id))))
+				(second (ifn (. *seen* :find id) (list "" (list) (Fmap 1))))))
 			members)
 		(sort keyed (lambda ((one &ignore) (two &ignore))
 			(if (eql (first one) (first two)) (- (second one) (second two)) (cmp (first one) (first two)))))
 		(setq objects (map (const second) keyed) *objects* objects
 			*who* (map (lambda (entry)
 				(map (lambda ((id &ignore))
-					(if (defq theirs (. (third (. *seen* :find id)) :find (first entry)))
+					(if (defq theirs (and (defq had (. *seen* :find id)) (. (third had) :find (first entry))))
 						(if (eql theirs (elem-get entry +store_entry_hash)) :t :differs)))
 					members))
 				objects)))
@@ -96,7 +110,8 @@
 		;an object is made of does not change, so the last one is kept
 		(cond
 			((eql hash (first *made_of*)) (setq names (second *made_of*)))
-			((defq text (some (lambda ((id where &ignore)) (storage-block-at hash where)) members))
+			((defq text (some (lambda ((id where &ignore))
+					(and (defq data (storage-ask where +storage_type_block_get hash 2)) (eql (sha256 data) hash) data)) members))
 				(defq lines (filter (const nempty?) (split text (ascii-char 10))))
 				(setq names (cat (list hash) (map (const hex-decode) (slice lines 2 -1))) *made_of* (list hash names)))))
 	(list members objects names))
@@ -116,8 +131,9 @@
 	;the object, and is to be seen
 	(bind '(members objects names) (look))
 	(defq total (length names) body (apply (const cat) (cat (list "") names))
-		has (map (lambda ((id where &ignore))
-			(if (empty? names) "" (ifn (storage-ask where +storage_type_has body 3) ""))) members)
+		asked (map (lambda ((id where &ignore)) (if (nempty? names) (storage-send where +storage_type_has body))) members)
+		by (+ (pii-time) +patience)
+		has (map (# (if %0 (ifn (mail-read-timeout %0 (max 1000 (- by (pii-time)))) "") "")) asked)
 		fewest (length members) most 0)
 	(each (lambda (col)
 		(defq keepers (length (filter (# (and (< col (length %0)) (eql (elem-get %0 col) "1"))) has)))
@@ -132,7 +148,8 @@
 (defun main ()
 	(defq reply (hex-decode (mail-read (task-mbox))) going :t
 		*group* +storage_group *demo* :nil *path* :nil *entry* :nil *changed* :nil *index* (Fmap 11)
-		*seen* (Fmap 11) *listed* 0 *objects* (list) *who* (list) *members* 0 *made_of* (list :nil (list)))
+		*seen* (Fmap 11) *listed* 0 *objects* (list) *who* (list) *members* 0 *made_of* (list :nil (list))
+		*last* (Fmap 11))
 	(while going
 		(defq t0 (pii-time) snap (catch (snapshot) :t))
 		;the list first, if it is not as it was, then the look
