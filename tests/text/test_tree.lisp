@@ -130,6 +130,25 @@
 	(tt-check "args" "(map (# (<< 1 (!))) slots)" "(. m :each (# (print 1)))" "(each! (# (f)) (list a b))" "(sort l (# 0))"
 		"(map (# (inc %0)) slots)" "(map (lambda (x) 1) slots)" "(defmacro m (p) `(each (# (f ,p)) s))"
 		"(each! (# (f)) '() 0 9)" "(filter (# (g (# %0))) l)" "(f (# (g)))"))
+;(relies), where a function goes by more than is declared of what it calls:
+;a function made up, as an assembled one is left. It calls :sys_mem :alloc,
+;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,
+;and then reads :r1, which it was given, :r2, which it was not, and :r3,
+;which is not trashed
+(defq tt_probe "obj/vp/tests/scratch_relies_probe")
+(save (cat "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
+	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-cpy-cr 5 :r2)" tt_lf "(emit-cpy-cr 6 :r3)" tt_lf
+	"(emit-call-p _7)" tt_lf "(emit-add-rr :r1 :r0)" tt_lf "(emit-add-rr :r2 :r0)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf
+	"(emit-xor-rr :r4 :r4)" tt_lf "(emit-ret)" tt_lf
+	"(emit-label '_6)" tt_lf "(emit-label '_7)" tt_lf "(emit-long (- _8 *pc*))" tt_lf
+	"(emit-label '_8)" tt_lf "(emit-string \qsys/mem/alloc\q)" tt_lf "(emit-byte 0)" tt_lf "(emit-label '_9))" tt_lf) tt_probe)
+(defq tt_said (list))
+(pipe-run "relies -v tests/scratch_relies_probe" (# (push tt_said %0)))
+(assert-true "relies: a register read after a call declared to trash it and not give it is said; not one it gives, one it leaves, nor one made 0 by itself"
+	(or (found? (join tt_said "") "tests/scratch_relies_probe (4): after sys/mem/alloc, :r2")
+		;the classes are read under a lock, which another test may hold too long
+		(found? (join tt_said "") "The classes could not be read")))
+(pii-remove tt_probe)
 (assert-list-eq "bracket: more opened than closed, and more closed than opened; not one in a str or a comment"
 	'("(1) bracket: 1 not closed by the end of the file")
 	(tt-check "bracket" "(defq a (list 1 2)" "{a ) str} ;a ) comment"))

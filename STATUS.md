@@ -4,6 +4,78 @@
 
 ------
 
+**`relies`: where code goes by more than is declared of what it calls. 28 places.**
+
+Chris, after the crash of the entry before last: "If it helps us, then
+we could make the extend the array path of :push_back/2 save the
+registers it use in that path. Make the lint the truth there, and make
+the code that uses the knowledge of the :destroy's no longer do so ... I
+think I need to outgrow my emotional attachment to the register
+scrounging I did here from the games days", and "we should do this the
+correct way."
+
+Lint says a function trashes no more than is declared. It does not say
+that what calls it reads no register the declaration lets it trash. That
+is what broke: a destroy that used a register it was declared to trash
+and never had.
+
+* `cmd/relies.lisp`, new. Each function as assembled, which registers
+  are wanted after each instruction, worked backwards from its end by
+  what each instruction reads and writes; a call reads what its method
+  takes and writes what it gives and trashes. A register wanted after a
+  call, declared to be trashed by it and not given by it, is a place.
+  `relies -v` lists them.
+* `lib/asm/assembled.inc`, new: the reading of a function from `obj/vp/`
+  and where control goes, out of `cmd/locals.lisp`, for both.
+* `lib/files/info.inc` keeps what a method is declared to take and give,
+  `:dec_inputs` `:dec_outputs`: what it had was made what the function's
+  comment says, and one function is many methods.
+* A test of it in `tests/text/test_tree.lisp`, a function made up: one
+  register it is given, one it is not, one that is left, one made 0.
+
+The 28, by what is called, and what I make of those I have read:
+
+* `class/obj/deref`, 4 places, `:r0` or `:r1`: `class/lisp/init` twice,
+  `lisp_qquote`, `class/list/lisp_pivot`. Not read yet.
+* `class/list/create`, `:r1`, in `class/hmap/init` and `class/hset/init`:
+  they give `:r1` as their "it went well", and it is whatever the create
+  of the list left there. Read: real.
+* `class/str/create_from_buffer`, `:r5`, in `lisp_lower` and
+  `lisp_upper`: the length, kept in `:r5` over the call. Read: real.
+* `gui/view/forward_tree`, `:r7` `:r8` `:r12`, in `hit_tree` and
+  `lisp_flatten`: what the callbacks they give it work on, carried
+  through it in registers. Read: real, and of another kind, it is the
+  caller's own callbacks that the declaration can not know.
+* `sys/mem/fill`, `:r1`, in `gui/pixmap/init`: its "it went well" is
+  what the fill left. Read: real.
+* `sys/mail/free`, `:r2`, in `service/net/conn`: read after the free
+  though it is in a local as well. Read: real, or a fault.
+* `class/list/append`, `:r6`, in `class/array/lisp_push`. Read: real.
+* `sys/mem/alloc`, `:r2`, in `sys/mem/calloc`: pushed and popped and
+  never used. Read: nothing leans on it.
+* `sys/pii/exit` in `sys/load/load`: it does not come back. Nothing.
+* The rest not read: `:stream :read_next` in `class/lisp/read`;
+  `gui/texture/create` in `lisp_shade`; `gui/region/remove_region` and
+  `service/gui/composite` in the compositor; `sys/task/sleep` and
+  `:callback` in the net service; `sys/mail/read` in the kernel; three
+  creates in `class/lisp/init`.
+
+It took six goes to get from 41 places to these, each a thing my check
+had wrong and not the code: a register cleared against itself read as a
+read; a host call's first register read as read when it is written;
+what a method gives taken from the comment of a function that is five
+methods; a create that declares nothing given; a static method given the
+inputs of the class above; a function that is two methods, a create and
+a vcreate, given the inputs of the wrong one.
+
+What it does not see: a function that is not a method, nothing is
+declared of it; floats; and what is wanted where a function ends is
+only what it is declared to give.
+
+Not done: none of the 28 is changed yet.
+
+------
+
 **`:obj :destroy`, and so a deref, trashes three registers where it trashed fifteen. 190 functions trash less for it.**
 
 Chris, when `locals -c` put `:obj :deref` at the top of what costs its

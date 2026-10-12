@@ -203,6 +203,11 @@
 									:trashes "none"
 									:declared declared
 									:declared_own declared_own
+									;what it takes and gives as it is declared here, "none"
+									;if not said: :inputs and :outputs are made what the
+									;function's comment says, and a function may be many methods
+									:dec_inputs dec_inputs
+									:dec_outputs dec_outputs
 									:dec_file file
 									:dec_line (dec (second node))))
 								(if (defq f_entry (. func_db :find dec_func_name))
