@@ -4,6 +4,39 @@
 
 ------
 
+**Whiteboard: the marks of the instruments are of the paper, and their 0 goes to its lines.**
+
+Chris asked, as trivia, "Did the white rulers measures match the background
+ticks ? 10mm is 10mm." They did not: a ruler's millimetre was 5 units and
+the grid 32. "We should make the Ruler's and other markings on the
+instruments match up with the background marks, it could be 2x the
+background grid, but the lines should match up." "Clearly the inches don't
+line up !" "The zoom always stops at a known visual standard level. it's
+only an effect..." Then: "yes, snap the 0 mark to the grid when snap is
+on", and, trying it: "The snap corner and the rotation cneter of the
+SetSquers should be the 0 scale corner."
+
+`lib/cwb/tools.inc`: a millimetre of any instrument is a tenth of the
+document's grid, `(:mm)`; each has a `:zero`, put on a line of the paper
+each way when it is moved with the snap on, `(:snap_zero)`; a set square
+turns about its square corner and is sized from it. The "cm" of a ruler
+is moved, the 1 is where it was.
+
+I looked at it drawn, a ruler, a protractor and a set square over lines
+at the grid and its half, with `cwb -o`: 0 to 10 on the lines.
+
+Run: the Whiteboard modules, 628 and 0 failed, on the M4, the x64 Mac and
+the Pi. Ten are new, two said the old spacing and one that a set square
+is sized about its middle.
+
+Seen by him on the desktop: "Works great and the canvas marking match up
+is good."
+
+Not done: one new from the palette is not on the lines till it is first
+moved. A ruler made longer by its 0 end is not put on them again.
+
+------
+
 **Storage: only what is new is told, and what is learnt is written later.**
 
 I said what the farm showed and what two changes would mend it, and Chris

@@ -156,6 +156,9 @@
 (enums +tool_state 0
 	(enum what part edge x y origin angle length shape near turned last_angle last_x last_y))
 
+;how many squares of the paper's grid a centimetre of an instrument's marks is
+(defq +tool_grid_cm 1.0)
+
 (defclass Instrument (board x y) (Actor)
 	; (Instrument board x y) -> instrument
 	;what every instrument is. One of a kind sets :length, how big it is,
@@ -176,6 +179,8 @@
 	;	:glyphs		((what x y [angle]) ...), where the sign of a part is
 	;				drawn, so that it is seen what the part is for. A
 	;				part other than :move is drawn too, a shade darker
+	;	:zero		(x y), the 0 of its marks, what is put on a line of the
+	;				paper when the board's snap is on, (:snap_zero)
 	;	:readouts	((x y [turn]) ...), where the angle it is turned to
 	;				is written, in degrees, the way a protractor counts,
 	;				up from level. One with a turn is written turned by
@@ -188,6 +193,21 @@
 		:size (/ 1.0 (n2f (ifn (get :zoom board) 1.0)))
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
 		:mode :line :body :nil :regions :nil :zones :nil :grab :nil :dotted :nil)
+
+	(defmethod :mm ()
+		; (. instrument :mm) -> num
+		;how far a millimetre of its marks is. The marks are of the paper:
+		;a centimetre is so many squares of the document's grid, so where
+		;the zoom rests a mark of the instrument can lie on a line of the
+		;paper, and the next on the next. Chris: "We should make the
+		;Ruler's and other markings on the instruments match up with the
+		;background marks, it could be 2x the background grid, but the
+		;lines should match up." An instrument is the size it is on the
+		;screen whatever the zoom, and the lines of the paper, where the
+		;zoom rests, are the grid apart on the screen and half of it. The
+		;inches of a ruler are inches by these, and lie on no line
+		(defq board (get :board this) doc (and board (. board :get_doc)))
+		(/ (* +tool_grid_cm (n2f (ifn (and doc (. doc :find :grid)) 32))) 10.0))
 
 	(defmethod :rebuild ()
 		; (. instrument :rebuild) -> instrument
@@ -262,6 +282,21 @@
 		(bind '(ox oy) (get :origin this))
 		(Mat3x2-mul (Mat3x2-translate ox oy)
 			(Mat3x2-mul (Mat3x2-rot (get :angle this)) (Mat3x2-scale (get :size this)))))
+
+	(defmethod :snap_zero ()
+		; (. instrument :snap_zero) -> instrument
+		;with the snap of the board on, it is moved the little it takes to
+		;have the 0 of its marks, :zero, on a line of the paper each way: a
+		;ruler's 0, the middle of a protractor's straight side, the square
+		;corner of a set square. Its marks are of the paper, (:mm), so with
+		;the 0 on a line, and it level or upright, each centimetre is on
+		;one. Chris: "yes, snap the 0 mark to the grid when snap is on"
+		(defq board (get :board this) zero (def? :zero this) step (if board (get :snap board) 0.0))
+		(when (and zero (/= step 0.0))
+			(bind '(zx zy) (. this :to_board (first zero) (second zero)))
+			(bind '(ox oy) (get :origin this))
+			(def this :origin (list (+ ox (- (board-snap zx step) zx)) (+ oy (- (board-snap zy step) zy)))))
+		this)
 
 	(defmethod :to_own (x y)
 		; (. instrument :to_own x y) -> (x y)
@@ -398,6 +433,7 @@
 			(:move
 				(when (and (= (. this :held) 1) (not (get :grab this)))
 					(def this :origin (list (+ (first origin) (- x sx)) (+ (second origin) (- y sy))))
+					(. this :snap_zero)
 					(. board :touch +board_dirty_overlay)))
 			(:turn
 				(when (and (= (. this :held) 1) (not (get :grab this)))
@@ -426,10 +462,17 @@
 					(def this :origin (list (+ (first origin) (* half c)) (+ (second origin) (* half s))))
 					(. board :touch +board_dirty_overlay))
 				(when (and (= (. this :held) 1) (not (get :grab this)) (/= (length (third region)) 1))
-					;by how much further from its middle the pointer is
+					;by how much further from its middle the pointer is. The 0
+					;of its marks stays where it is on the board: a set square
+					;with its square corner on a point is made bigger from it
 					(defq d0 (max 1.0 (sqrt (+ (* (- sx (first origin)) (- sx (first origin))) (* (- sy (second origin)) (- sy (second origin))))))
-						d1 (sqrt (+ (* (- x (first origin)) (- x (first origin))) (* (- y (second origin)) (- y (second origin))))))
-					(. this :set_extent (* length (/ d1 d0)))))))
+						d1 (sqrt (+ (* (- x (first origin)) (- x (first origin))) (* (- y (second origin)) (- y (second origin)))))
+						zero (def? :zero this) was (if zero (. this :to_board (first zero) (second zero))))
+					(. this :set_extent (* length (/ d1 d0)))
+					(when (and was (defq zero (def? :zero this)))
+						(bind '(zx zy) (. this :to_board (first zero) (second zero)))
+						(bind '(ox oy) (get :origin this))
+						(def this :origin (list (+ ox (- (first was) zx)) (+ oy (- (second was) zy)))))))))
 
 	(defmethod :end (stage event state)
 		; (. instrument :end stage event state)
@@ -571,9 +614,8 @@
 ; the ruler
 ;;;;;;;;;;;
 
-;a ruler is that high, each end of it is that wide, and a millimetre of its
-;marks is that far, a centimetre is ten of them
-(defq +ruler_height 80.0 +ruler_cap 26.0 +tool_mm 5.0)
+;a ruler is that high, and each end of it is that wide
+(defq +ruler_height 80.0 +ruler_cap 26.0)
 
 (defclass Ruler (board x y) (Instrument board x y)
 	; (Ruler board x y) -> ruler
@@ -616,7 +658,7 @@
 		;Inches along the bottom side, in sixteenths, from its right end,
 		;and written the other way up: the bottom is the top turned half
 		;round about the middle, to be read from the other side
-		(defq inch (* 25.4 +tool_mm) ticks (list (tool-ticks (neg inset) top inset top 0.0 1.0 +tool_mm))
+		(defq mm (. this :mm) inch (* 25.4 mm) ticks (list (tool-ticks (neg inset) top inset top 0.0 1.0 mm))
 			n 0 at 0.0 flip (lambda (shape x y)
 				;words, about their own middle, turned half round, and put at a point
 				(elem-set shape +cwb_m (Mat3x2-mul (Mat3x2-translate x y) (Mat3x2-mul (Mat3x2-rot +fp_pi) (elem-get shape +cwb_m))))
@@ -631,15 +673,17 @@
 		(setq n 0 at 0.0)
 		(while (< at (- (* 2.0 inset) 6.0))
 			(push marks (cwb-text-mid (str n) (+ (neg inset) at (if (= n 0) 6.0 0.0)) (+ top 22.0) :font_size 13))
-			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
+			(setq n (inc n) at (+ at (* 10.0 mm))))
 		;what each side is in, by its 0
-		(push marks (cwb-text-mid "cm" (+ (neg inset) 26.0) (+ top 23.0) :font_size 10))
+		;under the numbers, past the hole by the end: the 1 is a square of
+		;the paper along from the 0, where it was
+		(push marks (cwb-text-mid "cm" (+ (neg inset) 50.0) (+ top 35.0) :font_size 10))
 		(push marks (flip (cwb-text-mid "in" 0 0 :font_size 10) (- inset 24.0) (- bot 23.0)))
 		;the angle it is at, either side of its middle, the one for who
 		;reads the top side and the one for who reads the bottom
 		;The one that is the right way up is on the left, where reading starts
 		(def this :readouts (list (list -44.0 0.0) (list 44.0 0.0 +fp_pi)))
-		(def this :marks marks)
+		(def this :marks marks :zero (list (neg inset) top))
 		this)
 	)
 
@@ -719,11 +763,12 @@
 		(push ticks "M" (neg r) 0 "L" r 0 "M" 0 base "L" 0 -14 "M" 0 (neg in0) "L" 0 (- (* by 53.0) r))
 		;out from the middle both ways, so the middle is on a long mark and
 		;stays on it as the protractor is made bigger or smaller
-		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 +tool_mm 3.0 5.0 8.0)
-				" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 +tool_mm 3.0 5.0 8.0))
+		(defq mm (. this :mm))
+		(push marks (cwb-shape (cat (tool-ticks 0.0 base across base 0.0 -1.0 mm 3.0 5.0 8.0)
+				" " (tool-ticks 0.0 base (neg across) base 0.0 -1.0 mm 3.0 5.0 8.0))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(def this :marks marks :readouts (list (list 0.0 (* -0.4 r))))
+		(def this :marks marks :readouts (list (list 0.0 (* -0.4 r))) :zero (list 0.0 0.0))
 		this)
 	)
 
@@ -778,7 +823,7 @@
 		(each (lambda ((c s)) (push ticks "M" (* in1 c) (* in1 s) "L" (* (- r (* by 53.0)) c) (* (- r (* by 53.0)) s)))
 			'((1.0 0.0) (0.0 1.0) (-1.0 0.0) (0.0 -1.0)))
 		(push marks (cwb-shape (apply (const cwb-d) ticks) :stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
-		(def this :marks marks :readouts (list (list 0.0 (* 0.16 r))))
+		(def this :marks marks :readouts (list (list 0.0 (* 0.16 r))) :zero (list 0.0 0.0))
 		this)
 	)
 
@@ -792,9 +837,9 @@
 	;:length is its longest square side, the other is that times :ratio,
 	;one over the root of 3, so its corners are 30, 60 and 90 degrees.
 	;(Setsquare45) has a ratio of 1, and two corners of 45. The two sharp corners
-	;turn it about its middle, the square by its square corner makes it
-	;bigger or smaller, and so does the strip along each side, where its
-	;numbers are. Its middle moves it. Its two square sides are
+	;turn it about its square corner, the square by its square corner makes
+	;it bigger or smaller, and so does the strip along each side, where its
+	;numbers are, and the square corner stays where it is as it does. Its middle moves it. Its two square sides are
 	;marked in millimetres from the square corner, and its long side from
 	;a little below its top corner, numbered in centimetres
 	(def this :length 360.0 :min_length 200.0 :max_length 2000.0 :ratio 0.57735)
@@ -828,8 +873,12 @@
 			:parts (list
 				(list :close (cwb-d-ellipse 0 0 11))
 				(list :size (cwb-d-rect (+ ax 28.0) (- ay 62.0) (+ ax 62.0) (- ay 28.0)))
-				(list :turn (corner bx by ax ay cx cy))
-				(list :turn (corner cx cy ax ay bx by))
+				;each sharp corner turns it about the square corner, the 0 of
+				;the marks of its two square sides, which stays where it is.
+				;Chris: "The snap corner and the rotation cneter of the
+				;SetSquers should be the 0 scale corner."
+				(list :turn (corner bx by ax ay cx cy) ax ay)
+				(list :turn (corner cx cy ax ay bx by) ax ay)
 				;from a side in, as a ruler: a pen close on the side draws.
 				;Then the strip along each side, where its marks and numbers
 				;are, makes it bigger or smaller. Then its middle moves it.
@@ -847,9 +896,10 @@
 		;down from its top corner to a little short of the other, as a
 		;ruler's are in from its ends: at a sharp corner a mark would go
 		;out through the other side
-		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 +tool_mm)
-				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 +tool_mm)
-				" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux +tool_mm))
+		(defq mm (. this :mm))
+		(push marks (cwb-shape (cat (tool-ticks ax ay (- bx 30.0) by 0.0 -1.0 mm)
+				" " (tool-ticks ax ay cx (+ cy 30.0) 1.0 0.0 mm)
+				" " (tool-ticks (+ cx (* 40.0 ux)) (+ cy (* 40.0 uy)) (- bx (* 40.0 ux)) (- by (* 40.0 uy)) (neg uy) ux mm))
 			:stroke 0xff000000 :width 0.8 :cap1 :butt :cap2 :butt))
 		;what a set square has: the hole in its middle, the same shape, the
 		;arc of each sharp corner with its angle, and the mark of a square corner
@@ -863,15 +913,15 @@
 		(defq mid_b (+ +fp_pi (* 0.5 angle_b)) mid_c (+ angle_b (* 0.5 angle_c)))
 		(push marks (cwb-text-mid (str deg_b) (+ bx (* 1.0 arc_b (cos mid_b))) (+ by (* 1.0 arc_b (sin mid_b))) :font_size 12))
 		(push marks (cwb-text-mid (str (- 90 deg_b)) (+ cx (* 1.4 arc_c (cos mid_c))) (+ cy (* 1.4 arc_c (sin mid_c))) :font_size 12))
-		(defq n 1 at (* 10.0 +tool_mm))
+		(defq n 1 at (* 10.0 mm))
 		(while (< at (- w 60.0))
 			;no number where a corner has its arc and its angle
 			(if (< at (* 0.72 w)) (push marks (cwb-text-mid (str n) (+ ax at) (- ay 22.0) :font_size 12)))
 			(if (< at (* 0.72 h)) (push marks (cwb-text-mid (str n) (+ ax 22.0) (- ay at) :font_size 12)))
 			(if (< at (- long 110.0))
 				(push marks (cwb-text-mid (str n) (+ cx (* ux (+ at 40.0)) (* -22.0 uy)) (+ cy (* uy (+ at 40.0)) (* 22.0 ux)) :font_size 12)))
-			(setq n (inc n) at (+ at (* 10.0 +tool_mm))))
-		(def this :marks marks :readouts (list (list -14.0 17.0)))
+			(setq n (inc n) at (+ at (* 10.0 mm))))
+		(def this :marks marks :readouts (list (list -14.0 17.0)) :zero (list ax ay))
 		this)
 	)
 

@@ -252,7 +252,8 @@
 (assert-true "dragged out by its outer scale, half as far again from its middle, it is half as big again"
 	(and (wt-near? (get :length wt_pro) 540.0 0.5) (wt-near? (get :origin wt_pro) '(400 300) 0.01)))
 (assert-list-eq "seen no bigger, it is made bigger: its round side is of that radius, and the marks of its straight side are as far apart, to further out"
-	'(1 270 5 265) (progn (defq wt_base (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
+;a millimetre is a tenth of a square of the paper, 3.2 of a grid of 32
+	'(1 270 3 265) (progn (defq wt_base (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
 			(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))))
 		(list (n2i (get :size wt_pro)) (n2i (elem-get (first (get :edges wt_pro)) 3))
 			(n2i (elem-get wt_base 4)) (n2i (reduce (# (max %0 (first %1))) (partition wt_base 4) 0.0)))))
@@ -276,11 +277,13 @@
 (assert-true "a pen run round the round side and on down past its 0 draws an arc that stops at its 0" (wt-near? y1 301.5 0.6))
 ;the marks of its straight side are out from its middle
 (defq wt_found (list))
-(each (lambda ((x y x1 y1)) (if (find (n2i x) '(0 50 -50)) (push wt_found (list (n2i x) (n2i (abs (- y y1)))))))
+;to the nearest whole one: a tenth of 32 is not a number a fixed is
+(defun wt-round (x) (n2i (floor (+ x 0.5))))
+(each (lambda ((x y x1 y1)) (if (find (wt-round x) '(0 32 -32)) (push wt_found (list (wt-round x) (n2i (abs (- y y1)))))))
 	(partition (map (# (n2f (str-to-num %0))) (filter (# (not (find %0 '("M" "L"))))
 		(split (cwb-get (elem-get (get :marks wt_pro) -3) :d) " "))) 4))
 (assert-list-eq "the marks of its straight side have a long one at its middle and at each centimetre from it"
-	'((-50 8) (0 8) (0 8) (50 8)) (sort wt_found (# (- (first %0) (first %1)))))
+	'((-32 8) (0 8) (0 8) (32 8)) (sort wt_found (# (- (first %0) (first %1)))))
 ;the angle it is at is written on it
 (def wt_pro :angle 0.0)
 (assert-eq "level, a protractor says 0" "0" (. wt_pro :degrees))
@@ -326,8 +329,11 @@
 	(list (wt-set-part -110 0) (wt-set-part -85 -30) (wt-set-part 60 -20) (wt-set-part 20 10)))
 (. wt_stage :add wt_set)
 (wt-go '(0 :mouse 4 440 360)) (wt-go '(0 :mouse 4 460 390)) (wt-go '(0 :mouse 0 460 390))
-(assert-true "dragged out by the strip of its bottom side, half as far again from its middle, it is half as big again, where it is"
-	(and (wt-near? (get :length wt_set) 540.0 8.0) (wt-near? (get :origin wt_set) '(400 300) 0.01)))
+;its square corner, the 0 of its marks, stays where it is on the board
+(assert-true "dragged out by the strip of its bottom side, half as far again from its middle, it is half as big again, and its square corner is where it was"
+	(and (wt-near? (get :length wt_set) 540.0 8.0)
+		(wt-near? (apply (lambda (x y) (. wt_set :to_board x y)) (get :zero wt_set)) '(280 369.282) 0.05)))
+(def wt_set :origin (list 400.0 300.0))
 (assert-true "its marks are as far apart as they were, and it has more numbers on its sides"
 	(> (length (get :marks wt_set)) (progn (defq wt_n (length (get :marks wt_set))) (. wt_set :set_extent 360.0) (length (get :marks wt_set)))))
 (. wt_stage :sub wt_set)
@@ -553,3 +559,59 @@
 (assert-eq "none of it between the catch and the side" 0 (hv-ink 300 257 500 260))
 (assert-eq "and none below its bottom side, the pen is not at that one" 0 (hv-ink 300 342 500 358))
 (assert-eq "and none round the protractor, no pen is near it" 0 (hv-ink 450 370 800 599))
+
+;the marks of an instrument are of the paper: a centimetre is a square of
+;the document's grid, so a mark can lie on a line and the next on the next
+(defq wt_gb (Board (cwb-doc 800 600)) wt_gr (Ruler wt_gb 400 300))
+(assert-true "a millimetre of a ruler is a tenth of the grid of its document" (wt-near? (list (. wt_gr :mm) 0.0) '(3.2 0.0) 0.001))
+(. (. wt_gb :get_doc) :insert :grid 40)
+(. wt_gr :rebuild)
+(assert-true "and of another grid, a tenth of that" (wt-near? (list (. wt_gr :mm) 0.0) '(4.0 0.0) 0.001))
+
+;with the snap of the board on, a ruler that is moved has the 0 of its marks on a line of the paper
+(def wt_gb :snap 20.0)
+(def wt_gr :origin (list 400.0 300.0) :angle 0.0)
+(defq wt_gs (. wt_gb :get_stage))
+(. wt_gs :add wt_gr)
+(defun wt-zero (tool) (apply (lambda (x y) (. tool :to_board x y)) (get :zero tool)))
+(defun wt-on-line? (v step) (< (abs (- v (board-snap v step))) 0.01))
+(defun wt-gb-go (&rest events) (. wt_gb :pointers (map (# (apply (const ptr-event) %0)) events)))
+;by its middle, clear of the sign in the middle of it
+(wt-gb-go '(0 :mouse 4 460 296)) (wt-gb-go '(0 :mouse 4 497 307))
+(bind '(wt_zx wt_zy) (wt-zero wt_gr))
+(assert-true "moved with the snap on, the 0 of a ruler is on a line across and a line down" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+(assert-true "and it has gone about as far as the hand, no further than half a step from it"
+	(and (< (abs (- (first (get :origin wt_gr)) 437.0)) 10.01) (< (abs (- (second (get :origin wt_gr)) 311.0)) 10.01)))
+(wt-gb-go '(0 :mouse 4 511 318))
+(bind '(wt_zx wt_zy) (wt-zero wt_gr))
+(assert-true "moved on, it is on a line still" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+(wt-gb-go '(0 :mouse 0 511 318))
+;turned, its 0 is still what is put on the lines
+(def wt_gr :angle 0.6)
+(. wt_gr :snap_zero)
+(bind '(wt_zx wt_zy) (wt-zero wt_gr))
+(assert-true "turned, the 0 is on a line each way still" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+;with the snap off it goes where it is put
+(def wt_gb :snap 0.0)
+(def wt_gr :origin (list 403.3 301.7) :angle 0.0)
+(. wt_gr :snap_zero)
+(assert-true "with the snap off it is where it was put" (wt-near? (get :origin wt_gr) '(403.3 301.7) 0.001))
+;a protractor's is the middle of its straight side, a set square's its square corner
+(def wt_gb :snap 20.0)
+(defq wt_gp (Protractor wt_gb 407 303) wt_gq (Setsquare wt_gb 409 297))
+(. wt_gp :built) (. wt_gq :built)
+(. wt_gp :snap_zero) (. wt_gq :snap_zero)
+(assert-true "a protractor's middle is put on a line each way" (wt-near? (get :origin wt_gp) '(400 300) 0.01))
+(bind '(wt_zx wt_zy) (wt-zero wt_gq))
+(assert-true "and the square corner of a set square" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+
+;a sharp corner of a set square turns it about its square corner, which stays where it is
+(def wt_gb :snap 0.0)
+(def wt_gq :origin (list 400.0 300.0) :angle 0.0)
+(. wt_gs :add wt_gq)
+(defq wt_c0 (apply (lambda (x y) (. wt_gq :to_board x y)) (get :zero wt_gq))
+	wt_tb (apply (lambda (x y) (. wt_gq :to_board x y)) (slice (first (filter (# (eql (first %0) :turn)) (get :glyphs wt_gq))) 1 3)))
+(wt-gb-go (list 0 :mouse 4 (first wt_tb) (second wt_tb))) (wt-gb-go (list 0 :mouse 4 (first wt_tb) (- (second wt_tb) 60.0)))
+(wt-gb-go (list 0 :mouse 0 (first wt_tb) (- (second wt_tb) 60.0)))
+(assert-true "turned by a sharp corner, it is turned" (> (abs (get :angle wt_gq)) 0.05))
+(assert-true "and its square corner is where it was" (wt-near? (apply (lambda (x y) (. wt_gq :to_board x y)) (get :zero wt_gq)) wt_c0 0.05))

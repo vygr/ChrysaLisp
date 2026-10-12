@@ -529,8 +529,26 @@ is there. Chris: "Instrument move with the whell, that's definately not
 wanted." So when the pan or the zoom is another, each instrument's place
 in the document and its `:size` are made what keeps it so, `(tools-held)`
 and `(tools-hold)`, and a new one is made the size it is on the screen at
-the zoom there is. Its marks are then of the screen: a ruler's
-millimetres are a real ruler's on the glass, not the document's.
+the zoom there is. Its marks are then of the screen, not the document's.
+
+And of the paper. Chris: "We should make the Ruler's and other markings on
+the instruments match up with the background marks, it could be 2x the
+background grid, but the lines should match up." The zoom rests only at
+its standard levels, "it's only an effect" between them, and there the
+lines of the paper are the document's grid apart on the screen, with a
+fainter one at each half. So a millimetre of an instrument's marks is a
+tenth of the grid, `(. instrument :mm)`, `+tool_grid_cm` squares of the
+paper to a centimetre, 1: a centimetre on each line and 5 millimetres on
+each fainter one, which is what the snap goes to. The inches of a ruler
+are inches by that and lie on no line.
+
+Each instrument has a `:zero`, the 0 of its marks: a ruler's centimetre 0,
+the middle of a protractor's straight side, the square corner of a set
+square. With the board's snap on, an instrument that is moved has its
+zero put on a line each way, `(:snap_zero)`. A set square is turned about
+its square corner, and made bigger or smaller from it, Chris: "The snap
+corner and the rotation cneter of the SetSquers should be the 0 scale
+corner."
 
 An instrument that no hand has hold of and none of which shows is put
 away, `(tools-cull)`, each tick. It is how one is thrown away, and it is
