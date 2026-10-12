@@ -35,7 +35,7 @@ parsed to a fixed object. You can specify the base with a prefix of `0b`, `0x`
 or `0o` for binary, hex or octal. Fixed's parsed during `(read)` are interned
 in a similar manner to symbols.
 
-The CScript compiler can operate on this format directly using the `*>` and
+The vpx compiler can operate on this format directly using the `*>` and
 `</` operators. These operators represent a multiply followed by an arithmetic
 shift right by `+fp_shift` bits and a shift left by `+fp_shift` bits followed
 by a divide.

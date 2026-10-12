@@ -1,7 +1,7 @@
 ---
 name: chrysalisp
 display-name: ChrysaLisp
-description: Use when writing, reviewing, or modifying ChrysaLisp code (Lisp .lisp/.inc, VP assembler .vp, CScript). Covers idioms, primitives, and architecture.
+description: Use when writing, reviewing, or modifying ChrysaLisp code (Lisp .lisp/.inc, VP assembler .vp, vpx). Covers idioms, primitives, and architecture.
 ---
 
 # ChrysaLisp Coding Skill
@@ -35,7 +35,7 @@ Reference files, in this folder, read on demand:
 
 *	**[vp-assembler.md](vp-assembler.md)**
 	Read before touching a `.vp` file. Registers, method boilerplate,
-	`gen-create` / `gen-type` headers, `assign` and CScript memory rules, field
+	`gen-create` / `gen-type` headers, `assign` and vpx memory rules, field
 	helpers, raw VP loops, calling conventions, and the lowering workflow.
 
 Sections of this file:
@@ -60,7 +60,7 @@ Sections of this file:
 	Mandatory for any Lisp code. A one line summary of each of the 23 rules.
 	The full text is in `lisp-disciplines.md`.
 
-*	**[Virtual Processor (VP) Assembler & CScript Guide](#virtual-processor-vp-assembler--cscript-guide)**
+*	**[Virtual Processor (VP) Assembler & vpx Guide](#virtual-processor-vp-assembler--vpx-guide)**
 	What the VP guide covers. The guide itself is in `vp-assembler.md`.
 
 *	**[Numerical Representations & Systems](#numerical-representations--systems)**
@@ -112,7 +112,7 @@ organized by category:
 	transformations, flow-through, and built-ins (`14–20`).
 
 *	**Advanced Lisp:** Dual vtables, closure-less design, O(1) calling,
-	modules, REPL/JIT, and CScript compiler (`21–28`).
+	modules, REPL/JIT, and vpx compiler (`21–28`).
 
 *	**Data Types & Streams:** Numerics, text parsing, regexps, streams, pipes,
 	and slicing (`29–36`).
@@ -379,7 +379,7 @@ each rule and worked examples of the right and wrong way. In short:
 	Bind inside the predicate that uses the value, order tests for the fastest
 	failure, and put the `(and ...)` straight in the `cond` test.
 
-## Virtual Processor (VP) Assembler & CScript Guide
+## Virtual Processor (VP) Assembler & vpx Guide
 
 Before you write or change a `.vp` file, read
 [vp-assembler.md](vp-assembler.md) in full. It covers:
@@ -390,14 +390,14 @@ Before you write or change a `.vp` file, read
 
 *	Generated Function Headers (`gen-create`, `gen-type`)
 
-*	The `assign` Macro & CScript Memory Rules
+*	The `assign` Macro & vpx Memory Rules
 
 *	Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`,
 	`assign-fields`)
 
-*	Raw VP Loop Optimization (Bypassing CScript in Hot Paths)
+*	Raw VP Loop Optimization (Bypassing vpx in Hot Paths)
 
-*	Mixed VP Assembler & CScript Syntax Duality
+*	Mixed VP Assembler & vpx Syntax Duality
 
 *	Calling Conventions & Register Introspection
 

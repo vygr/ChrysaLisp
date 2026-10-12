@@ -26,7 +26,7 @@ To understand how ChrysaLisp achieves this, we look at the Virtual Processor
 
 When a condition is tested, the system calls `:repl_eval` on the test form. The
 evaluated result is immediately stored in the active state register (mapped to a
-C-Script variable like `value`).
+vpx variable like `value`).
 
 If the branch is taken, ChrysaLisp calls `:repl_progn` to execute the body of
 the clause. Crucially, `:repl_progn` takes this `value` register as an *input

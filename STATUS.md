@@ -4,6 +4,35 @@
 
 ------
 
+**C-Script is vpx in the docs too, and `locals` says what registers would save.**
+
+Chris: "We need to change the CScript doc to vpx.md and change the
+mentions of CSript in the other .md's and README.md". `docs/vm/cscript.md`
+is `docs/vm/vpx.md`, `docs/ai_digest/cscript_compiler.md` and
+`cscript_skills.md` are `vpx_compiler.md` and `vpx_skills.md`, the diagram
+`cscript_pipeline` is `vpx_pipeline`, and 22 pages that named it or linked
+to those say vpx. Functions the pages named that are gone, the tokenizer
+and the reverse polish of text, are said to be gone; `cscript-compile` is
+`vpx-compile`, `(cscript)` is `(script-compile)`. One mention is kept, in
+`docs/vm/vpx.md`, so the old name can be found. A helper of mine did the
+pass, I read what it reported and its changes to the README.
+
+Not done in those pages: `vpx_compiler.md` and `vp_assignment.md` still
+tell of strings split on commas in the parts that say how it was, and the
+diagram's `.cwb` was moved, not made again.
+
+`cmd/locals.lisp`, before the next stage of the compiler, Chris: "We should
+do the full compiled vpx ?": what keeping named locals in registers would
+come to if a call leaves no register as it was. Reads of the stack 2,083
+to 1,263, writes 1,225 to 939, a third less; only 49 of 89 functions have
+a register nothing else in them uses for each local wanted at once. So
+the prize is in knowing what a call leaves alone, and the trashes are to
+be declared with the method, Chris: "yes, declare the trashes in the
+method declaration itself". The test of `locals` has the two new numbers,
+worked out by hand.
+
+------
+
 **Storage: the dial, how many members keep the blocks of a path.**
 
 Chris: "yes, build the per path copies dial". The question was whether

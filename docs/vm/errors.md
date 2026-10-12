@@ -67,7 +67,7 @@ Well that brings up other issues !
 At the VP level you're not dealing with signed or unsigned values, you're
 dealing with registers and YOU treat them as signed or unsigned. You're not
 getting a compiler to manipulate them with `vp-asr-cr` vs `vp-shr-cr` based on
-the type you declared ! The CScript level compiler will do this, but at the VP
+the type you declared ! The vpx level compiler will do this, but at the VP
 level it's baked in by YOU !
 
 Can you even check for the type of a register input ? NO, it's not possible. At

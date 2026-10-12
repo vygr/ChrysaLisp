@@ -67,7 +67,7 @@ field (inherited from the `:num` class), scaled appropriately.
 * **Usage:** Extensively used by the `Canvas` class drawing operations for
 coordinates, and its internal operations are conducted in this format.
 
-* **CScript Integration:** The CScript compiler supports direct operations on
+* **vpx Integration:** The vpx compiler supports direct operations on
 `:fixed` values using the `*>` (fixed-point multiply) and `</` (fixed-point
 divide) operators.
 
@@ -211,7 +211,7 @@ useful for intermediate calculations without repeated allocations.
 **Vectorized Operations (VP Level)**
 
 The real power of these typed arrays comes from their associated VP class
-methods, which are implemented in highly optimized VP assembly or CScript.
+methods, which are implemented in highly optimized VP assembly or vpx.
 These methods operate directly on the raw numeric data within the vectors.
 
 * **VP Classes:** `class/nums/class.inc`, `class/fixeds/class.inc`,

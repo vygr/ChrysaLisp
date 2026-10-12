@@ -58,7 +58,7 @@ There are three primary build modes:
   stack overflows occur during heavy recursion or deep call chains.
 
 To accomplish this seamlessly at the VP assembler level, ChrysaLisp uses
-specific C-Script/Lisp macros defined in `lib/asm/code.inc`:
+specific vpx/Lisp macros defined in `lib/asm/code.inc`:
 
 * `(errorcase ...)`: Emits the enclosed code block only if `*build_mode* >= 1`.
 

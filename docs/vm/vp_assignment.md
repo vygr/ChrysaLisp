@@ -4,17 +4,17 @@
 braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
 is `(vpx a b)`. The examples on this page are written that way. Where the
 words say "string", read "`(vpx)` form". The table of what each operator
-became is in [`cscript_compiler.md`](../ai_digest/cscript_compiler.md),
+became is in [`vpx_compiler.md`](../ai_digest/vpx_compiler.md),
 "Forms, not strings".*
 
 This document covers how the `(assign)` function is used to copy parameter
 lists, provide easy access to resource binding operators and invoke the
-C-Script expression compiler to extend basic VP level coding of functions.
+vpx expression compiler to extend basic VP level coding of functions.
 
 The `(assign src dst)` function takes source and destination parameters. These
 can be lists or strings, thus giving us four possible combinations. When a
-string is used this invokes the C-Script expression compiler, on that string,
-and this emits VP operations that evaluate that expression. The C-Script syntax
+string is used this invokes the vpx expression compiler, on that string,
+and this emits VP operations that evaluate that expression. The vpx syntax
 is a subset of C/C++ syntax that most C/C++ programmers will be familiar with.
 
 Assignment can be used directly by use of the `(assign)` function in your
@@ -23,7 +23,7 @@ source, but it is always used, under the hood, by functions like `(entry)`,
 calls are processed by an `(assign)` function within those functions.
 
 Remember that whenever you pass an input or take an output using a string
-parameter you will invoke the C-Script parser and compiler to generate code for
+parameter you will invoke the vpx compiler to generate code for
 you. When passing a list you will be using VP level or VP level helper
 operators to emit `(vp-cpy-xxx)` instructions for you.
 
@@ -135,9 +135,9 @@ Will emit:
 
 * @ function address reference
 
-## C-Script Assignment
+## vpx Assignment
 
-Passing a string parameter will invoke the C-Script parser and compiler ! This
+Passing a string parameter will invoke the vpx compiler ! This
 is where things start to get quite high level for an assembler ! This basic C
 style expression compiler is just an assembler macro set, you can look at the
 implementation in detail in the `lib/asm/vpx.inc` file. It's quite a
@@ -184,9 +184,9 @@ A special helper function `(return)` is provided that will emit any required
 `(vp-free)` along with a `(vp-ret)` instruction anywhere inside a nested set of
 `(push-scope)`, `(pop-scope)`.
 
-## C-Script Resource operators
+## vpx Resource operators
 
-You can add resource operator prefixes to your C-Script string parameters too.
+You can add resource operator prefixes to your vpx parameters too.
 These are in addition to the C/C++ style operators.
 
 ```vdu
@@ -198,7 +198,7 @@ These are in addition to the C/C++ style operators.
 	(assign (vpx (@ ,(f-path :num :vtable))) (vpx p_vtable))
 ```
 
-## C-Script function example
+## vpx function example
 
 This is the system level mailbox declaration function. `:sys_mail :declare`
 
@@ -241,7 +241,7 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 ```
 
 Here we have to declare the function as trashing all registers as use of the
-C-Script compiler could end up allocating and therefore invalidating any
+vpx compiler could end up allocating and therefore invalidating any
 register. We are also aliasing the name and id variables to do double duty to
 save some stack space and avoid a union ! Naughty maybe, but heck this is how
 we get the performance and why we write in assembler :)
@@ -250,7 +250,7 @@ The {} are just another way of declaring a string, like with "", just that {}
 allows embedded "" and via-versa. It's just a string in the end that gets
 passed to `(assign)`.
 
-The C-Script compiler emits all the code required to read and write the
+The vpx compiler emits all the code required to read and write the
 variables, with their correct data type.
 
 ## Errorcases and debug modes

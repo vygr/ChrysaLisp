@@ -44,7 +44,7 @@ task-centric memory model across its nodes:
 
 * **Zero-State Bootstrapping:** In the first fraction of a millisecond, each
   worker task evaluates `lib/asm/`, macro generators (`def-class`, `def-method`,
-  `assign`), register allocation tables, and CScript transpilers.
+  `assign`), register allocation tables, and vpx transpilers.
 
 * **RAM-Native Toolchains:** Within microseconds, 28 complete, fully
   functional native assembly engines are live in RAM across the 16-node
@@ -84,7 +84,7 @@ As soon as all compilation jobs finish and each worker task exits:
 
 * **Complete Toolchain Destruction:** Each worker task exits its
   `(within-compile-env ...)` block and terminates, destroying all local symbols,
-  macro tables, CScript variable scopes, and code-generation environments.
+  macro tables, vpx variable scopes, and code-generation environments.
 
 * **Immediate Heap Reclamation:** All ASTs, intermediate strings, and parser
   structures are dereferenced, and memory cells are returned to the allocator

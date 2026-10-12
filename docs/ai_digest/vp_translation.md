@@ -5,7 +5,7 @@
 The ChrysaLisp Virtual Processor (VP) is an imaginary 64-bit RISC-like
 processor. It serves as the primary compilation target for all ChrysaLisp
 code, whether written directly in VP assembly or generated from higher-level
-constructs like C-Script (via the `(assign)` macro).
+constructs like vpx (via the `(assign)` macro).
 
 The main purposes of the VP are:
 
@@ -77,7 +77,7 @@ docs/diagrams/vp_translate.cwb
 The process of going from ChrysaLisp source to native executable code
 involves several stages:
 
-1. **Lisp to VP Assembly:** High-level Lisp code, C-Script expressions
+1. **Lisp to VP Assembly:** High-level Lisp code, vpx expressions
    (within `(assign)`), and direct VP assembly macros (`(vp-add-rr ...)`)
    are processed by the ChrysaLisp assembler. This stage generates a list of
    VP instructions. These are Lisp lists, e.g., `(vp-add-rr :r0 :r1)`.
@@ -87,7 +87,7 @@ involves several stages:
    internal list (often `*emit_list*`, though this name is more prominent at
    the next stage).
 
-3. **CScript Optimization (if applicable):** If C-Script was used, its
+3. **vpx Optimization (if applicable):** If vpx was used, its
    generated VP instructions (still in the `(vp-xxx ...)` form) are
    optimized by `vpxopt.inc` (e.g., constant folding, offset folding).
 

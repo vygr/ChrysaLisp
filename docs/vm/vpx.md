@@ -1,32 +1,32 @@
-# C Script expression compiler
+# vpx expression compiler
 
 *From 2026-10-12 an expression is a form inside `(vpx ...)`, not a string in
 braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
 is `(vpx a b)`. The examples on this page are written that way. Where the
 words say "string", read "`(vpx)` form". The table of what each operator
-became is in [`cscript_compiler.md`](../ai_digest/cscript_compiler.md),
+became is in [`vpx_compiler.md`](../ai_digest/vpx_compiler.md),
 "Forms, not strings".*
 
-The C script idea came along after I had started changing things over to use
+The vpx idea, C-Script as it was called then, came along after I had started changing things over to use
 the new Lisp engine to replace the NASM assembler. Partly to show off the power
 that comes from having a Lisp as your macro assembler and partly to fulfill a
 need to simplify prototyping code without having to worry about register
 assignments and running out of registers etc.
 
-You can freely mix and match lower level VP code and CScript expressions
+You can freely mix and match lower level VP code and vpx expressions
 provided you follow the rules, those rules will become clear as we go through
 this document, but take a look at the `:canvas :fpoly` method to see what you
-can do ! That's a mixture of CScript, VP register defs and `(method-input)`
+can do ! That's a mixture of vpx, VP register defs and `(method-input)`
 calls !
 
-As discussed in the [`vp_assignment.md`](vp_assignment.md) document you call the CScript compiler
+As discussed in the [`vp_assignment.md`](vp_assignment.md) document you call the vpx compiler
 each time you use a string argument as an input or output to the `(assign)`
 function.
 
-The CScript compiler implementation files are `lib/asm/vpx.inc`,
+The vpx compiler implementation files are `lib/asm/vpx.inc`,
 `lib/asm/vpxopt.inc` and `lib/asm/scopes.inc`.
 
-So what does the CScript compiler do ? It consists of 4 phases:
+So what does the vpx compiler do ? It consists of 4 phases:
 
 * Tokenization of the expression.
 
@@ -37,7 +37,7 @@ So what does the CScript compiler do ? It consists of 4 phases:
 * Optimization of generated VP assembler.
 
 ```image
-docs/diagrams/cscript_pipeline.cwb
+docs/diagrams/vpx_pipeline.cwb
 ```
 
 I'm hoping this doc might demystify a few compiler things in general, but I'm
@@ -59,8 +59,9 @@ character by character and groups are created that represent particular types
 of token. A list of those tokens and their types is returned as the tokenizer
 output.
 
-`(cscript-tokenize line)` is the function that does this work. The types of
-output token are: `:symbol`, `:number`, `:string`, `:path`, `:label`, `:lrb`,
+This is how the text form worked before 2026-10-12. The tokenizer is gone,
+an expression is a form now and the reader does this work. The types of
+output token were: `:symbol`, `:number`, `:string`, `:path`, `:label`, `:lrb`,
 `:rrb`, `:lsb`, `:rsb` or `:operator`.
 
 Let's see a few simple example expressions and what they get tokenized into.
@@ -94,7 +95,9 @@ are taken into account in how you flatten the tree.
 The algorithm used here is the classic [`Shunting Yard
 Algorithm`](https://brilliant.org/wiki/shunting-yard-algorithm/).
 
-`(cscript-reverse-polish tokens)` is the function used to do the conversion.
+`(vpx-polish form)` is the function that does the conversion now, straight
+from the form. The pass over the tokens of the text, shown below, is how it
+worked before 2026-10-12 and is gone. What comes out is the same.
 
 Again let's see a few simple example expressions and what the reverse polish
 conversion does to them.
@@ -132,7 +135,7 @@ After you have converted your expression into reverse polish form the
 compilation is as simple as:
 
 ```file
-lib/asm/vpx.inc "defun cscript-compile" ""
+lib/asm/vpx.inc "defun vpx-compile" ""
 ```
 
 OK, that's a bit flippant. What the reverse polish stage did was to arrange
@@ -156,7 +159,7 @@ I have yet to get to the interesting bits though... better keep typing ;)
 
 ### Compilation stacks
 
-In order to compile the reverse polish output from the CScript expression stage
+In order to compile the reverse polish output from the vpx expression stage
 we use a stack of symbols and their associated type. By type I mean whether the
 register is holding a `ptr` or an `int` etc.
 
@@ -312,7 +315,7 @@ separator. What happens in that case is that each statement is compiled one
 after the other and the results build up on the compilation stack.
 
 This is extremely useful when we come to the way that the `(assign)` function
-uses this to exchange between CScript and VP level source !
+uses this to exchange between vpx and VP level source !
 
 Take another example:
 
@@ -370,7 +373,7 @@ representation of the loads, stores and computation into a stack of virtual
 virtual registers. What we then do on the output side of the `(assign)` is to
 drain that stack of virtual virtual registers.
 
-BUT, we could populate those stacks without using the CScript compiler ! The
+BUT, we could populate those stacks without using the vpx compiler ! The
 above so far has always been a Script to Script assignment. Both the source and
 drain code created by the compilation functions.
 
@@ -380,11 +383,11 @@ from VP methods. We have the ability to define symbol bindings for those `_vXX`
 symbols before we let the assembler see the list of VP instructions we have
 built up !
 
-A call to a VP method from CScript can gather the VP register inputs from the
+A call to a VP method from vpx can gather the VP register inputs from the
 `(method-input)` function and create a register map in order to create code
 that will use exactly the correct registers for that call, likewise you use
 `(method-output)` function to map output registers to a pre-loaded compiler
-stack that a CScript output can consume.
+stack that a vpx output can consume.
 
 This is what these register map functions provide.
 
@@ -395,7 +398,7 @@ lib/asm/vpx.inc "reset-reg-stack" "compile-deref"
 By default, if you don't provide a list of VP registers to `(def-reg-map)` it
 will use the full list of VP registers. If you do provide a list it will merge
 the full set with your provided list ! Your provided set will be at the front
-and take priority. This is also why use of the CScript compiler in general
+and take priority. This is also why use of the vpx compiler in general
 means you must accept that all VP registers may be trashed.
 
 Take a look at `(assign-script-to-asm)` now with fresh eyes and these ideas in
@@ -405,16 +408,16 @@ mind.
 lib/asm/assign.inc "assign-script-to-asm" ""
 ```
 
-* Split up the CScript expression by ",".
+* Split up the vpx expression by ",".
 
 * Test it matches the VP destination register list.
 
 * Reset the compiler register stack.
 
-* Compile each of the CScript expressions, forcing a `(compile-deref?)` on any
+* Compile each of the vpx expressions, forcing a `(compile-deref?)` on any
 hanging memory references.
 
-* Call the CScript optimizer to crunch down what we can.
+* Call the vpx optimizer to crunch down what we can.
 
 * Set the `_vXX` to `:rXX` bindings.
 

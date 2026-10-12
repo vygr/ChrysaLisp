@@ -1,12 +1,12 @@
-# CScript and VP LLM Skills
+# vpx and VP LLM Skills
 
 *From 2026-10-12 an expression is a form, `(vpx (+ (.> this +field) 1))`, not
 text in braces: see "Forms, not strings" in
-[`cscript_compiler.md`](cscript_compiler.md) for the table. The examples
+[`vpx_compiler.md`](vpx_compiler.md) for the table. The examples
 below show the braces it had. They mean what they meant.*
 
-To effectively write mixed CScript and lower-level VP register code, it is
-essential to understand what the CScript compiler produces and how it affects
+To effectively write mixed vpx and lower-level VP register code, it is
+essential to understand what the vpx compiler produces and how it affects
 manual register definitions and assignment code.
 
 ## Register Mapping vs. Variable Definition
@@ -98,18 +98,18 @@ matches a function's requirements:
 ; c --> :r4
 ```
 
-## Mixing CScript and VP Assembly
+## Mixing vpx and VP Assembly
 
 ### The `assign` Function
 
-The `(assign)` function allows you to invoke the CScript compiler, the VP-level
-auto-copy system, or both. Once mastered, you can use the CScript compiler to
+The `(assign)` function allows you to invoke the vpx compiler, the VP-level
+auto-copy system, or both. Once mastered, you can use the vpx compiler to
 handle significant "grunt work," such as managing the stack for spills and
 keeping track of allocations and deallocations.
 
 ### Load/Drain Patterns
 
-When you perform a call using CScript expressions for inputs and/or outputs, a
+When you perform a call using vpx expressions for inputs and/or outputs, a
 load/drain process occurs:
 
 ```vdu
@@ -125,23 +125,23 @@ statements:
 (assign (method-output :class :method) (vpx out_arg0 out_arg1))
 ```
 
-### CScript for Spills and Loads
+### vpx for Spills and Loads
 
-In mixed VP/CScript code, the most common use for the CScript `{}` string
+In mixed VP/vpx code, the most common use for vpx
 expressions is to handle spill and load code. Rather than manually using
 "(vp-cpy-ri :r0 :rsp offset)", you can simply use "(assign `(,r_val) {val})" and let
-CScript determine the correct copy instruction.
+vpx determine the correct copy instruction.
 
 ## Best Practices and Risks
 
 ### Register Clashes
 
-CScript produces simple stack-to-register code for basic spill and load
-operations. However, if you include complex math or field access, the CScript
+vpx produces simple stack-to-register code for basic spill and load
+operations. However, if you include complex math or field access, the vpx
 compiler will generate code using temporary registers, which could clash with
 your `(vp-rdef)` symbols. Keep expressions limited when mixing code.
 
-If you know that you are not keeping registers "live" across the CScript code,
+If you know that you are not keeping registers "live" across the vpx code,
 you can safely let the compiler handle more complex operations.
 
 ### Safe vs. Unsafe Expressions
@@ -168,7 +168,7 @@ you can safely let the compiler handle more complex operations.
 ### Shared Naming
 
 It is perfectly acceptable to name your register symbols the same as your
-CScript variables. This often simplifies development, as there is no conflict
+vpx variables. This often simplifies development, as there is no conflict
 between them inside the compiler or within `assign` statements.
 
 ```vdu
@@ -209,7 +209,7 @@ Or:
 
 ## Golden rules
 
-If it's enclosed in a `{}` it is a CScript stack variable ! If it's in a
+If it's inside a `(vpx)` it is a vpx stack variable ! If it's in a
 backticked list, or a free symbol, it is a `(vp-rdef)` symbol for a raw VP
 register number !
 
@@ -221,7 +221,7 @@ register number !
 (assign `((,this 64)) `(,args))
 ```
 
-**these are CScript `(def-vars)` stack slots** !
+**these are vpx `(def-vars)` stack slots** !
 
 ```vdu
 (vpx this args)

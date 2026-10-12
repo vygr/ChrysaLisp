@@ -221,8 +221,8 @@ directly. A vast number of built-in Lisp functions are actually FFI wrappers
 around performant VP code (see `class/lisp/root.inc` and various `lisp.vp`
 files).
 
-* **CScript and `(assign)`:** Lisp code, especially within VP function
-definitions, can use the `(assign)` macro, which can invoke the CScript
+* **vpx and `(assign)`:** Lisp code, especially within VP function
+definitions, can use the `(assign)` macro, which can invoke the vpx
 compiler for C-like expressions, bridging Lisp's symbolic manipulation with
 efficient, register-level code generation.
 
@@ -251,7 +251,7 @@ performance.
 * **Expressiveness:** Retains Lisp's powerful macros and functional
 programming capabilities, especially for sequence manipulation.
 
-* **System-Level Control:** FFI and CScript integration provide deep control
+* **System-Level Control:** FFI and vpx integration provide deep control
 and allow Lisp to be used for tasks traditionally reserved for C/C++.
 
 * **Modern Approach:** The design choices align well with the strengths of

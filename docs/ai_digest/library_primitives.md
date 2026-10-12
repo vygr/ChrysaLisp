@@ -1104,17 +1104,17 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 	signature introspection.
 
 *	**`push-scope` / `pop-scope` / `pop-scope-syms` / `scope-unwind` / `return`**:
-	CScript stack frame and scope management.
+	vpx stack frame and scope management.
 
-*	**`def-vars`**: Declares typed local variables in CScript scopes.
+*	**`def-vars`**: Declares typed local variables in vpx scopes.
 
 	*	`(def-vars [(type var ...)] ...)`
 
-*	**`assign` / `cscript`**: Assigns registers and compiles CScript expressions.
+*	**`assign` / `vpx`**: Assigns registers and compiles vpx expressions.
 
 	*	`(assign [src] [dst] [compiler_regs])`
 
-	*	`(cscript string)`
+	*	`(vpx expr ...)`
 
 *	**`vp-rdef` / `vp-fdef`**: Defines local VP integer and floating-point
 	register aliases.

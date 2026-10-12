@@ -157,7 +157,9 @@
 ;(locals), what a function's named locals cost: a function made up for it,
 ;as an assembled one is left in obj/vp/, with a frame of three, a, b and
 ;a struct s. a is read before the call, b after it, s has its address
-;taken, and the last write of a is of nothing that is read
+;taken, and the last write of a is of nothing that is read. Kept in
+;registers no call keeps: the read of a is of what was just written, and
+;only b has to be written before the call
 (defq tt_probe "obj/vp/tests/scratch_locals_probe")
 (save (cat "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _8 _9 4096)" tt_lf
 	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-cpy-ri :r0 :rsp 0)" tt_lf "(emit-cpy-ri :r1 :rsp 8)" tt_lf
@@ -169,6 +171,6 @@
 (defq tt_said (list))
 (pipe-run "locals -v -t 0 tests/scratch_locals_probe" (# (push tt_said %0)))
 (assert-eq "locals: the frame, its named locals, what is read and written, what could be registers, what is wanted after a call, and what is in memory"
-	"tests/scratch_locals_probe: frames 32 bytes, named locals 3, read 2 written 4, could be registers: read 2 written 3, of those wanted after a call: read 1 written 1, 1 are in memory, a struct or their address taken"
+	"tests/scratch_locals_probe: frames 32 bytes, named locals 3, read 2 written 4, could be registers: read 2 written 3, of those wanted after a call: read 1 written 1, 1 are in memory, a struct or their address taken, in registers a call does not keep: 1 reads less, 1 writes before calls, 2 wanted at once, 12 registers it does not use"
 	(first (split (join tt_said "") tt_lf)))
 (pii-remove tt_probe)

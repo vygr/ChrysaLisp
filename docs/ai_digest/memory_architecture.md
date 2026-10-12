@@ -290,7 +290,7 @@ absence of a GC:
 
 	* **VP Stack:** The underlying VP execution uses a traditional stack (`:rsp`)
 	  for its own function calls, local VP variables (if not register-allocated),
-	  and saving registers. CScript variables defined with `def-vars` are allocated
+	  and saving registers. vpx variables defined with `def-vars` are allocated
 	  on this VP stack.
 
 	* **Lisp "Stack Frames":** The chain of Lisp environments acts like a logical

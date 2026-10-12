@@ -1,11 +1,11 @@
-# CScript Compiler and the `assign` Statement
+# vpx Compiler and the `assign` Statement
 
-The CScript compiler is a lightweight expression compiler embedded in the
+The vpx compiler is a lightweight expression compiler embedded in the
 ChrysaLisp macro assembler. It allows C-style arithmetic and memory-access
 expressions to be written as strings inside VP assembler source and compiled
 directly to VP instructions. Its primary integration point is the `(assign)`
 function, which dispatches between four code-generation modes depending on
-whether its source and destination arguments are strings (CScript expressions)
+whether its source and destination arguments are strings (vpx expressions)
 or Lisp lists (raw VP register/memory descriptors).
 
 ## Forms, not strings (2026-10-12)
@@ -13,7 +13,7 @@ or Lisp lists (raw VP register/memory descriptors).
 An expression is no longer text in braces. It is a form, inside `(vpx ...)`:
 
 ```vdu
-(assign (vpx (+ (.> this +stream_bufp) len)) (vpx end))          ;as it was
+(assign {this->stream_bufp + len} {end})                   ;as it was
 (assign (vpx (+ (.> this +stream_bufp) len)) (vpx end))   ;as it is
 ```
 
@@ -113,7 +113,7 @@ task is the most of it, 221 of its 1,257 instructions.
 
 Implementation files:
 
-- `lib/asm/vpx.inc` - tokenizer, reverse-polish converter, code generator,
+- `lib/asm/vpx.inc` - form to reverse polish, code generator,
   operator table.
 
 - `lib/asm/vpxopt.inc` - peephole optimizer that post-processes the generated VP
@@ -129,12 +129,15 @@ Implementation files:
 The compiler transforms an expression string through four sequential phases.
 
 ```image
-docs/diagrams/cscript_pipeline.cwb
+docs/diagrams/vpx_pipeline.cwb
 ```
 
-### Phase 1 - Tokenization (`cscript-tokenize`)
+### Phase 1 - Tokenization (gone)
 
-`(cscript-tokenize line)` scans the expression character by character,
+This is how the text form worked before 2026-10-12. The tokenizer is gone,
+an expression is a form now and the reader does this work.
+
+The tokenizer scanned the expression character by character,
 classifying each run of characters into one of the following token types:
 
 - `:symbol` - identifier, constant name, or type-cast keyword (`int`, `ptr`,
@@ -170,9 +173,13 @@ The output of this phase is a pair of parallel lists: `out_tokens` and
 
 ---
 
-### Phase 2 - Reverse Polish Conversion (`cscript-reverse-polish`)
+### Phase 2 - Reverse Polish Conversion (`vpx-polish`)
 
-`(cscript-reverse-polish tokenize_output)` implements the classic Shunting
+`(vpx-polish form)` makes the reverse polish from the form now. The pass
+over the tokens of the text, described here, is how it worked before
+2026-10-12 and is gone. What comes out is the same.
+
+The old pass implemented the classic Shunting
 Yard Algorithm to reorder the flat token stream into Reverse Polish Notation
 (RPN), respecting operator precedence and associativity.
 
@@ -201,9 +208,9 @@ ordering. The result is again a pair of parallel lists (`out_tokens`,
 
 ---
 
-### Phase 3 - Code Generation (`cscript-compile`)
+### Phase 3 - Code Generation (`vpx-compile`)
 
-`(cscript-compile rpn_output)` iterates the RPN lists and dispatches each
+`(vpx-compile rpn_output)` iterates the RPN lists and dispatches each
 token to a compile function:
 
 - `:number` calls `(compile-const)`, emits `vp-cpy-cr` and pushes a `:nil`
@@ -476,7 +483,7 @@ Precedence 14 - grouping only, consumed entirely by the RPN stage:
 ## The `assign` Statement
 
 `(assign src dst)` is the central code-generation statement of the VP assembler.
-Both `src` and `dst` can independently be either a string (CScript expression)
+Both `src` and `dst` can independently be either a string (vpx expression)
 or a list (VP register/memory descriptors). The four resulting combinations each
 call a different internal function.
 
@@ -495,7 +502,7 @@ The dispatch logic in `assign`:
 ### Mode 1 - ASM to ASM (`assign-asm-to-asm`)
 
 Both `src` and `dst` are Lisp lists of VP register/memory descriptors. No
-CScript compilation takes place. The function:
+vpx compilation takes place. The function:
 
 - Filters out ignored pairs where the destination equals the source, or
   destination is `_`.
@@ -547,7 +554,7 @@ Source type codes returned by `(assign-src-type)`:
 
 ### Mode 2 - Script to ASM (`assign-script-to-asm`)
 
-`src` is a CScript string and `dst` is a list of VP destination registers.
+`src` is a vpx string and `dst` is a list of VP destination registers.
 
 - `src` is split on `,` to produce one sub-expression per destination.
 
@@ -556,7 +563,7 @@ Source type codes returned by `(assign-src-type)`:
 - `(reset-reg-stack 0)` initialises a fresh empty virtual register stack and
   empty instruction list.
 
-- Each sub-expression is compiled with `(cscript)` followed by
+- Each sub-expression is compiled with `(script-compile)` followed by
   `(compile-deref?)` to ensure any pending memory reference is resolved to a
   value register.
 
@@ -574,7 +581,7 @@ Source type codes returned by `(assign-src-type)`:
 
 ### Mode 3 - ASM to Script (`assign-asm-to-script`)
 
-`src` is a list of VP source registers and `dst` is a CScript string
+`src` is a list of VP source registers and `dst` is a vpx string
 describing stores.
 
 - `dst` is split on `,` and filtered for `"_"` ignores.
@@ -582,7 +589,7 @@ describing stores.
 - `(reset-reg-stack (length src))` pre-fills the virtual register stack with
   one `:nil` slot per source register so the compiler sees pre-loaded values.
 
-- Each destination sub-expression is compiled with `(cscript)` and then
+- Each destination sub-expression is compiled with `(script-compile)` and then
   `(compile-arrow)` to emit the store.
 
 - The optimizer runs, then `(def-reg-map (reverse src) %2)` binds the virtual
@@ -594,7 +601,7 @@ describing stores.
 
 ### Mode 4 - Script to Script (`assign-script-to-script`)
 
-Both `src` and `dst` are CScript strings. This is the pure CScript path.
+Both `src` and `dst` are vpx strings. This is the pure vpx path.
 
 - `src` is split on `,` and `dst` is split on `,` and trimmed.
 
@@ -602,7 +609,7 @@ Both `src` and `dst` are CScript strings. This is the pure CScript path.
 
 - `(reset-reg-stack 0)` starts a fresh stack.
 
-- All source sub-expressions are compiled in order with `(cscript)`, building
+- All source sub-expressions are compiled in order with `(script-compile)`, building
   up the virtual register stack with all results.
 
 - The destination sub-expressions are compiled in reverse order with `(reach)`,
@@ -615,7 +622,7 @@ Both `src` and `dst` are CScript strings. This is the pure CScript path.
 
 ## Multiple Expressions and the `,` Separator
 
-A single CScript string may contain multiple independent sub-expressions
+A single vpx string may contain multiple independent sub-expressions
 separated by `,`. Each sub-expression is compiled sequentially and its result
 is pushed onto the virtual register stack independently. This allows:
 
@@ -630,7 +637,7 @@ computed values.
 
 ## Virtual Register Lifetime and Real Register Binding
 
-Throughout phases 1 through 4 the CScript compiler uses only the symbolic
+Throughout phases 1 through 4 the vpx compiler uses only the symbolic
 names `_v0` through `_v14`. No real VP register names appear in the generated
 instruction list. The binding step `(def-reg-map)` happens after optimization:
 
@@ -650,7 +657,7 @@ instruction list. The binding step `(def-reg-map)` happens after optimization:
 - Each `_vN` symbol is bound in the assembler environment to the Nth register
   from that merged list.
 
-This is why any use of the CScript compiler implicitly allows all VP registers
+This is why any use of the vpx compiler implicitly allows all VP registers
 to be clobbered. The compiler can allocate any register it needs. If the caller
 must preserve specific registers they must be saved and restored explicitly in
 surrounding VP code.
@@ -695,7 +702,7 @@ output:
 	(return))
 ```
 
-This is the primary mechanism for inspecting what code the CScript compiler
+This is the primary mechanism for inspecting what code the vpx compiler
 generates for a given expression.
 
 ## Summary of Key Source Locations
@@ -703,17 +710,17 @@ generates for a given expression.
 Tokenizer:
 
 - File: `lib/asm/vpx.inc`
-- Function: `cscript-tokenize`
+- Function: gone 2026-10-12, the reader does it
 
 Reverse polish conversion:
 
 - File: `lib/asm/vpx.inc`
-- Functions: `cscript-reverse-polish`
+- Functions: `vpx-polish`
 
 Main compile loop:
 
 - File: `lib/asm/vpx.inc`
-- Functions: `cscript-compile`, `cscript`
+- Functions: `vpx-compile`, `vpx-form`, `script-compile`
 
 Virtual register stack:
 

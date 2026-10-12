@@ -122,10 +122,10 @@ Deeper understanding of how Lisp works in ChrysaLisp:
 26. **[Exceptions](docs/ai_digest/exceptions.md)** - The ChrysaLisp exceptions
     mechanism.
 
-27. **[CScript Compiler](docs/ai_digest/cscript_compiler.md)** - The CScript
+27. **[vpx Compiler](docs/ai_digest/vpx_compiler.md)** - The vpx
     compiler architecture and the assign statement.
 
-28. **[CScript Skills](docs/ai_digest/cscript_skills.md)** - Mixing CScript and
+28. **[vpx Skills](docs/ai_digest/vpx_skills.md)** - Mixing vpx and
     VP assembly: register mapping, stack management, and load/drain patterns.
 
 ## Data Types and Processing

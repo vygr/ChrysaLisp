@@ -1,4 +1,4 @@
-# ChrysaLisp VP Assembler & CScript Guide
+# ChrysaLisp VP Assembler & vpx Guide
 
 Part of the `chrysalisp` skill. Read this in full before writing or changing a
 `.vp` file.
@@ -11,13 +11,13 @@ Part of the `chrysalisp` skill. Read this in full before writing or changing a
 
 *	[Generated Function Headers (`gen-create`, `gen-type`)](#generated-function-headers-gen-create-gen-type)
 
-*	[The `assign` Macro & CScript Memory Rules](#the-assign-macro--cscript-memory-rules)
+*	[The `assign` Macro & vpx Memory Rules](#the-assign-macro--vpx-memory-rules)
 
 *	[Field Helpers & Sorted Memory Transfers (`load-fields`, `save-fields`, `assign-fields`)](#field-helpers--sorted-memory-transfers-load-fields-save-fields-assign-fields)
 
-*	[Raw VP Loop Optimization (Bypassing CScript in Hot Paths)](#raw-vp-loop-optimization-bypassing-cscript-in-hot-paths)
+*	[Raw VP Loop Optimization (Bypassing vpx in Hot Paths)](#raw-vp-loop-optimization-bypassing-vpx-in-hot-paths)
 
-*	[Mixed VP Assembler & CScript Syntax Duality](#mixed-vp-assembler--cscript-syntax-duality)
+*	[Mixed VP Assembler & vpx Syntax Duality](#mixed-vp-assembler--vpx-syntax-duality)
 
 *	[Calling Conventions & Register Introspection](#calling-conventions--register-introspection)
 
@@ -84,17 +84,17 @@ class, add these headers too, with `;none` as the trashes, and let
 header when the class's `:vcreate` is declared with different inputs to its
 `:create`, as both map to the one function and the scanner checks each.
 
-## The `assign` Macro & CScript Memory Rules
+## The `assign` Macro & vpx Memory Rules
 
 `(assign ...)` evaluates expressions, moves data, and loads/stores memory
 simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 
 *	**Typed Declarations:** Define stack variables with `(def-vars ...)`.
 	Supported types include `ptr`, `pubyte`, `long`, `uint`, etc.
-	Dereferencing `{*src_ptr}` generates appropriate byte or word transfers
+	Dereferencing `(vpx (* src_ptr))` generates appropriate byte or word transfers
 	based on variable type.
 
-*	**CScript Scope Discipline (CRITICAL):**
+*	**vpx Scope Discipline (CRITICAL):**
 
 	*	Open scope with `(push-scope)` at function start.
 
@@ -102,7 +102,7 @@ simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 		`errorcase` and `signature` sections) to cleanly purge compiler
 		tracking.
 
-*	**CScript Stack Packing & Unions:**
+*	**vpx Stack Packing & Unions:**
 
 	*	Order variables in `def-vars` from largest (`long`, `ptr`, `netid`)
 		to smallest (`uint`, `ubyte`) to prevent alignment padding waste.
@@ -208,38 +208,38 @@ structured fields between memory objects and VP registers:
 compile time to prevent accidental destination register clobbering by
 intermediate temporaries.
 
-## Raw VP Loop Optimization (Bypassing CScript in Hot Paths)
+## Raw VP Loop Optimization (Bypassing vpx in Hot Paths)
 
-When CScript's value stack overhead is unacceptable in inner loops, drop to
+When vpx's value stack overhead is unacceptable in inner loops, drop to
 pure VP assembler:
 
 1.	Declare raw registers: `(vp-rdef (r_buf r_mask r_i))`.
 
-2.	Extract CScript variables into registers with mixed `assign`:
-	`(assign {buf, mask, ptr_i} `(,r_buf ,r_mask ,r_i))`.
+2.	Extract vpx variables into registers with mixed `assign`:
+	`(assign (vpx buf mask ptr_i) `(,r_buf ,r_mask ,r_i))`.
 
 3.	Hand-code the loop using `loop-start`, `loop-until`, `breakif`, and
 	raw instructions (`vp-cpy-dr-ub`, `vp-add-cr`, etc.).
 
-4.	Restore results to CScript variables: `(assign `(,r_i) {ptr_i})`.
+4.	Restore results to vpx variables: `(assign `(,r_i) (vpx ptr_i))`.
 
 5.	If a call inside a loop trashes registers needed for loop control,
 	keep loop counters in registers outside the call's `;trashes` set, or
 	advance loop counters *before* the call, or spill persistent registers
 	(`this`, `args`) to stack slots.
 
-## Mixed VP Assembler & CScript Syntax Duality
+## Mixed VP Assembler & vpx Syntax Duality
 
-*	**String Literal Equivalence:** Curly braces `{...}` and double quotes
-	`"..."` are identical string constructors in ChrysaLisp. `{...}` is
-	favored for CScript code to allow embedded quotes (`\q`) without escapes.
+*	**Forms, not strings:** A vpx expression is a form inside `(vpx ...)`,
+	`(vpx (+ a b))`, and `(vpx a b)` is a list of them. Before 2026-10-12
+	it was a string in curly braces, `{a + b}`. That is gone.
 
 *	**Three Symbol Contexts:**
 
 	*	*Raw Symbols* (`(vp-cpy-ir adr 80 cnt)`): Resolve directly to VP
 		registers (`:r0` - `:r14`).
 
-	*	*CScript Strings* (`{adr, cnt}`): Resolve to stack frame offsets
+	*	*vpx Forms* (`(vpx adr cnt)`): Resolve to stack frame offsets
 		(`[rsp + offset]`).
 
 	*	*Quasi-Quoted Lists* (`` `(,adr ,cnt) ``): Commas explicitly evaluate
@@ -247,7 +247,7 @@ pure VP assembler:
 
 *	**Bridging Pattern:**
 
-	; 1. Define CScript stack variables
+	; 1. Define vpx stack variables
 	(def-vars
 		(pubyte buf)
 		(long pos))
@@ -258,8 +258,8 @@ pure VP assembler:
 	; 3. Extract inputs into VP registers
 	(list-bind-args args `(,buf ,pos) '(:obj :num))
 
-	; 4. Map VP registers to CScript variables
-	(assign `(,buf ,pos) {buf, pos})
+	; 4. Map VP registers to vpx variables
+	(assign `(,buf ,pos) (vpx buf pos))
 
 ## Calling Conventions & Register Introspection
 
@@ -277,7 +277,7 @@ pure VP assembler:
 	Assign loop state into these argument aliases immediately before the call.
 
 *	Preserve live state across calls via explicit `(vp-push reg)` /
-	`(vp-pop reg)` or by saving to CScript stack slots.
+	`(vp-pop reg)` or by saving to vpx stack slots.
 
 ## Systematic VP Lowering Workflow
 
@@ -299,5 +299,5 @@ Follow this 7-step discipline when designing VP routines:
 6.	**Formulate Compact `vp-rdef` Mappings:** Assign persistent state to
 	safe registers and reuse volatile low registers across intervals.
 
-7.	**CScript vs. Pure VP Selection:** Use pure VP when state fits
-	entirely in registers; use CScript when named stack slots are required.
+7.	**vpx vs. Pure VP Selection:** Use pure VP when state fits
+	entirely in registers; use vpx when named stack slots are required.

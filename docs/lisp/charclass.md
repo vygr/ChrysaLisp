@@ -94,8 +94,6 @@ Or even simpler, the options argument tokenizer.
 lib/options/options.inc "options-split" ""
 ```
 
-Another example is the CScript compiler tokenizer !
-
-```file
-lib/asm/vpx.inc "cscript-tokenize" ""
-```
+Another example was the tokenizer of the vpx compiler, when an expression
+was text. It went on 2026-10-12, an expression is a form now and the reader
+does that work.

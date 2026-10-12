@@ -631,22 +631,22 @@ proceed further.
 This version is easy to write, understand, and debug. For most applications,
 its performance would be excellent.
 
-### Stage 2: The C-Script VP Function - Robust Performance
+### Stage 2: The vpx VP Function - Robust Performance
 
 If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp
-function is a bottleneck, the next step is to translate it into a C-Script
+function is a bottleneck, the next step is to translate it into a vpx
 VP function.
 
 *   **Primary Goal:** To gain significant performance by eliminating Lisp
 	interpreter overhead, while still maintaining a high level of abstraction
 	and safety.
 
-*   **Environment:** C-Script uses a more C-like syntax within a `(def-func)`
+*   **Environment:** vpx uses a more C-like syntax within a `(def-func)`
 	block. You declare local variables with `def-vars`, and the assembler
 	handles mapping them to stack locations or registers. You are protected
 	from many of the complexities of manual register allocation.
 
-*   **Performance:** C-Script compiles down to highly efficient VP code. It
+*   **Performance:** vpx compiles down to highly efficient VP code. It
 	is significantly faster than the interpreted Lisp version and is the
 	right choice for the vast majority of performance-critical application
 	code.
@@ -656,7 +656,7 @@ lower level. This is the ideal environment to refine the logic with the
 assurance that you are not introducing the subtle bugs that can arise from
 manual register management.
 
-**Example: `sum-of-squares` as a C-Script Function**
+**Example: `sum-of-squares` as a vpx Function**
 
 ```vdu
 (def-func 'my-sum-of-squares)
@@ -706,7 +706,7 @@ optimization stage is to write a pure VP assembly method.
 	hyper-optimized engine upon which the rest of the system is built.
 
 **Guideline:** Only proceed to this stage when you have an absolutely correct
-and benchmarked C-Script version, and you have determined that even greater
+and benchmarked vpx version, and you have determined that even greater
 performance is required. This level of optimization requires careful thought
 but yields the best results. The core kernel and class libraries are the
 ultimate expression of this stage. The `:canvas :fpoly` method is a prime

@@ -198,6 +198,54 @@
 				(if (find (first inst) +call_ops)
 					(setq over (logior over (reduce (# (logior %0 (elem-get live %1))) (elem-get next (!)) 0)))))
 				insts)
+			;what keeping them in registers would come to, if a call leaves
+			;no register as it was. A local that could be in a register
+			;has one that is its own. It is in it from when it is first
+			;read or written till a call, so a read is of the stack only
+			;where, by some way to it, there was a call since it was last
+			;read or written: had. And it is written to the stack only
+			;before a call, if it has been written since the last by some
+			;way, dirty, and is wanted after. Both gone round till nothing
+			;changes, forwards
+			(defq keeps (if (or escapes big) 0
+					(reduce (# (if (and (elem-get named (!)) (not (find %1 pinned))) (logior %0 (elem-get bits (!))) %0)) slots 0))
+				prev (map (lambda (n) (list)) next) had (map (lambda (n) -1) next) dirty (map (lambda (n) 0) next)
+				calls (map (# (if (find (first %0) +call_ops) :t)) insts) changed :t
+				ones (lambda (n) (defq c 0) (while (/= n 0) (setq n (logand n (dec n))) (++ c)) c))
+			(each (lambda (on) (defq from (!)) (each (# (push (elem-get prev %0) from)) on)) next)
+			(when (> count 0) (elem-set had 0 0))
+			(defq out-of (lambda (at in may)
+				;what is had, or dirty, after an instruction, of what was before it
+				(defq event (elem-get events at))
+				(cond
+					((elem-get calls at) 0)
+					((and event (nql (first event) :addr) (or (not may) (eql (first event) :store)))
+						(logior in (elem-get bits (find (second event) slots))))
+					(in))))
+			(while changed
+				(setq changed :nil)
+				(each (lambda (from)
+					(defq at (!))
+					(when (or (> at 0) (nempty? from))
+						(defq in_had (if (= at 0) 0 (reduce (# (logand %0 (out-of %1 (elem-get had %1) :nil))) from -1))
+							in_dirty (reduce (# (logior %0 (out-of %1 (elem-get dirty %1) :t))) from 0))
+						(unless (and (= in_had (elem-get had at)) (= in_dirty (elem-get dirty at)))
+							(elem-set had at in_had) (elem-set dirty at in_dirty)
+							(setq changed :t))))
+					prev))
+			(defq saved_loads 0 spills 0 most 0 used (list))
+			(each (lambda (inst)
+				(defq at (!) event (elem-get events at)
+					after (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))
+				(each (# (and (sym? %0) (starts-with ":r" %0) (nql %0 :rsp) (not (find %0 used)) (push used %0))) inst)
+				(setq most (max most (ones (logand keeps (elem-get live at)))))
+				(and event (eql (first event) :load) (/= -1 (elem-get had at))
+					(/= 0 (logand keeps (elem-get had at) (elem-get bits (find (second event) slots))))
+					(++ saved_loads))
+				(if (elem-get calls at)
+					(setq spills (+ spills (ones (logand keeps (elem-get dirty at) after))))))
+				insts)
+			(defq free (- 15 (length used)) fits (if (and (/= keeps 0) (<= most free)) 1 0))
 			;the sums. Of named locals: all that is read and written, of
 			;that what is of one that could be kept in a register, and of
 			;that what is of one wanted after a call. And what is read and
@@ -218,6 +266,7 @@
 			(list function (reduce (const +) sizes 0) (length (filter (const identity) named))
 				loads stores kept_loads kept_stores over_loads over_stores
 				(length (filter (# (elem-get named (find %0 slots))) pinned)) hand_loads hand_stores
+				saved_loads spills fits (if (/= keeps 0) 1 0) most free
 				(cond (escapes "the stack pointer is used as a number") (big "more than 62 locals")
 					(odd "the frames are not the same by two ways") (""))))))
 
@@ -231,12 +280,12 @@
 			(setq functions (filter (# (not (starts-with +jit_dir %0)))
 				(sort (map (# (slice %0 (length +obj_dir) -1)) (files-all (slice +obj_dir 0 -2) '(""))))))
 			(setq functions (map (# (if (starts-with +obj_dir %0) (slice %0 (length +obj_dir) -1) %0)) functions)))
-		(defq seen (list) sum (list 0 0 0 0 0 0 0 0 0 0 0) noted 0 of_named 0)
+		(defq seen (list) sum (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) noted 0 of_named 0)
 		(each (lambda (function)
 			(task-slice)
 			(when (defq row (look-at function))
 				(push seen row)
-				(each (# (elem-set sum (!) (+ (elem-get sum (!)) %0))) (slice row 1 12))
+				(each (# (elem-set sum (!) (+ (elem-get sum (!)) %0))) (slice row 1 16))
 				(if (nempty? (last row)) (++ noted))
 				(if (> (third row) 0) (++ of_named))
 				(if opt_v (print (first row) ": frames " (second row) " bytes, named locals " (third row)
@@ -246,15 +295,21 @@
 					(if (> (elem-get row 9) 0) (cat ", " (str (elem-get row 9)) " are in memory, a struct or their address taken") "")
 					(if (> (+ (elem-get row 10) (elem-get row 11)) 0)
 						(cat ", of frames made by hand: read " (str (elem-get row 10)) " written " (str (elem-get row 11))) "")
+					", in registers a call does not keep: " (elem-get row 12) " reads less, " (elem-get row 13) " writes before calls"
+					", " (elem-get row 16) " wanted at once, " (elem-get row 17) " registers it does not use"
 					(if (nempty? (last row)) (cat ". " (last row)) "")))))
 			functions)
-		(bind '(frame slots loads stores kept_loads kept_stores over_loads over_stores pinned hand_loads hand_stores) sum)
+		(bind '(frame slots loads stores kept_loads kept_stores over_loads over_stores pinned hand_loads hand_stores
+			saved_loads spills fits keeping) sum)
 		(print "Functions: " (length functions) ", with a frame: " (length seen) ", with named locals: " of_named)
 		(print "Named locals: " slots ", in memory, a struct or their address taken: " pinned)
 		(print "Read from the stack: " loads ", written to it: " stores)
 		(print "Of locals that could be registers: read " kept_loads ", written " kept_stores)
 		(print "  not wanted after any call: read " (- kept_loads over_loads) ", written " (- kept_stores over_stores))
 		(print "  wanted after a call: read " over_loads ", written " over_stores)
+		(print "Kept in registers that no call leaves as it was:")
+		(print "  read " (- kept_loads saved_loads) ", it was " kept_loads ", written before a call " spills ", it was " kept_stores)
+		(print "  functions with such locals " keeping ", of them with a register for each wanted at once " fits)
 		(print "Of frames made by hand, not named locals: read " hand_loads ", written " hand_stores)
 		(print "Functions it can not follow: " noted)
 		(when (> opt_t 0)

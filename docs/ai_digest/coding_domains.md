@@ -3,7 +3,7 @@
 While the entire ChrysaLisp operating system is written using S-expressions
 (parenthesized syntax), it is a mistake to view it as a single monolithic
 language. There are three distinct coding domains (or layers): **Lisp**,
-**CScript**, and **VP Assembler**.
+**vpx**, and **VP Assembler**.
 
 Understanding which domain you are in is critical, as valid syntax in one
 domain is often undefined or functionally broken in another.
@@ -53,12 +53,12 @@ and high-level logic reside. It is a vector-based, functional Lisp dialect.
 		result)
 	```
 
-## 2. The CScript Layer (System Class Domain)
+## 2. The vpx Layer (System Class Domain)
 
 **File Extensions:** `.vp`
 **Execution:** Compiled to Native Code (Intermediate-Level)
 
-CScript is a high-level macro assembler used primarily to write the Class
+vpx is a high-level macro assembler used primarily to write the Class
 Library (`class/`, `gui/`, `sys/`). It abstracts away register allocation and
 stack management, looking somewhat like C logic wrapped in S-expressions.
 
@@ -147,13 +147,13 @@ and the stack.
 
 ### Mixed Domain (Advanced)
 
-It is possible to mix CScript and VP Assembler, but it requires deep
+It is possible to mix vpx and VP Assembler, but it requires deep
 knowledge of the compiler's register usage. See `gui/canvas/fpoly.vp`.
 
-* CScript generally assumes it owns the register set between statements.
+* vpx generally assumes it owns the register set between statements.
 
-* If you inject raw VP instructions inside a CScript block, you must ensure
-  you do not clobber registers that CScript is relying on for variable
+* If you inject raw VP instructions inside a vpx block, you must ensure
+  you do not clobber registers that vpx is relying on for variable
   storage at that moment.
 
 ### Coding Style
@@ -210,7 +210,7 @@ from GUI applications or System Services.
 1. **Lisp Level:** Never attempt to import `lib/asm/` files. If you need
    system functionality, check `class/lisp/root.inc` for the FFI binding.
 
-2. **CScript Level:** Do not use `class/array/get_elem`. Use `(call :array
+2. **vpx Level:** Do not use `class/array/get_elem`. Use `(call :array
    :get_elem ...)` to ensure vtable lookups occur correctly, unless you are
    implementing the array class itself.
 

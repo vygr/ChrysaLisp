@@ -1,4 +1,4 @@
-;docs/ai_digest/cscript_compiler.md: an expression, a form, to VP instructions
+;docs/ai_digest/vpx_compiler.md: an expression, a form, to VP instructions
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (dia-put s 'src (dia-box '("the form" "(vpx (+ a (* b 2)))") 150 44 grey 11 :first) 0 0)
 (dia-put s 'tok (dia-box '("1 the reader" "it is a list already," "nothing here parses it") 190 62 blue 11 :first) 170 -9)
@@ -12,4 +12,4 @@
 (dia-join s 'gen 'opt "*inst*")
 (dia-join s 'opt 'out "")
 (dia-say s "lib/asm/vpx.inc does 2 and 3, lib/asm/vpxopt.inc does 4. (assign) in lib/asm/assign.inc calls them when a side of it is a (vpx) form." -30 176 11)
-(diagram "cscript_pipeline" (dia-scene-doc s))
+(diagram "vpx_pipeline" (dia-scene-doc s))
