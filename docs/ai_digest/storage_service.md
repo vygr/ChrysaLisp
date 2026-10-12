@@ -591,6 +591,37 @@ What that run found, and it was the first with more than a few objects:
 * The digest of a store, asked for by every member each time it looks, was
   worked out from every path each time. It is held till something changes.
 
+**Only what is new is told, and it is written later.** 2026-10-12, found by
+the farm: with five members all written to at once the window had one
+answer from them in 16 s. Three things, measured one after another.
+
+* Each tender, at every look, fetched the whole path map from each other
+  member and gave its own back, and each of those was written to the
+  volume whole. A store now counts the changes to its path map from when
+  it was opened, `(store-at)`, and has for each path the count at its last
+  change. A tender asks for what is new since the count it was last given,
+  `(store-since)`, and gives what is new since the count it last gave. The
+  counts are of the one opening of a store, which has a name: one asked
+  with the count of another opening tells all.
+* What is learnt from another member is not written at once,
+  `(store-meet store entries :t)`, `(store-later)`: it can be learnt
+  again. The service writes it when nothing else is asked of it, or after
+  2 s. What a writer was told is kept is written before it is told, as it
+  was.
+* A member working out its share made a hash and a sort for every block
+  it knew of, each time it looked. The keepers of a block are kept once
+  worked out, for as long as they are asked of the same members.
+
+And the window's own fault: when a demo was stopped to start another, the
+watcher was waiting on the members that had gone, each in turn, a quarter
+of a minute. One that says nothing is asked nothing more at that look.
+
+The farm, five members on eight nodes, 1,977 files: put in 10 s and read
+back the same in 7 s, as before these. After it, till every path is known
+to all five and the film is kept by three: 58 s, now 26 s. Looks the
+window was sent while it ran: 1 in 16 s, now 15 in the first 7 s, the
+block counts of the five going up together.
+
 **A gopher can become two.** Chris: "you hit the issue with this,
 divergence/forkinf of a gopher ! The issue is either to ensure it can't
 happen, which may be imposible (or at least too slow as it needs global
@@ -698,8 +729,9 @@ was made to send the gopher and stop the member by itself.
 
 * It is not started by itself. On the three machines it was started by
   hand, in the standing nodes, and stopped after.
-* The whole path map is sent when two members differ. `lib/hash/tree.inc`,
-  which sync has, would send only what differs.
+* Two members that differ are told what of each other's path map is new
+  since they last asked, see Built. One that has never asked, or asks a
+  member that has been started again, is sent all of it.
 * A member is one by a store of that id being made on it. Retiring one is
   `(storage-members "-id")`, and what it kept is then others' to keep.
 * How a block that nothing refers to is found, over machines, while a write

@@ -4,6 +4,39 @@
 
 ------
 
+**Storage: only what is new is told, and what is learnt is written later.**
+
+I said what the farm showed and what two changes would mend it, and Chris
+said: "yes, do those two next. Beautiful watching this demo now."
+
+`(store-at)` and `(store-since)`: a store counts the changes to its path
+map, a tender asks a member for what is new since it last asked and gives
+what is new since it last gave. `(store-meet store entries :t)`: what is
+learnt from another member is written when the service has a moment, or
+after 2 s, not at once. Measuring showed two more: the keepers of a block
+were hashed and sorted for every block at every look, they are kept now;
+and the watcher of the window waited a quarter of a minute on the members
+of a demo that had been stopped, one after another.
+
+Measured, the farm on eight nodes, five members, 1,977 files: put 10 s,
+read back the same 7 s, as before. Till every path is on all five and the
+film kept by three, after it ends: 58 s, now 26 s. Looks the window was
+sent while it ran: 1 in 16 s, now 15 in 7 s.
+
+What misled me for a while: a member answers a small question in 1 to 90
+ms through the whole of the farm, I asked each one over and over as it
+ran. The members were never too busy to say. The watcher was asking the
+dead.
+
+Run: the store modules 348 and 0 failed on the M4, 14 new in
+`test_store_meet`; every module on the x64 Mac and the Pi, 6,467 and 0
+failed. `check`, `forward`: nothing to say.
+
+Not seen: by him, the window during a farm since these. A store of the
+three machines with these in.
+
+------
+
 **Storage: the tree is put by a farm, at all the members at once.**
 
 Chris: "in the Tree demo, is the puttin done serialy ? ... Would/Could it

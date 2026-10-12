@@ -222,3 +222,43 @@
 (store-pin sm_s2 "big" :t)
 ;with only two of the members there, they keep everything between them
 (assert-list-eq "with two members there, a member has nothing that is not its to keep" '() (second (store-share sm_s1 '("aaaa" "bbbb"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; only what is new is told, and it is written later
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq sm_n1 (sm-new "aaaa") sm_n2 (sm-new "bbbb"))
+(store-put sm_n1 "one" "1")
+(store-put sm_n1 "two" "2")
+(assert-list-eq "asked with no count, a store tells all it has" '("one" "two") (map (const first) (store-since sm_n1)))
+(defq sm_at (store-at sm_n1))
+(assert-list-eq "asked at the count it is at, nothing" '() (store-since sm_n1 sm_at))
+(store-put sm_n1 "three" "3")
+(store-delete sm_n1 "one")
+(assert-list-eq "asked at a count it gave, what is not as it was then, one deleted too" '("one" "three")
+	(map (const first) (store-since sm_n1 sm_at)))
+(assert-list-eq "a count of another opening of it, or one that is no count: all" '("one" "three" "two")
+	(map (const first) (store-since sm_n1 "0000000000000000 2")))
+(assert-eq "and all for a count that does not read" 3 (length (store-since sm_n1 "nonsense")))
+;told only what is new, twice, another has the same as told it all
+(each (# (if (defq data (store-block-get sm_n1 %0)) (store-block-put sm_n2 data))) (store-held sm_n1))
+(defq sm_at (store-at sm_n1))
+(store-meet sm_n2 (store-since sm_n1))
+(store-put sm_n1 "four" "4")
+(each (# (if (defq data (store-block-get sm_n1 %0)) (store-block-put sm_n2 data))) (store-held sm_n1))
+(assert-eq "the second telling is of the one path" 1 (length (store-since sm_n1 sm_at)))
+(store-meet sm_n2 (store-since sm_n1 sm_at))
+(assert-list-eq "told only what was new each time, it has what the other has" (sm-paths sm_n1) (sm-paths sm_n2))
+(assert-eq "what it took in is new of it too, to tell on" 4 (length (store-since sm_n2 "x 0")))
+;learnt from another, and not written till there is a moment
+(defq sm_n3 (sm-new "cccc"))
+(assert-eq "a store just made has nothing to write" :nil (get :dirty sm_n3))
+(defq sm_d0 (store-digest sm_n3))
+(store-meet sm_n3 (store-since sm_n1) :t)
+(assert-true "taken in to be written later, it says there is something to write" (get :dirty sm_n3))
+(assert-true "and is not as it was, to another that asks" (nql sm_d0 (store-digest sm_n3)))
+(assert-list-eq "it has the paths, written or not" (sm-paths sm_n1) (sm-paths sm_n3))
+(store-save sm_n3)
+(assert-eq "written, there is nothing to write" :nil (get :dirty sm_n3))
+(store-meet sm_n3 (store-since sm_n1) :t)
+(assert-eq "told the same again, nothing is new and there is nothing to write" :nil (get :dirty sm_n3))

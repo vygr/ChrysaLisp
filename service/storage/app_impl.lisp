@@ -51,21 +51,29 @@
 		(cat "objects " (str objects)) (cat "blocks " (str blocks)) (cat "free " (str free)))
 		+storage_lf))
 
-(defun notes-text (store)
-	;what one member tells another: who the members are, and its path map
-	(join (cat (list (cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
-		(map (const store-entry-line) (store-entries store))) +storage_lf))
+;how long what was learnt from another member may wait to be written
+(defq +dirty_most 2000000)
+
+(defun notes-text (store at)
+	;what one member tells another: where its count of changes is now,
+	;who the members are, and its path map, or what of it is not as it was
+	;at the count it is given, one it gave before
+	(join (cat (list (cat "at " (store-at store))
+			(cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
+		(map (const store-entry-line) (store-since store at))) +storage_lf))
 
 (defun notes-take (store text)
 	;what another member told, taken in. How many paths are not as they were
 	(defq lines (split text +storage_lf) entries (list))
 	(each (lambda (line)
 		(cond
-			((starts-with "members" line) (store-join store (rest (split line " "))))
-			((starts-with "retired" line) (store-join store (list) (rest (split line " "))))
+			((starts-with "at " line))
+			((starts-with "members" line) (store-join store (rest (split line " ")) :nil :t))
+			((starts-with "retired" line) (store-join store (list) (rest (split line " ")) :t))
 			((defq entry (store-entry-read line)) (push entries entry))))
 		lines)
-	(length (store-meet store entries)))
+	;not written to the volume now: it is when there is a moment, below
+	(length (store-meet store entries :t)))
 
 (defun main ()
 	;what it is to keep
@@ -150,7 +158,7 @@
 								(cat "cut " (join cut " "))
 								(cat "tender " (if (/= 0 (get-long tender 0)) (hex-encode tender) "")))
 								+storage_lf))
-						(+storage_type_entries (notes-text store))
+						(+storage_type_entries (notes-text store body))
 						(+storage_type_merge (str (notes-take store body)))
 						(+storage_type_share
 							;its share among the members that are there: what it wants,
@@ -183,7 +191,12 @@
 						(+storage_type_stop (setq running :nil) "ok")
 						(:t "error"))
 					(progn (prin "Storage: " (slice (str _) 0 200)) (print) "error")))
-				(if answer (mail-send reply answer)))
+				(if answer (mail-send reply answer))
+				;what was learnt from other members and is not written yet, is,
+				;when nothing else is asked, or it has waited long enough
+				(and (defq dirty (get :dirty store))
+					(or (not (mail-poll (list (task-mbox)))) (> (- (pii-time) dirty) +dirty_most))
+					(store-save store)))
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
 			(mail-forget service)
 			(mail-forget known)

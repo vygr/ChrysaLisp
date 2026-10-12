@@ -159,7 +159,7 @@
 	;changes any of them ends here, so what was worked out from them, the
 	;digest, is not held any longer
 	(task-slice)
-	(def store :digest :nil)
+	(def store :digest :nil :dirty :nil)
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 	(exfat-begin vol)
@@ -169,6 +169,46 @@
 	(exfat-save vol "pins" (store-text (get :pins store)))
 	(exfat-end vol)
 	store)
+
+(defun store-count (store)
+	;a store counts the changes to its path map from when it was opened,
+	;and has for each path the count at its last change, so that another
+	;member can be told only what is new since it last asked,
+	;(store-since). The counts are of this opening of it, which has a
+	;name, :epoch: one who knew the counts of another is told everything
+	(def store :rev 0 :revs (Fmap 1021) :dirty :nil
+		:epoch (hex-encode (slice (sha256 (cat (str (pii-time)) (get :member store) (str (random 1000000)))) 0 8))))
+
+(defun store-touch (store name)
+	;a path is not as it was
+	(def store :rev (inc (get :rev store)))
+	(. (get :revs store) :insert name (get :rev store)))
+
+(defun store-later (store)
+	;the path map or the members are not as they were, and it is not
+	;written yet: what was learnt from another member can be learnt
+	;again, so whoever keeps the store writes it when it has a moment,
+	;(store-save), and till then :dirty says there is something to write
+	(def store :digest :nil :dirty (ifn (get :dirty store) (pii-time))))
+
+(defun store-at (store)
+	; (store-at store) -> str
+	;where its count of changes is now, to give back to (store-since)
+	(cat (get :epoch store) " " (str (get :rev store))))
+
+(defun store-since (store &optional at)
+	; (store-since store [at]) -> (entry ...)
+	;the entries of the path map, those deleted too, that are not as they
+	;were at that count, as (store-at) gave it. All of them if it is not
+	;given, or is of another opening of the store
+	(defq parts (split (ifn at "") " ") revs (get :revs store) out (list))
+	(cond
+		((and (= (length parts) 2) (eql (first parts) (get :epoch store)))
+			(defq rev (str-as-num (second parts)))
+			(. (get :map store) :each (lambda (name entry)
+				(if (> (ifn (. revs :find name) 0) rev) (push out entry))))
+			(sort out (# (cmp (first %0) (first %1)))))
+		((store-entries store))))
 
 (defun store-make (device size id member &optional block_size label copies)
 	; (store-make path | stream size id member [block_size label copies]) -> :nil | :t
@@ -181,6 +221,7 @@
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
 			:map (Fmap 11) :members (list member) :retired (list) :pins (list) :held (Fset 11) :manifests (Fmap 11))
+		(store-count store)
 		(exfat-begin vol)
 		(store-head-save store)
 		(exfat-mkdir vol "blocks")
@@ -217,6 +258,7 @@
 			(if (defq entry (store-entry-read line))
 				(. (get :map store) :insert (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
+		(store-count store)
 		;the names of the blocks it has
 		(def store :held (Fset 1021) :manifests (Fmap 1021))
 		(each (# (. (get :held store) :insert %0)) (store-blocks store))
@@ -234,6 +276,7 @@
 (defun store-close (store)
 	; (store-close store) -> :nil
 	;all that it has is on the device
+	(if (get :dirty store) (store-save store))
 	(exfat-sync (get :vol store))
 	:nil)
 
@@ -360,6 +403,7 @@
 		(:t (defq entry (list name hash size
 				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted))
 			(. (get :map store) :insert name entry)
+			(store-touch store name)
 			(store-save store)
 			(list :ok entry))))
 
@@ -475,8 +519,8 @@
 	;joined and has not been retired, away or not
 	(sort (filter (# (not (find %0 (get :retired store)))) (get :members store))))
 
-(defun store-join (store members &optional retired)
-	; (store-join store members [retired]) -> :nil | :t
+(defun store-join (store members &optional retired later)
+	; (store-join store members [retired later]) -> :nil | :t
 	;these are members too, and those are retired, as another member has
 	;it. Both only ever grow, so two that are put together are the same
 	;whichever way round, and a member that is retired stays retired. Was
@@ -487,7 +531,7 @@
 		(ifn retired (list)))
 	(when new
 		(def store :members (sort (get :members store)) :retired (sort (get :retired store)))
-		(store-save store)
+		(if later (store-later store) (store-save store))
 		:t))
 
 (defun store-most? (store entry)
@@ -527,8 +571,8 @@
 	(each (# (unless (find %0 out) (push out %0))) b)
 	(sort out))
 
-(defun store-meet (store entries)
-	; (store-meet store entries) -> (changed ...)
+(defun store-meet (store entries &optional later)
+	; (store-meet store entries [later]) -> (changed ...)
 	;what another member has in its path map is set against what this one
 	;has. The paths that are not as they were here, their entries now.
 	;
@@ -538,7 +582,8 @@
 	;(store-keeps), with the counts of both, so that it comes after both
 	;and whoever meets it next takes it; the other, if it is an object and
 	;not a delete, is kept under another name, (store-other-name). Both
-	;members come to the same, whichever does this
+	;members come to the same, whichever does this. With later it is not
+	;written to the volume now, (store-later)
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
 		(task-slice)
@@ -568,12 +613,14 @@
 							(unless (. map :find aside)
 								(. map :insert aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
 									(slice other (inc +store_entry_seen) -1))))
+								(store-touch store aside)
 								(push changed kept)))))))
 		(when now
 			(. map :insert name now)
+			(store-touch store name)
 			(push changed now)))
 		entries)
-	(if (nempty? changed) (store-save store))
+	(if (nempty? changed) (if later (store-later store) (store-save store)))
 	changed)
 
 (defun store-digest (store)
@@ -603,10 +650,20 @@
 	;name, and those with the greatest keep it: so every member works out
 	;the same, nobody has to be asked, and when a member comes or goes
 	;only the blocks that are its share move
-	(task-slice)
-	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) (ifn among (store-members store)))
-		(# (cmp (first %1) (first %0)))))
-	(map (const second) (slice scored 0 (min (get :copies store) (length scored)))))
+	;
+	;What was worked out is kept, for as long as it is asked of the same
+	;members: a member asks it of every block it knows of each time it
+	;looks to its share, and it is a hash and a sort for each
+	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store))
+	(unless (and kept (eql (first kept) key))
+		(def store :holders (setq kept (list key (Fmap 4093)))))
+	(cond
+		((. (second kept) :find name))
+		(:t (defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
+				(# (cmp (first %1) (first %0))))
+				holders (map (const second) (slice scored 0 (min (get :copies store) (length scored)))))
+			(. (second kept) :insert name holders)
+			holders)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
@@ -640,8 +697,9 @@
 	;whose keepers it is one of, (store-holders), and all of them if its
 	;path is pinned. A block that no object is made of is neither, that
 	;is for (store-sweep)
-	(defq me (get :member store) wanted (Fset 101) others (Fmap 101) wants (list) extras (list))
+	(defq me (get :member store) wanted (Fset 4093) others (Fmap 4093) wants (list) extras (list))
 	(each (lambda (entry)
+		(task-slice)
 		(defq hash (elem-get entry +store_entry_hash) pinned (store-pinned? store (first entry)))
 		(. wanted :insert hash)
 		(when (defq object (store-manifest store hash))
@@ -717,7 +775,7 @@
 ;module
 (export-symbols '(store-make store-open store-close store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
-	store-entries store-holders store-seen store-share
+	store-entries store-holders store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-get store-read store-fold store-walk store-list

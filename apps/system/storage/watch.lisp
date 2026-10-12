@@ -38,7 +38,7 @@
 
 (defun look ()
 	; (look) -> (members objects names)
-	;the members that are there, each (id netid blocks cut digest), in
+	;the members that are there, each (id netid blocks cut digest said), in
 	;order; the objects, every one that any of them has; and the blocks of
 	;the one shown. *who* is, for each object, what each member has of it:
 	;:nil, :t, or :differs, it has the path and it is not the same
@@ -64,15 +64,18 @@
 				was (ifn (. *last* :find id) (list 0 (list) "")))
 			(. *last* :insert id (defq is (list (if info (. info :find :blocks) (first was))
 				(if state (. state :find :cut) (second was)) (if state (. state :find :digest) (third was)))))
-			(cat (list id where) is))
+			;and whether it said anything: one that did not is asked no more
+			;at this look. Members that have gone, a demo that was stopped,
+			;were waited for one after another, a quarter of a minute of it
+			(cat (list id where) is (list (if (or info state) :t))))
 		there asked)
 		objects *objects* names (list) changed :nil now (pii-time))
 	;what each has, asked again only of one that is not as it was, and
 	;when there is a lot of it not at every look: (digest entries paths)
 	(when (or (< (length *objects*) 300) (> (- now *listed*) 2000000))
 		(setq *listed* now)
-		(each (lambda ((id where blocks cut digest))
-			(unless (and (defq had (. *seen* :find id)) (eql (first had) digest))
+		(each (lambda ((id where blocks cut digest said))
+			(unless (or (not said) (and (defq had (. *seen* :find id)) (eql (first had) digest)))
 				;one that does not say in the time is as it was, and is asked again
 				(when (defq answer (storage-ask where +storage_type_list "" 3))
 					(defq entries (map (const store-entry-read) (filter (const nempty?) (split answer +storage_lf)))
@@ -110,8 +113,8 @@
 		;an object is made of does not change, so the last one is kept
 		(cond
 			((eql hash (first *made_of*)) (setq names (second *made_of*)))
-			((defq text (some (lambda ((id where &ignore))
-					(and (defq data (storage-ask where +storage_type_block_get hash 2)) (eql (sha256 data) hash) data)) members))
+			((defq text (some (lambda ((id where blocks cut digest said))
+					(and said (defq data (storage-ask where +storage_type_block_get hash 2)) (eql (sha256 data) hash) data)) members))
 				(defq lines (filter (const nempty?) (split text (ascii-char 10))))
 				(setq names (cat (list hash) (map (const hex-decode) (slice lines 2 -1))) *made_of* (list hash names)))))
 	(list members objects names))
@@ -131,7 +134,8 @@
 	;the object, and is to be seen
 	(bind '(members objects names) (look))
 	(defq total (length names) body (apply (const cat) (cat (list "") names))
-		asked (map (lambda ((id where &ignore)) (if (nempty? names) (storage-send where +storage_type_has body))) members)
+		asked (map (lambda ((id where blocks cut digest said))
+			(and said (nempty? names) (storage-send where +storage_type_has body))) members)
 		by (+ (pii-time) +patience)
 		has (map (# (if %0 (ifn (mail-read-timeout %0 (max 1000 (- by (pii-time)))) "") "")) asked)
 		fewest (length members) most 0)

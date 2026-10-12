@@ -41,6 +41,11 @@
 		(mail-enquire (cat group ",")))
 	out)
 
+(defun notes-at (notes)
+	;where the count of changes was, of the member that gave these notes
+	(defq line (slice notes 0 (ifn (find +storage_lf notes) (length notes))))
+	(if (starts-with "at " line) (slice line 3 -1) ""))
+
 (defun look (svc group grace heard)
 	; (look svc group grace heard) -> (met fetched dropped)
 	(defq met 0 fetched 0 dropped 0 me (storage-state svc))
@@ -54,9 +59,14 @@
 		(each (lambda ((who where state))
 			(. heard :insert who now)
 			(unless (eql (. state :find :digest) (. (ifn (storage-state svc) me) :find :digest))
-				(when (defq theirs (storage-ask where +storage_type_entries))
-					(storage-ask svc +storage_type_merge theirs)
-					(if (defq mine (storage-ask svc +storage_type_entries)) (storage-ask where +storage_type_merge mine))
+				;only what is new: each says where its count of changes is,
+				;and is asked next time for what has changed since. took is
+				;what was had from each, gave what each was given
+				(when (defq theirs (storage-ask where +storage_type_entries (ifn (. took :find who) "")))
+					(if (storage-ask svc +storage_type_merge theirs) (. took :insert who (notes-at theirs)))
+					(and (defq mine (storage-ask svc +storage_type_entries (ifn (. gave :find who) "")))
+						(storage-ask where +storage_type_merge mine)
+						(. gave :insert who (notes-at mine)))
 					(++ met))))
 			peers)
 		;the members that are there: me, and each heard from of late. One
@@ -112,7 +122,7 @@
 (defun main ()
 	(bind '(svc group tick grace) (split (mail-read (task-mbox)) +storage_lf))
 	(defq svc (hex-decode svc) tick (str-as-num tick) grace (str-as-num grace)
-		heard (Fmap 11) running :t select (list (task-mbox) (mail-mbox)))
+		heard (Fmap 11) took (Fmap 11) gave (Fmap 11) running :t select (list (task-mbox) (mail-mbox)))
 	(if (> tick 0) (mail-timeout (second select) tick 0))
 	(while running
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
