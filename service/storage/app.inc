@@ -202,7 +202,7 @@
 	(when svc
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
-			(str (list name (ifn at 0) state visit (list)))))
+			(str (list name (ifn at 0) state visit (list) (list)))))
 		(and (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
 			(starts-with "(" answer)
 			(first (read (string-stream answer))))))

@@ -494,8 +494,42 @@ says who, `(storage-where)`, and it is the asker that goes there.
 **The gopher goes to the blocks.** When the block it wants is not kept by the
 member it is at, it finds a member that has it, and all there is of it,
 where it is, what it has, its function as it was sent, and where it has been,
-is mailed to a new gopher task there. The one that sent it is done and says
-nothing. The last mails the answer, and the trail, straight to who asked.
+is mailed to a new gopher task there. The last mails the answer, and the
+trail, straight to who asked.
+
+**A gopher is handed on, and the hand is seen.** `service/storage/gopher.inc`,
+2026-10-12, after Chris read the above and asked: what if there is no
+answer, does it try the other members that have the block, does one that
+is started and sent nothing ever go, does the old one wait to be told?
+None of those, as it was. Now:
+
+* The one sent on says so, to the one that sent it, before anything else.
+  The one that sent it is done only then.
+* If the node does not start a gopher in 2 seconds, or the new one does not
+  say it has what it was sent in 2 more, the next member that has the
+  block is tried, longest run first, till one takes it or there are none.
+* Only then is "none" mailed to who asked, so they hear at once and do not
+  wait out their own time.
+* A gopher that is started and sent nothing in 10 seconds goes. It waited
+  for ever.
+* A member is given 1 second to say which blocks it has, it was 10. One
+  that does not say, or does not take the gopher, is in a list that goes
+  with the gopher, and is not asked again on that walk.
+
+On the x64 Mac and the Pi, a store of the two with one copy of a block: a
+gopher from each counted the lines of `STATUS.md`, 14,284 as `wc -l`, by
+way of both. The Pi's member stopped: "It did not come back", in 1 second.
+
+**A gopher can become two.** Chris: "you hit the issue with this,
+divergence/forkinf of a gopher ! The issue is either to ensure it can't
+happen, which may be imposible (or at least too slow as it needs global
+control), or we depend on the idea that it is rare, and when it does happen
+we mitigate the consiuences." If the new one has what it was sent and its
+word back is lost, the old one tries the next member, and there are two.
+Both walk to the end and both answer. Who asked reads the first; the second
+is to a mailbox nobody reads. For a gopher that only reads, that is all of
+it. One that writes is not built, and how what it does is made safe to do
+twice is under Open.
 
 ```
 (storage-walk "big" 0 '(lambda (sum data at count) ...))
@@ -608,3 +642,10 @@ was made to send the gopher and stop the member by itself.
   size for now.
 * A gopher's function can do anything a task can. What it may do is not
   fenced.
+* A gopher that became two, see Built, and writes. Blocks are safe, the
+  same bytes have the same name. Anything else it does is done twice. What
+  is to be thought through with Chris: a name for each walk, that a member
+  can know it has seen; what a writer must promise; and how often it
+  happens at all, which is to be measured and not guessed.
+* That a gopher started and sent nothing does go after its 10 seconds is
+  not tested, there is nothing that says a task is gone.

@@ -140,7 +140,7 @@
 							;asked, and answers them itself
 							(defq gopher (open-child "service/storage/gopher.lisp" +kn_call_pin))
 							(if (/= 0 (get-long gopher 0))
-								(mail-send gopher (cat (hex-encode reply) +storage_lf (hex-encode (task-mbox)) +storage_lf body)))
+								(mail-send gopher (cat (hex-encode reply) +storage_lf (hex-encode (task-mbox)) +storage_lf "-" +storage_lf body)))
 							:nil)
 						(+storage_type_state
 							(join (list (cat "member " member) (cat "store " (get :id store))

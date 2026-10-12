@@ -4,6 +4,46 @@
 
 ------
 
+**Storage: a gopher is handed on, and the hand is seen.**
+
+Chris, reading the docs: "What happens in the case of no answer ? does it
+just keep retirying ? retry from the other members that also claim to have
+the continuation block... does the goher task self exit if it dosn't recive
+the state message ? Does the 'old' gopher wait till the new gopher ack's
+the handover before exiting." It did none of those, and one started and
+sent nothing waited for ever. I said the five things I would change and he
+said: "yes, make those five changes."
+
+`service/storage/gopher.inc`, new: the one sent on says it has all of
+itself, the one that sent it waits for that; no start in 2 s or no word in
+2 s, and the next member with the block is tried, longest run first; "none"
+to who asked only when there are no more; a gopher sent nothing in 10 s
+goes; a member has 1 s, not 10, to say what it has, and one that does not
+answer is in a list that goes with the gopher and is not asked again. That
+list was added after the first run: without it the module was 15 s longer
+on the x64 Mac and the Pi, a member that was gone was waited for at every
+block.
+
+Run: the two storage service modules, 112 and 0 failed, on the M4, the x64
+Mac and the Pi, 6 s and 9 s on the two. New in them: a gopher comes back
+by way of the others with a member gone and nobody told; one sent on to a
+node that is not there goes to the next; none takes it and it is not sent.
+`check` and `forward` say nothing. And on the two real machines, a store
+of the x64 Mac and the Pi with one copy of a block: a gopher from each
+counted `STATUS.md`, 14,284 as `wc -l`, by way of both; the Pi's member
+stopped, "It did not come back" in 1 s. Stopped and removed after.
+
+Not seen: a gopher that is started and sent nothing going after its 10 s,
+nothing says a task is gone. A real second gopher, from a word back that
+was lost. His desktop's Storage window was open on the old service through
+this: its Gopher button needs the window closed and opened.
+
+Of two gophers from one he said it "does probably need further analysys on
+how those mitagations work in practice." It is in the doc under Open, not
+begun.
+
+------
+
 **Storage viewer: the list is of every object any member has, and which.**
 
 Chris, going through the demos: "I clicked cut, I see all members saying

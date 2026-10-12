@@ -1,6 +1,7 @@
 (report-header "System: Storage, a store of five members: notes compared, blocks kept by three, a split, a gopher that goes to the blocks")
 
 (import "service/storage/app.inc")
+(import "service/storage/gopher.inc")
 
 ;five members of one store, each a service of its own name with a store in
 ;a file of its own, all on this node. Their tenders look only when told,
@@ -85,9 +86,9 @@
 
 	;a gopher goes where the blocks are
 	(defq sn_sum (reduce (# (+ %0 (code sn_big 1 %1))) (range 0 (length sn_big) 97) 0)
-		sn_back (storage-walk "big" 0 '(lambda (sum data at count)
+		sn_visit '(lambda (sum data at count)
 			(list (reduce (# (+ %0 (code data 1 %1))) (range (% (- 97 (% (* at 4096) 97)) 97) (length data) 97) sum) (inc at)))
-			:nil 30 (sn-of "m-a")))
+		sn_back (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-a")))
 	(assert-eq "a gopher sent to an object no member has all of comes back with the answer" sn_sum (first sn_back))
 	(defq sn_went (map (const first) (second sn_back)))
 	(assert-true "it had to go to more than one member for it" (> (length (reduce (# (if (find %1 %0) %0 (push %0 %1))) sn_went (list))) 1))
@@ -158,6 +159,20 @@
 	(defq sn_t0 (pii-time))
 	(while (and (storage-service (cat "@SM" sn_pid "m-e")) (< (- (pii-time) sn_t0) (task-timeout 5))) (task-sleep 10000))
 	(elem-set sn_svcs 4 :nil)
+	;before any of them has looked: a gopher goes by those that are there
+	(assert-eq "a member is gone, and a gopher comes back with the answer by way of the others" sn_sum
+		(first (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-a"))))
+	;sent on to a member whose node does not start it, it goes to the next
+	(defq sn_gone (cat (slice (sn-of "m-b") 0 +mailbox_id_size)
+			(slice (cat (sha256 "no such node") (sha256 "at all")) 0 (- (length (sn-of "m-b")) +mailbox_id_size)))
+		sn_mbox (mail-mbox))
+	(assert-eq "a gopher sent on goes past a member that does not take it, to one that does" (sn-of "m-b")
+		(gopher-pass (list sn_gone (sn-of "m-b")) sn_mbox "big" 0 0 sn_visit (list) (defq sn_skip (list)) 1))
+	(assert-list-eq "the one that did not is not to be asked again" (list (hex-encode sn_gone)) sn_skip)
+	(defq sn_said (mail-read-timeout sn_mbox (task-timeout 30)))
+	(assert-eq "and comes back with the answer" sn_sum (if sn_said (first (first (read (string-stream sn_said))))))
+	(assert-eq "none of them takes it: it is not sent on" :nil
+		(gopher-pass (list sn_gone) sn_mbox "big" 0 0 sn_visit (list) (list) 1))
 	(sn-settle)
 	(assert-list-eq "a member is gone: every block is kept by three of the four that are left" '(3)
 		(reduce (# (if (find %1 %0) %0 (push %0 %1))) (sn-copies sn_names) (list)))
