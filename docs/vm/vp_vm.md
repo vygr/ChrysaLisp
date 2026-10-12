@@ -355,6 +355,11 @@ trashes, writes it, and `lint` says where a declaration is not what the code
 does. `(method-trashes class method)` gives the list to the assembler, `:nil`
 if it is not said: a method written in line in its `class.inc` has none.
 
+A virtual method has one more list after that, what the one function that is
+the method in this class trashes. A call through the vtable trashes the
+first, it may be of any class. A call bound to the function trashes the
+second.
+
 An example from the array class.inc.
 
 ```file

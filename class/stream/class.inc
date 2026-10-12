@@ -3,12 +3,12 @@
 
 (def-class :stream :obj
 	(dec-method :vtable class/stream/vtable)
-	(dec-method :type class/stream/type :override :nil :nil (:r1-:r5 :f0-:f15))
-	(dec-method :deinit class/stream/deinit :override :nil :nil (:r1-:r14 :f0-:f15))
-	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15))
-	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0) (:r1-:r14 :f0-:f15))
-	(dec-method :flush class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15))
-	(dec-method :seek class/stream/seek :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r11 :r14 :f0-:f15))
+	(dec-method :type class/stream/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
+	(dec-method :deinit class/stream/deinit :override :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
+	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15) (:r1))
+	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0) (:r1-:r14 :f0-:f15) (:r1))
+	(dec-method :flush class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15) (:r1))
+	(dec-method :seek class/stream/seek :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r11 :r14 :f0-:f15) (:r1))
 	(dec-method :init class/stream/init :static (:r0 :r1 :r2 :r3 :r4 :r5) :nil (:r1 :r5))
 	(dec-method :avail class/stream/avail :static (:r0) (:r0 :r1))
 	(dec-method :read_char class/stream/read_char :static (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15))

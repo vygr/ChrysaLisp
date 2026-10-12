@@ -190,6 +190,35 @@ system built so. That is a fifth of the reads the tree has, not the half
 wanted at once, most methods with locals are virtual, and the copies
 that come are not yet folded away.
 
+**A virtual method says two things (2026-10-12, later).** Chris, of the
+above: "that's why the source database is used by trace to calculate the
+virtual class register trashes union", and "yes have trace -w write the
+two lists". A virtual, override or final `(dec-method)` has a seventh
+thing after its trashes, what the one function that is the method in that
+class trashes:
+
+```vdu
+(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15) (:r1))
+```
+
+A call through the vtable may be of any class and trashes the first. A
+call bound to the function trashes the second, Chris: "If it's called as
+a direct call ... it will trash only what it does, if :vcall then you
+assume it's the wider trashes". And the second is what the function may
+use for the homes of its locals. 241 declarations have it, written by
+`trace -w` and checked by lint with the rest; `(path-method path)` gives
+it. So a virtual method can ask, and `class/sstream/write_next` does:
+`this`, `new_str` and `cell` in `:r6`, `:r7` and `:r8`, 14 reads of the
+stack and a write gone.
+
+The trial of every function asking, again: 47 functions on a release
+build, 145 locals, 471 reads and 83 writes of the stack gone, lint clean,
+every test passed on a system built so. What holds it there now is that a
+home must be a register the function already trashes, and many a virtual
+method's own function trashes few: `(:r1)` above. To do more a function
+would have to trash more than it does, which is a change to what its
+callers may rely on, or put a register by on entry and bring it back.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - form to reverse polish, code generator,

@@ -17,7 +17,7 @@
 	(dec-method :plot gui/canvas/plot :static (:r0 :r7 :r8) (:r0) (:r1-:r8))
 	(dec-method :fbox gui/canvas/fbox :static (:r0 :r7 :r8 :r9 :r10) (:r0) (:r1-:r9))
 	(dec-method :fpoly gui/canvas/fpoly :static (:r0 :r1 :r2 :r3 :r4) (:r0) (:r1-:r14 :f0-:f15))
-	(dec-method :deinit gui/canvas/deinit :override :nil :nil (:r1-:r14 :f0-:f15))
+	(dec-method :deinit gui/canvas/deinit :override :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_create gui/canvas/lisp_create :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :r14 :f0-:f15))
 	(dec-method :lisp_create_pixmap gui/canvas/lisp_create_pixmap :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_next_frame gui/canvas/lisp_next_frame :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15))

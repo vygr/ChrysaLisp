@@ -192,7 +192,9 @@
 									dec_outputs (if (> (length more) 1) (node-regs (second more)) "none")
 									;what it is declared to trash, as (format-regs) writes
 									;registers, "none" for (), and :nil if it is not said
-									declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more))))
+									declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more)))
+									;and, of a virtual method, what its one function trashes
+									declared_own (and (> (length more) 3) (tree-form? (elem-get more 3)) (node-regs (elem-get more 3))))
 								(. methods_map :insert method_name (scatter (Emap)
 									:type mtype
 									:function dec_func_name
@@ -200,6 +202,7 @@
 									:outputs dec_outputs
 									:trashes "none"
 									:declared declared
+									:declared_own declared_own
 									:dec_file file
 									:dec_line (dec (second node))))
 								(if (defq f_entry (. func_db :find dec_func_name))

@@ -4,6 +4,42 @@
 
 ------
 
+**vpx: a virtual method declares what its own function trashes too, and one keeps its locals in registers.**
+
+Chris: "pushed, yes have trace -w write the two lists". Only static
+methods could ask for registers: what a virtual method is declared to
+trash is what any class called so may, and a function may only use what
+it trashes itself.
+
+* `(dec-method name function type in out trashes own)`: the seventh
+  thing, of a virtual, override or final method, what the function that
+  is it in that class trashes. `lib/asm/class.inc` keeps it,
+  `(path-method)` gives it, and what the class above said is not taken
+  for a function of this class. `lib/files/info.inc` reads it,
+  `cmd/trace.lisp` checks it with `-l` and writes it with `-w`: 241
+  declarations in 41 files, none by hand.
+* `lib/asm/func.inc`: a function's homes are from what it trashes itself.
+  And a call bound to a function trashes what the function does, a call
+  through the vtable what the method is declared to, Chris: "If it's
+  called as a direct call ... it will trash only what it does, if :vcall
+  then you assume it's the wider trashes". I had taken the wider for
+  both.
+* `class/sstream/class.vp`, `:write_next` asks: three locals in
+  registers, 14 reads of the stack and one write gone.
+
+Run: every function of six targets as before to the byte, but the two
+that ask, the boot images and the one that shuffles itself. `lint` clean.
+6,529 tests, 0 failed, built on each of the three machines. The trial of
+every function asking, not kept: 47 functions, 145 locals, 471 reads and
+83 writes gone, lint clean on a debug build so made, and every test
+passed on the M4 built so.
+
+Not done: more than a function already trashes can not be a home, and
+many virtual methods trash little themselves; as before, shared homes,
+the copies, locals less than a long.
+
+------
+
 **vpx, stage 4 begun: named locals kept in registers, for a function that asks. One asks.**
 
 Chris: "leave it out, pushed. start the allocator".

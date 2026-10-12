@@ -94,7 +94,12 @@
 			(and (starts-with "_l_rl_" (defq label (str (second inst))))
 				(defq link (str-as-num (slice label 6 -1))) (< -1 link (length *links*))
 				(defq m (path-method (elem-get *paths* (elem-get *links* link))))
-				(list (second m) (first m))))
+				;bound to the function, it trashes what the function does. Only
+				;a call through the vtable may be of any class, and trash what
+				;any of them does, Chris: "If it's called as a direct call ...
+				;it will trash only what it does, if :vcall then you assume
+				;it's the wider trashes"
+				(list (ifn (third m) (second m)) (first m))))
 		((emit-call-i emit-jmp-i)
 			(and (> (length inst) 4) (defq class (elem-get inst 3)) (defq name (elem-get inst 4))
 				(nql class :nil) (nql name :nil)
@@ -104,15 +109,16 @@
 
 (defun fn-keep-locals ()
 	;the function asked, (vpx-regs): its named locals are kept in
-	;registers where they can be. Only if it is a static method that says
-	;what it trashes: a local's register is one of those, so that what
-	;calls it sees none changed that was not. What a virtual method is
-	;declared to trash is what any class called so may, more than the
-	;one function does, and a caller bound to the function goes by that
+	;registers where they can be. Only if it is a method that says what
+	;its function trashes: a local's register is one of those, so that
+	;what calls it sees none changed that was not. What a virtual method
+	;is declared to trash is what any class called so may, more than the
+	;one function does, and a caller bound to the function goes by the
+	;function: so it is what is declared of the function, own, that is used
 	(when (and *func_regs* (nempty? *locals*)
-			(defq me (path-method *func_name*)) (second me) (third me)
+			(defq me (path-method *func_name*)) (third me)
 			(defq got (keep-locals (slice *emit_list* *emit_start* -1) *locals*
-				(filter (# (starts-with ":r" %0)) (second me)) (first me) (const fn-callee))))
+				(filter (# (starts-with ":r" %0)) (third me)) (first me) (const fn-callee))))
 		(defq head (slice *emit_list* 0 *emit_start*))
 		(clear *emit_list*)
 		(each (# (push *emit_list* %0)) head)

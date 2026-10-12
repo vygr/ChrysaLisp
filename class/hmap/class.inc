@@ -4,12 +4,12 @@
 
 (def-class :hmap :list
 	(dec-method :vtable class/hmap/vtable)
-	(dec-method :type class/hmap/type :override :nil :nil (:r1-:r5 :f0-:f15))
+	(dec-method :type class/hmap/type :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
 	;a map is itself and no other, whatever the two hold. A list is the
 	;same as another by what is in it, and this is not a list to those
 	;who use it
-	(dec-method :eql class/obj/eql :final :nil :nil (:r1))
-	(dec-method :deinit class/hmap/deinit :override :nil :nil (:r1-:r14 :f0-:f15))
+	(dec-method :eql class/obj/eql :final :nil :nil (:r1) (:r1))
+	(dec-method :deinit class/hmap/deinit :override :nil :nil (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
 	(dec-method :create class/hmap/create :static (:r0) (:r0) (:r0-:r5 :r14 :f0-:f15))
 	(dec-method :init class/hmap/init :static (:r0 :r1 :r2) :nil (:r1-:r5 :f0-:f15))
 	(dec-method :cfind class/hmap/cfind :static (:r0 :r1 :r2) (:r0 :r1 :r2) (:r1-:r10))

@@ -107,6 +107,8 @@
 		(ptr this new_str cell)
 		(uint len))
 
+	;the named locals are kept in registers where they can be
+	(vpx-regs)
 	(push-scope)
 	(entry :sstream :write_next (vpx this))
 

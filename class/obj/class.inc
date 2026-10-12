@@ -3,11 +3,11 @@
 
 (def-class :obj :nil
 	(dec-method :vtable class/obj/vtable)
-	(dec-method :deinit class/obj/null :virtual (:r0) (:r0) (:r1-:r14 :f0-:f15))
-	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1) (:r1-:r5 :f0-:f15))
-	(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1) (:r1-:r4))
-	(dec-method :eql class/obj/eql :virtual (:r0 :r1) (:r0 :r1) (:r1-:r6))
-	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0) (:r1-:r14 :f0-:f15))
+	(dec-method :deinit class/obj/null :virtual (:r0) (:r0) (:r1-:r14 :f0-:f15) ())
+	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1) (:r1-:r5 :f0-:f15) (:r1-:r3 :f0-:f15))
+	(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1) (:r1-:r4) (:r1))
+	(dec-method :eql class/obj/eql :virtual (:r0 :r1) (:r0 :r1) (:r1-:r6) (:r1))
+	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0) (:r1-:r14 :f0-:f15) (:r1-:r14 :f0-:f15))
 	(dec-method :null class/obj/null :static :nil :nil ())
 	(dec-method :dead class/obj/dead :static :nil :nil (:r0-:r1 :f0-:f15))
 	(dec-method :destroy class/obj/destroy :static (:r0) :nil (:r0-:r14 :f0-:f15))

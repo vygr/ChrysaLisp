@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap))
+(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap) '*trashes_own* (pmap))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -58,13 +58,14 @@
 (defun path-method (%0)
 	;%0 = function path
 	;what is known of the function as a method, (takes_and_gives
-	;trashes static), the registers of each: what any method that is
-	;that function is declared with. trashes is :nil if none of them
-	;says. static is if every one of them is a static method: then what
-	;is declared is what the function trashes. Of a virtual method it is
-	;what any class called so may, which is more.
+	;trashes own), the registers of each: what any method that is that
+	;function is declared with. trashes is what a call of it may trash,
+	;:nil if none of them says. own is what the function itself trashes:
+	;of a static method that is the same, of a virtual one it is less,
+	;what is declared to be trashed is by any class called so, and what
+	;the one function does is declared after it. :nil if it is not said.
 	;:nil if no method is that function
-	(defq io (list) said :nil is :nil static :t)
+	(defq io (list) said :nil is :nil static :t own :nil)
 	(each (lambda ((class vtable))
 		(each (lambda ((name m))
 			(when (and (list? m) (eql (first m) %0))
@@ -74,10 +75,12 @@
 					(list (third m) (elem-get m 3)))
 				(when (defq trashes (pfind (pfind *trashes* class) name))
 					(setq said (ifn said (list)))
-					(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))))
+					(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))
+				(if (defq trashes (pfind (pfind *trashes_own* class) name))
+					(setq own (trash-regs trashes)))))
 			(partition vtable 2)))
 		(partition *vtables* 2))
-	(if is (list io said static)))
+	(if is (list io said (if static said own))))
 
 (defun f-path (%0 %1)
 	;%0 = class name
@@ -137,15 +140,21 @@
 	(pinsert vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	; (def-class class super (dec-method name function [type regs_in regs_out trashes]) ...)
+	; (def-class class super (dec-method name function [type regs_in regs_out trashes own]) ...)
 	;trashes is the registers a call of the method may leave not as they
 	;were, ranges and all, (:r1-:r14 :f0), () for none. Not said, it is
 	;what the class above says of the method, and if none does, not known.
-	;It is kept by itself, what a method is in a vtable is as it was
-	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
-	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes))
+	;Of a virtual method it is what any class called so may trash, and
+	;own, after it, is what the one function that is the method here
+	;does. Both are kept by themselves, what a method is in a vtable is
+	;as it was
+	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap)))
+		owned (copy (ifn (pfind *trashes_own* super) (pmap))))
+	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes own))
 		(setd mtype :static)
 		(if (list? trashes) (pinsert trashed mname trashes))
+		;what the class above said its function trashes is not of this one
+		(pinsert owned mname (if (list? own) own))
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
 		(if (defq m (pfind vtable mname))
 			;existing method
@@ -184,7 +193,7 @@
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 		lines)
 	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
-		(pinsert *trashes* ',class ',trashed)))
+		(pinsert *trashes* ',class ',trashed) (pinsert *trashes_own* ',class ',owned)))
 
 (defmacro def-method (class member &optional alignment)
 	`(def-func (f-path ,class ,member) ,alignment))
