@@ -219,6 +219,25 @@ method's own function trashes few: `(:r1)` above. To do more a function
 would have to trash more than it does, which is a change to what its
 callers may rely on, or put a register by on entry and bring it back.
 
+**What is called, and what it costs (2026-10-12, last).** Chris: "we
+have the tools to inteligently move the register allocation around in the
+handtuned code", and "build the report". A function is never made to
+trash more, "that would invalidate most handtuned VP code !". But one
+that is made to trash less harms no caller, lint says if the code does,
+and each register it leaves is a home for a local of whatever calls it.
+`locals -c 20` says where that pays most: for each method called from a
+function with locals, the calls, the locals wanted after them, those
+with no register to be in, and of those the ones it is the call that
+keeps out and not the caller's own use of registers. Then which of the
+registers it trashes would help, and at how many calls.
+
+The first of it, of the tree as it is: `class/obj/deref`, 54 calls, 164
+locals wanted after them and no register for any, it trashes all 15: it
+may be the last reference, and then anything is run. `sys/task/sleep`, 22
+calls, 112 locals, all 15. Then `class/lisp/repl_apply`,
+`class/obj/destroy`, and the writes of a stream, `:write`, `:write_char`,
+`:write_bits`, `:write_cstr`, 13 or 14 of 15 each.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - form to reverse polish, code generator,

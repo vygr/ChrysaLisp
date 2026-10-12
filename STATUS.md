@@ -4,6 +4,37 @@
 
 ------
 
+**`locals -c`: what each method called costs those that call it.**
+
+Chris: "We can though now, going forward, know what the best thing to do
+is, and we have the tools to inteligently move the register allocation
+around in the handtuned code", then "pushed, build the report". Of making
+a function trash more he had said "that would invalidate most handtuned
+VP code !", so that is never done. To trash less harms no caller.
+
+`cmd/locals.lisp`, `-c num`: the worst that many. For each method called
+from a function with named locals: the calls, the locals wanted after
+them, those with no register the call leaves that the caller does not
+use, and of those the ones it is the call that keeps out. Then the
+registers it trashes that would each be a home for one more local, and
+at how many calls. A call bound to a function is by what the function
+trashes, one through a vtable by what the method does.
+
+What it says first: `class/obj/deref` 54 calls, 164 locals, 139 of them
+kept out by it, it trashes all 15; `sys/task/sleep` 22 calls, 112, 69;
+`class/lisp/repl_apply`, `class/obj/destroy`, then four writes of a
+stream. `class/array/push_back2` has 211 locals with no register after
+it and trashes 3 of 15: that is its callers' own use of registers, and
+it is not in the list for it.
+
+A test that the report is given. 98 in `tests/text/test_tree.lisp`.
+Nothing assembled is changed.
+
+Not done: nothing is retuned by it yet. It counts places in the source,
+not how often each is run.
+
+------
+
 **vpx: a virtual method declares what its own function trashes too, and one keeps its locals in registers.**
 
 Chris: "pushed, yes have trace -w write the two lists". Only static
