@@ -4,6 +4,31 @@
 
 ------
 
+**(lines!) where a loop read a line at a time.**
+
+Chris, as trivia: "(while (defq raw_line (read-line in)).    Why not using
+lines! ?" There was no reason. Of the nine there were, eight are
+`(lines! (lambda (line) ... :nil) stream)`: `cmd/brackets.lisp`,
+`cmd/forward.lisp`, `cmd/unique.lisp`, `lib/text/tree.inc`,
+`lib/streams/hex.inc`, `lib/streams/diff.inc`, two in the Docs app's file
+handler, one of them stopping at a line by giving `:t`, and one in a test,
+which now has `(lines!)` over a stream of a store.
+
+The ninth is left, `lib/text/format.inc`: its loop keeps what it found on
+one line for the next in names it makes with `(defq)` and `(bind)`, which
+in a lambda would be the lambda's own and forgotten each line.
+
+Timed first, as the rule is: a file of 14,756 lines, 20 times each, a
+`(while)` of `(read-line)` 1,408 and 1,424 us, `(lines!)` 1,466 and 1,406
+us. The same. It is for how it reads, not for how fast it goes.
+
+Run: `check`, `forward` and `brackets` over the tree, which are three of
+what was changed; every module, 6,482 and 0 failed, on the three machines.
+
+Not seen: a page with a file in it opened in the Docs app.
+
+------
+
 **vpx: the files and the pages are of that name and that way of writing.**
 
 Chris: "vpx is ok, I can't think of any better." And, of the leftovers I

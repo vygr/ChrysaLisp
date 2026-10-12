@@ -21,9 +21,10 @@
 			;from stdin
 			(when (defq ll (read-line stdin))
 				(print ll)
-				(while (defq nl (read-line stdin))
+				(lines! (lambda (nl)
 					(unless (eql ll nl)
-						(print (setq ll nl)))))
+						(print (setq ll nl)))
+					:nil) stdin))
 			;from args
 			(print (defq ll (second args)))
 			(each (lambda (nl)

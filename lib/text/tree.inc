@@ -29,7 +29,7 @@
 	;the nodes of a file, how many brackets were not closed, 0 for one
 	;that is whole, and how many closed nothing: those are left out
 	(defq syntax (Syntax) line_no 0 top (list) stack (list) into top stray 0)
-	(while (defq line (read-line stream))
+	(lines! (lambda (line)
 		(++ line_no)
 		(bind '(toks states) (. syntax :tokenize (trim-end line "\r")))
 		(if (empty? toks) (push into (list :blank line_no)))
@@ -49,7 +49,8 @@
 							((++ stray)))
 						(++ j)))
 				(push into (list state line_no tok))))
-			toks states))
+			toks states)
+		:nil) stream)
 	(list top (length stack) stray))
 
 (defun tree-form? (node &optional head)

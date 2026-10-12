@@ -45,7 +45,7 @@
 			(defq syntax (Syntax) line_no 0 stack (list)
 				errs (list) num_paren 0 num_square 0 num_brace 0
 				max_depth 0 top_forms 0 in_quote :nil)
-			(while (defq raw_line (read-line in))
+			(lines! (lambda (raw_line)
 				(task-slice)
 				(++ line_no)
 				(defq line (trim-end raw_line "\r"))
@@ -84,7 +84,8 @@
 											(push errs (cat file " (" (str line_no) ":" (str ch_col) "): mismatched closing '" ch "', expected '" expected "' for '" open_ch "' opened at (" (str open_line) ":" (str open_col) ")"))))))
 							(++ ti)))
 					(setq col (+ col (length tok))))
-					toks states))
+					toks states)
+				:nil) in)
 			(while (nempty? stack)
 				(defq top (pop stack) open_ch (first top) open_line (second top) open_col (third top))
 				(push errs (cat file " (" (str open_line) ":" (str open_col) "): unclosed bracket '" open_ch "'")))

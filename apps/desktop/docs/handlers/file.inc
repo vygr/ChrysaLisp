@@ -24,12 +24,15 @@
 									(setq end_exp :nil)
 									(write-line *mem_stream* (trim line "\r")))))
 						(end_exp
-							(while (and end_exp (defq line (read-line stream)))
-								(if (found? line end_exp)
-									(setq end_exp :nil)
-									(write-line *mem_stream* (trim line "\r")))))
-						(:t (while (defq line (read-line stream))
-								(write-line *mem_stream* (trim line "\r")))))
+							;up to the line that has the end of it, which is not written
+							(lines! (lambda (line)
+								(cond
+									((found? line end_exp) (setq end_exp :nil) :t)
+									(:t (write-line *mem_stream* (trim line "\r")) :nil)))
+								stream))
+						(:t (lines! (lambda (line)
+								(write-line *mem_stream* (trim line "\r"))
+							:nil) stream)))
 					(setq stream :nil)))
 			(stream-seek *mem_stream* 0 0)
 

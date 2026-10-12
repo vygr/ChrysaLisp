@@ -136,7 +136,7 @@
 						(read-line b)
 						(times (inc (- e2 s2))
 							(write-line c (slice (read-line b) 2 -1))))))))
-	(while (defq l (read-line a)) (write-line c l)))
+	(lines! (lambda (l) (write-line c l) :nil) a))
 
 ;module
 (export-symbols '(stream-diff stream-patch))

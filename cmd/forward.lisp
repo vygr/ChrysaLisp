@@ -42,7 +42,7 @@
 				;the definitions that are open, the innermost last, each
 				;(name depth kind), and what the next symbol is
 				open (list) after_open :nil want :nil)
-			(while (defq raw_line (read-line in))
+			(lines! (lambda (raw_line)
 				(task-slice)
 				(++ line_no)
 				;the name of a definition is on the line its defun is on. A
@@ -71,7 +71,8 @@
 								((push uses (list tok line_no (if (nempty? open) (last open)) after_open))))
 							(setq after_open :nil))
 						(:t (setq after_open :nil))))
-					toks states))
+					toks states)
+				:nil) in)
 			(each (lambda ((name at inside head))
 				(when (defq n (. defs_map :find name))
 					(cond

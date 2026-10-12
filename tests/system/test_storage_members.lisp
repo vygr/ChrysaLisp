@@ -203,7 +203,7 @@
 	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 2000))) :nil (sn-of "m-b"))
 	(sn-settle)
 	(defq sn_stream (storage-stream "text" (sn-of "m-d") 2) sn_count 0 sn_last "")
-	(when sn_stream (while (defq sn_line (read-line sn_stream)) (++ sn_count) (setq sn_last sn_line)))
+	(when sn_stream (lines! (lambda (sn_line) (++ sn_count) (setq sn_last sn_line) :nil) sn_stream))
 	(assert-eq "an object of lines is read a line at a time, across its blocks" 2000 sn_count)
 	(assert-eq "to the last" "line 1999" sn_last)
 	(assert-eq "no object of that path, no stream" :nil (storage-stream "no such" (sn-of "m-a")))

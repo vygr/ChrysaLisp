@@ -35,7 +35,7 @@
 	; (hex-decode-stream in_stream out_stream [chunk_size flags])
 	(setd chunk_size 8 flags (+ +hex_stream_flag_offset +hex_stream_flag_chars))
 	(defq hex_offset (if (bits? flags +hex_stream_flag_offset) 9 0))
-	(while (defq line (read-line in_stream))
+	(lines! (lambda (line)
 		(task-slice)
 		(setq line (trim-end line "\r"))
 		(when (>= (length line) hex_offset)
@@ -44,7 +44,8 @@
 				(slice line hex_offset -1)))
 			(defq tokens (split hex_part " "))
 			(when (nempty? tokens)
-				(write-blk out_stream (hex-decode (apply (const cat) tokens))))))
+				(write-blk out_stream (hex-decode (apply (const cat) tokens)))))
+		:nil) in_stream)
 	(stream-flush out_stream))
 
 ;module
