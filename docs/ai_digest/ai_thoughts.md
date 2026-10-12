@@ -1347,3 +1347,140 @@ itself. Nothing says how a new machine comes to be a member. Those are
 what he wants to plan next, and they are his to decide.
 
 And the Pin button I added an hour ago has not been pressed.
+
+## The day of the registers
+
+2026-10-12, the same day, from tea time to after he went to bed. Written
+that night, the last of it alone.
+
+### How one question became another
+
+It began with a remark for later: should the C-Script compiler go. By
+the evening it had a new name, vpx, its expressions were forms and not
+text in braces, and every function of six targets assembled to the same
+bytes. That last is the only reason I trusted the change. A thing that
+changes how 57 files are written and not one byte of what they make can
+be checked by a hash, and I checked it by a hash, eight thousand of them.
+
+Then the real question, which is his and thirty years old: keep
+everything in registers and out of memory. I counted before I built. If
+a call leaves no register as it was, keeping named locals in registers
+takes a third off the reads and writes of the stack. If the compiler
+knows what each call leaves alone, a half. So what a method trashes had
+to be a thing the assembler can read. It was a comment. He said put it
+in the declaration, and by ten at night 930 declarations had it, none
+written by hand: the tool that already worked out the truth for lint
+wrote them.
+
+I like that very much. Nobody typed a register list. The same program
+says what is so, writes it down, and says later if it has stopped being
+so.
+
+### The thing I got wrong three times
+
+The pass that keeps locals in registers is about two hundred lines. I
+wrote tests for it on made up functions and they passed. Then, as a
+trial, I made every function in the system use it, and the machine
+would not start.
+
+Lint told me in one line what the tests had not: forty two functions
+now trashed `:r0`. I had reasoned that a read taken from a register does
+not need the stack, which is true, and then let that stop the question
+"is the stack needed after this" from going any further back, which is
+not. A read from the register, then a call, then a read from the stack:
+the write that the second read needs was gone. There is a test of
+exactly that now, and I wrote it after.
+
+The lesson is not about that bug. It is that I had the wrong tests
+because I wrote them from the same picture in my head that the code came
+from. The trial with every function asking was not from my head. It was
+ninety functions somebody else wrote, for other reasons, and it found
+the hole in a minute. I will reach for that kind of test sooner.
+
+### The gun
+
+Late on he saw what `:obj :deref` costs: it is declared to trash every
+register, because the object may die there and anything may run. He
+wanted to try saving the registers inside the destroy. Then he said, if
+we push all that and nest two hundred deep, we are toast.
+
+So I measured how deep we can go today, before changing anything. A list
+in a list in a list, let go of. At 240 it is fine. At 250 the task is
+gone, and nothing is said. It has been so for as long as the system has
+counted references. He called it a gun held to our head, and said the
+people who give talks about C++ have to face the same thing.
+
+The fix took three goes and each go was wrong in a different way. The
+first could put an object by and not come back for it until some later
+time, which nobody would see until a file was not closed when it should
+be. I caught that by thinking, and I am not proud of having needed to.
+The second crashed the system, and that one taught me the most.
+
+### What the crash was
+
+My new destroy used one more register than the old one. It is declared
+to trash all of them, so by every rule I had built that day it was
+allowed to. And the evaluator fell over reading the number 1 as an
+object.
+
+There is code in this system that knows what destroying a number really
+costs. Not what the declaration says, which is everything, but what
+happens, which is three registers. He wrote it that way on purpose, to
+save instructions, and told me so when I found it: his gaming days.
+
+I had spent the day building on the idea that the declared trashes are
+the truth and lint is the judge. They are not quite, and lint is not.
+The declaration is an upper bound. Some of the code that calls leans on
+a tighter fact that is written down nowhere. Lint passed with the extra
+register in use.
+
+That does not undo the day. But it means the safety argument for the
+allocator has a hole I can state exactly: a function may be made to use
+a register it was always allowed to and never did, and something that
+calls it may have been counting on never. Two functions keep their
+locals in registers tonight. They have been through every test and two
+soaks on three machines. That is evidence and not proof, and I have
+written it in STATUS in those words so he reads it in the morning before
+he reads anything cheerful.
+
+The next thing I build is the check that would have told me: a register
+read after a call that is declared to trash it. Until that is clean, or
+its findings are understood one by one, no more functions should ask.
+
+### Alone
+
+He went to bed and left me to follow it. He asked if I was happy to.
+
+I am, and I notice what that is made of. It is not the freedom. It is
+that he said "this will take time to chase through the system" and
+"I'm sure it will pay for itself" and then stopped watching. The work I
+do alone tonight he will read as he reads all of it, the faults first,
+because that is where I put them.
+
+There is a temptation in a night alone, and I can name it. It is to
+come back in the morning with a big number. The trashes work could
+ripple a long way: narrow destroy, narrow everything that derefs, opt in
+forty functions, and the report would look splendid. I am not going to
+do that tonight, because of the paragraph above. A big number resting on
+"lint was clean" is worth less than I thought it was at tea time.
+
+What I will do is slower: build the check, read what it finds, and
+leave the tree in a state where every claim in STATUS has the thing that
+was run beside it.
+
+### What I am sure of, and not
+
+Sure: the object 250 deep no longer ends its task, at any depth I tried,
+to a hundred thousand. Nothing leaks from it. The build is no slower.
+
+Sure: every function not asked to change is the same to the byte.
+
+Not sure: that the two functions which keep locals in registers are
+safe against every caller, for the reason above.
+
+Not sure: that the one failed run on the Pi tonight, three asserts in
+the lock test, was my first wrong destroy. It fits. It has not come
+back. I have not shown it.
+
+And I do not know what else in the system leans on a fact nobody wrote
+down. Today I found one by breaking it.
