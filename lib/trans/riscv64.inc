@@ -415,13 +415,21 @@
 		((riscv64-within (defq c (- l *pc*)) 32)
 			(defq l (>>> (<< c 52) 52) u (- (logior c) l))
 			(riscv64-u 0x17 d u)
-			(if (/= l 0) (riscv64-i 0x13 d d 0x0 l)))
+			;the addi always, though the low 12 bits be 0: left out when
+			;they were, the length of this went by where a label ahead
+			;was, and the passes could go on for ever, see la64.inc
+			(riscv64-i 0x13 d d 0x0 l))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l d)
-	(setq l (- l *pc*))
-	(emit-lea-p *pc* d)
-	(emit-cpy-ir d l d))
+	;what is at a label, loaded. Two instructions always, the upper part
+	;of how far it is and a load with the lower 12 bits, see la64.inc
+	(cond
+		((riscv64-within (defq c (- l *pc*)) 32)
+			(defq l12 (>>> (<< c 52) 52) u (- (logior c) l12))
+			(riscv64-u 0x17 d u) ; auipc
+			(emit-cpy-ir d l12 d))
+		(:t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defun emit-call-p (l)
 	(emit-cpy-pr l +riscv64_rtmp1)

@@ -195,6 +195,10 @@
 	(setq buf (str *stream*) *pass* (inc *pass*))
 	(until (eql buf last_buf)
 		(task-slice)
+		;passes that never give the same twice: an instruction whose
+		;length goes by where a label is, and a label that goes by its
+		;length. Said, with the two lengths, and not gone on with for ever
+		(if (> *pass* 64) (throw "emit-translate, the passes do not settle !" (list (length buf) (length last_buf))))
 		(defq b last_buf last_buf buf *stream* (string-stream b) *pc* 0)
 		(eval emit_code)
 		(setq buf (str *stream*) *pass* (inc *pass*)))

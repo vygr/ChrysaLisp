@@ -421,13 +421,29 @@
 			;addi.d sign extends its 12 bits, so split as upper + signed lower
 			(defq l12 (>>> (<< c 52) 52) u20 (>>> (- c l12) 12))
 			(la64-1ri20 0x1c000000 d u20) ; pcaddu12i
-			(if (/= l12 0) (la64-2ri12 0x02c00000 d d l12))) ; addi.d
+			;the addi.d always, though the low 12 bits be 0. Left out when
+			;they were, this was 4 bytes or 8 by where a label was, and a
+			;label ahead is where the last pass put it: with one exactly
+			;a multiple of 4096 on, this was 4, the label came 4 nearer,
+			;so next pass this was 8 and the label went back, and the
+			;passes, which end when two give the same, never ended
+			(la64-2ri12 0x02c00000 d d l12)) ; addi.d
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l d)
-	(setq l (- l *pc*))
-	(emit-lea-p *pc* d)
-	(emit-cpy-ir d l d))
+	;what is at a label, loaded. Two instructions always: the upper part
+	;of how far it is, added to where this is, and a load with the lower
+	;12 bits. It was the address of this and then a load with all of how
+	;far, as many instructions as that took: its length went by where the
+	;label was, the label, in the table after an align, went by its
+	;length, and for a label about 4096 on the passes never ended
+	(defq c (- l *pc*))
+	(cond
+		((la64-within c 32)
+			(defq l12 (>>> (<< c 52) 52) u20 (>>> (- c l12) 12))
+			(la64-1ri20 0x1c000000 d u20) ; pcaddu12i
+			(emit-cpy-ir d l12 d))
+		(:t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defun emit-call-p (l)
 	(emit-cpy-pr l +la64_rtmp1)

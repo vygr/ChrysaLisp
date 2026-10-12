@@ -4,6 +4,44 @@
 
 ------
 
+**LoongArch and RISC-V: the kernel did not build, the passes of the assembler never ended.**
+
+Found by me, building every platform for a baseline before any work on
+the C-Script compiler: `make all platforms` stopped at LA64 with "no answer
+from the workers". It was `sys/kernel/class.vp`, and it was today's fix to
+the kernel, pushed this afternoon, that tipped it: with that taken out it
+built.
+
+Not the fix's fault. `(emit-cpy-pr)`, what is at a label loaded, was the
+address of where it is and then a load with all of how far the label is,
+as many instructions as that took. So its length went by where the label
+was. The label is in the table of a function, after an align, so it went
+by the length of what is before it. For a label about 4096 on, each pass
+gave the other answer, and the passes end when two give the same. One
+call in the kernel was 32 bytes, then 28, then 32. `(emit-lea-p)` had the
+same in it for a label an exact multiple of 4096 on, an add left out when
+its number was 0.
+
+`lib/trans/la64.inc`, `lib/trans/riscv64.inc`: a load from a label is two
+instructions always, the upper part of how far and a load with the lower
+12 bits, which is also shorter; `(emit-lea-p)` always has its add.
+`lib/trans/vp.inc`: passes that have not settled after 64 are an error,
+said, with nothing waited on for ever.
+
+Run: `make all platforms boot`, all six done. Under QEMU, both: the host
+built, a self hosted `make all boot` the same as the cross built image to
+the byte, 956 objects. `tests -a` there: LoongArch 6,374 and 1 "no
+result", RISC-V a few "no result", other ones each run, with the desktop
+of eight nodes up on the same machine. Those five modules by themselves:
+636 and 0 failed on each. The x64 Mac and the Pi, rebuilt: 6,482 and 0
+failed. Lint clean.
+
+Not seen: a clean `tests -a` under QEMU in one go, the machine was busy.
+The x86 and VP64 back ends keep the longest a jump has been and do not
+have this. ARM's has one length.
+
+------
+
 **Whiteboard: an instrument is on the lines whenever the snap is on.**
 
 Chris: "do the two small snap things", one new from the palette and a
