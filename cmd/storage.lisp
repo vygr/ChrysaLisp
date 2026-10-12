@@ -17,7 +17,11 @@
         -F --format: with -s and -m, make a store of what is
             there even if it is something else, a disk.
         -k --copies num: with -m, how many members keep a
-            block, default 3.
+            block, default 3. With a path and no -s, how
+            many are to keep the blocks of that object, or
+            of every object whose path begins so: more for
+            what must not be lost or is read a lot. 0 is as
+            many as the store says.
         -q --query form: send a gopher to path with that
             function, in double quotes,
             \q(lambda (state data at count) ...)\q, which gives
@@ -73,16 +77,16 @@
 (defun show (entry)
 	;a line of an object: how long, how many times written, how many of
 	;the members have it, who wrote it, its path
-	(bind '(name hash bytes vv writer seen deleted) entry)
+	(bind '(name hash bytes vv writer seen deleted copies) entry)
 	(print (pad (str bytes) 12) " " (pad (str (store-vv-total vv)) 4) " "
 		(pad (cat (str (length (filter (# (find %0 members)) seen))) "/" (str (length members))) 6) " "
-		(slice writer 0 8) " " name))
+		(slice writer 0 8) " " (if (> copies 0) (cat "x" (str copies)) "  ") " " name))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k 0 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
+			(defq opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
@@ -153,6 +157,14 @@
 				(defq bad (storage-check opt_C svc))
 				(each (const print) bad)
 				(print (length bad) " blocks are not what their names say" (if opt_C ", let go of." ".")))
+			((and (>= opt_k 0) (not opt_s))
+				;the one object, or every one whose path begins so
+				(defq entries (if (storage-stat name svc) (list (storage-stat name svc)) (ifn (storage-list name svc) (list))))
+				(each (lambda (entry)
+					(bind '(what now) (storage-copies (first entry) opt_k svc))
+					(if (eql what :ok) (show now) (print "Not set: " (first entry))))
+					entries)
+				(if (empty? entries) (print "No object at " name)))
 			((or opt_P opt_U)
 				(each (const print) (storage-pin name opt_U svc))
 				(print (length (storage-pins-missing svc)) " blocks of what is pinned are not here yet."))

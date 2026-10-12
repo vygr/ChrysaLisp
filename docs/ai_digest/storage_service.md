@@ -369,6 +369,7 @@ little, and one member will ask another for blocks the same way an app does.
 (storage-get path)   (storage-read path offset len)
 (storage-stat path)  (storage-list [prefix])   (storage-delete path [from])
 (storage-walk path state visit [at wait])      a gopher, see below
+(storage-copies path [copies])                 how many members keep its blocks, the dial
 (storage-pin prefix [off])   (storage-pins-missing)
 (storage-sweep)   (storage-check [mend])   (storage-info)
 ```
@@ -728,6 +729,46 @@ A gopher goes, of the members that have the block it wants, to the one with
 the longest run of the blocks after it, so that it is not sent on again till
 it must be. How many members keep a block is the store's, said when it is
 made, `:copies`, `storage -k`, three if it is not.
+
+**The dial: how many copies, a path at a time.** 2026-10-12, late. The
+question was whether duplication can be controlled; Chris: "would we do a per
+path(file) setting ? deafults to 3, realy important dfiles can be set
+higher ? I think that's the crux of the concern", and that it is "both
+security of important files, and performance tuning for file that are used
+a lot". It is one number, in the entry of the path:
+
+```
+(storage-copies path [copies svc])      how many, or set it; 0 the store's
+storage -k 5 docs/contract.pdf          the one object
+storage -k 2 scratch/                   every object whose path begins so
+```
+
+* It is a write of the path like any other: it is counted, told to the
+  other members as they meet, and of two set apart the greater is kept.
+  Written again, a path has the copies it had.
+* Nobody is asked who keeps a block still. The members have an order that
+  is the block's own, `(store-rank)`, and the first so many keep it: three,
+  or as many as its object says. So to ask for more adds keepers and moves
+  nothing, and to ask for fewer takes the last of them away. A member
+  working out its share takes the number from the object, and a block two
+  objects are made of has as many keepers as the one that asks for more:
+  that the same bytes are kept the once is to save room, Chris, "not
+  safety or speed", and how many keep them is another thing.
+* A gopher carries the number with what its object was, so its way is
+  worked out among all that are to have the blocks: of an object every
+  member keeps, it goes nowhere.
+* An entry is a line as it was, the number after the deleted, `0/5`, and
+  one written before reads as not saying.
+
+Seen, five members: set to 5 at one member, every block of the object on
+all five and those of another object on three; set to 1 at another, on the
+one, and had whole from a member with none of it; set to 0, three again.
+
+Not there: a number for a folder that what is put in it later takes, it
+is set on what is there; and anything that counts how much a path is read
+and turns the dial, Chris: "We may even be able to do the 'used a lot'
+auto tuning later, once we have the dial." Manifests are kept by every
+member whatever the dial says, as they were.
 
 **To look at**, `apps/system/storage/app.lisp`, Storage in the launcher under
 System. The members of a store down the side, the blocks of one object

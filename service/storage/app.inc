@@ -20,7 +20,8 @@
 	(enum info stat list has block_put block_get commit delete
 		pin pins_missing sweep check walk stop
 		;what members ask of each other, and a tender of its own service
-		state entries merge share block_drop where peers members cut))
+		state entries merge share block_drop where peers members cut
+		copies))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -300,6 +301,20 @@
 	;there is no object of that name from now, provided it is from
 	(storage-result (storage-ask (ifn svc (storage-service)) +storage_type_delete
 		(cat (storage-from from) +storage_lf name))))
+
+(defun storage-copies (name &optional copies svc)
+	; (storage-copies path [copies svc]) -> :nil | num | (:ok entry) | (:none :nil) | (:lost :nil)
+	;how many members are to keep the blocks of the object a path is, the
+	;dial: more for what must not be lost, or is read a great deal, fewer
+	;for what can be had again. 0 is as many as the store says. It is a
+	;write of the path, and the members come to it as they hear. Without
+	;copies, how many it is now, :nil if there is no such object
+	(setd svc (storage-service))
+	(cond
+		(copies (storage-result (storage-ask svc +storage_type_copies (cat (str copies) +storage_lf name))))
+		((defq entry (storage-stat name svc))
+			(if (> (defq said (elem-get entry +store_entry_copies)) 0) said
+				(and (defq info (storage-info svc)) (. info :find :copies))))))
 
 (defun storage-walk (name state visit &optional at wait svc)
 	; (storage-walk path state visit [at wait svc]) -> :nil | (state trail)

@@ -14,7 +14,7 @@
 ; a store that changes, and the one part members will ever have to agree
 ; on. An entry of it is
 ;
-;	(path hash size vv writer seen deleted)
+;	(path hash size vv writer seen deleted copies)
 ;
 ; hash is the name of the manifest. vv says how many times each member has
 ; written the path, as far as the writer of this entry knew: one entry
@@ -23,7 +23,8 @@
 ; of the other. writer is the member that made it, and seen the members
 ; that are known to have it, this one among them. One that is deleted
 ; stays, with no object, so that a member who was away does not bring the
-; object back.
+; object back. copies is how many members are to keep the blocks of the
+; object, 0 for as many as the store says, (store-copies).
 ;
 ; There is one way to write: a path is set to an object provided it is
 ; now what the writer says it is, (store-commit).
@@ -57,7 +58,7 @@
 	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10))
 
 (enums +store_entry 0
-	(enum path hash bytes vv writer seen deleted))
+	(enum path hash bytes vv writer seen deleted copies))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the counts of who has written a path
@@ -142,16 +143,19 @@
 
 (defun store-entry-line (entry)
 	;the path is last, it may have spaces in it
-	(bind '(name hash size vv writer seen deleted) entry)
+	;how many copies, if it is said, is after the deleted, 0/5: an entry
+	;written before there was such a thing reads as not said
+	(bind '(name hash size vv writer seen deleted copies) entry)
 	(join (list (if (eql hash "") "-" (hex-encode hash)) (str size) (store-vv-text vv) writer
-		(if (empty? seen) "-" (join seen ",")) (if deleted "1" "0") name) " "))
+		(if (empty? seen) "-" (join seen ",")) (cat (if deleted "1" "0") (if (> copies 0) (cat "/" (str copies)) "")) name) " "))
 
 (defun store-entry-read (line)
 	(defq parts (split line " "))
 	(when (>= (length parts) 7)
 		(bind '(hash size vv writer seen deleted) (slice parts 0 6))
 		(list (join (slice parts 6 -1) " ") (if (eql hash "-") "" (hex-decode hash)) (str-as-num size)
-			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (eql deleted "1"))))
+			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (starts-with "1" deleted)
+			(if (defq at (find "/" deleted)) (str-as-num (slice deleted (inc at) -1)) 0))))
 
 (defun store-save (store)
 	; (store-save store) -> store
@@ -394,14 +398,16 @@
 	;writer says it is setting it from
 	(if (defq entry (store-stat store name)) (elem-get entry +store_entry_hash) ""))
 
-(defun store-set (store name hash size from deleted)
+(defun store-set (store name hash size from deleted &optional copies)
 	;the one way a path is changed here. from is what the writer says it
-	;is now, :nil if it does not say
+	;is now, :nil if it does not say. How many copies there are to be of
+	;it is of the path, and stays as it is unless it is given
 	(defq was (store-find store name) member (get :member store))
 	(cond
 		((and from (nql from (store-now store name))) (list :stale (store-stat store name)))
 		(:t (defq entry (list name hash size
-				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted))
+				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted
+				(ifn copies (if was (elem-get was +store_entry_copies) 0))))
 			(. (get :map store) :insert name entry)
 			(store-touch store name)
 			(store-save store)
@@ -442,6 +448,24 @@
 	(cond
 		((not (store-stat store name)) (list :none :nil))
 		((store-set store name "" 0 from :t))))
+
+(defun store-copies (store name &optional copies)
+	; (store-copies store path [copies]) -> :nil | num | (:ok entry) | (:none :nil)
+	;how many members are to keep the blocks of the object a path is: the
+	;dial. As many as the store says, unless it is set, to more for what
+	;must not be lost or is read a great deal, to fewer for what is big
+	;and can be had again. 0 sets it back to what the store says.
+	;
+	;It is a write of the path like any other, by this member, and the
+	;others hear of it as they do of any: then those that are now to keep
+	;its blocks fetch them, and those that no longer are let go of them.
+	;Without copies, what it is, :nil if there is no such object
+	(defq entry (store-stat store name))
+	(cond
+		((not copies)
+			(if entry (if (> (defq said (elem-get entry +store_entry_copies)) 0) said (get :copies store))))
+		((not entry) (list :none :nil))
+		((store-set store name (elem-get entry +store_entry_hash) (elem-get entry +store_entry_bytes) :nil :nil (max 0 copies)))))
 
 (defun store-walk (store name state visit &optional at)
 	; (store-walk store path state visit [at]) -> :nil | (state)
@@ -587,17 +611,17 @@
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
 		(task-slice)
-		(bind '(name hash bytes vv writer seen deleted) theirs)
+		(bind '(name hash bytes vv writer seen deleted copies) theirs)
 		(defq mine (. map :find name) now :nil)
 		(cond
 			((not mine)
-				(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted)))
+				(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
 			(:t (defq how (store-vv-cmp vv (elem-get mine +store_entry_vv)) my_hash (elem-get mine +store_entry_hash))
 				(cond
 					((eql how :after)
-						(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted)))
+						(setq now (list name hash bytes vv writer (store-seen seen (list me)) deleted copies)))
 					((eql how :before))
-					((and (eql how :same) (eql hash my_hash))
+					((and (eql how :same) (eql hash my_hash) (= copies (elem-get mine +store_entry_copies)))
 						;the one entry, and who has it is more than either knew
 						(defq both (store-seen seen (elem-get mine +store_entry_seen)))
 						(unless (= (length both) (length (elem-get mine +store_entry_seen)))
@@ -606,7 +630,9 @@
 						(defq keeps (store-keeps store theirs mine) other (if (eql keeps theirs) mine theirs)
 							both_vv (store-vv-merge vv (elem-get mine +store_entry_vv)))
 						(setq now (list name (elem-get keeps +store_entry_hash) (elem-get keeps +store_entry_bytes) both_vv
-							(elem-get keeps +store_entry_writer) (list me) (elem-get keeps +store_entry_deleted)))
+							(elem-get keeps +store_entry_writer) (list me) (elem-get keeps +store_entry_deleted)
+							;of two that were set apart, the more copies: to have too many is the lesser harm
+							(max copies (elem-get mine +store_entry_copies))))
 						(unless (or (elem-get other +store_entry_deleted)
 								(eql (elem-get other +store_entry_hash) (elem-get keeps +store_entry_hash)))
 							(defq aside (store-other-name other))
@@ -647,31 +673,37 @@
 	;of those members, the ones that are to keep a block of that name, as
 	;many as there are to be copies. It is worked out of the name and who
 	;they are and nothing else: anything that knows the two knows who
-	;keeps a block, a gopher too, and has nobody to ask
+	;keeps a block, a gopher too, and has nobody to ask.
+	;
+	;The members are put in an order that is the block's own, and the
+	;first so many keep it. So to ask for more copies adds members to
+	;those that keep it and moves it from none, and to ask for fewer
+	;takes the last of them away
 	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
 		(# (cmp (first %1) (first %0)))))
 	(map (const second) (slice scored 0 (min copies (length scored)))))
 
-(defun store-holders (store name &optional among)
-	; (store-holders store name [among]) -> (member ...)
+(defun store-holders (store name &optional among copies)
+	; (store-holders store name [among copies]) -> (member ...)
 	;the members that are to keep a block of that name, as many as there
-	;are to be copies, of the members, or of those given, the ones that
-	;are there. Each member is given a number made from its id and the
-	;name, and those with the greatest keep it: so every member works out
-	;the same, nobody has to be asked, and when a member comes or goes
-	;only the blocks that are its share move
+	;are to be copies, the store's if it is not said, of the members, or
+	;of those given, the ones that are there. Each member is given a
+	;number made from its id and the name, and those with the greatest
+	;keep it: so every member works out the same, nobody has to be asked,
+	;and when a member comes or goes only the blocks that are its share
+	;move
 	;
-	;What was worked out is kept, for as long as it is asked of the same
-	;members: a member asks it of every block it knows of each time it
-	;looks to its share, and it is a hash and a sort for each
-	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store))
+	;What was worked out is kept, the members in the block's order, for
+	;as long as it is asked of the same members: a member asks it of
+	;every block it knows of each time it looks to its share, and it is a
+	;hash and a sort for each
+	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store)
+		copies (if (and copies (> copies 0)) copies (get :copies store)))
 	(unless (and kept (eql (first kept) key))
 		(def store :holders (setq kept (list key (Fmap 4093)))))
-	(cond
-		((. (second kept) :find name))
-		(:t (defq holders (store-rank name among (get :copies store)))
-			(. (second kept) :insert name holders)
-			holders)))
+	(unless (defq order (. (second kept) :find name))
+		(. (second kept) :insert name (setq order (store-rank name among (length among)))))
+	(slice order 0 (min copies (length order))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
@@ -703,17 +735,23 @@
 	;It is to keep every manifest, a member has to know what an object is
 	;made of to look after any of it. Of the blocks of an object, those
 	;whose keepers it is one of, (store-holders), and all of them if its
-	;path is pinned. A block that no object is made of is neither, that
-	;is for (store-sweep)
+	;path is pinned. How many keepers a block has is its object's to say,
+	;(store-copies), and one that two objects are made of has as many as
+	;the one that asks for more. A block that no object is made of is
+	;neither, that is for (store-sweep)
 	(defq me (get :member store) wanted (Fset 4093) others (Fmap 4093) wants (list) extras (list))
 	(each (lambda (entry)
 		(task-slice)
-		(defq hash (elem-get entry +store_entry_hash) pinned (store-pinned? store (first entry)))
+		(defq hash (elem-get entry +store_entry_hash) pinned (store-pinned? store (first entry))
+			copies (elem-get entry +store_entry_copies))
 		(. wanted :insert hash)
 		(when (defq object (store-manifest store hash))
 			(each (lambda (name)
-				(defq holders (store-holders store name among))
-				(if (or pinned (find me holders)) (. wanted :insert name) (. others :insert name holders)))
+				(defq holders (store-holders store name among copies))
+				(cond
+					((or pinned (find me holders)) (. wanted :insert name))
+					;as another object has it, it may have more keepers
+					((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
 				(second object))))
 		(store-list store))
 	(. wanted :each (lambda (name) (unless (store-block-has? store name) (push wants name))))
@@ -786,10 +824,10 @@
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
-	store-commit store-put store-delete store-get store-read store-fold store-walk store-list
+	store-commit store-put store-delete store-copies store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 	store-entry-line store-entry-read
 	+store_block_size +store_copies +store_entry_path +store_entry_hash +store_entry_bytes
-	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted))
+	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

@@ -139,6 +139,11 @@
 								result (said (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at)))))
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)
+						(+storage_type_copies
+							(defq at (find +storage_lf body)
+								result (said (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at)))))
+							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+							result)
 						(+storage_type_pin
 							(store-pin store (rest body) (eql (first body) "-"))
 							(join (get :pins store) +storage_lf))
@@ -174,11 +179,13 @@
 									(slice extras 0 (min +share_most (length extras)))))
 								+storage_lf))
 						(+storage_type_where
-							;the other members a block may be had from, those that are
-							;to keep it first, then the rest
-							(defq holders (store-holders store body (cat (list member) (map (const first) peers))))
+							;the other members a block may be had from, in the block's
+							;own order: those that are to keep it are the first of
+							;them, however many its object says that is
+							(defq among (cat (list member) (map (const first) peers))
+								order (store-holders store body among (length among)))
 							(join (map (const second) (sort (cat peers)
-								(# (- (if (find (first %0) holders) 0 1) (if (find (first %1) holders) 0 1))))) +storage_lf))
+								(# (- (ifn (find (first %0) order) 99) (ifn (find (first %1) order) 99))))) +storage_lf))
 						(+storage_type_peers
 							;its tender says who is there: member and where, a line each
 							(if (nempty? body)

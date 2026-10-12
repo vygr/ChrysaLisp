@@ -22,10 +22,11 @@
 ;
 ; It is mailed its service, and then each gopher as the service is sent
 ; it: who to tell, a line, who asked, a line, - if that is who to tell,
-; and then the one form, (path at state function trail skip version).
-; trail is where it has been, skip the members that did not answer it,
-; version the name of what the object was when it set out, none yet if
-; it has just set out. One that was sent on says so, to who sent it,
+; and then the one form, (path at state function trail skip version
+; copies). trail is where it has been, skip the members that did not
+; answer it, version the name of what the object was when it set out, and
+; copies how many members were to keep its blocks then, neither yet if it
+; has just set out. One that was sent on says so, to who sent it,
 ; before anything else is done with it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -36,7 +37,7 @@
 ;wants is not: 0 where it is worked out to be, 1 those that say they
 ;have it, 2 nothing more. pass is there while it is being sent on
 (enums +gopher 0
-	(enum asker name at state source visit names version trail skip how pass))
+	(enum asker name at state source visit names version copies trail skip how pass))
 
 ;how many objects it keeps the blocks of, between gophers, and how often
 ;it looks while one is being sent on and nothing else is to be done
@@ -57,8 +58,8 @@
 			(. kept :insert version names)
 			names)))
 
-(defun gopher-take (svc member kept msg)
-	; (gopher-take svc member kept msg) -> :nil | gopher
+(defun gopher-take (svc member all kept msg)
+	; (gopher-take svc member all kept msg) -> :nil | gopher
 	;a gopher that has come, as it is from now on. :nil if nothing can be
 	;made of it, and who asked is told
 	(defq lines (split msg +storage_lf) reply (hex-decode (first lines)) from (second lines)
@@ -70,10 +71,14 @@
 	(catch (progn
 			(defq form (first (read (string-stream text))))
 			(bind '(name at state source trail skip) (slice form 0 6))
-			(defq version (if (> (length form) 6) (elem-get form 6)))
-			;what the object is now, if it has just set out: it is of that all the way
+			(defq version (if (> (length form) 6) (elem-get form 6))
+				copies (if (> (length form) 7) (elem-get form 7)))
+			;what the object is now, if it has just set out: it is of that all
+			;the way. And how many keep its blocks, which is the path's to say
 			(and (not version) (defq entry (storage-stat name svc))
-				(setq version (hex-encode (elem-get entry +store_entry_hash))))
+				(setq version (hex-encode (elem-get entry +store_entry_hash))
+					copies (elem-get entry +store_entry_copies)))
+			(if (or (not copies) (= copies 0)) (setq copies all))
 			(cond
 				((and version (defq names (gopher-names svc kept version)))
 					;where it has been: each member, and the block it came to it for
@@ -83,19 +88,19 @@
 					;its macros done and its names bound, in the form itself,
 					;Chris: "keep the original source so you can send it on with
 					;the state", and one that had been would not read back
-					(list asker name at state source (exec (copy source)) names version trail skip
+					(list asker name at state source (exec (copy source)) names version copies trail skip
 						;it was sent here for a block: if that is not here, what was
 						;worked out is not so, and it asks
 						(if (> (length trail) 1) 1 0) :nil))
 				(:t (mail-send asker "none") :nil)))
 		(progn (print "Gopher: " _) (mail-send asker "none") :t)))
 
-(defun gopher-turn (svc member copies g)
-	; (gopher-turn svc member copies g) -> :keep | :drop
+(defun gopher-turn (svc member g)
+	; (gopher-turn svc member g) -> :keep | :drop
 	;a step of a gopher: a block, if the one it wants is here, or a step
 	;of sending it on. :drop when it is done with here: it answered, it
 	;went, or it can not go on and said so
-	(bind '(asker name at state source visit names version trail skip how pass) g)
+	(bind '(asker name at state source visit names version copies trail skip how pass) g)
 	(defq count (length names))
 	(cond
 		(pass
@@ -126,7 +131,7 @@
 						(split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))))
 				holders (if (= how 0) (gopher-route names at member peers copies skip)
 					(gopher-order names at (map (const second) peers) skip)))
-			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version)))
+			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies)))
 			;and is sent to the first of them now
 			(gopher-pass-turn pass skip)
 			:keep)
@@ -142,7 +147,7 @@
 				(unless member
 					(defq info (storage-info svc))
 					(setq member (if info (. info :find :member) "?") copies (if info (. info :find :copies) 3)))
-				(if (list? (defq g (gopher-take svc member kept msg))) (push gophers g)))))
+				(if (list? (defq g (gopher-take svc member copies kept msg))) (push gophers g)))))
 	(while running
 		(cond
 			((some (# (not (elem-get %0 +gopher_pass))) gophers)
@@ -159,6 +164,6 @@
 				(if (= idx 0) (take msg))))
 		;a step of each. One whose function throws is done with, and says so
 		(setq gophers (filter (lambda (g)
-			(eql :keep (catch (gopher-turn svc member copies g)
+			(eql :keep (catch (gopher-turn svc member g)
 				(progn (print "Gopher: " _) (mail-send (elem-get g +gopher_asker) "none") :drop)))) gophers)))
 	(mail-timeout (second select) 0 0))

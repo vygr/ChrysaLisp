@@ -178,8 +178,26 @@
 		(store-vv-cmp (store-vv-merge '(("a" 5) ("b" 1)) '(("a" 4) ("b" 2))) '(("a" 4) ("b" 2)))))
 (assert-eq "how many times a path has been written" 7 (store-vv-total '(("a" 5) ("b" 2))))
 (assert-list-eq "an entry written as a line is read as it was, a path with spaces in it too"
-	(list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil)
-	(store-entry-read (store-entry-line (list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil))))
+	(list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil 0)
+	(store-entry-read (store-entry-line (list "d/a name with spaces" (sha256 "x") 12 '(("aaaa" 2) ("bbbb" 1)) "bbbb" '("aaaa" "bbbb") :nil 0))))
+
+;how many copies there are to be of a path, the dial
+(assert-list-eq "an entry that says how many copies is read as it was, and one written before it could is read as not saying"
+	(list 5 0 :t)
+	(list (elem-get (store-entry-read (store-entry-line (list "d/x" (sha256 "x") 12 '(("aaaa" 2)) "aaaa" '("aaaa") :nil 5))) +store_entry_copies)
+		(elem-get (store-entry-read "- 0 aaaa:1 aaaa aaaa 1 d/old one") +store_entry_copies)
+		(elem-get (store-entry-read "- 0 aaaa:1 aaaa aaaa 1/2 d/old one") +store_entry_deleted)))
+(defq so_writes (store-vv-total (elem-get (store-find so "a/one") +store_entry_vv)) so_was (store-now so "a/one"))
+(assert-eq "a path is to have as many copies as the store says, till it is set" 3 (store-copies so "a/one"))
+(assert-eq "it is set to five" :ok (so-is (store-copies so "a/one" 5)))
+(assert-list-eq "it is five, the object is as it was, and that was a write of the path" (list 5 so_was (inc so_writes))
+	(list (store-copies so "a/one") (store-now so "a/one") (store-vv-total (elem-get (store-find so "a/one") +store_entry_vv))))
+(store-put so "a/one" (cat (store-get so "a/one") "!"))
+(assert-eq "written again, it is still five: it is the path's" 5 (store-copies so "a/one"))
+(store-copies so "a/one" 0)
+(assert-eq "set to none, it is what the store says again" 3 (store-copies so "a/one"))
+(assert-list-eq "of no such object: none to ask of, none to set" '(:nil :none)
+	(list (store-copies so "a/no such") (so-is (store-copies so "a/no such" 4))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; deleted, and swept

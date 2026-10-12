@@ -121,6 +121,26 @@
 		(range 0 3)))
 	(assert-list-eq "three gophers at a member at once all come back, one of what the object was, one of what it is"
 		(sort (list (length (sn-bytes 2 "was")) (length (sn-bytes 3 "is")) sn_sum) (const -)) (sort (map (# (ifn %0 0)) sn_said) (const -)))
+
+	;the dial: how many keep the blocks of the one object
+	(defq sn_uniq (# (reduce (lambda (out n) (if (find n out) out (push out n))) %0 (list)))
+		sn_other (sn-blocks "ver" (sn-of "m-a")))
+	(assert-eq "an object is to have as many copies as the store says" 3 (storage-copies "big" :nil (sn-of "m-c")))
+	(assert-eq "it is set to five, at one member" :ok (first (storage-copies "big" 5 (sn-of "m-a"))))
+	(sn-settle)
+	(assert-list-eq "and every member has heard" '(5) (sn_uniq (map (# (storage-copies "big" :nil %0)) sn_svcs)))
+	(assert-list-eq "every block of it is kept by all five" '(5) (sn_uniq (sn-copies sn_names)))
+	(assert-list-eq "and the blocks of another object by three, as they were" '(3) (sn_uniq (sn-copies sn_other)))
+	(assert-eq "a gopher sent to it now has no need to go anywhere" 1
+		(length (second (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-d")))))
+	(storage-copies "big" 1 (sn-of "m-e"))
+	(sn-settle)
+	(assert-list-eq "set to one, at another member: every block of it is kept by the one" '(1) (sn_uniq (sn-copies sn_names)))
+	(assert-eq "and it is had whole, from a member that may have none of it" sn_big (storage-get "big" (sn-of "m-b")))
+	(assert-eq "a gopher still comes back with the answer" sn_sum (first (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-a"))))
+	(storage-copies "big" 0 (sn-of "m-b"))
+	(sn-settle)
+	(assert-list-eq "set back to what the store says: three" '(3) (sn_uniq (sn-copies sn_names)))
 	(assert-true "and went only to members" (every (# (find %0 sn_ids)) sn_went))
 	(assert-true "each time it was sent on it was for a block no earlier, and the member it went to has that block"
 		(every (lambda ((who at) (was before)) (and (>= at before)

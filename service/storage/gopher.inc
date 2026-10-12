@@ -75,15 +75,16 @@
 		members)
 	(map (const second) (sort runs (# (- (first %1) (first %0))))))
 
-(defun gopher-pass-begin (holders asker name at state source trail skip &optional wait version)
-	; (gopher-pass-begin holders asker name at state source trail skip [wait version]) -> pass
+(defun gopher-pass-begin (holders asker name at state source trail skip &optional wait version copies)
+	; (gopher-pass-begin holders asker name at state source trail skip [wait version copies]) -> pass
 	;a gopher is to be sent on to one of the holders, the first of them
 	;if it can be. Nothing is sent yet: (gopher-pass-turn) does it all, a
 	;step each time it is called, and never waits. version is the name of
 	;what the object was when the gopher set out, so that it is of the one
-	;thing all the way. wait, seconds, is for a test
+	;thing all the way, and copies how many members were to keep its
+	;blocks. wait, seconds, is for a test
 	(list (mail-mbox) holders 0 0
-		(cat (hex-encode asker) +storage_lf (str (list name at state source trail skip version)))
+		(cat (hex-encode asker) +storage_lf (str (list name at state source trail skip version copies)))
 		(task-timeout (ifn wait +gopher_ack_wait))))
 
 (defun gopher-pass-turn (pass skip)
@@ -114,10 +115,10 @@
 		(:t (each (# (push skip (hex-encode %0))) holders)
 			:lost)))
 
-(defun gopher-pass (holders asker name at state source trail skip &optional wait version)
-	; (gopher-pass holders asker name at state source trail skip [wait version]) -> :nil | netid
+(defun gopher-pass (holders asker name at state source trail skip &optional wait version copies)
+	; (gopher-pass holders asker name at state source trail skip [wait version copies]) -> :nil | netid
 	;a gopher is sent on to one of the holders, and it is waited for.
 	;Which it was, :nil if none of them took it
-	(defq pass (gopher-pass-begin holders asker name at state source trail skip wait version) went :wait)
+	(defq pass (gopher-pass-begin holders asker name at state source trail skip wait version copies) went :wait)
 	(while (eql (setq went (gopher-pass-turn pass skip)) :wait) (task-sleep 1000))
 	(if (eql went :lost) :nil went))

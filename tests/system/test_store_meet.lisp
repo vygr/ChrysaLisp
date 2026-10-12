@@ -161,7 +161,7 @@
 	(progn (store-join sm_m '("cccc")) (store-members sm_m)))
 (store-put sm_m "v" "x")
 (assert-eq "one of three members has an entry: not most" :nil (store-most? sm_m (store-find sm_m "v")))
-(store-meet sm_m (list (list "v" (store-now sm_m "v") 1 '(("aaaa" 1)) "aaaa" '("cccc" "dddd") :nil)))
+(store-meet sm_m (list (list "v" (store-now sm_m "v") 1 '(("aaaa" 1)) "aaaa" '("cccc" "dddd") :nil 0)))
 (assert-eq "one that is retired does not count: two of three that are members do" :t
 	(store-most? sm_m (store-find sm_m "v")))
 (defq sm_m2 (store-open (get :stream (get :vol sm_m)) "aaaa"))
@@ -191,6 +191,12 @@
 (assert-true "and each of them has one new keeper, the other two as they were"
 	(every (# (= 2 (length (filter (lambda (who) (find who (store-holders sm_h %0 sm_four))) (store-holders sm_h %0))))) sm_moved))
 (assert-eq "with fewer members than copies, they all keep it" 2 (length (store-holders sm_h (first sm_names) '("aaaa" "bbbb"))))
+;more copies, or fewer, of a block
+(assert-list-eq "asked for one, four, five and nine copies of five members: that many, and no more than there are" '(1 4 5 5)
+	(map (# (length (store-holders sm_h (first sm_names) :nil %0))) '(1 4 5 9)))
+(assert-true "more copies adds keepers and moves none: the three are the first three of the four, and the one the first of them"
+	(every (# (and (eql (str (store-holders sm_h %0)) (str (slice (store-holders sm_h %0 :nil 4) 0 3)))
+		(eql (first (store-holders sm_h %0)) (first (store-holders sm_h %0 :nil 1))))) sm_names))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; a member's share of it

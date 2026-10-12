@@ -4,6 +4,38 @@
 
 ------
 
+**Storage: the dial, how many members keep the blocks of a path.**
+
+Chris: "yes, build the per path copies dial". The question was whether
+duplication can be controlled, and Chris put it as "a per
+path(file) setting ? deafults to 3, realy important dfiles can be set
+higher", for safety and for files "that are used a lot".
+
+* `lib/storage/store.inc`: an entry of the path map has an eighth part,
+  copies, 0 for what the store says. `(store-copies store path [copies])`
+  reads it or sets it, a write of the path. `(store-holders)` takes how
+  many, and keeps the members in the block's order, so more copies are
+  more of the same list. `(store-share)` takes the number from each
+  object. Of two entries set apart, the greater.
+* `service/storage/`: `+storage_type_copies`, `(storage-copies path
+  [copies svc])`; where a block may be had from is said in the block's
+  order; a gopher carries the number.
+* `cmd/storage.lisp`: `storage -k 5 path`, the object or every object
+  whose path begins so, and the list shows `x5` by one that is set.
+
+Run: 19 new asserts in `test_store`, `test_store_meet` and
+`test_storage_members`: five members, set to 5, to 1 and back, at three
+different members, and a gopher after each. The command by hand on a store
+of one. 6,508 tests, 0 failed, on the M4, the x64 Mac and the Pi. `check`
+clean.
+
+Not seen: more than one machine; the Storage app, which does not show the
+number. Not built: a number for a folder that what is put there later
+takes; manifests are kept by every member still; nothing turns the dial
+by itself.
+
+------
+
 **Storage: a gopher is run where it lands and works out its way. The film in 1.05 seconds, it was 2.5.**
 
 Chris, of the tests I ran while he ate: "yes, build those three". Measured
