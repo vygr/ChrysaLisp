@@ -22,6 +22,7 @@
 	(assert-error "a local with the name of a function, alone in an and, is called" (tr-and-fn)))
 (assert-eq "with another name it is looked at" :nil (tr-and-ok))
 
+;check off, it is the trap, here to be fallen into
 (assert-error "a # with no %0 in it takes no arguments" (map (# (!)) (list 1 2 3)))
 (assert-list-eq "a lambda that ignores what it is given does" '(0 1 2) (map (lambda (&) (!)) (list 1 2 3)))
 (assert-list-eq "and one that ignores all it is given, however many" '(0 1 2)

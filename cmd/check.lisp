@@ -58,6 +58,10 @@
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
+    args    a (# ...) with no %0 in it, which takes nothing,
+            given to (map), (each), (filter), (some), (reduce),
+            (sort), (lines!) or the like, which call it with
+            an element.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -73,7 +77,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -294,6 +298,45 @@
 				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a parameter of (" head "), it is that one it has")) taken)))
 			(rest forms))))
 
+(defun takes-none? (node)
+	; (takes-none? node) -> :nil | :t
+	;is it a (# ...) with no %0, %1 and so on anywhere in it: a function
+	;of no arguments, to call it with one is an error. Not if a part of
+	;it is put in as it is made, ,x or ~x in a macro: what that part has
+	;in it is not here to be seen, and it may be the %0
+	(when (and (defq kids (tree-form? node)) (nempty? (defq inner (forms-of kids)))
+			(eql (first (first inner)) :symbol) (eql (third (first inner)) "#"))
+		(defq todo (list kids) none :t)
+		(while (and none (defq nodes (pop todo)))
+			(each (lambda (form)
+				(cond
+					((eql (first form) :symbol)
+						(if (or (and (starts-with "%" (third form)) (> (length (third form)) 1))
+								(find (first (third form)) ",~"))
+							(setq none :nil)))
+					((eql (first form) :form) (push todo (third form)))))
+				nodes))
+		none))
+
+(defun check-args (file forms head)
+	;(map (# (f)) seq): a (# ) with no %0 in it takes nothing, and what
+	;it is given to is known to call it with something. Only where that
+	;is known: each of these calls its function with an element, or two.
+	;Chris, who had asked of this rule "how do you know what will call
+	;it ?": "if there are cases we can spot and we see they are wrong,
+	;then by all means let's spot them"
+	(defq at (cond
+		((find head '("each" "map" "filter" "some" "every" "notany" "notevery" "reach" "rmap" "reduce" "rreduce" "lines!"))
+			(if (> (length forms) 2) 1))
+		;one with a ! is given its sequences in a list, which may have none in it
+		((find head '("each!" "map!" "some!" "filter!"))
+			(and (> (length forms) 2) (defq kids (tree-form? (third forms)))
+				(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list") 1))
+		((eql head "sort") (if (> (length forms) 2) 2))))
+	(and at (takes-none? (elem-get forms at))
+		(found file (elem-get forms at) "args" "a (# ) with no %0 in it takes nothing, and (" head
+			") calls it with something, (lambda (x) ...)")))
+
 (defun check-held (file forms head)
 	;(when (create-stdio) ...): the stdio is the value of the test and no more
 	(unless (find head '("defq" "setq" "bind"))
@@ -365,7 +408,8 @@
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
 							(if (find "capture" checks) (check-capture file forms head))
-							(if (find "held" checks) (check-held file forms head)))))
+							(if (find "held" checks) (check-held file forms head))
+							(if (find "args" checks) (check-args file forms head)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))
