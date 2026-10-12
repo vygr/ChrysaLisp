@@ -68,6 +68,8 @@
 ;the spread plus the window is purged. A node is also purged if not heard
 ;from in twice the period its last ping gave, plus the slack. An emulated
 ;node runs some 10 times slower, so the window and the slack are longer.
+;how many pings say a node has no @ services, after the last has gone
+(defcvar 'ping_sys_tail 3)
 (defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
 	'ping_stagger 50000 'ping_stagger_min 1000000
 	'ping_window (if (eql *cpu* 'vp64) 30000000 3000000)

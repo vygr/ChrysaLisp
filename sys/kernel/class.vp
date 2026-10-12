@@ -253,8 +253,13 @@
 					(else)
 						(kn-held-hash "+char_at")
 						(vpif {data->+kn_msg_ping_hash /= held_hash})
-							;not the services we hold for this node, so ask for them
-							(kn-send-want)
+							(vpif {data->+kn_msg_ping_hash = 0})
+								;it has none now, so nor do we, and no need to ask
+								(call :hset :each {set, $erase_prefix, +char_at})
+							(else)
+								;not the services we hold for this node, so ask for them
+								(kn-send-want)
+							(endif)
 						(endif)
 					(endif)
 					(endswitch)

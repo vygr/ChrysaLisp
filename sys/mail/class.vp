@@ -34,10 +34,11 @@
 	(fn-bind 'sys/statics/statics :r7)
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-cr ping_period_min :r1)
-	(assign '(:r0 :r0 :r0 :r0 :r0 :r0 :r1)
+	(assign '(:r0 :r0 :r0 :r0 :r0 :r0 :r0 :r1)
 		'((:r7 statics_sys_mail_session) (:r7 statics_sys_mail_full_time)
 		(:r7 statics_sys_mail_ping_next) (:r7 statics_sys_mail_ping_full)
 		(:r7 statics_sys_mail_ping_kick) (:r7 statics_sys_mail_links_sig)
+		(:r7 statics_sys_mail_ping_sys_tail)
 		(:r7 statics_sys_mail_ping_interval)))
 	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(_ :r1 _ _ _))
 	(fn-bind 'sys/statics/statics :r7)
@@ -751,8 +752,16 @@
 		;1. Send cluster ping (*)
 		(ping-send "cat.cat_entries_global" "+kn_call_ping")
 
-		;2. Send system ping (@) if any system-local services exist
+		;2. Send system ping (@) if any system-local services exist, and
+		;for a few pings after the last of them has gone: a node that
+		;stopped at once would never say it has none now, and the others
+		;of its system would hold what it had for ever. A ping of none has
+		;a hash of 0, and is taken as that
 		(vpif {cat.cat_entries_sys->+array_length})
+			(assign {ping_sys_tail} {statics->statics_sys_mail_ping_sys_tail})
+			(ping-send "cat.cat_entries_sys" "+kn_call_ping_sys")
+		(elseif {statics->statics_sys_mail_ping_sys_tail})
+			(assign {statics->statics_sys_mail_ping_sys_tail - 1} {statics->statics_sys_mail_ping_sys_tail})
 			(ping-send "cat.cat_entries_sys" "+kn_call_ping_sys")
 		(endif)
 

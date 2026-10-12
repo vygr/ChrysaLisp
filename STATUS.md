@@ -4,6 +4,40 @@
 
 ------
 
+**Kernel: a node whose last @ service is forgotten says so.**
+
+Chris sent a picture of the Services app with three `@StorageDemo` names
+in it, of members that had been stopped and their stores removed. Their
+`*` names were gone. I found why and said what I would change, and he
+said: "yeah do the fix."
+
+A node sent its `@` services to the nodes of its machine only if it had
+any, `sys/mail/class.vp`. With the last of them forgotten it sent nothing,
+and the others held it for ever. It did not show before, the nodes with
+`@` services have several: a demo member of a store alone on a node was
+the first. Now it sends that ping 3 times more, `ping_sys_tail`, of no
+services and a hash of 0, and a node told 0 lets go of what it held for
+it, `sys/kernel/class.vp`, as it did already for `*`.
+
+Seen to fail first: five members on five nodes of eight, stopped, and four
+`@` names were left after 8 s, three times over. With the fix, none after
+0.1 s, three times over. A test of it is in `test_storage_members`, a
+member started on another node, `(storage-start ... :node node)`, which is
+new, stopped, and its name is gone from here.
+
+Run: `make all boot`, lint clean, includes, imports, forward, check. Every
+module, built on each machine first: 6,450 and 0 failed on the M4, the x64
+Mac and the Pi. A desktop started on the Pi, nothing in its log. A soak of 12 after: 36 of
+36, 6,450 and 0 failed each.
+
+And `check` has `stray`, a name by itself at the top of a file in no
+form: a bracket of mine closed a (defq) before its end, in the watcher,
+and what was left of it ran by itself. The tree has none.
+
+Not seen: by Chris, the Services app after a demo is closed.
+
+------
+
 **Storage: the whole tree through streams, on three machines, and what it found.**
 
 Chris: "A good test would be to use the dumb streams to copy the entire

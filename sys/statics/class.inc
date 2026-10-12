@@ -36,7 +36,7 @@
 	;it has backed off to, if it is to be full, or a kick, and the sum of
 	;the link peers, which changes as a link comes up or goes down
 	(long sys_mail_full_time sys_mail_ping_next sys_mail_ping_interval)
-	(long sys_mail_ping_full sys_mail_ping_kick sys_mail_links_sig)
+	(long sys_mail_ping_full sys_mail_ping_kick sys_mail_links_sig sys_mail_ping_sys_tail)
 	(struct sys_mail_msg_heap +hp_heap_size)
 	(struct sys_mail_mbox_heap +hp_heap_size)
 	;keep these together

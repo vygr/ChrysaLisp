@@ -193,6 +193,14 @@ sends a ping when one is due.
 2. **Full ping:** As a routing ping, with the service list after it. One is
    sent when a service is declared or forgotten, and when asked for.
 
+   A node pings twice, its `*` services to every node there is, and its `@`
+   services to the nodes of its own machine, the second only if it has
+   any. When the last of its `@` services is forgotten it goes on sending
+   that second ping for `ping_sys_tail` (3) more, with no services and a
+   hash of 0, and a node that holds `@` services for it and is told 0 lets
+   go of them. Before that it said nothing, and the other nodes of the
+   machine held what it had for ever.
+
 3. **Back off:** Each ping doubles the time to the next, from
    `ping_period_min` (1 second) to `ping_period_max` (64 seconds), so a
    settled network goes quiet.

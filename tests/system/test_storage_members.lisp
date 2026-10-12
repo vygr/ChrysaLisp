@@ -223,3 +223,23 @@
 (each (# (if %0 (storage-stop %0))) sn_svcs)
 (task-sleep 100000)
 (each (# (pii-remove (sn-image %0))) sn_ids)
+
+;a member on another node of this machine, the only service of its own
+;that node has. Stopped, its name is gone from here: a node whose last @
+;service was forgotten did not say so, and the others held it for ever,
+;sys/mail/class.vp, 2026-10-12
+(defq sn_far (filter (# (nql %0 (task-nodeid))) (lisp-nodes :t)))
+(when (nempty? sn_far)
+	(defq sn_name (cat "@SMfar" sn_pid)
+		sn_svc (storage-start (sn-image "far") :size 0x100000 :id "far" :name sn_name :block 4096
+			:group (cat "*SMfar" sn_pid) :member "far" :tick 0 :grace 0 :node (last sn_far)))
+	(assert-true "a member is started on another node of this machine" sn_svc)
+	(when sn_svc
+		(assert-true "and is on that node" (eql (slice sn_svc +mailbox_id_size -1) (last sn_far)))
+		(assert-true "its name is known here" (storage-service sn_name))
+		(storage-stop sn_svc)
+		(defq sn_t0 (pii-time))
+		(while (and (storage-service sn_name) (< (- (pii-time) sn_t0) (task-timeout 5))) (task-sleep 10000))
+		(assert-eq "stopped, its name is not known here any longer" :nil (storage-service sn_name)))
+	(pii-remove (sn-image "far")))
+

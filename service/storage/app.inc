@@ -352,8 +352,8 @@
 
 (defun storage-start (image &rest opts)
 	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
-	;	:group str :member str :tick us :grace us :copies num]) -> :nil | netid
-	;the service is started on this node, to keep the store that is in
+	;	:group str :member str :tick us :grace us :copies num :node node]) -> :nil | netid
+	;the service is started on this node, or that one, to keep the store that is in
 	;that file of the host. If there is none there and a size is given,
 	;one is made of that many bytes, the store id, and this system its
 	;member. :nil if there is no store and none could be made. What is
@@ -370,14 +370,21 @@
 	(defq opts (apply (const scatter) (cat (list (Emap)) opts)) name (ifn (. opts :find :name) +storage_name))
 	(cond
 		((storage-service name))
-		(:t (defq said (mail-mbox) task (open-child "service/storage/app.lisp" +kn_call_pin))
+		(:t (defq said (mail-mbox) node (. opts :find :node)
+				task (if node (open-remote "service/storage/app.lisp" node +kn_call_pin)
+					(open-child "service/storage/app.lisp" +kn_call_pin)))
 			(when (/= 0 (get-long task 0))
 				(defq lines (list (cat "ready " (hex-encode said)) (cat "image " image) (cat "name " name)))
 				(each (lambda (key)
 					(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
 					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
-				(if (eql (mail-read-timeout said (task-timeout 30)) "ok") (storage-service name))))))
+				(when (eql (mail-read-timeout said (task-timeout 30)) "ok")
+					;on another node, its name is known here a moment after
+					(defq t0 (pii-time))
+					(until (or (defq svc (storage-service name)) (> (- (pii-time) t0) (task-timeout 5)))
+						(task-sleep 10000))
+					svc)))))
 
 (defun storage-stop (&optional svc)
 	; (storage-stop [svc]) -> :nil | :t
