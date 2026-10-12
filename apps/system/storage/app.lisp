@@ -244,6 +244,7 @@
 (defun main ()
 	(defq id :t select (task-mboxes +select_size)
 		*demo* :nil *demo_tag* "" *group* +storage_group *shown* 0 *count* 0 *trail* :nil *cut* :nil)
+	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	;the store of this system if it has one, and if not, one to look at

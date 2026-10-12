@@ -4,6 +4,16 @@
 
 ------
 
+**Storage viewer: its text is antialiased.**
+
+Chris, of the viewer on his desktop: "Seams to be fairly bad text
+rendering here ?" The canvas never had `+canvas_flag_antialias` set, so
+the text was filled with hard edges. One line in
+`apps/system/storage/app.lisp`. `check` says nothing of the file. He
+closed and opened the window and said: "much nicer".
+
+------
+
 **The night of 11 to 12 October, for the morning.**
 
 A soak of 24 at the end of it, every module on the M4, the x64 Mac and
