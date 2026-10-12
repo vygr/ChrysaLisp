@@ -4,6 +4,24 @@
 
 ------
 
+**Storage viewer: the list is of every object any member has, and which.**
+
+Chris, going through the demos: "I clicked cut, I see all members saying
+cut-off", then "I clicked put a lot and don't think I can see entries
+off the bottom of the panel", then, of the list after a cut, "still not
+sure I can see what I need to see ?"
+
+The list was what the first member had, nine lines and no more, in the
+order of the text. It is now every object any member has, by number, a
+window of nine that follows the one shown, and a square for each member
+at the start of a line: its colour if it has the object, a dark edge if
+it has another of that name. What is put is the one shown once it is
+known of. A member cut off from most says so, the rest say who they can
+not reach. `check` says nothing. Seen by him only, not by me: "much
+better, could see the entire cut/put/heal in action."
+
+------
+
 **Storage viewer: Step and Run, the members look only when told.**
 
 Chris asked whether Next stepped the store; it does not, it only changes

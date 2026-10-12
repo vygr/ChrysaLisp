@@ -37,7 +37,7 @@
 	(enum close max min)
 	(enum demo put next gopher stop start cut heal fork step run))
 
-(defq +width 860 +height 520 +rate 500000 +tick 700000 +grace 3000000
+(defq +width 860 +height 520 +rate 500000 +rows 9 +tick 700000 +grace 3000000
 	+demo_ids ''("m-a" "m-b" "m-c" "m-d" "m-e")
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000)
@@ -86,10 +86,22 @@
 ; what there is to be seen
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun name-key (name)
+	;a name and the number it ends with, so that 2 is before 10
+	(defq at (length name))
+	(while (and (> at 0) (<= (ascii-code "0") (code name 1 (dec at)) (ascii-code "9"))) (setq at (dec at)))
+	(list (slice name 0 at) (if (< at (length name)) (str-as-num (slice name at -1)) -1)))
+
+(defun name-cmp (one two)
+	(defq one (name-key one) two (name-key two))
+	(if (eql (first one) (first two)) (- (second one) (second two)) (cmp (first one) (first two))))
+
 (defun look ()
 	; (look) -> (members objects names)
 	;the members that are there, each (id netid blocks cut), in order; the
-	;objects, as the first of them has them; and the blocks of the one shown
+	;objects, every one that any of them has; and the blocks of the one
+	;shown. *who* is, for each object, what each member has of it: :nil,
+	;:t, or :differs, it has the path and it is not the same
 	(defq there (list) store_id :nil)
 	(each (lambda (entry)
 		(defq parts (split entry ",") about (split (last parts) " "))
@@ -104,9 +116,26 @@
 			(defq info (storage-info where) state (storage-state where))
 			(list id where (if info (. info :find :blocks) 0) (if state (. state :find :cut) (list))))
 		there)
-		objects (if (nempty? members) (ifn (storage-list "" (second (first members))) (list)) (list))
-		names (list))
+		lists (map (lambda ((id where &ignore)) (ifn (storage-list "" where) (list))) members)
+		objects (list) known (Fmap 31) names (list))
+	(each (lambda (entries)
+		(each (lambda (entry)
+			(unless (. known :find (first entry))
+				(. known :insert (first entry) :t)
+				(push objects entry)))
+			entries))
+		lists)
+	(sort objects (# (name-cmp (first %0) (first %1))))
+	(setq *who* (map (lambda (entry)
+		(map (lambda (entries)
+			(if (defq theirs (some (# (if (eql (first %0) (first entry)) %0)) entries))
+				(if (eql (elem-get theirs +store_entry_hash) (elem-get entry +store_entry_hash)) :t :differs)))
+			lists))
+		objects))
 	(when (nempty? objects)
+		;what was just put is the one shown, once it is known of here
+		(and *want* (defq at (some (# (if (eql (first %0) *want*) (!))) objects))
+			(setq *shown* at *want* :nil))
 		(setq *shown* (% (max 0 *shown*) (length objects)))
 		(defq entry (elem-get objects *shown*) hash (elem-get entry +store_entry_hash))
 		;its manifest, from whichever member has it, then its blocks
@@ -138,7 +167,9 @@
 		(text (slice id 0 (min 8 (length id))) 38 (+ y 20) 15 (if member +ink +dim))
 		(text (cond
 			((not member) "not there")
-			((nempty? (elem-get member 3)) (cat (str (third member)) " blocks, cut off"))
+			;cut off from most is cut off, from a few it is they that are
+			((> (* 2 (length (elem-get member 3))) (dec (length all))) (cat (str (third member)) " blocks, cut off"))
+			((nempty? (elem-get member 3)) (cat (str (third member)) " blocks, no " (join (elem-get member 3) " ")))
 			((and *stepping* (eql member (elem-get members (% *turn* (length members)))))
 				(cat (str (third member)) " blocks, looks next"))
 			((cat (str (third member)) " blocks")))
@@ -166,14 +197,28 @@
 			(push items (cwb-shape (cwb-d-ellipse (first points) (second points) 4) :fill +trail :stroke 0))))
 	;the objects
 	(defq y (+ top (* (max 1 (length all)) row_h) 26))
-	(text "Objects, and how many of the members have each" 16 y 13 +dim)
+	(text "Objects, and which of the members have each. A dark edge, it has another of that name." 16 y 13 +dim)
+	;as many as there is room for, the one shown among them
+	(defq from (max 0 (min (- *shown* (/ +rows 2)) (- (length objects) +rows))) to (min (length objects) (+ from +rows)))
+	(if (> (length objects) +rows)
+		(text (cat (str (inc from)) " to " (str to) " of " (str (length objects))) 760 y 13 +dim))
 	(each (lambda (entry)
-		(when (< (!) 9)
+		(when (<= from (!) (dec to))
 			(bind '(name hash bytes vv writer seen deleted) entry)
-			(defq yy (+ y 22 (* (!) 20)) shown (= (!) *shown*))
+			(defq yy (+ y 22 (* (- (!) from) 20)) shown (= (!) *shown*))
 			(if shown (push items (cwb-shape (cwb-d-rect 10 (- yy 15) (- +width 10) (+ yy 5) 3) :fill 0xffdfe8f7 :stroke 0)))
-			(text (cat (str (length (filter (# (find %0 all)) seen))) " of " (str (length all))) 16 yy 13)
-			(text (cat (str bytes) " bytes") 80 yy 13 +dim)
+			;a square for each member, its colour if it has the object
+			(defq has (elem-get *who* (!)))
+			(each (lambda (id)
+				(defq x (+ 16 (* (!) 12)) at (some (# (if (eql (first %0) id) (!))) members)
+					state (and at (elem-get has at)) hue (elem-get +hues (% (!) (length +hues))))
+				(cond
+					((eql state :differs)
+						(push items (cwb-shape (cwb-d-rect x (- yy 10) (+ x 10) yy 2) :fill +ink :stroke 0))
+						(push items (cwb-shape (cwb-d-rect (+ x 2) (- yy 8) (+ x 8) (- yy 2) 1) :fill hue :stroke 0)))
+					((push items (cwb-shape (cwb-d-rect x (- yy 10) (+ x 10) yy 2) :fill (if state hue +none) :stroke 0)))))
+				all)
+			(text (cat (str bytes) " bytes") 90 yy 13 +dim)
 			(text name 190 yy 13)
 			(text (cat "written " (str (store-vv-total vv)) (if (= (store-vv-total vv) 1) " time, by " " times, last by ") (slice writer 0 (min 8 (length writer))))
 				470 yy 13 +dim)))
@@ -198,7 +243,7 @@
 	(when (nempty? (defq at (running)))
 		(defq member (elem-get at (random (length at))) name (cat "docs/object-" (str (++ *count*)))
 			result (storage-put name (bytes-of (+ 10 (random 22)) name) :nil (second member)))
-		(setq *trail* :nil)
+		(setq *trail* :nil *want* name)
 		(say name " put at " (first member) ": " (str (first result)) (if *stepping* ". The others have it as they look." ". The others have it when they next meet."))))
 
 (defun action-gopher ()
@@ -272,7 +317,7 @@
 (defun main ()
 	(defq id :t select (task-mboxes +select_size)
 		*demo* :nil *demo_tag* "" *group* +storage_group *shown* 0 *count* 0 *trail* :nil *cut* :nil
-		*stepping* :nil *turn* 0)
+		*stepping* :nil *turn* 0 *want* :nil *who* (list))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -293,7 +338,7 @@
 					((= id +event_demo) (demo-stop) (demo-start))
 					((not *demo*) (. *window* :event msg))
 					((= id +event_put) (action-put))
-					((= id +event_next) (setq *shown* (inc *shown*) *trail* :nil))
+					((= id +event_next) (setq *shown* (inc *shown*) *trail* :nil *want* :nil))
 					((= id +event_gopher) (action-gopher))
 					((= id +event_stop) (action-stop))
 					((= id +event_start) (action-start))
