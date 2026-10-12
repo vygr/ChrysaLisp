@@ -52,6 +52,9 @@
     enum    a field of an (enums) named size: the name it
             makes is the one the (enums) makes for how many
             fields there are.
+    bracket brackets that do not pair, more opened than
+            closed or more closed than opened. The file does
+            not load.
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
@@ -70,7 +73,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -306,9 +309,16 @@
 	;function here calls itself
 	(with-read-lock file
 		(when (defq in (file-stream file))
-			(defq top (first (tree-read in)) todo (list top) *found* (list) off (Fset 11)
+			(defq whole (tree-read in) top (first whole) todo (list top) *found* (list) off (Fset 11)
 				;the functions of this file, and what each takes
 				*defuns* (Fmap 31) scan (list top))
+			;brackets that do not pair: the file does not load at all, and
+			;if it is one a task is started from, nothing says so
+			(when (find "bracket" checks)
+				(if (> (second whole) 0)
+					(push *found* (list 0 (cat file " (1) bracket: " (str (second whole)) " not closed by the end of the file"))))
+				(if (> (third whole) 0)
+					(push *found* (list 0 (cat file " (1) bracket: " (str (third whole)) " that close nothing")))))
 			(when (find "capture" checks)
 				(while (defq nodes (pop scan))
 					(each (lambda (node)

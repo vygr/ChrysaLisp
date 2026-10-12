@@ -4,7 +4,7 @@
 
 (defun tt-read (text) (tree-read (string-stream text)))
 
-(bind '(tt_nodes tt_open) (tt-read (cat
+(bind '(tt_nodes tt_open &ignore) (tt-read (cat
 	";a file" (ascii-char 10)
 	(ascii-char 10)
 	"(defun add (a b)" (ascii-char 10)
@@ -32,7 +32,7 @@
 (assert-eq "one not closed" 2 (second (tt-read "(a (b c")))
 (assert-eq "one closed that was not open is left out" "(0 1)" (str (list (second (defq tt_r (tt-read "a) (b)"))) (length (filter (# (eql (first %0) :form)) (first tt_r))))))
 ;a string in braces that goes over lines and ends with the first character of one
-(bind '(tt_nodes tt_open) (tt-read (cat "(cat {one (" (ascii-char 10) "} x {two" (ascii-char 10) "})" (ascii-char 10) "(b)")))
+(bind '(tt_nodes tt_open &ignore) (tt-read (cat "(cat {one (" (ascii-char 10) "} x {two" (ascii-char 10) "})" (ascii-char 10) "(b)")))
 (assert-eq "it ends there, and what is after is code" "(0 2)" (str (list tt_open (length tt_nodes))))
 ;every source file of the system is whole
 (import "lib/files/files.inc")
@@ -122,6 +122,15 @@
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")
 	(tt-check "held" "(when (create-stdio) (print 1))" "(when (defq stdio (create-stdio)) (print 1))"
 		"(when (and (defq stdio (create-stdio)) (defq args 1)) 1)" "(if (and x (create-stdio)) 1)"))
+(assert-list-eq "bracket: more opened than closed, and more closed than opened; not one in a str or a comment"
+	'("(1) bracket: 1 not closed by the end of the file")
+	(tt-check "bracket" "(defq a (list 1 2)" "{a ) str} ;a ) comment"))
+(assert-list-eq "bracket: one that closes nothing"
+	'("(1) bracket: 2 that close nothing")
+	(tt-check "bracket" "(defq a 1))" "(defq b 2))"))
+(assert-list-eq "bracket: a file that is whole, nothing"
+	'()
+	(tt-check "bracket" "(defq a (list 1 2))" "(defun f (x)" "	(+ x 1))"))
 (assert-list-eq "stray: a name at the top of a file that is in no form; not a quoted one, nor a form, a number or a str"
 	'("(2) stray: a name by itself at the top of the file, from, was a form closed before its end ?"
 		"(3) stray: a name by itself at the top of the file, to, was a form closed before its end ?")

@@ -25,10 +25,10 @@
 (defq +char_class_bracket (char-class "()"))
 
 (defun tree-read (stream)
-	; (tree-read stream) -> (nodes open)
-	;the nodes of a file, and how many brackets were not closed, 0 for one
-	;that is whole. A bracket that closes nothing is left out
-	(defq syntax (Syntax) line_no 0 top (list) stack (list) into top)
+	; (tree-read stream) -> (nodes open stray)
+	;the nodes of a file, how many brackets were not closed, 0 for one
+	;that is whole, and how many closed nothing: those are left out
+	(defq syntax (Syntax) line_no 0 top (list) stack (list) into top stray 0)
 	(while (defq line (read-line stream))
 		(++ line_no)
 		(bind '(toks states) (. syntax :tokenize (trim-end line "\r")))
@@ -45,11 +45,12 @@
 								(push into (list :form line_no (setq into (list)) line_no)))
 							((nempty? stack)
 								(setq into (pop stack))
-								(elem-set (last into) 3 line_no)))
+								(elem-set (last into) 3 line_no))
+							((++ stray)))
 						(++ j)))
 				(push into (list state line_no tok))))
 			toks states))
-	(list top (length stack)))
+	(list top (length stack) stray))
 
 (defun tree-form? (node &optional head)
 	; (tree-form? node [head]) -> :nil | nodes

@@ -77,11 +77,11 @@
 	;what a path is said to be now, as it is sent: ? not said, - none
 	(cond ((not from) "?") ((eql from "") "-") ((hex-encode from))))
 
-(defun storage-info (&optional svc)
-	; (storage-info [svc]) -> :nil | emap
-	;what the store is: :id :member :members :block_size :copies :objects
-	;:blocks :free
-	(when (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_info))
+(defun storage-info-read (answer)
+	; (storage-info-read answer) -> :nil | emap
+	;what a service said of its store, as (storage-info) gives it: for
+	;what asked with (storage-send), of several at once
+	(when answer
 		(defq info (Emap))
 		(each (lambda (line)
 			(when (defq at (find " " line))
@@ -92,6 +92,12 @@
 					((str-as-num val))))))
 			(split answer +storage_lf))
 		info))
+
+(defun storage-info (&optional svc)
+	; (storage-info [svc]) -> :nil | emap
+	;what the store is: :id :member :members :block_size :copies :objects
+	;:blocks :free
+	(storage-info-read (storage-ask (ifn svc (storage-service)) +storage_type_info)))
 
 (defun storage-stat (name &optional svc)
 	; (storage-stat path [svc]) -> :nil | entry
@@ -395,11 +401,10 @@
 ; a store of more than one member
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun storage-state (&optional svc)
-	; (storage-state [svc]) -> :nil | emap
-	;what a member is, as its tender and other members ask it: :member
-	;:store :digest :members :retired :cut :tender
-	(when (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_state))
+(defun storage-state-read (answer)
+	; (storage-state-read answer) -> :nil | emap
+	;what a service said of itself, as (storage-state) gives it
+	(when answer
 		(defq state (Emap))
 		(each (lambda (line)
 			(defq at (ifn (find " " line) (length line)) key (sym (cat ":" (slice line 0 at)))
@@ -407,6 +412,12 @@
 			(. state :insert key (if (find key '(:members :retired :cut)) (split val " ") val)))
 			(split answer +storage_lf))
 		state))
+
+(defun storage-state (&optional svc)
+	; (storage-state [svc]) -> :nil | emap
+	;what a member is, as its tender and other members ask it: :member
+	;:store :digest :members :retired :cut :tender
+	(storage-state-read (storage-ask (ifn svc (storage-service)) +storage_type_state)))
 
 (defun storage-members (&optional change svc)
 	; (storage-members [change svc]) -> :nil | (member ...)

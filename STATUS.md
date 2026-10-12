@@ -4,6 +4,24 @@
 
 ------
 
+**check: brackets that do not pair.**
+
+A bracket of mine was dropped in `apps/system/storage/watch.lisp`. A file
+a task is started from, that does not load, says nothing to anyone: the
+window that started it would have said "Looking." for ever. I found it by
+running it. `check` has `bracket` now, more opened than closed by the end
+of a file, or more closed than opened, from `(tree-read)`, which gives
+how many of each. The tree has none. `tests/text/test_tree.lisp`, 38.
+
+And `(storage-info-read)` and `(storage-state-read)`, what a service says
+of itself read from an answer, for what asks several at once with
+`(storage-send)`.
+
+Run: every module on the x64 Mac and the Pi, 6,453 and 0 failed; the store
+modules and the tree module on the M4, his desktop was up.
+
+------
+
 **Storage viewer: a watcher asks, the window draws; the tree, pins, a list to go up and down.**
 
 Chris ran the tree through the viewer and saw nothing till the end: "I
