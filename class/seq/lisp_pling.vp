@@ -32,12 +32,15 @@
 	;:r1-:r14, :f0-:f15
 
 	(def-vars
-		(ptr this seqs value func args)
+		(ptr this seqs func args)
 		(int dir end)
 		(uint old_idx))
 
-	(vp-rdef (dir idx end func seqs this old_idx value vt1 vt2)
-		'(:r8 :r9 :r10 :r11 :r12))
+	;func, seqs and this are where :list :collect leaves them, and value
+	;where a deref and :list :min_length do, so the loop reads each from
+	;the stack the once, after the apply, that leaves nothing
+	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
+		'(:r8 :r9 :r10 :r7 :r12 :r13 :r6))
 
 	(push-scope)
 	(entry :seq :lisp_each (vpx this seqs))
@@ -60,7 +63,7 @@
 		(array-get-args :r0 `(_ _ _ ,end))
 		(list-cast-args `(,end) '(:num))
 	(endif)
-	(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
+	(call :obj :ref (vpx (.> this +lisp_sym_nil)) `(,value))
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(seq-elem-index idx len)
@@ -88,16 +91,15 @@
 		(loop-start)
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
-			(call :obj :deref (vpx value))
-			(call :list :create :nil (vpx args))
-			(call :list :collect (vpx args seqs (.> this +lisp_seq_idx)) `(,%1))
-			(assign (vpx this func) `(,%0 ,%2))
-			(call :lisp :repl_apply `(,%0 ,%1 ,%2) (vpx _ value))
+			(call :obj :deref `(,value))
+			(call :list :create :nil '(:r0))
+			(assign '(:r0) (vpx args))
+			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
+			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			(call :obj :deref (vpx args))
-			(assign (vpx this dir end) `(,this ,dir ,end))
+			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
 
 		(errorcase
-			(assign (vpx value) `(,value))
 			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
@@ -109,14 +111,15 @@
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
 	(endif)
 
-	(exit :seq :lisp_each (vpx this value))
+	(assign (vpx this) '(:r0))
+	(exit :seq :lisp_each `(:r0 ,value))
 	(return)
 
 (errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
-	(call :obj :deref (vpx value))
+	(call :obj :deref `(,value))
 	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_not_valid_index))
 	(signature '(:obj :LIST :NUM :NUM)))
 
@@ -248,12 +251,15 @@
 	;:r1-:r14, :f0-:f15
 
 	(def-vars
-		(ptr this seqs value func args out)
+		(ptr this seqs func args out)
 		(int dir end)
 		(uint old_idx))
 
-	(vp-rdef (dir idx end func seqs this old_idx vt1 vt2)
-		'(:r8 :r9 :r10 :r11 :r12))
+	;func, seqs and this are where :list :collect leaves them, and value
+	;where a deref and a push do, so the loop reads each from the stack
+	;the once, after the apply, that leaves nothing
+	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
+		'(:r8 :r9 :r10 :r7 :r12 :r13 :r4))
 
 	(push-scope)
 	(entry :seq :lisp_map (vpx this seqs))
@@ -318,20 +324,22 @@
 		(loop-start)
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
-			(call :list :create :nil (vpx args))
-			(call :list :collect (vpx args seqs (.> this +lisp_seq_idx)) `(,%1))
-			(assign (vpx this func) `(,%0 ,%2))
-			(call :lisp :repl_apply `(,%0 ,%1 ,%2) (vpx _ value))
+			(call :list :create :nil '(:r0))
+			(assign '(:r0) (vpx args))
+			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
+			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			(call :obj :deref (vpx args))
+			(assign (vpx this) `(,this))
 
 		(errorcase
-			(assign (vpx (.> value +obj_vtable) (.> this +lisp_error)) `(,vt1 ,vt2))
+			(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vt1 ,vt2))
 			(gotoif `(,vt1 = ,vt2) 'error3))
 
 			;collect value of function call
-			(call :list :push_back (vpx out value))
+			(assign (vpx out) '(:r0))
+			(call :list :push_back `(:r0 ,value))
 
-			(assign (vpx this dir end) `(,this ,dir ,end))
+			(assign (vpx dir end func seqs) `(,dir ,end ,func ,seqs))
 			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
 			(assign `(,idx) `((,this +lisp_seq_idx)))
@@ -353,7 +361,7 @@
 	;the function threw, put the outer loop index back as a normal exit does
 	(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
 	(call :obj :deref (vpx out))
-	(exit :seq :lisp_map (vpx this value))
+	(exit :seq :lisp_map `(,this ,value))
 	(return)
 	(signature '(:obj :LIST :NUM :NUM :list)))
 
