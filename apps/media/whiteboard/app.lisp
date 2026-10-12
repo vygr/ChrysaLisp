@@ -54,7 +54,7 @@
 	*turn* 0
 	;how far what is seen has yet to go for the turns of a wheel there
 	;have been, pixels: a wheel says so many steps, and it glides them
-	*pan_go* (list 0.0 0.0)
+	*pan_go* (list 0.0 0.0) *snapped_as* :nil
 	;the bars: where all there is to see begins, which a bar's 0 is; when
 	;one was last moved by hand, while that is going on they are left as
 	;they are; and whether they are behind what is seen now
@@ -481,6 +481,23 @@
 		(if on (def tool :size (/ on *zoom*)))
 		(if angle (def tool :angle (- angle (turn-angle)))))
 		held))
+
+(defun tools-snap (going)
+	;with the snap on, each instrument has the 0 of its marks on the lines
+	;of the paper, (:snap_zero). An instrument stays where it is on the
+	;screen while the paper goes by under it and is zoomed under it, so it
+	;is put on the lines again when that has come to rest, and when the
+	;snap is put on. Not while the paper is on its way, going says so, nor
+	;while a hand has hold of anything: it would be pulled from the hand.
+	;It is done the once for what is seen as it then is, *snapped_as*
+	(defq step (get :snap *board*) as (list *pan_x* *pan_y* *zoom* *turn* step))
+	(unless (or (= step 0.0) (some (const identity) going) (. *board* :busy?)
+			(and *snapped_as* (every (const =) as *snapped_as*)))
+		(setq *snapped_as* as)
+		(each (# (. %0 :snap_zero)) (filter (const Instrument?) (. (. *board* :get_stage) :get_actors)))
+		(. *board* :touch +board_dirty_overlay))
+	;with it off, the next time it is put on is a time to do it
+	(if (= step 0.0) (setq *snapped_as* :nil)))
 
 (defun pan-by (dx dy)
 	;what is seen is moved by that many pixels of the screen, as far as
@@ -1048,8 +1065,7 @@
 				(when *full_go*
 					(setq *full_go* :nil)
 					(full-window))
-				(zoom-tick)
-				(pan-tick)
+				(tools-snap (list (zoom-tick) (pan-tick)))
 				(bars-tick)
 				(tools-cull)
 				(redraw)

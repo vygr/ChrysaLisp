@@ -149,6 +149,8 @@
 	(defq others (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))
 	(bind '(x y) (get :origin instrument))
 	(def instrument :origin (list (+ x (* 30.0 (n2f others))) (+ y (* 30.0 (n2f others)))))
+	;with the snap on, the 0 of its marks is on the lines of the paper from the first
+	(. instrument :snap_zero)
 	(. (. *board* :get_stage) :add instrument)
 	(. *board* :touch +board_dirty_overlay))
 

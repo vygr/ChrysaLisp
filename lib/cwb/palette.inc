@@ -230,14 +230,16 @@
 				(if (nempty? (. board :get_selected)) (. board :style :width val)))
 			(:action
 				(bind '(ox oy) (get :origin this))
+				;an instrument is made where the palette is, and with the
+				;snap on is on the lines of the paper from the first
 				(case val
 					(:undo (. board :undo))
 					(:redo (. board :redo))
-					(:ruler (. (. board :get_stage) :add (Ruler board ox oy)) (. this :close))
-					(:protractor (. (. board :get_stage) :add (Protractor board ox oy)) (. this :close))
-					(:full_protractor (. (. board :get_stage) :add (Circle board ox oy)) (. this :close))
-					(:set_square (. (. board :get_stage) :add (Setsquare board ox oy)) (. this :close))
-					(:set_square45 (. (. board :get_stage) :add (Setsquare45 board ox oy)) (. this :close))
+					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero)) (. this :close))
+					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero)) (. this :close))
+					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero)) (. this :close))
+					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero)) (. this :close))
+					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero)) (. this :close))
 					(:window (if (defq on_window (get :on_window board)) (on_window)) (. this :close))
 					(:snap (def board :snap (if (= (get :snap board) 0.0)
 						(n2f (. (. board :get_doc) :find :grid)) 0.0)))

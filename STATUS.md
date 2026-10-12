@@ -4,6 +4,26 @@
 
 ------
 
+**Whiteboard: an instrument is on the lines whenever the snap is on.**
+
+Chris: "do the two small snap things", one new from the palette and a
+ruler made longer by its 0 end. Then, trying them: "instruments don't
+apear snapped when in snapped mode." I had done the ring palette and not
+the toolbar of the app, which makes them by another way,
+`(add-instrument)`. And two more that his words covered: putting the snap
+on did nothing to what was out already, and a pan or a zoom takes the
+paper from under an instrument, which stays on the screen, so its 0 was
+between lines again. `(tools-snap)` in the app puts each back when the
+paper has come to rest and nobody has hold of anything, and when the snap
+is put on.
+
+Run: the Whiteboard modules, 632 and 0 failed, on the three machines, 4
+new. The app's part has no test.
+
+Seen by him: "checked, works."
+
+------
+
 **Whiteboard: the marks of the instruments are of the paper, and their 0 goes to its lines.**
 
 Chris asked, as trivia, "Did the white rulers measures match the background

@@ -615,3 +615,23 @@
 (wt-gb-go (list 0 :mouse 0 (first wt_tb) (- (second wt_tb) 60.0)))
 (assert-true "turned by a sharp corner, it is turned" (> (abs (get :angle wt_gq)) 0.05))
 (assert-true "and its square corner is where it was" (wt-near? (apply (lambda (x y) (. wt_gq :to_board x y)) (get :zero wt_gq)) wt_c0 0.05))
+
+;a ruler made longer by the end its 0 is at, with the snap on: the 0 is on a line, and the other end has not moved
+(. wt_gs :sub wt_gq)
+(def wt_gb :snap 20.0)
+(def wt_gr :origin (list 400.0 300.0) :angle 0.0)
+(. wt_gr :set_extent 400.0)
+(. wt_gr :snap_zero)
+(defq wt_far (. wt_gr :to_board (neg (first (get :zero wt_gr))) (second (get :zero wt_gr)))
+	wt_end (. wt_gr :to_board (- (* -0.5 (get :length wt_gr)) -8.0) 0.0))
+(wt-gb-go (list 0 :mouse 4 (first wt_end) (second wt_end))) (wt-gb-go (list 0 :mouse 4 (- (first wt_end) 47.0) (second wt_end)))
+(bind '(wt_zx wt_zy) (wt-zero wt_gr))
+(assert-true "made longer by its 0 end, it is longer" (> (get :length wt_gr) 430.0))
+(assert-true "its 0 is on a line of the paper" (wt-on-line? wt_zx 20.0))
+(assert-true "and its other end is where it was"
+	(wt-near? (. wt_gr :to_board (neg (first (get :zero wt_gr))) (second (get :zero wt_gr))) wt_far 0.05))
+(wt-gb-go (list 0 :mouse 0 (- (first wt_end) 47.0) (second wt_end)))
+;one new from the palette is on the lines from the first
+(defq wt_new (. (Ruler wt_gb 413 307) :snap_zero))
+(bind '(wt_zx wt_zy) (wt-zero wt_new))
+(assert-true "a ruler just made, with the snap on, has its 0 on a line each way" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))

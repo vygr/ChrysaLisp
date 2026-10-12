@@ -291,6 +291,7 @@
 		;corner of a set square. Its marks are of the paper, (:mm), so with
 		;the 0 on a line, and it level or upright, each centimetre is on
 		;one. Chris: "yes, snap the 0 mark to the grid when snap is on"
+		(unless (get :body this) (. this :built))
 		(defq board (get :board this) zero (def? :zero this) step (if board (get :snap board) 0.0))
 		(when (and zero (/= step 0.0))
 			(bind '(zx zy) (. this :to_board (first zero) (second zero)))
@@ -460,6 +461,17 @@
 					(. this :set_extent (+ length along))
 					(defq half (* 0.5 way (- (. this :extent) length)))
 					(def this :origin (list (+ (first origin) (* half c)) (+ (second origin) (* half s))))
+					;the end with the 0 of its marks, with the snap on: it is
+					;as long as has the 0 on a line of the paper, the lines
+					;that cross it most squarely. Its other end has not moved,
+					;so only how long it is can put it there
+					(defq zero (def? :zero this) step (get :snap board))
+					(when (and zero (/= step 0.0) (> (* way (first zero)) 0.0))
+						(bind '(zx zy) (. this :to_board (first zero) (second zero)))
+						(defq along (if (>= (abs c) (abs s)) (/ (- (board-snap zx step) zx) c) (/ (- (board-snap zy step) zy) s)))
+						(. this :set_extent (+ (. this :extent) (* way along)))
+						(setq half (* 0.5 way (- (. this :extent) length)))
+						(def this :origin (list (+ (first origin) (* half c)) (+ (second origin) (* half s)))))
 					(. board :touch +board_dirty_overlay))
 				(when (and (= (. this :held) 1) (not (get :grab this)) (/= (length (third region)) 1))
 					;by how much further from its middle the pointer is. The 0

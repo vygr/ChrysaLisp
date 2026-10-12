@@ -545,7 +545,12 @@ are inches by that and lie on no line.
 Each instrument has a `:zero`, the 0 of its marks: a ruler's centimetre 0,
 the middle of a protractor's straight side, the square corner of a set
 square. With the board's snap on, an instrument that is moved has its
-zero put on a line each way, `(:snap_zero)`. A set square is turned about
+zero put on a line each way, `(:snap_zero)`: as it is moved, as it is made,
+from the palette or the toolbar, as a ruler is made longer by its 0 end,
+which makes it as long as has the 0 on a line, and, since an instrument
+stays where it is on the screen while the paper goes by under it, when a
+pan or a zoom has come to rest and when the snap is put on,
+`(tools-snap)` in the app. A set square is turned about
 its square corner, and made bigger or smaller from it, Chris: "The snap
 corner and the rotation cneter of the SetSquers should be the 0 scale
 corner."
