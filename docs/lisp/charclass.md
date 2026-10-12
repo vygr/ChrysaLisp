@@ -97,5 +97,5 @@ lib/options/options.inc "options-split" ""
 Another example is the CScript compiler tokenizer !
 
 ```file
-lib/asm/cscript.inc "cscript-tokenize" ""
+lib/asm/vpx.inc "cscript-tokenize" ""
 ```

@@ -807,7 +807,7 @@
 					:stroke
 					0
 					:text
-					"[A list on either side is VP registers and addressing modes. A string is a C-Script expression, compiled.]"
+					"[A list on either side is VP registers and addressing modes. A (vpx) form is expressions, compiled.]"
 					:font_size
 					12
 				)

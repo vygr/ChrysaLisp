@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;
-; C-Script optimizer
+; the optimizer of what (vpx) compiles to, was C-Script's
 ;;;;;;;;;;;;;;;;;;;;
 
 ;module

@@ -1,5 +1,12 @@
 # VP Assignment
 
+*From 2026-10-12 an expression is a form inside `(vpx ...)`, not a string in
+braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
+is `(vpx a b)`. The examples on this page are written that way. Where the
+words say "string", read "`(vpx)` form". The table of what each operator
+became is in [`cscript_compiler.md`](../ai_digest/cscript_compiler.md),
+"Forms, not strings".*
+
 This document covers how the `(assign)` function is used to copy parameter
 lists, provide easy access to resource binding operators and invoke the
 C-Script expression compiler to extend basic VP level coding of functions.
@@ -133,7 +140,7 @@ Will emit:
 Passing a string parameter will invoke the C-Script parser and compiler ! This
 is where things start to get quite high level for an assembler ! This basic C
 style expression compiler is just an assembler macro set, you can look at the
-implementation in detail in the `lib/asm/cscript.inc` file. It's quite a
+implementation in detail in the `lib/asm/vpx.inc` file. It's quite a
 simple, tokenize -> reverse-polish -> compile -> optimise -> emit.
 
 While it's possible to use the compilation to do basic things like math, it
@@ -183,12 +190,12 @@ You can add resource operator prefixes to your C-Script string parameters too.
 These are in addition to the C/C++ style operators.
 
 ```vdu
-	(assign {&var1, &var2} {p_var1, p_var2})
-	(assign {$label} {p_label})
-	(assign {"Hello", "World"} {p_str1, p_str2})
-	(assign {"Hello", "World"} '(:r2 :r3))
-	(assign {@sys/mem/alloc} {p_alloc})
-	(assign (cat {@} (f-path :num :vtable)) {p_vtable})
+	(assign (vpx (& var1) (& var2)) (vpx p_var1 p_var2))
+	(assign (vpx ($ label)) (vpx p_label))
+	(assign (vpx "Hello" "World") (vpx p_str1 p_str2))
+	(assign (vpx "Hello" "World") '(:r2 :r3))
+	(assign (vpx (@ sys/mem/alloc)) (vpx p_alloc))
+	(assign (vpx (@ ,(f-path :num :vtable))) (vpx p_vtable))
 ```
 
 ## C-Script function example
@@ -218,14 +225,14 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 		(long id))
 
 	(push-scope)
-	(entry :sys_mail :declare {name, id})
+	(entry :sys_mail :declare (vpx name id))
 
-	(assign {@sys/statics/statics} {statics})
-	(call :sym :intern_cstr {name} {name})
-	(call :num :create {id} {id})
-	(call :hmap :pinsert {statics->statics_sys_mail_service_map, name, id})
-	(call :sym :deref {name})
-	(call :num :deref {id})
+	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(call :sym :intern_cstr (vpx name) (vpx name))
+	(call :num :create (vpx id) (vpx id))
+	(call :hmap :pinsert (vpx (.> statics statics_sys_mail_service_map) name id))
+	(call :sym :deref (vpx name))
+	(call :num :deref (vpx id))
 
 	(pop-scope)
 	(return)
@@ -260,7 +267,7 @@ This is the output from wrapping the `:hmap :pinsert` line in the example above:
 
 ```vdu
 (let ((*build_inst* :t))
-	(call :hmap :pinsert {statics->statics_sys_mail_service_map, name, id})
+	(call :hmap :pinsert (vpx (.> statics statics_sys_mail_service_map) name id))
 )
 ```
 

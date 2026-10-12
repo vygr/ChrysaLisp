@@ -667,18 +667,18 @@ manual register management.
 		(long sum val))
 
 	(push-scope)
-	(entry {list_obj})
+	(entry (vpx list_obj))
 
-	(assign {0} {sum})
-	(call :array :get_both {list_obj} {_, iter, iter_end})
-	(loop-while {iter /= iter_end})
-		(call :num :get_value {*iter} {_, val})
-		(assign {val * val + sum} {sum})
-		(assign {iter + +ptr_size} {iter})
+	(assign (vpx 0) (vpx sum))
+	(call :array :get_both (vpx list_obj) (vpx _ iter iter_end))
+	(loop-while (vpx (/= iter iter_end)))
+		(call :num :get_value (vpx (* iter)) (vpx _ val))
+		(assign (vpx (+ (* val val) sum)) (vpx sum))
+		(assign (vpx (+ iter +ptr_size)) (vpx iter))
 	(loop-end)
-	(call :num :create {sum} {list_obj})
+	(call :num :create (vpx sum) (vpx list_obj))
 
-	(exit {list_obj})
+	(exit (vpx list_obj))
 	(pop-scope)
 	(return)
 

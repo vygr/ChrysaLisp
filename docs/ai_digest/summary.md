@@ -305,7 +305,7 @@ capabilities:
 * The build system handles dependencies between files and can create boot
   images (`lib/boot/image.inc`).
 
-* Optimizers for VP assembly (`vpopt.inc`) and C-Script (`csopt.inc`) are
+* Optimizers for VP assembly (`vpopt.inc`) and C-Script (`vpxopt.inc`) are
   present.
 
 * `lib/asm/scopes.inc` helps manage scopes during the compilation of `.vp`

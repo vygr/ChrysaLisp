@@ -79,6 +79,12 @@ Usage: check [options] [path] ...
     enum    a field of an (enums) named size: the name it
             makes is the one the (enums) makes for how many
             fields there are.
+    bracket brackets that do not pair, more opened than
+            closed or more closed than opened. The file does
+            not load.
+    stray   a name by itself at the top of a file, in no form.
+            A bracket closed a form before its end, and the
+            rest of it is run by itself.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -1039,6 +1045,13 @@ Usage: storage [options] [path]
         -w --sweep: let go of the blocks no object is made of.
         -c --check: say which blocks are not what their names
             say. -C to let go of them too.
+        -T --tree dir: every file under that folder of the
+            host is put, as a stream, at path and its own
+            path, and then each is read back as a stream and
+            compared with the file. obj, deps and folders
+            whose names begin with a dot are not gone in to.
+        -V --verify dir: the reading back and comparing of
+            -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
 

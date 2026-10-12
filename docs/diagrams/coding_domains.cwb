@@ -139,7 +139,7 @@
 									10
 									:m
 									((:path 6)
-										1.00000 0.00000 241.19445 0.00000 1.00000 19.00000
+										1.00000 0.00000 250.26824 0.00000 1.00000 19.00000
 									)
 									:kind
 									:text
@@ -148,7 +148,7 @@
 									:stroke
 									0
 									:text
-									"[CScript]"
+									"[vpx]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -179,7 +179,7 @@
 									12
 									:m
 									((:path 6)
-										1.00000 0.00000 95.60156 0.00000 1.00000 51.00000
+										1.00000 0.00000 107.55358 0.00000 1.00000 51.00000
 									)
 									:kind
 									:text
@@ -188,7 +188,7 @@
 									:stroke
 									0
 									:text
-									"[like C in brackets: variables and expressions, registers allotted for you]"
+									"[C, as forms: variables and expressions, registers allotted for you]"
 									:font_size
 									11
 								)

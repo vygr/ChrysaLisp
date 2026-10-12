@@ -78,7 +78,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
   pattern-matching assembler that generates moves, loads, and stores based on
   operand types.
 
-	* Syntax: `(assign {src1, src2} {dest1, dest2})`
+	* Syntax: `(assign (vpx src1 src2) (vpx dest1 dest2))`
 
 * **Control Flow:** Structured assembly macros: `vpif`, `else`, `loop-while`,
   `loop-start`, `break`.
@@ -100,18 +100,18 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 		; Alloc stack space
 		(push-scope)
 		; Binds inputs to vars
-		(entry :my_class :my_method {this, list})
+		(entry :my_class :my_method (vpx this list))
 
 		; Virtual call
-		(call :array :get_length {list} {_, count})
+		(call :array :get_length (vpx list) (vpx _ count))
 
-		(vpif {count > 0})
+		(vpif (vpx (> count 0)))
 			; 'assign' handles the math/move
-			(assign {count + 1} {count})
+			(assign (vpx (+ count 1)) (vpx count))
 		(endif)
 
 		; Cleanup and return
-		(exit :my_class :my_method {this})
+		(exit :my_class :my_method (vpx this))
 		; Dealloc stack space
 		(pop-scope)
 		(return)

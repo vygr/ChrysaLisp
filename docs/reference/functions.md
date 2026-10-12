@@ -5608,6 +5608,14 @@ stop a child
 stop a child
 ```
 
+### store-at
+
+```code
+(store-at store) -> str
+
+where its count of changes is now, to give back to (store-since)
+```
+
 ### store-block-drop
 
 ```code
@@ -5629,6 +5637,8 @@ where on the volume a block of that name is kept
 
 the block of that name. :nil if it is not kept here, and :nil if what
 is kept is not it: it has gone wrong, and is no use to anyone
+one that is not kept is known not to be, with no look at the volume:
+a member is asked for many it has not got, by those looking for one
 ```
 
 ### store-block-has?
@@ -5687,6 +5697,17 @@ to say. :stale with what it is if it is not. :missing with those of
 the blocks that are not kept here
 ```
 
+### store-count
+
+```code
+a store counts the changes to its path map from when it was opened,
+
+and has for each path the count at its last change, so that another
+member can be told only what is new since it last asked,
+(store-since). The counts are of this opening of it, which has a
+name, :epoch: one who knew the counts of another is told everything
+```
+
 ### store-cut
 
 ```code
@@ -5711,7 +5732,9 @@ there is no object of that name from now, provided it is from, as
 (store-digest store) -> hash
 
 the path map and the members, as one name: two members with the same
-have nothing to tell each other
+have nothing to tell each other. It is asked for by every member each
+time it looks, and is of every path there is, so it is held till
+something changes, (store-save)
 ```
 
 ### store-entries
@@ -5778,6 +5801,10 @@ are there. Each member is given a number made from its id and the
 name, and those with the greatest keep it: so every member works out
 the same, nobody has to be asked, and when a member comes or goes
 only the blocks that are its share move
+
+What was worked out is kept, for as long as it is asked of the same
+members: a member asks it of every block it knows of each time it
+looks to its share, and it is a hash and a sort for each
 ```
 
 ### store-info
@@ -5786,12 +5813,13 @@ only the blocks that are its share move
 (store-info store) -> (objects blocks free)
 
 how many objects, how many blocks kept, and the room left in bytes
+counted, not listed and put in order to be counted: it is asked often
 ```
 
 ### store-join
 
 ```code
-(store-join store members [retired]) -> :nil | :t
+(store-join store members [retired later]) -> :nil | :t
 
 these are members too, and those are retired, as another member has
 it. Both only ever grow, so two that are put together are the same
@@ -5808,6 +5836,16 @@ of two entries for a path that were written apart, the one that
 keeps it. One that most members have, over one that they have not.
 Else the one written more times, and else the one whose object has
 the greater name: that is only so that every member chooses the same
+```
+
+### store-later
+
+```code
+the path map or the members are not as they were, and it is not
+
+written yet: what was learnt from another member can be learnt
+again, so whoever keeps the store writes it when it has a moment,
+(store-save), and till then :dirty says there is something to write
 ```
 
 ### store-lines
@@ -5857,7 +5895,7 @@ what is kept for an object: how long it is, and its blocks in order
 ### store-meet
 
 ```code
-(store-meet store entries) -> (changed ...)
+(store-meet store entries [later]) -> (changed ...)
 
 what another member has in its path map is set against what this one
 has. The paths that are not as they were here, their entries now.
@@ -5868,7 +5906,8 @@ knows the other has it. Two written apart: one keeps the path,
 (store-keeps), with the counts of both, so that it comes after both
 and whoever meets it next takes it; the other, if it is an object and
 not a delete, is kept under another name, (store-other-name). Both
-members come to the same, whichever does this
+members come to the same, whichever does this. With later it is not
+written to the volume now, (store-later)
 ```
 
 ### store-members
@@ -5967,7 +6006,9 @@ part of an object, only the blocks that part is in are read
 ```code
 (store-save store) -> store
 
-the path map, the members and the pins, as they are now
+the path map, the members and the pins, as they are now. Whatever
+changes any of them ends here, so what was worked out from them, the
+digest, is not held any longer
 ```
 
 ### store-seen
@@ -6002,6 +6043,16 @@ path is pinned. A block that no object is made of is neither, that
 is for (store-sweep)
 ```
 
+### store-since
+
+```code
+(store-since store [at]) -> (entry ...)
+
+the entries of the path map, those deleted too, that are not as they
+were at that count, as (store-at) gave it. All of them if it is not
+given, or is of another opening of the store
+```
+
 ### store-stat
 
 ```code
@@ -6024,6 +6075,12 @@ is set
 
 ```code
 (store-text lines) -> text
+```
+
+### store-touch
+
+```code
+a path is not as it was
 ```
 
 ### store-vv-bump
@@ -6899,10 +6956,10 @@ thing in it is that symbol, "defun" say
 ### tree-read
 
 ```code
-(tree-read stream) -> (nodes open)
+(tree-read stream) -> (nodes open stray)
 
-the nodes of a file, and how many brackets were not closed, 0 for one
-that is whole. A bracket that closes nothing is left out
+the nodes of a file, how many brackets were not closed, 0 for one
+that is whole, and how many closed nothing: those are left out
 ```
 
 ### tree-said

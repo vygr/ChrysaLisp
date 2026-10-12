@@ -1,7 +1,7 @@
 ;docs/ai_digest/coding_domains.md: three ways of writing, one over another
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (dia-put s :nil (dia-box '("Lisp" ".lisp and .inc: apps, commands, libraries" "objects, no registers, no pointers; reaches the system by FFI calls") 520 62 gold 11 :first) 0 0)
-(dia-put s :nil (dia-box '("CScript" ".vp: the class library, (assign) and (def-vars)" "like C in brackets: variables and expressions, registers allotted for you") 520 62 blue 11 :first) 0 72)
+(dia-put s :nil (dia-box '("vpx" ".vp: the class library, (assign) and (def-vars)" "C, as forms: variables and expressions, registers allotted for you") 520 62 blue 11 :first) 0 72)
 (dia-put s :nil (dia-box '("VP assembler" ".vp: the kernel, the inner loops" "(vp-add-rr :r0 :r1): every register and every instruction said") 520 62 green 11 :first) 0 144)
 (dia-say s "run by the interpreter" 540 34 11)
 (dia-say s "made into native code" 540 106 11)

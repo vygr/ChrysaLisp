@@ -89,7 +89,7 @@ involves several stages:
 
 3. **CScript Optimization (if applicable):** If C-Script was used, its
    generated VP instructions (still in the `(vp-xxx ...)` form) are
-   optimized by `csopt.inc` (e.g., constant folding, offset folding).
+   optimized by `vpxopt.inc` (e.g., constant folding, offset folding).
 
 4. **VP Emitter List Preparation:** The `(vp-xxx ...)` instructions are
    transformed into `(emit-xxx ...)` forms. For example, `(vp-add-rr :r0

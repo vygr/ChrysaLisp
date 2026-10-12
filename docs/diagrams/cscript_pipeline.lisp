@@ -1,9 +1,9 @@
-;docs/ai_digest/cscript_compiler.md: an expression string to VP instructions
+;docs/ai_digest/cscript_compiler.md: an expression, a form, to VP instructions
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'src (dia-box '("the string" "{a + b * 2}") 130 44 grey 11 :first) 0 0)
-(dia-put s 'tok (dia-box '("1 cscript-tokenize" "tokens and their types," "two lists side by side") 190 62 blue 11 :first) 170 -9)
-(dia-put s 'rpn (dia-box '("2 cscript-reverse-polish" "shunting yard, by precedence:" "a b 2 * +   brackets are gone") 210 62 blue 11 :first) 400 -9)
-(dia-put s 'gen (dia-box '("3 cscript-compile" "one compile function a token," "onto virtual registers _v0 to _v14") 230 62 gold 11 :first) 400 90)
+(dia-put s 'src (dia-box '("the form" "(vpx (+ a (* b 2)))") 150 44 grey 11 :first) 0 0)
+(dia-put s 'tok (dia-box '("1 the reader" "it is a list already," "nothing here parses it") 190 62 blue 11 :first) 170 -9)
+(dia-put s 'rpn (dia-box '("2 vpx-polish" "the form, last thing first to do:" "a b 2 * +   with no call to itself") 210 62 blue 11 :first) 400 -9)
+(dia-put s 'gen (dia-box '("3 vpx-compile" "one compile function a token," "onto virtual registers _v0 to _v14") 230 62 gold 11 :first) 400 90)
 (dia-put s 'opt (dia-box '("4 opt-inst-list" "peephole: fold offsets and constants," "reduce strength, forward compares") 230 62 gold 11 :first) 140 90)
 (dia-put s 'out (dia-box '("VP instructions" "_v0.. bound to :r0..") 130 44 green 11 :first) -30 99)
 (dia-join s 'src 'tok "")
@@ -11,5 +11,5 @@
 (dia-join s 'rpn 'gen "")
 (dia-join s 'gen 'opt "*inst*")
 (dia-join s 'opt 'out "")
-(dia-say s "lib/asm/cscript.inc does 1 to 3, lib/asm/csopt.inc does 4. (assign) in lib/asm/assign.inc calls them when a side of it is a string." -30 176 11)
+(dia-say s "lib/asm/vpx.inc does 2 and 3, lib/asm/vpxopt.inc does 4. (assign) in lib/asm/assign.inc calls them when a side of it is a (vpx) form." -30 176 11)
 (diagram "cscript_pipeline" (dia-scene-doc s))

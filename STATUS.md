@@ -4,6 +4,32 @@
 
 ------
 
+**vpx: the files and the pages are of that name and that way of writing.**
+
+Chris: "vpx is ok, I can't think of any better." And, of the leftovers I
+listed: "go for it."
+
+`lib/asm/cscript.inc` is `lib/asm/vpx.inc`, `csopt.inc` is `vpxopt.inc`,
+`(cscript-form)` `(vpx-form)`, `(cscript-form-polish)` `(vpx-polish)`,
+`(cscript-compile)` `(vpx-compile)`. Every platform built and hashed
+after: the same but the one function that shuffles itself.
+
+The pages: 99 brace expressions in the code of 8 pages rewritten by the
+program the source was done with, 7 more by hand. `docs/vm/cscript.md` and
+`docs/vm/vp_assignment.md` are Chris's own words, so they have a dated
+line at the top that says what a string is now, and their words are left.
+Four diagrams say forms, the pipeline one drawn again and looked at:
+reader, `vpx-polish`, `vpx-compile`, `opt-inst-list`. `make docs` also
+brought the reference pages of the Whiteboard's instruments up to today.
+
+Run: lint clean, includes, imports, forward, check. Every module, built on
+each first, 6,482 and 0 failed on the M4, the x64 Mac and the Pi.
+
+Not done: the names of the two pages, `cscript_compiler.md` and
+`cscript_skills.md`, other pages link to them.
+
+------
+
 **Assembler: a length that goes by a label only grows, and the passes are not counted.**
 
 I had made passes that did not settle after 64 an error. Chris: "Having any

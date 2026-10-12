@@ -27,7 +27,7 @@
 							:id
 							2
 							:d
-							"[M 130 22 L 170 22]"
+							"[M 150 22 L 170 22]"
 							:stroke
 							4282140240
 							:width
@@ -242,7 +242,7 @@
 									:id
 									19
 									:d
-									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 38 A 6 6 0 0 1 124 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 38 A 6 6 0 0 1 144 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
 									4294112502
 									:stroke
@@ -256,7 +256,7 @@
 									20
 									:m
 									((:path 6)
-										1.00000 0.00000 39.18652 0.00000 1.00000 18.00000
+										1.00000 0.00000 51.88751 0.00000 1.00000 18.00000
 									)
 									:kind
 									:text
@@ -265,7 +265,7 @@
 									:stroke
 									0
 									:text
-									"[the string]"
+									"[the form]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -277,7 +277,7 @@
 									21
 									:m
 									((:path 6)
-										1.00000 0.00000 42.33398 0.00000 1.00000 34.00000
+										1.00000 0.00000 38.26440 0.00000 1.00000 34.00000
 									)
 									:kind
 									:text
@@ -286,7 +286,7 @@
 									:stroke
 									0
 									:text
-									"[{a + b * 2}]"
+									"[(vpx (+ a (* b 2)))]"
 									:font_size
 									11
 								)
@@ -329,7 +329,7 @@
 									25
 									:m
 									((:path 6)
-										1.00000 0.00000 48.87841 0.00000 1.00000 19.00000
+										1.00000 0.00000 63.81744 0.00000 1.00000 19.00000
 									)
 									:kind
 									:text
@@ -338,7 +338,7 @@
 									:stroke
 									0
 									:text
-									"[1 cscript-tokenize]"
+									"[1 the reader]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -350,7 +350,7 @@
 									26
 									:m
 									((:path 6)
-										1.00000 0.00000 40.09265 0.00000 1.00000 35.00000
+										1.00000 0.00000 56.03137 0.00000 1.00000 35.00000
 									)
 									:kind
 									:text
@@ -359,7 +359,7 @@
 									:stroke
 									0
 									:text
-									"[tokens and their types,]"
+									"[it is a list already,]"
 									:font_size
 									11
 								)
@@ -369,7 +369,7 @@
 									27
 									:m
 									((:path 6)
-										1.00000 0.00000 46.23315 0.00000 1.00000 51.00000
+										1.00000 0.00000 43.20721 0.00000 1.00000 51.00000
 									)
 									:kind
 									:text
@@ -378,7 +378,7 @@
 									:stroke
 									0
 									:text
-									"[two lists side by side]"
+									"[nothing here parses it]"
 									:font_size
 									11
 								)
@@ -421,7 +421,7 @@
 									31
 									:m
 									((:path 6)
-										1.00000 0.00000 42.69531 0.00000 1.00000 19.00000
+										1.00000 0.00000 73.80871 0.00000 1.00000 19.00000
 									)
 									:kind
 									:text
@@ -430,7 +430,7 @@
 									:stroke
 									0
 									:text
-									"[2 cscript-reverse-polish]"
+									"[2 vpx-polish]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -442,7 +442,7 @@
 									32
 									:m
 									((:path 6)
-										1.00000 0.00000 33.81219 0.00000 1.00000 35.00000
+										1.00000 0.00000 32.81787 0.00000 1.00000 35.00000
 									)
 									:kind
 									:text
@@ -451,7 +451,7 @@
 									:stroke
 									0
 									:text
-									"[shunting yard, by precedence:]"
+									"[the form, last thing first to do:]"
 									:font_size
 									11
 								)
@@ -461,7 +461,7 @@
 									33
 									:m
 									((:path 6)
-										1.00000 0.00000 40.26086 0.00000 1.00000 51.00000
+										1.00000 0.00000 36.59844 0.00000 1.00000 51.00000
 									)
 									:kind
 									:text
@@ -470,7 +470,7 @@
 									:stroke
 									0
 									:text
-									"[a b 2 * +   brackets are gone]"
+									"[a b 2 * +   with no call to itself]"
 									:font_size
 									11
 								)
@@ -513,7 +513,7 @@
 									37
 									:m
 									((:path 6)
-										1.00000 0.00000 70.22656 0.00000 1.00000 19.00000
+										1.00000 0.00000 78.76123 0.00000 1.00000 19.00000
 									)
 									:kind
 									:text
@@ -522,7 +522,7 @@
 									:stroke
 									0
 									:text
-									"[3 cscript-compile]"
+									"[3 vpx-compile]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -750,7 +750,7 @@
 					:stroke
 					0
 					:text
-					"[lib/asm/cscript.inc does 1 to 3, lib/asm/csopt.inc does 4. (assign) in lib/asm/assign.inc calls them when a side of it is a string.]"
+					"[lib/asm/vpx.inc does 2 and 3, lib/asm/vpxopt.inc does 4. (assign) in lib/asm/assign.inc calls them when a side of it is a (vpx) form.]"
 					:font_size
 					11
 				)

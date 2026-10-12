@@ -91,7 +91,7 @@
 			(when (eql (. syntax :get_state) :string1)
 				(push errs (cat file ": unclosed string literal at EOF")))
 			(when (eql (. syntax :get_state) :string2)
-				(push errs (cat file ": unclosed brace '{' or CScript block at EOF")))
+				(push errs (cat file ": unclosed brace '{' at EOF")))
 			(cond
 				((nempty? errs)
 					(each (const print) errs))

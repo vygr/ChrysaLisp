@@ -229,7 +229,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(push-scope)
-	;spill this and args to CScript stack
+	;spill this and args to the stack of locals
 	(assign `(,this ,args) (vpx saved_this saved_args))
 
 	(list-bind-args args `(,buf ,pos ,chunk) '(:obj :num :obj))

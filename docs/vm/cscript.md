@@ -1,5 +1,12 @@
 # C Script expression compiler
 
+*From 2026-10-12 an expression is a form inside `(vpx ...)`, not a string in
+braces: `{this->+field + 1}` is `(vpx (+ (.> this +field) 1))`, and `{a, b}`
+is `(vpx a b)`. The examples on this page are written that way. Where the
+words say "string", read "`(vpx)` form". The table of what each operator
+became is in [`cscript_compiler.md`](../ai_digest/cscript_compiler.md),
+"Forms, not strings".*
+
 The C script idea came along after I had started changing things over to use
 the new Lisp engine to replace the NASM assembler. Partly to show off the power
 that comes from having a Lisp as your macro assembler and partly to fulfill a
@@ -16,8 +23,8 @@ As discussed in the [`vp_assignment.md`](vp_assignment.md) document you call the
 each time you use a string argument as an input or output to the `(assign)`
 function.
 
-The CScript compiler implementation files are `lib/asm/cscript.inc`,
-`lib/asm/csopt.inc` and `lib/asm/scopes.inc`.
+The CScript compiler implementation files are `lib/asm/vpx.inc`,
+`lib/asm/vpxopt.inc` and `lib/asm/scopes.inc`.
 
 So what does the CScript compiler do ? It consists of 4 phases:
 
@@ -125,7 +132,7 @@ After you have converted your expression into reverse polish form the
 compilation is as simple as:
 
 ```file
-lib/asm/cscript.inc "defun cscript-compile" ""
+lib/asm/vpx.inc "defun cscript-compile" ""
 ```
 
 OK, that's a bit flippant. What the reverse polish stage did was to arrange
@@ -158,21 +165,21 @@ Items are added to this stack on operations such as `(compile-const)` and
 compiled.
 
 ```file
-lib/asm/cscript.inc "+vreg" ""
+lib/asm/vpx.inc "+vreg" ""
 ```
 
 Functions and macros are provided to push, pop and extract items from the
 stack.
 
 ```file
-lib/asm/cscript.inc "set-type" "reset-reg-stack"
+lib/asm/vpx.inc "set-type" "reset-reg-stack"
 ```
 
 We also keep a list of the generated VP instructions, that we add to as we go,
 and a macro to push items onto it for us.
 
 ```file
-lib/asm/cscript.inc "add-inst" ""
+lib/asm/vpx.inc "add-inst" ""
 ```
 
 ### Code generation
@@ -183,7 +190,7 @@ item onto the type stack, in this case its type is `:nil`. We also want to add
 a new instruction to the output that will perform this operation.
 
 ```file
-lib/asm/cscript.inc "compile-const" ""
+lib/asm/vpx.inc "compile-const" ""
 ```
 
 We use `(push-reg) -> sym` to stack the type, `:nil`, and return the symbol
@@ -197,7 +204,7 @@ will look something like:
 Let's see what simple operators like addition and subtraction do.
 
 ```file
-lib/asm/cscript.inc "compile-plus" "compile-lshift"
+lib/asm/vpx.inc "compile-plus" "compile-lshift"
 ```
 
 These are simple operators that take a value from the stack and transform the
@@ -221,7 +228,7 @@ on.
 Look closer at the `(pop-value)` and `(top-value)` functions.
 
 ```file
-lib/asm/cscript.inc "compile-deref" "compile-null"
+lib/asm/vpx.inc "compile-deref" "compile-null"
 ```
 
 The stack items are tested to see if they are boring types like `:nil`, and if
@@ -239,7 +246,7 @@ We push typed items onto the stack with the opposite function to
 Let's look at what compiling a `:symbol` does.
 
 ```file
-lib/asm/cscript.inc "compile-ref" ""
+lib/asm/vpx.inc "compile-ref" ""
 ```
 
 We examine what the symbol is, by first looking it up in the `(def-vars)`
@@ -255,7 +262,7 @@ Define a variable and reference it:
 ```vdu
 (def-vars (int a b c))
 (push-scope)
-(assign {a + b} {c})
+(assign (vpx (+ a b)) (vpx c))
 (pop-scope)
 (return)
 ```
@@ -274,7 +281,7 @@ full example showing the output.
 (let ((*build_inst* :t))
 	(def-vars (int a b c))
 	(push-scope)
-	(assign {a + b} {c})
+	(assign (vpx (+ a b)) (vpx c))
 	(pop-scope)
 	(return))
 
@@ -313,7 +320,7 @@ Take another example:
 (let ((*build_inst* :t))
 	(def-vars (int a b c d) (ushort x y))
 	(push-scope)
-	(assign {a + b, x - y} {c, d})
+	(assign (vpx (+ a b) (- x y)) (vpx c d))
 	(pop-scope)
 	(return))
 
@@ -382,7 +389,7 @@ stack that a CScript output can consume.
 This is what these register map functions provide.
 
 ```file
-lib/asm/cscript.inc "reset-reg-stack" "compile-deref"
+lib/asm/vpx.inc "reset-reg-stack" "compile-deref"
 ```
 
 By default, if you don't provide a list of VP registers to `(def-reg-map)` it

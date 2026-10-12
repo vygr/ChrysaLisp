@@ -113,16 +113,16 @@ When you perform a call using CScript expressions for inputs and/or outputs, a
 load/drain process occurs:
 
 ```vdu
-(call :class :method {in_arg0, in_arg1} {out_arg0, out_arg1})
+(call :class :method (vpx in_arg0 in_arg1) (vpx out_arg0 out_arg1))
 ```
 
 The `:class :method` inputs and outputs are used to construct two `(assign)`
 statements:
 
 ```vdu
-(assign {in_arg0, in_arg1} (method-input :class :method))
+(assign (vpx in_arg0 in_arg1) (method-input :class :method))
 (v-call :class :method)
-(assign (method-output :class :method) {out_arg0, out_arg1})
+(assign (method-output :class :method) (vpx out_arg0 out_arg1))
 ```
 
 ### CScript for Spills and Loads
@@ -149,20 +149,20 @@ you can safely let the compiler handle more complex operations.
 **Safe (Simple `:rsp` <--> `:rXX` copies, and  `constant` --> `:rXX`):**
 
 ```vdu
-(assign {val} `(,val))
-(assign {a, b, c} `(,a ,b ,c))
-(assign `(,val) {val})
-(assign `(,a ,b ,c) {a, b, c})
-(assign {85} `(,val))
-(assign {v1, v2, v3} `(,a ,b ,c))
+(assign (vpx val) `(,val))
+(assign (vpx a b c) `(,a ,b ,c))
+(assign `(,val) (vpx val))
+(assign `(,a ,b ,c) (vpx a b c))
+(assign (vpx 85) `(,val))
+(assign (vpx v1 v2 v3) `(,a ,b ,c))
 ```
 
 **Unsafe (Requires caution; compiler may clobber registers):**
 
 ```vdu
-(assign {val * 34} `(,val))
-(assign {ptr -> +str_length} `(,len))
-(assign {((a * 54) << 6) / 8} `(,val))
+(assign (vpx (* val 34)) `(,val))
+(assign (vpx (.> ptr +str_length)) `(,len))
+(assign (vpx (/ (<< (* a 54) 6) 8)) `(,val))
 ```
 
 ### Shared Naming
@@ -179,9 +179,9 @@ between them inside the compiler or within `assign` statements.
 
 (push-scope)
 (entry `(,this ,args))
-(assign `(,this ,args) {this, args})
+(assign `(,this ,args) (vpx this args))
 ...
-(assign {this, args} `(,this ,args))
+(assign (vpx this args) `(,this ,args))
 (exit `(,this ,args))
 (pop-scope)
 (return)
@@ -196,13 +196,13 @@ Or:
 (vp-rdef (this args))
 
 (push-scope)
-(entry {this, args})
+(entry (vpx this args))
 ...
-(assign {this} `(,this))
+(assign (vpx this) `(,this))
 (vp-cpy-ir this 0 args)
-(assign `(,args) {args})
+(assign `(,args) (vpx args))
 ...
-(exit {this, args})
+(exit (vpx this args))
 (pop-scope)
 (return)
 ```
@@ -224,8 +224,8 @@ register number !
 **these are CScript `(def-vars)` stack slots** !
 
 ```vdu
-{this, args}
-(assign {this -> 64} {args})
+(vpx this args)
+(assign (vpx (.> this 64)) (vpx args))
 ```
 
 ## Advanced example
@@ -241,13 +241,13 @@ with what the call will require.
 
 ```vdu
 (vp-rdef (this c x y x1 mask m om max_x mask_to_coverage v) (method-input :canvas :span))
-(assign {this, min_x, max_x, ys >> 3} (list this x max_x y))
+(assign (vpx this min_x max_x (>> ys 3)) (list this x max_x y))
 (breakif `(,x > ,max_x))
 (vp-add-cr 1 max_x)
 (vp-xor-rr om om)
-(assign (list max_x y om) {max_x, y, om})
+(assign (list max_x y om) (vpx max_x y om))
 (loop-start)
-    (assign {$mask_to_coverage} (list mask_to_coverage))
+    (assign (vpx ($ mask_to_coverage)) (list mask_to_coverage))
     (vp-cpy-ir this +canvas_coverage mask)
     (vp-cpy-rr x x1)
     (vp-cpy-rr om m)
@@ -261,8 +261,8 @@ with what the call will require.
     (vp-xor-rr c c)
     (vp-cpy-rd-b c mask v)
     (vp-cpy-dr-ub mask_to_coverage om c)
-    (assign (list m x1) {om, x})
+    (assign (list m x1) (vpx om x))
     (call :canvas :span_noclip (list this c x y x1) (list this))
-    (assign {x, max_x, y, om} (list x max_x y om))
+    (assign (vpx x max_x y om) (list x max_x y om))
 (loop-until `(,x >= ,max_x))
 ```

@@ -13,7 +13,7 @@ or Lisp lists (raw VP register/memory descriptors).
 An expression is no longer text in braces. It is a form, inside `(vpx ...)`:
 
 ```vdu
-(assign {this->+stream_bufp + len} {end})          ;as it was
+(assign (vpx (+ (.> this +stream_bufp) len)) (vpx end))          ;as it was
 (assign (vpx (+ (.> this +stream_bufp) len)) (vpx end))   ;as it is
 ```
 
@@ -49,7 +49,7 @@ was assembled, `(cat {obj->+obj_vtable = @} (f-path :str :vtable))`, is
 Why: a form is read by the reader, so `check`, `forward`, the formatter and
 anything else that reads the source sees into it, and a Lisp program that
 generates VP can build one as it builds any list. The tokenizer and the
-reverse polish of the text are gone from `lib/asm/cscript.inc`. What a form
+reverse polish of the text are gone from `lib/asm/vpx.inc`. What a form
 compiles to is exactly what the text did: on the day of the change every
 function of every one of the six targets assembled the same to the byte,
 but one that shuffles its own instructions at random.
@@ -63,10 +63,10 @@ expression is written has changed.
 
 Implementation files:
 
-- `lib/asm/cscript.inc` - tokenizer, reverse-polish converter, code generator,
+- `lib/asm/vpx.inc` - tokenizer, reverse-polish converter, code generator,
   operator table.
 
-- `lib/asm/csopt.inc` - peephole optimizer that post-processes the generated VP
+- `lib/asm/vpxopt.inc` - peephole optimizer that post-processes the generated VP
   instruction list.
 
 - `lib/asm/assign.inc` - the `(assign)` dispatcher and all four assign variants.
@@ -570,7 +570,7 @@ separated by `,`. Each sub-expression is compiled sequentially and its result
 is pushed onto the virtual register stack independently. This allows:
 
 ```vdu
-(assign {a + b, x - y} {c, d})
+(assign (vpx (+ a b) (- x y)) (vpx c d))
 ```
 
 to compute both expressions before any stores occur, so the results are each
@@ -640,7 +640,7 @@ output:
 (let ((*build_inst* :t))
 	(def-vars (int a b c))
 	(push-scope)
-	(assign {a + b} {c})
+	(assign (vpx (+ a b)) (vpx c))
 	(pop-scope)
 	(return))
 ```
@@ -652,42 +652,42 @@ generates for a given expression.
 
 Tokenizer:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Function: `cscript-tokenize`
 
 Reverse polish conversion:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Functions: `cscript-reverse-polish`
 
 Main compile loop:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Functions: `cscript-compile`, `cscript`
 
 Virtual register stack:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Symbols: `+vreg`, `push-reg`, `pop-reg`, `reset-reg-stack`
 
 Type and deref machinery:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Functions: `compile-deref`, `compile-deref?`, `pop-value`, `top-value`
 
 Symbol lookup and referencing:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Function: `compile-ref`
 
 Store operator:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Function: `compile-arrow`
 
 Real register binding:
 
-- File: `lib/asm/cscript.inc`
+- File: `lib/asm/vpx.inc`
 - Function: `def-reg-map`
 
 Operator scope registry:
@@ -697,7 +697,7 @@ Operator scope registry:
 
 Peephole optimizer:
 
-- File: `lib/asm/csopt.inc`
+- File: `lib/asm/vpxopt.inc`
 - Function: `opt-inst-list`
 
 Assign dispatcher:

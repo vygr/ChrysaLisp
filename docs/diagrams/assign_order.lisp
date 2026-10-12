@@ -19,5 +19,5 @@
 (dia-join s 'a1 'a2 "")
 (dia-say s "and :r2 back to :r0: a ring, no order will do." 400 214 11)
 (dia-say s "It throws. Break it with a register of your own." 400 232 11)
-(dia-say s "A list on either side is VP registers and addressing modes. A string is a C-Script expression, compiled." 0 280 12 :nil 0xff202428)
+(dia-say s "A list on either side is VP registers and addressing modes. A (vpx) form is expressions, compiled." 0 280 12 :nil 0xff202428)
 (diagram "assign_order" (dia-scene-doc s))

@@ -252,7 +252,7 @@
 (defun compile-label (%0)
 	(add-inst (list 'vp-lea-p (list quote %0) (push-reg :nil))))
 
-(defun cscript-compile (rpn_output)
+(defun vpx-compile (rpn_output)
 	(each! (lambda (token type)
 		(case type
 			(:operator (compile-operator (sym token)))
@@ -305,8 +305,8 @@
 		'<< "<<" '>> ">>" '>>> ">>>" '< "<" '> ">" '<= "<=" '>= ">=" '= "=" '/= "/="
 		'& "&" '^ "^" '| "|" '&& "&&" '|| "||"))
 
-(defun cscript-form-polish (form)
-	; (cscript-form-polish form) -> (tokens types)
+(defun vpx-polish (form)
+	; (vpx-polish form) -> (tokens types)
 	;a form as reverse polish. No function here calls itself: what is
 	;still to do is a list, the last of it next, each a form or (:op token)
 	(defq out_tokens (list) out_types (list) todo (list form))
@@ -335,9 +335,9 @@
 			((throw "Not an operator !" item))))
 	(list out_tokens out_types))
 
-(defun cscript-form (%0)
-	; (cscript-form form)
-	(cscript-compile (cscript-form-polish %0)))
+(defun vpx-form (%0)
+	; (vpx-form form)
+	(vpx-compile (vpx-polish %0)))
 
 (defun script? (%0)
 	; (script? x) -> :nil | :t
@@ -355,7 +355,7 @@
 
 (defun script-compile (%0)
 	; (script-compile form)
-	(cscript-form %0))
+	(vpx-form %0))
 
 ;the operators, by the token each is in the reverse polish. The two numbers
 ;were its precedence and which side it bound to, for text
@@ -411,7 +411,7 @@
 
 ;module
 (export-symbols
-	'(cscript-form vpx vpx? script? script-items script-ignored? script-compile
+	'(vpx-form vpx vpx? script? script-items script-ignored? script-compile
 	reset-reg-stack def-reg-map
 	compile-deref? compile-arrow))
 (env-pop)

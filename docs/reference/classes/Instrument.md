@@ -27,6 +27,8 @@ not what a hand changes:
 	:glyphs		((what x y [angle]) ...), where the sign of a part is
 				drawn, so that it is seen what the part is for. A
 				part other than :move is drawn too, a shade darker
+	:zero		(x y), the 0 of its marks, what is put on a line of the
+				paper when the board's snap is on, (:snap_zero)
 	:readouts	((x y [turn]) ...), where the angle it is turned to
 				is written, in degrees, the way a protractor counts,
 				up from level. One with a turn is written turned by
@@ -136,6 +138,23 @@ on it, or near enough one of its edges to draw along it
 from its own space to the board's
 ```
 
+### :mm
+
+```code
+(. instrument :mm) -> num
+
+how far a millimetre of its marks is. The marks are of the paper:
+a centimetre is so many squares of the document's grid, so where
+the zoom rests a mark of the instrument can lie on a line of the
+paper, and the next on the next. Chris: "We should make the
+Ruler's and other markings on the instruments match up with the
+background marks, it could be 2x the background grid, but the
+lines should match up." An instrument is the size it is on the
+screen whatever the zoom, and the lines of the paper, where the
+zoom rests, are the grid apart on the screen and half of it. The
+inches of a ruler are inches by these, and lie on no line
+```
+
 ### :on_edge
 
 ```code
@@ -189,6 +208,19 @@ that size. It is not seen bigger: the marks of a straight side are
 as far apart as they were, and there are more of them, as a
 longer ruler has. What goes round, the degrees of a protractor,
 is the one thing that is spread out
+```
+
+### :snap_zero
+
+```code
+(. instrument :snap_zero) -> instrument
+
+with the snap of the board on, it is moved the little it takes to
+have the 0 of its marks, :zero, on a line of the paper each way: a
+ruler's 0, the middle of a protractor's straight side, the square
+corner of a set square. Its marks are of the paper, (:mm), so with
+the 0 on a line, and it level or upright, each centimetre is on
+one. Chris: "yes, snap the 0 mark to the grid when snap is on"
 ```
 
 ### :step

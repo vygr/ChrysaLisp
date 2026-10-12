@@ -1,7 +1,7 @@
 ;docs/ai_digest/vp_translation.md: one source, a processor it is written for, and the real ones it is made for
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (dia-put s 'src (dia-box '("source" ".vp files, and Lisp" "that writes VP") 150 62 grey 11 :first) 0 62)
-(dia-put s 'asm (dia-box '("the assembler" "is Lisp, lib/asm/" "(assign) is the C-Script compiler") 220 62 gold 11 :first) 190 62)
+(dia-put s 'asm (dia-box '("the assembler" "is Lisp, lib/asm/" "(assign) compiles (vpx) forms") 220 62 gold 11 :first) 190 62)
 (dia-put s 'vp (dia-box '("VP instructions" "16 + 16 registers," "load and store") 160 62 blue 11 :first) 450 62)
 (each (lambda (i)
 	(dia-put s (sym (cat "t" (str i))) (dia-box (elem-get '("x86_64.inc" "arm64.inc" "riscv64.inc" "la64.inc" "vp64.inc, for the emulator") i) 210 30 green 11) 660 (* i 38))

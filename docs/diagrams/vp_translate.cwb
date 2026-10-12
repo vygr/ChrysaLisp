@@ -445,7 +445,7 @@
 									33
 									:m
 									((:path 6)
-										1.00000 0.00000 37.08807 0.00000 1.00000 51.00000
+										1.00000 0.00000 41.63671 0.00000 1.00000 51.00000
 									)
 									:kind
 									:text
@@ -454,7 +454,7 @@
 									:stroke
 									0
 									:text
-									"[(assign) is the C-Script compiler]"
+									"[(assign) compiles (vpx) forms]"
 									:font_size
 									11
 								)
