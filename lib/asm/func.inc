@@ -4,6 +4,7 @@
 (include "./vpopt.inc")
 (include "./vpx.inc")
 (include "./vpxopt.inc")
+(include "./vpxreg.inc")
 (include "./assign.inc")
 (include "./lisp.inc")
 (include "././trans/vp.inc")
@@ -57,7 +58,7 @@
 (defun def-func (*func_name* &optional *func_align* *func_stack*)
 	(defq *func_align* (ifn *func_align* stack_align)
 		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '()) *locals* (list)
+		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :nil *kept* :nil
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -81,9 +82,47 @@
 			(not (starts-with "sys/" (str *func_name*)))
 			(call :sys_task :stack))))
 
+(defun fn-callee (inst)
+	; (fn-callee inst) -> :nil | (trashes takes_and_gives)
+	;what a call or a jump out of the function is of, for (keep-locals):
+	;the registers its method is declared to trash, :nil if it does not
+	;say, and those it takes and gives values in. :nil if it is not of a
+	;method that is known: one bound to its function is, through its
+	;link, and a virtual one has its class and name with it
+	(case (first inst)
+		((emit-call-p emit-jmp-p)
+			(and (starts-with "_l_rl_" (defq label (str (second inst))))
+				(defq link (str-as-num (slice label 6 -1))) (< -1 link (length *links*))
+				(defq m (path-method (elem-get *paths* (elem-get *links* link))))
+				(list (second m) (first m))))
+		((emit-call-i emit-jmp-i)
+			(and (> (length inst) 4) (defq class (elem-get inst 3)) (defq name (elem-get inst 4))
+				(nql class :nil) (nql name :nil)
+				(defq m (method-lookup class name))
+				(list (method-trashes class name)
+					(reduce (# (if (list? %1) (cat %0 (filter (const sym?) %1)) %0)) (list (third m) (elem-get m 3)) (list)))))))
+
+(defun fn-keep-locals ()
+	;the function asked, (vpx-regs): its named locals are kept in
+	;registers where they can be. Only if it is a static method that says
+	;what it trashes: a local's register is one of those, so that what
+	;calls it sees none changed that was not. What a virtual method is
+	;declared to trash is what any class called so may, more than the
+	;one function does, and a caller bound to the function goes by that
+	(when (and *func_regs* (nempty? *locals*)
+			(defq me (path-method *func_name*)) (second me) (third me)
+			(defq got (keep-locals (slice *emit_list* *emit_start* -1) *locals*
+				(filter (# (starts-with ":r" %0)) (second me)) (first me) (const fn-callee))))
+		(defq head (slice *emit_list* 0 *emit_start*))
+		(clear *emit_list*)
+		(each (# (push *emit_list* %0)) head)
+		(each (# (push *emit_list* %0)) (first got))
+		(setq *kept* (second got))))
+
 (defun def-func-end ()
 	(env-pop)
 	(undef *compile_env* '*func_env*)
+	(fn-keep-locals)
 	(defq *emit_end* (length *emit_list*))
 	(pop-scope-checked)
 	(each (# (vp-label (string-sym (!))) (vp-cstr %0)) *strings*)
@@ -105,7 +144,9 @@
 		;the instructions, and after them, where what reads only the one
 		;form does not see it, what the frames of named locals were
 		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"
-			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")))
+			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
+			;and which of them were kept in registers, (vpx-regs)
+			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")))
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *build_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))

@@ -17,6 +17,8 @@
 		(pptr iter_begin iter_end)
 		(int eps))
 
+	;the named locals are kept in registers where they can be
+	(vpx-regs)
 	(push-scope)
 	(entry :path :filter_polygon (vpx this that eps))
 

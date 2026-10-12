@@ -55,6 +55,30 @@
 	(method-lookup %0 %1)
 	(if (defq said (pfind (pfind *trashes* %0) %1)) (trash-regs said)))
 
+(defun path-method (%0)
+	;%0 = function path
+	;what is known of the function as a method, (takes_and_gives
+	;trashes static), the registers of each: what any method that is
+	;that function is declared with. trashes is :nil if none of them
+	;says. static is if every one of them is a static method: then what
+	;is declared is what the function trashes. Of a virtual method it is
+	;what any class called so may, which is more.
+	;:nil if no method is that function
+	(defq io (list) said :nil is :nil static :t)
+	(each (lambda ((class vtable))
+		(each (lambda ((name m))
+			(when (and (list? m) (eql (first m) %0))
+				(setq is :t)
+				(if (nql (second m) :static) (setq static :nil))
+				(each (# (if (list? %0) (each (lambda (reg) (and (sym? reg) (not (find reg io)) (push io reg))) %0)))
+					(list (third m) (elem-get m 3)))
+				(when (defq trashes (pfind (pfind *trashes* class) name))
+					(setq said (ifn said (list)))
+					(each (# (unless (find %0 said) (push said %0))) (trash-regs trashes)))))
+			(partition vtable 2)))
+		(partition *vtables* 2))
+	(if is (list io said static)))
+
 (defun f-path (%0 %1)
 	;%0 = class name
 	;%1 = slot method name
@@ -484,5 +508,5 @@
 	entry exit call jump s-call d-call s-jump
 	v-call v-jump d-jump r-call r-jump v-bind
 	f-entry f-exit l-entry l-exit f-path f-bind
-	method-input method-output method-lookup method-trashes trash-regs signature))
+	method-input method-output method-lookup method-trashes trash-regs path-method signature))
 (env-pop)

@@ -136,6 +136,60 @@ what the methods called trash: most of them say `:r1-:r14`, and a local
 has nowhere to be over such a call but the stack. That falls as the
 functions called are themselves made to use fewer registers.
 
+**Named locals kept in registers (2026-10-12, night).** Chris: "start the
+allocator". `lib/asm/vpxreg.inc`, `(keep-locals)`, and a function asks for
+it, `(vpx-regs)`, before its `(push-scope)`. One that does not ask is as
+it was, to the byte.
+
+It is done when the function has all been assembled, on its instructions,
+before the peephole pass and the translation, so it is the same for every
+target and for whatever wrote the instructions, vpx or VP by hand.
+
+* **A home.** Each local that can be kept has a register for the whole
+  function. It is one the function is declared to trash already, that
+  none of its own instructions name, and that nothing it calls or jumps to
+  takes or gives a value in. So what calls the function sees no register
+  changed that was not, and lint, which works out what a function trashes
+  from its code, is the check of that.
+* **The stack is still where a local is when it has to be.** A write goes
+  to the stack as it did, and to the home too if a read may come before a
+  call that trashes the home. A read is from the home if the value is
+  there by every way to it. If not it is from the stack, by way of the
+  home if another read may follow. Then a write to the stack that no
+  read of the stack can come after is taken out. Nothing is ever only
+  in a register that a call may trash.
+* **A call** trashes what its method is declared to, all of them if it
+  does not say.
+* **Not touched:** a local that is a struct, has its address taken or is
+  above one that has in its frame, or is read or written as less than a
+  long. And a whole function, if it is not a static method that declares
+  its trashes, uses the stack pointer as a number, pushes or pops with a
+  frame there, has a label nothing is seen to go to, calls or jumps by a
+  register, or calls what is not a method. A virtual method is declared
+  with what any class called so trashes, more than the one function does,
+  and a caller bound to the function goes by the function: so not those,
+  yet.
+
+`obj/vp/` has, after a function's `(locals ...)`, `(kept (local home reads
+writes) ...)`: what was kept where, and how many reads and writes of the
+stack went.
+
+The first to ask is `gui/path/filter_polygon`: `this` in `:r7`,
+`iter_begin` and `iter_end` in `:r8` and `:r9`, three reads of the stack
+and two writes gone, four copies between registers come. Its two calls
+that come after leave `:r7` alone, so `this` is read from it.
+
+As a trial, not kept, every function was made to ask. 23 could be done on
+a debug build: 86 locals, 303 reads and 53 writes of the stack gone. The
+first go crashed the system as it started, and lint named 42 functions
+that now trashed `:r0`: a read from the home had been taken to mean the
+stack was not wanted after it either, and the write went. Fixed, with a
+test of just that; then lint was clean and all the tests passed on a
+system built so. That is a fifth of the reads the tree has, not the half
+`locals` counted: a home is not shared by two locals that are never
+wanted at once, most methods with locals are virtual, and the copies
+that come are not yet folded away.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - form to reverse polish, code generator,

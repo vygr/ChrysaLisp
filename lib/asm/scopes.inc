@@ -31,6 +31,13 @@
 		(map (lambda ((name (level kind offset type &ignore))) (list name offset (if (str? type) type "")))
 			(filter (lambda ((name attrib)) (eql (second attrib) 'var)) (partition (last scope) 2))))))
 
+(defun vpx-regs ()
+	; (vpx-regs)
+	;said in a function: its named locals are kept in registers where
+	;they can be, lib/asm/vpxreg.inc, when it has all been assembled.
+	;One that does not say is as it is written, a local on the stack
+	(setq *func_regs* :t))
+
 (defun push-scope ()
 	(elem-set (elem-get (scope-new) -3) 0
 		(setq *scopes_sp* (align *scopes_sp* stack_align)))
@@ -158,5 +165,5 @@
 (export-symbols
 	'(scope-operator scope-new scope-offset pop-scope-checked
 	scope-get scope-def scope-unwind
-	def-vars push-scope pop-scope pop-scope-syms scope-used return))
+	def-vars push-scope pop-scope pop-scope-syms scope-used return vpx-regs))
 (env-pop)

@@ -4,6 +4,50 @@
 
 ------
 
+**vpx, stage 4 begun: named locals kept in registers, for a function that asks. One asks.**
+
+Chris: "leave it out, pushed. start the allocator".
+
+* `lib/asm/vpxreg.inc`, new, `(keep-locals insts frames mine fixed
+  callee)`: a function's instructions with its named locals in registers
+  where they can be. How, and what it will not touch, is at the top of
+  the file and in `docs/ai_digest/vpx_compiler.md`.
+* `lib/asm/scopes.inc`, `(vpx-regs)`: a function asks. `lib/asm/func.inc`
+  does it at `(def-func-end)`, before the peephole pass, only for a
+  static method that declares its trashes, and writes `(kept ...)` after
+  `(locals ...)` in `obj/vp/`.
+* `lib/asm/class.inc`, `(path-method path)`: what is declared of the
+  method a function is.
+* `gui/path/filter_polygon.vp` asks: three reads of the stack and two
+  writes gone, four register copies come.
+* `tests/system/test_vpxreg.lisp`, new, 21: functions made up, each a
+  case of what is kept, what is not, and what is not followed.
+
+Run. With nothing asking, every function of six targets the same to the
+byte. With the one, it, the boot image and the function that shuffles
+itself differ on each target and nothing else. `lint` clean. 6,529 tests,
+0 failed, built on each of the M4, the x64 Mac and the Pi. `check`,
+`includes`, `imports` clean.
+
+A trial, not kept: every function made to ask. The M4's system crashed as
+it started. Lint, on a debug build made so, named 42 functions that
+trashed `:r0`: after a read that was from the home I had taken the stack
+to be not wanted, though a later read was of it, and the write to the
+stack went. Fixed, and a test is of that. Two more things found by
+thinking of what else that trial could break, before it ran again: a
+virtual method's declared trashes are wider than its function's, so only
+static methods; and an address taken may be of more than the one local.
+Then lint clean, and 6,529 tests passed on a system built with all 23
+functions done. The boot image I broke was put back from the Pi's.
+
+Not done: a home shared by locals not wanted at once; virtual methods,
+which need what the function itself trashes, not the class; the register
+copies it leaves, to be folded, stage 5; locals read as less than a long.
+Not seen: a desktop on a system with it, the one function is in the
+drawing of paths.
+
+------
+
 **vpx, towards stage 4: what a method trashes is in its declaration, and what that is worth.**
 
 Chris: "yes, declare the trashes in the method declaration itself". The
