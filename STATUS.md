@@ -4,6 +4,42 @@
 
 ------
 
+**The five iterators, `each!` `some!` `map!` `reduce!` `filter!`, keep what they can in registers their callees leave. No change to the benchmark.**
+
+Chris: "start on map! and the callers from locals -c", and of
+`reduce!` and `filter!`, "all same basic idea and loop structure ...
+they are core iterator loops for everywhere."
+
+Each loop calls `:lisp :repl_apply`, which runs any Lisp and leaves no
+register, so after it everything is read from the stack whatever is
+done. What could go is what was read twice or put by for nothing:
+
+* `func`, `seqs` and `this` are in `:r7`, `:r12` and `:r13`, which
+  `:list :collect` leaves, so each is read the once a time round.
+* `value` is in a register that a deref, a push and `:list
+  :min_length` leave, and is not a local on the stack at all.
+* `filter!` gets its element before it makes the list for the call, and
+  holds it in `:r3`, which the create leaves.
+
+Reads and writes of the stack in each function, as `locals -v` counts
+them: `each!` 25 to 19, `some!` 27 to 20, `map!` 26 to 22, `reduce!` 24
+to 18, `filter!` 28 to 23. A local less in each frame.
+
+`make test` five times: 59.3 to 60.2 ms, as it was. The apply is what a
+time round costs, and it is not changed.
+
+`tests/text/test_tree.lisp`: the `relies` probe failed once on the Pi in
+a run of every test, then passed alone three times, in a soak of eight,
+and three times more with the classes made stale first. Not read: what
+`relies` said that once was not kept. The test now shows what was said
+when it fails.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,538
+tests, 0 failed, on the M4, the x64 Mac and the Pi, but for that one on
+the Pi. Soak of eight clean on all three. `check` clean.
+
+Not seen: the emulators, and no desktop was started.
+
 **A push to an array or list trashes nothing but what it gives back, room or no. The growing of the block keeps the registers it uses.**
 
 Chris: "there may be a genuine argument for making the set_capacity

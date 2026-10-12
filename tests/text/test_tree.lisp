@@ -144,10 +144,14 @@
 	"(emit-label '_8)" tt_lf "(emit-string \qsys/mem/alloc\q)" tt_lf "(emit-byte 0)" tt_lf "(emit-label '_9))" tt_lf) tt_probe)
 (defq tt_said (list))
 (pipe-run "relies -v tests/scratch_relies_probe" (# (push tt_said %0)))
-(assert-true "relies: a register read after a call declared to trash it and not give it is said; not one it gives, one it leaves, nor one made 0 by itself"
-	(or (found? (join tt_said "") "tests/scratch_relies_probe (4): after sys/mem/alloc, :r2")
-		;the classes are read under a lock, which another test may hold too long
-		(found? (join tt_said "") "The classes could not be read")))
+;if it is not said, what was said is what the failure shows: it failed
+;the once on the Pi, in a run of every test, and what it said was not kept
+(assert-eq "relies: a register read after a call declared to trash it and not give it is said; not one it gives, one it leaves, nor one made 0 by itself"
+	"said"
+	(if (or (found? (join tt_said "") "tests/scratch_relies_probe (4): after sys/mem/alloc, :r2")
+			;the classes are read under a lock, which another test may hold too long
+			(found? (join tt_said "") "The classes could not be read"))
+		"said" (cat "not said: " (join tt_said " | "))))
 (pii-remove tt_probe)
 (assert-list-eq "bracket: more opened than closed, and more closed than opened; not one in a str or a comment"
 	'("(1) bracket: 1 not closed by the end of the file")
