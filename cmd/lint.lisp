@@ -21,6 +21,10 @@
     back as they are with no mode, 'make vp', 'make apps'
     then 'make all boot'.
 
+    Then 'relies -q', on the same debug build: where a
+    function reads a register after a call that is declared
+    to trash it, which the trace does not look for.
+
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.")
 (("-k" "--keep") ,(opt-flag 'opt_k))
@@ -51,6 +55,9 @@
 		(build-errors "make vp debug" said)
 		(build-errors "make apps debug" said)
 		(each (# (push said %0)) (run-step "files obj/vp/ | trace -i -l"))
+		;and where a register is read after a call that is declared to
+		;trash it: what trace does not see, it is of what calls
+		(each (# (push said %0)) (run-step "relies -q"))
 		(unless opt_k
 			(build-errors "make vp" said)
 			(build-errors "make apps" said)

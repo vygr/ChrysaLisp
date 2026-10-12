@@ -383,7 +383,9 @@
 
 	(entry :stream :lisp_writechar `(,this ,args))
 
-	(errorif-lisp-args-sig 'error :r1 2 3)
+	;to error2, which says which error: it went to error, with what the
+	;check of the arguments happened to leave where the error is told
+	(errorif-lisp-args-sig 'error2 :r1 2 3)
 
 	(assign `((,args +array_length)) `(,value))
 	(assign `((,args +array_begin)) `(,iter_begin))

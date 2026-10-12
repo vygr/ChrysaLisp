@@ -238,6 +238,29 @@ calls, 112 locals, all 15. Then `class/lisp/repl_apply`,
 `class/obj/destroy`, and the writes of a stream, `:write`, `:write_char`,
 `:write_bits`, `:write_cstr`, 13 or 14 of 15 each.
 
+**What lint did not see (2026-10-12, the night).** What a method is
+declared to trash is every way through it. Code that calls it may know
+which way it goes and count on a register the short way leaves: the
+destroy of a thing known to be a number, a push to an array just given
+the room. Chris wrote a good deal so, "instruction scrounging due to my
+gameing days". Lint checks the function against its declaration. It did
+not check the caller. So a function changed inside what it declares
+could break what calls it with nothing said, and one did: a destroy
+that used `:r3`, which it was always declared to trash.
+
+`relies`, `cmd/relies.lisp`, is the check of the caller: a register
+read after a call that is declared to trash it and does not give it.
+It found eleven such places and two were faults. They are mended, by
+the caller reading the thing again or saying what it means, and lint
+runs it. With that, a function that uses a register it declares and
+never used before breaks nothing, and it is checked: which is what
+keeping locals in registers rests on.
+
+`:obj :destroy` no longer makes any of it necessary for a deref: it
+puts `:r3` to `:r14` by round the deinit, so a deref trashes `:r0` to
+`:r2` whatever dies. And it no longer goes one call deeper for each
+object inside another, which ended a task at 250.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - form to reverse polish, code generator,

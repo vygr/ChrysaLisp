@@ -11,6 +11,8 @@
         -h --help: this help info.
         -v --verbose: every place, not only the sums by
             what is called.
+        -q --quiet: every place and no more, nothing if
+            there is none. For lint.
 
     Where a function goes by more than is declared of what it
     calls: a register it reads after a call that is declared
@@ -33,12 +35,20 @@
     wanted after a call, that the call is declared to trash
     and does not give, is such a place.
 
+    Two things called are left out. What does not come back,
+    :sys_pii :exit. And a walk that calls back to what called
+    it, :view :forward_tree: it is declared to trash every
+    register, it can not know what it is given to call, and
+    what gives it the callbacks keeps in registers what they
+    work on. That is its own affair and not the walk's.
+
     To be rid of one, the long way through what is called
     puts by the registers it uses and brings them back, and
     then it is declared to trash less, 'trace -w'.
 
     With no function named, all there are.")
 (("-v" "--verbose") ,(opt-flag 'opt_v))
+(("-q" "--quiet") ,(opt-flag 'opt_q))
 ))
 
 (defq +regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
@@ -254,7 +264,7 @@
 		(each (lambda (flow)
 			(when (defq called (third flow))
 				;what does not come back has nothing read after it
-				(defq at (!) bad (if (find (first called) '("sys/pii/exit")) 0
+				(defq at (!) bad (if (find (first called) '("sys/pii/exit" "gui/view/forward_tree")) 0
 					(logand (after-of at) (second called) (lognot (elem-get called 3)))))
 				(when (/= bad 0)
 					;the first instruction after it, by where control goes, that
@@ -277,7 +287,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_v :nil args (options stdio usage)))
+			(defq opt_v :nil opt_q :nil args (options stdio usage)))
 		(defq functions (rest args))
 		(if (empty? functions)
 			(setq functions (filter (# (not (starts-with +jit_dir %0)))
@@ -293,7 +303,7 @@
 						(++ callers)
 						(each (lambda ((at name bad reader))
 							(++ places)
-							(if opt_v (print function " (" at "): after " name ", " (join (map (const str) (regs-in bad)) " ")
+							(if (or opt_v opt_q) (print function " (" at "): after " name ", " (join (map (const str) (regs-in bad)) " ")
 								(if reader (cat ", read at " (str reader)) ", wanted where it ends")))
 							(defq entry (. by_called :find name))
 							(unless entry (. by_called :insert name (setq entry (list 0 0 (list)))))
@@ -303,11 +313,11 @@
 							found)))
 					functions)
 				(defq rows (list))
-				(. by_called :each (lambda (name entry) (push rows (cat (list name) entry))))
+				(unless opt_q (. by_called :each (lambda (name entry) (push rows (cat (list name) entry)))))
 				(each (lambda ((name sites bad who))
 					(print (pad sites 4) "  " name ": " (join (map (const str) (regs-in bad)) " "))
 					(print "      by " (join (slice who 0 (min 6 (length who))) ", ")
 						(if (> (length who) 6) (cat " and " (str (- (length who) 6)) " more") "")))
 					(sort rows (# (- (second %1) (second %0)))))
-				(print "Functions: " (length functions) ". Places a register is read after a call declared to trash it: "
-					places ", in " callers " functions, of " (length rows) " things called.")))))
+				(unless opt_q (print "Functions: " (length functions) ". Places a register is read after a call declared to trash it: "
+					places ", in " callers " functions, of " (length rows) " things called."))))))

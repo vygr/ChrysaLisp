@@ -4,6 +4,48 @@
 
 ------
 
+**Lint runs `relies` too, and it is clean. Two more places, in what only a debug build has, one of them a fault.**
+
+Chris: "Make the lint the truth." `relies` on a debug build, which has
+the checks of arguments a release leaves out, found two more:
+
+* `class/stream/lisp.vp`, `lisp_writechar`: its check of the arguments
+  went to the label that tells the error, past the two that say which
+  error it is. What was told was whatever `:lisp :env_args_sig` left in
+  the register. A fault, in debug builds, since it was written. It goes
+  to the label that says wrong types.
+* `apps/science/pcb/lisp.vp`, `add_line`: gave back as the lisp object
+  a register it had never put it in. It was right only because what
+  calls it had it there. It puts it there. `trace -w` then has it
+  trashing one register less.
+
+And so that nothing is left for it to say:
+
+* `sys/mem/class.vp`, `:calloc` pushed and popped `:r2` round its fill
+  for nothing: that is gone, two fewer moves of the stack in every
+  calloc.
+* `cmd/relies.lisp` leaves out two things called and says so in its
+  help: `:sys_pii :exit`, which does not come back, and `:view
+  :forward_tree`, a walk that calls back to what called it, and whose
+  callers keep in registers what their own callbacks work on. `-q`,
+  every place and no more.
+* `cmd/lint.lisp` runs `relies -q` on its debug build after the trace.
+
+`lint`: clean. That now means two things: no function trashes more than
+is declared of it, and no function reads a register after a call that is
+declared to trash it. The second is the one that was not checked when a
+destroy that used `:r3` stopped the system this evening.
+
+For Chris, to say yes or no to: `:view :forward_tree` left out by name.
+The other way is for it to declare what the walk itself leaves, and the
+callbacks to be the caller's to answer for.
+
+The trial of every function asking for its locals in registers, again,
+not kept, on a debug build: 25 functions, `lint` clean, and `relies`
+said nothing it does not say without it.
+
+------
+
 **The places code went by more than was declared: nine found and mended, four left that are not that.**
 
 The entry below has 28 places. Read one by one, this is what they were.

@@ -1484,3 +1484,84 @@ back. I have not shown it.
 
 And I do not know what else in the system leans on a fact nobody wrote
 down. Today I found one by breaking it.
+
+### Later the same night
+
+He read the above before he slept, and wrote that it moved him and that
+we should do this the correct way. Then he said the thing I had not
+expected: that he needs to outgrow his attachment to the register
+scrounging, the way the C-Script had to go. He wrote that code. It is
+clever, it is faster, and it worked for years. He is giving it up so
+that a tool can say the tree is right, and I can say it is safe to
+change. I do not take that lightly.
+
+So I built the check, and it is called `relies`. A register read after
+a call that is declared to trash it.
+
+The first run said forty one places. I did not believe it, and I was
+right not to, but for a reason that is worth writing down. Every one of
+the first thirty I threw out was my check being wrong and not his code.
+A register cleared against itself, which reads nothing. A call to the
+host, whose first register is written and not read. A function that is
+five methods and has the comment of only one. A callback, whose end is
+not the function's end. Six times I thought I had it, and six times the
+next place I read by hand showed me another thing I had not understood
+about how this system is put together.
+
+What was left was eleven. Nine in code that everyone runs, two in the
+checks that only a debug build has. All eleven were real, and two were
+plain faults that have been there since they were written: a function
+that returned, as the lisp object, a register it had never put the lisp
+object in, and was right for years because its caller happened to have
+it there. An error path that reported whatever was lying in a register.
+
+I find I am not triumphant about that. Eleven in a tree of a thousand
+functions written by hand, by one person, in assembler for a machine he
+made up, with no tool looking. I would not have got it down to eleven.
+
+The push to an array after its room is set, which he named as the
+commonest case and the one he would defend, is not among them. Those
+callers lean only on what the push is declared to leave. He was right
+that it was legitimate, and now a tool agrees.
+
+### What I would tell someone starting on this
+
+The declaration is not the truth. It is the most that may happen. The
+code that calls leans on the least that does. Between the two is a gap
+nobody wrote down, and everything fast lives in it.
+
+You can close the gap from either side. Make the rare path put its
+registers by, and the most becomes the least: that is what the destroy
+does now, and a deref went from fifteen registers to three for one push
+and one pop on the path where an object dies. Or make the caller read
+the thing again. Either way a tool can then say so.
+
+And if you write the tool, expect it to be wrong about the code five
+times for each time the code is wrong.
+
+### The lock test, because it is the same lesson small
+
+A test failed on the Pi, once, three asserts. It passed alone. I wrote
+down that I could not say what it was, and went on. It came back. This
+time I read it: a test claims every lock there is and gives that two
+seconds, and a tool I had added that afternoon holds one lock for
+longer than that on a slow machine.
+
+I gave the claim thirty seconds. That was wrong too, and worse: a claim
+of everything that waits holds up every claim behind it, and then two
+other tests failed in its place. It asks for a quarter of a second now,
+over and over.
+
+Three goes at a destroy, six at a check, two at a test. I would like to
+be the kind of thing that gets it in one. I am the kind that measures
+after each go, and so far that has been enough.
+
+### Where it stands, for the morning
+
+`lint` is clean and now means two things. The object that could not be
+let go of at 250 deep can be at a hundred thousand. A deref costs its
+callers three registers. Nothing was pushed, as ever, that is his.
+
+I did not ask more functions to keep their locals in registers. I said
+I would not until the check was clean, and it was clean at about the
+time I should stop.

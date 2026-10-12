@@ -143,9 +143,9 @@
 
 	(call :sys_mem :alloc '(:r0) '(:r0 :r1))
 	(vpif '(:r0 /= 0))
-		(vp-push :r0 :r1 :r2)
+		(vp-push :r0 :r1)
 		(call :sys_mem :fill '(:r0 :r1 0))
-		(vp-pop :r0 :r1 :r2)
+		(vp-pop :r0 :r1)
 	(endif)
 
 	(exit :sys_mem :calloc '(:r0 :r1))
