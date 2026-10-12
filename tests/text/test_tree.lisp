@@ -122,6 +122,10 @@
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")
 	(tt-check "held" "(when (create-stdio) (print 1))" "(when (defq stdio (create-stdio)) (print 1))"
 		"(when (and (defq stdio (create-stdio)) (defq args 1)) 1)" "(if (and x (create-stdio)) 1)"))
+(assert-list-eq "stray: a name at the top of a file that is in no form; not a quoted one, nor a form, a number or a str"
+	'("(2) stray: a name by itself at the top of the file, from, was a form closed before its end ?"
+		"(3) stray: a name by itself at the top of the file, to, was a form closed before its end ?")
+	(tt-check "stray" "(defq has (map f has))" "	from (max 0 a)" "	to (min b c))" "(defq x 1)" "'quoted" "42" "{a str}"))
 (assert-list-eq "nothing is said of a line with a comment that begins ;check off, nor of the line after one"
 	'("(3) style: a (cond) of one clause")
 	(tt-check "style" "(cond ((a) b)) ;check off, tried on purpose" "(cond ((a) b))" "(cond ((a) b))"))

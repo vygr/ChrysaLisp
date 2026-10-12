@@ -52,6 +52,9 @@
     enum    a field of an (enums) named size: the name it
             makes is the one the (enums) makes for how many
             fields there are.
+    stray   a name by itself at the top of a file, in no form.
+            A bracket closed a form before its end, and the
+            rest of it is run by itself.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -67,7 +70,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -331,6 +334,13 @@
 					(when (and (eql (first node) :comment) (starts-with ";check off" (third node)))
 						(. off :insert (second node))
 						(. off :insert (inc (second node))))
+					;a name by itself, not in any form, at the top of a file: a
+					;bracket closed a form before its end, and what was to be
+					;the rest of it is now run by itself
+					(and (find "stray" checks) (eql nodes top) (eql (first node) :symbol) (not quoted) (not was)
+						(= 0 (bskip +char_class_quote (third node) 0))
+						(found file node "stray" "a name by itself at the top of the file, " (third node)
+							", was a form closed before its end ?"))
 					(if (find "zero" checks) (check-zero file node))
 					(when (defq kids (tree-form? node))
 						(push todo kids)
