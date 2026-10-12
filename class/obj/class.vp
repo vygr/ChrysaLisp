@@ -11,10 +11,80 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 
+	;info
+	;an object is destroyed from inside the destroying of what held it: a
+	;list in a list in a list, and each is a call further down the task's
+	;stack, which is not long. A list 250 deep was the end of its task.
+	;
+	;The first destroy of a task, the one no other is going on outside
+	;of, says so in the task, and stays till all is done. One inside it
+	;goes as it always did if there is the room on the stack. If there is
+	;little left, the object is not destroyed there: it is put by, a note
+	;of it on a list the task has, and that is all.
+	;The first destroy, when it has done its own, does each that was put
+	;by, one after another and no deeper, till there are none. So all is
+	;destroyed before the first destroy comes back, as it was, however
+	;deep it went.
+
 	(entry :obj :destroy '(:r0))
 
-	(call :obj :deinit '(:r0) '(:r0))
-	(jump :sys_mem :free '(:r0))
+	;only :r0 to :r2 and :r14 are used here, what the free of the object
+	;trashes whatever it is: there is code that goes by what the destroy
+	;of the thing it knows it has trashes, and not by what any may
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
+	(vpif '(:r2 = 0))
+		;before there are tasks
+		(call :obj :deinit '(:r0) '(:r0))
+		(jump :sys_mem :free '(:r0))
+	(endif)
+	(assign '((:r2 +tk_node_dying)) '(:r1))
+	(vpif '(:r1 /= 0))
+		;a destroy is going on outside of this one. The kernel is on the
+		;stack of the host, which is long
+		(fn-bind 'sys/statics/statics :r1)
+		(assign '((:r1 statics_sys_task_kernel_tcb)) '(:r1))
+		(vpif '(:r2 /= :r1))
+			(vp-lea-i :r2 (+ +tk_node_size tk_stack_low) :r1)
+			(vpif '(:rsp < :r1))
+				;put by: a note of it, and of the one put by before it. An
+				;object has not the room in it for that, its count is 32 bits
+				(vp-push :r0)
+				(call :sys_mem :alloc '(16) '(:r0 _))
+				(vp-pop :r1)
+				(fn-bind 'sys/statics/statics :r2)
+				(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
+				(assign '(:r1) '((:r0 +ptr_size)))
+				(assign '((:r2 +tk_node_dying)) '(:r1))
+				(assign '(:r1 :r0) '((:r0 0) (:r2 +tk_node_dying)))
+				(vp-ret)
+			(endif)
+		(endif)
+		(call :obj :deinit '(:r0) '(:r0))
+		(jump :sys_mem :free '(:r0))
+	(endif)
+
+	;the first: 1 is the end of the list, and says one is going on
+	(vp-cpy-cr 1 :r1)
+	(assign '(:r1) '((:r2 +tk_node_dying)))
+	(loop-start)
+		(call :obj :deinit '(:r0) '(:r0))
+		(call :sys_mem :free '(:r0))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+		(assign '((:r1 +tk_node_dying)) '(:r0))
+		(breakif '(:r0 = 1))
+		;the next that was put by: its note is let go of, and it is done
+		(assign '((:r0 0)) '(:r2))
+		(assign '(:r2) '((:r1 +tk_node_dying)))
+		(assign '((:r0 +ptr_size)) '(:r2))
+		(vp-push :r2)
+		(call :sys_mem :free '(:r0))
+		(vp-pop :r0)
+	(loop-end)
+	(vp-xor-rr :r0 :r0)
+	(assign '(:r0) '((:r1 +tk_node_dying)))
+	(vp-ret)
 
 (def-func-end)
 

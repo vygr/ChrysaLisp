@@ -4,6 +4,70 @@
 
 ------
 
+**An object 250 deep in others was the end of its task when let go of. It is not now, at any depth.**
+
+Found while looking at what `:obj :deref` costs its callers. Chris wanted
+to try `:destroy` saving the registers round its call, and said of it
+"if we push all that and nest 200 levels down, we are toast !". I
+measured what is so today: a list in a list in a list, 240 deep, is let
+go of; at 250 the task is gone and nothing is said. Each is destroyed
+from inside the one that held it, a call further down a stack of 6KB.
+Chris: "I think we have to do it. It's a gun held to our head ATM that we
+must address", and "This is a known issue with ref counting".
+
+* `class/obj/class.vp`, `:obj :destroy`: the first destroy of a task
+  says so in the task and stays till all is done. One inside it goes as
+  it always did while there is stack, `tk_stack_low`, 1,536 bytes. With
+  less, the object is put by, a note of 16 bytes on a list of the task,
+  and the first destroy does those one after another, no deeper, when it
+  has done its own. All is destroyed before the first comes back, as it
+  was.
+* `sys/task/struct.inc`, `+tk_node_dying`; `sys/task/class.inc`,
+  `tk_stack_low`; `sys/task/class.vp` sets it to 0 for a new task.
+* `tests/core/test_destroy.lisp`, new, 7: lists to 100,000 deep let go
+  of, twenty of 20,000 deep and no more memory held after, and a file
+  stream 3,000 lists deep flushed and closed when the outermost goes.
+
+Three goes at it, and what each was wrong in:
+
+1. Put by whenever stack was short, and done by whichever destroy next
+   had room. The outermost could itself be short, and then what it put
+   by was done at some later time: a stream not closed when the code
+   expects. Seen by thinking, after a test on the Pi failed once in a
+   full run, `test_lock`, three asserts. I can not say that was this:
+   it passed alone three times and in every run since.
+2. The outermost always finishes. But it used `:r3`, and the system
+   would not run a command. The debugger had the evaluator reading 1 as
+   an object. `:destroy` is declared to trash every register, and there
+   is code that goes by what the destroy of the thing it knows it has
+   trashes, which is what `:sys_mem :free` does, `:r0` to `:r2`. Chris:
+   "There is code that is aware of the :destroy trashes ! sorry about
+   that, but that's me instruction scrounging due to my gameing days."
+3. Only `:r0` to `:r2` and `:r14`. And the list as notes of its own: I
+   had the next where the object's count was, which is 32 bits, a
+   pointer does not fit. It had worked in 1 only because the list was
+   never longer than one.
+
+Run: 6,537 tests, 0 failed, built on each of the M4, the x64 Mac and the
+Pi. Six targets build. `lint` clean. The build benchmark, five runs: 59.8
+ms before, 59.8 after.
+
+What this says of the rest of the day's work, and it matters: what a
+method is declared to trash is more than some code that calls it takes
+it to. Lint does not see that, it passed with `:r3` used. So "a function
+may use any register it is declared to trash" is not safe by lint alone
+for a function whose callers were written by what it really does. The
+two functions that keep locals in registers have run the tests and two
+soaks; that is the evidence there is. A check of it is the next thing: a
+register read after a call that is declared to trash it.
+
+Not done: `:destroy` does not save registers, so `:deref` trashes what
+it did; that was the thing Chris wanted tried and it waits on the check
+above. A task that ends with objects put by: there are none, the first
+destroy does not come back till they are done. The emulators not run.
+
+------
+
 **`locals -c`: what each method called costs those that call it.**
 
 Chris: "We can though now, going forward, know what the best thing to do

@@ -48,6 +48,9 @@
 	tk_out_link_priority 1 tk_in_link_priority 2
 	tk_gui_priority 3 tk_app_priority (dec tk_num_task_lists)
 	tk_stack_size (* 1024 6) tk_stack_margin (* 512 1)
+	;with less of its stack left than this, a task does not destroy an
+	;object there and then: (:obj :destroy)
+	tk_stack_low (* 512 3)
 	tk_stack_canary 0xbadf00d123456789)
 
 ;;;;;;;;;;;;;
