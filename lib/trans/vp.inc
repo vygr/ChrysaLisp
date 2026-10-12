@@ -190,15 +190,20 @@
 			;bind emit func
 			(elem-set inst 0 (pfind +emit_funcs op)))
 		(list emit_code) 1)
-	;multi pass of native emit functions
+	;multi pass of native emit functions, till two passes give the same.
+	;That they will rests on one rule, which every (emit-) of every target
+	;must keep: an instruction whose length goes by where a label is can
+	;only get longer from one pass to the next, never shorter. A branch
+	;keeps the furthest it has had to go in *offsets*, and is as long as
+	;that needs. What is loaded from a label, or the address of one, is one
+	;length whatever. Lengths that only grow, and have a most, stop
+	;changing, then no label moves, and the next pass is the same. One
+	;that could get shorter can go to and fro with a label for ever: the
+	;LoongArch and the RISC-V had two, found 2026-10-12
 	(eval emit_code)
 	(setq buf (str *stream*) *pass* (inc *pass*))
 	(until (eql buf last_buf)
 		(task-slice)
-		;passes that never give the same twice: an instruction whose
-		;length goes by where a label is, and a label that goes by its
-		;length. Said, with the two lengths, and not gone on with for ever
-		(if (> *pass* 64) (throw "emit-translate, the passes do not settle !" (list (length buf) (length last_buf))))
 		(defq b last_buf last_buf buf *stream* (string-stream b) *pc* 0)
 		(eval emit_code)
 		(setq buf (str *stream*) *pass* (inc *pass*)))

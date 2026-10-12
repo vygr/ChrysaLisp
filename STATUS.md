@@ -4,6 +4,37 @@
 
 ------
 
+**Assembler: a length that goes by a label only grows, and the passes are not counted.**
+
+I had made passes that did not settle after 64 an error. Chris: "Having any
+max check on iteration of the translator breaks the idea of 'it loop till
+the output is the same', I wish to keep that simplicity if we can", and:
+"branches allway had this offset tracker for this reason, branch target
+encoding space could only grow. What I see here is exactly that issue but
+applied yet another type of offset ?" It was. He asked how extending the
+tracker to the instructions that did it would break. It does not, with one
+care: what is kept must be the longest form used, not the furthest gone,
+they are the same for a branch and were not for the address of a label,
+which was short at 4096, long at 4100 and short at 8192. Those two I had
+made one length, which needs nothing kept. What was still open was the
+branches of the LoongArch and the RISC-V, which were given their place in
+`*offsets*` and did not use it. "yes, do 2 and 3."
+
+`lib/trans/la64.inc`, `lib/trans/riscv64.inc`: a branch keeps the furthest
+it has had to go and is as long as that needs, as the x86 and the VP64.
+`lib/trans/vp.inc`: the count of passes is gone, and the rule the loop
+rests on is written where the loop is.
+
+Run: every platform built and hashed, the same to the byte as before but
+the one function that shuffles itself. A function of 12K with a branch on
+and a branch back over it, made for this and thrown away: settles on all
+four it was tried on, and the RISC-V's is 8 bytes more than the
+LoongArch's, its two branches long. A function may be no more than 64K,
+so a LoongArch branch, good for 128K, is never long. The x64 Mac and the
+Pi built and tested, 6,482 and 0 failed.
+
+------
+
 **C-Script: an expression is a form, the text and its parser are gone.**
 
 Chris asked what I thought of removing the C-Script compiler: "I feel it's

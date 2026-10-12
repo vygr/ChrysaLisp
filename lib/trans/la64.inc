@@ -211,20 +211,26 @@
 ; Group 5: Branches & Control
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun la64-branch (o d s l)
-	(defq c (- l *pc*))
+(defun la64-branch (o d s l m)
+	;short if it can be, and once long it is long. m is its place in
+	;*offsets*, where the furthest it has had to go is kept, as the x86
+	;and the VP64 keep it: how long it is can then only grow from pass to
+	;pass, so the passes end. Chosen by how far it is now alone, it could
+	;be short, then long, then short, with the label going to and fro
+	(defq x (elem-get *offsets* m) c (- l *pc*))
+	(and (> *pass* 0) (> (abs c) (abs x)) (elem-set *offsets* m (setq x c)))
 	(cond
-		((la64-within c 18)
+		((la64-within x 18)
 			(la64-b16 o d s c))
 		(:t (la64-b16 (logxor o 0x04000000) d s 8) ; invert condition, skip 8 bytes
 			(la64-b26 0x50000000 (- l *pc*)))))    ; b target
 
-(defun emit-beq-rr (s d l m) (la64-branch 0x58000000 d s l)) ; beq
-(defun emit-bne-rr (s d l m) (la64-branch 0x5c000000 d s l)) ; bne
-(defun emit-blt-rr (s d l m) (la64-branch 0x60000000 d s l)) ; blt
-(defun emit-bge-rr (s d l m) (la64-branch 0x64000000 d s l)) ; bge
-(defun emit-bgt-rr (s d l m) (la64-branch 0x60000000 s d l)) ; blt s, d
-(defun emit-ble-rr (s d l m) (la64-branch 0x64000000 s d l)) ; bge s, d
+(defun emit-beq-rr (s d l m) (la64-branch 0x58000000 d s l m)) ; beq
+(defun emit-bne-rr (s d l m) (la64-branch 0x5c000000 d s l m)) ; bne
+(defun emit-blt-rr (s d l m) (la64-branch 0x60000000 d s l m)) ; blt
+(defun emit-bge-rr (s d l m) (la64-branch 0x64000000 d s l m)) ; bge
+(defun emit-bgt-rr (s d l m) (la64-branch 0x60000000 s d l m)) ; blt s, d
+(defun emit-ble-rr (s d l m) (la64-branch 0x64000000 s d l m)) ; bge s, d
 
 (defun emit-beq-cr (c d l m)
 	(cond
