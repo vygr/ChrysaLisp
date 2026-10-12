@@ -122,8 +122,9 @@
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")
 	(tt-check "held" "(when (create-stdio) (print 1))" "(when (defq stdio (create-stdio)) (print 1))"
 		"(when (and (defq stdio (create-stdio)) (defq args 1)) 1)" "(if (and x (create-stdio)) 1)"))
-(assert-list-eq "args: a (# ) with no %0 given to what calls it with something; not one with a %0, nor a lambda, nor one with a part put in, nor (each!) of no sequences"
+(assert-list-eq "args: a (# ) with no %0 given to what calls it with something; not one with a %0, nor a lambda, nor one with a part put in, nor (each!) of no sequences; the :each of a map too"
 	'("(1) args: a (# ) with no %0 in it takes nothing, and (map) calls it with something, (lambda (x) ...)"
+		"(2) args: a (# ) with no %0 in it takes nothing, and (. :each) calls it with something, (lambda (x) ...)"
 		"(3) args: a (# ) with no %0 in it takes nothing, and (each!) calls it with something, (lambda (x) ...)"
 		"(4) args: a (# ) with no %0 in it takes nothing, and (sort) calls it with something, (lambda (x) ...)")
 	(tt-check "args" "(map (# (<< 1 (!))) slots)" "(. m :each (# (print 1)))" "(each! (# (f)) (list a b))" "(sort l (# 0))"

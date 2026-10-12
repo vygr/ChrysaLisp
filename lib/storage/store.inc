@@ -642,6 +642,16 @@
 	;another member
 	(store-list store "" :t))
 
+(defun store-rank (name among copies)
+	; (store-rank name among copies) -> (member ...)
+	;of those members, the ones that are to keep a block of that name, as
+	;many as there are to be copies. It is worked out of the name and who
+	;they are and nothing else: anything that knows the two knows who
+	;keeps a block, a gopher too, and has nobody to ask
+	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
+		(# (cmp (first %1) (first %0)))))
+	(map (const second) (slice scored 0 (min copies (length scored)))))
+
 (defun store-holders (store name &optional among)
 	; (store-holders store name [among]) -> (member ...)
 	;the members that are to keep a block of that name, as many as there
@@ -659,9 +669,7 @@
 		(def store :holders (setq kept (list key (Fmap 4093)))))
 	(cond
 		((. (second kept) :find name))
-		(:t (defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
-				(# (cmp (first %1) (first %0))))
-				holders (map (const second) (slice scored 0 (min (get :copies store) (length scored)))))
+		(:t (defq holders (store-rank name among (get :copies store)))
 			(. (second kept) :insert name holders)
 			holders)))
 
@@ -775,7 +783,7 @@
 ;module
 (export-symbols '(store-make store-open store-close store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
-	store-entries store-holders store-seen store-share store-since store-at store-later
+	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-get store-read store-fold store-walk store-list

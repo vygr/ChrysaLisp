@@ -304,8 +304,8 @@
 (defun storage-walk (name state visit &optional at wait svc)
 	; (storage-walk path state visit [at wait svc]) -> :nil | (state trail)
 	; visit is '(lambda (state data at count) ... (list state next))
-	;a gopher is sent to an object. It is a task of its own, that has
-	;what it was given, state, and a function, visit, and goes to the
+	;a gopher is sent to an object. It has what it was given, state, and
+	;a function, visit, and goes to the
 	;blocks of the object one at a time, the first, or at: the function is
 	;given what it has, the block, which block it is and how many there
 	;are, and gives what it has now and the block to go to next, :nil when
@@ -320,12 +320,17 @@
 	;visit is the function written out, quoted, not a function: it is
 	;sent as text, with what it has, and that is all there is of the
 	;gopher, so it can be sent on to wherever the next block is. What it
-	;has must print as it reads, numbers, strs, lists of them
+	;has must print as it reads, numbers, strs, lists of them.
+	;
+	;Each member has a task that runs the gophers that are at it, a block
+	;of each in turn, ./gopher.lisp: a function that does not come back
+	;holds up the others that are there
 	(defq mbox (mail-mbox) svc (ifn svc (storage-service)))
 	(when svc
+		;who it is from, - for not another member, and all there is of it
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
-			(str (list name (ifn at 0) state visit (list) (list)))))
+			"-" +storage_lf (str (list name (ifn at 0) state visit (list) (list)))))
 		(and (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
 			(starts-with "(" answer)
 			(first (read (string-stream answer))))))

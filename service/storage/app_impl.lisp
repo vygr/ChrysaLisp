@@ -18,8 +18,9 @@
 ; answers. It asks nothing of another member and waits: two services that
 ; did, each of the other, would wait for ever. What a member has to ask of
 ; the others, to compare notes and to fetch its share, its tender asks,
-; ./tender.lisp, a task of its own that this starts. A gopher is a task of
-; its own too, ./gopher.lisp.
+; ./tender.lisp, a task of its own that this starts. Gophers are run by
+; another, ./gopher.lisp, that it starts too: a gopher sent to this member,
+; by an app or by another member, is passed to that as it comes.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./app.inc")
@@ -102,7 +103,9 @@
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
 				running :t cut (list) peers (list)
-				tender (open-child "service/storage/tender.lisp" +kn_call_pin))
+				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
+				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
+			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
 			(if (/= 0 (get-long tender 0))
 				(mail-send tender (join (list (hex-encode (task-mbox)) group (ifn tick (str +storage_tick))
 					(ifn grace (str +storage_grace))) +storage_lf)))
@@ -144,11 +147,11 @@
 						(+storage_type_check
 							(join (map (const hex-encode) (store-check store (eql body "mend"))) +storage_lf))
 						(+storage_type_walk
-							;a gopher, a task of its own on this node. It is told who
-							;asked, and answers them itself
-							(defq gopher (open-child "service/storage/gopher.lisp" +kn_call_pin))
-							(if (/= 0 (get-long gopher 0))
-								(mail-send gopher (cat (hex-encode reply) +storage_lf (hex-encode (task-mbox)) +storage_lf "-" +storage_lf body)))
+							;a gopher. The task that runs them here is given it, with
+							;who is to be answered: who asked, or the member that
+							;sent it on, who is told it got here
+							(if (/= 0 (get-long runner 0))
+								(mail-send runner (cat (hex-encode reply) +storage_lf body)))
 							:nil)
 						(+storage_type_state
 							(join (list (cat "member " member) (cat "store " (get :id store))
@@ -198,6 +201,7 @@
 					(or (not (mail-poll (list (task-mbox)))) (> (- (pii-time) dirty) +dirty_most))
 					(store-save store)))
 			(if (/= 0 (get-long tender 0)) (mail-send tender "stop"))
+			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)
 			(mail-forget known)
 			(store-close store))))

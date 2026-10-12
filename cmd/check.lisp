@@ -60,8 +60,8 @@
             rest of it is run by itself.
     args    a (# ...) with no %0 in it, which takes nothing,
             given to (map), (each), (filter), (some), (reduce),
-            (sort), (lines!) or the like, which call it with
-            an element.
+            (sort), (lines!) or the like, or the :each of a
+            map or a set, which call it with an element.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -332,7 +332,10 @@
 		((find head '("each!" "map!" "some!" "filter!"))
 			(and (> (length forms) 2) (defq kids (tree-form? (third forms)))
 				(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list") 1))
-		((eql head "sort") (if (> (length forms) 2) 2))))
+		((eql head "sort") (if (> (length forms) 2) 2))
+		;the :each of a map or a set, every one of them calls it with what it holds
+		((and (eql head ".") (> (length forms) 3) (eql (first (third forms)) :keysym) (eql (third (third forms)) ":each"))
+			(setq head ". :each") 3)))
 	(and at (takes-none? (elem-get forms at))
 		(found file (elem-get forms at) "args" "a (# ) with no %0 in it takes nothing, and (" head
 			") calls it with something, (lambda (x) ...)")))

@@ -4,6 +4,50 @@
 
 ------
 
+**Storage: a gopher is run where it lands and works out its way. The film in 1.05 seconds, it was 2.5.**
+
+Chris, of the tests I ran while he ate: "yes, build those three". Measured
+first: a gopher over `raymarch.flm`, 37MB in 568 blocks, five members with
+three copies, took 2.5 seconds, went to a member 126 times, about 15ms a
+time, and a stream read the same in 1.1. He had felt it: "it's feels slow
+to come back." I proposed keeping the blocks of a run together; he said "I
+must admit I like the idea of not having to ask others and just knowing
+who has the blocks", so where blocks are kept is not touched, and the
+gopher does the same sum.
+
+* `lib/storage/store.inc`, `(store-rank name among copies)`: who keeps a
+  block, out of `(store-holders)`, for anything that knows the name and the
+  members.
+* `service/storage/gopher.inc`: `(gopher-route)` works out where to go,
+  nobody asked; `(gopher-order)`, which asks, is for a gopher that got to a
+  member that had not the block. `(gopher-pass-begin)` and
+  `(gopher-pass-turn)` send one on a step at a time and never wait;
+  `(gopher-pass)` is the two, waited for.
+* `service/storage/gopher.lisp` is one task for a member that runs every
+  gopher there, a block of each in turn. `app_impl.lisp` starts it and
+  passes it what it is sent. It keeps the lists of blocks of the last 16
+  objects, and a gopher carries the name of what its object was when it
+  set out.
+* `cmd/check.lisp`, `args`: a `(# )` with no `%0` given to the `:each` of
+  a map or a set. I wrote one in the new task and it was found by the
+  tests, not the check.
+
+Run: the film again, 1.05 seconds, 126 times, pinned 0.70. Seven new
+asserts in `tests/system/test_storage_members.lisp`: the route is those
+that are to keep the block, longest run first, each of them has it, one in
+skip is left out, and three gophers at a member at once come back, one of
+what the object was before it was written again. 6,489 tests, 0 failed, on
+the M4, the x64 Mac and the Pi. `check`, `imports` clean, `forward` as it
+was.
+
+Not seen: a gopher between machines with the new code, the `show` members
+on the x64 Mac and the Pi are running the old and must be started again;
+the Gopher button of the Storage app. A member that has gone and nobody
+has been told is in the tests, as it was, and passes. Not as good as it was: a function that never comes back holds
+up the other gophers at that member.
+
+------
+
 **vpx, stage 3: a function is seen whole, and what its named locals cost is counted.**
 
 Of the leftovers I listed, Chris: "go for it." This is the third of them,

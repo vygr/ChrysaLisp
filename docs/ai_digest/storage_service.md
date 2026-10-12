@@ -377,12 +377,14 @@ little, and one member will ask another for blocks the same way an app does.
 the same by hand: `storage -s image -m 64`, `storage -p file path`, `storage
 -g file path`, `storage`.
 
-A gopher is a task of its own, `service/storage/gopher.lisp`, so that what it
-does and how long it takes are not the service's affair: one whose function
-throws, or never ends, harms nothing but itself. It is mailed who asked, the
-service that has the blocks, and as text the path, the block to begin at,
-what it has, and the function. It asks the service for each block it goes
-to, and mails what it has at the end straight to who asked.
+Gophers are run by a task of their own, `service/storage/gopher.lisp`, one
+for a member, started by its service, so that what a gopher does and how long
+it takes are not the service's affair: one whose function throws harms
+nothing but itself. It was a task for each gopher till 2026-10-12, see "A
+gopher is run where it lands" below. The service passes it what it is sent:
+who asked, and as text the path, the block to begin at, what it has, and the
+function. It asks the service for each block it goes to, and mails what it
+has at the end straight to who asked.
 
 ```
 (storage-walk "logs/today" 0
@@ -525,6 +527,52 @@ None of those, as it was. Now:
 On the x64 Mac and the Pi, a store of the two with one copy of a block: a
 gopher from each counted the lines of `STATUS.md`, 14,284 as `wc -l`, by
 way of both. The Pi's member stopped: "It did not come back", in 1 second.
+
+**A gopher is run where it lands, and works out its way.** 2026-10-12, the
+evening. Measured first, over `apps/media/films/data/raymarch.flm`, 37MB,
+568 blocks of 64KB, five members with three copies, all on the M4: a gopher
+that added up its bytes took 2.5 seconds and went to a member 126 times,
+and 0.67 with the object pinned to one. A stream read it in 1.1. Each time
+it was sent on cost about 15ms: 4 asking each member that had the block
+what it had of the next 32, one after another; 3.7 for a new task to be
+started, read its files and say it had the gopher; 1.1 reading the
+object's list of blocks again. 126 is as few as there are for where the
+blocks fell, there are 125 runs: it was going the best way, slowly.
+
+Chris, of keeping blocks of a run together to make the runs longer: "I must
+admit I like the idea of not having to ask others and just knowing who has
+the blocks." So where a block is kept is as it was, and the gopher uses the
+same sum. Three changes, his "yes, build those three":
+
+* **Its way is worked out.** `(store-rank name among copies)`, in
+  `lib/storage/store.inc`, is the sum every member does, now by itself, and
+  `(gopher-route)` does it for the next 32 blocks and each other member that
+  is there: no mail. Who is to keep a block and who does are not the same
+  while a store is spreading, so a gopher that gets to a member that has
+  not the block it came for asks, as it did, `(gopher-order)`, and only if
+  nobody has it then is "none" said.
+* **One task for a member runs them.** It is up, with its files read, so
+  to send a gopher on is a mail to the member's service, which passes it
+  on. It does a block of each gopher it has in turn and reads its mail
+  between. Sending on does not wait: `(gopher-pass-begin)` and
+  `(gopher-pass-turn)`, a step each time round, so a member that does not
+  answer holds up only the gopher that was going to it. It is as it was
+  otherwise: the first sent it, the next as well after 2 seconds, the
+  first of them to say it has it is where it went, the rest are in skip.
+  There is the one step now, not start and then send, so one that was slow
+  to say so and had it all the same is a second gopher, as before.
+* **The list of blocks is kept, and it is of the one object.** A gopher
+  carries the name of what the object was when it set out, and the task
+  keeps the lists of the last 16 it read, by that name. So it is not read
+  again at each member, and a gopher is of the one thing all the way,
+  though the path be written while it goes: it was not before.
+
+The same film after: 1.05 seconds, 126 times, a little under 3ms each.
+Pinned, 0.70. So a gopher that goes to the blocks is now as quick as the
+stream that brings them, 1.1.
+
+What is not as good as it was: a gopher's function that never comes back
+holds up every gopher at that member, where it held up only itself.
 
 **An object as a stream.** `(storage-stream path [svc ahead])`, 2026-10-12.
 Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any
@@ -763,5 +811,11 @@ was made to send the gopher and stop the member by itself.
   is to be thought through with Chris: a name for each walk, that a member
   can know it has seen; what a writer must promise; and how often it
   happens at all, which is to be measured and not guessed.
-* That a gopher started and sent nothing does go after its 10 seconds is
-  not tested, there is nothing that says a task is gone.
+* A gopher's function that never comes back holds up the others at that
+  member, since 2026-10-12. A count of blocks or a time it is allowed, or a
+  task of its own for one that is long, is to be thought through.
+* Run by a task that stays, a function could be kept compiled between
+  gophers, and, Chris: "We can if requred, pass VP (progn ....) code out
+  for go faster gopher's and Jit them, if we find we need that." Not
+  needed for a function that only adds up: to be measured with one that
+  goes over the bytes of every block.

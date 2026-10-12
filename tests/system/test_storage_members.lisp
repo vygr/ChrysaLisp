@@ -93,6 +93,34 @@
 	(defq sn_went (map (const first) (second sn_back)))
 	(assert-true "it had to go to more than one member for it" (> (length (reduce (# (if (find %1 %0) %0 (push %0 %1))) sn_went (list))) 1))
 	(assert-list-eq "it began at the member it was sent from, at the first block" '("m-a" 0) (first (second sn_back)))
+
+	;where it is to go is worked out, and nobody is asked
+	(defq sn_peers (map (# (list %0 (sn-of %0))) '("m-b" "m-c" "m-d" "m-e"))
+		sn_route (gopher-route sn_names 0 "m-a" sn_peers 3 (list))
+		sn_keep (store-rank (first sn_names) sn_ids 3)
+		sn_run (lambda (where) (defq who (some (# (if (eql (second %0) where) (first %0))) sn_peers))
+			(ifn (some (# (unless (find who (store-rank %0 sn_ids 3)) (!))) sn_names) (length sn_names))))
+	(assert-list-eq "a route is the other members that are to keep the block"
+		(sort (filter (# (nql %0 "m-a")) sn_keep))
+		(sort (map (lambda (where) (some (# (if (eql (second %0) where) (first %0))) sn_peers)) sn_route)))
+	(assert-true "the one that is to keep the longest run of the blocks after it first"
+		(every (# (>= (sn_run (first sn_route)) (sn_run %0))) sn_route))
+	(assert-true "and each of them has it, the store is as it is to be"
+		(every (# (eql "1" (storage-ask %0 +storage_type_has (first sn_names)))) sn_route))
+	(assert-list-eq "one that did not answer before is left out" (rest sn_route)
+		(gopher-route sn_names 0 "m-a" sn_peers 3 (list (hex-encode (first sn_route)))))
+	;two at once at the one member, and each is of what the object was when it set out
+	(defq sn_two (mail-mbox) sn_len '(lambda (sum data at count) (list (+ sum (length data)) (inc at))))
+	(storage-put "ver" (sn-bytes 2 "was") :nil (sn-of "m-a"))
+	(defq sn_was (hex-encode (elem-get (storage-stat "ver" (sn-of "m-a")) +store_entry_hash)))
+	(storage-put "ver" (sn-bytes 3 "is") :nil (sn-of "m-a"))
+	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5 sn_was)
+	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5)
+	(gopher-pass (list (sn-of "m-a")) sn_two "big" 0 0 sn_visit (list) (list) 5)
+	(defq sn_said (map (lambda (i) (if (defq said (mail-read-timeout sn_two (task-timeout 30))) (first (first (read (string-stream said))))))
+		(range 0 3)))
+	(assert-list-eq "three gophers at a member at once all come back, one of what the object was, one of what it is"
+		(sort (list (length (sn-bytes 2 "was")) (length (sn-bytes 3 "is")) sn_sum) (const -)) (sort (map (# (ifn %0 0)) sn_said) (const -)))
 	(assert-true "and went only to members" (every (# (find %0 sn_ids)) sn_went))
 	(assert-true "each time it was sent on it was for a block no earlier, and the member it went to has that block"
 		(every (lambda ((who at) (was before)) (and (>= at before)
