@@ -1,6 +1,6 @@
 # ChrysaLisp
 
-ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground up for parallel and distributed computing. It's a complete, self-hosting environment featuring its own toolchain, a Virtual Processor (VP) for cross-platform portability, a responsive graphical user interface (GUI), a powerful command-line terminal with Unix-like pipes, an object-oriented assembler, extensive class libraries, a C-Script compiler for efficient low-level coding, a unique Lisp interpreter, an integrated debugger and profiler, powerful programers editor, and vector font engine.
+ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground up for parallel and distributed computing. It's a complete, self-hosting environment featuring its own toolchain, a Virtual Processor (VP) for cross-platform portability, a responsive graphical user interface (GUI), a powerful command-line terminal with Unix-like pipes, an object-oriented assembler, extensive class libraries, a C-Script compiler for efficient low-level coding, a unique Lisp interpreter, an integrated debugger and profiler, powerful programers editor, and vector font engine. Machines that run it find each other and join into one system, keep their files in step, and share a distributed object store. Its shader language draws the same picture on a GPU, or with none on every CPU of the network.
 
 ![](./screen_shot_1.png)
 
@@ -42,6 +42,12 @@ Featured videos include:
 
 * **Parallel & Distributed**: Designed for MIMD architectures, supporting various network topologies simulated via shared memory links or linked directly across physical machines over native TCP networks.
 
+* **Mesh Networking**: Machines on one network that hold the same key find each other and join into one system, with nothing to configure. Each end of a link proves it has the key before the link carries anything. `mesh` says who is there. See `docs/intro/mesh.md`.
+
+* **Sync and Rack**: `sync` makes the files of another machine the same as this one's over those links, comparing a tree of hashes so that only what differs is sent, with no `ssh` or `rsync`. `rack "tests -a"` brings every machine level and runs a command on each of them. See `docs/ai_digest/sync.md` and `docs/ai_digest/rack.md`.
+
+* **Storage** (new, in development): A distributed object store. An object is cut into blocks named by their SHA-256, each block is kept by several machines chosen by a hash that every member works out the same, and members compare notes and copy what is missing, so a machine can leave and come back. `(storage-stream path)` gives any object as an ordinary seekable stream, a block at a time with the next few on their way, and a "gopher", a small query task, can be sent to travel to the blocks and come back with an answer. The Storage app shows it working, a block at a time if you like. See `docs/ai_digest/storage_service.md`.
+
 * **Dynamic Binding & Loading**: Functions are loaded and linked on demand, promoting efficient memory use and shared code among tasks.
 
 * **Object-Oriented Assembler**: A powerful class system underpins the entire OS, from low-level assembly to high-level Lisp.
@@ -52,7 +58,21 @@ Featured videos include:
 
 * **Graphical User Interface**: A custom GUI system built using ChrysaLisp's own object model.
 
+* **Shader Language and GPU**: Shaders are written as s-expressions and type checked in Lisp. One source goes to GLSL, to Metal, to SPIR-V for Vulkan, to native VP code that needs no GPU, and to a Lisp lambda the others are checked against. The SDL3 host draws shaders and lit meshes on the GPU, through Metal on a Mac and Vulkan on a Raspberry Pi. See `docs/ai_digest/shader_language.md` and `docs/intro/sdl3.md`.
+
+* **Parallel Rendering**: With no GPU, a shader compiled to native code is drawn by the nodes of the network, a tile each. A canvas can keep its pixels in shared memory, and the Whiteboard has the nodes of a machine each draw a stripe of the same picture.
+
+* **Whiteboard**: A board of shapes, not pixels, for many pointers at once, with instruments such as a ruler and a protractor that a pen runs along. A board is a `.cwb` text file that loads anywhere a picture does, and can be drawn by a hand, a script or an AI with the `cwb` command. The diagrams in the documentation are boards. See `docs/apps/whiteboard.md`.
+
+* **Cryptography**: Native SHA-256, SHA-512, HMAC, ChaCha20 with Poly1305 and Ed25519 signatures, in `lib/crypto/`. See `docs/ai_digest/crypto.md`.
+
+* **Network Stack**: URL, JSON and HTTP/1.1 libraries in `lib/net/`. See `docs/ai_digest/net_stack.md`.
+
 * **Command Terminal**: A familiar pipe-style command-line interface.
+
+* **Tests as a Cache**: Over 6,000 assertions in 140 modules. `tests` runs only the modules that stand on what has changed, so the test of a change is as big as the change. See `docs/ai_digest/test_cache.md`.
+
+* **Source Checking**: `check`, `lint`, `forward`, `imports` and `includes` read the source and report faults the text alone can show, before anything is run.
 
 ## Supported Platforms
 
@@ -211,9 +231,44 @@ To stop every node on the machine, whoever started it:
 
 ## Advanced Features & Networking
 
-ChrysaLisp's architecture supports sophisticated distributed computing paradigms. You can simulate various network topologies (ring, mesh, cube, star, tree) on a single machine using the provided `run_*.sh` scripts.
+ChrysaLisp's architecture supports sophisticated distributed computing paradigms. You can simulate various network topologies (ring, mesh, cube, star, tree) on a single machine, `./run.sh -t ring -n 8`, and add or remove networks of nodes while it runs with the `nodes` command.
 
-Furthermore, ChrysaLisp features built-in, native TCP network linking (`service/net`) that allows you to link ChrysaLisp clusters directly across multiple physical machines (macOS, Linux, Windows, Raspberry Pi) over local LAN or wide area networks, without needing any external bridge daemons or shared memory hops.
+### Joining machines: the mesh
+
+Machines on the same network join by themselves if they have the same key, the file `mesh_key` in the ChrysaLisp folder. `make install` gives each machine its own. Copy one machine's key to the others and they find each other within seconds:
+
+```code
+mesh        ; who is there, and what to look at if nobody is
+mesh -k     ; make a key, for a tree that has none
+```
+
+`docs/intro/mesh.md` is the guide. Once joined, every node of every machine sees the others: a build spreads over all their cores and the Network Map app shows the lot.
+
+### Keeping machines in step: sync and rack
+
+```code
+sync -t all -c       ; what differs on the other machines
+sync -t all          ; make them the same as this one
+rack "tests -a"      ; make them the same, then run every test on each
+```
+
+### Storage (in development)
+
+Each machine that is to be a member keeps a store in a file, or on a disk of its own. Members of the same store find each other over the mesh.
+
+```code
+storage -s store.img -m 1024    ; start this machine's member, making a 1GB store if there is none
+storage -p photo.png pics/photo ; put a file at a path
+storage -g out.png pics/photo   ; and get it back, from whichever machines hold its blocks
+storage -l pics/                ; what is there, and how many members have each
+storage -T . tree/              ; put a whole folder, read it all back as streams and compare
+```
+
+From Lisp, `(storage-stream "pics/photo")` is a stream like any other. It is not started by itself yet, and its defaults are still being settled.
+
+### Linking by hand
+
+The mesh is built on native TCP network linking (`service/net`) that allows you to link ChrysaLisp clusters directly across multiple physical machines (macOS, Linux, Windows, Raspberry Pi) over local LAN or wide area networks, without needing any external bridge daemons or shared memory hops.
 
 To link machines together:
 
