@@ -411,3 +411,22 @@ in many, on one machine in three. Reading `1791408183000000.0` once stopped
 an x86_64 node, and nothing else. If a task of a test just vanishes on one
 kind of CPU, think of a divide, and of the size of the numbers. That one is
 fixed, and has tests of its own, the habit is what is left.
+
+### A function defined again does not reach those that already call it
+
+A call to a function is bound to the function as it was when the caller was
+defined. `(redefun)` gives the name a new one, for what is defined after.
+What was defined before goes on calling the old.
+
+```vdu
+(defun where () "the real place")
+(defun tidy () (pii-remove (where)))
+(redefun where () "somewhere safe")
+(tidy)		;the real place is removed
+```
+
+So an app's functions can not be pointed somewhere else by defining one of
+them again in a test that imports it. That was tried, to keep a test off
+the files of a demo that was running, and it removed them. Have the app
+read what is to differ from a name, a `(defq)` the test sets first, or run
+the test on a copy of the source with the line changed.

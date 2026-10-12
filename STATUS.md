@@ -4,6 +4,44 @@
 
 ------
 
+**Storage viewer: a watcher asks, the window draws; the tree, pins, a list to go up and down.**
+
+Chris ran the tree through the viewer and saw nothing till the end: "I
+really only saw changes to the staus panel at the end. One big jump to the
+finished block layout." The window asked the store how it was from its own
+loop, and a busy store is seconds in saying. Now a task of its own asks,
+`apps/system/storage/watch.lisp`, and mails what there is to draw.
+
+What he asked for as he used it, in his words: "yes I'd love to see the
+multi machine demo", each demo member is started on a node of the machine
+in turn; "Can I select a file to see it's blocks ?", a press on a line of
+the list; "I think I see gaps in the blocks ! look at column 2", the first
+column is the manifest and is now ruled off, and a line says the fewest and
+the most members any block of the object is kept by, a hole in red; "Need
+tooltip ! ;)"; "the scroll wheel on the Storage app is a little bit to
+sensitive !"; "now it chugs while waiting for the object data to become
+avalable ! Be better if you can scroll freely to an object of intrest and
+then the data read catches up", so the whole list is the window's own, sent
+when it changes, and only the blocks of the one shown are asked for after.
+And: Pin, Tree, `apps/system/storage/tree.lisp`, on a demo or on the store
+this machine is a member of; Demo goes between the two; the window goes at
+once when closed.
+
+Seen by him: the tree go in live on eight nodes, 1,973 files put in 66 s
+and read back the same in 122 s, the film's blocks over five members, the
+list and the wheel: "much nicer UI". By me, never on a screen: its
+functions driven with none, on a copy that uses other store files.
+
+Mine to own: I drove the app's start and stop from a test while his
+desktop was up, meaning it to use other files. It used the real ones, a
+function defined again does not reach those that already call it, and it
+removed the stores of the demo he was watching. In `lisp_traps` now.
+
+Not seen: the three real machines in the viewer. He has not run the store
+on the M4's desktop yet.
+
+------
+
 **Kernel: a node whose last @ service is forgotten says so.**
 
 Chris sent a picture of the Services app with three `@StorageDemo` names
