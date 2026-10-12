@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/files/files.inc")
+(import "lib/files/info.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -58,7 +59,50 @@
 		(and (eql (first head) 'emit-short) (>= (length head) 4)
 			(defq start (. labels :find (third head))) (defq end (. labels :find (elem-get head 3)))
 			(list (slice all start end) labels start
-				(if (and (list? more) (nempty? more) (eql (first more) 'locals)) (rest more) (list))))))
+				(if (and (list? more) (nempty? more) (eql (first more) 'locals)) (rest more) (list)) all))))
+
+(defun regs-of (text)
+	; (regs-of text) -> (num ...)
+	;the general registers in what a method is declared to trash, as
+	;(format-regs) writes them, ":r1-:r8, :r14, :f0-:f15": their numbers
+	(reduce (lambda (out part)
+		(when (starts-with ":r" part)
+			(defq ends (split part "-") from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
+			(each (# (push out %0)) (range from (inc to))))
+		out) (split text (const (char-class ", "))) (list)))
+
+(defun trashes-of (class_db)
+	; (trashes-of class_db) -> (by_function class_db)
+	;what the methods are declared to trash, by the function a method
+	;is, for a call that is bound to it
+	(defq by_function (Fmap 1021))
+	(. class_db :each (lambda (class entry)
+		(.-> entry (:find :methods) (:each (lambda (method m)
+			(if (defq said (. m :find :declared)) (. by_function :insert (str (. m :find :function)) (regs-of said))))))))
+	(list by_function class_db))
+
+(defun call-trashes (inst all labels trashes)
+	; (call-trashes inst all labels trashes) -> :nil | (num ...)
+	;the general registers a call may leave not as they were, if what it
+	;calls is a method that says: one bound to its function, through a
+	;link to its path, or a virtual one, which has its class and name
+	;with it. :nil if it is not known
+	(bind '(by_function class_db) trashes)
+	(case (first inst)
+		(emit-call-p
+			(and (defq at (. labels :find (second inst))) (< (inc at) (length all))
+				(list? (defq to (second (elem-get all (inc at))))) (> (length to) 1)
+				(defq at (. labels :find (second to))) (< (inc at) (length all))
+				(str? (defq path (second (elem-get all (inc at)))))
+				(. by_function :find path)))
+		(emit-call-i
+			(when (> (length inst) 4)
+				(defq class (elem-get inst 3) method (elem-get inst 4) said :nil)
+				;said by the class, or the nearest above it that does
+				(while (and (not said) class (nql class :nil) (defq entry (. class_db :find class)))
+					(if (defq m (.-> entry (:find :methods) (:find method))) (setq said (. m :find :declared)))
+					(setq class (. entry :find :parent)))
+				(if said (regs-of said))))))
 
 (defun target-of (inst labels start count)
 	; (target-of inst labels start count) -> :nil | index
@@ -107,12 +151,12 @@
 		(list (cat (str which) ":" (first found)) (eql (third found) "") :t)
 		(list (cat (str which) "+" (str offset)) :nil :nil)))
 
-(defun look-at (function)
+(defun look-at (function &optional trashes)
 	; (look-at function) -> :nil | (function frame slots loads stores kept_loads kept_stores
 	;	over_loads over_stores pinned hand_loads hand_stores note)
 	;a function seen whole. :nil if it has no frame
 	(when (defq got (insts-of function))
-		(bind '(insts labels start frames) got)
+		(bind '(insts labels start frames all) got)
 		(defq count (length insts) next (next-of insts labels start)
 			;which of the function's allocs each alloc is, from 1, and how
 			;big each is
@@ -246,6 +290,51 @@
 					(setq spills (+ spills (ones (logand keeps (elem-get dirty at) after))))))
 				insts)
 			(defq free (- 15 (length used)) fits (if (and (/= keeps 0) (<= most free)) 1 0))
+			;and if a call leaves alone what its method is declared not to
+			;trash. A call that leaves as many registers as there are
+			;locals wanted after it, of those the function does not use
+			;itself, or of them all, moves nothing: the rest are as
+			;before. The same two sums, twice, for the two
+			(defq told (list 0 0 0 0) known 0 quiet (list 0 0))
+			(when (and trashes (/= keeps 0))
+				(defq numbers (map (# (str-as-num (slice (str %0) 2 -1))) used))
+				(each (lambda (all_free)
+					(defq which (!) calls (map (lambda (inst)
+						(defq at (!))
+						(when (find (first inst) +call_ops)
+							(defq wanted (ones (logand keeps (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0)))
+								trashed (call-trashes inst all labels trashes))
+							(and trashed (= which 0) (++ known))
+							(cond
+								((not trashed) :t)
+								((<= wanted (length (filter (# (not (or (find %0 trashed) (and (not all_free) (find %0 numbers)))))
+									(range 0 15))))
+									(elem-set quiet which (inc (elem-get quiet which))) :nil)
+								(:t))))
+						insts) changed :t)
+					(each (lambda (inst) (elem-set had (!) (if (= (!) 0) 0 -1)) (elem-set dirty (!) 0)) insts)
+					(while changed
+						(setq changed :nil)
+						(each (lambda (from)
+							(defq at (!))
+							(when (or (> at 0) (nempty? from))
+								(defq in_had (if (= at 0) 0 (reduce (# (logand %0 (out-of %1 (elem-get had %1) :nil))) from -1))
+									in_dirty (reduce (# (logior %0 (out-of %1 (elem-get dirty %1) :t))) from 0))
+								(unless (and (= in_had (elem-get had at)) (= in_dirty (elem-get dirty at)))
+									(elem-set had at in_had) (elem-set dirty at in_dirty)
+									(setq changed :t))))
+							prev))
+					(each (lambda (inst)
+						(defq at (!) event (elem-get events at)
+							after (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))
+						(and event (eql (first event) :load) (/= -1 (elem-get had at))
+							(/= 0 (logand keeps (elem-get had at) (elem-get bits (find (second event) slots))))
+							(elem-set told (* which 2) (inc (elem-get told (* which 2)))))
+						(if (elem-get calls at)
+							(elem-set told (inc (* which 2)) (+ (elem-get told (inc (* which 2))) (ones (logand keeps (elem-get dirty at) after))))))
+						insts))
+					'(:nil :t)))
+			(defq all_calls (length (filter (# (find (first %0) +call_ops)) insts)))
 			;the sums. Of named locals: all that is read and written, of
 			;that what is of one that could be kept in a register, and of
 			;that what is of one wanted after a call. And what is read and
@@ -266,7 +355,9 @@
 			(list function (reduce (const +) sizes 0) (length (filter (const identity) named))
 				loads stores kept_loads kept_stores over_loads over_stores
 				(length (filter (# (elem-get named (find %0 slots))) pinned)) hand_loads hand_stores
-				saved_loads spills fits (if (/= keeps 0) 1 0) most free
+				saved_loads spills fits (if (/= keeps 0) 1 0)
+				(first told) (second told) (third told) (elem-get told 3)
+				(if (/= keeps 0) all_calls 0) known (first quiet) (second quiet) most free
 				(cond (escapes "the stack pointer is used as a number") (big "more than 62 locals")
 					(odd "the frames are not the same by two ways") (""))))))
 
@@ -280,12 +371,13 @@
 			(setq functions (filter (# (not (starts-with +jit_dir %0)))
 				(sort (map (# (slice %0 (length +obj_dir) -1)) (files-all (slice +obj_dir 0 -2) '(""))))))
 			(setq functions (map (# (if (starts-with +obj_dir %0) (slice %0 (length +obj_dir) -1) %0)) functions)))
-		(defq seen (list) sum (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) noted 0 of_named 0)
+		(defq seen (list) sum (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) noted 0 of_named 0
+			trashes (if (defq class_db (files-classes-info)) (trashes-of class_db)))
 		(each (lambda (function)
 			(task-slice)
-			(when (defq row (look-at function))
+			(when (defq row (look-at function trashes))
 				(push seen row)
-				(each (# (elem-set sum (!) (+ (elem-get sum (!)) %0))) (slice row 1 16))
+				(each (# (elem-set sum (!) (+ (elem-get sum (!)) %0))) (slice row 1 24))
 				(if (nempty? (last row)) (++ noted))
 				(if (> (third row) 0) (++ of_named))
 				(if opt_v (print (first row) ": frames " (second row) " bytes, named locals " (third row)
@@ -296,11 +388,13 @@
 					(if (> (+ (elem-get row 10) (elem-get row 11)) 0)
 						(cat ", of frames made by hand: read " (str (elem-get row 10)) " written " (str (elem-get row 11))) "")
 					", in registers a call does not keep: " (elem-get row 12) " reads less, " (elem-get row 13) " writes before calls"
-					", " (elem-get row 16) " wanted at once, " (elem-get row 17) " registers it does not use"
+					", " (elem-get row 24) " wanted at once, " (elem-get row 25) " registers it does not use"
+					", calls " (elem-get row 20) ", that say what they trash " (elem-get row 21)
 					(if (nempty? (last row)) (cat ". " (last row)) "")))))
 			functions)
 		(bind '(frame slots loads stores kept_loads kept_stores over_loads over_stores pinned hand_loads hand_stores
-			saved_loads spills fits keeping) sum)
+			saved_loads spills fits keeping told_loads told_spills told_loads_all told_spills_all
+			all_calls known quiet quiet_all) sum)
 		(print "Functions: " (length functions) ", with a frame: " (length seen) ", with named locals: " of_named)
 		(print "Named locals: " slots ", in memory, a struct or their address taken: " pinned)
 		(print "Read from the stack: " loads ", written to it: " stores)
@@ -310,6 +404,12 @@
 		(print "Kept in registers that no call leaves as it was:")
 		(print "  read " (- kept_loads saved_loads) ", it was " kept_loads ", written before a call " spills ", it was " kept_stores)
 		(print "  functions with such locals " keeping ", of them with a register for each wanted at once " fits)
+		(print "Kept in registers a call leaves as they were, if its method is declared not to trash them:")
+		(print "  calls in those functions " all_calls ", of methods that say what they trash " known)
+		(print "  in the registers the function does not use: calls that move nothing " quiet
+			", read " (- kept_loads told_loads) ", written before a call " told_spills)
+		(print "  in any register: calls that move nothing " quiet_all
+			", read " (- kept_loads told_loads_all) ", written before a call " told_spills_all)
 		(print "Of frames made by hand, not named locals: read " hand_loads ", written " hand_stores)
 		(print "Functions it can not follow: " noted)
 		(when (> opt_t 0)

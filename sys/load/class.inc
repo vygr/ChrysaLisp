@@ -6,11 +6,11 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class :sys_load :nil
-	(dec-method :init sys/load/init :static (abi-args 2) (:r0))
-	(dec-method :bind sys/load/bind :static (:r0) (:r0))
-	(dec-method :load sys/load/load :static (:r0) (:r0))
-	(dec-method :find sys/load/find :static (:r0) (:r0 :r1))
-	(dec-method :lisp_path sys/load/lisp_path :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :init sys/load/init :static (abi-args 2) (:r0) (:r0-:r14 :f0-:f15))
+	(dec-method :bind sys/load/bind :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
+	(dec-method :load sys/load/load :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
+	(dec-method :find sys/load/find :static (:r0) (:r0 :r1) (:r0-:r2))
+	(dec-method :lisp_path sys/load/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures

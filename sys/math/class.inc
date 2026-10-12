@@ -5,14 +5,14 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class :sys_math :nil
-	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
-	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0))
-	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0))
-	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0))
-	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
-	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
-	(dec-method :r_sin sys/math/r_sin :static (:f0) (:f0))
-	(dec-method :r_pow sys/math/r_pow :static (:f0 :f1) (:f0)))
+	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0) (:r0-:r3 :f0-:f15))
+	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0) (:r0-:r1 :f0-:f1))
+	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0) (:r0-:r2 :f0-:f3))
+	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0) (:r0-:r2 :f0-:f3))
+	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1) (:r0-:r2 :r8-:r14))
+	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0) (:r0-:r3 :r6-:r10))
+	(dec-method :r_sin sys/math/r_sin :static (:f0) (:f0) (:r0-:r1 :f0-:f3))
+	(dec-method :r_pow sys/math/r_pow :static (:f0 :f1) (:f0) (:r0-:r2 :f0-:f7)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen

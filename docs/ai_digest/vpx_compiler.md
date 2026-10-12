@@ -111,6 +111,31 @@ call leaves alone, or put them by round it: Chris, "we have to honors the
 the inputs and outputs... that's a 'real' compilers job." The kernel's
 task is the most of it, 221 of its 1,257 instructions.
 
+**What a call leaves alone (2026-10-12, late).** Chris: "yes, declare the
+trashes in the method declaration itself". What a method trashes was a
+comment in its function, which lint checked. It is now also the sixth
+thing of its `(dec-method)`, 930 of them, written by `trace -w` from a
+debug build and checked by lint as the comments are, and the assembler
+can ask, `(method-trashes class method)`. Nothing asks yet: every function
+of the six targets is the same to the byte.
+
+`locals` asks, to say what it is worth. Named locals kept in registers,
+the tree over, reads and writes of the stack:
+
+| | read | written |
+|---|---|---|
+| as it is | 2,083 | 1,225 |
+| in registers, and a call leaves none as it was | 1,263 | 939 |
+| a call leaves what it says, locals only in registers the function does not use | 1,055 | 858 |
+| a call leaves what it says, locals in any register | 868 | 731 |
+
+So a third less knowing nothing of calls, and about half knowing what
+they trash. Of the 791 calls in functions with such locals, 758 are of
+methods that say, and 486 would move nothing. What holds it at half is
+what the methods called trash: most of them say `:r1-:r14`, and a local
+has nowhere to be over such a call but the stack. That falls as the
+functions called are themselves made to use fewer registers.
+
 Implementation files:
 
 - `lib/asm/vpx.inc` - form to reverse polish, code generator,

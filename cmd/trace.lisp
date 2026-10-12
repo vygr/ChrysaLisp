@@ -3,6 +3,7 @@
 (import "lib/files/info.inc")
 (import "lib/asm/regs.inc")
 (import "lib/asm/ops.inc")
+(import "lib/text/tree.inc")
 (import "service/lock/app.inc")
 
 
@@ -16,7 +17,8 @@
         -l --lint: lint documented vs calculated trace.
         -i --integrity: check register and instruction integrity.
         -w --write: write back calculated trashes to source
-            files on mismatch.
+            files on mismatch, to the comment of the function
+            and to the declaration of the method.
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
@@ -462,6 +464,27 @@
 		(defq t_set changed_set changed_set next_changed next_changed t_set))
 	db)
 
+(defun declared-line (line calc)
+	; (declared-line line calc) -> :nil | line
+	;a line that is a (dec-method), with what the method trashes said in
+	;it, after what it takes and gives: those, and what kind it is, are
+	;said too if they were not, the one comes after the other. :nil if
+	;the line is not one this can write again
+	(bind '(nodes open stray) (tree-read (string-stream line)))
+	(when (and (= open 0) (nempty? nodes) (defq kids (tree-form? (first nodes) "dec-method")) (>= (length kids) 3)
+			(every (# (eql (first %0) :comment)) (rest nodes)))
+		(defq more (slice kids 3 -1)
+			kinded (and (nempty? more) (eql (first (first more)) :keysym) (nql (third (first more)) ":nil"))
+			kind (if kinded (third (first more)) ":static")
+			more (if kinded (rest more) more))
+		(cat (slice line 0 (bskip +char_class_space line 0))
+			"(dec-method " (third (second kids)) " " (tree-text (third kids)) " " kind
+			" " (if (> (length more) 0) (tree-text (first more)) ":nil")
+			" " (if (> (length more) 1) (tree-text (second more)) ":nil")
+			" (" (if (eql calc "none") "" (join (split calc (const (char-class ", "))) " ")) "))"
+			(pad "" stray ")")
+			(apply (const cat) (cat (list "") (map (# (cat " " (third %0))) (rest nodes)))))))
+
 (defun main ()
 	(when (and
 			(defq stdio (create-stdio))
@@ -503,6 +526,48 @@
 														(# (if %0 (push %0 (list line_num calc_set))
 															(list (list line_num calc_set))))))))))))
 							functions)
+						;what each method is declared to trash, where it is
+						;declared: of a static one what its function does, of
+						;a virtual one what any class that may be called so
+						;does. One whose function was not assembled, a method
+						;written in line, is not looked at
+						(defq dec_edits (Lmap))
+						(. *class_db* :each (lambda (c class_entry)
+							(.-> class_entry (:find :methods) (:each (lambda (m method_entry)
+								;a vtable is a method only in name, it is never called
+								(when (and (nql m :vtable) (defq line_num (. method_entry :find :dec_line)))
+									(defq declared (. method_entry :find :declared) file (. method_entry :find :dec_file)
+										impls (if (eql (. method_entry :find :type) :static)
+											(list (. method_entry :find :function)) (resolve-virtual-methods c m))
+										calc (and (every (# (and (defq entry (. db :find %0)) (nql (first entry) :external))) impls)
+											(format-trashes (reduce (# (if (find %1 +zero_clobber_funcs) %0
+												(merge %0 (second (. db :find %1))))) impls (list)))))
+									(when (and calc (nql calc declared))
+										(print "WARNING: Mismatch in " c " " m)
+										(print "\tDeclared: " (ifn declared "not said"))
+										(print "\tCalculated: " calc)
+										(print "\tFile: \q" file "\q Line: " line_num)
+										(if opt_w (. dec_edits :update file
+											(# (if %0 (push %0 (list line_num calc)) (list (list line_num calc)))))))))))))
+						(and opt_w (not (. dec_edits :empty?))
+							(. dec_edits :each (lambda (file edits)
+								(with-write-lock file
+									(when (defq in_s (file-stream file))
+										(defq doc (Document))
+										(. doc :stream_load in_s)
+										(setq in_s :nil)
+										(each (lambda ((line_num calc))
+											(defq orig_line (. doc :get_text_line line_num))
+											(cond
+												((defq new_line (declared-line orig_line calc))
+													(. doc :idelete 0 line_num (dec (length orig_line)) line_num)
+													(. doc :iinsert 0 line_num new_line))
+												((print "WARNING: not written, " file " line " line_num))))
+											edits)
+										(when (defq out_s (file-stream file +file_open_write))
+											(. doc :stream_save out_s)
+											(stream-flush out_s)
+											(setq out_s :nil)))))))
 						(and opt_w (not (. file_edits :empty?))
 							(. file_edits :each (lambda (file edits)
 								(with-write-lock file

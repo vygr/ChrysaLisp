@@ -4,6 +4,41 @@
 
 ------
 
+**vpx, towards stage 4: what a method trashes is in its declaration, and what that is worth.**
+
+Chris: "yes, declare the trashes in the method declaration itself". The
+assembler could not know what a call leaves alone, it was a comment.
+
+* `lib/asm/class.inc`: `(dec-method name function type in out trashes)`,
+  the sixth thing, `(:r1-:r8 :r14 :f0-:f15)`, `()` for none. Kept as it is
+  written, by itself, the method's place in its vtable is untouched.
+  `(method-trashes class method)` gives the registers, `:nil` if not said.
+* `lib/files/info.inc` reads it, and now reads the classes again when a
+  `class.inc` has changed: it looked only at the `.vp`.
+* `cmd/trace.lisp`: `-l` says where a declaration is not what the code
+  does, of a virtual method what any class called so does, and `-w`
+  writes it. 930 declarations in 53 files written by it, from a debug
+  build, none by hand. A vtable is left out, and a method written in line.
+* `cmd/locals.lisp`: what locals in registers would save with calls that
+  leave what they say. Reads and writes of the stack 3,308 as it is, 2,202
+  if a call leaves nothing, 1,913 using only registers a function does not
+  use, 1,599 using any. In `docs/ai_digest/vpx_compiler.md`.
+
+Run: every function of six targets the same to the byte as before, but
+the one that shuffles itself. `trace -i -l` on a debug build clean, and
+the release builds put back. `check`, `includes`, `imports` clean. 6,508
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi.
+
+Chris asked if the list goes through the de-dupe the in and out lists
+do. It does not, and I did not find that de-dupe to copy: asked him where
+it is. For now a list is kept as written and made registers only when
+asked for.
+
+Not done: nothing uses it yet, the allocator is the next step. Whether a
+build is any slower with the longer declarations is not timed.
+
+------
+
 **C-Script is vpx in the docs too, and `locals` says what registers would save.**
 
 Chris: "We need to change the CScript doc to vpx.md and change the

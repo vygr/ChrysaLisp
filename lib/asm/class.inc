@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*vtables* (pmap) '*supers* (pmap))
+(defcvar '*vtables* (pmap) '*supers* (pmap) '*trashes* (pmap))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -30,6 +30,30 @@
 	;%2 = output parameter index, :nil for entire list
 	(defq %0 (elem-get (method-lookup %0 %1) 3))
 	(if %2 (elem-get %0 %2) %0))
+
+(defun trash-regs (%0)
+	;%0 = what a method is declared to trash, (:r1-:r14 :f0)
+	;the registers that is, each by itself: a range is from the first of
+	;it to the last, of the one kind
+	(reduce (lambda (out reg)
+		(defq ends (split (str reg) "-") kind (slice (first ends) 0 2)
+			from (str-as-num (slice (first ends) 2 -1)) to (str-as-num (slice (last ends) 2 -1)))
+		(each (# (push out (sym (cat kind (str %0))))) (range from (inc to)))
+		out) %0 (list)))
+
+(defun method-trashes (%0 %1)
+	;%0 = class name
+	;%1 = member name
+	;the registers a call of the method may leave not as they were, as
+	;its declaration says: of a virtual method, by any class that may be
+	;called so. An empty list is none of them. :nil if it is not said,
+	;and then a caller must take it that none is left as it was
+	;
+	;It is kept as it was written, and made a list of registers here,
+	;when it is asked for: a class is declared in every function that
+	;includes it, and few of them ask
+	(method-lookup %0 %1)
+	(if (defq said (pfind (pfind *trashes* %0) %1)) (trash-regs said)))
 
 (defun f-path (%0 %1)
 	;%0 = class name
@@ -89,9 +113,15 @@
 	(pinsert vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	(defq vtable (copy (pfind *vtables* super)))
-	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out))
+	; (def-class class super (dec-method name function [type regs_in regs_out trashes]) ...)
+	;trashes is the registers a call of the method may leave not as they
+	;were, ranges and all, (:r1-:r14 :f0), () for none. Not said, it is
+	;what the class above says of the method, and if none does, not known.
+	;It is kept by itself, what a method is in a vtable is as it was
+	(defq vtable (copy (pfind *vtables* super)) trashed (copy (ifn (pfind *trashes* super) (pmap))))
+	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out trashes))
 		(setd mtype :static)
+		(if (list? trashes) (pinsert trashed mname trashes))
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
 		(if (defq m (pfind vtable mname))
 			;existing method
@@ -129,7 +159,8 @@
 					(throw "Method does not exist !" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 		lines)
-	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)))
+	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
+		(pinsert *trashes* ',class ',trashed)))
 
 (defmacro def-method (class member &optional alignment)
 	`(def-func (f-path ,class ,member) ,alignment))
@@ -453,5 +484,5 @@
 	entry exit call jump s-call d-call s-jump
 	v-call v-jump d-jump r-call r-jump v-bind
 	f-entry f-exit l-entry l-exit f-path f-bind
-	method-input method-output method-lookup signature))
+	method-input method-output method-lookup method-trashes trash-regs signature))
 (env-pop)

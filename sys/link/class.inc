@@ -4,9 +4,9 @@
 (include "sys/mem/class.inc")
 
 (def-class :sys_link :nil
-	(dec-method :link sys/link/link)
-	(dec-method :in sys/link/in)
-	(dec-method :out sys/link/out))
+	(dec-method :link sys/link/link :static :nil :nil (:r0-:r14 :f0-:f15))
+	(dec-method :in sys/link/in :static :nil :nil (:r0-:r14 :f0-:f15))
+	(dec-method :out sys/link/out :static :nil :nil (:r0-:r14 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;;
 ; link structures

@@ -347,6 +347,14 @@ The `(dec-method)` function takes the lists of input and output parameter
 registers. If the list of inputs or outputs is `:nil` this means to inherit the
 list from the parent class declaration.
 
+After them it takes the registers a call of the method may leave not as they
+were, its trashes, ranges and all: `(:r1-:r8 :r14 :f0-:f15)`, `()` for none.
+Of a virtual method it is what any class that may be called so trashes. It is
+not written by hand: `trace -w`, which works out what each function really
+trashes, writes it, and `lint` says where a declaration is not what the code
+does. `(method-trashes class method)` gives the list to the assembler, `:nil`
+if it is not said: a method written in line in its `class.inc` has none.
+
 An example from the array class.inc.
 
 ```file

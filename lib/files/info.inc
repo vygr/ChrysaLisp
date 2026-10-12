@@ -189,13 +189,19 @@
 									more (if kinded (rest more) more)
 									methods_map (.-> class_db (:find active_class) (:find :methods))
 									dec_inputs (if (> (length more) 0) (node-regs (first more)) "none")
-									dec_outputs (if (> (length more) 1) (node-regs (second more)) "none"))
+									dec_outputs (if (> (length more) 1) (node-regs (second more)) "none")
+									;what it is declared to trash, as (format-regs) writes
+									;registers, "none" for (), and :nil if it is not said
+									declared (and (> (length more) 2) (tree-form? (third more)) (node-regs (third more))))
 								(. methods_map :insert method_name (scatter (Emap)
 									:type mtype
 									:function dec_func_name
 									:inputs dec_inputs
 									:outputs dec_outputs
-									:trashes "none"))
+									:trashes "none"
+									:declared declared
+									:dec_file file
+									:dec_line (dec (second node))))
 								(if (defq f_entry (. func_db :find dec_func_name))
 									(progn
 										(and (eql (. f_entry :find :inputs) "none") (nql dec_inputs "none")
@@ -325,7 +331,10 @@
 		(catch
 			(progn
 				(defq vp_files (files-all-vp-source))
-				(if (or forced (database-stale? +class_db_file +lib_file vp_files))
+				;the methods are declared in the class.inc files, which are not
+				;among the .vp: one changed is as much a reason to read it all again
+				(if (or forced (database-stale? +class_db_file +lib_file
+						(cat vp_files (files-all "." '("class.inc") 2))))
 					(build-and-save-databases vp_files))
 				(tree-load (file-stream +class_db_file)))
 			:nil)))

@@ -171,6 +171,6 @@
 (defq tt_said (list))
 (pipe-run "locals -v -t 0 tests/scratch_locals_probe" (# (push tt_said %0)))
 (assert-eq "locals: the frame, its named locals, what is read and written, what could be registers, what is wanted after a call, and what is in memory"
-	"tests/scratch_locals_probe: frames 32 bytes, named locals 3, read 2 written 4, could be registers: read 2 written 3, of those wanted after a call: read 1 written 1, 1 are in memory, a struct or their address taken, in registers a call does not keep: 1 reads less, 1 writes before calls, 2 wanted at once, 12 registers it does not use"
+	"tests/scratch_locals_probe: frames 32 bytes, named locals 3, read 2 written 4, could be registers: read 2 written 3, of those wanted after a call: read 1 written 1, 1 are in memory, a struct or their address taken, in registers a call does not keep: 1 reads less, 1 writes before calls, 2 wanted at once, 12 registers it does not use, calls 1, that say what they trash 0"
 	(first (split (join tt_said "") tt_lf)))
 (pii-remove tt_probe)
