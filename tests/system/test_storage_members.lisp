@@ -185,6 +185,29 @@
 		(reduce (# (if (find %1 %0) %0 (push %0 %1))) (sn-copies sn_names) (list)))
 	(assert-eq "and it has what was written while it was gone" "the rack's plan" (storage-get "plan" (sn-of "m-e")))
 
+	;an object as a stream, by what knows nothing of a store
+	(defq sn_stream (storage-stream "big" (sn-of "m-a")) sn_parts (list ""))
+	(assert-true "an object no member has all of is opened as a stream" sn_stream)
+	(when sn_stream
+		(while (defq sn_part (read-blk sn_stream 10000)) (push sn_parts sn_part))
+		(assert-true "read to the end in pieces, it is the object" (eql sn_big (apply (const cat) sn_parts)))
+		(assert-eq "sought from the start, that is where it is" 4000 (stream-seek sn_stream 4000 0))
+		(assert-true "and read from there" (eql (slice sn_big 4000 9000) (read-blk sn_stream 5000)))
+		(assert-eq "sought on from where it is" 19000 (stream-seek sn_stream 10000 1))
+		(assert-true "and read from there" (eql (slice sn_big 19000 19100) (read-blk sn_stream 100)))
+		(assert-eq "sought back from where it is" 18100 (stream-seek sn_stream -1000 1))
+		(assert-true "and read from there" (eql (slice sn_big 18100 18200) (read-blk sn_stream 100)))
+		(assert-eq "sought from the end" (- (length sn_big) 50) (stream-seek sn_stream -50 2))
+		(assert-true "and read from there, to the end" (eql (slice sn_big -51 -1) (read-blk sn_stream 50)))
+		(assert-eq "and there is no more" :nil (read-char sn_stream)))
+	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 2000))) :nil (sn-of "m-b"))
+	(sn-settle)
+	(defq sn_stream (storage-stream "text" (sn-of "m-d") 2) sn_count 0 sn_last "")
+	(when sn_stream (while (defq sn_line (read-line sn_stream)) (++ sn_count) (setq sn_last sn_line)))
+	(assert-eq "an object of lines is read a line at a time, across its blocks" 2000 sn_count)
+	(assert-eq "to the last" "line 1999" sn_last)
+	(assert-eq "no object of that path, no stream" :nil (storage-stream "no such" (sn-of "m-a")))
+
 	;how often they look is changed as they run
 	(storage-put "paced" "one" :nil (sn-of "m-a"))
 	(task-sleep 200000)

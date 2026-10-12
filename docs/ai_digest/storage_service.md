@@ -520,6 +520,30 @@ On the x64 Mac and the Pi, a store of the two with one copy of a block: a
 gopher from each counted the lines of `STATUS.md`, 14,284 as `wc -l`, by
 way of both. The Pi's member stopped: "It did not come back", in 1 second.
 
+**An object as a stream.** `(storage-stream path [svc ahead])`, 2026-10-12.
+Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any
+existing code just sees a normal seekable dfile stream ?" I offered the
+whole object in a string stream first, and he said: "bring me that entire
+4GB mp4, that I may watch it... errrrrr". So it has a block at a time. And
+of the blocks after: "We could implament read ahead at the point of
+consumtion ?" As the block wanted is read, the next 4 are asked for, each
+of a member that has it, a different one in turn where there are several,
+so they come from several machines at once and are there, or on their way,
+when wanted. A seek makes new mailboxes and asks again from the new place,
+what was on its way is to mailboxes nobody reads: "a seek, pays the cost,
+but it allways does in any streaming object". A block that did not come in
+2 seconds, or is not what its name says, is had from any member that has
+it, as `(storage-block)` does.
+
+It is made of a new VP class, `:lstream`, `class/lstream/`, a stream that
+is read from Lisp functions, `(lisp-stream fill [seek])` in
+`lib/streams/lisp_stream.inc`. That is all the VP there is of it: how far
+ahead, of whom, and what is done about one that does not come is Lisp, to
+be changed and measured. `(read-line)` `(read-blk)` `(read-char)`
+`(stream-seek)` `(lines!)` and the VP that reads a stream all read it.
+
+It is read only. An object is still put from a str of all of it.
+
 **A gopher can become two.** Chris: "you hit the issue with this,
 divergence/forkinf of a gopher ! The issue is either to ensure it can't
 happen, which may be imposible (or at least too slow as it needs global
@@ -640,6 +664,14 @@ was made to send the gopher and stop the member by itself.
 * Cutting an object where its content says, not every 64KB.
 * A manifest of a very long object is itself long, it is one block of any
   size for now.
+* An object is put from a str of all of it, `(storage-put)`. To put what
+  is too long to hold, it is put from a stream, a block at a time, and
+  there is no stream to write to yet.
+* `(file-stream path)` of a path that is in a store is still a file of the
+  host. That a path says where it is, is a thing for root.inc, and Chris.
+* `(lisp-stream)` is bound in a library and not root.inc, so that a boot
+  image without it can build a tree with it. At a release, with a
+  snapshot, it can go to root.inc.
 * A gopher's function can do anything a task can. What it may do is not
   fenced.
 * A gopher that became two, see Built, and writes. Blocks are safe, the

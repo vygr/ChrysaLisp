@@ -14,6 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/storage/store.inc")
+(import "lib/streams/lisp_stream.inc")
 
 (enums +storage_type 0
 	(enum info stat list has block_put block_get commit delete
@@ -171,6 +172,85 @@
 				(setq lost :t))
 			(++ at))
 		(unless lost (apply (const cat) parts))))
+
+;a stream of an object. What it keeps as it is read: the service, the
+;names of the blocks, how long a block is, how long the object is, the
+;block that is next, how much of that one is not wanted, the blocks asked
+;for and not yet read, how many are asked for ahead, and which of the
+;blocks the service has
+(enums +storage_stream 0
+	(enum svc names block bytes at drop flight ahead has))
+
+(defun storage-stream-ask (st at)
+	; (storage-stream-ask st at) -> mbox
+	;a block is asked for, and not waited for: of the service if it has
+	;it, and if not of a member that keeps it, one after another of them
+	;as the blocks go, so that what is ahead comes from several at once.
+	;Where the answer will be
+	(defq svc (elem-get st +storage_stream_svc) hash (elem-get (elem-get st +storage_stream_names) at)
+		has (elem-get st +storage_stream_has) mbox (mail-mbox))
+	(unless (and (< at (length has)) (eql (elem-get has at) "1"))
+		(if (nempty? (defq holders (storage-where hash svc)))
+			(setq svc (elem-get holders (% at (length holders))))))
+	(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
+		(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_block_get)) hash))
+	mbox)
+
+(defun storage-stream-fill (st)
+	; (storage-stream-fill st) -> :nil | data
+	;the next block. The blocks after it are asked for as this one is
+	;read, Chris: "We could implament read ahead at the point of
+	;consumtion ?", so that they are here, or on their way, when wanted.
+	;One that did not come, or is not what its name says, is had the slow
+	;way, from any member that has it
+	(bind '(svc names size bytes at drop flight ahead has) st)
+	(defq next (+ at (length flight)))
+	(while (and (< (length flight) ahead) (< next (length names)))
+		(push flight (storage-stream-ask st next))
+		(++ next))
+	(when (nempty? flight)
+		(defq hash (elem-get names at) data (mail-read-timeout (first flight) (task-timeout 2)))
+		(elem-set st +storage_stream_flight (rest flight))
+		(unless (and data (eql (sha256 data) hash))
+			(setq data (storage-block hash svc)))
+		(when data
+			(elem-set st +storage_stream_at (inc at))
+			(elem-set st +storage_stream_drop 0)
+			(if (> drop 0) (slice data (min drop (length data)) -1) data))))
+
+(defun storage-stream-seek (st offset whence)
+	; (storage-stream-seek st offset whence) -> pos
+	;it is read from there from now: from the start, from where it is, or
+	;from the end. What was asked for ahead is not waited for, its
+	;answers are to mailboxes nobody reads, and what is ahead of the new
+	;place is asked for at the next read. That read waits for a block,
+	;Chris: "a seek, pays the cost, but it allways does in any streaming
+	;object"
+	(bind '(svc names size bytes at drop flight ahead has) st)
+	(defq pos (max 0 (min bytes (cond
+		((= whence 0) offset)
+		((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
+		((+ bytes offset))))))
+	(elem-set st +storage_stream_at (/ pos size))
+	(elem-set st +storage_stream_drop (% pos size))
+	(elem-set st +storage_stream_flight (list))
+	pos)
+
+(defun storage-stream (name &optional svc ahead)
+	; (storage-stream path [svc ahead]) -> :nil | stream
+	;an object as a stream to read, as a file is, for what knows nothing
+	;of a store: (read-line) (read-blk) (read-char) (stream-seek) and the
+	;rest. It has a block of the object at a time, and the next few on
+	;their way, ahead, 4 if not said: so the object can be of any size.
+	;:nil if there is no object of that path
+	(setd svc (storage-service) ahead 4)
+	(when (and svc (defq object (storage-manifest name svc)) (defq info (storage-info svc)))
+		(defq names (second object)
+			st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
+				(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "")))
+		;the state is in the functions, a function has only what it is given
+		(lisp-stream `(lambda () (,storage-stream-fill ',st))
+			`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
 
 (defun storage-delete (name &optional from svc)
 	; (storage-delete path [from svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)

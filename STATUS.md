@@ -4,6 +4,44 @@
 
 ------
 
+**Storage: an object as a stream, and `:lstream`, a stream read from Lisp.**
+
+Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any
+existing code just sees a normal seekable dfile stream ? I understand this
+has performance ramifications, but even so, such an adaptor makes life way
+easier for 'dumb' applications." Of the whole object in a string stream,
+which I offered first: "bring me that entire 4GB mp4, that I may watch
+it... errrrrr". Of the blocks ahead: "We could implament read ahead at the
+point of consumtion ?" And: "M4 back to you, Make it so."
+
+`class/lstream/`, new, a VP stream class whose `:read_next` and `:seek`
+call Lisp functions, and keep the registers a file stream keeps: the lint
+said nine functions that read a stream would trash more than they say, as
+I had it first. `(lisp-stream fill [seek])`, `lib/streams/lisp_stream.inc`.
+`(storage-stream path [svc ahead])` on it, in `service/storage/app.inc`: a
+block at a time, the next 4 asked for as one is read, of different members
+in turn, a seek asks again from the new place.
+
+The binding was in root.inc at first. The x64 Mac and the Pi then could
+not start a session to build with: their boot images had no such function,
+and the session hung. It is in a library file, bound when imported. A tree
+with this in it is built by a boot image without it, which is how the two
+were built for the run below.
+
+Run: `make all boot`, lint clean, includes, imports, forward, check, all
+with nothing to say. Every module, built on each machine first: 6,445 and
+0 failed, 140 modules, on the M4, the x64 Mac and the Pi. New:
+`tests/streams/test_lisp_stream.lisp`, 34, the class by itself; and in
+`test_storage_members`, an object of 20 blocks that no member has all of,
+read to the end in pieces, sought from the start, from where it is both
+ways and from the end, and 2,000 lines read a line at a time across blocks.
+
+Not seen: a desktop on the Pi, root.inc and the GUI's imports are as they
+were. An object longer than memory: there is no way to put one yet, it is
+put from a str of all of it. A film played from it. It is read only.
+
+------
+
 **Storage: a gopher is handed on, and the hand is seen.**
 
 Chris, reading the docs: "What happens in the case of no answer ? does it

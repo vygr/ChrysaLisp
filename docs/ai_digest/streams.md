@@ -93,6 +93,28 @@ can grow on demand without requiring large contiguous memory allocations.
 
     * Creates a new, empty memory stream.
 
+
+### `:lstream`: Streams Read From Lisp
+
+The `:lstream` class has no data of its own. When it has nothing left to
+read it calls a Lisp function, which gives it the next piece as a str, of
+any length, or `:nil` at the end. It keeps the one str at a time. A second
+function, if given, is called for `(stream-seek)`.
+
+*   **Lisp Constructor**: `(lisp-stream fill [seek])`, bound in
+    `lib/streams/lisp_stream.inc`, which is imported for it.
+*   `fill` is `(lambda () ...) -> str | :nil`. `seek` is
+    `(lambda (offset whence) ...) -> pos`.
+*   A function has only what it is given, so the state goes in the
+    functions as they are made:
+    ``(lisp-stream `(lambda () (,my-fill ',state)))``.
+*   It is read only. `:read_next` and `:seek` keep every register the file
+    stream keeps, so VP that reads a stream reads one of these the same.
+
+It is what `(storage-stream path)` is made of, an object of a store read a
+block at a time with the next few on their way. Anything Lisp can fetch a
+piece at a time can be given to what reads a stream.
+
 ## Specialized IPC Streams: `:in` and `:out`
 
 The `:in` and `:out` streams are specialized, high-performance classes that

@@ -1,0 +1,211 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././num/class.inc")
+(include "././lisp/class.inc")
+
+;a stream that is read from Lisp functions. What is next of it is asked of
+;one, which gives a str, of any length, or :nil at the end. Where it is
+;read from is asked of the other, if there is one. It keeps the one str at
+;a time, so what it is a stream of can be of any size, and can be anywhere
+;a Lisp function can get it from.
+
+(gen-create :lstream)
+	;inputs
+	;:r0 = fill function object (ptr)
+	;:r1 = seek function object, 0 if none (ptr)
+	;:r2 = lisp object (ptr)
+	;outputs
+	;:r0 = 0 if error, else lstream object (ptr)
+	;trashes
+	;:r0-:r5, :r14, :f0-:f15
+(gen-vtable :lstream)
+(gen-type :lstream)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = type list object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f15
+
+(def-method :lstream :init)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = fill function object (ptr)
+	;:r3 = seek function object, 0 if none (ptr)
+	;:r4 = lisp object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r5
+
+	(entry :lstream :init '(:r0 :r1 :r2 :r3 :r4))
+
+	;the functions are the stream's from now, the lisp is whose it is
+	(assign '(:r2 :r3 :r4) '((:r0 +lstream_fill) (:r0 +lstream_seek) (:r0 +lstream_lisp)))
+
+	;init parent, with nothing read yet
+	(s-jump :lstream :init '(:r0 :r1 0 0 0 0))
+
+(def-func-end)
+
+(def-method :lstream :deinit)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(entry :lstream :deinit '(:r0))
+
+	(vp-push :r0)
+	(call :obj :deref '((:r0 +lstream_fill)))
+	(assign '((:rsp 0)) '(:r0))
+	(call :obj :deref_if '((:r0 +lstream_seek)))
+	(vp-pop :r0)
+
+	;parent deinit
+	(s-jump :lstream :deinit '(:r0))
+
+(def-func-end)
+
+(def-method :lstream :read_next)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = -1 for EOF, else more data
+	;trashes
+	;:r1-:r3, :r14, :f0-:f15
+
+	(entry :lstream :read_next '(:r0))
+
+	;what is called is Lisp, which keeps nothing. A stream that is read
+	;keeps all but these, and what reads one may count on it
+	(vp-push :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	(call :lstream :fill '(:r0) '(:r0 :r1))
+	(vp-pop :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+
+	(exit :lstream :read_next '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :lstream :fill)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = -1 for EOF, else more data
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(def-vars
+		(ptr this args value)
+		(long res))
+
+	(push-scope)
+	(entry :lstream :fill {this})
+
+	;what was read is let go of
+	(call :obj :deref_if {this->+stream_object})
+	(assign {0, 0, 0} {this->+stream_object, this->+stream_bufp, this->+stream_bufe})
+
+	;the next of it is asked for
+	(call :list :create :nil {args})
+	(call :lisp :repl_apply {this->+lstream_lisp, args, this->+lstream_fill} {_, value})
+	(call :obj :deref {args})
+
+	;a str with something in it is more, anything else is the end
+	(assign {-1} {res})
+	(vpif (cat {value->+obj_vtable = @} (f-path :str :vtable)))
+		(vpif {value->+str_length})
+			(assign {value, &value->+str_data} {this->+stream_object, this->+stream_bufp})
+			(assign {this->+stream_bufp + value->+str_length} {this->+stream_bufe})
+			(assign {0, 0} {res, value})
+		(endif)
+	(endif)
+	(call :obj :deref_if {value})
+
+	(exit :lstream :fill {this, res})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method :lstream :seek)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = whence (uint)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = -1 for error, else file position
+	;trashes
+	;:r1-:r3, :r14, :f0-:f15
+
+	(entry :lstream :seek '(:r0 :r1 :r2))
+
+	;what is called is Lisp, which keeps nothing. A stream that is read
+	;keeps all but these, and what reads one may count on it
+	(vp-push :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	(call :lstream :seek_to '(:r0 :r1 :r2) '(:r0 :r1))
+	(vp-pop :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+
+	(exit :lstream :seek '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :lstream :seek_to)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = whence (uint)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = -1 for error, else file position
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(def-vars
+		(ptr this args value)
+		(long offset whence pos))
+
+	(push-scope)
+	(entry :lstream :seek_to {this, offset, whence})
+
+	(assign {-1} {pos})
+	(vpif {this->+lstream_seek})
+		;from where it is: that is what has been read of it, which is less
+		;than what has been asked for by what is left of the last str
+		(vpif {whence = 1})
+			(assign {offset - (this->+stream_bufe - this->+stream_bufp)} {offset})
+		(endif)
+
+		(call :list :create :nil {args})
+		(call :num :create {offset} {value})
+		(call :list :push_back {args, value})
+		(call :num :create {whence} {value})
+		(call :list :push_back {args, value})
+		(call :lisp :repl_apply {this->+lstream_lisp, args, this->+lstream_seek} {_, value})
+		(call :obj :deref {args})
+
+		;a number is where it is now, anything else and it did not
+		(vpif (cat {value->+obj_vtable = @} (f-path :num :vtable)))
+			(assign {value->+num_value} {pos})
+			;what was read is let go of, the next read is from there
+			(call :obj :deref_if {this->+stream_object})
+			(assign {0, 0, 0} {this->+stream_object, this->+stream_bufp, this->+stream_bufe})
+		(endif)
+		(call :obj :deref {value})
+	(endif)
+
+	(exit :lstream :seek_to {this, pos})
+	(pop-scope)
+	(return)
+
+(def-func-end)

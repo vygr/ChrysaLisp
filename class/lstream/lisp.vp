@@ -1,0 +1,42 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././lisp/class.inc")
+
+(def-method :lstream :lisp_create)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :f0-:f15
+
+	(entry :lstream :lisp_create '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1 2)
+
+	(assign '((:r1 +array_length)) '(:r2))
+	(vp-push :r0)
+	(defq in (method-input :lstream :create))
+	(vpif '(:r2 = 1))
+		(list-bind-args :r1 (slice in 0 1) '(:obj))
+		(assign '(0) (slice in 1 2))
+	(else)
+		(list-bind-args :r1 (slice in 0 2) '(:obj :obj))
+		(class/obj/ref (second in) :r3)
+	(endif)
+	(class/obj/ref (first in) :r3)
+	(assign '((:rsp 0)) (slice in 2 3))
+	(call :lstream :create in '(:r1))
+	(vp-pop :r0)
+
+	(exit :lstream :lisp_create '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(lisp-stream fill [seek])" +error_msg_wrong_types))
+	(signature '(:obj :obj)))
+
+(def-func-end)

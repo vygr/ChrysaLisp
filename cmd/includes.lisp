@@ -39,7 +39,7 @@
 		(":lisp" "+lisp_") (":str" "+str_")
 		(":seq" "+seq_") (":array" "+array_") (":list" "+list_")
 		(":dim" "+dim_") (":sys_math" "+math_")
-		(":hset" "+hset_") (":hmap" "+hmap_") (":fstream" "+fstream_")
+		(":hset" "+hset_") (":hmap" "+hmap_") (":fstream" "+fstream_") (":lstream" "+lstream_")
 		(":sstream" "+sstream_") (":mstream" "+mstream_") (":in" "+in_")
 		(":netid" "+netid_") (":nodeid" "+nodeid_") (":stdio" "+stdio_")
 		(":error" "+error_") (":func" "+func_")
