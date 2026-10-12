@@ -8,9 +8,10 @@
 ; Then, and not before, this one is done.
 ;
 ; Any of that can fail: the member is not there, its node does not start
-; the task, the mail does not get there, nothing is said back. Then the
-; next member that has the block is tried, and the next, till one takes it
-; or there are none.
+; the task, the mail does not get there, nothing is said back. Then one is
+; started at the next member that has the block as well, and the next, and
+; the first of them all to say it is there is sent the gopher, till one
+; has it or there are none.
 ;
 ; If one took it and what it said back was lost, the next is tried all the
 ; same, and there are two gophers. Both come back to who asked, who takes
@@ -46,18 +47,39 @@
 
 (defun gopher-pass (holders asker name at state source trail skip &optional wait)
 	; (gopher-pass holders asker name at state source trail skip [wait]) -> :nil | netid
-	;all there is of a gopher is sent on to the first of the holders that
-	;starts one and says it has it. Which that was. One that does not is
-	;put in skip. wait, seconds, is for a test, in place of the two waits
-	(some (lambda (next)
-		(defq said (mail-mbox) ack (mail-mbox))
-		(open-task "service/storage/gopher.lisp" (slice next +mailbox_id_size -1) +kn_call_pin 0 said)
+	;all there is of a gopher is sent on to one of the holders, the first
+	;of them if it can be. Which it was.
+	;
+	;A gopher is started at the first. If it has not said it is there in
+	;a while, one is started at the next as well, and so on, and the
+	;first of them to say so, whichever it is, is the one: Chris, "we
+	;don't have to do this serialy ? When any replies come in, we can go
+	;with that, even if it was a late reply for the original choice."
+	;They all say so to the one mailbox. Only the one is sent anything.
+	;The others, started and sent nothing, go in their own time.
+	;
+	;The one sent it says it has it, to another mailbox. If it does not,
+	;the next to say it is there is sent it. Those that never said, and
+	;those that did not say they had it, are put in skip. wait, seconds,
+	;is for a test, in place of the two waits
+	(defq said (mail-mbox) ack (mail-mbox) started (list) at_holder 0 went :nil more :t
+		start_wait (task-timeout (ifn wait +gopher_start_wait)) ack_wait (task-timeout (ifn wait +gopher_ack_wait)))
+	(while (and more (not went))
+		(when (< at_holder (length holders))
+			(defq next (elem-get holders at_holder))
+			(open-task "service/storage/gopher.lisp" (slice next +mailbox_id_size -1) +kn_call_pin 0 said)
+			(push started next)
+			(++ at_holder))
 		(cond
-			((and (defq reply (mail-read-timeout said (task-timeout (ifn wait +gopher_start_wait))))
-					(/= 0 (get-long (defq there (getf reply +kn_msg_reply_id)) 0))
+			((defq reply (mail-read-timeout said start_wait))
+				;which of them that is: one started on the node it is on
+				(when (and (/= 0 (get-long (defq there (getf reply +kn_msg_reply_id)) 0))
+						(defq next (some (# (if (eql (slice %0 +mailbox_id_size -1) (slice there +mailbox_id_size -1)) %0)) started)))
+					(setq started (filter (# (not (eql %0 next))) started))
 					(mail-send there (cat (hex-encode asker) +storage_lf (hex-encode next) +storage_lf (hex-encode ack) +storage_lf
 						(str (list name at state source trail skip))))
-					(mail-read-timeout ack (task-timeout (ifn wait +gopher_ack_wait))))
-				next)
-			(:t (push skip (hex-encode next)) :nil)))
-		holders))
+					(if (mail-read-timeout ack ack_wait) (setq went next) (push skip (hex-encode next)))))
+			;none said so in the time, and there are no more to start
+			((>= at_holder (length holders)) (setq more :nil))))
+	(each (# (push skip (hex-encode %0))) started)
+	went)

@@ -505,9 +505,15 @@ None of those, as it was. Now:
 
 * The one sent on says so, to the one that sent it, before anything else.
   The one that sent it is done only then.
-* If the node does not start a gopher in 2 seconds, or the new one does not
-  say it has what it was sent in 2 more, the next member that has the
-  block is tried, longest run first, till one takes it or there are none.
+* If the node does not start a gopher in 2 seconds, one is started at the
+  next member that has the block as well, longest run first, and so on.
+  They all answer to the one mailbox, and the first to say it is there,
+  whichever it is, a late one too, is sent the gopher. Chris: "we don't
+  have to do this serialy ? When any replies come in, we can go with that,
+  even if it was a late reply for the original choice." Only the one is
+  sent anything, the rest go in their own time. If it does not say it has
+  what it was sent in 2 more, the next to answer is sent it, till one has
+  it or there are none.
 * Only then is "none" mailed to who asked, so they hear at once and do not
   wait out their own time.
 * A gopher that is started and sent nothing in 10 seconds goes. It waited
@@ -542,7 +548,48 @@ ahead, of whom, and what is done about one that does not come is Lisp, to
 be changed and measured. `(read-line)` `(read-blk)` `(read-char)`
 `(stream-seek)` `(lines!)` and the VP that reads a stream all read it.
 
-It is read only. An object is still put from a str of all of it.
+It is read only. To put, `(storage-put-stream path stream)` reads a stream
+to its end a few blocks at a time, `(storage-put)` and `(storage-put-file)`
+are that, and `(storage-same-file? path file)` reads an object as a stream
+beside a file of the host and says if they are the same.
+
+**The whole tree, through streams.** Chris: "A good test would be to use the
+dumb streams to copy the entire ChrisaLisp tree into the storage system and
+then read it back and compare eveything." `storage -T dir path/` puts every
+file under a folder and reads each back and compares, `storage -V` the
+reading back only, of what another machine put. 2026-10-12, the tree less
+obj, deps and .git, 1,971 files, 167MB, the longest a film of 37MB:
+
+	one member, the M4                         put 86 s, read back the same 20 s
+	three, M4, x64 Mac, Pi, two copies a block put at the M4 34 s, the same 23 s
+	shared out to the other two                about 4 minutes
+	read back on the x64 Mac                   1,823 of its 1,936 files the same, 134 s
+	read back on the Pi                        1,797 of its 1,845 files the same, 318 s
+
+Each file not the same on the x64 Mac, 113, and on the Pi, 48, was looked
+at: its own copy is not the M4's, by MD5. They are what a machine has of
+its own, the objects of its host program, a user's settings, a file I had
+changed since. No file that is the same on two machines read back
+different.
+
+What that run found, and it was the first with more than a few objects:
+
+* A member asked for a block it does not keep went to the volume to find
+  that out, two directories read. Every member is asked for many it has
+  not got. On the Pi its own share took 11.6 s to work out, the asking of
+  it gave up at 10, and the Pi stopped taking blocks altogether. What is
+  kept is held in memory: that is asked first. 89ms on the M4.
+* The tender fetched a block at a time, each asked of the peers in turn
+  till one had it. Chris: "~10 blocks/sec; does that sound fast enough to
+  you ? Are hitting the Wifi limit to the x64 ? or somthing deeper ?"
+  Measured on the x64 Mac: 61ms a block from the M4 and 29ms to be told
+  no by the Pi, where a ping is 17ms and `scp` of 20MB is 1.2MB a second.
+  So it was the going and coming of the Wi-Fi, a block at a time, a third
+  of what the link carries. Now 8 are asked for at once, each of a peer
+  that has said it has it: 28 blocks a second to the x64 Mac, which is the
+  link, and 18 to the Pi, which is its SD card, 0.45MB a second to write.
+* The digest of a store, asked for by every member each time it looks, was
+  worked out from every path each time. It is held till something changes.
 
 **A gopher can become two.** Chris: "you hit the issue with this,
 divergence/forkinf of a gopher ! The issue is either to ensure it can't
@@ -664,9 +711,14 @@ was made to send the gopher and stop the member by itself.
 * Cutting an object where its content says, not every 64KB.
 * A manifest of a very long object is itself long, it is one block of any
   size for now.
-* An object is put from a str of all of it, `(storage-put)`. To put what
-  is too long to hold, it is put from a stream, a block at a time, and
-  there is no stream to write to yet.
+* There is no stream to write to. What is put is read from one.
+* The whole path map is written to the volume at every change of it, a
+  path put, a note taken from another member. At 2,000 paths that is half
+  a megabyte a time, and it is most of what putting the tree costs: 107 s
+  into five members on one node. A journal, what changed added to the end
+  and the whole written now and then, is the answer, and is not begun.
+* A service is one task. While it writes a block it answers nothing, and
+  the app that shows it waits: 0.2 to 4 s for a look at five busy members.
 * `(file-stream path)` of a path that is in a store is still a file of the
   host. That a path says where it is, is a thing for root.inc, and Chris.
 * `(lisp-stream)` is bound in a library and not root.inc, so that a boot

@@ -1,5 +1,6 @@
 (import "lib/options/options.inc")
 (import "service/storage/app.inc")
+(import "lib/files/files.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -36,6 +37,13 @@
         -w --sweep: let go of the blocks no object is made of.
         -c --check: say which blocks are not what their names
             say. -C to let go of them too.
+        -T --tree dir: every file under that folder of the
+            host is put, as a stream, at path and its own
+            path, and then each is read back as a stream and
+            compared with the file. obj, deps and folders
+            whose names begin with a dot are not gone in to.
+        -V --verify dir: the reading back and comparing of
+            -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
 
@@ -58,6 +66,8 @@
 (("-C" "--mend") ,(opt-flag 'opt_C))
 (("-P" "--pin") ,(opt-flag 'opt_P))
 (("-U" "--unpin") ,(opt-flag 'opt_U))
+(("-T" "--tree") ,(opt-str 'opt_T))
+(("-V" "--verify") ,(opt-str 'opt_V))
 ))
 
 (defun show (entry)
@@ -73,7 +83,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k 0 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
-				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil
+				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
 		(if opt_s (unless (apply (const storage-start) (cat (list opt_s)
@@ -88,14 +98,41 @@
 			(opt_p
 				(cond
 					((eql name "") (print "A path to put it at."))
-					((not (defq data (load opt_p))) (print "No file " opt_p))
-					(:t (bind '(what entry) (storage-put name data :nil svc))
-						(if (eql what :ok) (show entry) (print "Not put: " what)))))
+					(:t (bind '(what entry) (storage-put-file name opt_p :nil svc))
+						(cond
+							((eql what :ok) (show entry))
+							((eql what :none) (print "No file " opt_p))
+							((print "Not put: " what))))))
 			(opt_g
 				(cond
-					((not (defq data (storage-get name svc))) (print "No object " name))
-					((eql opt_g "-") (prin data) (stream-flush (io-stream 'stdout)))
-					((save data opt_g) (print (length data) " bytes to " opt_g))))
+					((not (defq object (storage-stream name svc))) (print "No object " name))
+					((eql opt_g "-")
+						(while (defq part (read-blk object 65536)) (prin part))
+						(stream-flush (io-stream 'stdout)))
+					((defq host (file-stream opt_g +file_open_write) bytes 0)
+						(while (defq part (read-blk object 65536))
+							(write-blk host part)
+							(setq bytes (+ bytes (length part))))
+						(stream-flush host)
+						(print bytes " bytes to " opt_g))
+					((print "No file " opt_g " to write."))))
+			((or opt_T opt_V)
+				(defq files (filter (# (not (starts-with "./deps/" %0))) (files-all (ifn opt_T opt_V) '("")))
+					put 0 same 0 bytes 0 t0 (pii-time))
+				(defun at (file) (cat name (if (starts-with "./" file) (slice file 2 -1) file)))
+				(when opt_T
+					(each (lambda (file)
+						(defq what (first (storage-put-file (at file) file :nil svc)))
+						(if (eql what :ok) (++ put) (print "Not put: " what " " file)))
+						files)
+					(print put " of " (length files) " files put, in " (/ (- (pii-time) t0) 1000) "ms"))
+				(defq t1 (pii-time))
+				(each (lambda (file)
+					(if (defq size (storage-same-file? (at file) file svc))
+						(setq same (inc same) bytes (+ bytes size))
+						(print "Not the same: " file)))
+					files)
+				(print same " of " (length files) " read back the same, " bytes " bytes, in " (/ (- (pii-time) t1) 1000) "ms"))
 			(opt_d (print (first (storage-delete name :nil svc))))
 			(opt_q
 				;the function, written with or without a ' before it

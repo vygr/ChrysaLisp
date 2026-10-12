@@ -50,6 +50,16 @@
 			(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
 		(mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
 
+(defun storage-send (svc type &optional body)
+	; (storage-send svc type [body]) -> mbox
+	;one thing asked of a service and not waited for. Where what it says
+	;will be, to be read when it is wanted: several can be asked at once,
+	;of several services, and be on their way together
+	(defq mbox (mail-mbox))
+	(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
+		(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
+	mbox)
+
 (defun storage-result (answer)
 	; (storage-result answer) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:none :nil) | (:lost :nil)
 	;what the service said of a write, as (store-commit) gives it. :lost
@@ -119,28 +129,47 @@
 	(or (storage-block-at hash svc)
 		(some (# (storage-block-at hash %0)) (storage-where hash svc))))
 
-(defun storage-put (name data &optional from svc)
-	; (storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
-	;a path is set to an object of this data, provided it is now the
-	;object from: its name, "" for none, and not given, not to say. :stale
-	;with what it is if it is not that. Only the blocks the service has
-	;not got are sent
+(defun storage-put-stream (name stream &optional from svc)
+	; (storage-put-stream path stream [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+	;a path is set to an object of what is read from a stream, to its
+	;end, provided it is now the object from: its name, "" for none, and
+	;not given, not to say. :stale with what it is if it is not that. It
+	;is read a few blocks at a time, so what is put can be of any length,
+	;and only the blocks the service has not got are sent
 	(setd svc (storage-service))
 	(cond
 		((not (defq info (storage-info svc))) (list :lost :nil))
-		(:t (defq size (. info :find :block_size)
-				blocks (map (# (slice data %0 (min (length data) (+ %0 size)))) (range 0 (length data) size))
-				names (map (const sha256) blocks)
-				has (ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "")
-				full :nil)
-			(each (lambda (block hash)
-				(unless (or full (eql (if (< (!) (length has)) (elem-get has (!))) "1"))
-					(if (nql (storage-ask svc +storage_type_block_put block) hash) (setq full :t))))
-				blocks names)
+		(:t (defq size (. info :find :block_size) names (list) bytes 0 full :nil more :t)
+			(while (and more (not full))
+				(defq blocks (list))
+				(while (and (< (length blocks) 8) (setq more (read-blk stream size)))
+					(push blocks more))
+				(defq hashes (map (const sha256) blocks)
+					has (if (empty? blocks) ""
+						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") hashes))) "")))
+				(each (lambda (block hash)
+					(setq bytes (+ bytes (length block)))
+					(push names hash)
+					(unless (or full (eql (if (< (!) (length has)) (elem-get has (!))) "1"))
+						(if (nql (storage-ask svc +storage_type_block_put block) hash) (setq full :t))))
+					blocks hashes))
 			(if full (list :full :nil)
 				(storage-result (storage-ask svc +storage_type_commit
-					(join (cat (list (storage-from from) (str (length data)) name) (map (const hex-encode) names))
+					(join (cat (list (storage-from from) (str bytes) name) (map (const hex-encode) names))
 						+storage_lf)))))))
+
+(defun storage-put (name data &optional from svc)
+	; (storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+	;a path is set to an object of this data, as (storage-put-stream)
+	(storage-put-stream name (string-stream data) from svc))
+
+(defun storage-put-file (name file &optional from svc)
+	; (storage-put-file path file [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil)
+	;a path is set to an object of what is in a file of the host, of any
+	;length. :none if there is no such file
+	(if (defq stream (file-stream file))
+		(storage-put-stream name stream from svc)
+		(list :none :nil)))
 
 (defun storage-manifest (name &optional svc)
 	;the blocks of the object a path is, (bytes names), :nil if there is none
@@ -188,13 +217,11 @@
 	;as the blocks go, so that what is ahead comes from several at once.
 	;Where the answer will be
 	(defq svc (elem-get st +storage_stream_svc) hash (elem-get (elem-get st +storage_stream_names) at)
-		has (elem-get st +storage_stream_has) mbox (mail-mbox))
+		has (elem-get st +storage_stream_has))
 	(unless (and (< at (length has)) (eql (elem-get has at) "1"))
 		(if (nempty? (defq holders (storage-where hash svc)))
 			(setq svc (elem-get holders (% at (length holders))))))
-	(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
-		(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_block_get)) hash))
-	mbox)
+	(storage-send svc +storage_type_block_get hash))
 
 (defun storage-stream-fill (st)
 	; (storage-stream-fill st) -> :nil | data
@@ -251,6 +278,16 @@
 		;the state is in the functions, a function has only what it is given
 		(lisp-stream `(lambda () (,storage-stream-fill ',st))
 			`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
+
+(defun storage-same-file? (name file &optional svc)
+	; (storage-same-file? path file [svc]) -> :nil | bytes
+	;an object, read as a stream, is what is in a file of the host, byte
+	;for byte and no longer. How long that is
+	(when (and (defq object (storage-stream name svc)) (defq host (file-stream file)))
+		(defq bytes 0 same :t)
+		(while (and same (defq part (read-blk object 65536)))
+			(setq same (eql part (read-blk host (length part))) bytes (+ bytes (length part))))
+		(and same (not (read-char host)) bytes)))
 
 (defun storage-delete (name &optional from svc)
 	; (storage-delete path [from svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)

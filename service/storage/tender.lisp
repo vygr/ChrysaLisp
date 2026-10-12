@@ -21,6 +21,9 @@
 
 (import "./app.inc")
 
+;how many blocks are asked for at once
+(defq +tender_window 8)
+
 (defun others (svc group me)
 	; (others svc group me) -> ((member netid state) ...)
 	;the other members of my store that are there, and not cut off from
@@ -67,14 +70,34 @@
 		;it is asked again, a few times
 		(while (and more (< (++ rounds) 8))
 			(setq more :nil)
-			(defq lines (split (ifn (storage-ask svc +storage_type_share (join there " ")) "-") +storage_lf)
+			(defq lines (split (ifn (storage-ask svc +storage_type_share (join there " ") 60) "-") +storage_lf)
 				at (ifn (find "-" lines) (length lines)))
-			(each (lambda (want)
-				(when (defq data (some (lambda ((who where state)) (storage-block-at (hex-decode want) where)) peers))
-					(when (eql (storage-ask svc +storage_type_block_put data) (hex-decode want))
+			;so many at a time. Each peer is asked the once which of them it
+			;has, then each block is asked of one that has it, in turn where
+			;several do, all of them at once and none waited for: between
+			;machines it is the going and coming that takes the time, 17ms
+			;of it over a Wi-Fi link, measured, and a block at a time was a
+			;third of what the link could carry
+			(defq wants (map (const hex-decode) (slice lines 0 at)))
+			(each (lambda (start)
+				(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
+					names (apply (const cat) (cat (list "") batch))
+					has (map (lambda ((who where state)) (ifn (storage-ask where +storage_type_has names 5) "")) peers)
+					boxes (map (lambda (want)
+						(defq at_want (!)
+							having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
+								(range 0 (length peers))))
+						(if (nempty? having)
+							(storage-send (second (elem-get peers (elem-get having (% at_want (length having)))))
+								+storage_type_block_get want)))
+						batch))
+				(each (lambda (want mbox)
+					(when (and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
+							(eql (storage-ask svc +storage_type_block_put data) want))
 						(++ fetched)
-						(setq more :t))))
-				(slice lines 0 at))
+						(setq more :t)))
+					batch boxes))
+				(range 0 (length wants) +tender_window))
 			;what is others' to keep is let go of when each of them has it
 			(each (lambda (line)
 				(bind '(extra &rest holders) (split line " "))

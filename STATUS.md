@@ -4,6 +4,52 @@
 
 ------
 
+**Storage: the whole tree through streams, on three machines, and what it found.**
+
+Chris: "A good test would be to use the dumb streams to copy the entire
+ChrisaLisp tree into the storage system and then read it back and compare
+eveything." And, of the rate I gave him as it ran: "~10 blocks/sec; does
+that sound fast enough to you ? Are hitting the Wifi limit to the x64 ? or
+somthing deeper ?" And of a gopher sent on: "we can have 1 mailbox that is
+the wait for ack mailbox ? we don't have to do this serialy ?"
+
+New: `(storage-put-stream)`, `(storage-put-file)`, `(storage-same-file?)`,
+`(storage-send)`; `storage -T dir path/` and `-V`; `-p` and `-g` are by
+stream, a file of any length. The tender fetches 8 blocks at once, each of
+a peer that has it. A block not kept is known not to be with no look at the
+volume. A store's digest is held till something changes, its counts are
+counted. A gopher is started at the next member as well when the first is
+slow, and the first of them to answer has it.
+
+Run, the tree less obj, deps and .git, 1,971 files, 167MB:
+
+	one member, the M4                    put 86 s, read back the same 20 s
+	M4, x64 Mac and Pi, two copies        put at the M4 34 s, the same 23 s
+	shared out to the two                 about 4 minutes, 28 and 18 blocks a second
+	read back on the x64 Mac              1,823 of its 1,936 the same, 134 s
+	read back on the Pi                   1,797 of its 1,845 the same, 318 s
+
+The 113 and the 48 that were not the same are each a file that machine has
+of its own, checked by MD5 against the M4's. None that is the same on two
+machines read back different.
+
+The first run of it stopped: the Pi took no blocks at all. Its share took
+11.6 s to work out and the asking gave up at 10, because a block not kept
+was looked for on the volume. And the rate to the x64 Mac was the Wi-Fi's
+going and coming, 17ms a ping, a block at a time. Both are in the doc with
+what was measured.
+
+Every module on the three machines: 6,445 and 0 failed. `check`, `forward`,
+`imports`, lint: nothing to say.
+
+Not seen, and not done: a journal for the path map, which is written whole
+at every change and is most of the cost of a put at 2,000 paths. The
+viewer's Pin and Tree buttons, which are not in this commit: I drove its
+functions with no screen, the tree went in and read back the same through
+it, 1,974 files, and its drawing I can not see.
+
+------
+
 **Storage: an object as a stream, and `:lstream`, a stream read from Lisp.**
 
 Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any

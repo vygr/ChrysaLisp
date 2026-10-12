@@ -155,8 +155,11 @@
 
 (defun store-save (store)
 	; (store-save store) -> store
-	;the path map, the members and the pins, as they are now
+	;the path map, the members and the pins, as they are now. Whatever
+	;changes any of them ends here, so what was worked out from them, the
+	;digest, is not held any longer
 	(task-slice)
+	(def store :digest :nil)
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 	(exfat-begin vol)
@@ -215,7 +218,7 @@
 				(. (get :map store) :insert (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
 		;the names of the blocks it has
-		(def store :held (Fset 101) :manifests (Fmap 101))
+		(def store :held (Fset 1021) :manifests (Fmap 1021))
 		(each (# (. (get :held store) :insert %0)) (store-blocks store))
 		(unless (eql had member)
 			;it is this member's now
@@ -272,9 +275,12 @@
 	; (store-block-get store name) -> :nil | data
 	;the block of that name. :nil if it is not kept here, and :nil if what
 	;is kept is not it: it has gone wrong, and is no use to anyone
+	;one that is not kept is known not to be, with no look at the volume:
+	;a member is asked for many it has not got, by those looking for one
 	(task-slice)
-	(defq found (exfat-load (get :vol store) (store-block-file name)))
-	(and found (eql (sha256 found) name) found))
+	(and (store-block-has? store name)
+		(defq found (exfat-load (get :vol store) (store-block-file name)))
+		(eql (sha256 found) name) found))
 
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
@@ -573,10 +579,15 @@
 (defun store-digest (store)
 	; (store-digest store) -> hash
 	;the path map and the members, as one name: two members with the same
-	;have nothing to tell each other
-	(defq lines (list))
-	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
-	(sha256 (store-text (cat (sort lines) (list "members") (store-members store) (list "retired") (sort (cat (get :retired store)))))))
+	;have nothing to tell each other. It is asked for by every member each
+	;time it looks, and is of every path there is, so it is held till
+	;something changes, (store-save)
+	(or (def? :digest store)
+		(progn
+			(defq lines (list))
+			(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
+			(def store :digest (sha256 (store-text (cat (sort lines) (list "members") (store-members store)
+				(list "retired") (sort (cat (get :retired store))))))))))
 
 (defun store-entries (store)
 	; (store-entries store) -> (entry ...)
@@ -697,7 +708,11 @@
 (defun store-info (store)
 	; (store-info store) -> (objects blocks free)
 	;how many objects, how many blocks kept, and the room left in bytes
-	(list (length (store-list store)) (length (store-held store)) (exfat-free (get :vol store))))
+	;counted, not listed and put in order to be counted: it is asked often
+	(defq objects 0 blocks 0)
+	(. (get :map store) :each (lambda (name entry) (unless (elem-get entry +store_entry_deleted) (++ objects))))
+	(. (get :held store) :each (lambda (name) (++ blocks)))
+	(list objects blocks (exfat-free (get :vol store))))
 
 ;module
 (export-symbols '(store-make store-open store-close store-save
