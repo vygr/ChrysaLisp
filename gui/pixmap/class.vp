@@ -75,6 +75,9 @@
 		(vp-mul-rr :r2 :r1)
 		(call :sys_mem :fill '((:r0 +pixmap_data) :r1 0))
 		(vp-pop :r0)
+		;it went well: said here, and not left as what the fill had in
+		;the register
+		(vp-cpy-rr :r0 :r1)
 	(endif)
 
 	(exit :pixmap :init '(:r0 :r1))

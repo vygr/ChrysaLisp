@@ -51,7 +51,7 @@
 	(dec-method :lisp_path class/array/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r8 :f0-:f15))
 	(dec-method :lisp_set class/array/lisp_eset :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_clear class/array/lisp_clear :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r14 :f0-:f15))
-	(dec-method :lisp_push class/array/lisp_push :static (:r0 :r1) (:r0 :r1) (:r0-:r13 :f0-:f15))
+	(dec-method :lisp_push class/array/lisp_push :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :f0-:f15))
 	(dec-method :lisp_pop class/array/lisp_pop :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_cap class/array/lisp_cap :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r9-:r13 :f0-:f15)))
 

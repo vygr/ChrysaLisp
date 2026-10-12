@@ -238,10 +238,18 @@
 ;the empty key is the root, so covers every key. Every key anyone has:
 ;another test that is going on beside this one may hold a lock, the
 ;(locals) command does while it reads the classes again, some seconds on
-;a slow machine, and the root waits for it. So this claim is given longer.
-;It failed on the Pi, three asserts, twice in a night for that
+;a slow machine, and the root can not be had till it is let go. It
+;failed on the Pi for that, three asserts, twice in a night. So it is
+;asked for again and again, each time for a moment: a claim of the root
+;that waited long held up every other claim there was behind it, and
+;then it was the tests beside this one that failed
+(defun le-claim-root ()
+	(defq t0 (pii-time) got :nil)
+	(until (or (setq got (lock-claim-rpc "" :nil (/ (task-timeout 1) 4))) (> (- (pii-time) t0) (task-timeout 30)))
+		(task-sleep 200000))
+	(if got :t))
 (test-cases
-	(if (lock-claim-rpc "" :nil (task-timeout 30)) :t) :t
+	(le-claim-root) :t
 	(le-blocked "le/under_root") :t
 	(lock-release-rpc "") :t
 	(le-claim "le/under_root") :t

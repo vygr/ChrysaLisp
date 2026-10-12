@@ -196,10 +196,13 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r0-:r13, :f0-:f15
+	;:r1-:r13, :f0-:f15
 
+	;this is where the append of a list, which is declared to trash :r1
+	;to :r9, leaves it: it was in :r6, and that the append did not in
+	;fact touch that was all that kept it
 	(vp-rdef (vt1 _ _ argc obj _
-		this args src_end dst src_begin src len old_len))
+		src_begin args src_end dst this src len old_len))
 
 	(entry :array :lisp_push `(,this ,args))
 

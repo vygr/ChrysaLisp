@@ -368,6 +368,8 @@
 	(assign '(:r2) (vpx conn_handle))
 	(call :sys_mail :free `(,params_msg))
 
+	;the handle again: the free is declared to trash where it was
+	(assign (vpx conn_handle) '(:r2))
 	(gotoif '(:r2 <= 0) 'conn_exit)
 
 	;start out link and send params

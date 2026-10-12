@@ -4,6 +4,72 @@
 
 ------
 
+**The places code went by more than was declared: nine found and mended, four left that are not that.**
+
+The entry below has 28 places. Read one by one, this is what they were.
+
+Mended, each so that it no longer goes by what a call happens to leave:
+
+* `class/str/lisp.vp`, `lisp_upper` and `lisp_lower`: kept the length in
+  `:r5` over `:str :create_from_buffer`, which is declared to trash it.
+  They read it again from the str.
+* `class/hmap/class.vp` and `class/hset/class.vp`, `:init`: gave as "it
+  went well" whatever the last `:list :create` left in `:r1`. They say
+  so themselves.
+* `gui/pixmap/class.vp`, `:init`: the same, of what `:sys_mem :fill`
+  left. It says so itself.
+* `service/net/link.vp`, the connection worker: tested `:r2` after
+  `:sys_mail :free`. It reads the handle again from its local.
+* `class/array/lisp.vp`, `lisp_push`: had the lisp object in `:r6` over
+  `:list :append`, declared to trash `:r1` to `:r9`. It is in `:r10`.
+  `trace -w` then found the function gives `:r0` back as it got it, and
+  its trashes are one less.
+
+Not that at all, the check was wrong and is now right in each:
+
+* A part of a function it calls by a label, or gives the address of, a
+  callback: where that ends was taken for where the function ends, and
+  what the function gives for what it must give. Most of `class/lisp/`.
+* A call of a part of itself: what it gave was taken as not given.
+* A call of the host: all of its registers taken as read. It reads as
+  many of `:r0` on as it has arguments and writes the one it goes by.
+
+Left, four, and none is a lean on a callee:
+
+* `gui/view/hit_tree` and `lisp_flatten`, after `:view :forward_tree`:
+  `:r7` `:r8` `:r12` are what their own callbacks work on, carried
+  through the walk. `forward_tree` is declared to trash all because it
+  can not know the callbacks; the caller does. For Chris: say so in a
+  comment and leave, or have the walk declare what it itself leaves.
+* `sys/mem/calloc` pushes `:r2` after the alloc and pops it: nothing
+  reads it.
+* `sys/load/load` after `:sys_pii :exit`, which does not come back. Left
+  out of the check from now.
+
+So of what is called as a method, nothing in the tree now reads a
+register a call is declared to trash, but its own callbacks'. That is
+what was missing under the day's work: a function that uses a register
+it declares and never used before breaks nobody, and `relies` says so,
+where lint could not.
+
+And the push to an array after its room is set, that Chris named: it
+is not in the list. Those callers read only what `:push_back` is
+declared to leave.
+
+Run: 6,538 tests, 0 failed, built on each of the M4, the x64 Mac and
+the Pi, three times over with the classes made stale. Six targets
+build. `lint` clean.
+
+**The lock test again.** Giving its claim of the root 30 seconds, the
+entry before last, was wrong: a claim of the root that waits holds up
+every claim behind it, and two tests of `check` on the Pi got nothing
+back in a run after a build. It now asks for a quarter of a second,
+again and again, for up to 30.
+
+Not seen: a desktop. The emulators.
+
+------
+
 **`relies`: where code goes by more than is declared of what it calls. 28 places.**
 
 Chris, after the crash of the entry before last: "If it helps us, then

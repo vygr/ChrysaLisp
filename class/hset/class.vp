@@ -48,6 +48,9 @@
 				(vp-add-cr +ptr_size iter_begin)
 			(loop-until `(,iter_begin = ,iter_end))
 			(vp-cpy-rr saved_this this)
+			;it went well: said here, and not left as whatever the last
+			;create of a list had in the register
+			(vp-cpy-rr this vtable)
 		(endif)
 	(endif)
 

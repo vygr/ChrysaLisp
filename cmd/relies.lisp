@@ -209,19 +209,38 @@
 							(list (logior base (bits-of (rest inst))) 0 :nil)))
 					;a call of the host: the first register is one it uses to
 					;get there, and is written. The rest it reads
+					;and as many of :r0 on as it has arguments. What it gives is in :r0
 					((eql op 'emit-call-abi)
-						(list (bits-of (rest (rest inst))) (bit-of (second inst)) :nil))
-					((find op '(emit-call emit-call-r emit-jmp-r emit-stack-init))
+						(list (logior (bit-of (third inst)) (dec (<< 1 (min 15 (ifn (elem-get inst 4) 0)))))
+							(logior (bit-of (second inst)) 1) :nil))
+					;a call of a part of itself: what that takes and gives is not
+					;declared, so it is taken to give every register. Nothing is
+					;said to lean on what it does not
+					((eql op 'emit-call) (list 0 0x7fff :nil))
+					((find op '(emit-call-r emit-jmp-r emit-stack-init))
 						(list (bits-of (rest inst)) 0 :nil))
 					((cat (flow-of inst) (list :nil)))))
 				insts)
-			live (map (lambda (n) 0) insts) changed :t found (list))
+			live (map (lambda (n) 0) insts) changed :t found (list)
+			;a part of the function that it calls, by a label, or gives the
+			;address of to be called, a callback: where that ends is not
+			;where the function does, and what it gives is not declared.
+			;All that can be got to from where such a call goes
+			inner (map (lambda (n) :nil) insts)
+			todo (reduce (# (if (and (find (first %1) '(emit-call emit-lea-p))
+					(defq to (. labels :find (if (eql (first %1) 'emit-call) (last %1) (second %1))))
+					(<= 0 (setq to (- to start))) (< to count)) (push %0 to) %0))
+				insts (list)))
+		(while (defq at (pop todo))
+			(unless (elem-get inner at)
+				(elem-set inner at :t)
+				(each (# (push todo %0)) (elem-get next at))))
 		;wanted before an instruction: what it reads, and what is wanted
 		;after it that it does not write. After the end, what the
 		;function gives. Backwards, till nothing changes
 		(defq after-of (lambda (at)
 			(if (find (first (elem-get insts at)) '(emit-ret emit-jmp-p emit-jmp-i emit-jmp-r))
-				gives (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))))
+				(if (elem-get inner at) 0 gives) (reduce (# (logior %0 (elem-get live %1))) (elem-get next at) 0))))
 		(while changed
 			(setq changed :nil)
 			(defq at count)
@@ -234,8 +253,23 @@
 		;wanted after a call, trashed by it as declared, and not given by it
 		(each (lambda (flow)
 			(when (defq called (third flow))
-				(defq at (!) bad (logand (after-of at) (second called) (lognot (elem-get called 3))))
-				(if (/= bad 0) (push found (list at (first called) bad)))))
+				;what does not come back has nothing read after it
+				(defq at (!) bad (if (find (first called) '("sys/pii/exit")) 0
+					(logand (after-of at) (second called) (lognot (elem-get called 3)))))
+				(when (/= bad 0)
+					;the first instruction after it, by where control goes, that
+					;reads one of them: where to look
+					;reads one of them: where to look. Of the lowest of them,
+					;and not past where it is written
+					(defq one (logand bad (neg bad)) seen (list) todo (cat (elem-get next at)) reader :nil)
+					(while (and (not reader) (defq to (pop todo)))
+						(unless (find to seen)
+							(push seen to)
+							(cond
+								((/= 0 (logand one (first (elem-get flows to)))) (setq reader to))
+								((/= 0 (logand one (second (elem-get flows to)))))
+								(:t (each (# (push todo %0)) (elem-get next to))))))
+					(push found (list at (first called) bad reader)))))
 			flows)
 		found))
 
@@ -257,9 +291,10 @@
 					(task-slice)
 					(when (nempty? (defq found (ifn (relies-of function methods) (list))))
 						(++ callers)
-						(each (lambda ((at name bad))
+						(each (lambda ((at name bad reader))
 							(++ places)
-							(if opt_v (print function " (" at "): after " name ", " (join (map (const str) (regs-in bad)) " ")))
+							(if opt_v (print function " (" at "): after " name ", " (join (map (const str) (regs-in bad)) " ")
+								(if reader (cat ", read at " (str reader)) ", wanted where it ends")))
 							(defq entry (. by_called :find name))
 							(unless entry (. by_called :insert name (setq entry (list 0 0 (list)))))
 							(elem-set entry 0 (inc (first entry)))

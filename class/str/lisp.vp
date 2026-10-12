@@ -977,6 +977,9 @@
 		(vp-cpy-rr src args)
 	(else)
 		(call :str :create_from_buffer `(0 ,len) `(,args))
+		;the length again: the create is declared to trash where it was,
+		;though as it is written it leaves it
+		(assign `((,src +str_length)) `(,len))
 		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
 		(vp-lea-d dst_data len dst_end)
 		(loop-start)
@@ -1023,6 +1026,9 @@
 		(vp-cpy-rr src args)
 	(else)
 		(call :str :create_from_buffer `(0 ,len) `(,args))
+		;the length again: the create is declared to trash where it was,
+		;though as it is written it leaves it
+		(assign `((,src +str_length)) `(,len))
 		(assign `((& ,src +str_data) (& ,args +str_data)) `(,src_data ,dst_data))
 		(vp-lea-d dst_data len dst_end)
 		(loop-start)
