@@ -331,6 +331,15 @@
 		(if (defq answer (mail-read-timeout mbox (task-timeout (ifn wait 60))))
 			(map (const str-as-num) (split answer " ")))))
 
+(defun storage-pace (tick grace &optional svc)
+	; (storage-pace tick grace [svc]) -> :nil | :t
+	;how often the member's tender looks, 0 for only when told, and how
+	;long a member is not heard from before what it kept is kept by
+	;others, from now on
+	(when (and (defq state (storage-state svc)) (nempty? (defq tender (. state :find :tender))))
+		(mail-send (hex-decode tender) (cat "pace " (str tick) " " (str grace)))
+		:t))
+
 (defun storage-cut (members &optional svc)
 	; (storage-cut members [svc]) -> :nil | :t
 	;for a test: the member is as if it could not reach those members,

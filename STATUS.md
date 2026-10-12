@@ -4,6 +4,25 @@
 
 ------
 
+**Storage viewer: Step and Run, the members look only when told.**
+
+Chris asked whether Next stepped the store; it does not, it only changes
+the object shown. I offered a stepper and he said: "yes, add the Step
+button". The first Step, the members look only when told; each after,
+the next of them looks, and the line says what it did. Run is by the
+clock again. The tender takes "pace", how often it looks and the grace,
+as it runs; `storage-pace` is the call, with a test in
+`test_storage_members`. The storage tests: 107 and 0 failed on the M4,
+the x64 Mac and the Pi. `check` and `forward` say nothing.
+
+He stepped a write through the five: "1 of 5", the writer's row full,
+then three to a column. "Great way to understand what is hapening and
+this ap is far from just a visualiser, it's the storage debugger !"
+
+A step is one member looking at all the others, not one meeting one.
+
+------
+
 **Storage viewer: its text is antialiased.**
 
 Chris, of the viewer on his desktop: "Seams to be fairly bad text

@@ -168,7 +168,19 @@
 	(sn-settle)
 	(assert-list-eq "it is back: every block is kept by three of the five" '(3)
 		(reduce (# (if (find %1 %0) %0 (push %0 %1))) (sn-copies sn_names) (list)))
-	(assert-eq "and it has what was written while it was gone" "the rack's plan" (storage-get "plan" (sn-of "m-e"))))
+	(assert-eq "and it has what was written while it was gone" "the rack's plan" (storage-get "plan" (sn-of "m-e")))
+
+	;how often they look is changed as they run
+	(storage-put "paced" "one" :nil (sn-of "m-a"))
+	(task-sleep 200000)
+	(assert-list-eq "told only: a write stays where it was put" '(1 5) (storage-seen "paced" (sn-of "m-a")))
+	(each (# (storage-pace 50000 0 %0)) sn_svcs)
+	(assert-list-eq "by the clock: all five have it, none told to look" '(5 5) (storage-wait "paced" 10 5 (sn-of "m-a")))
+	(each (# (storage-pace 0 0 %0)) sn_svcs)
+	(task-sleep 200000)
+	(storage-put "paced2" "two" :nil (sn-of "m-a"))
+	(task-sleep 300000)
+	(assert-list-eq "told only again: a write stays where it was put" '(1 5) (storage-seen "paced2" (sn-of "m-a"))))
 
 (each (# (if %0 (storage-stop %0))) sn_svcs)
 (task-sleep 100000)

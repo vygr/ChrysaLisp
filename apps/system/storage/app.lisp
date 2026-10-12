@@ -19,6 +19,10 @@
 ;	Heal	all can reach all
 ;	Fork	a path is written at two members at once: with one cut off,
 ;		neither knows of the other
+;	Step	the members look at each other only when told, and then,
+;		each press, the next of them looks: it compares notes with
+;		the others, fetches what is its to keep, lets go of what is not
+;	Run	they look by the clock again
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "usr/env.inc")
@@ -31,9 +35,9 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum demo put next gopher stop start cut heal fork))
+	(enum demo put next gopher stop start cut heal fork step run))
 
-(defq +width 860 +height 520 +rate 500000
+(defq +width 860 +height 520 +rate 500000 +tick 700000 +grace 3000000
 	+demo_ids ''("m-a" "m-b" "m-c" "m-d" "m-e")
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000)
@@ -42,8 +46,9 @@
 	(ui-title-bar _ "Storage" (+sym_close) +event_close)
 	(ui-tool-bar _ (:font *env_body_font*)
 		(each (lambda (text event) (. (ui-button _ (:text text :min_width 72)) :connect event))
-			'("Demo" "Put" "Next" "Gopher" "Stop" "Start" "Cut" "Heal" "Fork")
-			(list +event_demo +event_put +event_next +event_gopher +event_stop +event_start +event_cut +event_heal +event_fork)))
+			'("Demo" "Put" "Next" "Gopher" "Stop" "Start" "Cut" "Heal" "Fork" "Step" "Run")
+			(list +event_demo +event_put +event_next +event_gopher +event_stop +event_start +event_cut +event_heal +event_fork
+				+event_step +event_run)))
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-canvas *canvas* +width +height 1))
 
@@ -60,11 +65,12 @@
 
 (defun demo-start-member (id)
 	(storage-start (demo-image id) :size 0x400000 :id "demo" :name (demo-name id) :block 4096
-		:group *group* :member id :tick 700000 :grace 3000000))
+		:group *group* :member id :tick (if *stepping* 0 +tick) :grace (if *stepping* 0 +grace)))
 
 (defun demo-start ()
 	;five members of a store of their own, new each time
-	(setq *demo_tag* (str (pii-pid)) *group* (cat "*StorageDemo" *demo_tag*) *demo* :t *count* 0 *trail* :nil)
+	(setq *demo_tag* (str (pii-pid)) *group* (cat "*StorageDemo" *demo_tag*) *demo* :t *count* 0 *trail* :nil
+		*stepping* :nil *turn* 0)
 	(each (# (pii-remove (demo-image %0))) +demo_ids)
 	(each (const demo-start-member) +demo_ids)
 	(say "Five members, three keep a block. Put some objects."))
@@ -133,6 +139,8 @@
 		(text (cond
 			((not member) "not there")
 			((nempty? (elem-get member 3)) (cat (str (third member)) " blocks, cut off"))
+			((and *stepping* (eql member (elem-get members (% *turn* (length members)))))
+				(cat (str (third member)) " blocks, looks next"))
 			((cat (str (third member)) " blocks")))
 			38 (+ y 36) 11 +dim)
 		(when (and member (nempty? names))
@@ -191,7 +199,7 @@
 		(defq member (elem-get at (random (length at))) name (cat "docs/object-" (str (++ *count*)))
 			result (storage-put name (bytes-of (+ 10 (random 22)) name) :nil (second member)))
 		(setq *trail* :nil)
-		(say name " put at " (first member) ": " (str (first result)) ". The others have it when they next meet.")))
+		(say name " put at " (first member) ": " (str (first result)) (if *stepping* ". The others have it as they look." ". The others have it when they next meet."))))
 
 (defun action-gopher ()
 	(when (nempty? (defq at (running)))
@@ -211,7 +219,8 @@
 		(storage-stop (second member))
 		;where a gopher went is of the members as they were
 		(setq *trail* :nil)
-		(say (first member) " is switched off. In three seconds what it kept is kept by others.")))
+		(say (first member) " is switched off. "
+			(if *stepping* "As the others look, what it kept is kept by them." "In three seconds what it kept is kept by others."))))
 
 (defun action-start ()
 	(each (# (unless (storage-service (demo-name %0)) (demo-start-member %0))) +demo_ids)
@@ -241,9 +250,29 @@
 		(say "plan written at " (first one) " and at " (first two)
 			(if *cut* ". Neither knows of the other till they meet." ". One knew of the other, or soon will."))))
 
+(defun action-step ()
+	;the first press, they look only when told. After it, the next looks
+	(when (nempty? (defq at (running)))
+		(cond
+			(*stepping*
+				(defq member (elem-get at (% *turn* (length at))) did (storage-settle (second member) 10))
+				(setq *turn* (% (inc *turn*) (length at)))
+				(say (first member) (if did (cat " looked: new notes with " (str (first did)) ", " (str (second did))
+						" blocks fetched, " (str (third did)) " let go of.")
+					" did not say what it did.")))
+			(:t (setq *stepping* :t *turn* 0)
+				(each (# (storage-pace 0 0 (second %0))) at)
+				(say "They look only when told. Each Step, the next of them looks. Run is by the clock again.")))))
+
+(defun action-run ()
+	(setq *stepping* :nil)
+	(each (# (storage-pace +tick +grace (second %0))) (running))
+	(say "They look by the clock."))
+
 (defun main ()
 	(defq id :t select (task-mboxes +select_size)
-		*demo* :nil *demo_tag* "" *group* +storage_group *shown* 0 *count* 0 *trail* :nil *cut* :nil)
+		*demo* :nil *demo_tag* "" *group* +storage_group *shown* 0 *count* 0 *trail* :nil *cut* :nil
+		*stepping* :nil *turn* 0)
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -271,6 +300,8 @@
 					((= id +event_cut) (action-cut))
 					((= id +event_heal) (action-heal))
 					((= id +event_fork) (action-fork))
+					((= id +event_step) (action-step))
+					((= id +event_run) (action-run))
 					((. *window* :event msg))))
 			(+select_timer
 				(draw)

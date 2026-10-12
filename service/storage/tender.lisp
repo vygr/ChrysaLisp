@@ -15,7 +15,8 @@
 ; group, how often to look, 0 for only when told, and how long a member is
 ; not heard from before what it kept is kept by others. After that, a mail
 ; of "kick" is look now, "pass " and a mailbox is look now and say there
-; what was done, and "stop" is go.
+; what was done, "pace " and two numbers is how often to look and how long
+; a member is not heard from, from now on, and "stop" is go.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./app.inc")
@@ -94,13 +95,19 @@
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(cond
 			((= idx 1)
-				;time to look
-				(catch (look svc group grace heard) :t)
-				(mail-timeout (second select) tick 0))
+				;time to look, if it still looks by the clock
+				(when (> tick 0)
+					(catch (look svc group grace heard) :t)
+					(mail-timeout (second select) tick 0)))
 			((eql msg "stop") (setq running :nil))
 			((starts-with "pass " msg)
 				(defq did (catch (look svc group grace heard) (list 0 0 0)))
 				(mail-send (hex-decode (slice msg 5 -1)) (join (map (const str) (if (list? did) did (list 0 0 0))) " ")))
+			((starts-with "pace " msg)
+				;how often it looks is changed, as it runs
+				(bind '(tick grace) (map (const str-as-num) (split (slice msg 5 -1) " ")))
+				(mail-timeout (second select) 0 0)
+				(if (> tick 0) (mail-timeout (second select) tick 0)))
 			((eql msg "kick")
 				;a write: the others are told now. Not if it only looks when told
 				(if (> tick 0) (catch (look svc group grace heard) :t)))))
