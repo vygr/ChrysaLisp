@@ -973,11 +973,13 @@ was made to send the gopher and stop the member by itself.
   is to be thought through with Chris: a name for each walk, that a member
   can know it has seen; what a writer must promise; and how often it
   happens at all, which is to be measured and not guessed.
-* A gopher's function that goes into itself, over and over, runs its
-  task out of stack long before its second is up, and the node goes down
-  with it, the member and all else on it: seen, 2026-10-13, it took a
-  standing node. The tick does not help it, it is not asked how deep it
-  is. A native tick could look at the stack as well as the clock.
+* A function that calls itself is not ChrysaLisp, in a gopher or anywhere,
+  Chris: "that is ilegal (well very frou upon) in ChrysaLisp, we don't do
+  that." Nothing stops one being sent all the same. One that goes into
+  itself for ever runs its task out of stack long before its second is up,
+  and the node goes down with it: seen, 2026-10-13, it took a standing
+  node. The tick is not asked how deep it is. It belongs with the line
+  above, what a function may do is not fenced.
 * The tick is two calls of Lisp and one of the host each time round, 36ns
   on the M4. A function that looks at every byte of a block pays it for
   every byte, see Built. One native call, that gives way and knows when
