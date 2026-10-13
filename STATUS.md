@@ -4,6 +4,10 @@
 
 ------
 
+**Storage: the path map has a journal, a path that changes is a line added to a file and not the whole map written. The tree into five members, 123 s to 76 s. `check` has `early`.**
+
+`+store_journal_size` 0 turns it off. A first stage, to be judged.
+
 **Shaders read textures: `(deftexture name)`, `(texture name uv)`, on every back end. The Planets demo, Earth, Moon, Mars, Jupiter and Pluto, on the GPU or a strip by each node.**
 
 A texture goes beside the inputs: a pixmap to native code, `(shader-gui-texture canvas)` to the GPU, `(shader-strip-texture canvas)` of a shared canvas to the strips. Host `pair_create` and `tris_draw` take textures.

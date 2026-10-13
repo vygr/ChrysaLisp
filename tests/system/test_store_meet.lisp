@@ -261,7 +261,8 @@
 (assert-eq "a store just made has nothing to write" :nil (get :dirty sm_n3))
 (defq sm_d0 (store-digest sm_n3))
 (store-meet sm_n3 (store-since sm_n1) :t)
-(assert-true "taken in to be written later, it says there is something to write" (get :dirty sm_n3))
+(assert-true "taken in to be written later, it is in the journal, or with none it says there is something to write"
+	(if (def? :journal sm_n3) (not (get :dirty sm_n3)) (get :dirty sm_n3)))
 (assert-true "and is not as it was, to another that asks" (nql sm_d0 (store-digest sm_n3)))
 (assert-list-eq "it has the paths, written or not" (sm-paths sm_n1) (sm-paths sm_n3))
 (store-save sm_n3)

@@ -37,6 +37,7 @@
 ;	pins		the paths this member holds all of, a line each
 ;	pinned		what every member holds all of, as far as is known here
 ;	paths		the path map, a line an entry
+;	journal		the paths set since the map was last written, see below
 ;	blocks/xx/y	a block, its name in hex, xx the first two of it
 ;
 ; Nothing here calls itself, and nothing here knows of mail or of another
@@ -56,7 +57,11 @@
 (env-push)
 
 (defq +store_magic "CHRYSA_STORE 1" +store_object_magic "CHRYSA_OBJECT 1"
-	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10))
+	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10)
+	;how long the journal of the path map is at most, it is no more than
+	;a 64th of the volume. 0 and there is none, and every change of a
+	;path writes the whole map as it did
+	+store_journal_size 1048576)
 
 (enums +store_entry 0
 	(enum path hash bytes vv writer seen deleted copies))
@@ -201,6 +206,104 @@
 			(setq new :t))))
 	new)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the journal of the path map
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; The path map is written whole, and at 2,000 paths that is half a
+; megabyte, for a path set. So a path that is set here is not written with
+; the map: its entry is added to the end of a file, the journal, and the
+; map is as it was on the volume. When the store is opened the map is read
+; and then the journal, an entry at a time, and each that is later than
+; what the map has takes its place.
+;
+; The journal is a file of a set length, made once, and written where it
+; is: nothing of the volume but its own bytes changes when it is added
+; to. It begins with a line that is its count, a number. An entry is a
+; line of it: 8 hex digits, a space, and the line of the entry as the map
+; has it. The digits are the first of the SHA-256 of the count, a space
+; and that line, so a line that was half written when the power went, and
+; a line left from before the count was last changed, are not taken, and
+; the reading stops there.
+;
+; When the map is written whole, (store-save), for the journal is full or
+; for anything else, the count is one more and the journal is that one
+; line: all that was in it is in the map. If that is not reached, the map
+; written and the journal as it was, what is in the journal is no later
+; than the map, and none of it is taken.
+;
+; What is taken from another member, (store-meet), goes the same way: a
+; member that is told of the paths the others set would else write its
+; whole map for each telling.
+;
+; +store_journal_size is 0 and none of this is done. A store that has no
+; journal file is given one when it is opened; one that has is read
+; whether or not it is still written to.
+
+(defun store-journal-mark (count line)
+	(cat (slice (hex-encode (sha256 (cat (str count) " " line))) 0 8) " " line +store_lf))
+
+(defun store-journal-write (store at data)
+	;bytes of the journal, where they are on the volume
+	(defq vol (get :vol store) clusters (get :journal store) size (exfat-cluster-size vol) from 0)
+	(while (< from (length data))
+		(defq in (% at size) some (min (- (length data) from) (- size in)))
+		(exfat-write vol (+ (exfat-cluster-offset vol (elem-get clusters (/ at size))) in)
+			(slice data from (+ from some)))
+		(setq from (+ from some) at (+ at some))))
+
+(defun store-journal-reset (store)
+	;it has nothing in it, as it does when the map has just been written
+	(when (def? :journal store)
+		(def store :journal_count (inc (get :journal_count store)))
+		(defq head (cat (str (get :journal_count store)) +store_lf))
+		(store-journal-write store 0 head)
+		(def store :journal_at (length head))))
+
+(defun store-journal-add (store entries)
+	; (store-journal-add store entries) -> :nil | :t
+	;entries of the path map are on the volume, at the end of the journal,
+	;as the one write. :nil if there is no journal or no room in it for
+	;them all, and the map is to be written
+	(when (def? :journal store)
+		(defq count (get :journal_count store) at (get :journal_at store)
+			lines (apply (const cat) (cat (list "") (map (# (store-journal-mark count (store-entry-line %0))) entries))))
+		(when (<= (+ at (length lines)) (get :journal_size store))
+			(store-journal-write store at lines)
+			(exfat-sync (get :vol store))
+			(def store :journal_at (+ at (length lines)) :digest :nil)
+			:t)))
+
+(defun store-journal-open (store)
+	;the journal of a store that has just had its map read: what it has
+	;that is later than the map is taken, and it is added to from there.
+	;One that has none is given one. How many entries were taken
+	(defq vol (get :vol store) took 0
+		want (min +store_journal_size (>> (* (get :cluster_count vol) (exfat-cluster-size vol)) 6)))
+	(and (not (exfat-find vol "journal")) (> want 2)
+		(progn (exfat-begin vol)
+			(exfat-save vol "journal" (cat "0" +store_lf (exfat-zeros (- want 2))))
+			(exfat-end vol)))
+	(when (defq found (exfat-find vol "journal"))
+		(bind '(& & size start no_fat &rest _) found)
+		(defq text (exfat-data vol start size no_fat) end (ifn (find +store_lf text) 0)
+			count (str-as-num (cat "0" (slice text 0 end))) at (min size (inc end)) more :t)
+		(while (and more (< at size) (defq end (find +store_lf text at)))
+			(defq line (slice text (+ at 9) end))
+			(cond
+				((and (> (- end at) 9) (eql (slice text at (inc end)) (store-journal-mark count line))
+						(defq entry (store-entry-read line)))
+					(defq was (store-find store (first entry)))
+					(when (or (not was) (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv))))
+						(. (get :map store) :insert (first entry) entry)
+						(++ took))
+					(setq at (inc end)))
+				((setq more :nil))))
+		(when (> +store_journal_size 0)
+			(def store :journal (exfat-chain vol start size no_fat) :journal_size size
+				:journal_count count :journal_at at)))
+	took)
+
 (defun store-save (store)
 	; (store-save store) -> store
 	;the path map, the members and the pins, as they are now. Whatever
@@ -216,6 +319,8 @@
 	(exfat-save vol "retired" (store-text (get :retired store)))
 	(exfat-save vol "pins" (store-text (get :pins store)))
 	(exfat-save vol "pinned" (store-text (store-pinned-lines store)))
+	;all that the journal has is in the map now
+	(store-journal-reset store)
 	(exfat-end vol)
 	store)
 
@@ -275,6 +380,7 @@
 		(store-head-save store)
 		(exfat-mkdir vol "blocks")
 		(exfat-end vol)
+		(store-journal-open store)
 		(store-save store)
 		:t))
 
@@ -311,6 +417,7 @@
 			(if (defq entry (store-entry-read line))
 				(. (get :map store) :insert (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
+		(store-journal-open store)
 		(store-count store)
 		;the names of the blocks it has
 		(def store :held (Fset 1021) :manifests (Fmap 1021))
@@ -459,7 +566,9 @@
 				(ifn copies (if was (elem-get was +store_entry_copies) 0))))
 			(. (get :map store) :insert name entry)
 			(store-touch store name)
-			(store-save store)
+			;to the journal, or with no journal, or one that is full, the
+			;whole map
+			(unless (store-journal-add store (list entry)) (store-save store))
 			(list :ok entry))))
 
 (defun store-commit (store name names size &optional from)
@@ -695,7 +804,11 @@
 			(store-touch store name)
 			(push changed now)))
 		entries)
-	(if (nempty? changed) (if later (store-later store) (store-save store)))
+	;to the journal, as a path set here is. One of the same counts as the
+	;map has, more members known to have it and no more, is not taken
+	;when the journal is read: it is learnt again
+	(and (nempty? changed) (not (store-journal-add store changed))
+		(if later (store-later store) (store-save store)))
 	changed)
 
 (defun store-digest (store)
@@ -897,7 +1010,7 @@
 	store-commit store-put store-delete store-copies store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
-	store-entry-line store-entry-read
+	store-entry-line store-entry-read store-journal-write
 	+store_block_size +store_copies +store_entry_path +store_entry_hash +store_entry_bytes
 	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

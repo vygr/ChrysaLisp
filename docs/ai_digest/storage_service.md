@@ -1011,11 +1011,19 @@ was made to send the gopher and stop the member by itself.
 * How deep the stack is when a written stream is let go of is not
   measured. Its flush is Lisp, with all Lisp needs of the stack, and it is
   run wherever the last of the stream was dropped.
-* The whole path map is written to the volume at every change of it, a
-  path put, a note taken from another member. At 2,000 paths that is half
-  a megabyte a time, and it is most of what putting the tree costs: 107 s
-  into five members on one node. A journal, what changed added to the end
-  and the whole written now and then, is the answer, and is not begun.
+* The path map has a journal, its first stage, to be judged. The whole map
+  was written to the volume at every change of it, a path put, a note
+  taken from another member, half a megabyte a time at 2,000 paths. Now
+  an entry that changes is a line added to the end of a file, `journal`,
+  and the map is written whole when the journal is full, or for anything
+  else that writes it; a store that is opened reads the map and then the
+  journal. `lib/storage/store.inc` says how, at the journal. Putting the
+  tree, 2,001 files, on an M4: into one member 26 s before and 19 s with
+  it, into five members on one node, a file to each in turn, 123 s before
+  and 76 s with it. Each of the five wrote its whole map some 600 times,
+  16 s of each, before. `+store_journal_size` is 0 and there is none, as
+  it was. Not done: what a path is when it is small is still a manifest
+  and a block, two files of the volume, and 19 s for one member is that.
 * A service is one task. While it writes a block it answers nothing, and
   the app that shows it waits: 0.2 to 4 s for a look at five busy members.
 * `(file-stream path)` of a path that is in a store is still a file of the

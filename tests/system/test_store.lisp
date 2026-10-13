@@ -295,3 +295,51 @@
 (assert-eq "and what was there is" (so-bytes 20000 6) (store-get so_tiny "x"))
 (assert-true "the room its blocks took is had back by a sweep" (> (store-sweep so_tiny) 0))
 (assert-eq "one that fits, after" :ok (so-is (store-put so_tiny "z" (so-bytes 30000 8))))
+
+;;;;;;;;;;;;;
+; the journal
+;;;;;;;;;;;;;
+
+;a path that is set is a line at the end of the journal, and the map on
+;the volume is as it was. A store that is opened reads both
+(bind '(so_j so_j_stream) (so-new 0x400000 "journal" "aaaa" 4096))
+(assert-true "a store has a journal" (def? :journal so_j))
+(assert-true "a 64th of its volume, or a little less" (<= 0xf000 (get :journal_size so_j) 0x10000))
+(defq so_j_first (get :journal_at so_j))
+(store-put so_j "a" (so-bytes 5000 1))
+(store-put so_j "b c" (so-bytes 6000 2))
+(store-put so_j "a" (so-bytes 7000 3))
+(store-delete so_j "b c")
+(store-put so_j "d" (so-bytes 100 4))
+(assert-true "a path that is set is added to it" (> (get :journal_at so_j) so_j_first))
+(assert-eq "and the map on the volume has none of them" "" (exfat-load (get :vol so_j) "paths"))
+;not closed: opened again as it is on the volume
+(defq so_j2 (store-open so_j_stream "aaaa"))
+(assert-list-eq "opened, it has the paths, the last of each" '("a" "d") (so-paths so_j2))
+(assert-eq "what they are" (so-bytes 7000 3) (store-get so_j2 "a"))
+(assert-list-eq "and the one deleted, as deleted" '("a" "b c" "d") (so-paths so_j2 :nil :t))
+(assert-eq "it goes on from where the journal ended" (get :journal_at so_j) (get :journal_at so_j2))
+(store-put so_j2 "e" (so-bytes 100 5))
+(assert-list-eq "and what is added then is there the next time" '("a" "d" "e") (so-paths (store-open so_j_stream "aaaa")))
+;the map written whole: the journal is empty, and what was in it is not read again
+(store-save so_j2)
+(assert-eq "the map written, the journal is as it began but for its count" (length (cat (str (get :journal_count so_j2)) " ")) (get :journal_at so_j2))
+(assert-true "of one more" (> (get :journal_count so_j2) (get :journal_count so_j)))
+(assert-list-eq "and the store opens to the same" '("a" "d" "e") (so-paths (defq so_j3 (store-open so_j_stream "aaaa"))))
+;a line that was half written
+(store-put so_j3 "f" (so-bytes 100 6))
+(defq so_j_good (get :journal_at so_j3))
+(store-put so_j3 "g" (so-bytes 100 7))
+(store-journal-write so_j3 (+ so_j_good 20) "XXXX")
+(exfat-sync (get :vol so_j3))
+(assert-list-eq "a line of the journal that is not whole is not taken, nor what is after it" '("a" "d" "e" "f")
+	(so-paths (defq so_j4 (store-open so_j_stream "aaaa"))))
+(assert-eq "and it is added to from there" so_j_good (get :journal_at so_j4))
+;a journal that fills
+(defq so_j_count (get :journal_count so_j4))
+(each (# (store-put so_j4 "over and over" (so-bytes 50 (logand %0 3)))) (range 0 1000))
+(assert-true "a journal that is full, and the map is written and it begins again" (> (get :journal_count so_j4) so_j_count))
+(defq so_j5 (store-open so_j_stream "aaaa"))
+(assert-list-eq "nothing lost by it" '("a" "d" "e" "f" "over and over") (so-paths so_j5))
+(assert-eq "and the last that was set is what is had" (so-bytes 50 3) (store-get so_j5 "over and over"))
+
