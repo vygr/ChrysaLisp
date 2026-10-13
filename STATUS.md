@@ -4,6 +4,31 @@
 
 ------
 
+**A policy written down: a node need not be ChrysaLisp. `docs/ai_digest/alien_nodes.md`.**
+
+Chris: "We should create a policy doc with regards to 'alien' system and
+implamentations of ChrysaLisp. There is nothing in princple that stops a
+node being written in another languge or compiler. The link protocol is
+the main interop surface, services can be provided to the network from
+none Lisp system ... We would need to add a way for global apps, like
+netmon and raymarch, mandelbrot etc ir the Global task farms to keep
+task off none Lisp systems, but our policy is not Lisp only nodes !"
+
+The doc says the policy, what a node is to the network (a link, mail,
+the kernel's mailbox, services), what an alien node may leave out, what
+keeps tasks off one now, the system id, and what does not: a `pin` to a
+node by name, which is what the farms over the whole network do.
+
+Found for it: every one of those asks the one function, `(lisp-nodes)`
+in `class/lisp/root.inc`, the three task libraries and the network
+monitor. So the thing to build is one: a node says it runs Lisp tasks
+and `(lisp-nodes)` gives only those. Not built. How a node says it is
+his to decide, the doc gives two ways, a service name or a field in the
+ping.
+
+A doc only, nothing run. It lists what is not written down yet, the
+link protocol as a specification first.
+
 **The tokeniser is a function, `(tokenize-line)`, in a file of its own. A check of the source makes no highlighter.**
 
 Chris: "We should take the Syntax :tokenise method out of the main
