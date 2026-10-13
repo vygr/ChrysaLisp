@@ -97,7 +97,11 @@
 (defun pmap-get-hashslot (obj)
 	(obj-get obj 12 +type_uint))
 
-(defq pm_s0 (gensym) pm_s1 (gensym) pm_s2 (gensym))
+;symbols no other task has, not a (gensym): see tests/collections/test_psets.lisp.
+;Another task's G of the same number, bound in an environment between two
+;lines here, was the slot read back as 111, twice in thirty runs on the Pi
+(defq pm_mine (hex-encode (task-mbox))
+	pm_s0 (sym (cat "pm_s0_" pm_mine)) pm_s1 (sym (cat "pm_s1_" pm_mine)) pm_s2 (sym (cat "pm_s2_" pm_mine)))
 
 ; 1. pinsert proactive hashslot assignment for pmap (slot is entry index: 0, 1, 2...)
 (defq pm_test (pmap))
