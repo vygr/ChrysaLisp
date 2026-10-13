@@ -16,8 +16,11 @@
 ; So a frame is a few small messages, however big the meshes are.
 ;
 ; Nor does it carry the pictures a pixel shader reads from, its
-; textures. It names the file of each, and a child loads a file the
-; first time it is named, from the pictures its node keeps.
+; textures. Each is in shared memory, as the pixels of the frame are,
+; and is named by its key and its size, (shader-strip-texture). A child
+; finds it by them, the once. So there is the one copy of a picture on
+; the machine, however many nodes draw with it, Chris: "If we have
+; shared memory pixmaps, why do we need the texture on all children ?"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././task/jobs.inc")
@@ -35,10 +38,10 @@
 	(offset files))
 
 ;a draw, the number of the mesh, the rows of the frame it may be on, then
-;the inputs blocks of the two shaders, then the files of the textures of
-;the pixel shader, in the order it has them, a line each. A child whose
-;strip is none of those rows does nothing for it, it does not even place
-;its vertices
+;the inputs blocks of the two shaders, then the textures of the pixel
+;shader, in the order it has them, a line each, its key, its width and
+;its height. A child whose strip is none of those rows does nothing for
+;it, it does not even place its vertices
 (structure +strip_draw 0
 	(long mesh)
 	(uint vblock_length pblock_length y y1 tfiles_length)
@@ -61,8 +64,9 @@
 	;pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
 	;tfiles]), the number of a mesh, the blocks of (shader-pack) for the
 	;two shaders, the rows of the frame the mesh may be on, if the app
-	;knows, all of them if not, and a list of the files of the textures
-	;of the pixel shader, if it has any, in the order it has them.
+	;knows, all of them if not, and a list of the textures of the pixel
+	;shader, if it has any, in the order it has them, each of
+	;(shader-strip-texture).
 	(apply (const cat) (cat (list (setf-> (str-alloc +strip_size)
 			(+strip_ask ask) (+strip_shared shared)
 			(+strip_width width) (+strip_height height) (+strip_y y) (+strip_y1 y1)
@@ -78,6 +82,14 @@
 				(+strip_draw_y (max 0 (ifn dy 0)))
 				(+strip_draw_y1 (max 0 (ifn dy1 height)))
 				(+strip_draw_tfiles_length (length tfiles))) vblock pblock tfiles)) draws))))
+
+(defun shader-strip-texture (canvas)
+	; (shader-strip-texture canvas) -> :nil | str
+	;a picture as a strip names it, for a canvas whose pixels are in
+	;shared memory, (canvas-shared). :nil if they are not, the children
+	;of a farm can not reach them
+	(and (defq pixmap (getf canvas +canvas_pixmap 0)) (/= (defq key (pixmap-key pixmap)) 0)
+		(str key " " (getf pixmap +pixmap_width 0) " " (getf pixmap +pixmap_height 0))))
 
 (defun shader-mesh-send (msg verts)
 	; (shader-mesh-send msg verts)

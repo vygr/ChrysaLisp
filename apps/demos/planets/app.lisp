@@ -92,9 +92,20 @@
 
 (defun globe-map (i)
 	; (globe-map i) -> canvas
-	;the map of a globe, loaded the first time it is wanted
+	;the map of a globe, loaded the first time it is wanted. Its pixels
+	;are put in shared memory if the host has it, so the nodes that draw a
+	;strip each all read the one copy of it
 	(unless (elem-get maps i)
-		(elem-set maps i (canvas-load (cat *app_root* "data/" (second (elem-get +planets i))) 0)))
+		(defq canvas (canvas-load (cat *app_root* "data/" (second (elem-get +planets i))) +load_flag_noswap)
+			pixmap (getf canvas +canvas_pixmap 0)
+			shared (canvas-shared (getf pixmap +pixmap_width 0) (getf pixmap +pixmap_height 0) 1))
+		(when shared
+			(defq stream (memory-stream))
+			(pixmap-write pixmap stream 32)
+			(stream-seek stream 0 0)
+			(pixmap-read (getf shared +canvas_pixmap 0) stream 32)
+			(setq canvas shared))
+		(elem-set maps i (. canvas :swap +swap_write)))
 	(elem-get maps i))
 
 (defun globe-model ()
@@ -131,7 +142,7 @@
 	;ready
 	(defq count (. farm :size)
 		draws (list (list 0 (shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun)))
-			0 +size (list (cat *app_root* "data/" (second (elem-get +planets which)))))))
+			0 +size (list (ifn (shader-strip-texture (globe-map which)) "")))))
 	(. farm :add (map (lambda (i)
 			(shader-strip (cat *app_root* "globe_vertex.shader") (cat *app_root* "globe_lit.shader")
 				(elem-get select +select_farm_ask) (canvas-key *canvas*) +size +size
@@ -143,7 +154,8 @@
 	;a frame by the nodes of this machine, a strip each. :nil if it is to
 	;be drawn here: the pixels are not shared, there is only this node,
 	;or the children are not yet ready
-	(when (and (not no_farm) (/= (canvas-key *canvas*) 0) (> (length (lisp-nodes :t)) 1))
+	(when (and (not no_farm) (/= (canvas-key *canvas*) 0) (/= (canvas-key (globe-map which)) 0)
+			(> (length (lisp-nodes :t)) 1))
 		(cond
 			((not farm)
 				;a child for each node but this one, and none of them on

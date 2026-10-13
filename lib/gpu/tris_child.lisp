@@ -1,7 +1,7 @@
 ;the child of lib/gpu/tris.inc, it draws strips of a frame of triangles
 ;with a vertex shader and a pixel shader, as native code
 
-(import "gui/lisp.inc")
+(import "gui/pixmap/lisp.inc")
 (import "./vp.inc")
 (import "./tris.inc")
 
@@ -16,18 +16,18 @@
 ;mesh of that many vertices, which are just the vertices in order
 (defq meshes (Fmap 31) orders (Fmap 11))
 
-;the pictures it has been named, by their files, a canvas each, kept for
-;as long as the child is. One that could not be loaded is kept as that
+;the pictures it has been named, each by what it was named as, kept for
+;as long as the child is. One that could not be found is kept as that
 (defq pictures (Fmap 11))
 
-(defun picture (file)
-	;the pixmap of a picture, loaded the first time it is named. It is
-	;not made a texture of, this node may have no GUI, and it is one the
-	;node keeps, so the children of a node share the one copy
-	(unless (defq canvas (. pictures :find file))
-		(. pictures :insert file (setq canvas
-			(ifn (canvas-load file (const (+ +load_flag_shared +load_flag_noswap))) :none))))
-	(if (nql canvas :none) (getf canvas +canvas_pixmap 0)))
+(defun picture (named)
+	;the pixmap of a picture, found the first time it is named. It is in
+	;shared memory, named by its key, its width and its height, and it
+	;is the app's, there is the one copy of it on the machine
+	(unless (defq pixmap (. pictures :find named))
+		(bind '(key w h) (map (const str-as-num) (split named " ")))
+		(. pictures :insert named (setq pixmap (ifn (and (/= key 0) (pixmap-shared w h key)) :none))))
+	(if (nql pixmap :none) pixmap))
 
 ;the pixels of the app's canvas, in shared memory, and the key they were
 ;found by
@@ -85,10 +85,10 @@
 			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 attrs)) pixmap depth
 				(shader-unpack vertex (slice msg blocks (+ blocks vlen)))
 				;the inputs of the pixel shader, and each of its textures
-				;under its name, the picture of the file named for it. One
-				;with no file, or whose file is not there, is no picture
+				;under its name, the picture it was named as. One that is
+				;not named, or can not be found, is no picture
 				(cat (shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))
-					(map (lambda ((name) file) (list name (picture file)))
+					(map (lambda ((name) named) (list name (picture named)))
 						(shader-textures pixel)
 						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) (ascii-char 10))))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
