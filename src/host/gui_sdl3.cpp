@@ -100,6 +100,7 @@ struct Texture
 	// finished it, and when it was handed over
 	SDL_GPUFence *fence;
 	Uint64 drawn_at;
+	uint64_t made_at;
 	// what triangles drawn into this texture need of their own, made the first
 	// time they are, a depth buffer, and a target with 4 samples a pixel if the
 	// device has that. Each texture has its own, so two of different sizes do
@@ -128,6 +129,12 @@ static void gpu_forget(Texture *tex)
 	}
 }
 
+// how many frames of the GUI have been shown. The pixels of a texture the
+// renderer makes go to the GPU with the frame that is shown next, not when
+// it is made, so till that has gone a shader that reads it would read
+// what was in the memory before
+static uint64_t gui_presents = 0;
+
 static void *new_texture(SDL_Texture *t, uint64_t mode)
 {
 	if (!t) return nullptr;
@@ -136,6 +143,7 @@ static void *new_texture(SDL_Texture *t, uint64_t mode)
 	texture->mode = mode;
 	texture->fence = nullptr;
 	texture->drawn_at = 0;
+	texture->made_at = gui_presents;
 	texture->depth = nullptr;
 	texture->samples = nullptr;
 	texture->depth_w = texture->depth_h = 0;
@@ -363,6 +371,7 @@ void host_gui_flush(const host_gui_rect *rect)
 	SDL_RenderTexture(renderer, backbuffer, 0, 0);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderPresent(renderer);
+	++gui_presents;
 }
 
 static SDL_FRect frect(const host_gui_rect *rect)
@@ -830,6 +839,14 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		if (d->pair && SDL_GetAtomicInt(&d->pair->state) == shader_ready && d->pair->mesh)
 		{
 			if (at + 8 * (uint64_t)d->pair->num_textures > end) { result = (uint64_t)-1; break; }
+			// one whose pixels have not gone to the GPU yet, and the frame is
+			// not drawn, the caller tries again later
+			for (int j = 0; j < d->pair->num_textures; ++j)
+			{
+				Texture *picture;
+				SDL_memcpy(&picture, at + 8 * j, 8);
+				if (picture && picture->made_at == gui_presents) result = 0;
+			}
 			at += 8 * (uint64_t)d->pair->num_textures;
 		}
 		// every pair of the frame has to be built before any of it is drawn

@@ -32,8 +32,6 @@
 	sun (reals (n2r -0.4) (n2r 0.4) (n2r 0.8246))
 	lens (Mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
 	select :nil id :t which 0 turn +real_0
-	;the maps, a canvas each, loaded when first wanted
-	maps (map (lambda (_) :nil) +planets)
 	;on the GPU, the pair of shaders, the ball, and has a frame been drawn
 	gpu_pair :nil gpu_mesh :nil gpu_drawn :nil gpu_want :t
 	;on this node, the same two shaders as native code
@@ -47,6 +45,11 @@
 	;a child with nothing to do for 5 seconds goes. When the farm was last
 	;given a frame, and how long after that it is not to be counted on
 	last_farm 0 +farm_stale 3000000)
+
+;the maps, a canvas each, loaded when first wanted. Not in the (defq) of
+;+planets: there the name is not yet a constant, and its value is the
+;quoted list, of two things, not the list of globes
+(defq maps (map (lambda (_) :nil) +planets))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
@@ -135,8 +138,10 @@
 				(. *mode* :set_selected 0)
 				:nil)
 			(drawn (setq gpu_drawn :t))
-			;the GPU is busy with the last frame, this one is let go
-			(gpu_drawn :t))))
+			;the GPU is busy with the last frame, or has not got the map
+			;yet, which goes to it with the next frame of the GUI, so the
+			;GUI is given a reason to draw one. This frame is let go
+			(gpu_drawn (. *status* :dirty) :t))))
 
 (defun strips (vvals rows)
 	;a job for each child, a strip of the frame, or with no rows a job of
@@ -220,7 +225,7 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_planet)
-						(setq which (. *planet* :get_selected)))
+						(if (defq chosen (. *planet* :get_selected)) (setq which chosen)))
 					((= id +event_mode)
 						(setq gpu_want (= (. *mode* :get_selected) 1) gpu_drawn :nil)
 						;a frame that is out with the farm is not waited for. The
