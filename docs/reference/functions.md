@@ -780,6 +780,17 @@ whole part of the power by squaring, the rest by repeated roots
 that much of a 32 bit argb pixel, a share of 0 to 256
 ```
 
+### cpu-texture
+
+```code
+the color of a picture at a place. tex is (width height pixels), of
+
+(shader-texture). The place is 0 to 1 across and 0 to 1 down, from
+the top left, and goes round again outside that. It is the one pixel
+the place is in, no pixel is mixed with the next. One with no width
+is no picture, and is nothing
+```
+
 ### cpu-zero
 
 ```code
@@ -3327,6 +3338,12 @@ a name is given a trailing _ so it can not be a word of MSL, half say
 the members that are inputs, from the block
 ```
 
+### msl-set-textures
+
+```code
+the members that are textures, from the parameters
+```
+
 ### msl-struct
 
 ```code
@@ -3334,6 +3351,15 @@ the shader as a struct. The inputs, the globals, the attrs and the
 
 varyings are members, the constants are members with a value, and the
 functions are methods
+```
+
+### msl-texture-params
+
+```code
+the textures of a pixel shader as they come to its fragment function,
+
+each a texture and a sampler at the same number, -> text to go after
+the other parameters
 ```
 
 ### must-break?
@@ -4851,11 +4877,12 @@ and globals are :lazy. (shader-full) reads the rest when it is wanted.
 ```code
 (shader-cpu program) -> lambda
 
-(lambda x y x1 y1 input ... varying ...) -> (vec4 ...)
+(lambda x y x1 y1 input ... varying ... texture ...) -> (vec4 ...)
 the lambda shades the pixels of the tile, row by row, the
 centre of pixel x y is at frag coord x + 0.5, y + 0.5. A pixel
 shader with varyings is given a value for each, after the inputs,
-and every pixel of the tile has those.
+and every pixel of the tile has those. And then each of its
+textures, as (shader-texture) gives one.
 ```
 
 ### shader-cpu-args
@@ -4864,7 +4891,10 @@ and every pixel of the tile has those.
 (shader-cpu-args program [((name val) ...)]) -> (val ...)
 
 the input args for the lambda, defaults for those not given, then a
-value for each varying of a pixel shader, 0 for those not given
+value for each varying of a pixel shader, 0 for those not given, then
+each texture of it, the pixmap given under its name as
+(shader-texture) has it, or as it is if that is how it was given, and
+no picture at all for one not given
 ```
 
 ### shader-cpu-func
@@ -4977,9 +5007,11 @@ The driver builds it in its own time, till then :shade draws nothing.
 (shader-gui-frame canvas draws) -> :nil | :error | canvas
 
 a frame of triangles drawn by the GPU into the texture of a canvas,
-with a depth buffer. draws is a list of (pair mesh vblock pblock), a
-pair, a mesh, and the blocks of (shader-pack) for the two shaders of
-the pair. :nil is the GPU still busy with the last frame, or the
+with a depth buffer. draws is a list of (pair mesh vblock pblock
+[textures]), a pair, a mesh, the blocks of (shader-pack) for the two
+shaders of the pair, and a list of the textures of its pixel shader,
+in the order it has them, each of (shader-gui-texture), as many as it
+has. :nil is the GPU still busy with the last frame, or the
 driver still building a pair, nothing was drawn, try again. :error is
 a pair the driver could not build.
 ```
@@ -5005,6 +5037,7 @@ into a canvas with, (shader-gui-frame). :nil if this host can not.
 With cull a triangle that faces away is left out, :front those that
 face us. The driver builds it in its own time. It is let go of with
 (canvas-shader-destroy).
+and after the attrs, how many textures the pixel shader has
 ```
 
 ### shader-gui-pair-text
@@ -5014,6 +5047,17 @@ face us. The driver builds it in its own time. It is let go of with
 
 the two stages of a pair, kept, both made if either is not there.
 The fragment stage is written last, so if it is there both are
+```
+
+### shader-gui-texture
+
+```code
+(shader-gui-texture canvas) -> :nil | texture
+
+the picture of a canvas as the GPU has it, to give a pair whose pixel
+shader has a texture, (shader-gui-frame). The canvas must have been
+shown, (. canvas :swap), and is to be kept for as long as it is drawn
+with. :nil if it has none
 ```
 
 ### shader-kept-text
@@ -5209,10 +5253,39 @@ entry point is vertex_main.
 
 the job for rows y to y1 of a frame of that width and height. ask
 is the mailbox a child asks for a mesh at, shared the key of the
-pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1]),
-the number of a mesh, the blocks of (shader-pack) for the two
-shaders, and the rows of the frame the mesh may be on, if the app
-knows, all of them if not.
+pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
+tfiles]), the number of a mesh, the blocks of (shader-pack) for the
+two shaders, the rows of the frame the mesh may be on, if the app
+knows, all of them if not, and a list of the textures of the pixel
+shader, if it has any, in the order it has them, each of
+(shader-strip-texture).
+```
+
+### shader-strip-texture
+
+```code
+(shader-strip-texture canvas) -> :nil | str
+
+a picture as a strip names it, for a canvas whose pixels are in
+shared memory, (canvas-shared). :nil if they are not, the children
+of a farm can not reach them
+```
+
+### shader-texture
+
+```code
+(shader-texture pixmap) -> (width height pixels)
+
+a picture as the Lisp back end reads one, its pixels a str, row by
+row, the top row first, each a 32 bit argb as the pixmap has them
+```
+
+### shader-textures
+
+```code
+(shader-textures program) -> ((name) ...)
+
+the pictures a pixel shader reads from, in the order it has them
 ```
 
 ### shader-tile
@@ -5570,6 +5643,22 @@ and the constants and the globals are set
 
 ```code
 the words of a string, it ends with a zero byte
+```
+
+### spv-tex-type
+
+```code
+the id of the type of a picture that is read with a place, a 2D image
+
+of floats and how it is read, as the one thing
+```
+
+### spv-texture
+
+```code
+a picture of a pixel shader, a variable of the module, at set 2, at
+
+the binding that is its number, as SDL's GPU interface wants it
 ```
 
 ### spv-type
@@ -6629,6 +6718,34 @@ save the live registers, all of them or those of a list
 
 ```code
 a float goes with every component of a vector
+```
+
+### sv-tex-coord
+
+```code
+a place of 0 to 1 that goes round again, in a float register, as
+
+which pixel of that many it is, to a new int register. limit is
+where in the frame the many is. The float register is used up
+```
+
+### sv-tex-slots
+
+```code
+room in the frame for the textures of a pixel shader, after its
+
+inputs: for each where its pixels are, how wide and how high it is,
+and how many bytes a row of it is, 8 bytes each. -> where each begins
+```
+
+### sv-texture
+
+```code
+the color of a picture at a place, four new float registers. at is
+
+where in the frame the picture is said, uv the two registers of the
+place, which are used up. The one pixel the place is in. A picture
+of no width is none, and is nothing
 ```
 
 ### sv-var

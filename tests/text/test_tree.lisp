@@ -136,6 +136,11 @@
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")
 	(tt-check "held" "(when (create-stdio) (print 1))" "(when (defq stdio (create-stdio)) (print 1))"
 		"(when (and (defq stdio (create-stdio)) (defq args 1)) 1)" "(if (and x (create-stdio)) 1)"))
+(assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
+	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
+		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")
+	(tt-check "early" "(defq +tt ''((1) (2) (3)) m (map (lambda (x) :nil) +tt)" "	f (lambda () (length +tt)))"
+		"(defq +ok ''((1) (2)) n 5)" "(defq m2 (length +ok) +num 5 k (* +num 2))"))
 (assert-list-eq "args: a (# ) with no %0 given to what calls it with something; not one with a %0, nor a lambda, nor one with a part put in, nor (each!) of no sequences; the :each of a map too"
 	'("(1) args: a (# ) with no %0 in it takes nothing, and (map) calls it with something, (lambda (x) ...)"
 		"(2) args: a (# ) with no %0 in it takes nothing, and (. :each) calls it with something, (lambda (x) ...)"

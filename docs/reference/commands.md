@@ -92,6 +92,9 @@ Usage: check [options] [path] ...
     const   a + constant given a list of strings or numbers
             quoted once: it is run as a form where the
             constant is used, and is no form.
+    early   a + constant that is a quoted list, used in the
+            (defq) that makes it: there it is not yet a
+            constant, and is the quote and the list, two things.
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),

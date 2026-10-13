@@ -39,6 +39,9 @@
     const   a + constant given a list of strings or numbers
             quoted once: it is run as a form where the
             constant is used, and is no form.
+    early   a + constant that is a quoted list, used in the
+            (defq) that makes it: there it is not yet a
+            constant, and is the quote and the list, two things.
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),
@@ -77,7 +80,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -161,6 +164,32 @@
 				(find (first (first in)) '(:string1 :string2 :number))
 			(found file name "const" (third name) " is a list quoted once, ''(...)")))
 		kids (rest kids) (rest (rest kids))))
+
+(defun check-early (file kids)
+	;in a (defq), a + name, a quote or two, and a list, then that name in
+	;what is after it in the same (defq). The name is made a constant by
+	;the (defq), so till that is done it is looked for as a variable is,
+	;and what is found is (quote (...))
+	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
+	(each (lambda (name)
+		(defq at (inc (!)))
+		(when (and (eql (first name) :symbol) (starts-with "+" (third name)) (< at (length kids))
+				(eql (first (defq quote (elem-get kids at))) :symbol)
+				(= (bskip +char_class_quote (third quote) 0) (length (third quote))))
+			;past the quotes, to the list
+			(while (and (< at (length kids)) (eql (first (defq lst (elem-get kids at))) :symbol)
+					(= (bskip +char_class_quote (third lst) 0) (length (third lst))))
+				(++ at))
+			(when (and (< at (length kids)) (eql (first (elem-get kids at)) :form))
+				(defq todo (list (slice kids (inc at) -1)))
+				(while (defq nodes (pop todo))
+					(each (lambda (node)
+						(cond
+							((eql (first node) :form) (push todo (third node)))
+							((and (eql (first node) :symbol) (eql (third node) (third name)))
+								(found file node "early" (third name) " is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"))))
+						nodes)))))
+		kids))
 
 (defun check-style (file node forms head)
 	;an (ifn) has the test of an (if) the other way about, and a (condn)
@@ -407,6 +436,7 @@
 							(if (find "class" checks) (check-class file forms head))
 							(if (find "shadow" checks) (check-shadow file forms head))
 							(and (find "const" checks) (eql head "defq") (check-const file kids))
+							(and (find "early" checks) (eql head "defq") (check-early file kids))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
