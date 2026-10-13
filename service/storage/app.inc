@@ -386,8 +386,7 @@
 (defun storage-start (image &rest opts)
 	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
 	;	:group str :member str :tick us :grace us :copies num :node node]) -> :nil | netid
-	;the service is started on that node, or one of this machine that the
-	;kernel picks, the least busy, to keep the store that is in
+	;the service is started on this node, or that one, to keep the store that is in
 	;that file of the host. If there is none there and a size is given,
 	;one is made of that many bytes, the store id, and this system its
 	;member. :nil if there is no store and none could be made. What is
@@ -405,12 +404,12 @@
 	(cond
 		((storage-service name))
 		(:t (defq said (mail-mbox) node (. opts :find :node)
-				;not on this node because it is asked here: a member reads,
-				;checks and sends blocks for as long as there is work, and
-				;asked from a Terminal it was on the node that draws the
-				;desktop, which stood still while a gopher went to and fro
+				;on this node unless another is said. It was let go to a node
+				;the kernel picks, for a day: a service on another node is
+				;known here only when its name has come by a ping, a second or
+				;more, and now and then longer than is waited for below
 				task (if node (open-remote "service/storage/app.lisp" node +kn_call_pin)
-					(open-child "service/storage/app.lisp" +kn_call_run)))
+					(open-child "service/storage/app.lisp" +kn_call_pin)))
 			(when (/= 0 (get-long task 0))
 				(defq lines (list (cat "ready " (hex-encode said)) (cat "image " image) (cat "name " name)))
 				(each (lambda (key)
