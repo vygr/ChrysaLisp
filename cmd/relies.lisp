@@ -13,6 +13,12 @@
             what is called.
         -q --quiet: every place and no more, nothing if
             there is none. For lint.
+        -s --saves: the other way round: where a register is
+            put by before a call and brought back after it,
+            pushed and popped, or written to the stack and
+            read back, and the call is not declared to trash
+            it. Such a save was needed when what is called
+            trashed more, and is for nothing now.
 
     Where a function goes by more than is declared of what it
     calls: a register it reads after a call that is declared
@@ -49,6 +55,7 @@
     With no function named, all there are.")
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 (("-q" "--quiet") ,(opt-flag 'opt_q))
+(("-s" "--saves") ,(opt-flag 'opt_s))
 ))
 
 (defq +regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
@@ -283,11 +290,68 @@
 			flows)
 		found))
 
+;how far each way from a call a save and its bringing back are looked for
+(defq +saves_near 8)
+
+(defun saves-of (function methods)
+	; (saves-of function methods) -> :nil | ((at name regs reader) ...)
+	;where a function puts a register by before a call and brings it
+	;back after, and need not: the call is not declared to trash it or
+	;to give it, and nothing between the two writes it. Pushed and
+	;popped, or written to a place on the stack and read back from it.
+	;reader is where it is brought back. What is between the save and
+	;the call, and the call and the bringing back, has to be plain: a
+	;label, a branch or another call ends the looking
+	(when (defq got (insts-of function))
+		(bind '(insts labels start frames all) got)
+		(defq found (list) count (length insts)
+			plain (lambda (inst) (not (or (find (first inst) +call_ops) (find (first inst) +leave_ops)
+				(find (first inst) '(emit-label emit-tlabel emit-jmp emit-alloc emit-free))
+				(starts-with "emit-b" (first inst))))))
+		(each (lambda (inst)
+			(when (and (find (first inst) '(emit-call-p emit-call-i))
+					(defq called (called-of inst all labels methods)))
+				(bind '(name trashes takes gives) called)
+				(defq at (!) changed (logior trashes gives) before (list) after (list) i at going :t)
+				;back to what was put by, and all that is written on the way
+				(while (and going (>= (setq i (dec i)) 0) (> i (- at +saves_near)))
+					(defq was (elem-get insts i))
+					(cond
+						((not (plain was)) (setq going :nil))
+						((eql (first was) 'emit-pop) (setq going :nil))
+						((eql (first was) 'emit-push) (push before (list :push i (bits-of (rest was)) 0)) (setq going :nil))
+						((and (eql (first was) 'emit-cpy-ri) (eql (third was) :rsp))
+							(push before (list :slot i (bit-of (second was)) (elem-get was 3))))
+						((setq changed (logior changed (second (flow-of was)))))))
+				(setq i at going :t)
+				(defq changed_after changed)
+				(while (and going (< (setq i (inc i)) count) (< i (+ at +saves_near)))
+					(defq was (elem-get insts i))
+					(cond
+						((not (plain was)) (setq going :nil))
+						((eql (first was) 'emit-push) (setq going :nil))
+						((eql (first was) 'emit-pop) (push after (list :push i (bits-of (rest was)) 0)) (setq going :nil))
+						((and (eql (first was) 'emit-cpy-ir) (eql (second was) :rsp))
+							(push after (list :slot i (bit-of (elem-get was 3)) (third was) changed_after))
+							(setq changed_after (logior changed_after (bit-of (elem-get was 3)))))
+						((setq changed_after (logior changed_after (second (flow-of was)))))))
+				;a push with its pop, a place written with the same place read
+				;back into the register it was written from
+				(each (lambda ((kind i regs slot))
+					(each (lambda ((kind2 j regs2 slot2 &optional seen))
+						(when (and (eql kind kind2) (= slot slot2))
+							(defq idle (logand regs regs2 (lognot (if (eql kind :push) changed_after seen))))
+							(if (/= idle 0) (push found (list (+ at start) name idle (+ j start))))))
+						after))
+					before)))
+			insts)
+		found))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_v :nil opt_q :nil args (options stdio usage)))
+			(defq opt_v :nil opt_q :nil opt_s :nil args (options stdio usage)))
 		(defq functions (rest args))
 		(if (empty? functions)
 			(setq functions (filter (# (not (starts-with +jit_dir %0)))
@@ -299,12 +363,13 @@
 			(:t (defq methods (methods-of class_db) by_called (Fmap 101) places 0 callers 0)
 				(each (lambda (function)
 					(task-slice)
-					(when (nempty? (defq found (ifn (relies-of function methods) (list))))
+					(when (nempty? (defq found (ifn (if opt_s (saves-of function methods) (relies-of function methods)) (list))))
 						(++ callers)
 						(each (lambda ((at name bad reader))
 							(++ places)
-							(if (or opt_v opt_q) (print function " (" at "): after " name ", " (join (map (const str) (regs-in bad)) " ")
-								(if reader (cat ", read at " (str reader)) ", wanted where it ends")))
+							(if (or opt_v opt_q) (print function " (" at "): " (if opt_s "round " "after ") name ", " (join (map (const str) (regs-in bad)) " ")
+								(cond (opt_s (cat ", put by and brought back at " (str reader) " for nothing"))
+									(reader (cat ", read at " (str reader))) (", wanted where it ends"))))
 							(defq entry (. by_called :find name))
 							(unless entry (. by_called :insert name (setq entry (list 0 0 (list)))))
 							(elem-set entry 0 (inc (first entry)))
@@ -319,5 +384,6 @@
 					(print "      by " (join (slice who 0 (min 6 (length who))) ", ")
 						(if (> (length who) 6) (cat " and " (str (- (length who) 6)) " more") "")))
 					(sort rows (# (- (second %1) (second %0)))))
-				(unless opt_q (print "Functions: " (length functions) ". Places a register is read after a call declared to trash it: "
+				(unless opt_q (print "Functions: " (length functions) (if opt_s ". Places a register is put by round a call that leaves it: "
+						". Places a register is read after a call declared to trash it: ")
 					places ", in " callers " functions, of " (length rows) " things called."))))))

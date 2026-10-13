@@ -201,9 +201,10 @@
 
 	;fill bit pool with data
 	(loop-while `(,num_bits > ,bit_pool_size))
-		(vp-push num_bits bit_pool bit_pool_size)
+		;to read a char leaves the size of the pool
+		(vp-push num_bits bit_pool)
 		(call :stream :read_char (list this) (list this data))
-		(vp-pop num_bits bit_pool bit_pool_size)
+		(vp-pop num_bits bit_pool)
 		(gotoif (list data '= -1) 'eof)
 		(vp-shl-rr bit_pool_size data)
 		(vp-add-cr 8 bit_pool_size)
@@ -252,9 +253,10 @@
 
 	;flush bit pool to stream
 	(loop-while `(,bit_pool_size >= ,8))
-		(vp-push bit_pool bit_pool_size)
+		;to write a char leaves the size of the pool
+		(vp-push bit_pool)
 		(call :stream :write_char (list this bit_pool) (list this))
-		(vp-pop bit_pool bit_pool_size)
+		(vp-pop bit_pool)
 		(vp-shr-cr 8 bit_pool)
 		(vp-sub-cr 8 bit_pool_size)
 	(loop-end)

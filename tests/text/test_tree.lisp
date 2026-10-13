@@ -153,6 +153,24 @@
 			(found? (join tt_said "") "The classes could not be read"))
 		"said" (cat "not said: " (join tt_said " | "))))
 (pii-remove tt_probe)
+;(relies -s), the other way round: a register put by round a call that
+;leaves it. A function made up that pushes :r1 and :r3 round :sys_mem
+;:alloc, which trashes :r0 to :r2 and gives :r0 and :r1: :r3 is put by
+;for nothing, :r1 is not
+(defq tt_probe "obj/vp/tests/scratch_saves_probe")
+(save (cat "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
+	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-push :r1 :r3)" tt_lf
+	"(emit-call-p _7)" tt_lf "(emit-pop :r1 :r3)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf "(emit-ret)" tt_lf
+	"(emit-label '_6)" tt_lf "(emit-label '_7)" tt_lf "(emit-long (- _8 *pc*))" tt_lf
+	"(emit-label '_8)" tt_lf "(emit-string \qsys/mem/alloc\q)" tt_lf "(emit-byte 0)" tt_lf "(emit-label '_9))" tt_lf) tt_probe)
+(defq tt_said (list))
+(pipe-run "relies -s -q tests/scratch_saves_probe" (# (push tt_said %0)))
+(assert-eq "relies -s: a register pushed round a call that leaves it is said, and not one the call gives"
+	"said"
+	(if (or (and (found? (join tt_said "") "round sys/mem/alloc, :r3, put by") (not (found? (join tt_said "") ":r1")))
+			(found? (join tt_said "") "The classes could not be read"))
+		"said" (cat "not said: " (join tt_said " | "))))
+(pii-remove tt_probe)
 (assert-list-eq "bracket: more opened than closed, and more closed than opened; not one in a str or a comment"
 	'("(1) bracket: 1 not closed by the end of the file")
 	(tt-check "bracket" "(defq a (list 1 2)" "{a ) str} ;a ) comment"))

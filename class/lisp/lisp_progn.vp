@@ -448,9 +448,8 @@
 	(goto 'derefed1)
 
 (vp-label 'last_ref2)
-	(vp-push iter_end)
+	;a deref leaves iter_end, it is above what that trashes
 	(call :obj :deref `(,value))
-	(vp-pop iter_end)
 	(lisp-this this)
 	(goto 'derefed2)
 

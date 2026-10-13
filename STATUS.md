@@ -4,6 +4,8 @@
 
 ------
 
+**`relies -s`: where a register is saved round a call that leaves it. Seven such saves taken out, three of them in the evaluator.**
+
 **Storage, from its first runs over three machines: a member starts on a node the kernel picks, the app says less, the Tree test names what it could not put.**
 
 **Storage: every member knows what each has pinned, so a gopher goes straight to a member that holds the whole object.**

@@ -343,9 +343,8 @@
 			;remove from timeout list
 			(vp-cpy-rr :r5 :r0)
 			(ln-remove-node :r5 :r4)
-			(vp-push :r7 :r9 :r10 :r11 :r12)
+			;the free leaves all that is held here, it trashes :r0 to :r3
 			(call :sys_mail :free '(:r0))
-			(vp-pop :r7 :r9 :r10 :r11 :r12)
 		(loop-end)
 	(else)
 		;calculate wake time

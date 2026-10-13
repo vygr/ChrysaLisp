@@ -81,10 +81,11 @@
 	(vp-ret)
 
 (vp-label 'last_ref)
-	;the last ref of a key or value, so a call, and all is trashed
-	(vp-push this env parent iter_begin iter_end)
+	;the last ref of a key or value, so a call: it trashes :r0 to :r2,
+	;and what is held above them is left
+	(vp-push this env parent)
 	(call :obj :deref `(,value))
-	(vp-pop this env parent iter_begin iter_end)
+	(vp-pop this env parent)
 	(goto 'derefed)
 
 (vp-label 'slow)

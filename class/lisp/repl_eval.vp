@@ -104,10 +104,10 @@
 	(defq slow (sym (cat "drop_slow_" (str n))) last (sym (cat "drop_last_" (str n)))
 		next (sym (cat "drop_next_" (str n))) done (sym (cat "drop_done_" (str n))))
 (vp-label last)
-	;the last ref of a value, so a call, and all is trashed
-	(vp-push :r0 :r2 :r3)
+	;the last ref of a value, so a call: it trashes :r0 to :r2
+	(vp-push :r0 :r2)
 	(call :obj :deref '(:r1))
-	(vp-pop :r0 :r2 :r3)
+	(vp-pop :r0 :r2)
 	(goto next)
 (vp-label slow)
 	(call :obj :deref '(:r0))

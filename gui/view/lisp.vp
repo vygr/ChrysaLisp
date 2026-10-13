@@ -277,10 +277,11 @@
 
 	(defq in (method-input :region :translate))
 	(list-bind-args :r1 in '(:view & :num :num))
-	(vp-push :r0 (first in))
+	;the translate leaves the lisp object where it is
+	(vp-push (first in))
 	(vp-lea-i (first in) +view_dirty_region (first in))
 	(call :region :translate in)
-	(vp-pop :r0 :r1)
+	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 
 	(exit :view :lisp_trans_dirty '(:r0 :r1))
