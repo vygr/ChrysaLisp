@@ -86,6 +86,39 @@
 	;obtain persistent system ID from host OS
 	(call :host_os :pii_sysid (vpx (& (.> statics statics_sys_task_kernel_system_id)) +node_id_size))
 
+	;has the host the clock that is cheap to ask ? It says what it is in
+	;four words, and the fourth is how new: 3 has :pii_tick. One of
+	;fewer words is from before there was a fourth
+	(vp-alloc 64)
+	(call :host_os :pii_host '(:rsp 64) '(:r0))
+	(vp-cpy-rr :rsp :r2)
+	(vp-add-rr :r2 :r0)
+	(vp-xor-rr :r1 :r1)
+	(vp-xor-rr :r4 :r4)
+	(vpif '(:r2 /= :r0))
+		(loop-start)
+			(vp-cpy-ir-ub :r2 0 :r3)
+			(vp-add-cr 1 :r2)
+			(vpif `(:r3 = ,(ascii-code " ")))
+				;the next word, and the number is of that
+				(vp-add-cr 1 :r4)
+				(vp-xor-rr :r1 :r1)
+			(else)
+				(vp-mul-cr 10 :r1)
+				(vp-sub-cr (ascii-code "0") :r3)
+				(vp-add-rr :r3 :r1)
+			(endif)
+		(loop-until '(:r2 = :r0))
+	(endif)
+	(vp-free 64)
+	(vp-xor-rr :r0 :r0)
+	(vpif '(:r4 = 3))
+		(vpif '(:r1 >= 3))
+			(vp-cpy-cr 1 :r0)
+		(endif)
+	(endif)
+	(assign '(:r0) (vpx (.> statics statics_sys_task_tick)))
+
 	;process command options
 	(call 'opts (vpx argv))
 

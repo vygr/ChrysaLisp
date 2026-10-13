@@ -96,8 +96,16 @@
 	(entry :sys_task :lisp_timeslice '(:r0 :r1))
 
 	(vp-push :r0 :r1)
-	(call :host_os :pii_time :nil '(:r0))
+	;is the slice up ? Asked every time this is called, and of the time
+	;of day it was most of what a call cost, 10 to 50 ns. A host that is
+	;new enough has a clock that is cheap to ask, a ns or a few
 	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_tick)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(call :host_os :pii_tick :nil '(:r0))
+	(else)
+		(call :host_os :pii_time :nil '(:r0))
+	(endif)
 	(assign '((:r2 statics_sys_task_then)) '(:r1))
 	(vp-sub-rr :r0 :r1)
 	(vpif '(:r1 < -1000))

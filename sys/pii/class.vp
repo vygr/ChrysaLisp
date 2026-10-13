@@ -259,6 +259,25 @@
 
 (def-func-end)
 
+(def-method :host_os :pii_tick)
+	;outputs
+	;:r0 = a count of usec that never goes back (long)
+	;trashes
+	;:r0, :f0-:f15
+	;info
+	;a clock that is cheap to ask, to say if a slice of time is up. It may
+	;step by a part of a ms, and is not the time of day. Only a host
+	;that says it is new enough has this, 3, and the kernel asks as it
+	;starts: statics_sys_task_tick
+
+	(abi-push-trashed :r13 :r14)
+	(host-os-call :host_os :tick :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit :host_os :pii_tick '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :host_os :pii_rand)
 	;inputs
 	;:r0 = data buffer pointer (pubyte)

@@ -582,6 +582,34 @@ a time round better than a call to the new clear.
 	what follows can be two bytes off. The x64 does not mind. Both arm64
 	machines stop at the first instruction of it.
 
+### A clock that is cheap to ask
+
+`(task-slice)` asks if its slice of time is up, every time it is called, and
+asked the host the time of day to know. Chris: "the expense of testing the
+host's time value each call. Just how expensive is asking the hosts what time
+it is ?" Measured in C: `gettimeofday` is 9 ns on the M4, 20 on the x64 Mac
+and 51 on the Pi 4, and that was most of what a `(task-slice)` cost over the
+call of it.
+
+The host has a second clock, `:host_os :pii_tick`, a count of usec that never
+goes back and may step by a part of a ms. On macOS it is
+`mach_approximate_time`, the kernel's own note of the time read with no call
+into it, 1 ns. On a 64 bit ARM Linux it is the processor's counter, which a
+program may read. Elsewhere it is the clock there was. A host says how new it
+is, the kernel asks as it starts, and an older host is asked the time of day
+as before.
+
+| `(task-slice)`, ns | M4 | x64 Mac | Pi 4 |
+|--------------------|----|---------|------|
+| Before             | 18.0 | 47.6  | 176  |
+| After              | 15.8 | 32.0  | 131  |
+| `(eql 1 2)`, a call that asks nothing | 14 | 22 | 107 |
+
+What is left is the call from Lisp, not the clock. A thread of the host that
+sets a word of memory when the slice is up was the other way: it would save
+a few ns more, and wake a thousand times a second in every node, at work or
+not.
+
 ### Benchmarks
 
 `bench` runs the modules in `tests/bench/`, each a file of `(bench name per

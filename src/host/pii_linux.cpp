@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <sched.h>
@@ -576,15 +577,46 @@ int64_t pii_memory()
 int64_t pii_host(char *buf, size_t len)
 {
 	//what this host program is, "cpu abi os", as the build names them
-	//and a fourth word, how new it is: 2 has pii_kill. One with no
+	//and a fourth word, how new it is: 2 has pii_kill, 3 pii_tick. One with no
 	//fourth word is from before there was one
-	const char *s = PII_HOST_CPU " " PII_HOST_ABI " " PII_HOST_OS " 2";
+	const char *s = PII_HOST_CPU " " PII_HOST_ABI " " PII_HOST_OS " 3";
 	size_t n = strlen(s);
 	if (len == 0) return 0;
 	if (n >= len) n = len - 1;
 	memcpy(buf, s, n);
 	buf[n] = 0;
 	return (int64_t)n;
+}
+
+int64_t pii_tick()
+{
+	//a clock that is cheap to ask, in usec from some time before, that
+	//never goes back: to ask if a slice of time is up, which is asked a
+	//great many times. It may step by a part of a ms. Not the time of day
+#if defined(__aarch64__)
+	//the counter of the processor, which a program may read: a few ns
+	//to ask, where gettimeofday is 50 on a Pi 4. Its rate is asked the
+	//once, and the count is made usec with a multiply, not a divide
+	static uint64_t recip = 0;
+	static int have = -1;
+	if (have < 0)
+	{
+		uint64_t frq;
+		__asm__ volatile("mrs %0, cntfrq_el0" : "=r"(frq));
+		have = frq > 1000000 ? 1 : 0;
+		if (have) recip = (uint64_t)((((unsigned __int128)1000000) << 32) / frq);
+	}
+	if (have)
+	{
+		uint64_t cnt;
+		__asm__ volatile("mrs %0, cntvct_el0" : "=r"(cnt));
+		return (int64_t)(((unsigned __int128)cnt * recip) >> 32);
+	}
+#endif
+	//no cheaper clock known for this processor: the one there is
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ((int64_t)ts.tv_sec * 1000000) + (ts.tv_nsec / 1000);
 }
 
 int64_t pii_chmod(const char *path, uint64_t mode)
@@ -633,6 +665,7 @@ void (*host_os_funcs[]) = {
 	(void*)pii_host,
 	(void*)pii_chmod,
 	(void*)pii_kill,
+	(void*)pii_tick,
 };
 
 #endif

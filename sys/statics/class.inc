@@ -13,6 +13,9 @@
 	(struct sys_task_kernel_system_id +node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
 	(long sys_task_then)
+	;if the host has the clock that is cheap to ask, :host_os :pii_tick,
+	;which (task-slice) asks every time it is called
+	(long sys_task_tick)
 	;how long the node has been idle, in all, the kernel asleep with no
 	;task ready to run. What it has not been idle of a stretch of time, it
 	;was at work

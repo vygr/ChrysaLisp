@@ -4,6 +4,8 @@
 
 ------
 
+**`(task-slice)` asks a clock that is cheap to ask, `:host_os :pii_tick`: a third off what it costs on the x64 Mac, a quarter on the Pi. The host is version 3.**
+
 **`relies -s`: where a register is saved round a call that leaves it. Seven such saves taken out, three of them in the evaluator.**
 
 **Storage, from its first runs over three machines: a member starts on a node the kernel picks, the app says less, the Tree test names what it could not put.**

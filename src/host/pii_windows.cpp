@@ -626,9 +626,9 @@ int64_t pii_memory()
 int64_t pii_host(char *buf, size_t len)
 {
 	//what this host program is, "cpu abi os", as the build names them
-	//and a fourth word, how new it is: 2 has pii_kill. One with no
+	//and a fourth word, how new it is: 2 has pii_kill, 3 pii_tick. One with no
 	//fourth word is from before there was one
-	const char *s = PII_HOST_CPU " " PII_HOST_ABI " " PII_HOST_OS " 2";
+	const char *s = PII_HOST_CPU " " PII_HOST_ABI " " PII_HOST_OS " 3";
 	size_t n = strlen(s);
 	if (len == 0) return 0;
 	if (n >= len) n = len - 1;
@@ -641,6 +641,15 @@ int64_t pii_chmod(const char *path, uint64_t mode)
 {
 	//a file has no such mode here, what runs is told by its name
 	return 0;
+}
+
+int64_t pii_tick()
+{
+	//a clock that is cheap to ask, in usec from some time before, that
+	//never goes back: to ask if a slice of time is up, which is asked a
+	//great many times. It may step by a part of a ms. Not the time of day
+	//no cheaper clock is used here yet: the one there is
+	return pii_gettime();
 }
 
 int64_t pii_kill(int64_t pid)
@@ -686,6 +695,7 @@ void (*host_os_funcs[]) = {
 	(void*)pii_host,
 	(void*)pii_chmod,
 	(void*)pii_kill,
+	(void*)pii_tick,
 };
 
 #endif
