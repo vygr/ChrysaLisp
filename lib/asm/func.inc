@@ -58,7 +58,7 @@
 (defun def-func (*func_name* &optional *func_align* *func_stack*)
 	(defq *func_align* (ifn *func_align* stack_align)
 		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :nil *kept* :nil
+		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :nil *kept* :nil *func_method* :nil *link_methods* (list)
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -82,6 +82,26 @@
 			(not (starts-with "sys/" (str *func_name*)))
 			(call :sys_task :stack))))
 
+;What is called is said where it is called: the class and the method, by
+;the forms that call one bound to its function. They are kept as they come,
+;three to a call, for (fn-keep-locals) to ask of. To find the method of a
+;function by going over every method there is was most of the time it took.
+
+(defun fn-method (p class name)
+	; (fn-method path class name)
+	;the function of this path is bound to here as this method
+	(push *link_methods* p class name))
+
+(defun fn-method-info (class name)
+	; (fn-method-info class name) -> (takes_and_gives trashes)
+	;the registers a method takes and gives values in, and those a call
+	;bound to its function trashes: what is declared of the function, and
+	;if that is not said what is declared of the method. :nil if neither is
+	(defq m (method-lookup class name)
+		said (ifn (pfind (pfind *trashes_own* class) name) (pfind (pfind *trashes* class) name)))
+	(list (reduce (# (if (list? %1) (cat %0 (filter (const sym?) %1)) %0)) (list (third m) (elem-get m 3)) (list))
+		(if said (trash-regs said))))
+
 (defun fn-callee (inst)
 	; (fn-callee inst) -> :nil | (trashes takes_and_gives)
 	;what a call or a jump out of the function is of, for (keep-locals):
@@ -93,13 +113,13 @@
 		((emit-call-p emit-jmp-p)
 			(and (starts-with "_l_rl_" (defq label (str (second inst))))
 				(defq link (str-as-num (slice label 6 -1))) (< -1 link (length *links*))
-				(defq m (path-method (elem-get *paths* (elem-get *links* link))))
 				;bound to the function, it trashes what the function does. Only
 				;a call through the vtable may be of any class, and trash what
 				;any of them does, Chris: "If it's called as a direct call ...
 				;it will trash only what it does, if :vcall then you assume
 				;it's the wider trashes"
-				(list (ifn (third m) (second m)) (first m))))
+				(defq m (elem-get *callees* link))
+				(list (second m) (first m))))
 		((emit-call-i emit-jmp-i)
 			(and (> (length inst) 4) (defq class (elem-get inst 3)) (defq name (elem-get inst 4))
 				(nql class :nil) (nql name :nil)
@@ -115,10 +135,20 @@
 	;is declared to trash is what any class called so may, more than the
 	;one function does, and a caller bound to the function goes by the
 	;function: so it is what is declared of the function, own, that is used
-	(when (and *func_regs* (nempty? *locals*)
-			(defq me (path-method *func_name*)) (third me)
+	(when (and *func_regs* (nempty? *locals*) *func_method*
+			(defq me (fn-method-info (first *func_method*) (second *func_method*))) (second me)
+			;what each link is bound to, by the methods said as they were
+			;called. A link is of the method that was said when it was
+			;made: one made before any was said, a function bound by its
+			;path, is of none, and what calls it is not followed
+			(defq *callees* (map (lambda (l)
+				(defq p (elem-get *paths* l) at -3 found :nil)
+				(while (and (not found) (< (setq at (+ at 3)) (length *link_methods*)))
+					(if (eql (elem-get *link_methods* at) p)
+						(setq found (fn-method-info (elem-get *link_methods* (inc at)) (elem-get *link_methods* (+ at 2))))))
+				found) *links*))
 			(defq got (keep-locals (slice *emit_list* *emit_start* -1) *locals*
-				(filter (# (starts-with ":r" %0)) (third me)) (first me) (const fn-callee))))
+				(filter (# (starts-with ":r" %0)) (second me)) (first me) (const fn-callee))))
 		(defq head (slice *emit_list* 0 *emit_start*))
 		(clear *emit_list*)
 		(each (# (push *emit_list* %0)) head)

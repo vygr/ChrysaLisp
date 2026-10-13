@@ -211,7 +211,9 @@
 		(pinsert *trashes* ',class ',trashed) (pinsert *trashes_own* ',class ',owned)))
 
 (defmacro def-method (class member &optional alignment)
-	`(def-func (f-path ,class ,member) ,alignment))
+	;the function knows which method it is, (fn-keep-locals) asks
+	`(progn (def-func (f-path ,class ,member) ,alignment)
+		(setq *func_method* (list ,class ,member))))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers
@@ -229,6 +231,7 @@
 				;f-call
 				((eql (second (defq m (method-lookup %0 %1))) :static)
 					(assign %2 (third m))
+					(fn-method (first m) %0 %1)
 					(fn-call (first m)))
 				;v-call
 				(:t (if (find (setd %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
@@ -257,6 +260,7 @@
 		((eql (second (defq m (method-lookup %0 %1))) :static)
 			(assign %2 (third m))
 			(scope-unwind)
+			(fn-method (first m) %0 %1)
 			(fn-jump (first m)))
 		(:t (if (find (setd %3 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list %3 _)))
@@ -295,6 +299,7 @@
 	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is not static ! Use v-call ?" (list %0 %1)))
 	(assign %2 (third m))
+	(fn-method (first m) %0 %1)
 	(fn-call (first m))
 	(if %3 (assign (elem-get m 3) %3)))
 
@@ -306,6 +311,7 @@
 		(throw "Method is not static ! Use v-jump ?" (list %0 %1)))
 	(assign %2 (third m))
 	(scope-unwind)
+	(fn-method (first m) %0 %1)
 	(fn-jump (first m)))
 
 (defun f-bind (%0 %1 %2)
@@ -326,6 +332,7 @@
 			(throw "Method is static !" (list (pfind *supers* %0) %1))))
 	(assign %2 (third m))
 	(unless (eql (first m) 'class/obj/null)
+		(fn-method (first m) (pfind *supers* %0) %1)
 		(fn-call (first m))
 		(if %3 (assign (elem-get m 3) %3))))
 
@@ -340,7 +347,7 @@
 	(scope-unwind)
 	(if (eql (first m) 'class/obj/null)
 		(vp-ret)
-		(fn-jump (first m))))
+		(progn (fn-method (first m) (pfind *supers* %0) %1) (fn-jump (first m)))))
 
 (defun s-bind (%0 %1 %2)
 	;%0 = class name
@@ -401,6 +408,7 @@
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-call ?" (list %0 %1)))
 	(assign %2 (third m))
+	(fn-method (first m) %0 %1)
 	(fn-call (first m))
 	(if %3 (assign (elem-get m 3) %3)))
 
@@ -412,6 +420,7 @@
 		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
 	(assign %2 (third m))
 	(scope-unwind)
+	(fn-method (first m) %0 %1)
 	(fn-jump (first m)))
 
 (defun d-bind (%0 %1 %2)

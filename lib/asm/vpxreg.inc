@@ -119,51 +119,61 @@
 		(list (cat (str which) ":" (first found)) (and (= (second found) offset) (nql (third found) "")))
 		(list (cat (str which) "+" (str offset)) :nil)))
 
-(defun keep-flow (next prev events slot home_dead)
-	; (keep-flow next prev events slot home_dead) -> (wanted had memory)
-	;for one local, at each instruction: is its value wanted in its home
-	;after this, is it had there before this, by every way, and is what
-	;is on the stack wanted after this. home_dead is, for each
-	;instruction, if it is a call that trashes the home
-	(defq count (length next) wanted (map (lambda (n) :nil) next) wanted_in (map (lambda (n) :nil) next)
-		had (map (lambda (n) :t) next) memory (map (lambda (n) :nil) next) memory_in (map (lambda (n) :nil) next)
-		changed :t)
+;The three things asked of each local are asked of all of them at once,
+;a local a bit of a number: a go over the function for each local was
+;most of the time this took, and a function has a dozen of them.
+
+(defun keep-or (flags to)
+	; (keep-or flags to) -> num
+	;what is so by any of the ways on from here, there are two at most
+	(cond
+		((empty? to) 0)
+		((= (length to) 1) (elem-get flags (first to)))
+		((logior (elem-get flags (first to)) (elem-get flags (second to))))))
+
+(defun keep-flow (next prev loads stores kills)
+	; (keep-flow next prev loads stores kills) -> (wanted had memory)
+	;for every local, a bit each, at each instruction: is its value wanted
+	;in its home after this, is it had there before this, by every way,
+	;and is what is on the stack wanted after this. loads and stores are,
+	;for each instruction, the local it reads or writes, and kills the
+	;locals whose home it trashes, a call
+	(defq count (length next) wanted (map (lambda (n) 0) next) wanted_in (map (lambda (n) 0) next)
+		had (map (lambda (n) -1) next) had_out (map (lambda (n) -1) next)
+		memory (map (lambda (n) 0) next) memory_in (map (lambda (n) 0) next)
+		keeps (map (# (lognot (logior %0 %1 %2))) loads stores kills) changed :t)
 	;wanted in the home: a read may come, before a write of it or a call
 	;that trashes the home. Backwards, till nothing changes
 	(while changed
 		(setq changed :nil)
 		(defq at count)
 		(while (>= (setq at (dec at)) 0)
-			(defq out (if (some (# (elem-get wanted_in %0)) (elem-get next at)) :t) event (elem-get events at)
-				in (cond
-					((and event (eql (second event) slot)) (eql (first event) :load))
-					((elem-get home_dead at) :nil)
-					(out)))
-			(unless (and (eql out (elem-get wanted at)) (eql in (elem-get wanted_in at)))
+			(defq out (keep-or wanted_in (elem-get next at))
+				in (logior (logand out (elem-get keeps at)) (elem-get loads at)))
+			(unless (and (= out (elem-get wanted at)) (= in (elem-get wanted_in at)))
 				(elem-set wanted at out) (elem-set wanted_in at in)
 				(setq changed :t))))
 	;had in the home, by every way here. After a write that is copied to
 	;the home, or a read that goes by it, it is. After a call that
 	;trashes the home, or a write that is not copied, it is not
-	(defq had_out (lambda (at)
-		(defq event (elem-get events at) in (elem-get had at))
-		(cond
-			((and event (eql (second event) slot))
-				(if (eql (first event) :store) (elem-get wanted at) (if (or in (elem-get wanted at)) :t)))
-			((elem-get home_dead at) :nil)
-			(in))))
-	(when (> count 0) (elem-set had 0 :nil))
 	(setq changed :t)
 	(while changed
 		(setq changed :nil)
-		(each (lambda (from)
-			(defq at (!))
-			(when (and (> at 0) (nempty? from))
-				(defq in (if (every (# (had_out %0)) from) :t))
-				(unless (eql in (elem-get had at))
-					(elem-set had at in)
-					(setq changed :t))))
-			prev))
+		(defq at -1)
+		(while (< (setq at (inc at)) count)
+			(defq from (elem-get prev at)
+				in (cond
+					((= at 0) 0)
+					((empty? from) -1)
+					((= (length from) 1) (elem-get had_out (first from)))
+					((reduce (# (logand %0 (elem-get had_out %1))) from -1)))
+				want (elem-get wanted at)
+				out (logior (logand in (elem-get keeps at)) (logand (elem-get stores at) want)
+					(logand (elem-get loads at) (logior in want))))
+			(elem-set had at in)
+			(unless (= out (elem-get had_out at))
+				(elem-set had_out at out)
+				(setq changed :t))))
 	;what is on the stack is wanted: a read that is not from the home may
 	;come before a write. Backwards
 	(setq changed :t)
@@ -171,15 +181,10 @@
 		(setq changed :nil)
 		(defq at count)
 		(while (>= (setq at (dec at)) 0)
-			(defq out (if (some (# (elem-get memory_in %0)) (elem-get next at)) :t) event (elem-get events at)
-				in (cond
-					;a write, and what was there is not wanted. A read that is
-					;of the stack wants it; one that is of the home does not,
-					;and what comes after it may
-					((and event (eql (second event) slot))
-						(if (and (eql (first event) :load) (or out (not (elem-get had at)))) :t))
-					(out)))
-			(unless (and (eql out (elem-get memory at)) (eql in (elem-get memory_in at)))
+			(defq out (keep-or memory_in (elem-get next at)) reads (elem-get loads at)
+				in (logior (logand out (lognot (logior reads (elem-get stores at))))
+					(logand reads (logior out (lognot (elem-get had at))))))
+			(unless (and (= out (elem-get memory at)) (= in (elem-get memory_in at)))
 				(elem-set memory at out) (elem-set memory_in at in)
 				(setq changed :t))))
 	(list wanted had memory))
@@ -265,44 +270,80 @@
 			(unless never
 				;the registers a local may have: the most wanted local first,
 				;and for it the register the fewest calls trash
+				;counted the once: how often each local is read or written, and
+				;how many calls trash each register. To count them again for
+				;every two that a sort sets side by side was most of the time
+				;all this took
 				(defq homes (filter (# (not (or (find %0 used) (find %0 taken)))) mine)
-					keeping (sort (filter (# (not (find %0 pinned))) slots)
-						(# (- (length (filter (lambda (e) (and e (eql (second e) %1))) events))
-							(length (filter (lambda (e) (and e (eql (second e) %0))) events)))))
-					trashed_by (lambda (home) (length (filter (# (and %0 (or (not (first %0)) (find home (first %0))))) home_calls)))
+					used_by (map (lambda (n) 0) slots) trashed (map (lambda (n) 0) homes))
+				(each (lambda (event)
+					(when event
+						(defq i (find (second event) slots))
+						(elem-set used_by i (inc (elem-get used_by i)))))
+					events)
+				(each (lambda (called)
+					(when called
+						(defq trashes (first called))
+						(each (lambda (home)
+							(if (or (not trashes) (find home trashes))
+								(elem-set trashed (!) (inc (elem-get trashed (!))))))
+							homes)))
+					home_calls)
+				(defq keeping (sort (filter (# (not (find %0 pinned))) slots)
+						(# (- (elem-get used_by (find %1 slots)) (elem-get used_by (find %0 slots)))))
+					by_home (map (lambda (home count) (list home count)) homes trashed)
 					;of two that as many trash, the lower: it is the same every time
-					homes (sort homes (# (if (= (defq a (trashed_by %0)) (defq b (trashed_by %1)))
-						(- (find %0 +keep_regs) (find %1 +keep_regs)) (- a b))))
-					edits (map (lambda (n) :nil) next) kept (list))
-				(each (lambda (slot)
-					(when (nempty? homes)
-						(defq home (first homes)
-							home_dead (map (# (and %0 (or (not (first %0)) (find home (first %0))) :t)) home_calls))
-						(bind '(wanted had memory) (keep-flow next prev events slot home_dead))
-						;what each read and write of it becomes, and what that saves
-						(defq mine_edits (list) reads 0 writes 0)
-						(each (lambda (event)
-							(when (and event (eql (second event) slot))
-								(defq at (!) inst (elem-get insts at))
-								(cond
-									((eql (first event) :store)
-										(defq src (second inst) to_stack (elem-get memory at) to_home (elem-get wanted at))
-										(unless to_stack (++ writes))
-										(push mine_edits (list at (cat (if to_stack (list inst) (list))
-											(if to_home (list (list 'emit-cpy-rr src home)) (list))))))
-									((elem-get had at)
-										(++ reads)
-										(push mine_edits (list at (list (list 'emit-cpy-rr home (last inst))))))
-									((elem-get wanted at)
-										(push mine_edits (list at (list (list 'emit-cpy-ir :rsp (third inst) home)
-											(list 'emit-cpy-rr home (last inst)))))))))
-							events)
-						;only if it is worth a register: something of the stack is gone
-						(when (> (+ reads writes) 0)
-							(each (lambda ((at with)) (elem-set edits at with)) mine_edits)
-							(push kept (list slot home reads writes))
-							(setq homes (rest homes)))))
-					keeping)
+					homes (map (const first) (sort by_home (lambda ((h0 a) (h1 b))
+						(if (= a b) (- (find h0 +keep_regs) (find h1 +keep_regs)) (- a b)))))
+					edits (map (lambda (n) :nil) next) kept (list) settled :nil)
+				;the locals are given homes in that order, as far as the
+				;homes go, and all asked of at once. One that is not worth a
+				;register, nothing of the stack is gone for it, is left out
+				;and it is asked again: the homes of those after it move up
+				(while (and (not settled) (nempty? keeping) (nempty? homes))
+					(defq using (slice keeping 0 (min (length keeping) (length homes) 60))
+						loads (list) stores (list) kills (list))
+					(each (lambda (event)
+						(defq bit (and event (find (second event) using)) mask (if bit (<< 1 bit) 0)
+							called (elem-get home_calls (!)) kill 0)
+						(push loads (if (and bit (eql (first event) :load)) mask 0))
+						(push stores (if (and bit (eql (first event) :store)) mask 0))
+						(when called
+							(defq trashes (first called))
+							(each (lambda (slot) (if (or (not trashes) (find (elem-get homes (!)) trashes))
+								(setq kill (logior kill (<< 1 (!)))))) using))
+						(push kills kill))
+						events)
+					(bind '(wanted had memory) (keep-flow next prev loads stores kills))
+					;what each read and write becomes, and what that saves
+					(defq all_edits (map (lambda (n) (list)) using)
+						reads (map (lambda (n) 0) using) writes (map (lambda (n) 0) using))
+					(each (lambda (event)
+						(when (and event (defq bit (find (second event) using)))
+							(defq at (!) inst (elem-get insts at) mask (<< 1 bit) home (elem-get homes bit)
+								mine_edits (elem-get all_edits bit))
+							(cond
+								((eql (first event) :store)
+									(defq src (second inst) to_stack (/= 0 (logand mask (elem-get memory at)))
+										to_home (/= 0 (logand mask (elem-get wanted at))))
+									(unless to_stack (elem-set writes bit (inc (elem-get writes bit))))
+									(push mine_edits (list at (cat (if to_stack (list inst) (list))
+										(if to_home (list (list 'emit-cpy-rr src home)) (list))))))
+								((/= 0 (logand mask (elem-get had at)))
+									(elem-set reads bit (inc (elem-get reads bit)))
+									(push mine_edits (list at (list (list 'emit-cpy-rr home (last inst))))))
+								((/= 0 (logand mask (elem-get wanted at)))
+									(push mine_edits (list at (list (list 'emit-cpy-ir :rsp (third inst) home)
+										(list 'emit-cpy-rr home (last inst)))))))))
+						events)
+					(cond
+						((defq idle (some (lambda (slot) (if (= 0 (+ (elem-get reads (!)) (elem-get writes (!)))) (!))) using))
+							(setq keeping (cat (slice keeping 0 idle) (slice keeping (inc idle) -1))))
+						(:t (setq settled :t)
+							(each (lambda (slot)
+								(each (lambda ((at with)) (elem-set edits at with)) (elem-get all_edits (!)))
+								(push kept (list slot (elem-get homes (!)) (elem-get reads (!)) (elem-get writes (!)))))
+								using))))
 				(when (nempty? kept)
 					(defq out (list))
 					(each (lambda (inst)
