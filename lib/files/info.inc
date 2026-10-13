@@ -330,8 +330,12 @@
 	(tsort (files-all "." '(".vp") 2) (const files-depends)))
 
 (defun database-stale? (cache_file lib_file vp_files)
+	;the time of a file is to the second. A source written in the second
+	;the cache was made in is taken to be newer than it: trace -w writes
+	;sources just after it reads them, and the cache then said, to the
+	;next that asked, what they had been
 	(defq cache_age (age cache_file))
-	(some (# (> (age %0) cache_age)) (cat vp_files (list lib_file))))
+	(some (# (>= (age %0) cache_age)) (cat vp_files (list lib_file))))
 
 (defun files-classes-info (&optional forced)
 	; (files-classes-info [forced]) -> :nil | class_db

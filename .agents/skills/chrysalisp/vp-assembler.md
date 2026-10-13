@@ -328,8 +328,11 @@ method)` gives the registers.
 	round, a register saved round a call that leaves it: a tool, not in
 	`lint`.
 
-*	**`trace -w` may need two goes**, the second for what calls what the
-	first narrowed. Run it till it says nothing, then `lint`.
+*	**`trace -w` is one go**, on a debug build, then `lint`. It needed two
+	till 2026-10-13: the database of classes was taken to be fresh when a
+	source had been written in the second it was made in, which is when
+	`trace -w` writes them. If it ever says the same thing twice, look
+	there, `(database-stale?)` in `lib/files/info.inc`.
 
 *	**A call by the vtable** goes through a register the method trashes
 	anyway and does not take, `(dispatch-reg)`, not `:r14`. Give one at the
