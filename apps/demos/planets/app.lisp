@@ -40,7 +40,7 @@
 	cpu_time 0 cpu_frames 0
 	;the children that draw a strip each, they have said they are ready,
 	;a frame is out with them and when it went, and they can not be used
-	farm :nil farm_ready :nil farming :nil farm_began 0 no_farm :nil ticks 0
+	farm :nil farm_ready :nil farm_asked :nil farming :nil farm_began 0 no_farm :nil ticks 0
 	+retry_timeout (task-timeout 10)
 	;a child with nothing to do for 5 seconds goes. When the farm was last
 	;given a frame, and how long after that it is not to be counted on
@@ -150,15 +150,18 @@
 				;this one, a strip is one long call and would hold up the app
 				(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
 					(elem-get select +select_farm_reply)
-					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t))
+					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t)
+					farm_asked :t)
 				(strips vvals :nil))
-			((and farm_ready (> (- (pii-time) last_farm) +farm_stale))
+			((or (not (or farm_ready farm_asked))
+					(and farm_ready (> (- (pii-time) last_farm) +farm_stale)))
 				;the GPU has had the frames for a while, and the children
 				;may have gone. They are started again, and till they say
 				;they are ready the frames are drawn here. A frame given to
 				;children that had gone was never drawn, and the globe stood
 				;still
-				(setq farm_ready :nil)
+				;or the mode was changed, and what it had been asked let go
+				(setq farm_ready :nil farm_asked :t)
 				(. farm :restart)
 				(strips vvals :nil)))
 		(when farm_ready
@@ -205,7 +208,15 @@
 					((= id +event_planet)
 						(setq which (. *planet* :get_selected)))
 					((= id +event_mode)
-						(setq gpu_want (= (. *mode* :get_selected) 1) gpu_drawn :nil))
+						(setq gpu_want (= (. *mode* :get_selected) 1) gpu_drawn :nil)
+						;a frame that is out with the farm is not waited for. The
+						;strips of it are told to a mailbox nobody reads from now,
+						;the farm has a new one
+						(when farm
+							(elem-set select +select_farm_reply (mail-mbox))
+							(. farm :reply_to (elem-get select +select_farm_reply))
+							;and is asked afresh if it is wanted again
+							(setq farming :nil farm_ready :nil farm_asked :nil)))
 					((. *window* :event msg))))
 			(+select_farm_task
 				;a child of the farm has started
@@ -225,7 +236,7 @@
 									cpu_time (+ cpu_time (- (pii-time) farm_began)) cpu_frames (inc cpu_frames))
 								(. *canvas* :swap +swap_write))
 							;they are ready, and as good as just used
-							((setq farm_ready :t last_farm (pii-time)))))))
+							((setq farm_ready :t farm_asked :nil last_farm (pii-time)))))))
 			(:t ;the timer, the globe turns and is drawn, if the last frame
 				;is not still out with the farm
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
