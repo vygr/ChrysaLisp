@@ -1,7 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
-(import "lib/text/syntax.inc")
+(import "lib/text/tokenize.inc")
 (import "service/lock/app.inc")
 
 (defq usage `(
@@ -78,10 +78,11 @@
 	;the end of one. The words of a line are its tokens, each taken apart
 	;at what is not of a name: a string in braces has names in it
 	(with-read-lock file
-		(defq syntax (Syntax))
+		(defq tok_state :text)
 		(lines! (lambda (line)
 			(task-slice)
-			(bind '(toks states) (. syntax :tokenize (trim-end line "\r")))
+			(bind '(toks states tok_next) (tokenize-line (trim-end line "\r") tok_state))
+			(setq tok_state tok_next)
 			(defq input (list))
 			(each (lambda (tok state)
 				(unless (eql state :comment)

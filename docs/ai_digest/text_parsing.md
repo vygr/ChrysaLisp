@@ -137,7 +137,7 @@ category and decide the parser's next state. This avoids complex,
 multi-character lookaheads.
 
 ```vdu
-; From lib/text/syntax.inc
+; From lib/text/tokenize.inc
 
 (defq +char_class_not_text (char-class "\q:;{"))
 

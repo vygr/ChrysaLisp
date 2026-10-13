@@ -17,7 +17,7 @@
 ; A string that goes over lines is a node for each line of it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "./syntax.inc")
+(import "./tokenize.inc")
 
 ;module
 (env-push)
@@ -28,10 +28,11 @@
 	; (tree-read stream) -> (nodes open stray)
 	;the nodes of a file, how many brackets were not closed, 0 for one
 	;that is whole, and how many closed nothing: those are left out
-	(defq syntax (Syntax) line_no 0 top (list) stack (list) into top stray 0)
+	(defq tok_state :text line_no 0 top (list) stack (list) into top stray 0)
 	(lines! (lambda (line)
 		(++ line_no)
-		(bind '(toks states) (. syntax :tokenize (trim-end line "\r")))
+		(bind '(toks states tok_next) (tokenize-line (trim-end line "\r") tok_state))
+		(setq tok_state tok_next)
 		(if (empty? toks) (push into (list :blank line_no)))
 		(each (lambda (tok state)
 			(if (eql state :text)

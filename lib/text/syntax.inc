@@ -4,26 +4,11 @@
 
 ;the inks are pixels as a pixmap has them, that is all of the GUI wanted here
 (import "gui/pixmap/lisp.inc")
-(import "././consts/chars.inc")
+(import "./tokenize.inc")
 (import "././consts/colors.inc")
 
 ;module
 (env-push)
-
-(defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
-	+char_class_not_text (char-class "\q:;{"))
-
-(defmacro is-digit-char? (%0) (static-qq (bfind ,%0 +char_class_digit)))
-(defmacro is-digit-base-char? (%0) (static-qq (bfind ,%0 +char_class_digit_base)))
-(defmacro is-symbol-char? (%0) (static-qq (not (bfind ,%0 +char_class_not_symbol))))
-
-(defun is-text-char? (%0)
-	(cond
-		((defq i (bfind %0 +char_class_not_text))
-			(elem-get '(:string1 :keysym :comment :string2) i))
-		((is-digit-char? %0) :number)
-		((is-symbol-char? %0) :symbol)
-		(:text)))
 
 ;the words that have a colour of their own, each with the name of the ink
 ;it is in. From the boot environment, made once as this is read and the
@@ -69,50 +54,9 @@
 
 	(defmethod :tokenize (line)
 		; (. syntax :tokenize line) -> (token_list state_list)
-		;a string that began on a line before can end with the first
-		;character of this one, one that begins here not with its first
-		(defq j 0 l (length line) state (get :state this) i 0
-			token_list (list) state_list (cap l (list))
-			from (if (find state '(:string1 :string2)) 0 1))
-		(while (< j l)
-			(case state
-				(:text
-					;spaces and brackets are all that is text, past them in one go
-					(if (< (setq j (bskip +char_class_not_symbol line j)) l)
-						(setq state (is-text-char? (elem-get line j))))
-					(when (/= i j)
-						(push state_list :text)
-						(push token_list (slice line i (setq i j)))))
-				(:symbol
-					(push state_list :symbol)
-					(push token_list (slice line i (setq j
-						(bskipn +char_class_not_symbol line (inc j)) i j)))
-					(setq state :text))
-				(:keysym
-					(push state_list :keysym)
-					(push token_list (slice line i (setq j
-						(bskipn +char_class_not_symbol line (inc j)) i j)))
-					(setq state :text))
-				(:number
-					(push state_list :number)
-					(push token_list (slice line i (setq j
-						(bskip +char_class_digit_base line (inc j)) i j)))
-					(setq state :text))
-				(:comment
-					(push state_list :comment)
-					(push token_list (slice line i (setq state :text j l))))
-				(:string1
-					(push state_list :string1)
-					(if (setq j (find "\q" line (+ i from)))
-						(push token_list (slice line i (setq state :text j (inc j) i j)))
-						(push token_list (slice line i (setq j l))))
-					(setq from 1))
-				(:string2
-					(push state_list :string2)
-					(push token_list (if (setq j (find "}" line (+ i from)))
-						(slice line i (setq state :text j (inc j) i j))
-						(slice line i (setq j l))))
-					(setq from 1))))
+		;the state a line ends in is kept here for the next, see
+		;(tokenize-line), which is this without a syntax made
+		(bind '(token_list state_list state) (tokenize-line line (get :state this)))
 		(set this :state state)
 		(list token_list state_list))
 

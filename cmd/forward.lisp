@@ -2,7 +2,7 @@
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
 (import "service/lock/app.inc")
-(import "lib/text/syntax.inc")
+(import "lib/text/tokenize.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -38,7 +38,7 @@
 	;handed to another function, (some my-self list)
 	(with-read-lock file
 		(when (defq in (file-stream file))
-			(defq syntax (Syntax) line_no 0 depth 0 defs_map (Fmap 11) uses (list)
+			(defq tok_state :text line_no 0 depth 0 defs_map (Fmap 11) uses (list)
 				;the definitions that are open, the innermost last, each
 				;(name depth kind), and what the next symbol is
 				open (list) after_open :nil want :nil)
@@ -49,7 +49,8 @@
 				;defun with none after it is a word of something else, a key
 				;of a case
 				(setq want :nil)
-				(bind '(toks states) (. syntax :tokenize (trim-end raw_line "\r")))
+				(bind '(toks states tok_next) (tokenize-line (trim-end raw_line "\r") tok_state))
+				(setq tok_state tok_next)
 				(each (lambda (tok state)
 					(case state
 						(:text (each (lambda (ch)

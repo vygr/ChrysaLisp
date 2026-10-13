@@ -1,7 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
-(import "lib/text/syntax.inc")
+(import "lib/text/tokenize.inc")
 (import "service/lock/app.inc")
 
 (defun opt-verbosity (opt_var)
@@ -42,14 +42,15 @@
 (defun work (file opt_v opt_q)
 	(with-read-lock file
 		(when (defq in (file-stream file))
-			(defq syntax (Syntax) line_no 0 stack (list)
+			(defq tok_state :text line_no 0 stack (list)
 				errs (list) num_paren 0 num_square 0 num_brace 0
 				max_depth 0 top_forms 0 in_quote :nil)
 			(lines! (lambda (raw_line)
 				(task-slice)
 				(++ line_no)
 				(defq line (trim-end raw_line "\r"))
-				(bind '(toks states) (. syntax :tokenize line))
+				(bind '(toks states tok_next) (tokenize-line line tok_state))
+				(setq tok_state tok_next)
 				(defq col 1)
 				(each (lambda (tok state)
 					(unless (find state '(:comment :string1))
@@ -89,9 +90,9 @@
 			(while (nempty? stack)
 				(defq top (pop stack) open_ch (first top) open_line (second top) open_col (third top))
 				(push errs (cat file " (" (str open_line) ":" (str open_col) "): unclosed bracket '" open_ch "'")))
-			(when (eql (. syntax :get_state) :string1)
+			(when (eql tok_state :string1)
 				(push errs (cat file ": unclosed string literal at EOF")))
-			(when (eql (. syntax :get_state) :string2)
+			(when (eql tok_state :string2)
 				(push errs (cat file ": unclosed brace '{' at EOF")))
 			(cond
 				((nempty? errs)

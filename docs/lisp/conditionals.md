@@ -132,7 +132,7 @@ acts like a fast switch. The `key` form is evaluated and a jump is then made to
 the matching body clause, or if no match, the optional `:t` clause.
 
 ```file
-lib/text/syntax.inc "case state" "this"
+lib/text/tokenize.inc "case state" "(list token_list"
 ```
 
 ## Tricks with logical statements

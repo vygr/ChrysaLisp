@@ -82,10 +82,10 @@ that ARE NOT members of the given character class.
 It's very easy to create fast state machines to parse lines of text given these
 primatives.
 
-For example look at the [Syntax](../reference/classes/Syntax.md) highlighting class !
+For example look at the tokeniser the [Syntax](../reference/classes/Syntax.md) highlighting class reads a line with !
 
 ```file
-lib/text/syntax.inc "while" "set this"
+lib/text/tokenize.inc "while" "(list token_list"
 ```
 
 Or even simpler, the options argument tokenizer.

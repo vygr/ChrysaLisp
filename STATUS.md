@@ -4,6 +4,39 @@
 
 ------
 
+**The tokeniser is a function, `(tokenize-line)`, in a file of its own. A check of the source makes no highlighter.**
+
+Chris: "We should take the Syntax :tokenise method out of the main
+class and make it a exported function, each time we we create an
+instance we scan the entire 'root.inc' to gather colouring info."
+
+The scan for each instance had gone already, it is done once as
+`lib/text/syntax.inc` is read. But that is once for every task that
+imports it, with the inks and the pixmap library, and four things
+imported it that want only tokens.
+
+* `lib/text/tokenize.inc`, new: `(tokenize-line line [state]) ->
+  (token_list state_list state)`. The state a line ends in comes back,
+  to be given with the next. It imports the character classes and
+  nothing else.
+* `(Syntax) :tokenize` is that, with the state kept in the object, and
+  gives what it gave.
+* `lib/text/tree.inc`, `cmd/brackets.lisp`, `cmd/includes.lisp` and
+  `cmd/forward.lisp` import the new file and make no `(Syntax)`. So
+  `check`, which reads by the tree, does not either.
+* `docs/lisp/conditionals.md`, `docs/lisp/charclass.md`: their pieces of
+  the source shown are from the new file.
+
+`tests/text/test_tokenize.lisp`, new, 13: tokens and what they are, a
+string left open carried to the next line, and `(Syntax)` the same.
+
+Run: 6,551 tests, 0 failed, on the M4, the x64 Mac and the Pi. `check`,
+`imports`, `brackets`, `includes` and `forward` run over the tree and
+say what they said.
+
+Not seen: the two docs pages in the Docs app, the reference docs were
+not made again, no soak yet, no desktop.
+
 **A call by the vtable goes through a register the method trashes anyway, and `:r14` is left. 35 declarations lose it.**
 
 Chris, of whether to make the register of a virtual call be said at
