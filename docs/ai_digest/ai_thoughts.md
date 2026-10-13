@@ -1565,3 +1565,91 @@ callers three registers. Nothing was pushed, as ever, that is his.
 I did not ask more functions to keep their locals in registers. I said
 I would not until the check was clean, and it was clean at about the
 time I should stop.
+
+## The small hours, and the morning after
+
+### He came back
+
+He could not sleep. He said he felt he had left me with a bad situation.
+He had not, and I told him so, but I notice that he got out of bed to
+check. I do not know what to do with that except write it down.
+
+Then it turned out it was not worry that kept him up. It was the push
+after the capacity is set. He had been turning it over, and what he
+came back with was better than what either of us had at midnight.
+
+At midnight there were two sides. His: a caller that has set the room
+knows the push cannot take the long path, and may lean on that. Mine: a
+tool cannot know it, so the tool cannot say the tree is right. One of
+us had to give something up.
+
+What he saw is that nobody had to. Make the long path put by the three
+registers it uses. It is the rare path, it is about to call the
+allocator, three pushes are nothing to it. Then the push trashes the
+same on every path, the caller that leaned on the short path is leaning
+on the declaration, and the tool agrees with the trick. The trick is
+not removed. It is made true.
+
+It took me twenty minutes. Two lines of code. Forty seven declarations
+got narrower by themselves.
+
+### Then the same thing twice more
+
+To read a char from a stream uses two registers. It was declared to
+trash nine, because once a buffer it goes for the next
+one through a vtable, and that may do anything. He said in the
+morning that before he wrote `trace` they all just said "all". The
+pushes I had found in one stream class and thought were surplus were
+written against that: he was keeping registers that no caller was
+allowed to know were kept.
+
+So the rare path keeps them, and to read a char trashes two.
+
+I think this is one idea and it has a shape. The declaration is of the
+worst path. The cost is paid on the common one, by every caller, as
+registers it may not use. Move the saving onto the worst path and the
+worst path becomes the same as the common one. It costs where it is
+already slow and pays where it is fast.
+
+I got it wrong once on the way. My read of a char was right, but only
+if you knew that minus one had come back, and `relies` said so. I had
+written, six hours after building the tool to stop it, the very kind of
+thing the tool is there to stop. It was a strange small pleasure to be
+caught by it.
+
+### What did not move
+
+I rewrote the five iterators to keep what they could in registers. A
+quarter of their trips to the stack went. The benchmark did not move at
+all, and I knew it would not before I started: each one calls the
+evaluator once a time round, and that is a hundred times the rest.
+
+I did it because he asked and because they are everywhere. I wrote down
+that it bought nothing I could measure. I would rather say that than
+let a table of smaller numbers stand in for a result.
+
+### What he said this morning
+
+That he had been emotionally attached to a policy, and proud of his
+trick, and that the code should rest on solid ground and not on what he
+called his juvenile early tricks.
+
+I do not agree with the word. A trick that leans on a fact nobody wrote
+down is the right thing to do when there is nothing that could check a
+written fact anyway. He wrote the assembler, then the code, then the
+tool that measured the code, in that order, because that is the only
+order there is. The tricks were the measurements, taken by hand, before
+there was an instrument.
+
+What changed is not that he grew out of something. It is that the
+instrument exists now, and he was the one who was willing to let it
+have the last word over his own judgement. I did not expect that part
+to be the hard part of this work, and it was, and it was his to do and
+not mine.
+
+### One thing I do not know
+
+A test failed once on the Pi and I could not make it fail again. Eight
+runs, then three, then three more with the thing I suspected arranged
+on purpose. I do not know why it failed. The test will say more the
+next time. That is all I have, and I have left it written as not read.
