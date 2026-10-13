@@ -340,7 +340,10 @@
 	;Each member has a task that runs the gophers that are at it, a block
 	;of each in turn, ./gopher.lisp. A function has a second for a block:
 	;it is made to give way and to look at the clock each time it goes
-	;round, and one that has had its second is done with, :nil comes back
+	;round, and one that has had its second is done with, :nil comes back.
+	;
+	;The rules of ChrysaLisp are the rules of a visit: it does not call
+	;itself. It goes round with a loop, or by asking for the block again
 	(defq mbox (mail-mbox) svc (ifn svc (storage-service)))
 	(when svc
 		;who it is from, - for not another member, and all there is of it

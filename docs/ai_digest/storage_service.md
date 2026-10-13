@@ -776,6 +776,13 @@ the tick function itself there, went into it, and put a tick in the tick.
 A macro can put a list into a form that is not the form's own, and a tick
 in one of those would be in every use of it on the node.
 
+The rules of ChrysaLisp are the rules of a gopher's function, Chris: "just
+documenting that ChrysaLisp rules apply, no recursive calling." A function
+does not call itself, here or anywhere in the tree. It goes round with a
+loop, and the tick is in every loop. Nothing looks for one that does, and
+one that went into itself for ever would run its task out of stack and
+take the node with it.
+
 Chris: "Injecting code is somthing that we can do easily in Lisp source,
 if we ever switch to VP based gophers's we can still inject a VP sequence
 to do the same thing."
@@ -973,13 +980,6 @@ was made to send the gopher and stop the member by itself.
   is to be thought through with Chris: a name for each walk, that a member
   can know it has seen; what a writer must promise; and how often it
   happens at all, which is to be measured and not guessed.
-* A function that calls itself is not ChrysaLisp, in a gopher or anywhere,
-  Chris: "that is ilegal (well very frou upon) in ChrysaLisp, we don't do
-  that." Nothing stops one being sent all the same. One that goes into
-  itself for ever runs its task out of stack long before its second is up,
-  and the node goes down with it: seen, 2026-10-13, it took a standing
-  node. The tick is not asked how deep it is. It belongs with the line
-  above, what a function may do is not fenced.
 * The tick is two calls of Lisp and one of the host each time round, 36ns
   on the M4. A function that looks at every byte of a block pays it for
   every byte, see Built. One native call, that gives way and knows when
