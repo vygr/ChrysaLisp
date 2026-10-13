@@ -106,6 +106,8 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
 
 * `(defattr name type)` and `(defvarying name type)`, of a vertex shader and
   of the pixel shader that goes with it, see Vertex Shaders below.
+* `(deftexture name)`. A picture a pixel shader reads from, see Textures
+  below. A vertex shader has none.
 
 ## Statements
 
@@ -159,6 +161,8 @@ name.
 * `min max mod`, of two the same, or of a vector and a float.
 * `(pow x y)`, `(clamp x lo hi)`, `(mix a b t)`.
 * `(dot a b)`, `(cross a b)`, `(length v)`, `(normalize v)`, `(reflect i n)`.
+
+* `(texture name uv)`, the pixel of a texture at a `:vec2`, as a `:vec4`.
 
 They mean what they mean in GLSL. `fract` of -0.25 is 0.75, `mod` of -0.25 and
 2.0 is 1.75.
@@ -477,6 +481,80 @@ several hundred. That is with see through pixels and 4 samples a pixel.
 The GLSL back end has a pair too, `(shader-glsl-pair)`, see its section. No
 host draws with it. Windows has been run, Martyn Blyss, the Mesh demo with
 its GPU button.
+
+## Textures
+
+A pixel shader that draws triangles can read pictures.
+
+This is `apps/demos/planets/globe_lit.shader`, less its comments.
+
+```vdu
+(deftexture surface)
+(definput sun :vec3)
+(defvarying uv :vec2)
+(defvarying facing :vec3)
+(defconst ambient 0.06)
+(defconst diffuse 1.1)
+(defun main :vec4 ((frag :vec2))
+	(defq tint (:xyz (texture surface uv))
+		lit (max (dot (normalize facing) sun) 0.0))
+	(vec4 (min (* tint (+ ambient (* diffuse lit))) (vec3 1.0)) 1.0))
+```
+
+`(texture name uv)` is the pixel at `uv`, a `:vec4`, each channel 0.0 to 1.0.
+(0,0) is the top left of the picture and (1,1) the bottom right. It is the
+nearest pixel, there is no blend of neighbours, and a `uv` outside 0 to 1
+wraps round, so a picture repeats. A texture can be read anywhere an
+expression can be, it can not be given a value, and a name declared a texture
+is nothing else. `(shader-textures program)` is the names, in the order they
+were declared, which is the order they are given in.
+
+The same shader on each back end reads the same pixel. How the picture is
+given differs:
+
+* Native code, `(shader-vp-draw-tris)`, and the CPU back end: beside the
+  inputs of the pixel shader, as `(name pixmap)`. The frame of the native
+  code has four slots a texture after its inputs, where the pixels are, the
+  width, the height and the bytes a row. A texture not given reads as
+  nothing, black and clear.
+* On the GPU, `(shader-gui-frame)`: a list of textures as the fifth thing of
+  a draw, `(pair mesh vblock pblock textures)`, each from
+  `(shader-gui-texture canvas)`, the picture of a canvas as the GPU has it.
+  The canvas must have been shown, `(. canvas :swap)`, and is kept for as
+  long as it is drawn with. The pixels of a new canvas go to the GPU with the
+  next frame of the GUI, not when it is made, and till then the driver does
+  not draw with it, the frame is to be tried again.
+* By strips, `(shader-strip)`: a list of textures as the sixth thing of a
+  draw, each from `(shader-strip-texture canvas)`, the key and size of a
+  canvas whose pixels are in shared memory, `(canvas-shared)`. A child
+  attaches to the pixels by the key, the once. There is the one copy of the
+  picture on the machine, however many nodes draw with it.
+
+In MSL a texture is a `texture2d<float>` and a sampler, args of the
+fragment function at `[[texture(i)]]` and `[[sampler(i)]]`. In SPIR-V it is a
+sampled image at set 2, binding i, read with `OpImageSampleImplicitLod`. In
+GLSL it is a `sampler2D` uniform. The driver has the one sampler, nearest and
+repeat, for all of them. The layout a pair is made with has a byte for how
+many textures the pixel shader has, after the bytes of the attrs, and a
+frame has a handle for each, 8 bytes, after the two blocks of a draw. A pair
+can have 8.
+
+`tests/gpu/test_texture.lisp` holds the back ends to each other.
+
+### The Planets demo
+
+`apps/demos/planets` is a globe that turns, with a map on it: Earth, the
+Moon, Mars, Jupiter and Pluto, maps of NASA and the USGS made small, 1024 by
+512, `apps/demos/planets/data/README.md` says where each came from. The
+ball is a mesh with a `uv` at each vertex, the vertex shader turns it and the
+pixel shader above lights it. On the GPU it is the one draw a frame. With the
+CPU button it is a strip of the frame by each node of the machine, the map
+in shared memory, or all of it here if there is only the one node. A change
+of mode gives the farm a new mailbox for its answers, so a frame that is out
+with it is not waited for.
+
+On a Raspberry Pi 4 it is 29 frames a second on the GPU, the timer of the
+app, and 24ms a frame by three nodes with none.
 
 ## Functions For Lisp To Call
 
@@ -1129,7 +1207,14 @@ The app is in the Demos list of the launcher, as surface.
 * Compute, and rendering as a service for a node with no GPU, are deferred.
 * No host draws triangles with the GLSL pair. They are drawn as native
   code, and on the GPU through Metal and Vulkan.
-* Textures as inputs, and compute.
+* Compute.
+* A texture is read at its nearest pixel. No blend of neighbours, no mip
+  levels.
+* The Mesh demo has no textures, and there is no viewer of `.obj` files with
+  their maps.
+* Reading back a canvas the GPU has drawn triangles into,
+  `(. canvas :swap +swap_read)`, ended the session of a test with no error.
+  Not looked into.
 * A shader gives four channels. One that makes a single channel image, a
   greyscale or a glyph, gives a grey and the texture is made in that mode
   from the pixmap. On the GPU a shader draws into a texture that is not of

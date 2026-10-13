@@ -4,6 +4,10 @@
 
 ------
 
+**Shaders read textures: `(deftexture name)`, `(texture name uv)`, on every back end. The Planets demo, Earth, Moon, Mars, Jupiter and Pluto, on the GPU or a strip by each node.**
+
+A texture goes beside the inputs: a pixmap to native code, `(shader-gui-texture canvas)` to the GPU, `(shader-strip-texture canvas)` of a shared canvas to the strips. Host `pair_create` and `tris_draw` take textures.
+
 **Windows host: a listen starts the sockets if nothing has, and holds its port alone. Found with the Windows host run here under Wine, where the install and every test pass.**
 
 **`bench` has strs, maps, streams and the polygon fill. A texture the driver does not make is said, on stderr.**

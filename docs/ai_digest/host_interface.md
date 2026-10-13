@@ -228,7 +228,8 @@ docs/diagrams/host_layers.cwb
           draw triangles, each given as bytes and a length, and a layout, a
           byte for how many attrs a vertex has, a byte for the cull, 0 none,
           1 what faces away, 2 what faces us, then a byte for the floats of
-          each attr. Returns a handle, or 0, and is built on a thread as a
+          each attr, then a byte for how many textures the pixel shader
+          reads, 8 at most. Returns a handle, or 0, and is built on a thread as a
           shader is. `host_gui_shader_destroy` frees it.
 
         * `host_gui_mesh_create`: The vertices of a mesh, kept on the GPU.
@@ -242,7 +243,10 @@ docs/diagrams/host_layers.cwb
           is a block and its length, a count, 8 bytes, then for each thing
           drawn, 8 bytes each, a pair, a mesh, the length of the vertex
           shader's block and of the pixel shader's, then the two blocks,
-          each made up to a whole 8 bytes. Returns as `host_gui_shader_draw`
+          each made up to a whole 8 bytes, then a texture handle, 8 bytes,
+          for each texture of the pair. One whose pixels have not gone to
+          the GPU yet, it was made since the last flush, and the return is
+          0. Returns as `host_gui_shader_draw`
           does, 1, 0 for try again, or -1. A pixel comes from the fragment
           shader with its alpha multiplied in, and is blended over what is
           there. The frame is drawn with 4 samples a pixel if the device
