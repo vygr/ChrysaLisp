@@ -22,7 +22,9 @@
 
 (defq +size 512 +timer_rate (/ 1000000 30) +segs 64 +rings 32
 	;each globe: its name, its map, how far it leans, and how fast it turns
-	+planets ''(("Earth" "earth.cpm" 0.41 0.02) ("Jupiter" "jupiter.cpm" 0.05 0.03))
+	+planets ''(("Earth" "earth.cpm" 0.41 0.02) ("Moon" "moon.cpm" 0.03 0.012)
+		("Mars" "mars.cpm" 0.44 0.02) ("Jupiter" "jupiter.cpm" 0.05 0.03)
+		("Pluto" "pluto.cpm" 0.3 0.012))
 	+near +real_2 +far (n2r 8) +away (n2r -5.2)
 	vertex (shader-load (cat *app_root* "globe_vertex.shader"))
 	pixel (shader-load (cat *app_root* "globe_lit.shader"))
@@ -49,7 +51,7 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *planet* ("Earth" "Jupiter") (:font *env_body_font*)) :connect +event_planet)
+		(. (ui-radio-bar *planet* ("Earth" "Moon" "Mars" "Jupiter" "Pluto") (:font *env_body_font*)) :connect +event_planet)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :color *env_toolbar2_col*)) :connect +event_mode)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-label *status* (:text "..." :font *env_body_font*))
