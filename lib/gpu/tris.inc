@@ -14,6 +14,10 @@
 ; A child that has not got one asks the app for it, the once, at a
 ; mailbox the app gives, and the app answers with (shader-mesh-send).
 ; So a frame is a few small messages, however big the meshes are.
+;
+; Nor does it carry the pictures a pixel shader reads from, its
+; textures. It names the file of each, and a child loads a file the
+; first time it is named, from the pictures its node keeps.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././task/jobs.inc")
@@ -31,11 +35,13 @@
 	(offset files))
 
 ;a draw, the number of the mesh, the rows of the frame it may be on, then
-;the inputs blocks of the two shaders. A child whose strip is none of
-;those rows does nothing for it, it does not even place its vertices
+;the inputs blocks of the two shaders, then the files of the textures of
+;the pixel shader, in the order it has them, a line each. A child whose
+;strip is none of those rows does nothing for it, it does not even place
+;its vertices
 (structure +strip_draw 0
 	(long mesh)
-	(uint vblock_length pblock_length y y1)
+	(uint vblock_length pblock_length y y1 tfiles_length)
 	(offset blocks))
 
 ;its answer, the first row, and 1 if it was drawn, 0 if the child could
@@ -52,23 +58,26 @@
 	; (shader-strip vfile pfile ask shared width height y y1 cull draws) -> job
 	;the job for rows y to y1 of a frame of that width and height. ask
 	;is the mailbox a child asks for a mesh at, shared the key of the
-	;pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1]),
-	;the number of a mesh, the blocks of (shader-pack) for the two
-	;shaders, and the rows of the frame the mesh may be on, if the app
-	;knows, all of them if not.
+	;pixels, (canvas-key). draws is a list of (mesh vblock pblock [y y1
+	;tfiles]), the number of a mesh, the blocks of (shader-pack) for the
+	;two shaders, the rows of the frame the mesh may be on, if the app
+	;knows, all of them if not, and a list of the files of the textures
+	;of the pixel shader, if it has any, in the order it has them.
 	(apply (const cat) (cat (list (setf-> (str-alloc +strip_size)
 			(+strip_ask ask) (+strip_shared shared)
 			(+strip_width width) (+strip_height height) (+strip_y y) (+strip_y1 y1)
 			(+strip_cull (cond ((not cull) 0) ((eql cull :front) 2) (1)))
 			(+strip_vfile_length (length vfile)) (+strip_pfile_length (length pfile))
 			(+strip_draws (length draws))) vfile pfile)
-		(map (lambda ((mesh vblock pblock &optional dy dy1))
+		(map (lambda ((mesh vblock pblock &optional dy dy1 tfiles))
+			(defq tfiles (join (ifn tfiles '()) (ascii-char 10)))
 			(cat (setf-> (str-alloc +strip_draw_size)
 				(+strip_draw_mesh mesh)
 				(+strip_draw_vblock_length (length vblock))
 				(+strip_draw_pblock_length (length pblock))
 				(+strip_draw_y (max 0 (ifn dy 0)))
-				(+strip_draw_y1 (max 0 (ifn dy1 height)))) vblock pblock)) draws))))
+				(+strip_draw_y1 (max 0 (ifn dy1 height)))
+				(+strip_draw_tfiles_length (length tfiles))) vblock pblock tfiles)) draws))))
 
 (defun shader-mesh-send (msg verts)
 	; (shader-mesh-send msg verts)

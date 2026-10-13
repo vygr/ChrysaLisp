@@ -54,7 +54,7 @@
 	(each (# (defq remote_node %0)
 		(print "  -> " (hex-encode remote_node))
 		(defq task_code (str `(progn
-			(bind '(task_count mem_used mem_avail max_stack) (kernel-stats))
+			(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
 			(mail-send (hex-decode ,(hex-encode reply_mbox))
 				(cat (hex-encode (task-nodeid)) "\n"
 					(str task_count) "\n"

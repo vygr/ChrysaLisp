@@ -40,7 +40,7 @@
 		;asynchronously launch probe on each node using +kn_call_pin (non-blocking)
 		(each (# (defq n %0)
 			(defq task_code (str `(progn
-				(bind '(task_count mem_used mem_avail max_stack) (kernel-stats))
+				(bind '(task_count mem_used mem_avail max_stack &ignore) (kernel-stats))
 				(defq sys_id (system-id) svcs (mail-enquire "")
 					host_cpu (cpu) host_os (os) host_abi (abi))
 				(mail-send (hex-decode ,(hex-encode reply_mbox))

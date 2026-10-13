@@ -1,7 +1,7 @@
 ;the child of lib/gpu/tris.inc, it draws strips of a frame of triangles
 ;with a vertex shader and a pixel shader, as native code
 
-(import "gui/pixmap/lisp.inc")
+(import "gui/lisp.inc")
 (import "./vp.inc")
 (import "./tris.inc")
 
@@ -15,6 +15,19 @@
 ;the meshes it has been sent, by their numbers, and the triangles of a
 ;mesh of that many vertices, which are just the vertices in order
 (defq meshes (Fmap 31) orders (Fmap 11))
+
+;the pictures it has been named, by their files, a canvas each, kept for
+;as long as the child is. One that could not be loaded is kept as that
+(defq pictures (Fmap 11))
+
+(defun picture (file)
+	;the pixmap of a picture, loaded the first time it is named. It is
+	;not made a texture of, this node may have no GUI, and it is one the
+	;node keeps, so the children of a node share the one copy
+	(unless (defq canvas (. pictures :find file))
+		(. pictures :insert file (setq canvas
+			(ifn (canvas-load file (const (+ +load_flag_shared +load_flag_noswap))) :none))))
+	(if (nql canvas :none) (getf canvas +canvas_pixmap 0)))
 
 ;the pixels of the app's canvas, in shared memory, and the key they were
 ;found by
@@ -61,9 +74,9 @@
 		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
 		attrs (elem-get (third pipeline) 2))
 	(times draws
-		(bind '(id vlen plen dy dy1) (getf-> (slice msg at (+ at +strip_draw_size))
+		(bind '(id vlen plen dy dy1 tlen) (getf-> (slice msg at (+ at +strip_draw_size))
 			+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
-			+strip_draw_y +strip_draw_y1))
+			+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length))
 		;a mesh that is on none of the rows of this strip is not drawn,
 		;and not asked for till it is. A strip of no rows asks for them all
 		(defq blocks (+ at +strip_draw_blocks)
@@ -71,9 +84,15 @@
 		(and depth verts
 			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 attrs)) pixmap depth
 				(shader-unpack vertex (slice msg blocks (+ blocks vlen)))
-				(shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))
+				;the inputs of the pixel shader, and each of its textures
+				;under its name, the picture of the file named for it. One
+				;with no file, or whose file is not there, is no picture
+				(cat (shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))
+					(map (lambda ((name) file) (list name (picture file)))
+						(shader-textures pixel)
+						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) (ascii-char 10))))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
-		(setq at (+ blocks vlen plen)))
+		(setq at (+ blocks vlen plen tlen)))
 	(mail-send reply (setf-> (str-alloc +strip_reply_size)
 		(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0)))))
 
