@@ -4,6 +4,33 @@
 
 ------
 
+**`:lstream` keeps only the registers that hold the stream methods where they are, five for a read and two for a seek, not ten.**
+
+Chris: "If the trashes spec for the :stream class methods is 'trashes
+all' why are we bothering to push/pop so many registers in the :lstream
+class ?" and, when I said they were not all, "that is only because
+'trace' when first written gave us the real mesure of what we had !
+Before I wrote 'trace' they all said 'all'". Then: "No issue with using
+what we have now messured to change policy."
+
+`:lstream :read_next` and `:seek` call Lisp, which keeps nothing, and
+pushed `:r4` to `:r13` round it. By the vtable a read is declared to
+trash `:r1-:r8 :r14`, for `:in` does, and a seek `:r1-:r11 :r14`, for
+`:mstream` does. So what was kept below `:r9` for a read, and below
+`:r12` for a seek, no caller could count on. They are not pushed.
+
+This is the one place a function trashes more than it did: the two
+methods' own lists are `:r1-:r8 :r14` and `:r1-:r11 :r14`, were
+`:r1-:r3 :r14`. The lists by the vtable are as they were, nothing calls
+either but by the vtable, and `trace -l` named these two and no other
+function before the lists were written.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,538
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi. The
+soak of eight on the stream change before this was clean on all three.
+
+Not seen: no soak of this, the emulators, no desktop.
+
 **To read or write a char of a stream trashes two registers, more in the buffer or no. The path to the next buffer keeps what that may trash.**
 
 Chris: "the simple act of reading a char can call a virtual method for

@@ -79,15 +79,16 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r8, :r14, :f0-:f15
 
 	(entry :lstream :read_next '(:r0))
 
-	;what is called is Lisp, which keeps nothing. A stream that is read
-	;keeps all but these, and what reads one may count on it
-	(vp-push :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	;what is called is Lisp, which keeps nothing. These are kept so that
+	;to read a stream by its vtable trashes no more than the other kinds
+	;of stream do: they trash the rest, so those are not kept here
+	(vp-push :r9 :r10 :r11 :r12 :r13)
 	(call :lstream :fill '(:r0) '(:r0 :r1))
-	(vp-pop :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	(vp-pop :r9 :r10 :r11 :r12 :r13)
 
 	(exit :lstream :read_next '(:r0 :r1))
 	(vp-ret)
@@ -145,15 +146,16 @@
 	;:r0 = lstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r11, :r14, :f0-:f15
 
 	(entry :lstream :seek '(:r0 :r1 :r2))
 
-	;what is called is Lisp, which keeps nothing. A stream that is read
-	;keeps all but these, and what reads one may count on it
-	(vp-push :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	;what is called is Lisp, which keeps nothing. These are kept so that
+	;to seek a stream by its vtable trashes no more than the other kinds
+	;of stream do: they trash the rest, so those are not kept here
+	(vp-push :r12 :r13)
 	(call :lstream :seek_to '(:r0 :r1 :r2) '(:r0 :r1))
-	(vp-pop :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)
+	(vp-pop :r12 :r13)
 
 	(exit :lstream :seek '(:r0 :r1))
 	(vp-ret)
