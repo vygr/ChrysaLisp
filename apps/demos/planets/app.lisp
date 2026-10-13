@@ -41,7 +41,10 @@
 	;the children that draw a strip each, they have said they are ready,
 	;a frame is out with them and when it went, and they can not be used
 	farm :nil farm_ready :nil farming :nil farm_began 0 no_farm :nil ticks 0
-	+retry_timeout (task-timeout 10))
+	+retry_timeout (task-timeout 10)
+	;a child with nothing to do for 5 seconds goes. When the farm was last
+	;given a frame, and how long after that it is not to be counted on
+	last_farm 0 +farm_stale 3000000)
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
@@ -141,15 +144,25 @@
 	;be drawn here: the pixels are not shared, there is only this node,
 	;or the children are not yet ready
 	(when (and (not no_farm) (/= (canvas-key *canvas*) 0) (> (length (lisp-nodes :t)) 1))
-		(unless farm
-			;a child for each node but this one, and none of them on this
-			;one, a strip is one long call and would hold up the app
-			(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
-				(elem-get select +select_farm_reply)
-				(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t))
-			(strips vvals :nil))
+		(cond
+			((not farm)
+				;a child for each node but this one, and none of them on
+				;this one, a strip is one long call and would hold up the app
+				(setq farm (Jobs +shader_tris_child (elem-get select +select_farm_task)
+					(elem-get select +select_farm_reply)
+					(list 64 (max 1 (dec (length (lisp-nodes :t)))) 0) :t))
+				(strips vvals :nil))
+			((and farm_ready (> (- (pii-time) last_farm) +farm_stale))
+				;the GPU has had the frames for a while, and the children
+				;may have gone. They are started again, and till they say
+				;they are ready the frames are drawn here. A frame given to
+				;children that had gone was never drawn, and the globe stood
+				;still
+				(setq farm_ready :nil)
+				(. farm :restart)
+				(strips vvals :nil)))
 		(when farm_ready
-			(setq farming :t farm_began (pii-time))
+			(setq farming :t farm_began (pii-time) last_farm farm_began)
 			(. *canvas* :fill +argb_black)
 			(strips vvals :t)
 			:t)))
@@ -211,7 +224,8 @@
 							(farming (setq farming :nil
 									cpu_time (+ cpu_time (- (pii-time) farm_began)) cpu_frames (inc cpu_frames))
 								(. *canvas* :swap +swap_write))
-							((setq farm_ready :t))))))
+							;they are ready, and as good as just used
+							((setq farm_ready :t last_farm (pii-time)))))))
 			(:t ;the timer, the globe turns and is drawn, if the last frame
 				;is not still out with the farm
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
