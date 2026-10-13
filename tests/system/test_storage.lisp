@@ -122,3 +122,50 @@
 	(assert-eq "it is the store it was" "testing" (. (storage-info sg_svc) :find :id))
 	(storage-stop sg_svc))
 (pii-remove sg_image)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a machine made a member, and remembered
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;all of it in files of its own here: the machine's own are not touched
+(defq sg_key (cat "tests/scratch/key_" (str (pii-pid))) sg_said (cat "tests/scratch/member_" (str (pii-pid)))
+	sg_claim (cat "tests/scratch/claim_" (str (pii-pid)) ".img"))
+(assert-eq "a machine with no key has no store of its mesh" :nil (storage-key-id sg_key))
+(save (cat "a pass phrase" (ascii-char 10)) sg_key)
+(defq sg_id (storage-key-id sg_key))
+(assert-true "one with a key has: an id made from it" (and (str? sg_id) (starts-with "mesh-" sg_id) (= (length sg_id) 21)))
+(assert-true "which is not the key, nor has it in it" (not (found? sg_id "pass")))
+(save "a pass phrase" sg_key)
+(assert-eq "the same key gives the same id, whatever is round it" sg_id (storage-key-id sg_key))
+(save "another pass phrase" sg_key)
+(assert-true "another key, another store" (nql sg_id (storage-key-id sg_key)))
+(pii-remove sg_key)
+
+(assert-eq "a machine that was never made a member has nothing kept" :nil (storage-member sg_said))
+(storage-member-save "storage/store.img" 4096 :nil :nil sg_said)
+(defq sg_was (storage-member sg_said))
+(assert-eq "made one: where its store is and how big are kept" "storage/store.img 4096"
+	(cat (. sg_was :find :image) " " (str (. sg_was :find :size))))
+(assert-eq "an id and copies that were not said are not" "(:nil :nil)" (str (list (. sg_was :find :id) (. sg_was :find :copies))))
+(storage-member-save "a folder/with a space.img" 512 "show" 2 sg_said)
+(setq sg_was (storage-member sg_said))
+(assert-eq "said, they are, and a path with a space in it" "a folder/with a space.img 512 show 2"
+	(join (list (. sg_was :find :image) (str (. sg_was :find :size)) (. sg_was :find :id) (str (. sg_was :find :copies))) " "))
+(storage-member-forget sg_said)
+(assert-eq "forgotten, there is nothing kept" :nil (storage-member sg_said))
+
+;who serves a store: one process, the first that says so and is still there
+(assert-eq "a store nobody has is this process's to serve" :t (storage-claim sg_claim))
+(assert-eq "and again, it has it already" :t (storage-claim sg_claim))
+(save "1" (cat sg_claim ".member"))
+(if (pii-alive 1)
+	(assert-eq "one that a process still there has is not" :nil (storage-claim sg_claim))
+	(test-pass "one that a process still there has is not"))
+(save "999999999" (cat sg_claim ".member"))
+(assert-eq "one that a process that has gone had is nobody's, and is taken" :t (storage-claim sg_claim))
+(storage-unclaim sg_claim)
+(assert-eq "let go of, the note of it is gone" 0 (age (cat sg_claim ".member")))
+
+;how many keep a block: three, or as many members as there are
+(assert-eq "three are to keep a block: of five members three do, of two both, of one that one" "(3 2 1)"
+	(str (map (# (length (store-rank "a block" %0 3))) '(("a" "b" "c" "d" "e") ("a" "b") ("a")))))

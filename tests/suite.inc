@@ -202,13 +202,23 @@
 		(split text (ascii-char 10)))
 	names)
 
+;a file that is named and is longer than this is not read
+(defq +test_file_most 16777216)
+
 (defun test-file-info (file)
 	; (test-file-info file) -> (age hash names)
 	;what is known of a file. It is read only if it has changed since it
 	;was last looked at
 	(defq info (. *test_files* :find file) now (age file))
 	(unless (and info (= (first info) now))
-		(defq text (ifn (load file) ""))
+		;not all of a file that is very big, a film, a store: it is taken as
+		;its time and its length. A test that named this machine's store, 4GB
+		;of it, asked for that much memory and the run stopped
+		(defq stat (pii-fstat file) size (if (list? stat) (second stat) 0)
+			;nor an image, whatever length it is said to have: the length the
+			;host gives is its low 32 bits, and a store of 4GB says 0
+			text (if (or (> size +test_file_most) (ends-with ".img" file) (starts-with "storage/" file))
+				(cat (str now) " " (str size)) (ifn (load file) "")))
 		(. *test_files* :insert file (setq info (list now (test-hex (sha256 text))
 			(if (or (ends-with ".lisp" file) (ends-with ".inc" file))
 				(test-file-scan file text) (list))))))

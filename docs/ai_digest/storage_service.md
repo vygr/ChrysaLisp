@@ -272,6 +272,38 @@ So:
   user/me/xxxxx and then come in to work and nothing is going to go wrong at
   all ?", yes.
 
+**A machine made a member, and started by itself (2026-10-13).** Chris, of
+the choices: a machine is not a member unasked; what it was told is kept as
+a fact of the machine; it is started "both TUI and GUI launch"; "mesh_key as
+a default store defintely a good one"; three copies "up to"; and of two
+sessions both starting it, "we need some way to win the possible race
+condition".
+
+* `storage -j`, `(storage-join)`: the machine's part of the store is made,
+  `storage/store.img`, 4096 MB at most, a file with holes that takes what is
+  in it, and started. What was said is kept in `store_member` at the root of
+  the tree, beside `mesh_key` and like it not in git. `storage -f` forgets.
+* The id of the store is made from the key, `(storage-key-id)`, a hash of
+  it: the same key, the same store, nothing typed. The key can not be had
+  from it.
+* It is started by `service/storage/auto.lisp`, which the Net service
+  starts when its session becomes the machine's member of the mesh and
+  tells to go when it is that no longer. Only one process can listen on a
+  port, so only one session is the member, and that is the host's doing and
+  can not be raced. The list of services could not settle it: two sessions
+  can each look, see none, and each declare one.
+* A session started alone, a run of the tests, never asks for the port and
+  so never starts the store.
+* Asked for by hand in another session, what holds two off the one image is
+  a note beside it, `store.img.member`, the id of the process that has it:
+  `(storage-claim)`. One of a process that has gone is nobody's.
+* Three keep a block, or all the members when there are fewer: that was so
+  already, `(store-rank)`.
+
+Seen on the Pi: joined with the one command, 780 KB on disk of 4 GB; its
+node restarted and the store up again with nothing typed; a second session
+asked to join and told another has it.
+
 **Pins.** A machine holds only its share of the blocks, so away from the rack
 part of anything would be out of reach. A member can pin the start of a
 path, `user/me/`, and holds all of every object under it beside the copies

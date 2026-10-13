@@ -31,3 +31,5 @@ mesh_key
 
 # reference source that is not ours to publish, and not to be synced
 /prototype1/
+store_member
+/storage/

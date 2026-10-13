@@ -4,6 +4,10 @@
 
 ------
 
+**Storage: `storage -j` makes a machine a member of the store of its mesh, and from then on its store starts by itself.**
+
+The id of the store is made from `mesh_key`. The file is `storage/store.img`, 4GB at most, taking what is put in it. Only the session that is the machine's member of the mesh serves it. In the README.
+
 **`(task-slice)` asks a clock that is cheap to ask, `:host_os :pii_tick`: a third off what it costs on the x64 Mac, a quarter on the Pi. The host is version 3.**
 
 **`relies -s`: where a register is saved round a call that leaves it. Seven such saves taken out, three of them in the evaluator.**

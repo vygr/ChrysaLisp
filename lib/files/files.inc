@@ -11,7 +11,8 @@
 	(setd root "." exts '("") cut_start 0 cut_end -1)
 	(defq stack (list root) paths (list))
 	(while (setq root (pop stack))
-		(unless (starts-with "./obj" root)
+		;not what is built, nor this machine's store
+		(unless (or (starts-with "./obj" root) (starts-with "./storage" root))
 			(each! (lambda (file type)
 				(cond
 					((eql type "8")

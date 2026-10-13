@@ -94,6 +94,9 @@
 		;is this the session that listens for the machine, its member of
 		;the mesh, what listens for it, and when to try to be if not
 		member :nil gates (list) next_join 0 dropping :nil last_watch_time 0
+		;what starts this machine's store, if it has one, for as long as
+		;this session is the machine's member: service/storage/auto.lisp
+		store_auto :nil
 		mesh :nil
 		mesh_service :nil
 		mesh_peers (Fmap 31)
@@ -226,6 +229,7 @@
 							(when (> beacon_socket 0) (net-close beacon_socket))
 							(when (> disco_socket 0) (net-close disco_socket))
 							(if mesh_service (mail-forget mesh_service))
+							(when store_auto (mail-send store_auto "") (setq store_auto :nil))
 							(setq gates (list) beacon_socket 0 beacon_ports (Fset 7) disco_socket 0
 								mesh :nil mesh_service :nil mesh_peers (Fmap 31)
 								member :nil dropping *net_can_drop* next_join 0))
@@ -243,6 +247,11 @@
 									((eql (mail-read-timeout said 2000000) "1")
 										(push gates gate)
 										(setq member :t mesh :t active :t)
+										;the one session that has the port is the one that
+										;serves the machine's store
+										(unless store_auto
+											(setq store_auto (open-child "service/storage/auto.lisp" +kn_call_pin))
+											(if (= (get-long store_auto 0) 0) (setq store_auto :nil)))
 										(if (= beacon_socket 0) (setq beacon_socket (net-udp-bind 0)))
 										(. beacon_ports :insert +mesh_tcp_port)
 										(unless mesh_service

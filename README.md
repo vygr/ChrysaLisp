@@ -254,17 +254,34 @@ rack "tests -a"      ; make them the same, then run every test on each
 
 ### Storage (in development)
 
-Each machine that is to be a member keeps a store in a file, or on a disk of its own. Members of the same store find each other over the mesh.
+A store is shared by the machines of a mesh. Each machine that is a member keeps its part of it in a file of its own, and members find each other over the mesh.
+
+A machine is not a member till it is told to be, once:
 
 ```code
-storage -s store.img -m 1024    ; start this machine's member, making a 1GB store if there is none
+storage -j
+```
+
+That makes this machine's part of the store, `storage/store.img` in the ChrysaLisp folder, and starts it. The store is the one of the mesh: its id is made from `mesh_key`, so every machine with the same key that has been joined is a member of the same store, with nothing else to say. From then on the store starts by itself whenever the machine is up, from a desktop or a terminal session alike.
+
+*	**How big.** The file may hold up to 4GB, and takes only as much disk as is put in it. `storage -j -m 1024` makes one of 1GB. On a file system that can not leave holes in a file, a FAT or exFAT stick, it takes all of it at once.
+*	**How many copies.** Each block is kept by three members, or by all of them when there are fewer. `-k` says another number.
+*	**One at a time.** Only one session of a machine serves its store: the one that is the machine's member of the mesh. A second is told so.
+*	**To stop.** `storage -x` stops it now. `storage -f` and it no longer starts by itself. The file is left as it is.
+*	**Elsewhere.** `storage -s path` is `-j` with the file where you say, a disk of its own for one.
+
+Then:
+
+```code
+storage                         ; what the store is, who its members are, what is in it
 storage -p photo.png pics/photo ; put a file at a path
 storage -g out.png pics/photo   ; and get it back, from whichever machines hold its blocks
 storage -l pics/                ; what is there, and how many members have each
+storage -P pics/                ; this machine holds all of what is under pics/, to take away
 storage -T . tree/              ; put a whole folder, read it all back as streams and compare
 ```
 
-From Lisp, `(storage-stream "pics/photo")` is a stream like any other. It is not started by itself yet, and its defaults are still being settled.
+From Lisp, `(storage-stream "pics/photo")` is a stream like any other. The Storage app, under System in the launcher, shows a store at work.
 
 ### Linking by hand
 

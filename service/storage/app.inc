@@ -357,6 +357,107 @@
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_pin (cat (if off "-" "+") prefix)))
 		(filter (const nempty?) (split answer +storage_lf))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; this machine as a member, by itself
+;
+; A machine is made a member the once, by somebody: (storage-join), the
+; storage command's -j. What it was told is kept in a file at the root of
+; the tree, as the key of the mesh is, and is of the machine and not of
+; a user. From then on the machine's store is started whenever the
+; session that is the machine's member of the mesh comes up,
+; ./auto.lisp, which the Net service starts when it has the port: only
+; one process can listen on a port, so only one session serves the
+; store, and that is settled by the host and can not be raced.
+;
+; Asked for by hand in another session, what holds two off the one image
+; is a file beside it with the id of the process that has it. One that
+; is of a process that has gone is nobody's.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq +storage_member_file "store_member" +storage_image "storage/store.img"
+	;how big a store is made if it is not said, MB. It is the most it may
+	;ever hold: the file takes only what is in it, on a file system that
+	;lets a file have holes
+	+storage_size 4096)
+
+(defun storage-key-id (&optional file)
+	; (storage-key-id [file]) -> :nil | id
+	;the id of the store of the mesh this machine is of: made from its
+	;key, so machines given the same key are of the same store with
+	;nothing said, and not the key, nor anything the key can be had from.
+	;:nil if the machine has no key
+	(and (defq text (load (ifn file "mesh_key")))
+		(nempty? (setq text (trim text (const (char-class " \t\r\n")))))
+		(cat "mesh-" (slice (hex-encode (sha256 (cat "ChrysaLisp store of " text))) 0 16))))
+
+(defun storage-member (&optional file)
+	; (storage-member [file]) -> :nil | emap
+	;what this machine was told when it was made a member: :image, :size
+	;in MB, and :id and :copies if they were said. :nil if it never was
+	(when (defq text (load (ifn file +storage_member_file)))
+		(defq said (Emap))
+		(each (lambda (line)
+			(when (defq at (find " " line))
+				(defq key (slice line 0 at) val (slice line (inc at) -1))
+				(cond
+					((eql key "image") (. said :insert :image val))
+					((eql key "size") (. said :insert :size (str-as-num val)))
+					((eql key "id") (. said :insert :id val))
+					((eql key "copies") (. said :insert :copies (str-as-num val))))))
+			(split text +storage_lf))
+		(if (. said :find :image) said)))
+
+(defun storage-member-save (image size &optional id copies file)
+	; (storage-member-save image size [id copies file])
+	;this machine is a member, of the store in that file, from now on
+	(save (join (cat (list (cat "image " image) (cat "size " (str size)))
+			(if id (list (cat "id " id)) (list))
+			(if (and copies (> copies 0)) (list (cat "copies " (str copies))) (list))
+			(list "")) +storage_lf)
+		(ifn file +storage_member_file)))
+
+(defun storage-member-forget (&optional file)
+	; (storage-member-forget [file])
+	;this machine is not started as a member by itself any more. Its
+	;store is left as it is
+	(if (/= 0 (age (ifn file +storage_member_file))) (pii-remove (ifn file +storage_member_file))))
+
+(defun storage-claim (image)
+	; (storage-claim image) -> :nil | :t
+	;is the store in that file this process's to serve. It is if no
+	;process that is still there has said it is its own. It says so, in
+	;a file beside the image, waits a moment, and looks again: of two
+	;that say so at once the last to write is what both read, so one of
+	;them goes on and the other does not
+	(defq note (cat image ".member") me (str (pii-pid))
+		held (if (defq text (load note)) (trim text (const (char-class " \t\r\n"))) ""))
+	(cond
+		((and (nempty? held) (nql held me) (pii-alive (str-as-num held))) :nil)
+		(:t (save me note)
+			(task-sleep 50000)
+			(eql (if (defq text (load note)) (trim text (const (char-class " \t\r\n"))) "") me))))
+
+(defun storage-unclaim (image)
+	; (storage-unclaim image)
+	;the store in that file is nobody's to serve, if it was this process's
+	(defq note (cat image ".member"))
+	(and (defq text (load note)) (eql (trim text (const (char-class " \t\r\n"))) (str (pii-pid)))
+		(pii-remove note)))
+
+(defun storage-join (&optional image size id copies force)
+	; (storage-join [image size id copies force]) -> :nil | netid
+	;the store of this machine is started, in this session: the one in
+	;that file, storage/store.img if it is not said, made if there is
+	;none, of so many MB. Its id is what is said, or the mesh's own,
+	;(storage-key-id), or store. :nil if another process has it, or it
+	;could not be started
+	(setd image +storage_image size +storage_size)
+	(and (storage-claim image)
+		;it is defined after this, so by its name as this is called, not as it is read
+		(apply storage-start (cat (list image :size (* size 1048576) :id (ifn id (ifn (storage-key-id) "store")))
+			(if (and copies (> copies 0)) (list :copies copies) (list))
+			(if force (list :force :t) (list))))))
+
 (defun storage-pinned-by (name &optional svc)
 	; (storage-pinned-by path [svc]) -> :nil | (member ...)
 	;the members that have that path pinned, that hold all of its object,

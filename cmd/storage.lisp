@@ -8,12 +8,22 @@
 
     options:
         -h --help: this help info.
-        -s --start image: start the service of this system on
-            the store in that file of the host, or disk.
-        -m --make megabytes: with -s, if there is no store
-            there, make one that big.
-        -i --id name: with -m, the id of the new store,
-            default store.
+        -j --join: make this machine a member of the store of
+            its mesh, and start it. A store is made for it
+            in storage/store.img, of 4096 MB at most, which
+            takes only what is put in it, and its id is made
+            from the mesh key, so every machine with that
+            key is of the one store. From then on it starts
+            by itself, whenever this machine is up. -m, -i
+            and -k say otherwise.
+        -f --forget: this machine no longer starts its
+            store by itself. The store is left as it is.
+        -s --start image: as -j, of the store in that file
+            of the host, or disk.
+        -m --make megabytes: with -s or -j, if there is no
+            store there, make one that big.
+        -i --id name: with -m, the id of the new store. The
+            mesh's own if it is not said, or store.
         -F --format: with -s and -m, make a store of what is
             there even if it is something else, a disk.
         -k --copies num: with -m, how many members keep a
@@ -53,6 +63,8 @@
 
     The Storage service of this system, an object store. With
     no option, what the store is and what is in it.")
+(("-j" "--join") ,(opt-flag 'opt_j))
+(("-f" "--forget") ,(opt-flag 'opt_f))
 (("-s" "--start") ,(opt-str 'opt_s))
 (("-m" "--make") ,(opt-num 'opt_m))
 (("-i" "--id") ,(opt-str 'opt_i))
@@ -86,19 +98,31 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
+			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
-		(if opt_s (unless (apply (const storage-start) (cat (list opt_s)
-				(if (> opt_m 0) (list :size (* opt_m 1048576)) (list))
-				(if opt_i (list :id opt_i) (list)) (if opt_F (list :force :t) (list))
-				(if (> opt_k 0) (list :copies opt_k) (list))))
-			(print "No store at " opt_s ", and none made.")))
+		(if opt_j (setq opt_s (ifn opt_s +storage_image)))
+		(when opt_f
+			(storage-member-forget)
+			(print "This machine does not start its store by itself now. The store is as it was."))
+		(when opt_s
+			;a store there already is as big as it is, and has its own id
+			(defq size (if (> opt_m 0) opt_m +storage_size))
+			(cond
+				((storage-service) (print "The Storage service is running already."))
+				((not (storage-claim opt_s))
+					(print "Another session of this machine is serving the store at " opt_s "."))
+				((storage-join opt_s size opt_i (if (> opt_k 0) opt_k) opt_F)
+					;and by itself from now on
+					(storage-member-save opt_s size opt_i (if (> opt_k 0) opt_k)))
+				((print "No store at " opt_s ", and none made."))))
 		(defq svc (storage-service) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
 		(cond
 			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))
-			(opt_x (print (if (storage-stop svc) "Stopped." "It did not say.")))
+			(opt_x (defq said (storage-member))
+				(print (if (storage-stop svc) "Stopped." "It did not say."))
+				(if said (storage-unclaim (. said :find :image))))
 			(opt_p
 				(cond
 					((eql name "") (print "A path to put it at."))
