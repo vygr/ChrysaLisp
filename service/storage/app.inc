@@ -21,7 +21,7 @@
 		pin pins_missing sweep check walk stop
 		;what members ask of each other, and a tender of its own service
 		state entries merge share block_drop where peers members cut
-		copies))
+		copies pinned))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -356,6 +356,13 @@
 	;off no longer does. What is pinned now
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_pin (cat (if off "-" "+") prefix)))
 		(filter (const nempty?) (split answer +storage_lf))))
+
+(defun storage-pinned-by (name &optional svc)
+	; (storage-pinned-by path [svc]) -> :nil | (member ...)
+	;the members that have that path pinned, that hold all of its object,
+	;as far as this system knows. Every member is told what each has pinned
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_pinned name))
+		(filter (const nempty?) (split answer " "))))
 
 (defun storage-pins-missing (&optional svc)
 	; (storage-pins-missing [svc]) -> :nil | (name ...)

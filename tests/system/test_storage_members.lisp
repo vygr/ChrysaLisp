@@ -197,8 +197,18 @@
 	(sn-settle)
 	(assert-list-eq "its tender looks: all of it is there" '() (storage-pins-missing (sn-of "m-c")))
 	(assert-eq "the member has all 20 blocks" 20 (length (filter (# (= %0 1)) (sn-copies sn_names (list (sn-of "m-c"))))))
+	;every member is told who has it pinned, with the path map, so a gopher
+	;is sent to that member and has nobody to ask
+	(assert-list-eq "every member knows who has it pinned" '(("m-c") ("m-c") ("m-c") ("m-c") ("m-c"))
+		(map (# (storage-pinned-by "big" %0)) sn_svcs))
+	(defq sn_pinned_walk (storage-walk "big" 0 sn_visit :nil 30 (sn-of "m-a")))
+	(assert-eq "a gopher sent to it comes back with the answer" sn_sum (first sn_pinned_walk))
+	(assert-true "by way of the member that has it pinned, at most the one move, and it ends there"
+		(and (<= (length (second sn_pinned_walk)) 2) (eql (str (first (last (second sn_pinned_walk)))) "m-c")))
 	(storage-pin "big" :t (sn-of "m-c"))
 	(sn-settle)
+	(assert-list-eq "the pin off: every member knows nobody has it pinned" '(() () () () ())
+		(map (# (storage-pinned-by "big" %0)) sn_svcs))
 	(assert-list-eq "the pin off: every block is back to three keepers" '(3)
 		(reduce (# (if (find %1 %0) %0 (push %0 %1))) (sn-copies sn_names) (list)))
 

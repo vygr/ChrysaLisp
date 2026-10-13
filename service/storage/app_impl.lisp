@@ -61,20 +61,23 @@
 	;at the count it is given, one it gave before
 	(join (cat (list (cat "at " (store-at store))
 			(cat "members " (join (get :members store) " ")) (cat "retired " (join (get :retired store) " ")))
+		;what each member has pinned, all of it each time, it is little
+		(map (# (cat "pinned " %0)) (store-pinned-lines store))
 		(map (const store-entry-line) (store-since store at))) +storage_lf))
 
 (defun notes-take (store text)
 	;what another member told, taken in. How many paths are not as they were
-	(defq lines (split text +storage_lf) entries (list))
+	(defq lines (split text +storage_lf) entries (list) pinned (list))
 	(each (lambda (line)
 		(cond
 			((starts-with "at " line))
+			((starts-with "pinned " line) (push pinned (slice line 7 -1)))
 			((starts-with "members" line) (store-join store (rest (split line " ")) :nil :t))
 			((starts-with "retired" line) (store-join store (list) (rest (split line " ")) :t))
 			((defq entry (store-entry-read line)) (push entries entry))))
 		lines)
 	;not written to the volume now: it is when there is a moment, below
-	(length (store-meet store entries :t)))
+	(+ (if (store-pinned-take store pinned :t) 1 0) (length (store-meet store entries :t))))
 
 (defun main ()
 	;what it is to keep
@@ -148,6 +151,7 @@
 							(store-pin store (rest body) (eql (first body) "-"))
 							(join (get :pins store) +storage_lf))
 						(+storage_type_pins_missing (join (store-pins-missing store) +storage_lf))
+						(+storage_type_pinned (join (store-pinned-by store body) " "))
 						(+storage_type_sweep (str (store-sweep store)))
 						(+storage_type_check
 							(join (map (const hex-encode) (store-check store (eql body "mend"))) +storage_lf))

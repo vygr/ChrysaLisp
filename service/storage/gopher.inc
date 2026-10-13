@@ -39,19 +39,24 @@
 (enums +gopher_pass 0
 	(enum mbox holders next due text wait))
 
-(defun gopher-route (names at me peers copies skip)
-	; (gopher-route names at me peers copies skip) -> (netid ...)
+(defun gopher-route (names at me peers copies skip &optional pinned)
+	; (gopher-route names at me peers copies skip [pinned]) -> (netid ...)
 	;of the other members, ((member netid) ...), those that are to keep
 	;the block wanted, the one that is to keep the longest run of the
 	;blocks after it first. Nobody is asked: it is the sum every member
 	;does, of the members that are there, me and them. One that is in
-	;skip, in hex, did not answer this gopher before and is left out
+	;skip, in hex, did not answer this gopher before and is left out.
+	;
+	;pinned is the members that hold all of the object, they have it
+	;pinned, which every member is told. One of those is first of all: it
+	;has every block there is to come, and the gopher does not leave it
 	(defq among (cat (list me) (map (const first) peers))
 		kept (map (# (store-rank %0 among copies)) (slice names at (min (length names) (+ at +gopher_ahead))))
-		runs (list))
+		runs (list) pinned (ifn pinned (list)))
 	(each (lambda ((who where))
 		(unless (find (hex-encode where) skip)
-			(if (> (defq run (ifn (some (# (unless (find who %0) (!))) kept) (length kept))) 0)
+			(if (> (defq run (if (find who pinned) (inc (length kept))
+					(ifn (some (# (unless (find who %0) (!))) kept) (length kept)))) 0)
 				(push runs (list run where)))))
 		peers)
 	(map (const second) (sort runs (# (- (first %1) (first %0))))))
@@ -75,8 +80,8 @@
 		members)
 	(map (const second) (sort runs (# (- (first %1) (first %0))))))
 
-(defun gopher-pass-begin (holders asker name at state source trail skip &optional wait version copies)
-	; (gopher-pass-begin holders asker name at state source trail skip [wait version copies]) -> pass
+(defun gopher-pass-begin (holders asker name at state source trail skip &optional wait version copies pinned)
+	; (gopher-pass-begin holders asker name at state source trail skip [wait version copies pinned]) -> pass
 	;a gopher is to be sent on to one of the holders, the first of them
 	;if it can be. Nothing is sent yet: (gopher-pass-turn) does it all, a
 	;step each time it is called, and never waits. version is the name of
@@ -84,7 +89,10 @@
 	;thing all the way, and copies how many members were to keep its
 	;blocks. wait, seconds, is for a test
 	(list (mail-mbox) holders 0 0
-		(cat (hex-encode asker) +storage_lf (str (list name at state source trail skip version copies)))
+		(cat (hex-encode asker) +storage_lf (str (list name at state source trail skip version copies
+			;the members as the one word, that reads back as it was whatever
+			;is in an id
+			(cat "p" (hex-encode (join (ifn pinned (list)) " "))))))
 		(task-timeout (ifn wait +gopher_ack_wait))))
 
 (defun gopher-pass-turn (pass skip)

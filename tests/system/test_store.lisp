@@ -239,8 +239,20 @@
 (assert-eq "and the object is not to be had whole" :nil (store-get so "b/copy"))
 (assert-eq "nor folded" :nil (store-fold so "b/copy" 0 (lambda (state data at) state)))
 (assert-eq "the block put back, it is" so_big (progn (store-block-put so (slice so_big 0 4096)) (store-get so "b/copy")))
+(assert-list-eq "what is pinned is known by who has it pinned" (list (get :member so)) (store-pinned-by so "b/copy"))
+(assert-list-eq "and a path that is not under it by nobody" '() (store-pinned-by so "c/x"))
 (store-pin so "b/" :t)
 (assert-eq "no longer pinned" :nil (store-pinned? so "b/copy"))
+(assert-list-eq "nor known to be by anybody" '() (store-pinned-by so "b/copy"))
+;what another member has pinned, as it tells it: a count that is its own
+(assert-eq "what another member says it has pinned is taken" :t (store-pinned-take so '("zzzz 2 b/" "zzzz 2 with a space/")))
+(assert-list-eq "and is known" '("zzzz") (store-pinned-by so "b/copy"))
+(assert-list-eq "a prefix with a space in it too" '("zzzz") (store-pinned-by so "with a space/x"))
+(assert-eq "the same again is nothing new" :nil (store-pinned-take so '("zzzz 2 b/" "zzzz 2 with a space/")))
+(assert-eq "nor is what it said before that" :nil (store-pinned-take so '("zzzz 1 c/")))
+(assert-list-eq "which is not taken" '() (store-pinned-by so "c/x"))
+(assert-eq "what it says after is, it has none now" :t (store-pinned-take so '("zzzz 3")))
+(assert-list-eq "and it is known to have none" '() (store-pinned-by so "b/copy"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; it is on the volume, and whose it is
@@ -254,6 +266,8 @@
 (assert-eq "an object is had" so_big (store-get so_again "b/copy"))
 (assert-eq "an entry is as it was" (str (store-find so "c/x")) (str (store-find so_again "c/x")))
 (assert-list-eq "and the pins" '("user/me/") (get :pins so_again))
+(assert-list-eq "and who has what pinned, as it was" (store-pinned-lines so) (store-pinned-lines so_again))
+(assert-list-eq "this member among them" (list (get :member so_again)) (store-pinned-by so_again "user/me/x"))
 (assert-eq "it is still nobody else's" :nil (get :was so_again))
 ;opened by another member: a machine given a new id, a disk moved
 (defq so_moved (store-open stream "bbbb"))

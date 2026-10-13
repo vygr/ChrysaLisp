@@ -37,7 +37,7 @@
 ;wants is not: 0 where it is worked out to be, 1 those that say they
 ;have it, 2 nothing more. pass is there while it is being sent on
 (enums +gopher 0
-	(enum asker name at state source visit names version copies trail skip how pass))
+	(enum asker name at state source visit names version copies trail skip how pass pinned))
 
 ;how many objects it keeps the blocks of, between gophers, and how often
 ;it looks while one is being sent on and nothing else is to be done
@@ -72,7 +72,13 @@
 			(defq form (first (read (string-stream text))))
 			(bind '(name at state source trail skip) (slice form 0 6))
 			(defq version (if (> (length form) 6) (elem-get form 6))
-				copies (if (> (length form) 7) (elem-get form 7)))
+				copies (if (> (length form) 7) (elem-get form 7))
+				;who holds all of it, they have it pinned: asked of this member
+				;as it sets out, which is told as every member is, and then
+				;it goes with the gopher
+				pinned (if (> (length form) 8)
+					(filter (const nempty?) (split (hex-decode (slice (str (elem-get form 8)) 1 -1)) " "))
+					(ifn (storage-pinned-by name svc) (list))))
 			;what the object is now, if it has just set out: it is of that all
 			;the way. And how many keep its blocks, which is the path's to say
 			(and (not version) (defq entry (storage-stat name svc))
@@ -91,7 +97,7 @@
 					(list asker name at state source (exec (copy source)) names version copies trail skip
 						;it was sent here for a block: if that is not here, what was
 						;worked out is not so, and it asks
-						(if (> (length trail) 1) 1 0) :nil))
+						(if (> (length trail) 1) 1 0) :nil pinned))
 				(:t (mail-send asker "none") :nil)))
 		(progn (print "Gopher: " _) (mail-send asker "none") :t)))
 
@@ -100,7 +106,7 @@
 	;a step of a gopher: a block, if the one it wants is here, or a step
 	;of sending it on. :drop when it is done with here: it answered, it
 	;went, or it can not go on and said so
-	(bind '(asker name at state source visit names version copies trail skip how pass) g)
+	(bind '(asker name at state source visit names version copies trail skip how pass pinned) g)
 	(defq count (length names))
 	(cond
 		(pass
@@ -129,9 +135,9 @@
 			(defq peers (map (# (list (first %0) (hex-decode (second %0))))
 					(filter (# (= (length %0) 2)) (map (# (split %0 " "))
 						(split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))))
-				holders (if (= how 0) (gopher-route names at member peers copies skip)
+				holders (if (= how 0) (gopher-route names at member peers copies skip pinned)
 					(gopher-order names at (map (const second) peers) skip)))
-			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies)))
+			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies pinned)))
 			;and is sent to the first of them now
 			(gopher-pass-turn pass skip)
 			:keep)

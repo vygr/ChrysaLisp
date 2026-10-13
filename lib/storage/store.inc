@@ -35,6 +35,7 @@
 ;	members		the members, a line each
 ;	retired		those that were members and are no more
 ;	pins		the paths this member holds all of, a line each
+;	pinned		what every member holds all of, as far as is known here
 ;	paths		the path map, a line an entry
 ;	blocks/xx/y	a block, its name in hex, xx the first two of it
 ;
@@ -157,6 +158,49 @@
 			(store-vv-read vv) writer (if (eql seen "-") (list) (split seen ",")) (starts-with "1" deleted)
 			(if (defq at (find "/" deleted)) (str-as-num (slice deleted (inc at) -1)) 0))))
 
+;What each member has pinned is known to every member: it goes with the
+;path map when two compare notes. A gopher is sent to a member that holds
+;all of an object, and has nobody to ask who that is. A member's line is
+;its own to write, with a count it adds to each time, so of two that are
+;had for a member the one of the greater count is the later, and there is
+;nothing to choose between.
+
+(defun store-pinned-lines (store)
+	; (store-pinned-lines store) -> (line ...)
+	;what every member has pinned, as lines, member count prefix: a line a
+	;prefix, the prefix last, it may have spaces in it. A member that has
+	;none pinned now is a line with no prefix, so that is known too
+	(defq lines (list))
+	(. (get :pinned store) :each (lambda (member row)
+		(defq head (cat member " " (str (first row))))
+		(if (= (length row) 1) (push lines head)
+			(each (# (push lines (cat head " " %0))) (rest row)))))
+	(sort lines))
+
+(defun store-pinned-read (store lines)
+	; (store-pinned-read store lines) -> :nil | :t
+	;lines of (store-pinned-lines), as another member has them or as they
+	;were kept: of each member, what is of a greater count than is had
+	;here is taken. If it is of this member, its pins are that now: an
+	;image put back from an older copy. Was anything new
+	(defq rows (Fmap 11) new :nil me (get :member store))
+	(each (lambda (line)
+		(defq parts (split line " "))
+		(when (>= (length parts) 2)
+			(defq member (first parts) count (str-as-num (second parts))
+				row (ifn (. rows :find member) (list count)))
+			(if (> count (first row)) (setq row (list count)))
+			(and (= count (first row)) (> (length parts) 2) (push row (join (slice parts 2 -1) " ")))
+			(. rows :insert member row)))
+		lines)
+	(. rows :each (lambda (member row)
+		(defq was (. (get :pinned store) :find member))
+		(when (or (not was) (> (first row) (first was)))
+			(. (get :pinned store) :insert member (cat (list (first row)) (sort (rest row))))
+			(if (eql member me) (def store :pins (sort (rest row))))
+			(setq new :t))))
+	new)
+
 (defun store-save (store)
 	; (store-save store) -> store
 	;the path map, the members and the pins, as they are now. Whatever
@@ -171,6 +215,7 @@
 	(exfat-save vol "members" (store-text (get :members store)))
 	(exfat-save vol "retired" (store-text (get :retired store)))
 	(exfat-save vol "pins" (store-text (get :pins store)))
+	(exfat-save vol "pinned" (store-text (store-pinned-lines store)))
 	(exfat-end vol)
 	store)
 
@@ -224,7 +269,7 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :members (list member) :retired (list) :pins (list) :held (Fset 11) :manifests (Fmap 11))
+			:map (Fmap 11) :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fset 11) :manifests (Fmap 11))
 		(store-count store)
 		(exfat-begin vol)
 		(store-head-save store)
@@ -245,7 +290,7 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :members (list) :retired (list) :pins (list))
+			:map (Fmap 101) :members (list) :retired (list) :pins (list) :pinned (Fmap 11))
 		(defq had "")
 		(each (lambda (line)
 			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
@@ -258,6 +303,10 @@
 		(def store :members (store-lines (exfat-load vol "members"))
 			:retired (store-lines (exfat-load vol "retired"))
 			:pins (store-lines (exfat-load vol "pins")))
+		(store-pinned-read store (store-lines (exfat-load vol "pinned")))
+		;a store of before there was such a thing has pins and has not said so
+		(and (nempty? (get :pins store)) (not (. (get :pinned store) :find (get :member store)))
+			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
 		(each (lambda (line)
 			(if (defq entry (store-entry-read line))
 				(. (get :map store) :insert (first entry) entry)))
@@ -660,7 +709,8 @@
 			(defq lines (list))
 			(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
 			(def store :digest (sha256 (store-text (cat (sort lines) (list "members") (store-members store)
-				(list "retired") (sort (cat (get :retired store))))))))))
+				(list "retired") (sort (cat (get :retired store)))
+				(list "pinned") (store-pinned-lines store))))))))
 
 (defun store-entries (store)
 	; (store-entries store) -> (entry ...)
@@ -793,11 +843,31 @@
 	;does
 	(def store :pins (if off (filter (# (nql %0 prefix)) (get :pins store))
 		(sort (if (find prefix (get :pins store)) (get :pins store) (cat (get :pins store) (list prefix))))))
+	;and it is told to the others, with the path map: a count that this
+	;member alone adds to, so what it said last is known to be the last
+	(defq me (get :member store) was (. (get :pinned store) :find me))
+	(. (get :pinned store) :insert me (cat (list (inc (if was (first was) 0))) (get :pins store)))
 	(store-save store))
 
 (defun store-pinned? (store name)
 	; (store-pinned? store path) -> :nil | :t
 	(if (some (# (starts-with %0 name)) (get :pins store)) :t))
+
+(defun store-pinned-take (store lines &optional later)
+	; (store-pinned-take store lines [later]) -> :nil | :t
+	;what another member says is pinned, taken in and kept
+	(when (store-pinned-read store lines)
+		(if later (store-later store) (store-save store))
+		:t))
+
+(defun store-pinned-by (store name)
+	; (store-pinned-by store path) -> (member ...)
+	;the members that hold all of the object of that path, as far as is
+	;known here: it is under what they have pinned. Not one that is retired
+	(defq out (list) retired (get :retired store))
+	(. (get :pinned store) :each (lambda (member row)
+		(and (not (find member retired)) (some (# (starts-with %0 name)) (rest row)) (push out member))))
+	(sort out))
 
 (defun store-pins-missing (store)
 	; (store-pins-missing store) -> (name ...)
@@ -825,7 +895,7 @@
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-copies store-get store-read store-fold store-walk store-list
-	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-info
+	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 	store-entry-line store-entry-read
 	+store_block_size +store_copies +store_entry_path +store_entry_hash +store_entry_bytes

@@ -278,6 +278,18 @@ path, `user/me/`, and holds all of every object under it beside the copies
 there are, and does not let go of it. It can say if what is pinned is all
 there yet. Chris: "yes, pinning is how I'd expect it to work".
 
+What each member has pinned is known to every member. It is a line for each
+member, the prefixes and a count that member alone adds to, and it goes with
+the path map when two compare notes, as the list of members does:
+`(store-pinned-by store path)`, `(storage-pinned-by path)`. So a gopher is
+sent to a member that holds all of the object, and stays there, and has
+nobody to ask who that is. Before, it found such a member only when the sum
+of who keeps a block happened to send it there. Chris, of a gopher that
+went round eight members to get to the one with every block: "yes, put the
+pin in the path map". It is with the path map and not in each entry of it:
+a pin is of a prefix, every path under it and those to come, and a line a
+member has one writer and nothing to settle.
+
 **A query is a thing that walks.** Chris asked what a query does that reads
 more than one block: "does it get to the end of a block say on machine a, and
 then hits the 'next_buffer' and get moved over to where the next block is on

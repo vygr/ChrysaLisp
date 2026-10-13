@@ -4,6 +4,8 @@
 
 ------
 
+**Storage: every member knows what each has pinned, so a gopher goes straight to a member that holds the whole object.**
+
 **Named locals are kept in registers in every function that has them; `(vpx-stack)` to have them on the stack.**
 
 The last of the old C-Script way. 120 locals in 40 functions, a build 5%
