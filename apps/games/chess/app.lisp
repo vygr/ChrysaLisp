@@ -144,8 +144,10 @@
 						(. *window* :event *msg*))
 					((. *window* :event *msg*))))
 			((= idx +select_task)
+				;a node that could not start the child is left by the farm,
+				;which asks another
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
-				(when (and farm (defq val (. farm :find key)))
+				(when (and farm (defq val (. farm :reply *msg*)))
 					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)

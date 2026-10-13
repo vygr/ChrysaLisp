@@ -55,3 +55,46 @@
 (assert-eq "and every entry is kept" gl_nodes (gl-size gl))
 (. gl :close)
 (assert-eq "till it is closed" gl_nodes (length gl_gone))
+
+;a farm, children on any node, leaves a node that could not start one too,
+;while that farm lasts, and asks for the child of another at once. Chris:
+;"they would ignore that node from then on. It's only for this specific
+;instance, so not permenant."
+(import "lib/task/farm.inc")
+
+(defq fm_mbox (mail-mbox) fm_asked (list) fm_gone 0 fm_task "tests/system/no_such_child_zyz.lisp" fm_at 0)
+
+(defun fm-create (key val nodes)
+	;each node in turn, of those the farm gives: not one it has left
+	(defq node (elem-get nodes (% (++ fm_at) (length nodes))))
+	(push fm_asked (cat node))
+	(open-task fm_task node +kn_call_pin key fm_mbox))
+
+(defun fm-destroy (key val)
+	(++ fm_gone))
+
+(defun fm-replies (farm)
+	;the answers, till no more come: how many were of a child started
+	(defq started 0)
+	(while (defq msg (mail-read-timeout fm_mbox (task-timeout 1)))
+		(if (. farm :reply msg) (++ started)))
+	started)
+
+(defq fm (Farm fm-create fm-destroy 1))
+(assert-eq "a farm of one child asks one node for it" 1 (length fm_asked))
+(assert-eq "no node can start a child that is not there" 0 (fm-replies fm))
+(assert-eq "every node was asked, the once, each as the one before said no"
+	(str (sort (map (const hex-encode) (lisp-nodes)))) (str (sort (map (const hex-encode) fm_asked))))
+(assert-eq "and each is known to have refused" (length (lisp-nodes)) (length (. fm :refused)))
+(assert-eq "the farm has its one child still, asked for and not there" 1 (. fm :size))
+(defq fm_were (length fm_asked))
+(. fm :refresh)
+(assert-eq "it is not asked for again till its time is up" fm_were (length fm_asked))
+(. fm :close)
+
+;one that can be started: its entry is given back, and no node is left
+(setq fm_asked (list) fm_task "(task-sleep 1)")
+(defq fm (Farm fm-create fm-destroy 3))
+(assert-eq "three children that can be started are" 3 (fm-replies fm))
+(assert-eq "none refused" 0 (length (. fm :refused)))
+(. fm :close)

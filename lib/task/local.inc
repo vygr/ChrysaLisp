@@ -73,6 +73,14 @@
 			(worker_nodes (lisp-nodes :t) mutated :nil now (pii-time) e (penv)))
 		(restart) this)
 
+	(defmethod :reply (msg)
+		; (. local :reply msg) -> :nil | val
+		;what a kernel answers when it is asked to start a worker: its
+		;entry, to keep the id in, :nil if none was started. The nodes of
+		;a herd are this machine's, there is none of them to leave
+		(if (/= (get-long (getf msg +kn_msg_reply_id) 0) 0)
+			(. this :find (getf msg +kn_msg_key))))
+
 	(defmethod :close ()
 		; (. local :close) -> local
 		;close tasks

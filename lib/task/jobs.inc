@@ -109,10 +109,11 @@
 	(defmethod :launched (msg)
 		; (. jobs :launched msg) -> jobs
 		;a child has started, msg is what came to the task mailbox
-		(defq key (getf msg +kn_msg_key))
-		(when (defq val (. (get :farm this) :find key))
+		;one that was not started has no id to send a job to. The farm
+		;leaves the node that could not, and asks for the child of another
+		(when (defq val (. (get :farm this) :reply msg))
 			(def val :child (getf msg +kn_msg_reply_id))
-			(dispatch key val))
+			(dispatch (getf msg +kn_msg_key) val))
 		this)
 
 	(defmethod :answered (msg)

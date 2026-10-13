@@ -137,14 +137,23 @@ What is there for that already:
   again. So a node that answers 0, or does not answer, costs one wait and is
   asked again.
 
-* A farm that picks any node for each task, as the chess does, picks
-  another the next time. It manages now.
+* A farm that picks any node for each task, as the chess does, and as
+  `(Jobs)` is made on, `(Farm)` in `lib/task/farm.inc`, is given the
+  kernel's answer too, `(. farm :reply msg)`. A node that could not start
+  a child is not picked again while that farm lasts, and the child is
+  asked for of another at once, with no wait. `(. jobs :launched msg)`
+  does it for what uses `(Jobs)`.
 
 One that keeps a task on every node, `(Global)`, would ask the same node
 again after every wait, for ever. So the application gives it the kernel's
 answer, `(. global :reply msg)`, and a node that could not start the task
 is not asked again while that `Global` lasts. The network monitor, the
 network speed and the network map do.
+
+It is of the one `Global` or `Farm`, and gone with it, Chris: "they would
+ignore that node from then on. It's only for this specific instance, so not
+permenant." Nothing is kept of a node between one application and the next,
+or one start of it and the next.
 
 What it costs is one `pin`, for each alien node, for each
 application that farms over the whole network, each time it is started.
