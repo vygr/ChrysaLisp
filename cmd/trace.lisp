@@ -34,7 +34,10 @@
 (defq +obj_dir "obj/vp/" +jit_dir "lib/gpu/jit/"
 	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
 	+all_abi_trashed_regs (list quote +vp_fregs)
-	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack"))
+	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack")
+	;a change of task in line: another task runs before it comes back, so
+	;it trashes all, which its own instructions do not show
+	+all_clobber_funcs ''("sys/task/defer"))
 
 (defun format-group (prefix indices)
 	(map (lambda ((s e)) (if (= s (-- e))
@@ -435,6 +438,8 @@
 			(cond
 				((eql type :external)
 					(. db :insert function (list :external +all_extern_trashed)))
+				((and (eql type :function) (find function +all_clobber_funcs))
+					(. db :insert function (list :function (cat +all_extern_trashed) call_list)))
 				((eql type :function)
 					(verbose 2 "\tfunction " function "\n\t\tcalls " call_list
 						"\n\t\ttrashes " (format-trashes func_map))
@@ -453,7 +458,8 @@
 							(some (# (. changed_set :find %0)) call_list))
 						(defq old_size (length func_map))
 						;bypasses symbolic tracing if the function already trashes all registers
-						(when (< old_size (const (length +vp_regs)))
+						(when (and (< old_size (const (length +vp_regs)))
+								(not (find function +all_clobber_funcs)))
 							(bind '(type &optional new_map new_calls) (analyze-function function db))
 							(defq new_trashed new_map)
 							(when (/= old_size (length new_trashed))

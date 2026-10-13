@@ -4,6 +4,12 @@
 
 ------
 
+**A task that sleeps finds its registers as they were; `:sys_task :defer` says it trashes all.**
+
+`:sys_task :sleep` pushes them round the change of task, as `:sys_mail
+:read` does round its suspend. The net send and the link tasks trash
+less for it.
+
 **`bench`: a suite of benchmarks, `tests/bench/`, with times kept and compared.**
 
 `bench -s file` before a change, `bench -c file` after. Three modules to

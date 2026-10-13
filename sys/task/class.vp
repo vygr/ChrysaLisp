@@ -133,9 +133,11 @@
 	;inputs
 	;:r0 = task control node to defer to (ptr)
 	;trashes
-	;:r1-:r2
+	;:r0-:r14, :f0-:f15
 	;info
 	;restore task
+	;the task deferred to runs before this comes back, so whoever calls
+	;has nothing left in a register, whatever these few instructions use
 
 	;push task state
 	(tk-save-state)
@@ -214,12 +216,23 @@
 	;inputs
 	;:r0 = time delay in usec (long)
 	;trashes
-	;:r0-:r14, :f0-:f15
+	;:r0, :f0-:f15
 	;info
 	;0 for yield
 
 	(entry :sys_task :sleep '(:r0))
 
+	;Other tasks run before this comes back, and nothing of a task but
+	;its stack is kept for it. So what it has in its registers is put on
+	;its stack here, round the going away, as :sys_mail :read does round
+	;its :suspend, and whoever sleeps finds them as they were. It is a
+	;change of task, the pushes are nothing to it. Not the floats.
+	(apply (const vp-push) (rest +vp_rregs_0_14))
+	(vp-call 'away)
+	(apply (const vp-pop) (rest +vp_rregs_0_14))
+	(vp-ret)
+
+(vp-label 'away)
 	;push task state
 	(tk-save-state)
 
