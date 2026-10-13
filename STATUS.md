@@ -4,6 +4,8 @@
 
 ------
 
+**Storage, from its first runs over three machines: a member starts on a node the kernel picks, the app says less, the Tree test names what it could not put.**
+
 **Storage: every member knows what each has pinned, so a gopher goes straight to a member that holds the whole object.**
 
 **Named locals are kept in registers in every function that has them; `(vpx-stack)` to have them on the stack.**

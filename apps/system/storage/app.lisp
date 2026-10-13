@@ -72,8 +72,17 @@
 	"pin the object shown at a member" "put this whole folder in, and read it back"
 	"look only when told, a member each press" "look by the clock again"))
 
+(defun short (id)
+	; (short id) -> str
+	;a member as it is said: the start of it, as its row has it. The id of
+	;a real member is a system's, 32 long, and a line of them ran off the
+	;window
+	(if (> (length id) 8) (slice id 0 8) id))
+
 (defun say (&rest text)
-	(def *status* :text (apply (const cat) text))
+	;no more than fits: a line far longer than the window is a long time drawn
+	(defq text (apply (const cat) text))
+	(def *status* :text (if (> (length text) 400) (cat (slice text 0 400) " ...") text))
 	(.-> *status* :layout :dirty))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -295,7 +304,7 @@
 			result (storage-put name (bytes-of (+ 10 (random 22)) name) :nil (second member)))
 		(setq *trail* :nil)
 		(want name)
-		(say name " put at " (first member) ": " (str (first result)) (if *stepping* ". The others have it as they look." ". The others have it when they next meet."))))
+		(say name " put at " (short (first member)) ": " (str (first result)) (if *stepping* ". The others have it as they look." ". The others have it when they next meet."))))
 
 (defun action-gopher ()
 	(when (nempty? (defq at (running)))
@@ -304,8 +313,15 @@
 				back (storage-walk name 0 '(lambda (sum data at count)
 					(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data) 64) sum) (inc at))) :nil 20 (second member)))
 			(setq *trail* back)
-			(say (if back (cat "A gopher from " (first member) " came back with " (str (first back)) ", by way of "
-					(join (map (const first) (second back)) " ") ".")
+			;where it went is the line drawn. Said, it is the first few and the
+			;last, and how many: a walk over three machines was 120 moves, and
+			;a line of text that long, with ids of 32, stopped the whole desktop
+			;for twenty seconds while it was drawn
+			(defq way (if back (map (# (short (str (first %0)))) (second back)) (list)))
+			(say (if back (cat "A gopher from " (short (first member)) " came back with " (str (first back)) ", by way of "
+					(if (> (length way) 10)
+						(cat (join (slice way 0 6) " ") " ... " (join (slice way -3 -1) " ") ", " (str (dec (length way))) " moves")
+						(join way " ")) ".")
 				"The gopher did not come back.")))))
 
 (defun action-stop ()
@@ -314,7 +330,7 @@
 		(storage-stop (second member))
 		;where a gopher went is of the members as they were
 		(setq *trail* :nil *svcs* (filter (# (nql (first %0) (first member))) *svcs*))
-		(say (first member) " is switched off. "
+		(say (short (first member)) " is switched off. "
 			(if *stepping* "As the others look, what it kept is kept by them." "In three seconds what it kept is kept by others."))))
 
 (defun action-start ()
@@ -328,7 +344,7 @@
 		(storage-cut (map (const first) others) (second member))
 		(each (# (storage-cut (list (first member)) (second %0))) others)
 		(setq *cut* (first member) *trail* :nil)
-		(say (first member) " can reach none of the others, nor they it. Fork writes a path on both sides.")))
+		(say (short (first member)) " can reach none of the others, nor they it. Fork writes a path on both sides.")))
 
 (defun action-heal ()
 	(each (# (storage-cut (list) (second %0))) (running))
@@ -359,7 +375,7 @@
 				(:t (defq member (elem-get at (random (length at))))
 					(storage-pin name :nil (second member))
 					(push *pins* (list (first member) name))
-					(say name " is pinned at " (first member) ": it fetches all of it and keeps it. Send a gopher."))))))
+					(say name " is pinned at " (short (first member)) ": it fetches all of it and keeps it. Send a gopher."))))))
 
 (defun action-tree ()
 	;the folder this was started in is put in the store, by a task of its
@@ -373,7 +389,7 @@
 		(demo-start))
 	;put at all the members there are, each in turn, by a farm of workers
 	(when (nempty? (defq at (running)))
-		(setq *tree* (open-child "apps/system/storage/tree.lisp" +kn_call_run))
+		(setq *tree* (open-child "apps/system/storage/tree.lisp" +kn_call_run) *tree_not* (list))
 		(mail-send *tree* (join (list (hex-encode (elem-get *select* +select_tree)) "." "tree/"
 			(join (map (# (hex-encode (second %0))) at) " ")) (ascii-char 10)))
 		(say (if *demo* "A store of five with room. " "") "Every file of this folder is being put, at all "
@@ -383,12 +399,17 @@
 	;how the putting and the reading back are going
 	(bind '(what &rest more) (split msg " "))
 	(cond
+		((find what '("notput" "notread"))
+			;one that could not be: which, and what was said of it
+			(bind '(path &optional why) (split (slice msg (inc (length what)) -1) (ascii-char 10)))
+			(push *tree_not* (cat path " (" (if (eql what "notput") "not put" "not read back") ", " (ifn why "it is not said why") ")")))
 		((eql what "done")
 			(bind '(put same count bytes put_ms read_ms) (map (const str-as-num) more))
 			(setq *tree* :nil)
 			(want "tree/apps/media/films/data/raymarch.flm")
 			(say (str put) " of " (str count) " files put in " (str (/ put_ms 1000)) "s. " (str same) " read back the same, "
-				(str (/ bytes 1048576)) "MB, in " (str (/ read_ms 1000)) "s."))
+				(str (/ bytes 1048576)) "MB, in " (str (/ read_ms 1000)) "s."
+				(if (empty? *tree_not*) "" (cat " " (join *tree_not* ", ") "."))))
 		(:t (bind '(at count path) more)
 			(if (eql what "put") (want path))
 			(say (if (eql what "put") "Putting " "Reading back ") at " of " count ": " path))))
@@ -400,7 +421,7 @@
 			(*stepping*
 				(defq member (elem-get at (% *turn* (length at))) did (storage-settle (second member) 10))
 				(setq *turn* (% (inc *turn*) (length at)))
-				(say (first member) (if did (cat " looked: new notes with " (str (first did)) ", " (str (second did))
+				(say (short (first member)) (if did (cat " looked: new notes with " (str (first did)) ", " (str (second did))
 						" blocks fetched, " (str (third did)) " let go of.")
 					" did not say what it did.")))
 			(:t (setq *stepping* :t *turn* 0)
@@ -415,7 +436,7 @@
 (defun main ()
 	(defq id :t held 0 wheel 0 select (task-mboxes +select_size)
 		*demo* :nil *demo_tag* "" *group* +storage_group *count* 0 *trail* :nil *cut* :nil
-		*stepping* :nil *turn* 0 *pins* (list) *big* :nil *tree* :nil *select* select *look* :nil *rows* (list) *at* 0 *want* :nil *demos* 0 *starts* 0 *svcs* (list)
+		*stepping* :nil *turn* 0 *pins* (list) *big* :nil *tree* :nil *tree_not* (list) *select* select *look* :nil *rows* (list) *at* 0 *want* :nil *demos* 0 *starts* 0 *svcs* (list)
 		*watch* (open-child "apps/system/storage/watch.lisp" +kn_call_run))
 	(mail-send *watch* (hex-encode (elem-get select +select_watch)))
 	(def *window* :tip_mbox (elem-get select +select_tip))

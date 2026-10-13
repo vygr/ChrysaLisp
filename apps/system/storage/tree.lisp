@@ -38,7 +38,11 @@
 	(defq select (task-mboxes +select_size))
 	(bind '(reply root prefix members) (split (mail-read (task-mbox)) +lf))
 	(defq reply (hex-decode reply) svcs (map (const hex-decode) (split members " "))
-		files (filter (# (not (starts-with "./deps/" %0))) (files-all root '("")))
+		;not what the tests make and take away as they run: a file that was
+		;there when the folder was listed and gone when its turn came was the
+		;one of 2036 that was not put, the first time this ran over three
+		;machines
+		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)))) (files-all root '("")))
 		count (length files) going :t putting :t done 0 put 0 same 0 bytes 0 t0 (pii-time) t1 t0
 		want (max 2 (* 2 (length svcs)))
 		jobs (Jobs "apps/system/storage/tree_child.lisp" (elem-get select +select_launch)
@@ -65,9 +69,12 @@
 						(when (defq out (. jobs :answered msg))
 							(++ done)
 							(cond
-								(putting (if (starts-with "1" said) (++ put)))
-								((starts-with "1" said)
-									(++ same)
+								((starts-with "0" said)
+									;which one, and why: it is said, a count does not
+									(if job (mail-send reply (cat (if putting "notput " "notread ")
+										(third (split (slice job +job_size -1) +lf)) +lf (slice said 2 -1)))))
+								(putting (++ put))
+								(:t (++ same)
 									(setq bytes (+ bytes (str-as-num (slice said 2 -1))))))
 							(and job (= 0 (% done 8))
 								(mail-send reply (cat (if putting "put " "read ") (str done) " " (str count) " "
