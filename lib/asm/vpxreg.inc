@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; named locals kept in registers
 ;
-; A function that asks, (vpx-regs), is seen whole when it has all been
+; A function, unless it says not to, (vpx-stack), is seen whole when it has all been
 ; assembled, as instructions and before they are translated, and its named
 ; locals that can be are kept in registers of their own: a read of the
 ; stack becomes a copy from a register, and a write to the stack that

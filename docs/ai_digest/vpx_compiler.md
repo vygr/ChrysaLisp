@@ -137,9 +137,12 @@ has nowhere to be over such a call but the stack. That falls as the
 functions called are themselves made to use fewer registers.
 
 **Named locals kept in registers (2026-10-12, night).** Chris: "start the
-allocator". `lib/asm/vpxreg.inc`, `(keep-locals)`, and a function asks for
-it, `(vpx-regs)`, before its `(push-scope)`. One that does not ask is as
-it was, to the byte.
+allocator". `lib/asm/vpxreg.inc`, `(keep-locals)`. At first a function asked
+for it. Since 2026-10-13 every function with named locals has it, Chris:
+"yes make it the default with an opt-out", and one that must have its
+locals on the stack says `(vpx-stack)` before its `(push-scope)`. None
+does. Of the 91 functions with named locals it keeps 120 of them, in 40
+functions, and a build takes about 5% longer for it.
 
 It is done when the function has all been assembled, on its instructions,
 before the peephole pass and the translation, so it is the same for every

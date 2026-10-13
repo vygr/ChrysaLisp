@@ -4,6 +4,11 @@
 
 ------
 
+**Named locals are kept in registers in every function that has them; `(vpx-stack)` to have them on the stack.**
+
+The last of the old C-Script way. 120 locals in 40 functions, a build 5%
+longer, nothing quicker that can be measured.
+
 **A task that sleeps finds its registers as they were; `:sys_task :defer` says it trashes all.**
 
 `:sys_task :sleep` pushes them round the change of task, as `:sys_mail

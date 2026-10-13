@@ -58,7 +58,7 @@
 (defun def-func (*func_name* &optional *func_align* *func_stack*)
 	(defq *func_align* (ifn *func_align* stack_align)
 		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
-		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :nil *kept* :nil *func_method* :nil *link_methods* (list)
+		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :t *kept* :nil *func_method* :nil *link_methods* (list)
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
@@ -128,7 +128,7 @@
 					(reduce (# (if (list? %1) (cat %0 (filter (const sym?) %1)) %0)) (list (third m) (elem-get m 3)) (list)))))))
 
 (defun fn-keep-locals ()
-	;the function asked, (vpx-regs): its named locals are kept in
+	;unless the function said not to, (vpx-stack), its named locals are kept in
 	;registers where they can be. Only if it is a method that says what
 	;its function trashes: a local's register is one of those, so that
 	;what calls it sees none changed that was not. What a virtual method
@@ -181,7 +181,7 @@
 		;form does not see it, what the frames of named locals were
 		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"
 			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
-			;and which of them were kept in registers, (vpx-regs)
+			;and which of them were kept in registers
 			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")))
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *build_emit* (print *out*)))
