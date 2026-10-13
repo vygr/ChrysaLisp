@@ -1,0 +1,25 @@
+;a time round each iterator, for each kind of thing it may call, over
+;lists too big for the cache: a million boxed numbers
+(defq bi_n 1000000 bi_l (map (# %0) (range 0 bi_n))
+	bi_s1 (list bi_l) bi_s2 (list bi_l (map (# (inc %0)) bi_l)))
+
+(bench "each! progn, 1 seq" bi_n (each! (const progn) bi_s1))
+(bench "each! progn, 2 seqs" bi_n (each! (const progn) bi_s2))
+(bench "each! eql, 2 seqs" bi_n (each! (const eql) bi_s2))
+(bench "each! +, 2 seqs" bi_n (each! (const +) bi_s2))
+(bench "each! lambda" bi_n (each! (# %0) bi_s1))
+(bench "some! progn, 2 seqs" bi_n (some! (const progn) bi_s2 :t))
+(bench "some! eql, 2 seqs" bi_n (some! (const eql) bi_s2))
+(bench "map! progn, 1 seq" bi_n (map! (const progn) bi_s1))
+(bench "map! progn, 2 seqs" bi_n (map! (const progn) bi_s2))
+(bench "map! eql, 2 seqs" bi_n (map! (const eql) bi_s2))
+(bench "map! +, 2 seqs" bi_n (map! (const +) bi_s2))
+(bench "map! lambda" bi_n (map! (# %0) bi_s1))
+;what is called keeps its args: the list of them can not be used again
+(bench "map! list, args kept" bi_n (map! (const list) bi_s2))
+(bench "reduce! progn" bi_n (reduce! (const progn) bi_s1 0))
+(bench "reduce! eql" bi_n (reduce! (const eql) bi_s1 0))
+(bench "reduce! +" bi_n (reduce! (const +) bi_s1 0))
+(bench "filter! progn, all kept" bi_n (filter! (const progn) bi_l))
+(bench "filter! lambda, all kept" bi_n (filter! (# (progn %0 :t)) bi_l))
+(bench "filter! lambda, none kept" bi_n (filter! (# (progn %0 :nil)) bi_l))

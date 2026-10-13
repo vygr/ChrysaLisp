@@ -494,7 +494,111 @@ These are the things the new engine relies on, that the old one did not.
 	3,072 bytes runs the test suite and a build, and 2,560 does not start. The
 	Lisp engine is no longer the larger part of what a task needs.
 
-## 12. Where to Look
+## 12. A Second Day: the Rare Path Pays
+
+What follows was done on 2026-10-12 and 13. The times are of the M4, in ns,
+the best of several goes, from `bench`, see the end of this section.
+
+### The declaration is of the worst path
+
+A function is declared to trash what it may trash on any path. What calls it
+pays for that on every path, in registers it may not keep a value in. Three
+times the worst path was rare and the fix was the same: the rare path saves
+what it uses, and the declaration becomes that of the common one.
+
+*	**`:obj :destroy`** pushes `:r3` to `:r14` round the `deinit` it calls, and
+	an object with no `deinit` of its own is freed at once. A deref trashes
+	`:r0` to `:r2`, was all fifteen.
+
+*	**`:array :set_cap`** pushes `:r3` to `:r5` round its realloc. A push to an
+	array or list trashes only the registers it gives its answers in.
+
+*	**`:stream :read_char`**, `:write_char`, `:read` and `:write` push what
+	the next buffer may trash round that call. To read a char trashes two
+	registers, was nine.
+
+`trace -w` wrote several hundred narrower declarations from these. None of
+them moved `make test`. They are what the rest stands on.
+
+### The check that a caller does not lean on more than is declared
+
+`relies`, run by `lint`: a register read after a call that is declared to
+trash it. Eleven places were real, two of them faults.
+
+### One list of args for a loop
+
+`each!`, `some!`, `map!`, `reduce!` and `filter!` made a list of args, filled
+it, applied the function and destroyed it, for every element. They make one
+before the loop. After each apply, if its count is 1 nothing else holds it,
+and it is emptied and filled again. If what was called kept it, `(list)`
+gives it back as its value, it is let go of and the next time round has a
+new one.
+
+| A time round, a million elements | Before | After |
+|----------------------------------|--------|-------|
+| `each!` of `progn`, 1 seq        | 10.1   | 4.1   |
+| `each!` of `eql`, 2 seqs         | 13.2   | 6.5   |
+| `map!` of `+`, 2 seqs            | 19.5   | 11.5  |
+| `reduce!` of `+`                 | 17.0   | 9.0   |
+| `map!` of `list`, args kept      | 14.2   | 14.5  |
+
+### A loop that puts its place on the stack round a deref
+
+`:list :clear` stored its place in the list to the stack before each call
+to `:obj :deref` and read it back after, from when a deref could trash every
+register. Every list destroyed goes through it.
+
+On the M4 that shape, inside a function that is itself called, cost about 5
+ns a call. The same instructions in line cost nothing. A call by itself cost
+0.3 ns. On the x64 Mac and the Pi there was no such cost. **Why is not
+known.** A guess is the prediction of whether a load depends on a store
+before it. It would take the processor's counters to say.
+
+`:list :clear` now pushes three registers once and holds its place in them,
+and lets go of an element that lives on in line, `(class/obj/deref-live)`,
+with no call. Lists of three or more are 10 to 15% quicker to drop. The
+iterators empty their args the same way, in line: that measured 0.5 to 3 ns
+a time round better than a call to the new clear.
+
+### What did not work
+
+*	**The iterators kept more in registers.** A quarter of their trips to the
+	stack went. No time changed: the apply leaves no register, and it is most
+	of a time round.
+
+*	**The first way of emptying the args, a call to the old `:list :clear`.**
+	It gained 5 ns with some functions and nothing with others, and with
+	lists that stay in the cache some were slower than before. The first
+	numbers were in part the luck of the test. A matrix of iterator against
+	function, at two sizes of list, is what showed it.
+
+*	**`(loop-while)` put down as a test, the body, and the test again.** It
+	was right, and it changed 373 objects. On the x64 Mac most things were 1
+	to 6% quicker. On the M4 nothing was, and `(+ 1 2)` was 11% slower. Not
+	kept. Where a loop is hot it is written by hand as a `(loop-start)` and
+	`(loop-until)` in a `(vpif)`.
+
+*	**Code put after a function's `(signature)`.** It is a table of shorts, so
+	what follows can be two bytes off. The x64 does not mind. Both arm64
+	machines stop at the first instruction of it.
+
+### Benchmarks
+
+`bench` runs the modules in `tests/bench/`, each a file of `(bench name per
+body)` forms, and prints what each took. `bench -s file` keeps the times,
+and `bench -c file` shows each beside what was kept and how far it moved. They
+are not tests and `tests` does not run them.
+
+*	Run them on a quiet machine. A time of a few ns moves by a few percent
+	from one run to the next with nothing changed, and on the M4 some move by
+	more, both ways.
+
+*	One size of data is not enough. `bench_iter` is lists too big for the
+	cache and `bench_iter_small` is the same loops on lists that stay in it.
+	A change that helped one and hurt the other was found only by having
+	both.
+
+## 13. Where to Look
 
 | What                                         | Where                            |
 |----------------------------------------------|----------------------------------|
@@ -507,4 +611,8 @@ These are the things the new engine relies on, that the old one did not.
 | `(class/obj/deref-live)`                     | `class/obj/class.inc`            |
 | The boot environment's buckets               | the end of `class/lisp/root.inc` |
 | The optimiser's stack slot tracking          | `lib/asm/vpopt.inc`              |
+| The iterators                                | `class/seq/lisp_pling.vp`        |
+| `:list :clear`                               | `class/list/class.vp`            |
+| `relies`, `locals`, `bench`                  | `cmd/`                           |
+| The benchmark modules                        | `tests/bench/`                   |
 | The call, phase by phase                     | [Keeping It Hot](keeping_it_hot.md) |

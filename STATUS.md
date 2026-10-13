@@ -4,6 +4,12 @@
 
 ------
 
+**`bench`: a suite of benchmarks, `tests/bench/`, with times kept and compared.**
+
+`bench -s file` before a change, `bench -c file` after. Three modules to
+start: the iterators over big lists, the same in the cache, and what the
+evaluator does with args and lists. Not tests, `tests` does not run them.
+
 **`:list :clear` lets go of its elements with no call and no stack traffic in the loop; the iterators empty their args the same way.**
 
 An element that lives on is a decrement in line, `class/obj/deref-live`.
