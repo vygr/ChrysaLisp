@@ -101,8 +101,9 @@
 					((. *window* :event msg))))
 			(+select_task
 				;child launch response
+				;a node that could not start one is left be from now on
 				(defq child (getf msg +kn_msg_reply_id)
-					node (. global_tasks :find (slice child +long_size -1)))
+					node (. global_tasks :reply msg))
 				(when node
 					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))

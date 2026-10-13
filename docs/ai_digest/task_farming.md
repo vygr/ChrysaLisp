@@ -78,6 +78,24 @@ Unlike `Farm` which manages a specific *number* of tasks, `Global` maps tasks
 `(lisp-nodes)`. If a new node joins the network, `fnc_create` is triggered for
 that specific node. If a node leaves, `fnc_destroy` cleans up its tracking data.
 
+`fnc_create` asks the kernel of that node to start the task, and the kernel's
+answer comes to the application. It is given to `(. global :reply msg)`. If the
+task was started that gives the entry of the node, to keep the id of the task
+in. If the node could not start it, the answer has an id of 0 and says which
+node gives it: the entry is destroyed, `:reply` gives `:nil`, and that node is
+not asked again while this `Global` lasts. `(. global :refused)` is the nodes
+that could not. A node need not be one that runs Lisp, see `alien_nodes.md`.
+
+```vdu
+(+select_task
+	;child launch response
+	(defq child (getf msg +kn_msg_reply_id)
+		node (. global_tasks :reply msg))
+	(when node
+		(def node :child child :timestamp (pii-time))
+		(push poll_que child)))
+```
+
 ### Real-World Examples
 
 * **`apps/system/netmon/app.lisp` & `apps/system/netspeed/app.lisp`**: These

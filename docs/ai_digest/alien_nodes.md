@@ -140,12 +140,13 @@ What is there for that already:
 * A farm that picks any node for each task, as the chess does, picks
   another the next time. It manages now.
 
-**To build:** one that keeps a task on every node, `(Global)`, asks the same
-node again after every wait, for ever. It is to remember a node that never
-gave it a task, and leave it be. Not for ever: a Lisp node that was slow to
-answer would be lost to it. It asks again after twice as long each time.
+One that keeps a task on every node, `(Global)`, would ask the same node
+again after every wait, for ever. So the application gives it the kernel's
+answer, `(. global :reply msg)`, and a node that could not start the task
+is not asked again while that `Global` lasts. The network monitor, the
+network speed and the network map do.
 
-What it costs is one `pin` and one wait, for each alien node, for each
+What it costs is one `pin`, for each alien node, for each
 application that farms over the whole network, each time it is started.
 
 ## Not written down yet

@@ -4,6 +4,35 @@
 
 ------
 
+**`(Global)` does not ask a node again that could not start its task. `(. global :reply msg)`.**
+
+Chris: "do the first, Global gets a method".
+
+`lib/task/global.inc`: `:reply` is given what a kernel answers to an
+open. A task that was started, it gives the entry of that node. An id
+of 0, it reads which node gives the answer, destroys that node's entry,
+and keeps the node in a list that `:refresh` leaves out, while that
+`Global` lasts. `:refused` is the list. An answer from a kernel that
+does not say who it is, an older one, is left as it was.
+
+The network monitor, the network speed and the network map give it the
+answer, a line in each, where they looked the node up themselves.
+
+`tests/system/test_global.lisp`, new, 12: a file that is not there
+asked of every node, each entry destroyed, each node refused and not
+asked again, with a wait that has gone too; and a task every node can
+start, started on each and kept. A file that is not there stands for a
+node that is not Lisp: the answer is the same.
+
+`docs/ai_digest/task_farming.md` and `alien_nodes.md` say so.
+
+Run: 6,566 tests, 0 failed, on the M4, the x64 Mac and the Pi. `check`,
+`imports` and `forward` clean on what changed.
+
+Not seen: the three applications were not run, no desktop was started.
+What they do with an answer of a task started is what the test does.
+No node that is not Lisp exists to try.
+
 **The answer to an open says which node gives it, the task started or not.**
 
 Chris, when I said a refusal does not say who refused: "so should we
