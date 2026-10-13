@@ -4,6 +4,12 @@
 
 ------
 
+**`:list :clear` lets go of its elements with no call and no stack traffic in the loop; the iterators empty their args the same way.**
+
+An element that lives on is a decrement in line, `class/obj/deref-live`.
+Lists of three or more are 10 to 15% quicker to drop on the M4, and a
+time round an iterator is now about half what it was this morning.
+
 **The iterators make the one list of args for a whole loop, not one a time round. 5 to 8 ns off each time round, of 10 to 20.**
 
 Chris: "lets do the args before we do the register analysys. We need to
