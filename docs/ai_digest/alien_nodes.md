@@ -109,27 +109,37 @@ Those applications are the ones that farm work out over every node there is:
 the network monitor, the ray marcher, the Mandelbrot, and anything made with
 the global task farm.
 
-They all ask the one question, `(lisp-nodes)` in `class/lisp/root.inc`. The
-task libraries `lib/task/global.inc`, `lib/task/farm.inc` and
-`lib/task/local.inc` ask it and nothing else, and so does the network
-monitor. Today its answer is every node that has been heard from.
+They get their nodes from `(lisp-nodes)` in `class/lisp/root.inc`, most of
+them through the task libraries, `lib/task/global.inc` and
+`lib/task/farm.inc`. Its answer is every node that has been heard from.
 
-**To build:** a node says whether it runs Lisp tasks, and `(lisp-nodes)`
-gives only those that do. With that one change, in one function, every farm
-there is leaves alien nodes alone, and no application is touched.
+**Decided:** nothing is declared. A node does not say what it is, the ping
+does not change, and no node holds a thing about every other node to know
+it. The task libraries find out, by asking, and manage it. An application
+that uses them is not involved, and nor is any node.
 
-How a node says it is not decided. Two ways that use what is carried already:
+What is there for that already:
 
-* **A service name.** The services of every node reach every other node in
-  the pings. A node that runs Lisp declares a name that says so, and
-  `(lisp-nodes)` keeps the nodes that have it. Nothing in the ping changes.
+* A kernel that is asked to `pin` a task it does not have answers with an
+  id of 0, and whoever asked is told so. That is the answer an alien node
+  gives to every `pin` it can not do. It is part of the protocol as it
+  stands.
 
-* **A field in the ping.** One more number beside the system id. Cheaper to
-  ask, but it changes `+kn_msg_ping`, which is the link protocol.
+* An application gives the libraries a time to wait, `(. farm :refresh
+  timeout)`, and an entry whose task has not come in that time is started
+  again. So a node that answers 0, or does not answer, costs one wait and is
+  asked again.
 
-Either way it is the node that runs Lisp that says so, not the alien node
-that says it does not. A node that says nothing is then left alone, which is
-the safe way to be wrong.
+* A farm that picks any node for each task, as the chess does, picks
+  another the next time. It manages now.
+
+**To build:** one that keeps a task on every node, `(Global)`, asks the same
+node again after every wait, for ever. It is to remember a node that never
+gave it a task, and leave it be. Not for ever: a Lisp node that was slow to
+answer would be lost to it. It asks again after twice as long each time.
+
+What it costs is one `pin` and one wait, for each alien node, for each
+application that farms over the whole network, each time it is started.
 
 ## Not written down yet
 
@@ -137,10 +147,6 @@ the safe way to be wrong.
   fragment, each kernel call, a ping. The two documents named above describe
   them from the inside. What an implementer needs is the layout and the
   rules, and a way to test against them.
-
-* What a kernel answers to a `pin` it can not do. An alien node that starts
-  tasks by name will be asked for ones it does not have, and what asked must
-  be told so and not left waiting.
 
 * The version of the protocol, and what two nodes do that do not agree on it.
 
