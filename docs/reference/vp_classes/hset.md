@@ -131,7 +131,7 @@ outputs
 :r0 = hset object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/hset/vtable

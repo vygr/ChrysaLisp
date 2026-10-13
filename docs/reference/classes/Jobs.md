@@ -81,6 +81,8 @@ is from a child that has since been started again.
 (. jobs :launched msg) -> jobs
 
 a child has started, msg is what came to the task mailbox
+one that was not started has no id to send a job to. The farm
+leaves the node that could not, and asks for the child of another
 ```
 
 ### :out

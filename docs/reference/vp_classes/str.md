@@ -324,7 +324,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9, :f0-:f15
 ```
 
 ### :ref_elem -> class/str/ref_elem
@@ -429,7 +429,7 @@ outputs
 :r0 = str object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :unescape -> class/str/unescape

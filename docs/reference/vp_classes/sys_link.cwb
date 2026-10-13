@@ -124,7 +124,7 @@
 									:stroke
 									0
 									:text
-									"[virtual methods]"
+									"[static methods]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size

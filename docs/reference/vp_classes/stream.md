@@ -68,7 +68,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :flush -> class/stream/flush
@@ -110,7 +110,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = -1 for EOF, else bytes read (int)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r6, :f0-:f15
 ```
 
 ### :read_bits -> class/stream/read_bits
@@ -127,7 +127,7 @@ outputs
 :r2 = bit pool (long)
 :r3 = bit pool size (uint)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r4, :f0-:f15
 ```
 
 ### :read_char -> class/stream/read_char
@@ -139,7 +139,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = -1 for EOF, else char read (int)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :read_line -> class/stream/read_line
@@ -151,7 +151,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = 0 for EOF, else str object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :r14, :f0-:f15
 ```
 
 ### :read_next -> class/stream/read_next
@@ -189,7 +189,7 @@ outputs
 :r0 = stream object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/stream/vtable
@@ -204,7 +204,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :write_bits -> class/stream/write_bits
@@ -221,7 +221,7 @@ outputs
 :r1 = bit pool (long)
 :r2 = bit pool size (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r4, :f0-:f15
 ```
 
 ### :write_char -> class/stream/write_char
@@ -233,7 +233,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r2-:r14, :f0-:f15
+:r2-:r3, :f0-:f15
 ```
 
 ### :write_cstr -> class/stream/write_cstr
@@ -245,7 +245,7 @@ inputs
 outputs
 :r0 = stream object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :write_next -> class/stream/flush

@@ -1344,6 +1344,16 @@ for that space, or :nil. A list of what is left to do, no function
 here calls itself
 ```
 
+### database-stale?
+
+```code
+the time of a file is to the second. A source written in the second
+
+the cache was made in is taken to be newer than it: trace -w writes
+sources just after it reads them, and the cache then said, to the
+next that asked, what they had been
+```
+
 ### date
 
 ```code
@@ -3508,6 +3518,16 @@ to say what it did
 
 wait till that many nodes are seen, so what is started next can
 spread over them, and not for ever
+```
+
+### nodes-to-ask
+
+```code
+(nodes-to-ask refused) -> nodes
+
+the nodes there are, less those that could not start the task. If
+that is every one of them, the nodes of this machine: a task that no
+node can start is asked for there, as it was, and not of nobody
 ```
 
 ### nto
@@ -5697,6 +5717,22 @@ to say. :stale with what it is if it is not. :missing with those of
 the blocks that are not kept here
 ```
 
+### store-copies
+
+```code
+(store-copies store path [copies]) -> :nil | num | (:ok entry) | (:none :nil)
+
+how many members are to keep the blocks of the object a path is: the
+dial. As many as the store says, unless it is set, to more for what
+must not be lost or is read a great deal, to fewer for what is big
+and can be had again. 0 sets it back to what the store says.
+
+It is a write of the path like any other, by this member, and the
+others hear of it as they do of any: then those that are now to keep
+its blocks fetch them, and those that no longer are let go of them.
+Without copies, what it is, :nil if there is no such object
+```
+
 ### store-count
 
 ```code
@@ -5750,6 +5786,9 @@ another member
 
 ```code
 the path is last, it may have spaces in it
+
+how many copies, if it is said, is after the deleted, 0/5: an entry
+written before there was such a thing reads as not said
 ```
 
 ### store-find
@@ -5793,18 +5832,20 @@ the names of the blocks kept here, as they are held: what
 ### store-holders
 
 ```code
-(store-holders store name [among]) -> (member ...)
+(store-holders store name [among copies]) -> (member ...)
 
 the members that are to keep a block of that name, as many as there
-are to be copies, of the members, or of those given, the ones that
-are there. Each member is given a number made from its id and the
-name, and those with the greatest keep it: so every member works out
-the same, nobody has to be asked, and when a member comes or goes
-only the blocks that are its share move
+are to be copies, the store's if it is not said, of the members, or
+of those given, the ones that are there. Each member is given a
+number made from its id and the name, and those with the greatest
+keep it: so every member works out the same, nobody has to be asked,
+and when a member comes or goes only the blocks that are its share
+move
 
-What was worked out is kept, for as long as it is asked of the same
-members: a member asks it of every block it knows of each time it
-looks to its share, and it is a hash and a sort for each
+What was worked out is kept, the members in the block's order, for
+as long as it is asked of the same members: a member asks it of
+every block it knows of each time it looks to its share, and it is a
+hash and a sort for each
 ```
 
 ### store-info
@@ -5969,6 +6010,44 @@ else it is kept, and does not let go of it. With off it no longer
 does
 ```
 
+### store-pinned-by
+
+```code
+(store-pinned-by store path) -> (member ...)
+
+the members that hold all of the object of that path, as far as is
+known here: it is under what they have pinned. Not one that is retired
+```
+
+### store-pinned-lines
+
+```code
+(store-pinned-lines store) -> (line ...)
+
+what every member has pinned, as lines, member count prefix: a line a
+prefix, the prefix last, it may have spaces in it. A member that has
+none pinned now is a line with no prefix, so that is known too
+```
+
+### store-pinned-read
+
+```code
+(store-pinned-read store lines) -> :nil | :t
+
+lines of (store-pinned-lines), as another member has them or as they
+were kept: of each member, what is of a greater count than is had
+here is taken. If it is of this member, its pins are that now: an
+image put back from an older copy. Was anything new
+```
+
+### store-pinned-take
+
+```code
+(store-pinned-take store lines [later]) -> :nil | :t
+
+what another member says is pinned, taken in and kept
+```
+
 ### store-pinned?
 
 ```code
@@ -5991,6 +6070,22 @@ None, and what is pinned is all here: the machine can be taken away
 
 a path is set to an object of this data, provided it is now from, as
 (store-commit). Nothing is kept if it is not
+```
+
+### store-rank
+
+```code
+(store-rank name among copies) -> (member ...)
+
+of those members, the ones that are to keep a block of that name, as
+many as there are to be copies. It is worked out of the name and who
+they are and nothing else: anything that knows the two knows who
+keeps a block, a gopher too, and has nobody to ask.
+
+The members are put in an order that is the block's own, and the
+first so many keep it. So to ask for more copies adds members to
+those that keep it and moves it from none, and to ask for fewer
+takes the last of them away
 ```
 
 ### store-read
@@ -6024,7 +6119,8 @@ the members that are in either list, once each, in order
 ```code
 the one way a path is changed here. from is what the writer says it
 
-is now, :nil if it does not say
+is now, :nil if it does not say. How many copies there are to be of
+it is of the path, and stays as it is unless it is given
 ```
 
 ### store-share
@@ -6039,8 +6135,10 @@ keep, each (name holders), the members that are to.
 It is to keep every manifest, a member has to know what an object is
 made of to look after any of it. Of the blocks of an object, those
 whose keepers it is one of, (store-holders), and all of them if its
-path is pinned. A block that no object is made of is neither, that
-is for (store-sweep)
+path is pinned. How many keepers a block has is its object's to say,
+(store-copies), and one that two objects are made of has as many as
+the one that asks for more. A block that no object is made of is
+neither, that is for (store-sweep)
 ```
 
 ### store-since
@@ -6767,6 +6865,14 @@ path from the root, in order
 (task-timeout s) -> ns
 ```
 
+### text-most
+
+```code
+(text-most text) -> text
+
+the text, or its first +text_most bytes, cut between characters
+```
+
 ### texture-metrics
 
 ```code
@@ -6838,6 +6944,18 @@ the theme a user has from now on
 the token that opens a form, with the rule of the form, whether the
 form must be broken, and its operator, kept on the end of it. They are
 worked out the once, the first time the token is come to.
+```
+
+### tokenize-line
+
+```code
+(tokenize-line line [state]) -> (token_list state_list state)
+
+a line as its tokens, and what each of them is: :text :symbol :keysym
+:number :comment :string1 :string2. state is what the line before
+ended in, :text if it is not given, and the state that comes back is
+what this one ends in, to give with the next: it is not :text when a
+string is still open
 ```
 
 ### tool-arc-points

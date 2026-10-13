@@ -76,7 +76,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r7, :f0-:f15
 ```
 
 ### :gen_clerp -> gui/path/gen_clerp
@@ -94,7 +94,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :gen_cubic -> gui/path/gen_cubic
@@ -113,7 +113,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r11, :f0-:f15
 ```
 
 ### :gen_quadratic -> gui/path/gen_quadratic
@@ -130,7 +130,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r7, :f0-:f15
 ```
 
 ### :simplify -> gui/path/simplify
@@ -143,7 +143,7 @@ inputs
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r10, :f0-:f15
 ```
 
 ### :stroke_joints -> gui/path/stroke_joints
@@ -218,7 +218,7 @@ outputs
 :r0 = path object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vcreate -> gui/path/create

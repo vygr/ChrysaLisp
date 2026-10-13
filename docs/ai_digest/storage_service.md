@@ -671,7 +671,7 @@ but it allways does in any streaming object". A block that did not come in
 it, as `(storage-block)` does.
 
 It is made of a new VP class, `:lstream`, `class/lstream/`, a stream that
-is read from Lisp functions, `(lisp-stream fill [seek])` in
+is read from Lisp functions, `(lisp-stream fill [seek write])` in
 `lib/streams/lisp_stream.inc`. That is all the VP there is of it: how far
 ahead, of whom, and what is done about one that does not come is Lisp, to
 be changed and measured. `(read-line)` `(read-blk)` `(read-char)`

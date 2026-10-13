@@ -287,7 +287,7 @@ inputs
 outputs
 :r0 = service entry str object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :statics_init -> sys/mail/statics_init

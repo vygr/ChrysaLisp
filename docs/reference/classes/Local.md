@@ -31,6 +31,16 @@ close tasks
 scan known nodes and update map
 ```
 
+### :reply
+
+```code
+(. local :reply msg) -> :nil | val
+
+what a kernel answers when it is asked to start a worker: its
+entry, to keep the id in, :nil if none was started. The nodes of
+a herd are this machine's, there is none of them to leave
+```
+
 ### :restart
 
 ```code

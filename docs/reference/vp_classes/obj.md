@@ -34,7 +34,7 @@ docs/reference/vp_classes/obj.cwb
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r2, :f0-:f15
 ```
 
 ### :deref_if -> class/obj/deref_if
@@ -43,7 +43,7 @@ trashes
 inputs
 :r0 = 0, else object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r2, :f0-:f15
 ```
 
 ### :destroy -> class/obj/destroy
@@ -52,7 +52,29 @@ trashes
 inputs
 :r0 = object (ptr)
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r2, :f0-:f15
+info
+an object is destroyed from inside the destroying of what held it: a
+list in a list in a list, and each is a call further down the task's
+stack, which is not long. A list 250 deep was the end of its task.
+
+The first destroy of a task, the one no other is going on outside
+of, says so in the task, and stays till all is done. One inside it
+goes as it always did if there is the room on the stack. If there is
+little left, the object is not destroyed there: it is put by, a note
+of it on a list the task has, and that is all.
+The first destroy, when it has done its own, does each that was put
+by, one after another and no deeper, till there are none. So all is
+destroyed before the first destroy comes back, as it was, however
+deep it went.
+
+And it leaves every register but :r0 to :r2 as it was, whatever the
+object is: they are put on the stack round its deinit, which may do
+anything, and brought back. So a deref trashes what a free does and
+no more, and what calls one need not go by what it happens to know
+of the object. That is 96 bytes of stack for each one inside
+another, so with the usual stack about the thirtieth deep is the
+first to be put by.
 ```
 
 ### :eql -> class/obj/eql
@@ -117,7 +139,7 @@ inputs
 outputs
 :r0 = object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :ref -> class/obj/ref

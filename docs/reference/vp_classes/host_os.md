@@ -412,6 +412,20 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_tick -> sys/pii/tick
+
+```code
+outputs
+:r0 = a count of usec that never goes back (long)
+trashes
+:r0, :f0-:f15
+info
+a clock that is cheap to ask, to say if a slice of time is up. It may
+step by a part of a ms, and is not the time of day. Only a host
+that says it is new enough has this, 3, and the kernel asks as it
+starts: statics_sys_task_tick
+```
+
 ### :pii_time -> sys/pii/time
 
 ```code
@@ -501,6 +515,8 @@ trashes
 ### :stat -> :nil
 
 ### :sysid -> :nil
+
+### :tick -> :nil
 
 ### :unlink -> :nil
 

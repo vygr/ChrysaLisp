@@ -1,3 +1,29 @@
+## bench
+```code
+Usage: bench [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -m --match str: only the modules with str in their path.
+        -l --list: list the modules, do not run them.
+        -r --runs num: the goes each benchmark gets, default 5.
+            The best of them is what is shown.
+        -s --save file: write what was timed to the file.
+        -c --compare file: show each against what a file written
+            by -s has for it, and how much it has changed.
+
+    Run the benchmarks, tests/bench/bench_<name>.lisp, or just
+    the module paths given, one after another in this task, and
+    print what each thing took, in ns.
+
+    They are not tests and (tests) does not run them. They are
+    to hold a change to: 'bench -s before.txt', make the
+    change and build, 'bench -c before.txt'.
+
+    A time is of this machine, as loaded as it is. Run them on
+    a quiet one, with one node, and a change of a few percent
+    in a time of a few ns is as likely the machine as the code.
+```
 ## brackets
 ```code
 Usage: brackets [options] [path] ...
@@ -85,6 +111,10 @@ Usage: check [options] [path] ...
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
+    args    a (# ...) with no %0 in it, which takes nothing,
+            given to (map), (each), (filter), (some), (reduce),
+            (sort), (lines!) or the like, or the :each of a
+            map or a set, which call it with an element.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -631,6 +661,10 @@ Usage: lint [options]
     back as they are with no mode, 'make vp', 'make apps'
     then 'make all boot'.
 
+    Then 'relies -q', on the same debug build: where a
+    function reads a register after a call that is declared
+    to trash it, which the trace does not look for.
+
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.
 ```
@@ -655,6 +689,18 @@ Usage: locals [options] [function] ...
             locals, not only the sum.
         -t --top num: the functions that move most to and
             from the stack, that many of them, default 10.
+        -c --cost num: what the methods called cost their
+            callers, the worst that many of them: for each,
+            the calls of it from functions with locals, the
+            locals wanted after those calls, how many of
+            them there is no register for that the call
+            leaves alone and the caller does not use, and
+            how many of those it is the call that keeps
+            out: there would be a register if it trashed
+            less. Then the registers it trashes that would
+            each be a home for one more local, and at how
+            many of those calls. To trash less is safe for
+            every caller, and lint says if the code does.
 
     What the named locals of each VP function cost, and what
     of that a compiler that kept them in registers could save.
@@ -881,6 +927,57 @@ Usage: rack [options] "command line"
         rack "tests -a"     ; every test, on every machine
         rack -b tests       ; after a change to the VP code
 ```
+## relies
+```code
+Usage: relies [options] [function] ...
+
+    options:
+        -h --help: this help info.
+        -v --verbose: every place, not only the sums by
+            what is called.
+        -q --quiet: every place and no more, nothing if
+            there is none. For lint.
+        -s --saves: the other way round: where a register is
+            put by before a call and brought back after it,
+            pushed and popped, or written to the stack and
+            read back, and the call is not declared to trash
+            it. Such a save was needed when what is called
+            trashed more, and is for nothing now.
+
+    Where a function goes by more than is declared of what it
+    calls: a register it reads after a call that is declared
+    to trash it, and does not give it.
+
+    What a method trashes is in its declaration, and lint
+    says that is what the code may do. It is all of the ways
+    through the method. Code that calls it may know which way
+    it will go, a push to an array that was just given the
+    room, and count on a register the short way leaves. That
+    works, and nothing checks it: what is called can be
+    changed inside what it declares, and what calls it is then
+    wrong with nothing to say so.
+
+    This reads each function as it was assembled, obj/vp/,
+    'make vp', and works out which registers are still wanted
+    after each instruction, backwards from where it ends, by
+    what each instruction reads and writes. A call reads what
+    its method takes and writes what it gives. A register
+    wanted after a call, that the call is declared to trash
+    and does not give, is such a place.
+
+    Two things called are left out. What does not come back,
+    :sys_pii :exit. And a walk that calls back to what called
+    it, :view :forward_tree: it is declared to trash every
+    register, it can not know what it is given to call, and
+    what gives it the callbacks keeps in registers what they
+    work on. That is its own affair and not the walk's.
+
+    To be rid of one, the long way through what is called
+    puts by the registers it uses and brings them back, and
+    then it is declared to trash less, 'trace -w'.
+
+    With no function named, all there are.
+```
 ## repeat
 ```code
 Usage: repeat [options] command_line
@@ -1044,16 +1141,30 @@ Usage: storage [options] [path]
 
     options:
         -h --help: this help info.
-        -s --start image: start the service of this system on
-            the store in that file of the host, or disk.
-        -m --make megabytes: with -s, if there is no store
-            there, make one that big.
-        -i --id name: with -m, the id of the new store,
-            default store.
+        -j --join: make this machine a member of the store of
+            its mesh, and start it. A store is made for it
+            in storage/store.img, of 4096 MB at most, which
+            takes only what is put in it, and its id is made
+            from the mesh key, so every machine with that
+            key is of the one store. From then on it starts
+            by itself, whenever this machine is up. -m, -i
+            and -k say otherwise.
+        -f --forget: this machine no longer starts its
+            store by itself. The store is left as it is.
+        -s --start image: as -j, of the store in that file
+            of the host, or disk.
+        -m --make megabytes: with -s or -j, if there is no
+            store there, make one that big.
+        -i --id name: with -m, the id of the new store. The
+            mesh's own if it is not said, or store.
         -F --format: with -s and -m, make a store of what is
             there even if it is something else, a disk.
         -k --copies num: with -m, how many members keep a
-            block, default 3.
+            block, default 3. With a path and no -s, how
+            many are to keep the blocks of that object, or
+            of every object whose path begins so: more for
+            what must not be lost or is read a lot. 0 is as
+            many as the store says.
         -q --query form: send a gopher to path with that
             function, in double quotes,
             "(lambda (state data at count) ...)", which gives
@@ -1247,7 +1358,8 @@ Usage: trace [options] [function_name] ...
         -l --lint: lint documented vs calculated trace.
         -i --integrity: check register and instruction integrity.
         -w --write: write back calculated trashes to source
-            files on mismatch.
+            files on mismatch, to the comment of the function
+            and to the declaration of the method.
 
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions

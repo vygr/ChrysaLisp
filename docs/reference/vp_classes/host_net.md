@@ -45,7 +45,7 @@ docs/reference/vp_classes/host_net.cwb
 ```code
 started for each network connection
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :r13-:r14, :f0-:f15
 ```
 
 ### :connect -> :nil
@@ -108,7 +108,7 @@ inputs
 outputs
 :r0 = 0 if ok, -1 if error
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r2, :r13-:r14, :f0-:f15
 ```
 
 ### :udp_bind -> :nil

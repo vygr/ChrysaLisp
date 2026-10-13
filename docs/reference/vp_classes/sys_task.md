@@ -45,9 +45,11 @@ trashes
 inputs
 :r0 = task control node to defer to (ptr)
 trashes
-:r1-:r2
+:r0-:r14, :f0-:f15
 info
 restore task
+the task deferred to runs before this comes back, so whoever calls
+has nothing left in a register, whatever these few instructions use
 ```
 
 ### :dump -> sys/task/dump
@@ -100,7 +102,7 @@ trashes
 inputs
 :r0 = time delay in usec (long)
 trashes
-:r0-:r14, :f0-:f15
+:r0, :f0-:f15
 info
 0 for yield
 ```

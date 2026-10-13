@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 398
-	:height 399
+	:height 416
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 42
+	:next_id 43
 	:layers
 	((:list 1)
 		((:list 3)
@@ -261,13 +261,13 @@
 							:id
 							20
 							:items
-							((:list 21)
+							((:list 22)
 								((:list 11)
 									:shape
 									:id
 									21
 									:d
-									"[M 8 0 L 363.88708 0 A 8 8 0 0 1 371.88708 8 L 371.88708 325 A 8 8 0 0 1 363.88708 333 L 8 333 A 8 8 0 0 1 0 325 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 363.88708 0 A 8 8 0 0 1 371.88708 8 L 371.88708 342 A 8 8 0 0 1 363.88708 350 L 8 350 A 8 8 0 0 1 0 342 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -633,6 +633,25 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 319.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:reply
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 336.00000
 									)
 									:kind
 									:text

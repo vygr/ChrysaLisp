@@ -10,7 +10,7 @@ docs/reference/vp_classes/sys_link.cwb
 
 ```code
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r10, :f0-:f15
 ```
 
 ### :link -> sys/link/link
@@ -18,7 +18,7 @@ trashes
 ```code
 started by kernel for each link
 trashes
-:r0-:r14, :f0-:f15
+:r0-:r7, :f0-:f15
 ```
 
 ### :out -> sys/link/out

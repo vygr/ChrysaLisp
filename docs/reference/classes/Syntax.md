@@ -47,7 +47,7 @@ assign colours
 ```code
 (. syntax :tokenize line) -> (token_list state_list)
 
-a string that began on a line before can end with the first
-character of this one, one that begins here not with its first
+the state a line ends in is kept here for the next, see
+(tokenize-line), which is this without a syntax made
 ```
 

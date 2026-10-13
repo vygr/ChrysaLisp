@@ -86,7 +86,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :env_args_match -> class/lisp/env_args_match
@@ -155,7 +155,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = hmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r6, :f0-:f15
 info
 if no other has a ref to the environment, and it is as it was made,
 a single bucket that has not grown, its keys and values are dropped,
@@ -222,7 +222,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = next char (uint)
 trashes
-:r1-:r8, :r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :read_num -> class/lisp/read_num
@@ -268,7 +268,7 @@ outputs
 :r1 = str object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :r14, :f0-:f15
 ```
 
 ### :read_sym -> class/lisp/read_sym
@@ -283,7 +283,7 @@ outputs
 :r1 = return value object (ptr)
 :r2 = next char (uint)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r11, :r14, :f0-:f15
 ```
 
 ### :repl_apply -> class/lisp/repl_apply
@@ -309,7 +309,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :f0-:f15
 ```
 
 ### :repl_error -> class/lisp/repl_error
@@ -392,7 +392,7 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9, :r14, :f0-:f15
 ```
 
 ### :repl_progn -> class/lisp/repl_progn
@@ -433,7 +433,7 @@ outputs
 :r0 = lisp object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/lisp/vtable

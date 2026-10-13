@@ -218,7 +218,7 @@ inputs
 outputs
 :r0 = real object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :quant -> class/real/quant
@@ -309,7 +309,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vcreate -> class/real/create

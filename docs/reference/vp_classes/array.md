@@ -41,7 +41,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r3, :r6-:r9, :f0-:f15
 ```
 
 ### :cat -> class/array/cat
@@ -53,7 +53,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r9, :r14, :f0-:f15
+:r0-:r9, :f0-:f15
 ```
 
 ### :clear -> class/array/clear
@@ -366,7 +366,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :r14, :f0-:f15
 ```
 
 ### :push_back -> class/array/push_back
@@ -381,7 +381,7 @@ outputs
 :r2 = begin element iter (plong)
 :r3 = end element iter (plong)
 trashes
-:r2-:r5, :f0-:f15
+:r2-:r3, :f0-:f15
 ```
 
 ### :push_back2 -> class/array/push_back2
@@ -398,7 +398,7 @@ outputs
 :r3 = begin element iter (plong)
 :r4 = end element iter (plong)
 trashes
-:r3-:r5, :f0-:f15
+:r3-:r4, :f0-:f15
 ```
 
 ### :ref_back -> class/array/ref_back
@@ -450,7 +450,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :set_elem -> class/array/set_elem
@@ -489,7 +489,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r0-:r8, :r14, :f0-:f15
+:r0-:r3, :r6-:r8, :f0-:f15
 ```
 
 ### :sort -> class/array/sort
@@ -529,7 +529,7 @@ inputs
 outputs
 :r0 = new array object (ptr)
 trashes
-:r0-:r11, :r14, :f0-:f15
+:r0-:r11, :f0-:f15
 ```
 
 ### :type -> class/array/type
@@ -541,7 +541,7 @@ outputs
 :r0 = array object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vcreate -> class/array/create

@@ -91,7 +91,7 @@ outputs
 :r0 = sstream object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/sstream/vtable
@@ -104,6 +104,6 @@ inputs
 outputs
 :r0 = sstream object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :f0-:f15
 ```
 

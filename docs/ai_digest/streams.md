@@ -101,7 +101,7 @@ read it calls a Lisp function, which gives it the next piece as a str, of
 any length, or `:nil` at the end. It keeps the one str at a time. A second
 function, if given, is called for `(stream-seek)`.
 
-*   **Lisp Constructor**: `(lisp-stream fill [seek])`, bound in
+*   **Lisp Constructor**: `(lisp-stream fill [seek write])`, bound in
     `lib/streams/lisp_stream.inc`, which is imported for it.
 *   `fill` is `(lambda () ...) -> str | :nil`. `seek` is
     `(lambda (offset whence) ...) -> pos`.

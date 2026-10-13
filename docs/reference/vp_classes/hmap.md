@@ -81,7 +81,7 @@ inputs
 outputs
 :r0 = hmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :each -> class/hmap/each
@@ -183,7 +183,7 @@ outputs
 :r1 = iterator (pptr)
 :r2 = bucket list (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r11, :f0-:f15
 ```
 
 ### :resize -> class/hmap/resize
@@ -223,7 +223,7 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = 0 if not found, else value object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r8, :r10-:r12, :f0-:f15
 ```
 
 ### :set_parent -> class/hmap/set_parent
@@ -235,7 +235,7 @@ inputs
 outputs
 :r0 = hmap object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :type -> class/hmap/type
@@ -247,7 +247,7 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/hmap/vtable

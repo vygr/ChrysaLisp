@@ -314,7 +314,7 @@ inputs
 outputs
 :r0 = num object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r5, :f0-:f15
 ```
 
 ### :random -> class/num/random
@@ -384,7 +384,7 @@ outputs
 :r0 = num object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vcreate -> class/num/create

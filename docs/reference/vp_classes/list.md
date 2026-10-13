@@ -31,7 +31,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r9, :f0-:f15
+:r1-:r3, :r6-:r9, :f0-:f15
 ```
 
 ### :cat -> class/list/cat
@@ -43,7 +43,7 @@ inputs
 outputs
 :r0 = new list object (ptr)
 trashes
-:r0-:r9, :r14, :f0-:f15
+:r0-:r9, :f0-:f15
 ```
 
 ### :clear -> class/list/clear
@@ -54,7 +54,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :collect -> class/list/collect
@@ -79,7 +79,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = copy list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r4, :r6-:r13, :f0-:f15
 ```
 
 ### :create -> class/list/create
@@ -99,7 +99,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :erase -> class/list/erase
@@ -112,7 +112,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = element iterator (pptr)
 trashes
-:r2-:r14, :f0-:f15
+:r2-:r3, :f0-:f15
 ```
 
 ### :erase2 -> class/list/erase2
@@ -125,7 +125,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = element iterator (pptr)
 trashes
-:r2-:r14, :f0-:f15
+:r2-:r3, :f0-:f15
 ```
 
 ### :find -> class/list/find
@@ -152,7 +152,7 @@ outputs
 :r0 = list of seq objects (ptr)
 :r1 = +max_long, or minimum length (uint)
 trashes
-:r1-:r5, :r14
+:r1-:r5
 ```
 
 ### :print -> class/list/print
@@ -164,7 +164,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r9, :r14, :f0-:f15
 ```
 
 ### :ref_all -> class/list/ref_all
@@ -228,7 +228,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :slice -> class/list/slice
@@ -241,7 +241,7 @@ inputs
 outputs
 :r0 = slice list object (ptr)
 trashes
-:r0-:r8, :r14, :f0-:f15
+:r0-:r4, :r6-:r8, :f0-:f15
 ```
 
 ### :splice -> class/list/splice
@@ -254,7 +254,7 @@ inputs
 outputs
 :r0 = splice list object (ptr)
 trashes
-:r0-:r11, :r14, :f0-:f15
+:r0-:r11, :f0-:f15
 ```
 
 ### :type -> class/list/type
@@ -266,7 +266,7 @@ outputs
 :r0 = list object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vcreate -> class/list/create

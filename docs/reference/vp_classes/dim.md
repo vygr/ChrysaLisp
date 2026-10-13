@@ -36,7 +36,7 @@ inputs
 outputs
 :r0 = dim object (ptr)
 trashes
-:r1-:r14, :f0-:f15
+:r1-:r2, :f0-:f15
 ```
 
 ### :init -> class/dim/init
@@ -63,7 +63,7 @@ outputs
 :r0 = dim object (ptr)
 :r1 = type list object (ptr)
 trashes
-:r1-:r5, :f0-:f15
+:r1-:r3, :f0-:f15
 ```
 
 ### :vtable -> class/dim/vtable
