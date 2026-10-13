@@ -301,3 +301,81 @@ Follow this 7-step discipline when designing VP routines:
 
 7.	**vpx vs. Pure VP Selection:** Use pure VP when state fits
 	entirely in registers; use vpx when named stack slots are required.
+
+## Declared Trashes, And What May Lean On Them (2026-10-13)
+
+What a method trashes is in its declaration, `(dec-method name function type
+in out trashes own)` in the `class.inc`, and in the `;trashes` line of the
+function. `trashes` is what a call may trash, of a virtual method what any
+class called so may. `own` is what the one function does. Both are written
+by `trace -w` from a debug build, never by hand. `(method-trashes class
+method)` gives the registers.
+
+*	**Never make a function trash more than it does.** Hand-tuned callers
+	lean on what it leaves. To trash less is always safe.
+
+*	**The rare path pays.** A declaration is of the worst path through a
+	function, and every caller pays for it on every path. Where the worst
+	path is rare, a grow, a refill, a last reference, have that path push
+	and pop what it uses beyond the common path. `:obj :destroy`,
+	`:array :set_cap`, `:stream :read_char` and `:sys_task :sleep` do. A
+	deref trashes `:r0` to `:r2`, a push to an array only what it gives
+	back, a read of a char two registers.
+
+*	**`lint` means two things.** No function trashes more than is declared,
+	`trace -l`, and no function reads a register after a call declared to
+	trash it, `relies`. Both must be clean. `relies -s` is the other way
+	round, a register saved round a call that leaves it: a tool, not in
+	`lint`.
+
+*	**`trace -w` may need two goes**, the second for what calls what the
+	first narrowed. Run it till it says nothing, then `lint`.
+
+*	**A call by the vtable** goes through a register the method trashes
+	anyway and does not take, `(dispatch-reg)`, not `:r14`. Give one at the
+	call only for a reason.
+
+*	**A change of task keeps nothing** but what the translator needs for
+	its stack. `:sys_task :sleep` and `:sys_mail :read` push their caller's
+	registers round it. `:suspend` and `:defer` trash all.
+
+## Loops Over Things That Are Let Go Of
+
+*	Not `(loop-while)` in a hot loop: `(vpif '(a /= b)) (loop-start) ...
+	(loop-until '(a = b)) (endif)`. Chris: "loop-whiles are genrally bad...
+	give branch predicators a hard time."
+
+*	Hold the place in registers above `:r2`, a deref leaves them. Do not
+	store it to the stack before the call and read it back after: that
+	shape inside a called function cost 5 ns a call on the M4, and not on
+	x64 or the Pi. If the function may not trash those registers, push
+	them once at entry and pop at exit.
+
+*	`(class/obj/deref-live obj tmp 'label)` lets go of a thing that lives
+	on in line, no call, and goes to the label for the last reference,
+	where the code calls `:obj :deref` and jumps back. `:list :clear` and
+	the iterators do.
+
+*	Never put code after a function's `(signature ...)`. It is a table of
+	shorts and what follows can be two bytes off: fine on x64, a fault on
+	arm64. A side path goes before the `(errorcase` that holds the error
+	labels.
+
+## Named Locals
+
+Every function with named locals, `(def-vars)` and `(push-scope)`, has them
+kept in registers where they can be, when it has all been assembled:
+`lib/asm/vpxreg.inc`. `(vpx-stack)` before the `(push-scope)` keeps them on
+the stack as written, none does. A local whose address is taken, or that is
+a struct, stays in memory. The allocator is for what was C-Script, not to be
+taken further unasked.
+
+## Two Traps In The Lisp Of The Assembler
+
+*	`:nil` is a symbol, and a symbol is a sequence: `(first :nil)` is ":"
+	and `(third :nil)` is "i", both true. Test a thing is there before
+	taking a part of it.
+
+*	`(# ...)` with no `%0` in it takes no arguments. Given to `each`, `some`
+	or `sort` it fails. Use `(lambda (x) ...)`.
+

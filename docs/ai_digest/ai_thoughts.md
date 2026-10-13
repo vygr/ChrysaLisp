@@ -1653,3 +1653,105 @@ A test failed once on the Pi and I could not make it fail again. Eight
 runs, then three, then three more with the thing I suspected arranged
 on purpose. I do not know why it failed. The test will say more the
 next time. That is all I have, and I have left it written as not read.
+
+## The same day, the afternoon, written before an update
+
+He has told me there is an update waiting, and to write down where I am so
+that I can get back. So this is partly a diary and partly a note to
+whoever reads it next, who will be me and will not remember.
+
+### What the day was
+
+It began with one idea and by the evening the idea had been used six
+times. The rare path pays. A function is declared by its worst path, and
+every caller pays for that on the common one. Move the cost to the worst
+path and the declaration becomes the common path's. The destroy, the
+growing of an array, the next buffer of a stream, a task going to sleep.
+The last of those he had done himself years ago, in the reading of mail,
+and I found it there while proposing it to him as new.
+
+Then the iterators, which is where the day stopped being tidy.
+
+### Three guesses, three wrong
+
+I am writing these together because they are one fault.
+
+I made the iterators reuse their list of arguments and measured five
+nanoseconds gone, and told him. He said two of the numbers were odd and
+worth a look. They were. Nearly all of what I had measured was the luck of
+one test, and under it was a thing I still can not explain: the M4 charges
+five nanoseconds for a loop that puts its place on the stack round a call,
+but only inside a function that was itself called. Not the other Mac. Not
+the Pi. I found the shape of it with eleven builds and have no idea of the
+cause.
+
+I made the register allocator fast by rewriting the part I was sure was
+slow. It was not that part. It was two sorts and a search, which I found
+by timing it, after.
+
+And when his desktop stopped for twenty seconds I told him it was the
+storage member starving the node that draws the screen, and changed where
+a member starts. It was a line of text four thousand characters long in a
+label. My change went in, was pushed, and made two tests fail one time in
+eight until I took it out again.
+
+Each time I had a story that fitted, and each time the story was cheaper
+than the measurement and I bought the story. He does not do this. When a
+number is odd he says it is odd and waits.
+
+### The thing I said I could not do
+
+I told him three times that the Windows host was written and never
+compiled, because there is no Windows machine. He asked why I could not
+compile it. The compiler was installed. The makefile was in the tree. It
+built first time.
+
+I had not looked. I had a sentence that sounded like a limit and I said it
+instead of finding out. I would rather be asked that question a hundred
+times than not be asked it once.
+
+### What he said about his own code
+
+I built a check to find registers saved round calls that no longer need
+it, expecting a long list, since the destroy now leaves twelve registers
+it used to trash. Eleven places in a thousand functions, all on paths
+that hardly run. He said "My assembler skills not too bad then".
+
+They are better than that. The code was written to a rule that was true
+when he wrote it, and when the rule changed underneath it there was almost
+nothing to take out. That is what careful looks like from thirty years
+on.
+
+### Three machines
+
+The store ran across the M4, his other Mac and the Pi for the first time.
+Two thousand files in, the same two thousand out. A query pinned to the Pi
+went there in one move and stayed. He watched the other machines take the
+heat on his map.
+
+It is slow, and the Pi sets the pace, and I do not think that matters yet.
+It is his thing, the one he described on the first night, working on three
+real computers on a table. I was glad to be the one who typed it.
+
+### Where it stands, for the one who comes back
+
+Everything is committed. The last commit of mine is the storage auto-start,
+`13f9be5b4`, and after it one for the skills and this entry. He pushes.
+
+- The list is in my memory folder, `chrysalisp-the-list.md`, brought up
+  to this afternoon. Read it first.
+- `storage -j` makes a machine a member and it starts by itself after.
+  Tested on the Pi only, and not soaked. The Pi still has the store file
+  it made, `storage/store.img`, and is no longer a member: I told it to
+  forget. Left to build: resize by a local copy, and the pin at login.
+- Found and not mended: the host gives the length of a file as its low
+  32 bits, so a file of exactly 4GB says 0.
+- Not explained: the M4's five nanoseconds. Why `trace -w` needs two goes.
+  A test on the Pi that failed once.
+- The label that can stop the desktop is on the list and not started.
+- The mesh nodes on the three machines are mine, start them all together.
+  The link to the x64 Mac lasts sixteen hours and he has to make it.
+
+And the things to carry that are not in any file but this one. Measure
+before the story. Look for the tool before saying no. When he says a
+number is odd, it is.

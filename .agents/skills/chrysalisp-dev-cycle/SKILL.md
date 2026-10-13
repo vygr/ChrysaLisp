@@ -64,8 +64,16 @@ marked mandatory apply to every session.
 	what is stale, `tests -m str` the modules with `str` in their path.
 	`docs/ai_digest/test_cache.md`, and the `chrysalisp-tests` skill.
 
-*	`lint`, `cmd/lint.lisp`: debug build, the `trace` lint of `obj/vp/`, the
-	native release build back. It must say `lint: clean`.
+*	`lint`, `cmd/lint.lisp`: debug build, the `trace` lint of `obj/vp/`,
+	then `relies`, the native release build back. It must say `lint: clean`.
+
+*	`relies`, `locals`, `cmd/`: what VP code leans on and what its locals
+	cost. `relies -s` finds a register saved round a call that leaves it.
+
+*	`bench`, `cmd/bench.lisp`: the benchmarks, `tests/bench/bench_*.lisp`.
+	`bench -s file` before a change, `bench -c file` after. Not tests. On
+	a quiet machine, one node: a few percent of a few ns is as likely the
+	machine as the code, and one size of data is not enough.
 
 *	`mesh`, `cmd/mesh.lisp`: who is in the mesh, and why a machine is not.
 	`mesh -j` joins, `mesh -k` makes a key. `docs/intro/mesh.md`.
@@ -76,8 +84,11 @@ marked mandatory apply to every session.
 *	`nodes`, `cmd/nodes.lisp`: add nodes, a desktop, or a network of a shape
 	to a running one, and stop a network by name.
 
-*	`STATUS.md`: the record of every change, newest first. Each entry says
-	what was run and on what, and what was "not seen".
+*	`STATUS.md`: a short reminder of each change worth a release note,
+	newest first, a heading and a sentence or two. Not a copy of the
+	commits: what was run and what was not seen go in the commit message
+	and in what is said to the user. The user, 2026-10-13: "STATUS.md was
+	allways just a quick reminder for the release notes work".
 
 ## Work As The Test User (Mandatory)
 
@@ -295,15 +306,37 @@ Much of the work is for the eye, and an agent has none. The user looks.
 	that describes what changed is brought up to it. `make docs` if a
 	function's signature or a command's help changed.
 
-*	An entry in `STATUS.md` says what the user asked for in their words,
-	what was done, what was run and on what, and what is not done or not
-	seen. A correction goes in as a correction, the entry it corrects is
-	left.
+*	An entry in `STATUS.md` is a heading and a line or two, see above. The
+	commit message carries what was run, on what, and what was not seen.
 
 *	After a push the other machines are brought level with
 	`origin/master` by git, on each: fetch, remove untracked files that
 	the push now tracks, they were put there by a sync, and check out.
 	Then the harness once more.
+
+## One Machine While Working, All At A Milestone
+
+The user, 2026-10-13: "We can proably test this only on M4 for a lot of the
+changes ? ... We can intermitently run the full set of machines, so we don't
+run too far without a good known milestone."
+
+*	While working a change, build and test on the machine the work is on.
+
+*	All the machines, and a soak, at a milestone: before a commit that
+	touches the kernel, the emitters, the translators or the host program,
+	and after a batch of commits. Say which machines have seen a thing
+	when it is reported.
+
+*	After any change under `src/host/`: `make` here, the host built on the
+	other machines too, and `make -f Makefile.mingw`, which builds the
+	Windows host here with mingw. It can be compiled, it can not be run.
+	A new host function is put at the end of the table, the host says how
+	new it is in the fourth word of `(pii-host)`, and the kernel asks
+	before it calls one an older host has not.
+
+*	A change to what is sent between nodes must still be read by a kernel
+	of before, or nothing can be built with it: the build starts its own
+	tasks. Add to the end of a reply, do not move what is there.
 
 ## A Soak
 
@@ -398,6 +431,17 @@ install` there stops no nodes of the machine.
 
 *	What is done by hand more than twice becomes a command or a script,
 	and is then timed like one.
+
+*	Before saying a thing can not be done here, look for the tool. The
+	Windows host was called "never compiled" three times with the
+	compiler installed.
+
+*	Measure where the time is before making a part faster. Three guesses
+	in one day were wrong: the flow analysis that was two sorts, the
+	member that was a label, the clock that was the call.
+
+*	A file a test names is a thing the test cache reads. A very big one,
+	a store, is taken as its time and length, `tests/suite.inc`.
 
 *	A session of yours that ends with "Segmentation fault" and nothing
 	said has given a function for sequences a thing that is not one. What
