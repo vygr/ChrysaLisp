@@ -251,12 +251,19 @@ uint32_t host_net_connect(const char *host, uint32_t port) {
 }
 
 uint32_t host_net_listen(uint32_t port) {
+	// Windows gives no socket till its sockets have been started, and to
+	// listen may be the first thing a node does with one
+	if (!net_initialized) host_net_init();
 	socket_t fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == SOCK_INVALID) return 0;
 
 	int opt = 1;
 #ifdef _WIN64
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
+	// on Windows SO_REUSEADDR lets a second socket listen on a port that
+	// one is listening on already, and the two share what comes. The first
+	// to listen is to have the port and the next to be told it has not, as
+	// it is elsewhere: that is SO_EXCLUSIVEADDRUSE there
+	setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (const char *)&opt, sizeof(opt));
 #else
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 #endif
@@ -403,6 +410,7 @@ int64_t host_net_poll(uint32_t handle) {
 }
 
 uint32_t host_net_udp_bind(uint32_t port) {
+	if (!net_initialized) host_net_init();
 	socket_t fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd == SOCK_INVALID) return 0;
 

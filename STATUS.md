@@ -4,6 +4,8 @@
 
 ------
 
+**Windows host: a listen starts the sockets if nothing has, and holds its port alone. Found with the Windows host run here under Wine, where the install and every test pass.**
+
 **`bench` has strs, maps, streams and the polygon fill. A texture the driver does not make is said, on stderr.**
 
 **`(storage-stream path [mode svc ahead])` writes and appends as `(file-stream)` does; `(lisp-stream fill [seek write])`.**
