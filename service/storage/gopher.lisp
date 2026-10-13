@@ -20,6 +20,15 @@
 ; for another to be done, and one that is being sent on, and is waiting
 ; to hear it got there, holds up nothing.
 ;
+; A function is not run as it was sent. Wherever it can go round, the
+; body of a while, an until or a lambda, a call of (gopher-tick) is put
+; in first: it gives way to the other tasks of the node, and it throws if
+; the function has had its time for the one block, a second by the clock.
+; One that throws is done with, as it was. So a function that never comes
+; back holds up the others that are here for that second and no longer.
+; Chris: "it should be the case that (time-slice) call if forced or
+; injected into the gopher code".
+;
 ; It is mailed its service, and then each gopher as the service is sent
 ; it: who to tell, a line, who asked, a line, - if that is who to tell,
 ; and then the one form, (path at state function trail skip version
@@ -42,6 +51,50 @@
 ;how many objects it keeps the blocks of, between gophers, and how often
 ;it looks while one is being sent on and nothing else is to be done
 (defq +gopher_kept 16 +gopher_look 20000)
+
+;how long a function may have for a block, and when the one that is
+;running has had it
+(defq +gopher_allowed 1000000 *gopher_until* 0
+	;and how many lists a function may be made of, its macros done
+	+gopher_lists 20000)
+
+(defun gopher-tick ()
+	; (gopher-tick)
+	;what is put into a function wherever it can go round
+	(task-slice)
+	(if (> (pii-time) *gopher_until*) (throw "a gopher's function had its time for a block" +gopher_allowed)))
+
+(defun gopher-ticked (form)
+	; (gopher-ticked form) -> form
+	;the function with (gopher-tick) first in the body of each while, until
+	;and lambda of it, its macros done so that none is hidden in one. What
+	;is quoted is not code and is left.
+	;
+	;Nothing that is there already is written to. A macro may put into the
+	;form a list that is not the form's own, and what is run has its names
+	;bound in place: a tick put into such a list would be in every use of
+	;it, on the whole node. So each list that is gone into is a copy, made
+	;as it is come to, and a tick is a new list each time. A form that
+	;has no end, a list that holds itself, is thrown out
+	(defq hold (list (macroexpand form)) todo (list (list hold 0)) lists 0
+		;a macro may have put in the thing itself, where the source has its name
+		round (list 'while 'until 'lambda (const while) (const until) (const lambda))
+		quoted (list 'quote (const quote)))
+	(while (defq at (pop todo))
+		(bind '(parent idx) at)
+		(defq form (elem-get parent idx))
+		(when (and (list? form) (nempty? form) (not (find (defq head (first form)) quoted)))
+			(if (> (++ lists) +gopher_lists) (throw "a gopher's function is too big" lists))
+			(defq from 0)
+			(cond
+				((and (defq which (find head round)) (> (length form) 1))
+					(setq form (insert form 2 (list (list 'gopher-tick))))
+					;the args of a lambda are names, not code
+					(if (= (% which 3) 2) (setq from 3)))
+				((setq form (cat form))))
+			(elem-set parent idx form)
+			(each! (lambda (_) (push todo (list form (!)))) (list form) from)))
+	(first hold))
 
 (defun gopher-names (svc kept version)
 	; (gopher-names svc kept version) -> :nil | names
@@ -94,7 +147,7 @@
 					;its macros done and its names bound, in the form itself,
 					;Chris: "keep the original source so you can send it on with
 					;the state", and one that had been would not read back
-					(list asker name at state source (exec (copy source)) names version copies trail skip
+					(list asker name at state source (exec (gopher-ticked (copy source))) names version copies trail skip
 						;it was sent here for a block: if that is not here, what was
 						;worked out is not so, and it asks
 						(if (> (length trail) 1) 1 0) :nil pinned))
@@ -123,7 +176,11 @@
 			(mail-send asker (str (list state trail)))
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
+			;it has a second from now, and is asked when it comes back too:
+			;one that caught what was thrown at it has still had its time
+			(setq *gopher_until* (+ (pii-time) +gopher_allowed))
 			(bind '(state at) (visit state data at count))
+			(gopher-tick)
 			(elem-set g +gopher_state state)
 			(elem-set g +gopher_at at)
 			(elem-set g +gopher_how 0)

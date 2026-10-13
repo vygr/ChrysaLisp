@@ -338,8 +338,9 @@
 	;has must print as it reads, numbers, strs, lists of them.
 	;
 	;Each member has a task that runs the gophers that are at it, a block
-	;of each in turn, ./gopher.lisp: a function that does not come back
-	;holds up the others that are there
+	;of each in turn, ./gopher.lisp. A function has a second for a block:
+	;it is made to give way and to look at the clock each time it goes
+	;round, and one that has had its second is done with, :nil comes back
 	(defq mbox (mail-mbox) svc (ifn svc (storage-service)))
 	(when svc
 		;who it is from, - for not another member, and all there is of it

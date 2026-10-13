@@ -85,6 +85,24 @@
 	(assert-eq "one whose function throws comes back with nothing, and the service is still there" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count) (throw "no" 0)) :nil :nil sg_svc))
 	(assert-eq "it is" sg_big (storage-get "a/big" sg_svc))
+	;a function has a second for a block. It is made to look at the clock
+	;wherever it can go round, so one that never comes back is done with
+	(defq sg_start (pii-time))
+	(assert-eq "one whose function goes round for ever comes back with nothing" :nil
+		(storage-walk "a/big" 0 '(lambda (state data at count) (while :t) (list state :nil)) :nil 10 sg_svc))
+	(assert-true "in a second, near enough" (< 900000 (- (pii-time) sg_start) 3000000))
+	(assert-eq "and one that goes round in what it gives each" :nil
+		(storage-walk "a/big" 0 '(lambda (state data at count)
+			(each (# (until (not %0))) (list 1 2 3)) (list state :nil)) :nil 10 sg_svc))
+	(assert-eq "and one that catches what is thrown at it, and comes back late" :nil
+		(storage-walk "a/big" 0 '(lambda (state data at count)
+			(catch (while :t) :t) (list state :nil)) :nil 10 sg_svc))
+	(assert-list-eq "what is quoted in a function is not code, it comes back as it was" '((while 1 2))
+		(sg-walk "a/big" 0 '(lambda (state data at count) (list '(while 1 2) :nil)) :nil :nil sg_svc))
+	(assert-eq "the gophers after them are run as ever"
+		(reduce (# (+ %0 (code sg_big 1 %1))) (range 0 (length sg_big)) 0)
+		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
+			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	;a search by halves of 4096 numbers in order, 512 a block
 	(storage-put "a/sorted" (apply (const cat) (map (# (cat (pad (str %0) 7 "0") (ascii-char 10))) (range 0 4096))) :nil sg_svc)
 	(defun sg-search (want)

@@ -750,6 +750,48 @@ to all five and the film is kept by three: 58 s, now 26 s. Looks the
 window was sent while it ran: 1 in 16 s, now 15 in the first 7 s, the
 block counts of the five going up together.
 
+**A function has a second for a block.** 2026-10-13. One task runs every
+gopher at a member, a block of each in turn, so a function that did not
+come back held up the rest, and the task's mail. Chris: "could it run the
+function in a local async task ?", and then, as tasks here give way only
+when they choose to, "it should be the case that (time-slice) call if
+forced or injected intot he gopher code.. we could just make it a rule",
+and "go with the tick alone, one second allowance".
+
+So a function is not run as it was sent. `(gopher-ticked)`, in
+`service/storage/gopher.lisp`, does its macros and puts a call of
+`(gopher-tick)` first in the body of each `while`, `until` and `lambda`
+of it, which is everywhere it can go round. The tick gives way,
+`(task-slice)`, and throws if a second has gone since the function was
+given the block. What throws was already done with, and who asked told
+"none". It is asked once more as the function comes back, for one that
+caught what was thrown at it. What is sent on to the next member is the
+function as it was written, as before.
+
+What is quoted is not code and is left. And nothing that was there is
+written to: each list gone into is a copy, a tick is a new list each time.
+The first cut put the one quoted `(gopher-tick)` into every function, and
+to be run a form has its names bound in place, so the second gopher found
+the tick function itself there, went into it, and put a tick in the tick.
+A macro can put a list into a form that is not the form's own, and a tick
+in one of those would be in every use of it on the node.
+
+Chris: "Injecting code is somthing that we can do easily in Lisp source,
+if we ever switch to VP based gophers's we can still inject a VP sequence
+to do the same thing."
+
+What it costs, the film of 37MB over five members on the M4, three runs of
+each:
+
+| the function                    | as sent | with the tick |
+|---------------------------------|---------|---------------|
+| the length of each block        | 712 ms  | 710 ms        |
+| every 64th byte, the app's      | 766 ms  | 807 ms        |
+| every byte, a `while`           | 3.02 s  | 5.09 s        |
+
+A time round a loop is 34ns bare and 70 with the tick. Nearly all of the
+36 is the look at the clock and the call, giving way is 4.
+
 **A gopher can become two.** Chris: "you hit the issue with this,
 divergence/forkinf of a gopher ! The issue is either to ensure it can't
 happen, which may be imposible (or at least too slow as it needs global
@@ -931,9 +973,17 @@ was made to send the gopher and stop the member by itself.
   is to be thought through with Chris: a name for each walk, that a member
   can know it has seen; what a writer must promise; and how often it
   happens at all, which is to be measured and not guessed.
-* A gopher's function that never comes back holds up the others at that
-  member, since 2026-10-12. A count of blocks or a time it is allowed, or a
-  task of its own for one that is long, is to be thought through.
+* A gopher's function that goes into itself, over and over, runs its
+  task out of stack long before its second is up, and the node goes down
+  with it, the member and all else on it: seen, 2026-10-13, it took a
+  standing node. The tick does not help it, it is not asked how deep it
+  is. A native tick could look at the stack as well as the clock.
+* The tick is two calls of Lisp and one of the host each time round, 36ns
+  on the M4. A function that looks at every byte of a block pays it for
+  every byte, see Built. One native call, that gives way and knows when
+  the time is up, would be a few ns: not written.
+* A second is by the clock, not of the function's own running. On a node
+  with much else to do a function that gives way is away for some of it.
 * Run by a task that stays, a function could be kept compiled between
   gophers, and, Chris: "We can if requred, pass VP (progn ....) code out
   for go faster gopher's and Jit them, if we find we need that." Not
