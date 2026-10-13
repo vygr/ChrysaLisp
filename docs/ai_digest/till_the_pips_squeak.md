@@ -554,6 +554,30 @@ ns a call. The same instructions in line cost nothing. A call by itself cost
 known.** A guess is the prediction of whether a load depends on a store
 before it. It would take the processor's counters to say.
 
+**Looked at again the same evening, and the 5 ns was not found.** It came
+from builds made to try things, which were not kept, on a test that the
+diary of that day says was in part luck. From what was committed:
+
+*	The tree where the iterators call the old `:list :clear`, built again
+	in a copy, against the one after it where they empty their args in
+	line: 5.1 against 4.1 ns a time round for `each!` of one sequence, 8.1
+	against 7.1 for two. One ns, not five.
+
+*	The shape written by hand in arm64 assembly, a program of its own,
+	`tests/scratch/m4_shape/`: called or in line, its place on the stack or
+	in registers, 0.6 to 0.8 ns a call. A call is 0.45 of that.
+
+*	In that program, the two loads after the call made one load pair, as
+	the arm64 back end makes of two loads side by side, cost 1.2 to 1.3 ns
+	a call, double: the pair reads one slot written that time round and one
+	written long before. But the old tree built with no loads paired at
+	all, anywhere, gave the same 5.1. So that is a thing of the program
+	and not of the system as it was.
+
+So what can be shown is a call's worth and no more, and it needs no
+counters to say why. The guess above, of a load that waits on a store, is
+not held up by anything measured.
+
 `:list :clear` now pushes three registers once and holds its place in them,
 and lets go of an element that lives on in line, `(class/obj/deref-live)`,
 with no call. Lists of three or more are 10 to 15% quicker to drop. The
