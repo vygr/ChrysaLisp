@@ -27,7 +27,7 @@
 	(dec-method :lisp_mod class/nums/lisp_mod :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_sum class/nums/lisp_sum :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_dot class/nums/lisp_dot :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :r14 :f0-:f15))
-	(dec-method :lisp_scale class/nums/lisp_scale :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
+	(dec-method :lisp_scale class/nums/lisp_scale :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :f0-:f15))
 	(dec-method :lisp_min class/nums/lisp_min :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_max class/nums/lisp_max :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_abs class/nums/lisp_abs :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :r14 :f0-:f15)))

@@ -4,6 +4,37 @@
 
 ------
 
+**A call by the vtable goes through a register the method trashes anyway, and `:r14` is left. 35 declarations lose it.**
+
+Chris, of whether to make the register of a virtual call be said at
+every call: "the fact is we could use temp registers in a LOT of
+situations and therfore :r14 would be available", and "yes, do those
+three in that order."
+
+Not said at every call: what is not said is picked. `(dispatch-reg)` in
+`lib/asm/class.inc` gives the first register the method is declared to
+trash that it does not take, and `(call)`, `(jump)`, `(v-call)` and
+`(v-jump)` go through that where they went through `:r14`. The call
+loses that register whatever is done, so it costs none of its own.
+`:r14` still, when the method does not say what it trashes or trashes
+nothing it does not take. A register given at the call is used as
+before.
+
+`trace -w`, three goes to have it all: 35 declarations and their
+headers no longer trash `:r14`, in 31 files. None trashes anything it
+did not: every list that changed was checked to be within what it was.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,538
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi.
+`check` clean. The assembler is asked this at every such call, so
+`make test` was run fifteen times with the old `class.inc` and fifteen
+with the new, turn about: 60.25 ms and 60.21 ms.
+
+Not seen: no soak yet, the emulators, no desktop.
+
+`trace -w` again wrote less than all on its first go and the rest on a
+later one, as it did for the array. Not read why.
+
 **`:lstream` keeps only the registers that hold the stream methods where they are, five for a read and two for a seek, not ten.**
 
 Chris: "If the trashes spec for the :stream class methods is 'trashes

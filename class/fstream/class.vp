@@ -75,7 +75,7 @@
 	;outputs
 	;:r0 = fstream object (ptr)
 	;trashes
-	;:r1-:r2, :r14, :f0-:f15
+	;:r1-:r2, :f0-:f15
 
 	(entry :fstream :deinit '(:r0))
 
@@ -131,7 +131,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :f0-:f15
 
 	(entry :fstream :read_next '(:r0))
 
@@ -197,7 +197,7 @@
 	;:r0 = fstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r3, :r14, :f0-:f15
+	;:r1-:r3, :f0-:f15
 
 	(structure local 0
 		(ptr this)

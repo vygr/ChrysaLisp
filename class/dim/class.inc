@@ -9,4 +9,4 @@
 	(dec-method :deinit class/dim/deinit :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :lisp_dim class/dim/lisp_dim :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_get class/dim/lisp_dget :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :r14 :f0-:f15))
-	(dec-method :lisp_set class/dim/lisp_dset :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :r14 :f0-:f15)))
+	(dec-method :lisp_set class/dim/lisp_dset :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :f0-:f15)))

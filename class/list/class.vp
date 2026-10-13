@@ -321,7 +321,7 @@
 	;:r0 = list object (ptr)
 	;:r1 = copy list object (ptr)
 	;trashes
-	;:r1-:r4, :r6-:r14, :f0-:f15
+	;:r1-:r4, :r6-:r13, :f0-:f15
 
 	(vp-rdef (vtable stack iter_begin iter_end cnt this that)
 		'(:r9 :r10 :r11 :r12 :r13))
@@ -413,7 +413,7 @@
 	;:r0 = list of seq objects (ptr)
 	;:r1 = +max_long, or minimum length (uint)
 	;trashes
-	;:r1-:r5, :r14
+	;:r1-:r5
 
 	(vp-rdef (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
 
@@ -496,7 +496,7 @@
 	;outputs
 	;:r0 = new list object (ptr)
 	;trashes
-	;:r0-:r9, :r14, :f0-:f15
+	;:r0-:r9, :f0-:f15
 
 	(entry :list :cat '(:r0 :r1))
 
@@ -515,7 +515,7 @@
 	;outputs
 	;:r0 = slice list object (ptr)
 	;trashes
-	;:r0-:r4, :r6-:r8, :r14, :f0-:f15
+	;:r0-:r4, :r6-:r8, :f0-:f15
 
 	(entry :list :slice '(:r0 :r1 :r2))
 
@@ -534,7 +534,7 @@
 	;outputs
 	;:r0 = splice list object (ptr)
 	;trashes
-	;:r0-:r11, :r14, :f0-:f15
+	;:r0-:r11, :f0-:f15
 
 	(entry :list :splice '(:r0 :r1 :r2))
 

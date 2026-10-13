@@ -55,6 +55,21 @@
 	(method-lookup %0 %1)
 	(if (defq said (pfind (pfind *trashes* %0) %1)) (trash-regs said)))
 
+;the register a call by the vtable goes through. One the method is
+;declared to trash and does not take: the call loses that one whatever
+;is done, so the call costs no register of its own. :r14 when there is
+;none such, or it is not said what the method trashes
+(defun dispatch-reg (%0 %1 %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters of the method
+	;as it was written, a part at a time, and only as far as the first
+	;that will do: this is asked at every such call there is
+	(or (some (lambda (part)
+			(if (starts-with ":r" part)
+				(some (lambda (reg) (if (not (find reg %2)) reg)) (trash-regs (list part)))))
+		(pfind (pfind *trashes* %0) %1)) :r14))
+
 (defun path-method (%0)
 	;%0 = function path
 	;what is known of the function as a method, (takes_and_gives
@@ -216,7 +231,7 @@
 					(assign %2 (third m))
 					(fn-call (first m)))
 				;v-call
-				(:t (if (find (setd %4 :r14) (defq _ (third m)))
+				(:t (if (find (setd %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 						(throw "Dispatch register conflicts with arg !" (list %4 _)))
 					(assign %2 _)
 					(vp-cpy-ir (first _) +obj_vtable %4)
@@ -243,7 +258,7 @@
 			(assign %2 (third m))
 			(scope-unwind)
 			(fn-jump (first m)))
-		(:t (if (find (setd %3 :r14) (defq _ (third m)))
+		(:t (if (find (setd %3 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list %3 _)))
 			(assign %2 _)
 			(vp-cpy-ir (first _) +obj_vtable %3)
@@ -345,7 +360,7 @@
 	;%5 = dispatch reg
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-call ?" (list %0 %1)))
-	(if (find (setd %4 :r0 %5 :r14) (defq _ (third m)))
+	(if (find (setd %4 :r0 %5 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %5 _)))
 	(assign %2 _)
 	(vp-cpy-ir %4 +obj_vtable %5)
@@ -360,7 +375,7 @@
 	;%4 = dispatch reg
 	(if (eql (second (defq m (method-lookup %0 %1))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
-	(if (find (setd %3 :r0 %4 :r14) (defq _ (third m)))
+	(if (find (setd %3 :r0 %4 (dispatch-reg %0 %1 (third m))) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list %4 _)))
 	(assign %2 _)
 	(vp-cpy-ir %3 +obj_vtable %4)

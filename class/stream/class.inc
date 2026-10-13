@@ -4,7 +4,7 @@
 (def-class :stream :obj
 	(dec-method :vtable class/stream/vtable)
 	(dec-method :type class/stream/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
-	(dec-method :deinit class/stream/deinit :override :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r2 :f0-:f15))
+	(dec-method :deinit class/stream/deinit :override :nil :nil (:r1-:r9 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1) (:r1-:r8 :r14 :f0-:f15) (:r1))
 	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15) (:r1))
 	(dec-method :flush class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15) (:r1))
@@ -25,7 +25,7 @@
 	(dec-method :lisp_mstream class/stream/lisp_mstream :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
 	(dec-method :lisp_avail class/stream/lisp_avail :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
 	(dec-method :lisp_readavail class/stream/lisp_readavail :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :f0-:f15))
-	(dec-method :lisp_flush class/stream/lisp_flush :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :f0-:f15))
+	(dec-method :lisp_flush class/stream/lisp_flush :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :f0-:f15))
 	(dec-method :lisp_seek class/stream/lisp_seek :static (:r0 :r1) (:r0 :r1) (:r1-:r11 :r14 :f0-:f15))
 	(dec-method :lisp_readchar class/stream/lisp_readchar :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15))
 	(dec-method :lisp_writechar class/stream/lisp_writechar :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r8-:r14 :f0-:f15))
