@@ -610,6 +610,69 @@ sets a word of memory when the slice is up was the other way: it would save
 a few ns more, and wake a thousand times a second in every node, at work or
 not.
 
+### The edges of a scan line, already in order
+
+This one is not the evaluator, it is `:canvas :fpoly`, and it is here
+because it is the same lesson. A label in the Storage app was given a line
+of 4,000 characters and the desktop stopped for most of a minute.
+
+The fill keeps a list of the edges the scan line cuts, and where the rule is
+non zero, or the edges hard, wants them in order across. It sorted them
+afresh on every scan line, by taking each from the list and walking the
+sorted list from its head to find the place. But they come from the scan
+line before, so they are in order already, and each then walks the whole of
+what is sorted so far. The sort was at its worst on exactly what it was
+always given. With soft edges there are eight scan lines to a pixel.
+
+| A line of text, 14 point, M4 | before    | after   |
+|------------------------------|-----------|---------|
+| 5 characters                 | 24 µs     | 19 µs   |
+| 20                           | 166 µs    | 62 µs   |
+| 80                           | 2.5 ms    | 0.26 ms |
+| 400                          | 68 ms     | 1.7 ms  |
+| 1,000                        | 1.5 s     | 9.7 ms  |
+| 4,000                        | 43.5 s    | 80 ms   |
+
+It took three goes, each found by measuring what the one before left.
+
+*	The edges of before are put into a list that goes down, where one that
+	is no less than the head goes in at the head, and that list is turned
+	round. What it costs is the edges that crossed. 1,000 characters, 1.5 s
+	to 48 ms. Not yet a straight line: a row of 4,000 boxes left to right
+	was, right to left was not.
+
+*	The edges that begin on a scan line had been put at the head of the
+	list, to be sorted with the rest, and every edge of before that was to
+	the left of one walked past it. They are sorted among themselves, and
+	merged in with one pass. 1,000 characters, 9.6 ms; 4,000, 270 ms, still
+	more than its share.
+
+*	Leaving out each part in turn, in a build that drew wrongly, said it was
+	the sorting of the new edges among themselves. They come nearly in
+	order, glyph by glyph, with the edges of one glyph in any order, and a
+	walk from the head was long for one of the two ways round. Each is now
+	looked for from where the one before it went in, if it is no less than
+	that. 4,000 characters, 80 ms, and paths in the other order no worse.
+
+What I guessed and was wrong about on the way: that the array of edges was
+copied as it grew for each path (it doubles), and which way round the edges
+of a line of text arrive.
+
+What held it to be the same picture: text, a star that crosses itself, 300
+boxes that overlap and 120 lines that cross, each with hard and soft edges
+and both rules, the paths in three orders, hashed with the fill of before
+and after. All the same. The orders are now a test,
+`tests/system/test_fpoly.lisp`, with a line of 2,000 characters that must
+fill in under a second.
+
+A filled disc, which has two edges to a scan line, is as it was, 100 µs.
+There is no benchmark of the fill in `tests/bench/` yet.
+
+And a `Text` draws only the first 512 bytes of its line, cut between
+characters, `(text-most)`: Chris, "I don't think it would harm to limit the
+size of any text that can be asked to be texture cached." A line is one
+texture, and one wider than any screen is no use.
+
 ### Benchmarks
 
 `bench` runs the modules in `tests/bench/`, each a file of `(bench name per
@@ -643,4 +706,5 @@ are not tests and `tests` does not run them.
 | `:list :clear`                               | `class/list/class.vp`            |
 | `relies`, `locals`, `bench`                  | `cmd/`                           |
 | The benchmark modules                        | `tests/bench/`                   |
+| The sort of a scan line's edges              | `gui/canvas/fpoly.vp`            |
 | The call, phase by phase                     | [Keeping It Hot](keeping_it_hot.md) |

@@ -207,19 +207,11 @@
 
 		;for each scanline
 		(loop-while (vpx (< ys ye)))
-			;include new edges that begin on this scanline
-			(vp-rdef (tracker_list_head starts_node starts_last starts_new starts_tmp))
-			(assign (vpx (& (elem (.> this +canvas_edges_start) (* ys +ptr_size))) (& tracker_list))
-				(list starts_node tracker_list_head))
-			(loop-start)
-				(ln-next-fnode starts_node starts_last)
-				(vp-cpy-rr starts_node starts_new)
-				(ln-remove-fnode starts_node starts_last)
-				(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
-			(loop-end)
-
-			;sort active edges on x
 			(vpif (vpx (|| (! (.> this +canvas_flags)) mode)))
+				;the active edges are wanted in order of x. They are in order
+				;already from the scanline before, but for any that crossed,
+				;so they are put into a list that goes down, where each finds
+				;its place at the front, and that list is then turned round
 				(assign (vpx 0) (vpx sorted_list))
 				(vp-rdef (sorted_list_head tracker_node tracker_last tracker_new
 					sorted_node sorted_last x1 x2))
@@ -231,10 +223,87 @@
 					(vp-cpy-ir-i tracker_new +edge_x x1)
 					(loop-flist sorted_list_head 0 sorted_node sorted_last)
 						(vp-cpy-ir-i sorted_node +edge_x x2)
-					(loop-until `(,x1 <= ,x2))
+					(loop-until `(,x1 >= ,x2))
 					(ln-add-fnode sorted_last 0 tracker_new tracker_last)
 				(loop-end)
-				(assign (vpx sorted_list) (vpx tracker_list))
+				(vp-cpy-ir sorted_list_head +ln_fnode_next sorted_node)
+				(vp-xor-rr tracker_new tracker_new)
+				(vpif `(,sorted_node /= 0))
+					(loop-start)
+						(vp-cpy-ir sorted_node +ln_fnode_next sorted_last)
+						(vp-cpy-ri tracker_new sorted_node +ln_fnode_next)
+						(vp-cpy-rr sorted_node tracker_new)
+						(vp-cpy-rr sorted_last sorted_node)
+					(loop-until `(,sorted_node = 0))
+				(endif)
+				(assign (list tracker_new) (vpx tracker_list))
+
+				;the edges that begin on this scanline, put in order among
+				;themselves. Each is looked for from where the one before it
+				;went in, if it is no less than that, so edges that come
+				;nearly in order, going up or going down, cost little
+				(assign (vpx 0) (vpx sorted_list))
+				(vp-rdef (starts_head starts_new sorted_list_head sorted_hint
+					sorted_node sorted_last x1 x2 tmp))
+				(assign (vpx (& (elem (.> this +canvas_edges_start) (* ys +ptr_size))) (& sorted_list))
+					(list starts_head sorted_list_head))
+				(vp-cpy-rr sorted_list_head sorted_hint)
+				(loop-start)
+					(vp-cpy-ir starts_head +ln_fnode_next starts_new)
+					(breakif `(,starts_new = 0))
+					(vp-cpy-ir starts_new +ln_fnode_next tmp)
+					(vp-cpy-ri tmp starts_head +ln_fnode_next)
+					(vp-cpy-ir-i starts_new +edge_x x1)
+					(vp-cpy-rr sorted_list_head sorted_last)
+					(vpif `(,sorted_hint /= ,sorted_list_head))
+						(vp-cpy-ir-i sorted_hint +edge_x x2)
+						(vpif `(,x1 >= ,x2))
+							(vp-cpy-rr sorted_hint sorted_last)
+						(endif)
+					(endif)
+					(loop-start)
+						(vp-cpy-ir sorted_last +ln_fnode_next sorted_node)
+						(breakif `(,sorted_node = 0))
+						(vp-cpy-ir-i sorted_node +edge_x x2)
+						(breakif `(,x1 <= ,x2))
+						(vp-cpy-rr sorted_node sorted_last)
+					(loop-end)
+					(vp-cpy-ri sorted_node starts_new +ln_fnode_next)
+					(vp-cpy-ri starts_new sorted_last +ln_fnode_next)
+					(vp-cpy-rr sorted_last sorted_hint)
+				(loop-end)
+
+				;and those are merged into the active edges
+				(vp-rdef (tracker_last sorted_node tracker_node x1 x2 tmp))
+				(assign (vpx (& tracker_list) sorted_list) (list tracker_last sorted_node))
+				(vpif `(,sorted_node /= 0))
+					(loop-start)
+						(vp-cpy-ir-i sorted_node +edge_x x1)
+						(loop-start)
+							(vp-cpy-ir tracker_last +ln_fnode_next tracker_node)
+							(breakif `(,tracker_node = 0))
+							(vp-cpy-ir-i tracker_node +edge_x x2)
+							(breakif `(,x2 >= ,x1))
+							(vp-cpy-rr tracker_node tracker_last)
+						(loop-end)
+						(vp-cpy-ir sorted_node +ln_fnode_next tmp)
+						(vp-cpy-ri tracker_node sorted_node +ln_fnode_next)
+						(vp-cpy-ri sorted_node tracker_last +ln_fnode_next)
+						(vp-cpy-rr sorted_node tracker_last)
+						(vp-cpy-rr tmp sorted_node)
+					(loop-until `(,sorted_node = 0))
+				(endif)
+			(else)
+				;include new edges that begin on this scanline
+				(vp-rdef (tracker_list_head starts_node starts_last starts_new starts_tmp))
+				(assign (vpx (& (elem (.> this +canvas_edges_start) (* ys +ptr_size))) (& tracker_list))
+					(list starts_node tracker_list_head))
+				(loop-start)
+					(ln-next-fnode starts_node starts_last)
+					(vp-cpy-rr starts_node starts_new)
+					(ln-remove-fnode starts_node starts_last)
+					(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
+				(loop-end)
 			(endif)
 
 			;antialiased ?
