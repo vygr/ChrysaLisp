@@ -4,6 +4,10 @@
 
 ------
 
+**`(storage-stream path [mode svc ahead])` writes and appends as `(file-stream)` does; `(lisp-stream fill [seek write])`.**
+
+The mode is second now, `svc` and `ahead` after it. The path is set at a flush and when the stream is let go of. A `:deinit` that calls Lisp, the first.
+
 **A line of text costs its length, not the square of it: the polygon fill keeps its edges in order with a merge. A `Text` draws no more than the first 512 bytes of a line.**
 
 A label given 4,000 characters stopped the desktop for 43 seconds; that fill is now 0.08. A title of 20 characters is 62 µs, was 166. The pixels are the same.

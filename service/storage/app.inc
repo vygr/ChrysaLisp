@@ -270,27 +270,88 @@
 	(elem-set st +storage_stream_flight (list))
 	pos)
 
-(defun storage-stream (name &optional svc ahead)
-	; (storage-stream path [svc ahead]) -> :nil | stream
-	;an object as a stream to read, as a file is, for what knows nothing
-	;of a store: (read-line) (read-blk) (read-char) (stream-seek) and the
-	;rest. It has a block of the object at a time, and the next few on
-	;their way, ahead, 4 if not said: so the object can be of any size.
-	;:nil if there is no object of that path
-	(setd svc (storage-service) ahead 4)
-	(when (and svc (defq object (storage-manifest name svc)) (defq info (storage-info svc)))
-		(defq names (second object)
-			st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
-				(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "")))
-		;the state is in the functions, a function has only what it is given
-		(lisp-stream `(lambda () (,storage-stream-fill ',st))
-			`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
+;a stream of an object that is written. What it keeps: the service, the
+;path, how long a block is, the names of the whole blocks put so far,
+;what is written and not yet a whole block, and if there is anything the
+;path has not been set to
+(enums +storage_out 0
+	(enum svc name block names part dirty))
+
+(defun storage-stream-put (st data flush)
+	; (storage-stream-put st data flush) -> :nil | (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+	;more of an object that is written, and if it is a flush. Each whole
+	;block is put as there is one, so what is written can be of any
+	;length. At a flush the path is set to the object of the blocks so
+	;far and what is left over, a last short block: till then it is what
+	;it was, and one who reads it sees the old or the new and never a
+	;part. What is left over is kept, a stream can be written on after
+	;a flush, and the next sets the path again
+	(bind '(svc name size names part dirty) st)
+	(when (nempty? data)
+		(setq part (cat part data))
+		(if (nql dirty :lost) (setq dirty :t))
+		(while (>= (length part) size)
+			(defq block (slice part 0 size) hash (sha256 block))
+			;no room for it, or nothing said: the path is not set, ever
+			(if (eql (storage-ask svc +storage_type_block_put block) hash)
+				(push names hash)
+				(setq dirty :lost))
+			(setq part (slice part size -1)))
+		(elem-set st +storage_out_part part)
+		(elem-set st +storage_out_dirty dirty))
+	(when (and flush (eql dirty :t))
+		(defq all (cat names) bytes (+ (* (length names) size) (length part)))
+		(when (or (empty? part) (and (eql (storage-ask svc +storage_type_block_put part) (defq hash (sha256 part)))
+				(push all hash)))
+			(elem-set st +storage_out_dirty :nil)
+			(storage-result (storage-ask svc +storage_type_commit
+				(join (cat (list (storage-from :nil) (str bytes) name) (map (const hex-encode) all)) +storage_lf))))))
+
+(defun storage-stream (name &optional mode svc ahead)
+	; (storage-stream path [mode svc ahead]) -> :nil | stream
+	;an object as a stream, as a file is, for what knows nothing of a
+	;store, mode as (file-stream) has it.
+	;
+	;+file_open_read, or no mode: to read, (read-line) (read-blk)
+	;(read-char) (stream-seek) and the rest. It has a block of the object
+	;at a time, and the next few on their way, ahead, 4 if not said: so
+	;the object can be of any size. :nil if there is no object of that
+	;path.
+	;
+	;+file_open_write: to write a new object, of nothing to begin with.
+	;+file_open_append: to write on the end of the object that is there,
+	;or a new one if there is none. The path is set to what was written
+	;when the stream is flushed, (stream-flush), and when it is let go
+	;of, as a file is: not before, and whoever sets it last has it. One
+	;opened to write and let go of with nothing written is an object of
+	;nothing, as a file would be. :nil if there is no service
+	(setd svc (storage-service) ahead 4 mode +file_open_read)
+	(cond
+		((not (and svc (defq info (storage-info svc)))) :nil)
+		((= mode +file_open_read)
+			(when (defq object (storage-manifest name svc))
+				(defq names (second object)
+					st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
+						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "")))
+				;the state is in the functions, a function has only what it is given
+				(lisp-stream `(lambda () (,storage-stream-fill ',st))
+					`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
+		(:t (defq size (. info :find :block_size) names (list) part "" dirty (= mode +file_open_write))
+			(when (and (= mode +file_open_append) (defq object (storage-manifest name svc)))
+				;the blocks that are whole are had by their names, they are
+				;not read. A last short one is read, to be written on
+				(setq names (cat (second object)))
+				(and (nempty? names) (/= 0 (% (first object) size))
+					(setq part (ifn (storage-block (pop names) svc) "") dirty (if (empty? part) :lost dirty))))
+			(defq st (list svc name size names part dirty))
+			(lisp-stream '(lambda () :nil) :nil
+				`(lambda (data flush) (,storage-stream-put ',st data flush))))))
 
 (defun storage-same-file? (name file &optional svc)
 	; (storage-same-file? path file [svc]) -> :nil | bytes
 	;an object, read as a stream, is what is in a file of the host, byte
 	;for byte and no longer. How long that is
-	(when (and (defq object (storage-stream name svc)) (defq host (file-stream file)))
+	(when (and (defq object (storage-stream name +file_open_read svc)) (defq host (file-stream file)))
 		(defq bytes 0 same :t)
 		(while (and same (defq part (read-blk object 65536)))
 			(setq same (eql part (read-blk host (length part))) bytes (+ bytes (length part))))

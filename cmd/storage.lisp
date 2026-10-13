@@ -133,7 +133,7 @@
 							((print "Not put: " what))))))
 			(opt_g
 				(cond
-					((not (defq object (storage-stream name svc))) (print "No object " name))
+					((not (defq object (storage-stream name +file_open_read svc))) (print "No object " name))
 					((eql opt_g "-")
 						(while (defq part (read-blk object 65536)) (prin part))
 						(stream-flush (io-stream 'stdout)))

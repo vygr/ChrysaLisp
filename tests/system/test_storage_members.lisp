@@ -244,7 +244,7 @@
 	(assert-eq "and it has what was written while it was gone" "the rack's plan" (storage-get "plan" (sn-of "m-e")))
 
 	;an object as a stream, by what knows nothing of a store
-	(defq sn_stream (storage-stream "big" (sn-of "m-a")) sn_parts (list ""))
+	(defq sn_stream (storage-stream "big" +file_open_read (sn-of "m-a")) sn_parts (list ""))
 	(assert-true "an object no member has all of is opened as a stream" sn_stream)
 	(when sn_stream
 		(while (defq sn_part (read-blk sn_stream 10000)) (push sn_parts sn_part))
@@ -260,11 +260,11 @@
 		(assert-eq "and there is no more" :nil (read-char sn_stream)))
 	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 2000))) :nil (sn-of "m-b"))
 	(sn-settle)
-	(defq sn_stream (storage-stream "text" (sn-of "m-d") 2) sn_count 0 sn_last "")
+	(defq sn_stream (storage-stream "text" +file_open_read (sn-of "m-d") 2) sn_count 0 sn_last "")
 	(when sn_stream (lines! (lambda (sn_line) (++ sn_count) (setq sn_last sn_line) :nil) sn_stream))
 	(assert-eq "an object of lines is read a line at a time, across its blocks" 2000 sn_count)
 	(assert-eq "to the last" "line 1999" sn_last)
-	(assert-eq "no object of that path, no stream" :nil (storage-stream "no such" (sn-of "m-a")))
+	(assert-eq "no object of that path, no stream" :nil (storage-stream "no such" +file_open_read (sn-of "m-a")))
 
 	;how often they look is changed as they run
 	(storage-put "paced" "one" :nil (sn-of "m-a"))

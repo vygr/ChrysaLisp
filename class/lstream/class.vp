@@ -8,12 +8,20 @@
 ;read from is asked of the other, if there is one. It keeps the one str at
 ;a time, so what it is a stream of can be of any size, and can be anywhere
 ;a Lisp function can get it from.
+;
+;And one that is written to a Lisp function, if it is given one. What is
+;written is kept till there is a buffer of it, and the function is given
+;that, a str, and :nil. When the stream is flushed it is given what there
+;is, which may be nothing, and :t: that is where it does what makes what
+;was written so. A stream that is let go of is flushed first, as a file
+;is, so the function is called from the :deinit, whatever let go of it.
 
 (gen-create :lstream)
 	;inputs
 	;:r0 = fill function object (ptr)
 	;:r1 = seek function object, 0 if none (ptr)
 	;:r2 = lisp object (ptr)
+	;:r3 = write function object, 0 if none (ptr)
 	;outputs
 	;:r0 = 0 if error, else lstream object (ptr)
 	;trashes
@@ -35,19 +43,28 @@
 	;:r2 = fill function object (ptr)
 	;:r3 = seek function object, 0 if none (ptr)
 	;:r4 = lisp object (ptr)
+	;:r5 = write function object, 0 if none (ptr)
 	;outputs
 	;:r0 = lstream object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5
+	;:r1-:r5, :f0-:f15
 
-	(entry :lstream :init '(:r0 :r1 :r2 :r3 :r4))
+	(entry :lstream :init '(:r0 :r1 :r2 :r3 :r4 :r5))
 
 	;the functions are the stream's from now, the lisp is whose it is
-	(assign '(:r2 :r3 :r4) '((:r0 +lstream_fill) (:r0 +lstream_seek) (:r0 +lstream_lisp)))
+	(assign '(:r2 :r3 :r4 :r5) '((:r0 +lstream_fill) (:r0 +lstream_seek) (:r0 +lstream_lisp) (:r0 +lstream_write)))
+	(vpif '(:r5 = 0))
+		;init parent, with nothing read yet
+		(s-jump :lstream :init '(:r0 :r1 0 0 0 0))
+	(endif)
 
-	;init parent, with nothing read yet
-	(s-jump :lstream :init '(:r0 :r1 0 0 0 0))
+	;one that is written has a buffer, all of it to be written to
+	(vp-push :r0 :r1)
+	(call :sys_mem :alloc '(lstream_buf_size) '(:r3 :r2))
+	(vp-pop :r0 :r1)
+	(assign '(:r2) '((:r0 +lstream_buf_len)))
+	(s-jump :lstream :init '(:r0 :r1 0 :r3 :r3 :r2))
 
 (def-func-end)
 
@@ -57,18 +74,124 @@
 	;outputs
 	;:r0 = lstream object (ptr)
 	;trashes
-	;:r1-:r2, :f0-:f15
+	;:r1-:r9, :f0-:f15
 
 	(entry :lstream :deinit '(:r0))
+
+	;one that is written is flushed as it goes, as a file is. What is
+	;called is Lisp, which keeps nothing: these are kept so that to let
+	;go of a stream trashes no more than it did
+	(assign '((:r0 +lstream_write)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(vp-push :r10 :r11 :r12 :r13 :r14)
+		(call :lstream :put '(:r0 1) '(:r0))
+		(vp-pop :r10 :r11 :r12 :r13 :r14)
+	(endif)
 
 	(vp-push :r0)
 	(call :obj :deref '((:r0 +lstream_fill)))
 	(assign '((:rsp 0)) '(:r0))
 	(call :obj :deref_if '((:r0 +lstream_seek)))
+	(assign '((:rsp 0)) '(:r0))
+	(call :obj :deref_if '((:r0 +lstream_write)))
 	(vp-pop :r0)
 
 	;parent deinit
 	(s-jump :lstream :deinit '(:r0))
+
+(def-func-end)
+
+(def-method :lstream :write_next)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;trashes
+	;:r1-:r9, :f0-:f15
+
+	(entry :lstream :write_next '(:r0))
+
+	;the buffer is full, the write function is given it
+	(vp-push :r10 :r11 :r12 :r13 :r14)
+	(call :lstream :put '(:r0 0) '(:r0))
+	(vp-pop :r10 :r11 :r12 :r13 :r14)
+
+	(exit :lstream :write_next '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :lstream :flush)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;trashes
+	;:r1-:r9, :f0-:f15
+
+	(entry :lstream :flush '(:r0))
+
+	(assign '((:r0 +lstream_write)) '(:r1))
+	(vpif '(:r1 = 0))
+		;one that is only read, as any stream
+		(s-call :lstream :flush '(:r0) '(:r0))
+	(else)
+		;the write function is given what there is, and told it is a flush
+		(vp-push :r10 :r11 :r12 :r13 :r14)
+		(call :lstream :put '(:r0 1) '(:r0))
+		(vp-pop :r10 :r11 :r12 :r13 :r14)
+	(endif)
+
+	(exit :lstream :flush '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :lstream :put)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;:r1 = 0 if the buffer is full, else it is a flush (long)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(def-vars
+		(ptr this args value)
+		(long flush len))
+
+	(push-scope)
+	(entry :lstream :put (vpx this flush))
+
+	(vpif (vpx (.> this +lstream_write)))
+		;what has been written, a stream not written to yet has no bufp
+		(assign (vpx 0) (vpx len))
+		(vpif (vpx (.> this +stream_bufp)))
+			(assign (vpx (- (.> this +stream_bufp) (.> this +stream_buffer))) (vpx len))
+		(endif)
+
+		;the function is given it, and if this is a flush
+		(call :list :create :nil (vpx args))
+		(call :str :create_from_buffer (vpx (.> this +stream_buffer) len) (vpx value))
+		(call :list :push_back (vpx args value))
+		(assign (vpx (.> this +lstream_lisp +lisp_sym_nil)) (vpx value))
+		(vpif (vpx flush))
+			(assign (vpx (.> this +lstream_lisp +lisp_sym_t)) (vpx value))
+		(endif)
+		(call :obj :ref (vpx value))
+		(call :list :push_back (vpx args value))
+		(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_write)) (vpx _ value))
+		(call :obj :deref (vpx args))
+		(call :obj :deref_if (vpx value))
+
+		;and all the buffer is to be written to again
+		(assign (vpx (.> this +stream_buffer) (+ (.> this +stream_buffer) (.> this +lstream_buf_len)))
+			(vpx (.> this +stream_bufp) (.> this +stream_bufe)))
+	(endif)
+
+	(exit :lstream :put (vpx this))
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

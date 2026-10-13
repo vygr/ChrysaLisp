@@ -108,12 +108,19 @@ function, if given, is called for `(stream-seek)`.
 *   A function has only what it is given, so the state goes in the
     functions as they are made:
     ``(lisp-stream `(lambda () (,my-fill ',state)))``.
-*   It is read only. `:read_next` and `:seek` keep every register the file
-    stream keeps, so VP that reads a stream reads one of these the same.
+*   `:read_next` and `:seek` keep every register the file stream keeps, so
+    VP that reads a stream reads one of these the same.
+*   Given a third function, `(lisp-stream fill [seek write])`, it is a
+    stream to write to. `write` is a function of `(data flush)`: it is
+    given each buffer of what is written, a str, and `:nil`, and at a
+    flush what there is, which may be nothing, and `:t`. A stream that is
+    let go of is flushed first, as a file is, so `write` is called from the
+    `:deinit` too.
 
-It is what `(storage-stream path)` is made of, an object of a store read a
-block at a time with the next few on their way. Anything Lisp can fetch a
-piece at a time can be given to what reads a stream.
+It is what `(storage-stream path [mode])` is made of, an object of a store
+read a block at a time with the next few on their way, or written a block
+at a time. Anything Lisp can fetch or put a piece at a time can be given to
+what reads or writes a stream.
 
 ## Specialized IPC Streams: `:in` and `:out`
 

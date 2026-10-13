@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; lisp-stream, a stream that is read from Lisp functions
+; lisp-stream, a stream that is read from Lisp functions, or written to one
 ;
-;	(lisp-stream fill [seek]) -> stream
+;	(lisp-stream fill [seek write]) -> stream
 ;
 ; fill is a function of no arguments that gives the next of it, a str of
 ; any length, or :nil, or an empty str, at the end. It is asked when what
@@ -25,10 +25,21 @@
 ;	(lisp-stream `(lambda () (,my-fill ',state))
 ;		`(lambda (offset whence) (,my-seek ',state offset whence)))
 ;
+; write, if there is one, makes it a stream to write to and not to read: a
+; function of (data flush). What is written is kept till there is a buffer
+; of it, and write is given that, a str, and :nil. When the stream is
+; flushed, (stream-flush), it is given what there is, which may be nothing,
+; and :t. A stream that is let go of is flushed first, as a file is, so
+; write is called then too, from wherever the last of it was let go. fill
+; can give :nil, and a seek that is :nil is none:
+;
+;	(lisp-stream '(lambda () :nil) :nil
+;		`(lambda (data flush) (,my-write ',state data flush)))
+;
 ; It is here and not in root.inc so that a tree with this in it can be
 ; built by a boot image that has not: the binding is made when this is
 ; imported, by when the function is there.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (ffi "class/lstream/lisp_create" lisp-stream)
-; (lisp-stream fill [seek]) -> stream
+; (lisp-stream fill [seek write]) -> stream

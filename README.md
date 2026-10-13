@@ -281,7 +281,7 @@ storage -P pics/                ; this machine holds all of what is under pics/,
 storage -T . tree/              ; put a whole folder, read it all back as streams and compare
 ```
 
-From Lisp, `(storage-stream "pics/photo")` is a stream like any other. The Storage app, under System in the launcher, shows a store at work.
+From Lisp, `(storage-stream "pics/photo")` is a stream like any other, to read, and with `+file_open_write` or `+file_open_append` to write, as `(file-stream)` has it. The Storage app, under System in the launcher, shows a store at work.
 
 ### Linking by hand
 

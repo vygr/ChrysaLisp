@@ -85,6 +85,58 @@
 	(assert-eq "one whose function throws comes back with nothing, and the service is still there" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count) (throw "no" 0)) :nil :nil sg_svc))
 	(assert-eq "it is" sg_big (storage-get "a/big" sg_svc))
+	;an object written as a stream, as a file is: the path is set to it when
+	;the stream is flushed, and when it is let go of
+	(defq sg_out (storage-stream "w/one" +file_open_write sg_svc))
+	(assert-true "a stream to write an object is given" sg_out)
+	(write-blk sg_out "hello ")
+	(write-blk sg_out "world")
+	(assert-eq "written and not flushed, there is no object yet" :nil (storage-stat "w/one" sg_svc))
+	(stream-flush sg_out)
+	(assert-eq "flushed, the path is what was written" "hello world" (storage-get "w/one" sg_svc))
+	(write-blk sg_out ", again")
+	(assert-eq "written on after the flush, it is still what it was" "hello world" (storage-get "w/one" sg_svc))
+	(setq sg_out :nil)
+	(assert-eq "let go of, it is all that was written" "hello world, again" (storage-get "w/one" sg_svc))
+	;of more than a block, and of blocks exactly
+	(defq sg_long (sg-bytes 10000 5) sg_out (storage-stream "w/long" +file_open_write sg_svc))
+	(each (# (write-blk sg_out (slice sg_long %0 (min 10000 (+ %0 700))))) (range 0 10000 700))
+	(setq sg_out :nil)
+	(assert-eq "10,000 bytes written 700 at a time are the object, three blocks" sg_long (storage-get "w/long" sg_svc))
+	(assert-eq "its length is what was written" 10000 (third (storage-stat "w/long" sg_svc)))
+	(defq sg_out (storage-stream "w/long" +file_open_write sg_svc))
+	(write-blk sg_out (slice sg_long 0 8192))
+	(setq sg_out :nil)
+	(assert-eq "written again shorter, two blocks exactly, it is that and no more" (slice sg_long 0 8192) (storage-get "w/long" sg_svc))
+	;written on the end of
+	(defq sg_out (storage-stream "w/long" +file_open_append sg_svc))
+	(write-blk sg_out (slice sg_long 8192 9000))
+	(setq sg_out :nil)
+	(assert-eq "appended to whole blocks" (slice sg_long 0 9000) (storage-get "w/long" sg_svc))
+	(defq sg_out (storage-stream "w/long" +file_open_append sg_svc))
+	(write-blk sg_out (slice sg_long 9000 -1))
+	(stream-flush sg_out)
+	(assert-eq "appended to a last short block, and over the end of it" sg_long (storage-get "w/long" sg_svc))
+	(setq sg_out :nil)
+	(assert-eq "let go of after its flush, with no more written, it is as it was" sg_long (storage-get "w/long" sg_svc))
+	(defq sg_out (storage-stream "w/long" +file_open_append sg_svc) sg_out :nil)
+	(assert-eq "opened to append and let go of with nothing written, as it was" sg_long (storage-get "w/long" sg_svc))
+	(defq sg_out (storage-stream "w/new" +file_open_append sg_svc))
+	(write-blk sg_out "made")
+	(setq sg_out :nil)
+	(assert-eq "appended to what there is none of, it is made" "made" (storage-get "w/new" sg_svc))
+	(defq sg_out (storage-stream "w/new" +file_open_write sg_svc) sg_out :nil)
+	(assert-eq "opened to write and let go of with nothing written, an object of nothing, as a file" 0 (third (storage-stat "w/new" sg_svc)))
+	;what a stream writes, a stream reads
+	(defq sg_out (storage-stream "w/lines" +file_open_write sg_svc))
+	(each (# (write-line sg_out (cat "line " (str %0)))) (range 0 500))
+	(setq sg_out :nil)
+	(defq sg_in (storage-stream "w/lines" +file_open_read sg_svc) sg_lines (list))
+	(lines! (# (push sg_lines %0) :nil) sg_in)
+	(assert-eq "500 lines written with (write-line) are read with (lines!)" "(500 \qline 0\q \qline 499\q)"
+		(str (list (length sg_lines) (first sg_lines) (last sg_lines))))
+	(assert-true "no mode is to read, as it was" (storage-stream "w/lines" :nil sg_svc))
+
 	;a function has a second for a block. It is made to look at the clock
 	;wherever it can go round, so one that never comes back is done with
 	(defq sg_start (pii-time))

@@ -654,7 +654,8 @@ stream that brings them, 1.1.
 What is not as good as it was: a gopher's function that never comes back
 holds up every gopher at that member, where it held up only itself.
 
-**An object as a stream.** `(storage-stream path [svc ahead])`, 2026-10-12.
+**An object as a stream.** `(storage-stream path [mode svc ahead])`, 2026-10-12,
+to read. To write, see "An object written as a stream" below.
 Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any
 existing code just sees a normal seekable dfile stream ?" I offered the
 whole object in a string stream first, and he said: "bring me that entire
@@ -749,6 +750,51 @@ back the same in 7 s, as before these. After it, till every path is known
 to all five and the film is kept by three: 58 s, now 26 s. Looks the
 window was sent while it ran: 1 in 16 s, now 15 in the first 7 s, the
 block counts of the five going up together.
+
+**An object written as a stream.** 2026-10-13. Chris: "(storage-stream path)
+-> stream, should have read and write modes like the (file-stream) does !"
+The mode is the second thing given, as `(file-stream)` has it, and the same
+three: `+file_open_read`, or none, to read as before;
+`+file_open_write`, a new object of nothing to begin with;
+`+file_open_append`, on the end of the object that is there, or a new one.
+
+What is written goes to the store a whole block at a time as there is one,
+`(storage-stream-put)`, so an object of any length is written with a block
+of it in memory. The path is not touched. When the stream is flushed the
+path is set, in the one step there is, to the object of those blocks and a
+last short one of what is left over: one who reads it has the old or the
+new and never a part. What is left over is kept, so a stream can be
+written on after a flush, and the next flush sets the path again.
+
+To append costs nothing for the blocks that are whole: a block is named by
+what is in it, so they are had by their names and not read. A last short
+block is read, to be written on.
+
+A stream that is let go of is flushed first. I had put it to him as a flush
+only, to keep Lisp out of a `:deinit`, and he said: "(stream-flush) ! A
+deref of the (storage-stream) read/write should auto flush, as the other
+streams do." So it does, and code that writes a stream and lets go of it,
+as code written for a file does, sets the path. A flush with nothing
+written since the last sets nothing. One opened to write and let go of with
+nothing written is an object of nothing, as a file would be. A task that
+ends holding one it never flushed: the path is set then.
+
+Whoever sets a path last has it, as with a file. It is not "provided it is
+still what it was": that is `(storage-put)` with what it was from.
+
+Under it, `(lisp-stream fill [seek write])`, `class/lstream/`: a stream
+given a write function has a buffer, and the function is given each
+buffer of what is written, and `:t` with it at a flush. So the
+`:deinit` of that class calls Lisp, which mails the store and waits for
+it, from wherever the last of the stream was let go. No other class does.
+It keeps the registers a stream's `:deinit` was declared to keep.
+
+A fault of mine that the validate build named at once, "Heap overrun !":
+the stream's own init wants how long the buffer is, and was given where
+it ends, so till the first flush a stream took its buffer to go on past
+its end. It showed only in a write longer than the buffer before any
+flush. I had told Chris it was the depth of the stack. He asked "are we
+really that deep ?", and we were not.
 
 **A function has a second for a block.** 2026-10-13. One task runs every
 gopher at a member, a block of each in turn, so a function that did not
@@ -960,7 +1006,11 @@ was made to send the gopher and stop the member by itself.
 * Cutting an object where its content says, not every 64KB.
 * A manifest of a very long object is itself long, it is one block of any
   size for now.
-* There is no stream to write to. What is put is read from one.
+* A stream that is written sets its path whoever else has since. There is
+  no way yet to say what the path was when it was opened.
+* How deep the stack is when a written stream is let go of is not
+  measured. Its flush is Lisp, with all Lisp needs of the stack, and it is
+  run wherever the last of the stream was dropped.
 * The whole path map is written to the volume at every change of it, a
   path put, a note taken from another member. At 2,000 paths that is half
   a megabyte a time, and it is most of what putting the tree costs: 107 s
