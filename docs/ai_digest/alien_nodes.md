@@ -125,6 +125,13 @@ What is there for that already:
   gives to every `pin` it can not do. It is part of the protocol as it
   stands.
 
+* The answer says who gives it. An id of 0 has no node in it, so after the
+  id is the node of the kernel that answers, `+kn_msg_reply_node` in
+  `sys/kernel/struct.inc`, the task started or not. What asked for a task on
+  many nodes knows which of them could not. What is sent to ask is as it
+  was, and the answer is only longer, so a node that does not know of this
+  still asks and is still answered.
+
 * An application gives the libraries a time to wait, `(. farm :refresh
   timeout)`, and an entry whose task has not come in that time is started
   again. So a node that answers 0, or does not answer, costs one wait and is

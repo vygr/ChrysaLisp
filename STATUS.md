@@ -4,6 +4,40 @@
 
 ------
 
+**The answer to an open says which node gives it, the task started or not.**
+
+Chris, when I said a refusal does not say who refused: "so should we
+says who refused/accepted ! Trivial extra field in the reply msg."
+
+`sys/kernel/struct.inc`: `+kn_msg_reply`, the kernel message and then
+`node`. `sys/kernel/class.vp`: the answer to `pin`, and to a `run` that
+is run here, is a message of its own with the id of the task, 0 for
+none, the func and the user field as they came, and the node of the
+kernel that answers.
+
+My first go put the field in what is sent to ask, before the path. It
+could not be built: the kernel that was running could not read what the
+new Lisp sent, so the build could not start its own tasks. Chris: "you
+hit the old 'you can't get there from here' issue of self built system
+... Build a bridge, cross over the bridge, tear the bridge down." I
+crossed it, and then saw that everyone who pulls would have to, and
+`make install` from the snapshot could not. So it is done the other
+way: what is sent is not changed at all, only the answer is longer. It
+built from the old kernel with no bridge, and what reads only the id
+reads it as before.
+
+`tests/system/test_pipe.lisp`, three more: a file that is not there
+asked of this node says this node, asked of another says that one, and
+a task that is started says the node its id has.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,554
+tests, 0 failed, on the M4, the x64 Mac and the Pi. `check` clean.
+
+Not seen: no soak, the emulators, no desktop. Nothing uses the field
+yet: `(Global)` is to, so it does not ask a node again that could not.
+Sessions of mine that hung on the three machines while the first go was
+in were stopped by pid, the mesh nodes too, and those are started again.
+
 **A policy written down: a node need not be ChrysaLisp. `docs/ai_digest/alien_nodes.md`.**
 
 Chris: "We should create a policy doc with regards to 'alien' system and

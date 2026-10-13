@@ -117,11 +117,21 @@
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(call 'opt_run (vpx (& (.> data +kn_msg_open_pathname))) '(:r0 :r1 :r2))
-				(assign (vpx msg data +kn_msg_size) '(:r3 :r4 :r5))
-				(assign-net-id :r4 +kn_msg_reply_id :r3 +msg_dest :r6 :r7 :r8)
-				(save-net-id :r4 +kn_msg_reply_id :r0 :r1 :r2)
-				(assign '(:r5) '((:r3 +msg_length)))
-				(call :sys_mail :send '(:r3))
+				;the answer is a message of its own: it says who answers
+				;too, and what asked may be shorter than that
+				(vp-simd vp-cpy-rr '(:r0 :r1 :r2) '(:r6 :r7 :r8))
+				(call :sys_mail :alloc '(+kn_msg_reply_size) '(:r0 :r1))
+				(assign (vpx data) '(:r4))
+				(assign-net-id :r4 +kn_msg_reply_id :r0 +msg_dest :r2 :r3 :r5)
+				(save-net-id :r1 +kn_msg_reply_id :r6 :r7 :r8)
+				;the func and the user field are as they came
+				(assign '((:r4 +kn_msg_func) (:r4 +kn_msg_key)) '(:r2 :r3))
+				(assign '(:r2 :r3) '((:r1 +kn_msg_func) (:r1 +kn_msg_key)))
+				(vp-simd vp-cpy-rr '(:r0 :r1) '(:r6 :r7))
+				(call :sys_kernel :id :nil '(:r0 :r1))
+				(assign '(:r0 :r1) `((:r7 ,(+ +kn_msg_reply_node +node_id_node1)) (:r7 ,(+ +kn_msg_reply_node +node_id_node2))))
+				(call :sys_mail :send '(:r6))
+				(call :sys_mail :free (vpx msg))
 				(break)
 			(vpcase '(:r0 = +kn_call_run))
 				;find best cpu to run task on the same physical system, the

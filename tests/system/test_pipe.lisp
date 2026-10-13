@@ -183,8 +183,21 @@
 (assert-true "and it is known at once" (< (- (pii-time) pipe_t0) (task-timeout 10)))
 (defq pipe_ask (mail-mbox))
 (open-task "cmd/no_such_command_zyz.lisp" (task-nodeid) +kn_call_pin 0 pipe_ask)
+(defq pipe_said (mail-read pipe_ask))
 (assert-eq "the kernel gives no task for a file that is not there" 0
-	(get-long (getf (mail-read pipe_ask) +kn_msg_reply_id) 0))
+	(get-long (getf pipe_said +kn_msg_reply_id) 0))
+;an id of 0 does not say who could not, so the kernel that answers does
+(assert-eq "and says it is this node that did not" (hex-encode (task-nodeid))
+	(hex-encode (getf pipe_said +kn_msg_reply_node)))
+(defq pipe_far (last (lisp-nodes :t)))
+(open-task "cmd/no_such_command_zyz.lisp" pipe_far +kn_call_pin 0 pipe_ask)
+(setq pipe_said (mail-read pipe_ask))
+(assert-eq "another node asked for it gives none, and says it is that node" (hex-encode (cat (char 0 +long_size) pipe_far))
+	(hex-encode (cat (slice (getf pipe_said +kn_msg_reply_id) 0 +long_size) (getf pipe_said +kn_msg_reply_node))))
+(open-task "(task-sleep 1)" pipe_far +kn_call_pin 0 pipe_ask)
+(setq pipe_said (mail-read pipe_ask))
+(assert-eq "one that is started says who started it too, the node its id has" (hex-encode (slice (getf pipe_said +kn_msg_reply_id) +long_size -1))
+	(hex-encode (getf pipe_said +kn_msg_reply_node)))
 ;the commands of such a pipeline that did start are told to go, and do
 (setq pipe_out (list))
 (times 20 (Pipe "cat README.md | no_such_command_zyz | cat"))

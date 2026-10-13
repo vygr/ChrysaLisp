@@ -22,6 +22,13 @@
 (structure +kn_msg_open +kn_msg_size
 	(offset pathname))
 
+;what comes back from an open: the id of the task in reply_id, 0 if none
+;was started, and the node of the kernel that answers. An id of 0 does
+;not say who could not, so this does, the task started or not. It is
+;after all that there was before it, so what reads only the id still can
+(structure +kn_msg_reply +kn_msg_size
+	(nodeid node))
+
 (structure +kn_msg_ping 0
 	(long func)
 	(nodeid via origin)
