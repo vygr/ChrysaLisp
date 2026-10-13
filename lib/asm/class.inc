@@ -67,7 +67,7 @@
 	;that will do: this is asked at every such call there is
 	(or (some (lambda (part)
 			(if (starts-with ":r" part)
-				(some (lambda (reg) (if (not (find reg %2)) reg)) (trash-regs (list part)))))
+				(some (lambda (reg) (unless (find reg %2) reg)) (trash-regs (list part)))))
 		(pfind (pfind *trashes* %0) %1)) :r14))
 
 (defun path-method (%0)
@@ -347,7 +347,8 @@
 	(scope-unwind)
 	(if (eql (first m) 'class/obj/null)
 		(vp-ret)
-		(progn (fn-method (first m) (pfind *supers* %0) %1) (fn-jump (first m)))))
+		(fn-method (first m) (pfind *supers* %0) %1)
+		(fn-jump (first m))))
 
 (defun s-bind (%0 %1 %2)
 	;%0 = class name

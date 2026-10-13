@@ -44,6 +44,17 @@
 	(files-all "./lib" '(".inc" ".vp" ".lisp")))
 (assert-eq "no file of lib has a bracket left open" "()" (str tt_bad))
 
+;and the whole tree is clean under it. A fault it knows is found the day
+;it is written, not the day it is run into: a (# ) with no %0 given to an
+;(each) was written three times in a day, and found three times by running
+;it, when check had known of it all along. Not what tests leave in
+;tests/scratch, some of that is wrong on purpose
+(defq tt_said (list))
+(pipe-run "files | check -j 40" (# (push tt_said %0)))
+(assert-list-eq "check finds nothing wrong in any source file of the tree" '()
+	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))))
+		(split (join tt_said "") (ascii-char 10))))
+
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
 (defq tt_file "tmp_check_test.lisp" tt_lf (ascii-char 10))
 (defun tt-check (checks &rest lines)
