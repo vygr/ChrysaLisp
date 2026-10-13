@@ -1755,3 +1755,24 @@ Everything is committed. The last commit of mine is the storage auto-start,
 And the things to carry that are not in any file but this one. Measure
 before the story. Look for the tool before saying no. When he says a
 number is odd, it is.
+
+### A correction, the same evening
+
+One line above is wrong, and I leave it there so that this can point at it.
+I wrote that the host gives the length of a file as its low 32 bits, so a
+file of exactly 4GB says 0. It does not. I asked it, after the update, on
+all three machines, with files a byte under 4GB, at it, a byte over, and
+5GB. Every length came back whole.
+
+The 0 was mine. The cache of test results asked whether what the host gave
+was a list. It is an array. So the answer was no, and every file in the
+tree had a length of 0, and had since I wrote the line. Nothing showed
+until a file was too big to read.
+
+I had seen a 4GB file say 0 and thought of 32 bits, because that is what
+4GB and 0 make anyone think of. Then I wrote a way round it, and a comment
+saying why, and put it on the list as the host's fault. I did not once ask
+the host.
+
+It is the fourth of the three guesses. I found it by starting from the
+note as if it were true and finding nothing that agreed with it.

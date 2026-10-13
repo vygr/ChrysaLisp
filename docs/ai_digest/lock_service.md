@@ -230,6 +230,29 @@ Because `with-lock` uses `static-qqp`, each nesting level receives distinct
 lock state and both files are released deterministically in reverse acquisition
 order.
 
+### Paths Of A Store
+
+A path in the [Storage service](storage_service.md) is locked as a file is,
+with a key of `storage/` and the path in the store:
+
+```vdu
+(with-write-lock (cat "storage/" path)
+	(defq data (storage-get path))
+	(storage-put path (change data)))
+```
+
+*	The `storage/` prefix keeps store keys apart from the keys of host files,
+	and the hierarchy holds as for any path: a lock of `storage/tree/apps`
+	holds every object under it.
+
+*	`@Lock` is one to a system and is not seen from another system. The lock
+	orders the tasks of one system at a path. A member of the store on another
+	machine is not held by it.
+
+*	It is advisory. The store does not ask for it, and its client calls do not
+	take it: the store's own rule, a path set to B provided it is A, is what
+	stops a write being lost, and a writer still reads `:stale` from its put.
+
 ## Hierarchical Conflict Detection
 
 Path relationships in `@Lock` are resolved using ChrysaLisp's native `split` and

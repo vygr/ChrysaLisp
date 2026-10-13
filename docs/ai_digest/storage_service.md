@@ -345,6 +345,41 @@ Because the function says where to go next, it need not go in order. A search
 of a sorted object by halves reads three or four blocks of it and no more,
 wherever they are.
 
+**Tasks of one system at one path.** Chris, 2026-10-13: "Did we update policy
+to recomen local path accses by tasks from one system_id should use the lock
+service ? maybe like \"storage/.../.../.../file.inc\" ? does that sound like
+a plan ?" Yes.
+
+* Tasks of one system that read a path of the store, change what they read
+  and put it back, take the lock of that path first, from the `@Lock` service
+  that system has already, see [lock_service.md](lock_service.md). The key is
+  `storage/` and the path in the store: `storage/tree/apps/edit/app.lisp`.
+* The keys are paths, so a lock of a folder holds all under it, and the
+  `storage/` at the front keeps them apart from the locks of the host's
+  files, which are keyed by their paths as they are.
+* It is `(with-read-lock)` and `(with-write-lock)` as for a file, and what
+  was read is let go of before the lock is.
+* It is a courtesy between tasks, and it is this system's only: `@Lock` is
+  not seen from another system, so a member on another machine, or a gopher
+  that came from one, is not held by it. Nothing in the store asks for it.
+* What can be trusted is the store's own rule, above: a path is set to B
+  provided it is A. Two tasks that both held the lock never see `:stale` of
+  each other. A task that did not ask, or a write from another system, is
+  still caught by the rule and by nothing else. So a writer says what the
+  path was, lock or no, and reads the answer.
+* `(storage-put)`, `(storage-delete)` and `(storage-stream)` do not take the
+  lock themselves. The task that holds a lock round a read and a write would
+  then wait on itself, the lock is not one a task can take twice; and a
+  lock a call took and let go would cover the write and not the read before
+  it, which is the part that needs it.
+
+```vdu
+(defq key (cat "storage/" path))
+(with-write-lock key
+	(defq was (storage-stat path) data (storage-get path))
+	(storage-put path (change data) (if was (second was) "")))
+```
+
 **Taken as they were put, not yet talked over:** blocks of 64KB cut at fixed
 places, named by SHA-256; three copies; where a block is kept worked out from
 the members by a hash rule, no table; five minutes before the blocks of a
