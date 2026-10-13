@@ -4,6 +4,40 @@
 
 ------
 
+**To read or write a char of a stream trashes two registers, more in the buffer or no. The path to the next buffer keeps what that may trash.**
+
+Chris: "the simple act of reading a char can call a virtual method for
+:next_buffer, which has till now been (kind of) can trash all." The
+`:array :set_cap` case again: the common path uses two registers, and
+it was the rare one, by the vtable to `:read_next` or `:write_next`,
+that what calls it had to allow for.
+
+`class/stream/class.vp`: `:read_char`, `:write_char`, `:read` and
+`:write` push what the next buffer is declared to trash, and that they
+do not use themselves, round that call only. The call goes by `:r2`,
+which is read again after it, so `:r14` is left too.
+
+* `:read_char` trashes `:r1-:r2`, was `:r1-:r8 :r14`.
+* `:write_char` trashes `:r2-:r3`, was `:r2-:r9 :r14`.
+* `:read_bits` and `:write_bits` `:r1-:r4`, were `:r1-:r8 :r14` and
+  `:r1-:r9 :r14`.
+* `:read` `:r1-:r6`, `:write` and `:write_cstr` `:r1-:r5`, `:read_line`
+  `:r1-:r5 :r14`.
+
+32 declarations narrower in 28 files, written by `trace -w`.
+
+`relies` said of my first go at `:read_char` that it read `:r2` after
+the call. It did not, on any path that can be taken, but to know so is
+to know that -1 came back, and that is the kind of thing the lint is
+not to need. The end of the stream has its own way out now.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,538
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi.
+`make test` five times 56.1 to 61.2 ms, wider than it has been and no
+slower in the middle.
+
+Not seen: no soak yet, the emulators, and no desktop was started.
+
 **The five iterators, `each!` `some!` `map!` `reduce!` `filter!`, keep what they can in registers their callees leave. No change to the benchmark.**
 
 Chris: "start on map! and the callers from locals -c", and of

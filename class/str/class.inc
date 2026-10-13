@@ -6,7 +6,7 @@
 	(dec-method :type class/str/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :hash class/str/hash :override :nil :nil (:r1-:r4) (:r1-:r4))
 	(dec-method :eql class/str/eql :override :nil :nil (:r1-:r6) (:r1-:r6))
-	(dec-method :print class/str/print :override :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
+	(dec-method :print class/str/print :override :nil :nil (:r1-:r9 :f0-:f15) (:r1-:r9 :f0-:f15))
 	(dec-method :get_length class/str/get_length :final :nil :nil (:r1) (:r1))
 	(dec-method :ref_elem class/str/ref_elem :final :nil :nil (:r1-:r6 :f0-:f15) (:r1-:r6 :f0-:f15))
 	(dec-method :slice class/str/slice :final :nil :nil (:r0-:r5 :f0-:f15) (:r0-:r5 :f0-:f15))

@@ -5,7 +5,7 @@
 	(dec-method :vtable class/fixed/vtable)
 	(dec-method :type class/fixed/type :override :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :create class/fixed/create :static :nil :nil (:r0-:r2 :r14 :f0-:f15))
-	(dec-method :print class/fixed/print :override :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
+	(dec-method :print class/fixed/print :override :nil :nil (:r1-:r5 :f0-:f15) (:r1-:r5 :f0-:f15))
 	(dec-method :vcreate class/fixed/create :override :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :mul class/fixed/mul :override :nil :nil (:r0-:r4 :r14 :f0-:f15) (:r0-:r4 :r14 :f0-:f15))
 	(dec-method :div class/fixed/div :override :nil :nil (:r0-:r5 :r14 :f0-:f15) (:r0-:r5 :r14 :f0-:f15))
