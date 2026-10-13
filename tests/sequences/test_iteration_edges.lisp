@@ -149,3 +149,30 @@
 (assert-error "sort compare throws" (sort (list 3 1 2) (lambda (a b) (throw "e" 1))))
 (assert-error "sort numbers with the string compare" (sort (list 3 1 2)))
 (assert-error "usort numbers with the string compare" (usort (list 3 1 2)))
+
+;the list of args is the one list for every time round, while only the
+;iterator holds it. What is called may keep it: (list) gives it back as
+;its value. Then it is the caller's, and the next time round has another
+(assert-eq "map! of (list): each value is a list of its own" "((1 4) (2 5) (3 6))"
+	(str (map! (const list) (list '(1 2 3) '(4 5 6)))))
+(defq ie_kept (list))
+(each! (lambda (&rest args) (push ie_kept args)) (list '(1 2 3) '(4 5 6)))
+(assert-eq "each!, args kept by what is called: each is as it was given" "((1 4) (2 5) (3 6))" (str ie_kept))
+(setq ie_kept (list))
+(each! (# (push ie_kept (list %0))) (list '(1 2 3)))
+(assert-eq "each!, args not kept: the values are right too" "((1) (2) (3))" (str ie_kept))
+(assert-eq "reduce! of (list): the value of each time round is in the next" "(((0 1) 2) 3)"
+	(str (reduce! (const list) (list '(1 2 3)) 0)))
+(assert-eq "filter! of (list): what is kept is the element, not the args" "(1 2 3)"
+	(str (filter! (const list) '(1 2 3))))
+(setq ie_kept (list))
+(assert-eq "some! of what keeps its args, to the end" ":nil"
+	(str (some! (lambda (&rest args) (push ie_kept args) :nil) (list '(1 2 3)))))
+(assert-eq "some!: each is as it was given" "((1) (2) (3))" (str ie_kept))
+(setq ie_kept (list))
+(map! (lambda (&rest args) (if (= (first args) 2) (push ie_kept args)) (first args)) (list '(1 2 3)))
+(assert-eq "kept the once, in the middle: it is not written over by the next" "((2))" (str ie_kept))
+;an each! in what an each! calls has args of its own
+(setq ie_kept (list))
+(each! (lambda (a) (each! (lambda (b) (push ie_kept (list a b))) (list '(7 8)))) (list '(1 2)))
+(assert-eq "one inside another" "((1 7) (1 8) (2 7) (2 8))" (str ie_kept))

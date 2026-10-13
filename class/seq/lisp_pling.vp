@@ -88,15 +88,37 @@
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) (vpx old_idx))
 
+		;the one list of args for every time round, while nothing but this
+		;holds it
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) (vpx args))
+
 		(loop-start)
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(call :list :create :nil '(:r0))
-			(assign '(:r0) (vpx args))
+			(assign (vpx args) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
-			(call :obj :deref (vpx args))
+			;if what was called kept the args, it is the value of (list),
+			;they are its now and the next time round has a list of its
+			;own. If not they are emptied and used again
+			(assign (vpx args) '(:r0))
+			(assign '((:r0 +obj_count)) '(:r1))
+			(vpif '(:r1 = 1))
+				;emptied here: a deref leaves these two registers
+				(class/array/get_both :r0 :r3 :r5)
+				(vp-xor-rr :r1 :r1)
+				(assign '(:r1) '((:r0 +array_length)))
+				(loop-while '(:r3 /= :r5))
+					(call :obj :deref '((:r3 0)))
+					(vp-add-cr +ptr_size :r3)
+				(loop-end)
+			(else)
+				(call :obj :deref '(:r0))
+				(call :list :create :nil '(:r0))
+				(assign '(:r0) (vpx args))
+			(endif)
 			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
 
 		(errorcase
@@ -109,6 +131,7 @@
 		(loop-until `(,idx = ,end))
 
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+		(call :obj :deref (vpx args))
 	(endif)
 
 	(assign (vpx this) '(:r0))
@@ -197,15 +220,37 @@
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) (vpx old_idx))
 
+		;the one list of args for every time round, while nothing but this
+		;holds it
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) (vpx args))
+
 		(loop-start 'exit)
 			;discard old value, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref `(,value))
-			(call :list :create :nil '(:r0))
-			(assign '(:r0) (vpx args))
+			(assign (vpx args) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
-			(call :obj :deref (vpx args))
+			;if what was called kept the args, it is the value of (list),
+			;they are its now and the next time round has a list of its
+			;own. If not they are emptied and used again
+			(assign (vpx args) '(:r0))
+			(assign '((:r0 +obj_count)) '(:r1))
+			(vpif '(:r1 = 1))
+				;emptied here: a deref leaves these two registers
+				(class/array/get_both :r0 :r3 :r5)
+				(vp-xor-rr :r1 :r1)
+				(assign '(:r1) '((:r0 +array_length)))
+				(loop-while '(:r3 /= :r5))
+					(call :obj :deref '((:r3 0)))
+					(vp-add-cr +ptr_size :r3)
+				(loop-end)
+			(else)
+				(call :obj :deref '(:r0))
+				(call :list :create :nil '(:r0))
+				(assign '(:r0) (vpx args))
+			(endif)
 			(assign (vpx this mode dir end func seqs) `(,this ,mode ,dir ,end ,func ,seqs))
 
 		(errorcase
@@ -226,6 +271,7 @@
 		(loop-until `(,idx = ,end))
 
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+		(call :obj :deref (vpx args))
 	(endif)
 
 	(assign (vpx this) '(:r0))
@@ -325,14 +371,36 @@
 		(vp-add-rr :r2 :r1)
 		(call :list :set_cap '(:r0 :r1))
 
+		;the one list of args for every time round, while nothing but this
+		;holds it
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) (vpx args))
+
 		(loop-start)
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
-			(call :list :create :nil '(:r0))
-			(assign '(:r0) (vpx args))
+			(assign (vpx args) '(:r0))
 			(call :list :collect `(:r0 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
-			(call :obj :deref (vpx args))
+			;if what was called kept the args, it is the value of (list),
+			;they are its now and the next time round has a list of its
+			;own. If not they are emptied and used again
+			(assign (vpx args) '(:r0))
+			(assign '((:r0 +obj_count)) '(:r1))
+			(vpif '(:r1 = 1))
+				;emptied here: a deref leaves these two registers
+				(class/array/get_both :r0 :r3 :r5)
+				(vp-xor-rr :r1 :r1)
+				(assign '(:r1) '((:r0 +array_length)))
+				(loop-while '(:r3 /= :r5))
+					(call :obj :deref '((:r3 0)))
+					(vp-add-cr +ptr_size :r3)
+				(loop-end)
+			(else)
+				(call :obj :deref '(:r0))
+				(call :list :create :nil '(:r0))
+				(assign '(:r0) (vpx args))
+			(endif)
 			(assign (vpx this) `(,this))
 
 		(errorcase
@@ -350,6 +418,7 @@
 		(loop-until `(,idx = ,end))
 
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+		(call :obj :deref (vpx args))
 	(endif)
 
 	(exit :seq :lisp_map (vpx this out))
@@ -364,6 +433,7 @@
 (vp-label 'error3)
 	;the function threw, put the outer loop index back as a normal exit does
 	(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+	(call :obj :deref (vpx args))
 	(call :obj :deref (vpx out))
 	(exit :seq :lisp_map `(,this ,value))
 	(return)
@@ -440,16 +510,38 @@
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 		(assign `(,old_idx) (vpx old_idx))
 
+		;the one list of args for every time round, while nothing but this
+		;holds it
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) (vpx args))
+
 		(loop-start)
 			;recycle value as arg 0, get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(bind '(%3 %4 %5) (method-input :list :collect))
-			(call :list :create :nil `(,%3))
-			(assign `(,%3) (vpx args))
+			(assign (vpx args) `(,%3))
 			(call :list :push_back `(,%3 ,value) `(,%3 _ _ _))
 			(call :list :collect `(,%3 ,seqs (,this +lisp_seq_idx)) `(,%1))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
-			(call :obj :deref (vpx args))
+			;if what was called kept the args, it is the value of (list),
+			;they are its now and the next time round has a list of its
+			;own. If not they are emptied and used again
+			(assign (vpx args) '(:r0))
+			(assign '((:r0 +obj_count)) '(:r1))
+			(vpif '(:r1 = 1))
+				;emptied here: a deref leaves these two registers
+				(class/array/get_both :r0 :r3 :r5)
+				(vp-xor-rr :r1 :r1)
+				(assign '(:r1) '((:r0 +array_length)))
+				(loop-while '(:r3 /= :r5))
+					(call :obj :deref '((:r3 0)))
+					(vp-add-cr +ptr_size :r3)
+				(loop-end)
+			(else)
+				(call :obj :deref '(:r0))
+				(call :list :create :nil '(:r0))
+				(assign '(:r0) (vpx args))
+			(endif)
 			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
 
 		(errorcase
@@ -462,6 +554,7 @@
 		(loop-until `(,idx = ,end))
 
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+		(call :obj :deref (vpx args))
 	(endif)
 
 	(assign (vpx this) '(:r0))
@@ -557,14 +650,18 @@
 		(vp-add-rr :r2 :r1)
 		(call :list :set_cap '(:r0 :r1))
 
+		;the one list of args for every time round, while nothing but this
+		;holds it
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) (vpx args))
+
 		(loop-start)
 			;get new value of function call
 			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(bind '(%3 %4) (method-input :list :push_back))
 			;the element first, it is kept where the create leaves it
 			(call :seq :ref_elem `(,seq (,this +lisp_seq_idx)) '(_ :r3))
-			(call :list :create :nil `(,%3))
-			(assign `(,%3) (vpx args))
+			(assign (vpx args) `(,%3))
 			(call :list :push_back `(,%3 :r3) `(,%1 _ _ _))
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			(assign (vpx this) `(,this))
@@ -581,7 +678,25 @@
 				(call :list :push_back `(,%3 ,%4))
 			(endif)
 			(call :obj :deref `(,value))
-			(call :obj :deref (vpx args))
+			;if what was called kept the args, it is the value of (list),
+			;they are its now and the next time round has a list of its
+			;own. If not they are emptied and used again
+			(assign (vpx args) '(:r0))
+			(assign '((:r0 +obj_count)) '(:r1))
+			(vpif '(:r1 = 1))
+				;emptied here: a deref leaves these two registers
+				(class/array/get_both :r0 :r3 :r5)
+				(vp-xor-rr :r1 :r1)
+				(assign '(:r1) '((:r0 +array_length)))
+				(loop-while '(:r3 /= :r5))
+					(call :obj :deref '((:r3 0)))
+					(vp-add-cr +ptr_size :r3)
+				(loop-end)
+			(else)
+				(call :obj :deref '(:r0))
+				(call :list :create :nil '(:r0))
+				(assign '(:r0) (vpx args))
+			(endif)
 
 			(assign (vpx dir end func seq) `(,dir ,end ,func ,seq))
 			(assign `((,this +lisp_seq_idx)) `(,idx))
@@ -590,6 +705,7 @@
 		(loop-until `(,idx = ,end))
 
 		(assign (vpx old_idx) (vpx (.> this +lisp_seq_idx)))
+		(call :obj :deref (vpx args))
 	(endif)
 
 	(exit :seq :lisp_filter (vpx this out))

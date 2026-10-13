@@ -90,7 +90,13 @@
 (defun pset-get-hashslot (obj)
 	(obj-get obj 12 +type_uint))
 
-(defq hs_s0 (gensym) hs_s1 (gensym) hs_s2 (gensym))
+;symbols no other task has. A (gensym) is not that: each task counts its own
+;from the same start, a symbol of a name is the one object for every task of
+;the node, and the slot in it is written by any map it is put in or found
+;in. Another test's G of the same number, bound in an environment between
+;two lines here, was the slot read back as 93, the once, on the Pi
+(defq hs_mine (hex-encode (task-mbox))
+	hs_s0 (sym (cat "hs_s0_" hs_mine)) hs_s1 (sym (cat "hs_s1_" hs_mine)) hs_s2 (sym (cat "hs_s2_" hs_mine)))
 
 ; 1. pinsert proactive hashslot assignment
 (defq hs_ps (pset))

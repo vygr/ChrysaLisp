@@ -4,6 +4,62 @@
 
 ------
 
+**The iterators make the one list of args for a whole loop, not one a time round. 5 to 8 ns off each time round, of 10 to 20.**
+
+Chris: "lets do the args before we do the register analysys. We need to
+mesure the speed up is real." And of what did not gain at first: "these
+anomolies are worth looking into though, they seam odd without
+explaination", "reduce! is a little worrying."
+
+`class/seq/lisp_pling.vp`, `each!` `some!` `map!` `reduce!` `filter!`.
+The list of args is made before the loop. After each apply, if its
+count is 1 nothing else holds it, and it is emptied and filled again.
+If it is more, what was called kept it, `(list)` gives it back as its
+value: it is let go of and the next time round has a new one.
+
+A time round, ns, a million elements, the best of several, the M4:
+
+	each! progn, 1 seq      10.1 ->  5.2
+	each! eql, 2 seqs       13.2 ->  7.6
+	each! +, 2 seqs         16.4 -> 10.4
+	some! eql, 2 seqs       13.3 ->  7.8
+	map! +, 2 seqs          19.5 -> 12.5
+	map! lambda             17.0 -> 12.3
+	reduce! progn           12.3 ->  7.0
+	reduce! eql             14.1 ->  6.7
+	reduce! +               17.0 ->  9.0
+	filter! lambda, kept    20.0 -> 14.3
+	map! of (list), kept    14.2 -> 14.6
+
+The first go emptied the list with `:list :clear`. That gained 5 ns
+with `progn` and nothing with `eql` or `+`, `reduce!` was 2% slower,
+and with lists of a thousand, that stay in the cache, some were slower
+than before and some went 3 ns either way from one run to the next. So
+the first numbers I gave Chris were in part the luck of the test. The
+loops empty it themselves now, the place kept in two registers that a
+deref leaves. Then every one gains, and the same to a tenth each run.
+Why `:list :clear` did that is not known yet.
+
+`make test` is as it was, 57 to 63 ms.
+
+`tests/sequences/test_iteration_edges.lisp`, nine more: `map!`,
+`reduce!` and `filter!` of `(list)`, args kept by a lambda in `each!`
+and `some!`, kept the once in the middle, one `each!` in another.
+
+`tests/collections/test_psets.lisp` failed once on the Pi in a soak of
+eight, a slot read back 93 for 1. Read, not caught again: it reads the
+slot kept in a symbol, of symbols from `(gensym)`. Each task counts its
+own from the same start and a symbol of a name is the one object for
+the node, so another test's of the same number, bound between two lines
+of this, wrote the slot. It uses symbols named by its own task.
+
+Run: `lint` clean with `relies`. `make all platforms boot`. 6,575
+tests, 0 failed, built on each of the M4, the x64 Mac and the Pi. Soak
+of ten clean on all three. `check` clean.
+
+Not seen: the emulators. Not looked for: a place that holds the args
+with no count of its own. No test shows one.
+
 **`(Global)` does not ask a node again that could not start its task. `(. global :reply msg)`.**
 
 Chris: "do the first, Global gets a method".
