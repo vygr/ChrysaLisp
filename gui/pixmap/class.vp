@@ -173,6 +173,16 @@
 			(.> this +pixmap_stride) (.> user local_flags))
 		(vpx tex_id))
 
+	;the driver may not make one, of pixels wider or taller than it can
+	;hold. What is drawn with it then is nothing, and nothing else says so
+	(vpifnot (vpx tex_id))
+		(call :host_os :pii_write_str (vpx 2 "A texture was not made by the driver, of "))
+		(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_width) 10))
+		(call :host_os :pii_write_str (vpx 2 " by "))
+		(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_height) 10))
+		(call :host_os :pii_write_str (vpx 2 " pixels\n"))
+	(endif)
+
 	;new texture
 	(call :texture :create (vpx tex_id (.> this +pixmap_width) (.> this +pixmap_height)) (vpx (.> this +pixmap_texture)))
 

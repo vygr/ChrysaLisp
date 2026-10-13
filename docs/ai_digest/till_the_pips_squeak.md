@@ -690,7 +690,8 @@ and after. All the same. The orders are now a test,
 fill in under a second.
 
 A filled disc, which has two edges to a scan line, is as it was, 100 µs.
-There is no benchmark of the fill in `tests/bench/` yet.
+The fill is in the benchmarks now, `tests/bench/bench_fill.lisp`, with
+`bench_str`, `bench_map` and `bench_stream` beside it.
 
 And a `Text` draws only the first 512 bytes of its line, cut between
 characters, `(text-most)`: Chris, "I don't think it would harm to limit the

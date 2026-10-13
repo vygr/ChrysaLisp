@@ -1,0 +1,22 @@
+;streams: a str written a piece at a time and read back, by chars, lines
+;and blocks
+(defq bt_lines (map (# (cat "this is line number " (str %0))) (range 0 10000))
+	bt_text (apply (const cat) (map (# (cat %0 (ascii-char 10))) bt_lines))
+	bt_bytes (length bt_text) bt_runs 20)
+
+(bench "(write-line stream line), each line" (* bt_runs 10000)
+	(times bt_runs (defq s (string-stream (cat ""))) (each (# (write-line s %0)) bt_lines)))
+(bench "(write-blk stream line), each line" (* bt_runs 10000)
+	(times bt_runs (defq s (string-stream (cat ""))) (each (# (write-blk s %0)) bt_lines)))
+(bench "(write-char stream char), each byte" (* 2 bt_bytes)
+	(times 2 (defq s (string-stream (cat ""))) (each (# (write-char s (code %0))) bt_text)))
+(bench "(read-line stream), each line" (* bt_runs 10000)
+	(times bt_runs (defq s (string-stream bt_text)) (while (read-line s))))
+(bench "(lines! f stream), each line" (* bt_runs 10000)
+	(times bt_runs (lines! (lambda (line) :nil) (string-stream bt_text))))
+(bench "(read-char stream), each byte" (* 2 bt_bytes)
+	(times 2 (defq s (string-stream bt_text)) (while (read-char s))))
+(bench "(read-blk stream 4096), each block" (* bt_runs (/ bt_bytes 4096))
+	(times bt_runs (defq s (string-stream bt_text)) (while (read-blk s 4096))))
+(bench "(str stream) of what was written, each 4096 bytes" (* bt_runs (/ bt_bytes 4096))
+	(progn (defq s (string-stream (cat ""))) (write-blk s bt_text) (times bt_runs (str s))))

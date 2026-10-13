@@ -4,6 +4,8 @@
 
 ------
 
+**`bench` has strs, maps, streams and the polygon fill. A texture the driver does not make is said, on stderr.**
+
 **`(storage-stream path [mode svc ahead])` writes and appends as `(file-stream)` does; `(lisp-stream fill [seek write])`.**
 
 The mode is second now, `svc` and `ahead` after it. The path is set at a flush and when the stream is let go of. A `:deinit` that calls Lisp, the first.

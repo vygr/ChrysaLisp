@@ -1,0 +1,17 @@
+;strs: made, cut, joined, searched and turned into other things
+(defq bs_n 1000000 bs_word "the quick brown fox" bs_long (pad "" 1000 "abcdefghij")
+	bs_line "one two three four five six seven eight" bs_words (split bs_line " ")
+	bs_num 123456)
+
+(bench "(cat word word)" bs_n (times bs_n (cat bs_word bs_word)))
+(bench "(slice word 4 9)" bs_n (times bs_n (slice bs_word 4 9)))
+(bench "(eql word word), the same str" bs_n (times bs_n (eql bs_word bs_word)))
+(bench "(find \qb\q word), a char" bs_n (times bs_n (find "b" bs_word)))
+(bench "(starts-with \qthe\q word)" bs_n (times bs_n (starts-with "the" bs_word)))
+(bench "(found? long \qjab\q), in 1,000 bytes" (/ bs_n 10) (times (/ bs_n 10) (found? bs_long "jab")))
+(bench "(split line \q \q), 8 words" (/ bs_n 10) (times (/ bs_n 10) (split bs_line " ")))
+(bench "(join words \q \q), 8 words" (/ bs_n 10) (times (/ bs_n 10) (join bs_words " ")))
+(bench "(str 123456)" bs_n (times bs_n (str bs_num)))
+(bench "(str-as-num \q123456\q)" bs_n (times bs_n (str-as-num "123456")))
+(bench "(sym word), one that is there" bs_n (times bs_n (sym bs_word)))
+(bench "(code word 1 4)" bs_n (times bs_n (code bs_word 1 4)))
