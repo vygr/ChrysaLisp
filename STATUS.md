@@ -29,9 +29,9 @@ node that is not Lisp: the answer is the same.
 Run: 6,566 tests, 0 failed, on the M4, the x64 Mac and the Pi. `check`,
 `imports` and `forward` clean on what changed.
 
-Not seen: the three applications were not run, no desktop was started.
-What they do with an answer of a task started is what the test does.
-No node that is not Lisp exists to try.
+Seen after: Chris ran the three in a desktop of eight nodes on the M4
+joined to the x64 Mac and the Pi, "all work." No node that is not Lisp
+exists to try.
 
 **The answer to an open says which node gives it, the task started or not.**
 
