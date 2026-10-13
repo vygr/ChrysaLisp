@@ -16,7 +16,24 @@
 ; run time, called by the lambda
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq +cpu_0 (n2r 0) +cpu_1 (n2r 1) +cpu_2 (n2r 2) +cpu_-1 (n2r -1) +cpu_1/2 (n2r 0.5))
+(defq +cpu_0 (n2r 0) +cpu_1 (n2r 1) +cpu_2 (n2r 2) +cpu_-1 (n2r -1) +cpu_1/2 (n2r 0.5)
+	;a byte of a pixel as a number of 0 to 1, by a multiply, as the native code has it
+	+cpu_255th (/ (n2r 1) (n2r 255)))
+
+(defun cpu-texture (tex uv)
+	;the color of a picture at a place. tex is (width height pixels), of
+	;(shader-texture). The place is 0 to 1 across and 0 to 1 down, from
+	;the top left, and goes round again outside that. It is the one pixel
+	;the place is in, no pixel is mixed with the next. One with no width
+	;is no picture, and is nothing
+	(bind '(w h data) tex)
+	(cond
+		((= w 0) (reals +cpu_0 +cpu_0 +cpu_0 +cpu_0))
+		(:t (defq x (min (dec w) (max 0 (n2i (floor (* (frac (first uv)) (n2r w))))))
+				y (min (dec h) (max 0 (n2i (floor (* (frac (second uv)) (n2r h))))))
+				p (get-uint data (* 4 (+ (* y w) x))))
+			(reals (* (n2r (logand (>> p 16) 0xff)) +cpu_255th) (* (n2r (logand (>> p 8) 0xff)) +cpu_255th)
+				(* (n2r (logand p 0xff)) +cpu_255th) (* (n2r (logand (>> p 24) 0xff)) +cpu_255th)))))
 
 (defun cpu-splat (f n)
 	(case n (2 (reals f f)) (3 (reals f f f)) (:t (reals f f f f))))
@@ -201,7 +218,8 @@
 		((eql op 'cross) (list (const cpu-cross) a b))
 		((eql op 'length) (list (if va (const cpu-length) (const abs)) a))
 		((eql op 'normalize) (list (const cpu-norm) a))
-		((eql op 'reflect) (list (const cpu-reflect) a b))))
+		((eql op 'reflect) (list (const cpu-reflect) a b))
+		((eql op 'texture) (list (const cpu-texture) a b))))
 
 (defun cpu-expr (node)
 	(sh-fold node (lambda (node args)
@@ -209,6 +227,8 @@
 		(case tag
 			(:lit (if (eql type :float) (str-to-real a) a))
 			(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
+			;a texture is a parameter of the lambda, by its name
+			(:tex a)
 			(:swz (defq v (first args))
 				(cond
 					((= (length a) 1)
@@ -353,16 +373,18 @@
 
 (defun shader-cpu (program)
 	; (shader-cpu program) -> lambda
-	; (lambda x y x1 y1 input ... varying ...) -> (vec4 ...)
+	; (lambda x y x1 y1 input ... varying ... texture ...) -> (vec4 ...)
 	;the lambda shades the pixels of the tile, row by row, the
 	;centre of pixel x y is at frag coord x + 0.5, y + 0.5. A pixel
 	;shader with varyings is given a value for each, after the inputs,
-	;and every pixel of the tile has those.
+	;and every pixel of the tile has those. And then each of its
+	;textures, as (shader-texture) gives one.
 	(unless (eql (shader-stage program) :pixel) (sh-err "not a pixel shader" 'main))
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
 	(cat (list (const lambda) (cat '(_x _y _x1 _y1) (map (const first) inputs)
-			(map (const first) (shader-varyings program))))
+			(map (const first) (shader-varyings program))
+			(map (const first) (shader-textures program))))
 		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
 		(list
 			(static-qq (defq _out (list) _yy (- _y 1)))
@@ -374,10 +396,7 @@
 				(static-qq (task-slice)))
 			'_out)))
 
-(defun shader-cpu-args (program &optional vals)
-	; (shader-cpu-args program [((name val) ...)]) -> (val ...)
-	;the input args for the lambda, defaults for those not given, then a
-	;value for each varying of a pixel shader, 0 for those not given
+(defun cpu-number-args (program vals)
 	(map (lambda ((name type &optional val lo hi))
 		(if (defq v (some (# (if (eql (first %0) name) %0)) vals))
 			(setq val (second v)))
@@ -391,6 +410,19 @@
 				(if (seq? val) val (map (lambda (&) 0) (range 0 (shader-size type)))))))))
 		(cat (first program)
 			(if (eql (shader-stage program) :pixel) (shader-varyings program) (list)))))
+
+(defun shader-cpu-args (program &optional vals)
+	; (shader-cpu-args program [((name val) ...)]) -> (val ...)
+	;the input args for the lambda, defaults for those not given, then a
+	;value for each varying of a pixel shader, 0 for those not given, then
+	;each texture of it, the pixmap given under its name as
+	;(shader-texture) has it, or as it is if that is how it was given, and
+	;no picture at all for one not given
+	(cat (cpu-number-args program vals)
+		(map (lambda ((name))
+			(defq v (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
+			(cond ((not v) (list 0 0 "")) ((list? v) v) ((shader-texture v))))
+			(if (eql (shader-stage program) :pixel) (shader-textures program) (list)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; triangles, the reference
@@ -447,7 +479,9 @@
 				(setq at (+ at n)) (if (= n 1) (first a) a)) sizes))
 			(range 0 (/ (length verts) (max stride 1))))
 		placed (apply (eval (shader-cpu-vertex vertex)) (cat (list vlist) (shader-cpu-args vertex vvals)))
-		shade (eval (shader-cpu pixel)) inputs (slice (shader-cpu-args pixel pvals) 0 (length (first pixel)))
+		shade (eval (shader-cpu pixel)) pargs (shader-cpu-args pixel pvals)
+		inputs (slice pargs 0 (length (first pixel)))
+		texs (slice pargs (- (length pargs) (length (shader-textures pixel))) -1)
 		;where in what a vertex was placed as each varying of the pixel shader is
 		picks (map (lambda ((name type))
 			(inc (some (# (if (eql (first %0) name) (!))) (shader-varyings vertex))))
@@ -495,7 +529,7 @@
 											(nums-add (nums-add (nums-scale a q0) (nums-scale b q1))
 												(nums-scale c q2)))) picks)
 									col (first (apply shade (cat (list px (- height 1 py) (inc px) (- height py))
-										inputs vary))))
+										inputs vary texs))))
 								;alpha of 0 is not drawn, full on is written,
 								;and between goes over what is there as
 								;:canvas :plot has it, in whole numbers

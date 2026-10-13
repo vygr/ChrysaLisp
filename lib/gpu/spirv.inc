@@ -122,6 +122,25 @@
 	; (spv-var name) -> (id type)
 	(or (. spv_lvars :find name) (. spv_gvars :find name)))
 
+(defun spv-tex-type ()
+	;the id of the type of a picture that is read with a place, a 2D image
+	;of floats and how it is read, as the one thing
+	(spv-memo "sampled image" (lambda ()
+		(defq ft (spv-type :float) image (spv-id) id (spv-id))
+		(spv-op spv_types 25 image ft 1 0 0 0 1 0)
+		(spv-op spv_types 27 id image)
+		id)))
+
+(defun spv-texture (name index)
+	;a picture of a pixel shader, a variable of the module, at set 2, at
+	;the binding that is its number, as SDL's GPU interface wants it
+	(defq tid (spv-tex-type) id (spv-id))
+	(spv-op spv_types 59 (spv-ptr "sampled image" tid 0) id 0)
+	(spv-op spv_decor 71 id 34 2)
+	(spv-op spv_decor 71 id 33 index)
+	(. spv_gvars :insert name (list id :texture))
+	id)
+
 (defun spv-emit (type opcode &rest args)
 	;an instruction that gives a value of this type, to the block
 	(defq tid (spv-type type) id (spv-id))
@@ -155,6 +174,10 @@
 				((eql type :int) (spv-const :int a))
 				((spv-const :float (sh-real-to-float (str-to-real a))))))
 			(:var (spv-emit type 61 (first (spv-var a))))
+			;a picture is loaded, as what it is, to be read from
+			(:tex (defq id (spv-id))
+				(spv-op spv_body 61 (spv-tex-type) id (first (spv-var a)))
+				id)
 			(:swz (defq v (first args))
 				(if (= (length a) 1)
 					(spv-emit type 81 v (first a))
@@ -215,6 +238,7 @@
 					((eql a 'length) (spv-ext type 66 ia))
 					((eql a 'normalize) (spv-ext type 69 ia))
 					((eql a 'reflect) (spv-ext type 71 ia ib))
+					((eql a 'texture) (spv-emit :vec4 87 ia ib))
 					((sh-err "no SPIR-V for" a))))))))
 
 (defun spv-block (block)
@@ -327,6 +351,7 @@
 		(setq block (spv-block-var (map (const second) layout) (map (const third) layout)
 			(if (eql (shader-stage program) :vertex) 1 3))))
 	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
+	(each (lambda ((name)) (spv-texture name (!))) (shader-textures program))
 	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
 	(each (lambda ((name type params block))
 		;check off, the type it is called with is the type this was

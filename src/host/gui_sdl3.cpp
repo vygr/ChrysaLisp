@@ -58,7 +58,15 @@ struct Shader
 	Uint8 attrs[8];
 	Uint8 cull;
 	Uint32 stride;
+	// how many pictures the pixel shader of a pair reads from
+	Uint8 num_textures;
 };
+
+// the most pictures the pixel shader of a pair can read from, and how every
+// one of them is read: the one pixel a place is in, and round again outside
+// 0 to 1, as the code the nodes run with no GPU reads them
+static const Uint8 max_pair_textures = 8;
+static SDL_GPUSampler *pair_sampler = nullptr;
 
 // the vertices of a mesh, on the GPU, as floats
 struct Mesh
@@ -286,6 +294,8 @@ void host_gui_deinit()
 	{
 		// a shader being built is using the device
 		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
+		if (pair_sampler) SDL_ReleaseGPUSampler(device, pair_sampler);
+		pair_sampler = nullptr;
 		SDL_DestroyGPUDevice(device);
 		device = nullptr;
 	}
@@ -432,7 +442,7 @@ uint64_t host_gui_shader_format()
 static SDL_GPUTextureFormat find_depth_format();
 
 static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShaderFormat format,
-	SDL_GPUShaderStage stage, const char *entry, Uint32 uniforms)
+	SDL_GPUShaderStage stage, const char *entry, Uint32 uniforms, Uint32 samplers = 0)
 {
 	SDL_GPUShaderCreateInfo info = {};
 	info.code = code;
@@ -441,6 +451,7 @@ static SDL_GPUShader *create_shader(const Uint8 *code, size_t size, SDL_GPUShade
 	info.format = format;
 	info.stage = stage;
 	info.num_uniform_buffers = uniforms;
+	info.num_samplers = samplers;
 	return SDL_CreateGPUShader(device, &info);
 }
 
@@ -484,7 +495,8 @@ static int SDLCALL build_shader(void *data)
 	auto vs = create_shader(shader->vertex, shader->vertex_size, shader->format,
 		SDL_GPU_SHADERSTAGE_VERTEX, "vertex_main", 1);
 	auto fs = create_shader(shader->fragment, shader->fragment_size, shader->format,
-		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main", shader->mesh ? 2 : 1);
+		SDL_GPU_SHADERSTAGE_FRAGMENT, "fragment_main", shader->mesh ? 2 : 1,
+		shader->mesh ? shader->num_textures : 0);
 	SDL_GPUGraphicsPipeline *pipeline = nullptr;
 	if (vs && fs)
 	{
@@ -602,13 +614,15 @@ void *host_gui_shader_create(const char *vertex, uint64_t vertex_size, const cha
 	if (!host_gui_shader_format()) return nullptr;
 	auto shader = (Shader*)SDL_malloc(sizeof(Shader));
 	shader->mesh = false;
+	shader->num_textures = 0;
 	return start_shader(shader, vertex, vertex_size, fragment, fragment_size);
 }
 
 // a vertex shader and a pixel shader that draw triangles. The layout is how
 // many attrs a vertex has, the cull, 0 none, 1 those that face away, 2 those
-// that face us, then how many floats each attr is, a byte each. It is
-// destroyed as a shader is.
+// that face us, then how many floats each attr is, a byte each, and then how
+// many pictures the pixel shader reads from, a byte. It is destroyed as a
+// shader is.
 
 void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char *fragment, uint64_t fragment_size,
 	const uint8_t *layout)
@@ -630,6 +644,8 @@ void *host_gui_pair_create(const char *vertex, uint64_t vertex_size, const char 
 		shader->attrs[i] = n < 1 ? 1 : n > 4 ? 4 : n;
 		shader->stride += shader->attrs[i];
 	}
+	auto textures = layout[2 + layout[0]];
+	shader->num_textures = textures > max_pair_textures ? max_pair_textures : textures;
 	return start_shader(shader, vertex, vertex_size, fragment, fragment_size);
 #endif
 }
@@ -791,7 +807,7 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 #else
 	if (!device || !texture || size < 8) return 0;
 	if (find_depth_format() == SDL_GPU_TEXTUREFORMAT_INVALID) return (uint64_t)-1;
-	struct Draw { Shader *pair; Mesh *mesh; uint64_t vlen, plen; const Uint8 *vblock, *pblock; };
+	struct Draw { Shader *pair; Mesh *mesh; uint64_t vlen, plen; const Uint8 *vblock, *pblock, *textures; };
 	auto data = (const Uint8*)frame;
 	uint64_t count;
 	SDL_memcpy(&count, data, 8);
@@ -808,6 +824,14 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 		d->vblock = at;
 		d->pblock = at + vpad;
 		at += vpad + ppad;
+		// then the pictures its pixel shader reads from, a handle each, as
+		// many as the pair was made to have
+		d->textures = at;
+		if (d->pair && SDL_GetAtomicInt(&d->pair->state) == shader_ready && d->pair->mesh)
+		{
+			if (at + 8 * (uint64_t)d->pair->num_textures > end) { result = (uint64_t)-1; break; }
+			at += 8 * (uint64_t)d->pair->num_textures;
+		}
 		// every pair of the frame has to be built before any of it is drawn
 		auto state = d->pair ? SDL_GetAtomicInt(&d->pair->state) : shader_failed;
 		if (state == shader_building) result = 0;
@@ -847,6 +871,17 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 			tex->samples = SDL_CreateGPUTexture(device, &info);
 			if (!tex->samples) result = 0;
 		}
+	}
+	if (result == 1 && !pair_sampler)
+	{
+		SDL_GPUSamplerCreateInfo info = {};
+		info.min_filter = SDL_GPU_FILTER_NEAREST;
+		info.mag_filter = SDL_GPU_FILTER_NEAREST;
+		info.mipmap_mode = SDL_GPU_SAMPLERMIPMAPMODE_NEAREST;
+		info.address_mode_u = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+		info.address_mode_v = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+		info.address_mode_w = SDL_GPU_SAMPLERADDRESSMODE_REPEAT;
+		pair_sampler = SDL_CreateGPUSampler(device, &info);
 	}
 	SDL_GPUCommandBuffer *cmd = nullptr;
 	if (result == 1)
@@ -888,6 +923,26 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 			SDL_PushGPUVertexUniformData(cmd, 0, d->vblock, (Uint32)d->vlen);
 			SDL_PushGPUFragmentUniformData(cmd, 0, d->pblock, (Uint32)d->plen);
 			SDL_PushGPUFragmentUniformData(cmd, 1, target_size, sizeof(target_size));
+			if (d->pair->num_textures)
+			{
+				// each as the renderer has it on the GPU. One that is not
+				// there, or is what is being drawn into, and the thing is
+				// not drawn
+				SDL_GPUTextureSamplerBinding bindings[max_pair_textures];
+				bool have = pair_sampler != nullptr;
+				for (int j = 0; have && j < d->pair->num_textures; ++j)
+				{
+					Texture *picture;
+					SDL_memcpy(&picture, d->textures + 8 * j, 8);
+					auto gpu = picture && picture->texture ? (SDL_GPUTexture*)SDL_GetPointerProperty(
+						SDL_GetTextureProperties(picture->texture), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr) : nullptr;
+					if (!gpu || gpu == target) have = false;
+					bindings[j].texture = gpu;
+					bindings[j].sampler = pair_sampler;
+				}
+				if (!have) continue;
+				SDL_BindGPUFragmentSamplers(pass, 0, bindings, d->pair->num_textures);
+			}
 			SDL_DrawGPUPrimitives(pass, d->mesh->floats / d->pair->stride, 1, 0, 0);
 		}
 		SDL_EndGPURenderPass(pass);

@@ -26,6 +26,7 @@
 				((eql type :bool) (if a "true" "false"))
 				((glsl-num a))))
 			(:var (glsl-name a))
+			(:tex (glsl-name a))
 			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
 			(:user (cat (glsl-name a) "(" (join args ", ") ")"))
 			(:t (cond
@@ -38,6 +39,8 @@
 						(cat "(" (join args (elem-get
 							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
 				((eql a 'not) (cat "(!" (first args) ")"))
+				;a picture is a sampler of its name
+				((eql a 'texture) (cat "texture2D(" (first args) ", " (second args) ")"))
 				((cat (str a) "(" (join args ", ") ")"))))))))
 
 (defun glsl-block (block indent)
@@ -77,6 +80,8 @@
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
 	(each (lambda ((name type &rest _))
 		(push lines (cat "uniform " (glsl-type type) " " (glsl-name name) ";"))) inputs)
+	(each (lambda ((name))
+		(push lines (cat "uniform sampler2D " (glsl-name name) ";"))) (shader-textures program))
 	(push lines "")
 	(each (lambda ((name type e))
 		(push lines (cat "const " (glsl-type type) " " (glsl-name name) " = " (glsl-expr e) ";"))) consts)

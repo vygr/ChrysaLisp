@@ -33,6 +33,7 @@
 				((eql type :bool) (if a "true" "false"))
 				((msl-num a))))
 			(:var (msl-name a))
+			(:tex (msl-name a))
 			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
 			(:user (cat (msl-name a) "(" (join args ", ") ")"))
 			(:t (cond
@@ -45,6 +46,8 @@
 						(cat "(" (join args (elem-get
 							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
 				((eql a 'not) (cat "(!" (first args) ")"))
+				;a picture is two members, the texture and how it is read
+				((eql a 'texture) (cat (first args) ".sample(" (first args) "s, " (second args) ")"))
 				((find a '(vec2 vec3 vec4)) (cat (msl-type type) "(" (join args ", ") ")"))
 				((find a '(min max mod clamp mix))
 					;a float that goes with a vector is made a vector
@@ -109,6 +112,9 @@
 	(each (lambda ((name type &rest _))
 		(push lines (cat "\t" (msl-type type) " " (msl-name name) ";")))
 		(cat inputs globals (shader-attrs program) (shader-varyings program)))
+	(each (lambda ((name))
+		(push lines (cat "\ttexture2d<float> " (msl-name name) ";") (cat "\tsampler " (msl-name name) "s;")))
+		(shader-textures program))
 	(each (lambda ((name type e))
 		(push lines (cat "\t" (msl-type type) " " (msl-name name) " = " (msl-expr e) ";"))) consts)
 	(each (lambda ((name type params block))
@@ -129,6 +135,20 @@
 			(cat (msl-type type) "(inputs." (msl-name name) ")")
 			(cat "inputs." (msl-name name))) ";"))) (first program)))
 
+(defun msl-texture-params (program)
+	;the textures of a pixel shader as they come to its fragment function,
+	;each a texture and a sampler at the same number, -> text to go after
+	;the other parameters
+	(apply (const cat) (cat (list "") (map (lambda ((name))
+		(cat ", texture2d<float> tex_" (str (!)) " [[texture(" (str (!)) ")]], sampler smp_" (str (!))
+			" [[sampler(" (str (!)) ")]]")) (shader-textures program)))))
+
+(defun msl-set-textures (program lines)
+	;the members that are textures, from the parameters
+	(each (lambda ((name))
+		(push lines (cat "\ts." (msl-name name) " = tex_" (str (!)) ";")
+			(cat "\ts." (msl-name name) "s = smp_" (str (!)) ";"))) (shader-textures program)))
+
 (defq *msl_head* '("#include <metal_stdlib>" "using namespace metal;" ""
 	"template<typename T, typename U> static inline T sh_mod(T x, U y) { return x - y * floor(x / y); }" "")
 	;a pair has matrices, a matrix times a vec3 is by its 3 by 3
@@ -144,9 +164,11 @@
 	(msl-struct program lines)
 	(push lines
 		"struct VertexOut" "{" "\tfloat4 position [[position]];" "\tfloat2 frag;" "};" ""
-		"fragment float4 fragment_main(VertexOut in [[stage_in]], constant Inputs &inputs [[buffer(0)]])"
+		(cat "fragment float4 fragment_main(VertexOut in [[stage_in]], constant Inputs &inputs [[buffer(0)]]"
+			(msl-texture-params program) ")")
 		"{" "\tShader s;")
 	(msl-set-inputs program lines)
+	(msl-set-textures program lines)
 	(push lines "\ts.shader_init();" "\treturn s.shader_main(in.frag);" "}" "")
 	(join lines (ascii-char 10)))
 
@@ -202,9 +224,10 @@
 		(shader-varyings pixel))
 	(push lines "};" "" "struct Target" "{" "\tpacked_float2 size;" "};" ""
 		(cat "fragment float4 fragment_main(FragmentIn in [[stage_in]], constant Inputs &inputs [[buffer(0)]],"
-			" constant Target &target [[buffer(1)]])")
+			" constant Target &target [[buffer(1)]]" (msl-texture-params pixel) ")")
 		"{" "\tShader s;")
 	(msl-set-inputs pixel lines)
+	(msl-set-textures pixel lines)
 	(each (lambda ((name type))
 		(push lines (cat "\ts." (msl-name name) " = in." (msl-name name) ";"))) (shader-varyings pixel))
 	(push lines "\ts.shader_init();"

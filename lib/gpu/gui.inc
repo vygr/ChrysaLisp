@@ -54,9 +54,11 @@
 	;With cull a triangle that faces away is left out, :front those that
 	;face us. The driver builds it in its own time. It is let go of with
 	;(canvas-shader-destroy).
+	;and after the attrs, how many textures the pixel shader has
 	(defq layout (cat (char (length (shader-attrs vertex)) 1)
 			(char (cond ((not cull) 0) ((eql cull :front) 2) (1)) 1)
-			(apply (const cat) (map (# (char (shader-size (second %0)) 1)) (shader-attrs vertex))))
+			(apply (const cat) (map (# (char (shader-size (second %0)) 1)) (shader-attrs vertex)))
+			(char (length (shader-textures pixel)) 1))
 		pair (case (canvas-shader-format)
 			(1 (bind '(vertex_text fragment_text) (shader-gui-pair-text vertex pixel +gui_msl_by ".msl"
 					;check off, the two it is called with are the two this was
@@ -78,20 +80,31 @@
 	(defq mesh (canvas-mesh-create verts))
 	(if (/= mesh 0) mesh))
 
+(defun shader-gui-texture (canvas)
+	; (shader-gui-texture canvas) -> :nil | texture
+	;the picture of a canvas as the GPU has it, to give a pair whose pixel
+	;shader has a texture, (shader-gui-frame). The canvas must have been
+	;shown, (. canvas :swap), and is to be kept for as long as it is drawn
+	;with. :nil if it has none
+	(and (defq texture (getf canvas +canvas_texture 0))
+		(/= (defq tid (first (texture-metrics texture))) 0) tid))
+
 (defun shader-gui-frame (canvas draws)
 	; (shader-gui-frame canvas draws) -> :nil | :error | canvas
 	;a frame of triangles drawn by the GPU into the texture of a canvas,
-	;with a depth buffer. draws is a list of (pair mesh vblock pblock), a
-	;pair, a mesh, and the blocks of (shader-pack) for the two shaders of
-	;the pair. :nil is the GPU still busy with the last frame, or the
+	;with a depth buffer. draws is a list of (pair mesh vblock pblock
+	;[textures]), a pair, a mesh, the blocks of (shader-pack) for the two
+	;shaders of the pair, and a list of the textures of its pixel shader,
+	;in the order it has them, each of (shader-gui-texture), as many as it
+	;has. :nil is the GPU still busy with the last frame, or the
 	;driver still building a pair, nothing was drawn, try again. :error is
 	;a pair the driver could not build.
 	(defun pad8 (block)
 		(cat block (slice (const (char 0 8)) 0 (- (logand (+ (length block) 7) -8) (length block)))))
 	(. canvas :shade_tris (apply (const cat) (cat (list (char (length draws) 8))
-		(map (lambda ((pair mesh vblock pblock))
+		(map (lambda ((pair mesh vblock pblock &optional textures))
 			;a shader with no inputs still has a block, of nothing
 			(if (empty? vblock) (setq vblock (const (char 0 8))))
 			(if (empty? pblock) (setq pblock (const (char 0 8))))
-			(cat (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
-				(pad8 vblock) (pad8 pblock))) draws)))))
+			(apply (const cat) (cat (list (char pair 8) (char mesh 8) (char (length vblock) 8) (char (length pblock) 8)
+				(pad8 vblock) (pad8 pblock)) (map (# (char %0 8)) (ifn textures '()))))) draws)))))

@@ -23,6 +23,8 @@
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
 	+sv_sin_trash ''(:f0 :f1 :f2 :f3)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
+	;a byte of a pixel as a number of 0 to 1, by a multiply, as the Lisp back end has it
+	+sv_255th (/ (n2r 1) (n2r 255))
 	;this much work, a pixel is 1, and a native function gives the other
 	;tasks of its node a turn
 	+sv_work 16384
@@ -284,6 +286,68 @@
 			(sv-put tmp)
 			(sv-puts a) b)))
 
+(defun sv-tex-slots (program)
+	;room in the frame for the textures of a pixel shader, after its
+	;inputs: for each where its pixels are, how wide and how high it is,
+	;and how many bytes a row of it is, 8 bytes each. -> where each begins
+	(map (lambda (&) (defq at frame_size) (times 4 (sv-slots :int)) at) (shader-textures program)))
+
+(defun sv-tex-coord (r limit)
+	;a place of 0 to 1 that goes round again, in a float register, as
+	;which pixel of that many it is, to a new int register. limit is
+	;where in the frame the many is. The float register is used up
+	(defq tmp (sv-getf) rl (sv-getr) ri (sv-getr) ok (sv-new-label) low (sv-new-label))
+	(sv-emit 'vp-cpy-ff r tmp)
+	(sv-floor tmp)
+	(sv-emit 'vp-sub-ff tmp r)
+	(sv-emit 'vp-cpy-ir :r13 limit rl)
+	(sv-emit 'vp-cvt-rf rl tmp)
+	(sv-emit 'vp-mul-ff tmp r)
+	(sv-floor r)
+	(sv-emit 'vp-cvt-fr r ri)
+	(sv-emit 'vp-blt-rr rl ri (sv-q ok))
+	(sv-emit 'vp-cpy-rr rl ri)
+	(sv-emit 'vp-sub-cr 1 ri)
+	(sv-emit 'vp-label (sv-q ok))
+	(sv-emit 'vp-bge-cr 0 ri (sv-q low))
+	(sv-emit 'vp-xor-rr ri ri)
+	(sv-emit 'vp-label (sv-q low))
+	(sv-put tmp) (sv-put rl)
+	ri)
+
+(defun sv-texture (at uv)
+	;the color of a picture at a place, four new float registers. at is
+	;where in the frame the picture is said, uv the two registers of the
+	;place, which are used up. The one pixel the place is in. A picture
+	;of no width is none, and is nothing
+	(defq out (map (lambda (&) (sv-getf)) (range 0 4)) k (sv-const +sv_255th)
+		l_none (sv-new-label) l_end (sv-new-label) rw (sv-getr))
+	(sv-emit 'vp-cpy-ir :r13 (+ at 8) rw)
+	(sv-emit 'vp-beq-cr 0 rw (sv-q l_none))
+	(sv-put rw)
+	(defq rx (sv-tex-coord (first uv) (+ at 8)) ry (sv-tex-coord (second uv) (+ at 16)) rt (sv-getr))
+	(sv-emit 'vp-cpy-ir :r13 (+ at 24) rt)
+	(sv-emit 'vp-mul-rr rt ry)
+	(sv-emit 'vp-shl-cr 2 rx)
+	(sv-emit 'vp-add-rr rx ry)
+	(sv-emit 'vp-cpy-ir :r13 at rt)
+	(sv-emit 'vp-add-rr rt ry)
+	(sv-emit 'vp-cpy-ir-ui ry 0 rx)
+	(each (lambda (r shift)
+		(sv-emit 'vp-cpy-rr rx rt)
+		(if (/= shift 0) (sv-emit 'vp-shr-cr shift rt))
+		(sv-emit 'vp-and-cr 0xff rt)
+		(sv-emit 'vp-cvt-rf rt r)
+		(sv-emit 'vp-mul-ff k r)) out '(16 8 0 24))
+	(sv-emit 'vp-jmp (sv-q l_end))
+	(sv-emit 'vp-label (sv-q l_none))
+	;nothing, a number less itself
+	(each (# (sv-emit 'vp-cpy-ff k %0) (sv-emit 'vp-sub-ff k %0)) out)
+	(sv-emit 'vp-label (sv-q l_end))
+	(sv-puts (list rx ry rt k))
+	(sv-puts uv)
+	out)
+
 (defun sv-calls? (node)
 	;does this expression call a function of the shader ? Walked with a
 	;list as the stack of what is still to be looked at
@@ -323,6 +387,8 @@
 	(bind '(type & op args) node)
 	(defq types (map (const first) args) ta (first types) va (shader-dim ta))
 	(cond
+		((eql op 'texture)
+			(sv-texture (elem-get tex_at (elem-get (first args) 3)) a))
 		((eql op 'float)
 			(cond
 				((eql ta :int)
@@ -446,6 +512,10 @@
 					;a bool as a value
 					(defq cell (list :nil))
 					(list (list :bool_begin cell) (list :branch node cell :t) (list :bool_end cell)))
+				;a texture is known by where it is in the frame, only the
+				;place is worked out
+				((eql op 'texture)
+					(list (list :expr (second args)) (list :apply node 1)))
 				((find op '(vec2 vec3 vec4))
 					(defq items (list (list :vec_begin)))
 					(each (# (push items (list :expr %0) (list :vec_part (first %0)))) args)
@@ -1142,6 +1212,7 @@
 	;the frame starts with the inputs, then the varyings of the pixel
 	;being shaded, then what the walk of the triangles keeps
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) (first program))
+	(defq tex_at (sv-tex-slots program))
 	(defq vary_at frame_size)
 	(each (lambda ((name type)) (push vars (list name (sv-slots type)))) (shader-varyings program))
 	(defq vary_slots (/ (- frame_size vary_at) 8))
@@ -1228,8 +1299,10 @@
 	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
 		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
 		ret_offset 0 ret_label :nil)
-	;the frame starts with the inputs, then what the tile loop keeps
+	;the frame starts with the inputs, then the textures, then what the
+	;tile loop keeps
 	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
+	(defq tex_at (sv-tex-slots program))
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip s_work)
 		(map (lambda (&) (sv-slots :int)) (range 0 10)))
 	(bind '((frag) ret) (sv-program program "s"))
@@ -1686,6 +1759,21 @@
 			((eql type :float) (set-real frame offset (shader-real val)))
 			((seq? val) (each (# (set-real frame (+ offset (* (!) 8)) (shader-real %0))) val)))
 		(setq offset (+ offset (* (shader-size type) 8)))) (first program))
+	;then the textures of a pixel shader, each the pixmap given under its
+	;name: where its pixels are, its width, its height, and the bytes of
+	;a row. The frame does not hold the pixmap, whoever gave it must, for
+	;as long as the frame is drawn with. One not given is left as no
+	;picture, all 0
+	(if (eql (shader-stage program) :pixel)
+		(each (lambda ((name))
+			;a frame is not made clear, so no picture is written as that
+			(defq pixmap (and (defq v (some (# (if (eql (first %0) name) %0)) vals)) (second v)))
+			(each (# (set-long frame (+ offset (* (!) 8)) %0))
+				(if pixmap
+					(list (getf pixmap +pixmap_data 0) (getf pixmap +pixmap_width 0)
+						(getf pixmap +pixmap_height 0) (getf pixmap +pixmap_stride 0))
+					'(0 0 0 0)))
+			(setq offset (+ offset 32))) (shader-textures program)))
 	frame)
 
 (defun shader-vp-draw-tris (pipeline verts tris pixmap depth &optional vvals pvals cull tri_size x y x1 y1 depth_y)

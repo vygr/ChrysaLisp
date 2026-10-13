@@ -5,6 +5,8 @@
 
 (import "././crypto/sha256.inc")
 (import "././collections/collections.inc")
+(import "gui/pixmap/struct.inc")
+(import "gui/pixmap/lisp.inc")
 
 ;a program is (inputs consts globals funcs stage key text). key is a hash
 ;of the source, and text the source, of a program from a file that has
@@ -12,8 +14,8 @@
 ;	input, (name type default min max)
 ;	const and global, (name type expr)
 ;	func, (name type ((name type) ...) block)
-;	stage, (kind attrs varyings), kind is :pixel, :vertex or :func, an
-;	attr and a varying are (name type)
+;	stage, (kind attrs varyings textures), kind is :pixel, :vertex or
+;	:func, an attr and a varying are (name type), a texture is (name)
 ;
 ;a file with no main is not a shader, it is functions, kind :func. Each
 ;can be made into a native function that Lisp calls, with numbers,
@@ -37,6 +39,8 @@
 ;	(type :swz (idx ...) expr)
 ;	(type :user name (expr ...))
 ;	(type :op name (expr ...))
+;	(:texture :tex name index), a texture, only ever the first arg of
+;		the op texture
 ;a block is a list of statements
 ;	(:defq name expr)
 ;	(:setq name expr)
@@ -57,8 +61,8 @@
 	*sh_ctors* '(vec2 vec3 vec4)
 	*sh_gen1* '(sin cos sqrt floor fract abs)
 	*sh_gen2* '(min max mod)
-	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect)
-	*sh_words* '(definput defconst defglobal defattr defvarying defun
+	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect texture)
+	*sh_words* '(definput defconst defglobal defattr defvarying deftexture defun
 		defq setq if when progn for break return))
 
 (defun sh-err (msg form)
@@ -99,6 +103,21 @@
 	; (shader-varyings program) -> ((name type) ...)
 	;what a vertex shader sets for the pixel shader, or a pixel shader reads
 	(third (elem-get program 4)))
+
+(defun shader-textures (program)
+	; (shader-textures program) -> ((name) ...)
+	;the pictures a pixel shader reads from, in the order it has them
+	(elem-get (elem-get program 4) 3))
+
+(defun shader-texture (pixmap)
+	; (shader-texture pixmap) -> (width height pixels)
+	;a picture as the Lisp back end reads one, its pixels a str, row by
+	;row, the top row first, each a 32 bit argb as the pixmap has them
+	(defq w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0) stream (memory-stream))
+	(pixmap-write pixmap stream 32)
+	(stream-seek stream 0 0)
+	(defq data (read-blk stream (+ (* w h 4) 4096)))
+	(list w h (slice data (- (length data) (* w h 4)) -1)))
 
 (defun sh-vec (n)
 	(elem-get '(:float :float :vec2 :vec3 :vec4) n))
@@ -187,7 +206,10 @@
 		((eql op 'normalize)
 			(and (= n 1) (shader-dim a) a))
 		((eql op 'reflect)
-			(and (= n 2) (shader-dim a) (eql a b) a))))
+			(and (= n 2) (shader-dim a) (eql a b) a))
+		;the color of a picture at a place, the place a vec2
+		((eql op 'texture)
+			(and (= n 2) (eql a :texture) (eql b :vec2) :vec4))))
 
 (defun sh-swizzle (name type form)
 	;component indices of a swizzle like :xyz or :rgb
@@ -250,7 +272,9 @@
 					(unless (defq e (sh-find form)) (sh-err "unknown name" form))
 					(and const_only (not (eql (third e) :const))
 						(sh-err "not a constant" form))
-					(push vs (list (second e) :var form (third e))))
+					(push vs (if (eql (third e) :texture)
+						(list :texture :tex form (elem-get e 3))
+						(list (second e) :var form (third e)))))
 				((not (and (list? form) (nempty? form) (sym? (defq op (first form)))))
 					(sh-err "not an expression" form))
 				((eql (first op) ":")
@@ -293,6 +317,7 @@
 			(each (lambda ((name val))
 				(sh-name name form)
 				(defq e (sh-expr val))
+				(if (eql (first e) :texture) (sh-err "a texture is only for (texture name uv)" form))
 				(push syms (list name (first e) :local))
 				(push out (list :defq name e))) (sh-pairs form)))
 		((eql op 'setq)
@@ -481,7 +506,7 @@
 	;function gives and takes. No body is read or checked, and the consts
 	;and globals are :lazy. (shader-full) reads the rest when it is wanted.
 	(defq syms (list) funcs (list) inputs (list) consts (list) globals (list)
-		attrs (list) varyings (list) sets_varying :nil
+		attrs (list) varyings (list) textures (list) sets_varying :nil
 		const_only :nil ret_type :nil loop_depth 0)
 	(each (lambda (form)
 		(unless (and (list? form) (nempty? form)) (sh-err "not a declaration" form))
@@ -505,6 +530,13 @@
 					(sh-err "wrong type, a float or a vector" form))
 				(push (if (eql op 'defattr) attrs varyings) (list name type))
 				(push syms (list name type (if (eql op 'defattr) :attr :varying))))
+			((eql op 'deftexture)
+				;a picture the shader reads from, with (texture name uv). It
+				;is given beside the inputs, and is not one: it is no number
+				(unless (= n 1) (sh-err "wrong number of args" form))
+				(sh-name name form)
+				(push syms (list name :texture :texture (length textures)))
+				(push textures (list name)))
 			((and head_only (find op '(defconst defglobal))))
 			((and head_only (eql op 'defun))
 				(unless (and (>= n 3) (list? (elem-get form 3))) (sh-err "wrong function header" form))
@@ -555,12 +587,14 @@
 				(if (some (# (eql (second %0) :mat4)) params)
 					(sh-err "a function can not take a matrix" name))) funcs)))
 	(defq kind (cond ((not f) :func) ((empty? (third f)) :vertex) (:pixel)))
+	(and (nempty? textures) (nql kind :pixel)
+		(sh-err "only a pixel shader has textures" (first (first textures))))
 	(when (eql kind :pixel)
 		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
 		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
 	(if head_only
-		(list inputs :lazy :lazy funcs (list kind attrs varyings) :nil :nil)
-		(list inputs consts globals funcs (list kind attrs varyings) (shader-key (str forms)) :nil)))
+		(list inputs :lazy :lazy funcs (list kind attrs varyings textures) :nil :nil)
+		(list inputs consts globals funcs (list kind attrs varyings textures) (shader-key (str forms)) :nil)))
 
 (defun shader-read (stream)
 	; (shader-read stream) -> forms
