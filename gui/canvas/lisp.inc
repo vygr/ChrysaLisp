@@ -322,3 +322,4 @@
 (import "lib/image/tga.inc")
 (import "lib/image/cpm.inc")
 (import "lib/image/png.inc")
+(import "lib/image/jpg.inc")

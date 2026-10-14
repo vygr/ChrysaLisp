@@ -38,10 +38,10 @@
 ;a loader says what it reads to the canvas as it is read, (canvas-loader),
 ;and the canvas names none of them
 (each (lambda (first_file)
-	(assert-eq (cat "pictures load when " first_file " is come to first") "(:t :t :t :t :t :t)\n"
+	(assert-eq (cat "pictures load when " first_file " is come to first") "(:t :t :t :t :t :t :t)\n"
 		(test-output (cat
 			"(import {" first_file "}) (import {gui/canvas/lisp.inc})"
 			" (print (map (lambda (file) (and (> (first (canvas-info file)) 0) (if (canvas-load file +load_flag_noswap) :t)))"
 			" (list {apps/demos/boing/data/taoball_1.cpm} {apps/media/films/data/captive.flm} {apps/media/images/data/wallpaper.tga}"
-			" {apps/media/images/data/burger.svg} {apps/media/whiteboard/data/palette.cwb} {tests/system/data/png_rgba8.png})))"))))
-	'("gui/canvas/lisp.inc" "lib/image/cpm.inc" "lib/image/tga.inc" "lib/image/svg.inc" "lib/image/cwb.inc" "lib/image/png.inc"))
+			" {apps/media/images/data/burger.svg} {apps/media/whiteboard/data/palette.cwb} {tests/system/data/png_rgba8.png} {tests/system/data/jpg_420.jpg})))"))))
+	'("gui/canvas/lisp.inc" "lib/image/cpm.inc" "lib/image/tga.inc" "lib/image/svg.inc" "lib/image/cwb.inc" "lib/image/png.inc" "lib/image/jpg.inc"))

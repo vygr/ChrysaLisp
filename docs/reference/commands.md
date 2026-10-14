@@ -115,6 +115,10 @@ Usage: check [options] [path] ...
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
+    unquote ,f or ,(const f) in a backquote in a module,
+            f a function of the module not exported: it is
+            looked for as the form is made, when the
+            function runs, and the module's names are gone.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.

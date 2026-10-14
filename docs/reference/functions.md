@@ -32,6 +32,18 @@
 each pixel is scale by scale samples, default 1
 ```
 
+### JPG-info
+
+```code
+(JPG-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### JPG-load
+
+```code
+(JPG-load stream) -> :nil | canvas
+```
+
 ### Mat3x2
 
 ```code
@@ -3073,6 +3085,69 @@ tells us which vertices are inside the surface
 
 ```code
 (join seqs seq [mode]) -> seq
+```
+
+### jpg-bit
+
+```code
+(jpg-bit reader) -> 0 | 1
+
+the next bit of the packed data, the high bit of each byte first. A
+0xFF is followed by a 0 that is not data; anything else after it is
+a marker, and from there on there are only 0 reader
+```
+
+### jpg-block
+
+```code
+(jpg-block reader dc_code ac_code quant prior) -> (pixels dc)
+
+a block: its numbers, by their table, and turned back to 64 pixels
+```
+
+### jpg-code
+
+```code
+(jpg-code table) -> (maxcode valptr mincode values)
+
+the canonical code of a table, as the standard's F.2.2.3 has it
+```
+
+### jpg-decode
+
+```code
+(jpg-decode in out info)
+
+the scan, from where the stream is, a row of MCUs at a time, each
+row of pixels written blue green red alpha
+```
+
+### jpg-decode-symbol
+
+```code
+(jpg-decode-symbol reader table) -> value
+```
+
+### jpg-extend
+
+```code
+a number of n reader, as the standard has the negative ones
+```
+
+### jpg-head
+
+```code
+(jpg-head stream) -> :nil | emap
+
+what comes before the scan: :width :height, :comps ((id h v table) ...),
+:quant (64 nums) by table, :dc :ac (bits values) by table, :restart. The
+stream is left at the start of the packed data
+```
+
+### jpg-stage
+
+```code
+the decode, a stage reading the stream from where the head left it
 ```
 
 ### json-container?
