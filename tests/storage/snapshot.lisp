@@ -1,0 +1,38 @@
+;a snapshot taken at one member, things changed, and it restored at another, every member the same after
+
+(import "service/storage/scene.inc")
+
+(defun main ()
+	(defq sc (scene-begin "A snapshot of a folder taken at one member, its objects changed and deleted, then restored from another member."))
+	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
+		(storage-put "work/plan" (scene-bytes 6 "plan") :nil (scene-svc sc "m-a"))
+		(storage-put "work/notes" (scene-bytes 3 "notes") :nil (scene-svc sc "m-b"))
+		(storage-put "other" (scene-bytes 2 "other") :nil (scene-svc sc "m-c"))
+		(scene-settle sc)
+		(scene-say sc "A snapshot of work/ at m-a, called monday.")
+		(scene-check sc "it is of the two objects under work/" (= 2 (storage-snapshot "monday" "work/" (scene-svc sc "m-a"))))
+		(scene-settle sc)
+		(scene-check sc "every member knows of it"
+			(every (lambda ((id svc)) (eql (str (storage-snapshots svc)) (str '(("monday" 2))))) (. sc :find :svcs)))
+		(scene-say sc "work/plan is written again, work/notes deleted, at m-d.")
+		(storage-put "work/plan" (scene-bytes 4 "plan changed") :nil (scene-svc sc "m-d"))
+		(storage-delete "work/notes" :nil (scene-svc sc "m-d"))
+		(scene-settle sc)
+		(each (# (storage-sweep (second %0))) (. sc :find :svcs))
+		(scene-settle sc)
+		(scene-check sc "after a sweep, what the snapshot is of is kept by three still"
+			(every (# (= %0 3)) (scene-keepers sc "snapshots/monday/work/plan")))
+		(scene-check sc "and is had as it was" (eql (scene-bytes 6 "plan") (storage-get "snapshots/monday/work/plan" (scene-svc sc "m-e"))))
+		(scene-say sc "Restored from m-e.")
+		(defq got (storage-restore "monday" "work/" (scene-svc sc "m-e")))
+		(scene-check sc "two set back, nothing made since" (eql (str got) (str '(2 0))))
+		(scene-settle sc)
+		(scene-check sc "every member has work/plan as it was"
+			(every (lambda ((id svc)) (eql (scene-bytes 6 "plan") (storage-get "work/plan" svc))) (. sc :find :svcs)))
+		(scene-check sc "and work/notes again" (eql (scene-bytes 3 "notes") (storage-get "work/notes" (scene-svc sc "m-c"))))
+		(scene-check sc "what was not under work/ is as it was" (eql (scene-bytes 2 "other") (storage-get "other" (scene-svc sc "m-a"))))
+		(scene-say sc "The snapshot is dropped.")
+		(scene-check sc "its two paths are gone" (= 2 (storage-snapshot-drop "monday" (scene-svc sc "m-b"))))
+		(scene-settle sc)
+		(scene-check sc "every member knows" (every (lambda ((id svc)) (empty? (ifn (storage-snapshots svc) (list)))) (. sc :find :svcs))))
+	(scene-end sc))

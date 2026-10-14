@@ -343,3 +343,38 @@
 (assert-list-eq "nothing lost by it" '("a" "d" "e" "f" "over and over") (so-paths so_j5))
 (assert-eq "and the last that was set is what is had" (so-bytes 50 3) (store-get so_j5 "over and over"))
 
+;;;;;;;;;;;
+; snapshots
+;;;;;;;;;;;
+
+(bind '(so_s so_s_stream) (so-new 0x400000 "snaps" "aaaa" 4096))
+(store-put so_s "docs/a" (so-bytes 9000 1))
+(store-put so_s "docs/b" (so-bytes 5000 2))
+(store-put so_s "other" (so-bytes 3000 3))
+(defq so_s_blocks (length (store-blocks so_s)))
+(assert-eq "a name with a / is not a snapshot's" :nil (store-snapshot so_s "a/b" "docs/"))
+(assert-eq "a snapshot of the objects under a prefix" 2 (store-snapshot so_s "before" "docs/"))
+(assert-eq "costs no block" so_s_blocks (length (store-blocks so_s)))
+(assert-list-eq "and is listed, with how many it is of" '(("before" 2)) (store-snapshots so_s))
+(assert-eq "an object of it is had as it was" (so-bytes 9000 1) (store-get so_s "snapshots/before/docs/a"))
+;changed since
+(store-put so_s "docs/a" (so-bytes 7000 4))
+(store-delete so_s "docs/b")
+(store-put so_s "docs/c" (so-bytes 2000 5))
+(store-sweep so_s)
+(assert-eq "a sweep keeps the blocks of what a snapshot is of" (so-bytes 9000 1) (store-get so_s "snapshots/before/docs/a"))
+(assert-eq "a snapshot of all is not of other snapshots, three are left" 3 (store-snapshot so_s "all"))
+(assert-list-eq "two snapshots" '(("all" 3) ("before" 2)) (store-snapshots so_s))
+(assert-list-eq "restored: one changed and one deleted are set back, one made since is left" '(2 1)
+	(store-restore so_s "before" "docs/"))
+(assert-eq "as it was" (so-bytes 9000 1) (store-get so_s "docs/a"))
+(assert-eq "and the deleted one is there again" (so-bytes 5000 2) (store-get so_s "docs/b"))
+(assert-eq "the one made since is still there" (so-bytes 2000 5) (store-get so_s "docs/c"))
+(assert-eq "a snapshot there is not, is nothing to restore" :nil (store-restore so_s "never"))
+(assert-eq "a snapshot dropped, its paths are deleted" 2 (store-snapshot-drop so_s "before"))
+(assert-list-eq "and it is not listed" '(("all" 3)) (store-snapshots so_s))
+(assert-eq "what is still named is kept by a sweep" (so-bytes 7000 4) (store-get so_s "snapshots/all/docs/a"))
+(store-snapshot-drop so_s "all")
+(store-put so_s "docs/a" (so-bytes 100 6))
+(assert-true "with no snapshot, a sweep lets go of what nothing is made of" (> (store-sweep so_s) 0))
+

@@ -23,7 +23,9 @@
 		state entries merge share block_drop where peers members cut
 		copies pinned
 		;a recorder that is to be told what is done, see below
-		record))
+		record
+		;snapshots, lib/storage/store.inc
+		snapshot restore snapshot_drop))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -843,4 +845,48 @@
 			(range 0 (length seed_names) 256)))
 		seed_members)
 	seed_lines)
+
+;;;;;;;;;;;
+; snapshots
+;;;;;;;;;;;
+
+(defun storage-snapshot (name &optional prefix svc)
+	; (storage-snapshot name [prefix svc]) -> :nil | count
+	;a snapshot of the objects whose paths begin so, all if not said, kept
+	;as snapshots/name/ and their paths, how many: no block is copied, see
+	;lib/storage/store.inc. :nil if the name is not one a snapshot may have,
+	;not empty, no / or space
+	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot
+			(cat name +storage_lf (ifn prefix ""))))
+		(nql answer "") (str-as-num answer)))
+
+(defun storage-snapshots (&optional svc)
+	; (storage-snapshots [svc]) -> :nil | ((name count) ...)
+	;the snapshots there are, and how many objects each is of
+	(when (defq entries (storage-list +store_snapshots svc))
+		(defq out (list) counts (Fmap 11))
+		(each (lambda (entry)
+			(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+			(when (nempty? name)
+				(unless (. counts :find name) (push out name))
+				(. counts :insert name (inc (ifn (. counts :find name) 0)))))
+			entries)
+		(map (# (list %0 (. counts :find %0))) (sort out))))
+
+(defun storage-restore (name &optional prefix svc)
+	; (storage-restore name [prefix svc]) -> :nil | (restored newer)
+	;the objects whose paths begin so are as they were in the snapshot,
+	;all of it if not said, how many were set back, and how many paths
+	;there are now under the prefix that the snapshot has not, which are
+	;left. :nil if there is no such snapshot
+	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_restore
+			(cat name +storage_lf (ifn prefix ""))))
+		(nql answer "") (map (const str-as-num) (split answer " "))))
+
+(defun storage-snapshot-drop (name &optional svc)
+	; (storage-snapshot-drop name [svc]) -> :nil | count
+	;a snapshot is gone, how many paths it had. Its blocks are let go of by
+	;a sweep, if nothing else is made of them
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_snapshot_drop name))
+		(str-as-num answer)))
 

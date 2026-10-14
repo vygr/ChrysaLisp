@@ -459,6 +459,17 @@ the id of those source files, whatever order they are given in. The
 name of each and the hash of what is in it, all hashed
 ```
 
+### bot-breathe
+
+```code
+(bot-breathe now)
+
+(task-breathe) of a task that is a bot, given the time: every bot of
+the node rests at once, from the time it is due till +bot_rest after,
+and one that comes to it in that time rests to its end
+and only if an app of the node is ready, there is nobody to rest for
+```
+
 ### bracket-cursors
 
 ```code
@@ -6244,6 +6255,18 @@ takes the last of them away
 part of an object, only the blocks that part is in are read
 ```
 
+### store-restore
+
+```code
+(store-restore store name [prefix]) -> :nil | (restored newer)
+
+the objects whose paths begin so are as they were in the snapshot,
+all of it if not said: each path that is not as it was is set back,
+and one deleted since is had again. How many were set back, and how
+many paths there are now under the prefix that the snapshot has not,
+which are left. :nil if there is no such snapshot
+```
+
 ### store-save
 
 ```code
@@ -6297,6 +6320,41 @@ neither, that is for (store-sweep)
 the entries of the path map, those deleted too, that are not as they
 were at that count, as (store-at) gave it. All of them if it is not
 given, or is of another opening of the store
+```
+
+### store-snapshot
+
+```code
+(store-snapshot store name [prefix]) -> :nil | count
+
+a snapshot of the objects whose paths begin so, all if not said, how
+many. Not of the paths of other snapshots. :nil if the name is not one
+a snapshot may have
+```
+
+### store-snapshot-drop
+
+```code
+(store-snapshot-drop store name) -> count
+
+a snapshot is gone, its paths deleted, how many. Its blocks are let go
+of by a sweep, if nothing else is made of them
+```
+
+### store-snapshot-name?
+
+```code
+(store-snapshot-name? name) -> :nil | :t
+
+a name a snapshot may have: not empty, and no / or space in it
+```
+
+### store-snapshots
+
+```code
+(store-snapshots store) -> ((name count) ...)
+
+the snapshots there are, and how many objects each is of
 ```
 
 ### store-stat
@@ -7021,6 +7079,31 @@ and live are as (sync-list) has them
 
 every file under the root that the rules do not leave out, each a
 path from the root, in order
+```
+
+### task-band
+
+```code
+(task-band :bot | :app) -> :t
+
+the band the task runs in. A bot is a task that works by itself for
+others, a Storage service, its tender, a gopher: one that is ready
+runs before any app, and after the GUI. sys/task/class.inc, where the
+numbers 4 and 5 are tk_bot_priority and tk_app_priority. The function
+is looked up when it is called, not in root.inc, so a boot image of
+before it was written still starts
+```
+
+### task-breathe
+
+```code
+(task-breathe)
+
+(task-slice), and for a bot, every so often, +bot_work, a rest of all
+the bots of the node, +bot_rest, so the apps of the node have a turn:
+a bot gives way only to its own band and those before it, and one at
+work for a second held every app of its node for that second.
+Measured, 20 gophers that never came back, the apps waited 9.1 s
 ```
 
 ### task-mboxes

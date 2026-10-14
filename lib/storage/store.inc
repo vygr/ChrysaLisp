@@ -645,6 +645,81 @@
 		((not entry) (list :none :nil))
 		((store-set store name (elem-get entry +store_entry_hash) (elem-get entry +store_entry_bytes) :nil :nil (max 0 copies)))))
 
+;;;;;;;;;;;
+; snapshots
+;;;;;;;;;;;
+;
+; A snapshot is paths: of each object there is under a prefix, a path
+; snapshots/<name>/<its path> set to the same object. No block is copied,
+; an object is the list of its blocks and they never change, and those
+; blocks are kept for as long as the snapshot is, a path names them. So
+; every member has it as it has any path, and what a snapshot is of can
+; be had, read, sent a gopher, as any object is.
+
+(defq +store_snapshots "snapshots/")
+
+(defun store-snapshot-name? (name)
+	; (store-snapshot-name? name) -> :nil | :t
+	;a name a snapshot may have: not empty, and no / or space in it
+	(and (nempty? name) (not (find "/" name)) (not (find " " name)) :t))
+
+(defun store-snapshot (store name &optional prefix)
+	; (store-snapshot store name [prefix]) -> :nil | count
+	;a snapshot of the objects whose paths begin so, all if not said, how
+	;many. Not of the paths of other snapshots. :nil if the name is not one
+	;a snapshot may have
+	(when (store-snapshot-name? name)
+		(defq at (cat +store_snapshots name "/") count 0)
+		(each (lambda (entry)
+			(bind '(path hash bytes vv writer seen deleted copies) entry)
+			(unless (starts-with +store_snapshots path)
+				(store-set store (cat at path) hash bytes :nil :nil copies)
+				(++ count)))
+			(store-list store (ifn prefix "")))
+		count))
+
+(defun store-snapshots (store)
+	; (store-snapshots store) -> ((name count) ...)
+	;the snapshots there are, and how many objects each is of
+	(defq out (Fmap 11) names (list))
+	(each (lambda (entry)
+		(defq after (slice (first entry) (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+		(when (nempty? name)
+			(unless (. out :find name) (push names name))
+			(. out :insert name (inc (ifn (. out :find name) 0)))))
+		(store-list store +store_snapshots))
+	(map (# (list %0 (. out :find %0))) (sort names)))
+
+(defun store-restore (store name &optional prefix)
+	; (store-restore store name [prefix]) -> :nil | (restored newer)
+	;the objects whose paths begin so are as they were in the snapshot,
+	;all of it if not said: each path that is not as it was is set back,
+	;and one deleted since is had again. How many were set back, and how
+	;many paths there are now under the prefix that the snapshot has not,
+	;which are left. :nil if there is no such snapshot
+	(defq at (cat +store_snapshots name "/") prefix (ifn prefix "") restored 0 had (Fset 101)
+		snap (filter (# (starts-with (cat at prefix) (first %0))) (store-list store at)))
+	(when (nempty? snap)
+		(each (lambda (entry)
+			(bind '(path hash bytes vv writer seen deleted copies) entry)
+			(defq path (slice path (length at) -1))
+			(. had :insert path)
+			(unless (eql (store-now store path) hash)
+				(store-set store path hash bytes :nil :nil copies)
+				(++ restored)))
+			snap)
+		(list restored (length (filter (# (and (not (starts-with +store_snapshots (first %0))) (not (. had :find (first %0)))))
+			(store-list store prefix))))))
+
+(defun store-snapshot-drop (store name)
+	; (store-snapshot-drop store name) -> count
+	;a snapshot is gone, its paths deleted, how many. Its blocks are let go
+	;of by a sweep, if nothing else is made of them
+	(defq count 0)
+	(each (lambda (entry) (if (eql (first (store-delete store (first entry))) :ok) (++ count)))
+		(if (store-snapshot-name? name) (store-list store (cat +store_snapshots name "/")) (list)))
+	count)
+
 (defun store-walk (store name state visit &optional at)
 	; (store-walk store path state visit [at]) -> :nil | (state)
 	; (visit state data at count) -> (state next)
@@ -1028,6 +1103,7 @@
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 	store-entry-line store-entry-read store-journal-write
+	store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots
 	+store_block_size +store_copies +store_entry_path +store_entry_hash +store_entry_bytes
 	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

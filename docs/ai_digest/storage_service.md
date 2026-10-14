@@ -227,6 +227,31 @@ What each member has pinned is known to every member: it goes with the path
 map when two compare notes. A gopher goes to a member that holds all of an
 object and stays there.
 
+## Snapshots
+
+A snapshot is paths. Of each object under a prefix, a path
+`snapshots/<name>/<its path>` is set to the same object. No block is
+copied: an object is the list of its blocks, which never change, and they
+are kept for as long as a path names them. So a snapshot costs an entry of
+the path map an object, and every member has it as it has any path: it is
+shared, copied as its objects say, swept as they are, and what a snapshot
+is of can be had, read as a stream, or sent a gopher.
+
+```
+(storage-snapshot name [prefix svc])   -> count        storage -n name [prefix]
+(storage-snapshots [svc])              -> ((name count) ...)   storage -N
+(storage-restore name [prefix svc])    -> (restored newer)     storage -R name [prefix]
+(storage-snapshot-drop name [svc])     -> count        storage -D name
+```
+
+A snapshot is taken at one member in one step, of that member's map as it
+is then; the others learn of it as of any write. A restore sets each path
+of the snapshot back to the object it was, and one deleted since is had
+again; a path made since under the prefix is left, and counted. Dropped,
+its paths are deleted, and its blocks go at a sweep if nothing else is
+made of them. A name has no / or space. A snapshot of everything is not
+of the other snapshots.
+
 ## Bots
 
 The service, its tender and its gopher runner are bots, `(task-band :bot)`:
@@ -483,6 +508,7 @@ storage -T dir path/          put every file under a folder, then read each back
 storage -V dir path/          the reading back only
 storage -t [scene] [-r file]  the scenes, or run one, and record it
 storage -r file [-S secs] [-G group]   record what the members do
+storage -n name [prefix], -N, -R name [prefix], -D name   snapshots
 storage -j, -f, -s image [-m MB -i id -F], -x
 ```
 
@@ -512,6 +538,7 @@ one of many out at once can be told from the rest.
 | `block+` `block-` `block>` | service | a block kept new, let go of, given out |
 | `learnt` `learnt-delete` | service | manifest, writer, path, taken from another |
 | `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
+| `snapshot` `restore` `snapshot-drop` | service | how many, the name |
 | `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
 | `fetched` | tender | block, the member it came from |
 | `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-late` `gopher-threw` | runner | block number, block, the gopher's tag, path |
@@ -555,6 +582,7 @@ storage -t split -r file     and record what its members do
 | `tree_one` | every file of the tree put into one member, read back |
 | `gophers` | 300 gophers out at once, each a job of the gopher library, every answer checked |
 | `bots` | every node busy with apps, 300 gophers, then 20 that never come back, how long the apps wait |
+| `snapshot` | a snapshot at one member, things changed, restored from another, every member the same |
 
 A scene is a task, started by `(scene-run name say [record wait])`, which
 gives each line it says to `say`, and each line its members record to
@@ -629,13 +657,14 @@ app, and sends it what happens in batches.
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
 | `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
+| `tests/system/test_storage_snapshot.lisp` | the snapshot scene, five members |
 | `tests/system/test_storage_gophers.lisp` | the gopher library over blocks of many sizes, and the gophers scene |
 | `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, and a scene run by the app's runner |
 
 ## Not Done
 
-* Snapshots. A path that is not let go of is all one is, and nothing makes
-  or shows one yet.
+* The app does not show snapshots by themselves yet, they are among the
+  objects, under `snapshots/`.
 * Encryption, and error correction. There is SHA-256 and ChaCha20 with
   Poly1305, [crypto.md](crypto.md), and no field arithmetic. A cipher makes
   two blocks that are the same look different; whether the store may show

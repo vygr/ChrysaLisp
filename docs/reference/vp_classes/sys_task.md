@@ -6,11 +6,15 @@ docs/reference/vp_classes/sys_task.cwb
 
 ## Lisp Bindings
 
+### (task-apps?)
+
 ### (task-count bias) -> count
 
 ### (task-flags) -> flags
 
 ### (task-mbox) -> netid
+
+### (task-band band)
 
 ### (task-sleep usec)
 

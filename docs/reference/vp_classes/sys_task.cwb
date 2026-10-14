@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 208
-	:height 378
+	:height 412
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 34
+	:next_id 36
 	:layers
 	((:list 1)
 		((:list 3)
@@ -27,13 +27,13 @@
 							:id
 							2
 							:items
-							((:list 31)
+							((:list 33)
 								((:list 11)
 									:shape
 									:id
 									3
 									:d
-									"[M 8 0 L 173.75 0 A 8 8 0 0 1 181.75 8 L 181.75 344 A 8 8 0 0 1 173.75 352 L 8 352 A 8 8 0 0 1 0 344 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 173.75 0 A 8 8 0 0 1 181.75 8 L 181.75 378 A 8 8 0 0 1 173.75 386 L 8 386 A 8 8 0 0 1 0 378 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -523,7 +523,7 @@
 									:stroke
 									0
 									:text
-									"[task-count]"
+									"[task-apps?]"
 									:font_size
 									12
 								)
@@ -542,7 +542,7 @@
 									:stroke
 									0
 									:text
-									"[task-flags]"
+									"[task-band]"
 									:font_size
 									12
 								)
@@ -561,7 +561,7 @@
 									:stroke
 									0
 									:text
-									"[task-mbox]"
+									"[task-count]"
 									:font_size
 									12
 								)
@@ -580,7 +580,7 @@
 									:stroke
 									0
 									:text
-									"[task-sleep]"
+									"[task-flags]"
 									:font_size
 									12
 								)
@@ -591,6 +591,44 @@
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 338.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[task-mbox]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 355.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[task-sleep]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 372.00000
 									)
 									:kind
 									:text

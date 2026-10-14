@@ -100,6 +100,13 @@ Usage: check [options] [path] ...
     inner   (const f) of a function made inside another: it
             is not there yet as the file is read, and the
             (const) has nothing to take.
+    eqlist  (eql x '(...)) of a quoted list with a str or a
+            list in it: two lists
+            are eql if their elements are the same objects in
+            the same order. A number or a symbol is, a str or
+            a list in a quoted list is its own and is never the
+            same object as one made elsewhere. Compare what
+            they print as.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -1209,6 +1216,15 @@ Usage: storage [options] [path]
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
+        -n --snapshot name: a snapshot of the objects whose
+            paths begin with path, all if none is given:
+            snapshots/name/ and their paths, no block copied.
+        -N --snapshots: the snapshots there are.
+        -R --restore name: the objects whose paths begin
+            with path are as they were in that snapshot.
+            Those made since are left, and said.
+        -D --drop name: the snapshot is gone, its blocks let
+            go of by a sweep if nothing else is made of them.
         -t --scene [name]: the scenes there are, in
             tests/storage/, and what each is for. With a
             name, that one is run: a store of its own is

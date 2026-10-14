@@ -244,6 +244,25 @@
 						(+storage_type_cut
 							(storage-record recorder member "cut" body)
 							(setq cut (split body " ")) "ok")
+						(+storage_type_snapshot
+							(defq at (find +storage_lf body) name (slice body 0 at)
+								count (store-snapshot store name (slice body (inc at) -1)))
+							(when count
+								(storage-record recorder member "snapshot" (cat (str count) " " name))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
+							(if count (str count) ""))
+						(+storage_type_restore
+							(defq at (find +storage_lf body) name (slice body 0 at)
+								got (store-restore store name (slice body (inc at) -1)))
+							(when got
+								(storage-record recorder member "restore" (cat (str (first got)) " " name))
+								(if (/= 0 (get-long tender 0)) (mail-send tender "kick")))
+							(if got (join (map (const str) got) " ") ""))
+						(+storage_type_snapshot_drop
+							(defq count (store-snapshot-drop store body))
+							(storage-record recorder member "snapshot-drop" (cat (str count) " " body))
+							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+							(str count))
 						(+storage_type_record
 							;told to the tender and the gophers too, each says what it does
 							(storage-record-to recorder body)

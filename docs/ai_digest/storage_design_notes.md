@@ -1077,6 +1077,14 @@ each a walk up a long chain: idle gophers went from 211 ms to 300. It
 looks at one time of its runner's now. M4: 217 ms idle, 234 busy, apps
 59 ms at most; the Pi: 3.3 s, 4.5 s, 331 ms.
 
+**Snapshots.** 2026-10-14, Chris: "Snapshots need interface in the
+Storage app", and later, "snapshots I think next". The store first: a
+snapshot is paths, `snapshots/<name>/<path>`, each set to the object its
+path is now, so nothing is copied and every part of the store already
+knows how to keep it, share it and sweep round it. Restore sets the paths
+back. The scene takes one at one member, changes and deletes, sweeps, and
+restores from another; all five the same after.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

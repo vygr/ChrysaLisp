@@ -62,6 +62,15 @@
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
+        -n --snapshot name: a snapshot of the objects whose
+            paths begin with path, all if none is given:
+            snapshots/name/ and their paths, no block copied.
+        -N --snapshots: the snapshots there are.
+        -R --restore name: the objects whose paths begin
+            with path are as they were in that snapshot.
+            Those made since are left, and said.
+        -D --drop name: the snapshot is gone, its blocks let
+            go of by a sweep if nothing else is made of them.
         -t --scene [name]: the scenes there are, in
             tests/storage/, and what each is for. With a
             name, that one is run: a store of its own is
@@ -100,6 +109,10 @@
 (("-T" "--tree") ,(opt-str 'opt_T))
 (("-V" "--verify") ,(opt-str 'opt_V))
 (("-r" "--record") ,(opt-str 'opt_r))
+(("-n" "--snapshot") ,(opt-str 'opt_n))
+(("-N" "--snapshots") ,(opt-flag 'opt_N))
+(("-R" "--restore") ,(opt-str 'opt_R))
+(("-D" "--drop") ,(opt-str 'opt_D))
 (("-S" "--secs") ,(opt-num 'opt_S))
 (("-t" "--scene") ,(opt-flag 'opt_t))
 (("-G" "--group") ,(opt-str 'opt_G))
@@ -119,7 +132,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
-				opt_r :nil opt_S 60 opt_G :nil opt_t :nil
+				opt_r :nil opt_S 60 opt_G :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
 		(if opt_j (setq opt_s (ifn opt_s +storage_image)))
@@ -162,6 +175,19 @@
 			(opt_x (defq said (storage-member))
 				(print (if (storage-stop svc) "Stopped." "It did not say."))
 				(if said (storage-unclaim (. said :find :image))))
+			(opt_n
+				(if (defq count (storage-snapshot opt_n name svc))
+					(print "Snapshot " opt_n ", of " count " objects" (if (eql name "") "." (cat " under " name ".")))
+					(print "Not a name a snapshot may have: " opt_n)))
+			(opt_N
+				(each (lambda ((snap count)) (print snap (pad "" (max 1 (- 20 (length snap)))) count " objects"))
+					(ifn (storage-snapshots svc) (list))))
+			(opt_R
+				(if (defq got (storage-restore opt_R name svc))
+					(print (first got) " set back as they were in " opt_R
+						(if (> (second got) 0) (cat ", " (str (second got)) " made since are left.") "."))
+					(print "No snapshot " opt_R (if (eql name "") "" (cat " of " name)))))
+			(opt_D (print (ifn (storage-snapshot-drop opt_D svc) 0) " paths of " opt_D " gone."))
 			(opt_p
 				(cond
 					((eql name "") (print "A path to put it at."))
