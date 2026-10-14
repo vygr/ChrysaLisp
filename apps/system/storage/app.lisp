@@ -91,7 +91,7 @@
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
-				+sym_media_live +sym_media_record +sym_find +sym_group) +event_play))
+				+sym_media_live +sym_media_record +sym_find +sym_media_join) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
