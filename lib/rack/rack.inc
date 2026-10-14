@@ -39,10 +39,13 @@
 			tab "(import" tab "{lib/rack/session.lisp}))"))
 		;the session's last line is how long it took, "[12s]". The file is
 		;there before it is all written, so it is that line that is waited
-		;for, not the file: taken as soon as it was there, it could be empty
+		;for, not the file: taken as soon as it was there, it could be empty.
+		;The whole suite on the Pi is 105s to 145s, and was 192s twice with
+		;the other two running theirs, past the 170s this was: under the
+		;360s the asker waits for the reply
 		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)))
 		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
-				(< (- (pii-time) t0) 170000000))
+				(< (- (pii-time) t0) 340000000))
 			(task-sleep 100000))
 		(unless (and res (ends-with done res)) (setq res :nil))
 		(if (pii-fstat cmds_file) (pii-remove cmds_file))
