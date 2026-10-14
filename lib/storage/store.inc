@@ -206,6 +206,20 @@
 			(setq new :t))))
 	new)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the path map, as it is held
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun store-map-insert (store name entry)
+	;an entry goes in the path map, in place of what that path was. How
+	;many objects there are is kept as it goes, it is asked with every
+	;put, and to count them was a walk of the map each time
+	(defq was (. (get :map store) :find name))
+	(def store :objects (+ (get :objects store)
+		(if (elem-get entry +store_entry_deleted) 0 1)
+		(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
+	(. (get :map store) :insert name entry))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the journal of the path map
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -295,7 +309,7 @@
 						(defq entry (store-entry-read line)))
 					(defq was (store-find store (first entry)))
 					(when (or (not was) (eql :after (store-vv-cmp (elem-get entry +store_entry_vv) (elem-get was +store_entry_vv))))
-						(. (get :map store) :insert (first entry) entry)
+						(store-map-insert store (first entry) entry)
 						(++ took))
 					(setq at (inc end)))
 				((setq more :nil))))
@@ -374,7 +388,8 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fset 11) :manifests (Fmap 11))
+			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fset 11) :manifests (Fmap 11)
+			:folders (Fset 11))
 		(store-count store)
 		(exfat-begin vol)
 		(store-head-save store)
@@ -396,7 +411,8 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :members (list) :retired (list) :pins (list) :pinned (Fmap 11))
+			:map (Fmap 101) :objects 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:folders (Fset 101))
 		(defq had "")
 		(each (lambda (line)
 			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
@@ -415,7 +431,7 @@
 			(. (get :pinned store) :insert (get :member store) (cat (list 1) (get :pins store))))
 		(each (lambda (line)
 			(if (defq entry (store-entry-read line))
-				(. (get :map store) :insert (first entry) entry)))
+				(store-map-insert store (first entry) entry)))
 			(store-lines (exfat-load vol "paths")))
 		(store-journal-open store)
 		(store-count store)
@@ -467,7 +483,11 @@
 	(cond
 		((store-block-has? store name) name)
 		(:t (exfat-begin vol)
-			(unless (exfat-find vol folder) (exfat-mkdir vol folder))
+			;the folders of blocks are made as they are wanted and never go,
+			;and to look for one was a read of the folder all the blocks are in
+			(unless (. (get :folders store) :find folder)
+				(unless (exfat-find vol folder) (exfat-mkdir vol folder))
+				(. (get :folders store) :insert folder))
 			(defq kept (exfat-save vol file data))
 			(exfat-end vol)
 			(when kept
@@ -564,7 +584,7 @@
 		(:t (defq entry (list name hash size
 				(store-vv-bump (if was (elem-get was +store_entry_vv) (list)) member) member (list member) deleted
 				(ifn copies (if was (elem-get was +store_entry_copies) 0))))
-			(. (get :map store) :insert name entry)
+			(store-map-insert store name entry)
 			(store-touch store name)
 			;to the journal, or with no journal, or one that is full, the
 			;whole map
@@ -795,12 +815,12 @@
 								(eql (elem-get other +store_entry_hash) (elem-get keeps +store_entry_hash)))
 							(defq aside (store-other-name other))
 							(unless (. map :find aside)
-								(. map :insert aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
+								(store-map-insert store aside (defq kept (cat (list aside) (slice other 1 +store_entry_seen) (list (list me))
 									(slice other (inc +store_entry_seen) -1))))
 								(store-touch store aside)
 								(push changed kept)))))))
 		(when now
-			(. map :insert name now)
+			(store-map-insert store name now)
 			(store-touch store name)
 			(push changed now)))
 		entries)
@@ -996,10 +1016,7 @@
 	; (store-info store) -> (objects blocks free)
 	;how many objects, how many blocks kept, and the room left in bytes
 	;counted, not listed and put in order to be counted: it is asked often
-	(defq objects 0 blocks 0)
-	(. (get :map store) :each (lambda (name entry) (unless (elem-get entry +store_entry_deleted) (++ objects))))
-	(. (get :held store) :each (lambda (name) (++ blocks)))
-	(list objects blocks (exfat-free (get :vol store))))
+	(list (get :objects store) (. (get :held store) :size) (exfat-free (get :vol store))))
 
 ;module
 (export-symbols '(store-make store-open store-close store-save

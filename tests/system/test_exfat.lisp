@@ -198,3 +198,7 @@
 (defq again (exfat-mount stream))
 (assert-eq "full volume mounts again" other (exfat-load again "most.bin"))
 (assert-eq "same room on the full volume" (exfat-free vol) (exfat-free again))
+;the room is kept as clusters are taken and given back, and is what a count of the bitmap says
+(defq kept_free (exfat-free vol))
+(def vol :free :nil)
+(assert-eq "the room kept as it goes is the room counted" (exfat-free vol) kept_free)

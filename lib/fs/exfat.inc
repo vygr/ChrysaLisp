@@ -369,7 +369,7 @@
 				:cluster_count cluster_count :root root
 				:sector_shift sector_shift
 				:cluster_shift (+ sector_shift cluster_shift)
-				:bitmap :nil :bitmap_first 0 :upcase (Fmap 101))
+				:bitmap :nil :bitmap_first 0 :upcase (Fmap 101) :free :nil)
 			;the root has an entry for the bitmap and one for the upper case table
 			(defq data (exfat-data vol root :nil :nil :t) i 0
 				n (/ (length data) +exfat_entry_size) type 1)
@@ -510,6 +510,12 @@
 	(defq bit (- cluster 2) bitmap (get :bitmap vol) i (>> bit 3)
 		mask (<< 1 (logand bit 7)) old (code bitmap 1 i))
 	(set-byte bitmap i (if used (logior old mask) (logand old (logxor mask 0xff))))
+	;the count of the clusters that are free, once it has been counted
+	(when (defq free (get :free vol))
+		(defq was (/= 0 (logand old mask)))
+		(cond
+			((and used (not was)) (def vol :free (dec free)))
+			((and was (not used)) (def vol :free (inc free)))))
 	(defq lo (get :dirty_lo vol))
 	(def vol :dirty_lo (if (< lo 0) i (min lo i)) :dirty_hi (max (get :dirty_hi vol) i))
 	;a cluster that is free again is where to look next
@@ -740,14 +746,19 @@
 
 (defun exfat-free (vol)
 	; (exfat-free vol) -> bytes
-	;the room there is left, the clusters that are not in use
-	(defq bitmap (get :bitmap vol) count (get :cluster_count vol) used 0)
-	(each (lambda (i)
-		(defq byte (code bitmap 1 i))
-		(while (/= byte 0)
-			(setq used (+ used (logand byte 1)) byte (>> byte 1))))
-		(range 0 (length bitmap)))
-	(<< (- count used) (get :cluster_shift vol)))
+	;the room there is left, the clusters that are not in use. Counted
+	;the first time it is asked, and kept as clusters are marked: it is
+	;asked with every put to a store, and the count was a look at every
+	;bit of the bitmap
+	(unless (get :free vol)
+		(defq bitmap (get :bitmap vol) count (get :cluster_count vol) used 0)
+		(each (lambda (i)
+			(defq byte (code bitmap 1 i))
+			(while (/= byte 0)
+				(setq used (+ used (logand byte 1)) byte (>> byte 1))))
+			(range 0 (length bitmap)))
+		(def vol :free (- count used)))
+	(<< (get :free vol) (get :cluster_shift vol)))
 
 (defun exfat-add (vol path dir data)
 	;a new file or directory, of this data, in the directory it names
