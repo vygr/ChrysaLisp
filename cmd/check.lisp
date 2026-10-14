@@ -64,6 +64,10 @@
             f a function of the module not exported: it is
             looked for as the form is made, when the
             function runs, and the module's names are gone.
+    ignore  a name after &ignore in a (bind) list or a list
+            of parameters: &ignore ends the list, and the
+            name is never bound. & is the place that takes
+            a thing and binds nothing.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -109,7 +113,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -231,6 +235,20 @@
 					(some (# (find (first %0) '(:form :string1 :string2))) (forms-of inner))))
 			(rest forms))
 		(found file (second forms) "eqlist" "(" head ") of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each")))
+
+(defun check-ignore (file forms head)
+	;(bind '(a &ignore b) x), (lambda (a &ignore b)): &ignore ends the list,
+	;b is never bound. & is the place that takes a thing and binds nothing
+	(defq names (cond
+		((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
+			(tree-form? (third (second forms))))
+		((and (find head '("defun" "defmacro")) (> (length forms) 2)) (tree-form? (third forms)))
+		((and (eql head "lambda") (> (length forms) 1)) (tree-form? (second forms)))))
+	(when names
+		(setq names (forms-of names))
+		(and (defq at (some (# (and (eql (first %0) :symbol) (eql (third %0) "&ignore") (!))) names))
+			(< (inc at) (length names))
+			(found file (elem-get names at) "ignore" "names after &ignore are never bound, it ends the list; & takes one thing and binds nothing"))))
 
 (defun check-made (file kids)
 	;in a (defq), a + name and then a form that makes a list
@@ -660,6 +678,7 @@
 							(and (find "made" checks) (eql head "defq") (check-made file kids))
 							(if (find "inner" checks) (check-inner file forms head))
 							(if (find "eqlist" checks) (check-eqlist file forms head))
+							(if (find "ignore" checks) (check-ignore file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "style" checks) (check-style file node forms head))

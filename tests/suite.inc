@@ -37,8 +37,12 @@
 	;scripts under tests/ that are named test_ but are not suite modules
 	+test_excludes ''("tests/net/test_cluster.lisp")
 	;the last line a batch's task prints is its counts, and how long to
-	;give a task before a retry. Before it, a line for each module
-	+test_counts "=== " +test_module_counts "=#= " +test_retry 30000000
+	;give a task before a retry. Before it, a line for each module. The
+	;retry is for a node that has gone: a batch that is slow, test_tree's
+	;check of the whole tree on a Pi that has the rest of the suite on it,
+	;run again beside itself is slower, and after three the farm stops
+	;and every batch still out has no result
+	+test_counts "=== " +test_module_counts "=#= " +test_retry 120000000
 	;what is known of each file, (age hash names), the counts of each
 	;module that was run, and the commands there are
 	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil

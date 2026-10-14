@@ -2,6 +2,7 @@
 ; SHA-512, the hash of FIPS 180-4 with 64 bit words.
 ;
 ; (sha512 data) -> the 64 bytes of the hash of a str.
+; (sha384 data) -> the 48 of SHA-384, the same but for where it starts.
 ;
 ; For what does not come all at once, (sha512-start),
 ; (sha512-add ctx data) as often as wanted, then (sha512-end ctx).
@@ -64,3 +65,20 @@
 	; (sha512 data) -> str
 	;the hash of a str, 64 bytes
 	(sha512-end (sha512-add (sha512-start) data)))
+
+(defun sha384-start ()
+	; (sha384-start) -> ctx
+	;SHA-384 is SHA-512 from another state, the first 64 bits of the
+	;fractions of the square roots of the 9th to the 16th primes, added
+	;to as SHA-512 is, (sha512-add)
+	(list (apply (const cat) (map (# (char %0 8)) (static-q (-3766243637369397544 7105036623409894663 -7973340178411365097 1526699215303891257 7436329637833083697 -8163818279084223215 -2662702644619276377 5167115440072839076)))) "" 0))
+
+(defun sha384-end (ctx)
+	; (sha384-end ctx) -> str
+	;the hash, the first 48 bytes of what SHA-512 ends with
+	(slice (sha512-end ctx) 0 48))
+
+(defun sha384 (data)
+	; (sha384 data) -> str
+	;the hash of a str, 48 bytes
+	(sha384-end (sha512-add (sha384-start) data)))

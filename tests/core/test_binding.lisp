@@ -26,6 +26,7 @@
 (assert-eq "bind &optional 2" :nil bo2)
 
 (defq bi1 0 bi2 0)
+;check off, the test of the very thing
 (bind '(bi1 &ignore bi2) '(1 2 3))
 (assert-eq "bind &ignore 1" 1 bi1)
 (assert-eq "bind &ignore 2" 0 bi2) ; bi2 remains 0, skipped
