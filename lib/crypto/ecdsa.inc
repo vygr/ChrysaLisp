@@ -1,10 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; ECDSA, the check of a signature, on the curves P-256 and P-384
 ;
-; (ecdsa-verify curve public hash r s) -> :t | :nil
+; (ecdsa-verify curve public digest r s) -> :t | :nil
 ;
 ; curve *ecdsa_p256* or *ecdsa_p384*. public the point of the key, as a
-; certificate has it, 4 then x then y. hash what was signed, hashed. r and
+; certificate has it, 4 then x then y. digest what was signed, hashed. r and
 ; s the signature's two numbers, as bytes, the top first.
 ;
 ; Only the check, not the signing: what TLS and a certificate need. The
@@ -94,16 +94,16 @@
 		(= (bn-cmp (bn-mulmod y y fm)
 			(bn-addmod (bn-submod (bn-mulmod (bn-mulmod x x fm) x fm) (ec-small x 3 fm) fm) b fm)) 0)))
 
-(defun ecdsa-verify (curve public hash r s)
-	; (ecdsa-verify curve public hash r s) -> :t | :nil
+(defun ecdsa-verify (curve public digest r s)
+	; (ecdsa-verify curve public digest r s) -> :t | :nil
 	(bind '(fm nm & g len) curve)
 	(defq r (bn-from-bytes r) s (bn-from-bytes s) n (first nm))
 	(when (and (= (length public) (inc (* 2 len))) (= (code public 1 0) 4)
 			(not (bn-zero? r)) (< (bn-cmp r n) 0) (not (bn-zero? s)) (< (bn-cmp s n) 0))
 		(defq qx (bn-from-bytes (slice public 1 (inc len))) qy (bn-from-bytes (slice public (inc len) -1)))
 		(when (ec-on-curve? qx qy curve)
-			;the hash, its leftmost bits as many as n has
-			(defq e (bn-mod (bn-from-bytes (slice hash 0 (min (length hash) len))) nm)
+			;the digest, its leftmost bits as many as n has
+			(defq e (bn-mod (bn-from-bytes (slice digest 0 (min (length digest) len))) nm)
 				w (bn-invmod s nm) u1 (bn-mulmod e w nm) u2 (bn-mulmod r w nm)
 				q (list qx qy (bn-from-num 1)) gq (ec-add g q fm) acc :nil
 				i (max (bn-bits u1) (bn-bits u2)))

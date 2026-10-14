@@ -46,7 +46,10 @@
 (defun dr-meet (key code &optional wait)
 	;what the listener made of a connection, and what the child did, (listener child)
 	(dr-dial code)
-	(defq until (+ (pii-time) 3000000) handle 0)
+	;the child is a task that starts and imports before it dials, which on
+	;a Pi with the suite beside it has taken over 3s, and one that dials
+	;late is taken by the next test
+	(defq until (+ (pii-time) 15000000) handle 0)
 	(while (and (<= handle 0) (< (pii-time) until))
 		(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
 	(defq mine (if (> handle 0) (if (catch (door-shake handle key :nil (ifn wait 3000000)) :nil) "yes" "no") "none")

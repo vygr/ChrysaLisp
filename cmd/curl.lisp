@@ -14,6 +14,7 @@
         -X --request cmd: specify request command to use (GET, POST, HEAD).
         -H --header line: custom header to pass to server.
         -d --data str: HTTP POST data.
+        -k --insecure: https, do not check who the server is.
 
     Fetch and display content from an HTTP URL.")
 (("-i" "--include") ,(opt-flag 'opt_i))
@@ -23,6 +24,7 @@
 (("-H" "--header") ,(static-qq (lambda (args arg)
 	(push opt_headers (first args)) (rest args))))
 (("-d" "--data") ,(opt-str 'opt_d))
+(("-k" "--insecure") ,(opt-flag 'opt_k))
 ))
 
 (defun curl-fetch (url opt_i opt_head opt_s opt_X opt_headers opt_d)
@@ -42,9 +44,6 @@
 					v (trim (slice hdr (inc idx) -1)))
 				(pinsert headers (sym (cat ":" (to-lower k))) v)))
 			opt_headers)
-		;who an https server is is not checked yet, lib/net/tls.inc
-		(if (starts-with "https://" u)
-			(print "curl: https: private, but the server's certificate is not checked yet, so who answered is not known"))
 		(defq resp (http-request method u headers opt_d))
 		(if resp
 			(progn
@@ -65,15 +64,17 @@
 						(write-blk (io-stream 'stdout) body_str)))
 				(stream-flush (io-stream 'stdout)))
 			(unless opt_s
-				(write-line (io-stream 'stdout) (cat "curl: failed to fetch " u))
+				(write-line (io-stream 'stdout) (cat "curl: failed to fetch " u
+					(if (and (starts-with "https://" u) (tls-why)) (cat ", " (tls-why)) "")))
 				(stream-flush (io-stream 'stdout))))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(and
 			(defq stdio (create-stdio))
-			(defq opt_i :nil opt_head :nil opt_s :nil opt_X :nil opt_headers (list) opt_d :nil
+			(defq opt_i :nil opt_head :nil opt_s :nil opt_X :nil opt_headers (list) opt_d :nil opt_k :nil
 				args (options stdio usage))
+		(progn (setq *tls_unchecked* opt_k) :t)
 		(if (<= (length args) 1)
 			;read urls from stdin
 			(lines! (lambda (line) (curl-fetch line opt_i opt_head opt_s opt_X opt_headers opt_d))

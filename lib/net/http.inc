@@ -130,7 +130,8 @@
 	(defq u (if (str? url) (url-parse url) url)
 		host (pfind u :host) port (pfind u :port)
 		;https is over TLS, lib/net/tls.inc, a connection each time, not
-		;kept. NOT YET is who the server is checked, see there
+		;kept. Who the server is is checked there, (tls-why) says why one
+		;was not talked to
 		https (eql (pfind u :scheme) "https")
 		path_query (url-path-query u) res :nil attempts 0)
 	(while (and (not res) (< attempts 2))
@@ -177,7 +178,10 @@
 							status (if (> (length parts) 1) (str-to-num (second parts)) 0)
 							reason (if (> (length parts) 2) (join (slice parts 2 -1) " ") "")
 							resp_headers (http-read-headers in)
-							resp_body (http-read-body in resp_headers dest_stream))
+							;a reply to a HEAD, and one of 1xx, 204 or 304, has no body,
+							;whatever its Content-Length says, RFC 9110
+							resp_body (if (or (eql (to-upper method) "HEAD") (< status 200) (= status 204) (= status 304))
+								"" (http-read-body in resp_headers dest_stream)))
 						(setq res (pmap
 							:status status :reason reason :proto proto
 							:headers resp_headers :body resp_body))

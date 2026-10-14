@@ -4,7 +4,7 @@
 
 ------
 
-**HTTPS: `lib/net/tls.inc`, a TLS 1.3 client, X25519 and ChaCha20-Poly1305; `https://` in `http.inc` and `curl`. Fetched from example.com and GitHub. The certificate is not checked yet, `curl` says so each time.**
+**HTTPS: `lib/net/tls.inc`, a TLS 1.3 client, X25519 and ChaCha20-Poly1305; `https://` in `http.inc` and `curl`. Fetched from example.com and GitHub. The certificate is checked: X.509, ECDSA P-256 and P-384, RSA PKCS #1 and PSS, up to the host's roots; `curl -k` does not. `curl -I` no longer waits on a body.**
 
 **`lib/crypto/x25519.inc` and `lib/crypto/hkdf.inc`, by their RFCs' own vectors.**
 

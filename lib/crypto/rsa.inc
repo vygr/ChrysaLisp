@@ -1,18 +1,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; RSA, the check of a signature, RFC 8017
 ;
-; (rsa-verify-pkcs1 n e hash_name hash signature) -> :t | :nil
-; (rsa-verify-pss n e hash_name hash signature) -> :t | :nil
+; (rsa-verify-pkcs1 n e hash_name digest signature) -> :t | :nil
+; (rsa-verify-pss n e hash_name digest signature) -> :t | :nil
 ;
 ; n and e the key, as bytes, the top first, as a certificate has them.
-; hash_name :sha256, :sha384 or :sha512, hash what was signed, hashed.
+; hash_name :sha256, :sha384 or :sha512, digest what was signed, hashed.
 ;
 ; The signature to the power e mod n gives back what was signed, laid out
-; one of two ways. PKCS #1 v1.5: 0 1, bytes of ff, 0, and the hash with
+; one of two ways. PKCS #1 v1.5: 0 1, bytes of ff, 0, and the digest with
 ; the name of its kind in front, which is how most certificates are
-; signed. PSS: the hash and a salt, mixed so that it can only be undone
-; from the hash, which is what TLS 1.3 signs its handshake with. The salt
-; is as long as the hash, as TLS 1.3 has it.
+; signed. PSS: the digest and a salt, mixed so that it can only be undone
+; from the digest, which is what TLS 1.3 signs its handshake with. The salt
+; is as long as the digest, as TLS 1.3 has it.
 ;
 ; Only the check: e is small, 65537 mostly, so it is 17 products.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,7 +33,7 @@
 
 (defun rsa-prefix (hash_name)
 	; (rsa-prefix hash_name) -> :nil | str
-	;the DER of the name of a hash, the DigestInfo the hash goes after
+	;the DER of the name of a hash, the DigestInfo the digest goes after
 	(case hash_name
 		(:sha256 (hex-decode "3031300D060960864801650304020105000420"))
 		(:sha384 (hex-decode "3041300D060960864801650304020205000430"))
@@ -47,10 +47,10 @@
 	(and (= (length signature) k) (< (bn-cmp s nb) 0)
 		(list (bn-bits nb) (bn-bytes (bn-powmod s (bn-from-bytes e) (bn-modulus nb)) k))))
 
-(defun rsa-verify-pkcs1 (n e hash_name hash signature)
-	; (rsa-verify-pkcs1 n e hash_name hash signature) -> :t | :nil
+(defun rsa-verify-pkcs1 (n e hash_name digest signature)
+	; (rsa-verify-pkcs1 n e hash_name digest signature) -> :t | :nil
 	(when (and (defq prefix (rsa-prefix hash_name)) (defq opened (rsa-open n e signature)))
-		(defq em (second opened) info (cat prefix hash) pad (- (length em) (length info) 3))
+		(defq em (second opened) info (cat prefix digest) pad (- (length em) (length info) 3))
 		(and (>= pad 8)
 			(eql em (cat (char 0) (char 1) (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 pad)))
 				(char 0) info)))))
@@ -68,13 +68,13 @@
 			(char (logand (>> count 16) 0xff)) (char (logand (>> count 8) 0xff)) (char (logand count 0xff))))) count (inc count)))
 	(slice out 0 len))
 
-(defun rsa-verify-pss (n e hash_name hash signature)
-	; (rsa-verify-pss n e hash_name hash signature) -> :t | :nil
+(defun rsa-verify-pss (n e hash_name digest signature)
+	; (rsa-verify-pss n e hash_name digest signature) -> :t | :nil
 	(when (and (rsa-prefix hash_name) (defq opened (rsa-open n e signature)))
 		(bind '(bits em) opened)
 		;the encoded message is the top bits less 1 of n, so a byte less
 		;when n's bits are a multiple of 8
-		(defq em_bits (dec bits) em_len (/ (+ em_bits 7) 8) h_len (length hash))
+		(defq em_bits (dec bits) em_len (/ (+ em_bits 7) 8) h_len (length digest))
 		(when (and (or (= em_len (length em)) (= (code em 1 0) 0))
 				(setq em (slice em (- (length em) em_len) -1))
 				(>= em_len (+ h_len h_len 2))
@@ -87,7 +87,7 @@
 					zeros (- em_len h_len h_len 2))
 				(and (every (# (= (code %0) 0)) (slice db 0 zeros))
 					(= (code db 1 zeros) 1)
-					(eql h (rsa-hash hash_name (cat (char 0 8) hash (slice db (inc zeros) -1)))))))))
+					(eql h (rsa-hash hash_name (cat (char 0 8) digest (slice db (inc zeros) -1)))))))))
 
 ;module
 (export-symbols '(rsa-verify-pkcs1 rsa-verify-pss rsa-hash))

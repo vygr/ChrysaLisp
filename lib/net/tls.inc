@@ -12,13 +12,16 @@
 ; server's Finished is checked, which says the two sides have the same
 ; keys and saw the same handshake.
 ;
-; NOT YET: who the server is is not checked. Its certificate is read past,
-; not looked at, so another that put itself in the way would be talked to
-; as if it were the server. Until the certificate and its signature are
-; checked, what is fetched so is to be trusted no more than over http.
+; Who the server is is checked: the certificates it sends must go up to a
+; root the host keeps, the first of them be for the host asked for, and the
+; server sign the handshake with that certificate's key, which says it
+; holds the secret half, lib/crypto/x509.inc. One that fails is not
+; talked to, and (tls-why) says why. Not checked: whether a certificate
+; has been revoked.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/crypto/x25519.inc")
+(import "lib/crypto/x509.inc")
 (import "lib/crypto/hkdf.inc")
 (import "lib/crypto/aead.inc")
 (import "lib/crypto/random.inc")
@@ -129,8 +132,8 @@
 			;X25519 the one group
 			(tls-be 10 2) (tls-vec 2 (tls-vec 2 (tls-be 0x001d 2)))
 			;the signatures it would take, when it checks them
-			(tls-be 13 2) (tls-vec 2 (tls-vec 2 (cat (tls-be 0x0804 2) (tls-be 0x0403 2) (tls-be 0x0805 2)
-				(tls-be 0x0806 2) (tls-be 0x0401 2) (tls-be 0x0807 2))))
+			(tls-be 13 2) (tls-vec 2 (tls-vec 2 (apply (const cat) (map (# (tls-be %0 2))
+				'(0x0403 0x0503 0x0804 0x0805 0x0806 0x0807 0x0401 0x0501 0x0601)))))
 			;TLS 1.3 the one version
 			(tls-be 43 2) (tls-vec 2 (tls-vec 1 (tls-be 0x0304 2)))
 			;its key share
@@ -158,6 +161,48 @@
 			(nql random (hex-decode "CF21AD74E59A6111BE1D8C021E65B891C2A211167ABB8C5E079E09E2C8A8339C"))
 			share)))
 
+(defun tls-scheme (scheme)
+	; (tls-scheme scheme) -> :nil | (way hash_name)
+	;a signature scheme of TLS 1.3 as lib/crypto/x509.inc has it
+	(case scheme
+		(0x0403 '(:ecdsa :sha256))
+		(0x0503 '(:ecdsa :sha384))
+		(0x0603 '(:ecdsa :sha512))
+		(0x0804 '(:pss :sha256))
+		(0x0805 '(:pss :sha384))
+		(0x0806 '(:pss :sha512))
+		(0x0807 '(:ed25519 :nil))))
+
+(defun tls-certificates (msg)
+	; (tls-certificates msg) -> (cert ...)
+	;the certificates of a Certificate message, read, :nil for one that
+	;does not read
+	;what the server sent, so no index past what is there
+	(defq out (list) most (length msg))
+	(when (> most 4)
+		(defq at (+ 5 (code msg 1 4)))
+		(when (<= (+ at 3) most)
+			(defq end (min most (+ at 3 (tls-num msg at 3))) at (+ at 3))
+			(while (<= (+ at 3) end)
+				(defq next (+ at 3 (tls-num msg at 3)))
+				(cond
+					((> (+ next 2) end) (setq at end))
+					(:t (push out (x509-parse (slice msg (+ at 3) next)))
+						(setq at (+ next 2 (tls-num msg next 2))))))))
+	out)
+
+(defun tls-verify (cert msg transcript)
+	; (tls-verify cert msg transcript) -> :t | :nil
+	;the server's CertificateVerify, a signature of the handshake so far by
+	;the key of its certificate, RFC 8446 4.4.3
+	(and cert (>= (length msg) 8)
+		(defq way (tls-scheme (tls-num msg 4 2)) len (tls-num msg 6 2))
+		(= (length msg) (+ 8 len))
+		(x509-sig-check (. cert :find :key_kind) (. cert :find :key) (first way) (second way)
+			(cat (apply (const cat) (map (lambda (&) " ") (range 0 64)))
+				"TLS 1.3, server CertificateVerify" (char 0) (sha256 transcript))
+			(slice msg 8 -1))))
+
 (defun tls-handshake (state host)
 	; (tls-handshake state host) -> :nil | :t
 	(defq secret (random-bytes 32) hello (tls-client-hello host (x25519-public secret)))
@@ -171,16 +216,34 @@
 			finished :nil ok :t)
 		(. state :insert :rkeys (tls-keys s_hs))
 		(. state :insert :rseq 0)
-		;EncryptedExtensions, Certificate, CertificateVerify: into the
-		;transcript, NOT YET looked at. Then the server's Finished
+		;EncryptedExtensions, Certificate, CertificateVerify, into the
+		;transcript, the certificates checked, and the handshake so far
+		;signed by the first one's key. Then the server's Finished
+		(defq certs :nil checked :nil)
 		(while (and ok (not finished))
 			(cond
 				((not (defq got (tls-message state))) (setq ok :nil))
+				((= (first got) 11)
+					(setq certs (tls-certificates (second got)) transcript (cat transcript (second got)))
+					(when (defq why (if (. state :find :check) (x509-chain-check certs host)))
+						(. state :insert :why why)
+						(setq ok :nil)))
+				((= (first got) 15)
+					(cond
+						((or (not (. state :find :check)) (tls-verify (first certs) (second got) transcript))
+							(setq checked :t transcript (cat transcript (second got))))
+						(:t (. state :insert :why "the server did not sign the handshake with its certificate's key")
+							(setq ok :nil))))
 				((= (first got) 20)
 					(defq want (hmac-sha256 (tls-label s_hs "finished" "" 32) (sha256 transcript)))
-					(if (eql (slice (second got) 4 -1) want)
-						(setq finished :t transcript (cat transcript (second got)))
-						(setq ok :nil)))
+					(cond
+						((not (eql (slice (second got) 4 -1) want))
+							(. state :insert :why "the server's Finished is not of this handshake")
+							(setq ok :nil))
+						((not checked)
+							(. state :insert :why "the server sent no certificate it signed with")
+							(setq ok :nil))
+						(:t (setq finished :t transcript (cat transcript (second got))))))
 				(:t (setq transcript (cat transcript (second got))))))
 		(when ok
 			(defq master (hkdf-extract (tls-label hs "derived" +tls_empty_hash 32) +tls_zero32)
@@ -222,7 +285,8 @@
 		(setq at (+ at (length part)))))
 
 ;module
-(export-symbols '(tls-handshake tls-fill tls-write tls-seal tls-label tls-keys tls-nonce tls-be))
+(export-symbols '(tls-handshake tls-fill tls-write tls-seal tls-label tls-keys tls-nonce tls-be tls-vec
+	tls-scheme tls-certificates tls-verify))
 (env-pop)
 
 ;made after the module. In a function of a module a name put into a
@@ -230,19 +294,34 @@
 ;function runs, and by then the module's own names are gone: the error
 ;that gives is put in the form, and a stream that calls it says nothing
 
-(defun tls-open (host port)
-	; (tls-open host port) -> :nil | (in out state)
-	;a connection that is private between here and whoever answers at the
-	;address. NOT YET is it checked who that is, see the top of this file
+;why the last (tls-open) gave :nil, and whether to ask who answers, :nil
+;to ask, as the default
+(defq *tls_why* :nil *tls_unchecked* :nil)
+
+(defun tls-open (host port &optional unchecked)
+	; (tls-open host port [unchecked]) -> :nil | (in out state)
+	;a connection that is private between here and the host, which has
+	;shown it is the host. unchecked :t, and who answers is not asked to
+	;show it. :nil if not, (tls-why) says why
+	(setd unchecked *tls_unchecked*)
+	(setq *tls_why* "no connection")
 	(when (defq raw (net-open-rpc host port))
 		(defq state (Emap))
-		(scatter state :raw raw :rin (first raw) :rout (second raw) :hbuf "" :rkeys :nil :wkeys :nil :closed :nil)
+		(scatter state :raw raw :rin (first raw) :rout (second raw) :hbuf "" :rkeys :nil :wkeys :nil :closed :nil
+			:check (not unchecked) :why "the handshake did not finish")
 		(cond
 			((tls-handshake state host)
+				(setq *tls_why* :nil)
 				(list (lisp-stream `(lambda () (,tls-fill ',state)))
 					(lisp-stream '(lambda () :nil) :nil `(lambda (data flush) (,tls-write ',state data flush)))
 					state))
-			(:t (net-close-rpc raw) :nil))))
+			(:t (setq *tls_why* (. state :find :why))
+				(net-close-rpc raw) :nil))))
+
+(defun tls-why ()
+	; (tls-why) -> :nil | str
+	;why the last (tls-open) of this task gave :nil
+	*tls_why*)
 
 (defun tls-close (conn)
 	; (tls-close conn)
