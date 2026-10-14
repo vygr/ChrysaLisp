@@ -1833,3 +1833,32 @@ looking for a rename in the host. He asked why the host needed to do
 anything. It did not. The file could have another name, and the name only
 mattered to me. It is the same reach for a part as before, a smaller one,
 and the same answer: what is already there was enough.
+
+### The night after, alone
+
+The Pi had failed the same three modules together for days, and I had
+looked at each of the three. None of them was the fault. The test runner
+gives a batch thirty seconds and then gives it to a new worker beside the
+first, and the slowest of the three, a check of the whole tree with the
+rest of the suite on four cores, passed thirty, so it ran twice at once and
+slower, and after three the runner stopped and called every batch still
+out a failure. Three failures that come together are one cause somewhere
+they all pass through.
+
+The big numbers for the certificates hung on their first run, and printed
+nothing. The shift added a limb of nothing at the top of the modulus, and
+the loop that takes the modulus away while it fits never ended, because it
+always fit. I had written it on the way to something else and tested it by
+the thing it was for. Printing each small piece first, a product, a shift,
+a modulus, found it in one look; I should have begun there.
+
+Two things I could not do tonight: kill a session of mine that hung, and
+remove ten files on the Pi that the M4 no longer has. Both were refused,
+rightly enough from where the refusal stands, and both are written down
+for Chris. The second may be part of why the Pi's test of the apps differs.
+
+A server's certificate is checked now, up to the roots the machine keeps.
+I tested the refusals against servers of my own on this machine, with a
+root that no one else trusts, because the sites made to fail on purpose
+only speak the older TLS. A check that has only ever said yes has not been
+tested.
