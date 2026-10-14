@@ -43,7 +43,9 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Storage" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* (:font *env_body_font*)
-		(. (ui-radio-bar *scene* *scenes* (:font *env_body_font*)) :connect +event_scene)
+		;the scenes there are as it starts, (ui-radio-bar) takes its names as written
+		(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar_col* :font *env_body_font*
+			:border *env_button_border*)) :connect +event_scene)
 		(each (lambda (label event) (. (ui-button _ (:text label :min_width 54)) :connect event))
 			'("Run" "Live" "Stop" "<" ">" "Play" "Trace")
 			(list +event_run +event_live +event_stop +event_back +event_on +event_play +event_trace)))
@@ -105,7 +107,11 @@
 	;an event as a line of the log, its time from the first
 	(defq t0 (elem-get (first (. *replay* :find :events)) +ev_time) ms (/ (- (elem-get e +ev_time) t0) 1000))
 	(cat (str (/ ms 1000)) "." (pad (str (% ms 1000)) 3 "000") " " (elem-get e +ev_member) " " (elem-get e +ev_kind)
-		(if (nempty? (elem-get e +ev_words)) (cat " " (join (slice (elem-get e +ev_words) 0 (min 3 (length (elem-get e +ev_words)))) " ")) "")
+		(cond
+			((empty? (elem-get e +ev_words)) "")
+			;what a scene says is all of it, the rest are names
+			((eql (elem-get e +ev_kind) "say") (cat " " (join (elem-get e +ev_words) " ")))
+			((cat " " (join (slice (elem-get e +ev_words) 0 (min 3 (length (elem-get e +ev_words)))) " "))))
 		(if (elem-get e +ev_path) (cat " " (elem-get e +ev_path)) "")))
 
 ;;;;;;;;;;
@@ -117,7 +123,7 @@
 		all (members) events (. *replay* :find :events) at (. *replay* :find :at) count (length events)
 		paths (paths-now) manifest (if *shown* (manifest-of *shown*))
 		blocks (if manifest (ifn (replay-blocks *replay* manifest) (list)) (list))
-		left 150 top 50 row_h 34 grid_w 520
+		left 200 top 50 row_h 34 grid_w 540
 		cols (min (inc (length blocks)) +columns) cell (if (> cols 0) (max 6 (min 22 (/ (- grid_w left) cols))) 16))
 	(defun text (words x y &optional size ink)
 		(push items (cwb-text words x y :font "fonts/OpenSans-Regular.ctf" :font_size (ifn size 14) :fill (ifn ink +ink))))
@@ -132,8 +138,13 @@
 			cut (. (. *replay* :find :cut) :find id))
 		(push items (cwb-shape (cwb-d-rect 14 (+ y 6) 28 (+ y 20) 3) :fill hue :stroke 0))
 		(text id 34 (+ y 18) 14)
+		;cut from most of the others is cut off, from a few it is they that are
+		(defq cut (filter (const nempty?) (split cut " ")))
 		(text (cat (str (. held :size)) " blocks, sees " (str (length (. (. *replay* :find :peers) :find id)))
-			(if (nempty? cut) ", cut off" "")) 34 (+ y 31) 10 +dim)
+			(cond
+				((empty? cut) "")
+				((> (* 2 (length cut)) (dec (length all))) ", cut off")
+				((cat ", cut from " (join cut " "))))) 34 (+ y 31) 10 +dim)
 		(each (lambda (col)
 			(defq x (+ left (* col cell) (if (> col 0) 4 0))
 				keeps (if (= col 0) (eql has manifest) (. held :find (elem-get blocks (dec col)))))
@@ -167,13 +178,15 @@
 		(text path (+ 24 (* (length all) 11)) yy 12))
 		rows)
 	;what was done, the event the timeline is at marked
+	;the event marked is the last done, of those listed
 	(defq lx (+ grid_w 10) list_at (if *trace* (traced) (range 0 count))
 		here (some (# (if (>= %0 (dec at)) (!))) list_at) here (ifn here (length list_at))
+		marked (some (# (if (< %0 at) %0)) (reverse (cat list_at)))
 		start (max 0 (min (- here (/ +log_rows 2)) (- (length list_at) +log_rows))))
 	(text (cat (if *trace* "What was done to it" "What was done") ", " (str at) " of " (str count)) lx 22 12 +dim)
 	(each (lambda (index)
 		(defq e (elem-get events index) yy (+ 44 (* (!) 20)))
-		(if (= index (dec at)) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 14) (- +width 6) (+ yy 5) 3) :fill +mark :stroke 0)))
+		(if (eql index marked) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 14) (- +width 6) (+ yy 5) 3) :fill +mark :stroke 0)))
 		(defq line (event-text e))
 		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim)))
 		(slice list_at start (min (length list_at) (+ start +log_rows))))
