@@ -20,8 +20,10 @@
 ;	on the right, the scenes of tests/storage/, and run runs the one
 ;	chosen, a store of its own, recorded and drawn as it goes
 ;
-; A press on an object of the list, and that is the one shown, and the
-; wheel goes up and down the list.
+; A press on an object of the list, and that is the one shown, on an event
+; of what was done, and the store is drawn as it was then. The wheel
+; over the objects goes up and down them, over what was done it goes an
+; event back or on, and the timeline is for the long way.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "usr/env.inc")
@@ -37,7 +39,7 @@
 	(enum close max min)
 	(enum back play pause on end record trace run scene timeline))
 
-(defq +width 900 +height 560 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
+(defq +width 900 +height 560 +grid_w 540 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
@@ -144,7 +146,7 @@
 		all (members) events (. *replay* :find :events) at (. *replay* :find :at) count (length events)
 		paths (paths-now) manifest (if *shown* (manifest-of *shown*))
 		blocks (if manifest (ifn (replay-blocks *replay* manifest) (list)) (list))
-		left 200 top 50 row_h 34 grid_w 540
+		left 200 top 50 row_h 34 grid_w +grid_w
 		;no more columns than there is room for, the rest of a long object is
 		;not drawn: the event list is beside it
 		room (- grid_w left 14)
@@ -219,12 +221,14 @@
 		most_log (/ (- +height 44) +log_h)
 		start (max 0 (min (- here (/ most_log 2)) (- (length list_at) most_log))))
 	(text (cat (if *trace* "What was done to it" "What was done") ", " (str at) " of " (str count)) lx 22 12 +dim)
+	(defq log_shown (slice list_at start (min (length list_at) (+ start most_log))))
+	(def *canvas* :log_shown log_shown)
 	(each (lambda (index)
 		(defq e (elem-get events index) yy (+ 44 (* (!) +log_h)))
 		(if (eql index marked) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +width 6) (+ yy 4) 3) :fill +mark :stroke 0)))
 		(defq line (event-text e))
 		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim)))
-		(slice list_at start (min (length list_at) (+ start most_log))))
+		log_shown)
 	(.-> *canvas* (:fill +paper))
 	(cwb-draw-items *canvas* items :nil)
 	(. *canvas* :swap +swap_write))
@@ -282,7 +286,8 @@
 		(go-to at)))
 
 (defun main ()
-	(defq id :t select (task-mboxes +select_size) wheel 0
+	;where the mouse was last over the canvas, which list the wheel turns
+	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *trace* :nil
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -336,19 +341,37 @@
 						(setq wheel (- wheel (getf msg +ev_msg_wheel_y)))
 						(when (/= 0 (defq lines (/ wheel +wheel_line)))
 							(setq wheel (- wheel (* lines +wheel_line)))
-							(when (nempty? (defq paths (paths-now)))
-								(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
-								(draw))))
+							(cond
+								((>= mouse_rx +grid_w)
+									;over what was done, an event at a time, or of the
+									;object shown, with trace
+									(setq *playing* :nil)
+									(times (abs lines) (step (if (> lines 0) 1 -1))))
+								((nempty? (defq paths (paths-now)))
+									(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
+									(draw)))))
+					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
+							(progn (setq mouse_rx (getf msg +ev_msg_mouse_rx)) (= (getf msg +ev_msg_mouse_buttons) 0)))
+						;where it is, and no more: the wheel is of the list it is over
+						:nil)
 					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
 							(/= (getf msg +ev_msg_mouse_buttons) 0))
-						;a press on an object of the list
+						;a press on an object of the list, and it is the one shown, or
+						;on an event of what was done, and the store is as it was then
 						(bind '(w h) (. *canvas* :get_size))
-						(defq ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)) rx (getf msg +ev_msg_mouse_rx)
-							line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)
-							index (+ (get :rows_from *canvas*) line))
-						(when (and (< rx 510) (>= ry (+ (get :rows_y *canvas*) 7)) (< line (get :rows_most *canvas*)) (< index (length paths)))
-							(setq *shown* (elem-get paths index))
-							(draw)))
+						(defq ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)) rx (getf msg +ev_msg_mouse_rx))
+						(cond
+							((>= rx +grid_w)
+								(defq line (/ (- ry 32) +log_h) shown (get :log_shown *canvas*))
+								(when (and (>= ry 32) (< line (length shown)))
+									(setq *playing* :nil)
+									(go-to (inc (elem-get shown line)))
+									(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events))))))
+							(:t (defq line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)
+									index (+ (get :rows_from *canvas*) line))
+								(when (and (>= ry (+ (get :rows_y *canvas*) 7)) (< line (get :rows_most *canvas*)) (< index (length paths)))
+									(setq *shown* (elem-get paths index))
+									(draw)))))
 					((. *window* :event msg))))
 			(+select_tip
 				;what a button is for
