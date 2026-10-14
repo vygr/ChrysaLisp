@@ -35,6 +35,7 @@
 (replay-seek rp 15)
 (assert-eq "the end: the gopher went to two" 2 (length (second (replay-walk rp "G1"))))
 (assert-eq "it is the last that set out" "G1" (. rp :find :last_gopher))
+(assert-eq "and the last to set out to its object" "G1" (. (. rp :find :path_gopher) :find "docs/a file"))
 (assert-eq "and its path is kept" "docs/a file" (first (replay-walk rp "G1")))
 (assert-eq "an event of it is known to be" "G1" (replay-gopher-tag (elem-get (. rp :find :events) 13)))
 (replay-seek rp 4)

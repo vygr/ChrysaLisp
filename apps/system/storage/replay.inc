@@ -40,7 +40,9 @@
 		:peers (Fmap 11) :cut (Fmap 11) :objects (Fmap 101) :all_paths (Fset 101)
 		;each gopher by its tag, (path steps), a step (member block time), and
 		;the tag of the last that set out
-		:gophers (Fmap 101) :last_gopher :nil)
+		:gophers (Fmap 101) :last_gopher :nil
+		;and of each object, the last gopher that set out to it
+		:path_gopher (Fmap 101))
 	r)
 
 (defun replay-add (r line)
@@ -78,10 +80,13 @@
 		("cut" (defq was (. (. r :find :cut) :find member))
 			(. (. r :find :cut) :insert member (join words " ")) was)
 		(("gopher" "gopher-on")
-			(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher))
+			(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher)
+				of (. (. r :find :path_gopher) :find path))
 			(unless had (. (. r :find :gophers) :insert tag (list path (list))))
-			(if (eql (elem-get e +ev_kind) "gopher") (. r :insert :last_gopher tag))
-			(list (not had) last))
+			(when (eql (elem-get e +ev_kind) "gopher")
+				(. r :insert :last_gopher tag)
+				(. (. r :find :path_gopher) :insert path tag))
+			(list (not had) last of))
 		("gopher-step"
 			(when (defq walk (. (. r :find :gophers) :find (third words)))
 				(. (. r :find :gophers) :insert (third words) (list (first walk)
@@ -101,9 +106,10 @@
 		(("peer+" "peer-") (. (. r :find :peers) :insert member undo))
 		("cut" (. (. r :find :cut) :insert member undo))
 		(("gopher" "gopher-on")
-			(bind '(made last) undo)
+			(bind '(made last of) undo)
 			(if made (. (. r :find :gophers) :erase (first words)))
-			(. r :insert :last_gopher last))
+			(. r :insert :last_gopher last)
+			(if of (. (. r :find :path_gopher) :insert path of) (. (. r :find :path_gopher) :erase path)))
 		("gopher-step"
 			(and undo (defq walk (. (. r :find :gophers) :find (third words)))
 				(. (. r :find :gophers) :insert (third words) (list (first walk) (slice (second walk) 0 -2)))))))
