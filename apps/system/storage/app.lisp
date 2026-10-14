@@ -38,7 +38,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum back play pause on end record trace run scene timeline))
+	(enum play pause back on end record trace run scene timeline))
 
 (defq +width 900 +height 560 +grid_w 540 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
@@ -53,7 +53,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
-			(ui-buttons (+sym_prev +sym_play +sym_pause +sym_step +sym_play_end +sym_record +sym_find) +event_back))
+			(ui-buttons (+sym_play +sym_pause +sym_prev +sym_step +sym_play_end +sym_record +sym_find) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
@@ -67,7 +67,7 @@
 	(ui-canvas *canvas* +width +height 1))
 
 (ui-tool-tips *debug*
-	'("an event back" "play, at the speed it was made" "stop, and stay here" "an event on"
+	'("play, at the speed it was made" "stop, and stay here" "an event back" "an event on"
 		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 ;each scene's own first line, what it is for
