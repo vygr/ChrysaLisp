@@ -42,8 +42,10 @@ Usage: brackets [options] [path] ...
     square brackets, and braces) using syntax-aware scanning.
     Comments and string literals are safely ignored.
 
-    If no paths given on command line
-    then paths are read from stdin.
+    What is in a {} string is code being made, and its
+    brackets must pair too, but by themselves. A {}
+    string ends at its first }, so a name can be put
+    into such code, {(def-func 
 ```
 ## cat
 ```code
@@ -107,6 +109,12 @@ Usage: check [options] [path] ...
             a list in a quoted list is its own and is never the
             same object as one made elsewhere. Compare what
             they print as.
+    again   a (defun) inside another, that uses a name the
+            other made with a (defq) before it, and a (defq)
+            of that name again after it, in the other: the
+            (defq) is to the one name, in the other's
+            environment, and what the inner function had by
+            it is gone, from then on.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.

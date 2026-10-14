@@ -6222,6 +6222,34 @@ the blocks of what is pinned that are not kept here yet, in hex.
 None, and what is pinned is all here: the machine can be taken away
 ```
 
+### store-plan
+
+```code
+(store-plan store among) -> plan
+
+what this member is to keep among those members, as it is now
+```
+
+### store-plan-dropped
+
+```code
+a block that is no longer kept
+```
+
+### store-plan-held
+
+```code
+a block that is kept now
+```
+
+### store-plan-object
+
+```code
+the object of a path, into what is wanted and what is others'. If
+
+its manifest is not here, what it is made of is known when it comes
+```
+
 ### store-put
 
 ```code
@@ -6310,6 +6338,12 @@ path is pinned. How many keepers a block has is its object's to say,
 (store-copies), and one that two objects are made of has as many as
 the one that asks for more. A block that no object is made of is
 neither, that is for (store-sweep)
+
+What it is to keep is worked out the once, (store-plan), and kept
+till the path map, the pins or who is there change. What it wants
+and what is others' are kept as blocks come and go: a tender asks
+this many times a look, and to work it out each time was a walk of
+every block of every object
 ```
 
 ### store-since
