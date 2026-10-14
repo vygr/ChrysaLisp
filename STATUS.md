@@ -6,6 +6,8 @@
 
 **The Storage app plays recordings: it runs a scene, or records this system's store, draws the members as they were at any event, and the timeline scrubs through it, with Play, step and Trace of an object. `check` has `made` and `inner`.**
 
+**The Storage app has the snapshots: a name to press above the objects lists its objects; take, put back and drop on the bar under the toolbar.**
+
 **Storage snapshots: `storage -n name [prefix]`, `-N`, `-R name`, `-D name`. A snapshot is paths, `snapshots/<name>/...`, set to the same objects, no block copied. `check` has `eqlist`.**
 
 **A band for bots, between the GUI and apps, `(task-band :bot)`: the Storage service, tender and gophers. Busy nodes no longer slow gophers, 16 s to 0.24 s, and a bot rests every 20ms, `(task-breathe)`, so apps wait 61 ms at most even with gophers that never come back. The `bots` scene.**

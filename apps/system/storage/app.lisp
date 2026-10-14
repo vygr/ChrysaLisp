@@ -44,7 +44,8 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause start back on end live record trace run scene timeline))
+	(enum play pause start back on end live record trace run scene timeline
+		snap_take snap_restore snap_drop))
 
 (defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
@@ -99,6 +100,12 @@
 			(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar2_col* :font *env_body_font*
 				:border *env_button_border*)) :connect +event_scene)
 			(ui-backdrop _ (:color (const *env_toolbar_col*)))))
+	;snapshots of the store of this system: one taken, the one picked put
+	;back, or dropped, and the name a new one is given
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-tool-bar *snapbar* (:color (const *env_toolbar2_col*))
+			(ui-buttons (+sym_save +sym_undo +sym_delete) +event_snap_take))
+		(ui-textfield *snap_name* (:color +argb_white :hint_text "the name of a new snapshot" :clear_text "" :min_width 200)))
 	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :color *env_toolbar2_col*)) :connect +event_timeline)
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-canvas *canvas* +width +height 1))
@@ -108,6 +115,8 @@
 		"to the end, and follow what comes" "the store of this system, live"
 		"keep all the store of this system does, or the last few thousand" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
+(ui-tool-tips *snapbar* '("a snapshot of the whole store, by the name written, or the time"
+	"put the store back as it was in the snapshot picked" "drop the snapshot picked"))
 ;each scene's own first line, what it is for
 (ui-tool-tips *scene* (map (const second) *scene_list*))
 
@@ -123,12 +132,32 @@
 	;those of the store, not the scene that says what it does
 	(filter (# (nql %0 "-")) (. *replay* :find :members)))
 
-(defun paths-now ()
+(defun paths-all ()
 	;the paths a member has now, deleted or not, in order
 	(defq out (list) all (members))
 	(. (. *replay* :find :all_paths) :each (lambda (path)
 		(if (some (# (replay-path *replay* %0 path)) all) (push out path))))
 	(sort out))
+
+(defun paths-now ()
+	;the objects listed: those of the snapshot picked, or those that are
+	;not of any snapshot
+	(defq at (if *snap* (cat +store_snapshots *snap* "/") +store_snapshots))
+	(filter (if *snap* (# (starts-with at %0)) (# (not (starts-with at %0)))) (paths-all)))
+
+(defun snaps-now ()
+	; (snaps-now) -> ((name count) ...)
+	;the snapshots there are now, of the paths a member has and has not
+	;deleted, and how many objects each is of
+	(defq counts (Fmap 11) names (list) all (members))
+	(each (lambda (path)
+		(when (and (starts-with +store_snapshots path)
+				(some (lambda (id) (and (defq m (replay-path *replay* id path)) (nql m "-"))) all))
+			(defq after (slice path (length +store_snapshots) -1) name (slice after 0 (ifn (find "/" after) 0)))
+			(unless (. counts :find name) (push names name))
+			(. counts :insert name (inc (ifn (. counts :find name) 0)))))
+		(paths-all))
+	(map (# (list %0 (. counts :find %0))) (sort names)))
 
 (defun manifest-of (path)
 	;what the members that have the path have it as, the first that has
@@ -272,12 +301,28 @@
 			(push items (cwb-shape (cwb-d-points points) :stroke +trail :width 2.0 :fill 0 :join :round))
 			(push items (cwb-shape (cwb-d-ellipse (first points) (second points) 4) :fill +trail :stroke 0))))
 	;the objects, a square for each member that has it
-	(defq y (+ top (* (max 1 (length all)) row_h) 22) shown_at (ifn (find *shown* paths) 0)
+	;the snapshots, a name each to press, the one picked marked
+	(defq y (+ top (* (max 1 (length all)) row_h) 22) chips (list) snaps (snaps-now))
+	(when (nempty? snaps)
+		(text "snapshots" 16 y 12 +dim)
+		(defq x 86)
+		(each (lambda ((name count))
+			(defq label (cat name " " (str count)) w (+ 10 (* 6 (length label))))
+			(when (< (+ x w) (- grid_w 10))
+				(push items (cwb-shape (cwb-d-rect (- x 4) (- y 13) (+ x w -4) (+ y 4) 3)
+					:fill (if (eql name *snap*) +mark +none) :stroke 0))
+				(text label x y 12)
+				(push chips (list x (+ x w) name)))
+			(setq x (+ x w 6)))
+			snaps)
+		(setq y (+ y 22)))
+	(def *canvas* :chips chips :chips_y (- y 22))
+	(defq shown_at (ifn (find *shown* paths) 0)
 		;as many objects as there is room for under the members
 		most (max 1 (/ (- +height y 24) +row_h))
 		from (max 0 (min (- shown_at (/ most 2)) (- (length paths) most))) rows (slice paths from (min (length paths) (+ from most))))
 	(def *canvas* :rows_y y :rows_from from :rows_most most)
-	(text (cat (str (length paths)) " objects") 16 y 12 +dim)
+	(text (cat (str (length paths)) " objects" (if *snap* (cat " of the snapshot " *snap*) "")) 16 y 12 +dim)
 	(each (lambda (path)
 		(defq yy (+ y 20 (* (!) +row_h)))
 		(if (eql path *shown*) (push items (cwb-shape (cwb-d-rect 10 (- yy 13) (- grid_w 10) (+ yy 4) 3) :fill +mark :stroke 0)))
@@ -286,7 +331,7 @@
 			(push items (cwb-shape (cwb-d-rect x (- yy 9) (+ x 9) yy 2)
 				:fill (cond ((not m) +none) ((eql m "-") +dim) (hue)) :stroke 0)))
 			all)
-		(text path (+ 24 (* (length all) 11)) yy 12))
+		(text (if *snap* (slice path (+ (length +store_snapshots) (length *snap*) 1) -1) path) (+ 24 (* (length all) 11)) yy 12))
 		rows)
 	;what was done, the event the timeline is at marked
 	;the event marked is the last done, of those listed
@@ -344,10 +389,39 @@
 		((go-to (+ at by))))
 	(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events)))))
 
+(defun snap-action (id)
+	;a snapshot taken, put back, or dropped, of the store of this system:
+	;what is done comes back as it is recorded, and is drawn then
+	(defq svc (storage-service))
+	(cond
+		((not (and svc *run* *live*))
+			(say "Snapshots are of the store of this system, live goes back to it."))
+		((= id +event_snap_take)
+			(defq name (. *snap_name* :get_text))
+			(when (eql name "")
+				(bind '(sec min hour &ignore) (date))
+				(setq name (cat "snap-" (pad (str hour) 2 "00") (pad (str min) 2 "00") (pad (str sec) 2 "00"))))
+			(cond
+				((defq count (storage-snapshot name "" svc))
+					(say "Snapshot " name ", of " count " objects.")
+					(.-> *snap_name* (:set_text "") :layout :dirty_all))
+				((say "Not a name a snapshot may have, no / or space: " name))))
+		((not *snap*) (say "Pick a snapshot first, above the objects."))
+		((= id +event_snap_restore)
+			(cond
+				((defq got (storage-restore *snap* "" svc))
+					(say (first got) " objects put back as they were in " *snap*
+						(if (> (second got) 0) (cat ", " (str (second got)) " made since are left.") ".")))
+				((say "No snapshot " *snap*))))
+		(:t (defq count (storage-snapshot-drop *snap* svc))
+			(say "Snapshot " *snap* " dropped, " count " paths.")
+			(setq *snap* :nil *shown* :nil)
+			(draw))))
+
 (defun watch (what)
 	;a scene run, or the store of this system, recorded and drawn from the start
 	(when *run* (mail-send *run* "stop"))
-	(setq *replay* (replay-new) *shown* :nil *gopher* :nil *follow* :t *playing* :nil *live* (eql what "-")
+	(setq *replay* (replay-new) *shown* :nil *gopher* :nil *snap* :nil *follow* :t *playing* :nil *live* (eql what "-")
 		*run* (open-child "apps/system/storage/run.lisp" +kn_call_run))
 	(mail-send *run* (cat (hex-encode (elem-get *select* +select_run)) (ascii-char 10) what))
 	(timeline)
@@ -373,7 +447,7 @@
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
-		*gopher* :nil
+		*gopher* :nil *snap* :nil
 		*record* :t
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -431,6 +505,8 @@
 						(setq *playing* :nil *follow* :t)
 						(go-to (length (. *replay* :find :events))))
 					((= id +event_trace) (setq *trace* (not *trace*)) (draw))
+					((find id (list +event_snap_take +event_snap_restore +event_snap_drop))
+						(snap-action id))
 					((= id +event_timeline)
 						(setq *playing* :nil)
 						(go-to (get :value *timeline*))
@@ -466,6 +542,12 @@
 										((setq *gopher* :nil)))
 									(go-to (inc (elem-get shown line)))
 									(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events))))))
+							;a press on a snapshot picks it, its objects are listed;
+							;on it again, and the objects of the store are
+							((and (<= (- (get :chips_y *canvas*) 13) ry (+ (get :chips_y *canvas*) 4))
+									(defq chip (some (lambda ((x0 x1 name)) (if (<= x0 rx x1) name)) (get :chips *canvas*))))
+								(setq *snap* (if (eql chip *snap*) :nil chip) *shown* :nil *want* :nil *gopher* :nil)
+								(go-to (. *replay* :find :at)))
 							(:t (defq line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)
 									index (+ (get :rows_from *canvas*) line))
 								(when (and (>= ry (+ (get :rows_y *canvas*) 7)) (< line (get :rows_most *canvas*)) (< index (length paths)))

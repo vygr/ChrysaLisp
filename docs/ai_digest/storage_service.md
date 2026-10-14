@@ -622,6 +622,12 @@ played back, from a recording of it.
   object shown.
 * A scene that is run is all recorded, and stays to be gone over when it
   is done.
+* The snapshots there are, at the event the store is drawn at, are names
+  above the objects. A press on one lists its objects, and their blocks
+  are drawn as any object's; on it again, the store's own. The bar under
+  the toolbar takes a snapshot of the whole store, by the name written or
+  the time, puts the store back as it was in the one picked, or drops it.
+  Those are of the store of this system, live.
 * The members are down the side, the blocks of the object shown across, a
   square where a member keeps one, the first column the object's manifest.
   Under them the objects, a square for each member that has one, grey where
@@ -663,8 +669,6 @@ app, and sends it what happens in batches.
 
 ## Not Done
 
-* The app does not show snapshots by themselves yet, they are among the
-  objects, under `snapshots/`.
 * Encryption, and error correction. There is SHA-256 and ChaCha20 with
   Poly1305, [crypto.md](crypto.md), and no field arithmetic. A cipher makes
   two blocks that are the same look different; whether the store may show
