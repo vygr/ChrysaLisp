@@ -464,7 +464,7 @@ bytes of its name, in hex.
 | `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
 | `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
 | `fetched` | tender | block, the member it came from |
-| `gopher` `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-threw` | runner | block number, block, path |
+| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-threw` | runner | block number, block, path |
 
 A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has

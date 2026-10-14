@@ -7,15 +7,18 @@
 ; event by event, beside it. The timeline under the buttons is the whole
 ; of the recording: drag it, and the store is drawn as it was then.
 ;
-;	scenes	the scenes of tests/storage/, Run runs the one chosen, a store
-;		of its own, and it is recorded and drawn as it goes
-;	Live	the store this system is a member of: what it has now, and
-;		then what it does, recorded. It is what is shown first, if
-;		this system is a member of a store. Stop stops that
-;	< >	an event back, an event on, or of the object shown alone, with
-;		Trace
-;	Play	the recording at the speed it was made, from where it is
-;	Trace	only what was done to the object shown and its blocks
+;	on the left, what is watched, played and stepped through:
+;	prev, step	an event back, an event on, or of the object shown
+;			alone, with trace
+;	play, pause	the recording at the speed it was made, from where it is
+;	end		to the end, and what comes is followed
+;	record		the store this system is a member of: what it has now,
+;			and then what it does. It is what is shown first, if
+;			this system is a member of a store. Again, it stops
+;	find		trace, only what was done to the object shown and its
+;			blocks
+;	on the right, the scenes of tests/storage/, and run runs the one
+;	chosen, a store of its own, recorded and drawn as it goes
 ;
 ; A press on an object of the list, and that is the one shown, and the
 ; wheel goes up and down the list.
@@ -28,11 +31,11 @@
 (import "./replay.inc")
 
 (enums +select 0
-	(enum main run timer))
+	(enum main run tip timer))
 
 (enums +event 0
 	(enum close max min)
-	(enum scene run live stop back on play trace timeline))
+	(enum back play pause on end record trace run scene timeline))
 
 (defq +width 900 +height 560 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
@@ -44,16 +47,26 @@
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Storage" (+sym_close) +event_close)
-	(ui-tool-bar *toolbar* (:font *env_body_font*)
-		;the scenes there are as it starts, (ui-radio-bar) takes its names as written
-		(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar_col* :font *env_body_font*
-			:border *env_button_border*)) :connect +event_scene)
-		(each (lambda (label event) (. (ui-button _ (:text label :min_width 54)) :connect event))
-			'("Run" "Live" "Stop" "<" ">" "Play" "Trace")
-			(list +event_run +event_live +event_stop +event_back +event_on +event_play +event_trace)))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		;what is watched, played and stepped through, on the left
+		(ui-tool-bar *debug* ()
+			(ui-buttons (+sym_prev +sym_play +sym_pause +sym_step +sym_play_end +sym_record +sym_find) +event_back))
+		;the scenes, and Run, on the right
+		(ui-flow _ (:flow_flags +flow_left_fill)
+			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
+				(ui-buttons (+sym_play_all) +event_run))
+			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
+			(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar2_col* :font *env_body_font*
+				:border *env_button_border*)) :connect +event_scene)
+			(ui-backdrop _ (:color (const *env_toolbar_col*)))))
 	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :color *env_toolbar2_col*)) :connect +event_timeline)
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-canvas *canvas* +width +height 1))
+
+(ui-tool-tips *debug*
+	'("an event back" "play, at the speed it was made" "stop playing" "an event on"
+		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
+(ui-tool-tips *tests* '("run the scene chosen"))
 
 (defun say (&rest text)
 	(set *status* :text (apply (const cat) (map (const str) text)))
@@ -169,10 +182,12 @@
 	(defq trail (. *replay* :find :trail))
 	(when (and (nempty? trail) (eql (first trail) *shown*) (> cols 1))
 		(defq points (list))
-		(each (lambda ((who block))
+		;in the order the steps were taken: they come as each member sends
+		;what it did, not in the order it was done
+		(each (lambda ((who block &ignore))
 			(and (defq row (find who all)) (< (inc block) cols)
 				(push points (+ left (* (inc block) cell) 4 (/ (- cell 2) 2)) (+ top (* row row_h) 17))))
-			(rest trail))
+			(sort (rest trail) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))
 		(when (>= (length points) 4)
 			(push items (cwb-shape (cwb-d-points points) :stroke +trail :width 2.0 :fill 0 :join :round))
 			(push items (cwb-shape (cwb-d-ellipse (first points) (second points) 4) :fill +trail :stroke 0))))
@@ -242,7 +257,7 @@
 (defun watch (what)
 	;a scene run, or the store of this system, recorded and drawn from the start
 	(when *run* (mail-send *run* "stop"))
-	(setq *replay* (replay-new) *shown* :nil *follow* :t *playing* :nil
+	(setq *replay* (replay-new) *shown* :nil *follow* :t *playing* :nil *live* (eql what "-")
 		*run* (open-child "apps/system/storage/run.lisp" +kn_call_run))
 	(mail-send *run* (cat (hex-encode (elem-get *select* +select_run)) (ascii-char 10) what))
 	(timeline)
@@ -266,9 +281,10 @@
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) wheel 0
-		*select* select *replay* (replay-new) *run* :nil *shown* :nil *trace* :nil
+		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *trace* :nil
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -291,15 +307,22 @@
 						(defq name (elem-get *scenes* (ifn (. *scene* :get_selected) 0)))
 						(say "Running " name ".")
 						(watch name))
-					((= id +event_live)
-						(say "The store of this system, as it works from now.")
-						(watch "-"))
-					((= id +event_stop)
-						(when *run* (mail-send *run* "stop") (setq *run* :nil))
-						(setq *playing* :nil))
+					((= id +event_record)
+						;the store of this system, or, if that is what is being
+						;recorded, stop
+						(cond
+							((and *run* *live*)
+								(mail-send *run* "stop")
+								(setq *run* :nil *live* :nil))
+							(:t (say "The store of this system, as it is now, and then as it works.")
+								(watch "-"))))
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
-					((= id +event_play) (if *playing* (setq *playing* :nil) (play)))
+					((= id +event_play) (play))
+					((= id +event_pause) (setq *playing* :nil))
+					((= id +event_end)
+						(setq *playing* :nil *follow* :t)
+						(go-to (length (. *replay* :find :events))))
 					((= id +event_trace) (setq *trace* (not *trace*)) (draw))
 					((= id +event_timeline)
 						(setq *playing* :nil)
@@ -325,6 +348,10 @@
 							(setq *shown* (elem-get paths index))
 							(draw)))
 					((. *window* :event msg))))
+			(+select_tip
+				;what a button is for
+				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
+					(. view :show_tip)))
 			(+select_run
 				(cond
 					((starts-with "lines" msg)
@@ -332,7 +359,7 @@
 						(setq *changed* :t))
 					((starts-with "end " msg)
 						(bind '(passed failed) (rest (split msg " ")))
-						(setq *run* :nil)
+						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped." (cat "Done: " passed " held, " failed " did not."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
 				(cond

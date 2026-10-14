@@ -218,7 +218,9 @@
 					(defq info (storage-info svc))
 					(setq asked :t member (if info (. info :find :member) "?") copies (if info (. info :find :copies) 3)))
 				(when (list? (defq g (gopher-take svc member copies kept msg)))
-					(storage-record recorder member "gopher" (elem-get g +gopher_name))
+					;one that has just set out, or one come on from another member
+					(storage-record recorder member (if (> (length (elem-get g +gopher_trail)) 1) "gopher-on" "gopher")
+						(elem-get g +gopher_name))
 					(push gophers g)))))
 	(while running
 		(cond
