@@ -10,7 +10,8 @@
 ; mailed, a line each, who to tell and the group its members are to be of,
 ; so that what started it can record them from the first, `storage -t name
 ; -r file`. It tells, each a mail: "say " and a line, as it goes, and at the
-; end "done " and how many of its checks held and how many did not.
+; end "done " and how many of its checks held and how many did not, and
+; "gone" once its members are stopped and their stores removed.
 ;
 ; The members' tenders look only when they are told, (scene-settle), so
 ; that each step of a scene is done when it says it is, and it comes out
@@ -184,7 +185,9 @@
 	(while (and (nempty? (mail-enquire (cat (. scene :find :group) ","))) (< (- (pii-time) t0) 3000000))
 		(task-sleep 50000))
 	(task-sleep 200000)
-	(each (const pii-remove) (. scene :find :images)))
+	(each (const pii-remove) (. scene :find :images))
+	;and what started it is told it is all gone, it may end now
+	(mail-send (. scene :find :reply) "gone"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; for what starts a scene
@@ -239,4 +242,12 @@
 		(and record scene_result
 			(while (defq scene_msg (mail-read-timeout scene_heard 500000))
 				(each record (split scene_msg +storage_lf))))
+		;and that the scene has stopped its members and its store is gone:
+		;what started it may end as soon as this comes back, and the scene
+		;with it, before it had
+		(when scene_result
+			(defq scene_gone (+ (pii-time) 10000000))
+			(while (and (< (pii-time) scene_gone)
+					(defq scene_msg (mail-read-timeout scene_said (task-timeout 10)))
+					(nql scene_msg "gone"))))
 		scene_result))
