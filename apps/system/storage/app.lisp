@@ -13,10 +13,11 @@
 ;	play, pause	the recording at the speed it was made, from where it
 ;			is, or still, there, whatever comes in
 ;	start, end	to the start, or to the end, and what comes is followed
-;	record		the store this system is a member of: what it has now,
-;			and then what it does. It is what is shown first, if
-;			this system is a member of a store and it was on when
-;			the app was last closed. Again, it stops
+;	record		all of what the store of this system does is kept, and
+;			the timeline goes back to the start. Off, the last few
+;			thousand events. The store this system is a member of
+;			is always watched, what it has and what it does, when
+;			a scene is not, and is what the app opens on
 ;	find		trace, only what was done to the object shown and its
 ;			blocks
 ;	on the right, the scenes of tests/storage/, and run runs the one
@@ -42,7 +43,7 @@
 	(enum close max min)
 	(enum play pause start back on end record trace run scene timeline))
 
-(defq +width 900 +height 560 +grid_w 540 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
+(defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
@@ -101,7 +102,7 @@
 
 (ui-tool-tips *debug*
 	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
-		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
+		"to the end, and follow what comes" "keep all the store of this system does, or the last few thousand" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 ;each scene's own first line, what it is for
 (ui-tool-tips *scene* (map (const second) *scene_list*))
@@ -186,7 +187,7 @@
 	;still, following what comes, recording, and trace. Only when that is
 	;not as it was, a button changed is drawn again
 	(defq now (list *playing* (not (or *playing* *follow*)) :nil :nil :nil (and *follow* (not *playing*))
-			(and *run* *live*) *trace*)
+			(and *run* *live* *record*) *trace*)
 		now (map (# (if %0 :t :nil)) now))
 	(unless (eql (str now) (str *lit*))
 		(setq *lit* now)
@@ -367,12 +368,10 @@
 	;the store this system is a member of, as it is and then as it works,
 	;if it is a member of one
 	(cond
-		((and (storage-service) *record*)
-			(say "The store this system is a member of, as it is now, and then as it works.")
-			(watch "-"))
 		((storage-service)
-			(say "Not recording the store of this system, record does.")
-			(draw))
+			(say (if *record* "The store of this system, as it is and as it works, all of it recorded."
+				(cat "The store of this system, as it is and as it works, the last " (str +live_keep) " events kept. Record keeps all.")))
+			(watch "-"))
 		(:t (say "This system is a member of no store. Choose a scene and Run.")
 			(draw)))
 	(while id
@@ -390,14 +389,18 @@
 					((= id +event_record)
 						;the store of this system, or, if that is what is being
 						;recorded, stop
+						;it is watched whenever it is not a scene. Recorded, all of
+						;it is kept, if not, the last so many events
 						(cond
-							((and *run* *live*)
-								(mail-send *run* "stop")
-								(setq *run* :nil *live* :nil *record* :nil)
-								(say "Not recording."))
-							(:t (say "The store of this system, as it is now, and then as it works.")
+							((not (and *run* *live*))
+								(say "The store of this system, as it is and as it works, all of it recorded.")
 								(setq *record* :t)
-								(watch "-"))))
+								(watch "-"))
+							(*record*
+								(setq *record* :nil)
+								(say "The store of this system, the last " (str +live_keep) " events kept. Record keeps all."))
+							(:t (setq *record* :t)
+								(say "The store of this system, all of it recorded from now."))))
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
 					((= id +event_play) (play))
@@ -452,6 +455,8 @@
 				(cond
 					((starts-with "lines" msg)
 						(each (# (replay-add *replay* %0)) (rest (split msg (ascii-char 10))))
+						;the store of this system not recorded, the last so many kept
+						(and *live* (not *record*) (replay-trim *replay* +live_keep))
 						(setq *changed* :t))
 					((starts-with "end " msg)
 						(bind '(passed failed) (rest (split msg " ")))

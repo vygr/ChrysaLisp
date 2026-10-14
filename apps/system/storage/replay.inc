@@ -101,6 +101,17 @@
 	(. r :insert :at at)
 	r)
 
+(defun replay-trim (r keep)
+	; (replay-trim r keep) -> r
+	;no more than so many events, the oldest of those that have been done
+	;let go of: the store is as it was, they can not be gone back to
+	(defq events (. r :find :events) at (. r :find :at)
+		drop (min at (- (length events) keep)))
+	(when (> drop 0)
+		(. r :insert :events (slice events drop -1))
+		(. r :insert :at (- at drop)))
+	r)
+
 (defun replay-held (r member)
 	; (replay-held r member) -> fset
 	(. (. r :find :held) :find member))

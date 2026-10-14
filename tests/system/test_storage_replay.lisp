@@ -46,6 +46,12 @@
 (assert-true "an event of the path is about it" (replay-about? (elem-get (. rp :find :events) 5) "docs/a file" '("B1" "B2")))
 (assert-true "and one of a block of it" (replay-about? (elem-get (. rp :find :events) 8) "docs/a file" '("B1" "B2")))
 (assert-eq "one of who it sees is not" :nil (replay-about? (elem-get (. rp :find :events) 0) "docs/a file" '("B1" "B2")))
+(replay-trim rp 5)
+(assert-eq "trimmed, the last five events are kept" 5 (length (. rp :find :events)))
+(assert-eq "and it is at the end of them" 5 (. rp :find :at))
+(assert-eq "the store is as it was" "-" (replay-path rp "m-a" "docs/a file"))
+(replay-seek rp 0)
+(assert-eq "back to the first kept, what was done before stands" "M1" (replay-path rp "m-b" "docs/a file"))
 
 ;a scene run by the app's own runner, ./run.lisp, and played back
 (import "service/storage/app.inc")
