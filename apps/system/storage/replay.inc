@@ -66,8 +66,10 @@
 		(("set" "learnt") (defq was (. paths :find path)) (. paths :insert path (first words)) (list was))
 		(("delete" "learnt-delete") (defq was (. paths :find path)) (. paths :insert path "-") (list was))
 		("object" (. (. r :find :objects) :insert (first words) (rest words)) :nil)
+		;a member started again says again who it sees
 		("peer+" (defq peers (. (. r :find :peers) :find member))
-			(. (. r :find :peers) :insert member (cat peers (list (first words)))) peers)
+			(. (. r :find :peers) :insert member
+				(if (find (first words) peers) peers (cat peers (list (first words))))) peers)
 		("peer-" (defq peers (. (. r :find :peers) :find member))
 			(. (. r :find :peers) :insert member (filter (# (nql %0 (first words))) peers)) peers)
 		("cut" (defq was (. (. r :find :cut) :find member))

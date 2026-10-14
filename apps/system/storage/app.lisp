@@ -34,7 +34,7 @@
 	(enum close max min)
 	(enum scene run live stop back on play trace timeline))
 
-(defq +width 900 +height 560 +rows 9 +log_rows 22 +tick 50000 +columns 60 +wheel_line 4
+(defq +width 900 +height 560 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
@@ -130,13 +130,21 @@
 		paths (paths-now) manifest (if *shown* (manifest-of *shown*))
 		blocks (if manifest (ifn (replay-blocks *replay* manifest) (list)) (list))
 		left 200 top 50 row_h 34 grid_w 540
-		cols (min (inc (length blocks)) +columns) cell (if (> cols 0) (max 6 (min 22 (/ (- grid_w left) cols))) 16))
+		;no more columns than there is room for, the rest of a long object is
+		;not drawn: the event list is beside it
+		room (- grid_w left 14)
+		cols (min (inc (length blocks)) (/ room 6)) cell (if (> cols 0) (max 6 (min 22 (/ room cols))) 16))
 	(defun text (words x y &optional size ink)
 		(push items (cwb-text words x y :font "fonts/OpenSans-Regular.ctf" :font_size (ifn size 14) :fill (ifn ink +ink))))
 	(text (if (= count 0) "Nothing recorded. Run a scene, or Live to watch the store of this system."
 			(said-now)) 16 22 14)
-	(if *shown* (text (cat *shown* (if manifest (cat ", " (str (length blocks)) " blocks, the first column its manifest") ", not here now"))
+	(if *shown* (text (cat *shown* (if manifest (cat ", " (str (length blocks)) " blocks, the first column its manifest"
+			(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " of them") "")) ", not here now"))
 		16 40 11 +dim))
+	;the first column, the manifest, is ruled off from the blocks
+	(and manifest (> cols 1)
+		(push items (cwb-shape (cwb-d-rect (+ left cell) (+ top 4) (+ left cell 2) (+ top (* (length all) row_h) -4) 0)
+			:fill +dim :stroke 0)))
 	;a row for each member, a square where it keeps a block of the object shown
 	(each (lambda (id)
 		(defq y (+ top (* (!) row_h)) hue (elem-get +hues (% (!) (length +hues)))
@@ -170,11 +178,13 @@
 			(push items (cwb-shape (cwb-d-ellipse (first points) (second points) 4) :fill +trail :stroke 0))))
 	;the objects, a square for each member that has it
 	(defq y (+ top (* (max 1 (length all)) row_h) 22) shown_at (ifn (find *shown* paths) 0)
-		from (max 0 (min (- shown_at (/ +rows 2)) (- (length paths) +rows))) rows (slice paths from (min (length paths) (+ from +rows))))
-	(def *canvas* :rows_y y :rows_from from)
+		;as many objects as there is room for under the members
+		most (max 1 (/ (- +height y 24) +row_h))
+		from (max 0 (min (- shown_at (/ most 2)) (- (length paths) most))) rows (slice paths from (min (length paths) (+ from most))))
+	(def *canvas* :rows_y y :rows_from from :rows_most most)
 	(text (cat (str (length paths)) " objects") 16 y 12 +dim)
 	(each (lambda (path)
-		(defq yy (+ y 20 (* (!) 18)))
+		(defq yy (+ y 20 (* (!) +row_h)))
 		(if (eql path *shown*) (push items (cwb-shape (cwb-d-rect 10 (- yy 13) (- grid_w 10) (+ yy 4) 3) :fill +mark :stroke 0)))
 		(each (lambda (id)
 			(defq x (+ 16 (* (!) 11)) m (replay-path *replay* id path) hue (elem-get +hues (% (!) (length +hues))))
@@ -188,14 +198,16 @@
 	(defq lx (+ grid_w 10) list_at (if *trace* (traced) (range 0 count))
 		here (some (# (if (>= %0 (dec at)) (!))) list_at) here (ifn here (length list_at))
 		marked (some (# (if (< %0 at) %0)) (reverse (cat list_at)))
-		start (max 0 (min (- here (/ +log_rows 2)) (- (length list_at) +log_rows))))
+		;as many events as there is room for, down the whole of it
+		most_log (/ (- +height 44) +log_h)
+		start (max 0 (min (- here (/ most_log 2)) (- (length list_at) most_log))))
 	(text (cat (if *trace* "What was done to it" "What was done") ", " (str at) " of " (str count)) lx 22 12 +dim)
 	(each (lambda (index)
-		(defq e (elem-get events index) yy (+ 44 (* (!) 20)))
-		(if (eql index marked) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 14) (- +width 6) (+ yy 5) 3) :fill +mark :stroke 0)))
+		(defq e (elem-get events index) yy (+ 44 (* (!) +log_h)))
+		(if (eql index marked) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +width 6) (+ yy 4) 3) :fill +mark :stroke 0)))
 		(defq line (event-text e))
 		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim)))
-		(slice list_at start (min (length list_at) (+ start +log_rows))))
+		(slice list_at start (min (length list_at) (+ start most_log))))
 	(.-> *canvas* (:fill +paper))
 	(cwb-draw-items *canvas* items :nil)
 	(. *canvas* :swap +swap_write))
@@ -307,9 +319,9 @@
 						;a press on an object of the list
 						(bind '(w h) (. *canvas* :get_size))
 						(defq ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)) rx (getf msg +ev_msg_mouse_rx)
-							line (/ (- ry (+ (get :rows_y *canvas*) 7)) 18) paths (paths-now)
+							line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)
 							index (+ (get :rows_from *canvas*) line))
-						(when (and (< rx 510) (>= ry (+ (get :rows_y *canvas*) 7)) (< line +rows) (< index (length paths)))
+						(when (and (< rx 510) (>= ry (+ (get :rows_y *canvas*) 7)) (< line (get :rows_most *canvas*)) (< index (length paths)))
 							(setq *shown* (elem-get paths index))
 							(draw)))
 					((. *window* :event msg))))
