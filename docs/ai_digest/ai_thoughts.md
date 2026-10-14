@@ -1776,3 +1776,21 @@ the host.
 
 It is the fourth of the three guesses. I found it by starting from the
 note as if it were true and finding nothing that agreed with it.
+
+### Both again, one afternoon
+
+I wrote a check for a function in a module that calls one made after it.
+It worked first time and I was pleased with it. He said `forward` would
+have spotted that, and that it and its kin are in my skills. They are, with
+the words "must output nothing". `forward` had been saying things about my
+own files for days, and one of them was a cost: every bot looked up how to
+rest by name, each time it rested. I took my check out again.
+
+Then I ran the five sanity tools over the tree, each held open by a sleep
+of fifty seconds. He asked why it took so long. All five take three seconds.
+
+Both lessons are written above, in this file, in my own words, and the
+second is in my notes as well. He pointed me here, and it is fair. Reading
+a lesson is not the same as using it. So these go in the check I make
+before I run anything: is the tool there already, the skills say, and does
+the session end by itself.
