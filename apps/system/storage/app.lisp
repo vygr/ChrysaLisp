@@ -30,6 +30,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/cwb/doc.inc")
+(import "service/lock/app.inc")
 (import "service/storage/scene.inc")
 (import "./replay.inc")
 
@@ -43,6 +44,33 @@
 (defq +width 900 +height 560 +grid_w 540 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
+
+;what is kept for the user, from one time it runs to the next: the scene
+;chosen, trace, and the object shown
+(defq +config_file (cat *env_home* "storage.tre") +config_version 1)
+
+(defun config-load ()
+	(defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
+	(if (or (not config) (/= (. config :find :version) +config_version))
+		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "")))
+	(if (defq at (find (. config :find :scene) *scenes*)) (. *scene* :set_selected at))
+	;the object that was shown is wanted, and shown when it is there
+	(setq *trace* (. config :find :trace) *want* (. config :find :shown) *saved* (config-of))
+	(if (eql *want* "") (setq *want* :nil)))
+
+(defun config-of ()
+	;what is to be kept, as it is now
+	(list (elem-get *scenes* (ifn (. *scene* :get_selected) 0)) (if *trace* :t :nil) (ifn *want* (ifn *shown* ""))))
+
+(defun config-save ()
+	;only when it is not as it was kept
+	(defq now (config-of))
+	(unless (eql (str now) (str *saved*))
+		(setq *saved* now)
+		(bind '(scene trace shown) now)
+		(with-write-lock +config_file
+			(tree-save (file-stream +config_file +file_open_write)
+				(scatter (Emap) :version +config_version :scene scene :trace trace :shown shown)))))
 
 ;the scenes there are, a list made as this starts: not a + name, which is
 ;put in where it is used as it is read, and a list there is a call
@@ -270,7 +298,12 @@
 
 (defun go-to (at)
 	(replay-seek *replay* at)
-	(unless *shown* (setq *shown* (first (paths-now))))
+	;the one wanted if it is there now, if not the first till it is
+	(defq paths (paths-now))
+	(cond
+		((and *want* (find *want* paths)) (setq *shown* *want* *want* :nil))
+		;one shown that is not there at this event is said so, and kept
+		((not *shown*) (setq *shown* (first paths))))
 	(timeline)
 	(draw))
 
@@ -317,9 +350,10 @@
 (defun main ()
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
-		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *trace* :nil *lit* :nil
+		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
+	(config-load)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -395,7 +429,7 @@
 							(:t (defq line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)
 									index (+ (get :rows_from *canvas*) line))
 								(when (and (>= ry (+ (get :rows_y *canvas*) 7)) (< line (get :rows_most *canvas*)) (< index (length paths)))
-									(setq *shown* (elem-get paths index))
+									(setq *want* :nil *shown* (elem-get paths index))
 									(draw)))))
 					((. *window* :event msg))))
 			(+select_tip
@@ -412,8 +446,10 @@
 						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped." (cat "Done: " passed " held, " failed " did not."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
-				;a control that has changed, that drew nothing, is lit or not
+				;a control that has changed, that drew nothing, is lit or not, and
+				;what is kept for the user is kept, if it has changed
 				(lights)
+				(config-save)
 				(when (/= 0 (defq lines (/ wheel +wheel_line)))
 					(setq wheel (- wheel (* lines +wheel_line)))
 					(cond
@@ -423,7 +459,7 @@
 							(setq *playing* :nil)
 							(step lines))
 						((nempty? (defq paths (paths-now)))
-							(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
+							(setq *want* :nil *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
 							(draw))))
 				(cond
 					(*playing* (tick))
@@ -432,6 +468,7 @@
 						(cond
 							(*follow* (go-to (length (. *replay* :find :events))))
 							(:t (timeline) (draw))))))))
+	(config-save)
 	(gui-sub-rpc *window*)
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(if *run* (mail-send *run* "stop")))
