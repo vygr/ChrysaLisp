@@ -6,6 +6,7 @@
 (import "lib/gpu/vp.inc")
 (import "lib/gpu/gui.inc")
 (import "lib/files/zip.inc")
+(import "lib/net/http.inc")
 
 ;A model of a .obj, with its .mtl and the pictures its materials have,
 ;turned with the mouse and drawn by the GPU of the GUI, or by native code
@@ -14,7 +15,7 @@
 ;data/
 
 (enums +event +event_user
-	(enum open mode))
+	(enum open mode url))
 
 ;the timer is last, what is first in the list is what is read first
 (enums +select 0
@@ -39,6 +40,8 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *tools* ()
 			(ui-buttons (+sym_open) +event_open))
+		(. (ui-textfield *url* (:color +argb_white :clear_text "" :min_width 240
+			:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :color *env_toolbar2_col*)) :connect +event_mode)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-label *status* (:text "..." :font *env_body_font*))
@@ -60,22 +63,38 @@
 	(defq out (string-stream (cat "")))
 	(if (zip-read data entry out) (str out)))
 
+(defun zip-fetch (data entries folder name)
+	; (zip-fetch data entries folder name) -> :nil | str
+	;a file a model names, beside it in its zip, or anywhere in it
+	(if (defq entry (or (zip-find entries (cat folder name)) (zip-find entries name))) (zip-text data entry)))
+
+(defun model-fetch (url)
+	; (model-fetch url) -> :nil | str
+	;what is at an address, if it is there
+	(and (defq resp (http-get url)) (= (pfind resp :status) 200) (http-body-str resp)))
+
 (defun model-source (path)
-	; (model-source path) -> :nil | (obj_text fetch)
-	;the text of the .obj, and a function that gives the bytes of a file
-	;it names, beside it, or in the same zip
+	; (model-source path) -> :nil | (obj_text fetch pictures)
+	;the text of the .obj, a function that gives the bytes of a file it
+	;names: beside it, in the same zip, or at the same address, and in a
+	;zip, the pictures there are, for a model that names none
+	(defq remote (starts-with "https://" path) data (if remote (model-fetch path) (load path)))
 	(cond
+		((not data) :nil)
 		((ends-with ".zip" path)
-			(when (and (defq data (load path)) (defq entries (zip-list data))
-					(defq obj (some (# (if (ends-with ".obj" (first %0)) %0)) entries)))
-				(defq folder (slice (first obj) 0 (inc (ifn (rfind "/" (first obj)) -1))))
+			;what a Mac puts in a zip of its own, beside each file, is not
+			;the file
+			(when (and (defq entries (filter (# (not (starts-with "__MACOSX/" (first %0)))) (ifn (zip-list data) (list))))
+					(nempty? (defq objs (filter (# (ends-with ".obj" (to-lower (first %0)))) entries))))
+				;of several, the most of it, the most detailed
+				(defq obj (reduce (# (if (> (elem-get %1 +zip_entry_full) (elem-get %0 +zip_entry_full)) %1 %0)) objs (first objs))
+					folder (slice (first obj) 0 (inc (ifn (rfind "/" (first obj)) -1))))
 				(list (zip-text data obj)
-					(lambda (name)
-						(if (defq entry (or (zip-find entries (cat folder name)) (zip-find entries name)))
-							(zip-text data entry))))))
-		((defq text (load path))
-			(defq folder (slice path 0 (inc (ifn (rfind "/" path) -1))))
-			(list text (lambda (name) (load (cat folder name)))))))
+					`(lambda (name) (,zip-fetch ',data ',entries ,folder name))
+					(filter (# (canvas-loader-of (to-lower %0))) (map (const first) entries)))))
+		(:t (defq folder (slice path 0 (inc (ifn (rfind "/" path) -1))))
+			(list data (if remote `(lambda (name) (,model-fetch (cat ,folder name)))
+				`(lambda (name) (load (cat ,folder name)))) (list)))))
 
 (defun model-picture (name bytes)
 	; (model-picture name bytes) -> :nil | canvas
@@ -95,15 +114,22 @@
 	;the model of that file, its parts, each a material, in place of what
 	;there was
 	(when (defq source (model-source path))
-		(bind '(text fetch) source)
+		(bind '(text fetch pictures) source)
 		(defq obj (obj-read (string-stream text)) materials (Fmap 11) fit (obj-fit obj) out (list) count 0)
 		(each (lambda (library)
 				(if (defq mtl (fetch library))
 					(. (mtl-read (string-stream mtl)) :each (lambda (k v) (. materials :insert k v)))))
 			(. obj :find :libraries))
+		;a model that names no picture, in a zip that has one, the one whose
+		;name begins as the model's does, or the first
+		(defq stem (first (split (last (split path "/")) "._"))
+			lone (and (nempty? pictures) (notany (# (and (defq m (. materials :find (first %0))) (. m :find :map))) (. obj :find :groups))
+				(model-picture (defq lone_name (ifn (some (# (if (starts-with stem (last (split %0 "/"))) %0)) pictures) (first pictures)))
+					(fetch lone_name))))
 		(each (lambda ((material corners))
-				(defq said (. materials :find material) picture :nil
-					tint (if said (. said :find :colour) (list (n2r 0.8) (n2r 0.8) (n2r 0.8))))
+				(defq said (. materials :find material) picture lone
+					;a picture is its colour, at full
+					tint (cond (lone (list +real_1 +real_1 +real_1)) (said (. said :find :colour)) ((list (n2r 0.8) (n2r 0.8) (n2r 0.8)))))
 				(when (and said (defq file (. said :find :map)))
 					;a picture's name may have a folder of another machine in it
 					(defq file (last (split file (const (char-class "/\\")))))
@@ -194,6 +220,14 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						(setq id :nil))
 					((= id +event_open) (picker-open))
+					((= id +event_url)
+						;a model fetched, over https
+						(defq address (trim (get :clear_text *url*)))
+						(say (cat "Fetching " address " ..."))
+						(cond
+							((model-load address)
+								(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
+							((say (cat "Could not fetch a model from " address ".")))))
 					((= id +event_mode)
 						(setq gpu_want (= (. *mode* :get_selected) 1)))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
