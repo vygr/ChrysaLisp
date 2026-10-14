@@ -468,7 +468,9 @@ bytes of its name, in hex.
 
 A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has
-gone is not told for long. `(storage-record-run write until [group stop])`
+gone is not told for long. `(storage-record-ask svc mbox :t)` stops it.
+There can be several recorders at once, an app and `storage -r` in a
+terminal say, and each is told all of it. `(storage-record-run write until [group stop])`
 asks every member of a group each second and gives each line to `write`.
 `storage -r file` is that, to a file of the host, for `-S` seconds. A task sends what it has
 to say once it has done a thing asked of it, in one mail. With no recorder

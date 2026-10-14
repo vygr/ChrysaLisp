@@ -63,6 +63,23 @@
 	(storage-delete "doc/one" :nil (sr-of "r-c"))
 	(sr-take)
 	(assert-eq "a delete is said" 1 (length (sr-did "r-c" "delete" "doc/one")))
+	;two recorders at once, each is told all of it
+	(defq sr_box2 (mail-mbox))
+	(each (lambda (svc) (storage-record-ask svc sr_box2)) sr_svcs)
+	(storage-put "both" "told to two" :nil (sr-of "r-a"))
+	(sr-take)
+	(defq sr_two (list))
+	(while (defq text (mail-read-timeout sr_box2 300000))
+		(each (lambda (line) (push sr_two (split line " "))) (split text +storage_lf)))
+	(assert-true "a second recorder is told, and the first still is"
+		(and (nempty? (sr-did "r-a" "set" "both")) (some (# (and (eql (third %0) "set") (eql (last %0) "both"))) sr_two)))
+	;the second stops, the first is still told
+	(each (lambda (svc) (storage-record-ask svc sr_box2 :t)) sr_svcs)
+	(setq sr_lines (list))
+	(storage-put "one" "told to one" :nil (sr-of "r-a"))
+	(sr-take)
+	(assert-true "one that stops is not told, the other still is"
+		(and (nempty? (sr-did "r-a" "set" "one")) (not (mail-read-timeout sr_box2 300000))))
 	(each (lambda (svc) (storage-record-ask svc :nil)) sr_svcs)
 	(setq sr_lines (list))
 	(storage-put "after" "not recorded" :nil (sr-of "r-a"))

@@ -694,41 +694,57 @@
 ;
 ; A recorder asks each member to tell it, and is told for so long,
 ; +storage_record_lease, then no more unless it has asked again: one
-; that has gone is not told for long. A task says what it did when it
-; has done a thing asked of it, all of it in one mail. With no recorder
-; nothing is said, and nothing is made to be said.
+; that has gone is not told for long. There can be several, an app and a
+; terminal say, and each is told all of it. A task says what it did when
+; it has done a thing asked of it, all of it in one mail to each. With no
+; recorder nothing is said, and nothing is made to be said.
 
 (defq +storage_record_lease 5000000)
 
 (defun storage-record-new ()
 	; (storage-record-new) -> rec
-	;what a task of a member keeps of its recorder: where it is, till
-	;when it is told, and the lines it has still to send
-	(list :nil 0 (list)))
+	;what a task of a member keeps of its recorders: each, (mbox until),
+	;and the lines it has still to send
+	(list (list) (list)))
 
 (defun storage-record-to (rec text)
 	; (storage-record-to rec text) -> rec
-	;the recorder is the mailbox in hex, - and there is none
-	(elem-set rec 0 (if (eql text "-") :nil (hex-decode text)))
-	(elem-set rec 1 (+ (pii-time) +storage_record_lease)))
+	;a recorder, the mailbox in hex, is told from now, or for longer. -
+	;and a mailbox, that one is not, and - alone, none is
+	(defq them (first rec))
+	(cond
+		((eql text "-") (setq them (list)))
+		((starts-with "-" text)
+			(defq mbox (hex-decode (rest text)))
+			(setq them (filter (# (nql (first %0) mbox)) them)))
+		(:t (defq mbox (hex-decode text))
+			(setq them (cat (filter (# (nql (first %0) mbox)) them)
+				(list (list mbox (+ (pii-time) +storage_record_lease)))))))
+	(elem-set rec 0 them))
 
 (defun storage-recording? (rec)
 	; (storage-recording? rec) -> :nil | :t
-	(and (first rec) (< (pii-time) (second rec))))
+	;is a recorder told, those whose time is up are forgotten
+	(defq now (pii-time) them (first rec))
+	(if (some (# (>= now (second %0))) them)
+		(elem-set rec 0 (setq them (filter (# (< now (second %0))) them))))
+	(nempty? them))
 
 (defun storage-record (rec member kind &optional what)
 	; (storage-record rec member kind [what]) -> rec
 	;a thing done, kept to be sent, if there is a recorder
 	(if (storage-recording? rec)
-		(push (third rec) (cat (str (pii-time)) " " member " " kind (if what (cat " " what) ""))))
+		(push (second rec) (cat (str (pii-time)) " " member " " kind (if what (cat " " what) ""))))
 	rec)
 
 (defun storage-record-send (rec)
 	; (storage-record-send rec) -> rec
 	;what was kept is sent, in one mail
-	(when (nempty? (third rec))
-		(if (storage-recording? rec) (mail-send (first rec) (join (third rec) +storage_lf)))
-		(elem-set rec 2 (list)))
+	(when (nempty? (second rec))
+		(when (storage-recording? rec)
+			(defq text (join (second rec) +storage_lf))
+			(each (# (mail-send (first %0) text)) (first rec)))
+		(elem-set rec 1 (list)))
 	rec)
 
 (defun storage-record-name (hash)
@@ -736,11 +752,12 @@
 	;- for none, a path deleted
 	(if (< (length hash) 8) "-" (hex-encode (slice hash 0 8))))
 
-(defun storage-record-ask (svc mbox)
-	; (storage-record-ask svc mbox) -> :nil | :t
+(defun storage-record-ask (svc mbox &optional stop)
+	; (storage-record-ask svc mbox [stop]) -> :nil | :t
 	;a member is to tell that mailbox what it does, for so long, or with
-	;:nil to tell nobody from now
-	(if (storage-ask svc +storage_type_record (if mbox (hex-encode mbox) "-")) :t))
+	;stop, not to. With :nil for the mailbox, it is to tell nobody
+	(if (storage-ask svc +storage_type_record
+		(cond ((not mbox) "-") (stop (cat "-" (hex-encode mbox))) ((hex-encode mbox)))) :t))
 
 (defun storage-record-members (&optional group)
 	; (storage-record-members [group]) -> (netid ...)
@@ -765,7 +782,8 @@
 		(if (defq record_text (mail-read-timeout record_mbox 100000))
 			(each (lambda (line) (++ record_lines) (write line)) (split record_text +storage_lf))
 			(write :nil)))
-	;they are told to stop, and what comes after is to a mailbox nobody reads
-	(each (# (storage-send %0 +storage_type_record "-")) (storage-record-members group))
+	;they are told to stop telling this one, and what comes after is to a
+	;mailbox nobody reads
+	(each (# (storage-send %0 +storage_type_record (cat "-" (hex-encode record_mbox)))) (storage-record-members group))
 	record_lines)
 
