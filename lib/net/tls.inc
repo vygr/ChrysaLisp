@@ -225,9 +225,10 @@
 (export-symbols '(tls-handshake tls-fill tls-write tls-seal tls-label tls-keys tls-nonce tls-be))
 (env-pop)
 
-;made after the module: a (lisp-stream) made in a function of a module
-;never called its functions, the fill and the write, found and not yet
-;understood. Made out here, it does
+;made after the module. In a function of a module a name put into a
+;backquote, ,tls-fill, even ,(const tls-fill), is looked for as the
+;function runs, and by then the module's own names are gone: the error
+;that gives is put in the form, and a stream that calls it says nothing
 
 (defun tls-open (host port)
 	; (tls-open host port) -> :nil | (in out state)

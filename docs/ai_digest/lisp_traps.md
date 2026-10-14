@@ -167,6 +167,29 @@ calls the function straight away, inside the same load, does not show
 this. One that calls it later, as its user will, does. The GUI service
 stopped at the first finger there ever was on a desktop for this.
 
+### In a module, a name put into a backquote is looked for when it runs
+
+A function of a module is bound to what is above it as it is made, but not
+inside a backquote. `,name` there, and `,(const name)` too, is worked out
+each time the function runs, and by then a name of the module that is not
+exported has gone.
+
+```vdu
+(env-push)
+(defun my-fill () "more")
+(defun make-stream ()
+	(lisp-stream `(lambda () (,my-fill))))	; my-fill is not found when called
+(export-symbols '(make-stream))
+(env-pop)
+```
+
+It hid well: the error is not thrown, it is the value put in the form, and
+a `(lisp-stream)` that calls the form says nothing when that fails, the
+stream just ends. `lib/net/tls.inc` makes its streams after its module for
+this. Take the function first, outside the backquote, `(defq f (const
+my-fill))` and then `,f`, or export it, or make the form outside the module.
+`check` says so, `unquote`.
+
 ### What a map gives is in no order
 
 `(. map :each ...)` gives what is in an `Fmap` or an `Emap` in the order of

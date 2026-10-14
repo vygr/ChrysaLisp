@@ -60,6 +60,10 @@
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
+    unquote ,f or ,(const f) in a backquote in a module,
+            f a function of the module not exported: it is
+            looked for as the form is made, when the
+            function runs, and the module's names are gone.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -105,7 +109,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -321,6 +325,53 @@
 							", which a (defq) after it makes again, it is that one it has from then on")))
 					used)))
 			body)))
+
+(defun check-unquote (file top)
+	;(env-push) (defun f () ...) (defun g () `(... ,f ...)) (export-symbols
+	;'(g)) (env-pop): f is not there when g runs. Of each module of a file,
+	;its functions that are not exported, and a , before one of them, or
+	;before (const one), anywhere in it
+	(defq forms (forms-of top) in :nil region (list) exported (Fset 31) quoted_all :t)
+	(each (lambda (node)
+		(when (defq kids (tree-form? node))
+			(defq inner (forms-of kids)
+				head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+			(cond
+				((eql head "env-push") (setq in :t region (list) exported (Fset 31) quoted_all :t))
+				((and in (eql head "env-pop"))
+					(when quoted_all
+						(defq own (Fset 31))
+						(each (lambda (k)
+								(defq f (forms-of k))
+								(and (> (length f) 1) (eql (first (first f)) :symbol) (eql (third (first f)) "defun")
+									(eql (first (second f)) :symbol) (not (. exported :find (third (second f))))
+									(. own :insert (third (second f)))))
+							region)
+						(each (lambda (k)
+								(defq todo (list k))
+								(while (defq nodes (pop todo))
+									(each (lambda (n)
+											(defq next (if (< (inc (!)) (length nodes)) (elem-get nodes (inc (!)))))
+											;,f is one symbol, , (const f) a , and a form
+											(defq name (cond
+												((not (eql (first n) :symbol)) :nil)
+												((and (> (length (third n)) 1) (starts-with "," (third n))) (slice (third n) 1 -1))
+												((not (and next (eql (third n) ","))) :nil)
+												((defq nk (tree-form? next "const"))
+													(defq nf (forms-of nk))
+													(and (> (length nf) 1) (eql (first (second nf)) :symbol) (third (second nf))))))
+											(and name (. own :find name)
+												(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
+											(if (defq sub (tree-form? n)) (push todo sub)))
+										nodes)))
+							region))
+					(setq in :nil))
+				((and in (find head '("export-symbols" "export-classes")))
+					(if (and (> (length inner) 1) (eql (first (second inner)) :quoted) (defq list_kids (tree-form? (third (second inner)))))
+						(each (# (if (eql (first %0) :symbol) (. exported :insert (third %0)))) (forms-of list_kids))
+						(setq quoted_all :nil)))
+				(in (push region kids)))))
+		forms))
 
 (defun check-cut (file forms head)
 	;(slice (str x) 0 200): how long the string of a thing is, is not known
@@ -547,6 +598,7 @@
 							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
+			(if (find "unquote" checks) (check-unquote file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)
