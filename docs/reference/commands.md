@@ -1252,11 +1252,18 @@ Usage: storage [options] [path]
 ```
 ## symbols
 ```code
-Usage: symbols [options]
+Usage: symbols [options] [name] ...
 
     options:
         -h --help: this help info.
         -l --list: list the symbols, each with its code.
+        -p --picture file: a picture of the symbols, .tga or
+            .cpm, from lib/font/symbol_set.inc as it is now,
+            before the fonts are made. A block for each theme,
+            in the order of the themes, Symbols, Light, Bold,
+            Sharp: a row at the size of a toolbar, as close as
+            on one, then the same, big. Only those whose names
+            begin with a name given, media_ say, else all.
 
     Make the symbol fonts, fonts/Symbols*.ctf, one for each theme, and
     the names of the symbols, lib/consts/symbols.inc, from the symbols

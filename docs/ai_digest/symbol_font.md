@@ -78,7 +78,11 @@ they were.
 
 ## To change or add one
 
-Change it in `lib/font/symbol_set.inc` and run `symbols`. The fonts and
+Change it in `lib/font/symbol_set.inc`, look at it with `symbols -p
+obj/look.tga name`, and run `symbols`. The picture is made from the set as
+it is, before the fonts are, in every theme, at the size of a toolbar with
+the symbols as close as on one, and big: a symbol is seen as it will be
+seen, beside its neighbours, and an outline is an outline. The fonts and
 the names are written again, and an app shows it the next time it is
 started. A new symbol goes on the end of the list. The code of a symbol
 is where it is in the list, so one put in the middle, or taken out, moves
