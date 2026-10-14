@@ -65,11 +65,12 @@ same document everywhere.
 
 The controls of a player, made to match each other: `media_play`,
 `media_pause`, `media_stop`, `media_start`, `media_back`, `media_on`,
-`media_end`, `media_record`, `media_live` and `media_join`. One triangle,
-one bar, all of them 14 high, from 5 to 19 of the grid, but the two
+`media_end`, `media_record`, `media_live` and `media_join`. One solid
+triangle, one bar, all of them 14 high, from 5 to 19 of the grid, but the two
 triangles of start and end, 12. Each part stands apart from the next by
 a gap seen at the size of a toolbar in every theme, Light the thinnest:
-parts that touched read as one shape. Each that goes back is the one that
+parts that touched read as one shape. The triangles are solid, `(s-fill)`:
+the outline of one beside a bar, on a toolbar of them, read as more bars. Each that goes back is the one that
 goes on, turned left for right, `(s-mirror)`. `media_join` is an arrow
 into what it joins. The Storage app's player is made of them. The older `play`, `pause`, `rewind`, `step` and
 `play_end` are the editor's, for its macros and its debugger, and are as
