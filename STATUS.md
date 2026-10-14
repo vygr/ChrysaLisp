@@ -4,6 +4,14 @@
 
 ------
 
+**HTTPS: `lib/net/tls.inc`, a TLS 1.3 client, X25519 and ChaCha20-Poly1305; `https://` in `http.inc` and `curl`. Fetched from example.com and GitHub. The certificate is not checked yet, `curl` says so each time.**
+
+**`lib/crypto/x25519.inc` and `lib/crypto/hkdf.inc`, by their RFCs' own vectors.**
+
+**The Model demo: a `.obj` with its `.mtl` and pictures, from a file, a `.zip`, or an https address, turned with the mouse, on the GPU or native code.**
+
+**PNG read, `lib/image/png.inc`, every kind of pixel, by a pipeline of stages as CPM is; `lib/streams/deflate.inc`, inflate, a stream to a stream; `lib/files/zip.inc`; `lib/math/obj.inc`, `.obj` and `.mtl`, which `Mesh-obj` is now made on.**
+
 **The Storage app has Travels beside Join, `+sym_laptop`, as `storage -L`.**
 
 **The Storage app opens and saves recordings: what `storage -r` writes, and what it saves, are the same lines.**
