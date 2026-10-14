@@ -94,6 +94,9 @@
 	(+ pins (length changed)))
 
 (defun main ()
+	;a bot: it runs before the apps of its node, so a store at work is not
+	;held up by them, (task-band)
+	(task-band :bot)
 	;what it is to keep
 	(defq opts (Emap))
 	(each (lambda (line)

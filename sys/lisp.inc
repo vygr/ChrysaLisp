@@ -278,6 +278,16 @@
 		(>= (str-as-num (elem-get host 3)) 2)
 		((ffi "sys/pii/lisp_kill") pid)))
 
+(defun task-band (band)
+	; (task-band :bot | :app) -> :t
+	;the band the task runs in. A bot is a task that works by itself for
+	;others, a Storage service, its tender, a gopher: one that is ready
+	;runs before any app, and after the GUI. sys/task/class.inc, where the
+	;numbers 4 and 5 are tk_bot_priority and tk_app_priority. The function
+	;is looked up when it is called, not in root.inc, so a boot image of
+	;before it was written still starts
+	((ffi "sys/task/lisp_priority") (if (eql band :bot) 4 5)))
+
 (defun node-stop (id)
 	; (node-stop id) -> :nil | num
 	;stop the nodes of a network that was added by name, all of them, and

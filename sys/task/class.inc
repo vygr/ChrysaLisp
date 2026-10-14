@@ -30,23 +30,29 @@
 	(dec-method :lisp_sleep sys/task/lisp_sleep :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :f0-:f15))
 	(dec-method :lisp_timeslice sys/task/lisp_timeslice :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :f0-:f15))
 	(dec-method :lisp_mailbox sys/task/lisp_mailbox :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
-	(dec-method :lisp_flags sys/task/lisp_flags :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15)))
+	(dec-method :lisp_flags sys/task/lisp_flags :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15))
+	(dec-method :lisp_priority sys/task/lisp_priority :static (:r0 :r1) (:r0 :r1) (:r1-:r6)))
 
 ;;;;;;;;;;;;;;;;;
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-;number of distinct priorities
-;currently experimenting with
+;number of distinct priorities, bands. A task of a band runs only when
+;no task of a band before it is ready, and those of a band take turns
 ;0 Kernel task
 ;1 Out Link tasks and Postman task
 ;2 In Link tasks
 ;3 GUI task
-;4 Application tasks
+;4 Bots, tasks that work by themselves for others: the Storage
+;  services, their tenders and gophers. Measured, 2026-10-14, 300
+;  gophers on 8 nodes with each node busy with apps: 16 s with them in
+;  the band of apps, 0.19 s in this one, as with no apps at all.
+;  (task-band :bot), sys/lisp.inc
+;5 Application tasks
 
-(defq tk_num_task_lists 5 tk_kernel_priority 0
+(defq tk_num_task_lists 6 tk_kernel_priority 0
 	tk_out_link_priority 1 tk_in_link_priority 2
-	tk_gui_priority 3 tk_app_priority (dec tk_num_task_lists)
+	tk_gui_priority 3 tk_bot_priority 4 tk_app_priority (dec tk_num_task_lists)
 	tk_stack_size (* 1024 6) tk_stack_margin (* 512 1)
 	;with less of its stack left than this, a task does not destroy an
 	;object there and then: (:obj :destroy)

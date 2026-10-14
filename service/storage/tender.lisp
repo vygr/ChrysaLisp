@@ -128,6 +128,8 @@
 	(list met fetched dropped))
 
 (defun main ()
+	;a bot, as its service is
+	(task-band :bot)
 	(bind '(svc group tick grace) (split (mail-read (task-mbox)) +storage_lf))
 	(defq svc (hex-decode svc) tick (str-as-num tick) grace (str-as-num grace)
 		heard (Fmap 11) took (Fmap 11) gave (Fmap 11) running :t select (list (task-mbox) (mail-mbox))

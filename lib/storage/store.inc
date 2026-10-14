@@ -50,8 +50,8 @@
 ; whatever else was on the node was late.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/fs/exfat.inc")
-(import "lib/crypto/sha256.inc")
+(import "././fs/exfat.inc")
+(import "././crypto/sha256.inc")
 
 ;module
 (env-push)

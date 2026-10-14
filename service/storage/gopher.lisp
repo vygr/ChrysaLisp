@@ -226,6 +226,9 @@
 			(mail-send asker "none") :drop)))
 
 (defun main ()
+	;a bot, as its service is: the gophers here run before the apps of the
+	;node, and after the GUI
+	(task-band :bot)
 	(defq svc (hex-decode (mail-read (task-mbox))) select (list (task-mbox) (mail-mbox))
 		gophers (list) kept (Fmap 31) member "?" copies 3 running :t asked :nil
 		;who it tells what it does, if anyone
