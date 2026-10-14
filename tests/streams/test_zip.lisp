@@ -1,0 +1,18 @@
+(report-header "Streams: a .zip read, its directory and each thing in it, stored or by DEFLATE")
+
+(import "lib/files/zip.inc")
+(import "lib/crypto/sha256.inc")
+
+(defq tz_data (load "tests/streams/data/zip_test.zip") tz_list (zip-list tz_data))
+(assert-list-eq "what is in it, a folder too" '("model/" "model/cube.obj" "model/readme.txt" "model/big.txt")
+	(map (const first) tz_list))
+(defun tz-read (name)
+	(defq out (string-stream (cat "")))
+	(if (zip-read tz_data (zip-find tz_list name) out) (str out)))
+(assert-eq "packed by DEFLATE" "v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n" (tz-read "model/cube.obj"))
+(assert-eq "stored as it is" "stored, as it is" (tz-read "model/readme.txt"))
+(assert-eq "a thing found by its own name, in a folder" "stored, as it is" (tz-read "readme.txt"))
+(defq tz_big (tz-read "big.txt"))
+(assert-eq "a bigger one, all of it" 30000 (length tz_big))
+(assert-eq "and what it was" "4D41C2468F0CEA46F8CE8B4F626963705C0EC148942264B98A4AA225B591A0F4" (hex-encode (sha256 tz_big)))
+(assert-eq "not a zip is not one" :nil (zip-list "not a zip, nothing like one"))
