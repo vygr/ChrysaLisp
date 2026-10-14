@@ -51,7 +51,7 @@
 ;wants is not: 0 where it is worked out to be, 1 those that say they
 ;have it, 2 nothing more. pass is there while it is being sent on
 (enums +gopher 0
-	(enum asker name at state source visit names version copies trail skip how pass pinned tag))
+	(enum asker name at state source visit names version copies trail skip how pass pinned tag budget))
 
 ;how many objects it keeps the blocks of, between gophers, and how often
 ;it looks while one is being sent on and nothing else is to be done
@@ -59,7 +59,10 @@
 
 ;how long a function may have for a block, and when the one that is
 ;running has had it
-(defq +gopher_allowed 1000000 *gopher_until* 0 *gopher_late* :nil *gopher_check* 0
+;a step is tried first with so long, +gopher_first, and one that is not
+;done in that has its turn again after the others here, with all it may
+;have, +gopher_allowed
+(defq +gopher_allowed 1000000 +gopher_first 50000 *gopher_until* 0 *gopher_late* :nil *gopher_check* 0
 	;and how many lists a function may be made of, its macros done
 	+gopher_lists 20000)
 
@@ -184,16 +187,18 @@
 						(if (> (length trail) 1) 1 0) :nil pinned
 						;what it is known by in a recording, the same at every member
 						;it comes to: of who it answers, made only when recorded
-						(if (storage-recording? recorder) (slice (hex-encode (sha256 asker)) 0 8) "")))
+						(if (storage-recording? recorder) (slice (hex-encode (sha256 asker)) 0 8) "")
+						;how long its next step is first tried with
+						+gopher_first))
 				(:t (mail-send asker "none") :nil)))
 		(progn (print "Gopher: " _) (mail-send asker "none") :t)))
 
 (defun gopher-turn (svc member g)
-	; (gopher-turn svc member g) -> :keep | :drop
+	; (gopher-turn svc member g) -> :keep | :back | :drop
 	;a step of a gopher: a block, if the one it wants is here, or a step
 	;of sending it on. :drop when it is done with here: it answered, it
 	;went, or it can not go on and said so
-	(bind '(asker name at state source visit names version copies trail skip how pass pinned tag) g)
+	(bind '(asker name at state source visit names version copies trail skip how pass pinned tag budget) g)
 	(defq count (length names))
 	(cond
 		(pass
@@ -211,22 +216,31 @@
 			(mail-send asker (str (list state trail)))
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
-			;it has a second from now, and is asked when it comes back too
-			(setq *gopher_until* (+ (pii-time) +gopher_allowed) *gopher_late* :nil
+			;it has its budget from now, and is asked when it comes back too
+			(setq *gopher_until* (+ (pii-time) budget) *gopher_late* :nil
 				*gopher_check* (min *gopher_until* *bot_next*))
 			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " tag " " name))
-			(bind '(state at) (visit state data at count))
+			;what it has is not changed in place by a function, so a step that
+			;is tried again is tried from what it had
+			(bind '(next_state next_at) (visit state data at count))
 			;one that had its time came back by itself, with what it had
 			;then, which is not an answer
 			(cond
-				((or *gopher_late* (> (pii-time) *gopher_until*))
-					(storage-record recorder member "gopher-late" (cat tag " " name))
-					(mail-send asker "none")
-					:drop)
-				(:t (elem-set g +gopher_state state)
-					(elem-set g +gopher_at at)
+				((not (or *gopher_late* (> (pii-time) *gopher_until*)))
+					(elem-set g +gopher_state next_state)
+					(elem-set g +gopher_at next_at)
 					(elem-set g +gopher_how 0)
-					:keep)))
+					:keep)
+				((< budget +gopher_allowed)
+					;not done in its first try: it goes to the back of the queue,
+					;the slow lane, to be tried again from where it was, with all
+					;it may have. The others here are not held behind it
+					(storage-record recorder member "gopher-back" (cat tag " " name))
+					(elem-set g +gopher_budget +gopher_allowed)
+					:back)
+				(:t (storage-record recorder member "gopher-late" (cat tag " " name))
+					(mail-send asker "none")
+					:drop)))
 		((< how 2)
 			;the block is not kept here. The gopher goes to it: all there is
 			;of it, where it is, what it has, its function and where it has
@@ -248,23 +262,51 @@
 	;a bot, as its service is: the gophers here run before the apps of the
 	;node, and after the GUI
 	(task-band :bot)
-	(defq svc (hex-decode (mail-read (task-mbox))) select (list (task-mbox) (mail-mbox))
+	(defq first_msg (split (mail-read (task-mbox)) +storage_lf) svc (hex-decode (first first_msg))
+		select (list (task-mbox) (mail-mbox))
 		gophers (list) kept (Fmap 31) member "?" copies 3 running :t asked :nil
+		;the slow lane: a runner of its own, that this starts, and that a
+		;gopher not done in its first try is sent to, so that the others
+		;here are not held behind it. It gives each all it may have, and is
+		;told it is the slow lane, it starts none
+		slow (= (length first_msg) 2)
+		lane (unless slow (open-child "service/storage/gopher.lisp" +kn_call_pin))
 		;who it tells what it does, if anyone
 		recorder (storage-record-new))
+	;and it is of the apps' band, the back of the queue: what is slow by its
+	;nature waits on the quick, and holds neither them nor the apps
+	(if slow (task-band :app))
+	(if (and lane (/= 0 (get-long lane 0)))
+		(mail-send lane (cat (first first_msg) +storage_lf "slow"))
+		(setq lane :nil))
 	(defun take (msg)
 		(cond
-			((eql msg "stop") (setq running :nil))
-			((starts-with "record " msg) (storage-record-to recorder (slice msg 7 -1)))
+			((eql msg "stop") (setq running :nil) (if lane (mail-send lane msg)))
+			((starts-with "record " msg) (storage-record-to recorder (slice msg 7 -1)) (if lane (mail-send lane msg)))
 			(:t ;who this member is, asked the once, when there is first a need
 				(unless asked
 					(defq info (storage-info svc))
 					(setq asked :t member (if info (. info :find :member) "?") copies (if info (. info :find :copies) 3)))
 				(when (list? (defq g (gopher-take svc member copies kept msg)))
+					(if slow (elem-set g +gopher_budget +gopher_allowed))
 					;one that has just set out, or one come on from another member
 					(storage-record recorder member (if (> (length (elem-get g +gopher_trail)) 1) "gopher-on" "gopher")
 						(cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
 					(push gophers g)))))
+	(defun to-lane (g)
+		;a gopher to the slow lane, as one is sent on to another member, from
+		;where it was, with who asked to answer and no member to tell it got
+		;there. It is here still, so where it has been is as it was
+		(bind '(asker name at state source visit names version copies trail skip how pass pinned &ignore) g)
+		(mail-send lane (cat (hex-encode asker) +storage_lf "-" +storage_lf
+			(str (list name at state source (slice trail 0 -2) skip version copies
+				(cat "p" (hex-encode (join pinned " "))))))))
+	(defun turn (g)
+		;a step of a gopher. One whose function throws is done with, and says so
+		(catch (gopher-turn svc member g)
+			(progn (print "Gopher: " _)
+				(storage-record recorder member "gopher-threw" (cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
+				(mail-send (elem-get g +gopher_asker) "none") :drop)))
 	(while running
 		(cond
 			((some (# (not (elem-get %0 +gopher_pass))) gophers)
@@ -279,11 +321,11 @@
 				;what one sent on to said is read by its own step
 				(if (< idx 2) (defq msg (mail-read (elem-get boxes idx))))
 				(if (= idx 0) (take msg))))
-		;a step of each. One whose function throws is done with, and says so
+		;a step of each, and one that was late goes to the slow lane, or, if
+		;there is none, is tried here again, with all it may have
 		(setq gophers (filter (lambda (g)
-			(eql :keep (catch (gopher-turn svc member g)
-				(progn (print "Gopher: " _)
-					(storage-record recorder member "gopher-threw" (cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
-					(mail-send (elem-get g +gopher_asker) "none") :drop)))) gophers))
+			(case (turn g)
+				(:keep :t)
+				(:back (cond (lane (to-lane g) :nil) (:t))))) gophers))
 		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))

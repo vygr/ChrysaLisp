@@ -1085,6 +1085,22 @@ knows how to keep it, share it and sweep round it. Restore sets the paths
 back. The scene takes one at one member, changes and deletes, sweeps, and
 restores from another; all five the same after.
 
+**Late gophers to the back of the queue.** 2026-10-14, Chris: "late
+gophers to the back of the queue". 280 good gophers behind 20 that went
+round for ever took 7.2 to 9.3 s on the M4. A first try of 50ms, and one
+not done in it tried again after the others with its second, gained
+nothing, 6.6 s: a runner is one task, and while it gives a gopher its
+second it gives nobody else a turn. A queue that is empty for a moment, a
+gopher being sent on, is enough for a looper to have its second, and those
+that come then wait behind it. A second runner, the slow lane, in the same
+band, gained nothing either, 5.9 s: each time the quick runner gave way, to
+wait on the service for a block, the lane had a whole slice. The lane in
+the apps' band: 0.69 s, the apps 78 ms at most. What is slow by its nature
+waits on the quick and is one more app to the apps. Its second is by the
+clock still, so on a node busy with apps it has less of it to work in, to
+be watched. `check` has `again`: a `defq` in the runner's loop of `kept`,
+a name the runner's own `take` has, gave every gopher "none".
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

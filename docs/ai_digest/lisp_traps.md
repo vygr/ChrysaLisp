@@ -362,6 +362,16 @@ the command has. `(defq make (lambda ...))` there is not a new `make`: where
 the script then calls `(make)` it was bound, as it was read, to the function
 of that name the command has. Give what a script defines names of its own.
 
+### A `defq` in a loop of a function is to the function's own name
+
+A `(defq)` makes a name in the environment it is run in, and the body of a
+`while` is not one of its own. So in a function that has made `kept`, and
+a function inside it that uses `kept`, a `(defq kept (list))` in its loop
+is not a new list beside the other: it is the one name, and the inner
+function has the new list from then on. A gopher runner lost its cache of
+objects so, and every gopher answered "none". Give a loop's names their
+own spelling. `check` says so, `again`.
+
 ### `sort` needs to be told how, for anything but strs
 
 `(sort (list 3 1 2))` is an error. `(sort lst (const -))` for numbers. It

@@ -407,11 +407,22 @@ ChrysaLisp's rules: it does not call itself, it goes round with `while`,
 A function is not run as it was sent. A call of `(gopher-tick)` is put into
 the test of each `while` and `until` of it, and round the body of each
 `lambda`, with `if` and `progn`, which are not macros. The tick gives way to
-the other tasks of the node, and once the function has had a second for
-the block, by the clock, `+gopher_allowed`, it says no: every loop of the
-function ends, and a function of it given to `map` or `each` does nothing
-more. So it comes back by itself, it is done with, and who asked is told
-`"none"`. Nothing is thrown. In a release build what passes an error back
+the other tasks of the node, and once the function has had its time for
+the block, by the clock, it says no: every loop of the function ends, and a
+function of it given to `map` or `each` does nothing more. So it comes back
+by itself. Nothing is thrown.
+
+A step is first given 50ms, `+gopher_first`. One not done in that goes to
+the back of the queue, `gopher-back`: the slow lane, a second runner the
+first starts, of the apps' band. It is sent there as a gopher is sent on to
+another member, from where it was, and tried again with a second,
+`+gopher_allowed`. One not done in the second is done with, `gopher-late`,
+and who asked is told `"none"`. The lane waits on the quick gophers and
+shares the node with the apps as one of them, so a gopher that loops for
+ever holds the others back by its 50ms, once. Its second is by the clock,
+and a slow gopher on a node busy with apps has less of the second to work
+in. Measured with `storage -t bots` on the M4, 280 gophers behind 20 that
+loop for ever: 7.2 to 9.3s with the one runner, 0.69s with the lane. In a release build what passes an error back
 up is not there, and an error thrown in a loop would be a value it went
 round with. The tick costs about 36ns each time round on an M4.
 
@@ -541,7 +552,7 @@ one of many out at once can be told from the rest.
 | `snapshot` `restore` `snapshot-drop` | service | how many, the name |
 | `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
 | `fetched` | tender | block, the member it came from |
-| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-late` `gopher-threw` | runner | block number, block, the gopher's tag, path |
+| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-back` `gopher-late` `gopher-threw` | runner | block number, block, the gopher's tag, path |
 
 A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has

@@ -54,6 +54,12 @@
             a list in a quoted list is its own and is never the
             same object as one made elsewhere. Compare what
             they print as.
+    again   a (defun) inside another, that uses a name the
+            other made with a (defq) before it, and a (defq)
+            of that name again after it, in the other: the
+            (defq) is to the one name, in the other's
+            environment, and what the inner function had by
+            it is gone, from then on.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -99,7 +105,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -241,6 +247,23 @@
 		(. *inner_defuns* :find (third (second forms)))
 		(found file (second forms) "inner" (third (second forms))
 			" is made inside a function, it is not there as the file is read, (const) has nothing to take")))
+
+(defun check-again (file forms head)
+	;(defun main () (defq kept ...) (defun take () ... kept ...) ... (defq
+	;kept ...)): the second is to the name take has, not a new one
+	(when (and (eql head "defun") (> (length forms) 3))
+		(defq body (slice forms 3 -1))
+		(each (lambda (node)
+			(when (and (defq kids (tree-form? node "defun")) (> (length (defq inner (forms-of kids))) 3))
+				(bind '(used made) (uses-of (slice inner 3 -1)))
+				(defq own (cat made (params-of (third inner)))
+					before (defqs-of (slice body 0 (!))) after (defqs-of (slice body (inc (!)) -1)) said (list))
+				(each (# (and (find %0 before) (find %0 after) (not (find %0 own)) (not (find %0 said))
+						(push said %0)
+						(found file node "again" "(" (third (second inner)) ") uses " %0
+							", which a (defq) after it makes again, it is that one it has from then on")))
+					used)))
+			body)))
 
 (defun check-cut (file forms head)
 	;(slice (str x) 0 200): how long the string of a thing is, is not known
@@ -534,6 +557,7 @@
 							(and (find "made" checks) (eql head "defq") (check-made file kids))
 							(if (find "inner" checks) (check-inner file forms head))
 							(if (find "eqlist" checks) (check-eqlist file forms head))
+							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
