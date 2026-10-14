@@ -25,7 +25,9 @@
 		;a recorder that is to be told what is done, see below
 		record
 		;snapshots, lib/storage/store.inc
-		snapshot restore snapshot_drop))
+		snapshot restore snapshot_drop
+		;a store moved to a volume of another size
+		resize))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -882,6 +884,27 @@
 	(and (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_restore
 			(cat name +storage_lf (ifn prefix ""))))
 		(nql answer "") (map (const str-as-num) (split answer " "))))
+
+(defun storage-resized-name (image megabytes)
+	; (storage-resized-name image megabytes) -> path
+	;where a store of that file is put when it is made that size: beside
+	;it, the size in the name, storage/store.8192MB.img
+	(defq base (if (ends-with ".img" image) (slice image 0 -5) image)
+		at (find "." (reverse base)))
+	(and at (ends-with "MB" base) (> at 2)
+		(every (# (find %0 "0123456789")) (slice base (- (length base) at) -3))
+		(setq base (slice base 0 (- (length base) at 1))))
+	(cat base "." (str megabytes) "MB.img"))
+
+(defun storage-resize (megabytes &optional svc)
+	; (storage-resize megabytes [svc]) -> :nil | path
+	;the store of this member put on a volume of that many MB, a copy on
+	;this machine, and the file it is in now: storage/store.8192MB.img for
+	;storage/store.img. A machine whose member it is starts it from there
+	;from now on. :nil if it is that size already, or can not be made so,
+	;and it is as it was. The member answers nothing while it copies
+	(if (nempty? (defq answer (ifn (storage-ask (ifn svc (storage-service)) +storage_type_resize
+			(str megabytes) 3600) ""))) answer))
 
 (defun storage-snapshot-drop (name &optional svc)
 	; (storage-snapshot-drop name [svc]) -> :nil | count

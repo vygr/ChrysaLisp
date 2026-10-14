@@ -6283,6 +6283,24 @@ takes the last of them away
 part of an object, only the blocks that part is in are read
 ```
 
+### store-resize
+
+```code
+(store-resize store path size) -> :nil | store
+
+the store moved to a new volume of that many bytes, made there: every
+file of this one copied to it as it is, the blocks above all, and
+then the path map, the members and the pins written there as the
+store has them, which a store that was full may not have had room to
+write, and a journal of the new volume's own size. A copy on the one
+machine, no member asked for anything: bigger, or smaller if what
+there is fits. :nil if it can not be made or does not fit, and the
+store is on the volume it was on, as it was. The old volume is left
+as it was
+the names the function given to (exfat-walk) uses are not names it
+has, vol and path, it is called from inside it and would have those
+```
+
 ### store-restore
 
 ```code

@@ -496,9 +496,39 @@
 	(exfat-sync (get :vol store))
 	:nil)
 
-;;;;;;;;
-; blocks
-;;;;;;;;
+(defun store-resize (store device size)
+	; (store-resize store path size) -> :nil | store
+	;the store moved to a new volume of that many bytes, made there: every
+	;file of this one copied to it as it is, the blocks above all, and
+	;then the path map, the members and the pins written there as the
+	;store has them, which a store that was full may not have had room to
+	;write, and a journal of the new volume's own size. A copy on the one
+	;machine, no member asked for anything: bigger, or smaller if what
+	;there is fits. :nil if it can not be made or does not fit, and the
+	;store is on the volume it was on, as it was. The old volume is left
+	;as it was
+	;the names the function given to (exfat-walk) uses are not names it
+	;has, vol and path, it is called from inside it and would have those
+	(store-close store)
+	(defq resize_from (get :vol store) id (get :id store) resize_ok :nil)
+	(when (and (exfat-format device size (slice id 0 (min 11 (length id))))
+			(defq resize_to (exfat-mount device)))
+		(setq resize_ok :t)
+		(exfat-begin resize_to)
+		(exfat-walk resize_from "" (lambda (resize_path resize_entry)
+			(task-breathe)
+			(defq resize_at (if (starts-with "/" resize_path) (slice resize_path 1 -1) resize_path))
+			(and resize_ok (nql resize_at "journal")
+				(setq resize_ok (if (second resize_entry)
+					(or (exfat-find resize_to resize_at) (exfat-mkdir resize_to resize_at))
+					(exfat-save resize_to resize_at (exfat-load resize_from resize_at)))))))
+		(exfat-end resize_to))
+	(when resize_ok
+		(def store :vol resize_to)
+		(store-journal-open store)
+		(store-save store)
+		(exfat-sync resize_to)
+		store))
 
 (defun store-block-file (name)
 	; (store-block-file name) -> path
@@ -1162,7 +1192,7 @@
 	(list (get :objects store) (. (get :held store) :size) (exfat-free (get :vol store))))
 
 ;module
-(export-symbols '(store-make store-open store-close store-save
+(export-symbols '(store-make store-open store-close store-resize store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file

@@ -149,10 +149,10 @@ Usage: check [options] [path] ...
             looked at, its streams say they are stopping, and
             what is written after may not be read.
     capture a function written where it is given to another
-            of this file, that uses a name the other has as
-            a parameter, or makes with a (defq). A name is
-            found where a function is called from, so it is
-            the other's that is had.
+            of this file, or of a file it imports, that uses
+            a name the other has as a parameter, or makes
+            with a (defq). A name is found where a function
+            is called from, so it is the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.
@@ -1204,6 +1204,12 @@ Usage: storage [options] [path]
             there now. With +id or -id as path, one is
             joined or retired.
         -x --stop: stop the service.
+        -z --resize megabytes: the store of this member put on
+            a volume of that many MB, bigger, or smaller if what
+            it has fits: a copy on this machine, beside it, the
+            size in its name, storage/store.8192MB.img, and the
+            old one gone. This machine starts its store from the
+            new one from now on.
         -l --list: the objects whose paths begin with path,
             all of them if none is given.
         -p --put file: path is set to what is in that file

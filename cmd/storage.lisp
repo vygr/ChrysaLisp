@@ -42,6 +42,12 @@
             there now. With +id or -id as path, one is
             joined or retired.
         -x --stop: stop the service.
+        -z --resize megabytes: the store of this member put on
+            a volume of that many MB, bigger, or smaller if what
+            it has fits: a copy on this machine, beside it, the
+            size in its name, storage/store.8192MB.img, and the
+            old one gone. This machine starts its store from the
+            new one from now on.
         -l --list: the objects whose paths begin with path,
             all of them if none is given.
         -p --put file: path is set to what is in that file
@@ -97,6 +103,7 @@
 (("-q" "--query") ,(opt-str 'opt_q))
 (("-M" "--members") ,(opt-flag 'opt_M))
 (("-x" "--stop") ,(opt-flag 'opt_x))
+(("-z" "--resize") ,(opt-num 'opt_z))
 (("-l" "--list") ,(opt-flag 'opt_l))
 (("-p" "--put") ,(opt-str 'opt_p))
 (("-g" "--get") ,(opt-str 'opt_g))
@@ -132,7 +139,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
-				opt_r :nil opt_S 60 opt_G :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
+				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
 		(if opt_j (setq opt_s (ifn opt_s +storage_image)))
@@ -172,6 +179,11 @@
 							(+ (pii-time) (* opt_S 1000000)) opt_G))
 						(stream-flush out)
 						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))
+			((> opt_z 0)
+				(print "Copying the store to a volume of " opt_z " MB ...")
+				(if (defq moved_to (storage-resize opt_z svc))
+					(print "The store is in " moved_to " now.")
+					(print "Not done: it is that size, or what it has does not fit, or the file could not be made. It is as it was.")))
 			(opt_x (defq said (storage-member))
 				(print (if (storage-stop svc) "Stopped." "It did not say."))
 				(if said (storage-unclaim (. said :find :image))))

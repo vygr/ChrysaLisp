@@ -94,10 +94,10 @@
             looked at, its streams say they are stopping, and
             what is written after may not be read.
     capture a function written where it is given to another
-            of this file, that uses a name the other has as
-            a parameter, or makes with a (defq). A name is
-            found where a function is called from, so it is
-            the other's that is had.
+            of this file, or of a file it imports, that uses
+            a name the other has as a parameter, or makes
+            with a (defq). A name is found where a function
+            is called from, so it is the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.")
@@ -417,9 +417,56 @@
 				(rest (forms-of fields)))))
 		(rest forms)))
 
+(defun has-symbol? (nodes name)
+	; (has-symbol? nodes name) -> :nil | :t
+	;is that name anywhere in these, in the forms in them too
+	(defq todo (list nodes) yes :nil)
+	(while (and (not yes) (defq nodes (pop todo)))
+		(each (lambda (node)
+			(cond
+				((and (eql (first node) :symbol) (eql (third node) name)) (setq yes :t))
+				((defq kids (tree-form? node)) (push todo kids))))
+			nodes))
+	yes)
+
+(defun defuns-of (top)
+	; (defuns-of top)
+	;the functions made in a tree, into *defuns*: what each takes, and the
+	;names it makes with a (defq) of its own, not in a function it has
+	;inside it. Either is what a function it is given finds, if it uses
+	;that name
+	(defq scan (list top))
+	(while (defq nodes (pop scan))
+		(each (lambda (node)
+			(when (defq kids (tree-form? node))
+				(push scan kids)
+				(defq forms (forms-of kids))
+				(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
+					(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
+					;one that calls what it is given by (callback f env ...) runs it
+					;in that env, the caller's, and its own names are not had
+					(not (has-symbol? kids "callback"))
+					(. *defuns* :insert (third (second forms))
+						(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
+			nodes)))
+
+(defun imports-of (file top)
+	; (imports-of file top) -> (path ...)
+	;the files a file imports, at its top, those that are there
+	(defq out (list))
+	(each (lambda (node)
+		(when (defq kids (tree-form? node "import"))
+			(defq forms (forms-of kids))
+			(and (> (length forms) 1) (eql (first (second forms)) :string1)
+				(str? (defq path (catch (first (read (string-stream (third (second forms))))) :nil)))
+				(str? (setq path (catch (path-to-absolute path file) :nil)))
+				(/= 0 (age path)) (push out path))))
+		(forms-of top))
+	out)
+
 (defun check-capture (file forms head)
-	;(fn ... (lambda (a) (... x ...)) ...) where fn, of this file, has a
-	;parameter x: the x the lambda has when fn calls it is fn's
+	;(fn ... (lambda (a) (... x ...)) ...) where fn, of this file or one it
+	;imports, has a parameter x: the x the lambda has when fn calls it is fn's
 	(when (defq theirs (. *defuns* :find head))
 		(each (lambda (arg)
 			(when (and (defq kids (tree-form? arg)) (nempty? (defq inner (forms-of kids)))
@@ -489,7 +536,7 @@
 		(when (defq in (file-stream file))
 			(defq whole (tree-read in) top (first whole) todo (list top) *found* (list) off (Fset 11)
 				;the functions of this file, and what each takes
-				*defuns* (Fmap 31) scan (list top) *inner_defuns* (Fset 11) inner_scan (list top))
+				*defuns* (Fmap 31) *inner_defuns* (Fset 11) inner_scan (list top))
 			;the functions made inside another, (defun) not at the top of the file
 			(while (defq nodes (pop inner_scan))
 				(each (lambda (node)
@@ -508,19 +555,12 @@
 				(if (> (third whole) 0)
 					(push *found* (list 0 (cat file " (1) bracket: " (str (third whole)) " that close nothing")))))
 			(when (find "capture" checks)
-				(while (defq nodes (pop scan))
-					(each (lambda (node)
-						(when (defq kids (tree-form? node))
-							(push scan kids)
-							(defq forms (forms-of kids))
-							(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
-								(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
-								;what it takes, and the names it makes with a (defq) of its
-								;own, not in a function it has inside it: either is what a
-								;function it is given finds, if it uses that name
-								(. *defuns* :insert (third (second forms))
-									(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
-						nodes)))
+				;the functions of the files it imports, and its own after, which
+				;are the ones a name is had of if both have it
+				(each (lambda (path)
+						(and (defq in (file-stream path)) (defuns-of (first (tree-read in)))))
+					(imports-of file top))
+				(defuns-of top))
 			(while (defq nodes (pop todo))
 				(task-slice)
 				(defq quoted :nil)

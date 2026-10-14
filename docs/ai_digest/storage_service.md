@@ -158,6 +158,7 @@ the others.
 ```
 storage -j          this machine is a member of the store of its mesh, from now on
 storage -f          it is not started by itself from now, the store is left as it is
+storage -z MB       the store of this member on a volume of that many MB
 ```
 
 `storage -j`, `(storage-join)`, makes the machine's part of the store,
@@ -174,6 +175,20 @@ port, so only one session of a machine is its member, and only that one
 starts the store. A session started alone, a run of the tests, never does.
 Started by hand in another session, a note beside the image,
 `store.img.member`, says which process has it, `(storage-claim)`.
+
+### Another size
+
+`storage -z MB`, `(storage-resize)`, puts the store of this member on a
+volume of that many MB, bigger, or smaller if what it has fits. The service
+does it, so it stays in the session it is in: it makes the new volume
+beside the old, `storage/store.8192MB.img`, copies every file of the old to
+it, the blocks above all, and then writes the path map, the members and
+the pins to it as it has them, with a journal of the new volume's size. A
+store that was full, that had no room to write its map, loses nothing.
+Then the old file is gone, and `store_member` names the new. It is a copy
+on the one machine, no other member is asked for anything, and it answers
+nothing while it copies. If the new volume can not be made, or what there
+is does not fit, it is removed and the store is as it was.
 
 ### Where a block is kept
 
@@ -533,7 +548,7 @@ storage -V dir path/          the reading back only
 storage -t [scene] [-r file]  the scenes, or run one, and record it
 storage -r file [-S secs] [-G group]   record what the members do
 storage -n name [prefix], -N, -R name [prefix], -D name   snapshots
-storage -j, -f, -s image [-m MB -i id -F], -x
+storage -j, -f, -s image [-m MB -i id -F], -x, -z MB
 ```
 
 ## The Recorder

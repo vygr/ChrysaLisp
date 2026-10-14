@@ -264,6 +264,24 @@
 							(storage-record recorder member "snapshot-drop" (cat (str count) " " body))
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							(str count))
+						(+storage_type_resize
+							;a copy of the store on a volume of that size, beside this one,
+							;and then that is the store: the old file is gone, and the
+							;machine whose member this is starts it from the new
+							(defq megabytes (str-as-num body) moved_to (storage-resized-name image megabytes))
+							(cond
+								((or (<= megabytes 0) (eql moved_to image)) "")
+								((defq moved (store-resize store moved_to (* megabytes 1048576)))
+									(when (defq said (storage-member))
+										(when (eql (. said :find :image) image)
+											(storage-member-save moved_to megabytes (. said :find :id) (. said :find :copies))))
+									(storage-unclaim image)
+									(pii-remove image)
+									(setq store moved image moved_to)
+									(storage-claim image)
+									(storage-record recorder member "resize" (cat (str megabytes) " " image))
+									image)
+								(:t (pii-remove moved_to) "")))
 						(+storage_type_record
 							;told to the tender and the gophers too, each says what it does
 							(storage-record-to recorder body)
