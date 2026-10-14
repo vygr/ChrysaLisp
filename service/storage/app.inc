@@ -477,7 +477,9 @@
 (defun storage-member (&optional file)
 	; (storage-member [file]) -> :nil | emap
 	;what this machine was told when it was made a member: :image, :size
-	;in MB, and :id and :copies if they were said. :nil if it never was
+	;in MB, :id and :copies if they were said, and :travels, :t if it is
+	;a machine that is taken away from the others, a laptop. :nil if it
+	;never was a member
 	(when (defq text (load (ifn file +storage_member_file)))
 		(defq said (Emap))
 		(each (lambda (line)
@@ -487,18 +489,41 @@
 					((eql key "image") (. said :insert :image val))
 					((eql key "size") (. said :insert :size (str-as-num val)))
 					((eql key "id") (. said :insert :id val))
-					((eql key "copies") (. said :insert :copies (str-as-num val))))))
+					((eql key "copies") (. said :insert :copies (str-as-num val)))
+					((eql key "travels") (. said :insert :travels (eql val "yes"))))))
 			(split text +storage_lf))
 		(if (. said :find :image) said)))
 
-(defun storage-member-save (image size &optional id copies file)
-	; (storage-member-save image size [id copies file])
+(defun storage-member-save (image size &optional id copies file travels)
+	; (storage-member-save image size [id copies file travels])
 	;this machine is a member, of the store in that file, from now on
 	(save (join (cat (list (cat "image " image) (cat "size " (str size)))
 			(if id (list (cat "id " id)) (list))
 			(if (and copies (> copies 0)) (list (cat "copies " (str copies))) (list))
+			(if travels (list "travels yes") (list))
 			(list "")) +storage_lf)
 		(ifn file +storage_member_file)))
+
+(defun storage-member-travels (travels &optional file)
+	; (storage-member-travels travels [file]) -> :nil | :t
+	;this machine is one that is taken away from the others, or is not
+	;now. :nil if it is no member
+	(when (defq said (storage-member file))
+		(storage-member-save (. said :find :image) (. said :find :size) (. said :find :id)
+			(. said :find :copies) file travels)
+		:t))
+
+(defun storage-user-pin (&optional svc file)
+	; (storage-user-pin [svc file]) -> :nil | prefix
+	;on a machine that travels, the area of the user of this session,
+	;usr/<user>/, is pinned here, so that when it is taken away it has all
+	;of it. The user is the session's own, run.sh -u name, or the one the
+	;machine has, usr/current. :nil if it does not travel, or there is no
+	;user, or no service
+	(and (defq said (storage-member file)) (. said :find :travels)
+		(nempty? (defq user (trim (ifn (get '*env_node_user*) (ifn (load "usr/current") "")) (const (char-class " \t\r\n")))))
+		(storage-pin (defq prefix (cat "usr/" user "/")) :nil (ifn svc (storage-service)))
+		prefix))
 
 (defun storage-member-forget (&optional file)
 	; (storage-member-forget [file])

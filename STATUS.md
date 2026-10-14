@@ -4,6 +4,8 @@
 
 ------
 
+**Storage: a machine that travels, `storage -L on`, pins its user's area, `usr/<user>/`, as its store starts, so a laptop taken away has all of it.**
+
 **Storage: `storage -z MB`, a store put on a volume of another size, a copy on the one machine, a full one too: the map is written there from what the store has.**
 
 **`brackets` reads a `{}` string as code being made: its brackets pair by themselves, across a name put into it, `{(def-func "} name {")}`. The tree is clean, lib/gpu/vp.inc was 133 lines.**

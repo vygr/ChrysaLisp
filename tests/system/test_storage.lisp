@@ -223,6 +223,18 @@
 	(join (list (. sg_was :find :image) (str (. sg_was :find :size)) (. sg_was :find :id) (str (. sg_was :find :copies))) " "))
 (storage-member-forget sg_said)
 (assert-eq "forgotten, there is nothing kept" :nil (storage-member sg_said))
+;a machine that travels says so, and is said to by itself
+(storage-member-save "storage/store.img" 4096 :nil :nil sg_said)
+(assert-eq "a member that was not said to travel does not" :nil (. (storage-member sg_said) :find :travels))
+(assert-eq "it is made one that does" :t (storage-member-travels :t sg_said))
+(assert-eq "and is" :t (. (storage-member sg_said) :find :travels))
+(assert-eq "what else it was told is kept" "storage/store.img" (. (storage-member sg_said) :find :image))
+(storage-member-travels :nil sg_said)
+(assert-eq "and made one that does not" :nil (. (storage-member sg_said) :find :travels))
+(storage-member-forget sg_said)
+(assert-eq "no member, it can not travel" :nil (storage-member-travels :t sg_said))
+(assert-eq "nor pin" :nil (storage-user-pin :nil sg_said))
+
 
 ;who serves a store: one process, the first that says so and is still there
 (assert-eq "a store nobody has is this process's to serve" :t (storage-claim sg_claim))

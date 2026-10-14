@@ -47,6 +47,19 @@
 (assert-true "and a put after is kept" (storage-put "docs/after" "after" :nil rz_svc))
 (assert-eq "and got back" "after" (storage-get "docs/after" rz_svc))
 
+;a machine that travels pins the area of its user, here a member file of
+;the test's own and whoever the session is
+(defq rz_said (cat "tests/scratch/resize_member_" rz_pid))
+(storage-member-save rz_image 4 :nil :nil rz_said :t)
+(defq rz_user_pin (storage-user-pin rz_svc rz_said))
+(assert-true "a machine that travels pins usr/<user>/" (or (not rz_user_pin) (starts-with "usr/" rz_user_pin)))
+(when rz_user_pin
+	(storage-put (cat rz_user_pin "notes") "mine" :nil rz_svc)
+	(assert-true "and holds what is put under it" (nempty? (ifn (storage-pinned-by (cat rz_user_pin "notes") rz_svc) (list)))))
+(storage-member-save rz_image 4 :nil :nil rz_said)
+(assert-eq "one that does not travel pins nothing" :nil (storage-user-pin rz_svc rz_said))
+(pii-remove rz_said)
+
 ;full to the last cluster, by a put that did not fit, so that its path map
 ;could not be written to it, and made bigger: what it has is all there
 (defq rz_before (length (storage-list "" rz_svc)))

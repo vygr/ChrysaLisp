@@ -19,6 +19,11 @@
             and -k say otherwise.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
+        -L --travels on|off: this machine is one that is
+            taken away from the others, a laptop, or is not.
+            With -j, or of a member. One that travels pins
+            the area of its user, usr/<user>/, as its store
+            starts, so it has all of it when it is away.
         -s --start image: as -j, of the store in that file
             of the host, or disk.
         -m --make megabytes: with -s or -j, if there is no
@@ -95,6 +100,7 @@
     no option, what the store is and what is in it.")
 (("-j" "--join") ,(opt-flag 'opt_j))
 (("-f" "--forget") ,(opt-flag 'opt_f))
+(("-L" "--travels") ,(opt-str 'opt_L))
 (("-s" "--start") ,(opt-str 'opt_s))
 (("-m" "--make") ,(opt-num 'opt_m))
 (("-i" "--id") ,(opt-str 'opt_i))
@@ -139,7 +145,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
-				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
+				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_L :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
 		(if opt_j (setq opt_s (ifn opt_s +storage_image)))
@@ -157,6 +163,16 @@
 					;and by itself from now on
 					(storage-member-save opt_s size opt_i (if (> opt_k 0) opt_k)))
 				((print "No store at " opt_s ", and none made."))))
+		(when opt_L
+			(cond
+				((not (find opt_L '("on" "off"))) (print "-L on, or -L off."))
+				((not (storage-member-travels (eql opt_L "on")))
+					(print "This machine is no member of a store, storage -j."))
+				((eql opt_L "off")
+					(print "This machine is not one that travels now. What it has pinned stays pinned, storage -U to let go."))
+				((defq pinned (storage-user-pin))
+					(print "This machine travels, and holds all of " pinned " from now on."))
+				((print "This machine travels. Its user's area is pinned as its store starts."))))
 		(defq svc (storage-service) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
 		(cond
 			((and opt_t (eql name ""))

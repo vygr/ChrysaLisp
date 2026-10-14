@@ -1181,6 +1181,11 @@ Usage: storage [options] [path]
             and -k say otherwise.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
+        -L --travels on|off: this machine is one that is
+            taken away from the others, a laptop, or is not.
+            With -j, or of a member. One that travels pins
+            the area of its user, usr/<user>/, as its store
+            starts, so it has all of it when it is away.
         -s --start image: as -j, of the store in that file
             of the host, or disk.
         -m --make megabytes: with -s or -j, if there is no

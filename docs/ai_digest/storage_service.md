@@ -159,6 +159,7 @@ the others.
 storage -j          this machine is a member of the store of its mesh, from now on
 storage -f          it is not started by itself from now, the store is left as it is
 storage -z MB       the store of this member on a volume of that many MB
+storage -L on|off   this machine travels, a laptop, or does not
 ```
 
 `storage -j`, `(storage-join)`, makes the machine's part of the store,
@@ -175,6 +176,20 @@ port, so only one session of a machine is its member, and only that one
 starts the store. A session started alone, a run of the tests, never does.
 Started by hand in another session, a note beside the image,
 `store.img.member`, says which process has it, `(storage-claim)`.
+
+### A machine that travels
+
+`storage -L on`, `(storage-member-travels)`, says this machine is one that is
+taken away from the others, a laptop. It is kept in `store_member`, and set
+at a join, `storage -j -L on`, or after. When its store starts, the area of
+the session's user, `usr/<user>/`, is pinned on it, `(storage-user-pin)`: it
+holds all of that, wherever else it is kept, so all of it goes with the
+machine when it goes, and is read from it with nobody asked. The user is
+the session's own, `run.sh -u name`, or the one the machine has,
+`usr/current`. A pin does not lapse: a machine that travels is one
+person's. `-L off` takes no pin away, `storage -U` does. A desktop or a
+server is not one that travels, and holds only its share. Nothing puts a
+user's files in the store yet, so the pin holds what is put there.
 
 ### Another size
 

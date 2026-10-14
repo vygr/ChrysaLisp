@@ -7,6 +7,10 @@
 ; the store is started here, and stopped when this is told to go. If it
 ; never was, there is nothing to do but wait to be told.
 ;
+; A machine that travels, a laptop, storage -L on, pins the area of the
+; session's user once its store is up, (storage-user-pin): all of that
+; user's files are on it when it is taken away from the others.
+;
 ; It looks again now and then: a machine may be made a member while this
 ; session is up, in a session that is not the member, and then it is this
 ; one that is to serve the store.
@@ -29,7 +33,9 @@
 				(setq svc had image (. said :find :image))
 				(when (setq svc (storage-join (. said :find :image) (. said :find :size)
 						(. said :find :id) (. said :find :copies)))
-					(setq image (. said :find :image)))))
+					(setq image (. said :find :image))
+					;a machine that travels holds all of its user's area
+					(storage-user-pin svc))))
 		(mail-timeout (elem-get select +select_timer) +auto_look 0)
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(mail-timeout (elem-get select +select_timer) 0 0)
