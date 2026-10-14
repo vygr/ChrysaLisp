@@ -44,7 +44,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause start back on end live record trace join run rec_open rec_save scene timeline
+	(enum play pause start back on end live record trace join travels run rec_open rec_save scene timeline
 		snap_take snap_restore snap_drop))
 
 (defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
@@ -91,7 +91,7 @@
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
-				+sym_media_live +sym_media_record +sym_find +sym_media_join) +event_play))
+				+sym_media_live +sym_media_record +sym_find +sym_media_join +sym_laptop) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
@@ -114,7 +114,8 @@
 	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
 		"to the end, and follow what comes" "the store of this system, live"
 		"keep all the store of this system does, or the last few thousand" "trace the object shown"
-		"make this machine a member of the store of its mesh, now and each time it starts"))
+		"make this machine a member of the store of its mesh, now and each time it starts"
+		"this machine is taken away, a laptop: it holds all of its user's area"))
 (ui-tool-tips *tests* '("run the scene chosen" "open a recording, of storage -r or saved here"
 	"save what is recorded, to play again or send"))
 (ui-tool-tips *snapbar* '("a snapshot of the whole store, by the name written, or the time"
@@ -234,7 +235,7 @@
 	;still, following what comes, recording, trace, and this machine a
 	;member. Only when that is not as it was, a button changed is drawn again
 	(defq now (list *playing* (not (or *playing* *follow*)) :nil :nil :nil (and *follow* (not *playing*))
-			(and *run* *live*) *record* *trace* *joined*)
+			(and *run* *live*) *record* *trace* *joined* *travels*)
 		now (map (# (if %0 :t :nil)) now))
 	(unless (eql (str now) (str *lit*))
 		(setq *lit* now)
@@ -482,6 +483,8 @@
 		*gopher* :nil *snap* :nil *picker* :nil *picker_save* :nil
 		;is this machine a member, it says so in a file, looked at the once
 		*joined* (if (storage-member) :t)
+		;and one that travels
+		*travels* (if (. (ifn (storage-member) (Emap)) :find :travels) :t)
 		*record* :t
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -541,6 +544,17 @@
 										(say "This machine is a member, and is each time it starts. Its store, live.")
 										(watch "-"))
 									((say "The store of this machine could not be started."))))))
+					((= id +event_travels)
+						;this machine one that is taken away, or not, as storage -L
+						(cond
+							((not *joined*) (say "This machine is no member of a store, Join first."))
+							((setq *travels* (not *travels*))
+								(storage-member-travels :t)
+								(say (if (defq pinned (storage-user-pin))
+									(cat "This machine travels, and holds all of " pinned " from now on.")
+									"This machine travels. Its user's area is pinned as its store starts.")))
+							(:t (storage-member-travels :nil)
+								(say "This machine does not travel now. What it has pinned stays, storage -U to let go."))))
 					((= id +event_record)
 						;whether all of it is kept, or the last so many events, of
 						;the store of this system, now if it is what is watched

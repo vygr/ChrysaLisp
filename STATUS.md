@@ -4,6 +4,8 @@
 
 ------
 
+**The Storage app has Travels beside Join, `+sym_laptop`, as `storage -L`.**
+
 **The Storage app opens and saves recordings: what `storage -r` writes, and what it saves, are the same lines.**
 
 **Storage: a machine that travels, `storage -L on`, pins its user's area, `usr/<user>/`, as its store starts, so a laptop taken away has all of it.**

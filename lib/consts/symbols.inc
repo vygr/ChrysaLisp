@@ -53,4 +53,4 @@
 	+sym_media_play 0xe081 +sym_media_pause 0xe082 +sym_media_stop 0xe083
 	+sym_media_back 0xe084 +sym_media_on 0xe085 +sym_media_start 0xe086
 	+sym_media_end 0xe087 +sym_media_record 0xe088 +sym_media_live 0xe089
-	+sym_media_join 0xe08a)
+	+sym_media_join 0xe08a +sym_laptop 0xe08b)

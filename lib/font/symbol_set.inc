@@ -230,7 +230,9 @@
 		(s-arc 12 12 6.5 -40 40) (s-arc 12 12 6.5 140 220)
 		(s-arc 12 12 10 -40 40) (s-arc 12 12 10 140 220)))
 	;to join, an arrow into what it joins
-	(list "media_join" (cat (s-line 13 4 20 4 20 20 13 20) (s-arrow 3 12 15 12)))))
+	(list "media_join" (cat (s-line 13 4 20 4 20 20 13 20) (s-arrow 3 12 15 12)))
+	;a machine that is taken away, a laptop: its screen, and its base apart
+	(list "laptop" (cat (s-rrect 5 5 19 15 1.5) (s-line 2 19.5 22 19.5)))))
 
 ;;;;;;;;;;;;
 ; the themes

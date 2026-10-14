@@ -676,6 +676,10 @@ played back, from a recording of it.
   object shown.
 * A scene that is run is all recorded, and stays to be gone over when it
   is done.
+* Join makes this machine a member, as `storage -j`, and is lit when it is
+  one. Travels beside it, the laptop, says this machine is one that is
+  taken away, as `storage -L`, and is lit when it is: it pins its user's
+  area at once if its store is up.
 * Beside Run, Open and Save, with the Files app's picker. Save writes what
   is recorded, a line an event as a recorder says them, `(replay-line)`, so
   a file of `storage -r` and one saved here are the same, and either opens.
