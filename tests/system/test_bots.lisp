@@ -5,11 +5,14 @@
 (assert-eq "it is made one" :t (task-band :bot))
 (assert-true "and is known as one, for its rests" (. *bot_breaths* :find (task-mbox)))
 
-;a rest that is due is taken by a bot, and when the next is due moves on
+;a rest that is due is taken by a bot, and when the next is due moves on,
+;from the time it was taken: on a busy machine the clock may be past it by
+;the time this looks
 (setq *bot_next* 0)
+(defq tb_before (pii-time))
 (task-breathe)
-(assert-true "a bot whose rest is due sets when the next is" (> *bot_next* (pii-time)))
-(assert-true "the next is so long on" (<= (- *bot_next* (pii-time)) +bot_work))
+(assert-true "a bot whose rest is due sets when the next is" (> *bot_next* tb_before))
+(assert-true "the next is so long on" (<= (- *bot_next* tb_before) (+ +bot_work (- (pii-time) tb_before))))
 
 ;an app is not a bot, and does not rest
 (task-band :app)

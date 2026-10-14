@@ -427,15 +427,15 @@ by itself. Nothing is thrown.
 
 A step is first given 50ms, `+gopher_first`. One not done in that goes to
 the back of the queue, `gopher-back`: the slow lane, a second runner the
-first starts, of the apps' band. It is sent there as a gopher is sent on to
-another member, from where it was, and tried again with a second,
-`+gopher_allowed`. One not done in the second is done with, `gopher-late`,
-and who asked is told `"none"`. The lane waits on the quick gophers and
-shares the node with the apps as one of them, so a gopher that loops for
-ever holds the others back by its 50ms, once. Its second is by the clock,
-and a slow gopher on a node busy with apps has less of the second to work
-in. Measured with `storage -t bots` on the M4, 280 gophers behind 20 that
-loop for ever: 7.2 to 9.3s with the one runner, 0.69s with the lane. In a release build what passes an error back
+first starts. It is sent there as a gopher is sent on to another member,
+from where it was, and tried again with a second, `+gopher_allowed`. One not
+done in the second is done with, `gopher-late`, and who asked is told
+`"none"`. The quick runner tells the lane when it comes to have blocks to
+do and when it has none, and while it has, the lane waits at its next tick,
+and the time it waits is not of its second. So a gopher that loops for ever
+holds the others back by its 50ms, once. Measured with `storage -t bots` on
+the M4, 280 gophers behind 20 that loop for ever: 7.2 to 9.3s with the one
+runner, 0.75s with the lane. In a release build what passes an error back
 up is not there, and an error thrown in a loop would be a value it went
 round with. The tick costs about 36ns each time round on an M4.
 

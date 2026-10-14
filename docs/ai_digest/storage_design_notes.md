@@ -1095,10 +1095,12 @@ gopher being sent on, is enough for a looper to have its second, and those
 that come then wait behind it. A second runner, the slow lane, in the same
 band, gained nothing either, 5.9 s: each time the quick runner gave way, to
 wait on the service for a block, the lane had a whole slice. The lane in
-the apps' band: 0.69 s, the apps 78 ms at most. What is slow by its nature
-waits on the quick and is one more app to the apps. Its second is by the
-clock still, so on a node busy with apps it has less of it to work in, to
-be watched. `check` has `again`: a `defq` in the runner's loop of `kept`,
+the apps' band: 0.69 s, the apps 78 ms at most. But the Pi, running the
+whole suite, had gophers come back late: on a node busy with apps, a step
+of an ordinary gopher went past its 50ms, and in the apps' band had little
+of its second. So the lane is a bot again, and waits at its tick while the
+quick runner says it has blocks to do, and what it waits is given back to
+its second: 0.75 s, the apps 73 ms at most, the Pi clean. `check` has `again`: a `defq` in the runner's loop of `kept`,
 a name the runner's own `take` has, gave every gopher "none".
 
 **A service is one task, and the tender's round trips.** 2026-10-14,
@@ -1117,8 +1119,8 @@ was half of each look, every holder asked one at a time of each block:
 asked the once, 7 s to 0.6 s. The peers asked at once, the puts not
 waited for, a window of 32 for 8 (64 was no better), and looking again
 while blocks come in place of 8 rounds and a tick: 45 s to 12.9 s, a
-service's answer 136 ms at most. `check` has `below`, a call in a module
-of one made after it and not exported, which the plan's functions were.
+service's answer 136 ms at most. The plan's functions were first not
+exported, and called above where they are made: `forward` says so.
 
 ## What Exists
 

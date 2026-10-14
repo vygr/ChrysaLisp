@@ -26,6 +26,11 @@
 ; in a scene's task
 ;;;;;;;;;;;;;;;;;;
 
+(defun scene-say (scene &rest text)
+	; (scene-say scene text ...) -> scene
+	(mail-send (. scene :find :reply) (cat "say " (apply (const cat) (map (const str) text))))
+	scene)
+
 (defun scene-begin (what)
 	; (scene-begin what) -> scene
 	;who to tell and the group, as it was mailed, and what the scene is for,
@@ -35,11 +40,6 @@
 	(scatter scene :reply (hex-decode reply) :group group :tag (cat (str (pii-pid)) "_" (str (random 1000000)))
 		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil)
 	(scene-say scene what)
-	scene)
-
-(defun scene-say (scene &rest text)
-	; (scene-say scene text ...) -> scene
-	(mail-send (. scene :find :reply) (cat "say " (apply (const cat) (map (const str) text))))
 	scene)
 
 (defun scene-check (scene what ok)
@@ -78,26 +78,6 @@
 	(. scene :insert :big :t)
 	scene)
 
-(defun scene-members (scene ids)
-	; (scene-members scene ids) -> :nil | :t
-	;those members started, and met: each knows all of them
-	(each (# (scene-start scene %0)) ids)
-	(defq ok (= (length (. scene :find :svcs)) (length ids)))
-	(when ok
-		;a recorder asks each member every so often, it has them all now
-		(task-sleep 300000)
-		(scene-settle scene))
-	ok)
-
-(defun scene-svc (scene id)
-	; (scene-svc scene id) -> :nil | netid
-	(second (some (# (if (eql (first %0) id) %0)) (. scene :find :svcs))))
-
-(defun scene-ids (scene)
-	; (scene-ids scene) -> (id ...)
-	;the members that are running
-	(map (const first) (. scene :find :svcs)))
-
 (defun scene-seen-all? (scene)
 	; (scene-seen-all? scene) -> :nil | :t
 	;each member that is running sees all the others. One just started is
@@ -119,6 +99,26 @@
 		(each (lambda ((id svc)) (setq did (+ did (reduce (const +) (ifn (storage-settle svc) (list 0)) 0))))
 			(. scene :find :svcs)))
 	rounds)
+
+(defun scene-members (scene ids)
+	; (scene-members scene ids) -> :nil | :t
+	;those members started, and met: each knows all of them
+	(each (# (scene-start scene %0)) ids)
+	(defq ok (= (length (. scene :find :svcs)) (length ids)))
+	(when ok
+		;a recorder asks each member every so often, it has them all now
+		(task-sleep 300000)
+		(scene-settle scene))
+	ok)
+
+(defun scene-svc (scene id)
+	; (scene-svc scene id) -> :nil | netid
+	(second (some (# (if (eql (first %0) id) %0)) (. scene :find :svcs))))
+
+(defun scene-ids (scene)
+	; (scene-ids scene) -> (id ...)
+	;the members that are running
+	(map (const first) (. scene :find :svcs)))
 
 (defun scene-stop (scene id)
 	; (scene-stop scene id) -> scene

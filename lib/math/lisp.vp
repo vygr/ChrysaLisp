@@ -1118,12 +1118,6 @@
 	(call :obj :deref '(:r1))
 	(assign '((:rsp local_got)) '(:r0)))
 
-(defun pc-band ()
-	;the pieces of the band the two heights say, and the lines of them.
-	;The band above is then the one that was below
-	(pc-do 'lib/math/poly_band 'local_bargs)
-	(pc-lines))
-
 (defun pc-lines ()
 	(pc-do 'lib/math/poly_lines 'local_largs)
 	(vp-cpy-cr +pm_goes_on :r1)
@@ -1132,6 +1126,12 @@
 	(assign '((:r0 +array_begin)) '(:r0))
 	(assign `((:r0 ,(* 3 +ptr_size)) (:r0 ,(* 4 +ptr_size))) '(:r1 :r2))
 	(assign '(:r2 :r1) `((:r0 ,(* 3 +ptr_size)) (:r0 ,(* 4 +ptr_size)))))
+
+(defun pc-band ()
+	;the pieces of the band the two heights say, and the lines of them.
+	;The band above is then the one that was below
+	(pc-do 'lib/math/poly_band 'local_bargs)
+	(pc-lines))
 
 (defun pc-heights (a b)
 	;the two heights of a band, into the numbers the arguments have

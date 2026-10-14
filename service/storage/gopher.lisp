@@ -63,8 +63,31 @@
 ;done in that has its turn again after the others here, with all it may
 ;have, +gopher_allowed
 (defq +gopher_allowed 1000000 +gopher_first 50000 *gopher_until* 0 *gopher_late* :nil *gopher_check* 0
+	;in the slow lane, where the quick runner says if it has blocks to do,
+	;and if it has
+	*gopher_hold* :nil *gopher_held* :nil
 	;and how many lists a function may be made of, its macros done
 	+gopher_lists 20000)
+
+(defun gopher-tick-past ()
+	;the time to look again has come: rest with the bots of the node if
+	;that is due, and say no if the block's second is up
+	(defq now (pii-time))
+	(bot-breathe now)
+	;in the slow lane, while the quick runner has blocks to do, it waits,
+	;and the time it waits is not of its second
+	(when *gopher_hold*
+		(while (mail-poll (list *gopher_hold*)) (setq *gopher_held* (eql (mail-read *gopher_hold*) "1")))
+		(when *gopher_held*
+			(while *gopher_held*
+				(setq *gopher_held* (eql (mail-read *gopher_hold*) "1"))
+				(while (mail-poll (list *gopher_hold*)) (setq *gopher_held* (eql (mail-read *gopher_hold*) "1"))))
+			(setq *gopher_until* (+ *gopher_until* (- (pii-time) now)) now (pii-time))))
+	(cond
+		(*gopher_late* :nil)
+		((> now *gopher_until*) (setq *gopher_late* :t) :nil)
+		(:t (setq *gopher_check* (min *gopher_until* (if (< now *bot_rest_end*) *bot_rest_end* *bot_next*)))
+			:t)))
 
 (defun gopher-tick ()
 	; (gopher-tick) -> :t | :nil
@@ -80,17 +103,6 @@
 	(cond
 		((< (pii-time) *gopher_check*) (task-slice) :t)
 		((gopher-tick-past))))
-
-(defun gopher-tick-past ()
-	;the time to look again has come: rest with the bots of the node if
-	;that is due, and say no if the block's second is up
-	(defq now (pii-time))
-	(bot-breathe now)
-	(cond
-		(*gopher_late* :nil)
-		((> now *gopher_until*) (setq *gopher_late* :t) :nil)
-		(:t (setq *gopher_check* (min *gopher_until* (if (< now *bot_rest_end*) *bot_rest_end* *bot_next*)))
-			:t)))
 
 (defun gopher-ticked (form)
 	; (gopher-ticked form) -> form
@@ -268,21 +280,29 @@
 		;the slow lane: a runner of its own, that this starts, and that a
 		;gopher not done in its first try is sent to, so that the others
 		;here are not held behind it. It gives each all it may have, and is
-		;told it is the slow lane, it starts none
+		;told it is the slow lane, and who started it, it starts none
 		slow (= (length first_msg) 2)
 		lane (unless slow (open-child "service/storage/gopher.lisp" +kn_call_pin))
+		;where the lane is told if this has blocks to do, and what it was told
+		lane_hold :nil lane_held :nil
 		;who it tells what it does, if anyone
 		recorder (storage-record-new))
-	;and it is of the apps' band, the back of the queue: what is slow by its
-	;nature waits on the quick, and holds neither them nor the apps
-	(if slow (task-band :app))
 	(if (and lane (/= 0 (get-long lane 0)))
-		(mail-send lane (cat (first first_msg) +storage_lf "slow"))
+		(mail-send lane (cat (first first_msg) +storage_lf (hex-encode (task-mbox))))
 		(setq lane :nil))
+	;the back of the queue: the lane waits while the quick have blocks to
+	;do, it is told where to be told so
+	(when slow
+		(setq *gopher_hold* (mail-mbox))
+		(mail-send (hex-decode (second first_msg)) (cat "hold " (hex-encode *gopher_hold*))))
 	(defun take (msg)
 		(cond
-			((eql msg "stop") (setq running :nil) (if lane (mail-send lane msg)))
+			((eql msg "stop") (setq running :nil)
+				;a lane that is held is let go, to hear it
+				(if lane_hold (mail-send lane_hold "0"))
+				(if lane (mail-send lane msg)))
 			((starts-with "record " msg) (storage-record-to recorder (slice msg 7 -1)) (if lane (mail-send lane msg)))
+			((starts-with "hold " msg) (setq lane_hold (hex-decode (slice msg 5 -1))))
 			(:t ;who this member is, asked the once, when there is first a need
 				(unless asked
 					(defq info (storage-info svc))
@@ -327,5 +347,12 @@
 			(case (turn g)
 				(:keep :t)
 				(:back (cond (lane (to-lane g) :nil) (:t))))) gophers))
+		;the lane is told when this comes to have blocks to do, and when it
+		;has none
+		(when lane_hold
+			(defq busy (some (# (not (elem-get %0 +gopher_pass))) gophers))
+			(unless (eql (not busy) (not lane_held))
+				(setq lane_held (if busy :t :nil))
+				(mail-send lane_hold (if busy "1" "0"))))
 		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))

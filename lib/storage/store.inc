@@ -263,6 +263,27 @@
 ; journal file is given one when it is opened; one that has is read
 ; whether or not it is still written to.
 
+(defun store-find (store name)
+	; (store-find store path) -> :nil | entry
+	;what a path is now, one that is deleted too
+	(. (get :map store) :find name))
+
+(defun store-list (store &optional prefix deleted)
+	; (store-list store [prefix deleted]) -> (entry ...)
+	;the paths that begin so, in order, with those deleted if asked
+	(setd prefix "")
+	(defq out (list))
+	(. (get :map store) :each (lambda (name entry)
+		(and (starts-with prefix name) (or deleted (not (elem-get entry +store_entry_deleted)))
+			(push out entry))))
+	(sort out (# (cmp (first %0) (first %1)))))
+
+(defun store-entries (store)
+	; (store-entries store) -> (entry ...)
+	;every entry of the path map, those deleted too, what is told to
+	;another member
+	(store-list store "" :t))
+
 (defun store-journal-mark (count line)
 	(cat (slice (hex-encode (sha256 (cat (str count) " " line))) 0 8) " " line +store_lf))
 
@@ -408,6 +429,16 @@
 		(store-save store)
 		:t))
 
+(defun store-blocks (store)
+	; (store-blocks store) -> (name ...)
+	;every block that is kept here, whatever is in it, as the volume has it
+	(defq out (list))
+	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
+		(unless (second entry)
+			(defq parts (split file "/"))
+			(push out (hex-decode (cat (elem-get parts 1) (elem-get parts 2)))))))
+	out)
+
 (defun store-open (device member)
 	; (store-open path | stream member) -> :nil | store
 	;a store that is there. :nil if the volume is not one. It is opened by
@@ -482,6 +513,149 @@
 	;the volume is to read two directories of it
 	(if (. (get :held store) :find name) :t))
 
+(defun store-block-get (store name)
+	; (store-block-get store name) -> :nil | data
+	;the block of that name. :nil if it is not kept here, and :nil if what
+	;is kept is not it: it has gone wrong, and is no use to anyone
+	;one that is not kept is known not to be, with no look at the volume:
+	;a member is asked for many it has not got, by those looking for one
+	(task-breathe)
+	(and (store-block-has? store name)
+		(defq found (exfat-load (get :vol store) (store-block-file name)))
+		(eql (sha256 found) name) found))
+
+(defun store-manifest-text (size names)
+	; (store-manifest-text size names) -> data
+	;what is kept for an object: how long it is, and its blocks in order
+	(store-text (cat (list +store_object_magic (str size)) (map (const hex-encode) names))))
+
+(defun store-manifest (store hash)
+	; (store-manifest store hash) -> :nil | (size names)
+	;the object of that name, if its manifest is kept here. One that has
+	;been read is held: a name is of the one thing for ever, and what an
+	;object is made of is asked again and again
+	(defq known (get :manifests store))
+	(cond
+		((. known :find hash))
+		((and (defq lines (store-lines (store-block-get store hash)))
+				(> (length lines) 1) (eql (first lines) +store_object_magic))
+			(. known :insert hash (defq object (list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
+			object)))
+
+(defun store-members (store)
+	; (store-members store) -> (member ...)
+	;who the members are meant to be, in order: every one that was ever
+	;joined and has not been retired, away or not
+	(sort (filter (# (not (find %0 (get :retired store)))) (get :members store))))
+
+(defun store-rank (name among copies)
+	; (store-rank name among copies) -> (member ...)
+	;of those members, the ones that are to keep a block of that name, as
+	;many as there are to be copies. It is worked out of the name and who
+	;they are and nothing else: anything that knows the two knows who
+	;keeps a block, a gopher too, and has nobody to ask.
+	;
+	;The members are put in an order that is the block's own, and the
+	;first so many keep it. So to ask for more copies adds members to
+	;those that keep it and moves it from none, and to ask for fewer
+	;takes the last of them away
+	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
+		(# (cmp (first %1) (first %0)))))
+	(map (const second) (slice scored 0 (min copies (length scored)))))
+
+(defun store-holders (store name &optional among copies)
+	; (store-holders store name [among copies]) -> (member ...)
+	;the members that are to keep a block of that name, as many as there
+	;are to be copies, the store's if it is not said, of the members, or
+	;of those given, the ones that are there. Each member is given a
+	;number made from its id and the name, and those with the greatest
+	;keep it: so every member works out the same, nobody has to be asked,
+	;and when a member comes or goes only the blocks that are its share
+	;move
+	;
+	;What was worked out is kept, the members in the block's order, for
+	;as long as it is asked of the same members: a member asks it of
+	;every block it knows of each time it looks to its share, and it is a
+	;hash and a sort for each
+	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store)
+		copies (if (and copies (> copies 0)) copies (get :copies store)))
+	(unless (and kept (eql (first kept) key))
+		(def store :holders (setq kept (list key (Fmap 4093)))))
+	(unless (defq order (. (second kept) :find name))
+		(. (second kept) :insert name (setq order (store-rank name among (length among)))))
+	(slice order 0 (min copies (length order))))
+
+(defun store-pinned? (store name)
+	; (store-pinned? store path) -> :nil | :t
+	(if (some (# (starts-with %0 name)) (get :pins store)) :t))
+
+(defun store-plan-object (store plan path entry)
+	;the object of a path, into what is wanted and what is others'. If
+	;its manifest is not here, what it is made of is known when it comes
+	(defq hash (elem-get entry +store_entry_hash) me (get :member store) wanted (elem-get plan +plan_wanted)
+		others (elem-get plan +plan_others) among (elem-get plan +plan_among))
+	(. wanted :insert hash)
+	(cond
+		((defq object (store-manifest store hash))
+			(defq pinned (store-pinned? store path) copies (elem-get entry +store_entry_copies))
+			(each (lambda (name)
+				(defq holders (store-holders store name among copies))
+				(cond
+					((or pinned (find me holders)) (. wanted :insert name))
+					;as another object has it, it may have more keepers
+					((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
+				(second object)))
+		(:t (. (elem-get plan +plan_unknown) :insert hash
+				(cat (ifn (. (elem-get plan +plan_unknown) :find hash) (list)) (list path))))))
+
+(defun store-plan (store among)
+	; (store-plan store among) -> plan
+	;what this member is to keep among those members, as it is now
+	(defq key (join among " ") plan (get :plan store))
+	(unless (and plan (eql (elem-get plan +plan_key) key))
+		(def store :plan (setq plan (list key (Fset 4093) (Fmap 4093) (Fmap 11) (Fset 1021) (Fset 101) among)))
+		(. (get :map store) :each (lambda (path entry)
+			(unless (elem-get entry +store_entry_deleted)
+				(task-breathe)
+				(store-plan-object store plan path entry))))
+		(defq wanted (elem-get plan +plan_wanted) missing (elem-get plan +plan_missing) extras (elem-get plan +plan_extras))
+		(. wanted :each (lambda (name) (unless (store-block-has? store name) (. missing :insert name))))
+		;a block that is another's to keep for one object may be mine for another
+		(. (elem-get plan +plan_others) :each (lambda (name holders)
+			(and (not (. wanted :find name)) (store-block-has? store name) (. extras :insert name)))))
+	plan)
+
+(defun store-plan-held (store name)
+	;a block that is kept now
+	(when (defq plan (get :plan store))
+		(. (elem-get plan +plan_missing) :erase name)
+		(and (not (. (elem-get plan +plan_wanted) :find name)) (. (elem-get plan +plan_others) :find name)
+			(. (elem-get plan +plan_extras) :insert name))
+		;a manifest: what its object is made of is now known, and of its
+		;blocks those this member is to keep and has not got are wanted, and
+		;those it has and are others' are theirs
+		(when (defq paths (. (elem-get plan +plan_unknown) :find name))
+			(. (elem-get plan +plan_unknown) :erase name)
+			(defq wanted (elem-get plan +plan_wanted) others (elem-get plan +plan_others))
+			(each (lambda (path)
+				(when (defq entry (. (get :map store) :find path))
+					(store-plan-object store plan path entry)))
+				paths)
+			(each (lambda (block)
+				(cond
+					((. wanted :find block)
+						(. (elem-get plan +plan_extras) :erase block)
+						(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
+					((and (. others :find block) (store-block-has? store block))
+						(. (elem-get plan +plan_extras) :insert block))))
+				(second (store-manifest store name))))))
+
+(defun store-plan-dropped (store name)
+	;a block that is no longer kept
+	(when (defq plan (get :plan store))
+		(. (elem-get plan +plan_extras) :erase name)
+		(if (. (elem-get plan +plan_wanted) :find name) (. (elem-get plan +plan_missing) :insert name))))
+
 (defun store-block-put (store data)
 	; (store-block-put store data) -> :nil | name
 	;a block of this data is kept, and its name. If it is kept already
@@ -504,17 +678,6 @@
 				(store-plan-held store name)
 				name))))
 
-(defun store-block-get (store name)
-	; (store-block-get store name) -> :nil | data
-	;the block of that name. :nil if it is not kept here, and :nil if what
-	;is kept is not it: it has gone wrong, and is no use to anyone
-	;one that is not kept is known not to be, with no look at the volume:
-	;a member is asked for many it has not got, by those looking for one
-	(task-breathe)
-	(and (store-block-has? store name)
-		(defq found (exfat-load (get :vol store) (store-block-file name)))
-		(eql (sha256 found) name) found))
-
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
 	(. (get :held store) :erase name)
@@ -530,16 +693,6 @@
 	(. (get :held store) :each (# (push out %0)))
 	out)
 
-(defun store-blocks (store)
-	; (store-blocks store) -> (name ...)
-	;every block that is kept here, whatever is in it, as the volume has it
-	(defq out (list))
-	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
-		(unless (second entry)
-			(defq parts (split file "/"))
-			(push out (hex-decode (cat (elem-get parts 1) (elem-get parts 2)))))))
-	out)
-
 ;;;;;;;;;
 ; objects
 ;;;;;;;;;
@@ -550,29 +703,6 @@
 	;last. One of nothing is no blocks
 	(defq size (get :block_size store))
 	(map (# (slice data %0 (min (length data) (+ %0 size)))) (range 0 (length data) size)))
-
-(defun store-manifest-text (size names)
-	; (store-manifest-text size names) -> data
-	;what is kept for an object: how long it is, and its blocks in order
-	(store-text (cat (list +store_object_magic (str size)) (map (const hex-encode) names))))
-
-(defun store-manifest (store hash)
-	; (store-manifest store hash) -> :nil | (size names)
-	;the object of that name, if its manifest is kept here. One that has
-	;been read is held: a name is of the one thing for ever, and what an
-	;object is made of is asked again and again
-	(defq known (get :manifests store))
-	(cond
-		((. known :find hash))
-		((and (defq lines (store-lines (store-block-get store hash)))
-				(> (length lines) 1) (eql (first lines) +store_object_magic))
-			(. known :insert hash (defq object (list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
-			object)))
-
-(defun store-find (store name)
-	; (store-find store path) -> :nil | entry
-	;what a path is now, one that is deleted too
-	(. (get :map store) :find name))
 
 (defun store-stat (store name)
 	; (store-stat store path) -> :nil | entry
@@ -787,25 +917,9 @@
 			(++ at))
 		(unless lost (apply (const cat) parts))))
 
-(defun store-list (store &optional prefix deleted)
-	; (store-list store [prefix deleted]) -> (entry ...)
-	;the paths that begin so, in order, with those deleted if asked
-	(setd prefix "")
-	(defq out (list))
-	(. (get :map store) :each (lambda (name entry)
-		(and (starts-with prefix name) (or deleted (not (elem-get entry +store_entry_deleted)))
-			(push out entry))))
-	(sort out (# (cmp (first %0) (first %1)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; members, and two of them comparing notes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun store-members (store)
-	; (store-members store) -> (member ...)
-	;who the members are meant to be, in order: every one that was ever
-	;joined and has not been retired, away or not
-	(sort (filter (# (not (find %0 (get :retired store)))) (get :members store))))
 
 (defun store-join (store members &optional retired later)
 	; (store-join store members [retired later]) -> :nil | :t
@@ -931,49 +1045,6 @@
 				(list "retired") (sort (cat (get :retired store)))
 				(list "pinned") (store-pinned-lines store))))))))
 
-(defun store-entries (store)
-	; (store-entries store) -> (entry ...)
-	;every entry of the path map, those deleted too, what is told to
-	;another member
-	(store-list store "" :t))
-
-(defun store-rank (name among copies)
-	; (store-rank name among copies) -> (member ...)
-	;of those members, the ones that are to keep a block of that name, as
-	;many as there are to be copies. It is worked out of the name and who
-	;they are and nothing else: anything that knows the two knows who
-	;keeps a block, a gopher too, and has nobody to ask.
-	;
-	;The members are put in an order that is the block's own, and the
-	;first so many keep it. So to ask for more copies adds members to
-	;those that keep it and moves it from none, and to ask for fewer
-	;takes the last of them away
-	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
-		(# (cmp (first %1) (first %0)))))
-	(map (const second) (slice scored 0 (min copies (length scored)))))
-
-(defun store-holders (store name &optional among copies)
-	; (store-holders store name [among copies]) -> (member ...)
-	;the members that are to keep a block of that name, as many as there
-	;are to be copies, the store's if it is not said, of the members, or
-	;of those given, the ones that are there. Each member is given a
-	;number made from its id and the name, and those with the greatest
-	;keep it: so every member works out the same, nobody has to be asked,
-	;and when a member comes or goes only the blocks that are its share
-	;move
-	;
-	;What was worked out is kept, the members in the block's order, for
-	;as long as it is asked of the same members: a member asks it of
-	;every block it knows of each time it looks to its share, and it is a
-	;hash and a sort for each
-	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store)
-		copies (if (and copies (> copies 0)) copies (get :copies store)))
-	(unless (and kept (eql (first kept) key))
-		(def store :holders (setq kept (list key (Fmap 4093)))))
-	(unless (defq order (. (second kept) :find name))
-		(. (second kept) :insert name (setq order (store-rank name among (length among)))))
-	(slice order 0 (min copies (length order))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what it holds, and keeping it so
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1019,73 +1090,6 @@
 	(. (elem-get plan +plan_extras) :each (# (push extras (list %0 (. others :find %0)))))
 	(list wants extras))
 
-(defun store-plan (store among)
-	; (store-plan store among) -> plan
-	;what this member is to keep among those members, as it is now
-	(defq key (join among " ") plan (get :plan store))
-	(unless (and plan (eql (elem-get plan +plan_key) key))
-		(def store :plan (setq plan (list key (Fset 4093) (Fmap 4093) (Fmap 11) (Fset 1021) (Fset 101) among)))
-		(. (get :map store) :each (lambda (path entry)
-			(unless (elem-get entry +store_entry_deleted)
-				(task-breathe)
-				(store-plan-object store plan path entry))))
-		(defq wanted (elem-get plan +plan_wanted) missing (elem-get plan +plan_missing) extras (elem-get plan +plan_extras))
-		(. wanted :each (lambda (name) (unless (store-block-has? store name) (. missing :insert name))))
-		;a block that is another's to keep for one object may be mine for another
-		(. (elem-get plan +plan_others) :each (lambda (name holders)
-			(and (not (. wanted :find name)) (store-block-has? store name) (. extras :insert name)))))
-	plan)
-
-(defun store-plan-object (store plan path entry)
-	;the object of a path, into what is wanted and what is others'. If
-	;its manifest is not here, what it is made of is known when it comes
-	(defq hash (elem-get entry +store_entry_hash) me (get :member store) wanted (elem-get plan +plan_wanted)
-		others (elem-get plan +plan_others) among (elem-get plan +plan_among))
-	(. wanted :insert hash)
-	(cond
-		((defq object (store-manifest store hash))
-			(defq pinned (store-pinned? store path) copies (elem-get entry +store_entry_copies))
-			(each (lambda (name)
-				(defq holders (store-holders store name among copies))
-				(cond
-					((or pinned (find me holders)) (. wanted :insert name))
-					;as another object has it, it may have more keepers
-					((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
-				(second object)))
-		(:t (. (elem-get plan +plan_unknown) :insert hash
-				(cat (ifn (. (elem-get plan +plan_unknown) :find hash) (list)) (list path))))))
-
-(defun store-plan-held (store name)
-	;a block that is kept now
-	(when (defq plan (get :plan store))
-		(. (elem-get plan +plan_missing) :erase name)
-		(and (not (. (elem-get plan +plan_wanted) :find name)) (. (elem-get plan +plan_others) :find name)
-			(. (elem-get plan +plan_extras) :insert name))
-		;a manifest: what its object is made of is now known, and of its
-		;blocks those this member is to keep and has not got are wanted, and
-		;those it has and are others' are theirs
-		(when (defq paths (. (elem-get plan +plan_unknown) :find name))
-			(. (elem-get plan +plan_unknown) :erase name)
-			(defq wanted (elem-get plan +plan_wanted) others (elem-get plan +plan_others))
-			(each (lambda (path)
-				(when (defq entry (. (get :map store) :find path))
-					(store-plan-object store plan path entry)))
-				paths)
-			(each (lambda (block)
-				(cond
-					((. wanted :find block)
-						(. (elem-get plan +plan_extras) :erase block)
-						(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
-					((and (. others :find block) (store-block-has? store block))
-						(. (elem-get plan +plan_extras) :insert block))))
-				(second (store-manifest store name))))))
-
-(defun store-plan-dropped (store name)
-	;a block that is no longer kept
-	(when (defq plan (get :plan store))
-		(. (elem-get plan +plan_extras) :erase name)
-		(if (. (elem-get plan +plan_wanted) :find name) (. (elem-get plan +plan_missing) :insert name))))
-
 (defun store-sweep (store)
 	; (store-sweep store) -> num
 	;the blocks that no object is made of are let go of, how many. Not
@@ -1125,10 +1129,6 @@
 	(. (get :pinned store) :insert me (cat (list (inc (if was (first was) 0))) (get :pins store)))
 	(store-save store))
 
-(defun store-pinned? (store name)
-	; (store-pinned? store path) -> :nil | :t
-	(if (some (# (starts-with %0 name)) (get :pins store)) :t))
-
 (defun store-pinned-take (store lines &optional later)
 	; (store-pinned-take store lines [later]) -> :nil | :t
 	;what another member says is pinned, taken in and kept
@@ -1164,7 +1164,7 @@
 ;module
 (export-symbols '(store-make store-open store-close store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
-	store-entries store-holders store-rank store-seen store-share store-plan store-plan-object store-plan-held store-plan-dropped store-since store-at store-later
+	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-copies store-get store-read store-fold store-walk store-list

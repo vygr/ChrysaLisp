@@ -60,12 +60,6 @@
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
-    below   a function of a module, between (env-push) and
-            (env-pop), that calls one the module makes after
-            it and does not export. A call is bound as it is
-            read to what is there then, else looked for by
-            name as it runs, and by then the module's own
-            names have gone.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -111,7 +105,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "below")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -254,6 +248,63 @@
 		(found file (second forms) "inner" (third (second forms))
 			" is made inside a function, it is not there as the file is read, (const) has nothing to take")))
 
+(defun params-of (node)
+	; (params-of node) -> (name ...)
+	;the names a list of parameters gives, those in lists in it too
+	(defq out (list) todo (list node))
+	(while (defq node (pop todo))
+		(cond
+			((eql (first node) :symbol)
+				(unless (or (starts-with "&" (third node)) (eql (third node) "_")) (push out (third node))))
+			((eql (first node) :form) (each (# (push todo %0)) (third node)))))
+	out)
+
+(defun defqs-of (forms)
+	; (defqs-of forms) -> (name ...)
+	;the names a (defq) makes in these forms, and in the forms in them, but
+	;not in a (lambda) or a (#) there, whose names are its own
+	(defq out (list) todo (list forms))
+	(while (defq nodes (pop todo))
+		(each (lambda (node)
+			(when (defq kids (tree-form? node))
+				(defq inner (forms-of kids)
+					head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+				(cond
+					((find head '("lambda" "#" "defun" "defmacro" "macro")))
+					((eql head "defq")
+						(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push out (third %0)))) (rest inner))
+						(push todo (rest inner)))
+					((push todo inner)))))
+			nodes))
+	out)
+
+(defun uses-of (body)
+	; (uses-of nodes) -> (used made)
+	;the names used in some forms, not as the first thing of a form,
+	;which is a call, and the names made in them: the parameters of a
+	;(lambda) there, and what a (defq) or a (bind) names
+	(defq used (list) made (list) todo (list body))
+	(while (defq nodes (pop todo))
+		(defq forms (forms-of nodes)
+			head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+		(cond
+			((find head '("lambda" "macro"))
+				(if (> (length forms) 1) (each (# (push made %0)) (params-of (second forms)))))
+			((eql head "defq")
+				(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push made (third %0)))) (rest forms)))
+			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
+				(each (# (push made %0)) (params-of (third (second forms))))))
+		(each (lambda (form)
+			(cond
+				((eql (first form) :form) (push todo (third form)))
+				;the first thing of a form is a call. A name of the system
+				;there is bound to its function as the code is read, any
+				;other is looked for when it is called, as a variable is
+				((and (eql (first form) :symbol) (or (> (!) 0) (not head) (not (. *root_names* :find (third form)))))
+					(push used (third form)))))
+			forms))
+	(list used made))
+
 (defun check-again (file forms head)
 	;(defun main () (defq kept ...) (defun take () ... kept ...) ... (defq
 	;kept ...)): the second is to the name take has, not a new one
@@ -270,46 +321,6 @@
 							", which a (defq) after it makes again, it is that one it has from then on")))
 					used)))
 			body)))
-
-(defun calls-of (kids)
-	; (calls-of kids) -> ((name node) ...)
-	;the first thing of each form in these, that is a symbol: the calls
-	(defq out (list) todo (list kids))
-	(while (defq nodes (pop todo))
-		(defq forms (forms-of nodes))
-		(and (nempty? forms) (eql (first (first forms)) :symbol) (push out (list (third (first forms)) (first forms))))
-		(each (# (if (defq inner (tree-form? %0)) (push todo inner))) forms))
-	out)
-
-(defun check-below (file top)
-	;(env-push) (defun a () (b)) (defun b () ...) (export-symbols '(a))
-	;(env-pop): b is not there as a is read, and is gone as a runs
-	(defq forms (forms-of top) in :nil defuns (list) exported (Fset 101) quoted_all :t)
-	(each (lambda (node)
-		(when (defq kids (tree-form? node))
-			(defq inner (forms-of kids)
-				head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
-			(cond
-				((eql head "env-push") (setq in :t defuns (list)))
-				((eql head "env-pop")
-					(when (and in quoted_all)
-						(defq names (Fmap 101))
-						(each (lambda ((name at body)) (. names :insert name at)) defuns)
-						(each (lambda ((name at body))
-							(each (lambda ((call call_node))
-								(and (defq later (. names :find call)) (> later at) (not (. exported :find call))
-									(found file call_node "below" "(" name ") calls (" call
-										"), made after it in the module and not exported, it is not there when it runs")))
-								(calls-of body)))
-							defuns))
-					(setq in :nil exported (Fset 101) quoted_all :t))
-				((and in (find head '("export-symbols" "export-classes")))
-					(if (and (> (length inner) 1) (eql (first (second inner)) :quoted) (defq list_kids (tree-form? (third (second inner)))))
-						(each (# (if (eql (first %0) :symbol) (. exported :insert (third %0)))) (forms-of list_kids))
-						(setq quoted_all :nil)))
-				((and in (eql head "defun") (> (length inner) 3) (eql (first (second inner)) :symbol))
-					(push defuns (list (third (second inner)) (length defuns) kids))))))
-		forms))
 
 (defun check-cut (file forms head)
 	;(slice (str x) 0 200): how long the string of a thing is, is not known
@@ -406,63 +417,6 @@
 				(rest (forms-of fields)))))
 		(rest forms)))
 
-(defun params-of (node)
-	; (params-of node) -> (name ...)
-	;the names a list of parameters gives, those in lists in it too
-	(defq out (list) todo (list node))
-	(while (defq node (pop todo))
-		(cond
-			((eql (first node) :symbol)
-				(unless (or (starts-with "&" (third node)) (eql (third node) "_")) (push out (third node))))
-			((eql (first node) :form) (each (# (push todo %0)) (third node)))))
-	out)
-
-(defun defqs-of (forms)
-	; (defqs-of forms) -> (name ...)
-	;the names a (defq) makes in these forms, and in the forms in them, but
-	;not in a (lambda) or a (#) there, whose names are its own
-	(defq out (list) todo (list forms))
-	(while (defq nodes (pop todo))
-		(each (lambda (node)
-			(when (defq kids (tree-form? node))
-				(defq inner (forms-of kids)
-					head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
-				(cond
-					((find head '("lambda" "#" "defun" "defmacro" "macro")))
-					((eql head "defq")
-						(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push out (third %0)))) (rest inner))
-						(push todo (rest inner)))
-					((push todo inner)))))
-			nodes))
-	out)
-
-(defun uses-of (body)
-	; (uses-of nodes) -> (used made)
-	;the names used in some forms, not as the first thing of a form,
-	;which is a call, and the names made in them: the parameters of a
-	;(lambda) there, and what a (defq) or a (bind) names
-	(defq used (list) made (list) todo (list body))
-	(while (defq nodes (pop todo))
-		(defq forms (forms-of nodes)
-			head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
-		(cond
-			((find head '("lambda" "macro"))
-				(if (> (length forms) 1) (each (# (push made %0)) (params-of (second forms)))))
-			((eql head "defq")
-				(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push made (third %0)))) (rest forms)))
-			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
-				(each (# (push made %0)) (params-of (third (second forms))))))
-		(each (lambda (form)
-			(cond
-				((eql (first form) :form) (push todo (third form)))
-				;the first thing of a form is a call. A name of the system
-				;there is bound to its function as the code is read, any
-				;other is looked for when it is called, as a variable is
-				((and (eql (first form) :symbol) (or (> (!) 0) (not head) (not (. *root_names* :find (third form)))))
-					(push used (third form)))))
-			forms))
-	(list used made))
-
 (defun check-capture (file forms head)
 	;(fn ... (lambda (a) (... x ...)) ...) where fn, of this file, has a
 	;parameter x: the x the lambda has when fn calls it is fn's
@@ -546,7 +500,6 @@
 							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
-			(if (find "below" checks) (check-below file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)

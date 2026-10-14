@@ -298,15 +298,6 @@
 		(. *bot_breaths* :erase (task-mbox)))
 	((ffi "sys/task/lisp_priority") (if (eql band :bot) 4 5)))
 
-(defun task-breathe ()
-	; (task-breathe)
-	;(task-slice), and for a bot, every so often, +bot_work, a rest of all
-	;the bots of the node, +bot_rest, so the apps of the node have a turn:
-	;a bot gives way only to its own band and those before it, and one at
-	;work for a second held every app of its node for that second.
-	;Measured, 20 gophers that never came back, the apps waited 9.1 s
-	(if (. *bot_breaths* :find (task-mbox)) (bot-breathe (pii-time)) (task-slice)))
-
 (defun bot-breathe (now)
 	; (bot-breathe now)
 	;(task-breathe) of a task that is a bot, given the time: every bot of
@@ -324,6 +315,15 @@
 				((task-slice))))
 		((< now *bot_rest_end*) (task-sleep (- *bot_rest_end* now)))
 		((task-slice))))
+
+(defun task-breathe ()
+	; (task-breathe)
+	;(task-slice), and for a bot, every so often, +bot_work, a rest of all
+	;the bots of the node, +bot_rest, so the apps of the node have a turn:
+	;a bot gives way only to its own band and those before it, and one at
+	;work for a second held every app of its node for that second.
+	;Measured, 20 gophers that never came back, the apps waited 9.1 s
+	(if (. *bot_breaths* :find (task-mbox)) (bot-breathe (pii-time)) (task-slice)))
 
 (defun node-stop (id)
 	; (node-stop id) -> :nil | num

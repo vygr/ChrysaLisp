@@ -56,6 +56,11 @@
 ;being recorded, which it opens on
 (defq +config_file (cat *env_home* "storage.tre") +config_version 2)
 
+(defun config-of ()
+	;what is to be kept, as it is now
+	(list (elem-get *scenes* (ifn (. *scene* :get_selected) 0)) (if *trace* :t :nil) (ifn *want* (ifn *shown* ""))
+		(if *record* :t :nil)))
+
 (defun config-load ()
 	(defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
 	(if (or (not config) (/= (. config :find :version) +config_version))
@@ -65,11 +70,6 @@
 	(setq *trace* (. config :find :trace) *want* (. config :find :shown) *record* (. config :find :record)
 		*saved* (config-of))
 	(if (eql *want* "") (setq *want* :nil)))
-
-(defun config-of ()
-	;what is to be kept, as it is now
-	(list (elem-get *scenes* (ifn (. *scene* :get_selected) 0)) (if *trace* :t :nil) (ifn *want* (ifn *shown* ""))
-		(if *record* :t :nil)))
 
 (defun config-save ()
 	;only when it is not as it was kept
@@ -201,11 +201,11 @@
 	(and tag (defq walk (replay-walk *replay* tag)) (eql (first walk) *shown*)
 		(list tag (sort (cat (second walk)) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))))
 
-(defun fit (text most)
-	; (fit text most) -> text
+(defun fit (line most)
+	; (fit line most) -> line
 	;no more than so many characters, so it stays out of the event list
 	;beside it: of a path, the end, which is what tells two apart
-	(if (<= (length text) most) text (cat "..." (slice text (- (length text) (max 1 (- most 3))) -1))))
+	(if (<= (length line) most) line (cat "..." (slice line (- (length line) (max 1 (- most 3))) -1))))
 
 (defun short (id)
 	;a member as it is shown, a machine's id is 32 hex digits
