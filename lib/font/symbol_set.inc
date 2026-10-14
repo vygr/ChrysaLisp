@@ -25,6 +25,10 @@
 	s_lens (cat (s-ring 11 11 7) (s-line 16.2 16.2 21 21))
 	s_tray (s-line 4 14 4 19 6 21 18 21 20 19 20 14)
 	s_tri (s-loop 7 4 19 12 7 20)
+	;of the media family, below
+	s_m_tri (s-loop 8 5 18.5 12 8 19)
+	s_m_on (cat (s-loop 6 5 14.5 12 6 19) (s-line 18 5 18 19))
+	s_m_end (cat (s-loop 3.5 5 10.5 12 3.5 19) (s-loop 10.5 5 17.5 12 10.5 19) (s-line 20.5 5 20.5 19))
 	s_pause (cat (s-line 9 5 9 19) (s-line 15 5 15 19))
 	s_step (cat (s-arc-arrow 12 15 8 170 10) (s-disc 12 20 1.8))
 	s_fwd (cat (s-loop 3 6 11 12 3 18) (s-loop 13 6 21 12 13 18))
@@ -206,7 +210,21 @@
 	(list "full_protractor" (cat (s-ring 12 12 8.5) (s-line 12 3.5 12 7) (s-line 20.5 12 17 12)
 		(s-line 12 20.5 12 17) (s-line 3.5 12 7 12) (s-line 11 12 13 12) (s-line 12 11 12 13)))
 	;the set square of 45 degrees, its long side down
-	(list "set_square45" (cat (s-loop 2.5 18 21.5 18 12 8.5) (s-loop 9 15.5 15 15.5 12 12.5)))))
+	(list "set_square45" (cat (s-loop 2.5 18 21.5 18 12 8.5) (s-loop 9 15.5 15 15.5 12 12.5)))
+	;the media family, the controls of a player, made to match: one
+	;triangle, one bar, all of them 14 high from 5 to 19, and each that
+	;goes back is the one that goes on turned left for right
+	(list "media_play" s_m_tri)
+	(list "media_pause" (cat (s-line 9 5 9 19) (s-line 15 5 15 19)))
+	(list "media_stop" (s-rrect 6 6 18 18 1.5))
+	(list "media_back" (s-mirror s_m_on))
+	(list "media_on" s_m_on)
+	(list "media_start" (s-mirror s_m_end))
+	(list "media_end" s_m_end)
+	(list "media_record" (s-disc 12 12 6))
+	(list "media_live" (cat (s-disc 12 12 2.6)
+		(s-arc 12 12 6.5 -40 40) (s-arc 12 12 6.5 140 220)
+		(s-arc 12 12 10 -40 40) (s-arc 12 12 10 140 220)))))
 
 ;;;;;;;;;;;;
 ; the themes

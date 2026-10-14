@@ -53,7 +53,8 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
-			(ui-buttons (+sym_play +sym_pause +sym_rewind +sym_prev +sym_step +sym_play_end +sym_record +sym_find) +event_play))
+			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
+				+sym_media_record +sym_find) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))

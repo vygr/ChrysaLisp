@@ -61,6 +61,17 @@ That they look like one family is from the rules, not from the drawing:
 one grid, one weight, round ends and corners, the same arrow head and the
 same document everywhere.
 
+## The media family
+
+The controls of a player, made to match each other: `media_play`,
+`media_pause`, `media_stop`, `media_start`, `media_back`, `media_on`,
+`media_end`, `media_record` and `media_live`. One triangle, one bar, all
+of them 14 high, from 5 to 19 of the grid, and each that goes back is the
+one that goes on, turned left for right, `(s-mirror)`. The Storage app's
+player is made of them. The older `play`, `pause`, `rewind`, `step` and
+`play_end` are the editor's, for its macros and its debugger, and are as
+they were.
+
 ## To change or add one
 
 Change it in `lib/font/symbol_set.inc` and run `symbols`. The fonts and
