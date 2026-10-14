@@ -93,6 +93,18 @@ about a point, default the origin
 (Mat3x2-translate tx ty) -> matrix
 ```
 
+### PNG-info
+
+```code
+(PNG-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### PNG-load
+
+```code
+(PNG-load stream) -> :nil | canvas
+```
+
 ### SVG-info
 
 ```code
@@ -2986,6 +2998,50 @@ every child that is up and has no job is given one
 (in-set-state in num) -> in
 ```
 
+### inflate-code
+
+```code
+(inflate-code lengths) -> (counts symbols)
+
+a canonical code of these lengths of each symbol, 0 not used: how
+many there are of each length, and the symbols in the order of their
+codes
+```
+
+### inflate-decompress
+
+```code
+(inflate-decompress in_stream out_stream [zlib]) -> :nil | :t
+
+the bytes a DEFLATE stream is, raw, or with zlib's head and sum round
+it. :nil if it is not one, or stops before its end, what was got by
+then is written
+```
+
+### inflate-dynamic
+
+```code
+(inflate-dynamic in bits) -> :nil | (literals distances)
+
+the codes a block of its own codes says, at its head
+```
+
+### inflate-fixed
+
+```code
+(inflate-fixed) -> (literals distances)
+
+the codes of a block of fixed codes
+```
+
+### inflate-symbol
+
+```code
+(inflate-symbol in bits code) -> symbol | -1
+
+the next symbol of a code, read a bit at a time
+```
+
 ### int-to-hex-str
 
 ```code
@@ -3392,6 +3448,15 @@ each a texture and a sampler at the same number, -> text to go after
 the other parameters
 ```
 
+### mtl-read
+
+```code
+(mtl-read stream) -> fmap
+
+each material by its name, an emap: :colour (r g b), :seen 0 to 1,
+and :map, the file of its picture, if it has one
+```
+
 ### must-break?
 
 ```code
@@ -3634,6 +3699,64 @@ node can start is asked for there, as it was, and not of nobody
 (obj-args field [offset]) -> args
 
 convert to obj-get/obj-set common args
+```
+
+### obj-corner
+
+```code
+(obj-corner text counts) -> (position place normal)
+
+a corner of a face, a, a/b, a//c or a/b/c. split would lose the empty
+part of a//c, so the slashes are found
+```
+
+### obj-fit
+
+```code
+(obj-fit obj) -> mat4x4
+
+the matrix that puts the whole of it in a ball of radius 1 about 0
+```
+
+### obj-flat
+
+```code
+(obj-flat obj corners [matrix]) -> reals
+
+the triangles of a group as a shader is given them, a corner eight
+numbers: where it is, three, after matrix if one is given, the place
+on the picture, two, across and down, and its normal, three. A place
+of an .obj goes up from the bottom, a picture's down from the top, so
+down is 1 less it. A corner with no place is at 0 0, and a triangle
+whose corners have no normal is given the one of its face
+```
+
+### obj-index
+
+```code
+(obj-index text count) -> index
+
+a number of a corner as an index from 0, -1 if there is none
+```
+
+### obj-normal
+
+```code
+(obj-normal p0 p1 p2) -> reals
+
+the normal of a triangle, the way it faces when its corners go round
+counter clockwise
+```
+
+### obj-read
+
+```code
+(obj-read stream) -> emap
+
+:positions reals, three a position, :places reals, two a place,
+:normals reals, three a normal, :groups ((material nums) ...), the
+nums three a corner and nine a triangle, in the order the materials
+were first used, and :libraries (name ...), the .mtl files
 ```
 
 ### obj-set-args
@@ -4019,6 +4142,74 @@ the key of the shared memory its pixels are in, 0 if they are its own
 
 ```code
 (pmap? form) -> :t | :nil
+```
+
+### png-be
+
+```code
+(png-be data at) -> num
+
+four bytes high first, as a .png has its numbers
+```
+
+### png-channels
+
+```code
+(png-channels colour) -> num
+```
+
+### png-chunk
+
+```code
+(png-chunk stream) -> :nil | (type data)
+
+the next chunk, its sum read and not looked at
+```
+
+### png-chunk-head
+
+```code
+(png-chunk-head stream) -> :nil | (type len)
+
+the head of the next chunk, its data not read
+```
+
+### png-head
+
+```code
+(png-head stream) -> :nil | (width height depth colour interlace)
+```
+
+### png-idat
+
+```code
+(png-idat in out len)
+
+the data of the IDAT chunks, one after the other, the first of them
+begun, len of it to come. It stops at a chunk that is not one
+```
+
+### png-stage
+
+```code
+a stage of the pipeline, as a CPM's: what it reads is the stream if
+
+it is first, or an in stream it says where to find
+```
+
+### png-stage-pixmap
+
+```code
+the last stage, the pixels read into the pixmap, and that said
+```
+
+### png-unfilter
+
+```code
+(png-unfilter in out width height depth colour palette clear)
+
+the rows inflated, each its filter undone and its pixels written as
+32 bits, blue green red alpha, as a pixmap reads them
 ```
 
 ### poly-area
