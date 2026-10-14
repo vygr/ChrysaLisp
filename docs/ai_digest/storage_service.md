@@ -583,12 +583,15 @@ played back, from a recording of it.
 
 * The scenes are a row of buttons, and Run runs the one chosen: its members
   are recorded from the first, and drawn as they go.
-* The store this system is a member of is always watched when a scene is
-  not running: what it has when the app opens, and then what it does. It
-  is what the app opens on. Record keeps all of it, and the timeline goes
-  back to the start; off, the last 2,000 events are kept. Whether it is on
-  is kept for the user, `usr/<user>/storage.tre`, with the scene chosen,
-  trace and the object shown.
+* Live is the store this system is a member of: what it has, and then
+  what it does. It is what the app opens on, and what live goes back to
+  after a scene.
+* Record is whether all of what the store does is kept, and the timeline
+  goes back to the start; off, the last 2,000 events. It is kept for the
+  user, `usr/<user>/storage.tre`, with the scene chosen, trace and the
+  object shown.
+* A scene that is run is all recorded, and stays to be gone over when it
+  is done.
 * The members are down the side, the blocks of the object shown across, a
   square where a member keeps one, the first column the object's manifest.
   Under them the objects, a square for each member that has one, grey where

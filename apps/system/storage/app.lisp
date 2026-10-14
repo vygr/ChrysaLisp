@@ -13,11 +13,12 @@
 ;	play, pause	the recording at the speed it was made, from where it
 ;			is, or still, there, whatever comes in
 ;	start, end	to the start, or to the end, and what comes is followed
+;	live		the store this system is a member of, what it has and
+;			then what it does. It is what the app opens on, and what
+;			it goes back to after a scene
 ;	record		all of what the store of this system does is kept, and
 ;			the timeline goes back to the start. Off, the last few
-;			thousand events. The store this system is a member of
-;			is always watched, what it has and what it does, when
-;			a scene is not, and is what the app opens on
+;			thousand events
 ;	find		trace, only what was done to the object shown and its
 ;			blocks
 ;	on the right, the scenes of tests/storage/, and run runs the one
@@ -41,7 +42,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause start back on end record trace run scene timeline))
+	(enum play pause start back on end live record trace run scene timeline))
 
 (defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
@@ -87,7 +88,7 @@
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
-				+sym_media_record +sym_find) +event_play))
+				+sym_media_live +sym_media_record +sym_find) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
@@ -102,7 +103,8 @@
 
 (ui-tool-tips *debug*
 	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
-		"to the end, and follow what comes" "keep all the store of this system does, or the last few thousand" "trace the object shown"))
+		"to the end, and follow what comes" "the store of this system, live"
+		"keep all the store of this system does, or the last few thousand" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 ;each scene's own first line, what it is for
 (ui-tool-tips *scene* (map (const second) *scene_list*))
@@ -187,7 +189,7 @@
 	;still, following what comes, recording, and trace. Only when that is
 	;not as it was, a button changed is drawn again
 	(defq now (list *playing* (not (or *playing* *follow*)) :nil :nil :nil (and *follow* (not *playing*))
-			(and *run* *live* *record*) *trace*)
+			(and *run* *live*) *record* *trace*)
 		now (map (# (if %0 :t :nil)) now))
 	(unless (eql (str now) (str *lit*))
 		(setq *lit* now)
@@ -386,21 +388,20 @@
 						;the store of this system is not recorded while a scene runs
 						(setq *record* :nil)
 						(watch name))
-					((= id +event_record)
-						;the store of this system, or, if that is what is being
-						;recorded, stop
-						;it is watched whenever it is not a scene. Recorded, all of
-						;it is kept, if not, the last so many events
+					((= id +event_live)
+						;back to the store of this system, if it is not what is watched
 						(cond
-							((not (and *run* *live*))
-								(say "The store of this system, as it is and as it works, all of it recorded.")
-								(setq *record* :t)
-								(watch "-"))
-							(*record*
-								(setq *record* :nil)
-								(say "The store of this system, the last " (str +live_keep) " events kept. Record keeps all."))
-							(:t (setq *record* :t)
-								(say "The store of this system, all of it recorded from now."))))
+							((not (storage-service))
+								(say "This system is a member of no store, a scene is all there is to watch."))
+							((and *run* *live*))
+							(:t (say "The store of this system, as it is and as it works.")
+								(watch "-"))))
+					((= id +event_record)
+						;whether all of it is kept, or the last so many events, of
+						;the store of this system, now if it is what is watched
+						(setq *record* (not *record*))
+						(say (if *record* "All of what the store of this system does is kept."
+							(cat "The last " (str +live_keep) " events of the store of this system are kept."))))
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
 					((= id +event_play) (play))
@@ -461,7 +462,8 @@
 					((starts-with "end " msg)
 						(bind '(passed failed) (rest (split msg " ")))
 						(setq *run* :nil *live* :nil)
-						(say (if (eql passed "-") "Stopped." (cat "Done: " passed " held, " failed " did not."))))))
+						(say (if (eql passed "-") "Stopped."
+							(cat "Done: " passed " held, " failed " did not. Live goes back to the store of this system."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
 				;a control that has changed, that drew nothing, is lit or not, and
 				;what is kept for the user is kept, if it has changed
