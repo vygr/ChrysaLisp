@@ -501,6 +501,18 @@
 						(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
 			nodes)))
 
+(defun import-defuns (path)
+	; (import-defuns path) -> fmap
+	;the functions of a file another imports, read the once by this task:
+	;a file is imported by many, and was read again for each
+	(unless (defq got (. *import_defuns* :find path))
+		(defq keep *defuns*)
+		(setq *defuns* (Fmap 31))
+		(if (defq in (file-stream path)) (defuns-of (first (tree-read in))))
+		(. *import_defuns* :insert path (setq got *defuns*))
+		(setq *defuns* keep))
+	got)
+
 (defun imports-of (file top)
 	; (imports-of file top) -> (path ...)
 	;the files a file imports, at its top, those that are there
@@ -609,8 +621,7 @@
 			(when (find "capture" checks)
 				;the functions of the files it imports, and its own after, which
 				;are the ones a name is had of if both have it
-				(each (lambda (path)
-						(and (defq in (file-stream path)) (defuns-of (first (tree-read in)))))
+				(each (lambda (path) (. (import-defuns path) :each (# (. *defuns* :insert %0 %1))))
 					(imports-of file top))
 				(defuns-of top))
 			(while (defq nodes (pop todo))
@@ -670,7 +681,9 @@
 		(defq checks (if opt_c (filter (# (find %0 +check_names)) (split opt_c ",")) +check_names)
 			;the names of the system, what a function, a macro or a form is
 			;bound to in the environment every task starts with
-			*root_names* (Fset 101))
+			*root_names* (Fset 101)
+			;the functions of each file imported, as read, (import-defuns)
+			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
 			(if (or (func? val) (lambda? val) (macro? val)) (. *root_names* :insert (str name))))
 			(tolist *root_env*))
