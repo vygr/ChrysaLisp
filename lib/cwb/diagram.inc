@@ -336,10 +336,18 @@
 			(:t (push (first scene) (dia-arrow px py qx qy heads))))
 		(when (and label (nempty? label))
 			(defq lw (dia-width label 11) mx (* 0.5 (+ px qx)) my (* 0.5 (+ py qy)))
-			;beside an upright line, over one that lies flat
-			(push (first scene) (if across
-				(dia-words label (- mx (* 0.5 lw)) (- (if (eql bend :elbow) (min py qy) my) 5.0) 11 :nil +dia_dim)
-				(dia-words label (+ mx 6.0) (+ my 4.0) 11 :nil +dia_dim)))))
+			;beside an upright line, over one that lies flat or nearly, raised
+			;by what it climbs under the words, and beside one that slopes more,
+			;on the side its upper half leans from
+			(defq lx (abs (- qx px)) ly (abs (- qy py)))
+			(push (first scene) (cond
+				((and across (eql bend :elbow))
+					(dia-words label (- mx (* 0.5 lw)) (- (min py qy) 5.0) 11 :nil +dia_dim))
+				((and across (< (* 2.0 ly) lx))
+					(dia-words label (- mx (* 0.5 lw)) (- my 5.0 (/ (* 0.5 lw ly) lx)) 11 :nil +dia_dim))
+				((and across (< (* (- qx px) (- qy py)) 0.0))
+					(dia-words label (- mx lw 6.0) (+ my 4.0) 11 :nil +dia_dim))
+				(:t (dia-words label (+ mx 6.0) (+ my 4.0) 11 :nil +dia_dim))))))
 	scene)
 
 (defun dia-scene-doc (scene &optional pad)

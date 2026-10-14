@@ -27,6 +27,10 @@ why, and what each measurement found on the way, is
 | `cmd/storage.lisp` | `storage`, the command |
 | `apps/system/storage/` | the Storage app: a store watched as it works, and played back |
 
+```image
+docs/diagrams/storage_member_tasks.cwb
+```
+
 ## Objects, Blocks And Paths
 
 An object is cut into blocks of 64KB, the last shorter. A block is named by
@@ -36,6 +40,10 @@ known for it.
 
 An object is a manifest: how long it is and the names of its blocks in
 order. A manifest is a block too, named the same way.
+
+```image
+docs/diagrams/storage_object.cwb
+```
 
 A path names one object. The path map, path to manifest, is the one part of
 a store that changes, and the one part the members have to agree on. An
@@ -84,6 +92,10 @@ have its write set aside knows.
 ## On The Volume
 
 A store is an exFAT volume, a file of the host or a disk. On it:
+
+```image
+docs/diagrams/storage_volume.cwb
+```
 
 ```
 store        what it is: its magic, the store's id, the member's, the block size, copies
@@ -215,7 +227,7 @@ fewer. Every member works out the same from the list of members and nothing
 else.
 
 ```image
-docs/diagrams/storage_blocks.cwb
+docs/diagrams/storage_members.cwb
 ```
 
 * A new member comes out in the first three for its share of the blocks, and
@@ -267,6 +279,10 @@ the path map an object, and every member has it as it has any path: it is
 shared, copied as its objects say, swept as they are, and what a snapshot
 is of can be had, read as a stream, or sent a gopher.
 
+```image
+docs/diagrams/storage_snapshot.cwb
+```
+
 ```
 (storage-snapshot name [prefix svc])   -> count        storage -n name [prefix]
 (storage-snapshots [svc])              -> ((name count) ...)   storage -N
@@ -309,6 +325,10 @@ A service only ever answers. It asks nothing of another member and waits:
 two that did, each of the other, would wait for ever. What a member has to
 ask is asked by its tender, a task of its own. It looks every 2 seconds,
 `+storage_tick`, and at once when its member is written to.
+
+```image
+docs/diagrams/storage_put.cwb
+```
 
 * It finds the other members that are there, and tells its service who they
   are.
@@ -383,6 +403,10 @@ A gopher is a query that goes to the blocks of an object, in place of the
 blocks being brought to the asker. It is what it has so far, and a function:
 given that, a block, which block it is and how many there are, the function
 gives what it has now and the block it wants next, or `:nil`, it is done.
+
+```image
+docs/diagrams/storage_gopher.cwb
+```
 
 ```
 (storage-walk "logs/today" 0

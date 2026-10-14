@@ -1,0 +1,12 @@
+;docs/ai_digest/storage_service.md: what is on a member's volume
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(each (lambda ((name what fill))
+		(dia-put s :nil (dia-box (list name what) 520 40 fill 11 :first) 0 (* (!) 40)))
+	(list (list "store" "what it is: magic, the store's id, the member's, the block size, copies" blue)
+		(list "members, retired" "who the members are, and were" blue)
+		(list "pins, pinned" "what this member holds all of, and what each does" blue)
+		(list "paths" "the path map, a line an entry, written whole" green)
+		(list "journal" "the entries set since, a 64th of the volume, written where it is" green)
+		(list "blocks/xx/yyyy..." "each block, its name in hex, xx the first two of it" gold)))
+(dia-say s "A real exFAT volume: the Mac mounts it, lists these files, and checks it clean." 0 266 12 :nil 0xff202428)
+(diagram "storage_volume" (dia-scene-doc s))
