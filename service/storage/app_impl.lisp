@@ -269,7 +269,11 @@
 							;and then that is the store: the old file is gone, and the
 							;machine whose member this is starts it from the new
 							(defq megabytes (str-as-num body) moved_to (storage-resized-name image megabytes))
-							(cond
+							;a copy of all of it is long work, not an answer: done in the
+							;apps' band, with the apps of the node, not before them, a
+							;bot gives them a moment only every 20ms
+							(task-band :app)
+							(defq resized (cond
 								((or (<= megabytes 0) (eql moved_to image)) "")
 								((defq moved (store-resize store moved_to (* megabytes 1048576)))
 									(when (defq said (storage-member))
@@ -283,6 +287,8 @@
 									(storage-record recorder member "resize" (cat (str megabytes) " " image))
 									image)
 								(:t (pii-remove moved_to) "")))
+							(task-band :bot)
+							resized)
 						(+storage_type_record
 							;told to the tender and the gophers too, each says what it does
 							(storage-record-to recorder body)

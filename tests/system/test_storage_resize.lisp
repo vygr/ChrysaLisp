@@ -40,8 +40,8 @@
 (assert-eq "and the store is as it was" rz_count (length (storage-list "" rz_svc)))
 
 ;smaller, that fits
-(defq rz_small (storage-resize 3 rz_svc))
-(assert-eq "made smaller, where it fits" (storage-resized-name rz_image 3) rz_small)
+(defq rz_small (storage-resize 2 rz_svc))
+(assert-eq "made smaller, where it fits" (storage-resized-name rz_image 2) rz_small)
 (assert-eq "the one before is gone" 0 (age rz_big))
 (assert-true "every object is what was put" (every (# (eql (storage-get (cat "docs/file " (str (!))) rz_svc) %0)) rz_data))
 (assert-true "and a put after is kept" (storage-put "docs/after" "after" :nil rz_svc))
@@ -63,7 +63,7 @@
 ;full to the last cluster, by a put that did not fit, so that its path map
 ;could not be written to it, and made bigger: what it has is all there
 (defq rz_before (length (storage-list "" rz_svc)))
-(storage-put "docs/huge" (apply (const cat) (map (# (hex-encode (sha256 (str "huge " %0)))) (range 0 48000))) :nil rz_svc)
+(storage-put "docs/huge" (apply (const cat) (map (# (hex-encode (sha256 (str "huge " %0)))) (range 0 24000))) :nil rz_svc)
 (defq rz_full (storage-resize 8 rz_svc))
 (assert-eq "full, made bigger" (storage-resized-name rz_image 8) rz_full)
 (assert-eq "with every object it had" rz_before (length (filter (# (nql (first %0) "docs/huge")) (storage-list "" rz_svc))))
