@@ -2848,6 +2848,18 @@ to look under the pointer again would let go of it
 (hex-encode-stream in_stream out_stream [chunk_size flags])
 ```
 
+### hkdf-expand
+
+```code
+(hkdf-expand prk info length) -> str
+```
+
+### hkdf-extract
+
+```code
+(hkdf-extract salt secret) -> str
+```
+
 ### hmac-sha256
 
 ```code
@@ -7438,6 +7450,136 @@ the theme a user has from now on
 (timezone-offset-seconds tz) -> seconds
 ```
 
+### tls-be
+
+```code
+(tls-be n bytes) -> str
+
+a number as so many bytes, the high first, as TLS has its numbers
+```
+
+### tls-client-hello
+
+```code
+(tls-client-hello host public) -> str
+```
+
+### tls-close
+
+```code
+(tls-close conn)
+
+a close told to the server, and the connection let go of
+```
+
+### tls-fill
+
+```code
+(tls-fill state) -> :nil | str
+
+what the server says next, a record of it. What it says about
+itself after the handshake, a ticket, is read past
+```
+
+### tls-handshake
+
+```code
+(tls-handshake state host) -> :nil | :t
+```
+
+### tls-keys
+
+```code
+(tls-keys secret) -> (key iv)
+```
+
+### tls-label
+
+```code
+(tls-label secret label context len) -> str
+
+HKDF-Expand-Label of RFC 8446 7.1
+```
+
+### tls-message
+
+```code
+(tls-message state) -> :nil | (type whole)
+
+the next handshake message, from as many records as it takes, the
+whole of it with its head, as the transcript has it
+```
+
+### tls-nonce
+
+```code
+(tls-nonce iv seq) -> str
+
+the iv with the number of the record in its last 8 bytes, xor
+```
+
+### tls-num
+
+```code
+(tls-num data at bytes) -> num
+```
+
+### tls-open
+
+```code
+(tls-open host port) -> :nil | (in out state)
+
+a connection that is private between here and whoever answers at the
+address. NOT YET is it checked who that is, see the top of this file
+```
+
+### tls-open-record
+
+```code
+(tls-open-record state) -> :nil | (type data)
+
+the next record that is not a change of cipher spec, opened with
+the keys of the other side if it is sealed
+```
+
+### tls-record-read
+
+```code
+(tls-record-read state) -> :nil | (type body)
+```
+
+### tls-seal
+
+```code
+(tls-seal state type data)
+
+data of a type, sealed with the keys of this side, as a record
+```
+
+### tls-server-share
+
+```code
+(tls-server-share hello) -> :nil | public
+
+the server's X25519 share of its ServerHello, if it took TLS 1.3 and
+the one suite. A HelloRetryRequest, a random of a set value, is not
+taken: there is no other group to offer it
+```
+
+### tls-vec
+
+```code
+(tls-vec len_bytes data) -> str
+
+data after its length, as a vector of TLS is
+```
+
+### tls-write
+
+```code
+(tls-write state data flush)
+```
+
 ### tok-rule
 
 ```code
@@ -7865,9 +8007,67 @@ do fit. It is cut after a / _ - . or ) where it can be, and where a
 run between two of those is still too long, after any character
 ```
 
+### x25519
+
+```code
+(x25519 secret point) -> str
+
+the secret, 32 bytes, times the point, 32 bytes, the u of a point
+of the curve, the low byte first
+```
+
+### x25519-public
+
+```code
+(x25519-public secret) -> str
+
+the public half of a secret, to give the other side
+```
+
+### x25519-swap
+
+```code
+p and q swapped if bit is 1
+```
+
 ### zip
 
 ```code
 (zip seq ...) -> seq
+```
+
+### zip-end
+
+```code
+(zip-end data) -> :nil | at
+
+where the record that ends the zip is, looked for from the end back
+```
+
+### zip-find
+
+```code
+(zip-find entries name) -> :nil | entry
+
+the one of that name, or the one whose name ends so, a file in a
+folder of the zip given by its own name
+```
+
+### zip-list
+
+```code
+(zip-list data) -> :nil | ((name method packed full at) ...)
+
+what is in a zip, its directory. A folder is a name that ends in /.
+:nil if it is not a zip
+```
+
+### zip-read
+
+```code
+(zip-read data entry out) -> :nil | :t
+
+what one thing of a zip is, to a stream. :nil if it was packed some
+other way, or is not all there
 ```
 

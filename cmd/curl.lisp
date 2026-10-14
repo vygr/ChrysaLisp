@@ -42,6 +42,9 @@
 					v (trim (slice hdr (inc idx) -1)))
 				(pinsert headers (sym (cat ":" (to-lower k))) v)))
 			opt_headers)
+		;who an https server is is not checked yet, lib/net/tls.inc
+		(if (starts-with "https://" u)
+			(print "curl: https: private, but the server's certificate is not checked yet, so who answered is not known"))
 		(defq resp (http-request method u headers opt_d))
 		(if resp
 			(progn

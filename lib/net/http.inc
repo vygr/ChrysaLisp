@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (import "./url.inc")
+(import "./tls.inc")
 (import "service/net/app.inc")
 
 ;module
@@ -128,13 +129,17 @@
 	(setd headers (pmap))
 	(defq u (if (str? url) (url-parse url) url)
 		host (pfind u :host) port (pfind u :port)
+		;https is over TLS, lib/net/tls.inc, a connection each time, not
+		;kept. NOT YET is who the server is checked, see there
+		https (eql (pfind u :scheme) "https")
 		path_query (url-path-query u) res :nil attempts 0)
 	(while (and (not res) (< attempts 2))
 		(++ attempts)
 		(and host (> (length host) 0)
-			(when (defq pooled (http-pool-checkout host port))
+			(when (defq pooled (if https (if (defq secure (tls-open host port)) (list secure :nil))
+					(http-pool-checkout host port)))
 				(bind '(conn from_pool) pooled)
-				(bind '(in out) conn)
+				(defq in (first conn) out (second conn))
 				; 1. Assemble Request Headers
 				(defq req_lines (list
 					(cat (to-upper method) " " path_query " HTTP/1.1")
@@ -176,12 +181,12 @@
 						(setq res (pmap
 							:status status :reason reason :proto proto
 							:headers resp_headers :body resp_body))
-						(http-pool-checkin host port conn
-							(pfind res :headers)))
+						(if https (tls-close conn) (http-pool-checkin host port conn
+							(pfind res :headers))))
 					; If pooled connection dropped on first read, close and retry once
 					(from_pool
 						(net-close-rpc conn))
-					(:t (net-close-rpc conn)
+					(:t (if https (tls-close conn) (net-close-rpc conn))
 						(setq attempts 2))))))
 	res)
 
