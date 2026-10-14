@@ -60,6 +60,12 @@
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
+    below   a function of a module, between (env-push) and
+            (env-pop), that calls one the module makes after
+            it and does not export. A call is bound as it is
+            read to what is there then, else looked for by
+            name as it runs, and by then the module's own
+            names have gone.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -105,7 +111,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "below")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -264,6 +270,46 @@
 							", which a (defq) after it makes again, it is that one it has from then on")))
 					used)))
 			body)))
+
+(defun calls-of (kids)
+	; (calls-of kids) -> ((name node) ...)
+	;the first thing of each form in these, that is a symbol: the calls
+	(defq out (list) todo (list kids))
+	(while (defq nodes (pop todo))
+		(defq forms (forms-of nodes))
+		(and (nempty? forms) (eql (first (first forms)) :symbol) (push out (list (third (first forms)) (first forms))))
+		(each (# (if (defq inner (tree-form? %0)) (push todo inner))) forms))
+	out)
+
+(defun check-below (file top)
+	;(env-push) (defun a () (b)) (defun b () ...) (export-symbols '(a))
+	;(env-pop): b is not there as a is read, and is gone as a runs
+	(defq forms (forms-of top) in :nil defuns (list) exported (Fset 101) quoted_all :t)
+	(each (lambda (node)
+		(when (defq kids (tree-form? node))
+			(defq inner (forms-of kids)
+				head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+			(cond
+				((eql head "env-push") (setq in :t defuns (list)))
+				((eql head "env-pop")
+					(when (and in quoted_all)
+						(defq names (Fmap 101))
+						(each (lambda ((name at body)) (. names :insert name at)) defuns)
+						(each (lambda ((name at body))
+							(each (lambda ((call call_node))
+								(and (defq later (. names :find call)) (> later at) (not (. exported :find call))
+									(found file call_node "below" "(" name ") calls (" call
+										"), made after it in the module and not exported, it is not there when it runs")))
+								(calls-of body)))
+							defuns))
+					(setq in :nil exported (Fset 101) quoted_all :t))
+				((and in (find head '("export-symbols" "export-classes")))
+					(if (and (> (length inner) 1) (eql (first (second inner)) :quoted) (defq list_kids (tree-form? (third (second inner)))))
+						(each (# (if (eql (first %0) :symbol) (. exported :insert (third %0)))) (forms-of list_kids))
+						(setq quoted_all :nil)))
+				((and in (eql head "defun") (> (length inner) 3) (eql (first (second inner)) :symbol))
+					(push defuns (list (third (second inner)) (length defuns) kids))))))
+		forms))
 
 (defun check-cut (file forms head)
 	;(slice (str x) 0 200): how long the string of a thing is, is not known
@@ -500,6 +546,7 @@
 							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
+			(if (find "below" checks) (check-below file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)

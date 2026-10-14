@@ -23,7 +23,7 @@
 (import "./app.inc")
 
 ;how many blocks are asked for at once
-(defq +tender_window 8)
+(defq +tender_window 32)
 
 (defun others (svc group me)
 	; (others svc group me) -> ((member netid state) ...)
@@ -84,8 +84,9 @@
 		(defq there (filter (# (find %0 (. (ifn (storage-state svc) me) :find :members))) there)
 			more :t rounds 0)
 		;my share. A manifest fetched says what more there is to want, so
-		;it is asked again, a few times
-		(while (and more (< (++ rounds) 8))
+		;it is asked again, while what was asked for comes: a look that
+		;stopped short of it left the rest for the next, a tick away
+		(while (and more (< (++ rounds) 256))
 			(setq more :nil)
 			(defq lines (split (ifn (storage-ask svc +storage_type_share (join there " ") 60) "-") +storage_lf)
 				at (ifn (find "-" lines) (length lines)))
@@ -97,9 +98,11 @@
 			;third of what the link could carry
 			(defq wants (map (const hex-decode) (slice lines 0 at)))
 			(each (lambda (start)
+				;each peer is asked at once, and each answer then read
 				(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
 					names (apply (const cat) (cat (list "") batch))
-					has (map (lambda ((who where state)) (ifn (storage-ask where +storage_type_has names 5) "")) peers)
+					has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))
+						(map (lambda ((who where state)) (storage-send where +storage_type_has names)) peers))
 					froms (map (lambda (want)
 						(defq at_want (!)
 							having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
@@ -108,24 +111,37 @@
 						batch)
 					boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
 					froms (map (# (if %0 (first %0) "?")) froms))
-				(each (lambda (want mbox from)
-					(task-breathe)
-					(when (and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
-							(eql (storage-ask svc +storage_type_block_put data) want))
+				;each block as it comes is given to my service and not waited
+				;for, and what it said of each is read after
+				(defq puts (map (lambda (want mbox)
+						(task-breathe)
+						(and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
+							(storage-send svc +storage_type_block_put data)))
+					batch boxes))
+				(each (lambda (want put from)
+					(when (and put (eql (mail-read-timeout put (task-timeout 10)) want))
 						(storage-record recorder member "fetched" (cat (storage-record-name want) " " from))
 						(++ fetched)
 						(setq more :t)))
-					batch boxes froms))
+					batch puts froms))
 				(range 0 (length wants) +tender_window))
 			;what is others' to keep is let go of when each of them has it
-			(each (lambda (line)
-				(bind '(extra &rest holders) (split line " "))
-				(when (every (lambda (holder)
-						(and (defq peer (some (# (if (eql (first %0) holder) %0)) peers))
-							(eql (storage-ask (second peer) +storage_type_has (hex-decode extra)) "1")))
-						holders)
-					(if (eql (storage-ask svc +storage_type_block_drop (hex-decode extra)) "1") (++ dropped))))
-				(slice lines (min (inc at) (length lines)) -1))))
+			;each peer is asked the once which of them it has, all at once, and
+			;those that every holder has are let go of, all at once too
+			(defq extras (map (# (split %0 " ")) (slice lines (min (inc at) (length lines)) -1)))
+			(when (nempty? extras)
+				(defq names (apply (const cat) (cat (list "") (map (# (hex-decode (first %0))) extras)))
+					has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))
+						(map (lambda ((who where state)) (storage-send where +storage_type_has names)) peers))
+					drops (map (lambda ((extra &rest holders))
+							(defq at_extra (!))
+							(and (every (lambda (holder)
+									(and (defq at_peer (some (# (if (eql (first %0) holder) (!))) peers))
+										(eql (elem-get (elem-get has at_peer) at_extra) "1")))
+									holders)
+								(storage-send svc +storage_type_block_drop (hex-decode extra))))
+						extras))
+				(each (# (and %0 (eql (mail-read-timeout %0 (task-timeout 10)) "1") (++ dropped))) drops))))
 	(list met fetched dropped))
 
 (defun main ()

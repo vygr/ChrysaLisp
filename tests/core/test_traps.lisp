@@ -42,6 +42,7 @@
 
 (env-push)
 (defun tr-mod-self (n) (if (> n 0) (tr-mod-self (dec n)) :bottom))
+;check off, a call of one made after it is what is tried
 (defun tr-mod-first (n) (tr-mod-second n))
 (defun tr-mod-second (n) n)
 (defun tr-mod-inner (n) (if (> n 0) (tr-mod-inner (dec n)) :bottom))

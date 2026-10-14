@@ -1101,6 +1101,25 @@ clock still, so on a node busy with apps it has less of it to work in, to
 be watched. `check` has `again`: a `defq` in the runner's loop of `kept`,
 a name the runner's own `take` has, gave every gopher "none".
 
+**A service is one task, and the tender's round trips.** 2026-10-14,
+Chris: "a service is one task, can it not deligate to a small farm of
+task, send a job list out to them ?", then "profile it first". Profiled,
+the tree into five members: a service waited for mail nine tenths of the
+time, its longest answer 15 ms through the put and 226 ms with the tenders
+at work. Of its work, `share` 30%, the volume 28%, hashing 8%. What a
+member's state is can not be shared out without locks, and the time was
+not the service's: after a put of 3 s every member had its share 45 s on.
+Chris: "1 and 2, now we know what we must do." 1: the share is worked out
+the once, a plan kept till the path map, pins or who is there change, and
+kept up as blocks come and go; a manifest that comes adds its object, a
+share went from 44 ms to 4. 2: the tender, timed part by part. Letting go
+was half of each look, every holder asked one at a time of each block:
+asked the once, 7 s to 0.6 s. The peers asked at once, the puts not
+waited for, a window of 32 for 8 (64 was no better), and looking again
+while blocks come in place of 8 rounds and a tick: 45 s to 12.9 s, a
+service's answer 136 ms at most. `check` has `below`, a call in a module
+of one made after it and not exported, which the plan's functions were.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
@@ -1139,8 +1158,9 @@ a name the runner's own `take` has, gave every gopher "none".
 * How deep the stack is when a written stream is let go of is not
   measured. Its flush is Lisp, with all Lisp needs of the stack, and it is
   run wherever the last of the stream was dropped.
-* A service is one task. While it writes a block it answers nothing, and
-  the app that shows it waits: 0.2 to 4 s for a look at five busy members.
+* A service is one task. While it does a thing it answers nothing. Seen
+  at 136 ms at most, see Built, and once 0.2 to 4 s, before the volume
+  kept what it had read of its folders.
 * `(file-stream path)` of a path that is in a store is still a file of the
   host. That a path says where it is, is a thing for root.inc, and Chris.
 * `(lisp-stream)` is bound in a library and not root.inc, so that a boot

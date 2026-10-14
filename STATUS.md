@@ -4,6 +4,8 @@
 
 ------
 
+**Storage: after a put every member has its copies 3.5 times sooner, the tree into five members 45 s to 12.9 s: a member's share is kept and not worked out each time, and the tender asks its peers at once and lets go in one ask. `check` has `below`.**
+
 **Storage: late gophers to the back of the queue. A step has 50ms, and one not done in it goes to a slow lane of the apps' band for its second: 280 gophers behind 20 that never come back, 7.2 s to 0.69 s. `check` has `again`.**
 
 **The Storage app plays recordings: it runs a scene, or records this system's store, draws the members as they were at any event, and the timeline scrubs through it, with Play, step and Trace of an object. `check` has `made` and `inner`.**

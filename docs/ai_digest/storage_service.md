@@ -288,9 +288,22 @@ ask is asked by its tender, a task of its own. It looks every 2 seconds,
   new since the last time is told, `(store-since)`, by a count of changes
   that each store keeps from when it was opened.
 * It asks its service for its share, `(store-share)`, among the members that
-  are there. What it wants and has not got, it fetches from a member that
-  has, 8 at a time, each of a member that has said it has it. What it has
-  that is others' to keep, it lets go of once each of those says it has it.
+  are there, 64 blocks of it at most. What it wants and has not got, it
+  fetches, 32 at a time, `+tender_window`: each peer is asked at once which
+  of them it has, each block is asked of one that has it, all at once, and
+  each as it comes is given to its service, not waited for. It asks again
+  while what it asked for comes. What it has that is others' to keep, it
+  lets go of once each of those says it has it: each peer is asked the
+  once of all of them, and those let go of are let go of at once.
+* What a member is to keep is worked out the once, `(store-plan)`, and kept
+  till its path map, its pins or who is there change. What it wants and
+  what is others' are kept as blocks come and go, and a manifest that comes
+  adds what its object is made of. So a share is asked in a few ms.
+
+Five members on the M4, the tree, 2015 files, 162 MB, put into them by a
+farm in 3 s: every member had its share 12.9 s after, with the tenders
+looking every 2 s. It was 45 s. A service answered in 136 ms at most all
+the while.
 
 A member not heard from is still counted for 5 minutes, `+storage_grace`,
 before what it kept is fetched by others: a machine turned off and on is no
