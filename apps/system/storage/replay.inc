@@ -41,8 +41,9 @@
 		;each gopher by its tag, (path steps), a step (member block time), and
 		;the tag of the last that set out
 		:gophers (Fmap 101) :last_gopher :nil
-		;and of each object, the last gopher that set out to it
-		:path_gopher (Fmap 101))
+		;and of each object, the last gopher that set out to it, and the last
+		;that was done, which has the whole of its way
+		:path_gopher (Fmap 101) :path_done (Fmap 101))
 	r)
 
 (defun replay-add (r line)
@@ -92,6 +93,13 @@
 				(. (. r :find :gophers) :insert (third words) (list (first walk)
 					(cat (second walk) (list (list member (str-as-num (first words)) (elem-get e +ev_time))))))
 				:t))
+		;one that is done has its whole way, and is the one its object shows
+		;before one that set out after it: when the lines of a recording
+		;come is not when what they say was done
+		("gopher-done"
+			(defq of (. (. r :find :path_done) :find path))
+			(. (. r :find :path_done) :insert path (first words))
+			(list of))
 		;a step not done in its first try is tried again, it is not one more
 		("gopher-back"
 			(when (and (defq walk (. (. r :find :gophers) :find (first words))) (nempty? (second walk)))
@@ -118,6 +126,8 @@
 		("gopher-step"
 			(and undo (defq walk (. (. r :find :gophers) :find (third words)))
 				(. (. r :find :gophers) :insert (third words) (list (first walk) (slice (second walk) 0 -2)))))
+		("gopher-done"
+			(if (first undo) (. (. r :find :path_done) :insert path (first undo)) (. (. r :find :path_done) :erase path)))
 		("gopher-back"
 			(and undo (defq walk (. (. r :find :gophers) :find (first words)))
 				(. (. r :find :gophers) :insert (first words) (list (first walk) (cat (second walk) (list undo))))))))

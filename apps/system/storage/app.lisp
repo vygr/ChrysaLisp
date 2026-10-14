@@ -194,10 +194,11 @@
 
 (defun gopher-shown ()
 	; (gopher-shown) -> :nil | (tag steps)
-	;the gopher whose way is drawn: the one picked, or the last to set out
-	;to the object shown, its steps in the order they were taken, they come
+	;the gopher whose way is drawn: the one picked, or the last that was done
+	;of the object shown, or the last to set out to it, its steps in the order they were taken, they come
 	;as each member sends what it did
-	(defq tag (ifn *gopher* (and *shown* (. (. *replay* :find :path_gopher) :find *shown*))))
+	(defq tag (ifn *gopher* (and *shown* (ifn (. (. *replay* :find :path_done) :find *shown*)
+		(. (. *replay* :find :path_gopher) :find *shown*)))))
 	(and tag (defq walk (replay-walk *replay* tag)) (eql (first walk) *shown*)
 		(list tag (sort (cat (second walk)) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))))
 

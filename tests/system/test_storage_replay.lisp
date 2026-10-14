@@ -70,6 +70,16 @@
 (replay-seek rl 6)
 (assert-eq "late and tried again in the lane, one step" 1 (length (second (replay-walk rl "G2"))))
 (assert-eq "and the lane is not a setting out" "G3" (. (. rl :find :path_gopher) :find "docs/b"))
+(defq rd (replay-new))
+(each (# (replay-add rd %0)) '(
+	"300 m-a gopher G4 docs/c"
+	"301 m-a gopher-step 0 B1 G4 docs/c"
+	"302 m-a gopher-done G4 docs/c"
+	"303 m-b gopher G5 docs/c"))
+(replay-seek rd 4)
+(assert-eq "the last done of an object is kept, one set out after it does not move it" "G4" (. (. rd :find :path_done) :find "docs/c"))
+(replay-seek rd 2)
+(assert-eq "and before it was done, it is not" :nil (. (. rd :find :path_done) :find "docs/c"))
 (replay-seek rl 4)
 (assert-eq "back to the back, the step it is to try again is gone" 0 (length (second (replay-walk rl "G2"))))
 (replay-seek rl 3)
