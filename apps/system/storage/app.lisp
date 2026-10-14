@@ -10,7 +10,8 @@
 ;	on the left, what is watched, played and stepped through:
 ;	prev, step	an event back, an event on, or of the object shown
 ;			alone, with trace
-;	play, pause	the recording at the speed it was made, from where it is
+;	play, pause	the recording at the speed it was made, from where it
+;			is, or still, there, whatever comes in
 ;	end		to the end, and what comes is followed
 ;	record		the store this system is a member of: what it has now,
 ;			and then what it does. It is what is shown first, if
@@ -66,7 +67,7 @@
 	(ui-canvas *canvas* +width +height 1))
 
 (ui-tool-tips *debug*
-	'("an event back" "play, at the speed it was made" "stop playing" "an event on"
+	'("an event back" "play, at the speed it was made" "stop, and stay here" "an event on"
 		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 ;each scene's own first line, what it is for
@@ -329,7 +330,9 @@
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
 					((= id +event_play) (play))
-					((= id +event_pause) (setq *playing* :nil))
+					;still, here: not played, and not following what comes in
+					;either, end follows again
+					((= id +event_pause) (setq *playing* :nil *follow* :nil))
 					((= id +event_end)
 						(setq *playing* :nil *follow* :t)
 						(go-to (length (. *replay* :find :events))))
