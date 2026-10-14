@@ -55,7 +55,7 @@
 	;the one before that
 	(unless *pipe*
 		(input-cursor
-			(when (defq cmd (history-find (slice (. buffer :get_text_line y) *margin_x* -2)))
+			(when (defq cmd (history-find (typed-line y)))
 				(.-> buffer
 					(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
 					(:insert (cat *env_terminal_prompt* cmd)))))

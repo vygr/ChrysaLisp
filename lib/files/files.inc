@@ -9,6 +9,9 @@
 	; (files-all [root exts cut_start cut_end]) -> paths
 	;all source files from root downwards, none recursive
 	(setd root "." exts '("") cut_start 0 cut_end -1)
+	;a root given with a / on its end, apps/, is the same folder: each path
+	;is joined to it with a / of its own, and had two
+	(and (> (length root) 1) (ends-with "/" root) (setq root (slice root 0 -2)))
 	(defq stack (list root) paths (list))
 	(while (setq root (pop stack))
 		;not what is built, nor this machine's store

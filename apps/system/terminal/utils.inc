@@ -17,3 +17,12 @@
 	`(defun ,func (~args)
 		(. *edit* ,method ~args)
 		(refresh)))
+
+(defun typed-line (y)
+	; (typed-line y) -> str
+	;what is typed on a line, after the prompt and before its end. A line
+	;shorter than that, an empty one where a command's output left the
+	;cursor, has nothing typed on it: the cut of it threw, and the Terminal
+	;went with it
+	(defq line (. buffer :get_text_line y))
+	(if (> (length line) (inc *margin_x*)) (slice line *margin_x* -2) ""))

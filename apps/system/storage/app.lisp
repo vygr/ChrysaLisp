@@ -12,7 +12,7 @@
 ;			alone, with trace
 ;	play, pause	the recording at the speed it was made, from where it
 ;			is, or still, there, whatever comes in
-;	end		to the end, and what comes is followed
+;	start, end	to the start, or to the end, and what comes is followed
 ;	record		the store this system is a member of: what it has now,
 ;			and then what it does. It is what is shown first, if
 ;			this system is a member of a store. Again, it stops
@@ -38,7 +38,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause back on end record trace run scene timeline))
+	(enum play pause start back on end record trace run scene timeline))
 
 (defq +width 900 +height 560 +grid_w 540 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
@@ -53,7 +53,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
-			(ui-buttons (+sym_play +sym_pause +sym_prev +sym_step +sym_play_end +sym_record +sym_find) +event_play))
+			(ui-buttons (+sym_play +sym_pause +sym_rewind +sym_prev +sym_step +sym_play_end +sym_record +sym_find) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
@@ -67,7 +67,7 @@
 	(ui-canvas *canvas* +width +height 1))
 
 (ui-tool-tips *debug*
-	'("play, at the speed it was made" "stop, and stay here" "an event back" "an event on"
+	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
 		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 ;each scene's own first line, what it is for
@@ -123,6 +123,12 @@
 		(. *replay* :find :events))
 	out)
 
+(defun fit (text most)
+	; (fit text most) -> text
+	;no more than so many characters, so it stays out of the event list
+	;beside it: of a path, the end, which is what tells two apart
+	(if (<= (length text) most) text (cat "..." (slice text (- (length text) (max 1 (- most 3))) -1))))
+
 (defun short (id)
 	;a member as it is shown, a machine's id is 32 hex digits
 	(slice id 0 (min 8 (length id))))
@@ -142,7 +148,23 @@
 ; drawing
 ;;;;;;;;;;
 
+(defun lights ()
+	;the controls that are on are lit, as a radio bar's are: playing,
+	;still, following what comes, recording, and trace. Only when that is
+	;not as it was, a button changed is drawn again
+	(defq now (list *playing* (not (or *playing* *follow*)) :nil :nil :nil (and *follow* (not *playing*))
+			(and *run* *live*) *trace*)
+		now (map (# (if %0 :t :nil)) now))
+	(unless (eql (str now) (str *lit*))
+		(setq *lit* now)
+		(defq lit (canvas-brighter (get :color *debug*)))
+		(each (lambda (button on)
+			(undef (. button :dirty) :color)
+			(if on (def button :color lit)))
+			(. *debug* :children) now)))
+
 (defun draw ()
+	(lights)
 	(defq items (list (cwb-shape (cwb-d-rect 0 0 +width +height) :fill +paper :stroke 0))
 		all (members) events (. *replay* :find :events) at (. *replay* :find :at) count (length events)
 		paths (paths-now) manifest (if *shown* (manifest-of *shown*))
@@ -155,10 +177,12 @@
 	(defun text (words x y &optional size ink)
 		(push items (cwb-text words x y :font "fonts/OpenSans-Regular.ctf" :font_size (ifn size 14) :fill (ifn ink +ink))))
 	(text (if (= count 0) "Nothing recorded. Run a scene, or Live to watch the store of this system."
-			(said-now)) 16 22 14)
-	(if *shown* (text (cat *shown* (if manifest (cat ", " (str (length blocks)) " blocks, the first column its manifest"
-			(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " of them") "")) ", not here now"))
-		16 40 11 +dim))
+			(fit (said-now) 60)) 16 22 14)
+	(when *shown*
+		(defq about (if manifest (cat ", " (str (length blocks)) " blocks"
+				(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " shown") "")
+				", the first column its manifest") ", not here now"))
+		(text (cat (fit *shown* (- 86 (length about))) about) 16 40 11 +dim))
 	;the first column, the manifest, is ruled off from the blocks
 	(and manifest (> cols 1)
 		(push items (cwb-shape (cwb-d-rect (+ left cell) (+ top 4) (+ left cell 2) (+ top (* (length all) row_h) -4) 0)
@@ -292,7 +316,7 @@
 (defun main ()
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
-		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *trace* :nil
+		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *trace* :nil *lit* :nil
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -333,6 +357,9 @@
 					;still, here: not played, and not following what comes in
 					;either, end follows again
 					((= id +event_pause) (setq *playing* :nil *follow* :nil))
+					((= id +event_start)
+						(setq *playing* :nil *follow* :nil)
+						(go-to 0))
 					((= id +event_end)
 						(setq *playing* :nil *follow* :t)
 						(go-to (length (. *replay* :find :events))))
@@ -384,6 +411,8 @@
 						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped." (cat "Done: " passed " held, " failed " did not."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
+				;a control that has changed, that drew nothing, is lit or not
+				(lights)
 				(when (/= 0 (defq lines (/ wheel +wheel_line)))
 					(setq wheel (- wheel (* lines +wheel_line)))
 					(cond

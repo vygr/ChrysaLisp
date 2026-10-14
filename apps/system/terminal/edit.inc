@@ -49,7 +49,7 @@
 (defun action-tab ()
 	(unless *pipe*
 		(input-cursor
-			(defq cmd (slice (. buffer :get_text_line y) *margin_x* -2))
+			(defq cmd (typed-line y))
 			(. buffer :insert (url-ext cmd (- x *margin_x*))))
 		(refresh)))
 
@@ -60,10 +60,10 @@
 		(cond
 			(*pipe*
 				;active pipe so feed it
-				(. *pipe* :write (cat (slice (. buffer :get_text_line y) *margin_x* -2) +char_class_lf))
+				(. *pipe* :write (cat (typed-line y) +char_class_lf))
 				(. buffer :insert +char_class_lf))
 			(:t ;no active pipe
-				(defq cmd (slice (. buffer :get_text_line y) *margin_x* -2))
+				(defq cmd (typed-line y))
 				(. buffer :insert (const (cat +char_class_lf +char_class_lf)))
 				(cond
 					((nql cmd "")
