@@ -33,6 +33,12 @@
 			(setq path (join (slice words at -1) " ") words (slice words 0 at)))
 		(list (str-as-num time) member kind words path :nil)))
 
+(defun replay-line (e)
+	; (replay-line event) -> line
+	;the line an event was read from, as a recorder says it
+	(join (cat (list (str (elem-get e +ev_time)) (elem-get e +ev_member) (elem-get e +ev_kind))
+		(elem-get e +ev_words) (if (elem-get e +ev_path) (list (elem-get e +ev_path)) (list))) " "))
+
 (defun replay-new ()
 	; (replay-new) -> replay
 	(defq r (Emap))

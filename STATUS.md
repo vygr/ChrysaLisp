@@ -4,6 +4,8 @@
 
 ------
 
+**The Storage app opens and saves recordings: what `storage -r` writes, and what it saves, are the same lines.**
+
 **Storage: a machine that travels, `storage -L on`, pins its user's area, `usr/<user>/`, as its store starts, so a laptop taken away has all of it.**
 
 **Storage: `storage -z MB`, a store put on a volume of another size, a copy on the one machine, a full one too: the map is written there from what the store has.**

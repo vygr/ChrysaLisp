@@ -40,11 +40,11 @@
 (import "./replay.inc")
 
 (enums +select 0
-	(enum main run tip timer))
+	(enum main run tip timer picker))
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause start back on end live record trace join run scene timeline
+	(enum play pause start back on end live record trace join run rec_open rec_save scene timeline
 		snap_take snap_restore snap_drop))
 
 (defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
@@ -95,7 +95,7 @@
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
-				(ui-buttons (+sym_play_all) +event_run))
+				(ui-buttons (+sym_play_all +sym_open +sym_save) +event_run))
 			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
 			(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar2_col* :font *env_body_font*
 				:border *env_button_border*)) :connect +event_scene)
@@ -115,7 +115,8 @@
 		"to the end, and follow what comes" "the store of this system, live"
 		"keep all the store of this system does, or the last few thousand" "trace the object shown"
 		"make this machine a member of the store of its mesh, now and each time it starts"))
-(ui-tool-tips *tests* '("run the scene chosen"))
+(ui-tool-tips *tests* '("run the scene chosen" "open a recording, of storage -r or saved here"
+	"save what is recorded, to play again or send"))
 (ui-tool-tips *snapbar* '("a snapshot of the whole store, by the name written, or the time"
 	"put the store back as it was in the snapshot picked" "drop the snapshot picked"))
 ;each scene's own first line, what it is for
@@ -429,6 +430,35 @@
 	(timeline)
 	(draw))
 
+(defun picker (save)
+	;the Files app's picker, to say where a recording is to go or come from
+	(if *picker* (mail-send *picker* ""))
+	(mail-send (setq *picker_save* save *picker* (open-child "apps/system/files/child.lisp" +kn_call_pin))
+		(cat (elem-get *select* +select_picker) (if save "Save recording..." "Open recording...") "|" ".")))
+
+(defun recording-save (file)
+	;every event there is, a line each, as a recorder says them, so that
+	;storage -r and this read the same
+	(defq events (. *replay* :find :events))
+	(cond
+		((empty? events) (say "Nothing recorded to save."))
+		((save (join (cat (map (const replay-line) events) (list "")) (ascii-char 10)) file)
+			(say "Saved " (length events) " events to " file "."))
+		((say "Could not save to " file "."))))
+
+(defun recording-open (file)
+	;a recording played back from its start: what is running stops, and
+	;the store of this system is not watched
+	(cond
+		((not (defq text (load file))) (say "No file " file "."))
+		(:t (when *run* (mail-send *run* "stop") (setq *run* :nil))
+			(setq *replay* (replay-new) *shown* :nil *want* :nil *gopher* :nil *snap* :nil
+				*follow* :nil *playing* :nil *live* :nil)
+			(each (# (replay-add *replay* %0)) (split text (ascii-char 10)))
+			(go-to 0)
+			(say (if (empty? (. *replay* :find :events)) (cat file " has no events in it.")
+				(cat "Opened " (str (length (. *replay* :find :events))) " events of " file ". Play, or the timeline."))))))
+
 (defun play ()
 	;from where it is, at the speed it was made
 	(defq events (. *replay* :find :events) at (. *replay* :find :at))
@@ -449,7 +479,7 @@
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
-		*gopher* :nil *snap* :nil
+		*gopher* :nil *snap* :nil *picker* :nil *picker_save* :nil
 		;is this machine a member, it says so in a file, looked at the once
 		*joined* (if (storage-member) :t)
 		*record* :t
@@ -482,6 +512,8 @@
 						;the store of this system is not recorded while a scene runs
 						(setq *record* :nil)
 						(watch name))
+					((= id +event_rec_open) (picker :nil))
+					((= id +event_rec_save) (picker :t))
 					((= id +event_live)
 						;back to the store of this system, if it is not what is watched
 						(cond
@@ -581,6 +613,14 @@
 				;what a button is for
 				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
 					(. view :show_tip)))
+			(+select_picker
+				;where a recording is to go, or come from, or "" closed
+				(mail-send *picker* "")
+				(setq *picker* :nil msg (trim msg))
+				(cond
+					((eql msg ""))
+					(*picker_save* (recording-save msg))
+					((recording-open msg))))
 			(+select_run
 				(cond
 					((starts-with "lines" msg)
@@ -619,4 +659,5 @@
 	(config-save)
 	(gui-sub-rpc *window*)
 	(mail-timeout (elem-get select +select_timer) 0 0)
+	(if *picker* (mail-send *picker* ""))
 	(if *run* (mail-send *run* "stop")))

@@ -676,6 +676,10 @@ played back, from a recording of it.
   object shown.
 * A scene that is run is all recorded, and stays to be gone over when it
   is done.
+* Beside Run, Open and Save, with the Files app's picker. Save writes what
+  is recorded, a line an event as a recorder says them, `(replay-line)`, so
+  a file of `storage -r` and one saved here are the same, and either opens.
+  Open plays one back from its start, and what was running stops.
 * The snapshots there are, at the event the store is drawn at, are names
   above the objects. A press on one lists its objects, and their blocks
   are drawn as any object's; on it again, the store's own. The bar under
@@ -686,8 +690,9 @@ played back, from a recording of it.
   square where a member keeps one, the first column the object's manifest.
   Under them the objects, a square for each member that has one, grey where
   it has it deleted. A press on one, or the wheel, and that is the object
-  shown. Where its
-  last gopher went is a line through the members, block by block.
+  shown. Where the last gopher that was done of it went, or the last that
+  set out to it if none was, is a line through the members, block by
+  block.
 * Beside them, what was done, event by event, the one the store is drawn at
   marked, and above, what the scene last said.
 * A press on an event of a gopher picks that gopher: its object is shown,

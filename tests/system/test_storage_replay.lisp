@@ -57,6 +57,12 @@
 (replay-seek rp 0)
 (assert-eq "back to the first kept, what was done before stands" "M1" (replay-path rp "m-b" "docs/a file"))
 
+;each event is the line it was read from, so a recording saved is one that
+;storage -r writes, and opens again the same
+(defq rp_again (replay-new))
+(each (# (replay-add rp_again %0)) rp_lines)
+(assert-true "every event gives back its line" (every (# (eql (replay-line (elem-get (. rp_again :find :events) (!))) %0)) rp_lines))
+
 ;a gopher late at a member goes to its slow lane: the step is tried again,
 ;it is one step, and the gopher is not one that set out again
 (defq rl (replay-new))
