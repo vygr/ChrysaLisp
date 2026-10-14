@@ -43,7 +43,7 @@
 
 ;the scenes there are, a list made as this starts: not a + name, which is
 ;put in where it is used as it is read, and a list there is a call
-(defq *scenes* (map (const first) (scene-list)))
+(defq *scene_list* (scene-list) *scenes* (map (const first) *scene_list*))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Storage" (+sym_close) +event_close)
@@ -67,6 +67,8 @@
 	'("an event back" "play, at the speed it was made" "stop playing" "an event on"
 		"to the end, and follow what comes" "record the store of this system, or stop" "trace the object shown"))
 (ui-tool-tips *tests* '("run the scene chosen"))
+;each scene's own first line, what it is for
+(ui-tool-tips *scene* (map (const second) *scene_list*))
 
 (defun say (&rest text)
 	(set *status* :text (apply (const cat) (map (const str) text)))

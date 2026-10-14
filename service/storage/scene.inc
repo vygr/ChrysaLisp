@@ -161,14 +161,18 @@
 
 (defun scene-end (scene)
 	; (scene-end scene)
-	;the members stopped, all at once, their stores gone, and how it went told
+	;the members settle, so what is left to fetch and let go of is done,
+	;and what they say of it goes to a recorder. How it went is told, and
+	;then the members are stopped, all at once, and their stores are gone
+	(scene-settle scene)
+	(task-sleep 500000)
+	(mail-send (. scene :find :reply) (cat "done " (str (. scene :find :passed)) " " (str (. scene :find :failed))))
 	(each (# (storage-send (second %0) +storage_type_stop)) (. scene :find :svcs))
 	(defq t0 (pii-time))
 	(while (and (nempty? (mail-enquire (cat (. scene :find :group) ","))) (< (- (pii-time) t0) 3000000))
 		(task-sleep 50000))
 	(task-sleep 200000)
-	(each (const pii-remove) (. scene :find :images))
-	(mail-send (. scene :find :reply) (cat "done " (str (. scene :find :passed)) " " (str (. scene :find :failed)))))
+	(each (const pii-remove) (. scene :find :images)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; for what starts a scene
@@ -214,5 +218,9 @@
 					(1 (each record (split (mail-read scene_heard) +storage_lf)))
 					;nothing for a while, which a record that holds lines back is told
 					(:t (if record (record :nil))))))
-		;what is still to come from members that have gone is to a mailbox nobody reads
+		;what the members still have to say, till they have said nothing for
+		;half a second. What comes after that is to a mailbox nobody reads
+		(and record scene_result
+			(while (defq scene_msg (mail-read-timeout scene_heard 500000))
+				(each record (split scene_msg +storage_lf))))
 		scene_result))
