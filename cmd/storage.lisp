@@ -143,7 +143,7 @@
 			(opt_t
 				(defq out (if opt_r (if (eql opt_r "-") (io-stream 'stdout) (file-stream opt_r +file_open_write))) lines 0
 					result (scene-run name (lambda (line) (print line) (stream-flush (io-stream 'stdout)))
-						(if out (lambda (line) (++ lines) (write-line out line)))))
+						(if out (lambda (line) (when line (++ lines) (write-line out line))))))
 				(if out (stream-flush out))
 				(cond
 					((not result) (print "No scene " name ", or it did not finish."))
@@ -154,7 +154,7 @@
 				(defq out (if (eql opt_r "-") (io-stream 'stdout) (file-stream opt_r +file_open_write)))
 				(cond
 					((not out) (print "No file " opt_r " to write."))
-					(:t (defq lines (storage-record-run (lambda (line) (write-line out line))
+					(:t (defq lines (storage-record-run (lambda (line) (if line (write-line out line)))
 							(+ (pii-time) (* opt_S 1000000)) opt_G))
 						(stream-flush out)
 						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))

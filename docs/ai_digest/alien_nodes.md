@@ -86,9 +86,16 @@ So an alien node may be one of three kinds, and all three are welcome:
 The system id. Every node says in its ping what system it is on, and a system
 is what shares a file system.
 
-* `run`, which lets the kernel choose the node, only spreads to nodes of the
-  same system id (`+kn_call_run` in `sys/kernel/class.vp`). An alien node has
-  a system id of its own, so no `run` is ever handed to it.
+* `pin` and `run` are both sent to a kernel, the node the asker names.
+  `pin` starts the task on that node. `run` starts it there, or on the
+  least busy of the nodes that kernel is linked to on the same system,
+  whichever has the fewest tasks (`+kn_call_run` in `sys/kernel/class.vp`).
+  So a `run` is aimed: sent to the kernel of the node that has the service
+  a task wants, the task runs on that node or one beside it, near what it
+  uses. That is by design. What it does not do is pass a task on to a node
+  of another system id, and an alien node has one of its own, so a `run`
+  sent elsewhere never lands on it. One sent to an alien kernel by name is
+  that kernel's to answer, as a `pin` is.
 
 * `@` services are told only within a system. A Lisp node does not see an
   alien node's `@` services, nor the alien node its own.

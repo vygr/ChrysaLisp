@@ -2,6 +2,7 @@
 
 ;each of these is in the doc as a thing that catches people out. If one
 ;fails the system has changed, and the doc is to be changed with it
+;check off, the trap itself
 (defq +tr_list (list 1 2 3) +tr_quoted ''(1 2 3))
 (assert-error "a + constant that is a list is run as a form"
 	(progn (defun tr-f1 () (first +tr_list)) (tr-f1)))

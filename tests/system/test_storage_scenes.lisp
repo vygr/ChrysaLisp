@@ -10,7 +10,7 @@
 ;the quick ones: each holds all its checks, and what its members did is recorded
 (each (lambda (name)
 	(defq said (list) recorded (list)
-		result (scene-run name (lambda (line) (push said line)) (lambda (line) (push recorded line)) 120))
+		result (scene-run name (lambda (line) (push said line)) (lambda (line) (if line (push recorded line))) 120))
 	(assert-true (cat name ": it ran to the end") result)
 	(when result
 		(assert-eq (cat name ": no check of it failed, " (join (filter (# (starts-with "  FAIL" %0)) said) "; ")) 0 (second result))

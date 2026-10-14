@@ -1018,6 +1018,17 @@ found its own `said` taken by the runner's mailbox of that name, a name is
 found where a function is called from, so `check`'s `capture` now looks at
 the names a function makes with a `(defq)` as well as what it takes.
 
+**The app as a player.** 2026-10-14, Chris: "Be nice to have a timeline
+scrubber slide ? act as a fast seek through the recording." The app is
+built on the recording now: it runs a scene, or records this system's store,
+and the timeline is the whole of what was recorded. An event, once done,
+keeps what it changed, so a scrub back is undoing and nothing is copied. The
+service now also records the blocks an object is made of, as its path is
+set, so a recording can draw an object after its store is gone. Three faults
+of mine found on the way, each a check now: a list made as the app ran kept
+in a + name, `made`; `(const)` of a function made inside another, `inner`;
+and before them the capture of a caller's name.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

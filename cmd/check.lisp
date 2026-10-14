@@ -39,6 +39,14 @@
     const   a + constant given a list of strings or numbers
             quoted once: it is run as a form where the
             constant is used, and is no form.
+    made    a + constant given a list made as it runs, by
+            (map), (filter), (list) or the like: a + name
+            is put in where it is used, as the file is read,
+            and a list put in is run as a form there. Make
+            it a name of *stars*.
+    inner   (const f) of a function made inside another: it
+            is not there yet as the file is read, and the
+            (const) has nothing to take.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -84,7 +92,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -194,6 +202,26 @@
 								(found file node "early" (third name) " is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"))))
 						nodes)))))
 		kids))
+
+(defun check-made (file kids)
+	;in a (defq), a + name and then a form that makes a list
+	(defq kids (filter (# (not (find (first %0) '(:comment :blank)))) kids))
+	(each (lambda (name val)
+		(and (eql (first name) :symbol) (starts-with "+" (third name))
+			(defq inner (tree-form? val))
+			(nempty? (defq inner (forms-of inner))) (eql (first (first inner)) :symbol)
+			(find (third (first inner)) '("map" "filter" "list" "split" "range" "partition"))
+			;(list quote x) is the quote of a list, which is the way to have one
+			(not (and (> (length inner) 1) (eql (first (second inner)) :symbol) (eql (third (second inner)) "quote")))
+			(found file name "made" (third name) " is a list made by (" (third (first inner)) "), put in as a form where it is used, make it a *name*")))
+		kids (rest kids)))
+
+(defun check-inner (file forms head)
+	;(const f), f a function this file makes inside another
+	(and (eql head "const") (= (length forms) 2) (eql (first (second forms)) :symbol)
+		(. *inner_defuns* :find (third (second forms)))
+		(found file (second forms) "inner" (third (second forms))
+			" is made inside a function, it is not there as the file is read, (const) has nothing to take")))
 
 (defun check-cut (file forms head)
 	;(slice (str x) 0 200): how long the string of a thing is, is not known
@@ -419,7 +447,17 @@
 		(when (defq in (file-stream file))
 			(defq whole (tree-read in) top (first whole) todo (list top) *found* (list) off (Fset 11)
 				;the functions of this file, and what each takes
-				*defuns* (Fmap 31) scan (list top))
+				*defuns* (Fmap 31) scan (list top) *inner_defuns* (Fset 11) inner_scan (list top))
+			;the functions made inside another, (defun) not at the top of the file
+			(while (defq nodes (pop inner_scan))
+				(each (lambda (node)
+					(when (defq kids (tree-form? node))
+						(push inner_scan kids)
+						(defq forms (forms-of kids))
+						(and (not (eql nodes top)) (> (length forms) 1) (eql (first (first forms)) :symbol)
+							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
+							(. *inner_defuns* :insert (third (second forms))))))
+					nodes))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)
@@ -474,6 +512,8 @@
 							(if (find "shadow" checks) (check-shadow file forms head))
 							(and (find "const" checks) (eql head "defq") (check-const file kids))
 							(and (find "early" checks) (eql head "defq") (check-early file kids))
+							(and (find "made" checks) (eql head "defq") (check-made file kids))
+							(if (find "inner" checks) (check-inner file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))

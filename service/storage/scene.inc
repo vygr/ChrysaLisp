@@ -186,7 +186,8 @@
 (defun scene-run (name say &optional record wait)
 	; (scene-run name say [record wait]) -> :nil | (passed failed)
 	;the scene of that name is started, and each line it says given to say.
-	;With record, each line its members record, given to that. :nil if
+	;With record, each line its members record, given to that, and :nil
+	;when nothing has come for a tenth of a second. :nil if
 	;there is no such scene, or it is not done in wait seconds, 600. Its
 	;names are its own, scene_..., so that a function it is given, which is
 	;called here, finds its own and not these
@@ -210,6 +211,8 @@
 							((starts-with "say " scene_msg) (say (slice scene_msg 4 -1)))
 							((starts-with "done " scene_msg)
 								(setq scene_going :nil scene_result (map (const str-as-num) (split (slice scene_msg 5 -1) " "))))))
-					(1 (each record (split (mail-read scene_heard) +storage_lf))))))
+					(1 (each record (split (mail-read scene_heard) +storage_lf)))
+					;nothing for a while, which a record that holds lines back is told
+					(:t (if record (record :nil))))))
 		;what is still to come from members that have gone is to a mailbox nobody reads
 		scene_result))

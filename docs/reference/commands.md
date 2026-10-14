@@ -92,6 +92,14 @@ Usage: check [options] [path] ...
     const   a + constant given a list of strings or numbers
             quoted once: it is run as a form where the
             constant is used, and is no form.
+    made    a + constant given a list made as it runs, by
+            (map), (filter), (list) or the like: a + name
+            is put in where it is used, as the file is read,
+            and a list put in is run as a form there. Make
+            it a name of *stars*.
+    inner   (const f) of a function made inside another: it
+            is not there yet as the file is read, and the
+            (const) has nothing to take.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.

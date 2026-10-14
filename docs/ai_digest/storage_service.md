@@ -25,7 +25,7 @@ why, and what each measurement found on the way, is
 | `service/storage/scene.inc` | scenes: a store of its own, a thing done to it, and what came of it |
 | `tests/storage/` | the scenes |
 | `cmd/storage.lisp` | `storage`, the command |
-| `apps/system/storage/` | the Storage app, a view of the members and what each keeps |
+| `apps/system/storage/` | the Storage app: a store watched as it works, and played back |
 
 ## Objects, Blocks And Paths
 
@@ -458,6 +458,7 @@ bytes of its name, in hex.
 | what | said by | of |
 |---|---|---|
 | `set` `delete` `copies`, with `-stale` `-full` `-missing` if not done | service | manifest, length, path |
+| `object` | service | a manifest, and its blocks in order, as a path is set |
 | `block+` `block-` `block>` | service | a block kept new, let go of, given out |
 | `learnt` `learnt-delete` | service | manifest, writer, path, taken from another |
 | `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
@@ -521,19 +522,30 @@ after it room, `(scene-seen?)` and `(scene-keepers)` are what is checked.
 
 ## The Storage App
 
-Storage in the launcher, under System. The members of a store down the side,
-the blocks of one object across, and a square in a member's colour where it
-keeps a block. Under it the objects, and how many of the members have each.
+Storage in the launcher, under System. A store watched as it works, and
+played back, from a recording of it.
 
-It shows the store this system is a member of. With none it starts five
-members of a store of their own on its own node, and puts three objects.
-Its buttons put an object, send a gopher and draw the way it went, stop and
-start a member, cut one off and heal, write a path at two members apart,
-pin, and put the tree.
+* The scenes are a row of buttons, and Run runs the one chosen: its members
+  are recorded from the first, and drawn as they go.
+* Live records the store this system is a member of, from now, till Stop.
+* The members are down the side, the blocks of the object shown across, a
+  square where a member keeps one, the first column the object's manifest.
+  Under them the objects, a square for each member that has one, grey where
+  it has it deleted. A press on one and that is the object shown. Where its
+  last gopher went is a line through the members, block by block.
+* Beside them, what was done, event by event, the one the store is drawn at
+  marked, and above, what the scene last said.
+* The timeline under the buttons is the whole of the recording. Dragged, the
+  store is drawn as it was at that event. `<` and `>` go an event back or
+  on, Play plays it at the speed it was made. Trace shows only what was done
+  to the object shown and its blocks, and `<` and `>` then go from one of
+  those to the next.
 
-It is to become the place to watch and debug a store: run the storage test
-scripts, watch the members from the recorder as it goes, play a recording
-back, and trace a path or a block through it.
+`apps/system/storage/replay.inc` plays a recording. An event, once done,
+keeps what it changed, so it can be undone: to go to any event is to do or
+undo those in between, from where it is, and nothing is copied.
+`apps/system/storage/run.lisp` runs the scene, or records the store, for the
+app, and sends it what happens in batches.
 
 ## The Tests
 
@@ -546,6 +558,7 @@ back, and trace a path or a block through it.
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
 | `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
+| `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, and a scene run by the app's runner |
 
 ## Not Done
 

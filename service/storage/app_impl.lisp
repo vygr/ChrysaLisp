@@ -159,7 +159,12 @@
 								("0")))
 						(+storage_type_commit
 							(bind '(from bytes path &rest names) (split body +storage_lf))
-							(defq result (wrote "set" (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from)) path))
+							(defq got (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from)))
+							;what an object is made of, so a recording can draw it
+							(and (eql (first got) :ok) (second got)
+								(storage-record recorder member "object" (cat (storage-record-name (elem-get (second got) +store_entry_hash)) " "
+									(join (map (# (slice %0 0 16)) names) " "))))
+							(defq result (wrote "set" got path))
 							;its tender is to tell the others, now and not at its next look
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)

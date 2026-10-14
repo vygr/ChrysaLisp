@@ -144,6 +144,12 @@
 	'("(1) cut: a (str ) cut to 200 is an error if it is shorter, (min 200 (length s))")
 	(tt-check "cut" "(prin (slice (str _) 0 200))" "(slice (defq t (str _)) 0 (min 200 (length t)))"
 		"(slice (str x) 2 5)" "(slice s 0 8)"))
+(assert-list-eq "made: a + name given a list made as it runs; not a quoted one, nor a number, nor a name of *stars*"
+	'("(1) made: +scenes is a list made by (map), put in as a form where it is used, make it a *name*")
+	(tt-check "made" "(defq +scenes (map (const first) (scene-list)) +size 4)" "(defq +ok ''(1 2) *scenes* (map f l) +quoted (list quote l) +name (cat a b))"))
+(assert-list-eq "inner: (const f) of a function made inside another; not of one at the top"
+	'("(3) inner: pass is made inside a function, it is not there as the file is read, (const) has nothing to take")
+	(tt-check "inner" "(defun outer ()" "	(defun pass (x) x)" "	(each (const pass) l))" "(defun top (x) x)" "(each (const top) l)"))
 (assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
 	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")
