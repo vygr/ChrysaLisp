@@ -1,0 +1,28 @@
+# a cube, three faces with a picture and three of a plain colour
+mtllib cube.mtl
+v -1 -1 -1
+v 1 -1 -1
+v 1 1 -1
+v -1 1 -1
+v -1 -1 1
+v 1 -1 1
+v 1 1 1
+v -1 1 1
+vt 0 0
+vt 1 0
+vt 1 1
+vt 0 1
+vn 0 0 1
+vn 0 0 -1
+vn 1 0 0
+vn -1 0 0
+vn 0 1 0
+vn 0 -1 0
+usemtl check
+f 5/1/1 6/2/1 7/3/1 8/4/1
+f 2/1/2 1/2/2 4/3/2 3/4/2
+f 6/1/3 2/2/3 3/3/3 7/4/3
+usemtl plain
+f 1/1/4 5/2/4 8/3/4 4/4/4
+f 8/1/5 7/2/5 3/3/5 4/4/5
+f 1/1/6 2/2/6 6/3/6 5/4/6

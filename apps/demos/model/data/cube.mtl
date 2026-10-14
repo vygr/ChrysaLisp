@@ -1,0 +1,6 @@
+# the cube's two materials, a picture and a plain colour
+newmtl check
+Kd 1 1 1
+map_Kd cube.png
+newmtl plain
+Kd 0.3 0.75 0.4
