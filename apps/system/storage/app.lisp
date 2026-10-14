@@ -25,7 +25,9 @@
 ;	chosen, a store of its own, recorded and drawn as it goes
 ;
 ; A press on an object of the list, and that is the one shown, on an event
-; of what was done, and the store is drawn as it was then. The wheel
+; of what was done, and the store is drawn as it was then. One of a gopher
+; picks that gopher: its object is shown, its way drawn, and trace keeps
+; to it. Another event, or it again, and none is picked. The wheel
 ; over the objects goes up and down them, over what was done it goes an
 ; event back or on, and the timeline is for the long way.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -150,14 +152,25 @@
 	set)
 
 (defun traced ()
-	;the events of the shown object and its blocks, their indexes
+	;the events of the gopher picked, or of the shown object and its
+	;blocks, their indexes
 	(defq set (trace-set) out (list))
 	(each (lambda (e)
-		(if (or (eql (elem-get e +ev_path) *shown*)
-				(and (nempty? (elem-get e +ev_words)) (. set :find (first (elem-get e +ev_words)))))
+		(if (if *gopher* (eql (replay-gopher-tag e) *gopher*)
+				(or (eql (elem-get e +ev_path) *shown*)
+					(and (nempty? (elem-get e +ev_words)) (. set :find (first (elem-get e +ev_words))))))
 			(push out (!))))
 		(. *replay* :find :events))
 	out)
+
+(defun gopher-shown ()
+	; (gopher-shown) -> :nil | (tag steps)
+	;the gopher whose way is drawn: the one picked, or the last to set out
+	;to the object shown, its steps in the order they were taken, they come
+	;as each member sends what it did
+	(defq tag (ifn *gopher* (. *replay* :find :last_gopher)))
+	(and tag (defq walk (replay-walk *replay* tag)) (eql (first walk) *shown*)
+		(list tag (sort (cat (second walk)) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))))
 
 (defun fit (text most)
 	; (fit text most) -> text
@@ -218,7 +231,12 @@
 		(defq about (if manifest (cat ", " (str (length blocks)) " blocks"
 				(if (> (length blocks) (dec cols)) (cat ", the first " (str (dec cols)) " shown") "")
 				", the first column its manifest") ", not here now"))
-		(text (cat (fit *shown* (- 86 (length about))) about) 16 40 11 +dim))
+		;or the gopher picked, and the way it went
+		(if (and *gopher* (defq walk (gopher-shown)))
+			(text (fit (cat "gopher " (first walk) ", " (str (length (second walk))) " blocks, by way of "
+				(join (reduce (lambda (way (who &ignore)) (if (eql (last way) (short who)) way (push way (short who))))
+					(second walk) (list)) " ")) 86) 16 40 11 +dim)
+			(text (cat (fit *shown* (- 86 (length about))) about) 16 40 11 +dim)))
 	;the first column, the manifest, is ruled off from the blocks
 	(and manifest (> cols 1)
 		(push items (cwb-shape (cwb-d-rect (+ left cell) (+ top 4) (+ left cell 2) (+ top (* (length all) row_h) -4) 0)
@@ -244,15 +262,12 @@
 			(if manifest (range 0 cols) (list))))
 		all)
 	;where the gopher of the object shown has been, block by block
-	(defq trail (. *replay* :find :trail))
-	(when (and (nempty? trail) (eql (first trail) *shown*) (> cols 1))
+	(when (and (defq walk (gopher-shown)) (> cols 1))
 		(defq points (list))
-		;in the order the steps were taken: they come as each member sends
-		;what it did, not in the order it was done
 		(each (lambda ((who block &ignore))
 			(and (defq row (find who all)) (< (inc block) cols)
 				(push points (+ left (* (inc block) cell) 4 (/ (- cell 2) 2)) (+ top (* row row_h) 17))))
-			(sort (rest trail) (lambda ((& a ta) (& b tb)) (if (= ta tb) (- a b) (- ta tb)))))
+			(second walk))
 		(when (>= (length points) 4)
 			(push items (cwb-shape (cwb-d-points points) :stroke +trail :width 2.0 :fill 0 :join :round))
 			(push items (cwb-shape (cwb-d-ellipse (first points) (second points) 4) :fill +trail :stroke 0))))
@@ -332,7 +347,7 @@
 (defun watch (what)
 	;a scene run, or the store of this system, recorded and drawn from the start
 	(when *run* (mail-send *run* "stop"))
-	(setq *replay* (replay-new) *shown* :nil *follow* :t *playing* :nil *live* (eql what "-")
+	(setq *replay* (replay-new) *shown* :nil *gopher* :nil *follow* :t *playing* :nil *live* (eql what "-")
 		*run* (open-child "apps/system/storage/run.lisp" +kn_call_run))
 	(mail-send *run* (cat (hex-encode (elem-get *select* +select_run)) (ascii-char 10) what))
 	(timeline)
@@ -358,6 +373,7 @@
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
+		*gopher* :nil
 		*record* :t
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -440,6 +456,14 @@
 								(defq line (/ (- ry 32) +log_h) shown (get :log_shown *canvas*))
 								(when (and (>= ry 32) (< line (length shown)))
 									(setq *playing* :nil)
+									;an event of a gopher picks it, its object is shown and
+									;its way drawn; another event, or it again, and none is
+									(defq e (elem-get (. *replay* :find :events) (elem-get shown line))
+										tag (replay-gopher-tag e))
+									(cond
+										((and tag (nql tag *gopher*) (defq walk (replay-walk *replay* tag)))
+											(setq *gopher* tag *want* :nil *shown* (first walk)))
+										((setq *gopher* :nil)))
 									(go-to (inc (elem-get shown line)))
 									(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events))))))
 							(:t (defq line (/ (- ry (+ (get :rows_y *canvas*) 7)) +row_h) paths (paths-now)

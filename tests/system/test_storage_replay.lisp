@@ -15,9 +15,9 @@
 	"123 m-b fetched B1 m-a"
 	"130 m-a block- B2"
 	"140 m-a delete - 0 docs/a file"
-	"150 m-b gopher docs/a file"
-	"151 m-b gopher-step 0 B1 docs/a file"
-	"152 m-a gopher-step 1 B2 docs/a file"))
+	"150 m-b gopher G1 docs/a file"
+	"151 m-b gopher-step 0 B1 G1 docs/a file"
+	"152 m-a gopher-step 1 B2 G1 docs/a file"))
 (each (# (replay-add rp %0)) rp_lines)
 (assert-eq "every line is an event" 15 (length (. rp :find :events)))
 (assert-list-eq "the members, as they came" '("m-a" "m-b") (. rp :find :members))
@@ -33,12 +33,15 @@
 (assert-eq "m-a let go of a block" :nil (. (replay-held rp "m-a") :find "B2"))
 (assert-list-eq "who m-a sees, told twice, is once" '("m-b") (. (. rp :find :peers) :find "m-a"))
 (replay-seek rp 15)
-(assert-eq "the end: the gopher went to two" 2 (length (rest (. rp :find :trail))))
+(assert-eq "the end: the gopher went to two" 2 (length (second (replay-walk rp "G1"))))
+(assert-eq "it is the last that set out" "G1" (. rp :find :last_gopher))
+(assert-eq "and its path is kept" "docs/a file" (first (replay-walk rp "G1")))
+(assert-eq "an event of it is known to be" "G1" (replay-gopher-tag (elem-get (. rp :find :events) 13)))
 (replay-seek rp 4)
 (assert-eq "back to three: m-a has no path" :nil (replay-path rp "m-a" "docs/a file"))
 (assert-true "and has the block it let go of later" (. (replay-held rp "m-a") :find "B2"))
 (assert-eq "m-b keeps nothing" :nil (. (replay-held rp "m-b") :find "B1"))
-(assert-eq "no gopher yet" 0 (length (. rp :find :trail)))
+(assert-eq "no gopher yet" :nil (replay-walk rp "G1"))
 (replay-seek rp 0)
 (assert-list-eq "back to the start, nobody is seen" '() (. (. rp :find :peers) :find "m-a"))
 (replay-seek rp 15)

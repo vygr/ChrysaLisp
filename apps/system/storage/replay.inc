@@ -21,7 +21,7 @@
 (defq +replay_path_at (scatter (Fmap 31)
 	"set" 2 "delete" 2 "copies" 2 "set-stale" 0 "set-full" 0 "set-missing" 0
 	"delete-stale" 0 "delete-none" 0 "copies-none" 0 "learnt" 2 "learnt-delete" 2
-	"gopher" 0 "gopher-on" 0 "gopher-step" 2 "gopher-pass" 1 "gopher-done" 0 "gopher-none" 0 "gopher-threw" 0 "gopher-late" 0))
+	"gopher" 1 "gopher-on" 1 "gopher-step" 3 "gopher-pass" 2 "gopher-done" 1 "gopher-none" 1 "gopher-threw" 1 "gopher-late" 1))
 
 (defun replay-event (line)
 	; (replay-event line) -> :nil | event
@@ -37,7 +37,10 @@
 	; (replay-new) -> replay
 	(defq r (Emap))
 	(scatter r :events (list) :at 0 :members (list) :held (Fmap 11) :paths (Fmap 11)
-		:peers (Fmap 11) :cut (Fmap 11) :objects (Fmap 101) :trail (list) :all_paths (Fset 101))
+		:peers (Fmap 11) :cut (Fmap 11) :objects (Fmap 101) :all_paths (Fset 101)
+		;each gopher by its tag, (path steps), a step (member block time), and
+		;the tag of the last that set out
+		:gophers (Fmap 101) :last_gopher :nil)
 	r)
 
 (defun replay-add (r line)
@@ -74,9 +77,16 @@
 			(. (. r :find :peers) :insert member (filter (# (nql %0 (first words))) peers)) peers)
 		("cut" (defq was (. (. r :find :cut) :find member))
 			(. (. r :find :cut) :insert member (join words " ")) was)
-		("gopher" (defq was (. r :find :trail)) (. r :insert :trail (list path)) was)
-		("gopher-step" (defq was (. r :find :trail))
-			(. r :insert :trail (cat was (list (list member (str-as-num (first words)) (elem-get e +ev_time))))) was)
+		(("gopher" "gopher-on")
+			(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher))
+			(unless had (. (. r :find :gophers) :insert tag (list path (list))))
+			(if (eql (elem-get e +ev_kind) "gopher") (. r :insert :last_gopher tag))
+			(list (not had) last))
+		("gopher-step"
+			(when (defq walk (. (. r :find :gophers) :find (third words)))
+				(. (. r :find :gophers) :insert (third words) (list (first walk)
+					(cat (second walk) (list (list member (str-as-num (first words)) (elem-get e +ev_time))))))
+				:t))
 		(:t :nil))))
 
 (defun replay-undo (r e)
@@ -90,7 +100,13 @@
 			(if (first undo) (. paths :insert path (first undo)) (. paths :erase path)))
 		(("peer+" "peer-") (. (. r :find :peers) :insert member undo))
 		("cut" (. (. r :find :cut) :insert member undo))
-		(("gopher" "gopher-step") (. r :insert :trail undo))))
+		(("gopher" "gopher-on")
+			(bind '(made last) undo)
+			(if made (. (. r :find :gophers) :erase (first words)))
+			(. r :insert :last_gopher last))
+		("gopher-step"
+			(and undo (defq walk (. (. r :find :gophers) :find (third words)))
+				(. (. r :find :gophers) :insert (third words) (list (first walk) (slice (second walk) 0 -2)))))))
 
 (defun replay-seek (r at)
 	; (replay-seek r at) -> r
@@ -124,6 +140,23 @@
 (defun replay-blocks (r manifest)
 	; (replay-blocks r manifest) -> :nil | (block ...)
 	(. (. r :find :objects) :find manifest))
+
+(defun replay-walk (r tag)
+	; (replay-walk r tag) -> :nil | (path steps)
+	;where a gopher has been, at the event the store is at, each step
+	;(member block time)
+	(. (. r :find :gophers) :find tag))
+
+(defun replay-gopher-tag (e)
+	; (replay-gopher-tag e) -> :nil | tag
+	;the gopher an event is of, if it is of one
+	(when (starts-with "gopher" (elem-get e +ev_kind))
+		(defq words (elem-get e +ev_words))
+		(case (elem-get e +ev_kind)
+			("gopher-in" :nil)
+			("gopher-step" (third words))
+			("gopher-pass" (second words))
+			(:t (first words)))))
 
 (defun replay-about? (e path blocks)
 	; (replay-about? e path blocks) -> :nil | :t

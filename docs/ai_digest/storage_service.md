@@ -501,7 +501,9 @@ what it did, a line each, to a mailbox that has asked to be told:
 
 The time in microseconds by the clock of the member's machine, the member,
 what was done, and what to, a path last. A block is named by the first 8
-bytes of its name, in hex.
+bytes of its name, in hex. A gopher is named by a tag, 8 hex digits made
+from who it answers, the same at every member it comes to, so the walk of
+one of many out at once can be told from the rest.
 
 | what | said by | of |
 |---|---|---|
@@ -512,7 +514,7 @@ bytes of its name, in hex.
 | `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
 | `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
 | `fetched` | tender | block, the member it came from |
-| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-late` `gopher-threw` | runner | block number, block, path |
+| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-late` `gopher-threw` | runner | block number, block, the gopher's tag, path |
 
 A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has
@@ -600,6 +602,10 @@ played back, from a recording of it.
   last gopher went is a line through the members, block by block.
 * Beside them, what was done, event by event, the one the store is drawn at
   marked, and above, what the scene last said.
+* A press on an event of a gopher picks that gopher: its object is shown,
+  its way drawn through the members block by block, and the line above
+  says which members it went by. With trace, only its events are listed.
+  Another event, or the same again, and none is picked.
 * The timeline under the buttons is the whole of the recording. Dragged, the
   store is drawn as it was at that event. `<` and `>` go an event back or
   on, Play plays it at the speed it was made. Trace shows only what was done

@@ -51,7 +51,7 @@
 ;wants is not: 0 where it is worked out to be, 1 those that say they
 ;have it, 2 nothing more. pass is there while it is being sent on
 (enums +gopher 0
-	(enum asker name at state source visit names version copies trail skip how pass pinned))
+	(enum asker name at state source visit names version copies trail skip how pass pinned tag))
 
 ;how many objects it keeps the blocks of, between gophers, and how often
 ;it looks while one is being sent on and nothing else is to be done
@@ -181,7 +181,10 @@
 					(list asker name at state source (exec (gopher-ticked (copy source))) names version copies trail skip
 						;it was sent here for a block: if that is not here, what was
 						;worked out is not so, and it asks
-						(if (> (length trail) 1) 1 0) :nil pinned))
+						(if (> (length trail) 1) 1 0) :nil pinned
+						;what it is known by in a recording, the same at every member
+						;it comes to: of who it answers, made only when recorded
+						(if (storage-recording? recorder) (slice (hex-encode (sha256 asker)) 0 8) "")))
 				(:t (mail-send asker "none") :nil)))
 		(progn (print "Gopher: " _) (mail-send asker "none") :t)))
 
@@ -190,7 +193,7 @@
 	;a step of a gopher: a block, if the one it wants is here, or a step
 	;of sending it on. :drop when it is done with here: it answered, it
 	;went, or it can not go on and said so
-	(bind '(asker name at state source visit names version copies trail skip how pass pinned) g)
+	(bind '(asker name at state source visit names version copies trail skip how pass pinned tag) g)
 	(defq count (length names))
 	(cond
 		(pass
@@ -204,20 +207,20 @@
 				(:t :drop)))
 		((not (and at (< -1 at count)))
 			;it is done, it said so or went off the end
-			(storage-record recorder member "gopher-done" name)
+			(storage-record recorder member "gopher-done" (cat tag " " name))
 			(mail-send asker (str (list state trail)))
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
 			;it has a second from now, and is asked when it comes back too
 			(setq *gopher_until* (+ (pii-time) +gopher_allowed) *gopher_late* :nil
 				*gopher_check* (min *gopher_until* *bot_next*))
-			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " name))
+			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " tag " " name))
 			(bind '(state at) (visit state data at count))
 			;one that had its time came back by itself, with what it had
 			;then, which is not an answer
 			(cond
 				((or *gopher_late* (> (pii-time) *gopher_until*))
-					(storage-record recorder member "gopher-late" name)
+					(storage-record recorder member "gopher-late" (cat tag " " name))
 					(mail-send asker "none")
 					:drop)
 				(:t (elem-set g +gopher_state state)
@@ -234,11 +237,11 @@
 				holders (if (= how 0) (gopher-route names at member peers copies skip pinned)
 					(gopher-order names at (map (const second) peers) skip)))
 			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies pinned)))
-			(storage-record recorder member "gopher-pass" (cat (str at) " " name))
+			(storage-record recorder member "gopher-pass" (cat (str at) " " tag " " name))
 			;and is sent to the first of them now
 			(gopher-pass-turn pass skip)
 			:keep)
-		(:t (storage-record recorder member "gopher-none" name)
+		(:t (storage-record recorder member "gopher-none" (cat tag " " name))
 			(mail-send asker "none") :drop)))
 
 (defun main ()
@@ -260,7 +263,7 @@
 				(when (list? (defq g (gopher-take svc member copies kept msg)))
 					;one that has just set out, or one come on from another member
 					(storage-record recorder member (if (> (length (elem-get g +gopher_trail)) 1) "gopher-on" "gopher")
-						(elem-get g +gopher_name))
+						(cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
 					(push gophers g)))))
 	(while running
 		(cond
@@ -280,7 +283,7 @@
 		(setq gophers (filter (lambda (g)
 			(eql :keep (catch (gopher-turn svc member g)
 				(progn (print "Gopher: " _)
-					(storage-record recorder member "gopher-threw" (elem-get g +gopher_name))
+					(storage-record recorder member "gopher-threw" (cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
 					(mail-send (elem-get g +gopher_asker) "none") :drop)))) gophers))
 		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))
