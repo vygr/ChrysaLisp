@@ -310,7 +310,9 @@
 				(when (list? (defq g (gopher-take svc member copies kept msg)))
 					(if slow (elem-set g +gopher_budget +gopher_allowed))
 					;one that has just set out, or one come on from another member
-					(storage-record recorder member (if (> (length (elem-get g +gopher_trail)) 1) "gopher-on" "gopher")
+					;or one that was late here, to the slow lane, the same gopher
+					(storage-record recorder member
+						(cond (slow "gopher-lane") ((> (length (elem-get g +gopher_trail)) 1) "gopher-on") ("gopher"))
 						(cat (elem-get g +gopher_tag) " " (elem-get g +gopher_name)))
 					(push gophers g)))))
 	(defun to-lane (g)

@@ -57,6 +57,24 @@
 (replay-seek rp 0)
 (assert-eq "back to the first kept, what was done before stands" "M1" (replay-path rp "m-b" "docs/a file"))
 
+;a gopher late at a member goes to its slow lane: the step is tried again,
+;it is one step, and the gopher is not one that set out again
+(defq rl (replay-new))
+(each (# (replay-add rl %0)) '(
+	"200 m-a gopher G2 docs/b"
+	"201 m-a gopher G3 docs/b"
+	"202 m-a gopher-step 0 B1 G2 docs/b"
+	"203 m-a gopher-back G2 docs/b"
+	"204 m-a gopher-lane G2 docs/b"
+	"205 m-a gopher-step 0 B1 G2 docs/b"))
+(replay-seek rl 6)
+(assert-eq "late and tried again in the lane, one step" 1 (length (second (replay-walk rl "G2"))))
+(assert-eq "and the lane is not a setting out" "G3" (. (. rl :find :path_gopher) :find "docs/b"))
+(replay-seek rl 4)
+(assert-eq "back to the back, the step it is to try again is gone" 0 (length (second (replay-walk rl "G2"))))
+(replay-seek rl 3)
+(assert-eq "and before it, it is there again" 1 (length (second (replay-walk rl "G2"))))
+
 ;a scene run by the app's own runner, ./run.lisp, and played back
 (import "service/storage/app.inc")
 (defq rp2 (replay-new) rp_box (mail-mbox) rp_end :nil

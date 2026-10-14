@@ -21,7 +21,7 @@
 (defq +replay_path_at (scatter (Fmap 31)
 	"set" 2 "delete" 2 "copies" 2 "set-stale" 0 "set-full" 0 "set-missing" 0
 	"delete-stale" 0 "delete-none" 0 "copies-none" 0 "learnt" 2 "learnt-delete" 2
-	"gopher" 1 "gopher-on" 1 "gopher-step" 3 "gopher-pass" 2 "gopher-done" 1 "gopher-none" 1 "gopher-threw" 1 "gopher-late" 1 "gopher-back" 1))
+	"gopher" 1 "gopher-on" 1 "gopher-step" 3 "gopher-pass" 2 "gopher-done" 1 "gopher-none" 1 "gopher-threw" 1 "gopher-late" 1 "gopher-back" 1 "gopher-lane" 1))
 
 (defun replay-event (line)
 	; (replay-event line) -> :nil | event
@@ -79,7 +79,7 @@
 			(. (. r :find :peers) :insert member (filter (# (nql %0 (first words))) peers)) peers)
 		("cut" (defq was (. (. r :find :cut) :find member))
 			(. (. r :find :cut) :insert member (join words " ")) was)
-		(("gopher" "gopher-on")
+		(("gopher" "gopher-on" "gopher-lane")
 			(defq tag (first words) had (. (. r :find :gophers) :find tag) last (. r :find :last_gopher)
 				of (. (. r :find :path_gopher) :find path))
 			(unless had (. (. r :find :gophers) :insert tag (list path (list))))
@@ -92,6 +92,11 @@
 				(. (. r :find :gophers) :insert (third words) (list (first walk)
 					(cat (second walk) (list (list member (str-as-num (first words)) (elem-get e +ev_time))))))
 				:t))
+		;a step not done in its first try is tried again, it is not one more
+		("gopher-back"
+			(when (and (defq walk (. (. r :find :gophers) :find (first words))) (nempty? (second walk)))
+				(. (. r :find :gophers) :insert (first words) (list (first walk) (slice (second walk) 0 -2)))
+				(last (second walk))))
 		(:t :nil))))
 
 (defun replay-undo (r e)
@@ -105,14 +110,17 @@
 			(if (first undo) (. paths :insert path (first undo)) (. paths :erase path)))
 		(("peer+" "peer-") (. (. r :find :peers) :insert member undo))
 		("cut" (. (. r :find :cut) :insert member undo))
-		(("gopher" "gopher-on")
+		(("gopher" "gopher-on" "gopher-lane")
 			(bind '(made last of) undo)
 			(if made (. (. r :find :gophers) :erase (first words)))
 			(. r :insert :last_gopher last)
 			(if of (. (. r :find :path_gopher) :insert path of) (. (. r :find :path_gopher) :erase path)))
 		("gopher-step"
 			(and undo (defq walk (. (. r :find :gophers) :find (third words)))
-				(. (. r :find :gophers) :insert (third words) (list (first walk) (slice (second walk) 0 -2)))))))
+				(. (. r :find :gophers) :insert (third words) (list (first walk) (slice (second walk) 0 -2)))))
+		("gopher-back"
+			(and undo (defq walk (. (. r :find :gophers) :find (first words)))
+				(. (. r :find :gophers) :insert (first words) (list (first walk) (cat (second walk) (list undo))))))))
 
 (defun replay-seek (r at)
 	; (replay-seek r at) -> r
