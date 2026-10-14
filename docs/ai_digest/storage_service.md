@@ -472,7 +472,11 @@ gone is not told for long. `(storage-record-ask svc mbox :t)` stops it.
 There can be several recorders at once, an app and `storage -r` in a
 terminal say, and each is told all of it. `(storage-record-run write until [group stop])`
 asks every member of a group each second and gives each line to `write`.
-`storage -r file` is that, to a file of the host, for `-S` seconds. A task sends what it has
+`storage -r file` is that, to a file of the host, for `-S` seconds.
+`(storage-record-seed write [group])` gives `write` what the members have
+now, as the lines a recording from the start would have left: who each
+sees, each path, what each object is made of, and which blocks each keeps.
+A recording begun with it has what came before. A task sends what it has
 to say once it has done a thing asked of it, in one mail. With no recorder
 nothing is said, nor made to be said.
 
@@ -529,11 +533,14 @@ played back, from a recording of it.
 
 * The scenes are a row of buttons, and Run runs the one chosen: its members
   are recorded from the first, and drawn as they go.
-* Live records the store this system is a member of, from now, till Stop.
+* Live shows the store this system is a member of: what it has now, then
+  what it does, recorded, till Stop. It is what the app opens on, if this
+  system is a member of a store.
 * The members are down the side, the blocks of the object shown across, a
   square where a member keeps one, the first column the object's manifest.
   Under them the objects, a square for each member that has one, grey where
-  it has it deleted. A press on one and that is the object shown. Where its
+  it has it deleted. A press on one, or the wheel, and that is the object
+  shown. Where its
   last gopher went is a line through the members, block by block.
 * Beside them, what was done, event by event, the one the store is drawn at
   marked, and above, what the scene last said.

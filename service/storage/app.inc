@@ -787,3 +787,47 @@
 	(each (# (storage-send %0 +storage_type_record (cat "-" (hex-encode record_mbox)))) (storage-record-members group))
 	record_lines)
 
+(defun storage-record-seed (write &optional group)
+	; (storage-record-seed write [group]) -> lines
+	;what every member of a group has now, as the lines a recording of it
+	;from the start would have left, each given to write: who each sees,
+	;what each has each path as, the blocks of each object, and which of
+	;them each keeps. So a recording begun now has what came before. How
+	;many lines there were. Its names are its own, seed_..., so that write
+	;finds its own
+	(defq seed_now (str (pii-time)) seed_objects (Fmap 101) seed_lines 0 seed_members (list))
+	(defun seed-line (text) (++ seed_lines) (write (cat seed_now " " text)))
+	(each (lambda (seed_svc)
+		(when (defq seed_info (storage-info seed_svc))
+			(defq seed_me (. seed_info :find :member))
+			(push seed_members (list seed_me seed_svc))
+			(each (lambda (line) (if (nempty? line) (seed-line (cat seed_me " peer+ " (first (split line " "))))))
+				(split (ifn (storage-ask seed_svc +storage_type_peers) "") +storage_lf))
+			(each (lambda (entry)
+				(defq seed_m (elem-get entry +store_entry_hash))
+				(unless (. seed_objects :find seed_m)
+					(when (defq seed_got (storage-manifest (first entry) seed_svc))
+						(. seed_objects :insert seed_m (second seed_got))
+						(seed-line (cat seed_me " object " (storage-record-name seed_m) " "
+							(join (map (const storage-record-name) (second seed_got)) " ")))))
+				(seed-line (cat seed_me " learnt " (storage-record-name seed_m) " " (elem-get entry +store_entry_writer)
+					" " (first entry))))
+				(ifn (storage-list "" seed_svc) (list)))))
+		(storage-record-members group))
+	;the blocks each keeps, of all those known, asked a few hundred at a time
+	(defq seed_names (list))
+	(. seed_objects :each (lambda (m names)
+		(push seed_names m)
+		(each (# (push seed_names %0)) names)))
+	(each (lambda ((seed_me seed_svc))
+		(each (lambda (at)
+			(defq seed_some (slice seed_names at (min (length seed_names) (+ at 256)))
+				seed_has (ifn (storage-ask seed_svc +storage_type_has (apply (const cat) (cat (list "") seed_some))) ""))
+			(each (lambda (name)
+				(and (< (!) (length seed_has)) (eql (elem-get seed_has (!)) "1")
+					(seed-line (cat seed_me " block+ " (storage-record-name name)))))
+				seed_some))
+			(range 0 (length seed_names) 256)))
+		seed_members)
+	seed_lines)
+

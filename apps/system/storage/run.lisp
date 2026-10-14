@@ -4,7 +4,8 @@
 ; A task of its own, started by the Storage app, so the app goes on drawing
 ; while a scene runs. It is mailed who to tell and what to watch, a line
 ; each: the name of a scene of tests/storage/, or - for the store this
-; system is a member of. It tells, in batches, "lines" and then a line of a
+; system is a member of, what it has now first and then what it does. It
+; tells, in batches, "lines" and then a line of a
 ; recording each, service/storage/app.inc, what the scene says among them
 ; as "time - say text"; and at the end "end", with how many of the scene's
 ; checks held and how many did not. The store of this system is watched
@@ -27,7 +28,9 @@
 			(mail-send to (cat "lines" +run_lf (join pending +run_lf)))
 			(setq pending (list) sent (pii-time))))
 	(defq result (if (eql what "-")
-			(progn (storage-record-run pass 0x7fffffffffffffff :nil (task-mbox)) :nil)
+			;what the store has now first, then what it does from now
+			(progn (storage-record-seed pass) (pass :nil)
+				(storage-record-run pass 0x7fffffffffffffff :nil (task-mbox)) :nil)
 			(scene-run what (lambda (text) (pass (cat (str (pii-time)) " - say " text))) pass)))
 	(if (nempty? pending) (mail-send to (cat "lines" +run_lf (join pending +run_lf))))
 	(mail-send to (cat "end " (if result (join (map (const str) result) " ") "- -"))))

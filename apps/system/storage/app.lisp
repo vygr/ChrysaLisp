@@ -9,14 +9,16 @@
 ;
 ;	scenes	the scenes of tests/storage/, Run runs the one chosen, a store
 ;		of its own, and it is recorded and drawn as it goes
-;	Live	the store this system is a member of, recorded from now, Stop
-;		stops that
+;	Live	the store this system is a member of: what it has now, and
+;		then what it does, recorded. It is what is shown first, if
+;		this system is a member of a store. Stop stops that
 ;	< >	an event back, an event on, or of the object shown alone, with
 ;		Trace
 ;	Play	the recording at the speed it was made, from where it is
 ;	Trace	only what was done to the object shown and its blocks
 ;
-; A press on an object of the list, and that is the one shown.
+; A press on an object of the list, and that is the one shown, and the
+; wheel goes up and down the list.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "usr/env.inc")
@@ -32,7 +34,7 @@
 	(enum close max min)
 	(enum scene run live stop back on play trace timeline))
 
-(defq +width 900 +height 560 +rows 9 +log_rows 22 +tick 50000 +columns 60
+(defq +width 900 +height 560 +rows 9 +log_rows 22 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
@@ -103,10 +105,14 @@
 		(. *replay* :find :events))
 	out)
 
+(defun short (id)
+	;a member as it is shown, a machine's id is 32 hex digits
+	(slice id 0 (min 8 (length id))))
+
 (defun event-text (e)
 	;an event as a line of the log, its time from the first
 	(defq t0 (elem-get (first (. *replay* :find :events)) +ev_time) ms (/ (- (elem-get e +ev_time) t0) 1000))
-	(cat (str (/ ms 1000)) "." (pad (str (% ms 1000)) 3 "000") " " (elem-get e +ev_member) " " (elem-get e +ev_kind)
+	(cat (str (/ ms 1000)) "." (pad (str (% ms 1000)) 3 "000") " " (short (elem-get e +ev_member)) " " (elem-get e +ev_kind)
 		(cond
 			((empty? (elem-get e +ev_words)) "")
 			;what a scene says is all of it, the rest are names
@@ -137,14 +143,14 @@
 			held (replay-held *replay* id) has (and *shown* (replay-path *replay* id *shown*))
 			cut (. (. *replay* :find :cut) :find id))
 		(push items (cwb-shape (cwb-d-rect 14 (+ y 6) 28 (+ y 20) 3) :fill hue :stroke 0))
-		(text id 34 (+ y 18) 14)
+		(text (short id) 34 (+ y 18) 14)
 		;cut from most of the others is cut off, from a few it is they that are
 		(defq cut (filter (const nempty?) (split cut " ")))
 		(text (cat (str (. held :size)) " blocks, sees " (str (length (. (. *replay* :find :peers) :find id)))
 			(cond
 				((empty? cut) "")
 				((> (* 2 (length cut)) (dec (length all))) ", cut off")
-				((cat ", cut from " (join cut " "))))) 34 (+ y 31) 10 +dim)
+				((cat ", cut from " (join (map (const short) cut) " "))))) 34 (+ y 31) 10 +dim)
 		(each (lambda (col)
 			(defq x (+ left (* col cell) (if (> col 0) 4 0))
 				keeps (if (= col 0) (eql has manifest) (. held :find (elem-get blocks (dec col)))))
@@ -247,7 +253,7 @@
 		(go-to at)))
 
 (defun main ()
-	(defq id :t select (task-mboxes +select_size)
+	(defq id :t select (task-mboxes +select_size) wheel 0
 		*select* select *replay* (replay-new) *run* :nil *shown* :nil *trace* :nil
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -255,8 +261,14 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +tick 0)
-	(say "Choose a scene and Run, or Live for the store of this system.")
-	(draw)
+	;the store this system is a member of, as it is and then as it works,
+	;if it is a member of one
+	(cond
+		((storage-service)
+			(say "The store this system is a member of, as it is now, and then as it works.")
+			(watch "-"))
+		(:t (say "This system is a member of no store. Choose a scene and Run.")
+			(draw)))
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
@@ -281,6 +293,15 @@
 						(setq *playing* :nil)
 						(go-to (get :value *timeline*))
 						(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events)))))
+					((= (getf msg +ev_msg_type) +ev_type_wheel)
+						;the wheel goes up and down the objects, a line for so much
+						;of a turn: a trackpad sends a great many small ones
+						(setq wheel (- wheel (getf msg +ev_msg_wheel_y)))
+						(when (/= 0 (defq lines (/ wheel +wheel_line)))
+							(setq wheel (- wheel (* lines +wheel_line)))
+							(when (nempty? (defq paths (paths-now)))
+								(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
+								(draw))))
 					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
 							(/= (getf msg +ev_msg_mouse_buttons) 0))
 						;a press on an object of the list

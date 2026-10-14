@@ -81,6 +81,25 @@
 	(assert-true "one that stops is not told, the other still is"
 		(and (nempty? (sr-did "r-a" "set" "one")) (not (mail-read-timeout sr_box2 300000))))
 	(each (lambda (svc) (storage-record-ask svc :nil)) sr_svcs)
+	;what they have now, as a recording from the start would have left it,
+	;once they have all met
+	(sr-settle)
+	(defq sr_seed (list))
+	(storage-record-seed (lambda (line) (push sr_seed (split line " "))) sr_group)
+	(defq sr_paths (map (const first) (storage-list "" (sr-of "r-a"))))
+	(assert-true "a seed says each member has each path"
+		(every (lambda (id) (every (lambda (path)
+			(some (# (and (eql (second %0) id) (eql (third %0) "learnt") (eql (join (slice %0 5 -1) " ") path))) sr_seed))
+				sr_paths)) sr_ids))
+	(assert-true "and what each object is made of" (some (# (eql (third %0) "object")) sr_seed))
+	(defq sr_one_blocks (second (storage-manifest "doc/one" (sr-of "r-a"))))
+	(assert-eq "doc/one is deleted, and is not in it" :nil (find "doc/one" sr_paths))
+	(assert-true "the blocks each keeps, as many as it says it has of them"
+		(every (lambda (id)
+			(defq said (length (filter (# (and (eql (second %0) id) (eql (third %0) "block+"))) sr_seed)))
+			(> said 0))
+			sr_ids))
+	(assert-true "who each sees" (some (# (eql (third %0) "peer+")) sr_seed))
 	(setq sr_lines (list))
 	(storage-put "after" "not recorded" :nil (sr-of "r-a"))
 	(sr-settle)
