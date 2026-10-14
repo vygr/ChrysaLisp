@@ -95,6 +95,9 @@ Usage: check [options] [path] ...
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
+    cut     (slice (str x) 0 n), a string of something cut to
+            a number written there: one that is shorter than
+            that is an error, (min n (length s)).
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),
@@ -1196,6 +1199,13 @@ Usage: storage [options] [path]
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
+        -r --record file: what every member of the store does,
+            a line each, to that file of the host, - for
+            stdout: the time, the member, what was done and
+            what to. For -t seconds, 60 if not said.
+        -t --time secs: how long -r records.
+        -G --group name: the group of the members -r
+            records, *Storage if not said, a test's.
 
     The Storage service of this system, an object store. With
     no option, what the store is and what is in it.

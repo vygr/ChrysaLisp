@@ -16,7 +16,8 @@
 ; not heard from before what it kept is kept by others. After that, a mail
 ; of "kick" is look now, "pass " and a mailbox is look now and say there
 ; what was done, "pace " and two numbers is how often to look and how long
-; a member is not heard from, from now on, and "stop" is go.
+; a member is not heard from, from now on, "record " and a mailbox in hex,
+; or -, is who to tell what it does, and "stop" is go.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./app.inc")
@@ -56,6 +57,11 @@
 		;compare notes with each that is not as I am. What it has is taken
 		;here, and then what I have, with that, is taken there: the two are
 		;then the same
+		;who has come, and who has gone, since it last looked
+		(defq here (map (const first) peers))
+		(each (# (unless (find %0 seen) (storage-record recorder member "peer+" %0))) here)
+		(each (# (unless (find %0 here) (storage-record recorder member "peer-" %0))) seen)
+		(setq seen here)
 		(each (lambda ((who where state))
 			(. heard :insert who now)
 			(unless (eql (. state :find :digest) (. (ifn (storage-state svc) me) :find :digest))
@@ -63,6 +69,7 @@
 				;and is asked next time for what has changed since. took is
 				;what was had from each, gave what each was given
 				(when (defq theirs (storage-ask where +storage_type_entries (ifn (. took :find who) "")))
+					(storage-record recorder member "meet" who)
 					(if (storage-ask svc +storage_type_merge theirs) (. took :insert who (notes-at theirs)))
 					(and (defq mine (storage-ask svc +storage_type_entries (ifn (. gave :find who) "")))
 						(storage-ask where +storage_type_merge mine)
@@ -93,20 +100,21 @@
 				(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
 					names (apply (const cat) (cat (list "") batch))
 					has (map (lambda ((who where state)) (ifn (storage-ask where +storage_type_has names 5) "")) peers)
-					boxes (map (lambda (want)
+					froms (map (lambda (want)
 						(defq at_want (!)
 							having (filter (# (and (< at_want (length (elem-get has %0))) (eql (elem-get (elem-get has %0) at_want) "1")))
 								(range 0 (length peers))))
-						(if (nempty? having)
-							(storage-send (second (elem-get peers (elem-get having (% at_want (length having)))))
-								+storage_type_block_get want)))
-						batch))
-				(each (lambda (want mbox)
+						(if (nempty? having) (elem-get peers (elem-get having (% at_want (length having))))))
+						batch)
+					boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
+					froms (map (# (if %0 (first %0) "?")) froms))
+				(each (lambda (want mbox from)
 					(when (and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
 							(eql (storage-ask svc +storage_type_block_put data) want))
+						(storage-record recorder member "fetched" (cat (storage-record-name want) " " from))
 						(++ fetched)
 						(setq more :t)))
-					batch boxes))
+					batch boxes froms))
 				(range 0 (length wants) +tender_window))
 			;what is others' to keep is let go of when each of them has it
 			(each (lambda (line)
@@ -122,7 +130,9 @@
 (defun main ()
 	(bind '(svc group tick grace) (split (mail-read (task-mbox)) +storage_lf))
 	(defq svc (hex-decode svc) tick (str-as-num tick) grace (str-as-num grace)
-		heard (Fmap 11) took (Fmap 11) gave (Fmap 11) running :t select (list (task-mbox) (mail-mbox)))
+		heard (Fmap 11) took (Fmap 11) gave (Fmap 11) running :t select (list (task-mbox) (mail-mbox))
+		;who it tells what it does, if anyone, and the peers it saw last
+		recorder (storage-record-new) seen (list))
 	(if (> tick 0) (mail-timeout (second select) tick 0))
 	(while running
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
@@ -133,6 +143,7 @@
 					(catch (look svc group grace heard) :t)
 					(mail-timeout (second select) tick 0)))
 			((eql msg "stop") (setq running :nil))
+			((starts-with "record " msg) (storage-record-to recorder (slice msg 7 -1)))
 			((starts-with "pass " msg)
 				(defq did (catch (look svc group grace heard) (list 0 0 0)))
 				(mail-send (hex-decode (slice msg 5 -1)) (join (map (const str) (if (list? did) did (list 0 0 0))) " ")))
@@ -143,5 +154,6 @@
 				(if (> tick 0) (mail-timeout (second select) tick 0)))
 			((eql msg "kick")
 				;a write: the others are told now. Not if it only looks when told
-				(if (> tick 0) (catch (look svc group grace heard) :t)))))
+				(if (> tick 0) (catch (look svc group grace heard) :t))))
+		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))

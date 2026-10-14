@@ -40,6 +40,15 @@
 		(:full "full")
 		(:t "none")))
 
+(defun wrote (kind result path)
+	;a write, recorded, and what it came to as it is sent back
+	(bind '(what val) result)
+	(storage-record recorder member (if (eql what :ok) kind (cat kind "-" (rest (str what))))
+		(if (and (eql what :ok) val)
+			(cat (storage-record-name (elem-get val +store_entry_hash)) " " (str (elem-get val +store_entry_bytes)) " " path)
+			path))
+	(said result))
+
 (defun from-of (text)
 	;what a path was said to be: ? not said, - none
 	(cond ((eql text "?") :nil) ((eql text "-") "") ((hex-decode text))))
@@ -77,7 +86,12 @@
 			((defq entry (store-entry-read line)) (push entries entry))))
 		lines)
 	;not written to the volume now: it is when there is a moment, below
-	(+ (if (store-pinned-take store pinned :t) 1 0) (length (store-meet store entries :t))))
+	(defq pins (if (store-pinned-take store pinned :t) 1 0) changed (store-meet store entries :t))
+	(each (lambda (entry)
+		(storage-record recorder member (if (elem-get entry +store_entry_deleted) "learnt-delete" "learnt")
+			(cat (storage-record-name (elem-get entry +store_entry_hash)) " " (elem-get entry +store_entry_writer) " " (first entry))))
+		changed)
+	(+ pins (length changed)))
 
 (defun main ()
 	;what it is to keep
@@ -105,7 +119,7 @@
 		(:t (defq service (mail-declare (task-mbox) name "Storage Service 0.2")
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
-				running :t cut (list) peers (list)
+				running :t cut (list) peers (list) recorder (storage-record-new)
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -128,37 +142,54 @@
 						(+storage_type_has
 							(apply (const cat) (cat (list "")
 								(map (# (if (store-block-has? store %0) "1" "0")) (names-of body)))))
-						(+storage_type_block_put (ifn (store-block-put store body) ""))
-						(+storage_type_block_get (ifn (store-block-get store body) ""))
-						(+storage_type_block_drop (if (store-block-drop store body) "1" "0"))
+						(+storage_type_block_put
+							(defq fresh (and (storage-recording? recorder) (not (store-block-has? store (sha256 body))))
+								got (store-block-put store body))
+							(and got fresh (storage-record recorder member "block+" (storage-record-name got)))
+							(ifn got ""))
+						(+storage_type_block_get
+							(defq got (store-block-get store body))
+							(if got (storage-record recorder member "block>" (storage-record-name body)))
+							(ifn got ""))
+						(+storage_type_block_drop
+							(cond
+								((store-block-drop store body)
+									(storage-record recorder member "block-" (storage-record-name body))
+									"1")
+								("0")))
 						(+storage_type_commit
 							(bind '(from bytes path &rest names) (split body +storage_lf))
-							(defq result (said (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from))))
+							(defq result (wrote "set" (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from)) path))
 							;its tender is to tell the others, now and not at its next look
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)
 						(+storage_type_delete
 							(defq at (find +storage_lf body)
-								result (said (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at)))))
+								result (wrote "delete" (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at))) (slice body (inc at) -1)))
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)
 						(+storage_type_copies
 							(defq at (find +storage_lf body)
-								result (said (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at)))))
+								result (wrote "copies" (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at))) (slice body (inc at) -1)))
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)
 						(+storage_type_pin
+							(storage-record recorder member "pin" body)
 							(store-pin store (rest body) (eql (first body) "-"))
 							(join (get :pins store) +storage_lf))
 						(+storage_type_pins_missing (join (store-pins-missing store) +storage_lf))
 						(+storage_type_pinned (join (store-pinned-by store body) " "))
-						(+storage_type_sweep (str (store-sweep store)))
+						(+storage_type_sweep
+							(defq swept (store-sweep store))
+							(storage-record recorder member "sweep" (str swept))
+							(str swept))
 						(+storage_type_check
 							(join (map (const hex-encode) (store-check store (eql body "mend"))) +storage_lf))
 						(+storage_type_walk
 							;a gopher. The task that runs them here is given it, with
 							;who is to be answered: who asked, or the member that
 							;sent it on, who is told it got here
+							(storage-record recorder member "gopher-in")
 							(if (/= 0 (get-long runner 0))
 								(mail-send runner (cat (hex-encode reply) +storage_lf body)))
 							:nil)
@@ -197,15 +228,25 @@
 							(if (eql body "-") (setq peers (list)))
 							(join (map (# (join %0 " ")) peers) +storage_lf))
 						(+storage_type_members
+							(if (nempty? body) (storage-record recorder member "members" body))
 							(cond
 								((starts-with "+" body) (store-join store (list (rest body))))
 								((starts-with "-" body) (store-join store (list) (list (rest body)))))
 							(join (store-members store) " "))
-						(+storage_type_cut (setq cut (split body " ")) "ok")
+						(+storage_type_cut
+							(storage-record recorder member "cut" body)
+							(setq cut (split body " ")) "ok")
+						(+storage_type_record
+							;told to the tender and the gophers too, each says what it does
+							(storage-record-to recorder body)
+							(if (/= 0 (get-long tender 0)) (mail-send tender (cat "record " body)))
+							(if (/= 0 (get-long runner 0)) (mail-send runner (cat "record " body)))
+							"ok")
 						(+storage_type_stop (setq running :nil) "ok")
 						(:t "error"))
-					(progn (prin "Storage: " (slice (str _) 0 200)) (print) "error")))
+					(progn (prin "Storage: " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) "error")))
 				(if answer (mail-send reply answer))
+				(storage-record-send recorder)
 				;what was learnt from other members and is not written yet, is,
 				;when nothing else is asked, or it has waited long enough
 				(and (defq dirty (get :dirty store))

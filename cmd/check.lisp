@@ -42,6 +42,9 @@
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
+    cut     (slice (str x) 0 n), a string of something cut to
+            a number written there: one that is shorter than
+            that is an error, (min n (length s)).
     style   (if tst (progn ...)) with no else, a (when);
             (if (not tst) form else ...), an (ifn), and
             with no else an (unless); the same of an (ifn),
@@ -80,7 +83,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -190,6 +193,16 @@
 								(found file node "early" (third name) " is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"))))
 						nodes)))))
 		kids))
+
+(defun check-cut (file forms head)
+	;(slice (str x) 0 200): how long the string of a thing is, is not known
+	;here, and one shorter than the end given is not_valid_index
+	(and (eql head "slice") (= (length forms) 4)
+		(defq inner (tree-form? (second forms) "str"))
+		(eql (first (third forms)) :number) (eql (third (third forms)) "0")
+		(eql (first (elem-get forms 3)) :number) (> (str-as-num (third (elem-get forms 3))) 0)
+		(found file (second forms) "cut" "a (str ) cut to " (third (elem-get forms 3))
+			" is an error if it is shorter, (min " (third (elem-get forms 3)) " (length s))")))
 
 (defun check-style (file node forms head)
 	;an (ifn) has the test of an (if) the other way about, and a (condn)
@@ -437,6 +450,7 @@
 							(if (find "shadow" checks) (check-shadow file forms head))
 							(and (find "const" checks) (eql head "defq") (check-const file kids))
 							(and (find "early" checks) (eql head "defq") (check-early file kids))
+							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))

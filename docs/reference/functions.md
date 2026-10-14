@@ -1907,7 +1907,7 @@ a file, or a directory that has nothing in it
 ```code
 (exfat-dir vol entry) -> ((name dir size start no_fat index count) ...)
 
-what is in a directory
+what is in a directory, a list of its own
 ```
 
 ### exfat-dir-put
@@ -1916,6 +1916,16 @@ what is in a directory
 entries to a directory, from an index on. They can cross from one
 
 cluster of the directory to the next, so they go an entry at a time
+```
+
+### exfat-dir-read
+
+```code
+(exfat-dir-read vol entry) -> (entries index)
+
+a directory as it was last read, or read now. Every name looked for
+on the way to a file was a read of each directory on the way, and of
+every entry in it, a store of blocks has 256 in one
 ```
 
 ### exfat-drop
@@ -1984,7 +1994,10 @@ it is not given.
 ```code
 (exfat-free vol) -> bytes
 
-the room there is left, the clusters that are not in use
+the room there is left, the clusters that are not in use. Counted
+the first time it is asked, and kept as clusters are marked: it is
+asked with every put to a store, and the count was a look at every
+bit of the bitmap
 ```
 
 ### exfat-grow
@@ -2008,6 +2021,12 @@ the hash of a name, of its upper case, a byte at a time
 a block is kept. When there are too many, those that were changed go
 
 to the device and all are let go
+```
+
+### exfat-key
+
+```code
+a name as the volume sees it, with no regard to case
 ```
 
 ### exfat-list
@@ -5957,6 +5976,37 @@ whichever way round, and a member that is retired stays retired. Was
 there anything new
 ```
 
+### store-journal-add
+
+```code
+(store-journal-add store entries) -> :nil | :t
+
+entries of the path map are on the volume, at the end of the journal,
+as the one write. :nil if there is no journal or no room in it for
+them all, and the map is to be written
+```
+
+### store-journal-open
+
+```code
+the journal of a store that has just had its map read: what it has
+
+that is later than the map is taken, and it is added to from there.
+One that has none is given one. How many entries were taken
+```
+
+### store-journal-reset
+
+```code
+it has nothing in it, as it does when the map has just been written
+```
+
+### store-journal-write
+
+```code
+bytes of the journal, where they are on the volume
+```
+
 ### store-keeps
 
 ```code
@@ -6020,6 +6070,15 @@ object is made of is asked again and again
 (store-manifest-text size names) -> data
 
 what is kept for an object: how long it is, and its blocks in order
+```
+
+### store-map-insert
+
+```code
+an entry goes in the path map, in place of what that path was. How
+
+many objects there are is kept as it goes, it is asked with every
+put, and to count them was a walk of the map each time
 ```
 
 ### store-meet

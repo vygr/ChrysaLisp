@@ -21,7 +21,9 @@
 		pin pins_missing sweep check walk stop
 		;what members ask of each other, and a tender of its own service
 		state entries merge share block_drop where peers members cut
-		copies pinned))
+		copies pinned
+		;a recorder that is to be told what is done, see below
+		record))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -677,3 +679,89 @@
 	;for a test: the member is as if it could not reach those members,
 	;its tender does not look at them. None, and it can reach all again
 	(if (storage-ask (ifn svc (storage-service)) +storage_type_cut (join members " ")) :t))
+
+;;;;;;;;;;;;;;
+; the recorder
+;;;;;;;;;;;;;;
+;
+; What a member does can be recorded. Its service, its tender and its
+; gophers each say what they did, a line each, to a mailbox that has
+; asked to be told, a recorder. A line is the time in microseconds, the
+; member, what was done, and what it was done to, a path last, it may
+; have spaces in it:
+;
+;	1791904249088123 m-0 set 1a2b3c4d 5120 tree/apps/demos/app.lisp
+;
+; A recorder asks each member to tell it, and is told for so long,
+; +storage_record_lease, then no more unless it has asked again: one
+; that has gone is not told for long. A task says what it did when it
+; has done a thing asked of it, all of it in one mail. With no recorder
+; nothing is said, and nothing is made to be said.
+
+(defq +storage_record_lease 5000000)
+
+(defun storage-record-new ()
+	; (storage-record-new) -> rec
+	;what a task of a member keeps of its recorder: where it is, till
+	;when it is told, and the lines it has still to send
+	(list :nil 0 (list)))
+
+(defun storage-record-to (rec text)
+	; (storage-record-to rec text) -> rec
+	;the recorder is the mailbox in hex, - and there is none
+	(elem-set rec 0 (if (eql text "-") :nil (hex-decode text)))
+	(elem-set rec 1 (+ (pii-time) +storage_record_lease)))
+
+(defun storage-recording? (rec)
+	; (storage-recording? rec) -> :nil | :t
+	(and (first rec) (< (pii-time) (second rec))))
+
+(defun storage-record (rec member kind &optional what)
+	; (storage-record rec member kind [what]) -> rec
+	;a thing done, kept to be sent, if there is a recorder
+	(if (storage-recording? rec)
+		(push (third rec) (cat (str (pii-time)) " " member " " kind (if what (cat " " what) ""))))
+	rec)
+
+(defun storage-record-send (rec)
+	; (storage-record-send rec) -> rec
+	;what was kept is sent, in one mail
+	(when (nempty? (third rec))
+		(if (storage-recording? rec) (mail-send (first rec) (join (third rec) +storage_lf)))
+		(elem-set rec 2 (list)))
+	rec)
+
+(defun storage-record-name (hash)
+	;a block as a record names it, enough of it to be told from the rest,
+	;- for none, a path deleted
+	(if (< (length hash) 8) "-" (hex-encode (slice hash 0 8))))
+
+(defun storage-record-ask (svc mbox)
+	; (storage-record-ask svc mbox) -> :nil | :t
+	;a member is to tell that mailbox what it does, for so long, or with
+	;:nil to tell nobody from now
+	(if (storage-ask svc +storage_type_record (if mbox (hex-encode mbox) "-")) :t))
+
+(defun storage-record-members (&optional group)
+	; (storage-record-members [group]) -> (netid ...)
+	;the services of every member of a store of that group that is there,
+	;on every machine, *Storage if not given
+	(map (# (hex-decode (second (split %0 ",")))) (mail-enquire (cat (ifn group +storage_group) ","))))
+
+(defun storage-record-run (write until &optional group stop)
+	; (storage-record-run write until [group stop]) -> lines
+	;what every member of a group does, each line given to write as it
+	;comes, till the time is until, (pii-time), or a mail is on the stop
+	;mailbox. Each member is asked again each second, and one that has
+	;come since is asked then too. How many lines there were
+	(defq mbox (mail-mbox) next 0 lines 0)
+	(while (and (< (pii-time) until) (not (and stop (mail-poll (list stop)))))
+		(when (>= (pii-time) next)
+			(each (# (storage-send %0 +storage_type_record (hex-encode mbox))) (storage-record-members group))
+			(setq next (+ (pii-time) 1000000)))
+		(when (defq text (mail-read-timeout mbox 100000))
+			(each (lambda (line) (++ lines) (write line)) (split text +storage_lf))))
+	;they are told to stop, and what comes after is to a mailbox nobody reads
+	(each (# (storage-send %0 +storage_type_record "-")) (storage-record-members group))
+	lines)
+

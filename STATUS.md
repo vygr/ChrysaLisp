@@ -4,6 +4,8 @@
 
 ------
 
+**Storage: a recorder. Each member says what it does, a line each, to a mailbox that asks, `storage -r file`. A put of the tree into one member is 6 s, was 26: the room left, the objects, and each directory read are kept. `check` has `cut`.**
+
 **Storage: the path map has a journal, a path that changes is a line added to a file and not the whole map written. The tree into five members, 123 s to 76 s. `check` has `early`.**
 
 `+store_journal_size` 0 turns it off. A first stage, to be judged.

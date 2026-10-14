@@ -173,12 +173,14 @@
 				(:t :drop)))
 		((not (and at (< -1 at count)))
 			;it is done, it said so or went off the end
+			(storage-record recorder member "gopher-done" name)
 			(mail-send asker (str (list state trail)))
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
 			;it has a second from now, and is asked when it comes back too:
 			;one that caught what was thrown at it has still had its time
 			(setq *gopher_until* (+ (pii-time) +gopher_allowed))
+			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " name))
 			(bind '(state at) (visit state data at count))
 			(gopher-tick)
 			(elem-set g +gopher_state state)
@@ -195,22 +197,29 @@
 				holders (if (= how 0) (gopher-route names at member peers copies skip pinned)
 					(gopher-order names at (map (const second) peers) skip)))
 			(elem-set g +gopher_pass (defq pass (gopher-pass-begin holders asker name at state source trail skip :nil version copies pinned)))
+			(storage-record recorder member "gopher-pass" (cat (str at) " " name))
 			;and is sent to the first of them now
 			(gopher-pass-turn pass skip)
 			:keep)
-		(:t (mail-send asker "none") :drop)))
+		(:t (storage-record recorder member "gopher-none" name)
+			(mail-send asker "none") :drop)))
 
 (defun main ()
 	(defq svc (hex-decode (mail-read (task-mbox))) select (list (task-mbox) (mail-mbox))
-		gophers (list) kept (Fmap 31) member :nil copies 3 running :t)
+		gophers (list) kept (Fmap 31) member "?" copies 3 running :t asked :nil
+		;who it tells what it does, if anyone
+		recorder (storage-record-new))
 	(defun take (msg)
 		(cond
 			((eql msg "stop") (setq running :nil))
+			((starts-with "record " msg) (storage-record-to recorder (slice msg 7 -1)))
 			(:t ;who this member is, asked the once, when there is first a need
-				(unless member
+				(unless asked
 					(defq info (storage-info svc))
-					(setq member (if info (. info :find :member) "?") copies (if info (. info :find :copies) 3)))
-				(if (list? (defq g (gopher-take svc member copies kept msg))) (push gophers g)))))
+					(setq asked :t member (if info (. info :find :member) "?") copies (if info (. info :find :copies) 3)))
+				(when (list? (defq g (gopher-take svc member copies kept msg)))
+					(storage-record recorder member "gopher" (elem-get g +gopher_name))
+					(push gophers g)))))
 	(while running
 		(cond
 			((some (# (not (elem-get %0 +gopher_pass))) gophers)
@@ -228,5 +237,8 @@
 		;a step of each. One whose function throws is done with, and says so
 		(setq gophers (filter (lambda (g)
 			(eql :keep (catch (gopher-turn svc member g)
-				(progn (print "Gopher: " _) (mail-send (elem-get g +gopher_asker) "none") :drop)))) gophers)))
+				(progn (print "Gopher: " _)
+					(storage-record recorder member "gopher-threw" (elem-get g +gopher_name))
+					(mail-send (elem-get g +gopher_asker) "none") :drop)))) gophers))
+		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))

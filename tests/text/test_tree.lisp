@@ -136,6 +136,10 @@
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")
 	(tt-check "held" "(when (create-stdio) (print 1))" "(when (defq stdio (create-stdio)) (print 1))"
 		"(when (and (defq stdio (create-stdio)) (defq args 1)) 1)" "(if (and x (create-stdio)) 1)"))
+(assert-list-eq "cut: a (str ) cut to a number written there; not to a length worked out, nor from other than 0"
+	'("(1) cut: a (str ) cut to 200 is an error if it is shorter, (min 200 (length s))")
+	(tt-check "cut" "(prin (slice (str _) 0 200))" "(slice (defq t (str _)) 0 (min 200 (length t)))"
+		"(slice (str x) 2 5)" "(slice s 0 8)"))
 (assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
 	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")

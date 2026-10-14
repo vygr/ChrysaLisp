@@ -112,6 +112,43 @@ blocks, kept, and a snapshot is nearly free. That fits the last known good
 image of a machine that boots into ChrysaLisp, it is a path that is not let
 go of.
 
+## The Recorder
+
+What the members of a store do can be recorded, to be watched, played
+back, and gone over after. Each member's service, tender and gopher runner
+says what it did, a line each, to a mailbox that has asked to be told:
+
+```
+1791904249088123 r-a set 1a2b3c4d 12288 doc/one
+1791904249090456 r-b meet r-a
+1791904249090511 r-b learnt 1a2b3c4d r-a doc/one
+1791904249091002 r-b fetched 9f8e7d6c r-a
+```
+
+The time in microseconds by the clock of the member's machine, the member,
+what was done, and what to, a path last as it may have spaces in it. A
+block is named by the first 8 bytes of its name, in hex.
+
+| what | said by | of |
+|---|---|---|
+| `set` `delete` `copies`, with `-stale` `-full` `-missing` if not done | service | manifest, length, path |
+| `block+` `block-` `block>` | service | a block kept new, let go of, given out |
+| `learnt` `learnt-delete` | service | manifest, writer, path, taken from another |
+| `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
+| `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
+| `fetched` | tender | block, the member it came from |
+| `gopher` `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-threw` | runner | block number, block, path |
+
+A recorder asks each member with `(storage-record-ask svc mbox)`, and is
+told for 5 seconds, `+storage_record_lease`, unless it asks again: one that
+has gone is not told for long. `(storage-record-run write until [group
+stop])` asks every member of a group each second, and gives each line to
+`write`. `storage -r file [-t secs] [-G group]` is that, to a file of the
+host. A task sends what it has to say once it has done a thing asked of it,
+in one mail. With no recorder nothing is said, nor made to be said.
+
+The times of two machines are by two clocks.
+
 ## Where A Block Is Kept
 
 By a rule, not by a table. For a block, each service ranks every service

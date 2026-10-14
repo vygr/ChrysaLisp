@@ -60,6 +60,13 @@
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
+        -r --record file: what every member of the store does,
+            a line each, to that file of the host, - for
+            stdout: the time, the member, what was done and
+            what to. For -t seconds, 60 if not said.
+        -t --time secs: how long -r records.
+        -G --group name: the group of the members -r
+            records, *Storage if not said, a test's.
 
     The Storage service of this system, an object store. With
     no option, what the store is and what is in it.")
@@ -84,6 +91,9 @@
 (("-U" "--unpin") ,(opt-flag 'opt_U))
 (("-T" "--tree") ,(opt-str 'opt_T))
 (("-V" "--verify") ,(opt-str 'opt_V))
+(("-r" "--record") ,(opt-str 'opt_r))
+(("-t" "--time") ,(opt-num 'opt_t))
+(("-G" "--group") ,(opt-str 'opt_G))
 ))
 
 (defun show (entry)
@@ -100,6 +110,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
+				opt_r :nil opt_t 60 opt_G :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
 		(if opt_j (setq opt_s (ifn opt_s +storage_image)))
@@ -119,7 +130,15 @@
 				((print "No store at " opt_s ", and none made."))))
 		(defq svc (storage-service) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
 		(cond
-			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))
+			(opt_r
+				;of the members of the group, whether or not this system has one
+				(defq out (if (eql opt_r "-") (io-stream 'stdout) (file-stream opt_r +file_open_write)))
+				(cond
+					((not out) (print "No file " opt_r " to write."))
+					(:t (defq lines (storage-record-run (lambda (line) (write-line out line))
+							(+ (pii-time) (* opt_t 1000000)) opt_G))
+						(stream-flush out)
+						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))
 			(opt_x (defq said (storage-member))
 				(print (if (storage-stop svc) "Stopped." "It did not say."))
 				(if said (storage-unclaim (. said :find :image))))
