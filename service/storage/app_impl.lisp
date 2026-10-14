@@ -146,9 +146,10 @@
 							(apply (const cat) (cat (list "")
 								(map (# (if (store-block-has? store %0) "1" "0")) (names-of body)))))
 						(+storage_type_block_put
-							(defq fresh (and (storage-recording? recorder) (not (store-block-has? store (sha256 body))))
-								got (store-block-put store body))
-							(and got fresh (storage-record recorder member "block+" (storage-record-name got)))
+							;new here if there are more kept after: the block is hashed the once
+							(defq had (. (get :held store) :size) got (store-block-put store body))
+							(and got (> (. (get :held store) :size) had)
+								(storage-record recorder member "block+" (storage-record-name got)))
 							(ifn got ""))
 						(+storage_type_block_get
 							(defq got (store-block-get store body))
