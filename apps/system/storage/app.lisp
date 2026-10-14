@@ -44,7 +44,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum play pause start back on end live record trace run scene timeline
+	(enum play pause start back on end live record trace join run scene timeline
 		snap_take snap_restore snap_drop))
 
 (defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
@@ -91,7 +91,7 @@
 		;what is watched, played and stepped through, on the left
 		(ui-tool-bar *debug* ()
 			(ui-buttons (+sym_media_play +sym_media_pause +sym_media_start +sym_media_back +sym_media_on +sym_media_end
-				+sym_media_live +sym_media_record +sym_find) +event_play))
+				+sym_media_live +sym_media_record +sym_find +sym_group) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
@@ -113,7 +113,8 @@
 (ui-tool-tips *debug*
 	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
 		"to the end, and follow what comes" "the store of this system, live"
-		"keep all the store of this system does, or the last few thousand" "trace the object shown"))
+		"keep all the store of this system does, or the last few thousand" "trace the object shown"
+		"make this machine a member of the store of its mesh, now and each time it starts"))
 (ui-tool-tips *tests* '("run the scene chosen"))
 (ui-tool-tips *snapbar* '("a snapshot of the whole store, by the name written, or the time"
 	"put the store back as it was in the snapshot picked" "drop the snapshot picked"))
@@ -229,10 +230,10 @@
 
 (defun lights ()
 	;the controls that are on are lit, as a radio bar's are: playing,
-	;still, following what comes, recording, and trace. Only when that is
-	;not as it was, a button changed is drawn again
+	;still, following what comes, recording, trace, and this machine a
+	;member. Only when that is not as it was, a button changed is drawn again
 	(defq now (list *playing* (not (or *playing* *follow*)) :nil :nil :nil (and *follow* (not *playing*))
-			(and *run* *live*) *record* *trace*)
+			(and *run* *live*) *record* *trace* *joined*)
 		now (map (# (if %0 :t :nil)) now))
 	(unless (eql (str now) (str *lit*))
 		(setq *lit* now)
@@ -449,6 +450,8 @@
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
 		*gopher* :nil *snap* :nil
+		;is this machine a member, it says so in a file, looked at the once
+		*joined* (if (storage-member) :t)
 		*record* :t
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
@@ -487,6 +490,25 @@
 							((and *run* *live*))
 							(:t (say "The store of this system, as it is and as it works.")
 								(watch "-"))))
+					((= id +event_join)
+						;this machine made a member, as storage -j does: its store is
+						;made if there is none, started, and started by itself from
+						;now on, and then it is what is watched
+						(cond
+							(*joined* (say "This machine is a member already. storage -f and it is not started by itself."))
+							((storage-service)
+								(say "This system is serving a store already, started by hand. Live watches it."))
+							((not (storage-claim +storage_image))
+								(say "Another session of this machine is serving its store."))
+							(:t (say "Joining: the store of this machine is made if there is none, and started ...")
+								(draw)
+								(cond
+									((storage-join)
+										(storage-member-save +storage_image +storage_size)
+										(setq *joined* :t)
+										(say "This machine is a member, and is each time it starts. Its store, live.")
+										(watch "-"))
+									((say "The store of this machine could not be started."))))))
 					((= id +event_record)
 						;whether all of it is kept, or the last so many events, of
 						;the store of this system, now if it is what is watched
