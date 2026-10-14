@@ -753,15 +753,16 @@
 	;what every member of a group does, each line given to write as it
 	;comes, till the time is until, (pii-time), or a mail is on the stop
 	;mailbox. Each member is asked again each second, and one that has
-	;come since is asked then too. How many lines there were
-	(defq mbox (mail-mbox) next 0 lines 0)
+	;come since is asked then too. How many lines there were. Its names
+	;are its own, record_..., so that write finds its own
+	(defq record_mbox (mail-mbox) record_next 0 record_lines 0)
 	(while (and (< (pii-time) until) (not (and stop (mail-poll (list stop)))))
-		(when (>= (pii-time) next)
-			(each (# (storage-send %0 +storage_type_record (hex-encode mbox))) (storage-record-members group))
-			(setq next (+ (pii-time) 1000000)))
-		(when (defq text (mail-read-timeout mbox 100000))
-			(each (lambda (line) (++ lines) (write line)) (split text +storage_lf))))
+		(when (>= (pii-time) record_next)
+			(each (# (storage-send %0 +storage_type_record (hex-encode record_mbox))) (storage-record-members group))
+			(setq record_next (+ (pii-time) 1000000)))
+		(when (defq record_text (mail-read-timeout record_mbox 100000))
+			(each (lambda (line) (++ record_lines) (write line)) (split record_text +storage_lf))))
 	;they are told to stop, and what comes after is to a mailbox nobody reads
 	(each (# (storage-send %0 +storage_type_record "-")) (storage-record-members group))
-	lines)
+	record_lines)
 

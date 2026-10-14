@@ -125,12 +125,16 @@
 	'("(2) enum: a field named size is the (enums)'s own count of its fields")
 	(tt-check "enum" "(enums +x 0" "	(enum a size b))" "(enums +y 0 (enum a sizes b))"))
 (assert-list-eq "capture: a function given to another of the file that uses a name the other has as a parameter, called or not; not one of its own, nor one the other has not"
-	'("(5) capture: visit in the function given to (walk) is a parameter of (walk), it is that one it has"
-		"(9) capture: name in the function given to (walk) is a parameter of (walk), it is that one it has")
+	'("(5) capture: visit in the function given to (walk) is a name of (walk), it is that one it has"
+		"(9) capture: name in the function given to (walk) is a name of (walk), it is that one it has")
 	(tt-check "capture" "(defun walk (name visit) (visit name))" "(defun fold (name step)" "	(walk name (lambda (x) (step x))))"
 		"(defun fold2 (name visit)" "	(walk name (lambda (x) (visit x))))" "(defun fold3 (thing step)"
 		"	(walk thing (lambda (name) (defq visit 1) (list name visit step))))" "(defun fold4 (thing)"
 		"	(walk thing (# (cat %0 name))))" "(defun fold5 (thing)" "	(walk thing (lambda (x) (list x))))"))
+(assert-list-eq "capture: and a name the other makes with a (defq) of its own; not one made in a function inside it"
+	'("(4) capture: said in the function given to (runner) is a name of (runner), it is that one it has")
+	(tt-check "capture" "(defun runner (name say)" "	(defq said (list)) (each (lambda (x) (defq inner 1) x) said) (say 1))"
+		"(defun user1 ()" "	(runner 1 (lambda (line) (push said line))))" "(defun user2 ()" "	(runner 1 (lambda (line) (list inner line))))"))
 (assert-list-eq "held: a stdio made and not kept in a name"
 	'("(1) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))"
 		"(4) held: a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")

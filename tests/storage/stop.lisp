@@ -1,0 +1,21 @@
+;a member is switched off, the others keep what it kept, it is switched on again
+
+(import "service/storage/scene.inc")
+
+(defun main ()
+	(defq sc (scene-begin "A member is switched off and on again. Three keep every block whatever is on."))
+	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
+		(storage-put "big" (scene-bytes 20 "big") :nil (scene-svc sc "m-a"))
+		(scene-settle sc)
+		(scene-check sc "every block is kept by three of five" (every (# (= %0 3)) (scene-keepers sc "big")))
+		(scene-say sc "m-c is switched off.")
+		(scene-stop sc "m-c")
+		(scene-settle sc)
+		(scene-check sc "every block is kept by three of the four left" (every (# (= %0 3)) (scene-keepers sc "big")))
+		(scene-check sc "m-c is still a member" (find "m-c" (storage-members :nil (scene-svc sc "m-a"))))
+		(scene-say sc "m-c is switched on, on its own store.")
+		(scene-start sc "m-c")
+		(scene-settle sc)
+		(scene-check sc "every block is kept by three of five again" (every (# (= %0 3)) (scene-keepers sc "big")))
+		(scene-check sc "and m-c has the object whole" (eql (scene-bytes 20 "big") (storage-get "big" (scene-svc sc "m-c")))))
+	(scene-end sc))

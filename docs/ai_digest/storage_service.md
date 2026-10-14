@@ -22,6 +22,8 @@ why, and what each measurement found on the way, is
 | `service/storage/gopher.inc` | how a gopher's way is worked out and how it is sent on |
 | `service/storage/auto.lisp` | starts the service of a machine that is a member, when its session is the machine's member of the mesh |
 | `service/storage/app.inc` | all an app imports: the calls, the asking, the recorder |
+| `service/storage/scene.inc` | scenes: a store of its own, a thing done to it, and what came of it |
+| `tests/storage/` | the scenes |
 | `cmd/storage.lisp` | `storage`, the command |
 | `apps/system/storage/` | the Storage app, a view of the members and what each keeps |
 
@@ -431,7 +433,8 @@ storage -w                    sweep
 storage -c, -C                check, and mend
 storage -T dir path/          put every file under a folder, then read each back and compare
 storage -V dir path/          the reading back only
-storage -r file [-t secs] [-G group]   record what the members do
+storage -t [scene] [-r file]  the scenes, or run one, and record it
+storage -r file [-S secs] [-G group]   record what the members do
 storage -j, -f, -s image [-m MB -i id -F], -x
 ```
 
@@ -466,11 +469,55 @@ A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has
 gone is not told for long. `(storage-record-run write until [group stop])`
 asks every member of a group each second and gives each line to `write`.
-`storage -r file` is that, to a file of the host. A task sends what it has
+`storage -r file` is that, to a file of the host, for `-S` seconds. A task sends what it has
 to say once it has done a thing asked of it, in one mail. With no recorder
 nothing is said, nor made to be said.
 
 The times of two machines are by two clocks.
+
+## Scenes
+
+A scene is a script in `tests/storage/`. It starts the members of a store
+of its own on the nodes of this machine, does what it is for, says what
+happens as it goes, and checks what came of it. Then its members are
+stopped and its store is gone.
+
+```
+storage -t                   the scenes, and what each is for
+storage -t split             run one
+storage -t split -r file     and record what its members do
+```
+
+| scene | what it is |
+|---|---|
+| `demo` | five members, three objects put at three of them, and a gopher |
+| `split` | a member cut off writes, the others write the same path, they heal |
+| `stop` | a member switched off and on, three keep every block throughout |
+| `pin` | an object pinned at a member, and a gopher goes no further |
+| `tree` | every file of the tree put into five members by a farm, read back |
+| `tree_one` | every file of the tree put into one member, read back |
+
+A scene is a task, started by `(scene-run name say [record wait])`, which
+gives each line it says to `say`, and each line its members record to
+`record`, and is `(passed failed)`. It is mailed who to tell and the group
+its members are to be of, so that they are recorded from the first. Its
+members' tenders look only when told, `(scene-settle)`, so each step is
+done when the scene says it is, and it comes out the same each time.
+
+```vdu
+(import "service/storage/scene.inc")
+(defun main ()
+	(defq sc (scene-begin "What the scene is for."))
+	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
+		(storage-put "big" (scene-bytes 20 "big") :nil (scene-svc sc "m-a"))
+		(scene-settle sc)
+		(scene-check sc "every block is kept by three" (every (# (= %0 3)) (scene-keepers sc "big"))))
+	(scene-end sc))
+```
+
+`(scene-start)`, `(scene-stop)`, `(scene-cut)` and `(scene-heal)` switch a
+member on and off and cut one off, `(scene-big)` gives the members started
+after it room, `(scene-seen?)` and `(scene-keepers)` are what is checked.
 
 ## The Storage App
 
@@ -498,6 +545,7 @@ back, and trace a path or a block through it.
 | `tests/system/test_storage.lisp` | the service and its calls, streams, gophers |
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
+| `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
 
 ## Not Done
 

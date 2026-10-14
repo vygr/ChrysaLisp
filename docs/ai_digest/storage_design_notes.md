@@ -1007,6 +1007,17 @@ that has asked, for 5 seconds unless asked again. Its first run found the
 service's own error print failed on a message shorter than 200 characters,
 and `check` has `cut` for that now.
 
+**Scenes.** 2026-10-14, Chris, of the app's demo, cut, heal, fork, stop,
+start and pin: "not indiviual commands ! Just started from a storage tests
+option etc." So they are scripts in `tests/storage/`, each a store of its
+own and a thing done to it, `storage -t name`, and recorded with `-r`. Five
+members putting the tree by a farm: 2.8 s, read back 1.2. One member, a file
+at a time, 15 s, where this morning's script that did the same, its member
+on the one node, was 6: not looked into. The first run of the scene test
+found its own `said` taken by the runner's mailbox of that name, a name is
+found where a function is called from, so `check`'s `capture` now looks at
+the names a function makes with a `(defq)` as well as what it takes.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

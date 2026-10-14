@@ -74,8 +74,9 @@
             what is written after may not be read.
     capture a function written where it is given to another
             of this file, that uses a name the other has as
-            a parameter. A name is found where a function is
-            called from, so it is the other's that is had.
+            a parameter, or makes with a (defq). A name is
+            found where a function is called from, so it is
+            the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.")
@@ -300,6 +301,25 @@
 			((eql (first node) :form) (each (# (push todo %0)) (third node)))))
 	out)
 
+(defun defqs-of (forms)
+	; (defqs-of forms) -> (name ...)
+	;the names a (defq) makes in these forms, and in the forms in them, but
+	;not in a (lambda) or a (#) there, whose names are its own
+	(defq out (list) todo (list forms))
+	(while (defq nodes (pop todo))
+		(each (lambda (node)
+			(when (defq kids (tree-form? node))
+				(defq inner (forms-of kids)
+					head (and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+				(cond
+					((find head '("lambda" "#" "defun" "defmacro" "macro")))
+					((eql head "defq")
+						(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push out (third %0)))) (rest inner))
+						(push todo (rest inner)))
+					((push todo inner)))))
+			nodes))
+	out)
+
 (defun uses-of (body)
 	; (uses-of nodes) -> (used made)
 	;the names used in some forms, not as the first thing of a form,
@@ -337,7 +357,7 @@
 				(bind '(used made) (uses-of kids))
 				(defq taken (list))
 				(each (# (and (find %0 theirs) (not (find %0 made)) (not (find %0 taken)) (push taken %0))) used)
-				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a parameter of (" head "), it is that one it has")) taken)))
+				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
 			(rest forms))))
 
 (defun takes-none? (node)
@@ -415,7 +435,11 @@
 							(defq forms (forms-of kids))
 							(and (> (length forms) 2) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defun")
 								(eql (first (second forms)) :symbol) (eql (first (third forms)) :form)
-								(. *defuns* :insert (third (second forms)) (params-of (third forms))))))
+								;what it takes, and the names it makes with a (defq) of its
+								;own, not in a function it has inside it: either is what a
+								;function it is given finds, if it uses that name
+								(. *defuns* :insert (third (second forms))
+									(cat (params-of (third forms)) (defqs-of (slice forms 3 -1)))))))
 						nodes)))
 			(while (defq nodes (pop todo))
 				(task-slice)

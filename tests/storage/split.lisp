@@ -1,0 +1,32 @@
+;a member is cut off and writes, the others write the same path, they heal and come to the same
+
+(import "service/storage/scene.inc")
+
+(defun main ()
+	(defq sc (scene-begin "A member is cut off from the rest. Both sides write a path, it writes one of its own, and they heal."))
+	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
+		(storage-put "plan" (scene-bytes 3 "plan") :nil (scene-svc sc "m-a"))
+		(scene-settle sc)
+		(scene-say sc "m-e can reach none of the others, nor they it.")
+		(scene-cut sc "m-e")
+		(storage-put "notes/away" (scene-bytes 2 "away") :nil (scene-svc sc "m-e"))
+		(storage-put "plan" (scene-bytes 4 "plan away 1") :nil (scene-svc sc "m-e"))
+		(storage-put "plan" (scene-bytes 5 "plan away 2") :nil (scene-svc sc "m-e"))
+		(defq rack (scene-bytes 6 "plan rack"))
+		(storage-put "plan" rack :nil (scene-svc sc "m-a"))
+		(scene-settle sc)
+		(scene-check sc "what m-e wrote is seen by one of five" (scene-seen? sc "notes/away" "m-e" 1 5))
+		(scene-check sc "what the rack wrote, by four of five" (scene-seen? sc "plan" "m-a" 4 5))
+		(scene-say sc "They heal.")
+		(scene-heal sc)
+		(scene-settle sc)
+		(scene-check sc "m-e's own path is on the rack" (eql (scene-bytes 2 "away") (storage-get "notes/away" (scene-svc sc "m-b"))))
+		(scene-check sc "the path both wrote is the rack's, most members had it" (eql rack (storage-get "plan" (scene-svc sc "m-e"))))
+		(defq aside (filter (# (starts-with "plan~" (first %0))) (ifn (storage-list "plan" (scene-svc sc "m-c")) (list))))
+		(scene-say sc "What m-e wrote last is kept as " (if (nempty? aside) (first (first aside)) "nothing"))
+		(scene-check sc "under the other name, on a member that was never away"
+			(and (nempty? aside) (eql (scene-bytes 5 "plan away 2") (storage-get (first (first aside)) (scene-svc sc "m-c")))))
+		(scene-check sc "the five are the same"
+			(every (# (eql (. (storage-state (scene-svc sc "m-a")) :find :digest) (. (storage-state (second %0)) :find :digest)))
+				(. sc :find :svcs))))
+	(scene-end sc))

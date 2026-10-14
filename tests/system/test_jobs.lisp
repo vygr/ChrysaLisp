@@ -60,6 +60,7 @@
 ;put back twice, however long a slow machine takes over that
 (assert-list-eq "the jobs beside one that kills its child" '(10 12)
 	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) (task-timeout 30)
+		;check off, it is jt-run's own got that is read, on purpose
 		(# (and (= (length got) 2) (>= (. jobs :tries) 2))) (task-timeout 1)))
 (assert-eq "the one that kills is still out" 1 (. jobs :out))
 (assert-true "and has been tried more than once" (>= (. jobs :tries) 2))

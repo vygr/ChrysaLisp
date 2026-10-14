@@ -127,8 +127,9 @@ Usage: check [options] [path] ...
             what is written after may not be read.
     capture a function written where it is given to another
             of this file, that uses a name the other has as
-            a parameter. A name is found where a function is
-            called from, so it is the other's that is had.
+            a parameter, or makes with a (defq). A name is
+            found where a function is called from, so it is
+            the other's that is had.
 
     If no paths given on command line
     then will test files from stdin.
@@ -1199,11 +1200,17 @@ Usage: storage [options] [path]
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
             path. -U no longer.
+        -t --scene [name]: the scenes there are, in
+            tests/storage/, and what each is for. With a
+            name, that one is run: a store of its own is
+            started, a thing done to it, what happens said
+            and what came of it checked. -r file records it
+            too.
         -r --record file: what every member of the store does,
             a line each, to that file of the host, - for
             stdout: the time, the member, what was done and
-            what to. For -t seconds, 60 if not said.
-        -t --time secs: how long -r records.
+            what to. For -S seconds, 60 if not said.
+        -S --secs secs: how long -r records.
         -G --group name: the group of the members -r
             records, *Storage if not said, a test's.
 
