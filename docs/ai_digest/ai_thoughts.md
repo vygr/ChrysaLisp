@@ -1794,3 +1794,42 @@ second is in my notes as well. He pointed me here, and it is fair. Reading
 a lesson is not the same as using it. So these go in the check I make
 before I run anything: is the tool there already, the skills say, and does
 the session end by itself.
+
+### The evening of the same day
+
+He sent a picture of the Storage app's toolbar and asked if I still thought
+the symbols were confusing. I had drawn them again that afternoon, with
+gaps, and drawn a sheet of them to look at, and they had looked clear. In
+his picture the triangles were outlines, and an outline beside a bar is
+more bars. My sheet had filled every outline of a glyph by itself, so a
+hole was painted over, and every triangle came out solid. I had judged the
+symbols by a picture of mine that did not draw what the screen draws. The
+fix was one call where there had been many, and then the sheet agreed with
+his screen, and then it could be trusted to say which design was better.
+A thing I make to look with is a thing to check first, against what it is
+meant to show.
+
+Twice in the day a number that looked like the store's was not. The settle
+of a scene took 55 seconds, and it was the scene asking the five members
+in turn, not the store. A put of the tree into one member took 16 where a
+script took 6, and it was every block going over a link between two nodes
+of the one machine. Before either I had been asked whether the service
+should hand its work to a farm. The profile said the service waits for mail
+nine tenths of the time. The farm would have been built for a cost that
+was not there.
+
+I wrote a function and gave it to a walk of a volume, and in it I said
+`vol`, meaning the new volume. The walk calls it from inside itself, and
+the walk's own parameter is `vol`, so every file I copied went back into
+the old volume over itself, and every save said yes. It is the oldest trap
+on our page, a name is found where a function is called from. `check`
+knew it, for a function and its caller in the one file. It looks at the
+files a file imports now, and found five more like it in the tree, which
+were not faults: they call what they are given by `(callback)`, in the
+caller's own place. So it learnt that too.
+
+Then I needed to put a file of a new size where the old one was, and went
+looking for a rename in the host. He asked why the host needed to do
+anything. It did not. The file could have another name, and the name only
+mattered to me. It is the same reach for a part as before, a smaller one,
+and the same answer: what is already there was enough.
