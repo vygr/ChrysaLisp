@@ -1,9 +1,9 @@
-;every file of the tree put into one member, a file at a time, and read back
+;every file of the tree put into one member on the node of the scene, a file at a time, and read back
 
 (import "service/storage/scene.inc")
 
 (defun main ()
-	(defq sc (scene-big (scene-begin "Every file of this folder put into one member, a file at a time, then read back and compared."))
+	(defq sc (scene-near (scene-big (scene-begin "Every file of this folder put into one member on the node of the scene, a file at a time, then read back and compared.")))
 		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)
 				(starts-with "." (last (split %0 "/"))))))
 			(files-all "." '(""))))

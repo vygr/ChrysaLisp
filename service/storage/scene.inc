@@ -39,7 +39,7 @@
 	(bind '(reply group) (split (mail-read (task-mbox)) +storage_lf))
 	(defq scene (Emap))
 	(scatter scene :reply (hex-decode reply) :group group :tag (cat (str (pii-pid)) "_" (str (random 1000000)))
-		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil)
+		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil :near :nil)
 	(scene-say scene what)
 	scene)
 
@@ -66,7 +66,7 @@
 		ids (map (const first) (. scene :find :svcs))
 		svc (storage-start image :size (if big 0x10000000 0x400000) :block (if big 65536 4096)
 			:id "scene" :name (cat "@StorageScene" (. scene :find :tag) "_" (str (. scene :find :starts)) "_" id)
-			:node (elem-get nodes (% (ifn (find id +scene_ids) (length ids)) (length nodes)))
+			:node (unless (. scene :find :near) (elem-get nodes (% (ifn (find id +scene_ids) (length ids)) (length nodes))))
 			:group (. scene :find :group) :member id :tick 0 :grace 0))
 	(unless (find image (. scene :find :images)) (push (. scene :find :images) image))
 	(when svc
@@ -100,6 +100,13 @@
 		(each (lambda ((id svc)) (setq did (+ did (reduce (const +) (ifn (storage-settle svc) (list 0)) 0))))
 			(. scene :find :svcs)))
 	rounds)
+
+(defun scene-near (scene)
+	; (scene-near scene) -> scene
+	;the members started from now are on the node of the scene, so what it
+	;asks of them goes by no link: what is timed is the store
+	(. scene :insert :near :t)
+	scene)
 
 (defun scene-members (scene ids)
 	; (scene-members scene ids) -> :nil | :t
