@@ -28,7 +28,10 @@
 	(door-same? "" "") :t)
 
 ;the proof itself, over a real connection, this task listens and a child dials
-(defq dr_port 34571 dr_listener (net-listen dr_port) dr_reply (mail-mbox))
+;the port is below 32768: Linux gives a connection going out a port of its
+;own from 32768 to 60999, macOS from 49152, and on the Pi with the suite
+;beside it the test failed now and then as if one of those had it
+(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox))
 (assert-true "a listener" (> dr_listener 0))
 
 (defun dr-dial (code)
