@@ -534,8 +534,10 @@ played back, from a recording of it.
 * The scenes are a row of buttons, and Run runs the one chosen: its members
   are recorded from the first, and drawn as they go.
 * Live shows the store this system is a member of: what it has now, then
-  what it does, recorded, till Stop. It is what the app opens on, if this
-  system is a member of a store.
+  what it does, recorded, till record is pressed again. It is what the app
+  opens on, if this system is a member of a store and it was on when the
+  app was last closed. The scene chosen, trace, the object shown, and
+  that, are kept for the user, `usr/<user>/storage.tre`.
 * The members are down the side, the blocks of the object shown across, a
   square where a member keeps one, the first column the object's manifest.
   Under them the objects, a square for each member that has one, grey where

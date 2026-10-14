@@ -15,7 +15,8 @@
 ;	start, end	to the start, or to the end, and what comes is followed
 ;	record		the store this system is a member of: what it has now,
 ;			and then what it does. It is what is shown first, if
-;			this system is a member of a store. Again, it stops
+;			this system is a member of a store and it was on when
+;			the app was last closed. Again, it stops
 ;	find		trace, only what was done to the object shown and its
 ;			blocks
 ;	on the right, the scenes of tests/storage/, and run runs the one
@@ -46,31 +47,34 @@
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
 ;what is kept for the user, from one time it runs to the next: the scene
-;chosen, trace, and the object shown
-(defq +config_file (cat *env_home* "storage.tre") +config_version 1)
+;chosen, trace, the object shown, and whether the store of this system is
+;being recorded, which it opens on
+(defq +config_file (cat *env_home* "storage.tre") +config_version 2)
 
 (defun config-load ()
 	(defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
 	(if (or (not config) (/= (. config :find :version) +config_version))
-		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "")))
+		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "" :record :t)))
 	(if (defq at (find (. config :find :scene) *scenes*)) (. *scene* :set_selected at))
 	;the object that was shown is wanted, and shown when it is there
-	(setq *trace* (. config :find :trace) *want* (. config :find :shown) *saved* (config-of))
+	(setq *trace* (. config :find :trace) *want* (. config :find :shown) *record* (. config :find :record)
+		*saved* (config-of))
 	(if (eql *want* "") (setq *want* :nil)))
 
 (defun config-of ()
 	;what is to be kept, as it is now
-	(list (elem-get *scenes* (ifn (. *scene* :get_selected) 0)) (if *trace* :t :nil) (ifn *want* (ifn *shown* ""))))
+	(list (elem-get *scenes* (ifn (. *scene* :get_selected) 0)) (if *trace* :t :nil) (ifn *want* (ifn *shown* ""))
+		(if *record* :t :nil)))
 
 (defun config-save ()
 	;only when it is not as it was kept
 	(defq now (config-of))
 	(unless (eql (str now) (str *saved*))
 		(setq *saved* now)
-		(bind '(scene trace shown) now)
+		(bind '(scene trace shown record) now)
 		(with-write-lock +config_file
 			(tree-save (file-stream +config_file +file_open_write)
-				(scatter (Emap) :version +config_version :scene scene :trace trace :shown shown)))))
+				(scatter (Emap) :version +config_version :scene scene :trace trace :shown shown :record record)))))
 
 ;the scenes there are, a list made as this starts: not a + name, which is
 ;put in where it is used as it is read, and a list there is a call
@@ -351,6 +355,7 @@
 	;where the mouse was last over the canvas, which list the wheel turns
 	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
+		*record* :t
 		*follow* :t *playing* :nil *play_wall* 0 *play_time* 0 *changed* :nil)
 	(. *scene* :set_selected (ifn (find "demo" *scenes*) 0))
 	(config-load)
@@ -362,9 +367,12 @@
 	;the store this system is a member of, as it is and then as it works,
 	;if it is a member of one
 	(cond
-		((storage-service)
+		((and (storage-service) *record*)
 			(say "The store this system is a member of, as it is now, and then as it works.")
 			(watch "-"))
+		((storage-service)
+			(say "Not recording the store of this system, record does.")
+			(draw))
 		(:t (say "This system is a member of no store. Choose a scene and Run.")
 			(draw)))
 	(while id
@@ -376,6 +384,8 @@
 					((= id +event_run)
 						(defq name (elem-get *scenes* (ifn (. *scene* :get_selected) 0)))
 						(say "Running " name ".")
+						;the store of this system is not recorded while a scene runs
+						(setq *record* :nil)
 						(watch name))
 					((= id +event_record)
 						;the store of this system, or, if that is what is being
@@ -383,8 +393,10 @@
 						(cond
 							((and *run* *live*)
 								(mail-send *run* "stop")
-								(setq *run* :nil *live* :nil))
+								(setq *run* :nil *live* :nil *record* :nil)
+								(say "Not recording."))
 							(:t (say "The store of this system, as it is now, and then as it works.")
+								(setq *record* :t)
 								(watch "-"))))
 					((= id +event_back) (setq *playing* :nil) (step -1))
 					((= id +event_on) (setq *playing* :nil) (step 1))
