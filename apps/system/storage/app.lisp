@@ -249,14 +249,17 @@
 	(draw))
 
 (defun step (by)
-	;an event on or back, or of the object shown, with Trace
+	;so many events on or back, or of the object shown, with trace, and
+	;drawn the once
 	(defq at (. *replay* :find :at))
 	(cond
 		(*trace*
-			(defq list_at (traced))
-			(go-to (if (> by 0)
-				(inc (ifn (some (# (if (>= %0 at) %0)) list_at) (dec at)))
-				(ifn (some (# (if (< %0 (dec at)) (inc %0))) (reverse list_at)) 0))))
+			;from the last of them that has been done
+			(defq list_at (traced)
+				pos (ifn (some (# (if (< %0 at) (!))) (reverse (cat list_at))) -1)
+				pos (if (>= pos 0) (- (length list_at) 1 pos) -1)
+				to (max -1 (min (dec (length list_at)) (+ pos by))))
+			(go-to (if (< to 0) 0 (inc (elem-get list_at to)))))
 		((go-to (+ at by))))
 	(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events)))))
 
@@ -338,18 +341,9 @@
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;the wheel goes up and down the objects, a line for so much
 						;of a turn: a trackpad sends a great many small ones
-						(setq wheel (- wheel (getf msg +ev_msg_wheel_y)))
-						(when (/= 0 (defq lines (/ wheel +wheel_line)))
-							(setq wheel (- wheel (* lines +wheel_line)))
-							(cond
-								((>= mouse_rx +grid_w)
-									;over what was done, an event at a time, or of the
-									;object shown, with trace
-									(setq *playing* :nil)
-									(times (abs lines) (step (if (> lines 0) 1 -1))))
-								((nempty? (defq paths (paths-now)))
-									(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
-									(draw)))))
+						;added up, and done at the next tick, the once, however many
+						;came: one at a time, each drawn, it ran on after the wheel
+						(setq wheel (- wheel (getf msg +ev_msg_wheel_y))))
 					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
 							(progn (setq mouse_rx (getf msg +ev_msg_mouse_rx)) (= (getf msg +ev_msg_mouse_buttons) 0)))
 						;where it is, and no more: the wheel is of the list it is over
@@ -387,6 +381,17 @@
 						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped." (cat "Done: " passed " held, " failed " did not."))))))
 			(:t (mail-timeout (elem-get select +select_timer) +tick 0)
+				(when (/= 0 (defq lines (/ wheel +wheel_line)))
+					(setq wheel (- wheel (* lines +wheel_line)))
+					(cond
+						((>= mouse_rx +grid_w)
+							;over what was done, so many events, or of the object
+							;shown, with trace
+							(setq *playing* :nil)
+							(step lines))
+						((nempty? (defq paths (paths-now)))
+							(setq *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
+							(draw))))
 				(cond
 					(*playing* (tick))
 					(*changed*
