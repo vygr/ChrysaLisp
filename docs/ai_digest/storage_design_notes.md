@@ -1029,6 +1029,22 @@ of mine found on the way, each a check now: a list made as the app ran kept
 in a + name, `made`; `(const)` of a function made inside another, `inner`;
 and before them the capture of a caller's name.
 
+**Hundreds of gophers.** 2026-10-14, Chris: "A test that uses hundreds of
+gophers at the same time, and they have to do diffrent things, examples
+of some useful stuff, maybe the start of out build in gopher library."
+A gopher can be sent and not waited for now, and there is a library of
+six. The scene sends 300 at once to six docs over five members, and each
+answer is checked against the same function folded over the same blocks
+here: all 300 right, 170 ms, 607 moves. Writing the word count I used
+`(find word text)`, which looks for the first character of a str, as
+`docs/ai_digest/lisp_traps.md` says: I had not read it. And the tail it
+carries to the next block was cut short after a near miss at a block's
+end, found by folding over blocks of 1 to 7 bytes as well as 4096.
+
+And `tree_one`, 15 s against the 6 s of the script that did the same:
+on one node it is 5 s. On eight its member is on another node from the
+task that puts, and each block of 64KB goes between the two.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

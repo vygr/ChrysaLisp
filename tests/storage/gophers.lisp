@@ -1,0 +1,47 @@
+;hundreds of gophers out at once, each a different job, to objects all over five members
+
+(import "service/storage/scene.inc")
+(import "service/storage/gophers.inc")
+
+(defq +files ''("storage_service.md" "storage_design_notes.md" "lisp_traps.md" "shader_language.md"
+		"alien_nodes.md" "lock_service.md")
+	+out 300)
+
+(defun main ()
+	(defq sc (scene-begin (cat "Six docs put into five members, then " (str +out)
+		" gophers sent at once, each a job of the gopher library, from members all round.")))
+	(when (scene-check sc "five members start and meet" (scene-members sc +scene_ids))
+		;the docs, at members in turn
+		(defq objects (map (lambda (file)
+				(defq data (load (cat "docs/ai_digest/" file)) path (cat "docs/" file))
+				(storage-put path data :nil (scene-svc sc (elem-get +scene_ids (% (!) 5))))
+				(list path data))
+				+files)
+			jobs (list (list "bytes" (gopher-bytes)) (list "lines" (gopher-lines)) (list "member" (gopher-count "member"))
+				(list "checksum" (gopher-checksum)) (list "longest" (gopher-longest)) (list "head" (gopher-head 5000))))
+		(scene-settle sc)
+		(scene-say sc (length objects) " objects of " (/ (reduce (# (+ %0 (length (second %1)))) objects 0) 1024) " KB, each block kept by three")
+		;what each should come back with, worked out here over the same blocks
+		(defq block (. (storage-info (scene-svc sc "m-a")) :find :block_size)
+			want (map (lambda ((path data)) (map (lambda ((name g)) (gopher-fold g data block)) jobs)) objects))
+		;all of them out at once
+		(defq t0 (pii-time)
+			sent (map (lambda (i)
+				(defq o (% i (length objects)) j (% (/ i (length objects)) (length jobs)) from (elem-get +scene_ids (% i 5)))
+				(bind '(state visit) (second (elem-get jobs j)))
+				(list o j (storage-walk-send (first (elem-get objects o)) state visit :nil (scene-svc sc from))))
+				(range 0 +out))
+			back (map (lambda ((o j mbox)) (list o j (storage-walk-answer mbox 60))) sent)
+			ms (/ (- (pii-time) t0) 1000)
+			came (filter (# (third %0)) back)
+			right (filter (lambda ((o j answer)) (eql (str (first answer)) (str (elem-get (elem-get want o) j)))) came)
+			moves (reduce (# (+ %0 (dec (length (second (third %1)))))) came 0))
+		(scene-say sc (length came) " of " +out " came back in " ms " ms, " moves " moves between members in all")
+		(each (lambda ((name &ignore))
+			(defq j (!) of (filter (# (= (second %0) j)) back))
+			(scene-say sc "  " name ": " (length (filter (lambda ((o jj answer)) (and answer (eql (str (first answer)) (str (elem-get (elem-get want o) jj))))) of))
+				" of " (length of) " right"))
+			jobs)
+		(scene-check sc "every gopher came back" (= (length came) +out))
+		(scene-check sc "with what the same function gives over the same blocks here" (= (length right) +out)))
+	(scene-end sc))

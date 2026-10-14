@@ -329,6 +329,30 @@ One task at a member runs every gopher that is there, a block of each in
 turn, and reads its mail between. It keeps the block lists of the last 16
 objects it read.
 
+`(storage-walk-send path state visit [at svc])` sends one and does not
+wait, it gives the mailbox its answer will come to, and
+`(storage-walk-answer mbox [wait])` reads it. So many can be out at once.
+
+### The gopher library
+
+`service/storage/gophers.inc`, the start of one. Each gives what a gopher
+sets out with, `(state visit)`:
+
+| | |
+|---|---|
+| `(gopher-bytes)` | how many bytes |
+| `(gopher-lines)` | how many line ends |
+| `(gopher-count word)` | how many times a word is there, one cut in two by the end of a block too |
+| `(gopher-checksum)` | every byte added up, 32 bits |
+| `(gopher-longest)` | the longest line |
+| `(gopher-head n)` | the first n bytes, and no block more than it takes |
+
+`(gopher-fold gopher data size)` is what one comes back with from an
+object of that data in blocks of that size, worked out here: what one is
+checked against. The `gophers` scene sends 300 at once, each a job of the
+library, to six objects over five members: all 300 came back right in
+170 ms on an M4, with 607 moves between members.
+
 ### What a gopher's function may do
 
 ChrysaLisp's rules: it does not call itself, it goes round with `while`,
@@ -503,6 +527,7 @@ storage -t split -r file     and record what its members do
 | `pin` | an object pinned at a member, and a gopher goes no further |
 | `tree` | every file of the tree put into five members by a farm, read back |
 | `tree_one` | every file of the tree put into one member, read back |
+| `gophers` | 300 gophers out at once, each a job of the gopher library, every answer checked |
 
 A scene is a task, started by `(scene-run name say [record wait])`, which
 gives each line it says to `say`, and each line its members record to
@@ -569,7 +594,7 @@ app, and sends it what happens in batches.
 | `tests/system/test_storage.lisp` | the service and its calls, streams, gophers |
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
-| `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
+| `tests/system/test_storage_scenes.lisp` | the scenes split, stop and gophers, run and recorded as `storage -t` does |
 | `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, and a scene run by the app's runner |
 
 ## Not Done

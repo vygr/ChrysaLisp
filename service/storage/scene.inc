@@ -199,16 +199,20 @@
 	(when (/= (age scene_file) 0)
 		(defq scene_said (mail-mbox) scene_heard (mail-mbox) scene_group (cat "*StorageScene" (str (pii-pid)) "_" (str (random 1000000)))
 			scene_child (open-child scene_file +kn_call_run) scene_result :nil scene_going :t scene_next 0
-			scene_until (+ (pii-time) (* (ifn wait 600) 1000000)))
+			scene_until (+ (pii-time) (* (ifn wait 600) 1000000)) scene_heard_at (pii-time))
 		(when (/= 0 (get-long scene_child 0))
 			(mail-send scene_child (join (list (hex-encode scene_said) scene_group) +storage_lf))
-			(while (and scene_going (< (pii-time) scene_until))
+			;and not for ever: a scene that has gone, it threw, says nothing more,
+			;and is given up on when it and its members have been quiet a minute
+			(while (and scene_going (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) 60000000))
 				;a recorder asks each member again, and asks those started since
 				(when (and record (>= (pii-time) scene_next))
 					(each (# (storage-send %0 +storage_type_record (hex-encode scene_heard))) (storage-record-members scene_group))
 					(setq scene_next (+ (pii-time) 200000)))
 				(defq scene_timer (mail-timeout (mail-mbox) 100000 0) scene_idx (mail-select (list scene_said scene_heard scene_timer)))
-				(if (< scene_idx 2) (mail-timeout scene_timer 0 0))
+				(when (< scene_idx 2)
+					(mail-timeout scene_timer 0 0)
+					(setq scene_heard_at (pii-time)))
 				(case scene_idx
 					(0 (defq scene_msg (mail-read scene_said))
 						(cond

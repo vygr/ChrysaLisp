@@ -407,15 +407,28 @@
 	;
 	;The rules of ChrysaLisp are the rules of a visit: it does not call
 	;itself. It goes round with a loop, or by asking for the block again
+	(storage-walk-answer (storage-walk-send name state visit at svc) wait))
+
+(defun storage-walk-send (name state visit &optional at svc)
+	; (storage-walk-send path state visit [at svc]) -> :nil | mbox
+	;a gopher sent, as (storage-walk), and not waited for: where what it
+	;comes back with will be, for (storage-walk-answer). So many can be
+	;out at once
 	(defq mbox (mail-mbox) svc (ifn svc (storage-service)))
 	(when svc
 		;who it is from, - for not another member, and all there is of it
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 				(+storage_rpc_reply_id mbox) (+storage_rpc_type +storage_type_walk))
 			"-" +storage_lf (str (list name (ifn at 0) state visit (list) (list)))))
-		(and (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
-			(starts-with "(" answer)
-			(first (read (string-stream answer))))))
+		mbox))
+
+(defun storage-walk-answer (mbox &optional wait)
+	; (storage-walk-answer mbox [wait]) -> :nil | (state trail)
+	;what a gopher sent with (storage-walk-send) came back with, as
+	;(storage-walk), waited for so many seconds at most
+	(and mbox (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
+		(starts-with "(" answer)
+		(first (read (string-stream answer)))))
 
 (defun storage-pin (prefix &optional off svc)
 	; (storage-pin prefix [off svc]) -> :nil | (prefix ...)

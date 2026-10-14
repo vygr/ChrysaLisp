@@ -1203,7 +1203,8 @@ Usage: storage [options] [path]
             host is put, as a stream, at path and its own
             path, and then each is read back as a stream and
             compared with the file. obj, deps and folders
-            whose names begin with a dot are not gone in to.
+            whose names begin with a dot are not gone in to,
+            and files whose names begin with a dot are not put.
         -V --verify dir: the reading back and comparing of
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
