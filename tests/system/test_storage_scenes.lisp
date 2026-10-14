@@ -16,4 +16,6 @@
 		(assert-eq (cat name ": no check of it failed, " (join (filter (# (starts-with "  FAIL" %0)) said) "; ")) 0 (second result))
 		(assert-true (cat name ": its checks held") (> (first result) 0))
 		(assert-true (cat name ": what its members did was recorded") (> (length recorded) 10))))
-	'("split" "stop"))
+	;stop is in test_storage_scenes_stop: the two together come near what a
+	;batch may take on a Raspberry Pi
+	'("split"))
