@@ -3,6 +3,7 @@
 ;;;;;;;;;;
 
 (import "./surface.inc")
+(import "./obj.inc")
 
 ;module
 (env-push)
@@ -264,28 +265,18 @@
 
 (defclass Mesh-obj (stream) (Mesh)
 	; (Mesh-obj stream) -> mesh
-	(defq verts (reals) tris (nums))
-	(lines! (lambda (line)
-		(when (nempty? (defq tokens (split (trim line) +char_class_white_space)))
-			(defq type (first tokens))
-			(cond
-				((eql type "v")
-					(push verts
-						(str-to-real (elem-get tokens 1))
-						(str-to-real (elem-get tokens 2))
-						(str-to-real (elem-get tokens 3))
-						+real_1))
-				((eql type "f")
-					(defq f (map (const str-to-num) (rest tokens)))
-					(when (>= (length f) 3)
-						(defq num_v (/ (length verts) +vec4_size)
-							i0 (dec (if (< (elem-get f 0) 0) (+ num_v (elem-get f 0) 1) (elem-get f 0)))
-							i1 (dec (if (< (elem-get f 1) 0) (+ num_v (elem-get f 1) 1) (elem-get f 1))))
-						(each (lambda (i2)
-							(setq i2 (dec (if (< i2 0) (+ num_v i2 1) i2)))
-							(push tris i0 i1 i2 0)
-							(setq i1 i2)) (slice f 2 -1))))))
-		:nil) stream)
+	;the positions and faces of an .obj, (obj-read), in a ball of radius 1,
+	;its normals worked out from its faces
+	(defq obj (obj-read stream) positions (. obj :find :positions) verts (reals) tris (nums))
+	(each (# (push verts (elem-get positions (* %0 3)) (elem-get positions (inc (* %0 3)))
+			(elem-get positions (+ (* %0 3) 2)) +real_1))
+		(range 0 (/ (length positions) 3)))
+	;a corner is three numbers, a triangle nine, the first of each corner
+	;its position
+	(each (lambda ((material corners))
+			(each (# (push tris (elem-get corners %0) (elem-get corners (+ %0 3)) (elem-get corners (+ %0 6)) 0))
+				(range 0 (length corners) 9)))
+		(. obj :find :groups))
 	(bind '((cx cy cz) scale) (vector-bounds-sphere verts +vec4_size))
 	(defq scale (if (> scale +real_0) (recip scale) +real_1)
 		matrix (reals
