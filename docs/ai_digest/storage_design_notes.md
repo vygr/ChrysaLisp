@@ -1045,6 +1045,16 @@ And `tree_one`, 15 s against the 6 s of the script that did the same:
 on one node it is 5 s. On eight its member is on another node from the
 task that puts, and each block of 64KB goes between the two.
 
+**A late gopher, and no throw.** 2026-10-14, Chris: "In release mode gopher
+code can't be injected with tests that throw ... release mode is for fully
+tested code, it's should never throw !" Looked at: `throw` and `catch` are
+there in a release build, but what passes an error back up is not, the
+checks are `errorcase`: a `progn` or an `if` given an error goes on with it
+as a value. So the tick's throw would not have ended a loop at all. Now the
+tick is in each loop's test and round each lambda's body, and once the time
+is up it says no and they all end. A task that ends itself was the other
+way, but one stopped from deep inside never lets go of what it holds.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the

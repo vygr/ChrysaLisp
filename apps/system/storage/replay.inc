@@ -21,7 +21,7 @@
 (defq +replay_path_at (scatter (Fmap 31)
 	"set" 2 "delete" 2 "copies" 2 "set-stale" 0 "set-full" 0 "set-missing" 0
 	"delete-stale" 0 "delete-none" 0 "copies-none" 0 "learnt" 2 "learnt-delete" 2
-	"gopher" 0 "gopher-on" 0 "gopher-step" 2 "gopher-pass" 1 "gopher-done" 0 "gopher-none" 0 "gopher-threw" 0))
+	"gopher" 0 "gopher-on" 0 "gopher-step" 2 "gopher-pass" 1 "gopher-done" 0 "gopher-none" 0 "gopher-threw" 0 "gopher-late" 0))
 
 (defun replay-event (line)
 	; (replay-event line) -> :nil | event

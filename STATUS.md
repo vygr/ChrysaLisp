@@ -6,6 +6,8 @@
 
 **The Storage app plays recordings: it runs a scene, or records this system's store, draws the members as they were at any event, and the timeline scrubs through it, with Play, step and Trace of an object. `check` has `made` and `inner`.**
 
+**Storage: a gopher that has had its second is ended by its own loops, the tick says no, and nothing is thrown, release builds pass no error back up.**
+
 **Storage: hundreds of gophers at once. `(storage-walk-send)`, `(storage-walk-answer)`, a gopher library, `service/storage/gophers.inc`, and the `gophers` scene: 300 out at once, all right, 170 ms.**
 
 **Storage: scenes, `storage -t name`: a store of its own, a thing done to it, what happens said and checked, recorded with `-r`. demo, split, stop, pin, tree, tree_one. `check`'s `capture` looks at a callee's defq names too.**

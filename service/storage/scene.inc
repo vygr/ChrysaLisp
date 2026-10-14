@@ -98,11 +98,23 @@
 	;the members that are running
 	(map (const first) (. scene :find :svcs)))
 
+(defun scene-seen-all? (scene)
+	; (scene-seen-all? scene) -> :nil | :t
+	;each member that is running sees all the others. One just started is
+	;known on another node only when its name has come by in a ping
+	(defq svcs (. scene :find :svcs) want (dec (length svcs)))
+	(every (lambda ((id svc))
+			(>= (length (filter (const nempty?) (split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))) want))
+		svcs))
+
 (defun scene-settle (scene)
 	; (scene-settle scene) -> rounds
-	;every tender looks, till none of them does anything, and not for ever
+	;every tender looks, till none of them does anything and each sees all
+	;the others, and not for ever: a round that did nothing while one did
+	;not see all waits a little for the names to come round
 	(defq rounds 0 did 1)
-	(while (and (> did 0) (< (++ rounds) 12))
+	(while (and (or (> did 0) (not (scene-seen-all? scene))) (< (++ rounds) 30))
+		(if (= did 0) (task-sleep 200000))
 		(setq did 0)
 		(each (lambda ((id svc)) (setq did (+ did (reduce (const +) (ifn (storage-settle svc) (list 0)) 0))))
 			(. scene :find :svcs)))

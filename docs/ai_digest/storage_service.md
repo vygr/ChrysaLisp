@@ -358,13 +358,16 @@ library, to six objects over five members: all 300 came back right in
 ChrysaLisp's rules: it does not call itself, it goes round with `while`,
 `until` or a function given to `each` and the like.
 
-A function is not run as it was sent. Into the body of each `while`, `until`
-and `lambda` of it a call of `(gopher-tick)` is put first. The tick gives way
-to the other tasks of the node, and throws if the function has had a second
-for the block, by the clock, `+gopher_allowed`. One that throws is done
-with, and who asked is told `"none"`. So a function that never comes back
-holds up the others at that member for a second and no longer. The tick
-costs about 36ns each time round on an M4.
+A function is not run as it was sent. A call of `(gopher-tick)` is put into
+the test of each `while` and `until` of it, and round the body of each
+`lambda`, with `if` and `progn`, which are not macros. The tick gives way to
+the other tasks of the node, and once the function has had a second for
+the block, by the clock, `+gopher_allowed`, it says no: every loop of the
+function ends, and a function of it given to `map` or `each` does nothing
+more. So it comes back by itself, it is done with, and who asked is told
+`"none"`. Nothing is thrown. In a release build what passes an error back
+up is not there, and an error thrown in a loop would be a value it went
+round with. The tick costs about 36ns each time round on an M4.
 
 ### When a gopher becomes two
 
@@ -488,7 +491,7 @@ bytes of its name, in hex.
 | `pin` `sweep` `cut` `members` `gopher-in` | service | what was asked |
 | `peer+` `peer-` `meet` | tender | a member come, gone, compared notes with |
 | `fetched` | tender | block, the member it came from |
-| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-threw` | runner | block number, block, path |
+| `gopher` set out, `gopher-on` come from another member, `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-late` `gopher-threw` | runner | block number, block, path |
 
 A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
 for 5 seconds, `+storage_record_lease`, unless it asks again: one that has
@@ -594,7 +597,8 @@ app, and sends it what happens in batches.
 | `tests/system/test_storage.lisp` | the service and its calls, streams, gophers |
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
-| `tests/system/test_storage_scenes.lisp` | the scenes split, stop and gophers, run and recorded as `storage -t` does |
+| `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
+| `tests/system/test_storage_gophers.lisp` | the gopher library over blocks of many sizes, and the gophers scene |
 | `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, and a scene run by the app's runner |
 
 ## Not Done
@@ -615,7 +619,6 @@ app, and sends it what happens in batches.
 * A service is one task. While it writes a block it answers nothing.
 * A gopher's function can do anything a task can. A gopher that writes, and
   becomes two, would write twice.
-* The tick's time-out is a throw.
 * A second is by the clock: on a busy node a function that gives way is
   away for some of its second.
 * A host path and a store path are apart on purpose: `(file-stream)` is of

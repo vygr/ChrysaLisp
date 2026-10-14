@@ -21,13 +21,18 @@
 ; to hear it got there, holds up nothing.
 ;
 ; A function is not run as it was sent. Wherever it can go round, the
-; body of a while, an until or a lambda, a call of (gopher-tick) is put
-; in first: it gives way to the other tasks of the node, and it throws if
-; the function has had its time for the one block, a second by the clock.
-; One that throws is done with, as it was. So a function that never comes
-; back holds up the others that are here for that second and no longer.
-; Chris: "it should be the case that (time-slice) call if forced or
-; injected into the gopher code".
+; test of a while or an until and the body of a lambda, a call of
+; (gopher-tick) is put in: it gives way to the other tasks of the node,
+; and once the function has had its time for the one block, a second by
+; the clock, it says no, and every loop of the function ends, and every
+; function of it given to a map or an each does nothing more. So the
+; function comes back by itself, soon, and is done with, who asked is
+; told none. Nothing is thrown: in a release build what an error is
+; passed back up by is not there, and an error thrown in a loop would be
+; a value it went round with. Chris: "it should be the case that
+; (time-slice) call if forced or injected into the gopher code", and, of
+; the throw it was first: "release mode is for fully tested code, it's
+; should never throw !"
 ;
 ; It is mailed its service, and then each gopher as the service is sent
 ; it: who to tell, a line, who asked, a line, - if that is who to tell,
@@ -54,21 +59,27 @@
 
 ;how long a function may have for a block, and when the one that is
 ;running has had it
-(defq +gopher_allowed 1000000 *gopher_until* 0
+(defq +gopher_allowed 1000000 *gopher_until* 0 *gopher_late* :nil
 	;and how many lists a function may be made of, its macros done
 	+gopher_lists 20000)
 
 (defun gopher-tick ()
-	; (gopher-tick)
-	;what is put into a function wherever it can go round
+	; (gopher-tick) -> :t | :nil
+	;what is put into a function wherever it can go round: it gives way,
+	;and says if the function may go on. Once it may not, it says so till
+	;the next block
 	(task-slice)
-	(if (> (pii-time) *gopher_until*) (throw "a gopher's function had its time for a block" +gopher_allowed)))
+	(cond
+		(*gopher_late* :nil)
+		((> (pii-time) *gopher_until*) (setq *gopher_late* :t) :nil)
+		(:t)))
 
 (defun gopher-ticked (form)
 	; (gopher-ticked form) -> form
-	;the function with (gopher-tick) first in the body of each while, until
-	;and lambda of it, its macros done so that none is hidden in one. What
-	;is quoted is not code and is left.
+	;the function with (gopher-tick) in the test of each while and until
+	;of it, and round the body of each lambda, its macros done so that
+	;none is hidden in one, and with forms that are not macros, if and
+	;progn. What is quoted is not code and is left.
 	;
 	;Nothing that is there already is written to. A macro may put into the
 	;form a list that is not the form's own, and what is run has its names
@@ -88,9 +99,14 @@
 			(defq from 0)
 			(cond
 				((and (defq which (find head round)) (> (length form) 1))
-					(setq form (insert form 2 (list (list 'gopher-tick))))
-					;the args of a lambda are names, not code
-					(if (= (% which 3) 2) (setq from 3)))
+					(setq form (case (% which 3)
+						;the test, which says no once the time is up
+						(0 (cat (list head (list 'if (list 'gopher-tick) (second form) :nil)) (slice form 2 -1)))
+						(1 (cat (list head (list 'if (list 'gopher-tick) (second form) :t)) (slice form 2 -1)))
+						;the body, done only while there is time, the args of a
+						;lambda are names, not code
+						(:t (setq from 2)
+							(list head (second form) (list 'if (list 'gopher-tick) (cat (list 'progn) (slice form 2 -1))))))))
 				((setq form (cat form))))
 			(elem-set parent idx form)
 			(each! (lambda (_) (push todo (list form (!)))) (list form) from)))
@@ -177,16 +193,21 @@
 			(mail-send asker (str (list state trail)))
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
-			;it has a second from now, and is asked when it comes back too:
-			;one that caught what was thrown at it has still had its time
-			(setq *gopher_until* (+ (pii-time) +gopher_allowed))
+			;it has a second from now, and is asked when it comes back too
+			(setq *gopher_until* (+ (pii-time) +gopher_allowed) *gopher_late* :nil)
 			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " name))
 			(bind '(state at) (visit state data at count))
-			(gopher-tick)
-			(elem-set g +gopher_state state)
-			(elem-set g +gopher_at at)
-			(elem-set g +gopher_how 0)
-			:keep)
+			;one that had its time came back by itself, with what it had
+			;then, which is not an answer
+			(cond
+				((or *gopher_late* (> (pii-time) *gopher_until*))
+					(storage-record recorder member "gopher-late" name)
+					(mail-send asker "none")
+					:drop)
+				(:t (elem-set g +gopher_state state)
+					(elem-set g +gopher_at at)
+					(elem-set g +gopher_how 0)
+					:keep)))
 		((< how 2)
 			;the block is not kept here. The gopher goes to it: all there is
 			;of it, where it is, what it has, its function and where it has

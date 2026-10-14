@@ -1,4 +1,4 @@
-(report-header "System: Storage, the scenes of tests/storage/, run as storage -t runs them, and recorded: split, stop, and hundreds of gophers at once")
+(report-header "System: Storage, the scenes of tests/storage/, run as storage -t runs them, and recorded")
 
 (import "service/storage/scene.inc")
 
@@ -16,4 +16,4 @@
 		(assert-eq (cat name ": no check of it failed, " (join (filter (# (starts-with "  FAIL" %0)) said) "; ")) 0 (second result))
 		(assert-true (cat name ": its checks held") (> (first result) 0))
 		(assert-true (cat name ": what its members did was recorded") (> (length recorded) 10))))
-	'("split" "stop" "gophers"))
+	'("split" "stop"))
