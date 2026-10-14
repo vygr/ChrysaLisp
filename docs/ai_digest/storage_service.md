@@ -1,122 +1,445 @@
-# The Storage Service, Notes On An Idea
+# The Storage Service
 
-These began as notes from a conversation between Chris and Claude on
-2026-10-07, to put some flesh on the bones of the idea, and the reason the
-file system work, `lib/fs/exfat.inc` and `lib/fs/fat32.inc`, is being done.
-Where a thing is Chris's wish it says so.
+A store of objects spread over the machines of a mesh. Each machine that is
+a member keeps a share of the store on a volume of its own, and the members
+between them keep every block of every object on more than one machine. An
+app asks the member on its own machine for what it wants, and a query can be
+sent to where the data is, in place of the data being brought to the app.
 
-On 2026-10-11 Chris said to start building it, and the questions were gone
-through. What was settled then is under Settled, and what is built is under
-Built, each as it lands. The sections between are the talk of the 7th, left
-as they were said: where they and Settled differ, Settled is how it is.
+This is what it is and how it works. How it came to be, what was decided and
+why, and what each measurement found on the way, is
+[storage_design_notes.md](storage_design_notes.md).
 
-## The Idea
+## The Parts
 
-In Chris's words, "a distributed raid, with the kicker of sending the tasks to
-the data".
+| file | what it is |
+|---|---|
+| `lib/storage/store.inc` | a store, what one member holds, on an exFAT volume. Knows nothing of mail or of other members |
+| `lib/fs/exfat.inc` | the exFAT volume a store is on, a file of the host or a disk |
+| `service/storage/app_impl.lisp` | the service, one for a system: keeps a store and answers what it is asked |
+| `service/storage/tender.lisp` | a task the service starts: finds the other members, compares notes, fetches and lets go of blocks |
+| `service/storage/gopher.lisp` | a task the service starts: runs the gophers that are at this member |
+| `service/storage/gopher.inc` | how a gopher's way is worked out and how it is sent on |
+| `service/storage/auto.lisp` | starts the service of a machine that is a member, when its session is the machine's member of the mesh |
+| `service/storage/app.inc` | all an app imports: the calls, the asking, the recorder |
+| `cmd/storage.lisp` | `storage`, the command |
+| `apps/system/storage/` | the Storage app, a view of the members and what each keeps |
 
-A `@Storage` service, one for each system, a system being a machine. The
-services talk to each other and arrange to distribute, replicate and migrate
-what is stored, and to keep it available, with nobody asking them to.
+## Objects, Blocks And Paths
 
-* An app sends a request to read or to write, and gets the data back.
-* An app can also send a query, code, a task, and it is sent to where the
-  data is. The data is not brought to the asker. The reply goes straight back
-  to the asker.
-* Each service keeps a file system image on its machine. It stands apart from
-  the host's file system, though the image may be a file of the host, held
-  with the exFAT driver.
-* It heals itself, blocks that are lost are made again from what is left.
-* Like Hadoop, in what it is for.
+An object is cut into blocks of 64KB, the last shorter. A block is named by
+the SHA-256 of what is in it. So a block never changes, two that are the
+same are kept once, and one that has gone bad does not match its name and is
+known for it.
 
-## What Chris Wants Of It
+An object is a manifest: how long it is and the names of its blocks in
+order. A manifest is a block too, named the same way.
 
-* No primary and no secondary. Every service is able to carry on for any of
-  the others.
-* It works when there is only the one service.
-* A new machine is plugged in, a new `@Storage` appears, blocks start to
-  migrate to it, and the space and the speed of reading go up by what the
-  machine brings. His example, the assets service of a games company.
-* A machine goes down, and what is left is copied till there are three
-  copies of it again, say three, to bring the resilience back.
-* Encryption, probably. Error correction of blocks, maybe.
+A path names one object. The path map, path to manifest, is the one part of
+a store that changes, and the one part the members have to agree on. An
+entry of it is:
 
-## An Object Is A File
+```
+(path hash bytes vv writer seen deleted copies)
+```
 
-Probably. So it has a path, and so there has to be agreement, between
-services that may not all be up, on what is where.
+* `hash`, the name of the manifest, `""` for a path deleted.
+* `bytes`, how long the object is.
+* `vv`, how many times each member has written the path, as far as the
+  writer knew: `((member count) ...)`.
+* `writer`, the member that made this entry.
+* `seen`, the members known to have it.
+* `deleted`, the path is deleted. The entry stays, so a member that was away
+  does not bring the object back.
+* `copies`, how many members keep its blocks, 0 for as many as the store
+  says.
 
-It helps to see two maps, which need very different amounts of agreement.
+A write never changes anything where it is. It makes new blocks and a new
+manifest, and the path is pointed at it.
 
-* Path to object. An object is the list of the blocks of a file. This map is
-  small, and it is the one that needs real agreement, two machines must not
-  differ on what a path is now.
-* Block to who holds it. This needs none. If a block is named by its content,
-  see below, it never changes and it checks itself, so a wrong answer does no
-  harm, the one asked says no, or sends what does not match its name, and
-  another is asked. A service can just say what it holds, now and then.
+## One Way To Write
 
-Hadoop is this split, its name node has the paths and its data nodes report
-their blocks. It has one name node, with a standby to take over, which is
-what is not wanted here.
+A path is set to an object provided it is now the object the writer says it
+is: `from`, the name of the object it was, `""` for none, and not given, not
+to say. One that does not match is `:stale`, with what the path is now. So a
+write is not lost between two writers that can reach the same member, with
+no lock held.
 
-For the path map, two ways to agree.
+```
+(:ok entry)        it is set
+(:stale entry)     it was not what was said, and is this
+(:full :nil)       no room
+(:lost :nil)       the service did not answer
+```
 
-* A leader. The services choose one of themselves, any of them can be it,
-  and every change to a path goes through it. A reader never sees two
-  answers. Nothing can be written by a machine that can not reach most of
-  the others, and two machines are an awkward number.
-* Versions, and no leader. Every service has the whole map, an entry has a
-  version and who wrote it, and changes spread. A machine that is cut off
-  can go on writing. When it is back there can be two versions of a path,
-  and one is chosen, or both are kept. This is nearer to how the directory
-  of services already works.
+The store always takes a write, and says how many members have it.
+`(storage-seen path)` is `(seen members)`, `(1 5)` seen by one of five.
+`(storage-wait path [wait want])` waits till most of the members have it, or
+`want` of them, and is `:nil` if they have not in the time: a member cut off
+from most of the others has that, and that is how a writer that must not
+have its write set aside knows.
 
-For a store that is mostly read, the versions look the better fit. The
-question under it all is what is to happen when two machines have both
-written a path while apart. That is to be decided, and most of the rest
-follows from it.
+## On The Volume
 
-## A Block Is Named By Its Content
+A store is an exFAT volume, a file of the host or a disk. On it:
 
-The name of a block is a hash of what is in it. One choice, and it gives
-three things.
+```
+store        what it is: its magic, the store's id, the member's, the block size, copies
+members      the members, a line each
+retired      those that were members and are no more
+pins         the paths this member holds all of
+pinned       what every member holds all of, as far as is known here
+paths        the path map, a line an entry
+journal      the entries set since the map was last written whole
+blocks/xx/y  a block, its name in hex, xx the first two of it
+```
 
-* Deduplication. Two objects with a block the same have the one name in
-  their lists, and it is stored once.
-* Integrity. The name is the checksum. A block that does not hash to its
-  name is bad.
-* Cheap replication. Two services compare lists of names and send only what
-  the other has not got. Migration is the same.
+An entry is a line, the path last as it may have spaces in it:
 
-What it costs.
+```
+<hash hex or -> <bytes> <vv> <writer> <seen or -> <deleted>[/<copies>] <path>
+```
 
-* A block can only go when no object anywhere has it in its list. That is
-  counts of references, or a sweep, over machines, and is likely the most
-  work in the whole of it.
-* The hash has to be one that can be trusted to mean the same block, SHA-256
-  or BLAKE2.
-* An index, from name to where the block is on the volume.
-* It pulls against encryption, see below.
+The volume is a real exFAT volume. The Mac mounts it, lists those files,
+and checks it clean, and a block's SHA-256 by the Mac's own `shasum` is its
+name.
 
-How blocks are cut. Of a set size is simple, and finds whole objects that
-are the same and the parts of a large one that did not change. It misses all
-that follows an insertion, the data has moved along. Cuts placed by the
-content, a rolling hash says where, do not, and cost blocks of all sizes and
-more work on a write. Start with a set size, the other can come later with no
-change to the model.
+### The journal
 
-A write never changes a thing where it is. It makes new blocks and a new
-object, and the path is pointed at it. So an old version is only its list of
-blocks, kept, and a snapshot is nearly free. That fits the last known good
-image of a machine that boots into ChrysaLisp, it is a path that is not let
-go of.
+The path map is not written whole when a path is set. The entry is added as
+a line to the end of `journal`, a file of a set length made once and written
+where it is, so nothing of the volume but its own bytes changes. The map is
+written whole when the journal is full, or when anything else writes it, and
+then the journal is emptied. A store that is opened reads `paths` and then
+the journal, and an entry of the journal is taken where it is later than the
+map's.
+
+The journal begins with a count. A line of it is 8 hex digits, a space, and
+the entry: the digits are the start of the SHA-256 of the count and the
+entry. Reading stops at the first line that does not match, so a line half
+written when the power went, and lines left from before the count last
+changed, are not taken. The journal is a 64th of the volume, 1MB at most.
+`+store_journal_size` 0 and there is none.
+
+What a member learns from another goes the same way. If the power goes,
+what is lost is at most that a member was known to have a path, and that is
+learnt again at the next meeting.
+
+### In memory
+
+A store holds its path map, the names of the blocks it keeps, how many
+objects there are, the folders of blocks it has made, and the keepers of a
+block once worked out. The exFAT volume keeps the blocks of the device it
+has read, the room left, and each directory it has read with its names
+indexed, read again only once it is written. Without these a put of the
+tree, 2,001 files, into one member was 26 s. It is 6 s.
+
+## Members
+
+A member is a system, by its system id. One service a system. The members of
+a store are a list of them. A machine becomes one by being told to join, is
+one while it is away, and stops being one only when it is retired on
+purpose: a laptop taken home is still one of the five. A volume opened by
+another member than the one it was, a machine given a new id or a disk moved
+to another machine, has that member take the place of the one it was.
+
+Who the members are is two lists that only grow, those joined and those
+retired, so two members put theirs together the same whichever way round.
+
+The services of a store find each other by the name of their group,
+`*Storage`, declared with the store's id and the member's, on every machine
+of the mesh. Any service of that group with the same store id is a member to
+the others.
+
+### Joining
+
+```
+storage -j          this machine is a member of the store of its mesh, from now on
+storage -f          it is not started by itself from now, the store is left as it is
+```
+
+`storage -j`, `(storage-join)`, makes the machine's part of the store,
+`storage/store.img`, 4096 MB at most, a file with holes that takes what is
+in it, and starts it. What was said is kept in `store_member` at the root of
+the tree, beside `mesh_key`. The store's id is made from the mesh key,
+`(storage-key-id)`, so every machine with the key is of the one store, and
+the key can not be had from it.
+
+From then on `service/storage/auto.lisp` starts it. The Net service starts
+that when its session becomes the machine's member of the mesh, and tells it
+to go when it is that no longer. Only one process can listen on the mesh's
+port, so only one session of a machine is its member, and only that one
+starts the store. A session started alone, a run of the tests, never does.
+Started by hand in another session, a note beside the image,
+`store.img.member`, says which process has it, `(storage-claim)`.
+
+### Where a block is kept
+
+By a rule, not a table. For a block each member is given a number, the
+SHA-256 of the block's name and the member's id, and the members in order of
+those numbers are the block's own order, `(store-rank)`. The first three
+keep it, or as many as its object says, or all the members when there are
+fewer. Every member works out the same from the list of members and nothing
+else.
+
+```image
+docs/diagrams/storage_blocks.cwb
+```
+
+* A new member comes out in the first three for its share of the blocks, and
+  only those move to it.
+* A member gone, for each block it kept the next in that block's order is
+  now a keeper, and fetches a copy.
+* Every member keeps every manifest.
+
+### How many copies
+
+`copies` of an entry is the dial, a path at a time: more for what must not
+be lost or is read a great deal, fewer for what is big and can be had
+again.
+
+```
+(storage-copies path [copies svc])      how many, or set it; 0 is the store's
+storage -k 5 docs/contract.pdf          the one object
+storage -k 2 scratch/                   every object whose path begins so
+```
+
+It is a write of the path like any other. To ask for more adds keepers and
+moves nothing, to ask for fewer takes the last of them away. A block two
+objects are made of has as many keepers as the one that asks for more.
+
+### Pins
+
+A member holds only its share of the blocks, so away from the others part of
+anything would be out of reach. A member can pin the start of a path,
+`user/me/`, and holds all of every object under it as well as its share,
+and does not let go of it.
+
+```
+(storage-pin prefix [off svc])      storage -P prefix, -U to unpin
+(storage-pins-missing [svc])        blocks of what is pinned that are not here yet
+(storage-pinned-by path [svc])      the members that hold all of it
+```
+
+What each member has pinned is known to every member: it goes with the path
+map when two compare notes. A gopher goes to a member that holds all of an
+object and stays there.
+
+## The Tender
+
+A service only ever answers. It asks nothing of another member and waits:
+two that did, each of the other, would wait for ever. What a member has to
+ask is asked by its tender, a task of its own. It looks every 2 seconds,
+`+storage_tick`, and at once when its member is written to.
+
+* It finds the other members that are there, and tells its service who they
+  are.
+* With each whose digest, one name for its whole path map and members,
+  `(store-digest)`, is not its own, it compares notes: what the other has is
+  taken here, and what this one has, with that, is taken there. Only what is
+  new since the last time is told, `(store-since)`, by a count of changes
+  that each store keeps from when it was opened.
+* It asks its service for its share, `(store-share)`, among the members that
+  are there. What it wants and has not got, it fetches from a member that
+  has, 8 at a time, each of a member that has said it has it. What it has
+  that is others' to keep, it lets go of once each of those says it has it.
+
+A member not heard from is still counted for 5 minutes, `+storage_grace`,
+before what it kept is fetched by others: a machine turned off and on is no
+reason to copy its share.
+
+### When two wrote a path apart
+
+When members meet, an entry of the other's that comes after mine, its counts
+as many or more of every member's, is taken. One that comes before is not.
+Two written apart, each with more of some member's writes:
+
+* The one most members have keeps the path. At most one side of a split can
+  have most of the members, so a writer that waited for most is promised
+  its write stays.
+* Between two that neither had, the one written more times, then the one
+  whose manifest's name is greater, only so that all choose the same.
+* The one kept has the counts of both, so it comes after both.
+* The other, if it is an object and not a delete, is kept under another
+  name, `path~` and 8 of its manifest's name in hex. It is never thrown
+  away.
+
+Only a path both sides wrote is touched. A laptop's own paths, written while
+it was away, are taken when it comes back.
+
+### Locking a path
+
+Tasks of one system that read a path, change it and put it back take the
+lock of that path first, from that system's `@Lock` service,
+[lock_service.md](lock_service.md). The key is `storage/` and the path:
+
+```vdu
+(defq key (cat "storage/" path))
+(with-write-lock key
+	(defq was (storage-stat path) data (storage-get path))
+	(storage-put path (change data) (if was (second was) "")))
+```
+
+It is a courtesy between the tasks of one system. A member on another
+machine is not held by it. What holds for everyone is the rule above, a path
+is set provided it is what the writer says, so a writer says what the path
+was, lock or no, and reads the answer. The calls do not take the lock
+themselves.
+
+## Gophers
+
+A gopher is a query that goes to the blocks of an object, in place of the
+blocks being brought to the asker. It is what it has so far, and a function:
+given that, a block, which block it is and how many there are, the function
+gives what it has now and the block it wants next, or `:nil`, it is done.
+
+```
+(storage-walk "logs/today" 0
+    '(lambda (n data at count)
+        (list (+ n (length (filter (# (eql %0 (ascii-char 10))) data))) (inc at))))
+-> (13804 (("m-a" 0) ("m-c" 12) ...))
+```
+
+`(storage-walk path state visit [at wait svc])` sends it, and is `(state
+trail)`, what it came back with and where it went, or `:nil` if it did not
+come back in the time. `storage -q` is the same from the command line.
+
+* The function is sent as text, quoted. What it has and that text are all
+  there is of the gopher, which is what lets it be sent on. What it has must
+  print as it reads: numbers, strs and lists of them.
+* It goes where the function says, not in order. A search by halves of a
+  sorted object reads a few of its blocks and no more.
+* At a member it does the blocks that member keeps. For one it does not, its
+  way is worked out, `(gopher-route)`, the members that are to keep the next
+  32 blocks, by the same rule as where a block is kept, and it is sent to the
+  one with the longest run of them. One that does not have the block after
+  all asks the members which do, `(gopher-order)`.
+* Sending on is a mail. The one sent to says it has it before anything else.
+  If it does not in 2 seconds, the next member that has the block is sent it
+  as well, and the first of them to say so is where it went. One that does
+  not answer goes in a list the gopher carries, and is not asked again on
+  that walk.
+* It is of the object as it was when it set out: it carries the name of the
+  manifest, though the path be written while it goes.
+* The last member mails the answer straight to who asked.
+
+One task at a member runs every gopher that is there, a block of each in
+turn, and reads its mail between. It keeps the block lists of the last 16
+objects it read.
+
+### What a gopher's function may do
+
+ChrysaLisp's rules: it does not call itself, it goes round with `while`,
+`until` or a function given to `each` and the like.
+
+A function is not run as it was sent. Into the body of each `while`, `until`
+and `lambda` of it a call of `(gopher-tick)` is put first. The tick gives way
+to the other tasks of the node, and throws if the function has had a second
+for the block, by the clock, `+gopher_allowed`. One that throws is done
+with, and who asked is told `"none"`. So a function that never comes back
+holds up the others at that member for a second and no longer. The tick
+costs about 36ns each time round on an M4.
+
+### When a gopher becomes two
+
+If one sent on has the gopher and its word back is lost, the next member is
+sent it too, and there are two. Both walk to the end and both answer. Who
+asked reads the first, the second is to a mailbox nobody reads. For a gopher
+that reads, that is all. One that writes is not provided for.
+
+## Streams
+
+```
+(storage-stream path [mode svc ahead]) -> :nil | stream
+```
+
+An object as a stream, for code written for a file. The modes are those of
+`(file-stream)`:
+
+* `+file_open_read`, or none. A block at a time. As one is read the next 4,
+  `ahead`, are asked for, each of a member that has it, a different one in
+  turn, so they come from several machines at once. A seek asks again from
+  the new place. A block that does not come in 2 seconds, or is not what its
+  name says, is had from any member that has it.
+* `+file_open_write`, a new object, of nothing to begin with.
+* `+file_open_append`, on the end of the object that is there, or a new one.
+  Its whole blocks are had by their names and not read.
+
+What is written goes to the store a whole block at a time. The path is set
+when the stream is flushed, and when it is let go of, in one step: who reads
+it has the old object or the new and never a part. Whoever sets a path last
+has it, as with a file; to set it provided it is what it was is
+`(storage-put)` with `from`.
+
+It is made of `(lisp-stream fill [seek write])`, `class/lstream/`, a stream
+whose reading, seeking and writing are Lisp functions.
+
+```
+(storage-put-stream path stream [from svc])   a stream to its end, a few blocks at a time
+(storage-put-file path file [from svc])       a file of the host
+(storage-same-file? path file [svc])          is the object the same as the file
+```
+
+## The Calls
+
+All in `service/storage/app.inc`. `svc` is a service, `(storage-service)`,
+this system's, if not given.
+
+```
+(storage-start image [:size :id :name :block :force :group :member :tick :grace :copies :node])
+(storage-stop [svc])       (storage-service [name])      (storage-info [svc])
+(storage-join [image size id copies force])
+
+(storage-put path data [from svc])           (storage-get path [svc])
+(storage-read path offset len [svc])         (storage-stat path [svc])
+(storage-list [prefix svc])                  (storage-delete path [from svc])
+(storage-copies path [copies svc])           (storage-stream path [mode svc ahead])
+(storage-walk path state visit [at wait svc])
+
+(storage-seen path [svc])                    (storage-wait path [wait want svc])
+(storage-members [change svc])               (storage-pin prefix [off svc])
+(storage-sweep [svc])                        (storage-check [mend svc])
+
+(storage-block name [svc])                   (storage-where name [svc])
+(storage-settle [svc wait])                  (storage-pace tick grace [svc])
+(storage-cut members [svc])
+```
+
+`(storage-sweep)` lets go of blocks no object is made of. `(storage-check)`
+names the blocks that are not what their names say, and with `mend` lets go
+of them too, to be fetched again. `(storage-settle)`, `(storage-pace)` and
+`(storage-cut)` are for tests: have the tender look now, change how often it
+looks, and make a member as if it could not reach some others.
+
+A request is a mail: a header, who to answer and what is asked, then what
+that takes. An answer is one mail. A mail is never longer than a block and a
+little.
+
+## The Command
+
+```
+storage                       what the store is and what is in it
+storage -l [prefix]           the objects
+storage -p file path          put a file of the host
+storage -g file path          get, - for stdout
+storage -d path               delete
+storage -k n [path]           how many copies
+storage -P prefix, -U         pin, unpin
+storage -M [+id | -id]        the members, join or retire one
+storage -q "(lambda ...)" path   send a gopher
+storage -w                    sweep
+storage -c, -C                check, and mend
+storage -T dir path/          put every file under a folder, then read each back and compare
+storage -V dir path/          the reading back only
+storage -r file [-t secs] [-G group]   record what the members do
+storage -j, -f, -s image [-m MB -i id -F], -x
+```
 
 ## The Recorder
 
-What the members of a store do can be recorded, to be watched, played
-back, and gone over after. Each member's service, tender and gopher runner
-says what it did, a line each, to a mailbox that has asked to be told:
+What the members of a store do can be recorded, to be watched, played back,
+and gone over after. Each member's service, tender and gopher runner says
+what it did, a line each, to a mailbox that has asked to be told:
 
 ```
 1791904249088123 r-a set 1a2b3c4d 12288 doc/one
@@ -126,8 +449,8 @@ says what it did, a line each, to a mailbox that has asked to be told:
 ```
 
 The time in microseconds by the clock of the member's machine, the member,
-what was done, and what to, a path last as it may have spaces in it. A
-block is named by the first 8 bytes of its name, in hex.
+what was done, and what to, a path last. A block is named by the first 8
+bytes of its name, in hex.
 
 | what | said by | of |
 |---|---|---|
@@ -139,950 +462,63 @@ block is named by the first 8 bytes of its name, in hex.
 | `fetched` | tender | block, the member it came from |
 | `gopher` `gopher-step` `gopher-pass` `gopher-done` `gopher-none` `gopher-threw` | runner | block number, block, path |
 
-A recorder asks each member with `(storage-record-ask svc mbox)`, and is
-told for 5 seconds, `+storage_record_lease`, unless it asks again: one that
-has gone is not told for long. `(storage-record-run write until [group
-stop])` asks every member of a group each second, and gives each line to
-`write`. `storage -r file [-t secs] [-G group]` is that, to a file of the
-host. A task sends what it has to say once it has done a thing asked of it,
-in one mail. With no recorder nothing is said, nor made to be said.
+A recorder asks each member with `(storage-record-ask svc mbox)`, and is told
+for 5 seconds, `+storage_record_lease`, unless it asks again: one that has
+gone is not told for long. `(storage-record-run write until [group stop])`
+asks every member of a group each second and gives each line to `write`.
+`storage -r file` is that, to a file of the host. A task sends what it has
+to say once it has done a thing asked of it, in one mail. With no recorder
+nothing is said, nor made to be said.
 
 The times of two machines are by two clocks.
 
-## Where A Block Is Kept
-
-By a rule, not by a table. For a block, each service ranks every service
-that is up by a hash of the name of the block and the id of the service. The
-first three hold it. Every service works out the same answer from the list
-of members and nothing else, so there is no table of placements and nobody
-in charge of one.
-
-```image
-docs/diagrams/storage_blocks.cwb
-```
-
-* A new machine comes out in the first three for its share of the blocks,
-  and only those move. Rank with a weight for the size of the disk, and a
-  bigger machine takes more.
-* A machine goes, and for each block it held the next service in that
-  block's ranking is now one of the three, and fetches a copy.
-* With one service the first three of one is itself. The rule is three, or
-  as many as there are.
-* A read can go to any that hold the block, the nearest, or the least busy.
-  A query goes to one of them the same way. So three copies are three
-  places a query can run, replication is speed as well as safety.
-
-Migration, and copying to get back to three, run behind the reads and
-writes of the apps.
-
-## Who Is A Member
-
-The question that is always there, how long to wait before the worst is
-assumed. Here a wrong guess costs copying that was not needed, and never
-wrong data. A machine that comes back still has good blocks, they check
-themselves, it says what it holds and the copies there are now too many of
-are trimmed later. And while the wait goes on every block is still read from
-the two copies that are left, and a block written in that time gets its
-three from the machines that answer.
-
-So there need not be the one timer.
-
-* Suspect soon, act late. After a few seconds of silence no reads are sent
-  to the machine. That is cheap and undone at once. Copying is what costs,
-  and waits longer. Hadoop waits about ten minutes.
-* The danger sets the hurry. A block with two copies can wait. A block down
-  to its last copy is copied now.
-* A machine that is shut down on purpose says so, and there is no wait.
-* A machine that has come and gone a lot is waited for longer than one that
-  was steady for weeks.
-
-It is three copies that buy the slack. With two the same wait is a gamble.
-
-## Encryption And Error Correction
-
-* A cipher that authenticates puts a tag on a block, and a block that fails
-  its tag is known to be bad.
-* Correction goes outside the encryption, it is worked out over the blocks
-  as they are stored, so a block can be mended before anything tries to
-  read it.
-* The name, or the tag, says which block is bad, so correction is filling in
-  a block that is missing, not hunting for a fault. One block of XOR parity
-  for a group mends any one block of the group. Reed-Solomon is for more
-  than one.
-* Replication mends from another machine. Correction mends on the one
-  machine, with nobody to ask, which is what a system of one machine has.
-* Encryption and deduplication pull apart. A cipher makes two blocks that
-  are the same look different. For them to be found the same, the key or
-  the nonce of a block has to come from its content, and then whoever can
-  see the store can tell that two blocks are the same, and can test for a
-  file they have. Whether that matters depends on who can see a store.
-
-There is a hash now, SHA-256, and a cipher, ChaCha20 with Poly1305,
-[`docs/ai_digest/crypto.md`](crypto.md). There is no field arithmetic yet. They are VP, a
-block at a time is too much for Lisp. ChaCha20 with Poly1305 is add, rotate
-and xor, no tables and nothing of any one CPU. The same cipher and hash
-would serve TLS.
-
-Where the keys are kept, and whether the machines share one, is open.
-
-## Tasks To The Data
-
-This is where ChrysaLisp has it over what it is like. Elsewhere the compute
-was bolted on to the store afterwards. Here, to start a task on a chosen node
-and have it answer the asker is what the kernel does already, and what
-`lib/task/jobs.inc` does every day. The store only has to say which node
-holds the data.
-
-A query is Lisp source, or a task named by its path, and each node runs it
-as native code for the CPU it has, as a shader is assembled for each machine
-the first time it meets it. The reply is only the answer, a search of a 3MB
-asset sends back a few bytes, so a slow link matters far less. And a new
-kind of query needs nothing new in the service, which does not know what a
-query does, only that it is to run beside the data.
-
-## Trust
-
-To run code that came in over a link is fine among your own machines. Chris,
-on the rest: security and signatures are a topic and a library of their own,
-and ChrysaLisp is not trying to be a protected mode system, not yet, though
-a trusted build could run in ring 0 with a ChrysaLisp for each user in user
-land. The store is not to wait for that.
-
-It leaves room for it. Names that come from content, and a small path map,
-are what a signature is put on, sign the entries of the path map and all
-that is under them is covered. And a node is only ever reached by messages
-over its links, so a link is where trust would be checked.
-
-## Settled
-
-Chris, 2026-10-11, in his words where they are quoted.
-
-**Who is a member.** "system_id is member ?" Yes. One service a system, so a
-member is a system id, and the members of a store are a list of them. A
-machine becomes one by being told to join a store, is one while it is away,
-and stops being one only when it is retired on purpose: a laptop taken home
-is still one of the five. And "the image carries the store id and member
-id": a volume opened by another member than the one it was, a machine given a
-new id, a disk moved to another machine, has that member take the place of
-the one it was. There is not one more member, and nothing is copied.
-
-**Two machines write a path while apart.** He asked of three things, not
-taking any as given: a lock service for the whole store, a time all agree on,
-and transactions.
-
-* A lock every machine honours is the same agreement again: who has it, and
-  when the lock of one that has died is no lock. It can be had with no
-  primary, by most of the members saying yes, and then a machine that can
-  not reach most of them can not write.
-* A time, from the clocks, no: they differ, and the later of two is a guess
-  that throws a write away when it is wrong. A count, yes: how many times
-  each member has written the path, as far as the writer knew. It says what
-  no time can, whether one write was made knowing of the other, or the two
-  were made apart.
-* A transaction, the path set to B provided it is A, stops a write being
-  lost between machines that can reach each other, with no lock held. It
-  does not settle the machine that is cut off.
-
-Then his: "If the cut off machine does a write and the Storage node he asks,
-directs his write to a node he is still in contact with ... does he ever know
-he was cut off ?" No. Being cut off looks the same as the others being
-switched off. Of the blocks it does not matter, a block is right wherever it
-is. Of the path it is known only by counting heads before, or by comparing
-the counts after.
-
-So:
-
-* There is one way to write, a path is set to an object provided it is now
-  what the writer says it is, and every entry has the counts.
-* The store always takes the write, and says how many members have it:
-  seen by 1 of 5.
-* When members meet, an entry that most members had keeps the path over one
-  that they had not. "so your going with the majority wins the write ?" Yes:
-  at most one side of a split can have most of the members, so a writer who
-  waited for most is promised its write stays. Between two that neither had,
-  the counts, then the member's id, only so that all choose the same.
-* The one that does not keep the path is kept under another name. It is
-  never thrown away.
-* It only bites where both sides wrote the same path. "if I pull a laptop
-  from the rack, and take it home, when I come back, I really ought to be on
-  the losing side of any stuff I write locally", yes, and "I could work on my
-  user/me/xxxxx and then come in to work and nothing is going to go wrong at
-  all ?", yes.
-
-**A machine made a member, and started by itself (2026-10-13).** Chris, of
-the choices: a machine is not a member unasked; what it was told is kept as
-a fact of the machine; it is started "both TUI and GUI launch"; "mesh_key as
-a default store defintely a good one"; three copies "up to"; and of two
-sessions both starting it, "we need some way to win the possible race
-condition".
-
-* `storage -j`, `(storage-join)`: the machine's part of the store is made,
-  `storage/store.img`, 4096 MB at most, a file with holes that takes what is
-  in it, and started. What was said is kept in `store_member` at the root of
-  the tree, beside `mesh_key` and like it not in git. `storage -f` forgets.
-* The id of the store is made from the key, `(storage-key-id)`, a hash of
-  it: the same key, the same store, nothing typed. The key can not be had
-  from it.
-* It is started by `service/storage/auto.lisp`, which the Net service
-  starts when its session becomes the machine's member of the mesh and
-  tells to go when it is that no longer. Only one process can listen on a
-  port, so only one session is the member, and that is the host's doing and
-  can not be raced. The list of services could not settle it: two sessions
-  can each look, see none, and each declare one.
-* A session started alone, a run of the tests, never asks for the port and
-  so never starts the store.
-* Asked for by hand in another session, what holds two off the one image is
-  a note beside it, `store.img.member`, the id of the process that has it:
-  `(storage-claim)`. One of a process that has gone is nobody's.
-* Three keep a block, or all the members when there are fewer: that was so
-  already, `(store-rank)`.
-
-Seen on the Pi: joined with the one command, 780 KB on disk of 4 GB; its
-node restarted and the store up again with nothing typed; a second session
-asked to join and told another has it.
-
-**Pins.** A machine holds only its share of the blocks, so away from the rack
-part of anything would be out of reach. A member can pin the start of a
-path, `user/me/`, and holds all of every object under it beside the copies
-there are, and does not let go of it. It can say if what is pinned is all
-there yet. Chris: "yes, pinning is how I'd expect it to work".
-
-What each member has pinned is known to every member. It is a line for each
-member, the prefixes and a count that member alone adds to, and it goes with
-the path map when two compare notes, as the list of members does:
-`(store-pinned-by store path)`, `(storage-pinned-by path)`. So a gopher is
-sent to a member that holds all of the object, and stays there, and has
-nobody to ask who that is. Before, it found such a member only when the sum
-of who keeps a block happened to send it there. Chris, of a gopher that
-went round eight members to get to the one with every block: "yes, put the
-pin in the path map". It is with the path map and not in each entry of it:
-a pin is of a prefix, every path under it and those to come, and a line a
-member has one writer and nothing to settle.
-
-**A query is a thing that walks.** Chris asked what a query does that reads
-more than one block: "does it get to the end of a block say on machine a, and
-then hits the 'next_buffer' and get moved over to where the next block is on
-machine b.... that could be interesting ?" A task that is running can not be
-moved, what it is doing is in its stack. What can be moved is a function and
-what it has so far. So a query is that: what it has, and a function given
-that and a block, which gives what it has now and which block it wants next,
-or that it is done. A member runs it over the blocks it holds, and when the
-next is one it does not hold, sends the function and what it has on to a
-member that does. The last sends the answer straight to who asked.
-
-Chris: "exactly ! ... you have to form a query task, and that has
-rules/packaged_state as well as the programm that runs the state machine and
-decides when it found it result or finish it's search etc. Provided we can
-ensure the rule, we can transport the task all over the place from block to
-block.... now that would make other systems weep !" and "It's like you send
-off a gopher task in to the network and it just runs around until it gets
-what it wants and then comes directly back to you !"
-
-Because the function says where to go next, it need not go in order. A search
-of a sorted object by halves reads three or four blocks of it and no more,
-wherever they are.
-
-**Tasks of one system at one path.** Chris, 2026-10-13: "Did we update policy
-to recomen local path accses by tasks from one system_id should use the lock
-service ? maybe like \"storage/.../.../.../file.inc\" ? does that sound like
-a plan ?" Yes.
-
-* Tasks of one system that read a path of the store, change what they read
-  and put it back, take the lock of that path first, from the `@Lock` service
-  that system has already, see [lock_service.md](lock_service.md). The key is
-  `storage/` and the path in the store: `storage/tree/apps/edit/app.lisp`.
-* The keys are paths, so a lock of a folder holds all under it, and the
-  `storage/` at the front keeps them apart from the locks of the host's
-  files, which are keyed by their paths as they are.
-* It is `(with-read-lock)` and `(with-write-lock)` as for a file, and what
-  was read is let go of before the lock is.
-* It is a courtesy between tasks, and it is this system's only: `@Lock` is
-  not seen from another system, so a member on another machine, or a gopher
-  that came from one, is not held by it. Nothing in the store asks for it.
-* What can be trusted is the store's own rule, above: a path is set to B
-  provided it is A. Two tasks that both held the lock never see `:stale` of
-  each other. A task that did not ask, or a write from another system, is
-  still caught by the rule and by nothing else. So a writer says what the
-  path was, lock or no, and reads the answer.
-* `(storage-put)`, `(storage-delete)` and `(storage-stream)` do not take the
-  lock themselves. The task that holds a lock round a read and a write would
-  then wait on itself, the lock is not one a task can take twice; and a
-  lock a call took and let go would cover the write and not the read before
-  it, which is the part that needs it.
-
-```vdu
-(defq key (cat "storage/" path))
-(with-write-lock key
-	(defq was (storage-stat path) data (storage-get path))
-	(storage-put path (change data) (if was (second was) "")))
-```
-
-**Taken as they were put, not yet talked over:** blocks of 64KB cut at fixed
-places, named by SHA-256; three copies; where a block is kept worked out from
-the members by a hash rule, no table; five minutes before the blocks of a
-machine that has gone are made up; no encryption and no error correction
-yet; a member sweeps its own blocks that nothing is made of.
-
-## Built
-
-**The store, one member alone**, `lib/storage/store.inc`, 2026-10-11. All
-that a member holds, and all there is when there is the one. It knows nothing
-of mail or of another member.
-
-An exFAT volume, a file of the host or a disk, with on it:
-
-```
-store         what it is: the store's id, the member's, the block size
-members       the members, a line each
-pins          the paths this member holds all of
-paths         the path map, a line an entry
-blocks/xx/y   a block, its name in hex, xx the first two of it
-```
-
-An object is a manifest, how long it is and the names of its blocks in
-order, and is a block itself. A path is set to the name of one. An entry of
-the path map is `(path hash bytes vv writer seen deleted)`.
-
-```
-(store-make device size id member [block_size])   a new store
-(store-open device member) -> store               :was says who it was
-(store-put store path data [from])                (:ok entry) (:stale entry) (:full)
-(store-commit store path names bytes [from])      of blocks kept already
-(store-get store path)   (store-read store path offset len)
-(store-walk store path state visit [at])          a block at a time, where it says
-(store-fold store path state step)                in order
-(store-delete store path [from])   (store-list store [prefix deleted])
-(store-sweep store)                               blocks nothing is made of
-(store-check store [mend])                        blocks that are not their names
-(store-pin store prefix [off])   (store-pins-missing store)
-```
-
-`from` is what the writer says the path is now, the name of an object, `""`
-for none, and not given, not to say.
-
-What the tests hold, `tests/system/test_store.lisp`: a block is had back as
-it was, and one changed on the disk is not given and is found; two objects
-of the same bytes are the one; 2MB of a pattern that comes round fits a
-store of 1MB; a write from what the path was, by one who did not see it
-change, is refused and told what it is now; a deleted path stays as an entry;
-a sweep lets go of what nothing is made of and of nothing else; a store
-opened by another member is that member's, in the place of the one it was;
-and a search by halves of an object of eight blocks reads four at most.
-
-**The service, and a gopher**, `service/storage/`, 2026-10-11. One of a name
-for a system, `@Storage` unless given another. It keeps one store and does
-what it is asked by mail, a thing at a time, so a write is all done or not
-begun as far as another asker can see. `(storage-start image [size id])`
-starts it on a file of the host or a disk, and it is not started by itself
-yet: nothing of a session changes till someone asks for it.
-
-An object goes to it a block at a time and comes from it so, and only the
-blocks it has not got are sent: a mail is never longer than a block and a
-little, and one member will ask another for blocks the same way an app does.
-
-```
-(storage-put path data [from])    (:ok entry) (:stale entry) (:full) (:lost)
-(storage-get path)   (storage-read path offset len)
-(storage-stat path)  (storage-list [prefix])   (storage-delete path [from])
-(storage-walk path state visit [at wait])      a gopher, see below
-(storage-copies path [copies])                 how many members keep its blocks, the dial
-(storage-pin prefix [off])   (storage-pins-missing)
-(storage-sweep)   (storage-check [mend])   (storage-info)
-```
-
-`service/storage/app.inc` is all an app imports. `storage`, the command, is
-the same by hand: `storage -s image -m 64`, `storage -p file path`, `storage
--g file path`, `storage`.
-
-Gophers are run by a task of their own, `service/storage/gopher.lisp`, one
-for a member, started by its service, so that what a gopher does and how long
-it takes are not the service's affair: one whose function throws harms
-nothing but itself. It was a task for each gopher till 2026-10-12, see "A
-gopher is run where it lands" below. The service passes it what it is sent:
-who asked, and as text the path, the block to begin at, what it has, and the
-function. It asks the service for each block it goes to, and mails what it
-has at the end straight to who asked.
-
-```
-(storage-walk "logs/today" 0
-    '(lambda (n data at count)
-        (list (+ n (length (filter (# (eql %0 (ascii-char 10))) data))) (inc at))))
--> (13804)
-```
-
-The function is written out, quoted, and sent as text: what it has and that
-text are all there is of the gopher, which is what lets it be sent on. To be
-run a form has its macros done and its names bound, and that is done in the
-form itself, so the gopher keeps the function as it came and runs a copy,
-`(exec (copy source))`. Chris: "keep the original source so you can send it
-on with the state". What it has must print as it reads, numbers, strs, lists
-of them.
-
-**On a real disk.** Chris's 4GB flash stick, through its raw device, on the
-M4: a store made of the whole of it in 0.6 seconds, eight files of the tree,
-1MB, put in 4.0 seconds and had back the same in 0.2, and a gopher that
-counted the lines of one of them where its blocks were. Then mounted by
-macOS: `blocks`, `members`, `paths`, `pins`, `store` are there to see, a
-block's SHA-256 by the Mac's own `shasum` is its name, and the Mac's checker
-says the volume is OK.
-
-**Members meeting, the rules of it**, in `lib/storage/store.inc`, 2026-10-11.
-No mail yet: what one member does with what another tells it.
-
-```
-(store-join store members [retired])   members only grow, and so do the retired
-(store-members store)                  who they are meant to be, away or not
-(store-meet store entries)             another's path map set against mine
-(store-keeps store a b)                of two written apart, which keeps the path
-(store-most? store entry)              do most members have it
-(store-other-name entry)               path~ and the start of its object's name
-(store-digest store)                   two with the same have nothing to tell
-(store-holders store name [among])     the members that keep a block
-```
-
-An entry's `seen` is the members known to have it. An entry of another's
-that comes after mine is taken, one that comes before is not, the same one
-makes each know the other has it. Two written apart: one keeps the path,
-with the counts of both so that it comes after both, and the other, if it is
-an object and not a delete, is kept under `path~` and eight of its object's
-name. Which keeps it: the one most members have; else the one written more
-times; else the one whose object's name is greater, only so all choose the
-same.
-
-Who the members are is two lists that only grow, those joined and those
-retired, so two members put theirs together the same whichever way round,
-and one that is retired stays so.
-
-Where a block is kept needs no table. Each member is given a number, the
-SHA-256 of the block's name and the member's id, and the three with the
-greatest keep it. Every member works out the same. When one goes, only what
-it kept has another keeper: of 300 blocks over five members each keeps about
-180, and with one gone the blocks that move are the ones it kept, each to
-one new keeper.
-
-What the tests hold, `tests/system/test_store_meet.lisp`: a laptop's own
-paths are taken when it comes back and there are no other names; two that
-write a path apart come to the same, and what did not keep the path is had
-under its other name on both; what two of three had keeps the path over what
-the one away wrote three times; a delete by most beats a write apart, and
-the write is kept; a write by most beats a delete apart, and nothing is
-kept; three that each wrote a path come to the same in whatever order they
-are told, with all three objects there.
-
-**A store of many members**, `service/storage/`, 2026-10-11.
-
-A service is a member. It is known to the others by the name of their
-group, `*Storage`, with the store's id and its own after it, on whatever
-machine it is: the same directory of services everything else is found by.
-Any service of the same store id in the group is a member to it, and who the
-members are is put together as they meet. So a machine joins a store by a
-store of that id being made on it.
-
-A service only ever answers. It asks nothing of another member and waits,
-for two that did, each of the other, would wait for ever. What a member has
-to ask is asked by its **tender**, `tender.lisp`, a task of its own, as a
-gopher is. Each time it looks, every two seconds, and at once when its member
-is written to:
-
-* It finds the other members, and tells its service who is there.
-* With each that is not as it is, by the one name of all it has,
-  `(store-digest)`, it compares notes: what the other has is taken here, and
-  what this one has, with that, is taken there. The two are then the same.
-  Chris's picture of it, from the mesh: people with notepads who "just meet
-  and compare what they have and swap some pages between them".
-* It asks its service for its share, `(store-share)`, among the members that
-  are there: every manifest, the blocks it is one of the three keepers of,
-  and all the blocks of what it has pinned. What it wants and has not, it
-  fetches from a member that has. What it has that is others' to keep, it
-  lets go of once each of those says it has it.
-
-A member not heard from is still there for a while, five minutes, before
-what it kept is kept by others: a machine turned off and on is no reason to
-copy its share.
-
-A write is taken by the one member and is done. The others have it when
-they next meet, and `(storage-seen path)` is how far it has got, `(4 5)`,
-seen by four of five. `(storage-wait path [wait want])` waits till most of the
-members have it, or as many as are asked for, and is `:nil` if they have
-not in the time: a member cut off from most of the others has that every
-time, which is how a writer that must not have its write set aside knows.
-
-A block the member asked has not got is had from one that has: the service
-says who, `(storage-where)`, and it is the asker that goes there.
-
-**The gopher goes to the blocks.** When the block it wants is not kept by the
-member it is at, it finds a member that has it, and all there is of it,
-where it is, what it has, its function as it was sent, and where it has been,
-is mailed to a new gopher task there. The last mails the answer, and the
-trail, straight to who asked.
-
-**A gopher is handed on, and the hand is seen.** `service/storage/gopher.inc`,
-2026-10-12, after Chris read the above and asked: what if there is no
-answer, does it try the other members that have the block, does one that
-is started and sent nothing ever go, does the old one wait to be told?
-None of those, as it was. Now:
-
-* The one sent on says so, to the one that sent it, before anything else.
-  The one that sent it is done only then.
-* If the node does not start a gopher in 2 seconds, one is started at the
-  next member that has the block as well, longest run first, and so on.
-  They all answer to the one mailbox, and the first to say it is there,
-  whichever it is, a late one too, is sent the gopher. Chris: "we don't
-  have to do this serialy ? When any replies come in, we can go with that,
-  even if it was a late reply for the original choice." Only the one is
-  sent anything, the rest go in their own time. If it does not say it has
-  what it was sent in 2 more, the next to answer is sent it, till one has
-  it or there are none.
-* Only then is "none" mailed to who asked, so they hear at once and do not
-  wait out their own time.
-* A gopher that is started and sent nothing in 10 seconds goes. It waited
-  for ever.
-* A member is given 1 second to say which blocks it has, it was 10. One
-  that does not say, or does not take the gopher, is in a list that goes
-  with the gopher, and is not asked again on that walk.
-
-On the x64 Mac and the Pi, a store of the two with one copy of a block: a
-gopher from each counted the lines of `STATUS.md`, 14,284 as `wc -l`, by
-way of both. The Pi's member stopped: "It did not come back", in 1 second.
-
-**A gopher is run where it lands, and works out its way.** 2026-10-12, the
-evening. Measured first, over `apps/media/films/data/raymarch.flm`, 37MB,
-568 blocks of 64KB, five members with three copies, all on the M4: a gopher
-that added up its bytes took 2.5 seconds and went to a member 126 times,
-and 0.67 with the object pinned to one. A stream read it in 1.1. Each time
-it was sent on cost about 15ms: 4 asking each member that had the block
-what it had of the next 32, one after another; 3.7 for a new task to be
-started, read its files and say it had the gopher; 1.1 reading the
-object's list of blocks again. 126 is as few as there are for where the
-blocks fell, there are 125 runs: it was going the best way, slowly.
-
-Chris, of keeping blocks of a run together to make the runs longer: "I must
-admit I like the idea of not having to ask others and just knowing who has
-the blocks." So where a block is kept is as it was, and the gopher uses the
-same sum. Three changes, his "yes, build those three":
-
-* **Its way is worked out.** `(store-rank name among copies)`, in
-  `lib/storage/store.inc`, is the sum every member does, now by itself, and
-  `(gopher-route)` does it for the next 32 blocks and each other member that
-  is there: no mail. Who is to keep a block and who does are not the same
-  while a store is spreading, so a gopher that gets to a member that has
-  not the block it came for asks, as it did, `(gopher-order)`, and only if
-  nobody has it then is "none" said.
-* **One task for a member runs them.** It is up, with its files read, so
-  to send a gopher on is a mail to the member's service, which passes it
-  on. It does a block of each gopher it has in turn and reads its mail
-  between. Sending on does not wait: `(gopher-pass-begin)` and
-  `(gopher-pass-turn)`, a step each time round, so a member that does not
-  answer holds up only the gopher that was going to it. It is as it was
-  otherwise: the first sent it, the next as well after 2 seconds, the
-  first of them to say it has it is where it went, the rest are in skip.
-  There is the one step now, not start and then send, so one that was slow
-  to say so and had it all the same is a second gopher, as before.
-* **The list of blocks is kept, and it is of the one object.** A gopher
-  carries the name of what the object was when it set out, and the task
-  keeps the lists of the last 16 it read, by that name. So it is not read
-  again at each member, and a gopher is of the one thing all the way,
-  though the path be written while it goes: it was not before.
-
-The same film after: 1.05 seconds, 126 times, a little under 3ms each.
-Pinned, 0.70. So a gopher that goes to the blocks is now as quick as the
-stream that brings them, 1.1.
-
-What is not as good as it was: a gopher's function that never comes back
-holds up every gopher at that member, where it held up only itself.
-
-**An object as a stream.** `(storage-stream path [mode svc ahead])`, 2026-10-12,
-to read. To write, see "An object written as a stream" below.
-Chris: "Do we have the eqicalent of '(storage-stream path) -> stream' so any
-existing code just sees a normal seekable dfile stream ?" I offered the
-whole object in a string stream first, and he said: "bring me that entire
-4GB mp4, that I may watch it... errrrrr". So it has a block at a time. And
-of the blocks after: "We could implament read ahead at the point of
-consumtion ?" As the block wanted is read, the next 4 are asked for, each
-of a member that has it, a different one in turn where there are several,
-so they come from several machines at once and are there, or on their way,
-when wanted. A seek makes new mailboxes and asks again from the new place,
-what was on its way is to mailboxes nobody reads: "a seek, pays the cost,
-but it allways does in any streaming object". A block that did not come in
-2 seconds, or is not what its name says, is had from any member that has
-it, as `(storage-block)` does.
-
-It is made of a new VP class, `:lstream`, `class/lstream/`, a stream that
-is read from Lisp functions, `(lisp-stream fill [seek write])` in
-`lib/streams/lisp_stream.inc`. That is all the VP there is of it: how far
-ahead, of whom, and what is done about one that does not come is Lisp, to
-be changed and measured. `(read-line)` `(read-blk)` `(read-char)`
-`(stream-seek)` `(lines!)` and the VP that reads a stream all read it.
-
-It is read only. To put, `(storage-put-stream path stream)` reads a stream
-to its end a few blocks at a time, `(storage-put)` and `(storage-put-file)`
-are that, and `(storage-same-file? path file)` reads an object as a stream
-beside a file of the host and says if they are the same.
-
-**The whole tree, through streams.** Chris: "A good test would be to use the
-dumb streams to copy the entire ChrisaLisp tree into the storage system and
-then read it back and compare eveything." `storage -T dir path/` puts every
-file under a folder and reads each back and compares, `storage -V` the
-reading back only, of what another machine put. 2026-10-12, the tree less
-obj, deps and .git, 1,971 files, 167MB, the longest a film of 37MB:
-
-	one member, the M4                         put 86 s, read back the same 20 s
-	three, M4, x64 Mac, Pi, two copies a block put at the M4 34 s, the same 23 s
-	shared out to the other two                about 4 minutes
-	read back on the x64 Mac                   1,823 of its 1,936 files the same, 134 s
-	read back on the Pi                        1,797 of its 1,845 files the same, 318 s
-
-Each file not the same on the x64 Mac, 113, and on the Pi, 48, was looked
-at: its own copy is not the M4's, by MD5. They are what a machine has of
-its own, the objects of its host program, a user's settings, a file I had
-changed since. No file that is the same on two machines read back
-different.
-
-What that run found, and it was the first with more than a few objects:
-
-* A member asked for a block it does not keep went to the volume to find
-  that out, two directories read. Every member is asked for many it has
-  not got. On the Pi its own share took 11.6 s to work out, the asking of
-  it gave up at 10, and the Pi stopped taking blocks altogether. What is
-  kept is held in memory: that is asked first. 89ms on the M4.
-* The tender fetched a block at a time, each asked of the peers in turn
-  till one had it. Chris: "~10 blocks/sec; does that sound fast enough to
-  you ? Are hitting the Wifi limit to the x64 ? or somthing deeper ?"
-  Measured on the x64 Mac: 61ms a block from the M4 and 29ms to be told
-  no by the Pi, where a ping is 17ms and `scp` of 20MB is 1.2MB a second.
-  So it was the going and coming of the Wi-Fi, a block at a time, a third
-  of what the link carries. Now 8 are asked for at once, each of a peer
-  that has said it has it: 28 blocks a second to the x64 Mac, which is the
-  link, and 18 to the Pi, which is its SD card, 0.45MB a second to write.
-* The digest of a store, asked for by every member each time it looks, was
-  worked out from every path each time. It is held till something changes.
-
-**Only what is new is told, and it is written later.** 2026-10-12, found by
-the farm: with five members all written to at once the window had one
-answer from them in 16 s. Three things, measured one after another.
-
-* Each tender, at every look, fetched the whole path map from each other
-  member and gave its own back, and each of those was written to the
-  volume whole. A store now counts the changes to its path map from when
-  it was opened, `(store-at)`, and has for each path the count at its last
-  change. A tender asks for what is new since the count it was last given,
-  `(store-since)`, and gives what is new since the count it last gave. The
-  counts are of the one opening of a store, which has a name: one asked
-  with the count of another opening tells all.
-* What is learnt from another member is not written at once,
-  `(store-meet store entries :t)`, `(store-later)`: it can be learnt
-  again. The service writes it when nothing else is asked of it, or after
-  2 s. What a writer was told is kept is written before it is told, as it
-  was.
-* A member working out its share made a hash and a sort for every block
-  it knew of, each time it looked. The keepers of a block are kept once
-  worked out, for as long as they are asked of the same members.
-
-And the window's own fault: when a demo was stopped to start another, the
-watcher was waiting on the members that had gone, each in turn, a quarter
-of a minute. One that says nothing is asked nothing more at that look.
-
-The farm, five members on eight nodes, 1,977 files: put in 10 s and read
-back the same in 7 s, as before these. After it, till every path is known
-to all five and the film is kept by three: 58 s, now 26 s. Looks the
-window was sent while it ran: 1 in 16 s, now 15 in the first 7 s, the
-block counts of the five going up together.
-
-**An object written as a stream.** 2026-10-13. Chris: "(storage-stream path)
--> stream, should have read and write modes like the (file-stream) does !"
-The mode is the second thing given, as `(file-stream)` has it, and the same
-three: `+file_open_read`, or none, to read as before;
-`+file_open_write`, a new object of nothing to begin with;
-`+file_open_append`, on the end of the object that is there, or a new one.
-
-What is written goes to the store a whole block at a time as there is one,
-`(storage-stream-put)`, so an object of any length is written with a block
-of it in memory. The path is not touched. When the stream is flushed the
-path is set, in the one step there is, to the object of those blocks and a
-last short one of what is left over: one who reads it has the old or the
-new and never a part. What is left over is kept, so a stream can be
-written on after a flush, and the next flush sets the path again.
-
-To append costs nothing for the blocks that are whole: a block is named by
-what is in it, so they are had by their names and not read. A last short
-block is read, to be written on.
-
-A stream that is let go of is flushed first. I had put it to him as a flush
-only, to keep Lisp out of a `:deinit`, and he said: "(stream-flush) ! A
-deref of the (storage-stream) read/write should auto flush, as the other
-streams do." So it does, and code that writes a stream and lets go of it,
-as code written for a file does, sets the path. A flush with nothing
-written since the last sets nothing. One opened to write and let go of with
-nothing written is an object of nothing, as a file would be. A task that
-ends holding one it never flushed: the path is set then.
-
-Whoever sets a path last has it, as with a file. It is not "provided it is
-still what it was": that is `(storage-put)` with what it was from.
-
-Under it, `(lisp-stream fill [seek write])`, `class/lstream/`: a stream
-given a write function has a buffer, and the function is given each
-buffer of what is written, and `:t` with it at a flush. So the
-`:deinit` of that class calls Lisp, which mails the store and waits for
-it, from wherever the last of the stream was let go. No other class does.
-It keeps the registers a stream's `:deinit` was declared to keep.
-
-A fault of mine that the validate build named at once, "Heap overrun !":
-the stream's own init wants how long the buffer is, and was given where
-it ends, so till the first flush a stream took its buffer to go on past
-its end. It showed only in a write longer than the buffer before any
-flush. I had told Chris it was the depth of the stack. He asked "are we
-really that deep ?", and we were not.
-
-**A function has a second for a block.** 2026-10-13. One task runs every
-gopher at a member, a block of each in turn, so a function that did not
-come back held up the rest, and the task's mail. Chris: "could it run the
-function in a local async task ?", and then, as tasks here give way only
-when they choose to, "it should be the case that (time-slice) call if
-forced or injected intot he gopher code.. we could just make it a rule",
-and "go with the tick alone, one second allowance".
-
-So a function is not run as it was sent. `(gopher-ticked)`, in
-`service/storage/gopher.lisp`, does its macros and puts a call of
-`(gopher-tick)` first in the body of each `while`, `until` and `lambda`
-of it, which is everywhere it can go round. The tick gives way,
-`(task-slice)`, and throws if a second has gone since the function was
-given the block. What throws was already done with, and who asked told
-"none". It is asked once more as the function comes back, for one that
-caught what was thrown at it. What is sent on to the next member is the
-function as it was written, as before.
-
-What is quoted is not code and is left. And nothing that was there is
-written to: each list gone into is a copy, a tick is a new list each time.
-The first cut put the one quoted `(gopher-tick)` into every function, and
-to be run a form has its names bound in place, so the second gopher found
-the tick function itself there, went into it, and put a tick in the tick.
-A macro can put a list into a form that is not the form's own, and a tick
-in one of those would be in every use of it on the node.
-
-The rules of ChrysaLisp are the rules of a gopher's function, Chris: "just
-documenting that ChrysaLisp rules apply, no recursive calling." A function
-does not call itself, here or anywhere in the tree. It goes round with a
-loop, and the tick is in every loop. Nothing looks for one that does, and
-one that went into itself for ever would run its task out of stack and
-take the node with it.
-
-Chris: "Injecting code is somthing that we can do easily in Lisp source,
-if we ever switch to VP based gophers's we can still inject a VP sequence
-to do the same thing."
-
-What it costs, the film of 37MB over five members on the M4, three runs of
-each:
-
-| the function                    | as sent | with the tick |
-|---------------------------------|---------|---------------|
-| the length of each block        | 712 ms  | 710 ms        |
-| every 64th byte, the app's      | 766 ms  | 807 ms        |
-| every byte, a `while`           | 3.02 s  | 5.09 s        |
-
-A time round a loop is 34ns bare and 70 with the tick. Nearly all of the
-36 is the look at the clock and the call, giving way is 4.
-
-**A gopher can become two.** Chris: "you hit the issue with this,
-divergence/forkinf of a gopher ! The issue is either to ensure it can't
-happen, which may be imposible (or at least too slow as it needs global
-control), or we depend on the idea that it is rare, and when it does happen
-we mitigate the consiuences." If the new one has what it was sent and its
-word back is lost, the old one tries the next member, and there are two.
-Both walk to the end and both answer. Who asked reads the first; the second
-is to a mailbox nobody reads. For a gopher that only reads, that is all of
-it. One that writes is not built, and how what it does is made safe to do
-twice is under Open.
-
-```
-(storage-walk "big" 0 '(lambda (sum data at count) ...))
--> (4611 ("m-a" "m-c" "m-a" "m-d" "m-b" ...))
-```
-
-What the tests hold, `tests/system/test_storage_members.lisp`, five members
-on one node, each with a store in a file of its own, their tenders looking
-only when told so that every step is done when it says:
-
-* Three members meet and each knows the three. An object of 20 blocks put at
-  one is seen by 1 of 3, and when they have met by 3 of 3.
-* Two more members: every block is kept by three of the five, no more and no
-  fewer, 60 copies of the 20; the manifest by all five; the member it was put
-  at has let go of what is others' to keep; it is had whole from any of them.
-* A gopher sent to it from a member that has not all of it comes back with
-  the right sum, having been to more than one member.
-* One member is cut off and writes a path of its own and one the rack also
-  writes, twice: 1 of 5, and 4 of 5. It comes back: its own path is on the
-  rack, the path both wrote is the rack's, and what it wrote last is under
-  the other name on a member that was never away. The five are the same.
-* A member pins the object and has all 20 blocks, unpins and every block is
-  back to three keepers.
-* A member is stopped: every block is kept by three of the four that are
-  left, and it is still a member. Started again: three of the five.
-
-**On three machines**, the night of 2026-10-11. A service started in the
-standing node of the M4, the x64 Mac and the Raspberry Pi 4, each on a store
-of 64MB in a file of its own, the one store id, two copies a block so that no
-machine would have all of anything. Nothing else was done to join them.
-
-* Six seconds after they were started each listed the three as members.
-* The boot image, 250KB, and `STATUS.md`, 633KB, put at the M4: `1/3`. Eight
-  seconds later `3/3` on all three, and 9, 12 and 13 blocks kept, 34, which is
-  two copies of the 14 and the two manifests on each.
-* The boot image had from the Pi's store and `STATUS.md` from the x64's are
-  the M4's files, by SHA-256.
-* A gopher sent from the Pi to count the lines of `STATUS.md` came back with
-  13,881, which `wc -l` says too, by way of the Pi, the x64, the M4 and the
-  x64 again.
-* The Pi's service stopped, a file put at the x64: `2/3`. The Pi's started
-  again on its store: eight seconds later it has the path, `3/3`, and the
-  file is had from it as it was put.
-
-A gopher goes, of the members that have the block it wants, to the one with
-the longest run of the blocks after it, so that it is not sent on again till
-it must be. How many members keep a block is the store's, said when it is
-made, `:copies`, `storage -k`, three if it is not.
-
-**The dial: how many copies, a path at a time.** 2026-10-12, late. The
-question was whether duplication can be controlled; Chris: "would we do a per
-path(file) setting ? deafults to 3, realy important dfiles can be set
-higher ? I think that's the crux of the concern", and that it is "both
-security of important files, and performance tuning for file that are used
-a lot". It is one number, in the entry of the path:
-
-```
-(storage-copies path [copies svc])      how many, or set it; 0 the store's
-storage -k 5 docs/contract.pdf          the one object
-storage -k 2 scratch/                   every object whose path begins so
-```
-
-* It is a write of the path like any other: it is counted, told to the
-  other members as they meet, and of two set apart the greater is kept.
-  Written again, a path has the copies it had.
-* Nobody is asked who keeps a block still. The members have an order that
-  is the block's own, `(store-rank)`, and the first so many keep it: three,
-  or as many as its object says. So to ask for more adds keepers and moves
-  nothing, and to ask for fewer takes the last of them away. A member
-  working out its share takes the number from the object, and a block two
-  objects are made of has as many keepers as the one that asks for more:
-  that the same bytes are kept the once is to save room, Chris, "not
-  safety or speed", and how many keep them is another thing.
-* A gopher carries the number with what its object was, so its way is
-  worked out among all that are to have the blocks: of an object every
-  member keeps, it goes nowhere.
-* An entry is a line as it was, the number after the deleted, `0/5`, and
-  one written before reads as not saying.
-
-Seen, five members: set to 5 at one member, every block of the object on
-all five and those of another object on three; set to 1 at another, on the
-one, and had whole from a member with none of it; set to 0, three again.
-
-Not there: a number for a folder that what is put in it later takes, it
-is set on what is there; and anything that counts how much a path is read
-and turns the dial, Chris: "We may even be able to do the 'used a lot'
-auto tuning later, once we have the dial." Manifests are kept by every
-member whatever the dial says, as they were.
-
-**To look at**, `apps/system/storage/app.lisp`, Storage in the launcher under
-System. The members of a store down the side, the blocks of one object
-across, and a square in a member's colour where it keeps a block: three in
-every column. Under it the objects, and how many of the members have each.
-
-It shows the store this system is a member of, if its service is running. If
-not, it starts five members of a store of their own on its own node, each
-with a store of 4MB in a file under `obj/`, and puts three objects: all that
-a store of five machines does, on the one. Then:
-
-```
-Put      an object of 10 to 31 blocks is put at one of the members
-Next     the next object is the one shown
-Gopher   a gopher is sent to it from one of them, to add up its bytes:
-         the line drawn is where it went, member to member, block by block
-Stop     a member is switched off, and in 3 seconds its blocks are others'
-Start    those that are off are on
-Cut      a member can reach none of the others, nor they it
-Heal     all can reach all
-Fork     a path is written at two members at once: with one cut off,
-         neither knows of the other, and Heal shows which keeps it
-```
-
-Seen on the Pi's desktop: the five rows with three squares to a column,
-`5 of 5` against each object, a member that was stopped grey and "not
-there" with its blocks made up by the rest, and the line of a gopher through
-four members. Its buttons were not pressed by anyone, a copy of it on the Pi
-was made to send the gopher and stop the member by itself.
-
-## What Exists
-
-* `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
-  host or a memory stream, with a cache of blocks, batches of writes, and a
-  mark for a volume that was not let go of cleanly.
-* `lib/fs/fat32.inc`, FAT32, read only.
-* `lib/crypto/sha256.inc`, SHA-256, what would name a block by its content,
-  and HMAC on it.
-* `lib/crypto/aead.inc`, ChaCha20 with Poly1305, to seal a block and open
-  it.
-* The directory of services, `(mail-declare)` and `(mail-enquire)`, by which
-  the services would find each other.
-* `lib/task/jobs.inc`, and `(open-task)`, tasks to a chosen node with the
-  answer sent to the asker.
-
-## Open
-
-* It is not started by itself. On the three machines it was started by
-  hand, in the standing nodes, and stopped after.
-* Two members that differ are told what of each other's path map is new
-  since they last asked, see Built. One that has never asked, or asks a
-  member that has been started again, is sent all of it.
-* A member is one by a store of that id being made on it. Retiring one is
-  `(storage-members "-id")`, and what it kept is then others' to keep.
-* How a block that nothing refers to is found, over machines, while a write
-  is on its way: a sweep is only when asked.
-* `(storage-wait)` is for how many members have the path. That its blocks
-  are on three of them is not asked yet, they follow in a tender's own time.
-* Whether the store may show that two blocks are the same, and where the
-  keys are kept, when there is encryption.
-* Cutting an object where its content says, not every 64KB.
-* A manifest of a very long object is itself long, it is one block of any
-  size for now.
-* A stream that is written sets its path whoever else has since. There is
-  no way yet to say what the path was when it was opened.
-* How deep the stack is when a written stream is let go of is not
-  measured. Its flush is Lisp, with all Lisp needs of the stack, and it is
-  run wherever the last of the stream was dropped.
-* The path map has a journal, its first stage, to be judged. The whole map
-  was written to the volume at every change of it, a path put, a note
-  taken from another member, half a megabyte a time at 2,000 paths. Now
-  an entry that changes is a line added to the end of a file, `journal`,
-  and the map is written whole when the journal is full, or for anything
-  else that writes it; a store that is opened reads the map and then the
-  journal. `lib/storage/store.inc` says how, at the journal. Putting the
-  tree, 2,001 files, on an M4: into one member 26 s before and 19 s with
-  it, into five members on one node, a file to each in turn, 123 s before
-  and 76 s with it. Each of the five wrote its whole map some 600 times,
-  16 s of each, before. `+store_journal_size` is 0 and there is none, as
-  it was. Not done: what a path is when it is small is still a manifest
-  and a block, two files of the volume, and 19 s for one member is that.
-* A service is one task. While it writes a block it answers nothing, and
-  the app that shows it waits: 0.2 to 4 s for a look at five busy members.
-* `(file-stream path)` of a path that is in a store is still a file of the
-  host. That a path says where it is, is a thing for root.inc, and Chris.
-* `(lisp-stream)` is bound in a library and not root.inc, so that a boot
-  image without it can build a tree with it. At a release, with a
-  snapshot, it can go to root.inc.
-* A gopher's function can do anything a task can. What it may do is not
-  fenced.
-* A gopher that became two, see Built, and writes. Blocks are safe, the
-  same bytes have the same name. Anything else it does is done twice. What
-  is to be thought through with Chris: a name for each walk, that a member
-  can know it has seen; what a writer must promise; and how often it
-  happens at all, which is to be measured and not guessed.
-* The tick is two calls of Lisp and one of the host each time round, 36ns
-  on the M4. A function that looks at every byte of a block pays it for
-  every byte, see Built. One native call, that gives way and knows when
-  the time is up, would be a few ns: not written.
-* A second is by the clock, not of the function's own running. On a node
-  with much else to do a function that gives way is away for some of it.
-* Run by a task that stays, a function could be kept compiled between
-  gophers, and, Chris: "We can if requred, pass VP (progn ....) code out
-  for go faster gopher's and Jit them, if we find we need that." Not
-  needed for a function that only adds up: to be measured with one that
-  goes over the bytes of every block.
+## The Storage App
+
+Storage in the launcher, under System. The members of a store down the side,
+the blocks of one object across, and a square in a member's colour where it
+keeps a block. Under it the objects, and how many of the members have each.
+
+It shows the store this system is a member of. With none it starts five
+members of a store of their own on its own node, and puts three objects.
+Its buttons put an object, send a gopher and draw the way it went, stop and
+start a member, cut one off and heal, write a path at two members apart,
+pin, and put the tree.
+
+It is to become the place to watch and debug a store: run the storage test
+scripts, watch the members from the recorder as it goes, play a recording
+back, and trace a path or a block through it.
+
+## The Tests
+
+| test | what it holds |
+|---|---|
+| `tests/system/test_exfat.lisp` | the volume: files, directories, room, a volume let go of uncleanly |
+| `tests/system/test_store.lisp` | one member: blocks, objects, the one way to write, sweep, check, pins, the journal |
+| `tests/system/test_store_meet.lisp` | the rules of meeting: writes apart, most keeps the path, deletes |
+| `tests/system/test_storage.lisp` | the service and its calls, streams, gophers |
+| `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
+| `tests/system/test_storage_record.lisp` | the recorder |
+
+## Not Done
+
+* Snapshots. A path that is not let go of is all one is, and nothing makes
+  or shows one yet.
+* Encryption, and error correction. There is SHA-256 and ChaCha20 with
+  Poly1305, [crypto.md](crypto.md), and no field arithmetic. A cipher makes
+  two blocks that are the same look different; whether the store may show
+  that two blocks are the same, and where the keys are kept, is open.
+* A block nothing refers to is let go of only by a sweep, when asked.
+* `(storage-wait)` is of how many members have a path, not of how many have
+  its blocks.
+* Blocks are cut every 64KB, not where their content says.
+* The manifest of a very long object is one long block.
+* A small object is a manifest and a block, two files of the volume.
+* A stream that is written sets its path whoever else has since.
+* A service is one task. While it writes a block it answers nothing.
+* A gopher's function can do anything a task can. A gopher that writes, and
+  becomes two, would write twice.
+* The tick's time-out is a throw.
+* A second is by the clock: on a busy node a function that gives way is
+  away for some of its second.
+* A host path and a store path are apart on purpose: `(file-stream)` is of
+  the host, `(storage-stream)` of the store.
