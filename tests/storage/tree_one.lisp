@@ -4,7 +4,9 @@
 
 (defun main ()
 	(defq sc (scene-big (scene-begin "Every file of this folder put into one member, a file at a time, then read back and compared."))
-		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)))) (files-all "." '(""))))
+		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)
+				(starts-with "." (last (split %0 "/"))))))
+			(files-all "." '(""))))
 	(when (scene-check sc "a member with room starts" (scene-members sc '("m-a")))
 		(defq svc (scene-svc sc "m-a") put 0 same 0 t0 (pii-time))
 		(each (lambda (file)

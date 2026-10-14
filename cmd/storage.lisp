@@ -56,7 +56,8 @@
             host is put, as a stream, at path and its own
             path, and then each is read back as a stream and
             compared with the file. obj, deps and folders
-            whose names begin with a dot are not gone in to.
+            whose names begin with a dot are not gone in to,
+            and files whose names begin with a dot are not put.
         -V --verify dir: the reading back and comparing of
             -T only, of what was put before, or elsewhere.
         -P --pin: this system holds all of what begins with
@@ -183,7 +184,9 @@
 						(print bytes " bytes to " opt_g))
 					((print "No file " opt_g " to write."))))
 			((or opt_T opt_V)
-				(defq files (filter (# (not (starts-with "./deps/" %0))) (files-all (ifn opt_T opt_V) '("")))
+				;not the files of a folder of deps, nor one whose name begins with a dot
+				(defq files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "." (last (split %0 "/"))))))
+					(files-all (ifn opt_T opt_V) '("")))
 					put 0 same 0 bytes 0 t0 (pii-time))
 				(defun at (file) (cat name (if (starts-with "./" file) (slice file 2 -1) file)))
 				(when opt_T

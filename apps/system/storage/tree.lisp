@@ -42,7 +42,9 @@
 		;there when the folder was listed and gone when its turn came was the
 		;one of 2036 that was not put, the first time this ran over three
 		;machines
-		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)))) (files-all root '("")))
+		files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "./tests/scratch/" %0)
+				(starts-with "." (last (split %0 "/"))))))
+			(files-all root '("")))
 		count (length files) going :t putting :t done 0 put 0 same 0 bytes 0 t0 (pii-time) t1 t0
 		want (max 2 (* 2 (length svcs)))
 		jobs (Jobs "apps/system/storage/tree_child.lisp" (elem-get select +select_launch)
