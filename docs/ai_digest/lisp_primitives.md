@@ -1376,6 +1376,22 @@ Task concurrency, cooperative scheduling, and process spawning.
 
 	*	`(task-slice)`
 
+*	**`task-band`**: The band a task runs in, `:bot` or `:app`. A task runs
+	only when no task of a band before its own is ready, and the tasks of a
+	band take turns: the kernel, the links, the GUI, then bots, then apps.
+	A bot is a task that works by itself for others, the Storage services,
+	their tenders and gophers. Bound in `sys/lisp.inc`.
+
+	*	`(task-band :bot | :app) -> :t`
+
+*	**`task-breathe`**: `(task-slice)`, and for a bot, every 20ms,
+	`+bot_work`, a rest of 1ms, `+bot_rest`, of all the bots of the node
+	at once, if an app of the node is ready to run, so the apps have a
+	turn. A bot gives way to its own band and those before it only, and
+	one at work for a second held every app of its node for that second.
+
+	*	`(task-breathe)`
+
 *	**`task-mboxes`**: Allocates an array of `size` disposable mailboxes.
 
 	*	`(task-mboxes size) -> ((task-mbox) [temp_mbox] ...)`

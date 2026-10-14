@@ -227,6 +227,27 @@ What each member has pinned is known to every member: it goes with the path
 map when two compare notes. A gopher goes to a member that holds all of an
 object and stays there.
 
+## Bots
+
+The service, its tender and its gopher runner are bots, `(task-band :bot)`:
+a band of the scheduler between the GUI and apps. One that is ready runs
+before any app of its node, so a store at work is not held up by them.
+Every 20ms of work the bots of a node all rest at once for 1ms, if an app
+of the node is ready to run, `(task-breathe)`, which the store's and the
+volume's own giving way calls. All of them at once: one that rests while
+another works leaves the apps nothing.
+
+The `bots` scene thrashes it: every node of the machine busy with two apps
+and a probe that asks to wake every 10ms, 300 gophers at once, then 300
+with 20 that go round for ever. On an M4, eight nodes:
+
+| | gophers, idle | gophers, nodes busy | apps waited | apps waited, 20 for ever |
+|---|---|---|---|---|
+| all in the band of apps | 180 ms | 16 s | | |
+| bots, no rests | 190 ms | 194 ms | 111 ms | 9.1 s |
+| bots, resting together | 217 ms | 234 ms | 57 ms | 59 ms |
+| the same on a Raspberry Pi 4, four nodes | 3.3 s | 4.5 s | 331 ms | 230 ms |
+
 ## The Tender
 
 A service only ever answers. It asks nothing of another member and waits:
@@ -531,6 +552,7 @@ storage -t split -r file     and record what its members do
 | `tree` | every file of the tree put into five members by a farm, read back |
 | `tree_one` | every file of the tree put into one member, read back |
 | `gophers` | 300 gophers out at once, each a job of the gopher library, every answer checked |
+| `bots` | every node busy with apps, 300 gophers, then 20 that never come back, how long the apps wait |
 
 A scene is a task, started by `(scene-run name say [record wait])`, which
 gives each line it says to `say`, and each line its members record to
@@ -619,7 +641,8 @@ app, and sends it what happens in batches.
 * A service is one task. While it writes a block it answers nothing.
 * A gopher's function can do anything a task can. A gopher that writes, and
   becomes two, would write twice.
-* A second is by the clock: on a busy node a function that gives way is
-  away for some of its second.
+* A gopher that goes round for ever has its second at its member, and the
+  gophers behind it there wait for it: 20 of them held the 280 good ones
+  of the bots scene to 9 s.
 * A host path and a store path are apart on purpose: `(file-stream)` is of
   the host, `(storage-stream)` of the store.

@@ -278,6 +278,13 @@
 		(>= (str-as-num (elem-get host 3)) 2)
 		((ffi "sys/pii/lisp_kill") pid)))
 
+;the bots of this node, and when they all rest next, and till when: a rest
+;is of every bot of the node at once, one bot that rests while another
+;works leaves the apps no turn. And the function that says if an app is
+;ready, looked up the first time it is wanted
+(defq *bot_breaths* (Fmap 11) +bot_work 20000 +bot_rest 1000 *bot_next* 0 *bot_rest_end* 0
+	*bot_apps* :nil)
+
 (defun task-band (band)
 	; (task-band :bot | :app) -> :t
 	;the band the task runs in. A bot is a task that works by itself for
@@ -286,7 +293,37 @@
 	;numbers 4 and 5 are tk_bot_priority and tk_app_priority. The function
 	;is looked up when it is called, not in root.inc, so a boot image of
 	;before it was written still starts
+	(if (eql band :bot)
+		(. *bot_breaths* :insert (task-mbox) (pii-time))
+		(. *bot_breaths* :erase (task-mbox)))
 	((ffi "sys/task/lisp_priority") (if (eql band :bot) 4 5)))
+
+(defun task-breathe ()
+	; (task-breathe)
+	;(task-slice), and for a bot, every so often, +bot_work, a rest of all
+	;the bots of the node, +bot_rest, so the apps of the node have a turn:
+	;a bot gives way only to its own band and those before it, and one at
+	;work for a second held every app of its node for that second.
+	;Measured, 20 gophers that never came back, the apps waited 9.1 s
+	(if (. *bot_breaths* :find (task-mbox)) (bot-breathe (pii-time)) (task-slice)))
+
+(defun bot-breathe (now)
+	; (bot-breathe now)
+	;(task-breathe) of a task that is a bot, given the time: every bot of
+	;the node rests at once, from the time it is due till +bot_rest after,
+	;and one that comes to it in that time rests to its end
+	;and only if an app of the node is ready, there is nobody to rest for
+	(cond
+		((>= now *bot_next*)
+			(setq *bot_next* (+ now +bot_work))
+			(unless *bot_apps* (setq *bot_apps* (ffi "sys/task/lisp_apps")))
+			(cond
+				((*bot_apps*)
+					(setq *bot_rest_end* (+ now +bot_rest))
+					(task-sleep +bot_rest))
+				((task-slice))))
+		((< now *bot_rest_end*) (task-sleep (- *bot_rest_end* now)))
+		((task-slice))))
 
 (defun node-stop (id)
 	; (node-stop id) -> :nil | num

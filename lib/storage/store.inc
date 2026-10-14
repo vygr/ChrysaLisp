@@ -46,7 +46,7 @@
 ; A task gives way to the others of its node only when it says so, and a
 ; store does a great deal between one mail and the next: every block that is
 ; put, had or looked over, and every entry that is met, gives way first,
-; (task-slice). Without it a store at work held its node for seconds, and
+; (task-breathe). Without it a store at work held its node for seconds, and
 ; whatever else was on the node was late.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -323,7 +323,7 @@
 	;the path map, the members and the pins, as they are now. Whatever
 	;changes any of them ends here, so what was worked out from them, the
 	;digest, is not held any longer
-	(task-slice)
+	(task-breathe)
 	(def store :digest :nil :dirty :nil)
 	(defq vol (get :vol store) lines (list))
 	(. (get :map store) :each (lambda (name entry) (push lines (store-entry-line entry))))
@@ -477,7 +477,7 @@
 	; (store-block-put store data) -> :nil | name
 	;a block of this data is kept, and its name. If it is kept already
 	;there is no more to do. :nil if there is no room for it
-	(task-slice)
+	(task-breathe)
 	(defq vol (get :vol store) name (sha256 data) file (store-block-file name)
 		folder (slice file 0 (const (length "blocks/xx"))))
 	(cond
@@ -500,7 +500,7 @@
 	;is kept is not it: it has gone wrong, and is no use to anyone
 	;one that is not kept is known not to be, with no look at the volume:
 	;a member is asked for many it has not got, by those looking for one
-	(task-slice)
+	(task-breathe)
 	(and (store-block-has? store name)
 		(defq found (exfat-load (get :vol store) (store-block-file name)))
 		(eql (sha256 found) name) found))
@@ -788,7 +788,7 @@
 	;written to the volume now, (store-later)
 	(defq map (get :map store) me (get :member store) changed (list))
 	(each (lambda (theirs)
-		(task-slice)
+		(task-breathe)
 		(bind '(name hash bytes vv writer seen deleted copies) theirs)
 		(defq mine (. map :find name) now :nil)
 		(cond
@@ -924,7 +924,7 @@
 	;neither, that is for (store-sweep)
 	(defq me (get :member store) wanted (Fset 4093) others (Fmap 4093) wants (list) extras (list))
 	(each (lambda (entry)
-		(task-slice)
+		(task-breathe)
 		(defq hash (elem-get entry +store_entry_hash) pinned (store-pinned? store (first entry))
 			copies (elem-get entry +store_entry_copies))
 		(. wanted :insert hash)

@@ -109,6 +109,7 @@
 					boxes (map (lambda (want peer) (if peer (storage-send (second peer) +storage_type_block_get want))) batch froms)
 					froms (map (# (if %0 (first %0) "?")) froms))
 				(each (lambda (want mbox from)
+					(task-breathe)
 					(when (and mbox (defq data (mail-read-timeout mbox (task-timeout 10))) (eql (sha256 data) want)
 							(eql (storage-ask svc +storage_type_block_put data) want))
 						(storage-record recorder member "fetched" (cat (storage-record-name want) " " from))

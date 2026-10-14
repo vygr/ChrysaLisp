@@ -59,7 +59,7 @@
 
 ;how long a function may have for a block, and when the one that is
 ;running has had it
-(defq +gopher_allowed 1000000 *gopher_until* 0 *gopher_late* :nil
+(defq +gopher_allowed 1000000 *gopher_until* 0 *gopher_late* :nil *gopher_check* 0
 	;and how many lists a function may be made of, its macros done
 	+gopher_lists 20000)
 
@@ -67,12 +67,27 @@
 	; (gopher-tick) -> :t | :nil
 	;what is put into a function wherever it can go round: it gives way,
 	;and says if the function may go on. Once it may not, it says so till
-	;the next block
-	(task-slice)
+	;the next block.
+	;
+	;It is in every loop of a function, a million times in a big job, and
+	;a name looked up from deep in one walks a long way, so the most it
+	;does is one look at the clock against one time of the runner's own,
+	;*gopher_check*, the sooner of when the block's second is up and when
+	;the bots of the node rest next. Only past that is more looked at
+	(cond
+		((< (pii-time) *gopher_check*) (task-slice) :t)
+		((gopher-tick-past))))
+
+(defun gopher-tick-past ()
+	;the time to look again has come: rest with the bots of the node if
+	;that is due, and say no if the block's second is up
+	(defq now (pii-time))
+	(bot-breathe now)
 	(cond
 		(*gopher_late* :nil)
-		((> (pii-time) *gopher_until*) (setq *gopher_late* :t) :nil)
-		(:t)))
+		((> now *gopher_until*) (setq *gopher_late* :t) :nil)
+		(:t (setq *gopher_check* (min *gopher_until* (if (< now *bot_rest_end*) *bot_rest_end* *bot_next*)))
+			:t)))
 
 (defun gopher-ticked (form)
 	; (gopher-ticked form) -> form
@@ -194,7 +209,8 @@
 			:drop)
 		((defq data (storage-block-at (defq want (elem-get names at)) svc))
 			;it has a second from now, and is asked when it comes back too
-			(setq *gopher_until* (+ (pii-time) +gopher_allowed) *gopher_late* :nil)
+			(setq *gopher_until* (+ (pii-time) +gopher_allowed) *gopher_late* :nil
+				*gopher_check* (min *gopher_until* *bot_next*))
 			(storage-record recorder member "gopher-step" (cat (str at) " " (storage-record-name want) " " name))
 			(bind '(state at) (visit state data at count))
 			;one that had its time came back by itself, with what it had

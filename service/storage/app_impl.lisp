@@ -255,6 +255,8 @@
 					(progn (prin "Storage: " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) "error")))
 				(if answer (mail-send reply answer))
 				(storage-record-send recorder)
+				;and the apps of the node have a turn, if it has been at it a while
+				(task-breathe)
 				;what was learnt from other members and is not written yet, is,
 				;when nothing else is asked, or it has waited long enough
 				(and (defq dirty (get :dirty store))

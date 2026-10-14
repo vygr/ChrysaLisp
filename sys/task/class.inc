@@ -31,7 +31,8 @@
 	(dec-method :lisp_timeslice sys/task/lisp_timeslice :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :f0-:f15))
 	(dec-method :lisp_mailbox sys/task/lisp_mailbox :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
 	(dec-method :lisp_flags sys/task/lisp_flags :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15))
-	(dec-method :lisp_priority sys/task/lisp_priority :static (:r0 :r1) (:r0 :r1) (:r1-:r6)))
+	(dec-method :lisp_priority sys/task/lisp_priority :static (:r0 :r1) (:r0 :r1) (:r1-:r6))
+	(dec-method :lisp_apps sys/task/lisp_apps :static (:r0 :r1) (:r0 :r1) (:r1-:r3)))
 
 ;;;;;;;;;;;;;;;;;
 ; task structures

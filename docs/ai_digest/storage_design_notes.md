@@ -1055,6 +1055,28 @@ tick is in each loop's test and round each lambda's body, and once the time
 is up it says no and they all end. A task that ends itself was the other
 way, but one stopped from deep inside never lets go of what it holds.
 
+**A band for bots.** 2026-10-14. Chris, of "a second is by the clock":
+"should we add a gopher priority band ?", then "that will need
+benchmarking ... We are not adding a new band lightly. That band might
+end up being a band that is shared with other autonamous 'bots'", and,
+measured, "yes, build the bots band, and lets give it a good thrashing."
+Measured first, with the gopher runner raised to the GUI's band as a stand
+in: 300 gophers on eight nodes each busy with apps, 16 s all at app
+priority, 3.4 s with the runners raised, 0.19 s with the services too,
+every hand on goes by a service. Built: band 4 of 6, `(task-band)`. The
+thrashing found what was feared: a bot gives way only to its own band and
+those before it, so 20 gophers that went round for ever held the apps of
+their nodes 9.1 s. A bot now rests 1ms every 20ms of work,
+`(task-breathe)`: the apps waited 61 ms at most. On the Pi they still
+waited 2.1 s: five members on four nodes, two bots of a kind on a node,
+and while one rested the other worked. So the bots of a node rest together,
+and only when an app is ready, a binding that looks at the kernel's list,
+`lisp_apps`. And the tick, in every turn of a gopher's loop, a million in
+the scene, was looking up two names of the node from deep in a function,
+each a walk up a long chain: idle gophers went from 211 ms to 300. It
+looks at one time of its runner's now. M4: 217 ms idle, 234 busy, apps
+59 ms at most; the Pi: 3.3 s, 4.5 s, 331 ms.
+
 ## What Exists
 
 * `lib/fs/exfat.inc`, exFAT read, written and formatted, on a file of the
