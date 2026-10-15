@@ -130,7 +130,8 @@
 			(event +gui_ev_mouse_up x y button %0))) counts))))
 
 (defun drag ()
-	(bind '(x y) (place) '(x1 y1) (place))
+	(bind '(x y) (place))
+	(bind '(x1 y1) (place))
 	(cat (event +gui_ev_mouse_motion x y)
 		(event +gui_ev_mouse_down x y 1 1)
 		(apply (const cat) (map (# (event +gui_ev_mouse_motion
