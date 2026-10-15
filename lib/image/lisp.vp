@@ -1,5 +1,8 @@
 (include "lib/asm/func.inc")
 (include "class/str/class.inc")
+(include "class/nums/class.inc")
+(include "class/list/class.inc")
+(include "class/stream/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
@@ -190,6 +193,326 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(png-pixels row colour depth width palette clear)" +error_msg_wrong_types))
 	(signature '(:str :NUM :NUM :NUM :str :str)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(defmacro jpg-clamp (v)
+	;v made 0 to 255, by its sign bit, not a signed compare
+	`(progn
+		(vpif (vpx (/= (& ,v -256) 0)))
+			(vpif (vpx (/= (>>> ,v 63) 0)))
+				(assign (vpx 0) (vpx ,v))
+			(else)
+				(assign (vpx 255) (vpx ,v))
+			(endif)
+		(endif)))
+
+(def-func (path-to-absolute "./jpg_idct"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6
+	;info
+	;(jpg-idct-put c t k plane at pw) -> plane, the 64 numbers of a block,
+	;by their table, in rows, turned back to pixels and written to the
+	;plane, 8 rows of 8 bytes from at, pw apart. k is K x u by 1024 in
+	;rows of x, t a nums of 64 for the rows by K: t x v is row v of c dot
+	;K x, and pixel y x is 128 and K y dot t x, by 2^20
+
+	(def-vars
+		(ptr this args)
+		(plong cp tp kp)
+		(pubyte pp)
+		(long s v)
+		(uint at pw x y u))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5) '(:obj :obj :obj :obj :num :num))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5) (vpx cp tp kp pp at pw))
+	(assign (vpx (.> cp +array_begin) (.> tp +array_begin) (.> kp +array_begin)) (vpx cp tp kp))
+	(assign (vpx (+ (& (.> pp +str_data)) at)) (vpx pp))
+
+	(assign (vpx 0) (vpx x))
+	(loop-while (vpx (< x 8)))
+		(assign (vpx 0) (vpx y))
+		(loop-while (vpx (< y 8)))
+			(assign (vpx 0 0) (vpx s u))
+			(loop-while (vpx (< u 8)))
+				(assign (vpx (+ s (* (elem cp (<< (+ (* y 8) u) 3)) (elem kp (<< (+ (* x 8) u) 3))))) (vpx s))
+				(assign (vpx (+ u 1)) (vpx u))
+			(loop-end)
+			(assign (vpx s) (vpx (elem tp (<< (+ (* x 8) y) 3))))
+			(assign (vpx (+ y 1)) (vpx y))
+		(loop-end)
+		(assign (vpx (+ x 1)) (vpx x))
+	(loop-end)
+
+	(assign (vpx 0) (vpx y))
+	(loop-while (vpx (< y 8)))
+		(assign (vpx 0) (vpx x))
+		(loop-while (vpx (< x 8)))
+			(assign (vpx 0 0) (vpx s u))
+			(loop-while (vpx (< u 8)))
+				(assign (vpx (+ s (* (elem kp (<< (+ (* y 8) u) 3)) (elem tp (<< (+ (* x 8) u) 3))))) (vpx s))
+				(assign (vpx (+ u 1)) (vpx u))
+			(loop-end)
+			(assign (vpx (+ 128 (>>> (+ s 524288) 20))) (vpx v))
+			(jpg-clamp v)
+			(assign (vpx v) (vpx (elem pp (+ (* y pw) x))))
+			(assign (vpx (+ x 1)) (vpx x))
+		(loop-end)
+		(assign (vpx (+ y 1)) (vpx y))
+	(loop-end)
+
+	(assign (vpx args) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign `((:r1 ,(* 3 +ptr_size))) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(assign (vpx this) '(:r0))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(jpg-idct-put c t k plane at pw)" +error_msg_wrong_types))
+	(signature '(:nums :nums :nums :str :NUM :NUM)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./jpg_line"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :f0-:f15
+	;info
+	;(jpg-line planes bases hs hmax width) -> str, a row of pixels of a
+	;JPEG, blue green red alpha, from one plane, grey, or three, Y Cb Cr:
+	;the sample of x of a plane is at its base and x by its h over hmax
+
+	(def-vars
+		(ptr this args planes bases hs out)
+		(pptr pl)
+		(plong bp hp)
+		(pubyte p0 p1 p2 dst)
+		(long yy cb cr b g r)
+		(uint n h0 h1 h2 hmax width x))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4) '(:obj :obj :obj :num :num))
+	(assign '(:r0 :r1 :r2 :r3 :r4) (vpx planes bases hs hmax width))
+	(assign (vpx (.> planes +array_length) (.> planes +array_begin) (.> bases +array_begin) (.> hs +array_begin))
+		(vpx n pl bp hp))
+	(assign (vpx (+ (& (.> (elem pl 0) +str_data)) (elem bp 0)) (elem hp 0)) (vpx p0 h0))
+	(vpif (vpx (= n 3)))
+		(assign (vpx (+ (& (.> (elem pl +ptr_size) +str_data)) (elem bp +long_size)) (elem hp +long_size)) (vpx p1 h1))
+		(assign (vpx (+ (& (.> (elem pl (* 2 +ptr_size)) +str_data)) (elem bp (* 2 +long_size))) (elem hp (* 2 +long_size)))
+			(vpx p2 h2))
+	(endif)
+	(call :str :create_from_buffer (vpx 0 (* width 4)) (vpx out))
+	(assign (vpx (& (.> out +str_data)) 0) (vpx dst x))
+
+	(loop-while (vpx (< x width)))
+		(assign (vpx (elem p0 (/ (* x h0) hmax))) (vpx yy))
+		(vpif (vpx (= n 3)))
+			(assign (vpx (- (elem p1 (/ (* x h1) hmax)) 128) (- (elem p2 (/ (* x h2) hmax)) 128)) (vpx cb cr))
+			(assign (vpx (+ yy (>>> (* 116130 cb) 16)) (- yy (>>> (+ (* 22554 cb) (* 46802 cr)) 16)) (+ yy (>>> (* 91881 cr) 16)))
+				(vpx b g r))
+			(jpg-clamp b)
+			(jpg-clamp g)
+			(jpg-clamp r)
+		(else)
+			(assign (vpx yy yy yy) (vpx b g r))
+		(endif)
+		(assign (vpx b g r 255) (vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+		(assign (vpx (+ dst 4) (+ x 1)) (vpx dst x))
+	(loop-end)
+
+	(assign (vpx this out) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(jpg-line planes bases hs hmax width)" +error_msg_wrong_types))
+	(signature '(:list :nums :nums :NUM :NUM)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(defmacro jpg-vbit (dst)
+	;the next bit of a scan into dst, the high bit of each byte first. A
+	;0xFF is followed by a 0 that is not data, anything else after it is a
+	;marker, kept, and from there on there are only 0 bits
+	`(progn
+		(vpif (vpx (= bits 0)))
+			(assign (vpx 0) (vpx b))
+			(vpif (vpx (= marker 0)))
+				(call :stream :read_char (vpx in) (vpx _ b))
+				(vpif (vpx (= b -1)))
+					(assign (vpx 0) (vpx b))
+				(endif)
+				(vpif (vpx (= b 0xff)))
+					(call :stream :read_char (vpx in) (vpx _ b2))
+					(vpif (vpx (= b2 -1)))
+						(assign (vpx 0) (vpx b2))
+					(endif)
+					(vpif (vpx (/= b2 0)))
+						(assign (vpx b2 0) (vpx marker b))
+					(endif)
+				(endif)
+			(endif)
+			(assign (vpx b 8) (vpx byte bits))
+		(endif)
+		(assign (vpx (- bits 1)) (vpx bits))
+		(assign (vpx (& (>> byte bits) 1)) (vpx ,dst))))
+
+(defmacro jpg-vbits (n dst)
+	;n bits, the first the high
+	(defq l (gensym))
+	`(progn
+		(assign (vpx 0 0) (vpx ,dst j))
+		(loop-while (vpx (< j ,n)) ',l)
+			(jpg-vbit bit)
+			(assign (vpx (| (<< ,dst 1) bit) (+ j 1)) (vpx ,dst j))
+		(loop-end)))
+
+(defmacro jpg-vsymbol (maxc valp minc vals dst)
+	;the next value of a code, as the standard's F.2.2.3, 0 if the bits are
+	;no code
+	(defq l (gensym))
+	`(progn
+		(jpg-vbit v)
+		(assign (vpx 0 0) (vpx len ,dst))
+		(loop-while (vpx (< len 16)) ',l)
+			(assign (vpx (elem ,maxc (<< len 3))) (vpx mc))
+			(vpif (vpx (/= mc -1)))
+				(vpif (vpx (<= v mc)))
+					(assign (vpx (elem ,vals (<< (- (+ (elem ,valp (<< len 3)) v) (elem ,minc (<< len 3))) 3))) (vpx ,dst))
+					(break ',l)
+				(endif)
+			(endif)
+			(jpg-vbit bit)
+			(assign (vpx (| (<< v 1) bit) (+ len 1)) (vpx v len))
+		(loop-end)))
+
+(defmacro jpg-vextend (v n)
+	;a number of n bits, as the standard has the negative ones
+	`(progn
+		(vpif (vpx (> ,n 0)))
+			(vpif (vpx (< ,v (<< 1 (- ,n 1)))))
+				(assign (vpx (- (+ ,v 1) (<< 1 ,n))) (vpx ,v))
+			(endif)
+		(endif)))
+
+(def-func (path-to-absolute "./jpg_block"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :f0-:f15
+	;info
+	;(jpg-block-decode in state codes quant zigzag prior c) -> dc, a block
+	;of a baseline scan, its numbers by their table into c in rows, and the
+	;dc it has. state the bits of the scan, (byte bits marker), codes the dc
+	;and the ac code, each of jpg-code, (maxcode valptr mincode values)
+
+	(def-vars
+		(ptr this args in codes)
+		(pptr tp)
+		(plong sp dmax dvp dmin dvals amax avp amin avals qp zp cp)
+		(long byte bits marker b b2 bit v mc s diff dc rs r sz)
+		(uint len j k))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 7)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5 :r6) '(:obj :obj :obj :obj :obj :num :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6) (vpx in sp codes qp zp dc cp))
+	(assign (vpx (.> sp +array_begin) (.> qp +array_begin) (.> zp +array_begin) (.> cp +array_begin)) (vpx sp qp zp cp))
+	(assign (vpx (elem sp 0) (elem sp +long_size) (elem sp (* 2 +long_size))) (vpx byte bits marker))
+	;the two codes, each a list of four nums
+	(assign (vpx (.> codes +array_begin)) (vpx tp))
+	(assign (vpx (elem tp +ptr_size)) (vpx codes))
+	(assign (vpx (.> (elem tp 0) +array_begin)) (vpx tp))
+	(assign (vpx (.> (elem tp 0) +array_begin) (.> (elem tp +ptr_size) +array_begin)
+			(.> (elem tp (* 2 +ptr_size)) +array_begin) (.> (elem tp (* 3 +ptr_size)) +array_begin))
+		(vpx dmax dvp dmin dvals))
+	(assign (vpx (.> codes +array_begin)) (vpx tp))
+	(assign (vpx (.> (elem tp 0) +array_begin) (.> (elem tp +ptr_size) +array_begin)
+			(.> (elem tp (* 2 +ptr_size)) +array_begin) (.> (elem tp (* 3 +ptr_size)) +array_begin))
+		(vpx amax avp amin avals))
+
+	;c all 0
+	(assign (vpx 0) (vpx k))
+	(loop-while (vpx (< k 64)))
+		(assign (vpx 0) (vpx (elem cp (<< k 3))))
+		(assign (vpx (+ k 1)) (vpx k))
+	(loop-end)
+
+	;the dc, a difference from the last
+	(jpg-vsymbol dmax dvp dmin dvals s)
+	(jpg-vbits s diff)
+	(jpg-vextend diff s)
+	(assign (vpx (+ dc diff)) (vpx dc))
+	(assign (vpx (* dc (elem qp 0))) (vpx (elem cp 0)))
+
+	;the acs, runs of 0 and a number, in zig zag order
+	(assign (vpx 1) (vpx k))
+	(loop-while (vpx (< k 64)) 'acs)
+		(jpg-vsymbol amax avp amin avals rs)
+		(assign (vpx (>> rs 4) (& rs 15)) (vpx r sz))
+		(vpif (vpx (= sz 0)))
+			(breakif (vpx (/= r 15)) 'acs)
+			(assign (vpx (+ k 16)) (vpx k))
+		(else)
+			(assign (vpx (+ k r)) (vpx k))
+			(breakif (vpx (>= k 64)) 'acs)
+			(jpg-vbits sz v)
+			(jpg-vextend v sz)
+			(assign (vpx (* v (elem qp (<< k 3)))) (vpx (elem cp (<< (elem zp (<< k 3)) 3))))
+			(assign (vpx (+ k 1)) (vpx k))
+		(endif)
+	(loop-end)
+
+	(assign (vpx byte bits marker) (vpx (elem sp 0) (elem sp +long_size) (elem sp (* 2 +long_size))))
+	(call :num :create (vpx dc) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(jpg-block-decode in state codes quant zigzag prior c)" +error_msg_wrong_types))
+	(signature '(:stream :nums :list :nums :nums :NUM :nums)))
 
 	(pop-scope-syms)
 

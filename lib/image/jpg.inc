@@ -30,6 +30,10 @@
 ;module
 (env-push)
 
+(ffi (path-to-absolute "./jpg_idct") jpg-idct-put)
+(ffi (path-to-absolute "./jpg_line") jpg-line)
+(ffi (path-to-absolute "./jpg_block") jpg-block-decode)
+
 (defq +jpg_zigzag (nums 0 1 8 16 9 2 3 10 17 24 32 25 18 11 4 5 12 19 26 33 40 48 41 34 27 20 13 6 7 14 21 28
 		35 42 49 56 57 50 43 36 29 22 15 23 30 37 44 51 58 59 52 45 38 31 39 46 53 60 61 54 47 55 62 63)
 	;the rows of the inverse DCT, K x u = C u cos((2x+1)u pi/16)/2, by 1024
@@ -39,6 +43,9 @@
 					(cos (/ (* (n2r (inc (* 2 x))) (n2r u) +real_pi) (n2r 16))))))
 				(range 0 8))))
 		(range 0 8)))
+
+;K as one nums of 64, its rows one after the other, for the native IDCT
+(defq *jpg_kflat* (apply (const cat) *jpg_k*))
 
 (defun jpg-be (data at)
 	(+ (<< (code data 1 at) 8) (code data 1 (inc at))))
@@ -147,16 +154,18 @@
 	; (jpg-bit reader) -> 0 | 1
 	;the next bit of the packed data, the high bit of each byte first. A
 	;0xFF is followed by a 0 that is not data; anything else after it is
-	;a marker, and from there on there are only 0 reader
-	(when (= (elem-get reader 2) 0)
-		(defq b (if (elem-get reader 3) 0 (ifn (read-char (elem-get reader 0)) 0)))
+	;a marker, and from there on there are only 0 bits. The reader is the
+	;stream and (byte bits marker), a nums the native block reads too
+	(defq st (second reader))
+	(when (= (elem-get st 1) 0)
+		(defq b (if (/= (elem-get st 2) 0) 0 (ifn (read-char (first reader)) 0)))
 		(when (= b 0xff)
-			(defq b2 (ifn (read-char (elem-get reader 0)) 0))
-			(when (/= b2 0) (elem-set reader 3 b2) (setq b 0)))
-		(elem-set reader 1 b)
-		(elem-set reader 2 8))
-	(elem-set reader 2 (dec (elem-get reader 2)))
-	(logand (>> (elem-get reader 1) (elem-get reader 2)) 1))
+			(defq b2 (ifn (read-char (first reader)) 0))
+			(when (/= b2 0) (elem-set st 2 b2) (setq b 0)))
+		(elem-set st 0 b)
+		(elem-set st 1 8))
+	(elem-set st 1 (dec (elem-get st 1)))
+	(logand (>> (elem-get st 0) (elem-get st 1)) 1))
 
 (defun jpg-bits (reader n)
 	(defq v 0)
@@ -183,60 +192,24 @@
 	(defq hmax (reduce (# (max %0 (second %1))) comps 1) vmax (reduce (# (max %0 (third %1))) comps 1))
 	(list hmax vmax (/ (+ width (* 8 hmax) -1) (* 8 hmax)) (/ (+ height (* 8 vmax) -1) (* 8 vmax))))
 
-(defun jpg-idct (c)
-	; (jpg-idct c) -> pixels
-	;the 64 numbers of a block, by their table, in rows, as 64 pixels: the
-	;rows by K, then the columns, t x v is row v of c dot K x
-	(defq t (apply (const nums) (map (lambda (i) (nums-dot (slice c (* (% i 8) 8) (+ (* (% i 8) 8) 8)) (elem-get *jpg_k* (/ i 8))))
-			(range 0 64))))
-	(apply (const nums) (map (lambda (i)
-			(max 0 (min 255 (+ 128 (>>> (+ (nums-dot (elem-get *jpg_k* (/ i 8)) (slice t (* (% i 8) 8) (+ (* (% i 8) 8) 8))) 524288) 20)))))
-		(range 0 64))))
-
-(defun jpg-block (reader dc_code ac_code quant prior)
-	; (jpg-block reader dc_code ac_code quant prior) -> (pixels dc)
-	;a block of a baseline scan: its numbers, by their table, and turned
-	;back to 64 pixels
-	(defq c (fill (nums) 64 0) s (jpg-decode-symbol reader dc_code) dc (+ prior (jpg-extend (jpg-bits reader s) s)) k 1)
-	(elem-set c 0 (* dc (elem-get quant 0)))
-	(while (< k 64)
-		(defq rs (jpg-decode-symbol reader ac_code) r (>> rs 4) sz (logand rs 15))
-		(cond
-			((= sz 0) (setq k (if (= r 15) (+ k 16) 64)))
-			(:t (setq k (+ k r))
-				(when (< k 64)
-					(elem-set c (elem-get +jpg_zigzag k) (* (jpg-extend (jpg-bits reader sz) sz) (elem-get quant k)))
-					(setq k (inc k))))))
-	(list (jpg-idct c) dc))
-
 (defun jpg-restart (reader in)
 	;a restart: to the next byte, past the marker, which may not have been
 	;come to yet
-	(elem-set reader 2 0)
-	(unless (elem-get reader 3) (read-char in) (read-char in))
-	(elem-set reader 3 :nil))
+	(defq st (second reader))
+	(elem-set st 1 0)
+	(when (= (elem-get st 2) 0) (read-char in) (read-char in))
+	(elem-set st 2 0))
 
 (defun jpg-rows (out samplings planes my width height hmax vmax mcus_x)
 	; (jpg-rows out samplings planes my width height hmax vmax mcus_x)
 	;the rows of pixels of a row of MCUs, those inside the picture, from
-	;the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8
+	;the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8,
+	;each row native
+	(defq hs (apply (const nums) (map (const first) samplings)) bases (fill (nums) (length samplings) 0))
 	(each (lambda (row)
-			(defq y (+ (* my vmax 8) row) line (cap (* width 4) (list)))
-			(when (< y height)
-				(each (lambda (x)
-						(defq s (map (lambda ((h v) plane)
-								(elem-get plane (+ (* (/ (* row v) vmax) (* mcus_x h 8)) (/ (* x h) hmax))))
-							samplings planes))
-						(cond
-							((= (length s) 1) (push line (first s) (first s) (first s) 255))
-							(:t (bind '(yy cb cr) s)
-								(setq cb (- cb 128) cr (- cr 128))
-								(push line (max 0 (min 255 (+ yy (>>> (* 116130 cb) 16))))
-									(max 0 (min 255 (- yy (>>> (+ (* 22554 cb) (* 46802 cr)) 16))))
-									(max 0 (min 255 (+ yy (>>> (* 91881 cr) 16))))
-									255))))
-					(range 0 width))
-				(write-blk out (apply (const cat) (cat (list "") (map (const char) line))))))
+			(when (< (+ (* my vmax 8) row) height)
+				(each (lambda ((h v)) (elem-set bases (!) (* (/ (* row v) vmax) (* mcus_x h 8)))) samplings)
+				(write-blk out (jpg-line planes bases hs hmax width))))
 		(range 0 (* vmax 8))))
 
 (defun jpg-decode (in out info)
@@ -248,26 +221,25 @@
 	;each component: its sampling, its codes and its table
 	(defq parts (map (lambda ((id h v tq))
 				(defq tables (some (# (if (= (first %0) id) %0)) scan))
-				(list h v (jpg-code (elem-get dc (second tables))) (jpg-code (elem-get ac (third tables))) (elem-get quant tq)))
+				(list h v (list (jpg-code (elem-get dc (second tables))) (jpg-code (elem-get ac (third tables))))
+					(apply (const nums) (elem-get quant tq))))
 			comps)
-		samplings (map (# (list (first %0) (second %0))) parts)
-		lasts (fill (list) (length comps) 0) reader (list in 0 0 :nil) done 0 my 0)
+		samplings (map (# (list (first %0) (second %0))) parts) scratch (fill (nums) 64 0) c (fill (nums) 64 0)
+		lasts (fill (list) (length comps) 0) reader (list in (nums 0 0 0)) done 0 my 0)
 	(while (< my mcus_y)
 		(task-slice)
 		;the planes of this row of MCUs, a nums each, its width in samples
-		(defq planes (map (lambda ((h v &rest _)) (fill (nums) (* mcus_x h 8 v 8) 0)) parts) mx 0)
+		(defq planes (map (lambda ((h v &rest _)) (str-alloc (* mcus_x h 8 v 8))) parts) mx 0)
 		(while (< mx mcus_x)
 			(when (and (> restart 0) (> done 0) (= (% done restart) 0))
 				(jpg-restart reader in)
 				(setq lasts (fill (list) (length comps) 0)))
-			(each (lambda ((h v dc_code ac_code q) plane)
+			(each (lambda ((h v codes q) plane)
 					(defq ci (!) pw (* mcus_x h 8))
 					(each (lambda (by)
 						(each (lambda (bx)
-							(bind '(pixels prior) (jpg-block reader dc_code ac_code q (elem-get lasts ci)))
-							(elem-set lasts ci prior)
-							(defq x0 (* (+ (* mx h) bx) 8) y0 (* by 8))
-							(each (lambda (i) (elem-set plane (+ (* (+ y0 (/ i 8)) pw) x0 (% i 8)) (elem-get pixels i))) (range 0 64)))
+							(elem-set lasts ci (jpg-block-decode in (second reader) codes q +jpg_zigzag (elem-get lasts ci) c))
+							(jpg-idct-put c scratch *jpg_kflat* plane (+ (* by 8 pw) (* (+ (* mx h) bx) 8)) pw))
 							(range 0 h)))
 						(range 0 v)))
 				parts planes)
@@ -408,9 +380,10 @@
 (defun jpg-next-marker (reader in)
 	; (jpg-next-marker reader in) -> :nil | marker
 	;the marker after a scan, which the scan may have come to
-	(elem-set reader 2 0)
+	(defq st (second reader))
+	(elem-set st 1 0)
 	(cond
-		((defq m (elem-get reader 3)) (elem-set reader 3 :nil) m)
+		((/= (defq m (elem-get st 2)) 0) (elem-set st 2 0) m)
 		(:t (defq m :nil b 0)
 			(while (and (not m) (setq b (read-char in)))
 				(when (= b 0xff)
@@ -427,7 +400,7 @@
 	(bind '(width height comps scan quant dc ac restart spectral) info)
 	(bind '(hmax vmax mcus_x mcus_y) (jpg-geometry width height comps))
 	(defq grids (map (lambda ((id h v tq)) (fill (nums) (* mcus_x h mcus_y v 64) 0)) comps)
-		head (Emap) reader (list in 0 0 :nil) going :t)
+		head (Emap) reader (list in (nums 0 0 0)) going :t)
 	(scatter head :restart restart :quant quant :dc dc :ac ac :comps comps :scan scan :spectral spectral)
 	(while going
 		(jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
@@ -454,18 +427,17 @@
 				(each (# (elem-set qn (elem-get +jpg_zigzag %0) (elem-get q %0))) (range 0 64))
 				qn)
 			comps)
-		samplings (map (# (list (second %0) (third %0))) comps) my 0)
+		samplings (map (# (list (second %0) (third %0))) comps) scratch (fill (nums) 64 0) my 0)
 	(while (< my mcus_y)
 		(task-slice)
 		(defq planes (map (lambda ((id h v tq) coefs qn)
-					(defq bw (* mcus_x h) pw (* bw 8) plane (fill (nums) (* pw v 8) 0))
+					(defq bw (* mcus_x h) pw (* bw 8) plane (str-alloc (* pw v 8)))
 					(each (lambda (by)
 							(defq br (+ (* my v) by))
 							(each (lambda (bc)
-									(defq base (* (+ (* br bw) bc) 64)
-										pixels (jpg-idct (nums-mul (slice coefs base (+ base 64)) qn)))
-									(each (# (elem-set plane (+ (* (+ (* by 8) (/ %0 8)) pw) (* bc 8) (% %0 8)) (elem-get pixels %0)))
-										(range 0 64)))
+									(defq base (* (+ (* br bw) bc) 64))
+									(jpg-idct-put (nums-mul (slice coefs base (+ base 64)) qn) scratch *jpg_kflat*
+										plane (+ (* by 8 pw) (* bc 8)) pw))
 								(range 0 bw)))
 						(range 0 v))
 					plane)
@@ -496,5 +468,5 @@
 (canvas-loader ".jpeg" JPG-info JPG-load)
 
 ;module
-(export-symbols '(JPG-load JPG-info jpg-decode jpg-progressive *jpg_k* +jpg_zigzag))
+(export-symbols '(JPG-load JPG-info jpg-decode jpg-progressive *jpg_k* *jpg_kflat* +jpg_zigzag))
 (env-pop)
