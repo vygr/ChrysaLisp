@@ -37,6 +37,7 @@ between was. Everything that took a string takes one: `(assign)`, `(call)`,
 | `$label` | `($ label)` |
 | `"words"` | `"words"` |
 | `a + b`, and every other of two | `(+ a b)`, the same sign first |
+| the least, the most, signed | `(min a b)`, `(max a b)` |
 | `_` in a list of results | `_` |
 
 More than two is from the left, `(+ a b c)`. A number with a point in it,

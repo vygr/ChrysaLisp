@@ -202,6 +202,12 @@
 (defun compile-minus (&)
 	(add-inst (list 'vp-sub-rr (pop-value) (top-value))))
 
+(defun compile-min (&)
+	(add-inst (list 'vp-min-rr (pop-value) (top-value))))
+
+(defun compile-max (&)
+	(add-inst (list 'vp-max-rr (pop-value) (top-value))))
+
 (defun compile-lshift (&)
 	(add-inst (list 'vp-shl-rr (pop-value) (top-value))))
 
@@ -286,6 +292,7 @@
 ;	(*> a b) (</ a b) (<< a b) (>> a b) (>>> a b)
 ;	(< a b) (> a b) (<= a b) (>= a b) (= a b) (/= a b)
 ;	(& a b ...) (^ a b ...) (| a b ...) (&& a b ...) (|| a b ...)
+;	(min a b ...) (max a b ...)	the least, the most, signed
 ;
 ;More than two is from the left, (+ a b c) is (+ (+ a b) c). A number with
 ;a point in it is its 16.16 bits. A form is made into reverse polish, and
@@ -303,7 +310,7 @@
 	+form_binary (scatter (Fmap 11) '.> "->" '. "." 'elem "[]" '=> "=>"
 		'+ "+" '- "-" '* "*" '/ "/" '% "%" '// "//" '%% "%%" '*> "*>" '</ "</"
 		'<< "<<" '>> ">>" '>>> ">>>" '< "<" '> ">" '<= "<=" '>= ">=" '= "=" '/= "/="
-		'& "&" '^ "^" '| "|" '&& "&&" '|| "||"))
+		'& "&" '^ "^" '| "|" '&& "&&" '|| "||" 'min "min" 'max "max"))
 
 (defun vpx-polish (form)
 	; (vpx-polish form) -> (tokens types)
@@ -388,6 +395,8 @@
 (scope-operator "%%" 3 0 compile-rem)
 (scope-operator "+" 4 0 compile-plus)
 (scope-operator "-" 4 0 compile-minus)
+(scope-operator "min" 4 0 compile-min)
+(scope-operator "max" 4 0 compile-max)
 (scope-operator "<<" 5 0 compile-lshift)
 (scope-operator ">>" 5 0 compile-rshift)
 (scope-operator ">>>" 5 0 compile-arshift)

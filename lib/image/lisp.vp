@@ -199,15 +199,8 @@
 (def-func-end)
 
 (defmacro jpg-clamp (v)
-	;v made 0 to 255, by its sign bit, not a signed compare
-	`(progn
-		(vpif (vpx (/= (& ,v -256) 0)))
-			(vpif (vpx (/= (>>> ,v 63) 0)))
-				(assign (vpx 0) (vpx ,v))
-			(else)
-				(assign (vpx 255) (vpx ,v))
-			(endif)
-		(endif)))
+	;v made 0 to 255
+	`(assign (vpx (max 0 (min 255 ,v))) (vpx ,v)))
 
 (def-func (path-to-absolute "./jpg_idct"))
 	;inputs
