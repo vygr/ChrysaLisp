@@ -45,13 +45,15 @@
 			tf_jobs (Jobs +shader_tris_child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) '(3 3 0))
 			tf_asked 0)
 		(defun tf-frame (strips)
-			;a frame, till every strip is answered, or far too long has gone by
-			(defq out 1 drawn :t)
+			;a frame, till every strip is answered, or far too long has gone by.
+			;A child with nothing to do for 5s goes, and a strip given to it as
+			;it went is lost, so the farm is looked at each second, as an app does
+			(defq out 1 drawn :t start (pii-time))
 			(. tf_canvas :fill 0)
 			(. tf_jobs :add (map (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
 				(canvas-key tf_canvas) tf_size tf_size (/ (* %0 tf_size) strips) (/ (* (inc %0) tf_size) strips)
 				:t tf_draws)) (range 0 strips)))
-			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 30) 0)
+			(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0)
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
 				(case idx
@@ -61,7 +63,10 @@
 						(setq out o)))
 					(+tf_ask (setq tf_asked (inc tf_asked))
 						(shader-mesh-send msg (elem-get tf_packed (getf msg +strip_ask_mesh))))
-					(:t (setq out 0 drawn :nil))))
+					(:t (cond
+						((> (- (pii-time) start) (task-timeout 30)) (setq out 0 drawn :nil))
+						(:t (. tf_jobs :refresh (task-timeout 10))
+							(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0))))))
 			(mail-timeout (elem-get tf_select +tf_timer) 0 0)
 			drawn)
 		(assert-eq "three children" 3 (. tf_jobs :size))

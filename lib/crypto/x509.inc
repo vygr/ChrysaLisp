@@ -187,6 +187,7 @@
 			(cond
 				((starts-with "-----BEGIN CERTIFICATE" line) (setq lines (list)))
 				((starts-with "-----END CERTIFICATE" line)
+					(task-slice)
 					(and lines (defq der (base64-decode (apply (const cat) lines))) (push out der))
 					(setq lines :nil))
 				(lines (push lines line)))
@@ -200,7 +201,7 @@
 	(unless *x509_roots*
 		(setq *x509_roots* (list))
 		(when (defq file (some (# (and (/= (age %0) 0) %0)) +x509_root_files))
-			(each (# (if (defq cert (x509-parse %0)) (push *x509_roots* cert)))
+			(each (# (task-slice) (if (defq cert (x509-parse %0)) (push *x509_roots* cert)))
 				(x509-pem (file-stream file)))))
 	*x509_roots*)
 

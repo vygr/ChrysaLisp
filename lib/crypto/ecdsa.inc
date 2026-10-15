@@ -107,8 +107,11 @@
 				w (bn-invmod s nm) u1 (bn-mulmod e w nm) u2 (bn-mulmod r w nm)
 				q (list qx qy (bn-from-num 1)) gq (ec-add g q fm) acc :nil
 				i (max (bn-bits u1) (bn-bits u2)))
-			;u1 G + u2 Q, both at once, a bit of each at a time
+			;u1 G + u2 Q, both at once, a bit of each at a time, each giving
+			;way to the other tasks of the node, a verify of P-384 on a Pi
+			;is seconds
 			(while (> i 0)
+				(task-slice)
 				(-- i)
 				(setq acc (ec-dbl acc fm))
 				(defq b1 (bn-bit u1 i) b2 (bn-bit u2 i))

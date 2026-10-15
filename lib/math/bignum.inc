@@ -212,7 +212,10 @@
 	; (bn-powmod a e modulus) -> nums
 	;a to the power e, mod. e a big number, from its top bit down
 	(defq out (bn-from-num 1) i (bn-bits e) a (bn-mod a modulus))
+	;each bit gives way to the other tasks of the node, a power of a
+	;prime of 384 bits holds it a second or more on a slow machine
 	(while (> i 0)
+		(task-slice)
 		(-- i)
 		(setq out (bn-mulmod out out modulus))
 		(if (= (bn-bit e i) 1) (setq out (bn-mulmod out a modulus))))
