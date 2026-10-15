@@ -3086,6 +3086,17 @@ tell the GUI the theme of the desktop is now this one, it tells every
 window, lib/theme/theme.inc
 ```
 
+### gui-tree-rpc
+
+```code
+(gui-tree-rpc [title key value depth keys]) -> :nil | why | text
+
+the tree of widgets of the window whose title has title in it, or of
+all of the screen, as (ui-save) writes it: of the first in it whose key
+is value if a key is given, depth levels of children, :nil for all, and
+only the properties keys, a list, :nil for all
+```
+
 ### handler
 
 ```code
@@ -8490,6 +8501,15 @@ iterative topological sort using a heap-allocated DFS stack
 (type-to-size sym) -> num
 ```
 
+### ui-find
+
+```code
+(ui-find view key value) -> :nil | view
+
+the first of view and those in it, depth first, whose key is value, a
+:type by its name, Button or :Button, any other as it prints
+```
+
 ### ui-merge-props
 
 ```code
@@ -8499,7 +8519,13 @@ iterative topological sort using a heap-allocated DFS stack
 ### ui-save
 
 ```code
-(ui-save stream view) -> tree | :nil
+(ui-save stream view [depth keys]) -> tree | :nil
+
+the tree of a view and those in it, each its :type, its :bounds in
+its parent, and its properties: atoms, flat sequences of atoms, fonts
+as (name pixels). depth the levels of children saved, :nil for all, a
+view at the last has :children_count in place of its children. keys
+the properties saved, :nil for all of them
 ```
 
 ### ui-symbols

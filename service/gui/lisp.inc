@@ -83,7 +83,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back theme grab))
+	(enum quit logout sub add_front add_back theme grab tree))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -138,6 +138,23 @@
 			((starts-with "not read" reply) reply)
 			((> (length reply) 8) (list (get-uint reply 0) (get-uint reply 4) (slice reply 8 -1)))
 			("no window of that title"))))
+
+(defun gui-tree-rpc (&optional title key value depth keys)
+	; (gui-tree-rpc [title key value depth keys]) -> :nil | why | text
+	;the tree of widgets of the window whose title has title in it, or of
+	;all of the screen, as (ui-save) writes it: of the first in it whose key
+	;is value if a key is given, depth levels of children, :nil for all, and
+	;only the properties keys, a list, :nil for all
+	(when (nempty? (defq service (mail-enquire "Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_tree)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view (weak-ref 0)))
+			(str (list (ifn title "") (ifn key "") (ifn value "") (ifn depth -1) (ifn keys (list))))))
+		(ifn (mail-read-timeout mbox (task-timeout 10)) "no answer from the GUI")))
 
 (defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil

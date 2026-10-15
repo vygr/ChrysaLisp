@@ -78,6 +78,29 @@
 			(each (# (push todo %0)) (. v :children))))
 	out)
 
+(defun find-window (want)
+	; (find-window want) -> :nil | window
+	;the window whose title has want in it, or the screen if want is empty
+	(defq out (if (empty? want) *screen*))
+	(each (lambda (child)
+			(and (not out) (defq title (window-title child)) (found? title want)
+				(setq out child)))
+		(. *screen* :children))
+	out)
+
+(defun widget-tree (request)
+	; (widget-tree request) -> str
+	;the reply to a tree: (title key value depth keys), as gui-tree-rpc
+	;sends them, the tree as text, or why there is none
+	(bind '(title key value depth keys) (first (read (string-stream request))))
+	(cond
+		((not (defq view (find-window title))) "no window of that title")
+		((and (nempty? key) (not (setq view (ui-find view (sym (cat ":" key)) value))))
+			(cat "no " key " of " value " in it"))
+		(:t (defq out (string-stream (cat "")))
+			(ui-save out view (if (>= depth 0) depth) (if (nempty? keys) keys))
+			(str out))))
+
 (defun grab (want)
 	; (grab want) -> str
 	;what is on the screen, of the window whose title has want in it, or
@@ -161,7 +184,10 @@
 							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 						(+gui_rpc_type_grab
 							;what is on the screen, the reply
-							(setq msg (grab (slice msg +gui_rpc_size -1)))))
+							(setq msg (grab (slice msg +gui_rpc_size -1))))
+						(+gui_rpc_type_tree
+							;the tree of widgets of a window, the reply
+							(setq msg (widget-tree (slice msg +gui_rpc_size -1)))))
 					(mail-send reply msg))
 				(+select_timer	;timer event
 					(defq frame_start (pii-time))

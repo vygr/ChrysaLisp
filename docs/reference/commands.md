@@ -1552,3 +1552,21 @@ Usage: wc [options] [path] ...
     If no paths given on command line
     then paths are read from stdin.
 ```
+## widgets
+```code
+Usage: widgets [options]
+
+    options:
+        -h --help: this help info.
+        -t --title str: the window whose title has this in it,
+            default all of the screen.
+        -f --find key=value: only the first view in it whose
+            key is value, type=Button, text=Save, depth first.
+        -d --depth num: the levels of children, default all; a
+            view at the last says how many it has.
+        -k --keys key,key: only these properties, as well as
+            the type and bounds of each, default all.
+
+    The tree of widgets of a window on the GUI's screen, or of
+    the screen, as text, from the GUI of this network.
+```

@@ -261,22 +261,43 @@
 	(if (Stack? view) (setq view (. view :get_radio_bar)))
 	(each (# (def %0 :tip_text %1)) (. view :children) tips))
 
-(defun ui-save (stream view)
-	; (ui-save stream view) -> tree | :nil
-	(defq tree (scatter (Lmap) :type (last (. view :type_of))) stack (list view tree))
-	(while (defq props (pop stack) view (pop stack))
-		;only save atoms, and flat sequences of atoms, fonts as (name pixels)
+(defun ui-save (stream view &optional depth keys)
+	; (ui-save stream view [depth keys]) -> tree | :nil
+	;the tree of a view and those in it, each its :type, its :bounds in
+	;its parent, and its properties: atoms, flat sequences of atoms, fonts
+	;as (name pixels). depth the levels of children saved, :nil for all, a
+	;view at the last has :children_count in place of its children. keys
+	;the properties saved, :nil for all of them
+	(defq tree (Lmap) stack (list view tree 0))
+	(while (defq level (pop stack) props (pop stack) view (pop stack))
+		(. props :insert :type (last (. view :type_of)))
+		(. props :insert :bounds (. view :get_bounds))
 		(each (lambda ((k v))
-			(cond
-				((eql k :font) (. props :insert k (font-info v)))
-				((or (sym? v) (num? v) (str? v)) (. props :insert k v))
-				((and (seq? v) (every (# (or (sym? %0) (num? %0) (str? %0))) v))
-					(. props :insert k v))))
+			(when (or (not keys) (find k keys))
+				(cond
+					((eql k :font) (. props :insert k (font-info v)))
+					((or (sym? v) (num? v) (str? v)) (. props :insert k v))
+					((and (seq? v) (every (# (or (sym? %0) (num? %0) (str? %0))) v))
+						(. props :insert k v)))))
 			(tolist view))
-		(when (nempty? (defq children (. view :children)))
-			(. props :insert :children (reduce (lambda (p child)
-					(push stack child (defq child_props
-						(scatter (Lmap) :type (last (. child :type_of)))))
+		(cond
+			((empty? (defq children (. view :children))))
+			((and depth (>= level depth)) (. props :insert :children_count (length children)))
+			(:t (. props :insert :children (reduce (lambda (p child)
+					(push stack child (defq child_props (Lmap)) (inc level))
 					(push p child_props))
-				children (list)))))
+				children (list))))))
 	(tree-save stream tree))
+
+(defun ui-find (view key value)
+	; (ui-find view key value) -> :nil | view
+	;the first of view and those in it, depth first, whose key is value, a
+	;:type by its name, Button or :Button, any other as it prints
+	(defq todo (list view) out :nil value (str value))
+	(while (and (not out) (defq v (pop todo)))
+		(if (if (eql key :type)
+				(find (sym (cat ":" (if (starts-with ":" value) (slice value 1 -1) value))) (. v :type_of))
+				(and (def? key v) (eql (str (get key v)) value)))
+			(setq out v)
+			(each (# (push todo %0)) (reverse (. v :children)))))
+	out)
