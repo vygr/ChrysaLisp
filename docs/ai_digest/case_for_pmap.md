@@ -252,7 +252,7 @@ directly to fast list operations:
 	A new register set is initialized with each register mapped to itself,
 	representing a fully preserved state:
 
-```lisp
+```code
 (defmacro vpmap ()
 	(static-qq (vpmap-copy (const (reduce (lambda (%0 %1) (pinsert %0 %1 %1)) +vp_regs (pmap))))))
 ```

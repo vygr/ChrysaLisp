@@ -92,12 +92,17 @@
 	(assert-eq "the palette was put away by it, and is not in the picture" 0xffffffff (cc-pixel cc_canvas 343 69)))
 
 ;what it will not do
-(assert-list-eq "a file that is not one" (list (cat "Not a whiteboard document: " cc_ptr)) (cc-run (cat "cwb " cc_ptr " -i")))
+;a file that is not a tree is an error that only a checked build says
+(if *test_checked*
+	(assert-list-eq "a file that is not one" (list (cat "Not a whiteboard document: " cc_ptr)) (cc-run (cat "cwb " cc_ptr " -i")))
+	(test-skip "a file that is not one" "needs an error checked build"))
 (assert-list-eq "a size that is not one" '("Not a size, 800x600: big") (cc-run (cat "cwb -n big " cc_file)))
 (assert-list-eq "no file" '("A .cwb file is needed, cwb -h.") (cc-run "cwb -i"))
-(assert-true "Lisp that throws is said, and the rest is done"
-	(progn (defq cc_out (cc-run (cat "cwb " cc_file " -e \q(no-such-function 1)\q -i -k")))
-		(and (starts-with "Error: " (first cc_out)) (starts-with "size 640x400" (second cc_out)))))
+(if *test_checked*
+	(assert-true "Lisp that throws is said, and the rest is done"
+		(progn (defq cc_out (cc-run (cat "cwb " cc_file " -e \q(no-such-function 1)\q -i -k")))
+			(and (starts-with "Error: " (first cc_out)) (starts-with "size 640x400" (second cc_out)))))
+	(test-skip "Lisp that throws is said, and the rest is done" "needs an error checked build"))
 (assert-list-eq "a picture of a kind there is no way to make" '("Not a kind of picture that can be made, .tga or .cpm: tests/scratch/x.jpg")
 	(cc-run (cat "cwb " cc_file " -o tests/scratch/x.jpg -k")))
 (each (# (if (pii-fstat %0) (pii-remove %0))) (list cc_file cc_pic cc_ptr "tests/scratch/x.jpg"))

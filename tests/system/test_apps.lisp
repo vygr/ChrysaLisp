@@ -93,14 +93,13 @@
 ;can go: every import, every constant, the whole tree of widgets of its
 ;window, and every function before the main. An app that throws before
 ;that would not start on a desktop either, and says here which and why.
-;Two do, and are known: they put a picture on a texture as they load,
-;which is the desktop's to have.
+;One that puts a picture on a texture as it loads is let be: with no
+;desktop there is no texture, and the swap is nothing.
 ;
 ;Then its window, if it has made one by then, is laid out at the size it
 ;wants and marked as changed, as it is when it is first put on a desktop
 (import "lib/task/pipe.inc")
 (defq ap_apps (sort (filter (# (ends-with "/app.lisp" %0)) (files-all "apps" '(".lisp"))))
-	ap_wants_desktop '("apps/demos/boing/app.lisp" "apps/demos/freeball/app.lisp")
 	ap_stopped (list) ap_reached 0 ap_laid 0 ap_not_laid (list))
 (each (lambda (file)
 	(defq ap_out (list))
@@ -121,10 +120,7 @@
 		(:t (push ap_not_laid (cat file " " (slice ap_said (max 0 (- (length ap_said) 160)) -1))))))
 	ap_apps)
 (assert-true "there are apps" (> (length ap_apps) 45))
-(assert-list-eq "every app loads as far as its main, but for the two that want a desktop to load, and one that does not says why" '()
-	(filter (# (not (find (first (split %0 " ")) ap_wants_desktop))) ap_stopped))
-(assert-list-eq "those two stop, where they put a picture on a texture" ap_wants_desktop
-	(map (# (first (split %0 " "))) (filter (# (found? %0 ":dirty")) ap_stopped)))
-(assert-eq "the rest reach it" (- (length ap_apps) 2) ap_reached)
+(assert-list-eq "every app loads as far as its main, and one that does not says why" '() ap_stopped)
+(assert-eq "all of them reach it" (length ap_apps) ap_reached)
 (assert-list-eq "the window of every app that has made one lays out, at a size, and one that does not says why" '() ap_not_laid)
 (assert-true "and nearly all of them have made one" (> ap_laid (- (length ap_apps) 6)))

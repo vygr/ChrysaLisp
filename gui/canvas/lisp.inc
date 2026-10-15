@@ -66,8 +66,9 @@
 		; (. canvas :swap flags) -> canvas
 		;+swap_write, the pixmap to the texture, to which a +pixmap_mode
 		;and any +swap_flag can be added. Or +swap_read, the texture back
-		;to the pixmap.
-		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
+		;to the pixmap. On a node with no GUI there is no texture, the swap
+		;is :nil and there is nothing on the screen to be dirty
+		(if ((const (ffi "gui/canvas/lisp_swap")) this flags) (. this :dirty) this))
 
 	(defmethod :free ()
 		; (. canvas :free) -> canvas

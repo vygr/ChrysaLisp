@@ -439,7 +439,7 @@
 	"(. *board* :touch +board_dirty_doc) (wa-redraw)"
 	"(print (list *framing* (progn (frame-watch) *framing*)))"
 	"(def *stripes* :stamp (- (pii-time) 4000000)) (. *committed* :fill 0)"
-	"(print (list (catch (frame-watch) :t) *framing* *farm_fails* (if (get :jobs *stripes*) :up :gone) (wa-same)))"
+	"(print (list (progn (frame-watch) :t) *framing* *farm_fails* (if (get :jobs *stripes*) :up :gone) (wa-same)))"
 	"(. *stripes* :close)")))
 (defq wa_shared (starts-with "(:t" (elem-get wa_out 0)))
 (cond
