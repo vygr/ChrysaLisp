@@ -1051,6 +1051,29 @@ uint64_t host_gui_read_texture(void *handle, uint32_t *data, uint64_t w, uint64_
 	return ok;
 }
 
+// copy what was last drawn, a rectangle of the back buffer, into a buffer,
+// 32 bit argb, opaque
+
+uint64_t host_gui_read_screen(uint32_t *data, int64_t x, int64_t y, uint64_t w, uint64_t h, uint64_t stride)
+{
+	if (!renderer || !backbuffer) return 0;
+	SDL_Rect rect = {(int)x, (int)y, (int)w, (int)h};
+	auto target = SDL_GetRenderTarget(renderer);
+	SDL_SetRenderTarget(renderer, backbuffer);
+	auto surface = SDL_RenderReadPixels(renderer, &rect);
+	SDL_SetRenderTarget(renderer, target);
+	bool ok = surface && (uint64_t)surface->w == w && (uint64_t)surface->h == h
+		&& SDL_ConvertPixels(surface->w, surface->h, surface->format, surface->pixels, surface->pitch,
+			SDL_PIXELFORMAT_ARGB8888, data, (int)stride);
+	if (surface) SDL_DestroySurface(surface);
+	if (ok) for (uint64_t j = 0; j < h; j++)
+	{
+		auto row = (uint32_t*)((uint8_t*)data + j * stride);
+		for (uint64_t i = 0; i < w; i++) row[i] |= 0xff000000;
+	}
+	return ok;
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)host_gui_init,
 	(void*)host_gui_deinit,
@@ -1080,6 +1103,7 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_mesh_destroy,
 	(void*)host_gui_pair_create,
 	(void*)host_gui_tris_draw,
+	(void*)host_gui_read_screen,
 };
 
 #endif

@@ -14,6 +14,7 @@
 (import "usr/Guest/env.inc")
 (import *env_keyboard_map*)
 (import "./actions.inc")
+(import "lib/text/searching.inc")
 
 (enums +select 0
 	(enum main timer mouse))
@@ -66,6 +67,38 @@
 	(if quit
 		(setq *quitting* :t)
 		(open-child "apps/system/login/app.lisp" +kn_call_pin)))
+
+(defun window-title (window)
+	; (window-title window) -> :nil | str
+	;the text of the first title in a window
+	(defq todo (list window) out :nil)
+	(while (and (not out) (defq v (pop todo)))
+		(if (Title? v)
+			(setq out (get :text v))
+			(each (# (push todo %0)) (. v :children))))
+	out)
+
+(defun grab (want)
+	; (grab want) -> str
+	;what is on the screen, of the window whose title has want in it, or
+	;of all of it if want is empty, as the reply to a grab: its width and
+	;its height, 4 bytes each, and its pixels. Empty if there is no such
+	;window, or it can not be read. The back buffer has the last frame
+	(bind '(& & sw sh) (. *screen* :get_bounds))
+	(defq area (if (empty? want) (list 0 0 sw sh)))
+	(each (lambda (child)
+			(and (not area) (defq title (window-title child)) (found? title want)
+				(setq area (. child :get_bounds))))
+		(. *screen* :children))
+	(cond
+		((not area) "")
+		(:t (bind '(x y w h) area)
+			;the part of it that is on the screen
+			(defq x1 (min sw (+ x w)) y1 (min sh (+ y h)) x (max 0 x) y (max 0 y) w (- x1 x) h (- y1 y))
+			(cond
+				((or (<= w 0) (<= h 0)) "")
+				((defq pixels (gui-read-screen x y w h)) (cat (char w 4) (char h 4) pixels))
+				((cat "not read " (str (list x y w h))))))))
 
 (defun main ()
 	;declare service and vars
@@ -125,7 +158,10 @@
 							;add view at back
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
-							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
+							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all))
+						(+gui_rpc_type_grab
+							;what is on the screen, the reply
+							(setq msg (grab (slice msg +gui_rpc_size -1)))))
 					(mail-send reply msg))
 				(+select_timer	;timer event
 					(defq frame_start (pii-time))

@@ -9,6 +9,8 @@
 ; (gui-update mx my flags) -> :nil
 (ffi "service/gui/lisp_event" gui-event)
 ; (gui-event) -> :nil | str
+(ffi "service/gui/lisp_read_screen" gui-read-screen)
+; (gui-read-screen x y w h) -> :nil | str
 
 ;gui events for Lisp level (getf)
 
@@ -81,7 +83,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back theme))
+	(enum quit logout sub add_front add_back theme grab))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -117,6 +119,25 @@
 			(+gui_rpc_weak_view (weak-ref 0))) name))
 		(when (mail-read-timeout mbox)
 			name)))
+
+(defun gui-grab-rpc (&optional title)
+	; (gui-grab-rpc [title]) -> :nil | why | (w h pixels)
+	;what is on the screen now, of the window whose title has title in it,
+	;or of all of it, read by the GUI from its back buffer: its width, its
+	;height and its pixels, 32 bits each, blue green red alpha
+	(when (nempty? (defq service (mail-enquire "Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_grab)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view (weak-ref 0))) (ifn title "")))
+		(cond
+			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
+			((starts-with "not read" reply) reply)
+			((> (length reply) 8) (list (get-uint reply 0) (get-uint reply 4) (slice reply 8 -1)))
+			("no window of that title"))))
 
 (defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil

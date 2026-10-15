@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 4
 	:width 355
-	:height 461
+	:height 478
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 48
+	:next_id 50
 	:layers
 	((:list 1)
 		((:list 3)
@@ -27,13 +27,13 @@
 							:id
 							2
 							:items
-							((:list 45)
+							((:list 47)
 								((:list 11)
 									:shape
 									:id
 									3
 									:d
-									"[M 8 0 L 321.06591 0 A 8 8 0 0 1 329.06591 8 L 329.06591 427 A 8 8 0 0 1 321.06591 435 L 8 435 A 8 8 0 0 1 0 427 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 321.06591 0 A 8 8 0 0 1 329.06591 8 L 329.06591 444 A 8 8 0 0 1 321.06591 452 L 8 452 A 8 8 0 0 1 0 444 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -468,7 +468,7 @@
 									:stroke
 									0
 									:text
-									"[:read_texture]"
+									"[:read_screen]"
 									:font_size
 									12
 								)
@@ -487,7 +487,7 @@
 									:stroke
 									0
 									:text
-									"[:resize]"
+									"[:read_texture]"
 									:font_size
 									12
 								)
@@ -506,7 +506,7 @@
 									:stroke
 									0
 									:text
-									"[:set_clip]"
+									"[:resize]"
 									:font_size
 									12
 								)
@@ -525,7 +525,7 @@
 									:stroke
 									0
 									:text
-									"[:set_color]"
+									"[:set_clip]"
 									:font_size
 									12
 								)
@@ -544,7 +544,7 @@
 									:stroke
 									0
 									:text
-									"[:set_texture_color]"
+									"[:set_color]"
 									:font_size
 									12
 								)
@@ -563,7 +563,7 @@
 									:stroke
 									0
 									:text
-									"[:shader_create]"
+									"[:set_texture_color]"
 									:font_size
 									12
 								)
@@ -582,7 +582,7 @@
 									:stroke
 									0
 									:text
-									"[:shader_destroy]"
+									"[:shader_create]"
 									:font_size
 									12
 								)
@@ -601,7 +601,7 @@
 									:stroke
 									0
 									:text
-									"[:shader_draw]"
+									"[:shader_destroy]"
 									:font_size
 									12
 								)
@@ -620,7 +620,7 @@
 									:stroke
 									0
 									:text
-									"[:shader_format]"
+									"[:shader_draw]"
 									:font_size
 									12
 								)
@@ -639,7 +639,7 @@
 									:stroke
 									0
 									:text
-									"[:shader_texture]"
+									"[:shader_format]"
 									:font_size
 									12
 								)
@@ -658,6 +658,25 @@
 									:stroke
 									0
 									:text
+									"[:shader_texture]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:m
+									((:path 6)
+										1.00000 0.00000 223.91796 0.00000 1.00000 221.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
 									"[:tris_draw]"
 									:font_size
 									12
@@ -665,7 +684,7 @@
 								((:list 13)
 									:shape
 									:id
-									37
+									38
 									:d
 									"[M 0 252 L 329.06591 252]"
 									:stroke
@@ -680,7 +699,7 @@
 								((:list 17)
 									:shape
 									:id
-									38
+									39
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 268.00000
@@ -701,7 +720,7 @@
 								((:list 15)
 									:shape
 									:id
-									39
+									40
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 287.00000
@@ -720,7 +739,7 @@
 								((:list 15)
 									:shape
 									:id
-									40
+									41
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 304.00000
@@ -739,7 +758,7 @@
 								((:list 13)
 									:shape
 									:id
-									41
+									42
 									:d
 									"[M 0 318 L 329.06591 318]"
 									:stroke
@@ -754,7 +773,7 @@
 								((:list 17)
 									:shape
 									:id
-									42
+									43
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 334.00000
@@ -775,7 +794,7 @@
 								((:list 15)
 									:shape
 									:id
-									43
+									44
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 353.00000
@@ -794,7 +813,7 @@
 								((:list 15)
 									:shape
 									:id
-									44
+									45
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 370.00000
@@ -813,7 +832,7 @@
 								((:list 15)
 									:shape
 									:id
-									45
+									46
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 387.00000
@@ -832,7 +851,7 @@
 								((:list 15)
 									:shape
 									:id
-									46
+									47
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 404.00000
@@ -851,10 +870,29 @@
 								((:list 15)
 									:shape
 									:id
-									47
+									48
 									:m
 									((:path 6)
 										1.00000 0.00000 12.00000 0.00000 1.00000 421.00000
+									)
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[gui-read-screen]"
+									:font_size
+									12
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:m
+									((:path 6)
+										1.00000 0.00000 12.00000 0.00000 1.00000 438.00000
 									)
 									:kind
 									:text

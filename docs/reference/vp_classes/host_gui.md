@@ -14,6 +14,8 @@ docs/reference/vp_classes/host_gui.cwb
 
 ### (gui-init screen) -> screen
 
+### (gui-read-screen x y w h) -> :nil | str
+
 ### (gui-update mx my flags) -> :nil
 
 ## VP methods
@@ -67,6 +69,8 @@ the dirty region bounds is returned for use by the :flush call !
 ### :pair_create -> :nil
 
 ### :poll_event -> :nil
+
+### :read_screen -> :nil
 
 ### :read_texture -> :nil
 

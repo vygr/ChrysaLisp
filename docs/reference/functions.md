@@ -117,6 +117,16 @@ about a point, default the origin
 (PNG-load stream) -> :nil | canvas
 ```
 
+### PNG-save
+
+```code
+(PNG-save canvas stream) -> canvas
+
+the canvas as a PNG of 8 bits of red, green, blue and alpha, the rows
+filtered by none, a stage of a pipeline each as the load is: its rows,
+deflate and the chunks
+```
+
 ### SVG-info
 
 ```code
@@ -221,6 +231,12 @@ the host window is a new size
 
 ```code
 the host window is on show again
+```
+
+### adler32
+
+```code
+(adler32 data [adler]) -> adler
 ```
 
 ### aead-open
@@ -1022,6 +1038,12 @@ is no picture, and is nothing
 what a value of the type is before it is set
 ```
 
+### crc32
+
+```code
+(crc32 data [crc]) -> crc
+```
+
 ### create
 
 ```code
@@ -1624,6 +1646,16 @@ next that asked, what they had been
 
 ```code
 (decode-date str) -> td
+```
+
+### deflate-compress
+
+```code
+(deflate-compress in_stream out_stream [zlib]) -> :t
+
+the bytes of in as DEFLATE, raw, or with zlib's head and sum round it.
+32KB a block, of the fixed codes, a match looked for by native code at
+the place the 3 bytes from each were last, as far back as 32KB
 ```
 
 ### der-at
@@ -3029,6 +3061,16 @@ of a program, onto the lines of whoever calls
 start children till the herd is the size the worker nodes call for
 ```
 
+### gui-grab-rpc
+
+```code
+(gui-grab-rpc [title]) -> :nil | why | (w h pixels)
+
+what is on the screen now, of the window whose title has title in it,
+or of all of it, read by the GUI from its back buffer: its width, its
+height and its pixels, 32 bits each, blue green red alpha
+```
+
 ### gui-rpc
 
 ```code
@@ -3315,15 +3357,6 @@ the longest a code may be, enough for every symbol, and no less than 15
 -> :nil | lengths
 ```
 
-### huffman-symbol
-
-```code
-(huffman-symbol in bits table) -> symbol | -1
-
-the next symbol of a code, read a bit at a time, -1 at the end of
-the stream or if the bits are no code
-```
-
 ### huffman-table
 
 ```code
@@ -3382,7 +3415,8 @@ every child that is up and has no job is given one
 
 the bytes a DEFLATE stream is, raw, or with zlib's head and sum round
 it. :nil if it is not one, or stops before its end, what was got by
-then is written
+then is written. A block of codes is read by native code, and what it
+makes kept in a ring of the last 32KB, at is how many bytes have been
 ```
 
 ### inflate-dynamic
@@ -3422,18 +3456,6 @@ tells us which vertices are inside the surface
 (join seqs seq [mode]) -> seq
 ```
 
-### jpg-ac-first
-
-```code
--> eobrun
-```
-
-### jpg-ac-refine
-
-```code
--> eobrun
-```
-
 ### jpg-bit
 
 ```code
@@ -3441,16 +3463,8 @@ tells us which vertices are inside the surface
 
 the next bit of the packed data, the high bit of each byte first. A
 0xFF is followed by a 0 that is not data; anything else after it is
-a marker, and from there on there are only 0 reader
-```
-
-### jpg-block
-
-```code
-(jpg-block reader dc_code ac_code quant prior) -> (pixels dc)
-
-a block of a baseline scan: its numbers, by their table, and turned
-back to 64 pixels
+a marker, and from there on there are only 0 bits. The reader is the
+stream and (byte bits marker), a nums the native block reads too
 ```
 
 ### jpg-code
@@ -3459,12 +3473,6 @@ back to 64 pixels
 (jpg-code table) -> (maxcode valptr mincode values)
 
 the canonical code of a table, as the standard's F.2.2.3 has it
-```
-
-### jpg-dc-first
-
-```code
--> dc
 ```
 
 ### jpg-decode
@@ -3505,15 +3513,6 @@ values) by table, :restart, :scan and :spectral. The stream is left at
 the start of the packed data
 ```
 
-### jpg-idct
-
-```code
-(jpg-idct c) -> pixels
-
-the 64 numbers of a block, by their table, in rows, as 64 pixels: the
-rows by K, then the columns, t x v is row v of c dot K x
-```
-
 ### jpg-next-marker
 
 ```code
@@ -3531,12 +3530,6 @@ the scans, from where the stream is, then the pixels a row of MCUs at
 a time, each row of pixels written blue green red alpha
 ```
 
-### jpg-refine
-
-```code
-the next bit of a number that is not 0, read whatever it is
-```
-
 ### jpg-restart
 
 ```code
@@ -3551,7 +3544,8 @@ come to yet
 (jpg-rows out samplings planes my width height hmax vmax mcus_x)
 
 the rows of pixels of a row of MCUs, those inside the picture, from
-the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8
+the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8,
+each row native
 ```
 
 ### jpg-scan
@@ -4697,6 +4691,12 @@ the key of the shared memory its pixels are in, 0 if they are its own
 four bytes high first, as a .png has its numbers
 ```
 
+### png-be4
+
+```code
+four bytes high first
+```
+
 ### png-channels
 
 ```code
@@ -4719,6 +4719,22 @@ the next chunk, its sum read and not looked at
 the head of the next chunk, its data not read
 ```
 
+### png-chunk-write
+
+```code
+(png-chunk-write stream kind data)
+
+a chunk, its length, its kind, the data and the CRC-32 of the two
+```
+
+### png-chunks
+
+```code
+(png-chunks in out)
+
+a stage, the zlib of the rows as IDAT chunks, then the IEND
+```
+
 ### png-head
 
 ```code
@@ -4732,6 +4748,16 @@ the head of the next chunk, its data not read
 
 the data of the IDAT chunks, one after the other, the first of them
 begun, len of it to come. It stops at a chunk that is not one
+```
+
+### png-rows
+
+```code
+(png-rows in out width height)
+
+a stage, the rows of 32 bit pixels, blue green red alpha, as rows of a
+PNG of colour 6, each its filter, 0, and red green blue alpha: the
+swap png-pixels does of 8 bits is its own way back
 ```
 
 ### png-unfilter

@@ -609,6 +609,21 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 	return 0;
 }
 
+// copy what was last drawn, a rectangle of the back buffer, into a buffer,
+// 32 bit argb, opaque
+
+uint64_t host_gui_read_screen(uint32_t *data, int64_t x, int64_t y, uint64_t w, uint64_t h, uint64_t stride)
+{
+	if (!backbuffer || x < 0 || y < 0 || x + w > scr_width || y + h > scr_height) return 0;
+	for (uint64_t j = 0; j < h; j++)
+	{
+		auto src = (pixel_t*)((uint8_t*)backbuffer + (y + j) * scr_stride) + x;
+		auto dst = (uint32_t*)((uint8_t*)data + j * stride);
+		for (uint64_t i = 0; i < w; i++) dst[i] = src[i] | 0xff000000;
+	}
+	return 1;
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)host_gui_init,
 	(void*)host_gui_deinit,
@@ -638,6 +653,7 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_mesh_destroy,
 	(void*)host_gui_pair_create,
 	(void*)host_gui_tris_draw,
+	(void*)host_gui_read_screen,
 };
 
 #endif

@@ -153,6 +153,9 @@ Usage: check [options] [path] ...
             given to (map), (each), (filter), (some), (reduce),
             (sort), (lines!) or the like, or the :each of a
             map or a set, which call it with an element.
+    global  a *name* made at the top of a module, not
+            exported, used in a function of it: it is looked
+            for when the function runs, and is gone by then.
     self    in the method :m of a class, a (call :c :m '(:r0
             ...)) of the same method of this class or one
             above it, that is not static: a call goes by the
@@ -499,6 +502,20 @@ Usage: forward [options] [path] ...
 
     If no paths given on command line
     then will test files from stdin.
+```
+## grab
+```code
+Usage: grab [options] file
+
+    options:
+        -h --help: this help info.
+        -t --title str: the window whose title has this in it,
+            default all of the screen.
+
+    What is on the GUI's screen now, of a window or of all of
+    it, written to the file, as its ending says, .png or .cpm.
+    It is read by the GUI from its back buffer, the last frame
+    it drew, by a GUI of this network.
 ```
 ## grep
 ```code
