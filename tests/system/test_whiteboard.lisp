@@ -196,9 +196,9 @@
 	"(wa-mode :rect) (wa-ptr 0x20001 1 1 100 100) (wa-ptr 0x20001 1 1 200 180) (wa-ptr 0x20001 1 0 200 180)"
 	"(print (list (wa-ids) (cwb-get (first (cwb-items (. *board* :get_doc))) :d)))"
 	;two fingers on it make it twice the size
-	"(wa-ptr 0x10001 3 1 110 110) (wa-ptr 0x10002 3 1 190 170)"
-	"(wa-ptr 0x10001 3 1 70 80) (wa-ptr 0x10002 3 1 230 200)"
-	"(wa-ptr 0x10001 3 0 70 80) (wa-ptr 0x10002 3 0 230 200)"
+	"(wa-ptr 0x1000001 3 1 110 110) (wa-ptr 0x1000002 3 1 190 170)"
+	"(wa-ptr 0x1000001 3 1 70 80) (wa-ptr 0x1000002 3 1 230 200)"
+	"(wa-ptr 0x1000001 3 0 70 80) (wa-ptr 0x1000002 3 0 230 200)"
 	"(print (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
 	;the other end of the pen takes a bite out of its side
 	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
@@ -234,13 +234,13 @@
 	"(defun wa-wheel (x y) (. *board_view* :mouse_wheel (setf-> (str-alloc +ev_msg_wheel_size) (+ev_msg_type +ev_type_wheel) (+ev_msg_wheel_x x) (+ev_msg_wheel_y y))))"
 	"(wa-mode :pen) (defq s0 (wa-seen)) (wa-ptr 0x20001 1 1 300 300) (wa-ptr 0x20001 1 1 340 320)"
 	"(defq b0 (. *board* :busy?)) (wa-wheel 2 3) (while (pan-tick)) (wa-zoom +event_zoom_in)"
-	"(wa-ptr 0x10001 3 1 600 20) (wa-ptr 0x10002 3 1 700 20) (wa-ptr 0x10001 3 1 660 60) (wa-ptr 0x10002 3 1 860 60)"
+	"(wa-ptr 0x1000001 3 1 600 20) (wa-ptr 0x1000002 3 1 700 20) (wa-ptr 0x1000001 3 1 660 60) (wa-ptr 0x1000002 3 1 860 60)"
 	"(def (get :hslider *image_scroll*) :value 5) (bars-moved)"
 	"(defq s1 (wa-seen))"
 	;the pen lifts: the two fingers that are still down have it from where they are, and the wheel works
 	"(wa-ptr 0x20001 1 0 340 320) (defq b1 (. *board* :busy?))"
-	"(wa-ptr 0x10001 3 1 670 70) (wa-ptr 0x10002 3 1 870 70) (defq s2 (wa-seen))"
-	"(wa-ptr 0x10001 3 0 670 70) (wa-ptr 0x10002 3 0 870 70) (wa-wheel 0 2) (while (pan-tick)) (defq s3 (wa-seen))"
+	"(wa-ptr 0x1000001 3 1 670 70) (wa-ptr 0x1000002 3 1 870 70) (defq s2 (wa-seen))"
+	"(wa-ptr 0x1000001 3 0 670 70) (wa-ptr 0x1000002 3 0 870 70) (wa-wheel 0 2) (while (pan-tick)) (defq s3 (wa-seen))"
 	"(print (list b0 (eql (str s0) (str s1)) b1 s0 s2 s3)) (setq *pan_x* -25.0 *pan_y* -15.0 *bars_at* 0) (view-changed)"
 	;a hand that holds a thing does not stop what is seen being moved, and what it holds stays in the hand: it is in flight
 	"(. *board* :clear) (cwb-add (. *board* :get_doc) (cwb-shape (cwb-d-rect 100 100 140 140) :fill 0xff808080 :stroke 0)) (wa-mode :select)"
@@ -533,14 +533,14 @@
 	"(defun wa-view () (list (n2i *pan_x*) (n2i *pan_y*) *zoom* (if *zoom_to* (first *zoom_to*))))"
 	"(defq was (wa-view) ids (wa-ids))"
 	;two fingers down on empty paper, and both moved 60 right and 40 down
-	"(wa-mode :select) (wa-ptr 0x10001 3 1 600 500) (wa-ptr 0x10002 3 1 700 500)"
+	"(wa-mode :select) (wa-ptr 0x1000001 3 1 600 500) (wa-ptr 0x1000002 3 1 700 500)"
 	;a little at a time, first the one and then the other, as hands do
-	"(each (lambda (i) (wa-ptr 0x10001 3 1 (+ 600 (* i 6)) (+ 500 (* i 4))) (wa-ptr 0x10002 3 1 (+ 700 (* i 6)) (+ 500 (* i 4)))) (range 1 11))"
+	"(each (lambda (i) (wa-ptr 0x1000001 3 1 (+ 600 (* i 6)) (+ 500 (* i 4))) (wa-ptr 0x1000002 3 1 (+ 700 (* i 6)) (+ 500 (* i 4)))) (range 1 11))"
 	"(defq moved (wa-view))"
 	;then twice as far apart
-	"(each (lambda (i) (wa-ptr 0x10001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x10002 3 1 (+ 760 (* i 5)) 540)) (range 1 11))"
+	"(each (lambda (i) (wa-ptr 0x1000001 3 1 (- 660 (* i 5)) 540) (wa-ptr 0x1000002 3 1 (+ 760 (* i 5)) 540)) (range 1 11))"
 	"(defq zoomed (wa-view))"
-	"(wa-ptr 0x10001 3 0 610 540) (wa-ptr 0x10002 3 0 810 540)"
+	"(wa-ptr 0x1000001 3 0 610 540) (wa-ptr 0x1000002 3 0 810 540)"
 	;let go, it is on its way to the zoom it rests at, and gets there
 	"(defq going (wa-view)) (while (zoom-tick)) (defq rested (wa-view))"
 	"(print (list was moved (third zoomed) (elem-get going 3) (third rested) (eql (str ids) (str (wa-ids))) (. *board* :get_selected) (length (palettes *board*)) (. (get :bands *board*) :size)))")))
@@ -587,9 +587,9 @@
 	;and three more quarters is where it began
 	"(pan-by -30 0) (view-turn 1) (view-turn 1) (view-turn 1) (print (list (canvas-size) *turn* (wa-mid) (wa-on) (map (const n2i) (get :origin ruler)) (n2i (* 100.0 (get :angle ruler)))))"
 	;two fingers on nothing, the one turned about the other past half way to a quarter: it is turned a quarter, once
-	"(. (. *board* :get_stage) :sub ruler) (wa-mode :select) (wa-ptr 0x10001 3 1 50 180) (wa-ptr 0x10002 3 1 150 180)"
-	"(wa-ptr 0x10002 3 1 140 220) (defq t1 *turn*) (wa-ptr 0x10002 3 1 100 265) (defq t2 *turn*) (wa-ptr 0x10002 3 1 50 280) (defq t3 *turn*)"
-	"(wa-ptr 0x10001 3 0 50 180) (wa-ptr 0x10002 3 0 50 280) (print (list t1 t2 t3 (canvas-size)))"
+	"(. (. *board* :get_stage) :sub ruler) (wa-mode :select) (wa-ptr 0x1000001 3 1 50 180) (wa-ptr 0x1000002 3 1 150 180)"
+	"(wa-ptr 0x1000002 3 1 140 220) (defq t1 *turn*) (wa-ptr 0x1000002 3 1 100 265) (defq t2 *turn*) (wa-ptr 0x1000002 3 1 50 280) (defq t3 *turn*)"
+	"(wa-ptr 0x1000001 3 0 50 180) (wa-ptr 0x1000002 3 0 50 280) (print (list t1 t2 t3 (canvas-size)))"
 	;kept with the document, and put back
 	"(view-to-doc) (defq kept (. (. *board* :get_doc) :find :view)) (setq *turn* 0) (view-from-doc) (print (list (length kept) *turn*))")))
 (assert-eq "turned a quarter the paper is the other way up, and what was in the middle of it is in the middle of it; its lines that went across go up and down"

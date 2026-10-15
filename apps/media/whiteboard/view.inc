@@ -238,9 +238,10 @@
 			;the first two, in the order they came, that are on nothing
 			(defq free (list))
 			(. fingers :each (lambda (fid at) (if (. board :pointer_free? fid) (push free fid))))
-			(when (>= (length free) 2)
-				(sort free (const -))
-				(defq ida (first free) idb (second free))
+			;two of one panel: fingers of two panels are two hands
+			(sort free (const -))
+			(defq ida (first free) idb (some (# (and (/= %0 ida) (= (ptr-device %0) (ptr-device ida)) %0)) free))
+			(when idb
 				(. board :pointer_idle ida)
 				(. board :pointer_idle idb)
 				(bind '(ax ay) (. fingers :find ida))

@@ -934,9 +934,12 @@ barrel, held in any combination, near or touching.
 
 * An eraser is always in erase mode, and erases along the path its erase
 shape sweeps. A tap of it is a small bite. On Chris's boards it was a
-device of its own. SDL3 gives the other end of a pen the pen's own number,
-a kind of `:eraser`, so here it is the same device as its pen: who the pen
-is, a student or the teacher, the other end of it is too.
+device of its own, and the teacher's: "the eraser device input was always
+assumed to be under the control of the teacher. The bound to erase action
+of a pen was bound to the user id of that device." SDL3 gives the other end
+of a pen as an `:eraser`, with the pen's number, so here the other end of
+any pen is the teacher's eraser, and a pen's barrel button bound to rub
+out is that pen's user.
 
 * Contacts of a device count up and are never given again.
 
@@ -1015,7 +1018,8 @@ this, and are to be off but for debugging.
 * Every shape and group says which user made it, and it is kept in the file.
 A user, not a device: the teacher is user 0 every time.
 
-* The mouse and the keyboard are the teacher's, user 0. The teacher may make
+* The mouse and the keyboard are the teacher's, user 0, and so is the
+eraser. The teacher may make
 a pen the teacher's pen, from a floating menu, which only a teacher's device
 can press: the next pen to touch it is the teacher's. Other pens are
 students, each their own. Touch is anybody, with a student's rights.
@@ -1085,7 +1089,9 @@ joined holds the document to draw it.
 
 ### In the order it is to be built
 
-1. Who made a thing, kept on it, and what a user may do (item 59).
+1. Who made a thing, kept on it, and what a user may do (item 59). Built:
+`:user` on an item, `(. board :user_of event)`, `(. board :appoint event)`,
+an eraser that keeps to its own, `tests/system/test_cwb_users.lisp`.
 2. Universal input: the canvas an object, input vectors, the pair rule in one
 place, tap and draw.
 3. Select mode on things, and actions on a user's own.

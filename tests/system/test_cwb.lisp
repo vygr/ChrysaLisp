@@ -219,7 +219,7 @@
 (assert-eq "a pen draws" :pen (. wb_bind :value (ptr-event 1 :pen 1 0 0) :tool))
 (assert-eq "its other end rubs out" :eraser (. wb_bind :value (ptr-event 2 :eraser 1 0 0) :tool))
 (assert-eq "and so does the button on its side" :eraser (. wb_bind :value (ptr-event 1 :pen +pev_right 0 0) :tool))
-(assert-eq "a finger moves things" :hand (. wb_bind :value (ptr-event 3 :touch 1 0 0) :tool))
+(assert-eq "a finger moves things" :hand (. wb_bind :value (ptr-event 0x1000003 :touch 1 0 0) :tool))
 (assert-eq "the mouse draws with its left button" :pen (. wb_bind :value (ptr-event 0 :mouse +pev_left 0 0) :tool))
 (assert-eq "and moves things with its right" :hand (. wb_bind :value (ptr-event 0 :mouse +pev_right 0 0) :tool))
 (. wb_bind :bind :pen 9 :nil '(:tool :pen :color 0xffff0000 :width 8.0))
@@ -241,8 +241,8 @@
 (assert-true "a point on the front actor is the front actor's" (eql wb_front (. wb_stage :hit 150.0 150.0)))
 (assert-true "one that is not is the back one's" (eql wb_back (. wb_stage :hit 50.0 50.0)))
 ;two pointers at once, one on each
-(. wb_stage :pointers (list (ptr-event 1 :pen 1 150 150) (ptr-event 2 :touch 1 50 50)))
-(assert-list-eq "two pointers down, each actor is given its own" '(((1 1)) ((2 1)))
+(. wb_stage :pointers (list (ptr-event 1 :pen 1 150 150) (ptr-event 0x1000002 :touch 1 50 50)))
+(assert-list-eq "two pointers down, each actor is given its own" '(((1 1)) ((16777218 1)))
 	(list (last (get :got wb_front)) (last (get :got wb_back))))
 ;the pen moves off the front actor, still down, it is still the front actor's
 (. wb_stage :pointers (list (ptr-event 1 :pen 1 50 60)))
@@ -253,8 +253,8 @@
 (assert-list-eq "then it is over the back one, and that is told" '((1 0)) (last (get :got wb_back)))
 (assert-list-eq "and the front one is told it has left" '(1) (get :left wb_front))
 ;two fingers on one actor come as one batch
-(. wb_stage :pointers (list (ptr-event 5 :touch 1 110 110) (ptr-event 6 :touch 1 190 190)))
-(assert-list-eq "two fingers on one actor are given to it together" '((5 1) (6 1)) (last (get :got wb_front)))
+(. wb_stage :pointers (list (ptr-event 0x1000005 :touch 1 110 110) (ptr-event 0x1000006 :touch 1 190 190)))
+(assert-list-eq "two fingers on one actor are given to it together" '((16777221 1) (16777222 1)) (last (get :got wb_front)))
 (. wb_stage :sub wb_front)
 (assert-true "an actor taken off has nothing" (eql wb_back (. wb_stage :hit 150.0 150.0)))
 
@@ -293,10 +293,10 @@
 (assert-list-eq "and is undone" '(1 2 3) (wb-bids))
 
 ;a finger picks the box up and moves it
-(. wb_board :pointers (list (ptr-event 7 :touch 1 150 100)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 150 100)))
 (assert-list-eq "a finger on the box selects it" '(2) (. wb_board :get_selected))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 170 120)))
-(. wb_board :pointers (list (ptr-event 7 :touch 0 170 120)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 170 120)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 170 120)))
 (assert-true "and moves it" (wb-near? (wb-box) '(118.5 118.5 221.5 201.5)))
 (. wb_board :undo)
 (assert-true "undone, it is back" (wb-near? (cwb-bounds (list (second (cwb-items (. wb_board :get_doc))))) '(98.5 98.5 201.5 181.5)))
@@ -305,21 +305,21 @@
 (assert-true "done again, it is moved" (wb-near? (wb-box) '(118.5 118.5 221.5 201.5)))
 
 ;two fingers on it, moved to twice as far apart about the same middle
-(. wb_board :pointers (list (ptr-event 7 :touch 1 130 130)))
-(. wb_board :pointers (list (ptr-event 8 :touch 1 210 190)))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 90 100) (ptr-event 8 :touch 1 250 220)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 130 130)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 210 190)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 90 100) (ptr-event 0x1000008 :touch 1 250 220)))
 (assert-true "two fingers that move apart to twice as far make it twice the size, about their middle"
 	(wb-near? (wb-box) '(67 77 273 243) 0.05))
-(. wb_board :pointers (list (ptr-event 8 :touch 0 250 220)))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 100 100)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 0 250 220)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 100 100)))
 (assert-true "one lets go, the other carries on from where it is and moves it" (wb-near? (wb-box) '(77 77 283 243) 0.05))
-(. wb_board :pointers (list (ptr-event 7 :touch 0 100 100)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 100 100)))
 ;two fingers that turn about their middle turn it
 (defq wb_box0 (wb-box))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 130 160)))
-(. wb_board :pointers (list (ptr-event 8 :touch 1 230 160)))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 180 110) (ptr-event 8 :touch 1 180 210)))
-(. wb_board :pointers (list (ptr-event 7 :touch 0 180 110) (ptr-event 8 :touch 0 180 210)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 130 160)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 230 160)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 180 110) (ptr-event 0x1000008 :touch 1 180 210)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 180 110) (ptr-event 0x1000008 :touch 0 180 210)))
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn"
 	(progn (bind '(x y x1 y1) wb_box0) (bind '(nx ny nx1 ny1) (wb-box))
 		(and (wb-near? (- nx1 nx) (- y1 y) 0.1) (wb-near? (- ny1 ny) (- x1 x) 0.1))))
@@ -330,17 +330,17 @@
 (. wb_board :pointers (list (ptr-event 0 :mouse +pev_right 150 150)))
 (. wb_board :pointers (list (ptr-event 0 :mouse 0 150 150)))
 (assert-list-eq "the mouse, in a box that is not filled, is on nothing" '() (. wb_board :get_selected))
-(. wb_board :pointers (list (ptr-event 7 :touch 1 150 150)))
-(. wb_board :pointers (list (ptr-event 7 :touch 0 150 150)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 150 150)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 150 150)))
 (assert-list-eq "a finger there is on the box" '(2) (. wb_board :get_selected))
 (. wb_board :select (list))
 
 ;a pen draws while a finger holds something else, two owners at once
 (def wb_board :mode :pen)
-(. wb_board :pointers (list (ptr-event 7 :touch 1 300 230)))
-(. wb_board :pointers (list (ptr-event 1 :pen 1 20 250) (ptr-event 7 :touch 1 300 235)))
-(. wb_board :pointers (list (ptr-event 1 :pen 1 60 270) (ptr-event 7 :touch 1 300 240)))
-(. wb_board :pointers (list (ptr-event 1 :pen 0 60 270) (ptr-event 7 :touch 0 300 240)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 300 230)))
+(. wb_board :pointers (list (ptr-event 1 :pen 1 20 250) (ptr-event 0x1000007 :touch 1 300 235)))
+(. wb_board :pointers (list (ptr-event 1 :pen 1 60 270) (ptr-event 0x1000007 :touch 1 300 240)))
+(. wb_board :pointers (list (ptr-event 1 :pen 0 60 270) (ptr-event 0x1000007 :touch 0 300 240)))
 (assert-list-eq "a pen draws while a finger moves the ellipse, both at once" '(1 2 3 5) (wb-bids))
 (assert-list-eq "and what the finger was on is what is selected" '(3) (. wb_board :get_selected))
 
@@ -825,15 +825,15 @@
 ;where each finger is on the board is kept while it is down, and shown
 (defq ct_board (Board (cwb-doc 400 300)) ct_canvas (Canvas 400 300 1))
 (. ct_board :dirty? +board_dirty_overlay)
-(. ct_board :pointers (list (ptr-event 0x10001 :touch 1 100 100) (ptr-event 0x10002 :touch 1 300 200) (ptr-event 0 :mouse 0 50 50)))
+(. ct_board :pointers (list (ptr-event 0x1010001 :touch 1 100 100) (ptr-event 0x1010002 :touch 1 300 200) (ptr-event 0 :mouse 0 50 50)))
 (assert-list-eq "two fingers down are two places kept, a mouse is not one, and what is over the board is to be drawn"
 	'(2 :t) (list (. (get :contacts ct_board) :size) (. ct_board :dirty? +board_dirty_overlay)))
 (. ct_canvas :fill 0) (. ct_board :draw_actors ct_canvas)
 (assert-list-eq "a ring is drawn where each is, and not where neither is" '(:t :t :nil)
 	(list (> (cm-row ct_canvas 100 80 120) 10) (> (cm-row ct_canvas 200 280 320) 10) (> (cm-row ct_canvas 100 180 220) 0)))
-(. ct_board :pointers (list (ptr-event 0x10001 :touch 1 120 100) (ptr-event 0x10002 :touch 0 300 200)))
+(. ct_board :pointers (list (ptr-event 0x1010001 :touch 1 120 100) (ptr-event 0x1010002 :touch 0 300 200)))
 (assert-list-eq "one moved and one lifted: one place, where it now is" '(1 (120 100))
-	(list (. (get :contacts ct_board) :size) (map (const n2i) (. (get :contacts ct_board) :find 0x10001))))
+	(list (. (get :contacts ct_board) :size) (map (const n2i) (. (get :contacts ct_board) :find 0x1010001))))
 (def ct_board :show_contacts :nil)
 (. ct_canvas :fill 0) (. ct_board :draw_actors ct_canvas)
 (assert-eq "with them not to be shown, none is" 0 (cm-row ct_canvas 100 80 160))
@@ -850,52 +850,52 @@
 (defun mh-sel () (sort (cat (. mh_board :get_selected)) (const -)))
 (def mh_board :mode :select)
 ;one finger on the first, then another on the second, and each is moved
-(mh-go '(1 :touch 1 130 130))
-(mh-go '(2 :touch 1 430 130))
+(mh-go '(0x1000001 :touch 1 130 130))
+(mh-go '(0x1000002 :touch 1 430 130))
 (assert-list-eq "a finger on one thing and another on a second: both are selected, each has hold of its own"
 	(list mh_a mh_b) (mh-sel))
-(mh-go '(1 :touch 1 130 230) '(2 :touch 1 530 130))
+(mh-go '(0x1000001 :touch 1 130 230) '(0x1000002 :touch 1 530 130))
 (assert-list-eq "each goes with its own finger, one down and one across, and the third stays"
 	'((100 200) (500 100) (100 400)) (list (mh-at mh_a) (mh-at mh_b) (mh-at mh_c)))
 ;a third finger drags a box out on nothing, round the third thing, while they hold theirs
-(mh-go '(3 :touch 1 80 380))
-(mh-go '(3 :touch 1 180 480) '(1 :touch 1 140 230))
+(mh-go '(0x1000003 :touch 1 80 380))
+(mh-go '(0x1000003 :touch 1 180 480) '(0x1000001 :touch 1 140 230))
 (assert-list-eq "a third finger drags a box out on nothing while they do: what they have is selected still, the box is its own, and the first goes on moving"
 	(list (list mh_a mh_b) 1 '(110 200)) (list (mh-sel) (. (get :bands mh_board) :size) (mh-at mh_a)))
 ;and a fourth another, at the same time
-(mh-go '(4 :touch 1 600 400))
-(mh-go '(4 :touch 1 700 500))
+(mh-go '(0x1000004 :touch 1 600 400))
+(mh-go '(0x1000004 :touch 1 700 500))
 (assert-eq "a fourth drags another box, there are two" 2 (. (get :bands mh_board) :size))
-(mh-go '(4 :touch 0 700 500))
-(mh-go '(3 :touch 0 180 480))
+(mh-go '(0x1000004 :touch 0 700 500))
+(mh-go '(0x1000003 :touch 0 180 480))
 (assert-list-eq "the third lifted: what was in its box is selected with what the two have hold of, and no box is left"
 	(list (list mh_a mh_b mh_c) 0) (list (mh-sel) (. (get :bands mh_board) :size)))
 ;the first finger lifts, the second has hold of its own still
-(mh-go '(1 :touch 0 140 230))
+(mh-go '(0x1000001 :touch 0 140 230))
 (assert-list-eq "the first lifted: what it had is put down and is not selected, the rest is"
 	(list mh_b mh_c) (mh-sel))
-(mh-go '(2 :touch 1 530 180))
+(mh-go '(0x1000002 :touch 1 530 180))
 (assert-list-eq "and the second goes on with its own, and with nothing else" '((110 200) (500 150) (100 400))
 	(list (mh-at mh_a) (mh-at mh_b) (mh-at mh_c)))
 ;a second finger on the same thing, the two of them size it
-(mh-go '(5 :touch 1 550 200))
-(mh-go '(2 :touch 1 510 160) '(5 :touch 1 570 220))
+(mh-go '(0x1000005 :touch 1 550 200))
+(mh-go '(0x1000002 :touch 1 510 160) '(0x1000005 :touch 1 570 220))
 (bind '(mh_x mh_y mh_x1 mh_y1) (map (const n2i) (cwb-bounds (list (first (cwb-find mh_doc mh_b))))))
 (assert-true "a second finger on the thing the first has hold of: between them they make it bigger"
 	(and (> (- mh_x1 mh_x) 100) (> (- mh_y1 mh_y) 100)))
-(mh-go '(5 :touch 0 570 220))
-(mh-go '(2 :touch 1 520 170))
+(mh-go '(0x1000005 :touch 0 570 220))
+(mh-go '(0x1000002 :touch 1 520 170))
 (assert-list-eq "one of the two lifted, the other moves it on from where it is" (list (+ mh_x 10) (+ mh_y 10)) (mh-at mh_b))
-(mh-go '(2 :touch 0 520 170))
+(mh-go '(0x1000002 :touch 0 520 170))
 (assert-list-eq "the last finger up: what it had is selected still" (list mh_b mh_c) (mh-sel))
 ;a finger draws nothing and lets go of nothing that a mouse has hold of
 (. mh_board :select (list))
 (mh-go '(0 :mouse 1 130 430))
-(mh-go '(7 :touch 1 600 300))
-(mh-go '(0 :mouse 1 230 430) '(7 :touch 1 650 350))
+(mh-go '(0x1000007 :touch 1 600 300))
+(mh-go '(0 :mouse 1 230 430) '(0x1000007 :touch 1 650 350))
 (assert-list-eq "a mouse has hold of a thing and a finger goes down on nothing: the mouse has it still, and moves it"
 	(list (list mh_c) '(200 400)) (list (mh-sel) (mh-at mh_c)))
-(mh-go '(7 :touch 0 650 350))
+(mh-go '(0x1000007 :touch 0 650 350))
 (mh-go '(0 :mouse 0 230 430))
 
 ;a pointer is a device and a contact of it, and what a pointer is bound to is its device's

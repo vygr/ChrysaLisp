@@ -48,26 +48,26 @@
 (assert-eq "and then it has none" 0 (. wt_ruler :held))
 
 ;a finger in its middle moves it
-(wt-go '(7 :touch 1 500 300)) (wt-go '(7 :touch 1 520 340)) (wt-go '(7 :touch 0 520 340))
+(wt-go '(0x1000007 :touch 1 500 300)) (wt-go '(0x1000007 :touch 1 520 340)) (wt-go '(0x1000007 :touch 0 520 340))
 (assert-true "a finger on its middle moves it" (wt-near? (get :origin wt_ruler) '(420 340)))
 (assert-list-eq "and draws nothing" '(1 2 3) (wt-ids))
 
 ;a finger holds it still while a pen draws along it: the pen does not move it
-(wt-go '(7 :touch 1 520 340))
+(wt-go '(0x1000007 :touch 1 520 340))
 (wt-go '(1 :pen 1 300 302))
-(wt-go '(1 :pen 1 400 296) '(7 :touch 1 520 340))
+(wt-go '(1 :pen 1 400 296) '(0x1000007 :touch 1 520 340))
 (assert-true "held by a finger, a pen drawing along it does not move it" (wt-near? (get :origin wt_ruler) '(420 340)))
 ;and the finger, no longer alone on it, does not move it either
-(wt-go '(7 :touch 1 540 360))
+(wt-go '(0x1000007 :touch 1 540 360))
 (assert-true "nor does the finger, while it is not alone on it" (wt-near? (get :origin wt_ruler) '(420 340)))
-(wt-go '(1 :pen 0 400 296) '(7 :touch 0 540 360))
+(wt-go '(1 :pen 0 400 296) '(0x1000007 :touch 0 540 360))
 (assert-true "the pen drew its line along the side where the ruler is" (wt-near? (wt-numbers (wt-last-d)) '(300 300 400 300)))
 
 ;two fingers on it move and turn it
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(wt-go '(7 :touch 1 340 300)) (wt-go '(8 :touch 1 460 300))
-(wt-go '(7 :touch 1 400 240) '(8 :touch 1 400 360))
-(wt-go '(7 :touch 0 400 240) '(8 :touch 0 400 360))
+(wt-go '(0x1000007 :touch 1 340 300)) (wt-go '(0x1000008 :touch 1 460 300))
+(wt-go '(0x1000007 :touch 1 400 240) '(0x1000008 :touch 1 400 360))
+(wt-go '(0x1000007 :touch 0 400 240) '(0x1000008 :touch 0 400 360))
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn, where it is"
 	(and (wt-near? (get :angle wt_ruler) +fp_hpi 0.001) (wt-near? (get :origin wt_ruler) '(400 300) 0.1)))
 
@@ -94,9 +94,9 @@
 
 ;two fingers that go apart make it longer, about their middle
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
-(wt-go '(7 :touch 1 350 300)) (wt-go '(8 :touch 1 450 300))
-(wt-go '(7 :touch 1 325 300) '(8 :touch 1 475 300))
-(wt-go '(7 :touch 0 325 300) '(8 :touch 0 475 300))
+(wt-go '(0x1000007 :touch 1 350 300)) (wt-go '(0x1000008 :touch 1 450 300))
+(wt-go '(0x1000007 :touch 1 325 300) '(0x1000008 :touch 1 475 300))
+(wt-go '(0x1000007 :touch 0 325 300) '(0x1000008 :touch 0 475 300))
 (assert-true "two fingers that go half as far apart again make it half as long again, where it is"
 	(and (wt-near? (get :length wt_ruler) 600.0 0.5) (wt-near? (get :origin wt_ruler) '(400 300) 0.1) (wt-near? (get :angle wt_ruler) 0.0 0.001)))
 (assert-true "no wider, and seen no bigger: a point of it is where it was" (wt-near? (. wt_ruler :to_board 100 -40) '(500 260) 0.01))
@@ -449,22 +449,22 @@
 (. t3_stage :add t3_ruler)
 (. t3_ruler :built)
 (defun t3-go (&rest events) (. t3_board :pointers (map (# (apply (const ptr-event) %0)) events)))
-(t3-go '(0x10000 :touch 1 340 300))
-(t3-go '(0x10001 :touch 1 460 300))
-(t3-go '(0x10000 :touch 1 340 320) '(0x10001 :touch 1 460 320))
+(t3-go '(0x1000000 :touch 1 340 300))
+(t3-go '(0x1000001 :touch 1 460 300))
+(t3-go '(0x1000000 :touch 1 340 320) '(0x1000001 :touch 1 460 320))
 (defq t3_at (map (const n2i) (get :origin t3_ruler)))
 (assert-list-eq "two fingers on a ruler move it down by as much as they go" '(400 320) t3_at)
-(t3-go '(0x10002 :touch 1 430 320))
-(t3-go '(0x10002 :touch 1 430 200))
+(t3-go '(0x1000002 :touch 1 430 320))
+(t3-go '(0x1000002 :touch 1 430 200))
 (assert-list-eq "a third finger down on it, and dragged far off: it is where the two have it"
 	'(400 320) (map (const n2i) (get :origin t3_ruler)))
-(t3-go '(0x10000 :touch 1 340 340) '(0x10001 :touch 1 460 340) '(0x10002 :touch 1 430 150))
+(t3-go '(0x1000000 :touch 1 340 340) '(0x1000001 :touch 1 460 340) '(0x1000002 :touch 1 430 150))
 (assert-list-eq "and goes on with the two, whatever the third does" '(400 340) (map (const n2i) (get :origin t3_ruler)))
-(t3-go '(0x10001 :touch 0 460 340))
-(t3-go '(0x10000 :touch 1 350 340) '(0x10002 :touch 1 440 150))
+(t3-go '(0x1000001 :touch 0 460 340))
+(t3-go '(0x1000000 :touch 1 350 340) '(0x1000002 :touch 1 440 150))
 (assert-list-eq "one of the two lifted: the two that are left have it, from where it is" '(410 340)
 	(map (const n2i) (get :origin t3_ruler)))
-(t3-go '(0x10000 :touch 0 350 340) '(0x10002 :touch 0 440 150))
+(t3-go '(0x1000000 :touch 0 350 340) '(0x1000002 :touch 0 440 150))
 
 ;a pen that is near and not down is shown the catch of the edge that would have it if it went down
 (defq hv_board (Board (cwb-doc 800 600)) hv_ruler (Ruler hv_board 400 300) hv_pro (Protractor hv_board 640 590)
@@ -501,7 +501,7 @@
 (defq hv_rim (+ 150.0 (third (rest (first (get :edges hv_round))))))
 (hv-go (list 0 :mouse 0 hv_rim 150))
 (assert-list-eq "a mouse with nothing held on the rim of the round one, and the pen where it was: both" '((:circle 0) (:ruler 0)) (hv-shown))
-(hv-go '(0x10000 :touch 0 400 256))
+(hv-go '(0x1000000 :touch 0 400 256))
 (assert-list-eq "a finger is never near" '((:circle 0) (:ruler 0)) (hv-shown))
 (hv-go '(7 :pen 0 620 60))
 (assert-list-eq "the pen gone off: the one the mouse is at" '((:circle 0)) (hv-shown))

@@ -387,8 +387,11 @@
 			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (. this :extent)
 				:nil near 0.0 0.0 x y))
 		(cond
-			((and near (find tool '(:pen)))
-				;held to an edge, and what it draws is that edge
+			((and near (not (eql kind :eraser)))
+				;held to an edge, and what it draws is that edge. Any contact,
+				;a third finger of the hand that holds the ruler too. Chris:
+				;"you can hold an instrument with 2 fingers and draw your third
+				;or forth down the edges, and they WILL draw !"
 				(bind '(edge px py) near)
 				(elem-set state +tool_state_what :draw)
 				(when (eql (first edge) :arc)
@@ -399,12 +402,32 @@
 				(and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle))
 					(cwb-set shape :fill (cwb-get shape :stroke) :stroke 0))
 				(elem-set state +tool_state_shape shape))
+			((. this :body_taken id kind)
+				;the body is had by another device, or by two of this one:
+				;this contact does nothing till it lifts. A pen on a ruler
+				;fingers hold does not take it, "students can't fight over
+				;them"
+				)
 			(region (elem-set state +tool_state_what (first region))
 				;taken hold of, not drawn along, it comes to the front of the
 				;instruments. By the right button alone it goes to the back
 				;of them, which is how one that is under another is got at
 				(. this :restack stage (/= buttons +pev_right))))
 		state)
+
+	(defmethod :body_taken (id kind)
+		; (. instrument :body_taken id kind) -> :t | :nil
+		;the body, not an edge, is the first device's that went down on it.
+		;Only touch has more than one contact, and only two of them work it
+		;at once, (:two_hands): a third waits, and is one of the two when
+		;one lifts. Is it had already by a device this contact is not of
+		(defq mine (list))
+		(. (get :states this) :each (lambda (oid state)
+			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (push mine oid))))
+		(cond
+			((empty? mine) :nil)
+			((not (eql kind :touch)) :t)
+			((/= (ptr-device (first mine)) (ptr-device id)) :t)))
 
 	(defmethod :restack (stage front)
 		; (. instrument :restack stage front) -> instrument

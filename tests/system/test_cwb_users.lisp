@@ -24,7 +24,7 @@
 (assert-eq "a first pen is the first student" +board_first_student (. us :user_of (ptr-event 0x2000000 :pen 1 0 0)))
 (assert-eq "a second pen is the next" (inc +board_first_student) (. us :user_of (ptr-event 0x3000000 :pen 1 0 0)))
 (assert-eq "the first again is who it was" +board_first_student (. us :user_of (ptr-event 0x2000000 :pen 0 5 5)))
-(assert-eq "an eraser is a device of its own, a student" (+ 2 +board_first_student) (. us :user_of (ptr-event 0x4000000 :eraser 1 0 0)))
+(assert-eq "an eraser is the teacher's, Chris: always under the control of the teacher" +board_teacher (. us :user_of (ptr-event 0x4000000 :eraser 1 0 0)))
 (. us :appoint (ptr-event 0x3000000 :pen 1 0 0))
 (assert-eq "the teacher makes the second pen the teacher's" +board_teacher (. us :user_of (ptr-event 0x3000000 :pen 1 0 0)))
 (assert-eq "and the first is still a student" +board_first_student (. us :user_of (ptr-event 0x2000000 :pen 1 0 0)))
@@ -62,27 +62,21 @@
 (assert-true "and one with no user said, a script, takes from all as it did"
 	(and (. us :bite (path 100.0 100.0 300.0 100.0) 10.0) (< (us-area us 0xffff0000) 9000.0)))
 
-;the other end of a pen is the same device, and the same student: a
-;student rubs out what they drew with the back of their own pen
+;a pen bound to rub out is that pen's user: the first student's pen with
+;its barrel button, bound to the eraser by default, leaves the teacher's
+;and bites the student's own
 (defq us (us-board))
 (us-go us (ptr-event 0x2000000 :pen 1 0 0)) (us-go us (ptr-event 0x2000000 :pen 0 0 0))
-(us-go us (ptr-event 0x2000000 :eraser 1 100 100)) (us-go us (ptr-event 0x2000000 :eraser 1 300 100))
-(us-go us (ptr-event 0x2000000 :eraser 0 300 100))
-(assert-eq "the back of the first student's pen leaves the teacher's" 10000.0 (us-area us 0xffff0000))
-(assert-true "and bites the first student's own" (< (us-area us 0xff0000ff) 9000.0))
+(us-go us (ptr-event 0x2000000 :pen +pev_right 100 100)) (us-go us (ptr-event 0x2000000 :pen +pev_right 300 100))
+(us-go us (ptr-event 0x2000000 :pen 0 300 100))
+(assert-eq "a student's pen bound to rub out leaves the teacher's" 10000.0 (us-area us 0xffff0000))
+(assert-true "and bites the student's own" (< (us-area us 0xff0000ff) 9000.0))
 
-;an eraser device on the board, as a hand moves it
+;the eraser device, as a hand moves it, is the teacher's and takes from all
 (defq us (us-board))
-(us-go us (ptr-event 0x2000000 :pen 1 0 0)) (us-go us (ptr-event 0x2000000 :pen 0 0 0))
 (us-go us (ptr-event 0x5000000 :eraser 1 100 100)) (us-go us (ptr-event 0x5000000 :eraser 1 300 100))
 (us-go us (ptr-event 0x5000000 :eraser 0 300 100))
-(assert-eq "an eraser that is a student, drawn through both, leaves the teacher's" 10000.0 (us-area us 0xffff0000))
-(assert-eq "and the first student's, it is another student" 10000.0 (us-area us 0xff0000ff))
-(defq us (us-board))
-(. us :appoint (ptr-event 0x5000000 :eraser 1 0 0))
-(us-go us (ptr-event 0x5000000 :eraser 1 100 100)) (us-go us (ptr-event 0x5000000 :eraser 1 300 100))
-(us-go us (ptr-event 0x5000000 :eraser 0 300 100))
-(assert-true "made the teacher's, it takes from both" (and (< (us-area us 0xffff0000) 9000.0) (< (us-area us 0xff0000ff) 9000.0)))
+(assert-true "the eraser takes from the teacher's and the student's" (and (< (us-area us 0xffff0000) 9000.0) (< (us-area us 0xff0000ff) 9000.0)))
 
 ;who made a thing is kept in the file, and the teacher's is not written
 (defq us (us-board) us_out (string-stream (cat "")))

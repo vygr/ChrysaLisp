@@ -457,7 +457,10 @@
 						;them move it, see (:two_hands), it has the same
 						;things. An id is its device and which of its
 						;contacts, lib/cwb/pointer.inc
-						(if (= (>> id 24) (>> (first other) 24))
+						;two contacts of one touch device: Chris, "The only
+						;device that is able to do multi contact
+						;drag/zoom/rotate is the touch device"
+						(if (and (eql kind :touch) (= (ptr-device id) (ptr-device (first other))))
 							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
 							(elem-set state +stroke_tool :idle)))
 					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
@@ -980,14 +983,17 @@
 		; (. board :user_of event) -> user
 		;who the device of a pointer is. The mouse is the teacher's, the
 		;presenter's, Chris: "mouse was assumed to be the teacher/presenter".
-		;Touch is anybody, "touch is anybody, we couldn't tell". A pen is a
-		;student, each its own, numbered as it is first seen, unless the
-		;teacher has made it the teacher's, (:appoint). It is by the device
-		;alone: the other end of a pen is the same device, the SDL3 driver
-		;gives both the one number, and is the same student
+		;Touch is anybody, "touch is anybody, we couldn't tell". The eraser
+		;is the teacher's, "the eraser device input was always assumed to be
+		;under the control of the teacher". A pen is a student, each its
+		;own, numbered as it is first seen, unless the teacher has made it
+		;the teacher's, (:appoint), and a pen bound to rub out is that pen's
+		;user. SDL3 gives the other end of a pen as an :eraser, so here that
+		;is the teacher's whoever's pen it is
 		(bind '(id kind &ignore) event)
 		(defq users (get :users this) key (ptr-device id))
 		(cond
+			((eql kind :eraser) +board_teacher)
 			((. users :find key))
 			((eql kind :mouse) +board_teacher)
 			((eql kind :touch) +board_anybody)
