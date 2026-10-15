@@ -1,0 +1,32 @@
+;pictures and the streams under them: read, packed and unpacked, a time
+;for each pixel or each byte. Files of the repo, a screen shot and a cover
+(import "gui/canvas/lisp.inc")
+(import "lib/image/png.inc")
+(import "lib/image/jpg.inc")
+(import "lib/streams/deflate.inc")
+(import "lib/streams/lz4.inc")
+(import "lib/streams/huffman.inc")
+
+(defq bi_png "screen_shot_9.png" bi_jpg "docs/history/press/1994-06_edge_cover.jpg"
+	bi_prog "tests/system/data/jpg_420_prog.jpg" bi_text (load "docs/ai_digest/async_pipelines.md"))
+(defun bi-pixels (file) (bind '(w h &ignore) (canvas-info file)) (* w h))
+(defun bi-pack (fn text &rest args)
+	(defq out (memory-stream))
+	(apply fn (cat (list (string-stream text) out) args))
+	(stream-seek out 0 0)
+	(read-blk out 10000000))
+(defun bi-unpack (fn data &rest args)
+	(apply fn (cat (list (string-stream data) (memory-stream)) args)))
+(defq bi_lz4 (bi-pack (const lz4-compress) bi_text) bi_huff (bi-pack (const huffman-compress) bi_text)
+	bi_z (load "tests/streams/data/deflate_dynamic.z") bi_zlen (length (bi-pack (const inflate-decompress) bi_z :t)))
+
+(bench "PNG, a screen shot of 8 bit RGBA, a pixel" (bi-pixels bi_png) (canvas-load bi_png +load_flag_noswap))
+(bench "JPEG baseline 4:2:0, a cover, a pixel" (bi-pixels bi_jpg) (canvas-load bi_jpg +load_flag_noswap))
+(bench "JPEG progressive 4:2:0, 64 by 64 10 times, a pixel" (* 10 (bi-pixels bi_prog))
+	(times 10 (canvas-load bi_prog +load_flag_noswap)))
+(bench "inflate, the zlib of the deflate test, 100 times, a byte made" (* 100 bi_zlen)
+	(times 100 (bi-unpack (const inflate-decompress) bi_z :t)))
+(bench "lz4 a page of text, a byte" (length bi_text) (bi-pack (const lz4-compress) bi_text))
+(bench "unlz4 it, a byte" (length bi_text) (bi-unpack (const lz4-decompress) bi_lz4))
+(bench "huffman a page of text, a byte" (length bi_text) (bi-pack (const huffman-compress) bi_text))
+(bench "unhuffman it, a byte" (length bi_text) (bi-unpack (const huffman-decompress) bi_huff))
