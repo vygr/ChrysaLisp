@@ -467,6 +467,20 @@ desktop of the agent's own:
 	`widgets`, and `grab` only when the look itself is the question, a
 	picture costs far more tokens than a tree. Do not patch a copy of an
 	app to get it to a place, as I once did; `input` gets there.
+	Pens and fingers too: `finger n down x y`, `finger n to x y`, `finger n
+	up`, `pen down x y [barrel]`, `pen to`, `pen up`, `eraser ...`.
+
+*	**Driving a desktop, what goes wrong.** A Test desktop opens its own
+	Terminal and Eyes a moment after it starts: an app launched at once can
+	end up behind them. Wait for them first, `widgets -w 15 -t Terminal -d
+	0 ; widgets -w 15 -t Eyes -d 0`, then `launch`, so the app is the front
+	window. `-t` finds a window to measure places from, but a click lands
+	on whatever is in front at that point of the screen, as a user's does:
+	with two windows of one title, or one window over another, act only
+	where the one wanted is seen. `-f key=value` finds the first match only.
+	An app that changes its title by its state (the Whiteboard says shared,
+	joined, invited) can be told apart by it. Do not `rack.sh run` while a
+	soak is going, they share one job file.
 
 *	**Run under the GUI boot image:** `./run.sh -n 1 -f` gives a single GUI
 	node with a TUI attached to the host, so piped `lisp -r` snippets can use

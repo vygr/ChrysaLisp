@@ -28,3 +28,5 @@
 	(some (# (nempty? (substr %0 "README.md.zzz"))) (get :text_lines (first (. cf_other :children)))))
 (assert-eq "the name is the file's, from where it is in a folder, whole"
 	"**lee** *sent* `test.md`" (first (get :text_lines (first (. cf_md :children)))))
+(assert-eq "one that came is shown by the name it was sent by, not the one it is kept as"
+	"**lee** *sent* `cube.png`" (first (get :text_lines (first (. (create-file-view "lee" "apps/demos/model/data/chat_1792098960527513_cube.png" 400) :children)))))

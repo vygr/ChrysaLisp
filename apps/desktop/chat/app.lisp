@@ -163,8 +163,11 @@
 	;a file in the chat: a picture is shown, no wider than the page, the
 	;words of a .md are, and of anything else where it was kept is said
 	(defq name (slice path (ifn (rfind "/" path) 0) -1)
-		ext (if (defq dot (rfind "." name)) (slice name (dec dot) -1) "")
-		view (Flow))
+		ext (if (defq dot (rfind "." name)) (slice name (dec dot) -1) ""))
+	;one that came is kept as chat_<time>_<name>, it is shown by its name
+	(and (starts-with "chat_" name) (defq under (find "_" (slice name 5 -1)))
+		(setq name (slice name (+ 6 under) -1)))
+	(defq view (Flow))
 	(def view :flow_flags +flow_down_fill :color +argb_grey15)
 	(def (defq md (Md)) :page_width page_w :zoom 1.0 :base_font_size 13)
 	(. view :add_child md)
@@ -538,7 +541,16 @@
 						(push-chat-msg :nil "global" entry)
 						(broadcast msg :nil)))
 				(config-save)
-				(render-chat-history)))))
+				;shown here as it is sent, as a message is
+				(defq page_w (chat-scroll-page-w) view (create-chat-md my_name (trim (slice entry (inc (find ">" entry)) -1) (const (char-class " \t\r\n"))) page_w))
+				(while (>= (length (. *chat_flow* :children)) +max_display)
+					(. (first (. *chat_flow* :children)) :sub))
+				(. *chat_flow* :add_child view)
+				(bind '(w h) (. *chat_flow* :pref_size))
+				(. *chat_flow* :change_dirty 0 0 (max w page_w) h :t)
+				(. *chat_flow* :layout)
+				(.-> *chat_scroll* :layout :dirty_all)
+				(. *chat_scroll* :visible view)))))
 
 (defun parse-file-msg (msg)
 	; (parse-file-msg msg) -> :nil | (target sender name data)
