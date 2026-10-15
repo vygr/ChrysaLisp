@@ -37,6 +37,8 @@ docs/diagrams/wb_parts.cwb
 
 ## A document
 
+*To change: the document is to have no layers, see [The board to come](#layers).*
+
 A document is a size, a background, and layers. A layer is a name, flags, 1
 for hidden and 2 for locked, and a list of items, the last on top. An item is
 a shape or a group of items.
@@ -103,6 +105,8 @@ unless it was given one.
 
 ## Pointers and the stage
 
+*To change: universal input, buttons that are only buttons, see [The board to come](#universal-input).*
+
 A pointer is anything that points at the board. An event of one is a list:
 
 ```vdu
@@ -147,6 +151,8 @@ its right; a finger moves things. A pointer that is a `:pen` draws what
 it is bound to, `:mode`, or what the board is set to.
 
 ## The board
+
+*To change: no `:mode` of the board, select mode on things, the canvas an object, see [The board to come](#select-mode).*
 
 A `Board` is a document, a stage, bindings, what is selected, and steps to
 undo. It has two actors of its own.
@@ -621,6 +627,8 @@ table from `:length`. Another instrument is another table.
 
 ## The palette
 
+*To change: no menu from a tap on the canvas, the palette a floating menu made from the toolbar, see [The board to come](#binders-the-toolbar-and-floating-menus).*
+
 ```image
 apps/media/whiteboard/data/palette.cwb
 ```
@@ -669,6 +677,8 @@ A new kind of thing on the board is a class on `Actor` with `:hit`,
 a pointer goes down elsewhere.
 
 ## Pens and fingers, from the host up
+
+*To change: a contact said by the event, not by a button; the eraser a device of its own, see [The board to come](#devices-contacts-and-buttons).*
 
 The mouse comes as it always did. A pen or a finger is three more events of
 the host, `src/host/gui_event.h`, pointer down, motion and up, with an id, a
@@ -872,6 +882,217 @@ board 320 330))"`.
 * A line of a pointers file is a sixtieth of a second, and `wait 400` is 400
 thousandths more. A palette opened by a tap is in a picture as far open as it
 then is.
+
+## The board to come
+
+What follows was settled with Chris on the evening of 15 October 2026, from
+how his boards worked, and is what the board is to become. Where it says
+otherwise than the sections above, this is the one. Each of those sections
+says so where it is touched. Nothing of this is built yet.
+
+### Universal input
+
+Chris: "I had all devices stream their inputs into the top of the app and
+get distributed (via collision detection) then I had each object (canvas was
+just an object like any other) act on what their input vector of inputs was.
+Nothing was treated specially." He calls it universal input.
+
+* Every device streams into the top of the board: the mouse, each pen, each
+eraser, each touch panel, and the devices of other machines in a shared
+session. Nothing comes in by a door of its own.
+
+* A contact goes to the object it lands on, by collision, and is that
+object's till it lifts. The objects are the instruments, the floating menus,
+the shapes and groups in select mode, and the canvas, which is the object at
+the back and has whatever lands on nothing.
+
+* Each pass of the board's loop, each object is given its input vector, all
+of its contacts at once, and acts on it. Both fingers of a pinch arrive in
+the same step.
+
+* The canvas is not special. A pan and a pinch of the board are what the
+canvas does with two contacts of one touch device, as a ruler turns with two.
+
+What is here now that this replaces: the `Surface` hit tests the shapes for
+them rather than the shapes being objects; the view takes two fingers on
+nothing for itself, `(. board_view :finger)`, outside the stream; the mouse
+comes by `:mouse_down` and its kin, pens and fingers by `:pointer`; and
+events are given out one at a time as they come.
+
+It is the board's for now. Chris: "This for now is Whiteboard specific,
+although we might have the entire GUI do it once we go multi touch panel."
+
+### Devices, contacts and buttons
+
+* Touch is a device with many contacts and no buttons. All of its contacts
+are the one device, and have the one binding.
+
+* A pen is a device with one contact and two buttons, the tip and the
+barrel, held in any combination, near or touching.
+
+* A mouse is a device with one contact and two or three buttons.
+
+* An eraser is a device of its own, its own id, not a button of the pen. It
+is always in erase mode, and erases along the path its erase shape sweeps.
+A tap of it is a small bite.
+
+* Contacts of a device count up and are never given again.
+
+* A contact is not a button. Touching or not is said by the event, down,
+motion or up, not by a button being held. The host change for this, and for
+an id that has room for where a device comes from, is to be done with
+Chris's desktop free, with the Windows host built and a new snapshot. Today
+the driver gives a finger the left button, and a pen's barrel the right in
+place of the left, so tip and barrel together can not be told from the
+barrel alone.
+
+### What a contact is, decided as it lands
+
+* Only a touch device can have its contacts on several objects at once, and
+they all work. Ten fingers on five instruments, two each, is five pairs.
+
+* On an instrument the zone a contact lands in decides what it is till it
+lifts. On an edge it draws along it, any contact, a third or fourth finger
+of the hand holding the ruler too. On the body it moves, turns or sizes, and
+two contacts of one touch device are a pair. More than two there are
+ignored, so students can not fight over it. A pen on the body of an
+instrument fingers hold does nothing; on its edge it draws.
+
+* A pair is two contacts of one touch device on one object. A pen, a mouse
+or an eraser never pairs, with each other or with a finger.
+
+* A tap is a really quick touch and lift, about a fifth of a second and two
+millimetres. On a shape or a group it takes it in or out of select mode,
+whatever the device is bound to. On the canvas it leaves a dot. A contact
+that moves further, or stays down longer, is a draw, by its binding; a press
+and hold is a draw that has not moved, a dot, never a select. The two
+numbers are to be in one place, to be tuned on a panel.
+
+### Select mode
+
+There is no selection list and no selection object. A shape or a group is
+in select mode or it is not, it shows its handles while it is, and contacts
+that land on it work it as they work anything. A thing in select mode
+remembers which user put it there. An action on a selection, group, delete,
+duplicate, to front, pressed by a device, is on everything that device's
+user has in select mode, from any of their devices, and nobody else's.
+
+### Binders: the toolbar and floating menus
+
+Chris: "the device ID, its buttons, and its contact points, and what those
+combinations are bound to drive the app, not some state held in the singular
+toolbar. The toolbar should really be a place for a device/button combo to
+have its bound action changed."
+
+* There is no current tool, colour or width of the board. The board's
+`:mode`, `:color` and `:width` go.
+
+* A press on a binder binds what pressed it: the device, and the buttons it
+had held. A finger binds touch. A pen's tip binds the tip; the tip with the
+barrel held binds that. A mouse's right button binds the right.
+
+* Floating menus are binders, made from a button on the toolbar, as many as
+anyone wants, dragged about, and each with a button to shut it. They are
+objects among the rest. Two students at the board can each have one, and a
+tap on one binds the device that tapped. Nothing opens from a tap on the
+canvas. The palette, which opens now from a tap on nothing, is to become a
+floating menu.
+
+* What a device is bound to is not shown on the board. On a floating menu
+each device has a small dot of its own colour on what it has chosen.
+
+* Bindings are kept on their owner's machine, a user's own, and come back
+next time, by user, kind of device and buttons, as a device's number is only
+that sitting's. A student's pen starts from the student pen's.
+
+* The finger rings the board draws now, `:show_contacts`, are clutter by
+this, and are to be off but for debugging.
+
+### Users and what they may do
+
+* Every shape and group says which user made it, and it is kept in the file.
+A user, not a device: the teacher is user 0 every time.
+
+* The mouse and the keyboard are the teacher's, user 0. The teacher may make
+a pen the teacher's pen, from a floating menu, which only a teacher's device
+can press: the next pen to touch it is the teacher's. Other pens are
+students, each their own. Touch is anybody, with a student's rights.
+
+* A student can not erase what the teacher or another student made.
+
+* Only the teacher undoes and redoes, and it is of the whole document, the
+last change whoever made it.
+
+### Layers
+
+The document has no layers. Chris: "What's saved and loaded to a file is the
+committed layer, and that's that." It is one list of shapes and groups, back
+to front. A file of today, with layers, is to be read into the one list in
+the order its layers are in.
+
+The board draws three layers. In the middle is the committed one, a picture
+of the document drawn once and kept, redrawn only when a thing goes into it
+or comes out. It is how fast drawing is, it holds no state. In front of it
+and behind it are two layers in flight, drawn as things move: what is being
+pulled to the front and what is being pushed to the back. Two layers, as
+two people can be doing each at once. Now there is one, which goes behind
+the committed one for everyone when anyone pushes a thing back.
+
+### A board shared between machines
+
+* Every Whiteboard says it is there as `*Whiteboard`, with its user's
+name, as Chat does with `*Chat`, so it is seen on every machine of the
+mesh.
+
+* The teacher, or presenter, starts a session and invites. A board that
+joins is given the committed document once, and the changes after it.
+When the teacher goes the session ends. A board that joined then has its own
+document again.
+
+* The teacher's board is the middle of it. Each other board has a stream to
+it and back, and the teacher's sends on to the rest. So there is one order
+of everything, and two that reach for one thing at once are settled by
+which the teacher's board had first: first come first served, between
+machines as on one board. The one that lost has the thing go to where the
+winner has it, and their hand does nothing till it lifts.
+
+* What goes is changes, never the document again: a shape made, things
+moved by a matrix, a bite into pieces, things deleted, an order changed.
+They must all arrive, in order, and the stream does that, an `:out` waits
+for the `:in` to say it has them.
+
+* What is in flight, a line as it is drawn, a thing as it is carried, goes
+as it is now, not every step of it. Each board has one of these gone to
+each other board at a time, and sends the next when that one is answered,
+whatever is newest then. So a fast link has many a second and a slow one
+fewer, each the newest, and nothing is measured. Chris: "we don't need to
+update the remotes as fast as the board the person is using".
+
+* A student sees what they draw at once. Everyone sees everyone's lines as
+they are drawn.
+
+* Each board has its own view, its own bindings, menus and instruments. The
+devices of another machine are alien here, bound on their owner's menus.
+The view is not held still on one board by a line drawn on another, as each
+has its own.
+
+* Whether those who joined may save a copy of the document is the host's to
+say as the session starts, and they may not unless it is said. A business
+meeting may not want it. It is the app that keeps to it: a board that
+joined holds the document to draw it.
+
+### In the order it is to be built
+
+1. Who made a thing, kept on it, and what a user may do (item 59).
+2. Universal input: the canvas an object, input vectors, the pair rule in one
+place, tap and draw.
+3. Select mode on things, and actions on a user's own.
+4. The binders: the toolbar and floating menus, bindings by device and
+buttons, saved by user.
+5. Two layers in flight.
+6. No layers in the document.
+7. The shared board.
+8. The host change, with Chris's desktop free.
 
 ## What is not done
 
