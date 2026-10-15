@@ -494,7 +494,7 @@
 		(case what
 			(:draw
 				(. board :drop_temp id)
-				(if (third (cwb-flat shape)) (. board :commit shape)))
+				(if (third (cwb-flat shape)) (. board :commit shape (. board :user_of event))))
 			(:close
 				;put away, if it came up where it went down
 				(bind '(lx ly) (. this :to_own x y))

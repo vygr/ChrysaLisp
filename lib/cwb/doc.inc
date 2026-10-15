@@ -34,9 +34,11 @@
 
 ;the slots of an item, a list. None is named size, an enum has a size
 ;of its own by that name. The first few are of both kinds, then those
-;of a shape, the items of a group, and what is kept and not saved
+;of a shape, the items of a group, and what is kept and not saved. user
+;is who made it, 0 the teacher, see lib/cwb/board.inc. Chris: "students
+;could not erase things the teacher or the other student had written"
 (enums +cwb 0
-	(enum type id name m props)
+	(enum type id name m props user)
 	(enum kind d fill stroke width rule join cap1 cap2 text font font_size)
 	(enum items)
 	(enum cache))
@@ -44,10 +46,10 @@
 ;the name of each slot in a file, and what a slot has when the file does
 ;not say. A list quoted twice, a + constant that is a list is put in place
 ;of its name as code is read
-(defq +cwb_keys ''(:type :id :name :m :props
+(defq +cwb_keys ''(:type :id :name :m :props :user
 		:kind :d :fill :stroke :width :rule :join :cap1 :cap2 :text :font :font_size
 		:items :cache)
-	+cwb_defaults ''(:shape 0 "" :nil :nil
+	+cwb_defaults ''(:shape 0 "" :nil :nil 0
 		:path "" 0 0xff000000 2.0 :nonzero :round :round :round "" "fonts/OpenSans-Regular.ctf" 24
 		:nil :nil))
 
@@ -78,12 +80,12 @@
 (defun cwb-set (item &rest key_vals)
 	; (cwb-set item [key val] ...) -> item
 	;set what an item has. What it was flattened to is let go of, unless
-	;all that was set was its matrix, its name or its props, which do not
-	;change what it is flattened to
+	;all that was set was its matrix, its name, its props or its user,
+	;which do not change what it is flattened to
 	(defq stale :nil)
 	(each (lambda ((key val))
 		(elem-set item (cwb-slot key) val)
-		(unless (find key '(:m :name :props :id)) (setq stale :t)))
+		(unless (find key '(:m :name :props :id :user)) (setq stale :t)))
 		(partition key_vals 2))
 	(if stale (elem-set item +cwb_cache :nil))
 	item)

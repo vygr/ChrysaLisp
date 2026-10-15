@@ -33,6 +33,11 @@
 
 (defq +board_handle 5.0 +board_near 4.0 +board_turn_gap 24.0)
 
+;who made a thing, and who a device is: the teacher, the presenter, is 0,
+;touch is anybody, and a student is a number from +board_first_student,
+;each pen its own, see (. board :user_of)
+(defq +board_teacher 0 +board_anybody 1 +board_first_student 2)
+
 ;;;;;;;;;;;;;;;;;;
 ; a few small parts
 ;;;;;;;;;;;;;;;;;;
@@ -159,7 +164,7 @@
 				(when (and (nempty? left) (>= (poly-area left) 1.0))
 					(defq own (cwb-mat-paths back left)
 						shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
-							:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name)))
+							:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name) :user (elem-get item +cwb_user)))
 					;what it is drawn with is what was just worked out: kept,
 					;so its path is not read back from its text to find it
 					(bind '((x y) (x1 y1)) (vector-bounds-2d own))
@@ -168,8 +173,11 @@
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
 		out))
 
-(defun board-bite (doc swept &optional lines but tol)
-	; (board-bite doc swept [lines but tol]) -> :nil | (made gone swaps)
+(defun board-bite (doc swept &optional lines but tol user)
+	; (board-bite doc swept [lines but tol user]) -> :nil | (made gone swaps)
+	;user, whose eraser it is: a shape another made is left as it is, but
+	;by the teacher's, +board_teacher, or with no user said. Chris: "students
+	;could not erase things the teacher or the other student had written"
 	;swaps is what stands in the place of each thing that was bitten,
 	;((id (shape ...)) ...), for whoever had hold of it
 	;tol, how near a line a point of a thing may be and be left out, see
@@ -205,6 +213,7 @@
 					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
 				((and lines (cwb-rub? item)))
 				((and but (find (elem-get item +cwb_id) but)))
+				((and user (/= user +board_teacher) (/= user (elem-get item +cwb_user))))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(and (vector-collide-boxes-2d reach (Mat3x2-box box full))
@@ -371,10 +380,10 @@
 		;anything rubbed out
 		(raise :board)
 		(defq todo (get :rub_todo board) ways (list) done :nil)
-		(. todo :each (lambda (id (way reach)) (push ways (list id way reach))))
-		(each (lambda ((id way reach))
+		(. todo :each (lambda (id (way reach user)) (push ways (list id way reach user))))
+		(each (lambda ((id way reach user))
 			(. todo :erase id)
-			(when (. board :bite way reach)
+			(when (. board :bite way reach :nil user)
 				(setq done :t)
 				(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
 			ways)
@@ -510,7 +519,8 @@
 				(when (nempty? (defq words (get :text board)))
 					(. board :commit (cwb-text words (. board :snap_x x) (. board :snap_y y)
 						:fill (. (get :bindings board) :value event :color (get :color board))
-						:font (get :font board) :font_size (get :font_size board)))))
+						:font (get :font board) :font_size (get :font_size board))
+						(. board :user_of event))))
 			(:t ;something is drawn. What was selected is let go of: it is
 				;not what is being worked on now, and a colour picked for
 				;what is drawn next is not to be given to it
@@ -577,7 +587,7 @@
 				(cond
 					((eql (get :rub_mode board) :bite)
 						(defq todo (get :rub_todo board) going (. todo :find id))
-						(unless going (. todo :insert id (setq going (list (path ox oy) reach))))
+						(unless going (. todo :insert id (setq going (list (path ox oy) reach (. board :user_of event)))))
 						(push (first going) x y))
 					((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
 				(elem-set state +stroke_points (list x y))
@@ -671,11 +681,11 @@
 						;a line drawn by hand has the points that matter, and is curved
 						(defq kept (if (> (length points) 4) (path-filter 0.5 (apply (const path) points) (path)) points))
 						(cwb-set item :d (board-pen-d (map (const identity) kept)))
-						(. board :commit item)
+						(. board :commit item (. board :user_of event))
 						;one written soon after the last is of the same word
 						(. board :written item id snap))
 					((and (/= (length points) 2) (third (cwb-flat item)))
-						(. board :commit item))))))
+						(. board :commit item (. board :user_of event)))))))
 
 	(defmethod :pointers (stage events)
 		; (. surface :pointers stage events) -> surface
@@ -950,7 +960,9 @@
 		;:hover_edges: it is shown the catch of the edge of an instrument
 		;that would have it if it went down, those are :hover_shown
 		:hovers (Fmap 11) :hover_edges :t :hover_shown (list)
-		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0)
+		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
+		;who each device is, by its kind and number, see (:user_of)
+		:users (Fmap 11) :next_user +board_first_student)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -959,6 +971,38 @@
 	(defmethod :get_doc () (get :doc this))
 	(defmethod :get_stage () (get :stage this))
 	(defmethod :get_bindings () (get :bindings this))
+
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; users, who a device is, rights
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	(defmethod :user_of (event)
+		; (. board :user_of event) -> user
+		;who the device of a pointer is. The mouse is the teacher's, the
+		;presenter's, Chris: "mouse was assumed to be the teacher/presenter".
+		;Touch is anybody, "touch is anybody, we couldn't tell". A pen is a
+		;student, each its own, numbered as it is first seen, unless the
+		;teacher has made it the teacher's, (:appoint). It is by the device
+		;alone: the other end of a pen is the same device, the SDL3 driver
+		;gives both the one number, and is the same student
+		(bind '(id kind &ignore) event)
+		(defq users (get :users this) key (ptr-device id))
+		(cond
+			((. users :find key))
+			((eql kind :mouse) +board_teacher)
+			((eql kind :touch) +board_anybody)
+			(:t (. users :insert key (defq user (get :next_user this)))
+				(def this :next_user (inc user))
+				user)))
+
+	(defmethod :appoint (event)
+		; (. board :appoint event) -> board
+		;the device of this pointer is the teacher's from now on, a pack of
+		;pens has one that is the teacher's. Who may do it is the caller's
+		;to say, only a device that is the teacher's already
+		(bind '(id &ignore) event)
+		(. (get :users this) :insert (ptr-device id) +board_teacher)
+		this)
 
 	(defmethod :set_doc (doc)
 		; (. board :set_doc doc) -> board
@@ -1179,9 +1223,11 @@
 	; changes to the document
 	;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	(defmethod :commit (item)
-		; (. board :commit item) -> item
-		;put an item on the layer that is drawn on, as a step that can be undone
+	(defmethod :commit (item &optional user)
+		; (. board :commit item [user]) -> item
+		;put an item on the layer that is drawn on, as a step that can be
+		;undone, made by that user, the teacher's if not said
+		(if user (elem-set item +cwb_user user))
 		(. this :snapshot)
 		(cwb-add (get :doc this) item (. this :layer_index))
 		(. this :changed (list (elem-get item +cwb_id)))
@@ -1317,8 +1363,8 @@
 		(and (find mode '(:part :bite)) (. this :bite (path x y (n2f x1) (n2f y1)) r) (setq done :t))
 		done)
 
-	(defmethod :bite (points &optional r shape)
-		; (. board :bite points [r shape]) -> :t | :nil
+	(defmethod :bite (points &optional r shape user)
+		; (. board :bite points [r shape user]) -> :t | :nil
 		;what an eraser covers as it goes along a line, x y x y ..., taken
 		;out of every thing it touches, each of which is then flat: a
 		;filled outline of what was left of it. The eraser is a path about
@@ -1335,8 +1381,10 @@
 		;turn it and shape it with the eraser... that REALLY impressed
 		;people !" Whose eraser it is is not known, a pen and a finger
 		;are two devices and may be one person, so anybody's does
+		;A user's eraser leaves what another made, the teacher's takes from
+		;all, see (board-bite)
 		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
-				:nil (/ 0.25 (get :zoom this)))))
+				:nil (/ 0.25 (get :zoom this)) user)))
 			(bind '(made gone swaps) did)
 			(def this :selected (reduce (lambda (out id)
 					(cond

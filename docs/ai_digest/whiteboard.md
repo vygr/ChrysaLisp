@@ -932,9 +932,11 @@ barrel, held in any combination, near or touching.
 
 * A mouse is a device with one contact and two or three buttons.
 
-* An eraser is a device of its own, its own id, not a button of the pen. It
-is always in erase mode, and erases along the path its erase shape sweeps.
-A tap of it is a small bite.
+* An eraser is always in erase mode, and erases along the path its erase
+shape sweeps. A tap of it is a small bite. On Chris's boards it was a
+device of its own. SDL3 gives the other end of a pen the pen's own number,
+a kind of `:eraser`, so here it is the same device as its pen: who the pen
+is, a student or the teacher, the other end of it is too.
 
 * Contacts of a device count up and are never given again.
 
