@@ -19,6 +19,12 @@
 ;module
 (env-push)
 
+;a block of codes, native, and a stored block read into the ring and
+;written from it by the ring's functions of lz4
+(ffi (path-to-absolute "./inflate_codes") inflate-codes)
+(ffi (path-to-absolute "./lz4_read") inflate-read)
+(ffi (path-to-absolute "./lz4_write") inflate-write)
+
 (defq +inflate_window 32768
 	;the base and extra bits of each length code from 257, and of each
 	;distance code
@@ -58,13 +64,9 @@
 	; (inflate-decompress in_stream out_stream [zlib]) -> :nil | :t
 	;the bytes a DEFLATE stream is, raw, or with zlib's head and sum round
 	;it. :nil if it is not one, or stops before its end, what was got by
-	;then is written
-	(defq bits (array 0 0) ring (fill (nums) +inflate_window 0)
-		at 0 ok :t last_block :nil fixed :nil)
-	(defun emit (b)
-		(write-char out_stream b)
-		(elem-set ring at b)
-		(setq at (logand (inc at) (const (dec +inflate_window)))))
+	;then is written. A block of codes is read by native code, and what it
+	;makes kept in a ring of the last 32KB, at is how many bytes have been
+	(defq bits (array 0 0) ring (str-alloc +inflate_window) at 0 ok :t last_block :nil fixed :nil)
 	;zlib: a method of 8, deflate, and a check that the head is one
 	(when zlib
 		(defq cmf (read-bits in_stream bits 8) flg (read-bits in_stream bits 8))
@@ -75,32 +77,26 @@
 		(defq kind (read-bits in_stream bits 2))
 		(cond
 			((= kind 0)
-				;stored: from the next byte, a length, its complement, and that many
+				;stored: from the next byte, a length, its complement, and that
+				;many, read into the ring and written from it, a part at a time
+				;that the ring has room for. No bits are left over by then
 				(read-bits in_stream bits (logand (elem-get bits 1) 7))
 				(defq len (read-bits in_stream bits 16) nlen (read-bits in_stream bits 16))
 				(cond
-					((/= (logxor len nlen) 0xffff) (setq ok :nil))
-					(:t (times len (emit (read-bits in_stream bits 8))))))
+					((or (< nlen 0) (/= (logxor len nlen) 0xffff) (/= (elem-get bits 1) 0)) (setq ok :nil))
+					(:t (while (> len 0)
+							(defq n (min len 16384))
+							(setq at (inflate-read ring at in_stream n) len (- len n))
+							(inflate-write ring at out_stream n)))))
 			((or (= kind 1) (= kind 2))
 				(defq codes (if (= kind 1) (ifn fixed (setq fixed (inflate-fixed))) (inflate-dynamic in_stream bits)))
 				(cond
 					((not codes) (setq ok :nil))
-					(:t (bind '(literals distances) codes)
-						(defq going :t)
-						(while (and ok going)
-							(defq sym (huffman-symbol in_stream bits literals))
-							(cond
-								((< sym 0) (setq ok :nil))
-								((< sym 256) (emit sym))
-								((= sym 256) (setq going :nil))
-								((> sym 285) (setq ok :nil))
-								(:t (defq i (- sym 257)
-										len (+ (elem-get +inflate_len_base i) (read-bits in_stream bits (elem-get +inflate_len_extra i)))
-										d (huffman-symbol in_stream bits distances))
-									(cond
-										((or (< d 0) (> d 29)) (setq ok :nil))
-										(:t (defq back (+ (elem-get +inflate_dist_base d) (read-bits in_stream bits (elem-get +inflate_dist_extra d))))
-											(times len (emit (elem-get ring (logand (- at back) (const (dec +inflate_window))))))))))))))
+					(:t (bind '((lcounts lsyms) (dcounts dsyms)) codes)
+						(if (< (setq at (inflate-codes in_stream bits
+								(list lcounts lsyms dcounts dsyms +inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra)
+								ring at out_stream)) 0)
+							(setq ok :nil)))))
 			(:t (setq ok :nil))))
 	ok)
 

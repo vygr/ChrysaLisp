@@ -460,3 +460,163 @@
 	(signature '(:str :NUM :stream :NUM)))
 
 (def-func-end)
+
+;;;;;;;;;
+; inflate
+;;;;;;;;;
+
+(defmacro inflate-bits (n dst)
+	;n bits of the stream into dst, -1 at its end
+	`(call :stream :read_bits (vpx in ,n pool psize) (vpx _ ,dst pool psize)))
+
+(defmacro inflate-symbol (counts syms most)
+	;the next symbol of a code into sym, -1 if the bits are no code, as
+	;huffman-symbol has it: the codes of a length one after the other
+	;huffman-symbol has it: the codes of a length one after the other. A
+	;(vpif) is a block of its own, a (break) in one leaves it, not the loop:
+	;a loop is named to be left from inside one, (break 'name), or gone
+	;round again, (continue 'name)
+	`(progn
+		(assign (vpx 0 0 0 1 -1) (vpx code first index len sym))
+		(loop-while (vpx (<= len ,most)))
+			(inflate-bits 1 bit)
+			(breakif (vpx (= bit -1)))
+			(assign (vpx (+ code bit) (elem ,counts (* len +long_size))) (vpx code count))
+			(breakif (vpx (< (- code first) count)))
+			(assign (vpx (+ index count) (<< (+ first count) 1) (<< code 1) (+ len 1)) (vpx index first code len))
+		(loop-end)
+		(vpif (vpx (/= bit -1)))
+			(vpif (vpx (<= len ,most)))
+				(assign (vpx (elem ,syms (* (+ index (- code first)) +long_size))) (vpx sym))
+			(endif)
+		(endif)))
+
+(defmacro inflate-flush ()
+	;what is in the ring and not yet written, to the out stream
+	`(progn
+		(assign (vpx (& flushed mask) (- at flushed)) (vpx start n))
+		(vpif (vpx (> n 0)))
+			(vpif (vpx (<= (+ start n) (+ mask 1))))
+				(call :stream :write (vpx out (+ ring start) n))
+			(else)
+				(call :stream :write (vpx out (+ ring start) (- (+ mask 1) start)))
+				(call :stream :write (vpx out ring (- n (- (+ mask 1) start))))
+			(endif)
+			(assign (vpx at) (vpx flushed))
+		(endif)))
+
+(def-func (path-to-absolute "./inflate_codes"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :f0-:f15
+	;info
+	;(inflate-codes in bits codes ring at out) -> at | -1, a block of
+	;DEFLATE coded by its two codes, to its end. codes is (lcounts lsyms
+	;dcounts dsyms lbase lextra dbase dextra), the two codes as huffman-table
+	;makes them and the bases and extra bits of the lengths and distances.
+	;ring a str of 2^n, at the number of bytes made so far, all written to
+	;out by the end. -1 if the stream ends, or the bits are not a block
+
+	(def-vars
+		(ptr this args in out bits codes lco lso dco dso lbo leo dbo deo)
+		(plong cp lcounts lsyms dcounts dsyms lbase lext dbase dext bitsp)
+		(pubyte ring)
+		(long pool at flushed sym bit)
+		(uint psize mask lmost dmost code first index len count n start back d i mlen))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5) '(:obj :obj :obj :obj :num :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5) (vpx in bits codes ring at out))
+	(assign (vpx (.> bits +array_begin) (- (.> ring +str_length) 1) at) (vpx bitsp mask flushed))
+	(assign (vpx (& (.> ring +str_data))) (vpx ring))
+	(assign (vpx (elem bitsp 0) (elem bitsp +long_size)) (vpx pool psize))
+	;the eight of codes, each a nums, and where the elements of each begin
+	(assign (vpx (.> codes +array_begin)) (vpx cp))
+	(assign (vpx (elem cp 0) (elem cp +ptr_size) (elem cp (* 2 +ptr_size)) (elem cp (* 3 +ptr_size)))
+		(vpx lco lso dco dso))
+	(assign (vpx (elem cp (* 4 +ptr_size)) (elem cp (* 5 +ptr_size)) (elem cp (* 6 +ptr_size)) (elem cp (* 7 +ptr_size)))
+		(vpx lbo leo dbo deo))
+	(assign (vpx (- (.> lco +array_length) 1) (- (.> dco +array_length) 1)) (vpx lmost dmost))
+	(assign (vpx (.> lco +array_begin) (.> lso +array_begin) (.> dco +array_begin) (.> dso +array_begin))
+		(vpx lcounts lsyms dcounts dsyms))
+	(assign (vpx (.> lbo +array_begin) (.> leo +array_begin) (.> dbo +array_begin) (.> deo +array_begin))
+		(vpx lbase lext dbase dext))
+
+	(loop-start)
+		(inflate-symbol lcounts lsyms lmost)
+		(breakif (vpx (= sym -1)))
+		(breakif (vpx (= sym 256)))
+		(vpif (vpx (< sym 256)))
+			(assign (vpx sym) (vpx (elem ring (& at mask))))
+			(assign (vpx (+ at 1)) (vpx at))
+		(elseif (vpx (>= sym 286)))
+			(assign (vpx -1) (vpx sym))
+		(else)
+			;a length and a distance back, both with their extra bits
+			(assign (vpx (- sym 257)) (vpx sym))
+			(assign (vpx (elem lext (* sym +long_size))) (vpx n))
+			(inflate-bits n bit)
+			(assign (vpx (+ (elem lbase (* sym +long_size)) bit)) (vpx mlen))
+			(vpif (vpx (= bit -1)))
+				(assign (vpx -1) (vpx sym))
+			(else)
+				(inflate-symbol dcounts dsyms dmost)
+				(vpif (vpx (= sym -1)))
+				(elseif (vpx (>= sym 30)))
+					(assign (vpx -1) (vpx sym))
+				(else)
+					(assign (vpx sym (elem dext (* sym +long_size))) (vpx d n))
+					(inflate-bits n bit)
+					(assign (vpx (+ (elem dbase (* d +long_size)) bit)) (vpx back))
+					;not from before the start, nor further back than the ring
+					(vpif (vpx (= bit -1)))
+						(assign (vpx -1) (vpx sym))
+					(elseif (vpx (> back at)))
+						(assign (vpx -1) (vpx sym))
+					(elseif (vpx (> back mask)))
+						(assign (vpx -1) (vpx sym))
+					(else)
+						(assign (vpx 0) (vpx i))
+						(loop-while (vpx (< i mlen)))
+							(assign (vpx (elem ring (& (- at back) mask))) (vpx (elem ring (& at mask))))
+							(assign (vpx (+ at 1) (+ i 1)) (vpx at i))
+						(loop-end)
+					(endif)
+				(endif)
+			(endif)
+		(endif)
+		(breakif (vpx (= sym -1)))
+		;written out before it can be written over
+		(vpif (vpx (>= (- at flushed) 16384)))
+			(inflate-flush)
+		(endif)
+	(loop-end)
+	(inflate-flush)
+
+	(assign (vpx pool psize) (vpx (elem bitsp 0) (elem bitsp +long_size)))
+	(vpif (vpx (= sym -1)))
+		(assign (vpx -1) (vpx at))
+	(endif)
+	(call :num :create (vpx at) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(inflate-codes in bits codes ring at out)" +error_msg_wrong_types))
+	(signature '(:stream :array :list :str :NUM :stream)))
+
+	(pop-scope-syms)
+
+(def-func-end)
