@@ -32,6 +32,11 @@
 ;module
 (env-push)
 
+;the next symbol of a code, native, (huffman-symbol in bits table) -> symbol
+;| -1, read a bit at a time, -1 at the end of the stream or if the bits
+;are no code
+(ffi (path-to-absolute "./huffman_symbol") huffman-symbol)
+
 (defq +huffman_block 65536)
 
 (defun huffman-lengths (freqs limit)
@@ -127,24 +132,6 @@
 				(elem-set offsets len (inc (elem-get offsets len)))))
 		lengths)
 	(list counts symbols))
-
-(defun huffman-symbol (in bits table)
-	; (huffman-symbol in bits table) -> symbol | -1
-	;the next symbol of a code, read a bit at a time, -1 at the end of
-	;the stream or if the bits are no code
-	(bind '(counts symbols) table)
-	(defq at 0 lo 0 index 0 len 0 most (dec (length counts)) found -1)
-	(while (and (< found 0) (< len most))
-		(++ len)
-		(defq bit (read-bits in bits 1))
-		(cond
-			((< bit 0) (setq len most))
-			(:t (setq at (logior at bit))
-				(defq count (elem-get counts len))
-				(cond
-					((< (- at lo) count) (setq found (elem-get symbols (+ index (- at lo)))))
-					(:t (setq index (+ index count) lo (<< (+ lo count) 1) at (<< at 1)))))))
-	found)
 
 ;the lengths of a code as it is stored: how many symbols have a code, and
 ;each of them, and its length, in 5 bits
