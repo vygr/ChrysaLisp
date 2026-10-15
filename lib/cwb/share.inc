@@ -33,11 +33,52 @@
 	;the ids of the document's items, the back one first
 	(map (# (elem-get %0 +cwb_id)) (cwb-items doc)))
 
-(defun share-start (board)
-	; (share-start board) -> board
-	;from now what changes in the document is noted for those it is shared with
-	(def board :share_log (list) :share_peers (Fmap 11) :remote_temp (Fmap 11))
+(defun share-tops (doc ids)
+	; (share-tops doc ids) -> ids
+	;the items of the document, not those in a group, that are or have
+	;in them one of these
+	(defq want (cwb-id-set ids) out (list))
+	(each (lambda (item)
+			(defq todo (list item) hit :nil)
+			(while (and (not hit) (defq next (pop todo)))
+				(if (cwb-id? want (elem-get next +cwb_id))
+					(setq hit :t)
+					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items)))))
+			(if hit (push out (elem-get item +cwb_id))))
+		(cwb-items doc))
+	out)
+
+(defun share-start (board &optional host)
+	; (share-start board [host]) -> board
+	;from now what changes in the document is noted for those it is shared
+	;with. The host's, the teacher's, says who has hold of what
+	(def board :share_log (list) :share_peers (Fmap 11) :remote_temp (Fmap 11)
+		:share_holds (Fmap 11) :share_host host)
 	board)
+
+;Who has hold of what. Chris: "first come first served for who is
+;manipulating what shapes/groups !", between machines as on one board. Each
+;board keeps, by id, :self for what its own hands hold, or the board that
+;has it. The host's says who: a board that says it has hold of a thing has
+;it if no one else has. A board that joined takes what the host says: a
+;thing it holds that the host says another has is that other's, it goes
+;where they have it and is let go of here
+
+(defun share-self-holds (board)
+	; (share-self-holds board) -> board
+	;what this board's hands hold now is its own, if no one else has it
+	(defq holds (get :share_holds board) mine (share-tops (get :doc board) (get :floating board)) gone (list))
+	(. holds :each (lambda (id who) (and (eql who :self) (not (find id mine)) (push gone id))))
+	(each (# (. holds :erase %0)) gone)
+	(each (# (unless (. holds :find %0) (. holds :insert %0 :self))) mine)
+	board)
+
+(defun share-held-for (board key)
+	; (share-held-for board key) -> ids
+	;what is held by any but that one: what it is to be told is taken
+	(defq out (list))
+	(. (get :share_holds board) :each (lambda (id who) (unless (eql who key) (push out id))))
+	out)
 
 (defun share-stop (board)
 	; (share-stop board) -> board
@@ -55,25 +96,14 @@
 	; (share-drop board key) -> board
 	;one no longer sent to, and what it was drawing goes
 	(. (get :share_peers board) :erase key)
+	;what it held it holds no more
+	(defq holds (get :share_holds board) let_go (list))
+	(. holds :each (lambda (id who) (if (eql who key) (push let_go id))))
+	(each (# (. holds :erase %0)) let_go)
 	(defq temps (get :remote_temp board) gone (list))
 	(. temps :each (lambda (k (from shape)) (if (eql from key) (push gone k))))
 	(each (# (. temps :erase %0)) gone)
 	(. board :touch +board_dirty_overlay))
-
-(defun share-tops (doc ids)
-	; (share-tops doc ids) -> ids
-	;the items of the document, not those in a group, that are or have
-	;in them one of these
-	(defq want (cwb-id-set ids) out (list))
-	(each (lambda (item)
-			(defq todo (list item) hit :nil)
-			(while (and (not hit) (defq next (pop todo)))
-				(if (cwb-id? want (elem-get next +cwb_id))
-					(setq hit :t)
-					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items)))))
-			(if hit (push out (elem-get item +cwb_id))))
-		(cwb-items doc))
-	out)
 
 (defun share-note (board)
 	; (share-note board) -> board
@@ -104,6 +134,7 @@
 	;what that one is to be sent now, if it is not waiting on the last, and
 	;there is anything to send. It is then waiting, (share-acked)
 	(share-note board)
+	(share-self-holds board)
 	(when (and (defq peer (. (get :share_peers board) :find key)) (not (elem-get peer +peer_busy)))
 		(bind '(last changed & sent_temps) peer)
 		(defq doc (get :doc board) now (share-ids doc) gone (filter (# (not (find %0 now))) last)
@@ -111,14 +142,14 @@
 			;what a hand holds moves with no change said, it goes each time
 			held (share-tops doc (get :floating board))
 			put (if all now (cat (share-tops doc changed) (filter (# (not (find %0 last))) now) held))
-			temps (share-temps board key))
+			temps (share-temps board key) taken (share-held-for board key))
 		(setq put (reduce (# (if (find %1 %0) %0 (push %0 %1))) put (list)))
-		(when (or (nempty? put) (nempty? gone) (not (eql (str now) (str last))) (nempty? temps) sent_temps)
+		(when (or (nempty? put) (nempty? gone) (not (eql (str now) (str last))) (nempty? temps) sent_temps (nempty? taken))
 			(defq want (cwb-id-set put) out (string-stream (cat "")))
 			(tree-save out (scatter (Emap)
 				:ids now :gone gone :all (if all 1 0)
 				:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
-				:temps temps
+				:temps temps :held taken
 				:width (. doc :find :width) :height (. doc :find :height)))
 			(elem-set peer +peer_last now)
 			(elem-set peer +peer_changed (list))
@@ -143,7 +174,29 @@
 	(when (and (defq data (catch (tree-load (string-stream text)) :t)) (Emap? data))
 		(defq doc (get :doc board) items (cwb-items doc)
 			ids (ifn (. data :find :ids) (list)) gone (cwb-id-set (ifn (. data :find :gone) (list)))
-			put (map (const cwb-item-in) (ifn (. data :find :put) (list))))
+			put (map (const cwb-item-in) (ifn (. data :find :put) (list)))
+			held (ifn (. data :find :held) (list)) holds (get :share_holds board))
+		;who has hold of what, first come first served
+		(share-self-holds board)
+		(cond
+			((get :share_host board)
+				;the host: what that one held and holds no more is let go,
+				;and what it holds is its own if no one else has it
+				(defq was (list))
+				(. holds :each (lambda (id who) (and (eql who from) (not (find id held)) (push was id))))
+				(each (# (. holds :erase %0)) was)
+				(each (# (unless (. holds :find %0) (. holds :insert %0 from))) held))
+			(:t ;one that joined: what the host says is another's is, and
+				;what this held of it goes from its hands
+				(defq lost (filter (# (eql (. holds :find %0) :self)) held))
+				(. holds :each (lambda (id who) (and (not (eql who :self)) (not (find id held)) (push lost id))))
+				(each (# (. holds :erase %0)) lost)
+				(each (# (. holds :insert %0 from)) held)
+				(defq taken (cwb-id-set held))
+				(if (some (# (cwb-id? taken %0)) (get :selected board))
+					(. board :select (filter (# (not (cwb-id? taken %0))) (get :selected board))))))
+		;a thing another has hold of is not moved by what this one sends
+		(setq put (filter (# (or (not (defq who (. holds :find (elem-get %0 +cwb_id)))) (eql who from))) put))
 		;what is gone
 		(defq kept (filter (# (not (cwb-id? gone (elem-get %0 +cwb_id)))) items))
 		;what is put, in its own place, or on top

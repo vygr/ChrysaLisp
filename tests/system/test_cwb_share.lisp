@@ -5,7 +5,7 @@
 
 ;the teacher's board, and two students', each joined to the teacher's
 ;alone. What would go by mail is passed here by hand
-(defq sh_t (share-start (Board (cwb-doc 400 300)))
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t)
 	sh_a (share-start (Board (cwb-doc 400 300)))
 	sh_b (share-start (Board (cwb-doc 400 300))))
 (share-add sh_t :a) (share-add sh_t :b) (share-add sh_a :t) (share-add sh_b :t)
@@ -80,3 +80,29 @@
 (share-add sh_t :c) (share-add sh_c :t) (share-id-base sh_c 3000000)
 (sh-go sh_t :c sh_c :t)
 (assert-eq "a board that joins is sent all there is" (sh-ids sh_t) (sh-ids sh_c))
+
+;first come first served between machines, Chris: "first come first served
+;for who is manipulating what shapes/groups !"
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t)
+	sh_a (share-start (Board (cwb-doc 400 300)))
+	sh_b (share-start (Board (cwb-doc 400 300))))
+(share-add sh_t :a) (share-add sh_t :b) (share-add sh_a :t) (share-add sh_b :t)
+(share-id-base sh_a 1000000) (share-id-base sh_b 2000000)
+(. sh_t :add (cwb-shape (cwb-d-rect 100 100 150 150) :fill 0xffff0000 :stroke 0))
+(sh-round)
+(defun sh-x (board) (n2i (first (cwb-bounds (cwb-items (. board :get_doc))))))
+;each takes hold of it with the hand, the right button of a mouse of its own
+(. sh_a :pointers (list (ptr-event 0 :mouse +pev_right 120 120)))
+(. sh_b :pointers (list (ptr-event 0 :mouse +pev_right 125 125)))
+(sh-round)
+(assert-eq "two take hold at once: the first the host heard of has it, the other has let it go"
+	(str (list :a (list 1) (list))) (str (list (. (get :share_holds sh_t) :find 1) (. sh_a :get_selected) (. sh_b :get_selected))))
+(. sh_a :pointers (list (ptr-event 0 :mouse +pev_right 170 120)))
+(. sh_b :pointers (list (ptr-event 0 :mouse +pev_right 300 125)))
+(sh-round) (sh-round)
+(assert-eq "what the one that has it does goes to all, what the other does to it goes nowhere"
+	(str (list 150 150 150)) (str (list (sh-x sh_t) (sh-x sh_a) (sh-x sh_b))))
+(. sh_a :pointers (list (ptr-event 0 :mouse 0 170 120)))
+(. sh_a :select (list))
+(sh-round) (sh-round)
+(assert-eq "let go and put down, no one has it" :nil (. (get :share_holds sh_t) :find 1))

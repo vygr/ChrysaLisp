@@ -58,7 +58,7 @@
 			(share-send host "h")
 			(share-title))
 		(:t (setq *share* :host *share_peers* (list) *share_joined* 0)
-			(share-start *board*)
+			(share-start *board* :t)
 			(setq *share_entry* (mail-declare (elem-get select +select_share) "*Whiteboard"
 				(cat (ifn *env_user* "Guest") "+host")))
 			(share-title))))
