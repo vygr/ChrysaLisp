@@ -70,10 +70,11 @@
 
 (defun window-title (window)
 	; (window-title window) -> :nil | str
-	;the text of the first title in a window
-	(defq todo (list window) out :nil)
-	(while (and (not out) (defq v (pop todo)))
-		(if (Title? v)
+	;the text of the title nearest the top of a window, a level at a time,
+	;as a widget in it, the Files of the Docs app, can have a title bar too
+	(defq todo (list window) i -1 out :nil)
+	(while (and (not out) (< (++ i) (length todo)))
+		(if (Title? (defq v (elem-get todo i)))
 			(setq out (get :text v))
 			(each (# (push todo %0)) (. v :children))))
 	out)
