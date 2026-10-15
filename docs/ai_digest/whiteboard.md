@@ -1041,8 +1041,7 @@ of the document drawn once and kept, redrawn only when a thing goes into it
 or comes out. It is how fast drawing is, it holds no state. In front of it
 and behind it are two layers in flight, drawn as things move: what is being
 pulled to the front and what is being pushed to the back. Two layers, as
-two people can be doing each at once. Now there is one, which goes behind
-the committed one for everyone when anyone pushes a thing back.
+two people can be doing each at once.
 
 ### A board shared between machines
 
@@ -1110,7 +1109,10 @@ number, stays till its middle is tapped, binds what taps it; no menu from
 a tap on the board; undo and redo only by the teacher; a dot of each
 device on a floating menu, `(. palette :devices)`; the mouse's and touch's
 bindings kept with the app's state, a pen's not, its number is a sitting's.
-5. Two layers in flight.
+5. Two layers in flight. Built: each thing in flight is behind or in front as
+its own hand took it, `(. board :fly)`, `(. board :back?)`, and the app has
+a canvas for each, `*flight*` in front and `*flight_b*` behind, in an order
+that never changes.
 6. No layers in the document.
 7. The shared board.
 8. The host change, with Chris's desktop free.

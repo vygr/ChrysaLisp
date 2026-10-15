@@ -327,11 +327,11 @@
 	"(draw-flight) (defq s (memory-stream)) (pixmap-write (getf *flight* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (defq f (read-blk s 100000000))"
 	"(print (list (px 150 700) (px 400 700) (. *flight_clip* :get_bounds) (/= 0 (get-uint f (+ (- (length f) (* 1024 768 4)) (* 4 (+ (* 460 1024) 100)))))))"
 	"(wa-mouse :up 500 700 0)"
-	;from the back: the paper, the document, what is in flight, what is over it all. Taken by the right button, what is in flight is behind the document
-	"(defun order () (map (# (cond ((eql %0 *paper*) :paper) ((eql %0 *committed*) :doc) ((eql %0 *flight_clip*) :flight) ((eql %0 *overlay*) :over) ((eql %0 *top*) :top) (:t :tool))) (reverse (. *backdrop* :children))))"
+	;from the back: the paper, what is in flight behind, the document, what is in flight in front, what is over it all. Taken by the right button, a thing is in the flight behind the document, and the order of them is as it was
+	"(defun order () (map (# (cond ((eql %0 *paper*) :paper) ((eql %0 *flight_b*) :back) ((eql %0 *committed*) :doc) ((eql %0 *flight_clip*) :flight) ((eql %0 *overlay*) :over) ((eql %0 *top*) :top) (:t :tool))) (reverse (. *backdrop* :children))))"
 	"(print (order))"
-	"(wa-mouse :down 440 370 3) (wa-mouse :move 450 380 4) (draw-flight) (print (list (order) (get :float_back *board*) *flight_used*))"
-	"(wa-mouse :up 450 380 0) (draw-flight) (print (list (order) *flight_used* (. *board* :get_selected)))"
+	"(wa-mouse :down 440 370 3) (wa-mouse :move 450 380 4) (draw-flight) (draw-flight-back) (print (list (order) (get :float_back *board*) *flight_b_used*))"
+	"(wa-mouse :up 450 380 0) (draw-flight) (draw-flight-back) (print (list (order) *flight_b_used* (. *board* :get_selected)))"
 	;still selected, it is sized by a handle with its flight still behind the document
 	"(wa-mode :select) (bind (quote (kind hx hy)) (slice (elem-get (. (get :handles *board*) :spots) 4) 0 3))"
 	"(wa-mouse :down (+ 240 (n2i hx)) (+ 240 (n2i hy)) 1) (wa-mouse :move (+ 270 (n2i hx)) (+ 240 (n2i hy)) 1) (draw-flight)"
@@ -362,12 +362,12 @@
 (assert-eq "a ruler that lies off the left of the document is drawn there, in the margin, on a canvas of its own no bigger than it, and not on what is over the document" "(:t 0 0 :t :t)" (elem-get wa_out 3))
 (assert-eq "a line that is being drawn is in flight: not on what is over the document, on a canvas the size of the document, where it is"
 	"(0 0 (240 240 1024 768) :t)" (elem-get wa_out 4))
-(assert-eq "from the back: the paper, the document, what is in flight, what is over it, the ruler, and what is over that" "(:paper :doc :flight :over :tool :top)" (elem-get wa_out 5))
-(assert-eq "a thing taken by the right button is in flight behind the document" "((:paper :flight :doc :over :tool :top) :t :t)" (elem-get wa_out 6))
-(assert-eq "let go, it is selected still, and in flight still, behind the document" "((:paper :flight :doc :over :tool :top) :t (1))" (elem-get wa_out 7))
-(assert-eq "sized by a handle, it is still behind the document while it is" "((:paper :flight :doc :over :tool :top) :t)" (elem-get wa_out 8))
+(assert-eq "from the back: the paper, what is in flight behind, the document, what is in flight in front, what is over it, the ruler, and what is over that" "(:paper :back :doc :flight :over :tool :top)" (elem-get wa_out 5))
+(assert-eq "a thing taken by the right button is in the flight behind the document" "((:paper :back :doc :flight :over :tool :top) :t :t)" (elem-get wa_out 6))
+(assert-eq "let go, it is selected still, and in flight still, behind the document" "((:paper :back :doc :flight :over :tool :top) :t (1))" (elem-get wa_out 7))
+(assert-eq "sized by a handle, it is still behind the document while it is" "((:paper :back :doc :flight :over :tool :top) :t)" (elem-get wa_out 8))
 (assert-eq "a click on nothing lets go of it: nothing is in flight, and the document is to be drawn again, once, with it in" "(() :nil :t)" (elem-get wa_out 9))
-(assert-eq "taken by the left button it is in flight in front of the document" "(:paper :doc :flight :over :tool :top)" (elem-get wa_out 10))
+(assert-eq "taken by the left button it is in flight in front of the document" "(:paper :back :doc :flight :over :tool :top)" (elem-get wa_out 10))
 (assert-eq "moved by a hand, its canvas is not drawn again but moved by as much, in a view that stays on the paper, and moved on; let go, it is drawn where it is on the other canvas, which takes the place of the one that was moved"
 	"(:nil (30 15) (240 240 1024 768))(40 -10)(:nil (0 0) :t 1 :t)" (elem-get wa_out 11))
 (assert-eq "dragged 40 off the left of the paper and drawn there, it is drawn all on its canvas, moved over by 44, the canvas put as far to the left; dragged back, the canvas is moved and not drawn on. Off the bottom right, the canvas is put right and down"

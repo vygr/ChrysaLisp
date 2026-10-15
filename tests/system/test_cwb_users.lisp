@@ -127,3 +127,22 @@
 (assert-eq "touch bound to draw, every finger of the panel" (str (list :pen :pen))
 	(str (list (. us_b :value (ptr-event 0x1000001 :touch 1 0 0) :tool) (. us_b :value (ptr-event 0x1000007 :touch 1 0 0) :tool))))
 (assert-eq "and the mouse is as it was" :hand (. us_b :value (ptr-event 0 :mouse +pev_right 0 0) :tool))
+
+;two in flight at once, one pushed to the back and one pulled to the front.
+;Chris: "pull to front and push to back, by multiple users at the same time,
+;so we will have to have 2 inflight layers, back/front and the committed
+;layer in the middle"
+(defq us (us-board))
+(us-go us (ptr-event 0 :mouse +pev_right 100 100))
+(us-go us (ptr-event 0x1000001 :touch 1 300 100))
+(assert-eq "the teacher's box, taken by the right button, is behind; the student's, by a finger, in front"
+	(str (list :t :nil)) (str (list (if (. us :back? 1) :t :nil) (if (. us :back? 2) :t :nil))))
+(us-go us (ptr-event 0 :mouse +pev_right 120 110) (ptr-event 0x1000001 :touch 1 320 110))
+(assert-eq "moved, each is where its hand took it still" (str (list :t :nil)) (str (list (if (. us :back? 1) :t :nil) (if (. us :back? 2) :t :nil))))
+(defq us_c (Canvas 400 300 1))
+(. us_c :fill 0) (. us :draw_flight us_c (Mat3x2) :back)
+(defq us_s (memory-stream)) (pixmap-write (getf us_c +canvas_pixmap 0) us_s 32) (stream-seek us_s 0 0)
+(defq us_d (read-blk us_s 10000000) us_at (- (length us_d) (* 400 300 4)))
+(defun us-px (x y) (get-uint us_d (+ us_at (* 4 (+ x (* y 400))))))
+(assert-eq "the flight behind has the box at the back and not the one in front"
+	(str (list :t :nil)) (str (list (/= 0 (us-px 140 130)) (/= 0 (us-px 340 130)))))

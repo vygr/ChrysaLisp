@@ -70,7 +70,14 @@
 	*full* :nil
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
-	*flight_back* :nil *canvas_size* :nil
+	*canvas_size* :nil
+	;what is in flight behind the document, *flight_b*, a canvas of its own
+	;between the document's and the paper. Two layers in flight, Chris:
+	;"pull to front and push to back, by multiple users at the same time,
+	;so we will have to have 2 inflight layers, back/front and the
+	;committed layer in the middle". It is drawn each time while it has
+	;anything, it is not moved as a picture as the front one is
+	*flight_b* :nil *flight_b_used* :nil
 	;the canvas of what is in flight is in a view the size of the paper,
 	;*flight_clip*, which is what is stacked with the others. While a hand
 	;only moves what is in flight the canvas is not drawn again, it is
@@ -252,7 +259,7 @@
 	;in, each where it was. One added goes behind those there. From the
 	;front: *top*, the instruments, *overlay*, and the three of the document
 	(defq all (cat (list *top*) (map (# (elem-get %0 +tv_canvas)) (reverse *tools*)) (list *overlay*)
-			(if *flight_back* (list *committed* *flight_clip* *paper*) (list *flight_clip* *committed* *paper*)))
+			(list *flight_clip* *committed* *flight_b* *paper*))
 		all (filter (const identity) all) bounds (map (# (. %0 :get_bounds)) all))
 	(each (# (. %0 :sub)) all)
 	(each (# (. *backdrop* :add_child %0)) all)
@@ -368,9 +375,9 @@
 	;	*paper*		the paper, drawn when it changes and not else
 	;	*committed*	the document, one picture, clear where nothing is.
 	;				It is not drawn again while a thing is moved or drawn
-	;	*flight*	what is in flight: a thing as it is moved, a line as
-	;				it is drawn. It is in front of the document's, or
-	;				put behind it for what was taken to the back
+	;	*flight_b*	what is in flight behind the document, taken to the back
+	;	*flight*	what is in flight in front of it: a thing as it is
+	;				moved, a line as it is drawn
 	;	*overlay*	the handles, with the margin round it
 	;	*tools*		a canvas for each instrument, as big as it is, put
 	;				where it lies, (draw-tools)
@@ -379,13 +386,14 @@
 	;the pixels of the one the nodes can reach are let go of by name, they
 	;last till then, whatever becomes of this task
 	(when *committed* (. *committed* :sub) (. *committed* :free))
-	(each (# (if %0 (. %0 :sub))) (list *overlay* *flight_clip* *paper* *top*))
+	(each (# (if %0 (. %0 :sub))) (list *overlay* *flight_clip* *flight_b* *paper* *top*))
 	;the pixels of the document's are shared, if the host has that, for the nodes
 	(setq *committed* (ifn (canvas-shared w h 1) (Canvas w h 1))
 		*overlay* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1)
 		*top* (Canvas (+ w *margin* *margin*) (+ h *margin* *margin*) 1) *top_used* :t
-		*flight* (Canvas w h 1) *paper* (Backdrop) *paper_dirty* :t *flight_used* :nil *flight_back* :nil
-		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1))
+		*flight* (Canvas w h 1) *paper* (Backdrop) *paper_dirty* :t *flight_used* :nil
+		*flight_clip* (View) *flight_at* :nil *flight_spare* (Canvas w h 1)
+		*flight_b* (Canvas w h 1) *flight_b_used* :nil)
 	(. *flight_spare* :set_canvas_flags +canvas_flag_antialias)
 	(def *flight_spare* :color 0)
 	;a view with no colour of its own has its parent's, and covers what is under it
@@ -393,19 +401,21 @@
 	(. *flight_clip* :add_child *flight*)
 	(. *flight* :set_bounds 0 0 w h)
 	(each (# (. %0 :set_canvas_flags +canvas_flag_antialias) (def %0 :color 0))
-		(list *committed* *overlay* *flight* *top*))
+		(list *committed* *overlay* *flight* *flight_b* *top*))
 	(. *flight* :fill 0)
+	(. *flight_b* :fill 0)
 	(. *top* :fill 0)
 	;a child that is added goes behind those there are, so the front one first
-	(.-> *backdrop* (:add_child *top*) (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*) (:add_child *paper*))
+	(.-> *backdrop* (:add_child *top*) (:add_child *overlay*) (:add_child *flight_clip*) (:add_child *committed*)
+		(:add_child *flight_b*) (:add_child *paper*))
 	;the document's, and the two behind it, are in from the corner by the margin
-	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
+	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *flight_b* *paper*))
 	(def *board* :zoom *zoom*)
 	(def *board_view* :zoom *zoom* :margin *margin* :inv (Mat3x2-invert (over-matrix)))
 	(defq doc (. *board* :get_doc))
 	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
 	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
-	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
+	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *flight_b* *paper*))
 	(.-> *image_scroll* :layout :dirty_all)
 	;the canvases of the instruments are in front of the new ones still
 	(if (nempty? *tools*) (tools-stack))
@@ -735,6 +745,11 @@
 		(if (> gone 0) (. *board* :touch +board_dirty_overlay)))
 	gone)
 
+(defun flight-front ()
+	; (flight-front) -> items
+	;what is selected and in flight in front of the document
+	(filter (# (not (. *board* :back? (elem-get %0 +cwb_id)))) (. *board* :selected_items)))
+
 (defun flight-shift ()
 	; (flight-shift) -> :nil | (x y)
 	;has what is in flight only been moved, all of it by the same, since
@@ -744,12 +759,9 @@
 	;nothing else of them is changing, and nothing is being drawn
 	(when (and *flight_at* (= *turn* 0) (= (. (get :temp *board*) :size) 0)
 			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
-		(bind '(zoom ids ms ox oy was_back ds) *flight_at*)
-		(defq now (. *board* :selected_items))
-		;and it is still in front, or still at the back: taken to the back
-		;its box and handles are drawn with it, and in front they are not
-		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids))
-				(eql was_back (get :float_back *board*)))
+		(bind '(zoom ids ms ox oy & ds) *flight_at*)
+		(defq now (flight-front))
+		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids)))
 			(defq ident (const (fixeds 1.0 0.0 0.0 0.0 1.0 0.0))
 				m0 (ifn (elem-get (first now) +cwb_m) ident) o0 (ifn (first ms) ident)
 				dx (- (elem-get m0 2) (elem-get o0 2)) dy (- (elem-get m0 5) (elem-get o0 5)))
@@ -764,22 +776,34 @@
 					now ids ms ds)
 				(list (- (n2i (floor (+ (* dx *zoom*) 0.5))) ox) (- (n2i (floor (+ (* dy *zoom*) 0.5))) oy))))))
 
+(defun draw-flight-back ()
+	; (draw-flight-back) -> :t | :nil
+	;what is in flight behind the document, on its canvas, with its box and
+	;handles, as a thing taken to the back has them there. Drawn each time
+	;while it has anything, and once more to clear it. Was it drawn
+	(defq down (filter (# (. *board* :back? %0)) (cat *landing* *landed*))
+		flying (or (get :float_back *board*) (nempty? down)))
+	(when (or flying *flight_b_used*)
+		(defq m (view-matrix))
+		(. *flight_b* :fill 0)
+		(when (nempty? down)
+			(setq down (cwb-id-set down))
+			(each (lambda ((name flags items))
+				(unless (bits? flags 1) (cwb-draw-items *flight_b* (cwb-pick items down) m)))
+				(cwb-layers (. *board* :get_doc))))
+		(when (get :float_back *board*)
+			(. *board* :draw_flight *flight_b* m :back)
+			(. *board* :draw_selected *flight_b* m))
+		(setq *flight_b_used* flying)
+		:t))
+
 (defun draw-flight ()
 	; (draw-flight) -> :t | :nil
-	;what is in flight, on its canvas, which is put in front of the
-	;document's or behind it, as the board says. Is the canvas not what it
-	;was: it has something on it now, or had and has not
-	(defq back (get :float_back *board*) flying (. *board* :in_flight?)
-		down (cat *landing* *landed*))
-	(when (and flying (not (eql back *flight_back*)))
-		;the three that are the size of the document are taken out and put
-		;back in the order they are now in. One added goes behind those there
-		(setq *flight_back* back)
-		(each (# (. %0 :sub)) (list *flight_clip* *committed* *paper*))
-		(each (# (. *backdrop* :add_child %0)) (if back (list *committed* *flight_clip* *paper*) (list *flight_clip* *committed* *paper*)))
-		(bind '(w h) (canvas-size))
-		(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *paper*))
-		(. *backdrop* :dirty_all))
+	;what is in flight in front of the document, on its canvas. Is the
+	;canvas not what it was: it has something on it now, or had and has
+	;not. What is behind is (draw-flight-back)
+	(defq flying (. *board* :in_flight?)
+		down (filter (# (not (. *board* :back? %0))) (cat *landing* *landed*)))
 	(bind '(w h) (canvas-size))
 	(defq shift (and flying (empty? down) (catch (flight-shift) :t)))
 	(cond
@@ -797,12 +821,11 @@
 		;that, or other things are drawn with it, it is drawn where it is,
 		;and then it is not moved as a picture, (flight-shift), but drawn
 		;each time
-		(defq now (if flying (. *board* :selected_items) (list)) ox 0 oy 0 whole :nil
+		(defq now (if flying (flight-front) (list)) ox 0 oy 0 whole :nil
 			quiet (and (nempty? now) (empty? down) (= (. (get :temp *board*) :size) 0)))
 		(when (and quiet (defq box (cwb-bounds now)))
 			(bind '(bx by bx1 by1) (Mat3x2-box box (view-matrix)))
-			;with room for its handles, if they are drawn with it
-			(defq room (if back 34 4)
+			(defq room 4
 				bx (- (n2i (floor bx)) room) by (- (n2i (floor by)) room)
 				bx1 (+ (n2i (floor bx1)) room 1) by1 (+ (n2i (floor by1)) room 1))
 			(and (<= (- bx1 bx) w) (<= (- by1 by) h)
@@ -818,14 +841,12 @@
 			(each (lambda ((name flags items))
 				(unless (bits? flags 1) (cwb-draw-items onto (cwb-pick items down) m)))
 				(cwb-layers (. *board* :get_doc))))
-		(if flying (. *board* :draw_flight onto m))
-		;taken to the back, its box and handles are at the back with it
-		(and flying back (. *board* :draw_selected onto m))
+		(if flying (. *board* :draw_flight onto m :front))
 		;what is on it, where each thing was when it was put there, and how
 		;far over it was drawn
 		(setq *flight_used* (or flying (nempty? down))
 			*flight_at* (if whole
-				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy back
+				(list *zoom* (map (# (elem-get %0 +cwb_id)) now) (map (# (elem-get %0 +cwb_m)) now) ox oy :nil
 					(map (# (elem-get %0 +cwb_d)) now))))
 		(cond
 			(moved
@@ -886,7 +907,7 @@
 	;new canvases first
 	(unless (eql (str (canvas-size)) (str *canvas_size*)) (board-resized))
 	(defq m (view-matrix) doc_dirty (. *board* :dirty? +board_dirty_doc)
-		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil show_under :nil show_parts :nil
+		append_dirty (. *board* :dirty? +board_dirty_append) show :nil show_over :nil show_under :nil show_back :nil show_parts :nil
 		;all of the document's picture, or only parts of it
 		damage (if doc_dirty (. *board* :take_damage)))
 	(unless *damage_parts* (setq damage :all))
@@ -930,12 +951,14 @@
 	(when (. *board* :dirty? +board_dirty_overlay)
 		(draw-over)
 		(if (draw-flight) (setq show_under :t))
+		(if (draw-flight-back) (setq show_back :t))
 		(sync-ui)
 		(setq show_over :t))
 	;shown last, when all else is done
 	(if show (. *committed* :swap +swap_write))
 	(if show_parts (show-parts *committed* show_parts))
 	(if show_under (. *flight* :swap +swap_write))
+	(if show_back (. *flight_b* :swap +swap_write))
 	(if show_over (. *overlay* :swap +swap_write))
 	(when *top_show*
 		(setq *top_show* :nil)

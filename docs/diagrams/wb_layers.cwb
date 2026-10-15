@@ -141,7 +141,7 @@
 									10
 									:m
 									((:path 6)
-										1.00000 0.00000 98.75109 0.00000 1.00000 34.00000
+										1.00000 0.00000 84.76409 0.00000 1.00000 34.00000
 									)
 									:kind
 									:text
@@ -150,7 +150,7 @@
 									:stroke
 									0
 									:text
-									"[what is selected, or being drawn: one picture, moved while it is only dragged]"
+									"[what is pulled to the front, or being drawn: one picture, moved while only dragged]"
 									:font_size
 									11
 								)
@@ -266,7 +266,7 @@
 									19
 									:m
 									((:path 6)
-										1.00000 0.00000 239.24682 0.00000 1.00000 18.00000
+										1.00000 0.00000 233.80725 0.00000 1.00000 18.00000
 									)
 									:kind
 									:text
@@ -275,7 +275,7 @@
 									:stroke
 									0
 									:text
-									"[*flight*, behind]"
+									"[*flight_b*, behind]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
@@ -287,7 +287,7 @@
 									20
 									:m
 									((:path 6)
-										1.00000 0.00000 115.17388 0.00000 1.00000 34.00000
+										1.00000 0.00000 78.97070 0.00000 1.00000 34.00000
 									)
 									:kind
 									:text
@@ -296,7 +296,7 @@
 									:stroke
 									0
 									:text
-									"[the same canvas, put here for what the right button took to the back]"
+									"[what is pushed to the back, a canvas of its own: both are used at once, by two hands]"
 									:font_size
 									11
 								)

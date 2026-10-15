@@ -511,8 +511,12 @@
 						(elem-set state +stroke_box (cwb-bounds mine))
 						;what is selected is in flight, (:touch), and its flight is
 						;in front of the document or behind it as it was taken,
-						;and stays there till it is taken again. The first hand says
-						(unless holding (def board :float_back (if back :t)))
+						;and stays there till it is taken again. Each hand says for
+						;what it has: two people can be pulling one thing to the
+						;front and pushing another to the back at once, Chris: "we
+						;will have to have 2 inflight layers, back/front and the
+						;committed layer in the middle"
+						(. board :fly (map (# (elem-get %0 +cwb_id)) mine) back)
 						(. board :touch +board_dirty_overlay))
 					(:t ;on nothing. With nothing selected, and nothing put
 						;away by it, it may be a tap, see (:end). What
@@ -981,6 +985,9 @@
 		;:hover_edges: it is shown the catch of the edge of an instrument
 		;that would have it if it went down, those are :hover_shown
 		:hovers (Fmap 11) :hover_edges :t :hover_shown (list)
+		;what is in flight behind the document, by id, the rest is in front,
+		;and what was behind as it landed, (:fly). :float_back is if any is
+		:back_ids (list) :was_back (list)
 		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
 		;who each device is, by its kind and number, see (:user_of)
 		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11))
@@ -1070,8 +1077,12 @@
 			(. this :changed floating)
 			(. this :changed selected)
 			(def this :floating (cat selected))
-			;a flight of other things starts in front
-			(def this :float_back :nil)
+			;a thing that leaves the flight leaves its side of it, and what was
+			;behind is said so while it lands; a thing new to it is in front
+			(defq back (get :back_ids this))
+			(def this :was_back (filter (# (not (cwb-id? is %0))) back)
+				:back_ids (filter (# (cwb-id? is %0)) back))
+			(def this :float_back (nempty? (get :back_ids this)))
 			(setq flags (logior flags +board_dirty_doc +board_dirty_overlay)))
 		(def this :dirty (logior (get :dirty this) flags))
 		this)
@@ -1105,8 +1116,21 @@
 		;these items are selected, and so in flight, in front of the
 		;document or with back behind it
 		(. this :select ids)
-		(def this :float_back (and back (nempty? ids) :t))
+		(. this :fly ids back)
 		(. this :touch +board_dirty_overlay))
+
+	(defmethod :fly (ids back)
+		; (. board :fly ids back) -> board
+		;these, in flight, are behind the document, or in front of it
+		(defq set (cwb-id-set ids))
+		(def this :back_ids (cat (filter (# (not (cwb-id? set %0))) (get :back_ids this)) (if back ids (list))))
+		(def this :float_back (nempty? (get :back_ids this)))
+		(. this :touch +board_dirty_overlay))
+
+	(defmethod :back? (id)
+		; (. board :back? id) -> :t | :nil
+		;is it in flight behind the document, or was it as it landed
+		(or (find id (get :back_ids this)) (find id (get :was_back this))))
 
 	(defmethod :changed (ids)
 		; (. board :changed ids) -> board
@@ -1804,16 +1828,21 @@
 		;is anything in flight: being moved about, or being drawn
 		(or (nempty? (get :floating this)) (> (. (get :temp this) :size) 0)))
 
-	(defmethod :draw_flight (canvas &optional m)
-		; (. board :draw_flight canvas [m]) -> board
+	(defmethod :draw_flight (canvas &optional m side)
+		; (. board :draw_flight canvas [m side]) -> board
 		;what is in flight and nothing else: the items being moved about,
-		;and what is being drawn and not yet kept
-		(when (nempty? (defq floating (get :floating this)))
+		;and what is being drawn and not yet kept. Of one side, :front or
+		;:back, if said: what is being drawn is in front
+		(defq floating (get :floating this) back (cwb-id-set (get :back_ids this)))
+		(case side
+			(:front (setq floating (filter (# (not (cwb-id? back %0))) floating)))
+			(:back (setq floating (filter (# (cwb-id? back %0)) floating))))
+		(when (nempty? floating)
 			(setq floating (cwb-id-set floating))
 			(each (lambda ((name flags items))
 				(cwb-draw-items canvas (cwb-pick items floating) m))
 				(cwb-layers (get :doc this))))
-		(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
+		(unless (eql side :back) (. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m))))
 		this)
 
 	(defmethod :draw_overlay (canvas &optional m no_flight no_selected)
