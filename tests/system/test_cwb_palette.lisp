@@ -285,3 +285,33 @@
 (. (first (palettes pb_board)) :close)
 (pl-tap pb_board 7 :eraser +pev_left 600 100)
 (assert-eq "a tap of the other end of a pen on nothing opens none, it is an eraser and no more" 0 (length (palettes pb_board)))
+
+;a floating menu shows a dot of each device on what it has bound. Chris: "on
+;the float menus each device showed a little dot (coloured per device, of
+;that board) to show what that device had selected as its modes"
+(defq pf_board (Board (cwb-doc 400 400)))
+(. pf_board :tick 1000000)
+(defq pf (palette-float pf_board 200 200))
+(. pf_board :tick 3000000)
+(assert-eq "a floating menu is no device's, and has no dots till one is bound" 0 (length (. pf :devices)))
+(.-> (. pf_board :get_bindings)
+	(:set :pen 0x2000000 +pev_left :color 0xffe03131)
+	(:set :touch 0x1000000 :nil :mode :rect))
+(assert-eq "two devices bound, two dots, the first bound the first colour"
+	(str (list 0xffff9f1c 0xff2ec4b6)) (str (map (const first) (. pf :devices))))
+(defq pf_canvas (Canvas 400 400 1))
+(. pf_canvas :fill 0)
+(. pf :draw pf_canvas (Mat3x2))
+(defq pf_stream (memory-stream))
+(pixmap-write (getf pf_canvas +canvas_pixmap 0) pf_stream 32)
+(stream-seek pf_stream 0 0)
+(defq pf_data (read-blk pf_stream 10000000) pf_at (- (length pf_data) (* 400 400 4)))
+(defun pf-has (col)
+	;is that colour on the canvas, near it, as it is drawn soft at its edges
+	(some (lambda (i)
+			(defq p (get-uint pf_data (+ pf_at (* 4 i))))
+			(and (< (abs (- (logand p 0xff) (logand col 0xff))) 12)
+				(< (abs (- (logand (>> p 8) 0xff) (logand (>> col 8) 0xff))) 12)
+				(< (abs (- (logand (>> p 16) 0xff) (logand (>> col 16) 0xff))) 12)))
+		(range 0 (* 400 400))))
+(assert-true "each device's dot is drawn" (and (pf-has 0xffff9f1c) (pf-has 0xff2ec4b6)))

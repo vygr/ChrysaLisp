@@ -29,6 +29,8 @@
 	;and how long it takes to shut, microseconds
 	+pal_open 220000 +pal_lag 50000 +pal_shut 120000
 	+pal_back 0xf0283038 +pal_hot 0xff3d6fd0 +pal_ink 0xffffffff +pal_mark 0xff58c0ff
+	;the dot of each device on a floating menu, in the order they were bound
+	+pal_device_cols ''(0xffff9f1c 0xff2ec4b6 0xffe71d36 0xff9b5de5 0xfff15bb5 0xff00bbf9)
 	+pal_tools ''(:select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
@@ -382,13 +384,25 @@
 			(* open (- 1.0 (max 0.0 (min 1.0 (/ (n2f (- now shut)) (n2f +pal_shut))))))
 			open))
 
+	(defmethod :devices ()
+		; (. palette :devices) -> ((color what) ...)
+		;each device that has been bound to something of its own, the
+		;colour of its dot and what it is bound to. Chris: "on the float
+		;menus each device showed a little dot (coloured per device, of
+		;that board) to show what that device had selected as its modes"
+		(defq out (list))
+		(each (lambda ((kind id buttons what))
+				(if id (push out (list (elem-get +pal_device_cols (% (length out) (length +pal_device_cols))) what))))
+			(reverse (get :rules (. (get :board this) :get_bindings))))
+		out)
+
 	(defmethod :draw (canvas &optional m)
 		; (. palette :draw canvas [m]) -> palette
 		;on a canvas, by the matrix the board is seen by. Each ring is as
 		;far open as it is, and turns as it opens
 		(defq board (get :board this) hover (get :hover this) wedges (. this :get_wedges)
 			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
-			snap (/= (get :snap board) 0.0))
+			snap (/= (get :snap board) 0.0) devices (if (get :floating this) (. this :devices)))
 		(bind '(ox oy) (get :origin this))
 		(defq turn (get :view_turn board)
 			base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
@@ -403,12 +417,28 @@
 						(defq what (elem-get wedge +wedge_what) val (elem-get wedge +wedge_val))
 						(push items (elem-get wedge (if (eql wedge hover) +wedge_hot +wedge_back)))
 						(if (elem-get wedge +wedge_icon) (push items (elem-get wedge +wedge_icon)))
-						(if (case what
-								(:tool (eql val mode))
-								(:color (= val color))
-								(:width (= val width))
-								(:action (and (eql val :snap) snap)))
-							(push items (elem-get wedge +wedge_mark)))))
+						(cond
+							;a floating menu is nobody's: a dot of each device
+							;on what it has
+							(devices
+								(defq key (case what (:tool :mode) (:color :color) (:width :width)) mine (list))
+								(each (lambda ((col bound))
+										(and key (defq at (find key bound)) (eql (elem-get bound (inc at)) val)
+											(push mine col)))
+									devices)
+								(defq r (- (elem-get wedge +wedge_r1) 6.0)
+									a0 (elem-get wedge +wedge_a0) a1 (elem-get wedge +wedge_a1))
+								(each (lambda (col)
+										(bind '(dx dy) (pal-point r (+ a0 (/ (* (- a1 a0) (n2f (inc (!)))) (n2f (inc (length mine)))))))
+										(push items (cwb-shape (cwb-d-ellipse dx dy 3.5) :fill col :stroke +pal_ink :width 0.75)))
+									mine)
+								(and (eql what :action) (eql val :snap) snap (push items (elem-get wedge +wedge_mark))))
+							((case what
+									(:tool (eql val mode))
+									(:color (= val color))
+									(:width (= val width))
+									(:action (and (eql val :snap) snap)))
+								(push items (elem-get wedge +wedge_mark))))))
 					wedges)
 				(cwb-draw-items canvas items (Mat3x2-mul base
 					(Mat3x2-mul (Mat3x2-scale open) (Mat3x2-rot (* (- 1.0 open) -0.8)))))))
