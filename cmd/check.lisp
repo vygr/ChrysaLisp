@@ -98,6 +98,9 @@
             given to (map), (each), (filter), (some), (reduce),
             (sort), (lines!) or the like, or the :each of a
             map or a set, which call it with an element.
+    global  a *name* made at the top of a module, not
+            exported, used in a function of it: it is looked
+            for when the function runs, and is gone by then.
     self    in the method :m of a class, a (call :c :m '(:r0
             ...)) of the same method of this class or one
             above it, that is not static: a call goes by the
@@ -120,7 +123,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -351,6 +354,34 @@
 					used)))
 			body)))
 
+(defun check-global (file region exported)
+	;a *name* made by a (defq) at the top of a module and not exported,
+	;used in a function of it: a name that is not a function is looked for
+	;when the function runs, and the module's names are gone by then
+	(defq own (list))
+	(each (lambda (k)
+			(defq f (forms-of k))
+			(and (nempty? f) (eql (first (first f)) :symbol) (eql (third (first f)) "defq")
+				(each (lambda (n)
+						(and (odd? (!)) (eql (first n) :symbol) (> (length (third n)) 2)
+							(starts-with "*" (third n)) (ends-with "*" (third n))
+							(not (. exported :find (third n)))
+							(push own (third n))))
+					f)))
+		region)
+	(when (nempty? own)
+		(each (lambda (k)
+				(defq f (forms-of k))
+				(when (and (nempty? f) (eql (first (first f)) :symbol) (find (third (first f)) '("defun" "defmacro" "defmethod")))
+					(defq todo (list (rest k)))
+					(while (defq nodes (pop todo))
+						(each (lambda (n)
+								(and (eql (first n) :symbol) (find (third n) own)
+									(found file n "global" (third n) " of the module, not exported, is looked for when the function runs, and is gone by then"))
+								(if (defq sub (tree-form? n)) (push todo sub)))
+							nodes))))
+			region)))
+
 (defun check-unquote (file top)
 	;(env-push) (defun f () ...) (defun g () `(... ,f ...)) (export-symbols
 	;'(g)) (env-pop): f is not there when g runs. Of each module of a file,
@@ -364,6 +395,7 @@
 			(cond
 				((eql head "env-push") (setq in :t region (list) exported (Fset 31) quoted_all :t))
 				((and in (eql head "env-pop"))
+					(and quoted_all (find "global" checks) (check-global file region exported))
 					(when quoted_all
 						(defq own (Fset 31))
 						(each (lambda (k)
@@ -389,7 +421,7 @@
 												((defq nk (tree-form? next))
 													(defq nf (forms-of nk))
 													(and (nempty? nf) (eql (first (first nf)) :symbol) (third (first nf))))))
-											(and name (. own :find name)
+											(and name (. own :find name) (find "unquote" checks)
 												(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
 											;a (static-qq) is made as it is read, while the module is there
 											(and (defq sub (tree-form? n)) (not (tree-form? n "static-qq")) (not (tree-form? n "static-qqp"))
@@ -696,7 +728,7 @@
 							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
-			(if (find "unquote" checks) (check-unquote file top))
+			(if (or (find "unquote" checks) (find "global" checks)) (check-unquote file top))
 			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
