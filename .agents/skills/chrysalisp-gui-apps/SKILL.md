@@ -451,6 +451,9 @@ desktop of the agent's own:
 	the Files of Docs, which has a title bar of its own, does not stand for
 	the window. A picture costs far more to look at than a tree: use
 	`widgets` first, `grab` small and seldom, and read the image with Read.
+	To grab a part of a page that is further down, bring it into sight with
+	`(. scroll :visible view)`, as the Docs search does, not by setting the
+	sliders.
 
 *	**Run under the GUI boot image:** `./run.sh -n 1 -f` gives a single GUI
 	node with a TUI attached to the host, so piped `lisp -r` snippets can use
