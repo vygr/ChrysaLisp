@@ -38,6 +38,13 @@
 ;each pen its own, see (. board :user_of)
 (defq +board_teacher 0 +board_anybody 1 +board_first_student 2)
 
+;a tap: a contact that lifts within this long, microseconds, and this near
+;to where it landed, on the screen. Chris: "a short tap for select mode
+;toggle is really quick tap. Not a press and hold." A tap on a thing takes
+;it in or out of select mode, whatever the contact is bound to draw; on
+;nothing it is what is drawn, a dot. Longer, or further, it is a draw
+(defq +board_tap_time 200000 +board_tap_near +board_near)
+
 ;;;;;;;;;;;;;;;;;;
 ; a few small parts
 ;;;;;;;;;;;;;;;;;;
@@ -291,7 +298,7 @@
 ;what is kept for a pointer that is down on the surface, a list
 ;again is that what a hand went down on was selected already, (:end)
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap box again))
+	(enum tool x y points item moved last_x last_y snap box again began))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -432,7 +439,7 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil)
+		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board))
 			holding (. this :holding))
 		(case tool
 			(:hand
@@ -524,12 +531,9 @@
 						:fill (. (get :bindings board) :value event :color (get :color board))
 						:font (get :font board) :font_size (get :font_size board))
 						(. board :user_of event))))
-			(:t ;something is drawn. What was selected is let go of: it is
-				;not what is being worked on now, and a colour picked for
-				;what is drawn next is not to be given to it
-				;Unless a hand has hold of it, a finger that holds a thing
-				;still while a pen draws
-				(and (not holding) (nempty? (get :selected board)) (. board :select (list)))
+			(:t ;something is drawn. What is in select mode stays so: only a
+				;tap takes a thing in or out, (:end), and another may be
+				;drawing beside what one has selected
 				(elem-set state +stroke_x (. board :snap_x x))
 				(elem-set state +stroke_y (. board :snap_y y))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
@@ -623,11 +627,10 @@
 						;nothing to tap on that is nothing: a thing that covers
 						;all there is to see, on a board with no toolbars. The
 						;first tap on such a thing selects it, the next asks
-						(defq near (/ +board_near (get :zoom board)))
-						(and (elem-get state +stroke_again) (defq menu (get :menu board))
-								(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
-							(unless (and (eql kind :touch) (. board :dismiss event))
-								(menu board x y event)))
+						;A tap on what was selected already takes it out of select
+						;mode, as a tap of a pen on it does
+						(and (elem-get state +stroke_again) (. this :tap? state x y)
+							(each (# (. board :toggle_select (elem-get (first %0) +cwb_id) (. board :user_of event))) item))
 						;put down, it is selected still, and in flight still.
 						;Unless other hands have hold of other things: then
 						;what this one had is put down and is no longer
@@ -677,9 +680,14 @@
 					(menu board x y event))
 				(. board :touch +board_dirty_overlay))
 			(:pan)
-			(:t ;what was drawn goes into the document, if it is anything
+			(:t ;what was drawn goes into the document, if it is anything. A
+				;tap on a thing is not a draw: the thing goes in or out of
+				;select mode, whatever this is bound to draw
 				(. board :drop_temp id)
 				(cond
+					((and (. this :tap? state x y)
+							(defq hit (cwb-hit (get :doc board) sx sy (/ +board_near (get :zoom board)))))
+						(. board :toggle_select (elem-get (first hit) +cwb_id) (. board :user_of event)))
 					((and (find tool '(:pen)) (>= (length points) 2))
 						;a line drawn by hand has the points that matter, and is curved
 						(defq kept (if (> (length points) 4) (path-filter 0.5 (apply (const path) points) (path)) points))
@@ -689,6 +697,16 @@
 						(. board :written item id snap))
 					((and (/= (length points) 2) (third (cwb-flat item)))
 						(. board :commit item (. board :user_of event)))))))
+
+	(defmethod :tap? (state x y)
+		; (. surface :tap? state x y) -> :t | :nil
+		;did a contact lift as a tap: soon, and near where it landed. A
+		;board that is told no time, (:tick), goes by the distance alone
+		(raise :board)
+		(bind '(& sx sy &ignore) state)
+		(defq near (/ +board_tap_near (get :zoom board)))
+		(and (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
+			(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
 
 	(defmethod :pointers (stage events)
 		; (. surface :pointers stage events) -> surface
@@ -965,7 +983,7 @@
 		:hovers (Fmap 11) :hover_edges :t :hover_shown (list)
 		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
 		;who each device is, by its kind and number, see (:user_of)
-		:users (Fmap 11) :next_user +board_first_student)
+		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11))
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -1179,6 +1197,26 @@
 		; (. board :select ids) -> board
 		(def this :selected (cat ids))
 		(. this :touch +board_dirty_overlay))
+
+	(defmethod :toggle_select (id user)
+		; (. board :toggle_select id user) -> board
+		;a thing in or out of select mode, by a tap. It is that user's
+		;selection, an action on a selection is on a user's own, see
+		;(:selected_by)
+		(defq selected (get :selected this) selectors (get :selectors this))
+		(cond
+			((find id selected)
+				(. selectors :erase id)
+				(. this :select (filter (# (/= %0 id)) selected)))
+			(:t (. selectors :insert id user)
+				(. this :select (cat selected (list id))))))
+
+	(defmethod :selected_by (user)
+		; (. board :selected_by user) -> ids
+		;what that user put in select mode by a tap. Chris: an action on a
+		;selection is on "the user's own selections"
+		(defq selectors (get :selectors this))
+		(filter (# (eql (. selectors :find %0) user)) (get :selected this)))
 
 	(defmethod :get_selected () (get :selected this))
 

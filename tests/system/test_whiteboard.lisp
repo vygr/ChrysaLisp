@@ -287,7 +287,7 @@
 (assert-eq "a colour picked while it is gives it that colour" ":t" (elem-get wa_out 1))
 (assert-eq "another tool picked, it is let go of" "()" (elem-get wa_out 2))
 (assert-eq "and a colour picked then is for what is drawn next, it keeps its own" ":t" (elem-get wa_out 3))
-(assert-eq "what is selected when a line is begun, however it came to be, is let go of" "()" (elem-get wa_out 4))
+(assert-eq "what is selected stays so when a line is begun elsewhere, only a tap takes a thing out of select mode" "(1)" (elem-get wa_out 4))
 
 ;a corner that is dragged keeps the shape of the thing, or with the lock off is free
 (defq wa_out (wa-run (cat

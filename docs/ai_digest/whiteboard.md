@@ -1093,8 +1093,15 @@ joined holds the document to draw it.
 `:user` on an item, `(. board :user_of event)`, `(. board :appoint event)`,
 an eraser that keeps to its own, `tests/system/test_cwb_users.lisp`.
 2. Universal input: the canvas an object, input vectors, the pair rule in one
-place, tap and draw.
-3. Select mode on things, and actions on a user's own.
+place, tap and draw. Built so far: a pair is two contacts of one touch
+device, on an instrument, a shape and the board; an instrument's edge draws
+for any contact but the eraser and its body is the first device's; a tap,
+`+board_tap_time` and `+board_tap_near`, on a thing toggles its select mode
+whatever the contact draws, on nothing a dot.
+3. Select mode on things, and actions on a user's own. Built so far: a thing
+tapped remembers who, `(. board :selected_by user)`; drawing no longer lets
+go of what is selected. The actions still take all that is selected, till
+the binders say who pressed them.
 4. The binders: the toolbar and floating menus, bindings by device and
 buttons, saved by user.
 5. Two layers in flight.

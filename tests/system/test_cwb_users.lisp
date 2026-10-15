@@ -84,3 +84,29 @@
 (assert-eq "only the student's says who made it" 1 (length (filter (# (nempty? (substr %0 ":user"))) (split (str us_out) (ascii-char 10)))))
 (assert-eq "read back, each is who made it" (str (list +board_teacher +board_first_student))
 	(str (map (# (elem-get %0 +cwb_user)) (cwb-items (cwb-load (string-stream (str us_out)))))))
+
+;a tap, Chris: "a short tap for select mode toggle is really quick tap. Not
+;a press and hold". On a thing it takes it in or out of select mode whatever
+;the contact is bound to draw; on nothing it is a dot; held, it is a draw
+(defun us-tap (board id kind x y held)
+	(. board :tick (get :time board))
+	(us-go board (ptr-event id kind 1 x y))
+	(. board :tick (+ (get :time board) held))
+	(us-go board (ptr-event id kind 0 x y)))
+(defq us (us-board))
+;strokes soon one after another are not put in a group as a word here
+(def us :time 1000000 :auto_group 0)
+(us-tap us 0x2000000 :pen 100 100 50000)
+(assert-eq "a quick tap of a pen bound to draw on the teacher's box selects it" (str (list 1)) (str (. us :get_selected)))
+(assert-eq "and draws nothing" 2 (length (cwb-items (. us :get_doc))))
+(assert-eq "it is the student's selection, not the teacher's" (str (list (list 1) (list)))
+	(str (list (. us :selected_by +board_first_student) (. us :selected_by +board_teacher))))
+(us-tap us 0x2000000 :pen 102 101 50000)
+(assert-eq "a second tap on it takes it out of select mode" 0 (length (. us :get_selected)))
+(us-tap us 0x2000000 :pen 200 250 50000)
+(assert-eq "a tap on nothing is a dot, drawn" 3 (length (cwb-items (. us :get_doc))))
+(us-tap us 0x2000000 :pen 300 100 400000)
+(assert-eq "a press and hold on the student's box is a draw, a dot, not a select"
+	(str (list 4 0)) (str (list (length (cwb-items (. us :get_doc))) (length (. us :get_selected)))))
+(us-go us (ptr-event 0x2000000 :pen 1 60 60)) (us-go us (ptr-event 0x2000000 :pen 1 140 140)) (us-go us (ptr-event 0x2000000 :pen 0 140 140))
+(assert-eq "moved, across the box, it draws its line" 5 (length (cwb-items (. us :get_doc))))

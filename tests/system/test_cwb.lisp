@@ -447,7 +447,7 @@
 (wb-drag 0 :mouse 1 '((420 220) (440 229)))
 (assert-list-eq "moved with a grid of 16, the top left of what is moved is on the grid" '(416 208)
 	(map (const n2i) (slice (wb-box) 0 2)))
-(wb-drag 0 :mouse 1 '((430 220) (433 222)))
+(wb-drag 0 :mouse 1 '((430 220) (436 225)))
 (assert-list-eq "moved a little more it stays there" '(416 208) (map (const n2i) (slice (wb-box) 0 2)))
 (def wb_board :snap 0.0 :mode :line)
 (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)

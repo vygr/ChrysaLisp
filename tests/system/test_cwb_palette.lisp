@@ -240,9 +240,8 @@
 (pl-tap pl_board 0 :mouse +pev_left 200 150)
 (assert-list-eq "a tap on a thing selects it, and opens nothing" '(1 0) (list (length (. pl_board :get_selected)) (length (palettes pl_board))))
 (pl-tap pl_board 0 :mouse +pev_left 210 160)
-(assert-list-eq "a tap on it now it is selected opens a palette there, under the hand" '(1 210 160)
-	(cat (list (length (palettes pl_board))) (map (const n2i) (get :origin (first (palettes pl_board))))))
-(. (first (palettes pl_board)) :pick :hub)
+(assert-list-eq "a tap on it now it is selected takes it out of select mode, and opens nothing: no menu from a tap, Chris" '(0 0)
+	(list (length (. pl_board :get_selected)) (length (palettes pl_board))))
 ;dragged, it is moved and nothing opens
 (pl-drag pl_board 0 :mouse +pev_left 210 160 260 200)
 (assert-list-eq "dragged, it is moved, and no palette opens" '(0 1) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
