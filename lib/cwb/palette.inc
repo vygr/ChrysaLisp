@@ -109,7 +109,10 @@
 	;(palette-open) does both. It starts to open at the time the board
 	;was last told
 	(def this :board board :origin (list (n2f x) (n2f y)) :kind (ifn kind :mouse) :id (ifn id 0)
-		:start (get :time board) :shut :nil :now (get :time board) :hover :nil :wedges :nil :gone :nil)
+		:start (get :time board) :shut :nil :now (get :time board) :hover :nil :wedges :nil :gone :nil
+		;a floating menu, (palette-float): it stays till its middle is
+		;tapped, and binds whatever taps it
+		:floating :nil)
 
 	(defmethod :build ()
 		; (. palette :build) -> palette
@@ -217,34 +220,55 @@
 		(. board :touch +board_dirty_overlay)
 		this)
 
-	(defmethod :pick (what &optional val)
-		; (. palette :pick what [val]) -> palette
-		;do what a tap on a wedge does, see (:where)
+	(defmethod :bind_tapper (event key val)
+		; (. palette :bind_tapper event key val) -> user
+		;a floating menu binds whatever tapped it, the device with the
+		;buttons it had held, all of touch as one. Chris: "taps on them
+		;effect their pen as you KNOW what device has tapped on them". What
+		;that user has selected takes a colour or a width
 		(defq board (get :board this))
+		(bind '(id kind buttons &ignore) event)
+		(. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)
+		(defq user (. board :user_of event))
+		(case key
+			(:color (. board :style_ids (. board :selected_by user) :stroke val))
+			(:width (. board :style_ids (. board :selected_by user) :width val)))
+		user)
+
+	(defmethod :pick (what &optional val event)
+		; (. palette :pick what [val event]) -> palette
+		;do what a tap on a wedge does, see (:where). A floating menu,
+		;given the event of the tap, binds what tapped it, and stays
+		(defq board (get :board this) floating (and (get :floating this) event)
+			user (if floating (. board :user_of event)))
 		(case what
 			(:hub (. this :close))
-			(:tool (. this :set_value :mode val) (. this :close))
-			(:color (. this :set_value :color val)
-				(if (nempty? (. board :get_selected)) (. board :style :stroke val)))
-			(:width (. this :set_value :width val)
-				(if (nempty? (. board :get_selected)) (. board :style :width val)))
+			(:tool (if floating (. this :bind_tapper event :mode val)
+				(. this :set_value :mode val) (. this :close)))
+			(:color (if floating (. this :bind_tapper event :color val)
+				(. this :set_value :color val)
+				(if (nempty? (. board :get_selected)) (. board :style :stroke val))))
+			(:width (if floating (. this :bind_tapper event :width val)
+				(. this :set_value :width val)
+				(if (nempty? (. board :get_selected)) (. board :style :width val))))
 			(:action
 				(bind '(ox oy) (get :origin this))
 				;an instrument is made where the palette is, and with the
 				;snap on is on the lines of the paper from the first
 				(case val
-					(:undo (. board :undo))
-					(:redo (. board :redo))
-					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero)) (. this :close))
-					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero)) (. this :close))
-					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero)) (. this :close))
-					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero)) (. this :close))
-					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero)) (. this :close))
-					(:window (if (defq on_window (get :on_window board)) (on_window)) (. this :close))
+					;only the teacher undoes, Chris: "only teacher can undo/redo the doc"
+					(:undo (if (or (not floating) (= user +board_teacher)) (. board :undo)))
+					(:redo (if (or (not floating) (= user +board_teacher)) (. board :redo)))
+					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:window (if (defq on_window (get :on_window board)) (on_window)) (unless floating (. this :close)))
 					(:snap (def board :snap (if (= (get :snap board) 0.0)
 						(n2f (. (. board :get_doc) :find :grid)) 0.0)))
-					(:duplicate (. board :duplicate) (. this :close))
-					(:delete (. board :delete) (. this :close)))))
+					(:duplicate (. board :duplicate) (unless floating (. this :close)))
+					(:delete (. board :delete) (unless floating (. this :close))))))
 		(. board :touch +board_dirty_overlay)
 		this)
 
@@ -260,7 +284,7 @@
 		;a pointer has gone down on the board, off this. It shuts if the
 		;pointer is the one it belongs to: of its kind, and for a pen the
 		;same pen. Did it
-		(when (and (not (get :shut this)) (eql (elem-get event +pev_kind) (get :kind this))
+		(when (and (not (get :shut this)) (not (get :floating this)) (eql (elem-get event +pev_kind) (get :kind this))
 				(or (not (eql (get :kind this) :pen)) (= (ptr-device (elem-get event +pev_id)) (ptr-device (get :id this)))))
 			(. this :close)
 			:t))
@@ -318,7 +342,7 @@
 						;moved, and put down: nothing is picked
 						((elem-get state 3))
 						((eql wedge :hub) (. this :pick :hub))
-						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val)))))
+						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val) event))))
 				(:t (. this :hot wedge))))
 			events)
 		this)
@@ -414,6 +438,20 @@
 	(each (# (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id) (. %0 :close)))
 		(. stage :get_actors))
 	(. stage :add (defq palette (Palette board x y kind id)))
+	(. board :touch +board_dirty_overlay)
+	palette)
+
+(defun palette-float (board x y)
+	; (palette-float board x y) -> palette
+	;a floating menu about a point, as many as are wanted, from a button of
+	;a toolbar. Chris: "a button on the toolbar (slide in menu) that created
+	;a floating menu (just another object that also lives in this multi
+	;inputs swarm) and you could drag them around, have as many as you
+	;wanted". It stays till its middle is tapped, and a tap on it binds the
+	;device that tapped, see (. palette :bind_tapper)
+	(defq stage (. board :get_stage))
+	(. stage :add (defq palette (Palette board (n2f x) (n2f y))))
+	(def palette :floating :t)
 	(. board :touch +board_dirty_overlay)
 	palette)
 

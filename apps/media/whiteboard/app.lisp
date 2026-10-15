@@ -123,8 +123,11 @@
 			(if %1 (def %0 :color radio_col)))
 		(. toolbar :children) states))
 
-;its colours are those of the ink bar that are solid, and four more
-(palette-enable *board* (cat (slice *palette* 0 8) '(0xff7f7f7f 0xfff08c00 0xff7048e8 0xff8d5524)))
+;a menu's colours are those of the ink bar that are solid, and four more.
+;No menu opens from a tap on the board, a tap there is a dot: menus float,
+;made from the toolbar, (action-menu). Chris: "A tap on the canvas did
+;leave a dot as I didn't have a pop up menu on the canvas"
+(def *board* :menu_colors (cat (slice *palette* 0 8) '(0xff7f7f7f 0xfff08c00 0xff7048e8 0xff8d5524)))
 
 (defun zoom-level (zoom)
 	; (zoom-level zoom) -> (level part)
@@ -163,13 +166,9 @@
 	(enum tool canvas spare key px py fx fy ox oy))
 
 (defun sync-ui ()
-	;the toolbars show what the board has, which a palette on it may have changed
-	(defq at (find (get :mode *board*) *modes*))
-	(and at (not (eql at (. *mode_toolbar* :get_selected))) (. *mode_toolbar* :set_selected at))
-	(setq at (find (get :color *board*) *palette*))
-	(and at (not (eql at (. *ink_toolbar* :get_selected))) (. *ink_toolbar* :set_selected at))
-	(setq at (some (# (if (= %0 (get :width *board*)) (!))) *widths*))
-	(and at (not (eql at (. *radius_toolbar* :get_selected))) (. *radius_toolbar* :set_selected at))
+	;the snap toolbar shows the board's snap, which a menu may have changed.
+	;The ink, tool and width bars show nothing: they are binders, and what
+	;each device is bound to is its own
 	(defq on (/= (get :snap *board*) 0.0))
 	;the palette puts the snap on as the grid of the document: here it is
 	;what the paper has at the zoom there is

@@ -1103,7 +1103,12 @@ tapped remembers who, `(. board :selected_by user)`; drawing no longer lets
 go of what is selected. The actions still take all that is selected, till
 the binders say who pressed them.
 4. The binders: the toolbar and floating menus, bindings by device and
-buttons, saved by user.
+buttons, saved by user. Built so far: a window keeps who pressed a view,
+`:pressed_by`; the ink, tool and width bars bind it, `(. bindings :set)`,
+and show no pick; `(palette-float)` from the toolbar's menu button, any
+number, stays till its middle is tapped, binds what taps it; no menu from
+a tap on the board; undo and redo only by the teacher. Not yet: the dots
+of each device on a menu, bindings saved by user.
 5. Two layers in flight.
 6. No layers in the document.
 7. The shared board.

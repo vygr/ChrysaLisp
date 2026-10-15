@@ -373,26 +373,29 @@
 (assert-eq "dragged 40 off the left of the paper and drawn there, it is drawn all on its canvas, moved over by 44, the canvas put as far to the left; dragged back, the canvas is moved and not drawn on. Off the bottom right, the canvas is put right and down"
 	(cat "(-40 -44 0 (44 0))(:nil (" (str (- (+ 158 40) 44)) " 0))(:t :t 0 0)") (elem-get wa_out 12))
 
-;the palette on the board: the right button down and up on nothing opens it,
-;a tap on a wedge of it does what the toolbar would, and the toolbar shows it
+;floating menus: none opens from a tap on the board, a tap there is a dot,
+;Chris; one is made from the toolbar, stays, and binds whatever taps it
 (defq wa_out (wa-run (cat
 	"(. *board* :tick 1000000)"
-	"(wa-drag 3 500 400 500 400) (defq pal (first (palettes *board*)))"
-	"(print (list (length (palettes *board*)) (map (const n2i) (get :origin pal))))"
+	"(wa-drag 3 500 400 500 400) (print (length (palettes *board*)))"
+	"(wa-do +event_menu) (defq pal (first (palettes *board*)))"
+	"(print (list (length (palettes *board*)) (get :floating pal)))"
 	"(. *board* :tick 2000000) (print (list (wa-draw)))"
 	"(defun wa-pick (what val) (bind '(x y) (map (const n2i) (. pal :where what val))) (wa-drag 1 x y x y))"
+	"(defq was (list (get :mode *board*) (get :color *board*) (get :width *board*)))"
 	"(wa-pick :color +argb_red) (wa-pick :width 12.0) (wa-pick :action :snap) (wa-pick :tool :ellipse)"
-	"(print (list (get :mode *board*) (= (get :color *board*) +argb_red) (n2i (get :width *board*)) (n2i (get :snap *board*)) (length (palettes *board*))))"
-	"(wa-draw) (sync-ui)"
-	"(print (list (elem-get *modes* (. *mode_toolbar* :get_selected)) (. *ink_toolbar* :get_selected) (. *radius_toolbar* :get_selected) *snap*))"
+	"(defun wa-bound (key) (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) key))"
+	"(print (list (wa-bound :mode) (= (wa-bound :color) +argb_red) (n2i (wa-bound :width)) (n2i (get :snap *board*)) (length (palettes *board*))))"
+	"(print (list (eql (str was) (str (list (get :mode *board*) (get :color *board*) (get :width *board*)))) (. *ink_toolbar* :get_selected)))"
 	"(wa-drag 1 100 100 200 160) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :kind))"
-	"(. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
-(assert-eq "the right button, down and up on nothing, opens a palette there" "(1 (500 400))" (elem-get wa_out 0))
-(assert-eq "the board draws with it open" "(0)" (elem-get wa_out 1))
-(assert-eq "taps on it set the colour, the width, snap and the tool, and the tool puts it away" "(:ellipse :t 12 32 0)" (elem-get wa_out 2))
-(assert-eq "and the toolbars show what it set" "(:ellipse 2 2 :t)" (elem-get wa_out 3))
-(assert-eq "what is then drawn is that" ":ellipse" (elem-get wa_out 4))
-(assert-eq "shut, it is off the stage" "0" (elem-get wa_out 5))
+	"(wa-pick :hub :nil) (. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
+(assert-eq "the right button, down and up on nothing, opens no menu" "0" (elem-get wa_out 0))
+(assert-eq "the menu button of the toolbar makes a floating one" "(1 :t)" (elem-get wa_out 1))
+(assert-eq "the board draws with it open" "(0)" (elem-get wa_out 2))
+(assert-eq "taps of the mouse on it bind the mouse's left button to the colour, the width and the tool, snap is set, and it stays" "(:ellipse :t 12 32 1)" (elem-get wa_out 3))
+(assert-eq "the board's own is as it was, and the toolbar shows no pick" "(:t :nil)" (elem-get wa_out 4))
+(assert-eq "what the mouse then draws is that" ":ellipse" (elem-get wa_out 5))
+(assert-eq "a tap on its middle shuts it, and it is off the stage" "0" (elem-get wa_out 6))
 
 ;a document of very many shapes is drawn by the nodes. The app's own redraw is
 ;called, as its timer calls it, and what comes to the stripes' mailboxes is

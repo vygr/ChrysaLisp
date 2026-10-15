@@ -77,8 +77,19 @@
 	;the board is all there is on the screen, or, if it is, a window again
 	(if *full* (full-window) (full-screen)))
 
-(defun action-undo () (. *board* :undo))
-(defun action-redo () (. *board* :redo))
+;only the teacher undoes and redoes, Chris: "only teacher can undo/redo
+;the doc". A press says who, a key, or a script, is the teacher's
+(defun teacher-pressed? ()
+	(cond
+		((and (str? (defq msg (get '*msg*))) (>= (length msg) +ev_msg_action_size)
+				(defq view (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+				(defq by (get :pressed_by view)))
+			(undef view :pressed_by)
+			(bind '(id kind buttons) by)
+			(= (. *board* :user_of (ptr-event id kind buttons 0 0)) +board_teacher))
+		(:t)))
+(defun action-undo () (if (teacher-pressed?) (. *board* :undo)))
+(defun action-redo () (if (teacher-pressed?) (. *board* :redo)))
 (defun action-clear () (. *board* :clear))
 (defun action-crop () (. *board* :crop))
 
@@ -183,6 +194,10 @@
 (defun action-full-protractor () (add-instrument (apply (const Circle) (cat (list *board*) (view-middle)))))
 (defun action-set-square () (add-instrument (apply (const Setsquare) (cat (list *board*) (view-middle)))))
 (defun action-set-square45 () (add-instrument (apply (const Setsquare45) (cat (list *board*) (view-middle)))))
+(defun action-menu ()
+	;a floating menu in the middle of what is seen, lib/cwb/palette.inc
+	(bind '(x y) (view-middle))
+	(palette-float *board* x y))
 
 (defun action-group () (. *board* :group))
 (defun action-ungroup () (. *board* :ungroup))
