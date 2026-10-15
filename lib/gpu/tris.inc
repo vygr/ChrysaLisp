@@ -25,6 +25,10 @@
 
 (import "././task/jobs.inc")
 (import "./shader.inc")
+;shader-strip-texture takes a canvas, its field is needed as it is defined:
+;a child that had only gui/pixmap/lisp.inc had none, an error on a checked
+;build that was passed over, and on a release build a crash
+(import "gui/canvas/lisp.inc")
 
 (defq +shader_tris_child "lib/gpu/tris_child.lisp")
 

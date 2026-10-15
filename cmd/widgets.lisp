@@ -32,15 +32,19 @@
 (("-r" "--raw") ,(opt-flag 'opt_r))
 ))
 
-(defun lines-of (view depth)
-	;a view a line, those in it after it, each a tab further in
-	(defq line (list (pad "" depth (ascii-char 9)) (slice (str (. view :find :type)) 1 -1)
-		" " (join (map (const str) (. view :find :bounds)) " ")))
-	(. view :each (lambda (k v)
-		(unless (find k '(:type :bounds :children))
-			(push line " " (slice (str k) 1 -1) "=" (str v)))))
-	(print (apply (const cat) line))
-	(each (# (lines-of %0 (inc depth))) (ifn (. view :find :children) (list))))
+(defun lines-of (tree)
+	;a view a line, those in it after it, each a tab further in. What is
+	;still to print is a list, the next last, no function here calls itself
+	(defq todo (list (list tree 0)))
+	(while (defq next (pop todo))
+		(bind '(view depth) next)
+		(defq line (list (pad "" depth (ascii-char 9)) (slice (str (. view :find :type)) 1 -1)
+			" " (join (map (const str) (. view :find :bounds)) " ")))
+		(. view :each (lambda (k v)
+			(unless (find k '(:type :bounds :children))
+				(push line " " (slice (str k) 1 -1) "=" (str v)))))
+		(print (apply (const cat) line))
+		(each (# (push todo (list %0 (inc depth)))) (reverse (ifn (. view :find :children) (list))))))
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
@@ -51,4 +55,4 @@
 		(cond
 			((not text) (print "widgets: no GUI"))
 			((or opt_r (not (starts-with "(" text))) (print text))
-			(:t (lines-of (tree-load (string-stream text)) 0)))))
+			(:t (lines-of (tree-load (string-stream text)))))))
