@@ -26,6 +26,9 @@
 ;module
 (env-push)
 
+(ffi (path-to-absolute "./png_unfilter") png-unfilter-row)
+(ffi (path-to-absolute "./png_pixels") png-pixels)
+
 (defq +png_signature (cat (char 0x89) "PNG" (char 13) (char 10) (char 26) (char 10)))
 
 (defun png-be (data at)
@@ -84,60 +87,34 @@
 	;32 bits, blue green red alpha, as a pixmap reads them
 	(defq channels (png-channels colour) bits (* channels depth)
 		row_len (/ (+ (* width bits) 7) 8) step (max 1 (/ bits 8))
-		prev (fill (nums) row_len 0)
+		prev (apply (const cat) (fill (list) row_len (ascii-char 0)))
 		most (dec (<< 1 depth)) row 0)
 	(while (< row height)
 		(task-slice)
-		(defq kind (read-char in) raw (read-blk in row_len))
+		(defq kind (read-char in) cur (read-blk in row_len))
 		(cond
-			((or (not kind) (not raw) (< (length raw) row_len)) (setq row height))
-			(:t (defq cur (apply (const nums) (map (# (code raw 1 %0)) (range 0 row_len))))
-				;the filter undone, against the bytes of the pixel to the left,
-				;those above, and those above the left
-				(case kind
-					(1 (each (# (elem-set cur %0 (logand (+ (elem-get cur %0) (elem-get cur (- %0 step))) 0xff)))
-						(range step row_len)))
-					(2 (each (# (elem-set cur %0 (logand (+ (elem-get cur %0) (elem-get prev %0)) 0xff)))
-						(range 0 row_len)))
-					(3 (each (# (elem-set cur %0 (logand (+ (elem-get cur %0)
-							(>> (+ (if (>= %0 step) (elem-get cur (- %0 step)) 0) (elem-get prev %0)) 1)) 0xff)))
-						(range 0 row_len)))
-					(4 (each (lambda (i)
-							(defq a (if (>= i step) (elem-get cur (- i step)) 0) b (elem-get prev i)
-								c (if (>= i step) (elem-get prev (- i step)) 0)
-								p (- (+ a b) c) pa (abs (- p a)) pb (abs (- p b)) pc (abs (- p c)))
-							(elem-set cur i (logand (+ (elem-get cur i)
-								(cond ((and (<= pa pb) (<= pa pc)) a) ((<= pb pc) b) (c))) 0xff)))
-						(range 0 row_len))))
-				;its pixels, blue green red alpha
-				(defq pixels (cap (* width 4) (list)))
-				(each (lambda (x)
-					(defq a 255)
-					(cond
-						((< depth 8)
+			((or (not kind) (not cur) (< (length cur) row_len)) (setq row height))
+			(:t ;the filter undone, against the bytes of the pixel to the left,
+				;those above, and those above the left, native
+				(png-unfilter-row cur prev kind step)
+				;its pixels, blue green red alpha, native for 8 bits or 16
+				(cond
+					((>= depth 8) (write-blk out (png-pixels cur colour depth width palette clear)))
+					(:t (defq pixels (cap (* width 4) (list)))
+						(each (lambda (x)
 							;so many to a byte, the first in the high bits
-							(defq at (* x depth) v (logand (>> (elem-get cur (>> at 3)) (- 8 depth (logand at 7))) most))
+							(defq a 255 at (* x depth) v (logand (>> (code cur 1 (>> at 3)) (- 8 depth (logand at 7))) most))
 							(cond
 								((= colour 3)
 									(if (< v (length clear)) (setq a (code clear 1 v)))
 									(setq v (* v 3))
-									(push pixels (code palette 1 (+ v 2)) (code palette 1 (+ v 1)) (code palette 1 v) a))
+									(if (< (+ v 2) (length palette))
+										(push pixels (code palette 1 (+ v 2)) (code palette 1 (+ v 1)) (code palette 1 v) a)
+										(push pixels 0 0 0 a)))
 								(:t (setq v (/ (* v 255) most))
 									(push pixels v v v a))))
-						(:t ;of 8 bits, or 16, the high byte of each
-							(defq i (* x channels (/ depth 8)) w (/ depth 8))
-							(case colour
-								(0 (defq v (elem-get cur i)) (push pixels v v v 255))
-								(2 (push pixels (elem-get cur (+ i w w)) (elem-get cur (+ i w)) (elem-get cur i) 255))
-								(3 (defq v (elem-get cur i))
-									(if (< v (length clear)) (setq a (code clear 1 v)))
-									(setq v (* v 3))
-									(push pixels (code palette 1 (+ v 2)) (code palette 1 (+ v 1)) (code palette 1 v) a))
-								(4 (defq v (elem-get cur i)) (push pixels v v v (elem-get cur (+ i w))))
-								(6 (push pixels (elem-get cur (+ i w w)) (elem-get cur (+ i w)) (elem-get cur i)
-									(elem-get cur (+ i w w w))))))))
-					(range 0 width))
-				(write-blk out (apply (const cat) (cat (list "") (map (const char) pixels))))
+							(range 0 width))
+						(write-blk out (apply (const cat) (cat (list "") (map (const char) pixels))))))
 				(setq prev cur row (inc row))))))
 
 (defun png-chunk-head (stream)

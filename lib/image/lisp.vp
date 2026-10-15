@@ -1,0 +1,196 @@
+(include "lib/asm/func.inc")
+(include "class/str/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func (path-to-absolute "./png_unfilter"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6
+	;info
+	;(png-unfilter-row row prev kind step) -> row, the filter of a row of
+	;a PNG undone in place: 1 by the byte step to the left, 2 by the one
+	;above in prev, 3 by half of both, 4 by Paeth's guess of the three.
+	;prev is as long as row, of 0 for the first row
+
+	(def-vars
+		(ptr this args)
+		(pubyte cur prev)
+		(uint len kind step i a b c p pa pb pc))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:obj :obj :num :num))
+	(assign '(:r0 :r1 :r2 :r3) (vpx cur prev kind step))
+	(assign (vpx (.> cur +str_length) (& (.> cur +str_data)) (& (.> prev +str_data))) (vpx len cur prev))
+
+	(vpif (vpx (= kind 1)))
+		(assign (vpx step) (vpx i))
+		(loop-while (vpx (< i len)))
+			(assign (vpx (+ (elem cur i) (elem cur (- i step)))) (vpx (elem cur i)))
+			(assign (vpx (+ i 1)) (vpx i))
+		(loop-end)
+	(elseif (vpx (= kind 2)))
+		(assign (vpx 0) (vpx i))
+		(loop-while (vpx (< i len)))
+			(assign (vpx (+ (elem cur i) (elem prev i))) (vpx (elem cur i)))
+			(assign (vpx (+ i 1)) (vpx i))
+		(loop-end)
+	(elseif (vpx (= kind 3)))
+		(assign (vpx 0) (vpx i))
+		(loop-while (vpx (< i len)))
+			(vpif (vpx (< i step)))
+				(assign (vpx 0) (vpx a))
+			(else)
+				(assign (vpx (elem cur (- i step))) (vpx a))
+			(endif)
+			(assign (vpx (+ (elem cur i) (>> (+ a (elem prev i)) 1))) (vpx (elem cur i)))
+			(assign (vpx (+ i 1)) (vpx i))
+		(loop-end)
+	(elseif (vpx (= kind 4)))
+		(assign (vpx 0) (vpx i))
+		(loop-while (vpx (< i len)))
+			(vpif (vpx (< i step)))
+				(assign (vpx 0 0) (vpx a c))
+			(else)
+				(assign (vpx (elem cur (- i step)) (elem prev (- i step))) (vpx a c))
+			(endif)
+			(assign (vpx (elem prev i)) (vpx b))
+			;Paeth: of a, b and c the nearest to a + b - c, each how far it is,
+			;|b - c| |a - c| |a + b - 2c|, none of them below 0 on the way
+			(vpif (vpx (> b c)))
+				(assign (vpx (- b c)) (vpx pa))
+			(else)
+				(assign (vpx (- c b)) (vpx pa))
+			(endif)
+			(vpif (vpx (> a c)))
+				(assign (vpx (- a c)) (vpx pb))
+			(else)
+				(assign (vpx (- c a)) (vpx pb))
+			(endif)
+			(vpif (vpx (> (+ a b) (+ c c))))
+				(assign (vpx (- (+ a b) (+ c c))) (vpx pc))
+			(else)
+				(assign (vpx (- (+ c c) (+ a b))) (vpx pc))
+			(endif)
+			(assign (vpx c) (vpx p))
+			(vpif (vpx (<= pb pc)))
+				(assign (vpx b) (vpx p))
+			(endif)
+			(vpif (vpx (<= pa pb)))
+				(vpif (vpx (<= pa pc)))
+					(assign (vpx a) (vpx p))
+				(endif)
+			(endif)
+			(assign (vpx (+ (elem cur i) p)) (vpx (elem cur i)))
+			(assign (vpx (+ i 1)) (vpx i))
+		(loop-end)
+	(endif)
+
+	(assign (vpx args) '(:r1))
+	(assign '((:r1 +array_begin)) '(:r1))
+	(assign '((:r1 0)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(assign (vpx this) '(:r0))
+
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(png-unfilter-row row prev kind step)" +error_msg_wrong_types))
+	(signature '(:str :str :NUM :NUM)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./png_pixels"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :f0-:f15
+	;info
+	;(png-pixels row colour depth width palette clear) -> str, a row of
+	;a PNG of 8 or 16 bits a sample, its filter undone, as pixels of 32
+	;bits, blue green red alpha, the high byte of a sample of 16. Of a
+	;palette, an index past its end is black, past the end of clear opaque
+
+	(def-vars
+		(ptr this args out)
+		(pubyte row dst pal clr)
+		(uint colour w width x i v a npal nclr))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5) '(:obj :num :num :num :obj :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5) (vpx row colour w width pal clr))
+	(assign (vpx (>> w 3) (& (.> row +str_data)) (.> pal +str_length) (& (.> pal +str_data))
+			(.> clr +str_length) (& (.> clr +str_data)))
+		(vpx w row npal pal nclr clr))
+	(call :str :create_from_buffer (vpx 0 (* width 4)) (vpx out))
+	(assign (vpx (& (.> out +str_data)) 0 0) (vpx dst x i))
+
+	(loop-while (vpx (< x width)))
+		(vpif (vpx (= colour 0)))
+			(assign (vpx (elem row i)) (vpx v))
+			(assign (vpx v v v 255) (vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(assign (vpx (+ i w)) (vpx i))
+		(elseif (vpx (= colour 2)))
+			(assign (vpx (elem row (+ i w w)) (elem row (+ i w)) (elem row i) 255)
+				(vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(assign (vpx (+ i w w w)) (vpx i))
+		(elseif (vpx (= colour 3)))
+			(assign (vpx (elem row i) 255) (vpx v a))
+			(vpif (vpx (< v nclr)))
+				(assign (vpx (elem clr v)) (vpx a))
+			(endif)
+			(assign (vpx (* v 3)) (vpx v))
+			(vpif (vpx (< (+ v 2) npal)))
+				(assign (vpx (elem pal (+ v 2)) (elem pal (+ v 1)) (elem pal v) a)
+					(vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(else)
+				(assign (vpx 0 0 0 a) (vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(endif)
+			(assign (vpx (+ i 1)) (vpx i))
+		(elseif (vpx (= colour 4)))
+			(assign (vpx (elem row i)) (vpx v))
+			(assign (vpx v v v (elem row (+ i w))) (vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(assign (vpx (+ i w w)) (vpx i))
+		(else)
+			(assign (vpx (elem row (+ i w w)) (elem row (+ i w)) (elem row i) (elem row (+ i w w w)))
+				(vpx (elem dst 0) (elem dst 1) (elem dst 2) (elem dst 3)))
+			(assign (vpx (+ i w w w w)) (vpx i))
+		(endif)
+		(assign (vpx (+ dst 4) (+ x 1)) (vpx dst x))
+	(loop-end)
+
+	(assign (vpx this out) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(png-pixels row colour depth width palette clear)" +error_msg_wrong_types))
+	(signature '(:str :NUM :NUM :NUM :str :str)))
+
+	(pop-scope-syms)
+
+(def-func-end)
