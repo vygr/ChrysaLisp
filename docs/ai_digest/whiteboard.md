@@ -1107,8 +1107,9 @@ buttons, saved by user. Built so far: a window keeps who pressed a view,
 `:pressed_by`; the ink, tool and width bars bind it, `(. bindings :set)`,
 and show no pick; `(palette-float)` from the toolbar's menu button, any
 number, stays till its middle is tapped, binds what taps it; no menu from
-a tap on the board; undo and redo only by the teacher. Not yet: the dots
-of each device on a menu, bindings saved by user.
+a tap on the board; undo and redo only by the teacher; a dot of each
+device on a floating menu, `(. palette :devices)`; the mouse's and touch's
+bindings kept with the app's state, a pen's not, its number is a sitting's.
 5. Two layers in flight.
 6. No layers in the document.
 7. The shared board.

@@ -373,6 +373,20 @@
 (assert-eq "dragged 40 off the left of the paper and drawn there, it is drawn all on its canvas, moved over by 44, the canvas put as far to the left; dragged back, the canvas is moved and not drawn on. Off the bottom right, the canvas is put right and down"
 	(cat "(-40 -44 0 (44 0))(:nil (" (str (- (+ 158 40) 44)) " 0))(:t :t 0 0)") (elem-get wa_out 12))
 
+;what the mouse and touch are bound to is kept with the board, by user, and
+;put back. Chris: "bindings are saved locally per user, between sessions"
+(defq wa_bnd (wa-run (cat
+	"(.-> (. *board* :get_bindings) (:set :mouse 0 +pev_left :color +argb_blue) (:set :touch 0x1000000 :nil :mode :rect)"
+	" (:set :pen 0x2000000 +pev_left :color +argb_red))"
+	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
+	"(def *board* :bindings (bindings-default))"
+	"(config-apply (tree-load (string-stream text)))"
+	"(defq b (. *board* :get_bindings))"
+	"(print (list (= (. b :value (ptr-event 0 :mouse +pev_left 0 0) :color) +argb_blue)"
+	" (. b :value (ptr-event 0x1000003 :touch 1 0 0) :mode) (. b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :color)))")))
+(assert-eq "kept and put back, the mouse is blue and touch draws boxes, and a pen, of this sitting only, is as a pen is"
+	"(:t :rect :nil)" (first wa_bnd))
+
 ;floating menus: none opens from a tap on the board, a tap there is a dot,
 ;Chris; one is made from the toolbar, stays, and binds whatever taps it
 (defq wa_out (wa-run (cat

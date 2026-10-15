@@ -31,6 +31,12 @@
 		;is a pen that is near shown where an instrument would catch it
 		:hover_edges (if (get :hover_edges *board*) 1 0)
 		:text (. *text_field* :get_text) :file *file*
+		;what the mouse, the teacher's, and touch, anybody's, are bound to,
+		;each the user's own and kept, Chris: "bindings are saved locally per
+		;user, between sessions". A pen's number is only this sitting's, a
+		;student's pen starts each time from what a pen is
+		:bindings (filter (lambda ((kind id &ignore)) (and id (find kind '(:mouse :touch))))
+			(get :rules (. *board* :get_bindings)))
 		;an instrument is what it is, where, turned how far, how long, and what it draws
 		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
 				((Setsquare45? %0) :set_square45) (:t :set_square))
@@ -43,9 +49,12 @@
 	;the board is made what it was. Where its window was and its view in
 	;it, :nil if this is not what a board was
 	(when (and (Emap? config) (eql (. config :find :version) +config_version))
-		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data)
+		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data bound)
 			(gather config :x :y :width :height :scroll_x :scroll_y :zoom :mode :ink :radius :style
-				:snap :snap_angle :keep_shape :text :file :tools :doc))
+				:snap :snap_angle :keep_shape :text :file :tools :doc :bindings))
+		;the rules of each device that is kept, the last first, as they were
+		(if (list? bound) (each (lambda ((kind id buttons what)) (. (. *board* :get_bindings) :bind kind id buttons (cat what)))
+			(reverse bound)))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
