@@ -97,22 +97,46 @@
 (defun action-zoom-in () (step-zoom 1))
 (defun action-zoom-out () (step-zoom -1))
 
+;The toolbars are binders, not state. Chris: "the device ID, its buttons,
+;and its contact points, and what those combinations are bound to drive
+;the app, not some state held in the singular toolbar. The toolbar should
+;really be a place for a device/button combo to have its bound action
+;changed." A pick binds what pressed it, kept on the button by the window,
+;and the bar shows no pick of its own after. What a pick is said by no
+;press, a script, is the board's own, for any device bound to nothing
+(defun bind-pressed (bar key value)
+	; (bind-pressed bar key value) -> :nil | user
+	(defq button (elem-get (. bar :children) (. bar :get_selected)) by (get :pressed_by button))
+	(. bar :set_selected -1)
+	(when by
+		(undef button :pressed_by)
+		(bind '(id kind buttons) by)
+		;all the contacts of touch are the one device, with no buttons
+		(. (. *board* :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key value)
+		(. *board* :user_of (ptr-event id kind buttons 0 0))))
+
 (defun action-ink ()
-	(def *board* :color (elem-get *palette* (. *ink_toolbar* :get_selected)))
-	;what is selected takes it
-	(if (nempty? (. *board* :get_selected))
-		(. *board* :style :stroke (get :color *board*))))
+	(defq color (elem-get *palette* (. *ink_toolbar* :get_selected)))
+	;what is selected takes it, the presser's own
+	(if (defq user (bind-pressed *ink_toolbar* :color color))
+		(. *board* :style_ids (. *board* :selected_by user) :stroke color)
+		(def *board* :color color)
+		(if (nempty? (. *board* :get_selected)) (. *board* :style :stroke color))))
 
 (defun action-radius ()
-	(def *board* :width (elem-get *widths* (. *radius_toolbar* :get_selected)))
-	(if (nempty? (. *board* :get_selected))
-		(. *board* :style :width (get :width *board*))))
+	(defq width (elem-get *widths* (. *radius_toolbar* :get_selected)))
+	(if (defq user (bind-pressed *radius_toolbar* :width width))
+		(. *board* :style_ids (. *board* :selected_by user) :width width)
+		(def *board* :width width)
+		(if (nempty? (. *board* :get_selected)) (. *board* :style :width width))))
 
 (defun action-mode ()
-	(def *board* :mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
-	;out of select mode what was selected is let go of. It has no handles
-	;to show that it is, and the colours and widths would change it
-	(unless (eql (get :mode *board*) :select) (. *board* :select (list)))
+	(defq mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
+	(unless (bind-pressed *mode_toolbar* :mode mode)
+		(def *board* :mode mode)
+		;out of select mode what was selected is let go of. It has no handles
+		;to show that it is, and the colours and widths would change it
+		(unless (eql mode :select) (. *board* :select (list))))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-style ()

@@ -58,13 +58,13 @@
 	"(defq place (config-apply (tree-load (string-stream text))))"
 	"(defq now (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
 	"(print (list (str was) (eql (str was) (str now))))"
-	"(print (list (. *mode_toolbar* :get_selected) (. *ink_toolbar* :get_selected) (. *radius_toolbar* :get_selected) (. *text_field* :get_text) (get :text *board*)))"
+	"(print (list (find (get :mode *board*) *modes*) (find (get :color *board*) *palette*) (find (get :width *board*) *widths*) (. *text_field* :get_text) (get :text *board*)))"
 	"(defq tool (last (. (. *board* :get_stage) :get_actors)))"
 	"(print (list (if (Circle? tool) :t) (get :mode tool) (map (const n2i) (get :origin tool)) (n2i (. tool :extent)) (< (abs (- (get :angle tool) 0.5)) 0.001)))"
 	"(print (list (length place) (slice place 2 4) (. *window* :pref_size)))"
 	"(print (list (config-apply (Emap)) (config-apply (scatter (Emap) :version 99)) (config-apply :nil) (wa-ids)))")))
 (assert-true (cat "a board kept and put back is the board it was: " (first wa_cfg)) (ends-with " :t)" (first wa_cfg)))
-(assert-eq "its toolbars and its words as they were" "(5 2 2 \qHello\q \qHello\q)" (second wa_cfg))
+(assert-eq "what the board draws for a device bound to nothing, and its words, as they were" "(5 2 2 \qHello\q \qHello\q)" (second wa_cfg))
 (assert-eq "its instrument where it was, turned as it was, as big, drawing what it drew" "(:t :pie (300 200) 260 :t)" (third wa_cfg))
 (assert-true (cat "and where its window was is given back, with where its view was: " (elem-get wa_cfg 3)) (starts-with "(6 " (elem-get wa_cfg 3)))
 (assert-eq "what is not a board kept, or one of another version, changes nothing" "(:nil :nil :nil (1 2))" (elem-get wa_cfg 4))

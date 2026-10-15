@@ -110,3 +110,20 @@
 	(str (list 4 0)) (str (list (length (cwb-items (. us :get_doc))) (length (. us :get_selected)))))
 (us-go us (ptr-event 0x2000000 :pen 1 60 60)) (us-go us (ptr-event 0x2000000 :pen 1 140 140)) (us-go us (ptr-event 0x2000000 :pen 0 140 140))
 (assert-eq "moved, across the box, it draws its line" 5 (length (cwb-items (. us :get_doc))))
+
+;a binder binds what pressed it, the device and the buttons it had held, and
+;the rest of what that device is stays. Chris: "The toolbar should really be
+;a place for a device/button combo to have its bound action changed"
+(defq us_b (bindings-default))
+(. us_b :set :pen 0x2000000 +pev_left :color 0xffff0000)
+(assert-eq "the first pen's tip is red" 0xffff0000 (. us_b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :color))
+(assert-eq "and still draws" :pen (. us_b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :tool))
+(assert-eq "its barrel still rubs out" :eraser (. us_b :value (ptr-event 0x2000000 :pen +pev_right 0 0) :tool))
+(assert-eq "another pen is not red" :nil (. us_b :value (ptr-event 0x3000000 :pen +pev_left 0 0) :color))
+(. us_b :set :pen 0x2000000 +pev_left :width 9.0)
+(assert-eq "set again, the tip is wider and red still" (str (list 9.0 0xffff0000))
+	(str (list (. us_b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :width) (. us_b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :color))))
+(. us_b :set :touch 0x1000000 :nil :tool :pen)
+(assert-eq "touch bound to draw, every finger of the panel" (str (list :pen :pen))
+	(str (list (. us_b :value (ptr-event 0x1000001 :touch 1 0 0) :tool) (. us_b :value (ptr-event 0x1000007 :touch 1 0 0) :tool))))
+(assert-eq "and the mouse is as it was" :hand (. us_b :value (ptr-event 0 :mouse +pev_right 0 0) :tool))

@@ -1214,9 +1214,10 @@
 	(defmethod :selected_by (user)
 		; (. board :selected_by user) -> ids
 		;what that user put in select mode by a tap. Chris: an action on a
-		;selection is on "the user's own selections"
+		;selection is on "the user's own selections". A thing selected by
+		;no tap, a hand or a box, says no one, and is anyone's
 		(defq selectors (get :selectors this))
-		(filter (# (eql (. selectors :find %0) user)) (get :selected this)))
+		(filter (# (or (not (defq who (. selectors :find %0))) (eql who user))) (get :selected this)))
 
 	(defmethod :get_selected () (get :selected this))
 
@@ -1531,6 +1532,17 @@
 		;set the colour, fill, width and so on of every shape that is
 		;selected, those in groups too
 		(when (nempty? (defq items (. this :selected_items)))
+			(. this :snapshot)
+			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
+			(cwb-walk items :nil (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+		this)
+
+	(defmethod :style_ids (ids &rest key_vals)
+		; (. board :style_ids ids [key val] ...) -> board
+		;as (:style), of those selected things only
+		(defq items (filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items)))
+		(when (nempty? items)
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(cwb-walk items :nil (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))

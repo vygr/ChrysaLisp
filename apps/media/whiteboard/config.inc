@@ -23,8 +23,10 @@
 		:zoom *zoom*
 		;there is no scroll now, these are for a board kept before
 		:scroll_x 0 :scroll_y 0
-		:mode (. *mode_toolbar* :get_selected) :ink (. *ink_toolbar* :get_selected)
-		:radius (. *radius_toolbar* :get_selected) :style (. *style_toolbar* :get_selected)
+		;what a device bound to nothing draws, the board's own, by where it
+		;is in its toolbar. The toolbars are binders and keep no pick
+		:mode (find (get :mode *board*) *modes*) :ink (find (get :color *board*) *palette*)
+		:radius (some (# (if (= %0 (get :width *board*)) (!))) *widths*) :style (. *style_toolbar* :get_selected)
 		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
 		;is a pen that is near shown where an instrument would catch it
 		:hover_edges (if (get :hover_edges *board*) 1 0)
@@ -59,14 +61,11 @@
 		(when (and (num? style) (< -1 style (length *styles*)))
 			(. *style_toolbar* :set_selected style)
 			(setq *style* (elem-get *styles* style) *paper_dirty* :t))
-		(when (and (num? ink) (< -1 ink (length *palette*)))
-			(. *ink_toolbar* :set_selected ink)
+		(and (num? ink) (< -1 ink (length *palette*))
 			(def *board* :color (elem-get *palette* ink)))
-		(when (and (num? radius) (< -1 radius (length *widths*)))
-			(. *radius_toolbar* :set_selected radius)
+		(and (num? radius) (< -1 radius (length *widths*))
 			(def *board* :width (elem-get *widths* radius)))
-		(when (and (num? mode) (< -1 mode (length *modes*)))
-			(. *mode_toolbar* :set_selected mode)
+		(and (num? mode) (< -1 mode (length *modes*))
 			(def *board* :mode (elem-get *modes* mode)))
 		(when (str? text)
 			(. *text_field* :set_text text)

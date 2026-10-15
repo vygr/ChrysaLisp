@@ -86,6 +86,21 @@
 		(def this :rules (cat (list (list kind id buttons what)) (get :rules this)))
 		this)
 
+	(defmethod :set (kind id buttons key value)
+		; (. bindings :set kind id buttons key value) -> bindings
+		;one thing of what that device, with those buttons, is to be, as a
+		;binder sets it, a toolbar or a menu pressed by it. The rule that
+		;names just that is made, if there is none, from all such a pointer
+		;is now, so the rest of what it is stays as it was
+		(defq rule (some (lambda (r) (and (eql (first r) kind) (eql (second r) id) (eql (third r) buttons) r))
+			(get :rules this)))
+		(unless rule
+			(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
+			(setq rule (first (get :rules this))))
+		(defq what (elem-get rule 3) at (find key what))
+		(if at (elem-set what (inc at) value) (push what key value))
+		this)
+
 	(defmethod :unbind (kind id buttons)
 		; (. bindings :unbind kind id buttons) -> bindings
 		;the rules that match just that are taken out

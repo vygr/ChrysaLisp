@@ -160,8 +160,12 @@
 						(:t ;was not down previously
 							(cond
 								((/= 0 buttons)
-									;is down now, so first down
+									;is down now, so first down. Who pressed it is
+									;kept on it, (id kind buttons), the buttons as
+									;bits, for an app whose devices drive it
 									(set this :last_buttons buttons)
+									(def target :pressed_by (list 0 :mouse
+										(case buttons (2 2) (3 4) (:t 1))))
 									(if (defq fnc (.? target :mouse_down))
 										(fnc target :mouse_down event)))
 								(:t ;is not down now, so hover
@@ -187,6 +191,9 @@
 							(cond
 								((and (not acting) (/= buttons 0))
 									(def this :pointer_id id)
+									(def target :pressed_by (list id
+										(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
+										buttons))
 									(if (defq fnc (.? target :mouse_down)) (fnc target :mouse_down mouse)))
 								((and acting (= acting id) (/= buttons 0))
 									(if (defq fnc (.? target :mouse_move)) (fnc target :mouse_move mouse)))
