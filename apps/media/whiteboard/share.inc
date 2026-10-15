@@ -7,6 +7,7 @@
 ; document by, and has the host's. When the host leaves, the session ends
 ; and each has its own back. What goes between them is text: a letter for
 ; what it is, the mailbox it is from, a comma, and what it carries:
+;	i	an invite, from the host, with its user's name
 ;	h	hello, I would join
 ;	w	welcome: ids from, users from, may a copy be saved, 1 or 0
 ;	d	a delta, (share-delta)
@@ -21,11 +22,14 @@
 ;A board that joined: the host's mailbox, its own document put by, and
 ;whether a copy may be saved, which the host says and is no unless it does
 (defq *share* :nil *share_entry* :nil *share_peers* (list) *share_joined* 0
-	*share_host* :nil *share_own_doc* :nil *share_may_save* :nil)
+	*share_host* :nil *share_own_doc* :nil *share_may_save* :nil
+	;the host that invited this one, and its user's name
+	*share_invite* :nil *share_invite_name* :nil)
 
 (defun share-title ()
 	;the title says if the board is shared, and how
-	(def *title* :text (cat "Whiteboard" (case *share* (:host ", shared") (:joined ", joined") (:asking ", joining") (:t ""))))
+	(def *title* :text (cat "Whiteboard" (case *share* (:host ", shared") (:joined ", joined") (:asking ", joining")
+		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) "")))))
 	(.-> *title* :layout :dirty_all))
 
 (defun share-own ()
@@ -40,15 +44,30 @@
 		(mail-forget *share_entry*)
 		(setq *share_entry* :nil)))
 
+(defun share-declare (host)
+	;every board says it is there, to be invited, the host that it is shared
+	(share-forget)
+	(setq *share_entry* (mail-declare (elem-get select +select_share) "*Whiteboard"
+		(cat (ifn *env_user* "Guest") (if host "+host" "")))))
+
+(defun share-boards ()
+	; (share-boards) -> ((mailbox hex info) ...)
+	;the other boards of the mesh
+	(defq own (share-own))
+	(reduce (lambda (out entry)
+			(defq parts (split entry ","))
+			(and (= (length parts) 4) (not (eql (elem-get parts 1) own))
+				(push out (list (elem-get parts 1) (elem-get parts 3))))
+			out)
+		(mail-enquire "*Whiteboard") (list)))
+
 (defun share-host-found ()
 	; (share-host-found) -> :nil | mailbox hex
 	;a board of the mesh that is shared, not this one
-	(defq own (share-own))
-	(some (lambda (entry)
-			(defq parts (split entry ","))
-			(and (= (length parts) 4) (ends-with "+host" (elem-get parts 3))
-				(not (eql (elem-get parts 1) own)) (elem-get parts 1)))
-		(mail-enquire "*Whiteboard")))
+	;the one that invited this one first, if it still is
+	(defq boards (share-boards))
+	(or (and *share_invite* (some (lambda ((mbox info)) (and (eql mbox *share_invite*) (ends-with "+host" info) mbox)) boards))
+		(some (lambda ((mbox info)) (and (ends-with "+host" info) mbox)) boards)))
 
 (defun share-begin ()
 	;join the board that is shared, or share this one if none is
@@ -59,8 +78,11 @@
 			(share-title))
 		(:t (setq *share* :host *share_peers* (list) *share_joined* 0)
 			(share-start *board* :t)
-			(setq *share_entry* (mail-declare (elem-get select +select_share) "*Whiteboard"
-				(cat (ifn *env_user* "Guest") "+host")))
+			(share-declare :t)
+			;the teacher invites: each other board is told, and joins if its
+			;user says so, Chris: "the teacher/presenter is the one who
+			;invites the colabs/students"
+			(each (lambda ((mbox &ignore)) (share-send mbox "i" (ifn *env_user* "Guest"))) (share-boards))
 			(share-title))))
 
 (defun share-end ()
@@ -77,7 +99,7 @@
 		((eql *share* :host)
 			(each (# (share-send %0 "b")) *share_peers*)
 			(share-stop *board*)
-			(share-forget)
+			(share-declare :nil)
 			(setq *share* :nil *share_peers* (list))
 			(share-title))
 		((find *share* '(:joined :asking))
@@ -91,6 +113,11 @@
 	;what a board this is shared with sends
 	(defq at (find "," msg) kind (first msg) from (slice msg 1 at) payload (slice msg (inc at) -1))
 	(cond
+		((eql kind "i")
+			;invited: the title says so, and the share button joins it
+			(unless *share*
+				(setq *share_invite* from *share_invite_name* payload)
+				(share-title)))
 		((eql kind "h")
 			;one would join: it is given ids and users of its own, from far
 			;enough on that no two meet
@@ -101,6 +128,7 @@
 				(share-send from "w" (cat (str (* n 1000000)) "," (str (* n 100)) "," (if *share_may_save* "1" "0")))))
 		((eql kind "w")
 			(when (eql *share* :asking)
+				(setq *share_invite* :nil)
 				(bind '(base users save) (map (const str-to-num) (split payload ",")))
 				(defq doc (. *board* :get_doc))
 				(setq *share_own_doc* doc *share* :joined *share_may_save* (= save 1))

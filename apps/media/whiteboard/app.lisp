@@ -1051,6 +1051,8 @@
 	;the mailboxes of the stripes are waited on after this task's own
 	(defq select (cat (task-mboxes +select_size) (. *stripes* :mboxes)) *id* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	;it is there to be invited to a board that is shared
+	(share-declare :nil)
 	;a corner keeps the shape of what it sizes, till the lock is put off
 	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))
 	(board-resized)
