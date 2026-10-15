@@ -136,10 +136,18 @@
 			(if (= (getf (mail-read mbox) +ev_msg_type) +ev_type_wheel) (push out name))))
 		(list ga_mbox ga_mbox2) '(:first :second))
 	out)
+;"at once" is to be at once: a machine that held this task longer than the
+;latch between two turns has made them two, rightly, and that says nothing
+;of the latch. The soak found it so on the Pi, 2026-10-15. Each is timed
+;from before the turn before it: if the two took less than the latch, the
+;turns were within it. If not, it is not asked, the fast machines ask it
+(defq ga_t (pii-time))
 (assert-list-eq "a turn of the wheel over a view is told to it" '(:first) (ga-wheel 150 80))
-(assert-list-eq "the mouse moves over another view and a turn comes at once: it is the first view's still, the wheel ran on"
-	'(:first) (ga-wheel 150 230))
-(assert-list-eq "and the next, while they keep coming" '(:first) (ga-wheel 150 240))
+(defq ga_t1 (pii-time) ga_got (ga-wheel 150 230))
+(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "the mouse moves over another view and a turn comes at once: it is the first view's still, the wheel ran on"
+	'(:first) ga_got))
+(setq ga_got (ga-wheel 150 240))
+(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '(:first) ga_got))
 (task-sleep 500000)
 (assert-list-eq "after a pause a turn is a new one, for the view the mouse is over" '(:second) (ga-wheel 150 240))
 (assert-list-eq "and stays that one's when the mouse goes back and they keep coming" '(:second) (ga-wheel 150 80))
