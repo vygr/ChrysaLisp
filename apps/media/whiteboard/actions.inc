@@ -12,6 +12,7 @@
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
+	+event_share action-share
 	+event_zoom_in action-zoom-in
 	+event_zoom_out action-zoom-out
 	+event_undo action-undo

@@ -28,7 +28,7 @@
 ;where the host has it. This task does not wait while they do.
 
 (enums +select 0
-	(enum main picker timer tip))
+	(enum main picker timer tip share))
 
 ;the zooms there are, stepped through, so that in and then out is where it was
 ;the zooms it comes to rest at, each twice the last: at one of these the
@@ -1040,6 +1040,7 @@
 		(view-changed)))
 
 ;import actions and bindings
+(import "./share.inc")
 (import "./actions.inc")
 (import "./config.inc")
 
@@ -1091,11 +1092,16 @@
 				(bars-tick)
 				(tools-cull)
 				(redraw)
+				;the boards this is shared with are sent what has changed
+				(share-tick)
 				;once a second the nodes that draw are looked to
 				(when (> (setq *kept* (inc *kept*)) 60)
 					(setq *kept* 0)
 					(frame-watch)
 					(. *stripes* :keep)))
+			((= idx +select_share)
+				;from a board this is shared with
+				(share-message *msg*))
 			((= idx +select_picker)
 				;save/load picker response
 				(setq *msg* (trim *msg*))
@@ -1110,7 +1116,10 @@
 			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	;close window. It is kept as a window, not as all of the screen
+	;close window. It is kept as a window, not as all of the screen. A
+	;session is left, and this board's own document is what is kept
+	(share-leave)
+	(share-forget)
 	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)

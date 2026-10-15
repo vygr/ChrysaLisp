@@ -92,6 +92,8 @@
 ;the doc". A press says who, a key, or a script, is the teacher's
 (defun teacher-pressed? ()
 	(cond
+		;a board that joined another's is no teacher of it
+		((eql *share* :joined) :nil)
 		((and (str? (defq msg (get '*msg*))) (>= (length msg) +ev_msg_action_size)
 				(defq view (. *window* :find_id (getf msg +ev_msg_action_source_id)))
 				(defq by (get :pressed_by view)))
@@ -233,10 +235,13 @@
 	(if *full* (full-window) (action-select-none)))
 
 (defun action-save ()
-	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(mail-send (setq *picker_mode* :t *picker_mbox*
-		(open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get select +select_picker) "Save Whiteboard..." "|" ".")))
+	;a board that joined another's may not keep a copy of it unless that one
+	;said so, Chris: "They could take a photo, but they can't save the doc"
+	(unless (and (eql *share* :joined) (not *share_may_save*))
+		(if *picker_mbox* (mail-send *picker_mbox* ""))
+		(mail-send (setq *picker_mode* :t *picker_mbox*
+			(open-child "apps/system/files/child.lisp" +kn_call_pin))
+			(cat (elem-get select +select_picker) "Save Whiteboard..." "|" "."))))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))

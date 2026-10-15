@@ -1015,16 +1015,19 @@
 		;the teacher's, (:appoint), and a pen bound to rub out is that pen's
 		;user. SDL3 gives the other end of a pen as an :eraser, so here that
 		;is the teacher's whoever's pen it is
+		;A board that joined another's is a student's: what is the teacher
+		;here is that board's own number, :user_base, see lib/cwb/share.inc
 		(bind '(id kind &ignore) event)
-		(defq users (get :users this) key (ptr-device id))
-		(cond
-			((eql kind :eraser) +board_teacher)
-			((. users :find key))
-			((eql kind :mouse) +board_teacher)
-			((eql kind :touch) +board_anybody)
-			(:t (. users :insert key (defq user (get :next_user this)))
-				(def this :next_user (inc user))
-				user)))
+		(defq users (get :users this) key (ptr-device id)
+			user (cond
+				((eql kind :eraser) +board_teacher)
+				((. users :find key))
+				((eql kind :mouse) +board_teacher)
+				((eql kind :touch) +board_anybody)
+				(:t (. users :insert key (defq user (get :next_user this)))
+					(def this :next_user (inc user))
+					user)))
+		(if (or (= user +board_anybody) (not (defq base (get :user_base this)))) user (+ base user)))
 
 	(defmethod :appoint (event)
 		; (. board :appoint event) -> board
