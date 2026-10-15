@@ -5,6 +5,7 @@ deps/
 /x64/
 /ai/
 /usr/*/*.tre
+/usr/*/chat_*
 /usr/*/theme
 /lib/files/*.tre
 /tests/scratch/
