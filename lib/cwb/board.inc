@@ -1143,6 +1143,9 @@
 			(def this :changes (list :all))
 			(unless (find :all (get :changes this))
 				(each (# (unless (find %0 (get :changes this)) (push (get :changes this) %0))) ids)))
+		;and for the boards this one is shared with, lib/cwb/share.inc
+		(when (defq log (get :share_log this))
+			(if (eql ids :all) (push log :all) (each (# (push log %0)) ids)))
 		this)
 
 	(defmethod :take_changes ()
@@ -1826,7 +1829,8 @@
 	(defmethod :in_flight? ()
 		; (. board :in_flight?) -> :t | :nil
 		;is anything in flight: being moved about, or being drawn
-		(or (nempty? (get :floating this)) (> (. (get :temp this) :size) 0)))
+		(or (nempty? (get :floating this)) (> (. (get :temp this) :size) 0)
+			(and (defq remote (get :remote_temp this)) (> (. remote :size) 0))))
 
 	(defmethod :draw_flight (canvas &optional m side)
 		; (. board :draw_flight canvas [m side]) -> board
@@ -1842,7 +1846,11 @@
 			(each (lambda ((name flags items))
 				(cwb-draw-items canvas (cwb-pick items floating) m))
 				(cwb-layers (get :doc this))))
-		(unless (eql side :back) (. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m))))
+		(unless (eql side :back)
+			(. (get :temp this) :each (lambda (id shape) (cwb-draw-items canvas (list shape) m)))
+			;what is being drawn on the boards this is shared with
+			(if (defq remote (get :remote_temp this))
+				(. remote :each (lambda (k (from shape)) (cwb-draw-items canvas (list shape) m)))))
 		this)
 
 	(defmethod :draw_overlay (canvas &optional m no_flight no_selected)
