@@ -41,9 +41,9 @@ every task.
 	larger apps use.
 
 *	**[Running GUI Code & Inspecting View Trees](#running-gui-code--inspecting-view-trees)**
-	How an agent checks GUI work without a screen grab: dump a View tree with
-	`ui-save`, open a live window for the user, and run on the GUI node of a
-	multi-node boot.
+	How an agent checks GUI work: dump a View tree with `ui-save`, read a live
+	window with `widgets` and `grab` on a Test desktop, open a live window for
+	the user, and run on the GUI node of a multi-node boot.
 
 *	**[GUI App Debugging & Validation Disciplines](#gui-app-debugging--validation-disciplines)**
 	Debug prints, and what to verify before handing an app to the user.
@@ -435,10 +435,22 @@ Key points:
 
 ## Running GUI Code & Inspecting View Trees
 
-An agent cannot take a screen grab, but it can build a widget tree under the
-GUI boot image and get the resulting View tree back as a file to inspect. This
-is the next best thing, and should be used to check a `widgets.inc` before
-asking the user to run the app.
+An agent can build a widget tree under the GUI boot image and get the
+resulting View tree back as a file to inspect, and should, to check a
+`widgets.inc` before asking the user to run the app. A live app is read on a
+desktop of the agent's own:
+
+*	**A Test desktop, `widgets` and `grab`:** from the tree root on the M4,
+	`./rack.sh run 'rack -g -v -u Test -l arm64/Linux,x86_64/Darwin "launch
+	desktop/docs ; lisp -r (task-sleep 2000000) ; widgets -t Docs -d 5 -k text
+	; grab -t Docs /path/docs.png"'`, the result in
+	`/tmp/chrysalisp_rack_result`. `-l` leaves those machines out, it does not
+	pick them. A second or two is enough for a window to be drawn; `grab` of
+	a window that is in the tree but not drawn yet gives what is behind it.
+	`-t` matches a window by the Title nearest its top, a level at a time, so
+	the Files of Docs, which has a title bar of its own, does not stand for
+	the window. A picture costs far more to look at than a tree: use
+	`widgets` first, `grab` small and seldom, and read the image with Read.
 
 *	**Run under the GUI boot image:** `./run.sh -n 1 -f` gives a single GUI
 	node with a TUI attached to the host, so piped `lisp -r` snippets can use
@@ -460,8 +472,14 @@ asking the user to run the app.
 *	**What the dump contains:** One `Lmap` per view holding `:type` (the
 	class, eg. `:Button`), the view's own properties, and a `:children` list
 	of the child views in order. Only symbols, numbers, strings, and flat
-	sequences of those are saved. Fonts are saved as `(name pixels)`. Views,
-	vtables, and other objects are skipped. Inherited properties do not
+	sequences of those are saved. A symbol that is not a plain `:keyword` is
+	saved as a string, as the words of an `Md` are symbols with spaces and
+	brackets in them, that a tree could not read back. Fonts are saved as
+	`(name pixels)`. Views, vtables, and other objects are skipped. A subtree
+	below the view saved, the child of a `Scroll` (`+view_flag_subtree`), the
+	page of the Docs app say, has `:children_count` in place of its
+	children, as a view at the depth limit has; pass that view as the root,
+	`widgets -f`, to go into it. Inherited properties do not
 	appear on a child, only on the ancestor that defines them.
 
 	```

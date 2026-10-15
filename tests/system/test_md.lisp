@@ -160,3 +160,20 @@
 (lines! (lambda (line) (push md_it line) :nil) (file-stream "docs/lisp/iteration.md"))
 (assert-true "which that document has a heading of" (some (# (and (starts-with "#" %0) (eql (md-anchor (trim-start %0 (const (char-class "# ")))) "predication"))) md_it))
 (assert-eq "an Md that was never drawn has no places" :nil (. (Md) :find_anchor "x"))
+
+;ui-save of a page, which widgets -t Docs sends: the words of an Md are
+;symbols, :nil, a lone : and (file-stream) among them, and are read back as
+;they were written; in a Scroll the page is a subtree, and is not gone into
+(bind '(md_md _) (md-make (list "A `(file-stream)` word, a `:nil` and a lone : here.")))
+(defq md_out (string-stream (cat "")))
+(ui-save md_out md_md)
+(defq md_read :t)
+(catch (tree-load (string-stream (str md_out))) (setq md_read :nil))
+(assert-true "a page saved is read back" md_read)
+(assert-true "with its words as text" (nempty? (substr (str md_out) "[(file-stream) ]")))
+(def (defq md_scroll (Scroll +scroll_flag_vertical)) :min_width 640 :min_height 100)
+(. md_scroll :add_child md_md)
+(setq md_out (string-stream (cat "")))
+(ui-save md_out md_scroll)
+(assert-true "a page in a Scroll is saved without its children"
+	(and (nempty? (substr (str md_out) ":children_count")) (empty? (substr (str md_out) "[(file-stream) ]"))))

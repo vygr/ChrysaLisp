@@ -261,13 +261,23 @@
 	(if (Stack? view) (setq view (. view :get_radio_bar)))
 	(each (# (def %0 :tip_text %1)) (. view :children) tips))
 
+(defun ui-save-atom (v)
+	; (ui-save-atom atom) -> atom
+	(if (and (sym? v) (or (not (starts-with ":" v)) (< (length v) 2)
+			(some (# (bfind %0 (const (char-class " \t\r\n\q'(),;[]`{}")))) v)))
+		(str v) v))
+
 (defun ui-save (stream view &optional depth keys)
 	; (ui-save stream view [depth keys]) -> tree | :nil
 	;the tree of a view and those in it, each its :type, its :bounds in
 	;its parent, and its properties: atoms, flat sequences of atoms, fonts
 	;as (name pixels). depth the levels of children saved, :nil for all, a
-	;view at the last has :children_count in place of its children. keys
-	;the properties saved, :nil for all of them
+	;view at the last has :children_count in place of its children, as has
+	;a subtree in it, the child of a Scroll, a page of the Docs app say,
+	;unless it is the view saved. keys the properties saved, :nil for all.
+	;A symbol not a plain :keyword is saved as its text, as the words of an Md
+	;are symbols, with spaces and brackets in them, that a tree writes bare
+	;and could not read back
 	(defq tree (Lmap) stack (list view tree 0))
 	(while (defq level (pop stack) props (pop stack) view (pop stack))
 		(. props :insert :type (last (. view :type_of)))
@@ -276,13 +286,15 @@
 			(when (or (not keys) (find k keys))
 				(cond
 					((eql k :font) (. props :insert k (font-info v)))
-					((or (sym? v) (num? v) (str? v)) (. props :insert k v))
+					((or (sym? v) (num? v) (str? v)) (. props :insert k (ui-save-atom v)))
 					((and (seq? v) (every (# (or (sym? %0) (num? %0) (str? %0))) v))
-						(. props :insert k v)))))
+						(. props :insert k (if (some (const sym?) v) (map (const ui-save-atom) v) v))))))
 			(tolist view))
 		(cond
 			((empty? (defq children (. view :children))))
-			((and depth (>= level depth)) (. props :insert :children_count (length children)))
+			((or (and depth (>= level depth))
+					(and (> level 0) (bits? (. view :get_flags) +view_flag_subtree)))
+				(. props :insert :children_count (length children)))
 			(:t (. props :insert :children (reduce (lambda (p child)
 					(push stack child (defq child_props (Lmap)) (inc level))
 					(push p child_props))
