@@ -34,6 +34,15 @@
             of shift+ ctrl+ alt+ cmd+ before it.
         type text: the keys of the text, as the keyboard map of
             the user has them.
+        finger n down x y, finger n to x y, finger n up: contact n
+            of a touch panel lands, moves there, lifts. Many may be
+            down at once, each its own n.
+        pen down x y [barrel], pen to x y, pen up: the pen, its tip
+            touching, with the button of its barrel held if said.
+        eraser down x y, eraser to x y, eraser up: the other end of
+            the pen.
+        A move of a contact goes there in steps from where it was,
+        if it was down by this command, so a line is drawn.
 
     Given to the GUI of this network, as if from its mouse and
     keyboard, so to the windows of any app, as they would be.")
@@ -129,6 +138,43 @@
 			(range 1 9)))
 		(event +gui_ev_mouse_up x1 y1 1 1)))
 
+;a pen or a finger, as the host gives one: its id, device << 24 | contact,
+;its kind, the buttons held, 0 for none, and how hard, the most if down
+(defun pointer-event (type id kind buttons x y)
+	(setf-> (str-alloc +gui_event_size)
+		(+gui_event_type type) (+gui_event_x x) (+gui_event_y y)
+		(+gui_event_buttons buttons) (+gui_event_count 0) (+gui_event_scode 0)
+		(+gui_event_direction 0) (+gui_event_id id) (+gui_event_kind kind)
+		(+gui_event_pressure (if (= buttons 0) 0 65535))))
+
+;the contacts of this command that are down, by id, (kind buttons x y)
+(defq *contacts* (Fmap 11)
+	+touch_device (<< 1 24) +pen_device (<< 2 24)
+	;the host gives a pen with the button of its barrel held the right
+	;button, in place of the left of its tip, src/host/gui_event.h
+	+barrel 4)
+
+(defun contact (id kind)
+	;down, to or up of a contact, the words after the device
+	(defq way (next-word) at (. *contacts* :find id))
+	(case (sym (cat ":" way))
+		(:down (bind '(x y) (place))
+			(defq buttons (if (eql (word-at *next*) "barrel") (progn (next-word) +barrel) 1))
+			(. *contacts* :insert id (list buttons x y))
+			(pointer-event +gui_ev_pointer_down id kind buttons x y))
+		(:to (bind '(x y) (place))
+			(bind '(buttons ox oy) (ifn at (list 1 x y)))
+			(. *contacts* :insert id (list buttons x y))
+			(apply (const cat) (map (# (pointer-event +gui_ev_pointer_motion id kind buttons
+				(+ ox (/ (* (- x ox) %0) 8)) (+ oy (/ (* (- y oy) %0) 8)))) (range 1 9))))
+		(:up (bind '(& x y) (ifn at (cat '(0) (place))))
+			(. *contacts* :erase id)
+			(pointer-event +gui_ev_pointer_up id kind 0 x y))))
+
+(defun finger ()
+	(and (number-word? (defq n (next-word)))
+		(contact (+ +touch_device (str-to-num n)) +gui_kind_touch)))
+
 (defun action-events (action)
 	; (action-events action) -> :nil | events
 	(case (sym (cat ":" action))
@@ -139,7 +185,10 @@
 		(:drag (drag))
 		(:wheel (wheel))
 		(:key (and (defq w (next-word)) (key-name w)))
-		(:type (and (defq w (next-word)) (type-text w)))))
+		(:type (and (defq w (next-word)) (type-text w)))
+		(:finger (finger))
+		(:pen (contact +pen_device +gui_kind_pen))
+		(:eraser (contact +pen_device +gui_kind_eraser))))
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
