@@ -2052,6 +2052,14 @@ test_gui_event made honest on a busy machine. Seen live: the shared board
 on one Test desktop, the binder toolbar on the Pi. Left: the canvas as an
 object (universal input proper), the host change for device ids and pen
 buttons (waits for Chris's desktop), the host's may-save switch, a shared
-session between two machines, Chat between two machines. The emulator
-suite and the QEMU platforms run after this was written; their results are
-in the morning note.
+session between two machines, Chat between two machines.
+
+After it was written: a fresh soak of 12 on the finished tree, clean 12 of
+12 on the M4, the x64 and the Pi, 7,176 each, nothing left behind by it.
+The VP64 emulator, tests -a: test_apps said 52 apps stopped short, because
+it knew an app had got to its main by a throw a release build does not
+stop for, now right (6e54c64af); test_storage_replay is the emulator's
+speed, as before; test_kill passes alone under -e, it was load. RISC-V and
+LoongArch under QEMU, self built images the same to the byte, 7,140 each,
+and Windows under Wine, 7,129: all pass. A rack -g desktop leaves its
+shared canvases behind when it is ended; swept, and told.
