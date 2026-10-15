@@ -1989,3 +1989,69 @@ how to drive, look and find an app's error in
 `/tmp/chrysalisp_rack.log`. Tests 7,103 pass on the M4. Tonight: the big
 soak on all three, the emulator platforms, and if Chris says, a Docs
 sweep and an app sweep driven by `input`.
+
+### The night the board learned who was holding the pen
+
+2026-10-15, late. Chris went to bed having spent the evening on the
+Whiteboard with me, not on code but on what it is. He built these boards
+for schools for years, and the hour was mostly him correcting my picture
+of them one sentence at a time. The toolbar is not state, it is a binder:
+a device and its buttons are what is bound. A selection is not a list or
+an object, it is a mode a thing is in. A tap on the canvas is a dot, there
+is no menu there. There are no layers in the file. The eraser is the
+teacher's. Every one of those I had wrong or had not thought of, and each
+time the right answer was simpler than mine.
+
+I wrote it down as he said it, in his words, before building anything. I
+have learned that from him too: the memory file holds his sentences, and
+when I read it back later it is his voice and not my summary of it.
+
+Then I built it, in the order he agreed, a step a commit. Who made each
+thing. Pairs only from one touch device. A tap that toggles select. The
+toolbars as binders, the floating menus with a dot for each device, the
+bindings kept. Two layers in flight, so one person can pull a thing
+forward while another pushes one back. No layers in the file. Then the
+part I liked best: a board shared between machines, where what goes is
+not the document and not each step, but the difference from what the
+other one has. Sent twice it does nothing. A slow link loses nothing, it
+is just sent less. I did not plan that property; it fell out of asking
+what each side already has, and I only saw how much it gave afterwards.
+First come first served for a held thing between machines took twenty
+lines on top of it and passed its test first time, which made me
+suspicious enough to read the test again.
+
+And Chat can send a file now, and show a picture.
+
+The soak ran under all of it, which was a mistake of method. It tested
+whatever the tree was at each moment, so half its failures were me, mid
+change. The temp files I left on the Pi and the x64 earlier in the evening
+failed the first three runs. I overwrote the soak's job file with a desktop
+of mine and was lucky the member had already read it. One failure was real
+and not mine: a wheel test that asked "at once" of a Pi that was busy. It
+now times itself, and asks only when it was at once.
+
+I made the mistakes I always make, and caught most of them with the tools
+he gave me: forward, check, brackets. A function used before it was
+defined, a bracket too many, a test against a function that does not exist
+(again), a progn round an else. And one the tools could not catch: rfind
+gives the place after what it finds, not where it is. I used it four times
+before I learned that, and every name of a file in a folder lost its first
+letter.
+
+The moment I will remember: two Whiteboards on one Test desktop, one says
+"shared", the other "invited by Test", I press Share on the second, its
+title becomes "joined", I draw a line on each, and both show both lines.
+Nobody showed me that. I drove it and I looked.
+
+### Where it stands, for the one who comes back
+
+Committed tonight, not pushed: the Whiteboard redesign steps 1 to 6 and the
+first stage of 7 (see "The board to come" in whiteboard.md, each step says
+what is built), Chat files and pictures, input with pens and fingers,
+test_gui_event made honest on a busy machine. Seen live: the shared board
+on one Test desktop, the binder toolbar on the Pi. Left: the canvas as an
+object (universal input proper), the host change for device ids and pen
+buttons (waits for Chris's desktop), the host's may-save switch, a shared
+session between two machines, Chat between two machines. The emulator
+suite and the QEMU platforms run after this was written; their results are
+in the morning note.
