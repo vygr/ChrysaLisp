@@ -13,7 +13,16 @@
 		(:t (defq canvas :nil)
 			(with-read-lock line
 				(setq canvas (canvas-load line +load_flag_shared)))
-			(when canvas (. page :add_child canvas))
+			(when canvas
+				;embed in horizontal scroll only if wider than standard width
+				(defq tw (get :min_width page))
+				(bind '(rw rh) (. canvas :pref_size))
+				(when (> rw tw)
+					(def (defq scroll (Scroll +scroll_flag_horizontal))
+						:min_width tw :min_height rh)
+					(. scroll :add_child (. canvas :change 0 0 rw rh))
+					(setq canvas scroll))
+				(. page :add_child canvas))
 			state)))
 
 ;module
