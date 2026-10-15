@@ -27,7 +27,7 @@
 (defun main ()
 	(when (and (defq stdio (create-stdio))
 			(defq opt_t :nil opt_f :nil opt_d :nil opt_k :nil args (options stdio usage)))
-		(defq kv (if opt_f (split opt_f "=")))
+		(defq kv (if opt_f (split opt_f "=") (list)))
 		(print (ifn (gui-tree-rpc opt_t (first kv) (second kv) opt_d
 				(if opt_k (map (# (sym (cat ":" %0))) (split opt_k ","))))
 			"widgets: no GUI"))))

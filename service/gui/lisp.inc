@@ -125,14 +125,14 @@
 	;what is on the screen now, of the window whose title has title in it,
 	;or of all of it, read by the GUI from its back buffer: its width, its
 	;height and its pixels, 32 bits each, blue green red alpha
-	(when (nempty? (defq service (mail-enquire "Gui,")))
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_grab)
 			(+gui_rpc_reply_id mbox)
 			(+gui_rpc_owner_id (task-mbox))
-			(+gui_rpc_weak_view (weak-ref 0))) (ifn title "")))
+			(+gui_rpc_weak_view 0)) (ifn title "")))
 		(cond
 			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
 			((starts-with "not read" reply) reply)
@@ -145,14 +145,14 @@
 	;all of the screen, as (ui-save) writes it: of the first in it whose key
 	;is value if a key is given, depth levels of children, :nil for all, and
 	;only the properties keys, a list, :nil for all
-	(when (nempty? (defq service (mail-enquire "Gui,")))
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_tree)
 			(+gui_rpc_reply_id mbox)
 			(+gui_rpc_owner_id (task-mbox))
-			(+gui_rpc_weak_view (weak-ref 0)))
+			(+gui_rpc_weak_view 0))
 			(str (list (ifn title "") (ifn key "") (ifn value "") (ifn depth -1) (ifn keys (list))))))
 		(ifn (mail-read-timeout mbox (task-timeout 10)) "no answer from the GUI")))
 
