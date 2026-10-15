@@ -228,6 +228,19 @@ commit. The `chrysalisp-tests` skill has the full list for a tag.
 ## A Desktop For The User
 
 Much of the work is for the eye, and an agent has none. The user looks.
+But what a window holds, and where, an agent can read for itself, from
+inside the system, a desktop on a test machine's screen that goes when it
+is done:
+
+```code
+./rack.sh run 'rack -g -v -u Test -l arm64/Darwin,x86_64/Darwin "launch desktop/calculator ; widgets -w 10 -t Calculator -d 3 -k text"'
+```
+
+*	`widgets` is a view a line, type, bounds, properties; `-f type=Button`
+	or `-f text=Save` for one part, `-d` and `-k` to keep it short. `grab
+	-t title file` for the pixels, a picture costs far more to look at,
+	small and seldom. Not ffmpeg, ssh scripts or a FIFO: rack, launch,
+	widgets and grab do it.
 
 ```code
 ./rack.sh run 'nodes -g 1'

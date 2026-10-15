@@ -511,6 +511,8 @@ Usage: grab [options] file
         -h --help: this help info.
         -t --title str: the window whose title has this in it,
             default all of the screen.
+        -w --wait num: seconds to wait for the window, as an app
+            just launched has none yet, default 0.
 
     What is on the GUI's screen now, of a window or of all of
     it, written to the file, as its ending says, .png or .cpm.
@@ -667,6 +669,18 @@ Usage: includes [options] [path] ...
 
     If no paths given on command line
     then will take paths from stdin.
+```
+## launch
+```code
+Usage: launch app ...
+
+    options:
+        -h --help: this help info.
+
+    Open each app on the node of the GUI of this system, as the
+    Launcher does, desktop/eyes for apps/desktop/eyes/app.lisp,
+    or a path to the .lisp of it. An app's windows are views of
+    that node, so it is opened there, wherever this runs.
 ```
 ## link
 ```code
@@ -981,11 +995,16 @@ Usage: rack [options] "command line"
             a : between.
         -u --user name: the sessions are that user's, a folder of usr/,
             and not whoever last signed on to each machine.
+        -g --gui: each session is a desktop, its GUI up before the
+            command is run, on the machine's own screen.
+        -v --verbose: every line each session said, not only those
+            of how the tests went.
 
     Run a command line on every machine of the mesh. Each machine that
     takes a sync, sync -a, is first made the same as this one. Then each,
     and this one, starts a session of its own, new, sized to itself, runs
-    the command, and the session ends.
+    the command, and the session ends. Command lines with a ; between
+    are run one after another in the one session.
 
     A line comes back for each machine.
 
@@ -1566,7 +1585,13 @@ Usage: widgets [options]
             view at the last says how many it has.
         -k --keys key,key: only these properties, as well as
             the type and bounds of each, default all.
+        -w --wait num: seconds to wait for the window, as an app
+            just launched has none yet, default 0.
+        -r --raw: the tree as (ui-save) writes it, not a line a
+            view.
 
     The tree of widgets of a window on the GUI's screen, or of
-    the screen, as text, from the GUI of this network.
+    the screen, as text, from the GUI of this network: a view a
+    line, as deep in as it is, its type, its bounds in its
+    parent, and its properties, key=value.
 ```

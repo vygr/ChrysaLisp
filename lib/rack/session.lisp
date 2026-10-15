@@ -10,6 +10,13 @@
 (defq out (list) me (task-nodeid) t0 (pii-time) run (ifn (get '*rack_run*) ""))
 (catch (progn
 		(node-auto)
+		;a desktop: the GUI on this node, the host's, as run.sh -f has it,
+		;and up before the command lines, which may look at it
+		(when (get '*rack_gui*)
+			(open-child "service/gui/app.lisp" +kn_call_pin)
+			(defq gui_t0 (pii-time))
+			(while (and (empty? (mail-enquire "@Gui,")) (< (- (pii-time) gui_t0) (task-timeout 20)))
+				(task-sleep 100000)))
 		(each (lambda (cmdline)
 			(when (nempty? cmdline)
 				(pipe-run cmdline (# (push out %0)))))

@@ -3097,6 +3097,15 @@ is value if a key is given, depth levels of children, :nil for all, and
 only the properties keys, a list, :nil for all
 ```
 
+### gui-wait
+
+```code
+(gui-wait ask secs) -> answer
+
+(ask) again each 100ms, for as many seconds, till it is not that there
+is no such window, an app just opened has not made it yet
+```
+
 ### handler
 
 ```code
@@ -5105,20 +5114,22 @@ for it. An empty pattern stays empty, and matches as it would without.
 ### rack-fresh
 
 ```code
-(rack-fresh phases [user]) -> str
+(rack-fresh phases [user gui]) -> str
 
 on this machine, a new session for each phase, a list of command
 lines, one after another, and what they said. A session is started by
 the host, so it is on the boot image as it is on disk now, which a
 phase before it may have made. With a user the session is theirs, and
-not whoever last signed on to the machine, as run.sh -u has it
+not whoever last signed on to the machine, as run.sh -u has it. With
+gui the session is on the GUI host, a desktop, its GUI up before the
+command lines are run, as run.sh -f has it
 the form has no space or tab in it, a node's args are split at those
 ```
 
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone user tree]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user tree gui all]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make and
@@ -5126,7 +5137,9 @@ make all boot are run first, in a session before. leave_out is the
 machines not to run on, as (sync-services) names them, they are still
 made the same. gone is paths to remove on the others. tree is the one
 that is sent, default the system's own, the test of this sends a small
-one. The lines are SYNC and GONE for each other machine, RAN for each
+one. With gui the session is a desktop, see rack-fresh. cmdline may be
+several, with a ; between, run one after another. With all every line a
+session said comes back, not only those of how it went. The lines are SYNC and GONE for each other machine, RAN for each
 machine, and DONE
 ```
 

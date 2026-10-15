@@ -91,6 +91,23 @@ an app's settings say, goes to that user's folder.
 `-l` names machines to bring level and not run on, as `sync` lists them,
 `arm64/Linux`, with a `,` between. For a machine someone is sat at.
 
+`-g` makes each session a desktop, on the machine's own screen: the session
+is a `main_gui` host, its GUI is up before the command is run, and the
+user's apps of `*env_launcher_auto_apps*` open as at a log in. Command lines
+with a `;` between are run one after another in the one session, and `-v`
+brings back every line they said, not only those of how tests went. So a
+look at an app, from inside the system and with no shell on the machine:
+
+```code
+rack -g -v -u Test -l arm64/Darwin,x86_64/Darwin \
+	"launch desktop/calculator ; widgets -w 10 -t Calculator -d 3 -k text"
+```
+
+`launch` opens an app on the node of the GUI, `widgets` gives the tree of
+its window a view a line, and `grab` its pixels to a file, each waiting
+with `-w` for a window just opened. A tree is a few lines, a picture is a
+lot to look at: the tree first.
+
 The sessions are apart from the member and from each other's machines. Each
 machine builds and tests in its own tree, on its own file system, nothing
 is run across machines but the task that starts the session. The fence

@@ -18,13 +18,15 @@
 ;is itself run by a rack run, as the test of this is, or two at once
 (defq +rack_cmds "/tmp/chrysalisp_rack_cmds" +rack_out "/tmp/chrysalisp_rack_out")
 
-(defun rack-fresh (phases &optional user)
-	; (rack-fresh phases [user]) -> str
+(defun rack-fresh (phases &optional user gui)
+	; (rack-fresh phases [user gui]) -> str
 	;on this machine, a new session for each phase, a list of command
 	;lines, one after another, and what they said. A session is started by
 	;the host, so it is on the boot image as it is on disk now, which a
 	;phase before it may have made. With a user the session is theirs, and
-	;not whoever last signed on to the machine, as run.sh -u has it
+	;not whoever last signed on to the machine, as run.sh -u has it. With
+	;gui the session is on the GUI host, a desktop, its GUI up before the
+	;command lines are run, as run.sh -f has it
 	;the form has no space or tab in it, a node's args are split at those
 	(defq acc (list) tab (ascii-char 11))
 	(each (lambda (cmds)
@@ -32,7 +34,8 @@
 		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
 			cmds_file (cat +rack_cmds run) out_file (cat +rack_out run))
 		(save (join cmds (ascii-char 10)) cmds_file)
-		(pii-spawn (cat "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+		(pii-spawn (cat (if gui "-gui " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+			(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
 			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
 			;a run keeps to itself, the member is what is in the mesh
 			tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
@@ -54,20 +57,23 @@
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
-(defun rack-run (cmdline &optional make_first leave_out gone user tree)
-	; (rack-run cmdline [make_first leave_out gone user tree]) -> (line ...)
+(defun rack-run (cmdline &optional make_first leave_out gone user tree gui all)
+	; (rack-run cmdline [make_first leave_out gone user tree gui all]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
 	;the command line on each, and on this one. With make_first, make and
 	;make all boot are run first, in a session before. leave_out is the
 	;machines not to run on, as (sync-services) names them, they are still
 	;made the same. gone is paths to remove on the others. tree is the one
 	;that is sent, default the system's own, the test of this sends a small
-	;one. The lines are SYNC and GONE for each other machine, RAN for each
+	;one. With gui the session is a desktop, see rack-fresh. cmdline may be
+	;several, with a ; between, run one after another. With all every line a
+	;session said comes back, not only those of how it went. The lines are SYNC and GONE for each other machine, RAN for each
 	;machine, and DONE
 	(defq out (list) t0 (pii-time) me (hex-encode (system-id))
 		rules_text (ifn (load (cat (setd tree ".") "/.gitignore")) "")
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
-		phases (if make_first (list (list "make" "make all boot") (list cmdline)) (list (list cmdline))))
+		cmdlines (map (# (trim %0)) (split cmdline ";"))
+		phases (if make_first (list (list "make" "make all boot") cmdlines) (list cmdlines)))
 	(setd leave_out (list) gone (list))
 	(each (lambda ((svc id machine root))
 		;the hashes of the system's tree are kept from run to run, in obj/
@@ -97,16 +103,17 @@
 			(:t (open-task (str `(progn
 					(import "lib/rack/rack.inc")
 					(mail-send (hex-decode ,(hex-encode reply_mbox))
-						(cat ,machine (ascii-char 10) (rack-fresh (quote ,phases) ,user)))))
+						(cat ,machine (ascii-char 10) (rack-fresh (quote ,phases) ,user ,gui)))))
 					(first nodes) +kn_call_pin 0 (mail-mbox))
 				(setq asked (inc asked)))))
 		ran)
 	(times asked
-		(push out (if (defq reply (mail-read-timeout reply_mbox 360000000))
+		(push out (cond
+			((not (defq reply (mail-read-timeout reply_mbox 360000000))) "RAN no reply")
+			(all (cat "RAN " reply))
 			;the lines that say how it went, the rest is the session's chatter
-			(cat "RAN " (join (filter (# (or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
+			((cat "RAN " (join (filter (# (or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
 					(found? %0 "FAIL") (found? %0 "rror") (found? %0 "boot_image") (found? %0 "/")
 					(found? %0 "RESULT") (starts-with "[" %0)))
-				(split reply (ascii-char 10))) " "))
-			"RAN no reply")))
+				(split reply (ascii-char 10))) " "))))))
 	(push out (cat "DONE " (str (/ (- (pii-time) t0) 1000)) "ms")))

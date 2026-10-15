@@ -11,20 +11,23 @@
         -h --help: this help info.
         -t --title str: the window whose title has this in it,
             default all of the screen.
+        -w --wait num: seconds to wait for the window, as an app
+            just launched has none yet, default 0.
 
     What is on the GUI's screen now, of a window or of all of
     it, written to the file, as its ending says, .png or .cpm.
     It is read by the GUI from its back buffer, the last frame
     it drew, by a GUI of this network.")
 (("-t" "--title") ,(opt-str 'opt_t))
+(("-w" "--wait") ,(opt-num 'opt_w))
 ))
 
 (defun main ()
 	(and (defq stdio (create-stdio))
-		(defq opt_t :nil args (options stdio usage))
+		(defq opt_t :nil opt_w 0 args (options stdio usage))
 		(cond
 			((< (length args) 2) (print "grab: what file ?"))
-			((not (defq grabbed (gui-grab-rpc opt_t)))
+			((not (defq grabbed (gui-wait (# (gui-grab-rpc opt_t)) opt_w)))
 				(print "grab: no GUI"))
 			((str? grabbed) (print "grab: " grabbed))
 			(:t (bind '(w h pixels) grabbed)

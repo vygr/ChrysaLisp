@@ -156,6 +156,16 @@
 			(str (list (ifn title "") (ifn key "") (ifn value "") (ifn depth -1) (ifn keys (list))))))
 		(ifn (mail-read-timeout mbox (task-timeout 10)) "no answer from the GUI")))
 
+(defun gui-wait (ask secs)
+	; (gui-wait ask secs) -> answer
+	;(ask) again each 100ms, for as many seconds, till it is not that there
+	;is no such window, an app just opened has not made it yet
+	(defq t0 (pii-time) answer (ask))
+	(while (and (str? answer) (starts-with "no window" answer) (< (- (pii-time) t0) (* secs 1000000)))
+		(task-sleep 100000)
+		(setq answer (ask)))
+	answer)
+
 (defmacro gui-quit-rpc () `(gui-rpc :nil +gui_rpc_type_quit))
 ; (gui-quit-rpc) -> :nil
 (defmacro gui-logout-rpc () `(gui-rpc :nil +gui_rpc_type_logout))
