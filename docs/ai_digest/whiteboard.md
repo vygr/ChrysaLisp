@@ -1117,7 +1117,15 @@ a canvas for each, `*flight*` in front and `*flight_b*` behind, in an order
 that never changes.
 6. No layers in the document. Built: version 5 is one list of items, a
 version 4 file is read into it.
-7. The shared board.
+7. The shared board. Built, first stage: `lib/cwb/share.inc`, deltas by
+state for each board sent to, what is being drawn and what a hand holds
+going with them, first come first served for holds, the host's word final;
+the app's Share button, every board says it is there as `*Whiteboard`, a
+board that shares invites the rest and an invited one joins by the button,
+ids and users from bases of its own, a joined board may not save or undo,
+the title says shared, joined or invited. `tests/system/test_cwb_share.lisp`.
+Not yet: the host's switch to let a copy be saved, the session tried
+between two machines.
 8. The host change, with Chris's desktop free.
 
 ## What is not done
