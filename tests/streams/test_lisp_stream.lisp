@@ -97,3 +97,50 @@
 (bind '(ls_st ls_s) (ls-open ls_long))
 (while (defq ls_block (read-blk ls_s 7777)) (setq ls_count (+ ls_count (length ls_block))))
 (assert-eq "300,000 bytes in 300 pieces, read in blocks of another length" 300000 ls_count)
+
+;the examples of docs/ai_digest/streams.md, "A Stream Of Your Own"
+(import "lib/hash/sums.inc")
+(import "lib/streams/deflate.inc")
+
+;the parts of a list, one after the other
+(defun parts-fill (parts)
+	;the next of them, :nil after the last
+	(if (nempty? parts) (pop parts)))
+(defq parts (reverse (list "one\n" "two\n" "three\n"))
+	in (lisp-stream `(lambda () (,parts-fill ',parts))) got (list))
+(lines! (# (push got %0) :nil) in)
+(assert-list-eq "parts" '("one" "two" "three") got)
+
+;another stream, changed as it is read
+(defun upper-fill (in)
+	(if (defq part (read-blk in 4096)) (to-upper part)))
+(defq up (lisp-stream `(lambda () (,upper-fill ',(string-stream "quietly now")))))
+(assert-eq "upper" "QUIETLY NOW" (read-blk up 100))
+
+;what is written summed on its way to another stream
+(defun summed-write (state data flush)
+	(bind '(out &ignore) state)
+	(elem-set state 1 (crc32 data (second state)))
+	(write-blk out data)
+	(if flush (stream-flush out)))
+(defq to (memory-stream) state (list to 0)
+	summed (lisp-stream '(lambda () :nil) :nil `(lambda (data flush) (,summed-write ',state data flush))))
+(write-blk summed "The quick brown fox jumps over the lazy dog")
+(stream-flush summed)
+(assert-eq "summed" 0x414fa339 (second state))
+(stream-seek to 0 0)
+(assert-eq "and passed on" "The quick brown fox jumps over the lazy dog" (read-blk to 100))
+
+;and anything that reads a stream reads one, native code too: inflate of a
+;zlib stream given a byte at a time
+(defq z (memory-stream))
+(deflate-compress (string-stream "hello hello hello hello") z :t)
+(stream-seek z 0 0)
+(defq zdata (read-blk z 1000) zat 0 back (memory-stream))
+(defun byte-fill (data)
+	(when (< zat (length data))
+		(setq zat (inc zat))
+		(slice data (dec zat) zat)))
+(assert-eq "inflate a byte at a time" :t (inflate-decompress (lisp-stream `(lambda () (,byte-fill ',zdata))) back :t))
+(stream-seek back 0 0)
+(assert-eq "what it was" "hello hello hello hello" (read-blk back 100))

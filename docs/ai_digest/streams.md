@@ -117,10 +117,75 @@ function, if given, is called for `(stream-seek)`.
     let go of is flushed first, as a file is, so `write` is called from the
     `:deinit` too.
 
-It is what `(storage-stream path [mode])` is made of, an object of a store
-read a block at a time with the next few on their way, or written a block
-at a time. Anything Lisp can fetch or put a piece at a time can be given to
-what reads or writes a stream.
+It came with the store, and `(storage-stream path [mode])` is made of it,
+an object of a store read a block at a time with the next few on their way,
+or written a block at a time. But it is not the store's: it is how a stream
+of any kind at all is made from Lisp, with no VP and no new class. Anything
+Lisp can fetch or put a piece at a time is then a stream, to everything that
+reads or writes one.
+
+### A Stream Of Your Own
+
+A stream is the functions it is made of, and what they are given. Three of
+the smallest, each in `tests/streams/test_lisp_stream.lisp`:
+
+The parts of a list, one after the other. `pop` takes from the end, so the
+list is turned round first:
+
+```vdu
+(defun parts-fill (parts)
+	;the next of them, :nil after the last
+	(if (nempty? parts) (pop parts)))
+(defq parts (reverse (list "one\n" "two\n" "three\n"))
+	in (lisp-stream `(lambda () (,parts-fill ',parts))))
+(lines! (# (print %0) :nil) in)
+```
+
+Another stream, changed as it is read. This is a filter of a pipeline with
+no task of its own, read where it is read:
+
+```vdu
+(defun upper-fill (in)
+	(if (defq part (read-blk in 4096)) (to-upper part)))
+(defq up (lisp-stream `(lambda () (,upper-fill ',(file-stream "README.md")))))
+```
+
+What is written, summed on its way to another stream, a CRC-32 of it in the
+state when it is flushed:
+
+```vdu
+(defun summed-write (state data flush)
+	(bind '(out &ignore) state)
+	(elem-set state 1 (crc32 data (second state)))
+	(write-blk out data)
+	(if flush (stream-flush out)))
+(defq state (list (file-stream "out.bin" +file_open_write) 0)
+	summed (lisp-stream '(lambda () :nil) :nil
+		`(lambda (data flush) (,summed-write ',state data flush))))
+```
+
+Each of these is read or written by all there is: `read-line`, `lines!`,
+`read-blk`, `read-bits`, `write-blk`, the pipes, a stage of
+`lib/streams/stages.inc`, and the VP that reads a stream, the native inflate
+for one, which takes a zlib stream given it a byte at a time as well as from
+a file. So a new source or sink is a function or two, a decoder or a sum is
+a stream round another, and nothing that reads streams has to know.
+
+What is made of it now:
+
+*   `(storage-stream path [mode])`, an object of the store, read ahead a
+    few blocks, `service/storage/app.inc`.
+*   The two ends of a TLS connection, `lib/net/tls.inc`: what is read is
+    decrypted a record at a time as it is asked for, what is written is put
+    in records and encrypted, and `http.inc` and `curl` read and write them
+    as they would a socket.
+
+A function of the module that makes the stream, put into the `lambda` with
+a `,`, is the function itself, so it is there when the stream calls it, the
+module or no. The state is put in with `',`, the one object, so a fill that
+changes it changes what the next call is given. Work out what goes in with a
+`(defq)` first: a macro called in the unquote, `(reverse)` say, is put in as
+what it expands to, not run.
 
 ## Specialized IPC Streams: `:in` and `:out`
 
