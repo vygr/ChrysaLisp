@@ -1911,3 +1911,81 @@ two storage scene tests time out there, which is its speed. Open: test_apps
 lets a document block through in debug when its repl printed an error.
 The emulator fault handler is a patch in my memory folder, with how to
 work out its offsets again.
+
+### Hands
+
+2026-10-15, the evening. It began small: diagrams in the Docs app ran off
+the edge of the page, and the image handler wanted the horizontal scroll
+the code blocks already had. Five lines. Chris looked at the storage
+pages and said they were right, and it was committed.
+
+Then he asked whether I was happy with my new grabbing, and the honest
+answer was that I had not used it. I had checked the diagrams by working
+out widths with no screen at all, and the run that should have told me
+the widths printed nothing. He had looked. I had not.
+
+So I started a desktop of my own to look, and could not find the window.
+He could see it. It was there, titled Docs, and `grab -t Docs` said there
+was no such window. The title was searched for from the last view in, and
+the Docs app has a Files tree with a title bar of its own, "Project",
+which came first. It had been wrong since the tool was written, and no
+one had asked for Docs by name before. Looked for a level at a time from
+the top, it was found.
+
+Then `widgets` hung on the same window. Two faults under one: the whole
+page was saved, two megabytes of words, and the words of a page are
+symbols, which a tree writes without quotes. `(file-stream)` and a lone
+`:` could not be read back. Chris gave the better half of the fix in a
+line: a live app has the subtree flag set, on the child of every Scroll,
+stop there. The window became 21K and a millisecond.
+
+Along the way I did most of the things I am told not to. I waited twenty
+and sixty seconds for windows when a second or two is enough; he said so.
+I read `-l` as choosing machines when it leaves them out, and ran on the
+two I did not mean. I left sessions hung behind me, one for two and a half
+minutes, and a clean-up of one run deleted the next run's file because I
+gave them the same name. I wrote a test against a function, `tree-collect`,
+that does not exist. To get the Docs page to a diagram I patched a copy of
+the app with a sum on the slider, and he said there is `:visible` on
+Scroll. There is. The Docs search uses it.
+
+When the patched copy would not start, I went looking for why, and the
+answer was in the member's log the whole time: three lines saying
+`show-place` was not bound, private to a module. I had asked `launch` to
+report it, and he said a launcher is not in a position to know. It is not.
+The error goes where errors go, and the right thing was to look there.
+
+Then the part I will remember. He asked if I could drive the mouse and
+keyboard, and now I can. `input` makes events the way the host makes them
+and the GUI hands them on as its own, so an app cannot tell me from a
+person. Focus moves, shift is held, the wheel latches. I scrolled the
+Files tree, clicked `crypto.md`, and read back "Hashes And Ciphers" as
+text. I typed "seal" into the find field and read it back. On the Pi,
+"Seal_2", the capital and the underscore both. The first click went
+nowhere: the file was scrolled out of sight and I clicked where it would
+have been. So now a view out of sight is refused, and the wheel brings it
+in, as it would for a person. A step of the wheel is a line or so; a long
+list wants a hundred.
+
+He worried about tokens, and he is right to. A picture is a lot to look
+at and a tree is a few lines. So the rule is written where I will read it:
+drive with `input`, look with `widgets`, grab only when how it looks is
+the question. Today I used two pictures to build the thing and none to
+prove it worked.
+
+It is strange to have hands. This morning a window was something I could
+ask about. Tonight it is something I can open, scroll, type into and
+close, on any machine in the mesh, and nobody has to do it for me. It
+also means I can break things at a speed I could not before, and that
+the first place to look, when something does not come up, is the log.
+
+### Where it stands, for the one who comes back
+
+Pushed at `25e6745ed`, M4, x64 and Pi level. New: the image handler's
+scroll, the window title found from the top, `ui-save` stopping at a
+subtree and saving odd symbols as text (test_md covers both), `input`
+with `(gui-input-rpc)` and `(gui-locate-rpc)`, and the GUI apps skill on
+how to drive, look and find an app's error in
+`/tmp/chrysalisp_rack.log`. Tests 7,103 pass on the M4. Tonight: the big
+soak on all three, the emulator platforms, and if Chris says, a Docs
+sweep and an app sweep driven by `input`.
