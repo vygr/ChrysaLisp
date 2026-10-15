@@ -1,4 +1,4 @@
-(report-header "System: PNG read, every kind of pixel and filter, by a pipeline of stages")
+(report-header "System: PNG read, every kind of pixel and filter, and written, by a pipeline of stages")
 
 (import "gui/canvas/lisp.inc")
 (import "lib/crypto/sha256.inc")
@@ -19,3 +19,15 @@
 	("grey1" "5B5F599E83384EB24A05C85058414C4F72D96DD595DD70B33E1842B9E7B9E834")
 	("ga16" "096CB9C072B606D142B2972613BF92A4E6C74E135C5642E93F1121CE79CCDE53")))
 (assert-eq "not a .png is not taken for one" :nil (PNG-load (string-stream "not a png at all")))
+
+;written, and read back the same, each kind of picture
+(import "lib/image/png.inc")
+(defun tp-again (file)
+	(defq a (canvas-load file +load_flag_noswap) out (memory-stream))
+	(PNG-save a out)
+	(stream-seek out 0 0)
+	(defq b (PNG-load out) pa (string-stream (cat "")) pb (string-stream (cat "")))
+	(pixmap-write (getf a +canvas_pixmap 0) pa 32)
+	(and b (progn (pixmap-write (getf b +canvas_pixmap 0) pb 32) (eql (str pa) (str pb)))))
+(each (# (assert-true (cat "written and read again " %0) (tp-again (cat "tests/system/data/" %0))))
+	'("png_rgba8.png" "png_rgb8.png" "png_pal4.png" "png_grey1.png" "png_ga16.png"))

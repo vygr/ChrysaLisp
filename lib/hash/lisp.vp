@@ -1,0 +1,119 @@
+(include "lib/asm/func.inc")
+(include "class/str/class.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func (path-to-absolute "./crc32"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :f0-:f15
+	;info
+	;(crc32 data crc) -> crc, the CRC-32 of PNG, zip and gzip, the low bit
+	;first, of the polynomial 0xEDB88320, crc what it was before data, 0 to
+	;begin with
+
+	(def-vars
+		(ptr this args data)
+		(pubyte p)
+		(long c ones poly)
+		(uint len i j))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1) '(:obj :num))
+	(assign '(:r0 :r1) (vpx data c))
+	;the constants of more than 31 bits in names, an x64 instruction takes no more
+	(assign (vpx 0xffffffff 0xEDB88320) (vpx ones poly))
+	(assign (vpx (.> data +str_length) (& (.> data +str_data)) (^ (& c ones) ones) 0) (vpx len p c i))
+	(loop-while (vpx (< i len)))
+		(assign (vpx (^ c (elem p i)) 0) (vpx c j))
+		(loop-while (vpx (< j 8)))
+			(vpif (vpx (/= (& c 1) 0)))
+				(assign (vpx (^ (>> c 1) poly)) (vpx c))
+			(else)
+				(assign (vpx (>> c 1)) (vpx c))
+			(endif)
+			(assign (vpx (+ j 1)) (vpx j))
+		(loop-end)
+		(assign (vpx (+ i 1)) (vpx i))
+	(loop-end)
+
+	(call :num :create (vpx (^ c ones)) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(crc32 data crc)" +error_msg_wrong_types))
+	(signature '(:str :NUM)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-func (path-to-absolute "./adler32"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :r14, :f0-:f15
+	;info
+	;(adler32 data adler) -> adler, the Adler-32 of zlib, adler what it was
+	;before data, 1 to begin with. The sums are taken mod 65521 each 5552
+	;bytes, the most that cannot pass 2^32 between
+
+	(def-vars
+		(ptr this args data)
+		(pubyte p)
+		(long a b ones)
+		(uint len i n))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1) '(:obj :num))
+	(assign '(:r0 :r1) (vpx data a))
+	(assign (vpx 0xffffffff) (vpx ones))
+	(assign (vpx (.> data +str_length) (& (.> data +str_data)) (>> (& a ones) 16) (& a 0xffff) 0)
+		(vpx len p b a i))
+	(loop-while (vpx (< i len)))
+		(assign (vpx (+ i 5552)) (vpx n))
+		(vpif (vpx (> n len)))
+			(assign (vpx len) (vpx n))
+		(endif)
+		(loop-while (vpx (< i n)))
+			(assign (vpx (+ a (elem p i))) (vpx a))
+			(assign (vpx (+ b a) (+ i 1)) (vpx b i))
+		(loop-end)
+		(assign (vpx (% a 65521) (% b 65521)) (vpx a b))
+	(loop-end)
+
+	(call :num :create (vpx (| (<< b 16) a)) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(adler32 data adler)" +error_msg_wrong_types))
+	(signature '(:str :NUM)))
+
+	(pop-scope-syms)
+
+(def-func-end)

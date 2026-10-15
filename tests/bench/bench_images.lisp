@@ -21,6 +21,9 @@
 	bi_z (load "tests/streams/data/deflate_dynamic.z") bi_zlen (length (bi-pack (const inflate-decompress) bi_z :t)))
 
 (bench "PNG, a screen shot of 8 bit RGBA, a pixel" (bi-pixels bi_png) (canvas-load bi_png +load_flag_noswap))
+(defq bi_shot (canvas-load bi_png +load_flag_noswap))
+(bench "PNG written, the screen shot, a pixel" (bi-pixels bi_png) (PNG-save bi_shot (memory-stream)))
+(bench "deflate a page of text, a byte" (length bi_text) (bi-pack (const deflate-compress) bi_text :t))
 (bench "JPEG baseline 4:2:0, a cover, a pixel" (bi-pixels bi_jpg) (canvas-load bi_jpg +load_flag_noswap))
 (bench "JPEG progressive 4:2:0, 64 by 64 10 times, a pixel" (* 10 (bi-pixels bi_prog))
 	(times 10 (canvas-load bi_prog +load_flag_noswap)))

@@ -578,12 +578,13 @@
 					(assign (vpx sym (elem dext (* sym +long_size))) (vpx d n))
 					(inflate-bits n bit)
 					(assign (vpx (+ (elem dbase (* d +long_size)) bit)) (vpx back))
-					;not from before the start, nor further back than the ring
+					;not from before the start, nor further back than the ring,
+					;32768 the most, the byte read before it is written over
 					(vpif (vpx (= bit -1)))
 						(assign (vpx -1) (vpx sym))
 					(elseif (vpx (> back at)))
 						(assign (vpx -1) (vpx sym))
-					(elseif (vpx (> back mask)))
+					(elseif (vpx (> back (+ mask 1))))
 						(assign (vpx -1) (vpx sym))
 					(else)
 						(assign (vpx 0) (vpx i))
@@ -666,6 +667,126 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(huffman-symbol in bits table)" +error_msg_wrong_types))
 	(signature '(:stream :array :list)))
+
+	(pop-scope-syms)
+
+(def-func-end)
+
+;;;;;;;;;
+; deflate
+;;;;;;;;;
+
+(defmacro deflate-put (code n)
+	;n bits of code to the out stream, the low first
+	`(call :stream :write_bits (vpx out ,code ,n pool psize) (vpx _ pool psize)))
+
+(def-func (path-to-absolute "./deflate_fixed"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r7, :r14, :f0-:f15
+	;info
+	;(deflate-block ring pos chunk hash bits out last tables) -> pos, chunk
+	;as a block of DEFLATE of the fixed codes, last 1 if it is the last. It
+	;is put in the ring, a str of 2^n twice the window at the least, at
+	;pos, the bytes so far, and a match is looked for back in it by the
+	;hash of the 3 bytes from each place, hash a nums of 8192 of where each
+	;was last, -65536 for none. tables is (lcodes llens dcodes dlens lbase
+	;lextra dbase dextra), the codes each the other way round, to be written
+
+	(def-vars
+		(ptr this args ringo chunk hash bits out tables)
+		(pptr tp)
+		(plong ht bitsp lcodes llens dcodes dlens lbase lext dbase dext)
+		(pubyte ring cp)
+		(long pos end i m pool hv hmul)
+		(uint psize mask cap clen last len dist s j limit))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 8)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) '(:obj :num :obj :obj :obj :obj :num :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (vpx ringo pos chunk hash bits out last tables))
+	(assign (vpx (.> ringo +str_length) (.> chunk +str_length)) (vpx cap clen))
+	(assign (vpx (- cap 1) (& (.> ringo +str_data)) (& (.> chunk +str_data))) (vpx mask ring cp))
+	(assign (vpx (.> hash +array_begin) (.> bits +array_begin) (.> tables +array_begin)) (vpx ht bitsp tp))
+	(assign (vpx (elem bitsp 0) (elem bitsp +long_size)) (vpx pool psize))
+	(assign (vpx (.> (elem tp 0) +array_begin) (.> (elem tp +ptr_size) +array_begin)
+			(.> (elem tp (* 2 +ptr_size)) +array_begin) (.> (elem tp (* 3 +ptr_size)) +array_begin))
+		(vpx lcodes llens dcodes dlens))
+	(assign (vpx (.> (elem tp (* 4 +ptr_size)) +array_begin) (.> (elem tp (* 5 +ptr_size)) +array_begin)
+			(.> (elem tp (* 6 +ptr_size)) +array_begin) (.> (elem tp (* 7 +ptr_size)) +array_begin))
+		(vpx lbase lext dbase dext))
+
+	;the multiplier of the hash in a name, an x64 instruction takes no more
+	;than 31 bits
+	(assign (vpx 2654435761) (vpx hmul))
+
+	;the chunk into the ring
+	(call :sys_mem :copy_to_ring (vpx cp (+ ring (& pos mask)) clen cap ring))
+
+	;the head of the block, last and fixed codes, 1
+	(deflate-put (+ last 2) 3)
+	(assign (vpx pos (+ pos clen)) (vpx i end))
+	(loop-while (vpx (< i end)))
+		(assign (vpx 0) (vpx len))
+		(vpif (vpx (>= (- end i) 3)))
+			(assign (vpx (& (>> (* (| (<< (elem ring (& i mask)) 16) (<< (elem ring (& (+ i 1) mask)) 8)
+				(elem ring (& (+ i 2) mask))) hmul) 19) 8191)) (vpx hv))
+			(assign (vpx (elem ht (<< hv 3))) (vpx m))
+			(assign (vpx i) (vpx (elem ht (<< hv 3))))
+			(assign (vpx (- i m)) (vpx dist))
+			(vpif (vpx (&& (> (- i m) 0) (<= (- i m) 32768))))
+				(assign (vpx (min 258 (- end i)) 0) (vpx limit j))
+				(loop-while (vpx (< j limit)) 'match)
+					(breakif (vpx (/= (elem ring (& (+ m j) mask)) (elem ring (& (+ i j) mask)))) 'match)
+					(assign (vpx (+ j 1)) (vpx j))
+				(loop-end)
+				(assign (vpx j) (vpx len))
+			(endif)
+		(endif)
+		(vpif (vpx (>= len 3)))
+			;a length, the last of the bases it is at least, and its extra bits
+			(assign (vpx 28) (vpx s))
+			(loop-while (vpx (> (elem lbase (<< s 3)) len)))
+				(assign (vpx (- s 1)) (vpx s))
+			(loop-end)
+			(deflate-put (elem lcodes (<< (+ s 257) 3)) (elem llens (<< (+ s 257) 3)))
+			(deflate-put (- len (elem lbase (<< s 3))) (elem lext (<< s 3)))
+			;a distance, the same
+			(assign (vpx 29) (vpx s))
+			(loop-while (vpx (> (elem dbase (<< s 3)) dist)))
+				(assign (vpx (- s 1)) (vpx s))
+			(loop-end)
+			(deflate-put (elem dcodes (<< s 3)) (elem dlens (<< s 3)))
+			(deflate-put (- dist (elem dbase (<< s 3))) (elem dext (<< s 3)))
+			(assign (vpx (+ i len)) (vpx i))
+		(else)
+			(assign (vpx (elem ring (& i mask))) (vpx s))
+			(deflate-put (elem lcodes (<< s 3)) (elem llens (<< s 3)))
+			(assign (vpx (+ i 1)) (vpx i))
+		(endif)
+	(loop-end)
+	;the end of the block
+	(deflate-put (elem lcodes (<< 256 3)) (elem llens (<< 256 3)))
+
+	(assign (vpx pool psize) (vpx (elem bitsp 0) (elem bitsp +long_size)))
+	(call :num :create (vpx end) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(deflate-block ring pos chunk hash bits out last tables)" +error_msg_wrong_types))
+	(signature '(:str :NUM :str :nums :array :stream :NUM :list)))
 
 	(pop-scope-syms)
 

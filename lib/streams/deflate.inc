@@ -13,6 +13,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/streams/huffman.inc")
+(import "lib/hash/sums.inc")
 
 (import "lib/collections/fill.inc")
 
@@ -24,6 +25,8 @@
 (ffi (path-to-absolute "./inflate_codes") inflate-codes)
 (ffi (path-to-absolute "./lz4_read") inflate-read)
 (ffi (path-to-absolute "./lz4_write") inflate-write)
+(ffi (path-to-absolute "./deflate_fixed") deflate-block)
+
 
 (defq +inflate_window 32768
 	;the base and extra bits of each length code from 257, and of each
@@ -35,6 +38,14 @@
 	+inflate_dist_extra (nums 0 0 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13)
 	;the order the lengths of the code length code come in
 	+inflate_order (nums 16 17 18 0 8 7 9 6 10 5 11 4 12 3 13 2 14 1 15))
+
+;the fixed codes, to be written: the literals and lengths, the distances,
+;each its code the other way round and its length, and the bases and
+;extra bits
+(defq +deflate_fixed_lengths (cat (fill (nums) 144 8) (fill (nums) 112 9) (fill (nums) 24 7) (fill (nums) 8 8)))
+(defq *deflate_fixed* (list (apply (const nums) (huffman-codes +deflate_fixed_lengths)) +deflate_fixed_lengths
+	(apply (const nums) (huffman-codes (fill (nums) 30 5))) (fill (nums) 30 5)
+	+inflate_len_base +inflate_len_extra +inflate_dist_base +inflate_dist_extra))
 
 (defun inflate-fixed ()
 	; (inflate-fixed) -> (literals distances)
@@ -100,6 +111,26 @@
 			(:t (setq ok :nil))))
 	ok)
 
+(defun deflate-compress (in_stream out_stream &optional zlib)
+	; (deflate-compress in_stream out_stream [zlib]) -> :t
+	;the bytes of in as DEFLATE, raw, or with zlib's head and sum round it.
+	;32KB a block, of the fixed codes, a match looked for by native code at
+	;the place the 3 bytes from each were last, as far back as 32KB
+	(defq bits (array 0 0) ring (str-alloc 65536) hash (fill (nums) 8192 -65536) pos 0 adler 1
+		chunk (read-blk in_stream 32768))
+	;zlib: deflate of a window of 32KB, the fastest, a head that is a whole
+	;number of 31
+	(when zlib (write-char out_stream 0x78) (write-char out_stream 0x01))
+	(unless chunk (setq chunk ""))
+	(while chunk
+		(task-slice)
+		(defq next (read-blk in_stream 32768))
+		(if zlib (setq adler (adler32 chunk adler)))
+		(setq pos (deflate-block ring pos chunk hash bits out_stream (if next 0 1) *deflate_fixed*) chunk next))
+	(flush-bits out_stream bits)
+	(if zlib (write-char out_stream (list (>> adler 24) (>> adler 16) (>> adler 8) adler)))
+	:t)
+
 ;module
-(export-symbols '(inflate-decompress))
+(export-symbols '(inflate-decompress deflate-compress *deflate_fixed*))
 (env-pop)

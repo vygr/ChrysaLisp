@@ -22,3 +22,28 @@
 (assert-eq "and what it was" "4B229338BD5B03EBB0C2A2BE0E06FF7CA2C9CC1B36383C83F88594BEB73F3AA5" (hex-encode (sha256 td_text)))
 
 (assert-eq "not zlib is not taken for it" :nil (first (td-inflate "not zlib at all" :t)))
+
+;the sums, as zlib has them
+(import "lib/hash/sums.inc")
+(defq td_fox "The quick brown fox jumps over the lazy dog")
+(assert-eq "crc32" 0x414fa339 (crc32 td_fox))
+(assert-eq "crc32 a part at a time" 0x414fa339 (crc32 (slice td_fox 10 -1) (crc32 (slice td_fox 0 10))))
+(assert-eq "adler32" 0x5bdc0fda (adler32 td_fox))
+(assert-eq "adler32 a part at a time" 0x5bdc0fda (adler32 (slice td_fox 10 -1) (adler32 (slice td_fox 0 10))))
+
+;deflate, and back
+(defun td-round (text)
+	(defq z (string-stream (cat "")))
+	(deflate-compress (string-stream text) z :t)
+	(defq z (str z))
+	(list (td-inflate z :t) (length z)))
+(bind '(td_back td_size) (td-round td_text))
+(assert-list-eq "deflate of the 20,000, and back" (list :t td_text) td_back)
+(assert-true "and smaller" (< td_size (length td_text)))
+(assert-list-eq "deflate of nothing" '(:t "") (first (td-round "")))
+;32KB that do not repeat, and their start again: a copy from 32768 back,
+;the most there is, and a block of the second 32KB
+(defq td_seed 7 td_noise (apply (const cat) (map (lambda (&)
+	(char (logand (>> (setq td_seed (logand (+ (* td_seed 1103515245) 12345) 0x7fffffff)) 16) 0xff))) (range 0 32768))))
+(defq td_far (cat td_noise (slice td_noise 0 300)))
+(assert-list-eq "a copy from 32768 back" (list :t td_far) (first (td-round td_far)))

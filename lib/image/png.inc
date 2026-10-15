@@ -20,6 +20,7 @@
 
 (import "gui/canvas/lisp.inc")
 (import "lib/streams/stages.inc")
+(import "lib/hash/sums.inc")
 
 (import "lib/collections/fill.inc")
 
@@ -151,9 +152,56 @@
 				(setq canvas :nil))))
 	canvas)
 
-;the canvas is told what this reads
-(canvas-loader ".png" PNG-info PNG-load)
+(defun png-be4 (v)
+	;four bytes high first
+	(cat (char (logand (>> v 24) 0xff)) (char (logand (>> v 16) 0xff)) (char (logand (>> v 8) 0xff)) (char (logand v 0xff))))
+
+(defun png-chunk-write (stream kind data)
+	; (png-chunk-write stream kind data)
+	;a chunk, its length, its kind, the data and the CRC-32 of the two
+	(write-blk stream (png-be4 (length data)))
+	(write-blk stream kind)
+	(if (nempty? data) (write-blk stream data))
+	(write-blk stream (png-be4 (crc32 data (crc32 kind)))))
+
+(defun png-rows (in out width height)
+	; (png-rows in out width height)
+	;a stage, the rows of 32 bit pixels, blue green red alpha, as rows of a
+	;PNG of colour 6, each its filter, 0, and red green blue alpha: the
+	;swap png-pixels does of 8 bits is its own way back
+	(defq row_len (* width 4) y 0)
+	(while (and (< y height) (defq row (read-blk in row_len)) (= (length row) row_len))
+		(task-slice)
+		(write-char out 0)
+		(write-blk out (png-pixels row 6 8 width "" ""))
+		(++ y)))
+
+(defun png-chunks (in out)
+	; (png-chunks in out)
+	;a stage, the zlib of the rows as IDAT chunks, then the IEND
+	(while (and (defq data (read-blk in 65536)) (nempty? data))
+		(png-chunk-write out "IDAT" data))
+	(png-chunk-write out "IEND" "")
+	(stream-flush out))
+
+(defun PNG-save (canvas stream &rest _)
+	; (PNG-save canvas stream) -> canvas
+	;the canvas as a PNG of 8 bits of red, green, blue and alpha, the rows
+	;filtered by none, a stage of a pipeline each as the load is: its rows,
+	;deflate and the chunks
+	(defq pixmap (getf canvas +canvas_pixmap 0)
+		w (getf pixmap +pixmap_width 0) h (getf pixmap +pixmap_height 0))
+	(write-blk stream +png_signature)
+	(png-chunk-write stream "IHDR" (cat (png-be4 w) (png-be4 h) (char 8) (char 6) (char 0) (char 0) (char 0)))
+	(stages-save pixmap 32 stream (list
+		(stage "lib/image/png.inc" 'png-rows w h)
+		(stage "lib/streams/deflate.inc" 'deflate-compress :t)
+		(stage "lib/image/png.inc" 'png-chunks)))
+	canvas)
+
+;the canvas is told what this reads and writes
+(canvas-loader ".png" PNG-info PNG-load PNG-save)
 
 ;module
-(export-symbols '(PNG-load PNG-info png-idat png-unfilter))
+(export-symbols '(PNG-load PNG-info PNG-save png-idat png-unfilter png-rows png-chunks))
 (env-pop)
