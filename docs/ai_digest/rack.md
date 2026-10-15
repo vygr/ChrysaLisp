@@ -104,9 +104,17 @@ rack -g -v -u Test -l arm64/Darwin,x86_64/Darwin \
 ```
 
 `launch` opens an app on the node of the GUI, `widgets` gives the tree of
-its window a view a line, and `grab` its pixels to a file, each waiting
-with `-w` for a window just opened. A tree is a few lines, a picture is a
-lot to look at: the tree first.
+its window a view a line, `input` clicks, turns the wheel and types into
+it as a user would, and `grab` its pixels to a file, each waiting with
+`-w` for a window just opened. A tree is a few lines, a picture is a lot to
+look at: drive with `input`, look with `widgets`, and `grab` only when how
+it looks is the question.
+
+```code
+rack -g -v -u Test -l arm64/Linux,x86_64/Darwin \
+	"launch desktop/docs ; input -w 10 -t Docs -f type=Scroll move wheel up 100 ;
+	input -t Docs -f text=crypto.md click ; widgets -t Docs -f type=Md -d 2 -k text"
+```
 
 The sessions are apart from the member and from each other's machines. Each
 machine builds and tests in its own tree, on its own file system, nothing

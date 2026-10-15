@@ -102,6 +102,28 @@
 			(ui-save out view (if (>= depth 0) depth) (if (nempty? keys) keys))
 			(str out))))
 
+(defun locate (request)
+	; (locate request) -> str
+	;the reply to a locate: (title key value), as gui-locate-rpc sends
+	;them, where that view is on the screen, and the part of it that can be
+	;seen, inside all it is in, (x y w h sx sy sw sh), or why it is not
+	(bind '(title key value) (first (read (string-stream request))))
+	(cond
+		((not (defq view (find-window title))) "no window of that title")
+		((and (nempty? key) (not (setq view (ui-find view (sym (cat ":" key)) value))))
+			(cat "no " key " of " value " in it"))
+		((eql view *screen*) (str (cat (. view :get_bounds) (. view :get_bounds))))
+		(:t (bind '(x y w h) (. *screen* :get_relative view))
+			(defq sx x sy y sx1 (+ x w) sy1 (+ y h) p view)
+			(while (nql (setq p (penv p)) *screen*)
+				(bind '(px py pw ph) (. *screen* :get_relative p))
+				(setq sx (max sx px) sy (max sy py) sx1 (min sx1 (+ px pw)) sy1 (min sy1 (+ py ph))))
+			(bind '(& & w0 h0) (. *screen* :get_bounds))
+			(setq sx (max sx 0) sy (max sy 0) sx1 (min sx1 w0) sy1 (min sy1 h0))
+			(if (or (<= sx1 sx) (<= sy1 sy))
+				(cat (if (nempty? key) (cat key " of " value) "it") " is out of sight")
+				(str (list x y w h sx sy (- sx1 sx) (- sy1 sy)))))))
+
 (defun grab (want)
 	; (grab want) -> str
 	;what is on the screen, of the window whose title has want in it, or
@@ -196,7 +218,18 @@
 							(setq msg (grab (slice msg +gui_rpc_size -1))))
 						(+gui_rpc_type_tree
 							;the tree of widgets of a window, the reply
-							(setq msg (widget-tree (slice msg +gui_rpc_size -1)))))
+							(setq msg (widget-tree (slice msg +gui_rpc_size -1))))
+						(+gui_rpc_type_locate
+							;where a window or a view in it is, the reply
+							(setq msg (locate (slice msg +gui_rpc_size -1))))
+						(+gui_rpc_type_input
+							;events as the host gives them, from a command, input,
+							;dispatched as those are, then answered
+							(defq in_events (slice msg +gui_rpc_size -1) in_at 0)
+							(while (< in_at (length in_events))
+								(defq msg (slice in_events in_at (setq in_at (+ in_at +gui_event_size))))
+								(dispatch msg (getf msg +gui_event_type)))
+							(setq msg "")))
 					(mail-send reply msg))
 				(+select_timer	;timer event
 					(defq frame_start (pii-time))

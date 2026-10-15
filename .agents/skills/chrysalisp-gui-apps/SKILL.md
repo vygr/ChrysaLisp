@@ -455,9 +455,18 @@ desktop of the agent's own:
 	know: an error in its `main` is printed to the stderr of the node it
 	runs on, for a rack desktop the member's log, `/tmp/chrysalisp_rack.log`.
 	Look there first.
-	To grab a part of a page that is further down, bring it into sight with
-	`(. scroll :visible view)`, as the Docs search does, not by setting the
-	sliders.
+	To drive an app, `input -t title [-f key=value] action ...`: `move x
+	y`, `click [x y]`, `rclick`, `dclick`, `drag x y x1 y1`, `wheel up|down|
+	left|right n`, `key ctrl+s`, `type text`. A place is from the top left
+	of the window or the view found, its visible middle if left out. The
+	events go through the GUI as the host's do, so focus, modifiers and the
+	wheel latch are as for a user. A view scrolled out of sight is refused,
+	"out of sight": turn the wheel over its Scroll first (a step is a line
+	or so, a long tree wants 100). `-f type=Scroll` finds the first Scroll
+	depth first, in Docs the Files tree. Drive with `input`, check with
+	`widgets`, and `grab` only when the look itself is the question, a
+	picture costs far more tokens than a tree. Do not patch a copy of an
+	app to get it to a place, as I once did; `input` gets there.
 
 *	**Run under the GUI boot image:** `./run.sh -n 1 -f` gives a single GUI
 	node with a TUI attached to the host, so piped `lisp -r` snippets can use

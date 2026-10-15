@@ -83,7 +83,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back theme grab tree))
+	(enum quit logout sub add_front add_back theme grab tree input locate))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -155,6 +155,39 @@
 			(+gui_rpc_weak_view 0))
 			(str (list (ifn title "") (ifn key "") (ifn value "") (ifn depth -1) (ifn keys (list))))))
 		(ifn (mail-read-timeout mbox (task-timeout 10)) "no answer from the GUI")))
+
+(defun gui-input-rpc (events)
+	; (gui-input-rpc events) -> :nil | :t
+	;events, a str of +gui_event structs one after another, given to the GUI
+	;as if from the host's mouse and keyboard, in order, before it answers
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_input)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view 0)) events))
+		(if (mail-read-timeout mbox (task-timeout 10)) :t)))
+
+(defun gui-locate-rpc (&optional title key value)
+	; (gui-locate-rpc [title key value]) -> :nil | why | (x y w h sx sy sw sh)
+	;where on the screen the window whose title has title in it is, or the
+	;first in it whose key is value if a key is given, as (ui-find) finds it,
+	;and the part of it that can be seen, why if none of it can
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_locate)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view 0))
+			(str (list (ifn title "") (ifn key "") (ifn value "")))))
+		(cond
+			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
+			((starts-with "(" reply) (first (read (string-stream reply))))
+			(reply))))
 
 (defun gui-wait (ask secs)
 	; (gui-wait ask secs) -> answer
