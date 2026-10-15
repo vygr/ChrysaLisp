@@ -451,6 +451,10 @@ desktop of the agent's own:
 	the Files of Docs, which has a title bar of its own, does not stand for
 	the window. A picture costs far more to look at than a tree: use
 	`widgets` first, `grab` small and seldom, and read the image with Read.
+	An app that does not come up is not reported by `launch`, which can not
+	know: an error in its `main` is printed to the stderr of the node it
+	runs on, for a rack desktop the member's log, `/tmp/chrysalisp_rack.log`.
+	Look there first.
 	To grab a part of a page that is further down, bring it into sight with
 	`(. scroll :visible view)`, as the Docs search does, not by setting the
 	sliders.
