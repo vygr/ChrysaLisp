@@ -37,11 +37,11 @@ docs/diagrams/wb_parts.cwb
 
 ## A document
 
-*To change: the document is to have no layers, see [The board to come](#layers).*
-
-A document is a size, a background, and layers. A layer is a name, flags, 1
-for hidden and 2 for locked, and a list of items, the last on top. An item is
-a shape or a group of items.
+A document is a size, a background, and a list of items, the last on top.
+An item is a shape or a group of items. It has no layers, Chris: "What's
+saved and loaded to a file is the committed layer, and that's that". Inside,
+a document still holds its list as one layer, `(cwb-layers doc)`, so what
+walks layers walks the one.
 
 A shape is the `d` of an SVG `<path>`, as text, with a fill, a stroke and a
 matrix:
@@ -77,22 +77,24 @@ matrix is not part of that, a shape that is moved is not flattened again.
 ## The file
 
 `(cwb-save doc stream)` is `(tree-save)`, the `.tre` format a `.cwb` always
-was, version 4. An item is its type and then what it has that is not what it
-would have anyway, a key and a value:
+was, version 5. An item is its type and then what it has that is not what it
+would have anyway, a key and a value. `:user` is who made it, written when
+it is not the teacher, 0:
 
 ```vdu
 ((:Emap 1)
-	:version 4 :width 640 :height 420 :background 0 :style :grid :grid 32
+	:version 5 :width 640 :height 420 :background 0 :style :grid :grid 32
 	:next_id 3
-	:layers
-	((:list 1)
-		((:list 3) "[Layer 1]" 0
-			((:list 2)
-				((:list 7) :shape :id 1 :d "[M 40 360 L 220 360]" :width 4.0)
-				((:list 11) :shape :id 2 :kind :text :text "[Start]"
-					:fill 4278190080 :stroke 0)))))
+	:items
+	((:list 2)
+		((:list 7) :shape :id 1 :d "[M 40 360 L 220 360]" :width 4.0)
+		((:list 13) :shape :id 2 :user 2 :kind :text :text "[Start]"
+			:fill 4278190080 :stroke 0))
 	:props :nil)
 ```
+
+A file of version 4 had layers, each a name, flags and items: it is read
+as one list, the items of the back layer first.
 
 It is laid out a value to a line when the system writes it. It can be written
 by hand, or by anything: a file with no ids, and only what matters said, loads,
@@ -1113,7 +1115,8 @@ bindings kept with the app's state, a pen's not, its number is a sitting's.
 its own hand took it, `(. board :fly)`, `(. board :back?)`, and the app has
 a canvas for each, `*flight*` in front and `*flight_b*` behind, in an order
 that never changes.
-6. No layers in the document.
+6. No layers in the document. Built: version 5 is one list of items, a
+version 4 file is read into it.
 7. The shared board.
 8. The host change, with Chris's desktop free.
 

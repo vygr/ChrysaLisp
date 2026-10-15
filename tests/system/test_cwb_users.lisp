@@ -146,3 +146,20 @@
 (defun us-px (x y) (get-uint us_d (+ us_at (* 4 (+ x (* y 400))))))
 (assert-eq "the flight behind has the box at the back and not the one in front"
 	(str (list :t :nil)) (str (list (/= 0 (us-px 140 130)) (/= 0 (us-px 340 130)))))
+
+;the file is the committed layer, and that's that, Chris: a document has no
+;layers. One of version 4, of two layers, is read as one list, the back
+;layer's first; it is written as version 5, the one list
+(defq us_v4 (cat "((:Emap 1) :version 4 :width 100 :height 100 :next_id 3 :layers ((:list 2)"
+	" ((:list 3) \q[back]\q 0 ((:list 1) ((:list 5) :shape :id 1 :d \q[M 0 0 L 10 10]\q)))"
+	" ((:list 3) \q[front]\q 2 ((:list 1) ((:list 5) :shape :id 2 :d \q[M 5 5 L 20 20]\q)))))"))
+(defq us_doc (cwb-load (string-stream us_v4)))
+(assert-eq "a file of two layers is one list, the back layer's first"
+	(str (list 1 (list 1 2))) (str (list (length (cwb-layers us_doc)) (map (# (elem-get %0 +cwb_id)) (cwb-items us_doc)))))
+(defq us_out (string-stream (cat "")))
+(cwb-save us_doc us_out)
+(assert-eq "written, it is version 5, of items, with no layers"
+	(str (list :t :t :nil)) (str (list (nempty? (substr (str us_out) ":version 5")) (nempty? (substr (str us_out) ":items"))
+		(nempty? (substr (str us_out) ":layers")))))
+(assert-eq "and read back it is the same"
+	(str (list 1 2)) (str (map (# (elem-get %0 +cwb_id)) (cwb-items (cwb-load (string-stream (str us_out)))))))

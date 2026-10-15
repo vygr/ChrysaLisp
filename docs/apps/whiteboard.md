@@ -81,7 +81,7 @@ in, it has no end to come to.
 board a quarter: past half way it jumps there, it has no other angle to
 be at. It turns about the middle of the paper, and a paper that was wider
 than tall is taller than wide. Control and R does the same. What lies on
-the glass, the instruments and an open palette, stays as it is.
+the glass, the instruments and the menus, stays as it is.
 
 The paper does not grow when it is zoomed, what is seen on it does. And
 the zoom always comes to rest at twice or half of where it was, however
@@ -111,35 +111,53 @@ One finger on empty board drags a box out to select with, as it did.
 
 How a board was last seen is kept in its file, and it opens so.
 
-## The palette
+## Menus, and what each pen is
 
 ```image
 apps/media/whiteboard/data/palette.cwb
 ```
 
-Click the right button where there is nothing, with nothing selected, and a
-palette opens there. So does a tap of a finger, a tap of a pen with the
-button on its side held, and the left button when the arrow is the tool.
+There is no one tool or colour of the board. Each pen, the mouse, and the
+fingers of a touch screen, has its own, and what you pick is picked for
+whatever you picked it with.
 
-* The inner ring is the tools. Pick one and the palette goes.
+* The last button of the instruments' bar, the dial, makes a menu in the
+middle of the board. Make as many as you like, one each.
 
-* The next is the colours, and four widths. Pick as many as you like, the
-spot in the middle shows what you have.
+* A menu stays where it is till its middle is tapped. Drag it by its middle
+to move it.
 
-* The outer ring is undo, redo, a ruler, a protractor, a whole protractor,
-the two set squares, snap to the grid, duplicate and delete.
+* The inner ring is the tools, the next the colours and four widths, the
+outer one undo, redo, the instruments, snap to the grid, duplicate and
+delete.
 
-* Click its middle, or anywhere off it, to put it away.
+* A tap on a menu sets what tapped it: a pen's tip, a pen with the button on
+its side held, the mouse's left button or its right, or all the fingers of
+a touch screen, which are one. So two people with a pen each have their
+own tool and colour, and each sees a small dot of their own colour on the
+menu on what they have.
 
-* Drag it by its middle to move it.
+* The toolbars do the same: the tools, the widths and the inks set what
+pressed them, and show nothing set of their own.
 
-It opens about the point you asked for it at, under your hand.
+* A tap on the board leaves a dot. No menu comes from a tap there.
 
-A pen that opens a palette has what it picks to itself. Another pen, and the
-mouse, keep what they had. So two people with a pen each can each have their
-own tool and colour on the one board.
+What you have selected takes a colour or a width you then pick.
+
+## Who may do what
+
+The mouse and the keyboard are the teacher's, the presenter's. Every other
+pen is a student's, each its own, and the fingers of a touch screen are
+anybody's. A student can not rub out what the teacher, or another student,
+drew. Only the teacher undoes and redoes. The eraser, the other end of a pen,
+is the teacher's.
 
 ## Selecting, and changing what is selected
+
+A quick tap on a thing selects it, whatever you are drawing with, and
+another quick tap lets it go. A tap that is held, or that moves, draws. Each
+person's selection is their own: what the buttons of the selection bar do,
+they do to what the one who pressed them has selected.
 
 The first button of the second row is the arrow, select. With it the left
 button is the hand as well, so a mouse with one button can do everything.
@@ -201,17 +219,10 @@ the paper and no desk.
 
 * The bigger makes the board all there is on the screen: no title, no
 toolbars, no bars, and the paper the size of the screen. What you do
-there you do with the palette, the ring that opens where you tap on
-nothing. While it is so the palette has one more thing in its outer
-ring, a window: pick it and the window is back as it was, where it was.
-The escape key does the same.
-
-* The palette opens where you tap on nothing. If there is nothing that is
-nothing, a thing covers all there is to see, tap the thing to select it
-and tap it again: a tap on what is selected opens the palette too, by a
-finger, or by the left button with the arrow. Not by the right button of
-the mouse: that on a thing sends it to the back, and does only that. With
-a mouse alone the escape key, or min, is the way out.
+there you do with menus: one is made in the middle if none is open, and
+while it is so a menu has one more thing in its outer ring, a window: pick
+it and the window is back as it was, where it was. The escape key does the
+same.
 
 ## The paper is the size of what is on it
 
@@ -358,7 +369,7 @@ tools of the surface.
 
 * `lib/cwb/tools.inc`, the instruments.
 
-* `lib/cwb/palette.inc`, the palette that opens on the board.
+* `lib/cwb/palette.inc`, the menus that float on the board.
 
 * `lib/cwb/stripes.inc`, a board of very many shapes drawn by the nodes of the
 machine, a stripe each. The app does it by itself when a draw gets slow.

@@ -30,7 +30,10 @@
 (import "././math/matrix.inc")
 (import "././collections/collections.inc")
 
-(defq +cwb_version 4)
+;5: one list of items, no layers, Chris: "What's saved and loaded to a file
+;is the committed layer, and that's that". A document of 4, of layers, is
+;read into the one list in the order its layers were in
+(defq +cwb_version 5)
 
 ;the slots of an item, a list. None is named size, an enum has a size
 ;of its own by that name. The first few are of both kinds, then those
@@ -498,8 +501,7 @@
 		:background (. doc :find :background)
 		:style (. doc :find :style) :grid (. doc :find :grid)
 		:next_id (. doc :find :next_id)
-		:layers (map (lambda ((name flags items))
-			(list name flags (map (const cwb-item-out) items))) (cwb-layers doc))
+		:items (map (const cwb-item-out) (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc)))))
 		:props (. doc :find :props)
 		:view (. doc :find :view)))
 
@@ -543,12 +545,16 @@
 	(and (Emap? data) (defq version (. data :find :version)) (num? version)
 		(cond
 			((< version 2) :nil)
-			((< version +cwb_version) (cwb-old-in data))
+			((< version 4) (cwb-old-in data))
 			(:t (defq doc (cwb-doc))
 				(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
 					'(:width :height :background :style :grid :next_id :props :view))
-				(. doc :insert :layers (map (lambda ((name flags items))
-					(list name flags (map (const cwb-item-in) items))) (ifn (. data :find :layers) (list))))
+				;the one list: of 5, or of 4 the items of its layers, the
+				;back one first
+				(defq items (if (= version 4)
+					(apply (const cat) (cat (list (list)) (map (const third) (ifn (. data :find :layers) (list)))))
+					(ifn (. data :find :items) (list))))
+				(. doc :insert :layers (list (list "Layer 1" 0 (map (const cwb-item-in) items))))
 				;an item with no id, one written by hand, is given one
 				(each (lambda ((name flags items)) (each (# (cwb-adopt doc %0)) items)) (cwb-layers doc))
 				doc))))

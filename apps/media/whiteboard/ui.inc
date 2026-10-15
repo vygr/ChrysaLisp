@@ -16,6 +16,12 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	(.-> *image_scroll* :layout :dirty_all))
 
+(defun menus-renew ()
+	;the floating menus make their wedges again, to have, or not, the one
+	;that has the window back, as the board is all of the screen or not
+	(each (# (def %0 :wedges :nil)) (palettes *board*))
+	(. *board* :touch +board_dirty_overlay))
+
 (defun full-screen (&optional sw sh)
 	;the board is all there is on the screen, the paper the size of the
 	;screen. Chris: "the canvas is made to be the only thing visibale on
@@ -38,6 +44,9 @@
 			(.-> doc (:insert :width sh) (:insert :height sw))
 			(.-> doc (:insert :width sw) (:insert :height sh)))
 		(def *board* :on_window (# (setq *full_go* :t)))
+		;there are no toolbars to make a menu from: one is made, in the
+		;middle, if none is open, and those open have the window wedge
+		(menus-renew)
 		;laid out at the size that makes it so, to find where the frame
 		;is in it, and put so the frame is at the corner of the screen
 		(bind '(w h) (. *window* :pref_size))
@@ -46,7 +55,8 @@
 		(. *window* :change_dirty (neg fx) (neg fy) w h)
 		(def *image_scroll* :min_width +min_width :min_height +min_height)
 		(board-resized)
-		(view-changed)))
+		(view-changed)
+		(if (empty? (palettes *board*)) (apply (const palette-float) (cat (list *board*) (view-middle))))))
 
 (defun full-window ()
 	;it is a window again, where it was, the size it was, and the paper
@@ -57,6 +67,7 @@
 		(def *image_scroll* :bare :nil)
 		(.-> (. *board* :get_doc) (:insert :width pw) (:insert :height ph))
 		(undef *board* :on_window)
+		(menus-renew)
 		(bind '(x y w h) bounds)
 		(. *window* :change_dirty x y w h)
 		(. *window* :dirty_all)
