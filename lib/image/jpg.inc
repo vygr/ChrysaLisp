@@ -33,6 +33,7 @@
 (ffi (path-to-absolute "./jpg_idct") jpg-idct-put)
 (ffi (path-to-absolute "./jpg_line") jpg-line)
 (ffi (path-to-absolute "./jpg_block") jpg-block-decode)
+(ffi (path-to-absolute "./jpg_prog") jpg-prog-block)
 
 (defq +jpg_zigzag (nums 0 1 8 16 9 2 3 10 17 24 32 25 18 11 4 5 12 19 26 33 40 48 41 34 27 20 13 6 7 14 21 28
 		35 42 49 56 57 50 43 36 29 22 15 23 30 37 44 51 58 59 52 45 38 31 39 46 53 60 61 54 47 55 62 63)
@@ -260,67 +261,6 @@
 ;next bit of each of those, that has a 1 or a 0 for each that is not 0
 ;and puts in those that are new. A number is taken as low bits up.
 
-(defun jpg-dc-first (reader code coefs base prior low)
-	; -> dc
-	(defq s (jpg-decode-symbol reader code) dc (+ prior (jpg-extend (jpg-bits reader s) s)))
-	(elem-set coefs base (<< dc low))
-	dc)
-
-(defun jpg-dc-refine (reader coefs base low)
-	(if (= (jpg-bit reader) 1) (elem-set coefs base (logior (elem-get coefs base) (<< 1 low)))))
-
-(defun jpg-ac-first (reader code coefs base start end low eobrun)
-	; -> eobrun
-	(cond
-		((> eobrun 0) (dec eobrun))
-		(:t (defq k start)
-			(while (<= k end)
-				(defq rs (jpg-decode-symbol reader code) r (>> rs 4) s (logand rs 15))
-				(cond
-					((> s 0)
-						(setq k (+ k r))
-						(and (<= k end)
-							(elem-set coefs (+ base (elem-get +jpg_zigzag k)) (<< (jpg-extend (jpg-bits reader s) s) low)))
-						(++ k))
-					((= r 15) (setq k (+ k 16)))
-					(:t ;the end of this block and of so many more
-						(setq eobrun (+ (<< 1 r) (jpg-bits reader r) -1) k (inc end)))))
-			eobrun)))
-
-(defun jpg-refine (reader coefs at c p1 m1)
-	;the next bit of a number that is not 0, read whatever it is
-	(and (= (jpg-bit reader) 1) (= (logand c p1) 0)
-		(elem-set coefs at (+ c (if (>= c 0) p1 m1)))))
-
-(defun jpg-ac-refine (reader code coefs base start end low eobrun)
-	; -> eobrun
-	(defq p1 (<< 1 low) m1 (neg p1) k start going (= eobrun 0))
-	(while (and going (<= k end))
-		(defq rs (jpg-decode-symbol reader code) r (>> rs 4) s (logand rs 15) v 0)
-		(cond
-			((> s 0) (setq v (if (= (jpg-bit reader) 1) p1 m1)))
-			((/= r 15) (setq eobrun (+ (<< 1 r) (jpg-bits reader r)) going :nil)))
-		(when going
-			;past r of those that are 0, the next bit of each that is not on
-			;the way, to where the new one goes
-			(defq more :t)
-			(while (and more (<= k end))
-				(defq at (+ base (elem-get +jpg_zigzag k)) c (elem-get coefs at))
-				(cond
-					((/= c 0) (jpg-refine reader coefs at c p1 m1))
-					((< (setq r (dec r)) 0) (setq more :nil)))
-				(if more (++ k)))
-			(and (/= v 0) (<= k end) (elem-set coefs (+ base (elem-get +jpg_zigzag k)) v))
-			(++ k)))
-	(when (> eobrun 0)
-		;a block with no new ones, the next bit of each that is not 0
-		(while (<= k end)
-			(defq at (+ base (elem-get +jpg_zigzag k)) c (elem-get coefs at))
-			(if (/= c 0) (jpg-refine reader coefs at c p1 m1))
-			(++ k))
-		(setq eobrun (dec eobrun)))
-	eobrun)
-
 (defun jpg-scan (reader in head grids width height hmax vmax mcus_x mcus_y)
 	; (jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
 	;a scan of a progressive JPEG, its numbers into the grids
@@ -337,11 +277,13 @@
 	(defun one (i ci code br bc)
 		;a block of the scan, at row br and column bc of the grid
 		(defq coefs (elem-get grids ci) base (* (+ (* br (* mcus_x (second (elem-get comps ci)))) bc) 64))
-		(case kind
-			(0 (elem-set lasts i (jpg-dc-first reader code coefs base (elem-get lasts i) low)))
-			(1 (jpg-dc-refine reader coefs base low))
-			(2 (setq eobrun (jpg-ac-first reader code coefs base start end low eobrun)))
-			(3 (setq eobrun (jpg-ac-refine reader code coefs base start end low eobrun)))))
+		;native, the dc of kind 0 is a difference from the last, the acs of 2
+		;and 3 have a run of blocks to pass over
+		(defq val (jpg-prog-block kind in (second reader) code coefs base start end low
+			(if (= kind 0) (elem-get lasts i) eobrun) +jpg_zigzag))
+		(cond
+			((= kind 0) (elem-set lasts i val))
+			((> kind 1) (setq eobrun val))))
 	(defun restarted ()
 		(when (and (> restart 0) (> done 0) (= (% done restart) 0))
 			(jpg-restart reader in)

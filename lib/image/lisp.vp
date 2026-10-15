@@ -517,3 +517,171 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(defmacro jpg-vrefine (at)
+	;the next bit of a number that is not 0, read whatever it is, p1 added
+	;to it away from 0 if it is 1 and that bit of it is not
+	`(progn
+		(assign (vpx (elem cp (<< ,at 3))) (vpx c))
+		(jpg-vbit bit)
+		(vpif (vpx (/= bit 0)))
+			(vpif (vpx (= (& c p1) 0)))
+				(vpif (vpx (= (>>> c 63) 0)))
+					(assign (vpx (+ c p1)) (vpx (elem cp (<< ,at 3))))
+				(else)
+					(assign (vpx (- c p1)) (vpx (elem cp (<< ,at 3))))
+				(endif)
+			(endif)
+		(endif)))
+
+(def-func (path-to-absolute "./jpg_prog"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r10, :r14, :f0-:f15
+	;info
+	;(jpg-prog-block kind in state code coefs base start end low val zigzag)
+	;-> val, a block of a scan of a progressive JPEG into coefs from base,
+	;its numbers in rows, as the standard's G.1.2. kind 0 the first bits
+	;of the dc, val the last dc and the result this one; 1 the next bit of
+	;it; 2 the first bits of the acs from start to end, val the blocks
+	;still to pass over, and the result what is left of them; 3 the next
+	;bit of each, the same. code is of jpg-code, :nil for kind 1
+
+	(def-vars
+		(ptr this args in code)
+		(pptr tp)
+		(plong sp cp zp cmax cvp cmin cvals)
+		(long byte bits marker b b2 bit v mc s val c p1 rs r sz)
+		(uint kind base start end low len j k going more))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 11)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
+		'(:num :obj :obj :obj :obj :num :num :num :num :num :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10) (vpx kind in sp code cp base start end low val zp))
+	(assign (vpx (.> sp +array_begin) (.> cp +array_begin) (.> zp +array_begin)) (vpx sp cp zp))
+	(assign (vpx (elem sp 0) (elem sp +long_size) (elem sp (* 2 +long_size))) (vpx byte bits marker))
+	(vpif (vpx (/= kind 1)))
+		(assign (vpx (.> code +array_begin)) (vpx tp))
+		(assign (vpx (.> (elem tp 0) +array_begin) (.> (elem tp +ptr_size) +array_begin)
+				(.> (elem tp (* 2 +ptr_size)) +array_begin) (.> (elem tp (* 3 +ptr_size)) +array_begin))
+			(vpx cmax cvp cmin cvals))
+	(endif)
+	(assign (vpx (<< 1 low)) (vpx p1))
+
+	(vpif (vpx (= kind 0)))
+		;the first bits of the dc, a difference from the last
+		(jpg-vsymbol cmax cvp cmin cvals s)
+		(jpg-vbits s v)
+		(jpg-vextend v s)
+		(assign (vpx (+ val v)) (vpx val))
+		(assign (vpx (<< val low)) (vpx (elem cp (<< base 3))))
+	(elseif (vpx (= kind 1)))
+		;the next bit of the dc
+		(jpg-vbit bit)
+		(vpif (vpx (/= bit 0)))
+			(assign (vpx (| (elem cp (<< base 3)) p1)) (vpx (elem cp (<< base 3))))
+		(endif)
+		(assign (vpx 0) (vpx val))
+	(elseif (vpx (= kind 2)))
+		;the first bits of a band of the acs, or a block passed over
+		(vpif (vpx (/= val 0)))
+			(assign (vpx (- val 1)) (vpx val))
+		(else)
+			(assign (vpx start) (vpx k))
+			(loop-while (vpx (<= k end)) 'first)
+				(jpg-vsymbol cmax cvp cmin cvals rs)
+				(assign (vpx (>> rs 4) (& rs 15)) (vpx r sz))
+				(vpif (vpx (/= sz 0)))
+					(assign (vpx (+ k r)) (vpx k))
+					(vpif (vpx (<= k end)))
+						(jpg-vbits sz v)
+						(jpg-vextend v sz)
+						(assign (vpx (<< v low)) (vpx (elem cp (<< (+ base (elem zp (<< k 3))) 3))))
+					(endif)
+					(assign (vpx (+ k 1)) (vpx k))
+				(elseif (vpx (= r 15)))
+					(assign (vpx (+ k 16)) (vpx k))
+				(else)
+					;the end of this block and of so many more
+					(jpg-vbits r v)
+					(assign (vpx (- (+ (<< 1 r) v) 1)) (vpx val))
+					(break 'first)
+				(endif)
+			(loop-end)
+		(endif)
+	(else)
+		;the next bit of each that is not 0, and those that are new
+		(assign (vpx start (= val 0)) (vpx k going))
+		(loop-while (vpx (&& going (<= k end))) 'refine)
+			(jpg-vsymbol cmax cvp cmin cvals rs)
+			(assign (vpx (>> rs 4) (& rs 15) 0) (vpx r sz v))
+			(vpif (vpx (/= sz 0)))
+				(jpg-vbit bit)
+				(vpif (vpx (/= bit 0)))
+					(assign (vpx p1) (vpx v))
+				(else)
+					(assign (vpx (- p1)) (vpx v))
+				(endif)
+			(elseif (vpx (/= r 15)))
+				(jpg-vbits r s)
+				(assign (vpx (+ (<< 1 r) s)) (vpx val))
+				(break 'refine)
+			(endif)
+			;past r of those that are 0, the next bit of each that is not on
+			;the way, to where the new one goes
+			(assign (vpx 1) (vpx more))
+			(loop-while (vpx (&& more (<= k end))) 'past)
+				(vpif (vpx (/= (elem cp (<< (+ base (elem zp (<< k 3))) 3)) 0)))
+					(jpg-vrefine (+ base (elem zp (<< k 3))))
+				(else)
+					(vpif (vpx (= r 0)))
+						(assign (vpx 0) (vpx more))
+						(break 'past)
+					(endif)
+					(assign (vpx (- r 1)) (vpx r))
+				(endif)
+				(assign (vpx (+ k 1)) (vpx k))
+			(loop-end)
+			(vpif (vpx (/= v 0)))
+				(vpif (vpx (<= k end)))
+					(assign (vpx v) (vpx (elem cp (<< (+ base (elem zp (<< k 3))) 3))))
+				(endif)
+			(endif)
+			(assign (vpx (+ k 1)) (vpx k))
+		(loop-end)
+		(vpif (vpx (/= val 0)))
+			;a block with no new ones, the next bit of each that is not 0
+			(loop-while (vpx (<= k end)))
+				(vpif (vpx (/= (elem cp (<< (+ base (elem zp (<< k 3))) 3)) 0)))
+					(jpg-vrefine (+ base (elem zp (<< k 3))))
+				(endif)
+				(assign (vpx (+ k 1)) (vpx k))
+			(loop-end)
+			(assign (vpx (- val 1)) (vpx val))
+		(endif)
+	(endif)
+
+	(assign (vpx byte bits marker) (vpx (elem sp 0) (elem sp +long_size) (elem sp (* 2 +long_size))))
+	(call :num :create (vpx val) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(jpg-prog-block kind in state code coefs base start end low val zigzag)" +error_msg_wrong_types))
+	(signature '(:NUM :stream :nums :obj :nums :NUM :NUM :NUM :NUM :NUM :nums)))
+
+	(pop-scope-syms)
+
+(def-func-end)
