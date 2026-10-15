@@ -35,6 +35,10 @@ marked mandatory apply to every session.
 *	**[After A VP Change](#after-a-vp-change)**
 	The build, the lint, and putting the release images back.
 
+*	**[A Release-Only Crash](#a-release-only-crash)**
+	Native release first, the emulator overnight, and a fault handler in
+	it to name the Lisp that was running.
+
 *	**[A Desktop For The User](#a-desktop-for-the-user)**
 	Bringing a GUI up in the mesh, and what not to do while it is up.
 
@@ -224,6 +228,31 @@ From the machine the work is on:
 The six CPU build, `make it`, the whole suite on the emulator, `make
 install` and the QEMU platforms are for a tagged release, not for each
 commit. The `chrysalisp-tests` skill has the full list for a tag.
+
+## A Release-Only Crash
+
+A release build has no checks: a primitive given what it was not to be
+calls through a vtable into nothing, and the node dies with no word, a
+batch "no result". Chris: "release build shouldn't have to check ! They
+should never recive incorrect types !" So the fix is the caller, never a
+check added to a library.
+
+1.	On the fast machine first, never a long emulator run in the day:
+	`make all boot release` on the M4, the category, `make all boot` to
+	put the debug image back. `make all boot validate` adds the heap,
+	dead object and stack checks. Emulator runs are for overnight.
+2.	If it is only on the emulator, it reproduces in seconds when it is a
+	crash. A SIGSEGV handler put into `vp64()` in src/host/vp64.cpp for
+	the hunt, not committed, says the last pcs and every list form the VP
+	stack points at: the forms name the Lisp that was running. An offset
+	of memory is one of the image file plus one shift, as sys/load moves
+	the image's tail; a function's name is before its code.
+3.	A test of what is wrong on purpose, a function that throws, text that
+	is not a document, is a checked build's: `(if *test_checked* (assert
+	...) (test-skip "..." "needs an error checked build"))`.
+4.	A guarded run that times out leaves its nodes up, and they take the
+	next run's batches. `pgrep -fl boot_image`, kill the VP64 and solo
+	ones, keep the standing member, `main_tui -shm_sweep`.
 
 ## A Desktop For The User
 

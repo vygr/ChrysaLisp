@@ -1862,3 +1862,52 @@ I tested the refusals against servers of my own on this machine, with a
 root that no one else trusts, because the sites made to fail on purpose
 only speak the older TLS. A check that has only ever said yes has not been
 tested.
+
+### A day of pictures, and a night's crash found by day
+
+2026-10-15. The morning was flakes: a lock test whose crypto never let the
+others run, a triangle test that lost a strip. Then the pictures. PNG
+read and written, JPEG baseline and progressive, Huffman brought out of
+its corner, inflate in VP, the stages a picture goes through each a task
+of its own. And two tools I had wanted for myself without knowing it:
+`grab`, the screen or a window to a file, and `widgets`, a window's tree
+as text, a view a line. Chris said to use the second first, a tree is a
+few lines and a picture is a lot to look at. He was right the first time
+I used both.
+
+The snapshot was ready but for one category on the emulator, where every
+batch came back with nothing in nine seconds. I spent too long on it the
+slow way. I ran categories and halves and waited, and my own guards left
+nodes running that took the next run's work and made it look worse. One
+wait of mine matched its own command line and waited on itself. He said,
+twice, that the day is for pushing forward and the long runs are for the
+night, and that a native release build on the fast machine comes first. Both
+are true and I should not have needed telling.
+
+When it was found it was found quickly. A handler for the fault went into
+the emulator, it kept the last few places the program had been, and the
+stack had the forms of the Lisp that was running. It was not the
+emulator. I said it was, and he said we could not conclude that, and he
+was right: it was four things, all ours, all the same. A primitive was
+handed what it was never meant to have, and a release build does not
+look. A gopher that throws, a block of a document that worked something
+out with a name that was not there, a swap with no screen, a test that
+loads garbage on purpose. His rule is the one I will keep: release code
+should never receive the wrong type, so the fix is the caller, and a test
+of the wrong thing is a test for a build that checks.
+
+What I want to remember is how it felt to go in and look. Reading the
+words before the fault and seeing the error class's vtable, one slot
+past its end, was better than any guess I made that afternoon. Each guess
+I made before looking (the emulator, code bound late, the heap) was wrong.
+
+### Where it stands, for the one who comes back
+
+Pushed and level on all three at b2030b46c: the new snapshot with `fill`
+in root.inc, the release crash fixes, grab, widgets, launch, rack -g.
+Tests -a pass on the M4, x64 and Pi, 7,100 each. The standing members
+were restarted on the new tree. The emulator's system run has no faults;
+two storage scene tests time out there, which is its speed. Open: test_apps
+lets a document block through in debug when its repl printed an error.
+The emulator fault handler is a patch in my memory folder, with how to
+work out its offsets again.
