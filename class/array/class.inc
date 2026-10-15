@@ -24,6 +24,7 @@
 	(dec-method :append class/array/append :virtual (:r0 :r1 :r2 :r3) (:r0) (:r1-:r3 :r6-:r9 :f0-:f15) (:r1-:r3 :r6-:r9 :f0-:f15))
 	(dec-method :erase class/array/erase :virtual (:r0 :r1) (:r0 :r1) (:r2-:r3 :f0-:f15) (:r2-:r3))
 	(dec-method :erase2 class/array/erase2 :virtual (:r0 :r1) (:r0 :r1) (:r2-:r3 :f0-:f15) (:r2-:r3))
+	(dec-method :fill class/array/fill :virtual (:r0 :r1 :r2) (:r0) (:r1-:r4 :f0-:f15) (:r1-:r4 :f0-:f15))
 	(dec-method :get_cap class/array/get_cap :static (:r0) (:r0 :r1))
 	(dec-method :set_cap class/array/set_cap :static (:r0 :r1) (:r0) (:r1-:r2 :f0-:f15))
 	(dec-method :set_length class/array/set_length :static (:r0 :r1) (:r0 :r1))
@@ -53,7 +54,8 @@
 	(dec-method :lisp_clear class/array/lisp_clear :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
 	(dec-method :lisp_push class/array/lisp_push :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r6-:r13 :f0-:f15))
 	(dec-method :lisp_pop class/array/lisp_pop :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r14 :f0-:f15))
-	(dec-method :lisp_cap class/array/lisp_cap :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r9-:r13 :f0-:f15)))
+	(dec-method :lisp_cap class/array/lisp_cap :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r9-:r13 :f0-:f15))
+	(dec-method :lisp_fill class/array/lisp_fill :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers

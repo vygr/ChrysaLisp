@@ -23,6 +23,7 @@
 	(dec-method :rfind class/list/rfind :final :nil :nil (:r2-:r9) (:r2-:r9))
 	(dec-method :erase class/list/erase :final :nil :nil (:r2-:r3 :f0-:f15) (:r2-:r3 :f0-:f15))
 	(dec-method :erase2 class/list/erase2 :final :nil :nil (:r2-:r3 :f0-:f15) (:r2-:r3 :f0-:f15))
+	(dec-method :fill class/list/fill :final :nil :nil (:r1-:r4 :f0-:f15) (:r1-:r4 :f0-:f15))
 	(dec-method :splice class/list/splice :final :nil :nil (:r0-:r11 :f0-:f15) (:r0-:r11 :f0-:f15))
 	(dec-method :lisp_list class/list/lisp_list :static (:r0 :r1) (:r0 :r1) (:r2))
 	(dec-method :lisp_merge class/list/lisp_merge :static (:r0 :r1) (:r0 :r1) (:r1-:r12 :f0-:f15))

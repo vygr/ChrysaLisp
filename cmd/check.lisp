@@ -97,6 +97,12 @@
             given to (map), (each), (filter), (some), (reduce),
             (sort), (lines!) or the like, or the :each of a
             map or a set, which call it with an element.
+    self    in the method :m of a class, a (call :c :m '(:r0
+            ...)) of the same method of this class or one
+            above it, that is not static: a call goes by the
+            vtable of the object, and of one of this class
+            that is this method again, for ever. s-call for
+            the one above, d-call for a class's own.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -113,7 +119,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore")
+(defq +check_names ''("progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -608,6 +614,61 @@
 				(found file form "held" "a (create-stdio) that is not kept in a name is let go of at once, (defq stdio (create-stdio))")))
 			forms)))
 
+;the classes, their parents and the kinds of their methods, as
+;lib/files/info.inc keeps them, the first time a .vp is looked at. As it
+;was saved, not made again if out of date: it is made again by reading
+;every .vp, which here goes wrong, and what a class comes from seldom
+;changes. With none, nothing is said
+(defq *class_db* :nil +check_class_db "lib/files/class_db.tre")
+
+(defun class-above? (above cls)
+	;:t if above is cls or a class it comes from
+	(defq at cls)
+	(while (and at (nql at above) (defq entry (. *class_db* :find at)))
+		(setq at (. entry :find :parent))
+		(if (eql at :nil) (setq at :nil)))
+	(eql at above))
+
+(defun method-kind (cls meth)
+	;the kind of a method, of the class or the first above it that has it
+	(defq at cls kind :nil)
+	(while (and at (not kind) (defq entry (. *class_db* :find at)))
+		(if (defq m (.-> entry (:find :methods) (:find meth)))
+			(setq kind (. m :find :type))
+			(setq at (. entry :find :parent))))
+	kind)
+
+(defun check-self (file top)
+	(unless *class_db*
+		(setq *class_db* (ifn (with-read-lock +check_class_db
+			(if (defq check_db_stream (file-stream +check_class_db)) (tree-load check_db_stream))) (Emap))))
+	(defq cls :nil meth :nil)
+	(each (lambda (node)
+		(when (defq kids (tree-form? node))
+			(defq forms (forms-of kids)
+				head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+			(cond
+				((and (eql head "def-method") (> (length forms) 2))
+					(setq cls (sym (third (second forms))) meth (sym (third (third forms)))))
+				((eql head "def-func-end") (setq cls :nil))
+				(cls ;every form in it, those inside others too
+					(defq todo (list kids))
+					(while (defq nodes (pop todo))
+						(defq fs (forms-of nodes)
+							h (and (nempty? fs) (eql (first (first fs)) :symbol) (third (first fs))))
+						(and (eql h "call") (> (length fs) 3)
+							(eql (first (second fs)) :keysym) (eql (first (third fs)) :keysym)
+							(eql (sym (third (third fs))) meth)
+							(eql (first (elem-get fs 3)) :quoted)
+							(defq args (tree-form? (third (elem-get fs 3))))
+							(nempty? (defq afs (forms-of args))) (eql (third (first afs)) ":r0")
+							(class-above? (defq above (sym (third (second fs)))) cls)
+							(defq kind (method-kind above meth)) (nql kind :static)
+							(found file (elem-get nodes 0) "self" "(call " (str above) " " (str meth)
+								") in " (str cls) " " (str meth) " goes by the vtable of :r0, to this method again: s-call or d-call"))
+						(each (# (if (defq k (tree-form? %0)) (push todo k))) nodes))))))
+		top))
+
 ;do the work on a file
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
@@ -629,6 +690,7 @@
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
 			(if (find "unquote" checks) (check-unquote file top))
+			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)
