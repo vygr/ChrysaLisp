@@ -16,8 +16,6 @@
 ; limb has its top bit set, (bn-modulus), which keeps those digits close.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/collections/fill.inc")
-
 ;module
 (env-push)
 

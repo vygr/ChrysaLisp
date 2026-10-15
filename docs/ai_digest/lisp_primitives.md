@@ -431,8 +431,7 @@ Primitives targeting mutable `:array` and `:list` data structures.
 *	**`fill`**: Makes an array so long, every element the one given. Of a
 	list, each element is the object, a reference to it for each, and those
 	it had are let go; of nums, fixeds, reals or a path, the number. A set
-	or a map is refused. Bound in `lib/collections/fill.inc` until the next
-	snapshot.
+	or a map is refused.
 
 	*	`(fill array length value) -> array`
 

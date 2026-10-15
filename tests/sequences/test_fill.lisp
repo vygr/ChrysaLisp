@@ -1,6 +1,4 @@
 (report-header "Sequences: fill, an array made so long, each element the one given")
-(import "lib/collections/fill.inc")
-
 (assert-list-eq "nums" '(7 7 7 7 7) (fill (nums) 5 7))
 (assert-list-eq "made shorter, the same" '(0 0) (fill (nums 1 2 3 4) 2 0))
 (assert-eq "none" 0 (length (fill (nums 1 2 3) 0 9)))
@@ -23,4 +21,4 @@
 (assert-list-eq "with :nil" '(:nil :nil) (fill (list) 2 :nil))
 
 ;not a map or a set, their elements are their own
-(assert-true "not a map" (catch (progn (fill (env 1) 2 1) :nil) :t))
+(assert-error "not a map" (fill (env 1) 2 1))

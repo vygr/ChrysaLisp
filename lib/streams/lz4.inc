@@ -2,8 +2,6 @@
 ; LZ4 Fast Compression
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/collections/fill.inc")
-
 ;module
 (env-push)
 

@@ -216,6 +216,8 @@
 ; (reduce! lambda seqs init [start end]) -> val
 (ffi "class/array/lisp_cap" cap)
 ; (cap len array ...) -> array
+(ffi "class/array/lisp_fill" fill)
+; (fill array length value) -> array
 (ffi "class/array/lisp_clear" clear)
 ; (clear array ...) -> array
 (ffi "class/array/lisp_push" push)

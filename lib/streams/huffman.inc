@@ -27,8 +27,6 @@
 ; of 2^token_bits is the end of a block, or of the stream.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/collections/fill.inc")
-
 ;module
 (env-push)
 
