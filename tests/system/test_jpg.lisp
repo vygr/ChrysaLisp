@@ -1,4 +1,4 @@
-(report-header "System: JPEG read, baseline, grey and Y Cb Cr 4:2:0 with restarts, against macOS's own reading of them")
+(report-header "System: JPEG read, baseline and progressive, grey and Y Cb Cr 4:2:0 with restarts, against macOS's own reading of them")
 
 (import "gui/canvas/lisp.inc")
 
@@ -25,3 +25,11 @@
 ;nearest, which differs at a sharp edge of colour
 (assert-true "4:2:0 with restarts: within 8 on the whole" (and tj_420 (<= (second tj_420) 800)))
 (assert-eq "not a .jpg is not taken for one" :nil (JPG-load (string-stream "not a jpeg at all")))
+
+;the same files made progressive by jpegtran, which keeps the numbers of
+;every block as they were: the same pixels, to the byte
+(defun tj-same (a b)
+	(and (defq ca (canvas-load a +load_flag_noswap)) (defq cb (canvas-load b +load_flag_noswap))
+		(eql (tj-pixels ca) (tj-pixels cb))))
+(assert-true "progressive grey, the pixels of the baseline" (tj-same "tests/system/data/jpg_grey_prog.jpg" "tests/system/data/jpg_grey.jpg"))
+(assert-true "progressive 4:2:0, the pixels of the baseline" (tj-same "tests/system/data/jpg_420_prog.jpg" "tests/system/data/jpg_420.jpg"))

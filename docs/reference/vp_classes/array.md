@@ -14,6 +14,8 @@ docs/reference/vp_classes/array.cwb
 
 ### (clear array ...) -> array
 
+### (fill array length value) -> array
+
 ### (fixeds [fixed ...]) -> fixeds
 
 ### (nums [num ...]) -> nums
@@ -124,6 +126,21 @@ outputs
 :r1 = element iterator (pptr)
 trashes
 :r2-:r3
+```
+
+### :fill -> class/array/fill
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = length (uint)
+:r2 = element (long)
+outputs
+:r0 = array object (ptr)
+trashes
+:r1-:r4, :f0-:f15
+info
+the array made length long, every element the one given
 ```
 
 ### :find -> class/array/find

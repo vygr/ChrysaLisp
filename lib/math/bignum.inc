@@ -16,20 +16,17 @@
 ; limb has its top bit set, (bn-modulus), which keeps those digits close.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/collections/fill.inc")
+
 ;module
 (env-push)
 
-(defq +bn_bits 26 +bn_base (<< 1 26) +bn_mask (dec (<< 1 26))
-	+bn_zeros (apply (const nums) (map (lambda (&) 0) (range 0 512))))
+(defq +bn_bits 26 +bn_base (<< 1 26) +bn_mask (dec (<< 1 26)))
 
 (defun bn-zeros (n)
 	; (bn-zeros n) -> nums
 	;n limbs of 0
-	(defq out (nums))
-	(while (> n 0)
-		(defq part (min n (length +bn_zeros)))
-		(setq out (cat out (slice +bn_zeros 0 part)) n (- n part)))
-	out)
+	(fill (nums) n 0))
 
 (defun bn-trim (a)
 	; (bn-trim a) -> nums

@@ -19,6 +19,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
+(import "lib/streams/stages.inc")
+
+(import "lib/collections/fill.inc")
 
 ;module
 (env-push)
@@ -81,7 +84,7 @@
 	;32 bits, blue green red alpha, as a pixmap reads them
 	(defq channels (png-channels colour) bits (* channels depth)
 		row_len (/ (+ (* width bits) 7) 8) step (max 1 (/ bits 8))
-		prev (apply (const nums) (map (lambda (_) 0) (range 0 row_len)))
+		prev (fill (nums) row_len 0)
 		most (dec (<< 1 depth)) row 0)
 	(while (< row height)
 		(task-slice)
@@ -137,23 +140,6 @@
 				(write-blk out (apply (const cat) (cat (list "") (map (const char) pixels))))
 				(setq prev cur row (inc row))))))
 
-(defun png-stage (fn downstream_mbox src &rest args)
-	;a stage of the pipeline, as a CPM's: what it reads is the stream if
-	;it is first, or an in stream it says where to find
-	(defq in_src (if (str? src)
-		`(progn (mail-send (hex-decode ,(hex-encode src)) (in-mbox (defq in (in-stream)))) in)
-		`(obj-ref ,(weak-ref src))))
-	(str `(progn (import "lib/image/png.inc") (import "lib/streams/deflate.inc")
-		(,fn ,in_src (out-stream (hex-decode ,(hex-encode downstream_mbox))) ~args))))
-
-(defun png-stage-pixmap (pixmap handshake_mbox)
-	;the last stage, the pixels read into the pixmap, and that said
-	(str `(progn (import "gui/pixmap/lisp.inc")
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(str (weak-ref (pixmap-read pixmap in 32)))))))
-
 (defun png-chunk-head (stream)
 	; (png-chunk-head stream) -> :nil | (type len)
 	;the head of the next chunk, its data not read
@@ -175,17 +161,17 @@
 				((eql (first chunk) "tRNS") (setq clear data))
 				((eql (first chunk) "IEND") (setq chunk :nil))))
 		(when (and chunk (= interlace 0) (> (png-channels colour) 0) (find depth '(1 2 4 8 16)))
-			(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0) handshake_mbox (mail-mbox))
+			(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0))
 			(setf pixmap +pixmap_type 32 0)
-			;stream -> idat -> inflate -> unfilter -> pixmap, made from the end
-			(open-child (png-stage-pixmap pixmap handshake_mbox) +kn_call_pin)
-			(open-child (png-stage 'png-unfilter (mail-read handshake_mbox) handshake_mbox
-				;the palette and what is clear are bytes, given as hex, a reader
-				;takes no byte as it is in the text of a form
-				w h depth colour (list 'hex-decode (hex-encode palette)) (list 'hex-decode (hex-encode clear))) +kn_call_pin)
-			(open-child (png-stage 'inflate-decompress (mail-read handshake_mbox) handshake_mbox :t) +kn_call_pin)
-			(open-child (png-stage 'png-idat (mail-read handshake_mbox) stream (second chunk)) +kn_call_pin)
-			(if (eql (mail-read handshake_mbox) (const (str :nil))) (setq canvas :nil))))
+			;stream, idat, inflate, unfilter, pixmap. The palette and what is
+			;clear are bytes, given as hex, a reader takes no byte as it is in
+			;the text of a form
+			(unless (stages-load stream pixmap 32 (list
+					(stage "lib/image/png.inc" 'png-idat (second chunk))
+					(stage "lib/streams/deflate.inc" 'inflate-decompress :t)
+					(stage "lib/image/png.inc" 'png-unfilter w h depth colour
+						(list 'hex-decode (hex-encode palette)) (list 'hex-decode (hex-encode clear)))))
+				(setq canvas :nil))))
 	canvas)
 
 ;the canvas is told what this reads

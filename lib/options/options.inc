@@ -2,6 +2,8 @@
 ; options processing
 ;;;;;;;;;;;;;;;;;;;;
 
+(import "service/lock/app.inc")
+
 ;module
 (env-push)
 
@@ -86,6 +88,20 @@
 		(push ,opt_var (map (const str-as-num) (slice args 0 ,cnt)))
 		(slice args ,cnt -1))))
 
+(defun options-input (options_args options_fn)
+	; (options-input args fn) -> :nil | (fn stream)
+	;fn of the file named after the command, read under a lock, or of
+	;stdin if none is named. The file is let go before the lock is. The
+	;names here are long, fn is called with them about it
+	(cond
+		((> (length options_args) 1)
+			(with-read-lock (second options_args)
+				(when (defq options_stream (file-stream (second options_args)))
+					(defq options_out (options_fn options_stream))
+					(setq options_stream :nil)
+					options_out)))
+		((options_fn (io-stream 'stdin)))))
+
 ;module
-(export-symbols '(options opt-flag opt-toggle opt-str opt-num opt-nums))
+(export-symbols '(options options-input opt-flag opt-toggle opt-str opt-num opt-nums))
 (env-pop)

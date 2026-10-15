@@ -7,9 +7,14 @@
 ;
 ; Inflate is done as zlib's own small one, puff, does it: a code of each
 ; length counted, the codes of a length one after the other, a code read a
-; bit at a time, high bit first, from the low bits of each byte up. What was
+; bit at a time, high bit first, from the low bits of each byte up. The
+; codes are lib/streams/huffman.inc's, which are made and read so. What was
 ; written is kept, the last 32KB, for a length and a distance back to copy.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/streams/huffman.inc")
+
+(import "lib/collections/fill.inc")
 
 ;module
 (env-push)
@@ -25,56 +30,21 @@
 	;the order the lengths of the code length code come in
 	+inflate_order (nums 16 17 18 0 8 7 9 6 10 5 11 4 12 3 13 2 14 1 15))
 
-(defun inflate-code (lengths)
-	; (inflate-code lengths) -> (counts symbols)
-	;a canonical code of these lengths of each symbol, 0 not used: how
-	;many there are of each length, and the symbols in the order of their
-	;codes
-	(defq counts (nums 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) offsets (nums 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-		symbols (map (lambda (_) 0) lengths))
-	(each (# (elem-set counts %0 (inc (elem-get counts %0)))) lengths)
-	(elem-set counts 0 0)
-	;where the codes of each length begin, from 1, after those shorter
-	(each (# (elem-set offsets (inc %0) (+ (elem-get offsets %0) (elem-get counts %0)))) (range 1 15))
-	(each (lambda (len)
-			(when (> len 0)
-				(elem-set symbols (elem-get offsets len) (!))
-				(elem-set offsets len (inc (elem-get offsets len)))))
-		lengths)
-	(list counts (apply (const nums) symbols)))
-
-(defun inflate-symbol (in bits code)
-	; (inflate-symbol in bits code) -> symbol | -1
-	;the next symbol of a code, read a bit at a time
-	(bind '(counts symbols) code)
-	(defq at 0 lo 0 index 0 len 0 found -1)
-	(while (and (< found 0) (< (++ len) 16))
-		(defq bit (read-bits in bits 1))
-		(cond
-			((< bit 0) (setq len 16))
-			(:t (setq at (logior at bit))
-				(defq count (elem-get counts len))
-				(cond
-					((< (- at lo) count) (setq found (elem-get symbols (+ index (- at lo)))))
-					(:t (setq index (+ index count) lo (<< (+ lo count) 1) at (<< at 1)))))))
-	found)
-
 (defun inflate-fixed ()
 	; (inflate-fixed) -> (literals distances)
 	;the codes of a block of fixed codes
-	(list (inflate-code (cat (map (lambda (_) 8) (range 0 144)) (map (lambda (_) 9) (range 144 256))
-			(map (lambda (_) 7) (range 256 280)) (map (lambda (_) 8) (range 280 288))))
-		(inflate-code (map (lambda (_) 5) (range 0 30)))))
+	(list (huffman-table (cat (fill (nums) 144 8) (fill (nums) 112 9) (fill (nums) 24 7) (fill (nums) 8 8)))
+		(huffman-table (fill (nums) 30 5))))
 
 (defun inflate-dynamic (in bits)
 	; (inflate-dynamic in bits) -> :nil | (literals distances)
 	;the codes a block of its own codes says, at its head
 	(defq nlen (+ (read-bits in bits 5) 257) ndist (+ (read-bits in bits 5) 1) ncode (+ (read-bits in bits 4) 4)
-		lengths (map (lambda (_) 0) (range 0 19)))
+		lengths (fill (nums) 19 0))
 	(each (# (elem-set lengths (elem-get +inflate_order %0) (read-bits in bits 3))) (range 0 ncode))
-	(defq lencode (inflate-code lengths) all (list) ok :t)
+	(defq lencode (huffman-table lengths) all (list) ok :t)
 	(while (and ok (< (length all) (+ nlen ndist)))
-		(defq sym (inflate-symbol in bits lencode))
+		(defq sym (huffman-symbol in bits lencode))
 		(cond
 			((< sym 0) (setq ok :nil))
 			((< sym 16) (push all sym))
@@ -82,14 +52,14 @@
 					repeat (case sym (16 (+ 3 (read-bits in bits 2))) (17 (+ 3 (read-bits in bits 3))) (:t (+ 11 (read-bits in bits 7)))))
 				(if (< previous 0) (setq ok :nil) (times repeat (push all previous))))))
 	(and ok (= (length all) (+ nlen ndist))
-		(list (inflate-code (slice all 0 nlen)) (inflate-code (slice all nlen -1)))))
+		(list (huffman-table (slice all 0 nlen)) (huffman-table (slice all nlen -1)))))
 
 (defun inflate-decompress (in_stream out_stream &optional zlib)
 	; (inflate-decompress in_stream out_stream [zlib]) -> :nil | :t
 	;the bytes a DEFLATE stream is, raw, or with zlib's head and sum round
 	;it. :nil if it is not one, or stops before its end, what was got by
 	;then is written
-	(defq bits (array 0 0) ring (apply (const nums) (map (lambda (_) 0) (range 0 +inflate_window)))
+	(defq bits (array 0 0) ring (fill (nums) +inflate_window 0)
 		at 0 ok :t last_block :nil fixed :nil)
 	(defun emit (b)
 		(write-char out_stream b)
@@ -118,7 +88,7 @@
 					(:t (bind '(literals distances) codes)
 						(defq going :t)
 						(while (and ok going)
-							(defq sym (inflate-symbol in_stream bits literals))
+							(defq sym (huffman-symbol in_stream bits literals))
 							(cond
 								((< sym 0) (setq ok :nil))
 								((< sym 256) (emit sym))
@@ -126,7 +96,7 @@
 								((> sym 285) (setq ok :nil))
 								(:t (defq i (- sym 257)
 										len (+ (elem-get +inflate_len_base i) (read-bits in_stream bits (elem-get +inflate_len_extra i)))
-										d (inflate-symbol in_stream bits distances))
+										d (huffman-symbol in_stream bits distances))
 									(cond
 										((or (< d 0) (> d 29)) (setq ok :nil))
 										(:t (defq back (+ (elem-get +inflate_dist_base d) (read-bits in_stream bits (elem-get +inflate_dist_extra d))))
@@ -135,5 +105,5 @@
 	ok)
 
 ;module
-(export-symbols '(inflate-decompress inflate-code inflate-symbol))
+(export-symbols '(inflate-decompress))
 (env-pop)

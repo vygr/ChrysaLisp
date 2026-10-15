@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/streams/lz4.inc")
-(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -18,19 +17,9 @@
 ))
 
 (defun main ()
-	; Initialize options and streams
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_w 65536 args (options stdio usage)))
-		(defq file_path (if (> (length args) 1) (second args))
-			out_stream (io-stream 'stdout))
-		(if file_path
-			(with-read-lock file_path
-				(when (defq in_stream (file-stream file_path))
-					(lz4-decompress in_stream out_stream opt_w)
-					(stream-flush out_stream)
-					(setq in_stream :nil)))
-			(when (defq in_stream (io-stream 'stdin))
-				(lz4-decompress in_stream out_stream opt_w)
-				(stream-flush out_stream)))))
-
+		(defq out (io-stream 'stdout))
+		(options-input args (# (lz4-decompress %0 out opt_w)))
+		(stream-flush out)))

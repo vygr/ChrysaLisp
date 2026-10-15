@@ -1,6 +1,5 @@
 (import "lib/options/options.inc")
 (import "lib/streams/huffman.inc")
-(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -11,9 +10,11 @@
         -t --tbits num: bit size for data tokens, default 8.
         -c --codebook path: codebook filename, default :nil.
 
-    Compresses a file using static or adaptive Huffman coding.
-    If a codebook is provided then it will load that model for
-    static operation.
+    Compresses a file with Huffman codes, a block of
+    65536 tokens at a time, each block with a code made
+    for it. With a codebook, made by hbook, the code of
+    the book is used for the whole file, and none is
+    written; a token the book has no code for is an error.
 
     If no file is given, it reads from stdin.
     Output is written to stdout.")
@@ -22,27 +23,15 @@
 ))
 
 (defun main ()
-	; Initialize options and streams
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c :nil opt_t 8 args (options stdio usage)))
-		(when opt_c
-			(with-read-lock opt_c
-				(when (defq cstream (file-stream opt_c))
-					(setq opt_c (huffman-read-codebook cstream) cstream :nil))))
-		(defq file_path (if (> (length args) 1) (second args))
-			out_stream (io-stream 'stdout))
-		(if file_path
-			(with-read-lock file_path
-				(when (defq in_stream (file-stream file_path))
-					(if opt_c
-						(huffman-compress-static in_stream out_stream opt_c)
-						(huffman-compress in_stream out_stream opt_t))
-					(stream-flush out_stream)
-					(setq in_stream :nil)))
-			(when (defq in_stream (io-stream 'stdin))
-				(if opt_c
-					(huffman-compress-static in_stream out_stream opt_c)
-					(huffman-compress in_stream out_stream opt_t))
-				(stream-flush out_stream)))))
-
+		(defq out (io-stream 'stdout) book :nil)
+		(cond
+			((and opt_c (not (setq book (options-input (list "" opt_c) (const huffman-read-book)))))
+				(print "huff: no codebook " opt_c))
+			((not (options-input args (if book
+					(# (huffman-compress-static %0 out book))
+					(# (huffman-compress %0 out opt_t) :t))))
+				(print "huff: a token the codebook has no code for")))
+		(stream-flush out)))

@@ -330,6 +330,20 @@ All of them if it is at the eye or behind it. The ball is as big as
 the most the matrix of its object stretches anything
 ```
 
+### base64-decode
+
+```code
+(base64-decode text) -> :nil | str
+
+:nil if what is left at the end is not whole bytes
+```
+
+### base64-encode
+
+```code
+(base64-encode data) -> str
+```
+
 ### bindings-default
 
 ```code
@@ -352,6 +366,190 @@ board itself with its middle. A finger moves things
 
 ```code
 (bitcnt n) -> num bits
+```
+
+### bn-add
+
+```code
+(bn-add a b) -> nums
+```
+
+### bn-addmod
+
+```code
+(bn-addmod a b modulus) -> nums
+
+a and b each less than the modulus
+```
+
+### bn-bit
+
+```code
+(bn-bit a i) -> 0 | 1
+```
+
+### bn-bits
+
+```code
+(bn-bits a) -> num
+
+how many bits a has, to its top bit that is set
+```
+
+### bn-bytes
+
+```code
+(bn-bytes a len) -> str
+
+len bytes of a, the top byte first, 0s in front as need be
+```
+
+### bn-cmp
+
+```code
+(bn-cmp a b) -> -1 | 0 | 1
+```
+
+### bn-from-bytes
+
+```code
+(bn-from-bytes data) -> nums
+
+a number from its bytes, the top byte first, as DER and TLS have them
+```
+
+### bn-from-num
+
+```code
+(bn-from-num n) -> nums
+```
+
+### bn-invmod
+
+```code
+(bn-invmod a modulus) -> nums
+
+1 over a, mod a prime: a to the prime less 2
+```
+
+### bn-mod
+
+```code
+(bn-mod x modulus) -> nums
+```
+
+### bn-modulus
+
+```code
+(bn-modulus m) -> modulus
+
+what (bn-mod) takes a number mod: m, and m moved up till the top bit
+of its top limb is set, and by how much
+```
+
+### bn-mul
+
+```code
+(bn-mul a b) -> nums
+
+each limb of the product a dot of a part of a and a part of b turned
+round, then the carries
+```
+
+### bn-mulmod
+
+```code
+(bn-mulmod a b modulus) -> nums
+```
+
+### bn-norm
+
+```code
+(bn-norm a [from]) -> a
+
+each limb back to 26 bits, the carry, or the borrow, taken on up from
+limb from, and new limbs at the top for what is over. A number that
+has gone under 0 is an error
+```
+
+### bn-pad
+
+```code
+(bn-pad a n) -> nums
+
+a with limbs of 0 at the top, to n limbs
+```
+
+### bn-powmod
+
+```code
+(bn-powmod a e modulus) -> nums
+
+a to the power e, mod. e a big number, from its top bit down
+```
+
+### bn-reduce
+
+```code
+(bn-reduce x up) -> nums
+
+x mod up, the top bit of up's top limb set. A digit of the quotient
+at a time, from x's top two limbs and up's top limb and 1, so never
+too big, and what it times up is taken from x
+```
+
+### bn-shl
+
+```code
+(bn-shl a s) -> nums
+
+a moved up s bits, s less than 26
+```
+
+### bn-shr
+
+```code
+(bn-shr a s) -> nums
+
+a moved down s bits, s less than 26, what falls off gone
+```
+
+### bn-sub
+
+```code
+(bn-sub a b) -> nums
+
+a less b, b not more than a
+```
+
+### bn-submod
+
+```code
+(bn-submod a b modulus) -> nums
+
+a and b each less than the modulus
+```
+
+### bn-trim
+
+```code
+(bn-trim a) -> nums
+
+without the limbs of 0 at the top, one left at least
+```
+
+### bn-zero?
+
+```code
+(bn-zero? a) -> :t | :nil
+```
+
+### bn-zeros
+
+```code
+(bn-zeros n) -> nums
+
+n limbs of 0
 ```
 
 ### board-bite
@@ -508,14 +706,6 @@ to ensure merges are handled correctly.
 
 ```code
 initialize :overrides as an empty list for ALL existing method entries
-```
-
-### build_tree_and_codebook
-
-```code
-Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
-
-This version uses a more optimal insertion sort pattern for tree building.
 ```
 
 ### byte-to-hex-str
@@ -1436,6 +1626,55 @@ next that asked, what they had been
 (decode-date str) -> td
 ```
 
+### der-at
+
+```code
+(der-at data at) -> :nil | (tag start end head)
+
+the thing of DER at a place: its tag, where what is in it starts and
+ends, and where its head starts, at
+```
+
+### der-bytes
+
+```code
+(der-bytes data item) -> str
+
+what is in a thing, without its head
+```
+
+### der-in
+
+```code
+(der-in data item) -> ((tag start end head) ...)
+
+the things inside a thing
+```
+
+### der-kids
+
+```code
+(der-kids data from to) -> ((tag start end head) ...)
+
+the things one after the other from one place to another
+```
+
+### der-oid
+
+```code
+(der-oid bytes) -> str
+
+an object identifier as it is written, 1.2.840.10045.2.1
+```
+
+### der-whole
+
+```code
+(der-whole data item) -> str
+
+a thing with its head, as it was signed
+```
+
 ### destroy
 
 ```code
@@ -1657,6 +1896,51 @@ the next job on the queue to a child, if there is one
 
 ```code
 (each-mergeable lambda seq) -> seq
+```
+
+### ec-add
+
+```code
+(ec-add p1 p2 fm) -> :nil | pt
+```
+
+### ec-dbl
+
+```code
+(ec-dbl pt fm) -> :nil | pt
+
+twice a point, :nil the point at infinity
+```
+
+### ec-on-curve?
+
+```code
+(ec-on-curve? x y curve) -> :t | :nil
+
+y^2 = x^3 - 3x + b, and each less than the prime
+```
+
+### ec-small
+
+```code
+(ec-small a k fm) -> nums
+
+a times a small number, mod
+```
+
+### ecdsa-curve
+
+```code
+(ecdsa-curve p n b x y len) -> curve
+
+a curve from its numbers in hex: the prime, the order of the base
+point, b, the base point, and how many bytes a number of it is
+```
+
+### ecdsa-verify
+
+```code
+(ecdsa-verify curve public digest r s) -> :t | :nil
 ```
 
 ### ed-add
@@ -2944,46 +3228,115 @@ Close and flush all idle pooled sockets
 (http-request method url [headers body dest_stream]) -> pmap | :nil
 ```
 
-### huffman-build-freq-map
+### huffman-book
 
 ```code
-Scans a stream to build a frequency map for static Huffman coding.
+(huffman-book token_bits freqs) -> book
+
+a code of the tokens as often as freqs has them, and of the end. Each
+is taken as once more than it was, so a token not seen has a code too
+```
+
+### huffman-codes
+
+```code
+(huffman-codes lengths) -> codes
+
+the code of each symbol, its bits the other way round, to be written
+with (write-bits) of its length
 ```
 
 ### huffman-compress
 
 ```code
-(huffman-compress in_stream out_stream token_bits)
+(huffman-compress in_stream out_stream [token_bits block])
+
+the tokens a block of them at a time, default 65536, each with a code
+of its own. Each block a bit of 1, its code's lengths, its tokens and
+the end of it, and the stream a bit of 0 after the last
 ```
 
 ### huffman-compress-static
 
 ```code
-Compresses a stream using a pre-built static model.
+(huffman-compress-static in_stream out_stream book) -> :t | :nil
+
+:nil if a token has no code in the book, the stream is coded up to it
 ```
 
 ### huffman-decompress
 
 ```code
-(huffman-decompress in_stream out_stream token_bits)
+(huffman-decompress in_stream out_stream) -> :t | :nil
+
+:nil if the stream stops before its end, or is not one, what was got
+by then is written
 ```
 
 ### huffman-decompress-static
 
 ```code
-Decompresses a stream using a pre-built static model.
+(huffman-decompress-static in_stream out_stream book) -> :t | :nil
 ```
 
-### huffman-read-codebook
+### huffman-freqs
 
 ```code
-Reads a self-describing codebook from a stream and reconstructs the model.
+(huffman-freqs in_stream [token_bits freqs]) -> freqs
+
+how often each token is in the stream, added to freqs if given, a
+nums of 2^token_bits
 ```
 
-### huffman-write-codebook
+### huffman-lengths
 
 ```code
-Writes a self-describing codebook (via the frequency map) to a stream.
+(huffman-lengths freqs limit) -> lengths
+
+freqs a nums of how often each symbol is, lengths a nums of the same
+length, none more than limit, which must be enough for the symbols
+```
+
+### huffman-limit
+
+```code
+the longest a code may be, enough for every symbol, and no less than 15
+```
+
+### huffman-read-book
+
+```code
+(huffman-read-book in_stream) -> :nil | book
+```
+
+### huffman-read-lengths
+
+```code
+-> :nil | lengths
+```
+
+### huffman-symbol
+
+```code
+(huffman-symbol in bits table) -> symbol | -1
+
+the next symbol of a code, read a bit at a time, -1 at the end of
+the stream or if the bits are no code
+```
+
+### huffman-table
+
+```code
+(huffman-table lengths) -> (counts symbols)
+
+to read a code: how many there are of each length, and the symbols in
+the order of their codes
+```
+
+### huffman-write-book
+
+```code
+(huffman-write-book out_stream book)
 ```
 
 ### idle
@@ -3022,16 +3375,6 @@ every child that is up and has no job is given one
 (in-set-state in num) -> in
 ```
 
-### inflate-code
-
-```code
-(inflate-code lengths) -> (counts symbols)
-
-a canonical code of these lengths of each symbol, 0 not used: how
-many there are of each length, and the symbols in the order of their
-codes
-```
-
 ### inflate-decompress
 
 ```code
@@ -3058,14 +3401,6 @@ the codes a block of its own codes says, at its head
 the codes of a block of fixed codes
 ```
 
-### inflate-symbol
-
-```code
-(inflate-symbol in bits code) -> symbol | -1
-
-the next symbol of a code, read a bit at a time
-```
-
 ### int-to-hex-str
 
 ```code
@@ -3087,6 +3422,18 @@ tells us which vertices are inside the surface
 (join seqs seq [mode]) -> seq
 ```
 
+### jpg-ac-first
+
+```code
+-> eobrun
+```
+
+### jpg-ac-refine
+
+```code
+-> eobrun
+```
+
 ### jpg-bit
 
 ```code
@@ -3102,7 +3449,8 @@ a marker, and from there on there are only 0 reader
 ```code
 (jpg-block reader dc_code ac_code quant prior) -> (pixels dc)
 
-a block: its numbers, by their table, and turned back to 64 pixels
+a block of a baseline scan: its numbers, by their table, and turned
+back to 64 pixels
 ```
 
 ### jpg-code
@@ -3113,13 +3461,19 @@ a block: its numbers, by their table, and turned back to 64 pixels
 the canonical code of a table, as the standard's F.2.2.3 has it
 ```
 
+### jpg-dc-first
+
+```code
+-> dc
+```
+
 ### jpg-decode
 
 ```code
 (jpg-decode in out info)
 
-the scan, from where the stream is, a row of MCUs at a time, each
-row of pixels written blue green red alpha
+a baseline scan, from where the stream is, a row of MCUs at a time,
+each row of pixels written blue green red alpha
 ```
 
 ### jpg-decode-symbol
@@ -3134,20 +3488,100 @@ row of pixels written blue green red alpha
 a number of n reader, as the standard has the negative ones
 ```
 
+### jpg-geometry
+
+```code
+(jpg-geometry width height comps) -> (hmax vmax mcus_x mcus_y)
+```
+
 ### jpg-head
 
 ```code
 (jpg-head stream) -> :nil | emap
 
-what comes before the scan: :width :height, :comps ((id h v table) ...),
-:quant (64 nums) by table, :dc :ac (bits values) by table, :restart. The
-stream is left at the start of the packed data
+what comes before the first scan: :width :height, :comps ((id h v
+table) ...), :progressive, :quant (64 nums) by table, :dc :ac (counts
+values) by table, :restart, :scan and :spectral. The stream is left at
+the start of the packed data
 ```
 
-### jpg-stage
+### jpg-idct
 
 ```code
-the decode, a stage reading the stream from where the head left it
+(jpg-idct c) -> pixels
+
+the 64 numbers of a block, by their table, in rows, as 64 pixels: the
+rows by K, then the columns, t x v is row v of c dot K x
+```
+
+### jpg-next-marker
+
+```code
+(jpg-next-marker reader in) -> :nil | marker
+
+the marker after a scan, which the scan may have come to
+```
+
+### jpg-progressive
+
+```code
+(jpg-progressive in out info)
+
+the scans, from where the stream is, then the pixels a row of MCUs at
+a time, each row of pixels written blue green red alpha
+```
+
+### jpg-refine
+
+```code
+the next bit of a number that is not 0, read whatever it is
+```
+
+### jpg-restart
+
+```code
+a restart: to the next byte, past the marker, which may not have been
+
+come to yet
+```
+
+### jpg-rows
+
+```code
+(jpg-rows out samplings planes my width height hmax vmax mcus_x)
+
+the rows of pixels of a row of MCUs, those inside the picture, from
+the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8
+```
+
+### jpg-scan
+
+```code
+(jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
+
+a scan of a progressive JPEG, its numbers into the grids
+```
+
+### jpg-segment
+
+```code
+(jpg-segment out kind data) -> :t | :nil
+
+a marker's segment read into out, :nil if it ends the head: a scan, or
+a kind of frame not read. A scan's components are (id dc ac), and how
+it is cut, :spectral, (start end high low): the numbers of a block it
+has, from start to end in zig zag order, and of their bits, high the
+last bit sent before, low the one now
+```
+
+### jpg-segments
+
+```code
+(jpg-segments stream out) -> :nil | out
+
+the markers and their segments, from where the stream is, till a scan,
+the stream left at the start of its packed data. :nil if it ends, or
+the file does, before
 ```
 
 ### json-container?
@@ -3355,12 +3789,20 @@ heard from has no system id, all zero.
 
 ```code
 (lz4-compress in_stream out_stream [window_size])
+
+window_size is the most of a block, it is made one of the four a
+frame can say, the least that holds it
 ```
 
 ### lz4-decompress
 
 ```code
-(lz4-decompress in_stream out_stream [window_size])
+(lz4-decompress in_stream out_stream [window_size]) -> :t | :nil
+
+:nil if it is not a frame of version 01, or a block is more than the
+frame said a block could be, what was got by then is written. A
+block's sum, the content's size and a dictionary's id are passed
+over, not looked at
 ```
 
 ### macro-func?
@@ -3860,6 +4302,12 @@ convert to obj-set args
 (odd? num) -> :t | :nil
 ```
 
+### one
+
+```code
+a block of the scan, at row br and column bc of the grid
+```
+
 ### open-child
 
 ```code
@@ -3947,6 +4395,16 @@ scan the stdio args and process according to the optlist
 
 ```code
 (options-find optlist arg) -> :nil | opt_entry
+```
+
+### options-input
+
+```code
+(options-input args fn) -> :nil | (fn stream)
+
+fn of the file named after the command, read under a lock, or of
+stdin if none is named. The file is let go before the lock is. The
+names here are long, fn is called with them about it
 ```
 
 ### options-print
@@ -4274,20 +4732,6 @@ the head of the next chunk, its data not read
 
 the data of the IDAT chunks, one after the other, the first of them
 begun, len of it to come. It stops at a chunk that is not one
-```
-
-### png-stage
-
-```code
-a stage of the pipeline, as a CPM's: what it reads is the stream if
-
-it is first, or an in stream it says where to find
-```
-
-### png-stage-pixmap
-
-```code
-the last stage, the pixels read into the pixmap, and that said
 ```
 
 ### png-unfilter
@@ -4770,6 +5214,55 @@ restart a child
 (rpad form width [str]) -> str
 ```
 
+### rsa-hash
+
+```code
+(rsa-hash hash_name data) -> :nil | str
+```
+
+### rsa-mgf1
+
+```code
+(rsa-mgf1 hash_name seed len) -> str
+
+the hash of the seed and a count, again and again, len bytes of it
+```
+
+### rsa-open
+
+```code
+(rsa-open n e signature) -> :nil | (bits em)
+
+the signature to the power e mod n, as bytes as long as n, and how
+many bits n has. :nil if the signature is not less than n
+```
+
+### rsa-prefix
+
+```code
+(rsa-prefix hash_name) -> :nil | str
+
+the DER of the name of a hash, the DigestInfo the digest goes after
+```
+
+### rsa-verify-pkcs1
+
+```code
+(rsa-verify-pkcs1 n e hash_name digest signature) -> :t | :nil
+```
+
+### rsa-verify-pss
+
+```code
+(rsa-verify-pss n e hash_name digest signature) -> :t | :nil
+```
+
+### rsa-xor
+
+```code
+(rsa-xor a b) -> str
+```
+
 ### rule
 
 ```code
@@ -5125,6 +5618,32 @@ the hash of all that was added, 32 bytes. The ctx is done with.
 a hash with nothing in it yet. The state, the first 32 bits of the
 fractions of the square roots of the first 8 primes, the bytes that
 do not yet make a block, and how many bytes there have been.
+```
+
+### sha384
+
+```code
+(sha384 data) -> str
+
+the hash of a str, 48 bytes
+```
+
+### sha384-end
+
+```code
+(sha384-end ctx) -> str
+
+the hash, the first 48 bytes of what SHA-512 ends with
+```
+
+### sha384-start
+
+```code
+(sha384-start) -> ctx
+
+SHA-384 is SHA-512 from another state, the first 64 bits of the
+fractions of the square roots of the 9th to the 16th primes, added
+to as SHA-512 is, (sha512-add)
 ```
 
 ### sha512
@@ -5993,6 +6512,48 @@ type, then the vector a matrix is of
 
 the line with one space between its tokens, and none inside a bracket.
 The gap before a comment at the end is kept, it may line comments up.
+```
+
+### stage
+
+```code
+(stage imports fn [arg ...]) -> stage
+
+imports a path or a list of them
+```
+
+### stage-form
+
+```code
+the source of a stage's task. in and out are each a form, done the
+
+mailbox told it has finished, if any. No function of this module is
+called in a backquote: it is looked for as the form is made, when the
+module's names are gone
+```
+
+### stage-in
+
+```code
+an in stream whose mailbox the stage gives the one before it
+```
+
+### stage-mbox
+
+```code
+a mailbox as a form
+```
+
+### stages-load
+
+```code
+(stages-load stream pixmap type stages) -> :t | :nil
+```
+
+### stages-save
+
+```code
+(stages-save pixmap type stream stages) -> :t
 ```
 
 ### start
@@ -7533,6 +8094,16 @@ the theme a user has from now on
 a number as so many bytes, the high first, as TLS has its numbers
 ```
 
+### tls-certificates
+
+```code
+(tls-certificates msg) -> (cert ...)
+
+the certificates of a Certificate message, read, :nil for one that
+does not read
+what the server sent, so no index past what is there
+```
+
 ### tls-client-hello
 
 ```code
@@ -7602,10 +8173,11 @@ the iv with the number of the record in its last 8 bytes, xor
 ### tls-open
 
 ```code
-(tls-open host port) -> :nil | (in out state)
+(tls-open host port [unchecked]) -> :nil | (in out state)
 
-a connection that is private between here and whoever answers at the
-address. NOT YET is it checked who that is, see the top of this file
+a connection that is private between here and the host, which has
+shown it is the host. unchecked :t, and who answers is not asked to
+show it. :nil if not, (tls-why) says why
 ```
 
 ### tls-open-record
@@ -7621,6 +8193,14 @@ the keys of the other side if it is sealed
 
 ```code
 (tls-record-read state) -> :nil | (type body)
+```
+
+### tls-scheme
+
+```code
+(tls-scheme scheme) -> :nil | (way hash_name)
+
+a signature scheme of TLS 1.3 as lib/crypto/x509.inc has it
 ```
 
 ### tls-seal
@@ -7647,6 +8227,23 @@ taken: there is no other group to offer it
 (tls-vec len_bytes data) -> str
 
 data after its length, as a vector of TLS is
+```
+
+### tls-verify
+
+```code
+(tls-verify cert msg transcript) -> :t | :nil
+
+the server's CertificateVerify, a signature of the handshake so far by
+the key of its certificate, RFC 8446 4.4.3
+```
+
+### tls-why
+
+```code
+(tls-why) -> :nil | str
+
+why the last (tls-open) of this task gave :nil
 ```
 
 ### tls-write
@@ -8103,6 +8700,116 @@ the public half of a secret, to give the other side
 
 ```code
 p and q swapped if bit is 1
+```
+
+### x509-alg
+
+```code
+(x509-alg oid) -> :nil | (scheme hash_name)
+
+how a certificate is signed, from the identifier of the way
+```
+
+### x509-bits
+
+```code
+(x509-bits data item) -> str
+
+what a BIT STRING has, after the byte of how many bits are not used
+```
+
+### x509-chain-check
+
+```code
+(x509-chain-check certs host [roots now]) -> :nil | why not
+
+:nil if the first of certs is for the host, each is issued by the
+next, up to one issued by a root, or a root, and each is in date
+```
+
+### x509-digits
+
+```code
+(x509-digits text from to) -> num
+```
+
+### x509-extensions
+
+```code
+(x509-extensions cert data item) -> cert
+
+the names it is for, and whether it may issue others
+```
+
+### x509-host?
+
+```code
+(x509-host? cert host) -> :t | :nil
+
+is the certificate for the host, by one of its names, a name that
+starts *. for any one name more in front of the rest
+```
+
+### x509-key
+
+```code
+(x509-key cert data spki) -> cert
+
+the kind of key, :rsa :p256 :p384 :ed25519, and the key. Of RSA, its
+n and e
+```
+
+### x509-parse
+
+```code
+(x509-parse der) -> :nil | cert
+
+:der :tbs, what was signed, :sig_alg :sig :issuer :subject, as
+their DER, :from :until in seconds, :key_kind :key :names :ca
+```
+
+### x509-pem
+
+```code
+(x509-pem stream) -> (der ...)
+
+the certificates of a PEM file, each between its BEGIN and END lines
+```
+
+### x509-roots
+
+```code
+(x509-roots) -> (cert ...)
+
+the roots the host keeps, read the first time they are wanted
+```
+
+### x509-sig-check
+
+```code
+(x509-sig-check kind key scheme hash_name data signature) -> :t | :nil
+
+a signature of data by a key, signed one of the ways, scheme :pkcs1,
+:pss, :ecdsa, :ed25519, with a hash, as a certificate or TLS has it
+```
+
+### x509-signed?
+
+```code
+(x509-signed? cert issuer) -> :t | :nil
+
+is cert issued by issuer: named so, and its signature that of the
+issuer's key
+```
+
+### x509-time
+
+```code
+(x509-time data item) -> seconds
+
+a time of UTCTime, YYMMDDHHMMSSZ, the years 1950 to 2049, or of
+GeneralizedTime, YYYYMMDDHHMMSSZ, as seconds from 1970
+0, long ago, if it is too short to be a time
 ```
 
 ### zip

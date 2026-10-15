@@ -6,7 +6,7 @@
 ; were packed with, SOF how big it is and what its components are, DRI how
 ; often the packing starts again, and SOS the scan, the packed data after it
 ; to the end. Baseline, sequential, of 8 bits, is read: grey, or Y Cb Cr of
-; any sampling, 4:4:4, 4:2:2, 4:2:0. Progressive is not, yet.
+; any sampling, 4:4:4, 4:2:2, 4:2:0, and progressive, of the same.
 ;
 ; The scan is a run of MCUs, each a block of 8 by 8 of each component, or
 ; more of one sampled more. A block is its 64 numbers, from the codes, the
@@ -23,6 +23,9 @@
 
 (import "gui/canvas/lisp.inc")
 (import "lib/math/vector.inc")
+(import "lib/streams/stages.inc")
+
+(import "lib/collections/fill.inc")
 
 ;module
 (env-push)
@@ -40,55 +43,86 @@
 (defun jpg-be (data at)
 	(+ (<< (code data 1 at) 8) (code data 1 (inc at))))
 
+(defun jpg-segment (out kind data)
+	; (jpg-segment out kind data) -> :t | :nil
+	;a marker's segment read into out, :nil if it ends the head: a scan, or
+	;a kind of frame not read. A scan's components are (id dc ac), and how
+	;it is cut, :spectral, (start end high low): the numbers of a block it
+	;has, from start to end in zig zag order, and of their bits, high the
+	;last bit sent before, low the one now
+	(cond
+		((= kind 0xdb) ;tables of 64, of 8 bits or 16
+			(defq at 0)
+			(while (< at (length data))
+				(defq pq (>> (code data 1 at) 4) tq (logand (code data 1 at) 3) at (inc at)
+					q (apply (const nums) (map (# (if (= pq 0) (code data 1 (+ at %0)) (jpg-be data (+ at (* 2 %0))))) (range 0 64))))
+				(elem-set (. out :find :quant) tq q)
+				(setq at (+ at (* 64 (if (= pq 0) 1 2)))))
+			:t)
+		((= kind 0xc4) ;codes, of DC or AC, each 16 counts and the values
+			(defq at 0)
+			(while (< (+ at 16) (length data))
+				(defq tc (>> (code data 1 at) 4) th (logand (code data 1 at) 3)
+					lens (map (# (code data 1 (+ at 1 %0))) (range 0 16)) n (reduce (const +) lens 0)
+					vals (map (# (code data 1 (+ at 17 %0))) (range 0 (min n (- (length data) at 17)))))
+				(elem-set (. out :find (if (= tc 0) :dc :ac)) th (list lens vals))
+				(setq at (+ at 17 n)))
+			:t)
+		((= kind 0xdd) (. out :insert :restart (jpg-be data 0)) :t)
+		((<= 0xc0 kind 0xc2) ;baseline, extended or progressive: height width, and
+			;each component
+			(scatter out :height (jpg-be data 1) :width (jpg-be data 3) :progressive (= kind 0xc2)
+				:comps (map (# (list (code data 1 (+ 6 (* 3 %0))) (>> (code data 1 (+ 7 (* 3 %0))) 4)
+						(logand (code data 1 (+ 7 (* 3 %0))) 15) (logand (code data 1 (+ 8 (* 3 %0))) 3)))
+					(range 0 (min 4 (code data 1 5)))))
+			:t)
+		((= kind 0xda) ;the scan: which code tables each component of it has
+			(defq n (min 4 (code data 1 0)) at (+ 1 (* 2 n)))
+			(. out :insert :scan (map (# (list (code data 1 (+ 1 (* 2 %0))) (>> (code data 1 (+ 2 (* 2 %0))) 4)
+				(logand (code data 1 (+ 2 (* 2 %0))) 3))) (range 0 n)))
+			(. out :insert :spectral (if (<= (+ at 3) (length data))
+				(list (code data 1 at) (code data 1 (inc at)) (>> (code data 1 (+ at 2)) 4) (logand (code data 1 (+ at 2)) 15))
+				'(0 63 0 0)))
+			:nil)
+		((find kind '(0xc3 0xc5 0xc6 0xc7 0xc9 0xca 0xcb 0xcd 0xce 0xcf))
+			;lossless, hierarchical or arithmetic coded, not read
+			(. out :insert :comps :nil)
+			:nil)
+		(:t :t)))
+
+(defun jpg-segments (stream out)
+	; (jpg-segments stream out) -> :nil | out
+	;the markers and their segments, from where the stream is, till a scan,
+	;the stream left at the start of its packed data. :nil if it ends, or
+	;the file does, before
+	(defq going :t ok :nil)
+	(while going
+		(defq m (read-blk stream 2))
+		(cond
+			((or (not m) (< (length m) 2) (/= (code m 1 0) 0xff)) (setq going :nil))
+			((= (code m 1 1) 0xd8))
+			((= (code m 1 1) 0xd9) (setq going :nil))
+			((<= 0xd0 (code m 1 1) 0xd7))
+			(:t (defq kind (code m 1 1) lb (read-blk stream 2))
+				(cond
+					((or (not lb) (< (length lb) 2)) (setq going :nil))
+					(:t (defq len (- (jpg-be lb 0) 2) data (if (> len 0) (read-blk stream len) ""))
+						(cond
+							((or (not data) (< (length data) len)) (setq going :nil))
+							((not (jpg-segment out kind data))
+								(setq going :nil ok (and (= kind 0xda) (. out :find :comps))))))))))
+	(if ok out))
+
 (defun jpg-head (stream)
 	; (jpg-head stream) -> :nil | emap
-	;what comes before the scan: :width :height, :comps ((id h v table) ...),
-	;:quant (64 nums) by table, :dc :ac (bits values) by table, :restart. The
-	;stream is left at the start of the packed data
+	;what comes before the first scan: :width :height, :comps ((id h v
+	;table) ...), :progressive, :quant (64 nums) by table, :dc :ac (counts
+	;values) by table, :restart, :scan and :spectral. The stream is left at
+	;the start of the packed data
 	(when (and stream (eql (read-blk stream 2) (cat (char 0xff) (char 0xd8))))
-		(defq out (Emap) quant (list :nil :nil :nil :nil) dc (list :nil :nil :nil :nil) ac (list :nil :nil :nil :nil)
-			going :t ok :nil)
-		(scatter out :restart 0 :quant quant :dc dc :ac ac)
-		(while going
-			(defq m (read-blk stream 2))
-			(cond
-				((or (not m) (< (length m) 2) (/= (code m 1 0) 0xff)) (setq going :nil))
-				((= (code m 1 1) 0xd8))
-				((= (code m 1 1) 0xd9) (setq going :nil))
-				(:t (defq kind (code m 1 1) lb (read-blk stream 2))
-					(cond
-						((or (not lb) (< (length lb) 2)) (setq going :nil))
-						(:t (defq len (- (jpg-be lb 0) 2) data (if (> len 0) (read-blk stream len) ""))
-							(case kind
-								(0xdb ;tables of 64, of 8 bits or 16
-									(defq at 0)
-									(while (< at (length data))
-										(defq pq (>> (code data 1 at) 4) tq (logand (code data 1 at) 15) at (inc at)
-											q (apply (const nums) (map (# (if (= pq 0) (code data 1 (+ at %0)) (jpg-be data (+ at (* 2 %0))))) (range 0 64))))
-										(elem-set quant tq q)
-										(setq at (+ at (* 64 (if (= pq 0) 1 2))))))
-								(0xc4 ;codes, of DC or AC, each 16 counts and the values
-									(defq at 0)
-									(while (< at (length data))
-										(defq tc (>> (code data 1 at) 4) th (logand (code data 1 at) 15)
-											lens (map (# (code data 1 (+ at 1 %0))) (range 0 16)) n (reduce (const +) lens 0)
-											vals (map (# (code data 1 (+ at 17 %0))) (range 0 n)))
-										(elem-set (if (= tc 0) dc ac) th (list lens vals))
-										(setq at (+ at 17 n))))
-								(0xdd (. out :insert :restart (jpg-be data 0)))
-								(0xc0 ;baseline: height width, and each component
-									(scatter out :height (jpg-be data 1) :width (jpg-be data 3)
-										:comps (map (# (list (code data 1 (+ 6 (* 3 %0))) (>> (code data 1 (+ 7 (* 3 %0))) 4)
-												(logand (code data 1 (+ 7 (* 3 %0))) 15) (code data 1 (+ 8 (* 3 %0)))))
-											(range 0 (code data 1 5)))))
-								(0xc1 (setq going :nil))
-								(0xc2 (setq going :nil))
-								(0xda ;the scan: which code tables each component of it has
-									(defq n (code data 1 0) scan (map (# (list (code data 1 (+ 1 (* 2 %0))) (>> (code data 1 (+ 2 (* 2 %0))) 4)
-										(logand (code data 1 (+ 2 (* 2 %0))) 15))) (range 0 n)))
-									(. out :insert :scan scan)
-									(setq going :nil ok (. out :find :comps)))))))))
-		(if ok out)))
+		(defq out (Emap))
+		(scatter out :restart 0 :quant (list :nil :nil :nil :nil) :dc (list :nil :nil :nil :nil) :ac (list :nil :nil :nil :nil))
+		(jpg-segments stream out)))
 
 (defun JPG-info (stream)
 	; (JPG-info stream) -> (width height type) | (-1 -1 -1)
@@ -144,12 +178,26 @@
 	;a number of n reader, as the standard has the negative ones
 	(if (and (> n 0) (< v (<< 1 (dec n)))) (+ v (- 1 (<< 1 n))) v))
 
+(defun jpg-geometry (width height comps)
+	; (jpg-geometry width height comps) -> (hmax vmax mcus_x mcus_y)
+	(defq hmax (reduce (# (max %0 (second %1))) comps 1) vmax (reduce (# (max %0 (third %1))) comps 1))
+	(list hmax vmax (/ (+ width (* 8 hmax) -1) (* 8 hmax)) (/ (+ height (* 8 vmax) -1) (* 8 vmax))))
+
+(defun jpg-idct (c)
+	; (jpg-idct c) -> pixels
+	;the 64 numbers of a block, by their table, in rows, as 64 pixels: the
+	;rows by K, then the columns, t x v is row v of c dot K x
+	(defq t (apply (const nums) (map (lambda (i) (nums-dot (slice c (* (% i 8) 8) (+ (* (% i 8) 8) 8)) (elem-get *jpg_k* (/ i 8))))
+			(range 0 64))))
+	(apply (const nums) (map (lambda (i)
+			(max 0 (min 255 (+ 128 (>>> (+ (nums-dot (elem-get *jpg_k* (/ i 8)) (slice t (* (% i 8) 8) (+ (* (% i 8) 8) 8))) 524288) 20)))))
+		(range 0 64))))
+
 (defun jpg-block (reader dc_code ac_code quant prior)
 	; (jpg-block reader dc_code ac_code quant prior) -> (pixels dc)
-	;a block: its numbers, by their table, and turned back to 64 pixels
-	(defq c (nums 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-			0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-		s (jpg-decode-symbol reader dc_code) dc (+ prior (jpg-extend (jpg-bits reader s) s)) k 1)
+	;a block of a baseline scan: its numbers, by their table, and turned
+	;back to 64 pixels
+	(defq c (fill (nums) 64 0) s (jpg-decode-symbol reader dc_code) dc (+ prior (jpg-extend (jpg-bits reader s) s)) k 1)
 	(elem-set c 0 (* dc (elem-get quant 0)))
 	(while (< k 64)
 		(defq rs (jpg-decode-symbol reader ac_code) r (>> rs 4) sz (logand rs 15))
@@ -159,40 +207,59 @@
 				(when (< k 64)
 					(elem-set c (elem-get +jpg_zigzag k) (* (jpg-extend (jpg-bits reader sz) sz) (elem-get quant k)))
 					(setq k (inc k))))))
-	;the rows by K, then the columns: t x v is row v of c dot K x
-	(defq t (apply (const nums) (map (lambda (i) (nums-dot (slice c (* (% i 8) 8) (+ (* (% i 8) 8) 8)) (elem-get *jpg_k* (/ i 8))))
-			(range 0 64))))
-	(list (apply (const nums) (map (lambda (i)
-			(max 0 (min 255 (+ 128 (>>> (+ (nums-dot (elem-get *jpg_k* (/ i 8)) (slice t (* (% i 8) 8) (+ (* (% i 8) 8) 8))) 524288) 20)))))
-		(range 0 64)))
-		dc))
+	(list (jpg-idct c) dc))
+
+(defun jpg-restart (reader in)
+	;a restart: to the next byte, past the marker, which may not have been
+	;come to yet
+	(elem-set reader 2 0)
+	(unless (elem-get reader 3) (read-char in) (read-char in))
+	(elem-set reader 3 :nil))
+
+(defun jpg-rows (out samplings planes my width height hmax vmax mcus_x)
+	; (jpg-rows out samplings planes my width height hmax vmax mcus_x)
+	;the rows of pixels of a row of MCUs, those inside the picture, from
+	;the plane of each component, (h v) its sampling, of mcus_x h 8 by v 8
+	(each (lambda (row)
+			(defq y (+ (* my vmax 8) row) line (cap (* width 4) (list)))
+			(when (< y height)
+				(each (lambda (x)
+						(defq s (map (lambda ((h v) plane)
+								(elem-get plane (+ (* (/ (* row v) vmax) (* mcus_x h 8)) (/ (* x h) hmax))))
+							samplings planes))
+						(cond
+							((= (length s) 1) (push line (first s) (first s) (first s) 255))
+							(:t (bind '(yy cb cr) s)
+								(setq cb (- cb 128) cr (- cr 128))
+								(push line (max 0 (min 255 (+ yy (>>> (* 116130 cb) 16))))
+									(max 0 (min 255 (- yy (>>> (+ (* 22554 cb) (* 46802 cr)) 16))))
+									(max 0 (min 255 (+ yy (>>> (* 91881 cr) 16))))
+									255))))
+					(range 0 width))
+				(write-blk out (apply (const cat) (cat (list "") (map (const char) line))))))
+		(range 0 (* vmax 8))))
 
 (defun jpg-decode (in out info)
 	; (jpg-decode in out info)
-	;the scan, from where the stream is, a row of MCUs at a time, each
-	;row of pixels written blue green red alpha
-	(bind '(width height comps scan quant dc ac restart) info)
-	(defq hmax (reduce (# (max %0 (second %1))) comps 1) vmax (reduce (# (max %0 (third %1))) comps 1)
-		mcu_w (* 8 hmax) mcu_h (* 8 vmax) mcus_x (/ (+ width mcu_w -1) mcu_w) mcus_y (/ (+ height mcu_h -1) mcu_h)
-		;each component: its sampling, its codes and its table, and the last dc
-		parts (map (lambda ((id h v tq))
+	;a baseline scan, from where the stream is, a row of MCUs at a time,
+	;each row of pixels written blue green red alpha
+	(bind '(width height comps scan quant dc ac restart &ignore) info)
+	(bind '(hmax vmax mcus_x mcus_y) (jpg-geometry width height comps))
+	;each component: its sampling, its codes and its table
+	(defq parts (map (lambda ((id h v tq))
 				(defq tables (some (# (if (= (first %0) id) %0)) scan))
 				(list h v (jpg-code (elem-get dc (second tables))) (jpg-code (elem-get ac (third tables))) (elem-get quant tq)))
 			comps)
-		lasts (map (lambda (_) 0) comps) reader (list in 0 0 :nil) done 0 my 0)
+		samplings (map (# (list (first %0) (second %0))) parts)
+		lasts (fill (list) (length comps) 0) reader (list in 0 0 :nil) done 0 my 0)
 	(while (< my mcus_y)
 		(task-slice)
 		;the planes of this row of MCUs, a nums each, its width in samples
-		(defq planes (map (lambda ((h v &rest _)) (apply (const nums) (map (lambda (_) 0) (range 0 (* mcus_x h 8 v 8))))) parts)
-			mx 0)
+		(defq planes (map (lambda ((h v &rest _)) (fill (nums) (* mcus_x h 8 v 8) 0)) parts) mx 0)
 		(while (< mx mcus_x)
 			(when (and (> restart 0) (> done 0) (= (% done restart) 0))
-				;a restart: to the next byte, past the marker, which may not have
-				;been come to yet, the dc from 0
-				(elem-set reader 2 0)
-				(unless (elem-get reader 3) (read-char in) (read-char in))
-				(elem-set reader 3 :nil)
-				(setq lasts (map (lambda (_) 0) comps)))
+				(jpg-restart reader in)
+				(setq lasts (fill (list) (length comps) 0)))
 			(each (lambda ((h v dc_code ac_code q) plane)
 					(defq ci (!) pw (* mcus_x h 8))
 					(each (lambda (by)
@@ -205,53 +272,223 @@
 						(range 0 v)))
 				parts planes)
 			(setq mx (inc mx) done (inc done)))
-		;its rows of pixels, those inside the picture
-		(each (lambda (row)
-				(defq y (+ (* my mcu_h) row) line (cap (* width 4) (list)))
-				(when (< y height)
-					(each (lambda (x)
-							(defq s (map (lambda ((h v &rest _) plane)
-									(elem-get plane (+ (* (/ (* row v) vmax) (* mcus_x h 8)) (/ (* x h) hmax))))
-								parts planes))
-							(cond
-								((= (length s) 1) (push line (first s) (first s) (first s) 255))
-								(:t (bind '(yy cb cr) s)
-									(setq cb (- cb 128) cr (- cr 128))
-									(push line (max 0 (min 255 (+ yy (>>> (* 116130 cb) 16))))
-										(max 0 (min 255 (- yy (>>> (+ (* 22554 cb) (* 46802 cr)) 16))))
-										(max 0 (min 255 (+ yy (>>> (* 91881 cr) 16))))
-										255))))
-						(range 0 width))
-					(write-blk out (apply (const cat) (cat (list "") (map (const char) line))))))
-			(range 0 mcu_h))
+		(jpg-rows out samplings planes my width height hmax vmax mcus_x)
 		(setq my (inc my))))
 
-(defun jpg-stage (src downstream_mbox info)
-	;the decode, a stage reading the stream from where the head left it
-	(str `(progn (import "lib/image/jpg.inc")
-		(jpg-decode (obj-ref ,(weak-ref src)) (out-stream (hex-decode ,(hex-encode downstream_mbox))) ',info))))
+;;;;;;;;;;;;;
+; progressive
+;;;;;;;;;;;;;
 
-(defun jpg-stage-pixmap (pixmap handshake_mbox)
-	(str `(progn (import "gui/pixmap/lisp.inc")
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(str (weak-ref (pixmap-read pixmap in 32)))))))
+;A progressive JPEG sends the numbers of every block in scans, each of
+;some of them, and of some of their bits, so they are all kept, by
+;component, a grid of blocks the size of the MCUs, till the last scan.
+;What each kind of scan does is the standard's G.1.2, as libjpeg has it:
+;the first bits of the DCs, the next bit of each, the first bits of a
+;band of the ACs, with runs of blocks that have none of them, and the
+;next bit of each of those, that has a 1 or a 0 for each that is not 0
+;and puts in those that are new. A number is taken as low bits up.
+
+(defun jpg-dc-first (reader code coefs base prior low)
+	; -> dc
+	(defq s (jpg-decode-symbol reader code) dc (+ prior (jpg-extend (jpg-bits reader s) s)))
+	(elem-set coefs base (<< dc low))
+	dc)
+
+(defun jpg-dc-refine (reader coefs base low)
+	(if (= (jpg-bit reader) 1) (elem-set coefs base (logior (elem-get coefs base) (<< 1 low)))))
+
+(defun jpg-ac-first (reader code coefs base start end low eobrun)
+	; -> eobrun
+	(cond
+		((> eobrun 0) (dec eobrun))
+		(:t (defq k start)
+			(while (<= k end)
+				(defq rs (jpg-decode-symbol reader code) r (>> rs 4) s (logand rs 15))
+				(cond
+					((> s 0)
+						(setq k (+ k r))
+						(and (<= k end)
+							(elem-set coefs (+ base (elem-get +jpg_zigzag k)) (<< (jpg-extend (jpg-bits reader s) s) low)))
+						(++ k))
+					((= r 15) (setq k (+ k 16)))
+					(:t ;the end of this block and of so many more
+						(setq eobrun (+ (<< 1 r) (jpg-bits reader r) -1) k (inc end)))))
+			eobrun)))
+
+(defun jpg-refine (reader coefs at c p1 m1)
+	;the next bit of a number that is not 0, read whatever it is
+	(and (= (jpg-bit reader) 1) (= (logand c p1) 0)
+		(elem-set coefs at (+ c (if (>= c 0) p1 m1)))))
+
+(defun jpg-ac-refine (reader code coefs base start end low eobrun)
+	; -> eobrun
+	(defq p1 (<< 1 low) m1 (neg p1) k start going (= eobrun 0))
+	(while (and going (<= k end))
+		(defq rs (jpg-decode-symbol reader code) r (>> rs 4) s (logand rs 15) v 0)
+		(cond
+			((> s 0) (setq v (if (= (jpg-bit reader) 1) p1 m1)))
+			((/= r 15) (setq eobrun (+ (<< 1 r) (jpg-bits reader r)) going :nil)))
+		(when going
+			;past r of those that are 0, the next bit of each that is not on
+			;the way, to where the new one goes
+			(defq more :t)
+			(while (and more (<= k end))
+				(defq at (+ base (elem-get +jpg_zigzag k)) c (elem-get coefs at))
+				(cond
+					((/= c 0) (jpg-refine reader coefs at c p1 m1))
+					((< (setq r (dec r)) 0) (setq more :nil)))
+				(if more (++ k)))
+			(and (/= v 0) (<= k end) (elem-set coefs (+ base (elem-get +jpg_zigzag k)) v))
+			(++ k)))
+	(when (> eobrun 0)
+		;a block with no new ones, the next bit of each that is not 0
+		(while (<= k end)
+			(defq at (+ base (elem-get +jpg_zigzag k)) c (elem-get coefs at))
+			(if (/= c 0) (jpg-refine reader coefs at c p1 m1))
+			(++ k))
+		(setq eobrun (dec eobrun)))
+	eobrun)
+
+(defun jpg-scan (reader in head grids width height hmax vmax mcus_x mcus_y)
+	; (jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
+	;a scan of a progressive JPEG, its numbers into the grids
+	(bind '(start end high low) (. head :find :spectral))
+	(defq comps (. head :find :comps) restart (. head :find :restart)
+		kind (if (= start 0) (if (= high 0) 0 1) (if (= high 0) 2 3))
+		;the components of the scan: which, its sampling, and its code
+		these (map (lambda ((id dt at))
+				(defq ci (ifn (some (# (if (= (first %0) id) (!))) comps) 0) c (elem-get comps ci)
+					table (if (= kind 0) (elem-get (. head :find :dc) dt) (if (> kind 1) (elem-get (. head :find :ac) at))))
+				(list ci (second c) (third c) (if table (jpg-code table))))
+			(. head :find :scan))
+		lasts (fill (list) (length these) 0) eobrun 0 done 0)
+	(defun one (i ci code br bc)
+		;a block of the scan, at row br and column bc of the grid
+		(defq coefs (elem-get grids ci) base (* (+ (* br (* mcus_x (second (elem-get comps ci)))) bc) 64))
+		(case kind
+			(0 (elem-set lasts i (jpg-dc-first reader code coefs base (elem-get lasts i) low)))
+			(1 (jpg-dc-refine reader coefs base low))
+			(2 (setq eobrun (jpg-ac-first reader code coefs base start end low eobrun)))
+			(3 (setq eobrun (jpg-ac-refine reader code coefs base start end low eobrun)))))
+	(defun restarted ()
+		(when (and (> restart 0) (> done 0) (= (% done restart) 0))
+			(jpg-restart reader in)
+			(setq lasts (fill (list) (length these) 0) eobrun 0))
+		(++ done))
+	(cond
+		((= (length these) 1)
+			;of one component, its blocks that are in the picture, each an MCU
+			(bind '(ci h v code) (first these))
+			(defq cols (/ (+ (/ (+ (* width h) hmax -1) hmax) 7) 8)
+				rows (/ (+ (/ (+ (* height v) vmax -1) vmax) 7) 8) br 0)
+			(while (< br rows)
+				(task-slice)
+				(defq bc 0)
+				(while (< bc cols)
+					(restarted)
+					(one 0 ci code br bc)
+					(++ bc))
+				(++ br)))
+		(:t ;of several, MCU by MCU, each the blocks of each
+			(defq my 0)
+			(while (< my mcus_y)
+				(task-slice)
+				(defq mx 0)
+				(while (< mx mcus_x)
+					(restarted)
+					(each (lambda ((ci h v code))
+							(defq i (!))
+							(each (lambda (by)
+									(each (# (one i ci code (+ (* my v) by) (+ (* mx h) %0))) (range 0 h)))
+								(range 0 v)))
+						these)
+					(++ mx))
+				(++ my)))))
+
+(defun jpg-next-marker (reader in)
+	; (jpg-next-marker reader in) -> :nil | marker
+	;the marker after a scan, which the scan may have come to
+	(elem-set reader 2 0)
+	(cond
+		((defq m (elem-get reader 3)) (elem-set reader 3 :nil) m)
+		(:t (defq m :nil b 0)
+			(while (and (not m) (setq b (read-char in)))
+				(when (= b 0xff)
+					(while (= (setq b (ifn (read-char in) -1)) 0xff))
+					(cond
+						((< b 0) (setq m -1))
+						((/= b 0) (setq m b)))))
+			(and m (> m 0) m))))
+
+(defun jpg-progressive (in out info)
+	; (jpg-progressive in out info)
+	;the scans, from where the stream is, then the pixels a row of MCUs at
+	;a time, each row of pixels written blue green red alpha
+	(bind '(width height comps scan quant dc ac restart spectral) info)
+	(bind '(hmax vmax mcus_x mcus_y) (jpg-geometry width height comps))
+	(defq grids (map (lambda ((id h v tq)) (fill (nums) (* mcus_x h mcus_y v 64) 0)) comps)
+		head (Emap) reader (list in 0 0 :nil) going :t)
+	(scatter head :restart restart :quant quant :dc dc :ac ac :comps comps :scan scan :spectral spectral)
+	(while going
+		(jpg-scan reader in head grids width height hmax vmax mcus_x mcus_y)
+		;the tables and the head of the next scan, if there is one
+		(defq m (jpg-next-marker reader in) more :t)
+		(while (and more m)
+			(cond
+				((= m 0xd9) (setq m :nil))
+				((<= 0xd0 m 0xd7) (setq m (jpg-next-marker reader in)))
+				(:t (defq lb (read-blk in 2))
+					(cond
+						((or (not lb) (< (length lb) 2)) (setq m :nil))
+						(:t (defq len (- (jpg-be lb 0) 2) data (if (> len 0) (read-blk in len) ""))
+							(cond
+								((or (not data) (< (length data) len)) (setq m :nil))
+								((jpg-segment head m data) (setq m (jpg-next-marker reader in)))
+								((= m 0xda) (setq more :nil))
+								(:t (setq m :nil))))))))
+		(setq going (not more)))
+	;each block by its table, as the table's numbers are in zig zag order
+	;they are put in rows first, and turned to pixels, a row of MCUs at a time
+	(defq qns (map (lambda ((id h v tq))
+				(defq q (ifn (elem-get (. head :find :quant) tq) (fill (nums) 64 0)) qn (fill (nums) 64 0))
+				(each (# (elem-set qn (elem-get +jpg_zigzag %0) (elem-get q %0))) (range 0 64))
+				qn)
+			comps)
+		samplings (map (# (list (second %0) (third %0))) comps) my 0)
+	(while (< my mcus_y)
+		(task-slice)
+		(defq planes (map (lambda ((id h v tq) coefs qn)
+					(defq bw (* mcus_x h) pw (* bw 8) plane (fill (nums) (* pw v 8) 0))
+					(each (lambda (by)
+							(defq br (+ (* my v) by))
+							(each (lambda (bc)
+									(defq base (* (+ (* br bw) bc) 64)
+										pixels (jpg-idct (nums-mul (slice coefs base (+ base 64)) qn)))
+									(each (# (elem-set plane (+ (* (+ (* by 8) (/ %0 8)) pw) (* bc 8) (% %0 8)) (elem-get pixels %0)))
+										(range 0 64)))
+								(range 0 bw)))
+						(range 0 v))
+					plane)
+				comps grids qns))
+		(jpg-rows out samplings planes my width height hmax vmax mcus_x)
+		(++ my)))
 
 (defun JPG-load (stream)
 	; (JPG-load stream) -> :nil | canvas
 	(defq canvas :nil)
 	(when (and (defq head (jpg-head stream)) (defq comps (. head :find :comps))
-			(or (= (length comps) 1) (= (length comps) 3)))
+			(or (= (length comps) 1) (= (length comps) 3))
+			(every (# (elem-get (. head :find :quant) (elem-get %0 3))) comps))
 		(defq w (. head :find :width) h (. head :find :height)
-			canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0) handshake_mbox (mail-mbox)
+			canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0)
 			;what the decode needs, numbers and lists of them, that go in its form
 			info (list w h comps (. head :find :scan) (map (# (if %0 (apply (const list) %0))) (. head :find :quant))
-				(. head :find :dc) (. head :find :ac) (. head :find :restart)))
+				(. head :find :dc) (. head :find :ac) (. head :find :restart) (. head :find :spectral)))
 		(setf pixmap +pixmap_type 32 0)
-		(open-child (jpg-stage-pixmap pixmap handshake_mbox) +kn_call_pin)
-		(open-child (jpg-stage stream (mail-read handshake_mbox) info) +kn_call_pin)
-		(if (eql (mail-read handshake_mbox) (const (str :nil))) (setq canvas :nil)))
+		;the scans decoded by a stage reading the stream from where the head left it
+		(unless (stages-load stream pixmap 32
+				(list (stage "lib/image/jpg.inc" (if (. head :find :progressive) 'jpg-progressive 'jpg-decode) (list 'quote info))))
+			(setq canvas :nil)))
 	canvas)
 
 ;the canvas is told what this reads
@@ -259,5 +496,5 @@
 (canvas-loader ".jpeg" JPG-info JPG-load)
 
 ;module
-(export-symbols '(JPG-load JPG-info jpg-decode *jpg_k* +jpg_zigzag))
+(export-symbols '(JPG-load JPG-info jpg-decode jpg-progressive *jpg_k* +jpg_zigzag))
 (env-pop)

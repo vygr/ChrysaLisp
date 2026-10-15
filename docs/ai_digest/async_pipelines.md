@@ -108,7 +108,7 @@ Because ChrysaLisp S-expressions evaluate cleanly, we can generate child task
 definitions dynamically using quasiquote (`` ` ``) and unquote (`,`):
 
 ```file
-lib/image/cpm.inc "(defun cpm-load-stage" ""
+lib/streams/stages.inc "(defun stage-form" "(defun stage-in"
 ```
 
 Notice what happens here:
@@ -140,7 +140,7 @@ To ensure tasks share the same physical address space, we use
 **`+kn_call_pin`**:
 
 ```vdu
-(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox) +kn_call_pin)
+(open-child (stage-form s (stage-in handshake) out) +kn_call_pin)
 ```
 
 `+kn_call_pin` strictly pins the child task to the **exact same hardware node
@@ -221,9 +221,10 @@ In any streaming pipeline, stages fall into three simple categories:
    already owns the data source.
 
 Because every filter stage performs the exact same mechanical role, we do not
-need separate, hardcoded stage functions for every codec. A single
-**`cpm-load-stage`** and **`cpm-save-stage`** generator handles arbitrary
-algorithms uniformly.
+need separate, hardcoded stage functions for every codec. A stage is just
+what it imports, the function and its arguments, `(stage imports fn [arg
+...])`, and the one `stage-form` in `lib/streams/stages.inc` makes the task
+of any of them.
 
 ## 5. Reverse Assembly & Single-Mailbox Handshaking
 
@@ -257,38 +258,43 @@ Step 5: Completion
         Parent unblocks via (mail-read handshake_mbox) and returns the Canvas.
 ```
 
-## 6. Symmetrical Implementation: `lib/image/cpm.inc`
+## 6. Symmetrical Implementation: `lib/streams/stages.inc`
 
-The complete implementation in `lib/image/cpm.inc` models both decompression
-(`CPM-load`) and compression (`CPM-save`) as ordered lists of stages wired via
-reverse traversal.
+`lib/streams/stages.inc` models both reading (`stages-load`) and writing
+(`stages-save`) an image as an ordered list of stages wired via reverse
+traversal. The CPM, PNG and JPEG loaders and the CPM saver are each a list of
+stages handed to one of them.
 
-### 6.1 Universal Stage Generators
-
-All decompression and compression filters are generated through two uniform
-functions:
+### 6.1 A Stage
 
 ```file
-lib/image/cpm.inc "(defun cpm-load-stage" "(defun cpm-load-stage-pixmap"
+lib/streams/stages.inc "(defun stage " "(defun stages-load"
 ```
 
-### 6.2 The Decompression Pipeline (`CPM-load`)
+### 6.2 Reading (`stages-load`)
 
-In `CPM-load`, stages are listed in natural data-flow order (`stream -> ... ->
-pixmap`). Intermediate stages are assembled in reverse using `each!`:
+Stages are listed in natural data-flow order (`stream -> ... -> pixmap`). The
+pixmap's task is started first, then the stages in reverse using `each!`, the
+first given the stream:
 
 ```file
-lib/image/cpm.inc "(defun CPM-load" ""
+lib/streams/stages.inc "(defun stages-load" "(defun stages-save"
 ```
 
-### 6.3 The Compression Pipeline (`CPM-save`)
-
-In `CPM-save`, stages are listed in data-flow order (`pixmap -> ... -> stream`).
-The last filter is the sink writing to `stream`, intermediate filters are wired
-via `each!`, and the pixmap producer is launched as the source:
+A PNG is three stages, the IDAT chunks taken out, inflated and unfiltered:
 
 ```file
-lib/image/cpm.inc "(defun CPM-save" ""
+lib/image/png.inc "(defun PNG-load" ""
+```
+
+### 6.3 Writing (`stages-save`)
+
+Stages are listed in data-flow order (`pixmap -> ... -> stream`). The last is
+the sink writing to `stream`, and says when it is done; the pixmap's writer is
+launched last, as the source:
+
+```file
+lib/streams/stages.inc "(defun stages-save" ";module"
 ```
 
 ## 7. Changing Filter Order with Zero Code Modifications
@@ -301,8 +307,8 @@ To invert the compression pipeline (compressing with LZ4 first, then RLE):
 ```vdu
 ; Save with LZ4 -> RLE:
 (defq stages (list))
-(if lz4 (push stages (# (cpm-save-stage "lib/streams/lz4.inc" 'lz4-compress %0 %1))))
-(if rle (push stages (# (cpm-save-stage "lib/streams/rle.inc" 'rle-compress %0 %1 num_bits 8))))
+(if lz4 (push stages (stage "lib/streams/lz4.inc" 'lz4-compress)))
+(if rle (push stages (stage "lib/streams/rle.inc" 'rle-compress num_bits 8)))
 ```
 
 And symmetrically on load:
@@ -310,12 +316,12 @@ And symmetrically on load:
 ```vdu
 ; Load with RLE -> LZ4:
 (defq stages (list))
-(if rle (push stages (# (cpm-load-stage "lib/streams/rle.inc" 'rle-decompress %0 %1 num_bits 8 (* w h)))))
-(if lz4 (push stages (# (cpm-load-stage "lib/streams/lz4.inc" 'lz4-decompress %0 %1))))
+(if rle (push stages (stage "lib/streams/rle.inc" 'rle-decompress num_bits 8 (* w h))))
+(if lz4 (push stages (stage "lib/streams/lz4.inc" 'lz4-decompress)))
 ```
 
 To insert a 3rd, 4th, or 50th stage (such as encryption or Huffman coding),
-simply push another stage function into the `stages` list. The pipeline wiring
+simply push another stage into the `stages` list. The pipeline wiring
 automatically connects the mailboxes without modification.
 
 ## 8. Summary & Architectural Takeaways

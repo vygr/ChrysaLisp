@@ -115,10 +115,15 @@ Usage: check [options] [path] ...
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
-    unquote ,f or ,(const f) in a backquote in a module,
+    unquote ,f, ,(const f), ,(f ...) or ~(f ...) in a
+            backquote in a module,
             f a function of the module not exported: it is
             looked for as the form is made, when the
             function runs, and the module's names are gone.
+    ignore  a name after &ignore in a (bind) list or a list
+            of parameters: &ignore ends the list, and the
+            name is never bound. & is the place that takes
+            a thing and binds nothing.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -148,6 +153,12 @@ Usage: check [options] [path] ...
             given to (map), (each), (filter), (some), (reduce),
             (sort), (lines!) or the like, or the :each of a
             map or a set, which call it with an element.
+    self    in the method :m of a class, a (call :c :m '(:r0
+            ...)) of the same method of this class or one
+            above it, that is not static: a call goes by the
+            vtable of the object, and of one of this class
+            that is this method again, for ever. s-call for
+            the one above, d-call for a class's own.
     held    a (create-stdio) that is not kept in a name, by a
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
@@ -208,6 +219,7 @@ Usage: curl [options] <url>
         -X --request cmd: specify request command to use (GET, POST, HEAD).
         -H --header line: custom header to pass to server.
         -d --data str: HTTP POST data.
+        -k --insecure: https, do not check who the server is.
 
     Fetch and display content from an HTTP URL.
 ```
@@ -593,9 +605,11 @@ Usage: huff [options] [file]
         -t --tbits num: bit size for data tokens, default 8.
         -c --codebook path: codebook filename, default :nil.
 
-    Compresses a file using static or adaptive Huffman coding.
-    If a codebook is provided then it will load that model for
-    static operation.
+    Compresses a file with Huffman codes, a block of
+    65536 tokens at a time, each block with a code made
+    for it. With a codebook, made by hbook, the code of
+    the book is used for the whole file, and none is
+    written; a token the book has no code for is an error.
 
     If no file is given, it reads from stdin.
     Output is written to stdout.
@@ -1444,16 +1458,14 @@ Usage: trace [options] [function_name] ...
 ```
 ## unhuff
 ```code
-Usage: unrle [options] [file]
+Usage: unhuff [options] [file]
 
     options:
         -h --help: this help info.
-        -t --tbits num: bit size for data tokens, default 8.
         -c --codebook path: codebook filename, default :nil.
 
-    Deompresses a file using static or adaptive Huffman coding.
-    If a codebook is provided then it will load that model for
-    static operation.
+    Decompresses a file huff made, with the codebook it
+    was made with, if it was.
 
     If no file is given, it reads from stdin.
     Output is written to stdout.

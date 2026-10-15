@@ -60,7 +60,8 @@
             (defq) is to the one name, in the other's
             environment, and what the inner function had by
             it is gone, from then on.
-    unquote ,f or ,(const f) in a backquote in a module,
+    unquote ,f, ,(const f), ,(f ...) or ~(f ...) in a
+            backquote in a module,
             f a function of the module not exported: it is
             looked for as the form is made, when the
             function runs, and the module's names are gone.
@@ -376,17 +377,23 @@
 								(while (defq nodes (pop todo))
 									(each (lambda (n)
 											(defq next (if (< (inc (!)) (length nodes)) (elem-get nodes (inc (!)))))
-											;,f is one symbol, , (const f) a , and a form
+											;,f is one symbol, , (const f) a , and a form, and so are
+											;,(f x) and ~(f x), a call of it as the form is made
 											(defq name (cond
 												((not (eql (first n) :symbol)) :nil)
 												((and (> (length (third n)) 1) (starts-with "," (third n))) (slice (third n) 1 -1))
-												((not (and next (eql (third n) ","))) :nil)
-												((defq nk (tree-form? next "const"))
+												((not (and next (find (third n) '("," "~")))) :nil)
+												((and (eql (third n) ",") (defq nk (tree-form? next "const")))
 													(defq nf (forms-of nk))
-													(and (> (length nf) 1) (eql (first (second nf)) :symbol) (third (second nf))))))
+													(and (> (length nf) 1) (eql (first (second nf)) :symbol) (third (second nf))))
+												((defq nk (tree-form? next))
+													(defq nf (forms-of nk))
+													(and (nempty? nf) (eql (first (first nf)) :symbol) (third (first nf))))))
 											(and name (. own :find name)
 												(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
-											(if (defq sub (tree-form? n)) (push todo sub)))
+											;a (static-qq) is made as it is read, while the module is there
+											(and (defq sub (tree-form? n)) (not (tree-form? n "static-qq")) (not (tree-form? n "static-qqp"))
+												(push todo sub)))
 										nodes)))
 							region))
 					(setq in :nil))

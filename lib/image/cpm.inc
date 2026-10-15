@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
+(import "lib/streams/stages.inc")
 
 ;module
 (env-push)
@@ -29,34 +30,6 @@
 			(setq out (getf-> header +cpm_width +cpm_height +cpm_type))))
 	out)
 
-(defun cpm-load-stage (lib fn downstream_mbox src &rest args)
-	(defq in_src (if (str? src)
-		`(progn (mail-send (hex-decode ,(hex-encode src)) (in-mbox (defq in (in-stream)))) in)
-		`(obj-ref ,(weak-ref src))))
-	(str `(progn (import ,lib)
-		(,fn ,in_src (out-stream (hex-decode ,(hex-encode downstream_mbox))) ~args))))
-
-(defun cpm-save-stage (lib fn handshake_mbox dst &rest args)
-	(defq out_dst (if (str? dst)
-		`(out-stream (hex-decode ,(hex-encode dst)))
-		`(obj-ref ,(weak-ref dst))))
-	(str `(progn (import ,lib)
-		(mail-send (hex-decode ,(hex-encode handshake_mbox)) (in-mbox (defq in (in-stream))))
-		(,fn in ,out_dst ~args)
-		,(ifn (str? dst) `(mail-send (hex-decode ,(hex-encode handshake_mbox)) :t)))))
-
-(defun cpm-load-stage-pixmap (pixmap type handshake_mbox)
-	(str `(progn (import "gui/pixmap/lisp.inc")
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(in-mbox (defq pixmap (obj-ref ,(weak-ref pixmap)) in (in-stream))))
-		(mail-send (hex-decode ,(hex-encode handshake_mbox))
-			(str (weak-ref (pixmap-read pixmap in ,type)))))))
-
-(defun cpm-save-stage-pixmap (pixmap downstream_mbox type)
-	(str `(progn (import "gui/pixmap/lisp.inc")
-		(pixmap-write (pixmap-as-argb (obj-ref ,(weak-ref pixmap)))
-			(out-stream (hex-decode ,(hex-encode downstream_mbox))) ,type))))
-
 (defun CPM-load (stream)
 	; (CPM-load stream) -> :nil | canvas
 	(defq canvas :nil)
@@ -76,20 +49,12 @@
 			(if (or (= type 12) (= type 15)) (setq num_bits 16))
 			; save stream type for any film players !
 			(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
-			; define stages in data-flow order (stream -> ... -> pixmap)
+			;the stages in the order the data goes, stream to pixmap
 			(defq stages (list))
-			(if lz4 (push stages (# (cpm-load-stage "lib/streams/lz4.inc" 'lz4-decompress %0 %1))))
-			(if rle (push stages (# (cpm-load-stage "lib/streams/rle.inc" 'rle-decompress %0 %1 num_bits 8 (* w h)))))
-			(cond
-				((empty? stages)
-					(ifn (pixmap-read pixmap stream type) (setq canvas :nil)))
-				(:t (defq handshake_mbox (mail-mbox))
-					(open-child (cpm-load-stage-pixmap pixmap type handshake_mbox) +kn_call_pin)
-					(each! (lambda (stage)
-						(open-child (stage (mail-read handshake_mbox) handshake_mbox) +kn_call_pin))
-						(list stages) -1 1)
-					(open-child ((first stages) (mail-read handshake_mbox) stream) +kn_call_pin)
-					(if (eql (mail-read handshake_mbox) (const (str :nil))) (setq canvas :nil))))))
+			(if lz4 (push stages (stage "lib/streams/lz4.inc" 'lz4-decompress)))
+			(if rle (push stages (stage "lib/streams/rle.inc" 'rle-decompress num_bits 8 (* w h))))
+			(unless (if (empty? stages) (pixmap-read pixmap stream type) (stages-load stream pixmap type stages))
+				(setq canvas :nil))))
 	canvas)
 
 (defun CPM-save (canvas stream type &optional rle lz4 ident)
@@ -107,20 +72,13 @@
 		(+cpm_width (getf pixmap +pixmap_width 0))
 		(+cpm_height (getf pixmap +pixmap_height 0))
 		(+cpm_reserved_1 0)))
-	;define stages in data-flow order (pixmap -> ... -> stream)
+	;the stages in the order the data goes, pixmap to stream
 	(defq stages (list))
-	(if rle (push stages (# (cpm-save-stage "lib/streams/rle.inc" 'rle-compress %0 %1 num_bits 8))))
-	(if lz4 (push stages (# (cpm-save-stage "lib/streams/lz4.inc" 'lz4-compress %0 %1))))
-	(cond
-		((empty? stages)
-			(pixmap-write (pixmap-as-argb pixmap) stream type))
-		(:t (defq handshake_mbox (mail-mbox))
-			(open-child ((last stages) handshake_mbox stream) +kn_call_pin)
-			(each! (lambda (stage)
-				(open-child (stage handshake_mbox (mail-read handshake_mbox)) +kn_call_pin))
-				(list stages) -2 0)
-			(open-child (cpm-save-stage-pixmap pixmap (mail-read handshake_mbox) type) +kn_call_pin)
-			(mail-read handshake_mbox)))
+	(if rle (push stages (stage "lib/streams/rle.inc" 'rle-compress num_bits 8)))
+	(if lz4 (push stages (stage "lib/streams/lz4.inc" 'lz4-compress)))
+	(if (empty? stages)
+		(pixmap-write (pixmap-as-argb pixmap) stream type)
+		(stages-save pixmap type stream stages))
 	canvas)
 
 ;the canvas is told what this reads

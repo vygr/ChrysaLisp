@@ -30,8 +30,8 @@
 (defun work (file)
 	(with-read-lock file
 		(when (defq stream (file-stream file))
-			(defq freqs (huffman-build-freq-map stream opt_t))
-			(. freqs :each (lambda (k v) (. freq_map :update k (# (if %0 (+ %0 v) v)))))
+			(each (lambda (v) (if (> v 0) (. freq_map :update (!) (# (if %0 (+ %0 v) v)))))
+				(huffman-freqs stream opt_t))
 			(setq stream :nil))))
 
 ;merge child work
@@ -63,7 +63,9 @@
 		(when opt_c
 			(with-write-lock opt_c
 				(when (defq cstream (file-stream opt_c +file_open_write))
-					(huffman-write-codebook cstream opt_t freq_map)
+					(defq freqs (fill (nums) (<< 1 opt_t) 0))
+					(. freq_map :each (# (elem-set freqs %0 %1)))
+					(huffman-write-book cstream (huffman-book opt_t freqs))
 					(stream-flush cstream)
 					(setq cstream :nil))))
 		;output results

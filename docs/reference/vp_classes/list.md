@@ -128,6 +128,23 @@ trashes
 :r2-:r3, :f0-:f15
 ```
 
+### :fill -> class/list/fill
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = length (uint)
+:r2 = element object (ptr)
+outputs
+:r0 = list object (ptr)
+trashes
+:r1-:r4, :f0-:f15
+info
+the elements there were let go, the list made length long, every
+element the object, a reference to it for each. The references are
+taken first, the object may be one of those let go
+```
+
 ### :find -> class/list/find
 
 ```code

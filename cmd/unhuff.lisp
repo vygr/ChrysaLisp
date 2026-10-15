@@ -1,48 +1,32 @@
 (import "lib/options/options.inc")
 (import "lib/streams/huffman.inc")
-(import "service/lock/app.inc")
 
 (defq usage `(
 (("-h" "--help")
-"Usage: unrle [options] [file]
+"Usage: unhuff [options] [file]
 
     options:
         -h --help: this help info.
-        -t --tbits num: bit size for data tokens, default 8.
         -c --codebook path: codebook filename, default :nil.
 
-    Deompresses a file using static or adaptive Huffman coding.
-    If a codebook is provided then it will load that model for
-    static operation.
+    Decompresses a file huff made, with the codebook it
+    was made with, if it was.
 
     If no file is given, it reads from stdin.
     Output is written to stdout.")
-(("-t" "--tbits") ,(opt-num 'opt_t))
 (("-c" "--codebook") ,(opt-str 'opt_c))
 ))
 
 (defun main ()
-	; Initialize options and streams
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c :nil opt_t 8 args (options stdio usage)))
-		(when opt_c
-			(with-read-lock opt_c
-				(when (defq cstream (file-stream opt_c))
-					(setq opt_c (huffman-read-codebook cstream) cstream :nil))))
-		(defq file_path (if (> (length args) 1) (second args))
-			out_stream (io-stream 'stdout))
-		(if file_path
-			(with-read-lock file_path
-				(when (defq in_stream (file-stream file_path))
-					(if opt_c
-						(huffman-decompress-static in_stream out_stream opt_c)
-						(huffman-decompress in_stream out_stream opt_t))
-					(stream-flush out_stream)
-					(setq in_stream :nil)))
-			(when (defq in_stream (io-stream 'stdin))
-				(if opt_c
-					(huffman-decompress-static in_stream out_stream opt_c)
-					(huffman-decompress in_stream out_stream opt_t))
-				(stream-flush out_stream)))))
-
+			(defq opt_c :nil args (options stdio usage)))
+		(defq out (io-stream 'stdout) book :nil)
+		(cond
+			((and opt_c (not (setq book (options-input (list "" opt_c) (const huffman-read-book)))))
+				(print "unhuff: no codebook " opt_c))
+			((not (options-input args (if book
+					(# (huffman-decompress-static %0 out book))
+					(# (huffman-decompress %0 out)))))
+				(print "unhuff: it stops before its end")))
+		(stream-flush out)))
