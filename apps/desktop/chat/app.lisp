@@ -13,13 +13,13 @@
 	+max_display 100 +max_history 500 +max_channels 128)
 
 (enums +event +event_user
-	(enum connect disconnect send))
+	(enum connect disconnect send attach))
 
 (defq +event_channel_select_0 100 +event_channel_select_last (+ 100 +max_channels -1)
 	+event_channel_delete_0 300 +event_channel_delete_last (+ 300 +max_channels -1))
 
 (enums +select 0
-	(enum main tip heartbeat chat))
+	(enum main tip heartbeat chat picker))
 
 ; *chats*    — (Fmap) sys_id_hex -> (Fmap) name -> (list raw_msg_strings)
 ; *presence* — (Fmap) "<sys_id_hex>,<name>" -> last_beat_us
@@ -27,7 +27,9 @@
 (defq +config_file (cat *env_home* "chat.tre") *config* :nil *chats* (Fmap)
 	*presence* (Fmap) *unread* (Fmap) *channel_index* (list)
 	*current_sys_id* :nil *current_name* :nil
-	*connected* :nil *chat_entry* :nil select :nil
+	*connected* :nil *chat_entry* :nil select :nil *picker_mbox* :nil
+	;a file sent is no bigger than this, and those that come are kept here
+	+max_file (* 8 1024 1024) +image_types ''(".png" ".jpg" ".jpeg" ".cpm" ".cwb" ".tga" ".svg")
 	*my_sys_id_hex* (hex-encode (system-id)))
 
 (defun channel-key (sys_id_hex cname)
@@ -63,6 +65,7 @@
 			(ui-flow *input_bar* (:flow_flags +flow_right_fill :border 1
 					:color +argb_white :ink_color +argb_black :font *env_button_font*)
 				(ui-label _ (:text "Chat:" :font *env_bold_font*))
+				(ui-tool-bar _ () (ui-buttons (+sym_open) +event_attach))
 				(. (ui-textfield *chat_text* (:flow_flags +flow_right_fill :hint_text "Type markdown message..." :clear_text ""))
 					:connect +event_send))
 			(ui-scroll *chat_scroll* +scroll_flag_vertical (:min_width 480 :min_height 380)
@@ -156,10 +159,41 @@
 			(push lines "" "---")
 			lines)))
 
-(defun create-chat-md (sender body page_w)
+(defun create-file-view (sender path page_w)
+	;a file in the chat: a picture is shown, no wider than the page, the
+	;words of a .md are, and of anything else where it was kept is said
+	(defq name (slice path (ifn (rfind "/" path) 0) -1)
+		ext (if (defq dot (rfind "." name)) (slice name (dec dot) -1) "")
+		view (Flow))
+	(def view :flow_flags +flow_down_fill :color +argb_grey15)
 	(def (defq md (Md)) :page_width page_w :zoom 1.0 :base_font_size 13)
-	(. md :populate_lines (format-chat-lines sender body))
-	md)
+	(. view :add_child md)
+	(cond
+		((and (find ext +image_types) (defq canvas (canvas-load path +load_flag_free)))
+			(. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""))
+			(bind '(w h) (. canvas :pref_size))
+			(defq most (max 64 (- page_w 24)))
+			(when (> w most)
+				(defq small (Canvas most (max 1 (/ (* h most) w)) 1))
+				(. small :resize canvas)
+				(setq canvas small))
+			(def (defq frame (Flow)) :flow_flags +flow_right :color +argb_grey15)
+			(. frame :add_child canvas)
+			(. view :add_child frame))
+		((and (eql ext ".md") (defq text (load path)))
+			(. md :populate_lines (cat (list (cat "**" sender "** *sent* `" name "`") "")
+				(split text (ascii-char 10)) (list "" "---"))))
+		(:t (. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""
+			(cat "Kept as `" path "`") "" "---"))))
+	view)
+
+(defun create-chat-md (sender body page_w)
+	;a message, or a file that came: "@file " and where it was kept
+	(if (starts-with "@file " body)
+		(create-file-view sender (slice body 6 -1) page_w)
+		(def (defq md (Md)) :page_width page_w :zoom 1.0 :base_font_size 13)
+		(. md :populate_lines (format-chat-lines sender body))
+		md))
 
 ;;;; ── layout helpers ─────────────────────────────────────────────────────────
 
@@ -463,6 +497,70 @@
 		(config-save)
 		(render-channel-list)))
 
+;;;; ── files ───────────────────────────────────────────────────────────────────
+
+;A file goes as one message: "FILE:", who it is for if it is to one,
+;and then a line each, who sent it and its name, and the bytes of it.
+;What comes is kept in the user's folder, and the chat has where
+
+(defun action-attach ()
+	(if *picker_mbox* (mail-send *picker_mbox* ""))
+	(mail-send (setq *picker_mbox* (open-child "apps/system/files/child.lisp" +kn_call_pin))
+		(cat (elem-get select +select_picker) "Send a file..." "|" ".")))
+
+(defun file-keep (name data)
+	; (file-keep name data) -> path
+	(defq path (cat *env_home* "chat_" (str (pii-time)) "_" name))
+	(save data path)
+	path)
+
+(defun send-file (path)
+	;to the channel that is shown, as a message is sent
+	(and (> (length path) 0) (defq data (load path))
+		(cond
+			((> (length data) +max_file)
+				(add-chat-message (cat "<System> " path " is more than " (str (/ +max_file 1048576)) "MB, not sent")))
+			(:t (unless *connected*
+					(connect-chat)
+					(mail-timeout (elem-get select +select_heartbeat) +heartbeat_us 0))
+				(defq my_name (get :clear_text *chat_name*)
+					name (slice path (ifn (rfind "/" path) 0) -1)
+					is_dm (and *current_sys_id* (nql *current_name* "global"))
+					msg (cat "FILE:" (if is_dm *current_name* "") (ascii-char 10) my_name (ascii-char 10)
+						name (ascii-char 10) data)
+					entry (cat "<" my_name "> @file " path "\n"))
+				(cond
+					(is_dm
+						(ensure-chat-bucket *current_sys_id* *current_name*)
+						(push-chat-msg *current_sys_id* *current_name* entry)
+						(broadcast msg :t *current_name* *current_sys_id*))
+					(:t (ensure-chat-bucket :nil "global")
+						(push-chat-msg :nil "global" entry)
+						(broadcast msg :nil)))
+				(config-save)
+				(render-chat-history)))))
+
+(defun parse-file-msg (msg)
+	; (parse-file-msg msg) -> :nil | (target sender name data)
+	;the three lines after FILE: and then the bytes, which may have any
+	(defq nl (ascii-char 10) a (find nl msg))
+	(when a
+		(defq rest1 (slice msg (inc a) -1) b (find nl rest1))
+		(when b
+			(defq rest2 (slice rest1 (inc b) -1) c (find nl rest2))
+			(when c
+				(list (slice msg 5 a) (slice rest1 0 b)
+					(slice rest2 0 c) (slice rest2 (inc c) -1))))))
+
+(defun receive-file (msg)
+	;a file that came, kept, and in the chat as a message is. A name is
+	;only a name, no folder of the sender's is made here
+	(when (defq parts (parse-file-msg msg))
+		(bind '(target sender name data) parts)
+		(defq path (file-keep (slice name (ifn (rfind "/" name) 0) -1) data))
+		(add-chat-message (cat (if (nempty? target) (cat "DM:" target ":") "")
+			"<" sender "> @file " path))))
+
 ;;;; ── tooltips ────────────────────────────────────────────────────────────────
 
 (defun tooltips ()
@@ -491,9 +589,16 @@
 				(when *connected* (send-heartbeat))
 				(render-channel-list))
 			(+select_chat
-				(if (starts-with "HEARTBEAT:" *msg*)
-					(process-heartbeat *msg*)
-					(add-chat-message *msg*)))
+				(cond
+					((starts-with "HEARTBEAT:" *msg*) (process-heartbeat *msg*))
+					((starts-with "FILE:" *msg*) (receive-file *msg*))
+					((add-chat-message *msg*))))
+			(+select_picker
+				;the file picker says what file, or "" for none
+				(defq path (trim *msg*))
+				(mail-send *picker_mbox* "")
+				(setq *picker_mbox* :nil)
+				(send-file path))
 			(+select_main
 				(defq id (getf *msg* +ev_msg_target_id))
 				(cond
@@ -506,6 +611,8 @@
 								(mail-timeout (elem-get select +select_heartbeat) +heartbeat_us 0))
 							((= id +event_disconnect)
 								(disconnect-chat))
+							((= id +event_attach)
+								(action-attach))
 							((= id +event_send)
 								(defq msg_text (trim (get :clear_text *chat_text*)))
 								(when (nempty? msg_text)
