@@ -663,3 +663,19 @@
 	"(print (list n0 n1 n2))")))
 (assert-eq "a ruler and a menu on a document, none on a new one, both back when it is read again"
 	"(2 0 2)" (first wa_stage))
+
+;the squares under the binders with devices bound, and as the app has them
+;again from its kept state: a launch with bindings ended the app before, its
+;squares sorted as words, Chris: "app crashed on launch"
+(defq wa_lit (wa-run (cat
+	"(defun wa-lit (bar at) (get :lit (get :strip (elem-get (. bar :children) at))))"
+	"(.-> (. *board* :get_bindings) (:set :mouse 0 +pev_left :mode :select) (:set :mouse 0 +pev_right :mode :line)"
+	" (:set :mouse 0 +pev_right :width 12.0) (:set :touch 0x1000000 :nil :mode :select))"
+	"(binder-dots) (defq was (list (wa-lit *mode_toolbar* 0) (wa-lit *mode_toolbar* 2) (wa-lit *radius_toolbar* 2)))"
+	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
+	"(. (. *board* :get_bindings) :unbind :mouse 0 +pev_left) (. (. *board* :get_bindings) :unbind :mouse 0 +pev_right)"
+	"(binder-dots) (defq gone (wa-lit *mode_toolbar* 0))"
+	"(config-apply (tree-load (string-stream text))) (binder-dots)"
+	"(print (list was gone (list (wa-lit *mode_toolbar* 0) (wa-lit *mode_toolbar* 2) (wa-lit *radius_toolbar* 2))))")))
+(assert-eq "select lit for the mouse's left and touch, the line for its right, below, thick for its right; touch's left when the mouse's are gone; all back from the kept state"
+	"(((0 1) (6) (6)) (1) ((0 1) (6) (6)))" (first wa_lit))

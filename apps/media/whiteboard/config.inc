@@ -55,7 +55,8 @@
 		;middle of the mouse, which is pan, a press of it binds both buttons
 		(if (list? bound) (reach (lambda ((kind id buttons what))
 				(unless (or (eql buttons 0) (and (eql kind :mouse) (eql buttons +pev_middle)))
-					(. (. *board* :get_bindings) :bind kind id buttons (cat what)))) bound))
+					;in place of one the board has of the same, not beside it
+					(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons (cat what))))) bound))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
