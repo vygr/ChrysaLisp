@@ -148,6 +148,13 @@ function session_sweep
 			rm -f "$file"
 		fi
 	done
+	#shared memory for pixels a killed node made is not a file to delete,
+	#and its :deinit never ran. The host program lets go of what dead
+	#nodes left, as stop.sh does
+	if [ -x "./obj/$CPU/$ABI/$OS/main_tui" ]
+	then
+		"./obj/$CPU/$ABI/$OS/main_tui" -shm_sweep 2>/dev/null
+	fi
 }
 
 function session_watch
