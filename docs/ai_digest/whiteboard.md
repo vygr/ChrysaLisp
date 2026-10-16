@@ -1171,7 +1171,12 @@ menu/canvas say yes or no and it does the test against its shape (or take
 special care of the edge draw detection area)". The `Stage` asks so now,
 `(. actor :hit x y)`, front to back; what changes is that it asks with the
 contact, not the point alone, and that each shape is asked, where now the
-canvas says yes for them and tests them itself in `(:begin)`.
+canvas says yes for them and tests them itself in `(:begin)`. A shape answers
+by its box first, then its outline, Chris: "They can still do bounding box
+culling before polygon testing ! The information is there, when they move
+and rotate or scale that info is updated". The box is kept as it is moved,
+turned or sized, `(cwb-flat)` has it, so almost every shape says no at the
+box; and it is asked only as a contact first lands, not as it moves.
 
 **Each pass, two phases.** Chris: "you take the current input vector of
 all the devices and their state and positions and assign them to the
