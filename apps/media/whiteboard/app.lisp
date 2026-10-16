@@ -137,34 +137,44 @@
 ;the first and only colours change after
 (defq *dots_of* :nil +strip_cells 6)
 
+(defclass Lights () (View)
+	; (Lights) -> lights
+	;the squares of a button, a lit one its device's colour inside a line of
+	;black, Chris: "especially if we can keep a 1 pixel black line around
+	;them", 5 pixels a square, 4 apart, so two side by side share a line. A
+	;clear one is not drawn, and the view is not opaque, the button is
+	;drawn under it
+	(def this :lit (list) :min_width (inc (* +strip_cells 4)) :min_height 9)
+	(. this :set_flags 0 +view_flag_opaque)
+
+	(defmethod :draw ()
+		; (. lights :draw) -> lights
+		(each (lambda (slot)
+				(defq x (* (% slot +strip_cells) 4) y (* (/ slot +strip_cells) 4))
+				(.-> this
+					(:ctx_set_color +argb_black) (:ctx_filled_box x y 5 5)
+					(:ctx_set_color (elem-get +bindings_device_cols (% slot +strip_cells)))
+					(:ctx_filled_box (inc x) (inc y) 3 3)))
+			(get :lit this))
+		this)
+	)
+
 (defun button-strip (button)
-	; (button-strip button) -> grid
-	;the strip of a button, under its symbol, made the first time
+	; (button-strip button) -> lights
+	;the squares of a button, under its symbol, made the first time
 	(unless (defq strip (get :strip button))
 		(def button :flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter))
-		(def (setq strip (Grid)) :grid_width +strip_cells :grid_height 2)
-		(times (* +strip_cells 2)
-			;clear, and so not opaque, the button is drawn under it
-			(def (defq cell (Backdrop)) :style :plain :paper 0 :min_width 4 :min_height 4)
-			(.-> strip (:add_child (. cell :set_flags 0 +view_flag_opaque))))
-		(. button :add_child strip)
+		(. button :add_child (setq strip (Lights)))
 		(def button :strip strip))
 	strip)
 
 (defun button-lights (button slots)
-	;the squares of the devices bound to what the button binds lit, in
-	;their colours, the rest clear. Opaque only when lit, Chris: "When
-	;transparent the fill square has its flags as solid !", and then the
-	;button laid out and drawn again, under them
-	(defq changed :nil)
-	(each (lambda (cell)
-			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (% (!) +strip_cells)) 0))
-			(unless (= paper (get :paper cell))
-				(def cell :paper paper)
-				(. cell :set_flags (if (= paper 0) 0 +view_flag_opaque) +view_flag_opaque)
-				(setq changed :t)))
-		(. (button-strip button) :children))
-	(if changed (.-> button :layout :dirty_all)))
+	;the squares of the devices bound to what the button binds lit, the
+	;button drawn again under them when they change
+	(defq strip (button-strip button) lit (sort (filter (# (< %0 (* +strip_cells 2))) slots)))
+	(unless (eql (str lit) (str (get :lit strip)))
+		(def strip :lit lit)
+		(.-> button :layout :dirty_all)))
 
 (defun binder-dots ()
 	;each button of the binders, the devices bound to what it binds, when

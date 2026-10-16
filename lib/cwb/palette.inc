@@ -445,7 +445,7 @@
 											(bind '(x2 y2) (pal-point (+ rr 2.0) (+ a half)))
 											(bind '(x3 y3) (pal-point (- rr 2.0) (+ a half)))
 											(push items (cwb-shape (cwb-d-points (list x0 y0 x1 y1 x2 y2 x3 y3) :t)
-												:fill col :stroke +pal_ink :width 0.5))))
+												:fill col :stroke 0xff000000 :width 1.0))))
 									devices))
 							((case what
 									(:tool (eql val mode))

@@ -68,7 +68,10 @@
 ;;;;;;;;;;
 
 ;the colours of the devices' dots, (. bindings :devices)
-(defq +bindings_device_cols ''(0xffff9f1c 0xff2ec4b6 0xffe71d36 0xff9b5de5 0xfff15bb5 0xff00bbf9))
+;strong primaries, the mouse white, touch black, the teacher's pen yellow,
+;the students' red, green and blue, Chris: "I think they should be strong
+;primary colours", each drawn with a line of black round it
+(defq +bindings_device_cols ''(0xffffffff 0xff000000 0xffffff00 0xffff0000 0xff00c000 0xff0040ff))
 
 (defclass Bindings () :nil
 	; (Bindings) -> bindings

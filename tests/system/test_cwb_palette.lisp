@@ -298,7 +298,7 @@
 	(:set :pen 0x2000000 +pev_left :color 0xffe03131)
 	(:set :touch 0x1000000 :nil :mode :rect))
 (assert-eq "two devices bound, two dots, each the colour of its place, touch the second, a first pen a student's the fourth"
-	(str (list 0xff9b5de5 0xff2ec4b6)) (str (map (const first) (. pf :devices))))
+	(str (list 0xffff0000 0xff000000)) (str (map (const first) (. pf :devices))))
 (assert-eq "the mouse's place is the first, the teacher's pen the third, a second student's pen the fifth"
 	(str '(0 2 4)) (str (list (. pf_board :device_slot :mouse 0) (progn (. pf_board :appoint (ptr-event 0x3000000 :pen 0 0 0))
 		(. pf_board :device_slot :pen 0x3000000)) (. pf_board :device_slot :pen 0x4000000))))
@@ -346,4 +346,4 @@
 				(< (abs (- (logand (>> p 8) 0xff) (logand (>> col 8) 0xff))) 12)
 				(< (abs (- (logand (>> p 16) 0xff) (logand (>> col 16) 0xff))) 12)))
 		(range 0 (* 400 400))))
-(assert-true "each device's dot is drawn" (and (pf-has 0xff9b5de5) (pf-has 0xff2ec4b6)))
+(assert-true "each device's dot is drawn" (and (pf-has 0xffff0000) (pf-has 0xff000000)))
