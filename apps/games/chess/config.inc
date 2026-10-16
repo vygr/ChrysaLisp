@@ -8,8 +8,8 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr    "
-		:redo_stack (list) :human_color +white :color +white :version +config_version)))
+		:history (list "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr    ")
+		:redo_stack (list) :human_color +white :color +white :version +config_version))
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
