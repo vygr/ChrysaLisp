@@ -338,9 +338,11 @@ what is selected goes to the front of its layer, or the back
 (. board :paint ids key color) -> board
 
 the outline, :stroke, or the fill, :fill, of those selected things,
-all that is selected if ids is :t. A shape drawn filled has no
-outline, the colour of a pen is its fill, Chris: "brushes set the
-fill"
+all that is selected if ids is :t, Chris: "brushes set the fill". A
+filled shape given an outline has one, at its width. A fill that a
+shape has keeps how see through it is, a solid one stays solid in
+the new colour; one it has not is the colour as given, and no fill,
+0, is none. Words have only a fill, their colour
 ```
 
 ### :pointer_free?

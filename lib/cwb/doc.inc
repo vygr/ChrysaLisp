@@ -80,13 +80,6 @@
 	; (cwb-get item key) -> value
 	(elem-get item (cwb-slot key)))
 
-(defun cwb-filled? (shape)
-	; (cwb-filled? shape) -> :t | :nil
-	;is a shape drawn as a fill and no outline, a filled rect or ellipse,
-	;words, so its colour is its fill
-	(or (find (elem-get shape +cwb_kind) '(:frect :fellipse :text))
-		(and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0))))
-
 (defun cwb-set (item &rest key_vals)
 	; (cwb-set item [key val] ...) -> item
 	;set what an item has. What it was flattened to is let go of, unless

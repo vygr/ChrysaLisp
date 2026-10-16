@@ -342,8 +342,9 @@
 (. pp_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. pp_board :get_doc))))
 (. pp_board :paint :t :stroke 0xffff0000)
 (. pp_board :paint (list (elem-get (first (cwb-items (. pp_board :get_doc))) +cwb_id)) :fill 0x600000ff)
-(assert-eq "a pen outlines the rect, a brush fills it, and fills the filled rect"
-	(str (list 0xffff0000 0x600000ff 0 0xffff0000))
+(. pp_board :paint (list (elem-get (second (cwb-items (. pp_board :get_doc))) +cwb_id)) :fill 0x6000ff00)
+(assert-eq "a pen outlines the rect and the filled rect, a brush fills the rect as it is, and the filled rect solid as it was"
+	(str (list 0xffff0000 0x600000ff 0xffff0000 0xff00ff00))
 	(str (map (# (cwb-get %0 %1)) (cat (list (first (cwb-items (. pp_board :get_doc)))) (list (first (cwb-items (. pp_board :get_doc))))
 			(list (second (cwb-items (. pp_board :get_doc)))) (list (second (cwb-items (. pp_board :get_doc)))))
 		'(:stroke :fill :stroke :fill))))
