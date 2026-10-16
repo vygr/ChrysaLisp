@@ -42,6 +42,17 @@ not what a hand changes:
 (. instrument :begin stage event) -> state
 ```
 
+### :body_taken
+
+```code
+(. instrument :body_taken id kind) -> :t | :nil
+
+the body, not an edge, is the first device's that went down on it.
+Only touch has more than one contact, and only two of them work it
+at once, (:two_hands): a third waits, and is one of the two when
+one lifts. Is it had already by a device this contact is not of
+```
+
 ### :built
 
 ```code
@@ -213,9 +224,10 @@ is the one thing that is spread out
 ### :snap_zero
 
 ```code
-(. instrument :snap_zero) -> instrument
+(. instrument :snap_zero [event]) -> instrument
 
-with the snap of the board on, it is moved the little it takes to
+with the snap on, of the pointer that made it, the event of its
+press, or the board's, it is moved the little it takes to
 have the 0 of its marks, :zero, on a line of the paper each way: a
 ruler's 0, the middle of a protractor's straight side, the square
 corner of a set square. Its marks are of the paper, (:mm), so with

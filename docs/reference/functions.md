@@ -571,8 +571,11 @@ n limbs of 0
 ### board-bite
 
 ```code
-(board-bite doc swept [lines but tol]) -> :nil | (made gone swaps)
+(board-bite doc swept [lines but tol user]) -> :nil | (made gone swaps)
 
+user, whose eraser it is: a shape another made is left as it is, but
+by the teacher's, +board_teacher, or with no user said. Chris: "students
+could not erase things the teacher or the other student had written"
 swaps is what stands in the place of each thing that was bitten,
 ((id (shape ...)) ...), for whoever had hold of it
 tol, how near a line a point of a thing may be and be left out, see
@@ -1522,8 +1525,8 @@ not, each is all there or not there
 (cwb-set item [key val] ...) -> item
 
 set what an item has. What it was flattened to is let go of, unless
-all that was set was its matrix, its name or its props, which do not
-change what it is flattened to
+all that was set was its matrix, its name, its props or its user,
+which do not change what it is flattened to
 ```
 
 ### cwb-shape
@@ -3064,11 +3067,31 @@ start children till the herd is the size the worker nodes call for
 ### gui-grab-rpc
 
 ```code
-(gui-grab-rpc [title]) -> :nil | why | (w h pixels)
+(gui-grab-rpc [title area]) -> :nil | why | (w h pixels)
 
 what is on the screen now, of the window whose title has title in it,
-or of all of it, read by the GUI from its back buffer: its width, its
-height and its pixels, 32 bits each, blue green red alpha
+or of all of it, or of an area of it, (x y w h), read by the GUI from
+its back buffer: its width, its height and its pixels, 32 bits each,
+blue green red alpha
+```
+
+### gui-input-rpc
+
+```code
+(gui-input-rpc events) -> :nil | :t
+
+events, a str of +gui_event structs one after another, given to the GUI
+as if from the host's mouse and keyboard, in order, before it answers
+```
+
+### gui-locate-rpc
+
+```code
+(gui-locate-rpc [title key value]) -> :nil | why | (x y w h sx sy sw sh)
+
+where on the screen the window whose title has title in it is, or the
+first in it whose key is value if a key is given, as (ui-find) finds it,
+and the part of it that can be seen, why if none of it can
 ```
 
 ### gui-rpc
@@ -4508,6 +4531,19 @@ the path of a wedge of a ring, between two radii and two angles
 from now a hand that taps where there is nothing, with nothing
 selected, opens a palette there, its own. With the colours and the
 widths given, or its own twelve and four
+```
+
+### palette-float
+
+```code
+(palette-float board x y) -> palette
+
+a floating menu about a point, as many as are wanted, from a button of
+a toolbar. Chris: "a button on the toolbar (slide in menu) that created
+a floating menu (just another object that also lives in this multi
+inputs swarm) and you could drag them around, have as many as you
+wanted". It stays till its middle is tapped, and a tap on it binds the
+device that tapped, see (. palette :bind_tapper)
 ```
 
 ### palette-open
@@ -6348,6 +6384,126 @@ how they are when they have come in a message.
 the native function for a vertex shader, it places vertices. A vertex
 is attr_slots numbers, its attrs one after another, and what comes
 out for it is out_slots numbers, where it is, 4, then its varyings.
+```
+
+### share-acked
+
+```code
+(share-acked board key) -> board
+
+that one has what it was last sent, the next can go
+```
+
+### share-add
+
+```code
+(share-add board key) -> board
+
+a board to send to, that has nothing yet: the first it is sent is all
+```
+
+### share-apply
+
+```code
+(share-apply board text from) -> :t | :nil
+
+make the document what a delta from that one says: the items it puts,
+in the place of those of their ids or on top, those it says are gone
+taken out, and those it knows in its order, in the places they are
+in. What this board has that it does not know stays where it is. What
+that one was drawing is drawn here. What changed is noted for the
+rest, but for that one: it has it. Was it a delta
+```
+
+### share-delta
+
+```code
+(share-delta board key) -> :nil | text
+
+what that one is to be sent now, if it is not waiting on the last, and
+there is anything to send. It is then waiting, (share-acked)
+```
+
+### share-drop
+
+```code
+(share-drop board key) -> board
+
+one no longer sent to, and what it was drawing goes
+```
+
+### share-held-for
+
+```code
+(share-held-for board key) -> ids
+
+what is held by any but that one: what it is to be told is taken
+```
+
+### share-id-base
+
+```code
+(share-id-base board base) -> board
+
+a board that has joined gives new things ids from base on, so no two
+boards give the same id to two things
+```
+
+### share-ids
+
+```code
+(share-ids doc) -> ids
+
+the ids of the document's items, the back one first
+```
+
+### share-note
+
+```code
+(share-note board) -> board
+
+what has changed since this was last asked is told to each it sends to
+```
+
+### share-self-holds
+
+```code
+(share-self-holds board) -> board
+
+what this board's hands hold now is its own, if no one else has it
+```
+
+### share-start
+
+```code
+(share-start board [host]) -> board
+
+from now what changes in the document is noted for those it is shared
+with. The host's, the teacher's, says who has hold of what
+```
+
+### share-stop
+
+```code
+(share-stop board) -> board
+```
+
+### share-temps
+
+```code
+(share-temps board key) -> ((name shape) ...)
+
+what is being drawn here, and on the boards that send here, but for
+the one it is to go to: it has its own
+```
+
+### share-tops
+
+```code
+(share-tops doc ids) -> ids
+
+the items of the document, not those in a group, that are or have
+in them one of these
 ```
 
 ### short-to-hex-str
@@ -8537,8 +8693,18 @@ the first of view and those in it, depth first, whose key is value, a
 the tree of a view and those in it, each its :type, its :bounds in
 its parent, and its properties: atoms, flat sequences of atoms, fonts
 as (name pixels). depth the levels of children saved, :nil for all, a
-view at the last has :children_count in place of its children. keys
-the properties saved, :nil for all of them
+view at the last has :children_count in place of its children, as has
+a subtree in it, the child of a Scroll, a page of the Docs app say,
+unless it is the view saved. keys the properties saved, :nil for all.
+A symbol not a plain :keyword is saved as its text, as the words of an Md
+are symbols, with spaces and brackets in them, that a tree writes bare
+and could not read back
+```
+
+### ui-save-atom
+
+```code
+(ui-save-atom atom) -> atom
 ```
 
 ### ui-symbols

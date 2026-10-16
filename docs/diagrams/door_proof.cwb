@@ -1,913 +1,907 @@
 ((:Emap 1)
-	:version 4
+	:version 5
 	:width 686
 	:height 347
 	:background 0
 	:style :plain
 	:grid 32
 	:next_id 62
-	:layers
-	((:list 1)
-		((:list 3)
-			"[Layer 1]"
-			0
-			((:list 21)
-				((:list 7)
-					:group
-					:id
-					1
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-					)
-					:items
-					((:list 3)
-						((:list 13)
-							:shape
-							:id
-							2
-							:d
-							"[M 190 48 L 470 48]"
-							:stroke
-							4282140240
-							:width
-							1.39999
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-						((:list 9)
-							:shape
-							:id
-							3
-							:d
-							"[M 470 48 L 461 52 461 44 Z]"
-							:fill
-							4282140240
-							:stroke
-							0
-						)
-						((:list 9)
-							:shape
-							:id
-							4
-							:d
-							"[M 190 48 L 199 44 199 52 Z]"
-							:fill
-							4282140240
-							:stroke
-							0
-						)
-					)
-				)
-				((:list 15)
+	:items
+	((:list 21)
+		((:list 7)
+			:group
+			:id
+			1
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
+			)
+			:items
+			((:list 3)
+				((:list 13)
 					:shape
 					:id
-					5
-					:m
-					((:path 6)
-						1.00000 0.00000 260.27172 0.00000 1.00000 51.00000
-					)
-					:kind
-					:text
-					:fill
-					4284245616
+					2
+					:d
+					"[M 190 48 L 470 48]"
 					:stroke
-					0
-					:text
-					"[CLDOOR1 and the nonce, each way]"
-					:font_size
-					11
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
 				)
-				((:list 7)
-					:group
-					:id
-					6
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-					)
-					:items
-					((:list 2)
-						((:list 13)
-							:shape
-							:id
-							7
-							:d
-							"[M 190 114 L 470 114]"
-							:stroke
-							4282140240
-							:width
-							1.39999
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-						((:list 9)
-							:shape
-							:id
-							8
-							:d
-							"[M 470 114 L 461 118 461 110 Z]"
-							:fill
-							4282140240
-							:stroke
-							0
-						)
-					)
-				)
-				((:list 15)
+				((:list 9)
 					:shape
 					:id
-					9
-					:m
-					((:path 6)
-						1.00000 0.00000 322.67578 0.00000 1.00000 117.00000
-					)
-					:kind
-					:text
+					3
+					:d
+					"[M 470 48 L 461 52 461 44 Z]"
 					:fill
-					4284245616
+					4282140240
 					:stroke
 					0
-					:text
-					"[32 bytes]"
-					:font_size
-					11
 				)
-				((:list 7)
-					:group
-					:id
-					10
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-					)
-					:items
-					((:list 2)
-						((:list 13)
-							:shape
-							:id
-							11
-							:d
-							"[M 470 180 L 190 180]"
-							:stroke
-							4282140240
-							:width
-							1.39999
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-						((:list 9)
-							:shape
-							:id
-							12
-							:d
-							"[M 190 180 L 199 176 199 184 Z]"
-							:fill
-							4282140240
-							:stroke
-							0
-						)
-					)
-				)
-				((:list 15)
+				((:list 9)
 					:shape
 					:id
-					13
-					:m
-					((:path 6)
-						1.00000 0.00000 322.67578 0.00000 1.00000 183.00000
-					)
-					:kind
-					:text
+					4
+					:d
+					"[M 190 48 L 199 44 199 52 Z]"
 					:fill
-					4284245616
+					4282140240
 					:stroke
 					0
-					:text
-					"[32 bytes]"
-					:font_size
-					11
-				)
-				((:list 7)
-					:group
-					:id
-					14
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-					)
-					:items
-					((:list 1)
-						((:list 13)
-							:shape
-							:id
-							15
-							:d
-							"[M 190 246 L 470 246]"
-							:stroke
-							4282140240
-							:width
-							1.39999
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-					)
-				)
-				((:list 15)
-					:shape
-					:id
-					16
-					:m
-					((:path 6)
-						1.00000 0.00000 294.28350 0.00000 1.00000 249.00000
-					)
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[5 seconds for all of it]"
-					:font_size
-					11
-				)
-				((:list 17)
-					:shape
-					:id
-					17
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-					)
-					:kind
-					:text
-					:fill
-					4280296488
-					:stroke
-					0
-					:text
-					"[the end that dialled]"
-					:font
-					"[fonts/OpenSans-Bold.ctf]"
-					:font_size
-					12
-				)
-				((:list 17)
-					:shape
-					:id
-					18
-					:m
-					((:path 6)
-						1.00000 0.00000 483.00000 0.00000 1.00000 22.00000
-					)
-					:kind
-					:text
-					:fill
-					4280296488
-					:stroke
-					0
-					:text
-					"[the end that listened]"
-					:font
-					"[fonts/OpenSans-Bold.ctf]"
-					:font_size
-					12
-				)
-				((:list 7)
-					:group
-					:id
-					19
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 34.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							20
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									21
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									22
-									:m
-									((:path 6)
-										1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[makes up 16 bytes]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									23
-									:m
-									((:path 6)
-										1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[its nonce, new each time]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					24
-					:m
-					((:path 6)
-						1.00000 0.00000 483.00000 0.00000 1.00000 34.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							25
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									26
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									27
-									:m
-									((:path 6)
-										1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[makes up 16 bytes]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									28
-									:m
-									((:path 6)
-										1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[its nonce, new each time]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					29
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 100.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							30
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									31
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									32
-									:m
-									((:path 6)
-										1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[HMAC-SHA256 under the key of]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									33
-									:m
-									((:path 6)
-										1.00000 0.00000 51.17388 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[D and both nonces]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					34
-					:m
-					((:path 6)
-						1.00000 0.00000 483.00000 0.00000 1.00000 100.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							35
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									36
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									37
-									:m
-									((:path 6)
-										1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[checks it]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									38
-									:m
-									((:path 6)
-										1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[with its own copy of the key]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					39
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 166.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							40
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									41
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									42
-									:m
-									((:path 6)
-										1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[checks it]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									43
-									:m
-									((:path 6)
-										1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[with its own copy of the key]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					44
-					:m
-					((:path 6)
-						1.00000 0.00000 483.00000 0.00000 1.00000 166.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							45
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									46
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4292339447
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									47
-									:m
-									((:path 6)
-										1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[HMAC-SHA256 under the key of]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									48
-									:m
-									((:path 6)
-										1.00000 0.00000 52.11920 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[L and both nonces]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					49
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 232.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							50
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									51
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4294961320
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									52
-									:m
-									((:path 6)
-										1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[both right: a link]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									53
-									:m
-									((:path 6)
-										1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[wrong, or too slow: closed]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					54
-					:m
-					((:path 6)
-						1.00000 0.00000 483.00000 0.00000 1.00000 232.00000
-					)
-					:items
-					((:list 1)
-						((:list 5)
-							:group
-							:id
-							55
-							:items
-							((:list 3)
-								((:list 11)
-									:shape
-									:id
-									56
-									:d
-									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-									:fill
-									4294961320
-									:stroke
-									4282140240
-									:width
-									1.19999
-								)
-								((:list 15)
-									:shape
-									:id
-									57
-									:m
-									((:path 6)
-										1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[both right: a link]"
-									:font_size
-									11
-								)
-								((:list 15)
-									:shape
-									:id
-									58
-									:m
-									((:path 6)
-										1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
-									)
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[wrong, or too slow: closed]"
-									:font_size
-									11
-								)
-							)
-						)
-					)
-				)
-				((:list 15)
-					:shape
-					:id
-					59
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 300.00000
-					)
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[The key is never sent. The nonces are new every time, so an answer heard once is no use again.]"
-					:font_size
-					11
-				)
-				((:list 15)
-					:shape
-					:id
-					60
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 316.00000
-					)
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[The two ends say different things, D and L, so one's answer is no use sent back to it.]"
-					:font_size
-					11
-				)
-				((:list 15)
-					:shape
-					:id
-					61
-					:m
-					((:path 6)
-						1.00000 0.00000 13.00000 0.00000 1.00000 332.00000
-					)
-					:kind
-					:text
-					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[What then goes over the link is not hidden and not signed: the door says who may link, no more.]"
-					:font_size
-					11
 				)
 			)
+		)
+		((:list 15)
+			:shape
+			:id
+			5
+			:m
+			((:path 6)
+				1.00000 0.00000 260.27172 0.00000 1.00000 51.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[CLDOOR1 and the nonce, each way]"
+			:font_size
+			11
+		)
+		((:list 7)
+			:group
+			:id
+			6
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
+			)
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					7
+					:d
+					"[M 190 114 L 470 114]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					8
+					:d
+					"[M 470 114 L 461 118 461 110 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			9
+			:m
+			((:path 6)
+				1.00000 0.00000 322.67578 0.00000 1.00000 117.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[32 bytes]"
+			:font_size
+			11
+		)
+		((:list 7)
+			:group
+			:id
+			10
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
+			)
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					11
+					:d
+					"[M 470 180 L 190 180]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					12
+					:d
+					"[M 190 180 L 199 176 199 184 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			13
+			:m
+			((:path 6)
+				1.00000 0.00000 322.67578 0.00000 1.00000 183.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[32 bytes]"
+			:font_size
+			11
+		)
+		((:list 7)
+			:group
+			:id
+			14
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
+			)
+			:items
+			((:list 1)
+				((:list 13)
+					:shape
+					:id
+					15
+					:d
+					"[M 190 246 L 470 246]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			16
+			:m
+			((:path 6)
+				1.00000 0.00000 294.28350 0.00000 1.00000 249.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[5 seconds for all of it]"
+			:font_size
+			11
+		)
+		((:list 17)
+			:shape
+			:id
+			17
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
+			)
+			:kind
+			:text
+			:fill
+			4280296488
+			:stroke
+			0
+			:text
+			"[the end that dialled]"
+			:font
+			"[fonts/OpenSans-Bold.ctf]"
+			:font_size
+			12
+		)
+		((:list 17)
+			:shape
+			:id
+			18
+			:m
+			((:path 6)
+				1.00000 0.00000 483.00000 0.00000 1.00000 22.00000
+			)
+			:kind
+			:text
+			:fill
+			4280296488
+			:stroke
+			0
+			:text
+			"[the end that listened]"
+			:font
+			"[fonts/OpenSans-Bold.ctf]"
+			:font_size
+			12
+		)
+		((:list 7)
+			:group
+			:id
+			19
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 34.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					20
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							21
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							22
+							:m
+							((:path 6)
+								1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[makes up 16 bytes]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							23
+							:m
+							((:path 6)
+								1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[its nonce, new each time]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			24
+			:m
+			((:path 6)
+				1.00000 0.00000 483.00000 0.00000 1.00000 34.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					25
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							26
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							27
+							:m
+							((:path 6)
+								1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[makes up 16 bytes]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							28
+							:m
+							((:path 6)
+								1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[its nonce, new each time]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			29
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 100.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					30
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							31
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							32
+							:m
+							((:path 6)
+								1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[HMAC-SHA256 under the key of]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							33
+							:m
+							((:path 6)
+								1.00000 0.00000 51.17388 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[D and both nonces]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			34
+			:m
+			((:path 6)
+				1.00000 0.00000 483.00000 0.00000 1.00000 100.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					35
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							36
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							37
+							:m
+							((:path 6)
+								1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[checks it]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							38
+							:m
+							((:path 6)
+								1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[with its own copy of the key]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			39
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 166.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					40
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							41
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							42
+							:m
+							((:path 6)
+								1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[checks it]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							43
+							:m
+							((:path 6)
+								1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[with its own copy of the key]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			44
+			:m
+			((:path 6)
+				1.00000 0.00000 483.00000 0.00000 1.00000 166.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					45
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							46
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							47
+							:m
+							((:path 6)
+								1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[HMAC-SHA256 under the key of]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							48
+							:m
+							((:path 6)
+								1.00000 0.00000 52.11920 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[L and both nonces]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			49
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 232.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					50
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							51
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294961320
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							52
+							:m
+							((:path 6)
+								1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[both right: a link]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							53
+							:m
+							((:path 6)
+								1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[wrong, or too slow: closed]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			54
+			:m
+			((:path 6)
+				1.00000 0.00000 483.00000 0.00000 1.00000 232.00000
+			)
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					55
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							56
+							:d
+							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294961320
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							57
+							:m
+							((:path 6)
+								1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[both right: a link]"
+							:font_size
+							11
+						)
+						((:list 15)
+							:shape
+							:id
+							58
+							:m
+							((:path 6)
+								1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
+							)
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[wrong, or too slow: closed]"
+							:font_size
+							11
+						)
+					)
+				)
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			59
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 300.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[The key is never sent. The nonces are new every time, so an answer heard once is no use again.]"
+			:font_size
+			11
+		)
+		((:list 15)
+			:shape
+			:id
+			60
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 316.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[The two ends say different things, D and L, so one's answer is no use sent back to it.]"
+			:font_size
+			11
+		)
+		((:list 15)
+			:shape
+			:id
+			61
+			:m
+			((:path 6)
+				1.00000 0.00000 13.00000 0.00000 1.00000 332.00000
+			)
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[What then goes over the link is not hidden and not signed: the door says who may link, no more.]"
+			:font_size
+			11
 		)
 	)
 	:props :nil

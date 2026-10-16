@@ -134,6 +134,15 @@ them, and two hands on them go on turning them, with no jump. If
 nothing is left of what it held it holds nothing, and does nothing
 ```
 
+### :tap?
+
+```code
+(. surface :tap? state x y) -> :t | :nil
+
+did a contact lift as a tap: soon, and near where it landed. A
+board that is told no time, (:tick), goes by the distance alone
+```
+
 ### :things
 
 ```code

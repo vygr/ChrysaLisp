@@ -161,7 +161,8 @@ drawn, try again. :error is a pair the driver could not build.
 
 +swap_write, the pixmap to the texture, to which a +pixmap_mode
 and any +swap_flag can be added. Or +swap_read, the texture back
-to the pixmap.
+to the pixmap. On a node with no GUI there is no texture, the swap
+is :nil and there is nothing on the screen to be dirty
 ```
 
 ### :tile

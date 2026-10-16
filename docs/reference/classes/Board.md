@@ -25,10 +25,34 @@ line up what is selected, each with the box round all of it. how is
 :left :right :top :bottom, or :hcenter or :vcenter for the middles
 ```
 
+### :angle_step
+
+```code
+(. board :angle_step [id]) -> step
+```
+
+### :appoint
+
+```code
+(. board :appoint event) -> board
+
+the device of this pointer is the teacher's from now on, a pack of
+pens has one that is the teacher's. Who may do it is the caller's
+to say, only a device that is the teacher's already
+```
+
+### :back?
+
+```code
+(. board :back? id) -> :t | :nil
+
+is it in flight behind the document, or was it as it landed
+```
+
 ### :bite
 
 ```code
-(. board :bite points [r shape]) -> :t | :nil
+(. board :bite points [r shape user]) -> :t | :nil
 
 what an eraser covers as it goes along a line, x y x y ..., taken
 out of every thing it touches, each of which is then flat: a
@@ -75,9 +99,10 @@ take out everything
 ### :commit
 
 ```code
-(. board :commit item) -> item
+(. board :commit item [user]) -> item
 
-put an item on the layer that is drawn on, as a step that can be undone
+put an item on the layer that is drawn on, as a step that can be
+undone, made by that user, the teacher's if not said
 ```
 
 ### :crop
@@ -138,10 +163,11 @@ some of them drawn another way, the Whiteboard its instruments
 ### :draw_flight
 
 ```code
-(. board :draw_flight canvas [m]) -> board
+(. board :draw_flight canvas [m side]) -> board
 
 what is in flight and nothing else: the items being moved about,
-and what is being drawn and not yet kept
+and what is being drawn and not yet kept. Of one side, :front or
+:back, if said: what is being drawn is in front
 ```
 
 ### :draw_overlay
@@ -196,6 +222,14 @@ these items are selected, and so in flight, in front of the
 document or with back behind it
 ```
 
+### :fly
+
+```code
+(. board :fly ids back) -> board
+
+these, in flight, are behind the document, or in front of it
+```
+
 ### :forget
 
 ```code
@@ -239,6 +273,12 @@ finger is never near, it is down or it is not there
 (. board :in_flight?) -> :t | :nil
 
 is anything in flight: being moved about, or being drawn
+```
+
+### :keep_shape?
+
+```code
+(. board :keep_shape? [id]) -> :t | :nil
 ```
 
 ### :layer_index
@@ -294,6 +334,15 @@ what a pointer that is down on the board was doing is given up:
 its box is not dragged out, and when it comes up it was no tap.
 What shows the board says so when it takes two fingers that are
 on nothing to move its view by
+```
+
+### :pointer_settings
+
+```code
+(. board :pointer_settings event) -> (snap angle keep_shape)
+
+the snap step, the angle step and keep shape of a pointer, as it
+is bound. Snap on is to the grid, :snap_gap, or the document's
 ```
 
 ### :pointers
@@ -381,6 +430,16 @@ step of half its reach
 (. board :select_all) -> board
 ```
 
+### :selected_by
+
+```code
+(. board :selected_by user) -> ids
+
+what that user put in select mode by a tap. Chris: an action on a
+selection is on "the user's own selections". A thing selected by
+no tap, a hand or a box, says no one, and is anyone's
+```
+
 ### :selected_items
 
 ```code
@@ -396,6 +455,12 @@ order they are in, the back one first
 (. board :set_doc doc) -> board
 
 another document, nothing of the last is kept
+```
+
+### :snap_step
+
+```code
+(. board :snap_step [id]) -> step
 ```
 
 ### :snap_x
@@ -425,6 +490,14 @@ the layers as they are, and the size of the paper, to go back to
 
 set the colour, fill, width and so on of every shape that is
 selected, those in groups too
+```
+
+### :style_ids
+
+```code
+(. board :style_ids ids [key val] ...) -> board
+
+as (:style), of those selected things only
 ```
 
 ### :take_appended
@@ -461,6 +534,16 @@ be none
 the time is now that, microseconds, for what is on the stage that
 moves by itself. Is any of it still moving, it is then to be
 drawn again
+```
+
+### :toggle_select
+
+```code
+(. board :toggle_select id user) -> board
+
+a thing in or out of select mode, by a tap. It is that user's
+selection, an action on a selection is on a user's own, see
+(:selected_by)
 ```
 
 ### :touch
@@ -516,6 +599,24 @@ move what is selected by a matrix
 
 each group that is selected becomes its items, where it was, each
 where it was on the board
+```
+
+### :user_of
+
+```code
+(. board :user_of event) -> user
+
+who the device of a pointer is. The mouse is the teacher's, the
+presenter's, Chris: "mouse was assumed to be the teacher/presenter".
+Touch is anybody, "touch is anybody, we couldn't tell". The eraser
+is the teacher's, "the eraser device input was always assumed to be
+under the control of the teacher". A pen is a student, each its
+own, numbered as it is first seen, unless the teacher has made it
+the teacher's, (:appoint), and a pen bound to rub out is that pen's
+user. SDL3 gives the other end of a pen as an :eraser, so here that
+is the teacher's whoever's pen it is
+A board that joined another's is a student's: what is the teacher
+here is that board's own number, :user_base, see lib/cwb/share.inc
 ```
 
 ### :written

@@ -487,16 +487,16 @@ stopping, and the error was lost: once in a hundred or two
 (reverse seq) -> seq
 ```
 
-### rmap
-
-```code
-(rmap lambda seq ...) -> list
-```
-
 ### rfilter
 
 ```code
 (rfilter lambda seq) -> list
+```
+
+### rmap
+
+```code
+(rmap lambda seq ...) -> list
 ```
 
 ### rotate

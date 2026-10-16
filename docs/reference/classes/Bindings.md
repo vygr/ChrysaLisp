@@ -26,10 +26,34 @@ every one of them is held. what is a list of keys and values,
 (:tool :pen :color 0xff000000 :width 4.0)
 ```
 
+### :devices
+
+```code
+(. bindings :devices) -> ((color what) ...)
+
+each device, with the buttons it pressed with, that has been bound
+to something of its own, the colour of its dot and what it is
+bound to, the first bound the first colour. The menus and the
+toolbars show the same dots. Chris: "on the float menus each
+device showed a little dot (coloured per device, of that board)
+to show what that device had selected as its modes"
+```
+
 ### :find
 
 ```code
 (. bindings :find event) -> :nil | what
+```
+
+### :set
+
+```code
+(. bindings :set kind id buttons key value) -> bindings
+
+one thing of what that device, with those buttons, is to be, as a
+binder sets it, a toolbar or a menu pressed by it. The rule that
+names just that is made, if there is none, from all such a pointer
+is now, so the rest of what it is stays as it was
 ```
 
 ### :unbind

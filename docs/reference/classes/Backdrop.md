@@ -9,8 +9,8 @@ docs/reference/classes/Backdrop.cwb
 ```code
 (Backdrop) -> backdrop
 
-a view of one colour, :color, with lines on it by a :style, :grid
-:lines :axis or none, :spacing apart, in :ink_color.
+a view of one colour, :paper, with lines on it by a :style, :grid
+:lines :axis or none, :spacing apart, in :ink.
 
 That much is all most want. More, each only if it is given:
 
@@ -22,7 +22,7 @@ That much is all most want. More, each only if it is given:
 			drawn over the last: a coarse one and finer between
 			it, each as bright as its colour says. A spacing can
 			have parts of a pixel, and a ruling too fine to see
-			is left out. In place of :spacing and :ink_color
+			is left out. In place of :spacing and :ink
 	:turned	:t and the lines of :lines go up and down
 ```
 

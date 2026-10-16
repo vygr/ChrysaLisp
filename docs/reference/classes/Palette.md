@@ -15,6 +15,17 @@ default the mouse. It is not on the stage till it is put there,
 was last told
 ```
 
+### :bind_tapper
+
+```code
+(. palette :bind_tapper event key val) -> user
+
+a floating menu binds whatever tapped it, the device with the
+buttons it had held, all of touch as one. Chris: "taps on them
+effect their pen as you KNOW what device has tapped on them". What
+that user has selected takes a colour or a width
+```
+
 ### :build
 
 ```code
@@ -29,6 +40,14 @@ the wedges, each with what is drawn for it, made once
 (. palette :close) -> palette
 
 it shuts, and is off the stage when it has, at a (:tick)
+```
+
+### :devices
+
+```code
+(. palette :devices) -> ((color what) ...)
+
+the dots of the devices, (. bindings :devices)
 ```
 
 ### :dismiss
@@ -83,9 +102,10 @@ the wedge a pointer is on is drawn so
 ### :pick
 
 ```code
-(. palette :pick what [val]) -> palette
+(. palette :pick what [val event]) -> palette
 
-do what a tap on a wedge does, see (:where)
+do what a tap on a wedge does, see (:where). A floating menu,
+given the event of the tap, binds what tapped it, and stays
 ```
 
 ### :pointers

@@ -127,6 +127,23 @@ Usage: check [options] [path] ...
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
+    copy    (each f (slice a s e) (slice b s e)) or the like,
+            every sequence given to (each), (map), (some),
+            (every), (notany), (notevery), (filter) or a
+            (reduce) with its init, a (slice), a (rest) or a
+            (most) of the same part: each is copied to be
+            walked once. The ! form walks that part of the
+            one it is given, (each! f (list a b) s e), and (!)
+            in it is then the index in the whole. A (reverse)
+            is the part from the end, -1 0, and (reach),
+            (rmap), (rsome), (rreduce) and (rfilter) walk from
+            the end. A (rest) or a
+            (most) of an empty one is (), where the ! form
+            from 1, or to -2, is an error: if it can be empty
+            it is not the same.
+    reverse (reverse (slice x s e)), two copies, is (slice x e s),
+            one. Of a (rest) or a (most), (slice x -1 1) or
+            (slice x -2 0), which of an empty one is an error.
     cut     (slice (str x) 0 n), a string of something cut to
             a number written there: one that is shorter than
             that is an error, (min n (length s)).
@@ -511,13 +528,18 @@ Usage: grab [options] file
         -h --help: this help info.
         -t --title str: the window whose title has this in it,
             default all of the screen.
+        -f --find key=value: only the first view in it whose key
+            is value, type=Radiobar, tip_text=snap, depth first,
+            the part of it that can be seen.
         -w --wait num: seconds to wait for the window, as an app
             just launched has none yet, default 0.
 
-    What is on the GUI's screen now, of a window or of all of
-    it, written to the file, as its ending says, .png or .cpm.
-    It is read by the GUI from its back buffer, the last frame
-    it drew, by a GUI of this network.
+    What is on the GUI's screen now, of a window, of a view in
+    it, or of all of it, written to the file, as its ending
+    says, .png or .cpm. It is read by the GUI from its back
+    buffer, the last frame it drew, by a GUI of this network.
+    The less there is of it the less it is to look at: a bar,
+    not the window, if the bar is the question.
 ```
 ## grep
 ```code
@@ -669,6 +691,48 @@ Usage: includes [options] [path] ...
 
     If no paths given on command line
     then will take paths from stdin.
+```
+## input
+```code
+Usage: input [options] action ...
+
+    options:
+        -h --help: this help info.
+        -t --title str: the window whose title has this in it,
+            default all of the screen.
+        -f --find key=value: the first view in it whose key is
+            value, type=Button, text=Save, depth first.
+        -w --wait num: seconds to wait for the window, as an app
+            just launched has none yet, default 0.
+
+    actions, done in order. A place, x y, is from the top left of
+    the window, or of the view found, and is its middle if left
+    out. A view out of sight, scrolled away, is not clicked; turn
+    the wheel over what it is in first, as a user would:
+        move x y: the mouse to there.
+        click [x y], rclick [x y], dclick [x y]: a click of the
+            left button, of the right, two of the left.
+        drag x y x1 y1: the left button down at the one place,
+            moved to the other and let go there.
+        wheel way n: n steps of the wheel, where the mouse is,
+            up, down, left or right.
+        key name: a key down and up, by its name in
+            lib/consts/scodes.inc, return, a, pagedown, with any
+            of shift+ ctrl+ alt+ cmd+ before it.
+        type text: the keys of the text, as the keyboard map of
+            the user has them.
+        finger n down x y, finger n to x y, finger n up: contact n
+            of a touch panel lands, moves there, lifts. Many may be
+            down at once, each its own n.
+        pen down x y [barrel], pen to x y, pen up: the pen, its tip
+            touching, with the button of its barrel held if said.
+        eraser down x y, eraser to x y, eraser up: the other end of
+            the pen.
+        A move of a contact goes there in steps from where it was,
+        if it was down by this command, so a line is drawn.
+
+    Given to the GUI of this network, as if from its mouse and
+    keyboard, so to the windows of any app, as they would be.
 ```
 ## launch
 ```code
@@ -1587,11 +1651,15 @@ Usage: widgets [options]
             the type and bounds of each, default all.
         -w --wait num: seconds to wait for the window, as an app
             just launched has none yet, default 0.
+        -a --all: every property, the working state of each view
+            too, which is left out unless asked for: caches, a
+            drag, a pressed state, mailboxes.
         -r --raw: the tree as (ui-save) writes it, not a line a
             view.
 
     The tree of widgets of a window on the GUI's screen, or of
     the screen, as text, from the GUI of this network: a view a
     line, as deep in as it is, its type, its bounds in its
-    parent, and its properties, key=value.
+    parent, and its properties, key=value. A value with bytes
+    that are not text in it, a mailbox, is said as <n bytes>.
 ```
