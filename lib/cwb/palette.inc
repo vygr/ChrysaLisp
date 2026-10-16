@@ -272,7 +272,9 @@
 		(case what
 			(:hub (. this :close))
 			(:tool (if floating (. this :bind_tapper event :mode val)
-				(. this :set_value :mode val) (. this :close)))
+				(. this :set_value :mode val) (. this :close))
+				;with nothing left in select mode, nothing is selected
+				(unless (. board :selecting?) (. board :select (list))))
 			(:color (if floating (. this :bind_tapper event :color val)
 				(. this :set_value :color val)
 				(. board :paint :t :stroke val)))

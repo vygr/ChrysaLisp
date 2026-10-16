@@ -386,6 +386,13 @@
 	(and (nempty? (get :selected ps_board)) (. (get :handles ps_board) :box)))
 (assert-true "and it was bitten: a mode bound to the right button is a pen of it, not the hand it was"
 	(eql (. (. ps_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :tool) :pen))
+;the left out of select mode, from a floating menu, and nothing is in it: what
+;was selected is let go of, Chris: "I'm not in select mode on left/right
+;button and still see selected shapes"
+(defq ps_menu (palette-float ps_board 200 200))
+(. ps_board :tick 3000000)
+(pl-pick ps_board ps_menu 0 :mouse +pev_left :tool :pen)
+(assert-eq "nothing in select mode, nothing selected" 0 (length (get :selected ps_board)))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
