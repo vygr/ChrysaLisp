@@ -20,6 +20,10 @@ docs/reference/classes/Textfield.cwb
 
 ```code
 (. textfield :draw) -> textfield
+
+the ink of its words, the hint's or the text's, is found as it is
+drawn, in the window it is in. Laid out it may be in nothing yet,
+a window of a page of Docs that is being made
 ```
 
 ### :get_text

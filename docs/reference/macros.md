@@ -793,6 +793,9 @@ print the time for the body
 
 ```code
 (ui-window name [props] [body]) -> window
+
+a window chooses its plain properties from the variants on the
+screen, which draws itself by its own
 ```
 
 ### unless

@@ -35,6 +35,7 @@
 	+event_set_square action-set-square
 	+event_set_square45 action-set-square45
 	+event_menu action-menu
+	+event_swatches action-swatches
 	+event_group action-group
 	+event_ungroup action-ungroup
 	+event_delete action-delete
@@ -72,5 +73,6 @@
 
 ;module
 (export-symbols
-	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style action-mode full-screen full-window))
+	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style action-mode full-screen full-window
+		ink-key swatches-open swatches-close custom-set))
 (env-pop)

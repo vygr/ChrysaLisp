@@ -495,7 +495,7 @@
 	; (cwb-out doc) -> emap
 	;a document as the tree a .cwb file is, to be saved by itself or as a
 	;part of something else that is
-	(scatter (Emap)
+	(defq out (scatter (Emap)
 		:version +cwb_version
 		:width (. doc :find :width) :height (. doc :find :height)
 		:background (. doc :find :background)
@@ -503,9 +503,13 @@
 		:next_id (. doc :find :next_id)
 		:items (map (const cwb-item-out) (apply (const cat) (cat (list (list)) (map (const third) (cwb-layers doc)))))
 		:props (. doc :find :props)
-		;how it was seen, and what lay on it that is not of it, the
-		;instruments and the menus, what shows it says what they are
-		:view (. doc :find :view) :tools (. doc :find :tools) :menus (. doc :find :menus)))
+		;how it was seen
+		:view (. doc :find :view)))
+	;what lay on it that is not of it, the instruments and the menus, and
+	;the custom inks it was drawn with, what shows it says what they are.
+	;Only if it has them: a document made by a script, a diagram, has none
+	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :inks))
+	out)
 
 (defun cwb-save (doc stream)
 	; (cwb-save doc stream) -> stream
@@ -550,7 +554,7 @@
 			((< version 4) (cwb-old-in data))
 			(:t (defq doc (cwb-doc))
 				(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
-					'(:width :height :background :style :grid :next_id :props :view :tools :menus))
+					'(:width :height :background :style :grid :next_id :props :view :tools :menus :inks))
 				;the one list: of 5, or of 4 the items of its layers, the
 				;back one first
 				(defq items (if (= version 4)

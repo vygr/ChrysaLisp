@@ -146,6 +146,24 @@ Put a helper above what uses it. A function that calls itself is fine if it
 is exported, and is not if it is not. `((const f) ...)` inside `f` does not
 help, `f` is not bound yet.
 
+### In a module, a function given as a value needs `(const f)`
+
+Only a call is bound as the function is made. A function named as a value,
+given to another to call later, is looked for when the giver runs, and the
+module's names have gone by then, though the function is above.
+
+```vdu
+(env-push)
+(defun picked (x) x)
+(defun gives () (Menu picked))         ; symbol_not_bound when gives runs
+(defun gives-ok () (Menu (const picked)))
+(export-symbols '(gives gives-ok))
+(env-pop)
+```
+
+`(const picked)` is the function as it was when `gives-ok` was made. The
+Whiteboard's swatches menu was given its pick function so.
+
 ### In a module, what an exported function keeps must be exported too
 
 A function made in a module finds the functions above it as it is made,

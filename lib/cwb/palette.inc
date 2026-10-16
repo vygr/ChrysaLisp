@@ -75,7 +75,7 @@
 		(:action (case val
 			(:undo "undo") (:redo "redo") (:snap "snap grid") (:duplicate "duplicate") (:delete "delete")
 			(:ruler "ruler") (:protractor "protractor") (:full_protractor "full protractor")
-			(:set_square "set square 30") (:set_square45 "set square 45") (:window "window")))))
+			(:set_square "set square 30") (:set_square45 "set square 45") (:swatches "palette") (:window "window")))))
 
 (defun pal-icon (what val)
 	; (pal-icon what val) -> shapes
@@ -118,6 +118,11 @@
 			(:duplicate (list (pal-line (cwb-d-rect -7 -7 3 3) :width 1.6 :join :miter)
 				(cwb-shape (cwb-d-rect -3 -3 7 7) :fill +pal_ink :stroke 0)))
 			(:delete (list (pal-line "M -6 -6 L 6 6 M 6 -6 L -6 6" :width 2.6)))
+			;a painter's palette, as the toolbar's symbol is
+			(:swatches (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6) (pal-line (cwb-d-ellipse 3 3.5 1.8) :width 1.2)
+				(cwb-shape (cwb-d-ellipse -3.8 -2.5 1.6) :fill +pal_ink :stroke 0)
+				(cwb-shape (cwb-d-ellipse 0 -5.2 1.6) :fill +pal_ink :stroke 0)
+				(cwb-shape (cwb-d-ellipse 3.8 -2.5 1.6) :fill +pal_ink :stroke 0)))
 			(:t (list))))
 		(:t (list))))
 
@@ -165,10 +170,14 @@
 			(list (map (# (list :tool %0)) +pal_tools)
 				(cat (map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors))
 					(map (# (list :width %0)) (ifn (get :menu_widths (get :board this)) +pal_widths)))
-				;and one more, if the board is shown with nothing round it, to
-				;have what was round it back: what shows the board says so
-				;by giving it something to call, :on_window
-				(map (# (list :action %0)) (if (get :on_window (get :board this)) (cat +pal_actions '(:window)) +pal_actions))))
+				;and the colours of the custom inks, if what shows the board
+				;has them, :on_swatches, and one more, if the board is shown
+				;with nothing round it, to have what was round it back: what
+				;shows the board says so by giving it something to call,
+				;:on_window
+				(map (# (list :action %0)) (cat +pal_actions
+					(if (get :on_swatches (get :board this)) '(:swatches) '())
+					(if (get :on_window (get :board this)) '(:window) '())))))
 		(def this :wedges wedges)
 		this)
 
@@ -295,6 +304,11 @@
 					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:window (if (defq on_window (get :on_window board)) (on_window)) (unless floating (. this :close)))
+					;the colours of the custom inks, a menu of their own beside
+					;this one, if what shows the board has them, :on_swatches
+					(:swatches (if (defq on_swatches (get :on_swatches board))
+							(on_swatches (+ ox (/ 290.0 (get :zoom board))) oy))
+						(unless floating (. this :close)))
 					;snap is each device's own, as its colour is. One that is
 					;nobody's, opened by a tap of a pointer, sets the board's
 					(:snap (if floating

@@ -1713,14 +1713,15 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :paint (ids key color)
-		; (. board :paint ids key color) -> board
+	(defmethod :paint (ids key color &optional exact)
+		; (. board :paint ids key color [exact]) -> board
 		;the outline, :stroke, or the fill, :fill, of those selected things,
 		;all that is selected if ids is :t, Chris: "brushes set the fill". A
 		;filled shape given an outline has one, at its width. A fill that a
 		;shape has keeps how see through it is, a solid one stays solid in
-		;the new colour; one it has not is the colour as given, and no fill,
-		;0, is none. Words have only a fill, their colour
+		;the new colour, unless exact, a colour chosen with how see through
+		;it is; one it has not is the colour as given, and no fill, 0, is
+		;none. Words have only a fill, their colour
 		(defq items (if (eql ids :t) (. this :selected_items)
 			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
 		(when (nempty? items)
@@ -1730,7 +1731,7 @@
 				(cond
 					((or (eql key :fill) (eql (elem-get shape +cwb_kind) :text))
 						(defq was (ifn (cwb-get shape :fill) 0))
-						(cwb-set shape :fill (if (or (= color 0) (= (logand was 0xff000000) 0)) color
+						(cwb-set shape :fill (if (or exact (= color 0) (= (logand was 0xff000000) 0)) color
 							(logior (logand color 0xffffff) (logand was 0xff000000)))))
 					((cwb-set shape :stroke color)))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))

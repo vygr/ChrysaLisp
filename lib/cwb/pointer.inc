@@ -119,6 +119,16 @@
 			(if (and (eql kind :mouse) (eql buttons +pev_middle)) (list +pev_left +pev_right) (list buttons)))
 		this)
 
+	(defmethod :swap (key from to)
+		; (. bindings :swap key from to) -> bindings
+		;every rule that has key as from has it as to, the custom ink of
+		;the Whiteboard given another colour, each device that had it has it
+		(each (lambda ((& & & what))
+				(and (defq at (find key what)) (eql (elem-get what (inc at)) from)
+					(elem-set what (inc at) to)))
+			(get :rules this))
+		this)
+
 	(defmethod :unbind (kind id buttons)
 		; (. bindings :unbind kind id buttons) -> bindings
 		;the rules that match just that are taken out

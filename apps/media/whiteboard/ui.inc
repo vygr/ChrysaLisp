@@ -170,15 +170,83 @@
 			(ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)))
 		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
 
-(defun action-ink ()
-	;the pens are the outline, the brushes the fill, Chris: "brushes set
-	;the fill". What is selected takes it, the presser's own
-	(defq at (. *ink_toolbar* :get_selected) color (elem-get *palette* at)
-		key (if (< at 8) :color :fill) part (if (< at 8) :stroke :fill))
-	(if (defq user (bind-pressed *ink_toolbar* key color))
-		(. *board* :paint (. *board* :selected_by user) part color)
+;the pens are the outline, the brushes the fill, Chris: "brushes set the
+;fill"
+(defun ink-key (at) (if (< at +ink_pens) :color :fill))
+
+(defun ink-had? (button key color)
+	; (ink-had? button key color) -> :t | :nil
+	;has what is pressing the button that ink already
+	(if (defq by (get :pressed_by button))
+		(progn (bind '(id kind buttons) by)
+			(eql color (. (. *board* :get_bindings) :value
+				(ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)
+				key (get key *board*))))
+		(eql color (get key *board*))))
+
+(defun ink-bind (button key color)
+	;what pressed the button has the ink, and what it has selected takes it
+	(if (defq user (bind-button button key color))
+		(. *board* :paint (. *board* :selected_by user) (if (eql key :color) :stroke :fill) color)
 		(def *board* key color)
-		(. *board* :paint :t part color)))
+		(. *board* :paint :t (if (eql key :color) :stroke :fill) color)))
+
+;the swatches of the custom inks, menus on the board, lib/cwb/swatches.inc,
+;as many as are wanted, Chris: "each pupile can have one, there is no
+;limit". Each is for the pen or the brush, :key, as its switch has it
+(defun custom-set (at color)
+	;the custom ink is another colour: each device that had it has it, and
+	;the button and the menus show it
+	(defq key (ink-key at) was (elem-get *palette* at) button (elem-get (. *ink_toolbar* :children) at))
+	(elem-set *palette* at color)
+	(. (. *board* :get_bindings) :swap key was color)
+	(if (eql (get key *board*) was) (def *board* key color))
+	(def button :ink color)
+	(.-> button :layout :dirty_all)
+	(if (= at +ink_custom_pen) (menu-colors))
+	(each (# (. %0 :set_color key color)) (swatches-on *board*)))
+
+(defun swatch-pick (on event what val)
+	;a tap on a colour, or on how see through a brush is: the custom ink
+	;is that, and the device that tapped has it, and what its user has
+	;selected takes it as it is
+	(when (defq key (get :key on))
+		(defq at (if (eql key :color) +ink_custom_pen +ink_custom_brush) was (elem-get *palette* at)
+			color (if (eql what :alpha) (logior (logand was 0xffffff) (<< val 24))
+				(if (= at +ink_custom_brush) (logior (logand val 0xffffff) (logand was 0xff000000)) val)))
+		(custom-set at color)
+		(bind '(id kind buttons &ignore) event)
+		(. (. *board* :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key color)
+		(. *board* :paint (. *board* :selected_by (. *board* :user_of event)) (if (eql key :color) :stroke :fill) color :t)
+		(. *board* :touch +board_dirty_overlay)))
+
+(defun swatches-close ()
+	(each (# (. %0 :close)) (swatches-on *board*)))
+
+(defun swatches-open (key x y)
+	;for the custom pen, key :color, or brush, :fill, about a point
+	(. (. *board* :get_stage) :add (Swatches *board* x y key
+		(list (elem-get *palette* +ink_custom_pen) (elem-get *palette* +ink_custom_brush)) (const swatch-pick)))
+	(. *board* :touch +board_dirty_overlay))
+
+(defun action-swatches ()
+	;from the toolbar, in the middle of what is seen, as a floating menu
+	;is, for the pen till its switch says the brush
+	(apply (const swatches-open) (cat (list :color) (view-middle))))
+
+(defun action-ink ()
+	;what is selected takes it, the presser's own. A custom ink pressed by
+	;what has it already opens its swatches, to choose its colour from,
+	;Chris: "an auxiliary pallet selector menu ? that just give finer
+	;control of colours", as many as are wanted
+	(defq at (. *ink_toolbar* :get_selected) button (elem-get (. *ink_toolbar* :children) at)
+		color (elem-get *palette* at) key (ink-key at))
+	(. *ink_toolbar* :set_selected -1)
+	(cond
+		((and (find at (list +ink_custom_pen +ink_custom_brush)) (ink-had? button key color))
+			(undef button :pressed_by)
+			(apply (const swatches-open) (cat (list key) (view-middle))))
+		((ink-bind button key color))))
 
 (defun action-radius ()
 	(defq width (elem-get *widths* (. *radius_toolbar* :get_selected)))

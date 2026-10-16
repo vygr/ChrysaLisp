@@ -77,5 +77,9 @@ and in every view of the window that holds it, then the window is
 laid out again and drawn. A view has a font, not the name of one,
 so it is by which font it is that one is found. What an app made
 with another font, of its own, is left as it is
+the user's *env* has the theme's fonts, the screen has them already,
+and each view given a variant finds it again, (view-resolve). One
+given a font of the theme by hand, not by its variant, is found by
+which font it is
 ```
 

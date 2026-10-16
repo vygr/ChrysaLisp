@@ -140,6 +140,16 @@
 (env-pop)
 (assert-error "a thing a module keeps and does not export is not bound when its function is called" (tr-keeps))
 (assert-eq "exported with the function, it is" 9 (tr-shows))
+
+;a function of a module given as a value, not called, is looked for when it is given
+(env-push)
+(defun tr-picked (x) (* x 2))
+(defun tr-gives () (list tr-picked))
+(defun tr-gives-const () (list (const tr-picked)))
+(export-symbols '(tr-gives tr-gives-const))
+(env-pop)
+(assert-error "a function of a module named as a value, not called, is not bound when the giver runs" (tr-gives))
+(assert-eq "(const f) has it as it was made" 6 ((first (tr-gives-const)) 3))
 (assert-error "a chain breaks at a method that does not give the object back"
 	(.-> (Fmap 1) (:insert 1 2) (:find 1) (:insert 3 4)))
 

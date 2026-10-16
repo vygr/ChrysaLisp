@@ -7,7 +7,7 @@
 	(enum snap snap_angle keep_shape)
 	(enum radius ink)
 	(enum mode)
-	(enum ruler protractor full_protractor set_square set_square45 menu)
+	(enum ruler protractor full_protractor set_square set_square45 menu swatches)
 	(enum group ungroup delete duplicate to_front to_back
 		align_left align_hcenter align_right align_top align_vcenter align_bottom)
 	(enum paper_size text))
@@ -23,8 +23,11 @@
 	*styles* (list :plain :grid :lines :axis)
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 	;the pens, the brushes, and the brush of no fill, Chris: "add the none
-	;brush"
-	*palette* (cat *palette* (map (const trans) *palette*) '(0))
+	;brush". After the eight of each a custom one, of a colour chosen from
+	;the swatches, (swatches-open), Chris: "the current custom colour on
+	;the toolbar ... sticky and remembered with the doc state"
+	*palette* (cat *palette* '(0xfff08c00) (map (const trans) *palette*) '(0x80f08c00 0))
+	+ink_pens 9 +ink_custom_pen 8 +ink_custom_brush 17
 	*board* (Board))
 
 (ui-window *window* ()
@@ -48,7 +51,7 @@
 			(:paper :paper_toolbar2)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:paper :paper_toolbar2)
-			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_dial) +event_ruler))
+			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_ring_menu +sym_palette) +event_ruler))
 		(. (ui-textfield *text_field* (:paper +argb_white :hint_text "words to put down" :clear_text ""
 			:min_width 160)) :connect +event_text))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -57,8 +60,8 @@
 				+sym_align_left +sym_align_hcenter +sym_align_right
 				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
 		;the inks on the same row, Chris: "the toolbar getting a bit big"
-		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
-				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_close)
+		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
+				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_close)
 				(:font :font_medium_symbol :paper :paper_toolbar2)) :connect +event_ink)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-element *image_scroll* (Board-frame)
@@ -88,7 +91,7 @@
 	'("thin" "medium" "thick"))
 
 (ui-tool-tips *tool_toolbar*
-	'("ruler" "protractor" "full protractor" "set square 30" "set square 45" "menu"))
+	'("ruler" "protractor" "full protractor" "set square 30" "set square 45" "menu" "palette"))
 
 
 (ui-tool-tips *selection_toolbar*
@@ -98,6 +101,8 @@
 (each (# (def %0 :ink %1)) (. *ink_toolbar* :children) *palette*)
 ;no fill has no colour to show, it is a cross
 (def (last (. *ink_toolbar* :children)) :ink +argb_black :tip_text "no fill")
+(def (elem-get (. *ink_toolbar* :children) +ink_custom_pen) :tip_text "custom pen")
+(def (elem-get (. *ink_toolbar* :children) +ink_custom_brush) :tip_text "custom brush")
 ;the ink, tool and width bars are binders and show no pick, the paper is
 ;everybody's and shows its own
 (. *style_toolbar* :set_selected 1)

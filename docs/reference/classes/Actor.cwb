@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 5
-	:width 303
+	:width 381
 	:height 298
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 41
+	:next_id 45
 	:items
 	((:list 3)
 		((:list 7)
@@ -390,7 +390,7 @@
 			:stroke
 			0
 			:text
-			"[4 classes come of it]"
+			"[5 classes come of it]"
 			:font
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
@@ -411,7 +411,7 @@
 					:id
 					24
 					:items
-					((:list 4)
+					((:list 5)
 						((:list 7)
 							:group
 							:id
@@ -425,13 +425,13 @@
 								((:list 5)
 									:group
 									:id
-									29
+									30
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											33
+											35
 											:d
 											"[M 6 0 L 54.62304 0 A 6 6 0 0 1 60.62304 6 L 60.62304 18 A 6 6 0 0 1 54.62304 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -444,7 +444,7 @@
 										((:list 15)
 											:shape
 											:id
-											34
+											36
 											:m
 											((:path 6)
 												1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -477,13 +477,13 @@
 								((:list 5)
 									:group
 									:id
-									30
+									31
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											35
+											37
 											:d
 											"[M 6 0 L 71.83496 0 A 6 6 0 0 1 77.83496 6 L 77.83496 18 A 6 6 0 0 1 71.83496 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -496,7 +496,7 @@
 										((:list 15)
 											:shape
 											:id
-											36
+											38
 											:m
 											((:path 6)
 												1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -529,13 +529,13 @@
 								((:list 5)
 									:group
 									:id
-									31
+									32
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											37
+											39
 											:d
 											"[M 6 0 L 49.43603 0 A 6 6 0 0 1 55.43603 6 L 55.43603 18 A 6 6 0 0 1 49.43603 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -548,7 +548,7 @@
 										((:list 15)
 											:shape
 											:id
-											38
+											40
 											:m
 											((:path 6)
 												1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -581,13 +581,13 @@
 								((:list 5)
 									:group
 									:id
-									32
+									33
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											39
+											41
 											:d
 											"[M 6 0 L 53.37353 0 A 6 6 0 0 1 59.37353 6 L 59.37353 18 A 6 6 0 0 1 53.37353 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -600,7 +600,7 @@
 										((:list 15)
 											:shape
 											:id
-											40
+											42
 											:m
 											((:path 6)
 												1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
@@ -613,6 +613,58 @@
 											0
 											:text
 											Surface
+											:font_size
+											12
+										)
+									)
+								)
+							)
+						)
+						((:list 7)
+							:group
+							:id
+							29
+							:m
+							((:path 6)
+								1.00000 0.00000 285.26757 0.00000 1.00000 0.00000
+							)
+							:items
+							((:list 1)
+								((:list 5)
+									:group
+									:id
+									34
+									:items
+									((:list 2)
+										((:list 11)
+											:shape
+											:id
+											43
+											:d
+											"[M 6 0 L 63.51318 0 A 6 6 0 0 1 69.51318 6 L 69.51318 18 A 6 6 0 0 1 63.51318 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+											:fill
+											4294112502
+											:stroke
+											4282140240
+											:width
+											1.19999
+										)
+										((:list 15)
+											:shape
+											:id
+											44
+											:m
+											((:path 6)
+												1.00000 0.00000 10.00000 0.00000 1.00000 16.00000
+											)
+											:kind
+											:text
+											:fill
+											4280296488
+											:stroke
+											0
+											:text
+											Swatches
 											:font_size
 											12
 										)

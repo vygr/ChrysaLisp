@@ -2146,6 +2146,38 @@ where the element that starts at token i ends
 (encode-date [td]) -> str
 ```
 
+### env-props
+
+```code
+(env-props) -> ((key val) ...)
+
+the properties of views in the user's *env*, usr/env.inc, the plain
+names and their variants, those the screen has. The screen draws
+itself by its own :paper and :ink, so a window chooses its own from
+:paper_window and :ink_window. Each task's own, *env_props*
+```
+
+### env-root
+
+```code
+(env-root) -> view
+
+the user's properties on a view of this task's own, the root of each
+window it makes till it is shown, (window-attach). The task's own as
+usr/env.inc makes *env_root* in each task: gui/lisp.inc is in the
+shared root of a GUI's node, and a name is found where it is used
+```
+
+### env-theme
+
+```code
+(env-theme name) -> ((old new) ...)
+
+the symbol fonts of the user's *env* are those of the theme, each the
+size it was, and so on this task's root. Those that changed, the font
+that was and the one that is
+```
+
 ### env?
 
 ```code
@@ -3092,6 +3124,15 @@ as if from the host's mouse and keyboard, in order, before it answers
 where on the screen the window whose title has title in it is, or the
 first in it whose key is value if a key is given, as (ui-find) finds it,
 and the part of it that can be seen, why if none of it can
+```
+
+### gui-owners-rpc
+
+```code
+(gui-owners-rpc) -> :nil | (owner ...)
+
+the mailbox of the task that has each window of the screen, hex, the
+front one first. A test can tell from it which apps have a window
 ```
 
 ### gui-rpc
@@ -4515,6 +4556,16 @@ the point that far from the middle, at an angle from straight up
 round the way a clock goes
 ```
 
+### pal-tip
+
+```code
+(pal-tip what val) -> :nil | str
+
+the name of a wedge, as the toolbars' tips say it, Chris: "Can the
+ring menu have tooltips ! same as the toolbar's ?". A colour has none,
+as an ink of the bar has none
+```
+
 ### pal-wedge-d
 
 ```code
@@ -5530,6 +5581,20 @@ the triangles of count vertices taken three at a time
 the two shaders a scene is drawn with, assembled the first time. Or
 
 those of an object that has two of its own, their files
+```
+
+### screen-children
+
+```code
+(screen-children) -> (view ...)
+
+the views of the screen, the windows, the mouse, the wallpaper. Not one
+that stands where a view was hidden, (. view :hide), in gui/view: a bare
+view, of no class, there till the frame is drawn so what was under the
+view is drawn again, and freed with the frame. It has no methods, and a
+method of it is an error that ends the GUI: so it was when a window was
+closed and the screen walked before the next frame, by a request for
+the tree of widgets, a grab, the owners, a theme or a new size
 ```
 
 ### search
@@ -7982,6 +8047,22 @@ the VP source of the native function that places vertices
 (swap list idx idx) -> list
 ```
 
+### swatch-colors
+
+```code
+(swatch-colors) -> (argb ...)
+
+row by row: light to dark, a hue each 30 degrees across, then grey
+```
+
+### swatches-on
+
+```code
+(swatches-on board) -> (swatches ...)
+
+those open on the board
+```
+
 ### sym-code-hex
 
 ```code
@@ -8892,6 +8973,29 @@ the point of a line nearest a point, and how far along it that is, 0 to 1
 
 ```code
 (view-locate w h [flag]) -> (x y w h)
+```
+
+### view-resolve
+
+```code
+(view-resolve view) -> view
+
+each view of it, it too, given a variant for a plain property has the
+variant's value, found from where it is. Which variant it was is
+kept, :variants, so a new theme or user can be found again by it
+```
+
+### window-attach
+
+```code
+(window-attach window) -> window
+
+a window is put on the user's root of its own task as it is made, so
+what it does not set it finds there as it is laid out, and its
+variants are found. Shown, it goes onto the screen, which has the same
+properties. Not the screen before then: a window an app made and did
+not show would be left on it when the app has gone, and its class
+with the app, the login app's of a session of a user say
 ```
 
 ### within-compile-env

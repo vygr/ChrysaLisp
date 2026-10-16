@@ -578,10 +578,10 @@
 	;the palette's wedge asks, and it is done on the next tick
 	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
 	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print (list on off (rest w1)))")))
-(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
-	"(:t :t (5 (400 300) :nil :nil 37))" (first wa_out))
+(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 38 things on the palette, the swatches one of them. Made all of the screen and back it is that again, and the palette's wedge asked for it"
+	"(:t :t (5 (400 300) :nil :nil 38))" (first wa_out))
 (assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more thing on the palette, the window back"
-	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 38))" (second wa_out))
+	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 39))" (second wa_out))
 
 ;the board turned a quarter, about the middle of the paper, which is then the other way up
 (defq wa_out (wa-run (cat
@@ -679,3 +679,27 @@
 	"(print (list was gone (list (wa-lit *mode_toolbar* 0) (wa-lit *mode_toolbar* 2) (wa-lit *radius_toolbar* 2))))")))
 (assert-eq "select lit for the mouse's left and touch, the line for its right, below, thick for its right; touch's left when the mouse's are gone; all back from the kept state"
 	"(((0 1) (6) (6)) (1) ((0 1) (6) (6)))" (first wa_lit))
+
+;the custom inks: a first press of the custom pen binds it, a second by
+;what has it opens the swatches, a tap there of any device is its colour,
+;for it and what its user selected, and the document keeps the colours,
+;Chris: "sticky and remembered with the doc state"
+(defq wa_custom (wa-run (cat
+	"(defq pen (elem-get (. *ink_toolbar* :children) +ink_custom_pen))"
+	"(defun press () (def pen :pressed_by (list 0 :mouse +pev_left)) (. *ink_toolbar* :set_selected +ink_custom_pen) (wa-do +event_ink))"
+	"(defun mouse-color () (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :color))"
+	"(press) (defq a (list (= (mouse-color) 0xfff08c00) (length (swatches-on *board*))))"
+	"(press) (defq on (first (swatches-on *board*)) b (list (length (swatches-on *board*)) (get :key on)))"
+	"(defq it (. *board* :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0x80000000 :stroke 0xff000000)))"
+	"(. *board* :toggle_select it +board_teacher)"
+	"((get :on_pick on) on (ptr-event 0 :mouse +pev_left 0 0) :color 0xff00ff7f)"
+	"(defq c (list (= (mouse-color) 0xff00ff7f) (= (get :ink pen) 0xff00ff7f) (= (cwb-get (first (cwb-find (. *board* :get_doc) it)) :stroke) 0xff00ff7f)))"
+	"(def on :key :fill) ((get :on_pick on) on (ptr-event 0 :mouse +pev_left 0 0) :alpha 0x40)"
+	"(defq d (list (= (elem-get *palette* +ink_custom_brush) 0x40f08c00) (= (cwb-get (first (cwb-find (. *board* :get_doc) it)) :fill) 0x40f08c00)))"
+	"(stage-to-doc) (defq data (cwb-out (. *board* :get_doc)))"
+	"(custom-set +ink_custom_pen 0xff123456) (. *board* :set_doc (cwb-in data)) (stage-from-doc)"
+	"(defq e (list (= (elem-get *palette* +ink_custom_pen) 0xff00ff7f) (= (mouse-color) 0xff00ff7f) (length (swatches-on *board*))))"
+	"((get :on_swatches *board*) 100 100) (wa-do +event_swatches)"
+	"(print (list a b c d e (length (swatches-on *board*))))")))
+(assert-eq "the custom pen bound by a first press, a second opens the swatches for the pen, a tap there is the mouse's colour, the button's and the outline of what it selected; the brush's quarter see through is the brush's and the fill's; the document keeps them, and has them back, the mouse with them; a ring and the toolbar each open more"
+	"((:t 0) (1 :color) (:t :t :t) (:t :t) (:t :t 0) 2)" (first wa_custom))

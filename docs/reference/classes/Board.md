@@ -335,14 +335,15 @@ what is selected goes to the front of its layer, or the back
 ### :paint
 
 ```code
-(. board :paint ids key color) -> board
+(. board :paint ids key color [exact]) -> board
 
 the outline, :stroke, or the fill, :fill, of those selected things,
 all that is selected if ids is :t, Chris: "brushes set the fill". A
 filled shape given an outline has one, at its width. A fill that a
 shape has keeps how see through it is, a solid one stays solid in
-the new colour; one it has not is the colour as given, and no fill,
-0, is none. Words have only a fill, their colour
+the new colour, unless exact, a colour chosen with how see through
+it is; one it has not is the colour as given, and no fill, 0, is
+none. Words have only a fill, their colour
 ```
 
 ### :pointer_free?
@@ -489,6 +490,14 @@ button of that user's. Chris: "When I select a shape I can't see
 shape controls. Just the selected outline."
 ```
 
+### :set_doc
+
+```code
+(. board :set_doc doc) -> board
+
+another document, nothing of the last is kept
+```
+
 ### :settle_select
 
 ```code
@@ -500,14 +509,6 @@ device button goes out of select mode, those selection clear ?",
 "go ahead with per user". The mouse's buttons, and touch, are one
 user's. What no one selected by a tap, a box or a hand, is let go
 of once nothing at all is. No user, the board's own mode, is all
-```
-
-### :set_doc
-
-```code
-(. board :set_doc doc) -> board
-
-another document, nothing of the last is kept
 ```
 
 ### :snap_end

@@ -221,6 +221,9 @@ Usage: ctf [options] [path] ...
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
         -r --range num num: add start end char codes, default '().
+        -p --pack num: with -c, the glyphs one after another from
+            this char code, in the order of their codes, in one
+            page, no codes between them that have none.
         -j --jobs num: max jobs per batch, default 1.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
@@ -1487,7 +1490,8 @@ Usage: tests [options] [path] ...
     one after another, so a large -j is a serial run.
 
     A module in tests/solo/ changes the network, so those are
-    run one at a time, after all the others.
+    run one at a time, after all the others. One in tests/release/
+    is run only with -a, for a release, after those.
 
     The results are a cache. A module is run again only when
     something it stands on has changed, what it imports, a file or

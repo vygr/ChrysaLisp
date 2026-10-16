@@ -26,8 +26,8 @@ dragged to where that end is to be.
 ```code
 (. handles :box) -> :nil | (x y x1 y1)
 
-the box round what is selected, :nil if nothing is, or the board
-is not in select mode
+the box round what is selected, :nil if nothing is, or nothing is
+in select mode
 ```
 
 ### :corners
