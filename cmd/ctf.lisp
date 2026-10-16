@@ -14,6 +14,9 @@
         -v --verbosity num: verbosity level, default 0.
         -c --ctf: convert/upgrade font file to latest .ctf spec.
         -r --range num num: add start end char codes, default '().
+        -p --pack num: with -c, the glyphs one after another from
+            this char code, in the order of their codes, in one
+            page, no codes between them that have none.
         -j --jobs num: max jobs per batch, default 1.
 
     Inspects and outputs information about ChrysaLisp Vector Font (.ctf)
@@ -22,6 +25,7 @@
 (("-c" "--ctf") ,(opt-flag 'opt_c))
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-r" "--range") ,(opt-nums 2 'opt_r))
+(("-p" "--pack") ,(opt-num 'opt_p))
 (("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
@@ -1189,6 +1193,21 @@
 		(:t (print "Error: Unsupported font file format " file)
 			(print))))
 
+;its glyphs one after another from code, one page, the kerning to be made
+;again for the new codes. Chris, of the chess font: "gaps between the codes
+;that are used"
+(defun pack-glyphs (font_db code)
+	; (pack-glyphs font_db code) -> font_db
+	(defq glyphs (list))
+	(each (lambda (page_db) (each (# (push glyphs %0)) (. page_db :find :glyphs)))
+		(. font_db :find :pages))
+	(sort glyphs (# (- (. %0 :find :char_code) (. %1 :find :char_code))))
+	(each (lambda (glyph_db)
+			(. glyph_db :insert :char_code (+ code (!)))
+			(. glyph_db :insert :kerns (list)))
+		glyphs)
+	(scatter font_db :pages (list (scatter (Lmap) :start code :end (+ code (length glyphs) -1) :glyphs glyphs))))
+
 (defun work (file)
 	(if opt_c
 		(progn
@@ -1202,6 +1221,7 @@
 						(setq font_db (load-otf-ttf file)))))
 			(if font_db
 				(progn
+					(if opt_p (pack-glyphs font_db opt_p))
 					(generate-optical-kerning font_db)
 					(with-write-lock new_file
 						(if (write-ctf font_db new_file)
@@ -1217,7 +1237,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_c :nil opt_v 0 opt_r (list) opt_j 1 args (options stdio usage)))
+			(defq opt_c :nil opt_v 0 opt_r (list) opt_j 1 opt_p :nil args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
 			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_j)
@@ -1229,6 +1249,7 @@
 						" -j " opt_j
 						" -v " opt_v
 						(if opt_c " -c" "")
+						(if opt_p (str " -p " opt_p) "")
 						range_args
 						" " (slice (str %0) 1 -2)))
 					(partition jobs opt_j)))))))
