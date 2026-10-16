@@ -31,7 +31,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_save +sym_clear +sym_cut +sym_media_join) +event_undo))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
-			(:paper (get :paper_toolbar2 *env*))) :connect +event_style)
+			(:paper :paper_toolbar2)) :connect +event_style)
 		(ui-tool-bar *snap_toolbar* ()
 			(ui-buttons (+sym_snap +sym_snap_angle +sym_lock) +event_snap))
 		(ui-tool-bar *zoom_toolbar* (:paper :paper_toolbar2)
@@ -42,7 +42,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_pen +sym_line +sym_arrow +sym_double_arrow
 				+sym_rect +sym_circle +sym_filled_rect +sym_filled_circle +sym_text +sym_eraser)
-			(:paper (get :paper_toolbar2 *env*))) :connect +event_mode)
+			(:paper :paper_toolbar2)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_dial) +event_ruler))
@@ -58,9 +58,9 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
 				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush)
-				(:font (get :font_medium_symbol *env*) :paper (get :paper_toolbar2 *env*))) :connect +event_ink))
+				(:font :font_medium_symbol :paper :paper_toolbar2)) :connect +event_ink))
 	(ui-element *image_scroll* (Board-frame)
-			(:min_width +min_width :min_height +min_height :paper (get :paper_slider *env*))
+			(:min_width +min_width :min_height +min_height :paper :paper_slider)
 		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
 			(ui-element *board_view* (Board-view *board*))
 			;what is round the document, the desk it lies on
