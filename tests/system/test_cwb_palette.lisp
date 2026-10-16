@@ -384,6 +384,17 @@
 (. ps_board :tick 2000000)
 (assert-true "bitten through, what is left is selected, with its handles"
 	(and (nempty? (get :selected ps_board)) (. (get :handles ps_board) :box)))
+;rubbed out to nothing, nothing of it is selected, and there are no handles
+(defq pz_board (Board (cwb-doc 400 400)))
+(. pz_board :tick 1000000)
+(. (. pz_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(pl-drag pz_board 0 :mouse +pev_left 100 100 140 140)
+(.-> (. pz_board :get_bindings) (:set :mouse 0 +pev_left :mode :select) (:set :mouse 0 +pev_right :mode :eraser)
+	(:set :mouse 0 +pev_right :width 40.0))
+(. pz_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. pz_board :get_doc))))
+(each (lambda (y) (pl-drag pz_board 0 :mouse +pev_right 20 y 300 y) (. pz_board :tick (* (+ 2 (!)) 1000000))) '(95 110 125 140 155))
+(assert-eq "rubbed out to nothing: no items, nothing selected, no handles"
+	"(0 0 :nil)" (str (list (length (cwb-items (. pz_board :get_doc))) (length (get :selected pz_board)) (. (get :handles pz_board) :box))))
 (assert-true "and it was bitten: a mode bound to the right button is a pen of it, not the hand it was"
 	(eql (. (. ps_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :tool) :pen))
 ;the left out of select mode, from a floating menu, and nothing is in it: what
