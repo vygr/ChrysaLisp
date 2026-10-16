@@ -47,7 +47,7 @@
 	(enum play pause start back on end live record trace join travels run rec_open rec_save scene timeline
 		snap_take snap_restore snap_drop))
 
-(defq +width 900 +height 560 +grid_w 540 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
+(defq +height 560 +grid_w 540 +log_w 360 +live_keep 2000 +row_h 17 +log_h 16 +tick 50000 +columns 60 +wheel_line 4
 	+hues ''(0xff2a7fff 0xffff7f2a 0xff2fb344 0xffc0399f 0xffd6a800 0xff20b2aa 0xffe0483e 0xff7a5cff)
 	+ink 0xff202020 +dim 0xff909090 +paper 0xfff4f4f0 +none 0xffe2e2dc +trail 0xff000000 +mark 0xffdfe8f7)
 
@@ -98,7 +98,7 @@
 				(ui-buttons (+sym_play_all +sym_open +sym_save) +event_run))
 			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
 			(. (ui-element *scene* (Radiobar *scenes*) (:paper :paper_toolbar2 :font :font_body
-				:border (get :border_button *env*))) :connect +event_scene)
+				:border :border_button)) :connect +event_scene)
 			(ui-backdrop _ (:paper :paper_toolbar))))
 	;snapshots of the store of this system: one taken, the one picked put
 	;back, or dropped, and the name a new one is given
@@ -108,7 +108,12 @@
 		(ui-textfield *snap_name* (:paper +argb_white :hint_text "the name of a new snapshot" :clear_text "" :min_width 200)))
 	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :paper :paper_toolbar2)) :connect +event_timeline)
 	(ui-label *status* (:text "..." :font :font_body))
-	(ui-canvas *canvas* +width +height 1))
+	;the members and objects, and beside them what was done, two widgets so
+	;each has its own turns of the wheel. Chris: "mouse wheel overrun
+	;between the 2 lists, because they are not separate widgets"
+	(ui-flow _ (:flow_flags +flow_right)
+		(ui-canvas *canvas* +grid_w +height 1)
+		(ui-canvas *log* +log_w +height 1)))
 
 (ui-tool-tips *debug*
 	'("play, at the speed it was made" "stop, and stay here" "to the start" "an event back" "an event on"
@@ -247,7 +252,8 @@
 
 (defun draw ()
 	(lights)
-	(defq items (list (cwb-shape (cwb-d-rect 0 0 +width +height) :fill +paper :stroke 0))
+	(defq items (list (cwb-shape (cwb-d-rect 0 0 +grid_w +height) :fill +paper :stroke 0))
+		log_items (list (cwb-shape (cwb-d-rect 0 0 +log_w +height) :fill +paper :stroke 0))
 		all (members) events (. *replay* :find :events) at (. *replay* :find :at) count (length events)
 		paths (paths-now) manifest (if *shown* (manifest-of *shown*))
 		blocks (if manifest (ifn (replay-blocks *replay* manifest) (list)) (list))
@@ -256,8 +262,8 @@
 		;not drawn: the event list is beside it
 		room (- grid_w left 14)
 		cols (min (inc (length blocks)) (/ room 6)) cell (if (> cols 0) (max 6 (min 22 (/ room cols))) 16))
-	(defun text (words x y &optional size ink)
-		(push items (cwb-text words x y :font "fonts/OpenSans-Regular.ctf" :font_size (ifn size 14) :fill (ifn ink +ink))))
+	(defun text (words x y &optional size ink into)
+		(push (ifn into items) (cwb-text words x y :font "fonts/OpenSans-Regular.ctf" :font_size (ifn size 14) :fill (ifn ink +ink))))
 	(text (if (= count 0) "Nothing recorded. Run a scene, or Live to watch the store of this system."
 			(fit (said-now) 60)) 16 22 14)
 	(when *shown*
@@ -339,24 +345,27 @@
 		rows)
 	;what was done, the event the timeline is at marked
 	;the event marked is the last done, of those listed
-	(defq lx (+ grid_w 10) list_at (if *trace* (traced) (range 0 count))
+	(defq lx 10 list_at (if *trace* (traced) (range 0 count))
 		here (some (# (if (>= %0 (dec at)) (!))) list_at) here (ifn here (length list_at))
 		marked (rsome (# (if (< %0 at) %0)) list_at)
 		;as many events as there is room for, down the whole of it
 		most_log (/ (- +height 44) +log_h)
 		start (max 0 (min (- here (/ most_log 2)) (- (length list_at) most_log))))
-	(text (cat (if *trace* "What was done to it" "What was done") ", " (str at) " of " (str count)) lx 22 12 +dim)
+	(text (cat (if *trace* "What was done to it" "What was done") ", " (str at) " of " (str count)) lx 22 12 +dim log_items)
 	(defq log_shown (slice list_at start (min (length list_at) (+ start most_log))))
-	(def *canvas* :log_shown log_shown)
+	(def *log* :log_shown log_shown)
 	(each (lambda (index)
 		(defq e (elem-get events index) yy (+ 44 (* (!) +log_h)))
-		(if (eql index marked) (push items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +width 6) (+ yy 4) 3) :fill +mark :stroke 0)))
+		(if (eql index marked) (push log_items (cwb-shape (cwb-d-rect (- lx 4) (- yy 12) (- +log_w 6) (+ yy 4) 3) :fill +mark :stroke 0)))
 		(defq line (event-text e))
-		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim)))
+		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim) log_items))
 		log_shown)
 	(.-> *canvas* (:fill +paper))
 	(cwb-draw-items *canvas* items :nil)
-	(. *canvas* :swap +swap_write))
+	(. *canvas* :swap +swap_write)
+	(.-> *log* (:fill +paper))
+	(cwb-draw-items *log* log_items :nil)
+	(. *log* :swap +swap_write))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the timeline, and moving
@@ -476,8 +485,8 @@
 		(go-to at)))
 
 (defun main ()
-	;where the mouse was last over the canvas, which list the wheel turns
-	(defq id :t select (task-mboxes +select_size) wheel 0 mouse_rx 0
+	;the turns of the wheel over each list, not yet done
+	(defq id :t select (task-mboxes +select_size) wheel 0 wheel_log 0
 		*select* select *replay* (replay-new) *run* :nil *live* :nil *shown* :nil *want* :nil *trace* :nil *lit* :nil *saved* :nil
 		*gopher* :nil *snap* :nil *picker* :nil *picker_save* :nil
 		;is this machine a member, it says so in a file, looked at the once
@@ -490,6 +499,7 @@
 	(config-load)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
+	(. *log* :set_canvas_flags +canvas_flag_antialias)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +tick 0)
@@ -580,36 +590,40 @@
 						(go-to (get :value *timeline*))
 						(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events)))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
-						;the wheel goes up and down the objects, a line for so much
-						;of a turn: a trackpad sends a great many small ones
-						;added up, and done at the next tick, the once, however many
-						;came: one at a time, each drawn, it ran on after the wheel
-						(setq wheel (- wheel (getf msg +ev_msg_wheel_y))))
-					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
-							(progn (setq mouse_rx (getf msg +ev_msg_mouse_rx)) (= (getf msg +ev_msg_mouse_buttons) 0)))
-						;where it is, and no more: the wheel is of the list it is over
-						:nil)
+						;the wheel goes up and down the list it was turned over, a
+						;line for so much of a turn: a trackpad sends a great many
+						;small ones added up, and done at the next tick, the once,
+						;however many came: one at a time, each drawn, it ran on
+						;after the wheel. The GUI gives a run of turns to the
+						;widget the run began over, so each list has its own
+						(if (= id (. *log* :get_id))
+							(setq wheel_log (- wheel_log (getf msg +ev_msg_wheel_y)))
+							(setq wheel (- wheel (getf msg +ev_msg_wheel_y)))))
+					((and (= id (. *log* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
+							(/= (getf msg +ev_msg_mouse_buttons) 0))
+						;a press on an event of what was done, and the store is as
+						;it was then
+						(bind '(w h) (. *log* :get_size))
+						(defq ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2))
+							line (/ (- ry 32) +log_h) shown (get :log_shown *log*))
+						(when (and (>= ry 32) (< line (length shown)))
+							(setq *playing* :nil)
+							;an event of a gopher picks it, its object is shown and
+							;its way drawn; another event, or it again, and none is
+							(defq e (elem-get (. *replay* :find :events) (elem-get shown line))
+								tag (replay-gopher-tag e))
+							(cond
+								((and tag (nql tag *gopher*) (defq walk (replay-walk *replay* tag)))
+									(setq *gopher* tag *want* :nil *shown* (first walk)))
+								((setq *gopher* :nil)))
+							(go-to (inc (elem-get shown line)))
+							(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events))))))
 					((and (= id (. *canvas* :get_id)) (= (getf msg +ev_msg_type) +ev_type_mouse)
 							(/= (getf msg +ev_msg_mouse_buttons) 0))
-						;a press on an object of the list, and it is the one shown, or
-						;on an event of what was done, and the store is as it was then
+						;a press on an object of the list, and it is the one shown
 						(bind '(w h) (. *canvas* :get_size))
 						(defq ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)) rx (getf msg +ev_msg_mouse_rx))
 						(cond
-							((>= rx +grid_w)
-								(defq line (/ (- ry 32) +log_h) shown (get :log_shown *canvas*))
-								(when (and (>= ry 32) (< line (length shown)))
-									(setq *playing* :nil)
-									;an event of a gopher picks it, its object is shown and
-									;its way drawn; another event, or it again, and none is
-									(defq e (elem-get (. *replay* :find :events) (elem-get shown line))
-										tag (replay-gopher-tag e))
-									(cond
-										((and tag (nql tag *gopher*) (defq walk (replay-walk *replay* tag)))
-											(setq *gopher* tag *want* :nil *shown* (first walk)))
-										((setq *gopher* :nil)))
-									(go-to (inc (elem-get shown line)))
-									(setq *follow* (= (. *replay* :find :at) (length (. *replay* :find :events))))))
 							;a press on a snapshot picks it, its objects are listed;
 							;on it again, and the objects of the store are
 							((and (<= (- (get :chips_y *canvas*) 13) ry (+ (get :chips_y *canvas*) 4))
@@ -651,17 +665,17 @@
 				;what is kept for the user is kept, if it has changed
 				(lights)
 				(config-save)
+				;over what was done, so many events, or of the object shown,
+				;with trace
+				(when (/= 0 (defq lines (/ wheel_log +wheel_line)))
+					(setq wheel_log (- wheel_log (* lines +wheel_line)) *playing* :nil)
+					(step lines))
+				;over the objects, so many objects on
 				(when (/= 0 (defq lines (/ wheel +wheel_line)))
 					(setq wheel (- wheel (* lines +wheel_line)))
-					(cond
-						((>= mouse_rx +grid_w)
-							;over what was done, so many events, or of the object
-							;shown, with trace
-							(setq *playing* :nil)
-							(step lines))
-						((nempty? (defq paths (paths-now)))
-							(setq *want* :nil *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
-							(draw))))
+					(when (nempty? (defq paths (paths-now)))
+						(setq *want* :nil *shown* (elem-get paths (max 0 (min (dec (length paths)) (+ (ifn (find *shown* paths) 0) lines)))))
+						(draw)))
 				(cond
 					(*playing* (tick))
 					(*changed*
