@@ -1231,6 +1231,15 @@ be looked for. A device pressed by nothing, a key or a script, is the
 `:default` row of `slots`, which is what the board's `:mode :color :width
 :snap` are now, and the app's `*snap*` and `*snap_angle*`.
 
+**What is the maps', what is an object's own.** Chris: "Each object can
+do custom things with what a pressed button/contact means... it's not all
+dictated by this unified table, all the bindings and modes are though."
+The maps say what a slot holds, its pen, width and mode, and which slot a
+press is; what a press does to an object is the object's: a thing taken by
+the right button goes to the back, a ruler draws along its edge for any
+finger, a ring's tap is a pick. Built so far, stage 1: `(ptr-roles)`,
+`(ptr-main)` and `(ptr-part)`, lib/cwb/pointer.inc.
+
 **One resolve.** As a contact lands it is resolved, once, to its device,
 its user and its role: the main button, the second, both, the middle of a
 mouse, or a finger's one. Everything after asks that. Today about ten
