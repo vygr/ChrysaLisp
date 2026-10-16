@@ -55,9 +55,10 @@ to show what that device had selected as its modes"
 one thing of what that device, with those buttons, is to be, as a
 binder sets it, a toolbar or a menu pressed by it. The rule that
 names just that is made, if there is none, from all such a pointer
-is now, so the rest of what it is stays as it was. buttons 0 would
-match every press of the device, before the rules of its buttons,
-so it is the left, as a pointer that came up is
+is now, so the rest of what it is stays as it was. Of each role the
+press is, (ptr-roles): buttons 0 would match every press of the
+device, before the rules of its buttons, so it is the main; the
+middle of a mouse is both; a finger is all its device
 ```
 
 ### :swap

@@ -359,11 +359,11 @@
 ;a pen given to what is selected: the main button the outline, the second
 ;the fill, the middle both, touch what a thing shows
 (. pp_board :select (map (# (elem-get %0 +cwb_id)) (list pp_rect pp_frect (pp-last))))
-(. pp_board :paint :t (board-ink-part (ptr-event 0 :mouse +pev_left 0 0)) 0xff000000)
-(. pp_board :paint :t (board-ink-part (ptr-event 0 :mouse +pev_right 0 0)) 0xffffffff)
+(. pp_board :paint :t (ptr-part (ptr-event 0 :mouse +pev_left 0 0)) 0xff000000)
+(. pp_board :paint :t (ptr-part (ptr-event 0 :mouse +pev_right 0 0)) 0xffffffff)
 (defq pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))
-(. pp_board :paint :t (board-ink-part (ptr-event 0x1000001 :touch 1 0 0)) 0xff123456)
-(. pp_board :paint (list (elem-get pp_rect +cwb_id)) (board-ink-part (ptr-event 0 :mouse +pev_middle 0 0)) 0)
+(. pp_board :paint :t (ptr-part (ptr-event 0x1000001 :touch 1 0 0)) 0xff123456)
+(. pp_board :paint (list (elem-get pp_rect +cwb_id)) (ptr-part (ptr-event 0 :mouse +pev_middle 0 0)) 0)
 (assert-eq "left outlines, right fills, as given; then touch the outline, or the fill of a fill only; the middle both, none"
 	(str (list (list (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff))
 		(list (list 0 0) (list 0xff123456 0xffffffff) (list 0xff123456 0xffffffff))))
@@ -516,3 +516,13 @@
 	'(:t :t :nil :nil)
 	(map (# (board-rubs? pw_b %0 :pen)) (list (ptr-event 0x2000000 :pen +pev_left 0 0) (ptr-event 0x4000000 :eraser 1 0 0)
 		(ptr-event 0 :mouse +pev_right 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
+;what a press's buttons are, worked out in one place
+(assert-eq "a finger is all its device, none held is the main, the middle of a mouse both, a pen's barrel its second"
+	(str (list (list :nil) (list +pev_left) (list +pev_left +pev_right) (list +pev_right) (list +pev_middle)))
+	(str (list (ptr-roles :touch 1) (ptr-roles :mouse 0) (ptr-roles :mouse +pev_middle) (ptr-roles :pen +pev_right) (ptr-roles :pen +pev_middle))))
+(assert-list-eq "read by its main role: the middle as the left, none as the left, a finger as it is"
+	(list +pev_left +pev_left 1) (map (# (elem-get (ptr-main %0) +pev_buttons))
+		(list (ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0 :mouse 0 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
+(assert-list-eq "what a press colours: the main the outline, the second the fill, both, a finger what shows"
+	'(:stroke :fill :both :ink) (map (const ptr-part) (list (ptr-event 0 :mouse +pev_left 0 0) (ptr-event 0x2000000 :pen +pev_right 0 0)
+		(ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0x1000001 :touch 1 0 0))))

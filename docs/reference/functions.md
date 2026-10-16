@@ -630,17 +630,6 @@ in it that the shape is inside. Kept with what else is kept of the
 shape, (cwb-flat), and worked out only when first asked for
 ```
 
-### board-ink-part
-
-```code
-(board-ink-part event) -> :stroke | :fill | :both | :ink
-
-what of a selected thing a pen given by this press colours: the main
-button the outline, the second the fill, Chris: "left button bound pen
-to outline and the right button bound pen to fill"; the middle of the
-mouse, both its buttons, both; touch, one pen, what the thing shows
-```
-
 ### board-item-corners
 
 ```code
@@ -5206,6 +5195,34 @@ the device of a pointer's id, the id of its contact 0
 kind is :mouse :pen :eraser or :touch. buttons is those held, 0 for a
 pointer that is only over the board, or has just come up. pressure is
 0.0 to 1.0, default 1.0 if a button is held. time in microseconds
+```
+
+### ptr-main
+
+```code
+(ptr-main event) -> event
+
+the event as its main role, which is what a device's pen and width
+are read by
+```
+
+### ptr-part
+
+```code
+(ptr-part event) -> :stroke | :fill | :both | :ink
+
+what of a thing a pen given by this press colours: the main button the
+outline, the second the fill, Chris: "left button bound pen to outline
+and the right button bound pen to fill"; both, both; a finger, one pen,
+what the thing shows
+```
+
+### ptr-roles
+
+```code
+(ptr-roles kind buttons) -> (buttons ...)
+
+the buttons of the rules of a device a press is, :nil for a finger
 ```
 
 ### quasi-quote?

@@ -24,7 +24,7 @@ a floating menu binds whatever tapped it, the device with the
 buttons it had held, all of touch as one. Chris: "taps on them
 effect their pen as you KNOW what device has tapped on them". A
 colour or a width, with things that user has picked up, is theirs,
-the outline or the fill by the button, (board-ink-part), and the
+the outline or the fill by the button, (ptr-part), and the
 device is as it was, Chris: "if you have selected items you changing
 there colours"
 ```

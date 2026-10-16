@@ -82,19 +82,6 @@
 		(eql (defq tool (. bindings :value event :tool :pen)) :eraser)
 		(and (eql tool :pen) (eql (. bindings :value event :mode mode) :eraser))))
 
-(defun board-ink-part (event)
-	; (board-ink-part event) -> :stroke | :fill | :both | :ink
-	;what of a selected thing a pen given by this press colours: the main
-	;button the outline, the second the fill, Chris: "left button bound pen
-	;to outline and the right button bound pen to fill"; the middle of the
-	;mouse, both its buttons, both; touch, one pen, what the thing shows
-	(bind '(& kind buttons &ignore) event)
-	(cond
-		((eql kind :touch) :ink)
-		((and (eql kind :mouse) (eql buttons +pev_middle)) :both)
-		((eql buttons +pev_right) :fill)
-		(:stroke)))
-
 (defun board-snap (v step)
 	; (board-snap v step) -> v
 	;to the nearest step, as it is if the step is 0
@@ -1830,7 +1817,7 @@
 		;things, all that is selected if ids is :t. The ink is as it is, an
 		;argb, none is 0, or with a function, (with old) -> ink, made from
 		;what each was. Words have only a fill, their colour. See
-		;(board-ink-part)
+		;(ptr-part)
 		(defq items (if (eql ids :t) (. this :selected_items)
 			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
 		(when (nempty? items)

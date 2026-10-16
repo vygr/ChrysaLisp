@@ -147,7 +147,7 @@
 		(undef button :pressed_by)
 		(bind '(id kind buttons) by)
 		;all the contacts of touch are the one device, with no buttons
-		(. (. *board* :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key value)
+		(. (. *board* :get_bindings) :set kind (ptr-device id) buttons key value)
 		;drawn again, and the dots of the bars with it, (sync-ui)
 		(. *board* :touch +board_dirty_overlay)
 		(. *board* :user_of (ptr-event id kind buttons 0 0))))
@@ -165,9 +165,8 @@
 	(defq button (elem-get (. *snap_toolbar* :children) index))
 	(when (defq by (get :pressed_by button))
 		(bind '(id kind buttons) by)
-		;the middle, both buttons, turns both to the other of the left's
-		(bind '(snap angle keep) (. *board* :pointer_settings
-			(ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)))
+		;both buttons, the middle, both to the other of the main's
+		(bind '(snap angle keep) (. *board* :pointer_settings (ptr-main (ptr-event id kind buttons 0 0))))
 		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
 
 ;the pens, each an ink. A device's main button's pen outlines and strokes,
@@ -182,12 +181,9 @@
 (defun ink-had? (button color)
 	; (ink-had? button color) -> :t | :nil
 	;has what is pressing the button that pen already
-	(if (defq event (press-event button))
-		(progn (bind '(id kind buttons) (get :pressed_by button))
-			(eql color (. (. *board* :get_bindings) :value
-				(ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)
-				:color (get :color *board*))))
-		(eql color (get :color *board*))))
+	(eql color (if (defq event (press-event button))
+		(. (. *board* :get_bindings) :value (ptr-main event) :color (get :color *board*))
+		(get :color *board*))))
 
 (defun mine-selected (event)
 	; (mine-selected event) -> ids
@@ -197,7 +193,7 @@
 
 (defun ink-bind (button color)
 	;with things picked up, their outline or their fill by the button,
-	;(board-ink-part), takes the ink and no pen is changed; with none, what
+	;(ptr-part), takes the ink and no pen is changed; with none, what
 	;pressed the button holds the pen. Chris: "If you have no selected items
 	;than I think you are setting the ink of the pen, but if you have
 	;selected items you changing there colours", "2 users can select
@@ -206,7 +202,7 @@
 	(cond
 		((nempty? (defq mine (mine-selected event)))
 			(undef button :pressed_by)
-			(. *board* :paint mine (if event (board-ink-part event) :stroke) color))
+			(. *board* :paint mine (if event (ptr-part event) :stroke) color))
 		((bind-button button :color color))
 		((def *board* :color color))))
 
@@ -236,7 +232,7 @@
 	;they take it, by the button, and no pen changes
 	(bind '(id kind buttons &ignore) event)
 	(defq bindings (. *board* :get_bindings)
-		held (ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)
+		held (ptr-main event)
 		was (. bindings :value held :color (get :color *board*))
 		alpha (if (board-none? was) 0xff000000 (logand was 0xff000000))
 		color (case what
@@ -252,13 +248,13 @@
 			;the lambdas find the value by name as they are called, it has
 			;one that nothing between could have
 			(defq swatch_val val)
-			(. *board* :paint mine (board-ink-part event) 0 (case what
+			(. *board* :paint mine (ptr-part event) 0 (case what
 				(:color (lambda (old) (logior (logand swatch_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
 				(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< swatch_val 24)))) 0 c)))
 				(:t (lambda (old) 0)))))
 		((defq at (find was *palette*))
 			(pen-refill at color))
-		((. bindings :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) :color color)))
+		((. bindings :set kind (ptr-device id) buttons :color color)))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun swatches-close ()

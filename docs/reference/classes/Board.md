@@ -351,7 +351,7 @@ thing shows, :ink, its fill if it has no outline, of those selected
 things, all that is selected if ids is :t. The ink is as it is, an
 argb, none is 0, or with a function, (with old) -> ink, made from
 what each was. Words have only a fill, their colour. See
-(board-ink-part)
+(ptr-part)
 ```
 
 ### :pointer_free?

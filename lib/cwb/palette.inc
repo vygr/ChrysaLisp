@@ -260,15 +260,15 @@
 		;buttons it had held, all of touch as one. Chris: "taps on them
 		;effect their pen as you KNOW what device has tapped on them". A
 		;colour or a width, with things that user has picked up, is theirs,
-		;the outline or the fill by the button, (board-ink-part), and the
+		;the outline or the fill by the button, (ptr-part), and the
 		;device is as it was, Chris: "if you have selected items you changing
 		;there colours"
 		(defq board (get :board this) user (. board :user_of event) mine (. board :selected_by user))
 		(bind '(id kind buttons &ignore) event)
 		(cond
-			((and (eql key :color) (nempty? mine)) (. board :paint mine (board-ink-part event) val))
+			((and (eql key :color) (nempty? mine)) (. board :paint mine (ptr-part event) val))
 			((and (eql key :width) (nempty? mine)) (. board :style_ids mine :width val))
-			((. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)))
+			((. (. board :get_bindings) :set kind (ptr-device id) buttons key val)))
 		user)
 
 	(defmethod :pick (what &optional val event)
@@ -313,10 +313,8 @@
 					;snap is each device's own, as its colour is. One that is
 					;nobody's, opened by a tap of a pointer, sets the board's
 					(:snap (if floating
-						;the middle of the mouse, both buttons, from the left's
-						(. this :bind_tapper event :snap (= (first (. board :pointer_settings
-							(if (and (eql (elem-get event +pev_kind) :mouse) (eql (elem-get event +pev_buttons) +pev_middle))
-								(ptr-event (elem-get event +pev_id) :mouse +pev_left 0 0) event))) 0.0))
+						;over from what its main role has, (ptr-main)
+						(. this :bind_tapper event :snap (= (first (. board :pointer_settings (ptr-main event))) 0.0))
 						(def board :snap (if (= (get :snap board) 0.0)
 							(n2f (. (. board :get_doc) :find :grid)) 0.0))))
 					(:duplicate (. board :duplicate) (unless floating (. this :close)))

@@ -43,6 +43,41 @@
 
 (defun ptr-down? (event) (/= (elem-get event +pev_buttons) 0))
 
+;What a press's buttons are, worked out here and nowhere else. A device
+;has a main button and a second: the mouse's left and right, a pen's tip
+;and barrel. A finger has one, and is all of its device. The middle of a
+;mouse is both its buttons, Chris: "a middle button click should mean, both
+;left/right bind to this". None held, a pointer that came up, is the main
+(defun ptr-roles (kind buttons)
+	; (ptr-roles kind buttons) -> (buttons ...)
+	;the buttons of the rules of a device a press is, :nil for a finger
+	(cond
+		((eql kind :touch) (list :nil))
+		((eql buttons 0) (list +pev_left))
+		((and (eql kind :mouse) (eql buttons +pev_middle)) (list +pev_left +pev_right))
+		((list buttons))))
+
+(defun ptr-main (event)
+	; (ptr-main event) -> event
+	;the event as its main role, which is what a device's pen and width
+	;are read by
+	(bind '(id kind buttons x y &ignore) event)
+	(ptr-event id kind (ifn (first (ptr-roles kind buttons)) buttons) x y))
+
+(defun ptr-part (event)
+	; (ptr-part event) -> :stroke | :fill | :both | :ink
+	;what of a thing a pen given by this press colours: the main button the
+	;outline, the second the fill, Chris: "left button bound pen to outline
+	;and the right button bound pen to fill"; both, both; a finger, one pen,
+	;what the thing shows
+	(bind '(& kind buttons &ignore) event)
+	(defq roles (ptr-roles kind buttons))
+	(cond
+		((eql kind :touch) :ink)
+		((> (length roles) 1) :both)
+		((eql (first roles) +pev_right) :fill)
+		(:stroke)))
+
 ;Devices and contacts. Everything that points is a device, the mouse, each
 ;pen, each touch panel, and a device has contacts, the places it touches at
 ;once: a pen one, a panel one for each finger. Each finger that lands is
@@ -97,13 +132,10 @@
 		;one thing of what that device, with those buttons, is to be, as a
 		;binder sets it, a toolbar or a menu pressed by it. The rule that
 		;names just that is made, if there is none, from all such a pointer
-		;is now, so the rest of what it is stays as it was. buttons 0 would
-		;match every press of the device, before the rules of its buttons,
-		;so it is the left, as a pointer that came up is
-		(if (eql buttons 0) (setq buttons +pev_left))
-		;the middle of the mouse is both its buttons, Chris: "a middle
-		;button click should mean, both left/right bind to this", as a
-		;mouse of two makes it of both pressed. Its own stays pan
+		;is now, so the rest of what it is stays as it was. Of each role the
+		;press is, (ptr-roles): buttons 0 would match every press of the
+		;device, before the rules of its buttons, so it is the main; the
+		;middle of a mouse is both; a finger is all its device
 		(each (lambda (buttons)
 				(defq rule (some (lambda (r) (and (eql (first r) kind) (eql (second r) id) (eql (third r) buttons) r))
 					(get :rules this)))
@@ -116,7 +148,7 @@
 				;hand of the right button, is a pen of that mode now, or the
 				;mode bound would do nothing
 				(and (eql key :mode) (defq at (find :tool what)) (elem-set what (inc at) :pen)))
-			(if (and (eql kind :mouse) (eql buttons +pev_middle)) (list +pev_left +pev_right) (list buttons)))
+			(ptr-roles kind buttons))
 		this)
 
 	(defmethod :swap (key from to)
