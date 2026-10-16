@@ -1311,7 +1311,12 @@
 		(bind '(layers w h) state)
 		(.-> (get :doc this) (:insert :layers layers) (:insert :width w) (:insert :height h))
 		(. this :changed :all)
-		(def this :selected (list) :floating (list) :appended (list))
+		;what is selected stays so, what of it is still there: an undo is of
+		;the document, not of what is selected, nor of the instruments, which
+		;are not in it, Chris: "undo/redo do not and should not undo
+		;instrument or selection controls"
+		(defq ids (map (# (elem-get %0 +cwb_id)) (cwb-items (get :doc this))))
+		(def this :selected (filter (# (find %0 ids)) (get :selected this)) :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :undo ()

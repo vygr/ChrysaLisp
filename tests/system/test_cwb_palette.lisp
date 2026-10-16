@@ -409,6 +409,13 @@
 (. pu_board :settle_select +board_teacher)
 (assert-eq "the teacher out of select mode, the student's tap is selected still, the teacher's is not"
 	(str (list (second pu_ids))) (str (get :selected pu_board)))
+;an undo is of the document, what is selected stays so, Chris: "undo/redo do
+;not and should not undo instrument or selection controls"
+(. pu_board :select pu_ids)
+(. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(pl-drag pu_board 0 :mouse +pev_left 300 20 380 100)
+(. pu_board :undo)
+(assert-eq "an undo of a third rect leaves the two selected" (str pu_ids) (str (get :selected pu_board)))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
