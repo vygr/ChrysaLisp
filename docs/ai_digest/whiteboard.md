@@ -1167,6 +1167,14 @@ do with a hand on them.
 * The events of every device come in at the top, as one vector.
 * The distributor, the `Stage`, gives each contact to what it lands on and
 keeps it there till it lifts, the landing lock. That is there now.
+* What lands on no object is the canvas's, Chris: "Events in the input
+vector that miss all the objects, hit the canvas and stroke/erase etc...
+the canvas is just the backmost actor in the scene". That is the `Surface`.
+What a user has picked up is an object of its own on the stage, in front of
+the canvas, and takes the contacts that land on it, a drag a move, two a
+turn and a size, its handles; then the canvas never asks if a contact is on
+something held, as it does now, turning a pen into a hand. What is not
+picked up is the canvas's: a stroke over it draws, a tap on it picks it up.
 * Each object turns its own contacts into what happens to the document:
 the paper into a stroke or a shape put in, a thing picked up into a move,
 a turn or a size, a ruler into a line along its edge, a menu into a pick,
@@ -1214,9 +1222,10 @@ decide it, and the rings' own way when not floating.
 | `:switch k` | | snap, angle snap or lock over |
 | `:action a` | | undo, redo, an instrument, a menu |
 
-**The paper's table.** What a contact does on the paper, by what its slot
-is and what it landed on: a drawing mode on nothing draws; on what its
-user holds, moves it; a tap on a thing picks it up or puts it down; select
+**The paper's table.** What a contact does on the canvas, by what its slot
+is and what it landed on: a drawing mode draws, over things or not; what
+its user holds is not the canvas's, it is in front; a tap on a thing picks
+it up or puts it down; select
 on nothing drags a box; a tap of select on nothing puts down what that
 user holds; the eraser bites whatever it is on. One `tool-of`, the same for
 the paper, a ruler's edge and the hover catch, which today disagree.
