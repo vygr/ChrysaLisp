@@ -1028,19 +1028,33 @@
 					user)))
 		(if (or (= user +board_anybody) (not (defq base (get :user_base this)))) user (+ base user)))
 
-	(defmethod :device_slot (kind id)
-		; (. board :device_slot kind id) -> 0 to 5
-		;the place of a device in the dots of the bars and the menus, and
-		;its colour, Chris: "mouse first, then touch, then 4 pens (teacher
-		;then 3 students)". A pen's other end is that pen. A pen not seen
-		;yet is given its user, a student counted as it is first seen
-		(cond
-			((eql kind :mouse) 0)
-			((eql kind :touch) 1)
-			(:t (defq users (get :users this) device (ptr-device id))
-				(unless (. users :find device) (. this :user_of (ptr-event id :pen 0 0 0)))
-				(defq user (. users :find device))
-				(if (= user +board_teacher) 2 (min 5 (+ 3 (- user +board_first_student)))))))
+	(defmethod :device_slot (kind id &optional buttons)
+		; (. board :device_slot kind id [buttons]) -> :nil | 0 to 11
+		;the place of a device and its button in the squares of the bars and
+		;the menus. Its column, and its colour, the slot mod 6, Chris: "mouse
+		;first, then touch, then 4 pens (teacher then 3 students)". Its row,
+		;the slot / 6, the main button, the left, a pen's tip or touch, 0,
+		;the second, the right, a pen's barrel or its other end, 1, Chris:
+		;"We need to distinguish between the buttons of a device if they can
+		;be bound to different modes". :nil for the middle of the mouse, not
+		;shown. A pen not seen yet is given its user, a student counted as
+		;it is first seen
+		(defq buttons (ifn buttons +pev_left)
+			row (cond
+				((eql kind :eraser) 1)
+				((eql kind :touch) 0)
+				((/= (logand buttons +pev_right) 0) 1)
+				((/= (logand buttons +pev_middle) 0) :nil)
+				(0)))
+		(when row
+			(defq col (cond
+				((eql kind :mouse) 0)
+				((eql kind :touch) 1)
+				(:t (defq users (get :users this) device (ptr-device id))
+					(unless (. users :find device) (. this :user_of (ptr-event id :pen 0 0 0)))
+					(defq user (. users :find device))
+					(if (= user +board_teacher) 2 (min 5 (+ 3 (- user +board_first_student)))))))
+			(+ (* row 6) col)))
 
 	(defmethod :appoint (event)
 		; (. board :appoint event) -> board

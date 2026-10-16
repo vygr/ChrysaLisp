@@ -135,16 +135,16 @@
 		; (. bindings :devices [slot]) -> ((color what slot) ...)
 		;each device, with the buttons it pressed with, that has been bound
 		;to something of its own, the colour of its dot, what it is bound
-		;to and its place. slot, (slot kind id) -> 0 to 5, gives each its
-		;place and colour, else the first bound is the first. The menus and
+		;to and its place. slot, (slot kind id buttons) -> :nil | place,
+		;gives each its place, and its colour by the place mod the colours,
+		;:nil not shown; else the first bound is the first. The menus and
 		;the toolbars show the same dots. Chris: "on the float menus each
 		;device showed a little dot (coloured per device, of that board)
 		;to show what that device had selected as its modes"
 		(defq out (list) n (length +bindings_device_cols))
 		(reach (lambda ((kind id buttons what))
-				(when id
-					(defq at (% (if slot (slot kind id) (length out)) n))
-					(push out (list (elem-get +bindings_device_cols at) what at))))
+				(and id (defq at (if slot (slot kind id buttons) (% (length out) n)))
+					(push out (list (elem-get +bindings_device_cols (% at n)) what at))))
 			(get :rules this))
 		out)
 	)

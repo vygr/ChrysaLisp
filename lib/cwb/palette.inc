@@ -398,7 +398,7 @@
 		; (. palette :devices) -> ((color what slot) ...)
 		;the dots of the devices, (. bindings :devices), each in its place
 		(defq board (get :board this))
-		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1))))
+		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1 %2))))
 
 	(defmethod :draw (canvas &optional m)
 		; (. palette :draw canvas [m]) -> palette
@@ -424,9 +424,10 @@
 						(if (elem-get wedge +wedge_icon) (push items (elem-get wedge +wedge_icon)))
 						(cond
 							;a floating menu is nobody's: a square of each device
-							;on what it has, in a strip of six along the rim, each
-							;device in its own place as on the bars, Chris: "The
-							;ring menu, need same style of device indications"
+							;on what it has, in two rows of six along the rim, each
+							;device and button in its own place as on the bars,
+							;Chris: "The ring menu, need same style of device
+							;indications"
 							(devices
 								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
 									want val
@@ -435,11 +436,14 @@
 								(each (lambda ((col bound slot))
 										(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
 												(and (defq at (find key bound)) (eql (elem-get bound (inc at)) want))))
-											(defq a (+ am (* step (- (n2f slot) 2.5))))
-											(bind '(x0 y0) (pal-point (- r 2.0) (- a half)))
-											(bind '(x1 y1) (pal-point (+ r 2.0) (- a half)))
-											(bind '(x2 y2) (pal-point (+ r 2.0) (+ a half)))
-											(bind '(x3 y3) (pal-point (- r 2.0) (+ a half)))
+											;a device's column, its second button's row inside
+											;the first's
+											(defq a (+ am (* step (- (n2f (% slot 6)) 2.5)))
+												rr (- r (* (n2f (/ slot 6)) +pal_cell)))
+											(bind '(x0 y0) (pal-point (- rr 2.0) (- a half)))
+											(bind '(x1 y1) (pal-point (+ rr 2.0) (- a half)))
+											(bind '(x2 y2) (pal-point (+ rr 2.0) (+ a half)))
+											(bind '(x3 y3) (pal-point (- rr 2.0) (+ a half)))
 											(push items (cwb-shape (cwb-d-points (list x0 y0 x1 y1 x2 y2 x3 y3) :t)
 												:fill col :stroke +pal_ink :width 0.5))))
 									devices))

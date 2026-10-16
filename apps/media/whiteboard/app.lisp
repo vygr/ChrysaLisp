@@ -129,7 +129,10 @@
 ;under each button symbol, so they are always there, just transparent when
 ;not indicating a device". Each device has its square and its colour, the
 ;same as its dots on the menus, "mouse first, then touch, then 4 pens
-;(teacher then 3 students)", (. board :device_slot). Made with the bars,
+;(teacher then 3 students)", (. board :device_slot). Two rows, the main
+;button, left, tip or touch, over the second, right, barrel or the other
+;end, Chris: "We need to distinguish between the buttons of a device if
+;they can be bound to different modes". Made with the bars,
 ;before the window is laid out, so the bars are the size they are from
 ;the first and only colours change after
 (defq *dots_of* :nil +strip_cells 6)
@@ -139,8 +142,8 @@
 	;the strip of a button, under its symbol, made the first time
 	(unless (defq strip (get :strip button))
 		(def button :flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter))
-		(def (setq strip (Grid)) :grid_width +strip_cells :grid_height 1)
-		(times +strip_cells
+		(def (setq strip (Grid)) :grid_width +strip_cells :grid_height 2)
+		(times (* +strip_cells 2)
 			;clear, and so not opaque, the button is drawn under it
 			(def (defq cell (Backdrop)) :style :plain :paper 0 :min_width 4 :min_height 4)
 			(.-> strip (:add_child (. cell :set_flags 0 +view_flag_opaque))))
@@ -155,7 +158,7 @@
 	;button laid out and drawn again, under them
 	(defq changed :nil)
 	(each (lambda (cell)
-			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (!)) 0))
+			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (% (!) +strip_cells)) 0))
 			(unless (= paper (get :paper cell))
 				(def cell :paper paper)
 				(. cell :set_flags (if (= paper 0) 0 +view_flag_opaque) +view_flag_opaque)
@@ -170,7 +173,7 @@
 		as (str rules (get :snap *board*) (get :snap_angle *board*) (get :keep_shape *board*)))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
-		(defq devices (. (. *board* :get_bindings) :devices (# (. *board* :device_slot %0 %1))))
+		(defq devices (. (. *board* :get_bindings) :devices (# (. *board* :device_slot %0 %1 %2))))
 		(defq slots-of (lambda (key value)
 			(defq out (list))
 			(each (lambda ((& what slot))

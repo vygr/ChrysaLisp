@@ -127,12 +127,17 @@ take out what is selected
 ### :device_slot
 
 ```code
-(. board :device_slot kind id) -> 0 to 5
+(. board :device_slot kind id [buttons]) -> :nil | 0 to 11
 
-the place of a device in the dots of the bars and the menus, and
-its colour, Chris: "mouse first, then touch, then 4 pens (teacher
-then 3 students)". A pen's other end is that pen. A pen not seen
-yet is given its user, a student counted as it is first seen
+the place of a device and its button in the squares of the bars and
+the menus. Its column, and its colour, the slot mod 6, Chris: "mouse
+first, then touch, then 4 pens (teacher then 3 students)". Its row,
+the slot / 6, the main button, the left, a pen's tip or touch, 0,
+the second, the right, a pen's barrel or its other end, 1, Chris:
+"We need to distinguish between the buttons of a device if they can
+be bound to different modes". :nil for the middle of the mouse, not
+shown. A pen not seen yet is given its user, a student counted as
+it is first seen
 ```
 
 ### :dirty?
