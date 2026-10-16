@@ -96,6 +96,11 @@
 					(. tool :set_extent extent)
 					(. (. *board* :get_stage) :add tool))))
 			(ifn tools (list)))
+		;a menu opens from the time the board was last told. Not yet told
+		;it is 0, the first tick is too long after that for the numbers of
+		;its opening, and it was never drawn, though it took the pointers
+		;that went down on it, an instrument under it could not be moved
+		(. *board* :tick (pii-time))
 		(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
 				(palette-float *board* (first at) (second at))))
 			(ifn menus (list)))
