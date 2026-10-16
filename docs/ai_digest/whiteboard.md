@@ -1165,7 +1165,13 @@ object's is that object's own rule, asked with the point and the contact's
 slot: a menu or an instrument takes any that land on it; a shape takes one
 of select or a hand and picks itself up, and lets a pen, a marker or an
 eraser go on to what is behind; the canvas takes all that reach it. The
-distributor knows none of that.
+distributor knows none of that, and tests nothing itself, Chris: "It just
+says I have this event co-ordinate, is that you ? the shape/instrument/
+menu/canvas say yes or no and it does the test against its shape (or take
+special care of the edge draw detection area)". The `Stage` asks so now,
+`(. actor :hit x y)`, front to back; what changes is that it asks with the
+contact, not the point alone, and that each shape is asked, where now the
+canvas says yes for them and tests them itself in `(:begin)`.
 
 **Each pass, two phases.** Chris: "you take the current input vector of
 all the devices and their state and positions and assign them to the
