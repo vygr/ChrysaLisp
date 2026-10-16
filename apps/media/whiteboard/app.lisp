@@ -1140,7 +1140,9 @@
 	;what lies on the board that is not of the document is kept with it,
 	;Chris: "menus and instruments are part of the docs state. So they
 	;come and go as docs are loaded". An instrument is what it is, where,
-	;turned how far, how long, and what it draws; a floating menu where it is
+	;turned how far, how long, and what it draws; a floating menu, and a
+	;menu of swatches, where it is, Chris: "pallete should stay with the doc
+	;state ! like the ring menu etc."
 	(defq actors (. (. *board* :get_stage) :get_actors))
 	(.-> (. *board* :get_doc)
 		(:insert :tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
@@ -1148,6 +1150,7 @@
 				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
 			(filter (const Instrument?) actors)))
 		(:insert :menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*))))
+		(:insert :swatches (map (# (get :origin %0)) (swatches-on *board*)))
 		;the inks of the pens
 		(:insert :inks (cat *palette*))))
 
@@ -1182,6 +1185,9 @@
 	(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
 			(palette-float *board* (first at) (second at))))
 		(ifn menus (list)))
+	(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
+			(swatches-open (first at) (second at))))
+		(ifn (. doc :find :swatches) (list)))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun view-from-doc ()

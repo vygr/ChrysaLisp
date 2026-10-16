@@ -666,15 +666,15 @@
 ;a new one, and back with it as it is read. Chris: "menus and instruments are
 ;part of the docs state. So they come and go as docs are loaded"
 (defq wa_stage (wa-run (cat
-	"(defun wa-on-board () (length (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. (. *board* :get_stage) :get_actors))))"
+	"(defun wa-on-board () (length (filter (# (or (Instrument? %0) (Swatches? %0) (and (Palette? %0) (get :floating %0)))) (. (. *board* :get_stage) :get_actors))))"
 	"(. *board* :new 400 200) (stage-from-doc)"
-	"(. (. *board* :get_stage) :add (Ruler *board* 100 50)) (palette-float *board* 200 100) (defq n0 (wa-on-board))"
+	"(. (. *board* :get_stage) :add (Ruler *board* 100 50)) (palette-float *board* 200 100) (swatches-open 300 100) (defq n0 (wa-on-board))"
 	"(view-to-doc) (defq data (cwb-out (. *board* :get_doc)))"
-	"(. *board* :new 400 200) (.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list))) (stage-from-doc) (defq n1 (wa-on-board))"
+	"(. *board* :new 400 200) (.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)) (:insert :swatches (list))) (stage-from-doc) (defq n1 (wa-on-board))"
 	"(. *board* :set_doc (cwb-in data)) (stage-from-doc) (defq n2 (wa-on-board))"
 	"(print (list n0 n1 n2))")))
-(assert-eq "a ruler and a menu on a document, none on a new one, both back when it is read again"
-	"(2 0 2)" (first wa_stage))
+(assert-eq "a ruler, a menu and a palette on a document, none on a new one, all back when it is read again, Chris: pallete should stay with the doc state"
+	"(3 0 3)" (first wa_stage))
 
 ;the squares under the binders with devices bound, and as the app has them
 ;again from its kept state: a launch with bindings ended the app before, its
@@ -721,8 +721,8 @@
 	"(defq f (list (= (elem-get *palette* 2) 0) (= (held +pev_left) 0) (= (elem-get *palette* 0) 0xff00ff7f)))"
 	"((get :on_swatches *board*) 100 100) (wa-do +event_swatches)"
 	"(print (list a b c d e f (length (swatches-on *board*))))")))
-(assert-eq "a first press gives the mouse red, a second opens the swatches; nothing picked up, the right's tap fills its pen, every holder's; with a thing picked up, a quarter see through is its outline's in its own colour, the blue swatch its fill, the blue pen its outline as the pen has it, and no pen changes; put down, the left fills the red pen; none is a cross; the document has them back; a ring and the toolbar open more"
-	"((:t 0) 1 (:t :t) (:t :t :t :t :t :t) (:t :t :t :t) (:t :t :t) 2)" (first wa_pens))
+(assert-eq "a first press gives the mouse red, a second opens the swatches; nothing picked up, the right's tap fills its pen, every holder's; with a thing picked up, a quarter see through is its outline's in its own colour, the blue swatch its fill, the blue pen its outline as the pen has it, and no pen changes; put down, the left fills the red pen; none is a cross; the document has them back, and the swatches it had; a ring and the toolbar open more"
+	"((:t 0) 1 (:t :t) (:t :t :t :t :t :t) (:t :t :t :t) (:t :t :t) 3)" (first wa_pens))
 (defq wa_new (wa-run (cat
 	"(pen-refill 2 0x40123456) (def (elem-get (. *ink_toolbar* :children) 2) :pressed_by (list 0 :mouse +pev_left))"
 	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (defq was (eql (str *palette*) (str *pens_default*)))"

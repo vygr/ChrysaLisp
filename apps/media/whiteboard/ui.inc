@@ -132,7 +132,7 @@
 	(. *board* :new w h)
 	;a new document has nothing on it, no instruments, no menus: the board
 	;keeps the document it had, emptied, and what it said of them goes too
-	(.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)))
+	(.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)) (:insert :swatches (list)))
 	(stage-from-doc)
 	(setq *file* :nil))
 

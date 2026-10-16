@@ -508,7 +508,7 @@
 	;what lay on it that is not of it, the instruments and the menus, and
 	;the inks of its pens, what shows it says what they are.
 	;Only if it has them: a document made by a script, a diagram, has none
-	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :inks))
+	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :swatches :inks))
 	out)
 
 (defun cwb-save (doc stream)
@@ -554,7 +554,7 @@
 			((< version 4) (cwb-old-in data))
 			(:t (defq doc (cwb-doc))
 				(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
-					'(:width :height :background :style :grid :next_id :props :view :tools :menus :inks))
+					'(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
 				;the one list: of 5, or of 4 the items of its layers, the
 				;back one first
 				(defq items (if (= version 4)
