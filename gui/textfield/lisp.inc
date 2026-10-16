@@ -31,6 +31,10 @@
 
 	(defmethod :draw ()
 		; (. textfield :draw) -> textfield
+		;the ink of its words, the hint's or the text's, is found as it is
+		;drawn, in the window it is in. Laid out it may be in nothing yet,
+		;a window of a page of Docs that is being made
+		(def this :ink (get (if (get :hinting this) :ink_hint :ink_no_hint) this))
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
 		(raise :font :text :cursor :anchor :label_text)
@@ -53,9 +57,9 @@
 		(cond
 			((eql (defq text (get :clear_text this)) "")
 				(defq text (get :hint_text this) mode :nil)
-				(def this :ink (get :ink_hint this)))
+				(def this :hinting :t))
 			(:t (defq mode (get :mode this))
-				(def this :ink (get :ink_no_hint this))))
+				(def this :hinting :nil)))
 		(if mode
 			(def this :text (pad "" (length text) "******************"))
 			(def this :text text))
