@@ -65,7 +65,6 @@
 			:keep_shape (if keep_shape :t))
 		;a board kept before there was this has none, and it is on
 		(def *board* :hover_edges (not (eql (. config :find :hover_edges) 0)))
-		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))
 		(when (and (num? style) (< -1 style (length *styles*)))
 			(. *style_toolbar* :set_selected style)
 			(setq *style* (elem-get *styles* style) *paper_dirty* :t))

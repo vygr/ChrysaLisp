@@ -399,14 +399,14 @@
 	"(defq was (list (get :mode *board*) (get :color *board*) (get :width *board*)))"
 	"(wa-pick :color +argb_red) (wa-pick :width 12.0) (wa-pick :action :snap) (wa-pick :tool :ellipse)"
 	"(defun wa-bound (key) (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) key))"
-	"(print (list (wa-bound :mode) (= (wa-bound :color) +argb_red) (n2i (wa-bound :width)) (n2i (get :snap *board*)) (length (palettes *board*))))"
+	"(print (list (wa-bound :mode) (= (wa-bound :color) +argb_red) (n2i (wa-bound :width)) (wa-bound :snap) (get :snap *board*) (length (palettes *board*))))"
 	"(print (list (eql (str was) (str (list (get :mode *board*) (get :color *board*) (get :width *board*)))) (. *ink_toolbar* :get_selected)))"
 	"(wa-drag 1 100 100 200 160) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :kind))"
 	"(wa-pick :hub :nil) (. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
 (assert-eq "the right button, down and up on nothing, opens no menu" "0" (elem-get wa_out 0))
 (assert-eq "the menu button of the toolbar makes a floating one" "(1 :t)" (elem-get wa_out 1))
 (assert-eq "the board draws with it open" "(0)" (elem-get wa_out 2))
-(assert-eq "taps of the mouse on it bind the mouse's left button to the colour, the width and the tool, snap is set, and it stays" "(:ellipse :t 12 32 1)" (elem-get wa_out 3))
+(assert-eq "taps of the mouse on it bind the mouse's left button to the colour, the width, snap and the tool, the board's snap is as it was, and it stays" "(:ellipse :t 12 :t 0.00000 1)" (elem-get wa_out 3))
 (assert-eq "the board's own is as it was, and the toolbar shows no pick" "(:t :nil)" (elem-get wa_out 4))
 (assert-eq "what the mouse then draws is that" ":ellipse" (elem-get wa_out 5))
 (assert-eq "a tap on its middle shuts it, and it is off the stage" "0" (elem-get wa_out 6))

@@ -461,6 +461,28 @@
 (def wb_board :snap 0.0)
 (. wb_board :undo)
 
+;snap is each device's, Chris: "per device, same as ink and width". The
+;board's is off, the mouse's left button is bound to snap and a pen not,
+;the grid the paper has is 16
+(def wb_board :snap_gap 16.0)
+(. (. wb_board :get_bindings) :set :mouse 0 +pev_left :snap :t)
+(wb-drag 0 :mouse 1 '((21 39) (99 71)))
+(assert-eq "the mouse bound to snap snaps to the grid" "M 16 32 L 96 64"
+	(cwb-get (last (cwb-items (. wb_board :get_doc))) :d))
+(wb-drag 0x2000000 :pen 1 '((21 39) (99 71)))
+(assert-eq "a pen bound to none has the board's, and does not" "M 21 39 L 99 71"
+	(cwb-get (last (cwb-items (. wb_board :get_doc))) :d))
+(def wb_board :snap 16.0)
+(. (. wb_board :get_bindings) :set :pen (ptr-device 0x2000000) +pev_left :snap :nil)
+(wb-drag 0x2000000 :pen 1 '((21 39) (99 71)))
+(assert-eq "one bound to no snap does not, whatever the board's" "M 21 39 L 99 71"
+	(cwb-get (last (cwb-items (. wb_board :get_doc))) :d))
+(assert-eq "what each pointer had is let go of as it comes up" 0 (. (get :settings wb_board) :size))
+(def wb_board :snap 0.0 :snap_gap 0.0)
+(. (. wb_board :get_bindings) :unbind :mouse 0 +pev_left)
+(. (. wb_board :get_bindings) :unbind :pen (ptr-device 0x2000000) +pev_left)
+(. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+
 ;what a hand can do without a hand
 (. wb_board :select_all)
 (assert-list-eq "all is selected" '(2 3 5) (. wb_board :get_selected))

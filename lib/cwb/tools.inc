@@ -283,16 +283,17 @@
 		(Mat3x2-mul (Mat3x2-translate ox oy)
 			(Mat3x2-mul (Mat3x2-rot (get :angle this)) (Mat3x2-scale (get :size this)))))
 
-	(defmethod :snap_zero ()
-		; (. instrument :snap_zero) -> instrument
-		;with the snap of the board on, it is moved the little it takes to
+	(defmethod :snap_zero (&optional event)
+		; (. instrument :snap_zero [event]) -> instrument
+		;with the snap on, of the pointer that made it, the event of its
+		;press, or the board's, it is moved the little it takes to
 		;have the 0 of its marks, :zero, on a line of the paper each way: a
 		;ruler's 0, the middle of a protractor's straight side, the square
 		;corner of a set square. Its marks are of the paper, (:mm), so with
 		;the 0 on a line, and it level or upright, each centimetre is on
 		;one. Chris: "yes, snap the 0 mark to the grid when snap is on"
 		(unless (get :body this) (. this :built))
-		(defq board (get :board this) zero (def? :zero this) step (if board (get :snap board) 0.0))
+		(defq board (get :board this) zero (def? :zero this) step (cond ((not board) 0.0) (event (first (. board :pointer_settings event))) ((get :snap board))))
 		(when (and zero (/= step 0.0))
 			(bind '(zx zy) (. this :to_board (first zero) (second zero)))
 			(bind '(ox oy) (get :origin this))
@@ -466,7 +467,7 @@
 						(Mat3x2-mul (Mat3x2-rot angle) (Mat3x2-scale (get :size this)))))
 					(bind '(bx by) (if (nempty? pivot) (Mat3x2-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (vector-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
-						snap (get :snap_angle board))
+						snap (. board :angle_step id))
 					;with angles that snap it is at a step and nowhere else. If
 					;not, it is free, but for the pull of the angles that matter
 					(setq turn (- (if (/= snap 0.0) (board-snap (+ angle turn) snap) (tool-magnet (+ angle turn))) angle))
@@ -488,7 +489,7 @@
 					;as long as has the 0 on a line of the paper, the lines
 					;that cross it most squarely. Its other end has not moved,
 					;so only how long it is can put it there
-					(defq zero (def? :zero this) step (get :snap board))
+					(defq zero (def? :zero this) step (. board :snap_step id))
 					(when (and zero (/= step 0.0) (> (* way (first zero)) 0.0))
 						(bind '(zx zy) (. this :to_board (first zero) (second zero)))
 						(defq along (if (>= (abs c) (abs s)) (/ (- (board-snap zx step) zx) c) (/ (- (board-snap zy step) zy) s)))

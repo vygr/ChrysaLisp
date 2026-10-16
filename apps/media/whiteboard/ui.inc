@@ -128,16 +128,33 @@
 ;changed." A pick binds what pressed it, kept on the button by the window,
 ;and the bar shows no pick of its own after. What a pick is said by no
 ;press, a script, is the board's own, for any device bound to nothing
-(defun bind-pressed (bar key value)
-	; (bind-pressed bar key value) -> :nil | user
-	(defq button (elem-get (. bar :children) (. bar :get_selected)) by (get :pressed_by button))
-	(. bar :set_selected -1)
-	(when by
+(defun bind-button (button key value)
+	; (bind-button button key value) -> :nil | user
+	;what pressed the button is bound to the value, if a device did
+	(when (defq by (get :pressed_by button))
 		(undef button :pressed_by)
 		(bind '(id kind buttons) by)
 		;all the contacts of touch are the one device, with no buttons
 		(. (. *board* :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key value)
+		;drawn again, and the dots of the bars with it, (sync-ui)
+		(. *board* :touch +board_dirty_overlay)
 		(. *board* :user_of (ptr-event id kind buttons 0 0))))
+
+(defun bind-pressed (bar key value)
+	; (bind-pressed bar key value) -> :nil | user
+	(defq button (elem-get (. bar :children) (. bar :get_selected)))
+	(. bar :set_selected -1)
+	(bind-button button key value))
+
+(defun toggle-pressed (index key)
+	; (toggle-pressed index key) -> :nil | user
+	;a button of the snap bar binds what pressed it to the other of what it
+	;has. Chris: "per device, same as ink and width"
+	(defq button (elem-get (. *snap_toolbar* :children) index))
+	(when (defq by (get :pressed_by button))
+		(bind '(id kind buttons) by)
+		(bind '(snap angle keep) (. *board* :pointer_settings (ptr-event id kind buttons 0 0)))
+		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
 
 (defun action-ink ()
 	(defq color (elem-get *palette* (. *ink_toolbar* :get_selected)))
@@ -170,21 +187,24 @@
 	(setq *paper_dirty* :t)
 	(. *board* :touch +board_dirty_overlay))
 
+;Snap, snap of angles and keep shape are each device's, a press turns over
+;what the presser has. No press, a key or a script, turns over the board's,
+;which a device bound to none of its own has
 (defun action-snap ()
-	(setq *snap* (not *snap*))
-	(def *board* :snap (if *snap* (snap-gap) 0.0))
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
+	(unless (toggle-pressed 0 :snap)
+		(setq *snap* (not *snap*))
+		(def *board* :snap (if *snap* (snap-gap) 0.0))))
 
 (defun action-snap-angle ()
-	(setq *snap_angle* (not *snap_angle*))
-	(def *board* :snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0))
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
+	(unless (toggle-pressed 1 :snap_angle)
+		(setq *snap_angle* (not *snap_angle*))
+		(def *board* :snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0))))
 
 (defun action-keep-shape ()
 	;a corner that is dragged keeps the shape of what it sizes, locked, or
 	;goes where it is put, free, and the thing is made wider or taller
-	(def *board* :keep_shape (not (get :keep_shape *board*)))
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*))))
+	(unless (toggle-pressed 2 :keep_shape)
+		(def *board* :keep_shape (not (get :keep_shape *board*)))))
 
 (defun action-text ()
 	;the words of the text field are put down where the pen next goes down

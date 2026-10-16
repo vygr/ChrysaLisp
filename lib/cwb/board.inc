@@ -530,15 +530,15 @@
 				;they sit on the line through it, and that is all it does
 				(elem-set state +stroke_tool :idle)
 				(when (nempty? (defq words (get :text board)))
-					(. board :commit (cwb-text words (. board :snap_x x) (. board :snap_y y)
+					(. board :commit (cwb-text words (. board :snap_x x id) (. board :snap_y y id)
 						:fill (. (get :bindings board) :value event :color (get :color board))
 						:font (get :font board) :font_size (get :font_size board))
 						(. board :user_of event))))
 			(:t ;something is drawn. What is in select mode stays so: only a
 				;tap takes a thing in or out, (:end), and another may be
 				;drawing beside what one has selected
-				(elem-set state +stroke_x (. board :snap_x x))
-				(elem-set state +stroke_y (. board :snap_y y))
+				(elem-set state +stroke_x (. board :snap_x x id))
+				(elem-set state +stroke_y (. board :snap_y y id))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
 				;when it was begun, for what is written, (:written)
 				(elem-set state +stroke_snap (get :time board))
@@ -571,8 +571,8 @@
 						;pointer, so things line up with it and each other
 						(defq mx (- x sx) my (- y sy) box (elem-get state +stroke_box))
 						(when box
-							(setq mx (- (. board :snap_x (+ (first box) mx)) (first box))
-								my (- (. board :snap_y (+ (second box) my)) (second box))))
+							(setq mx (- (. board :snap_x (+ (first box) mx) id) (first box))
+								my (- (. board :snap_y (+ (second box) my) id) (second box))))
 						(defq move (Mat3x2-translate mx my))
 						(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) item)
 						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
@@ -606,7 +606,7 @@
 			(:pan
 				(def board :pan (list (- x sx) (- y sy))))
 			(:t ;something is drawn
-				(defq x (. board :snap_x x) y (. board :snap_y y))
+				(defq x (. board :snap_x x id) y (. board :snap_y y id))
 				(when (or (/= x (elem-get points -3)) (/= y (elem-get points -2)))
 					(push points x y)
 					(cwb-set item :d (. this :shape_d state x y))
@@ -909,7 +909,7 @@
 							(map (# (list %0 (elem-get %0 +cwb_m))) (. board :selected_items))))))
 				(state
 					(bind '((skind sx sy fx fy) frame ends dx dy things) state)
-					(defq px (. board :snap_x x) py (. board :snap_y y) step (get :snap_angle board))
+					(defq px (. board :snap_x x id) py (. board :snap_y y id) step (. board :angle_step id))
 					(case skind
 						(:end ;that end of the line goes to the pointer, the other stays
 							(bind '(item (lx ly lx1 ly1)) ends)
@@ -943,7 +943,7 @@
 								scx (if (or (= fx 0) (= w0 0.0)) 1.0 (/ (- qx ax) w0))
 								scy (if (or (= fy 0) (= h0 0.0)) 1.0 (/ (- qy ay) h0)))
 							;a corner keeps the shape of the box unless the board says not
-							(and (/= fx 0) (/= fy 0) (get :keep_shape board)
+							(and (/= fx 0) (/= fy 0) (. board :keep_shape? id)
 								(setq scx (if (> (abs scx) (abs scy)) scx (* (abs scy) (if (< scx 0.0) -1.0 1.0)))
 									scy (* (abs scx) (if (< scy 0.0) -1.0 1.0))))
 							(if (= scx 0.0) (setq scx 0.001))
@@ -968,7 +968,7 @@
 		:mode :pen :layer :nil :selected (list) :undo_stack (list) :redo_stack (list)
 		:color 0xff000000 :fill 0 :width 3.0
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
-		:snap 0.0 :snap_angle 0.0 :keep_shape :t :zoom 1.0
+		:snap 0.0 :snap_angle 0.0 :keep_shape :t :snap_gap 0.0 :settings (Fmap 11) :zoom 1.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
 		:rub_reach 8.0 :rub_mode :bite :rubber :nil :rub_todo (Fmap 11)
@@ -1164,8 +1164,39 @@
 		(def this :appended (list))
 		items)
 
-	(defmethod :snap_x (x) (board-snap x (get :snap this)))
-	(defmethod :snap_y (y) (board-snap y (get :snap this)))
+	;Snap to the grid, snap of angles and keeping the shape are each
+	;device's, bound as its colour and width are, Chris: "per device, same
+	;as ink and width". A device bound to none of its own has the board's,
+	;:snap and :snap_angle a step, 0.0 for none, and :keep_shape. What a
+	;pointer has is found as it goes down and kept till it comes up, so
+	;all it does between is done by the one rule
+
+	(defmethod :pointer_settings (event)
+		; (. board :pointer_settings event) -> (snap angle keep_shape)
+		;the snap step, the angle step and keep shape of a pointer, as it
+		;is bound. Snap on is to the grid, :snap_gap, or the document's
+		(defq bindings (get :bindings this)
+			snap (. bindings :value event :snap :none) angle (. bindings :value event :snap_angle :none))
+		(list (cond ((eql snap :none) (get :snap this))
+				(snap (if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))))
+				(0.0))
+			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
+			(. bindings :value event :keep_shape (get :keep_shape this))))
+
+	(defmethod :snap_step (&optional id)
+		; (. board :snap_step [id]) -> step
+		(if (defq kept (. (get :settings this) :find id)) (first kept) (get :snap this)))
+
+	(defmethod :angle_step (&optional id)
+		; (. board :angle_step [id]) -> step
+		(if (defq kept (. (get :settings this) :find id)) (second kept) (get :snap_angle this)))
+
+	(defmethod :keep_shape? (&optional id)
+		; (. board :keep_shape? [id]) -> :t | :nil
+		(if (defq kept (. (get :settings this) :find id)) (third kept) (get :keep_shape this)))
+
+	(defmethod :snap_x (x &optional id) (board-snap x (. this :snap_step id)))
+	(defmethod :snap_y (y &optional id) (board-snap y (. this :snap_step id)))
 
 	(defmethod :layer_index ()
 		; (. board :layer_index) -> index
@@ -1739,7 +1770,15 @@
 					(. contacts :erase (elem-get event +pev_id)))))
 			events)
 		(and seen (get :show_contacts this) (. this :touch +board_dirty_overlay))
+		;what each pointer that goes down is bound to snap and keep, kept
+		;till it comes up
+		(defq settings (get :settings this))
+		(each (lambda (event)
+				(and (ptr-down? event) (not (. settings :find (elem-get event +pev_id)))
+					(. settings :insert (elem-get event +pev_id) (. this :pointer_settings event))))
+			events)
 		(. (get :stage this) :pointers events)
+		(each (# (unless (ptr-down? %0) (. settings :erase (elem-get %0 +pev_id)))) events)
 		(. this :hovering events)
 		this)
 

@@ -30,7 +30,6 @@
 	+pal_open 220000 +pal_lag 50000 +pal_shut 120000
 	+pal_back 0xf0283038 +pal_hot 0xff3d6fd0 +pal_ink 0xffffffff +pal_mark 0xff58c0ff
 	;the dot of each device on a floating menu, in the order they were bound
-	+pal_device_cols ''(0xffff9f1c 0xff2ec4b6 0xffe71d36 0xff9b5de5 0xfff15bb5 0xff00bbf9)
 	+pal_tools ''(:select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
@@ -242,7 +241,9 @@
 		;do what a tap on a wedge does, see (:where). A floating menu,
 		;given the event of the tap, binds what tapped it, and stays
 		(defq board (get :board this) floating (and (get :floating this) event)
-			user (if floating (. board :user_of event)))
+			user (if floating (. board :user_of event))
+			;who it is done for, what tapped a floating one, or whose it is
+			who (or floating (ptr-event (get :id this) (get :kind this) +pev_left 0 0)))
 		(case what
 			(:hub (. this :close))
 			(:tool (if floating (. this :bind_tapper event :mode val)
@@ -261,14 +262,18 @@
 					;only the teacher undoes, Chris: "only teacher can undo/redo the doc"
 					(:undo (if (or (not floating) (= user +board_teacher)) (. board :undo)))
 					(:redo (if (or (not floating) (= user +board_teacher)) (. board :redo)))
-					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero)) (unless floating (. this :close)))
-					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero)) (unless floating (. this :close)))
-					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero)) (unless floating (. this :close)))
-					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero)) (unless floating (. this :close)))
-					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero)) (unless floating (. this :close)))
+					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:window (if (defq on_window (get :on_window board)) (on_window)) (unless floating (. this :close)))
-					(:snap (def board :snap (if (= (get :snap board) 0.0)
-						(n2f (. (. board :get_doc) :find :grid)) 0.0)))
+					;snap is each device's own, as its colour is. One that is
+					;nobody's, opened by a tap of a pointer, sets the board's
+					(:snap (if floating
+						(. this :bind_tapper event :snap (= (first (. board :pointer_settings event)) 0.0))
+						(def board :snap (if (= (get :snap board) 0.0)
+							(n2f (. (. board :get_doc) :find :grid)) 0.0))))
 					(:duplicate (. board :duplicate) (unless floating (. this :close)))
 					(:delete (. board :delete) (unless floating (. this :close))))))
 		(. board :touch +board_dirty_overlay)
@@ -386,14 +391,8 @@
 
 	(defmethod :devices ()
 		; (. palette :devices) -> ((color what) ...)
-		;each device that has been bound to something of its own, the
-		;colour of its dot and what it is bound to. Chris: "on the float
-		;menus each device showed a little dot (coloured per device, of
-		;that board) to show what that device had selected as its modes"
-		(defq out (list))
-		(reach (lambda ((kind id buttons what))
-				(if id (push out (list (elem-get +pal_device_cols (% (length out) (length +pal_device_cols))) what)))) (get :rules (. (get :board this) :get_bindings)))
-		out)
+		;the dots of the devices, (. bindings :devices)
+		(. (. (get :board this) :get_bindings) :devices))
 
 	(defmethod :draw (canvas &optional m)
 		; (. palette :draw canvas [m]) -> palette
@@ -401,7 +400,8 @@
 		;far open as it is, and turns as it opens
 		(defq board (get :board this) hover (get :hover this) wedges (. this :get_wedges)
 			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
-			snap (/= (get :snap board) 0.0) devices (if (get :floating this) (. this :devices)))
+			snap (/= (first (. board :pointer_settings (ptr-event (get :id this) (get :kind this) +pev_left 0 0))) 0.0)
+			devices (if (get :floating this) (. this :devices)))
 		(bind '(ox oy) (get :origin this))
 		(defq turn (get :view_turn board)
 			base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
@@ -420,9 +420,10 @@
 							;a floating menu is nobody's: a dot of each device
 							;on what it has
 							(devices
-								(defq key (case what (:tool :mode) (:color :color) (:width :width)) mine (list))
+								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
+									want (if (eql key :snap) :t val) mine (list))
 								(each (lambda ((col bound))
-										(and key (defq at (find key bound)) (eql (elem-get bound (inc at)) val)
+										(and key (defq at (find key bound)) (eql (elem-get bound (inc at)) want)
 											(push mine col)))
 									devices)
 								(defq r (- (elem-get wedge +wedge_r1) 6.0)
@@ -431,7 +432,7 @@
 										(bind '(dx dy) (pal-point r (+ a0 (/ (* (- a1 a0) (n2f (inc (!)))) (n2f (inc (length mine)))))))
 										(push items (cwb-shape (cwb-d-ellipse dx dy 3.5) :fill col :stroke +pal_ink :width 0.75)))
 									mine)
-								(and (eql what :action) (eql val :snap) snap (push items (elem-get wedge +wedge_mark))))
+								)
 							((case what
 									(:tool (eql val mode))
 									(:color (= val color))

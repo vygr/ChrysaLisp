@@ -67,6 +67,9 @@
 ; bindings
 ;;;;;;;;;;
 
+;the colours of the devices' dots, (. bindings :devices)
+(defq +bindings_device_cols ''(0xffff9f1c 0xff2ec4b6 0xffe71d36 0xff9b5de5 0xfff15bb5 0xff00bbf9))
+
 (defclass Bindings () :nil
 	; (Bindings) -> bindings
 	;rules, each what it matches and what a pointer it matches is to be.
@@ -124,6 +127,20 @@
 		;one thing of what a pointer is to be
 		(defq what (. this :find event) at (if what (find key what)))
 		(if at (elem-get what (inc at)) default))
+
+	(defmethod :devices ()
+		; (. bindings :devices) -> ((color what) ...)
+		;each device, with the buttons it pressed with, that has been bound
+		;to something of its own, the colour of its dot and what it is
+		;bound to, the first bound the first colour. The menus and the
+		;toolbars show the same dots. Chris: "on the float menus each
+		;device showed a little dot (coloured per device, of that board)
+		;to show what that device had selected as its modes"
+		(defq out (list))
+		(reach (lambda ((kind id buttons what))
+				(if id (push out (list (elem-get +bindings_device_cols (% (length out) (length +bindings_device_cols))) what))))
+			(get :rules this))
+		out)
 	)
 
 (defun bindings-default ()

@@ -137,8 +137,10 @@ a touch screen, which are one. So two people with a pen each have their
 own tool and colour, and each sees a small dot of their own colour on the
 menu on what they have.
 
-* The toolbars do the same: the tools, the widths and the inks set what
-pressed them, and show nothing set of their own.
+* The toolbars do the same: the tools, the widths, the inks, snap and the
+lock set what pressed them, and show nothing set of their own. A button has
+a small dot in the corner for each pen, or button of the mouse, or touch,
+that is set to it, the same colour as on the menus.
 
 * A tap on the board leaves a dot. No menu comes from a tap there.
 
@@ -188,13 +190,17 @@ too.
 The first row has the paper, plain, a grid, lines, or two axes. It is there to
 work on and is not part of what is saved as the picture.
 
-The two buttons after it are snap. With the first on, a point that is drawn or
+The two buttons after it are snap, and the lock after them, and like the
+tools and the inks they are each pen's own, and the mouse's buttons', and
+touch's: a press turns over what that one has, and its dot shows it is on.
+One that has never been set has the board's, off to begin with. With the
+first on, a point that is drawn or
 dragged goes to the nearest point of the grid, a thing that is moved has its
 top left corner go there, and the lines of the paper are where the grid is.
 With the second on, a thing that is turned goes to the nearest 15 degrees,
 and so does a line pulled by an end.
 
-The lock after them is on to begin with: a corner that is dragged keeps the
+The lock is on to begin with: a corner that is dragged keeps the
 shape of what it sizes. With it off a corner goes where it is put, and the
 thing is made wider or taller.
 

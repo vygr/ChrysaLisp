@@ -123,12 +123,53 @@
 	*stripes* (Stripes *board*) *local_ms* 0 *framing* :nil *again* :nil
 	*farm_fails* 0 *kept* 0)
 
-(defun toolbar-states (toolbar states)
-	;a button that is on is the brighter
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color radio_col)))
-		(. toolbar :children) states))
+;The dots of the bars, Chris: "might need the toolbar to indicate who's in
+;that mode ? do we just have some colored dots on the button like other
+;indicators ?" A button holds its symbol and its dots one over the other,
+;in a stack, so the dots take no room and the bar is the size it was. The
+;colours are those of the menus' dots, (. bindings :devices)
+(defq *dots_of* :nil *dot_font* :nil)
+
+(defun button-dots (button cols)
+	;the dots of a button are these colours, in its bottom right corner
+	(unless (defq dots (get :dots button))
+		(defq text (get :label_text button) stack (Flow))
+		(def (setq dots (Flow)) :flow_flags (bit-mask +flow_flag_left +flow_flag_align_vbottom))
+		(def stack :flow_flags +flow_stack_fill)
+		(. text :sub)
+		(.-> stack (:add_child dots) (:add_child text))
+		(. button :add_child stack)
+		(def button :dots dots :dot_cols :nil))
+	;:nil till it is first laid out, with what it then holds
+	(unless (and (defq was (get :dot_cols button)) (= (length cols) (length was)) (every (const =) cols was))
+		(def button :dot_cols cols)
+		(each (# (. %0 :sub)) (. dots :children))
+		(each! (lambda (col)
+				(def (defq dot (Text)) :text (const (num-to-utf8 +sym_filled_circle)) :font *dot_font* :ink_color col)
+				(. dots :add_child dot))
+			(list cols) 0 (min 3 (length cols)))
+		;the sizes they ask for are found again, then they are put there
+		(.-> (get :label_flow button) (:constrain :t) :layout)
+		(.-> dots :layout :dirty_all)
+		(. button :dirty_all)))
+
+(defun binder-dots ()
+	;each button of the binders, the devices bound to what it binds, when
+	;what they are bound to has changed
+	(defq rules (get :rules (. *board* :get_bindings)) as (str rules))
+	(unless (eql as *dots_of*)
+		(setq *dots_of* as)
+		(unless *dot_font* (setq *dot_font* (create-font *env_symbol_file* 8)))
+		(defq devices (. (. *board* :get_bindings) :devices))
+		(defq cols-of (lambda (key value)
+			(reduce (lambda (out (col what))
+					(and (defq at (find key what)) (eql (elem-get what (inc at)) value) (push out col))
+					out)
+				devices (list))))
+		(each (# (button-dots %0 (cols-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
+		(each (# (button-dots %0 (cols-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
+		(each (# (button-dots %0 (cols-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
+		(each (# (button-dots %0 (cols-of %1 :t))) (. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
 ;a menu's colours are those of the ink bar that are solid, and four more.
 ;No menu opens from a tap on the board, a tap there is a dot: menus float,
@@ -173,16 +214,15 @@
 	(enum tool canvas spare key px py fx fy ox oy))
 
 (defun sync-ui ()
-	;the snap toolbar shows the board's snap, which a menu may have changed.
-	;The ink, tool and width bars show nothing: they are binders, and what
-	;each device is bound to is its own
+	;the bars are binders and show no state of their own: each button has a
+	;dot for each device that is bound to what it binds, (binder-dots). The
+	;grid a device snaps to is what the paper has at the zoom there is, and
+	;so is the board's, which a menu may have put on as the document's
+	(def *board* :snap_gap (snap-gap))
 	(defq on (/= (get :snap *board*) 0.0))
-	;the palette puts the snap on as the grid of the document: here it is
-	;what the paper has at the zoom there is
 	(and on (/= (get :snap *board*) (snap-gap)) (def *board* :snap (snap-gap)))
-	(unless (eql on *snap*)
-		(setq *snap* on)
-		(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))))
+	(setq *snap* on)
+	(binder-dots))
 
 (defun canvas-size ()
 	; (canvas-size) -> (width height)
@@ -1054,7 +1094,6 @@
 	;it is there to be invited to a board that is shared
 	(share-declare :nil)
 	;a corner keeps the shape of what it sizes, till the lock is put off
-	(toolbar-states *snap_toolbar* (list *snap* *snap_angle* (get :keep_shape *board*)))
 	(board-resized)
 	;as it was when it was last closed, if it has been: where it was and
 	;how big, as far as that is on the screen there now is
