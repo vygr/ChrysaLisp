@@ -171,7 +171,7 @@
 (defun button-lights (button slots)
 	;the squares of the devices bound to what the button binds lit, the
 	;button drawn again under them when they change
-	(defq strip (button-strip button) lit (sort (filter (# (< %0 (* +strip_cells 2))) slots)))
+	(defq strip (button-strip button) lit (sort (filter (# (< %0 (* +strip_cells 2))) slots) (const -)))
 	(unless (eql (str lit) (str (get :lit strip)))
 		(def strip :lit lit)
 		(.-> button :layout :dirty_all)))
