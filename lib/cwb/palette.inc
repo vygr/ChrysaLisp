@@ -36,7 +36,8 @@
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
 	+pal_widths ''(1.5 3.0 6.0 12.0)
-	+pal_actions ''(:undo :redo :ruler :protractor :full_protractor :set_square :set_square45 :snap :duplicate :delete))
+	;the instruments together, the rest together
+	+pal_actions ''(:undo :redo :snap :duplicate :delete :ruler :protractor :full_protractor :set_square :set_square45))
 
 ;a wedge, a list
 (enums +wedge 0
@@ -85,11 +86,18 @@
 			(:redo (list (pal-line "M 7 -2 L -2 -2 A 4.5 4.5 0 0 0 -2 7 L 3 7 M 3 -6 L 7 -2 L 3 2")))
 			(:ruler (list (pal-line (cwb-d-rect -9 -3.5 9 3.5) :width 1.6 :join :miter)
 				(pal-line "M -5 -3.5 L -5 0 M -1 -3.5 L -1 0 M 3 -3.5 L 3 0 M 7 -3.5 L 7 0" :width 1.4)))
-			(:protractor (list (pal-line "M -8.5 4 A 8.5 8.5 0 0 1 8.5 4 Z" :width 1.6) (pal-line "M 0 4 L 0 1" :width 1.4)))
+			;the instruments as they are, Chris: "still only 3 instruments on
+			;the ring menu ?": a protractor its marks round its edge, the
+			;whole one its line across, no cross that was a target, and a set
+			;square a right angle with the hole in it a set square has
+			(:protractor (list (pal-line "M -9 4 A 9 9 0 0 1 9 4 Z" :width 1.6)
+				(pal-line "M 0 -5 L 0 -2.5 M -6.4 -1.6 L -4.6 -0.4 M 6.4 -1.6 L 4.6 -0.4 M 0 4 L 0 1.5" :width 1.2)))
 			(:full_protractor (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6)
-				(pal-line "M 0 -8.5 L 0 -5 M 8.5 0 L 5 0 M 0 8.5 L 0 5 M -8.5 0 L -5 0 M -1.5 0 L 1.5 0 M 0 -1.5 L 0 1.5" :width 1.4)))
-			(:set_square (list (pal-line "M -7 6 L 7 6 L -7 -7 Z" :width 1.6)))
-			(:set_square45 (list (pal-line "M -9 5 L 9 5 L 0 -4 Z" :width 1.6)))
+				(pal-line "M -8.5 0 L 8.5 0 M 0 -8.5 L 0 -6 M 0 8.5 L 0 6 M 6 -6 L 4.5 -4.5 M -6 -6 L -4.5 -4.5 M 6 6 L 4.5 4.5 M -6 6 L -4.5 4.5" :width 1.2)))
+			(:set_square (list (pal-line "M -6 8 L 6 8 L -6 -9 Z" :width 1.6)
+				(pal-line "M -3.6 5.6 L 0.8 5.6 L -3.6 -1.6 Z" :width 1.2)))
+			(:set_square45 (list (pal-line "M -8 7 L 8 7 L -8 -9 Z" :width 1.6)
+				(pal-line "M -5.4 4.6 L 0.6 4.6 L -5.4 -1.4 Z" :width 1.2)))
 			(:window (list (pal-line (cwb-d-rect -8 -6 8 6) :width 1.6 :join :miter)
 				(pal-line "M -8 -2 L 8 -2" :width 1.4)))
 			(:snap (list (pal-line "M -7 -2.5 L 7 -2.5 M -7 2.5 L 7 2.5 M -2.5 -7 L -2.5 7 M 2.5 -7 L 2.5 7" :width 1.4)))
