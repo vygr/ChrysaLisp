@@ -1,8 +1,9 @@
-# The ChrysaLisp Network Stack: URL, JSON, and HTTP/1.1
+# The ChrysaLisp Network Stack: URL, JSON, HTTP/1.1 and HTTPS
 
 This document provides a comprehensive technical overview of the modern network
-stack and data interchange libraries located in `lib/net/`, together with the
-`cmd/nettest.lisp` command-line utility.
+stack and data interchange libraries located in `lib/net/`, the TLS 1.3 client
+that HTTPS runs over and the cryptography under it in `lib/crypto/`, together
+with the `cmd/nettest.lisp` and `cmd/curl.lisp` command-line utilities.
 
 The network stack bridges ChrysaLisp's message-based distributed actor
 architecture with standard Internet protocols. Built entirely in idiomatic
@@ -41,6 +42,11 @@ expressly avoided:
    `stream` abstractions (`in-stream`, `out-stream`, `memory-stream`, `fstream`).
    Response payloads can stream directly into memory or destination file streams
    on disk with constant memory overhead.
+
+5. **Secure Transport is Just Another Stream Pair:** An `https://` request is
+   the same request over a different `(in out)` pair. `tls-open` gives two
+   `lisp-stream`s that seal and open TLS records underneath, so the HTTP code
+   above them reads lines and blocks exactly as it does over a plain socket.
 
 ## 2. The URL Codec (`lib/net/url.inc`)
 
@@ -223,7 +229,8 @@ docs/diagrams/http_client.cwb
 ### 4.2. Connection Pooling (`+http_pool`)
 
 To eliminate TCP handshake latency on repeated requests, `http.inc` maintains a
-private, host-keyed connection pool (`+http_pool`):
+private, host-keyed connection pool (`+http_pool`). Plain HTTP only: an HTTPS
+connection is opened for each request and closed after it, see section 5.
 
 1. **Checkout (`http-pool-checkout`):**
 
@@ -315,12 +322,125 @@ Responses are returned as a persistent hash map (`pmap`):
 The helper `(http-body-str resp)` extracts the entire body stream as a single
 string and resets the stream position to 0.
 
-## 5. The `nettest` CLI Command (`cmd/nettest.lisp`)
+## 5. HTTPS: the TLS 1.3 Client (`lib/net/tls.inc`)
+
+`https://` URLs go over a TLS 1.3 client, RFC 8446, written in ChrysaLisp
+with no host library: the key exchange, the cipher, the hashes and the
+signature checks are all in `lib/crypto/`. `http-request` sees the scheme and
+calls `tls-open` in place of taking a pooled socket; everything after that,
+headers, chunked bodies, `dest_stream`, is the same code.
+
+### 5.1. What It Speaks
+
+The client offers exactly one way to talk:
+
+* **Version:** TLS 1.3 only.
+* **Key exchange:** an X25519 key share (`lib/crypto/x25519.inc`, RFC 7748).
+* **Cipher suite:** `TLS_CHACHA20_POLY1305_SHA256` (`lib/crypto/chacha20.inc`,
+  `poly1305.inc`, `aead.inc`, RFC 8439).
+* **Key schedule:** HKDF over HMAC-SHA-256 (`lib/crypto/hkdf.inc`, RFC 5869),
+  the labels of RFC 8446 section 7.1.
+
+A server that will not take all of these is not talked to: the handshake
+does not finish. Most large sites (GitHub, Google, example.com) speak TLS
+1.3 with ChaCha20; a server that is TLS 1.2 only is refused.
+
+### 5.2. The Handshake
+
+`tls-handshake` sends a ClientHello with a fresh X25519 key, reads the
+ServerHello's share, and derives the handshake keys. Then, in the sealed
+records, it reads:
+
+1. **EncryptedExtensions**, added to the transcript.
+2. **Certificate**, the server's chain, each certificate read by
+   `x509-parse`, and checked by `x509-chain-check` (section 5.3).
+3. **CertificateVerify**, a signature over the transcript so far by the key
+   in the server's own certificate: proof the server holds the private key.
+   ECDSA on P-256 and P-384, RSA-PSS and Ed25519 are understood
+   (`tls-scheme`).
+4. **Finished**, an HMAC over the transcript, which proves both sides
+   derived the same keys and saw the same handshake.
+
+Only then does the client send its own Finished and switch to the
+application keys. The server's session tickets that follow are read past.
+
+### 5.3. Who the Server Is (`lib/crypto/x509.inc`)
+
+A connection is refused unless:
+
+* the first certificate is for the host asked for, by one of its names, a
+  `*.` name covering one label more;
+* each certificate is issued by the next one sent, by name and by a
+  signature that checks, up to one issued by a root (or itself a root);
+* the roots are those the host machine keeps, read once per task from the
+  first of `/etc/ssl/cert.pem`, `/etc/ssl/certs/ca-certificates.crt` or
+  `/etc/pki/tls/certs/ca-bundle.crt`;
+* every certificate on the way is in date, and every one above the server's
+  may issue others;
+* the server signed the handshake with its certificate's key.
+
+The signatures are checked by `lib/crypto/ecdsa.inc` and `lib/crypto/rsa.inc`
+(PKCS #1 v1.5 and PSS), on big numbers of 26 bit limbs
+(`lib/math/bignum.inc`), and `lib/crypto/ed25519.inc`. Their long loops
+call `task-slice`, so checking a chain does not hold up the other tasks of
+the node.
+
+**Not checked:** whether a certificate has been revoked, name constraints,
+key usage limits and path length limits. A host with no roots in any of
+the files above can check no server, and every `https://` fetch fails
+with that reason.
+
+### 5.4. The API
+
+```vdu
+(tls-open host port [unchecked]) -> :nil | (in out state)
+(tls-close conn)
+(tls-why) -> :nil | str        ;why the last tls-open of this task failed
+*tls_unchecked*                ;:t, and no certificate is asked for
+```
+
+`in` and `out` are `lisp-stream`s. Writes are cut into records of at most
+16384 bytes and sealed; reads open the next record. A close sends the
+close_notify alert.
+
+```vdu
+(import "lib/net/http.inc")
+
+(if (defq resp (http-get "https://github.com/"))
+	(print (pfind resp :status))
+	(print "failed: " (tls-why)))
+```
+
+`curl` prints `(tls-why)` when an `https://` fetch fails, and `curl -k` sets
+`*tls_unchecked*`: the connection is still private, but who answered is
+not known.
+
+### 5.5. Two Traps Found Building It
+
+* **Streams made inside a module.** A `lisp-stream` whose fill or write
+  function is put in a backquote as `,tls-fill`, made by a function of a
+  module, looks for `tls-fill` when the stream runs. By then the module's
+  names are gone, the error goes into the form, and the stream says nothing.
+  `tls-open` is therefore defined after the module's `env-pop`. `cmd/check.lisp`
+  now reports this.
+* **What a server sends is not trusted.** Lengths in a certificate or a
+  handshake message are checked before any index is taken: a release build
+  would not stop an index past the end.
+
+### 5.6. Tests
+
+`tests/net/test_tls.lisp` (the key schedule against Python's `hmac`, a
+CertificateVerify OpenSSL signed), `tests/crypto/test_x509.lisp` (a chain
+OpenSSL made), `test_signatures.lisp`, `test_x25519.lisp` (the RFC vectors),
+`test_chacha20.lisp`, `test_poly1305.lisp`, `test_aead.lisp`, and
+`tests/math/test_bignum.lisp`.
+
+## 6. The `nettest` CLI Command (`cmd/nettest.lisp`)
 
 `cmd/nettest.lisp` serves as an interactive diagnostic utility and reference
 implementation demonstrating the complete network stack.
 
-### 5.1. Command-Line Syntax
+### 6.1. Command-Line Syntax
 
 ```
 Usage: nettest [options] [url|host] [port]
@@ -334,7 +454,7 @@ Usage: nettest [options] [url|host] [port]
         nettest http://httpbin.org/get?msg=hello+world
 ```
 
-### 5.2. Execution Flow
+### 6.2. Execution Flow
 
 1. Parses command-line arguments using `lib/options/options.inc`.
 
@@ -349,9 +469,9 @@ Usage: nettest [options] [url|host] [port]
 5. Iterates through the response body stream using `lines!` to print the content
    directly to standard output.
 
-## 6. Practical Examples & Idioms
+## 7. Practical Examples & Idioms
 
-### 6.1. Fetching and Parsing JSON from an API
+### 7.1. Fetching and Parsing JSON from an API
 
 ```vdu
 (import "lib/net/http.inc")
@@ -364,7 +484,7 @@ Usage: nettest [options] [url|host] [port]
 			(json-parse (http-body-str resp)))))
 ```
 
-### 6.2. Posting JSON Data
+### 7.2. Posting JSON Data
 
 ```vdu
 (defun update-status (status_msg)
@@ -373,7 +493,7 @@ Usage: nettest [options] [url|host] [port]
 		(pmap :content-type "application/json")))
 ```
 
-### 6.3. Streaming a Large File to Disk
+### 7.3. Streaming a Large File to Disk
 
 ```vdu
 (defun download-file (url local_path)
@@ -383,7 +503,7 @@ Usage: nettest [options] [url|host] [port]
 		(= (pfind resp :status) 200)))
 ```
 
-### 6.4. Safe Parameter Encoding
+### 7.4. Safe Parameter Encoding
 
 ```vdu
 (import "lib/net/url.inc")
@@ -396,11 +516,13 @@ Usage: nettest [options] [url|host] [port]
 		:params (pmap :q query :p (str page)))))
 ```
 
-## 7. Summary
+## 8. Summary
 
 The ChrysaLisp network libraries demonstrate how standard internet protocols can
 be cleanly expressed within a modern Lisp operating environment. By pairing
 native assembly acceleration (`splice`, `(:str :unescape)`) with non-recursive
-heap-stack parsers and connection pooling, ChrysaLisp achieves robust,
+heap-stack parsers and connection pooling, and a TLS 1.3 client whose
+cryptography is its own, from the X25519 key exchange to the checking of the
+server's certificate chain, ChrysaLisp achieves robust,
 high-throughput network I/O with minimal memory footprints and predictable
 execution times.

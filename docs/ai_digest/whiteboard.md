@@ -14,16 +14,27 @@ be driven without a hand. The way the instruments work, edges that hold a pen
 and regions that do things, is his from those boards. Nothing here is that
 code.
 
+If you hover the mouse over the embedded UI below you can see the kind of
+features available. There are more features available through the key bindings
+which can be found in the [`keys.md`](../reference/keys.md) documentation.
+
+## UI
+
+```widget
+apps/media/whiteboard/widgets.inc *window* 512 512
+```
+
 ## The parts
 
 ```vdu
-lib/cwb/doc.inc         a document: layers, shapes, groups, the file
+lib/cwb/doc.inc         a document: shapes, groups, the file
 lib/cwb/pointer.inc     pointers, a stage of actors, bindings
 lib/cwb/board.inc       a board: a document that is worked on
 lib/cwb/tools.inc       the instruments
-lib/cwb/palette.inc     a palette that opens on the board
+lib/cwb/palette.inc     menus that float on the board
 lib/cwb/paper.inc       what is behind a document while it is worked on
 lib/cwb/stripes.inc     a board drawn in stripes by the nodes
+lib/cwb/share.inc       a board shared with boards on other machines
 lib/image/cwb.inc       a .cwb as a picture
 cmd/cwb.lisp            the command
 apps/media/whiteboard/  the app
@@ -627,37 +638,36 @@ parts move and turn it together.
 `:ratio` of its two square sides, are each a `:rebuild` that fills in that
 table from `:length`. Another instrument is another table.
 
-## The palette
-
-*To change: no menu from a tap on the canvas, the palette a floating menu made from the toolbar, see [The board to come](#binders-the-toolbar-and-floating-menus).*
+## Menus
 
 ```image
 apps/media/whiteboard/data/palette.cwb
 ```
 
 Chris: "Animating interactive pellets and menu's, mostly keep the surface
-clear for the user to work unhindered". A hand that goes down and comes up
-where there is nothing, with nothing selected, opens a `Palette` there,
-`lib/cwb/palette.inc`. The hand is the right button of a mouse, a finger,
-or the left button when the board is set to select. A pen has no hand of
-its own: the button on its side rubs out, and a tap of that on nothing,
-that rubbed nothing out, opens the palette for it. `(palette-enable board)` is what makes a board do it, the app
-and the `cwb` command both do.
+clear for the user to work unhindered". A menu is a `Palette`,
+`lib/cwb/palette.inc`, three rings about a point. The tools. The colours and
+the widths. Things to do: undo, redo, a ruler, a protractor, a whole
+protractor, the two set squares, snap, duplicate, delete.
 
-It is three rings about the point. The tools. The colours and the widths.
-Things to do: undo, redo, a ruler, a protractor, a whole protractor, the
-two set squares, snap, duplicate, delete. The wedge of what is set has a line of light at its rim,
-and the spot in the middle is the colour, as wide as the width. A tap on a
-tool sets it and puts the palette away. A colour or a width is set and it
-stays. A tap on its middle, or anywhere off it, puts it away.
+In the app a menu floats, `(palette-float board x y)`, made by the dial,
+the last button of the instruments' bar. Chris: "a button on the toolbar
+... created a floating menu (just another object that also lives in this
+multi inputs swarm) and you could drag them around, have as many as you
+wanted". It stays till its middle is tapped, and is dragged by its middle.
+A tap on it binds what tapped it, `(. palette :bind_tapper event key val)`:
+the device, with the buttons it had held, all the fingers of a touch screen
+as one, and what that user has selected takes a colour or a width. Chris:
+"taps on them effect their pen as you KNOW what device has tapped on them".
+Each device that has bound something on it shows a small dot of its own
+colour on the wedge, `(. palette :devices)`. Undo and redo from a menu are
+the teacher's only. Nothing opens from a tap on the board, Chris: "A tap on
+the canvas did leave a dot as I didn't have a pop up menu on the canvas".
 
-It is an actor on the stage, like a ruler, so it is in front of the
-document, takes any pointer, and there can be more than one. It belongs to
-the pointer that opened it. What a pen picks is that pen's: the pen is
-bound, by its id, to the tool, the colour and the width, and another pen, or
-the mouse, keeps what it had. So two people at a board with a pen each have
-a palette each. What a mouse or a finger picks is the board's, and the
-app's toolbars are made to show it.
+The `cwb` command still has the palette that opens under a hand that taps on
+nothing, `(palette-enable board)`, and `(palette-open board x y kind id)`.
+That one belongs to the pointer that opened it, a pick of a tool puts it
+away, and a pointer of its own going down elsewhere does too, `:dismiss`.
 
 It opens out, a ring after a ring, each turning as it comes, and shuts
 quicker. It does not ask what the time is. `(. board :tick time)`,
@@ -667,9 +677,10 @@ moving. The app calls it from its timer. A test, or a script, steps it.
 For a script:
 
 ```vdu
-(defq p (palette-open board 400 300))   ;or by a tap, as a hand does
+(defq p (palette-float board 400 300))  ;as the dial does
 (. board :tick 1000000)                 ;a second on, it is open
-(. p :pick :tool :rect)                 ;what a tap on that wedge does
+(. p :pick :tool :rect                  ;what a pen's tap does, for it
+	(ptr-event 0x2000000 :pen 1 400 300))
 (. p :where :color 0xffe03131)          ;where that wedge is, to tap it
 (palettes board)                        ;those that are open
 ```
