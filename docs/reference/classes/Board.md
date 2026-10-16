@@ -460,6 +460,16 @@ the items that are selected, each one of a layer's own, in the
 order they are in, the back one first
 ```
 
+### :selecting?
+
+```code
+(. board :selecting?) -> :t | :nil
+
+is anything in select mode, the board or a device bound to it, so
+what is selected has its handles. Chris: "When I select a shape I
+can't see shape controls. Just the selected outline."
+```
+
 ### :set_doc
 
 ```code

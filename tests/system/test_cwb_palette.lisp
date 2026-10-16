@@ -319,6 +319,15 @@
 	(some (lambda ((kind id buttons &ignore)) (eql buttons 0)) (get :rules (. pf_board :get_bindings))))
 (assert-eq "and in select mode the mouse's left is the hand, not a pen" :select
 	(. (. pf_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode))
+;what is selected has its handles while a device is in select mode, the
+;board's own mode a pen
+(defq ph_board (Board (cwb-doc 400 400)))
+(. ph_board :tick 1000000)
+(pl-drag ph_board 0 :mouse +pev_left 10 10 100 100)
+(. ph_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. ph_board :get_doc))))
+(assert-eq "nothing in select mode, no handles" :nil (. (get :handles ph_board) :box))
+(. (. ph_board :get_bindings) :set :mouse 0 +pev_left :mode :select)
+(assert-true "the mouse in select mode, the handles" (. (get :handles ph_board) :box))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))

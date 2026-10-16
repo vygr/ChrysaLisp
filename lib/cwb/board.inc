@@ -816,10 +816,10 @@
 
 	(defmethod :box ()
 		; (. handles :box) -> :nil | (x y x1 y1)
-		;the box round what is selected, :nil if nothing is, or the board
-		;is not in select mode
+		;the box round what is selected, :nil if nothing is, or nothing is
+		;in select mode
 		(raise :board)
-		(and (eql (get :mode board) :select) (nempty? (get :selected board))
+		(and (. board :selecting?) (nempty? (get :selected board))
 			(cwb-bounds (. board :selected_items))))
 
 	(defmethod :frame ()
@@ -828,7 +828,7 @@
 		;is. Of one thing, its own box and its own matrix. Of several, the
 		;box round them and no change
 		(raise :board)
-		(and (eql (get :mode board) :select) (nempty? (defq items (. board :selected_items)))
+		(and (. board :selecting?) (nempty? (defq items (. board :selected_items)))
 			(cond
 				((= (length items) 1)
 					(defq item (first items)
@@ -840,7 +840,7 @@
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
 		;if what is selected is one line, it, and its two ends in its own space
 		(raise :board)
-		(when (and (eql (get :mode board) :select) (= (length (defq items (. board :selected_items))) 1)
+		(when (and (. board :selecting?) (= (length (defq items (. board :selected_items))) 1)
 				(cwb-shape? (defq item (first items)))
 				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
 			(defq parts (split (elem-get item +cwb_d) " "))
@@ -1196,6 +1196,15 @@
 				(0.0))
 			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
 			(. bindings :value event :keep_shape (get :keep_shape this))))
+
+	(defmethod :selecting? ()
+		; (. board :selecting?) -> :t | :nil
+		;is anything in select mode, the board or a device bound to it, so
+		;what is selected has its handles. Chris: "When I select a shape I
+		;can't see shape controls. Just the selected outline."
+		(or (eql (get :mode this) :select)
+			(some (lambda ((& & & what)) (and (defq at (find :mode what)) (eql (elem-get what (inc at)) :select) :t))
+				(get :rules (get :bindings this)))))
 
 	(defmethod :switch_of (what key)
 		; (. board :switch_of what key) -> :t | :nil
