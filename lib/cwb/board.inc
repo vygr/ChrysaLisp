@@ -523,7 +523,11 @@
 						(and (not shut) (or holding (empty? (get :selected board)))
 							(elem-set state +stroke_snap :tap))
 						(unless holding (. board :select (list))))))
-			(:eraser (unless holding (. board :select (list))) (. board :snapshot))
+			;what is selected stays so, and what is left of it after a
+			;bite, (:bite), with its handles, Chris: "I can select a shape
+			;and then erase though it, but the select controls vanish as
+			;the erase takes a bite"
+			(:eraser (. board :snapshot))
 			(:pan)
 			(:text
 				;the words the board has are put down where the pointer is,

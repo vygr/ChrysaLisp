@@ -371,6 +371,21 @@
 (. pe_board :pointers (list (ptr-event 0 :mouse 0 110 200)))
 (. pe_board :tick 3000000)
 (assert-eq "nothing more is rubbed out as the eraser lifts" pe_was (str (cwb-items (. pe_board :get_doc))))
+;what is selected stays so as an eraser bites it, the left selecting and
+;the right rubbing out, Chris: "the select controls vanish as the erase takes
+;a bite"
+(defq ps_board (Board (cwb-doc 400 400)))
+(. ps_board :tick 1000000)
+(. (. ps_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(pl-drag ps_board 0 :mouse +pev_left 50 50 250 250)
+(.-> (. ps_board :get_bindings) (:set :mouse 0 +pev_left :mode :select) (:set :mouse 0 +pev_right :mode :eraser))
+(. ps_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. ps_board :get_doc))))
+(pl-drag ps_board 0 :mouse +pev_right 380 150 20 150)
+(. ps_board :tick 2000000)
+(assert-true "bitten through, what is left is selected, with its handles"
+	(and (nempty? (get :selected ps_board)) (. (get :handles ps_board) :box)))
+(assert-true "and it was bitten: a mode bound to the right button is a pen of it, not the hand it was"
+	(eql (. (. ps_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :tool) :pen))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))

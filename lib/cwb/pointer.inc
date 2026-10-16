@@ -111,7 +111,11 @@
 					(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
 					(setq rule (first (get :rules this))))
 				(defq what (elem-get rule 3) at (find key what))
-				(if at (elem-set what (inc at) value) (push what key value)))
+				(if at (elem-set what (inc at) value) (push what key value))
+				;a mode is what a pen draws: a rule that was another tool, the
+				;hand of the right button, is a pen of that mode now, or the
+				;mode bound would do nothing
+				(and (eql key :mode) (defq at (find :tool what)) (elem-set what (inc at) :pen)))
 			(if (and (eql kind :mouse) (eql buttons +pev_middle)) (list +pev_left +pev_right) (list buttons)))
 		this)
 
