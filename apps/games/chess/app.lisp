@@ -38,7 +38,7 @@
 	(each! (lambda (square piece)
 		(defq i (!))
 		(def square :text (elem-get
-			(if (= (logand (+ i (>> i 3)) 1) 0) "lcjkdfhbiaeg " "hbiaeglcjkdf ")
+			(if (= (logand (+ i (>> i 3)) 1) 0) "kbijcegah`df " "gah`dfkbijce ")
 			(find piece "QKRBNPqkrbnp ")))
 		(if (= (logand (+ i (>> i 3)) 1) 0)
 			(defq paper +argb_white ink +argb_black)
