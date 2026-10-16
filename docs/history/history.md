@@ -249,7 +249,7 @@ the software that turns a page description into the dots a printer lays down,
 for the publishing houses of London. He wrote one for Taos. Andy Stout took it
 to Saatchi and Saatchi and ran it there in parallel with their commercial RIP.
 It beat the commercial one every time, and matched its output so exactly that
-it reproduced its bugs. Andy later wrote the assembler and development
+it reproduced its bugs. Andy Thomason later wrote the assembler and development
 environment used for the PlayStation, and now lectures at Goldsmiths,
 University of London.
 
