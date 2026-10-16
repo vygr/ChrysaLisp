@@ -45,9 +45,9 @@ it shuts, and is off the stage when it has, at a (:tick)
 ### :devices
 
 ```code
-(. palette :devices) -> ((color what) ...)
+(. palette :devices) -> ((color what slot) ...)
 
-the dots of the devices, (. bindings :devices)
+the dots of the devices, (. bindings :devices), each in its place
 ```
 
 ### :dismiss

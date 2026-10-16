@@ -124,6 +124,17 @@ is locked stay. How many went
 take out what is selected
 ```
 
+### :device_slot
+
+```code
+(. board :device_slot kind id) -> 0 to 5
+
+the place of a device in the dots of the bars and the menus, and
+its colour, Chris: "mouse first, then touch, then 4 pens (teacher
+then 3 students)". A pen's other end is that pen. A pen not seen
+yet is given its user, a student counted as it is first seen
+```
+
 ### :dirty?
 
 ```code

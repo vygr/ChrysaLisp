@@ -390,9 +390,10 @@
 			open))
 
 	(defmethod :devices ()
-		; (. palette :devices) -> ((color what) ...)
-		;the dots of the devices, (. bindings :devices)
-		(. (. (get :board this) :get_bindings) :devices))
+		; (. palette :devices) -> ((color what slot) ...)
+		;the dots of the devices, (. bindings :devices), each in its place
+		(defq board (get :board this))
+		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1))))
 
 	(defmethod :draw (canvas &optional m)
 		; (. palette :draw canvas [m]) -> palette
@@ -422,7 +423,7 @@
 							(devices
 								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
 									want (if (eql key :snap) :t val) mine (list))
-								(each (lambda ((col bound))
+								(each (lambda ((col bound &ignore))
 										(and key (defq at (find key bound)) (eql (elem-get bound (inc at)) want)
 											(push mine col)))
 									devices)

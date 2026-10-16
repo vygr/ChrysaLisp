@@ -123,53 +123,58 @@
 	*stripes* (Stripes *board*) *local_ms* 0 *framing* :nil *again* :nil
 	*farm_fails* 0 *kept* 0)
 
-;The dots of the bars, Chris: "might need the toolbar to indicate who's in
-;that mode ? do we just have some colored dots on the button like other
-;indicators ?" A button holds its symbol and its dots one over the other,
-;in a stack, so the dots take no room and the bar is the size it was. The
-;colours are those of the menus' dots, (. bindings :devices)
-(defq *dots_of* :nil *dot_font* :nil)
+;The lights of the bars, Chris: "might need the toolbar to indicate who's
+;in that mode ? do we just have some colored dots on the button like other
+;indicators ?", and then "a clear 6 element strip of small squares (grid)
+;under each button symbol, so they are always there, just transparent when
+;not indicating a device". Each device has its square and its colour, the
+;same as its dots on the menus, "mouse first, then touch, then 4 pens
+;(teacher then 3 students)", (. board :device_slot). Made with the bars,
+;before the window is laid out, so the bars are the size they are from
+;the first and only colours change after
+(defq *dots_of* :nil +strip_cells 6)
 
-(defun button-dots (button cols)
-	;the dots of a button are these colours, in its bottom right corner
-	(unless (defq dots (get :dots button))
-		(defq text (get :label_text button) stack (Flow))
-		(def (setq dots (Flow)) :flow_flags (bit-mask +flow_flag_left +flow_flag_align_vbottom))
-		(def stack :flow_flags +flow_stack_fill)
-		(. text :sub)
-		(.-> stack (:add_child dots) (:add_child text))
-		(. button :add_child stack)
-		(def button :dots dots :dot_cols :nil))
-	;:nil till it is first laid out, with what it then holds
-	(unless (and (defq was (get :dot_cols button)) (= (length cols) (length was)) (every (const =) cols was))
-		(def button :dot_cols cols)
-		(each (# (. %0 :sub)) (. dots :children))
-		(each! (lambda (col)
-				(def (defq dot (Text)) :text (const (num-to-utf8 +sym_filled_circle)) :font *dot_font* :ink col)
-				(. dots :add_child dot))
-			(list cols) 0 (min 3 (length cols)))
-		;the sizes they ask for are found again, then they are put there
-		(.-> (get :label_flow button) (:constrain :t) :layout)
-		(.-> dots :layout :dirty_all)
-		(. button :dirty_all)))
+(defun button-strip (button)
+	; (button-strip button) -> grid
+	;the strip of a button, under its symbol, made the first time
+	(unless (defq strip (get :strip button))
+		(def button :flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter))
+		(def (setq strip (Grid)) :grid_width +strip_cells :grid_height 1)
+		(times +strip_cells
+			(def (defq cell (Backdrop)) :style :plain :paper 0 :min_width 4 :min_height 4)
+			(. strip :add_child cell))
+		(. button :add_child strip)
+		(def button :strip strip))
+	strip)
+
+(defun button-lights (button slots)
+	;the squares of the devices bound to what the button binds lit, in
+	;their colours, the rest clear
+	(each (lambda (cell)
+			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (!)) 0))
+			(unless (= paper (get :paper cell))
+				(def cell :paper paper)
+				(.-> cell :layout :dirty)))
+		(. (button-strip button) :children)))
 
 (defun binder-dots ()
 	;each button of the binders, the devices bound to what it binds, when
-	;what they are bound to has changed
+	;what they are bound to has changed, and its strip the first time
 	(defq rules (get :rules (. *board* :get_bindings)) as (str rules))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
-		(unless *dot_font* (setq *dot_font* (create-font (get :symbol_file *env*) 8)))
-		(defq devices (. (. *board* :get_bindings) :devices))
-		(defq cols-of (lambda (key value)
-			(reduce (lambda (out (col what))
-					(and (defq at (find key what)) (eql (elem-get what (inc at)) value) (push out col))
-					out)
-				devices (list))))
-		(each (# (button-dots %0 (cols-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
-		(each (# (button-dots %0 (cols-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
-		(each (# (button-dots %0 (cols-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
-		(each (# (button-dots %0 (cols-of %1 :t))) (. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
+		(defq devices (. (. *board* :get_bindings) :devices (# (. *board* :device_slot %0 %1))))
+		(defq slots-of (lambda (key value)
+			(defq out (list))
+			(each (lambda ((& what slot))
+					(and (defq at (find key what)) (eql (elem-get what (inc at)) value)
+						(push out slot)))
+				devices)
+			out))
+		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
+		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
+		(each (# (button-lights %0 (slots-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
+		(each (# (button-lights %0 (slots-of %1 :t))) (. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
 ;a menu's colours are those of the ink bar that are solid, and four more.
 ;No menu opens from a tap on the board, a tap there is a dot: menus float,
@@ -1097,6 +1102,8 @@
 	(board-resized)
 	;as it was when it was last closed, if it has been: where it was and
 	;how big, as far as that is on the screen there now is
+	;the strips of the binders, before the window is sized
+	(binder-dots)
 	(defq config (catch (config-load) (progn (prin _) (print) :t))
 		place (if (list? config) (apply view-fit (slice config 0 4)) (apply view-locate (. *window* :pref_size))))
 	(bind '(x y w h) place)
