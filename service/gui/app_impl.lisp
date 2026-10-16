@@ -61,7 +61,7 @@
 				(+ev_msg_type +ev_type_action)
 				(+ev_msg_target_id +event_close)
 				(+ev_msg_action_source_id source_id)))))
-		(. *screen* :children))
+		(screen-children))
 	;run login app or quit ?
 	(if quit
 		(setq *quitting* :t)
@@ -85,7 +85,7 @@
 	(each (lambda (child)
 			(and (not out) (defq title (window-title child)) (found? title want)
 				(setq out child)))
-		(. *screen* :children))
+		(screen-children))
 	out)
 
 (defun widget-tree (request)
@@ -137,7 +137,7 @@
 	(each (lambda (child)
 			(and (not area) (defq title (window-title child)) (found? title want)
 				(setq area (. child :get_bounds))))
-		(. *screen* :children))
+		(screen-children))
 	(cond
 		((not area) "")
 		(:t (bind '(x y w h) area)
@@ -214,7 +214,7 @@
 										(+ev_msg_type +ev_type_action)
 										(+ev_msg_target_id +event_theme)
 										(+ev_msg_action_source_id (. child :get_id))) name))))
-								(. *screen* :children))
+								(screen-children))
 							(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 						(+gui_rpc_type_add_back
 							;add view at back
@@ -230,7 +230,7 @@
 						(+gui_rpc_type_owners
 							;the task that has each window, the reply
 							(setq msg (str (map (# (if (defq owner (. %0 :find_owner)) (hex-encode owner) ""))
-								(filter (# (nql %0 *mouse*)) (. *screen* :children))))))
+								(filter (# (nql %0 *mouse*)) (screen-children))))))
 						(+gui_rpc_type_locate
 							;where a window or a view in it is, the reply
 							(setq msg (locate (slice msg +gui_rpc_size -1))))
@@ -260,7 +260,7 @@
 						(dispatch last_motion +gui_ev_mouse_motion))
 					;remove orphans
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
-							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))
+							(.-> %0 :hide :sub))) (defq children (screen-children)))
 					;quit if no apps
 					(and *quitting* (<= (length children) 1) (setq *running* :nil))
 					;the next frame is due a frame time after this one began. But
@@ -274,7 +274,7 @@
 	(mail-forget service)
 	(mail-forget sys_service)
 	(mail-timeout (elem-get select +select_timer) 0 0)
-	(each (# (. %0 :sub)) (. *screen* :children))
+	(each (# (. %0 :sub)) (screen-children))
 	(setq *mouse* :nil *screen* :nil)
 	(gui-deinit)
 	;the GUI has quit, and so this node goes with it, a desktop is a node.

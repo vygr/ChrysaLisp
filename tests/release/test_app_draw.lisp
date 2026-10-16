@@ -17,8 +17,7 @@
 
 ;not those that are the desktop's own, open from the start, the wallpaper
 ;that is the desktop and starts them, nor those that end it or log in. Not
-;Raymarch: closed, the GUI goes with it, item 123, and it writes its film
-;into the tree
+;Raymarch: it writes its film into the tree as it goes, item 124
 (defq ad_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch")
 		(get :launcher_auto_apps *env*))
 	ad_apps (sort (filter (lambda (app) (not (find app ad_skip)))
@@ -52,10 +51,10 @@
 
 (defun ad-settle (secs)
 	; (ad-settle secs) -> num
-	;the windows, once no more come for a second, or the time is up
+	;the windows, once no more come for half a second, or the time is up
 	(defq was -1 now (ad-windows) t0 (pii-time))
 	(while (and (/= was now) (< (- (pii-time) t0) (task-timeout secs)))
-		(task-sleep 1000000)
+		(task-sleep 500000)
 		(setq was now now (ad-windows)))
 	now)
 
@@ -102,7 +101,7 @@
 		(defq ad_seen 0 ad_keys (list :type :text :text_cache :paper :ink :font))
 		(while (and (defq owners (gui-owners-rpc)) (nempty? owners)
 				(nempty? (defq owner (first owners))) (not (find owner ad_desk)) (< ad_seen 100))
-			(task-sleep 100000)
+			(task-sleep 40000)
 			(defq front (some (# (if (nql (ad-title (ad-nodes %0)) "?") %0))
 					(ifn (. (ifn (ad-screen 6 (list :type :text)) (Emap)) :find :children) (list)))
 				title (if front (ad-title (ad-nodes front)) "?"))

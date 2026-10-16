@@ -16,6 +16,17 @@
 	+mod_toggles `'(
 		,+sc_capslock ,+sc_numlockclear))
 
+(defun screen-children ()
+	; (screen-children) -> (view ...)
+	;the views of the screen, the windows, the mouse, the wallpaper. Not one
+	;that stands where a view was hidden, (. view :hide), in gui/view: a bare
+	;view, of no class, there till the frame is drawn so what was under the
+	;view is drawn again, and freed with the frame. It has no methods, and a
+	;method of it is an error that ends the GUI: so it was when a window was
+	;closed and the screen walked before the next frame, by a request for
+	;the tree of widgets, a grab, the owners, a theme or a new size
+	(filter (# (def? :vtable %0)) (. *screen* :children)))
+
 (defun update-mods-down (scode)
 	(and (not (find scode +mod_toggles))
 		(defq i (find scode +mod_scodes))
@@ -232,7 +243,7 @@
 			(setf-> (str-alloc +ev_msg_action_size)
 				(+ev_msg_type +ev_type_action)
 				(+ev_msg_target_id +event_layout)
-				(+ev_msg_action_source_id (. child :get_id))))) (. *screen* :children))
+				(+ev_msg_action_source_id (. child :get_id))))) (screen-children))
 	(gui-update *mouse_x* *mouse_y* 1))
 
 (defun action-shown ()
@@ -263,5 +274,5 @@
 ;as this was read. A thing kept here was not, and the first pen or finger
 ;there ever was on a desktop stopped the GUI, it was not bound
 (export-symbols
-	'(*event_map* *pointer_views* *wheel_id* *wheel_time*))
+	'(*event_map* *pointer_views* *wheel_id* *wheel_time* screen-children))
 (env-pop)
