@@ -46,8 +46,14 @@
 			(pixmap-write (pixmap-as-argb pixmap) next format)
 			(stream-seek next 0 0)
 			(defq p_state (array 0 0) c_state (array 0 0) w_state (array 0 0)
-				mode :none count 0 draw_buf (list))
+				mode :none count 0 draw_buf (list) at 0)
 			(times pixels
+				;the encoder is on the node of what makes the film, the GUI's
+				;for an app: it gives way every so many pixels, or a frame
+				;held the node, the mouse and all, for the whole of it. Chris,
+				;of Raymarch: "while that is running, especially with many
+				;nodes, the mouse gets very chuggy"
+				(if (= (logand (++ at) 16383) 0) (task-slice))
 				(defq p (read-bits last p_state num_bits)
 					c (read-bits next c_state num_bits))
 				(if (= p -1) (setq p 0))
