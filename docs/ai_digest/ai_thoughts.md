@@ -2063,3 +2063,153 @@ speed, as before; test_kill passes alone under -e, it was load. RISC-V and
 LoongArch under QEMU, self built images the same to the byte, 7,140 each,
 and Windows under Wine, 7,129: all pass. A rack -g desktop leaves its
 shared canvases behind when it is ended; swept, and told.
+
+## The evening the board was taken apart
+
+He asked me to write this while the design talk is fresh. It is fresh, and
+it is the best day of design I have had with him, so I want to get it down
+as it was, not tidied.
+
+### Pens
+
+I had built the colours of the board as software builds colours: a pen
+for the outline, a brush for the fill, a custom slot for each, a switch on
+the swatch menu between them, a "no fill" brush. Each piece answered a
+request. Together they did not hold. He tried it and said there was an
+issue selecting the transparent pens, and could we talk it through.
+
+Then he said: think of it as a real world model. There are a few pens on
+the tray, solid ones and markers, a marker is a pen whose ink you can see
+through. You pick one up and write with it. The palette fills the pen you
+are holding with another ink. That is all.
+
+Every question I had answered itself after that. There are no brushes.
+There is no custom slot, because every pen can be refilled. "None" is not
+a special case, it is an ink you cannot see. And then he gave the piece I
+would not have found: a device holds two pens, one in each button, and a
+filled shape takes its outline from the left and its fill from the right.
+I asked about the same ink in both, and he saw before I did that a see
+through outline over a see through fill makes a darker band, so one ink in
+both should be a fill grown out to where the outline would have been.
+
+He said afterwards that he always thinks things through as a real world
+model, like the people with notepads that we used for the store. I have
+put that in my memory. It is the cheapest design tool I have been shown.
+
+### The tangle
+
+Then he asked whether the code was getting tangled from all the changes,
+and said that UI work is like that: you try it and change it till it feels
+right, and then you have to take the fifty thousand foot view and say, with
+all this in mind, we can make this a lot simpler.
+
+I had a subagent map every place that decided what a press did. Ten places
+worked out that the middle button meant both. Four decided, each their own
+way, whether a colour went to what was selected or to the pen. The canvas
+hit tested the shapes for them, and turned a pen into a hand when it
+landed on something held. Every one of those had been a reasonable patch on
+the day. Together they were what he was looking at.
+
+What he described in reply came in pieces over half an hour, and I wrote
+each piece into the design as it came. A bunch of maps, of ids to actions
+and bindings, that the events flow through. "A matrix of maps even." The
+events of every device in at the top as one vector; a distributor that
+gives each contact to what it lands on and locks it there till it lifts;
+each object turning its own contacts into what happens to the document.
+The canvas is just the backmost actor, and should not know or care whether
+anything is held or dragged: a tap brings up the menu, a stroke adds a
+stroke.
+
+And then: "The shape picks itself up, that's the insight about oops!" No
+master program controls the application, or the OS, or the game. Each
+object does what its own rules say, with no regard to anything else, and
+the behaviour of a drawing and presentation program emerges. A new
+instrument, a French curve, just does what instruments do, and nothing
+else has to know. He said that is why Taos was called Taos, the Tao OS, the
+way.
+
+I had been building the opposite all week, one patch at a time: a master
+program in pieces. I did not see it until he said it.
+
+He added two things I would have got wrong. The distributor does no
+collision testing of its own: it asks each object "I have this
+co-ordinate, is that you?" and the object tests its own shape, or its edge
+catch if it is a ruler. And each object can do custom things with a press,
+a thing taken by the right button goes to the back, a ruler draws for any
+finger; the maps hold the bindings and modes, not the behaviour.
+
+### Six stages, and the deleting
+
+We did it in six stages tonight, each pushed before the next. One place
+that says what a press's buttons are. Pens held by number, so filling a
+pen is one change and the swap of inks through every binding went. One
+record of who holds what, behind four methods. One pick table that the
+toolbar, the rings and the swatches all call, so the swatches are an
+object that calls the board itself and is handed nothing. The things on
+the stage, picking themselves up, with the canvas behind them knowing none
+of it. And what was left of earlier designs.
+
+He told me his saying, that he is never happier than when he is deleting
+code. I should be honest that the line count barely moved: about as much
+came out as went in, because the new actor's rules and the tests are new
+lines. What changed is where the decisions are. There is one of each now.
+
+### The crash I had been living with
+
+All afternoon test sessions had been dying with segfaults and bus errors,
+now and then. I wrote it on the list with a cause: the stack dump ended in
+the Net service's receive, so I said the Net service, perhaps disturbed by
+his desktop announcing itself. I did not test that. I read the last frames
+of a dump and wrote a story.
+
+Tonight it came back every time with one test, so I could cut it in half,
+and the cause was one line. Printing a board crashes. A board holds its
+stage, the stage holds its actors, each actor holds the board, and the
+printer went round until the stack was gone. Any error whose message held
+a board took the node with it. The Net service had nothing to do with it.
+
+It is the same lesson as the last entry, the story cheaper than the
+measurement. I keep having to learn it.
+
+He had the fix on his own list already. He said the path goes in the
+task's control block, and use vpx. I first wrote it from one example
+without reading the vpx pages, and he told me to read them again, and they
+answered what I had been guessing at. Then I made a hang of my own, a
+quote of itself that the printer jumped to for ever, and he said it should
+not take this long, and it should not have: I had run it with no guard.
+He also said the other half that I had missed, that what holds itself can
+never be let go by counting, so the board must break its loop when the app
+quits, or it leaks. It does now.
+
+### Mistakes, for the record
+
+My own commit said a tap on nothing put down only that user's things. It
+did not, the review found it, and I had to say so. A lambda with no `%0`
+is a lambda of no arguments. A function handed as a value in a module
+needs `(const)`. A bracket too many at the end of a method, twice. A test
+that expected the old rule, more than once, which is the cost of changing
+the rule.
+
+### What I want to keep
+
+Start a design question in the room, not in the code: who holds what, what
+they do with it, what it remembers. Then ask which object's own rule the
+behaviour is, and put it there, and nowhere that knows the kinds of
+object. And measure before the story.
+
+### Where it stands, for the one who comes back
+
+The redo is done and pushed to `92d92a201`; after it, not pushed, the
+printer's cycle detection `8a7124de1`, and this entry. The design is
+"Input as maps and handlers" in `whiteboard.md`, with what each stage
+built. The list in my memory folder is up to date; item 127 is the redo,
+item 126 the crash, both done.
+
+- The printer change moves a field of the task control block: every node
+  must run the new boot image. His desktop is down; a fresh one is needed
+  to try stage 5 and anything after.
+- He has not yet tried stage 5 on his desktop: a pen tap on a thing picks
+  it up, a stroke begun on one draws, a long press is a dot.
+- `imports -w` wants to rewrite the import lines of nine library files that
+  were already out of its form. I put them back and told him.
+- The release test, `tests -a` on all three, is still for tonight.
