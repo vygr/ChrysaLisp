@@ -199,7 +199,7 @@
 			why :nil)
 		(cond
 			((not at) (print "input: no GUI"))
-			((str? at) (print "input: " at))
+			((str?? at) (print "input: " at))
 			(:t (setq *view* at *words* (rest args) *next* 0)
 				(while (and (not why) (< *next* (length *words*)))
 					(defq action (next-word) events (action-events action))

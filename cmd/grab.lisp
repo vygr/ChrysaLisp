@@ -36,10 +36,10 @@
 		(cond
 			((< (length args) 2) (print "grab: what file ?"))
 			((and kv (not at)) (print "grab: no GUI"))
-			((and at (str? at)) (print "grab: " at))
+			((str?? at) (print "grab: " at))
 			((not (defq grabbed (gui-wait (# (gui-grab-rpc opt_t (if at (slice at 4 8)))) opt_w)))
 				(print "grab: no GUI"))
-			((str? grabbed) (print "grab: " grabbed))
+			((str?? grabbed) (print "grab: " grabbed))
 			(:t (bind '(w h pixels) grabbed)
 				(defq canvas (Canvas w h 1) pixmap (getf canvas +canvas_pixmap 0))
 				(setf pixmap +pixmap_type 32 0)

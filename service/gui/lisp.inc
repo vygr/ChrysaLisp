@@ -195,7 +195,7 @@
 	;(ask) again each 100ms, for as many seconds, till it is not that there
 	;is no such window, an app just opened has not made it yet
 	(defq t0 (pii-time) answer (ask))
-	(while (and (str? answer) (starts-with "no window" answer) (< (- (pii-time) t0) (* secs 1000000)))
+	(while (and (str?? answer) (starts-with "no window" answer) (< (- (pii-time) t0) (* secs 1000000)))
 		(task-sleep 100000)
 		(setq answer (ask)))
 	answer)
