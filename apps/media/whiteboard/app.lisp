@@ -141,8 +141,9 @@
 		(def button :flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter))
 		(def (setq strip (Grid)) :grid_width +strip_cells :grid_height 1)
 		(times +strip_cells
+			;clear, and so not opaque, the button is drawn under it
 			(def (defq cell (Backdrop)) :style :plain :paper 0 :min_width 4 :min_height 4)
-			(. strip :add_child cell))
+			(.-> strip (:add_child (. cell :set_flags 0 +view_flag_opaque))))
 		(. button :add_child strip)
 		(def button :strip strip))
 	strip)
@@ -154,7 +155,9 @@
 			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (!)) 0))
 			(unless (= paper (get :paper cell))
 				(def cell :paper paper)
-				(.-> cell :layout :dirty)))
+				;opaque only when lit, Chris: "When transparent the fill square
+				;has its flags as solid !"
+				(.-> cell (:set_flags (if (= paper 0) 0 +view_flag_opaque) +view_flag_opaque) :dirty)))
 		(. (button-strip button) :children)))
 
 (defun binder-dots ()
