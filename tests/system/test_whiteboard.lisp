@@ -649,3 +649,17 @@
 	"(print (list m0 m1 kept))")))
 (assert-eq "kept from 0 0 on a paper its size, it is seen from its middle on a bigger one, and is kept from 0 0 again"
 	"((200 100) (200 100) (0 0))" (first wa_kept))
+
+;the instruments and floating menus are the document's: kept with it, none on
+;a new one, and back with it as it is read. Chris: "menus and instruments are
+;part of the docs state. So they come and go as docs are loaded"
+(defq wa_stage (wa-run (cat
+	"(defun wa-on-board () (length (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. (. *board* :get_stage) :get_actors))))"
+	"(. *board* :new 400 200) (stage-from-doc)"
+	"(. (. *board* :get_stage) :add (Ruler *board* 100 50)) (palette-float *board* 200 100) (defq n0 (wa-on-board))"
+	"(view-to-doc) (defq data (cwb-out (. *board* :get_doc)))"
+	"(. *board* :new 400 200) (.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list))) (stage-from-doc) (defq n1 (wa-on-board))"
+	"(. *board* :set_doc (cwb-in data)) (stage-from-doc) (defq n2 (wa-on-board))"
+	"(print (list n0 n1 n2))")))
+(assert-eq "a ruler and a menu on a document, none on a new one, both back when it is read again"
+	"(2 0 2)" (first wa_stage))

@@ -37,14 +37,7 @@
 		;student's pen starts each time from what a pen is
 		:bindings (filter (lambda ((kind id &ignore)) (and id (find kind '(:mouse :touch))))
 			(get :rules (. *board* :get_bindings)))
-		;an instrument is what it is, where, turned how far, how long, and what it draws
-		:tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
-				((Setsquare45? %0) :set_square45) (:t :set_square))
-				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
-			(filter (const Instrument?) (. (. *board* :get_stage) :get_actors)))
-		;each floating menu that is open, where it is, Chris: "ring menu's
-		;don't survive a exit, relaunch"
-		:menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*)))
+		;the instruments and the menus are the document's, (view-to-doc)
 		:doc (cwb-out doc)))
 
 (defun config-apply (config)
@@ -86,24 +79,9 @@
 		(when (str? text)
 			(. *text_field* :set_text text)
 			(def *board* :text text))
-		(each (lambda (tool)
-			(when (and (list? tool) (= (length tool) 5))
-				(bind '(kind origin angle extent mode) tool)
-				(when (defq at (find kind '(:ruler :protractor :circle :set_square :set_square45)))
-					(defq tool ((elem-get (list Ruler Protractor Circle Setsquare Setsquare45) at)
-						*board* (first origin) (second origin)))
-					(def tool :angle angle :mode mode)
-					(. tool :set_extent extent)
-					(. (. *board* :get_stage) :add tool))))
-			(ifn tools (list)))
-		;a menu opens from the time the board was last told. Not yet told
-		;it is 0, the first tick is too long after that for the numbers of
-		;its opening, and it was never drawn, though it took the pointers
-		;that went down on it, an instrument under it could not be moved
-		(. *board* :tick (pii-time))
-		(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
-				(palette-float *board* (first at) (second at))))
-			(ifn menus (list)))
+		;the instruments and menus of the document, or of a state kept before
+		;they were the document's
+		(stage-from-doc tools menus)
 		(board-resized)
 		(if (every (const num?) (list x y w h sx sy)) (list x y w h sx sy))))
 

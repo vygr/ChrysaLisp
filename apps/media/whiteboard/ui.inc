@@ -119,6 +119,10 @@
 	;and the board that was is back, at the size it was
 	(bind '(w h) (field-size))
 	(. *board* :new w h)
+	;a new document has nothing on it, no instruments, no menus: the board
+	;keeps the document it had, emptied, and what it said of them goes too
+	(.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)))
+	(stage-from-doc)
 	(setq *file* :nil))
 
 (defun action-size ()

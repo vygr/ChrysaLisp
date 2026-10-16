@@ -1127,7 +1127,49 @@
 	(bind '(dw dh) (doc-size))
 	(bind '(pw ph) (paper-size))
 	(defq k (* 2.0 *zoom*))
-	(. (. *board* :get_doc) :insert :view (list (+ *pan_x* (/ (n2f (- pw dw)) k)) (+ *pan_y* (/ (n2f (- ph dh)) k)) *zoom* *turn*)))
+	(. (. *board* :get_doc) :insert :view (list (+ *pan_x* (/ (n2f (- pw dw)) k)) (+ *pan_y* (/ (n2f (- ph dh)) k)) *zoom* *turn*))
+	(stage-to-doc))
+
+(defun stage-to-doc ()
+	;what lies on the board that is not of the document is kept with it,
+	;Chris: "menus and instruments are part of the docs state. So they
+	;come and go as docs are loaded". An instrument is what it is, where,
+	;turned how far, how long, and what it draws; a floating menu where it is
+	(defq actors (. (. *board* :get_stage) :get_actors))
+	(.-> (. *board* :get_doc)
+		(:insert :tools (map (# (list (cond ((Ruler? %0) :ruler) ((Circle? %0) :circle) ((Protractor? %0) :protractor)
+				((Setsquare45? %0) :set_square45) (:t :set_square))
+				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
+			(filter (const Instrument?) actors)))
+		(:insert :menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*))))))
+
+(defun stage-from-doc (&optional tools menus)
+	;the instruments and floating menus of the document, and none other.
+	;tools and menus if it has none, from a state kept before they were
+	;the document's
+	(defq doc (. *board* :get_doc) stage (. *board* :get_stage))
+	(if (defq kept (. doc :find :tools)) (setq tools kept))
+	(if (defq kept (. doc :find :menus)) (setq menus kept))
+	(each (# (. stage :sub %0)) (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. stage :get_actors)))
+	(each (lambda (tool)
+		(when (and (list? tool) (= (length tool) 5))
+			(bind '(kind origin angle extent mode) tool)
+			(when (defq at (find kind '(:ruler :protractor :circle :set_square :set_square45)))
+				(defq tool ((elem-get (list Ruler Protractor Circle Setsquare Setsquare45) at)
+					*board* (first origin) (second origin)))
+				(def tool :angle angle :mode mode)
+				(. tool :set_extent extent)
+				(. stage :add tool))))
+		(ifn tools (list)))
+	;a menu opens from the time the board was last told. Not yet told
+	;it is 0, the first tick is too long after that for the numbers of
+	;its opening, and it was never drawn, though it took the pointers
+	;that went down on it, an instrument under it could not be moved
+	(. *board* :tick (pii-time))
+	(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
+			(palette-float *board* (first at) (second at))))
+		(ifn menus (list)))
+	(. *board* :touch +board_dirty_overlay))
 
 (defun view-from-doc ()
 	;a document is seen as it was when it was saved, one that does not
@@ -1167,6 +1209,7 @@
 		(. *board* :fit)
 		(. *board* :forget)
 		(view-from-doc)
+		(stage-from-doc)
 		;it is worked on as it was last
 		(when (defq at (find (. doc :find :style) *styles*))
 			(setq *style* (elem-get *styles* at))
