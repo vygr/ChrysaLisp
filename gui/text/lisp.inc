@@ -34,7 +34,7 @@
 		(raise :font :text :offset :sym_cache :state :paper)
 		(bind '(w h) (. this :get_size))
 		(if (/= (logand state +text_state_highlight) 0)
-			(setq color *env_highlight_col*))
+			(setq color (get :paper_highlight *env*)))
 		(if (/= (logand state +text_state_selected) 0)
 			(setq color (canvas-darker color)))
 		(.-> this (:ctx_set_color color) (:ctx_filled_box 0 0 w h))

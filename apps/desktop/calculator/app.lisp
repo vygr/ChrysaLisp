@@ -18,7 +18,7 @@
 (defq
 	*config* :nil
 	+config_version 2
-	+config_file (cat *env_home* "calculator.tre")
+	+config_file (cat (get :home *env*) "calculator.tre")
 
 	; App State
 	*operands* (list)
@@ -36,7 +36,7 @@
 	; Static references
 	+operators ''("=" "+" "-" "*" "/" "%" "AND" "OR" "XOR")
 	+disabled_color +argb_grey4
-	+disabled_ink_color *env_hint_col*
+	+disabled_ink_color (get :ink_hint *env*)
 	+digit_list (static-q (map identity "0123456789ABCDEF"))
 	+calculator_font (create-font "fonts/Hack-Regular.ctf" 22)
 
@@ -101,10 +101,10 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (+sym_close +sym_max +sym_min) +event_close)
 	(. (ui-radio-bar base_bar ("dec" "hex" "bin" "oct")
-			(:paper (const *env_toolbar2_col*) :font +calculator_font))
+			(:paper (const (get :paper_toolbar2 *env*)) :font +calculator_font))
 		:connect +event_base_change)
 	(ui-label *display* (:text "0" :paper +argb_white :flow_flags +flow_flag_align_hright :font +calculator_font))
-	(ui-grid button_grid (:grid_width 4 :grid_height 0 :paper *env_toolbar_col* :font +calculator_font)
+	(ui-grid button_grid (:grid_width 4 :grid_height 0 :paper :paper_toolbar :font +calculator_font)
 		(each (lambda (text)
 			(defq button (ui-button _ (:text text)))
 			(. button :connect +event_button)
@@ -196,16 +196,16 @@
 	(defq is_hex (= *base* 16))
 	(each (lambda (button)
 		(def (. button :dirty) :disabled (not is_hex)
-			:paper (if is_hex *env_toolbar_col* +disabled_color)
-			:ink (if is_hex *env_ink_col* +disabled_ink_color)))
+			:paper (if is_hex (get :paper_toolbar *env*) +disabled_color)
+			:ink (if is_hex (get :ink_window *env*) +disabled_ink_color)))
 		*hex_buttons*)
 
 	(each (lambda (button)
 		(defq button_val (str-as-num (get :text button))
 			  is_enabled (< button_val *base*))
 		(def (. button :dirty) :disabled (not is_enabled)
-			:paper (if is_enabled *env_toolbar_col* +disabled_color)
-			:ink (if is_enabled *env_ink_col* +disabled_ink_color)))
+			:paper (if is_enabled (get :paper_toolbar *env*) +disabled_color)
+			:ink (if is_enabled (get :ink_window *env*) +disabled_ink_color)))
 		*other_base_buttons*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

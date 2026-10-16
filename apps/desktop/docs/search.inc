@@ -50,7 +50,7 @@
 				(cur_match
 					(elem-get found (% (+ cur_match step (length found)) (length found))))
 				((if (< step 0) (last found) (first found)))))
-			(def (. *last_widget* :dirty) :paper *env_highlight_col*)
+			(def (. *last_widget* :dirty) :paper (get :paper_highlight *env*))
 			(. *page_scroll* :visible *last_widget*))
 		(setq *last_widget* :nil)))
 

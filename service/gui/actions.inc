@@ -129,8 +129,8 @@
 			(+ev_msg_type +ev_type_wheel)
 			(+ev_msg_target_id id)
 			;the way round the user has it, usr/Guest/env.inc
-			(+ev_msg_wheel_x (* *env_wheel_x* (getf msg +gui_event_x)))
-			(+ev_msg_wheel_y (* *env_wheel_y* (getf msg +gui_event_y)))
+			(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
+			(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
 			(+ev_msg_wheel_direction (getf msg +gui_event_direction))))))
 
 (defun action-mouse-motion ()

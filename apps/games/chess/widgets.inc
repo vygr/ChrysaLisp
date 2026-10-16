@@ -9,7 +9,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *toolbar* ()
 			(ui-buttons (+sym_reset +sym_undo +sym_redo) +event_reset))
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42)
 			:border 1 :text " ")
 		(each (lambda (i)

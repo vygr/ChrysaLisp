@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +config_file (cat *env_home* "slider.tre")
+(defq +config_file (cat (get :home *env*) "slider.tre")
 	  *grid_w* 5
 	  *grid_h* 5
 	  *tile_count* (* *grid_w* *grid_h*)
@@ -24,7 +24,7 @@
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_solve) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :paper *env_window_col* :font *font*)
+					 :paper (get :paper_window *env*) :font *font*)
 		(each (lambda (i)
 			(. (ui-button _ (:min_width 80 :min_height 80))
 			   :connect (+ +event_click i)))
@@ -58,12 +58,12 @@
 		(def btn :text (get-char-for-val val))
 		(if (= val *blank_value*)
 			(def btn :paper +argb_grey2)
-			(def btn :paper *env_toolbar_col*))
+			(def btn :paper (get :paper_toolbar *env*)))
 		(.-> btn (:constrain :t) :dirty)
 		(++ i))
 	(if (every eql *board* *solved_board*)
 		(def *status* :text "SOLVED!" :paper +argb_green)
-		(def *status* :text " " :paper *env_window_col*))
+		(def *status* :text " " :paper (get :paper_window *env*)))
 	(.-> *status* :layout :dirty))
 
 (defun swap-tiles (i1 i2)

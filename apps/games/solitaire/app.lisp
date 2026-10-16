@@ -18,7 +18,7 @@
 	  +state_peg 1)
 
 ; Configuration and State
-(defq +config_file (cat *env_home* "solitaire.tre")
+(defq +config_file (cat (get :home *env*) "solitaire.tre")
 	  *board* (list)
 	  *selected* :nil	  ; Index of selected peg
 	  *undo_stack* (list)
@@ -95,7 +95,7 @@
 		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg))
 								"Perfect! (Center)" "Finished!")
 					 :paper +argb_green)
-		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :paper *env_window_col*))
+		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :paper (get :paper_window *env*)))
 	(.-> *status* :layout :dirty))
 
 (defun update-gamestate ()

@@ -89,7 +89,7 @@
 ;on a desktop stopped the GUI: what the action kept, the view each pointer
 ;went down on, was not to be found from the loop
 (import "usr/env.inc")
-(import *env_keyboard_map*)
+(import (get :keyboard_map *env*))
 (import "service/gui/actions.inc")
 (defq ga_mbox (mail-mbox) *screen* (View) ga_view (View) *mouse_x* 0 *mouse_y* 0 *mouse_id* 0 *mods* 0 *focus* :nil)
 (. *screen* :set_bounds 0 0 400 300)
@@ -121,7 +121,8 @@
 ;a turn of the wheel belongs to the view it began over: turns that come one
 ;soon after another go where the first went, wherever the mouse has got to
 (defun mouse-type (view rx ry))
-(defq *mouse_buttons* 0 *env_wheel_x* 1 *env_wheel_y* 1 ga_other (View) ga_mbox2 (mail-mbox))
+(defq *mouse_buttons* 0 ga_other (View) ga_mbox2 (mail-mbox))
+(def *env* :wheel_x 1 :wheel_y 1)
 (. ga_other :set_bounds 100 180 200 100)
 (. *screen* :add_child ga_other)
 (. ga_other :set_owner ga_mbox2)
@@ -151,8 +152,7 @@
 (assert-list-eq "after a pause a turn is a new one, for the view the mouse is over" '(:second) (ga-wheel 150 240))
 (assert-list-eq "and stays that one's when the mouse goes back and they keep coming" '(:second) (ga-wheel 150 80))
 (task-sleep 500000)
-(def (penv) '*env_wheel_y* -1)
-(setq *env_wheel_y* -1)
+(def *env* :wheel_y -1)
 (setq *mouse_x* 150 *mouse_y* 80)
 (defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type +gui_ev_mouse_wheel) (+gui_event_x 0) (+gui_event_y 1)))
 ((. *event_map* :find +gui_ev_mouse_wheel))

@@ -106,28 +106,21 @@
 		;laid out again and drawn. A view has a font, not the name of one,
 		;so it is by which font it is that one is found. What an app made
 		;with another font, of its own, is left as it is
-		(defq symbols_file (theme-file name))
-		(defq swaps (reduce (lambda (out (var file))
-				;the task's own, found from here as any name is
-				(when (defq old (get var))
-					(defq new (create-font file (second (font-info old))))
-					(unless (eql new old)
-						(set (env) var new)
-						(push out (list old new))))
-				out)
-			(list (list '*env_title_buttons_font* symbols_file) (list '*env_symbol_font* symbols_file)
-				(list '*env_medium_symbol_font* symbols_file) (list '*env_small_toolbar_font* symbols_file)
-				(list '*env_warning_font* symbols_file))
-			(list)))
+		;the user's *env* has the theme's fonts, the screen has them already,
+		;and each view given a variant finds it again, (view-resolve). One
+		;given a font of the theme by hand, not by its variant, is found by
+		;which font it is
+		(defq swaps (env-theme name))
+		(view-resolve this)
 		(when (nempty? swaps)
 			(each (lambda (view)
 				(when (def? :font view)
 					(defq font (get :font view))
 					(some (lambda ((old new)) (if (eql font old) (def view :font new))) swaps)))
-				(. this :flatten))
-			(bind '(x y) (. this :get_pos))
-			(bind '(w h) (. this :get_size))
-			(. this :change_dirty x y w h :t))
+				(. this :flatten)))
+		(bind '(x y) (. this :get_pos))
+		(bind '(w h) (. this :get_size))
+		(. this :change_dirty x y w h :t)
 		this)
 
 	(defmethod :event (event)

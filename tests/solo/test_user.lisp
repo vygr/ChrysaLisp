@@ -11,7 +11,7 @@
 (defun us-ask (node)
 	;who a task on that node finds the user to be, as an app does
 	(defq mbox (mail-mbox))
-	(open-task (str `(progn (import "usr/env.inc") (mail-send (hex-decode ,(hex-encode mbox)) (cat *env_user* " " *env_home*))))
+	(open-task (str `(progn (import "usr/env.inc") (mail-send (hex-decode ,(hex-encode mbox)) (cat (get :user *env*) " " (get :home *env*)))))
 		node +kn_call_pin 0 (mail-mbox))
 	(mail-read-timeout mbox (task-timeout 5)))
 

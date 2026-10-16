@@ -9,9 +9,9 @@
 (defclass Spinner () (Flow)
 	; (Spinner) -> spinner
 	(def (defq button_grid (Grid))
-		:grid_width 1 :border 1 :font *env_tiny_symbol_font*)
+		:grid_width 1 :border 1 :font (get :font_tiny_symbol *env*))
 	(def (defq label (Label))
-		:text (str (get :value this)) :border *env_textfield_border*
+		:text (str (get :value this)) :border (get :border_textfield *env*)
 		:paper +argb_white :min_width 32)
 	(def (defq up_button (Button)) :text (num-to-utf8 +sym_up))
 	(def (defq down_button (Button)) :text (num-to-utf8 +sym_down))

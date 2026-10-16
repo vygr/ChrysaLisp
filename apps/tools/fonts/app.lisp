@@ -28,7 +28,7 @@
 				(def (defq l (Label))
 					:border 0
 					:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
-					:font (const *env_small_terminal_font*)
+					:font (const (get :font_small_terminal *env*))
 					:text (num-to-hex-str c))
 				(. symbol_grid :add_child l)
 				(each (lambda (char_code)
@@ -42,7 +42,7 @@
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height
-		:paper (const *env_toolbar_col*)
+		:paper (const (get :paper_toolbar *env*))
 		:font font)
 	(bind '(w h) (. symbol_grid :pref_size))
 	(. symbol_grid :change 0 0 w h)

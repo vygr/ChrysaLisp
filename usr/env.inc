@@ -41,7 +41,7 @@
 		:terminal_prompt (cat user "> ") :terminal_lines 500
 		;timezones must be locations not abbreviations, lib/date/date.inc
 		:clock_timezone "Etc/GMT" :clock_analog :t :clock_digital :t
-		:clock_twelve_hour :t :clock_seconds :t :clock_pad_hour :nil :clock_dotw :t
+		:clock_twelve_hour :t :clock_seconds :t :clock_pad_hour :nil :clock_dotw :t :clock_numerals :t
 		:keyboard_map "lib/keys/macbook_uk.inc"
 		;the look of views, the screen has them
 		:paper_window 0xffc0c0c0 :paper_title 0xffe0e0e0 :paper_slider 0xffe0e0e0
@@ -76,34 +76,3 @@
 ;of it is told as it starts, (node-start). Else the user the machine has,
 ;who last signed on
 (env-load (ifn (get '*env_node_user*) (load (cat *login_root* "current"))))
-
-;FOR NOW, till the apps have all been made to use *env*: the names they
-;had, from it, in the task that imports this. Each goes as its last use does
-(defq *env_user* (get :user *env*) *env_home* (get :home *env*) *env_symbol_file* (get :symbol_file *env*)
-		*env_launcher_auto_apps* (get :launcher_auto_apps *env*) *env_launcher_position* (get :launcher_position *env*)
-		*env_window_x* (get :window_x *env*) *env_window_y* (get :window_y *env*)
-		*env_window_width* (get :window_width *env*) *env_window_height* (get :window_height *env*)
-		*env_wallpaper_images* (get :wallpaper_images *env*) *env_wheel_x* (get :wheel_x *env*) *env_wheel_y* (get :wheel_y *env*)
-		*env_terminal_prompt* (get :terminal_prompt *env*) *env_terminal_lines* (get :terminal_lines *env*)
-		*env_clock_timezone* (get :clock_timezone *env*) *env_clock_analog* (get :clock_analog *env*)
-		*env_clock_digital* (get :clock_digital *env*) *env_clock_twelve_hour* (get :clock_twelve_hour *env*)
-		*env_clock_seconds* (get :clock_seconds *env*) *env_clock_pad_hour* (get :clock_pad_hour *env*)
-		*env_clock_dotw* (get :clock_dotw *env*) *env_keyboard_map* (get :keyboard_map *env*)
-		*env_window_col* (get :paper_window *env*) *env_title_col* (get :paper_title *env*)
-		*env_slider_col* (get :paper_slider *env*) *env_toolbar_col* (get :paper_toolbar *env*)
-		*env_toolbar2_col* (get :paper_toolbar2 *env*) *env_highlight_col* (get :paper_highlight *env*)
-		*env_ink_col* (get :ink_window *env*) *env_hint_col* (get :ink_hint *env*) *env_no_hint_col* (get :ink_no_hint *env*)
-		*env_window_border* (get :border_window *env*) *env_window_shadow* (get :shadow_window *env*)
-		*env_label_border* (get :border_label *env*) *env_button_border* (get :border_button *env*)
-		*env_textfield_border* (get :border_textfield *env*) *env_title_border* (get :border_title *env*)
-		*env_title_buttons_border* (get :border_title_buttons *env*)
-		*env_display_font* (get :font_display *env*) *env_title_font* (get :font_title *env*)
-		*env_sub_title_font* (get :font_sub_title *env*) *env_window_font* (get :font_window *env*)
-		*env_body_font* (get :font_body *env*) *env_bold_font* (get :font_bold *env*)
-		*env_button_font* (get :font_button *env*) *env_small_font* (get :font_small *env*)
-		*env_tiny_font* (get :font_tiny *env*) *env_title_buttons_font* (get :font_title_buttons *env*)
-		*env_symbol_font* (get :font_symbol *env*) *env_medium_symbol_font* (get :font_medium_symbol *env*)
-		*env_small_toolbar_font* (get :font_small_toolbar *env*) *env_tiny_symbol_font* (get :font_tiny_symbol *env*)
-		*env_terminal_font* (get :font_terminal *env*) *env_medium_terminal_font* (get :font_medium_terminal *env*)
-		*env_small_terminal_font* (get :font_small_terminal *env*) *env_editor_font* (get :font_editor *env*)
-		*env_tip_font* (get :font_tip *env*) *env_warning_font* (get :font_warning *env*))

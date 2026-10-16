@@ -12,7 +12,7 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil +config_version 20 +config_file (cat *env_home* "launcher.tre"))
+(defq *config* :nil +config_version 20 +config_file (cat (get :home *env*) "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
@@ -73,9 +73,9 @@
 		(ui-root cat_flow (Flow) (:flow_flags +flow_down_fill :cat_name app_name)
 			(ui-flow header (:flow_flags +flow_right_fill)
 				(. (ui-button toggle (:text (num-to-utf8 (if collapsed +sym_next +sym_up))
-						:paper *env_title_col* :font *env_title_buttons_font*))
+						:paper (get :paper_title *env*) :font (get :font_title_buttons *env*)))
 					:connect +event_toggle)
-				(ui-title title (:text app_name :paper *env_title_col*)))
+				(ui-title title (:text app_name :paper :paper_title)))
 			(ui-grid app_grid (:grid_width columns)
 				(each (lambda (app)
 					(. (ui-button _ (:text app)) :connect +event_launch))
@@ -102,7 +102,7 @@
 	(build-ui)
 
 	; Position and show window
-	(bind '(x y w h) (apply view-locate (push (. *window* :pref_size) *env_launcher_position*)))
+	(bind '(x y w h) (apply view-locate (push (. *window* :pref_size) (get :launcher_position *env*))))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
 	; Main Event Loop

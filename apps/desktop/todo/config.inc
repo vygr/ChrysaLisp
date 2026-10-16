@@ -4,7 +4,7 @@
 
 (import "service/lock/app.inc")
 
-(defq *config* :nil +config_version 1 +config_file (cat *env_home* "todo.tre"))
+(defq *config* :nil +config_version 1 +config_file (cat (get :home *env*) "todo.tre"))
 
 (defun config-default ()
 	(scatter (Emap) :version +config_version :spacing 26 :todo (list) :done (list) :deleted (list)))

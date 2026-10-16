@@ -21,7 +21,7 @@
 	;the status line is at the bottom, and it is the charts of the nodes
 	;that stretch
 	(ui-flow _ (:flow_flags +flow_up_fill)
-		(ui-label *status* (:text "..." :font *env_body_font*))
+		(ui-label *status* (:text "..." :font :font_body))
 		(ui-flow _ (:flow_flags +flow_down_fill)
 			(ui-grid *net_charts* (:grid_height 1)
 				(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :paper +argb_green))

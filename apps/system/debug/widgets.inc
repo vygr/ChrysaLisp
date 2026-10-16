@@ -11,9 +11,9 @@
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *main_toolbar* ()
 				(ui-buttons (+sym_play +sym_forward +sym_pause +sym_step +sym_clear) +event_play))
-			(ui-tool-bar *main_toolbar2* (:paper (const *env_toolbar2_col*))
+			(ui-tool-bar *main_toolbar2* (:paper :paper_toolbar2)
 				(ui-buttons (+sym_play_all +sym_forward_all +sym_pause_all +sym_step_all +sym_clear_all) +event_play_all))
-			(ui-backdrop _ (:paper (const *env_toolbar_col*))))
+			(ui-backdrop _ (:paper :paper_toolbar)))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
 		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink +argb_yellow))))
 

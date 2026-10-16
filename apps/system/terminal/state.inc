@@ -5,7 +5,7 @@
 (import "service/lock/app.inc")
 (defun config-save ()
 	;save terminal state, merges in
-	(defq key (cat *env_home* +state_filename)
+	(defq key (cat (get :home *env*) +state_filename)
 		default (scatter (Emap) :history (list)) meta_map default)
 	(with-write-lock key
 		(catch (when (defq data (tree-load (file-stream key)))
@@ -23,7 +23,7 @@
 
 (defun config-load ()
 	;load terminal state
-	(defq key (cat *env_home* +state_filename)
+	(defq key (cat (get :home *env*) +state_filename)
 		default (scatter (Emap) :history (list)))
 	(setq *meta_map* default)
 	(with-read-lock key

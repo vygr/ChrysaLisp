@@ -145,7 +145,7 @@ custom Virtual Processor (VP64).
 
 * **Keyboard Mapping:** `*normal_map*` and `*shift_map*` (from
   `lib/keys/*.inc`) translate scancodes to character codes based on the
-  `*env_keyboard_map*` setting.
+  `(get :keyboard_map *env*)` setting.
 
 ## 4. Standard Libraries (`lib/`)
 
@@ -316,24 +316,24 @@ capabilities:
 * User-specific settings are managed through `env.inc` files located in user
   directories (e.g., `usr/Guest/env.inc`).
 
-* The main `usr/env.inc` loads the environment for the `*env_user*`
+* The main `usr/env.inc` loads the environment for the `(get :user *env*)`
   (defaulting to "Guest" if `usr/current` doesn't specify another user).
 
-* Environment variables (`*env_*`) control aspects like:
+* The user's environment, `*env*`, each app task its own, holds aspects like:
 
-    * Auto Launcher applications (`*env_launcher_auto_apps*`)
+    * Auto Launcher applications (`(get :launcher_auto_apps *env*)`)
 
-    * Wallpaper images (`*env_wallpaper_images*`)
+    * Wallpaper images (`(get :wallpaper_images *env*)`)
 
-    * Terminal prompt and line count (`*env_terminal_prompt*`,
-      `*env_terminal_lines*`)
+    * Terminal prompt and line count (`(get :terminal_prompt *env*)`,
+      `(get :terminal_lines *env*)`)
 
-    * Clock settings (`*env_clock_*`)
+    * Clock settings (`(get :clock_timezone *env*)` and the other `:clock_` keys)
 
-    * Default UI properties (colors, fonts, borders - `*env_window_col*`,
-      `*env_title_font*`, etc.)
+    * Default UI properties (colors, fonts, borders - `(get :paper_window *env*)`,
+      `(get :font_title *env*)`, etc.)
 
-    * Keyboard map (`*env_keyboard_map*`)
+    * Keyboard map (`(get :keyboard_map *env*)`)
 
 In summary, ChrysaLisp is a comprehensive Lisp-based system that provides a
 graphical environment, a set of applications, and tools for its own

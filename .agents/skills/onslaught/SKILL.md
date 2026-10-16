@@ -437,7 +437,7 @@ ChrysaLisp compositor:
 
 	**Keep probes off the user's config.** `map-state-init` saves the
 	campaign with `config-save`, and a finished battle can save a demo. Add
-	`(setq *env_home* "tests/scratch/")` straight after the probe's
+	`(setq (get :home *env*) "tests/scratch/")` straight after the probe's
 	`(import "usr/env.inc")`, before `config.inc` is imported, so
 	`+config_file` points at a scratch file.
 

@@ -32,9 +32,9 @@
 (defun action-insert (text &optional wrap_width)
 	(input-cursor (wrap-text text wrap_width))
 	(bind '(w h) (. buffer :get_size))
-	(when (> h *env_terminal_lines*)
-		(.-> buffer (:set_cursor 0 0 0 (- h *env_terminal_lines*)) :delete)
-		(setq *cursor_y* (- *cursor_y* (- h *env_terminal_lines*)))
+	(when (> h (get :terminal_lines *env*))
+		(.-> buffer (:set_cursor 0 0 0 (- h (get :terminal_lines *env*))) :delete)
+		(setq *cursor_y* (- *cursor_y* (- h (get :terminal_lines *env*))))
 		(. buffer :set_cursor *cursor_x* *cursor_y*))
 	(refresh))
 
@@ -81,8 +81,8 @@
 							;error with pipe
 							(. buffer :insert (cat "Pipe Error !"
 								+char_class_lf +char_class_lf
-								*env_terminal_prompt*))))
-					(:t (. buffer :insert *env_terminal_prompt*))))))
+								(get :terminal_prompt *env*)))))
+					(:t (. buffer :insert (get :terminal_prompt *env*)))))))
 	(refresh))
 
 (defun action-escape ()
@@ -91,7 +91,7 @@
 			;EOF
 			(. *pipe* :close)
 			(setq *pipe* :nil)
-			(. buffer :insert (cat +char_class_lf *env_terminal_prompt*)))
+			(. buffer :insert (cat +char_class_lf (get :terminal_prompt *env*))))
 		(setq *margin_x* *cursor_x*)
 		(refresh)))
 
@@ -101,6 +101,6 @@
 			;abort
 			(. *pipe* :abort)
 			(setq *pipe* :nil)
-			(. buffer :insert (cat +char_class_lf *env_terminal_prompt*)))
+			(. buffer :insert (cat +char_class_lf (get :terminal_prompt *env*))))
 		(setq *margin_x* *cursor_x*)
 		(refresh)))

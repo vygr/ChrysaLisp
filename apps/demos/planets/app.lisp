@@ -54,10 +54,10 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *planet* ("Earth" "Moon" "Mars" "Jupiter" "Pluto") (:font *env_body_font*)) :connect +event_planet)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :paper *env_toolbar2_col*)) :connect +event_mode)
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
-	(ui-label *status* (:text "..." :font *env_body_font*))
+		(. (ui-radio-bar *planet* ("Earth" "Moon" "Mars" "Jupiter" "Pluto") (:font :font_body)) :connect +event_planet)
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
+		(ui-backdrop _ (:paper :paper_toolbar)))
+	(ui-label *status* (:text "..." :font :font_body))
 	;space is black, the GPU draws nothing where the globe is not
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
 		;its pixels are in shared memory if the host has it, the nodes of

@@ -20,12 +20,12 @@
 (defq +doc_root "docs" +doc_types ''(".md"))
 
 (defq +margin_width (* 8 3)
-	+doc_font (first (font-info *env_window_font*))
-	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
-	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
-	+doc_font_bold_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-BoldItalic.ctf")
-	+terminal_font (first (font-info *env_terminal_font*)) +symbol_font (first (font-info *env_symbol_font*))
-	+config_version 1 +config_file (cat *env_home* "docs.tre"))
+	+doc_font (first (font-info (get :font_window *env*)))
+	+doc_font_bold (cat (first (split (first (font-info (get :font_window *env*))) "-")) "-Bold.ctf")
+	+doc_font_italic (cat (first (split (first (font-info (get :font_window *env*))) "-")) "-Italic.ctf")
+	+doc_font_bold_italic (cat (first (split (first (font-info (get :font_window *env*))) "-")) "-BoldItalic.ctf")
+	+terminal_font (first (font-info (get :font_terminal *env*))) +symbol_font (first (font-info (get :font_symbol *env*)))
+	+config_version 1 +config_file (cat (get :home *env*) "docs.tre"))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) (n2f (get :zoom *window*)))))

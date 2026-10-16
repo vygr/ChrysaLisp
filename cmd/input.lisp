@@ -3,7 +3,7 @@
 (import "sys/pii/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/consts/scodes.inc")
-(import *env_keyboard_map*)
+(import (get :keyboard_map *env*))
 
 (defq usage `(
 (("-h" "--help")

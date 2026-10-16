@@ -1,19 +1,11 @@
-(defq *env_clock_analog* :t
-	*env_clock_digital* :t
-	*env_clock_seconds* :t
-	*env_clock_twelve_hour* :nil
-	*env_clock_pad_hour* :t
-	*env_clock_dotw* :t
-	*env_clock_numerals* :t
-	*env_clock_timezone* "UTC")
-
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
 (import "lib/date/date.inc")
 
-(and (not *env_clock_analog*) (not *env_clock_digital*)
-	(setq *env_clock_analog* :t))
+;a clock with no face nor digits has a face
+(and (not (get :clock_analog *env*)) (not (get :clock_digital *env*))
+	(def *env* :clock_analog :t))
 
 
 (enums +select 0
@@ -26,10 +18,10 @@
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Clock" (+sym_close) +event_close)
-	(if (eql *env_clock_analog* :t)
+	(if (eql (get :clock_analog *env*) :t)
 		(ui-canvas clock clock_size clock_size clock_scale)
 		(defq clock :nil))
-	(if (eql *env_clock_digital* :t)
+	(if (eql (get :clock_digital *env*) :t)
 		(ui-label *display* (:text "Mon 00:00:00 AM"
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
 			:font (create-font "fonts/Hack-Regular.ctf" 24)))
@@ -37,13 +29,13 @@
 
 (defun view-digital-time ((sc mn hr & & & wk))
 	(defq h hr ampm "")
-	(when *env_clock_twelve_hour*
+	(when (get :clock_twelve_hour *env*)
 		(setq ampm (if (>= h 12) " PM" " AM")
 			h (cond ((= h 0) 12) ((> h 12) (- h 12)) (h))))
-	(cat (if *env_clock_dotw* (cat (day-of-the-week wk) " ") "")
-		(if *env_clock_pad_hour* (pad h 2 "0") (str h))
+	(cat (if (get :clock_dotw *env*) (cat (day-of-the-week wk) " ") "")
+		(if (get :clock_pad_hour *env*) (pad h 2 "0") (str h))
 		":" (pad mn 2 "0")
-		(if *env_clock_seconds* (cat ":" (pad sc 2 "0")) "")
+		(if (get :clock_seconds *env*) (cat ":" (pad sc 2 "0")) "")
 		ampm))
 
 (defun transform (%0 a s &optional x y)
@@ -69,7 +61,7 @@
 	(path-stroke-polylines clock_face (* scale 0.018) +join_miter +cap_butt +cap_butt
 		(map (lambda (a) (transform (path 0.0 -0.370 0.0 -0.425) (/ (* (n2f a) +fp_2pi) 4.0) scale)) (range 0 4)))
 	; 12 dial numeral glyph paths (1..12)
-	(when *env_clock_numerals*
+	(when (get :clock_numerals *env*)
 		(defq font_size (max 10 (n2i (* scale 0.062)))
 			font (or (create-font "fonts/OpenSans-Bold.ctf" font_size)
 					(create-font "fonts/OpenSans-Regular.ctf" font_size)
@@ -110,7 +102,7 @@
 		(:set_color +argb_green6)
 		(:fpoly 0.0 0.0 +winding_none_zero hands))
 	; Second hand
-	(when *env_clock_seconds*
+	(when (get :clock_seconds *env*)
 		(defq sec_path (transform (path 0.0 0.05 0.0 -0.39) (/ (* (% s 60.0) +fp_2pi) 60.0) scale)
 			sec_hand (path-stroke-polylines (list) (* scale 0.007) +join_miter +cap_round +cap_round (list sec_path)))
 		(.-> canvas
@@ -129,7 +121,7 @@
 	(- 1000000 (% (pii-time) 1000000)))
 
 (defun main ()
-	(timezone-init *env_clock_timezone*)
+	(timezone-init (get :clock_timezone *env*))
 	(defq select (task-mboxes +select_size) *running* :t)
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))

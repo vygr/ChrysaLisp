@@ -11,7 +11,7 @@
 ;proceed as normal now we have the root or GUI env loaded up
 (import "sys/pii/lisp.inc")
 (import "usr/env.inc")
-(import *env_keyboard_map*)
+(import (get :keyboard_map *env*))
 (import "./actions.inc")
 (import "lib/text/searching.inc")
 
@@ -164,7 +164,7 @@
 	(defq *screen* (Backdrop))
 	(each (lambda ((key val)) (def *screen* key val)) (env-props))
 	(def *screen* :style :grid :paper +argb_grey2 :ink +argb_grey1)
-	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
+	(. (gui-init (. *screen* :change (get :window_x *env*) (get :window_y *env*) (get :window_width *env*) (get :window_height *env*))) :dirty_all)
 	(gui-update 0 0 0)
 	;init mouse widget
 	(defq *mouse* (canvas-load "apps/media/images/data/mice.cpm" 0))
@@ -203,8 +203,11 @@
 							(. *screen* :add_back view)
 							(. view :to_front))
 						(+gui_rpc_type_theme
-							;every window is told, each has fonts of its own to swap
+							;the screen has the theme's fonts, and every window is
+							;told, each finds them again and swaps its own
 							(defq name (slice msg +gui_rpc_size -1))
+							(env-theme name)
+							(each (# (def *screen* %0 (get %0 *env*))) +theme_fonts)
 							(each (lambda (child)
 								(if (defq to (. child :find_owner))
 									(mail-send to (cat (setf-> (str-alloc +ev_msg_theme_size)

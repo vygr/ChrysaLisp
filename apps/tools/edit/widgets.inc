@@ -29,11 +29,11 @@
 				+sym_select_form +sym_start_form +sym_end_form
 				+sym_upper_case +sym_lower_case +sym_sort +sym_unique
 				+sym_reverse +sym_comment) +event_undo))
-		(ui-tool-bar *macro_toolbar* (:paper (const *env_toolbar2_col*))
+		(ui-tool-bar *macro_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_play +sym_play_end +sym_play_global +sym_record) +event_macro_playback))
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_left_fill)
-		(ui-tool-bar *debug_toolbar* (:paper (const *env_toolbar2_col*))
+		(ui-tool-bar *debug_toolbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_save_debug +sym_breakpoint +sym_breakpoint_remove +sym_enable_all +sym_disable_all +sym_remove_all) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *buffer_toolbar* (:paper (get :paper *macro_toolbar*))
@@ -58,7 +58,7 @@
 			(ui-files *file_selector* "Project" +event_file_folder_action :nil))
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :paper +argb_white
-					:font *env_medium_terminal_font*)
+					:font (get :font_medium_terminal *env*))
 				(ui-flow _ (:flow_flags +flow_right)
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
 					(ui-text _ (:text "cy: ")) (ui-text *cy* (:min_width +status_min_size))
@@ -69,7 +69,7 @@
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-						:ink +argb_grey12 :font *env_editor_font*))
+						:ink +argb_grey12 :font (get :font_editor *env*)))
 				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)

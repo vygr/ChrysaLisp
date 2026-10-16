@@ -5,7 +5,7 @@
 (import "service/lock/app.inc")
 
 (defq +config_version 1
-	+config_file (cat *env_home* "onslaught.tre")
+	+config_file (cat (get :home *env*) "onslaught.tre")
 	*config* :nil *best_demo_score* 0 *best_demo_data* :nil
 	*session_best_score* 0 *session_best_demo* :nil
 	*hiscore_names* :nil *hiscore_values* :nil *campaign_state* :nil

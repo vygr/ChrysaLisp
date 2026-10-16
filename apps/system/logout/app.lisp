@@ -7,7 +7,7 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Logout Manager" () ())
 	(ui-label _ (:text (num-to-utf8 +sym_warning) :paper +argb_white
-		:font *env_warning_font*
+		:font (get :font_warning *env*)
 		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :paper +argb_white))
 	(ui-grid _ (:grid_width 2)

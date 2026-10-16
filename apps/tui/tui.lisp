@@ -58,7 +58,7 @@
 	;if only the prompt is on the line, just the Buffer
 	;else CR, Prompt, Buffer, Clear-To-End
 	(if prompted (print buffer)
-		(print +CR *env_terminal_prompt* buffer +CSI "K"))
+		(print +CR (get :terminal_prompt *env*) buffer +CSI "K"))
 	(setq prompted :nil)
 	;Position cursor if not at end of buffer
 	(if (< cursor (length buffer))
@@ -97,7 +97,7 @@
 									(scatter *meta_map* :history history)
 									(setq *history_idx* (length history) *history* history)
 									(config-save)))))
-					(unless cmd (print *env_terminal_prompt*))
+					(unless cmd (print (get :terminal_prompt *env*)))
 					(setq buffer "" cursor 0 prompted (not cmd)))
 				((or (= c 127) (= c 8)) ; Ctrl-H, Backspace (often 127 on TUI)
 					(when (> cursor 0)
@@ -188,7 +188,7 @@
 	(mail-declare tmbox "Terminal" "Terminal Services 0.2")
 	(open-child "service/lock/app.lisp" +kn_call_run)
 	(open-child "service/net/app.lisp" +kn_call_run)
-	(print "ChrysaLisp Terminal" +LF *env_terminal_prompt*)
+	(print "ChrysaLisp Terminal" +LF (get :terminal_prompt *env*))
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_pin) (task-mbox))
 	(defq cmd :nil buffer "" cursor 0 esc_state 0 last_input 0 prompted :t
@@ -208,7 +208,7 @@
 				(setq cmd :nil)
 				(if *eof*
 					(pii-exit)
-					(print +CR +LF *env_terminal_prompt*)
+					(print +CR +LF (get :terminal_prompt *env*))
 					(setq prompted :t)))
 			(:t ;string from pipe
 				(print data)))))

@@ -20,7 +20,7 @@
 	(enum main tip timer worker trash))
 
 (defq *config* :nil +config_version 1
-	+config_file (cat *env_home* "weather.tre")
+	+config_file (cat (get :home *env*) "weather.tre")
 	*city* "London" *unit_c* :t *weather_data* :nil *canvas_size* 120
 	*quick_cities* '("London" "Tokyo" "New York" "Paris" "Sydney" "Cairo")
 	*btn_city_0* :nil *btn_city_1* :nil *btn_city_2* :nil
@@ -129,12 +129,12 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Weather" (+sym_close) +event_close)
 	; Row 1: Search & Controls
-	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill :font *env_button_font*)
+	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill :font :font_button)
 		(. (ui-button *btn_refresh* (:text "Fetch")) :connect +event_refresh)
 		(. (ui-button *btn_unit* (:text (if *unit_c* "F" "C"))) :connect +event_unit_toggle)
 		(. (ui-textfield *search_input* (:paper +argb_grey15 :clear_text *city* :hint_text "Search city...")) :connect +event_refresh))
 	; Row 2: Quick City Buttons (2 rows of 3 columns)
-	(ui-grid _ (:grid_width 3 :font *env_small_font* :paper *env_toolbar2_col*)
+	(ui-grid _ (:grid_width 3 :font :font_small :paper :paper_toolbar2)
 		(. (ui-button *btn_city_0* (:text (elem-get *quick_cities* 0))) :connect +event_city_0)
 		(. (ui-button *btn_city_1* (:text (elem-get *quick_cities* 1))) :connect +event_city_1)
 		(. (ui-button *btn_city_2* (:text (elem-get *quick_cities* 2))) :connect +event_city_2)
@@ -144,37 +144,37 @@
 	; Row 3: Main Weather Hero
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-canvas *icon_canvas* *canvas_size* *canvas_size* 1)
-		(ui-label *temp_label* (:text "00 C" :font *env_display_font*
+		(ui-label *temp_label* (:text "00 C" :font :font_display
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *condition_label* (:text "Patchy rain nearby" :font *env_sub_title_font*
+		(ui-label *condition_label* (:text "Patchy rain nearby" :font :font_sub_title
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *feels_label* (:text "Feels like 00 C" :font *env_small_font*
+		(ui-label *feels_label* (:text "Feels like 00 C" :font :font_small
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)))
-		(ui-label *location_label* (:text "Brompton, United Kingdom" :font *env_small_font*
+		(ui-label *location_label* (:text "Brompton, United Kingdom" :font :font_small
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter))))
 	; Row 4: Metrics 2x2 Grid
-	(ui-grid _ (:grid_width 2 :font *env_small_font*)
+	(ui-grid _ (:grid_width 2 :font :font_small)
 		(ui-label *humidity_label* (:text "Humidity: 100%"))
 		(ui-label *wind_label* (:text "Wind: 100 km/h WSW"))
 		(ui-label *pressure_label* (:text "Pressure: 1013 hPa"))
 		(ui-label *vis_label* (:text "Visibility: 10 km")))
 	; Row 5: 3-Day Forecast
-	(ui-title _ (:text "3-Day Forecast" :paper *env_title_col* :font *env_sub_title_font*))
+	(ui-title _ (:text "3-Day Forecast" :paper :paper_title :font :font_sub_title))
 	(ui-grid _ (:grid_width 3)
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d1_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d1_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d1_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
+			(ui-label *fc_d1_date* (:text "00-00" :font :font_sub_title :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d1_desc* (:text "Patchy rain nearby" :font :font_tiny :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d1_temp* (:text "00 / 00 C" :font :font_small :flow_flags +flow_flag_align_hcenter)))
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d2_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d2_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d2_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
+			(ui-label *fc_d2_date* (:text "00-00" :font :font_sub_title :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d2_desc* (:text "Patchy rain nearby" :font :font_tiny :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d2_temp* (:text "00 / 00 C" :font :font_small :flow_flags +flow_flag_align_hcenter)))
 		(ui-flow _ (:flow_flags +flow_down_fill)
-			(ui-label *fc_d3_date* (:text "00-00" :font *env_sub_title_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d3_desc* (:text "Patchy rain nearby" :font *env_tiny_font* :flow_flags +flow_flag_align_hcenter))
-			(ui-label *fc_d3_temp* (:text "00 / 00 C" :font *env_small_font* :flow_flags +flow_flag_align_hcenter))))
+			(ui-label *fc_d3_date* (:text "00-00" :font :font_sub_title :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d3_desc* (:text "Patchy rain nearby" :font :font_tiny :flow_flags +flow_flag_align_hcenter))
+			(ui-label *fc_d3_temp* (:text "00 / 00 C" :font :font_small :flow_flags +flow_flag_align_hcenter))))
 	; Row 6: Status footer
-	(ui-label *status_label* (:text "Ready" :font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
+	(ui-label *status_label* (:text "Ready" :font :font_small :flow_flags +flow_flag_align_hcenter)))
 
 (defun update-ui-labels ()
 	(when *weather_data*

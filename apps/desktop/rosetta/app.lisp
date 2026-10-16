@@ -18,7 +18,7 @@
 
 (defq +event_algo_0 100 +max_algos 16
 	+color_accent 0xffe91e63 *config* :nil +config_version 1
-	+config_file (cat *env_home* "rosetta.tre") *selected_id* :quicksort
+	+config_file (cat (get :home *env*) "rosetta.tre") *selected_id* :quicksort
 	*selected_cat* "All" *search_query* "" *filtered_algos* (list)
 	*selected_entry* :nil *cat_bar* :nil *search_input* :nil *btn_random* :nil
 	*status_label* :nil *info_label* :nil *left_scroll* :nil
@@ -69,7 +69,7 @@
 			(. buffer :idelete 0 (!) (min margin (length line)) (!))) lines))
 	(bind '(w h) (. buffer :get_size))
 	(def (defq vdu (Vdu))
-		:font *env_terminal_font* :vdu_width 80 :vdu_height h
+		:font (get :font_terminal *env*) :vdu_width 80 :vdu_height h
 		:paper 0 :ink +argb_black)
 	(bind '(tw th) (. vdu :pref_size))
 	(def vdu :vdu_width (max w 40))
@@ -131,13 +131,13 @@
 				idx (!) is_cur (eql id *selected_id*)
 				btn (Button) meta_lbl (Label))
 			(def (defq card (Flow)) :flow_flags +flow_down_fill :border 1)
-			(def btn :text title :font *env_button_font* :border (if is_cur 1 0))
+			(def btn :text title :font (get :font_button *env*) :border (if is_cur 1 0))
 			(when is_cur
 				(def card :paper (canvas-brighter (get :paper *window*)))
 				(def btn :paper +color_accent :ink +argb_white))
 			(. btn :connect (+ +event_algo_0 idx))
 			(def meta_lbl :text (cat " " category " | " (first (split complexity "|")))
-				:font *env_small_font* :border 0 :ink (if is_cur +color_accent +argb_grey8))
+				:font (get :font_small *env*) :border 0 :ink (if is_cur +color_accent +argb_grey8))
 			(.-> card (:add_child btn) (:add_child meta_lbl))
 			(. *left_container* :add_child card))
 			*filtered_algos*))
@@ -190,10 +190,10 @@
 
 (ui-window *window* (:paper +argb_grey15)
 	(ui-title-bar _ "Rosetta - Algorithm & Computer Science Explorer" (+sym_close +sym_max +sym_min) +event_close)
-	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font *env_button_font*)
-		(ui-label _ (:text " ROSE " :paper +color_accent :ink +argb_white :font *env_bold_font* :border 1))
+	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font :font_button)
+		(ui-label _ (:text " ROSE " :paper +color_accent :ink +argb_white :font :font_bold :border 1))
 		(. (ui-radio-bar *cat_bar* ("All" "Sorting" "Structures" "Compression" "Math" "Systems")
-				(:font *env_button_font*)) :connect +event_category)
+				(:font (get :font_button *env*))) :connect +event_category)
 		(. (ui-textfield *search_input* (:paper +argb_white :clear_text *search_query* :hint_text "Search algorithm..." :min_width 160))
 			:connect +event_search)
 		(. (ui-button *btn_random* (:text "Random")) :connect +event_random)
@@ -202,7 +202,7 @@
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-flow status_bar (:flow_flags +flow_right_fill :border 1)
 			(ui-label _ (:min_width 8 :border 0))
-			(ui-label *info_label* (:text "Ready" :font *env_small_font* :border 0 :min_width 320)))
+			(ui-label *info_label* (:text "Ready" :font :font_small :border 0 :min_width 320)))
 		(ui-flow main_split (:flow_flags +flow_right_fill)
 			(ui-scroll *left_scroll* +scroll_flag_vertical (:min_width 240 :min_height 480)
 				(ui-flow *left_container* (:flow_flags +flow_down_fill :paper +argb_grey15)))

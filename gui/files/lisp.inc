@@ -20,7 +20,7 @@
 	(ui-root root (Flow) (:flow_flags +flow_down_fill :paper +argb_grey14)
 		(ui-title-bar _ title (+sym_next +sym_up) my_id)
 		(ui-scroll file_tree_scroll +scroll_flag_both :nil
-			(ui-flow file_tree (:flow_flags +flow_down :min_width 0 :paper +argb_white :font *env_medium_terminal_font*))))
+			(ui-flow file_tree (:flow_flags +flow_down :min_width 0 :paper +argb_white :font :font_medium_terminal))))
 	(ui-root backdrop (Backdrop) (:paper +argb_white))
 	(. this :add_child root)
 	(. this :add_child backdrop)
@@ -48,7 +48,7 @@
 		; "a/b/c/file"
 		; "a/b/c/."
 		(raise :file_tree :action_event)
-		(bind '(toggle_width &) (font-glyph-bounds *env_tiny_symbol_font* +files_open))
+		(bind '(toggle_width &) (font-glyph-bounds (get :font_tiny_symbol *env*) +files_open))
 		(defq route (split route "/") root file_tree)
 		(each! (lambda (branch)
 			(cond
@@ -62,7 +62,7 @@
 					(def (defq tab_child (Flow)) :flow_flags +flow_down)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq toggle (Node)) :text +files_open :min_width toggle_width
-						:font *env_tiny_symbol_font*)
+						:font (get :font_tiny_symbol *env*))
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child

@@ -16,7 +16,7 @@
 
 (defq +event_story_0 100 +max_stories 50
 	*config* :nil +config_version 2
-	+config_file (cat *env_home* "news.tre") *selected_category* "top" *selected_id* 0
+	+config_file (cat (get :home *env*) "news.tre") *selected_category* "top" *selected_id* 0
 	*current_stories* (list) *selected_story* :nil *comments_cache* (Fmap 31)
 	*post_content_cache* (Fmap 31) *cat_bar* :nil *btn_refresh* :nil *status_label* :nil
 	*story_scroll* :nil *story_container* :nil *detail_scroll* :nil *detail_container* :nil
@@ -130,7 +130,7 @@
 
 (defun render-loading-stories ()
 	(each (# (. %0 :sub)) (. *story_container* :children))
-	(def (defq lbl (Label)) :text "Fetching stories..." :font *env_button_font* :ink +argb_grey8)
+	(def (defq lbl (Label)) :text "Fetching stories..." :font (get :font_button *env*) :ink +argb_grey8)
 	(. *story_container* :add_child lbl)
 	(bind '(& h) (. *story_container* :pref_size))
 	(bind '(sw &ignore) (. *story_scroll* :get_size))
@@ -149,16 +149,16 @@
 			score_lbl (Label) meta_lbl (Label))
 		(def card_flow :flow_flags +flow_down_fill :border 1)
 		(def title_btn :text (cat (str (inc idx)) ". " (truncate-title title 24))
-			:font *env_button_font* :border (if is_selected 1 0))
+			:font (get :font_button *env*) :border (if is_selected 1 0))
 		(when is_selected
 			(def card_flow :paper (canvas-brighter (get :paper *window*)))
 			(def title_btn :paper 0xffff6600))
 		(. title_btn :connect (+ +event_story_0 idx))
 		(def meta_flow :flow_flags +flow_right_fill)
 		(def score_lbl :text (cat (str points) " pts") :ink 0xffff6600
-			:font *env_small_font* :border 0)
+			:font (get :font_small *env*) :border 0)
 		(def meta_lbl :text (cat " * " user " (" (str comments_count) ")")
-			:ink +argb_grey8 :font *env_small_font* :border 0)
+			:ink +argb_grey8 :font (get :font_small *env*) :border 0)
 		(.-> meta_flow (:add_child score_lbl) (:add_child meta_lbl))
 		(.-> card_flow (:add_child title_btn) (:add_child meta_flow))
 		(. *story_container* :add_child card_flow))
@@ -234,9 +234,9 @@
 (ui-window *window* (:paper +argb_grey15)
 	(ui-title-bar _ "Hacker News" (+sym_close +sym_max +sym_min) +event_close)
 	; Header Navigation Bar
-	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font *env_button_font*)
-		(ui-label _ (:text " HN " :paper 0xffff6600 :ink +argb_white :font *env_bold_font* :border 1))
-		(. (ui-radio-bar *cat_bar* ("Top" "Newest" "Show HN" "Ask HN" "Jobs") (:font *env_button_font*)) :connect +event_category)
+	(ui-flow header_bar (:flow_flags +flow_right_fill :border 1 :font :font_button)
+		(ui-label _ (:text " HN " :paper 0xffff6600 :ink +argb_white :font :font_bold :border 1))
+		(. (ui-radio-bar *cat_bar* ("Top" "Newest" "Show HN" "Ask HN" "Jobs") (:font :font_button)) :connect +event_category)
 		(. (ui-button *btn_refresh* (:text "Refresh" :paper 0xffff6600 :ink +argb_white)) :connect +event_refresh)
 		(ui-label *status_label* (:text "Connecting..." :border 0 :ink +argb_grey8)))
 	; makes the main_split use up all the remaining space !
@@ -244,8 +244,8 @@
 		; Footer Status Bar
 		(ui-flow status_bar (:flow_flags +flow_right_fill :border 1)
 			(ui-label _ (:min_width 4 :border 0))
-			(ui-label *story_count_label* (:text "0 stories" :font *env_small_font* :border 0 :min_width 80))
-			(ui-label *item_info_label* (:text "Select a story" :font *env_small_font* :border 0 :ink +argb_grey8 :min_width 160)))
+			(ui-label *story_count_label* (:text "0 stories" :font :font_small :border 0 :min_width 80))
+			(ui-label *item_info_label* (:text "Select a story" :font :font_small :border 0 :ink +argb_grey8 :min_width 160)))
 		; Split Pane Body: Story List (Left) + Detail/Md Viewer (Right)
 		(ui-flow main_split (:flow_flags +flow_right_fill)
 			(ui-scroll *story_scroll* +scroll_flag_vertical (:min_width 220 :min_height 460)

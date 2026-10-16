@@ -71,6 +71,26 @@
 		(each (lambda ((key val)) (def *env_root* key val)) (env-props)))
 	*env_root*)
 
+(defq +theme_fonts ''(:font_title_buttons :font_symbol :font_medium_symbol :font_small_toolbar :font_warning))
+
+(defun env-theme (name)
+	; (env-theme name) -> ((old new) ...)
+	;the symbol fonts of the user's *env* are those of the theme, each the
+	;size it was, and so on this task's root. Those that changed, the font
+	;that was and the one that is
+	(defq file (theme-file name) swaps (list))
+	(def *env* :symbol_file file)
+	(each (lambda (key)
+			(when (defq old (get key *env*))
+				(defq new (create-font file (second (font-info old))))
+				(unless (eql new old)
+					(def *env* key new)
+					(push swaps (list old new)))))
+		+theme_fonts)
+	(setq *env_props* :nil)
+	(if *env_root* (each (lambda ((key val)) (def *env_root* key val)) (env-props)))
+	swaps)
+
 (defun view-resolve (view)
 	; (view-resolve view) -> view
 	;each view of it, it too, given a variant for a plain property has the

@@ -21,7 +21,7 @@
 			(setq err new_err index (!) flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
 	(gui-add-back-rpc (.-> (setq wallpaper (Canvas w h 1))
-		(:resize (canvas-load (elem-get *env_wallpaper_images* index) +load_flag_noswap))
+		(:resize (canvas-load (elem-get (get :wallpaper_images *env*) index) +load_flag_noswap))
 		;the wallpaper is only ever shown, so its pixmap, the size of
 		;the screen, is freed once it is a texture
 		(:swap +swap_flag_free)
@@ -30,10 +30,10 @@
 		(:change 0 0 w h))))
 
 (defun main ()
-	(defq images_info (map (const canvas-info) *env_wallpaper_images*) wallpaper (View)
+	(defq images_info (map (const canvas-info) (get :wallpaper_images *env*)) wallpaper (View)
 			screen (penv (gui-add-back-rpc wallpaper)) mouse_state :u)
 	(each (lambda (%0)
-		(open-child (app-path %0) +kn_call_pin)) *env_launcher_auto_apps*)
+		(open-child (app-path %0) +kn_call_pin)) (get :launcher_auto_apps *env*))
 	(refresh-wallpaper)
 	(defq id :t)
 	(while id

@@ -341,7 +341,7 @@ The Docs application provides nine dedicated section handlers:
 		(the list of `Text` word widgets gathered via `(. md :get_search_widgets)`
 		from all `Md` components on the page). It evaluates matches using `query`
 		(supporting whole words, regex, and case sensitivity), highlights matching
-		words with `*env_highlight_col*`, and smoothly scrolls the match into view.
+		words with `(get :paper_highlight *env*)`, and smoothly scrolls the match into view.
 
 ### 6. Architectural Strengths
 

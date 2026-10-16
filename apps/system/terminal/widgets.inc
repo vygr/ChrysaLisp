@@ -10,7 +10,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_copy +sym_paste +sym_select_paragraph) +event_copy))
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(. (ui-slider *yslider*) :connect +event_yscroll)
 		(ui-flow *edit_flow* (:flow_flags +flow_up_fill)

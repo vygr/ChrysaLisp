@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main tip pipe))
 
-(bind '(+edit_font +edit_size) (font-info *env_terminal_font*))
+(bind '(+edit_font +edit_size) (font-info (get :font_terminal *env*)))
 (defq +state_filename "terminal.tre" +line_wrap_len 120)
 
 (defun input-poll ()
@@ -107,7 +107,7 @@
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(window-resize)
-	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) *env_terminal_prompt*))
+	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) (get :terminal_prompt *env*)))
 	(defq *margin_x* *cursor_x*)
 	(while *running*
 		(and *needs_refresh* (not (input-poll)) (refresh))
@@ -120,7 +120,7 @@
 						;pipe finished
 						(. *pipe* :close)
 						(setq *pipe* :nil *key* :t)
-						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
+						(action-insert (cat (ascii-char +char_lf) (get :terminal_prompt *env*))))
 					((action-insert *msg* +line_wrap_len)))
 				(setq *margin_x* *cursor_x*))
 			((= idx +select_tip)

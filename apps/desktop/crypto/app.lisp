@@ -19,7 +19,7 @@
 	(enum main tip timer worker trash))
 
 (defq *config* :nil +config_version 1
-	+config_file (cat *env_home* "crypto.tre")
+	+config_file (cat (get :home *env*) "crypto.tre")
 	*selected_symbol* "BTC" *coins_data* (list)
 	*canvas_width* 360 *canvas_height* 110
 	*btn_coin_0* :nil *btn_coin_1* :nil *btn_coin_2* :nil
@@ -135,19 +135,19 @@
 		(ui-label *status_label* (:text "Connecting..." :flow_flags +flow_flag_align_vcenter :paper +argb_grey15)))
 	; Hero Card: Coin Header
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label *hero_symbol* (:text "#1  BTC" :font *env_sub_title_font*))
-		(ui-label *hero_name* (:text "Bitcoin" :font *env_bold_font* :flow_flags +flow_flag_align_vcenter))
-		(ui-label *hero_change* (:text "+0.00%" :font *env_bold_font* :border 0
+		(ui-label *hero_symbol* (:text "#1  BTC" :font :font_sub_title))
+		(ui-label *hero_name* (:text "Bitcoin" :font :font_bold :flow_flags +flow_flag_align_vcenter))
+		(ui-label *hero_change* (:text "+0.00%" :font :font_bold :border 0
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Hero Card: Big Price & 24h Range
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label *hero_price* (:text "$0.00" :font *env_display_font*))
-		(ui-label *range_label* (:text "24h: $0.00 - $0.00" :font *env_small_font*
+		(ui-label *hero_price* (:text "$0.00" :font :font_display))
+		(ui-label *range_label* (:text "24h: $0.00 - $0.00" :font :font_small
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Vector Sparkline Chart Canvas
 	(ui-canvas *chart_canvas* *canvas_width* *canvas_height* 1)
 	; Quick Asset Selection Grid (2 rows x 3 columns)
-	(ui-grid _ (:grid_width 3 :font *env_small_font* :paper *env_toolbar2_col*)
+	(ui-grid _ (:grid_width 3 :font :font_small :paper :paper_toolbar2)
 		(. (ui-button *btn_coin_0* (:text "BTC $0.00")) :connect +event_coin_0)
 		(. (ui-button *btn_coin_1* (:text "ETH $0.00")) :connect +event_coin_1)
 		(. (ui-button *btn_coin_2* (:text "SOL $0.00")) :connect +event_coin_2)
@@ -155,7 +155,7 @@
 		(. (ui-button *btn_coin_4* (:text "XRP $0.00")) :connect +event_coin_4)
 		(. (ui-button *btn_coin_5* (:text "DOGE $0.00")) :connect +event_coin_5))
 	; Footer Attribution
-	(ui-label *footer_label* (:text "Live data from Coinranking (24h trend)" :font *env_small_font*
+	(ui-label *footer_label* (:text "Live data from Coinranking (24h trend)" :font :font_small
 		:flow_flags +flow_flag_align_hcenter)))
 
 (defun update-ui ()

@@ -9,7 +9,7 @@
 
 (import "service/lock/app.inc")
 
-(defq +config_version 1 +config_file (cat *env_home* "whiteboard.tre"))
+(defq +config_version 1 +config_file (cat (get :home *env*) "whiteboard.tre"))
 
 (defun config-state ()
 	; (config-state) -> emap

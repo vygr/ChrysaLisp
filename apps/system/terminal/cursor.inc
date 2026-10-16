@@ -47,7 +47,7 @@
 				(setq cmd (elem-get history *history_idx*)))
 			(.-> buffer
 				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
-				(:insert (cat *env_terminal_prompt* cmd))))
+				(:insert (cat (get :terminal_prompt *env*) cmd))))
 		(refresh)))
 
 (defun action-history-find ()
@@ -58,7 +58,7 @@
 			(when (defq cmd (history-find (typed-line y)))
 				(.-> buffer
 					(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
-					(:insert (cat *env_terminal_prompt* cmd)))))
+					(:insert (cat (get :terminal_prompt *env*) cmd)))))
 		(refresh)))
 
 (defun action-down ()
@@ -71,5 +71,5 @@
 				(setq cmd (elem-get history *history_idx*)))
 			(.-> buffer
 				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
-				(:insert (cat *env_terminal_prompt* cmd))))
+				(:insert (cat (get :terminal_prompt *env*) cmd))))
 		(refresh)))

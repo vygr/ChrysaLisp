@@ -16,7 +16,7 @@
 (enums +refresh_mode 0
 	(enum visible hidden))
 
-(bind '(+edit_font +edit_size) (font-info *env_editor_font*))
+(bind '(+edit_font +edit_size) (font-info (get :font_editor *env*)))
 
 (defq +margin 2 +text_types ''(".md" ".txt")
 	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre" ".cwb"))

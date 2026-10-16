@@ -4,7 +4,7 @@
 
 (import "service/lock/app.inc")
 
-(defq *config* :nil +config_version 2 +config_file (cat *env_home* "chess.tre"))
+(defq *config* :nil +config_version 2 +config_file (cat (get :home *env*) "chess.tre"))
 
 (defun config-default ()
 	(scatter (Emap)

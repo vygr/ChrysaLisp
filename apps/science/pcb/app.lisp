@@ -24,7 +24,7 @@
 	*index* (some (# (if (eql (cat *app_root* "data/test1.pcb") %0) (!))) *pcbs*)
 	canvas_scale 1 *mode* 0 *show* -1
 	+max_zoom 15.0 +min_zoom 5.0 *config* :nil +config_version 1
-	+config_file (cat *env_home* "pcb.tre")
+	+config_file (cat (get :home *env*) "pcb.tre")
 	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)
 
 (ui-window *window* ()
@@ -35,7 +35,7 @@
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-radio-bar *mode_toolbar* (+sym_pcb +sym_gerber)) :connect +event_mode)
 		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
-				(:paper (const *env_toolbar2_col*)
+				(:paper (const (get :paper_toolbar2 *env*))
 				:font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))
 			:connect +event_layer))
 	(ui-flow _ (:flow_flags +flow_right_fill)

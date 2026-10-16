@@ -11,7 +11,7 @@
 (defun create-item (flow &optional text)
 	(defq column (find flow (list *todo_flow* *done_flow* *deleted_flow*)))
 	(ui-root entry (Flow) (:flow_flags +flow_right_fill)
-		(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
+		(ui-tool-bar toolbar (:font :font_small_toolbar)
 			(case column
 				(0 (ui-buttons (+sym_done +sym_delete) +event_todo_done))
 				(1 (ui-buttons (+sym_reset +sym_delete) +event_done_redo))

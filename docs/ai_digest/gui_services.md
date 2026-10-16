@@ -299,10 +299,10 @@ are made available via `gui/lisp.inc`.
     * Typically creates a `Window` with a default `Flow` child to which `body`
       elements are added.
 
-    * Default props (from `gui/lisp.inc`): `:font *env_window_font*`,
-      `:ink *env_ink_col*`, `:paper *env_window_col*`, `:ink_hint
-      *env_hint_col*`, `:ink_no_hint *env_no_hint_col*`, `:border
-      *env_window_border*`, `:shadow *env_window_shadow*`.
+    * Default props (from `gui/lisp.inc`): `:font (get :font_window *env*)`,
+      `:ink (get :ink_window *env*)`, `:paper (get :paper_window *env*)`, `:ink_hint
+      (get :ink_hint *env*)`, `:ink_no_hint (get :ink_no_hint *env*)`, `:border
+      (get :border_window *env*)`, `:shadow (get :shadow_window *env*)`.
 
 * **Description:** The top-level widget for an application's UI. It manages
   window dragging, resizing (implicitly via its content), and serves as the
@@ -386,7 +386,7 @@ are made available via `gui/lisp.inc`.
 
     * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))`,
-      `:border *env_button_border*`.
+      `:border (get :border_button *env*)`.
 
 * **Description:** A standard clickable button. It displays text (inherited
   from `Label`) and can show a tooltip.
@@ -526,7 +526,7 @@ are made available via `gui/lisp.inc`.
 ```vdu
 ;; In the Editor app, an Editor-edit class inherits Edit
 (defclass Editor-edit () (Edit)
-    (def this :font *env_editor_font*))
+    (def this :font (get :font_editor *env*)))
 
 (ui-element *my_editor_widget* (Editor-edit))
 ```
@@ -655,7 +655,7 @@ are made available via `gui/lisp.inc`.
 
     * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_right +flow_flag_align_vcenter))`, `:border
-      *env_label_border*`.
+      (get :border_label *env*)`.
 
 * **Description:** Displays a line of text. The text is actually rendered by a
   child `Text` widget, and the `Label` itself provides a border and
@@ -683,7 +683,7 @@ are made available via `gui/lisp.inc`.
 *Example:*
 
 ```vdu
-(ui-label *status_message* (:text "Ready." :font *env_body_font*))
+(ui-label *status_message* (:text "Ready." :font :font_body))
 ```
 
 ---
@@ -756,8 +756,8 @@ are made available via `gui/lisp.inc`.
 * **UI Macro:** `(ui-radio-bar name symbols [props])` or `(ui-toggle-bar name
   symbols [props])`
 
-    * Default props (from `gui/lisp.inc`): `:paper *env_toolbar_col*`, `:font
-      *env_symbol_font*`, `:border *env_button_border*`.
+    * Default props (from `gui/lisp.inc`): `:paper (get :paper_toolbar *env*)`, `:font
+      (get :font_symbol *env*)`, `:border (get :border_button *env*)`.
 
 * **Description:** A bar of buttons that can operate in radio mode (only one
   selected) or toggle mode (multiple can be selected).
@@ -801,7 +801,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-scroll name flags [props] [body])`
 
-    * Default props (from `gui/lisp.inc`): `:paper *env_slider_col*`.
+    * Default props (from `gui/lisp.inc`): `:paper (get :paper_slider *env*)`.
 
 * **Description:** A container that provides scrollbars for a single child
   widget if the child's content exceeds the scroll view's visible area.
@@ -848,7 +848,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-slider name [props])`
 
-    * Default props (from `gui/lisp.inc`): `:paper *env_slider_col*`.
+    * Default props (from `gui/lisp.inc`): `:paper (get :paper_slider *env*)`.
 
 * **Description:** A horizontal or vertical slider control.
 
@@ -1011,7 +1011,7 @@ are made available via `gui/lisp.inc`.
 
 ```vdu
 (ui-text *welcome_message* (:text "Welcome to ChrysaLisp!" :font
-    *env_title_font*))
+    (get :font_title *env*)))
 ```
 
 ---
@@ -1026,7 +1026,7 @@ are made available via `gui/lisp.inc`.
 
     * Default props (from `gui/lisp.inc`): `:flow_flags (num (logior
       +flow_flag_right +flow_flag_align_vcenter))`, `:border
-      *env_textfield_border*`.
+      (get :border_textfield *env*)`.
 
 * **Description:** A single-line editable text input field.
 
@@ -1076,8 +1076,8 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-title name [props])`
 
-    * Default props (from `gui/lisp.inc`): `:font *env_title_font*`,
-      `:border *env_title_border*`.
+    * Default props (from `gui/lisp.inc`): `:font (get :font_title *env*)`,
+      `:border (get :border_title *env*)`.
 
 * **Description:** A specialized label typically used as part of a `Window`'s
   title bar. It's draggable to move the window.
@@ -1149,7 +1149,7 @@ are made available via `gui/lisp.inc`.
 
 ```vdu
 (ui-files *file_selector* "Project Files" +event_file_folder_action
-    (:paper +argb_grey14 :font *env_medium_terminal_font*))
+    (:paper +argb_grey14 :font (get :font_medium_terminal *env*)))
 
 ; Populate with all .lisp and .inc files from the current directory, up to depth 2
 (. *file_selector* :populate "." '(".lisp" ".inc") 2)
@@ -1168,7 +1168,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-vdu name [props])`
 
-    * Default props (from `gui/lisp.inc`): `:font *env_terminal_font*`,
+    * Default props (from `gui/lisp.inc`): `:font (get :font_terminal *env*)`,
       `:paper 0`.
 
 * **Description:** A text display widget that renders characters on a grid,
@@ -1224,7 +1224,7 @@ combinations of widgets:
       buttons or other controls.
 
     * Default props (from `gui/lisp.inc`): `:flow_flags +flow_right`, `:paper
-      *env_toolbar_col*`, `:font *env_symbol_font*`.
+      (get :paper_toolbar *env*)`, `:font (get :font_symbol *env*)`.
 
 *Example using combination macros:*
 

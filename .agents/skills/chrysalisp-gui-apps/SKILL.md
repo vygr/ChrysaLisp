@@ -301,7 +301,7 @@ Key points:
 	`(def *window* :zoom new_size)`, and rebuild the affected views
 	(see `apps/desktop/docs/ui.inc` action-scale-up).
 
-*	**State persistence (`config-load` / `config-save`):** Save app state to a `.tre` file in `*env_home*` with `tree-save`/`tree-load` on a file stream.
+*	**State persistence (`config-load` / `config-save`):** Save app state to a `.tre` file in `(get :home *env*)` with `tree-save`/`tree-load` on a file stream.
 	*	**Canonical `config-load`:**
 		```lisp
 		(defun config-load ()
@@ -346,24 +346,24 @@ Key points:
 *	**Widget Borders (`:border`):**
 	In ChrysaLisp, `:border` defines the 3D bevel/panel border thickness in pixels, *not* padding or margin!
 	*	**Buttons & TextFields:** Leave `:border` as the default (or use `1`), unless specifically needing `:border 0` for a flat look (e.g., flat list row items or link-style clickable buttons).
-	*	**Labels & Headers:** Labels default to `*env_label_border*` (0 = flat text). Never assign arbitrary large values like `:border 4`, `:border 8`, or `:border 12` to labels or section headers—doing so draws an unsightly, heavy 3D beveled box and dark drop shadow around the text. Leave `:border` at default (or `:border 0`).
+	*	**Labels & Headers:** Labels default to `(get :border_label *env*)` (0 = flat text). Never assign arbitrary large values like `:border 4`, `:border 8`, or `:border 12` to labels or section headers—doing so draws an unsightly, heavy 3D beveled box and dark drop shadow around the text. Leave `:border` at default (or `:border 0`).
 
 *	**Typography & Font Hierarchy (`*env_` and Parent Property Lookups):**
 	Apps should **never** hardcode `(create-font "fonts/..." size)`. Instead, apps must respect user-configured environment fonts from `usr/env.inc` and leverage ChrysaLisp's dynamic parent property lookup:
 	*	**Parent Property Lookup (`raise`):** When a child widget (Button, Label, Textfield) does not have an explicit `:font` property defined, ChrysaLisp's `(raise :font ...)` mechanism dynamically climbs up the widget tree to find the parent container's font. Therefore:
-		- Containers (`ui-flow`, `ui-grid`, `ui-tool-bar`) establish the font context for their children. For example, `(ui-flow _ (:font *env_button_font*) (ui-textfield ...) (ui-button ...))` allows text fields and buttons to inherit without individual font properties.
+		- Containers (`ui-flow`, `ui-grid`, `ui-tool-bar`) establish the font context for their children. For example, `(ui-flow _ (:font :font_button) (ui-textfield ...) (ui-button ...))` allows text fields and buttons to inherit without individual font properties.
 		- Avoid setting hardcoded properties on raw class constructors (`Button`, `Textfield`), as that blocks `raise` from looking up parent properties.
 	*	**Standard Environment Font Definitions:**
-		- `*env_window_font*` (18 Regular): Default window font inherited by views.
-		- `*env_title_font*` (20 Bold): Window title bar text.
-		- `*env_sub_title_font*` (16 Bold): Section headers, hero title labels.
-		- `*env_bold_font*` (14 Bold): Emphasized labels, card badges.
-		- `*env_body_font*` (14 Regular): Primary text, markdown documents.
-		- `*env_button_font*` (13 Regular): Interactive text buttons, inputs, category selectors.
-		- `*env_small_font*` (12 Regular): Secondary info, timestamps, status bars, metadata.
-		- `*env_tiny_font*` (10 Regular): Fine print, sub-labels, telemetry, attribution.
-		- `*env_display_font*` (32 Bold): Hero metrics (temperatures, asset prices).
-		- `*env_terminal_font*` / `*env_medium_terminal_font*` / `*env_small_terminal_font*`: Monospace code, terminals, hashes, hex values.
+		- `(get :font_window *env*)` (18 Regular): Default window font inherited by views.
+		- `(get :font_title *env*)` (20 Bold): Window title bar text.
+		- `(get :font_sub_title *env*)` (16 Bold): Section headers, hero title labels.
+		- `(get :font_bold *env*)` (14 Bold): Emphasized labels, card badges.
+		- `(get :font_body *env*)` (14 Regular): Primary text, markdown documents.
+		- `(get :font_button *env*)` (13 Regular): Interactive text buttons, inputs, category selectors.
+		- `(get :font_small *env*)` (12 Regular): Secondary info, timestamps, status bars, metadata.
+		- `(get :font_tiny *env*)` (10 Regular): Fine print, sub-labels, telemetry, attribution.
+		- `(get :font_display *env*)` (32 Bold): Hero metrics (temperatures, asset prices).
+		- `(get :font_terminal *env*)` / `(get :font_medium_terminal *env*)` / `(get :font_small_terminal *env*)`: Monospace code, terminals, hashes, hex values.
 
 *	**Overloading.** Import another app's `ui.inc` and `redefun` the
 	actions you need to change (see `apps/desktop/docs/ui.inc`).
@@ -498,7 +498,7 @@ desktop of the agent's own:
 *	**Dump a View tree with `ui-save`:** `(ui-save stream view)`
 	(`gui/lisp.inc`) walks a view and its children and writes a `tree-save`
 	format file. Import `usr/env.inc` first, as the `ui-xxx` macros need the
-	`*env_xxx*` settings:
+	user's `*env*`:
 
 	```sh
 	echo 'lisp -r (import {usr/env.inc}) (import {gui/lisp.inc}) (import {apps/template/widgets.inc}) (ui-save (file-stream {tests/scratch/window.tre} +file_open_write) *window*)' | ./run.sh -n 1 -f

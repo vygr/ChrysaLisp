@@ -48,7 +48,7 @@
 	;every board says it is there, to be invited, the host that it is shared
 	(share-forget)
 	(setq *share_entry* (mail-declare (elem-get select +select_share) "*Whiteboard"
-		(cat (ifn *env_user* "Guest") (if host "+host" "")))))
+		(cat (ifn (get :user *env*) "Guest") (if host "+host" "")))))
 
 (defun share-boards ()
 	; (share-boards) -> ((mailbox hex info) ...)
@@ -82,7 +82,7 @@
 			;the teacher invites: each other board is told, and joins if its
 			;user says so, Chris: "the teacher/presenter is the one who
 			;invites the colabs/students"
-			(each (lambda ((mbox &ignore)) (share-send mbox "i" (ifn *env_user* "Guest"))) (share-boards))
+			(each (lambda ((mbox &ignore)) (share-send mbox "i" (ifn (get :user *env*) "Guest"))) (share-boards))
 			(share-title))))
 
 (defun share-end ()

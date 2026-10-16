@@ -35,12 +35,12 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_reset) +event_reset))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper *env_toolbar2_col*)) :connect +event_style)
-		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font *env_body_font*)) :connect +event_mode)
-		(ui-label _ (:text "Bubbles" :font *env_body_font*))
+			(:paper (get :paper_toolbar2 *env*))) :connect +event_style)
+		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
+		(ui-label _ (:text "Bubbles" :font :font_body))
 		(. (ui-slider *count* (:maximum (- +max_bubbles +min_bubbles) :portion 300
 			:value 450 :min_width 128)) :connect +event_count))
-	(ui-label *status* (:text "..." :font *env_body_font*))
+	(ui-label *status* (:text "..." :font :font_body))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
 		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)

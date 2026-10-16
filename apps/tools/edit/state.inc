@@ -4,7 +4,7 @@
 
 (defun config-save ()
 	;save editor state
-	(defq key (const (cat *env_home* +state_filename)))
+	(defq key (const (cat (get :home *env*) +state_filename)))
 	(with-write-lock key
 		(bind '(x y width height) (. *window* :get_bounds))
 		(scatter *meta_map*
@@ -21,7 +21,7 @@
 
 (defun config-load ()
 	;load editor state
-	(defq key (const (cat *env_home* +state_filename))
+	(defq key (const (cat (get :home *env*) +state_filename))
 		default (scatter (Emap) :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
 	(with-read-lock key

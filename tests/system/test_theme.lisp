@@ -26,9 +26,9 @@
 	(ui-tool-bar th_bar ()
 		(ui-buttons (+sym_undo +sym_redo) 1))
 	(ui-label th_mine (:text "x" :font th_own))
-	(ui-label th_text (:text "words" :font *env_body_font*)))
+	(ui-label th_text (:text "words" :font :font_body)))
 (defq th_regular (theme-file "Regular") th_bold (theme-file "Bold")
-	th_was *env_symbol_font* th_body *env_body_font*)
+	th_was (get :font_symbol *env*) th_body (get :font_body *env*))
 ;the test has the theme of whoever runs it, start from one that is known
 (. th_window :theme "Regular")
 (assert-true "the bar has the symbol font of the theme"
@@ -39,7 +39,7 @@
 (assert-true "the buttons of the title are a size of their own, and have that"
 	(eql (get :font (penv th_title)) (create-font th_bold 22)))
 (assert-true "the task's own name for the font is the new one, for what is made next"
-	(eql *env_symbol_font* (create-font th_bold 28)))
+	(eql (get :font_symbol *env*) (create-font th_bold 28)))
 (assert-true "a font the app made for itself is left" (eql (get :font th_mine) th_own))
 (assert-true "and the font of text is" (eql (get :font th_text) th_body))
 (. th_window :theme "Bold")
@@ -52,4 +52,4 @@
 	(+ev_msg_action_source_id (. th_window :get_id))) "Light"))
 (assert-true "the event does it" (eql (get :font th_bar) (create-font "fonts/Symbols-Light.ctf" 28)))
 (assert-true "the smallest symbols are the bold font, whatever the theme"
-	(eql *env_tiny_symbol_font* (create-font "fonts/Symbols-Bold.ctf" 10)))
+	(eql (get :font_tiny_symbol *env*) (create-font "fonts/Symbols-Bold.ctf" 10)))

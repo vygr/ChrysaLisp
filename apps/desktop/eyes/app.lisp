@@ -10,7 +10,7 @@
 
 (defq +min_width 256 +min_height 128 +max_width 512 +max_height 256
 	*canvas* :nil *config* :nil +config_version 2
-	+config_file (cat *env_home* "eyes.tre")
+	+config_file (cat (get :home *env*) "eyes.tre")
 	;the eyes are a shader, as native code, both of them in one go, drawn
 	;straight onto the pixels of the canvas
 	eyes_program (shader-load (cat (path-to-file) "eyes.shader"))

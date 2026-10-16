@@ -10,7 +10,7 @@
 	(enum main tip timer))
 
 ; Configuration and State
-(defq +config_file (cat *env_home* "pairs.tre")
+(defq +config_file (cat (get :home *env*) "pairs.tre")
 	  *grid_w* 10
 	  *grid_h* 5
 	  *tile_count* (* *grid_w* *grid_h*)
@@ -33,7 +33,7 @@
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :paper *env_window_col* :font *font*)
+					 :paper (get :paper_window *env*) :font *font*)
 		(each (lambda (i)
 			(. (ui-button _ (:min_width 60 :min_height 60))
 			   :connect (+ +event_click i)))
@@ -71,7 +71,7 @@
 		(++ i))
 	(if all_matched
 		(def *status* :text (cat "WINNER! Score: " (str *score*)) :paper +argb_green)
-		(def *status* :text (cat "Score: " (str *score*)) :paper *env_window_col*))
+		(def *status* :text (cat "Score: " (str *score*)) :paper (get :paper_window *env*)))
 	(.-> *status* :layout :dirty))
 
 (defun scramble ()

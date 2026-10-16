@@ -121,7 +121,7 @@ Pack related variable-value pairs onto lines up to a reasonable column width
 	; Good: Flowed, logically grouped variable settings
 	(defq +font_title (create-font "fonts/OpenSans-Bold.ctf" 14) +font_btn (create-font "fonts/OpenSans-Regular.ctf" 13)
 		+font_bold (create-font "fonts/OpenSans-Bold.ctf" 13) +font_small (create-font "fonts/OpenSans-Regular.ctf" 11)
-		*config* :nil *config_version* 1 *config_file* (cat *env_home* "news.tre")
+		*config* :nil *config_version* 1 *config_file* (cat (get :home *env*) "news.tre")
 		*selected_category* "top" *selected_id* 0 *current_stories* (list))
 
 	; Avoid: 1 variable pair per line bloating vertical space
@@ -264,7 +264,7 @@ ladders (one pair per line) and sprawling multi-variable lines:
 ```lisp
 ;; IDIOMATIC (sensible groupings by category, ~80-100 columns):
 (defq *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "crypto.tre")
+	*config_file* (cat (get :home *env*) "crypto.tre")
 	*selected_symbol* "BTC" *coins_data* (list)
 	*canvas_width* 360 *canvas_height* 110
 	*btn_coin_0* :nil *btn_coin_1* :nil *btn_coin_2* :nil

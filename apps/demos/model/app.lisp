@@ -42,9 +42,9 @@
 			(ui-buttons (+sym_open) +event_open))
 		(. (ui-textfield *url* (:paper +argb_white :clear_text "" :min_width 240
 			:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :paper *env_toolbar2_col*)) :connect +event_mode)
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
-	(ui-label *status* (:text "..." :font *env_body_font*))
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
+		(ui-backdrop _ (:paper :paper_toolbar)))
+	(ui-label *status* (:text "..." :font :font_body))
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
 		(ui-element *canvas* (Canvas +size +size 1) (:paper 0))))
 

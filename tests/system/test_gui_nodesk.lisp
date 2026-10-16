@@ -15,12 +15,12 @@
 ;Each is right either way, what is tested is that it comes back
 
 (assert-true "a font asked for the texture of a glyph gives one, or none where there is no GUI"
-	(progn (font-sym-texture *env_editor_font* 'A) :t))
+	(progn (font-sym-texture (get :font_editor *env*) 'A) :t))
 
 ;a Vdu, the block of docs/gui/widgets.md that a node with no GUI fell over at
 (ui-window nd_window (:min_width 0 :min_height 0)
 	(ui-flow _ (:flow_flags +flow_stack_fill)
-		(ui-vdu nd_vdu (:vdu_width 16 :vdu_height 4 :ink +argb_green :font *env_editor_font*))
+		(ui-vdu nd_vdu (:vdu_width 16 :vdu_height 4 :ink +argb_green :font :font_editor))
 		(ui-backdrop _ (:paper +argb_grey1 :style :plain))))
 (bind '(nd_w nd_h) (. nd_vdu :pref_size))
 (assert-true "a Vdu of 16 by 4 says how big it wants to be" (and (> nd_w 16) (> nd_h 4)))

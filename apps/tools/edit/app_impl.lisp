@@ -17,7 +17,7 @@
 (enums +refresh_mode 0
 	(enum visible hidden))
 
-(bind '(+edit_font +edit_size) (font-info *env_editor_font*))
+(bind '(+edit_font +edit_size) (font-info (get :font_editor *env*)))
 
 (defq +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor.tre"

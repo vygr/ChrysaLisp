@@ -40,13 +40,13 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Surface" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_mode)
-		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_body_font*)
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body)) :connect +event_mode)
+		(ui-backdrop _ (:paper :paper_toolbar)))
+	(ui-flow _ (:flow_flags +flow_right_fill :font :font_body)
 		(ui-grid *names* (:grid_width 1))
 		(ui-grid *values* (:grid_width 1))
 		(ui-grid *sliders* (:grid_width 1)))
-	(ui-label *status* (:text "..." :font *env_body_font*))
+	(ui-label *status* (:text "..." :font :font_body))
 	;the pixels of the canvas are in shared memory, the nodes of this
 	;machine draw their tiles straight onto them
 	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
@@ -73,7 +73,7 @@
 
 (defun make-label (text)
 	(defq label (Label))
-	(def label :text text :border *env_label_border* :min_width 64
+	(def label :text text :border (get :border_label *env*) :min_width 64
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
 	label)
 
@@ -85,7 +85,7 @@
 			(defq slider (Slider) label (make-label "")
 				steps (if (eql type :int) (- hi lo) +steps))
 			(def slider :maximum steps :portion (max 1 (/ steps 10))
-				:min_width 256 :paper *env_slider_col*
+				:min_width 256 :paper (get :paper_slider *env*)
 				:value (defq init (if (eql type :int) (- val lo)
 					(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
 						(- (shader-real hi) (shader-real lo)))))))

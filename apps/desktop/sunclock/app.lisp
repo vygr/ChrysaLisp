@@ -19,7 +19,7 @@
 	(enum btn_now btn_prev_h btn_next_h btn_prev_d btn_next_d btn_play
 		btn_city_0 btn_city_1 btn_city_2 btn_city_3 btn_city_4 btn_city_5))
 
-(defq *canvas_width* 480 *canvas_height* 240 +config_file (cat *env_home* "sunclock.tre")
+(defq *canvas_width* 480 *canvas_height* 240 +config_file (cat (get :home *env*) "sunclock.tre")
 	*sim_offset_sec* 0 *animating* :nil *selected_city_id* 0 *config* :nil +config_version 1)
 
 ; Cities directory: (name country lat lon utc_offset_hours)
@@ -202,7 +202,7 @@
 (ui-window *window* ()
 	(ui-title-bar _ "World Sun Clock" (+sym_close) +event_close)
 	; Controls Bar: Simulation & Time Travel
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_button_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill :font :font_button)
 		(ui-flow *time_bar* (:flow_flags +flow_right)
 			(. (ui-button *btn_prev_d* (:text "-1d")) :connect +event_btn_prev_d)
 			(. (ui-button *btn_prev_h* (:text "-1h")) :connect +event_btn_prev_h)
@@ -213,23 +213,23 @@
 		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :paper +argb_grey15)))
 	; Hero Card: Selected City Details
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label *hero_city* (:text "London, UK" :font *env_sub_title_font*))
-		(ui-label *hero_status_badge* (:text "Daylight" :font *env_bold_font* :border 0
+		(ui-label *hero_city* (:text "London, UK" :font :font_sub_title))
+		(ui-label *hero_status_badge* (:text "Daylight" :font :font_bold :border 0
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Hero Card: Solar Elevation & Times
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_small_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill :font :font_small)
 		(ui-label *hero_times* (:text "Rise 00:00  Noon 00:00  Set 00:00"))
 		(ui-label *hero_day_len* (:text "Day: 12h 00m"
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; World Map Canvas
 	(ui-canvas *map_canvas* *canvas_width* *canvas_height* 1)
 	; Subsolar Telemetry Bar
-	(ui-flow _ (:flow_flags +flow_right_fill :font *env_tiny_font*)
+	(ui-flow _ (:flow_flags +flow_right_fill :font :font_tiny)
 		(ui-label *subsolar_label* (:text "Subsolar: 0o00'N 0o00'W"))
 		(ui-label *season_label* (:text "Season: Equinox"
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Quick World City Grid (2 rows x 3 columns)
-	(ui-grid _ (:grid_width 3 :font *env_small_font* :paper *env_toolbar2_col*)
+	(ui-grid _ (:grid_width 3 :font :font_small :paper :paper_toolbar2)
 		(. (ui-button *btn_city_0* (:text "London")) :connect +event_btn_city_0)
 		(. (ui-button *btn_city_1* (:text "New York")) :connect +event_btn_city_1)
 		(. (ui-button *btn_city_2* (:text "San Francisco")) :connect +event_btn_city_2)
@@ -238,7 +238,7 @@
 		(. (ui-button *btn_city_5* (:text "Dubai")) :connect +event_btn_city_5))
 	; Footer Attribution
 	(ui-label *footer_label* (:text "Equirectangular Projection - Solar Terminator Model"
-		:font *env_small_font* :flow_flags +flow_flag_align_hcenter)))
+		:font (get :font_small *env*) :flow_flags +flow_flag_align_hcenter)))
 
 (defun get-effective-time ()
 	(+ (/ (pii-time) 1000000) *sim_offset_sec*))

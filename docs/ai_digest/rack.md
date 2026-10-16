@@ -93,7 +93,7 @@ an app's settings say, goes to that user's folder.
 
 `-g` makes each session a desktop, on the machine's own screen: the session
 is a `main_gui` host, its GUI is up before the command is run, and the
-user's apps of `*env_launcher_auto_apps*` open as at a log in. Command lines
+user's apps of `(get :launcher_auto_apps *env*)` open as at a log in. Command lines
 with a `;` between are run one after another in the one session, and `-v`
 brings back every line they said, not only those of how tests went. So a
 look at an app, from inside the system and with no shell on the machine:

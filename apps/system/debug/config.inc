@@ -4,7 +4,7 @@
 
 (import "service/lock/app.inc")
 
-(defq *config* :nil +config_version 1 +config_file (cat *env_home* "debug.tre"))
+(defq *config* :nil +config_version 1 +config_file (cat (get :home *env*) "debug.tre"))
 
 (defun config-default ()
 	(scatter (Emap) :version +config_version :x 0 :y 0))

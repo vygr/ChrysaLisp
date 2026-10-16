@@ -54,7 +54,7 @@
 ;what is kept for the user, from one time it runs to the next: the scene
 ;chosen, trace, the object shown, and whether the store of this system is
 ;being recorded, which it opens on
-(defq +config_file (cat *env_home* "storage.tre") +config_version 2)
+(defq +config_file (cat (get :home *env*) "storage.tre") +config_version 2)
 
 (defun config-of ()
 	;what is to be kept, as it is now
@@ -94,20 +94,20 @@
 				+sym_media_live +sym_media_record +sym_find +sym_media_join +sym_laptop) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
-			(ui-tool-bar *tests* (:paper (const *env_toolbar2_col*))
+			(ui-tool-bar *tests* (:paper :paper_toolbar2)
 				(ui-buttons (+sym_play_all +sym_open +sym_save) +event_run))
 			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
-			(. (ui-element *scene* (Radiobar *scenes*) (:paper *env_toolbar2_col* :font *env_body_font*
-				:border *env_button_border*)) :connect +event_scene)
-			(ui-backdrop _ (:paper (const *env_toolbar_col*)))))
+			(. (ui-element *scene* (Radiobar *scenes*) (:paper :paper_toolbar2 :font :font_body
+				:border (get :border_button *env*))) :connect +event_scene)
+			(ui-backdrop _ (:paper :paper_toolbar))))
 	;snapshots of the store of this system: one taken, the one picked put
 	;back, or dropped, and the name a new one is given
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *snapbar* (:paper (const *env_toolbar2_col*))
+		(ui-tool-bar *snapbar* (:paper :paper_toolbar2)
 			(ui-buttons (+sym_save +sym_undo +sym_delete) +event_snap_take))
 		(ui-textfield *snap_name* (:paper +argb_white :hint_text "the name of a new snapshot" :clear_text "" :min_width 200)))
-	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :paper *env_toolbar2_col*)) :connect +event_timeline)
-	(ui-label *status* (:text "..." :font *env_body_font*))
+	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :paper :paper_toolbar2)) :connect +event_timeline)
+	(ui-label *status* (:text "..." :font :font_body))
 	(ui-canvas *canvas* +width +height 1))
 
 (ui-tool-tips *debug*

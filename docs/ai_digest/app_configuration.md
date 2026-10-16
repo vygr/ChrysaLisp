@@ -14,7 +14,7 @@ The core philosophies behind this standard are:
     application.
 
 *   **Per-User Storage:** Each user's settings are stored in their own home
-    directory (`*env_home*`), ensuring that configurations are isolated and do
+    directory (`(get :home *env*)`), ensuring that configurations are isolated and do
     not interfere with one another.
 
 *   **Robustness through Versioning:** A simple version number
@@ -43,7 +43,7 @@ variables and functions.
     of the configuration structure.
 
 *   `*config_file*`: The full path to the user's configuration file,
-    typically defined as `(cat *env_home* "appname.tre")`.
+    typically defined as `(cat (get :home *env*) "appname.tre")`.
 
 ### The `.tre` Data Format
 
@@ -106,7 +106,7 @@ This file defines the structure of the data to be saved.
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "todo.tre"))
+	*config_file* (cat (get :home *env*) "todo.tre"))
 
 (defun config-default ()
 	(scatter (Emap)

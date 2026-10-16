@@ -24,7 +24,7 @@
 ; *chats*    — (Fmap) sys_id_hex -> (Fmap) name -> (list raw_msg_strings)
 ; *presence* — (Fmap) "<sys_id_hex>,<name>" -> last_beat_us
 ; *channel_index* — ordered list of (sys_id_hex name) pairs for event mapping
-(defq +config_file (cat *env_home* "chat.tre") *config* :nil *chats* (Fmap)
+(defq +config_file (cat (get :home *env*) "chat.tre") *config* :nil *chats* (Fmap)
 	*presence* (Fmap) *unread* (Fmap) *channel_index* (list)
 	*current_sys_id* :nil *current_name* :nil
 	*connected* :nil *chat_entry* :nil select :nil *picker_mbox* :nil
@@ -63,8 +63,8 @@
 		; right panel: history + bottom-pinned input bar
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow *input_bar* (:flow_flags +flow_right_fill :border 1
-					:paper +argb_white :ink +argb_black :font *env_button_font*)
-				(ui-label _ (:text "Chat:" :font *env_bold_font*))
+					:paper +argb_white :ink +argb_black :font (get :font_button *env*))
+				(ui-label _ (:text "Chat:" :font :font_bold))
 				(ui-tool-bar _ () (ui-buttons (+sym_open) +event_attach))
 				(. (ui-textfield *chat_text* (:flow_flags +flow_right_fill :hint_text "Type markdown message..." :clear_text ""))
 					:connect +event_send))
@@ -75,7 +75,7 @@
 
 (defun config-default ()
 	(scatter (Emap)
-		:version +config_version :name (or *env_user* "guest")
+		:version +config_version :name (or (get :user *env*) "guest")
 		:max_display +max_display :chats (Fmap)))
 
 (defun config-load ()
@@ -288,7 +288,7 @@
 					(cat dot_ch " " cname "@" short_id badge))
 				row_flow (Flow) row_btn (Button))
 			(def row_flow :flow_flags +flow_right_fill)
-			(def row_btn :text lbl_txt :font *env_button_font*
+			(def row_btn :text lbl_txt :font (get :font_button *env*)
 				:paper (cond
 					(is_selected +argb_red)
 					((> unread 0) +argb_yellow)
@@ -441,7 +441,7 @@
 
 (defun connect-chat ()
 	(defq my_name (trim (get :clear_text *chat_name*)))
-	(when (eql my_name "") (setq my_name (or *env_user* "guest")))
+	(when (eql my_name "") (setq my_name (or (get :user *env*) "guest")))
 	(def *chat_name* :clear_text my_name)
 	; if name changed while connected, forget old service entry
 	(when (and *connected* *chat_entry*)
@@ -513,7 +513,7 @@
 
 (defun file-keep (name data)
 	; (file-keep name data) -> path
-	(defq path (cat *env_home* "chat_" (str (pii-time)) "_" name))
+	(defq path (cat (get :home *env*) "chat_" (str (pii-time)) "_" name))
 	(save data path)
 	path)
 

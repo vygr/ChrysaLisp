@@ -223,7 +223,7 @@ docs/diagrams/terminal_pipe.cwb
     `action-break` is triggered.
 
 3.  **Command Extraction:** The function retrieves the text from the current
-    line and strips the prompt (`*env_terminal_prompt*`) to get the raw command
+    line and strips the prompt (`(get :terminal_prompt *env*)`) to get the raw command
     string (e.g., `"ls -l"`).
 
 4.  **Pipe Creation:** A new `Pipe` object is created with
@@ -281,7 +281,7 @@ mechanism is implemented in the Controller logic, not the View.
     (input-cursor
         (cond
             (*pipe* ...) ; If a pipe is running, the line is read-only
-            ((if (> x (length *env_terminal_prompt*)) (. buffer :left)))))
+            ((if (> x (length (get :terminal_prompt *env*))) (. buffer :left)))))
     ```
 
     This code checks if a pipe is active. If not, it allows the cursor to move

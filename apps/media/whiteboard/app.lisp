@@ -159,7 +159,7 @@
 	(defq rules (get :rules (. *board* :get_bindings)) as (str rules))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
-		(unless *dot_font* (setq *dot_font* (create-font *env_symbol_file* 8)))
+		(unless *dot_font* (setq *dot_font* (create-font (get :symbol_file *env*) 8)))
 		(defq devices (. (. *board* :get_bindings) :devices))
 		(defq cols-of (lambda (key value)
 			(reduce (lambda (out (col what))

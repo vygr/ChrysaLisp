@@ -25,11 +25,11 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Canvas" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font *env_body_font*)) :connect +event_mode)
-		(ui-label _ (:text "Shapes" :font *env_body_font*))
+		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
+		(ui-label _ (:text "Shapes" :font :font_body))
 		(. (ui-slider *shapes* (:maximum (- +max_shapes +min_shapes) :portion 100
 			:value 180 :min_width 256)) :connect +event_shapes))
-	(ui-label *status* (:text "..." :font *env_body_font*))
+	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1)) (:paper 0)))
 
 (defun set-label (label text)

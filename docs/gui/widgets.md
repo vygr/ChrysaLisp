@@ -162,13 +162,13 @@ gui/lisp.inc "macro ui-window" ""
 (ui-window *ui_window*
 	(:min_width 192
 	:min_height 192
-	:font *env_window_font*
-	:ink *env_ink_col*
-	:paper *env_window_col*
-	:ink_hint *env_hint_col*
-	:ink_no_hint *env_no_hint_col*
-	:border *env_window_border*
-	:shadow *env_window_shadow*
+	:font (get :font_window *env*)
+	:ink (get :ink_window *env*)
+	:paper (get :paper_window *env*)
+	:ink_hint (get :ink_hint *env*)
+	:ink_no_hint (get :ink_no_hint *env*)
+	:border (get :border_window *env*)
+	:shadow (get :shadow_window *env*)
 	:zoom 1.0)
 	(ui-button _
 		(:text "Main Area"
@@ -188,8 +188,13 @@ supplied overrides. For the Window widget you can see root defaults set for
 properties that are not used by the window directly but are defaults for the
 other widgets in the tree.
 
-The `*env_xxx_xxx*` values come from the user login `env.inc` files. A user can
-set these in their own private `env.inc` file. See the `usr/` folder.
+A variant given for a plain property, `(:paper :paper_toolbar)`, is the user's
+value of that variant, `(get :paper_toolbar *env*)`, as the view is made, and
+which variant it was is kept in `:variants`, so a new theme can find it again.
+`*env*` is the user's environment, each app task its own: `usr/env.inc` has the
+defaults of the system, and a user's own `usr/<user>/env.inc` gives only what
+they have otherwise, `(def *env* :paper_window 0xff00c000 ...)`. The GUI puts
+the properties of views from it on the screen, which every window is in.
 
 #### Properties
 
@@ -314,7 +319,7 @@ gui/lisp.inc "macro ui-files" ""
 	(ui-files view "Files" +event_file_folder_action
 		(:min_width 0
 		:paper 0
-		:font *env_medium_terminal_font*)))
+		:font (get :font_medium_terminal *env*))))
 
 (. view :populate "docs/lisp/" ".md")
 (bind '(w h) (. view :pref_size))
@@ -389,10 +394,10 @@ gui/lisp.inc "macro ui-title" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-title _
-		(:paper *env_title_col*
-		:ink *env_ink_col*
-		:border *env_title_border*
-		:font *env_title_font*
+		(:paper (get :paper_title *env*)
+		:ink (get :ink_window *env*)
+		:border (get :border_title *env*)
+		:font (get :font_title *env*)
 		:text "My Title")))
 
 *ui_title*
@@ -438,8 +443,8 @@ gui/lisp.inc "macro ui-text" ""
 	(ui-text _
 		(:offset 0
 		:paper 0
-		:ink *env_ink_col*
-		:font *env_window_font*
+		:ink (get :ink_window *env*)
+		:font (get :font_window *env*)
 		:text "Look At Me")))
 
 *ui_text*
@@ -462,10 +467,10 @@ gui/lisp.inc "macro ui-label" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-label _
-		(:paper *env_window_col*
-		:ink *env_ink_col*
-		:border *env_label_border*
-		:font *env_window_font*
+		(:paper (get :paper_window *env*)
+		:ink (get :ink_window *env*)
+		:border (get :border_label *env*)
+		:font (get :font_window *env*)
 		:text "Look At Me")))
 
 *ui_label*
@@ -491,10 +496,10 @@ gui/lisp.inc "macro ui-button" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-button _
-		(:paper *env_window_col*
-		:ink *env_ink_col*
-		:border *env_button_border*
-		:font *env_window_font*
+		(:paper (get :paper_window *env*)
+		:ink (get :ink_window *env*)
+		:border (get :border_button *env*)
+		:font (get :font_window *env*)
 		:text "Click Me"
 		:tip_text "a button")))
 
@@ -524,7 +529,7 @@ gui/lisp.inc "macro ui-buttons" ""
 (ui-window *ui_buttons*
 	(:min_width 0
 	:min_height 0
-	:font *env_symbol_font*)
+	:font (get :font_symbol *env*))
 	(ui-buttons (+sym_undo +sym_redo +sym_rewind) +event_undo))
 
 *ui_buttons*
@@ -574,7 +579,7 @@ gui/lisp.inc "macro ui-radio-bar" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-radio-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
-		(:paper *env_toolbar2_col*)))
+		(:paper (get :paper_toolbar2 *env*))))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_selected 0)
@@ -596,7 +601,7 @@ gui/lisp.inc "macro ui-toggle-bar" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-toggle-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
-		(:paper *env_toolbar2_col*)))
+		(:paper (get :paper_toolbar2 *env*))))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_states '(:nil :t :nil :t))
@@ -622,12 +627,12 @@ gui/lisp.inc "macro ui-textfield" ""
 		:cursor 0
 		:anchor 0
 		:paper +argb_white
-		:ink *env_ink_col*
-		:border *env_textfield_border*
-		:font *env_window_font*
+		:ink (get :ink_window *env*)
+		:border (get :border_textfield *env*)
+		:font (get :font_window *env*)
 		:hint_text "type somthing"
-		:ink_hint *env_hint_col*
-		:ink_no_hint *env_no_hint_col*
+		:ink_hint (get :ink_hint *env*)
+		:ink_no_hint (get :ink_no_hint *env*)
 		:text ""
 		:clear_text "")))
 
@@ -652,7 +657,7 @@ gui/lisp.inc "macro ui-slider" ""
 	(:min_width 256
 	:min_height 0)
 	(ui-slider _
-		(:paper *env_slider_col*
+		(:paper (get :paper_slider *env*)
 		:value 50
 		:maximum 100
 		:portion 25)))
@@ -677,12 +682,12 @@ gui/lisp.inc "macro ui-scroll" ""
 	(:min_width 192
 	:min_height 192)
 	(ui-scroll _ +scroll_flag_both
-		(:paper *env_slider_col*)
+		(:paper (get :paper_slider *env*))
 		(ui-button view
 			(:paper +argb_orange
 			:min_width 256
 			:min_height 256
-			:font *env_window_font*
+			:font (get :font_window *env*)
 			:text "Scroll View"))))
 
 (bind '(w h) (. view :pref_size))
@@ -822,7 +827,7 @@ gui/lisp.inc "macro ui-vdu" ""
 			(:vdu_width 16
 			:vdu_height 4
 			:ink +argb_green
-			:font *env_editor_font*))
+			:font (get :font_editor *env*)))
 		(ui-backdrop _
 			(:paper +argb_grey1
 			:style :plain))))

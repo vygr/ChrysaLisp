@@ -17,7 +17,7 @@
 	(ui-title-bar _ "Network Monitor" (+sym_close) +event_close)
 	;the status line is at the bottom, and it is the charts that stretch
 	(ui-flow _ (:flow_flags +flow_up_fill)
-		(ui-label *status* (:text "..." :font *env_body_font*))
+		(ui-label *status* (:text "..." :font :font_body))
 		(ui-grid *charts* (:grid_height 1)
 			(ui-hchart _ "Tasks" +task_scale_size (:paper +argb_green))
 			(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :paper +argb_yellow))
