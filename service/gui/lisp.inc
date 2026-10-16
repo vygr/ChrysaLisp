@@ -120,11 +120,12 @@
 		(when (mail-read-timeout mbox)
 			name)))
 
-(defun gui-grab-rpc (&optional title)
-	; (gui-grab-rpc [title]) -> :nil | why | (w h pixels)
+(defun gui-grab-rpc (&optional title area)
+	; (gui-grab-rpc [title area]) -> :nil | why | (w h pixels)
 	;what is on the screen now, of the window whose title has title in it,
-	;or of all of it, read by the GUI from its back buffer: its width, its
-	;height and its pixels, 32 bits each, blue green red alpha
+	;or of all of it, or of an area of it, (x y w h), read by the GUI from
+	;its back buffer: its width, its height and its pixels, 32 bits each,
+	;blue green red alpha
 	(when (nempty? (defq service (mail-enquire "@Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
@@ -132,7 +133,7 @@
 			(+gui_rpc_type +gui_rpc_type_grab)
 			(+gui_rpc_reply_id mbox)
 			(+gui_rpc_owner_id (task-mbox))
-			(+gui_rpc_weak_view 0)) (ifn title "")))
+			(+gui_rpc_weak_view 0)) (if area (str area) (ifn title ""))))
 		(cond
 			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
 			((starts-with "not read" reply) reply)

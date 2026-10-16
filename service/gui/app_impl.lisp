@@ -126,12 +126,15 @@
 
 (defun grab (want)
 	; (grab want) -> str
-	;what is on the screen, of the window whose title has want in it, or
-	;of all of it if want is empty, as the reply to a grab: its width and
-	;its height, 4 bytes each, and its pixels. Empty if there is no such
-	;window, or it can not be read. The back buffer has the last frame
+	;what is on the screen, of the window whose title has want in it, of
+	;all of it if want is empty, or of an area if want is one, "(x y w h)",
+	;as the reply to a grab: its width and its height, 4 bytes each, and
+	;its pixels. Empty if there is no such window, or it can not be read.
+	;The back buffer has the last frame
 	(bind '(& & sw sh) (. *screen* :get_bounds))
-	(defq area (if (empty? want) (list 0 0 sw sh)))
+	(defq area (cond
+		((empty? want) (list 0 0 sw sh))
+		((starts-with "(" want) (first (read (string-stream want))))))
 	(each (lambda (child)
 			(and (not area) (defq title (window-title child)) (found? title want)
 				(setq area (. child :get_bounds))))

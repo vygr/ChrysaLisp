@@ -448,7 +448,11 @@ desktop of the agent's own:
 	pick them. The desktop of `rack -g` is hidden, the host given `-hidden`
 	(SDL3 hosts): never shown, never raised, no Dock icon, so it never takes
 	the input of whoever is at the machine, and `grab` reads the back buffer
-	it still draws into. A second or two is enough for a window to be drawn; `grab` of
+	it still draws into. `grab -t Title -f key=value file` grabs only that
+	view, the part of it that can be seen, `-f tip_text=eraser` or
+	`-f type=Radiobar`: grab the bar that is the question, not the window,
+	a picture costs far more than text. The mouse is drawn into the back
+	buffer, so `input move` it off what is grabbed first. A second or two is enough for a window to be drawn; `grab` of
 	a window that is in the tree but not drawn yet gives what is behind it.
 	`-t` matches a window by the Title nearest its top, a level at a time, so
 	the Files of Docs, which has a title bar of its own, does not stand for
