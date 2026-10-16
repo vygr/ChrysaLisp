@@ -291,6 +291,17 @@ finger is never near, it is down or it is not there
 is anything in flight: being moved about, or being drawn
 ```
 
+### :ink_of
+
+```code
+(. board :ink_of event) -> ink
+
+the ink a pointer draws with: of the pen its slot holds, Chris: "We
+have a limited number of pens/marker ... We also have the ability to
+fill those pens with any ink"; or an ink its slot holds itself, as a
+script sets one; or the board's
+```
+
 ### :ink_pair
 
 ```code
@@ -352,6 +363,15 @@ things, all that is selected if ids is :t. The ink is as it is, an
 argb, none is 0, or with a function, (with old) -> ink, made from
 what each was. Words have only a fill, their colour. See
 (ptr-part)
+```
+
+### :pen_of
+
+```code
+(. board :pen_of event) -> :nil | num
+
+the number of the pen the slot of the pointer holds, its own or the
+board's, :nil if it holds an ink of its own or there are no pens
 ```
 
 ### :pointer_free?

@@ -25,7 +25,7 @@
 		:scroll_x 0 :scroll_y 0
 		;what a device bound to nothing draws, the board's own, by where it
 		;is in its toolbar. The toolbars are binders and keep no pick
-		:mode (find (get :mode *board*) *modes*) :ink (find (get :color *board*) *palette*)
+		:mode (find (get :mode *board*) *modes*) :ink (get :pen *board*)
 		:radius (some (# (if (= %0 (get :width *board*)) (!))) *widths*) :style (. *style_toolbar* :get_selected)
 		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
 		;is a pen that is near shown where an instrument would catch it
@@ -55,8 +55,13 @@
 		;middle of the mouse, which is pan, a press of it binds both buttons
 		(if (list? bound) (reach (lambda ((kind id buttons what))
 				(unless (or (eql buttons 0) (and (eql kind :mouse) (eql buttons +pev_middle)))
-					;in place of one the board has of the same, not beside it
-					(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons (cat what))))) bound))
+					;in place of one the board has of the same, not beside it.
+					;Kept before the pens were by number, an ink is the pen
+					;that has it, if one does
+					(defq what (cat what))
+					(when (and (defq at (ptr-at what :color)) (defq pen (find (elem-get what at) *pens_default*)))
+						(setq what (cat (slice what 0 (dec at)) (list :pen pen) (slice what (inc at) -1))))
+					(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons what)))) bound))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document
@@ -72,7 +77,7 @@
 			(. *style_toolbar* :set_selected style)
 			(setq *style* (elem-get *styles* style) *paper_dirty* :t))
 		(and (num? ink) (< -1 ink (length *palette*))
-			(def *board* :color (elem-get *palette* ink)))
+			(def *board* :pen ink))
 		(and (num? radius) (< -1 radius (length *widths*))
 			(def *board* :width (elem-get *widths* radius)))
 		(and (num? mode) (< -1 mode (length *modes*))

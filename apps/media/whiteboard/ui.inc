@@ -178,12 +178,11 @@
 	(if (defq by (get :pressed_by button))
 		(progn (bind '(id kind buttons) by) (ptr-event id kind buttons 0 0))))
 
-(defun ink-had? (button color)
-	; (ink-had? button color) -> :t | :nil
-	;has what is pressing the button that pen already
-	(eql color (if (defq event (press-event button))
-		(. (. *board* :get_bindings) :value (ptr-main event) :color (get :color *board*))
-		(get :color *board*))))
+(defun pen-held (event)
+	; (pen-held event) -> num
+	;the number of the pen the slot of the press holds, by its main role,
+	;(ptr-main), or the board's, pressed by no device
+	(ifn (if event (. *board* :pen_of (ptr-main event))) (get :pen *board*)))
 
 (defun mine-selected (event)
 	; (mine-selected event) -> ids
@@ -191,9 +190,9 @@
 	;all that is
 	(if event (. *board* :selected_by (. *board* :user_of event)) (. *board* :get_selected)))
 
-(defun ink-bind (button color)
+(defun ink-bind (button at)
 	;with things picked up, their outline or their fill by the button,
-	;(ptr-part), takes the ink and no pen is changed; with none, what
+	;(ptr-part), takes the pen's ink and no pen is changed; with none, what
 	;pressed the button holds the pen. Chris: "If you have no selected items
 	;than I think you are setting the ink of the pen, but if you have
 	;selected items you changing there colours", "2 users can select
@@ -202,25 +201,25 @@
 	(cond
 		((nempty? (defq mine (mine-selected event)))
 			(undef button :pressed_by)
-			(. *board* :paint mine (if event (ptr-part event) :stroke) color))
-		((bind-button button :color color))
-		((def *board* :color color))))
+			(. *board* :paint mine (if event (ptr-part event) :stroke) (elem-get *palette* at)))
+		((bind-button button :pen at))
+		((def *board* :pen at))))
+
+(defun pens-shown ()
+	;the buttons and the rings show the pens as they are
+	(each (const pen-show) (. *ink_toolbar* :children) *palette*)
+	(each (# (def %0 :wedges :nil)) (palettes *board*))
+	(. *board* :touch +board_dirty_overlay))
 
 (defun pens-refill (inks)
-	;the pens have these inks: each device that held one holds it, and the
-	;buttons and the menus show them
-	(defq was (cat *palette*))
+	;the pens have these inks, each device holds the pen it did
 	(each (# (elem-set *palette* (!) %0)) inks)
-	(. (. *board* :get_bindings) :swap :color was inks)
-	(if (defq at (find (get :color *board*) was)) (def *board* :color (elem-get inks at)))
-	(each (const pen-show) (. *ink_toolbar* :children) *palette*)
-	(menu-colors))
+	(pens-shown))
 
 (defun pen-refill (at color)
 	;one pen has another ink
-	(defq inks (cat *palette*))
-	(elem-set inks at color)
-	(pens-refill inks))
+	(elem-set *palette* at color)
+	(pens-shown))
 
 ;the swatches, menus on the board, lib/cwb/swatches.inc, as many as are
 ;wanted, Chris: "each pupile can have one, there is no limit"
@@ -230,10 +229,7 @@
 	;keeps how see through the pen was, a marker stays a marker, and how
 	;see through keeps its colour. With things picked up by that user,
 	;they take it, by the button, and no pen changes
-	(bind '(id kind buttons &ignore) event)
-	(defq bindings (. *board* :get_bindings)
-		held (ptr-main event)
-		was (. bindings :value held :color (get :color *board*))
+	(defq held (ptr-main event) at (. *board* :pen_of held) was (. *board* :ink_of held)
 		alpha (if (board-none? was) 0xff000000 (logand was 0xff000000))
 		color (case what
 			(:color (logior (logand val 0xffffff) alpha))
@@ -252,9 +248,10 @@
 				(:color (lambda (old) (logior (logand swatch_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
 				(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< swatch_val 24)))) 0 c)))
 				(:t (lambda (old) 0)))))
-		((defq at (find was *palette*))
-			(pen-refill at color))
-		((. bindings :set kind (ptr-device id) buttons :color color)))
+		((num? at) (pen-refill at color))
+		;a slot that holds an ink of its own, as a script sets one
+		((bind '(id kind buttons &ignore) event)
+			(. (. *board* :get_bindings) :set kind (ptr-device id) buttons :color color)))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun swatches-close ()
@@ -270,18 +267,17 @@
 	(apply (const swatches-open) (view-middle)))
 
 (defun action-ink ()
-	;the presser holds the pen, and what it has selected takes its ink. A
+	;the presser holds the pen, or what it has picked up takes its ink. A
 	;pen pressed by what holds it already opens the swatches, to fill it
 	;from, Chris: "We can click twice or click the pallet icon to bring up
 	;the selector"
-	(defq at (. *ink_toolbar* :get_selected) button (elem-get (. *ink_toolbar* :children) at)
-		color (elem-get *palette* at))
+	(defq at (. *ink_toolbar* :get_selected) button (elem-get (. *ink_toolbar* :children) at))
 	(. *ink_toolbar* :set_selected -1)
 	(cond
-		((and (get :pressed_by button) (ink-had? button color))
+		((and (defq event (press-event button)) (= (pen-held event) at))
 			(undef button :pressed_by)
 			(action-swatches))
-		((ink-bind button color))))
+		((ink-bind button at))))
 
 (defun action-radius ()
 	;with things picked up, their width, and the pens are as they were;

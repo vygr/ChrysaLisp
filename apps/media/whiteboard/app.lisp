@@ -197,31 +197,28 @@
 		(defq slots-of (lambda (key value)
 			(defq out (list))
 			(each (lambda ((& what slot))
-					(and (defq at (find key what)) (eql (elem-get what (inc at)) value)
+					(and (defq at (ptr-at what key)) (eql (elem-get what at) value)
 						(push out slot)))
 				devices)
 			out))
 		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
 		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
 		;each pen lit for the device buttons that hold it
-		(each (# (button-lights %0 (slots-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
+		(each (# (button-lights %0 (slots-of :pen (!)))) (. *ink_toolbar* :children))
 		;a switch is lit for a device that has it on, its own or the board's
 		(each (lambda (button key)
 				(button-lights button (reduce (lambda (out (& what slot))
 					(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
 			(. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
-;a menu's colours are the pens of the ink bar.
-;No menu opens from a tap on the board, a tap there is a dot: menus float,
-;made from the toolbar, (action-menu). Chris: "A tap on the canvas did
-;leave a dot as I didn't have a pop up menu on the canvas"
-(defun menu-colors ()
-	;a menu's colours are the pens of the ink bar, as they are now
-	(def *board* :menu_colors (cat *palette*))
-	;and the rings open now are made again with them
-	(each (# (def %0 :wedges :nil)) (palettes *board*)))
-(menu-colors)
-;a ring menu opens the swatches, a menu of the colours of the custom inks
+;the board's pens are the ink bar's, the one list, and a slot holds one by
+;its number; the rings show them. The mouse and a finger hold the first,
+;black, till they hold another. No menu opens from a tap on the board, a
+;tap there is a dot: menus float, made from the toolbar, (action-menu).
+;Chris: "A tap on the canvas did leave a dot as I didn't have a pop up
+;menu on the canvas"
+(def *board* :pens *palette* :pen 0)
+;a ring menu opens the swatches, a menu of the inks to fill a pen with
 (def *board* :on_swatches (# (swatches-open %0 %1)))
 
 (defun zoom-level (zoom)

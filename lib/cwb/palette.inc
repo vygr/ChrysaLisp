@@ -155,11 +155,12 @@
 			(each (lambda ((what val))
 				(defq a0 (* step (n2f (!))) a1 (+ a0 step)
 					d (pal-wedge-d r0 r1 (+ a0 gap) (- a1 gap))
-					fill (if (eql what :color) val +pal_back))
+					ink (case what (:color val) (:pen (elem-get (get :pens (get :board this)) val)))
+					fill (ifn ink +pal_back))
 				(bind '(cx cy) (pal-point (* 0.5 (+ r0 r1)) (* 0.5 (+ a0 a1))))
 				(push wedges (list k what val a0 a1 r0 r1
-					(cwb-shape d :fill fill :stroke (if (eql what :color) +pal_back 0) :width 1.5)
-					(cwb-shape d :fill (if (eql what :color) val +pal_hot) :stroke +pal_ink :width 2.0)
+					(cwb-shape d :fill fill :stroke (if ink +pal_back 0) :width 1.5)
+					(cwb-shape d :fill (ifn ink +pal_hot) :stroke +pal_ink :width 2.0)
 					(cwb-shape (cwb-d "M" (first (pal-point (- r1 3.0) (+ a0 gap gap))) (second (pal-point (- r1 3.0) (+ a0 gap gap)))
 						"A" (- r1 3.0) (- r1 3.0) 0 0 1
 						(first (pal-point (- r1 3.0) (- a1 gap gap))) (second (pal-point (- r1 3.0) (- a1 gap gap))))
@@ -168,7 +169,10 @@
 						(cwb-group icon :m (Mat3x2-translate cx cy))))))
 				entries))
 			(list (map (# (list :tool %0)) +pal_tools)
-				(cat (map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors))
+				;the pens of a board that has them, else its colours
+				(cat (if (defq pens (get :pens (get :board this)))
+						(map (# (list :pen %0)) (range 0 (length pens)))
+						(map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors)))
 					(map (# (list :width %0)) (ifn (get :menu_widths (get :board this)) +pal_widths)))
 				;and the colours of the custom inks, if what shows the board
 				;has them, :on_swatches, and one more, if the board is shown
@@ -243,14 +247,11 @@
 	(defmethod :set_value (key val)
 		; (. palette :set_value key val) -> palette
 		(defq board (get :board this) id (ptr-device (get :id this)))
-		(cond
-			((eql (get :kind this) :pen)
-				;the pen, by its device, with its tip down, is what it was and this
-				(defq what (list :tool :pen :mode (. this :value :mode)
-					:color (. this :value :color) :width (. this :value :width)))
-				(elem-set what (inc (find key what)) val)
-				(.-> (. board :get_bindings) (:unbind :pen id +pev_left) (:bind :pen id +pev_left what)))
-			(:t (def board key val)))
+		;a pen's tip, by its device, is what it was and this; the mouse and
+		;a finger set the board's
+		(if (eql (get :kind this) :pen)
+			(. (. board :get_bindings) :set :pen id +pev_left key val)
+			(def board key val))
 		(. board :touch +board_dirty_overlay)
 		this)
 
@@ -267,6 +268,7 @@
 		(bind '(id kind buttons &ignore) event)
 		(cond
 			((and (eql key :color) (nempty? mine)) (. board :paint mine (ptr-part event) val))
+			((and (eql key :pen) (nempty? mine)) (. board :paint mine (ptr-part event) (elem-get (get :pens board) val)))
 			((and (eql key :width) (nempty? mine)) (. board :style_ids mine :width val))
 			((. (. board :get_bindings) :set kind (ptr-device id) buttons key val)))
 		user)
@@ -288,6 +290,9 @@
 			(:color (if floating (. this :bind_tapper event :color val)
 				(. this :set_value :color val)
 				(. board :paint :t :stroke val)))
+			(:pen (if floating (. this :bind_tapper event :pen val)
+				(. this :set_value :pen val)
+				(. board :paint :t :stroke (elem-get (get :pens board) val))))
 			(:width (if floating (. this :bind_tapper event :width val)
 				(. this :set_value :width val)
 				(if (nempty? (. board :get_selected)) (. board :style :width val))))
@@ -447,6 +452,7 @@
 		;far open as it is, and turns as it opens
 		(defq board (get :board this) hover (get :hover this) wedges (. this :get_wedges)
 			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
+			pen (. board :pen_of (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
 			snap (/= (first (. board :pointer_settings (ptr-event (get :id this) (get :kind this) +pev_left 0 0))) 0.0)
 			devices (if (get :floating this) (. this :devices)))
 		(bind '(ox oy) (get :origin this))
@@ -470,13 +476,13 @@
 							;Chris: "The ring menu, need same style of device
 							;indications"
 							(devices
-								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
+								(defq key (case what (:tool :mode) (:color :color) (:pen :pen) (:width :width) (:action (if (eql val :snap) :snap)))
 									want val
 									r (- (elem-get wedge +wedge_r1) 6.0) step (/ +pal_cell r) half (/ (* +pal_cell 0.4) r)
 									am (* 0.5 (+ (elem-get wedge +wedge_a0) (elem-get wedge +wedge_a1))))
 								(each (lambda ((col bound slot))
 										(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
-												(and (defq at (find key bound)) (eql (elem-get bound (inc at)) want))))
+												(and (defq at (ptr-at bound key)) (eql (elem-get bound at) want))))
 											;a device's column, its second button's row inside
 											;the first's
 											(defq a (+ am (* step (- (n2f (% slot 6)) 2.5)))
@@ -491,6 +497,7 @@
 							((case what
 									(:tool (eql val mode))
 									(:color (= val color))
+									(:pen (eql val pen))
 									(:width (= val width))
 									(:action (and (eql val :snap) snap)))
 								(push items (elem-get wedge +wedge_mark))))))

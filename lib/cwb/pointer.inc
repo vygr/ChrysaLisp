@@ -43,6 +43,17 @@
 
 (defun ptr-down? (event) (/= (elem-get event +pev_buttons) 0))
 
+(defun ptr-at (what key)
+	; (ptr-at what key) -> :nil | index
+	;where the value of key is in what a rule binds, keys and values in
+	;turn. A key is looked for only where keys are: a value can be a
+	;keyword that is a key's name too, (:tool :pen :pen 3)
+	(defq i 0 n (length what) at :nil)
+	(while (and (not at) (< i n))
+		(if (eql (elem-get what i) key) (setq at (inc i)))
+		(setq i (+ i 2)))
+	at)
+
 ;What a press's buttons are, worked out here and nowhere else. A device
 ;has a main button and a second: the mouse's left and right, a pen's tip
 ;and barrel. A finger has one, and is all of its device. The middle of a
@@ -142,24 +153,13 @@
 				(unless rule
 					(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
 					(setq rule (first (get :rules this))))
-				(defq what (elem-get rule 3) at (find key what))
-				(if at (elem-set what (inc at) value) (push what key value))
+				(defq what (elem-get rule 3) at (ptr-at what key))
+				(if at (elem-set what at value) (push what key value))
 				;a mode is what a pen draws: a rule that was another tool, the
 				;hand of the right button, is a pen of that mode now, or the
 				;mode bound would do nothing
-				(and (eql key :mode) (defq at (find :tool what)) (elem-set what (inc at) :pen)))
+				(and (eql key :mode) (defq at (ptr-at what :tool)) (elem-set what at :pen)))
 			(ptr-roles kind buttons))
-		this)
-
-	(defmethod :swap (key from to)
-		; (. bindings :swap key from to) -> bindings
-		;every rule that has key as one of from has it as that of to, all at
-		;once: the pens of the Whiteboard given other inks, each device that
-		;held one holds it
-		(each (lambda ((& & & what))
-				(and (defq at (find key what)) (defq i (find (elem-get what (inc at)) from))
-					(elem-set what (inc at) (elem-get to i))))
-			(get :rules this))
 		this)
 
 	(defmethod :unbind (kind id buttons)
@@ -183,8 +183,8 @@
 	(defmethod :value (event key &optional default)
 		; (. bindings :value event key [default]) -> value
 		;one thing of what a pointer is to be
-		(defq what (. this :find event) at (if what (find key what)))
-		(if at (elem-get what (inc at)) default))
+		(defq what (. this :find event) at (if what (ptr-at what key)))
+		(if at (elem-get what at) default))
 
 	(defmethod :devices (&optional slot)
 		; (. bindings :devices [slot]) -> ((color what slot) ...)

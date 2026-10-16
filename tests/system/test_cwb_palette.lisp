@@ -526,3 +526,18 @@
 (assert-list-eq "what a press colours: the main the outline, the second the fill, both, a finger what shows"
 	'(:stroke :fill :both :ink) (map (const ptr-part) (list (ptr-event 0 :mouse +pev_left 0 0) (ptr-event 0x2000000 :pen +pev_right 0 0)
 		(ptr-event 0 :mouse +pev_middle 0 0) (ptr-event 0x1000001 :touch 1 0 0))))
+;a slot holds a pen by its number, the board has the pens' inks: a pen
+;filled with another ink is the ink of every slot that holds it, Chris: "the
+;ability to fill those pens with any ink"
+(defq pk_board (Board (cwb-doc 400 400)) pk_b (. pk_board :get_bindings) pk_pens (list +argb_red +argb_green))
+(def pk_board :pens pk_pens :pen 1)
+(.-> pk_b (:set :mouse 0 +pev_left :pen 0) (:set :mouse 0 +pev_right :color +argb_blue))
+(defun pk-inks () (map (# (. pk_board :ink_of (ptr-event %0 %1 %2 0 0))) '(0 0 0x2000000) '(:mouse :mouse :pen) (list +pev_left +pev_right +pev_left)))
+(defq pk_was (pk-inks))
+(elem-set pk_pens 0 +argb_yellow)
+(assert-eq "the left holds pen 0, the right an ink of its own, a pen bound to nothing the board's pen; pen 0 filled yellow, the left draws yellow"
+	(str (list (list +argb_red +argb_blue +argb_green) (list +argb_yellow +argb_blue +argb_green)))
+	(str (list pk_was (pk-inks))))
+(assert-list-eq "and which pen each holds" '(0 :nil 1)
+	(map (# (. pk_board :pen_of (ptr-event %0 %1 %2 0 0))) '(0 0 0x2000000) '(:mouse :mouse :pen) (list +pev_left +pev_right +pev_left)))
+(assert-eq "a key is found only where keys are, (:tool :pen :pen 3)" 3 (elem-get '(:tool :pen :pen 3) (ptr-at '(:tool :pen :pen 3) :pen)))

@@ -5171,6 +5171,16 @@ is added at the end
 (pset? form) -> :t | :nil
 ```
 
+### ptr-at
+
+```code
+(ptr-at what key) -> :nil | index
+
+where the value of key is in what a rule binds, keys and values in
+turn. A key is looked for only where keys are: a value can be a
+keyword that is a key's name too, (:tool :pen :pen 3)
+```
+
 ### ptr-contact
 
 ```code

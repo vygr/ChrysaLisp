@@ -586,7 +586,7 @@
 				(elem-set state +stroke_tool :idle)
 				(when (nempty? (defq words (get :text board)))
 					(. board :commit (cwb-text words (. board :snap_x x id) (. board :snap_y y id)
-						:fill (. (get :bindings board) :value event :color (get :color board))
+						:fill (. board :ink_of event)
 						:font (get :font board) :font_size (get :font_size board))
 						(. board :user_of event))))
 			(:t ;something is drawn. What is in select mode stays so: only a
@@ -1073,7 +1073,11 @@
 		:back_ids (list) :was_back (list)
 		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
 		;who each device is, by its kind and number, see (:user_of)
-		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11))
+		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11)
+		;the pens, each an ink, and the one held when nothing else is: a
+		;slot holds a pen by its number, :pen, (:ink_of). :nil, none, a slot
+		;holds an ink, :color
+		:pens :nil :pen :nil)
 	(def this :surface (Surface this) :handles (Handles this))
 	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
 
@@ -1303,7 +1307,7 @@
 		;shape controls. Just the selected outline."
 		(or (eql (get :mode this) :select)
 			(some (lambda ((kind id & what))
-					(and (defq at (find :mode what)) (eql (elem-get what (inc at)) :select)
+					(and (defq at (ptr-at what :mode)) (eql (elem-get what at) :select)
 						(or (not user) (not id) (eql (. this :user_of (ptr-event id (ifn kind :pen) +pev_left 0 0)) user))
 						:t))
 				(get :rules (get :bindings this)))))
@@ -1325,8 +1329,8 @@
 		; (. board :switch_of what key) -> :t | :nil
 		;is a switch, :snap :snap_angle or :keep_shape, on for a device bound
 		;to what: its own if it has one, else the board's, as it draws
-		(if (defq at (find key what))
-			(elem-get what (inc at))
+		(if (defq at (ptr-at what key))
+			(elem-get what at)
 			(case key
 				(:snap (/= (get :snap this) 0.0))
 				(:snap_angle (/= (get :snap_angle this) 0.0))
@@ -1486,10 +1490,30 @@
 		;the inks of the pens of the device's main and second buttons. Touch
 		;has one pen, both
 		(bind '(id kind &ignore) event)
-		(defq bindings (get :bindings this))
 		(if (eql kind :touch)
-			(list (defq c (. bindings :value event :color (get :color this))) c)
-			(map (# (. bindings :value (ptr-event id kind %0 0 0) :color (get :color this))) (list +pev_left +pev_right))))
+			(list (defq c (. this :ink_of event)) c)
+			(map (# (. this :ink_of (ptr-event id kind %0 0 0))) (list +pev_left +pev_right))))
+
+	(defmethod :pen_of (event)
+		; (. board :pen_of event) -> :nil | num
+		;the number of the pen the slot of the pointer holds, its own or the
+		;board's, :nil if it holds an ink of its own or there are no pens
+		(when (get :pens this)
+			(defq what (ifn (. (get :bindings this) :find event) (list)))
+			(cond
+				((defq at (ptr-at what :pen)) (elem-get what at))
+				((ptr-at what :color) :nil)
+				((get :pen this)))))
+
+	(defmethod :ink_of (event)
+		; (. board :ink_of event) -> ink
+		;the ink a pointer draws with: of the pen its slot holds, Chris: "We
+		;have a limited number of pens/marker ... We also have the ability to
+		;fill those pens with any ink"; or an ink its slot holds itself, as a
+		;script sets one; or the board's
+		(if (num? (defq pen (. this :pen_of event)))
+			(elem-get (get :pens this) pen)
+			(. (get :bindings this) :value event :color (get :color this))))
 
 	(defmethod :new_shape (event tool)
 		; (. board :new_shape event tool) -> shape
@@ -1497,7 +1521,7 @@
 		;pointer is bound to, or the board's. It is drawn over the
 		;document till it is kept
 		(defq bindings (get :bindings this)
-			color (. bindings :value event :color (get :color this))
+			color (. this :ink_of event)
 			width (. bindings :value event :width (get :width this))
 			shape (cwb-shape "" :stroke color :width width :kind tool))
 		(case tool

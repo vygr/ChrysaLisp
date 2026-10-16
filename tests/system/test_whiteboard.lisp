@@ -50,15 +50,15 @@
 	"(wa-do +event_snap) (wa-do +event_keep_shape) (wa-zoom +event_zoom_in) (. *text_field* :set_text {Hello})"
 	"(wa-do +event_full_protractor) (defq tool (last (. (. *board* :get_stage) :get_actors)))"
 	"(def tool :angle 0.5 :mode :pie :origin (list 300.0 200.0)) (. tool :set_extent 260.0)"
-	"(defq was (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
+	"(defq was (list (wa-ids) (get :mode *board*) (get :pen *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
 	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
 	;another board altogether
 	"(. *board* :set_doc (cwb-doc 200 100)) (. (. *board* :get_stage) :sub tool) (wa-mode :pen)"
 	"(. *ink_toolbar* :set_selected 0) (wa-do +event_ink) (wa-do +event_snap) (wa-do +event_keep_shape) (wa-zoom +event_zoom_out) (. *text_field* :set_text {})"
 	"(defq place (config-apply (tree-load (string-stream text))))"
-	"(defq now (list (wa-ids) (get :mode *board*) (get :color *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
+	"(defq now (list (wa-ids) (get :mode *board*) (get :pen *board*) (get :width *board*) (get :snap *board*) (get :keep_shape *board*) *zoom* (canvas-size)))"
 	"(print (list (str was) (eql (str was) (str now))))"
-	"(print (list (find (get :mode *board*) *modes*) (find (get :color *board*) *palette*) (find (get :width *board*) *widths*) (. *text_field* :get_text) (get :text *board*)))"
+	"(print (list (find (get :mode *board*) *modes*) (get :pen *board*) (find (get :width *board*) *widths*) (. *text_field* :get_text) (get :text *board*)))"
 	"(defq tool (last (. (. *board* :get_stage) :get_actors)))"
 	"(print (list (if (Circle? tool) :t) (get :mode tool) (map (const n2i) (get :origin tool)) (n2i (. tool :extent)) (< (abs (- (get :angle tool) 0.5)) 0.001)))"
 	"(print (list (length place) (slice place 2 4) (. *window* :pref_size)))"
@@ -78,7 +78,7 @@
 	;a box, by the mode bar
 	"(print (wa-mode :rect)) (wa-drag 1 300 100 420 200) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"
 	;red, by the ink bar, and a filled ellipse
-	"(. *ink_toolbar* :set_selected 2) (print (list (wa-do +event_ink) (= (get :color *board*) +argb_red)))"
+	"(. *ink_toolbar* :set_selected 2) (print (list (wa-do +event_ink) (= (get :pen *board*) 2)))"
 	"(wa-mode :fellipse) (wa-drag 1 500 300 620 380) (print (list (wa-ids) (cwb-get (last (cwb-items (. *board* :get_doc))) :fill)))"
 	;words
 	"(. *text_field* :set_text {Hello}) (def *board* :text (. *text_field* :get_text))"
@@ -291,7 +291,7 @@
 	"(wa-mode :pen) (print (. *board* :get_selected))"
 	"(. *ink_toolbar* :set_selected 3) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_green))"
 	"(wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (print (. *board* :get_selected))"
-	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (print (list (= (cwb-get it :stroke) +argb_green) (= (get :color *board*) +argb_red)))"
+	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (print (list (= (cwb-get it :stroke) +argb_green) (= (get :pen *board*) 2)))"
 	"(wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0)"
 	"(wa-drag 1 400 400 450 420) (print (. *board* :get_selected))")))
 (assert-eq "a thing is picked up" "(1)" (elem-get wa_out 0))
@@ -389,16 +389,17 @@
 ;what the mouse and touch are bound to is kept with the board, by user, and
 ;put back. Chris: "bindings are saved locally per user, between sessions"
 (defq wa_bnd (wa-run (cat
-	"(.-> (. *board* :get_bindings) (:set :mouse 0 +pev_left :color +argb_blue) (:set :touch 0x1000000 :nil :mode :rect)"
-	" (:set :pen 0x2000000 +pev_left :color +argb_red))"
+	"(.-> (. *board* :get_bindings) (:set :mouse 0 +pev_left :pen 4) (:set :touch 0x1000000 :nil :mode :rect)"
+	" (:set :pen 0x2000000 +pev_left :pen 2) (:set :mouse 0 +pev_right :color +argb_cyan))"
 	"(defq ss (string-stream (cat {}))) (tree-save ss (config-state)) (defq text (str ss))"
 	"(def *board* :bindings (bindings-default))"
 	"(config-apply (tree-load (string-stream text)))"
 	"(defq b (. *board* :get_bindings))"
-	"(print (list (= (. b :value (ptr-event 0 :mouse +pev_left 0 0) :color) +argb_blue)"
-	" (. b :value (ptr-event 0x1000003 :touch 1 0 0) :mode) (. b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :color)))")))
-(assert-eq "kept and put back, the mouse is blue and touch draws boxes, and a pen, of this sitting only, is as a pen is"
-	"(:t :rect :nil)" (first wa_bnd))
+	"(print (list (. b :value (ptr-event 0 :mouse +pev_left 0 0) :pen)"
+	" (. b :value (ptr-event 0x1000003 :touch 1 0 0) :mode) (. b :value (ptr-event 0x2000000 :pen +pev_left 0 0) :pen)"
+	" (. b :value (ptr-event 0 :mouse +pev_right 0 0) :pen) (. b :value (ptr-event 0 :mouse +pev_right 0 0) :color)))")))
+(assert-eq "kept and put back, the mouse holds the blue pen and touch draws boxes, a pen of this sitting only is as a pen is, and an ink kept from before the pens were by number is the pen that has it"
+	"(4 :rect :nil 5 :nil)" (first wa_bnd))
 
 ;floating menus: none opens from a tap on the board, a tap there is a dot,
 ;Chris; one is made from the toolbar, stays, and binds whatever taps it
@@ -409,11 +410,11 @@
 	"(print (list (length (palettes *board*)) (get :floating pal)))"
 	"(. *board* :tick 2000000) (print (list (wa-draw)))"
 	"(defun wa-pick (what val) (bind '(x y) (map (const n2i) (. pal :where what val))) (wa-drag 1 x y x y))"
-	"(defq was (list (get :mode *board*) (get :color *board*) (get :width *board*)))"
-	"(wa-pick :color +argb_red) (wa-pick :width 12.0) (wa-pick :action :snap) (wa-pick :tool :ellipse)"
+	"(defq was (list (get :mode *board*) (get :pen *board*) (get :width *board*)))"
+	"(wa-pick :pen 2) (wa-pick :width 12.0) (wa-pick :action :snap) (wa-pick :tool :ellipse)"
 	"(defun wa-bound (key) (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) key))"
-	"(print (list (wa-bound :mode) (= (wa-bound :color) +argb_red) (n2i (wa-bound :width)) (wa-bound :snap) (get :snap *board*) (length (palettes *board*))))"
-	"(print (list (eql (str was) (str (list (get :mode *board*) (get :color *board*) (get :width *board*)))) (. *ink_toolbar* :get_selected)))"
+	"(print (list (wa-bound :mode) (= (wa-bound :pen) 2) (n2i (wa-bound :width)) (wa-bound :snap) (get :snap *board*) (length (palettes *board*))))"
+	"(print (list (eql (str was) (str (list (get :mode *board*) (get :pen *board*) (get :width *board*)))) (. *ink_toolbar* :get_selected)))"
 	"(wa-drag 1 100 100 200 160) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :kind))"
 	"(wa-pick :hub :nil) (. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
 (assert-eq "the right button, down and up on nothing, opens no menu" "0" (elem-get wa_out 0))
@@ -701,7 +702,7 @@
 (defq wa_pens (wa-run (cat
 	"(defq red (elem-get (. *ink_toolbar* :children) 2) blue (elem-get (. *ink_toolbar* :children) 4))"
 	"(defun press (b at) (def b :pressed_by (list 0 :mouse +pev_left)) (. *ink_toolbar* :set_selected at) (wa-do +event_ink))"
-	"(defun held (b) (. (. *board* :get_bindings) :value (ptr-event 0 :mouse b 0 0) :color (get :color *board*)))"
+	"(defun held (b) (. *board* :ink_of (ptr-event 0 :mouse b 0 0)))"
 	"(defun pick (b what val) ((get :on_pick (first (swatches-on *board*))) (first (swatches-on *board*)) (ptr-event 0 :mouse b 0 0) what val))"
 	"(press red 2) (defq a (list (= (held +pev_left) +argb_red) (length (swatches-on *board*))))"
 	"(press red 2) (defq b (length (swatches-on *board*)))"
@@ -727,6 +728,6 @@
 	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (defq was (eql (str *palette*) (str *pens_default*)))"
 	"(wa-do +event_new)"
 	"(print (list was (eql (str *palette*) (str *pens_default*))"
-	" (= (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :color) +argb_red)))")))
+	" (= (. *board* :ink_of (ptr-event 0 :mouse +pev_left 0 0)) +argb_red)))")))
 (assert-eq "a pen refilled is the document's; a new document has the pens as they first were, Chris: a new document resets to the standard default pens and markers inks, and the mouse holds the same pen"
 	"(:nil :t :t)" (first wa_new))

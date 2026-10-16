@@ -61,16 +61,6 @@ device, before the rules of its buttons, so it is the main; the
 middle of a mouse is both; a finger is all its device
 ```
 
-### :swap
-
-```code
-(. bindings :swap key from to) -> bindings
-
-every rule that has key as one of from has it as that of to, all at
-once: the pens of the Whiteboard given other inks, each device that
-held one holds it
-```
-
 ### :unbind
 
 ```code
