@@ -66,6 +66,11 @@
 			from))
 	root)
 
+(defun board-none? (ink)
+	; (board-none? ink) -> :t | :nil
+	;an ink that is wholly see through is none, whatever its colour
+	(= (logand ink 0xff000000) 0))
+
 (defun board-ink-part (event)
 	; (board-ink-part event) -> :stroke | :fill | :both | :ink
 	;what of a selected thing a pen given by this press colours: the main
@@ -310,7 +315,7 @@
 ;what is kept for a pointer that is down on the surface, a list
 ;again is that what a hand went down on was selected already, (:end)
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap box again began buttons))
+	(enum tool x y points item moved last_x last_y snap box again began buttons grow))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -451,7 +456,7 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons)
+		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
 			holding (. this :holding))
 		(case tool
 			(:hand
@@ -559,16 +564,21 @@
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
 				;when it was begun, for what is written, (:written)
 				(elem-set state +stroke_snap (get :time board))
-				(elem-set state +stroke_item (. board :new_shape event tool))))
+				(elem-set state +stroke_item (. board :new_shape event tool))
+				;a filled shape of one ink in both pens is a fill as far out
+				;as its outline would be, (:shape_d)
+				(when (find tool '(:frect :fellipse))
+					(bind '(line fill) (. board :ink_pair event))
+					(and (= line fill) (not (board-none? line))
+						(elem-set state +stroke_grow (* 0.5 (n2f (. (get :bindings board) :value event :width (get :width board)))))))))
 		state)
 
 	(defmethod :shape_d (state x y)
 		; (. surface :shape_d state x y) -> d
 		;the path of what a pointer is drawing, now it is at a point
-		(bind '(tool sx sy points item &ignore) state)
-		;a filled shape with no outline is as big as it would be with one
-		(defq grow (if (and (find tool '(:frect :fellipse)) (= (ifn (cwb-get item :stroke) 0) 0))
-			(* 0.5 (ifn (cwb-get item :width) 0.0)) 0.0))
+		(bind '(tool sx sy points &ignore) state)
+		;a filled shape of one ink is as big as it would be with an outline
+		(defq grow (elem-get state +stroke_grow))
 		(case tool
 			((:line :arrow :arrow2) (cwb-d-line sx sy x y))
 			(:rect (cwb-d-rect sx sy x y))
@@ -1423,6 +1433,16 @@
 	; what is being drawn, not yet kept
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+	(defmethod :ink_pair (event)
+		; (. board :ink_pair event) -> (outline fill)
+		;the inks of the pens of the device's main and second buttons. Touch
+		;has one pen, both
+		(bind '(id kind &ignore) event)
+		(defq bindings (get :bindings this))
+		(if (eql kind :touch)
+			(list (defq c (. bindings :value event :color (get :color this))) c)
+			(map (# (. bindings :value (ptr-event id kind %0 0 0) :color (get :color this))) (list +pev_left +pev_right))))
+
 	(defmethod :new_shape (event tool)
 		; (. board :new_shape event tool) -> shape
 		;a shape for a pointer to draw, with the colour and width that
@@ -1441,11 +1461,12 @@
 			;as the outline would be, (:shape_d): a see through outline over a
 			;fill of the same ink is a band darker than either, Chris:
 			;"transparent colours need a little extra thought there"
+			;An ink that is wholly see through is none: no outline, the fill
+			;is inside it; no fill, the outline is all
 			((:frect :fellipse)
-				(bind '(id kind &ignore) event)
-				(defq line (if (eql kind :touch) color (. bindings :value (ptr-event id kind +pev_left 0 0) :color (get :color this)))
-					fill (if (eql kind :touch) color (. bindings :value (ptr-event id kind +pev_right 0 0) :color (get :color this))))
-				(cwb-set shape :join :miter :fill fill :stroke (if (= line fill) 0 line)))
+				(bind '(line fill) (. this :ink_pair event))
+				(cwb-set shape :join :miter :fill (if (board-none? fill) 0 fill)
+					:stroke (if (or (= line fill) (board-none? line)) 0 line)))
 			((:rect :ellipse) (cwb-set shape :fill 0 :join :miter))
 			(:arrow (cwb-set shape :cap1 :butt :cap2 :arrow))
 			(:arrow2 (cwb-set shape :cap1 :arrow :cap2 :arrow)))

@@ -463,3 +463,20 @@
 				(< (abs (- (logand (>> p 16) 0xff) (logand (>> col 16) 0xff))) 12)))
 		(range 0 (* 400 400))))
 (assert-true "each device's dot is drawn" (and (pf-has 0xffff0000) (pf-has 0xff000000)))
+;an ink wholly see through is none, Chris: "a pen can be fully transparent ?
+;if that the pen used for the outline it does just fill the inner, if the
+;transparent ink is the fill we just fill the outline"
+(defq pn_board (Board (cwb-doc 400 400)) pn_b (. pn_board :get_bindings))
+(defun pn-last () (last (cwb-items (. pn_board :get_doc))))
+(. pn_board :tick 1000000)
+(.-> pn_b (:set :mouse 0 +pev_left :width 10.0) (:set :mouse 0 +pev_left :mode :frect)
+	(:set :mouse 0 +pev_left :color 0x00ff0000) (:set :mouse 0 +pev_right :color 0x8000ff00))
+(pl-drag pn_board 0 :mouse +pev_left 20 20 120 120)
+(defq pn_inner (pn-last))
+(.-> pn_b (:set :mouse 0 +pev_left :color 0xffff0000) (:set :mouse 0 +pev_right :color 0))
+(pl-drag pn_board 0 :mouse +pev_left 200 20 300 120)
+(assert-eq "a clear outline pen fills the inside, not grown; a clear fill pen is the outline alone"
+	(str (list 0 0x8000ff00 (list 20 20 120 120) 0xffff0000 0))
+	(str (list (cwb-get pn_inner :stroke) (cwb-get pn_inner :fill) (map (const n2i) (cwb-bounds (list pn_inner)))
+		(cwb-get (pn-last) :stroke) (cwb-get (pn-last) :fill))))
+(assert-list-eq "none is any ink with no alpha" '(:t :t :nil) (map (const board-none?) '(0 0x00ff0000 0x01000000)))

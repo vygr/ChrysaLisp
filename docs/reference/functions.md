@@ -650,6 +650,14 @@ the four corners of the box of an item, its own box by its own
 matrix, where they are in the space it is in. :nil if it draws nothing
 ```
 
+### board-none?
+
+```code
+(board-none? ink) -> :t | :nil
+
+an ink that is wholly see through is none, whatever its colour
+```
+
 ### board-pen-d
 
 ```code

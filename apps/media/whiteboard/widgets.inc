@@ -102,9 +102,9 @@
 	"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
 
 (defun pen-show (button color)
-	;a pen shows its ink, and a pen of none a cross
-	(def button :ink (if (= color 0) +argb_black color)
-		:text (num-to-utf8 (if (= color 0) +sym_close +sym_pen)))
+	;a pen shows its ink, and a pen of none, wholly see through, a cross
+	(def button :ink (if (board-none? color) +argb_black color)
+		:text (num-to-utf8 (if (board-none? color) +sym_close +sym_pen)))
 	(.-> button :layout :dirty_all))
 (each (const pen-show) (. *ink_toolbar* :children) *palette*)
 ;the ink, tool and width bars are binders and show no pick, the paper is

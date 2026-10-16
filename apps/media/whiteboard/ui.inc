@@ -225,11 +225,13 @@
 	(defq bindings (. *board* :get_bindings)
 		held (ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)
 		was (. bindings :value held :color (get :color *board*))
-		alpha (if (= (logand was 0xff000000) 0) 0xff000000 (logand was 0xff000000))
+		alpha (if (board-none? was) 0xff000000 (logand was 0xff000000))
 		color (case what
 			(:color (logior (logand val 0xffffff) alpha))
 			(:alpha (logior (logand was 0xffffff) (<< val 24)))
-			(:t 0)))
+			(:t 0))
+		;wholly see through is none, whatever its colour
+		color (if (board-none? color) 0 color))
 	(if (defq at (find was *palette*))
 		(pen-refill at color)
 		(. bindings :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) :color color))

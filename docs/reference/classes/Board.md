@@ -291,6 +291,15 @@ finger is never near, it is down or it is not there
 is anything in flight: being moved about, or being drawn
 ```
 
+### :ink_pair
+
+```code
+(. board :ink_pair event) -> (outline fill)
+
+the inks of the pens of the device's main and second buttons. Touch
+has one pen, both
+```
+
 ### :keep_shape?
 
 ```code
