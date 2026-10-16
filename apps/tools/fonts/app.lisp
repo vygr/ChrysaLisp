@@ -42,7 +42,7 @@
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height
-		:color (const *env_toolbar_col*)
+		:paper (const *env_toolbar_col*)
 		:font font)
 	(bind '(w h) (. symbol_grid :pref_size))
 	(. symbol_grid :change 0 0 w h)

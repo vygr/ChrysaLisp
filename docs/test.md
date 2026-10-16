@@ -125,7 +125,7 @@ This section tests every supported inline character formatting rule:
 | Primitive | Arguments | Returns | Example |
 | --- | --- | --- | --- |
 | `pinsert` | `props` `key` `val` | `props` | `(pinsert p :font font)` |
-| `pfind` | `props` `key` | `val` | `(pfind p :color)` |
+| `pfind` | `props` `key` | `val` | `(pfind p :paper)` |
 | `perase` | `props` `key` | `props` | `(perase p :state)` |
 
 ---

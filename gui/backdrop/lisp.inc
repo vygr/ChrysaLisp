@@ -22,8 +22,8 @@
 
 (defclass Backdrop () (View)
 	; (Backdrop) -> backdrop
-	;a view of one colour, :color, with lines on it by a :style, :grid
-	;:lines :axis or none, :spacing apart, in :ink_color.
+	;a view of one colour, :paper, with lines on it by a :style, :grid
+	;:lines :axis or none, :spacing apart, in :ink.
 	;
 	;That much is all most want. More, each only if it is given:
 	;
@@ -35,7 +35,7 @@
 	;			drawn over the last: a coarse one and finer between
 	;			it, each as bright as its colour says. A spacing can
 	;			have parts of a pixel, and a ruling too fine to see
-	;			is left out. In place of :spacing and :ink_color
+	;			is left out. In place of :spacing and :ink
 	;	:turned	:t and the lines of :lines go up and down
 	(def this :style :nil :spacing 32)
 
@@ -45,9 +45,9 @@
 		(defq style (get :style this) spacing (get :spacing this)
 			ox (def? :origin_x this) oy (def? :origin_y this))
 		(.-> this
-			(:ctx_set_color (get :color this))
+			(:ctx_set_color (get :paper this))
 			(:ctx_filled_box 0 0 w h)
-			(:ctx_set_color (get :ink_color this)))
+			(:ctx_set_color (get :ink this)))
 		(case style
 			((:grid :lines)
 				(defq grid (eql style :grid) turned (def? :turned this))
@@ -59,7 +59,7 @@
 					(if (or grid (not turned))
 						(each (# (. this :ctx_filled_box 0 %0 w 1))
 							(backdrop-lines (ifn oy (if grid (>> h 1) 0)) gap h))))
-					(ifn (def? :rules this) (list (list spacing (get :ink_color this))))))
+					(ifn (def? :rules this) (list (list spacing (get :ink this))))))
 			(:axis
 				(defq cx (n2i (ifn ox (>> w 1))) cy (n2i (ifn oy (>> h 1))) half (/ (n2i spacing) 2))
 				(.-> this

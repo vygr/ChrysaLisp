@@ -21,9 +21,9 @@
 (defq +margin 2)
 
 (defun toolbar-states (toolbar states)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color radio_col)))
+	(defq radio_col (canvas-brighter (get :paper toolbar)))
+	(each (# (undef (. %0 :dirty) :paper)
+			(if %1 (def %0 :paper radio_col)))
 		(. toolbar :children) states))
 
 (defun refresh-display ()

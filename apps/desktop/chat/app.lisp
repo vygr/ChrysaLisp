@@ -47,7 +47,7 @@
 
 ;;;; ── widget tree ────────────────────────────────────────────────────────────
 
-(ui-window *window* (:color +argb_grey15)
+(ui-window *window* (:paper +argb_grey15)
 	(ui-title-bar *title* "Chat" (+sym_close +sym_max +sym_min) +event_close)
 	; single toolbar: [Dial] [Hangup] then name textfield fills the rest
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -59,17 +59,17 @@
 	(ui-flow *main_split* (:flow_flags +flow_right_fill)
 		; left panel: vertically scrollable channel list
 		(ui-scroll *channel_scroll* +scroll_flag_vertical (:min_width 200 :min_height 420)
-			(ui-flow *channel_flow* (:flow_flags +flow_down_fill :color +argb_grey15)))
+			(ui-flow *channel_flow* (:flow_flags +flow_down_fill :paper +argb_grey15)))
 		; right panel: history + bottom-pinned input bar
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow *input_bar* (:flow_flags +flow_right_fill :border 1
-					:color +argb_white :ink_color +argb_black :font *env_button_font*)
+					:paper +argb_white :ink +argb_black :font *env_button_font*)
 				(ui-label _ (:text "Chat:" :font *env_bold_font*))
 				(ui-tool-bar _ () (ui-buttons (+sym_open) +event_attach))
 				(. (ui-textfield *chat_text* (:flow_flags +flow_right_fill :hint_text "Type markdown message..." :clear_text ""))
 					:connect +event_send))
 			(ui-scroll *chat_scroll* +scroll_flag_vertical (:min_width 480 :min_height 380)
-				(ui-flow *chat_flow* (:flow_flags +flow_down_fill :color +argb_grey15))))))
+				(ui-flow *chat_flow* (:flow_flags +flow_down_fill :paper +argb_grey15))))))
 
 ;;;; ── config ─────────────────────────────────────────────────────────────────
 
@@ -168,7 +168,7 @@
 	(and (starts-with "chat_" name) (defq under (find "_" (slice name 5 -1)))
 		(setq name (slice name (+ 6 under) -1)))
 	(defq view (Flow))
-	(def view :flow_flags +flow_down_fill :color +argb_grey15)
+	(def view :flow_flags +flow_down_fill :paper +argb_grey15)
 	(def (defq md (Md)) :page_width page_w :zoom 1.0 :base_font_size 13)
 	(. view :add_child md)
 	(cond
@@ -180,7 +180,7 @@
 				(defq small (Canvas most (max 1 (/ (* h most) w)) 1))
 				(. small :resize canvas)
 				(setq canvas small))
-			(def (defq frame (Flow)) :flow_flags +flow_right :color +argb_grey15)
+			(def (defq frame (Flow)) :flow_flags +flow_right :paper +argb_grey15)
 			(. frame :add_child canvas)
 			(. view :add_child frame))
 		((and (eql ext ".md") (defq text (load path)))
@@ -289,14 +289,14 @@
 				row_flow (Flow) row_btn (Button))
 			(def row_flow :flow_flags +flow_right_fill)
 			(def row_btn :text lbl_txt :font *env_button_font*
-				:color (cond
+				:paper (cond
 					(is_selected +argb_red)
 					((> unread 0) +argb_yellow)
 					(:t +argb_green))
-				:ink_color (if online +argb_black +argb_grey8))
+				:ink (if online +argb_black +argb_grey8))
 			(. row_btn :connect (+ +event_channel_select_0 idx))
 			(defq del_btn (Button))
-			(def del_btn :text "x" :ink_color +argb_black)
+			(def del_btn :text "x" :ink +argb_black)
 			(. del_btn :connect (+ +event_channel_delete_0 idx))
 			(. row_flow :add_child del_btn)
 			(. row_flow :add_child row_btn)

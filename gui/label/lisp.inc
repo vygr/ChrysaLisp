@@ -15,7 +15,7 @@
 	(defmethod :draw ()
 		; (. label :draw) -> label
 		(bind '(w h) (. this :get_size))
-		(. this :ctx_panel (get :color this) 1 (get :border this) 0 0 w h))
+		(. this :ctx_panel (get :paper this) 1 (get :border this) 0 0 w h))
 
 	(defmethod :add_child (child)
 		; (. label :add_child child) -> label
@@ -36,7 +36,7 @@
 		(.-> (get :label_flow this)
 			(:set_bounds border border (- w (* border 2)) (- h (* border 2)))
 			(:constrain :t))
-		(if (= (>> (get :color this) 24) 0xff)
+		(if (= (>> (get :paper this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
 	)

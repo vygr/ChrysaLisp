@@ -12,17 +12,17 @@
 		(ui-scroll *todo_scroll* +scroll_flag_vertical :nil
 			(ui-flow *todo_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *todo_flow* (:flow_flags +flow_down))
-				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+				(ui-backdrop _ (:paper +argb_grey2 :ink +argb_grey8
 					:style :lines :spacing :erase))))
 		(ui-scroll *done_scroll* +scroll_flag_vertical :nil
 			(ui-flow *done_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *done_flow* (:flow_flags +flow_down))
-				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+				(ui-backdrop _ (:paper +argb_grey2 :ink +argb_grey8
 					:style :lines :spacing :erase))))
 		(ui-scroll *deleted_scroll* +scroll_flag_vertical :nil
 			(ui-flow *deleted_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *deleted_flow* (:flow_flags +flow_down))
-				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+				(ui-backdrop _ (:paper +argb_grey2 :ink +argb_grey8
 					:style :lines :spacing :erase))))))
 
 (ui-tool-tips *stack_flow*

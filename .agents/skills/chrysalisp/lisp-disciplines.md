@@ -535,16 +535,16 @@ occurring, rather than catching errors after the fact.
 		:font +font_code
 		:vdu_width 80
 		:vdu_height h
-		:color 0
-		:ink_color +argb_black)
+		:paper 0
+		:ink +argb_black)
 
 	;; IDIOMATIC: Sensible wrapping (2-3 pairs per line, ~80-100 columns):
 	(def (defq vdu (Vdu))
 		:font +font_code :vdu_width 80 :vdu_height h
-		:color 0 :ink_color +argb_black)
+		:paper 0 :ink +argb_black)
 
 	;; IDIOMATIC: Compact forms kept on a single line:
-	(def (defq backdrop (Backdrop)) :color +argb_grey1 :min_width (max pad_w page_w) :min_height rh)
+	(def (defq backdrop (Backdrop)) :paper +argb_grey1 :min_width (max pad_w page_w) :min_height rh)
 	(def (defq scroll (Scroll +scroll_flag_horizontal)) :min_width page_w :min_height rh)
 	```
 

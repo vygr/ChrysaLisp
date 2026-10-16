@@ -17,7 +17,7 @@
 				(1 (ui-buttons (+sym_reset +sym_delete) +event_done_redo))
 				(2 (ui-buttons (+sym_reset +sym_delete) +event_del_redo))))
 		(ui-textfield _ (:clear_text (setd text "")
-			:hint_text "todo item" :color +argb_white)))
+			:hint_text "todo item" :paper +argb_white)))
 	(. flow :add_child entry)
 	(ui-tool-tips toolbar
 		(case column

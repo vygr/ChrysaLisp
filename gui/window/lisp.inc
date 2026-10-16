@@ -14,7 +14,7 @@
 		; (. window :draw) -> window
 		(bind '(w h) (. this :get_size))
 		;panel
-		(. this :ctx_panel (get :color this) 1 (get :border this)
+		(. this :ctx_panel (get :paper this) 1 (get :border this)
 			(defq shadow (get :shadow this)) shadow (- w (* shadow 2)) (- h (* shadow 2)))
 		;shadow
 		(defq col 0x80000000)
@@ -50,7 +50,7 @@
 		;and now has one is not all solid still: the flag that says it is
 		;was left set, and what was behind its shadow was not drawn again
 		(cond
-			((/= (>> (get :color this) 24) 0xff)
+			((/= (>> (get :paper this) 24) 0xff)
 				(.-> this (:set_flags 0 +view_flag_opaque) :clr_opaque))
 			((= shadow 0)
 				(. this :set_flags +view_flag_opaque +view_flag_opaque))

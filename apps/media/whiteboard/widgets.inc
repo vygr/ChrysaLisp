@@ -31,40 +31,40 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_save +sym_clear +sym_cut +sym_media_join) +event_undo))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
-			(:color *env_toolbar2_col*)) :connect +event_style)
+			(:paper *env_toolbar2_col*)) :connect +event_style)
 		(ui-tool-bar *snap_toolbar* ()
 			(ui-buttons (+sym_snap +sym_snap_angle +sym_lock) +event_snap))
-		(ui-tool-bar *zoom_toolbar* (:color *env_toolbar2_col*)
+		(ui-tool-bar *zoom_toolbar* (:paper *env_toolbar2_col*)
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
-		(. (ui-textfield *size_field* (:color +argb_white :hint_text "width x height" :clear_text "1024x768"
+		(. (ui-textfield *size_field* (:paper +argb_white :hint_text "width x height" :clear_text "1024x768"
 			:min_width 120)) :connect +event_paper_size)
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode_toolbar* (+sym_select +sym_pen +sym_line +sym_arrow +sym_double_arrow
 				+sym_rect +sym_circle +sym_filled_rect +sym_filled_circle +sym_text +sym_eraser)
-			(:color *env_toolbar2_col*)) :connect +event_mode)
+			(:paper *env_toolbar2_col*)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
-		(ui-tool-bar *tool_toolbar* (:color *env_toolbar2_col*)
+		(ui-tool-bar *tool_toolbar* (:paper *env_toolbar2_col*)
 			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_dial) +event_ruler))
-		(. (ui-textfield *text_field* (:color +argb_white :hint_text "words to put down" :clear_text ""
+		(. (ui-textfield *text_field* (:paper +argb_white :hint_text "words to put down" :clear_text ""
 			:min_width 160)) :connect +event_text)
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *selection_toolbar* ()
 			(ui-buttons (+sym_group +sym_ungroup +sym_delete +sym_duplicate +sym_to_front +sym_to_back
 				+sym_align_left +sym_align_hcenter +sym_align_right
 				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
 				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush)
-				(:font *env_medium_symbol_font* :color *env_toolbar2_col*)) :connect +event_ink))
+				(:font *env_medium_symbol_font* :paper *env_toolbar2_col*)) :connect +event_ink))
 	(ui-element *image_scroll* (Board-frame)
-			(:min_width +min_width :min_height +min_height :color *env_slider_col*)
+			(:min_width +min_width :min_height +min_height :paper *env_slider_col*)
 		(ui-flow *board_stack* (:flow_flags +flow_stack_fill)
 			(ui-element *board_view* (Board-view *board*))
 			;what is round the document, the desk it lies on
-			(ui-backdrop *backdrop* (:color 0xffa8acb0)))))
+			(ui-backdrop *backdrop* (:paper 0xffa8acb0)))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "new" "open" "save" "clear" "clip away what is off the paper"
@@ -95,7 +95,7 @@
 	'("group" "ungroup" "delete" "duplicate" "to the front" "to the back"
 	"align left" "align centres" "align right" "align top" "align middles" "align bottom"))
 
-(each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
+(each (# (def %0 :ink %1)) (. *ink_toolbar* :children) *palette*)
 ;the ink, tool and width bars are binders and show no pick, the paper is
 ;everybody's and shows its own
 (. *style_toolbar* :set_selected 1)

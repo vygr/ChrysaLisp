@@ -75,7 +75,7 @@
 	(entry :vdu :draw (vpx this))
 
 	;get properties, do checks for any changes
-	(call :vdu :get_long_prop (vpx this static_sym_ink_color) (vpx _ col))
+	(call :vdu :get_long_prop (vpx this static_sym_ink) (vpx _ col))
 	(call :vdu :get_long_prop (vpx this static_sym_vdu_width) (vpx _ w))
 	(call :vdu :get_long_prop (vpx this static_sym_vdu_height) (vpx _ h))
 	(call :vdu :get_prop (vpx this static_sym_font) (vpx _ font))

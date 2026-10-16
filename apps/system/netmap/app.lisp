@@ -44,23 +44,23 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_auto) +event_auto))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font *env_body_font*)
 			(ui-label _ (:text "X rot:"))
 			(ui-label _ (:text "Y rot:"))
 			(ui-label _ (:text "Z rot:")))
 		(ui-grid _ (:grid_width 1)
-			(. (ui-slider *xrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+			(. (ui-slider *xrot_slider* (:value 0 :maximum 1000 :portion 10 :paper +argb_green))
 				:connect +event_xrot)
-			(. (ui-slider *yrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+			(. (ui-slider *yrot_slider* (:value 0 :maximum 1000 :portion 10 :paper +argb_green))
 				:connect +event_yrot)
-			(. (ui-slider *zrot_slider* (:value 0 :maximum 1000 :portion 10 :color +argb_green))
+			(. (ui-slider *zrot_slider* (:value 0 :maximum 1000 :portion 10 :paper +argb_green))
 				:connect +event_zrot)))
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font *env_body_font*))
-		(ui-backdrop _ (:style :plain :color +argb_black :min_width +size :min_height +size)
-			(ui-element *canvas* (Canvas +size +size +scale) (:color 0)))))
+		(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
+			(ui-element *canvas* (Canvas +size +size +scale) (:paper 0)))))
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)
@@ -78,9 +78,9 @@
 	;it turns by itself, or it is turned by the sliders. The button is
 	;lit while it turns by itself
 	(defq button (first (. *main_toolbar* :children)))
-	(undef (. button :dirty) :color)
+	(undef (. button :dirty) :paper)
 	(if (setq auto on)
-		(def button :color (canvas-brighter (get :color *main_toolbar*)))))
+		(def button :paper (canvas-brighter (get :paper *main_toolbar*)))))
 
 (defun set-canvas (size)
 	;the window is a new size, and so is the picture, a square that fits
@@ -148,7 +148,7 @@
 			size (/ (* +ball_size (+ +real_1 load)) zoom))
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
 		;the color of its machine, and whiter the harder it works
-		(def ball :color (apply (const fixeds) (cat (list 1.0)
+		(def ball :paper (apply (const fixeds) (cat (list 1.0)
 			(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
 				(if (defq at (find (get :system node) machines))
 					(hue-color (elem-get machine_hues at))
@@ -185,7 +185,7 @@
 				(second u) (second d) (second v) (second mid)
 				(third u) (third d) (third v) (third mid)
 				+real_0 +real_0 +real_0 +real_1)
-				:color (fixeds 1.0
+				:paper (fixeds 1.0
 					(n2f (+ (* cool (const (n2r 0.25))) red))
 					(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
 					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))

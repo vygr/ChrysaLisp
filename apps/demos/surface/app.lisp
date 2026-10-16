@@ -41,7 +41,7 @@
 	(ui-title-bar _ "Surface" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font*)) :connect +event_mode)
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill :font *env_body_font*)
 		(ui-grid *names* (:grid_width 1))
 		(ui-grid *values* (:grid_width 1))
@@ -50,7 +50,7 @@
 	;the pixels of the canvas are in shared memory, the nodes of this
 	;machine draw their tiles straight onto them
 	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
-		(Canvas +width +height +scale)) (:color 0)))
+		(Canvas +width +height +scale)) (:paper 0)))
 
 (defun control-value ((name type lo hi slider label val init))
 	;the value of the input, from where its slider is, and the
@@ -85,7 +85,7 @@
 			(defq slider (Slider) label (make-label "")
 				steps (if (eql type :int) (- hi lo) +steps))
 			(def slider :maximum steps :portion (max 1 (/ steps 10))
-				:min_width 256 :color *env_slider_col*
+				:min_width 256 :paper *env_slider_col*
 				:value (defq init (if (eql type :int) (- val lo)
 					(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
 						(- (shader-real hi) (shader-real lo)))))))

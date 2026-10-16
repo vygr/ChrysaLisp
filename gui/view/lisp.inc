@@ -278,7 +278,7 @@
 
 	(defmethod :layout ()
 		; (. view :layout) -> view
-		(if (= (>> (get :color this) 24) 0xff)
+		(if (= (>> (get :paper this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
 

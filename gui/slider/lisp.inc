@@ -10,7 +10,7 @@
 
 	(defmethod :draw ()
 		; (. slider :draw) -> slider
-		(defq maximum (get :maximum this) portion (get :portion this) col (get :color this))
+		(defq maximum (get :maximum this) portion (get :portion this) col (get :paper this))
 		;a trough, a shade of the color with a thin edge a shade darker,
 		;and no black line
 		(bind '(w h) (. this :get_size))

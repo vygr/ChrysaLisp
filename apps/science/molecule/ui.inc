@@ -34,11 +34,11 @@
 	(setq *running* :nil))
 
 (defun action-auto ()
-	(defq radio_col (canvas-brighter (get :color *main_toolbar*))
+	(defq radio_col (canvas-brighter (get :paper *main_toolbar*))
 		button (third (. *main_toolbar* :children)))
-	(undef (. button :dirty) :color)
+	(undef (. button :dirty) :paper)
 	(if (setq *auto_mode* (not *auto_mode*))
-		(def button :color radio_col)))
+		(def button :paper radio_col)))
 
 (defun action-xrot ()
 	(if *auto_mode* (action-auto))

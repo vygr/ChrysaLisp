@@ -38,7 +38,7 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
       If not found, it recursively searches up the UI tree through its parent
       widgets until the property is found or the root is reached. If the
       property isn't found, `(get)` returns `:nil`. This is explicitly stated
-      in [`widgets.md`](../gui/widgets.md): "When you use `(get :color this)` on a widget instance
+      in [`widgets.md`](../gui/widgets.md): "When you use `(get :paper this)` on a widget instance
       a search will be made starting at this widget... all the way up to the
       parent widget, all the way up to the root widget if needed."
 
@@ -46,7 +46,7 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
       directly on the widget, without an upward search.
 
     * This system allows for powerful theming (e.g., setting `:font` or
-      `:ink_color` on a `Window` to be inherited by all children) and
+      `:ink` on a `Window` to be inherited by all children) and
       contextual data flow.
 
 ```image
@@ -84,7 +84,7 @@ UI tree:
 ;; (ui-window name [props] [body])
 ;; (ui-element name constructor [props] [body]) are the base forms
 
-(ui-window *my_app_window* (:title "My Application" :color +argb_grey2)
+(ui-window *my_app_window* (:title "My Application" :paper +argb_grey2)
     (ui-flow *main_layout* (:flow_flags +flow_down_fill)
         (ui-label *a_label* (:text "Enter name:"))
         (ui-textfield *name_field* (:hint_text "Your name here"))
@@ -216,9 +216,9 @@ are made available via `gui/lisp.inc`.
 
 * **Key Properties (often set via `props` in UI macros or inherited):**
 
-    * `:color`: Background color.
+    * `:paper`: Background color.
 
-    * `:ink_color`: Default text/foreground color.
+    * `:ink`: Default text/foreground color.
 
     * `:font`: Default font.
 
@@ -300,8 +300,8 @@ are made available via `gui/lisp.inc`.
       elements are added.
 
     * Default props (from `gui/lisp.inc`): `:font *env_window_font*`,
-      `:ink_color *env_ink_col*`, `:color *env_window_col*`, `:hint_color
-      *env_hint_col*`, `:no_hint_color *env_no_hint_col*`, `:border
+      `:ink *env_ink_col*`, `:paper *env_window_col*`, `:ink_hint
+      *env_hint_col*`, `:ink_no_hint *env_no_hint_col*`, `:border
       *env_window_border*`, `:shadow *env_window_shadow*`.
 
 * **Description:** The top-level widget for an application's UI. It manages
@@ -354,9 +354,9 @@ are made available via `gui/lisp.inc`.
 
 * **Key Properties:**
 
-    * `:color` (inherited): Background color.
+    * `:paper` (inherited): Background color.
 
-    * `:ink_color` (inherited): Color for style lines.
+    * `:ink` (inherited): Color for style lines.
 
     * `:style`: Can be `:grid`, `:axis`, `:lines`, or `:plain` (default
       :nil/plain).
@@ -371,7 +371,7 @@ are made available via `gui/lisp.inc`.
 
 ```vdu
 (ui-backdrop *my-grid-bg*
-    (:color +argb_grey2 :ink_color +argb_grey5 :style :grid :spacing 16))
+    (:paper +argb_grey2 :ink +argb_grey5 :style :grid :spacing 16))
 ```
 
 ---
@@ -393,7 +393,7 @@ are made available via `gui/lisp.inc`.
 
 * **Key Properties:**
 
-    * All `Label` properties (e.g., `:text`, `:font`, `:ink_color`).
+    * All `Label` properties (e.g., `:text`, `:font`, `:ink`).
 
     * `:state`: Internal state for visual feedback (pressed/normal).
 
@@ -436,7 +436,7 @@ are made available via `gui/lisp.inc`.
 
 * **Key Properties:**
 
-    * `:color` (for drawing operations, not background).
+    * `:paper` (for drawing operations, not background).
 
 * **Key Methods (from [`Canvas-base.md`](../reference/classes/Canvas-base.md), [`canvas.md`](../reference/vp_classes/canvas.md)):**
 
@@ -666,7 +666,7 @@ are made available via `gui/lisp.inc`.
 
     * `:text`: The string to display.
 
-    * `:font`, `:ink_color`, `:color`, `:border`.
+    * `:font`, `:ink`, `:paper`, `:border`.
 
     * `:flow_flags` (on its internal `:label_flow`): Controls text alignment
       within the label.
@@ -727,7 +727,7 @@ are made available via `gui/lisp.inc`.
 
 * **Key Properties:**
 
-    * `:color`: Color of the progress fill.
+    * `:paper`: Color of the progress fill.
 
     * `:value`: Current progress value.
 
@@ -742,7 +742,7 @@ are made available via `gui/lisp.inc`.
 *Example:*
 
 ```vdu
-(ui-progress *download_progress* (:value 50 :maximum 100 :color +argb_green))
+(ui-progress *download_progress* (:value 50 :maximum 100 :paper +argb_green))
 ```
 
 ---
@@ -756,7 +756,7 @@ are made available via `gui/lisp.inc`.
 * **UI Macro:** `(ui-radio-bar name symbols [props])` or `(ui-toggle-bar name
   symbols [props])`
 
-    * Default props (from `gui/lisp.inc`): `:color *env_toolbar_col*`, `:font
+    * Default props (from `gui/lisp.inc`): `:paper *env_toolbar_col*`, `:font
       *env_symbol_font*`, `:border *env_button_border*`.
 
 * **Description:** A bar of buttons that can operate in radio mode (only one
@@ -801,7 +801,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-scroll name flags [props] [body])`
 
-    * Default props (from `gui/lisp.inc`): `:color *env_slider_col*`.
+    * Default props (from `gui/lisp.inc`): `:paper *env_slider_col*`.
 
 * **Description:** A container that provides scrollbars for a single child
   widget if the child's content exceeds the scroll view's visible area.
@@ -848,7 +848,7 @@ are made available via `gui/lisp.inc`.
 
 * **UI Macro:** `(ui-slider name [props])`
 
-    * Default props (from `gui/lisp.inc`): `:color *env_slider_col*`.
+    * Default props (from `gui/lisp.inc`): `:paper *env_slider_col*`.
 
 * **Description:** A horizontal or vertical slider control.
 
@@ -996,7 +996,7 @@ are made available via `gui/lisp.inc`.
 
     * `:text`: The string to display.
 
-    * `:font`, `:ink_color`, `:color`.
+    * `:font`, `:ink`, `:paper`.
 
     * `:offset`: Horizontal offset for the text within its bounds.
 
@@ -1149,7 +1149,7 @@ are made available via `gui/lisp.inc`.
 
 ```vdu
 (ui-files *file_selector* "Project Files" +event_file_folder_action
-    (:color +argb_grey14 :font *env_medium_terminal_font*))
+    (:paper +argb_grey14 :font *env_medium_terminal_font*))
 
 ; Populate with all .lisp and .inc files from the current directory, up to depth 2
 (. *file_selector* :populate "." '(".lisp" ".inc") 2)
@@ -1169,7 +1169,7 @@ are made available via `gui/lisp.inc`.
 * **UI Macro:** `(ui-vdu name [props])`
 
     * Default props (from `gui/lisp.inc`): `:font *env_terminal_font*`,
-      `:color 0`.
+      `:paper 0`.
 
 * **Description:** A text display widget that renders characters on a grid,
   similar to a terminal. It uses a font and can display colored text.
@@ -1178,7 +1178,7 @@ are made available via `gui/lisp.inc`.
 
     * `:vdu_width`, `:vdu_height`: Dimensions in characters.
 
-    * `:font`, `:ink_color`.
+    * `:font`, `:ink`.
 
 * **Key Methods (from [`Vdu.md`](../reference/classes/Vdu.md) and `gui/vdu/lisp.inc`):**
 
@@ -1194,7 +1194,7 @@ are made available via `gui/lisp.inc`.
 
 ```vdu
 (ui-vdu *log_output_vdu*
-    (:vdu_width 80 :vdu_height 25 :ink_color +argb_green))
+    (:vdu_width 80 :vdu_height 25 :ink +argb_green))
 (. *log_output_vdu* :load '("Line 1" "Line 2") 0 0 0 0)
 ```
 
@@ -1223,7 +1223,7 @@ combinations of widgets:
     * Creates a `Flow` layout, typically styled as a toolbar, to hold
       buttons or other controls.
 
-    * Default props (from `gui/lisp.inc`): `:flow_flags +flow_right`, `:color
+    * Default props (from `gui/lisp.inc`): `:flow_flags +flow_right`, `:paper
       *env_toolbar_col*`, `:font *env_symbol_font*`.
 
 *Example using combination macros:*

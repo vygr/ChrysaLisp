@@ -49,7 +49,7 @@
 	(num (+ col (>> (logand (lognot col) 0xfcfcfc) 2))))
 
 (defclass Canvas-base () (View)
-	(def this :color 0)
+	(def this :paper 0)
 
 	(defmethod :draw ()
 		; (. canvas :draw) -> canvas

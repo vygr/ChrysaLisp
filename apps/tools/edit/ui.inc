@@ -74,7 +74,7 @@
 (defclass Editor-edit () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
-		:font *env_editor_font* :ink_color +argb_white)
+		:font *env_editor_font* :ink +argb_white)
 
 	(defmethod :mouse_down (event)
 		; (. vdu :mouse_down event) -> vdu

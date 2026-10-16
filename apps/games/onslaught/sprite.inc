@@ -205,7 +205,7 @@
 
 (defclass Sprite (canvas_l canvas_r width height tag &optional death) (View)
 	; (Sprite canvas_l canvas_r width height [death]) -> sprite
-	(def this :color 0 :zoom *zoom*
+	(def this :paper 0 :zoom *zoom*
 		:sp_x 0 :sp_y 0 :sp_w width :sp_h height
 		:sp_frame_w width :sp_frame_h height
 		:sp_canvas_l canvas_l :sp_canvas_r canvas_r :sp_canvas_tag tag

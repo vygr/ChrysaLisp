@@ -159,12 +159,12 @@
 		((bits? state +state_bold_italic) (def text :font (get :font_bold_italic flow)))
 		((bits? state +state_bold) (def text :font (get :font_bold flow)))
 		((bits? state +state_italic) (def text :font (get :font_italic flow))))
-	(if (bits? state +state_code) (def text :ink_color +argb_blue :font (get :font_terminal flow)))
-	(if (bits? state +state_strike) (def text :ink_color +argb_grey8))
-	(if (bits? state +state_highlight) (def text :color +argb_yellow :ink_color +argb_black))
+	(if (bits? state +state_code) (def text :ink +argb_blue :font (get :font_terminal flow)))
+	(if (bits? state +state_strike) (def text :ink +argb_grey8))
+	(if (bits? state +state_highlight) (def text :paper +argb_yellow :ink +argb_black))
 	;a link is green, whatever else it is. Blue is what is quoted as code,
 	;and a link to a document is often its name in code quotes
-	(if link (def text :ink_color +md_link_color))
+	(if link (def text :ink +md_link_color))
 	text)
 
 (defun md-scale (s zoom)
@@ -193,7 +193,7 @@
 (defun under-line (this size &optional container)
 	(when (and size (> size 0))
 		(raise :zoom)
-		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (md-scale size zoom)))
+		(def (defq backdrop (Backdrop)) :paper +argb_black :min_height (max 1 (md-scale size zoom)))
 		(. (ifn container this) :add_child backdrop)))
 
 (defun word-parts (word font room)
@@ -264,7 +264,7 @@
 					(when (> (++ cnt w) max_width)
 						(setq flow (line-flow this container font_size))
 						(when indent_width
-							(def (defq indent_tab (Backdrop)) :min_width indent_width :color 0)
+							(def (defq indent_tab (Backdrop)) :min_width indent_width :paper 0)
 							(. flow :add_child indent_tab)
 							(setq w (+ w indent_width)))
 						(. flow :add_child text)
@@ -384,7 +384,7 @@
 		; (. link :draw) -> link
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
-		(.-> this (:ctx_set_color (get :ink_color this)) (:ctx_filled_box 0 (- h 2) w 1)))
+		(.-> this (:ctx_set_color (get :ink this)) (:ctx_filled_box 0 (- h 2) w 1)))
 
 	(defmethod :mouse_up (event)
 		; (. link :mouse_up event) -> link

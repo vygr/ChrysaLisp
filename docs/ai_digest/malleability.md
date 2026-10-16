@@ -133,7 +133,7 @@ other languages. This makes the *entire system* malleable.
     or overriding methods.
 
 *   **Object Instances are `:hmap`s:** A GUI widget, like a button, is an
-    `:hmap` instance. Properties like `:text` or `:color` are simply
+    `:hmap` instance. Properties like `:text` or `:paper` are simply
     key-value pairs. Property inheritance is a **runtime traversal**: if a
     property isn't found on the button instance, the system follows the
     `:parent` link up the GUI scene graph, performing an O(1) cached lookup

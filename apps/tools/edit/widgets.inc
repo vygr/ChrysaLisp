@@ -19,7 +19,7 @@
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +status_min_size 48)
 
-(ui-window *window* (:color +argb_grey1)
+(ui-window *window* (:paper +argb_grey1)
 	(ui-title-bar *title* "Edit" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
@@ -29,35 +29,35 @@
 				+sym_select_form +sym_start_form +sym_end_form
 				+sym_upper_case +sym_lower_case +sym_sort +sym_unique
 				+sym_reverse +sym_comment) +event_undo))
-		(ui-tool-bar *macro_toolbar* (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *macro_toolbar* (:paper (const *env_toolbar2_col*))
 			(ui-buttons (+sym_play +sym_play_end +sym_play_global +sym_record) +event_macro_playback))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
-		(ui-tool-bar *debug_toolbar* (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *debug_toolbar* (:paper (const *env_toolbar2_col*))
 			(ui-buttons (+sym_save_debug +sym_breakpoint +sym_breakpoint_remove +sym_enable_all +sym_disable_all +sym_remove_all) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
+			(ui-tool-bar *buffer_toolbar* (:paper (get :paper *macro_toolbar*))
 				(ui-buttons (+sym_prev +sym_next +sym_scratchpad +sym_close_file +sym_close_all +sym_save +sym_save_all +sym_load +sym_load_all +sym_new) +event_prev))
-			(. (ui-textfield *name_text* (:color +argb_white
+			(. (ui-textfield *name_text* (:paper +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_height 1)
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar *find_toolbar* (:color (get :color *macro_toolbar*))
+				(ui-tool-bar *find_toolbar* (:paper (get :paper *macro_toolbar*))
 					(ui-buttons (+sym_find_global +sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_global))
-				(. (ui-textfield *find_text* (:color +argb_white
+				(. (ui-textfield *find_text* (:paper +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar *replace_toolbar* (:color (get :color *macro_toolbar*))
+				(ui-tool-bar *replace_toolbar* (:paper (get :paper *macro_toolbar*))
 					(ui-buttons (+sym_collect +sym_collect_global +sym_replace +sym_replace_all +sym_replace_global) +event_collect))
-				(. (ui-textfield *replace_text* (:color +argb_white
+				(. (ui-textfield *replace_text* (:paper +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-grid _ (:color +argb_grey14 :grid_width 1)
+		(ui-grid _ (:paper +argb_grey14 :grid_width 1)
 			(ui-files *open_files_selector* "Open" +event_open_folder_action :nil)
 			(ui-files *file_selector* "Project" +event_file_folder_action :nil))
 		(ui-flow _ (:flow_flags +flow_up_fill)
-			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
+			(ui-flow _ (:flow_flags +flow_stack_fill :paper +argb_white
 					:font *env_medium_terminal_font*)
 				(ui-flow _ (:flow_flags +flow_right)
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
@@ -69,13 +69,13 @@
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-						:ink_color +argb_grey12 :font *env_editor_font*))
-				(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
+						:ink +argb_grey12 :font *env_editor_font*))
+				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)
 					(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
 						(. (ui-slider *xslider*) :connect +event_xscroll)
-						(ui-backdrop _ (:style :lines :ink_color +argb_white))))))))
+						(ui-backdrop _ (:style :lines :ink +argb_white))))))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "rewind"

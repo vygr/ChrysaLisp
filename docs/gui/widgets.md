@@ -11,7 +11,7 @@ environment when invoked.
 This means that a widget instance IS a Lisp environment, and can hold symbol
 bindings and properties in the same way the Lisp execution environment does !
 
-When you use `(get :color this)` on a widget instance a search will be made
+When you use `(get :paper this)` on a widget instance a search will be made
 starting at this widget for the symbol binding, if not found at this level then
 the search will proceed to the parent widget, all the way up to the root widget
 if needed.
@@ -24,18 +24,18 @@ docs/diagrams/widget_tree.cwb
 ```
 
 This is extremely useful and very powerful in a UI context. As we already
-mentioned above we could have a single property `:color` held at the root
+mentioned above we could have a single property `:paper` held at the root
 widget and, if no descendant in the UI tree also defines that property, any
-look up of the `:color` property, at a leaf widget say, will find the root
+look up of the `:paper` property, at a leaf widget say, will find the root
 definition. So the Window can set the colour scheme for the entire widget tree
 !
 
-In the same way that `(get :color this)` will search the parent UI tree, using
-`(def? :color this)` will only check the current widget ! Some properties are
+In the same way that `(get :paper this)` will search the parent UI tree, using
+`(def? :paper this)` will only check the current widget ! Some properties are
 best not inherited from the parent UI tree. For example the `:min_width`
 property would be a good candidate to be searched for with `(def?)`.
 
-Use of `(set this :color +argb_red)` and `(def this :color +argb_black)`
+Use of `(set this :paper +argb_red)` and `(def this :paper +argb_black)`
 likewise work exactly as they do in Lisp source programs. `(set)` will search
 the tree, `(def)` will not. All the mechanisms described in the properties
 section of the [`environment.md`](../lisp/environment.md) document apply to UI trees !
@@ -163,10 +163,10 @@ gui/lisp.inc "macro ui-window" ""
 	(:min_width 192
 	:min_height 192
 	:font *env_window_font*
-	:ink_color *env_ink_col*
-	:color *env_window_col*
-	:hint_color *env_hint_col*
-	:no_hint_color *env_no_hint_col*
+	:ink *env_ink_col*
+	:paper *env_window_col*
+	:ink_hint *env_hint_col*
+	:ink_no_hint *env_no_hint_col*
 	:border *env_window_border*
 	:shadow *env_window_shadow*
 	:zoom 1.0)
@@ -193,7 +193,7 @@ set these in their own private `env.inc` file. See the `usr/` folder.
 
 #### Properties
 
-`:color :border :shadow :child :min_width :min_height :tip_mbox :zoom`
+`:paper :border :shadow :child :min_width :min_height :tip_mbox :zoom`
 
 ### (ui-grid name [props] [body]) -> grid
 
@@ -283,7 +283,7 @@ gui/lisp.inc "macro ui-stack" ""
 	(:min_width 192
 	:min_height 192)
 	(ui-stack _ '("Tab 1" "Tab 2" "Tab 3")
-		(:color +argb_white)
+		(:paper +argb_white)
 		(ui-button _ (:text "View 1"))
 		(ui-button _ (:text "View 2"))
 		(ui-button _ (:text "View 3"))))
@@ -313,7 +313,7 @@ gui/lisp.inc "macro ui-files" ""
 	:min_height 128)
 	(ui-files view "Files" +event_file_folder_action
 		(:min_width 0
-		:color 0
+		:paper 0
 		:font *env_medium_terminal_font*)))
 
 (. view :populate "docs/lisp/" ".md")
@@ -364,7 +364,7 @@ gui/lisp.inc "macro ui-hchart" ""
 	(:min_width 128
 	:min_height 0)
 	(ui-hchart view "My Chart" 10
-		(:color +argb_green
+		(:paper +argb_green
 		:units 1024)))
 
 (times 3 (. view :add_bar))
@@ -389,8 +389,8 @@ gui/lisp.inc "macro ui-title" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-title _
-		(:color *env_title_col*
-		:ink_color *env_ink_col*
+		(:paper *env_title_col*
+		:ink *env_ink_col*
 		:border *env_title_border*
 		:font *env_title_font*
 		:text "My Title")))
@@ -402,7 +402,7 @@ Creates a Title instance, with name and optional property list.
 
 #### Properties
 
-`:border :font :text :color :ink_color`
+`:border :font :text :paper :ink`
 
 ### (ui-title-bar name title symbols event [props]) -> flow
 
@@ -437,8 +437,8 @@ gui/lisp.inc "macro ui-text" ""
 	:min_height 0)
 	(ui-text _
 		(:offset 0
-		:color 0
-		:ink_color *env_ink_col*
+		:paper 0
+		:ink *env_ink_col*
 		:font *env_window_font*
 		:text "Look At Me")))
 
@@ -449,7 +449,7 @@ Creates a Text instance, with name and optional property list.
 
 #### Properties
 
-`:color :ink_color :text :font :min_width :min_height :offset`
+`:paper :ink :text :font :min_width :min_height :offset`
 
 ### (ui-label name [props] [body]) -> label
 
@@ -462,8 +462,8 @@ gui/lisp.inc "macro ui-label" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-label _
-		(:color *env_window_col*
-		:ink_color *env_ink_col*
+		(:paper *env_window_col*
+		:ink *env_ink_col*
 		:border *env_label_border*
 		:font *env_window_font*
 		:text "Look At Me")))
@@ -478,7 +478,7 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 
 #### Properties
 
-`:color :ink_color :text :font :border :min_width :min_height`
+`:paper :ink :text :font :border :min_width :min_height`
 
 ### (ui-button name [props] [body]) -> button
 
@@ -491,8 +491,8 @@ gui/lisp.inc "macro ui-button" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-button _
-		(:color *env_window_col*
-		:ink_color *env_ink_col*
+		(:paper *env_window_col*
+		:ink *env_ink_col*
 		:border *env_button_border*
 		:font *env_window_font*
 		:text "Click Me"
@@ -509,7 +509,7 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 
 #### Properties
 
-`:color :ink_color :text :font :border :min_width :min_height :tip_text`
+`:paper :ink :text :font :border :min_width :min_height :tip_text`
 
 ### (ui-buttons symbols event [props])
 
@@ -538,7 +538,7 @@ can use the Fonts application to find a unicode symbol value.
 
 #### Properties
 
-`:color :ink_color :text :font :border`
+`:paper :ink :text :font :border`
 
 ### (ui-tool-bar name [props] [body]) -> flow
 
@@ -574,7 +574,7 @@ gui/lisp.inc "macro ui-radio-bar" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-radio-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
-		(:color *env_toolbar2_col*)))
+		(:paper *env_toolbar2_col*)))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_selected 0)
@@ -596,7 +596,7 @@ gui/lisp.inc "macro ui-toggle-bar" ""
 	(:min_width 0
 	:min_height 0)
 	(ui-toggle-bar view (+sym_plain +sym_grid +sym_lines +sym_axis)
-		(:color *env_toolbar2_col*)))
+		(:paper *env_toolbar2_col*)))
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_states '(:nil :t :nil :t))
@@ -621,13 +621,13 @@ gui/lisp.inc "macro ui-textfield" ""
 		(:offset 0
 		:cursor 0
 		:anchor 0
-		:color +argb_white
-		:ink_color *env_ink_col*
+		:paper +argb_white
+		:ink *env_ink_col*
 		:border *env_textfield_border*
 		:font *env_window_font*
 		:hint_text "type somthing"
-		:hint_color *env_hint_col*
-		:no_hint_color *env_no_hint_col*
+		:ink_hint *env_hint_col*
+		:ink_no_hint *env_no_hint_col*
 		:text ""
 		:clear_text "")))
 
@@ -638,7 +638,7 @@ Creates a Textfield instance, with name and optional property list.
 
 #### Properties
 
-`:color :ink_color :text :clear_text :font :border :hint_color :no_hint_color
+`:paper :ink :text :clear_text :font :border :ink_hint :ink_no_hint
 :hint_text :mode :cursor :anchor :min_width :min_height`
 
 ### (ui-slider name [props]) -> slider
@@ -652,7 +652,7 @@ gui/lisp.inc "macro ui-slider" ""
 	(:min_width 256
 	:min_height 0)
 	(ui-slider _
-		(:color *env_slider_col*
+		(:paper *env_slider_col*
 		:value 50
 		:maximum 100
 		:portion 25)))
@@ -664,7 +664,7 @@ Creates a Slider instance, with name and optional property list.
 
 #### Properties
 
-`:color :value :maximum :portion`
+`:paper :value :maximum :portion`
 
 ### (ui-scroll name flags [props] [body]) -> scroll
 
@@ -677,9 +677,9 @@ gui/lisp.inc "macro ui-scroll" ""
 	(:min_width 192
 	:min_height 192)
 	(ui-scroll _ +scroll_flag_both
-		(:color *env_slider_col*)
+		(:paper *env_slider_col*)
 		(ui-button view
-			(:color +argb_orange
+			(:paper +argb_orange
 			:min_width 256
 			:min_height 256
 			:font *env_window_font*
@@ -721,8 +721,8 @@ gui/lisp.inc "macro ui-backdrop" ""
 	(:min_width 192
 	:min_height 192)
 	(ui-backdrop _
-		(:color +argb_black
-		:ink_color +argb_white
+		(:paper +argb_black
+		:ink +argb_white
 		:style :grid
 		:spacing 8)))
 
@@ -734,7 +734,7 @@ forms.
 
 #### Properties
 
-`:color :ink_color :style :spacing`
+`:paper :ink :style :spacing`
 
 Supported `:style` settings.
 
@@ -751,7 +751,7 @@ gui/lisp.inc "macro ui-progress" ""
 	(:min_width 256
 	:min_height 0)
 	(ui-progress _
-		(:color +argb_green
+		(:paper +argb_green
 		:value 50
 		:maximum 100)))
 
@@ -762,7 +762,7 @@ Creates a Progress instance, with name and optional property list.
 
 #### Properties
 
-`:color :value :maximum`
+`:paper :value :maximum`
 
 ### (ui-canvas name width height scale &optional p) -> canvas
 
@@ -821,10 +821,10 @@ gui/lisp.inc "macro ui-vdu" ""
 		(ui-vdu view
 			(:vdu_width 16
 			:vdu_height 4
-			:ink_color +argb_green
+			:ink +argb_green
 			:font *env_editor_font*))
 		(ui-backdrop _
-			(:color +argb_grey1
+			(:paper +argb_grey1
 			:style :plain))))
 
 (bind '(w h) (. view :pref_size))

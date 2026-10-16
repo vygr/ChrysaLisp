@@ -18,7 +18,7 @@
 				(bind '(w h) (. buffer :get_size))
 				(def (defq vdu (Vdu))
 					:font (get :font_terminal_small page) :vdu_width 80 :vdu_height h
-					:color 0 :ink_color +argb_blue)
+					:paper 0 :ink +argb_blue)
 				(bind '(tw th) (. vdu :pref_size))
 				(def vdu :vdu_width w)
 				(bind '(rw rh) (. vdu :pref_size))

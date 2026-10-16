@@ -17,11 +17,11 @@
 (defclass Files (title event) (Flow)
 	; (Files title event) -> files
 	(defq my_id (. this :get_id))
-	(ui-root root (Flow) (:flow_flags +flow_down_fill :color +argb_grey14)
+	(ui-root root (Flow) (:flow_flags +flow_down_fill :paper +argb_grey14)
 		(ui-title-bar _ title (+sym_next +sym_up) my_id)
 		(ui-scroll file_tree_scroll +scroll_flag_both :nil
-			(ui-flow file_tree (:flow_flags +flow_down :min_width 0 :color +argb_white :font *env_medium_terminal_font*))))
-	(ui-root backdrop (Backdrop) (:color +argb_white))
+			(ui-flow file_tree (:flow_flags +flow_down :min_width 0 :paper +argb_white :font *env_medium_terminal_font*))))
+	(ui-root backdrop (Backdrop) (:paper +argb_white))
 	(. this :add_child root)
 	(. this :add_child backdrop)
 	(lower :file_tree_scroll :file_tree (:flow_flags +flow_stack_fill :action_event event :selected_node :nil))

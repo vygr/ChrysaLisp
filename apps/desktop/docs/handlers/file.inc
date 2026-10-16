@@ -56,8 +56,8 @@
 				:font (get :font_terminal_small page)
 				:vdu_width 80
 				:vdu_height h
-				:color 0
-				:ink_color +argb_black)
+				:paper 0
+				:ink +argb_black)
 			(bind '(tw th) (. vdu :pref_size))
 			(def vdu :vdu_width w)
 			(bind '(rw rh) (. vdu :pref_size))
@@ -67,7 +67,7 @@
 
 			;layout container backdrop and optional scroll
 			(def (defq backdrop (Backdrop))
-				:color +argb_grey1
+				:paper +argb_grey1
 				:min_width rw
 				:min_height rh)
 			(def (defq text (Text)) :text "")

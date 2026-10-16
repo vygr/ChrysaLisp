@@ -21,16 +21,16 @@
 
 (defun action-button-1 ()
 (debug-brk "button1")
-	(def (. *b1* :dirty) :color (random-color)))
+	(def (. *b1* :dirty) :paper (random-color)))
 
 (defun action-button-2 ()
 (debug-brk "button2")
-	(def (. *b2* :dirty) :color (random-color)))
+	(def (. *b2* :dirty) :paper (random-color)))
 
 (defun action-button-3 ()
 (debug-brk "button3")
-	(def (. *b3* :dirty) :color (random-color)))
+	(def (. *b3* :dirty) :paper (random-color)))
 
 (defun action-button-4 ()
 (debug-brk "button4")
-	(def (. *b4* :dirty) :color (random-color)))
+	(def (. *b4* :dirty) :paper (random-color)))

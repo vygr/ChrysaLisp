@@ -35,7 +35,7 @@
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-radio-bar *mode_toolbar* (+sym_pcb +sym_gerber)) :connect +event_mode)
 		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
-				(:color (const *env_toolbar2_col*)
+				(:paper (const *env_toolbar2_col*)
 				:font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))
 			:connect +event_layer))
 	(ui-flow _ (:flow_flags +flow_right_fill)

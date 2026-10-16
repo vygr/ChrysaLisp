@@ -162,22 +162,22 @@
 
 	(defmethod :set_ink_color (col)
 		; (. edit :set_ink_color argb) -> edit
-		(def (get :mask_ink this) :color col)
+		(def (get :mask_ink this) :paper col)
 		this)
 
 	(defmethod :set_select_color (col)
 		; (. edit :set_select_color argb) -> edit
-		(def (get :mask_selected this) :color col)
+		(def (get :mask_selected this) :paper col)
 		this)
 
 	(defmethod :set_found_color (col)
 		; (. edit :set_found_color argb) -> edit
-		(def (get :mask_found this) :color col)
+		(def (get :mask_found this) :paper col)
 		this)
 
 	(defmethod :set_region_color (col)
 		; (. edit :set_region_color argb) -> edit
-		(def (get :mask_region this) :color col)
+		(def (get :mask_region this) :paper col)
 		this)
 
 	(defmethod :underlay ()

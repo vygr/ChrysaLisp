@@ -9,7 +9,7 @@
 	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label _ (:text "Username:"))
-		(ui-grid _ (:grid_width 1 :color +argb_white)
+		(ui-grid _ (:grid_width 1 :paper +argb_white)
 			(. (ui-textfield username (:hint_text "username" :min_width 192
 				:clear_text (if (defq old (load "usr/current")) old "Guest")))
 				:connect +event_login)))

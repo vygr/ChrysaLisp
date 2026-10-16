@@ -49,7 +49,7 @@
 
 (defclass MindMap () (View)
 	; (MindMap) -> two plane tiled mind background view
-	(def this :color 0 :canvas :nil :x1 0 :y1 0 :x2 0 :y2 0)
+	(def this :paper 0 :canvas :nil :x1 0 :y1 0 :x2 0 :y2 0)
 
 	(defmethod :draw ()
 		(when (and (defq c (get :canvas this)) (defq texture (getf c +canvas_texture 0)))
@@ -77,7 +77,7 @@
 
 (defclass MindArms () (View)
 	; (MindArms) -> full screen overlay drawing the four arms of the mind
-	(def this :color 0 :canvas :nil :mx 0 :my 0 :segs 0 :arm 0 :frame_count 0)
+	(def this :paper 0 :canvas :nil :mx 0 :my 0 :segs 0 :arm 0 :frame_count 0)
 
 	(defmethod :draw ()
 		(when (and (> (defq segs (get :segs this)) 0) (defq c (get :canvas this))

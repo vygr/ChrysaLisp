@@ -77,7 +77,7 @@
 			:vdu_width 80 :vdu_height 1)
 		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
 				:font (create-font +doc_font (page-scale 18))
-				:color (get :color *window*))
+				:paper (get :paper *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill
 				:font_bold (create-font +doc_font_bold (page-scale 18))
@@ -111,9 +111,9 @@
 		(.-> *doc_flow* :layout :dirty_all)))
 
 (defun toolbar-states (toolbar states)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color radio_col)))
+	(defq radio_col (canvas-brighter (get :paper toolbar)))
+	(each (# (undef (. %0 :dirty) :paper)
+			(if %1 (def %0 :paper radio_col)))
 		(. toolbar :children) states))
 
 ;import actions

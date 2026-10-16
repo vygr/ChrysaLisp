@@ -40,13 +40,13 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *tools* ()
 			(ui-buttons (+sym_open) +event_open))
-		(. (ui-textfield *url* (:color +argb_white :clear_text "" :min_width 240
+		(. (ui-textfield *url* (:paper +argb_white :clear_text "" :min_width 240
 			:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :color *env_toolbar2_col*)) :connect +event_mode)
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :paper *env_toolbar2_col*)) :connect +event_mode)
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-label *status* (:text "..." :font *env_body_font*))
-	(ui-backdrop _ (:style :plain :color +argb_black :min_width +size :min_height +size)
-		(ui-element *canvas* (Canvas +size +size 1) (:color 0))))
+	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
+		(ui-element *canvas* (Canvas +size +size 1) (:paper 0))))
 
 (ui-tool-tips *tools* '("open a model, an .obj or a .zip of one"))
 

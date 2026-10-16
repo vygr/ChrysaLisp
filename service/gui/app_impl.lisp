@@ -161,7 +161,7 @@
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
 	;init screen widget
-	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
+	(def (defq *screen* (Backdrop)) :style :grid :paper +argb_grey2 :ink +argb_grey1)
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
 	(gui-update 0 0 0)
 	;init mouse widget

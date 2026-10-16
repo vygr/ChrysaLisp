@@ -11,7 +11,7 @@
 	(defmethod :draw ()
 		; (. button :draw) -> button
 		(bind '(w h) (. this :get_size))
-		(. this :ctx_panel (get :color this) 1 (* (get :border this) (get :state this)) 0 0 w h))
+		(. this :ctx_panel (get :paper this) 1 (* (get :border this) (get :state this)) 0 0 w h))
 
 	(defmethod :layout ()
 		; (. button :layout) -> button
@@ -69,7 +69,7 @@
 				(defq tip_text (def? :tip_text this)))
 			(def (defq tip_window (Node))
 				:text tip_text
-				:color +argb_white
+				:paper +argb_white
 				:font *env_tip_font*)
 			(. tip_window :set_flags 0 +view_flag_solid)
 			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))

@@ -14,7 +14,7 @@ two trees, using them for different aspects of its existence.
 
 1.  **The Containment Hierarchy (The Scene Graph):** This is a *runtime* tree
     of **object instances**. It defines "what contains what" and governs the
-    inheritance of properties like `:color` and `:font`. An object finds its
+    inheritance of properties like `:paper` and `:font`. An object finds its
     properties by searching up its `:parent` chain. This is dynamic and
     reflects the current state of the application.
 
@@ -50,25 +50,25 @@ is being sought.
 Let's trace a practical example: The GUI needs to draw our `Button` instance,
 `my_button`.
 
-**Step 1: The Search for `:color` (Property Inheritance via Containment
+**Step 1: The Search for `:paper` (Property Inheritance via Containment
 Hierarchy)**
 
 The `draw` method needs to know what color to use. It will effectively perform
-a `(get :color my_button)`.
+a `(get :paper my_button)`.
 
-1.  The system calls `:hmap :search` on `my_button` for the key `:color`.
+1.  The system calls `:hmap :search` on `my_button` for the key `:paper`.
 
-2.  `my_button` doesn't have a local `:color` property set.
+2.  `my_button` doesn't have a local `:paper` property set.
 
 3.  The `:hmap :search` implementation finds the `:parent` key. It
     automatically follows this pointer to the containing `Flow` widget.
 
-4.  It then recursively calls `:hmap :search` on the `Flow` for `:color`.
+4.  It then recursively calls `:hmap :search` on the `Flow` for `:paper`.
 
-5.  The `Flow` also doesn't have a local `:color`. It follows its own
+5.  The `Flow` also doesn't have a local `:paper`. It follows its own
     `:parent` to the main `Window`.
 
-6.  The `Window` has `:color 0xffc0c0c0` defined. The search succeeds and
+6.  The `Window` has `:paper 0xffc0c0c0` defined. The search succeeds and
     returns this value.
 
 This is a **runtime traversal up the Containment tree**, facilitated by the

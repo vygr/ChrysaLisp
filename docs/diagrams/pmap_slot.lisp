@@ -1,8 +1,8 @@
 ;docs/ai_digest/case_for_pmap.md: a symbol remembers where it was last found, and that is tried first
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'sym (dia-box '("the symbol :color" "str_hashslot: 4") 180 44 gold 11 :first) 521 90)
+(dia-put s 'sym (dia-box '("the symbol :paper" "str_hashslot: 4") 180 44 gold 11 :first) 521 90)
 (each (lambda (i)
-	(dia-put s (sym (cat "c" (str i))) (dia-box (elem-get '(":font" "a font" ":border" "1" ":color" "0xff..." ":min_width" "32") i) 78 30 (if (= 0 (logand i 1)) blue grey) 11) (+ 260 (* i 78)) 0)
+	(dia-put s (sym (cat "c" (str i))) (dia-box (elem-get '(":font" "a font" ":border" "1" ":paper" "0xff..." ":min_width" "32") i) 78 30 (if (= 0 (logand i 1)) blue grey) 11) (+ 260 (* i 78)) 0)
 	(dia-say s (str i) (+ 294 (* i 78)) 48 10))
 	'(0 1 2 3 4 5 6 7))
 (dia-say s "a :pmap, one flat list: key, value, key, value" 260 -12 11 :t 0xff202428)

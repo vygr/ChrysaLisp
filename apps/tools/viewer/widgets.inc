@@ -7,19 +7,19 @@
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
 	+vdu_max_height 46 +vdu_line_width 5 +status_min_size 48)
 
-(ui-window *window* (:color +argb_grey1)
+(ui-window *window* (:paper +argb_grey1)
 	(ui-title-bar *title* "Viewer" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_copy +sym_select_paragraph +sym_select_form +sym_start_form +sym_end_form) +event_copy))
-		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *find_toolbar* (:paper (const *env_toolbar2_col*))
 			(ui-buttons (+sym_select_region +sym_whole_words +sym_regexp +sym_ignore_case +sym_find_down +sym_find_up) +event_region))
-		(. (ui-textfield *find_text* (:color +argb_white
+		(. (ui-textfield *find_text* (:paper +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-files *file_selector* "Project" +event_file_folder_action :nil)
 		(ui-flow _ (:flow_flags +flow_up_fill)
-			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
+			(ui-flow _ (:flow_flags +flow_stack_fill :paper +argb_white
 					:font *env_medium_terminal_font*)
 				(ui-flow _ (:flow_flags +flow_right)
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
@@ -31,13 +31,13 @@
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-						:ink_color +argb_grey12 :font *env_editor_font*))
-				(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
+						:ink +argb_grey12 :font *env_editor_font*))
+				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)
 					(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
 						(. (ui-slider *xslider*) :connect +event_xscroll)
-						(ui-backdrop _ (:style :lines :ink_color +argb_white))))))))
+						(ui-backdrop _ (:style :lines :ink +argb_white))))))))
 
 (ui-tool-tips *main_toolbar*
 	'("copy" "select paragraph" "select form" "start form" "end form"))

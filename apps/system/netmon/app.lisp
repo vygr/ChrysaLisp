@@ -19,10 +19,10 @@
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font *env_body_font*))
 		(ui-grid *charts* (:grid_height 1)
-			(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
-			(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
-			(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))
-			(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan)))))
+			(ui-hchart _ "Tasks" +task_scale_size (:paper +argb_green))
+			(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :paper +argb_yellow))
+			(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :paper +argb_red))
+			(ui-hchart _ "Stack (b)" +stack_scale_size (:paper +argb_cyan)))))
 
 (defun show-nodes ()
 	;how many nodes there are, to save counting the bars. A label lays

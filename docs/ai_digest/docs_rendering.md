@@ -247,7 +247,7 @@ currently open document and the entire file system.
     * This guarantees accurate forward and backward cycling across duplicate
       words throughout all `Md` sections in the document.
 
-    * The active match is highlighted by setting `:color *env_highlight_col*`
+    * The active match is highlighted by setting `:paper *env_highlight_col*`
       and scrolled into view via `(. *page_scroll* :visible *last_widget*)`.
 
 * **Global Distributed Search**

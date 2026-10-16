@@ -14,41 +14,41 @@
 
 	(defmethod :get_states ()
 		; (. radiobar :get_states) -> states
-		(map (# (if (def? :color %0) :t)) (. this :children)))
+		(map (# (if (def? :paper %0) :t)) (. this :children)))
 
 	(defmethod :set_states (states)
 		; (. radiobar :set_states states) -> this
-		(defq radio_col (canvas-brighter (get :color this)))
-		(each (# (undef (. %0 :dirty) :color)
-				(if %1 (def %0 :color radio_col)))
+		(defq radio_col (canvas-brighter (get :paper this)))
+		(each (# (undef (. %0 :dirty) :paper)
+				(if %1 (def %0 :paper radio_col)))
 			(. this :children) states)
 		this)
 
 	(defmethod :set_selected (index)
 		; (. radiobar :set_selected idx) -> this
-		(defq radio_col (canvas-brighter (get :color this)))
-		(each (# (undef (. %0 :dirty) :color)
-				(if (= (!) index) (def %0 :color radio_col)))
+		(defq radio_col (canvas-brighter (get :paper this)))
+		(each (# (undef (. %0 :dirty) :paper)
+				(if (= (!) index) (def %0 :paper radio_col)))
 			(. this :children))
 		this)
 
 	(defmethod :get_selected ()
 		; (. radiobar :get_selected) -> :nil | idx
-		(some (# (if (def? :color %0) (!))) (. this :children)))
+		(some (# (if (def? :paper %0) (!))) (. this :children)))
 
 	(defmethod :action (event)
 		; (. radiobar :action event) -> radiobar
 		(defq button (. this :find_id (getf event +ev_msg_action_source_id))
 			children (. this :children) idx (find button children)
-			radio_col (canvas-brighter (get :color this)))
+			radio_col (canvas-brighter (get :paper this)))
 		(if (get :mode this)
 			;toggle mode
-			(if (def? :color (. button :dirty))
-				(undef button :color)
-				(def button :color radio_col))
+			(if (def? :paper (. button :dirty))
+				(undef button :paper)
+				(def button :paper radio_col))
 			;radio mode
-			(each (# (undef (. %0 :dirty) :color)
-					(if (= (!) idx) (def %0 :color radio_col)))
+			(each (# (undef (. %0 :dirty) :paper)
+					(if (= (!) idx) (def %0 :paper radio_col)))
 				children))
 		(. this :emit))
 	)

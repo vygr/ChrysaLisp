@@ -82,7 +82,7 @@
 (assert-list-eq "a link whose text is quoted as code is a link" '("lisp.md" "a" "b.md")
 	(map (# (trim (str (get :text %0)))) md_links))
 (assert-list-eq "to where it says" '("../lisp/lisp.md" "c.md" "c.md") (map (# (get :link %0)) md_links))
-(assert-true "and is green, not the blue of code" (every (# (= (get :ink_color %0) +argb_green6)) md_links))
+(assert-true "and is green, not the blue of code" (every (# (= (get :ink %0) +argb_green6)) md_links))
 (assert-list-eq "a bracket a link is written against sits against it, both sides"
 	'("documentation " "(" "lisp.md" "), ") (slice (md-texts md_md) 5 9))
 

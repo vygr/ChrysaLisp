@@ -50,7 +50,7 @@
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Eyes" (+sym_close +sym_max +sym_min) +event_close)
-	(ui-backdrop *backdrop* (:style :grid :color +argb_black :ink_color +argb_grey6)))
+	(ui-backdrop *backdrop* (:style :grid :paper +argb_black :ink +argb_grey6)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Drawing and Window Logic

@@ -108,7 +108,7 @@
 	(assign (vpx (- cx ox) (- cy oy)) (vpx cx cy))
 	(switch)
 	(breakif (vpx (| (< cx 0) (< cy 0) (>= cx (.> vdu +vdu_width)) (>= cy (.> vdu +vdu_height)))))
-	(call :vdu :get_long_prop (vpx vdu static_sym_ink_color) (vpx _ col))
+	(call :vdu :get_long_prop (vpx vdu static_sym_ink) (vpx _ col))
 	(call :pixmap :from_argb32 (vpx col 15) (vpx col))
 	(assign (vpx (+ (.> vdu +vdu_chars) (* (+ (* cy (.> vdu +vdu_width)) cx) +long_size)) (<< col 48)) '(:r0 :r1))
 	(vp-cpy-ir :r0 0 :r2)

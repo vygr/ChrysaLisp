@@ -33,7 +33,7 @@
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :color *env_window_col* :font *font*)
+					 :paper *env_window_col* :font *font*)
 		(each (lambda (i)
 			(. (ui-button _ (:min_width 60 :min_height 60))
 			   :connect (+ +event_click i)))
@@ -60,18 +60,18 @@
 			  state (elem-get *states* i))
 		(cond
 			((= state 0) ; Hidden
-				(def btn :text "" :color +argb_grey4 :ink_color +argb_white)
+				(def btn :text "" :paper +argb_grey4 :ink +argb_white)
 				(setq all_matched :nil))
 			((= state 1) ; Selected (Temporary)
-				(def btn :text (char val) :color +argb_white :ink_color +argb_black)
+				(def btn :text (char val) :paper +argb_white :ink +argb_black)
 				(setq all_matched :nil))
 			((= state 2) ; Matched
-				(def btn :text (char val) :color +argb_green :ink_color +argb_white)))
+				(def btn :text (char val) :paper +argb_green :ink +argb_white)))
 		(.-> btn (:constrain :t) :dirty)
 		(++ i))
 	(if all_matched
-		(def *status* :text (cat "WINNER! Score: " (str *score*)) :color +argb_green)
-		(def *status* :text (cat "Score: " (str *score*)) :color *env_window_col*))
+		(def *status* :text (cat "WINNER! Score: " (str *score*)) :paper +argb_green)
+		(def *status* :text (cat "Score: " (str *score*)) :paper *env_window_col*))
 	(.-> *status* :layout :dirty))
 
 (defun scramble ()

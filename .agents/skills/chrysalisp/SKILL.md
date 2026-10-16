@@ -204,7 +204,7 @@ execution model:
 
 	*	The dynamic **Containment Hierarchy** traversed at runtime via the
 		`:parent` key for inherited appearance attributes (such as
-		`:color` or `:font`).
+		`:paper` or `:font`).
 
 	*	The static **Class Hierarchy** resolved via the `:vtable` key
 		pointing to a compile-time-composed, flattened `hmap` of method

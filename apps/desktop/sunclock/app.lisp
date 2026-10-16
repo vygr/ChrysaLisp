@@ -210,7 +210,7 @@
 			(. (ui-button *btn_next_h* (:text "+1h")) :connect +event_btn_next_h)
 			(. (ui-button *btn_next_d* (:text "+1d")) :connect +event_btn_next_d)
 			(. (ui-button *btn_play* (:text "Play")) :connect +event_btn_play))
-		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :color +argb_grey15)))
+		(ui-label *utc_time_label* (:text "UTC: 00:00:00" :paper +argb_grey15)))
 	; Hero Card: Selected City Details
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label *hero_city* (:text "London, UK" :font *env_sub_title_font*))
@@ -229,7 +229,7 @@
 		(ui-label *season_label* (:text "Season: Equinox"
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Quick World City Grid (2 rows x 3 columns)
-	(ui-grid _ (:grid_width 3 :font *env_small_font* :color *env_toolbar2_col*)
+	(ui-grid _ (:grid_width 3 :font *env_small_font* :paper *env_toolbar2_col*)
 		(. (ui-button *btn_city_0* (:text "London")) :connect +event_btn_city_0)
 		(. (ui-button *btn_city_1* (:text "New York")) :connect +event_btn_city_1)
 		(. (ui-button *btn_city_2* (:text "San Francisco")) :connect +event_btn_city_2)
@@ -275,8 +275,8 @@
 	(def *hero_status_badge* :text (if is_day
 			(cat "Daylight (" elev_str "o)")
 			(cat "Night (" elev_str "o)"))
-		:color (if is_day 0xff00e676 0xff253a5c)
-		:ink_color (if is_day +argb_black +argb_white))
+		:paper (if is_day 0xff00e676 0xff253a5c)
+		:ink (if is_day +argb_black +argb_white))
 
 	; Solar Times for Selected City
 	(bind '(sunrise_utc noon_utc sunset_utc day_len state)

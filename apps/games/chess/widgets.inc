@@ -4,16 +4,16 @@
 
 (defq vdu_width 38 vdu_height 12 text_buf :nil)
 
-(ui-window *window* (:color +argb_black :resizable :nil)
+(ui-window *window* (:paper +argb_black :resizable :nil)
 	(ui-title-bar _ "Chess" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *toolbar* ()
 			(ui-buttons (+sym_reset +sym_undo +sym_redo) +event_reset))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-grid chess_grid (:grid_width 8 :grid_height 8 :font (create-font "fonts/Chess.ctf" 42)
 			:border 1 :text " ")
 		(each (lambda (i)
-			(. (ui-button _ (:color 0 :ink_color 0)) :connect (+ +event_button i))) (range 0 64)))
-	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_cyan)))
+			(. (ui-button _ (:paper 0 :ink 0)) :connect (+ +event_button i))) (range 0 64)))
+	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink +argb_cyan)))
 
 (ui-tool-tips *toolbar* '("reset game" "undo move" "redo move"))

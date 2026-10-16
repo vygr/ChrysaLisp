@@ -134,7 +134,7 @@ application. A developer would typically follow these steps:
     ```vdu
     (defun action-button-1 ()
         (debug-brk "button1")
-        (def (. *b1* :dirty) :color (random-color)))
+        (def (. *b1* :dirty) :paper (random-color)))
     ```
 
     * `(debug-brk "button1")`: This is a powerful tool for a new developer.
@@ -142,7 +142,7 @@ application. A developer would typically follow these steps:
         line will cause the Template app to pause, confirming that the event was
         correctly wired and dispatched.
 
-    * `(def (. *b1* :dirty) :color (random-color))`: This is the minimal "do
+    * `(def (. *b1* :dirty) :paper (random-color))`: This is the minimal "do
         something visible" action. It changes the color of the button that was
         pressed. A developer would replace this with their own logic. The use of
         `(:dirty)` is important, as it signals to the GUI system that this
@@ -155,7 +155,7 @@ application. A developer would typically follow these steps:
 
     ```vdu
     (ui-stack *stack_flow* '("main" "settings" "status" "info")
-            (:color +argb_black)
+            (:paper +argb_black)
         (ui-grid *main_widget* ...)
         (ui-backdrop *settings_widget* ...)
         ...)

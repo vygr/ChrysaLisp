@@ -4,7 +4,7 @@
 
 (defclass FieldMap () (View)
 	; (FieldMap) -> map view
-	(def this :color 0 :zoom *zoom* :map_idx 1 :map_blocks :nil :map_data :nil :map_flags :nil :map_level +game_level_field)
+	(def this :paper 0 :zoom *zoom* :map_idx 1 :map_blocks :nil :map_data :nil :map_flags :nil :map_level +game_level_field)
 	(. this :set_size (const (* +map_width +tile_width)) (const (* +map_height +tile_height)))
 
 	(defmethod :clear ()
@@ -81,5 +81,5 @@
 (defmacro ui-map (n &optional p &rest x)
 	; (ui-map name [props] [body]) -> map view
 	(ui-props p
-		:color 0)
+		:paper 0)
 	(static-qqp (ui-element ,n (FieldMap) ,p ~x)))

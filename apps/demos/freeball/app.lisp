@@ -6,7 +6,7 @@
 	+frames `',(exec '(map (# (canvas-load (str *app_root* "data/staoball_" %0 ".cpm") +load_flag_shared)) (range 1 13)))
 	+sframes `',(exec '(map (# (canvas-load (str *app_root* "data/staoball_s_" %0 ".cpm") +load_flag_shared)) (range 1 13))))
 
-(ui-root view (View) (:color 0)
+(ui-root view (View) (:paper 0)
 	(ui-element frame (first +frames))
 	(ui-element sframe (first +sframes)))
 

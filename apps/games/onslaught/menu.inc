@@ -55,7 +55,7 @@
 
 (defclass MenuView () (View)
 	; (MenuView) -> full-screen menu overlay view
-	(def this :color 0)
+	(def this :paper 0)
 
 	(defmethod :draw ()
 		(defq zoom (get :zoom this) tid (get :tid this)
@@ -74,7 +74,7 @@
 
 (defclass CreditsView () (View)
 	; (CreditsView) -> full-screen credits overlay view
-	(def this :color 0)
+	(def this :paper 0)
 
 	(defmethod :draw ()
 		(defq zoom (get :zoom this) tid (get :tid this))
@@ -95,7 +95,7 @@
 
 (defclass ScoresView () (View)
 	; (ScoresView) -> full-screen hall of glory scores view
-	(def this :color 0)
+	(def this :paper 0)
 
 	(defmethod :draw ()
 		(defq zoom (get :zoom this) tid (get :tid this)
@@ -114,7 +114,7 @@
 
 (defclass HiscoreView () (View)
 	; (HiscoreView) -> full-screen glory attained message and name entry view
-	(def this :color 0)
+	(def this :paper 0)
 
 	(defmethod :draw ()
 		(defq zoom (get :zoom this) tid (get :tid this))

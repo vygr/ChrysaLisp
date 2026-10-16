@@ -35,7 +35,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_reset) +event_reset))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:color *env_toolbar2_col*)) :connect +event_style)
+			(:paper *env_toolbar2_col*)) :connect +event_style)
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font *env_body_font*)) :connect +event_mode)
 		(ui-label _ (:text "Bubbles" :font *env_body_font*))
 		(. (ui-slider *count* (:maximum (- +max_bubbles +min_bubbles) :portion 300
@@ -43,8 +43,8 @@
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
-		(ui-backdrop *backdrop* (:color +argb_black :ink_color +argb_grey8)
-			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:color 0)))))
+		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)
+			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))))
 
 (defun set-label (label text)
 	;a label lays its text out once, so lay it out again for the new text

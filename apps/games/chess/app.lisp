@@ -47,7 +47,7 @@
 			(setq paper +argb_yellow ink +argb_black))
 		(if (find i dests)
 			(setq paper +argb_green ink +argb_black))
-		(def square :color paper :ink_color ink)
+		(def square :paper paper :ink ink)
 		(. square :constrain :t)) (list (. chess_grid :children) board) 0 64)
 	(. chess_grid :dirty_all))
 

@@ -74,7 +74,7 @@ docs/diagrams/dual_vtable.cwb
 **Implementation and Object Representation**
 
 In the Lisp world, an object is not a `struct` with a fixed layout; it **is an
-`:hmap`** (hash map). All of its properties, from `:color` and `:text` in a
+`:hmap`** (hash map). All of its properties, from `:paper` and `:text` in a
 GUI widget to instance variables, are key-value pairs within this `:hmap`.
 
 The vtable for a Lisp class is **also an `:hmap`**. When a class is defined at

@@ -34,7 +34,7 @@
 	(or (and (>= x 2) (<= x 4))
 		(and (>= y 2) (<= y 4))))
 
-(ui-window *window* (:color +argb_grey1 :resizable :nil)
+(ui-window *window* (:paper +argb_grey1 :resizable :nil)
 	(ui-title-bar *title* "Peg Solitaire" (+sym_close) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_reset +sym_undo) +event_reset))
@@ -42,16 +42,16 @@
 	; Stack layout: Backdrop is behind, Grid is in front
 	(ui-flow *board_view* (:flow_flags +flow_stack_fill)
 		(ui-grid *grid* (:grid_width +grid_w :grid_height +grid_h
-						 :color 0 :font *font*)
+						 :paper 0 :font *font*)
 			(each (lambda (i)
 				(if (is-valid-pos i)
 					; Valid position: Interactive button
 					(. (ui-button _ (:min_width 40 :min_height 40))
 					   :connect (+ +event_click i))
 					; Invalid position: Solid backdrop (visual only)
-					(ui-backdrop _ (:color +argb_grey3 :min_width 40 :min_height 40))))
+					(ui-backdrop _ (:paper +argb_grey3 :min_width 40 :min_height 40))))
 				(range 0 +tile_count)))
-		(ui-backdrop _ (:color +argb_grey3)))
+		(ui-backdrop _ (:paper +argb_grey3)))
 
 	(ui-label *status* (:text "Pegs: 32" :flow_flags +flow_flag_align_hcenter)))
 
@@ -83,19 +83,19 @@
 			(defq btn (elem-get children i))
 			(cond
 				((= val +state_empty)
-					(def btn :text "" :color +argb_grey2 :ink_color +argb_black))
+					(def btn :text "" :paper +argb_grey2 :ink +argb_black))
 				((= val +state_peg)
-					(def btn :text "O" :ink_color +argb_white)
+					(def btn :text "O" :ink +argb_white)
 					(if (eql i *selected*)
-						(def btn :color +argb_yellow :ink_color +argb_black)
-						(def btn :color +argb_grey6))))
+						(def btn :paper +argb_yellow :ink +argb_black)
+						(def btn :paper +argb_grey6))))
 			(.-> btn (:constrain :t) :dirty))
 		(++ i))
 	(if *game_over*
 		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg))
 								"Perfect! (Center)" "Finished!")
-					 :color +argb_green)
-		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :color *env_window_col*))
+					 :paper +argb_green)
+		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :paper *env_window_col*))
 	(.-> *status* :layout :dirty))
 
 (defun update-gamestate ()

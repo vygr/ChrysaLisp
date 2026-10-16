@@ -225,8 +225,8 @@ The Docs application provides nine dedicated section handlers:
 
 	* Upon encountering the closing tag, loads `*mem_stream*` into an unformatted
 		`Document` (`(Document 0 :nil)`), trims whitespace, binds buffer dimensions
-		to a `Vdu` terminal widget (`:font_terminal_small`, `:ink_color +argb_blue`,
-		`:color 0`), and adds the `Vdu` and a trailing spacer `Text` to `page`.
+		to a `Vdu` terminal widget (`:font_terminal_small`, `:ink +argb_blue`,
+		`:paper 0`), and adds the `Vdu` and a trailing spacer `Text` to `page`.
 
 	* Resets `*mem_stream*` to `:nil`.
 
@@ -243,7 +243,7 @@ The Docs application provides nine dedicated section handlers:
 	* Calculates the minimum left indentation margin across all lines and deletes it
 		in-place via `(. buffer :idelete ...)` so indented code blocks display flush.
 
-	* Binds the buffer to a `Vdu` widget (`:ink_color +argb_black`, `:color 0`)
+	* Binds the buffer to a `Vdu` widget (`:ink +argb_black`, `:paper 0`)
 		embedded in a `Backdrop` (`+argb_grey1`). If the content width exceeds the terminal
 		viewport (`rw > tw`), wraps it inside a horizontal `Scroll` container before
 		adding to `page`.

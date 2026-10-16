@@ -30,7 +30,7 @@ understand the nature of a symbol at a glance.
 	  Keywords (symbols starting with a colon) are the idiomatic choice for
 	  property keys.
 
-	* Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
+	* Examples: `(defq my_local_var 0)` `(def this :ink +argb_red)`
 
 *   **`+constants` are prefixed by a plus sign `+`**.
 
@@ -379,14 +379,14 @@ patterns.
 
 *   **Static Properties (Most Common)**: When you know the name of the
 	property at compile time, you should use a **quoted symbol**, typically a
-	keyword (e.g., `:color`, `:text`). Keywords evaluate to themselves and
+	keyword (e.g., `:paper`, `:text`). Keywords evaluate to themselves and
 	are the idiomatic choice for property keys.
 
 	```vdu
 	(defclass My-Button () (Button)
 	  (defmethod :on_click ()
-		;; Sets the :text and :color properties on the 'this' object.
-		(def this :text "Clicked!" :color +argb_red)))
+		;; Sets the :text and :paper properties on the 'this' object.
+		(def this :text "Clicked!" :paper +argb_red)))
 	```
 
 *   **Dynamic Properties (Advanced)**: When the property name is determined
@@ -403,7 +403,7 @@ patterns.
 		data_list))
 
 	(defq my_widget (View))
-	(defq config_data '((:color +argb_red) (:width 200)))
+	(defq config_data '((:paper +argb_red) (:width 200)))
 	(populate-from-data my_widget config_data)
 	```
 

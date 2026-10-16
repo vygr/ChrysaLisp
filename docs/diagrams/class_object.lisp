@@ -1,6 +1,6 @@
 ;docs/lisp/classes.md: two objects of a class, and the one vtable they share
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'a (dia-box '("an object, an :hmap" ":text \qOK\q" ":color ..." ":vtable") 190 80 blue 11 :first) 0 0)
+(dia-put s 'a (dia-box '("an object, an :hmap" ":text \qOK\q" ":paper ..." ":vtable") 190 80 blue 11 :first) 0 0)
 (dia-put s 'b (dia-box '("another, an :hmap" ":text \qCancel\q" ":vtable") 190 62 blue 11 :first) 0 110)
 (dia-put s 'vt (dia-box '("the class's vtable, an :hmap" ":draw    a lambda" ":layout  a lambda" ":mouse_down  a lambda" "and all its parent's, copied in") 250 100 gold 11 :first) 300 30)
 (dia-join s 'a 'vt "")

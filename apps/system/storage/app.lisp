@@ -94,19 +94,19 @@
 				+sym_media_live +sym_media_record +sym_find +sym_media_join +sym_laptop) +event_play))
 		;the scenes, and Run, on the right
 		(ui-flow _ (:flow_flags +flow_left_fill)
-			(ui-tool-bar *tests* (:color (const *env_toolbar2_col*))
+			(ui-tool-bar *tests* (:paper (const *env_toolbar2_col*))
 				(ui-buttons (+sym_play_all +sym_open +sym_save) +event_run))
 			;the scenes there are as it starts, (ui-radio-bar) takes its names as written
-			(. (ui-element *scene* (Radiobar *scenes*) (:color *env_toolbar2_col* :font *env_body_font*
+			(. (ui-element *scene* (Radiobar *scenes*) (:paper *env_toolbar2_col* :font *env_body_font*
 				:border *env_button_border*)) :connect +event_scene)
-			(ui-backdrop _ (:color (const *env_toolbar_col*)))))
+			(ui-backdrop _ (:paper (const *env_toolbar_col*)))))
 	;snapshots of the store of this system: one taken, the one picked put
 	;back, or dropped, and the name a new one is given
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *snapbar* (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *snapbar* (:paper (const *env_toolbar2_col*))
 			(ui-buttons (+sym_save +sym_undo +sym_delete) +event_snap_take))
-		(ui-textfield *snap_name* (:color +argb_white :hint_text "the name of a new snapshot" :clear_text "" :min_width 200)))
-	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :color *env_toolbar2_col*)) :connect +event_timeline)
+		(ui-textfield *snap_name* (:paper +argb_white :hint_text "the name of a new snapshot" :clear_text "" :min_width 200)))
+	(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 18 :paper *env_toolbar2_col*)) :connect +event_timeline)
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	(ui-canvas *canvas* +width +height 1))
 
@@ -239,10 +239,10 @@
 		now (map (# (if %0 :t :nil)) now))
 	(unless (eql (str now) (str *lit*))
 		(setq *lit* now)
-		(defq lit (canvas-brighter (get :color *debug*)))
+		(defq lit (canvas-brighter (get :paper *debug*)))
 		(each (lambda (button on)
-			(undef (. button :dirty) :color)
-			(if on (def button :color lit)))
+			(undef (. button :dirty) :paper)
+			(if on (def button :paper lit)))
 			(. *debug* :children) now)))
 
 (defun draw ()

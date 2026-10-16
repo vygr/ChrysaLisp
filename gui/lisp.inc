@@ -102,10 +102,10 @@
 	; (ui-window name [props] [body]) -> window
 	(ui-props p
 		:font *env_window_font*
-		:ink_color *env_ink_col*
-		:color *env_window_col*
-		:hint_color *env_hint_col*
-		:no_hint_color *env_no_hint_col*
+		:ink *env_ink_col*
+		:paper *env_window_col*
+		:ink_hint *env_hint_col*
+		:ink_no_hint *env_no_hint_col*
 		:border *env_window_border*
 		:shadow *env_window_shadow*
 		:zoom 1.0)
@@ -159,7 +159,7 @@
 	; (ui-title-bar name title symbols event [props]) -> flow
 	(ui-props p
 		:flow_flags +flow_left_fill
-		:color *env_title_col*
+		:paper *env_title_col*
 		:border *env_title_buttons_border*
 		:font *env_title_buttons_font*)
 	(static-qqp (ui-flow _ ,p
@@ -184,7 +184,7 @@
 (defmacro ui-radio-bar (n s &optional p)
 	; (ui-radio-bar name symbols [props])
 	(ui-props p
-		:color *env_toolbar_col*
+		:paper *env_toolbar_col*
 		:font *env_symbol_font*
 		:border *env_button_border*)
 	(setq s (ui-symbols s))
@@ -193,7 +193,7 @@
 (defmacro ui-toggle-bar (n s &optional p)
 	; (ui-toggle-bar name symbols [props])
 	(ui-props p
-		:color *env_toolbar_col*
+		:paper *env_toolbar_col*
 		:font *env_symbol_font*
 		:border *env_button_border*)
 	(setq s (ui-symbols s))
@@ -203,7 +203,7 @@
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
 		:flow_flags +flow_right
-		:color *env_toolbar_col* :font *env_symbol_font*)
+		:paper *env_toolbar_col* :font *env_symbol_font*)
 	(static-qqp (ui-flow ,n ,p ~x)))
 
 (defmacro ui-textfield (n &optional p)
@@ -216,13 +216,13 @@
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
 	(ui-props p
-		:color *env_slider_col*)
+		:paper *env_slider_col*)
 	(static-qqp (ui-element ,n (Slider) ,p)))
 
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
-		:color *env_slider_col*)
+		:paper *env_slider_col*)
 	(static-qqp (ui-element ,n (Scroll ,f) ,p ~x)))
 
 (defmacro ui-backdrop (n &optional p &rest x)
@@ -242,14 +242,14 @@
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
 	(ui-props p
-		:color 0)
+		:paper 0)
 	(static-qqp (ui-element ,n (Canvas ,w ,h ,s) ,p)))
 
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
 	(ui-props p
 		:font *env_terminal_font*
-		:color 0)
+		:paper 0)
 	(static-qqp (ui-element ,n (Vdu) ,p)))
 
 (defmacro ui-view (n &optional p &rest x)

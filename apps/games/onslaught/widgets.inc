@@ -4,7 +4,7 @@
 
 (defclass ItemPanel () (View)
 	; (ItemPanel) -> items inventory panel view
-	(def this :color 0 :canvas :nil :items :nil :selected 0)
+	(def this :paper 0 :canvas :nil :items :nil :selected 0)
 
 	(defmethod :draw ()
 		; (. panel :draw) -> panel
@@ -35,7 +35,7 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar *title* "Onslaught" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-view *world_scroll* (:min_width (* *zoom* +screen_width) :min_height (* *zoom* (- +screen_height +panel_height)))
-		(ui-view *world_layers* (:color 0)
+		(ui-view *world_layers* (:paper 0)
 			(ui-view *layer_fx*)
 			(ui-view *layer_missiles*)
 			(ui-view *layer_bodies*)
@@ -45,10 +45,10 @@
 			(ui-view *layer_bans*)
 			(ui-map *layer_land*)
 			(ui-sky *layer_sky*)))
-	(ui-view *panel_layers* (:color 0 :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
+	(ui-view *panel_layers* (:paper 0 :min_width (* *zoom* +screen_width) :min_height (* *zoom* +panel_height))
 		(ui-view *layer_panel_axes*)
 		(ui-element *layer_panel_items* (ItemPanel))
-		(ui-view *layer_panel_status* (:color 0)
+		(ui-view *layer_panel_status* (:paper 0)
 			(ui-element *panel_flag_l* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_flag))
 			(ui-element *panel_flag_r* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_flag))
 			(ui-element *panel_power* (Sprite *img_frm_32c32* :nil 32 32 :32c32) (:sp_frame +frm_32c32_power))

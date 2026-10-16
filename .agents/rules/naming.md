@@ -14,5 +14,5 @@
 *	**Global Variables:** Enclosed in asterisks `*...*`, e.g. `*window*`,
 	`*running*`.
 
-*	**Properties and Keywords:** Prefixed with `:`, e.g. `:ink_color`,
+*	**Properties and Keywords:** Prefixed with `:`, e.g. `:ink`,
 	`:select_all`.

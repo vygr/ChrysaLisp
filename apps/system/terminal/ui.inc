@@ -29,7 +29,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defclass Terminal-edit () (Viewer-edit)
-	(def this :ink_color +argb_green)
+	(def this :ink +argb_green)
 
 	(defmethod :mouse_wheel (event)
 		; (. edit :mouse_wheel event) -> edit

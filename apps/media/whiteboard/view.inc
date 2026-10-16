@@ -103,7 +103,7 @@
 	;one with no colour of its own has its parent's. So it has one, of
 	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
-		:board board :zoom 1.0 :margin 0 :held 0 :scroll :nil :drag :nil :color 0
+		:board board :zoom 1.0 :margin 0 :held 0 :scroll :nil :drag :nil :paper 0
 		;the matrix from a point of this to a point of the document, :nil
 		;for they are the same. The fingers that are down, each where it is in the view. The two that
 		;have hold of what is seen, and how they and it were when they

@@ -26,9 +26,9 @@
 	+dictionaries ''("lib/text/english.txt"))
 
 (defun toolbar-states (toolbar states)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color radio_col)))
+	(defq radio_col (canvas-brighter (get :paper toolbar)))
+	(each (# (undef (. %0 :dirty) :paper)
+			(if %1 (def %0 :paper radio_col)))
 		(. toolbar :children) states))
 
 (defun refresh-display ()
@@ -175,8 +175,8 @@
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice match_words 0 +max_matches)))
-			(ui-window window (:color (get :color *window*)
-					:ink_color (get :ink_color *edit*) :font (get :font *edit*))
+			(ui-window window (:paper (get :paper *window*)
+					:ink (get :ink *edit*) :font (get :font *edit*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
 			(bind '(cw ch) (.-> *edit* :get_vdu_text :char_size))
@@ -192,11 +192,11 @@
 (defun select-match (dir)
 	(when match_window
 		(defq matches (. match_flow :children))
-		(if (>= match_index 0) (undef (. (elem-get matches match_index) :dirty) :color))
+		(if (>= match_index 0) (undef (. (elem-get matches match_index) :dirty) :paper))
 		(setq match_index (+ match_index dir))
 		(if (< match_index 0) (setq match_index (dec (length matches))))
 		(if (> match_index (dec (length matches))) (setq match_index 0))
-		(def (. (elem-get matches match_index) :dirty) :color +argb_red)))
+		(def (. (elem-get matches match_index) :dirty) :paper +argb_red)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) (n2f (get :zoom *window*)))))

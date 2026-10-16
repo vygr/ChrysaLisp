@@ -41,10 +41,10 @@
 				(bind '(sw &) (font-glyph-bounds font (slice text 0 (min anchor cursor))))
 				(bind '(sw1 &) (font-glyph-bounds font (slice text 0 (max anchor cursor))))
 				(.-> this
-					(:ctx_set_color (get :hint_color this))
+					(:ctx_set_color (get :ink_hint this))
 					(:ctx_filled_box (- (+ sw offset) 2) (>>> (- h th) 1) (- sw1 sw -2) th)))
 			(.-> this
-				(:ctx_set_color (get :ink_color this))
+				(:ctx_set_color (get :ink this))
 				(:ctx_filled_box (- (+ tw offset) 2) (>>> (- h th) 1) 2 th)))
 		this)
 
@@ -53,9 +53,9 @@
 		(cond
 			((eql (defq text (get :clear_text this)) "")
 				(defq text (get :hint_text this) mode :nil)
-				(def this :ink_color (get :hint_color this)))
+				(def this :ink (get :ink_hint this)))
 			(:t (defq mode (get :mode this))
-				(def this :ink_color (get :no_hint_color this))))
+				(def this :ink (get :ink_no_hint this))))
 		(if mode
 			(def this :text (pad "" (length text) "******************"))
 			(def this :text text))

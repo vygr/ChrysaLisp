@@ -320,7 +320,7 @@
 
 (defclass CampaignView () (View)
 	; (CampaignView) -> full-screen campaign map and info overlay view
-	(def this :color 0 :map :nil :canvas :nil :texts '())
+	(def this :paper 0 :map :nil :canvas :nil :texts '())
 
 	(defmethod :draw ()
 		(defq zoom (get :zoom this) tid (get :tid this))

@@ -15,7 +15,7 @@ and property inheritance.
     parent and a list of children. This hierarchy dictates the drawing order
     and clipping, and facilitates the propagation of events and properties.
 
-*   **Property Inheritance:** When a property (like `:font` or `:color`) is
+*   **Property Inheritance:** When a property (like `:font` or `:paper`) is
     accessed on a view, and that view doesn't have it defined locally, the
     system automatically performs an `:hmap :search` up the scene graph to its
     parent, its parent's parent, and so on, until the property is found. This

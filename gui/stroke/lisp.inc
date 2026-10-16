@@ -14,7 +14,7 @@
 
 (defclass Stroke () (View)
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
-		:strokes (list) :states (list) :color 0 :snap_x 0 :snap_y 0)
+		:strokes (list) :states (list) :paper 0 :snap_x 0 :snap_y 0)
 
 	(defgetmethod :strokes)
 	(defgetmethod :states)

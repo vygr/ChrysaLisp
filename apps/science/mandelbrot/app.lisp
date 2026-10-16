@@ -25,8 +25,8 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in)
 			(ui-buttons (+sym_reset) +event_home))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height +scale)) (:color 0)))
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height +scale)) (:paper 0)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))

@@ -12,7 +12,7 @@
 
 (defclass Sky () (View)
 	; (Sky) -> sky view
-	(def this :color +argb_black :sky_top +argb_black :sky_bottom +argb_black :sky_step 2)
+	(def this :paper +argb_black :sky_top +argb_black :sky_bottom +argb_black :sky_step 2)
 	(. this :set_size (const (* +map_width +tile_width)) (const (* +map_height +tile_height)))
 
 	(defmethod :sky_set_cols (c1 c2)
@@ -53,5 +53,5 @@
 (defmacro ui-sky (n &optional p &rest x)
 	; (ui-sky name [props] [body]) -> sky
 	(ui-props p
-		:color +argb_black)
+		:paper +argb_black)
 	(static-qqp (ui-element ,n (Sky) ,p ~x)))

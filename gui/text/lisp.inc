@@ -26,12 +26,12 @@
 
 (defclass Text () (View)
 	; (Text) -> text
-	(def this :color 0 :state 0
+	(def this :paper 0 :state 0
 		:sym_cache :nil :text_cache :nil :offset 0)
 
 	(defmethod :draw ()
 		; (. text :draw) -> text
-		(raise :font :text :offset :sym_cache :state :color)
+		(raise :font :text :offset :sym_cache :state :paper)
 		(bind '(w h) (. this :get_size))
 		(if (/= (logand state +text_state_highlight) 0)
 			(setq color *env_highlight_col*))
@@ -42,7 +42,7 @@
 				(defq texture (font-sym-texture font sym_cache))
 				(defq texture (font-sym-texture font (set this :text_cache text :sym_cache (sym (text-most text)))))))
 			(bind '(tid tw th) (texture-metrics texture))
-			(. this :ctx_blit tid (get :ink_color this) offset (>>> (- h th) 1) tw th))
+			(. this :ctx_blit tid (get :ink this) offset (>>> (- h th) 1) tw th))
 		this)
 
 	(defmethod :constraint ()

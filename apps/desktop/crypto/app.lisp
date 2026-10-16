@@ -132,7 +132,7 @@
 	; Controls Bar: Status & Refresh
 	(ui-flow *ctrl_bar* (:flow_flags +flow_right_fill)
 		(. (ui-button *btn_refresh* (:text "Refresh")) :connect +event_refresh)
-		(ui-label *status_label* (:text "Connecting..." :flow_flags +flow_flag_align_vcenter :color +argb_grey15)))
+		(ui-label *status_label* (:text "Connecting..." :flow_flags +flow_flag_align_vcenter :paper +argb_grey15)))
 	; Hero Card: Coin Header
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label *hero_symbol* (:text "#1  BTC" :font *env_sub_title_font*))
@@ -147,7 +147,7 @@
 	; Vector Sparkline Chart Canvas
 	(ui-canvas *chart_canvas* *canvas_width* *canvas_height* 1)
 	; Quick Asset Selection Grid (2 rows x 3 columns)
-	(ui-grid _ (:grid_width 3 :font *env_small_font* :color *env_toolbar2_col*)
+	(ui-grid _ (:grid_width 3 :font *env_small_font* :paper *env_toolbar2_col*)
 		(. (ui-button *btn_coin_0* (:text "BTC $0.00")) :connect +event_coin_0)
 		(. (ui-button *btn_coin_1* (:text "ETH $0.00")) :connect +event_coin_1)
 		(. (ui-button *btn_coin_2* (:text "SOL $0.00")) :connect +event_coin_2)
@@ -170,8 +170,8 @@
 		(defq chg_str (format-change change)
 			is_pos (not (starts-with "-" change)))
 		(def *hero_change* :text chg_str
-			:color (if is_pos 0xff00e676 0xffff3344)
-			:ink_color (if is_pos +argb_black +argb_white))
+			:paper (if is_pos 0xff00e676 0xffff3344)
+			:ink (if is_pos +argb_black +argb_white))
 		(def *hero_price* :text (format-price price))
 		(defq flts (list))
 		(each (# (and %0 (str? %0) (push flts (str-to-num %0)))) spark)

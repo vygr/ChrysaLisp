@@ -10,16 +10,16 @@
 	(ui-scroll info_scroll +scroll_flag_vertical (:font *env_terminal_font*)
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "Service" :color +argb_white
+				(ui-label _ (:text "Service" :paper +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow mbox_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "NetID" :color +argb_white
+				(ui-label _ (:text "NetID" :paper +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow system_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "SysID" :color +argb_white
+				(ui-label _ (:text "SysID" :paper +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter))))
 			(ui-flow info_flow (:flow_flags +flow_down_fill)
-				(ui-label _ (:text "Info" :color +argb_white
+				(ui-label _ (:text "Info" :paper +argb_white
 					:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))))))
 
 (defun resize (mh)

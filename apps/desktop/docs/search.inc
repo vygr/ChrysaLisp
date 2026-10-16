@@ -41,7 +41,7 @@
 		cur_match (and *last_widget*
 			(some (# (if (= (. %0 :get_id) (. *last_widget* :get_id)) (!))) found)))
 	(if *last_widget*
-		(def (. *last_widget* :dirty) :color 0))
+		(def (. *last_widget* :dirty) :paper 0))
 	(if (nempty? found)
 		(progn
 			(setq *last_widget* (cond
@@ -50,7 +50,7 @@
 				(cur_match
 					(elem-get found (% (+ cur_match step (length found)) (length found))))
 				((if (< step 0) (last found) (first found)))))
-			(def (. *last_widget* :dirty) :color *env_highlight_col*)
+			(def (. *last_widget* :dirty) :paper *env_highlight_col*)
 			(. *page_scroll* :visible *last_widget*))
 		(setq *last_widget* :nil)))
 

@@ -55,14 +55,14 @@
 	(ui-title-bar _ "Planets" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(. (ui-radio-bar *planet* ("Earth" "Moon" "Mars" "Jupiter" "Pluto") (:font *env_body_font*)) :connect +event_planet)
-		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :color *env_toolbar2_col*)) :connect +event_mode)
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font *env_body_font* :paper *env_toolbar2_col*)) :connect +event_mode)
+		(ui-backdrop _ (:paper (const *env_toolbar_col*))))
 	(ui-label *status* (:text "..." :font *env_body_font*))
 	;space is black, the GPU draws nothing where the globe is not
-	(ui-backdrop _ (:style :plain :color +argb_black :min_width +size :min_height +size)
+	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
 		;its pixels are in shared memory if the host has it, the nodes of
 		;this machine then draw on them, a strip each
-		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)) (:color 0))))
+		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)) (:paper 0))))
 
 (defun set-label (label text)
 	;a label lays its text out once, so lay it out again for the new text

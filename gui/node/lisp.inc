@@ -6,7 +6,7 @@
 
 (defclass Node () (Text)
 	; (Node) -> node
-	(undef this :color)
+	(undef this :paper)
 
 	(defmethod :mouse_down (event)
 		; (. node :mouse_down event) -> node

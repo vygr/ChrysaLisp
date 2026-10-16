@@ -158,11 +158,11 @@ Key points:
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9) +event_undo))
 		(ui-stack *stack_flow* '("main" "settings") :nil
-			(ui-grid *main_widget* (:grid_width 2 :color +argb_orange)
+			(ui-grid *main_widget* (:grid_width 2 :paper +argb_orange)
 				(. (ui-button *b1* (:text "1")) :connect +event_button_1)
 				(. (ui-button *b2* (:text "2")) :connect +event_button_2))
 			(ui-backdrop *settings_widget* (:min_width 512 :min_height 256
-					:color +argb_black :ink_color +argb_red :spacing 16
+					:paper +argb_black :ink +argb_red :spacing 16
 					:style :lines))))
 
 	(ui-tool-tips *main_toolbar*
@@ -190,7 +190,7 @@ Key points:
 	See `gui/lisp.inc` for the full set.
 
 *	Use `(const ...)` for compile-time values and reference other
-	widgets' properties directly, e.g. `(:color (get :color *other*))`.
+	widgets' properties directly, e.g. `(:paper (get :paper *other*))`.
 
 *	`ui-tool-tips` attaches a list of hover tips to a toolbar or stack.
 
@@ -261,7 +261,7 @@ Key points:
 
 	(defun action-button-1 ()
 	(debug-brk "button1")
-		(def (. *b1* :dirty) :color +argb_red))
+		(def (. *b1* :dirty) :paper +argb_red))
 
 	(defun action-minimise ()
 	(debug-brk "minimize")
@@ -330,16 +330,16 @@ Key points:
 		:font +font_code
 		:vdu_width 80
 		:vdu_height h
-		:color 0
-		:ink_color +argb_black)
+		:paper 0
+		:ink +argb_black)
 
 	;; IDIOMATIC: Sensible wrapping (group 2-3 pairs per line within ~80-100 columns):
 	(def (defq vdu (Vdu))
 		:font +font_code :vdu_width 80 :vdu_height h
-		:color 0 :ink_color +argb_black)
+		:paper 0 :ink +argb_black)
 
 	;; IDIOMATIC: Compact forms on a single line:
-	(def (defq backdrop (Backdrop)) :color +argb_grey1 :min_width (max pad_w page_w) :min_height rh)
+	(def (defq backdrop (Backdrop)) :paper +argb_grey1 :min_width (max pad_w page_w) :min_height rh)
 	(def (defq scroll (Scroll +scroll_flag_horizontal)) :min_width page_w :min_height rh)
 	```
 
@@ -535,7 +535,7 @@ desktop of the agent's own:
 
 *	**What to check:** The nesting matches the intended layout, each widget
 	has the expected `:type`, and `:text`, `:tip_text`, `:flow_flags`,
-	`:color`, `:min_width` etc. hold the intended values. The file reads back
+	`:paper`, `:min_width` etc. hold the intended values. The file reads back
 	with `(tree-load (file-stream path))` if it needs checking in code.
 
 *	**Layout can be run too:** Sizes are not in the dump, but the layout

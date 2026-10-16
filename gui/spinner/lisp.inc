@@ -12,7 +12,7 @@
 		:grid_width 1 :border 1 :font *env_tiny_symbol_font*)
 	(def (defq label (Label))
 		:text (str (get :value this)) :border *env_textfield_border*
-		:color +argb_white :min_width 32)
+		:paper +argb_white :min_width 32)
 	(def (defq up_button (Button)) :text (num-to-utf8 +sym_up))
 	(def (defq down_button (Button)) :text (num-to-utf8 +sym_down))
 	(.-> this (:add_child label) (:add_child button_grid))
