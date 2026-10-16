@@ -219,6 +219,15 @@ a copy of what is selected, moved a little, default 16 each way,
 and the copy is what is selected
 ```
 
+### :fill_pen
+
+```code
+(. board :fill_pen at ink) -> board
+
+a pen has another ink, every slot that holds it draws with it, and
+what shows the pens is told, :on_pens
+```
+
 ### :fit
 
 ```code
@@ -268,6 +277,15 @@ nothing was done after all, the last (:snapshot) is dropped
 (. board :group) -> :nil | id
 
 what is selected becomes one group, where the top one of them was
+```
+
+### :hold
+
+```code
+(. board :hold event key val) -> board
+
+the slot of what pressed has it, each role of the press, (ptr-roles),
+or no device, the board's own
 ```
 
 ### :holder
@@ -386,6 +404,28 @@ what each was. Words have only a fill, their colour. See
 
 the number of the pen the slot of the pointer holds, its own or the
 board's, :nil if it holds an ink of its own or there are no pens
+```
+
+### :pick
+
+```code
+(. board :pick event what val) -> board
+
+what a pick does, wherever it was made, by what pressed, a pointer
+event, or :nil for no device, a key or a script, which is the
+board's own. With things its user holds, a colour, a pen or a width
+is theirs, the main role the outline, the second the fill, (ptr-part),
+and the slot is as it was; with none it is the slot's. Chris: "If you
+have no selected items than I think you are setting the ink of the
+pen, but if you have selected items you changing there colours".
+	:pen n		a pen, by its number in :pens
+	:color c	an ink of its own, not a pen's
+	:width w
+	:mode m		what a pen draws, :select to pick things up
+	:switch k	:snap :snap_angle or :keep_shape, turned over
+	:ink c		the swatches: the held pen filled with c, as see
+	:alpha a	through as it was; how see through, a 0 to 255; or
+	:none		none. With things held, each part made so
 ```
 
 ### :pick_up

@@ -655,9 +655,11 @@ the last button of the instruments' bar. Chris: "a button on the toolbar
 ... created a floating menu (just another object that also lives in this
 multi inputs swarm) and you could drag them around, have as many as you
 wanted". It stays till its middle is tapped, and is dragged by its middle.
-A tap on it binds what tapped it, `(. palette :bind_tapper event key val)`:
-the device, with the buttons it had held, all the fingers of a touch screen
-as one, and what that user has selected takes a colour or a width. Chris:
+A tap on it is a pick by what tapped it, `(. board :pick event what val)`,
+the one table the toolbar, the rings and the swatches all use: with things
+its user holds a pen, a colour or a width is theirs, the main button the
+outline and the second the fill; with none the device's slot has it, the
+buttons it had held, all the fingers of a touch screen as one. Chris:
 "taps on them effect their pen as you KNOW what device has tapped on them".
 Each device that has bound something on it shows a small square of its own
 colour on the wedge, in a strip of six along the rim, as the toolbar
@@ -1237,8 +1239,13 @@ dictated by this unified table, all the bindings and modes are though."
 The maps say what a slot holds, its pen, width and mode, and which slot a
 press is; what a press does to an object is the object's: a thing taken by
 the right button goes to the back, a ruler draws along its edge for any
-finger, a ring's tap is a pick. Built so far, stage 1: `(ptr-roles)`,
-`(ptr-main)` and `(ptr-part)`, lib/cwb/pointer.inc.
+finger, a ring's tap is a pick. Built so far: stage 1, `(ptr-roles)`,
+`(ptr-main)` and `(ptr-part)`, lib/cwb/pointer.inc; stage 2, pens by
+number, `:pens`, `(. board :pen_of)` and `(. board :ink_of)`; stage 3, who
+holds what behind `(. board :holder)`, `:pick_up`, `:others_of` and
+`:select`; stage 4, the pick table, `(. board :pick event what val)`, with
+`:hold` and `:fill_pen`, which the toolbar, the rings and the swatches
+call, the swatches themselves.
 
 **One resolve.** As a contact lands it is resolved, once, to its device,
 its user and its role: the main button, the second, both, the middle of a

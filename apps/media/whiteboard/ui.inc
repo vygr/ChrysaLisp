@@ -137,76 +137,22 @@
 ;and its contact points, and what those combinations are bound to drive
 ;the app, not some state held in the singular toolbar. The toolbar should
 ;really be a place for a device/button combo to have its bound action
-;changed." A pick binds what pressed it, kept on the button by the window,
-;and the bar shows no pick of its own after. What a pick is said by no
-;press, a script, is the board's own, for any device bound to nothing
-(defun bind-button (button key value)
-	; (bind-button button key value) -> :nil | user
-	;what pressed the button is bound to the value, if a device did
+;changed." What a press picks is the board's to do, (. board :pick), by
+;what pressed, kept on the button by the window, and the bar shows no pick
+;of its own after. A pick by no press, a key or a script, is the board's own
+(defun take-press (bar &optional at)
+	; (take-press bar [at]) -> :nil | event
+	;what pressed the button a radio bar has picked, and it shows no pick,
+	;or button at of a bar of buttons, as a pointer event
+	(defq button (elem-get (. bar :children) (ifn at (. bar :get_selected))))
+	(unless at (. bar :set_selected -1))
 	(when (defq by (get :pressed_by button))
 		(undef button :pressed_by)
 		(bind '(id kind buttons) by)
-		;all the contacts of touch are the one device, with no buttons
-		(. (. *board* :get_bindings) :set kind (ptr-device id) buttons key value)
-		;drawn again, and the dots of the bars with it, (sync-ui)
-		(. *board* :touch +board_dirty_overlay)
-		(. *board* :user_of (ptr-event id kind buttons 0 0))))
-
-(defun bind-pressed (bar key value)
-	; (bind-pressed bar key value) -> :nil | user
-	(defq button (elem-get (. bar :children) (. bar :get_selected)))
-	(. bar :set_selected -1)
-	(bind-button button key value))
-
-(defun toggle-pressed (index key)
-	; (toggle-pressed index key) -> :nil | user
-	;a button of the snap bar binds what pressed it to the other of what it
-	;has. Chris: "per device, same as ink and width"
-	(defq button (elem-get (. *snap_toolbar* :children) index))
-	(when (defq by (get :pressed_by button))
-		(bind '(id kind buttons) by)
-		;both buttons, the middle, both to the other of the main's
-		(bind '(snap angle keep) (. *board* :pointer_settings (ptr-main (ptr-event id kind buttons 0 0))))
-		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
-
-;the pens, each an ink. A device's main button's pen outlines and strokes,
-;its second's fills, Chris: "we use the left button bound pen to outline
-;and the right button bound pen to fill"
-(defun press-event (button)
-	; (press-event button) -> :nil | event
-	;the device that pressed the button, as a pointer event
-	(if (defq by (get :pressed_by button))
-		(progn (bind '(id kind buttons) by) (ptr-event id kind buttons 0 0))))
-
-(defun pen-held (event)
-	; (pen-held event) -> num
-	;the number of the pen the slot of the press holds, by its main role,
-	;(ptr-main), or the board's, pressed by no device
-	(ifn (if event (. *board* :pen_of (ptr-main event))) (get :pen *board*)))
-
-(defun mine-selected (event)
-	; (mine-selected event) -> ids
-	;what the user of the device has picked up, or, pressed by no device,
-	;all that is
-	(if event (. *board* :selected_by (. *board* :user_of event)) (. *board* :get_selected)))
-
-(defun ink-bind (button at)
-	;with things picked up, their outline or their fill by the button,
-	;(ptr-part), takes the pen's ink and no pen is changed; with none, what
-	;pressed the button holds the pen. Chris: "If you have no selected items
-	;than I think you are setting the ink of the pen, but if you have
-	;selected items you changing there colours", "2 users can select
-	;seperate item, AND there devices left/right color THEIR slected items"
-	(defq event (press-event button))
-	(cond
-		((nempty? (defq mine (mine-selected event)))
-			(undef button :pressed_by)
-			(. *board* :paint mine (if event (ptr-part event) :stroke) (elem-get *palette* at)))
-		((bind-button button :pen at))
-		((def *board* :pen at))))
+		(ptr-event id kind buttons 0 0)))
 
 (defun pens-shown ()
-	;the buttons and the rings show the pens as they are
+	;the buttons and the rings show the pens as they are, :on_pens
 	(each (const pen-show) (. *ink_toolbar* :children) *palette*)
 	(each (# (def %0 :wedges :nil)) (palettes *board*))
 	(. *board* :touch +board_dirty_overlay))
@@ -218,48 +164,16 @@
 
 (defun pen-refill (at color)
 	;one pen has another ink
-	(elem-set *palette* at color)
-	(pens-shown))
+	(. *board* :fill_pen at color))
 
 ;the swatches, menus on the board, lib/cwb/swatches.inc, as many as are
 ;wanted, Chris: "each pupile can have one, there is no limit"
-(defun swatch-pick (on event what val)
-	;a tap on an ink fills the pen the button that tapped holds with it,
-	;Chris: "that value bcome the ink in the current pen/marker". A colour
-	;keeps how see through the pen was, a marker stays a marker, and how
-	;see through keeps its colour. With things picked up by that user,
-	;they take it, by the button, and no pen changes
-	(defq held (ptr-main event) at (. *board* :pen_of held) was (. *board* :ink_of held)
-		alpha (if (board-none? was) 0xff000000 (logand was 0xff000000))
-		color (case what
-			(:color (logior (logand val 0xffffff) alpha))
-			(:alpha (logior (logand was 0xffffff) (<< val 24)))
-			(:t 0))
-		;wholly see through is none, whatever its colour
-		color (if (board-none? color) 0 color))
-	(cond
-		;things picked up take it, the pens are as they were: a colour at
-		;how see through each was, how see through in the colour each was
-		((nempty? (defq mine (mine-selected event)))
-			;the lambdas find the value by name as they are called, it has
-			;one that nothing between could have
-			(defq swatch_val val)
-			(. *board* :paint mine (ptr-part event) 0 (case what
-				(:color (lambda (old) (logior (logand swatch_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
-				(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< swatch_val 24)))) 0 c)))
-				(:t (lambda (old) 0)))))
-		((num? at) (pen-refill at color))
-		;a slot that holds an ink of its own, as a script sets one
-		((bind '(id kind buttons &ignore) event)
-			(. (. *board* :get_bindings) :set kind (ptr-device id) buttons :color color)))
-	(. *board* :touch +board_dirty_overlay))
-
 (defun swatches-close ()
 	(each (# (. %0 :close)) (swatches-on *board*)))
 
 (defun swatches-open (x y)
 	;about a point
-	(. (. *board* :get_stage) :add (Swatches *board* x y (const swatch-pick)))
+	(. (. *board* :get_stage) :add (Swatches *board* x y))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-swatches ()
@@ -267,39 +181,21 @@
 	(apply (const swatches-open) (view-middle)))
 
 (defun action-ink ()
-	;the presser holds the pen, or what it has picked up takes its ink. A
-	;pen pressed by what holds it already opens the swatches, to fill it
-	;from, Chris: "We can click twice or click the pallet icon to bring up
-	;the selector"
-	(defq at (. *ink_toolbar* :get_selected) button (elem-get (. *ink_toolbar* :children) at))
-	(. *ink_toolbar* :set_selected -1)
-	(cond
-		((and (defq event (press-event button)) (= (pen-held event) at))
-			(undef button :pressed_by)
-			(action-swatches))
-		((ink-bind button at))))
+	;a pen, (. board :pick). One pressed by what holds it already opens the
+	;swatches, to fill it from, Chris: "We can click twice or click the
+	;pallet icon to bring up the selector"
+	(defq at (. *ink_toolbar* :get_selected) event (take-press *ink_toolbar*))
+	(if (and event (eql (. *board* :pen_of (ptr-main event)) at))
+		(action-swatches)
+		(. *board* :pick event :pen at)))
 
 (defun action-radius ()
-	;with things picked up, their width, and the pens are as they were;
-	;with none, what pressed holds the width
-	(defq at (. *radius_toolbar* :get_selected) width (elem-get *widths* at)
-		button (elem-get (. *radius_toolbar* :children) at) event (press-event button))
-	(. *radius_toolbar* :set_selected -1)
-	(cond
-		((nempty? (defq mine (mine-selected event)))
-			(undef button :pressed_by)
-			(. *board* :style_ids mine :width width))
-		((bind-button button :width width))
-		((def *board* :width width))))
+	(defq at (. *radius_toolbar* :get_selected))
+	(. *board* :pick (take-press *radius_toolbar*) :width (elem-get *widths* at)))
 
 (defun action-mode ()
-	(defq mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
-	(unless (defq user (bind-pressed *mode_toolbar* :mode mode))
-		(def *board* :mode mode))
-	;what a box selected, no one's, is let go of once nothing is in select
-	;mode; what a user picked up stays so, (. board :settle_select)
-	(. *board* :settle_select)
-	(. *board* :touch +board_dirty_overlay))
+	(defq at (. *mode_toolbar* :get_selected))
+	(. *board* :pick (take-press *mode_toolbar*) :mode (elem-get *modes* at)))
 
 (defun action-style ()
 	(setq *style* (elem-get *styles* (. *style_toolbar* :get_selected)))
@@ -311,21 +207,9 @@
 ;Snap, snap of angles and keep shape are each device's, a press turns over
 ;what the presser has. No press, a key or a script, turns over the board's,
 ;which a device bound to none of its own has
-(defun action-snap ()
-	(unless (toggle-pressed 0 :snap)
-		(setq *snap* (not *snap*))
-		(def *board* :snap (if *snap* (snap-gap) 0.0))))
-
-(defun action-snap-angle ()
-	(unless (toggle-pressed 1 :snap_angle)
-		(setq *snap_angle* (not *snap_angle*))
-		(def *board* :snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0))))
-
-(defun action-keep-shape ()
-	;a corner that is dragged keeps the shape of what it sizes, locked, or
-	;goes where it is put, free, and the thing is made wider or taller
-	(unless (toggle-pressed 2 :keep_shape)
-		(def *board* :keep_shape (not (get :keep_shape *board*)))))
+(defun action-snap () (. *board* :pick (take-press *snap_toolbar* 0) :switch :snap))
+(defun action-snap-angle () (. *board* :pick (take-press *snap_toolbar* 1) :switch :snap_angle))
+(defun action-keep-shape () (. *board* :pick (take-press *snap_toolbar* 2) :switch :keep_shape))
 
 (defun action-text ()
 	;the words of the text field are put down where the pen next goes down

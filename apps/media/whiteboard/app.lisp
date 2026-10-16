@@ -38,7 +38,7 @@
 ;never left between, (zoom-magnet)
 (defq +zooms ''(0.125 0.25 0.5 1.0 2.0 4.0 8.0))
 
-(defq *zoom* 1.0 *style* :grid *snap* :nil *snap_angle* :nil
+(defq *zoom* 1.0 *style* :grid
 	;the things of a document are anywhere. The paper is a view of some of
 	;that, of the size the document says, and is not what they are on:
 	;*pan_x* *pan_y* is the point of the document at its top left, and
@@ -217,7 +217,7 @@
 ;tap there is a dot: menus float, made from the toolbar, (action-menu).
 ;Chris: "A tap on the canvas did leave a dot as I didn't have a pop up
 ;menu on the canvas"
-(def *board* :pens *palette* :pen 0)
+(def *board* :pens *palette* :pen 0 :on_pens (# (pens-shown)))
 ;a ring menu opens the swatches, a menu of the inks to fill a pen with
 (def *board* :on_swatches (# (swatches-open %0 %1)))
 
@@ -265,7 +265,6 @@
 	(def *board* :snap_gap (snap-gap))
 	(defq on (/= (get :snap *board*) 0.0))
 	(and on (/= (get :snap *board*) (snap-gap)) (def *board* :snap (snap-gap)))
-	(setq *snap* on)
 	(binder-dots))
 
 (defun doc-size ()
@@ -503,6 +502,8 @@
 	;				where it lies, (draw-tools)
 	;	*top*		a palette, and the rings where fingers are
 	(bind '(w h) (setq *canvas_size* (canvas-size)))
+	;the grid the board snaps to at this zoom, (snap-gap)
+	(def *board* :snap_gap (snap-gap))
 	;the pixels of the one the nodes can reach are let go of by name, they
 	;last till then, whatever becomes of this task
 	(when *committed* (. *committed* :sub) (. *committed* :free))
@@ -568,14 +569,14 @@
 	;the snap is the grid there is at that zoom, and all of it is drawn
 	;again, the paper too. What is in flight is drawn, not moved as a
 	;picture, it is in another place on its canvas
-	(def *board* :zoom *zoom*)
+	(def *board* :zoom *zoom* :snap_gap (snap-gap))
 	(def *board* :view_turn (turn-angle))
 	(def *board_view* :zoom *zoom* :inv (Mat3x2-invert (over-matrix)))
 	;what a hand holds is in flight and stays in the hand, Chris: "If I
 	;hold a shape, and somone else moves the canvas, my shape comes with
 	;me !" Each pointer that is down is told to the board where it is now
 	(. *board_view* :resend)
-	(if *snap* (def *board* :snap (snap-gap)))
+	(if (/= (get :snap *board*) 0.0) (def *board* :snap (snap-gap)))
 	(setq *paper_dirty* :t *flight_at* :nil *bars_stale* :t)
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
@@ -738,7 +739,7 @@
 	;way each tick, (zoom-tick). Not a jump, Chris: "ease to the magnet on
 	;release. it's better than a jump."
 	(setq *zoom_to* (list (max (first +zooms) (min (last +zooms) (n2f zoom))) cx cy))
-	(if *snap* (def *board* :snap (snap-gap))))
+	(if (/= (get :snap *board*) 0.0) (def *board* :snap (snap-gap))))
 
 (defun zoom-rest (cx cy)
 	;the fingers have let go: it goes to the zoom it rests at that is nearest

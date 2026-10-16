@@ -15,20 +15,6 @@ default the mouse. It is not on the stage till it is put there,
 was last told
 ```
 
-### :bind_tapper
-
-```code
-(. palette :bind_tapper event key val) -> user
-
-a floating menu binds whatever tapped it, the device with the
-buttons it had held, all of touch as one. Chris: "taps on them
-effect their pen as you KNOW what device has tapped on them". A
-colour or a width, with things that user has picked up, is theirs,
-the outline or the fill by the button, (ptr-part), and the
-device is as it was, Chris: "if you have selected items you changing
-there colours"
-```
-
 ### :build
 
 ```code
@@ -107,8 +93,12 @@ the wedge a pointer is on is drawn so
 ```code
 (. palette :pick what [val event]) -> palette
 
-do what a tap on a wedge does, see (:where). A floating menu,
-given the event of the tap, binds what tapped it, and stays
+do what a tap on a wedge does, see (:where). What it picks is the
+board's to do, (. board :pick), for what the menu is for: a floating
+menu, given the event of the tap, what tapped it, Chris: "taps on
+them effect their pen as you KNOW what device has tapped on them",
+and it stays; one opened for a pen, that pen; one opened by the
+mouse or a finger, the board's own. One not floating shuts on a tool
 ```
 
 ### :pointers
@@ -127,12 +117,6 @@ dragged: that moves the palette
 (. palette :ring_scale k) -> num
 
 how far open a ring is, 0 for not at all, 1 for open, by the time
-```
-
-### :set_value
-
-```code
-(. palette :set_value key val) -> palette
 ```
 
 ### :tick

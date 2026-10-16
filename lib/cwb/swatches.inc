@@ -11,9 +11,10 @@
 ; cross is tapped. A drag on its edge moves it. As many as are wanted can
 ; be open, "each pupile can have one, there is no limit".
 ;
-; What a tap does is the app's: it is given a function, called with the
-; menu, the event of the tap, as the device was when it went down, what
-; was tapped, :color, :alpha or :none, and its value.
+; A tap is the board's to do, (. board :pick event what val), with the
+; event of the tap as the device was when it went down, and what was
+; tapped, :ink, :alpha or :none, and its value. Nothing is given to it to
+; call: it is an object that does what its own rules say.
 ;
 ; Its sizes are of the screen, and are divided by the board's :zoom.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,11 +59,10 @@
 		(:none (if long "none"))
 		(:close (if long "close"))))
 
-(defclass Swatches (board x y on_pick) (Actor)
-	; (Swatches board x y on_pick) -> swatches
-	;about a point of the document. on_pick is called (on_pick swatches
-	;event what val)
-	(def this :board board :origin (list (n2f x) (n2f y)) :on_pick on_pick :hover :nil :cells :nil)
+(defclass Swatches (board x y) (Actor)
+	; (Swatches board x y) -> swatches
+	;about a point of the document
+	(def this :board board :origin (list (n2f x) (n2f y)) :hover :nil :cells :nil)
 
 	(defmethod :get_cells ()
 		; (. swatches :get_cells) -> cells
@@ -75,7 +75,7 @@
 			(each (lambda (col)
 					(defq cx (+ x0 +swatch_pad (* +swatch_cell (n2f (% (!) +swatch_cols))))
 						cy (+ y0 +swatch_bar +swatch_pad (* +swatch_cell (n2f (/ (!) +swatch_cols)))))
-					(push cells (list :color col cx cy (+ cx +swatch_cell) (+ cy +swatch_cell))))
+					(push cells (list :ink col cx cy (+ cx +swatch_cell) (+ cy +swatch_cell))))
 				colors)
 			;the last row: how see through, none, and the cross
 			(defq cy (+ y0 +swatch_bar (* 2.0 +swatch_pad) (* +swatch_cell (n2f n))) cy1 (+ cy +swatch_cell))
@@ -109,7 +109,7 @@
 	(defmethod :where (what &optional val)
 		; (. swatches :where what [val]) -> :nil | (x y)
 		;the point of the document that the middle of a cell is at, for what
-		;would tap it: (:where :color 0xff000000), (:where :alpha 0x80),
+		;would tap it: (:where :ink 0xff000000), (:where :alpha 0x80),
 		;(:where :none), (:where :close)
 		(when (defq cell (some (# (and (eql (elem-get %0 +swcell_what) what)
 					(or (find what '(:close :none)) (eql (elem-get %0 +swcell_val) val)) %0))
@@ -159,7 +159,7 @@
 					(and (list? cell) (eql cell (first state))
 						(case (elem-get cell +swcell_what)
 							(:close (. this :close))
-							(:t ((get :on_pick this) this (ptr-event pid pkind (elem-get state 4) x y)
+							(:t (. (get :board this) :pick (ptr-event pid pkind (elem-get state 4) x y)
 								(elem-get cell +swcell_what) (elem-get cell +swcell_val))))))
 				(:t (. this :hot cell))))
 			events)
@@ -193,7 +193,7 @@
 		(each (lambda (cell)
 				(bind '(what val x0 y0 x1 y1) cell)
 				(case what
-					(:color (push items (cwb-shape (cwb-d-rect (+ x0 1.0) (+ y0 1.0) (- x1 1.0) (- y1 1.0)) :fill val :stroke 0)))
+					(:ink (push items (cwb-shape (cwb-d-rect (+ x0 1.0) (+ y0 1.0) (- x1 1.0) (- y1 1.0)) :fill val :stroke 0)))
 					(:alpha
 						;black that see through over a chequer, the sign of see
 						;through, and how much in words, Chris: "Tap an opacity

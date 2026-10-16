@@ -4614,7 +4614,7 @@ a toolbar. Chris: "a button on the toolbar (slide in menu) that created
 a floating menu (just another object that also lives in this multi
 inputs swarm) and you could drag them around, have as many as you
 wanted". It stays till its middle is tapped, and a tap on it binds the
-device that tapped, see (. palette :bind_tapper)
+device that tapped, see (. palette :pick) and (. board :pick)
 ```
 
 ### palette-open

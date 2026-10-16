@@ -27,7 +27,7 @@
 		;is in its toolbar. The toolbars are binders and keep no pick
 		:mode (find (get :mode *board*) *modes*) :ink (get :pen *board*)
 		:radius (some (# (if (= %0 (get :width *board*)) (!))) *widths*) :style (. *style_toolbar* :get_selected)
-		:snap *snap* :snap_angle *snap_angle* :keep_shape (get :keep_shape *board*)
+		:snap (/= (get :snap *board*) 0.0) :snap_angle (/= (get :snap_angle *board*) 0.0) :keep_shape (get :keep_shape *board*)
 		;is a pen that is near shown where an instrument would catch it
 		:hover_edges (if (get :hover_edges *board*) 1 0)
 		:text (. *text_field* :get_text) :file *file*
@@ -67,9 +67,9 @@
 		;how it was seen is kept with the document
 		(view-from-doc)
 		(def *board* :zoom *zoom*)
-		(setq *file* (if (str? file) file) *snap* (if snap :t) *snap_angle* (if snap_angle :t))
-		(def *board* :snap (if *snap* (snap-gap) 0.0)
-			:snap_angle (if *snap_angle* (const (/ +fp_pi 12.0)) 0.0)
+		(setq *file* (if (str? file) file))
+		(def *board* :snap (if snap (snap-gap) 0.0)
+			:snap_angle (if snap_angle (const (/ +fp_pi 12.0)) 0.0)
 			:keep_shape (if keep_shape :t))
 		;a board kept before there was this has none, and it is on
 		(def *board* :hover_edges (not (eql (. config :find :hover_edges) 0)))

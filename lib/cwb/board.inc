@@ -1315,6 +1315,91 @@
 			(. this :select (filter (# (. this :holder %0)) (get :selected this))))
 		this)
 
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; a pick, of the toolbar, a ring or the swatches
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	(defmethod :pick (event what val)
+		; (. board :pick event what val) -> board
+		;what a pick does, wherever it was made, by what pressed, a pointer
+		;event, or :nil for no device, a key or a script, which is the
+		;board's own. With things its user holds, a colour, a pen or a width
+		;is theirs, the main role the outline, the second the fill, (ptr-part),
+		;and the slot is as it was; with none it is the slot's. Chris: "If you
+		;have no selected items than I think you are setting the ink of the
+		;pen, but if you have selected items you changing there colours".
+		;	:pen n		a pen, by its number in :pens
+		;	:color c	an ink of its own, not a pen's
+		;	:width w
+		;	:mode m		what a pen draws, :select to pick things up
+		;	:switch k	:snap :snap_angle or :keep_shape, turned over
+		;	:ink c		the swatches: the held pen filled with c, as see
+		;	:alpha a	through as it was; how see through, a 0 to 255; or
+		;	:none		none. With things held, each part made so
+		(defq mine (if event (. this :selected_by (. this :user_of event)) (get :selected this))
+			part (if event (ptr-part event) :stroke))
+		(case what
+			((:pen :color)
+				(defq ink (if (eql what :pen) (elem-get (get :pens this) val) val))
+				(if (nempty? mine) (. this :paint mine part ink) (. this :hold event what val)))
+			(:width
+				(if (nempty? mine) (. this :style_ids mine :width val) (. this :hold event :width val)))
+			(:mode
+				(. this :hold event :mode val)
+				(. this :settle_select))
+			(:switch
+				(bind '(snap angle keep) (if event (. this :pointer_settings (ptr-main event))
+					(list (get :snap this) (get :snap_angle this) (get :keep_shape this))))
+				(cond
+					(event (. this :hold event val (not (case val (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep)))))
+					((eql val :snap) (def this :snap (if (= snap 0.0)
+						(if (> (get :snap_gap this) 0.0) (get :snap_gap this) (n2f (. (get :doc this) :find :grid))) 0.0)))
+					((eql val :snap_angle) (def this :snap_angle (if (= angle 0.0) (const (/ +fp_pi 12.0)) 0.0)))
+					((def this :keep_shape (not keep)))))
+			((:ink :alpha :none)
+				(defq held (if event (ptr-main event)) at (if held (. this :pen_of held) (get :pen this))
+					was (if held (. this :ink_of held) (get :color this))
+					alpha (if (board-none? was) 0xff000000 (logand was 0xff000000))
+					ink (case what
+						(:ink (logior (logand val 0xffffff) alpha))
+						(:alpha (logior (logand was 0xffffff) (<< val 24)))
+						(:t 0)))
+				(if (board-none? ink) (setq ink 0))
+				(cond
+					;things held take it, each part from what it was: a colour
+					;at how see through each was, how see through in the colour
+					;each was. The lambdas find the value by a name of its own
+					((nempty? mine)
+						(defq board_pick_val val)
+						(. this :paint mine part 0 (case what
+							(:ink (lambda (old) (logior (logand board_pick_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
+							(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< board_pick_val 24)))) 0 c)))
+							(:t (lambda (old) 0)))))
+					;the pen it holds is filled, Chris: "that value become the
+					;ink in the current pen/marker"
+					((num? at) (. this :fill_pen at ink))
+					((. this :hold event :color ink)))))
+		(. this :touch +board_dirty_overlay)
+		this)
+
+	(defmethod :hold (event key val)
+		; (. board :hold event key val) -> board
+		;the slot of what pressed has it, each role of the press, (ptr-roles),
+		;or no device, the board's own
+		(if event
+			(progn (bind '(id kind buttons &ignore) event)
+				(. (get :bindings this) :set kind (ptr-device id) buttons key val))
+			(def this key val))
+		this)
+
+	(defmethod :fill_pen (at ink)
+		; (. board :fill_pen at ink) -> board
+		;a pen has another ink, every slot that holds it draws with it, and
+		;what shows the pens is told, :on_pens
+		(elem-set (get :pens this) at ink)
+		(if (defq on_pens (get :on_pens this)) (on_pens))
+		this)
+
 	(defmethod :switch_of (what key)
 		; (. board :switch_of what key) -> :t | :nil
 		;is a switch, :snap :snap_angle or :keep_shape, on for a device bound

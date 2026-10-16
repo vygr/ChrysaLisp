@@ -7,10 +7,9 @@ docs/reference/classes/Swatches.cwb
 ## Actor
 
 ```code
-(Swatches board x y on_pick) -> swatches
+(Swatches board x y) -> swatches
 
-about a point of the document. on_pick is called (on_pick swatches
-event what val)
+about a point of the document
 ```
 
 ### :cell_at
@@ -78,7 +77,7 @@ screen, the right way up whichever way the board is turned
 (. swatches :where what [val]) -> :nil | (x y)
 
 the point of the document that the middle of a cell is at, for what
-would tap it: (:where :color 0xff000000), (:where :alpha 0x80),
+would tap it: (:where :ink 0xff000000), (:where :alpha 0x80),
 (:where :none), (:where :close)
 ```
 

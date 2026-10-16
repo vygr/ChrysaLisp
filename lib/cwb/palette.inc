@@ -244,58 +244,22 @@
 		(. (. board :get_bindings) :value
 			(ptr-event (get :id this) (get :kind this) +pev_left 0 0) key (get key board)))
 
-	(defmethod :set_value (key val)
-		; (. palette :set_value key val) -> palette
-		(defq board (get :board this) id (ptr-device (get :id this)))
-		;a pen's tip, by its device, is what it was and this; the mouse and
-		;a finger set the board's
-		(if (eql (get :kind this) :pen)
-			(. (. board :get_bindings) :set :pen id +pev_left key val)
-			(def board key val))
-		(. board :touch +board_dirty_overlay)
-		this)
-
-	(defmethod :bind_tapper (event key val)
-		; (. palette :bind_tapper event key val) -> user
-		;a floating menu binds whatever tapped it, the device with the
-		;buttons it had held, all of touch as one. Chris: "taps on them
-		;effect their pen as you KNOW what device has tapped on them". A
-		;colour or a width, with things that user has picked up, is theirs,
-		;the outline or the fill by the button, (ptr-part), and the
-		;device is as it was, Chris: "if you have selected items you changing
-		;there colours"
-		(defq board (get :board this) user (. board :user_of event) mine (. board :selected_by user))
-		(bind '(id kind buttons &ignore) event)
-		(cond
-			((and (eql key :color) (nempty? mine)) (. board :paint mine (ptr-part event) val))
-			((and (eql key :pen) (nempty? mine)) (. board :paint mine (ptr-part event) (elem-get (get :pens board) val)))
-			((and (eql key :width) (nempty? mine)) (. board :style_ids mine :width val))
-			((. (. board :get_bindings) :set kind (ptr-device id) buttons key val)))
-		user)
-
 	(defmethod :pick (what &optional val event)
 		; (. palette :pick what [val event]) -> palette
-		;do what a tap on a wedge does, see (:where). A floating menu,
-		;given the event of the tap, binds what tapped it, and stays
+		;do what a tap on a wedge does, see (:where). What it picks is the
+		;board's to do, (. board :pick), for what the menu is for: a floating
+		;menu, given the event of the tap, what tapped it, Chris: "taps on
+		;them effect their pen as you KNOW what device has tapped on them",
+		;and it stays; one opened for a pen, that pen; one opened by the
+		;mouse or a finger, the board's own. One not floating shuts on a tool
 		(defq board (get :board this) floating (and (get :floating this) event)
 			user (if floating (. board :user_of event))
-			;who it is done for, what tapped a floating one, or whose it is
-			who (or floating (ptr-event (get :id this) (get :kind this) +pev_left 0 0)))
+			who (or floating (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
+			by (cond (floating event) ((eql (get :kind this) :pen) who)))
 		(case what
 			(:hub (. this :close))
-			(:tool (if floating (. this :bind_tapper event :mode val)
-				(. this :set_value :mode val) (. this :close))
-				;out of select mode, what that user selected is let go of
-				(. board :settle_select))
-			(:color (if floating (. this :bind_tapper event :color val)
-				(. this :set_value :color val)
-				(. board :paint :t :stroke val)))
-			(:pen (if floating (. this :bind_tapper event :pen val)
-				(. this :set_value :pen val)
-				(. board :paint :t :stroke (elem-get (get :pens board) val))))
-			(:width (if floating (. this :bind_tapper event :width val)
-				(. this :set_value :width val)
-				(if (nempty? (. board :get_selected)) (. board :style :width val))))
+			(:tool (. board :pick by :mode val) (unless floating (. this :close)))
+			((:color :pen :width) (. board :pick by what val))
 			(:action
 				(bind '(ox oy) (get :origin this))
 				;an instrument is made where the palette is, and with the
@@ -310,18 +274,13 @@
 					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:window (if (defq on_window (get :on_window board)) (on_window)) (unless floating (. this :close)))
-					;the colours of the custom inks, a menu of their own beside
-					;this one, if what shows the board has them, :on_swatches
+					;the swatches, a menu of their own beside this one, if what
+					;shows the board has them, :on_swatches
 					(:swatches (if (defq on_swatches (get :on_swatches board))
 							(on_swatches (+ ox (/ 290.0 (get :zoom board))) oy))
 						(unless floating (. this :close)))
-					;snap is each device's own, as its colour is. One that is
-					;nobody's, opened by a tap of a pointer, sets the board's
-					(:snap (if floating
-						;over from what its main role has, (ptr-main)
-						(. this :bind_tapper event :snap (= (first (. board :pointer_settings (ptr-main event))) 0.0))
-						(def board :snap (if (= (get :snap board) 0.0)
-							(n2f (. (. board :get_doc) :find :grid)) 0.0))))
+					;snap is each device's own, as its colour is
+					(:snap (. board :pick by :switch :snap))
 					(:duplicate (. board :duplicate) (unless floating (. this :close)))
 					(:delete (. board :delete) (unless floating (. this :close))))))
 		(. board :touch +board_dirty_overlay)
@@ -557,7 +516,7 @@
 	;a floating menu (just another object that also lives in this multi
 	;inputs swarm) and you could drag them around, have as many as you
 	;wanted". It stays till its middle is tapped, and a tap on it binds the
-	;device that tapped, see (. palette :bind_tapper)
+	;device that tapped, see (. palette :pick) and (. board :pick)
 	(defq stage (. board :get_stage))
 	(. stage :add (defq palette (Palette board (n2f x) (n2f y))))
 	(def palette :floating :t)

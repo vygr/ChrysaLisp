@@ -559,3 +559,25 @@
 	(str (list (first po_was) (second po_was) (third po_was) po_dupped (map (# (. po_board :holder %0)) po_kids))))
 (. po_board :delete)
 (assert-eq "deleted, no one holds them" "(:nil :nil)" (str (map (# (. po_board :holder %0)) po_kids)))
+;one pick, (. board :pick event what val), wherever it was made: to what
+;its user holds, else to the slot of what pressed, else, no device, the
+;board's own
+(defq pt_board (Board (cwb-doc 400 400)) pt_b (. pt_board :get_bindings) pt_pens (list +argb_red +argb_green))
+(def pt_board :pens pt_pens :pen 0)
+(defq pt_left (ptr-event 0 :mouse +pev_left 0 0) pt_right (ptr-event 0 :mouse +pev_right 0 0))
+(. pt_board :pick pt_left :pen 1) (. pt_board :pick pt_left :width 9.0) (. pt_board :pick pt_left :mode :rect)
+(. pt_board :pick pt_left :switch :snap) (. pt_board :pick :nil :switch :keep_shape)
+(assert-eq "nothing held: the left holds pen 1, width 9, boxes and snap; no device turns over the board's lock"
+	"(1 9 :rect :t :nil)" (str (list (. pt_b :value pt_left :pen) (n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_left :mode)
+		(. pt_b :value pt_left :snap) (get :keep_shape pt_board))))
+(defq pt_it (. pt_board :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0xff000000 :width 3.0)))
+(. pt_board :pick_up pt_it +board_teacher)
+(. pt_board :pick pt_right :pen 1) (. pt_board :pick pt_left :width 12.0) (. pt_board :pick pt_left :alpha 0x40)
+(defq pt_shape (first (cwb-find (. pt_board :get_doc) pt_it)))
+(assert-eq "held: the right's pen is its fill, the width its, a quarter see through its outline, and the slots are as they were"
+	(str (list +argb_green 12 0x40000000 9 :nil (first pt_pens)))
+	(str (list (cwb-get pt_shape :fill) (n2i (cwb-get pt_shape :width)) (cwb-get pt_shape :stroke)
+		(n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_right :pen) (first pt_pens))))
+(. pt_board :select (list))
+(. pt_board :pick pt_left :ink 0xff0000ff)
+(assert-eq "put down, an ink fills the pen the left holds, pen 1" 0xff0000ff (second pt_pens))
