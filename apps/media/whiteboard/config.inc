@@ -42,6 +42,9 @@
 				((Setsquare45? %0) :set_square45) (:t :set_square))
 				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
 			(filter (const Instrument?) (. (. *board* :get_stage) :get_actors)))
+		;each floating menu that is open, where it is, Chris: "ring menu's
+		;don't survive a exit, relaunch"
+		:menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*)))
 		:doc (cwb-out doc)))
 
 (defun config-apply (config)
@@ -49,9 +52,9 @@
 	;the board is made what it was. Where its window was and its view in
 	;it, :nil if this is not what a board was
 	(when (and (Emap? config) (eql (. config :find :version) +config_version))
-		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data bound)
+		(bind '(x y w h sx sy zoom mode ink radius style snap snap_angle keep_shape text file tools data bound menus)
 			(gather config :x :y :width :height :scroll_x :scroll_y :zoom :mode :ink :radius :style
-				:snap :snap_angle :keep_shape :text :file :tools :doc :bindings))
+				:snap :snap_angle :keep_shape :text :file :tools :doc :bindings :menus))
 		;the rules of each device that is kept, the last first, as they were
 		;not a rule of buttons 0, which a floating menu once made from the
 		;up of a tap: it matched every press of the mouse, before the rule
@@ -93,6 +96,9 @@
 					(. tool :set_extent extent)
 					(. (. *board* :get_stage) :add tool))))
 			(ifn tools (list)))
+		(each (lambda (at) (and (list? at) (= (length at) 2) (every (const num?) at)
+				(palette-float *board* (first at) (second at))))
+			(ifn menus (list)))
 		(board-resized)
 		(if (every (const num?) (list x y w h sx sy)) (list x y w h sx sy))))
 
