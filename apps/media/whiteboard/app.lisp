@@ -145,7 +145,12 @@
 	;clear one is not drawn, and the view is not opaque, the button is
 	;drawn under it
 	(def this :lit (list) :min_width (inc (* +strip_cells 4)) :min_height 9)
-	(. this :set_flags 0 +view_flag_opaque)
+
+	(defmethod :layout ()
+		; (. lights :layout) -> lights
+		;never opaque: a View is, laid out with a solid paper, and it has
+		;the bar's, so what is under the clear squares was not drawn
+		(. this :set_flags 0 +view_flag_opaque))
 
 	(defmethod :draw ()
 		; (. lights :draw) -> lights
