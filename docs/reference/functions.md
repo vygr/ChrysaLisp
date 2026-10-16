@@ -8074,6 +8074,15 @@ the VP source of the native function that places vertices
 row by row: light to dark, a hue each 30 degrees across, then grey
 ```
 
+### swatch-tip
+
+```code
+(swatch-tip what val [long]) -> :nil | str
+
+what a cell is, in words, short as the toolbars' tips are; a colour
+has none, as an ink of the bar has none
+```
+
 ### swatches-on
 
 ```code

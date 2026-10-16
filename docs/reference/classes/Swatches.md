@@ -16,7 +16,7 @@ event what val)
 ### :cell_at
 
 ```code
-(. swatches :cell_at px py) -> :nil | cell
+(. swatches :cell_at px py) -> :nil | :bar | cell
 ```
 
 ### :close
@@ -59,7 +59,8 @@ made once, about the middle, in the space of the screen
 (. swatches :pointers stage events) -> swatches
 
 a pointer that comes up on the cell it went down on taps it. One
-that went down between the cells and is dragged moves the menu
+that went down on the bar, or between the cells, and is dragged
+moves the menu
 ```
 
 ### :to_own

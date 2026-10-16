@@ -51,3 +51,23 @@
 (assert-true "it draws" (catch (progn (. sw :draw sw_c (Mat3x2-translate 0 0)) :t) :nil))
 (sw-tap sw_board 0 :mouse +pev_left (. sw :where :close))
 (assert-eq "its cross puts it away" 0 (length (swatches-on sw_board)))
+(assert-list-eq "the opacity cells say how much, the tip says what"
+	'("100%" "75%" "50%" "25%" "opacity 50%" "none" "close" :nil :nil)
+	(cat (map (# (swatch-tip :alpha %0)) '(0xff 0xc0 0x80 0x40))
+		(list (swatch-tip :alpha 0x80 :t) (swatch-tip :none 0 :t) (swatch-tip :close :nil :t) (swatch-tip :none 0) (swatch-tip :color 0xff000000 :t))))
+(defq sw (Swatches sw_board 400 300 (lambda (on event what val))))
+(. (. sw_board :get_stage) :add sw)
+(. sw_board :pointers (list (apply (const ptr-event) (cat '(0 :mouse 0) (. sw :where :alpha 0x80)))))
+(assert-true "a pointer over an opacity cell, it and its tip are drawn"
+	(and (eql (elem-get (get :hover sw) +swcell_what) :alpha)
+		(catch (progn (. sw :draw sw_c (Mat3x2-translate 0 0)) :t) :nil)))
+;the bar across the top drags it
+(bind '(sw_x sw_y) (get :origin sw))
+(bind '(& sw_h) (get :size sw))
+(defq sw_top (+ sw_y (* -0.5 sw_h) 8.0))
+(. sw_board :pointers (list (ptr-event 0 :mouse +pev_left sw_x sw_top)))
+(assert-eq "a pointer on its bar is on the bar" :bar (get :hover sw))
+(. sw_board :pointers (list (ptr-event 0 :mouse +pev_left (- sw_x 60.0) (+ sw_top 20.0))))
+(. sw_board :pointers (list (ptr-event 0 :mouse 0 (- sw_x 60.0) (+ sw_top 20.0))))
+(assert-list-eq "dragged by its bar it moves" (list (n2i (- sw_x 60.0)) (n2i (+ sw_y 20.0)))
+	(map (const n2i) (get :origin sw)))
