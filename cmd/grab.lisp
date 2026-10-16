@@ -29,14 +29,14 @@
 ))
 
 (defun main ()
-	(and (defq stdio (create-stdio))
-		(defq opt_t :nil opt_f :nil opt_w 0 args (options stdio usage))
+	(when (and (defq stdio (create-stdio))
+			(defq opt_t :nil opt_f :nil opt_w 0 args (options stdio usage)))
 		;a view in the window: where it is seen, and that is what is grabbed
 		(defq kv (if opt_f (split opt_f "=")) at (if kv (gui-wait (# (gui-locate-rpc opt_t (first kv) (second kv))) opt_w)))
 		(cond
 			((< (length args) 2) (print "grab: what file ?"))
 			((and kv (not at)) (print "grab: no GUI"))
-			((str? at) (print "grab: " at))
+			((and at (str? at)) (print "grab: " at))
 			((not (defq grabbed (gui-wait (# (gui-grab-rpc opt_t (if at (slice at 4 8)))) opt_w)))
 				(print "grab: no GUI"))
 			((str? grabbed) (print "grab: " grabbed))
