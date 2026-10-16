@@ -33,9 +33,11 @@ the back one first
 ### :hit
 
 ```code
-(. stage :hit x y) -> :nil | actor
+(. stage :hit x y [event]) -> :nil | actor
 
-the frontmost actor a point is on
+the frontmost actor that says a point is on it, and a contact that
+lands there its own, Chris: "It just says I have this event
+co-ordinate, is that you ?"
 ```
 
 ### :owner
@@ -44,6 +46,16 @@ the frontmost actor a point is on
 (. stage :owner id) -> :nil | actor
 
 the actor a pointer that is down belongs to
+```
+
+### :pass
+
+```code
+(. stage :pass actor id events) -> :nil | actor
+
+an actor that had a contact gives it to the first behind it that
+takes it, as if it had landed there, and that one is given the
+events of it so far, the first as it went down
 ```
 
 ### :pointers

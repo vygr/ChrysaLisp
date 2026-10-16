@@ -9,18 +9,12 @@ docs/reference/classes/Surface.cwb
 ```code
 (Surface board) -> surface
 
-the actor at the back, every point is on it
-
-A pointer belongs to what it went down on till it comes up, and to
-nothing else. The stage has that for the actors, a ruler, a palette.
-Here it is so for the things of the document: a hand that goes down
-on a thing has hold of that thing, and of no other, and what another
-hand does elsewhere is nothing to it. One draws, two more size a
-thing, somebody across the board moves another, and none of them is
-in the way of the rest. Two hands that go down on the same thing
-move, turn and size it between them. A box dragged out on nothing is
-its pointer's own. And a finger that goes down somewhere puts away
-nobody's palette, nor lets go of what somebody else has hold of
+the canvas, the actor at the back, every point is on it: what no
+other actor takes is its. A stroke is drawn, a shape dragged out, words
+put down, a box dragged out round things, a tap is the board's menu if
+it has one, and an eraser rubs out what it goes over. It knows nothing
+of what is held, (Things). A finger that goes down here puts away
+nobody's palette
 ```
 
 ### :begin
@@ -48,48 +42,7 @@ the hand. A hand that holds a thing or drags a box out is not
 a pointer has come up
 ```
 
-### :grabbed
-
-```code
-(. surface :grabbed id) -> :nil | found
-
-is a pointer one of two that have hold of the same things, (:two_hands)
-```
-
-### :held_ids
-
-```code
-(. surface :held_ids) -> (id ...)
-
-every item some hand has hold of now
-```
-
 ### :hit
-
-### :holder
-
-```code
-(. surface :holder item_id) -> :nil | (id state)
-
-the hand that has hold of an item, the pointer it is and what is
-kept for it
-```
-
-### :holders
-
-```code
-(. surface :holders) -> num
-
-how many pointers have hold of things
-```
-
-### :holding
-
-```code
-(. surface :holding) -> :nil | id
-
-a pointer that has hold of what is selected
-```
 
 ### :pointers
 
@@ -104,14 +57,6 @@ a pointer that has hold of what is selected
 
 the bite of every way an eraser has gone since the last. Was
 anything rubbed out
-```
-
-### :same_things
-
-```code
-(. surface :same_things things things) -> :t | :nil
-
-do two hands have hold of the same things
 ```
 
 ### :shape_d
@@ -130,18 +75,6 @@ the path of what a pointer is drawing, now it is at a point
 a pointer that is down has moved, or come up
 ```
 
-### :swapped
-
-```code
-(. surface :swapped swaps) -> surface
-
-things have been made other things, ((id (shape ...)) ...), a
-bite out of each. A hand that had hold of one has hold of what
-stands in its place, from where things are now: it goes on moving
-them, and two hands on them go on turning them, with no jump. If
-nothing is left of what it held it holds nothing, and does nothing
-```
-
 ### :tap?
 
 ```code
@@ -151,29 +84,9 @@ did a contact lift as a tap: soon, and near where it landed. A
 board that is told no time, (:tick), goes by the distance alone
 ```
 
-### :things
-
-```code
-(. surface :things) -> ((item matrix) ...)
-
-what is selected, each with where it is now, to be moved from there
-```
-
 ### :tick
 
 ```code
 (. surface :tick time) -> :nil
-```
-
-### :two_hands
-
-```code
-(. surface :two_hands)
-
-if two pointers have hold of the same things, the two of them
-move them, turn them and size them, by where they were when the
-second took hold and where they are now. While they do, neither
-moves them alone. When one lets go the other carries on from where
-things are. Hands that have hold of other things go on as they were
 ```
 

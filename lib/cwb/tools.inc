@@ -341,7 +341,7 @@
 		;the part a point, in its own space, is in
 		(some (lambda (region) (if (cwb-shape-hit? (second region) :nil x y) region)) (get :regions this)))
 
-	(defmethod :hit (x y)
+	(defmethod :hit (x y &optional event)
 		;on it, or near enough one of its edges to draw along it
 		(unless (get :body this) (. this :built))
 		(bind '(lx ly) (. this :to_own x y))
@@ -432,12 +432,13 @@
 	(defmethod :restack (stage front)
 		; (. instrument :restack stage front) -> instrument
 		;to the front of the instruments on a stage, or to the back of
-		;them. They stay in front of the surface and the handles, the two
-		;at the back, and behind what else is there, a palette
-		(defq actors (. stage :get_actors)
+		;them. They stay in front of the board's own, the canvas, the things
+		;and their handles, and behind what else is there, a palette
+		(defq board (get :board this) own (list (get :surface board) (get :things board) (get :handles board))
+			actors (. stage :get_actors)
 			tools (filter (# (and (Instrument? %0) (not (eql %0 this)))) actors)
-			low (filter! (# (not (Instrument? %0))) actors 0 (min 2 (length actors)))
-			high (filter! (# (not (Instrument? %0))) actors (min 2 (length actors)) -1))
+			low (filter (# (find %0 own)) actors)
+			high (filter (# (not (or (Instrument? %0) (find %0 own)))) actors))
 		(def stage :actors (cat low (if front (cat tools (list this)) (cat (list this) tools)) high))
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)

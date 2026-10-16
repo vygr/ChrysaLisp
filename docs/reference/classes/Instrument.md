@@ -205,8 +205,8 @@ what it says is not what it said
 (. instrument :restack stage front) -> instrument
 
 to the front of the instruments on a stage, or to the back of
-them. They stay in front of the surface and the handles, the two
-at the back, and behind what else is there, a palette
+them. They stay in front of the board's own, the canvas, the things
+and their handles, and behind what else is there, a palette
 ```
 
 ### :set_extent

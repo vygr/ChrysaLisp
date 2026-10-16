@@ -494,6 +494,18 @@ whatever the zoom, as an instrument is the size it is
 (. board :redo) -> :t | :nil
 ```
 
+### :release
+
+```code
+(. board :release) -> board
+
+let go of what holds the board as the board holds it: its stage
+holds its actors and each of them the board, round, which the count
+of who holds a thing never lets go of, Chris: "if it points back at
+itself it needs to break that cycle when it quits ! else it will
+leak". Each actor lets go of the board, the stage of them all
+```
+
 ### :remove
 
 ```code

@@ -887,7 +887,7 @@
 	;not again each time they move. Only while a hand has hold of them, when
 	;nothing else of them is changing, and nothing is being drawn
 	(when (and *flight_at* (= *turn* 0) (= (. (get :temp *board*) :size) 0)
-			(or (. (get :surface *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
+			(or (. (get :things *board*) :holding) (/= (. (get :handles *board*) :held) 0)))
 		(bind '(zoom ids ms ox oy & ds) *flight_at*)
 		(defq now (flight-front))
 		(when (and (= zoom *zoom*) (nempty? now) (= (length now) (length ids)))
@@ -1324,6 +1324,8 @@
 	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
+	;the board, its stage and its actors hold one another, and are let go
+	(. *board* :release)
 	(gui-sub-rpc *window*)
 	(if *committed* (. *committed* :free))
 	(profile-report "Whiteboard App"))

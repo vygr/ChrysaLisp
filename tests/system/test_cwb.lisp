@@ -229,7 +229,7 @@
 ;a stage of two actors, a box at the front and all of it behind
 (defclass Wb-actor (x y x1 y1) (Actor)
 	(def this :box (list x y x1 y1) :got (list) :left (list))
-	(defmethod :hit (x y)
+	(defmethod :hit (x y &optional event)
 		(bind '(bx by bx1 by1) (get :box this))
 		(and (>= x bx) (>= y by) (< x bx1) (< y by1)))
 	(defmethod :pointers (stage events)

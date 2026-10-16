@@ -229,9 +229,11 @@
 	;for each pointer it has, by the pointer's id
 	(def this :states (Fmap 11))
 
-	(defmethod :hit (x y)
-		; (. actor :hit x y) -> :t | :nil
-		;is a point on it, the point is in the space of the stage
+	(defmethod :hit (x y &optional event)
+		; (. actor :hit x y [event]) -> :t | :nil
+		;is a point on it, the point is in the space of the stage, and is
+		;the contact its own, by its own rules, with the event of the
+		;contact as it lands: the stage asks, it tests nothing itself
 		:nil)
 
 	(defmethod :pointers (stage events)
@@ -322,10 +324,27 @@
 		(each (# (. over :erase %0)) gone)
 		this)
 
-	(defmethod :hit (x y)
-		; (. stage :hit x y) -> :nil | actor
-		;the frontmost actor a point is on
-		(some! (# (if (. %0 :hit x y) %0)) (list (get :actors this)) :nil -1 0))
+	(defmethod :hit (x y &optional event)
+		; (. stage :hit x y [event]) -> :nil | actor
+		;the frontmost actor that says a point is on it, and a contact that
+		;lands there its own, Chris: "It just says I have this event
+		;co-ordinate, is that you ?"
+		(some! (# (if (. %0 :hit x y event) %0)) (list (get :actors this)) :nil -1 0))
+
+	(defmethod :pass (actor id events)
+		; (. stage :pass actor id events) -> :nil | actor
+		;an actor that had a contact gives it to the first behind it that
+		;takes it, as if it had landed there, and that one is given the
+		;events of it so far, the first as it went down
+		(defq actors (get :actors this) at (find actor actors) next :nil)
+		(bind '(& & & x y &ignore) (first events))
+		(while (and at (not next) (>= (setq at (dec at)) 0))
+			(if (. (defq a (elem-get actors at)) :hit x y (first events)) (setq next a)))
+		(when next
+			(. (get :owners this) :insert id next)
+			(. (get :over this) :insert id next)
+			(. next :pointers this events))
+		next)
 
 	(defmethod :owner (id)
 		; (. stage :owner id) -> :nil | actor
@@ -342,8 +361,9 @@
 		(each (lambda (event)
 			(bind '(id kind buttons x y &ignore) event)
 			(defq owner (. owners :find id) held owner)
-			;one that is not down on an actor is the frontmost's it is over
-			(unless owner (setq owner (. this :hit x y)))
+			;one that is not down on an actor is the frontmost's it is over,
+			;and that takes it
+			(unless owner (setq owner (. this :hit x y event)))
 			;it goes down on that actor, and is its till it comes up
 			(and owner (not held) (/= buttons 0) (. owners :insert id owner))
 			(and held (= buttons 0) (push up id))
@@ -362,6 +382,12 @@
 					(push (second group) event)
 					(push groups (list owner (list event))))))
 			events)
+		;each is given its own, all at once, the front one first, so what
+		;they do goes from the front of the scene to the back, Chris: "I
+		;suggest just front to back, so actions that generate flow from the
+		;front to back of the scene"
+		(defq actors (get :actors this))
+		(sort groups (# (- (ifn (find (first %1) actors) -1) (ifn (find (first %0) actors) -1))))
 		(each (lambda ((owner owner_events)) (. owner :pointers this owner_events)) groups)
 		(each (# (. owners :erase %0)) up)
 		(map (const first) groups))

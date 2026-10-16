@@ -687,6 +687,25 @@ the edges, and they WILL draw !"
 to the nearest step, as it is if the step is 0
 ```
 
+### board-tap?
+
+```code
+(board-tap? board state x y) -> :t | :nil
+
+did a contact lift as a tap: soon, and near where it landed. A board
+that is told no time, (:tick), goes by the distance alone
+```
+
+### board-tool-of
+
+```code
+(board-tool-of board event) -> tool
+
+what a pointer is bound to do: its tool, :hand :eraser :pan, or a pen
+of what its mode draws, the board's if it has none, and select mode the
+hand, so a mouse alone can do everything
+```
+
 ### board-two-point-mat
 
 ```code

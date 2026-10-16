@@ -1245,7 +1245,12 @@ number, `:pens`, `(. board :pen_of)` and `(. board :ink_of)`; stage 3, who
 holds what behind `(. board :holder)`, `:pick_up`, `:others_of` and
 `:select`; stage 4, the pick table, `(. board :pick event what val)`, with
 `:hold` and `:fill_pen`, which the toolbar, the rings and the swatches
-call, the swatches themselves.
+call, the swatches themselves; stage 5, the things on the stage, `(Things)`,
+in front of the canvas, `(Surface)`, which knows nothing of what is held:
+the `Stage` asks with the contact, `(. actor :hit x y event)`, hands a
+contact back, `(. stage :pass actor id events)`, and gives each actor its
+own front to back; and `(. board :release)`, the board and its actors let
+go of each other.
 
 **One resolve.** As a contact lands it is resolved, once, to its device,
 its user and its role: the main button, the second, both, the middle of a

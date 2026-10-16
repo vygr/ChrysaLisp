@@ -307,7 +307,7 @@
 	; pointers
 	;;;;;;;;;;
 
-	(defmethod :hit (x y)
+	(defmethod :hit (x y &optional event)
 		; (. palette :hit x y) -> :t | :nil
 		;all within its outer ring is on it, till it shuts
 		(unless (get :shut this)

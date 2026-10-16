@@ -49,9 +49,11 @@ how many pointers it has something kept for, those that are down on it
 ### :hit
 
 ```code
-(. actor :hit x y) -> :t | :nil
+(. actor :hit x y [event]) -> :t | :nil
 
-is a point on it, the point is in the space of the stage
+is a point on it, the point is in the space of the stage, and is
+the contact its own, by its own rules, with the event of the
+contact as it lands: the stage asks, it tests nothing itself
 ```
 
 ### :leave

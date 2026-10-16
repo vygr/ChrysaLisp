@@ -127,7 +127,7 @@
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
 
-	(defmethod :hit (x y)
+	(defmethod :hit (x y &optional event)
 		; (. swatches :hit x y) -> :t | :nil
 		(. this :get_cells)
 		(bind '(px py) (. this :to_own x y))

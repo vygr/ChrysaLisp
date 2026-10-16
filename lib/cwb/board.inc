@@ -317,18 +317,304 @@
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
-	;the actor at the back, every point is on it
+	;the canvas, the actor at the back, every point is on it: what no
+	;other actor takes is its. A stroke is drawn, a shape dragged out, words
+	;put down, a box dragged out round things, a tap is the board's menu if
+	;it has one, and an eraser rubs out what it goes over. It knows nothing
+	;of what is held, (Things). A finger that goes down here puts away
+	;nobody's palette
+	(def this :board board :grab :nil)
+
+	(defmethod :hit (x y &optional event) :t)
+
+	(defmethod :rub_flush ()
+		; (. surface :rub_flush) -> :t | :nil
+		;the bite of every way an eraser has gone since the last. Was
+		;anything rubbed out
+		(raise :board)
+		(defq todo (get :rub_todo board) ways (list) done :nil)
+		(. todo :each (lambda (id (way reach user)) (push ways (list id way reach user))))
+		(each (lambda ((id way reach user))
+			(. todo :erase id)
+			(when (. board :bite way reach :nil user)
+				(setq done :t)
+				(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
+			ways)
+		done)
+
+	(defmethod :tick (time)
+		; (. surface :tick time) -> :nil
+		(. this :rub_flush)
+		:nil)
+
+	(defmethod :drawing? ()
+		; (. surface :drawing?) -> :t | :nil
+		;is any pointer drawing, or rubbing out: it has a tool that is not
+		;the hand. A hand that holds a thing or drags a box out is not
+		(defq found :nil)
+		(. (get :states this) :each (lambda (id state)
+			(unless (find (elem-get state +stroke_tool) '(:hand :idle :pan)) (setq found :t))))
+		found)
+
+	(defmethod :begin (event)
+		; (. surface :begin event) -> state
+		;a pointer has gone down
+		(raise :board)
+		(bind '(id kind buttons x y &ignore) event)
+		(defq tool (board-tool-of board event)
+			;what was only there till the next pointer went down goes. Not
+			;for a finger: one of many, it is not to put away the palette
+			;of another. A tap of one on nothing does, (:end)
+			shut (if (eql kind :touch) :nil (. board :dismiss event))
+			state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
+			holding (. (get :things board) :holding))
+		;what lands on a thing is the thing's, (Things), what is here is on
+		;nothing: the canvas knows nothing of things, Chris: "The canvas
+		;shouldn't be looking or even know if shapes or instruments are
+		;held/selected/being dragged or not ! All it cares about is a tap will
+		;bring up the menu, or a stroke will add a stroke or drag out a shape"
+		(case tool
+			(:hand
+				;a box dragged out, or a tap. With nothing selected, and nothing
+				;put away by it, it may be a tap, see (:end). What other hands
+				;have hold of is selected, and is left so; what this user
+				;picked up is put down, not what others did
+				(and (not shut) (or holding (empty? (get :selected board)))
+					(elem-set state +stroke_snap :tap))
+				(unless holding (. board :select (. board :others_of (. board :user_of event)))))
+			;what is selected stays so, and what is left of it after a
+			;bite, (:bite), with its handles, Chris: "I can select a shape
+			;and then erase though it, but the select controls vanish as
+			;the erase takes a bite"
+			(:eraser (. board :snapshot))
+			(:pan)
+			(:text
+				;the words the board has are put down where the pointer is,
+				;they sit on the line through it, and that is all it does
+				(elem-set state +stroke_tool :idle)
+				(when (nempty? (defq words (get :text board)))
+					(. board :commit (cwb-text words (. board :snap_x x id) (. board :snap_y y id)
+						:fill (. board :ink_of event)
+						:font (get :font board) :font_size (get :font_size board))
+						(. board :user_of event))))
+			(:t ;something is drawn. What is in select mode stays so: only a
+				;tap takes a thing in or out, (:end), and another may be
+				;drawing beside what one has selected
+				(elem-set state +stroke_x (. board :snap_x x id))
+				(elem-set state +stroke_y (. board :snap_y y id))
+				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
+				;when it was begun, for what is written, (:written)
+				(elem-set state +stroke_snap (get :time board))
+				(elem-set state +stroke_item (. board :new_shape event tool))
+				;a filled shape of one ink in both pens is a fill as far out
+				;as its outline would be, (:shape_d)
+				(when (find tool '(:frect :fellipse))
+					(bind '(line fill) (. board :ink_pair event))
+					(and (= line fill) (not (board-none? line))
+						(elem-set state +stroke_grow (* 0.5 (n2f (. (get :bindings board) :value event :width (get :width board)))))))))
+		state)
+
+	(defmethod :shape_d (state x y)
+		; (. surface :shape_d state x y) -> d
+		;the path of what a pointer is drawing, now it is at a point
+		(bind '(tool sx sy points &ignore) state)
+		;a filled shape of one ink is as big as it would be with an outline
+		(defq grow (elem-get state +stroke_grow))
+		(case tool
+			((:line :arrow :arrow2) (cwb-d-line sx sy x y))
+			(:rect (cwb-d-rect sx sy x y))
+			(:frect (cwb-d-rect (- (min sx x) grow) (- (min sy y) grow) (+ (max sx x) grow) (+ (max sy y) grow)))
+			((:ellipse :fellipse)
+				(cwb-d-ellipse (* 0.5 (+ sx x)) (* 0.5 (+ sy y)) (+ (* 0.5 (abs (- x sx))) grow) (+ (* 0.5 (abs (- y sy))) grow)))
+			(:t (board-pen-d points))))
+
+	(defmethod :step (event state)
+		; (. surface :step event state) -> state
+		;a pointer that is down has moved, or come up
+		(raise :board)
+		(bind '(id kind buttons x y &ignore) event)
+		(bind '(tool sx sy points item moved &ignore) state)
+		(case tool
+			(:idle)
+			(:hand ;a box is dragged out round things, this pointer's own
+				(. (get :bands board) :insert id (list (min sx x) (min sy y) (max sx x) (max sy y)))
+				(. board :touch +board_dirty_overlay))
+			(:eraser
+				;from where it was to where it is, and it is shown there.
+				;A bite is not taken for each move of the hand: on a thing
+				;of many points one takes longer than the next move is in
+				;coming, and the hand is then left behind. The way it has
+				;gone is kept, and one bite of all of it is taken when
+				;there is time, (:rub_flush): at the next tick, or as the
+				;eraser lifts. However far behind, the eraser is where the
+				;hand is
+				(bind '(ox oy) points)
+				;how far it reaches is the width this pointer draws with:
+				;thin, it rubs out a little, thick, a lot. Chris: "The
+				;eraser mode, should use the current pen size ?"
+				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board))))
+				(cond
+					((eql (get :rub_mode board) :bite)
+						(defq todo (get :rub_todo board) going (. todo :find id))
+						(unless going (. todo :insert id (setq going (list (path ox oy) reach (. board :user_of event)))))
+						(push (first going) x y))
+					((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
+				(elem-set state +stroke_points (list x y))
+				(def board :rubber (list x y reach))
+				(. board :touch +board_dirty_overlay))
+			(:pan
+				(def board :pan (list (- x sx) (- y sy))))
+			(:t ;something is drawn. A line from where it began, at a step of
+				;angle if angles snap, (:snap_end)
+				(bind '(x y) (if (find tool '(:line :arrow :arrow2)) (. board :snap_end sx sy x y id)
+					(list (. board :snap_x x id) (. board :snap_y y id))))
+				(when (or (/= x (elem-get points -3)) (/= y (elem-get points -2)))
+					(push points x y)
+					(cwb-set item :d (. this :shape_d state x y))
+					(. board :touch +board_dirty_overlay))))
+		state)
+
+	(defmethod :end (event state)
+		; (. surface :end event state)
+		;a pointer has come up
+		(raise :board)
+		(bind '(id kind buttons x y &ignore) event)
+		(bind '(tool sx sy points item moved lx ly snap &ignore) state)
+		(case tool
+			(:idle)
+			(:hand
+				(cond
+					(:t (defq bands (get :bands board) band (. bands :find id) near (/ +board_near (get :zoom board))
+							holding (. (get :things board) :holding))
+						(. bands :erase id)
+						(cond
+							((and (eql snap :tap) (defq menu (get :menu board))
+									(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+								;a tap on nothing, the board's menu, if it has
+								;one, lib/cwb/palette.inc. A tap of a finger
+								;puts away one that is open, and opens one if
+								;there was none to put away
+								(unless (and (eql kind :touch) (. board :dismiss event))
+									(menu board x y event)))
+							;what the box touches is selected, it need not be
+							;all round a thing: a long line, or a thing at
+							;the edge of the paper, can not be got round. With
+							;what other hands have hold of, which stays so
+							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
+									;and what other users picked up, a box is this
+									;one's, and a tap on nothing puts down what this
+									;user picked up
+									kept (if holding (get :selected board) (. board :others_of (. board :user_of event))))
+								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
+						(. board :touch +board_dirty_overlay))))
+			(:eraser
+				(if (. this :rub_flush) (setq moved :t))
+				(setq moved (or moved (elem-get state +stroke_moved)))
+				(unless moved (. board :forget))
+				(def board :rubber :nil)
+				;a pen rubs out with the button on its side held, and it has
+				;no other way to its menu: a tap of that on nothing, that
+				;rubbed nothing out, is the board's menu, as a tap of a hand
+				;is. Not the other end of a pen, which is an eraser and no more
+				(defq near (/ +board_near (get :zoom board)))
+				(and (not moved) (eql kind :pen) (defq menu (get :menu board))
+						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
+					(menu board x y event))
+				(. board :touch +board_dirty_overlay))
+			(:pan)
+			(:t ;what was drawn goes into the document, if it is anything
+				(. board :drop_temp id)
+				(cond
+					((and (find tool '(:pen)) (>= (length points) 2))
+						;a line drawn by hand has the points that matter, and is curved
+						(defq kept (if (> (length points) 4) (path-filter 0.5 (apply (const path) points) (path)) points))
+						(cwb-set item :d (board-pen-d (map (const identity) kept)))
+						(. board :commit item (. board :user_of event))
+						;one written soon after the last is of the same word
+						(. board :written item id snap))
+					((and (/= (length points) 2) (third (cwb-flat item)))
+						(. board :commit item (. board :user_of event)))))))
+
+	(defmethod :tap? (state x y)
+		; (. surface :tap? state x y) -> :t | :nil
+		;did a contact lift as a tap: soon, and near where it landed. A
+		;board that is told no time, (:tick), goes by the distance alone
+		(raise :board)
+		(bind '(& sx sy &ignore) state)
+		(defq near (/ +board_tap_near (get :zoom board)))
+		(and (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
+			(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
+
+	(defmethod :pointers (stage events)
+		; (. surface :pointers stage events) -> surface
+		(raise :board)
+		;two fingers, or two of anything that moves things, down on what is
+		;selected, move it, turn it and size it together
+		(each (lambda (event)
+			(bind '(id kind buttons &ignore) event)
+			(defq state (. this :state id))
+			(cond
+				((and (not state) (/= buttons 0))
+					(. this :set_state id (. this :begin event)))
+				((and state (/= buttons 0))
+					(elem-set state +stroke_last_x (elem-get event +pev_x))
+					(elem-set state +stroke_last_y (elem-get event +pev_y))
+					(. this :step event state))
+				(state
+					;the last step is of the buttons it went down with: one
+					;that has come up has none, and is bound as no button is,
+					;an eraser of another width took one more bite as it
+					;lifted, Chris: "When I release the button on an erase
+					;action, I see a blip of change"
+					(defq last (cat event))
+					(elem-set last +pev_buttons (elem-get state +stroke_buttons))
+					(. this :step last state)
+					(. this :end event state)
+					(. this :set_state id :nil))))
+			events)
+		this)
+
+	)
+
+;;;;;;;;;;;;
+; the things
+;;;;;;;;;;;;
+
+(defun board-tool-of (board event)
+	; (board-tool-of board event) -> tool
+	;what a pointer is bound to do: its tool, :hand :eraser :pan, or a pen
+	;of what its mode draws, the board's if it has none, and select mode the
+	;hand, so a mouse alone can do everything
+	(defq bindings (get :bindings board) tool (. bindings :value event :tool :pen))
+	(if (eql tool :pen) (setq tool (. bindings :value event :mode (get :mode board))))
+	(if (eql tool :select) :hand tool))
+
+(defun board-tap? (board state x y)
+	; (board-tap? board state x y) -> :t | :nil
+	;did a contact lift as a tap: soon, and near where it landed. A board
+	;that is told no time, (:tick), goes by the distance alone
+	(defq near (/ +board_tap_near (get :zoom board)))
+	(and (<= (abs (- x (elem-get state +stroke_x))) near) (<= (abs (- y (elem-get state +stroke_y))) near)
+		(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
+
+(defclass Things (board) (Actor)
+	; (Things board) -> things
+	;the things of the document, on the stage in front of the canvas, each
+	;picking itself up. Chris: "The shape picks itself up, that's the
+	;insight about oops !" A contact is theirs by their own rule, asked as it
+	;lands, (:hit): one of the hand, or of select mode, on a thing, or a
+	;finger in a thing's box, or in the box round what its user holds; one
+	;that draws, on what its user holds, which a drag of it moves, Chris:
+	;"When a shape/group is selected, drag always moves it". One that draws
+	;on a thing no one holds is theirs till it is a tap, which picks the
+	;thing up, Chris: "single tap to select a shape, in any mode"; moved
+	;further it is the canvas's, given it as it was, (. stage :pass), and
+	;draws over the thing. What rubs out is never theirs, it bites through.
 	;
-	;A pointer belongs to what it went down on till it comes up, and to
-	;nothing else. The stage has that for the actors, a ruler, a palette.
-	;Here it is so for the things of the document: a hand that goes down
-	;on a thing has hold of that thing, and of no other, and what another
-	;hand does elsewhere is nothing to it. One draws, two more size a
-	;thing, somebody across the board moves another, and none of them is
-	;in the way of the rest. Two hands that go down on the same thing
-	;move, turn and size it between them. A box dragged out on nothing is
-	;its pointer's own. And a finger that goes down somewhere puts away
-	;nobody's palette, nor lets go of what somebody else has hold of
+	;A hand that goes down on a thing has hold of that thing, and of no
+	;other, and what another hand does elsewhere is nothing to it. Two
+	;hands that go down on the same thing move, turn and size it between
+	;them
 	(def this :board board :grab :nil)
 
 	(defmethod :holder (item_id)
@@ -394,37 +680,6 @@
 		(and a b (nempty? a) (= (length a) (length b))
 			(= (elem-get (first (first a)) +cwb_id) (elem-get (first (first b)) +cwb_id))))
 
-	(defmethod :hit (x y) :t)
-
-	(defmethod :rub_flush ()
-		; (. surface :rub_flush) -> :t | :nil
-		;the bite of every way an eraser has gone since the last. Was
-		;anything rubbed out
-		(raise :board)
-		(defq todo (get :rub_todo board) ways (list) done :nil)
-		(. todo :each (lambda (id (way reach user)) (push ways (list id way reach user))))
-		(each (lambda ((id way reach user))
-			(. todo :erase id)
-			(when (. board :bite way reach :nil user)
-				(setq done :t)
-				(if (defq state (. this :state id)) (elem-set state +stroke_moved :t))))
-			ways)
-		done)
-
-	(defmethod :tick (time)
-		; (. surface :tick time) -> :nil
-		(. this :rub_flush)
-		:nil)
-
-	(defmethod :drawing? ()
-		; (. surface :drawing?) -> :t | :nil
-		;is any pointer drawing, or rubbing out: it has a tool that is not
-		;the hand. A hand that holds a thing or drags a box out is not
-		(defq found :nil)
-		(. (get :states this) :each (lambda (id state)
-			(unless (find (elem-get state +stroke_tool) '(:hand :idle :pan)) (setq found :t))))
-		found)
-
 	(defmethod :things ()
 		; (. surface :things) -> ((item matrix) ...)
 		;what is selected, each with where it is now, to be moved from there
@@ -447,49 +702,48 @@
 			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item) (++ n))))
 		n)
 
+	(defmethod :hit (x y &optional event)
+		; (. things :hit x y [event]) -> :t | :nil
+		;is the contact theirs, see above. Asked with no contact, a point
+		;that is only over the board, it is not
+		(raise :board)
+		(when event
+			(defq tool (board-tool-of board event))
+			(unless (find tool '(:eraser :pan :idle))
+				(defq doc (get :doc board) near (/ +board_near (get :zoom board))
+					user (. board :user_of event) mine (. board :selected_by user))
+				(or (and (cwb-hit doc x y near) (or (eql tool :hand) (not (eql tool :text))
+						(find (elem-get (first (cwb-hit doc x y near)) +cwb_id) mine)))
+					(and (eql tool :hand) (eql (elem-get event +pev_kind) :touch) (cwb-hit-box doc x y) :t)
+					;in the box round what its user holds
+					(and (nempty? mine)
+						(defq box (cwb-bounds (filter (# (find (elem-get %0 +cwb_id) mine)) (. board :selected_items))))
+						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3)) :t)))))
+
 	(defmethod :begin (event)
-		; (. surface :begin event) -> state
-		;a pointer has gone down
+		; (. things :begin event) -> state
+		;a pointer has gone down on them
 		(raise :board)
 		(bind '(id kind buttons x y &ignore) event)
-		(defq tool (. (get :bindings board) :value event :tool :pen)
-			;what was only there till the next pointer went down goes. Not
-			;for a finger: one of many, it is not to put away the palette
-			;of another. A tap of one on nothing does, (:end)
-			shut (if (eql kind :touch) :nil (. board :dismiss event)))
-		;a pen is whatever the board is set to draw, or it is bound to
-		;itself, and in select mode it is the hand, so a mouse alone can
-		;do everything
-		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
-		(if (eql tool :select) (setq tool :hand))
-		;on what is selected, or in the box round it, a pointer that draws
-		;moves it, Chris: "When a shape/group is selected, drag always moves
-		;it". Not one that rubs out, which bites what is selected, nor one
-		;that pans. A thing under it that is not selected is drawn on
-		;Each user's own, Chris: "2 users can select separate items"
-		(and (not (find tool '(:hand :eraser :pan :idle)))
-				(nempty? (defq sel_ids (. board :selected_by (. board :user_of event))))
-				(defq sel_items (filter (# (find (elem-get %0 +cwb_id) sel_ids)) (. board :selected_items)))
-				(if (defq sel_hit (cwb-hit (get :doc board) x y (/ +board_near (get :zoom board))))
-					(find (elem-get (first sel_hit) +cwb_id) sel_ids)
-					(and (defq sel_box (cwb-bounds sel_items))
-						(>= x (first sel_box)) (>= y (second sel_box)) (<= x (third sel_box)) (<= y (elem-get sel_box 3))))
-			(setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
+		(defq tool (board-tool-of board event) doc (get :doc board) near (/ +board_near (get :zoom board))
+			user (. board :user_of event) mine_ids (. board :selected_by user)
+			hit (cwb-hit doc x y near)
+			state (list :hand x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
 			holding (. this :holding))
-		(case tool
-			(:hand
-				(defq hit (cwb-hit (get :doc board) x y (/ +board_near (get :zoom board))))
-				;anywhere in the box round what is selected is on it, a box
-				;that is not filled, or a thin line, is hard to be on. Not
-				;while another hand has hold of things: what is selected is
-				;then what each has, and the box round it all is nobody's
-				(and (not hit) (not holding) (nempty? (defq items (. board :selected_items)))
-						(defq box (cwb-bounds items))
-						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3))
+		;one that draws, on a thing its user does not hold, may be a tap
+		(cond
+			((and (not (eql tool :hand)) hit (not (find (elem-get (first hit) +cwb_id) mine_ids)))
+				(elem-set state +stroke_tool :maybe)
+				(elem-set state +stroke_item (elem-get (first hit) +cwb_id))
+				(elem-set state +stroke_points event))
+			(:t ;in the box round what its user holds is on it: a box that is
+				;not filled, or a thin line, is hard to be on
+				(and (not hit) (nempty? mine_ids)
+					(defq items (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))
 					(setq hit (list (first items) 0 :nil)))
 				;a finger in the box of a thing is on the thing
-				(and (not hit) (eql kind :touch) (setq hit (cwb-hit-box (get :doc board) x y)))
+				(and (not hit) (eql kind :touch) (setq hit (cwb-hit-box doc x y)))
+				(when hit
 				(cond
 					((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
 						;what another has hold of. First come first served:
@@ -562,128 +816,37 @@
 						;will have to have 2 inflight layers, back/front and the
 						;committed layer in the middle"
 						(. board :fly (map (# (elem-get %0 +cwb_id)) mine) back)
-						(. board :touch +board_dirty_overlay))
-					(:t ;on nothing. With nothing selected, and nothing put
-						;away by it, it may be a tap, see (:end). What
-						;other hands have hold of is selected, and is left so
-						(and (not shut) (or holding (empty? (get :selected board)))
-							(elem-set state +stroke_snap :tap))
-						;what this user picked up is put down, not what
-						;others did
-						(unless holding (. board :select (. board :others_of (. board :user_of event)))))))
-			;what is selected stays so, and what is left of it after a
-			;bite, (:bite), with its handles, Chris: "I can select a shape
-			;and then erase though it, but the select controls vanish as
-			;the erase takes a bite"
-			(:eraser (. board :snapshot))
-			(:pan)
-			(:text
-				;the words the board has are put down where the pointer is,
-				;they sit on the line through it, and that is all it does
-				(elem-set state +stroke_tool :idle)
-				(when (nempty? (defq words (get :text board)))
-					(. board :commit (cwb-text words (. board :snap_x x id) (. board :snap_y y id)
-						:fill (. board :ink_of event)
-						:font (get :font board) :font_size (get :font_size board))
-						(. board :user_of event))))
-			(:t ;something is drawn. What is in select mode stays so: only a
-				;tap takes a thing in or out, (:end), and another may be
-				;drawing beside what one has selected
-				(elem-set state +stroke_x (. board :snap_x x id))
-				(elem-set state +stroke_y (. board :snap_y y id))
-				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
-				;when it was begun, for what is written, (:written)
-				(elem-set state +stroke_snap (get :time board))
-				(elem-set state +stroke_item (. board :new_shape event tool))
-				;a filled shape of one ink in both pens is a fill as far out
-				;as its outline would be, (:shape_d)
-				(when (find tool '(:frect :fellipse))
-					(bind '(line fill) (. board :ink_pair event))
-					(and (= line fill) (not (board-none? line))
-						(elem-set state +stroke_grow (* 0.5 (n2f (. (get :bindings board) :value event :width (get :width board)))))))))
+						(. board :touch +board_dirty_overlay))))))
 		state)
 
-	(defmethod :shape_d (state x y)
-		; (. surface :shape_d state x y) -> d
-		;the path of what a pointer is drawing, now it is at a point
-		(bind '(tool sx sy points &ignore) state)
-		;a filled shape of one ink is as big as it would be with an outline
-		(defq grow (elem-get state +stroke_grow))
-		(case tool
-			((:line :arrow :arrow2) (cwb-d-line sx sy x y))
-			(:rect (cwb-d-rect sx sy x y))
-			(:frect (cwb-d-rect (- (min sx x) grow) (- (min sy y) grow) (+ (max sx x) grow) (+ (max sy y) grow)))
-			((:ellipse :fellipse)
-				(cwb-d-ellipse (* 0.5 (+ sx x)) (* 0.5 (+ sy y)) (+ (* 0.5 (abs (- x sx))) grow) (+ (* 0.5 (abs (- y sy))) grow)))
-			(:t (board-pen-d points))))
-
 	(defmethod :step (event state)
-		; (. surface :step event state) -> state
-		;a pointer that is down has moved, or come up
+		; (. things :step event state) -> state
+		;a pointer that is down has moved: what it holds goes with it. With
+		;snap, the top left of the box round it goes to the grid, not the
+		;pointer, so things line up with it and each other
 		(raise :board)
 		(bind '(id kind buttons x y &ignore) event)
-		(bind '(tool sx sy points item moved &ignore) state)
-		(case tool
-			(:idle)
-			(:hand
-				(cond
-					(item ;what is selected goes with it. With snap, the top
-						;left of the box round it goes to the grid, not the
-						;pointer, so things line up with it and each other
-						(defq mx (- x sx) my (- y sy) box (elem-get state +stroke_box))
-						(when box
-							(setq mx (- (. board :snap_x (+ (first box) mx) id) (first box))
-								my (- (. board :snap_y (+ (second box) my) id) (second box))))
-						(defq move (Mat3x2-translate mx my))
-						(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) item)
-						(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
-						(. board :touch +board_dirty_overlay))
-					(:t ;a box is dragged out round things, this pointer's own
-						(. (get :bands board) :insert id (list (min sx x) (min sy y) (max sx x) (max sy y)))
-						(. board :touch +board_dirty_overlay))))
-			(:eraser
-				;from where it was to where it is, and it is shown there.
-				;A bite is not taken for each move of the hand: on a thing
-				;of many points one takes longer than the next move is in
-				;coming, and the hand is then left behind. The way it has
-				;gone is kept, and one bite of all of it is taken when
-				;there is time, (:rub_flush): at the next tick, or as the
-				;eraser lifts. However far behind, the eraser is where the
-				;hand is
-				(bind '(ox oy) points)
-				;how far it reaches is the width this pointer draws with:
-				;thin, it rubs out a little, thick, a lot. Chris: "The
-				;eraser mode, should use the current pen size ?"
-				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board))))
-				(cond
-					((eql (get :rub_mode board) :bite)
-						(defq todo (get :rub_todo board) going (. todo :find id))
-						(unless going (. todo :insert id (setq going (list (path ox oy) reach (. board :user_of event)))))
-						(push (first going) x y))
-					((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
-				(elem-set state +stroke_points (list x y))
-				(def board :rubber (list x y reach))
-				(. board :touch +board_dirty_overlay))
-			(:pan
-				(def board :pan (list (- x sx) (- y sy))))
-			(:t ;something is drawn. A line from where it began, at a step of
-				;angle if angles snap, (:snap_end)
-				(bind '(x y) (if (find tool '(:line :arrow :arrow2)) (. board :snap_end sx sy x y id)
-					(list (. board :snap_x x id) (. board :snap_y y id))))
-				(when (or (/= x (elem-get points -3)) (/= y (elem-get points -2)))
-					(push points x y)
-					(cwb-set item :d (. this :shape_d state x y))
-					(. board :touch +board_dirty_overlay))))
+		(bind '(tool sx sy points item &ignore) state)
+		(when (and (eql tool :hand) item)
+			(defq mx (- x sx) my (- y sy) box (elem-get state +stroke_box))
+			(when box
+				(setq mx (- (. board :snap_x (+ (first box) mx) id) (first box))
+					my (- (. board :snap_y (+ (second box) my) id) (second box))))
+			(defq move (Mat3x2-translate mx my))
+			(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) item)
+			(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
+			(. board :touch +board_dirty_overlay))
 		state)
 
 	(defmethod :end (event state)
-		; (. surface :end event state)
+		; (. things :end event state)
 		;a pointer has come up
 		(raise :board)
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(tool sx sy points item moved lx ly snap &ignore) state)
 		(case tool
-			(:idle)
+			;a tap of what draws on a thing picks it up, or puts it down
+			(:maybe (. board :toggle_select item (. board :user_of event)))
 			(:hand
 				(cond
 					(item (and (eql snap :t) (not moved) (. board :forget))
@@ -710,98 +873,39 @@
 						(when (and others (not shared))
 							(defq mine (map (# (elem-get (first %0) +cwb_id)) item))
 							(. board :select (filter (# (not (find %0 mine))) (get :selected board))))
-						(. board :touch +board_dirty_overlay))
-					(:t (defq bands (get :bands board) band (. bands :find id) near (/ +board_near (get :zoom board))
-							holding (. this :holding))
-						(. bands :erase id)
-						(cond
-							((and (eql snap :tap) (defq menu (get :menu board))
-									(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
-								;a tap on nothing, the board's menu, if it has
-								;one, lib/cwb/palette.inc. A tap of a finger
-								;puts away one that is open, and opens one if
-								;there was none to put away
-								(unless (and (eql kind :touch) (. board :dismiss event))
-									(menu board x y event)))
-							;what the box touches is selected, it need not be
-							;all round a thing: a long line, or a thing at
-							;the edge of the paper, can not be got round. With
-							;what other hands have hold of, which stays so
-							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
-									;and what other users picked up, a box is this
-									;one's, and a tap on nothing puts down what this
-									;user picked up
-									kept (if holding (get :selected board) (. board :others_of (. board :user_of event))))
-								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
-						(. board :touch +board_dirty_overlay))))
-			(:eraser
-				(if (. this :rub_flush) (setq moved :t))
-				(setq moved (or moved (elem-get state +stroke_moved)))
-				(unless moved (. board :forget))
-				(def board :rubber :nil)
-				;a pen rubs out with the button on its side held, and it has
-				;no other way to its menu: a tap of that on nothing, that
-				;rubbed nothing out, is the board's menu, as a tap of a hand
-				;is. Not the other end of a pen, which is an eraser and no more
-				(defq near (/ +board_near (get :zoom board)))
-				(and (not moved) (eql kind :pen) (defq menu (get :menu board))
-						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
-					(menu board x y event))
-				(. board :touch +board_dirty_overlay))
-			(:pan)
-			(:t ;what was drawn goes into the document, if it is anything. A
-				;tap on a thing is not a draw: the thing goes in or out of
-				;select mode, whatever this is bound to draw
-				(. board :drop_temp id)
-				(cond
-					((and (. this :tap? state x y)
-							(defq hit (cwb-hit (get :doc board) sx sy (/ +board_near (get :zoom board)))))
-						(. board :toggle_select (elem-get (first hit) +cwb_id) (. board :user_of event)))
-					((and (find tool '(:pen)) (>= (length points) 2))
-						;a line drawn by hand has the points that matter, and is curved
-						(defq kept (if (> (length points) 4) (path-filter 0.5 (apply (const path) points) (path)) points))
-						(cwb-set item :d (board-pen-d (map (const identity) kept)))
-						(. board :commit item (. board :user_of event))
-						;one written soon after the last is of the same word
-						(. board :written item id snap))
-					((and (/= (length points) 2) (third (cwb-flat item)))
-						(. board :commit item (. board :user_of event)))))))
+						(. board :touch +board_dirty_overlay))))))
 
 	(defmethod :tap? (state x y)
-		; (. surface :tap? state x y) -> :t | :nil
-		;did a contact lift as a tap: soon, and near where it landed. A
-		;board that is told no time, (:tick), goes by the distance alone
-		(raise :board)
-		(bind '(& sx sy &ignore) state)
-		(defq near (/ +board_tap_near (get :zoom board)))
-		(and (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
-			(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
+		; (. things :tap? state x y) -> :t | :nil
+		(board-tap? (get :board this) state x y))
 
 	(defmethod :pointers (stage events)
-		; (. surface :pointers stage events) -> surface
-		(raise :board)
+		; (. things :pointers stage events) -> things
 		;two fingers, or two of anything that moves things, down on what is
-		;selected, move it, turn it and size it together
+		;selected, move it, turn it and size it together. One that may have
+		;been a tap and is moved further is the canvas's, (. stage :pass)
+		(raise :board)
 		(each (lambda (event)
-			(bind '(id kind buttons &ignore) event)
+			(bind '(id kind buttons x y &ignore) event)
 			(defq state (. this :state id))
 			(cond
 				((and (not state) (/= buttons 0))
 					(. this :set_state id (. this :begin event)))
+				((and state (eql (elem-get state +stroke_tool) :maybe))
+					(cond
+						((= buttons 0)
+							(. this :set_state id :nil)
+							;held too long to be a tap, it was a dot
+							(if (board-tap? board state x y) (. this :end event state)
+								(. stage :pass this id (list (elem-get state +stroke_points) event))))
+						((not (board-tap? board state x y))
+							(. this :set_state id :nil)
+							(. stage :pass this id (list (elem-get state +stroke_points) event)))))
 				((and state (/= buttons 0))
 					(elem-set state +stroke_last_x (elem-get event +pev_x))
 					(elem-set state +stroke_last_y (elem-get event +pev_y))
 					(unless (. this :grabbed id) (. this :step event state)))
 				(state
-					;the last step is of the buttons it went down with: one
-					;that has come up has none, and is bound as no button is,
-					;an eraser of another width took one more bite as it
-					;lifted, Chris: "When I release the button on an erase
-					;action, I see a blip of change"
-					(unless (. this :grabbed id)
-						(defq last (cat event))
-						(elem-set last +pev_buttons (elem-get state +stroke_buttons))
-						(. this :step last state))
 					(. this :end event state)
 					(. this :set_state id :nil))))
 			events)
@@ -892,7 +996,7 @@
 		; (. handles :shown) -> :t | :nil
 		;no more than one hand has hold of things
 		(raise :board)
-		(< (. (get :surface board) :holders) 2))
+		(< (. (get :things board) :holders) 2))
 
 	(defmethod :box ()
 		; (. handles :box) -> :nil | (x y x1 y1)
@@ -973,7 +1077,7 @@
 			(and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach) spot))
 			(ifn (. this :spots) (list))))
 
-	(defmethod :hit (x y)
+	(defmethod :hit (x y &optional event)
 		(if (. this :spot_at x y) :t))
 
 	(defmethod :pointers (stage events)
@@ -1073,13 +1177,28 @@
 		;slot holds a pen by its number, :pen, (:ink_of). :nil, none, a slot
 		;holds an ink, :color
 		:pens :nil :pen :nil)
-	(def this :surface (Surface this) :handles (Handles this))
-	(.-> (get :stage this) (:add (get :surface this)) (:add (get :handles this)))
+	;the canvas at the back, the things in front of it, their handles in
+	;front of them
+	(def this :surface (Surface this) :things (Things this) :handles (Handles this))
+	(.-> (get :stage this) (:add (get :surface this)) (:add (get :things this)) (:add (get :handles this)))
 
 	;a thing a board has, and a method of the same name, can not both be:
 	;a method is found by its name in the board as what it has is
 	(defmethod :get_doc () (get :doc this))
 	(defmethod :get_stage () (get :stage this))
+
+	(defmethod :release ()
+		; (. board :release) -> board
+		;let go of what holds the board as the board holds it: its stage
+		;holds its actors and each of them the board, round, which the count
+		;of who holds a thing never lets go of, Chris: "if it points back at
+		;itself it needs to break that cycle when it quits ! else it will
+		;leak". Each actor lets go of the board, the stage of them all
+		(defq stage (get :stage this))
+		(each (# (undef %0 :board)) (. stage :get_actors))
+		(each (# (if (get :board %0) (undef %0 :board))) (list (get :surface this) (get :things this) (get :handles this)))
+		(def stage :actors (list) :owners (Fmap 11) :over (Fmap 11))
+		this)
 	(defmethod :get_bindings () (get :bindings this))
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1817,7 +1936,7 @@
 						(:t (push out id)))
 					out) (get :selected this) (list)))
 			(each (lambda ((id who)) (. this :pick_up id who)) carried)
-			(. (get :surface this) :swapped swaps)
+			(. (get :things this) :swapped swaps)
 			(. this :changed made)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			:t))
@@ -2289,7 +2408,7 @@
 			;not drawn, and are again when it lets go
 			(defq each_one (and (> (length items) 1)
 					(or (< (length items) 200)
-						(not (or (. (get :surface this) :holding) (/= (. handles :held) 0))))))
+						(not (or (. (get :things this) :holding) (/= (. handles :held) 0))))))
 			(if each_one
 				(cwb-draw-items canvas (map (# (cwb-shape (join %0 " ") :stroke 0xa00080ff :width thin :join :miter))
 					(partition (reduce (lambda (out item)

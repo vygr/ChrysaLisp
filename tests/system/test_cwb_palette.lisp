@@ -581,3 +581,32 @@
 (. pt_board :select (list))
 (. pt_board :pick pt_left :ink 0xff0000ff)
 (assert-eq "put down, an ink fills the pen the left holds, pen 1" 0xff0000ff (second pt_pens))
+;the things pick themselves up, (Things), in front of the canvas, which
+;knows nothing of them: a tap of a pen on a thing picks it up, a stroke of
+;one that begins on it is the canvas's and draws, a pen on what its user
+;holds moves it, and an eraser bites through
+(defq px_board (Board (cwb-doc 400 400)) px_b (. px_board :get_bindings))
+(. px_board :tick 1000000)
+(defq px_it (. px_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff000000 :stroke 0)))
+(.-> px_b (:set :mouse 0 +pev_left :mode :line))
+(defq px_actor (. (. px_board :get_stage) :hit 150 150 (ptr-event 0 :mouse +pev_left 150 150)))
+(assert-true "a pen down on a thing is the things'" (eql px_actor (get :things px_board)))
+(assert-true "an eraser down on it is the canvas's"
+	(eql (get :surface px_board) (. (. px_board :get_stage) :hit 150 150 (ptr-event 0x4000000 :eraser 1 150 150))))
+(pl-drag px_board 0 :mouse +pev_left 150 150 300 300)
+(assert-eq "a line begun on it is drawn, and it is not picked up" "(2 ())"
+	(str (list (length (cwb-items (. px_board :get_doc))) (get :selected px_board))))
+(pl-tap px_board 0 :mouse +pev_left 120 120)
+(assert-eq "a tap of the pen on it picks it up" (str (list px_it)) (str (get :selected px_board)))
+(bind '(px_x0 & &ignore) (cwb-bounds (list (first (cwb-find (. px_board :get_doc) px_it)))))
+(pl-drag px_board 0 :mouse +pev_left 180 120 200 120)
+(bind '(px_x1 & &ignore) (cwb-bounds (list (first (cwb-find (. px_board :get_doc) px_it)))))
+(assert-eq "held, a drag of the pen on it moves it, and draws nothing" "(20 2)"
+	(str (list (n2i (- px_x1 px_x0)) (length (cwb-items (. px_board :get_doc))))))
+;a board that is done with lets go of what holds it round, its actors
+(defq pr_board (Board (cwb-doc 100 100)))
+(. (. pr_board :get_stage) :add (Ruler pr_board 50 50))
+(defq pr_actors (. (. pr_board :get_stage) :get_actors))
+(. pr_board :release)
+(assert-eq "released, no actor holds the board, and the stage has none"
+	"(4 0 0)" (str (list (length pr_actors) (length (filter (# (get :board %0)) pr_actors)) (length (. (. pr_board :get_stage) :get_actors)))))
