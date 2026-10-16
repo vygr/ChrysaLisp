@@ -240,13 +240,12 @@
 			(each (# (push items %0)) out))
 		(push seen items))
 	;the groups with nothing left in them, the innermost first
-	(each (lambda (items)
+	(reach (lambda (items)
 		(when (some (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)))) items)
 			(defq out (filter (# (not (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items))))) items))
 			(each (# (and (cwb-group? %0) (empty? (elem-get %0 +cwb_items)) (push gone (elem-get %0 +cwb_id)))) items)
 			(clear items)
-			(each (# (push items %0)) out)))
-		(reverse seen))
+			(each (# (push items %0)) out))) seen)
 	(if (nempty? gone) (list made gone swaps)))
 
 (defun board-rub-group (doc group x y r)

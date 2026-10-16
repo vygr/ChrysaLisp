@@ -92,6 +92,6 @@
 					(lines! (# (start-link %0 opt_v) :nil) (io-stream 'stdin))))
 			(:t
 				;from args
-				(each (# (start-link %0 opt_v)) (rest args))))))
+				(each! (# (start-link %0 opt_v)) (list args) 1 -1)))))
 
 

@@ -80,5 +80,4 @@
 			(lines! (lambda (line) (curl-fetch line opt_i opt_head opt_s opt_X opt_headers opt_d))
 				(io-stream 'stdin))
 			;read urls from args
-			(each (lambda (url) (curl-fetch url opt_i opt_head opt_s opt_X opt_headers opt_d))
-				(rest args)))))
+			(each! (lambda (url) (curl-fetch url opt_i opt_head opt_s opt_X opt_headers opt_d)) (list args) 1 -1))))

@@ -85,7 +85,7 @@
 (defun opt-nums (cnt opt_var)
 	; (opt-nums cnt 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(push ,opt_var (map (const str-as-num) (slice args 0 ,cnt)))
+		(push ,opt_var (map! (const str-as-num) (list args) 0 ,cnt))
 		(slice args ,cnt -1))))
 
 (defun options-input (options_args options_fn)

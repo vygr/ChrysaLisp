@@ -71,12 +71,12 @@
 	(apply (const cat) (cat
 		(map (# (event +gui_ev_key_down 0 0 0 0 %0)) mods)
 		(list (event +gui_ev_key_down 0 0 0 0 scode) (event +gui_ev_key_up 0 0 0 0 scode))
-		(map (# (event +gui_ev_key_up 0 0 0 0 %0)) (reverse mods)))))
+		(rmap (# (event +gui_ev_key_up 0 0 0 0 %0)) mods))))
 
 (defun key-name (name)
 	; (key-name name) -> :nil | events
 	(defq parts (split name "+") mods (list))
-	(when (every (# (if (defq m (. +mods :find %0)) (push mods m))) (slice parts 0 -2))
+	(when (some! (# (if (defq m (. +mods :find %0)) (push mods m))) (list parts) :t 0 -2)
 		(if (defq scode (get (sym (cat "+sc_" (last parts)))))
 			(keys-of scode mods))))
 

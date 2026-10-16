@@ -258,7 +258,7 @@
 	;every canvas there is, taken out and put back in the order they lie
 	;in, each where it was. One added goes behind those there. From the
 	;front: *top*, the instruments, *overlay*, and the three of the document
-	(defq all (cat (list *top*) (map (# (elem-get %0 +tv_canvas)) (reverse *tools*)) (list *overlay*)
+	(defq all (cat (list *top*) (rmap (# (elem-get %0 +tv_canvas)) *tools*) (list *overlay*)
 			(list *flight_clip* *committed* *flight_b* *paper*))
 		all (filter (const identity) all) bounds (map (# (. %0 :get_bounds)) all))
 	(each (# (. %0 :sub)) all)

@@ -417,7 +417,7 @@
 						:ignore)
 					((emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)
 						;two reg writes
-						(each (# (pinsert trace_map %0 :nil)) (slice inst -3 -1)))
+						(each! (# (pinsert trace_map %0 :nil)) (list inst) -3 -1))
 					((emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr)
 						;has label offset as last arg !
 						(pinsert trace_map (third inst) :nil))
@@ -479,7 +479,7 @@
 	;:nil if the line is not one this can write again
 	(bind '(nodes open stray) (tree-read (string-stream line)))
 	(when (and (= open 0) (nempty? nodes) (defq kids (tree-form? (first nodes) "dec-method")) (>= (length kids) 3)
-			(every (# (eql (first %0) :comment)) (rest nodes)))
+			(some! (# (eql (first %0) :comment)) (list nodes) :t 1 -1))
 		(defq more (slice kids 3 -1)
 			kinded (and (nempty? more) (eql (first (first more)) :keysym) (nql (third (first more)) ":nil"))
 			kind (if kinded (third (first more)) ":static")
@@ -491,7 +491,7 @@
 			" (" (if (eql calc "none") "" (join (split calc (const (char-class ", "))) " ")) ")"
 			(if own (cat " (" (if (eql own "none") "" (join (split own (const (char-class ", "))) " ")) ")") "") ")"
 			(pad "" stray ")")
-			(apply (const cat) (cat (list "") (map (# (cat " " (third %0))) (rest nodes)))))))
+			(apply (const cat) (cat (list "") (map! (# (cat " " (third %0))) (list nodes) 1 -1))))))
 
 (defun main ()
 	(when (and

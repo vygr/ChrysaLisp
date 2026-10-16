@@ -27,5 +27,5 @@
 			;rm from stdin
 			(lines! rm-file (io-stream 'stdin))
 			;rm from args
-			(each rm-file (rest args)))))
+			(each! rm-file (list args) 1 -1))))
 

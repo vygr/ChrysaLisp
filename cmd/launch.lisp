@@ -22,8 +22,7 @@
 			((empty? (defq gui (mail-enquire "@Gui,"))) (print "launch: no GUI"))
 			(:t ;the node of the GUI, its mailbox less the mailbox's own number
 				(defq node (slice (hex-decode (second (split (first gui) ","))) +long_size -1))
-				(each (lambda (app)
+				(each! (lambda (app)
 						(if (/= (age (defq file (app-file app))) 0)
 							(progn (open-remote file node +kn_call_pin) (print "launch: " app))
-							(print "launch: no " file)))
-					(rest args))))))
+							(print "launch: no " file))) (list args) 1 -1)))))

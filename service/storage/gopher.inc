@@ -51,7 +51,7 @@
 	;pinned, which every member is told. One of those is first of all: it
 	;has every block there is to come, and the gopher does not leave it
 	(defq among (cat (list me) (map (const first) peers))
-		kept (map (# (store-rank %0 among copies)) (slice names at (min (length names) (+ at +gopher_ahead))))
+		kept (map! (# (store-rank %0 among copies)) (list names) at (min (length names) (+ at +gopher_ahead)))
 		runs (list) pinned (ifn pinned (list)))
 	(each (lambda ((who where))
 		(unless (find (hex-encode where) skip)
@@ -111,7 +111,7 @@
 	(cond
 		((mail-poll (list mbox))
 			(defq went (mail-read mbox))
-			(each (# (unless (eql %0 went) (push skip (hex-encode %0)))) (slice holders 0 next))
+			(each! (# (unless (eql %0 went) (push skip (hex-encode %0)))) (list holders) 0 next)
 			went)
 		((< (pii-time) due) :wait)
 		((< next (length holders))

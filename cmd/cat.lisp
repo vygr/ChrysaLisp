@@ -38,4 +38,4 @@
 			;cat from stdin
 			(lines! cat-file (io-stream 'stdin))
 			;cat from args
-			(each cat-file (rest args)))))
+			(each! cat-file (list args) 1 -1))))

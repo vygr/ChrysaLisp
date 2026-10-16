@@ -104,7 +104,7 @@
 				;line, an offset, or part of what works a size out
 				((find (first words) '("byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr" "pptr"
 						"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "real"))
-					(each (# (push out (cat (first words) " " %0))) (rest words)))))
+					(each! (# (push out (cat (first words) " " %0))) (list words) 1 -1))))
 			(split (join text " ") "()")))
 	out)
 

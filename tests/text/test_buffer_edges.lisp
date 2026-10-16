@@ -154,7 +154,7 @@
 	; a buffer of text with a cursor for each of csrs, the ops done, gives (text cursors)
 	(defq b (be-new text))
 	(apply . (cat (list b :set_cursor) (first csrs)))
-	(each (# (apply . (cat (list b :add_cursor) %0))) (rest csrs))
+	(each! (# (apply . (cat (list b :add_cursor) %0))) (list csrs) 1 -1)
 	(each (# (if (list? %0) (apply . (cat (list b) %0)) (. b %0))) ops)
 	(list (be-text b) (be-csrs b)))
 

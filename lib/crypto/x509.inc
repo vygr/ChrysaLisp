@@ -81,17 +81,16 @@
 	(cond
 		((empty? bytes) "")
 		(:t (defq top (code bytes 1 0) parts (list (str (/ top 40)) (str (% top 40))) v 0)
-			(each (lambda (c)
+			(each! (lambda (c)
 					(setq v (logior (<< v 7) (logand (code c) 0x7f)))
 					(when (< (code c) 0x80)
 						(push parts (str v))
-						(setq v 0)))
-				(slice bytes 1 -1))
+						(setq v 0))) (list bytes) 1 -1)
 			(join parts "."))))
 
 (defun x509-digits (text from to)
 	; (x509-digits text from to) -> num
-	(reduce (# (+ (* %0 10) (- (code %1) 48))) (slice text from to) 0))
+	(reduce! (# (+ (* %0 10) (- (code %1) 48))) (list text) 0 from to))
 
 (defun x509-time (data item)
 	; (x509-time data item) -> seconds
@@ -176,7 +175,7 @@
 					:from (x509-time der (first times)) :until (x509-time der (second times))
 					:key_kind :nil :key :nil :names (list) :ca :nil)
 				(x509-key cert der spki)
-				(each (# (if (= (first %0) 0xa3) (x509-extensions cert der %0))) (slice fields 6 -1))
+				(each! (# (if (= (first %0) 0xa3) (x509-extensions cert der %0))) (list fields) 6 -1)
 				cert))))
 
 (defun x509-pem (stream)

@@ -75,7 +75,7 @@
 	(cond
 		((find what '("ok" "stale"))
 			(list (if (eql what "ok") :ok :stale) (if (> (length lines) 1) (store-entry-read (second lines)))))
-		((eql what "missing") (list :missing (map (const hex-decode) (rest lines))))
+		((eql what "missing") (list :missing (map! (const hex-decode) (list lines) 1 -1)))
 		((eql what "full") (list :full :nil))
 		((eql what "none") (list :none :nil))
 		((list :lost :nil))))
@@ -190,7 +190,7 @@
 	(and (defq entry (storage-stat name svc))
 		(defq lines (filter (const nempty?) (split (ifn (storage-block (elem-get entry +store_entry_hash) svc) "") +storage_lf)))
 		(> (length lines) 1)
-		(list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
+		(list (str-as-num (second lines)) (map! (const hex-decode) (list lines) 2 -1))))
 
 (defun storage-get (name &optional svc)
 	; (storage-get path [svc]) -> :nil | data
@@ -917,7 +917,7 @@
 	(defq base (if (ends-with ".img" image) (slice image 0 -5) image)
 		at (find "." (reverse base)))
 	(and at (ends-with "MB" base) (> at 2)
-		(every (# (find %0 "0123456789")) (slice base (- (length base) at) -3))
+		(some! (# (find %0 "0123456789")) (list base) :t (- (length base) at) -3)
 		(setq base (slice base 0 (- (length base) at 1))))
 	(cat base "." (str megabytes) "MB.img"))
 

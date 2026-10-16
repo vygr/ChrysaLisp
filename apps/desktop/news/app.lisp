@@ -75,7 +75,7 @@
 			(push lines "*No comments posted yet.*")
 			(defq max_c (min (length comments) 30))
 			(push lines (cat "### Comments (" (str (length comments)) ")") "")
-			(each (lambda (c)
+			(each! (lambda (c)
 				(bind '(c_user c_time c_body) c)
 				(push lines (cat "* **" c_user "** *" c_time "*:"))
 				(defq cleaned_body (clean-hn-text c_body))
@@ -83,8 +83,7 @@
 					(if (nempty? (trim cline))
 						(push lines (cat "  " cline))))
 					(split cleaned_body "\n"))
-				(push lines ""))
-				(slice comments 0 max_c))))
+				(push lines "")) (list comments) 0 max_c)))
 	lines)
 
 (defun render-detail-pane (story post_content comments)

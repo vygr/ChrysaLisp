@@ -91,7 +91,7 @@
 			(if (bits? flags 1) " hidden" "") (if (bits? flags 2) " locked" "")
 			" items " (length items))
 		;a group, then what is in it, a list of what is left to say
-		(defq todo (map (# (list %0 1)) (reverse items)))
+		(defq todo (rmap (# (list %0 1)) items))
 		(while (defq next (pop todo))
 			(bind '(item depth) next)
 			(defq box (cwb-bounds (list item)))
@@ -105,7 +105,7 @@
 					(:t (cat " d " (if (> (length (elem-get item +cwb_d)) 60)
 						(cat (slice (elem-get item +cwb_d) 0 60) "...") (elem-get item +cwb_d))))))
 			(if (cwb-group? item)
-				(each (# (push todo (list %0 (inc depth)))) (reverse (elem-get item +cwb_items))))))
+				(reach (# (push todo (list %0 (inc depth)))) (elem-get item +cwb_items)))))
 		(cwb-layers doc)))
 
 (defun main ()

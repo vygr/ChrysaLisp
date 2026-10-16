@@ -242,7 +242,11 @@ a sequence and take that sequence as an argument, they allow an optional
 initial item.
 
 The function being called can access the current index value by use of the
-'(!)' function ! Very useful !
+'(!)' function ! Very useful ! It is the index in the sequences being walked:
+given a start and end it counts from where they are in the whole, not from 0,
+and walking backwards it counts down. Walking a `(slice)` or a `(reverse)` copy
+it is the index in the copy, so take the part with a start and end in place of
+the copy, and mind what `(!)` is then. `check -c copy` finds the copies.
 
 ```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
@@ -268,8 +272,14 @@ The function being called can access the current index value by use of the
 (rreduce push "ABCD" (list))
 ```
 
-Filtering, with `(filter lambda seq)`, transforms a sequence by producing a list
-of all the elements that pass the filter test function.
+Filtering, with `(filter! lambda seq [start end out])`, transforms a sequence
+or a slice of it by producing a list of all the elements that pass the filter
+test function. `(filter)` and `(rfilter)` are macros that take the whole of the
+sequence, `(rfilter)` from its end, so the list is in the reverse order.
+
+```lisp
+(rfilter odd? '(1 2 3 4 5))
+```
 
 ## Arrays
 

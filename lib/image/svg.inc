@@ -45,7 +45,7 @@
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map (const str-to-num) (slice (split val (const (char-class "(), "))) 1 4)))
+	(bind '(r g b) (map! (const str-to-num) (list (split val (const (char-class "(), ")))) 1 4))
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
@@ -53,6 +53,8 @@
 	(while (defq transform (pop stack))
 		(defq args (split transform (const (char-class "(, \t\n")))
 			key (first args)
+			;spaces after the last ) are a transform of no args, the (rest)
+			;check off: of which is (), where a (map!) from 1 is an error
 			vals (map (# (n2f (str-to-num %0))) (rest args))
 			mb (case key
 			("matrix"

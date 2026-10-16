@@ -53,8 +53,7 @@
 			;two of the bands at the same place twice, and the nones
 			;are left out
 			(defq places (cat none))
-			(each (lambda (band) (each (lambda ((place item)) (elem-set places place item)) band))
-				(slice rows b0 (inc b1)))
+			(each! (lambda (band) (each (lambda ((place item)) (elem-set places place item)) band)) (list rows) b0 (inc b1))
 			(filter (const identity) places))))
 
 (defun attach (key width height)

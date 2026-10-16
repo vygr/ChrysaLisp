@@ -34,10 +34,12 @@
 (each (# (setq acc_each_hl (+ acc_each_hl %0))) t_seq)
 (assert-eq "each" 10 acc_each_hl)
 
-; --- Reverse Iterators (reverse, rmap, reach, rreduce, rsome) ---
+; --- Reverse Iterators (reverse, rmap, reach, rreduce, rsome, rfilter) ---
 (assert-list-eq "reverse" '(4 3 2 1) (reverse t_seq))
 (assert-list-eq "rmap" '(8 6 4 2) (rmap (# (* %0 2)) t_seq))
 (assert-eq "rreduce" 10 (rreduce (const +) t_seq 0))
+(assert-list-eq "rfilter" '(4 2) (rfilter (# (even? %0)) t_seq))
+(assert-list-eq "rfilter, (!) the index in the whole" '(40 20) (rfilter (lambda (&ignore) (odd? (!))) '(10 20 30 40 50)))
 
 (defq acc_reach "")
 (reach (# (setq acc_reach (cat acc_reach (str %0)))) t_seq)

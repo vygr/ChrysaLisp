@@ -883,6 +883,10 @@
 	; (filter lambda seq) -> list
 	(static-qq (filter! ,f ,s)))
 
+(defmacro rfilter (f s)
+	; (rfilter lambda seq) -> list
+	(static-qq (filter! ,f ,s -1 0)))
+
 (defmacro reverse (s)
 	; (reverse seq) -> seq
 	(static-qq (slice ,s -1 0)))

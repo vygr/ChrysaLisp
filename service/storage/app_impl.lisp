@@ -217,10 +217,9 @@
 							;a line of -, and what it has that is others' to keep, each
 							;with who they are. No more than so many at a time
 							(bind '(wants extras) (store-share store (split body " ")))
-							(join (cat (map (const hex-encode) (slice wants 0 (min +share_most (length wants))))
+							(join (cat (map! (const hex-encode) (list wants) 0 (min +share_most (length wants)))
 								(list "-")
-								(map (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " "))
-									(slice extras 0 (min +share_most (length extras)))))
+								(map! (lambda ((hash holders)) (join (cat (list (hex-encode hash)) holders) " ")) (list extras) 0 (min +share_most (length extras))))
 								+storage_lf))
 						(+storage_type_where
 							;the other members a block may be had from, in the block's

@@ -85,7 +85,7 @@
 				(defq db (rsa-xor masked (rsa-mgf1 hash_name h db_len))
 					db (cat (char (logand (code db 1 0) top_mask)) (slice db 1 -1))
 					zeros (- em_len h_len h_len 2))
-				(and (every (# (= (code %0) 0)) (slice db 0 zeros))
+				(and (some! (# (= (code %0) 0)) (list db) :t 0 zeros)
 					(= (code db 1 zeros) 1)
 					(eql h (rsa-hash hash_name (cat (char 0 8) digest (slice db (inc zeros) -1)))))))))
 

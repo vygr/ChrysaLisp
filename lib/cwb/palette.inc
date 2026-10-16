@@ -391,9 +391,8 @@
 		;menus each device showed a little dot (coloured per device, of
 		;that board) to show what that device had selected as its modes"
 		(defq out (list))
-		(each (lambda ((kind id buttons what))
-				(if id (push out (list (elem-get +pal_device_cols (% (length out) (length +pal_device_cols))) what))))
-			(reverse (get :rules (. (get :board this) :get_bindings))))
+		(reach (lambda ((kind id buttons what))
+				(if id (push out (list (elem-get +pal_device_cols (% (length out) (length +pal_device_cols))) what)))) (get :rules (. (get :board this) :get_bindings)))
 		out)
 
 	(defmethod :draw (canvas &optional m)

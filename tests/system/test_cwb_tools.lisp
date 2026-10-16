@@ -235,7 +235,7 @@
 
 ;a pen that has only just set off: an arc of next to no length on a big circle
 (assert-list-eq "an arc of a hundredth of a pixel on a circle of 180 ends where it ends, and does not throw" '(179 0)
-	(map (const n2i) (slice (path-gen-earc 180.0 0.0 180.0 180.0 0.0 0.0 1.0 179.99999 0.01 (path 180.0 0.0)) -3 -1)))
+	(map! (const n2i) (list (path-gen-earc 180.0 0.0 180.0 180.0 0.0 0.0 1.0 179.99999 0.01 (path 180.0 0.0))) -3 -1))
 (assert-true "and so does a shape of one draw" (list? (cwb-flat (cwb-shape "M 580 300 A 180 180 0 0 0 579.99999 299.99"))))
 (def wt_pro :mode :line)
 (wt-go '(1 :pen 1 586 300)) (wt-go '(1 :pen 1 586 299.99))

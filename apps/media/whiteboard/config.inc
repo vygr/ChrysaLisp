@@ -53,8 +53,7 @@
 			(gather config :x :y :width :height :scroll_x :scroll_y :zoom :mode :ink :radius :style
 				:snap :snap_angle :keep_shape :text :file :tools :doc :bindings))
 		;the rules of each device that is kept, the last first, as they were
-		(if (list? bound) (each (lambda ((kind id buttons what)) (. (. *board* :get_bindings) :bind kind id buttons (cat what)))
-			(reverse bound)))
+		(if (list? bound) (reach (lambda ((kind id buttons what)) (. (. *board* :get_bindings) :bind kind id buttons (cat what))) bound))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document

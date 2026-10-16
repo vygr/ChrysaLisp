@@ -43,5 +43,5 @@
 			;dump from stdin
 			(dump-file (io-stream 'stdin) opt_w flags)
 			;dump from args as files
-			(each (# (dump-path %0 opt_w flags)) (rest args)))))
+			(each! (# (dump-path %0 opt_w flags)) (list args) 1 -1))))
 

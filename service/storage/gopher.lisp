@@ -152,7 +152,7 @@
 		((and (defq text (storage-block (hex-decode version) svc))
 				(defq lines (filter (const nempty?) (split text +storage_lf)))
 				(> (length lines) 1))
-			(defq names (map (const hex-decode) (slice lines 2 -1)))
+			(defq names (map! (const hex-decode) (list lines) 2 -1))
 			(if (>= (. kept :size) +gopher_kept) (. kept :empty))
 			(. kept :insert version names)
 			names)))

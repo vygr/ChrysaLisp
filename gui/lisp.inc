@@ -311,5 +311,5 @@
 				(find (sym (cat ":" (if (starts-with ":" value) (slice value 1 -1) value))) (. v :type_of))
 				(and (def? key v) (eql (str (get key v)) value)))
 			(setq out v)
-			(each (# (push todo %0)) (reverse (. v :children)))))
+			(reach (# (push todo %0)) (. v :children))))
 	out)

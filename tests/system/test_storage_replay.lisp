@@ -99,7 +99,7 @@
 (while (and (not rp_end) (< (- (pii-time) rp_t0) 120000000))
 	(when (defq rp_msg (mail-read-timeout rp_box 1000000))
 		(cond
-			((starts-with "lines" rp_msg) (each (# (replay-add rp2 %0)) (rest (split rp_msg (ascii-char 10)))))
+			((starts-with "lines" rp_msg) (each! (# (replay-add rp2 %0)) (list (split rp_msg (ascii-char 10))) 1 -1))
 			((starts-with "end " rp_msg) (setq rp_end (rest (split rp_msg " ")))))))
 (assert-list-eq "the runner ran the scene to its end, every check held" '("6" "0") rp_end)
 (assert-list-eq "its five members are in the recording" '("m-a" "m-b" "m-c" "m-d" "m-e") (sort (. rp2 :find :members)))

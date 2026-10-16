@@ -57,7 +57,7 @@
 	(defq out_ms (memory-stream))
 	(lz4-compress (string-stream "x") out_ms window_size)
 	(stream-seek out_ms 0 0)
-	(map (# (code %0)) (slice (read-blk out_ms 7) 4 7)))
+	(map! (# (code %0)) (list (read-blk out_ms 7)) 4 7))
 (assert-list-eq "a head of 64KB blocks" '(0x40 0x40 0xc0) (lz4-head 65536))
 (assert-list-eq "of 256KB" '(0x40 0x50 0x77) (lz4-head 100000))
 (assert-list-eq "of 1MB" '(0x40 0x60 0x96) (lz4-head 1048576))

@@ -44,7 +44,7 @@
 			(unless (find k '(:type :bounds :children))
 				(push line " " (slice (str k) 1 -1) "=" (str v)))))
 		(print (apply (const cat) line))
-		(each (# (push todo (list %0 (inc depth)))) (reverse (ifn (. view :find :children) (list))))))
+		(reach (# (push todo (list %0 (inc depth)))) (ifn (. view :find :children) (list)))))
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))

@@ -264,7 +264,7 @@
 (defq out (apply (shader-cpu prog) (cat '(1 2 4 4) (shader-cpu-args prog '((size (1.0 1.0)))))))
 (assert-eq "tile size" 6 (length out))
 (assert-list-eq "tile order" '((1.5 2.5) (2.5 2.5) (3.5 2.5) (1.5 3.5) (2.5 3.5) (3.5 3.5))
-	(map (# (map (const n2f) (slice %0 2 4))) out))
+	(map (# (map! (const n2f) (list %0) 2 4)) out))
 
 (report-header "GPU: shader language, GLSL back end")
 
@@ -539,7 +539,7 @@
 (assert-list-eq "same program, same function" (first native) (first (shader-vp prog)))
 (defq pixels (shader-vp-pixels native frame 1 2 3 4))
 (assert-list-eq "pixels tile" '((0.375 0.625) (0.625 0.625) (0.375 0.875) (0.625 0.875))
-	(map (# (map (const n2f) (slice %0 0 2))) pixels))
+	(map (# (map! (const n2f) (list %0) 0 2)) pixels))
 
 ;every float register is in use at once here, and a call saves them all
 (assert-pixel "registers saved over calls" '(13.0 26.0 39.0 52.0)
@@ -738,7 +738,7 @@
 (each (lambda (want)
 	(assert-true (cat "native code and the reference agree, vertex " (str (!)))
 		(sh-near? (map (const n2f) (apply (const cat) (map (# (if (real? %0) (reals %0) %0)) want)))
-			(map (const n2f) (slice out (* (!) 10) (* (inc (!)) 10))))))
+			(map! (const n2f) (list out) (* (!) 10) (* (inc (!)) 10)))))
 	placed)
 (assert-eq "no vertices, nothing out" 0 (length (shader-vp-place vnative vframe (reals))))
 (assert-list-eq "same program, same function" (first vnative) (first (shader-vp-vertex vert)))
@@ -763,7 +763,7 @@
 		(apply (const cat) (map (const first) pts))))
 (each (lambda ((pos turned))
 	(assert-true (cat "matrices in locals and globals, vertex " (str (!)))
-		(sh-near? (map (const n2f) (cat pos turned)) (map (const n2f) (slice out (* (!) 7) (* (inc (!)) 7))))))
+		(sh-near? (map (const n2f) (cat pos turned)) (map! (const n2f) (list out) (* (!) 7) (* (inc (!)) 7)))))
 	want)
 (defq ab (mat4x4-mul model view))
 (assert-true "and the reference is the matrix library's answer"
@@ -797,7 +797,7 @@
 (each (lambda ((pos wave far))
 	(assert-true (cat "sin, pow and a function that reads an attr, vertex " (str (!)))
 		(sh-near? (map (const n2f) (cat pos wave (reals far)))
-			(map (const n2f) (slice out3 (* (!) 7) (* (inc (!)) 7))))))
+			(map! (const n2f) (list out3) (* (!) 7) (* (inc (!)) 7)))))
 	want3)
 (assert-error "a function can not take a matrix"
 	(sh-src "(defun f :vec4 ((m :mat4)) (vec4 0.0))" "(defun main :vec4 () (vec4 0.0))"))

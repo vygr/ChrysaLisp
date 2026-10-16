@@ -436,8 +436,8 @@
 		;at the back, and behind what else is there, a palette
 		(defq actors (. stage :get_actors)
 			tools (filter (# (and (Instrument? %0) (not (eql %0 this)))) actors)
-			low (filter (# (not (Instrument? %0))) (slice actors 0 (min 2 (length actors))))
-			high (filter (# (not (Instrument? %0))) (slice actors (min 2 (length actors)) -1)))
+			low (filter! (# (not (Instrument? %0))) actors 0 (min 2 (length actors)))
+			high (filter! (# (not (Instrument? %0))) actors (min 2 (length actors)) -1))
 		(def stage :actors (cat low (if front (cat tools (list this)) (cat (list this) tools)) high))
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)

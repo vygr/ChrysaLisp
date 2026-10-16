@@ -72,6 +72,23 @@
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
+    copy    (each f (slice a s e) (slice b s e)) or the like,
+            every sequence given to (each), (map), (some),
+            (every), (notany), (notevery), (filter) or a
+            (reduce) with its init, a (slice), a (rest) or a
+            (most) of the same part: each is copied to be
+            walked once. The ! form walks that part of the
+            one it is given, (each! f (list a b) s e), and (!)
+            in it is then the index in the whole. A (reverse)
+            is the part from the end, -1 0, and (reach),
+            (rmap), (rsome), (rreduce) and (rfilter) walk from
+            the end. A (rest) or a
+            (most) of an empty one is (), where the ! form
+            from 1, or to -2, is an error: if it can be empty
+            it is not the same.
+    reverse (reverse (slice x s e)), two copies, is (slice x e s),
+            one. Of a (rest) or a (most), (slice x -1 1) or
+            (slice x -2 0), which of an empty one is an error.
     cut     (slice (str x) 0 n), a string of something cut to
             a number written there: one that is shorter than
             that is an error, (min n (length s)).
@@ -123,7 +140,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -156,7 +173,7 @@
 	(cond
 		;(if tst form else ...), the first of the else forms
 		((and (find head '("if" "ifn")) (> (length forms) 3)
-				(defq at (some (# (if (tree-form? %0 "progn") %0)) (slice forms 3 -1))))
+				(defq at (some! (# (if (tree-form? %0 "progn") %0)) (list forms) :nil 3 -1)))
 			(found file at "progn" "a (progn) round the else of an (" head ")"))
 		;(when tst body ...), a body that is one (progn)
 		((and (find head '("when" "unless" "while" "until")) (= (length forms) 3)
@@ -192,7 +209,7 @@
 		(cond
 			((find head '("and" "or")) (rest forms))
 			((find head '("cond" "condn"))
-				(map (# (first (forms-of (third %0)))) (filter (# (and (eql (first %0) :form) (nempty? (forms-of (third %0))))) (rest forms))))
+				(map (# (first (forms-of (third %0)))) (filter! (# (and (eql (first %0) :form) (nempty? (forms-of (third %0))))) forms 1 -1)))
 			((list)))))
 
 (defun check-const (file kids)
@@ -240,10 +257,9 @@
 	;compares equal if all the members of the list are the same objects in
 	;the same order", "That's because it just runs :array :eql !"
 	(and (find head '("eql" "nql")) (= (length forms) 3)
-		(some (lambda (arg)
+		(some! (lambda (arg)
 				(and (eql (first arg) :quoted) (defq inner (tree-form? (third arg)))
-					(some (# (find (first %0) '(:form :string1 :string2))) (forms-of inner))))
-			(rest forms))
+					(some (# (find (first %0) '(:form :string1 :string2))) (forms-of inner)))) (list forms) :nil 1 -1)
 		(found file (second forms) "eqlist" "(" head ") of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each")))
 
 (defun check-ignore (file forms head)
@@ -304,7 +320,7 @@
 				(cond
 					((find head '("lambda" "#" "defun" "defmacro" "macro")))
 					((eql head "defq")
-						(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push out (third %0)))) (rest inner))
+						(each! (# (and (= (logand (!) 1) 1) (eql (first %0) :symbol) (push out (third %0)))) (list inner) 1 -1)
 						(push todo (rest inner)))
 					((push todo inner)))))
 			nodes))
@@ -323,7 +339,7 @@
 			((find head '("lambda" "macro"))
 				(if (> (length forms) 1) (each (# (push made %0)) (params-of (second forms)))))
 			((eql head "defq")
-				(each (# (and (= (logand (!) 1) 0) (eql (first %0) :symbol) (push made (third %0)))) (rest forms)))
+				(each! (# (and (= (logand (!) 1) 1) (eql (first %0) :symbol) (push made (third %0)))) (list forms) 1 -1))
 			((and (eql head "bind") (> (length forms) 1) (eql (first (second forms)) :quoted))
 				(each (# (push made %0)) (params-of (third (second forms))))))
 		(each (lambda (form)
@@ -446,6 +462,64 @@
 		(found file (second forms) "cut" "a (str ) cut to " (third (elem-get forms 3))
 			" is an error if it is shorter, (min " (third (elem-get forms 3)) " (length s))")))
 
+;the ! form of an iterator: before it, its name, and after the sequences,
+;what comes before the start and end
+(defq *bang_of* (scatter (Fmap 11) "each" '("" "each!" "") "map" '("" "map!" "")
+	"some" '("" "some!" " :nil") "every" '("" "some!" " :t")
+	"notany" '("not (" "some!" " :nil") "notevery" '("not (" "some!" " :t")
+	"filter" '("" "filter!" "") "reduce" '("" "reduce!" "")))
+
+;an iterator of its own, from the end
+(defq *back_of* (scatter (Fmap 11) "each" "reach" "map" "rmap" "some" "rsome"
+	"reduce" "rreduce" "filter" "rfilter"))
+
+(defun copy-part (node)
+	; (copy-part node) -> :nil | (seq "start end" empty_ok)
+	;a (slice x s e), a (rest x) or a (most x), what is cut and the part
+	;of it, and whether an empty one was not an error, as the ! form is
+	(cond
+		((and (defq kids (tree-form? node "slice")) (= (length (defq forms (forms-of kids))) 4))
+			(list (second forms) (cat (tree-text (third forms)) " " (tree-text (elem-get forms 3))) :nil))
+		((and (defq kids (tree-form? node "rest")) (= (length (defq forms (forms-of kids))) 2))
+			(list (second forms) "1 -1" :t))
+		((and (defq kids (tree-form? node "most")) (= (length (defq forms (forms-of kids))) 2))
+			(list (second forms) "0 -2" :t))
+		((and (defq kids (tree-form? node "reverse")) (= (length (defq forms (forms-of kids))) 2))
+			(list (second forms) "-1 0" :nil))))
+
+(defun check-reverse (file forms head)
+	;the reverse of a part is the part taken from its end: one copy, not two
+	(when (and (eql head "reverse") (= (length forms) 2)
+			(defq part (copy-part (second forms)))
+			(not (tree-form? (second forms) "reverse")))
+		(bind '(seq range empty) part)
+		(defq ends (split range " "))
+		(found file (second forms) "reverse" "(reverse) of a part is one copy more, (slice "
+			(tree-text seq) " " (second ends) " " (first ends) ")"
+			(if empty ", and if it can be empty it is an error" ""))))
+
+(defun check-copy (file forms head)
+	;an iterator given only copies of the one part of its sequences
+	(when (and (defq bang (. *bang_of* :find head))
+			(defq seqs (cond
+				((eql head "filter") (if (= (length forms) 3) (list (third forms))))
+				((eql head "reduce") (if (= (length forms) 4) (list (third forms))))
+				((slice forms 2 -1))))
+			(nempty? seqs)
+			(defq parts (map (const copy-part) seqs))
+			(every (const identity) parts)
+			(every (# (eql (second %0) (second (first parts)))) parts))
+		(bind '(before name after) bang)
+		(if (eql head "reduce") (setq after (cat " " (tree-text (elem-get forms 3)))))
+		(defq range (second (first parts)) names (join (map (# (tree-text (first %0))) parts) " "))
+		(found file (first seqs) "copy" "(" head ") of copies of the part " range ", "
+			(if (and (eql range "-1 0") (defq back (. *back_of* :find head)))
+				(cat "(" back " f " names (if (eql head "reduce") (cat " " (tree-text (elem-get forms 3))) "") ")")
+				(cat "(" before name " f " (if (eql head "filter") names (cat "(list " names ")")) after " " range
+					(if (eql before "") ")" "))")))
+			", (!) is then the index in the whole"
+			(if (some (# (third %0)) parts) ", and if it can be empty it is an error" ""))))
+
 (defun check-style (file node forms head)
 	;an (ifn) has the test of an (if) the other way about, and a (condn)
 	;that of a (cond): what is said of the one is said of the other, with
@@ -511,7 +585,7 @@
 				;and before a [ or a ... of the comment
 				need (ifn (some (# (and (eql (first %0) :symbol) (starts-with "&" (third %0)) (!))) takes)
 					(length takes))
-				says (ifn (some (# (if (or (starts-with "[" %0) (starts-with "..." %0) (starts-with "{" %0)) (!))) (rest words))
+				says (ifn (some! (# (if (or (starts-with "[" %0) (starts-with "..." %0) (starts-with "{" %0)) (dec (!)))) (list words) :nil 1 -1)
 					(dec (length words))))
 			(cond
 				((nql (first words) name)
@@ -523,13 +597,13 @@
 
 (defun check-enum (file node forms)
 	;(enums +name base (enum a b size)): +name_size is how many there are
-	(each (lambda (line)
+	(each! (lambda (line)
 		(when (defq fields (tree-form? line "enum"))
-			(each (lambda (field)
+			(each! (lambda (field)
 				(and (eql (first field) :symbol) (eql (third field) "size")
 					(found file field "enum" "a field named size is the (enums)'s own count of its fields")))
-				(rest (forms-of fields)))))
-		(rest forms)))
+				(list (forms-of fields)) 1 -1)))
+		(list forms) 1 -1))
 
 (defun has-symbol? (nodes name)
 	; (has-symbol? nodes name) -> :nil | :t
@@ -594,14 +668,14 @@
 	;(fn ... (lambda (a) (... x ...)) ...) where fn, of this file or one it
 	;imports, has a parameter x: the x the lambda has when fn calls it is fn's
 	(when (defq theirs (. *defuns* :find head))
-		(each (lambda (arg)
+		(each! (lambda (arg)
 			(when (and (defq kids (tree-form? arg)) (nempty? (defq inner (forms-of kids)))
 					(eql (first (first inner)) :symbol) (find (third (first inner)) '("lambda" "#")))
 				(bind '(used made) (uses-of kids))
 				(defq taken (list))
 				(each (# (and (find %0 theirs) (not (find %0 made)) (not (find %0 taken)) (push taken %0))) used)
 				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
-			(rest forms))))
+			(list forms) 1 -1)))
 
 (defun takes-none? (node)
 	; (takes-none? node) -> :nil | :t
@@ -782,6 +856,8 @@
 							(if (find "ignore" checks) (check-ignore file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
+							(if (find "copy" checks) (check-copy file forms head))
+							(if (find "reverse" checks) (check-reverse file forms head))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))

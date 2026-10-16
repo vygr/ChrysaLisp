@@ -12,7 +12,7 @@
 		(while (not result)
 			(defq msg (mail-read said))
 			(cond
-				((starts-with "done " msg) (setq result (map (const str-as-num) (rest (split msg " ")))))
+				((starts-with "done " msg) (setq result (map! (const str-as-num) (list (split msg " ")) 1 -1)))
 				((find (first (split msg " ")) '("notput" "notread")) (scene-say sc "  " msg))))
 		(bind '(put same count bytes put_ms read_ms) result)
 		(scene-say sc put " of " count " files put in " (/ put_ms 1000) "." (/ (% put_ms 1000) 100) " s, "

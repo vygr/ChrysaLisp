@@ -379,11 +379,11 @@
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(emit-sub-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)
-		(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse b))))
+		(reach (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (- l 1 (!))))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(each (# (emit-cpy-ir +riscv64_rsp (* +ptr_size (!)) %0)) (reverse b))
+		(reach (# (emit-cpy-ir +riscv64_rsp (* +ptr_size (- l 1 (!))) %0)) b)
 		(emit-add-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)))
 
 (defun emit-call (l)
@@ -592,7 +592,7 @@
 			(emit-sub-cr (align s 16) +riscv64_rsp))
 		(:t (emit-sub-cr s +riscv64_rsp)
 			(emit-and-cr -16 +riscv64_rsp)))
-	(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse x))
+	(reach (# (emit-cpy-ri %0 +riscv64_rsp (- s +ptr_size (* +ptr_size (!))))) x)
 	(emit-cpy-ir b c +riscv64_rtmp1)
 	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)
 	(emit-cpy-rr +riscv64_rtmp4 +riscv64_rsp)

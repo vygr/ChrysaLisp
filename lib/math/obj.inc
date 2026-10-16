@@ -79,12 +79,12 @@
 					(str-to-real (elem-get words 3))))
 				("f" (when (>= (length words) 4)
 					(defq counts (list (/ (length positions) 3) (/ (length places) 2) (/ (length normals) 3))
-						corners (map (# (obj-corner %0 counts)) (rest words)) one (first corners))
+						corners (map! (# (obj-corner %0 counts)) (list words) 1 -1) one (first corners))
 					;a fan from the first corner
 					(each (lambda (b c) (each (# (push faces (elem-get %0 0) (elem-get %0 1) (elem-get %0 2))) (list one b c)))
 						(slice corners 1 -2) (slice corners 2 -1))))
 				("usemtl" (setq material (if (> (length words) 1) (elem-get words 1) "") faces (obj-group material)))
-				("mtllib" (each (# (push libraries %0)) (rest words)))))
+				("mtllib" (each! (# (push libraries %0)) (list words) 1 -1))))
 		:nil) stream)
 	(defq out (Emap))
 	(scatter out :positions positions :places places :normals normals :libraries libraries
@@ -104,7 +104,7 @@
 					(scatter (setq now (Emap)) :colour (list +real_1 +real_1 +real_1) :seen +real_1)
 					(. out :insert (elem-get words 1) now)))
 				("Kd" (and now (> (length words) 3)
-					(. now :insert :colour (map (const str-to-real) (slice words 1 4)))))
+					(. now :insert :colour (map! (const str-to-real) (list words) 1 4))))
 				("d" (and now (> (length words) 1) (. now :insert :seen (str-to-real (elem-get words 1)))))
 				("Tr" (and now (> (length words) 1) (. now :insert :seen (- +real_1 (str-to-real (elem-get words 1))))))
 				;the file is the last word, options before it

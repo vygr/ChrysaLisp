@@ -190,8 +190,8 @@
 			(setq a (+ a (- (* x y1) (* x1 y))))) pts)
 		(if (> (abs a) (abs big)) (setq big a))) paths)
 	(if (>= big 0.0) paths
-		(map (# (apply (const path) (reduce (# (push %0 (first %1) (second %1)))
-			(reverse (partition %0 2)) (list)))) paths)))
+		(map (# (apply (const path) (rreduce (# (push %0 (first %1) (second %1)))
+			(partition %0 2) (list)))) paths)))
 
 (defun sym-paths (items radius joint cap)
 	; (sym-paths items radius joint cap) -> paths

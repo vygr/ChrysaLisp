@@ -534,9 +534,8 @@
 								;and between goes over what is there as
 								;:canvas :plot has it, in whole numbers
 								(defq alpha (n2i (* (min (max (elem-get col 3) +cpu_0) +cpu_1) (const (n2r 255))))
-									pixel (reduce (# (+ (<< %0 8)
-										(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255))))))
-										(slice col 0 3) 0xff))
+									pixel (reduce! (# (+ (<< %0 8)
+										(n2i (* (min (max %1 +cpu_0) +cpu_1) (const (n2r 255)))))) (list col) 0xff 0 3))
 								(when (/= alpha 0)
 									(when (/= alpha 255)
 										(setq pixel (+ (<< alpha 24)

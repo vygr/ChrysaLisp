@@ -31,7 +31,7 @@
 	(some (lambda (item)
 		(and (cwb-group? item) (some (# (and (cwb-group? %0) (some (# (and (cwb-shape? %0) (eql (cwb-get %0 :text) name)))
 				(elem-get %0 +cwb_items)))) (elem-get item +cwb_items))
-			(map (const n2i) (slice (elem-get item +cwb_m) 2 3))))
+			(map! (const n2i) (list (elem-get item +cwb_m)) 2 3)))
 		(elem-get dg_tree +cwb_items)))
 (defun dg-xy (name)
 	(some (lambda (item)

@@ -27,6 +27,6 @@
 					:nil) stdin))
 			;from args
 			(print (defq ll (second args)))
-			(each (lambda (nl)
+			(each! (lambda (nl)
 				(unless (eql ll nl)
-					(print (setq ll nl)))) (slice args 2 -1)))))
+					(print (setq ll nl)))) (list args) 2 -1))))

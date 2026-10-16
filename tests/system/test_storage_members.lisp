@@ -45,7 +45,7 @@
 ; three members, and all of it on each
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(each (# (push sn_svcs (sn-start %0))) (slice sn_ids 0 3))
+(each! (# (push sn_svcs (sn-start %0))) (list sn_ids) 0 3)
 (assert-true "three members are started" (every (const identity) sn_svcs))
 (when (every (const identity) sn_svcs)
 	(assert-list-eq "each knows only itself, it has met nobody" '("m-b") (storage-members :nil (sn-of "m-b")))
@@ -67,7 +67,7 @@
 	; five members, and three keep a block
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	(each (# (push sn_svcs (sn-start %0))) (slice sn_ids 3 5))
+	(each! (# (push sn_svcs (sn-start %0))) (list sn_ids) 3 5)
 	(assert-true "two more are started" (every (const identity) sn_svcs))
 	(sn-settle)
 	(assert-list-eq "all five know the five" sn_ids (storage-members :nil (sn-of "m-e")))

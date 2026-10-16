@@ -28,4 +28,4 @@
 			;convert from stdin
 			(lines! launch (io-stream 'stdin))
 			;convert from args
-			(each launch (rest args)))))
+			(each! launch (list args) 1 -1))))

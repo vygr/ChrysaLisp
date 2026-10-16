@@ -68,10 +68,10 @@
 	seen (Canvas 4 4 1))
 (shader-vp-draw native frame (getf seen +canvas_pixmap 0) 0 0 4 4 4)
 (assert-list-eq "alpha full on" '(0 63 127 255)
-	(map (const code) (slice (px-bytes (getf seen +canvas_pixmap 0)) 0 4)))
+	(map! (const code) (list (px-bytes (getf seen +canvas_pixmap 0))) 0 4))
 (shader-vp-draw native frame (getf seen +canvas_pixmap 0) 0 0 4 4 4 :t)
 (assert-list-eq "the alpha main gave" '(0 63 127 127)
-	(map (const code) (slice (px-bytes (getf seen +canvas_pixmap 0)) 0 4)))
+	(map! (const code) (list (px-bytes (getf seen +canvas_pixmap 0))) 0 4))
 
 ;the clip of a canvas, set from Lisp, keeps a draw to a slice of the rows
 (defq whole (Canvas 64 32 1) part (Canvas 64 32 1))

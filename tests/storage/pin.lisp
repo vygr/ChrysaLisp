@@ -16,7 +16,7 @@
 		(scene-say sc "A gopher from m-d went by way of " (join (map (# (first %0)) (ifn (second back) (list))) " "))
 		(scene-check sc "it came back right" (and back (= (first back) (scene-sum data))))
 		(scene-check sc "and stayed at m-b once it got there"
-			(every (# (eql (first %0) "m-b")) (rest (ifn (second back) (list :nil)))))
+			(some! (# (eql (first %0) "m-b")) (list (ifn (second back) (list :nil))) :t 1 -1))
 		(scene-say sc "Unpinned.")
 		(storage-pin "big" :t (scene-svc sc "m-b"))
 		(scene-settle sc)

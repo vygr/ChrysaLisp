@@ -30,7 +30,7 @@
 (assert-true "this host says how new it is, and is new enough to end a process"
 	(and (= (length (split (pii-host) " ")) 4) (>= (str-as-num (last (split (pii-host) " "))) 2)))
 (assert-list-eq "and is still the cpu, abi and os it was" (list (cpu) (abi) (os))
-	(map (const sym) (slice (split (pii-host) " ") 0 3)))
+	(map! (const sym) (list (split (pii-host) " ")) 0 3))
 
 ;a node, ended
 (defq kl_before (length (lisp-nodes)) kl_pids (node-spawn 1))

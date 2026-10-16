@@ -153,7 +153,7 @@
 					(:t (defq items (list (list :mat (first b) :nil)) to (third item))
 						(each! (# (push items (list :mat %0 :nil)
 							(list :mul (if (= (!) (dec (length b))) to)))) (list b) 1)
-						(each (# (push stack %0)) (reverse items)))))
+						(reach (# (push stack %0)) items))))
 			((push steps item))))
 	(each (lambda ((kind p0))
 		(cond
@@ -525,7 +525,7 @@
 							((find op '(float int sin cos sqrt abs floor fract length normalize)) 1)
 							((find op '(clamp mix)) 3)
 							(2))
-						items (map (# (list :expr %0)) (slice args 0 n)))
+						items (map! (# (list :expr %0)) (list args) 0 n))
 					(push items (list :apply node n)))))))
 
 (defun sv-lin-branch (node cell sense)
@@ -545,7 +545,7 @@
 					;any one of them settles it
 					(map (# (list :branch %0 cell sense)) b))
 				(:t (defq skip (list :nil) items (list (list :new_label skip)))
-					(each (# (push items (list :branch %0 skip (not sense)))) (most b))
+					(each! (# (push items (list :branch %0 skip (not sense)))) (list b) 0 -2)
 					(push items (list :branch (last b) cell sense) (list :label skip)))))
 		((list (list :expr node) (list :br_val sense cell)))))
 
@@ -556,9 +556,8 @@
 	(defq steps (list) stack (reverse items))
 	(while (defq item (pop stack))
 		(case (first item)
-			(:expr (each (# (push stack %0)) (reverse (sv-lin-expr (second item)))))
-			(:branch (each (# (push stack %0))
-				(reverse (sv-lin-branch (second item) (third item) (elem-get item 3)))))
+			(:expr (reach (# (push stack %0)) (sv-lin-expr (second item))))
+			(:branch (reach (# (push stack %0)) (sv-lin-branch (second item) (third item) (elem-get item 3))))
 			(:t (push steps item))))
 	steps)
 
@@ -676,7 +675,7 @@
 	;them, and no function here calls itself: what is still to be done is
 	;a list, the next thing last, a statement or what is to come after a
 	;block that was put there before it
-	(defq stack (map (# (list :stmt %0)) (reverse block)))
+	(defq stack (rmap (# (list :stmt %0)) block))
 	(while (defq item (pop stack))
 		(bind '(kind p0 &optional p1 p2) item)
 		(case kind
@@ -687,7 +686,7 @@
 						(sv-emit 'vp-jmp (sv-q (defq l_end (sv-new-label))))
 						(sv-emit 'vp-label (sv-q p0))
 						(push stack (list :label l_end))
-						(each (# (push stack (list :stmt %0))) (reverse p1)))
+						(reach (# (push stack (list :stmt %0))) p1))
 					((sv-emit 'vp-label (sv-q p0)))))
 			(:next ;the block of a for is done, p0 its counter, p1 and p2 its labels
 				(pop loops)
@@ -712,7 +711,7 @@
 					(:if (defq l_else (sv-new-label))
 						(sv-branch a l_else :nil)
 						(push stack (list :else l_else c))
-						(each (# (push stack (list :stmt %0))) (reverse b)))
+						(reach (# (push stack (list :stmt %0))) b))
 					(:for (defq offset (sv-slots :int) l_top (sv-new-label) l_exit (sv-new-label)
 							regs (sv-expr b))
 						(push vars (list a offset))
@@ -724,7 +723,7 @@
 						(sv-puts regs) (sv-puts end)
 						(push loops l_exit)
 						(push stack (list :next offset l_top l_exit))
-						(each (# (push stack (list :stmt %0))) (reverse d)))
+						(reach (# (push stack (list :stmt %0))) d))
 					(:break (sv-emit 'vp-jmp (sv-q (last loops))))
 					(:return (cond
 							;a matrix is copied to where what is given goes

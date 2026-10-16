@@ -59,7 +59,7 @@
 	;the lines of a block. An if and a for have blocks in them: what is
 	;still to come is a list, the next thing last, a statement and how far
 	;in it is, or a line that closes what was opened before it
-	(defq stack (map (# (list :stmt %0 indent)) (reverse block)))
+	(defq stack (rmap (# (list :stmt %0 indent)) block))
 	(while (defq item (pop stack))
 		(bind '(kind p0 &optional indent) item)
 		(cond
@@ -74,15 +74,15 @@
 					(:if (push lines (cat tab "if (" (msl-expr a) ")") (cat tab "{"))
 						(when (nempty? c)
 							(push stack (list :line (cat tab "}")))
-							(each (# (push stack (list :stmt %0 (inc indent)))) (reverse c))
+							(reach (# (push stack (list :stmt %0 (inc indent)))) c)
 							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
 						(push stack (list :line (cat tab "}")))
-						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse b)))
+						(reach (# (push stack (list :stmt %0 (inc indent)))) b))
 					(:for (defq i (msl-name a))
 						(push lines (cat tab "for (int " i " = " (msl-expr b) "; " i " < " (msl-expr c) "; " i "++)")
 							(cat tab "{"))
 						(push stack (list :line (cat tab "}")))
-						(each (# (push stack (list :stmt %0 (inc indent)))) (reverse d)))
+						(reach (# (push stack (list :stmt %0 (inc indent)))) d))
 					(:break (push lines (cat tab "break;")))
 					(:return (push lines (cat tab "return " (msl-expr a) ";"))))))))
 

@@ -96,7 +96,7 @@
 			;machines it is the going and coming that takes the time, 17ms
 			;of it over a Wi-Fi link, measured, and a block at a time was a
 			;third of what the link could carry
-			(defq wants (map (const hex-decode) (slice lines 0 at)))
+			(defq wants (map! (const hex-decode) (list lines) 0 at))
 			(each (lambda (start)
 				;each peer is asked at once, and each answer then read
 				(defq batch (slice wants start (min (length wants) (+ start +tender_window)))
@@ -128,7 +128,7 @@
 			;what is others' to keep is let go of when each of them has it
 			;each peer is asked the once which of them it has, all at once, and
 			;those that every holder has are let go of, all at once too
-			(defq extras (map (# (split %0 " ")) (slice lines (min (inc at) (length lines)) -1)))
+			(defq extras (map! (# (split %0 " ")) (list lines) (min (inc at) (length lines)) -1))
 			(when (nempty? extras)
 				(defq names (apply (const cat) (cat (list "") (map (# (hex-decode (first %0))) extras)))
 					has (map (# (ifn (mail-read-timeout %0 (task-timeout 5)) ""))

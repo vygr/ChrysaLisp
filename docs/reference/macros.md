@@ -493,6 +493,12 @@ stopping, and the error was lost: once in a hundred or two
 (rmap lambda seq ...) -> list
 ```
 
+### rfilter
+
+```code
+(rfilter lambda seq) -> list
+```
+
 ### rotate
 
 ```code

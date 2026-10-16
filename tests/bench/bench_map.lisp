@@ -7,7 +7,7 @@
 	bm_pmap (pmap) bm_env (env 31))
 (each (# (. bm_fmap :insert %0 (!)) (. bm_emap :insert %0 (!)) (. bm_fset :insert %0)
 	(pinsert bm_pmap %0 (!)) (def bm_env %0 (!))) bm_keys)
-(each (# (. bm_lmap :insert %0 (!))) (slice bm_keys 30 40))
+(each! (# (. bm_lmap :insert %0 (!))) (list bm_keys) 30 40)
 (defq bm_smap (Fmap 31))
 (each (# (. bm_smap :insert %0 (!))) bm_strs)
 

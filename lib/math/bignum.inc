@@ -81,7 +81,7 @@
 		a)
 	(if (> have 0) (push out acc))
 	(while (< (length out) len) (push out 0))
-	(apply (const cat) (map (const char) (reverse (slice out 0 len)))))
+	(apply (const cat) (map! (const char) (list out) len 0)))
 
 (defun bn-bits (a)
 	; (bn-bits a) -> num

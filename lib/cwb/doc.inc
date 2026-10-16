@@ -288,12 +288,12 @@
 	;puts the shape where it is in the space the items are in, given one
 	;for that space, or :nil. A list of what is left to do, no function
 	;here calls itself
-	(defq todo (map (# (list %0 m)) (reverse items)))
+	(defq todo (rmap (# (list %0 m)) items))
 	(while (defq next (pop todo))
 		(bind '(item m) next)
 		(defq m (Mat3x2-mul m (elem-get item +cwb_m)))
 		(if (cwb-group? item)
-			(each (# (push todo (list %0 m))) (reverse (elem-get item +cwb_items)))
+			(reach (# (push todo (list %0 m))) (elem-get item +cwb_items))
 			(fnc item m))))
 
 (defun cwb-bounds (items &optional m)

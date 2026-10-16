@@ -106,7 +106,7 @@
 				(:t ;must be stdout or one of the stderr's
 					(in-next-msg (defq msg_in (elem-get (get :streams this) (inc (- idx user_select_len)))))
 					(cond
-						((every (# (/= (in-get-state %0) +stream_mail_state_started)) (rest (get :streams this)))
+						((some! (# (/= (in-get-state %0) +stream_mail_state_started)) (list (get :streams this)) :t 1 -1)
 							(def this :state :nil))
 						((/= (in-get-state (get :stdout this)) +stream_mail_state_started)
 							(def this :state :draining)))

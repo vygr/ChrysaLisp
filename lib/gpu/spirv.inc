@@ -247,7 +247,7 @@
 	;still to be done is a list, the next thing last, a statement, or what
 	;comes after a block that was put there before it. A statement that
 	;leaves, a break or a return, has the rest of its own block taken off
-	(defq stack (map (# (list :stmt %0)) (reverse block)))
+	(defq stack (rmap (# (list :stmt %0)) block))
 	(while (defq item (pop stack))
 		(bind '(kind p0 &optional p1 p2 p3) item)
 		(case kind
@@ -258,7 +258,7 @@
 						(spv-op spv_body 248 p1)
 						(setq spv_term :nil)
 						(push stack (list :endif p0))
-						(each (# (push stack (list :stmt %0))) (reverse p2)))
+						(reach (# (push stack (list :stmt %0))) p2))
 					(:t (spv-op spv_body 248 p0)
 						(setq spv_term :nil))))
 			(:endif (unless spv_term (spv-op spv_body 249 p0))
@@ -289,7 +289,7 @@
 						(spv-op spv_body 250 ci lt le)
 						(spv-op spv_body 248 lt)
 						(push stack (list :else lm le c))
-						(each (# (push stack (list :stmt %0))) (reverse b)))
+						(reach (# (push stack (list :stmt %0))) b))
 					(:for (defq iv (spv-local a :int) lh (spv-id) lc (spv-id) lb (spv-id)
 							ln (spv-id) lm (spv-id))
 						(spv-op spv_body 62 iv (spv-expr b))
@@ -303,7 +303,7 @@
 						(spv-op spv_body 248 lb)
 						(push spv_loops lm)
 						(push stack (list :next iv lh ln lm))
-						(each (# (push stack (list :stmt %0))) (reverse d)))
+						(reach (# (push stack (list :stmt %0))) d))
 					(:break (spv-op spv_body 249 (last spv_loops))
 						(setq spv_term :t))
 					(:return (spv-op spv_body 254 (spv-expr a))

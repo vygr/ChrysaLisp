@@ -186,7 +186,7 @@
 	(. (get :pinned store) :each (lambda (member row)
 		(defq head (cat member " " (str (first row))))
 		(if (= (length row) 1) (push lines head)
-			(each (# (push lines (cat head " " %0))) (rest row)))))
+			(each! (# (push lines (cat head " " %0))) (list row) 1 -1))))
 	(sort lines))
 
 (defun store-pinned-read (store lines)
@@ -454,14 +454,13 @@
 			:map (Fmap 101) :objects 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101))
 		(defq had "")
-		(each (lambda (line)
+		(each! (lambda (line)
 			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
 			(cond
 				((eql key "store") (def store :id val))
 				((eql key "member") (setq had val))
 				((eql key "block") (def store :block_size (str-as-num val)))
-				((eql key "copies") (def store :copies (str-as-num val)))))
-			(rest head))
+				((eql key "copies") (def store :copies (str-as-num val))))) (list head) 1 -1)
 		(def store :members (store-lines (exfat-load vol "members"))
 			:retired (store-lines (exfat-load vol "retired"))
 			:pins (store-lines (exfat-load vol "pins")))
@@ -569,7 +568,7 @@
 		((. known :find hash))
 		((and (defq lines (store-lines (store-block-get store hash)))
 				(> (length lines) 1) (eql (first lines) +store_object_magic))
-			(. known :insert hash (defq object (list (str-as-num (second lines)) (map (const hex-decode) (slice lines 2 -1)))))
+			(. known :insert hash (defq object (list (str-as-num (second lines)) (map! (const hex-decode) (list lines) 2 -1))))
 			object)))
 
 (defun store-members (store)
@@ -591,7 +590,7 @@
 	;takes the last of them away
 	(defq scored (sort (map (# (list (sha256 (cat name %0)) %0)) among)
 		(# (cmp (first %1) (first %0)))))
-	(map (const second) (slice scored 0 (min copies (length scored)))))
+	(map! (const second) (list scored) 0 (min copies (length scored))))
 
 (defun store-holders (store name &optional among copies)
 	; (store-holders store name [among copies]) -> (member ...)
@@ -1172,7 +1171,7 @@
 	;known here: it is under what they have pinned. Not one that is retired
 	(defq out (list) retired (get :retired store))
 	(. (get :pinned store) :each (lambda (member row)
-		(and (not (find member retired)) (some (# (starts-with %0 name)) (rest row)) (push out member))))
+		(and (not (find member retired)) (some! (# (starts-with %0 name)) (list row) :nil 1 -1) (push out member))))
 	(sort out))
 
 (defun store-pins-missing (store)

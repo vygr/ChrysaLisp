@@ -602,7 +602,7 @@
 			(emit-sub-cr (align s 16) +la64_rsp))
 		(:t (emit-sub-cr s +la64_rsp)
 			(emit-and-cr -16 +la64_rsp)))
-	(each (# (emit-cpy-ri %0 +la64_rsp (* +ptr_size (!)))) (reverse x))
+	(reach (# (emit-cpy-ri %0 +la64_rsp (- s +ptr_size (* +ptr_size (!))))) x)
 	(emit-cpy-ir b c +la64_rtmp1)
 	(la64-jirl +la64_rlnk +la64_rtmp1 0)
 	(emit-cpy-rr +la64_rtmp4 +la64_rsp)

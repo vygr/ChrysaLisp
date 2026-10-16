@@ -153,12 +153,12 @@
 			(push roots name)))
 		nodes)
 	;each thing after what it comes of, a list of what is left to do
-	(defq todo (map (# (list %0 0)) (reverse (sort roots (const cmp)))))
+	(defq todo (rmap (# (list %0 0)) (sort roots (const cmp))))
 	(while (defq next (pop todo))
 		(bind '(name d) next)
 		(push order name)
 		(. depth :insert name d)
-		(each (# (push todo (list %0 (inc d)))) (reverse (sort (. kids :find name) (const cmp)))))
+		(reach (# (push todo (list %0 (inc d)))) (sort (. kids :find name) (const cmp))))
 	;how wide each depth is, and where it starts
 	(defq deep (reduce (# (max %0 (. depth :find %1))) order 0)
 		widths (map (lambda (d) (reduce (lambda (w name)
@@ -171,11 +171,10 @@
 	(each (lambda (name) (when (empty? (. kids :find name))
 		(. place :insert name (* pitch (n2f slot))) (setq slot (inc slot))))
 		order)
-	(each (lambda (name)
+	(reach (lambda (name)
 		(when (nempty? (defq mine (. kids :find name)))
 			(. place :insert name (* 0.5 (+ (reduce (# (min %0 (. place :find %1))) mine 1000000.0)
-				(reduce (# (max %0 (. place :find %1))) mine -1000000.0))))))
-		(reverse order))
+				(reduce (# (max %0 (. place :find %1))) mine -1000000.0)))))) order)
 	;the lines first, under the boxes
 	(each (lambda (name)
 		(defq d (. depth :find name) x0 (+ (elem-get starts d) (dia-width name 13) 20.0) y0 (+ (. place :find name) 12.5))

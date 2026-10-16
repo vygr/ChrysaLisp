@@ -151,7 +151,7 @@
 					(defq node (elem-get nodes at) kids (tree-form? node))
 					(when (and kids (eql (first (first kids)) :symbol))
 						(defq op (third (first kids)) n (length kids)
-							names (map (# (node-name %0 file)) (slice kids 1 (min n 3))))
+							names (map! (# (node-name %0 file)) (list kids) 1 (min n 3)))
 						(cond
 							((and (eql op "def-class") (>= n 3) (first names))
 								(defq class_name (sym (first names))

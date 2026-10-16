@@ -341,7 +341,7 @@
 	;the event marked is the last done, of those listed
 	(defq lx (+ grid_w 10) list_at (if *trace* (traced) (range 0 count))
 		here (some (# (if (>= %0 (dec at)) (!))) list_at) here (ifn here (length list_at))
-		marked (some (# (if (< %0 at) %0)) (reverse (cat list_at)))
+		marked (rsome (# (if (< %0 at) %0)) list_at)
 		;as many events as there is room for, down the whole of it
 		most_log (/ (- +height 44) +log_h)
 		start (max 0 (min (- here (/ most_log 2)) (- (length list_at) most_log))))
@@ -386,8 +386,7 @@
 		(*trace*
 			;from the last of them that has been done
 			(defq list_at (traced)
-				pos (ifn (some (# (if (< %0 at) (!))) (reverse (cat list_at))) -1)
-				pos (if (>= pos 0) (- (length list_at) 1 pos) -1)
+				pos (ifn (rsome (# (if (< %0 at) (!))) list_at) -1)
 				to (max -1 (min (dec (length list_at)) (+ pos by))))
 			(go-to (if (< to 0) 0 (inc (elem-get list_at to)))))
 		((go-to (+ at by))))
@@ -638,7 +637,7 @@
 			(+select_run
 				(cond
 					((starts-with "lines" msg)
-						(each (# (replay-add *replay* %0)) (rest (split msg (ascii-char 10))))
+						(each! (# (replay-add *replay* %0)) (list (split msg (ascii-char 10))) 1 -1)
 						;the store of this system not recorded, the last so many kept
 						(and *live* (not *record*) (replay-trim *replay* +live_keep))
 						(setq *changed* :t))
