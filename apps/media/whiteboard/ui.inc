@@ -43,6 +43,7 @@
 		(if (= (logand *turn* 1) 1)
 			(.-> doc (:insert :width sh) (:insert :height sw))
 			(.-> doc (:insert :width sw) (:insert :height sh)))
+		(setq *view_size* :nil)
 		(def *board* :on_window (# (setq *full_go* :t)))
 		;there are no toolbars to make a menu from: one is made, in the
 		;middle, if none is open, and those open have the window wedge
@@ -66,6 +67,8 @@
 		(setq *full* :nil)
 		(def *image_scroll* :bare :nil)
 		(.-> (. *board* :get_doc) (:insert :width pw) (:insert :height ph))
+		;the paper is the frame's again, (view-follow), from the document's
+		(setq *view_size* :nil)
 		(undef *board* :on_window)
 		(menus-renew)
 		(bind '(x y w h) bounds)
@@ -80,7 +83,12 @@
 	;is tight as possible around the paper"
 	;and what is on it back in the middle of it: "min size should
 	;recenter the canvas in the viewport"
+	;the paper is the document at the zoom there is, as much of it as the
+	;screen has room for, Chris: "I zoomed, and then hit min, thinking I
+	;would be seeing the whole canvas but just with everything 2x larger"
 	(full-window)
+	(bind '(dw dh) (doc-size))
+	(setq *view_size* (list (max 1 (n2i (* (n2f dw) *zoom*))) (max 1 (n2i (* (n2f dh) *zoom*)))))
 	(view-home)
 	(window-round 0))
 

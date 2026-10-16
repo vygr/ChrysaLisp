@@ -71,6 +71,10 @@
 	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*canvas_size* :nil
+	;the size of the paper on the screen, not turned, :nil for the
+	;document's. It is what the frame in the window has room for, and the
+	;zoom is what is seen on it, (view-follow)
+	*view_size* :nil
 	;what is in flight behind the document, *flight_b*, a canvas of its own
 	;between the document's and the paper. Two layers in flight, Chris:
 	;"pull to front and push to back, by multiple users at the same time,
@@ -259,13 +263,49 @@
 	(setq *snap* on)
 	(binder-dots))
 
+(defun doc-size ()
+	; (doc-size) -> (width height)
+	;the size of the document, not turned
+	(defq doc (. *board* :get_doc))
+	(list (max 1 (. doc :find :width)) (max 1 (. doc :find :height))))
+
+(defun paper-size ()
+	; (paper-size) -> (width height)
+	;the size of the paper on the screen, not turned: what the frame has
+	;room for, or before it has been seen, the document's
+	(ifn *view_size* (doc-size)))
+
 (defun canvas-size ()
 	; (canvas-size) -> (width height)
-	;the size of the paper on the screen, what the document says, the
-	;other way up if the board is turned a quarter or three. The zoom
-	;does not make it bigger, it makes what is seen on it bigger
-	(defq doc (. *board* :get_doc) w (max 1 (. doc :find :width)) h (max 1 (. doc :find :height)))
+	;the size of the paper on the screen, the other way up if the board is
+	;turned a quarter or three. The zoom does not make it bigger, it makes
+	;what is seen on it bigger
+	(bind '(w h) (paper-size))
 	(if (= (logand *turn* 1) 1) (list h w) (list w h)))
+
+(defun frame-size ()
+	; (frame-size) -> (width height)
+	;what the frame in the window has room for, less its bars, as it lays
+	;the paper out, view.inc
+	(bind '(w h) (. *image_scroll* :get_size))
+	(if (get :bare *image_scroll*) (list w h)
+		(list (- w (first (. (get :vslider *image_scroll*) :get_constraint)))
+			(- h (second (. (get :hslider *image_scroll*) :get_constraint))))))
+
+(defun view-follow ()
+	;the paper is the size of the frame, Chris: "a hand resize should
+	;resize it too". What is in the middle of what is seen stays there,
+	;and what lies on the glass where it is. Not while the board is all
+	;of the screen, the document is the screen's size then
+	(bind '(fw fh) (frame-size))
+	(unless (or *full* (<= fw 0) (<= fh 0) (eql (str (list fw fh)) (str (canvas-size))))
+		(bind '(mx my) (view-middle))
+		(defq held (tools-held))
+		(setq *view_size* (if (= (logand *turn* 1) 1) (list fh fw) (list fw fh)))
+		(bind '(uw uh) *view_size*)
+		(setq *pan_x* (- mx (/ (n2f uw) (* 2.0 *zoom*))) *pan_y* (- my (/ (n2f uh) (* 2.0 *zoom*))))
+		(tools-hold held)
+		(view-changed)))
 
 (defun turn-matrix (turn)
 	; (turn-matrix turn) -> :nil | matrix
@@ -286,10 +326,10 @@
 	;turned about its middle, which is the middle of both
 	(when (/= *turn* 0)
 		(bind '(cw ch) (canvas-size))
-		(defq doc (. *board* :get_doc))
+		(bind '(pw ph) (paper-size))
 		(Mat3x2-mul (Mat3x2-translate (/ (n2f cw) 2.0) (/ (n2f ch) 2.0))
 			(Mat3x2-mul (turn-matrix *turn*)
-				(Mat3x2-translate (/ (n2f (max 1 (. doc :find :width))) -2.0) (/ (n2f (max 1 (. doc :find :height))) -2.0))))))
+				(Mat3x2-translate (/ (n2f pw) -2.0) (/ (n2f ph) -2.0))))))
 
 (defun view-unturn (cx cy)
 	; (view-unturn cx cy) -> (x y)
@@ -598,9 +638,12 @@
 	;the middle of the document is in the middle of the paper again, at
 	;the zoom there is. Not while anybody is drawing a line
 	(unless (. *board* :busy?)
-		(defq doc (. *board* :get_doc) held (tools-held)
-			w (/ (n2f (max 1 (. doc :find :width))) 2.0) h (/ (n2f (max 1 (. doc :find :height))) 2.0))
-		(setq *pan_go* (list 0.0 0.0) *pan_x* (- w (/ w *zoom*)) *pan_y* (- h (/ h *zoom*)))
+		(defq held (tools-held))
+		(bind '(dw dh) (doc-size))
+		(bind '(pw ph) (paper-size))
+		(setq *pan_go* (list 0.0 0.0)
+			*pan_x* (- (/ (n2f dw) 2.0) (/ (n2f pw) (* 2.0 *zoom*)))
+			*pan_y* (- (/ (n2f dh) 2.0) (/ (n2f ph) (* 2.0 *zoom*))))
 		(tools-hold held)
 		(view-changed)))
 
@@ -663,6 +706,8 @@
 		;the point of the document in the middle of the paper stays there
 		(bind '(mx my) (view-middle))
 		(setq *turn* (logand (+ *turn* by 4) 3))
+		;the paper is the frame's, which has not turned: its sides change over
+		(and *view_size* (= (logand by 1) 1) (setq *view_size* (reverse *view_size*)))
 		;a board that is all of the screen has a paper the size of the
 		;screen whichever way up: the document's is its sides changed over
 		(when *full*
@@ -1172,6 +1217,7 @@
 				(when *full_go*
 					(setq *full_go* :nil)
 					(full-window))
+				(view-follow)
 				(tools-snap (list (zoom-tick) (pan-tick)))
 				(bars-tick)
 				(tools-cull)
