@@ -98,16 +98,27 @@
 
 ;only the teacher undoes and redoes, Chris: "only teacher can undo/redo
 ;the doc". A press says who, a key, or a script, is the teacher's
+(defun msg-press ()
+	; (msg-press) -> :nil | event
+	;what pressed the button the action being done is of, as a pointer
+	;event, :nil for a key or a script
+	(when (and (str? (defq msg (get '*msg*))) (>= (length msg) +ev_msg_action_size)
+			(defq view (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+			(defq by (get :pressed_by view)))
+		(undef view :pressed_by)
+		(bind '(id kind buttons) by)
+		(ptr-event id kind buttons 0 0)))
+
+(defun msg-mine ()
+	; (msg-mine) -> :nil | ids
+	;what the user of the press holds, :nil, all that is selected, for a key
+	(if (defq event (msg-press)) (. *board* :selected_by (. *board* :user_of event))))
+
 (defun teacher-pressed? ()
 	(cond
 		;a board that joined another's is no teacher of it
 		((eql *share* :joined) :nil)
-		((and (str? (defq msg (get '*msg*))) (>= (length msg) +ev_msg_action_size)
-				(defq view (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-				(defq by (get :pressed_by view)))
-			(undef view :pressed_by)
-			(bind '(id kind buttons) by)
-			(= (. *board* :user_of (ptr-event id kind buttons 0 0)) +board_teacher))
+		((defq event (msg-press)) (= (. *board* :user_of event) +board_teacher))
 		(:t)))
 (defun action-undo () (if (teacher-pressed?) (. *board* :undo)))
 (defun action-redo () (if (teacher-pressed?) (. *board* :redo)))
@@ -237,18 +248,20 @@
 	(bind '(x y) (view-middle))
 	(palette-float *board* x y))
 
-(defun action-group () (. *board* :group))
-(defun action-ungroup () (. *board* :ungroup))
-(defun action-delete () (. *board* :delete))
-(defun action-duplicate () (. *board* :duplicate))
-(defun action-to-front () (. *board* :order :t))
-(defun action-to-back () (. *board* :order :nil))
-(defun action-align-left () (. *board* :align :left))
-(defun action-align-hcenter () (. *board* :align :hcenter))
-(defun action-align-right () (. *board* :align :right))
-(defun action-align-top () (. *board* :align :top))
-(defun action-align-vcenter () (. *board* :align :vcenter))
-(defun action-align-bottom () (. *board* :align :bottom))
+;what is done to a selection is done to what the presser's user holds,
+;Chris: "2 users can select seperate item", a key to all that is selected
+(defun action-group () (. *board* :group (msg-mine)))
+(defun action-ungroup () (. *board* :ungroup (msg-mine)))
+(defun action-delete () (. *board* :delete (msg-mine)))
+(defun action-duplicate () (. *board* :duplicate :nil :nil (msg-mine)))
+(defun action-to-front () (. *board* :order :t (msg-mine)))
+(defun action-to-back () (. *board* :order :nil (msg-mine)))
+(defun action-align-left () (. *board* :align :left (msg-mine)))
+(defun action-align-hcenter () (. *board* :align :hcenter (msg-mine)))
+(defun action-align-right () (. *board* :align :right (msg-mine)))
+(defun action-align-top () (. *board* :align :top (msg-mine)))
+(defun action-align-vcenter () (. *board* :align :vcenter (msg-mine)))
+(defun action-align-bottom () (. *board* :align :bottom (msg-mine)))
 (defun action-select-all () (. *board* :select_all))
 (defun action-select-none () (. *board* :select (list)))
 (defun action-turn () (view-turn 1))

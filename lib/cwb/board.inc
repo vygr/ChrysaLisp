@@ -1660,11 +1660,13 @@
 
 	(defmethod :get_selected () (get :selected this))
 
-	(defmethod :selected_items ()
-		; (. board :selected_items) -> items
-		;the items that are selected, each one of a layer's own, in the
-		;order they are in, the back one first
-		(defq ids (cwb-id-set (get :selected this)))
+	(defmethod :selected_items (&optional of)
+		; (. board :selected_items [ids]) -> items
+		;the items that are selected, or of those ids that are, each one of a
+		;layer's own, in the order they are in, the back one first. What is
+		;done to a selection is done to those of one user, Chris: "2 users
+		;can select seperate item", what a press gives, (:selected_by)
+		(defq ids (cwb-id-set (if of (filter (# (find %0 of)) (get :selected this)) (get :selected this))))
 		(reduce (lambda (out (name flags items)) (cat out (cwb-pick items ids)))
 			(cwb-layers (get :doc this)) (list)))
 
@@ -1928,12 +1930,12 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			:t))
 
-	(defmethod :delete ()
-		; (. board :delete) -> board
-		;take out what is selected
-		(when (nempty? (get :selected this))
+	(defmethod :delete (&optional ids)
+		; (. board :delete [ids]) -> board
+		;take out what is selected, or of those ids
+		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id)) (. this :selected_items ids))))
 			(. this :snapshot)
-			(. this :remove (cat (get :selected this))))
+			(. this :remove ids))
 		this)
 
 	(defmethod :fit (&optional pad)
@@ -2057,10 +2059,11 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :group ()
-		; (. board :group) -> :nil | id
-		;what is selected becomes one group, where the top one of them was
-		(defq items (. this :selected_items))
+	(defmethod :group (&optional ids)
+		; (. board :group [ids]) -> :nil | id
+		;what is selected, or of those ids, becomes one group, where the top
+		;one of them was
+		(defq items (. this :selected_items ids))
 		(when (> (length items) 1)
 			(. this :snapshot)
 			(. this :changed :all)
@@ -2073,17 +2076,17 @@
 			(cwb-remove-ids doc (filter (# (/= %0 top_id)) (map (# (elem-get %0 +cwb_id)) items)))
 			;the group is in the list, the items are now only in the group,
 			;held by who held the top of them
-			(defq who (. this :holder top_id))
-			(. this :select (list (elem-get group +cwb_id)))
+			(defq who (. this :holder top_id) parts (map (# (elem-get %0 +cwb_id)) items))
+			(. this :select (cat (filter (# (not (find %0 parts))) (get :selected this)) (list (elem-get group +cwb_id))))
 			(if who (. this :pick_up (elem-get group +cwb_id) who))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			(elem-get group +cwb_id)))
 
-	(defmethod :ungroup ()
-		; (. board :ungroup) -> board
-		;each group that is selected becomes its items, where it was, each
-		;where it was on the board
-		(defq groups (filter (const cwb-group?) (. this :selected_items)))
+	(defmethod :ungroup (&optional ids)
+		; (. board :ungroup [ids]) -> board
+		;each group that is selected, or of those ids, becomes its items,
+		;where it was, each where it was on the board
+		(defq groups (filter (const cwb-group?) (. this :selected_items ids)))
 		(when (nempty? groups)
 			(. this :snapshot)
 			(. this :changed :all)
@@ -2109,10 +2112,11 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :order (front)
-		; (. board :order front) -> board
-		;what is selected goes to the front of its layer, or the back
-		(when (nempty? (defq ids (get :selected this)))
+	(defmethod :order (front &optional of)
+		; (. board :order front [ids]) -> board
+		;what is selected, or of those ids, goes to the front of its layer,
+		;or the back
+		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id)) (. this :selected_items of))))
 			(. this :snapshot)
 			(each (lambda (layer)
 				(defq items (third layer)
@@ -2124,11 +2128,12 @@
 			(. this :touch +board_dirty_doc))
 		this)
 
-	(defmethod :align (how)
-		; (. board :align how) -> board
-		;line up what is selected, each with the box round all of it. how is
-		;:left :right :top :bottom, or :hcenter or :vcenter for the middles
-		(defq items (. this :selected_items))
+	(defmethod :align (how &optional ids)
+		; (. board :align how [ids]) -> board
+		;line up what is selected, or of those ids, each with the box round
+		;all of it. how is :left :right :top :bottom, or :hcenter or :vcenter
+		;for the middles
+		(defq items (. this :selected_items ids))
 		(when (and (> (length items) 1) (defq all (cwb-bounds items)))
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
@@ -2145,11 +2150,11 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :duplicate (&optional dx dy)
-		; (. board :duplicate [dx dy]) -> board
-		;a copy of what is selected, moved a little, default 16 each way,
-		;and the copy is what is selected
-		(when (nempty? (defq items (. this :selected_items)))
+	(defmethod :duplicate (&optional dx dy of)
+		; (. board :duplicate [dx dy ids]) -> board
+		;a copy of what is selected, or of those ids, moved a little, default
+		;16 each way, and the copy is selected in its place
+		(when (nempty? (defq items (. this :selected_items of)))
 			(. this :snapshot)
 			(defq doc (get :doc this) move (Mat3x2-translate (ifn dx 16) (ifn dy 16)) ids (list)
 				whos (map (# (. this :holder (elem-get %0 +cwb_id))) items))
@@ -2163,8 +2168,9 @@
 				(cwb-add doc copy (. this :layer_index))
 				(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))
-			;the copies are held by who held each
-			(. this :select ids)
+			;the copies are held by who held each, in their place
+			(defq originals (map (# (elem-get %0 +cwb_id)) items))
+			(. this :select (cat (filter (# (not (find %0 originals))) (get :selected this)) ids))
 			(each (lambda (id who) (if who (. this :pick_up id who))) ids whos)
 			(. this :changed ids)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))

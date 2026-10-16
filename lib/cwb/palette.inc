@@ -281,8 +281,11 @@
 						(unless floating (. this :close)))
 					;snap is each device's own, as its colour is
 					(:snap (. board :pick by :switch :snap))
-					(:duplicate (. board :duplicate) (unless floating (. this :close)))
-					(:delete (. board :delete) (unless floating (. this :close))))))
+					;what the user of the tap holds, or by no device all of it
+					(:duplicate (. board :duplicate :nil :nil (if by (. board :selected_by (. board :user_of by))))
+						(unless floating (. this :close)))
+					(:delete (. board :delete (if by (. board :selected_by (. board :user_of by))))
+						(unless floating (. this :close))))))
 		(. board :touch +board_dirty_overlay)
 		this)
 

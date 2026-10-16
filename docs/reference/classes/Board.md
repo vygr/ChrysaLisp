@@ -19,10 +19,11 @@ as (:commit), and the id of it, for a script
 ### :align
 
 ```code
-(. board :align how) -> board
+(. board :align how [ids]) -> board
 
-line up what is selected, each with the box round all of it. how is
-:left :right :top :bottom, or :hcenter or :vcenter for the middles
+line up what is selected, or of those ids, each with the box round
+all of it. how is :left :right :top :bottom, or :hcenter or :vcenter
+for the middles
 ```
 
 ### :angle_step
@@ -119,9 +120,9 @@ is locked stay. How many went
 ### :delete
 
 ```code
-(. board :delete) -> board
+(. board :delete [ids]) -> board
 
-take out what is selected
+take out what is selected, or of those ids
 ```
 
 ### :device_slot
@@ -213,10 +214,10 @@ still turned and sized by them there
 ### :duplicate
 
 ```code
-(. board :duplicate [dx dy]) -> board
+(. board :duplicate [dx dy ids]) -> board
 
-a copy of what is selected, moved a little, default 16 each way,
-and the copy is what is selected
+a copy of what is selected, or of those ids, moved a little, default
+16 each way, and the copy is selected in its place
 ```
 
 ### :fill_pen
@@ -274,9 +275,10 @@ nothing was done after all, the last (:snapshot) is dropped
 ### :group
 
 ```code
-(. board :group) -> :nil | id
+(. board :group [ids]) -> :nil | id
 
-what is selected becomes one group, where the top one of them was
+what is selected, or of those ids, becomes one group, where the top
+one of them was
 ```
 
 ### :hold
@@ -371,9 +373,10 @@ document till it is kept
 ### :order
 
 ```code
-(. board :order front) -> board
+(. board :order front [ids]) -> board
 
-what is selected goes to the front of its layer, or the back
+what is selected, or of those ids, goes to the front of its layer,
+or the back
 ```
 
 ### :others_of
@@ -577,10 +580,12 @@ no tap, a hand or a box, says no one, and is anyone's
 ### :selected_items
 
 ```code
-(. board :selected_items) -> items
+(. board :selected_items [ids]) -> items
 
-the items that are selected, each one of a layer's own, in the
-order they are in, the back one first
+the items that are selected, or of those ids that are, each one of a
+layer's own, in the order they are in, the back one first. What is
+done to a selection is done to those of one user, Chris: "2 users
+can select seperate item", what a press gives, (:selected_by)
 ```
 
 ### :selecting?
@@ -772,10 +777,10 @@ move what is selected by a matrix
 ### :ungroup
 
 ```code
-(. board :ungroup) -> board
+(. board :ungroup [ids]) -> board
 
-each group that is selected becomes its items, where it was, each
-where it was on the board
+each group that is selected, or of those ids, becomes its items,
+where it was, each where it was on the board
 ```
 
 ### :user_of

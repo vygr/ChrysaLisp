@@ -611,3 +611,21 @@
 (. pr_board :release)
 (assert-eq "released, no actor holds the board, and the stage has none"
 	"(4 0 0)" (str (list (length pr_actors) (length (filter (# (get :board %0)) pr_actors)) (length (. (. pr_board :get_stage) :get_actors)))))
+;what is done to a selection is done to what one user holds, the others'
+;stay as they were, Chris: "2 users can select seperate item"
+(defq pg_board (Board (cwb-doc 400 400)))
+(defq pg_ids (map (# (. pg_board :add (cwb-shape (cwb-d-rect (* %0 50) 10 (+ (* %0 50) 40) 50) :fill 0xff000000 :stroke 0))) '(0 1 2 3)))
+(bind '(pg_a pg_b pg_c pg_d) pg_ids)
+(. pg_board :pick_up pg_a 0) (. pg_board :pick_up pg_b 0) (. pg_board :pick_up pg_c 3) (. pg_board :pick_up pg_d 3)
+(defq pg_g (. pg_board :group (. pg_board :selected_by 0)))
+(assert-eq "the teacher's two are one group, the student's two are as they were, and all still picked up"
+	(str (list 3 (list pg_c pg_d pg_g) 0))
+	(str (list (length (cwb-items (. pg_board :get_doc))) (get :selected pg_board) (. pg_board :holder pg_g))))
+(. pg_board :duplicate :nil :nil (. pg_board :selected_by 3))
+(assert-eq "the student's copies are picked up in place of theirs, the teacher's group stays"
+	"(5 3 :t)" (str (list (length (cwb-items (. pg_board :get_doc))) (length (get :selected pg_board))
+		(if (find pg_g (get :selected pg_board)) :t))))
+(. pg_board :delete (. pg_board :selected_by 0))
+(assert-eq "the teacher's delete takes the group only" 4 (length (cwb-items (. pg_board :get_doc))))
+(. pg_board :delete (list))
+(assert-eq "one who holds nothing deletes nothing" 4 (length (cwb-items (. pg_board :get_doc))))
