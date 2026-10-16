@@ -67,33 +67,31 @@
 			(ui-backdrop *backdrop* (:paper 0xffa8acb0)))))
 
 (ui-tool-tips *main_toolbar*
-	'("undo" "redo" "new" "open" "save" "clear" "clip away what is off the paper"
-		"share: join the board that is shared, or share this one, or leave"))
+	'("undo" "redo" "new" "open" "save" "clear" "crop" "share"))
 
 (ui-tool-tips *style_toolbar*
 	'("plain" "grid" "lines" "axis"))
 
 (ui-tool-tips *snap_toolbar*
-	'("snap to the grid" "snap angles" "a corner keeps the shape, or is free"))
+	'("snap grid" "snap angle" "lock shape"))
 
 (ui-tool-tips *zoom_toolbar*
 	'("zoom in" "zoom out"))
 
 (ui-tool-tips *mode_toolbar*
 	'("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
-	"filled rect" "filled ellipse" "words" "eraser"))
+	"filled rect" "filled ellipse" "text" "eraser"))
 
 (ui-tool-tips *radius_toolbar*
 	'("thin" "medium" "thick"))
 
 (ui-tool-tips *tool_toolbar*
-	'("ruler" "protractor" "whole protractor" "set square, 30 and 60" "set square, 45"
-		"a menu of its own, for whoever taps it, as many as are wanted"))
+	'("ruler" "protractor" "full protractor" "set square 30" "set square 45" "menu"))
 
 
 (ui-tool-tips *selection_toolbar*
-	'("group" "ungroup" "delete" "duplicate" "to the front" "to the back"
-	"align left" "align centres" "align right" "align top" "align middles" "align bottom"))
+	'("group" "ungroup" "delete" "duplicate" "to front" "to back"
+	"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
 
 (each (# (def %0 :ink %1)) (. *ink_toolbar* :children) *palette*)
 ;the ink, tool and width bars are binders and show no pick, the paper is
