@@ -116,6 +116,17 @@
 				(elem-set ps i s) (elem-set pv i v))
 			((push ps s) (push pv v))))
 		(if p (partition p 2) '()))
+	;a variant given for a plain property, (:paper :paper_toolbar), is the
+	;user's, (get :paper_toolbar *env*), as the view is made, and which it
+	;was is kept, :variants, for a theme to find it again, (view-resolve)
+	(defq kept (list))
+	(each (lambda (s v)
+			(when (and (find s +variant_keys) (sym? v) (starts-with (cat (str s) "_") (str v)))
+				(elem-set pv (!) (list 'get v '*env*))
+				(push kept s v)))
+		ps pv)
+	(when (nempty? kept)
+		(push ps :variants) (push pv (list 'quote kept)))
 	(list (zip ps pv) pe))
 
 (defmacro ui-props (p &rest x)
@@ -193,15 +204,15 @@
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
 	(ui-props p
-		:font *env_title_font*
-		:border *env_title_border*)
+		:font :font_title
+		:border :border_title)
 	(static-qqp (ui-element ,n (Title) ,p)))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter)
-		:border *env_button_border*)
+		:border :border_button)
 	(static-qqp (ui-element ,n (Button) ,p ~x)))
 
 (defun ui-symbols (s)
@@ -225,9 +236,9 @@
 	; (ui-title-bar name title symbols event [props]) -> flow
 	(ui-props p
 		:flow_flags +flow_left_fill
-		:paper *env_title_col*
-		:border *env_title_buttons_border*
-		:font *env_title_buttons_font*)
+		:paper :paper_title
+		:border :border_title_buttons
+		:font :font_title_buttons)
 	(static-qqp (ui-flow _ ,p
 		(ui-buttons ,b ,e)
 		(ui-title ,n (:text ,s)))))
@@ -244,24 +255,24 @@
 	; (ui-label name [props] [body]) -> label
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
-		:border *env_label_border*)
+		:border :border_label)
 	(static-qqp (ui-element ,n (Label) ,p ~x)))
 
 (defmacro ui-radio-bar (n s &optional p)
 	; (ui-radio-bar name symbols [props])
 	(ui-props p
-		:paper *env_toolbar_col*
-		:font *env_symbol_font*
-		:border *env_button_border*)
+		:paper :paper_toolbar
+		:font :font_symbol
+		:border :border_button)
 	(setq s (ui-symbols s))
 	(static-qqp (ui-element ,n (Radiobar '(~s)) ,p)))
 
 (defmacro ui-toggle-bar (n s &optional p)
 	; (ui-toggle-bar name symbols [props])
 	(ui-props p
-		:paper *env_toolbar_col*
-		:font *env_symbol_font*
-		:border *env_button_border*)
+		:paper :paper_toolbar
+		:font :font_symbol
+		:border :border_button)
 	(setq s (ui-symbols s))
 	(static-qqp (ui-element ,n (Radiobar '(~s) :t) ,p)))
 
@@ -269,26 +280,26 @@
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
 		:flow_flags +flow_right
-		:paper *env_toolbar_col* :font *env_symbol_font*)
+		:paper :paper_toolbar :font :font_symbol)
 	(static-qqp (ui-flow ,n ,p ~x)))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
-		:border *env_textfield_border*)
+		:border :border_textfield)
 	(static-qqp (ui-element ,n (Textfield) ,p)))
 
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
 	(ui-props p
-		:paper *env_slider_col*)
+		:paper :paper_slider)
 	(static-qqp (ui-element ,n (Slider) ,p)))
 
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
-		:paper *env_slider_col*)
+		:paper :paper_slider)
 	(static-qqp (ui-element ,n (Scroll ,f) ,p ~x)))
 
 (defmacro ui-backdrop (n &optional p &rest x)
@@ -314,7 +325,7 @@
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
 	(ui-props p
-		:font *env_terminal_font*
+		:font :font_terminal
 		:paper 0)
 	(static-qqp (ui-element ,n (Vdu) ,p)))
 
