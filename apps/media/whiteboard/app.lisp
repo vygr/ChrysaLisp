@@ -166,7 +166,8 @@
 (defun binder-dots ()
 	;each button of the binders, the devices bound to what it binds, when
 	;what they are bound to has changed, and its strip the first time
-	(defq rules (get :rules (. *board* :get_bindings)) as (str rules))
+	(defq rules (get :rules (. *board* :get_bindings))
+		as (str rules (get :snap *board*) (get :snap_angle *board*) (get :keep_shape *board*)))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
 		(defq devices (. (. *board* :get_bindings) :devices (# (. *board* :device_slot %0 %1))))
@@ -180,7 +181,11 @@
 		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
 		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
 		(each (# (button-lights %0 (slots-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
-		(each (# (button-lights %0 (slots-of %1 :t))) (. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
+		;a switch is lit for a device that has it on, its own or the board's
+		(each (lambda (button key)
+				(button-lights button (reduce (lambda (out (& what slot))
+					(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
+			(. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
 ;a menu's colours are those of the ink bar that are solid, and four more.
 ;No menu opens from a tap on the board, a tap there is a dot: menus float,

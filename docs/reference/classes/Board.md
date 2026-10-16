@@ -511,6 +511,15 @@ selected, those in groups too
 as (:style), of those selected things only
 ```
 
+### :switch_of
+
+```code
+(. board :switch_of what key) -> :t | :nil
+
+is a switch, :snap :snap_angle or :keep_shape, on for a device bound
+to what: its own if it has one, else the board's, as it draws
+```
+
 ### :take_appended
 
 ```code

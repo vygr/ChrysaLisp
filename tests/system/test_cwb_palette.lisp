@@ -302,6 +302,9 @@
 (assert-eq "the mouse's place is the first, the teacher's pen the third, a second student's pen the fifth"
 	(str '(0 2 4)) (str (list (. pf_board :device_slot :mouse 0) (progn (. pf_board :appoint (ptr-event 0x3000000 :pen 0 0 0))
 		(. pf_board :device_slot :eraser 0x3000000)) (. pf_board :device_slot :pen 0x4000000))))
+(assert-eq "a switch is a device's own if bound, else the board's: lock on, snap off, a device's snap on"
+	"(:t :nil :t :nil)" (str (list (. pf_board :switch_of '(:tool :pen) :keep_shape) (. pf_board :switch_of '(:tool :pen) :snap)
+		(. pf_board :switch_of '(:snap :t) :snap) (. pf_board :switch_of '(:keep_shape :nil) :keep_shape))))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))

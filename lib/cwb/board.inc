@@ -1197,6 +1197,17 @@
 			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
 			(. bindings :value event :keep_shape (get :keep_shape this))))
 
+	(defmethod :switch_of (what key)
+		; (. board :switch_of what key) -> :t | :nil
+		;is a switch, :snap :snap_angle or :keep_shape, on for a device bound
+		;to what: its own if it has one, else the board's, as it draws
+		(if (defq at (find key what))
+			(elem-get what (inc at))
+			(case key
+				(:snap (/= (get :snap this) 0.0))
+				(:snap_angle (/= (get :snap_angle this) 0.0))
+				(:t (get :keep_shape this)))))
+
 	(defmethod :snap_step (&optional id)
 		; (. board :snap_step [id]) -> step
 		(if (defq kept (. (get :settings this) :find id)) (first kept) (get :snap this)))

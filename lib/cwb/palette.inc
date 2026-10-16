@@ -426,11 +426,12 @@
 							;ring menu, need same style of device indications"
 							(devices
 								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
-									want (if (eql key :snap) :t val)
+									want val
 									r (- (elem-get wedge +wedge_r1) 6.0) step (/ +pal_cell r) half (/ (* +pal_cell 0.4) r)
 									am (* 0.5 (+ (elem-get wedge +wedge_a0) (elem-get wedge +wedge_a1))))
 								(each (lambda ((col bound slot))
-										(when (and key (defq at (find key bound)) (eql (elem-get bound (inc at)) want))
+										(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
+												(and (defq at (find key bound)) (eql (elem-get bound (inc at)) want))))
 											(defq a (+ am (* step (- (n2f slot) 2.5))))
 											(bind '(x0 y0) (pal-point (- r 2.0) (- a half)))
 											(bind '(x1 y1) (pal-point (+ r 2.0) (- a half)))
