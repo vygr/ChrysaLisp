@@ -330,13 +330,15 @@
 			(cond
 				((and (/= buttons 0) (not state))
 					;where it went down, on what, and where the palette then was
-					(. this :set_state pid (list wedge x y :nil (get :origin this)))
+					;and the buttons held, a pick is of the device as it went
+					;down, not as it came up with none
+					(. this :set_state pid (list wedge x y :nil (get :origin this) buttons))
 					(. this :hot wedge))
 				((/= buttons 0)
 					;down on its middle and dragged, the palette goes with
 					;the pointer: it is how it is moved. A little way is
 					;not a drag, a hand is not that still
-					(bind '(was sx sy dragged (ox oy)) state)
+					(bind '(was sx sy dragged (ox oy) &ignore) state)
 					(defq dx (- x sx) dy (- y sy) slack (/ 5.0 (get :zoom (get :board this))))
 					(cond
 						((and (eql was :hub) (or dragged (> (abs dx) slack) (> (abs dy) slack)))
@@ -351,7 +353,8 @@
 						;moved, and put down: nothing is picked
 						((elem-get state 3))
 						((eql wedge :hub) (. this :pick :hub))
-						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val) event))))
+						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val)
+							(ptr-event pid pkind (elem-get state 5) x y)))))
 				(:t (. this :hot wedge))))
 			events)
 		this)

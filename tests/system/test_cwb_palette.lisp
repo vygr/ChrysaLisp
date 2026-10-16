@@ -305,6 +305,20 @@
 (assert-eq "a switch is a device's own if bound, else the board's: lock on, snap off, a device's snap on"
 	"(:t :nil :t :nil)" (str (list (. pf_board :switch_of '(:tool :pen) :keep_shape) (. pf_board :switch_of '(:tool :pen) :snap)
 		(. pf_board :switch_of '(:snap :t) :snap) (. pf_board :switch_of '(:keep_shape :nil) :keep_shape))))
+;a tap of the mouse on a floating menu binds the button it went down with,
+;not the none it came up with: a rule of buttons 0 matched every press of
+;the mouse, and in select mode the mouse drew, Chris: "in select mode, I am
+;drawing..."
+(pl-pick pf_board pf 0 :mouse +pev_left :tool :select)
+(assert-true "a mouse's tap on a floating menu binds its left button"
+	(some (lambda ((kind id buttons &ignore)) (and (eql kind :mouse) (eql id 0) (eql buttons +pev_left))) (get :rules (. pf_board :get_bindings))))
+(assert-eq "and makes no rule of buttons 0" :nil
+	(some (lambda ((kind id buttons &ignore)) (eql buttons 0)) (get :rules (. pf_board :get_bindings))))
+(. (. pf_board :get_bindings) :set :mouse 0 0 :width 1.5)
+(assert-eq "a :set of buttons 0 is of the left button" :nil
+	(some (lambda ((kind id buttons &ignore)) (eql buttons 0)) (get :rules (. pf_board :get_bindings))))
+(assert-eq "and in select mode the mouse's left is the hand, not a pen" :select
+	(. (. pf_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
