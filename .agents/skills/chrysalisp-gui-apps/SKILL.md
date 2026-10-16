@@ -451,7 +451,9 @@ desktop of the agent's own:
 	it still draws into. `grab -t Title -f key=value file` grabs only that
 	view, the part of it that can be seen, `-f tip_text=eraser` or
 	`-f type=Radiobar`: grab the bar that is the question, not the window,
-	a picture costs far more than text. The mouse is drawn into the back
+	a picture costs far more than text. `widgets` leaves out each view's
+	working state (caches, drag, pressed state, mailboxes) unless `-a`, and
+	says a value of bytes that are not text as `<n bytes>`. The mouse is drawn into the back
 	buffer, so `input move` it off what is grabbed first. A second or two is enough for a window to be drawn; `grab` of
 	a window that is in the tree but not drawn yet gives what is behind it.
 	`-t` matches a window by the Title nearest its top, a level at a time, so
