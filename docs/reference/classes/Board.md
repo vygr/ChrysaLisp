@@ -62,6 +62,27 @@ filled outline of what was left of it. The eraser is a path about
 board's reach by its zoom. No step is made. Was anything touched
 ```
 
+### :bite_area
+
+```code
+(. board :bite_area swept [user]) -> :t | :nil
+
+what is in the polygons swept, the board's space, taken out of every
+thing they touch, as (:bite) does with what an eraser covers. No step
+is made. Was anything touched
+a line is left to be cut as a line unless all is to be bitten
+What a hand has hold of is bitten as anything is, and what is left
+of it is in the hand still, and selected still: a thing can be
+held, and turned, and shaped with the eraser as it is. Chris: "I
+had the shape/grouop you are holding can be erased by yourself !
+That was a nice feeling UI, you could pick up and hold somthing,
+turn it and shape it with the eraser... that REALLY impressed
+people !" Whose eraser it is is not known, a pen and a finger
+are two devices and may be one person, so anybody's does
+A user's eraser leaves what another made, the teacher's takes from
+all, see (board-bite)
+```
+
 ### :busy?
 
 ```code

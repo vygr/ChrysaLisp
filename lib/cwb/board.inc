@@ -74,8 +74,8 @@
 (defun board-rubs? (bindings event mode)
 	; (board-rubs? bindings event mode) -> :t | :nil
 	;does the pointer rub out: an eraser, or bound to, by its tool or by
-	;its mode, the board's mode if it has none. What rubs out does not draw
-	;along an instrument's edge, all else does, a finger too, Chris: "you
+	;its mode, the board's mode if it has none. Along an instrument's edge
+	;what rubs out rubs out and all else draws, a finger too, Chris: "you
 	;can hold an instrument with 2 fingers and draw your third or forth down
 	;the edges, and they WILL draw !"
 	(or (eql (elem-get event +pev_kind) :eraser)
@@ -1898,8 +1898,14 @@
 		;filled outline of what was left of it. The eraser is a path about
 		;0 0 with no dent in it, default a circle of r, default the
 		;board's reach by its zoom. No step is made. Was anything touched
-		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
-			swept (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points))
+		(defq r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this)))))
+		(. this :bite_area (poly-sweep (ifn shape (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) points) user))
+
+	(defmethod :bite_area (swept &optional user)
+		; (. board :bite_area swept [user]) -> :t | :nil
+		;what is in the polygons swept, the board's space, taken out of every
+		;thing they touch, as (:bite) does with what an eraser covers. No step
+		;is made. Was anything touched
 		;a line is left to be cut as a line unless all is to be bitten
 		;What a hand has hold of is bitten as anything is, and what is left
 		;of it is in the hand still, and selected still: a thing can be
@@ -2264,11 +2270,9 @@
 			events)
 		(when (get :hover_edges this)
 			(. hovers :each (lambda (id (kind x y))
-				;the one it would go down on, the one in front there, if it
-				;would draw along it going down with its first button, by
-				;the same rule as an instrument's (:begin), (board-rubs?)
-				(when (and (defq actor (. stage :hit x y)) (def? :edges actor)
-						(not (board-rubs? bindings (ptr-event id kind +pev_left x y) (get :mode this))))
+				;the one it would go down on, the one in front there: what
+				;goes down by an edge follows it, to draw or to rub out
+				(when (and (defq actor (. stage :hit x y)) (def? :edges actor))
 					(bind '(lx ly) (. actor :to_own x y))
 					(when (defq near (. actor :edge_near lx ly))
 						(defq edge (first near))

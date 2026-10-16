@@ -184,6 +184,31 @@ trashes
 :r1-:r9, :r14, :f0-:f15
 ```
 
+### :print_enter -> class/list/print_enter
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = note, two ptrs on the stack of the print (ptr)
+outputs
+:r0 = list object (ptr)
+:r1 = 0 if not being printed, and is now, else 1 (uint)
+trashes
+:r1-:r4
+```
+
+### :print_leave -> class/list/print_leave
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = note it was entered with (ptr)
+outputs
+:r0 = list object (ptr)
+trashes
+:r1-:r3
+```
+
 ### :ref_all -> class/list/ref_all
 
 ```code

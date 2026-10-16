@@ -673,8 +673,8 @@ What is in it that is not a line, or is a group itself, is left
 (board-rubs? bindings event mode) -> :t | :nil
 
 does the pointer rub out: an eraser, or bound to, by its tool or by
-its mode, the board's mode if it has none. What rubs out does not draw
-along an instrument's edge, all else does, a finger too, Chris: "you
+its mode, the board's mode if it has none. Along an instrument's edge
+what rubs out rubs out and all else draws, a finger too, Chris: "you
 can hold an instrument with 2 fingers and draw your third or forth down
 the edges, and they WILL draw !"
 ```
@@ -8693,6 +8693,12 @@ to draw: an arc, a slice of pie, or a circle, either of those filled
 an angle, in radians, or the one that matters that it is near
 by 180 and then over pi, and back by pi and then over 180: a degree
 in radians is too small a number to be held well
+```
+
+### tool-rub-area
+
+```code
+(tool-rub-area shape) -> (path ...)
 ```
 
 ### tool-ticks

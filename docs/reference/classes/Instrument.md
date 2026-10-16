@@ -94,7 +94,7 @@ on a canvas, by the matrix the board is seen by
 ```code
 (. instrument :drawing?) -> :t | :nil
 
-is any pen drawing along an edge of it
+is any pen drawing along an edge of it, or rubbing out along one
 ```
 
 ### :edge_d

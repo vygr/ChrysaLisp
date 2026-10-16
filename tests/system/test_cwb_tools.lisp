@@ -511,7 +511,7 @@
 (hv-go '(7 :pen 0 400 256))
 (assert-list-eq "up again and still there: shown" '((:ruler 0)) (hv-shown))
 (hv-go '(8 :eraser 0 400 256) '(7 :pen 0 620 60))
-(assert-list-eq "the other end of a pen there, that would rub out and not be held: nothing" '() (hv-shown))
+(assert-list-eq "the other end of a pen there, which rubs out along the edge as a pen draws: shown" '((:ruler 0)) (hv-shown))
 (hv-go '(8 :eraser 0 620 60) '(7 :pen 0 400 256))
 (def hv_board :hover_edges :nil)
 (hv-go '(7 :pen 0 401 256))
@@ -635,3 +635,47 @@
 (defq wt_new (. (Ruler wt_gb 413 307) :snap_zero))
 (bind '(wt_zx wt_zy) (wt-zero wt_new))
 (assert-true "a ruler just made, with the snap on, has its 0 on a line each way" (and (wt-on-line? wt_zx 20.0) (wt-on-line? wt_zy 20.0)))
+
+;what rubs out, held to an edge, rubs out along it, shown as it goes and
+;rubbed out as it lets go, Chris: "we should be able to erase along an
+;instrument guided edge as well !", "preview the erase shape.... and when
+;let go it commits"
+(defq er_board (Board (cwb-doc 800 600)) er_ruler (Ruler er_board 400 300))
+(. (. er_board :get_stage) :add er_ruler)
+(. er_board :tick 1000000)
+(def er_ruler :origin (list 400.0 300.0) :angle 0.0)
+(bind '(er_x er_y) (. er_ruler :to_board 0 -40))
+(. er_board :add (cwb-shape (cwb-d-line (- er_x 150.0) er_y (+ er_x 150.0) er_y) :stroke 0xff000000 :width 3.0))
+(defun er-go (&rest events) (. er_board :pointers (map (# (apply (const ptr-event) %0)) events)))
+(er-go (list 0x4000000 :eraser 1 (- er_x 60.0) (- er_y 3.0)))
+(er-go (list 0x4000000 :eraser 1 (+ er_x 60.0) (- er_y 3.0)))
+(defun er-d () (str (map (# (cwb-get %0 :d)) (cwb-items (. er_board :get_doc)))))
+(defq er_was (er-d) er_during (list (eql (er-d) er_was) (. er_ruler :drawing?)))
+(defq er_c (Canvas 800 600 1))
+(. er_c :fill 0)
+(assert-true "an eraser along a ruler's edge is shown, as it goes" (catch (progn (. er_ruler :draw er_c (Mat3x2)) :t) :nil))
+(er-go (list 0x4000000 :eraser 0 (+ er_x 60.0) (- er_y 3.0)))
+(defq er_after (er-d))
+(assert-eq "nothing is rubbed out while it goes, the line along the edge is bitten as it lets go"
+	"((:t :t) :nil :nil)" (str (list er_during (eql er_after er_was) (. er_ruler :drawing?))))
+(. er_board :undo)
+(assert-eq "and it is one step" :t (eql (er-d) er_was))
+;round an arc too, and with the protractor set to a filled slice, all the
+;slice, Chris: "That also means arcs and pie slices !"
+(defq ep_board (Board (cwb-doc 800 600)) ep_pro (Protractor ep_board 400 300))
+(. (. ep_board :get_stage) :add ep_pro)
+(. ep_board :tick 1000000)
+(def ep_pro :mode :fpie)
+(. ep_pro :built)
+(bind '(ep_kind ep_cx ep_cy ep_r &ignore) (some (# (if (eql (first %0) :arc) %0)) (get :edges ep_pro)))
+(defun ep-at (a) (. ep_pro :to_board (+ ep_cx (* ep_r (cos a))) (+ ep_cy (* ep_r (sin a)))))
+(bind '(ep_mx ep_my) (. ep_pro :to_board ep_cx (- ep_cy (* 0.5 ep_r))))
+(. ep_board :add (cwb-shape (cwb-d-rect (- ep_mx 5.0) (- ep_my 5.0) (+ ep_mx 5.0) (+ ep_my 5.0)) :fill 0xff000000 :stroke 0))
+(defun ep-go (&rest events) (. ep_board :pointers (map (# (apply (const ptr-event) %0)) events)))
+(defq ep_from (ep-at (* -0.75 +fp_pi)) ep_to (ep-at (* -0.25 +fp_pi)))
+(ep-go (cat (list 0x4000000 :eraser 1) ep_from))
+(ep-go (cat (list 0x4000000 :eraser 1) (ep-at (* -0.5 +fp_pi))))
+(ep-go (cat (list 0x4000000 :eraser 1) ep_to))
+(ep-go (cat (list 0x4000000 :eraser 0) ep_to))
+(assert-eq "an eraser round a protractor's arc, set to a filled slice, rubs out the box inside the slice"
+	0 (length (cwb-items (. ep_board :get_doc))))
