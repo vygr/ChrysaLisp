@@ -297,7 +297,7 @@
 ;what is kept for a pointer that is down on the surface, a list
 ;again is that what a hand went down on was selected already, (:end)
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap box again began))
+	(enum tool x y points item moved last_x last_y snap box again began buttons))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -438,7 +438,7 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
-		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board))
+		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons)
 			holding (. this :holding))
 		(case tool
 			(:hand
@@ -727,7 +727,15 @@
 					(elem-set state +stroke_last_y (elem-get event +pev_y))
 					(unless (. this :grabbed id) (. this :step event state)))
 				(state
-					(unless (. this :grabbed id) (. this :step event state))
+					;the last step is of the buttons it went down with: one
+					;that has come up has none, and is bound as no button is,
+					;an eraser of another width took one more bite as it
+					;lifted, Chris: "When I release the button on an erase
+					;action, I see a blip of change"
+					(unless (. this :grabbed id)
+						(defq last (cat event))
+						(elem-set last +pev_buttons (elem-get state +stroke_buttons))
+						(. this :step last state))
 					(. this :end event state)
 					(. this :set_state id :nil))))
 			events)

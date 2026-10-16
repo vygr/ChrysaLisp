@@ -354,6 +354,22 @@
 	"(:rect :rect :pan)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
 		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :mode)
 		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_middle 0 0) :tool))))
+;an eraser that lifts takes no more bite: its last step is of the buttons it
+;went down with, not of none, which is bound to the board's width, Chris:
+;"When I release the button on an erase action, I see a blip of change"
+(defq pe_board (Board (cwb-doc 400 400)))
+(. pe_board :tick 1000000)
+(def pe_board :width 40.0)
+(. (. pe_board :get_bindings) :set :mouse 0 +pev_left :mode :pen)
+(pl-drag pe_board 0 :mouse +pev_left 20 200 380 200)
+(.-> (. pe_board :get_bindings) (:set :mouse 0 +pev_left :mode :eraser) (:set :mouse 0 +pev_left :width 3.0))
+(. pe_board :pointers (list (ptr-event 0 :mouse +pev_left 100 200)))
+(. pe_board :pointers (list (ptr-event 0 :mouse +pev_left 110 200)))
+(. pe_board :tick 2000000)
+(defq pe_was (str (cwb-items (. pe_board :get_doc))))
+(. pe_board :pointers (list (ptr-event 0 :mouse 0 110 200)))
+(. pe_board :tick 3000000)
+(assert-eq "nothing more is rubbed out as the eraser lifts" pe_was (str (cwb-items (. pe_board :get_doc))))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
