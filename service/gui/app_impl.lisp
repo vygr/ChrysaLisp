@@ -227,6 +227,10 @@
 						(+gui_rpc_type_tree
 							;the tree of widgets of a window, the reply
 							(setq msg (widget-tree (slice msg +gui_rpc_size -1))))
+						(+gui_rpc_type_owners
+							;the task that has each window, the reply
+							(setq msg (str (map (# (if (defq owner (. %0 :find_owner)) (hex-encode owner) ""))
+								(filter (# (nql %0 *mouse*)) (. *screen* :children))))))
 						(+gui_rpc_type_locate
 							;where a window or a view in it is, the reply
 							(setq msg (locate (slice msg +gui_rpc_size -1))))

@@ -83,7 +83,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back theme grab tree input locate))
+	(enum quit logout sub add_front add_back theme grab tree input locate owners))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -139,6 +139,21 @@
 			((starts-with "not read" reply) reply)
 			((> (length reply) 8) (list (get-uint reply 0) (get-uint reply 4) (slice reply 8 -1)))
 			("no window of that title"))))
+
+(defun gui-owners-rpc ()
+	; (gui-owners-rpc) -> :nil | (owner ...)
+	;the mailbox of the task that has each window of the screen, hex, the
+	;front one first. A test can tell from it which apps have a window
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_owners)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view 0)))
+		(if (defq reply (mail-read-timeout mbox (task-timeout 10)))
+			(first (read (string-stream reply))))))
 
 (defun gui-tree-rpc (&optional title key value depth keys)
 	; (gui-tree-rpc [title key value depth keys]) -> :nil | why | text

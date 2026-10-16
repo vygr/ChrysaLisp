@@ -73,7 +73,8 @@
 	(setd fronts total)
 	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
-		host (case kind (:gui "-gui ") (:tui "-tui ") (:t ""))
+		;a GUI that is never seen, its window hidden, -hidden, for a test
+		host (case kind (:gui "-gui ") (:gui_hidden "-gui -hidden ") (:tui "-tui ") (:t ""))
 		;a session can have a user of its own, not the one the machine
 		;has. Each node of it has who in *env_node_user*, in the
 		;environment all its tasks share, and tells the nodes it starts as

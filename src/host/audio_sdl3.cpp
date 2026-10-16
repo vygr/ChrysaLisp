@@ -34,6 +34,18 @@ static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additio
 	}
 }
 
+// -hidden in the args, a desktop that is never seen is not heard either:
+// what is played plays as it would, at no volume. Chris, of the app draw
+// test: "I can hear your Boing test... :)"
+
+extern char **host_argv;
+
+static bool host_audio_hidden(void)
+{
+	if (host_argv) for (char **arg = host_argv; *arg; arg++) if (!strcmp(*arg, "-hidden")) return true;
+	return false;
+}
+
 int host_audio_init()
 {
 	if (!SDL_Init(SDL_INIT_AUDIO))
@@ -49,6 +61,7 @@ int host_audio_init()
 		logAudioError("SDL_OpenAudioDeviceStream");
 		return -1;
 	}
+	if (host_audio_hidden()) SDL_SetAudioStreamGain(stream, 0.0f);
 	SDL_ResumeAudioStreamDevice(stream);
 	return 0;
 }

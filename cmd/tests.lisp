@@ -30,7 +30,8 @@
     one after another, so a large -j is a serial run.
 
     A module in tests/solo/ changes the network, so those are
-    run one at a time, after all the others.
+    run one at a time, after all the others. One in tests/release/
+    is run only with -a, for a release, after those.
 
     The results are a cache. A module is run again only when
     something it stands on has changed, what it imports, a file or

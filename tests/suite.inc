@@ -392,6 +392,8 @@
 			(defq key (test-key module base) was (. kept :find module))
 			(. keys :insert module key)
 			(cond
+				;one in tests/release/ is for a release, -a, and no other run
+				((and (not all) (starts-with "tests/release/" module)) :nil)
 				((and was (not all) (eql (first was) key))
 					(bind '(& passes failures skips) was)
 					(setq *test_passes* (+ *test_passes* passes)
@@ -407,8 +409,8 @@
 	(unless (or child (empty? run)) (open-child "service/lock/app.lisp" +kn_call_run))
 	;a module in tests/solo/ changes the network, adds a node say, which
 	;would upset the others, so those run here, one at a time, at the end
-	(defq solo (filter (# (starts-with "tests/solo/" %0)) run)
-		others (filter (# (not (starts-with "tests/solo/" %0))) run)
+	(defq solo (filter (# (or (starts-with "tests/solo/" %0) (starts-with "tests/release/" %0))) run)
+		others (filter (# (not (or (starts-with "tests/solo/" %0) (starts-with "tests/release/" %0)))) run)
 		watching (and watch (not child) (nempty? others) (test-watch (lisp-nodes :t))) waits :nil)
 	(cond
 		((or child (<= (length run) jobs))
