@@ -636,15 +636,15 @@
 
 (defun view-home ()
 	;the middle of the document is in the middle of the paper again, at
-	;the zoom there is. Not while anybody is drawing a line
+	;the zoom there is. Not while anybody is drawing a line. The
+	;instruments go with the document, where they lie on it, Chris: "when
+	;I hit min, the instruments move..."
 	(unless (. *board* :busy?)
-		(defq held (tools-held))
 		(bind '(dw dh) (doc-size))
 		(bind '(pw ph) (paper-size))
 		(setq *pan_go* (list 0.0 0.0)
 			*pan_x* (- (/ (n2f dw) 2.0) (/ (n2f pw) (* 2.0 *zoom*)))
 			*pan_y* (- (/ (n2f dh) 2.0) (/ (n2f ph) (* 2.0 *zoom*))))
-		(tools-hold held)
 		(view-changed)))
 
 (defun bars-moved ()
