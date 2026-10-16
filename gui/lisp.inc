@@ -35,6 +35,84 @@
 (import "./mask/lisp.inc")
 (import "./md/lisp.inc")
 
+;What a view does not set itself it finds above it, as a name is found in
+;an environment. Above every window is the screen, with the properties of
+;the user, usr/env.inc *env_props*, item 118. A view draws and is sized by
+;the plain ones, :font :paper :ink :border, a variant is a plain name with
+;more after it, :paper_window, and a view given a variant for a plain one,
+;(:paper :paper_window), has that variant's value as it is found from it.
+;Chris: "an individual widget work on plain properties like :font :color
+;:ink :paper etc, that's what they actually use to redraw and size, but the
+;variants can be there as well"
+
+(defq *env_props* :nil *env_root* :nil +variant_keys ''(:font :paper :ink :border :shadow))
+
+(defun env-props ()
+	; (env-props) -> emap
+	;the properties of the user's screen, made the first time they are
+	;asked for from the *env_* names the user's env.inc gave. The screen
+	;draws itself by its own :paper and :ink, so a window chooses its own
+	;from :paper_window and :ink_window
+	(unless *env_props*
+		(def (setq *env_props* (env 31))
+			:font *env_window_font* :ink *env_ink_col* :ink_hint *env_hint_col* :ink_no_hint *env_no_hint_col*
+			:font_window *env_window_font* :font_display *env_display_font* :font_title *env_title_font*
+			:font_sub_title *env_sub_title_font* :font_body *env_body_font* :font_bold *env_bold_font*
+			:font_button *env_button_font* :font_small *env_small_font* :font_tiny *env_tiny_font*
+			:font_title_buttons *env_title_buttons_font* :font_symbol *env_symbol_font*
+			:font_medium_symbol *env_medium_symbol_font* :font_small_toolbar *env_small_toolbar_font*
+			:font_tiny_symbol *env_tiny_symbol_font* :font_terminal *env_terminal_font*
+			:font_medium_terminal *env_medium_terminal_font* :font_small_terminal *env_small_terminal_font*
+			:font_editor *env_editor_font* :font_tip *env_tip_font* :font_warning *env_warning_font*
+			:paper_window *env_window_col* :paper_title *env_title_col* :paper_slider *env_slider_col*
+			:paper_toolbar *env_toolbar_col* :paper_toolbar2 *env_toolbar2_col* :paper_highlight *env_highlight_col*
+			:ink_window *env_ink_col*
+			:border_window *env_window_border* :border_label *env_label_border* :border_button *env_button_border*
+			:border_textfield *env_textfield_border* :border_title *env_title_border*
+			:border_title_buttons *env_title_buttons_border* :shadow_window *env_window_shadow*))
+	*env_props*)
+
+(defun env-root ()
+	; (env-root) -> view
+	;the user's properties on a view of this task's own, the root of each
+	;window it makes till it is shown, (window-attach). The task's own as
+	;usr/env.inc makes *env_root* in each task: gui/lisp.inc is in the
+	;shared root of a GUI's node, and a name is found where it is used
+	(unless *env_root*
+		(setq *env_root* (View))
+		(each (lambda ((key val)) (def *env_root* key val)) (tolist (env-props))))
+	*env_root*)
+
+(defun view-resolve (view)
+	; (view-resolve view) -> view
+	;each view of it, it too, given a variant for a plain property has the
+	;variant's value, found from where it is. Which variant it was is
+	;kept, :variants, so a new theme or user can be found again by it
+	(each (lambda (v)
+			(defq kept (ifn (def? :variants v) (list)))
+			(each (lambda (key)
+					(and (defq val (def? key v)) (sym? val) (starts-with (cat (str key) "_") (str val))
+						(push kept key val)))
+				+variant_keys)
+			(when (nempty? kept)
+				(def v :variants kept)
+				(each (lambda ((key variant))
+						(if (defq found (get variant v)) (def v key found) (undef v key)))
+					(partition kept 2))))
+		(. view :flatten))
+	view)
+
+(defun window-attach (window)
+	; (window-attach window) -> window
+	;a window is put on the user's root of its own task as it is made, so
+	;what it does not set it finds there as it is laid out, and its
+	;variants are found. Shown, it goes onto the screen, which has the same
+	;properties. Not the screen before then: a window an app made and did
+	;not show would be left on it when the app has gone, and its class
+	;with the app, the login app's of a session of a user say
+	(. (env-root) :add_back window)
+	(view-resolve window))
+
 ;ui tree helper macros
 (defun ui-merge-props (p)
 	; (ui-merge-props props) -> props
@@ -100,17 +178,17 @@
 
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
+	;a window chooses its plain properties from the variants on the
+	;screen, which draws itself by its own
 	(ui-props p
-		:font *env_window_font*
-		:ink *env_ink_col*
-		:paper *env_window_col*
-		:ink_hint *env_hint_col*
-		:ink_no_hint *env_no_hint_col*
-		:border *env_window_border*
-		:shadow *env_window_shadow*
+		:font :font_window
+		:ink :ink_window
+		:paper :paper_window
+		:border :border_window
+		:shadow :shadow_window
 		:zoom 1.0)
-	(static-qqp (ui-root ,n (Window) ,p
-		(ui-flow _ (:flow_flags +flow_down_fill) ~x))))
+	(static-qqp (progn (ui-root ,n (Window) ,p
+		(ui-flow _ (:flow_flags +flow_down_fill) ~x)) (window-attach ,n))))
 
 (defmacro ui-files (n t e &optional p)
 	; (ui-files name title event [props]) -> files

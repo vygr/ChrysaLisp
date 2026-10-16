@@ -1,4 +1,4 @@
-(defq *env_user* "Guest")
+(defq *env_user* "Guest" *env_props* :nil *env_root* :nil)
 (import "usr/Guest/env.inc")
 (import "gui/lisp.inc")
 

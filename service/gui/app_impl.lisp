@@ -160,8 +160,11 @@
 		*running* :t *quitting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
-	;init screen widget
-	(def (defq *screen* (Backdrop)) :style :grid :paper +argb_grey2 :ink +argb_grey1)
+	;init screen widget. It has the user's properties, which each window
+	;finds what it does not set itself on, and then its own look, item 118
+	(defq *screen* (Backdrop))
+	(each (lambda ((key val)) (def *screen* key val)) (tolist (env-props)))
+	(def *screen* :style :grid :paper +argb_grey2 :ink +argb_grey1)
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
 	(gui-update 0 0 0)
 	;init mouse widget

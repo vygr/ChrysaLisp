@@ -6,3 +6,7 @@
 	*env_user* (ifn (get '*env_node_user*) (load (cat *login_root* "current"))))
 (unless (eql *env_user* "Guest") (import "usr/Guest/env.inc"))
 (import (cat *login_root* *env_user* "/env.inc"))
+
+;the user's properties, and a root view with them, each task its own,
+;(env-props) (env-root) of gui/lisp.inc
+(defq *env_props* :nil *env_root* :nil)
