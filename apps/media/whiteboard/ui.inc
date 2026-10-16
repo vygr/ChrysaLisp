@@ -153,7 +153,9 @@
 	(defq button (elem-get (. *snap_toolbar* :children) index))
 	(when (defq by (get :pressed_by button))
 		(bind '(id kind buttons) by)
-		(bind '(snap angle keep) (. *board* :pointer_settings (ptr-event id kind buttons 0 0)))
+		;the middle, both buttons, turns both to the other of the left's
+		(bind '(snap angle keep) (. *board* :pointer_settings
+			(ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)))
 		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
 
 (defun action-ink ()

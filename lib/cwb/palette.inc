@@ -274,7 +274,10 @@
 					;snap is each device's own, as its colour is. One that is
 					;nobody's, opened by a tap of a pointer, sets the board's
 					(:snap (if floating
-						(. this :bind_tapper event :snap (= (first (. board :pointer_settings event)) 0.0))
+						;the middle of the mouse, both buttons, from the left's
+						(. this :bind_tapper event :snap (= (first (. board :pointer_settings
+							(if (and (eql (elem-get event +pev_kind) :mouse) (eql (elem-get event +pev_buttons) +pev_middle))
+								(ptr-event (elem-get event +pev_id) :mouse +pev_left 0 0) event))) 0.0))
 						(def board :snap (if (= (get :snap board) 0.0)
 							(n2f (. (. board :get_doc) :find :grid)) 0.0))))
 					(:duplicate (. board :duplicate) (unless floating (. this :close)))

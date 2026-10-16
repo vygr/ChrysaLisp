@@ -55,9 +55,11 @@
 		;the rules of each device that is kept, the last first, as they were
 		;not a rule of buttons 0, which a floating menu once made from the
 		;up of a tap: it matched every press of the mouse, before the rule
-		;of its button, and in select mode the mouse drew
+		;of its button, and in select mode the mouse drew. Nor one of the
+		;middle of the mouse, which is pan, a press of it binds both buttons
 		(if (list? bound) (reach (lambda ((kind id buttons what))
-				(unless (eql buttons 0) (. (. *board* :get_bindings) :bind kind id buttons (cat what)))) bound))
+				(unless (or (eql buttons 0) (and (eql kind :mouse) (eql buttons +pev_middle)))
+					(. (. *board* :get_bindings) :bind kind id buttons (cat what)))) bound))
 		(and data (defq doc (cwb-in data))
 			(. *board* :set_doc doc))
 		;how it was seen is kept with the document

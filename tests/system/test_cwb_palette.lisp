@@ -347,6 +347,13 @@
 	(str (map (# (cwb-get %0 %1)) (cat (list (first (cwb-items (. pp_board :get_doc)))) (list (first (cwb-items (. pp_board :get_doc))))
 			(list (second (cwb-items (. pp_board :get_doc)))) (list (second (cwb-items (. pp_board :get_doc)))))
 		'(:stroke :fill :stroke :fill))))
+;the middle of the mouse binds both its buttons, its own stays pan
+(defq pm_board (Board (cwb-doc 400 400)))
+(. (. pm_board :get_bindings) :set :mouse 0 +pev_middle :mode :rect)
+(assert-eq "a middle press binds the left and the right, and makes no rule of the middle"
+	"(:rect :rect :pan)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
+		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :mode)
+		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_middle 0 0) :tool))))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))

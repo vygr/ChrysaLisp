@@ -22,7 +22,9 @@
 	*widths* (list 3.0 6.0 12.0)
 	*styles* (list :plain :grid :lines :axis)
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
-	*palette* (cat *palette* (map (const trans) *palette*))
+	;the pens, the brushes, and the brush of no fill, Chris: "add the none
+	;brush"
+	*palette* (cat *palette* (map (const trans) *palette*) '(0))
 	*board* (Board))
 
 (ui-window *window* ()
@@ -56,7 +58,7 @@
 				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
 		;the inks on the same row, Chris: "the toolbar getting a bit big"
 		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
-				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush)
+				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_close)
 				(:font :font_medium_symbol :paper :paper_toolbar2)) :connect +event_ink)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-element *image_scroll* (Board-frame)
@@ -94,6 +96,8 @@
 	"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
 
 (each (# (def %0 :ink %1)) (. *ink_toolbar* :children) *palette*)
+;no fill has no colour to show, it is a cross
+(def (last (. *ink_toolbar* :children)) :ink +argb_black :tip_text "no fill")
 ;the ink, tool and width bars are binders and show no pick, the paper is
 ;everybody's and shows its own
 (. *style_toolbar* :set_selected 1)

@@ -101,13 +101,18 @@
 		;match every press of the device, before the rules of its buttons,
 		;so it is the left, as a pointer that came up is
 		(if (eql buttons 0) (setq buttons +pev_left))
-		(defq rule (some (lambda (r) (and (eql (first r) kind) (eql (second r) id) (eql (third r) buttons) r))
-			(get :rules this)))
-		(unless rule
-			(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
-			(setq rule (first (get :rules this))))
-		(defq what (elem-get rule 3) at (find key what))
-		(if at (elem-set what (inc at) value) (push what key value))
+		;the middle of the mouse is both its buttons, Chris: "a middle
+		;button click should mean, both left/right bind to this", as a
+		;mouse of two makes it of both pressed. Its own stays pan
+		(each (lambda (buttons)
+				(defq rule (some (lambda (r) (and (eql (first r) kind) (eql (second r) id) (eql (third r) buttons) r))
+					(get :rules this)))
+				(unless rule
+					(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
+					(setq rule (first (get :rules this))))
+				(defq what (elem-get rule 3) at (find key what))
+				(if at (elem-set what (inc at) value) (push what key value)))
+			(if (and (eql kind :mouse) (eql buttons +pev_middle)) (list +pev_left +pev_right) (list buttons)))
 		this)
 
 	(defmethod :unbind (kind id buttons)
