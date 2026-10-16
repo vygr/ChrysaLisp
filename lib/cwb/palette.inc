@@ -63,6 +63,20 @@
 	(apply (const cwb-shape) (cat (list d :stroke +pal_ink :width 2.0 :join :round
 		:cap1 :round :cap2 :round) more)))
 
+(defun pal-tip (what val)
+	; (pal-tip what val) -> :nil | str
+	;the name of a wedge, as the toolbars' tips say it, Chris: "Can the
+	;ring menu have tooltips ! same as the toolbar's ?". A colour has none,
+	;as an ink of the bar has none
+	(case what
+		(:tool (elem-get '("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
+				"filled rect" "filled ellipse" "text" "eraser") (ifn (find val +pal_tools) 0)))
+		(:width (cond ((<= val 1.5) "fine") ((<= val 3.0) "thin") ((<= val 6.0) "medium") ("thick")))
+		(:action (case val
+			(:undo "undo") (:redo "redo") (:snap "snap grid") (:duplicate "duplicate") (:delete "delete")
+			(:ruler "ruler") (:protractor "protractor") (:full_protractor "full protractor")
+			(:set_square "set square 30") (:set_square45 "set square 45") (:window "window")))))
+
 (defun pal-icon (what val)
 	; (pal-icon what val) -> shapes
 	;what is drawn on a wedge, about 0 0, in a box of 20 or so
@@ -478,6 +492,23 @@
 				(cwb-shape (cwb-d-ellipse 0 0 (max 2.0 (min 16.0 (* 0.5 (n2f width)))))
 					:fill color :stroke +pal_ink :width 1.0))
 				(Mat3x2-mul base (Mat3x2-scale open))))
+		;the name of the wedge a pointer is on, just out from the ring
+		;there, once the rings are open
+		(when (and (list? hover) (> (. this :ring_scale 2) 0.98) (defq tip (pal-tip (elem-get hover +wedge_what) (elem-get hover +wedge_val))))
+			(bind '(tx ty) (pal-point (+ (second (last +pal_radii)) 14.0)
+				(* 0.5 (+ (elem-get hover +wedge_a0) (elem-get hover +wedge_a1)))))
+			(defq text (cwb-text tip 0.0 0.0 :fill +pal_ink :font_size 16.0))
+			(when (defq box (cwb-bounds (list text)))
+				(bind '(bx by bx1 by1) box)
+				;from the ring's edge outward, whichever side of it it is
+				(defq w (- bx1 bx) h (- by1 by)
+					ox (- (if (< tx -1.0) (- tx w) (if (> tx 1.0) tx (- tx (* 0.5 w)))) bx)
+					oy (- (if (< ty -1.0) (- ty h) (if (> ty 1.0) ty (- ty (* 0.5 h)))) by))
+				(cwb-draw-items canvas (list
+					(cwb-shape (cwb-d-rect (+ bx ox -4.0) (+ by oy -3.0) (+ bx1 ox 4.0) (+ by1 oy 3.0) 3.0)
+						:fill +pal_back :stroke +pal_ink :width 1.0)
+					(cwb-text tip ox oy :fill +pal_ink :font_size 16.0))
+					base)))
 		this)
 	)
 
