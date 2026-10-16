@@ -58,6 +58,27 @@
 		(list 'cam_z (+ z_start (* z_dist fraction)))
 		(list 'light_x (+ (n2r -0.1) (* (sin (* fraction +real_2pi)) (n2r 0.15)))))))
 
+;the film is made in a file of its own, and is the film only once it is
+;whole: one stopped part way does not leave half a film in the tree,
+;item 124. There is no rename, it is copied over and let go of
+(defq +film_file (cat +film_path +film_name ".flm") +film_part (cat +film_path +film_name ".flm.part"))
+
+(defun film-keep ()
+	;the whole film is the film
+	(with-write-lock +film_file
+		(when (and (defq src (file-stream +film_part)) (defq dst (file-stream +film_file +file_open_write)))
+			(while (defq c (read-blk src 65536)) (write-blk dst c) (task-slice))
+			(stream-flush dst))
+		(setq src :nil dst :nil))
+	(pii-remove +film_part))
+
+(defun film-drop ()
+	;a film not finished is let go of, the one there was is as it was
+	(when film
+		(flm-close film)
+		(setq film :nil))
+	(pii-remove +film_part))
+
 (defun start-frame ()
 	;the next frame of the film, or the end of it
 	(setq frame_time (pii-time) gpu_inputs :nil gpu_y 0)
@@ -70,6 +91,7 @@
 			(pixmap-read pixmap first_frame 32)
 			(flm-add film again)
 			(flm-close film)
+			(film-keep)
 			(setq film :nil first_frame :nil mode :done)
 			(set-label *status* (cat "The film is made, " (str +num_frames) " frames in "
 				(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
@@ -140,7 +162,7 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq film (flm-open (file-stream (cat +film_path +film_name ".flm") +file_open_write) +film_bits)
+	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)
 		jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program) film_time (pii-time))
@@ -178,7 +200,8 @@
 						;show what there is of the frame so far
 						(. *canvas* :swap +swap_write)
 						(. jobs :refresh +retry_timeout))))))
-	;close window and children
+	;close window and children, and a film not finished
+	(film-drop)
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. jobs :close)
 	(gui-sub-rpc *window*))

@@ -17,7 +17,8 @@
 
 ;not those that are the desktop's own, open from the start, the wallpaper
 ;that is the desktop and starts them, nor those that end it or log in. Not
-;Raymarch: it writes its film into the tree as it goes, item 124
+;Raymarch: it makes its whole film, seconds of the GPU or every node, and
+;its window draws only that
 (defq ad_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch")
 		(get :launcher_auto_apps *env*))
 	ad_apps (sort (filter (lambda (app) (not (find app ad_skip)))
