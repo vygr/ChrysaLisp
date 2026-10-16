@@ -296,11 +296,9 @@
 	(defq mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
 	(unless (defq user (bind-pressed *mode_toolbar* :mode mode))
 		(def *board* :mode mode))
-	;out of select mode, what was selected is let go of. It has no handles
-	;to show that it is, and the colours and widths would change it, Chris:
-	;"I'm not in select mode on left/right button and still see selected
-	;shapes". Each user's own, (. board :settle_select)
-	(. *board* :settle_select user)
+	;what a box selected, no one's, is let go of once nothing is in select
+	;mode; what a user picked up stays so, (. board :settle_select)
+	(. *board* :settle_select)
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-style ()

@@ -286,7 +286,7 @@
 			(:tool (if floating (. this :bind_tapper event :mode val)
 				(. this :set_value :mode val) (. this :close))
 				;out of select mode, what that user selected is let go of
-				(. board :settle_select user))
+				(. board :settle_select))
 			(:color (if floating (. this :bind_tapper event :color val)
 				(. this :set_value :color val)
 				(. board :paint :t :stroke val)))

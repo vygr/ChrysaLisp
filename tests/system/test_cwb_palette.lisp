@@ -437,14 +437,14 @@
 (. pu_board :toggle_select (first pu_ids) +board_teacher)
 (. pu_board :toggle_select (second pu_ids) pu_student)
 (. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :pen)
-(. pu_board :settle_select +board_teacher)
+(. pu_board :settle_select)
 (assert-eq "out of select mode, what each tapped stays picked up, the teacher's and the student's"
 	(str pu_ids) (str (get :selected pu_board)))
 ;a box no one tapped is let go of once nothing is in select mode
 (. pu_board :select pu_ids)
-(each (# (. (get :selectors pu_board) :erase %0)) pu_ids)
+(. pu_board :select (list)) (. pu_board :select pu_ids)
 (. (. pu_board :get_bindings) :set :pen 0x2000000 +pev_left :mode :pen)
-(. pu_board :settle_select pu_student)
+(. pu_board :settle_select)
 (assert-eq "what a box selected goes once nothing is in select mode" "()" (str (get :selected pu_board)))
 (. pu_board :toggle_select (first pu_ids) +board_teacher)
 (. pu_board :toggle_select (second pu_ids) pu_student)
@@ -504,11 +504,11 @@
 (.-> pw_b (:set :mouse 0 +pev_left :mode :select))
 (pl-tap pw_board 0 :mouse +pev_left 300 300)
 (assert-eq "the teacher's hand on nothing puts down the teacher's, the student's stays" (str (list pw_s)) (str (get :selected pw_board)))
-(assert-eq "and who held the teacher's is forgotten" :nil (. (get :selectors pw_board) :find pw_a))
+(assert-eq "and who held the teacher's is forgotten" :nil (. pw_board :holder pw_a))
 (pl-tap pw_board 0 :mouse +pev_left 240 60)
 (assert-eq "the teacher's hand on a thing picks it up, the student's stays"
 	(str (list pw_s pw_c)) (str (get :selected pw_board)))
-(assert-eq "and it is the teacher's" +board_teacher (. (get :selectors pw_board) :find pw_c))
+(assert-eq "and it is the teacher's" +board_teacher (. pw_board :holder pw_c))
 ;what draws along an instrument's edge is what does not rub out, its catch
 ;shows by the same rule
 (.-> pw_b (:set :pen 0x2000000 +pev_left :mode :eraser))
@@ -541,3 +541,21 @@
 (assert-list-eq "and which pen each holds" '(0 :nil 1)
 	(map (# (. pk_board :pen_of (ptr-event %0 %1 %2 0 0))) '(0 0 0x2000000) '(:mouse :mouse :pen) (list +pev_left +pev_right +pev_left)))
 (assert-eq "a key is found only where keys are, (:tool :pen :pen 3)" 3 (elem-get '(:tool :pen :pen 3) (ptr-at '(:tool :pen :pen 3) :pen)))
+;who holds what is the board's, (:holder) (:pick_up) (:others_of), kept
+;only for what is selected, and carried to what a thing becomes
+(defq po_board (Board (cwb-doc 400 400)))
+(defq po_a (. po_board :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0))
+	po_b (. po_board :add (cwb-shape (cwb-d-rect 60 10 100 50) :fill 0xff000000 :stroke 0)))
+(. po_board :pick_up po_a 3) (. po_board :pick_up po_b 3)
+(defq po_g (. po_board :group))
+(defq po_was (list (. po_board :holder po_g) (. po_board :others_of 4) (. po_board :others_of 3)))
+(. po_board :duplicate)
+(defq po_dup (first (get :selected po_board)))
+(defq po_dupped (. po_board :holder po_dup))
+(. po_board :ungroup)
+(defq po_kids (get :selected po_board))
+(assert-eq "a group of what one held is theirs, as is its copy, and the copy's items once it is ungrouped"
+	(str (list 3 (list po_g) (list) 3 (list 3 3)))
+	(str (list (first po_was) (second po_was) (third po_was) po_dupped (map (# (. po_board :holder %0)) po_kids))))
+(. po_board :delete)
+(assert-eq "deleted, no one holds them" "(:nil :nil)" (str (map (# (. po_board :holder %0)) po_kids)))

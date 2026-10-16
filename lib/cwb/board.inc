@@ -525,12 +525,11 @@
 							;other users picked up stays so, Chris: "2 users
 							;can select seperate item". Picked up by another,
 							;it is this one's now
-							(:t (defq user (. board :user_of event) selectors (get :selectors board))
-								(unless (and (find id_hit selected) (eql (. selectors :find id_hit) user))
+							(:t (defq user (. board :user_of event))
+								(unless (eql (. board :holder id_hit) user)
 									(unless (find id_hit (. board :selected_by user))
-										(. board :select (cat (filter (# (and (defq who (. selectors :find %0)) (not (eql who user)) (/= %0 id_hit))) selected)
-											(list id_hit))))
-									(. selectors :insert id_hit user))
+										(. board :select (filter (# (/= %0 id_hit)) (. board :others_of user))))
+									(. board :pick_up id_hit user))
 								(defq mine_ids (. board :selected_by user))
 								(setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
 						(. board :snapshot)
@@ -571,9 +570,7 @@
 							(elem-set state +stroke_snap :tap))
 						;what this user picked up is put down, not what
 						;others did
-						(unless holding
-							(defq selectors (get :selectors board) user (. board :user_of event))
-							(. board :select (filter (# (and (defq who (. selectors :find %0)) (not (eql who user)))) (get :selected board)))))))
+						(unless holding (. board :select (. board :others_of (. board :user_of event)))))))
 			;what is selected stays so, and what is left of it after a
 			;bite, (:bite), with its handles, Chris: "I can select a shape
 			;and then erase though it, but the select controls vanish as
@@ -734,9 +731,7 @@
 									;and what other users picked up, a box is this
 									;one's, and a tap on nothing puts down what this
 									;user picked up
-									selectors (get :selectors board) user (. board :user_of event)
-									kept (if holding (get :selected board)
-										(filter (# (and (defq who (. selectors :find %0)) (not (eql who user)))) (get :selected board))))
+									kept (if holding (get :selected board) (. board :others_of (. board :user_of event))))
 								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
 						(. board :touch +board_dirty_overlay))))
 			(:eraser
@@ -1156,8 +1151,9 @@
 	(defmethod :set_doc (doc)
 		; (. board :set_doc doc) -> board
 		;another document, nothing of the last is kept
-		(def this :doc doc :selected (list) :undo_stack (list) :redo_stack (list) :layer :nil
+		(def this :doc doc :undo_stack (list) :redo_stack (list) :layer :nil
 			:floating (list) :appended (list))
+		(. this :select (list))
 		(. this :changed :all)
 		(. (get :temp this) :empty)
 		(. (get :bands this) :empty)
@@ -1299,21 +1295,16 @@
 			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
 			(. bindings :value event :keep_shape (get :keep_shape this))))
 
-	(defmethod :selecting? (&optional user)
-		; (. board :selecting? [user]) -> :t | :nil
-		;is anything in select mode, the board or a device bound to it, so
-		;what is selected has its handles, or with a user, a device or a
-		;button of that user's. Chris: "When I select a shape I can't see
-		;shape controls. Just the selected outline."
+	(defmethod :selecting? ()
+		; (. board :selecting?) -> :t | :nil
+		;is anything in select mode, the board or a device bound to it
 		(or (eql (get :mode this) :select)
-			(some (lambda ((kind id & what))
-					(and (defq at (ptr-at what :mode)) (eql (elem-get what at) :select)
-						(or (not user) (not id) (eql (. this :user_of (ptr-event id (ifn kind :pen) +pev_left 0 0)) user))
-						:t))
+			(some (lambda ((& & & what))
+					(and (defq at (ptr-at what :mode)) (eql (elem-get what at) :select)))
 				(get :rules (get :bindings this)))))
 
-	(defmethod :settle_select (&optional user)
-		; (. board :settle_select [user]) -> board
+	(defmethod :settle_select ()
+		; (. board :settle_select) -> board
 		;a mode has changed: what a box or a hand selected, no one's, is let
 		;go of once nothing at all is in select mode. What a tap picked up
 		;stays so in any mode, till it is tapped again or a tap of its user
@@ -1321,8 +1312,7 @@
 		;a shape, in any mode", "select mode just means you draging a box to
 		;multi select ?"
 		(unless (. this :selecting?)
-			(defq selectors (get :selectors this))
-			(. this :select (filter (# (. selectors :find %0)) (get :selected this))))
+			(. this :select (filter (# (. this :holder %0)) (get :selected this))))
 		this)
 
 	(defmethod :switch_of (what key)
@@ -1411,7 +1401,8 @@
 		;are not in it, Chris: "undo/redo do not and should not undo
 		;instrument or selection controls"
 		(defq ids (map (# (elem-get %0 +cwb_id)) (cwb-items (get :doc this))))
-		(def this :selected (filter (# (find %0 ids)) (get :selected this)) :floating (list) :appended (list))
+		(. this :select (filter (# (find %0 ids)) (get :selected this)))
+		(def this :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :undo ()
@@ -1446,21 +1437,35 @@
 		;a thing in or out of select mode, by a tap. It is that user's
 		;selection, an action on a selection is on a user's own, see
 		;(:selected_by)
-		(defq selected (get :selected this) selectors (get :selectors this))
-		(cond
-			((find id selected)
-				(. selectors :erase id)
-				(. this :select (filter (# (/= %0 id)) selected)))
-			(:t (. selectors :insert id user)
-				(. this :select (cat selected (list id))))))
+		(if (find id (get :selected this))
+			(. this :select (filter (# (/= %0 id)) (get :selected this)))
+			(. this :pick_up id user)))
+
+	;who picked up what: the selected things, each with the user that holds
+	;it, or no one's, a box's, which is anyone's. Kept only by these and
+	;(:select), so the two can not differ
+	(defmethod :holder (id)
+		; (. board :holder id) -> :nil | user
+		(. (get :selectors this) :find id))
+
+	(defmethod :pick_up (id user)
+		; (. board :pick_up id user) -> board
+		;selected, and that user's
+		(unless (find id (get :selected this)) (. this :select (cat (get :selected this) (list id))))
+		(. (get :selectors this) :insert id user)
+		this)
+
+	(defmethod :others_of (user)
+		; (. board :others_of user) -> ids
+		;what users other than that one hold
+		(filter (# (and (defq who (. this :holder %0)) (not (eql who user)))) (get :selected this)))
 
 	(defmethod :selected_by (user)
 		; (. board :selected_by user) -> ids
 		;what that user put in select mode by a tap. Chris: an action on a
 		;selection is on "the user's own selections". A thing selected by
 		;no tap, a hand or a box, says no one, and is anyone's
-		(defq selectors (get :selectors this))
-		(filter (# (or (not (defq who (. selectors :find %0))) (eql who user))) (get :selected this)))
+		(filter (# (or (not (defq who (. this :holder %0))) (eql who user))) (get :selected this)))
 
 	(defmethod :get_selected () (get :selected this))
 
@@ -1606,7 +1611,7 @@
 		;take items out, no step is made, see (:delete)
 		(cwb-remove-ids (get :doc this) ids)
 		(defq gone (cwb-id-set ids))
-		(def this :selected (filter (# (not (cwb-id? gone %0))) (get :selected this)))
+		(. this :select (filter (# (not (cwb-id? gone %0))) (get :selected this)))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :rub (x y &optional r lines)
@@ -1640,7 +1645,7 @@
 										(+ (third box) 1.0) (+ (elem-get box 3) 1.0)))
 									(defq pieces (cwb-rub item x y r)))
 								(setq changed :t done :t)
-								(def this :selected (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
+								(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this)))
 								(each (# (push out (cwb-adopt doc %0))) pieces)
 								(. this :changed (map (# (elem-get %0 +cwb_id)) pieces)))
 							;a group: the lines in it are rubbed as lines are, in its
@@ -1654,7 +1659,7 @@
 								(setq changed :t done :t)
 								(cond
 									((empty? left)
-										(def this :selected (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
+										(. this :select (filter (# (/= %0 (elem-get item +cwb_id))) (get :selected this))))
 									(:t (elem-set item +cwb_items left)
 										(. this :changed (list (elem-get item +cwb_id)))
 										(push out item))))
@@ -1716,13 +1721,17 @@
 		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
 				:nil (/ 0.25 (get :zoom this)) user)))
 			(bind '(made gone swaps) did)
-			(def this :selected (reduce (lambda (out id)
+			;what is left of a thing picked up is held by who held it
+			(defq carried (list))
+			(. this :select (reduce (lambda (out id)
 					(cond
 						((defq swap (some (# (if (= (first %0) id) %0)) swaps))
-							(each (# (push out (elem-get %0 +cwb_id))) (second swap)))
+							(defq who (. this :holder id))
+							(each (# (push out (elem-get %0 +cwb_id)) (if who (push carried (list (elem-get %0 +cwb_id) who)))) (second swap)))
 						((find id gone))
 						(:t (push out id)))
 					out) (get :selected this) (list)))
+			(each (lambda ((id who)) (. this :pick_up id who)) carried)
 			(. (get :surface this) :swapped swaps)
 			(. this :changed made)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
@@ -1799,7 +1808,7 @@
 		(. this :snapshot)
 		(. this :changed :all)
 		(each (lambda (layer) (elem-set layer 2 (list))) (cwb-layers (get :doc this)))
-		(def this :selected (list))
+		(. this :select (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :transform (m)
@@ -1871,8 +1880,11 @@
 			(clear holder)
 			(each (# (push holder %0)) kept)
 			(cwb-remove-ids doc (filter (# (/= %0 top_id)) (map (# (elem-get %0 +cwb_id)) items)))
-			;the group is in the list, the items are now only in the group
-			(def this :selected (list (elem-get group +cwb_id)))
+			;the group is in the list, the items are now only in the group,
+			;held by who held the top of them
+			(defq who (. this :holder top_id))
+			(. this :select (list (elem-get group +cwb_id)))
+			(if who (. this :pick_up (elem-get group +cwb_id) who))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			(elem-get group +cwb_id)))
 
@@ -1884,22 +1896,25 @@
 		(when (nempty? groups)
 			(. this :snapshot)
 			(. this :changed :all)
-			(defq doc (get :doc this) ids (list))
+			(defq doc (get :doc this) ids (list) carried (list))
 			(each (lambda (group)
-				(defq id (elem-get group +cwb_id) holder (third (cwb-find doc id))
+				(defq id (elem-get group +cwb_id) who (. this :holder id) holder (third (cwb-find doc id))
 					kept (reduce (lambda (out item)
 						(if (= (elem-get item +cwb_id) id)
 							(each (lambda (kid)
 								(elem-set kid +cwb_m (Mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))
 								(push ids (elem-get kid +cwb_id))
+								(if who (push carried (list (elem-get kid +cwb_id) who)))
 								(push out kid)) (elem-get group +cwb_items))
 							(push out item))
 						out) holder (list)))
 				(clear holder)
 				(each (# (push holder %0)) kept))
 				groups)
-			(def this :selected (cat ids (filter (# (not (find %0 (map (# (elem-get %0 +cwb_id)) groups))))
+			(. this :select (cat ids (filter (# (not (find %0 (map (# (elem-get %0 +cwb_id)) groups))))
 				(get :selected this))))
+			;the items of a group are held by who held it
+			(each (lambda ((id who)) (. this :pick_up id who)) carried)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
@@ -1945,7 +1960,8 @@
 		;and the copy is what is selected
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
-			(defq doc (get :doc this) move (Mat3x2-translate (ifn dx 16) (ifn dy 16)) ids (list))
+			(defq doc (get :doc this) move (Mat3x2-translate (ifn dx 16) (ifn dy 16)) ids (list)
+				whos (map (# (. this :holder (elem-get %0 +cwb_id))) items))
 			(each (lambda (copy)
 				;a copy and all in it has ids of its own
 				(defq todo (list copy))
@@ -1956,7 +1972,9 @@
 				(cwb-add doc copy (. this :layer_index))
 				(push ids (elem-get copy +cwb_id)))
 				(board-copy-items items))
-			(def this :selected ids)
+			;the copies are held by who held each
+			(. this :select ids)
+			(each (lambda (id who) (if who (. this :pick_up id who))) ids whos)
 			(. this :changed ids)
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)

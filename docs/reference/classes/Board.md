@@ -270,6 +270,12 @@ nothing was done after all, the last (:snapshot) is dropped
 what is selected becomes one group, where the top one of them was
 ```
 
+### :holder
+
+```code
+(. board :holder id) -> :nil | user
+```
+
 ### :hovering
 
 ```code
@@ -352,6 +358,14 @@ document till it is kept
 what is selected goes to the front of its layer, or the back
 ```
 
+### :others_of
+
+```code
+(. board :others_of user) -> ids
+
+what users other than that one hold
+```
+
 ### :paint
 
 ```code
@@ -372,6 +386,14 @@ what each was. Words have only a fill, their colour. See
 
 the number of the pen the slot of the pointer holds, its own or the
 board's, :nil if it holds an ink of its own or there are no pens
+```
+
+### :pick_up
+
+```code
+(. board :pick_up id user) -> board
+
+selected, and that user's
 ```
 
 ### :pointer_free?
@@ -512,12 +534,9 @@ order they are in, the back one first
 ### :selecting?
 
 ```code
-(. board :selecting? [user]) -> :t | :nil
+(. board :selecting?) -> :t | :nil
 
-is anything in select mode, the board or a device bound to it, so
-what is selected has its handles, or with a user, a device or a
-button of that user's. Chris: "When I select a shape I can't see
-shape controls. Just the selected outline."
+is anything in select mode, the board or a device bound to it
 ```
 
 ### :set_doc
@@ -531,7 +550,7 @@ another document, nothing of the last is kept
 ### :settle_select
 
 ```code
-(. board :settle_select [user]) -> board
+(. board :settle_select) -> board
 
 a mode has changed: what a box or a hand selected, no one's, is let
 go of once nothing at all is in select mode. What a tap picked up
