@@ -344,12 +344,13 @@ what is selected goes to the front of its layer, or the back
 ### :paint
 
 ```code
-(. board :paint ids key color) -> board
+(. board :paint ids key color [with]) -> board
 
 the outline, :stroke, the fill, :fill, both, :both, or what a
 thing shows, :ink, its fill if it has no outline, of those selected
 things, all that is selected if ids is :t. The ink is as it is, an
-argb, none is 0. Words have only a fill, their colour. See
+argb, none is 0, or with a function, (with old) -> ink, made from
+what each was. Words have only a fill, their colour. See
 (board-ink-part)
 ```
 
@@ -510,12 +511,12 @@ another document, nothing of the last is kept
 ```code
 (. board :settle_select [user]) -> board
 
-a mode has changed: what a user selected is let go of once nothing
-of theirs is in select mode, each user their own, Chris: "So when a
-device button goes out of select mode, those selection clear ?",
-"go ahead with per user". The mouse's buttons, and touch, are one
-user's. What no one selected by a tap, a box or a hand, is let go
-of once nothing at all is. No user, the board's own mode, is all
+a mode has changed: what a box or a hand selected, no one's, is let
+go of once nothing at all is in select mode. What a tap picked up
+stays so in any mode, till it is tapped again or a tap of its user
+on nothing in select mode puts it down, Chris: "single tap to select
+a shape, in any mode", "select mode just means you draging a box to
+multi select ?"
 ```
 
 ### :snap_end

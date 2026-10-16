@@ -441,6 +441,14 @@
 				(setq found id))))
 		found)
 
+	(defmethod :holders ()
+		; (. surface :holders) -> num
+		;how many pointers have hold of things
+		(defq n 0)
+		(. (get :states this) :each (lambda (id state)
+			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item) (++ n))))
+		n)
+
 	(defmethod :begin (event)
 		; (. surface :begin event) -> state
 		;a pointer has gone down
@@ -456,6 +464,19 @@
 		;do everything
 		(if (eql tool :pen) (setq tool (. (get :bindings board) :value event :mode (get :mode board))))
 		(if (eql tool :select) (setq tool :hand))
+		;on what is selected, or in the box round it, a pointer that draws
+		;moves it, Chris: "When a shape/group is selected, drag always moves
+		;it". Not one that rubs out, which bites what is selected, nor one
+		;that pans. A thing under it that is not selected is drawn on
+		;Each user's own, Chris: "2 users can select separate items"
+		(and (not (find tool '(:hand :eraser :pan :idle)))
+				(nempty? (defq sel_ids (. board :selected_by (. board :user_of event))))
+				(defq sel_items (filter (# (find (elem-get %0 +cwb_id) sel_ids)) (. board :selected_items)))
+				(if (defq sel_hit (cwb-hit (get :doc board) x y (/ +board_near (get :zoom board))))
+					(find (elem-get (first sel_hit) +cwb_id) sel_ids)
+					(and (defq sel_box (cwb-bounds sel_items))
+						(>= x (first sel_box)) (>= y (second sel_box)) (<= x (third sel_box)) (<= y (elem-get sel_box 3))))
+			(setq tool :hand))
 		(defq state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
 			holding (. this :holding))
 		(case tool
@@ -698,7 +719,12 @@
 							;the edge of the paper, can not be got round. With
 							;what other hands have hold of, which stays so
 							(band (defq found (map (# (elem-get (first %0) +cwb_id)) (cwb-touch-box (get :doc board) band))
-									kept (if holding (get :selected board) (list)))
+									;and what other users picked up, a box is this
+									;one's, and a tap on nothing puts down what this
+									;user picked up
+									selectors (get :selectors board) user (. board :user_of event)
+									kept (if holding (get :selected board)
+										(filter (# (and (defq who (. selectors :find %0)) (not (eql who user)))) (get :selected board))))
 								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
 						(. board :touch +board_dirty_overlay))))
 			(:eraser
@@ -855,12 +881,20 @@
 	;dragged to where that end is to be.
 	(def this :board board)
 
+	(defmethod :shown ()
+		; (. handles :shown) -> :t | :nil
+		;no more than one hand has hold of things
+		(raise :board)
+		(< (. (get :surface board) :holders) 2))
+
 	(defmethod :box ()
 		; (. handles :box) -> :nil | (x y x1 y1)
-		;the box round what is selected, :nil if nothing is, or nothing is
-		;in select mode
+		;the box round what is selected, :nil if nothing is. In any mode,
+		;Chris: "single tap to select a shape, in any mode, does not bring up
+		;the shape controls ?". Not while hands have hold of things each,
+		;each has its own line, (:shown)
 		(raise :board)
-		(and (. board :selecting?) (nempty? (get :selected board))
+		(and (. this :shown) (nempty? (get :selected board))
 			(cwb-bounds (. board :selected_items))))
 
 	(defmethod :frame ()
@@ -869,7 +903,7 @@
 		;is. Of one thing, its own box and its own matrix. Of several, the
 		;box round them and no change
 		(raise :board)
-		(and (. board :selecting?) (nempty? (defq items (. board :selected_items)))
+		(and (. this :shown) (nempty? (defq items (. board :selected_items)))
 			(cond
 				((= (length items) 1)
 					(defq item (first items)
@@ -881,7 +915,7 @@
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
 		;if what is selected is one line, it, and its two ends in its own space
 		(raise :board)
-		(when (and (. board :selecting?) (= (length (defq items (. board :selected_items))) 1)
+		(when (and (. this :shown) (= (length (defq items (. board :selected_items))) 1)
 				(cwb-shape? (defq item (first items)))
 				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
 			(defq parts (split (elem-get item +cwb_d) " "))
@@ -1264,17 +1298,15 @@
 
 	(defmethod :settle_select (&optional user)
 		; (. board :settle_select [user]) -> board
-		;a mode has changed: what a user selected is let go of once nothing
-		;of theirs is in select mode, each user their own, Chris: "So when a
-		;device button goes out of select mode, those selection clear ?",
-		;"go ahead with per user". The mouse's buttons, and touch, are one
-		;user's. What no one selected by a tap, a box or a hand, is let go
-		;of once nothing at all is. No user, the board's own mode, is all
-		(cond
-			((not (. this :selecting?)) (. this :select (list)))
-			((and user (not (. this :selecting? user)))
-				(defq selectors (get :selectors this))
-				(. this :select (filter (# (not (eql (. selectors :find %0) user))) (get :selected this)))))
+		;a mode has changed: what a box or a hand selected, no one's, is let
+		;go of once nothing at all is in select mode. What a tap picked up
+		;stays so in any mode, till it is tapped again or a tap of its user
+		;on nothing in select mode puts it down, Chris: "single tap to select
+		;a shape, in any mode", "select mode just means you draging a box to
+		;multi select ?"
+		(unless (. this :selecting?)
+			(defq selectors (get :selectors this))
+			(. this :select (filter (# (. selectors :find %0)) (get :selected this))))
 		this)
 
 	(defmethod :switch_of (what key)
@@ -1762,12 +1794,13 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :paint (ids key color)
-		; (. board :paint ids key color) -> board
+	(defmethod :paint (ids key color &optional with)
+		; (. board :paint ids key color [with]) -> board
 		;the outline, :stroke, the fill, :fill, both, :both, or what a
 		;thing shows, :ink, its fill if it has no outline, of those selected
 		;things, all that is selected if ids is :t. The ink is as it is, an
-		;argb, none is 0. Words have only a fill, their colour. See
+		;argb, none is 0, or with a function, (with old) -> ink, made from
+		;what each was. Words have only a fill, their colour. See
 		;(board-ink-part)
 		(defq items (if (eql ids :t) (. this :selected_items)
 			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
@@ -1779,8 +1812,8 @@
 					((eql (elem-get shape +cwb_kind) :text) :fill)
 					((eql key :ink) (if (and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0)) :fill :stroke))
 					(key)))
-				(if (find part '(:fill :both)) (cwb-set shape :fill color))
-				(if (find part '(:stroke :both)) (cwb-set shape :stroke color))))
+				(if (find part '(:fill :both)) (cwb-set shape :fill (if with (with (ifn (cwb-get shape :fill) 0)) color)))
+				(if (find part '(:stroke :both)) (cwb-set shape :stroke (if with (with (ifn (cwb-get shape :stroke) 0)) color)))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 

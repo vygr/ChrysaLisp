@@ -322,13 +322,13 @@
 	(some (lambda ((kind id buttons &ignore)) (eql buttons 0)) (get :rules (. pf_board :get_bindings))))
 (assert-eq "and in select mode the mouse's left is the hand, not a pen" :select
 	(. (. pf_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode))
-;what is selected has its handles while a device is in select mode, the
-;board's own mode a pen
+;what is selected has its handles in any mode, Chris: "single tap to
+;select a shape, in any mode, does not bring up the shape controls ?"
 (defq ph_board (Board (cwb-doc 400 400)))
 (. ph_board :tick 1000000)
 (pl-drag ph_board 0 :mouse +pev_left 10 10 100 100)
 (. ph_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. ph_board :get_doc))))
-(assert-eq "nothing in select mode, no handles" :nil (. (get :handles ph_board) :box))
+(assert-true "nothing in select mode, the handles all the same" (. (get :handles ph_board) :box))
 (. (. ph_board :get_bindings) :set :mouse 0 +pev_left :mode :select)
 (assert-true "the mouse in select mode, the handles" (. (get :handles ph_board) :box))
 ;a device's main button's pen outlines and its second's fills, Chris: "we
@@ -438,8 +438,16 @@
 (. pu_board :toggle_select (second pu_ids) pu_student)
 (. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :pen)
 (. pu_board :settle_select +board_teacher)
-(assert-eq "the teacher out of select mode, the student's tap is selected still, the teacher's is not"
-	(str (list (second pu_ids))) (str (get :selected pu_board)))
+(assert-eq "out of select mode, what each tapped stays picked up, the teacher's and the student's"
+	(str pu_ids) (str (get :selected pu_board)))
+;a box no one tapped is let go of once nothing is in select mode
+(. pu_board :select pu_ids)
+(each (# (. (get :selectors pu_board) :erase %0)) pu_ids)
+(. (. pu_board :get_bindings) :set :pen 0x2000000 +pev_left :mode :pen)
+(. pu_board :settle_select pu_student)
+(assert-eq "what a box selected goes once nothing is in select mode" "()" (str (get :selected pu_board)))
+(. pu_board :toggle_select (first pu_ids) +board_teacher)
+(. pu_board :toggle_select (second pu_ids) pu_student)
 ;an undo is of the document, what is selected stays so, Chris: "undo/redo do
 ;not and should not undo instrument or selection controls"
 (. pu_board :select pu_ids)

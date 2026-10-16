@@ -258,16 +258,17 @@
 		; (. palette :bind_tapper event key val) -> user
 		;a floating menu binds whatever tapped it, the device with the
 		;buttons it had held, all of touch as one. Chris: "taps on them
-		;effect their pen as you KNOW what device has tapped on them". What
-		;that user has selected takes a colour, its outline or its fill by
-		;the button, (board-ink-part), or a width
-		(defq board (get :board this))
+		;effect their pen as you KNOW what device has tapped on them". A
+		;colour or a width, with things that user has picked up, is theirs,
+		;the outline or the fill by the button, (board-ink-part), and the
+		;device is as it was, Chris: "if you have selected items you changing
+		;there colours"
+		(defq board (get :board this) user (. board :user_of event) mine (. board :selected_by user))
 		(bind '(id kind buttons &ignore) event)
-		(. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)
-		(defq user (. board :user_of event))
-		(case key
-			(:color (. board :paint (. board :selected_by user) (board-ink-part event) val))
-			(:width (. board :style_ids (. board :selected_by user) :width val)))
+		(cond
+			((and (eql key :color) (nempty? mine)) (. board :paint mine (board-ink-part event) val))
+			((and (eql key :width) (nempty? mine)) (. board :style_ids mine :width val))
+			((. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)))
 		user)
 
 	(defmethod :pick (what &optional val event)

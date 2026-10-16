@@ -200,6 +200,10 @@
 	"(wa-ptr 0x1000001 3 1 70 80) (wa-ptr 0x1000002 3 1 230 200)"
 	"(wa-ptr 0x1000001 3 0 70 80) (wa-ptr 0x1000002 3 0 230 200)"
 	"(print (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
+	;put down: what is picked up takes the presses on it in any mode, its
+	;handles and a drag on it, Chris: "When a shape/group is selected, drag
+	;allways moves it"
+	"(. *board* :select (list))"
 	;the other end of the pen takes a bite out of its side
 	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
 	"(print (wa-ids))"
@@ -682,33 +686,35 @@
 
 ;the pens: a first press of a pen gives it to what pressed, a second by
 ;what holds it opens the swatches, a tap there fills the pen the button
-;that tapped holds, for every device that holds it, and what its user has
-;selected takes it, the main button the outline and the second the fill.
-;The document keeps the inks, Chris: "We also have the ability to fill
-;those pens with any ink (argb) from the color pallet menu"
+;that tapped holds, for every device that holds it. With things picked up
+;the colours are theirs and the pens are as they were, the main button the
+;outline and the second the fill, Chris: "If you have no selected items
+;than I think you are setting the ink of the pen, but if you have selected
+;items you changing there colours". The document keeps the inks
 (defq wa_pens (wa-run (cat
-	"(defq red (elem-get (. *ink_toolbar* :children) 2))"
-	"(defun press () (def red :pressed_by (list 0 :mouse +pev_left)) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink))"
+	"(defq red (elem-get (. *ink_toolbar* :children) 2) blue (elem-get (. *ink_toolbar* :children) 4))"
+	"(defun press (b at) (def b :pressed_by (list 0 :mouse +pev_left)) (. *ink_toolbar* :set_selected at) (wa-do +event_ink))"
 	"(defun held (b) (. (. *board* :get_bindings) :value (ptr-event 0 :mouse b 0 0) :color (get :color *board*)))"
 	"(defun pick (b what val) ((get :on_pick (first (swatches-on *board*))) (first (swatches-on *board*)) (ptr-event 0 :mouse b 0 0) what val))"
-	"(press) (defq a (list (= (held +pev_left) +argb_red) (length (swatches-on *board*))))"
-	"(press) (defq b (length (swatches-on *board*)))"
-	"(defq it (. *board* :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0xff000000)))"
-	"(. *board* :toggle_select it +board_teacher)"
+	"(press red 2) (defq a (list (= (held +pev_left) +argb_red) (length (swatches-on *board*))))"
+	"(press red 2) (defq b (length (swatches-on *board*)))"
 	"(pick +pev_right :color 0xff00ff7f)"
-	"(defq shape (first (cwb-find (. *board* :get_doc) it)))"
-	"(defq c (list (= (elem-get *palette* 0) 0xff00ff7f) (= (held +pev_right) 0xff00ff7f) (= (cwb-get shape :fill) 0xff00ff7f) (= (cwb-get shape :stroke) 0xff000000)))"
-	"(pick +pev_left :alpha 0x40)"
-	"(defq d (list (= (elem-get *palette* 2) 0x40ff0000) (= (held +pev_left) 0x40ff0000) (= (cwb-get shape :stroke) 0x40ff0000)))"
-	"(pick +pev_left :color 0xff0000ff) (defq e (list (= (elem-get *palette* 2) 0x400000ff)))"
-	"(pick +pev_left :none 0) (push e (= (elem-get *palette* 2) 0) (= (cwb-get shape :stroke) 0) (eql (get :text red) (num-to-utf8 +sym_close)))"
+	"(defq c (list (= (elem-get *palette* 0) 0xff00ff7f) (= (held +pev_right) 0xff00ff7f)))"
+	"(defq it (. *board* :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0xff000000)))"
+	"(. *board* :toggle_select it +board_teacher) (defq shape (first (cwb-find (. *board* :get_doc) it)))"
+	"(pick +pev_left :alpha 0x40) (defq quarter (= (cwb-get shape :stroke) 0x40000000)) (pick +pev_right :color 0xff0000ff) (press blue 4)"
+	"(defq d (list quarter (= (cwb-get shape :stroke) +argb_blue) (= (cwb-get shape :fill) 0xff0000ff)"
+	" (= (elem-get *palette* 2) +argb_red) (= (held +pev_left) +argb_red) (= (elem-get *palette* 4) +argb_blue)))"
+	"(. *board* :toggle_select it +board_teacher)"
+	"(pick +pev_left :alpha 0x40) (defq e (list (= (elem-get *palette* 2) 0x40ff0000) (= (held +pev_left) 0x40ff0000)))"
+	"(pick +pev_left :none 0) (push e (= (elem-get *palette* 2) 0) (eql (get :text red) (num-to-utf8 +sym_close)))"
 	"(stage-to-doc) (defq data (cwb-out (. *board* :get_doc)))"
 	"(pen-refill 2 0xff123456) (. *board* :set_doc (cwb-in data)) (stage-from-doc)"
 	"(defq f (list (= (elem-get *palette* 2) 0) (= (held +pev_left) 0) (= (elem-get *palette* 0) 0xff00ff7f)))"
 	"((get :on_swatches *board*) 100 100) (wa-do +event_swatches)"
 	"(print (list a b c d e f (length (swatches-on *board*))))")))
-(assert-eq "a first press gives the mouse red, a second opens the swatches; the right button's tap fills its pen, black, every holder's, and the fill of what is selected; the left's a quarter see through, the red pen's and the outline's; a colour keeps that; none is a cross; the document has them back, the mouse holding them, its swatches put away; a ring and the toolbar open more"
-	"((:t 0) 1 (:t :t :t :t) (:t :t :t) (:t :t :t :t) (:t :t :t) 2)" (first wa_pens))
+(assert-eq "a first press gives the mouse red, a second opens the swatches; nothing picked up, the right's tap fills its pen, every holder's; with a thing picked up, a quarter see through is its outline's in its own colour, the blue swatch its fill, the blue pen its outline as the pen has it, and no pen changes; put down, the left fills the red pen; none is a cross; the document has them back; a ring and the toolbar open more"
+	"((:t 0) 1 (:t :t) (:t :t :t :t :t :t) (:t :t :t :t) (:t :t :t) 2)" (first wa_pens))
 (defq wa_new (wa-run (cat
 	"(pen-refill 2 0x40123456) (def (elem-get (. *ink_toolbar* :children) 2) :pressed_by (list 0 :mouse +pev_left))"
 	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (defq was (eql (str *palette*) (str *pens_default*)))"

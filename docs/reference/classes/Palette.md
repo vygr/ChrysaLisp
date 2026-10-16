@@ -22,9 +22,11 @@ was last told
 
 a floating menu binds whatever tapped it, the device with the
 buttons it had held, all of touch as one. Chris: "taps on them
-effect their pen as you KNOW what device has tapped on them". What
-that user has selected takes a colour, its outline or its fill by
-the button, (board-ink-part), or a width
+effect their pen as you KNOW what device has tapped on them". A
+colour or a width, with things that user has picked up, is theirs,
+the outline or the fill by the button, (board-ink-part), and the
+device is as it was, Chris: "if you have selected items you changing
+there colours"
 ```
 
 ### :build

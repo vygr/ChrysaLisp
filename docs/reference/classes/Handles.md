@@ -26,8 +26,10 @@ dragged to where that end is to be.
 ```code
 (. handles :box) -> :nil | (x y x1 y1)
 
-the box round what is selected, :nil if nothing is, or nothing is
-in select mode
+the box round what is selected, :nil if nothing is. In any mode,
+Chris: "single tap to select a shape, in any mode, does not bring up
+the shape controls ?". Not while hands have hold of things each,
+each has its own line, (:shown)
 ```
 
 ### :corners
@@ -59,6 +61,14 @@ box round them and no change
 ### :hit
 
 ### :pointers
+
+### :shown
+
+```code
+(. handles :shown) -> :t | :nil
+
+no more than one hand has hold of things
+```
 
 ### :spot_at
 

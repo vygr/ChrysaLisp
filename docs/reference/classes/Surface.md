@@ -75,6 +75,14 @@ the hand that has hold of an item, the pointer it is and what is
 kept for it
 ```
 
+### :holders
+
+```code
+(. surface :holders) -> num
+
+how many pointers have hold of things
+```
+
 ### :holding
 
 ```code

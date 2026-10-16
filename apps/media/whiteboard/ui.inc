@@ -189,14 +189,26 @@
 				:color (get :color *board*))))
 		(eql color (get :color *board*))))
 
+(defun mine-selected (event)
+	; (mine-selected event) -> ids
+	;what the user of the device has picked up, or, pressed by no device,
+	;all that is
+	(if event (. *board* :selected_by (. *board* :user_of event)) (. *board* :get_selected)))
+
 (defun ink-bind (button color)
-	;what pressed the button has the pen, and what it has selected takes
-	;its ink, its outline or its fill by the button, (board-ink-part)
+	;with things picked up, their outline or their fill by the button,
+	;(board-ink-part), takes the ink and no pen is changed; with none, what
+	;pressed the button holds the pen. Chris: "If you have no selected items
+	;than I think you are setting the ink of the pen, but if you have
+	;selected items you changing there colours", "2 users can select
+	;seperate item, AND there devices left/right color THEIR slected items"
 	(defq event (press-event button))
-	(if (defq user (bind-button button :color color))
-		(. *board* :paint (. *board* :selected_by user) (board-ink-part event) color)
-		(def *board* :color color)
-		(. *board* :paint :t :stroke color)))
+	(cond
+		((nempty? (defq mine (mine-selected event)))
+			(undef button :pressed_by)
+			(. *board* :paint mine (if event (board-ink-part event) :stroke) color))
+		((bind-button button :color color))
+		((def *board* :color color))))
 
 (defun pens-refill (inks)
 	;the pens have these inks: each device that held one holds it, and the
@@ -220,7 +232,8 @@
 	;a tap on an ink fills the pen the button that tapped holds with it,
 	;Chris: "that value bcome the ink in the current pen/marker". A colour
 	;keeps how see through the pen was, a marker stays a marker, and how
-	;see through keeps its colour. What that user has selected takes it
+	;see through keeps its colour. With things picked up by that user,
+	;they take it, by the button, and no pen changes
 	(bind '(id kind buttons &ignore) event)
 	(defq bindings (. *board* :get_bindings)
 		held (ptr-event id kind (if (and (eql kind :mouse) (eql buttons +pev_middle)) +pev_left buttons) 0 0)
@@ -232,10 +245,20 @@
 			(:t 0))
 		;wholly see through is none, whatever its colour
 		color (if (board-none? color) 0 color))
-	(if (defq at (find was *palette*))
-		(pen-refill at color)
-		(. bindings :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) :color color))
-	(. *board* :paint (. *board* :selected_by (. *board* :user_of event)) (board-ink-part event) color)
+	(cond
+		;things picked up take it, the pens are as they were: a colour at
+		;how see through each was, how see through in the colour each was
+		((nempty? (defq mine (mine-selected event)))
+			;the lambdas find the value by name as they are called, it has
+			;one that nothing between could have
+			(defq swatch_val val)
+			(. *board* :paint mine (board-ink-part event) 0 (case what
+				(:color (lambda (old) (logior (logand swatch_val 0xffffff) (if (board-none? old) 0xff000000 (logand old 0xff000000)))))
+				(:alpha (lambda (old) (if (board-none? (defq c (logior (logand old 0xffffff) (<< swatch_val 24)))) 0 c)))
+				(:t (lambda (old) 0)))))
+		((defq at (find was *palette*))
+			(pen-refill at color))
+		((. bindings :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) :color color)))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun swatches-close ()
@@ -265,11 +288,17 @@
 		((ink-bind button color))))
 
 (defun action-radius ()
-	(defq width (elem-get *widths* (. *radius_toolbar* :get_selected)))
-	(if (defq user (bind-pressed *radius_toolbar* :width width))
-		(. *board* :style_ids (. *board* :selected_by user) :width width)
-		(def *board* :width width)
-		(if (nempty? (. *board* :get_selected)) (. *board* :style :width width))))
+	;with things picked up, their width, and the pens are as they were;
+	;with none, what pressed holds the width
+	(defq at (. *radius_toolbar* :get_selected) width (elem-get *widths* at)
+		button (elem-get (. *radius_toolbar* :children) at) event (press-event button))
+	(. *radius_toolbar* :set_selected -1)
+	(cond
+		((nempty? (defq mine (mine-selected event)))
+			(undef button :pressed_by)
+			(. *board* :style_ids mine :width width))
+		((bind-button button :width width))
+		((def *board* :width width))))
 
 (defun action-mode ()
 	(defq mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
