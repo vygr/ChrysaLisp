@@ -461,6 +461,32 @@
 (def wb_board :snap 0.0)
 (. wb_board :undo)
 
+;a line as it is drawn snaps its angle too, and with the grid the grid
+;comes first, Chris: "snap to grid has to to priority"
+(def wb_board :snap_angle (/ +fp_pi 12.0))
+(wb-drag 0 :mouse 1 '((100 100) (150 103) (200 104)))
+(assert-true "drawn nearly level with angles that snap it is level, as long as it was pulled"
+	(progn (defq wb_parts (map (const str-to-num) (filter (# (not (find %0 '("M" "L")))) (split (cwb-get (last (cwb-items (. wb_board :get_doc))) :d) " "))))
+		(and (wb-near? (elem-get wb_parts 3) 100.0 0.05) (wb-near? (elem-get wb_parts 2) (+ 100.0 (sqrt (+ (* 100.0 100.0) 16.0))) 0.05))))
+(. wb_board :undo)
+(wb-drag 0 :mouse 1 '((100 100) (150 130) (186 150)))
+(assert-true "drawn near a twelfth of a turn from level it is at that step"
+	(progn (defq wb_parts (map (const str-to-num) (filter (# (not (find %0 '("M" "L")))) (split (cwb-get (last (cwb-items (. wb_board :get_doc))) :d) " ")))
+			wb_len (sqrt (+ (* 86.0 86.0) (* 50.0 50.0))))
+		(and (wb-near? (elem-get wb_parts 2) (+ 100.0 (* wb_len (cos (/ +fp_pi 6.0)))) 0.05)
+			(wb-near? (elem-get wb_parts 3) (+ 100.0 (* wb_len (sin (/ +fp_pi 6.0)))) 0.05))))
+(. wb_board :undo)
+(def wb_board :snap 16.0)
+(wb-drag 0 :mouse 1 '((21 39) (60 70) (99 125)))
+(assert-eq "with the grid too, the step is every 45 and the end the point of the grid along it nearest" "M 16 32 L 112 128"
+	(cwb-get (last (cwb-items (. wb_board :get_doc))) :d))
+(. wb_board :undo)
+(wb-drag 0 :mouse 1 '((21 39) (60 45) (99 50)))
+(assert-eq "and nearly level, level on the grid" "M 16 32 L 96 32"
+	(cwb-get (last (cwb-items (. wb_board :get_doc))) :d))
+(def wb_board :snap 0.0 :snap_angle 0.0)
+(. wb_board :undo)
+
 ;snap is each device's, Chris: "per device, same as ink and width". The
 ;board's is off, the mouse's left button is bound to snap and a pen not,
 ;the grid the paper has is 16

@@ -609,8 +609,10 @@
 				(. board :touch +board_dirty_overlay))
 			(:pan
 				(def board :pan (list (- x sx) (- y sy))))
-			(:t ;something is drawn
-				(defq x (. board :snap_x x id) y (. board :snap_y y id))
+			(:t ;something is drawn. A line from where it began, at a step of
+				;angle if angles snap, (:snap_end)
+				(bind '(x y) (if (find tool '(:line :arrow :arrow2)) (. board :snap_end sx sy x y id)
+					(list (. board :snap_x x id) (. board :snap_y y id))))
 				(when (or (/= x (elem-get points -3)) (/= y (elem-get points -2)))
 					(push points x y)
 					(cwb-set item :d (. this :shape_d state x y))
@@ -926,12 +928,9 @@
 						(:end ;that end of the line goes to the pointer, the other stays
 							(bind '(item (lx ly lx1 ly1)) ends)
 							(defq m0 (second (first things)))
-							(when (/= step 0.0)
-								;the line is at an angle that is a step, as long as it is pulled
-								(bind '(ox oy) (if (= fx 0) (Mat3x2-point m0 lx1 ly1) (Mat3x2-point m0 lx ly)))
-								(defq vx (- px ox) vy (- py oy) len (sqrt (+ (* vx vx) (* vy vy)))
-									angle (board-snap (path-angle vx vy) step))
-								(setq px (+ ox (* len (cos angle))) py (+ oy (* len (sin angle)))))
+							;from the other end, as a line is drawn, (:snap_end)
+							(bind '(ox oy) (if (= fx 0) (Mat3x2-point m0 lx1 ly1) (Mat3x2-point m0 lx ly)))
+							(bind '(px py) (. board :snap_end ox oy x y id))
 							(bind '(qx qy) (Mat3x2-point (Mat3x2-invert m0) px py))
 							(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
 						(:turn ;about the middle of the frame
@@ -1276,6 +1275,27 @@
 
 	(defmethod :snap_x (x &optional id) (board-snap x (. this :snap_step id)))
 	(defmethod :snap_y (y &optional id) (board-snap y (. this :snap_step id)))
+
+	(defmethod :snap_end (ox oy x y &optional id)
+		; (. board :snap_end ox oy x y [id]) -> (x y)
+		;the end of a line from ox oy, as the pointer at x y has it. With
+		;angles that snap it is at a step from ox oy, as long as the pointer
+		;is far. With the grid too the grid comes first, Chris: "snap to grid
+		;has to to priority": the end is on the grid, and of a square grid
+		;only every 45 can be had, so the step is 45 and the end the point of
+		;the grid along it nearest the pointer
+		(defq grid (. this :snap_step id) step (. this :angle_step id))
+		(cond
+			((= step 0.0) (list (board-snap x grid) (board-snap y grid)))
+			((= grid 0.0)
+				(defq vx (- x ox) vy (- y oy) len (sqrt (+ (* vx vx) (* vy vy)))
+					angle (board-snap (path-angle vx vy) step))
+				(list (+ ox (* len (cos angle))) (+ oy (* len (sin angle)))))
+			(:t (defq angle (board-snap (path-angle (- x ox) (- y oy)) (const (/ +fp_pi 4.0)))
+					dx (board-snap (cos angle) 1.0) dy (board-snap (sin angle) 1.0)
+					along (/ (+ (* (- x ox) dx) (* (- y oy) dy)) (+ (* dx dx) (* dy dy)))
+					k (board-snap along grid))
+				(list (+ ox (* k dx)) (+ oy (* k dy))))))
 
 	(defmethod :layer_index ()
 		; (. board :layer_index) -> index

@@ -510,6 +510,19 @@ of once nothing at all is. No user, the board's own mode, is all
 another document, nothing of the last is kept
 ```
 
+### :snap_end
+
+```code
+(. board :snap_end ox oy x y [id]) -> (x y)
+
+the end of a line from ox oy, as the pointer at x y has it. With
+angles that snap it is at a step from ox oy, as long as the pointer
+is far. With the grid too the grid comes first, Chris: "snap to grid
+has to to priority": the end is on the grid, and of a square grid
+only every 45 can be had, so the step is 45 and the end the point of
+the grid along it nearest the pointer
+```
+
 ### :snap_step
 
 ```code
