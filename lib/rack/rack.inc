@@ -34,7 +34,11 @@
 		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
 			cmds_file (cat +rack_cmds run) out_file (cat +rack_out run))
 		(save (join cmds (ascii-char 10)) cmds_file)
-		(pii-spawn (cat (if gui "-gui " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+		;a desktop of a run is hidden, it draws and is grabbed but is never
+		;seen and never takes the input of whoever is at the machine, Chris:
+		;"It can come up and down as much as it wants and it never steals my
+		;input etc ? We get to work on the same desktop with no issues."
+		(pii-spawn (cat (if gui "-gui -hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
 			(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
 			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
 			;a run keeps to itself, the member is what is in the mesh

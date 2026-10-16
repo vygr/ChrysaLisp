@@ -445,7 +445,10 @@ desktop of the agent's own:
 	desktop/docs ; lisp -r (task-sleep 2000000) ; widgets -t Docs -d 5 -k text
 	; grab -t Docs /path/docs.png"'`, the result in
 	`/tmp/chrysalisp_rack_result`. `-l` leaves those machines out, it does not
-	pick them. A second or two is enough for a window to be drawn; `grab` of
+	pick them. The desktop of `rack -g` is hidden, the host given `-hidden`
+	(SDL3 hosts): never shown, never raised, no Dock icon, so it never takes
+	the input of whoever is at the machine, and `grab` reads the back buffer
+	it still draws into. A second or two is enough for a window to be drawn; `grab` of
 	a window that is in the tree but not drawn yet gives what is behind it.
 	`-t` matches a window by the Title nearest its top, a level at a time, so
 	the Files of Docs, which has a title bar of its own, does not stand for

@@ -214,10 +214,26 @@ static SDL_GPUDevice *create_device()
 #endif
 }
 
+// -hidden in the args, a desktop that is never seen: its window is not
+// shown, not raised, and on a Mac it is not an app of the Dock that can be
+// made the one in front. It draws as any does, into the back buffer, which
+// is what is read for a grab. For a desktop of a tool, rack -g, that comes
+// and goes while someone works on theirs, and must never take their input
+
+extern char **host_argv;
+
+static bool host_gui_hidden(void)
+{
+	if (host_argv) for (char **arg = host_argv; *arg; arg++) if (!strcmp(*arg, "-hidden")) return true;
+	return false;
+}
+
 void host_gui_init(host_gui_rect *rect, uint64_t flags)
 {
+	auto hidden = host_gui_hidden();
 #if defined(__APPLE__)
-	set_macos_activation_policy(0); // NSApplicationActivationPolicyRegular
+	// NSApplicationActivationPolicyRegular, or Accessory, no Dock icon
+	set_macos_activation_policy(hidden ? 1 : 0);
 #endif
 	// a trackpad gives SDL no fingers unless it is told to, before it
 	// starts, and then it gives no mouse. CL_TOUCH_TRACKPAD asks for that
@@ -240,7 +256,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 		}
 	}
 	window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h,
-		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0));
+		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0) | (hidden ? SDL_WINDOW_HIDDEN : 0));
 	// the GPU renderer if there is one, so that a shader can share its device
 	device = create_device();
 #if HOST_GUI_GPU
@@ -254,7 +270,8 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 		{
 			// a window made for Vulkan is no use to another renderer
 			SDL_DestroyWindow(window);
-			window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h, SDL_WINDOW_RESIZABLE);
+			window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h,
+				SDL_WINDOW_RESIZABLE | (hidden ? SDL_WINDOW_HIDDEN : 0));
 		}
 		renderer = SDL_CreateRenderer(window, nullptr);
 	}
@@ -277,7 +294,9 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	}
 #endif
 	// a desktop started from a shell opens behind the shell's window, on a
-	// Mac, the shell is the program in front. It is asked to come forward
+	// Mac, the shell is the program in front. It is asked to come forward,
+	// unless it is hidden
+	if (hidden) return;
 	SDL_RaiseWindow(window);
 	// CL_FULLSCREEN asks for the desktop to have the whole screen from the
 	// start, as it has when its window is told to by hand. The GUI is told
