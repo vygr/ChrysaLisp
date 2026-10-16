@@ -122,8 +122,19 @@ docs/diagrams/compositor_passes.cwb
        backbuffer (defined by the bounds of the dirty region returned by
        `:composite`) to the visible screen.
 
-    5. Clears `statics_gui_dirty_flag` and frees temporary regions from
+    5. Clears `statics_gui_dirty_flag` and frees the temporary views in
        `statics_gui_temps`.
+
+`:view :hide` puts a temporary view in the hidden view's place in its
+parent's list, holding the hidden area as its dirty region. Its place in the
+list matters: the compositor pastes it onto the parent after the views behind
+it and before those in front, so the views behind draw that area again and
+those in front still cover it. It is a plain `View` to Lisp, given the class
+at the root of the hidden view's classes, so any walk of the tree that meets
+it before the frame finds a `View`'s methods, an empty list of children and
+no `:draw`. It is flagged `+view_flag_hidden`, so no layout places it and no
+hit finds it, and `(screen-children)` in the GUI service leaves it out of the
+windows.
 
 **2. `:host_gui :composite(root_view, ...)` (gui/ctx/class.vp)**
 

@@ -233,10 +233,37 @@
 		(vp-add-cr statics_gui_rect_heap :r0)
 		(call :region :paste_rect '(:r0 :r1 :r7 :r8 :r9 :r10))
 
-		;temp view for update
+		;temp view for update, it stands in the hidden view's place till the
+		;frame, so what was under it is drawn again. Of the class at the root
+		;of the hidden view's, a plain View, so a walk of the tree that meets
+		;it before then finds a View's methods, and it has no :draw
 		(call :view :create :nil '(:r1))
 		(fn-bind 'sys/statics/statics :r0)
 		(call :list :push_back '((:r0 statics_gui_temps) :r1) '(_ :r1 _ _))
+		(vp-push :r1)
+		(fn-bind 'sys/statics/statics :r1)
+		(assign `((:rsp ,+ptr_size) (:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r0 :r1))
+		(call :hmap :pfind '(:r0 :r1) '(_ :r1 _))
+		(vpif '(:r1 /= 0))
+			;up the classes till the one with no super
+			(assign '((:r1 +ptr_size)) '(:r0))
+			(loop-start)
+				(fn-bind 'sys/statics/statics :r1)
+				(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
+				(call :hmap :pfind '(:r0 :r1) '(:r0 :r1 _))
+				(breakif '(:r1 = 0))
+				(assign '((:r1 +ptr_size)) '(:r1))
+				(f-bind :hmap :vtable :r2)
+				(assign '((:r1 +obj_vtable)) '(:r3))
+				(breakif '(:r2 /= :r3))
+				(vp-cpy-rr :r1 :r0)
+			(loop-end)
+			(vp-cpy-rr :r0 :r2)
+			(fn-bind 'sys/statics/statics :r1)
+			(assign `((:rsp 0) (:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r0 :r1))
+			(call :hmap :pinsert '(:r0 :r1 :r2))
+		(endif)
+		(vp-pop :r1)
 
 		;remove from parent list and splice in temp
 		(vp-pop :r0)
@@ -250,8 +277,9 @@
 		(assign '(:r3 :r2 :r7 :r8 :r9 :r10)
 			'((:r1 +hmap_parent) (:r1 +view_dirty_region) (:r1 +view_x) (:r1 +view_y) (:r1 +view_w) (:r1 +view_h)))
 
-		;clear parent field etc
-		(assign '(:r4 :r4 :r4) '((:r1 +view_flags) (:r0 +hmap_parent) (:r0 +view_dirty_region)))
+		;the temp is hidden, laid out and hit by none, clear parent field etc
+		(vp-cpy-cr +view_flag_hidden :r5)
+		(assign '(:r5 :r4 :r4) '((:r1 +view_flags) (:r0 +hmap_parent) (:r0 +view_dirty_region)))
 	(endif)
 	(vp-ret)
 

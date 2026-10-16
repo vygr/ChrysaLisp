@@ -19,13 +19,11 @@
 (defun screen-children ()
 	; (screen-children) -> (view ...)
 	;the views of the screen, the windows, the mouse, the wallpaper. Not one
-	;that stands where a view was hidden, (. view :hide), in gui/view: a bare
-	;view, of no class, there till the frame is drawn so what was under the
-	;view is drawn again, and freed with the frame. It has no methods, and a
-	;method of it is an error that ends the GUI: so it was when a window was
-	;closed and the screen walked before the next frame, by a request for
-	;the tree of widgets, a grab, the owners, a theme or a new size
-	(filter (# (def? :vtable %0)) (. *screen* :children)))
+	;that stands where a view was hidden, (. view :hide), in gui/view: a
+	;plain View, hidden, there till the frame is drawn so what was under the
+	;view is drawn again, and freed with the frame. It is no window and has
+	;no owner of its own, to be closed, told of a theme or a new size
+	(filter (# (not (bits? (. %0 :get_flags) +view_flag_hidden))) (. *screen* :children)))
 
 (defun update-mods-down (scode)
 	(and (not (find scode +mod_toggles))
