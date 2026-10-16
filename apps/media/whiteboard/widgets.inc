@@ -28,6 +28,9 @@
 	;document keeps them
 	*palette* (cat (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 		(map (const trans) '(0xffffff00 0xff00ff00 0xffff40c0 0xffff9900 0xff00ffff 0xff3070ff 0xffff3030 0xffa050ff)))
+	;the inks a new document's pens have, Chris: "a new document resets to
+	;the standard default pens and markers inks"
+	*pens_default* (cat *palette*)
 	*board* (Board))
 
 (ui-window *window* ()

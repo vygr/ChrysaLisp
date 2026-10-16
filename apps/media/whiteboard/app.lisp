@@ -1162,8 +1162,9 @@
 	(if (defq kept (. doc :find :menus)) (setq menus kept))
 	;its custom inks, the colours it was drawn with
 	(swatches-close)
-	(when (and (list? (defq inks (. doc :find :inks))) (= (length inks) (length *palette*)) (every (const num?) inks))
-		(pens-refill inks))
+	;or those of a new one, if it has none
+	(pens-refill (if (and (list? (defq inks (. doc :find :inks))) (= (length inks) (length *palette*)) (every (const num?) inks))
+		inks *pens_default*))
 	(each (# (. stage :sub %0)) (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. stage :get_actors)))
 	(each (lambda (tool)
 		(when (and (list? tool) (= (length tool) 5))

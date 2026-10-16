@@ -709,3 +709,11 @@
 	"(print (list a b c d e f (length (swatches-on *board*))))")))
 (assert-eq "a first press gives the mouse red, a second opens the swatches; the right button's tap fills its pen, black, every holder's, and the fill of what is selected; the left's a quarter see through, the red pen's and the outline's; a colour keeps that; none is a cross; the document has them back, the mouse holding them, its swatches put away; a ring and the toolbar open more"
 	"((:t 0) 1 (:t :t :t :t) (:t :t :t) (:t :t :t :t) (:t :t :t) 2)" (first wa_pens))
+(defq wa_new (wa-run (cat
+	"(pen-refill 2 0x40123456) (def (elem-get (. *ink_toolbar* :children) 2) :pressed_by (list 0 :mouse +pev_left))"
+	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (defq was (eql (str *palette*) (str *pens_default*)))"
+	"(wa-do +event_new)"
+	"(print (list was (eql (str *palette*) (str *pens_default*))"
+	" (= (. (. *board* :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :color) +argb_red)))")))
+(assert-eq "a pen refilled is the document's; a new document has the pens as they first were, Chris: a new document resets to the standard default pens and markers inks, and the mouse holds the same pen"
+	"(:nil :t :t)" (first wa_new))
