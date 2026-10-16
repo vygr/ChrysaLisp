@@ -506,7 +506,7 @@
 		;how it was seen
 		:view (. doc :find :view)))
 	;what lay on it that is not of it, the instruments and the menus, and
-	;the custom inks it was drawn with, what shows it says what they are.
+	;the inks of its pens, what shows it says what they are.
 	;Only if it has them: a document made by a script, a diagram, has none
 	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :inks))
 	out)

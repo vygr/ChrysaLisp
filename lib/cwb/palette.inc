@@ -174,7 +174,7 @@
 						(map (# (list :pen %0)) (range 0 (length pens)))
 						(map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors)))
 					(map (# (list :width %0)) (ifn (get :menu_widths (get :board this)) +pal_widths)))
-				;and the colours of the custom inks, if what shows the board
+				;and the swatches, the inks to fill a pen with, if what shows the board
 				;has them, :on_swatches, and one more, if the board is shown
 				;with nothing round it, to have what was round it back: what
 				;shows the board says so by giving it something to call,

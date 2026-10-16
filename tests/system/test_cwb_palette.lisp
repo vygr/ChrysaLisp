@@ -368,13 +368,14 @@
 	(str (list (list (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff))
 		(list (list 0 0) (list 0xff123456 0xffffffff) (list 0xff123456 0xffffffff))))
 	(str (list pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))))
-;the middle of the mouse binds both its buttons, its own stays pan
+;the middle of the mouse binds both its buttons, and is no rule of its own:
+;what shows the board pans with it, the board never has it
 (defq pm_board (Board (cwb-doc 400 400)))
 (. (. pm_board :get_bindings) :set :mouse 0 +pev_middle :mode :rect)
 (assert-eq "a middle press binds the left and the right, and makes no rule of the middle"
-	"(:rect :rect :pan)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
+	"(:rect :rect :nil)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
 		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_right 0 0) :mode)
-		(. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_middle 0 0) :tool))))
+		(some (lambda ((& & b &ignore)) (eql b +pev_middle)) (get :rules (. pm_board :get_bindings))))))
 ;an eraser that lifts takes no more bite: its last step is of the buttons it
 ;went down with, not of none, which is bound to the board's width, Chris:
 ;"When I release the button on an erase action, I see a blip of change"

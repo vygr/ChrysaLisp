@@ -1158,7 +1158,7 @@
 	(defq doc (. *board* :get_doc) stage (. *board* :get_stage))
 	(if (defq kept (. doc :find :tools)) (setq tools kept))
 	(if (defq kept (. doc :find :menus)) (setq menus kept))
-	;its custom inks, the colours it was drawn with
+	;the inks of its pens
 	(swatches-close)
 	;or those of a new one, if it has none
 	(pens-refill (if (and (list? (defq inks (. doc :find :inks))) (= (length inks) (length *palette*)) (every (const num?) inks))

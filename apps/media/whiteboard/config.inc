@@ -59,7 +59,7 @@
 					;Kept before the pens were by number, an ink is the pen
 					;that has it, if one does
 					(defq what (cat what))
-					(when (and (defq at (ptr-at what :color)) (defq pen (find (elem-get what at) *pens_default*)))
+					(and (defq at (ptr-at what :color)) (defq pen (find (elem-get what at) *pens_default*))
 						(setq what (cat (slice what 0 (dec at)) (list :pen pen) (slice what (inc at) -1))))
 					(.-> (. *board* :get_bindings) (:unbind kind id buttons) (:bind kind id buttons what)))) bound))
 		(and data (defq doc (cwb-in data))

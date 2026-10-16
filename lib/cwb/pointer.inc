@@ -216,7 +216,6 @@
 		(:bind :touch :nil :nil '(:tool :hand))
 		(:bind :eraser :nil :nil '(:tool :eraser))
 		(:bind :pen :nil +pev_right '(:tool :eraser))
-		(:bind :mouse :nil +pev_middle '(:tool :pan))
 		(:bind :mouse :nil +pev_right '(:tool :hand))))
 
 ;;;;;;;

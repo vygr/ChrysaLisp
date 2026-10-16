@@ -21,8 +21,8 @@
 
 (import "./palette.inc")
 
-;a cell, the room round them and between them, and how see through a
-;brush can be
+;a cell, the room round them and between them, and how see through an
+;ink can be
 ;the bar across the top it is dragged by, Chris: "it's a bit tricky to
 ;drag the pallet around as there no clear grab area"
 (defq +swatch_cell 20.0 +swatch_pad 6.0 +swatch_cols 12 +swatch_bar 16.0

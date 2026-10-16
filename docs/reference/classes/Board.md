@@ -532,7 +532,7 @@ default the board's by its zoom. Of a line that is near, the part
 that is within r goes, and what is left of it is lines in its
 place, still lines. Anything else it touches, a box, a filled
 shape, words, has a bite taken out of it, (:bite). That is
-:rub_mode :part, what a board has. With :lines only a line is
+:rub_mode :part. With :lines only a line is
 cut, and if none was touched the thing on top at the point goes
 whole. With :whole a line goes whole too. With :bite a line has a
 bite out as the rest have, and is a line no more. With lines :t

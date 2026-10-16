@@ -353,7 +353,7 @@
 		;the hand. A hand that holds a thing or drags a box out is not
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(unless (find (elem-get state +stroke_tool) '(:hand :idle :pan)) (setq found :t))))
+			(unless (find (elem-get state +stroke_tool) '(:hand :idle)) (setq found :t))))
 		found)
 
 	(defmethod :begin (event)
@@ -387,7 +387,6 @@
 			;and then erase though it, but the select controls vanish as
 			;the erase takes a bite"
 			(:eraser (. board :snapshot))
-			(:pan)
 			(:text
 				;the words the board has are put down where the pointer is,
 				;they sit on the line through it, and that is all it does
@@ -397,9 +396,8 @@
 						:fill (. board :ink_of event)
 						:font (get :font board) :font_size (get :font_size board))
 						(. board :user_of event))))
-			(:t ;something is drawn. What is in select mode stays so: only a
-				;tap takes a thing in or out, (:end), and another may be
-				;drawing beside what one has selected
+			(:t ;something is drawn. What is picked up stays so, another may be
+				;drawing beside what one holds
 				(elem-set state +stroke_x (. board :snap_x x id))
 				(elem-set state +stroke_y (. board :snap_y y id))
 				(elem-set state +stroke_points (list (elem-get state +stroke_x) (elem-get state +stroke_y)))
@@ -462,8 +460,6 @@
 				(elem-set state +stroke_points (list x y))
 				(def board :rubber (list x y reach))
 				(. board :touch +board_dirty_overlay))
-			(:pan
-				(def board :pan (list (- x sx) (- y sy))))
 			(:t ;something is drawn. A line from where it began, at a step of
 				;angle if angles snap, (:snap_end)
 				(bind '(x y) (if (find tool '(:line :arrow :arrow2)) (. board :snap_end sx sy x y id)
@@ -483,8 +479,7 @@
 		(case tool
 			(:idle)
 			(:hand
-				(cond
-					(:t (defq bands (get :bands board) band (. bands :find id) near (/ +board_near (get :zoom board))
+				(progn (defq bands (get :bands board) band (. bands :find id) near (/ +board_near (get :zoom board))
 							holding (. (get :things board) :holding))
 						(. bands :erase id)
 						(cond
@@ -506,7 +501,7 @@
 									;user picked up
 									kept (if holding (get :selected board) (. board :others_of (. board :user_of event))))
 								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
-						(. board :touch +board_dirty_overlay))))
+						(. board :touch +board_dirty_overlay)))
 			(:eraser
 				(if (. this :rub_flush) (setq moved :t))
 				(setq moved (or moved (elem-get state +stroke_moved)))
@@ -521,7 +516,6 @@
 						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
 					(menu board x y event))
 				(. board :touch +board_dirty_overlay))
-			(:pan)
 			(:t ;what was drawn goes into the document, if it is anything
 				(. board :drop_temp id)
 				(cond
@@ -848,16 +842,9 @@
 			;a tap of what draws on a thing picks it up, or puts it down
 			(:maybe (. board :toggle_select item (. board :user_of event)))
 			(:hand
-				(cond
-					(item (and (eql snap :t) (not moved) (. board :forget))
-						;a tap on what was selected already, the hand up where
-						;it went down, is asking for the board's menu, if it
-						;has one. It is how the menu is had where there is
-						;nothing to tap on that is nothing: a thing that covers
-						;all there is to see, on a board with no toolbars. The
-						;first tap on such a thing selects it, the next asks
-						;A tap on what was selected already takes it out of select
-						;mode, as a tap of a pen on it does
+				(when item (and (eql snap :t) (not moved) (. board :forget))
+						;a tap on what was picked up already puts it down, as a
+						;tap of a pen on it does
 						(and (elem-get state +stroke_again) (. this :tap? state x y)
 							(each (# (. board :toggle_select (elem-get (first %0) +cwb_id) (. board :user_of event))) item))
 						;put down, it is selected still, and in flight still.
@@ -873,7 +860,7 @@
 						(when (and others (not shared))
 							(defq mine (map (# (elem-get (first %0) +cwb_id)) item))
 							(. board :select (filter (# (not (find %0 mine))) (get :selected board))))
-						(. board :touch +board_dirty_overlay))))))
+						(. board :touch +board_dirty_overlay)))))
 
 	(defmethod :tap? (state x y)
 		; (. things :tap? state x y) -> :t | :nil
@@ -980,7 +967,7 @@
 
 (defclass Handles (board) (Actor)
 	; (Handles board) -> handles
-	;what is selected is sized and turned by these, in select mode. They
+	;what is selected is sized and turned by these, in any mode. They
 	;are in front of the surface, and a point is on them only where one is.
 	;
 	;One thing selected has them in its own frame: the box of what it is,
@@ -1149,7 +1136,7 @@
 	; (Board [doc]) -> board
 	(def this :doc (ifn doc (cwb-doc)) :stage (Stage) :bindings (bindings-default)
 		:mode :pen :layer :nil :selected (list) :undo_stack (list) :redo_stack (list)
-		:color 0xff000000 :fill 0 :width 3.0
+		:color 0xff000000 :width 3.0
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :snap_gap 0.0 :settings (Fmap 11) :zoom 1.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
@@ -1825,7 +1812,7 @@
 		;that is within r goes, and what is left of it is lines in its
 		;place, still lines. Anything else it touches, a box, a filled
 		;shape, words, has a bite taken out of it, (:bite). That is
-		;:rub_mode :part, what a board has. With :lines only a line is
+		;:rub_mode :part. With :lines only a line is
 		;cut, and if none was touched the thing on top at the point goes
 		;whole. With :whole a line goes whole too. With :bite a line has a
 		;bite out as the rest have, and is a line no more. With lines :t
@@ -2422,14 +2409,14 @@
 				((defq corners (. handles :corners))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
 						:stroke 0xff0080ff :width thin :join :miter)) m))
-				;out of select mode there are no handles, a hand or a finger
-				;has it. One thing has its own box, turned as it is turned:
+				;while hands each hold things there are no handles. One thing
+				;has its own box, turned as it is turned:
 				;the box round that, square to the board, is a bigger and
 				;looser one that does not turn with it and looks wrong
 				((and (= (length items) 1) (defq corners (board-item-corners (first items))))
 					(cwb-draw-items canvas (list (cwb-shape (cwb-d-points corners :t)
 						:stroke 0xff0080ff :width thin :join :miter)) m))
-				;several things, out of select mode: each has its own line
+				;several things, each in its own hand: each has its own line
 				;round it, and that is all. A box round them all says they
 				;are one thing to take hold of, and they are not, each may
 				;be in a different hand. Only when the lines round each are

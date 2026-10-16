@@ -1250,7 +1250,10 @@ in front of the canvas, `(Surface)`, which knows nothing of what is held:
 the `Stage` asks with the contact, `(. actor :hit x y event)`, hands a
 contact back, `(. stage :pass actor id events)`, and gives each actor its
 own front to back; and `(. board :release)`, the board and its actors let
-go of each other.
+go of each other; stage 6, what was left of earlier designs: the board's
+`:pan`, never read, and the middle's pan rule, which the board never sees,
+what shows it pans; the board's `:fill`, of brushes; and the words of
+custom inks, brushes and select mode that no longer said what is.
 
 **One resolve.** As a contact lands it is resolved, once, to its device,
 its user and its role: the main button, the second, both, the middle of a

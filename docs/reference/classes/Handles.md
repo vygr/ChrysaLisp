@@ -9,7 +9,7 @@ docs/reference/classes/Handles.cwb
 ```code
 (Handles board) -> handles
 
-what is selected is sized and turned by these, in select mode. They
+what is selected is sized and turned by these, in any mode. They
 are in front of the surface, and a point is on them only where one is.
 
 One thing selected has them in its own frame: the box of what it is,
