@@ -232,7 +232,15 @@
 	;to join, an arrow into what it joins
 	(list "media_join" (cat (s-line 13 4 20 4 20 20 13 20) (s-arrow 3 12 15 12)))
 	;a machine that is taken away, a laptop: its screen, and its base apart
-	(list "laptop" (cat (s-rrect 5 5 19 15 1.5) (s-line 2 19.5 22 19.5)))))
+	(list "laptop" (cat (s-rrect 5 5 19 15 1.5) (s-line 2 19.5 22 19.5)))
+	;the colours to choose from, a painter's palette: its edge, three
+	;spots of paint, and the hole for the thumb
+	(list "palette" (cat (s-ring 12 12 9) (s-disc 8 9.5 1.6) (s-disc 12 6.5 1.6) (s-disc 16 9.5 1.6)
+		(s-ring 15 15.5 2)))
+	;a ring menu, its middle and its ring of wedges
+	(list "ring_menu" (cat (s-ring 12 12 9) (s-ring 12 12 3.5)
+		(s-line 12 3 12 8.5) (s-line 12 15.5 12 21) (s-line 4.2 7.5 9 10.2) (s-line 15 13.8 19.8 16.5)
+		(s-line 19.8 7.5 15 10.2) (s-line 9 13.8 4.2 16.5)))))
 
 ;;;;;;;;;;;;
 ; the themes
