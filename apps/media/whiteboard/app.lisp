@@ -150,15 +150,18 @@
 
 (defun button-lights (button slots)
 	;the squares of the devices bound to what the button binds lit, in
-	;their colours, the rest clear
+	;their colours, the rest clear. Opaque only when lit, Chris: "When
+	;transparent the fill square has its flags as solid !", and then the
+	;button laid out and drawn again, under them
+	(defq changed :nil)
 	(each (lambda (cell)
 			(defq paper (if (find (!) slots) (elem-get +bindings_device_cols (!)) 0))
 			(unless (= paper (get :paper cell))
 				(def cell :paper paper)
-				;opaque only when lit, Chris: "When transparent the fill square
-				;has its flags as solid !"
-				(.-> cell (:set_flags (if (= paper 0) 0 +view_flag_opaque) +view_flag_opaque) :dirty)))
-		(. (button-strip button) :children)))
+				(. cell :set_flags (if (= paper 0) 0 +view_flag_opaque) +view_flag_opaque)
+				(setq changed :t)))
+		(. (button-strip button) :children))
+	(if changed (.-> button :layout :dirty_all)))
 
 (defun binder-dots ()
 	;each button of the binders, the devices bound to what it binds, when
