@@ -452,6 +452,16 @@
 				(. this :restack stage (/= buttons +pev_right))))
 		state)
 
+	(defmethod :body_held ()
+		; (. instrument :body_held) -> num
+		;how many contacts have hold of its body, to move, turn or size it.
+		;One held to an edge, drawing along it, is not one: the hand that
+		;holds the ruler moves it while the pen draws
+		(defq n 0)
+		(. (get :states this) :each (lambda (id state)
+			(if (find (elem-get state +tool_state_what) '(:move :turn :size)) (++ n))))
+		n)
+
 	(defmethod :body_taken (id kind)
 		; (. instrument :body_taken id kind) -> :t | :nil
 		;the body, not an edge, is the first device's that went down on it.
@@ -488,22 +498,16 @@
 		(elem-set state +tool_state_last_x x)
 		(elem-set state +tool_state_last_y y)
 		(case what
-			(:edge
-				;the line, arc or slice from where it went down, and the look
-				;of what it would rub out
-				(bind '(lx ly) (. this :to_own x y))
-				(cwb-set shape :d (. this :edge_d state lx ly))
-				(if edge (cwb-set edge :d (tool-area-d shape)))
-				(. board :touch +board_dirty_overlay))
+			(:edge (. this :edge_follow state))
 			(:move
-				(when (and (= (. this :held) 1) (not (get :grab this)))
+				(when (and (= (. this :body_held) 1) (not (get :grab this)))
 					(def this :origin (list (+ (first origin) (- x sx)) (+ (second origin) (- y sy))))
 					;by the snap of the device that moves it, not the board's,
 					;as its squares on the bars show
 					(. this :snap_zero (ptr-main (ptr-event id kind buttons x y)))
 					(. board :touch +board_dirty_overlay)))
 			(:turn
-				(when (and (= (. this :held) 1) (not (get :grab this)))
+				(when (and (= (. this :body_held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
 					(defq pivot (third region) m0 (Mat3x2-mul (Mat3x2-translate (first origin) (second origin))
 						(Mat3x2-mul (Mat3x2-rot angle) (Mat3x2-scale (get :size this)))))
@@ -517,7 +521,7 @@
 						:origin (Mat3x2-point (Mat3x2-rot turn bx by) (first origin) (second origin)))
 					(. board :touch +board_dirty_overlay)))
 			(:size
-				(when (and (= (. this :held) 1) (not (get :grab this)) (= (length (third region)) 1))
+				(when (and (= (. this :body_held) 1) (not (get :grab this)) (= (length (third region)) 1))
 					;a part that sizes it from one end: it is longer by as far as
 					;the pointer has gone along it, that way, and its other end
 					;stays where it is on the board. A ruler with its 0 on a
@@ -539,7 +543,7 @@
 						(setq half (* 0.5 way (- (. this :extent) length)))
 						(def this :origin (list (+ (first origin) (* half c)) (+ (second origin) (* half s)))))
 					(. board :touch +board_dirty_overlay))
-				(when (and (= (. this :held) 1) (not (get :grab this)) (/= (length (third region)) 1))
+				(when (and (= (. this :body_held) 1) (not (get :grab this)) (/= (length (third region)) 1))
 					;by how much further from its middle the pointer is. The 0
 					;of its marks stays where it is on the board: a set square
 					;with its square corner on a point is made bigger from it
@@ -584,6 +588,25 @@
 					(def this :mode (elem-get modes (% (inc at) (length modes))))
 					(. this :built)))))
 
+	(defmethod :edge_follow (state)
+		; (. instrument :edge_follow state) -> instrument
+		;the line, arc or slice of a contact held to an edge, from where it
+		;went down to where it is, and the look of what it would rub out.
+		;Both ends are of the edge, in its own space, so where the
+		;instrument is now is where they are: moved, turned or sized while a
+		;pen draws along it, what is drawn goes with it, and is put into
+		;the document only as the pen lifts, where it then is. Chris: "the
+		;partial drawn instrument shape, or line or arc should stay with the
+		;instrument until i remove the pen, it is only then that the
+		;shape/line/arc is injected into the document, at the final place it
+		;was released"
+		(bind '(lx ly) (. this :to_own (elem-get state +tool_state_last_x) (elem-get state +tool_state_last_y)))
+		(cwb-set (elem-get state +tool_state_shape) :d (. this :edge_d state lx ly))
+		(if (defq look (elem-get state +tool_state_edge))
+			(cwb-set look :d (tool-area-d (elem-get state +tool_state_shape))))
+		(. (get :board this) :touch +board_dirty_overlay)
+		this)
+
 	(defmethod :pointers (stage events)
 		(unless (get :body this) (. this :built))
 		(each (lambda (event)
@@ -600,6 +623,9 @@
 					(. this :set_state id :nil))))
 			events)
 		(. this :two_hands)
+		;what is drawn along an edge goes with the instrument as it moves
+		(. (get :states this) :each (lambda (id state)
+			(if (eql (elem-get state +tool_state_what) :edge) (. this :edge_follow state))))
 		this)
 
 	(defmethod :two_hands ()

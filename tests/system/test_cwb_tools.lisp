@@ -57,11 +57,14 @@
 (wt-go '(1 :pen 1 300 302))
 (wt-go '(1 :pen 1 400 296) '(0x1000007 :touch 1 520 340))
 (assert-true "held by a finger, a pen drawing along it does not move it" (wt-near? (get :origin wt_ruler) '(420 340)))
-;and the finger, no longer alone on it, does not move it either
+;and the finger moves it while the pen draws, what is drawn going with it:
+;its start where it is on the ruler, its end where the pen is along it,
+;Chris: "the partial drawn instrument shape, or line or arc should stay
+;with the instrument until i remove the pen"
 (wt-go '(0x1000007 :touch 1 540 360))
-(assert-true "nor does the finger, while it is not alone on it" (wt-near? (get :origin wt_ruler) '(420 340)))
+(assert-true "the finger moves it while the pen draws along it" (wt-near? (get :origin wt_ruler) '(440 360)))
 (wt-go '(1 :pen 0 400 296) '(0x1000007 :touch 0 540 360))
-(assert-true "the pen drew its line along the side where the ruler is" (wt-near? (wt-numbers (wt-last-d)) '(300 300 400 300)))
+(assert-true "the line went with the ruler, and is put down where it is as the pen lifts" (wt-near? (wt-numbers (wt-last-d)) '(320 320 400 320)))
 
 ;two fingers on it move and turn it
 (def wt_ruler :origin (list 400.0 300.0) :angle 0.0)
@@ -697,3 +700,27 @@
 (assert-eq "the left draws a line along the edge, the right, set to rub out, takes a bite out of it there"
 	"(1 :t :nil)" (str (list (length (cwb-items (. eb_board :get_doc))) (if (str? eb_drawn) :t)
 		(eql (cwb-get (first (cwb-items (. eb_board :get_doc))) :d) eb_drawn))))
+;what is drawn along an edge goes with the instrument while the pen is down,
+;and into the document where the instrument is as it lifts, Chris: "the
+;partial drawn instrument shape, or line or arc should stay with the
+;instrument until i remove the pen"
+(defq es_board (Board (cwb-doc 800 600)) es_ruler (Ruler es_board 400 300))
+(. (. es_board :get_stage) :add es_ruler)
+(. es_board :tick 1000000)
+(bind '(es_x es_y) (. es_ruler :to_board 0 -40))
+(defun es-go (&rest events) (. es_board :pointers (map (# (apply (const ptr-event) %0)) events)))
+(defun es-box () (map (const n2i) (cwb-bounds (list (. (get :temp es_board) :find 0x2000000)))))
+(es-go (list 0x2000000 :pen 1 (- es_x 100.0) (- es_y 3.0)))
+(es-go (list 0x2000000 :pen 1 (+ es_x 100.0) (- es_y 3.0)))
+(defq es_before (es-box))
+;a finger on its middle moves it down, the pen held still
+(bind '(es_mx es_my) (. es_ruler :to_board 100 0))
+(es-go (list 0x1000001 :touch 1 es_mx es_my))
+(es-go (list 0x1000001 :touch 1 es_mx (+ es_my 50.0)))
+(defq es_after (es-box))
+(es-go (list 0x1000001 :touch 0 es_mx (+ es_my 50.0)))
+(es-go (list 0x2000000 :pen 0 (+ es_x 100.0) (- es_y 3.0)))
+(bind '(& es_ly & es_ly1) (map (const n2i) (cwb-bounds (cwb-items (. es_board :get_doc)))))
+(assert-eq "the line drawn goes down with the ruler while the pen is down, and is put down there as it lifts"
+	"(50 50 :t)" (str (list (- (second es_after) (second es_before)) (- es_ly (second es_before))
+		(= (length (cwb-items (. es_board :get_doc))) 1))))

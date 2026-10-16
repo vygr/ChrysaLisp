@@ -42,6 +42,16 @@ not what a hand changes:
 (. instrument :begin stage event) -> state
 ```
 
+### :body_held
+
+```code
+(. instrument :body_held) -> num
+
+how many contacts have hold of its body, to move, turn or size it.
+One held to an edge, drawing along it, is not one: the hand that
+holds the ruler moves it while the pen draws
+```
+
 ### :body_taken
 
 ```code
@@ -107,6 +117,23 @@ board's space. A line along a line. Along an arc, the arc from
 where it went down, round the way it has gone, or with :mode :pie
 a slice of that, or :circle all the way round. :fpie and :fcircle
 are those filled, which is the shape's doing, (:begin)
+```
+
+### :edge_follow
+
+```code
+(. instrument :edge_follow state) -> instrument
+
+the line, arc or slice of a contact held to an edge, from where it
+went down to where it is, and the look of what it would rub out.
+Both ends are of the edge, in its own space, so where the
+instrument is now is where they are: moved, turned or sized while a
+pen draws along it, what is drawn goes with it, and is put into
+the document only as the pen lifts, where it then is. Chris: "the
+partial drawn instrument shape, or line or arc should stay with the
+instrument until i remove the pen, it is only then that the
+shape/line/arc is injected into the document, at the final place it
+was released"
 ```
 
 ### :edge_near
