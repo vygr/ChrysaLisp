@@ -1,65 +1,14 @@
-;user home
-(defq *env_home* (cat "usr/" *env_user* "/"))
+;What Test has that the system does not, usr/env.inc has the defaults. As
+;(def *env* key value ...), (get key *env*) for one that is there already.
 
-;launcher apps
-(defq *env_launcher_auto_apps* '("system/terminal" "desktop/eyes"))
-
-;default gui window size/pos
-(defq *env_window_x* 0 *env_window_y* 0
-	*env_window_width* 1280 *env_window_height* 960)
-
-;launcher placement from xy :center :top :bottom :left :right)
-(defq *env_launcher_position* :center)
-
-;wallpaper images
-(defq *env_wallpaper_images* '("apps/media/images/data/logo.cpm"))
-
-;terminal prompt and scroll back
-(defq *env_terminal_prompt* (cat *env_user* "> ") *env_terminal_lines* 1000)
-
-;timezones must be locations not abbreviations. See lib/date/date.inc for more info.
-(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* :t *env_clock_digital* :t
-	*env_clock_twelve_hour* :t  *env_clock_seconds* :t  *env_clock_pad_hour* :nil *env_clock_dotw* :t)
-
-;widget property defaults
-(ffi "gui/font/lisp_create" create-font)
-; (create-font name pixels) -> font
-
-;the symbol fonts are those of the theme the user has, lib/theme/theme.inc
-(import "lib/theme/theme.inc")
-(defq *env_symbol_file* (theme-file (theme-current *env_home*)))
-
-(defq *env_window_col* 0xff00c000 *env_title_col* 0xff00e000 *env_slider_col* 0xff00e000
-	*env_toolbar_col* 0xff00c000 *env_toolbar2_col* 0xff00a000 *env_ink_col* 0xff000000
-	*env_hint_col* 0xff00b000 *env_no_hint_col* *env_ink_col*
-	*env_highlight_col* 0xfffffdaf
-	*env_window_border* 1 *env_window_shadow* 5 *env_label_border* 0 *env_button_border* 1
-	*env_textfield_border* -1 *env_title_border* 1 *env_title_buttons_border* 1
-	*env_display_font* (create-font "fonts/OpenSans-Regular.ctf" 32)
-	*env_title_font* (create-font "fonts/OpenSans-Regular.ctf" 20)
-	*env_sub_title_font* (create-font "fonts/OpenSans-Regular.ctf" 16)
-	*env_window_font* (create-font "fonts/OpenSans-Regular.ctf" 18)
-	*env_body_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
-	*env_bold_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
-	*env_button_font* (create-font "fonts/OpenSans-Regular.ctf" 13)
-	*env_small_font* (create-font "fonts/OpenSans-Regular.ctf" 12)
-	*env_tiny_font* (create-font "fonts/OpenSans-Regular.ctf" 10)
-	*env_title_buttons_font* (create-font *env_symbol_file* 22)
-	*env_symbol_font* (create-font *env_symbol_file* 28)
-	*env_medium_symbol_font* (create-font *env_symbol_file* 22)
-	*env_small_toolbar_font* (create-font *env_symbol_file* 16)
-	*env_tiny_symbol_font* (create-font "fonts/Symbols-Bold.ctf" 10)
-	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
-	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)
-	*env_small_terminal_font* (create-font "fonts/Hack-Regular.ctf" 12)
-	*env_editor_font* (create-font "fonts/Hack-Regular.ctf" 20)
-	*env_tip_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
-	*env_warning_font* (create-font *env_symbol_file* 128))
-
-;keyboard map module
-(defq
-	*env_keyboard_map* "lib/keys/macbook_uk.inc"
-	;*env_keyboard_map* "lib/keys/macbook_us.inc"
-	;*env_keyboard_map* "lib/keys/microsoft_uk.inc"
-	;*env_keyboard_map* "lib/keys/microsoft_us.inc"
-)
+(def *env*
+	:wallpaper_images '("apps/media/images/data/logo.cpm")
+	:terminal_lines 1000
+	:paper_window 0xff00c000 :paper_title 0xff00e000 :paper_slider 0xff00e000
+	:paper_toolbar 0xff00c000 :paper_toolbar2 0xff00a000 :ink_hint 0xff00b000
+	:font_display (create-font "fonts/OpenSans-Regular.ctf" 32)
+	:font_title (create-font "fonts/OpenSans-Regular.ctf" 20)
+	:font_sub_title (create-font "fonts/OpenSans-Regular.ctf" 16)
+	:font_bold (create-font "fonts/OpenSans-Regular.ctf" 14)
+	:font_button (create-font "fonts/OpenSans-Regular.ctf" 13)
+	:font_warning (create-font (get :symbol_file *env*) 128))

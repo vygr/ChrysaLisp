@@ -45,31 +45,19 @@
 ;:ink :paper etc, that's what they actually use to redraw and size, but the
 ;variants can be there as well"
 
-(defq *env_props* :nil *env_root* :nil +variant_keys ''(:font :paper :ink :border :shadow))
+(defq +variant_keys ''(:font :paper :ink :border :shadow))
 
 (defun env-props ()
-	; (env-props) -> emap
-	;the properties of the user's screen, made the first time they are
-	;asked for from the *env_* names the user's env.inc gave. The screen
-	;draws itself by its own :paper and :ink, so a window chooses its own
-	;from :paper_window and :ink_window
+	; (env-props) -> ((key val) ...)
+	;the properties of views in the user's *env*, usr/env.inc, the plain
+	;names and their variants, those the screen has. The screen draws
+	;itself by its own :paper and :ink, so a window chooses its own from
+	;:paper_window and :ink_window. Each task's own, *env_props*
 	(unless *env_props*
-		(def (setq *env_props* (env 31))
-			:font *env_window_font* :ink *env_ink_col* :ink_hint *env_hint_col* :ink_no_hint *env_no_hint_col*
-			:font_window *env_window_font* :font_display *env_display_font* :font_title *env_title_font*
-			:font_sub_title *env_sub_title_font* :font_body *env_body_font* :font_bold *env_bold_font*
-			:font_button *env_button_font* :font_small *env_small_font* :font_tiny *env_tiny_font*
-			:font_title_buttons *env_title_buttons_font* :font_symbol *env_symbol_font*
-			:font_medium_symbol *env_medium_symbol_font* :font_small_toolbar *env_small_toolbar_font*
-			:font_tiny_symbol *env_tiny_symbol_font* :font_terminal *env_terminal_font*
-			:font_medium_terminal *env_medium_terminal_font* :font_small_terminal *env_small_terminal_font*
-			:font_editor *env_editor_font* :font_tip *env_tip_font* :font_warning *env_warning_font*
-			:paper_window *env_window_col* :paper_title *env_title_col* :paper_slider *env_slider_col*
-			:paper_toolbar *env_toolbar_col* :paper_toolbar2 *env_toolbar2_col* :paper_highlight *env_highlight_col*
-			:ink_window *env_ink_col*
-			:border_window *env_window_border* :border_label *env_label_border* :border_button *env_button_border*
-			:border_textfield *env_textfield_border* :border_title *env_title_border*
-			:border_title_buttons *env_title_buttons_border* :shadow_window *env_window_shadow*))
+		(setq *env_props* (filter (lambda ((key &ignore))
+				(defq name (str key))
+				(some (# (starts-with (str %0) name)) +variant_keys))
+			(tolist *env*))))
 	*env_props*)
 
 (defun env-root ()
@@ -80,7 +68,7 @@
 	;shared root of a GUI's node, and a name is found where it is used
 	(unless *env_root*
 		(setq *env_root* (View))
-		(each (lambda ((key val)) (def *env_root* key val)) (tolist (env-props))))
+		(each (lambda ((key val)) (def *env_root* key val)) (env-props)))
 	*env_root*)
 
 (defun view-resolve (view)

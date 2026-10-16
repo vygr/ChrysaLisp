@@ -1,5 +1,4 @@
-(defq *env_user* "Guest" *env_props* :nil *env_root* :nil)
-(import "usr/Guest/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 
 (enums +event +event_user

@@ -16,7 +16,7 @@
 	;whatever happens. Left pushed, the task does not end
 	" (catch (progn (reach (# (import %0 gl_env))"
 	" (files-all-depends (list {sys/lisp.inc} {class/lisp.inc} {gui/lisp.inc}) :nil 40))"
-	" (defq *env_user* {Guest}) (import {usr/Guest/env.inc})"
+	" (import {usr/env.inc})"
 	" (print (if (def? (quote Files)) {loaded} {no Files class}))"
 	;and what was loaded is used. A name a file wants as it is read, in a
 	;(const), that is not there yet, a loader that came before the canvas

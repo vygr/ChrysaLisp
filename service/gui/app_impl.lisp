@@ -10,8 +10,7 @@
 
 ;proceed as normal now we have the root or GUI env loaded up
 (import "sys/pii/lisp.inc")
-(defq *env_user* "Guest")
-(import "usr/Guest/env.inc")
+(import "usr/env.inc")
 (import *env_keyboard_map*)
 (import "./actions.inc")
 (import "lib/text/searching.inc")
@@ -163,7 +162,7 @@
 	;init screen widget. It has the user's properties, which each window
 	;finds what it does not set itself on, and then its own look, item 118
 	(defq *screen* (Backdrop))
-	(each (lambda ((key val)) (def *screen* key val)) (tolist (env-props)))
+	(each (lambda ((key val)) (def *screen* key val)) (env-props))
 	(def *screen* :style :grid :paper +argb_grey2 :ink +argb_grey1)
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
 	(gui-update 0 0 0)

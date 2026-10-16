@@ -14,12 +14,12 @@
 (assert-true "there is a user other than Guest to try" (nempty? us_users))
 (each (lambda (user)
 	(defq us_said (test-output (cat
-		"(defq *env_user* {" user "}) (import {usr/Guest/env.inc}) (import {usr/" user "/env.inc})"
+		"(import {usr/env.inc}) (env-load {" user "})"
 		" (import {gui/lisp.inc})"
 		" (catch (progn (ui-window us_win () (ui-title-bar _ {t} (+sym_close) 0)"
 		" (ui-tool-bar us_bar () (ui-buttons (+sym_undo) 1)))"
 		" (. us_win :theme {Bold})"
-		" (print *env_home* { } (first (font-info (get :font us_bar)))))"
+		" (print (get :home *env*) { } (first (font-info (get :font us_bar)))))"
 		" (progn (print _) :t))")))
 	(assert-eq (cat "the environment of " user " loads, and a window of theirs takes a theme")
 		(cat "usr/" user "/ fonts/Symbols-Bold.ctf\n") us_said))

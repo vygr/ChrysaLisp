@@ -88,8 +88,7 @@
 ;loop has, the screen and the event. No test did one, and the first finger
 ;on a desktop stopped the GUI: what the action kept, the view each pointer
 ;went down on, was not to be found from the loop
-(defq *env_user* "Guest")
-(import "usr/Guest/env.inc")
+(import "usr/env.inc")
 (import *env_keyboard_map*)
 (import "service/gui/actions.inc")
 (defq ga_mbox (mail-mbox) *screen* (View) ga_view (View) *mouse_x* 0 *mouse_y* 0 *mouse_id* 0 *mods* 0 *focus* :nil)
@@ -160,4 +159,4 @@
 (defq ga_turn 0)
 (while (mail-poll (list ga_mbox))
 	(if (= (getf (defq ga_ev (mail-read ga_mbox)) +ev_msg_type) +ev_type_wheel) (setq ga_turn (getf ga_ev +ev_msg_wheel_y))))
-(assert-eq "with the wheel set the other way round, usr/Guest/env.inc, a turn up is a turn down" -1 ga_turn)
+(assert-eq "with the wheel set the other way round, :wheel_y of the user, a turn up is a turn down" -1 ga_turn)
