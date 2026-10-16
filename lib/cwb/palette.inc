@@ -29,7 +29,9 @@
 	;and how long it takes to shut, microseconds
 	+pal_open 220000 +pal_lag 50000 +pal_shut 120000
 	+pal_back 0xf0283038 +pal_hot 0xff3d6fd0 +pal_ink 0xffffffff +pal_mark 0xff58c0ff
-	;the dot of each device on a floating menu, in the order they were bound
+	;the squares of the devices on a floating menu, how far apart along the
+	;rim, six of them, a device in its place, (. board :device_slot)
+	+pal_cell 5.0
 	+pal_tools ''(:select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
@@ -418,22 +420,25 @@
 						(push items (elem-get wedge (if (eql wedge hover) +wedge_hot +wedge_back)))
 						(if (elem-get wedge +wedge_icon) (push items (elem-get wedge +wedge_icon)))
 						(cond
-							;a floating menu is nobody's: a dot of each device
-							;on what it has
+							;a floating menu is nobody's: a square of each device
+							;on what it has, in a strip of six along the rim, each
+							;device in its own place as on the bars, Chris: "The
+							;ring menu, need same style of device indications"
 							(devices
 								(defq key (case what (:tool :mode) (:color :color) (:width :width) (:action (if (eql val :snap) :snap)))
-									want (if (eql key :snap) :t val) mine (list))
-								(each (lambda ((col bound &ignore))
-										(and key (defq at (find key bound)) (eql (elem-get bound (inc at)) want)
-											(push mine col)))
-									devices)
-								(defq r (- (elem-get wedge +wedge_r1) 6.0)
-									a0 (elem-get wedge +wedge_a0) a1 (elem-get wedge +wedge_a1))
-								(each (lambda (col)
-										(bind '(dx dy) (pal-point r (+ a0 (/ (* (- a1 a0) (n2f (inc (!)))) (n2f (inc (length mine)))))))
-										(push items (cwb-shape (cwb-d-ellipse dx dy 3.5) :fill col :stroke +pal_ink :width 0.75)))
-									mine)
-								)
+									want (if (eql key :snap) :t val)
+									r (- (elem-get wedge +wedge_r1) 6.0) step (/ +pal_cell r) half (/ (* +pal_cell 0.4) r)
+									am (* 0.5 (+ (elem-get wedge +wedge_a0) (elem-get wedge +wedge_a1))))
+								(each (lambda ((col bound slot))
+										(when (and key (defq at (find key bound)) (eql (elem-get bound (inc at)) want))
+											(defq a (+ am (* step (- (n2f slot) 2.5))))
+											(bind '(x0 y0) (pal-point (- r 2.0) (- a half)))
+											(bind '(x1 y1) (pal-point (+ r 2.0) (- a half)))
+											(bind '(x2 y2) (pal-point (+ r 2.0) (+ a half)))
+											(bind '(x3 y3) (pal-point (- r 2.0) (+ a half)))
+											(push items (cwb-shape (cwb-d-points (list x0 y0 x1 y1 x2 y2 x3 y3) :t)
+												:fill col :stroke +pal_ink :width 0.5))))
+									devices))
 							((case what
 									(:tool (eql val mode))
 									(:color (= val color))

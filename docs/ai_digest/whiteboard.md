@@ -659,8 +659,10 @@ A tap on it binds what tapped it, `(. palette :bind_tapper event key val)`:
 the device, with the buttons it had held, all the fingers of a touch screen
 as one, and what that user has selected takes a colour or a width. Chris:
 "taps on them effect their pen as you KNOW what device has tapped on them".
-Each device that has bound something on it shows a small dot of its own
-colour on the wedge, `(. palette :devices)`. Undo and redo from a menu are
+Each device that has bound something on it shows a small square of its own
+colour on the wedge, in a strip of six along the rim, as the toolbar
+buttons show them under their symbols: mouse, touch, the teacher's pen and
+three students', each always in its place, `(. board :device_slot)`. Undo and redo from a menu are
 the teacher's only. Nothing opens from a tap on the board, Chris: "A tap on
 the canvas did leave a dot as I didn't have a pop up menu on the canvas".
 
@@ -1119,8 +1121,9 @@ buttons, saved by user. Built so far: a window keeps who pressed a view,
 `:pressed_by`; the ink, tool and width bars bind it, `(. bindings :set)`,
 and show no pick; `(palette-float)` from the toolbar's menu button, any
 number, stays till its middle is tapped, binds what taps it; no menu from
-a tap on the board; undo and redo only by the teacher; a dot of each
-device on a floating menu, `(. palette :devices)`; the mouse's and touch's
+a tap on the board; undo and redo only by the teacher; a square of each
+device in its own place on a floating menu and under each button of the
+bars, `(. board :device_slot)`; the mouse's and touch's
 bindings kept with the app's state, a pen's not, its number is a sitting's.
 5. Two layers in flight. Built: each thing in flight is behind or in front as
 its own hand took it, `(. board :fly)`, `(. board :back?)`, and the app has
