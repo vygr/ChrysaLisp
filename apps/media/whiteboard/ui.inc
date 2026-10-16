@@ -157,12 +157,14 @@
 		(bind-button button key (not (case key (:snap (/= snap 0.0)) (:snap_angle (/= angle 0.0)) (:t keep))))))
 
 (defun action-ink ()
-	(defq color (elem-get *palette* (. *ink_toolbar* :get_selected)))
-	;what is selected takes it, the presser's own
-	(if (defq user (bind-pressed *ink_toolbar* :color color))
-		(. *board* :style_ids (. *board* :selected_by user) :stroke color)
-		(def *board* :color color)
-		(if (nempty? (. *board* :get_selected)) (. *board* :style :stroke color))))
+	;the pens are the outline, the brushes the fill, Chris: "brushes set
+	;the fill". What is selected takes it, the presser's own
+	(defq at (. *ink_toolbar* :get_selected) color (elem-get *palette* at)
+		key (if (< at 8) :color :fill) part (if (< at 8) :stroke :fill))
+	(if (defq user (bind-pressed *ink_toolbar* key color))
+		(. *board* :paint (. *board* :selected_by user) part color)
+		(def *board* key color)
+		(. *board* :paint :t part color)))
 
 (defun action-radius ()
 	(defq width (elem-get *widths* (. *radius_toolbar* :get_selected)))

@@ -331,6 +331,22 @@
 (assert-eq "nothing in select mode, no handles" :nil (. (get :handles ph_board) :box))
 (. (. ph_board :get_bindings) :set :mouse 0 +pev_left :mode :select)
 (assert-true "the mouse in select mode, the handles" (. (get :handles ph_board) :box))
+;a pen's colour is the outline, a brush's the fill, Chris: "brushes set the
+;fill", and a shape drawn filled has no outline, its fill takes a pen's
+(defq pp_board (Board (cwb-doc 400 400)))
+(. pp_board :tick 1000000)
+(. (. pp_board :get_bindings) :set :mouse 0 +pev_left :mode :rect)
+(pl-drag pp_board 0 :mouse +pev_left 10 10 100 100)
+(. (. pp_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(pl-drag pp_board 0 :mouse +pev_left 150 150 250 250)
+(. pp_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. pp_board :get_doc))))
+(. pp_board :paint :t :stroke 0xffff0000)
+(. pp_board :paint (list (elem-get (first (cwb-items (. pp_board :get_doc))) +cwb_id)) :fill 0x600000ff)
+(assert-eq "a pen outlines the rect, a brush fills it, and fills the filled rect"
+	(str (list 0xffff0000 0x600000ff 0 0xffff0000))
+	(str (map (# (cwb-get %0 %1)) (cat (list (first (cwb-items (. pp_board :get_doc)))) (list (first (cwb-items (. pp_board :get_doc))))
+			(list (second (cwb-items (. pp_board :get_doc)))) (list (second (cwb-items (. pp_board :get_doc)))))
+		'(:stroke :fill :stroke :fill))))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))

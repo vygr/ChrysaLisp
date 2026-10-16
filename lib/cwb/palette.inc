@@ -234,7 +234,8 @@
 		(. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)
 		(defq user (. board :user_of event))
 		(case key
-			(:color (. board :style_ids (. board :selected_by user) :stroke val))
+			(:color (. board :paint (. board :selected_by user) :stroke val))
+			(:fill (. board :paint (. board :selected_by user) :fill val))
 			(:width (. board :style_ids (. board :selected_by user) :width val)))
 		user)
 
@@ -252,7 +253,7 @@
 				(. this :set_value :mode val) (. this :close)))
 			(:color (if floating (. this :bind_tapper event :color val)
 				(. this :set_value :color val)
-				(if (nempty? (. board :get_selected)) (. board :style :stroke val))))
+				(. board :paint :t :stroke val)))
 			(:width (if floating (. this :bind_tapper event :width val)
 				(. this :set_value :width val)
 				(if (nempty? (. board :get_selected)) (. board :style :width val))))

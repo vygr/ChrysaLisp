@@ -1657,6 +1657,22 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
+	(defmethod :paint (ids key color)
+		; (. board :paint ids key color) -> board
+		;the outline, :stroke, or the fill, :fill, of those selected things,
+		;all that is selected if ids is :t. A shape drawn filled has no
+		;outline, the colour of a pen is its fill, Chris: "brushes set the
+		;fill"
+		(defq items (if (eql ids :t) (. this :selected_items)
+			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
+		(when (nempty? items)
+			(. this :snapshot)
+			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
+			(cwb-walk items :nil (lambda (shape m)
+				(cwb-set shape (if (and (eql key :stroke) (cwb-filled? shape)) :fill key) color)))
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
+		this)
+
 	(defmethod :group ()
 		; (. board :group) -> :nil | id
 		;what is selected becomes one group, where the top one of them was

@@ -198,7 +198,8 @@
 			out))
 		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
 		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
-		(each (# (button-lights %0 (slots-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
+		;the pens the outline, the brushes the fill
+		(each (# (button-lights %0 (slots-of (if (< (!) 8) :color :fill) (elem-get *palette* (!))))) (. *ink_toolbar* :children))
 		;a switch is lit for a device that has it on, its own or the board's
 		(each (lambda (button key)
 				(button-lights button (reduce (lambda (out (& what slot))

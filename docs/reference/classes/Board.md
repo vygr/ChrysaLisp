@@ -332,6 +332,17 @@ document till it is kept
 what is selected goes to the front of its layer, or the back
 ```
 
+### :paint
+
+```code
+(. board :paint ids key color) -> board
+
+the outline, :stroke, or the fill, :fill, of those selected things,
+all that is selected if ids is :t. A shape drawn filled has no
+outline, the colour of a pen is its fill, Chris: "brushes set the
+fill"
+```
+
 ### :pointer_free?
 
 ```code
