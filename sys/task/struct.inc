@@ -7,8 +7,10 @@
 (structure +tk_node +ln_node_size
 	;dying is not 0 while the task is destroying an object, and is then
 	;the notes of those put by to be done after it, 1 for none: each note
-	;the next note and the object, (:obj :destroy)
-	(ptr stack stack_top mbox_addr lisp dying)
+	;the next note and the object, (:obj :destroy). print is the lists the
+	;task is printing, 0 for none: each a note on the stack of its print,
+	;the next note and the list, (:list :print)
+	(ptr stack stack_top mbox_addr lisp dying print)
 	(long time)
 	(uint priority mbox_id flags)
 	(align))

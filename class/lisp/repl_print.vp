@@ -16,12 +16,14 @@
 	;info
 	;this nests for each list in a list. Only a list has a frame, and the
 	;lisp object is not in it. A quoted form, 'x say, is a jump to print
-	;the x.
+	;the x, as it is printed. A list being printed already, that holds
+	;itself, is ..., (. list :print_enter)
 
 	(structure local 0
-		(ptr stream)
+		(ptr stream list)
 		(pptr iter_begin iter_end)
-		(long flag))
+		(long flag)
+		(struct note +print_note_size))
 
 	(entry :lisp :repl_print '(:r0 :r1 :r2 :r3))
 
@@ -34,9 +36,18 @@
 		(vp-ret)
 	(endif)
 
-	;lists
+	;lists, each once on the way down, (. list :print_enter): one being
+	;printed already, that holds itself, is ...
 	(vp-alloc local_size)
-	(assign '(:r1 :r3 (:r2 +array_length)) '((:rsp local_stream) (:rsp local_flag) :r4))
+	(assign '(:r1 :r3 :r2) '((:rsp local_stream) (:rsp local_flag) (:rsp local_list)))
+	(call :list :print_enter '(:r2 (& :rsp local_note)) '(_ :r1))
+	(vpif '(:r1 /= 0))
+		(call :stream :write_cstr '((:rsp local_stream) "..."))
+		(goto 'exit)
+	(endif)
+	(lisp-this :r0)
+	(assign '((:rsp local_stream) (:rsp local_list)) '(:r1 :r2))
+	(assign '((:r2 +array_length)) '(:r4))
 	(vpif '(:r4 /= 0) 'notquote)
 		(array-bind-args :r2 '(:r4))
 		(switch)
@@ -64,20 +75,22 @@
 			(breakif '(:r4 /= :r5) 'notquote)
 			(vp-cpy-cr +char_tilde :r5)
 		(endswitch)
-		;the quote char, then the form quoted
+		;the quote char, then the form quoted, while this is on the way
+		;down, so a quote of what holds it ends
 		(vp-push :r2)
 		(call :stream :write_char '(:r1 :r5))
 		(vp-pop :r2)
 		(assign '((:r2 +array_length)) '(:r1))
-		(gotoif '(:r1 < 2) 'exit)
+		(gotoif '(:r1 < 2) 'leave)
 		(assign '((:r2 +array_begin)) '(:r2))
 		(assign `((:r2 ,+ptr_size)) '(:r2))
 		(lisp-this :r0)
 		(assign '((:rsp local_stream) (:rsp local_flag)) '(:r1 :r3))
-		(vp-free local_size)
-		(jump :lisp :repl_print '(:r0 :r1 :r2 :r3))
+		(call :lisp :repl_print '(:r0 :r1 :r2 :r3))
+		(goto 'leave)
 	(endif)
 
+	(assign '((:rsp local_stream) (:rsp local_list)) '(:r1 :r2))
 	(vp-push :r2)
 	(call :stream :write_char '(:r1 +char_lrb))
 	(vp-pop :r2)
@@ -100,6 +113,9 @@
 		(loop-end)
 	(endif)
 	(call :stream :write_char '((:rsp local_stream) +char_rrb))
+
+(vp-label 'leave)
+	(call :list :print_leave '((:rsp local_list) (& :rsp local_note)))
 
 (vp-label 'exit)
 	(lisp-this :r0)

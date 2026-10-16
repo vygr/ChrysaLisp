@@ -373,6 +373,88 @@
 
 (def-func-end)
 
+(def-method :list :print_enter)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = note, two ptrs on the stack of the print (ptr)
+	;outputs
+	;:r0 = list object (ptr)
+	;:r1 = 0 if not being printed, and is now, else 1 (uint)
+	;trashes
+	;:r1-:r4
+
+	;info
+	;a list that holds itself, or holds what holds it, would be printed for
+	;ever, till the stack ran out. The lists a task is printing are its
+	;tcb's print, a note of each on the stack of its print, the next note
+	;and the list, so the task's own: a print may wait on its stream while
+	;another prints. One that is in it already is printed as ..., and is
+	;not gone into again. A list held twice, not in itself, is printed each
+	;time. Before there are tasks there is no tcb, and nothing is looked for
+
+	(def-vars
+		(ptr this note tcb next)
+		(uint seen))
+
+	(push-scope)
+	(entry :list :print_enter (vpx this note))
+
+	(assign (vpx (@ sys/statics/statics)) (vpx tcb))
+	(assign (vpx (.> tcb statics_sys_task_current_tcb)) (vpx tcb))
+	(assign (vpx 0) (vpx seen))
+	(vpif (vpx tcb))
+		(assign (vpx (.> tcb +tk_node_print)) (vpx next))
+		(vpif (vpx next))
+			(loop-start)
+				(vpif (vpx (= (.> next +print_note_list) this)))
+					(assign (vpx 1) (vpx seen))
+				(endif)
+				(assign (vpx (.> next +print_note_next)) (vpx next))
+			(loop-until (vpx (|| seen (= next 0))))
+		(endif)
+		;on it, the head is the note, the note the head that was
+		(vpif (vpx (= seen 0)))
+			(assign (vpx (.> tcb +tk_node_print) this) (vpx (.> note +print_note_next) (.> note +print_note_list)))
+			(assign (vpx note) (vpx (.> tcb +tk_node_print)))
+		(endif)
+	(endif)
+
+	(exit :list :print_enter (vpx this seen))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method :list :print_leave)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = note it was entered with (ptr)
+	;outputs
+	;:r0 = list object (ptr)
+	;trashes
+	;:r1-:r3
+
+	;info
+	;off the tcb's print, the note before as it was, (:print_enter)
+
+	(def-vars
+		(ptr this note tcb))
+
+	(push-scope)
+	(entry :list :print_leave (vpx this note))
+
+	(assign (vpx (@ sys/statics/statics)) (vpx tcb))
+	(assign (vpx (.> tcb statics_sys_task_current_tcb)) (vpx tcb))
+	(vpif (vpx tcb))
+		(assign (vpx (.> note +print_note_next)) (vpx (.> tcb +tk_node_print)))
+	(endif)
+
+	(exit :list :print_leave (vpx this))
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
 (def-method :list :print)
 	;inputs
 	;:r0 = list object (ptr)
@@ -382,29 +464,39 @@
 	;trashes
 	;:r1-:r9, :r14, :f0-:f15
 
+	;info
+	;one being printed already, it holds itself, is ..., (:print_enter)
+
 	(structure local 0
 		(ptr this stream)
-		(plong iter_begin iter_end))
+		(plong iter_begin iter_end)
+		(struct note +print_note_size))
 
 	(vp-alloc local_size)
 	(entry :list :print '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
 
-	(call :stream :write_char '(:r1 +char_lrb))
-	(call :list :get_both '((:rsp local_this)) '(_ :r1 :r2))
-	(vpif '(:r1 /= :r2))
-		(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
-		(loop-start)
-			(call :obj :print '((:r1 0) (:rsp local_stream)))
-			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r1 :r2))
-			(vp-add-cr +long_size :r1)
-			(breakif '(:r1 = :r2))
-			(assign '(:r1) '((:rsp local_iter_begin)))
-			(call :stream :write_char '((:rsp local_stream) +char_space))
-			(assign '((:rsp local_iter_begin)) '(:r1))
-		(loop-end)
+	(call :list :print_enter '(:r0 (& :rsp local_note)) '(_ :r1))
+	(vpif '(:r1 /= 0))
+		(call :stream :write_cstr '((:rsp local_stream) "..."))
+	(else)
+		(call :stream :write_char '((:rsp local_stream) +char_lrb))
+		(call :list :get_both '((:rsp local_this)) '(_ :r1 :r2))
+		(vpif '(:r1 /= :r2))
+			(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
+			(loop-start)
+				(call :obj :print '((:r1 0) (:rsp local_stream)))
+				(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r1 :r2))
+				(vp-add-cr +long_size :r1)
+				(breakif '(:r1 = :r2))
+				(assign '(:r1) '((:rsp local_iter_begin)))
+				(call :stream :write_char '((:rsp local_stream) +char_space))
+				(assign '((:rsp local_iter_begin)) '(:r1))
+			(loop-end)
+		(endif)
+		(call :stream :write_char '((:rsp local_stream) +char_rrb))
+		(call :list :print_leave '((:rsp local_this) (& :rsp local_note)))
 	(endif)
-	(call :stream :write_char '((:rsp local_stream) +char_rrb))
 
 	(exit :list :print '((:rsp local_this)))
 	(vp-free local_size)

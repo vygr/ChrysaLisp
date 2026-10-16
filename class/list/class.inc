@@ -19,6 +19,8 @@
 	(dec-method :set_elem class/list/set_elem :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :append class/list/append :final :nil :nil (:r1-:r3 :r6-:r9 :f0-:f15) (:r1-:r3 :r6-:r9 :f0-:f15))
 	(dec-method :print class/list/print :final :nil :nil (:r1-:r9 :r14 :f0-:f15) (:r1-:r9 :r14 :f0-:f15))
+	(dec-method :print_enter class/list/print_enter :static (:r0 :r1) (:r0 :r1) (:r1-:r4))
+	(dec-method :print_leave class/list/print_leave :static (:r0 :r1) (:r0) (:r1-:r3))
 	(dec-method :find class/list/find :final :nil :nil (:r2-:r9) (:r2-:r9))
 	(dec-method :rfind class/list/rfind :final :nil :nil (:r2-:r9) (:r2-:r9))
 	(dec-method :erase class/list/erase :final :nil :nil (:r2-:r3 :f0-:f15) (:r2-:r3 :f0-:f15))
