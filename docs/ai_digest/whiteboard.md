@@ -1154,6 +1154,28 @@ the distributor passes them out to each object (with the landing lock,
 until released) and those event get morphed into document draw and shape
 inserts/erase/colorizations".
 
+**No master program.** Chris: "nobody, no master program is controlling
+the application, the OS, the game, each object is doing what its own rules
+say to do, without any regard to anything else, but the application
+behaviour (a drawing and presentation application) emerges from all the
+interaction... adding a new menu or instrument just does what instruments
+do, maybe a french curve... but the application cares nothing about that !
+IT JUST WORKS !" As Onslaught's sprites were. Whether a contact is an
+object's is that object's own rule, asked with the point and the contact's
+slot: a menu or an instrument takes any that land on it; a shape takes one
+of select or a hand and picks itself up, and lets a pen, a marker or an
+eraser go on to what is behind; the canvas takes all that reach it. The
+distributor knows none of that.
+
+**Each pass, two phases.** Chris: "you take the current input vector of
+all the devices and their state and positions and assign them to the
+layers and objects. After assignment, you then let each object process the
+events that it now has, I suggest just front to back, so actions that
+generate flow from the front to back of the scene." Assignment: a contact
+held already stays where it is; a first down is offered to each object
+front to back, and is the first's that takes it, till it lifts. Then each
+object acts on all its contacts at once, front to back.
+
 **What it is like in the room.** People hold pens, a pen in each hand, a
 button each: the mouse's left and right, a pen's tip and barrel, a finger.
 A pen holds an ink, sixteen pens to choose from, any of them filled from
@@ -1167,14 +1189,15 @@ do with a hand on them.
 * The events of every device come in at the top, as one vector.
 * The distributor, the `Stage`, gives each contact to what it lands on and
 keeps it there till it lifts, the landing lock. That is there now.
-* What lands on no object is the canvas's, Chris: "Events in the input
+* What no object takes is the canvas's, Chris: "Events in the input
 vector that miss all the objects, hit the canvas and stroke/erase etc...
 the canvas is just the backmost actor in the scene". That is the `Surface`.
-What a user has picked up is an object of its own on the stage, in front of
-the canvas, and takes the contacts that land on it, a drag a move, two a
-turn and a size, its handles; then the canvas never asks if a contact is on
-something held, as it does now, turning a pen into a hand. What is not
-picked up is the canvas's: a stroke over it draws, a tap on it picks it up.
+Chris: "The canvas shouldn't be looking or even know if shapes or
+instruments are held/selected/being dragged or not ! All it cares about is
+a tap will bring up the menu, or a stroke will add a stroke or drag out a
+shape". A shape picks itself up: a drag on it held is a move, two a turn
+and a size, and its handles are its own. Today the `Surface` hit tests
+the shapes and turns a pen into a hand; that goes.
 * Each object turns its own contacts into what happens to the document:
 the paper into a stroke or a shape put in, a thing picked up into a move,
 a turn or a size, a ruler into a line along its edge, a menu into a pick,
