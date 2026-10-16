@@ -1142,6 +1142,105 @@ Not yet: the host's switch to let a copy be saved, the session tried
 between two machines.
 8. The host change, with Chris's desktop free.
 
+### Input as maps and handlers
+
+Proposed on the evening of 16 October 2026, after a day of changing the
+input till it felt right, and not built. Chris: "we might need to take the
+50,000 ft view again and say ah, with all this in mind, we can make this a
+LOT simpler", "a bunch of maps, of ID to actions and bindings and the event
+flow through them ... hardly any code, just some handlers", "A matrix of
+maps even". And the flow: "The unified events vector flow in at the top,
+the distributor passes them out to each object (with the landing lock,
+until released) and those event get morphed into document draw and shape
+inserts/erase/colorizations".
+
+**What it is like in the room.** People hold pens, a pen in each hand, a
+button each: the mouse's left and right, a pen's tip and barrel, a finger.
+A pen holds an ink, sixteen pens to choose from, any of them filled from
+the palette. What a person has picked up is theirs, and what they do with
+a colour or a width goes to what they hold; holding nothing, they choose
+a pen. Paper, rulers, menus and the things on the paper each know what to
+do with a hand on them.
+
+**The flow.**
+
+* The events of every device come in at the top, as one vector.
+* The distributor, the `Stage`, gives each contact to what it lands on and
+keeps it there till it lifts, the landing lock. That is there now.
+* Each object turns its own contacts into what happens to the document:
+the paper into a stroke or a shape put in, a thing picked up into a move,
+a turn or a size, a ruler into a line along its edge, a menu into a pick,
+an eraser into a bite. An object has its state and a small table of what
+it does; it asks the maps below for the rest.
+
+**The maps.** Four, and the board's defaults are a row of them, not
+properties of the board beside them.
+
+| map | from | to |
+|---|---|---|
+| devices | device | its kind and its user |
+| slots | device and role, main or second | tool or mode, pen, width, snap, angle snap, lock |
+| pens | pen, 0 to 15 | ink, an argb |
+| picked up | thing | the user that holds it, or anyone's, a box's |
+
+A slot holds the number of a pen, not its ink. Filling a pen is then one
+change to `pens`, and which pen a device holds is a number, not an ink to
+be looked for. A device pressed by nothing, a key or a script, is the
+`:default` row of `slots`, which is what the board's `:mode :color :width
+:snap` are now, and the app's `*snap*` and `*snap_angle*`.
+
+**One resolve.** As a contact lands it is resolved, once, to its device,
+its user and its role: the main button, the second, both, the middle of a
+mouse, or a finger's one. Everything after asks that. Today about ten
+places each work out that the middle is both, that touch has no buttons,
+that buttons 0 is the left, or keep the buttons it went down with.
+
+**One target.** A pick of a colour, a pen, a width, from any of the
+toolbar, a ring or the swatches: if the user holds things it is theirs,
+the main role the outline, the second the fill, both both, a finger what a
+thing shows; if not it is the slot's. One function, where there are four
+now (`ink-bind`, `swatch-pick`, `action-radius`, `:bind_tapper`) that each
+decide it, and the rings' own way when not floating.
+
+**One pick table.** The toolbar, the rings and the swatches all make
+`(event what val)` and give it to one handler:
+
+| what | to what is held | to the slot |
+|---|---|---|
+| `:pen i` | its ink, by the role | holds pen i; held already, the swatches |
+| `:ink c`, `:alpha a`, `:none` | each part's own ink made so | the pen it holds filled so |
+| `:width w` | its width | the width |
+| `:mode m` | | the mode |
+| `:switch k` | | snap, angle snap or lock over |
+| `:action a` | | undo, redo, an instrument, a menu |
+
+**The paper's table.** What a contact does on the paper, by what its slot
+is and what it landed on: a drawing mode on nothing draws; on what its
+user holds, moves it; a tap on a thing picks it up or puts it down; select
+on nothing drags a box; a tap of select on nothing puts down what that
+user holds; the eraser bites whatever it is on. One `tool-of`, the same for
+the paper, a ruler's edge and the hover catch, which today disagree.
+
+**What goes.** The board's `:pan`, never read, and the `:pan` rule; the
+board's `:fill`, from brushes; `:selecting?`'s and `:settle_select`'s user,
+never used; `:switch_of` beside `:pointer_settings`; the copies of what is
+picked up, `:selected` with `:selectors` that are never pruned; and in the
+library, the menu that a tap on nothing opens, which only `cwb` and the
+tests use, if Chris does not want it kept.
+
+**Wrong now, found by the review, to fix first.** A hand's press on
+nothing puts down what every user holds, not its own, `(:begin)`; a hand's
+press on a thing makes it the only thing anyone holds; `:selectors` keeps
+the owners of things no longer picked up, so a thing a box takes can still
+count as another's; a ruler's edge draws for any pointer but an eraser
+whatever it is bound to, while the hover catch shows only for a pen.
+
+**In the order it would be built,** each step with the tests as they are
+passing before the next: the four faults above; the resolve, in place of
+the ten; pens by number, with kept bindings of an ink read as the pen that
+has it; the picked up map; the target and the pick table, the toolbar,
+rings and swatches through it; `tool-of` and the paper's table; what goes.
+
 ## What is not done
 
 * A pen or a finger has never been on it. The SDL3 driver tells of them, see
