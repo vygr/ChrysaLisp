@@ -2197,6 +2197,19 @@ they do with it, what it remembers. Then ask which object's own rule the
 behaviour is, and put it there, and nowhere that knows the kinds of
 object. And measure before the story.
 
+### The first change after
+
+Then he asked for a change, to see how the design takes one: an eraser
+should follow an instrument's edge as a pen does, arcs and slices too. It
+went into the instrument's own rule and nowhere else; the canvas, the
+things, the stage and the pick table were not opened. I first built
+rubbing out as a second path beside drawing, with its own preview. He said
+the two should be almost the same, a shape built along the edge that on
+release goes into the document or out of it by what the slot is, left
+button drawing, right button rubbing out. It became one path, and smaller.
+He called it a good trial of the new organisation. It was the first time
+in the week a change made the code shorter.
+
 ### Where it stands, for the one who comes back
 
 The redo is done and pushed to `92d92a201`; after it, not pushed, the
