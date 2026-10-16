@@ -66,6 +66,19 @@
 			from))
 	root)
 
+(defun board-ink-part (event)
+	; (board-ink-part event) -> :stroke | :fill | :both | :ink
+	;what of a selected thing a pen given by this press colours: the main
+	;button the outline, the second the fill, Chris: "left button bound pen
+	;to outline and the right button bound pen to fill"; the middle of the
+	;mouse, both its buttons, both; touch, one pen, what the thing shows
+	(bind '(& kind buttons &ignore) event)
+	(cond
+		((eql kind :touch) :ink)
+		((and (eql kind :mouse) (eql buttons +pev_middle)) :both)
+		((eql buttons +pev_right) :fill)
+		(:stroke)))
+
 (defun board-snap (v step)
 	; (board-snap v step) -> v
 	;to the nearest step, as it is if the step is 0
@@ -552,12 +565,16 @@
 	(defmethod :shape_d (state x y)
 		; (. surface :shape_d state x y) -> d
 		;the path of what a pointer is drawing, now it is at a point
-		(bind '(tool sx sy points &ignore) state)
+		(bind '(tool sx sy points item &ignore) state)
+		;a filled shape with no outline is as big as it would be with one
+		(defq grow (if (and (find tool '(:frect :fellipse)) (= (ifn (cwb-get item :stroke) 0) 0))
+			(* 0.5 (ifn (cwb-get item :width) 0.0)) 0.0))
 		(case tool
 			((:line :arrow :arrow2) (cwb-d-line sx sy x y))
-			((:rect :frect) (cwb-d-rect sx sy x y))
+			(:rect (cwb-d-rect sx sy x y))
+			(:frect (cwb-d-rect (- (min sx x) grow) (- (min sy y) grow) (+ (max sx x) grow) (+ (max sy y) grow)))
 			((:ellipse :fellipse)
-				(cwb-d-ellipse (* 0.5 (+ sx x)) (* 0.5 (+ sy y)) (* 0.5 (abs (- x sx))) (* 0.5 (abs (- y sy)))))
+				(cwb-d-ellipse (* 0.5 (+ sx x)) (* 0.5 (+ sy y)) (+ (* 0.5 (abs (- x sx))) grow) (+ (* 0.5 (abs (- y sy))) grow)))
 			(:t (board-pen-d points))))
 
 	(defmethod :step (event state)
@@ -1414,11 +1431,22 @@
 		(defq bindings (get :bindings this)
 			color (. bindings :value event :color (get :color this))
 			width (. bindings :value event :width (get :width this))
-			fill (. bindings :value event :fill (get :fill this))
 			shape (cwb-shape "" :stroke color :width width :kind tool))
 		(case tool
-			((:frect :fellipse) (cwb-set shape :fill color :stroke 0))
-			((:rect :ellipse) (cwb-set shape :fill fill :join :miter))
+			;filled, the outline is the ink of the pen of the device's main
+			;button and the fill that of its second, whichever drew it, Chris:
+			;"we use the left button bound pen to outline and the right button
+			;bound pen to fill". Touch has one pen, it fills. One ink for both,
+			;a pen bound by the middle of the mouse, is a fill only, as far out
+			;as the outline would be, (:shape_d): a see through outline over a
+			;fill of the same ink is a band darker than either, Chris:
+			;"transparent colours need a little extra thought there"
+			((:frect :fellipse)
+				(bind '(id kind &ignore) event)
+				(defq line (if (eql kind :touch) color (. bindings :value (ptr-event id kind +pev_left 0 0) :color (get :color this)))
+					fill (if (eql kind :touch) color (. bindings :value (ptr-event id kind +pev_right 0 0) :color (get :color this))))
+				(cwb-set shape :join :miter :fill fill :stroke (if (= line fill) 0 line)))
+			((:rect :ellipse) (cwb-set shape :fill 0 :join :miter))
 			(:arrow (cwb-set shape :cap1 :butt :cap2 :arrow))
 			(:arrow2 (cwb-set shape :cap1 :arrow :cap2 :arrow)))
 		(. (get :temp this) :insert (elem-get event +pev_id) shape)
@@ -1713,27 +1741,25 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
-	(defmethod :paint (ids key color &optional exact)
-		; (. board :paint ids key color [exact]) -> board
-		;the outline, :stroke, or the fill, :fill, of those selected things,
-		;all that is selected if ids is :t, Chris: "brushes set the fill". A
-		;filled shape given an outline has one, at its width. A fill that a
-		;shape has keeps how see through it is, a solid one stays solid in
-		;the new colour, unless exact, a colour chosen with how see through
-		;it is; one it has not is the colour as given, and no fill, 0, is
-		;none. Words have only a fill, their colour
+	(defmethod :paint (ids key color)
+		; (. board :paint ids key color) -> board
+		;the outline, :stroke, the fill, :fill, both, :both, or what a
+		;thing shows, :ink, its fill if it has no outline, of those selected
+		;things, all that is selected if ids is :t. The ink is as it is, an
+		;argb, none is 0. Words have only a fill, their colour. See
+		;(board-ink-part)
 		(defq items (if (eql ids :t) (. this :selected_items)
 			(filter (# (find (elem-get %0 +cwb_id) ids)) (. this :selected_items))))
 		(when (nempty? items)
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
 			(cwb-walk items :nil (lambda (shape m)
-				(cond
-					((or (eql key :fill) (eql (elem-get shape +cwb_kind) :text))
-						(defq was (ifn (cwb-get shape :fill) 0))
-						(cwb-set shape :fill (if (or exact (= color 0) (= (logand was 0xff000000) 0)) color
-							(logior (logand color 0xffffff) (logand was 0xff000000)))))
-					((cwb-set shape :stroke color)))))
+				(defq part (cond
+					((eql (elem-get shape +cwb_kind) :text) :fill)
+					((eql key :ink) (if (and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0)) :fill :stroke))
+					(key)))
+				(if (find part '(:fill :both)) (cwb-set shape :fill color))
+				(if (find part '(:stroke :both)) (cwb-set shape :stroke color))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 

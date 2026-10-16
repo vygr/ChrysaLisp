@@ -259,14 +259,14 @@
 		;a floating menu binds whatever tapped it, the device with the
 		;buttons it had held, all of touch as one. Chris: "taps on them
 		;effect their pen as you KNOW what device has tapped on them". What
-		;that user has selected takes a colour or a width
+		;that user has selected takes a colour, its outline or its fill by
+		;the button, (board-ink-part), or a width
 		(defq board (get :board this))
 		(bind '(id kind buttons &ignore) event)
 		(. (. board :get_bindings) :set kind (ptr-device id) (if (eql kind :touch) :nil buttons) key val)
 		(defq user (. board :user_of event))
 		(case key
-			(:color (. board :paint (. board :selected_by user) :stroke val))
-			(:fill (. board :paint (. board :selected_by user) :fill val))
+			(:color (. board :paint (. board :selected_by user) (board-ink-part event) val))
 			(:width (. board :style_ids (. board :selected_by user) :width val)))
 		user)
 

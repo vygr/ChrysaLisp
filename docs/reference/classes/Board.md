@@ -335,15 +335,13 @@ what is selected goes to the front of its layer, or the back
 ### :paint
 
 ```code
-(. board :paint ids key color [exact]) -> board
+(. board :paint ids key color) -> board
 
-the outline, :stroke, or the fill, :fill, of those selected things,
-all that is selected if ids is :t, Chris: "brushes set the fill". A
-filled shape given an outline has one, at its width. A fill that a
-shape has keeps how see through it is, a solid one stays solid in
-the new colour, unless exact, a colour chosen with how see through
-it is; one it has not is the colour as given, and no fill, 0, is
-none. Words have only a fill, their colour
+the outline, :stroke, the fill, :fill, both, :both, or what a
+thing shows, :ink, its fill if it has no outline, of those selected
+things, all that is selected if ids is :t. The ink is as it is, an
+argb, none is 0. Words have only a fill, their colour. See
+(board-ink-part)
 ```
 
 ### :pointer_free?

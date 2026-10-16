@@ -7,12 +7,10 @@ docs/reference/classes/Swatches.cwb
 ## Actor
 
 ```code
-(Swatches board x y key colors on_pick) -> swatches
+(Swatches board x y on_pick) -> swatches
 
-about a point of the document, for the custom ink of key, :color for
-the pen or :fill for the brush, colors the two of them now. on_pick
-is called (on_pick swatches event what val), with :key the one it is
-for
+about a point of the document. on_pick is called (on_pick swatches
+event what val)
 ```
 
 ### :cell_at
@@ -64,14 +62,6 @@ a pointer that comes up on the cell it went down on taps it. One
 that went down between the cells and is dragged moves the menu
 ```
 
-### :set_color
-
-```code
-(. swatches :set_color key color) -> swatches
-
-the custom pen, key :color, or brush, :fill, is this now, it is marked
-```
-
 ### :to_own
 
 ```code
@@ -88,6 +78,6 @@ screen, the right way up whichever way the board is turned
 
 the point of the document that the middle of a cell is at, for what
 would tap it: (:where :color 0xff000000), (:where :alpha 0x80),
-(:where :close)
+(:where :none), (:where :close)
 ```
 

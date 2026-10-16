@@ -331,23 +331,43 @@
 (assert-eq "nothing in select mode, no handles" :nil (. (get :handles ph_board) :box))
 (. (. ph_board :get_bindings) :set :mouse 0 +pev_left :mode :select)
 (assert-true "the mouse in select mode, the handles" (. (get :handles ph_board) :box))
-;a pen's colour is the outline, a brush's the fill, Chris: "brushes set the
-;fill", and a shape drawn filled has no outline, its fill takes a pen's
-(defq pp_board (Board (cwb-doc 400 400)))
+;a device's main button's pen outlines and its second's fills, Chris: "we
+;use the left button bound pen to outline and the right button bound pen to
+;fill". A rect is an outline; a filled rect both; one ink for both, a fill
+;as far out as the outline would be
+(defq pp_board (Board (cwb-doc 400 400)) pp_b (. pp_board :get_bindings))
+(defun pp-last () (last (cwb-items (. pp_board :get_doc))))
 (. pp_board :tick 1000000)
-(. (. pp_board :get_bindings) :set :mouse 0 +pev_left :mode :rect)
+(.-> pp_b (:set :mouse 0 +pev_left :color 0xffff0000) (:set :mouse 0 +pev_right :color 0x6000ff00)
+	(:set :mouse 0 +pev_left :width 10.0) (:set :mouse 0 +pev_left :mode :rect))
 (pl-drag pp_board 0 :mouse +pev_left 10 10 100 100)
-(. (. pp_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(defq pp_rect (pp-last))
+(. pp_b :set :mouse 0 +pev_left :mode :frect)
 (pl-drag pp_board 0 :mouse +pev_left 150 150 250 250)
-(. pp_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. pp_board :get_doc))))
-(. pp_board :paint :t :stroke 0xffff0000)
-(. pp_board :paint (list (elem-get (first (cwb-items (. pp_board :get_doc))) +cwb_id)) :fill 0x600000ff)
-(. pp_board :paint (list (elem-get (second (cwb-items (. pp_board :get_doc))) +cwb_id)) :fill 0x6000ff00)
-(assert-eq "a pen outlines the rect and the filled rect, a brush fills the rect as it is, and the filled rect solid as it was"
-	(str (list 0xffff0000 0x600000ff 0xffff0000 0xff00ff00))
-	(str (map (# (cwb-get %0 %1)) (cat (list (first (cwb-items (. pp_board :get_doc)))) (list (first (cwb-items (. pp_board :get_doc))))
-			(list (second (cwb-items (. pp_board :get_doc)))) (list (second (cwb-items (. pp_board :get_doc)))))
-		'(:stroke :fill :stroke :fill))))
+(defq pp_frect (pp-last))
+(. pp_b :set :mouse 0 +pev_right :mode :frect)
+(pl-drag pp_board 0 :mouse +pev_right 150 20 250 120)
+(assert-eq "a rect is the main pen's outline and no fill; a filled rect the main pen's outline and the second's fill, whichever button drew it"
+	(str (list 0xffff0000 0 0xffff0000 0x6000ff00 0xffff0000 0x6000ff00))
+	(str (map (# (cwb-get %0 %1)) (list pp_rect pp_rect pp_frect pp_frect (pp-last) (pp-last)) '(:stroke :fill :stroke :fill :stroke :fill))))
+(. pp_b :set :mouse 0 +pev_middle :color 0x600000ff)
+(. pp_b :set :mouse 0 +pev_left :mode :frect)
+(pl-drag pp_board 0 :mouse +pev_left 20 200 120 300)
+(assert-eq "one ink in both, a see through outline over the fill would be darker: a fill only, as far out as the outline would be"
+	(str (list 0 0x600000ff (list 15 195 125 305)))
+	(str (list (cwb-get (pp-last) :stroke) (cwb-get (pp-last) :fill) (map (const n2i) (cwb-bounds (list (pp-last)))))))
+;a pen given to what is selected: the main button the outline, the second
+;the fill, the middle both, touch what a thing shows
+(. pp_board :select (map (# (elem-get %0 +cwb_id)) (list pp_rect pp_frect (pp-last))))
+(. pp_board :paint :t (board-ink-part (ptr-event 0 :mouse +pev_left 0 0)) 0xff000000)
+(. pp_board :paint :t (board-ink-part (ptr-event 0 :mouse +pev_right 0 0)) 0xffffffff)
+(defq pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))
+(. pp_board :paint :t (board-ink-part (ptr-event 0x1000001 :touch 1 0 0)) 0xff123456)
+(. pp_board :paint (list (elem-get pp_rect +cwb_id)) (board-ink-part (ptr-event 0 :mouse +pev_middle 0 0)) 0)
+(assert-eq "left outlines, right fills, as given; then touch the outline, or the fill of a fill only; the middle both, none"
+	(str (list (list (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff) (list 0xff000000 0xffffffff))
+		(list (list 0 0) (list 0xff123456 0xffffffff) (list 0xff123456 0xffffffff))))
+	(str (list pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))))
 ;the middle of the mouse binds both its buttons, its own stays pan
 (defq pm_board (Board (cwb-doc 400 400)))
 (. (. pm_board :get_bindings) :set :mouse 0 +pev_middle :mode :rect)

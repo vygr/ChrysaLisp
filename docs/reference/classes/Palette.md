@@ -23,7 +23,8 @@ was last told
 a floating menu binds whatever tapped it, the device with the
 buttons it had held, all of touch as one. Chris: "taps on them
 effect their pen as you KNOW what device has tapped on them". What
-that user has selected takes a colour or a width
+that user has selected takes a colour, its outline or its fill by
+the button, (board-ink-part), or a width
 ```
 
 ### :build

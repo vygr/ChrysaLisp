@@ -74,5 +74,5 @@
 ;module
 (export-symbols
 	'(*event_map* *key_map* *key_map_shift* *key_map_control* action-style action-mode full-screen full-window
-		ink-key swatches-open swatches-close custom-set))
+		swatches-open swatches-close pen-refill pens-refill))
 (env-pop)

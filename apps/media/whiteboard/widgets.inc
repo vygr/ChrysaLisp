@@ -13,7 +13,7 @@
 	(enum paper_size text))
 
 (defun trans (%0)
-	;transparent colour
+	;transparent colour, a marker's
 	(+ (logand 0xffffff %0) 0x60000000))
 
 (defq +min_width 480 +min_height 320 +paper_col 0xffF8F8FF +paper_ink 0xffADD8E6
@@ -21,13 +21,13 @@
 	*modes* (list :select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	*widths* (list 3.0 6.0 12.0)
 	*styles* (list :plain :grid :lines :axis)
-	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
-	;the pens, the brushes, and the brush of no fill, Chris: "add the none
-	;brush". After the eight of each a custom one, of a colour chosen from
-	;the swatches, (swatches-open), Chris: "the current custom colour on
-	;the toolbar ... sticky and remembered with the doc state"
-	*palette* (cat *palette* '(0xfff08c00) (map (const trans) *palette*) '(0x80f08c00 0))
-	+ink_pens 9 +ink_custom_pen 8 +ink_custom_brush 17
+	;the pens, eight solid and eight markers, each an ink, an argb. Chris:
+	;"We start with basic 8 pens and 8 markers (markers are just
+	;transparent pens (and the most likely magic marker colours)". Any is
+	;filled with another ink from the swatches, (swatches-open), and the
+	;document keeps them
+	*palette* (cat (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
+		(map (const trans) '(0xffffff00 0xff00ff00 0xffff40c0 0xffff9900 0xff00ffff 0xff3070ff 0xffff3030 0xffa050ff)))
 	*board* (Board))
 
 (ui-window *window* ()
@@ -60,8 +60,8 @@
 				+sym_align_left +sym_align_hcenter +sym_align_right
 				+sym_align_top +sym_align_vcenter +sym_align_bottom) +event_group))
 		;the inks on the same row, Chris: "the toolbar getting a bit big"
-		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
-				+sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_brush +sym_close)
+		(. (ui-radio-bar *ink_toolbar* (+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen
+				+sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen +sym_pen)
 				(:font :font_medium_symbol :paper :paper_toolbar2)) :connect +event_ink)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-element *image_scroll* (Board-frame)
@@ -98,11 +98,12 @@
 	'("group" "ungroup" "delete" "duplicate" "to front" "to back"
 	"align left" "align centre" "align right" "align top" "align middle" "align bottom"))
 
-(each (# (def %0 :ink %1)) (. *ink_toolbar* :children) *palette*)
-;no fill has no colour to show, it is a cross
-(def (last (. *ink_toolbar* :children)) :ink +argb_black :tip_text "no fill")
-(def (elem-get (. *ink_toolbar* :children) +ink_custom_pen) :tip_text "custom pen")
-(def (elem-get (. *ink_toolbar* :children) +ink_custom_brush) :tip_text "custom brush")
+(defun pen-show (button color)
+	;a pen shows its ink, and a pen of none a cross
+	(def button :ink (if (= color 0) +argb_black color)
+		:text (num-to-utf8 (if (= color 0) +sym_close +sym_pen)))
+	(.-> button :layout :dirty_all))
+(each (const pen-show) (. *ink_toolbar* :children) *palette*)
 ;the ink, tool and width bars are binders and show no pick, the paper is
 ;everybody's and shows its own
 (. *style_toolbar* :set_selected 1)

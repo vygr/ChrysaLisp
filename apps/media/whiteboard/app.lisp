@@ -203,25 +203,26 @@
 			out))
 		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
 		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
-		;the pens the outline, the brushes the fill
-		(each (# (button-lights %0 (slots-of (ink-key (!)) (elem-get *palette* (!))))) (. *ink_toolbar* :children))
+		;each pen lit for the device buttons that hold it
+		(each (# (button-lights %0 (slots-of :color (elem-get *palette* (!))))) (. *ink_toolbar* :children))
 		;a switch is lit for a device that has it on, its own or the board's
 		(each (lambda (button key)
 				(button-lights button (reduce (lambda (out (& what slot))
 					(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
 			(. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
-;a menu's colours are those of the ink bar that are solid, and four more.
+;a menu's colours are the pens of the ink bar.
 ;No menu opens from a tap on the board, a tap there is a dot: menus float,
 ;made from the toolbar, (action-menu). Chris: "A tap on the canvas did
 ;leave a dot as I didn't have a pop up menu on the canvas"
 (defun menu-colors ()
-	;and the custom pen, as it is now
-	(def *board* :menu_colors (cat (slice *palette* 0 8) (list (elem-get *palette* +ink_custom_pen))
-		'(0xff7f7f7f 0xff7048e8 0xff8d5524))))
+	;a menu's colours are the pens of the ink bar, as they are now
+	(def *board* :menu_colors (cat *palette*))
+	;and the rings open now are made again with them
+	(each (# (def %0 :wedges :nil)) (palettes *board*)))
 (menu-colors)
 ;a ring menu opens the swatches, a menu of the colours of the custom inks
-(def *board* :on_swatches (# (swatches-open :color %0 %1)))
+(def *board* :on_swatches (# (swatches-open %0 %1)))
 
 (defun zoom-level (zoom)
 	; (zoom-level zoom) -> (level part)
@@ -1149,8 +1150,8 @@
 				(get :origin %0) (get :angle %0) (. %0 :extent) (get :mode %0)))
 			(filter (const Instrument?) actors)))
 		(:insert :menus (map (# (get :origin %0)) (filter (# (get :floating %0)) (palettes *board*))))
-		;the colours of the custom pen and brush
-		(:insert :inks (list (elem-get *palette* +ink_custom_pen) (elem-get *palette* +ink_custom_brush)))))
+		;the inks of the pens
+		(:insert :inks (cat *palette*))))
 
 (defun stage-from-doc (&optional tools menus)
 	;the instruments and floating menus of the document, and none other.
@@ -1161,9 +1162,8 @@
 	(if (defq kept (. doc :find :menus)) (setq menus kept))
 	;its custom inks, the colours it was drawn with
 	(swatches-close)
-	(when (and (list? (defq inks (. doc :find :inks))) (= (length inks) 2) (every (const num?) inks))
-		(custom-set +ink_custom_pen (first inks))
-		(custom-set +ink_custom_brush (second inks)))
+	(when (and (list? (defq inks (. doc :find :inks))) (= (length inks) (length *palette*)) (every (const num?) inks))
+		(pens-refill inks))
 	(each (# (. stage :sub %0)) (filter (# (or (Instrument? %0) (and (Palette? %0) (get :floating %0)))) (. stage :get_actors)))
 	(each (lambda (tool)
 		(when (and (list? tool) (= (length tool) 5))

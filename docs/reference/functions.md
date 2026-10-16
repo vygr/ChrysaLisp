@@ -630,6 +630,17 @@ in it that the shape is inside. Kept with what else is kept of the
 shape, (cwb-flat), and worked out only when first asked for
 ```
 
+### board-ink-part
+
+```code
+(board-ink-part event) -> :stroke | :fill | :both | :ink
+
+what of a selected thing a pen given by this press colours: the main
+button the outline, the second the fill, Chris: "left button bound pen
+to outline and the right button bound pen to fill"; the middle of the
+mouse, both its buttons, both; touch, one pen, what the thing shows
+```
+
 ### board-item-corners
 
 ```code

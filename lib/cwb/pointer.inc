@@ -121,11 +121,12 @@
 
 	(defmethod :swap (key from to)
 		; (. bindings :swap key from to) -> bindings
-		;every rule that has key as from has it as to, the custom ink of
-		;the Whiteboard given another colour, each device that had it has it
+		;every rule that has key as one of from has it as that of to, all at
+		;once: the pens of the Whiteboard given other inks, each device that
+		;held one holds it
 		(each (lambda ((& & & what))
-				(and (defq at (find key what)) (eql (elem-get what (inc at)) from)
-					(elem-set what (inc at) to)))
+				(and (defq at (find key what)) (defq i (find (elem-get what (inc at)) from))
+					(elem-set what (inc at) (elem-get to i))))
 			(get :rules this))
 		this)
 
