@@ -1134,7 +1134,13 @@
 	;the strips of the binders, before the window is sized
 	(binder-dots)
 	(defq config (catch (config-load) (progn (prin _) (print) :t))
-		place (if (list? config) (apply view-fit (slice config 0 4)) (apply view-locate (. *window* :pref_size))))
+		;and no smaller than its bars ask, a window kept narrower than they
+		;have grown would have their ends cut off
+		place (if (list? config)
+			(progn (bind '(cx cy cw ch) (slice config 0 4))
+				(bind '(pw ph) (. *window* :pref_size))
+				(view-fit cx cy (max cw pw) (max ch ph)))
+			(apply view-locate (. *window* :pref_size))))
 	(bind '(x y w h) place)
 	(gui-add-front-rpc (. *window* :change x y w h))
 	;it opens where the view was, or on the corner of the document, a
