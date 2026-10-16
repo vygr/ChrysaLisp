@@ -1122,7 +1122,12 @@
 
 (defun view-to-doc ()
 	;how the document is seen now is kept with it, when it is saved
-	(. (. *board* :get_doc) :insert :view (list *pan_x* *pan_y* *zoom* *turn*)))
+	;the pan as it would be on a paper the document's size, what a file
+	;says, the same middle of what is seen
+	(bind '(dw dh) (doc-size))
+	(bind '(pw ph) (paper-size))
+	(defq k (* 2.0 *zoom*))
+	(. (. *board* :get_doc) :insert :view (list (+ *pan_x* (/ (n2f (- pw dw)) k)) (+ *pan_y* (/ (n2f (- ph dh)) k)) *zoom* *turn*)))
 
 (defun view-from-doc ()
 	;a document is seen as it was when it was saved, one that does not
@@ -1132,7 +1137,14 @@
 	(when (and (list? view) (>= (length view) 3) (every (const num?) view))
 		(setq *pan_x* (n2f (first view)) *pan_y* (n2f (second view)) *zoom* (zoom-magnet (n2f (third view))))
 		;one kept before a board could be turned has no turn
-		(if (> (length view) 3) (setq *turn* (logand (n2i (elem-get view 3)) 3)))))
+		(if (> (length view) 3) (setq *turn* (logand (n2i (elem-get view 3)) 3))))
+	;a file's pan is of a paper the document's size, the paper is the
+	;frame's: the same middle of what is seen, Chris: "I opened the
+	;test.cwb, and it didn't center on load"
+	(bind '(dw dh) (doc-size))
+	(bind '(pw ph) (paper-size))
+	(defq k (* 2.0 *zoom*))
+	(setq *pan_x* (- *pan_x* (/ (n2f (- pw dw)) k)) *pan_y* (- *pan_y* (/ (n2f (- ph dh)) k))))
 
 (defun board-save (file)
 	(setq *file* (cat (slice file 0 (if (defq i (rfind "." file)) (dec i) -1)) ".cwb"))
@@ -1140,8 +1152,8 @@
 	;the paper is made the size of what is on it, so the file, shown as a
 	;picture, is all that was drawn and no more
 	(. *board* :fit)
-	;what was drawn is at the top left of the paper now, and is seen from there
-	(setq *pan_x* 0.0 *pan_y* 0.0)
+	;what was drawn is the paper now, and is seen in the middle of what shows
+	(view-home)
 	(view-to-doc)
 	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write))
 	(board-resized)

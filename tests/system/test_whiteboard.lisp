@@ -635,3 +635,17 @@
 (defq wa_turned (first (read (string-stream (second wa_home)) (ascii-code " "))))
 (assert-eq "and the same with the board turned a quarter" (str (first wa_turned)) (str (second wa_turned)))
 (assert-eq "still turned" "1" (str (third wa_turned)))
+
+;a document's kept view is of a paper its own size, the paper is the frame's:
+;opened on a paper bigger than it, the middle of what is seen is the middle
+;it had, and kept again it says the same. Chris: "I opened the test.cwb, and
+;it didn't center on load"
+(defq wa_kept (wa-run (cat
+	"(view-turn 3) (setq *view_size* :nil) (. *board* :new 400 200) (board-resized)"
+	"(. (. *board* :get_doc) :insert :view (list 0.0 0.0 1.0 0)) (view-from-doc) (defq m0 (map (const n2i) (view-middle)))"
+	"(setq *view_size* (list 1000 800)) (view-from-doc) (defq m1 (map (const n2i) (view-middle)))"
+	"(view-to-doc) (defq kept (map (const n2i) (slice (. (. *board* :get_doc) :find :view) 0 2)))"
+	"(setq *view_size* :nil)"
+	"(print (list m0 m1 kept))")))
+(assert-eq "kept from 0 0 on a paper its size, it is seen from its middle on a bigger one, and is kept from 0 0 again"
+	"((200 100) (200 100) (0 0))" (first wa_kept))
