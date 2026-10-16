@@ -458,7 +458,9 @@
 			(:move
 				(when (and (= (. this :held) 1) (not (get :grab this)))
 					(def this :origin (list (+ (first origin) (- x sx)) (+ (second origin) (- y sy))))
-					(. this :snap_zero)
+					;by the snap of the device that moves it, not the board's,
+					;as its squares on the bars show
+					(. this :snap_zero (ptr-event id kind (if (= buttons 0) +pev_left buttons) x y))
 					(. board :touch +board_dirty_overlay)))
 			(:turn
 				(when (and (= (. this :held) 1) (not (get :grab this)))
