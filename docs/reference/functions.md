@@ -8656,6 +8656,14 @@ points round part of a circle, from one angle to the other, whichever
 way that is, no further apart than seg, pushed on a list as x y
 ```
 
+### tool-area-d
+
+```code
+(tool-area-d shape) -> d
+
+the outline of that, to be drawn
+```
+
 ### tool-catch
 
 ```code

@@ -160,6 +160,17 @@
 	(bind '(fills strokes &ignore) (cwb-flat shape))
 	(if (nempty? (defq all (cat fills strokes))) (poly-union all (list) 1) (list)))
 
+(defun tool-area-d (shape)
+	; (tool-area-d shape) -> d
+	;the outline of that, to be drawn
+	(defq out (list))
+	(each (lambda (p)
+			(push out "M" (first p) (second p))
+			(each (lambda ((x y)) (push out "L" x y)) (partition (slice p 2 -1) 2))
+			(push out "Z"))
+		(tool-rub-area shape))
+	(if (nempty? out) (apply (const cwb-d) out) ""))
+
 ;what is kept for a pointer that is down on an instrument, a list
 
 (enums +tool_state 0
@@ -282,7 +293,7 @@
 		;is any pen drawing along an edge of it, or rubbing out along one
 		(defq found :nil)
 		(. (get :states this) :each (lambda (id state)
-			(if (find (elem-get state +tool_state_what) '(:draw :rub)) (setq found :t))))
+			(if (eql (elem-get state +tool_state_what) :edge) (setq found :t))))
 		found)
 
 	(defmethod :matrix ()
@@ -396,40 +407,38 @@
 			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (. this :extent)
 				:nil near 0.0 0.0 x y))
 		(cond
-			((and near (not (board-rubs? (get :bindings board) event (get :mode board))))
+			(near
 				;held to an edge, and what it draws is that edge. Any contact,
 				;a third finger of the hand that holds the ruler too. Chris:
 				;"you can hold an instrument with 2 fingers and draw your third
-				;or forth down the edges, and they WILL draw !"
+				;or forth down the edges, and they WILL draw !" One that rubs out
+				;rubs out what it would draw, as wide as it reaches, "we should
+				;be able to erase along an instrument guided edge as well !",
+				;"That also means arcs and pie slices". Made the same way, and
+				;as it lets go it is put into the document or rubbed out of it,
+				;by what its slot is, the left button a pen, the right an eraser,
+				;Chris: "we just now inject a shape/stroke or erase into the
+				;canvas on release depending on the mode we are in"
 				(bind '(edge px py) near)
-				(elem-set state +tool_state_what :draw)
+				(elem-set state +tool_state_what :edge)
 				(when (eql (first edge) :arc)
 					(bind '(kind cx cy &ignore) edge)
 					(elem-set state +tool_state_last_angle (path-angle (- px cx) (- py cy))))
-				(defq shape (. board :new_shape event :line))
-				;round an arc, a slice or a circle that is filled is all of its colour
-				(and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle))
-					(cwb-set shape :fill (cwb-get shape :stroke) :stroke 0))
-				(elem-set state +tool_state_shape shape))
-			(near
-				;what rubs out, held to an edge, rubs out along it, what a pen
-				;would draw there, a line, an arc, a slice, a circle, as wide
-				;as its reach, Chris: "we should be able to erase along an
-				;instrument guided edge as well !", "That also means arcs and
-				;pie slices". It is shown as it goes, and rubbed out as it lets
-				;go, "You might need to preview the erase shape.... and when let
-				;go it commits"
-				(bind '(edge px py) near)
-				(elem-set state +tool_state_what :rub)
-				(when (eql (first edge) :arc)
-					(bind '(kind cx cy &ignore) edge)
-					(elem-set state +tool_state_last_angle (path-angle (- px cx) (- py cy))))
-				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board)))
-					shape (cwb-shape "" :stroke 0xff000000 :width (* 2.0 reach) :kind :line
-						:join :round :cap1 :round :cap2 :round))
-				(and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle))
-					(cwb-set shape :fill 0xff000000))
-				(elem-set state +tool_state_shape shape))
+				(defq rubs (board-rubs? (get :bindings board) event (get :mode board))
+					filled (and (eql (first edge) :arc) (find (get :mode this) '(:fpie :fcircle)))
+					shape (if rubs
+						(cwb-shape "" :stroke 0xff000000 :kind :line :join :round :cap1 :round :cap2 :round
+							:width (* 2.0 (. board :reach (. (get :bindings board) :value event :width (get :width board)))))
+						(. board :new_shape event :line)))
+				;round an arc, a slice or a circle that is filled is all of it
+				(if filled (if rubs (cwb-set shape :fill 0xff000000) (cwb-set shape :fill (cwb-get shape :stroke) :stroke 0)))
+				(elem-set state +tool_state_shape shape)
+				;what rubs out is shown as the eraser is, "keep same look as the
+				;freehand erase look", and is let go of as it is rubbed out
+				(when rubs
+					(defq look (cwb-shape "" :stroke 0xff808080 :width (/ 2.0 (get :zoom board)) :fill 0x40ffffff))
+					(elem-set state +tool_state_edge look)
+					(. (get :temp board) :insert id look)))
 			((. this :body_taken id kind)
 				;the body is had by another device, or by two of this one:
 				;this contact does nothing till it lifts. A pen on a ruler
@@ -479,11 +488,12 @@
 		(elem-set state +tool_state_last_x x)
 		(elem-set state +tool_state_last_y y)
 		(case what
-			((:draw :rub)
-				;the line, arc or slice from where it went down, as a pen
-				;draws it, or what is to be rubbed out
+			(:edge
+				;the line, arc or slice from where it went down, and the look
+				;of what it would rub out
 				(bind '(lx ly) (. this :to_own x y))
 				(cwb-set shape :d (. this :edge_d state lx ly))
+				(if edge (cwb-set edge :d (tool-area-d shape)))
 				(. board :touch +board_dirty_overlay))
 			(:move
 				(when (and (= (. this :held) 1) (not (get :grab this)))
@@ -548,15 +558,15 @@
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(what region edge sx sy origin angle length shape &ignore) state)
 		(case what
-			(:draw
+			(:edge
+				;into the document, or out of it, as one step if anything was
 				(. board :drop_temp id)
-				(if (third (cwb-flat shape)) (. board :commit shape (. board :user_of event))))
-			(:rub
-				;what was shown is rubbed out, as a step, if it touched anything
-				(when (nempty? (defq swept (tool-rub-area shape)))
-					(. board :snapshot)
-					(unless (. board :bite_area swept (. board :user_of event)) (. board :forget)))
-				(. board :touch +board_dirty_overlay))
+				(cond
+					((not edge)
+						(if (third (cwb-flat shape)) (. board :commit shape (. board :user_of event))))
+					((nempty? (defq swept (tool-rub-area shape)))
+						(. board :snapshot)
+						(unless (. board :bite_area swept (. board :user_of event)) (. board :forget)))))
 			(:close
 				;put away, if it came up where it went down
 				(bind '(lx ly) (. this :to_own x y))
@@ -653,26 +663,11 @@
 		; (. instrument :draw canvas [m]) -> instrument
 		;on a canvas, by the matrix the board is seen by
 		(unless (get :body this) (. this :built))
-		(defq bm m m (Mat3x2-mul m (. this :matrix)))
+		(defq m (Mat3x2-mul m (. this :matrix)))
 		(cwb-draw-items canvas (list (get :body this)) m)
 		(cwb-draw-items canvas (get :zones this) m)
 		(cwb-draw-items canvas (get :marks this) m)
 		(cwb-draw-items canvas (. this :readout) m)
-		;what each pointer rubbing out along an edge will rub out, in the
-		;board's space, as the eraser is shown, Chris: "keep same look as the
-		;freehand erase look"
-		(defq zoom (get :zoom (get :board this)))
-		(. (get :states this) :each (lambda (id state)
-			(when (eql (elem-get state +tool_state_what) :rub)
-				(defq out (list))
-				(each (lambda (p)
-						(push out "M" (first p) (second p))
-						(each (lambda ((x y)) (push out "L" x y)) (partition (slice p 2 -1) 2))
-						(push out "Z"))
-					(tool-rub-area (elem-get state +tool_state_shape)))
-				(if (nempty? out)
-					(cwb-draw-items canvas (list (cwb-shape (apply (const cwb-d) out)
-						:stroke 0xff808080 :width (/ 2.0 zoom) :fill 0x40ffffff)) bm)))))
 		this)
 
 	(defmethod :degrees (&optional turn)

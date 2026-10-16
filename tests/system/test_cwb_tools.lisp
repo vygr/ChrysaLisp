@@ -679,3 +679,21 @@
 (ep-go (cat (list 0x4000000 :eraser 0) ep_to))
 (assert-eq "an eraser round a protractor's arc, set to a filled slice, rubs out the box inside the slice"
 	0 (length (cwb-items (. ep_board :get_doc))))
+;the same edge, the left button drawing, the right rubbing out, Chris: "I
+;should be able to have left button drawing, right button erasing"
+(defq eb_board (Board (cwb-doc 800 600)) eb_ruler (Ruler eb_board 400 300))
+(. (. eb_board :get_stage) :add eb_ruler)
+(. eb_board :tick 1000000)
+(.-> (. eb_board :get_bindings) (:set :mouse 0 +pev_right :mode :eraser) (:set :mouse 0 +pev_left :width 3.0))
+(bind '(eb_x eb_y) (. eb_ruler :to_board 0 -40))
+(defun eb-go (&rest events) (. eb_board :pointers (map (# (apply (const ptr-event) %0)) events)))
+(defun eb-stroke (b x0 x1)
+	(eb-go (list 0 :mouse b (+ eb_x x0) (- eb_y 3.0)))
+	(eb-go (list 0 :mouse b (+ eb_x x1) (- eb_y 3.0)))
+	(eb-go (list 0 :mouse 0 (+ eb_x x1) (- eb_y 3.0))))
+(eb-stroke +pev_left -100.0 100.0)
+(defq eb_drawn (cwb-get (first (cwb-items (. eb_board :get_doc))) :d))
+(eb-stroke +pev_right -30.0 30.0)
+(assert-eq "the left draws a line along the edge, the right, set to rub out, takes a bite out of it there"
+	"(1 :t :nil)" (str (list (length (cwb-items (. eb_board :get_doc))) (if (str? eb_drawn) :t)
+		(eql (cwb-get (first (cwb-items (. eb_board :get_doc))) :d) eb_drawn))))
