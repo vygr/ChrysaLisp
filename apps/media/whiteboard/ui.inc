@@ -189,13 +189,13 @@
 
 (defun action-mode ()
 	(defq mode (elem-get *modes* (. *mode_toolbar* :get_selected)))
-	(unless (bind-pressed *mode_toolbar* :mode mode)
+	(unless (defq user (bind-pressed *mode_toolbar* :mode mode))
 		(def *board* :mode mode))
-	;out of select mode, with nothing left in it, what was selected is let
-	;go of. It has no handles to show that it is, and the colours and widths
-	;would change it, Chris: "I'm not in select mode on left/right button
-	;and still see selected shapes"
-	(unless (. *board* :selecting?) (. *board* :select (list)))
+	;out of select mode, what was selected is let go of. It has no handles
+	;to show that it is, and the colours and widths would change it, Chris:
+	;"I'm not in select mode on left/right button and still see selected
+	;shapes". Each user's own, (. board :settle_select)
+	(. *board* :settle_select user)
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-style ()

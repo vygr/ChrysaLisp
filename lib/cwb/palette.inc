@@ -273,8 +273,8 @@
 			(:hub (. this :close))
 			(:tool (if floating (. this :bind_tapper event :mode val)
 				(. this :set_value :mode val) (. this :close))
-				;with nothing left in select mode, nothing is selected
-				(unless (. board :selecting?) (. board :select (list))))
+				;out of select mode, what that user selected is let go of
+				(. board :settle_select user))
 			(:color (if floating (. this :bind_tapper event :color val)
 				(. this :set_value :color val)
 				(. board :paint :t :stroke val)))

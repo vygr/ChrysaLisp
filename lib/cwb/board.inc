@@ -1223,14 +1223,33 @@
 			(cond ((eql angle :none) (get :snap_angle this)) (angle (const (/ +fp_pi 12.0))) (0.0))
 			(. bindings :value event :keep_shape (get :keep_shape this))))
 
-	(defmethod :selecting? ()
-		; (. board :selecting?) -> :t | :nil
+	(defmethod :selecting? (&optional user)
+		; (. board :selecting? [user]) -> :t | :nil
 		;is anything in select mode, the board or a device bound to it, so
-		;what is selected has its handles. Chris: "When I select a shape I
-		;can't see shape controls. Just the selected outline."
+		;what is selected has its handles, or with a user, a device or a
+		;button of that user's. Chris: "When I select a shape I can't see
+		;shape controls. Just the selected outline."
 		(or (eql (get :mode this) :select)
-			(some (lambda ((& & & what)) (and (defq at (find :mode what)) (eql (elem-get what (inc at)) :select) :t))
+			(some (lambda ((kind id & what))
+					(and (defq at (find :mode what)) (eql (elem-get what (inc at)) :select)
+						(or (not user) (not id) (eql (. this :user_of (ptr-event id (ifn kind :pen) +pev_left 0 0)) user))
+						:t))
 				(get :rules (get :bindings this)))))
+
+	(defmethod :settle_select (&optional user)
+		; (. board :settle_select [user]) -> board
+		;a mode has changed: what a user selected is let go of once nothing
+		;of theirs is in select mode, each user their own, Chris: "So when a
+		;device button goes out of select mode, those selection clear ?",
+		;"go ahead with per user". The mouse's buttons, and touch, are one
+		;user's. What no one selected by a tap, a box or a hand, is let go
+		;of once nothing at all is. No user, the board's own mode, is all
+		(cond
+			((not (. this :selecting?)) (. this :select (list)))
+			((and user (not (. this :selecting? user)))
+				(defq selectors (get :selectors this))
+				(. this :select (filter (# (not (eql (. selectors :find %0) user))) (get :selected this)))))
+		this)
 
 	(defmethod :switch_of (what key)
 		; (. board :switch_of what key) -> :t | :nil

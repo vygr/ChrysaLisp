@@ -481,11 +481,25 @@ order they are in, the back one first
 ### :selecting?
 
 ```code
-(. board :selecting?) -> :t | :nil
+(. board :selecting? [user]) -> :t | :nil
 
 is anything in select mode, the board or a device bound to it, so
-what is selected has its handles. Chris: "When I select a shape I
-can't see shape controls. Just the selected outline."
+what is selected has its handles, or with a user, a device or a
+button of that user's. Chris: "When I select a shape I can't see
+shape controls. Just the selected outline."
+```
+
+### :settle_select
+
+```code
+(. board :settle_select [user]) -> board
+
+a mode has changed: what a user selected is let go of once nothing
+of theirs is in select mode, each user their own, Chris: "So when a
+device button goes out of select mode, those selection clear ?",
+"go ahead with per user". The mouse's buttons, and touch, are one
+user's. What no one selected by a tap, a box or a hand, is let go
+of once nothing at all is. No user, the board's own mode, is all
 ```
 
 ### :set_doc

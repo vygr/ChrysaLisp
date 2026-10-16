@@ -393,6 +393,22 @@
 (. ps_board :tick 3000000)
 (pl-pick ps_board ps_menu 0 :mouse +pev_left :tool :pen)
 (assert-eq "nothing in select mode, nothing selected" 0 (length (get :selected ps_board)))
+;each user's own: the teacher's mouse out of select mode lets go of what the
+;teacher tapped, not what a student's pen, still in select mode, tapped
+(defq pu_board (Board (cwb-doc 400 400)))
+(. pu_board :tick 1000000)
+(. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
+(pl-drag pu_board 0 :mouse +pev_left 20 20 120 120)
+(pl-drag pu_board 0 :mouse +pev_left 200 200 300 300)
+(defq pu_ids (map (# (elem-get %0 +cwb_id)) (cwb-items (. pu_board :get_doc))))
+(.-> (. pu_board :get_bindings) (:set :mouse 0 +pev_left :mode :select) (:set :pen 0x2000000 +pev_left :mode :select))
+(defq pu_student (. pu_board :user_of (ptr-event 0x2000000 :pen +pev_left 0 0)))
+(. pu_board :toggle_select (first pu_ids) +board_teacher)
+(. pu_board :toggle_select (second pu_ids) pu_student)
+(. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :pen)
+(. pu_board :settle_select +board_teacher)
+(assert-eq "the teacher out of select mode, the student's tap is selected still, the teacher's is not"
+	(str (list (second pu_ids))) (str (get :selected pu_board)))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
