@@ -837,11 +837,12 @@
 
 (defun tools-cull (&optional seen)
 	; (tools-cull [seen]) -> num
-	;an instrument that no hand has hold of, and none of which shows, is
-	;put away: one dragged off the edge and let go, or left outside by a
-	;window made smaller. It is how one is thrown away, and it is never
-	;lost where it can not be got at. While it is held it can go off and
-	;come back. seen is the part of the desk that shows, (x y x1 y1) of
+	;an instrument let go of, none of which shows, is put away: one
+	;dragged off the edge and let go. It is how one is thrown away, by a
+	;hand and nothing else. One left out of sight by what is seen, a min,
+	;a pan, a zoom, a window made smaller, is still there, Chris: "if an
+	;instrument then is outside the window it should disappear ?", no.
+	;While it is held it can go off and come back. seen is the part of the desk that shows, (x y x1 y1) of
 	;where the canvases lie, worked out from the frame if not given. How
 	;many went
 	(defq gone 0)
@@ -856,7 +857,9 @@
 		(bind '(vx vy vx1 vy1) seen)
 		(each (lambda (entry)
 			(defq tool (elem-get entry +tv_tool) canvas (elem-get entry +tv_canvas))
-			(when (and canvas (= (. tool :held) 0))
+			(defq held (> (. tool :held) 0) let_go (and (not held) (get :was_held tool)))
+			(def tool :was_held held)
+			(when (and canvas let_go)
 				(bind '(x y w h) (. canvas :get_bounds))
 				(unless (and (< x vx1) (< vx (+ x w)) (< y vy1) (< vy (+ y h)))
 					(. (. *board* :get_stage) :sub tool)

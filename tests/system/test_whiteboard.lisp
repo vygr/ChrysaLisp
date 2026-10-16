@@ -216,12 +216,14 @@
 	"(. (. *board* :get_stage) :add (defq ruler (Ruler *board* 300 200))) (defq on0 (wa-on))"
 	"(pan-by 70 -20) (defq on1 (wa-on)) (zoom-set 0.5 100 100) (defq on2 (wa-on)) (pan-glide 32 0) (while (pan-tick)) (defq on3 (wa-on))"
 	"(print (list on0 on1 on2 on3 (map (const n2i) (get :origin ruler)) (get :size ruler) (n2i *pan_x*)))"
-	;an instrument none of which shows, with no hand on it, is put away: it is how one is thrown away. One that shows a little, or is held, is not
+	;an instrument let go of, none of which shows, is put away: it is how one is thrown away. One that shows a little, or is held, is not, nor one only out of sight
 	"(defun wa-tools () (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))))"
 	"(draw-over) (defq seen (list 0 0 1024 768) c0 (tools-cull seen) n0 (wa-tools))"
 	"(bind (quote (bx by bw bh)) (. (elem-get (first *tools*) +tv_canvas) :get_bounds))"
-	"(defq c1 (tools-cull (list (+ bx bw -4) 0 2000 2000)) c2 (tools-cull (list (+ bx bw 4) 0 2000 2000)) n2 (wa-tools))"
-	"(print (list c0 n0 c1 c2 n2))"
+	"(defq u0 (tools-cull (list 5000 5000 6000 6000)))"
+	"(def ruler :was_held :t) (defq c1 (tools-cull (list (+ bx bw -4) 0 2000 2000)))"
+	"(def ruler :was_held :t) (defq c2 (tools-cull (list (+ bx bw 4) 0 2000 2000)) n2 (wa-tools))"
+	"(print (list u0 c0 n0 c1 c2 n2))"
 	"(zoom-set 2.0 0 0)"
 	;the bars: all of one is what is drawn and what is seen, its thumb is what is seen. Things from 75 across, seen from 300 on at twice, 512 of it
 	"(defun wa-bars () (map (# (list (get :maximum %0) (get :portion %0) (get :value %0))) (list (get :hslider *image_scroll*) (get :vslider *image_scroll*))))"
@@ -260,8 +262,8 @@
 	"(50.00000 30.00000 ((8.00000 0) (16.00000 127) (32.00000 255)))" (elem-get wa_out 5))
 (assert-eq "an instrument lies on the glass: what is seen moved, zoomed and glided under it, it is where it was on the screen and the size it was there, and so twice the size in the document at half"
 	"((138 46 100) (138 46 100) (138 46 100) (138 46 100) (1026 705) 2.00000 -274)" (elem-get wa_out 6))
-(assert-eq "an instrument that shows is left; with four pixels of it showing it is left; with none of it showing it is put away"
-	"(0 1 0 1 0)" (elem-get wa_out 7))
+(assert-eq "an instrument only out of sight is left, Chris; one that shows is left; let go with four pixels of it showing it is left; let go with none of it showing it is put away"
+	"(0 0 1 0 1 0)" (elem-get wa_out 7))
 (assert-eq "a bar is all there is to see that way, from the first thing drawn, at 47, to the end of the view, at twice: 506 more than shows, the 1024 that shows its thumb, at the end"
 	"(506 1024 506)" (elem-get wa_out 8))
 (assert-eq "moved back by hand to 200, what is seen is from 100 on from the first thing, and the bar is not set again under the hand"
@@ -576,10 +578,10 @@
 	;the palette's wedge asks, and it is done on the next tick
 	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
 	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print (list on off (rest w1)))")))
-(assert-eq "a window: a title, four rows and the board in it, a paper of 400 by 300, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
-	"(:t :t (6 (400 300) :nil :nil 37))" (first wa_out))
+(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 37 things on the palette. Made all of the screen and back it is that again, and the palette's wedge asked for it"
+	"(:t :t (5 (400 300) :nil :nil 37))" (first wa_out))
 (assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more thing on the palette, the window back"
-	"((0 0 1280 800) (:t :t :t :t) (6 (1280 800) :bare :t 38))" (second wa_out))
+	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 38))" (second wa_out))
 
 ;the board turned a quarter, about the middle of the paper, which is then the other way up
 (defq wa_out (wa-run (cat
