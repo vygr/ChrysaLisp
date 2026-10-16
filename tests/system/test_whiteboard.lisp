@@ -280,20 +280,27 @@
 	"(:t :t :nil (-25 -15 2.00000 :nil) (-30 -20 2.00000 :nil) (-30 -36 2.00000 :nil))" (elem-get wa_out 10))
 
 
-;a thing that is selected is let go of when another tool is picked, so a colour picked next is not given to it
+;a thing picked up stays so in any mode, and a colour is its while it is;
+;put down by a tap, a colour is the pen's again, Chris: "If you have no
+;selected items than I think you are setting the ink of the pen, but if you
+;have selected items you changing there colours"
 (defq wa_out (wa-run (cat
 	"(wa-mode :frect) (wa-drag 1 100 100 200 180) (defq it (last (cwb-items (. *board* :get_doc))))"
 	"(wa-mode :select) (wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (print (. *board* :get_selected))"
 	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_red))"
 	"(wa-mode :pen) (print (. *board* :get_selected))"
-	"(. *ink_toolbar* :set_selected 3) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_red))"
-	"(wa-mode :select) (wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (def *board* :mode :pen)"
+	"(. *ink_toolbar* :set_selected 3) (wa-do +event_ink) (print (= (cwb-get it :stroke) +argb_green))"
+	"(wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0) (print (. *board* :get_selected))"
+	"(. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (print (list (= (cwb-get it :stroke) +argb_green) (= (get :color *board*) +argb_red)))"
+	"(wa-mouse :down 150 140 1) (wa-mouse :up 150 140 0)"
 	"(wa-drag 1 400 400 450 420) (print (. *board* :get_selected))")))
-(assert-eq "a thing is selected" "(1)" (elem-get wa_out 0))
+(assert-eq "a thing is picked up" "(1)" (elem-get wa_out 0))
 (assert-eq "a colour picked while it is gives it that colour" ":t" (elem-get wa_out 1))
-(assert-eq "another tool picked, it is let go of" "()" (elem-get wa_out 2))
-(assert-eq "and a colour picked then is for what is drawn next, it keeps its own" ":t" (elem-get wa_out 3))
-(assert-eq "what is selected stays so when a line is begun elsewhere, only a tap takes a thing out of select mode" "(1)" (elem-get wa_out 4))
+(assert-eq "another mode picked, it is picked up still" "(1)" (elem-get wa_out 2))
+(assert-eq "and a colour picked then is its" ":t" (elem-get wa_out 3))
+(assert-eq "a tap on it puts it down" "()" (elem-get wa_out 4))
+(assert-eq "a colour picked then is the pen's, it keeps its own" "(:t :t)" (elem-get wa_out 5))
+(assert-eq "picked up again by a tap, a line begun elsewhere leaves it so" "(1)" (elem-get wa_out 6))
 
 ;a corner that is dragged keeps the shape of the thing, or with the lock off is free
 (defq wa_out (wa-run (cat

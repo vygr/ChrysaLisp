@@ -678,6 +678,18 @@ of the space the group is in, rubbed out. :nil if none was touched.
 What is in it that is not a line, or is a group itself, is left
 ```
 
+### board-rubs?
+
+```code
+(board-rubs? bindings event mode) -> :t | :nil
+
+does the pointer rub out: an eraser, or bound to, by its tool or by
+its mode, the board's mode if it has none. What rubs out does not draw
+along an instrument's edge, all else does, a finger too, Chris: "you
+can hold an instrument with 2 fingers and draw your third or forth down
+the edges, and they WILL draw !"
+```
+
 ### board-snap
 
 ```code

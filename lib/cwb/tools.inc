@@ -384,11 +384,10 @@
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(lx ly) (. this :to_own x y))
 		(defq near (. this :edge_near lx ly) region (. this :part_at lx ly)
-			tool (. (get :bindings board) :value event :tool :pen)
 			state (list :none region :nil x y (cat (get :origin this)) (get :angle this) (. this :extent)
 				:nil near 0.0 0.0 x y))
 		(cond
-			((and near (not (eql kind :eraser)))
+			((and near (not (board-rubs? (get :bindings board) event (get :mode board))))
 				;held to an edge, and what it draws is that edge. Any contact,
 				;a third finger of the hand that holds the ruler too. Chris:
 				;"you can hold an instrument with 2 fingers and draw your third

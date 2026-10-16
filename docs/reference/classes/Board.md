@@ -460,6 +460,8 @@ step of half its reach
 
 ```code
 (. board :select ids) -> board
+
+who picked up what is kept only for what is selected still
 ```
 
 ### :select_all

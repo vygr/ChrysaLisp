@@ -488,3 +488,31 @@
 	(str (list (cwb-get pn_inner :stroke) (cwb-get pn_inner :fill) (map (const n2i) (cwb-bounds (list pn_inner)))
 		(cwb-get (pn-last) :stroke) (cwb-get (pn-last) :fill))))
 (assert-list-eq "none is any ink with no alpha" '(:t :t :nil) (map (const board-none?) '(0 0x00ff0000 0x01000000)))
+;each user's own: a hand on nothing puts down only its user's, a hand on a
+;thing picks it up for its user and leaves what others hold, who holds what
+;is kept only for what is selected, Chris: "2 users can select seperate item"
+(defq pw_board (Board (cwb-doc 600 400)) pw_b (. pw_board :get_bindings))
+(. pw_board :tick 1000000)
+(.-> pw_b (:set :mouse 0 +pev_left :mode :frect))
+(pl-drag pw_board 0 :mouse +pev_left 20 20 100 100)
+(pl-drag pw_board 0 :mouse +pev_left 200 20 280 100)
+(pl-drag pw_board 0 :mouse +pev_left 400 20 480 100)
+(bind '(pw_a pw_c pw_s) (map (# (elem-get %0 +cwb_id)) (cwb-items (. pw_board :get_doc))))
+(defq pw_student (. pw_board :user_of (ptr-event 0x2000000 :pen +pev_left 0 0)))
+(. pw_board :toggle_select pw_a +board_teacher)
+(. pw_board :toggle_select pw_s pw_student)
+(.-> pw_b (:set :mouse 0 +pev_left :mode :select))
+(pl-tap pw_board 0 :mouse +pev_left 300 300)
+(assert-eq "the teacher's hand on nothing puts down the teacher's, the student's stays" (str (list pw_s)) (str (get :selected pw_board)))
+(assert-eq "and who held the teacher's is forgotten" :nil (. (get :selectors pw_board) :find pw_a))
+(pl-tap pw_board 0 :mouse +pev_left 240 60)
+(assert-eq "the teacher's hand on a thing picks it up, the student's stays"
+	(str (list pw_s pw_c)) (str (get :selected pw_board)))
+(assert-eq "and it is the teacher's" +board_teacher (. (get :selectors pw_board) :find pw_c))
+;what draws along an instrument's edge is what does not rub out, its catch
+;shows by the same rule
+(.-> pw_b (:set :pen 0x2000000 +pev_left :mode :eraser))
+(assert-list-eq "a pen bound to rub out, an eraser, rub out; the mouse's hand and a finger draw along an edge"
+	'(:t :t :nil :nil)
+	(map (# (board-rubs? pw_b %0 :pen)) (list (ptr-event 0x2000000 :pen +pev_left 0 0) (ptr-event 0x4000000 :eraser 1 0 0)
+		(ptr-event 0 :mouse +pev_right 0 0) (ptr-event 0x1000001 :touch 1 0 0))))

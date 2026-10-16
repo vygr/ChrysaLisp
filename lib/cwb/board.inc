@@ -71,6 +71,17 @@
 	;an ink that is wholly see through is none, whatever its colour
 	(= (logand ink 0xff000000) 0))
 
+(defun board-rubs? (bindings event mode)
+	; (board-rubs? bindings event mode) -> :t | :nil
+	;does the pointer rub out: an eraser, or bound to, by its tool or by
+	;its mode, the board's mode if it has none. What rubs out does not draw
+	;along an instrument's edge, all else does, a finger too, Chris: "you
+	;can hold an instrument with 2 fingers and draw your third or forth down
+	;the edges, and they WILL draw !"
+	(or (eql (elem-get event +pev_kind) :eraser)
+		(eql (defq tool (. bindings :value event :tool :pen)) :eraser)
+		(and (eql tool :pen) (eql (. bindings :value event :mode mode) :eraser))))
+
 (defun board-ink-part (event)
 	; (board-ink-part event) -> :stroke | :fill | :both | :ink
 	;what of a selected thing a pen given by this press colours: the main
@@ -523,8 +534,18 @@
 								;theirs, and it alone is this hand's
 								(unless (find id_hit selected) (. board :select (cat selected (list id_hit))))
 								(setq mine (list (first hit))))
-							(:t (unless (find id_hit selected) (. board :select (list id_hit)))
-								(setq mine (. board :selected_items))))
+							;its user's, what it picks up is theirs, and what
+							;other users picked up stays so, Chris: "2 users
+							;can select seperate item". Picked up by another,
+							;it is this one's now
+							(:t (defq user (. board :user_of event) selectors (get :selectors board))
+								(unless (and (find id_hit selected) (eql (. selectors :find id_hit) user))
+									(unless (find id_hit (. board :selected_by user))
+										(. board :select (cat (filter (# (and (defq who (. selectors :find %0)) (not (eql who user)) (/= %0 id_hit))) selected)
+											(list id_hit))))
+									(. selectors :insert id_hit user))
+								(defq mine_ids (. board :selected_by user))
+								(setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
 						;what is taken hold of comes to the front of its layer, and
@@ -561,7 +582,11 @@
 						;other hands have hold of is selected, and is left so
 						(and (not shut) (or holding (empty? (get :selected board)))
 							(elem-set state +stroke_snap :tap))
-						(unless holding (. board :select (list))))))
+						;what this user picked up is put down, not what
+						;others did
+						(unless holding
+							(defq selectors (get :selectors board) user (. board :user_of event))
+							(. board :select (filter (# (and (defq who (. selectors :find %0)) (not (eql who user)))) (get :selected board)))))))
 			;what is selected stays so, and what is left of it after a
 			;bite, (:bite), with its handles, Chris: "I can select a shape
 			;and then erase though it, but the select controls vanish as
@@ -1418,7 +1443,11 @@
 
 	(defmethod :select (ids)
 		; (. board :select ids) -> board
+		;who picked up what is kept only for what is selected still
 		(def this :selected (cat ids))
+		(defq selectors (get :selectors this) gone (list))
+		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))
+		(each (# (. selectors :erase %0)) gone)
 		(. this :touch +board_dirty_overlay))
 
 	(defmethod :toggle_select (id user)
@@ -2009,10 +2038,11 @@
 			events)
 		(when (get :hover_edges this)
 			(. hovers :each (lambda (id (kind x y))
-				;the one it would go down on, the one in front there, and
-				;what it would be if it did, with its first button
+				;the one it would go down on, the one in front there, if it
+				;would draw along it going down with its first button, by
+				;the same rule as an instrument's (:begin), (board-rubs?)
 				(when (and (defq actor (. stage :hit x y)) (def? :edges actor)
-						(eql (. bindings :value (ptr-event id kind +pev_left x y) :tool :pen) :pen))
+						(not (board-rubs? bindings (ptr-event id kind +pev_left x y) (get :mode this))))
 					(bind '(lx ly) (. actor :to_own x y))
 					(when (defq near (. actor :edge_near lx ly))
 						(defq edge (first near))
