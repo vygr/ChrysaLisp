@@ -2,6 +2,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "lib/debug/loops.inc")
 
 ;No test starts an app on a desktop. This loads the app as far as its
 ;window, in a task of its own, and then does what the GUI would: events of
@@ -43,7 +44,7 @@
 
 ;no view of the window holds one above it: a loop that kept all of it, its
 ;canvases among them, in the node's memory after the app had gone
-(defq wa_loops (wa-run "(print (map (lambda ((v k)) k) (view-loops *window*)))"))
+(defq wa_loops (wa-run "(import {lib/debug/loops.inc}) (print (map (lambda ((v k)) k) (view-loops *window*)))"))
 (assert-eq "the window has no loops of views" "()" (first wa_loops))
 
 ;on a board with nothing bound, the bars show what the mouse uses: its

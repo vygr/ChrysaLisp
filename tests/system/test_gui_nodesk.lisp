@@ -2,6 +2,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "lib/debug/loops.inc")
 
 ;A node with no GUI has views too: a test loads an app, a command lays out
 ;a page. Two things of a view stood on the GUI being there, and a node fell
@@ -89,6 +90,6 @@
 (def nd_low :n 3 :sibling (View))
 (assert-eq "a tree whose properties hold nothing above them has no loops" 0 (length (view-loops nd_top)))
 (def nd_low :scroll nd_top :list (list 1 nd_mid))
-(assert-eq "one that holds a view above it, or one in a list, is a loop, by its key"
-	(str (list (list :t :list) (list :t :scroll)))
+(assert-eq "one that holds a view above it is a loop, by its key, and one in a list by the list and where in it"
+	(str (list (list :nil 1) (list :t :scroll)))
 	(str (sort (map (lambda ((v k)) (list (eql v nd_low) k)) (view-loops nd_top)) (lambda (a b) (cmp (str (second a)) (str (second b)))))))

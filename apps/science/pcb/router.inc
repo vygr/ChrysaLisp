@@ -69,8 +69,10 @@
 (defclass Net (track pcb) :nil
 	; (Net track pcb) -> net
 	(defq grid_res (n2f (. pcb :get_grid_res)))
+	;the pcb by a weak ref, claimed where it is used: the pcb holds its
+	;nets, a net that held it by a count would hold it round
 	(def this
-		:pcb pcb :id (. track :get_id)
+		:pcb (weak-ref pcb) :id (. track :get_id)
 		:radius (* (. track :get_track_radius) grid_res)
 		:via (defq via (* (. track :get_via_radius) grid_res))
 		:gap (* (. track :get_gap) grid_res)
@@ -186,7 +188,6 @@
 	(defgetmethod :id)
 	(defsetmethod :area)
 	(defsetmethod :bbox)
-	(defsetmethod :pcb)
 
 	(defmethod :shuffle_topology ()
 		; (. net :shuffle_topology) -> net
@@ -197,35 +198,35 @@
 	(defmethod :add_pad_lines ()
 		; (. net :add_pad_lines) -> net
 		;add pad entries to spacial cache
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :pad_lines this))
 		this)
 
 	(defmethod :sub_pad_lines ()
 		; (. net :sub_pad_lines) -> net
 		;remove pad entries from spacial cache
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :pad_lines this))
 		this)
 
 	(defmethod :add_wire_lines ()
 		; (. net :add_wire_lines) -> net
 		;add wire entries to spacial cache
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :wire_lines this))
 		this)
 
 	(defmethod :sub_wire_lines ()
 		; (. net :sub_wire_lines) -> net
 		;remove wire entries from spacial cache
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :wire_lines this))
 		this)
 
 	(defmethod :create_paths_lines ()
 		; (. net :create_paths_lines) -> lines
 		;create paths collision lines
-		(raise :pcb :radius :via :gap)
+		(defq pcb (obj-ref (get :pcb this))) (raise :radius :via :gap)
 		(defq depth (n2f (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
 			(defq p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
@@ -241,7 +242,7 @@
 	(defmethod :add_paths_lines ()
 		; (. net :add_paths_lines) -> net
 		;add paths entries to spacial cache
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(defq paths_lines (. this :create_paths_lines))
 		(lower :paths_lines)
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) paths_lines)
@@ -250,7 +251,7 @@
 	(defmethod :sub_paths_lines ()
 		; (. net :sub_paths_lines) -> net
 		;remove paths entries from spacial cache
-		(raise :pcb :paths_lines)
+		(defq pcb (obj-ref (get :pcb this))) (raise :paths_lines)
 		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) paths_lines)
 		(clear paths_lines)
 		this)
@@ -270,7 +271,7 @@
 	(defmethod :optimise_paths (paths)
 		; (. net :optimise_paths paths) -> opt_paths
 		;remove redundant points from paths
-		(raise :pcb)
+		(defq pcb (obj-ref (get :pcb this)))
 		(reduce (lambda (opt_paths pth)
 			(defq opt_path (list)
 				d0 (Vec3-f 0.0 0.0 0.0) d1 :nil
@@ -287,7 +288,7 @@
 	(defmethod :backtrack_path (visited end_node radius via gap)
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
-		(raise :pcb (path_vectors (. pcb :get_path_vectors)
+		(defq pcb (obj-ref (get :pcb this))) (raise (path_vectors (. pcb :get_path_vectors)
 			nearer_nodes '() pth (list) path_node end_node exit :nil))
 		(until exit
 			(task-slice)
@@ -320,7 +321,7 @@
 	(defmethod :route ()
 		; (. net :route) -> :t | :nil
 		;attempt to route this net on the current boards state
-		(raise :pcb :paths :radius :gap :via :pad_end_nodes)
+		(defq pcb (obj-ref (get :pcb this))) (raise :paths :radius :gap :via :pad_end_nodes)
 		(cond
 			((= radius 0.0) :t)
 			(:t (clear paths)
@@ -354,7 +355,7 @@
 	(defmethod :print_net (stream)
 		; (. net :print_net stream) -> net
 		;output net, pads, wires and paths, for viewer app
-		(raise :pcb :pads :wires :paths :id :radius :via :gap
+		(defq pcb (obj-ref (get :pcb this))) (raise :pads :wires :paths :id :radius :via :gap
 			(scale (recip (n2f (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity)))
 		(if (>= verbosity 2) (write-line stream ";NET"))
 		(write-line stream "(")
@@ -632,13 +633,6 @@
 		; (. pcb :add_track track) -> pcb
 		(raise :netlist)
 		(push netlist (Net track this))
-		this)
-
-	(defmethod :close ()
-		; (. pcb :close) -> pcb
-		;drop all nets and circular refs to pcb !
-		(raise :netlist)
-		(each (# (. %0 :set_pcb :nil)) (get :netlist this))
 		this)
 
 	(defmethod :print_pcb (stream)

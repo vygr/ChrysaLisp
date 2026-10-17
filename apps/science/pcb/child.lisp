@@ -22,8 +22,7 @@
 				(Pad radius gap pos shape)) pads))
 			(defq track (Track id track_radius via_radius track_gap pads wires))
 			(. pcb :add_track track))) (list pcb_list) 1)
-	(. pcb :route select reply_mbox prog_mbox)
-	(. pcb :close))
+	(. pcb :route select reply_mbox prog_mbox))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t)
