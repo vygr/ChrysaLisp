@@ -697,11 +697,13 @@ pick by what tapped it, `(. board :pick event what val)`, the one table the
 toolbar, the menus and the swatches all use: with things its user holds a
 pen or a width is theirs, the main button the outline and the second the
 fill; with none the device's slot has it, the buttons it had held, all the
-fingers of a touch screen as one. Each device that has bound something on
-it shows a small square of its own colour in that cell, in a strip of six
-along its foot, as the toolbar buttons show them under their symbols:
-mouse, touch, the teacher's pen and three students', each always in its
-place, `(. board :device_slot)`. Undo and redo from a menu are the
+fingers of a touch screen as one. Each device shows a small square of its
+own colour in the cell of what it uses, its own choice or the board's, the
+mouse's two buttons from the start, in a strip of six along its foot, as the
+toolbar buttons show them under their symbols: mouse, touch, the teacher's
+pen and three students', each always in its place, `(. board
+:device_slot)`. The bars and the menus take the same from the board,
+`(. board :device_uses)`. Undo and redo from a menu are the
 teacher's only. Nothing opens from a tap on the board: there a tap is a dot.
 
 The `cwb` command still has the menu that opens under a hand that taps on
@@ -1066,7 +1068,8 @@ canvas. The palette, which opens now from a tap on nothing, is to become a
 floating menu.
 
 * What a device is bound to is not shown on the board. On a floating menu
-each device has a small dot of its own colour on what it has chosen.
+each device has a small dot of its own colour on what it uses, what it has
+chosen or else the board's, as on the toolbar.
 
 * Bindings are kept on their owner's machine, a user's own, and come back
 next time, by user, kind of device and buttons, as a device's number is only
@@ -1170,7 +1173,8 @@ and show no pick; `(palette-float)` from the toolbar's menu button, any
 number, stays till its middle is tapped, binds what taps it; no menu from
 a tap on the board; undo and redo only by the teacher; a square of each
 device in its own place on a floating menu and under each button of the
-bars, `(. board :device_slot)`; the mouse's and touch's
+bars, `(. board :device_slot)`, on what it uses, its own or the board's,
+`(. board :device_uses)`; the mouse's and touch's
 bindings kept with the app's state, a pen's not, its number is a sitting's.
 5. Two layers in flight. Built: each thing in flight is behind or in front as
 its own hand took it, `(. board :fly)`, `(. board :back?)`, and the app has
