@@ -195,6 +195,11 @@ big-endian)". The translator for a big endian processor, the 68000 or the
 PowerPC, turned the literal data of a tool round as it loaded it, so the one
 file on disc ran on processors of either byte order. (BYTE, July 1994)
 
+Nor was a network of mixed byte order a special case to show off. It was how
+Taos was used all the time. Any of the processors in the 1.28 kit's list
+could be put together with any other in one network, big endian and little
+endian side by side, running the same tools.
+
 ### The chip that never was
 
 One of the first translators was for a processor that was never made. Sir
