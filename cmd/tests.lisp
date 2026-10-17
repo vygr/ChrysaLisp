@@ -21,6 +21,10 @@
             from running on each node, while the modules ran.
             One that does not give way for a second or two is
             why a test with a deadline fails now and then.
+        -e --leaks: run each module alone, one after another, in
+            a task of its own on this node, and fail one that leaves
+            the node holding more than it did, once what a task's
+            end lets go of is let go of, (kernel-stats :t). Slower.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
@@ -48,19 +52,20 @@
 (("-a" "--all") ,(opt-flag 'opt_a))
 (("-s" "--stale") ,(opt-flag 'opt_s))
 (("-w" "--watch") ,(opt-flag 'opt_w))
+(("-e" "--leaks") ,(opt-flag 'opt_e))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_m :nil opt_l :nil opt_v :nil opt_f :nil opt_j 1 opt_c :nil opt_a :nil opt_s :nil opt_w :nil
+			(defq opt_m :nil opt_l :nil opt_v :nil opt_f :nil opt_j 1 opt_c :nil opt_a :nil opt_s :nil opt_w :nil opt_e :nil
 				args (options stdio usage)))
 		(defq modules (if (empty? (defq modules (rest args))) (test-modules opt_m) modules))
 		(cond
 			(opt_l (each (const print) modules))
 			((catch
-				(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w)
+				(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w opt_e)
 				(progn
 					(print "CRITICAL ERROR: Test suite crashed or threw exception.")
 					(print "Error object: " _)

@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/nodeid/class.inc")
+(include "class/hset/class.inc")
 (include "class/lisp/class.inc")
 (include "./class.inc")
 
@@ -16,6 +17,17 @@
 	(entry :sys_kernel :lisp_stats '(:r0 :r1))
 
 	(vp-push :r0)
+	;given anything, first what a task's end lets go of, class/lisp/run.vp:
+	;the numbers and symbols no one holds, and the free blocks given back,
+	;so what is left is what is held
+	(assign '((:r1 +array_length)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(fn-bind 'sys/statics/statics :r0)
+		(call :hset :flush '((:r0 statics_num_intern)))
+		(fn-bind 'sys/statics/statics :r0)
+		(call :hset :flush '((:r0 statics_sym_intern)))
+		(call :sys_mem :collect)
+	(endif)
 	(call :sys_mem :avail :nil '(:r10))
 	(call :sys_task :stacks :nil '(:r11))
 	(call :array :create :nil '(:r0))

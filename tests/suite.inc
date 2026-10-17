@@ -299,6 +299,10 @@
 			(or (not pattern) (found? %0 pattern))))
 		(files-all "tests" '(".lisp")))))
 
+;with leaks, a module that leaves more than this held on its node, once
+;what a task's end lets go of is let go of, fails, (test-leak-run)
+(defq +test_leak_kb 256)
+
 (defun test-run-module (file)
 	(defq *test_module* (slice file 6 -6))
 	(env-push)
@@ -308,6 +312,25 @@
 	(catch (import file)
 		(progn (test-fail "module" "to run to the end" _) :t))
 	(env-pop))
+
+(defun test-held ()
+	; (test-held) -> kb
+	;what this node holds, once what a task's end lets go of is let go of
+	(bind '(& used avail &ignore) (kernel-stats :t))
+	(/ (- used avail) 1024))
+
+(defun test-leak-run (module)
+	;a module run alone, in a task of its own on this node, and what this
+	;node holds before it and after its task has gone: a module that leaves
+	;more held has leaked, Chris: "After each test module we should compare
+	;the memory use before and after"
+	(defq held (test-held) out (list) cmd (cat "echo ! tests -c " module))
+	(pipe-run cmd (# (push out %0)))
+	(test-collect cmd (join out ""))
+	(defq more (- (test-held) held))
+	(when (> more +test_leak_kb)
+		(setq *test_module* (slice module 6 -6))
+		(test-fail "memory" (cat "no more than " (str +test_leak_kb) "kb held after it") (cat (str more) "kb more held"))))
 
 (defun test-run-counted (file)
 	;run a module, and note what it alone counted. The task of a batch
@@ -371,8 +394,8 @@
 	(sort (map (lambda (&) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
 		(# (- %1 %0))))
 
-(defun run-suite (modules &optional verbose frames jobs child all stale watch)
-	; (run-suite modules [verbose frames jobs child all stale watch]) -> :t | :nil
+(defun run-suite (modules &optional verbose frames jobs child all stale watch leaks)
+	; (run-suite modules [verbose frames jobs child all stale watch leaks]) -> :t | :nil
 	;run the modules, at most jobs of them to a task. If they all fit in
 	;one batch they run here, one after another. A child is the task of a
 	;batch, it ends with a line of counts in place of the summary.
@@ -380,7 +403,9 @@
 	;unless all are asked for. With stale the modules that would be run
 	;are listed and none is. With watch, the longest a task was kept
 	;waiting on each node while the modules ran is said at the end,
-	;(test-watch).
+	;(test-watch). With leaks each runs alone, one after another, in a
+	;task of its own on this node, and one that leaves the node holding
+	;more fails, (test-leak-run).
 	(setd jobs 1)
 	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
 		*test_verbose* verbose *test_frames* frames *test_child* child)
@@ -413,6 +438,8 @@
 		others (filter (# (not (or (starts-with "tests/solo/" %0) (starts-with "tests/release/" %0)))) run)
 		watching (and watch (not child) (nempty? others) (test-watch (lisp-nodes :t))) waits :nil)
 	(cond
+		((and leaks (not child))
+			(each (const test-leak-run) others))
 		((or child (<= (length run) jobs))
 			(each (const test-run-counted) others))
 		(:t ;farm out the batches, show the results in module order
