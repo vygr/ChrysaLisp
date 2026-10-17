@@ -132,7 +132,7 @@
 						(. *pixmap_cache* :insert name pixmap)
 						(. canvas :swap +swap_write)))
 				(. atom_cache :insert key canvas))
-			(texture-metrics (getf canvas +canvas_texture 0)))))
+			(texture-sized (getf canvas +canvas_texture 0)))))
 
 (defun render ()
 	;the atoms are placed by the vertex shader, all of them in one call of

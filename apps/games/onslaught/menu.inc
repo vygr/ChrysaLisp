@@ -146,7 +146,7 @@
 
 (defun menu-resize (zoom)
 	(when (and *img_ascii* (defq c (getf *img_ascii* +canvas_texture 0)))
-		(bind '(tid tw th) (texture-metrics c))
+		(bind '(tid tw th) (texture-sized c))
 		(when *menu_view*
 			(def *menu_view* :zoom zoom :tid tid)
 			(. *menu_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t))
@@ -176,7 +176,7 @@
 	(setq *menu_timer* 0 *menu_up_armed* :nil *menu_down_armed* :nil *menu_fire_armed* :nil)
 	(unless *menu_view*
 		(setq *menu_view* (MenuView)))
-	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(bind '(tid tw th) (texture-sized (getf *img_ascii* +canvas_texture 0)))
 	(def *menu_view* :tid tid :zoom zoom
 		:selected *menu_selected*
 		:difficulty *menu_difficulty*
@@ -257,7 +257,7 @@
 	(setq *credits_timer* 0 *credits_exit_armed* :nil)
 	(unless *credits_view*
 		(setq *credits_view* (CreditsView)))
-	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(bind '(tid tw th) (texture-sized (getf *img_ascii* +canvas_texture 0)))
 	(def *credits_view* :tid tid :zoom zoom)
 	(. *layer_fx* :add_front *credits_view*)
 	(.-> *credits_view*
@@ -294,7 +294,7 @@
 	(setq *scores_timer* 0 *scores_exit_armed* :nil)
 	(unless *scores_view*
 		(setq *scores_view* (ScoresView)))
-	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(bind '(tid tw th) (texture-sized (getf *img_ascii* +canvas_texture 0)))
 	(def *scores_view* :tid tid :zoom zoom
 		:names *hiscore_names* :values *hiscore_values*)
 	(. *layer_fx* :add_front *scores_view*)
@@ -356,7 +356,7 @@
 			(> *man_score* (last *hiscore_values*))))
 	(unless *hiscore_view*
 		(setq *hiscore_view* (HiscoreView)))
-	(bind '(tid tw th) (texture-metrics (getf *img_ascii* +canvas_texture 0)))
+	(bind '(tid tw th) (texture-sized (getf *img_ascii* +canvas_texture 0)))
 	(def *hiscore_view* :tid tid :zoom zoom)
 	(hiscore-sync-view)
 	(. *layer_fx* :add_front *hiscore_view*)

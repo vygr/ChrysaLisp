@@ -6,10 +6,10 @@
 	(struct node +ln_node_size)
 	(struct list +lh_list_size)
 	(netid owner_id)
-	(ptr dirty_region opaque_region ctx_node)
+	(ptr dirty_region opaque_region ctx_node draws)
 	(long id)
 	(uint flags)
-	(int ctx_x ctx_y x y w h cw ch))
+	(int ctx_x ctx_y x y w h cw ch draws_w draws_h))
 
 (bits +view_flag 0
-	(bit solid opaque dirty_all hidden at_back at_front subtree))
+	(bit solid opaque dirty_all hidden at_back at_front subtree redraw nocache drawn))

@@ -468,6 +468,10 @@
 	(vp-add-cr statics_gui_rect_heap (first in))
 	(call :region :paste_rect in)
 	(vp-pop :r1)
+	;it, and the views in it, are to run their :draw again
+	(assign '((:r1 +view_flags)) '(:r2))
+	(vp-or-cr +view_flag_redraw :r2)
+	(assign '(:r2) '((:r1 +view_flags)))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 

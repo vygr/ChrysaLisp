@@ -327,7 +327,7 @@
 		(when (and (defq tiles (get :map this)) (defq c (get :canvas this))
 				(defq texture (getf c +canvas_texture 0)))
 			;8x8 location tiles
-			(bind '(mtid tw th) (texture-metrics texture))
+			(bind '(mtid tw th) (texture-sized texture))
 			(defq ts (* zoom 8) mx (* zoom +campaign_x) my (* zoom +campaign_y))
 			(each (lambda (tile)
 				(defq raw_y (* tile ts))
@@ -347,7 +347,7 @@
 
 (defun campaign-resize (zoom)
 	(when (and *campaign_view* *img_ascii* (defq c (getf *img_ascii* +canvas_texture 0)))
-		(bind '(tid tw th) (texture-metrics c))
+		(bind '(tid tw th) (texture-sized c))
 		(def *campaign_view* :zoom zoom :tid tid :canvas *img_campain*)
 		(. *campaign_view* :change 0 0 (* zoom +screen_width) (* zoom +screen_height) :t)))
 

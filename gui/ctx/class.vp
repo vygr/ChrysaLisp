@@ -1,57 +1,116 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././view/class.inc")
-(include "././region/class.inc")
+
+;A view draws into its own list of draws, in its own coordinates, and keeps
+;it till it is to be drawn again, its own :dirty or a view's above it, or a
+;new size. The GUI puts the lists of what is to be seen on the host, clipped
+;and moved to where each view is, service/gui/class.vp
+
+(def-method :ctx :reserve)
+	;inputs
+	;:r0 = view object (ptr)
+	;:r1 = longs (uint)
+	;outputs
+	;:r0 = view object (ptr)
+	;:r1 = the first of them (plong)
+	;trashes
+	;:r1-:r3, :f0-:f15
+	;info
+	;the view's list of draws that many longer, made if it has none
+
+	(entry :ctx :reserve '(:r0 :r1))
+
+	(assign '((:r0 +view_draws)) '(:r2))
+	(vpif '(:r2 = 0))
+		(vp-push :r0 :r1)
+		(call :array :create :nil '(:r2))
+		(vp-pop :r0 :r1)
+		(assign '(:r2) '((:r0 +view_draws)))
+	(endif)
+	(vp-push :r0)
+	(assign '((:r2 +array_length)) '(:r3))
+	(vp-add-rr :r3 :r1)
+	(vp-push :r1)
+	(call :array :set_cap '(:r2 :r1) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r1 (:r0 +array_begin)) '((:r0 +array_length) :r1))
+	(vp-shl-cr (log2 +long_size) :r3)
+	(vp-add-rr :r3 :r1)
+	(vp-pop :r0)
+
+	(exit :ctx :reserve '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
 
 (def-method :ctx :set_color)
 	;inputs
 	;:r0 = view object (ptr)
 	;:r1 = color (argb)
 	;trashes
-	;:r0-:r3, :r13-:r14, :f0-:f15
-
-	(vp-rdef (r g b a) (method-input :host_gui :set_color))
+	;:r1-:r4, :f0-:f15
 
 	(entry :ctx :set_color '(:r0 :r1))
 
-	(assign '(:r1 :r1 :r1 :r1) `(,a ,r ,g ,b))
-	(vp-simd vp-shr-cr '(24 16 8) `(,a ,r ,g))
-	(vp-simd vp-and-cr '(0xff) `(,a ,r ,g ,b))
-	(host-gui-call :host_gui :set_color `(,r ,g ,b ,a))
+	(vp-cpy-rr :r1 :r4)
+	(call :ctx :reserve '(:r0 2) '(:r0 :r1))
+	(vp-cpy-cr +ctx_op_color :r2)
+	(assign '(:r2 :r4) '((:r1 0) (:r1 +long_size)))
 	(vp-ret)
 
 (def-func-end)
 
-(defun for-each-visible-rect (%0)
-	;for each rect on the dirty region
-	(assign '((:rsp local_this)) '(:r0))
-	(assign '((& :r0 +view_dirty_region)) '(:r0))
-	(loop-flist :r0 0 :r0 :r0)
-		(assign '(:r0) '((:rsp local_dirty_rect)))
+(defun ctx-rect (%0)
+	;a host rect of :r7-:r10 at %0 from :r1
+	(assign '(:r7 :r8 :r9 :r10)
+		`((:r1 ,(+ %0 host_gui_rect_x) i) (:r1 ,(+ %0 host_gui_rect_y) i)
+		(:r1 ,(+ %0 host_gui_rect_w) i) (:r1 ,(+ %0 host_gui_rect_h) i))))
 
-		;continue if out of bounds
-		(assign '((:r0 rect_x) (:r0 rect_y) (:r0 rect_x1) (:r0 rect_y1)) '(:r7 :r8 :r9 :r10))
-		(assign '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
-			(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)) '(:r11 :r12 :r13 :r14))
-		(vp-simd vp-add-rr '(:r11 :r12) '(:r13 :r14))
-		(continueif '(:r9 <= :r11) '(:r10 <= :r12) '(:r7 >= :r13) '(:r8 >= :r14))
-
-		;set clip region to this region
-		(vp-simd vp-sub-rr '(:r7 :r8) '(:r9 :r10))
-		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect host_gui_rect_x) i) (:rsp (+ local_clip_rect host_gui_rect_y) i)
-			(:rsp (+ local_clip_rect host_gui_rect_w) i) (:rsp (+ local_clip_rect host_gui_rect_h) i)))
-		(host-gui-call :host_gui :set_clip '((& :rsp local_clip_rect)))
-
-		;eval body
-		(exec %0)
-
-		(assign '((:rsp local_dirty_rect)) '(:r0))
-	(loop-end))
-
-(def-method :ctx :blit 16)
+(def-method :ctx :box)
 	;inputs
 	;:r0 = view object (ptr)
-	;:r1 = texture id (long)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
+	;trashes
+	;:r1-:r3, :f0-:f15
+
+	(entry :ctx :box '(:r0 :r7 :r8 :r9 :r10))
+
+	(call :ctx :reserve '(:r0 3) '(:r0 :r1))
+	(vp-cpy-cr +ctx_op_box :r2)
+	(assign '(:r2) '((:r1 0)))
+	(ctx-rect +long_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :ctx :filled_box)
+	;inputs
+	;:r0 = view object (ptr)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
+	;trashes
+	;:r1-:r3, :f0-:f15
+
+	(entry :ctx :filled_box '(:r0 :r7 :r8 :r9 :r10))
+
+	(call :ctx :reserve '(:r0 3) '(:r0 :r1))
+	(vp-cpy-cr +ctx_op_filled_box :r2)
+	(assign '(:r2) '((:r1 0)))
+	(ctx-rect +long_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :ctx :blit)
+	;inputs
+	;:r0 = view object (ptr)
+	;:r1 = 0, else texture object (ptr)
 	;:r2 = color mod (argb)
 	;:r7 = x (pixels)
 	;:r8 = y (pixels)
@@ -60,116 +119,23 @@
 	;:r11 = sx (pixels)
 	;:r12 = sy (pixels)
 	;trashes
-	;:r0-:r4, :r7-:r14, :f0-:f15
+	;:r1-:r5, :r7-:r8, :f0-:f15
 
-	(structure local 0
-		(struct drect host_gui_rect_size)
-		(struct srect host_gui_rect_size)
-		(struct clip_rect host_gui_rect_size)
-		(long texture)
-		(ptr this dirty_rect old_stack))
+	(entry :ctx :blit '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	(vpif '(:r1 /= 0))
-		(vp-cpy-rr :rsp :r3)
-		(vp-alloc local_size)
-		(vp-and-cr -16 :rsp)
-		(assign '(:r3) '((:rsp local_old_stack)))
-
-		;save draw rectangle info
-		(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y) :r0 :r1) '(:r13 :r14 (:rsp local_this) (:rsp local_texture)))
-		(vp-simd vp-add-rr '(:r13 :r14) '(:r7 :r8))
-		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
-			(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
-		(assign '(:r11 :r12 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
-			(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
-
-		;set the color mod
-		(vp-simd vp-cpy-rr '(:r2) '(:r3 :r4))
-		(vp-simd vp-shr-cr '(16 8) '(:r3 :r2))
-		(vp-simd vp-and-cr '(0xff) '(:r3 :r2 :r4))
-		(host-gui-call :host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
-
-		(for-each-visible-rect
-			'(progn
-				;blit the texture
-				(host-gui-call :host_gui :blit '((:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
-
-		(vp-cpy-ir :rsp local_old_stack :rsp)
+		;the list keeps the texture while it has it
+		(class/obj/ref :r1 :r3)
+		(vp-cpy-rr :r1 :r4)
+		(vp-cpy-rr :r2 :r5)
+		(call :ctx :reserve '(:r0 7) '(:r0 :r1))
+		(vp-cpy-cr +ctx_op_blit :r2)
+		(assign '(:r2 :r4 :r5) `((:r1 0) (:r1 ,(* 3 +long_size)) (:r1 ,(* 4 +long_size))))
+		(ctx-rect +long_size)
+		(vp-cpy-rr :r11 :r7)
+		(vp-cpy-rr :r12 :r8)
+		(ctx-rect (* 5 +long_size))
 	(endif)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :ctx :box 16)
-	;inputs
-	;:r0 = view object (ptr)
-	;:r7 = x (pixels)
-	;:r8 = y (pixels)
-	;:r9 = width (pixels)
-	;:r10 = height (pixels)
-	;trashes
-	;:r0, :r3, :r7-:r14, :f0-:f15
-
-	(structure local 0
-		(struct drect host_gui_rect_size)
-		(struct clip_rect host_gui_rect_size)
-		(ptr this dirty_rect old_stack))
-
-	(vp-cpy-rr :rsp :r3)
-	(vp-alloc local_size)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r3) '((:rsp local_old_stack)))
-
-	;save draw rectangle info
-	(assign '(:r0) '((:rsp local_this)))
-	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y)) '(:r11 :r12))
-	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
-		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
-
-	(for-each-visible-rect
-		'(progn
-			;draw the rectangle
-			(host-gui-call :host_gui :box '((& :rsp local_drect)))))
-
-	(vp-cpy-ir :rsp local_old_stack :rsp)
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :ctx :filled_box 16)
-	;inputs
-	;:r0 = view object (ptr)
-	;:r7 = x (pixels)
-	;:r8 = y (pixels)
-	;:r9 = width (pixels)
-	;:r10 = height (pixels)
-	;trashes
-	;:r0, :r3, :r7-:r14, :f0-:f15
-
-	(structure local 0
-		(struct drect host_gui_rect_size)
-		(struct clip_rect host_gui_rect_size)
-		(ptr this dirty_rect old_stack))
-
-	(vp-cpy-rr :rsp :r3)
-	(vp-alloc local_size)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r3) '((:rsp local_old_stack)))
-
-	;save draw rectangle info
-	(assign '(:r0) '((:rsp local_this)))
-	(assign '((:r0 +view_ctx_x) (:r0 +view_ctx_y)) '(:r11 :r12))
-	(vp-simd vp-add-rr '(:r11 :r12) '(:r7 :r8))
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
-		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
-
-	(for-each-visible-rect
-		'(progn
-			;draw the rectangle
-			(host-gui-call :host_gui :filled_box '((& :rsp local_drect)))))
-
-	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)

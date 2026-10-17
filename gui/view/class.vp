@@ -3,6 +3,7 @@
 (include "class/func/class.inc")
 (include "./class.inc")
 (include "././region/class.inc")
+(include "././ctx/class.inc")
 
 (gen-create :view)
 	;outputs
@@ -84,9 +85,61 @@
 	(assign '((:rsp 0)) '(:r1))
 	(call :region :free '(:r0 (& :r1 +view_opaque_region)))
 
+	;free any list of draws, and the textures it kept
+	(assign '((:rsp 0)) '(:r0))
+	(call :view :forget_draws '(:r0))
+
 	;deinit parent
 	(vp-pop :r0)
 	(s-jump :view :deinit '(:r0))
+
+(def-func-end)
+
+(def-method :view :forget_draws)
+	;inputs
+	;:r0 = view object (ptr)
+	;outputs
+	;:r0 = view object (ptr)
+	;trashes
+	;:r1-:r4, :f0-:f15
+	;info
+	;the view's list of draws let go of, and the textures its blits kept,
+	;so its :draw is run again the next time it is drawn
+
+	(entry :view :forget_draws '(:r0))
+
+	(assign '((:r0 +view_flags)) '(:r1))
+	(vp-and-cr (lognot +view_flag_drawn) :r1)
+	(assign '(:r1) '((:r0 +view_flags)))
+	(assign '((:r0 +view_draws)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(vp-push :r0 :r1)
+		(class/array/get_both :r1 :r3 :r4)
+		(loop-start)
+			(breakif '(:r3 >= :r4))
+			(assign '((:r3 0)) '(:r1))
+			(vpif '(:r1 = +ctx_op_blit))
+				(assign `((:r3 ,(* 3 +long_size))) '(:r0))
+				(vp-push :r3 :r4)
+				(call :obj :deref '(:r0))
+				(vp-pop :r3 :r4)
+				(vp-add-cr (* 7 +long_size) :r3)
+			(elseif '(:r1 = +ctx_op_color))
+				(vp-add-cr (* 2 +long_size) :r3)
+			(else)
+				(vp-add-cr (* 3 +long_size) :r3)
+			(endif)
+		(loop-end)
+		(vp-pop :r0 :r1)
+		(vp-xor-rr :r2 :r2)
+		(assign '(:r2) '((:r0 +view_draws)))
+		(vp-push :r0)
+		(call :array :deref '(:r1))
+		(vp-pop :r0)
+	(endif)
+
+	(exit :view :forget_draws '(:r0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -687,6 +740,15 @@
 
 	(entry :view :set_flags '(:r0 :r1 :r2))
 
+	;all of it to be drawn is to be drawn again, its :draw run, and those
+	;of the views in it
+	(vp-cpy-rr :r1 :r3)
+	(vp-and-rr :r2 :r3)
+	(vp-and-cr +view_flag_dirty_all :r3)
+	(vpif '(:r3 /= 0))
+		(vp-or-cr +view_flag_redraw :r1)
+		(vp-or-cr +view_flag_redraw :r2)
+	(endif)
 	(assign '((:r0 +view_flags)) '(:r3))
 	(vp-xor-cr -1 :r2)
 	(vp-and-rr :r2 :r3)

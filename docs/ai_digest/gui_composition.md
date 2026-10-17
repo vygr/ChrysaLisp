@@ -99,31 +99,56 @@ docs/diagrams/compositor_passes.cwb
 
 **1. `:host_gui :update` (service/gui/class.vp)**
 
-* Checks if the GUI is initialized (`statics_gui_init`). If not, calls
-  `:host_gui :init`.
+The frame is worked out in the GUI's own task. Only what must call the host
+is done on the host's stack, aligned to 16 bytes, by `:sys_task :callback`:
+making or sizing the host's window, and putting the frame on the screen.
+No Lisp runs on the host's stack.
 
-* If `statics_gui_flags` indicate a global change (like a resize), it calls
+* If the GUI is not initialized (`statics_gui_init`), or `statics_gui_flags`
+  say the host window changed size, a callback calls `:host_gui :init` or
   `:host_gui :resize`.
 
 * If the `statics_gui_dirty_flag` is set (meaning something needs
   redrawing):
 
-    1. `host_gui_funcs->begin_composite()`: Sets the rendering target to the
-       backbuffer.
+    1. A frame list is made, `statics_gui_draws`.
 
-    2. `:host_gui :composite(statics->statics_gui_screen, ...)`: This is the
-       core compositing logic, detailed below. It calculates the exact dirty
-       region for the entire screen.
+    2. `:host_gui :composite(statics->statics_gui_screen, ...)`, in the
+       GUI's task: the passes detailed below, which put each view to be
+       drawn in the frame list, the view and its dirty region.
 
-    3. `host_gui_funcs->end_composite()`: Resets the rendering target
-       (usually to the main window/screen).
+    3. One callback puts the frame on the host: `begin_composite`, then for
+       each view of the frame, for each rect of its dirty region, `set_clip`
+       to it and the view's list of draws played where the view is;
+       `end_composite`, and `flush` of the dirty bounds.
 
-    4. `host_gui_funcs->flush(&rect)`: Copies the relevant portion of the
-       backbuffer (defined by the bounds of the dirty region returned by
-       `:composite`) to the visible screen.
+    4. `:host_gui :frame_free`, back in the GUI's task: the frame's dirty
+       regions freed, its views let go of, and the frame list freed.
 
     5. Clears `statics_gui_dirty_flag` and frees the temporary views in
        `statics_gui_temps`.
+
+**Lists of draws, kept.** A view's `:draw`, Lisp or VP, does not call the
+host. Its `ctx` calls (`:ctx_set_color`, `:ctx_box`, `:ctx_filled_box`,
+`:ctx_blit`, gui/ctx/class.vp) add to the view's own list of draws,
+`+view_draws`, in its own coordinates and not clipped: a colour, a box, a
+filled box, or a blit, which holds a reference to its texture so it can not
+go while the list has it. The list is kept from frame to frame. A view
+uncovered, or moved, draws its list again, and its `:draw` is not run. It is
+run again, the list let go of (`:view :forget_draws`), when:
+
+* the view is marked dirty itself, `:add_dirty`, `:dirty`, or a
+  `+view_flag_dirty_all` set (`+view_flag_redraw`);
+
+* a view it is in is, the redraw flag passed down in the first pass;
+
+* it is a new size from when it last drew;
+
+* it keeps no list at all, `+view_flag_nocache`, as the vdu does, which
+  draws only the lines that are dirty.
+
+A plain move, `:change_dirty`, keeps the list. `+view_flag_drawn` says a view
+has drawn, so one that draws nothing has no list.
 
 `:view :hide` puts a temporary view in the hidden view's place in its
 parent's list, holding the hidden area as its dirty region. Its place in the
@@ -223,27 +248,23 @@ view tree.
       draw. Each view in this list has its `view_dirty_region` correctly set
       to the area it needs to render.
 
-* **Pass 3: Actual Drawing**
+* **Pass 3: Lists of Draws**
 
     * The compositor iterates through the `ctx_flist` (draw list).
 
     * For each view in the list:
 
-        * Calls the view's `:draw` method.
+        * If it has not drawn, or is a new size, its list is let go of and
+          its `:draw` method is run, in the GUI's task, which adds to a new
+          list. Else its kept list is used.
 
-        * Inside the view's `:draw` method (and its `ctx_...` helper methods
-          like `ctx_box`, `ctx_filled_box`, `ctx_blit`):
+        * The view, with a reference, and its `view_dirty_region` go in the
+          frame list, and the view is left with no dirty region, so any
+          marked on it now is for the next frame.
 
-            * The `host_gui_funcs->set_clip` is called with rectangles from
-              the view's `view_dirty_region`. This ensures drawing
-              primitives are hardware-clipped to only the necessary parts.
-
-            * The view then uses other `host_gui_funcs` (e.g., `box`,
-              `filled_box`, `blit`) to render its content. These drawing
-              operations are relative to the view's `view_ctx_x`,
-              `view_ctx_y`.
-
-        * After drawing, the view's `view_dirty_region` is freed.
+    * The frame is put on the host, each rect of a view's dirty region the
+      clip of its list played where the view is, `view_ctx_x`,
+      `view_ctx_y`, and then the regions are freed.
 
 ## Summary of Region Usage
 
@@ -258,8 +279,8 @@ view tree.
     * Is distributed downwards to children, becoming their specific drawing
       area (Pass 2, `distribute_down_callback`).
 
-    * Serves as the clip region(s) for the view's actual drawing primitives
-      (Pass 3).
+    * Is handed to the frame, the clip region(s) for the view's list of
+      draws as it is put on the host, then freed (Pass 3).
 
 * **`view_opaque_region`:**
 

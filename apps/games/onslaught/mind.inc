@@ -53,7 +53,7 @@
 
 	(defmethod :draw ()
 		(when (and (defq c (get :canvas this)) (defq texture (getf c +canvas_texture 0)))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(defq zoom (get :zoom this) ts (* zoom +tile_width) y (neg (get :y1 this)))
 			;plane 1
 			(while (< y +window_height)
@@ -82,7 +82,7 @@
 	(defmethod :draw ()
 		(when (and (> (defq segs (get :segs this)) 0) (defq c (get :canvas this))
 				(defq texture (getf c +canvas_texture 0)))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(defq zoom (get :zoom this) ts (* zoom 16) arm (get :arm this)
 				seg (% (- 15 (% (get :frame_count this) (const (length +at_mind_arm))))
 					(const (length +at_mind_arm))))

@@ -9,7 +9,7 @@
 	(defmethod :draw ()
 		; (. panel :draw) -> panel
 		(when (and (defq c (get :canvas this)) (defq texture (getf c +canvas_texture 0)))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(defq zoom (get :zoom this)
 				slot_w (* zoom 16) slot_h (* zoom 16)
 				sight_raw_y (* +frm_16x16_sight slot_h)

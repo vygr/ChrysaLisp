@@ -41,7 +41,7 @@
 		(when (and font text (if (eql (def? :text_cache this) text)
 				(defq texture (font-sym-texture font sym_cache))
 				(defq texture (font-sym-texture font (set this :text_cache text :sym_cache (sym (text-most text)))))))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(. this :ctx_blit tid (get :ink this) offset (>>> (- h th) 1) tw th))
 		this)
 

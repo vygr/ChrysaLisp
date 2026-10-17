@@ -13,7 +13,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :r13-:r14, :f0-:f15
+	;:r1-:r6, :f0-:f15
 
 	(entry :ctx :lisp_set_color '(:r0 :r1))
 
@@ -46,7 +46,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r10, :f0-:f15
 
 	(entry :ctx :lisp_box '(:r0 :r1))
 
@@ -79,7 +79,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r10, :f0-:f15
 
 	(entry :ctx :lisp_filled_box '(:r0 :r1))
 
@@ -112,7 +112,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r10, :f0-:f15
 
 	(def-vars
 		(ptr this view rect))
@@ -161,7 +161,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f15
+	;:r1-:r12, :f0-:f15
 
 	(entry :ctx :lisp_blit '(:r0 :r1))
 
@@ -172,11 +172,11 @@
 
 	(vp-push :r0)
 	(vpif '(:r2 = 8))
-		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10) '(:view & :num :num :num :num :num :num))
+		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10) '(:view & :obj :num :num :num :num :num))
 		(vp-xor-rr :r11 :r11)
 		(vp-xor-rr :r12 :r12)
 	(else)
-		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12) '(:view & :num :num :num :num :num :num :num :num))
+		(list-bind-args :r1 '(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12) '(:view & :obj :num :num :num :num :num :num :num))
 	(endif)
 	(vp-push :r0)
 	(call :ctx :blit (method-input :ctx :blit))
@@ -189,7 +189,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r1 "(ctx-blit view mth tid col x y w h [sx sy])" +error_msg_wrong_types))
-	(signature '(:view :sym :NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM)))
+	(jump :lisp :repl_error '(:r1 "(ctx-blit view mth texture col x y w h [sx sy])" +error_msg_wrong_types))
+	(signature '(:view :sym :obj :NUM :NUM :NUM :NUM :NUM :NUM :NUM)))
 
 (def-func-end)

@@ -54,7 +54,7 @@
 	(defmethod :draw ()
 		; (. canvas :draw) -> canvas
 		(when (defq texture (getf this +canvas_texture 0))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(bind '(w h) (. this :get_size))
 			(defq ox (def? :offset_x this) oy (def? :offset_y this))
 			(unless ox (setq ox (>>> (- w tw) 1)))

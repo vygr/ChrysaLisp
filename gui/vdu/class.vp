@@ -30,6 +30,10 @@
 		(vp-xor-rr :r2 :r2)
 		(assign '(:r2 :r2 :r2 :r2 :r2)
 			'((:r0 +vdu_font) (:r0 +vdu_chars) (:r0 +vdu_width) (:r0 +vdu_height) (:r0 +vdu_textures)))
+		;it draws only the lines that are dirty, so keeps no list of draws
+		(assign '((:r0 +view_flags)) '(:r2))
+		(vp-or-cr +view_flag_nocache :r2)
+		(assign '(:r2) '((:r0 +view_flags)))
 	(endif)
 	(vp-ret)
 
@@ -65,7 +69,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(def-vars
-		(ptr this font)
+		(ptr this font tex)
 		(long handle c)
 		(int x bx by bx1 by1)
 		(uint w h col paper ink))
@@ -129,10 +133,10 @@
 					(vp-sub-cr 33 c)
 					(assign (vpx (.> this +vdu_textures)) `(,txt))
 					(call :list :get_elem `(,txt ,c) `(_ ,txt))
-					(call :texture :get_metrics `(,txt) (vpx _ handle w h))
+					(call :texture :get_metrics `(,txt) (vpx tex handle w h))
 					(vpif (vpx handle))
 						;blit the char texture
-						(call :ctx :blit (vpx this handle ink (+ (* x (.> this +vdu_char_width)) (>>> (- (.> this +vdu_char_width) w) 1)) (* by (.> this +vdu_char_height)) w h 0 0))
+						(call :ctx :blit (vpx this tex ink (+ (* x (.> this +vdu_char_width)) (>>> (- (.> this +vdu_char_width) w) 1)) (* by (.> this +vdu_char_height)) w h 0 0))
 					(endif)
 				(endif)
 				(assign (vpx (+ x 1)) (vpx x))

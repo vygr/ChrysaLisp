@@ -196,7 +196,7 @@
 		; (. view :ctx_filled_region region) -> view
 
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
-		; (. view :ctx_blit tid col x y width height [sx sy]) -> view
+		; (. view :ctx_blit texture col x y width height [sx sy]) -> view
 
 	(defmethod :ctx_panel (col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
@@ -292,9 +292,13 @@
 
 	(defmethod :change_dirty (x y width height &optional flag)
 		; (. view :change_dirty x y width height [flag]) -> view
+		;moved it draws what it drew, its list of draws is kept, unless it
+		;was to be drawn again already or is a new size
 		(bind '(old_x old_y) (. this :get_pos))
+		(defq redraw (logand (. this :get_flags) +view_flag_redraw))
 		(.-> this :dirty (:change x y width height flag)
-			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all))
+			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all
+			(:set_flags redraw +view_flag_redraw)))
 
 	;;;;;;;;;;;;;;;;;
 	; signal emittion

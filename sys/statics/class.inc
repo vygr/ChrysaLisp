@@ -79,7 +79,7 @@
 
 	;gui statics
 	(struct gui_rect_heap +hp_heap_size)
-	(ptr gui_init gui_screen gui_temps)
+	(ptr gui_init gui_screen gui_temps gui_draws)
 	(long gui_next_id)
 	(uint gui_dirty_flag gui_old_region_index gui_flags)
 	(int gui_mouse_x gui_mouse_y)

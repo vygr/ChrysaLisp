@@ -56,7 +56,7 @@
 		(when (and (defq md (get :map_data this))
 				(defq c (get :map_blocks this))
 				(defq texture (getf c +canvas_texture 0)))
-			(bind '(tid tw th) (texture-metrics texture))
+			(bind '(tid tw th) (texture-sized texture))
 			(bind '(vx vy) (. this :get_pos))
 			(bind '(vw vh) (. (penv this) :get_size))
 			(defq zoom (get :zoom this) vx (neg vx) vy (neg vy)

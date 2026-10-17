@@ -308,7 +308,7 @@
 		(when (/= (defq f (get :sp_frame this)) -1)
 			(when (defq c (. this :sp_get_canvas))
 				(when (defq texture (getf c +canvas_texture 0))
-					(bind '(tid tw th) (texture-metrics texture))
+					(bind '(tid tw th) (texture-sized texture))
 					(bind '(w h) (. this :get_size))
 					(when (and (> w 0) (> h 0))
 						(defq zoom (get :zoom this) dir (get :sp_dir this)

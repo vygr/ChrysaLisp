@@ -35,10 +35,6 @@
 	(call :list :create :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '(:r0) '((:r1 statics_gui_temps)))
-	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
-	(assign '((:r1 statics_sys_task_current_tcb) (:r1 statics_sys_task_kernel_tcb)) '(:r2 :r3))
-	(assign '((:r2 +tk_node_lisp)) '(:r2))
-	(assign '(:r2) '((:r3 +tk_node_lisp)))
 	;gui priority
 	(call :sys_task :set_priority '(tk_gui_priority))
 
@@ -142,12 +138,6 @@
 		  (:r1 statics_gui_flags)
 		  (:r1 statics_gui_mouse_x)
 		  (:r1 statics_gui_mouse_y)))
-
-	;clear lisp tls on kernel tcb
-	(assign '((:r1 statics_sys_task_kernel_tcb)) '(:r1))
-	(vpif '(:r1 /= 0))
-		(assign '(:r0) '((:r1 +tk_node_lisp)))
-	(endif)
 
 	(assign '((:rsp local2_old_stack)) '(:rsp))
 	(vp-ret)

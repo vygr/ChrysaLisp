@@ -5,6 +5,7 @@
 	(dec-method :vtable gui/view/vtable)
 	(dec-method :create gui/view/create :static () (:r0) (:r0-:r5 :f0-:f15))
 	(dec-method :init gui/view/init :static (:r0 :r1) :nil (:r1-:r5 :f0-:f15))
+	(dec-method :forget_draws gui/view/forget_draws :static (:r0) (:r0) (:r1-:r4 :f0-:f15))
 	(dec-method :add_front gui/view/add_front :static (:r0 :r1) (:r0) (:r1-:r3))
 	(dec-method :add_back gui/view/add_back :static (:r0 :r1) (:r0) (:r1-:r3))
 	(dec-method :add_before gui/view/add_before :static (:r0 :r1) (:r0) (:r1-:r3))

@@ -36,6 +36,8 @@
 	(dec-method :read_screen :nil :virtual (abi-args 6) (:r0))
 	(dec-method :update service/gui/update :static (:r0 :r1 :r2) :nil (:r0-:r14 :f0-:f15))
 	(dec-method :composite service/gui/composite :static (:r0) (:r7 :r8 :r9 :r10) (:r0-:r14 :f0-:f15))
+	(dec-method :frame_view service/gui/frame_view :static (:r0) (:r0) (:r1-:r3 :r7-:r11 :f0-:f15))
+	(dec-method :frame_free service/gui/frame_free :static () () (:r0-:r5 :f0-:f15))
 	(dec-method :lisp_init service/gui/lisp_init :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :f0-:f15))
 	(dec-method :lisp_deinit service/gui/lisp_deinit :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_update service/gui/lisp_update :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
@@ -54,6 +56,7 @@
 	(fn-bind 'sys/statics/statics %4)
 	(vp-cpy-ir %4 statics_sys_load_host_gui_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
+
 
 ;;;;;;;;;;;;;;;;
 ; gui structures
