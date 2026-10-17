@@ -241,10 +241,14 @@
 				(each (lambda ((col bound slot))
 						(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
 								(and (defq at (ptr-at bound key)) (eql (elem-get bound at) val))))
-							;a device's column, its second button's row above the first's
-							(defq dx (+ x0 1.5 (* +pal_dot (n2f (% slot 6)))) dy (- y1 1.5 (* +pal_dot (n2f (inc (/ slot 6))))))
-							(push items (cwb-shape (cwb-d-rect dx dy (+ dx +pal_dot) (+ dy +pal_dot))
-								:fill col :stroke 0xff000000 :width 0.75))))
+							;as the toolbars' squares are: a device's column, the
+							;main button's row over the second's, along the foot
+							;of the cell, black 5 across with the colour inside,
+							;4 apart so two side by side share a line
+							(defq dx (+ x0 2.0 (* +pal_dot (n2f (% slot 6))))
+								dy (+ (- y1 3.0 (* 2.0 +pal_dot)) (* +pal_dot (n2f (/ slot 6)))))
+							(push items (cwb-shape (cwb-d-rect dx dy (+ dx +pal_dot 1.0) (+ dy +pal_dot 1.0)) :fill 0xff000000 :stroke 0)
+								(cwb-shape (cwb-d-rect (+ dx 1.0) (+ dy 1.0) (+ dx +pal_dot) (+ dy +pal_dot)) :fill col :stroke 0))))
 					devices))
 			((case what
 					(:tool (eql val mode))
