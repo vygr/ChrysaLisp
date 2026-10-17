@@ -131,9 +131,15 @@
 	(. *board* :new w h)
 	;a new document has nothing on it, no instruments, no menus: the board
 	;keeps the document it had, emptied, and what it said of them goes too
-	(.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)) (:insert :swatches (list)))
+	(.-> (. *board* :get_doc) (:insert :tools (list)) (:insert :menus (list)) (:insert :swatches (list)) (:insert :inks :nil))
+	;and everything is as it is for a board never used: what each device
+	;is bound to, the board's mode, ink, width and switches, and the pens'
+	;inks, which a document of its own has none of, (stage-from-doc)
+	(def *board* :bindings (bindings-default) :settings (Fmap 11)
+		:mode :pen :pen 0 :width (first *widths*) :snap 0.0 :snap_angle 0.0 :keep_shape :t)
 	(stage-from-doc)
-	(setq *file* :nil))
+	(setq *file* :nil *dots_of* :nil)
+	(sync-ui))
 
 (defun action-size ()
 	;the board is the size the size field says, what is on it stays

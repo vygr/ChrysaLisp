@@ -1221,6 +1221,9 @@
 		:floating (list) :float_back :nil :damage (list) :damage_full :t :appended (list) :changes (list :all) :menu :nil :menu_colors :nil :menu_widths :nil :time 0
 		;who each device is, by its kind and number, see (:user_of)
 		:users (Fmap 11) :next_user +board_first_student :selectors (Fmap 11)
+		;every device and button that has pressed on it, (kind id buttons),
+		;for what shows what each is bound to, (:devices_seen)
+		:seen (Fmap 11)
 		;the pens, each an ink, and the one held when nothing else is: a
 		;slot holds a pen by its number, :pen, (:ink_of). :nil, none, a slot
 		;holds an ink, :color
@@ -1567,6 +1570,17 @@
 		(if (defq on_pens (get :on_pens this)) (on_pens))
 		this)
 
+	(defmethod :devices_seen ()
+		; (. board :devices_seen) -> ((kind id buttons) ...)
+		;every device and button that has pressed on the board. A pen has
+		;two ends: a pen seen is both, and its other end, an eraser
+		(defq out (list))
+		(. (get :seen this) :each (lambda (k (kind id buttons))
+			(push out (list kind id buttons))
+			(when (eql kind :pen)
+				(push out (list :pen id +pev_left) (list :pen id +pev_right) (list :eraser id +pev_left)))))
+		out)
+
 	(defmethod :switch_of (what key)
 		; (. board :switch_of what key) -> :t | :nil
 		;is a switch, :snap :snap_angle or :keep_shape, on for a device bound
@@ -1645,7 +1659,7 @@
 		this)
 
 	(defmethod :put_state (state)
-		(bind '(layers w h) state)
+		(bind '(layers w h &ignore) state)
 		(.-> (get :doc this) (:insert :layers layers) (:insert :width w) (:insert :height h))
 		(. this :changed :all)
 		;an undo is of the document, strong groups and all, not of the
@@ -1659,16 +1673,25 @@
 	(defmethod :undo ()
 		; (. board :undo) -> :t | :nil
 		(when (nempty? (get :undo_stack this))
-			(push (get :redo_stack this) (. this :state))
-			(. this :put_state (pop (get :undo_stack this)))
+			(. this :step_to (pop (get :undo_stack this)) (get :redo_stack this))
 			:t))
 
 	(defmethod :redo ()
 		; (. board :redo) -> :t | :nil
 		(when (nempty? (get :redo_stack this))
-			(push (get :undo_stack this) (. this :state))
-			(. this :put_state (pop (get :redo_stack this)))
+			(. this :step_to (pop (get :redo_stack this)) (get :undo_stack this))
 			:t))
+
+	(defmethod :step_to (state other)
+		; (. board :step_to state other) -> board
+		;back or on to a state, what is now kept on the other stack. A whole
+		;step, (:whole_step), keeps and puts back all of it, on both stacks
+		(defq now (. this :state) whole (> (length state) 3))
+		(and whole (defq capture (get :on_capture this)) (push now (capture)))
+		(push other now)
+		(. this :put_state state)
+		(and whole (defq restore (get :on_restore this)) (restore (elem-get state 3)))
+		this)
 
 	;;;;;;;;;;;;;;;;;;
 	; what is selected
@@ -2046,9 +2069,22 @@
 	(defmethod :new (w h)
 		; (. board :new width height) -> board
 		;an empty board of that size, as a step that can be undone: an
-		;hour's work is not lost to one press in the wrong place
+		;hour's work is not lost to one press in the wrong place. A whole
+		;step, (:whole_step): what is not the document, what whoever shows
+		;the board keeps, is put back by its undo too
 		(. this :clear)
+		(. this :whole_step)
 		(.-> (get :doc this) (:insert :width w) (:insert :height h))
+		this)
+
+	(defmethod :whole_step ()
+		; (. board :whole_step) -> board
+		;the last step taken is of everything: an undo is of the document
+		;and no more, but of this step it puts back all that :on_capture
+		;gave as it was taken, by :on_restore. A new document, which makes
+		;every device and the board's own settings as they began
+		(and (defq top (last (get :undo_stack this))) (= (length top) 3) (defq capture (get :on_capture this))
+			(push top (capture)))
 		this)
 
 	(defmethod :resize (w h)
@@ -2295,8 +2331,13 @@
 		; (. board :pointers events) -> board
 		;a batch of pointer events, each in the space of the document
 		;where each finger that is down is, is kept, to be shown, (:draw_actors)
-		(defq contacts (get :contacts this) seen :nil)
+		(defq contacts (get :contacts this) seen :nil devices (get :seen this))
 		(each (lambda (event)
+			(bind '(id kind buttons &ignore) event)
+			;a device as it presses, its main button or its second
+			(when (and (/= buttons 0) (/= (logand buttons (logior +pev_left +pev_right)) 0))
+				(defq press (list kind (ptr-device id) (if (/= (logand buttons +pev_right) 0) +pev_right +pev_left)))
+				(unless (. devices :find (str press)) (. devices :insert (str press) press)))
 			(when (eql (elem-get event +pev_kind) :touch)
 				(setq seen :t)
 				(if (ptr-down? event)

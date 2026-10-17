@@ -190,15 +190,36 @@
 	;each button of the binders, the devices bound to what it binds, when
 	;what they are bound to has changed, and its strip the first time
 	(defq rules (get :rules (. *board* :get_bindings))
-		as (str rules (get :snap *board*) (get :snap_angle *board*) (get :keep_shape *board*)))
+		as (str rules (get :snap *board*) (get :snap_angle *board*) (get :keep_shape *board*)
+			(get :mode *board*) (get :pen *board*) (get :width *board*) (. (get :seen *board*) :size)))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
-		(defq devices (. (. *board* :get_bindings) :devices (# (. *board* :device_slot %0 %1 %2))))
+		;each device and button there is a rule of its own for, every one
+		;the board has seen, and the mouse's two buttons, which are always
+		;there, by its place: what it is bound to and what it uses. What it
+		;bound itself shows always; the board's mode, ink and width where
+		;it uses them, and on the mode bar the hand is select and the
+		;eraser the eraser
+		(defq bindings (. *board* :get_bindings) seen (list) devices (list))
+		(each (lambda ((kind id buttons))
+				(when (and (defq slot (. *board* :device_slot kind id buttons)) (not (find slot seen)))
+					(push seen slot)
+					(defq event (ptr-event id kind (ifn buttons +pev_left) 0 0)
+						what (ifn (. bindings :find event) (list))
+						tool (. bindings :value event :tool :pen)
+						own (lambda (key) (if (defq at (ptr-at what key)) (elem-get what at))))
+					(push devices (list what slot (scatter (Emap)
+						:mode (case tool (:pen (ifn (own :mode) (get :mode *board*))) (:hand :select) (:eraser :eraser))
+						:width (ifn (own :width) (if (find tool '(:pen :eraser)) (get :width *board*)))
+						:pen (ifn (own :pen) (if (eql tool :pen) (get :pen *board*))))))))
+			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
+				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
+					(filter (# (second %0)) rules))
+				(. *board* :devices_seen)))
 		(defq slots-of (lambda (key value)
 			(defq out (list))
-			(each (lambda ((& what slot))
-					(and (defq at (ptr-at what key)) (eql (elem-get what at) value)
-						(push out slot)))
+			(each (lambda ((what slot uses))
+					(if (eql (. uses :find key) value) (push out slot)))
 				devices)
 			out))
 		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
@@ -207,7 +228,7 @@
 		(each (# (button-lights %0 (slots-of :pen (!)))) (. *ink_toolbar* :children))
 		;a switch is lit for a device that has it on, its own or the board's
 		(each (lambda (button key)
-				(button-lights button (reduce (lambda (out (& what slot))
+				(button-lights button (reduce (lambda (out (what slot &ignore))
 					(if (. *board* :switch_of what key) (push out slot) out)) devices (list))))
 			(. *snap_toolbar* :children) '(:snap :snap_angle :keep_shape))))
 
@@ -1191,6 +1212,33 @@
 		(ifn (. doc :find :swatches) (list)))
 	(. *board* :touch +board_dirty_overlay))
 
+
+(defun board-capture ()
+	; (board-capture) -> settings
+	;all that is not the document and a new document makes as it began,
+	;for its undo to put back, (. board :whole_step): what every device is
+	;bound to, the board's own settings, the pens' inks, and the
+	;instruments and menus, which are kept with the document
+	(view-to-doc)
+	(defq doc (. *board* :get_doc))
+	(list (get :bindings *board*) (get :settings *board*)
+		(map (# (get %0 *board*)) '(:mode :pen :width :snap :snap_angle :keep_shape))
+		(map (# (. doc :find %0)) '(:tools :menus :swatches :inks))))
+
+(defun board-restore (settings)
+	;as they were, (board-capture)
+	(bind '(bindings pointer_settings vals doc_vals) settings)
+	(def *board* :bindings bindings :settings pointer_settings)
+	(each (# (def *board* %0 %1)) '(:mode :pen :width :snap :snap_angle :keep_shape) vals)
+	(defq doc (. *board* :get_doc))
+	(each (# (. doc :insert %0 %1)) '(:tools :menus :swatches :inks) doc_vals)
+	(stage-from-doc)
+	(setq *dots_of* :nil)
+	(sync-ui))
+
+;a new document is a whole step: its undo puts back all it made as it began,
+;(. board :whole_step)
+(def *board* :on_capture board-capture :on_restore board-restore)
 (defun view-from-doc ()
 	;a document is seen as it was when it was saved, one that does not
 	;say from 0 0 at 1. Its zoom is one it rests at
