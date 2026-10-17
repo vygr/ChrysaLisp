@@ -45,8 +45,10 @@ stop it and start it.
 
 ## What it lets in
 
-A member takes a sync, so any machine that can link to it can write to its
-tree. Not outside it, a sync is fenced to the tree, [`docs/ai_digest/sync.md`](sync.md).
+A member takes a sync, from its own machine, from the machines named in its
+`sync_from`, and by the herd at waypoints, [`docs/ai_digest/sync.md`](sync.md), "And from
+whom": a test rig names the machine the work is on. Not outside its tree, a
+sync is fenced to the tree.
 Only a machine with the same `mesh_key` file can link at all,
 [`docs/intro/intro.md`](../intro/intro.md), "A Key". The machine's member of the mesh is the
 first of its sessions to start, so start this before a desktop if it is
@@ -57,8 +59,14 @@ do so.
 ## The command
 
 ```code
-rack [-b] [-l machines] [-d paths] "command line"
+rack [-b] [-o ids] [-x machines] [-l machines] [-d paths] "command line"
 ```
+
+With a machine in the mesh that is not yours, name your rig with `-o`, the
+start of the system id of each, `rack -o C96A1B10,D649CA0E "tests"`: every
+other machine is left alone, not made the same and not run on, and says
+`SKIP`. `-x` leaves out machines by platform the same way. A machine that
+will not take this one's sync says `refused`, and is not run on.
 
 1. Each other machine that takes a sync is made the same as this one, what
    differs is sent. Files are not removed there, but those named by `-d`,

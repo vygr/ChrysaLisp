@@ -61,11 +61,36 @@ No task is started on the other machine.
 
 ## A machine has to say it will take one
 
-`sync -a` starts the `*Sync` service on a machine, and that is all the say
-so is. A machine with the service takes a sync, a machine with none can not
-be sent one. `sync -x` stops it, and so does the end of its session. The
+`sync -a` starts the `*Sync` service on a machine. A machine with none can
+not be sent one. `sync -x` stops it, and so does the end of its session. The
 name starts with a `*`, a service seen from every machine, where an `@` is a
 service for its own machine.
+
+## And from whom
+
+A key shared with another's machine, a guest in the mesh dialled over the
+internet, trusts it with every service. So the service does not take a sync
+from just anyone. A push starts by saying who it is from and the waypoint
+its tree is at, `+sync_type_from`, and the service decides once for each
+machine, `(sync-from)`:
+
+* `:rig`, anything: it is this machine, or one named in the file
+  `sync_from` at the root of the tree, a system id a line. The machines the
+  tests are run on name the one the work is on, it names none.
+* `:herd`: this tree is exactly at its waypoint and has no `.git`, and the
+  one pushing is at a newer waypoint, another commit noted later. A push of
+  the herd ends with `+sync_type_waypoint`, and a tree now the same as the
+  one at that waypoint notes it as its own.
+* `:no`: refused, status -6, and `(sync-push)` gives `:refused`. A no is
+  not kept, a machine just linked may not yet be known to be what it is.
+
+A waypoint is the file `waypoint` at the root, the commit, when it was
+noted and the top of the tree of hashes then, written by the `waypoint`
+command after a `git pull`. A tree changed since is at none, `(sync-clean)`,
+and takes no part, pushed to or from: a machine taken out to be worked on is
+left alone till what was done is pushed and it has pulled. The top is never
+of the machine's own files, `waypoint`, `sync_from` and `mesh_key`, and a
+tree with a `.git` is kept in step by git, never by the herd.
 
 ## It can not get out of the ChrysaLisp tree
 
@@ -191,7 +216,11 @@ alone.
   who is to have it. This is the aim, push is the first step.
 * Which of two trees is the newer. The top of a tree says if two are the
   same, not which came first. And a restart when a newer one has arrived.
-* A key, so that only a machine that has it can write.
+* The herd by itself: a machine at an older waypoint that sees a newer one
+  and asks for it. Today a herd push is asked for, `sync -t` or `rack`.
+* A waypoint in the order of the commits, by the time of the commit, not
+  the time it was noted. And `waypoint` sure that the tree is the commit,
+  by git's own index, not taken on trust.
 * A folder that is empty, and a folder that is left empty by a remove.
 * An older sync. One from before the tree of hashes is told apart, and
   nothing is sent to it. It has to be updated another way, once.

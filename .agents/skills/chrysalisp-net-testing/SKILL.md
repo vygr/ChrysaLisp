@@ -1,7 +1,7 @@
 ---
 name: chrysalisp-net-testing
 display-name: ChrysaLisp Multi-Instance & Network Link Testing
-description: Use when running, debugging, or testing network links, server/client protocols, and multi-instance ChrysaLisp setups using -b and background processes.
+description: Use when running, debugging, or testing network links, server/client protocols, and multi-instance ChrysaLisp setups using -b and background processes, and whenever a machine that is not the user's is in the mesh, a friend's server dialled over the internet with mesh -t, before any sync or rack run.
 ---
 
 # ChrysaLisp Multi-Instance & Network Link Testing Skill
@@ -35,6 +35,10 @@ Find the task below and read that section in full before acting.
 *	**[6. The `-b` (Base CPU Offset) Mechanism](#6-the--b-base-cpu-offset-mechanism)**
 	Read before launching a second instance by hand, it is what stops it
 	killing the first.
+
+*	**[7. Machines Of Others In The Mesh (Mandatory)](#7-machines-of-others-in-the-mesh-mandatory)**
+	A friend's server dialled over the internet with the same key: what
+	it can do here, what a sync takes, and how to test without touching it.
 
 ## 1. Network Test Inventory in `tests/net/`
 
@@ -167,3 +171,39 @@ When debugging or writing custom network scripts across multiple instances on on
 *	**Instance 0 (Server)**: Launch without `-b` (default `base_cpu=0`). It executes `./stop.sh` on startup to clean up stale processes and binds ports on base nodes (0..9).
 *	**Instance 1 (Client)**: Launch with `-b 10`. The non-zero base offset instructs `funcs.sh` **not** to run `./stop.sh`, allowing the client to run alongside the background server on node IDs 10..19.
 *	**Exit Behavior**: Omitting `-f` ensures the process does not terminate other instances when it exits.
+
+---
+
+## 7. Machines Of Others In The Mesh (Mandatory)
+
+A machine joins a mesh by having the same `mesh_key`, on a LAN by itself or
+over the internet by dialling one that has TCP port 3333 open,
+`./rack.sh run 'mesh -t host.example.com'`. `./rack.sh run mesh` and
+`./rack.sh run cluster` then show it, its nodes and its services.
+
+*	**The key trusts everything.** Each end of a link proves it has the key,
+	`service/net/door.inc`, and after that the link carries any mail: the
+	other machine can use any service here and start a task on any node
+	here, and here there. Only give the key to people the user trusts.
+
+*	**A sync is not forced on anyone.** The Sync service takes a push only
+	from its own machine, from those named in `sync_from` at the root of the
+	tree, and by the herd at waypoints, `lib/sync/sync.inc`, "Who takes a
+	sync", and the `chrysalisp-dev-cycle` skill, Who Takes A Sync. A guest
+	with a `.git`, or with work of its own, takes nothing from here and
+	gives nothing here. A guest whose Sync service is older than that takes
+	anything, so:
+
+*	**Name your rig on every `rack` run**, `rack -o id,id`, the start of the
+	system id of each of your own test machines. Every other machine is
+	then left alone, whatever its platform.
+
+*	**Tasks are not guarded yet.** A guest can `open-task` on our nodes and
+	we on theirs. Do not start work on a guest's nodes, and say so if a farm
+	or a test would spread there, `lisp-nodes` counts their nodes too. The
+	answer, a guest link that carries mail to services and takes no tasks,
+	is planned, not built.
+
+*	When a guest is linked, timings and anything that counts the nodes of
+	the mesh see their machine as well.
+

@@ -29,6 +29,11 @@ marked mandatory apply to every session.
 *	**[Bring The Network Up And Down](#bring-the-network-up-and-down)**
 	A member on each machine, `./rack.sh`, and how to check the mesh.
 
+*	**[Who Takes A Sync (Mandatory)](#who-takes-a-sync-mandatory)**
+	Others' machines in the mesh, the rig's `sync_from`, the herd, and
+	`rack -o`. Read before any `rack` run when the mesh is not all the
+	user's.
+
 *	**[Sync And Test](#sync-and-test)**
 	`rack`, the test cache, and what to run after which kind of change.
 
@@ -59,9 +64,12 @@ marked mandatory apply to every session.
 *	`./rack.sh up|down|status|run 'cmd'`: this machine's member of the mesh,
 	one node that stays up. `docs/ai_digest/rack.md`.
 
-*	`rack [-b] [-l machines] [-d paths] "cmd"`, `cmd/rack.lisp`: make every
-	other machine's tree the same as this one's, then have each machine run
-	a command line in a fresh session of its own, sized to itself.
+*	`rack [-b] [-o ids] [-x machines] [-l machines] [-d paths] "cmd"`,
+	`cmd/rack.lisp`: make every other machine's tree the same as this one's,
+	then have each machine run a command line in a fresh session of its
+	own, sized to itself. `-o` names the only machines to touch, by the
+	start of each system id: your rig, when others' machines are in the
+	mesh. `-x` names platforms never to touch.
 
 *	`tests`, `cmd/tests.lisp`: the unit tests, as a cache of results, only
 	what a change made stale is run. `tests -a` runs all, `tests -s` lists
@@ -83,7 +91,12 @@ marked mandatory apply to every session.
 	`mesh -j` joins, `mesh -k` makes a key. `docs/intro/mesh.md`.
 
 *	`sync`, `cmd/sync.lisp`: is another machine's tree the same as this
-	one's, and send what differs. `docs/ai_digest/sync.md`.
+	one's, and send what differs. A machine takes a sync only from itself,
+	from those named in its `sync_from`, and by the herd at waypoints, see
+	Who Takes A Sync below. `docs/ai_digest/sync.md`.
+
+*	`waypoint`, `cmd/waypoint.lisp`: after a `git pull`, note the commit the
+	tree is at, so it takes part in the herd. `waypoint -c` says where it is.
 
 *	`nodes`, `cmd/nodes.lisp`: add nodes, a desktop, or a network of a shape
 	to a running one, and stop a network by name.
@@ -165,6 +178,47 @@ ChrysaLisp folder:
 *	`./rack.sh down` stops the member and what it started. Never
 	`./stop.sh`, that is every node of the machine, the user's desktop too.
 
+## Who Takes A Sync (Mandatory)
+
+A shared `mesh_key` trusts a machine with everything, and the mesh may hold
+machines that are not the user's: a friend's server dialled over the
+internet, `mesh -t host`, with the same key. Every member runs `sync -a`,
+so what decides is the Sync service, `lib/sync/sync.inc`, "Who takes a
+sync". A machine takes a sync:
+
+*	from itself;
+
+*	from the machines named in the file `sync_from` at the root of its
+	tree, a system id a line, the 32 hex digits `mesh` and `sync` show the
+	start of. This is the rig: the machines the tests are run on name the
+	machine the work is on. The machine being worked on names none;
+
+*	by the herd, only when its tree is exactly a waypoint, noted by
+	`waypoint` after a pull, and has no `.git`, from a machine at a newer
+	one. A tree changed since is at no waypoint and takes no part, pushed
+	to or from;
+
+*	from nobody else: the push is refused, `sync -t` and `rack` say so.
+
+So:
+
+*	Before a `rack` run, look at `./rack.sh run mesh`. If any machine is not
+	the user's, name the rig with `-o`, the start of each system id with a
+	`,` between, `rack -o C96A1B10,D649CA0E "tests"`. Never run `rack`
+	without it then: a guest whose Sync service is older than this takes
+	anything, and your tree would land on their machine.
+
+*	A new rig machine needs a `sync_from` naming the machine the work is on.
+	`sync_from`, `waypoint` and `mesh_key` are in `.gitignore` and are never
+	sent.
+
+*	After a change to the Sync service, restart it on each machine with
+	`./rack.sh run 'sync -x'` then `./rack.sh run 'sync -a'`. That leaves
+	every node, the user's desktop too, as it is.
+
+*	A guest can still start a task on our nodes by mail, `open-task`. Only
+	sync is guarded so far.
+
 ## Sync And Test
 
 From the machine the work is on:
@@ -186,6 +240,10 @@ From the machine the work is on:
 
 *	`-l arm64/Darwin,` leaves a machine out, brought level and not run on.
 	For a machine the user is sat at.
+
+*	`-o ids` touches only those machines, every other is left alone, not
+	brought level and not run on. Use it whenever the mesh has a machine
+	that is not the user's, Who Takes A Sync above.
 
 *	A file deleted here is not deleted on the others unless named with
 	`-d a/path:another/path`.
