@@ -12,16 +12,20 @@
 	(cat "apps/" %0 "/app.lisp"))
 
 (defun refresh-wallpaper ()
-	;pick nearest wallpaper to screen size
+	;pick nearest wallpaper to screen size, or with no images a plain one of
+	;the user's :wallpaper_paper
 	(bind '(w h) (. screen :get_size))
-	(defq index 0 err +max_int flag 0)
+	(defq index 0 err +max_int flag (if (empty? images_info) +view_flag_opaque 0))
 	(each (lambda ((iw ih it))
 		(defq iw (- w iw) ih (- h ih) new_err (+ (* iw iw) (* ih ih)))
 		(when (< new_err err)
 			(setq err new_err index (!) flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
-	(gui-add-back-rpc (.-> (setq wallpaper (Canvas w h 1))
-		(:resize (canvas-load (elem-get (get :wallpaper_images *env*) index) +load_flag_noswap))
+	(setq wallpaper (Canvas w h 1))
+	(if (empty? images_info)
+		(. wallpaper :fill (get :wallpaper_paper *env*))
+		(. wallpaper :resize (canvas-load (elem-get (get :wallpaper_images *env*) index) +load_flag_noswap)))
+	(gui-add-back-rpc (.-> wallpaper
 		;the wallpaper is only ever shown, so its pixmap, the size of
 		;the screen, is freed once it is a texture
 		(:swap +swap_flag_free)

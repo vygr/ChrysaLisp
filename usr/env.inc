@@ -34,6 +34,8 @@
 		:wallpaper_images '("apps/system/wallpaper/data/wallpaper640x480.tga"
 			"apps/system/wallpaper/data/wallpaper1280x1024.tga"
 			"apps/system/wallpaper/data/wallpaper1920x1080.tga")
+		;the colour of a plain wallpaper, one with no images
+		:wallpaper_paper 0xff808080
 		;which way the mouse wheel scrolls, across and up and down: 1 as the
 		;host gives it, -1 the other way
 		:wheel_x 1 :wheel_y 1
