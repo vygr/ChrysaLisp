@@ -55,8 +55,8 @@
 	"(defun wa-lit (bar i) (get :lit (get :strip (elem-get (. bar :children) i))))"
 	"(print (list (wa-lit *mode_toolbar* (find (get :mode *board*) *modes*)) (wa-lit *ink_toolbar* (get :pen *board*))"
 	" (wa-lit *radius_toolbar* (find (get :width *board*) *widths*)) (wa-lit *mode_toolbar* 0)))")))
-(assert-eq "the mouse's left button lights the board's mode, ink and width; its right, the hand, lights select"
-	"((0) (0) (0) (6))" (first wa_dots))
+(assert-eq "the mouse's left button lights the board's mode, ink and width; its right, the hand, lights select, and the ink it fills with"
+	"((0) (0 6) (0) (6))" (first wa_dots))
 ;a new document is a board never used: every device's bindings and the
 ;board's own are as they were to begin with
 (defq wa_reset (wa-run (cat

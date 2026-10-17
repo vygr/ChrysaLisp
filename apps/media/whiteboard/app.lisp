@@ -197,9 +197,9 @@
 		;each device and button there is a rule of its own for, every one
 		;the board has seen, and the mouse's two buttons, which are always
 		;there, by its place: what it is bound to and what it uses. What it
-		;bound itself shows always; the board's mode, ink and width where
-		;it uses them, and on the mode bar the hand is select and the
-		;eraser the eraser
+		;bound itself shows always; the board's mode and width where it
+		;uses them, and its ink always, a second button's is the fill; on
+		;the mode bar the hand is select and the eraser the eraser
 		(defq bindings (. *board* :get_bindings) seen (list) devices (list))
 		(each (lambda ((kind id buttons))
 				(when (and (defq slot (. *board* :device_slot kind id buttons)) (not (find slot seen)))
@@ -211,7 +211,9 @@
 					(push devices (list what slot (scatter (Emap)
 						:mode (case tool (:pen (ifn (own :mode) (get :mode *board*))) (:hand :select) (:eraser :eraser))
 						:width (ifn (own :width) (if (find tool '(:pen :eraser)) (get :width *board*)))
-						:pen (ifn (own :pen) (if (eql tool :pen) (get :pen *board*))))))))
+						;the pen of a second button is the fill of what its
+						;device draws, whatever that button does itself
+						:pen (ifn (own :pen) (get :pen *board*)))))))
 			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
 				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
 					(filter (# (second %0)) rules))
