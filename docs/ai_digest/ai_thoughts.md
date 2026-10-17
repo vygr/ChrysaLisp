@@ -2226,3 +2226,92 @@ item 126 the crash, both done.
 - `imports -w` wants to rewrite the import lines of nine library files that
   were already out of its form. I put them back and told him.
 - The release test, `tests -a` on all three, is still for tonight.
+
+## The day the rules came first, 17 October
+
+### Squeezing jelly
+
+The morning was the Whiteboard's selection, and for a while each fix I
+made moved the fault somewhere else: a loose group that showed a turning
+ring, then a box that did not grow round a new member, then one that
+snapped only when the ring was touched. We stopped, and set the rules one
+at a time before any more code: a click toggles, a box replaces, only your
+own selections, a loose group is not a shape, a bite makes no group, undo
+puts every selection down, boxes are rectangles, places are kept as raw
+values with the matrix worked out from them. Once the rules were written
+the code followed them in one go, and the faults stopped moving. The
+lesson is the same as the redo's: when a fix moves the problem, stop
+fixing and agree what the thing is.
+
+### Ownership is a tree
+
+Then memory. An idle desktop held hundreds of megabytes after every app
+was closed. The Whiteboard's board view held the frame it was in, a loop,
+and a loop is never let go of; sixteen megabytes a session. The rule that
+came out of it is short: what an object holds is below it, and a link back
+up is a weak ref, claimed when it is used. Dropping the top frees all of
+it. A close message is a courtesy to children that would go anyway; if
+memory needs it, the logic is wrong. `tests -e` now runs each module
+twice and fails one that leaves the node holding more, and `(loops obj)`
+finds what holds itself round. All 171 modules came out clean.
+
+### A herd, not a push
+
+A machine that is not ours joined the mesh over the internet, and every
+standing node takes a sync. So a sync now has to be wanted: a machine
+takes one only from itself, from the machines it names, or as the herd,
+when its tree is exactly at a waypoint, a commit of master or a release,
+and the sender is at a newer one. A laptop taken out to work on is left
+alone till it pulls again. At the end of the day the waypoint learned the
+commit's own time, read out of git's packs by our own inflate and a delta
+or two, in about two milliseconds.
+
+### Three bugs that were not where I looked
+
+The GUI crash: removing a window that was never shown. I assumed a window
+not shown had no parent. It has one, its app's own root view, so the GUI
+hid it as if it were on the screen and left a stand-in in the app's tree
+until the next frame. An app that ended at once took its root with it
+first. The fix is that the GUI only hides what is on its screen.
+
+The lost clicks: input's clicks on the Calculator went missing, more often
+with pauses between them. I put logging in the GUI, then in the Button,
+and the logging changed the timing and made it work, which sent me further
+in. The answer was in a list of the screen's windows: the desktop's own
+apps opened a moment after the Calculator, at the same place, over it.
+Nothing was broken. `input` now brings its window to the front and refuses
+a place that is not on it, and the Test user's desktop starts nothing of
+its own, on a plain grey backdrop.
+
+The menus with no dots: a floating menu showed only what a device had
+bound itself, the toolbars what it used. The board knows both, so the
+board now says it once, and both take it.
+
+In each the code was right for what it was told. What was wrong was what I
+took to be true about the world round it. Look at the state first.
+
+### The list
+
+The list in my memory had ten items done and not marked: an instrument's
+edge, the store's per-file copies, the input redo, HTTPS, the .obj viewer,
+the player symbols, textures, the journal, grab, the streams doc. He found
+the first three one after another, and I then checked the rest against
+the commits. A list that is behind the code costs his attention, which is
+the thing it exists to save. Mark an item in the turn it changes.
+
+### Mistakes, for the record
+
+`unzip` was already a function. A bracket too many closed a function
+before its last line. `sort` compares strings unless told. I wrote a
+test's expected colours in the wrong order and nearly blamed the code. I
+put new list items between an item and its own note. I started a script
+with `-s`, which wants a file, twice.
+
+### Where it stands
+
+All pushed but the last few: the waypoint's commit time, the menus' squares,
+the reference made again, the Whiteboard digest, and this. Tests 7,336 on
+the M4, the x64 and the Pi. Open from today, on the list: the herd
+spreading by itself, the waypoint checking git's index, a guest's tasks on
+our nodes, a microphone service and voice over the chat for next week, and
+the Whiteboard's cut, copy and paste, waiting on design.
