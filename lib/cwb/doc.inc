@@ -160,6 +160,12 @@
 	(if closed (push out "Z"))
 	(apply (const cwb-d) out))
 
+(defun cwb-d-paths (paths &optional closed)
+	; (cwb-d-paths paths [closed]) -> d
+	;a line through the points of each path in turn, each closed if said,
+	;the dashes of (path-dash) say
+	(if (nempty? paths) (join (map (# (cwb-d-points %0 closed)) paths) " ") ""))
+
 (defun cwb-d-rect (x y x1 y1 &optional r)
 	; (cwb-d-rect x y x1 y1 [r]) -> d
 	;a box from one corner to the other, its corners round by r if given

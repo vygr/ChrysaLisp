@@ -38,6 +38,39 @@
 			(push out (first last_point) (second last_point)))
 		(src)))
 
+(defun path-dash-to (cur x y)
+	; (path-dash-to cur x y) -> cur
+	;a point on the end of a dash, unless it is the one already there
+	(defq n (length cur))
+	(unless (and (>= n 2) (= (elem-get cur (- n 2)) x) (= (elem-get cur (dec n)) y))
+		(push cur x y))
+	cur)
+
+(defun path-dash (src dash gap &optional closed)
+	; (path-dash src dash gap [closed]) -> (path ...)
+	;a line as dashes, each dash long with a gap after it, from its start,
+	;each its own path to stroke. Closed, the line goes round back to its
+	;start too. A dash that ends on a corner ends there, and none is of no
+	;length
+	(defq out (list) n (length src))
+	(when (>= n 4)
+		(defq x (elem-get src 0) y (elem-get src 1) cur (path x y) on :t left dash i 0
+			end (if closed (+ n 2) n))
+		(while (< (setq i (+ i 2)) end)
+			(defq k (% i n) x1 (elem-get src k) y1 (elem-get src (inc k))
+				dx (- x1 x) dy (- y1 y) len (sqrt (+ (* dx dx) (* dy dy))) at 0.0)
+			(while (>= (- len at) left)
+				(setq at (+ at left))
+				(defq px (+ x (* dx (/ at len))) py (+ y (* dy (/ at len))))
+				(cond
+					(on (path-dash-to cur px py) (push out cur))
+					(:t (setq cur (path px py))))
+				(setq on (not on) left (if on dash gap)))
+			(setq left (- left (- len at)) x x1 y y1)
+			(if on (path-dash-to cur x1 y1)))
+		(and on (>= (length cur) 4) (push out cur)))
+	out)
+
 (defun path-gen-rect (x y x1 y1 rx ry dst)
 	; (path-gen-rect x y x1 y1 rx ry dst) -> dst
 	(cond

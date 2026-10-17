@@ -538,11 +538,12 @@
 (assert-true "round the rim of the whole one, outside and in" (hv-true hv_round))
 (assert-list-eq "a rim is two lines, a side one" '(2 1)
 	(list (length (tool-catch (first (get :edges hv_round)) 6.0)) (length (tool-catch (first (get :edges hv_ruler)) 6.0))))
-;dots, not a line: of a line 100 long in dots of 4 and gaps of 4, half is drawn
-(defq hv_dots (tool-dots (list) (list 0.0 0.0 100.0 0.0 100.0 0.0001) 4.0 4.0) hv_len 0.0 hv_at :nil)
-(each (lambda ((cmd x y))
-	(if (eql cmd "L") (setq hv_len (+ hv_len (abs (- x (first hv_at))) (abs (- y (second hv_at))))))
-	(setq hv_at (list x y))) (partition hv_dots 3))
+;dots, not a line: along 200, there and back, in dots of 4 and gaps of 4, half is drawn
+(defq hv_len 0.0)
+(each (lambda (dash)
+		(each (lambda (i) (setq hv_len (+ hv_len (abs (- (elem-get dash (+ i 2)) (elem-get dash i))) (abs (- (elem-get dash (+ i 3)) (elem-get dash (inc i)))))))
+			(range 0 (- (length dash) 2) 2)))
+	(path-dash (path 0.0 0.0 100.0 0.0 100.0 0.0001) 4.0 4.0 :t))
 (assert-true "dots of 4 with gaps of 4 along 200 draw 100 of it" (< 99.0 hv_len 101.0))
 ;and it is drawn, over the instruments, where the catch is and not where it is not
 (defq hv_canvas (Canvas 800 600 1))

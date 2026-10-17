@@ -40,3 +40,18 @@
 ;a big shape, the squares of its distances do not fit in 32 bits of fixed
 (defq pa_big (path-gen-arc 2000.0 2000.0 0.0 +fp_2pi 1500.0 (path)))
 (assert-list-eq "a big shape is kept whole" '(500 3500 500 3500) (pa-box (path-simplify 0.5 pa_big (path))))
+
+;a line as dashes: 100 long, dashes of 10 with gaps of 5, from its start
+(defq pa_dashes (path-dash (path 0.0 0.0 100.0 0.0) 10.0 5.0))
+(assert-eq "a line 100 long is 7 dashes of 10 with gaps of 5, the last cut by its end" 7 (length pa_dashes))
+(assert-list-eq "the first from the start, 10 long" '(0 0 10 0) (map (# (n2i (+ %0 0.5))) (first pa_dashes)))
+(assert-list-eq "the next after a gap" '(15 0 25 0) (map (# (n2i (+ %0 0.5))) (second pa_dashes)))
+(assert-list-eq "the last cut by the end" '(90 0 100 0) (map (# (n2i (+ %0 0.5))) (last pa_dashes)))
+;a dash goes round a corner, its points the corner's too
+(defq pa_corner (path-dash (path 0.0 0.0 8.0 0.0 8.0 8.0) 10.0 5.0))
+(assert-list-eq "a dash round a corner keeps the corner" '(0 0 8 0 8 2) (map (# (n2i (+ %0 0.5))) (first pa_corner)))
+;closed, round back to the start: a square of side 10, dashes of 10 and gaps of 10
+(defq pa_square (path-dash (path 0.0 0.0 10.0 0.0 10.0 10.0 0.0 10.0) 10.0 10.0 :t))
+(assert-eq "a square closed, 40 round, is two dashes of 10 and two gaps" 2 (length pa_square))
+(assert-list-eq "and the last side is dashed too" '(10 10 0 10) (map (# (n2i (+ %0 0.5))) (second pa_square)))
+(assert-eq "a single point is no dashes" 0 (length (path-dash (path 1.0 1.0) 4.0 4.0)))

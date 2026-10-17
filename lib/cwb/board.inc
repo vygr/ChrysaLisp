@@ -66,6 +66,17 @@
 			from))
 	root)
 
+(defun board-rub-look (paths zoom)
+	; (board-rub-look paths zoom) -> shape
+	;what an eraser is shown as, as far as it reaches, or the area it will
+	;rub out: pale, with a grey line of dashes round it, 8 on and 4 off on
+	;the screen whatever the zoom, a look nothing else has
+	(defq thin (/ 1.0 zoom)
+		dashes (if (nempty? paths) (apply (const cat) (map (# (path-dash %0 (* 8.0 thin) (* 4.0 thin) :t)) paths)) (list)))
+	(cwb-group (list
+		(cwb-shape (cwb-d-paths paths :t) :fill 0x40ffffff :stroke 0)
+		(cwb-shape (cwb-d-paths dashes) :stroke 0xff808080 :width (* 1.5 thin) :fill 0))))
+
 (defun board-none? (ink)
 	; (board-none? ink) -> :t | :nil
 	;an ink that is wholly see through is none, whatever its colour
@@ -2389,8 +2400,7 @@
 		(when (defq rubber (get :rubber this))
 			;the eraser, where it is, as far as it reaches
 			(bind '(x y r) rubber)
-			(cwb-draw-items canvas (list (cwb-shape (cwb-d-ellipse x y r)
-				:stroke 0xff808080 :width thin :fill 0x40ffffff)) m))
+			(cwb-draw-items canvas (list (board-rub-look (list (path-gen-arc x y 0.0 +fp_2pi r (path))) zoom)) m))
 		;a box that is being dragged out, each pointer's own
 		(. (get :bands this) :each (lambda (id (x y x1 y1))
 			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)

@@ -134,25 +134,6 @@
 				out (tool-arc-points (list) x1 y1 band (- a +fp_hpi) (+ a +fp_hpi) seg))
 			(list (tool-arc-points out x0 y0 band (+ a +fp_hpi) (+ a +fp_hpi +fp_pi) seg)))))
 
-(defun tool-dots (out points dot gap)
-	; (tool-dots out points dot gap) -> out
-	;a closed line as dots, each that long with that gap after, the parts
-	;of a path pushed on a list
-	(defq x (first points) y (second points) pen :t left dot)
-	(push out "M" x y)
-	(each (lambda ((x1 y1))
-		(defq dx (- x1 x) dy (- y1 y) len (sqrt (+ (* dx dx) (* dy dy))) at 0.0)
-		(while (> (- len at) left)
-			(setq at (+ at left))
-			(push out (if pen "L" "M") (+ x (* dx (/ at len))) (+ y (* dy (/ at len))))
-			(setq pen (not pen) left (if pen dot gap)))
-		(setq left (- left (- len at)) x x1 y y1)
-		(if pen (push out "L" x1 y1)))
-		(partition (cat (slice points 2 -1) (slice points 0 2)) 2))
-	;a dot that begins as the line ends is no dot
-	(if (eql (elem-get out (- (length out) 3)) "M") (times 3 (pop out)))
-	out)
-
 ;what is to be rubbed out along an edge: the line, arc or slice a pen
 ;would draw there, as wide as the eraser reaches, the polygons of all of it
 ;as one. Shown as the eraser is, and rubbed out as it lets go
@@ -164,13 +145,7 @@
 (defun tool-area-d (shape)
 	; (tool-area-d shape) -> d
 	;the outline of that, to be drawn
-	(defq out (list))
-	(each (lambda (p)
-			(push out "M" (first p) (second p))
-			(each (lambda ((x y)) (push out "L" x y)) (partition (slice p 2 -1) 2))
-			(push out "Z"))
-		(tool-rub-area shape))
-	(if (nempty? out) (apply (const cwb-d) out) ""))
+	(cwb-d-paths (tool-rub-area shape) :t))
 
 ;what is kept for a pointer that is down on an instrument, a list
 
@@ -300,8 +275,9 @@
 		(unless (and kept (= (first kept) by))
 			(def this :dotted (setq kept (list by (map (lambda (edge)
 				(defq out (list))
-				(each (# (tool-dots out %0 (/ +tool_dot by) (/ +tool_gap by))) (tool-catch edge (/ +tool_band by)))
-				(cwb-shape (apply (const cwb-d) out) :stroke +tool_dot_ink :width (/ +tool_dot_width by) :fill 0))
+				(each (# (each (# (push out %0)) (path-dash (apply (const path) %0) (/ +tool_dot by) (/ +tool_gap by) :t)))
+					(tool-catch edge (/ +tool_band by)))
+				(cwb-shape (cwb-d-paths out) :stroke +tool_dot_ink :width (/ +tool_dot_width by) :fill 0))
 				(get :edges this))))))
 		(if (defq at (some (# (if (eql %0 edge) (!))) (get :edges this))) (elem-get (second kept) at)))
 
@@ -447,11 +423,11 @@
 				;of the pen's or the eraser's width round its edge
 				(if filled (cwb-set shape :fill (if rubs 0xff000000 (cwb-get shape :stroke)) :stroke 0))
 				(elem-set state +tool_state_shape shape)
-				;what rubs out is shown as the eraser is, "keep same look as the
-				;freehand erase look", and is let go of as it is rubbed out
+				;what rubs out is shown as the eraser is, its area pale with a
+				;dashed line round it, and is let go of as it is rubbed out
 				(when rubs
-					(defq look (cwb-shape "" :stroke 0xff808080 :width (/ 2.0 (get :zoom board)) :fill 0x40ffffff))
-					(elem-set state +tool_state_edge look)
+					(defq look (board-rub-look (list) (get :zoom board)))
+					(elem-set state +tool_state_edge id)
 					(. (get :temp board) :insert id look)))
 			((. this :body_taken id kind)
 				;the body is had by another device, or by two of this one:
@@ -616,8 +592,12 @@
 		;was released"
 		(bind '(lx ly) (. this :to_own (elem-get state +tool_state_last_x) (elem-get state +tool_state_last_y)))
 		(cwb-set (elem-get state +tool_state_shape) :d (. this :edge_d state lx ly))
-		(if (defq look (elem-get state +tool_state_edge))
-			(cwb-set look :d (tool-area-d (elem-get state +tool_state_shape))))
+		;what it would rub out is shown again, by the contact's id it is kept
+		;under in the board's temp
+		(when (defq id (elem-get state +tool_state_edge))
+			(defq board (get :board this))
+			(. (get :temp board) :insert id
+				(board-rub-look (tool-rub-area (elem-get state +tool_state_shape)) (get :zoom board))))
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
 

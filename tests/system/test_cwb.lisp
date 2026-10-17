@@ -626,6 +626,11 @@
 (. rb_board :pointers (list (ptr-event 2 :eraser 1 40 150)))
 (. rb_board :pointers (list (ptr-event 2 :eraser 1 260 150)))
 (assert-true "while it rubs, the eraser is to be drawn where it is, as big as it is: three times the width the board draws with" (wb-near? (get :rubber rb_board) '(260 150 9) 0.01))
+(defq rb_canvas (Canvas 400 300 1))
+(.-> rb_canvas (:set_canvas_flags +canvas_flag_antialias) (:fill 0))
+(. rb_board :draw_overlay rb_canvas)
+(assert-list-eq "and is drawn: pale inside, a dash of grey at its edge where the dashes begin, nothing beyond"
+	(list :t :t 0) (list (/= (wb-pixel rb_canvas 260 150) 0) (/= (wb-pixel rb_canvas 269 150) (wb-pixel rb_canvas 260 150)) (wb-pixel rb_canvas 280 150)))
 (. rb_board :pointers (list (ptr-event 2 :eraser 0 260 150)))
 (assert-eq "the eraser dragged across two lines in one move cuts both, it rubs all the way it went" 4 (length (cwb-items rb_doc)))
 (assert-eq "and is not drawn when it is up" :nil (get :rubber rb_board))
