@@ -247,11 +247,11 @@
 ;where only the other is: it is selected, and tapped again now it is selected there is still no palette
 (defq pr_low (elem-get (first (filter (# (/= (elem-get %0 +cwb_id) pr_top)) (cwb-items pr_doc))) +cwb_id))
 (pl-tap pr_board 0 :mouse +pev_right 60 60)
-(assert-list-eq "the other, where it is alone, is selected by the right button" (list (list pr_low) 0)
+(assert-list-eq "the other, where it is alone, is selected by the right button as well" (list (list pr_top pr_low) 0)
 	(list (. pr_board :get_selected) (length (palettes pr_board))))
 (pl-tap pr_board 0 :mouse +pev_right 60 60)
 (assert-list-eq "tapped again now it is selected: it is selected still, behind still, and no palette opens"
-	(list (list pr_low) :t 0)
+	(list (list pr_top pr_low) :t 0)
 	(list (. pr_board :get_selected) (eql (elem-get (first (cwb-items pr_doc)) +cwb_id) pr_low) (length (palettes pr_board))))
 
 ;the button on the side of a pen rubs out, and only a tap of it on nothing is the menu

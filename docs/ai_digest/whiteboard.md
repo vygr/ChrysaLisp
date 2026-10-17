@@ -408,6 +408,15 @@ has hold of is theirs till they let it go: another's hand that goes down
 on it does nothing, it does not take it, share it, or drag a box out from
 it. "Another" is another device, a second pen, a mouse, a person far away.
 
+The same holds once it is put down and still selected: it is still that
+user's, `(. board :holder id)`, and another user's tap, hand or box does
+not take it or put it down, `(board-theirs?)`. Only what no one holds, or
+what a box selected, is free to take. A user's own tap toggles the one
+thing tapped, in select mode as in any other, and adds to what they hold;
+a box replaces what they hold with what it touches. A hand pressed on a
+thing its user did not hold has that thing alone, to move or send front or
+back; pressed on one they held, it has all they hold.
+
 Not the eraser. Chris: "I had the shape/grouop you are holding can be
 erased by yourself ! That was a nice feeling UI, you could pick up and
 hold somthing, turn it and shape it with the eraser... that REALLY

@@ -721,6 +721,7 @@
 (assert-list-eq "the same place again takes the one that is now on top there, and that goes to the back" '(2 3 1) (bk-ids))
 (. bk_board :undo)
 (assert-list-eq "undone, it is back where it was" '(3 1 2) (bk-ids))
+(. bk_board :select (list))
 (def bk_board :mode :select)
 (defq bk_steps (length (get :undo_stack bk_board)))
 (bk-tap +pev_left :mouse 220 100)
@@ -732,6 +733,7 @@
 (bk-tap +pev_left :touch 80 100)
 (assert-list-eq "a finger brings what it takes to the front too" '(2 3 1) (bk-ids))
 ;moved by the right button it is drawn in its place, at the back, not over the rest
+(. bk_board :select (list))
 (. bk_board :dirty? (+ +board_dirty_doc +board_dirty_overlay))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_right 80 100)))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_right 120 130)))
@@ -740,6 +742,7 @@
 (. bk_board :pointers (list (ptr-event 0 :mouse 0 120 130)))
 (assert-list-eq "and is at the back when it is let go, where it was dragged to" '((1 2 3) (90 80 190 180))
 	(list (bk-ids) (map (const n2i) (cwb-bounds (slice (cwb-items bk_doc) 0 1)))))
+(. bk_board :select (list))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_left 240 100)))
 (. bk_board :pointers (list (ptr-event 0 :mouse +pev_left 250 110)))
 (assert-list-eq "one dragged by the left button is at the front, in flight in front of the document" '((1 2 3) (3) :nil :t)

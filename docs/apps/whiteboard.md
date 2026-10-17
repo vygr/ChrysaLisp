@@ -153,15 +153,21 @@ is the teacher's.
 ## Selecting, and changing what is selected
 
 A quick tap on a thing selects it, whatever you are drawing with, and
-another quick tap lets it go. A tap that is held, or that moves, draws. Each
-person's selection is their own: what the buttons of the selection bar do,
-they do to what the one who pressed them has selected.
+another quick tap lets it go. Each tap changes only the thing tapped, so
+tapping several things selects them all. A tap that is held, or that moves,
+draws. Each person's selection is their own: what the buttons of the
+selection bar do, they do to what the one who pressed them has selected.
+What someone else has selected is theirs till they let it go: your tap,
+your hand and your box leave it alone.
 
 The first button of the second row is the arrow, select. With it the left
 button is the hand as well, so a mouse with one button can do everything.
 
-Press on a thing to select it, or drag a box across several: everything
-the box touches is selected, it need not go all the way round a thing. What is selected
+Press on a thing to select it, as well as what you have selected already,
+and a tap on one of yours lets that one go. Dragging a thing you had not
+selected moves it alone; dragging one you had moves all of yours. Drag a
+box across several and your selection is what the box touches, it need not
+go all the way round a thing. What is selected
 has a box round it with eight squares and a ring:
 
 * Drag inside the box to move it.

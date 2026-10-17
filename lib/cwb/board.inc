@@ -608,6 +608,12 @@
 	(if (eql tool :pen) (setq tool (. bindings :value event :mode (get :mode board))))
 	(if (eql tool :select) :hand tool))
 
+(defun board-theirs? (board id user)
+	; (board-theirs? board id user) -> :t | :nil
+	;held by a user other than that one: a box's is no one's, anyone may
+	;take it
+	(and (defq who (. board :holder id)) (not (eql who user))))
+
 (defun board-tap? (board state x y)
 	; (board-tap? board state x y) -> :t | :nil
 	;did a contact lift as a tap: soon, and near where it landed. A board
@@ -749,8 +755,12 @@
 			hit (cwb-hit doc x y near)
 			state (list :hand x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
 			holding (. this :holding))
-		;one that draws, on a thing its user does not hold, may be a tap
+		;one that draws, on a thing its user does not hold, may be a tap.
+		;What another user holds is theirs till they put it down: no tap
+		;or hand of anyone else's takes it or puts it down
 		(cond
+			((and hit (board-theirs? board (elem-get (first hit) +cwb_id) user))
+				(elem-set state +stroke_tool :idle))
 			((and (not (eql tool :hand)) hit (not (find (elem-get (first hit) +cwb_id) mine_ids)))
 				(elem-set state +stroke_tool :maybe)
 				(elem-set state +stroke_item (elem-get (first hit) +cwb_id))
@@ -779,6 +789,8 @@
 						(if (and (eql kind :touch) (= (ptr-device id) (ptr-device (first other))))
 							(elem-set state +stroke_item (elem-get (second other) +stroke_item))
 							(elem-set state +stroke_tool :idle)))
+					((board-theirs? board (elem-get (first hit) +cwb_id) user)
+						(elem-set state +stroke_tool :idle))
 					(hit (defq id_hit (elem-get (first hit) +cwb_id) selected (get :selected board) mine :nil)
 						;on what was selected already, and no other hand at work.
 						;Not by the right button alone: that sends a thing to the
@@ -786,7 +798,7 @@
 						;like to keep the right button push to back action. We
 						;have esc or min to get out of jail"
 						(and (not holding) (find id_hit selected) (/= buttons +pev_right)
-							(elem-set state +stroke_again :t))
+							(elem-set state +stroke_again id_hit))
 						(cond
 							(holding
 								;other hands have hold of other things. This
@@ -796,15 +808,15 @@
 								(setq mine (list (first hit))))
 							;its user's, what it picks up is theirs, and what
 							;other users picked up stays so, Chris: "2 users
-							;can select seperate item". Picked up by another,
-							;it is this one's now
-							(:t (defq user (. board :user_of event))
-								(unless (eql (. board :holder id_hit) user)
-									(unless (find id_hit (. board :selected_by user))
-										(. board :select (filter (# (/= %0 id_hit)) (. board :others_of user))))
-									(. board :pick_up id_hit user))
-								(defq mine_ids (. board :selected_by user))
-								(setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
+							;can select seperate item". What the user held
+							;already stays held, a tap toggles one thing as in
+							;any mode. Pressed on one it did not hold, the
+							;hand has that one alone, to move it or send it
+							;front or back; on one it held, all it holds
+							((not (find id_hit mine_ids))
+								(. board :pick_up id_hit user)
+								(setq mine (list (first hit))))
+							(:t (setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
 						(. board :snapshot)
 						(elem-set state +stroke_snap :t)
 						;what is taken hold of comes to the front of its layer, and
@@ -869,9 +881,9 @@
 			(:hand
 				(when item (and (eql snap :t) (not moved) (. board :forget))
 						;a tap on what was picked up already puts it down, as a
-						;tap of a pen on it does
-						(and (elem-get state +stroke_again) (. this :tap? state x y)
-							(each (# (. board :toggle_select (elem-get (first %0) +cwb_id) (. board :user_of event))) item))
+						;tap of a pen on it does, and only it
+						(and (defq again (elem-get state +stroke_again)) (. this :tap? state x y)
+							(. board :toggle_select again (. board :user_of event)))
 						;put down, it is selected still, and in flight still.
 						;Unless other hands have hold of other things: then
 						;what this one had is put down and is no longer
