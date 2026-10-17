@@ -1332,17 +1332,6 @@ the shape that was hit is in one. m is the matrix the document is
 seen by, if the point is in the space of a view of it
 ```
 
-### cwb-hit-box
-
-```code
-(cwb-hit-box doc x y [m]) -> :nil | (item layer_index :nil)
-
-the item of a layer whose box a point is in, the smallest of them if
-it is in more than one, in a layer that is not hidden or locked. For
-a finger, which is not fine enough to be on the line of a box that is
-not filled, and means the box
-```
-
 ### cwb-id-set
 
 ```code

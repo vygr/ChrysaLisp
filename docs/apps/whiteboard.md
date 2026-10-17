@@ -155,40 +155,48 @@ is the teacher's.
 A quick tap on a thing selects it, whatever you are drawing with, and
 another quick tap lets it go. Each tap changes only the thing tapped, so
 tapping several things selects them all. A tap that is held, or that moves,
-draws. Each person's selection is their own: what the buttons of the
-selection bar do, they do to what the one who pressed them has selected.
-What someone else has selected is theirs till they let it go: your tap,
-your hand and your box leave it alone.
+draws. A tap or a press is on a thing only where it is drawn, its line or
+its fill, never just inside the box round it: the middle of a circle that
+is not filled is the board.
+
+Each person's selection is their own: what the buttons of the selection
+bar do, they do to what the one who pressed them has selected. What
+someone else has selected is theirs till they let it go: your tap, your
+hand and your box leave it alone.
 
 The first button of the second row is the arrow, select. With it the left
 button is the hand as well, so a mouse with one button can do everything.
+Drag a box across several things and your selection is what the box
+touches, it need not go all the way round a thing; the rest of yours is let
+go. A tap on nothing is a box that touches nothing: it lets go of all of
+yours.
 
-Press on a thing to select it, as well as what you have selected already,
-and a tap on one of yours lets that one go. Dragging a thing you had not
-selected moves it alone; dragging one you had moves all of yours. Drag a
-box across several and your selection is what the box touches, it need not
-go all the way round a thing. What is selected
-has a box round it with eight squares and a ring:
+Drag a thing to move it. Dragging one you have selected moves all of
+yours; dragging one you have not moves it alone, and selects nothing.
 
-* Drag inside the box to move it.
+One thing selected, or a group, has a box round it with eight squares and
+a ring:
 
 * Drag a square to size it. A corner keeps its shape, the middle of a side
 moves only that side. The side or corner across from it stays where it is.
 
 * Drag the ring above it to turn it.
 
-One thing that has been turned keeps its box turned with it, the squares are
-at its own corners and it is sized along its own sides. Several things
-turned together keep their box turned too, as a group does. Adding things
-to the selection or taking them out keeps that turn; it is square again
-once nothing is selected. A line or an arrow
+A thing that has been turned keeps its box turned with it, the squares are
+at its own corners and it is sized along its own sides. A line or an arrow
 has no box: it has a ring at each end, and each is dragged to where that end
 is to go.
+
+Several things selected are not a thing: each has a thin line round it, and
+there is a box round them all, with no squares and no ring. They move
+together and the selection bar acts on them all, but to size or turn them,
+group them first. Two fingers on them move them and nothing more.
 
 The third row acts on what is selected: group and ungroup, delete, duplicate,
 bring to the front, send to the back, and six ways to line things up. The
 colours and the thicknesses set the colour and thickness of what is selected
-too.
+too. A group, an ungroup or a duplicate leaves what it made selected. An
+undo or a redo lets go of everything that was selected.
 
 ## The paper, snapping and zoom
 

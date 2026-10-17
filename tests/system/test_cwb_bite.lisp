@@ -32,8 +32,8 @@
 (defq bt_was (bt-said bt))
 (. bt :snapshot)
 (assert-true "an eraser 20 wide drawn down through the box and the line bites" (. bt :rub_along 150 0 150 280 10.0))
-(assert-eq "the box is one thing still, a group of what is left of its fill and of its line, and the line one, each filled and with no line"
-	(str (list (list :group (list (list 5 0xffffd070 0) (list 6 0xff000000 0))) (list 7 0xff0000ff 0) (list 3 0xff00ff00 0))) (bt-said bt))
+(assert-eq "the box is two things now, what is left of its fill and of its line, no group of them, and the line one, each filled and with no line"
+	(str (list (list 4 0xffffd070 0) (list 5 0xff000000 0) (list 6 0xff0000ff 0) (list 3 0xff00ff00 0))) (bt-said bt))
 (assert-true "the fill has lost a strip 20 wide and 100 tall, as near as a circle of straight sides is to 20"
 	(< 17990.0 (bt-area bt 0xffffd070) 18080.0))
 (assert-true "where it went is not there" (not (bt-in? bt 150 100)))

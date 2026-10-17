@@ -410,12 +410,27 @@ it. "Another" is another device, a second pen, a mouse, a person far away.
 
 The same holds once it is put down and still selected: it is still that
 user's, `(. board :holder id)`, and another user's tap, hand or box does
-not take it or put it down, `(board-theirs?)`. Only what no one holds, or
-what a box selected, is free to take. A user's own tap toggles the one
-thing tapped, in select mode as in any other, and adds to what they hold;
-a box replaces what they hold with what it touches. A hand pressed on a
-thing its user did not hold has that thing alone, to move or send front or
-back; pressed on one they held, it has all they hold.
+not take it or put it down, `(board-theirs?)`. A box's selection is the
+user's who dragged it. The rest of the selection rules, agreed one at a
+time:
+
+* A tap toggles the one thing tapped, in any mode. A box in select mode
+  replaces the user's own selection with what it touches; a tap on nothing
+  is such a box.
+* Taps and presses are on ink only, `(cwb-hit)` with its slack. No box,
+  bounds or broad phase takes a press.
+* A hand pressed on a thing its user holds has all they hold. Pressed on
+  one they do not, it has that one alone, picked up only while held,
+  `+stroke_solo`, and put down again unless it was a tap: a drag moves and
+  selects nothing.
+* A loose group, several selected, is not a shape: a line round each and
+  a square box round all, no handles, `(. handles :spots)` only for one
+  thing. Two fingers on it only move it, by their middle.
+* A strong group is one thing: its own box and handles, no member lines.
+* An undo or redo is of the document, strong groups and all, and lets go
+  of every selection.
+* A bite cuts all it goes over. What it leaves of a stroked shape is two
+  polygons, no group; of a selected one, both selected.
 
 Not the eraser. Chris: "I had the shape/grouop you are holding can be
 erased by yourself ! That was a nice feeling UI, you could pick up and

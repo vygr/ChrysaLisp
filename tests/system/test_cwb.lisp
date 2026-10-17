@@ -292,47 +292,51 @@
 (. wb_board :undo)
 (assert-list-eq "and is undone" '(1 2 3) (wb-bids))
 
-;a finger picks the box up and moves it
+;a finger tap picks the box up, and a drag moves it
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 150 100)))
-(assert-list-eq "a finger on the box selects it" '(2) (. wb_board :get_selected))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 170 120)))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 170 120)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 150 100)))
+(assert-list-eq "a finger tap on the box selects it" '(2) (. wb_board :get_selected))
+;on its line, away from its handles
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 100 120)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 120 140)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 120 140)))
 (assert-true "and moves it" (wb-near? (wb-box) '(118.5 118.5 221.5 201.5)))
 (. wb_board :undo)
-(assert-true "undone, it is back" (wb-near? (cwb-bounds (list (second (cwb-items (. wb_board :get_doc))))) '(98.5 98.5 201.5 181.5)))
+(assert-true "undone, it is back" (wb-near? (cwb-bounds (list (first (cwb-find (. wb_board :get_doc) 2)))) '(98.5 98.5 201.5 181.5)))
 (. wb_board :redo)
 (. wb_board :select (list 2))
 (assert-true "done again, it is moved" (wb-near? (wb-box) '(118.5 118.5 221.5 201.5)))
 
-;two fingers on it, moved to twice as far apart about the same middle
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 130 130)))
-(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 210 190)))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 90 100) (ptr-event 0x1000008 :touch 1 250 220)))
+;two fingers on its lines, moved to twice as far apart about the same middle
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 120 140)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 220 180)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 70 120) (ptr-event 0x1000008 :touch 1 270 200)))
 (assert-true "two fingers that move apart to twice as far make it twice the size, about their middle"
 	(wb-near? (wb-box) '(67 77 273 243) 0.05))
-(. wb_board :pointers (list (ptr-event 0x1000008 :touch 0 250 220)))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 100 100)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 0 270 200)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 80 120)))
 (assert-true "one lets go, the other carries on from where it is and moves it" (wb-near? (wb-box) '(77 77 283 243) 0.05))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 100 100)))
-;two fingers that turn about their middle turn it
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 80 120)))
+;two fingers on its top line that turn about their middle turn it
 (defq wb_box0 (wb-box))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 130 160)))
-(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 230 160)))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 180 110) (ptr-event 0x1000008 :touch 1 180 210)))
-(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 180 110) (ptr-event 0x1000008 :touch 0 180 210)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 130 80)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 230 80)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 180 30) (ptr-event 0x1000008 :touch 1 180 130)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 180 30) (ptr-event 0x1000008 :touch 0 180 130)))
 (assert-true "two fingers that turn a quarter turn about their middle turn it a quarter turn"
 	(progn (bind '(x y x1 y1) wb_box0) (bind '(nx ny nx1 ny1) (wb-box))
 		(and (wb-near? (- nx1 nx) (- y1 y) 0.1) (wb-near? (- ny1 ny) (- x1 x) 0.1))))
 (. wb_board :undo)
 
-;a finger in a box that is not filled is on the box, a mouse there is on nothing
+;in a box that is not filled is on nothing, for a mouse and a finger: only
+;what is drawn is to be had, never the box round it
 (. wb_board :select (list))
 (. wb_board :pointers (list (ptr-event 0 :mouse +pev_right 150 150)))
 (. wb_board :pointers (list (ptr-event 0 :mouse 0 150 150)))
 (assert-list-eq "the mouse, in a box that is not filled, is on nothing" '() (. wb_board :get_selected))
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 150 150)))
 (. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 150 150)))
-(assert-list-eq "a finger there is on the box" '(2) (. wb_board :get_selected))
+(assert-list-eq "and so is a finger" '() (. wb_board :get_selected))
 (. wb_board :select (list))
 
 ;a pen draws while a finger holds something else, two owners at once
@@ -342,7 +346,7 @@
 (. wb_board :pointers (list (ptr-event 1 :pen 1 60 270) (ptr-event 0x1000007 :touch 1 300 240)))
 (. wb_board :pointers (list (ptr-event 1 :pen 0 60 270) (ptr-event 0x1000007 :touch 0 300 240)))
 (assert-list-eq "a pen draws while a finger moves the ellipse, both at once" '(1 2 3 5) (wb-bids))
-(assert-list-eq "and what the finger was on is what is selected" '(3) (. wb_board :get_selected))
+(assert-list-eq "and what the finger moved is not selected: a drag moves a thing and selects nothing" '() (. wb_board :get_selected))
 
 ;a pen bound to a colour and a width draws with them, whatever the board is set to
 (. (. wb_board :get_bindings) :bind :pen 9 :nil '(:tool :pen :color 0xff00ff00 :width 9.0))
@@ -416,50 +420,41 @@
 	(wb-near? (slice (first (. wb_handles :spots)) 1 3) '(400 400) 0.05))
 (. wb_board :undo) (. wb_board :undo)
 
-;several things selected have the box round them turned with them, as a
-;group's is. It keeps that turn as things join or leave, till nothing is
-;selected
+;several things selected, a loose group, are not a thing: a box round
+;them square to the board, and no handles to size or turn them. They are
+;moved together, by a press on one of them, never by one in their box
 (defq wb_sa (. wb_board :add (cwb-shape (cwb-d-rect 300 300 400 340) :fill 0xff00ff00 :stroke 0))
-	wb_sb (. wb_board :add (cwb-shape (cwb-d-rect 300 360 400 400) :fill 0xff00ff00 :stroke 0)))
+	wb_sb (. wb_board :add (cwb-shape (cwb-d-rect 300 360 400 400) :fill 0xff00ff00 :stroke 0))
+	wb_sd (. wb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 4
+		:m (Mat3x2-mul (Mat3x2-translate 600 600) (Mat3x2-rot (/ +fp_pi 4.0))))))
+(defun wb-of (id) (cwb-bounds (list (first (cwb-find (. wb_board :get_doc) id)))))
 (. wb_board :select (list wb_sa wb_sb))
-(defun wb-edge-angle () (bind '(x y x1 y1) (slice (. wb_handles :corners) 0 4)) (path-angle (- x1 x) (- y1 y)))
-(assert-true "two things selected have a box square to the board" (wb-near? (wb-edge-angle) 0.0 0.001))
-(defq wb_sd (. wb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 4
-	:m (Mat3x2-mul (Mat3x2-translate 600 600) (Mat3x2-rot (/ +fp_pi 4.0))))))
-(. wb_board :select (list))
+(assert-true "two things selected have a box square to the board, and no handles"
+	(and (wb-near? (slice (. wb_handles :corners) 0 4) '(300 300 400 300) 0.01) (empty? (ifn (. wb_handles :spots) (list)))))
 (. wb_board :select (list wb_sa wb_sd))
 (assert-true "the box round several is round the line drawn round each, a turned one's corners too"
 	(progn (bind '(fm (x y x1 y1)) (. wb_handles :frame))
 		(every (lambda ((cx cy)) (and (<= (- x 0.01) cx (+ x1 0.01)) (<= (- y 0.01) cy (+ y1 0.01))))
 			(partition (board-item-corners (first (cwb-find (. wb_board :get_doc) wb_sd))) 2))))
 (. wb_board :select (list wb_sa wb_sb))
-(bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
-(bind '(wb_cx wb_cy) (Mat3x2-point (Mat3x2-rot (/ +fp_pi 4.0) 350 350) wb_tx wb_ty))
-(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_cx wb_cy)))
-(assert-true "turned an eighth of a turn by the handle, their box is turned with them" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
-(assert-true "and is the box they were in, no bigger"
-	(progn (bind '(x y x1 y1 x2 y2) (slice (. wb_handles :corners) 0 6))
-		(and (wb-near? (sqrt (+ (* (- x1 x) (- x1 x)) (* (- y1 y) (- y1 y)))) 100.0 0.05)
-			(wb-near? (sqrt (+ (* (- x2 x1) (- x2 x1)) (* (- y2 y1) (- y2 y1)))) 100.0 0.05))))
-(defq wb_sc (. wb_board :add (cwb-shape (cwb-d-rect 300 420 400 460) :fill 0xff00ff00 :stroke 0)))
-(. wb_board :select (list wb_sa wb_sb wb_sc))
-(assert-true "one more joins them, and their box keeps its turn" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
+(defq wb_a0 (wb-of wb_sa) wb_b0 (wb-of wb_sb))
+(wb-drag 0 :mouse 1 '((350 350) (352 352)))
+(assert-true "a press in their box between them is on nothing: a box dragged there touches nothing, and all is put down"
+	(and (empty? (. wb_board :get_selected)) (wb-near? (wb-of wb_sa) wb_a0 0.01)))
 (. wb_board :select (list wb_sa wb_sb))
-(assert-true "and one leaves, and it keeps it still" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
-(. wb_board :select (list wb_sa))
-(. wb_board :select (list wb_sa wb_sb))
-(assert-true "down to one and back to two, the box takes the turn of the one" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
-(. wb_board :select (list))
-(. wb_board :select (list wb_sa wb_sb))
-(assert-true "from nothing selected, it is square to the board" (wb-near? (wb-edge-angle) 0.0 0.001))
-(bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
-(bind '(x y x1 y1) (. wb_handles :box))
-(bind '(wb_cx wb_cy) (Mat3x2-point (Mat3x2-rot (/ +fp_pi 4.0) (* 0.5 (+ x x1)) (* 0.5 (+ y y1))) wb_tx wb_ty))
-(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_cx wb_cy)))
-(assert-true "turned again" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
-(. wb_board :undo)
-(assert-true "and the turn undone, the box is square again" (wb-near? (wb-edge-angle) 0.0 0.001))
-(. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+(wb-drag 0 :mouse 1 '((320 320) (330 325)))
+(assert-true "a press on one of them moves them all"
+	(and (wb-near? (wb-of wb_sa) (map (# (+ %0 %1)) wb_a0 '(10.0 5.0 10.0 5.0)) 0.01) (wb-near? (wb-of wb_sb) (map (# (+ %0 %1)) wb_b0 '(10.0 5.0 10.0 5.0)) 0.01)))
+(defq wb_a0 (wb-of wb_sa) wb_b0 (wb-of wb_sb))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 320 320)))
+(. wb_board :pointers (list (ptr-event 0x1000008 :touch 1 380 330)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 1 300 310) (ptr-event 0x1000008 :touch 1 420 360)))
+(. wb_board :pointers (list (ptr-event 0x1000007 :touch 0 300 310) (ptr-event 0x1000008 :touch 0 420 360)))
+(assert-true "two fingers on them that move apart and turn only move them, by their middle"
+	(and (wb-near? (wb-of wb_sa) (map (# (+ %0 %1)) wb_a0 '(10.0 10.0 10.0 10.0)) 0.01) (wb-near? (wb-of wb_sb) (map (# (+ %0 %1)) wb_b0 '(10.0 10.0 10.0 10.0)) 0.01)))
+(. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+(assert-eq "an undo puts down what was selected" 0 (length (. wb_board :get_selected)))
+(. wb_board :undo) (. wb_board :undo)
 
 ;a line has an end to drag at each end, and nothing else
 (def wb_board :mode :line)
@@ -654,17 +649,15 @@
 (. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00))
 (. rb_board :add (cwb-shape "M 50 250 L 250 250" :width 4))
 (assert-eq "a filled box rubbed at its side" :t (. rb_board :rub 100 150 10))
-(defq rb_group (first (cwb-items rb_doc)))
-(assert-true "has a bite out, and is flat: its fill and its line, a shape each, one thing still, a group of them"
-	(and (= 2 (length (cwb-items rb_doc))) (cwb-group? rb_group) (= 2 (length (elem-get rb_group +cwb_items)))))
-(assert-true "it is where it was" (wb-near? (cwb-bounds (list rb_group)) '(100 100 200 200) 3.0))
-(assert-true "and has no line of its own now, each is a fill" (every (# (= (elem-get %0 +cwb_stroke) 0)) (elem-get rb_group +cwb_items)))
+(assert-eq "has a bite out, and is flat: its fill and its line, a shape each, no group of them" 3 (length (cwb-items rb_doc)))
+(assert-true "it is where it was" (wb-near? (cwb-bounds (slice (cwb-items rb_doc) 0 2)) '(100 100 200 200) 3.0))
+(assert-true "and has no line of its own now, each is a fill" (some! (# (= (elem-get %0 +cwb_stroke) 0)) (list (cwb-items rb_doc)) :t 0 2))
 (. rb_board :rub_along 150 240 150 260 6)
 (assert-list-eq "the line, rubbed across, is two lines, with a line's width still" '(4 4)
 	(map (# (n2i (elem-get %0 +cwb_width))) (filter (# (and (cwb-shape? %0) (/= (elem-get %0 +cwb_stroke) 0))) (cwb-items rb_doc))))
 (. rb_board :rub_along 90 120 210 120 6)
-(assert-true "rubbed right across the box, its fill is in two, above and below"
-	(>= (length (first (cwb-flat (some (# (if (= (elem-get %0 +cwb_fill) 0xff00ff00) %0)) (elem-get (first (cwb-items rb_doc)) +cwb_items))))) 2))
+(assert-true "rubbed right across the box, it is in two, above and below"
+	(>= (length (filter (# (= (elem-get %0 +cwb_stroke) 0)) (cwb-items rb_doc))) 2))
 ;the eraser itself, a pointer
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-line 100 20 100 280) :width 4))

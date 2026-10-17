@@ -782,26 +782,6 @@
 		(list (cwb-layers doc)) -1 0)
 	found)
 
-(defun cwb-hit-box (doc x y &optional m)
-	; (cwb-hit-box doc x y [m]) -> :nil | (item layer_index :nil)
-	;the item of a layer whose box a point is in, the smallest of them if
-	;it is in more than one, in a layer that is not hidden or locked. For
-	;a finger, which is not fine enough to be on the line of a box that is
-	;not filled, and means the box
-	(defq found :nil area :nil x (n2f x) y (n2f y))
-	(each (lambda ((name flags items))
-		(unless (or (bits? flags 1) (bits? flags 2))
-			(defq layer_index (!))
-			(each (lambda (item)
-				(when (defq box (cwb-bounds (list item) m))
-					(bind '(bx by bx1 by1) box)
-					(and (>= x bx) (>= y by) (<= x bx1) (<= y by1)
-							(or (not area) (<= (* (- bx1 bx) (- by1 by)) area))
-						(setq area (* (- bx1 bx) (- by1 by)) found (list item layer_index :nil)))))
-				items)))
-		(cwb-layers doc))
-	found)
-
 (defun cwb-shape-touch? (shape m box)
 	; (cwb-shape-touch? shape m box) -> :t | :nil
 	;does what a shape draws, its fill or its stroke, touch a box of the

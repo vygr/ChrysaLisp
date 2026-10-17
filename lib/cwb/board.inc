@@ -209,17 +209,9 @@
 					(elem-set shape +cwb_cache (if hull (list own (list) (list x y x1 y1) hull) (list own (list) (list x y x1 y1))))
 					(push out shape))))
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
-		;what is left of its fill and of its line are one thing, as the
-		;shape was: a group that lies as it did, so neither can be taken
-		;from the other, and it has one box round it
-		(cond
-			((> (length out) 1)
-				(each (# (elem-set %0 +cwb_m :nil)) out)
-				(defq group (cwb-group out :name (cwb-get item :name)))
-				(elem-set group +cwb_m (elem-get item +cwb_m))
-				(elem-set group +cwb_user (elem-get item +cwb_user))
-				(list group))
-			(out))))
+		;what is left of its fill and of its line are two things now, each
+		;a polygon, no group of them
+		out))
 
 (defun board-bite (doc swept &optional lines but tol user)
 	; (board-bite doc swept [lines but tol user]) -> :nil | (made gone swaps)
@@ -336,9 +328,10 @@
 ;;;;;;;;;;;;;
 
 ;what is kept for a pointer that is down on the surface, a list
-;again is that what a hand went down on was selected already, (:end)
+;again is that what a hand went down on was selected already, (:end);
+;solo that it was not, and is picked up only while the hand has it
 (enums +stroke 0
-	(enum tool x y points item moved last_x last_y snap box again began buttons grow))
+	(enum tool x y points item moved last_x last_y snap box again began buttons grow solo))
 
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
@@ -391,7 +384,7 @@
 			;for a finger: one of many, it is not to put away the palette
 			;of another. A tap of one on nothing does, (:end)
 			shut (if (eql kind :touch) :nil (. board :dismiss event))
-			state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
+			state (list tool x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0 :nil)
 			holding (. (get :things board) :holding))
 		;what lands on a thing is the thing's, (Things), what is here is on
 		;nothing: the canvas knows nothing of things, Chris: "The canvas
@@ -524,8 +517,12 @@
 									;and what other users picked up, a box is this
 									;one's, and a tap on nothing puts down what this
 									;user picked up
-									kept (if holding (get :selected board) (. board :others_of (. board :user_of event))))
-								(. board :select (cat kept (filter (# (not (find %0 kept))) found)))))
+									user (. board :user_of event)
+									kept (if holding (get :selected board) (. board :others_of user)))
+								;what it takes is that user's, as a tap's is
+								(defq new (filter (# (not (find %0 kept))) found))
+								(. board :select (cat kept new))
+								(each (# (. board :pick_up %0 user)) new)))
 						(. board :touch +board_dirty_overlay)))
 			(:eraser
 				(if (. this :rub_flush) (setq moved :t))
@@ -610,8 +607,8 @@
 
 (defun board-theirs? (board id user)
 	; (board-theirs? board id user) -> :t | :nil
-	;held by a user other than that one: a box's is no one's, anyone may
-	;take it
+	;held by a user other than that one. What no one holds, anyone may
+	;take
 	(and (defq who (. board :holder id)) (not (eql who user))))
 
 (defun board-tap? (board state x y)
@@ -627,9 +624,9 @@
 	;the things of the document, on the stage in front of the canvas, each
 	;picking itself up. Chris: "The shape picks itself up, that's the
 	;insight about oops !" A contact is theirs by their own rule, asked as it
-	;lands, (:hit): one of the hand, or of select mode, on a thing, or a
-	;finger in a thing's box, or in the box round what its user holds; one
-	;that draws, on what its user holds, which a drag of it moves, Chris:
+	;lands, (:hit): one of the hand, or of select mode, on a thing's own
+	;ink, never only in a box round it; one that draws, on what its user
+	;holds, which a drag of it moves, Chris:
 	;"When a shape/group is selected, drag always moves it". One that draws
 	;on a thing no one holds is theirs till it is a tap, which picks the
 	;thing up, Chris: "single tap to select a shape, in any mode"; moved
@@ -737,13 +734,11 @@
 			(unless (find tool '(:eraser :pan :idle))
 				(defq doc (get :doc board) near (/ +board_near (get :zoom board))
 					user (. board :user_of event) mine (. board :selected_by user))
-				(or (and (cwb-hit doc x y near) (or (eql tool :hand) (not (eql tool :text))
-						(find (elem-get (first (cwb-hit doc x y near)) +cwb_id) mine)))
-					(and (eql tool :hand) (eql (elem-get event +pev_kind) :touch) (cwb-hit-box doc x y) :t)
-					;in the box round what its user holds
-					(and (nempty? mine)
-						(defq box (cwb-bounds (filter (# (find (elem-get %0 +cwb_id) mine)) (. board :selected_items))))
-						(>= x (first box)) (>= y (second box)) (<= x (third box)) (<= y (elem-get box 3)) :t)))))
+				;on a thing's own ink, and nowhere else: a box round
+				;things is a picture, not a place to take hold of them
+				(and (cwb-hit doc x y near) (or (eql tool :hand) (not (eql tool :text))
+						(find (elem-get (first (cwb-hit doc x y near)) +cwb_id) mine))
+					:t))))
 
 	(defmethod :begin (event)
 		; (. things :begin event) -> state
@@ -753,7 +748,7 @@
 		(defq tool (board-tool-of board event) doc (get :doc board) near (/ +board_near (get :zoom board))
 			user (. board :user_of event) mine_ids (. board :selected_by user)
 			hit (cwb-hit doc x y near)
-			state (list :hand x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0)
+			state (list :hand x y (list x y) :nil :nil x y :nil :nil :nil (get :time board) buttons 0.0 :nil)
 			holding (. this :holding))
 		;one that draws, on a thing its user does not hold, may be a tap.
 		;What another user holds is theirs till they put it down: no tap
@@ -765,14 +760,7 @@
 				(elem-set state +stroke_tool :maybe)
 				(elem-set state +stroke_item (elem-get (first hit) +cwb_id))
 				(elem-set state +stroke_points event))
-			(:t ;in the box round what its user holds is on it: a box that is
-				;not filled, or a thin line, is hard to be on
-				(and (not hit) (nempty? mine_ids)
-					(defq items (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))
-					(setq hit (list (first items) 0 :nil)))
-				;a finger in the box of a thing is on the thing
-				(and (not hit) (eql kind :touch) (setq hit (cwb-hit-box doc x y)))
-				(when hit
+			(:t (when hit
 				(cond
 					((and hit (defq other (. this :holder (elem-get (first hit) +cwb_id))))
 						;what another has hold of. First come first served:
@@ -806,15 +794,18 @@
 								;theirs, and it alone is this hand's
 								(unless (find id_hit selected) (. board :select (cat selected (list id_hit))))
 								(setq mine (list (first hit))))
-							;its user's, what it picks up is theirs, and what
-							;other users picked up stays so, Chris: "2 users
-							;can select seperate item". What the user held
-							;already stays held, a tap toggles one thing as in
-							;any mode. Pressed on one it did not hold, the
-							;hand has that one alone, to move it or send it
-							;front or back; on one it held, all it holds
+							;its user's, and what other users picked up stays
+							;so, Chris: "2 users can select seperate item".
+							;Pressed on one it does not hold, the hand has
+							;that one alone, to move it or send it front or
+							;back, and what the user holds stays as it is. It
+							;is picked up while the hand has it, so it is in
+							;flight, and is put down again as it lets go
+							;unless that was a tap, which selects it, (:end).
+							;On one it holds, the hand has all it holds
 							((not (find id_hit mine_ids))
 								(. board :pick_up id_hit user)
+								(elem-set state +stroke_solo id_hit)
 								(setq mine (list (first hit))))
 							(:t (setq mine (filter (# (find (elem-get %0 +cwb_id) mine_ids)) (. board :selected_items)))))
 						(. board :snapshot)
@@ -881,9 +872,14 @@
 			(:hand
 				(when item (and (eql snap :t) (not moved) (. board :forget))
 						;a tap on what was picked up already puts it down, as a
-						;tap of a pen on it does, and only it
-						(and (defq again (elem-get state +stroke_again)) (. this :tap? state x y)
+						;tap of a pen on it does, and only it. One that was
+						;not, held only while it was moved, is put down again:
+						;a drag moves a thing and selects nothing, a tap does
+						(defq tap (. this :tap? state x y))
+						(and (defq again (elem-get state +stroke_again)) tap
 							(. board :toggle_select again (. board :user_of event)))
+						(and (defq solo (elem-get state +stroke_solo)) (not tap)
+							(. board :select (filter (# (/= %0 solo)) (get :selected board))))
 						;put down, it is selected still, and in flight still.
 						;Unless other hands have hold of other things: then
 						;what this one had is put down and is no longer
@@ -992,7 +988,13 @@
 						(map (# (list (first %0) (elem-get (first %0) +cwb_m))) (elem-get a +stroke_item))
 						(list (first (first pair)) (first (second pair)))))))
 				(bind '(pa0 pb0 things &ignore) grab)
-				(defq move (board-two-point-mat pa0 pb0 pa pb))
+				;one thing is moved, turned and sized; several, a loose
+				;group, are not a thing, and are only moved, by the middle
+				;of the two
+				(defq move (if (= (length things) 1) (board-two-point-mat pa0 pb0 pa pb)
+					(Mat3x2-translate
+						(* 0.5 (- (+ (first pa) (first pb)) (first pa0) (first pb0)))
+						(* 0.5 (- (+ (second pa) (second pb)) (second pa0) (second pb0))))))
 				(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul move m0))) things)
 				(each (lambda ((id state)) (elem-set state +stroke_moved :t)) pair)
 				(. board :touch +board_dirty_overlay))))
@@ -1010,10 +1012,9 @@
 	;One thing selected has them in its own frame: the box of what it is,
 	;moved, turned and sized as it is. So a box that has been turned has its
 	;handles at its own corners, and is sized along its own sides, and
-	;stays a box. Several things have the box round them all, turned as far
-	;as they have been turned together, :sel_angle, as a group's box turns
-	;with it. It keeps that turn as things join or leave it, and is square
-	;again once nothing is selected.
+	;stays a box. Several things, a loose group, are not a thing: they have
+	;the box round them all, square to the board, and no handles. They are
+	;moved together, and sized or turned once they are a group.
 	;
 	;A line has none of that. It has a point at each end, and each is
 	;dragged to where that end is to be.
@@ -1039,8 +1040,7 @@
 		; (. handles :frame) -> :nil | (matrix box)
 		;the box the handles are on, and the matrix that puts it where it
 		;is. Of one thing, its own box and its own matrix. Of several, the
-		;box round them, turned as far as they were turned together, as a
-		;group's box is
+		;box round them, square to the board
 		(raise :board)
 		(and (. this :shown) (nempty? (defq items (. board :selected_items)))
 			(cond
@@ -1048,18 +1048,16 @@
 					(defq item (first items)
 						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
 					(if box (list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
-				(:t ;the corners of each, in the turned frame, and the box round
-					;those: round the line drawn round each, not only its ink,
-					;which a turned one's box reaches past
-					(defq a (get :sel_angle board) inv (Mat3x2-rot (neg a)) pts (list))
+				(:t ;the box round the corners of each: round the line drawn
+					;round each, not only its ink, which a turned one's box
+					;reaches past
+					(defq pts (list))
 					(each (lambda (item)
-						(when (defq corners (board-item-corners item))
-							(each (lambda ((x y)) (push pts (Mat3x2-point inv x y))) (partition corners 2))))
+						(if (defq corners (board-item-corners item)) (each (# (push pts %0)) (partition corners 2))))
 						items)
 					(when (nempty? pts)
 						(defq xs (map (const first) pts) ys (map (const second) pts))
-						(list (if (= a 0.0) (Mat3x2) (Mat3x2-rot a))
-							(list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
+						(list (Mat3x2) (list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
 
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
@@ -1091,7 +1089,8 @@
 				(defq m (elem-get item +cwb_m))
 				(list (cat (list :end) (Mat3x2-point m x y) (list 0 0))
 					(cat (list :end) (Mat3x2-point m x1 y1) (list 1 0))))
-			((defq frame (. this :frame))
+			;a loose group has none, (Handles)
+			((and (= (length (. board :selected_items)) 1) (defq frame (. this :frame)))
 				(bind '(m (x y x1 y1)) frame)
 				(defq mx (* 0.5 (+ x x1)) my (* 0.5 (+ y y1))
 					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (Mat3x2-point m lx ly) (list fx fy)))
@@ -1165,12 +1164,7 @@
 							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
 							(if (/= step 0.0) (setq angle (board-snap angle step)))
 							(defq m (Mat3x2-rot angle cx cy))
-							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things)
-							;several have their box turned with them
-							(when (> (length things) 1)
-								(bind '(ox oy) (Mat3x2-point fm 0 0))
-								(bind '(ux uy) (Mat3x2-point fm 1 0))
-								(def board :sel_angle (+ (path-angle (- ux ox) (- uy oy)) angle))))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things))
 						(:t ;sized in the frame: the pointer is taken into it, and the
 							;side or corner across from the handle stays where it is
 							(bind '(fm (bx by bx1 by1)) frame)
@@ -1209,9 +1203,6 @@
 		:color 0xff000000 :width 3.0
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :snap_gap 0.0 :settings (Fmap 11) :zoom 1.0
-		;how far the box round several things selected is turned, as a
-		;group's is by its matrix: kept till what is selected changes
-		:sel_angle 0.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
 		:rub_reach 8.0 :rub_mode :bite :rubber :nil :rub_todo (Fmap 11)
@@ -1660,14 +1651,12 @@
 		(bind '(layers w h) state)
 		(.-> (get :doc this) (:insert :layers layers) (:insert :width w) (:insert :height h))
 		(. this :changed :all)
-		;what is selected stays so, what of it is still there: an undo is of
-		;the document, not of what is selected, nor of the instruments, which
-		;are not in it, Chris: "undo/redo do not and should not undo
-		;instrument or selection controls"
-		(defq ids (map (# (elem-get %0 +cwb_id)) (cwb-items (get :doc this))))
-		(. this :select (filter (# (find %0 ids)) (get :selected this)))
-		;the box round several is square again, what turned them may be undone
-		(def this :floating (list) :appended (list) :sel_angle 0.0)
+		;an undo is of the document, strong groups and all, not of the
+		;instruments, which are not in it, Chris: "undo/redo do not and
+		;should not undo instrument or selection controls". What was
+		;selected does not outlast it: everything is put down, every user's
+		(. this :select (list))
+		(def this :floating (list) :appended (list))
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :undo ()
@@ -1691,16 +1680,6 @@
 	(defmethod :select (ids)
 		; (. board :select ids) -> board
 		;who picked up what is kept only for what is selected still
-		;the box round several keeps its turn as things join it or leave it.
-		;Several from one take that one's turn; from nothing, none
-		(cond
-			((empty? ids) (def this :sel_angle 0.0))
-			((and (= (length (get :selected this)) 1) (> (length ids) 1)
-					(defq one (first (. this :selected_items))))
-				(defq m (elem-get one +cwb_m))
-				(bind '(ox oy) (Mat3x2-point m 0 0))
-				(bind '(ux uy) (Mat3x2-point m 1 0))
-				(def this :sel_angle (if m (path-angle (- ux ox) (- uy oy)) 0.0))))
 		(def this :selected (cat ids))
 		(defq selectors (get :selectors this) gone (list))
 		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))

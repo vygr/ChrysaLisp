@@ -118,6 +118,16 @@
 (assert-eq "and a tap on it again adds it" (str (list 2 1)) (str (. us :get_selected)))
 (us-tap us 0x2000000 :pen 100 100 50000) (us-tap us 0x2000000 :pen 300 100 50000)
 (def us :mode :pen)
+;what a box takes is the selection of whoever dragged it, as a tap's is:
+;another user's tap leaves it alone
+(def us :mode :select)
+(us-go us (ptr-event 0 :mouse 1 20 20)) (us-go us (ptr-event 0 :mouse 1 380 200)) (us-go us (ptr-event 0 :mouse 0 380 200))
+(assert-eq "a box the teacher drags round both is the teacher's selection" (str (list (list 1 2) (list 1 2)))
+	(str (list (. us :get_selected) (. us :selected_by +board_teacher))))
+(us-tap us 0x2000000 :pen 100 100 50000)
+(assert-eq "and a student's tap does not put one down" (str (list 1 2)) (str (. us :get_selected)))
+(. us :select (list))
+(def us :mode :pen)
 (us-tap us 0x2000000 :pen 200 250 50000)
 (assert-eq "a tap on nothing is a dot, drawn" 3 (length (cwb-items (. us :get_doc))))
 (us-tap us 0x2000000 :pen 300 100 400000)

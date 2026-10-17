@@ -88,7 +88,7 @@
 	"(def *board* :rub_mode :whole) (wa-mode :eraser) (wa-drag 1 100 100 105 101) (print (wa-ids))"
 	"(print (list (wa-do +event_undo) (wa-ids))) (def *board* :rub_mode :part)"
 	;the right button moves what it is on, whatever the mode
-	"(wa-mode :pen) (wa-drag 3 300 150 340 190) (print (list (wa-ids) (. *board* :get_selected) (map (const n2i) (cwb-bounds (. *board* :selected_items)))))"
+	"(wa-mode :pen) (wa-drag 3 300 150 340 190) (print (list (wa-ids) (. *board* :get_selected) (map (const n2i) (cwb-bounds (list (first (cwb-find (. *board* :get_doc) 2)))))))"
 	;the middle button draws nothing
 	"(wa-drag 2 50 50 90 90) (print (wa-ids))"
 	"(print (list (wa-draw)))"
@@ -125,10 +125,10 @@
 (assert-eq "the words in the text field are put down where the pen goes down" "((1 2 3 4) \qHello\q)" (elem-get wa_out 8))
 (assert-eq "the eraser, set to take lines whole, takes out the line it is dragged over" "(2 3 4)" (elem-get wa_out 9))
 (assert-eq "and undo puts it back" "(:ok (1 2 3 4))" (elem-get wa_out 10))
-(assert-eq "the right button moves what it is on, whatever the mode, by how far it is dragged, and puts it at the back"
-	"((2 1 3 4) (2) (338 138 461 241))" (elem-get wa_out 11))
+(assert-eq "the right button moves what it is on, whatever the mode, by how far it is dragged, and puts it at the back, and a drag selects nothing"
+	"((2 1 3 4) () (338 138 461 241))" (elem-get wa_out 11))
 (assert-eq "the middle button is the view's, to move it about, and draws nothing" "(2 1 3 4)" (elem-get wa_out 12))
-(assert-eq "and it draws, the three that are the document's, the one that is selected is in flight" "(3)" (elem-get wa_out 13))
+(assert-eq "and it draws the four that are the document's, nothing is selected and in flight" "(4)" (elem-get wa_out 13))
 (assert-eq "laid out in its window, the view over the board lets what is under it show, the paper does not, and both are the size of the board"
 	"(:nil :t (1024 768) (1024 768))" (elem-get wa_out 14))
 (assert-eq "what is drawn over the document is in front of it, the way round that the view is in front of the paper" "(:t :t)" (elem-get wa_out 15))
@@ -195,11 +195,12 @@
 	;a pen draws a box, the board is set to boxes
 	"(wa-mode :rect) (wa-ptr 0x20001 1 1 100 100) (wa-ptr 0x20001 1 1 200 180) (wa-ptr 0x20001 1 0 200 180)"
 	"(print (list (wa-ids) (cwb-get (first (cwb-items (. *board* :get_doc))) :d)))"
-	;two fingers on it make it twice the size
-	"(wa-ptr 0x1000001 3 1 110 110) (wa-ptr 0x1000002 3 1 190 170)"
-	"(wa-ptr 0x1000001 3 1 70 80) (wa-ptr 0x1000002 3 1 230 200)"
-	"(wa-ptr 0x1000001 3 0 70 80) (wa-ptr 0x1000002 3 0 230 200)"
-	"(print (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
+	;two fingers on its lines make it twice the size: on its own ink, not
+	;inside it, as nothing is taken by its box
+	"(wa-ptr 0x1000001 3 1 100 110) (wa-ptr 0x1000002 3 1 200 170)"
+	"(wa-ptr 0x1000001 3 1 50 80) (wa-ptr 0x1000002 3 1 250 200)"
+	"(wa-ptr 0x1000001 3 0 50 80) (wa-ptr 0x1000002 3 0 250 200)"
+	"(print (map (const n2i) (cwb-bounds (cwb-items (. *board* :get_doc)))))"
 	;put down: what is picked up takes the presses on it in any mode, its
 	;handles and a drag on it, Chris: "When a shape/group is selected, drag
 	;allways moves it"
@@ -344,22 +345,27 @@
 	"(defun order () (map (# (cond ((eql %0 *paper*) :paper) ((eql %0 *flight_b*) :back) ((eql %0 *committed*) :doc) ((eql %0 *flight_clip*) :flight) ((eql %0 *overlay*) :over) ((eql %0 *top*) :top) (:t :tool))) (reverse (. *backdrop* :children))))"
 	"(print (order))"
 	"(wa-mouse :down 440 370 3) (wa-mouse :move 450 380 4) (draw-flight) (draw-flight-back) (print (list (order) (get :float_back *board*) *flight_b_used*))"
-	"(wa-mouse :up 450 380 0) (draw-flight) (draw-flight-back) (print (list (order) *flight_b_used* (. *board* :get_selected)))"
+	"(wa-mouse :up 450 380 0) (defq dragged (. *board* :get_selected))"
+	;a drag selects nothing; a tap of the right button selects it, and sends it to the back
+	"(wa-mouse :down 450 380 3) (wa-mouse :up 450 380 0)"
+	"(draw-flight) (draw-flight-back) (print (list (order) *flight_b_used* dragged (. *board* :get_selected)))"
 	;still selected, it is sized by a handle with its flight still behind the document
 	"(wa-mode :select) (bind (quote (kind hx hy)) (slice (elem-get (. (get :handles *board*) :spots) 4) 0 3))"
 	"(wa-mouse :down (+ 240 (n2i hx)) (+ 240 (n2i hy)) 1) (wa-mouse :move (+ 270 (n2i hx)) (+ 240 (n2i hy)) 1) (draw-flight)"
 	"(print (list (order) (get :float_back *board*))) (wa-mouse :up (+ 270 (n2i hx)) (+ 240 (n2i hy)) 0)"
 	"(wa-mouse :down 700 700 1) (wa-mouse :up 700 700 0) (draw-flight) (print (list (. *board* :get_selected) *flight_used* (. *board* :dirty? +board_dirty_doc)))"
-	"(. *board* :select (list 1)) (wa-mouse :down 400 400 1) (wa-mouse :move 410 410 1) (draw-flight) (print (order)) (wa-mouse :up 410 410 0)"
-	;a thing that a hand only moves is not drawn again as it goes: its canvas is moved, in a view that stays where the paper is
-	"(wa-mouse :down 410 410 1) (draw-flight) (wa-mouse :move 440 425 1) (defq sw (draw-flight))"
+	"(. *board* :select (list 1)) (wa-mouse :down 400 410 1) (wa-mouse :move 410 420 1) (draw-flight) (print (order)) (wa-mouse :up 410 420 0)"
+	;a thing that a hand only moves is not drawn again as it goes: its canvas is moved, in a view that stays where the paper is.
+	;A hand takes hold on its line, the bottom of the box, not inside it
+	"(wa-mouse :down 410 420 1) (draw-flight) (wa-mouse :move 440 435 1) (defq sw (draw-flight))"
 	"(prin (list sw (slice (. *flight* :get_bounds) 0 2) (. *flight_clip* :get_bounds)))"
-	"(wa-mouse :move 450 400 1) (draw-flight) (prin (slice (. *flight* :get_bounds) 0 2))"
-	"(defq was *flight*) (wa-mouse :up 450 400 0) (. *board* :touch +board_dirty_overlay)"
+	"(wa-mouse :move 450 410 1) (draw-flight) (prin (slice (. *flight* :get_bounds) 0 2))"
+	"(defq was *flight*) (wa-mouse :up 450 410 0) (. *board* :touch +board_dirty_overlay)"
 	"(print (list (draw-flight) (slice (. *flight* :get_bounds) 0 2) (eql was *flight_spare*) (length (. *flight_clip* :children)) (eql (first (. *flight_clip* :children)) *flight*)))"
 	;a thing dragged part off the left of the paper and let go is drawn all on its canvas, moved over, the canvas as far the other way: taken up again and dragged back it is all there
 	"(bind (quote (bx by bx1 by1)) (map (const n2i) (cwb-bounds (. *board* :selected_items))))"
-	"(defq gx (+ 240 bx (/ (- bx1 bx) 2)) gy (+ 240 by (/ (- by1 by) 2)) off (+ bx 40))"
+	;on its left line, a quarter of the way down, clear of its handles
+	"(defq gx (+ 240 bx 2) gy (+ 240 by (/ (- by1 by) 4)) off (+ bx 40))"
 	;it is drawn again where it is, as it is when it is let go of or turned, and then moved on
 	"(wa-mouse :down gx gy 1) (draw-flight) (wa-mouse :move (- gx off) gy 1) (setq *flight_at* :nil) (draw-flight)"
 	"(bind (quote (fx fy)) (slice (. *flight* :get_bounds) 0 2))"
@@ -377,7 +383,7 @@
 	"(0 0 (240 240 1024 768) :t)" (elem-get wa_out 4))
 (assert-eq "from the back: the paper, what is in flight behind, the document, what is in flight in front, what is over it, the ruler, and what is over that" "(:paper :back :doc :flight :over :tool :top)" (elem-get wa_out 5))
 (assert-eq "a thing taken by the right button is in the flight behind the document" "((:paper :back :doc :flight :over :tool :top) :t :t)" (elem-get wa_out 6))
-(assert-eq "let go, it is selected still, and in flight still, behind the document" "((:paper :back :doc :flight :over :tool :top) :t (1))" (elem-get wa_out 7))
+(assert-eq "let go, a drag selects nothing; a tap of the right button on it selects it, and it is in flight behind the document" "((:paper :back :doc :flight :over :tool :top) :t () (1))" (elem-get wa_out 7))
 (assert-eq "sized by a handle, it is still behind the document while it is" "((:paper :back :doc :flight :over :tool :top) :t)" (elem-get wa_out 8))
 (assert-eq "a click on nothing lets go of it: nothing is in flight, and the document is to be drawn again, once, with it in" "(() :nil :t)" (elem-get wa_out 9))
 (assert-eq "taken by the left button it is in flight in front of the document" "(:paper :back :doc :flight :over :tool :top)" (elem-get wa_out 10))
@@ -528,8 +534,8 @@
 	"(defun wa-bits (c) (task-slice) (defq s (memory-stream)) (pixmap-write (getf c +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
 	"(. *overlay* :fill 0) (defq blank (wa-bits *overlay*))"
 	"(wa-mode :frect) (wa-drag 1 300 300 400 380) (wa-mode :select)"
-	;taken by the left button, in front
-	"(wa-drag 1 350 340 360 350) (draw-over) (draw-flight) (defq front (wa-bits *flight*)) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank)))"
+	;tapped, it is selected, and taken by the left button it is in front
+	"(wa-drag 1 350 340 350 340) (wa-drag 1 350 340 360 350) (draw-over) (draw-flight) (defq front (wa-bits *flight*)) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank)))"
 	;taken by the right button, to the back
 	"(wa-drag 3 360 350 350 340) (draw-over) (draw-flight) (print (list (get :float_back *board*) (eql (wa-bits *overlay*) blank) (eql (wa-bits *flight*) front)))"
 	;and as it is taken, the button only just down and nothing moved: they are there at once, not when it is first moved

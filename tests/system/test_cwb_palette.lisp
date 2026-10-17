@@ -232,7 +232,7 @@
 	(list (length (. pl_board :get_selected)) (length (palettes pl_board))))
 ;dragged, it is moved and nothing opens
 (pl-drag pl_board 0 :mouse +pev_left 210 160 260 200)
-(assert-list-eq "dragged, it is moved, and no palette opens" '(0 1) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
+(assert-list-eq "dragged, it is moved, and no palette opens, and a drag selects nothing" '(0 0) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
 
 ;the right button on a thing sends it to the back, and that is all it does, selected or not
 (defq pr_board (Board (cwb-doc 400 300)) pr_doc (. pr_board :get_doc))
@@ -437,13 +437,12 @@
 (assert-eq "what a box selected goes once nothing is in select mode" "()" (str (get :selected pu_board)))
 (. pu_board :toggle_select (first pu_ids) +board_teacher)
 (. pu_board :toggle_select (second pu_ids) pu_student)
-;an undo is of the document, what is selected stays so, Chris: "undo/redo do
-;not and should not undo instrument or selection controls"
+;an undo is of the document, and what was selected does not outlast it
 (. pu_board :select pu_ids)
 (. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
 (pl-drag pu_board 0 :mouse +pev_left 300 20 380 100)
 (. pu_board :undo)
-(assert-eq "an undo of a third rect leaves the two selected" (str pu_ids) (str (get :selected pu_board)))
+(assert-eq "an undo of a third rect puts the two down" "()" (str (get :selected pu_board)))
 (defq pf_canvas (Canvas 400 400 1))
 (. pf_canvas :fill 0)
 (. pf :draw pf_canvas (Mat3x2))
