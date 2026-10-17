@@ -137,7 +137,10 @@
 	(list "select" (s-loop 5 3 5 18 9 14.5 11.5 20 13.8 19 11.3 13.5 16.5 13.5))
 	(list "move" (cat (s-line 12 3 12 21) (s-line 3 12 21 12) (s-line 9 6 12 3 15 6)
 		(s-line 9 18 12 21 15 18) (s-line 6 9 3 12 6 15) (s-line 18 9 21 12 18 15)))
-	(list "pen" (cat (s-loop 17 3 21 7 8 20 3 21 4 16) (s-line 14.5 5.5 18.5 9.5)))
+	;solid, the cap apart from the body by a gap where the line between
+	;them was: a pen on the ink bar is drawn in its ink, and an outline
+	;of it is a thin line of that ink, hard to see
+	(list "pen" (cat (s-fill 17 3 21 7 19.03 8.97 15.03 4.97) (s-fill 13.97 6.03 17.97 10.03 8 20 3 21 4 16)))
 	(list "brush" (cat (s-loop 20 3 21 4 12 14 10 12) (s-loop 9 14 11 16 10 19 7 21 3 21 5 19 6 16)))
 	(list "line" (s-line 5 19 19 5))
 	(list "arrow" s_slash)
