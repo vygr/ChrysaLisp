@@ -132,6 +132,9 @@
 		(assign (vpx (+ y2 1)) (vpx y2))
 	(loop-end)
 
+	;the table of where each column starts in the source goes
+	(call :sys_mem :free (vpx buf))
+
 	(exit :pixmap :resize (vpx this))
 	(pop-scope)
 	(return)
