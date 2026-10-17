@@ -420,30 +420,36 @@
 	;other, is a place and a slant, and a place can not slant: the slant is
 	;put into what it is. A group's is put into its items, the same way, and
 	;a shape is made what it draws, its fill and its line, each a polygon,
-	;slanted, as a bite makes it. Those new ones have no id
-	(bind '(place slant) (cwb-mat-place m))
-	(cond
-		((= slant 0.0) (list (cwb-place! item place)))
-		((cwb-group? item)
-			(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) kids (list))
-			(each (lambda (kid)
-					(each (# (push kids %0)) (cwb-unslant kid (Mat3x2-mul k (elem-get kid +cwb_m)))))
-				(elem-get item +cwb_items))
-			(elem-set item +cwb_items kids)
-			(list (cwb-place! item place)))
-		(:t (bind '(fills strokes &ignore) (cwb-flat item))
-			(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) out (list))
-			(each (lambda (polys color)
-					(when (and (nempty? polys) (/= color 0))
-						(defq own (cwb-mat-paths k polys)
-							shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
-								:fill color :stroke 0 :rule (if (eql polys fills) (elem-get item +cwb_rule) :nonzero)
-								:name (elem-get item +cwb_name) :user (elem-get item +cwb_user) :props (elem-get item +cwb_props)))
-						(push out (cwb-place! shape place))))
-				(list fills strokes) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
-			;the first of them is what the item was, by its id
-			(if (nempty? out) (elem-set (first out) +cwb_id (elem-get item +cwb_id)))
-			out)))
+	;slanted, as a bite makes it. Those new ones have no id. No function
+	;here calls itself: what is still to do is a list, each an item, its
+	;matrix and the list what it makes goes into
+	(defq top (list) todo (list (list item m top)))
+	(while (defq job (pop todo))
+		(bind '(item m into) job)
+		(bind '(place slant) (cwb-mat-place m))
+		(cond
+			((= slant 0.0) (push into (cwb-place! item place)))
+			((cwb-group? item)
+				;its items are done after it, each into its new list, in turn
+				(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) kids (list) old (elem-get item +cwb_items))
+				(elem-set item +cwb_items kids)
+				(push into (cwb-place! item place))
+				(reach (lambda (kid) (push todo (list kid (Mat3x2-mul k (elem-get kid +cwb_m)) kids))) old))
+			(:t (bind '(fills strokes &ignore) (cwb-flat item))
+				(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) made (list))
+				(each (lambda (polys color)
+						(when (and (nempty? polys) (/= color 0))
+							(defq own (cwb-mat-paths k polys)
+								shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
+									:fill color :stroke 0 :rule (if (eql polys fills) (elem-get item +cwb_rule) :nonzero)
+									:name (elem-get item +cwb_name) :user (elem-get item +cwb_user) :props (elem-get item +cwb_props)))
+							(push made (cwb-place! shape place))))
+					(list fills strokes) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
+				;the first of them is what the item was, by its id
+				(when (nempty? made)
+					(elem-set (first made) +cwb_id (elem-get item +cwb_id))
+					(each (# (push into %0)) made)))))
+	top)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; walking a tree of items

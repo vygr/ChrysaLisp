@@ -316,6 +316,15 @@
 		(bind '(m (x y x1 y1)) frame)
 		(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
 
+(defun board-tool-of (board event)
+	; (board-tool-of board event) -> tool
+	;what a pointer is bound to do: its tool, :hand :eraser :pan, or a pen
+	;of what its mode draws, the board's if it has none, and select mode the
+	;hand, so a mouse alone can do everything
+	(defq bindings (get :bindings board) tool (. bindings :value event :tool :pen))
+	(if (eql tool :pen) (setq tool (. bindings :value event :mode (get :mode board))))
+	(if (eql tool :select) :hand tool))
+
 ;;;;;;;;;;;;;
 ; the surface
 ;;;;;;;;;;;;;
@@ -588,15 +597,6 @@
 ;;;;;;;;;;;;
 ; the things
 ;;;;;;;;;;;;
-
-(defun board-tool-of (board event)
-	; (board-tool-of board event) -> tool
-	;what a pointer is bound to do: its tool, :hand :eraser :pan, or a pen
-	;of what its mode draws, the board's if it has none, and select mode the
-	;hand, so a mouse alone can do everything
-	(defq bindings (get :bindings board) tool (. bindings :value event :tool :pen))
-	(if (eql tool :pen) (setq tool (. bindings :value event :mode (get :mode board))))
-	(if (eql tool :select) :hand tool))
 
 (defun board-theirs? (board id user)
 	; (board-theirs? board id user) -> :t | :nil

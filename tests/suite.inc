@@ -313,6 +313,28 @@
 		(progn (test-fail "module" "to run to the end" _) :t))
 	(env-pop))
 
+(defun test-collect (cmd out)
+	; (test-collect cmd out)
+	;print what a batch of modules printed, and add its counts to ours. No
+	;counts line means the task did not get to the end of the batch.
+	(defq lines (split (ifn out "") "\n")
+		counts (if (nempty? lines) (last lines) ""))
+	(cond
+		((starts-with +test_counts counts)
+			(each! (# (cond
+				((starts-with +test_module_counts %0)
+					(defq fields (split (slice %0 (length +test_module_counts) -1) " "))
+					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1)))
+				((print %0)))) (list lines) 0 -2)
+			(bind '(passes failures skips) (map (const str-as-num)
+				(split (slice counts (length +test_counts) -1) " ")))
+			(setq *test_passes* (+ *test_passes* passes)
+				*test_failures* (+ *test_failures* failures)
+				*test_skips* (+ *test_skips* skips)))
+		(:t (each (const print) lines)
+			(setq *test_module* cmd)
+			(test-fail "batch" "to run to the end" "no result"))))
+
 (defun test-held ()
 	; (test-held) -> kb
 	;what this node holds, once what a task's end lets go of is let go of
@@ -346,28 +368,6 @@
 	(if *test_child*
 		(print +test_module_counts file " " passes " " failures " " skips)
 		(. *test_done* :insert file (list passes failures skips))))
-
-(defun test-collect (cmd out)
-	; (test-collect cmd out)
-	;print what a batch of modules printed, and add its counts to ours. No
-	;counts line means the task did not get to the end of the batch.
-	(defq lines (split (ifn out "") "\n")
-		counts (if (nempty? lines) (last lines) ""))
-	(cond
-		((starts-with +test_counts counts)
-			(each! (# (cond
-				((starts-with +test_module_counts %0)
-					(defq fields (split (slice %0 (length +test_module_counts) -1) " "))
-					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1)))
-				((print %0)))) (list lines) 0 -2)
-			(bind '(passes failures skips) (map (const str-as-num)
-				(split (slice counts (length +test_counts) -1) " ")))
-			(setq *test_passes* (+ *test_passes* passes)
-				*test_failures* (+ *test_failures* failures)
-				*test_skips* (+ *test_skips* skips)))
-		(:t (each (const print) lines)
-			(setq *test_module* cmd)
-			(test-fail "batch" "to run to the end" "no result"))))
 
 (defun test-watch (nodes)
 	; (test-watch nodes) -> (stop back)

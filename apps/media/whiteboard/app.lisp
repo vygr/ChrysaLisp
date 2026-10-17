@@ -299,21 +299,6 @@
 		(list (- w (first (. (get :vslider *image_scroll*) :get_constraint)))
 			(- h (second (. (get :hslider *image_scroll*) :get_constraint))))))
 
-(defun view-follow ()
-	;the paper is the size of the frame, Chris: "a hand resize should
-	;resize it too". What is in the middle of what is seen stays there,
-	;and what lies on the glass where it is. Not while the board is all
-	;of the screen, the document is the screen's size then
-	(bind '(fw fh) (frame-size))
-	(unless (or *full* (<= fw 0) (<= fh 0) (eql (str (list fw fh)) (str (canvas-size))))
-		(bind '(mx my) (view-middle))
-		(defq held (tools-held))
-		(setq *view_size* (if (= (logand *turn* 1) 1) (list fh fw) (list fw fh)))
-		(bind '(uw uh) *view_size*)
-		(setq *pan_x* (- mx (/ (n2f uw) (* 2.0 *zoom*))) *pan_y* (- my (/ (n2f uh) (* 2.0 *zoom*))))
-		(tools-hold held)
-		(view-changed)))
-
 (defun turn-matrix (turn)
 	; (turn-matrix turn) -> :nil | matrix
 	;so many quarters round, about 0 0, as numbers that are exactly so
@@ -626,6 +611,21 @@
 		(if on (def tool :size (/ on *zoom*)))
 		(if angle (def tool :angle (- angle (turn-angle)))))
 		held))
+
+(defun view-follow ()
+	;the paper is the size of the frame, Chris: "a hand resize should
+	;resize it too". What is in the middle of what is seen stays there,
+	;and what lies on the glass where it is. Not while the board is all
+	;of the screen, the document is the screen's size then
+	(bind '(fw fh) (frame-size))
+	(unless (or *full* (<= fw 0) (<= fh 0) (eql (str (list fw fh)) (str (canvas-size))))
+		(bind '(mx my) (view-middle))
+		(defq held (tools-held))
+		(setq *view_size* (if (= (logand *turn* 1) 1) (list fh fw) (list fw fh)))
+		(bind '(uw uh) *view_size*)
+		(setq *pan_x* (- mx (/ (n2f uw) (* 2.0 *zoom*))) *pan_y* (- my (/ (n2f uh) (* 2.0 *zoom*))))
+		(tools-hold held)
+		(view-changed)))
 
 (defun tools-snap (going)
 	;with the snap on, each instrument has the 0 of its marks on the lines
@@ -1141,16 +1141,6 @@
 		(. *stripes* :close)
 		(frame-done :failed)))
 
-(defun view-to-doc ()
-	;how the document is seen now is kept with it, when it is saved
-	;the pan as it would be on a paper the document's size, what a file
-	;says, the same middle of what is seen
-	(bind '(dw dh) (doc-size))
-	(bind '(pw ph) (paper-size))
-	(defq k (* 2.0 *zoom*))
-	(. (. *board* :get_doc) :insert :view (list (+ *pan_x* (/ (n2f (- pw dw)) k)) (+ *pan_y* (/ (n2f (- ph dh)) k)) *zoom* *turn*))
-	(stage-to-doc))
-
 (defun stage-to-doc ()
 	;what lies on the board that is not of the document is kept with it,
 	;Chris: "menus and instruments are part of the docs state. So they
@@ -1168,6 +1158,16 @@
 		(:insert :swatches (map (# (get :origin %0)) (swatches-on *board*)))
 		;the inks of the pens
 		(:insert :inks (cat *palette*))))
+
+(defun view-to-doc ()
+	;how the document is seen now is kept with it, when it is saved
+	;the pan as it would be on a paper the document's size, what a file
+	;says, the same middle of what is seen
+	(bind '(dw dh) (doc-size))
+	(bind '(pw ph) (paper-size))
+	(defq k (* 2.0 *zoom*))
+	(. (. *board* :get_doc) :insert :view (list (+ *pan_x* (/ (n2f (- pw dw)) k)) (+ *pan_y* (/ (n2f (- ph dh)) k)) *zoom* *turn*))
+	(stage-to-doc))
 
 (defun stage-from-doc (&optional tools menus)
 	;the instruments and floating menus of the document, and none other.
@@ -1204,7 +1204,6 @@
 			(swatches-open (first at) (second at))))
 		(ifn (. doc :find :swatches) (list)))
 	(. *board* :touch +board_dirty_overlay))
-
 
 (defun board-capture ()
 	; (board-capture) -> settings

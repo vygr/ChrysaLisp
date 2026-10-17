@@ -116,36 +116,56 @@
 				(setq i (+ i op)))))
 	(apply (const cat) out))
 
-(defun git-pack-object (pack at)
-	; (git-pack-object pack offset) -> :nil | (type data)
-	;the object at offset in a pack: its kind and size, then it zipped, or a
-	;delta to the object so far back in the pack, or to the one named
+(defun git-pack-entry (pack at)
+	; (git-pack-entry pack offset) -> :nil | (kind data [base])
+	;the entry at offset in a pack: its kind and size, then it zipped. A
+	;whole object is its kind, 1 to 4, and its bytes. A delta is 6 and the
+	;offset of its base, so far back in the pack, or 7 and the name of its
+	;base, and the changes to it
 	(defq s (file-stream pack))
 	(stream-seek s at 0)
 	(defq b (read-char s) kind (logand (>> b 4) 7))
 	(while (bits? b 128) (setq b (read-char s)))
 	(cond
-		((<= 1 kind 4)
-			(if (defq data (git-unzip s)) (list (elem-get '("" "commit" "tree" "blob" "tag") kind) data)))
+		((<= 1 kind 4) (if (defq data (git-unzip s)) (list kind data)))
 		((= kind 6)
 			(defq b (read-char s) n (logand b 127))
 			(while (bits? b 128)
 				(setq b (read-char s) n (logior (<< (inc n) 7) (logand b 127))))
-			(and (defq delta (git-unzip s)) (defq base (git-pack-object pack (- at n)))
-				(list (first base) (git-delta-apply (second base) delta))))
+			(if (defq delta (git-unzip s)) (list kind delta (- at n))))
 		((= kind 7)
 			(defq sha (hex-encode (read-blk s 20)))
-			(and (defq delta (git-unzip s)) (defq base (git-object sha))
-				(list (first base) (git-delta-apply (second base) delta))))))
+			(if (defq delta (git-unzip s)) (list kind delta sha)))))
+
+(defun git-find (sha)
+	; (git-find sha) -> :nil | (:loose (type data)) | (:pack pack offset)
+	(setq sha (to-upper sha))
+	(unless *idxs*
+		(setq *idxs* (map (# (list (cat (slice %0 0 -5) ".pack") (load %0))) (files-all ".git/objects/pack" '(".idx")))))
+	(cond
+		((defq obj (git-loose (to-lower sha))) (list :loose obj))
+		((some (lambda ((pack idx)) (if (defq at (git-idx-find idx sha)) (list :pack pack at))) *idxs*))))
 
 (defun git-object (sha)
 	; (git-object sha) -> :nil | (type data)
-	(setq sha (to-upper sha))
-	(unless *idxs*
-		(setq *idxs* (map (# (list (slice %0 0 -5) (load %0))) (files-all ".git/objects/pack" '(".idx")))))
-	(or (git-loose (to-lower sha))
-		(some (lambda ((pack idx))
-			(if (defq at (git-idx-find idx sha)) (git-pack-object (cat pack ".pack") at))) *idxs*)))
+	;an object of git by its name, loose or in a pack. One in a pack may be
+	;a delta of another, which may be a delta of another: the deltas are
+	;gathered back to a whole object, then put on it, the last first
+	(defq deltas (list) obj :nil where (git-find sha))
+	(while (and where (not obj))
+		(cond
+			((eql (first where) :loose) (setq obj (second where)))
+			((defq entry (git-pack-entry (second where) (third where)))
+				(bind '(kind data &optional base) entry)
+				(cond
+					((= kind 6) (push deltas data) (setq where (list :pack (second where) base)))
+					((= kind 7) (push deltas data) (setq where (git-find base)))
+					((setq obj (list (elem-get '("" "commit" "tree" "blob" "tag") kind) data)))))
+			((setq where :nil))))
+	(when obj
+		(defq data (second obj))
+		(while (defq delta (pop deltas)) (setq data (git-delta-apply data delta)))
+		(list (first obj) data)))
 
 (defun git-commit-time (sha)
 	; (git-commit-time sha) -> :nil | microseconds
