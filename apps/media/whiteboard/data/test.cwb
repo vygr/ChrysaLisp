@@ -1,25 +1,58 @@
 ((:Emap 1)
-	:version 4
+	:version 1
 	:width 640
 	:height 420
 	:background 0
 	:style :grid
 	:grid 32
 	:next_id 21
-	:layers
-	((:list 1)
-		((:list 3)
-			"[Layer 1]"
+	:items
+	((:list 12)
+		((:list 15)
+			:shape
+			:id
+			1
+			:kind
+			:text
+			:fill
+			4280299584
+			:stroke
 			0
-			((:list 12)
+			:text
+			"[A pen, a stage, a document]"
+			:font_size
+			44
+			:pos
+			((:list 2)
+				40.00000
+				56.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			2
+			:name
+			"[Pointers]"
+			:items
+			((:list 2)
+				((:list 11)
+					:shape
+					:id
+					3
+					:d
+					"[M 50 100 L 180 100 A 10 10 0 0 1 190 110 L 190 160 A 10 10 0 0 1 180 170 L 50 170 A 10 10 0 0 1 40 160 L 40 110 A 10 10 0 0 1 50 100 Z]"
+					:fill
+					4294959242
+					:stroke
+					4280299584
+					:width
+					2.50000
+				)
 				((:list 15)
 					:shape
 					:id
-					1
-					:m
-					((:path 6)
-						1.00000 0.00000 40.00000 0.00000 1.00000 56.00000
-					)
+					4
 					:kind
 					:text
 					:fill
@@ -27,271 +60,238 @@
 					:stroke
 					0
 					:text
-					"[A pen, a stage, a document]"
-					:font_size
-					44
-				)
-				((:list 7)
-					:group
-					:id
-					2
-					:name
 					"[Pointers]"
-					:items
+					:font_size
+					26
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							3
-							:d
-							"[M 50 100 L 180 100 A 10 10 0 0 1 190 110 L 190 160 A 10 10 0 0 1 180 170 L 50 170 A 10 10 0 0 1 40 160 L 40 110 A 10 10 0 0 1 50 100 Z]"
-							:fill
-							4294959242
-							:stroke
-							4280299584
-							:width
-							2.50000
-						)
-						((:list 15)
-							:shape
-							:id
-							4
-							:m
-							((:path 6)
-								1.00000 0.00000 66.59277 0.00000 1.00000 144.41357
-							)
-							:kind
-							:text
-							:fill
-							4280299584
-							:stroke
-							0
-							:text
-							"[Pointers]"
-							:font_size
-							26
-						)
+						66.59275
+						144.41355
 					)
 				)
-				((:list 7)
-					:group
-					:id
-					5
-					:name
-					"[Stage]"
-					:items
-					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							6
-							:d
-							"[M 260 100 L 390 100 A 10 10 0 0 1 400 110 L 400 160 A 10 10 0 0 1 390 170 L 260 170 A 10 10 0 0 1 250 160 L 250 110 A 10 10 0 0 1 260 100 Z]"
-							:fill
-							4289255679
-							:stroke
-							4280299584
-							:width
-							2.50000
-						)
-						((:list 15)
-							:shape
-							:id
-							7
-							:m
-							((:path 6)
-								1.00000 0.00000 291.18444 0.00000 1.00000 141.29052
-							)
-							:kind
-							:text
-							:fill
-							4280299584
-							:stroke
-							0
-							:text
-							"[Stage]"
-							:font_size
-							26
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					8
-					:name
-					"[Board]"
-					:items
-					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							9
-							:d
-							"[M 470 100 L 600 100 A 10 10 0 0 1 610 110 L 610 160 A 10 10 0 0 1 600 170 L 470 170 A 10 10 0 0 1 460 160 L 460 110 A 10 10 0 0 1 470 100 Z]"
-							:fill
-							4290310320
-							:stroke
-							4280299584
-							:width
-							2.50000
-						)
-						((:list 15)
-							:shape
-							:id
-							10
-							:m
-							((:path 6)
-								1.00000 0.00000 499.56420 0.00000 1.00000 144.75000
-							)
-							:kind
-							:text
-							:fill
-							4280299584
-							:stroke
-							0
-							:text
-							"[Board]"
-							:font_size
-							26
-						)
-					)
-				)
-				((:list 7)
-					:group
-					:id
-					11
-					:name
-					"[Document]"
-					:items
-					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							12
-							:d
-							"[M 260 250 L 390 250 A 10 10 0 0 1 400 260 L 400 310 A 10 10 0 0 1 390 320 L 260 320 A 10 10 0 0 1 250 310 L 250 260 A 10 10 0 0 1 260 250 Z]"
-							:fill
-							4294951104
-							:stroke
-							4280299584
-							:width
-							2.50000
-						)
-						((:list 15)
-							:shape
-							:id
-							13
-							:m
-							((:path 6)
-								1.00000 0.00000 263.46899 0.00000 1.00000 294.15332
-							)
-							:kind
-							:text
-							:fill
-							4280299584
-							:stroke
-							0
-							:text
-							"[Document]"
-							:font_size
-							26
-						)
-					)
-				)
-				((:list 13)
-					:shape
-					:id
-					14
-					:d
-					"[M 194 135 L 244 135]"
-					:stroke
-					4280299584
-					:width
-					3
-					:cap1
-					:butt
-					:cap2
-					:arrow
-				)
-				((:list 13)
-					:shape
-					:id
-					15
-					:d
-					"[M 404 135 L 454 135]"
-					:stroke
-					4280299584
-					:width
-					3
-					:cap1
-					:butt
-					:cap2
-					:arrow
-				)
-				((:list 13)
-					:shape
-					:id
-					16
-					:d
-					"[M 520 174 L 410 262]"
-					:stroke
-					4280299584
-					:width
-					3
-					:cap1
-					:butt
-					:cap2
-					:arrow
-				)
-				((:list 9)
-					:shape
-					:id
-					17
-					:d
-					"[M 40 360 L 220 360]"
-					:stroke
-					4290781216
-					:width
-					4
-				)
-				((:list 9)
-					:shape
-					:id
-					18
-					:d
-					"[M 62.32421 342.11334 A 70 70 0 0 1 197.21115 340.44174]"
-					:stroke
-					4280312000
-					:width
-					4
-				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			5
+			:name
+			"[Stage]"
+			:items
+			((:list 2)
 				((:list 11)
 					:shape
 					:id
-					19
+					6
 					:d
-					"[M 540 320 L 590.6578 341.41723 A 55 55 0 1 1 533.83163 265.34744 Z]"
+					"[M 260 100 L 390 100 A 10 10 0 0 1 400 110 L 400 160 A 10 10 0 0 1 390 170 L 260 170 A 10 10 0 0 1 250 160 L 250 110 A 10 10 0 0 1 260 100 Z]"
 					:fill
-					4294955120
+					4289255679
 					:stroke
 					4280299584
 					:width
 					2.50000
 				)
-				((:list 9)
+				((:list 15)
 					:shape
 					:id
-					20
-					:d
-					"[M 430 380 Q 450 350 465 371 Q 480 392 492.5 372 Q 505 352 520 373 Q 535 394 547.5 375 Q 560 356 580 368 L 600 380]"
+					7
+					:kind
+					:text
+					:fill
+					4280299584
 					:stroke
-					4286591168
-					:width
-					4
+					0
+					:text
+					"[Stage]"
+					:font_size
+					26
+					:pos
+					((:list 2)
+						291.18443
+						141.29051
+					)
 				)
 			)
 		)
+		((:list 7)
+			:group
+			:id
+			8
+			:name
+			"[Board]"
+			:items
+			((:list 2)
+				((:list 11)
+					:shape
+					:id
+					9
+					:d
+					"[M 470 100 L 600 100 A 10 10 0 0 1 610 110 L 610 160 A 10 10 0 0 1 600 170 L 470 170 A 10 10 0 0 1 460 160 L 460 110 A 10 10 0 0 1 470 100 Z]"
+					:fill
+					4290310320
+					:stroke
+					4280299584
+					:width
+					2.50000
+				)
+				((:list 15)
+					:shape
+					:id
+					10
+					:kind
+					:text
+					:fill
+					4280299584
+					:stroke
+					0
+					:text
+					"[Board]"
+					:font_size
+					26
+					:pos
+					((:list 2)
+						499.56419
+						144.75000
+					)
+				)
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			11
+			:name
+			"[Document]"
+			:items
+			((:list 2)
+				((:list 11)
+					:shape
+					:id
+					12
+					:d
+					"[M 260 250 L 390 250 A 10 10 0 0 1 400 260 L 400 310 A 10 10 0 0 1 390 320 L 260 320 A 10 10 0 0 1 250 310 L 250 260 A 10 10 0 0 1 260 250 Z]"
+					:fill
+					4294951104
+					:stroke
+					4280299584
+					:width
+					2.50000
+				)
+				((:list 15)
+					:shape
+					:id
+					13
+					:kind
+					:text
+					:fill
+					4280299584
+					:stroke
+					0
+					:text
+					"[Document]"
+					:font_size
+					26
+					:pos
+					((:list 2)
+						263.46897
+						294.15330
+					)
+				)
+			)
+		)
+		((:list 13)
+			:shape
+			:id
+			14
+			:d
+			"[M 194 135 L 244 135]"
+			:stroke
+			4280299584
+			:width
+			3
+			:cap1
+			:butt
+			:cap2
+			:arrow
+		)
+		((:list 13)
+			:shape
+			:id
+			15
+			:d
+			"[M 404 135 L 454 135]"
+			:stroke
+			4280299584
+			:width
+			3
+			:cap1
+			:butt
+			:cap2
+			:arrow
+		)
+		((:list 13)
+			:shape
+			:id
+			16
+			:d
+			"[M 520 174 L 410 262]"
+			:stroke
+			4280299584
+			:width
+			3
+			:cap1
+			:butt
+			:cap2
+			:arrow
+		)
+		((:list 9)
+			:shape
+			:id
+			17
+			:d
+			"[M 40 360 L 220 360]"
+			:stroke
+			4290781216
+			:width
+			4
+		)
+		((:list 9)
+			:shape
+			:id
+			18
+			:d
+			"[M 62.32421 342.11334 A 70 70 0 0 1 197.21115 340.44174]"
+			:stroke
+			4280312000
+			:width
+			4
+		)
+		((:list 11)
+			:shape
+			:id
+			19
+			:d
+			"[M 540 320 L 590.6578 341.41723 A 55 55 0 1 1 533.83163 265.34744 Z]"
+			:fill
+			4294955120
+			:stroke
+			4280299584
+			:width
+			2.50000
+		)
+		((:list 9)
+			:shape
+			:id
+			20
+			:d
+			"[M 430 380 Q 450 350 465 371 Q 480 392 492.5 372 Q 505 352 520 373 Q 535 394 547.5 375 Q 560 356 580 368 L 600 380]"
+			:stroke
+			4286591168
+			:width
+			4
+		)
 	)
 	:props :nil
+	:view :nil
 )

@@ -129,8 +129,8 @@
 
 ;a file written by hand, with no ids and only what matters said
 (defq wb_hand (cwb-load (string-stream (cat
-	"((:Emap 1) :version 4 :width 64 :height 48 :layers ((:list 1) ((:list 3) \q[mine]\q 0"
-	" ((:list 2) ((:list 3) :shape :d \q[M 0 0 L 10 10]\q) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :width 1.0)))))"))))
+	"((:Emap 1) :version 1 :width 64 :height 48"
+	" :items ((:list 2) ((:list 3) :shape :d \q[M 0 0 L 10 10]\q) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :width 1.0)))"))))
 (assert-true "a file written by hand loads" wb_hand)
 (when wb_hand
 	(assert-list-eq "its items are given ids" '(1 2) (wb-ids wb_hand))
@@ -169,23 +169,6 @@
 	(test-skip "text that is not a tree is not a document" "needs an error checked build"))
 (assert-eq "nor a tree of something else" :nil (cwb-load (string-stream "((:list 2) 1 2)")))
 (assert-eq "nor nothing" :nil (cwb-load (string-stream "")))
-
-;a file of before this, polygons in groups
-(defq wb_stream (string-stream (cat "")))
-(tree-save wb_stream (scatter (Emap) :version 3 :groups (list
-	(list (list (path 0.0 0.0) (path 10.0 10.0))
-		(list (list 0xff112233 (list (path 0.0 0.0 10.0 0.0 10.0 10.0)) (list (path 0.0 0.0) (path 10.0 10.0)))) 0)
-	(list (list (path 20.0 0.0) (path 40.0 10.0))
-		(list (list 0xff000000 (list (path 20.0 0.0 30.0 0.0 30.0 10.0)) :nil)
-			(list 0xffffffff (list (path 30.0 0.0 40.0 0.0 40.0 10.0)) :nil)) 0))))
-(defq wb_old (cwb-load (string-stream (str wb_stream))))
-(assert-true "a file of the version before, polygons in groups, is made a document of this one" wb_old)
-(when wb_old
-	(assert-eq "a group of one polygon is a shape, a group of two is a group" '(:shape :group)
-		(map (# (cwb-get %0 :type)) (cwb-items wb_old)))
-	(assert-eq "a polygon is a shape that is filled with its colour" 0xff112233 (cwb-get (first (cwb-items wb_old)) :fill))
-	(assert-true "the document is the size of what is in it and a margin"
-		(wb-near? (list (. wb_old :find :width) (. wb_old :find :height)) '(60 30))))
 
 ;as an image
 (save wb_text "tests/scratch/test_cwb.cwb")
@@ -386,14 +369,15 @@
 	(progn (bind '(nx ny nx1 ny1) (wb-box))
 		(and (wb-near? (- nx1 nx) (- y1 y) 0.2) (wb-near? (- ny1 ny) (- x1 x) 0.2))))
 (def wb_board :snap_angle (/ +fp_pi 12.0))
-(defq wb_before (cwb-get (first (. wb_board :selected_items)) :m))
 ;turned, the handle it is turned by is out from what was its top, which now faces the side
 (defq wb_tx (second (last (. wb_handles :spots))) wb_ty (third (last (. wb_handles :spots))))
 (assert-true "the handle it is turned by has gone round with it, to its side"
 	(progn (bind '(x y x1 y1) (wb-box))
 		(and (> wb_tx x1) (wb-near? wb_ty (* 0.5 (+ y y1)) 0.2))))
 (wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_tx (+ wb_ty 2.0))))
-(assert-true "with angles that snap, a small turn is no turn" (wb-near? (map (const identity) (cwb-get (first (. wb_board :selected_items)) :m)) (map (const identity) wb_before) 0.001))
+(assert-true "with angles that snap, a small turn puts it on the step it is nearest, a quarter turn, its angle and not how far it was turned"
+	(progn (defq wb_a (third (cwb-place (first (. wb_board :selected_items)))))
+		(and (wb-near? (sin wb_a) 1.0 0.0001) (wb-near? (cos wb_a) 0.0 0.0001))))
 (def wb_board :snap_angle 0.0)
 
 ;one thing has its handles in its own frame. A box turned an eighth of a turn
@@ -420,23 +404,62 @@
 	(wb-near? (slice (first (. wb_handles :spots)) 1 3) '(400 400) 0.05))
 (. wb_board :undo) (. wb_board :undo)
 
-;a box is always a rectangle, never slanted: a thing whose matrix slants,
-;turned and slanted, has its box turned and round the slant of it
-(defq wb_sh (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
-	:m (Mat3x2-mul (Mat3x2-translate 500 500) (Mat3x2-mul (Mat3x2-rot 0.5) (Mat3x2 1.0 0.6 0.0 0.0 1.0 0.0))))))
-(. wb_board :select (list wb_sh))
-(assert-true "a slanted thing's box has square corners, and is turned as it is"
-	(progn (bind '(x0 y0 x1 y1 x2 y2) (slice (. wb_handles :corners) 0 6))
-		(and (wb-near? (+ (* (- x1 x0) (- x2 x1)) (* (- y1 y0) (- y2 y1))) 0.0 0.01)
-			(wb-near? (path-angle (- x1 x0) (- y1 y0)) 0.5 0.001))))
-(assert-true "and is round all of it"
-	(progn (bind '(fm (bx by bx1 by1)) (. wb_handles :frame))
-		(defq inv (Mat3x2-invert fm) m (elem-get (first (cwb-find (. wb_board :get_doc) wb_sh)) +cwb_m))
-		(every (lambda ((x y)) (bind '(px py) (Mat3x2-point inv (first (Mat3x2-point m x y)) (second (Mat3x2-point m x y))))
-				(and (<= (- bx 0.01) px (+ bx1 0.01)) (<= (- by 0.01) py (+ by1 0.01))))
-			'((0 0) (100 0) (100 40) (0 40)))))
+;a thing's place is where it is, how far it is turned and sized: its matrix
+;is worked out from that and kept, never saved, and nothing slants
+(defun wb-square? (m) (wb-near? (+ (* (elem-get m 0) (elem-get m 1)) (* (elem-get m 3) (elem-get m 4))) 0.0 0.001))
+(defq wb_sh (cwb-shape (cwb-d-rect 0 0 100 40) :m (Mat3x2 1.0 0.6 10.0 0.0 1.0 20.0)))
+(assert-true "a matrix that slants, given as one, is a place, and its slant is left out"
+	(and (wb-near? (cwb-place wb_sh) '(10.0 20.0 0.0 1.0 1.0) 0.001) (wb-square? (elem-get wb_sh +cwb_m))))
+;turned there and back a thousand times, about a point, it is where it was
+(defq wb_p (list 200.0 100.0 0.25 1.5 0.5))
+(times 1000 (setq wb_p (place-turn (place-turn wb_p 0.37 260.0 130.0) -0.37 260.0 130.0)))
+(assert-true "turned there and back a thousand times its angle and size are what they were, and it has not moved"
+	(and (= (third wb_p) 0.25) (= (elem-get wb_p 3) 1.5) (= (elem-get wb_p 4) 0.5)
+		(wb-near? (slice wb_p 0 2) '(200.0 100.0) 0.05)))
+;with angles that snap, it is its angle that snaps, so it can go back to square
+(defq wb_tilt (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
+	:place (list 500.0 500.0 0.1 1.0 1.0))))
+(. wb_board :select (list wb_tilt))
+(def wb_board :snap_angle (/ +fp_pi 12.0))
+(bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
+(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list (+ wb_tx 1.0) wb_ty)))
+(assert-eq "a thing at a tenth of a radian, turned a little with angles that snap, is square" 0.0
+	(third (cwb-place (first (cwb-find (. wb_board :get_doc) wb_tilt)))))
+(def wb_board :snap_angle 0.0)
 (. wb_board :select (list))
-(. wb_board :undo)
+(. wb_board :undo) (. wb_board :undo)
+;a file has the place, not the matrix
+(defq wb_f (cwb-doc 200 200))
+(cwb-add wb_f (cwb-shape (cwb-d-rect 0 0 10 10) :place (list 30.0 40.0 0.5 2.0 1.0)))
+(defq wb_fs (string-stream (cat "")))
+(cwb-save wb_f wb_fs)
+(assert-list-eq "saved, it says where it is, its angle and its size, and no matrix" '(:t :t :t :nil)
+	(map (# (nempty? (substr (str wb_fs) %0))) '(":pos" ":angle" ":scale" ":m ")))
+(assert-true "and read back it is where it was"
+	(wb-near? (cwb-place (first (cwb-items (cwb-load (string-stream (str wb_fs)))))) '(30.0 40.0 0.5 2.0 1.0) 0.001))
+;a group sized more one way than the other, with a thing turned in it:
+;ungrouped, the thing would slant. It is made what it draws, slanted, and
+;its place does not slant
+(defq wb_u (Board (cwb-doc 400 300)))
+(defq wb_ug (. wb_u :add (cwb-group (list (cwb-shape (cwb-d-rect -30 -10 30 10) :fill 0xff0000ff :stroke 0xffff0000 :width 4
+	:place (list 0.0 0.0 0.5 1.0 1.0))) :place (list 200.0 150.0 0.0 2.0 1.0))))
+(defun wb-ink-box (items)
+	;the box round what is drawn, its polygons where they are, not round
+	;their boxes
+	(defq polys (list))
+	(cwb-walk items :nil (lambda (shape m)
+		(bind '(fills strokes &ignore) (cwb-flat shape))
+		(each (# (push polys %0)) (cwb-mat-paths m (cat fills strokes)))))
+	(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
+	(list x y x1 y1))
+(defq wb_ub (wb-ink-box (cwb-items (. wb_u :get_doc))))
+(. wb_u :select (list wb_ug))
+(. wb_u :ungroup)
+(defq wb_ui (cwb-items (. wb_u :get_doc)))
+(assert-true "ungrouped, what would slant is its fill and its line, each its own, none slanted, and where it was"
+	(and (= (length wb_ui) 2) (every (# (wb-square? (elem-get %0 +cwb_m))) wb_ui)
+		(wb-near? (wb-ink-box wb_ui) wb_ub 0.05)))
+(assert-eq "and both are selected" 2 (length (. wb_u :get_selected)))
 
 ;several things selected, a loose group, are not a thing: a box round
 ;them square to the board, and no handles to size or turn them. They are

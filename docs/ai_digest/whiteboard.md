@@ -55,7 +55,7 @@ a document still holds its list as one layer, `(cwb-layers doc)`, so what
 walks layers walks the one.
 
 A shape is the `d` of an SVG `<path>`, as text, with a fill, a stroke and a
-matrix:
+place:
 
 ```vdu
 (cwb-shape "M 10 10 L 100 10 A 30 30 0 0 1 100 70 Z"
@@ -69,10 +69,23 @@ did not work before this, and needs the angle of a vector, which nothing gave.
 guess at the angle good to a part in 300, and two steps toward it with `sin`
 and `cos`.
 
-The matrix is six numbers, `a b tx c d ty`, and puts the shape where it is in
-what holds it. To move, turn or size a shape is to change its matrix. The path
-is as it was drawn, so a box turned 30 degrees is still a box, and can be
-turned back. A group has a matrix too, and what is in it is in its space.
+A shape's place, `(x y angle sx sy)`, puts it where it is in what holds it:
+where its own origin is, how far it is turned about that, in radians, and how
+far it is sized along its own sides. To move, turn or size a shape is to
+change its place, `(place-move)` `(place-turn)` `(place-scale)`
+`(place-pair)`, never to multiply a matrix: nothing drifts, a thousand turns
+there and back leave it where it was, and an angle that snaps snaps exactly.
+The matrix of six numbers, `a b tx c d ty`, and its inverse for hit tests,
+are worked out from the place by `(cwb-place!)` and kept, never saved. The
+path is as it was drawn, so a box turned 30 degrees is still a box, and can
+be turned back. A group has a place too, and what is in it is in its space.
+
+Nothing is ever slanted: there is no handle for a slant, and a place has
+none. An ungroup of a group sized more one way than the other, with a thing
+turned in it, would slant that thing; `(cwb-unslant)` makes it what it
+draws, its fill and its line, polygons with the slant put into them, as a
+bite does. `:m` is still taken by `(cwb-set)` and the makers of items, as a
+way to say a place: it is made one, `(cwb-mat-place)`, any slant left out.
 
 Words are a shape of kind `:text`, `(cwb-text "Start" x y)`, whose outline
 comes from a font. `(cwb-text-mid)` puts their middle at a point.
@@ -83,34 +96,31 @@ Every item has an id, a number of its own in the document, kept in the file.
 A shape is flattened to polygons the first time it is drawn, `(cwb-flat)`:
 those of its fill, those of its stroke, and the box they are in. They are
 kept with it till what it is drawn with changes, and are not saved. Its
-matrix is not part of that, a shape that is moved is not flattened again.
+place is not part of that, a shape that is moved is not flattened again.
 
 ## The file
 
 `(cwb-save doc stream)` is `(tree-save)`, the `.tre` format a `.cwb` always
-was, version 5. An item is its type and then what it has that is not what it
+was, version 1. The format is not yet kept for files of before it: from
+v8.0 a file of an older version is to be read too. An item is its type and then what it has that is not what it
 would have anyway, a key and a value. `:user` is who made it, written when
 it is not the teacher, 0:
 
 ```vdu
 ((:Emap 1)
-	:version 5 :width 640 :height 420 :background 0 :style :grid :grid 32
+	:version 1 :width 640 :height 420 :background 0 :style :grid :grid 32
 	:next_id 3
 	:items
 	((:list 2)
-		((:list 7) :shape :id 1 :d "[M 40 360 L 220 360]" :width 4.0)
+		((:list 11) :shape :id 1 :d "[M 40 360 L 220 360]" :width 4.0 :pos ((:list 2) 20.0 0.0) :angle 0.5)
 		((:list 13) :shape :id 2 :user 2 :kind :text :text "[Start]"
 			:fill 4278190080 :stroke 0))
 	:props :nil)
 ```
 
-A file of version 4 had layers, each a name, flags and items: it is read
-as one list, the items of the back layer first.
-
 It is laid out a value to a line when the system writes it. It can be written
 by hand, or by anything: a file with no ids, and only what matters said, loads,
-and its items are given ids. A file of version 2 or 3, polygons, is made into
-one of this as it loads.
+and its items are given ids. A file of another version is not read.
 
 `lib/image/cwb.inc` is the `.cwb` loader of a canvas. As a picture a document
 is its shapes, at the size it says it is, on its background, which is nothing
@@ -428,10 +438,9 @@ time:
   thing. Two fingers on it only move it, by their middle.
 * A strong group is one thing: its own box and handles, no member lines.
 * A box is always a rectangle, turned and sized, never slanted: there is
-  no handle for a slant. A matrix that slants, as an ungroup of a group
-  stretched along other sides than a thing in it makes, is split into its
-  turn and size and its slant, and the box is round what it slants,
-  `(board-item-frame)`.
+  no handle for a slant, and a place has none, `(board-item-frame)`.
+* With angles that snap, a turn snaps the angle a thing is at, not how far
+  it is turned: anything can be brought back to square.
 * An undo or redo is of the document, strong groups and all, and lets go
   of every selection.
 * A bite cuts all it goes over. What it leaves of a stroked shape is two
@@ -1167,8 +1176,7 @@ bindings kept with the app's state, a pen's not, its number is a sitting's.
 its own hand took it, `(. board :fly)`, `(. board :back?)`, and the app has
 a canvas for each, `*flight*` in front and `*flight_b*` behind, in an order
 that never changes.
-6. No layers in the document. Built: version 5 is one list of items, a
-version 4 file is read into it.
+6. No layers in the document. Built: a file is one list of items.
 7. The shared board. Built, first stage: `lib/cwb/share.inc`, deltas by
 state for each board sent to, what is being drawn and what a hand holds
 going with them, first come first served for holds, the host's word final;

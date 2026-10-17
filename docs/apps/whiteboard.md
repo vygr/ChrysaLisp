@@ -210,8 +210,9 @@ One that has never been set has the board's, off to begin with. With the
 first on, a point that is drawn or
 dragged goes to the nearest point of the grid, a thing that is moved has its
 top left corner go there, and the lines of the paper are where the grid is.
-With the second on, a thing that is turned goes to the nearest 15 degrees,
-and so does a line pulled by an end.
+With the second on, a thing that is turned goes to the nearest 15 degrees
+of the board, whatever angle it was at, so it can always be brought back
+square; and so does a line pulled by an end.
 
 The lock is on to begin with: a corner that is dragged keeps the
 shape of what it sizes. With it off a corner goes where it is put, and the

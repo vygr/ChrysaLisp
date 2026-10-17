@@ -6,9 +6,13 @@
 ;
 ; A shape is an SVG path, the d of a <path>, as text: M L H V C S Q T A Z
 ; and their lower case, (path-gen-paths) in gui/path/lisp.inc reads it. It
-; has a fill, a stroke, and a transform, a matrix of 3 by 2, that puts it
-; where it is in what holds it. To move, turn or size a shape is to change
-; its matrix, the path is as it was drawn. A shape of kind :text has its
+; has a fill, a stroke, and a place, that puts it where it is in what
+; holds it: where its own origin is, how far it is turned about that, and
+; how far it is sized along its own sides. To move, turn or size a shape
+; is to change its place, the path is as it was drawn. The matrix of 3 by
+; 2 that does what the place says, and its inverse, are worked out from
+; the place and kept, never saved: nothing is ever multiplied into a kept
+; matrix, so nothing drifts, and nothing is slanted, there is no slant. A shape of kind :text has its
 ; outline from a font and a string in place of a path.
 ;
 ; Every item has an id, a number, its own in the document for as long as
@@ -30,10 +34,9 @@
 (import "././math/matrix.inc")
 (import "././collections/collections.inc")
 
-;5: one list of items, no layers, Chris: "What's saved and loaded to a file
-;is the committed layer, and that's that". A document of 4, of layers, is
-;read into the one list in the order its layers were in
-(defq +cwb_version 5)
+;the version of the file. The format is not yet kept for files of before
+;it: from v8.0 a file of an older version is to be read too
+(defq +cwb_version 1)
 
 ;the slots of an item, a list. None is named size, an enum has a size
 ;of its own by that name. The first few are of both kinds, then those
@@ -44,17 +47,17 @@
 	(enum type id name m props user)
 	(enum kind d fill stroke width rule join cap1 cap2 text font font_size)
 	(enum items)
-	(enum cache))
+	(enum cache place inv))
 
 ;the name of each slot in a file, and what a slot has when the file does
 ;not say. A list quoted twice, a + constant that is a list is put in place
 ;of its name as code is read
 (defq +cwb_keys ''(:type :id :name :m :props :user
 		:kind :d :fill :stroke :width :rule :join :cap1 :cap2 :text :font :font_size
-		:items :cache)
+		:items :cache :place :inv)
 	+cwb_defaults ''(:shape 0 "" :nil :nil 0
 		:path "" 0 0xff000000 2.0 :nonzero :round :round :round "" "fonts/OpenSans-Regular.ctf" 24
-		:nil :nil))
+		:nil :nil :nil :nil))
 
 ;;;;;;;;;;
 ; matrices
@@ -68,10 +71,124 @@
 	;new paths, each moved by the matrix, the same ones if it is :nil
 	(if m (map (# (path-transform m %0 (cat %0))) paths) paths))
 
+;;;;;;;;
+; places
+;;;;;;;;
+
+;a place is (x y angle sx sy): where an item's own origin is in what holds
+;it, how far it is turned about that, in radians, and how far it is sized
+;along its own sides. :nil is no change, the place of (0 0 0 1 1). A
+;place is never changed, a new one is made, so items copied share them
+
+(defq +cwb_no_place ''(0.0 0.0 0.0 1.0 1.0))
+
+(defun cwb-place-mat (place)
+	; (cwb-place-mat place) -> matrix | :nil
+	;the matrix that does what a place says: sized, turned, then moved
+	(when place
+		(bind '(x y a sx sy) place)
+		(defq c (cos a) s (sin a))
+		(fixeds (* c sx) (* (neg s) sy) x (* s sx) (* c sy) y)))
+
+(defun cwb-mat-place (m)
+	; (cwb-mat-place m) -> (place slant)
+	;a matrix as a place, and the slant that is left over, the part of it a
+	;place can not say: m is the place's matrix by (1 slant 0 0 1 0). It is
+	;0.0 for a matrix made of moves, turns and sizes alone
+	(cond
+		((not m) (list :nil 0.0))
+		(:t (bind '(a b tx c d ty) m)
+			(defq sx (sqrt (+ (* a a) (* c c))))
+			(cond
+				((= sx 0.0) (list (list tx ty 0.0 0.0 0.0) 0.0))
+				(:t (defq cs (/ a sx) sn (/ c sx)
+						sy (- (* cs d) (* sn b)) slant (/ (+ (* cs b) (* sn d)) sx)
+						;a turn's cos and sin are rounded, and its size not quite
+						;1: that much from 1 is 1
+						one (# (if (< (abs (- (abs %0) 1.0)) 0.0002) (if (< %0 0.0) -1.0 1.0) %0)))
+					(list (list tx ty (path-angle cs sn) (one sx) (one sy))
+						(if (< (abs slant) 0.0002) 0.0 slant)))))))
+
+(defun scatter-place (place &rest index_vals)
+	; (scatter-place place [index val] ...) -> place
+	;a new place, as that one with those parts set
+	(defq out (cat place))
+	(each (lambda ((i v)) (elem-set out i (n2f v))) (partition index_vals 2))
+	out)
+
+(defun cwb-place (item)
+	; (cwb-place item) -> place
+	(ifn (elem-get item +cwb_place) +cwb_no_place))
+
+(defun cwb-place! (item place)
+	; (cwb-place! item place) -> item
+	;put an item in a place, and work out its matrix and the inverse of that
+	(defq m (cwb-place-mat place))
+	(elem-set item +cwb_place place)
+	(elem-set item +cwb_m m)
+	(elem-set item +cwb_inv (if m (Mat3x2-invert m)))
+	item)
+
+(defun cwb-inv (item)
+	; (cwb-inv item) -> matrix | :nil
+	;the inverse of an item's matrix, kept with it
+	(elem-get item +cwb_inv))
+
+(defun place-move (place dx dy)
+	; (place-move place dx dy) -> place
+	(bind '(x y a sx sy) (ifn place +cwb_no_place))
+	(list (+ x (n2f dx)) (+ y (n2f dy)) a sx sy))
+
+(defun place-turn (place da cx cy)
+	; (place-turn place da cx cy) -> place
+	;turned by da about a point of what holds it. Where it goes is worked
+	;out in reals: a fixed cos and sin are a turn that is a little too
+	;small, and that, a thousand times, is a thing that creeps
+	(bind '(x y a sx sy) (ifn place +cwb_no_place))
+	(defq rda (n2r da) c (cos rda) s (sin rda) rcx (n2r cx) rcy (n2r cy)
+		dx (- (n2r x) rcx) dy (- (n2r y) rcy))
+	(list (n2f (+ rcx (- (* c dx) (* s dy)))) (n2f (+ rcy (+ (* s dx) (* c dy)))) (+ a (n2f da)) sx sy))
+
+(defun place-angle (place a cx cy)
+	; (place-angle place a cx cy) -> place
+	;turned about a point of what holds it till its angle is a
+	(place-turn place (- a (third (ifn place +cwb_no_place))) cx cy))
+
+(defun place-scale (place fx fy ax ay)
+	; (place-scale place fx fy ax ay) -> place
+	;sized along its own sides by fx and fy, about a point of its own space,
+	;which stays where it is
+	(bind '(x y a sx sy) (ifn place +cwb_no_place))
+	(defq c (cos a) s (sin a) ux (* sx (- ax (* fx ax))) uy (* sy (- ay (* fy ay))))
+	(list (+ x (- (* c ux) (* s uy))) (+ y (+ (* s ux) (* c uy))) a (* sx fx) (* sy fy)))
+
+(defun place-pair (place a0 b0 a1 b1)
+	; (place-pair place a0 b0 a1 b1) -> place
+	;moved, turned and sized the same both ways, as two points (x y) at a0
+	;and b0 are taken to a1 and b1, as two fingers on a thing take it
+	(bind '(x y a sx sy) (ifn place +cwb_no_place))
+	(defq v0x (- (first b0) (first a0)) v0y (- (second b0) (second a0))
+		v1x (- (first b1) (first a1)) v1y (- (second b1) (second a1))
+		l0 (max 1.0 (sqrt (+ (* v0x v0x) (* v0y v0y)))) l1 (max 1.0 (sqrt (+ (* v1x v1x) (* v1y v1y))))
+		k (/ l1 l0) da (- (path-angle v1x v1y) (path-angle v0x v0y))
+		rk (n2r k) c (* rk (cos (n2r da))) s (* rk (sin (n2r da)))
+		dx (n2r (- x (first a0))) dy (n2r (- y (second a0))))
+	(list (+ (first a1) (n2f (- (* c dx) (* s dy)))) (+ (second a1) (n2f (+ (* s dx) (* c dy)))) (+ a da) (* sx k) (* sy k)))
+
 ;;;;;;;
 ; items
 ;;;;;;;
 
+
+(defun place-by-mat (place m)
+	; (place-by-mat place m) -> place
+	;moved by a matrix: by as much, if it only moves, or else to where the
+	;matrix and the place's together put it, what of that a place can say
+	(cond
+		((not m) place)
+		((and (= (elem-get m 0) 1.0) (= (elem-get m 1) 0.0) (= (elem-get m 3) 0.0) (= (elem-get m 4) 1.0))
+			(place-move place (elem-get m 2) (elem-get m 5)))
+		((first (cwb-mat-place (Mat3x2-mul m (cwb-place-mat place)))))))
 (defun cwb-slot (key)
 	; (cwb-slot key) -> index
 	(ifn (find key +cwb_keys) (throw "No such key of a whiteboard item !" key)))
@@ -83,12 +200,18 @@
 (defun cwb-set (item &rest key_vals)
 	; (cwb-set item [key val] ...) -> item
 	;set what an item has. What it was flattened to is let go of, unless
-	;all that was set was its matrix, its name, its props or its user,
-	;which do not change what it is flattened to
+	;all that was set was its place, its name, its props or its user,
+	;which do not change what it is flattened to. :place is a place, :m a
+	;matrix, which is made a place, (cwb-mat-place), and its slant, if it
+	;has any, left out: nothing is slanted
 	(defq stale :nil)
 	(each (lambda ((key val))
-		(elem-set item (cwb-slot key) val)
-		(unless (find key '(:m :name :props :id :user)) (setq stale :t)))
+		(case key
+			(:place (cwb-place! item val))
+			(:m (cwb-place! item (first (cwb-mat-place val))))
+			(:inv)
+			(:t (elem-set item (cwb-slot key) val)))
+		(unless (find key '(:m :place :inv :name :props :id :user)) (setq stale :t)))
 		(partition key_vals 2))
 	(if stale (elem-set item +cwb_cache :nil))
 	item)
@@ -98,7 +221,8 @@
 	(defq item (cat +cwb_defaults))
 	(elem-set item +cwb_type type)
 	(if (eql type :group) (elem-set item +cwb_items (list)))
-	(each (lambda ((key val)) (elem-set item (cwb-slot key) val)) (partition key_vals 2))
+	(apply (const cwb-set) (cat (list item) key_vals))
+	(elem-set item +cwb_cache :nil)
 	item)
 
 (defun cwb-shape (d &rest key_vals)
@@ -114,7 +238,7 @@
 	;words, their left end and the line they sit on at that point. :font
 	;and :font_size say which letters, they are filled, black unless it is said
 	(defq item (cwb-item :shape (cat (list :kind :text :text text :fill 0xff000000 :stroke 0) key_vals)))
-	(elem-set item +cwb_m (Mat3x2-mul (Mat3x2-translate x y) (elem-get item +cwb_m)))
+	(cwb-place! item (place-move (elem-get item +cwb_place) x y))
 	item)
 
 (defun cwb-group (items &rest key_vals)
@@ -280,8 +404,46 @@
 	(defq item (apply (const cwb-text) (cat (list text 0 0) key_vals)))
 	(when (defq box (third (cwb-flat item)))
 		(bind '(bx by bx1 by1) box)
-		(elem-set item +cwb_m (Mat3x2-translate (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))))))
+		(cwb-place! item (list (- (n2f x) (* 0.5 (+ bx bx1))) (- (n2f y) (* 0.5 (+ by by1))) 0.0 1.0 1.0)))
 	item)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; nothing is ever slanted
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun cwb-unslant (item m)
+	; (cwb-unslant item m) -> items
+	;put an item where a matrix of what holds it says, as an ungroup puts
+	;what was in a group: the group's matrix and the item's together. Most
+	;are a place, and the item is put there, and is all there is. One that
+	;slants, an item turned in a group that was sized more one way than the
+	;other, is a place and a slant, and a place can not slant: the slant is
+	;put into what it is. A group's is put into its items, the same way, and
+	;a shape is made what it draws, its fill and its line, each a polygon,
+	;slanted, as a bite makes it. Those new ones have no id
+	(bind '(place slant) (cwb-mat-place m))
+	(cond
+		((= slant 0.0) (list (cwb-place! item place)))
+		((cwb-group? item)
+			(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) kids (list))
+			(each (lambda (kid)
+					(each (# (push kids %0)) (cwb-unslant kid (Mat3x2-mul k (elem-get kid +cwb_m)))))
+				(elem-get item +cwb_items))
+			(elem-set item +cwb_items kids)
+			(list (cwb-place! item place)))
+		(:t (bind '(fills strokes &ignore) (cwb-flat item))
+			(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) out (list))
+			(each (lambda (polys color)
+					(when (and (nempty? polys) (/= color 0))
+						(defq own (cwb-mat-paths k polys)
+							shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
+								:fill color :stroke 0 :rule (if (eql polys fills) (elem-get item +cwb_rule) :nonzero)
+								:name (elem-get item +cwb_name) :user (elem-get item +cwb_user) :props (elem-get item +cwb_props)))
+						(push out (cwb-place! shape place))))
+				(list fills strokes) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
+			;the first of them is what the item was, by its id
+			(if (nempty? out) (elem-set (first out) +cwb_id (elem-get item +cwb_id)))
+			out)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; walking a tree of items
@@ -463,14 +625,19 @@
 		(each (lambda (key default)
 			(defq val (elem-get item (!)))
 			(cond
-				((find key '(:type :cache)))
+				((find key '(:type :cache :m :inv)))
 				((eql key :items)
 					(when (cwb-group? item)
 						(defq outs (map (lambda (&) (list)) val))
 						(push out :items outs)
 						(each (# (push todo (list %0 %1))) val outs)))
-				((and (eql key :m) val) (push out key (apply (const path) (map (const identity) val))))
-				((eql key :m))
+				;where it is, what of it is not as it would be anyway
+				((eql key :place)
+					(when val
+						(bind '(x y a sx sy) val)
+						(if (or (/= x 0.0) (/= y 0.0)) (push out :pos (list x y)))
+						(if (/= a 0.0) (push out :angle a))
+						(if (or (/= sx 1.0) (/= sy 1.0)) (push out :scale (list sx sy)))))
 				((eql val default))
 				((push out key val))))
 			+cwb_keys +cwb_defaults))
@@ -492,10 +659,15 @@
 					(defq kids (map (lambda (&) :nil) val))
 					(elem-set item +cwb_items kids)
 					(each (# (push todo (list %0 kids (!)))) val))
-				((eql key :m) (elem-set item +cwb_m (apply (const fixeds) (map (const identity) val))))
+				;where it is, its place
+				((eql key :pos) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 0 x 1 y)))
+				((eql key :angle) (cwb-place! item (scatter-place (cwb-place item) 2 val)))
+				((eql key :scale) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 3 x 4 y)))
+				((find key '(:m :place :inv :cache)))
 				((defq index (find key +cwb_keys)) (elem-set item index val))))
 			(partition (rest tree) 2)))
 	(first root))
+
 
 (defun cwb-out (doc)
 	; (cwb-out doc) -> emap
@@ -521,55 +693,19 @@
 	; (cwb-save doc stream) -> stream
 	(tree-save stream (cwb-out doc)))
 
-(defun cwb-old-in (data)
-	; (cwb-old-in data) -> doc
-	;a document from a file of before this, version 2 or 3: polygons, in
-	;groups in 3. Each polygon list is a shape that is filled, the size is
-	;the box round them all and a margin
-	(defq doc (cwb-doc) version (. data :find :version)
-		groups (if (= version 2)
-			(map (lambda ((col polys)) (list :nil (list (list col polys)))) (ifn (. data :find :polygons) (list)))
-			(ifn (. data :find :groups) (list))))
-	(each (lambda ((bbox strokes &ignore))
-		(defq shapes (reduce (lambda (out (col polys &ignore))
-			(if (nempty? polys)
-				(push out (cwb-shape (join (map (# (cwb-d-points %0 :t)) polys) " ")
-					:fill col :stroke 0 :kind :polygon)))
-			out) strokes (list)))
-		(cond
-			((empty? shapes))
-			((= (length shapes) 1) (cwb-add doc (first shapes)))
-			((cwb-add doc (cwb-group shapes)))))
-		groups)
-	(when (defq box (cwb-bounds (cwb-items doc)))
-		(bind '(x y x1 y1) box)
-		(defq margin (max 10.0 (* 0.05 (max (- x1 x) (- y1 y)))) move (Mat3x2-translate (- margin x) (- margin y)))
-		(each (# (elem-set %0 +cwb_m (Mat3x2-mul move (elem-get %0 +cwb_m)))) (cwb-items doc))
-		(. doc :insert :width (n2i (+ (- x1 x) margin margin)))
-		(. doc :insert :height (n2i (+ (- y1 y) margin margin))))
-	(. doc :insert :style :plain)
-	doc)
-
 (defun cwb-in (data)
 	; (cwb-in data) -> :nil | doc
-	;a document from the tree of one, (cwb-out). One from before this
-	;version is made into one of this. Anything else is not a document
-	(and (Emap? data) (defq version (. data :find :version)) (num? version)
-		(cond
-			((< version 2) :nil)
-			((< version 4) (cwb-old-in data))
-			(:t (defq doc (cwb-doc))
-				(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
-					'(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
-				;the one list: of 5, or of 4 the items of its layers, the
-				;back one first
-				(defq items (if (= version 4)
-					(apply (const cat) (cat (list (list)) (map (const third) (ifn (. data :find :layers) (list)))))
-					(ifn (. data :find :items) (list))))
-				(. doc :insert :layers (list (list "Layer 1" 0 (map (const cwb-item-in) items))))
-				;an item with no id, one written by hand, is given one
-				(each (lambda ((name flags items)) (each (# (cwb-adopt doc %0)) items)) (cwb-layers doc))
-				doc))))
+	;a document from the tree of one, (cwb-out), of this version. Anything
+	;else is not a document
+	(when (and (Emap? data) (eql (. data :find :version) +cwb_version))
+		(defq doc (cwb-doc))
+		(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
+			'(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
+		;the one list, the back one first
+		(. doc :insert :layers (list (list "Layer 1" 0 (map (const cwb-item-in) (ifn (. data :find :items) (list))))))
+		;an item with no id, one written by hand, is given one
+		(each (lambda ((name flags items)) (each (# (cwb-adopt doc %0)) items)) (cwb-layers doc))
+		doc))
 
 (defun cwb-load (stream)
 	; (cwb-load stream) -> :nil | doc
@@ -632,10 +768,10 @@
 	(when box
 		(bind '(x y x1 y1) box)
 		;by whole pixels, so what was sharp on the grid is sharp still
-		(defq dx (- pad (floor x)) dy (- pad (floor y)) move (Mat3x2-translate dx dy))
+		(defq dx (- pad (floor x)) dy (- pad (floor y)))
 		(unless (and (= dx 0.0) (= dy 0.0))
 			(each (lambda ((name flags items))
-				(each (# (elem-set %0 +cwb_m (Mat3x2-mul move (elem-get %0 +cwb_m)))) items))
+				(each (# (cwb-place! %0 (place-move (elem-get %0 +cwb_place) dx dy))) items))
 				(cwb-layers doc)))
 		(. doc :insert :width (max 1 (n2i (+ (- (+ x1 dx) 0.0) pad 0.9999))))
 		(. doc :insert :height (max 1 (n2i (+ (- (+ y1 dy) 0.0) pad 0.9999))))
@@ -702,7 +838,7 @@
 	;item like it, none if all of it went. :nil if none of it was that
 	;near. An end that was its own keeps how that end was drawn, an arrow
 	;say, and an end that was cut is round
-	(defq m (elem-get item +cwb_m) inv (Mat3x2-invert m) size 1.0)
+	(defq m (elem-get item +cwb_m) inv (cwb-inv item) size 1.0)
 	(when m
 		(bind '(a b &ignore) m)
 		(defq c (elem-get m 3) d (elem-get m 4))
@@ -749,8 +885,8 @@
 			(bind '(bx by bx1 by1) (Mat3x2-box box m))
 			(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
 		;the point is taken into the shape's own space, what it is drawn
-		;with is not moved
-		(defq inv (Mat3x2-invert m)
+		;with is not moved. By the inverse it keeps, when m is its own
+		(defq inv (if (eql m (elem-get shape +cwb_m)) (cwb-inv shape) (Mat3x2-invert m))
 			pts (if (> tol 0.0)
 				(map (lambda ((dx dy)) (Mat3x2-point inv (+ x (* dx tol)) (+ y (* dy tol))))
 					'((0.0 0.0) (1.0 0.0) (-1.0 0.0) (0.0 1.0) (0.0 -1.0) (0.7 0.7) (-0.7 0.7) (0.7 -0.7) (-0.7 -0.7)))
