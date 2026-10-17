@@ -119,9 +119,10 @@
 		(:arc (bind '(kind cx cy r a0 a1) edge)
 			(cond
 				((>= (- a1 a0) (const (- +fp_2pi 0.001)))
-					;all the way round, a ring
+					;all the way round, a ring, its inside the other way round,
+					;so it is a hole in it
 					(cat (list (tool-arc-points (list) cx cy (+ r band) 0.0 +fp_2pi seg))
-						(if (> r band) (list (tool-arc-points (list) cx cy (- r band) 0.0 +fp_2pi seg)) (list))))
+						(if (> r band) (list (tool-arc-points (list) cx cy (- r band) +fp_2pi 0.0 seg)) (list))))
 				(:t ;round the outside, about the end, back round the inside, about the start
 					(defq out (tool-arc-points (list) cx cy (+ r band) a0 a1 seg))
 					(tool-arc-points out (+ cx (* r (cos a1))) (+ cy (* r (sin a1))) band a1 (+ a1 +fp_pi) seg)
@@ -212,7 +213,7 @@
 		;is seen at: it lies on the glass, it is not of the document
 		:size (/ 1.0 (n2f (ifn (get :zoom board) 1.0)))
 		:outline "" :edges (list) :parts (list) :marks (list) :glyphs (list)
-		:mode :line :body :nil :regions :nil :zones :nil :grab :nil :dotted :nil)
+		:mode :line :body :nil :regions :nil :shades :nil :grab :nil :dotted :nil)
 
 	(defmethod :mm ()
 		; (. instrument :mm) -> num
@@ -262,7 +263,7 @@
 				(get :parts this))
 			;what is seen of the parts: each that is not the one to move it
 			;by, a shade darker with a line round it, and the signs
-			:zones (cat
+			:shades (cat
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
 					(filter (# (not (or (find (first %0) '(:move :close :mode)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
@@ -270,8 +271,24 @@
 						(Mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
 		(def this :dotted :nil)
+		(. this :zones_changed)
 		(. (get :board this) :touch +board_dirty_overlay)
 		this)
+
+	(defmethod :zones_key ()
+		; (. instrument :zones_key) -> num
+		;how big it is seen, which how wide the band along an edge is is of
+		(* (get :zoom (get :board this)) (get :size this)))
+
+	(defmethod :zones ()
+		; (. instrument :zones) -> ((name polygons) ...)
+		;each of its parts, small ones first as they are given, the band
+		;along each edge where a pen is held to it, and its body
+		(unless (get :body this) (. this :built))
+		(defq band (/ +tool_band (. this :zones_key)))
+		(cat (map (lambda ((what shape &ignore)) (list what (first (cwb-flat shape)))) (get :regions this))
+			(list (list :edge (if (nempty? (defq edges (get :edges this))) (apply (const cat) (map (# (tool-catch %0 band)) edges)) (list)))
+				(list :body (first (cwb-flat (get :body this)))))))
 
 	(defmethod :catch_shape (edge)
 		; (. instrument :catch_shape edge) -> :nil | shape
@@ -361,11 +378,6 @@
 		;the part a point, in its own space, is in
 		(some (lambda (region) (if (cwb-shape-hit? (second region) :nil x y) region)) (get :regions this)))
 
-	(defmethod :hit (x y &optional event)
-		;on it, or near enough one of its edges to draw along it
-		(unless (get :body this) (. this :built))
-		(bind '(lx ly) (. this :to_own x y))
-		(or (cwb-shape-hit? (get :body this) :nil lx ly) (if (. this :edge_near lx ly) :t)))
 
 	(defmethod :edge_d (state x y)
 		; (. instrument :edge_d state x y) -> d
@@ -691,7 +703,7 @@
 		(unless (get :body this) (. this :built))
 		(defq m (Mat3x2-mul m (. this :matrix)))
 		(cwb-draw-items canvas (list (get :body this)) m)
-		(cwb-draw-items canvas (get :zones this) m)
+		(cwb-draw-items canvas (get :shades this) m)
 		(cwb-draw-items canvas (get :marks this) m)
 		(cwb-draw-items canvas (. this :readout) m)
 		this)

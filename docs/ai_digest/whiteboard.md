@@ -686,9 +686,19 @@ For a script:
 (palettes board)                        ;those that are open
 ```
 
-A new kind of thing on the board is a class on `Actor` with `:hit`,
+A new kind of thing on the board is a class on `Actor` with `:zones`,
 `:pointers`, `:draw`, and `:tick` if it moves, `:dismiss` if it is to go when
-a pointer goes down elsewhere.
+a pointer goes down elsewhere. Its zones are where it can be touched: lists
+of polygons in its own space, each named for what a pointer that lands there
+does, its body, the band along an edge, a bar, a handle, with `:to_own` to
+take a point of the stage into that space. Their union is its outline, made
+once and kept, and made again when `:zones_changed` is called, from its own
+rebuild, or when `:zones_key`, what the zones depend on such as the zoom,
+is not what it was. The stage asks each actor, front to back, if a point is
+its, `:hit`, which tests the outline, a box round it first; `:zone_at` then
+says which zone it landed in. The instruments, the menus and the selection
+handles are all so. The surface takes what nothing else did, and the things
+of the document are found by their own shapes.
 
 ## Pens and fingers, from the host up
 

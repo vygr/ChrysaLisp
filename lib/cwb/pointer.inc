@@ -268,7 +268,7 @@
 			(defq zones (map (lambda ((name polys))
 					(list name (map (# (if (list? %0) (apply (const path) %0) %0)) polys)))
 					(. this :zones))
-				all (apply (const cat) (map (const second) zones))
+				all (if (nempty? zones) (apply (const cat) (map (const second) zones)) (list))
 				outline (if (nempty? all) (poly-union all (list) 1) (list))
 				box :nil)
 			(each (lambda (poly)

@@ -1064,8 +1064,21 @@
 			(and (<= (abs (- x sx)) reach) (<= (abs (- y sy)) reach) spot))
 			(ifn (. this :spots) (list))))
 
-	(defmethod :hit (x y &optional event)
-		(if (. this :spot_at x y) :t))
+	(defmethod :zones_key ()
+		; (. handles :zones_key) -> str
+		;where the handles are, and the zoom, which how far one reaches is of
+		(raise :board)
+		(str (get :zoom board) (. this :spots)))
+
+	(defmethod :zones ()
+		; (. handles :zones) -> ((name polygons) ...)
+		;a square about each handle, as far as it reaches, named for its kind
+		(raise :board)
+		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
+		(map (lambda ((kind sx sy &ignore))
+				(list kind (list (list (- sx reach) (- sy reach) (+ sx reach) (- sy reach)
+					(+ sx reach) (+ sy reach) (- sx reach) (+ sy reach)))))
+			(ifn (. this :spots) (list))))
 
 	(defmethod :pointers (stage events)
 		(raise :board)
