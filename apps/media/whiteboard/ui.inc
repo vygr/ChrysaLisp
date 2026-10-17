@@ -195,7 +195,7 @@
 
 (defun swatches-open (x y)
 	;about a point
-	(. (. *board* :get_stage) :add (Swatches *board* x y))
+	(. *board* :place_new (Swatches *board* x y))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun action-swatches ()
@@ -246,8 +246,7 @@
 	(def instrument :origin (list (+ x (* 30.0 (n2f others))) (+ y (* 30.0 (n2f others)))))
 	;with the snap on, the 0 of its marks is on the lines of the paper from the first
 	(. instrument :snap_zero)
-	(. (. *board* :get_stage) :add instrument)
-	(. *board* :touch +board_dirty_overlay))
+	(. *board* :place_new instrument))
 
 (defun action-ruler () (add-instrument (apply (const Ruler) (cat (list *board*) (view-middle)))))
 (defun action-protractor () (add-instrument (apply (const Protractor) (cat (list *board*) (view-middle)))))

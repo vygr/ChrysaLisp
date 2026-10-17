@@ -391,6 +391,17 @@
 	(if (= *margin* 0) (view-matrix)
 		(Mat3x2-mul (Mat3x2-translate *margin* *margin*) (view-matrix))))
 
+(defun view-seen ()
+	; (view-seen) -> (x y x1 y1)
+	;the box of the document that shows, round the corners of what shows
+	;taken back into the document, turned or not. New menus and
+	;instruments are put in it, (. board :place_new)
+	(bind '(cw ch) (canvas-size))
+	(defq inv (Mat3x2-invert (view-matrix))
+		pts (map (lambda ((x y)) (Mat3x2-point inv x y)) (list (list 0.0 0.0) (list (n2f cw) 0.0) (list (n2f cw) (n2f ch)) (list 0.0 (n2f ch))))
+		xs (map (const first) pts) ys (map (const second) pts))
+	(list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys)))
+
 (defun view-middle ()
 	; (view-middle) -> (x y)
 	;the point of the document that is in the middle of the paper, which
@@ -565,6 +576,7 @@
 	(.-> *image_scroll* :layout :dirty_all)
 	;the canvases of the instruments are in front of the new ones still
 	(if (nempty? *tools*) (tools-stack))
+	(def *board* :view_box (view-seen))
 	(. *board* :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 (defun bars-update ()
@@ -595,7 +607,7 @@
 	;again, the paper too. What is in flight is drawn, not moved as a
 	;picture, it is in another place on its canvas
 	(def *board* :zoom *zoom* :snap_gap (snap-gap))
-	(def *board* :view_turn (turn-angle))
+	(def *board* :view_turn (turn-angle) :view_box (view-seen))
 	(def *board_view* :zoom *zoom* :inv (Mat3x2-invert (over-matrix)))
 	;what a hand holds is in flight and stays in the hand, Chris: "If I
 	;hold a shape, and somone else moves the canvas, my shape comes with

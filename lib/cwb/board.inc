@@ -1238,6 +1238,35 @@
 	(defmethod :get_doc () (get :doc this))
 	(defmethod :get_stage () (get :stage this))
 
+	(defmethod :place_new (actor)
+		; (. board :place_new actor) -> actor
+		;an actor that is new, a menu or an instrument, put on the stage
+		;all of it where it is seen, :view_box (x y x1 y1) of the document as
+		;whoever shows the board says, moved in from an edge it is over.
+		;Where it lies is its :origin. Not one put back where it was, which
+		;may be out of sight on purpose
+		(. (get :stage this) :add actor)
+		(when (and (defq seen (get :view_box this)) (get :origin actor) (defq claimed (. actor :claim)))
+			(bind '(& & & (ox oy ox1 oy1)) claimed)
+			;its own space to the stage's, the way back of (:to_own)
+			(bind '(ax ay) (. actor :to_own 0.0 0.0))
+			(bind '(bx by) (. actor :to_own 1.0 0.0))
+			(bind '(cx cy) (. actor :to_own 0.0 1.0))
+			(defq back (Mat3x2-invert (fixeds (- bx ax) (- cx ax) ax (- by ay) (- cy ay) ay))
+				pts (map (lambda ((x y)) (Mat3x2-point back x y)) (list (list ox oy) (list ox1 oy) (list ox1 oy1) (list ox oy1)))
+				xs (map (const first) pts) ys (map (const second) pts)
+				pad (/ 8.0 (get :zoom this)))
+			(bind '(sx sy sx1 sy1) seen)
+			(defq x (reduce min xs) x1 (reduce max xs) y (reduce min ys) y1 (reduce max ys)
+				dx (cond ((< x (+ sx pad)) (- (+ sx pad) x)) ((> x1 (- sx1 pad)) (max (- (+ sx pad) x) (- (- sx1 pad) x1))) (0.0))
+				dy (cond ((< y (+ sy pad)) (- (+ sy pad) y)) ((> y1 (- sy1 pad)) (max (- (+ sy pad) y) (- (- sy1 pad) y1))) (0.0)))
+			(unless (and (= dx 0.0) (= dy 0.0))
+				(bind '(px py) (get :origin actor))
+				(def actor :origin (list (+ px dx) (+ py dy)))
+				(. actor :zones_changed)))
+		(. this :touch +board_dirty_overlay)
+		actor)
+
 	(defmethod :get_bindings () (get :bindings this))
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

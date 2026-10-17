@@ -617,3 +617,22 @@
 (assert-eq "the teacher's delete takes the group only" 4 (length (cwb-items (. pg_board :get_doc))))
 (. pg_board :delete (list))
 (assert-eq "one who holds nothing deletes nothing" 4 (length (cwb-items (. pg_board :get_doc))))
+
+;a menu or an instrument that is new is put all of it where the board is
+;seen, :view_box, moved in from an edge it is over, Chris: "We need to mak sure
+;new menu's and instruments come up not off the screen/window edges"
+(defq ps_board (Board (cwb-doc 400 300)))
+(def ps_board :view_box (list 0.0 0.0 400.0 300.0))
+(defq ps_pal (palette-float ps_board 395 295) ps_ruler (. ps_board :place_new (Ruler ps_board 390 10)))
+(defun ps-box (actor)
+	(bind '(& & & (ox oy ox1 oy1)) (. actor :claim))
+	(bind '(ax ay) (. actor :to_own 0.0 0.0)) (bind '(bx by) (. actor :to_own 1.0 0.0)) (bind '(cx cy) (. actor :to_own 0.0 1.0))
+	(defq back (Mat3x2-invert (fixeds (- bx ax) (- cx ax) ax (- by ay) (- cy ay) ay))
+		pts (map (lambda ((x y)) (Mat3x2-point back x y)) (list (list ox oy) (list ox1 oy) (list ox1 oy1) (list ox oy1))))
+	(list (reduce min (map (const first) pts)) (reduce min (map (const second) pts))
+		(reduce max (map (const first) pts)) (reduce max (map (const second) pts))))
+(assert-true "a menu opened at the corner is moved in, all of it seen"
+	(progn (bind '(x y x1 y1) (ps-box ps_pal)) (and (>= x 0.0) (>= y 0.0) (<= x1 400.0) (<= y1 300.0))))
+(assert-true "and an instrument at the edge, as far as it fits"
+	(progn (bind '(x y x1 y1) (ps-box ps_ruler)) (and (>= x 0.0) (>= y 0.0))))
+

@@ -163,11 +163,11 @@
 					;only the teacher undoes
 					(:undo (if (or (not floating) (= user +board_teacher)) (. board :undo)))
 					(:redo (if (or (not floating) (= user +board_teacher)) (. board :redo)))
-					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero who)) (unless floating (. this :close)))
-					(:protractor (. (. board :get_stage) :add (. (Protractor board ox oy) :snap_zero who)) (unless floating (. this :close)))
-					(:full_protractor (. (. board :get_stage) :add (. (Circle board ox oy) :snap_zero who)) (unless floating (. this :close)))
-					(:set_square (. (. board :get_stage) :add (. (Setsquare board ox oy) :snap_zero who)) (unless floating (. this :close)))
-					(:set_square45 (. (. board :get_stage) :add (. (Setsquare45 board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:ruler (. board :place_new (. (Ruler board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:protractor (. board :place_new (. (Protractor board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:full_protractor (. board :place_new (. (Circle board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:set_square (. board :place_new (. (Setsquare board ox oy) :snap_zero who)) (unless floating (. this :close)))
+					(:set_square45 (. board :place_new (. (Setsquare45 board ox oy) :snap_zero who)) (unless floating (. this :close)))
 					(:window (if (defq on_window (get :on_window board)) (on_window)) (unless floating (. this :close)))
 					;the swatches, a menu of their own beside this one, if what
 					;shows the board has them, :on_swatches
@@ -269,20 +269,15 @@
 	(defq stage (. board :get_stage) x (n2f x) y (n2f y))
 	(each (# (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id) (. %0 :close)))
 		(. stage :get_actors))
-	(. stage :add (defq palette (Palette board x y kind id)))
-	(. board :touch +board_dirty_overlay)
-	palette)
+	(. board :place_new (defq palette (Palette board x y kind id))))
 
 (defun palette-float (board x y)
 	; (palette-float board x y) -> palette
 	;a floating menu about a point, as many as are wanted, from a button of
 	;a toolbar. It stays till its cross is tapped, and a tap on it binds the
 	;device that tapped, see (. palette :pick) and (. board :pick)
-	(defq stage (. board :get_stage))
-	(. stage :add (defq palette (Palette board (n2f x) (n2f y))))
-	(def palette :floating :t)
-	(. board :touch +board_dirty_overlay)
-	palette)
+	(def (defq palette (Palette board (n2f x) (n2f y))) :floating :t)
+	(. board :place_new palette))
 
 (defun palette-enable (board &optional colors widths)
 	; (palette-enable board [colors widths]) -> board
