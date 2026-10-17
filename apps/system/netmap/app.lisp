@@ -205,7 +205,9 @@
 					(shader-load (second +scene_shiny_files)) :t))
 				(setq gpu_matte (shader-gui-pair (shader-load (first +scene_matte_files))
 					(shader-load (second +scene_matte_files)) :t)))
-			(setq gpu_pair :nil gpu_failed :t)))
+			;one not made, and those that were are let go of
+			(each (# (if %0 (canvas-shader-destroy %0))) (list gpu_pair gpu_shiny gpu_matte))
+			(setq gpu_pair :nil gpu_shiny :nil gpu_matte :nil gpu_failed :t)))
 	(defq drawn (if gpu_pair (shader-gui-frame *canvas*
 		(map (lambda ((id vblock pblock &optional y y1 files))
 			(while (<= (length gpu_meshes) id) (push gpu_meshes :nil))
@@ -214,7 +216,10 @@
 			(list (cond ((not files) gpu_pair) ((eql (second files) (second +scene_matte_files)) gpu_matte) (:t gpu_shiny))
 				(ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws))))
 	(cond
-		((eql drawn :error) (setq gpu_pair :nil gpu_failed :t))
+		((eql drawn :error)
+			;a pair the driver could not build is still let go of
+			(canvas-shader-destroy gpu_pair)
+			(setq gpu_pair :nil gpu_failed :t))
 		(drawn (setq gpu_drawn :t))
 		;the GPU is busy, the next frame will do
 		(gpu_drawn)

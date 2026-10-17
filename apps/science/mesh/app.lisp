@@ -174,6 +174,8 @@
 				(list gpu_pair (ifn (elem-get gpu_meshes id) 0) vblock pblock)) draws)))
 		(cond
 			((eql drawn :error)
+				;a pair the driver could not build is still let go of
+				(canvas-shader-destroy gpu_pair)
 				(setq gpu_pair :nil gpu_failed :t *use_gpu* :nil)
 				(. *gpu_toolbar* :set_selected 0)
 				:nil)

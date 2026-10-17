@@ -170,6 +170,8 @@
 			parts)))
 		(cond
 			((eql drawn :error)
+				;a pair the driver could not build is still let go of
+				(canvas-shader-destroy gpu_pair)
 				(setq gpu_pair :nil gpu_want :nil)
 				(. *mode* :set_selected 0)
 				:nil)
@@ -257,4 +259,5 @@
 				(draw-frame))))
 	(if picker (mail-send picker ""))
 	(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
+	(if gpu_pair (canvas-shader-destroy gpu_pair))
 	(gui-sub-rpc *window*))
