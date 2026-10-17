@@ -198,10 +198,11 @@
 							;hide and sub view
 							(.-> view :hide :sub))
 						(+gui_rpc_type_add_front
-							;add view at front
+							;add view at front, all of it drawn: :to_front marks
+							;it only if it moves, and it may be in front already
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
-							(. view :to_front))
+							(.-> view :to_front (:set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 						(+gui_rpc_type_theme
 							;the screen has the theme's fonts, and every window is
 							;told, each finds them again and swaps its own
