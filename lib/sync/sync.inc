@@ -23,6 +23,19 @@
 ; one the tree has is used, so what git does not keep is not sent,
 ; obj/ and the like. Both sides list by the same rules.
 ;
+; Who takes a sync from whom. A machine always takes one from itself.
+; It takes one from the machines it names, a system id a line in the
+; file sync_from at its root: its own other machines, a rig the tests
+; are run on, that is given the working tree of the one being worked on.
+; From any other only by the herd: a tree that is exactly a waypoint,
+; a commit of master or of a release as it was pulled, the file
+; waypoint at its root says which, is made the same as one at a newer
+; waypoint. A tree with a change of its own is not at a waypoint, and
+; takes no part, pushed to or from: someone at work on a machine is not
+; disturbed, and when what they did is pushed and they pull, their
+; machine is in the herd again. Nor one with a .git: git keeps that in
+; step, and a sync of the files would leave git behind them.
+;
 ; These are the parts, cmd/sync.lisp is the command.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -36,7 +49,7 @@
 ;its tree, by the rules that come with it, and folder is what is in one
 ;folder of that tree
 (enums +sync_type 0
-	(enum list put del quit mode root folder))
+	(enum list put del quit mode root folder from waypoint))
 
 (structure +sync_rpc 0
 	(netid reply_id)
@@ -189,6 +202,70 @@
 	(hash-tree (map (lambda ((path size hash mode)) (list path hash (if no_modes "-" (str mode))))
 		(sync-list root rules kept live))))
 
+;;;;;;;;;;;
+; waypoints
+;;;;;;;;;;;
+
+(defun sync-waypoint (root)
+	; (sync-waypoint root) -> :nil | (commit time top)
+	;the waypoint a tree was last at, as its file waypoint says: the commit,
+	;when it was pulled, and the top of the tree of hashes it had then
+	(when (defq text (load (cat root "/waypoint")))
+		(defq lines (map (# (trim %0)) (split text (ascii-char 10))))
+		(if (>= (length lines) 3)
+			(list (first lines) (str-as-num (second lines)) (third lines)))))
+
+(defun sync-waypoint-text (commit time top)
+	; (sync-waypoint-text commit time top) -> str
+	(cat commit (ascii-char 10) (str time) (ascii-char 10) top (ascii-char 10)))
+
+(defun sync-top (root &optional kept)
+	; (sync-top root [kept]) -> hash
+	;the top of the tree of hashes of a tree, by its own .gitignore, and
+	;never with what is the machine's own and not the tree's: its
+	;waypoint, who it takes a sync from, its key
+	(hash-tree-root (sync-tree root (sync-rules (cat (ifn (load (cat root "/.gitignore")) "")
+		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key" (ascii-char 10)))))
+		kept)))
+
+(defun sync-clean (root &optional kept top)
+	; (sync-clean root [kept top]) -> :nil | (commit time top)
+	;the waypoint a tree is at, if it is exactly that and changed in
+	;nothing since, :nil if it has none or is not. top, if it is known
+	(and (defq at (sync-waypoint root))
+		(eql (third at) (ifn top (sync-top root kept)))
+		at))
+
+(defun sync-named (&optional file)
+	; (sync-named [file]) -> (system_id ...)
+	;the machines named in this machine's sync_from, or that file, each the
+	;32 hex digits of a system id on a line of its own
+	(filter (# (= (length %0) 32))
+		(map (# (to-upper (trim %0 (const (char-class " \t\r")))))
+			(split (ifn (load (ifn file "sync_from")) "") (ascii-char 10)))))
+
+(defun sync-of? (node systems)
+	; (sync-of? node systems) -> :t | :nil
+	;is a node one of the machines of those system ids
+	(some (# (if (find node (lisp-nodes (hex-decode %0))) :t)) systems))
+
+(defun sync-from (node said root kept me &optional named)
+	; (sync-from node said root kept me [named]) -> :rig | :herd | :no
+	;what a machine may do here, by who it is and the waypoint it says it
+	;is at: anything, if it is this machine or one named; as the herd, if
+	;this tree is at a waypoint, has no .git, and it is at a newer one; or
+	;nothing
+	(cond
+		((sync-of? node (cat (list me) (ifn named (sync-named)))) :rig)
+		((and (nempty? said) (not (pii-fstat (cat root "/.git")))
+				(defq here (sync-clean root kept))
+				(defq there (map (# (trim %0)) (split said (ascii-char 10))))
+				(>= (length there) 3)
+				(nql (first there) (first here))
+				(> (str-as-num (second there)) (second here)))
+			:herd)
+		(:no)))
+
 (defun sync-tell (svc reply_mbox kind data &optional at total mode)
 	; (sync-tell svc reply_mbox kind data [at total mode])
 	;a message to a sync service
@@ -226,13 +303,25 @@
 	;only there. A file is given the mode it has here, who may read, write
 	;and run it, and one that is the same but for its mode has that set,
 	;unless no_modes, for a host that has no such thing. :nil if the
-	;service does not answer, :old if it is from before there were trees
-	(defq reply_mbox (mail-mbox) rules (sync-rules rules_text))
-	;it works out its tree as this one is, by the same rules
-	(sync-tell svc reply_mbox +sync_type_root rules_text 0 0 (if no_modes 1 0))
-	(defq mine (sync-tree root rules kept no_modes) reply (sync-hear reply_mbox))
+	;service does not answer, :old if it is from before there were trees,
+	;:refused if it takes nothing from this one, (Who takes a sync)
+	(defq reply_mbox (mail-mbox) rules (sync-rules rules_text)
+		mine (sync-tree root rules kept no_modes)
+		;the waypoint this tree is at, if it is exactly that, for the herd
+		claim (and (not no_modes) (defq at (sync-waypoint root))
+			(eql (third at) (hash-tree-root mine)) at))
+	;who this is, and then it works out its tree as this one is, by the
+	;same rules. One from before there was a from says it does not know it
+	(sync-tell svc reply_mbox +sync_type_from (if claim (apply (const sync-waypoint-text) claim) ""))
+	(defq said (sync-hear reply_mbox))
 	(cond
+		((and said (= (first said) -6)) (setq said :refused))
+		((sync-tell svc reply_mbox +sync_type_root rules_text 0 0 (if no_modes 1 0))))
+	(defq reply (and said (nql said :refused) (sync-hear reply_mbox)))
+	(cond
+		((eql said :refused) :refused)
 		((not reply) :nil)
+		((= (first reply) -6) :refused)
 		((/= (first reply) 0) :old)
 		(:t (defq send (list) gone (list) remode (list) lost :nil
 				stack (if (eql (second reply) (hash-tree-root mine)) (list) (list ""))
@@ -289,7 +378,11 @@
 						(sync-tell svc reply_mbox +sync_type_del path)
 						(if (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
 							(setq removed (inc removed)) (setq failed (inc failed))))
-						gone)))
+						gone))
+				;a tree at a waypoint says so, and one now the same is at it too
+				(when (and claim (= failed 0))
+					(sync-tell svc reply_mbox +sync_type_waypoint (apply (const sync-waypoint-text) claim))
+					(sync-hear reply_mbox)))
 			(list sent bytes removed failed send gone (if check (length remode) remoded)))))
 
 (defun sync-services (&optional name)

@@ -4,12 +4,23 @@
 ; sent its name and the root it may write under. It says the top of
 ; the tree of hashes of what is there, and what is in a folder of it,
 ; when asked, and writes and removes files there as it is told.
+;
+; Not by everyone: a key shared with a guest, another's machine in the
+; mesh, lets it mail anything. Who it takes from is decided once for each
+; machine that tells it, as it says who it is, (sync-from), see lib/sync/
+; sync.inc, Who takes a sync: itself and those named in sync_from, or by
+; the herd, at waypoints. Told by any other, it does nothing.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/sync/sync.inc")
 
 (defun main ()
-	(bind '(name root) (split (mail-read (task-mbox)) (ascii-char 10)))
+	;its name, the root it writes under, and machines to take from as well
+	;as those in sync_from, a system id each, with a space between: what
+	;started it is this machine's own, a test starts one that takes from
+	;the machine it is on
+	(bind '(name root &optional also) (split (mail-read (task-mbox)) (ascii-char 10)))
+	(defq also (filter (# (= (length %0) 32)) (split (ifn also "") " ")))
 	;one for a machine. The name is a * one, seen from every machine, so it
 	;is this machine's own that is looked for, by its system id. It is here
 	;and not in app.lisp, as the other services have it, the name is not
@@ -25,7 +36,10 @@
 		held :nil
 		;the hash of each file, held from one asking to the next
 		live (Fmap 101)
-		out :nil out_path "" out_at 0 running :t real (Fset 31))
+		out :nil out_path "" out_at 0 running :t real (Fset 31)
+		;what each node that tells it may do, as it said who it is, and the
+		;waypoint of each that came by the herd
+		told (Fmap 31) herd (Fmap 31))
 	;the root is the system's own tree, or a folder in it. Nowhere else, and
 	;not by way of a link, whatever it was started with. If it is not, the
 	;service takes nothing
@@ -36,9 +50,31 @@
 			(defq reply_id (getf msg +sync_rpc_reply_id) kind (getf msg +sync_rpc_type)
 				at (getf msg +sync_rpc_at) total (getf msg +sync_rpc_total)
 				mode (logand (getf msg +sync_rpc_mode) 511)
-				data (slice msg +sync_rpc_data -1) status 0 back "")
+				data (slice msg +sync_rpc_data -1) status 0 back ""
+				node (slice reply_id +long_size -1))
+			;who it is is said first; one from before that was said is
+			;taken as saying no waypoint
+			;a yes is kept, a no is not: a machine just linked may not yet be
+			;known to be the one it is, and is asked about again next time
+			(when (= kind +sync_type_from)
+				(defq may (sync-from node data root kept me (cat (sync-named) also)))
+				(if (nql may :no) (. told :insert node may))
+				(if (eql may :herd) (. herd :insert node data)))
+			(unless (defq may (. told :find node))
+				(if (nql (setq may (sync-from node "" root kept me (cat (sync-named) also))) :no)
+					(. told :insert node may)))
 			(catch
-				(case (if (or fenced (= kind +sync_type_quit)) kind -1)
+				(case (cond ((= kind +sync_type_quit) kind) ((eql may :no) -6) (fenced kind) (-1))
+					(+sync_type_from)
+					(+sync_type_waypoint
+						;the herd's push is done: if the tree is now the same as
+						;the one at that waypoint, it is at it too
+						(setq held :nil)
+						(when (and (eql may :herd) (defq said (. herd :find node)))
+							(defq lines (map (# (trim %0)) (split said (ascii-char 10))))
+							(if (eql (sync-top root kept) (third lines))
+								(save said (cat root "/waypoint"))
+								(setq status -7))))
 					(+sync_type_root
 						;the rules are the sender's, and a mode of 1 is no modes
 						(setq held (sync-tree root (sync-rules data) kept (= mode 1) live)
@@ -76,6 +112,8 @@
 								(= 0 (pii-chmod (cat root "/" data) mode)))
 							:t (setq status -2)))
 					(+sync_type_quit (setq running :nil))
+					;from a machine it does not trust
+					(-6 (setq status -6))
 					(:t (setq status -1)))
 				(progn (setq status -4 back (str _) out :nil out_path "") :t))
 			(mail-send reply_id (cat (setf-> (str-alloc +sync_reply_size)

@@ -21,7 +21,11 @@
     over the links between them. Only what differs is sent. What the
     .gitignore of the tree leaves out is not sent, or removed.
 
-    A machine only takes a sync if it was told to, sync -a.
+    A machine only takes a sync if it was told to, sync -a, and then
+    only from itself, from the machines named in the file sync_from at
+    its root, a system id a line, its rig, and by the herd: a tree that
+    is exactly at a waypoint, with no .git, from one at a newer one, see
+    the waypoint command. From any other it is refused.
 
     With no options, list the machines that will take one.
 
@@ -74,6 +78,8 @@
 						((not result) (print (slice id 0 8) " " machine " did not answer"))
 						((eql result :old) (print (slice id 0 8) " " machine
 							" has an older sync, it must be updated another way, and its sync started again"))
+						((eql result :refused) (print (slice id 0 8) " " machine
+							" refused it, it takes nothing from this machine, its sync_from"))
 						(:t (bind '(sent bytes removed failed send gone remoded) result)
 							(when (or opt_v opt_c)
 								(each (# (print "  " (if opt_c "differs " "sent ") %0)) send)

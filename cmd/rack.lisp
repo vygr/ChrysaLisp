@@ -11,6 +11,11 @@
             session before the one that runs the command.
         -l --leave machines: machines to bring level and not run on, as
             sync lists them, arm64/Linux, with a , between.
+        -x --skip machines: machines not to touch at all, not brought
+            level and not run on, a guest's in the mesh say, the same way.
+        -o --only ids: the only machines to touch, the start of the
+            system id of each, mesh lists them, with a , between: one's
+            own rig, with machines of others in the mesh.
         -d --delete paths: files to remove on the other machines, with
             a : between.
         -u --user name: the sessions are that user's, a folder of usr/,
@@ -32,6 +37,8 @@
         rack -b tests       ; after a change to the VP code")
 (("-b" "--build") ,(opt-flag 'opt_b))
 (("-l" "--leave") ,(opt-str 'opt_l))
+(("-x" "--skip") ,(opt-str 'opt_x))
+(("-o" "--only") ,(opt-str 'opt_o))
 (("-d" "--delete") ,(opt-str 'opt_d))
 (("-u" "--user") ,(opt-str 'opt_u))
 (("-g" "--gui") ,(opt-flag 'opt_g))
@@ -42,9 +49,9 @@
 	;initialize pipe details and command args, abort on error
 	(and
 			(defq stdio (create-stdio))
-			(defq opt_b :nil opt_l "" opt_d "" opt_u :nil opt_g :nil opt_v :nil
+			(defq opt_b :nil opt_l "" opt_x "" opt_o :nil opt_d "" opt_u :nil opt_g :nil opt_v :nil
 				args (options stdio usage))
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
 			(each (const print) (rack-run (join (rest args) " ")
-				opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g opt_v)))))
+				opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g opt_v (split opt_x ",") (if opt_o (split opt_o ",")))))))

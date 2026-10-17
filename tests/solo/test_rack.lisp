@@ -61,14 +61,21 @@
 		(defq rk_node (first (lisp-nodes rk_sid)))
 		(assert-true "a node of another system is started" rk_node)
 		(when rk_node
+			;it takes from this machine, as a rig takes from the one worked on
 			(open-task (str `(mail-send (open-child "service/sync/app.lisp" +kn_call_pin)
-					(cat "*Sync" (ascii-char 10) ,rk_dst)))
+					(cat "*Sync" (ascii-char 10) ,rk_dst (ascii-char 10) ,rk_me)))
 				rk_node +kn_call_pin 0 (mail-mbox))
 			(setq rk_t0 (pii-time))
 			(while (and (empty? (sync-services)) (< (- (pii-time) rk_t0) (task-timeout 10)))
 				(task-sleep 50000))
 			(defq rk_svc (first (sync-services)))
 			(assert-true "it takes a sync, and is not this machine" (and rk_svc (nql (second rk_svc) rk_me)))
+			;it takes from this machine once it knows the machine, which a
+			;system just linked does not at once: asked till it does
+			(setq rk_t0 (pii-time))
+			(while (and rk_svc (eql (sync-push (first rk_svc) rk_src "" :t) :refused)
+					(< (- (pii-time) rk_t0) (task-timeout 10)))
+				(task-sleep 100000))
 			(when rk_svc
 				;the run: the other is made the same, a file is removed there,
 				;and the command is run on both

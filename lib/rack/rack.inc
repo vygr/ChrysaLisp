@@ -61,8 +61,8 @@
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
-(defun rack-run (cmdline &optional make_first leave_out gone user tree gui all)
-	; (rack-run cmdline [make_first leave_out gone user tree gui all]) -> (line ...)
+(defun rack-run (cmdline &optional make_first leave_out gone user tree gui all skip only)
+	; (rack-run cmdline [make_first leave_out gone user tree gui all skip only]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
 	;the command line on each, and on this one. With make_first, make and
 	;make all boot are run first, in a session before. leave_out is the
@@ -71,14 +71,25 @@
 	;that is sent, default the system's own, the test of this sends a small
 	;one. With gui the session is a desktop, see rack-fresh. cmdline may be
 	;several, with a ; between, run one after another. With all every line a
-	;session said comes back, not only those of how it went. The lines are SYNC and GONE for each other machine, RAN for each
-	;machine, and DONE
+	;session said comes back, not only those of how it went. skip is the
+	;machines not to touch at all, not made the same and not run on: one
+	;that is not ours, in the mesh as a guest. only, if given, is the
+	;machines to touch, the start of a system id each, and no other: our
+	;own rig, with guests in the mesh of any kind. The lines are SYNC and GONE
+	;for each other machine, SKIP for each skipped, RAN for each machine,
+	;and DONE
 	(defq out (list) t0 (pii-time) me (hex-encode (system-id))
 		rules_text (ifn (load (cat (setd tree ".") "/.gitignore")) "")
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
 		cmdlines (map (# (trim %0)) (split cmdline ";"))
 		phases (if make_first (list (list "make" "make all boot") cmdlines) (list cmdlines)))
-	(setd leave_out (list) gone (list))
+	(setd leave_out (list) gone (list) skip (list))
+	(defq skipped? (lambda (id machine)
+		(or (find machine skip)
+			(and only (notany (# (starts-with (to-upper %0) id)) only)))))
+	(each (lambda ((svc id machine root))
+			(if (skipped? id machine) (push out (cat "SKIP " machine " " (slice id 0 8) " not made the same, not run"))))
+		(filter (# (nql (second %0) me)) (sync-services)))
 	(each (lambda ((svc id machine root))
 		;the hashes of the system's tree are kept from run to run, in obj/
 		(defq t1 (pii-time) result (sync-push svc tree rules_text :nil :nil
@@ -86,6 +97,7 @@
 		(push out (cond
 			((not result) (cat "SYNC " machine " no answer"))
 			((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))
+			((eql result :refused) (setq result :nil) (cat "SYNC " machine " refused, it takes nothing from this machine, its sync_from"))
 			(:t (cat "SYNC " machine " " (str (first result)) " sent " (str (second result)) " bytes "
 				(str (elem-get result 3)) " failed " (str (/ (- (pii-time) t1) 1000)) "ms"))))
 		;what was deleted here is removed there, those files and no others
@@ -98,7 +110,7 @@
 				gone)
 			(push out (cat "GONE " machine " " (str removed) " of " (str (length gone)) " removed")))
 		(and result (= (elem-get result 3) 0) (push ran (list id machine))))
-		(filter (# (nql (second %0) me)) (sync-services)))
+		(filter (# (and (nql (second %0) me) (not (skipped? (second %0) (third %0))))) (sync-services)))
 	(each (lambda ((id machine))
 		(defq nodes (if (eql id me) (list (task-nodeid)) (lisp-nodes (hex-decode id))))
 		(cond

@@ -199,12 +199,14 @@
 (assert-eq "a folder asked for with no tree worked out, after a write, is refused" -5 (first (sync-hear sy_mbox)))
 (pii-remove (cat sy_dst "/late2.txt"))
 
-;a sync from before there were trees knows nothing of a top, and is told apart
+;a sync from before there were trees knows nothing of a top, and is told
+;apart. It says it does not know each thing it is asked: a top, and of a
+;push, who it is from and a top
 (defq sy_old (mail-mbox))
 (open-task (str `(progn
 		(defq mbox (mail-mbox))
 		(mail-send (hex-decode ,(hex-encode sy_old)) mbox)
-		(times 2 (defq msg (mail-read mbox))
+		(times 3 (defq msg (mail-read mbox))
 			(mail-send (slice msg 0 +net_id_size) (char -1 +int_size)))))
 	(task-nodeid) +kn_call_pin 0 (mail-mbox))
 (defq sy_old_svc (mail-read-timeout sy_old (task-timeout 5)))
@@ -219,5 +221,34 @@
 (assert-eq "and a push to it gets no answer" :nil
 	(progn (sync-tell sy_svc sy_mbox +sync_type_list "") (sync-hear sy_mbox 300000)))
 
+;who takes a sync from whom, lib/sync/sync.inc: this machine and those
+;named, anything; any other, by the herd, only to a tree that is exactly at
+;a waypoint and has no .git, from one at a newer waypoint
+(save "a tree" (cat sy_dst "/kept.txt"))
+(defq sy_me (hex-encode (system-id)) sy_far (cat "far away node id" (ascii-char 0))
+	sy_top (sync-top sy_dst))
+(assert-eq "a tree with no waypoint is at none" :nil (sync-clean sy_dst))
+(save (sync-waypoint-text "aaaa" 100 sy_top) (cat sy_dst "/waypoint"))
+(assert-eq "noted, it is at it, exactly" "aaaa" (first (sync-clean sy_dst)))
+(test-cases
+	(sync-from (task-nodeid) "" sy_dst :nil sy_me (list)) :rig
+	(sync-from (task-nodeid) "" sy_dst :nil "" (list sy_me)) :rig
+	(sync-from sy_far "" sy_dst :nil sy_me (list)) :no
+	(sync-from sy_far (sync-waypoint-text "bbbb" 200 "x") sy_dst :nil sy_me (list)) :herd
+	(sync-from sy_far (sync-waypoint-text "aaaa" 200 "x") sy_dst :nil sy_me (list)) :no
+	(sync-from sy_far (sync-waypoint-text "bbbb" 50 "x") sy_dst :nil sy_me (list)) :no)
+(save "a change of its own" (cat sy_dst "/mine.txt"))
+(assert-eq "changed, it is at no waypoint" :nil (sync-clean sy_dst))
+(assert-eq "and the herd may not touch it" :no (sync-from sy_far (sync-waypoint-text "bbbb" 200 "x") sy_dst :nil sy_me (list)))
+(pii-remove (cat sy_dst "/mine.txt"))
+;a tree of its own with a .git, at a waypoint
+(defq sy_git "tests/scratch/sync_git")
+(save "a tree" (cat sy_git "/kept.txt")) (save "" (cat sy_git "/.git/HEAD"))
+(save (sync-waypoint-text "aaaa" 100 (sync-top sy_git)) (cat sy_git "/waypoint"))
+(assert-true "a tree with a .git at a waypoint" (sync-clean sy_git))
+(assert-eq "is not one the herd touches, git keeps that in step" :no (sync-from sy_far (sync-waypoint-text "bbbb" 200 "x") sy_git :nil sy_me (list)))
+(each (# (pii-remove (cat sy_git %0))) '("/.git/HEAD" "/waypoint" "/kept.txt"))
+(each (# (pii-remove (cat sy_dst %0))) '("/waypoint" "/kept.txt"))
+
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
+(undef (env) 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
