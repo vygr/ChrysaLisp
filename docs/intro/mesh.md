@@ -123,14 +123,25 @@ lists every node there is.
 mesh -t 192.168.1.100
 ```
 
-  It joins by way of that machine, which tells it who the others are.
+  It joins by way of that machine, which tells it who the others are. A
+  name works as well as an address, and it need not be on your network:
+  a machine on the internet that lets in TCP port 3333 is joined the same
+  way, `mesh -t example.com`.
 
 ## What joining lets in
 
 A machine that has joined runs tasks for the others, that is the point of
-it, and only for the machines you gave its key to. It does not let them
-write to its files, that is a separate thing you would have to turn on,
-`sync -a`, and is not needed to join.
+it: every machine with the key can use the services of every other, and
+start tasks on its nodes. So give the key only to people you trust, and to
+nobody whose machine you would not want running your work, or yours theirs.
+
+Files are another matter. A machine takes a sync, the others' files written
+into its folder, only from those it names: itself, the machines in the
+file `sync_from` in its ChrysaLisp folder, a system id a line, and the herd,
+machines that are exactly at a released or pulled version, when it is too
+and has no `.git`. A machine you work on, or a friend's machine joined over
+the internet, takes nothing from anyone else, and gives nothing to them.
+`sync` and [`docs/ai_digest/sync.md`](../ai_digest/sync.md) say more.
 
 ## Under it
 

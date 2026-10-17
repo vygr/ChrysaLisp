@@ -113,7 +113,20 @@ The Net services find each other by the name `*Mesh`, and so does the
   between them: mail over it, the link dropped, and first come first
   served of a port.
 
+## Others' machines
+
+The key is all there is: a machine that has it, a friend's server joined
+over the internet by `mesh -t host`, is trusted as one's own, with any
+service, and to start a task on any node. A sync is guarded apart from
+that, the Sync service takes one only from its own machine, those named in
+its `sync_from` and the herd at waypoints, [`sync.md`](sync.md), "And from whom",
+and `rack -o` names the machines a run touches. Tasks are not guarded.
+
 ## Not here yet
+
+* A guest link: one that carries mail to the services a machine offers and
+  starts no task on its nodes, and a machine that says which it is to
+  others. Today a key is all or nothing.
 
 * What goes over a link is in the clear. The door says who may link, and
   no more.
