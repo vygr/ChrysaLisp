@@ -195,8 +195,9 @@
 							;quit all, restart login
 							(close-apps :nil))
 						(+gui_rpc_type_sub
-							;hide and sub view
-							(.-> view :hide :sub))
+							;hide and sub view, if it is on the screen. One never shown
+							;is on its app's own root, window-attach, and stays there
+							(if (eql (penv view) *screen*) (.-> view :hide :sub)))
 						(+gui_rpc_type_add_front
 							;add view at front, all of it drawn: :to_front marks
 							;it only if it moves, and it may be in front already
