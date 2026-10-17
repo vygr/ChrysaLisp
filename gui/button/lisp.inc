@@ -69,8 +69,8 @@
 				(defq tip_text (def? :tip_text this)))
 			(def (defq tip_window (Node))
 				:text tip_text
-				:paper +argb_white
-				:font (get :font_tip *env*))
+				:paper +argb_white)
+			(view-variant tip_window :font :font_tip)
 			(. tip_window :set_flags 0 +view_flag_solid)
 			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
 			(gui-add-front-rpc (. tip_window :change x y w h))

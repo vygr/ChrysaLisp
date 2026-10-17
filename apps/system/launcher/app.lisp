@@ -73,7 +73,7 @@
 		(ui-root cat_flow (Flow) (:flow_flags +flow_down_fill :cat_name app_name)
 			(ui-flow header (:flow_flags +flow_right_fill)
 				(. (ui-button toggle (:text (num-to-utf8 (if collapsed +sym_next +sym_up))
-						:paper (get :paper_title *env*) :font (get :font_title_buttons *env*)))
+						:paper :paper_title :font :font_title_buttons))
 					:connect +event_toggle)
 				(ui-title title (:text app_name :paper :paper_title)))
 			(ui-grid app_grid (:grid_width columns)

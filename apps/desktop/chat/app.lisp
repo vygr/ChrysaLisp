@@ -63,7 +63,7 @@
 		; right panel: history + bottom-pinned input bar
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow *input_bar* (:flow_flags +flow_right_fill :border 1
-					:paper +argb_white :ink +argb_black :font (get :font_button *env*))
+					:paper +argb_white :ink +argb_black :font :font_button)
 				(ui-label _ (:text "Chat:" :font :font_bold))
 				(ui-tool-bar _ () (ui-buttons (+sym_open) +event_attach))
 				(. (ui-textfield *chat_text* (:flow_flags +flow_right_fill :hint_text "Type markdown message..." :clear_text ""))
@@ -288,12 +288,13 @@
 					(cat dot_ch " " cname "@" short_id badge))
 				row_flow (Flow) row_btn (Button))
 			(def row_flow :flow_flags +flow_right_fill)
-			(def row_btn :text lbl_txt :font (get :font_button *env*)
+			(def row_btn :text lbl_txt
 				:paper (cond
 					(is_selected +argb_red)
 					((> unread 0) +argb_yellow)
 					(:t +argb_green))
 				:ink (if online +argb_black +argb_grey8))
+			(view-variant row_btn :font :font_button)
 			(. row_btn :connect (+ +event_channel_select_0 idx))
 			(defq del_btn (Button))
 			(def del_btn :text "x" :ink +argb_black)

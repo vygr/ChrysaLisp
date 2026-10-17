@@ -69,8 +69,8 @@
 
 (defclass Viewer-edit () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
-		:font (get :font_editor *env*) :ink +argb_white)
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :ink +argb_white)
+	(view-variant this :font :font_editor)
 
 	(defmethod :mouse_down (event)
 		; (. vdu :mouse_down event) -> vdu

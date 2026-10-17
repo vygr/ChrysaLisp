@@ -61,8 +61,8 @@
 					(def (defq tab (Backdrop)) :min_width toggle_width)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Node)) :text +files_open :min_width toggle_width
-						:font (get :font_tiny_symbol *env*))
+					(def (defq toggle (Node)) :text +files_open :min_width toggle_width)
+					(view-variant toggle :font :font_tiny_symbol)
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child

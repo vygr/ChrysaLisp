@@ -28,8 +28,8 @@
 				(def (defq l (Label))
 					:border 0
 					:flow_flags (const (logior +flow_flag_right +flow_flag_align_vcenter))
-					:font (const (get :font_small_terminal *env*))
 					:text (num-to-hex-str c))
+				(view-variant l :font :font_small_terminal)
 				(. symbol_grid :add_child l)
 				(each (lambda (char_code)
 						(def (. (defq l (Button)) :connect +event_copy)
@@ -42,8 +42,8 @@
 	(def symbol_grid
 		:grid_width (inc grid_width)
 		:grid_height grid_height
-		:paper (const (get :paper_toolbar *env*))
 		:font font)
+	(view-variant symbol_grid :paper :paper_toolbar)
 	(bind '(w h) (. symbol_grid :pref_size))
 	(. symbol_grid :change 0 0 w h)
 	(def *symbol_scroll* :min_width w :min_height (min h 720))

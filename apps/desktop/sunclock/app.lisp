@@ -238,7 +238,7 @@
 		(. (ui-button *btn_city_5* (:text "Dubai")) :connect +event_btn_city_5))
 	; Footer Attribution
 	(ui-label *footer_label* (:text "Equirectangular Projection - Solar Terminator Model"
-		:font (get :font_small *env*) :flow_flags +flow_flag_align_hcenter)))
+		:font :font_small :flow_flags +flow_flag_align_hcenter)))
 
 (defun get-effective-time ()
 	(+ (/ (pii-time) 1000000) *sim_offset_sec*))

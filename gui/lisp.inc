@@ -110,6 +110,18 @@
 		(. view :flatten))
 	view)
 
+(defun view-variant (view key variant)
+	; (view-variant view key variant) -> view
+	;a plain property of a view made by hand, not by a ui- form, given its
+	;variant's value, the user's, as a ui- form gives it, and which variant
+	;it was kept, :variants, so a theme or a user finds it again by it,
+	;(view-resolve). (view-variant label :font :font_small)
+	(defq kept (list))
+	(each (lambda ((k v)) (unless (eql k key) (push kept k v)))
+		(partition (ifn (def? :variants view) (list)) 2))
+	(def view key (get variant *env*) :variants (push kept key variant))
+	view)
+
 (defun window-attach (window)
 	; (window-attach window) -> window
 	;a window is put on the user's root of its own task as it is made, so

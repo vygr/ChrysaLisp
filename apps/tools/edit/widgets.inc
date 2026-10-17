@@ -58,7 +58,7 @@
 			(ui-files *file_selector* "Project" +event_file_folder_action :nil))
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :paper +argb_white
-					:font (get :font_medium_terminal *env*))
+					:font :font_medium_terminal)
 				(ui-flow _ (:flow_flags +flow_right)
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
 					(ui-text _ (:text "cy: ")) (ui-text *cy* (:min_width +status_min_size))
@@ -69,7 +69,7 @@
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-						:ink +argb_grey12 :font (get :font_editor *env*)))
+						:ink +argb_grey12 :font :font_editor))
 				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)

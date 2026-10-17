@@ -10,7 +10,8 @@
 (defclass Hchart (name num_marks) (Flow)
 	; (Hchart title num_marks) -> hchart
 	(def (defq title (Label)) :text name :paper +argb_white)
-	(def (defq scale_grid (Grid)) :paper +argb_white :grid_width num_marks :font (get :font_medium_terminal *env*))
+	(def (defq scale_grid (Grid)) :paper +argb_white :grid_width num_marks)
+	(view-variant scale_grid :font :font_medium_terminal)
 	(def (defq bar_grid (Grid)) :grid_width 1)
 	(times num_marks
 		(def (defq _ (Label)) :text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright))
