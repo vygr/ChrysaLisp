@@ -178,7 +178,9 @@ moves only that side. The side or corner across from it stays where it is.
 * Drag the ring above it to turn it.
 
 One thing that has been turned keeps its box turned with it, the squares are
-at its own corners and it is sized along its own sides. A line or an arrow
+at its own corners and it is sized along its own sides. Several things
+turned together keep their box turned too, as a group does, till you
+select something else. A line or an arrow
 has no box: it has a ring at each end, and each is dragged to where that end
 is to go.
 

@@ -1010,7 +1010,9 @@
 	;One thing selected has them in its own frame: the box of what it is,
 	;moved, turned and sized as it is. So a box that has been turned has its
 	;handles at its own corners, and is sized along its own sides, and
-	;stays a box. Several things have the box round them all.
+	;stays a box. Several things have the box round them all, turned as far
+	;as they have been turned together, :sel_angle, as a group's box turns
+	;with it; square again once what is selected changes.
 	;
 	;A line has none of that. It has a point at each end, and each is
 	;dragged to where that end is to be.
@@ -1036,7 +1038,8 @@
 		; (. handles :frame) -> :nil | (matrix box)
 		;the box the handles are on, and the matrix that puts it where it
 		;is. Of one thing, its own box and its own matrix. Of several, the
-		;box round them and no change
+		;box round them, turned as far as they were turned together, as a
+		;group's box is
 		(raise :board)
 		(and (. this :shown) (nempty? (defq items (. board :selected_items)))
 			(cond
@@ -1044,7 +1047,17 @@
 					(defq item (first items)
 						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
 					(if box (list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
-				((defq box (cwb-bounds items)) (list (Mat3x2) box)))))
+				((= (defq a (get :sel_angle board)) 0.0)
+					(if (defq box (cwb-bounds items)) (list (Mat3x2) box)))
+				(:t ;the corners of each, in the turned frame, and the box round those
+					(defq inv (Mat3x2-rot (neg a)) pts (list))
+					(each (lambda (item)
+						(when (defq corners (board-item-corners item))
+							(each (lambda ((x y)) (push pts (Mat3x2-point inv x y))) (partition corners 2))))
+						items)
+					(when (nempty? pts)
+						(defq xs (map (const first) pts) ys (map (const second) pts))
+						(list (Mat3x2-rot a) (list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
 
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
@@ -1150,7 +1163,12 @@
 							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
 							(if (/= step 0.0) (setq angle (board-snap angle step)))
 							(defq m (Mat3x2-rot angle cx cy))
-							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things))
+							(each (lambda ((thing m0)) (elem-set thing +cwb_m (Mat3x2-mul m m0))) things)
+							;several have their box turned with them
+							(when (> (length things) 1)
+								(bind '(ox oy) (Mat3x2-point fm 0 0))
+								(bind '(ux uy) (Mat3x2-point fm 1 0))
+								(def board :sel_angle (+ (path-angle (- ux ox) (- uy oy)) angle))))
 						(:t ;sized in the frame: the pointer is taken into it, and the
 							;side or corner across from the handle stays where it is
 							(bind '(fm (bx by bx1 by1)) frame)
@@ -1189,6 +1207,9 @@
 		:color 0xff000000 :width 3.0
 		:text "" :font "fonts/OpenSans-Regular.ctf" :font_size 32
 		:snap 0.0 :snap_angle 0.0 :keep_shape :t :snap_gap 0.0 :settings (Fmap 11) :zoom 1.0
+		;how far the box round several things selected is turned, as a
+		;group's is by its matrix: kept till what is selected changes
+		:sel_angle 0.0
 		;the eraser: how far it reaches, on the screen, and :part, it rubs
 		;out the part of a line it goes over, or :whole, the whole of it
 		:rub_reach 8.0 :rub_mode :bite :rubber :nil :rub_todo (Fmap 11)
@@ -1643,7 +1664,8 @@
 		;instrument or selection controls"
 		(defq ids (map (# (elem-get %0 +cwb_id)) (cwb-items (get :doc this))))
 		(. this :select (filter (# (find %0 ids)) (get :selected this)))
-		(def this :floating (list) :appended (list))
+		;the box round several is square again, what turned them may be undone
+		(def this :floating (list) :appended (list) :sel_angle 0.0)
 		(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 
 	(defmethod :undo ()
@@ -1667,6 +1689,8 @@
 	(defmethod :select (ids)
 		; (. board :select ids) -> board
 		;who picked up what is kept only for what is selected still
+		(unless (and (= (length ids) (length (get :selected this))) (every (# (find %0 (get :selected this))) ids))
+			(def this :sel_angle 0.0))
 		(def this :selected (cat ids))
 		(defq selectors (get :selectors this) gone (list))
 		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))
