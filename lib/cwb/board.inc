@@ -1012,7 +1012,8 @@
 	;handles at its own corners, and is sized along its own sides, and
 	;stays a box. Several things have the box round them all, turned as far
 	;as they have been turned together, :sel_angle, as a group's box turns
-	;with it; square again once what is selected changes.
+	;with it. It keeps that turn as things join or leave it, and is square
+	;again once nothing is selected.
 	;
 	;A line has none of that. It has a point at each end, and each is
 	;dragged to where that end is to be.
@@ -1047,17 +1048,18 @@
 					(defq item (first items)
 						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
 					(if box (list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
-				((= (defq a (get :sel_angle board)) 0.0)
-					(if (defq box (cwb-bounds items)) (list (Mat3x2) box)))
-				(:t ;the corners of each, in the turned frame, and the box round those
-					(defq inv (Mat3x2-rot (neg a)) pts (list))
+				(:t ;the corners of each, in the turned frame, and the box round
+					;those: round the line drawn round each, not only its ink,
+					;which a turned one's box reaches past
+					(defq a (get :sel_angle board) inv (Mat3x2-rot (neg a)) pts (list))
 					(each (lambda (item)
 						(when (defq corners (board-item-corners item))
 							(each (lambda ((x y)) (push pts (Mat3x2-point inv x y))) (partition corners 2))))
 						items)
 					(when (nempty? pts)
 						(defq xs (map (const first) pts) ys (map (const second) pts))
-						(list (Mat3x2-rot a) (list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
+						(list (if (= a 0.0) (Mat3x2) (Mat3x2-rot a))
+							(list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
 
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
@@ -1689,8 +1691,16 @@
 	(defmethod :select (ids)
 		; (. board :select ids) -> board
 		;who picked up what is kept only for what is selected still
-		(unless (and (= (length ids) (length (get :selected this))) (every (# (find %0 (get :selected this))) ids))
-			(def this :sel_angle 0.0))
+		;the box round several keeps its turn as things join it or leave it.
+		;Several from one take that one's turn; from nothing, none
+		(cond
+			((empty? ids) (def this :sel_angle 0.0))
+			((and (= (length (get :selected this)) 1) (> (length ids) 1)
+					(defq one (first (. this :selected_items))))
+				(defq m (elem-get one +cwb_m))
+				(bind '(ox oy) (Mat3x2-point m 0 0))
+				(bind '(ux uy) (Mat3x2-point m 1 0))
+				(def this :sel_angle (if m (path-angle (- ux ox) (- uy oy)) 0.0))))
 		(def this :selected (cat ids))
 		(defq selectors (get :selectors this) gone (list))
 		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))

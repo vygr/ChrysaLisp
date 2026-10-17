@@ -417,12 +417,22 @@
 (. wb_board :undo) (. wb_board :undo)
 
 ;several things selected have the box round them turned with them, as a
-;group's is, till what is selected changes
+;group's is. It keeps that turn as things join or leave, till nothing is
+;selected
 (defq wb_sa (. wb_board :add (cwb-shape (cwb-d-rect 300 300 400 340) :fill 0xff00ff00 :stroke 0))
 	wb_sb (. wb_board :add (cwb-shape (cwb-d-rect 300 360 400 400) :fill 0xff00ff00 :stroke 0)))
 (. wb_board :select (list wb_sa wb_sb))
 (defun wb-edge-angle () (bind '(x y x1 y1) (slice (. wb_handles :corners) 0 4)) (path-angle (- x1 x) (- y1 y)))
 (assert-true "two things selected have a box square to the board" (wb-near? (wb-edge-angle) 0.0 0.001))
+(defq wb_sd (. wb_board :add (cwb-shape (cwb-d-line 0 0 100 0) :width 4
+	:m (Mat3x2-mul (Mat3x2-translate 600 600) (Mat3x2-rot (/ +fp_pi 4.0))))))
+(. wb_board :select (list))
+(. wb_board :select (list wb_sa wb_sd))
+(assert-true "the box round several is round the line drawn round each, a turned one's corners too"
+	(progn (bind '(fm (x y x1 y1)) (. wb_handles :frame))
+		(every (lambda ((cx cy)) (and (<= (- x 0.01) cx (+ x1 0.01)) (<= (- y 0.01) cy (+ y1 0.01))))
+			(partition (board-item-corners (first (cwb-find (. wb_board :get_doc) wb_sd))) 2))))
+(. wb_board :select (list wb_sa wb_sb))
 (bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
 (bind '(wb_cx wb_cy) (Mat3x2-point (Mat3x2-rot (/ +fp_pi 4.0) 350 350) wb_tx wb_ty))
 (wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_cx wb_cy)))
@@ -431,14 +441,25 @@
 	(progn (bind '(x y x1 y1 x2 y2) (slice (. wb_handles :corners) 0 6))
 		(and (wb-near? (sqrt (+ (* (- x1 x) (- x1 x)) (* (- y1 y) (- y1 y)))) 100.0 0.05)
 			(wb-near? (sqrt (+ (* (- x2 x1) (- x2 x1)) (* (- y2 y1) (- y2 y1)))) 100.0 0.05))))
-(. wb_board :undo)
-(assert-true "the turn undone, the box is square again" (wb-near? (wb-edge-angle) 0.0 0.001))
-(. wb_board :redo)
-(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_cx wb_cy)))
+(defq wb_sc (. wb_board :add (cwb-shape (cwb-d-rect 300 420 400 460) :fill 0xff00ff00 :stroke 0)))
+(. wb_board :select (list wb_sa wb_sb wb_sc))
+(assert-true "one more joins them, and their box keeps its turn" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
+(. wb_board :select (list wb_sa wb_sb))
+(assert-true "and one leaves, and it keeps it still" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
 (. wb_board :select (list wb_sa))
 (. wb_board :select (list wb_sa wb_sb))
-(assert-true "selected again, it is square to the board" (wb-near? (wb-edge-angle) 0.0 0.001))
-(. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
+(assert-true "down to one and back to two, the box takes the turn of the one" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
+(. wb_board :select (list))
+(. wb_board :select (list wb_sa wb_sb))
+(assert-true "from nothing selected, it is square to the board" (wb-near? (wb-edge-angle) 0.0 0.001))
+(bind '(wb_tx wb_ty) (slice (last (. wb_handles :spots)) 1 3))
+(bind '(x y x1 y1) (. wb_handles :box))
+(bind '(wb_cx wb_cy) (Mat3x2-point (Mat3x2-rot (/ +fp_pi 4.0) (* 0.5 (+ x x1)) (* 0.5 (+ y y1))) wb_tx wb_ty))
+(wb-drag 0 :mouse 1 (list (list wb_tx wb_ty) (list wb_cx wb_cy)))
+(assert-true "turned again" (wb-near? (wb-edge-angle) (/ +fp_pi 4.0) 0.001))
+(. wb_board :undo)
+(assert-true "and the turn undone, the box is square again" (wb-near? (wb-edge-angle) 0.0 0.001))
+(. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo) (. wb_board :undo)
 
 ;a line has an end to drag at each end, and nothing else
 (def wb_board :mode :line)
