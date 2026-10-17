@@ -11,8 +11,12 @@
 	(cwb-add doc (cwb-shape (cwb-d-rect 300 20 380 80) :fill 0xff00ff00 :stroke 0))
 	(Board doc))
 (defun bt-said (board)
-	; what is on it: the id, fill and stroke of each
-	(str (map (# (list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))) (cwb-items (. board :get_doc)))))
+	; what is on it: the id, fill and stroke of each, and of a group what
+	; is in it
+	(str (map (# (if (cwb-group? %0)
+			(list :group (map (# (list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))) (elem-get %0 +cwb_items)))
+			(list (elem-get %0 +cwb_id) (elem-get %0 +cwb_fill) (elem-get %0 +cwb_stroke))))
+		(cwb-items (. board :get_doc)))))
 (defun bt-area (board color)
 	; the area that is filled with a colour
 	(defq sum 0.0)
@@ -28,8 +32,8 @@
 (defq bt_was (bt-said bt))
 (. bt :snapshot)
 (assert-true "an eraser 20 wide drawn down through the box and the line bites" (. bt :rub_along 150 0 150 280 10.0))
-(assert-eq "the box is two things now, what is left of its fill and of its line, and the line one, each filled and with no line"
-	(str (list (list 4 0xffffd070 0) (list 5 0xff000000 0) (list 6 0xff0000ff 0) (list 3 0xff00ff00 0))) (bt-said bt))
+(assert-eq "the box is one thing still, a group of what is left of its fill and of its line, and the line one, each filled and with no line"
+	(str (list (list :group (list (list 5 0xffffd070 0) (list 6 0xff000000 0))) (list 7 0xff0000ff 0) (list 3 0xff00ff00 0))) (bt-said bt))
 (assert-true "the fill has lost a strip 20 wide and 100 tall, as near as a circle of straight sides is to 20"
 	(< 17990.0 (bt-area bt 0xffffd070) 18080.0))
 (assert-true "where it went is not there" (not (bt-in? bt 150 100)))
@@ -188,3 +192,19 @@
 (defq bt_m (reduce (# (+ %0 (/ (length %1) 2))) (first (cwb-flat (first (cwb-items bt_doc)))) 0))
 (assert-true "a line of a thousand points is drawn with nearly eight thousand, and bitten what is left has little more than half of them" (and (> bt_n 5000) (< bt_m (/ (* bt_n 6) 10))))
 (assert-true "it is cut where the eraser went and there each side" (and (not (cwb-hit bt_doc 500 (+ 300 (n2i (* 100.0 (sin (* 0.05 444.0))))) 1)) (cwb-hit bt_doc 300 (+ 300 (n2i (* 100.0 (sin (* 0.05 222.2))))) 2)))
+
+;a turned thing bitten keeps its turn: what is left is in its own space,
+;with its matrix, so it lies as it did and its handles are turned as it is
+(defq bt_doc (cwb-doc 400 300) bt_box (cwb-shape (cwb-d-rect -60 -20 60 20) :fill 0xff0070ff :stroke 0))
+(cwb-set bt_box :m (Mat3x2-mul (Mat3x2-translate 200 150) (Mat3x2-rot 0.5)))
+(cwb-add bt_doc bt_box)
+(defq bt_t (Board bt_doc) bt_m (elem-get bt_box +cwb_m))
+(def bt_t :rub_mode :bite)
+(. bt_t :rub_along 200 0 200 300 6.0)
+(defq bt_left (cwb-items (. bt_t :get_doc)))
+(assert-true "bitten through, it is one thing of two rings"
+	(and (= 1 (length bt_left)) (= 2 (length (first (cwb-flat (first bt_left)))))))
+(assert-true "each piece has the matrix the thing had, its turn kept"
+	(every (# (eql (str (elem-get %0 +cwb_m)) (str bt_m))) bt_left))
+(assert-true "and is where the thing was: its fill either side of the bite"
+	(and (bt-in? bt_t 160 130) (bt-in? bt_t 240 170) (not (bt-in? bt_t 200 150))))

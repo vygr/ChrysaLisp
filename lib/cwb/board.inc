@@ -183,10 +183,13 @@
 				(< (poly-area first_left) (- (poly-area fills) 0.01)))
 			(or (and (nempty? fills) (nempty? (poly-intersect fills swept mode 1)))
 				(and (nempty? strokes) (nempty? (poly-intersect strokes swept 1 1)))))
-		(defq out (list) back (Mat3x2-invert m)
+		;what is left is in the shape's own space and has its matrix, so it
+		;is turned and placed as it was and its handles are too: a bite
+		;changes what it is, not how it lies
+		(defq out (list) back (Mat3x2-invert full)
 			;the hull of what it was has what is left of it in it, and
 			;does for that: not worked out again for each bite
-			hull (if (defq was (board-hull item)) (first (cwb-mat-paths (elem-get item +cwb_m) (list was)))))
+			hull (board-hull item))
 		(each (lambda (polys mode color)
 			(when (nempty? polys)
 				(defq left (if (and first_left (eql polys fills)) first_left (poly-difference polys swept mode 1)))
@@ -199,13 +202,24 @@
 					(defq own (cwb-mat-paths back left)
 						shape (cwb-shape (join (map (# (cwb-d-points %0 :t)) own) " ")
 							:fill color :stroke 0 :rule :evenodd :name (cwb-get item :name) :user (elem-get item +cwb_user)))
+					(elem-set shape +cwb_m (elem-get item +cwb_m))
 					;what it is drawn with is what was just worked out: kept,
 					;so its path is not read back from its text to find it
 					(bind '((x y) (x1 y1)) (vector-bounds-2d own))
 					(elem-set shape +cwb_cache (if hull (list own (list) (list x y x1 y1) hull) (list own (list) (list x y x1 y1))))
 					(push out shape))))
 			(list fills strokes) (list mode 1) (list (elem-get item +cwb_fill) (elem-get item +cwb_stroke)))
-		out))
+		;what is left of its fill and of its line are one thing, as the
+		;shape was: a group that lies as it did, so neither can be taken
+		;from the other, and it has one box round it
+		(cond
+			((> (length out) 1)
+				(each (# (elem-set %0 +cwb_m :nil)) out)
+				(defq group (cwb-group out :name (cwb-get item :name)))
+				(elem-set group +cwb_m (elem-get item +cwb_m))
+				(elem-set group +cwb_user (elem-get item +cwb_user))
+				(list group))
+			(out))))
 
 (defun board-bite (doc swept &optional lines but tol user)
 	; (board-bite doc swept [lines but tol user]) -> :nil | (made gone swaps)

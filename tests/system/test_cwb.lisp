@@ -609,15 +609,17 @@
 (. rb_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00))
 (. rb_board :add (cwb-shape "M 50 250 L 250 250" :width 4))
 (assert-eq "a filled box rubbed at its side" :t (. rb_board :rub 100 150 10))
-(assert-eq "has a bite out, and is flat: its fill and its line, a shape each" 3 (length (cwb-items rb_doc)))
-(assert-true "it is where it was" (wb-near? (cwb-bounds (slice (cwb-items rb_doc) 0 2)) '(100 100 200 200) 3.0))
-(assert-true "and has no line of its own now, each is a fill" (some! (# (= (elem-get %0 +cwb_stroke) 0)) (list (cwb-items rb_doc)) :t 0 2))
+(defq rb_group (first (cwb-items rb_doc)))
+(assert-true "has a bite out, and is flat: its fill and its line, a shape each, one thing still, a group of them"
+	(and (= 2 (length (cwb-items rb_doc))) (cwb-group? rb_group) (= 2 (length (elem-get rb_group +cwb_items)))))
+(assert-true "it is where it was" (wb-near? (cwb-bounds (list rb_group)) '(100 100 200 200) 3.0))
+(assert-true "and has no line of its own now, each is a fill" (every (# (= (elem-get %0 +cwb_stroke) 0)) (elem-get rb_group +cwb_items)))
 (. rb_board :rub_along 150 240 150 260 6)
 (assert-list-eq "the line, rubbed across, is two lines, with a line's width still" '(4 4)
-	(map (# (n2i (elem-get %0 +cwb_width))) (filter (# (/= (elem-get %0 +cwb_stroke) 0)) (cwb-items rb_doc))))
+	(map (# (n2i (elem-get %0 +cwb_width))) (filter (# (and (cwb-shape? %0) (/= (elem-get %0 +cwb_stroke) 0))) (cwb-items rb_doc))))
 (. rb_board :rub_along 90 120 210 120 6)
-(assert-true "rubbed right across the box, it is in two, above and below"
-	(>= (length (filter (# (= (elem-get %0 +cwb_stroke) 0)) (cwb-items rb_doc))) 2))
+(assert-true "rubbed right across the box, its fill is in two, above and below"
+	(>= (length (first (cwb-flat (some (# (if (= (elem-get %0 +cwb_fill) 0xff00ff00) %0)) (elem-get (first (cwb-items rb_doc)) +cwb_items))))) 2))
 ;the eraser itself, a pointer
 (. rb_board :clear)
 (. rb_board :add (cwb-shape (cwb-d-line 100 20 100 280) :width 4))
