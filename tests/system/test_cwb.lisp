@@ -420,6 +420,24 @@
 	(wb-near? (slice (first (. wb_handles :spots)) 1 3) '(400 400) 0.05))
 (. wb_board :undo) (. wb_board :undo)
 
+;a box is always a rectangle, never slanted: a thing whose matrix slants,
+;turned and slanted, has its box turned and round the slant of it
+(defq wb_sh (. wb_board :add (cwb-shape (cwb-d-rect 0 0 100 40) :fill 0xff00ff00 :stroke 0
+	:m (Mat3x2-mul (Mat3x2-translate 500 500) (Mat3x2-mul (Mat3x2-rot 0.5) (Mat3x2 1.0 0.6 0.0 0.0 1.0 0.0))))))
+(. wb_board :select (list wb_sh))
+(assert-true "a slanted thing's box has square corners, and is turned as it is"
+	(progn (bind '(x0 y0 x1 y1 x2 y2) (slice (. wb_handles :corners) 0 6))
+		(and (wb-near? (+ (* (- x1 x0) (- x2 x1)) (* (- y1 y0) (- y2 y1))) 0.0 0.01)
+			(wb-near? (path-angle (- x1 x0) (- y1 y0)) 0.5 0.001))))
+(assert-true "and is round all of it"
+	(progn (bind '(fm (bx by bx1 by1)) (. wb_handles :frame))
+		(defq inv (Mat3x2-invert fm) m (elem-get (first (cwb-find (. wb_board :get_doc) wb_sh)) +cwb_m))
+		(every (lambda ((x y)) (bind '(px py) (Mat3x2-point inv (first (Mat3x2-point m x y)) (second (Mat3x2-point m x y))))
+				(and (<= (- bx 0.01) px (+ bx1 0.01)) (<= (- by 0.01) py (+ by1 0.01))))
+			'((0 0) (100 0) (100 40) (0 40)))))
+(. wb_board :select (list))
+(. wb_board :undo)
+
 ;several things selected, a loose group, are not a thing: a box round
 ;them square to the board, and no handles to size or turn them. They are
 ;moved together, by a press on one of them, never by one in their box

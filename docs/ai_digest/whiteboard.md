@@ -427,6 +427,11 @@ time:
   a square box round all, no handles, `(. handles :spots)` only for one
   thing. Two fingers on it only move it, by their middle.
 * A strong group is one thing: its own box and handles, no member lines.
+* A box is always a rectangle, turned and sized, never slanted: there is
+  no handle for a slant. A matrix that slants, as an ungroup of a group
+  stretched along other sides than a thing in it makes, is split into its
+  turn and size and its slant, and the box is round what it slants,
+  `(board-item-frame)`.
 * An undo or redo is of the document, strong groups and all, and lets go
   of every selection.
 * A bite cuts all it goes over. What it leaves of a stroked shape is two

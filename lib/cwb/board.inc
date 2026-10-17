@@ -299,13 +299,35 @@
 		(elem-get group +cwb_items))
 	(if touched out))
 
+(defun board-item-frame (item)
+	; (board-item-frame item) -> :nil | (matrix (x y x1 y1))
+	;the box of an item, and the matrix that puts it where it is: its own
+	;box and its own matrix, turned and sized as it is. A box is always a
+	;rectangle, nothing is ever seen slanted, there is no handle for it:
+	;a matrix that slants, made by an ungroup of a group sized along
+	;other sides than a thing in it, is split into its turn and size and
+	;its slant, and the box is the one round what it slants, in the frame
+	;of its turn and size. :nil if it draws nothing
+	(when (defq box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
+		(cond
+			((not (defq m (elem-get item +cwb_m))) (list (Mat3x2) box))
+			(:t (bind '(a b tx c d ty) m)
+				(defq sx (sqrt (+ (* a a) (* c c))))
+				(cond
+					((= sx 0.0) (list m box))
+					(:t (defq cs (/ a sx) sn (/ c sx)
+							slant (+ (* cs b) (* sn d)) sy (- (* cs d) (* sn b)))
+						(if (or (= sy 0.0) (< (abs slant) (* 0.0001 (+ sx (abs sy)))))
+							(list m box)
+							(list (fixeds (* cs sx) (* (neg sn) sy) tx (* sn sx) (* cs sy) ty)
+								(Mat3x2-box box (fixeds 1.0 (/ slant sx) 0.0 0.0 1.0 0.0))))))))))
+
 (defun board-item-corners (item)
 	; (board-item-corners item) -> :nil | (x y x y x y x y)
-	;the four corners of the box of an item, its own box by its own
-	;matrix, where they are in the space it is in. :nil if it draws nothing
-	(when (defq box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
-		(bind '(x y x1 y1) box)
-		(defq m (elem-get item +cwb_m))
+	;the four corners of the box of an item, (board-item-frame), where
+	;they are in the space it is in. :nil if it draws nothing
+	(when (defq frame (board-item-frame item))
+		(bind '(m (x y x1 y1)) frame)
 		(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
 
 (defun board-two-point-mat (a0 b0 a1 b1)
@@ -1039,15 +1061,13 @@
 	(defmethod :frame ()
 		; (. handles :frame) -> :nil | (matrix box)
 		;the box the handles are on, and the matrix that puts it where it
-		;is. Of one thing, its own box and its own matrix. Of several, the
-		;box round them, square to the board
+		;is. Of one thing, its own box and its own matrix, never slanted,
+		;(board-item-frame). Of several, the box round them, square to the
+		;board
 		(raise :board)
 		(and (. this :shown) (nempty? (defq items (. board :selected_items)))
 			(cond
-				((= (length items) 1)
-					(defq item (first items)
-						box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
-					(if box (list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
+				((= (length items) 1) (board-item-frame (first items)))
 				(:t ;the box round the corners of each: round the line drawn
 					;round each, not only its ink, which a turned one's box
 					;reaches past
