@@ -80,3 +80,15 @@
 (def nd_win2 :paper 0x80c0c0c0)
 (. nd_win2 :layout)
 (assert-true "nor is one of a colour that can be seen through, shadow or none" (not (nd-solid? nd_win2)))
+
+;a property of a view that holds itself or a view above it is a loop: the
+;tree is never let go of, canvases and all, and stays in the node's memory
+(defq nd_top (View) nd_mid (View) nd_low (View))
+(.-> nd_top (:add_child nd_mid))
+(. nd_mid :add_child nd_low)
+(def nd_low :n 3 :sibling (View))
+(assert-eq "a tree whose properties hold nothing above them has no loops" 0 (length (view-loops nd_top)))
+(def nd_low :scroll nd_top :list (list 1 nd_mid))
+(assert-eq "one that holds a view above it, or one in a list, is a loop, by its key"
+	(str (list (list :t :list) (list :t :scroll)))
+	(str (sort (map (lambda ((v k)) (list (eql v nd_low) k)) (view-loops nd_top)) (lambda (a b) (cmp (str (second a)) (str (second b)))))))

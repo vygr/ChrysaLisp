@@ -41,6 +41,11 @@
 	(split (test-output (cat wa_head " " body
 		" (when *committed* (. *committed* :sub) (setq *committed* :nil))")) (ascii-char 10)))
 
+;no view of the window holds one above it: a loop that kept all of it, its
+;canvases among them, in the node's memory after the app had gone
+(defq wa_loops (wa-run "(print (map (lambda ((v k)) k) (view-loops *window*)))"))
+(assert-eq "the window has no loops of views" "()" (first wa_loops))
+
 ;on a board with nothing bound, the bars show what the mouse uses: its
 ;left button draws with the board's mode, ink and width, its right moves
 ;things, the hand, which is select on the mode bar

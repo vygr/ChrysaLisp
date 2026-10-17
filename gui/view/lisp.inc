@@ -330,3 +330,22 @@
 					(+ev_msg_action_source_id source_id)))) targets))
 		this)
 	)
+
+(defun view-loops (root)
+	; (view-loops view) -> ((view key) ...)
+	;each view of a tree with a property that holds itself or a view above
+	;it, by the key, directly or in a list. A view is held by the one above
+	;it, so such a property is a loop: when its task ends nothing lets go of
+	;either, and all the tree under them, canvases and all, stays in the
+	;memory of the node for ever. An app's window should have none
+	(defq out (list) todo (list (list root (list))))
+	(while (defq next (pop todo))
+		(bind '(view above) next)
+		(defq up (cat above (list view)))
+		(each (lambda ((key val))
+				(unless (eql key :vtable)
+					(if (some (# (if (find %0 up) :t)) (if (and (list? val) (not (env? val))) val (list val)))
+						(push out (list view key)))))
+			(tolist view))
+		(each (# (push todo (list %0 up))) (. view :children)))
+	out)

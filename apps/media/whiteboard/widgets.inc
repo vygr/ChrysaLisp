@@ -110,4 +110,3 @@
 ;the ink, tool and width bars are binders and show no pick, the paper is
 ;everybody's and shows its own
 (. *style_toolbar* :set_selected 1)
-(def *board_view* :scroll *image_scroll*)
