@@ -19,7 +19,7 @@
 ; map_Kd. Anything else is not looked at.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "././math/vector.inc")
+(import "./vector.inc")
 
 ;module
 (env-push)

@@ -16,7 +16,7 @@
 ; It is the big numbers of lib/math/bignum.inc, Lisp but for the dots.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/math/bignum.inc")
+(import "././math/bignum.inc")
 
 ;module
 (env-push)

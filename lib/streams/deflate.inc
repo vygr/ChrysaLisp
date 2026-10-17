@@ -12,8 +12,8 @@
 ; written is kept, the last 32KB, for a length and a distance back to copy.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/streams/huffman.inc")
-(import "lib/hash/sums.inc")
+(import "./huffman.inc")
+(import "././hash/sums.inc")
 
 ;module
 (env-push)

@@ -17,9 +17,9 @@
 ; Only the check: e is small, 65537 mostly, so it is 17 products.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/math/bignum.inc")
-(import "lib/crypto/sha256.inc")
-(import "lib/crypto/sha512.inc")
+(import "././math/bignum.inc")
+(import "./sha256.inc")
+(import "./sha512.inc")
 
 ;module
 (env-push)

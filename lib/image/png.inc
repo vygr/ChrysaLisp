@@ -19,8 +19,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/streams/stages.inc")
-(import "lib/hash/sums.inc")
+(import "././streams/stages.inc")
+(import "././hash/sums.inc")
 
 ;module
 (env-push)

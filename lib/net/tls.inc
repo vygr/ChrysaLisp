@@ -20,12 +20,12 @@
 ; has been revoked.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/crypto/x25519.inc")
-(import "lib/crypto/x509.inc")
-(import "lib/crypto/hkdf.inc")
-(import "lib/crypto/aead.inc")
-(import "lib/crypto/random.inc")
-(import "lib/streams/lisp_stream.inc")
+(import "././crypto/x25519.inc")
+(import "././crypto/x509.inc")
+(import "././crypto/hkdf.inc")
+(import "././crypto/aead.inc")
+(import "././crypto/random.inc")
+(import "././streams/lisp_stream.inc")
 (import "service/net/app.inc")
 
 ;module

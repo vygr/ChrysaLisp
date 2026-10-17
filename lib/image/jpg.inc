@@ -22,8 +22,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/math/vector.inc")
-(import "lib/streams/stages.inc")
+(import "././math/vector.inc")
+(import "././streams/stages.inc")
 
 ;module
 (env-push)

@@ -24,11 +24,11 @@
 ; length of path an issuer allows below it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/crypto/ecdsa.inc")
-(import "lib/crypto/rsa.inc")
-(import "lib/crypto/ed25519.inc")
-(import "lib/text/base64.inc")
-(import "lib/date/date.inc")
+(import "./ecdsa.inc")
+(import "./rsa.inc")
+(import "./ed25519.inc")
+(import "././text/base64.inc")
+(import "././date/date.inc")
 
 ;module
 (env-push)

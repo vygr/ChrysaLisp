@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/streams/stages.inc")
+(import "././streams/stages.inc")
 
 ;module
 (env-push)
