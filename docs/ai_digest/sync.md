@@ -85,8 +85,11 @@ machine, `(sync-from)`:
   not kept, a machine just linked may not yet be known to be what it is.
 
 A waypoint is the file `waypoint` at the root, the commit, when it was
-noted and the top of the tree of hashes then, written by the `waypoint`
-command after a `git pull`. A tree changed since is at none, `(sync-clean)`,
+made and the top of the tree of hashes then, written by the `waypoint`
+command after a `git pull`. When it was made is the commit's own time, read
+from `.git` by the command itself, the object loose or in a pack, so the
+herd's order is the order of the commits; if it can not be read the time it
+was noted is kept in its place. A tree changed since is at none, `(sync-clean)`,
 and takes no part, pushed to or from: a machine taken out to be worked on is
 left alone till what was done is pushed and it has pulled. The top is never
 of the machine's own files, `waypoint`, `sync_from` and `mesh_key`, and a
@@ -218,9 +221,8 @@ alone.
   same, not which came first. And a restart when a newer one has arrived.
 * The herd by itself: a machine at an older waypoint that sees a newer one
   and asks for it. Today a herd push is asked for, `sync -t` or `rack`.
-* A waypoint in the order of the commits, by the time of the commit, not
-  the time it was noted. And `waypoint` sure that the tree is the commit,
-  by git's own index, not taken on trust.
+* `waypoint` sure that the tree is the commit, by git's own index, not
+  taken on trust.
 * A folder that is empty, and a folder that is left empty by a remove.
 * An older sync. One from before the tree of hashes is told apart, and
   nothing is sent to it. It has to be updated another way, once.

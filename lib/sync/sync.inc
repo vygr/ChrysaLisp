@@ -209,7 +209,7 @@
 (defun sync-waypoint (root)
 	; (sync-waypoint root) -> :nil | (commit time top)
 	;the waypoint a tree was last at, as its file waypoint says: the commit,
-	;when it was pulled, and the top of the tree of hashes it had then
+	;when it was made, and the top of the tree of hashes it had then
 	(when (defq text (load (cat root "/waypoint")))
 		(defq lines (map (# (trim %0)) (split text (ascii-char 10))))
 		(if (>= (length lines) 3)
