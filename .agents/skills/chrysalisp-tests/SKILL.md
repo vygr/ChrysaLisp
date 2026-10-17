@@ -185,6 +185,28 @@ echo "lisp -r (print (* 123 456))" | ./run_tui.sh -n 1 -f
 *	Keep `(env-push)` / `(env-pop)` balanced in a snippet. An unbalanced push
 	leaves the wrong environment current when the command's `main` returns.
 
+### Leaks
+
+Ownership is a tree: what an object holds is below it, a link back to an
+owner is a weak ref claimed where it is used, and letting go of the top
+frees all of it. Three checks, all from inside:
+
+*	`tests -e`: each module alone, twice, failing one that leaves its node
+	holding more after the second run.
+*	`tests -a -m app_leaks`, a release test: every app opened and closed
+	on a hidden desktop three times, failing one that leaves the desktop's
+	node holding more on both later runs by over 16KB. It waits for the
+	tasks an app started there to end before it measures.
+*	`(loops obj)` and `(view-loops view)`, `lib/debug/loops.inc`: each
+	place under obj that holds obj or what is between, a counted link back.
+
+`(kernel-stats :t)` first lets go of what a task's end does, numbers,
+symbols, free blocks, and the words the fonts keep, so what is left is
+what is held: used is `(- (elem-get s 1) (elem-get s 2))`. To find a leak,
+run the app off the desktop's node too: one that leaks only on the GUI
+node is touching something in its shared root. Then cut the app down a
+call at a time, and measure one call in a loop in a single task.
+
 ### Standard Sanity Tools
 
 The standard sanity test tools from the TUI are `includes`, `forward`,

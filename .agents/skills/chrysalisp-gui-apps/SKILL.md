@@ -194,6 +194,15 @@ Key points:
 
 *	`ui-tool-tips` attaches a list of hover tips to a toolbar or stack.
 
+*	The user's look is variants of the plain `:font :paper :ink :border
+	:shadow`, named, never copied: `(:font :font_small)` or `(:paper
+	:paper_title)` in a `ui-` form; for a view made by hand, a button of a
+	list built at run time, `(view-variant btn :font :font_button)` after
+	its `(def)`. Either keeps which variant it was, `:variants`, so a theme
+	or another user finds it again, `(view-resolve)`. Not `:font (get
+	:font_button *env*)`: that is a copy, and nothing follows it. A
+	colour of the app's own, `+argb_white`, is a value as before.
+
 ## Two-Pass GUI Layout & Constraint Primitives
 
 The GUI framework renders views using a strict, non-backtracking two-pass
