@@ -69,7 +69,10 @@
 (defun main ()
 	(when (and (defq stdio (create-stdio))
 			(defq opt_t :nil opt_f :nil opt_d :nil opt_k :nil opt_w 0 opt_a :nil opt_r :nil args (options stdio usage)))
-		(defq kv (if opt_f (split opt_f "=") (list)))
+		;key=value, split at the first =, so a value may hold one, text==
+		(defq kv (if opt_f (ifn (defq eq_idx (find "=" opt_f)) (list opt_f)
+				(list (slice opt_f 0 eq_idx) (slice opt_f (inc eq_idx) -1)))
+			(list)))
 		(defq keys (if opt_k (map (# (sym (cat ":" %0))) (split opt_k ","))))
 		(defq text (gui-wait (# (gui-tree-rpc opt_t (first kv) (second kv) opt_d keys)) opt_w))
 		(cond
