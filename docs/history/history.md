@@ -465,6 +465,10 @@ JVC, Fujitsu, Hitachi, Panasonic, HTC, Philips and Samsung. It built a PDA
 for Matsushita. By his own record intent went into tens of millions of
 devices.
 
+intent was as indifferent to byte order as Taos had been. The set top box
+processors it was ported to alone took in several big endian platforms and
+several little endian ones.
+
 Andy Henson began the translator from Java to VP code. It was taken on by a
 new team that included Jay Foad, later chief technology officer of Dyalog,
 the APL company, and Peter Maydell, later known for his work on QEMU.
