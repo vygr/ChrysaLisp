@@ -209,9 +209,15 @@
 
 	(defmethod :devices ()
 		; (. palette :devices) -> ((color what slot) ...)
-		;the dots of the devices, (. bindings :devices), each in its place
-		(defq board (obj-ref (get :board this)))
-		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1 %2))))
+		;the squares of the devices, each in its place, as the bars show
+		;them: what each uses, its own or the board's, (. board :device_uses),
+		;then what it bound, for its colour and its switches
+		(defq n (length +bindings_device_cols))
+		(map (lambda ((what slot uses))
+				(list (elem-get +bindings_device_cols (% slot n))
+					(cat (list :mode (. uses :find :mode) :pen (. uses :find :pen) :width (. uses :find :width)) what)
+					slot))
+			(. (obj-ref (get :board this)) :device_uses)))
 
 	(defmethod :draw_state ()
 		; (. palette :draw_state) -> (mode color width pen snap pens devices)

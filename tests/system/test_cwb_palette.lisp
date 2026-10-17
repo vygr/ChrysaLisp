@@ -281,12 +281,20 @@
 (. pf_board :tick 1000000)
 (defq pf (palette-float pf_board 200 200))
 (. pf_board :tick 3000000)
-(assert-eq "a floating menu is no device's, and has no dots till one is bound" 0 (length (. pf :devices)))
+(assert-eq "a floating menu shows the mouse's two buttons from the start, as the bars do, the main and the second of its column"
+	"(0 6)" (str (sort (map (const third) (. pf :devices)) (# (- %0 %1)))))
+(assert-eq "what each shows is what it uses, the board's till it binds its own: its mode, its pen, its width"
+	(str (list :mode (get :mode pf_board) :pen (get :pen pf_board) :width (get :width pf_board)))
+	(str (slice (second (first (filter (# (= (third %0) 0)) (. pf :devices)))) 0 6)))
 (.-> (. pf_board :get_bindings)
 	(:set :pen 0x2000000 +pev_left :color 0xffe03131)
 	(:set :touch 0x1000000 :nil :mode :rect))
-(assert-eq "two devices bound, two dots, each the colour of its place, touch the second, a first pen a student's the fourth"
-	(str (list 0xffff0000 0xff000000)) (str (map (const first) (. pf :devices))))
+(assert-eq "two devices bound, a square each, each the colour of its place, touch the second, a first pen a student's the fourth"
+	(str (list 0xff000000 0xffff0000)) (str (map (# (first (first (filter (lambda (d) (= (third d) %0)) (. pf :devices))))) '(1 3))))
+(defq pf_what (lambda (slot key) (bind '(& what &) (first (filter (# (= (third %0) slot)) (. pf :devices))))
+	(elem-get what (ptr-at what key))))
+(assert-eq "a device bound shows what it bound itself: touch's mode, the pen's colour"
+	(str (list :rect 0xffe03131)) (str (list (pf_what 1 :mode) (pf_what 3 :color))))
 (assert-eq "the mouse's place is the first, the teacher's pen the third, a second student's pen the fifth"
 	(str '(0 2 4)) (str (list (. pf_board :device_slot :mouse 0) (progn (. pf_board :appoint (ptr-event 0x3000000 :pen 0 0 0))
 		(. pf_board :device_slot :pen 0x3000000)) (. pf_board :device_slot :pen 0x4000000))))

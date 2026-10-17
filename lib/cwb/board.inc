@@ -1609,6 +1609,33 @@
 				(:snap_angle (/= (get :snap_angle this) 0.0))
 				(:t (get :keep_shape this)))))
 
+	(defmethod :device_uses ()
+		; (. board :device_uses) -> ((what slot uses) ...)
+		;each device and button there is a rule of its own for, every one
+		;the board has seen, and the mouse's two buttons, which are always
+		;there, once by its place: what it is bound to, and what it uses,
+		;:mode :width :pen. What it bound itself, else the board's: its mode
+		;where it draws, a hand's is select and the eraser's the eraser; a
+		;second button's pen is the fill of what its device draws. The bars
+		;and the floating menus show the same squares from it
+		(defq bindings (get :bindings this) seen (list) out (list))
+		(each (lambda ((kind id buttons))
+				(when (and (defq slot (. this :device_slot kind id buttons)) (not (find slot seen)))
+					(push seen slot)
+					(defq event (ptr-event id kind (ifn buttons +pev_left) 0 0)
+						what (ifn (. bindings :find event) (list))
+						tool (. bindings :value event :tool :pen)
+						own (lambda (key) (if (defq at (ptr-at what key)) (elem-get what at))))
+					(push out (list what slot (scatter (Emap)
+						:mode (case tool (:pen (ifn (own :mode) (get :mode this))) (:hand :select) (:eraser :eraser))
+						:width (ifn (own :width) (get :width this))
+						:pen (ifn (own :pen) (get :pen this)))))))
+			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
+				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
+					(filter (# (second %0)) (get :rules bindings)))
+				(. this :devices_seen)))
+		out)
+
 	(defmethod :snap_step (&optional id)
 		; (. board :snap_step [id]) -> step
 		(if (defq kept (. (get :settings this) :find id)) (first kept) (get :snap this)))

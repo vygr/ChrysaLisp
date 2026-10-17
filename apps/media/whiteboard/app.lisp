@@ -194,31 +194,9 @@
 			(get :mode *board*) (get :pen *board*) (get :width *board*) (. (get :seen *board*) :size)))
 	(unless (eql as *dots_of*)
 		(setq *dots_of* as)
-		;each device and button there is a rule of its own for, every one
-		;the board has seen, and the mouse's two buttons, which are always
-		;there, by its place: what it is bound to and what it uses. What it
-		;bound itself shows always, else the board's: its mode where it
-		;draws, on the mode bar the hand is select and the eraser the
-		;eraser; its ink and width always, a second button's ink is the
-		;fill, and its width is what it draws with once it is bound to
-		(defq bindings (. *board* :get_bindings) seen (list) devices (list))
-		(each (lambda ((kind id buttons))
-				(when (and (defq slot (. *board* :device_slot kind id buttons)) (not (find slot seen)))
-					(push seen slot)
-					(defq event (ptr-event id kind (ifn buttons +pev_left) 0 0)
-						what (ifn (. bindings :find event) (list))
-						tool (. bindings :value event :tool :pen)
-						own (lambda (key) (if (defq at (ptr-at what key)) (elem-get what at))))
-					(push devices (list what slot (scatter (Emap)
-						:mode (case tool (:pen (ifn (own :mode) (get :mode *board*))) (:hand :select) (:eraser :eraser))
-						:width (ifn (own :width) (get :width *board*))
-						;the pen of a second button is the fill of what its
-						;device draws, whatever that button does itself
-						:pen (ifn (own :pen) (get :pen *board*)))))))
-			(cat (list (list :mouse 0 +pev_left) (list :mouse 0 +pev_right))
-				(map (lambda ((kind id buttons &ignore)) (list kind id buttons))
-					(filter (# (second %0)) rules))
-				(. *board* :devices_seen)))
+		;each device and button by its place, what it is bound to and what
+		;it uses, its own or the board's, (. board :device_uses)
+		(defq devices (. *board* :device_uses))
 		(defq slots-of (lambda (key value)
 			(defq out (list))
 			(each (lambda ((what slot uses))
