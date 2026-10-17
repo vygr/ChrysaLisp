@@ -46,7 +46,7 @@
 		(":sys_task" "+tk_") (":pset" "+pset_") (":pmap" "+pmap_")
 		(":host_os" "+stat_" "+file_open_" "+mmap_")
 		(":host_audio" "+audio_") (":host_clipboard" "+clip_")
-		(":view" "+view_") (":path" "+path_") (":canvas" "+canvas_")
+		(":view" "+view_") (":ctx" "+ctx_") (":path" "+path_") (":canvas" "+canvas_")
 		(":pixmap" "+pixmap_") (":vdu" "+vdu_") (":texture" "+texture_")
 		(":font" "+font_") (":sys_heap" "+hp_") (":sys_mem" "+mem_")
 		(":region" "rect_") (":sys_link" "lk_") (":sys_load" "ld_")
