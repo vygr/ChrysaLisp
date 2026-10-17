@@ -26,7 +26,6 @@
 			window (penv this))
 		(until (def? :is_window window)
 			(setq window (penv window)))
-		(bind '(x y w h) (. window :get_bounds))
-		(. window :change_dirty (+ ax (get :drag_offx this)) (+ ay (get :drag_offy this)) w h)
+		(. window :move_dirty (+ ax (get :drag_offx this)) (+ ay (get :drag_offy this)))
 		this)
 	)

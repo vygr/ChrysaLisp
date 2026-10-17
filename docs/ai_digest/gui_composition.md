@@ -99,31 +99,31 @@ docs/diagrams/compositor_passes.cwb
 
 **1. `:host_gui :update` (service/gui/class.vp)**
 
-The frame is worked out in the GUI's own task. Only what must call the host
-is done on the host's stack, aligned to 16 bytes, by `:sys_task :callback`:
-making or sizing the host's window, and putting the frame on the screen.
-No Lisp runs on the host's stack.
+The whole frame is one `:sys_task :callback`, on the host's stack, aligned
+to 16 bytes. While it runs no other task can change a view, so a frame is
+worked out from one state of the tree. A view's Lisp `:draw` runs there, in
+the GUI's Lisp, which `gui-init` puts in the kernel's tcb for it.
 
-* If the GUI is not initialized (`statics_gui_init`), or `statics_gui_flags`
-  say the host window changed size, a callback calls `:host_gui :init` or
-  `:host_gui :resize`.
+* If the GUI is not initialized (`statics_gui_init`), calls
+  `:host_gui :init`; if `statics_gui_flags` say the host window changed
+  size, `:host_gui :resize`.
 
 * If the `statics_gui_dirty_flag` is set (meaning something needs
   redrawing):
 
     1. A frame list is made, `statics_gui_draws`.
 
-    2. `:host_gui :composite(statics->statics_gui_screen, ...)`, in the
-       GUI's task: the passes detailed below, which put each view to be
-       drawn in the frame list, the view and its dirty region.
+    2. `:host_gui :composite(statics->statics_gui_screen, ...)`: the passes
+       detailed below, which put each view to be drawn in the frame list,
+       the view and its dirty region.
 
-    3. One callback puts the frame on the host: `begin_composite`, then for
-       each view of the frame, for each rect of its dirty region, `set_clip`
-       to it and the view's list of draws played where the view is;
-       `end_composite`, and `flush` of the dirty bounds.
+    3. `:host_gui :replay`: `begin_composite`, then for each view of the
+       frame, for each rect of its dirty region, `set_clip` to it and the
+       view's list of draws played where the view is; `end_composite`, and
+       `flush` of the dirty bounds.
 
-    4. `:host_gui :frame_free`, back in the GUI's task: the frame's dirty
-       regions freed, its views let go of, and the frame list freed.
+    4. `:host_gui :frame_free`: the frame's dirty regions freed, its views
+       let go of, and the frame list freed.
 
     5. Clears `statics_gui_dirty_flag` and frees the temporary views in
        `statics_gui_temps`.
@@ -147,8 +147,10 @@ run again, the list let go of (`:view :forget_draws`), when:
 * it keeps no list at all, `+view_flag_nocache`, as the vdu does, which
   draws only the lines that are dirty.
 
-A plain move, `:change_dirty`, keeps the list. `+view_flag_drawn` says a view
-has drawn, so one that draws nothing has no list.
+`:change_dirty` ends in `:dirty_all`, so the view and those in it draw
+again. A move and nothing else is `:move_dirty`, which keeps their lists; a
+window dragged by its title is moved so. `+view_flag_drawn` says a view has
+drawn, so one that draws nothing has no list.
 
 `:view :hide` puts a temporary view in the hidden view's place in its
 parent's list, holding the hidden area as its dirty region. Its place in the
@@ -255,8 +257,8 @@ view tree.
     * For each view in the list:
 
         * If it has not drawn, or is a new size, its list is let go of and
-          its `:draw` method is run, in the GUI's task, which adds to a new
-          list. Else its kept list is used.
+          its `:draw` method is run, which adds to a new list. Else its kept
+          list is used.
 
         * The view, with a reference, and its `view_dirty_region` go in the
           frame list, and the view is left with no dirty region, so any

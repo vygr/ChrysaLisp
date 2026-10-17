@@ -131,11 +131,13 @@
 				(def toggle :text (num-to-utf8 (if collapsed +sym_next +sym_up)))
 				(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 
-				; Recalculate size and update scrollbars after visibility change
+				; Recalculate size and update scrollbars after visibility change,
+				; all laid out again, the toggle is a new size and the row it is
+				; in is not
 				(bind '(x y) (. *window* :get_pos))
 				(bind '(w h) (. *window* :pref_size))
 				(bind '(x y w h) (view-fit x y w h))
-				(. *window* :change_dirty x y w h))
+				(. *window* :change_dirty x y w h :t))
 			((. *window* :event msg))))
 
 	(config-save)

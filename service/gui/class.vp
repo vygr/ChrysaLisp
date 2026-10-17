@@ -12,59 +12,36 @@
 	;trashes
 	;:r0-:r14, :f0-:f15
 	;info
-	;the frame is worked out here, in the task of the GUI, and a view to be
-	;drawn draws into a list of its own, Lisp or VP, as any method is
-	;called, or its list kept from before is used. Only what goes to the
-	;host is done on the host's stack: made or sized there, and the lists
-	;of the frame put on its back buffer and the screen, in one callback
-
-	(def-vars
-		(ptr statics)
-		(struct rect host_gui_rect_size))
-
-	(push-scope)
-	(entry :host_gui :update '(:r0 :r1 :r2))
-
-	(fn-bind 'sys/statics/statics :r3)
-	(assign '(:r0 :r1 :r2) '((:r3 statics_gui_mouse_x) (:r3 statics_gui_mouse_y) (:r3 statics_gui_flags)))
-	(assign '(:r3) (vpx statics))
-
-	;inited gui compositor ?
-	(vpif (vpx (.> statics statics_gui_screen)))
-		;made on the host, or a new size there ?
-		(vpif (vpx (|| (= (.> statics statics_gui_init) 0) (.> statics statics_gui_flags))))
-			(call :sys_task :callback '(0 ($ setup_callback)))
-		(endif)
-
-		;update screen
-		(vpif (vpx (.> statics statics_gui_dirty_flag)))
-			(call :array :create :nil (vpx (.> statics statics_gui_draws)))
-			(call :host_gui :composite (vpx (.> statics statics_gui_screen))
-				(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
-
-			;put it on the host, let go of the views of the frame, clear
-			;temps and dirty flag
-			(call :sys_task :callback (vpx (& rect) ($ replay_callback)))
-			(call :host_gui :frame_free)
-			(call :list :clear (vpx (.> statics statics_gui_temps)))
-			(assign (vpx 0) (vpx (.> statics statics_gui_dirty_flag)))
-		(endif)
-	(endif)
-
-	(pop-scope)
-	(return)
+	;the whole frame is one callback, on the host's stack, so no task can
+	;change a view while it is worked out: made or sized on the host, the
+	;views to draw found, those that must draw again drawing into their
+	;lists, Lisp or VP, the others' kept lists used, then the frame put on
+	;the back buffer and the screen
 
 	(def-vars
 		(ptr statics old_stack)
 		(struct rect host_gui_rect_size))
 
-(vp-label 'setup_callback)
+	(entry :host_gui :update '(:r0 :r1 :r2))
+
+	;kernel callback for update
+	(fn-bind 'sys/statics/statics :r3)
+	(assign '(:r0 :r1 :r2) '((:r3 statics_gui_mouse_x) (:r3 statics_gui_mouse_y) (:r3 statics_gui_flags)))
+	(jump :sys_task :callback '(0 ($ update_callback)))
+
+(vp-label 'update_callback)
 	(vp-cpy-rr :rsp :r0)
 	(push-scope)
 	(vp-and-cr -16 :rsp)
 	(entry (vpx old_stack))
 
+	;inited gui compositor ?
 	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(vpifnot (vpx (.> statics statics_gui_screen)))
+		(assign (vpx old_stack) '(:rsp))
+		(return)
+	(endif)
+
 	(vpifnot (vpx (.> statics statics_gui_init)))
 		;init
 		(assign (vpx 0 0 (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h))
@@ -80,9 +57,35 @@
 		(host-gui-call :host_gui :resize (vpx (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h)))
 	(endif)
 
+	;update screen
+	(vpif (vpx (.> statics statics_gui_dirty_flag)))
+		;the views to draw, each with its list, in the frame
+		(call :array :create :nil (vpx (.> statics statics_gui_draws)))
+		(call :host_gui :composite (vpx (.> statics statics_gui_screen))
+			(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
+
+		;put it on the back buffer and the screen, let go of the views of the
+		;frame, clear temps and dirty flag
+		(call :host_gui :replay (vpx (& rect)))
+		(call :host_gui :frame_free)
+		(call :list :clear (vpx (.> statics statics_gui_temps)))
+		(assign (vpx 0) (vpx (.> statics statics_gui_dirty_flag)))
+	(endif)
+
 	(assign (vpx old_stack) '(:rsp))
 	(pop-scope-syms)
 	(return)
+
+(def-func-end)
+
+(def-method :host_gui :replay)
+	;inputs
+	;:r0 = the frame's dirty bounds (ptr)
+	;trashes
+	;:r0-:r4, :r7-:r14, :f0-:f15
+	;info
+	;on the host's stack: each view of the frame, for each rect of its
+	;dirty region, clipped to it, its list of draws played where it is
 
 	(structure replay 0
 		(ptr user old_stack)
@@ -104,9 +107,6 @@
 			'((:rsp (+ replay_drect host_gui_rect_x) i) (:rsp (+ replay_drect host_gui_rect_y) i)
 			(:rsp (+ replay_drect host_gui_rect_w) i) (:rsp (+ replay_drect host_gui_rect_h) i))))
 
-(vp-label 'replay_callback)
-	;inputs
-	;:r0 = the frame's dirty bounds (ptr)
 	(vp-cpy-rr :rsp :r1)
 	(vp-alloc replay_size)
 	(vp-and-cr -16 :rsp)

@@ -37,6 +37,7 @@
 	(dec-method :update service/gui/update :static (:r0 :r1 :r2) :nil (:r0-:r14 :f0-:f15))
 	(dec-method :composite service/gui/composite :static (:r0) (:r7 :r8 :r9 :r10) (:r0-:r14 :f0-:f15))
 	(dec-method :frame_view service/gui/frame_view :static (:r0) (:r0) (:r1-:r3 :r7-:r11 :f0-:f15))
+	(dec-method :replay service/gui/replay :static (:r0) () (:r0-:r4 :r7-:r14 :f0-:f15))
 	(dec-method :frame_free service/gui/frame_free :static () () (:r0-:r5 :f0-:f15))
 	(dec-method :lisp_init service/gui/lisp_init :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :f0-:f15))
 	(dec-method :lisp_deinit service/gui/lisp_deinit :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))

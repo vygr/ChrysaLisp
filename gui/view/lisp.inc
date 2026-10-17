@@ -292,11 +292,18 @@
 
 	(defmethod :change_dirty (x y width height &optional flag)
 		; (. view :change_dirty x y width height [flag]) -> view
-		;moved it draws what it drew, its list of draws is kept, unless it
-		;was to be drawn again already or is a new size
 		(bind '(old_x old_y) (. this :get_pos))
-		(defq redraw (logand (. this :get_flags) +view_flag_redraw))
 		(.-> this :dirty (:change x y width height flag)
+			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all))
+
+	(defmethod :move_dirty (x y)
+		; (. view :move_dirty x y) -> view
+		;moved, and nothing else of it changed: it is drawn where it was
+		;and where it now is, and what it drew is drawn again, the lists of
+		;draws of it and the views in it kept, their :draw not run
+		(bind '(old_x old_y w h) (. this :get_bounds))
+		(defq redraw (logand (. this :get_flags) +view_flag_redraw))
+		(.-> this :dirty (:set_bounds x y w h)
 			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all
 			(:set_flags redraw +view_flag_redraw)))
 
