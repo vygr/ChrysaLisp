@@ -15,8 +15,11 @@
 (import "service/gui/lisp.inc")
 
 ;not those that are the desktop's own, nor those that end it or log in.
-;Not Raymarch: it makes its whole film, seconds of the GPU or every node
-(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch")
+;Not Raymarch: it makes its whole film, seconds of the GPU or every node.
+;Not Benchmark: its work is a build of the whole system, spread over the
+;nodes, whose passing allocations move the node by tens of KB either way;
+;four builds in one task hold no more than one
+(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch" "tools/benchmark")
 		(get :launcher_auto_apps *env*))
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
 		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
