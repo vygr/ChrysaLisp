@@ -105,8 +105,11 @@
 	; (locate request) -> str
 	;the reply to a locate: (title key value), as gui-locate-rpc sends
 	;them, where that view is on the screen, and the part of it that can be
-	;seen, inside all it is in, (x y w h sx sy sw sh), or why it is not
-	(bind '(title key value) (first (read (string-stream request))))
+	;seen, inside all it is in, (x y w h sx sy sw sh), or why it is not.
+	;With front the window is put in front first, as a click on it would
+	(bind '(title key value front) (first (read (string-stream request))))
+	(and front (defq view (find-window title)) (nql view *screen*)
+		(.-> view :to_front (:set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 	(cond
 		((not (defq view (find-window title))) "no window of that title")
 		((and (nempty? key) (not (setq view (ui-find view (sym (cat ":" key)) value))))
@@ -122,6 +125,16 @@
 			(if (or (<= sx1 sx) (<= sy1 sy))
 				(cat (if (nempty? key) (cat key " of " value) "it") " is out of sight")
 				(str (list x y w h sx sy (- sx1 sx) (- sy1 sy)))))))
+
+(defun window-at (request)
+	; (window-at request) -> str
+	;the reply to an at: (x y), as gui-at-rpc sends it, the title of the
+	;window in front at that place on the screen, "" if there is none
+	(bind '(x y) (first (read (string-stream request))))
+	(bind '(view & &) (. *screen* :hit_tree x y))
+	(if (eql view *screen*) (setq view :nil))
+	(while (and view (nql (penv view) *screen*)) (setq view (penv view)))
+	(ifn (and view (window-title view)) ""))
 
 (defun grab (want)
 	; (grab want) -> str
@@ -233,6 +246,9 @@
 							;the task that has each window, the reply
 							(setq msg (str (map (# (if (defq owner (. %0 :find_owner)) (hex-encode owner) ""))
 								(filter (# (nql %0 *mouse*)) (screen-children))))))
+						(+gui_rpc_type_at
+							;the title of the window at a place, the reply
+							(setq msg (window-at (slice msg +gui_rpc_size -1))))
 						(+gui_rpc_type_locate
 							;where a window or a view in it is, the reply
 							(setq msg (locate (slice msg +gui_rpc_size -1))))

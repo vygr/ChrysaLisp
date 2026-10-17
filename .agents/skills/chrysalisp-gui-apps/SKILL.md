@@ -469,7 +469,14 @@ desktop of the agent's own:
 	left|right n`, `key ctrl+s`, `type text`. A place is from the top left
 	of the window or the view found, its visible middle if left out. The
 	events go through the GUI as the host's do, so focus, modifiers and the
-	wheel latch are as for a user. A view scrolled out of sight is refused,
+	wheel latch are as for a user. With `-t` the window is put in front of
+	the others first, as a click on it would, and a place that is still not
+	on it, outside it or under one kept in front, is refused and named:
+	"input: 10 400 is on Terminal, not on Calculator". The Test user's
+	desktop starts no app of its own, `:launcher_auto_apps '()` in
+	`usr/Test/env.inc`, so what is launched is alone on the screen; a
+	desktop of another user opens its own apps, Terminal and Eyes, a moment
+	after it is up, in front of one launched early. A view scrolled out of sight is refused,
 	"out of sight": turn the wheel over its Scroll first (a step is a line
 	or so, a long tree wants 100). `-f type=Scroll` finds the first Scroll
 	depth first, in Docs the Files tree. Drive with `input`, check with

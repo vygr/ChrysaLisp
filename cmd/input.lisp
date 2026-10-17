@@ -21,7 +21,11 @@
     actions, done in order. A place, x y, is from the top left of
     the window, or of the view found, and is its middle if left
     out. A view out of sight, scrolled away, is not clicked; turn
-    the wheel over what it is in first, as a user would:
+    the wheel over what it is in first, as a user would. The window
+    of -t is put in front of the others first, as a click on it would.
+    A place that is not on that window, outside it or under one kept
+    in front, is not clicked: it says what window the place is on,
+    and does nothing more:
         move x y: the mouse to there.
         click [x y], rclick [x y], dclick [x y]: a click of the
             left button, of the right, two of the left.
@@ -122,15 +126,30 @@
 		(list (+ vx (str-to-num (next-word))) (+ vy (str-to-num (next-word))))
 		(list (+ sx (/ sw 2)) (+ sy (/ sh 2)))))
 
+;the title of the window asked for, and what was said if it was covered
+(defq *title* "" *covered* :nil)
+
+(defun landing ()
+	;a place something lands on, a click, a drag's start, a pen or finger
+	;down. If it is not on the window asked for, covered by another kept in
+	;front of it or outside it, that is said, and nothing more is done, as a
+	;user would see it was
+	(defq xy (place))
+	(and (not *covered*) (nempty? *title*) (str?? (defq at (gui-at-rpc (first xy) (second xy))))
+		(not (found? at *title*))
+		(setq *covered* (cat "input: " (str (first xy)) " " (str (second xy)) " is on "
+			(if (nempty? at) at "no window") ", not on " *title*)))
+	xy)
+
 (defun click (button counts)
-	(bind '(x y) (place))
+	(bind '(x y) (landing))
 	(cat (event +gui_ev_mouse_motion x y)
 		(apply (const cat) (map (# (cat
 			(event +gui_ev_mouse_down x y button %0)
 			(event +gui_ev_mouse_up x y button %0))) counts))))
 
 (defun drag ()
-	(bind '(x y) (place))
+	(bind '(x y) (landing))
 	(bind '(x1 y1) (place))
 	(cat (event +gui_ev_mouse_motion x y)
 		(event +gui_ev_mouse_down x y 1 1)
@@ -159,7 +178,7 @@
 	;down, to or up of a contact, the words after the device
 	(defq way (next-word) at (. *contacts* :find id))
 	(case (sym (cat ":" way))
-		(:down (bind '(x y) (place))
+		(:down (bind '(x y) (landing))
 			(defq buttons (if (eql (word-at *next*) "barrel") (progn (next-word) +barrel) 1))
 			(. *contacts* :insert id (list buttons x y))
 			(pointer-event +gui_ev_pointer_down id kind buttons x y))
@@ -194,15 +213,16 @@
 (defun main ()
 	(when (and (defq stdio (create-stdio))
 			(defq opt_t :nil opt_f (list) opt_w 0 args (options stdio usage)))
-		(defq at (gui-wait (# (gui-locate-rpc opt_t (first opt_f) (second opt_f))) opt_w)
+		(defq at (gui-wait (# (gui-locate-rpc opt_t (first opt_f) (second opt_f) :t)) opt_w)
 			why :nil)
 		(cond
 			((not at) (print "input: no GUI"))
 			((str?? at) (print "input: " at))
-			(:t (setq *view* at *words* (rest args) *next* 0)
+			(:t (setq *view* at *words* (rest args) *next* 0 *title* (ifn opt_t ""))
 				(while (and (not why) (< *next* (length *words*)))
 					(defq action (next-word) events (action-events action))
 					(cond
+						(*covered* (setq why *covered*))
 						((not events) (setq why (cat "input: what is " action " ?")))
 						((not (gui-input-rpc events)) (setq why "input: no answer from the GUI"))))
 				(if why (print why))))))

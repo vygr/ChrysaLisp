@@ -83,7 +83,7 @@
 ;gui rpc msgs
 
 (enums +gui_rpc_type 0
-	(enum quit logout sub add_front add_back theme grab tree input locate owners))
+	(enum quit logout sub add_front add_back theme grab tree input locate owners at))
 
 (structure +gui_rpc 0
 	(netid reply_id)
@@ -186,11 +186,12 @@
 			(+gui_rpc_weak_view 0)) events))
 		(if (mail-read-timeout mbox (task-timeout 10)) :t)))
 
-(defun gui-locate-rpc (&optional title key value)
-	; (gui-locate-rpc [title key value]) -> :nil | why | (x y w h sx sy sw sh)
+(defun gui-locate-rpc (&optional title key value front)
+	; (gui-locate-rpc [title key value front]) -> :nil | why | (x y w h sx sy sw sh)
 	;where on the screen the window whose title has title in it is, or the
 	;first in it whose key is value if a key is given, as (ui-find) finds it,
-	;and the part of it that can be seen, why if none of it can
+	;and the part of it that can be seen, why if none of it can. With front
+	;the window is put in front of the others first
 	(when (nempty? (defq service (mail-enquire "@Gui,")))
 		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
@@ -199,11 +200,26 @@
 			(+gui_rpc_reply_id mbox)
 			(+gui_rpc_owner_id (task-mbox))
 			(+gui_rpc_weak_view 0))
-			(str (list (ifn title "") (ifn key "") (ifn value "")))))
+			(str (list (ifn title "") (ifn key "") (ifn value "") (if front :t :nil)))))
 		(cond
 			((not (defq reply (mail-read-timeout mbox (task-timeout 10)))) "no answer from the GUI")
 			((starts-with "(" reply) (first (read (string-stream reply))))
 			(reply))))
+
+(defun gui-at-rpc (x y)
+	; (gui-at-rpc x y) -> :nil | str
+	;the title of the window at x y on the screen, the one in front there,
+	;"" if no window is, :nil if the GUI does not answer
+	(when (nempty? (defq service (mail-enquire "@Gui,")))
+		(defq service (hex-decode (second (split (pop service) ",")))
+			mbox (mail-mbox))
+		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
+			(+gui_rpc_type +gui_rpc_type_at)
+			(+gui_rpc_reply_id mbox)
+			(+gui_rpc_owner_id (task-mbox))
+			(+gui_rpc_weak_view 0))
+			(str (list x y))))
+		(mail-read-timeout mbox (task-timeout 10))))
 
 (defun gui-wait (ask secs)
 	; (gui-wait ask secs) -> answer
