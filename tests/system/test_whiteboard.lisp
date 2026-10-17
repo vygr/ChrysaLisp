@@ -39,7 +39,7 @@
 	;till the canvas is let go of. The end of this task does not do that,
 	;its window still holds it, so it is taken out and let go here
 	(split (test-output (cat wa_head " " body
-		" (when *committed* (. *committed* :sub) (setq *committed* :nil))")) (ascii-char 10)))
+		" (when *committed* (. *committed* :sub) (setq *committed* :nil)) (. *board* :release)")) (ascii-char 10)))
 
 ;no view of the window holds one above it: a loop that kept all of it, its
 ;canvases among them, in the node's memory after the app had gone

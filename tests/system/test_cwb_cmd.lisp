@@ -73,7 +73,7 @@
 ;it, time goes by, a tap on the cell that is a box, and what the left button
 ;then draws is a box. Where its cells are is asked of one made the same way,
 ;and a corner of the select cell, off its icon, is where it is dark
-(defq cc_pal (Palette (Board (cwb-doc 800 600)) 320 200)
+(defq cc_pal (Palette (test-release (Board (cwb-doc 800 600))) 320 200)
 	cc_box (map (const n2i) (. cc_pal :where :tool :rect))
 	cc_sel (map (# (+ (n2i %0) %1)) (. cc_pal :where :tool :select) '(-10 10)))
 (save (cat "0 mouse 4 320 200" (ascii-char 10) "0 mouse 0 320 200" (ascii-char 10)

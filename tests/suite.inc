@@ -303,6 +303,17 @@
 ;what a task's end lets go of is let go of, fails, (test-leak-run)
 (defq +test_leak_kb 256)
 
+;what a module made that holds itself round, a board and its stage and
+;actors say, and is let go of only when it is told to, (test-release)
+(defq *test_release* (list))
+
+(defun test-release (obj)
+	; (test-release obj) -> obj
+	;told to let go, (. obj :release), when the module is done, so what it
+	;holds round is not left held on the node, (tests -e)
+	(push *test_release* obj)
+	obj)
+
 (defun test-run-module (file)
 	(defq *test_module* (slice file 6 -6))
 	(env-push)
@@ -311,6 +322,8 @@
 	(if *test_frames* (import "lib/debug/frames.inc"))
 	(catch (import file)
 		(progn (test-fail "module" "to run to the end" _) :t))
+	(each (# (. %0 :release)) *test_release*)
+	(clear *test_release*)
 	(env-pop))
 
 (defun test-held ()
@@ -320,13 +333,17 @@
 	(/ (- used avail) 1024))
 
 (defun test-leak-run (module)
-	;a module run alone, in a task of its own on this node, and what this
-	;node holds before it and after its task has gone: a module that leaves
-	;more held has leaked, Chris: "After each test module we should compare
-	;the memory use before and after"
-	(defq held (test-held) out (list) cmd (cat "echo ! tests -c " module))
+	;a module run alone, in a task of its own on this node, twice: what it
+	;says the first time is counted, and what this node holds before the
+	;second and after its task has gone is compared. More held then is a
+	;leak, what grows each time it is run; what is made once and kept, the
+	;glyphs of a font, is not. Chris: "After each test module we should
+	;compare the memory use before and after"
+	(defq out (list) cmd (cat "echo ! tests -c " module))
 	(pipe-run cmd (# (push out %0)))
 	(test-collect cmd (join out ""))
+	(defq held (test-held))
+	(pipe-run cmd (# %0))
 	(defq more (- (test-held) held))
 	(when (> more +test_leak_kb)
 		(setq *test_module* (slice module 6 -6))

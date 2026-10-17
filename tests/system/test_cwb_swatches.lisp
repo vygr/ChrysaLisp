@@ -20,7 +20,7 @@
 
 ;inks, how see through, none and the cross. A tap is the board's to do,
 ;(. board :pick), for the pen the button that tapped holds
-(defq sw_board (Board (cwb-doc 800 600)) sw_pens (list 0xff000000 0xffffffff))
+(defq sw_board (test-release (Board (cwb-doc 800 600))) sw_pens (list 0xff000000 0xffffffff))
 (def sw_board :pens sw_pens :pen 0)
 (defq sw (Swatches sw_board 400 300))
 (. (. sw_board :get_stage) :add sw)

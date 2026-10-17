@@ -9,7 +9,7 @@
 	(cwb-add doc (cwb-shape (cwb-d-rect 50 50 250 150) :fill 0xffffd070 :stroke 0xff000000 :width 4))
 	(cwb-add doc (cwb-shape (cwb-d "M" 20 200 "L" 380 200) :stroke 0xff0000ff :width 6))
 	(cwb-add doc (cwb-shape (cwb-d-rect 300 20 380 80) :fill 0xff00ff00 :stroke 0))
-	(Board doc))
+	(test-release (Board doc)))
 (defun bt-said (board)
 	; what is on it: the id, fill and stroke of each, and of a group what
 	; is in it
@@ -85,7 +85,7 @@
 (assert-true "and the group has gone with the last thing in it" (not (find bt_g (cwb-items bt_doc))))
 
 ;words
-(defq bt (Board (cwb-doc 400 300)))
+(defq bt (test-release (Board (cwb-doc 400 300))))
 (def bt :rub_mode :bite)
 (cwb-add (. bt :get_doc) (cwb-text {Hello} 50 100 :font_size 40))
 (defq bt_ink (elem-get (first (cwb-items (. bt :get_doc))) +cwb_fill) bt_all (bt-area bt bt_ink))
@@ -98,7 +98,7 @@
 (assert-true "the docs have a picture of it" (nempty? (cwb-items (cwb-load (file-stream "docs/diagrams/wb_bite.cwb")))))
 
 ;all but a sliver gone: the shape is out of the document, and undo has it back
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 120 120) :fill 0xff00ff00 :stroke 0))
 (. bt :add (cwb-shape (cwb-d-rect 200 100 220 120) :fill 0xff00ff00 :stroke 0))
 (. bt :snapshot)
@@ -113,7 +113,7 @@
 	(str (map (# (elem-get %0 +cwb_d)) (cwb-items bt_doc))))
 
 ;first come first served: what one has hold of is theirs till they let go
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
 (def bt :mode :select)
 (defun bt-go (&rest events) (. bt :pointers events))
@@ -136,7 +136,7 @@
 (assert-eq "the one that has it still has it, what is left of it: moved 20 more it is 20 on" "(130 100 230 200)" (str (bt-at)))
 (bt-go (ptr-event 0x1000000 :touch 0 150 250)) (bt-go (ptr-event 0x2000001 :pen 0 180 150))
 ;an eraser that takes all of what is held: the hand has nothing, and moved it does nothing
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 120 120) :fill 0xff00ff00 :stroke 0))
 (def bt :mode :select)
 (bt-go (ptr-event 0x2000001 :pen 1 110 110))
@@ -145,7 +145,7 @@
 (assert-eq "all of it rubbed out of the hand, there is nothing, and no box was dragged out by the hand that had it" "(0 0 0)"
 	(str (list (length (cwb-items bt_doc)) (length (. bt :get_selected)) (. (get :bands bt) :size))))
 ;two fingers turning a thing, and an eraser through it: they go on turning what is left
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
 (def bt :mode :select)
 (bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
@@ -158,7 +158,7 @@
 	(str (list bt_turned (+ (first bt_turned) 10) (+ (third bt_turned) 10)))
 	(str (list bt_bitten (first (bt-at)) (third (bt-at)))))
 ;two fingers of the one device on a thing still move it between them
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
 (def bt :mode :select)
 (bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
@@ -166,7 +166,7 @@
 (assert-true "two fingers of the one device on a thing size it between them, as they did" (> (- (third (bt-at)) (first (bt-at))) 150))
 
 ;the eraser's way is kept as it goes, and one bite of all of it is taken at a tick, or as it lifts: the hand is not kept waiting
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
+(defq bt (test-release (Board (cwb-doc 400 300))) bt_doc (. bt :get_doc))
 (. bt :add (cwb-shape (cwb-d-rect 100 100 300 200) :fill 0xff00ff00 :stroke 0))
 (def bt :mode :eraser)
 (defun bt-d () (cwb-get (first (cwb-items bt_doc)) :d))
@@ -184,7 +184,7 @@
 (. bt :undo)
 (assert-true "and it is all one step, undone it is the box" (eql bt_was (bt-d)))
 ;a long line of many points is thinned before it is bitten: what is left has far fewer points than what it was drawn with
-(defq bt (Board (cwb-doc 1200 600)) bt_doc (. bt :get_doc) bt_pts (list))
+(defq bt (test-release (Board (cwb-doc 1200 600))) bt_doc (. bt :get_doc) bt_pts (list))
 (each (# (push bt_pts (+ 100.0 (* 0.9 (n2f %0))) (+ 300.0 (* 100.0 (sin (* 0.05 (n2f %0))))))) (range 0 1000))
 (. bt :add (cwb-shape (board-pen-d bt_pts) :width 3 :kind :pen))
 (defq bt_n (/ (length (first (second (cwb-flat (first (cwb-items bt_doc)))))) 2))
@@ -198,7 +198,7 @@
 (defq bt_doc (cwb-doc 400 300) bt_box (cwb-shape (cwb-d-rect -60 -20 60 20) :fill 0xff0070ff :stroke 0))
 (cwb-set bt_box :m (Mat3x2-mul (Mat3x2-translate 200 150) (Mat3x2-rot 0.5)))
 (cwb-add bt_doc bt_box)
-(defq bt_t (Board bt_doc) bt_m (elem-get bt_box +cwb_m))
+(defq bt_t (test-release (Board bt_doc)) bt_m (elem-get bt_box +cwb_m))
 (def bt_t :rub_mode :bite)
 (. bt_t :rub_along 200 0 200 300 6.0)
 (defq bt_left (cwb-items (. bt_t :get_doc)))

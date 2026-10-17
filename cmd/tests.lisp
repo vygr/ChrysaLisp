@@ -22,9 +22,11 @@
             One that does not give way for a second or two is
             why a test with a deadline fails now and then.
         -e --leaks: run each module alone, one after another, in
-            a task of its own on this node, and fail one that leaves
-            the node holding more than it did, once what a task's
-            end lets go of is let go of, (kernel-stats :t). Slower.
+            a task of its own on this node, twice, and fail one that
+            leaves the node holding more after its second run than
+            before it, once what a task's end lets go of is let go
+            of, (kernel-stats :t): what grows each time is a leak,
+            what is made once and kept is not. Slower.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
