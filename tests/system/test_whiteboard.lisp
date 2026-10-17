@@ -61,19 +61,19 @@
 ;board's own are as they were to begin with
 (defq wa_reset (wa-run (cat
 	"(.-> (. *board* :get_bindings) (:set :mouse 0 +pev_left :mode :rect) (:set :mouse 0 +pev_left :width 12.0))"
-	"(def *board* :mode :line :pen 3 :width 6.0 :snap_angle 0.5) (setq *style* :plain)"
+	"(def *board* :mode :line :pen 3 :width 6.0 :snap_angle 0.5) (setq *style* :plain) (zoom-set 2.0 0 0)"
 	"(. (. *board* :get_doc) :insert :tools (list)) (. (. *board* :get_stage) :add (Ruler *board* 200 200))"
 	"(wa-do +event_new)"
 	"(defq ev (ptr-event 0 :mouse +pev_left 0 0))"
 	"(defun wa-said () (print (list (. (. *board* :get_bindings) :value ev :mode) (. (. *board* :get_bindings) :value ev :width)"
 	" (get :mode *board*) (get :pen *board*) (get :width *board*) (get :snap_angle *board*)"
-	" (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))) *style*)))"
+	" (length (filter (const Instrument?) (. (. *board* :get_stage) :get_actors))) *style* *zoom*)))"
 	"(wa-said) (wa-do +event_undo) (wa-said) (wa-do +event_redo) (wa-said)")))
 (assert-eq "a new document has the bindings and the board's mode, ink, width and switches as they began, and nothing on it"
-	"(:nil :nil :pen 0 3.00000 0.00000 0 :grid)" (first wa_reset))
+	"(:nil :nil :pen 0 3.00000 0.00000 0 :grid 1.00000)" (first wa_reset))
 (assert-eq "undone, all of it is back as it was, the instrument too"
-	"(:rect 12.00000 :line 3 6.00000 0.50000 1 :plain)" (second wa_reset))
-(assert-eq "and done again, as it began again" "(:nil :nil :pen 0 3.00000 0.00000 0 :grid)" (third wa_reset))
+	"(:rect 12.00000 :line 3 6.00000 0.50000 1 :plain 2.00000)" (second wa_reset))
+(assert-eq "and done again, as it began again" "(:nil :nil :pen 0 3.00000 0.00000 0 :grid 1.00000)" (third wa_reset))
 
 ;what the board is, kept and put back: lines, an instrument turned and set
 ;to draw slices, the toolbars, the zoom. As the app does it when it is

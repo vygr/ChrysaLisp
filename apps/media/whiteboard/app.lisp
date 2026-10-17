@@ -1226,11 +1226,12 @@
 	(defq doc (. *board* :get_doc))
 	(list (get :bindings *board*) (get :settings *board*)
 		(map (# (get %0 *board*)) '(:mode :pen :width :snap :snap_angle :keep_shape))
-		(map (# (. doc :find %0)) '(:tools :menus :swatches :inks)) *style*))
+		(map (# (. doc :find %0)) '(:tools :menus :swatches :inks)) *style*
+		(list *zoom* *pan_x* *pan_y*)))
 
 (defun board-restore (settings)
 	;as they were, (board-capture)
-	(bind '(bindings pointer_settings vals doc_vals style) settings)
+	(bind '(bindings pointer_settings vals doc_vals style seen) settings)
 	(def *board* :bindings bindings :settings pointer_settings)
 	(each (# (def *board* %0 %1)) '(:mode :pen :width :snap :snap_angle :keep_shape) vals)
 	(defq doc (. *board* :get_doc))
@@ -1239,6 +1240,10 @@
 	(setq *style* style *paper_dirty* :t)
 	(. doc :insert :style style)
 	(. *style_toolbar* :set_selected (find style *styles*))
+	;and how it was seen
+	(bind '(zoom px py) seen)
+	(setq *zoom* zoom *zoom_to* :nil *pan_x* px *pan_y* py)
+	(view-changed)
 	(stage-from-doc)
 	(setq *dots_of* :nil)
 	(sync-ui))

@@ -143,6 +143,9 @@
 	(. *style_toolbar* :set_selected (find :grid *styles*))
 	(stage-from-doc)
 	(setq *file* :nil *dots_of* :nil)
+	;seen at 1x, its middle in the middle
+	(setq *zoom* 1.0 *zoom_to* :nil)
+	(view-home)
 	(sync-ui))
 
 (defun action-size ()
