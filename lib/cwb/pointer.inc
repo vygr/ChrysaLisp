@@ -154,6 +154,12 @@
 				(unless rule
 					(. this :bind kind id buttons (cat (ifn (. this :find (list (ifn id 0) kind (ifn buttons 0))) (list))))
 					(setq rule (first (get :rules this))))
+				;a slot holds a pen, or an ink of its own, not both: the one
+				;set puts the other away
+				(when (defq other (case key (:pen :color) (:color :pen)))
+					(when (defq at (ptr-at (elem-get rule 3) other))
+						(defq was (elem-get rule 3))
+						(elem-set rule 3 (cat (slice was 0 (dec at)) (slice was (inc at) -1)))))
 				(defq what (elem-get rule 3) at (ptr-at what key))
 				(if at (elem-set what at value) (push what key value))
 				;a mode is what a pen draws: a rule that was another tool, the
@@ -211,13 +217,16 @@
 	;or with the button on its side held, Chris: "I frequently had left
 	;pen bound to draw and right pen button bound to erase !" The mouse
 	;draws with its left button, moves things with its right and the
-	;board itself with its middle. A finger moves things
+	;board itself with its middle. A finger moves things. A main button
+	;holds the board's first pen, black, a second button its second,
+	;white, which is the fill of what the device draws, Chris: "I would
+	;have left/right default to black/white"
 	(.-> (Bindings)
 		(:bind :nil :nil :nil '(:tool :pen))
 		(:bind :touch :nil :nil '(:tool :hand))
-		(:bind :eraser :nil :nil '(:tool :eraser))
-		(:bind :pen :nil +pev_right '(:tool :eraser))
-		(:bind :mouse :nil +pev_right '(:tool :hand))))
+		(:bind :eraser :nil :nil '(:tool :eraser :pen 1))
+		(:bind :pen :nil +pev_right '(:tool :eraser :pen 1))
+		(:bind :mouse :nil +pev_right '(:tool :hand :pen 1))))
 
 ;;;;;;;
 ; actors

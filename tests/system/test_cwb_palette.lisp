@@ -562,8 +562,8 @@
 (. pt_board :pick_up pt_it +board_teacher)
 (. pt_board :pick pt_right :pen 1) (. pt_board :pick pt_left :width 12.0) (. pt_board :pick pt_left :alpha 0x40)
 (defq pt_shape (first (cwb-find (. pt_board :get_doc) pt_it)))
-(assert-eq "held: the right's pen is its fill, the width its, a quarter see through its outline, and the slots are as they were"
-	(str (list +argb_green 12 0x40000000 9 :nil (first pt_pens)))
+(assert-eq "held: the right's pen is its fill, the width its, a quarter see through its outline, and the slots are as they were, the right holding pen 1 as it began"
+	(str (list +argb_green 12 0x40000000 9 1 (first pt_pens)))
 	(str (list (cwb-get pt_shape :fill) (n2i (cwb-get pt_shape :width)) (cwb-get pt_shape :stroke)
 		(n2i (. pt_b :value pt_left :width)) (. pt_b :value pt_right :pen) (first pt_pens))))
 (. pt_board :select (list))

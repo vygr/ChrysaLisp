@@ -137,6 +137,10 @@
 	;inks, which a document of its own has none of, (stage-from-doc)
 	(def *board* :bindings (bindings-default) :settings (Fmap 11)
 		:mode :pen :pen 0 :width (first *widths*) :snap 0.0 :snap_angle 0.0 :keep_shape :t)
+	;on grid paper
+	(setq *style* :grid *paper_dirty* :t)
+	(. (. *board* :get_doc) :insert :style :grid)
+	(. *style_toolbar* :set_selected (find :grid *styles*))
 	(stage-from-doc)
 	(setq *file* :nil *dots_of* :nil)
 	(sync-ui))
