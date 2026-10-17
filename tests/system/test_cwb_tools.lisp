@@ -682,6 +682,17 @@
 (ep-go (cat (list 0x4000000 :eraser 0) ep_to))
 (assert-eq "an eraser round a protractor's arc, set to a filled slice, rubs out the box inside the slice"
 	0 (length (cwb-items (. ep_board :get_doc))))
+;and only the slice: what is just outside its arc, within the eraser's
+;reach of it, is left, a filled slice rubs out its fill and no band round it
+(defq ep_reach (. ep_board :reach (. (get :bindings ep_board) :value (ptr-event 0x4000000 :eraser 1 0 0) :width (get :width ep_board))))
+(bind '(ep_ox ep_oy) (. ep_pro :to_board ep_cx (- ep_cy ep_r (* 0.5 ep_reach))))
+(. ep_board :add (cwb-shape (cwb-d-rect (- ep_ox 0.5) (- ep_oy 0.5) (+ ep_ox 0.5) (+ ep_oy 0.5)) :fill 0xff000000 :stroke 0))
+(ep-go (cat (list 0x4000000 :eraser 1) ep_from))
+(ep-go (cat (list 0x4000000 :eraser 1) (ep-at (* -0.5 +fp_pi))))
+(ep-go (cat (list 0x4000000 :eraser 1) ep_to))
+(ep-go (cat (list 0x4000000 :eraser 0) ep_to))
+(assert-eq "a filled slice rubs out no further than the slice: what is just outside its arc is left"
+	1 (length (cwb-items (. ep_board :get_doc))))
 ;the same edge, the left button drawing, the right rubbing out, Chris: "I
 ;should be able to have left button drawing, right button erasing"
 (defq eb_board (Board (cwb-doc 800 600)) eb_ruler (Ruler eb_board 400 300))

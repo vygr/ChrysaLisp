@@ -442,8 +442,10 @@
 						(cwb-shape "" :stroke 0xff000000 :kind :line :join :round :cap1 :round :cap2 :round
 							:width (* 2.0 (. board :reach (. (get :bindings board) :value event :width (get :width board)))))
 						(. board :new_shape event :line)))
-				;round an arc, a slice or a circle that is filled is all of it
-				(if filled (if rubs (cwb-set shape :fill 0xff000000) (cwb-set shape :fill (cwb-get shape :stroke) :stroke 0)))
+				;round an arc, a slice or a circle that is filled is all of it,
+				;and no more: the fill alone, drawn or rubbed out, not a band
+				;of the pen's or the eraser's width round its edge
+				(if filled (cwb-set shape :fill (if rubs 0xff000000 (cwb-get shape :stroke)) :stroke 0))
 				(elem-set state +tool_state_shape shape)
 				;what rubs out is shown as the eraser is, "keep same look as the
 				;freehand erase look", and is let go of as it is rubbed out
