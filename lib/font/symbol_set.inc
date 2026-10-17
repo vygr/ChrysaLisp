@@ -237,10 +237,12 @@
 	;spots of paint, and the hole for the thumb
 	(list "palette" (cat (s-ring 12 12 9) (s-disc 8 9.5 1.6) (s-disc 12 6.5 1.6) (s-disc 16 9.5 1.6)
 		(s-ring 15 15.5 2)))
-	;a ring menu, its middle and its ring of wedges
-	(list "ring_menu" (cat (s-ring 12 12 9) (s-ring 12 12 3.5)
-		(s-line 12 3 12 8.5) (s-line 12 15.5 12 21) (s-line 4.2 7.5 9 10.2) (s-line 15 13.8 19.8 16.5)
-		(s-line 19.8 7.5 15 10.2) (s-line 9 13.8 4.2 16.5)))))
+	;a menu of the board: a panel, its bar across the top with its cross,
+	;and rows of cells under it
+	(list "menu" (cat (s-rrect 3 3 21 21 2) (s-line 3 8 21 8)
+		(s-line 16 4.5 18.5 6.5) (s-line 18.5 4.5 16 6.5)
+		(s-box 6 11 9 14) (s-box 10.5 11 13.5 14) (s-box 15 11 18 14)
+		(s-box 6 16 9 19) (s-box 10.5 16 13.5 19) (s-box 15 16 18 19)))))
 
 ;;;;;;;;;;;;
 ; the themes

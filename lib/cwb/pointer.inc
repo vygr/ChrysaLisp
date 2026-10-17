@@ -25,6 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././collections/collections.inc")
+(import "././math/polygon.inc")
 
 ;an event of a pointer, a list
 (enums +pev 0
@@ -225,15 +226,79 @@
 (defclass Actor () :nil
 	; (Actor) -> actor
 	;something on a stage that pointers can be on. It keeps what it likes
-	;for each pointer it has, by the pointer's id
-	(def this :states (Fmap 11))
+	;for each pointer it has, by the pointer's id.
+	;
+	;Where it can be touched is its zones: lists of polygons in its own
+	;space, each named for what a pointer that lands there is to do, its
+	;body, the band along an edge, a bar to drag it by, (:zones). Their
+	;union is its outline, all of where it is, made once and kept, and
+	;made again when its zones change, (:zones_changed), or what they
+	;depend on, (:zones_key). A point is its if it is in that outline,
+	;(:hit), and then which zone it is in says what it is to do, (:zone_at)
+	(def this :states (Fmap 11) :claim :nil)
+
+	(defmethod :zones ()
+		; (. actor :zones) -> ((name polygons) ...)
+		;its zones in its own space, the first that has a point says what
+		;the point is on. A polygon a path, or a list of x y
+		(list))
+
+	(defmethod :zones_key ()
+		; (. actor :zones_key) -> key
+		;what its zones depend on but its own make, how big it is seen say.
+		;The outline is made again when this is not what it was
+		:nil)
+
+	(defmethod :zones_changed ()
+		; (. actor :zones_changed) -> actor
+		;its zones are not what they were, the outline is made again
+		(def this :claim :nil)
+		this)
+
+	(defmethod :to_own (x y)
+		; (. actor :to_own x y) -> (x y)
+		;a point of the stage in its own space
+		(list x y))
+
+	(defmethod :claim ()
+		; (. actor :claim) -> (key zones outline box)
+		;its zones as paths, their union, and the box round that
+		(defq key (. this :zones_key) claim (get :claim this))
+		(unless (and claim (eql (first claim) key))
+			(defq zones (map (lambda ((name polys))
+					(list name (map (# (if (list? %0) (apply (const path) %0) %0)) polys)))
+					(. this :zones))
+				all (apply (const cat) (map (const second) zones))
+				outline (if (nempty? all) (poly-union all (list) 1) (list))
+				box :nil)
+			(each (lambda (poly)
+					(each (lambda ((x y))
+							(setq box (if box (list (min x (first box)) (min y (second box)) (max x (third box)) (max y (elem-get box 3)))
+								(list x y x y))))
+						(partition poly 2)))
+				outline)
+			(def this :claim (setq claim (list key zones outline box))))
+		claim)
 
 	(defmethod :hit (x y &optional event)
 		; (. actor :hit x y [event]) -> :t | :nil
 		;is a point on it, the point is in the space of the stage, and is
 		;the contact its own, by its own rules, with the event of the
-		;contact as it lands: the stage asks, it tests nothing itself
-		:nil)
+		;contact as it lands: the stage asks, it tests nothing itself. By
+		;its outline, a box round it first
+		(bind '(& & outline box) (. this :claim))
+		(when box
+			(bind '(lx ly) (. this :to_own x y))
+			(bind '(bx by bx1 by1) box)
+			(and (>= lx bx) (<= lx bx1) (>= ly by) (<= ly by1)
+				(vector-point-in-polygon (path lx ly) outline +winding_none_zero))))
+
+	(defmethod :zone_at (lx ly)
+		; (. actor :zone_at lx ly) -> :nil | name
+		;the first of its zones a point of its own space is in
+		(bind '(& zones &ignore) (. this :claim))
+		(defq p (path lx ly))
+		(some (lambda ((name polys)) (if (vector-point-in-polygon p polys +winding_none_zero) name)) zones))
 
 	(defmethod :pointers (stage events)
 		; (. actor :pointers stage events) -> actor

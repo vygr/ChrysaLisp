@@ -54,7 +54,7 @@
 			(:paper :paper_toolbar2)) :connect +event_mode)
 		(. (ui-radio-bar *radius_toolbar* (+sym_small +sym_medium +sym_large)) :connect +event_radius)
 		(ui-tool-bar *tool_toolbar* (:paper :paper_toolbar2)
-			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_ring_menu +sym_palette) +event_ruler))
+			(ui-buttons (+sym_ruler +sym_protractor +sym_full_protractor +sym_set_square +sym_set_square45 +sym_menu +sym_palette) +event_ruler))
 		(. (ui-textfield *text_field* (:paper +argb_white :hint_text "words to put down" :clear_text ""
 			:min_width 160)) :connect +event_text))
 	(ui-flow _ (:flow_flags +flow_right_fill)

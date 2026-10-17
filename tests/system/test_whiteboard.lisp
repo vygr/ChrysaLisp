@@ -590,10 +590,10 @@
 	;the menu's window cell asks, and it is done on the next tick
 	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
 	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print (list on off (rest w1)))")))
-(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 43 cells on the menu, the sixteen pens, the swatches and the cross among them. Made all of the screen and back it is that again, and the menu's window cell asked for it"
-	"(:t :t (5 (400 300) :nil :nil 43))" (first wa_out))
+(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 42 cells on the menu, the sixteen pens, the three widths of the toolbar, the swatches and the cross among them. Made all of the screen and back it is that again, and the menu's window cell asked for it"
+	"(:t :t (5 (400 300) :nil :nil 42))" (first wa_out))
 (assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more cell on the menu, the window back"
-	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 44))" (second wa_out))
+	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 43))" (second wa_out))
 
 ;the board turned a quarter, about the middle of the paper, which is then the other way up
 (defq wa_out (wa-run (cat

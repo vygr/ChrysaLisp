@@ -69,8 +69,20 @@
 				cells (map (lambda ((what val cx0 cy0 cx1 cy1))
 					(list what val (+ cx0 dx) (+ cy0 dy) (+ cx1 dx) (+ cy1 dy))) inner))
 			(push cells (list :close :nil (- (* 0.5 w) 2.0 +panel_bar) (+ y0 2.0) (- (* 0.5 w) 2.0) (+ y0 2.0 +panel_bar)))
-			(def this :cells cells :size (list w h)))
+			(def this :cells cells :size (list w h))
+			(. this :zones_changed))
 		(get :cells this))
+
+	(defmethod :zones ()
+		; (. panel :zones) -> ((name polygons) ...)
+		;its cross, the bar it is dragged by, and all of it
+		(bind '(& & cx0 cy0 cx1 cy1) (last (. this :get_cells)))
+		(bind '(w h) (get :size this))
+		(defq x0 (* -0.5 w) y0 (* -0.5 h) x1 (* 0.5 w) y1 (* 0.5 h) by1 (+ y0 +panel_bar 2.0))
+		(list
+			(list :close (list (list cx0 cy0 cx1 cy0 cx1 cy1 cx0 cy1)))
+			(list :bar (list (list x0 y0 x1 y0 x1 by1 x0 by1)))
+			(list :frame (list (list x0 y0 x1 y0 x1 y1 x0 y1)))))
 
 	(defmethod :to_own (x y)
 		; (. panel :to_own x y) -> (x y)
@@ -89,8 +101,7 @@
 					(bind '(& & x0 y0 x1 y1) cell)
 					(and (>= px x0) (< px x1) (>= py y0) (< py y1) cell))
 				(. this :get_cells)))
-			((bind '(w h) (get :size this))
-				(and (<= (abs px) (* 0.5 w)) (<= (* -0.5 h) py (+ (* -0.5 h) +panel_bar 2.0)) :bar))))
+			((eql (. this :zone_at px py) :bar) :bar)))
 
 	(defmethod :where (what &optional val)
 		; (. panel :where what [val]) -> :nil | (x y)
@@ -117,11 +128,8 @@
 
 	(defmethod :hit (x y &optional event)
 		; (. panel :hit x y) -> :t | :nil
-		(unless (get :shut this)
-			(. this :get_cells)
-			(bind '(px py) (. this :to_own x y))
-			(bind '(w h) (get :size this))
-			(and (<= (abs px) (* 0.5 w)) (<= (abs py) (* 0.5 h)))))
+		;by its outline, till it is shut
+		(unless (get :shut this) (.super this :hit x y event)))
 
 	(defmethod :tap (cell event)
 		; (. panel :tap cell event) -> panel

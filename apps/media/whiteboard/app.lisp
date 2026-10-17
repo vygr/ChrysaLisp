@@ -217,7 +217,8 @@
 ;tap there is a dot: menus float, made from the toolbar, (action-menu).
 ;Chris: "A tap on the canvas did leave a dot as I didn't have a pop up
 ;menu on the canvas"
-(def *board* :pens *palette* :pen 0 :on_pens (# (pens-shown)))
+;the menus offer the widths the toolbar does
+(def *board* :pens *palette* :pen 0 :on_pens (# (pens-shown)) :menu_widths *widths*)
 ;a ring menu opens the swatches, a menu of the inks to fill a pen with
 (def *board* :on_swatches (# (swatches-open %0 %1)))
 
