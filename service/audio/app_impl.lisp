@@ -51,9 +51,10 @@
 						(defq handle (getf msg +audio_remove_handle))
 						(audio-reply (cond
 							((<= (. refs_map :update handle (# (dec %0))) 0)
-								;last ref has gone
+								;last ref has gone, and with it all that is kept of it
 								(. file_map :erase (. handle_map :find handle))
 								(. handle_map :erase handle)
+								(. refs_map :erase handle)
 								(audio-raw remove handle))
 							(0)))))))
 		((ffi "service/audio/lisp_deinit"))
