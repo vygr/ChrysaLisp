@@ -32,7 +32,15 @@
 
 	(defmethod :action (data)
 		; (. scroll :action data) -> scroll
-		(.-> this :layout (:set_flags +view_flag_dirty_all +view_flag_dirty_all)))
+		;scrolled, what is in it moved and drawn again where it now is, its
+		;lists of draws kept; the sliders are what changed
+		(defq redraw (logand (. this :get_flags) +view_flag_redraw))
+		(.-> this :layout (:set_flags +view_flag_dirty_all +view_flag_dirty_all)
+			(:set_flags redraw +view_flag_redraw))
+		(raise :hslider :vslider)
+		(if hslider (. hslider :dirty))
+		(if vslider (. vslider :dirty))
+		this)
 
 	(defmethod :constraint ()
 		; (. scroll :constraint) -> (width height)
