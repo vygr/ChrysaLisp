@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 178
-	:height 259
+	:height 242
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 18
+	:next_id 17
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 15)
+					((:list 14)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 225 A 8 8 0 0 1 143.42114 233 L 8 233 A 8 8 0 0 1 0 225 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 208 A 8 8 0 0 1 143.42114 216 L 8 216 A 8 8 0 0 1 0 208 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -213,7 +213,7 @@
 							:stroke
 							0
 							:text
-							:devices
+							:find
 							:font_size
 							12
 							:pos
@@ -233,7 +233,7 @@
 							:stroke
 							0
 							:text
-							:find
+							:set
 							:font_size
 							12
 							:pos
@@ -253,7 +253,7 @@
 							:stroke
 							0
 							:text
-							:set
+							:unbind
 							:font_size
 							12
 							:pos
@@ -273,33 +273,13 @@
 							:stroke
 							0
 							:text
-							:unbind
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								202.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							17
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
 							:value
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								219.00000
+								202.00000
 							)
 						)
 					)

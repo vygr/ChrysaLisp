@@ -162,6 +162,29 @@ shown. A pen not seen yet is given its user, a student counted as
 it is first seen
 ```
 
+### :device_uses
+
+```code
+(. board :device_uses) -> ((what slot uses) ...)
+
+each device and button there is a rule of its own for, every one
+the board has seen, and the mouse's two buttons, which are always
+there, once by its place: what it is bound to, and what it uses,
+:mode :width :pen. What it bound itself, else the board's: its mode
+where it draws, a hand's is select and the eraser's the eraser; a
+second button's pen is the fill of what its device draws. The bars
+and the floating menus show the same squares from it
+```
+
+### :devices_seen
+
+```code
+(. board :devices_seen) -> ((kind id buttons) ...)
+
+every device and button that has pressed on the board. A pen has
+two ends: a pen seen is both, and its other end, an eraser
+```
+
 ### :dirty?
 
 ```code
@@ -378,7 +401,9 @@ the layer that is drawn on, the top one unless one was chosen
 (. board :new width height) -> board
 
 an empty board of that size, as a step that can be undone: an
-hour's work is not lost to one press in the wrong place
+hour's work is not lost to one press in the wrong place. A whole
+step, (:whole_step): what is not the document, what whoever shows
+the board keeps, is put back by its undo too
 ```
 
 ### :new_shape
@@ -460,6 +485,18 @@ pen, but if you have selected items you changing there colours".
 selected, and that user's
 ```
 
+### :place_new
+
+```code
+(. board :place_new actor) -> actor
+
+an actor that is new, a menu or an instrument, put on the stage
+all of it where it is seen, :view_box (x y x1 y1) of the document as
+whoever shows the board says, moved in from an edge it is over.
+Where it lies is its :origin. Not one put back where it was, which
+may be out of sight on purpose
+```
+
 ### :pointer_free?
 
 ```code
@@ -516,18 +553,6 @@ whatever the zoom, as an instrument is the size it is
 
 ```code
 (. board :redo) -> :t | :nil
-```
-
-### :release
-
-```code
-(. board :release) -> board
-
-let go of what holds the board as the board holds it: its stage
-holds its actors and each of them the board, round, which the count
-of who holds a thing never lets go of, Chris: "if it points back at
-itself it needs to break that cycle when it quits ! else it will
-leak". Each actor lets go of the board, the stage of them all
 ```
 
 ### :remove
@@ -677,6 +702,15 @@ what is about to be done can be undone
 the layers as they are, and the size of the paper, to go back to
 ```
 
+### :step_to
+
+```code
+(. board :step_to state other) -> board
+
+back or on to a state, what is now kept on the other stack. A whole
+step, (:whole_step), keeps and puts back all of it, on both stacks
+```
+
 ### :style
 
 ```code
@@ -820,6 +854,17 @@ user. SDL3 gives the other end of a pen as an :eraser, so here that
 is the teacher's whoever's pen it is
 A board that joined another's is a student's: what is the teacher
 here is that board's own number, :user_base, see lib/cwb/share.inc
+```
+
+### :whole_step
+
+```code
+(. board :whole_step) -> board
+
+the last step taken is of everything: an undo is of the document
+and no more, but of this step it puts back all that :on_capture
+gave as it was taken, by :on_restore. A new document, which makes
+every device and the board's own settings as they began
 ```
 
 ### :written

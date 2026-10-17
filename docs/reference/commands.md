@@ -711,7 +711,11 @@ Usage: input [options] action ...
     actions, done in order. A place, x y, is from the top left of
     the window, or of the view found, and is its middle if left
     out. A view out of sight, scrolled away, is not clicked; turn
-    the wheel over what it is in first, as a user would:
+    the wheel over what it is in first, as a user would. The window
+    of -t is put in front of the others first, as a click on it would.
+    A place that is not on that window, outside it or under one kept
+    in front, is not clicked: it says what window the place is on,
+    and does nothing more:
         move x y: the mouse to there.
         click [x y], rclick [x y], dclick [x y]: a click of the
             left button, of the right, two of the left.
@@ -1058,6 +1062,11 @@ Usage: rack [options] "command line"
             session before the one that runs the command.
         -l --leave machines: machines to bring level and not run on, as
             sync lists them, arm64/Linux, with a , between.
+        -x --skip machines: machines not to touch at all, not brought
+            level and not run on, a guest's in the mesh say, the same way.
+        -o --only ids: the only machines to touch, the start of the
+            system id of each, mesh lists them, with a , between: one's
+            own rig, with machines of others in the mesh.
         -d --delete paths: files to remove on the other machines, with
             a : between.
         -u --user name: the sessions are that user's, a folder of usr/,
@@ -1424,7 +1433,11 @@ Usage: sync [options]
     over the links between them. Only what differs is sent. What the
     .gitignore of the tree leaves out is not sent, or removed.
 
-    A machine only takes a sync if it was told to, sync -a.
+    A machine only takes a sync if it was told to, sync -a, and then
+    only from itself, from the machines named in the file sync_from at
+    its root, a system id a line, its rig, and by the herd: a tree that
+    is exactly at a waypoint, with no .git, from one at a newer one, see
+    the waypoint command. From any other it is refused.
 
     With no options, list the machines that will take one.
 
@@ -1481,6 +1494,12 @@ Usage: tests [options] [path] ...
             from running on each node, while the modules ran.
             One that does not give way for a second or two is
             why a test with a deadline fails now and then.
+        -e --leaks: run each module alone, one after another, in
+            a task of its own on this node, twice, and fail one that
+            leaves the node holding more after its second run than
+            before it, once what a task's end lets go of is let go
+            of, (kernel-stats :t): what grows each time is a leak,
+            what is made once and kept is not. Slower.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
@@ -1622,6 +1641,27 @@ Usage: vpstats [options] [path] ...
 
     If no paths given on command line
     then will take paths from stdin.
+```
+## waypoint
+```code
+Usage: waypoint [options]
+
+    options:
+        -h --help: this help info.
+        -c --check: say where the tree is, and change nothing.
+
+    Note the waypoint this machine's tree is at, the file waypoint at
+    its root: the commit git has it at, when that was made, read from
+    .git, and the top of its tree of hashes. Run it when the tree is exactly a commit of master or of
+    a release, after a git pull.
+
+    Only a tree that is exactly at its waypoint takes part in the herd,
+    a sync to or from a machine that is not one of its own: a tree with
+    a change of its own since is not, and nothing is pushed to it or
+    taken from it. Pull and note the waypoint again and it is back.
+    lib/sync/sync.inc, Who takes a sync.
+
+    With -c, the waypoint it was last at and if it is still exactly that.
 ```
 ## wc
 ```code

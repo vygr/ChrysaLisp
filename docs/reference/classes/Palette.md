@@ -28,7 +28,9 @@ marked, or on a floating one a square of each device that holds it
 ```code
 (. palette :devices) -> ((color what slot) ...)
 
-the dots of the devices, (. bindings :devices), each in its place
+the squares of the devices, each in its place, as the bars show
+them: what each uses, its own or the board's, (. board :device_uses),
+then what it bound, for its colour and its switches
 ```
 
 ### :dismiss

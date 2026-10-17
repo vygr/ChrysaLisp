@@ -369,7 +369,10 @@ how a board starts out. A pen draws, and rubs out with its other end
 or with the button on its side held, Chris: "I frequently had left
 pen bound to draw and right pen button bound to erase !" The mouse
 draws with its left button, moves things with its right and the
-board itself with its middle. A finger moves things
+board itself with its middle. A finger moves things. A main button
+holds the board's first pen, black, a second button its second,
+white, which is the fill of what the device draws, Chris: "I would
+have left/right default to black/white"
 ```
 
 ### bit-mask
@@ -3210,6 +3213,15 @@ of a program, onto the lines of whoever calls
 start children till the herd is the size the worker nodes call for
 ```
 
+### gui-at-rpc
+
+```code
+(gui-at-rpc x y) -> :nil | str
+
+the title of the window at x y on the screen, the one in front there,
+"" if no window is, :nil if the GUI does not answer
+```
+
 ### gui-grab-rpc
 
 ```code
@@ -3233,11 +3245,12 @@ as if from the host's mouse and keyboard, in order, before it answers
 ### gui-locate-rpc
 
 ```code
-(gui-locate-rpc [title key value]) -> :nil | why | (x y w h sx sy sw sh)
+(gui-locate-rpc [title key value front]) -> :nil | why | (x y w h sx sy sw sh)
 
 where on the screen the window whose title has title in it is, or the
 first in it whose key is value if a key is given, as (ui-find) finds it,
-and the part of it that can be seen, why if none of it can
+and the part of it that can be seen, why if none of it can. With front
+the window is put in front of the others first
 ```
 
 ### gui-owners-rpc
@@ -3977,6 +3990,19 @@ heard from has no system id, all zero.
 (long-to-hex-str num) -> str
 ```
 
+### loops
+
+```code
+(loops obj [kids]) -> ((holder key) ...)
+
+each place under obj that holds obj or something between it and
+obj: the holder, an environment or a list, and the key or the index
+it is at. What is under a thing is its properties, if it is an
+environment, its elements, if it is a list, and what kids gives of it,
+(kids thing) -> things, the children of a view say. A function is not
+looked in, nor what was looked in already by another way down
+```
+
 ### lz4-compress
 
 ```code
@@ -4555,6 +4581,15 @@ the tokens they open at, outermost first
 
 ```code
 (opt-nums cnt 'opt_var) -> args
+```
+
+### opt-pair
+
+```code
+(opt-pair 'opt_var sep) -> args
+
+the arg split at the first sep, (key value), so the value may hold
+one, text== is ("text" "="). With no sep in it, (key)
 ```
 
 ### opt-str
@@ -5412,7 +5447,7 @@ the form has no space or tab in it, a node's args are split at those
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone user tree gui all]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user tree gui all skip only]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make and
@@ -5422,8 +5457,13 @@ made the same. gone is paths to remove on the others. tree is the one
 that is sent, default the system's own, the test of this sends a small
 one. With gui the session is a desktop, see rack-fresh. cmdline may be
 several, with a ; between, run one after another. With all every line a
-session said comes back, not only those of how it went. The lines are SYNC and GONE for each other machine, RAN for each
-machine, and DONE
+session said comes back, not only those of how it went. skip is the
+machines not to touch at all, not made the same and not run on: one
+that is not ours, in the mesh as a guest. only, if given, is the
+machines to touch, the start of a system id each, and no other: our
+own rig, with guests in the mesh of any kind. The lines are SYNC and GONE
+for each other machine, SKIP for each skipped, RAN for each machine,
+and DONE
 ```
 
 ### range
@@ -8330,6 +8370,26 @@ they overlap, a disc on the end of a stroke did
 (sym? form) -> :t | :nil
 ```
 
+### sync-clean
+
+```code
+(sync-clean root [kept top]) -> :nil | (commit time top)
+
+the waypoint a tree is at, if it is exactly that and changed in
+nothing since, :nil if it has none or is not. top, if it is known
+```
+
+### sync-from
+
+```code
+(sync-from node said root kept me [named]) -> :rig | :herd | :no
+
+what a machine may do here, by who it is and the waypoint it says it
+is at: anything, if it is this machine or one named; as the herd, if
+this tree is at a waypoint, has no .git, and it is at a newer one; or
+nothing
+```
+
 ### sync-hear
 
 ```code
@@ -8382,6 +8442,23 @@ task that stays, a service. The file is then read the once, and is
 what is there when the task starts again
 ```
 
+### sync-named
+
+```code
+(sync-named [file]) -> (system_id ...)
+
+the machines named in this machine's sync_from, or that file, each the
+32 hex digits of a system id on a line of its own
+```
+
+### sync-of?
+
+```code
+(sync-of? node systems) -> :t | :nil
+
+is a node one of the machines of those system ids
+```
+
 ### sync-push
 
 ```code
@@ -8394,7 +8471,8 @@ here is removed. send and gone are the paths that differ, and the ones
 only there. A file is given the mode it has here, who may read, write
 and run it, and one that is the same but for its mode has that set,
 unless no_modes, for a host that has no such thing. :nil if the
-service does not answer, :old if it is from before there were trees
+service does not answer, :old if it is from before there were trees,
+:refused if it takes nothing from this one, (Who takes a sync)
 ```
 
 ### sync-root
@@ -8451,6 +8529,16 @@ the machines that will take a sync, as their services say
 a message to a sync service
 ```
 
+### sync-top
+
+```code
+(sync-top root [kept]) -> hash
+
+the top of the tree of hashes of a tree, by its own .gitignore, and
+never with what is the machine's own and not the tree's: its
+waypoint, who it takes a sync from, its key
+```
+
 ### sync-tree
 
 ```code
@@ -8468,6 +8556,21 @@ and live are as (sync-list) has them
 
 every file under the root that the rules do not leave out, each a
 path from the root, in order
+```
+
+### sync-waypoint
+
+```code
+(sync-waypoint root) -> :nil | (commit time top)
+
+the waypoint a tree was last at, as its file waypoint says: the commit,
+when it was made, and the top of the tree of hashes it had then
+```
+
+### sync-waypoint-text
+
+```code
+(sync-waypoint-text commit time top) -> str
 ```
 
 ### task-band
@@ -9198,6 +9301,15 @@ the point of a line nearest a point, and how far along it that is, 0 to 1
 
 ```code
 (view-locate w h [flag]) -> (x y w h)
+```
+
+### view-loops
+
+```code
+(view-loops view) -> ((holder key) ...)
+
+(loops) of a tree of views, a view's children under it. An app's
+window should have none
 ```
 
 ### view-resolve
