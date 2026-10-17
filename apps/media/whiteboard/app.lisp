@@ -1379,8 +1379,6 @@
 	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
-	;the board, its stage and its actors hold one another, and are let go
-	(. *board* :release)
 	(gui-sub-rpc *window*)
 	(if *committed* (. *committed* :free))
 	(profile-report "Whiteboard App"))

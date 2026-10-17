@@ -50,7 +50,7 @@
 (defclass Panel (board x y) (Actor)
 	; (Panel board x y) -> panel
 	;about a point of the document
-	(def this :board board :origin (list (n2f x) (n2f y)) :hover :nil :cells :nil :shut :nil)
+	(def this :board (weak-ref board) :origin (list (n2f x) (n2f y)) :hover :nil :cells :nil :shut :nil)
 
 	(defmethod :layout ()
 		; (. panel :layout) -> (cells w h)
@@ -89,7 +89,7 @@
 		;a point of the document, about the middle, at the size it is on the
 		;screen, the right way up whichever way the board is turned
 		(bind '(ox oy) (get :origin this))
-		(defq zoom (get :zoom (get :board this)) turn (get :view_turn (get :board this)))
+		(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
 		(Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
 
 	(defmethod :cell_at (px py)
@@ -113,7 +113,7 @@
 				(. this :get_cells)))
 			(bind '(ox oy) (get :origin this))
 			(bind '(& & x0 y0 x1 y1) cell)
-			(defq zoom (get :zoom (get :board this)) turn (get :view_turn (get :board this)))
+			(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
 			(bind '(px py) (Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot (neg turn)))
 				(* 0.5 (+ x0 x1)) (* 0.5 (+ y0 y1))))
 			(list (+ ox (/ px zoom)) (+ oy (/ py zoom)))))
@@ -122,8 +122,8 @@
 		; (. panel :close) -> panel
 		(unless (get :shut this)
 			(def this :shut :t :hover :nil)
-			(. (. (get :board this) :get_stage) :sub this)
-			(. (get :board this) :touch +board_dirty_overlay))
+			(. (. (obj-ref (get :board this)) :get_stage) :sub this)
+			(. (obj-ref (get :board this)) :touch +board_dirty_overlay))
 		this)
 
 	(defmethod :hit (x y &optional event)
@@ -154,7 +154,7 @@
 					(cond
 						((list? was) (. this :hot cell))
 						(:t (def this :origin (list (+ ox (- x sx)) (+ oy (- y sy))))
-							(. (get :board this) :touch +board_dirty_overlay))))
+							(. (obj-ref (get :board this)) :touch +board_dirty_overlay))))
 				(state
 					(. this :set_state pid :nil)
 					(. this :hot :nil)
@@ -170,7 +170,7 @@
 		; (. panel :hot cell) -> panel
 		(unless (eql cell (get :hover this))
 			(def this :hover cell)
-			(. (get :board this) :touch +board_dirty_overlay))
+			(. (obj-ref (get :board this)) :touch +board_dirty_overlay))
 		this)
 
 	(defmethod :leave (stage pid)
@@ -193,7 +193,7 @@
 
 	(defmethod :draw (canvas &optional m)
 		; (. panel :draw canvas [m]) -> panel
-		(defq board (get :board this) hover (get :hover this)
+		(defq board (obj-ref (get :board this)) hover (get :hover this)
 			turn (get :view_turn board) cells (. this :get_cells) state (. this :draw_state))
 		(bind '(ox oy) (get :origin this))
 		(bind '(w h) (get :size this))

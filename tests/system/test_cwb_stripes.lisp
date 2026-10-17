@@ -20,7 +20,7 @@
 	(st-bytes canvas))
 
 ;what a copy needs to be in step, with no nodes at all
-(defq st_board (test-release (Board (cwb-doc 400 300))) st_doc (. st_board :get_doc) st_log (list))
+(defq st_board (Board (cwb-doc 400 300)) st_doc (. st_board :get_doc) st_log (list))
 (. st_board :add (cwb-shape (cwb-d-rect 10 10 60 40) :fill 0xffff0000))
 (. st_board :add (cwb-shape (cwb-d-line 0 0 100 100)))
 (. st_board :add (cwb-group (list (cwb-shape (cwb-d-ellipse 200 150 30)) (cwb-text "Hi" 250 150))))
@@ -82,7 +82,7 @@
 	((< (length (lisp-nodes :t)) 2) (test-skip "stripes drawn by the nodes" "there is one node"))
 	(:t
 		(. st_shared :set_canvas_flags +canvas_flag_antialias)
-		(defq st_board (test-release (Board (cwb-doc 640 480))) st_doc (. st_board :get_doc) st_stripes (Stripes st_board 3)
+		(defq st_board (Board (cwb-doc 640 480)) st_doc (. st_board :get_doc) st_stripes (Stripes st_board 3)
 			st_timer (mail-mbox) st_select (cat (. st_stripes :mboxes) (list st_timer)))
 		;240 shapes, of every kind, all over it, and no more than three
 		;children, other tests are running

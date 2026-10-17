@@ -68,7 +68,7 @@
 
 	(defmethod :tap (cell event)
 		; (. swatches :tap cell event) -> swatches
-		(. (get :board this) :pick event (elem-get cell +cell_what) (elem-get cell +cell_val))
+		(. (obj-ref (get :board this)) :pick event (elem-get cell +cell_what) (elem-get cell +cell_val))
 		this)
 
 	(defmethod :tip (cell)

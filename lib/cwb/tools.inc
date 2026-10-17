@@ -182,7 +182,7 @@
 	;				up from level. One with a turn is written turned by
 	;				that, and says the angle that much on: a ruler seen
 	;				from its other side
-	(def this :board board :origin (list (n2f x) (n2f y)) :angle 0.0
+	(def this :board (weak-ref board) :origin (list (n2f x) (n2f y)) :angle 0.0
 		:length 400.0 :min_length 150.0 :max_length 2000.0 :readouts (list) :said :nil
 		;it is the size it is on the screen, whatever the zoom the board
 		;is seen at: it lies on the glass, it is not of the document
@@ -202,7 +202,7 @@
 		;screen whatever the zoom, and the lines of the paper, where the
 		;zoom rests, are the grid apart on the screen and half of it. The
 		;inches of a ruler are inches by these, and lie on no line
-		(defq board (get :board this) doc (and board (. board :get_doc)))
+		(defq board (obj-ref (get :board this)) doc (and board (. board :get_doc)))
 		(/ (* +tool_grid_cm (n2f (ifn (and doc (. doc :find :grid)) 32))) 10.0))
 
 	(defmethod :rebuild ()
@@ -247,13 +247,13 @@
 					(get :glyphs this))))
 		(def this :dotted :nil)
 		(. this :zones_changed)
-		(. (get :board this) :touch +board_dirty_overlay)
+		(. (obj-ref (get :board this)) :touch +board_dirty_overlay)
 		this)
 
 	(defmethod :zones_key ()
 		; (. instrument :zones_key) -> num
 		;how big it is seen, which how wide the band along an edge is is of
-		(* (get :zoom (get :board this)) (get :size this)))
+		(* (get :zoom (obj-ref (get :board this))) (get :size this)))
 
 	(defmethod :zones ()
 		; (. instrument :zones) -> ((name polygons) ...)
@@ -271,7 +271,7 @@
 		;its own space. Made again only when it, or how big it is seen, is
 		;not what it was. :nil for an edge that is not one of its now
 		(unless (get :body this) (. this :built))
-		(defq by (* (get :zoom (get :board this)) (get :size this)) kept (get :dotted this))
+		(defq by (* (get :zoom (obj-ref (get :board this))) (get :size this)) kept (get :dotted this))
 		(unless (and kept (= (first kept) by))
 			(def this :dotted (setq kept (list by (map (lambda (edge)
 				(defq out (list))
@@ -306,7 +306,7 @@
 		;the 0 on a line, and it level or upright, each centimetre is on
 		;one. Chris: "yes, snap the 0 mark to the grid when snap is on"
 		(unless (get :body this) (. this :built))
-		(defq board (get :board this) zero (def? :zero this) step (cond ((not board) 0.0) (event (first (. board :pointer_settings event))) ((get :snap board))))
+		(defq board (obj-ref (get :board this)) zero (def? :zero this) step (cond ((not board) 0.0) (event (first (. board :pointer_settings event))) ((get :snap board))))
 		(when (and zero (/= step 0.0))
 			(bind '(zx zy) (. this :to_board (first zero) (second zero)))
 			(bind '(ox oy) (get :origin this))
@@ -327,7 +327,7 @@
 		;and the point of the edge that is nearest
 		;the nearest, and of two as near the first, so the order they are
 		;given in says which has a corner where two meet
-		(defq band (/ +tool_band (* (get :zoom (get :board this)) (get :size this))) best :nil best_d (+ band 0.001))
+		(defq band (/ +tool_band (* (get :zoom (obj-ref (get :board this))) (get :size this))) best :nil best_d (+ band 0.001))
 		(each (lambda (edge)
 			(defq near (. this :on_edge edge x y) dx (- x (first near)) dy (- y (second near))
 				d (sqrt (+ (* dx dx) (* dy dy))))
@@ -388,7 +388,7 @@
 
 	(defmethod :begin (stage event)
 		; (. instrument :begin stage event) -> state
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(lx ly) (. this :to_own x y))
 		(defq near (. this :edge_near lx ly) region (. this :part_at lx ly)
@@ -471,18 +471,18 @@
 		;to the front of the instruments on a stage, or to the back of
 		;them. They stay in front of the board's own, the canvas, the things
 		;and their handles, and behind what else is there, a palette
-		(defq board (get :board this) own (list (get :surface board) (get :things board) (get :handles board))
+		(defq board (obj-ref (get :board this)) own (list (get :surface board) (get :things board) (get :handles board))
 			actors (. stage :get_actors)
 			tools (filter (# (and (Instrument? %0) (not (eql %0 this)))) actors)
 			low (filter (# (find %0 own)) actors)
 			high (filter (# (not (or (Instrument? %0) (find %0 own)))) actors))
 		(def stage :actors (cat low (if front (cat tools (list this)) (cat (list this) tools)) high))
-		(. (get :board this) :touch +board_dirty_overlay)
+		(. (obj-ref (get :board this)) :touch +board_dirty_overlay)
 		this)
 
 	(defmethod :step (stage event state)
 		; (. instrument :step stage event state)
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(what region edge sx sy origin angle length shape near &ignore) state)
 		(elem-set state +tool_state_last_x x)
@@ -548,7 +548,7 @@
 
 	(defmethod :end (stage event state)
 		; (. instrument :end stage event state)
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(what region edge sx sy origin angle length shape &ignore) state)
 		(case what
@@ -595,10 +595,10 @@
 		;what it would rub out is shown again, by the contact's id it is kept
 		;under in the board's temp
 		(when (defq id (elem-get state +tool_state_edge))
-			(defq board (get :board this))
+			(defq board (obj-ref (get :board this)))
 			(. (get :temp board) :insert id
 				(board-rub-look (tool-rub-area (elem-get state +tool_state_shape)) (get :zoom board))))
-		(. (get :board this) :touch +board_dirty_overlay)
+		(. (obj-ref (get :board this)) :touch +board_dirty_overlay)
 		this)
 
 	(defmethod :pointers (stage events)
@@ -677,7 +677,7 @@
 					m (Mat3x2-mul (Mat3x2-translate (- m1x m0x) (- m1y m0y))
 						(Mat3x2-mul (Mat3x2-rot turn m0x m0y) (Mat3x2-scale by by m0x m0y))))
 				(def this :angle (+ angle turn) :origin (Mat3x2-point m (first origin) (second origin)))
-				(. (get :board this) :touch +board_dirty_overlay))))
+				(. (obj-ref (get :board this)) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
 		; (. instrument :draw canvas [m]) -> instrument

@@ -110,7 +110,7 @@
 		; (. palette :get_cells) -> cells
 		;made again if what the board offers, swatches or the window, has
 		;changed since they were made
-		(defq board (get :board this)
+		(defq board (obj-ref (get :board this))
 			offers (+ (if (get :on_swatches board) 1 0) (if (get :on_window board) 2 0)))
 		(unless (eql offers (get :offers this)) (def this :cells :nil :offers offers))
 		(.super this :get_cells))
@@ -121,7 +121,7 @@
 		;widths, and the things to do: the swatches if what shows the board
 		;has them, :on_swatches, and the window if the board is shown with
 		;nothing round it, :on_window
-		(defq board (get :board this))
+		(defq board (obj-ref (get :board this)))
 		(cell-rows (list
 				(map (# (list :tool %0)) +pal_tools)
 				(if (defq pens (get :pens board))
@@ -137,7 +137,7 @@
 		; (. palette :value key) -> val
 		;:mode, :color or :width, as the pointer it belongs to has it, a
 		;pen that is bound to its own, or the board's
-		(defq board (get :board this))
+		(defq board (obj-ref (get :board this)))
 		(. (. board :get_bindings) :value
 			(ptr-event (get :id this) (get :kind this) +pev_left 0 0) key (get key board)))
 
@@ -148,7 +148,7 @@
 		;menu, given the event of the tap, what tapped it, and it stays; one
 		;opened for a pen, that pen; one opened by the mouse or a finger, the
 		;board's own. One not floating shuts on a tool
-		(defq board (get :board this) floating (and (get :floating this) event)
+		(defq board (obj-ref (get :board this)) floating (and (get :floating this) event)
 			user (if floating (. board :user_of event))
 			who (or floating (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
 			by (cond (floating event) ((eql (get :kind this) :pen) who)))
@@ -210,14 +210,14 @@
 	(defmethod :devices ()
 		; (. palette :devices) -> ((color what slot) ...)
 		;the dots of the devices, (. bindings :devices), each in its place
-		(defq board (get :board this))
+		(defq board (obj-ref (get :board this)))
 		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1 %2))))
 
 	(defmethod :draw_state ()
 		; (. palette :draw_state) -> (mode color width pen snap pens devices)
 		;what is current for its pointer, the inks of the pens as they are
 		;now, and for a floating one the squares of the devices
-		(defq board (get :board this) who (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
+		(defq board (obj-ref (get :board this)) who (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
 		(list (. this :value :mode) (. this :value :color) (. this :value :width)
 			(. board :pen_of who) (/= (first (. board :pointer_settings who)) 0.0)
 			(get :pens board) (if (get :floating this) (. this :devices))))
@@ -228,7 +228,7 @@
 		;marked, or on a floating one a square of each device that holds it
 		(bind '(what val x0 y0 x1 y1) cell)
 		(bind '(mode color width pen snap pens devices) state)
-		(defq board (get :board this) items (list) cx (* 0.5 (+ x0 x1)) cy (* 0.5 (+ y0 y1)))
+		(defq board (obj-ref (get :board this)) items (list) cx (* 0.5 (+ x0 x1)) cy (* 0.5 (+ y0 y1)))
 		(case what
 			(:pen (setq items (pal-ink-cell x0 y0 x1 y1 (elem-get pens val))))
 			(:color (setq items (pal-ink-cell x0 y0 x1 y1 val)))

@@ -303,17 +303,6 @@
 ;what a task's end lets go of is let go of, fails, (test-leak-run)
 (defq +test_leak_kb 256)
 
-;what a module made that holds itself round, a board and its stage and
-;actors say, and is let go of only when it is told to, (test-release)
-(defq *test_release* (list))
-
-(defun test-release (obj)
-	; (test-release obj) -> obj
-	;told to let go, (. obj :release), when the module is done, so what it
-	;holds round is not left held on the node, (tests -e)
-	(push *test_release* obj)
-	obj)
-
 (defun test-run-module (file)
 	(defq *test_module* (slice file 6 -6))
 	(env-push)
@@ -322,8 +311,6 @@
 	(if *test_frames* (import "lib/debug/frames.inc"))
 	(catch (import file)
 		(progn (test-fail "module" "to run to the end" _) :t))
-	(each (# (. %0 :release)) *test_release*)
-	(clear *test_release*)
 	(env-pop))
 
 (defun test-held ()

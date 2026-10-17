@@ -10,7 +10,7 @@
 		(and (list?? b) (= (length a) (length b)) (every (# (<= (abs (- (n2f %0) (n2f %1))) tol)) a b))
 		(<= (abs (- (n2f a) (n2f b))) tol)))
 
-(defq wt_board (test-release (Board (cwb-doc 800 600))) wt_ruler (Ruler wt_board 400 300) wt_stage (. wt_board :get_stage))
+(defq wt_board (Board (cwb-doc 800 600)) wt_ruler (Ruler wt_board 400 300) wt_stage (. wt_board :get_stage))
 (. wt_stage :add wt_ruler)
 (defun wt-ids () (map (# (elem-get %0 +cwb_id)) (cwb-items (. wt_board :get_doc))))
 (defun wt-last-d () (cwb-get (last (cwb-items (. wt_board :get_doc))) :d))
@@ -418,7 +418,7 @@
 
 ;which is in front. One that is taken hold of comes to the front of the instruments, one
 ;taken by the right button alone goes to the back of them, and one that is drawn along stays where it is
-(defq wt_b2 (test-release (Board (cwb-doc 800 600))) wt_s2 (. wt_b2 :get_stage)
+(defq wt_b2 (Board (cwb-doc 800 600)) wt_s2 (. wt_b2 :get_stage)
 	wt_ra (Ruler wt_b2 300 200) wt_rb (Ruler wt_b2 300 320) wt_rc (Protractor wt_b2 560 420))
 (each (# (. wt_s2 :add %0)) (list wt_ra wt_rb wt_rc))
 (defun wt-order () (map (# (cond ((eql %0 wt_ra) :a) ((eql %0 wt_rb) :b) ((eql %0 wt_rc) :c) ((Instrument? %0) :tool) (:t :other))) (. wt_s2 :get_actors)))
@@ -448,7 +448,7 @@
 (assert-true "each draws on a canvas" :t)
 
 ;two fingers on an instrument have it, and a third that comes down on it while they do does nothing
-(defq t3_board (test-release (Board (cwb-doc 800 600))) t3_stage (. t3_board :get_stage) t3_ruler (Ruler t3_board 400 300))
+(defq t3_board (Board (cwb-doc 800 600)) t3_stage (. t3_board :get_stage) t3_ruler (Ruler t3_board 400 300))
 (. t3_stage :add t3_ruler)
 (. t3_ruler :built)
 (defun t3-go (&rest events) (. t3_board :pointers (map (# (apply (const ptr-event) %0)) events)))
@@ -470,7 +470,7 @@
 (t3-go '(0x1000000 :touch 0 350 340) '(0x1000002 :touch 0 440 150))
 
 ;a pen that is near and not down is shown the catch of the edge that would have it if it went down
-(defq hv_board (test-release (Board (cwb-doc 800 600))) hv_ruler (Ruler hv_board 400 300) hv_pro (Protractor hv_board 640 590)
+(defq hv_board (Board (cwb-doc 800 600)) hv_ruler (Ruler hv_board 400 300) hv_pro (Protractor hv_board 640 590)
 	hv_round (Circle hv_board 150 150))
 (each (# (. (. hv_board :get_stage) :add %0)) (list hv_ruler hv_pro hv_round))
 (defun hv-go (&rest events) (. hv_board :pointers (map (# (apply (const ptr-event) %0)) events)))
@@ -566,7 +566,7 @@
 
 ;the marks of an instrument are of the paper: a centimetre is a square of
 ;the document's grid, so a mark can lie on a line and the next on the next
-(defq wt_gb (test-release (Board (cwb-doc 800 600))) wt_gr (Ruler wt_gb 400 300))
+(defq wt_gb (Board (cwb-doc 800 600)) wt_gr (Ruler wt_gb 400 300))
 (assert-true "a millimetre of a ruler is a tenth of the grid of its document" (wt-near? (list (. wt_gr :mm) 0.0) '(3.2 0.0) 0.001))
 (. (. wt_gb :get_doc) :insert :grid 40)
 (. wt_gr :rebuild)
@@ -644,7 +644,7 @@
 ;rubbed out as it lets go, Chris: "we should be able to erase along an
 ;instrument guided edge as well !", "preview the erase shape.... and when
 ;let go it commits"
-(defq er_board (test-release (Board (cwb-doc 800 600))) er_ruler (Ruler er_board 400 300))
+(defq er_board (Board (cwb-doc 800 600)) er_ruler (Ruler er_board 400 300))
 (. (. er_board :get_stage) :add er_ruler)
 (. er_board :tick 1000000)
 (def er_ruler :origin (list 400.0 300.0) :angle 0.0)
@@ -666,7 +666,7 @@
 (assert-eq "and it is one step" :t (eql (er-d) er_was))
 ;round an arc too, and with the protractor set to a filled slice, all the
 ;slice, Chris: "That also means arcs and pie slices !"
-(defq ep_board (test-release (Board (cwb-doc 800 600))) ep_pro (Protractor ep_board 400 300))
+(defq ep_board (Board (cwb-doc 800 600)) ep_pro (Protractor ep_board 400 300))
 (. (. ep_board :get_stage) :add ep_pro)
 (. ep_board :tick 1000000)
 (def ep_pro :mode :fpie)
@@ -696,7 +696,7 @@
 	1 (length (cwb-items (. ep_board :get_doc))))
 ;the same edge, the left button drawing, the right rubbing out, Chris: "I
 ;should be able to have left button drawing, right button erasing"
-(defq eb_board (test-release (Board (cwb-doc 800 600))) eb_ruler (Ruler eb_board 400 300))
+(defq eb_board (Board (cwb-doc 800 600)) eb_ruler (Ruler eb_board 400 300))
 (. (. eb_board :get_stage) :add eb_ruler)
 (. eb_board :tick 1000000)
 (.-> (. eb_board :get_bindings) (:set :mouse 0 +pev_right :mode :eraser) (:set :mouse 0 +pev_left :width 3.0))
@@ -716,7 +716,7 @@
 ;and into the document where the instrument is as it lifts, Chris: "the
 ;partial drawn instrument shape, or line or arc should stay with the
 ;instrument until i remove the pen"
-(defq es_board (test-release (Board (cwb-doc 800 600))) es_ruler (Ruler es_board 400 300))
+(defq es_board (Board (cwb-doc 800 600)) es_ruler (Ruler es_board 400 300))
 (. (. es_board :get_stage) :add es_ruler)
 (. es_board :tick 1000000)
 (bind '(es_x es_y) (. es_ruler :to_board 0 -40))

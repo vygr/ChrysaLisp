@@ -28,7 +28,7 @@
 	n)
 
 ;a board with no menu is as it was
-(defq pl_board (test-release (Board (cwb-doc 800 600))))
+(defq pl_board (Board (cwb-doc 800 600)))
 (pl-tap pl_board 0 :mouse +pev_right 400 300)
 (assert-eq "a tap on nothing does nothing on a board that was not given a palette" 0 (length (palettes pl_board)))
 
@@ -202,7 +202,7 @@
 
 ;a finger that goes down somewhere puts away nobody's palette. A tap of one
 ;on nothing puts away one that is open, and opens one if there was none
-(defq pf_board (palette-enable (test-release (Board (cwb-doc 800 600)))))
+(defq pf_board (palette-enable (Board (cwb-doc 800 600))))
 (cwb-add (. pf_board :get_doc) (cwb-shape (cwb-d-rect 600 400 700 500) :fill 0xff0000ff :stroke 0))
 (pl-tap pf_board 0x10001 :touch 1 200 200)
 (assert-eq "a tap of a finger on nothing opens a palette" 1 (length (palettes pf_board)))
@@ -221,7 +221,7 @@
 (assert-eq "and the next tap opens one" 1 (length (palettes pf_board)))
 
 ;a thing that covers all there is: nowhere to tap that is nothing. The first tap on it selects it, a tap on what is selected asks for the palette
-(defq pl_board (test-release (Board (cwb-doc 400 300))) pl_doc (. pl_board :get_doc))
+(defq pl_board (Board (cwb-doc 400 300)) pl_doc (. pl_board :get_doc))
 (palette-enable pl_board)
 (def pl_board :mode :select)
 (. pl_board :add (cwb-shape (cwb-d-rect -1000 -1000 2000 2000) :fill 0xff808080 :stroke 0))
@@ -235,7 +235,7 @@
 (assert-list-eq "dragged, it is moved, and no palette opens, and a drag selects nothing" '(0 0) (list (length (palettes pl_board)) (length (. pl_board :get_selected))))
 
 ;the right button on a thing sends it to the back, and that is all it does, selected or not
-(defq pr_board (test-release (Board (cwb-doc 400 300))) pr_doc (. pr_board :get_doc))
+(defq pr_board (Board (cwb-doc 400 300)) pr_doc (. pr_board :get_doc))
 (palette-enable pr_board)
 (. pr_board :add (cwb-shape (cwb-d-rect 50 50 200 150) :fill 0xff808080 :stroke 0))
 (. pr_board :add (cwb-shape (cwb-d-rect 100 80 200 150) :fill 0xff404040 :stroke 0))
@@ -255,7 +255,7 @@
 	(list (. pr_board :get_selected) (eql (elem-get (first (cwb-items pr_doc)) +cwb_id) pr_low) (length (palettes pr_board))))
 
 ;the button on the side of a pen rubs out, and only a tap of it on nothing is the menu
-(defq pb_board (test-release (Board (cwb-doc 800 600))))
+(defq pb_board (Board (cwb-doc 800 600)))
 (palette-enable pb_board)
 (. pb_board :tick 0)
 (pl-drag pb_board 9 :pen +pev_left 100 300 500 300)
@@ -277,7 +277,7 @@
 ;a floating menu shows a dot of each device on what it has bound. Chris: "on
 ;the float menus each device showed a little dot (coloured per device, of
 ;that board) to show what that device had selected as its modes"
-(defq pf_board (test-release (Board (cwb-doc 400 400))))
+(defq pf_board (Board (cwb-doc 400 400)))
 (. pf_board :tick 1000000)
 (defq pf (palette-float pf_board 200 200))
 (. pf_board :tick 3000000)
@@ -312,7 +312,7 @@
 	(. (. pf_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode))
 ;what is selected has its handles in any mode, Chris: "single tap to
 ;select a shape, in any mode, does not bring up the shape controls ?"
-(defq ph_board (test-release (Board (cwb-doc 400 400))))
+(defq ph_board (Board (cwb-doc 400 400)))
 (. ph_board :tick 1000000)
 (pl-drag ph_board 0 :mouse +pev_left 10 10 100 100)
 (. ph_board :select (map (# (elem-get %0 +cwb_id)) (cwb-items (. ph_board :get_doc))))
@@ -323,7 +323,7 @@
 ;use the left button bound pen to outline and the right button bound pen to
 ;fill". A rect is an outline; a filled rect both; one ink for both, a fill
 ;as far out as the outline would be
-(defq pp_board (test-release (Board (cwb-doc 400 400))) pp_b (. pp_board :get_bindings))
+(defq pp_board (Board (cwb-doc 400 400)) pp_b (. pp_board :get_bindings))
 (defun pp-last () (last (cwb-items (. pp_board :get_doc))))
 (. pp_board :tick 1000000)
 (.-> pp_b (:set :mouse 0 +pev_left :color 0xffff0000) (:set :mouse 0 +pev_right :color 0x6000ff00)
@@ -358,7 +358,7 @@
 	(str (list pp_after (map (# (list (cwb-get %0 :stroke) (cwb-get %0 :fill))) (list pp_rect pp_frect (pp-last))))))
 ;the middle of the mouse binds both its buttons, and is no rule of its own:
 ;what shows the board pans with it, the board never has it
-(defq pm_board (test-release (Board (cwb-doc 400 400))))
+(defq pm_board (Board (cwb-doc 400 400)))
 (. (. pm_board :get_bindings) :set :mouse 0 +pev_middle :mode :rect)
 (assert-eq "a middle press binds the left and the right, and makes no rule of the middle"
 	"(:rect :rect :nil)" (str (list (. (. pm_board :get_bindings) :value (ptr-event 0 :mouse +pev_left 0 0) :mode)
@@ -367,7 +367,7 @@
 ;an eraser that lifts takes no more bite: its last step is of the buttons it
 ;went down with, not of none, which is bound to the board's width, Chris:
 ;"When I release the button on an erase action, I see a blip of change"
-(defq pe_board (test-release (Board (cwb-doc 400 400))))
+(defq pe_board (Board (cwb-doc 400 400)))
 (. pe_board :tick 1000000)
 (def pe_board :width 40.0)
 (. (. pe_board :get_bindings) :set :mouse 0 +pev_left :mode :pen)
@@ -383,7 +383,7 @@
 ;what is selected stays so as an eraser bites it, the left selecting and
 ;the right rubbing out, Chris: "the select controls vanish as the erase takes
 ;a bite"
-(defq ps_board (test-release (Board (cwb-doc 400 400))))
+(defq ps_board (Board (cwb-doc 400 400)))
 (. ps_board :tick 1000000)
 (. (. ps_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
 (pl-drag ps_board 0 :mouse +pev_left 50 50 250 250)
@@ -394,7 +394,7 @@
 (assert-true "bitten through, what is left is selected, with its handles"
 	(and (nempty? (get :selected ps_board)) (. (get :handles ps_board) :box)))
 ;rubbed out to nothing, nothing of it is selected, and there are no handles
-(defq pz_board (test-release (Board (cwb-doc 400 400))))
+(defq pz_board (Board (cwb-doc 400 400)))
 (. pz_board :tick 1000000)
 (. (. pz_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
 (pl-drag pz_board 0 :mouse +pev_left 100 100 140 140)
@@ -415,7 +415,7 @@
 (assert-eq "nothing in select mode, nothing selected" 0 (length (get :selected ps_board)))
 ;each user's own: the teacher's mouse out of select mode lets go of what the
 ;teacher tapped, not what a student's pen, still in select mode, tapped
-(defq pu_board (test-release (Board (cwb-doc 400 400))))
+(defq pu_board (Board (cwb-doc 400 400)))
 (. pu_board :tick 1000000)
 (. (. pu_board :get_bindings) :set :mouse 0 +pev_left :mode :frect)
 (pl-drag pu_board 0 :mouse +pev_left 20 20 120 120)
@@ -462,7 +462,7 @@
 ;an ink wholly see through is none, Chris: "a pen can be fully transparent ?
 ;if that the pen used for the outline it does just fill the inner, if the
 ;transparent ink is the fill we just fill the outline"
-(defq pn_board (test-release (Board (cwb-doc 400 400))) pn_b (. pn_board :get_bindings))
+(defq pn_board (Board (cwb-doc 400 400)) pn_b (. pn_board :get_bindings))
 (defun pn-last () (last (cwb-items (. pn_board :get_doc))))
 (. pn_board :tick 1000000)
 (.-> pn_b (:set :mouse 0 +pev_left :width 10.0) (:set :mouse 0 +pev_left :mode :frect)
@@ -479,7 +479,7 @@
 ;each user's own: a hand on nothing puts down only its user's, a hand on a
 ;thing picks it up for its user and leaves what others hold, who holds what
 ;is kept only for what is selected, Chris: "2 users can select seperate item"
-(defq pw_board (test-release (Board (cwb-doc 600 400))) pw_b (. pw_board :get_bindings))
+(defq pw_board (Board (cwb-doc 600 400)) pw_b (. pw_board :get_bindings))
 (. pw_board :tick 1000000)
 (.-> pw_b (:set :mouse 0 +pev_left :mode :frect))
 (pl-drag pw_board 0 :mouse +pev_left 20 20 100 100)
@@ -517,7 +517,7 @@
 ;a slot holds a pen by its number, the board has the pens' inks: a pen
 ;filled with another ink is the ink of every slot that holds it, Chris: "the
 ;ability to fill those pens with any ink"
-(defq pk_board (test-release (Board (cwb-doc 400 400))) pk_b (. pk_board :get_bindings) pk_pens (list +argb_red +argb_green))
+(defq pk_board (Board (cwb-doc 400 400)) pk_b (. pk_board :get_bindings) pk_pens (list +argb_red +argb_green))
 (def pk_board :pens pk_pens :pen 1)
 (.-> pk_b (:set :mouse 0 +pev_left :pen 0) (:set :mouse 0 +pev_right :color +argb_blue))
 (defun pk-inks () (map (# (. pk_board :ink_of (ptr-event %0 %1 %2 0 0))) '(0 0 0x2000000) '(:mouse :mouse :pen) (list +pev_left +pev_right +pev_left)))
@@ -531,7 +531,7 @@
 (assert-eq "a key is found only where keys are, (:tool :pen :pen 3)" 3 (elem-get '(:tool :pen :pen 3) (ptr-at '(:tool :pen :pen 3) :pen)))
 ;who holds what is the board's, (:holder) (:pick_up) (:others_of), kept
 ;only for what is selected, and carried to what a thing becomes
-(defq po_board (test-release (Board (cwb-doc 400 400))))
+(defq po_board (Board (cwb-doc 400 400)))
 (defq po_a (. po_board :add (cwb-shape (cwb-d-rect 10 10 50 50) :fill 0xff000000 :stroke 0))
 	po_b (. po_board :add (cwb-shape (cwb-d-rect 60 10 100 50) :fill 0xff000000 :stroke 0)))
 (. po_board :pick_up po_a 3) (. po_board :pick_up po_b 3)
@@ -550,7 +550,7 @@
 ;one pick, (. board :pick event what val), wherever it was made: to what
 ;its user holds, else to the slot of what pressed, else, no device, the
 ;board's own
-(defq pt_board (test-release (Board (cwb-doc 400 400))) pt_b (. pt_board :get_bindings) pt_pens (list +argb_red +argb_green))
+(defq pt_board (Board (cwb-doc 400 400)) pt_b (. pt_board :get_bindings) pt_pens (list +argb_red +argb_green))
 (def pt_board :pens pt_pens :pen 0)
 (defq pt_left (ptr-event 0 :mouse +pev_left 0 0) pt_right (ptr-event 0 :mouse +pev_right 0 0))
 (. pt_board :pick pt_left :pen 1) (. pt_board :pick pt_left :width 9.0) (. pt_board :pick pt_left :mode :rect)
@@ -573,7 +573,7 @@
 ;knows nothing of them: a tap of a pen on a thing picks it up, a stroke of
 ;one that begins on it is the canvas's and draws, a pen on what its user
 ;holds moves it, and an eraser bites through
-(defq px_board (test-release (Board (cwb-doc 400 400))) px_b (. px_board :get_bindings))
+(defq px_board (Board (cwb-doc 400 400)) px_b (. px_board :get_bindings))
 (. px_board :tick 1000000)
 (defq px_it (. px_board :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff000000 :stroke 0)))
 (.-> px_b (:set :mouse 0 +pev_left :mode :line))
@@ -591,16 +591,17 @@
 (bind '(px_x1 & &ignore) (cwb-bounds (list (first (cwb-find (. px_board :get_doc) px_it)))))
 (assert-eq "held, a drag of the pen on it moves it, and draws nothing" "(20 2)"
 	(str (list (n2i (- px_x1 px_x0)) (length (cwb-items (. px_board :get_doc))))))
-;a board that is done with lets go of what holds it round, its actors
-(defq pr_board (test-release (Board (cwb-doc 100 100))))
+;no actor holds its board by a count: the board holds its stage and the
+;stage its actors, and an actor holds the board by a weak ref, claimed when
+;it is used, so letting go of the board lets go of all of it
+(defq pr_board (Board (cwb-doc 100 100)))
 (. (. pr_board :get_stage) :add (Ruler pr_board 50 50))
 (defq pr_actors (. (. pr_board :get_stage) :get_actors))
-(. pr_board :release)
-(assert-eq "released, no actor holds the board, and the stage has none"
-	"(4 0 0)" (str (list (length pr_actors) (length (filter (# (get :board %0)) pr_actors)) (length (. (. pr_board :get_stage) :get_actors)))))
+(assert-eq "each of its four actors has the board by a weak ref"
+	"(4 4)" (str (list (length pr_actors) (length (filter (# (eql (get :board %0) (weak-ref pr_board))) pr_actors)))))
 ;what is done to a selection is done to what one user holds, the others'
 ;stay as they were, Chris: "2 users can select seperate item"
-(defq pg_board (test-release (Board (cwb-doc 400 400))))
+(defq pg_board (Board (cwb-doc 400 400)))
 (defq pg_ids (map (# (. pg_board :add (cwb-shape (cwb-d-rect (* %0 50) 10 (+ (* %0 50) 40) 50) :fill 0xff000000 :stroke 0))) '(0 1 2 3)))
 (bind '(pg_a pg_b pg_c pg_d) pg_ids)
 (. pg_board :pick_up pg_a 0) (. pg_board :pick_up pg_b 0) (. pg_board :pick_up pg_c 3) (. pg_board :pick_up pg_d 3)

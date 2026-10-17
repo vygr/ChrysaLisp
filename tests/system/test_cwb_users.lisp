@@ -18,7 +18,7 @@
 	sum)
 
 ;who a device is
-(defq us (test-release (Board (cwb-doc 400 300))))
+(defq us (Board (cwb-doc 400 300)))
 (assert-eq "the mouse is the teacher's" +board_teacher (. us :user_of (ptr-event 0 :mouse 1 0 0)))
 (assert-eq "touch is anybody, any finger" +board_anybody (. us :user_of (ptr-event 0x1000003 :touch 1 0 0)))
 (assert-eq "a first pen is the first student" +board_first_student (. us :user_of (ptr-event 0x2000000 :pen 1 0 0)))
@@ -43,7 +43,7 @@
 	(defq doc (cwb-doc 400 300))
 	(cwb-add doc (cwb-shape (cwb-d-rect 50 50 150 150) :fill 0xffff0000 :stroke 0))
 	(cwb-add doc (cwb-shape (cwb-d-rect 250 50 350 150) :fill 0xff0000ff :stroke 0 :user +board_first_student))
-	(defq board (test-release (Board doc)))
+	(defq board (Board doc))
 	(def board :rub_mode :bite)
 	board)
 (defq us (us-board))

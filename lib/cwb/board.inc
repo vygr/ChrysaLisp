@@ -334,7 +334,7 @@
 	;it has one, and an eraser rubs out what it goes over. It knows nothing
 	;of what is held, (Things). A finger that goes down here puts away
 	;nobody's palette
-	(def this :board board :grab :nil)
+	(def this :board (weak-ref board) :grab :nil)
 
 	(defmethod :hit (x y &optional event) :t)
 
@@ -342,7 +342,7 @@
 		; (. surface :rub_flush) -> :t | :nil
 		;the bite of every way an eraser has gone since the last. Was
 		;anything rubbed out
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(defq todo (get :rub_todo board) ways (list) done :nil)
 		(. todo :each (lambda (id (way reach user)) (push ways (list id way reach user))))
 		(each (lambda ((id way reach user))
@@ -370,7 +370,7 @@
 	(defmethod :begin (event)
 		; (. surface :begin event) -> state
 		;a pointer has gone down
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(defq tool (board-tool-of board event)
 			;what was only there till the next pointer went down goes. Not
@@ -440,7 +440,7 @@
 	(defmethod :step (event state)
 		; (. surface :step event state) -> state
 		;a pointer that is down has moved, or come up
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(tool sx sy points item moved &ignore) state)
 		(case tool
@@ -484,7 +484,7 @@
 	(defmethod :end (event state)
 		; (. surface :end event state)
 		;a pointer has come up
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(tool sx sy points item moved lx ly snap &ignore) state)
 		(case tool
@@ -548,7 +548,7 @@
 		; (. surface :tap? state x y) -> :t | :nil
 		;did a contact lift as a tap: soon, and near where it landed. A
 		;board that is told no time, (:tick), goes by the distance alone
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(& sx sy &ignore) state)
 		(defq near (/ +board_tap_near (get :zoom board)))
 		(and (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
@@ -556,7 +556,7 @@
 
 	(defmethod :pointers (stage events)
 		; (. surface :pointers stage events) -> surface
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		;two fingers, or two of anything that moves things, down on what is
 		;selected, move it, turn it and size it together
 		(each (lambda (event)
@@ -630,7 +630,7 @@
 	;other, and what another hand does elsewhere is nothing to it. Two
 	;hands that go down on the same thing move, turn and size it between
 	;them
-	(def this :board board :grab :nil)
+	(def this :board (weak-ref board) :grab :nil)
 
 	(defmethod :holder (item_id)
 		; (. surface :holder item_id) -> :nil | (id state)
@@ -698,7 +698,7 @@
 	(defmethod :things ()
 		; (. surface :things) -> ((item matrix) ...)
 		;what is selected, each with where it is now, to be moved from there
-		(map (# (list %0 (elem-get %0 +cwb_place))) (. (get :board this) :selected_items)))
+		(map (# (list %0 (elem-get %0 +cwb_place))) (. (obj-ref (get :board this)) :selected_items)))
 
 	(defmethod :holding ()
 		; (. surface :holding) -> :nil | id
@@ -721,7 +721,7 @@
 		; (. things :hit x y [event]) -> :t | :nil
 		;is the contact theirs, see above. Asked with no contact, a point
 		;that is only over the board, it is not
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(when event
 			(defq tool (board-tool-of board event))
 			(unless (find tool '(:eraser :pan :idle))
@@ -736,7 +736,7 @@
 	(defmethod :begin (event)
 		; (. things :begin event) -> state
 		;a pointer has gone down on them
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(defq tool (board-tool-of board event) doc (get :doc board) near (/ +board_near (get :zoom board))
 			user (. board :user_of event) mine_ids (. board :selected_by user)
@@ -839,7 +839,7 @@
 		;a pointer that is down has moved: what it holds goes with it. With
 		;snap, the top left of the box round it goes to the grid, not the
 		;pointer, so things line up with it and each other
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(tool sx sy points item &ignore) state)
 		(when (and (eql tool :hand) item)
@@ -856,7 +856,7 @@
 	(defmethod :end (event state)
 		; (. things :end event state)
 		;a pointer has come up
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(bind '(id kind buttons x y &ignore) event)
 		(bind '(tool sx sy points item moved lx ly snap &ignore) state)
 		(case tool
@@ -890,14 +890,14 @@
 
 	(defmethod :tap? (state x y)
 		; (. things :tap? state x y) -> :t | :nil
-		(board-tap? (get :board this) state x y))
+		(board-tap? (obj-ref (get :board this)) state x y))
 
 	(defmethod :pointers (stage events)
 		; (. things :pointers stage events) -> things
 		;two fingers, or two of anything that moves things, down on what is
 		;selected, move it, turn it and size it together. One that may have
 		;been a tap and is moved further is the canvas's, (. stage :pass)
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(each (lambda (event)
 			(bind '(id kind buttons x y &ignore) event)
 			(defq state (. this :state id))
@@ -937,7 +937,7 @@
 		;second took hold and where they are now. While they do, neither
 		;moves them alone. When one lets go the other carries on from where
 		;things are. Hands that have hold of other things go on as they were
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(defq hands (list) grab (get :grab this) pair :nil)
 		(. (get :states this) :each (lambda (id state)
 			(and (eql (elem-get state +stroke_tool) :hand) (elem-get state +stroke_item)
@@ -1012,12 +1012,12 @@
 	;
 	;A line has none of that. It has a point at each end, and each is
 	;dragged to where that end is to be.
-	(def this :board board)
+	(def this :board (weak-ref board))
 
 	(defmethod :shown ()
 		; (. handles :shown) -> :t | :nil
 		;no more than one hand has hold of things
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(< (. (get :things board) :holders) 2))
 
 	(defmethod :box ()
@@ -1026,7 +1026,7 @@
 		;Chris: "single tap to select a shape, in any mode, does not bring up
 		;the shape controls ?". Not while hands have hold of things each,
 		;each has its own line, (:shown)
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(and (. this :shown) (nempty? (get :selected board))
 			(cwb-bounds (. board :selected_items))))
 
@@ -1036,7 +1036,7 @@
 		;is. Of one thing, its own box and its own matrix, never slanted,
 		;(board-item-frame). Of several, the box round them, square to the
 		;board
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(and (. this :shown) (nempty? (defq items (. board :selected_items)))
 			(cond
 				((= (length items) 1) (board-item-frame (first items)))
@@ -1054,7 +1054,7 @@
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
 		;if what is selected is one line, it, and its two ends in its own space
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(when (and (. this :shown) (= (length (defq items (. board :selected_items))) 1)
 				(cwb-shape? (defq item (first items)))
 				(find (elem-get item +cwb_kind) '(:line :arrow :arrow2)))
@@ -1074,7 +1074,7 @@
 		;where each handle is on the board. kind is :size, :turn or :end.
 		;fx and fy say which way a size handle pulls, -1 0 or 1 each way,
 		;in the frame. fx of an end is which, 0 or 1
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(cond
 			((defq ends (. this :ends))
 				(bind '(item (x y x1 y1)) ends)
@@ -1100,7 +1100,7 @@
 
 	(defmethod :spot_at (x y)
 		; (. handles :spot_at x y) -> :nil | spot
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
 		(some (lambda (spot)
 			(bind '(kind sx sy &ignore) spot)
@@ -1110,13 +1110,13 @@
 	(defmethod :zones_key ()
 		; (. handles :zones_key) -> str
 		;where the handles are, and the zoom, which how far one reaches is of
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(str (get :zoom board) (. this :spots)))
 
 	(defmethod :zones ()
 		; (. handles :zones) -> ((name polygons) ...)
 		;a square about each handle, as far as it reaches, named for its kind
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(defq reach (/ (* 1.6 +board_handle) (get :zoom board)))
 		(map (lambda ((kind sx sy &ignore))
 				(list kind (list (list (- sx reach) (- sy reach) (+ sx reach) (- sy reach)
@@ -1124,7 +1124,7 @@
 			(ifn (. this :spots) (list))))
 
 	(defmethod :pointers (stage events)
-		(raise :board)
+		(defq board (obj-ref (get :board this)))
 		(each (lambda (event)
 			(bind '(id kind buttons x y &ignore) event)
 			(defq state (. this :state id))
@@ -1238,18 +1238,6 @@
 	(defmethod :get_doc () (get :doc this))
 	(defmethod :get_stage () (get :stage this))
 
-	(defmethod :release ()
-		; (. board :release) -> board
-		;let go of what holds the board as the board holds it: its stage
-		;holds its actors and each of them the board, round, which the count
-		;of who holds a thing never lets go of, Chris: "if it points back at
-		;itself it needs to break that cycle when it quits ! else it will
-		;leak". Each actor lets go of the board, the stage of them all
-		(defq stage (get :stage this))
-		(each (# (undef %0 :board)) (. stage :get_actors))
-		(each (# (if (get :board %0) (undef %0 :board))) (list (get :surface this) (get :things this) (get :handles this)))
-		(def stage :actors (list) :owners (Fmap 11) :over (Fmap 11))
-		this)
 	(defmethod :get_bindings () (get :bindings this))
 
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

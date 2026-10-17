@@ -245,7 +245,7 @@
 ; a board, driven
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq wb_board (test-release (Board (cwb-doc 400 300))))
+(defq wb_board (Board (cwb-doc 400 300)))
 (defun wb-bids () (wb-ids (. wb_board :get_doc)))
 (defun wb-drag (id kind buttons pts)
 	;a pointer goes down at the first point, through the rest, and comes up at the last
@@ -440,7 +440,7 @@
 ;a group sized more one way than the other, with a thing turned in it:
 ;ungrouped, the thing would slant. It is made what it draws, slanted, and
 ;its place does not slant
-(defq wb_u (test-release (Board (cwb-doc 400 300))))
+(defq wb_u (Board (cwb-doc 400 300)))
 (defq wb_ug (. wb_u :add (cwb-group (list (cwb-shape (cwb-d-rect -30 -10 30 10) :fill 0xff0000ff :stroke 0xffff0000 :width 4
 	:place (list 0.0 0.0 0.5 1.0 1.0))) :place (list 200.0 150.0 0.0 2.0 1.0))))
 (defun wb-ink-box (items)
@@ -635,7 +635,7 @@
 (assert-true "what has changed is said once" (and (. wb_board :dirty? +board_dirty_doc) (not (. wb_board :dirty? +board_dirty_doc))))
 
 ;rubbing out part of a line, a line cut and lines still, :rub_mode :part
-(defq rb_board (test-release (Board (cwb-doc 400 300))) rb_doc (. rb_board :get_doc))
+(defq rb_board (Board (cwb-doc 400 300)) rb_doc (. rb_board :get_doc))
 (assert-eq "a board takes a bite out of all it rubs, lines too, unless it is told" :bite (get :rub_mode rb_board))
 (def rb_board :rub_mode :part)
 (defun rb-ds () (map (# (cwb-get %0 :d)) (cwb-items rb_doc)))
@@ -762,7 +762,7 @@
 (assert-list-eq "what is off the top left is brought on, with no room round it if none is asked for" '(0 0 308 188)
 	(cat (map! (const n2i) (list (cwb-bounds (cwb-items ft_doc))) 0 2) (list (. ft_doc :find :width) (. ft_doc :find :height))))
 ;a board, with an instrument on it, as a step that can be undone
-(defq ft_board (test-release (Board (cwb-doc 800 600))))
+(defq ft_board (Board (cwb-doc 800 600)))
 (. ft_board :add (cwb-shape (cwb-d-rect 300 200 400 260) :fill 0xffff0000 :stroke 0))
 (import "lib/cwb/tools.inc")
 (. (. ft_board :get_stage) :add (defq ft_ruler (Ruler ft_board 350 300)))
@@ -773,7 +773,7 @@
 (. ft_board :undo)
 (assert-list-eq "undone, the shape is where it was" '(300 200 400 260) (map (const n2i) (cwb-bounds (cwb-items (. ft_board :get_doc)))))
 ;what is off the paper is taken away, when it is asked for
-(defq cr_board (test-release (Board (cwb-doc 400 300))) cr_doc (. cr_board :get_doc))
+(defq cr_board (Board (cwb-doc 400 300)) cr_doc (. cr_board :get_doc))
 (. cr_board :add (cwb-shape (cwb-d-rect 50 50 100 100) :fill 0xffff0000 :stroke 0))
 (. cr_board :add (cwb-shape (cwb-d-rect 380 280 460 340) :fill 0xff00ff00 :stroke 0))
 (. cr_board :add (cwb-shape (cwb-d-rect 500 100 560 160) :fill 0xff0000ff :stroke 0))
@@ -788,7 +788,7 @@
 (. cr_board :redo)
 (assert-list-eq "and done again, two" '(1 2) (map (# (elem-get %0 +cwb_id)) (cwb-items cr_doc)))
 ;taken by the right button, a thing goes to the back of its layer
-(defq bk_board (test-release (Board (cwb-doc 400 300))) bk_doc (. bk_board :get_doc))
+(defq bk_board (Board (cwb-doc 400 300)) bk_doc (. bk_board :get_doc))
 (each (# (. bk_board :add (cwb-shape (cwb-d-rect %0 50 (+ %0 100) 150) :fill 0xffff0000 :stroke 0))) '(50 100 150))
 (defun bk-ids () (map (# (elem-get %0 +cwb_id)) (cwb-items bk_doc)))
 (defun bk-tap (buttons kind x y) (. bk_board :pointers (list (ptr-event 0 kind buttons x y))) (. bk_board :pointers (list (ptr-event 0 kind 0 x y))))
@@ -829,7 +829,7 @@
 (. bk_board :pointers (list (ptr-event 0 :mouse 0 250 110)))
 
 ;what is written: a line by hand begun soon after the last was ended, by the same pen, is put in a group with it
-(defq wr_board (test-release (Board (cwb-doc 600 400))) wr_doc (. wr_board :get_doc) wr_now 1000000)
+(defq wr_board (Board (cwb-doc 600 400)) wr_doc (. wr_board :get_doc) wr_now 1000000)
 (defun wr-stroke (id kind x y gap)
 	;a short line by hand from a point, begun that long after the last thing, and it takes a tenth of a second
 	(. wr_board :tick (setq wr_now (+ wr_now gap)))
@@ -883,7 +883,7 @@
 (. wr_board :rub_along (- (first wr_all) 5.0) (- (second wr_all) 5.0) (+ (third wr_all) 5.0) (- (second wr_all) 5.0) 60)
 (assert-true "rubbed all over, the word is gone" (not (some (# (= (elem-get %0 +cwb_id) wr_id)) (cwb-items wr_doc))))
 ;several things selected each have their own box, a group that was broken up is seen to be its parts
-(defq ug_board (test-release (Board (cwb-doc 400 300))))
+(defq ug_board (Board (cwb-doc 400 300)))
 (. ug_board :add (cwb-group (list (cwb-shape (cwb-d-rect 40 40 100 80) :fill 0xffff0000 :stroke 0)
 	(cwb-shape (cwb-d-rect 200 100 260 140) :fill 0xff00ff00 :stroke 0 :m (Mat3x2-rot 0.5 230 120)))))
 (def ug_board :mode :select)
@@ -910,7 +910,7 @@
 
 ;many at once. A board of hundreds of things, hundreds of them selected:
 ;what is asked of each is asked of a set, and many are taken out in a pass
-(defq cm_doc (cwb-doc 800 600) cm_board (test-release (Board cm_doc)))
+(defq cm_doc (cwb-doc 800 600) cm_board (Board cm_doc))
 (each (# (cwb-add cm_doc (cwb-shape (cwb-d-rect (* %0 2) 10 (+ (* %0 2) 1) 20)))) (range 0 300))
 (defq cm_all (map (# (elem-get %0 +cwb_id)) (cwb-items cm_doc)) cm_some (slice cm_all 100 250))
 (assert-list-eq "a few ids are asked of as the list they are, many as a set, and a set is left a set"
@@ -960,7 +960,7 @@
 	(list (length (cwb-items cm_doc)) (length (. cm_board :get_selected)) (progn (. cm_board :undo) (length (cwb-items (. cm_board :get_doc))))))
 
 ;where each finger is on the board is kept while it is down, and shown
-(defq ct_board (test-release (Board (cwb-doc 400 300))) ct_canvas (Canvas 400 300 1))
+(defq ct_board (Board (cwb-doc 400 300)) ct_canvas (Canvas 400 300 1))
 (. ct_board :dirty? +board_dirty_overlay)
 (. ct_board :pointers (list (ptr-event 0x1010001 :touch 1 100 100) (ptr-event 0x1010002 :touch 1 300 200) (ptr-event 0 :mouse 0 50 50)))
 (assert-list-eq "two fingers down are two places kept, a mouse is not one, and what is over the board is to be drawn"
@@ -978,7 +978,7 @@
 ;a pointer belongs to what it went down on, till it comes up. Many fingers
 ;on the board at once, each on its own thing, are none of them in the way
 ;of the rest
-(defq mh_doc (cwb-doc 800 600) mh_board (test-release (Board mh_doc))
+(defq mh_doc (cwb-doc 800 600) mh_board (Board mh_doc)
 	mh_a (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 100 100 160 160) :fill 0xff0000ff :stroke 0)) +cwb_id)
 	mh_b (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 400 100 460 160) :fill 0xffff0000 :stroke 0)) +cwb_id)
 	mh_c (elem-get (cwb-add mh_doc (cwb-shape (cwb-d-rect 100 400 160 460) :fill 0xff00ff00 :stroke 0)) +cwb_id))
@@ -1048,7 +1048,7 @@
 			(ptr-event 0x3000000 :pen 1 0 0) (ptr-event 0x5000000 :pen 1 0 0))))
 
 ;out of select mode, one thing that has been turned has its own box round it, turned with it
-(defq tb_doc (cwb-doc 400 300) tb_board (test-release (Board tb_doc))
+(defq tb_doc (cwb-doc 400 300) tb_board (Board tb_doc)
 	tb_id (elem-get (cwb-add tb_doc (cwb-shape (cwb-d-rect 150 130 250 170) :fill 0xff0000ff :stroke 0)) +cwb_id)
 	tb_canvas (Canvas 400 300 1))
 (. tb_board :select (list tb_id))
@@ -1059,7 +1059,7 @@
 	'(:t :t) (list (= (cm-row tb_canvas 105 140 160) 0) (> (cm-row tb_canvas 150 140 260) 0)))
 
 ;two things held, each by its own finger, out of select mode: a line round each, and no box round the two
-(defq tw_doc (cwb-doc 400 300) tw_board (test-release (Board tw_doc)) tw_canvas (Canvas 400 300 1))
+(defq tw_doc (cwb-doc 400 300) tw_board (Board tw_doc) tw_canvas (Canvas 400 300 1))
 (cwb-add tw_doc (cwb-shape (cwb-d-rect 40 40 100 100) :fill 0xff0000ff :stroke 0))
 (cwb-add tw_doc (cwb-shape (cwb-d-rect 300 200 360 260) :fill 0xffff0000 :stroke 0))
 ;with soft edges, as the app's canvases have: a line one pixel wide along whole numbers is not drawn without
@@ -1091,7 +1091,7 @@
 (assert-list-eq "a box round a thing touches it, as before, and one across two touches both"
 	(list (list tx_oval) (list tx_line tx_fill)) (list (tx-touch 500 380 700 520) (tx-touch 280 150 420 290)))
 ;the board's own: a box dragged out with the hand
-(defq tx_board (test-release (Board tx_doc)))
+(defq tx_board (Board tx_doc))
 (def tx_board :mode :select)
 (. tx_board :pointers (list (ptr-event 0 :mouse 1 350 20)))
 (. tx_board :pointers (list (ptr-event 0 :mouse 1 450 200)))
