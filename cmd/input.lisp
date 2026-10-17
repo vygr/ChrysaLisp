@@ -47,7 +47,7 @@
     Given to the GUI of this network, as if from its mouse and
     keyboard, so to the windows of any app, as they would be.")
 (("-t" "--title") ,(opt-str 'opt_t))
-(("-f" "--find") ,(opt-str 'opt_f))
+(("-f" "--find") ,(opt-pair 'opt_f "="))
 (("-w" "--wait") ,(opt-num 'opt_w))
 ))
 
@@ -193,12 +193,8 @@
 
 (defun main ()
 	(when (and (defq stdio (create-stdio))
-			(defq opt_t :nil opt_f :nil opt_w 0 args (options stdio usage)))
-		;key=value, split at the first =, so a value may hold one, text==
-		(defq kv (if opt_f (ifn (defq eq_idx (find "=" opt_f)) (list opt_f)
-				(list (slice opt_f 0 eq_idx) (slice opt_f (inc eq_idx) -1)))
-			(list))
-			at (gui-wait (# (gui-locate-rpc opt_t (first kv) (second kv))) opt_w)
+			(defq opt_t :nil opt_f (list) opt_w 0 args (options stdio usage)))
+		(defq at (gui-wait (# (gui-locate-rpc opt_t (first opt_f) (second opt_f))) opt_w)
 			why :nil)
 		(cond
 			((not at) (print "input: no GUI"))

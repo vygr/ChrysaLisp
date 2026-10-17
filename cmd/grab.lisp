@@ -24,7 +24,7 @@
     The less there is of it the less it is to look at: a bar,
     not the window, if the bar is the question.")
 (("-t" "--title") ,(opt-str 'opt_t))
-(("-f" "--find") ,(opt-str 'opt_f))
+(("-f" "--find") ,(opt-pair 'opt_f "="))
 (("-w" "--wait") ,(opt-num 'opt_w))
 ))
 
@@ -32,13 +32,10 @@
 	(when (and (defq stdio (create-stdio))
 			(defq opt_t :nil opt_f :nil opt_w 0 args (options stdio usage)))
 		;a view in the window: where it is seen, and that is what is grabbed
-		;key=value, split at the first =, so a value may hold one, text==
-		(defq kv (if opt_f (ifn (defq eq_idx (find "=" opt_f)) (list opt_f)
-				(list (slice opt_f 0 eq_idx) (slice opt_f (inc eq_idx) -1))))
-			at (if kv (gui-wait (# (gui-locate-rpc opt_t (first kv) (second kv))) opt_w)))
+		(defq at (if opt_f (gui-wait (# (gui-locate-rpc opt_t (first opt_f) (second opt_f))) opt_w)))
 		(cond
 			((< (length args) 2) (print "grab: what file ?"))
-			((and kv (not at)) (print "grab: no GUI"))
+			((and opt_f (not at)) (print "grab: no GUI"))
 			((str?? at) (print "grab: " at))
 			((not (defq grabbed (gui-wait (# (gui-grab-rpc opt_t (if at (slice at 4 8)))) opt_w)))
 				(print "grab: no GUI"))

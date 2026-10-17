@@ -82,6 +82,16 @@
 	(static-qq (lambda (args arg)
 		(setq ,opt_var (first args)) (rest args))))
 
+(defun opt-pair (opt_var sep)
+	; (opt-pair 'opt_var sep) -> args
+	;the arg split at the first sep, (key value), so the value may hold
+	;one, text== is ("text" "="). With no sep in it, (key)
+	(static-qq (lambda (args arg)
+		(defq pair (first args))
+		(setq ,opt_var (if (defq at (find ,sep pair))
+			(list (slice pair 0 at) (slice pair (inc at) -1)) (list pair)))
+		(rest args))))
+
 (defun opt-nums (cnt opt_var)
 	; (opt-nums cnt 'opt_var) -> args
 	(static-qq (lambda (args arg)
@@ -103,5 +113,5 @@
 		((options_fn (io-stream 'stdin)))))
 
 ;module
-(export-symbols '(options options-input opt-flag opt-toggle opt-str opt-num opt-nums))
+(export-symbols '(options options-input opt-flag opt-toggle opt-str opt-num opt-nums opt-pair))
 (env-pop)
