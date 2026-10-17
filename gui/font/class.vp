@@ -614,7 +614,9 @@
 	;must not use iters as kernel callbacks will deshedule us !
 	(assign (vpx (@ sys/statics/statics)) (vpx statics))
 	(assign (vpx 0 (.> statics statics_font_intern)) (vpx index flat_set))
+	;a node that never made a font, one with no GUI, has none to flush
 	(loop-start)
+		(breakif (vpx (= flat_set 0)))
 		(call :array :get_length (vpx flat_set) (vpx _ length))
 		(breakif (vpx (= index length)))
 		(call :list :get_elem (vpx flat_set index) (vpx _ font))
