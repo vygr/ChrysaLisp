@@ -187,6 +187,14 @@ Hitachi SH, the i860, the AM29050 and the TI C40. BYTE opened its July 1994
 feature with a ray tracer running in parallel on a 486, four transputers and
 four R3000s at once.
 
+Taos did not care which way round a processor held its bytes. The VP itself
+was, in BYTE's words, "a 32-bit little-endian RISC machine with 16
+registers", and among its few pseudo instructions was LIT, "which marks
+literal data that needs to be translated (e.g., from little-endian to
+big-endian)". The translator for a big endian processor, the 68000 or the
+PowerPC, turned the literal data of a tool round as it loaded it, so the one
+file on disc ran on processors of either byte order. (BYTE, July 1994)
+
 ### The chip that never was
 
 One of the first translators was for a processor that was never made. Sir
