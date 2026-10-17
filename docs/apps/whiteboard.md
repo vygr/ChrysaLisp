@@ -113,10 +113,6 @@ How a board was last seen is kept in its file, and it opens so.
 
 ## Menus, and what each pen is
 
-```image
-apps/media/whiteboard/data/palette.cwb
-```
-
 There is no one tool or colour of the board. Each pen, the mouse, and the
 fingers of a touch screen, has its own, and what you pick is picked for
 whatever you picked it with.
@@ -124,12 +120,12 @@ whatever you picked it with.
 * The last button of the instruments' bar, the dial, makes a menu in the
 middle of the board. Make as many as you like, one each.
 
-* A menu stays where it is till its middle is tapped. Drag it by its middle
-to move it.
+* A menu stays where it is till the cross at the right of its bar is
+tapped. Drag it by its bar to move it.
 
-* The inner ring is the tools, the next the colours and four widths, the
-outer one undo, redo, the instruments, snap to the grid, duplicate and
-delete.
+* Its rows are the tools, the pens, four widths, and the things to do:
+undo, redo, snap to the grid, duplicate, delete, the instruments, and the
+palette of inks.
 
 * A tap on a menu sets what tapped it: a pen's tip, a pen with the button on
 its side held, the mouse's left button or its right, or all the fingers of

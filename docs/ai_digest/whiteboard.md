@@ -640,52 +640,49 @@ table from `:length`. Another instrument is another table.
 
 ## Menus
 
-```image
-apps/media/whiteboard/data/palette.cwb
-```
-
-Chris: "Animating interactive pellets and menu's, mostly keep the surface
-clear for the user to work unhindered". A menu is a `Palette`,
-`lib/cwb/palette.inc`, three rings about a point. The tools. The colours and
-the widths. Things to do: undo, redo, a ruler, a protractor, a whole
-protractor, the two set squares, snap, duplicate, delete.
+Menus keep the surface clear for the work. Every menu of the board is a
+panel, `lib/cwb/panel.inc`: a bar across the top to drag it by, with the
+cross that shuts it at its right end as a window's is, and rows of square
+cells under it. It lies on the glass, the right way up however the board is
+turned, at the size it is on the screen. A kind of menu says what its cells
+are, `:layout`, how one is drawn, `:cell_items`, what a tap on one does,
+`:tap`, and what one is called, `:tip`. The menu of the board, a `Palette`
+in `lib/cwb/palette.inc`, has a row of the tools, the pens, the widths, and
+the things to do: undo, redo, snap, duplicate, delete, a ruler, a
+protractor, a whole protractor, the two set squares, and the swatches. The
+swatches, `lib/cwb/swatches.inc`, are a panel too.
 
 In the app a menu floats, `(palette-float board x y)`, made by the dial,
-the last button of the instruments' bar. Chris: "a button on the toolbar
-... created a floating menu (just another object that also lives in this
-multi inputs swarm) and you could drag them around, have as many as you
-wanted". It stays till its middle is tapped, and is dragged by its middle.
-A tap on it is a pick by what tapped it, `(. board :pick event what val)`,
-the one table the toolbar, the rings and the swatches all use: with things
-its user holds a pen, a colour or a width is theirs, the main button the
-outline and the second the fill; with none the device's slot has it, the
-buttons it had held, all the fingers of a touch screen as one. Chris:
-"taps on them effect their pen as you KNOW what device has tapped on them".
-Each device that has bound something on it shows a small square of its own
-colour on the wedge, in a strip of six along the rim, as the toolbar
-buttons show them under their symbols: mouse, touch, the teacher's pen and
-three students', each always in its place, `(. board :device_slot)`. Undo and redo from a menu are
-the teacher's only. Nothing opens from a tap on the board, Chris: "A tap on
-the canvas did leave a dot as I didn't have a pop up menu on the canvas".
+the last button of the instruments' bar, as many as are wanted, each
+dragged by its bar. It stays till its cross is tapped. A tap on it is a
+pick by what tapped it, `(. board :pick event what val)`, the one table the
+toolbar, the menus and the swatches all use: with things its user holds a
+pen or a width is theirs, the main button the outline and the second the
+fill; with none the device's slot has it, the buttons it had held, all the
+fingers of a touch screen as one. Each device that has bound something on
+it shows a small square of its own colour in that cell, in a strip of six
+along its foot, as the toolbar buttons show them under their symbols:
+mouse, touch, the teacher's pen and three students', each always in its
+place, `(. board :device_slot)`. Undo and redo from a menu are the
+teacher's only. Nothing opens from a tap on the board: there a tap is a dot.
 
-The `cwb` command still has the palette that opens under a hand that taps on
+The `cwb` command still has the menu that opens under a hand that taps on
 nothing, `(palette-enable board)`, and `(palette-open board x y kind id)`.
 That one belongs to the pointer that opened it, a pick of a tool puts it
 away, and a pointer of its own going down elsewhere does too, `:dismiss`.
 
-It opens out, a ring after a ring, each turning as it comes, and shuts
-quicker. It does not ask what the time is. `(. board :tick time)`,
-microseconds, tells everything on the stage, and says if anything is still
-moving. The app calls it from its timer. A test, or a script, steps it.
+A pen cell shows its pen's ink as it is when drawn, so a pen refilled is
+seen at once with nothing to tell the menu, and a menu remakes its cells
+itself when what the board offers, the swatches or the window, changes.
 
 For a script:
 
 ```vdu
 (defq p (palette-float board 400 300))  ;as the dial does
-(. board :tick 1000000)                 ;a second on, it is open
 (. p :pick :tool :rect                  ;what a pen's tap does, for it
 	(ptr-event 0x2000000 :pen 1 400 300))
-(. p :where :color 0xffe03131)          ;where that wedge is, to tap it
+(. p :where :tool :rect)                ;where that cell is, to tap it
+(. p :where :close)                     ;and its cross
 (palettes board)                        ;those that are open
 ```
 

@@ -1,37 +1,25 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; lib/cwb/palette.inc - a palette that opens on the board, where it is wanted
+; lib/cwb/palette.inc - the menu of the board: tools, pens, widths, things to do
 ;
 ; The board is kept clear. A hand that taps where there is nothing, with
-; nothing selected, opens a palette there: rings of wedges about the point,
-; the tools, the colours and widths, and things to do. It opens out, a ring
-; after a ring, and is put away by a pick of a tool, a tap on its middle,
-; or a tap anywhere off it.
+; nothing selected, opens one there, and a button of a toolbar floats one.
+; A panel, lib/cwb/panel.inc, in the same style as every menu of the board:
+; a bar to drag it by with its cross, and rows of cells, the tools, the
+; pens, the widths, and the things to do.
 ;
-; It is an actor on the board's stage, lib/cwb/pointer.inc, so it takes
-; pointers as everything there does, any of them, and is there for a
-; script as it is for a hand.
-;
-; It belongs to the pointer that opened it. What a pen picks is that pen's:
-; the pen is bound, by its id, to the tool, the colour and the width, and
-; another pen keeps its own. What a mouse or a finger picks is the board's.
-;
-; It moves by time it is told, (. board :tick time), microseconds. Nothing
-; here asks what the time is, so a test steps it.
+; One opened by a tap belongs to the pointer that opened it, and shuts on a
+; pick of a tool, or a tap of that pointer anywhere off it. A floating one
+; stays till its cross is tapped, and a tap on it is for the device and
+; button that tapped, which it shows, a square of each device on what it
+; holds.
 ;
 ; Its sizes are of the screen, and are divided by the board's :zoom.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "./tools.inc")
+(import "./panel.inc")
 
-;the middle, and where each of the three rings starts and ends
-(defq +pal_hub 24.0 +pal_radii ''((30.0 78.0) (82.0 112.0) (116.0 150.0)) +pal_gap 1.5
-	;how long a ring takes to open, how long after the last the next starts,
-	;and how long it takes to shut, microseconds
-	+pal_open 220000 +pal_lag 50000 +pal_shut 120000
-	+pal_back 0xf0283038 +pal_hot 0xff3d6fd0 +pal_ink 0xffffffff +pal_mark 0xff58c0ff
-	;the squares of the devices on a floating menu, how far apart along the
-	;rim, six of them, a device in its place, (. board :device_slot)
-	+pal_cell 5.0
+;a cell, how many across, the squares of the devices on a floating one
+(defq +pal_cell 26.0 +pal_cols 8 +pal_dot 4.0
 	+pal_tools ''(:select :pen :line :arrow :arrow2 :rect :ellipse :frect :fellipse :text :eraser)
 	+pal_colors ''(0xff000000 0xff7f7f7f 0xffffffff 0xffe03131 0xfff08c00 0xffffd43b
 		0xff2f9e44 0xff15aabf 0xff1971c2 0xff7048e8 0xffd6336c 0xff8d5524)
@@ -39,35 +27,10 @@
 	;the instruments together, the rest together
 	+pal_actions ''(:undo :redo :snap :duplicate :delete :ruler :protractor :full_protractor :set_square :set_square45))
 
-;a wedge, a list
-(enums +wedge 0
-	(enum ring what val a0 a1 r0 r1 back hot mark icon))
-
-(defun pal-point (r a)
-	; (pal-point r a) -> (x y)
-	;the point that far from the middle, at an angle from straight up
-	;round the way a clock goes
-	(list (* r (sin a)) (neg (* r (cos a)))))
-
-(defun pal-wedge-d (r0 r1 a0 a1)
-	; (pal-wedge-d r0 r1 a0 a1) -> d
-	;the path of a wedge of a ring, between two radii and two angles
-	(bind '(x0 y0) (pal-point r0 a0)) (bind '(x1 y1) (pal-point r1 a0))
-	(bind '(x2 y2) (pal-point r1 a1)) (bind '(x3 y3) (pal-point r0 a1))
-	(defq big (if (> (- a1 a0) +fp_pi) 1 0))
-	(cwb-d "M" x0 y0 "L" x1 y1 "A" r1 r1 0 big 1 x2 y2 "L" x3 y3 "A" r0 r0 0 big 0 x0 y0 "Z"))
-
-(defun pal-line (d &rest more)
-	; (pal-line d [key val] ...) -> shape
-	;a line of an icon, round at its ends and its corners unless it is said
-	(apply (const cwb-shape) (cat (list d :stroke +pal_ink :width 2.0 :join :round
-		:cap1 :round :cap2 :round) more)))
-
 (defun pal-tip (what val)
 	; (pal-tip what val) -> :nil | str
-	;the name of a wedge, as the toolbars' tips say it, Chris: "Can the
-	;ring menu have tooltips ! same as the toolbar's ?". A colour has none,
-	;as an ink of the bar has none
+	;the name of a cell, as the toolbars' tips say it. A colour or a pen has
+	;none, as an ink of the bar has none
 	(case what
 		(:tool (elem-get '("select" "pen" "line" "arrow" "double arrow" "rect" "ellipse"
 				"filled rect" "filled ellipse" "text" "eraser") (ifn (find val +pal_tools) 0)))
@@ -79,7 +42,7 @@
 
 (defun pal-icon (what val)
 	; (pal-icon what val) -> shapes
-	;what is drawn on a wedge, about 0 0, in a box of 20 or so
+	;what is drawn on a cell, about 0 0, in a box of 20 or so
 	(case what
 		(:tool (case val
 			(:select (list (cwb-shape "M -5 -9 L -5 6 L -1.5 2.5 L 1.5 9 L 4 8 L 1 1.5 L 6 1.5 Z" :fill +pal_ink :stroke 0)))
@@ -100,10 +63,9 @@
 			(:redo (list (pal-line "M 7 -2 L -2 -2 A 4.5 4.5 0 0 0 -2 7 L 3 7 M 3 -6 L 7 -2 L 3 2")))
 			(:ruler (list (pal-line (cwb-d-rect -9 -3.5 9 3.5) :width 1.6 :join :miter)
 				(pal-line "M -5 -3.5 L -5 0 M -1 -3.5 L -1 0 M 3 -3.5 L 3 0 M 7 -3.5 L 7 0" :width 1.4)))
-			;the instruments as they are, Chris: "still only 3 instruments on
-			;the ring menu ?": a protractor its marks round its edge, the
-			;whole one its line across, no cross that was a target, and a set
-			;square a right angle with the hole in it a set square has
+			;the instruments as they are: a protractor its marks round its
+			;edge, the whole one its line across, and a set square a right
+			;angle with the hole in it a set square has
 			(:protractor (list (pal-line "M -9 4 A 9 9 0 0 1 9 4 Z" :width 1.6)
 				(pal-line "M 0 -5 L 0 -2.5 M -6.4 -1.6 L -4.6 -0.4 M 6.4 -1.6 L 4.6 -0.4 M 0 4 L 0 1.5" :width 1.2)))
 			(:full_protractor (list (pal-line (cwb-d-ellipse 0 0 8.5) :width 1.6)
@@ -126,115 +88,50 @@
 			(:t (list))))
 		(:t (list))))
 
-(defun pal-ease (x)
-	; (pal-ease x) -> num
-	;0 to 1, by a little past 1 and back, as a thing that springs open does
-	(defq x (- (max 0.0 (min 1.0 x)) 1.0))
-	(+ 1.0 (* 2.70158 x x x) (* 1.70158 x x)))
+;a cell of a pen or a colour, what is drawn in it
+(defun pal-ink-cell (x0 y0 x1 y1 ink)
+	; (pal-ink-cell x0 y0 x1 y1 ink) -> shapes
+	(if (board-none? ink)
+		(list (cwb-shape (cwb-d-rect (+ x0 2.0) (+ y0 2.0) (- x1 2.0) (- y1 2.0)) :fill 0xffffffff :stroke 0)
+			(cwb-shape (cwb-d "M" (+ x0 4.0) (- y1 4.0) "L" (- x1 4.0) (+ y0 4.0)) :stroke 0xffe03131 :width 2.0))
+		(list (cwb-shape (cwb-d-rect (+ x0 2.0) (+ y0 2.0) (- x1 2.0) (- y1 2.0)) :fill ink :stroke 0))))
 
-(defclass Palette (board x y &optional kind id) (Actor)
+(defclass Palette (board x y &optional kind id) (Panel board x y)
 	; (Palette board x y [kind id]) -> palette
 	;about a point of the document, for the pointer of that kind and id,
 	;default the mouse. It is not on the stage till it is put there,
-	;(palette-open) does both. It starts to open at the time the board
-	;was last told
-	(def this :board board :origin (list (n2f x) (n2f y)) :kind (ifn kind :mouse) :id (ifn id 0)
-		:start (get :time board) :shut :nil :now (get :time board) :hover :nil :wedges :nil :gone :nil
-		;a floating menu, (palette-float): it stays till its middle is
+	;(palette-open) does both
+	(def this :kind (ifn kind :mouse) :id (ifn id 0)
+		;a floating menu, (palette-float): it stays till its cross is
 		;tapped, and binds whatever taps it
 		:floating :nil)
 
-	(defmethod :build ()
-		; (. palette :build) -> palette
-		;the wedges, each with what is drawn for it, made once
-		(defq wedges (list))
-		(each (lambda (entries)
-			(defq k (!) n (length entries) step (/ +fp_2pi (n2f n)))
-			(bind '(r0 r1) (elem-get +pal_radii k))
-			(defq gap (/ +pal_gap (* 0.5 (+ r0 r1))))
-			(each (lambda ((what val))
-				(defq a0 (* step (n2f (!))) a1 (+ a0 step)
-					d (pal-wedge-d r0 r1 (+ a0 gap) (- a1 gap))
-					ink (case what (:color val) (:pen (elem-get (get :pens (get :board this)) val)))
-					fill (ifn ink +pal_back))
-				(bind '(cx cy) (pal-point (* 0.5 (+ r0 r1)) (* 0.5 (+ a0 a1))))
-				(push wedges (list k what val a0 a1 r0 r1
-					(cwb-shape d :fill fill :stroke (if ink +pal_back 0) :width 1.5)
-					(cwb-shape d :fill (ifn ink +pal_hot) :stroke +pal_ink :width 2.0)
-					(cwb-shape (cwb-d "M" (first (pal-point (- r1 3.0) (+ a0 gap gap))) (second (pal-point (- r1 3.0) (+ a0 gap gap)))
-						"A" (- r1 3.0) (- r1 3.0) 0 0 1
-						(first (pal-point (- r1 3.0) (- a1 gap gap))) (second (pal-point (- r1 3.0) (- a1 gap gap))))
-						:stroke +pal_mark :width 3.5 :cap1 :round :cap2 :round)
-					(if (nempty? (defq icon (pal-icon what val)))
-						(cwb-group icon :m (Mat3x2-translate cx cy))))))
-				entries))
-			(list (map (# (list :tool %0)) +pal_tools)
-				;the pens of a board that has them, else its colours
-				(cat (if (defq pens (get :pens (get :board this)))
-						(map (# (list :pen %0)) (range 0 (length pens)))
-						(map (# (list :color %0)) (ifn (get :menu_colors (get :board this)) +pal_colors)))
-					(map (# (list :width %0)) (ifn (get :menu_widths (get :board this)) +pal_widths)))
-				;and the swatches, the inks to fill a pen with, if what shows the board
-				;has them, :on_swatches, and one more, if the board is shown
-				;with nothing round it, to have what was round it back: what
-				;shows the board says so by giving it something to call,
-				;:on_window
+	(defmethod :get_cells ()
+		; (. palette :get_cells) -> cells
+		;made again if what the board offers, swatches or the window, has
+		;changed since they were made
+		(defq board (get :board this)
+			offers (+ (if (get :on_swatches board) 1 0) (if (get :on_window board) 2 0)))
+		(unless (eql offers (get :offers this)) (def this :cells :nil :offers offers))
+		(.super this :get_cells))
+
+	(defmethod :layout ()
+		; (. palette :layout) -> (cells w h)
+		;the tools, the pens of a board that has them else its colours, the
+		;widths, and the things to do: the swatches if what shows the board
+		;has them, :on_swatches, and the window if the board is shown with
+		;nothing round it, :on_window
+		(defq board (get :board this))
+		(cell-rows (list
+				(map (# (list :tool %0)) +pal_tools)
+				(if (defq pens (get :pens board))
+					(map (# (list :pen %0)) (range 0 (length pens)))
+					(map (# (list :color %0)) (ifn (get :menu_colors board) +pal_colors)))
+				(map (# (list :width %0)) (ifn (get :menu_widths board) +pal_widths))
 				(map (# (list :action %0)) (cat +pal_actions
-					(if (get :on_swatches (get :board this)) '(:swatches) '())
-					(if (get :on_window (get :board this)) '(:window) '())))))
-		(def this :wedges wedges)
-		this)
-
-	(defmethod :get_wedges ()
-		; (. palette :get_wedges) -> wedges
-		(unless (get :wedges this) (. this :build))
-		(get :wedges this))
-
-	(defmethod :to_own (x y)
-		; (. palette :to_own x y) -> (x y)
-		;a point of the document, about the middle of the palette at the
-		;size it is on the screen
-		;and the way up it is there, if what shows the board has turned
-		;it, :view_turn of the board, an angle: a palette lies on the
-		;glass, it is the right way up whichever way the board is
-		(bind '(ox oy) (get :origin this))
-		(defq zoom (get :zoom (get :board this)) turn (get :view_turn (get :board this)))
-		(Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
-
-	(defmethod :wedge_at (px py)
-		; (. palette :wedge_at px py) -> :nil | :hub | wedge
-		;what a point of its own is on
-		(defq r (sqrt (+ (* px px) (* py py)))
-			a (+ (path-angle px py) +fp_hpi))
-		(if (< a 0.0) (setq a (+ a +fp_2pi)))
-		(cond
-			((<= r +pal_hub) :hub)
-			(:t (some (# (and (>= r (elem-get %0 +wedge_r0)) (<= r (elem-get %0 +wedge_r1))
-					(>= a (elem-get %0 +wedge_a0)) (< a (elem-get %0 +wedge_a1)) %0))
-				(. this :get_wedges)))))
-
-	(defmethod :find_wedge (what val)
-		; (. palette :find_wedge what val) -> :nil | wedge
-		(some (# (and (eql (elem-get %0 +wedge_what) what) (eql (elem-get %0 +wedge_val) val) %0))
-			(. this :get_wedges)))
-
-	(defmethod :where (what &optional val)
-		; (. palette :where what [val]) -> :nil | (x y)
-		;the point of the document that the middle of a wedge is at, for
-		;what would tap it: (:where :tool :rect), (:where :color 0xffe03131),
-		;(:where :width 8.0), (:where :action :undo), and (:where :hub)
-		(bind '(ox oy) (get :origin this))
-		(defq zoom (get :zoom (get :board this)))
-		(cond
-			((eql what :hub) (list ox oy))
-			((defq wedge (. this :find_wedge what val))
-				(bind '(px py) (pal-point (* 0.5 (+ (elem-get wedge +wedge_r0) (elem-get wedge +wedge_r1)))
-					(* 0.5 (+ (elem-get wedge +wedge_a0) (elem-get wedge +wedge_a1)))))
-				(list (+ ox (/ px zoom)) (+ oy (/ py zoom))))))
-
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; what its pointer has, and is given
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+					(if (get :on_swatches board) '(:swatches) '())
+					(if (get :on_window board) '(:window) '()))))
+			+pal_cols +pal_cell))
 
 	(defmethod :value (key)
 		; (. palette :value key) -> val
@@ -246,18 +143,16 @@
 
 	(defmethod :pick (what &optional val event)
 		; (. palette :pick what [val event]) -> palette
-		;do what a tap on a wedge does, see (:where). What it picks is the
+		;do what a tap on a cell does, see (:where). What it picks is the
 		;board's to do, (. board :pick), for what the menu is for: a floating
-		;menu, given the event of the tap, what tapped it, Chris: "taps on
-		;them effect their pen as you KNOW what device has tapped on them",
-		;and it stays; one opened for a pen, that pen; one opened by the
-		;mouse or a finger, the board's own. One not floating shuts on a tool
+		;menu, given the event of the tap, what tapped it, and it stays; one
+		;opened for a pen, that pen; one opened by the mouse or a finger, the
+		;board's own. One not floating shuts on a tool
 		(defq board (get :board this) floating (and (get :floating this) event)
 			user (if floating (. board :user_of event))
 			who (or floating (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
 			by (cond (floating event) ((eql (get :kind this) :pen) who)))
 		(case what
-			(:hub (. this :close))
 			(:tool (. board :pick by :mode val) (unless floating (. this :close)))
 			((:color :pen :width) (. board :pick by what val))
 			(:action
@@ -265,7 +160,7 @@
 				;an instrument is made where the palette is, and with the
 				;snap on is on the lines of the paper from the first
 				(case val
-					;only the teacher undoes, Chris: "only teacher can undo/redo the doc"
+					;only the teacher undoes
 					(:undo (if (or (not floating) (= user +board_teacher)) (. board :undo)))
 					(:redo (if (or (not floating) (= user +board_teacher)) (. board :redo)))
 					(:ruler (. (. board :get_stage) :add (. (Ruler board ox oy) :snap_zero who)) (unless floating (. this :close)))
@@ -277,7 +172,7 @@
 					;the swatches, a menu of their own beside this one, if what
 					;shows the board has them, :on_swatches
 					(:swatches (if (defq on_swatches (get :on_swatches board))
-							(on_swatches (+ ox (/ 290.0 (get :zoom board))) oy))
+							(on_swatches (+ ox (/ (+ (* 0.5 (first (get :size this))) 140.0) (get :zoom board))) oy))
 						(unless floating (. this :close)))
 					;snap is each device's own, as its colour is
 					(:snap (. board :pick by :switch :snap))
@@ -287,13 +182,6 @@
 					(:delete (. board :delete (if by (. board :selected_by (. board :user_of by))))
 						(unless floating (. this :close))))))
 		(. board :touch +board_dirty_overlay)
-		this)
-
-	(defmethod :close ()
-		; (. palette :close) -> palette
-		;it shuts, and is off the stage when it has, at a (:tick)
-		(unless (get :shut this) (def this :shut (get :now this) :hover :nil))
-		(. (get :board this) :touch +board_dirty_overlay)
 		this)
 
 	(defmethod :dismiss (event)
@@ -310,97 +198,14 @@
 	; pointers
 	;;;;;;;;;;
 
-	(defmethod :hit (x y &optional event)
-		; (. palette :hit x y) -> :t | :nil
-		;all within its outer ring is on it, till it shuts
-		(unless (get :shut this)
-			(bind '(px py) (. this :to_own x y))
-			(defq r (second (last +pal_radii)))
-			(<= (+ (* px px) (* py py)) (* r r))))
+	(defmethod :tap (cell event)
+		; (. palette :tap cell event) -> palette
+		(. this :pick (elem-get cell +cell_what) (elem-get cell +cell_val) event))
 
-	(defmethod :hot (wedge)
-		; (. palette :hot wedge) -> palette
-		;the wedge a pointer is on is drawn so
-		(unless (eql wedge (get :hover this))
-			(def this :hover wedge)
-			(. (get :board this) :touch +board_dirty_overlay))
-		this)
-
-	(defmethod :pointers (stage events)
-		; (. palette :pointers stage events) -> palette
-		;a pointer that comes up on a wedge picks it, wherever on the
-		;palette it went down. Unless it went down on the middle and was
-		;dragged: that moves the palette
-		(each (lambda (event)
-			(bind '(pid pkind buttons x y &ignore) event)
-			(bind '(px py) (. this :to_own x y))
-			(defq wedge (. this :wedge_at px py) state (. this :state pid))
-			(cond
-				((and (/= buttons 0) (not state))
-					;where it went down, on what, and where the palette then was
-					;and the buttons held, a pick is of the device as it went
-					;down, not as it came up with none
-					(. this :set_state pid (list wedge x y :nil (get :origin this) buttons))
-					(. this :hot wedge))
-				((/= buttons 0)
-					;down on its middle and dragged, the palette goes with
-					;the pointer: it is how it is moved. A little way is
-					;not a drag, a hand is not that still
-					(bind '(was sx sy dragged (ox oy) &ignore) state)
-					(defq dx (- x sx) dy (- y sy) slack (/ 5.0 (get :zoom (get :board this))))
-					(cond
-						((and (eql was :hub) (or dragged (> (abs dx) slack) (> (abs dy) slack)))
-							(elem-set state 3 :t)
-							(def this :origin (list (+ ox dx) (+ oy dy)))
-							(. (get :board this) :touch +board_dirty_overlay))
-						(:t (. this :hot wedge))))
-				(state
-					(. this :set_state pid :nil)
-					(. this :hot :nil)
-					(cond
-						;moved, and put down: nothing is picked
-						((elem-get state 3))
-						((eql wedge :hub) (. this :pick :hub))
-						(wedge (. this :pick (elem-get wedge +wedge_what) (elem-get wedge +wedge_val)
-							(ptr-event pid pkind (elem-get state 5) x y)))))
-				(:t (. this :hot wedge))))
-			events)
-		this)
-
-	(defmethod :leave (stage pid)
-		(. this :hot :nil))
-
-	;;;;;;;;;;;;;;;;;;
-	; time and drawing
-	;;;;;;;;;;;;;;;;;;
-
-	(defmethod :tick (time)
-		; (. palette :tick time) -> :t | :nil
-		;the time is now that, microseconds. Is it still moving
-		(def this :now time)
-		(cond
-			((defq shut (get :shut this))
-				(cond
-					((>= (- time shut) +pal_shut)
-						(. (. (get :board this) :get_stage) :sub this)
-						(def this :gone :t)
-						;it is gone, and what is over the board is drawn once
-						;more, without it. It is no longer moving, so nothing
-						;else would, and the last of it as it shut, small,
-						;was left on the board till something else was drawn
-						(. (get :board this) :touch +board_dirty_overlay)
-						:nil)
-					(:t :t)))
-			((< (- time (get :start this)) (+ +pal_open (* 3 +pal_lag))) :t)))
-
-	(defmethod :ring_scale (k)
-		; (. palette :ring_scale k) -> num
-		;how far open a ring is, 0 for not at all, 1 for open, by the time
-		(defq now (get :now this)
-			open (pal-ease (/ (n2f (- now (get :start this) (* k +pal_lag))) (n2f +pal_open))))
-		(if (defq shut (get :shut this))
-			(* open (- 1.0 (max 0.0 (min 1.0 (/ (n2f (- now shut)) (n2f +pal_shut))))))
-			open))
+	(defmethod :tip (cell)
+		; (. palette :tip cell) -> :nil | str
+		(if (eql (elem-get cell +cell_what) :close) "close"
+			(pal-tip (elem-get cell +cell_what) (elem-get cell +cell_val))))
 
 	(defmethod :devices ()
 		; (. palette :devices) -> ((color what slot) ...)
@@ -408,102 +213,54 @@
 		(defq board (get :board this))
 		(. (. board :get_bindings) :devices (# (. board :device_slot %0 %1 %2))))
 
-	(defmethod :draw (canvas &optional m)
-		; (. palette :draw canvas [m]) -> palette
-		;on a canvas, by the matrix the board is seen by. Each ring is as
-		;far open as it is, and turns as it opens
-		(defq board (get :board this) hover (get :hover this) wedges (. this :get_wedges)
-			mode (. this :value :mode) color (. this :value :color) width (. this :value :width)
-			pen (. board :pen_of (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
-			snap (/= (first (. board :pointer_settings (ptr-event (get :id this) (get :kind this) +pev_left 0 0))) 0.0)
-			devices (if (get :floating this) (. this :devices)))
-		(bind '(ox oy) (get :origin this))
-		(defq turn (get :view_turn board)
-			base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
-				(Mat3x2-mul (and turn (/= turn 0.0) (Mat3x2-rot (neg turn))) (Mat3x2-scale (/ 1.0 (get :zoom board)))))))
-		;the outer ring first, so one that is part open is under those inside it
-		(each (lambda (k)
-			(defq open (. this :ring_scale k))
-			(when (> open 0.02)
-				(defq items (list))
-				(each (lambda (wedge)
-					(when (= (elem-get wedge +wedge_ring) k)
-						(defq what (elem-get wedge +wedge_what) val (elem-get wedge +wedge_val))
-						(push items (elem-get wedge (if (eql wedge hover) +wedge_hot +wedge_back)))
-						(if (elem-get wedge +wedge_icon) (push items (elem-get wedge +wedge_icon)))
-						(cond
-							;a floating menu is nobody's: a square of each device
-							;on what it has, in two rows of six along the rim, each
-							;device and button in its own place as on the bars,
-							;Chris: "The ring menu, need same style of device
-							;indications"
-							(devices
-								(defq key (case what (:tool :mode) (:color :color) (:pen :pen) (:width :width) (:action (if (eql val :snap) :snap)))
-									want val
-									r (- (elem-get wedge +wedge_r1) 6.0) step (/ +pal_cell r) half (/ (* +pal_cell 0.4) r)
-									am (* 0.5 (+ (elem-get wedge +wedge_a0) (elem-get wedge +wedge_a1))))
-								(each (lambda ((col bound slot))
-										(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
-												(and (defq at (ptr-at bound key)) (eql (elem-get bound at) want))))
-											;a device's column, its second button's row inside
-											;the first's
-											(defq a (+ am (* step (- (n2f (% slot 6)) 2.5)))
-												rr (- r (* (n2f (/ slot 6)) +pal_cell)))
-											(bind '(x0 y0) (pal-point (- rr 2.0) (- a half)))
-											(bind '(x1 y1) (pal-point (+ rr 2.0) (- a half)))
-											(bind '(x2 y2) (pal-point (+ rr 2.0) (+ a half)))
-											(bind '(x3 y3) (pal-point (- rr 2.0) (+ a half)))
-											(push items (cwb-shape (cwb-d-points (list x0 y0 x1 y1 x2 y2 x3 y3) :t)
-												:fill col :stroke 0xff000000 :width 1.0))))
-									devices))
-							((case what
-									(:tool (eql val mode))
-									(:color (= val color))
-									(:pen (eql val pen))
-									(:width (= val width))
-									(:action (and (eql val :snap) snap)))
-								(push items (elem-get wedge +wedge_mark))))))
-					wedges)
-				(cwb-draw-items canvas items (Mat3x2-mul base
-					(Mat3x2-mul (Mat3x2-scale open) (Mat3x2-rot (* (- 1.0 open) -0.8)))))))
-			'(2 1 0))
-		;the middle, a spot of the colour, as wide as the width
-		(defq open (. this :ring_scale 0))
-		(when (> open 0.02)
-			(cwb-draw-items canvas (list
-				(cwb-shape (cwb-d-ellipse 0 0 +pal_hub) :fill (if (eql hover :hub) +pal_hot +pal_back)
-					:stroke +pal_ink :width 1.5)
-				(cwb-shape (cwb-d-ellipse 0 0 (max 2.0 (min 16.0 (* 0.5 (n2f width)))))
-					:fill color :stroke +pal_ink :width 1.0))
-				(Mat3x2-mul base (Mat3x2-scale open))))
-		;the name of the wedge a pointer is on, just out from the ring
-		;there, once the rings are open
-		(when (and (list? hover) (> (. this :ring_scale 2) 0.98) (defq tip (pal-tip (elem-get hover +wedge_what) (elem-get hover +wedge_val))))
-			(bind '(tx ty) (pal-point (+ (second (last +pal_radii)) 14.0)
-				(* 0.5 (+ (elem-get hover +wedge_a0) (elem-get hover +wedge_a1)))))
-			(defq text (cwb-text tip 0.0 0.0 :fill +pal_ink :font_size 16.0))
-			(when (defq box (cwb-bounds (list text)))
-				(bind '(bx by bx1 by1) box)
-				;from the ring's edge outward, whichever side of it it is
-				(defq w (- bx1 bx) h (- by1 by)
-					ox (- (if (< tx -1.0) (- tx w) (if (> tx 1.0) tx (- tx (* 0.5 w)))) bx)
-					oy (- (if (< ty -1.0) (- ty h) (if (> ty 1.0) ty (- ty (* 0.5 h)))) by))
-				(cwb-draw-items canvas (list
-					(cwb-shape (cwb-d-rect (+ bx ox -4.0) (+ by oy -3.0) (+ bx1 ox 4.0) (+ by1 oy 3.0) 3.0)
-						:fill +pal_back :stroke +pal_ink :width 1.0)
-					(cwb-text tip ox oy :fill +pal_ink :font_size 16.0))
-					base)))
-		this)
+	(defmethod :draw_state ()
+		; (. palette :draw_state) -> (mode color width pen snap pens devices)
+		;what is current for its pointer, the inks of the pens as they are
+		;now, and for a floating one the squares of the devices
+		(defq board (get :board this) who (ptr-event (get :id this) (get :kind this) +pev_left 0 0))
+		(list (. this :value :mode) (. this :value :color) (. this :value :width)
+			(. board :pen_of who) (/= (first (. board :pointer_settings who)) 0.0)
+			(get :pens board) (if (get :floating this) (. this :devices))))
+
+	(defmethod :cell_items (cell state)
+		; (. palette :cell_items cell state) -> shapes
+		;its back, or its ink, its icon, and what is current for its pointer
+		;marked, or on a floating one a square of each device that holds it
+		(bind '(what val x0 y0 x1 y1) cell)
+		(bind '(mode color width pen snap pens devices) state)
+		(defq board (get :board this) items (list) cx (* 0.5 (+ x0 x1)) cy (* 0.5 (+ y0 y1)))
+		(case what
+			(:pen (setq items (pal-ink-cell x0 y0 x1 y1 (elem-get pens val))))
+			(:color (setq items (pal-ink-cell x0 y0 x1 y1 val)))
+			(:t (push items (cwb-shape (cwb-d-rect (+ x0 1.0) (+ y0 1.0) (- x1 1.0) (- y1 1.0) 3.0) :fill 0xf0384048 :stroke 0))
+				(if (nempty? (defq icon (pal-icon what val)))
+					(push items (cwb-group icon :m (Mat3x2-translate cx cy))))))
+		(cond
+			(devices
+				(defq key (case what (:tool :mode) (:color :color) (:pen :pen) (:width :width) (:action (if (eql val :snap) :snap))))
+				(each (lambda ((col bound slot))
+						(when (and key (if (eql key :snap) (. board :switch_of bound :snap)
+								(and (defq at (ptr-at bound key)) (eql (elem-get bound at) val))))
+							;a device's column, its second button's row above the first's
+							(defq dx (+ x0 1.5 (* +pal_dot (n2f (% slot 6)))) dy (- y1 1.5 (* +pal_dot (n2f (inc (/ slot 6))))))
+							(push items (cwb-shape (cwb-d-rect dx dy (+ dx +pal_dot) (+ dy +pal_dot))
+								:fill col :stroke 0xff000000 :width 0.75))))
+					devices))
+			((case what
+					(:tool (eql val mode))
+					(:color (= val color))
+					(:pen (eql val pen))
+					(:width (= val width))
+					(:action (and (eql val :snap) snap)))
+				(push items (cwb-shape (cwb-d-rect (+ x0 1.5) (+ y0 1.5) (- x1 1.5) (- y1 1.5) 3.0) :fill 0 :stroke +pal_mark :width 2.5))))
+		items)
 	)
 
 (defun palette-open (board x y &optional kind id)
 	; (palette-open board x y [kind id]) -> palette
-	;a palette on the board, about a point, for the pointer of that kind
-	;and id, default the mouse. One that pointer had open shuts. It is
-	;about the point, wherever that is: under the hand that asked for it.
-	;The things of a document are anywhere, there is no edge of it to
-	;keep a palette inside, and what shows the board has room round the
-	;paper for it
+	;a menu on the board, about a point, for the pointer of that kind and
+	;id, default the mouse. One that pointer had open shuts. It is about the
+	;point, wherever that is: under the hand that asked for it
 	(setd kind :mouse id 0)
 	(defq stage (. board :get_stage) x (n2f x) y (n2f y))
 	(each (# (and (Palette? %0) (eql (get :kind %0) kind) (= (get :id %0) id) (. %0 :close)))
@@ -515,10 +272,7 @@
 (defun palette-float (board x y)
 	; (palette-float board x y) -> palette
 	;a floating menu about a point, as many as are wanted, from a button of
-	;a toolbar. Chris: "a button on the toolbar (slide in menu) that created
-	;a floating menu (just another object that also lives in this multi
-	;inputs swarm) and you could drag them around, have as many as you
-	;wanted". It stays till its middle is tapped, and a tap on it binds the
+	;a toolbar. It stays till its cross is tapped, and a tap on it binds the
 	;device that tapped, see (. palette :pick) and (. board :pick)
 	(defq stage (. board :get_stage))
 	(. stage :add (defq palette (Palette board (n2f x) (n2f y))))

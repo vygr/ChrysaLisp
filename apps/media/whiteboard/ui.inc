@@ -17,9 +17,8 @@
 	(.-> *image_scroll* :layout :dirty_all))
 
 (defun menus-renew ()
-	;the floating menus make their wedges again, to have, or not, the one
-	;that has the window back, as the board is all of the screen or not
-	(each (# (def %0 :wedges :nil)) (palettes *board*))
+	;the menus are drawn again, each has, or not, the cell that has the
+	;window back, as the board is all of the screen or not
 	(. *board* :touch +board_dirty_overlay))
 
 (defun full-screen (&optional sw sh)
@@ -46,7 +45,7 @@
 		(setq *view_size* :nil)
 		(def *board* :on_window (# (setq *full_go* :t)))
 		;there are no toolbars to make a menu from: one is made, in the
-		;middle, if none is open, and those open have the window wedge
+		;middle, if none is open, and those open have the window cell
 		(menus-renew)
 		;laid out at the size that makes it so, to find where the frame
 		;is in it, and put so the frame is at the corner of the screen
@@ -163,9 +162,8 @@
 		(ptr-event id kind buttons 0 0)))
 
 (defun pens-shown ()
-	;the buttons and the rings show the pens as they are, :on_pens
+	;the buttons and the menus show the pens as they are, :on_pens
 	(each (const pen-show) (. *ink_toolbar* :children) *palette*)
-	(each (# (def %0 :wedges :nil)) (palettes *board*))
 	(. *board* :touch +board_dirty_overlay))
 
 (defun pens-refill (inks)

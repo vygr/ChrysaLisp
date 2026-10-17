@@ -1,4 +1,4 @@
-(report-header "Whiteboard palette: rings of wedges that open where a hand taps on nothing, for the pointer that opened it")
+(report-header "Whiteboard menu: a panel of cells that opens where a hand taps on nothing, for the pointer that opened it")
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
@@ -15,7 +15,7 @@
 	(. board :pointers (list (ptr-event id kind 0 x1 y1))))
 
 (defun pl-pick (board palette id kind buttons what &optional val)
-	;a tap on a wedge, where the palette says it is
+	;a tap on a cell, where the menu says it is
 	(apply (const pl-tap) (cat (list board id kind buttons) (. palette :where what val))))
 
 (defun pl-ink (canvas back)
@@ -40,17 +40,10 @@
 (assert-list-eq "about where it tapped, and it is the mouse's" '(400 300 :mouse 0)
 	(cat (map (const n2i) (get :origin pl_pal)) (list (get :kind pl_pal) (get :id pl_pal))))
 (assert-eq "it is at the front of the stage" :t (eql pl_pal (last (. (. pl_board :get_stage) :get_actors))))
-(assert-eq "37 wedges: 11 tools, 12 colours and 4 widths, 10 things to do" 37 (length (. pl_pal :get_wedges)))
+(assert-eq "38 cells: 11 tools, 12 colours and 4 widths, 10 things to do, and the cross" 38 (length (. pl_pal :get_cells)))
 
-;time
-(assert-eq "at the moment it opens no ring is open at all" 0 (n2i (* 100.0 (. pl_pal :ring_scale 0))))
-(assert-eq "and it is moving" :t (. pl_board :tick 60000))
-(assert-true "a little after, the inner ring is part open and the outer less so"
-	(and (> (. pl_pal :ring_scale 0) 0.2) (< (. pl_pal :ring_scale 2) (. pl_pal :ring_scale 0))))
-(assert-eq "what moves is to be drawn again" :t (. pl_board :dirty? +board_dirty_overlay))
-(assert-eq "after a second it is still" :nil (. pl_board :tick 1000000))
-(assert-list-eq "and all three rings are open" '(100 100 100)
-	(map (# (n2i (* 100.0 (. pl_pal :ring_scale %0)))) '(0 1 2)))
+;time, it opens at once
+(assert-eq "nothing of it moves" :nil (. pl_board :tick 60000))
 
 ;drawing
 (defq pl_canvas (Canvas 800 600 1))
@@ -58,25 +51,24 @@
 (. pl_canvas :fill 0xffffffff)
 (. pl_board :draw_actors pl_canvas)
 (defq pl_open (pl-ink pl_canvas 0xffffffff))
-(assert-true "open, it is drawn, most of a disc 150 across each way" (and (> pl_open 55000) (< pl_open 72000)))
+(assert-true "open, it is drawn, a panel 220 by 216" (and (> pl_open 42000) (< pl_open 50000)))
 
-;where a wedge is, and what is there
-(assert-list-eq "the middle is the middle" '(400 300) (map (const n2i) (. pl_pal :where :hub)))
+;where a cell is, and what is there
 (defq pl_at (. pl_pal :where :tool :rect))
-(assert-eq "a point of a wedge is on that wedge" :rect
-	(elem-get (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1)) pl_at)) +wedge_val))
-(assert-eq "every wedge is where it says it is" 37
-	(length (filter (lambda (wedge)
-		(eql wedge (apply (# (. pl_pal :wedge_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
-			(. pl_pal :where (elem-get wedge +wedge_what) (elem-get wedge +wedge_val))))))
-		(. pl_pal :get_wedges))))
-(assert-eq "a point on it is on it" :t (. pl_pal :hit 400 440))
-(assert-eq "and one off it is not" :nil (. pl_pal :hit 400 460))
+(assert-eq "a point of a cell is on that cell" :rect
+	(elem-get (apply (# (. pl_pal :cell_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1)) pl_at)) +cell_val))
+(assert-eq "every cell is where it says it is" 38
+	(length (filter (lambda (cell)
+		(eql cell (apply (# (. pl_pal :cell_at %0 %1)) (apply (# (. pl_pal :to_own %0 %1))
+			(. pl_pal :where (elem-get cell +cell_what) (elem-get cell +cell_val))))))
+		(. pl_pal :get_cells))))
+(assert-eq "a point on it is on it" :t (. pl_pal :hit 400 400))
+(assert-eq "and one off it is not" :nil (. pl_pal :hit 400 420))
 
 ;a pointer over it, not down
 (. pl_board :dirty? +board_dirty_overlay)
 (. pl_board :pointers (list (apply (const ptr-event) (cat (list 0 :mouse 0) pl_at))))
-(assert-eq "the wedge the mouse is over is the one drawn so" :rect (elem-get (get :hover pl_pal) +wedge_val))
+(assert-eq "the cell the mouse is over is the one drawn so" :rect (elem-get (get :hover pl_pal) +cell_val))
 (assert-eq "which is to be drawn" :t (. pl_board :dirty? +board_dirty_overlay))
 (. pl_board :pointers (list (ptr-event 0 :mouse 0 700 500)))
 (assert-eq "and none when it has gone off" :nil (get :hover pl_pal))
@@ -88,17 +80,13 @@
 	(list (get :color pl_board) (n2i (get :width pl_board))))
 (assert-eq "and it is still open" 1 (length (palettes pl_board)))
 ;a tool, it goes
+(. pl_board :dirty? +board_dirty_overlay)
 (pl-pick pl_board pl_pal 0 :mouse +pev_left :tool :rect)
 (assert-eq "a tap on a tool sets what the board draws" :rect (get :mode pl_board))
 (assert-eq "and it shuts" 0 (length (palettes pl_board)))
 (assert-eq "shut, a point on it is not on it" :nil (. pl_pal :hit 400 300))
-(assert-eq "it is on the stage while it shuts" :t (. pl_board :tick 1050000))
-(assert-true "smaller" (< (. pl_pal :ring_scale 0) 0.7))
-(. pl_board :dirty? +board_dirty_overlay)
-(. pl_board :tick 1200000)
-(assert-eq "and then is off it" :nil (find pl_pal (. (. pl_board :get_stage) :get_actors)))
-(assert-eq "and what is over the board is to be drawn once more, without it: the last of it, small, is not left there"
-	:t (. pl_board :dirty? +board_dirty_overlay))
+(assert-eq "it is off the stage at once" :nil (find pl_pal (. (. pl_board :get_stage) :get_actors)))
+(assert-eq "and what is over the board is to be drawn again, without it" :t (. pl_board :dirty? +board_dirty_overlay))
 ;what was picked is what is drawn
 (pl-drag pl_board 0 :mouse +pev_left 100 100 220 180)
 (defq pl_item (last (cwb-items (. pl_board :get_doc))))
@@ -120,16 +108,15 @@
 (pl-tap pl_board 0 :mouse +pev_right 100 500)
 (defq pl_pal (first (palettes pl_board)))
 (assert-list-eq "it is about the point it was asked for at, near an edge too: under the hand" '(100 500) (map (const n2i) (get :origin pl_pal)))
-;down on its middle and dragged it goes with the pointer, and put down nothing is picked: it is still there
-(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 100 500)))
-(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 102 501)))
-(assert-list-eq "a hair of a move on its middle is not a drag" '(100 500) (map (const n2i) (get :origin pl_pal)))
-(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 260 380)))
-(. pl_board :pointers (list (ptr-event 0 :mouse 0 260 380)))
-(assert-list-eq "dragged by its middle it is where it was put, and is still open" '(260 380 1)
+;down on its bar and dragged it goes with the pointer, and put down nothing
+;is picked: it is still there. Its bar is across the top, 108 above the middle
+(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 100 400)))
+(. pl_board :pointers (list (ptr-event 0 :mouse +pev_left 260 280)))
+(. pl_board :pointers (list (ptr-event 0 :mouse 0 260 280)))
+(assert-list-eq "dragged by its bar it is where it was put, and is still open" '(260 380 1)
 	(cat (map (const n2i) (get :origin pl_pal)) (list (length (palettes pl_board)))))
-(pl-pick pl_board pl_pal 0 :mouse +pev_left :hub)
-(assert-eq "a tap on its middle puts it away" 0 (length (palettes pl_board)))
+(pl-pick pl_board pl_pal 0 :mouse +pev_left :close)
+(assert-eq "a tap on its cross puts it away" 0 (length (palettes pl_board)))
 ;the left button draws, it is the pen
 (. pl_board :tick 2000000)
 (def pl_board :mode :select)
@@ -201,12 +188,13 @@
 
 ;zoomed, it is the same size on the screen
 (. pl_board :tick 7000000)
+(defq pl_pal (palette-open pl_board 400 300) pl_w1 (. pl_pal :where :tool :rect))
 (def pl_board :zoom 2.0)
-(defq pl_pal (palette-open pl_board 400 300))
-(assert-list-eq "at twice the size a wedge is half as far from the middle in the document" '(400 327)
-	(map (const n2i) (. pl_pal :where :tool :rect)))
-(assert-list-eq "and the palette is on half as much of it" '(:t :nil) (list (. pl_pal :hit 400 374) (. pl_pal :hit 400 377)))
-(. pl_pal :pick :hub)
+(defq pl_w2 (. pl_pal :where :tool :rect))
+(assert-list-eq "at twice the size a cell is half as far from the middle in the document"
+	(map (# (n2i (* 0.5 (- %0 %1)))) pl_w1 '(400.0 300.0)) (map (# (n2i (- %0 %1))) pl_w2 '(400.0 300.0)))
+(assert-list-eq "and the menu is on half as much of it" '(:t :nil) (list (. pl_pal :hit 400 353) (. pl_pal :hit 400 356)))
+(. pl_pal :close)
 (def pl_board :zoom 1.0)
 (. pl_board :tick 8000000)
 (assert-eq "all are gone from the stage at the end" 0

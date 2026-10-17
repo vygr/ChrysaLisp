@@ -416,14 +416,14 @@
 	"(print (list (wa-bound :mode) (= (wa-bound :pen) 2) (n2i (wa-bound :width)) (wa-bound :snap) (get :snap *board*) (length (palettes *board*))))"
 	"(print (list (eql (str was) (str (list (get :mode *board*) (get :pen *board*) (get :width *board*)))) (. *ink_toolbar* :get_selected)))"
 	"(wa-drag 1 100 100 200 160) (print (cwb-get (last (cwb-items (. *board* :get_doc))) :kind))"
-	"(wa-pick :hub :nil) (. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
+	"(wa-pick :close :nil) (. *board* :tick 3000000) (print (length (filter (const Palette?) (. (. *board* :get_stage) :get_actors))))")))
 (assert-eq "the right button, down and up on nothing, opens no menu" "0" (elem-get wa_out 0))
 (assert-eq "the menu button of the toolbar makes a floating one" "(1 :t)" (elem-get wa_out 1))
 (assert-eq "the board draws with it open" "(0)" (elem-get wa_out 2))
 (assert-eq "taps of the mouse on it bind the mouse's left button to the colour, the width, snap and the tool, the board's snap is as it was, and it stays" "(:ellipse :t 12 :t 0.00000 1)" (elem-get wa_out 3))
 (assert-eq "the board's own is as it was, and the toolbar shows no pick" "(:t :nil)" (elem-get wa_out 4))
 (assert-eq "what the mouse then draws is that" ":ellipse" (elem-get wa_out 5))
-(assert-eq "a tap on its middle shuts it, and it is off the stage" "0" (elem-get wa_out 6))
+(assert-eq "a tap on its cross shuts it, and it is off the stage" "0" (elem-get wa_out 6))
 
 ;a document of very many shapes is drawn by the nodes. The app's own redraw is
 ;called, as its timer calls it, and what comes to the stripes' mailboxes is
@@ -582,18 +582,18 @@
 (defq wa_out (wa-run (cat
 	"(setq *margin* 240) (. *board* :new 400 300) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 30 40 w h)"
 	"(defun wa-look () (list (. *window* :get_bounds) (length (. (get :child *window*) :children)) (canvas-size) (if (get :bare *image_scroll*) :bare) (if (get :on_window *board*) :t)"
-	" (length (. (Palette *board* 100 100) :get_wedges))))"
+	" (length (. (Palette *board* 100 100) :get_cells))))"
 	"(defq w0 (wa-look)) (full-screen 1280 800) (defq w1 (wa-look))"
 	;where the frame the board lies in is on the screen: the window's place and the frame's place in it
 	"(bind (quote (wx wy ww wh)) (. *window* :get_bounds)) (bind (quote (fx fy fw fh)) (. *window* :get_relative *image_scroll*))"
 	"(defq on (list (+ wx fx) (+ wy fy) fw fh) off (list (< wx 0) (< wy 0) (> ww 1280) (> wh 800)))"
-	;the palette's wedge asks, and it is done on the next tick
+	;the menu's window cell asks, and it is done on the next tick
 	"((get :on_window *board*)) (defq asked *full_go*) (full-window) (defq w2 (wa-look))"
 	"(print (list (eql (str w0) (str w2)) asked (rest w0))) (print (list on off (rest w1)))")))
-(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 42 things on the palette, the sixteen pens and the swatches among them. Made all of the screen and back it is that again, and the palette's wedge asked for it"
-	"(:t :t (5 (400 300) :nil :nil 42))" (first wa_out))
-(assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more thing on the palette, the window back"
-	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 43))" (second wa_out))
+(assert-eq "a window: a title, three rows, the inks on the row of the selection, and the board in it, a paper of 400 by 300, bars, and 43 cells on the menu, the sixteen pens, the swatches and the cross among them. Made all of the screen and back it is that again, and the menu's window cell asked for it"
+	"(:t :t (5 (400 300) :nil :nil 43))" (first wa_out))
+(assert-eq "all of the screen: the frame the board lies in is the screen, and the rest of the window is off its edges, nothing taken out of it; the paper is the size of the screen, no bars, and one more cell on the menu, the window back"
+	"((0 0 1280 800) (:t :t :t :t) (5 (1280 800) :bare :t 44))" (second wa_out))
 
 ;the board turned a quarter, about the middle of the paper, which is then the other way up
 (defq wa_out (wa-run (cat

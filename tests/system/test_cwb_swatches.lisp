@@ -60,7 +60,7 @@
 (. (. sw_board :get_stage) :add sw)
 (. sw_board :pointers (list (apply (const ptr-event) (cat '(0 :mouse 0) (. sw :where :alpha 0x80)))))
 (assert-true "a pointer over an opacity cell, it and its tip are drawn"
-	(and (eql (elem-get (get :hover sw) +swcell_what) :alpha)
+	(and (eql (elem-get (get :hover sw) +cell_what) :alpha)
 		(catch (progn (. sw :draw sw_c (Mat3x2-translate 0 0)) :t) :nil)))
 ;the bar across the top drags it
 (bind '(sw_x sw_y) (get :origin sw))
