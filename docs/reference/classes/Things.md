@@ -12,9 +12,9 @@ docs/reference/classes/Things.cwb
 the things of the document, on the stage in front of the canvas, each
 picking itself up. Chris: "The shape picks itself up, that's the
 insight about oops !" A contact is theirs by their own rule, asked as it
-lands, (:hit): one of the hand, or of select mode, on a thing, or a
-finger in a thing's box, or in the box round what its user holds; one
-that draws, on what its user holds, which a drag of it moves, Chris:
+lands, (:hit): one of the hand, or of select mode, on a thing's own
+ink, never only in a box round it; one that draws, on what its user
+holds, which a drag of it moves, Chris:
 "When a shape/group is selected, drag always moves it". One that draws
 on a thing no one holds is theirs till it is a tap, which picks the
 thing up, Chris: "single tap to select a shape, in any mode"; moved

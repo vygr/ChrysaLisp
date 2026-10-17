@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 653
 	:height 266
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				-47.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 13)
@@ -72,15 +69,16 @@
 					:butt
 				)
 			)
+			:pos
+			((:list 2)
+				-47.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -110,15 +108,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				-47.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 -47.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -148,15 +147,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				-47.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			12
-			:m
-			((:path 6)
-				1.00000 0.00000 249.00000 0.00000 1.00000 187.00000
-			)
 			:kind
 			:text
 			:fill
@@ -167,15 +167,16 @@
 			"[anything it still says]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				249.00000
+				187.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 63.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -201,10 +202,6 @@
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 175.39404 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -217,15 +214,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								175.39404
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 149.19116 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -236,19 +234,25 @@
 							"[a mailbox for each branch]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								149.19116
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				63.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			18
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 113.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -274,10 +278,6 @@
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 48.94244 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -290,15 +290,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.94244
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 27.13983 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -309,19 +310,25 @@
 							"[works, answers]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								27.13983
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				113.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			23
-			:m
-			((:path 6)
-				1.00000 0.00000 153.00000 0.00000 1.00000 113.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -347,10 +354,6 @@
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 35.70025 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -363,15 +366,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								35.70025
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 47.93090 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -382,19 +386,25 @@
 							"[no answer in time]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.93090
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				153.00000
+				113.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 343.00000 0.00000 1.00000 113.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -420,10 +430,6 @@
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 39.60809 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -436,15 +442,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								39.60809
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 38.20288 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -455,19 +462,25 @@
 							"[answers to a new mailbox]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.20288
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				343.00000
+				113.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 178.00000 0.00000 1.00000 209.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -493,10 +506,6 @@
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 25.06188 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -509,15 +518,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								25.06188
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 45.67279 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -528,19 +538,25 @@
 							"[let go of]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								45.67279
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				178.00000
+				209.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			38
-			:m
-			((:path 6)
-				1.00000 0.00000 323.00000 0.00000 1.00000 219.00000
-			)
 			:kind
 			:text
 			:fill
@@ -551,15 +567,16 @@
 			"[Nothing keeps track of what was lost. What a lost branch says late]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				323.00000
+				219.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			39
-			:m
-			((:path 6)
-				1.00000 0.00000 323.00000 0.00000 1.00000 235.00000
-			)
 			:kind
 			:text
 			:fill
@@ -570,6 +587,11 @@
 			"[goes to a mailbox nobody reads, and the new one starts clean.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				323.00000
+				235.00000
+			)
 		)
 	)
 	:props :nil

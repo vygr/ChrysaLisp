@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 1256
 	:height 217
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +158,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -197,15 +197,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -235,15 +236,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			19
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -269,10 +271,6 @@
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 41.32391 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -285,15 +283,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								41.32391
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 38.89416 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -304,19 +303,25 @@
 							"[nonce, 12 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.89416
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			24
-			:m
-			((:path 6)
-				1.00000 0.00000 223.00000 0.00000 1.00000 53.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -342,10 +347,6 @@
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 98.97973 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -358,15 +359,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								98.97973
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 51.14074 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -377,15 +379,16 @@
 							"[a stream of blocks of 64 bytes,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.14074
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 40.24078 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -396,19 +399,25 @@
 							"[from the key, the nonce and a count]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								40.24078
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				223.00000
+				53.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			30
-			:m
-			((:path 6)
-				1.00000 0.00000 543.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -434,10 +443,6 @@
 							:shape
 							:id
 							33
-							:m
-							((:path 6)
-								1.00000 0.00000 91.64898 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -450,15 +455,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								91.64898
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							34
-							:m
-							((:path 6)
-								1.00000 0.00000 42.58471 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -469,19 +475,25 @@
 							"[its start is the key of the tag]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								42.58471
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				543.00000
+				22.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			35
-			:m
-			((:path 6)
-				1.00000 0.00000 543.00000 0.00000 1.00000 84.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -507,10 +519,6 @@
 							:shape
 							:id
 							38
-							:m
-							((:path 6)
-								1.00000 0.00000 73.82232 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -523,15 +531,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								73.82232
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							39
-							:m
-							((:path 6)
-								1.00000 0.00000 68.77148 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -542,19 +551,25 @@
 							"[xor with the data]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								68.77148
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				543.00000
+				84.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			40
-			:m
-			((:path 6)
-				1.00000 0.00000 823.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -580,10 +595,6 @@
 							:shape
 							:id
 							43
-							:m
-							((:path 6)
-								1.00000 0.00000 101.75256 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -596,15 +607,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								101.75256
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							44
-							:m
-							((:path 6)
-								1.00000 0.00000 34.80456 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -615,15 +627,16 @@
 							"[of the aad, then what was encrypted,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								34.80456
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							45
-							:m
-							((:path 6)
-								1.00000 0.00000 67.66491 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -634,19 +647,25 @@
 							"[then how long each was]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								67.66491
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				823.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			46
-			:m
-			((:path 6)
-				1.00000 0.00000 823.00000 0.00000 1.00000 84.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -672,10 +691,6 @@
 							:shape
 							:id
 							49
-							:m
-							((:path 6)
-								1.00000 0.00000 72.21691 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -688,15 +703,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								72.21691
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							50
-							:m
-							((:path 6)
-								1.00000 0.00000 80.58441 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -707,19 +723,25 @@
 							"[as long as the data]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								80.58441
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				823.00000
+				84.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			51
-			:m
-			((:path 6)
-				1.00000 0.00000 1133.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -745,10 +767,6 @@
 							:shape
 							:id
 							54
-							:m
-							((:path 6)
-								1.00000 0.00000 36.00915 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -761,15 +779,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.00915
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							55
-							:m
-							((:path 6)
-								1.00000 0.00000 35.71173 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -780,19 +799,25 @@
 							"[16 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								35.71173
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				1133.00000
+				22.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			56
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 186.00000
-			)
 			:kind
 			:text
 			:fill
@@ -803,15 +828,16 @@
 			"[what comes back from (aead-seal key nonce aad data): the two green parts, one str. The aad is guarded by the tag and is not in it.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				186.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			57
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 202.00000
-			)
 			:kind
 			:text
 			:fill
@@ -822,6 +848,11 @@
 			"[(aead-open) makes the tag again from what it is given, and gives the data only if it is the tag it was given. A nonce is never used twice with a key.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				202.00000
+			)
 		)
 	)
 	:props :nil

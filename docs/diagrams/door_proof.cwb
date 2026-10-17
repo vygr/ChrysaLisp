@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 686
 	:height 347
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -56,15 +52,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				8.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 260.27172 0.00000 1.00000 51.00000
-			)
 			:kind
 			:text
 			:fill
@@ -75,15 +72,16 @@
 			"[CLDOOR1 and the nonce, each way]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				260.27172
+				51.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -113,15 +111,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				8.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 322.67578 0.00000 1.00000 117.00000
-			)
 			:kind
 			:text
 			:fill
@@ -132,15 +131,16 @@
 			"[32 bytes]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				322.67578
+				117.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -170,15 +170,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				8.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 322.67578 0.00000 1.00000 183.00000
-			)
 			:kind
 			:text
 			:fill
@@ -189,15 +190,16 @@
 			"[32 bytes]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				322.67578
+				183.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			14
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 8.00000
-			)
 			:items
 			((:list 1)
 				((:list 13)
@@ -216,15 +218,16 @@
 					:butt
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				8.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 294.28350 0.00000 1.00000 249.00000
-			)
 			:kind
 			:text
 			:fill
@@ -235,15 +238,16 @@
 			"[5 seconds for all of it]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				294.28350
+				249.00000
+			)
 		)
 		((:list 17)
 			:shape
 			:id
 			17
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-			)
 			:kind
 			:text
 			:fill
@@ -256,15 +260,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				22.00000
+			)
 		)
 		((:list 17)
 			:shape
 			:id
 			18
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 22.00000
-			)
 			:kind
 			:text
 			:fill
@@ -277,15 +282,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				483.00000
+				22.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			19
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 34.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -311,10 +317,6 @@
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -325,15 +327,16 @@
 							"[makes up 16 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.84930
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -344,19 +347,25 @@
 							"[its nonce, new each time]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.58599
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				34.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			24
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 34.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -382,10 +391,6 @@
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 51.84930 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -396,15 +401,16 @@
 							"[makes up 16 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.84930
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 36.58599 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -415,19 +421,25 @@
 							"[its nonce, new each time]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.58599
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				34.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			29
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 100.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -453,10 +465,6 @@
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -467,15 +475,16 @@
 							"[HMAC-SHA256 under the key of]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								19.01177
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							33
-							:m
-							((:path 6)
-								1.00000 0.00000 51.17388 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -486,19 +495,25 @@
 							"[D and both nonces]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.17388
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				100.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			34
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 100.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -524,10 +539,6 @@
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -538,15 +549,16 @@
 							"[checks it]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								74.34210
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							38
-							:m
-							((:path 6)
-								1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -557,19 +569,25 @@
 							"[with its own copy of the key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								27.75994
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				100.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			39
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 166.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -595,10 +613,6 @@
 							:shape
 							:id
 							42
-							:m
-							((:path 6)
-								1.00000 0.00000 74.34210 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -609,15 +623,16 @@
 							"[checks it]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								74.34210
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							43
-							:m
-							((:path 6)
-								1.00000 0.00000 27.75994 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -628,19 +643,25 @@
 							"[with its own copy of the key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								27.75994
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				166.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			44
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 166.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -666,10 +687,6 @@
 							:shape
 							:id
 							47
-							:m
-							((:path 6)
-								1.00000 0.00000 19.01177 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -680,15 +697,16 @@
 							"[HMAC-SHA256 under the key of]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								19.01177
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							48
-							:m
-							((:path 6)
-								1.00000 0.00000 52.11920 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -699,19 +717,25 @@
 							"[L and both nonces]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								52.11920
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				166.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			49
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 232.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -737,10 +761,6 @@
 							:shape
 							:id
 							52
-							:m
-							((:path 6)
-								1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -751,15 +771,16 @@
 							"[both right: a link]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								57.52789
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							53
-							:m
-							((:path 6)
-								1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -770,19 +791,25 @@
 							"[wrong, or too slow: closed]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								32.00177
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				232.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			54
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 232.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -808,10 +835,6 @@
 							:shape
 							:id
 							57
-							:m
-							((:path 6)
-								1.00000 0.00000 57.52789 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -822,15 +845,16 @@
 							"[both right: a link]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								57.52789
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							58
-							:m
-							((:path 6)
-								1.00000 0.00000 32.00177 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -841,19 +865,25 @@
 							"[wrong, or too slow: closed]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								32.00177
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				232.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			59
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 300.00000
-			)
 			:kind
 			:text
 			:fill
@@ -864,15 +894,16 @@
 			"[The key is never sent. The nonces are new every time, so an answer heard once is no use again.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				300.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			60
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 316.00000
-			)
 			:kind
 			:text
 			:fill
@@ -883,15 +914,16 @@
 			"[The two ends say different things, D and L, so one's answer is no use sent back to it.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				316.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			61
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 332.00000
-			)
 			:kind
 			:text
 			:fill
@@ -902,6 +934,11 @@
 			"[What then goes over the link is not hidden and not signed: the door says who may link, no more.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				332.00000
+			)
 		)
 	)
 	:props :nil

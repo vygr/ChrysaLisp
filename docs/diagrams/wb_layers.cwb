@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 706
 	:height 344
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 73.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -41,10 +37,6 @@
 							:shape
 							:id
 							4
-							:m
-							((:path 6)
-								1.00000 0.00000 284.19122 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -57,15 +49,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								284.19122
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 83.96221 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -76,19 +69,25 @@
 							"[handles, instruments, palettes, contact rings: drawn as they are, with a margin round the paper]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								83.96221
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				73.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 53.00000 0.00000 1.00000 69.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -114,10 +113,6 @@
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 237.19976 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -130,15 +125,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								237.19976
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 84.76409 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -149,19 +145,25 @@
 							"[what is pulled to the front, or being drawn: one picture, moved while only dragged]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.76409
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				53.00000
+				69.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 33.00000 0.00000 1.00000 125.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -187,10 +189,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 244.79382 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -203,15 +201,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								244.79382
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 56.09588 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -222,19 +221,25 @@
 							"[the document, one picture, clear where nothing is. Drawn by the nodes in stripes when it is big]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								56.09588
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				33.00000
+				125.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 53.00000 0.00000 1.00000 181.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -260,10 +265,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 233.80725 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -276,15 +277,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								233.80725
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 78.97070 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -295,19 +297,25 @@
 							"[what is pushed to the back, a canvas of its own: both are used at once, by two hands]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								78.97070
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				53.00000
+				181.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 237.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -333,10 +341,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 258.46459 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -349,15 +353,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								258.46459
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 141.05786 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -368,19 +373,25 @@
 							"[plain, grid, lines or axes: to work on, not part of the picture]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								141.05786
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				237.00000
 			)
 		)
 		((:list 17)
 			:shape
 			:id
 			26
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 39.00000
-			)
 			:kind
 			:text
 			:fill
@@ -393,15 +404,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				39.00000
+			)
 		)
 		((:list 17)
 			:shape
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 593.00000 0.00000 1.00000 263.00000
-			)
 			:kind
 			:text
 			:fill
@@ -414,15 +426,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				593.00000
+				263.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 313.00000
-			)
 			:kind
 			:text
 			:fill
@@ -433,15 +446,16 @@
 			"[A thing taken up leaves the document's picture and is in flight; put down, it lands. Only the part of the]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				313.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			29
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 329.00000
-			)
 			:kind
 			:text
 			:fill
@@ -452,6 +466,11 @@
 			"[document's picture where it was, or lands, is drawn again.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				329.00000
+			)
 		)
 	)
 	:props :nil

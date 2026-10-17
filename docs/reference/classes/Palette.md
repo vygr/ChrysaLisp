@@ -4,31 +4,23 @@
 docs/reference/classes/Palette.cwb
 ```
 
-## Actor
+## Panel
 
 ```code
 (Palette board x y [kind id]) -> palette
 
 about a point of the document, for the pointer of that kind and id,
 default the mouse. It is not on the stage till it is put there,
-(palette-open) does both. It starts to open at the time the board
-was last told
+(palette-open) does both
 ```
 
-### :build
+### :cell_items
 
 ```code
-(. palette :build) -> palette
+(. palette :cell_items cell state) -> shapes
 
-the wedges, each with what is drawn for it, made once
-```
-
-### :close
-
-```code
-(. palette :close) -> palette
-
-it shuts, and is off the stage when it has, at a (:tick)
+its back, or its ink, its icon, and what is current for its pointer
+marked, or on a floating one a square of each device that holds it
 ```
 
 ### :devices
@@ -49,94 +41,57 @@ pointer is the one it belongs to: of its kind, and for a pen the
 same pen. Did it
 ```
 
-### :draw
+### :draw_state
 
 ```code
-(. palette :draw canvas [m]) -> palette
+(. palette :draw_state) -> (mode color width pen snap pens devices)
 
-on a canvas, by the matrix the board is seen by. Each ring is as
-far open as it is, and turns as it opens
+what is current for its pointer, the inks of the pens as they are
+now, and for a floating one the squares of the devices
 ```
 
-### :find_wedge
+### :get_cells
 
 ```code
-(. palette :find_wedge what val) -> :nil | wedge
+(. palette :get_cells) -> cells
+
+made again if what the board offers, swatches or the window, has
+changed since they were made
 ```
 
-### :get_wedges
+### :layout
 
 ```code
-(. palette :get_wedges) -> wedges
+(. palette :layout) -> (cells w h)
+
+the tools, the pens of a board that has them else its colours, the
+widths, and the things to do: the swatches if what shows the board
+has them, :on_swatches, and the window if the board is shown with
+nothing round it, :on_window
 ```
-
-### :hit
-
-```code
-(. palette :hit x y) -> :t | :nil
-
-all within its outer ring is on it, till it shuts
-```
-
-### :hot
-
-```code
-(. palette :hot wedge) -> palette
-
-the wedge a pointer is on is drawn so
-```
-
-### :leave
 
 ### :pick
 
 ```code
 (. palette :pick what [val event]) -> palette
 
-do what a tap on a wedge does, see (:where). What it picks is the
+do what a tap on a cell does, see (:where). What it picks is the
 board's to do, (. board :pick), for what the menu is for: a floating
-menu, given the event of the tap, what tapped it, Chris: "taps on
-them effect their pen as you KNOW what device has tapped on them",
-and it stays; one opened for a pen, that pen; one opened by the
-mouse or a finger, the board's own. One not floating shuts on a tool
+menu, given the event of the tap, what tapped it, and it stays; one
+opened for a pen, that pen; one opened by the mouse or a finger, the
+board's own. One not floating shuts on a tool
 ```
 
-### :pointers
+### :tap
 
 ```code
-(. palette :pointers stage events) -> palette
-
-a pointer that comes up on a wedge picks it, wherever on the
-palette it went down. Unless it went down on the middle and was
-dragged: that moves the palette
+(. palette :tap cell event) -> palette
 ```
 
-### :ring_scale
+### :tip
 
 ```code
-(. palette :ring_scale k) -> num
-
-how far open a ring is, 0 for not at all, 1 for open, by the time
-```
-
-### :tick
-
-```code
-(. palette :tick time) -> :t | :nil
-
-the time is now that, microseconds. Is it still moving
-```
-
-### :to_own
-
-```code
-(. palette :to_own x y) -> (x y)
-
-a point of the document, about the middle of the palette at the
-size it is on the screen
-and the way up it is there, if what shows the board has turned
-it, :view_turn of the board, an angle: a palette lies on the
-glass, it is the right way up whichever way the board is
+(. palette :tip cell) -> :nil | str
 ```
 
 ### :value
@@ -146,23 +101,5 @@ glass, it is the right way up whichever way the board is
 
 :mode, :color or :width, as the pointer it belongs to has it, a
 pen that is bound to its own, or the board's
-```
-
-### :wedge_at
-
-```code
-(. palette :wedge_at px py) -> :nil | :hub | wedge
-
-what a point of its own is on
-```
-
-### :where
-
-```code
-(. palette :where what [val]) -> :nil | (x y)
-
-the point of the document that the middle of a wedge is at, for
-what would tap it: (:where :tool :rect), (:where :color 0xffe03131),
-(:where :width 8.0), (:where :action :undo), and (:where :hub)
 ```
 

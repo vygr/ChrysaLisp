@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 859
 	:height 318
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +158,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -197,15 +197,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -231,10 +232,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 281.13238 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -247,15 +244,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								281.13238
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 166.63208 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -266,19 +264,25 @@
 							"[VP assembly, and Lisp compiled to VP: not changed by a port]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								166.63208
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 103.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -304,10 +308,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 110.65673 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -320,15 +320,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								110.65673
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 104.91101 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -339,15 +340,16 @@
 							"[src/host/vp64.cpp]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								104.91101
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 72.23596 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -358,19 +360,25 @@
 							"[runs the VP64 boot image as it is]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								72.23596
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				103.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 333.00000 0.00000 1.00000 103.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -396,10 +404,6 @@
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 119.10009 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -412,15 +416,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								119.10009
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 87.44958 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -431,15 +436,16 @@
 							"[lib/trans/mycpu_myabi.inc]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								87.44958
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 72.19366 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -450,19 +456,25 @@
 							"[VP to the native code of the CPU]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								72.19366
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				333.00000
+				103.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 209.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -488,10 +500,6 @@
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 242.29064 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -504,15 +512,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								242.29064
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 99.10803 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -523,19 +532,25 @@
 							"[src/host/main.cpp and the pii functions: files, memory, time, and GUI and audio if wanted]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								99.10803
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				209.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			38
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 275.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -561,10 +576,6 @@
 							:shape
 							:id
 							41
-							:m
-							((:path 6)
-								1.00000 0.00000 217.52453 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -575,19 +586,25 @@
 							"[the host OS, its C/C++ compiler and ABI]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								217.52453
+								19.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				275.00000
 			)
 		)
 		((:list 17)
 			:shape
 			:id
 			42
-			:m
-			((:path 6)
-				1.00000 0.00000 663.00000 0.00000 1.00000 113.00000
-			)
 			:kind
 			:text
 			:fill
@@ -600,15 +617,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				663.00000
+				113.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			43
-			:m
-			((:path 6)
-				1.00000 0.00000 663.00000 0.00000 1.00000 129.00000
-			)
 			:kind
 			:text
 			:fill
@@ -619,15 +637,16 @@
 			"[The emulator needs no translator,]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				663.00000
+				129.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			44
-			:m
-			((:path 6)
-				1.00000 0.00000 663.00000 0.00000 1.00000 145.00000
-			)
 			:kind
 			:text
 			:fill
@@ -638,15 +657,16 @@
 			"[so the PII is tested first.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				663.00000
+				145.00000
+			)
 		)
 		((:list 17)
 			:shape
 			:id
 			45
-			:m
-			((:path 6)
-				1.00000 0.00000 663.00000 0.00000 1.00000 177.00000
-			)
 			:kind
 			:text
 			:fill
@@ -659,15 +679,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				663.00000
+				177.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			46
-			:m
-			((:path 6)
-				1.00000 0.00000 663.00000 0.00000 1.00000 193.00000
-			)
 			:kind
 			:text
 			:fill
@@ -678,6 +699,11 @@
 			"[and a native boot image made with it.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				663.00000
+				193.00000
+			)
 		)
 	)
 	:props :nil

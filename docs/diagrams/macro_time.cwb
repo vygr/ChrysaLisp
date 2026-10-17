@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 656
 	:height 207
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +158,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -193,10 +193,6 @@
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 54.67346 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -209,15 +205,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								54.67346
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 49.12982 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -228,19 +225,25 @@
 							"[(ascii-code \qM\q)]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								49.12982
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				22.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			18
-			:m
-			((:path 6)
-				1.00000 0.00000 223.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -266,10 +269,6 @@
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 49.67492 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,15 +281,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								49.67492
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 34.29614 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -301,19 +301,25 @@
 							"[a tree of lists]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								34.29614
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				223.00000
+				22.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			23
-			:m
-			((:path 6)
-				1.00000 0.00000 393.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -339,10 +345,6 @@
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 84.83160 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +357,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.83160
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 49.22326 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,15 +377,16 @@
 							"[a list that begins with a macro is]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								49.22326
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 31.38317 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -393,19 +397,25 @@
 							"[put in place of by what the macro gives]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								31.38317
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				393.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			29
-			:m
-			((:path 6)
-				1.00000 0.00000 433.00000 0.00000 1.00000 112.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -431,10 +441,6 @@
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 34.83599 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -447,15 +453,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								34.83599
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							33
-							:m
-							((:path 6)
-								1.00000 0.00000 79.23950 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -466,19 +473,25 @@
 							"[77]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								79.23950
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				433.00000
+				112.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			34
-			:m
-			((:path 6)
-				1.00000 0.00000 183.00000 0.00000 1.00000 112.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -504,10 +517,6 @@
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 86.23791 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -520,15 +529,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								86.23791
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							38
-							:m
-							((:path 6)
-								1.00000 0.00000 38.35461 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -539,19 +549,25 @@
 							"[runs it, as often as it is run]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.35461
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				183.00000
+				112.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			39
-			:m
-			((:path 6)
-				1.00000 0.00000 413.00000 0.00000 1.00000 98.00000
-			)
 			:kind
 			:text
 			:fill
@@ -562,15 +578,16 @@
 			"[once, as it is read]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				413.00000
+				98.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			40
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 192.00000
-			)
 			:kind
 			:text
 			:fill
@@ -581,6 +598,11 @@
 			"[The macro's work is done once, before the code runs. What runs is only what it left behind.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				192.00000
+			)
 		)
 	)
 	:props :nil

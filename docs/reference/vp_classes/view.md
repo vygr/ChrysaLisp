@@ -163,6 +163,20 @@ trashes
 :r1-:r14, :f0-:f15
 ```
 
+### :forget_draws -> gui/view/forget_draws
+
+```code
+inputs
+:r0 = view object (ptr)
+outputs
+:r0 = view object (ptr)
+trashes
+:r1-:r4, :f0-:f15
+info
+the view's list of draws let go of, and the textures its blits kept,
+so its :draw is run again the next time it is drawn
+```
+
 ### :forward_tree -> gui/view/forward_tree
 
 ```code

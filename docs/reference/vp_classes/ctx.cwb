@@ -1,21 +1,17 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 176
-	:height 293
+	:height 310
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 20
+	:next_id 21
 	:items
 	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -23,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 17)
+					((:list 18)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 259 A 8 8 0 0 1 142 267 L 8 267 A 8 8 0 0 1 0 259 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 276 A 8 8 0 0 1 142 284 L 8 284 A 8 8 0 0 1 0 276 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -54,10 +50,6 @@
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 24.00000
-							)
 							:kind
 							:text
 							:fill
@@ -70,15 +62,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							18
+							:pos
+							((:list 2)
+								12.00000
+								24.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							6
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 40.00000
-							)
 							:kind
 							:text
 							:fill
@@ -89,6 +82,11 @@
 							"[gui/ctx/class.inc]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								12.00000
+								40.00000
+							)
 						)
 						((:list 13)
 							:shape
@@ -109,10 +107,6 @@
 							:shape
 							:id
 							8
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 66.00000
-							)
 							:kind
 							:text
 							:fill
@@ -125,15 +119,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								12.00000
+								66.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 85.00000
-							)
 							:kind
 							:text
 							:fill
@@ -144,15 +139,16 @@
 							"[:blit]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								85.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 102.00000
-							)
 							:kind
 							:text
 							:fill
@@ -163,15 +159,16 @@
 							"[:box]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								102.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							11
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 119.00000
-							)
 							:kind
 							:text
 							:fill
@@ -182,15 +179,36 @@
 							"[:filled_box]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								119.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							12
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 136.00000
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:reserve]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								136.00000
 							)
+						)
+						((:list 15)
+							:shape
+							:id
+							13
 							:kind
 							:text
 							:fill
@@ -201,13 +219,18 @@
 							"[:set_color]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								153.00000
+							)
 						)
 						((:list 13)
 							:shape
 							:id
-							13
+							14
 							:d
-							"[M 0 150 L 150 150]"
+							"[M 0 167 L 150 167]"
 							:stroke
 							4282140240
 							:width
@@ -220,11 +243,7 @@
 						((:list 17)
 							:shape
 							:id
-							14
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 166.00000
-							)
+							15
 							:kind
 							:text
 							:fill
@@ -237,15 +256,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								12.00000
+								183.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
-							15
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 185.00000
-							)
+							16
 							:kind
 							:text
 							:fill
@@ -256,15 +276,16 @@
 							"[ctx-blit]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								202.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
-							16
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 202.00000
-							)
+							17
 							:kind
 							:text
 							:fill
@@ -275,15 +296,16 @@
 							"[ctx-box]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								219.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
-							17
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 219.00000
-							)
+							18
 							:kind
 							:text
 							:fill
@@ -294,15 +316,16 @@
 							"[ctx-filled-box]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								236.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
-							18
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 236.00000
-							)
+							19
 							:kind
 							:text
 							:fill
@@ -313,15 +336,16 @@
 							"[ctx-filled-region]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								253.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
-							19
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 253.00000
-							)
+							20
 							:kind
 							:text
 							:fill
@@ -332,9 +356,19 @@
 							"[ctx-set-color]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								270.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 	)

@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 696
 	:height 292
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 75.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -155,10 +154,6 @@
 							:shape
 							:id
 							13
-							:m
-							((:path 6)
-								1.00000 0.00000 33.48687 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -171,15 +166,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								33.48687
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 58.13012 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -190,19 +186,25 @@
 							"[str_hashslot: 42]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								58.13012
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				75.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			15
-			:m
-			((:path 6)
-				1.00000 0.00000 303.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -228,10 +230,6 @@
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 158.88323 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -244,15 +242,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								158.88323
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 117.77154 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -263,15 +262,16 @@
 							"[(env 1): one bucket, a flat array]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								117.77154
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 89.98150 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,19 +282,25 @@
 							"[... 41   [42 emit-add-rr: :nil, not a jump]   43 ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								89.98150
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				303.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 303.00000 0.00000 1.00000 85.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -320,10 +326,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 157.98693 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -336,15 +338,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								157.98693
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 117.77154 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +358,16 @@
 							"[(env 1): one bucket, a flat array]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								117.77154
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 96.33148 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,19 +378,25 @@
 							"[... 41   [42 emit-add-rr: its function]   43 ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								96.33148
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				303.00000
+				85.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 303.00000 0.00000 1.00000 157.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -412,10 +422,6 @@
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 142.53363 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -428,15 +434,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								142.53363
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 117.77154 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -447,15 +454,16 @@
 							"[(env 1): one bucket, a flat array]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								117.77154
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 91.73919 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -466,19 +474,25 @@
 							"[... 41   [42 emit-add-rr: :nil, not fused]   43 ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								91.73919
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				303.00000
+				157.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 245.00000
-			)
 			:kind
 			:text
 			:fill
@@ -489,15 +503,16 @@
 			"[Each map is filled from the one master list, so a symbol is at the same place in all of them. The place a symbol]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				245.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			34
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 261.00000
-			)
 			:kind
 			:text
 			:fill
@@ -508,15 +523,16 @@
 			"[remembers, from the last map it was found in, is right for the next. And every instruction is in every map, with]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				261.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			35
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 277.00000
-			)
 			:kind
 			:text
 			:fill
@@ -527,6 +543,11 @@
 			"[:nil where it has nothing to say, so none is ever not found: that would be a search of the whole bucket, each time.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				277.00000
+			)
 		)
 	)
 	:props :nil

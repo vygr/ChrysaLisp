@@ -103,7 +103,7 @@ override the default 'this' env with a View component
 ### :ctx_blit
 
 ```code
-(. view :ctx_blit tid col x y width height [sx sy]) -> view
+(. view :ctx_blit texture col x y width height [sx sy]) -> view
 ```
 
 ### :ctx_box
@@ -234,6 +234,16 @@ and no more
 
 ```code
 (. view :layout) -> view
+```
+
+### :move_dirty
+
+```code
+(. view :move_dirty x y) -> view
+
+moved, and nothing else of it changed: it is drawn where it was
+and where it now is, and what it drew is drawn again, the lists of
+draws of it and the views in it kept, their :draw not run
 ```
 
 ### :pref_size

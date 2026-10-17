@@ -60,6 +60,18 @@ the dirty region bounds is returned for use by the :flush call !
 
 ### :flush -> :nil
 
+### :frame_free -> service/gui/frame_free
+
+```code
+trashes
+:r0-:r5, :f0-:f15
+info
+the dirty regions of the frame freed, its views let go of, and its
+list, here, not on the host, as a view let go of may be the last of it
+```
+
+### :frame_view -> service/gui/frame_view
+
 ### :init -> :nil
 
 ### :mesh_create -> :nil
@@ -73,6 +85,18 @@ the dirty region bounds is returned for use by the :flush call !
 ### :read_screen -> :nil
 
 ### :read_texture -> :nil
+
+### :replay -> service/gui/replay
+
+```code
+inputs
+:r0 = the frame's dirty bounds (ptr)
+trashes
+:r0-:r4, :r7-:r14, :f0-:f15
+info
+on the host's stack: each view of the frame, for each rect of its
+dirty region, clipped to it, its list of draws played where it is
+```
 
 ### :resize -> :nil
 
@@ -103,5 +127,11 @@ inputs
 :r2 = update flags
 trashes
 :r0-:r14, :f0-:f15
+info
+the whole frame is one callback, on the host's stack, so no task can
+change a view while it is worked out: made or sized on the host, the
+views to draw found, those that must draw again drawing into their
+lists, Lisp or VP, the others' kept lists used, then the frame put on
+the back buffer and the screen
 ```
 

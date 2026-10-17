@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 666
 	:height 268
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -41,10 +37,6 @@
 							:shape
 							:id
 							4
-							:m
-							((:path 6)
-								1.00000 0.00000 291.13238 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -57,15 +49,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								291.13238
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 139.09686 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -76,19 +69,25 @@
 							"[tasks, the kernel, Lisp, the GUI: all in the boot_image, the same on every host]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								139.09686
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 69.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -114,10 +113,6 @@
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 53.73315 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -130,15 +125,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.73315
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 29.32287 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -149,19 +145,25 @@
 							"[files, memory, time]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								29.32287
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				69.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 173.00000 0.00000 1.00000 69.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -187,10 +189,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 65.99322 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -203,15 +201,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								65.99322
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 25.89196 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -222,19 +221,25 @@
 							"[a window, events, textures]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								25.89196
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				173.00000
+				69.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 363.00000 0.00000 1.00000 69.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -260,10 +265,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 25.04943 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -276,15 +277,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								25.04943
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 40.55981 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -295,19 +297,25 @@
 							"[sound]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								40.55981
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				363.00000
+				69.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 69.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -333,10 +341,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 32.87890 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -349,15 +353,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								32.87890
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 66.83428 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -368,19 +373,25 @@
 							"[sockets]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								66.83428
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				69.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			26
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 125.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -406,10 +417,6 @@
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 245.64324 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -422,15 +429,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								245.64324
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 140.49737 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -441,19 +449,25 @@
 							"[main_tui or main_gui: loads the boot_image and hands it tables of functions]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								140.49737
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				125.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 181.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -479,10 +493,6 @@
 							:shape
 							:id
 							34
-							:m
-							((:path 6)
-								1.00000 0.00000 211.78991 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -495,15 +505,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								211.78991
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							35
-							:m
-							((:path 6)
-								1.00000 0.00000 98.12347 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -514,19 +525,25 @@
 							"[SDL, a framebuffer, or raw; or the VP64 emulator running a boot_image for no real processor]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								98.12347
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				181.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			36
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 253.00000
-			)
 			:kind
 			:text
 			:fill
@@ -537,6 +554,11 @@
 			"[Everything the system asks of a host goes through those few tables. A port is the host program and an emit file.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				253.00000
+			)
 		)
 	)
 	:props :nil

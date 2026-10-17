@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 672
 	:height 264
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -41,10 +37,6 @@
 							:shape
 							:id
 							4
-							:m
-							((:path 6)
-								1.00000 0.00000 249.99499 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -57,15 +49,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								249.99499
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 168.75921 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -76,15 +69,16 @@
 							"[.lisp and .inc: apps, commands, libraries]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								168.75921
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							6
-							:m
-							((:path 6)
-								1.00000 0.00000 106.19134 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -95,19 +89,25 @@
 							"[objects, no registers, no pointers; reaches the system by FFI calls]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								106.19134
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 85.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -133,10 +133,6 @@
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 250.26824 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -149,15 +145,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								250.26824
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							11
-							:m
-							((:path 6)
-								1.00000 0.00000 160.81536 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -168,15 +165,16 @@
 							"[.vp: the class library, (assign) and (def-vars)]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								160.81536
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							12
-							:m
-							((:path 6)
-								1.00000 0.00000 107.55358 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -187,19 +185,25 @@
 							"[C, as forms: variables and expressions, registers allotted for you]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								107.55358
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				85.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 157.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -225,10 +229,6 @@
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 224.45208 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -241,15 +241,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								224.45208
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 188.91625 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -260,15 +261,16 @@
 							"[.vp: the kernel, the inner loops]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								188.91625
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 120.02593 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -279,19 +281,25 @@
 							"[(vp-add-rr :r0 :r1): every register and every instruction said]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								120.02593
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				157.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			19
-			:m
-			((:path 6)
-				1.00000 0.00000 553.00000 0.00000 1.00000 47.00000
-			)
 			:kind
 			:text
 			:fill
@@ -302,15 +310,16 @@
 			"[run by the interpreter]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				553.00000
+				47.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			20
-			:m
-			((:path 6)
-				1.00000 0.00000 553.00000 0.00000 1.00000 119.00000
-			)
 			:kind
 			:text
 			:fill
@@ -321,15 +330,16 @@
 			"[made into native code]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				553.00000
+				119.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 553.00000 0.00000 1.00000 191.00000
-			)
 			:kind
 			:text
 			:fill
@@ -340,15 +350,16 @@
 			"[made into native code]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				553.00000
+				191.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			22
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 249.00000
-			)
 			:kind
 			:text
 			:fill
@@ -359,6 +370,11 @@
 			"[All three are s-expressions, and what is right in one may mean nothing in another. Know which you are in.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				249.00000
+			)
 		)
 	)
 	:props :nil

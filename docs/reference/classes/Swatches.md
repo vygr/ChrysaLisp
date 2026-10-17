@@ -4,7 +4,7 @@
 docs/reference/classes/Swatches.cwb
 ```
 
-## Actor
+## Panel
 
 ```code
 (Swatches board x y) -> swatches
@@ -12,72 +12,30 @@ docs/reference/classes/Swatches.cwb
 about a point of the document
 ```
 
-### :cell_at
+### :cell_items
 
 ```code
-(. swatches :cell_at px py) -> :nil | :bar | cell
+(. swatches :cell_items cell state) -> shapes
 ```
 
-### :close
+### :layout
 
 ```code
-(. swatches :close) -> swatches
+(. swatches :layout) -> (cells w h)
+
+the inks, row by row, then how see through, two cells each, and none
+at the end of that row
 ```
 
-### :draw
+### :tap
 
 ```code
-(. swatches :draw canvas [m]) -> swatches
+(. swatches :tap cell event) -> swatches
 ```
 
-### :get_cells
+### :tip
 
 ```code
-(. swatches :get_cells) -> cells
-
-made once, about the middle, in the space of the screen
-```
-
-### :hit
-
-```code
-(. swatches :hit x y) -> :t | :nil
-```
-
-### :hot
-
-```code
-(. swatches :hot cell) -> swatches
-```
-
-### :leave
-
-### :pointers
-
-```code
-(. swatches :pointers stage events) -> swatches
-
-a pointer that comes up on the cell it went down on taps it. One
-that went down on the bar, or between the cells, and is dragged
-moves the menu
-```
-
-### :to_own
-
-```code
-(. swatches :to_own x y) -> (x y)
-
-a point of the document, about the middle, at the size it is on the
-screen, the right way up whichever way the board is turned
-```
-
-### :where
-
-```code
-(. swatches :where what [val]) -> :nil | (x y)
-
-the point of the document that the middle of a cell is at, for what
-would tap it: (:where :ink 0xff000000), (:where :alpha 0x80),
-(:where :none), (:where :close)
+(. swatches :tip cell) -> :nil | str
 ```
 

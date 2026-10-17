@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 736
 	:height 286
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 376.39477 0.00000 1.00000 118.79826
-			)
 			:kind
 			:text
 			:fill
@@ -64,15 +61,16 @@
 			"[an offset]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				376.39477
+				118.79826
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -98,10 +96,6 @@
 							:shape
 							:id
 							8
-							:m
-							((:path 6)
-								1.00000 0.00000 85.30291 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -114,15 +108,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								85.30291
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 42.19250 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -133,15 +128,16 @@
 							"[ascent, descent, xkern: shorts, 3.13]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								42.19250
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 96.98101 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -152,19 +148,25 @@
 							"[2 bytes of 0]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								96.98101
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 85.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -190,10 +192,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 77.25531 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -206,15 +204,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								77.25531
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 125.58239 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -225,15 +224,16 @@
 							"[end, start: ushorts]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								125.58239
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 39.07354 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -244,19 +244,25 @@
 							"[an offset for each code: uints, from the start of the file]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								39.07354
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				85.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			17
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 157.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -282,10 +288,6 @@
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 134.02575 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -298,15 +300,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								134.02575
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 103.99932 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -317,19 +320,25 @@
 							"[then a uint of 0 to end them]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								103.99932
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				157.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			22
-			:m
-			((:path 6)
-				1.00000 0.00000 443.00000 0.00000 1.00000 85.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -355,10 +364,6 @@
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 64.29107 0.00000 1.00000 25.00000
-							)
 							:kind
 							:text
 							:fill
@@ -371,15 +376,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								64.29107
+								25.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 52.77075 0.00000 1.00000 41.00000
-							)
 							:kind
 							:text
 							:fill
@@ -390,15 +396,16 @@
 							"[char_code ushort, advance short 3.13]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								52.77075
+								41.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 97.70062 0.00000 1.00000 57.00000
-							)
 							:kind
 							:text
 							:fill
@@ -409,15 +416,16 @@
 							"[plen uint, klen uint]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								97.70062
+								57.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 78.63659 0.00000 1.00000 73.00000
-							)
 							:kind
 							:text
 							:fill
@@ -428,15 +436,16 @@
 							"[path elements, plen bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								78.63659
+								73.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 71.85760 0.00000 1.00000 89.00000
-							)
 							:kind
 							:text
 							:fill
@@ -447,15 +456,16 @@
 							"[kerning pairs, klen of 4 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								71.85760
+								89.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 87.60565 0.00000 1.00000 105.00000
-							)
 							:kind
 							:text
 							:fill
@@ -466,19 +476,25 @@
 							"[0s to the next 4 bytes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								87.60565
+								105.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				443.00000
+				85.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 443.00000 0.00000 1.00000 217.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -504,10 +520,6 @@
 							:shape
 							:id
 							34
-							:m
-							((:path 6)
-								1.00000 0.00000 105.73712 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -518,19 +530,25 @@
 							"[more glyphs ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								105.73712
+								19.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				443.00000
+				217.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			35
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 271.00000
-			)
 			:kind
 			:text
 			:fill
@@ -541,6 +559,11 @@
 			"[A code is looked for in the pages by its start and end, its offset is taken, and that is where its glyph is.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				271.00000
+			)
 		)
 	)
 	:props :nil

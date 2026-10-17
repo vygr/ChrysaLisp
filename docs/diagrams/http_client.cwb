@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 726
 	:height 143
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -56,15 +52,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 206.89733 0.00000 1.00000 39.00000
-			)
 			:kind
 			:text
 			:fill
@@ -75,15 +72,16 @@
 			"[RPC: connect]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				206.89733
+				39.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -124,15 +122,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 518.91479 0.00000 1.00000 39.00000
-			)
 			:kind
 			:text
 			:fill
@@ -143,15 +142,16 @@
 			"[TCP]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				518.91479
+				39.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -177,10 +177,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 45.34118 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -193,15 +189,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								45.34118
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 49.70587 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -212,19 +209,25 @@
 							"[lib/net/http.inc]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								49.70587
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				22.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 293.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -250,10 +253,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 49.53686 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -266,15 +265,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								49.53686
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 41.48089 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -285,15 +285,16 @@
 							"[@Net: the only thing]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								41.48089
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 50.87493 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -304,19 +305,25 @@
 							"[that has sockets]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								50.87493
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				293.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			22
-			:m
-			((:path 6)
-				1.00000 0.00000 583.00000 0.00000 1.00000 22.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -342,10 +349,6 @@
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 43.59619 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -358,15 +361,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								43.59619
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 36.45532 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -377,19 +381,25 @@
 							"[somewhere]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.45532
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				583.00000
+				22.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 112.00000
-			)
 			:kind
 			:text
 			:fill
@@ -400,15 +410,16 @@
 			"[The service gives back an :in and an :out stream for the connection.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				112.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 128.00000
-			)
 			:kind
 			:text
 			:fill
@@ -419,6 +430,11 @@
 			"[The request is written to one and the response read from the other, as to any pipe.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				128.00000
+			)
 		)
 	)
 	:props :nil

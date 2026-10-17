@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 366
 	:height 374
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +158,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -193,10 +193,6 @@
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 149.78656 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -209,15 +205,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								149.78656
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 72.50793 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -228,19 +225,25 @@
 							"[no compiler and no build tools in memory]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								72.50793
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			18
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 89.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -266,10 +269,6 @@
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 105.62945 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,15 +281,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								105.62945
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 51.08801 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -301,19 +301,25 @@
 							"[28 toolchains made, each its own, across 16 nodes]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.08801
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				89.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			23
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 165.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -339,10 +345,6 @@
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 122.53631 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +357,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								122.53631
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 32.63696 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,19 +377,25 @@
 							"[the system assembled and linked: mail routed, locks taken]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								32.63696
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				165.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 241.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -412,10 +421,6 @@
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 97.39422 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -428,15 +433,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								97.39422
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 58.63037 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -447,19 +453,25 @@
 							"[the toolchains gone, every cell back on its heap]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								58.63037
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				241.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 317.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -485,10 +497,6 @@
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 134.37017 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -501,15 +509,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								134.37017
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 127.54083 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -520,9 +529,19 @@
 							"[memory as it was]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								127.54083
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				317.00000
 			)
 		)
 	)

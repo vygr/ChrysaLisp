@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 546
 	:height 293
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -41,10 +37,6 @@
 							:shape
 							:id
 							4
-							:m
-							((:path 6)
-								1.00000 0.00000 246.11572 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -57,15 +49,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								246.11572
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 100.74035 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -76,19 +69,25 @@
 							"[what it is: magic, the store's id, the member's, the block size, copies]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								100.74035
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 53.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -114,10 +113,6 @@
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 214.03350 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -130,15 +125,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								214.03350
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 182.42260 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -149,19 +145,25 @@
 							"[who the members are, and were]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								182.42260
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				53.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 93.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -187,10 +189,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 229.25384 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -203,15 +201,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								229.25384
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 139.50823 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -222,19 +221,25 @@
 							"[what this member holds all of, and what each does]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								139.50823
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				93.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 133.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -260,10 +265,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 245.24291 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -276,15 +277,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								245.24291
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 156.89111 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -295,19 +297,25 @@
 							"[the path map, a line an entry, written whole]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								156.89111
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				133.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 173.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -333,10 +341,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 241.24414 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -349,15 +353,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								241.24414
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 113.86260 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -368,19 +373,25 @@
 							"[the entries set since, a 64th of the volume, written where it is]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								113.86260
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				173.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			26
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 213.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -406,10 +417,6 @@
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 212.78405 0.00000 1.00000 16.00000
-							)
 							:kind
 							:text
 							:fill
@@ -422,15 +429,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								212.78405
+								16.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 145.54870 0.00000 1.00000 32.00000
-							)
 							:kind
 							:text
 							:fill
@@ -441,19 +449,25 @@
 							"[each block, its name in hex, xx the first two of it]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								145.54870
+								32.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				213.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 279.00000
-			)
 			:kind
 			:text
 			:fill
@@ -464,6 +478,11 @@
 			"[A real exFAT volume: the Mac mounts it, lists these files, and checks it clean.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				279.00000
+			)
 		)
 	)
 	:props :nil

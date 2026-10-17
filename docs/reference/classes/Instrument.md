@@ -162,12 +162,6 @@ how big it is, the number that is made more or less when it is
 sized: :length
 ```
 
-### :hit
-
-```code
-on it, or near enough one of its edges to draw along it
-```
-
 ### :matrix
 
 ```code
@@ -293,5 +287,22 @@ The first two that came are the two. A third that comes down on it
 while they have it does nothing, they have it. When one of the two
 lifts, those that are left carry on from where things are, the
 next two of them together
+```
+
+### :zones
+
+```code
+(. instrument :zones) -> ((name polygons) ...)
+
+each of its parts, small ones first as they are given, the band
+along each edge where a pen is held to it, and its body
+```
+
+### :zones_key
+
+```code
+(. instrument :zones_key) -> num
+
+how big it is seen, which how wide the band along an edge is is of
 ```
 

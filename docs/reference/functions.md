@@ -635,8 +635,19 @@ shape, (cwb-flat), and worked out only when first asked for
 ```code
 (board-item-corners item) -> :nil | (x y x y x y x y)
 
-the four corners of the box of an item, its own box by its own
-matrix, where they are in the space it is in. :nil if it draws nothing
+the four corners of the box of an item, (board-item-frame), where
+they are in the space it is in. :nil if it draws nothing
+```
+
+### board-item-frame
+
+```code
+(board-item-frame item) -> :nil | (matrix (x y x1 y1))
+
+the box of an item, and the matrix that puts it where it is: its own
+box and its own matrix, turned and sized as it is. A box is always a
+rectangle: a place has no slant, lib/cwb/doc.inc. :nil if it draws
+nothing
 ```
 
 ### board-none?
@@ -665,6 +676,16 @@ where the line turns toward, and it passes half way between each two
 the items of a group with what of its lines is within r of a point,
 of the space the group is in, rubbed out. :nil if none was touched.
 What is in it that is not a line, or is a group itself, is left
+```
+
+### board-rub-look
+
+```code
+(board-rub-look paths zoom) -> shape
+
+what an eraser is shown as, as far as it reaches, or the area it will
+rub out: pale, with a grey line of dashes round it, 8 on and 4 off on
+the screen whatever the zoom, a look nothing else has
 ```
 
 ### board-rubs?
@@ -696,6 +717,15 @@ did a contact lift as a tap: soon, and near where it landed. A board
 that is told no time, (:tick), goes by the distance alone
 ```
 
+### board-theirs?
+
+```code
+(board-theirs? board id user) -> :t | :nil
+
+held by a user other than that one. What no one holds, anyone may
+take
+```
+
 ### board-tool-of
 
 ```code
@@ -704,15 +734,6 @@ that is told no time, (:tick), goes by the distance alone
 what a pointer is bound to do: its tool, :hand :eraser :pan, or a pen
 of what its mode draws, the board's if it has none, and select mode the
 hand, so a mouse alone can do everything
-```
-
-### board-two-point-mat
-
-```code
-(board-two-point-mat a0 b0 a1 b1) -> matrix
-
-the move, turn and change of size that takes two points to where
-they are now, as two fingers on a thing do. Each is (x y)
 ```
 
 ### boot-id
@@ -914,6 +935,15 @@ host has no shared memory, or there are no pixels of that key.
 
 a little brighter, a quarter of the way to white, the edge of a thing
 that the light is on
+```
+
+### cell-rows
+
+```code
+(cell-rows rows cols cell) -> (cells w h)
+
+cells of a size, each row of (what val) starting a new line and going
+on to the next after cols of them, from 0 0
 ```
 
 ### chacha20
@@ -1217,6 +1247,15 @@ an ellipse about a point, a circle if only one radius is given
 (cwb-d-line x y x1 y1) -> d
 ```
 
+### cwb-d-paths
+
+```code
+(cwb-d-paths paths [closed]) -> d
+
+a line through the points of each path in turn, each closed if said,
+the dashes of (path-dash) say
+```
+
 ### cwb-d-points
 
 ```code
@@ -1355,8 +1394,8 @@ is an id one of these, a list or what (cwb-id-set) made of one
 ```code
 (cwb-in data) -> :nil | doc
 
-a document from the tree of one, (cwb-out). One from before this
-version is made into one of this. Anything else is not a document
+a document from the tree of one, (cwb-out), of this version. Anything
+else is not a document
 ```
 
 ### cwb-in-box
@@ -1366,6 +1405,14 @@ version is made into one of this. Anything else is not a document
 
 the items of the layers that are wholly in a box, as a drag round
 them has it, not those of a layer that is hidden or locked
+```
+
+### cwb-inv
+
+```code
+(cwb-inv item) -> matrix | :nil
+
+the inverse of an item's matrix, kept with it
 ```
 
 ### cwb-item
@@ -1428,6 +1475,16 @@ are errors to throw
 new paths, each moved by the matrix, the same ones if it is :nil
 ```
 
+### cwb-mat-place
+
+```code
+(cwb-mat-place m) -> (place slant)
+
+a matrix as a place, and the slant that is left over, the part of it a
+place can not say: m is the place's matrix by (1 slant 0 0 1 0). It is
+0.0 for a matrix made of moves, turns and sizes alone
+```
+
 ### cwb-new-id
 
 ```code
@@ -1440,16 +1497,6 @@ new paths, each moved by the matrix, the same ones if it is :nil
 (cwb-num n) -> str
 
 a number as a path has it, no more of it than there is
-```
-
-### cwb-old-in
-
-```code
-(cwb-old-in data) -> doc
-
-a document from a file of before this, version 2 or 3: polygons, in
-groups in 3. Each polygon list is a shape that is filled, the size is
-the box round them all and a margin
 ```
 
 ### cwb-out
@@ -1488,6 +1535,28 @@ given. It is all boxes, so that a clip, if the canvas has one, holds
 
 those of the items whose id is one of the ids, in the order they are
 in, or with out those whose id is not
+```
+
+### cwb-place
+
+```code
+(cwb-place item) -> place
+```
+
+### cwb-place!
+
+```code
+(cwb-place! item place) -> item
+
+put an item in a place, and work out its matrix and the inverse of that
+```
+
+### cwb-place-mat
+
+```code
+(cwb-place-mat place) -> matrix | :nil
+
+the matrix that does what a place says: sized, turned, then moved
 ```
 
 ### cwb-remove
@@ -1553,8 +1622,10 @@ not, each is all there or not there
 (cwb-set item [key val] ...) -> item
 
 set what an item has. What it was flattened to is let go of, unless
-all that was set was its matrix, its name, its props or its user,
-which do not change what it is flattened to
+all that was set was its place, its name, its props or its user,
+which do not change what it is flattened to. :place is a place, :m a
+matrix, which is made a place, (cwb-mat-place), and its slant, if it
+has any, left out: nothing is slanted
 ```
 
 ### cwb-shape
@@ -1619,6 +1690,21 @@ words with their middle at a point, to label a box by its middle say
 the items of the layers that a box touches, as a box dragged out to
 select has it: an item any shape of which is in it, crosses it or has
 it inside. Not those of a layer that is hidden or locked
+```
+
+### cwb-unslant
+
+```code
+(cwb-unslant item m) -> items
+
+put an item where a matrix of what holds it says, as an ungroup puts
+what was in a group: the group's matrix and the item's together. Most
+are a place, and the item is put there, and is all there is. One that
+slants, an item turned in a group that was sized more one way than the
+other, is a place and a slant, and a place can not slant: the slant is
+put into what it is. A group's is put into its items, the same way, and
+a shape is made what it draws, its fill and its line, each a polygon,
+slanted, as a bite makes it. Those new ones have no id
 ```
 
 ### cwb-walk
@@ -4551,20 +4637,18 @@ names here are long, fn is called with them about it
 is argument j of a form, with this rule, the value of a binding
 ```
 
-### pal-ease
-
-```code
-(pal-ease x) -> num
-
-0 to 1, by a little past 1 and back, as a thing that springs open does
-```
-
 ### pal-icon
 
 ```code
 (pal-icon what val) -> shapes
 
-what is drawn on a wedge, about 0 0, in a box of 20 or so
+what is drawn on a cell, about 0 0, in a box of 20 or so
+```
+
+### pal-ink-cell
+
+```code
+(pal-ink-cell x0 y0 x1 y1 ink) -> shapes
 ```
 
 ### pal-line
@@ -4575,31 +4659,13 @@ what is drawn on a wedge, about 0 0, in a box of 20 or so
 a line of an icon, round at its ends and its corners unless it is said
 ```
 
-### pal-point
-
-```code
-(pal-point r a) -> (x y)
-
-the point that far from the middle, at an angle from straight up
-round the way a clock goes
-```
-
 ### pal-tip
 
 ```code
 (pal-tip what val) -> :nil | str
 
-the name of a wedge, as the toolbars' tips say it, Chris: "Can the
-ring menu have tooltips ! same as the toolbar's ?". A colour has none,
-as an ink of the bar has none
-```
-
-### pal-wedge-d
-
-```code
-(pal-wedge-d r0 r1 a0 a1) -> d
-
-the path of a wedge of a ring, between two radii and two angles
+the name of a cell, as the toolbars' tips say it. A colour or a pen has
+none, as an ink of the bar has none
 ```
 
 ### palette-enable
@@ -4618,10 +4684,7 @@ widths given, or its own twelve and four
 (palette-float board x y) -> palette
 
 a floating menu about a point, as many as are wanted, from a button of
-a toolbar. Chris: "a button on the toolbar (slide in menu) that created
-a floating menu (just another object that also lives in this multi
-inputs swarm) and you could drag them around, have as many as you
-wanted". It stays till its middle is tapped, and a tap on it binds the
+a toolbar. It stays till its cross is tapped, and a tap on it binds the
 device that tapped, see (. palette :pick) and (. board :pick)
 ```
 
@@ -4630,12 +4693,9 @@ device that tapped, see (. palette :pick) and (. board :pick)
 ```code
 (palette-open board x y [kind id]) -> palette
 
-a palette on the board, about a point, for the pointer of that kind
-and id, default the mouse. One that pointer had open shuts. It is
-about the point, wherever that is: under the hand that asked for it.
-The things of a document are anywhere, there is no edge of it to
-keep a palette inside, and what shows the board has room round the
-paper for it
+a menu on the board, about a point, for the pointer of that kind and
+id, default the mouse. One that pointer had open shuts. It is about the
+point, wherever that is: under the hand that asked for it
 ```
 
 ### palettes
@@ -4664,6 +4724,25 @@ the angle of a vector, from the x axis round towards the y axis, in
 radians, more than -pi and no more than pi. 0.0 for no vector at all.
 A first guess good to a part in 300, then stepped twice toward where
 the vector turned back by it lies along the x axis
+```
+
+### path-dash
+
+```code
+(path-dash src dash gap [closed]) -> (path ...)
+
+a line as dashes, each dash long with a gap after it, from its start,
+each its own path to stroke. Closed, the line goes round back to its
+start too. A dash that ends on a corner ends there, and none is of no
+length
+```
+
+### path-dash-to
+
+```code
+(path-dash-to cur x y) -> cur
+
+a point on the end of a dash, unless it is the one already there
 ```
 
 ### path-gen-earc
@@ -4810,6 +4889,57 @@ so that a load that throws can be caught there and the pipe told,
 (pixmap-key pixmap) -> 0 | key
 
 the key of the shared memory its pixels are in, 0 if they are its own
+```
+
+### place-angle
+
+```code
+(place-angle place a cx cy) -> place
+
+turned about a point of what holds it till its angle is a
+```
+
+### place-by-mat
+
+```code
+(place-by-mat place m) -> place
+
+moved by a matrix: by as much, if it only moves, or else to where the
+matrix and the place's together put it, what of that a place can say
+```
+
+### place-move
+
+```code
+(place-move place dx dy) -> place
+```
+
+### place-pair
+
+```code
+(place-pair place a0 b0 a1 b1) -> place
+
+moved, turned and sized the same both ways, as two points (x y) at a0
+and b0 are taken to a1 and b1, as two fingers on a thing take it
+```
+
+### place-scale
+
+```code
+(place-scale place fx fy ax ay) -> place
+
+sized along its own sides by fx and fy, about a point of its own space,
+which stays where it is
+```
+
+### place-turn
+
+```code
+(place-turn place da cx cy) -> place
+
+turned by da about a point of what holds it. Where it goes is worked
+out in reals: a fixed cos and sin are a turn that is a little too
+small, and that, a thousand times, is a thing that creeps
 ```
 
 ### pmap?
@@ -5635,6 +5765,14 @@ them. instr is the class of the closing char if in a string.
 scatter a list of [key]|[key val]
 ```
 
+### scatter-place
+
+```code
+(scatter-place place [index val] ...) -> place
+
+a new place, as that one with those parts set
+```
+
 ### scene-order
 
 ```code
@@ -5655,12 +5793,10 @@ those of an object that has two of its own, their files
 (screen-children) -> (view ...)
 
 the views of the screen, the windows, the mouse, the wallpaper. Not one
-that stands where a view was hidden, (. view :hide), in gui/view: a bare
-view, of no class, there till the frame is drawn so what was under the
-view is drawn again, and freed with the frame. It has no methods, and a
-method of it is an error that ends the GUI: so it was when a window was
-closed and the screen walked before the next frame, by a request for
-the tree of widgets, a grab, the owners, a theme or a new size
+that stands where a view was hidden, (. view :hide), in gui/view: a
+plain View, hidden, there till the frame is drawn so what was under the
+view is drawn again, and freed with the frame. It is no window and has
+no owner of its own, to be closed, told of a theme or a new size
 ```
 
 ### search
@@ -8391,6 +8527,15 @@ the text, or its first +text_most bytes, cut between characters
 (texture-metrics texture) -> (handle width height)
 ```
 
+### texture-sized
+
+```code
+(texture-sized texture) -> (texture width height)
+
+what a view's :ctx_blit is given, the texture itself, which the view's
+list of draws keeps while it has it, and its size
+```
+
 ### theme-current
 
 ```code
@@ -8660,15 +8805,6 @@ the outline of that, to be drawn
 
 the outlines of where an edge catches a pen: every point no more than
 the band from it. Each a closed line, x y x y ...
-```
-
-### tool-dots
-
-```code
-(tool-dots out points dot gap) -> out
-
-a closed line as dots, each that long with that gap after, the parts
-of a path pushed on a list
 ```
 
 ### tool-glyph
@@ -9072,6 +9208,22 @@ the point of a line nearest a point, and how far along it that is, 0 to 1
 each view of it, it too, given a variant for a plain property has the
 variant's value, found from where it is. Which variant it was is
 kept, :variants, so a new theme or user can be found again by it
+```
+
+### wheel-push?
+
+```code
+(wheel-push? dx dy) -> :t | :nil
+
+a turn not running on from the one before: the other way, or bigger
+```
+
+### wheel-view
+
+```code
+(wheel-view view) -> view
+
+what takes a turn over view, the nearest up with a :mouse_wheel, else it
 ```
 
 ### window-attach

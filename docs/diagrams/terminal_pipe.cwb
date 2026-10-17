@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 826
 	:height 250
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 144.00000 0.00000 1.00000 108.00000
-			)
 			:kind
 			:text
 			:fill
@@ -64,15 +61,16 @@
 			"[Enter: action-break takes the line]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				144.00000
+				108.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -102,15 +100,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			8
-			:m
-			((:path 6)
-				1.00000 0.00000 287.79980 0.00000 1.00000 159.00000
-			)
 			:kind
 			:text
 			:fill
@@ -121,15 +120,16 @@
 			"[makes]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				287.79980
+				159.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +159,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			12
-			:m
-			((:path 6)
-				1.00000 0.00000 576.65478 0.00000 1.00000 159.00000
-			)
 			:kind
 			:text
 			:fill
@@ -178,15 +179,16 @@
 			"[(open-pipe)]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				576.65478
+				159.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -212,10 +214,6 @@
 							:shape
 							:id
 							16
-							:m
-							((:path 6)
-								1.00000 0.00000 66.80822 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -228,15 +226,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								66.80822
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 36.62536 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -247,15 +246,16 @@
 							"[shows the Buffer: the whole session,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.62536
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 48.58612 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -266,19 +266,25 @@
 							"[only the last line can be changed]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.58612
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			19
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 133.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -304,10 +310,6 @@
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 75.41607 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -320,15 +322,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								75.41607
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 62.33544 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -339,15 +342,16 @@
 							"[waits on *select*: the GUI,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								62.33544
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 52.94073 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -358,19 +362,25 @@
 							"[and the pipe while there is one]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								52.94073
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				133.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			25
-			:m
-			((:path 6)
-				1.00000 0.00000 343.00000 0.00000 1.00000 133.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -396,10 +406,6 @@
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 75.52899 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -412,15 +418,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								75.52899
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 55.82714 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -431,15 +438,16 @@
 							"[(Pipe cmdline *select*)]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								55.82714
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 44.03826 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -450,19 +458,25 @@
 							"[its mailbox is put in *select*]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								44.03826
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				343.00000
+				133.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 643.00000 0.00000 1.00000 133.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -488,10 +502,6 @@
 							:shape
 							:id
 							34
-							:m
-							((:path 6)
-								1.00000 0.00000 48.99420 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -504,15 +514,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.99420
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							35
-							:m
-							((:path 6)
-								1.00000 0.00000 44.42474 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -523,15 +534,16 @@
 							"[a task of its own,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								44.42474
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 50.36181 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -542,19 +554,25 @@
 							"[cmd/ls.lisp say]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								50.36181
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				643.00000
+				133.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			37
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 219.00000
-			)
 			:kind
 			:text
 			:fill
@@ -565,15 +583,16 @@
 			"[stdout and stderr come back as mail. (. *pipe* :read) gives text, which action-insert puts on the end of the Buffer,]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				219.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			38
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 235.00000
-			)
 			:kind
 			:text
 			:fill
@@ -584,6 +603,11 @@
 			"[or :nil when the command has ended: the Pipe is closed, *pipe* is :nil again, and a new prompt is printed.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				235.00000
+			)
 		)
 	)
 	:props :nil

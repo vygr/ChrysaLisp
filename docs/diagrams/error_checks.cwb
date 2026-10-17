@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 608
 	:height 290
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -121,15 +119,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 277.46545 0.00000 1.00000 115.00000
-			)
 			:kind
 			:text
 			:fill
@@ -140,15 +139,16 @@
 			"[wrong]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				277.46545
+				115.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -174,10 +174,6 @@
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 81.87261 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -190,15 +186,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								81.87261
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							15
-							:m
-							((:path 6)
-								1.00000 0.00000 50.32751 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -209,19 +206,25 @@
 							"[checks what the user gives it]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								50.32751
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 89.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -247,10 +250,6 @@
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 36.09277 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -263,15 +262,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.09277
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 37.31872 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,15 +282,16 @@
 							"[how many arguments, their types,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.31872
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 47.97497 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -301,19 +302,25 @@
 							"[that an index is in its sequence]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.97497
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				89.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			22
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 183.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -339,10 +346,6 @@
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 73.86566 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +358,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								73.86566
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 45.66809 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,15 +378,16 @@
 							"[checks nothing, takes what it is]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								45.66809
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 88.02923 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -393,19 +398,25 @@
 							"[given as right]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								88.02923
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				183.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 333.00000 0.00000 1.00000 98.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -431,10 +442,6 @@
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 47.76660 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -447,15 +454,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.76660
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 54.23339 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -466,19 +474,25 @@
 							"[(catch) can take it]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								54.23339
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				333.00000
+				98.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 333.00000 0.00000 1.00000 193.00000
-			)
 			:kind
 			:text
 			:fill
@@ -489,15 +503,16 @@
 			"[*build_mode* 1, debug: the checks are there, as drawn.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				333.00000
+				193.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			34
-			:m
-			((:path 6)
-				1.00000 0.00000 333.00000 0.00000 1.00000 209.00000
-			)
 			:kind
 			:text
 			:fill
@@ -508,15 +523,16 @@
 			"[*build_mode* 0, release: they are not in the code at all.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				333.00000
+				209.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			35
-			:m
-			((:path 6)
-				1.00000 0.00000 333.00000 0.00000 1.00000 225.00000
-			)
 			:kind
 			:text
 			:fill
@@ -527,15 +543,16 @@
 			"[A wrong argument then stops the node, or worse.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				333.00000
+				225.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			36
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 275.00000
-			)
 			:kind
 			:text
 			:fill
@@ -546,6 +563,11 @@
 			"[Errors are for finding mistakes while a thing is made. What is shipped is meant to make none.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				275.00000
+			)
 		)
 	)
 	:props :nil

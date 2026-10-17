@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 836
 	:height 319
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 231.99804 0.00000 1.00000 88.00000
-			)
 			:kind
 			:text
 			:fill
@@ -64,15 +61,16 @@
 			"[a key is put in]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				231.99804
+				88.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -102,15 +100,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			8
-			:m
-			((:path 6)
-				1.00000 0.00000 537.36077 0.00000 1.00000 88.00000
-			)
 			:kind
 			:text
 			:fill
@@ -121,15 +120,16 @@
 			"[the port is free]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				537.36077
+				88.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -159,15 +159,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			12
-			:m
-			((:path 6)
-				1.00000 0.00000 472.22607 0.00000 1.00000 162.00000
-			)
 			:kind
 			:text
 			:fill
@@ -178,15 +179,16 @@
 			"[seen within 2 seconds]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				472.22607
+				162.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -216,15 +218,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			16
-			:m
-			((:path 6)
-				1.00000 0.00000 259.00000 0.00000 1.00000 162.00000
-			)
 			:kind
 			:text
 			:fill
@@ -235,15 +238,16 @@
 			"[gone]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				259.00000
+				162.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			17
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -273,15 +277,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			20
-			:m
-			((:path 6)
-				1.00000 0.00000 424.00000 0.00000 1.00000 162.00000
-			)
 			:kind
 			:text
 			:fill
@@ -292,15 +297,16 @@
 			"[another]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				424.00000
+				162.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -326,10 +332,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 57.01043 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -342,15 +344,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								57.01043
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 84.80450 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -361,15 +364,16 @@
 							"[no key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.80450
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 31.26342 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -380,19 +384,25 @@
 							"[no listener, no beacon, no link]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								31.26342
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				62.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 313.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -418,10 +428,6 @@
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 36.50848 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -434,15 +440,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								36.50848
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 32.16125 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -453,15 +460,16 @@
 							"[another session has port 3333]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								32.16125
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 38.30242 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -472,19 +480,25 @@
 							"[asks again every 10 seconds]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.30242
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				313.00000
+				62.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 623.00000 0.00000 1.00000 62.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -510,10 +524,6 @@
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 67.68011 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -526,15 +536,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								67.68011
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 46.86309 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -545,15 +556,16 @@
 							"[listens, beacons, hears]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								46.86309
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							38
-							:m
-							((:path 6)
-								1.00000 0.00000 38.98236 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -564,19 +576,25 @@
 							"[has a link to each machine]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.98236
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				623.00000
+				62.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			39
-			:m
-			((:path 6)
-				1.00000 0.00000 293.00000 0.00000 1.00000 192.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -602,10 +620,6 @@
 							:shape
 							:id
 							42
-							:m
-							((:path 6)
-								1.00000 0.00000 45.42254 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -618,15 +632,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								45.42254
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							43
-							:m
-							((:path 6)
-								1.00000 0.00000 69.67303 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -637,15 +652,16 @@
 							"[the listener is told to go]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								69.67303
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							44
-							:m
-							((:path 6)
-								1.00000 0.00000 28.14776 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -656,19 +672,25 @@
 							"[the sockets are closed, the links dropped]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								28.14776
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				293.00000
+				192.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			45
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-			)
 			:kind
 			:text
 			:fill
@@ -679,15 +701,16 @@
 			"[A session starts at the left with no key, in the middle with one.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				22.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			46
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 288.00000
-			)
 			:kind
 			:text
 			:fill
@@ -698,15 +721,16 @@
 			"[First come, first served: of the sessions of one machine the first to ask has the port, and when it goes the next to ask has it.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				288.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			47
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 304.00000
-			)
 			:kind
 			:text
 			:fill
@@ -717,6 +741,11 @@
 			"[A session started alone, -a, stays in the middle and does not ask. A subnet with a system id of its own has no key: it stays at the left.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				304.00000
+			)
 		)
 	)
 	:props :nil

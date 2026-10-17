@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 666
 	:height 380
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -41,10 +37,6 @@
 							:shape
 							:id
 							4
-							:m
-							((:path 6)
-								1.00000 0.00000 165.00000 0.00000 1.00000 170.00000
-							)
 							:kind
 							:text
 							:fill
@@ -53,19 +45,25 @@
 							0
 							:font_size
 							13
+							:pos
+							((:list 2)
+								165.00000
+								170.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -95,15 +93,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			8
-			:m
-			((:path 6)
-				1.00000 0.00000 184.00000 0.00000 1.00000 111.00000
-			)
 			:kind
 			:text
 			:fill
@@ -114,15 +113,16 @@
 			"[when it goes, this one has the port]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				184.00000
+				111.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -163,15 +163,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -212,15 +213,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 17)
 			:shape
 			:id
 			17
-			:m
-			((:path 6)
-				1.00000 0.00000 25.00000 0.00000 1.00000 33.00000
-			)
 			:kind
 			:text
 			:fill
@@ -233,15 +235,16 @@
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				25.00000
+				33.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			18
-			:m
-			((:path 6)
-				1.00000 0.00000 28.00000 0.00000 1.00000 49.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -267,10 +270,6 @@
 							:shape
 							:id
 							21
-							:m
-							((:path 6)
-								1.00000 0.00000 77.83599 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -283,15 +282,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								77.83599
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							22
-							:m
-							((:path 6)
-								1.00000 0.00000 84.38134 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -302,19 +302,25 @@
 							"[has port 3333: the member]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.38134
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				28.00000
+				49.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			23
-			:m
-			((:path 6)
-				1.00000 0.00000 28.00000 0.00000 1.00000 121.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -340,10 +346,6 @@
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 80.57055 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -356,15 +358,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								80.57055
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 56.07904 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -375,19 +378,25 @@
 							"[not the member, asks every 10 seconds]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								56.07904
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				28.00000
+				121.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 28.00000 0.00000 1.00000 193.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -413,10 +422,6 @@
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 62.45855 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -429,15 +434,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								62.45855
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							32
-							:m
-							((:path 6)
-								1.00000 0.00000 84.28399 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -448,19 +454,25 @@
 							"[keeps to itself, does not ask]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.28399
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				28.00000
+				193.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 28.00000 0.00000 1.00000 265.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -486,10 +498,6 @@
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 47.89953 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -502,15 +510,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.89953
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							37
-							:m
-							((:path 6)
-								1.00000 0.00000 84.02886 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -521,19 +530,25 @@
 							"[has no key: off the network]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.02886
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				28.00000
+				265.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			38
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 23.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -559,10 +574,6 @@
 							:shape
 							:id
 							41
-							:m
-							((:path 6)
-								1.00000 0.00000 40.37762 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -575,15 +586,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								40.37762
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							42
-							:m
-							((:path 6)
-								1.00000 0.00000 37.48461 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -594,19 +606,25 @@
 							"[the same mesh_key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.48461
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				23.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			43
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 81.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -632,10 +650,6 @@
 							:shape
 							:id
 							46
-							:m
-							((:path 6)
-								1.00000 0.00000 53.11248 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -648,15 +662,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.11248
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							47
-							:m
-							((:path 6)
-								1.00000 0.00000 37.48461 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -667,19 +682,25 @@
 							"[the same mesh_key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.48461
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				81.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			48
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 193.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -705,10 +726,6 @@
 							:shape
 							:id
 							51
-							:m
-							((:path 6)
-								1.00000 0.00000 11.92358 0.00000 1.00000 18.00000
-							)
 							:kind
 							:text
 							:fill
@@ -721,15 +738,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								11.92358
+								18.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							52
-							:m
-							((:path 6)
-								1.00000 0.00000 54.78625 0.00000 1.00000 34.00000
-							)
 							:kind
 							:text
 							:fill
@@ -740,19 +758,25 @@
 							"[or with none]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								54.78625
+								34.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				483.00000
+				193.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			53
-			:m
-			((:path 6)
-				1.00000 0.00000 483.00000 0.00000 1.00000 257.00000
-			)
 			:kind
 			:text
 			:fill
@@ -763,15 +787,16 @@
 			"[does not link, to any of them]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				483.00000
+				257.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			54
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 365.00000
-			)
 			:kind
 			:text
 			:fill
@@ -782,6 +807,11 @@
 			"[The subnet is reached from the session that started it, by the one link between them, and from nowhere else.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				365.00000
+			)
 		)
 	)
 	:props :nil

@@ -14,6 +14,9 @@ docs/reference/classes/Scroll.cwb
 
 ```code
 (. scroll :action data) -> scroll
+
+scrolled, what is in it moved and drawn again where it now is, its
+lists of draws kept; the sliders are what changed
 ```
 
 ### :add_child

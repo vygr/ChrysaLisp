@@ -15,7 +15,9 @@ are in front of the surface, and a point is on them only where one is.
 One thing selected has them in its own frame: the box of what it is,
 moved, turned and sized as it is. So a box that has been turned has its
 handles at its own corners, and is sized along its own sides, and
-stays a box. Several things have the box round them all.
+stays a box. Several things, a loose group, are not a thing: they have
+the box round them all, square to the board, and no handles. They are
+moved together, and sized or turned once they are a group.
 
 A line has none of that. It has a point at each end, and each is
 dragged to where that end is to be.
@@ -54,11 +56,10 @@ if what is selected is one line, it, and its two ends in its own space
 (. handles :frame) -> :nil | (matrix box)
 
 the box the handles are on, and the matrix that puts it where it
-is. Of one thing, its own box and its own matrix. Of several, the
-box round them and no change
+is. Of one thing, its own box and its own matrix, never slanted,
+(board-item-frame). Of several, the box round them, square to the
+board
 ```
-
-### :hit
 
 ### :pointers
 
@@ -84,5 +85,21 @@ no more than one hand has hold of things
 where each handle is on the board. kind is :size, :turn or :end.
 fx and fy say which way a size handle pulls, -1 0 or 1 each way,
 in the frame. fx of an end is which, 0 or 1
+```
+
+### :zones
+
+```code
+(. handles :zones) -> ((name polygons) ...)
+
+a square about each handle, as far as it reaches, named for its kind
+```
+
+### :zones_key
+
+```code
+(. handles :zones_key) -> str
+
+where the handles are, and the zoom, which how far one reaches is of
 ```
 

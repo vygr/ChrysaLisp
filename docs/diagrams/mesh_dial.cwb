@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 624
 	:height 363
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -56,15 +52,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 206.03070 0.00000 1.00000 61.00000
-			)
 			:kind
 			:text
 			:fill
@@ -75,15 +72,16 @@
 			"[each hears the other's beacon]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				206.03070
+				61.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			6
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -124,15 +122,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			10
-			:m
-			((:path 6)
-				1.00000 0.00000 474.00000 0.00000 1.00000 145.00000
-			)
 			:kind
 			:text
 			:fill
@@ -143,15 +142,16 @@
 			"[a link made by name, mesh -t]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				474.00000
+				145.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			11
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 2.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -181,15 +181,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				2.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			14
-			:m
-			((:path 6)
-				1.00000 0.00000 273.58654 0.00000 1.00000 213.35615
-			)
 			:kind
 			:text
 			:fill
@@ -200,15 +201,16 @@
 			"[B tells C of A]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				273.58654
+				213.35615
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			15
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 42.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -234,10 +236,6 @@
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 47.60406 0.00000 1.00000 20.00000
-							)
 							:kind
 							:text
 							:fill
@@ -250,15 +248,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.60406
+								20.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 43.29040 0.00000 1.00000 36.00000
-							)
 							:kind
 							:text
 							:fill
@@ -269,19 +268,25 @@
 							"[system id 3F..]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								43.29040
+								36.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				42.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			20
-			:m
-			((:path 6)
-				1.00000 0.00000 393.00000 0.00000 1.00000 42.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -307,10 +312,6 @@
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 48.48760 0.00000 1.00000 20.00000
-							)
 							:kind
 							:text
 							:fill
@@ -323,15 +324,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.48760
+								20.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 42.19134 0.00000 1.00000 36.00000
-							)
 							:kind
 							:text
 							:fill
@@ -342,19 +344,25 @@
 							"[system id 9C..]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								42.19134
+								36.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				393.00000
+				42.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			25
-			:m
-			((:path 6)
-				1.00000 0.00000 393.00000 0.00000 1.00000 192.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -380,10 +388,6 @@
 							:shape
 							:id
 							28
-							:m
-							((:path 6)
-								1.00000 0.00000 48.40704 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -396,15 +400,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.40704
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 27.00592 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -415,15 +420,16 @@
 							"[on another network]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								27.00592
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 35.82122 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -434,19 +440,25 @@
 							"[hears no beacon]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								35.82122
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				393.00000
+				192.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 185.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -472,10 +484,6 @@
 							:shape
 							:id
 							34
-							:m
-							((:path 6)
-								1.00000 0.00000 38.41235 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -488,15 +496,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								38.41235
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							35
-							:m
-							((:path 6)
-								1.00000 0.00000 26.89807 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -507,15 +516,16 @@
 							"[who I have heard from, myself,]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								26.89807
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							36
-							:m
-							((:path 6)
-								1.00000 0.00000 45.94665 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -526,19 +536,25 @@
 							"[and where each listens]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								45.94665
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				185.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			37
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 284.00000
-			)
 			:kind
 			:text
 			:fill
@@ -549,15 +565,16 @@
 			"[1  A and B both know where the other is, so the lower system id dials, A. B waits, 15 seconds, then dials itself.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				284.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			38
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 300.00000
-			)
 			:kind
 			:text
 			:fill
@@ -568,15 +585,16 @@
 			"[2  Only one of a pair knows where the other is: it dials.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				300.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			39
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 316.00000
-			)
 			:kind
 			:text
 			:fill
@@ -587,15 +605,16 @@
 			"[3  Every service tells every other who it has heard, a hello. So C, that hears no beacon, learns of A from B, and links to it.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				316.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			40
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 332.00000
-			)
 			:kind
 			:text
 			:fill
@@ -606,15 +625,16 @@
 			"[4  A dial that brings no link is tried again after twice as long, 10 seconds, 20, 40, 80.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				332.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			41
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 348.00000
-			)
 			:kind
 			:text
 			:fill
@@ -625,15 +645,16 @@
 			"[5  A peer not heard of for 30 seconds, by its beacon or in anyone's hello, is forgotten.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				348.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			42
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 22.00000
-			)
 			:kind
 			:text
 			:fill
@@ -644,6 +665,11 @@
 			"[So each machine has one link to each other, and none is on the way between two.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				22.00000
+			)
 		)
 	)
 	:props :nil

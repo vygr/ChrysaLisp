@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 786
 	:height 162
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 230.95703 0.00000 1.00000 39.00000
-			)
 			:kind
 			:text
 			:fill
@@ -64,15 +61,16 @@
 			"[comes of]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				230.95703
+				39.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -102,15 +100,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			8
-			:m
-			((:path 6)
-				1.00000 0.00000 510.95703 0.00000 1.00000 39.00000
-			)
 			:kind
 			:text
 			:fill
@@ -121,15 +120,16 @@
 			"[comes of]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				510.95703
+				39.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -155,10 +155,6 @@
 							:shape
 							:id
 							12
-							:m
-							((:path 6)
-								1.00000 0.00000 87.34973 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -171,15 +167,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								87.34973
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							13
-							:m
-							((:path 6)
-								1.00000 0.00000 51.43322 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -190,15 +187,16 @@
 							"[64 bit signed integer]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								51.43322
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							14
-							:m
-							((:path 6)
-								1.00000 0.00000 41.23217 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -209,19 +207,25 @@
 							"[read from 42, 0xff, 0b101]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								41.23217
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			15
-			:m
-			((:path 6)
-				1.00000 0.00000 293.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -247,10 +251,6 @@
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 84.96429 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -263,15 +263,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								84.96429
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 60.90850 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,15 +283,16 @@
 							"[48.16 fixed point]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								60.90850
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							20
-							:m
-							((:path 6)
-								1.00000 0.00000 69.17462 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -301,19 +303,25 @@
 							"[read from 1.5]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								69.17462
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				293.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			21
-			:m
-			((:path 6)
-				1.00000 0.00000 573.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -339,10 +347,6 @@
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 88.83819 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +359,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								88.83819
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 58.86346 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,15 +379,16 @@
 							"[64 bit IEEE double]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								58.86346
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 42.01568 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -393,19 +399,25 @@
 							"[made by (n2r), +real_pi ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								42.01568
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				573.00000
+				13.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			27
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 97.00000
-			)
 			:kind
 			:text
 			:fill
@@ -416,15 +428,16 @@
 			"[(n2i x) to here]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				97.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 293.00000 0.00000 1.00000 97.00000
-			)
 			:kind
 			:text
 			:fill
@@ -435,15 +448,16 @@
 			"[(n2f x) to here]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				293.00000
+				97.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			29
-			:m
-			((:path 6)
-				1.00000 0.00000 573.00000 0.00000 1.00000 97.00000
-			)
 			:kind
 			:text
 			:fill
@@ -454,15 +468,16 @@
 			"[(n2r x) to here]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				573.00000
+				97.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			30
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 131.00000
-			)
 			:kind
 			:text
 			:fill
@@ -473,15 +488,16 @@
 			"[All three keep their value in the one field, num_value. Each of n2i, n2f, n2r takes any of the three, and gives back]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				131.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			31
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 147.00000
-			)
 			:kind
 			:text
 			:fill
@@ -492,6 +508,11 @@
 			"[what it is given if that is already of its kind. Going left the fraction is cut off, it is not rounded.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				147.00000
+			)
 		)
 	)
 	:props :nil

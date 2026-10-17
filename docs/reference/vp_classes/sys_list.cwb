@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 176
 	:height 125
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -54,10 +50,6 @@
 							:shape
 							:id
 							5
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 24.00000
-							)
 							:kind
 							:text
 							:fill
@@ -70,15 +62,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							18
+							:pos
+							((:list 2)
+								12.00000
+								24.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							6
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 40.00000
-							)
 							:kind
 							:text
 							:fill
@@ -89,6 +82,11 @@
 							"[sys/list/class.inc]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								12.00000
+								40.00000
+							)
 						)
 						((:list 13)
 							:shape
@@ -109,10 +107,6 @@
 							:shape
 							:id
 							8
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 66.00000
-							)
 							:kind
 							:text
 							:fill
@@ -125,15 +119,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								12.00000
+								66.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							9
-							:m
-							((:path 6)
-								1.00000 0.00000 12.00000 0.00000 1.00000 85.00000
-							)
 							:kind
 							:text
 							:fill
@@ -144,9 +139,19 @@
 							"[:init]"
 							:font_size
 							12
+							:pos
+							((:list 2)
+								12.00000
+								85.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 	)

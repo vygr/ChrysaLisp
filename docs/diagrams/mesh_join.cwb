@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 696
 	:height 278
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -56,15 +52,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			5
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -105,15 +102,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			9
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 3)
 				((:list 13)
@@ -154,15 +152,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			13
-			:m
-			((:path 6)
-				1.00000 0.00000 276.38854 0.00000 1.00000 149.00000
-			)
 			:kind
 			:text
 			:fill
@@ -173,15 +172,16 @@
 			"[a link each way they can reach]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				276.38854
+				149.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			14
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 123.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -207,10 +207,6 @@
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 70.42755 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -223,15 +219,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								70.42755
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 53.20446 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -242,15 +239,16 @@
 							"[joins by itself]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.20446
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 37.48461 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -261,19 +259,25 @@
 							"[the same mesh_key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.48461
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				123.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			20
-			:m
-			((:path 6)
-				1.00000 0.00000 263.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -299,10 +303,6 @@
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 52.08392 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -315,15 +315,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								52.08392
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 53.20446 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -334,15 +335,16 @@
 							"[joins by itself]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.20446
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 37.48461 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -353,19 +355,25 @@
 							"[the same mesh_key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.48461
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				263.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			26
-			:m
-			((:path 6)
-				1.00000 0.00000 513.00000 0.00000 1.00000 123.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -391,10 +399,6 @@
 							:shape
 							:id
 							29
-							:m
-							((:path 6)
-								1.00000 0.00000 47.55273 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -407,15 +411,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								47.55273
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							30
-							:m
-							((:path 6)
-								1.00000 0.00000 53.20446 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -426,15 +431,16 @@
 							"[joins by itself]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.20446
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							31
-							:m
-							((:path 6)
-								1.00000 0.00000 37.48461 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -445,19 +451,25 @@
 							"[the same mesh_key]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								37.48461
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				513.00000
+				123.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			32
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 223.00000
-			)
 			:kind
 			:text
 			:fill
@@ -468,15 +480,16 @@
 			"[mesh -j listens, link -l 3333 -a, says it is there, and looks for the others, link -a.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				223.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			33
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 239.00000
-			)
 			:kind
 			:text
 			:fill
@@ -487,15 +500,16 @@
 			"[A machine with a mesh_key links only to one that proves it has the same key.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				239.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			34
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 263.00000
-			)
 			:kind
 			:text
 			:fill
@@ -506,6 +520,11 @@
 			"[Once joined, every node of every machine is one network: mail goes between them, and a task can be sent to a node of another.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				263.00000
+			)
 		)
 	)
 	:props :nil

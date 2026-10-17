@@ -1,5 +1,5 @@
 ((:Emap 1)
-	:version 5
+	:version 1
 	:width 576
 	:height 246
 	:background 0
@@ -12,10 +12,6 @@
 			:group
 			:id
 			1
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -45,15 +41,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			4
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 2)
 				((:list 13)
@@ -83,15 +80,16 @@
 					0
 				)
 			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
 		)
 		((:list 7)
 			:group
 			:id
 			7
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 13.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -117,10 +115,6 @@
 							:shape
 							:id
 							10
-							:m
-							((:path 6)
-								1.00000 0.00000 44.19415 0.00000 1.00000 20.00000
-							)
 							:kind
 							:text
 							:fill
@@ -133,15 +127,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								44.19415
+								20.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							11
-							:m
-							((:path 6)
-								1.00000 0.00000 71.47259 0.00000 1.00000 36.00000
-							)
 							:kind
 							:text
 							:fill
@@ -152,15 +147,16 @@
 							"[:text \qOK\q]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								71.47259
+								36.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							12
-							:m
-							((:path 6)
-								1.00000 0.00000 75.40557 0.00000 1.00000 52.00000
-							)
 							:kind
 							:text
 							:fill
@@ -171,15 +167,16 @@
 							"[:paper ...]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								75.40557
+								52.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							13
-							:m
-							((:path 6)
-								1.00000 0.00000 78.76049 0.00000 1.00000 68.00000
-							)
 							:kind
 							:text
 							:fill
@@ -190,19 +187,25 @@
 							"[:vtable]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								78.76049
+								68.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			14
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 123.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -228,10 +231,6 @@
 							:shape
 							:id
 							17
-							:m
-							((:path 6)
-								1.00000 0.00000 48.33593 0.00000 1.00000 19.00000
-							)
 							:kind
 							:text
 							:fill
@@ -244,15 +243,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								48.33593
+								19.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							18
-							:m
-							((:path 6)
-								1.00000 0.00000 63.18701 0.00000 1.00000 35.00000
-							)
 							:kind
 							:text
 							:fill
@@ -263,15 +263,16 @@
 							"[:text \qCancel\q]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								63.18701
+								35.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							19
-							:m
-							((:path 6)
-								1.00000 0.00000 78.76049 0.00000 1.00000 51.00000
-							)
 							:kind
 							:text
 							:fill
@@ -282,19 +283,25 @@
 							"[:vtable]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								78.76049
+								51.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				123.00000
 			)
 		)
 		((:list 7)
 			:group
 			:id
 			20
-			:m
-			((:path 6)
-				1.00000 0.00000 313.00000 0.00000 1.00000 43.00000
-			)
 			:items
 			((:list 1)
 				((:list 5)
@@ -320,10 +327,6 @@
 							:shape
 							:id
 							23
-							:m
-							((:path 6)
-								1.00000 0.00000 53.27777 0.00000 1.00000 22.00000
-							)
 							:kind
 							:text
 							:fill
@@ -336,15 +339,16 @@
 							"[fonts/OpenSans-Bold.ctf]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								53.27777
+								22.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							24
-							:m
-							((:path 6)
-								1.00000 0.00000 86.37109 0.00000 1.00000 38.00000
-							)
 							:kind
 							:text
 							:fill
@@ -355,15 +359,16 @@
 							"[:draw    a lambda]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								86.37109
+								38.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							25
-							:m
-							((:path 6)
-								1.00000 0.00000 85.50299 0.00000 1.00000 54.00000
-							)
 							:kind
 							:text
 							:fill
@@ -374,15 +379,16 @@
 							"[:layout  a lambda]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								85.50299
+								54.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							26
-							:m
-							((:path 6)
-								1.00000 0.00000 68.31213 0.00000 1.00000 70.00000
-							)
 							:kind
 							:text
 							:fill
@@ -393,15 +399,16 @@
 							"[:mouse_down  a lambda]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								68.31213
+								70.00000
+							)
 						)
 						((:list 15)
 							:shape
 							:id
 							27
-							:m
-							((:path 6)
-								1.00000 0.00000 59.71435 0.00000 1.00000 86.00000
-							)
 							:kind
 							:text
 							:fill
@@ -412,19 +419,25 @@
 							"[and all its parent's, copied in]"
 							:font_size
 							11
+							:pos
+							((:list 2)
+								59.71435
+								86.00000
+							)
 						)
 					)
 				)
+			)
+			:pos
+			((:list 2)
+				313.00000
+				43.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
 			28
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 213.00000
-			)
 			:kind
 			:text
 			:fill
@@ -435,15 +448,16 @@
 			"[(. this :draw) looks :draw up in the object's :vtable and calls it with the object.]"
 			:font_size
 			12
+			:pos
+			((:list 2)
+				13.00000
+				213.00000
+			)
 		)
 		((:list 15)
 			:shape
 			:id
 			29
-			:m
-			((:path 6)
-				1.00000 0.00000 13.00000 0.00000 1.00000 231.00000
-			)
 			:kind
 			:text
 			:fill
@@ -454,6 +468,11 @@
 			"[The vtable is not fixed: a method can be put into a class, or changed, while it runs.]"
 			:font_size
 			11
+			:pos
+			((:list 2)
+				13.00000
+				231.00000
+			)
 		)
 	)
 	:props :nil
