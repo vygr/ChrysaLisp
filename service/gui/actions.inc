@@ -114,33 +114,54 @@
 			(+ev_msg_key_key (cook-key scode))
 			(+ev_msg_key_mod *mods*)))))
 
-;A turn of the wheel belongs to the view it began over. A wheel, or two
-;fingers on a pad, runs on after the hand has left it, as a thing thrown
-;does, and the host goes on sending its turns for a second or more. They
-;are still of the scroll that was thrown: the mouse moved on over another
-;view, they were given to that one, which scrolled with nobody turning
-;anything. So while turns come one soon after another they go where the
-;first went, wherever the mouse now is. A pause longer than +wheel_latch,
-;microseconds, and the next turn is a new one, for what is under the mouse
-(defq +wheel_latch 350000 *wheel_id* :nil *wheel_time* 0)
+;A turn of the wheel is for the view under the mouse as it turns, or the one
+;a button went down on while held. Chris: "you should never be able to have
+;a scroll region consume wheel events that were over another scroll region,
+;regardless of the speed of the scrolling !" But the host goes on sending
+;turns after the hand has stopped, a pad's fling runs on, or they were
+;queued, and a view the mouse moved over was scrolled with nobody turning
+;anything. Chris: "drop them". While turns come less than +wheel_gap apart,
+;microseconds, those over another view than the one that takes them, the
+;nearest up from the mouse with a :mouse_wheel, a Scroll, go to nobody. The
+;first after a pause goes to the one under the mouse, and so does one that
+;is a new push, not what runs on: the other way, or bigger by +wheel_push
+;than the turn before. What runs on only dies away, by a step of 1 or so;
+;a Magic Mouse's own turns over the other view, logged, came the other way
+;or jumped from 1 to 4 and up. Queued turns are the same size, and dropped
+(defq +wheel_gap 350000 +wheel_push 3 *wheel_id* :nil *wheel_time* 0 *wheel_turn* '(0 0))
+
+(defun wheel-push? (dx dy)
+	; (wheel-push? dx dy) -> :t | :nil
+	;a turn not running on from the one before: the other way, or bigger
+	(bind '(ox oy) *wheel_turn*)
+	(or (< (* dx ox) 0) (< (* dy oy) 0)
+		(>= (+ (abs dx) (abs dy)) (+ (abs ox) (abs oy) +wheel_push))))
+
+(defun wheel-view (view)
+	; (wheel-view view) -> view
+	;what takes a turn over view, the nearest up with a :mouse_wheel, else it
+	(defq at view)
+	(while (and at (not (.? at :mouse_wheel))) (setq at (penv at)))
+	(ifn at view))
 
 (defun action-mouse-wheel ()
 	(mouse-type (defq view (held-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0)))
-	(defq now (pii-time) id *mouse_id*)
-	(if (and *wheel_id* (< (- now *wheel_time*) +wheel_latch) (defq began (. *screen* :find_id *wheel_id*)))
-		(setq view began id *wheel_id*)
-		(setq *wheel_id* id))
-	(setq *wheel_time* now)
-	(if (defq owner (. view :find_owner))
-		(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
-			(+ev_msg_type +ev_type_wheel)
-			(+ev_msg_target_id id)
-			;the way round the user has it, usr/Guest/env.inc
-			(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
-			(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
-			(+ev_msg_wheel_direction (getf msg +gui_event_direction))))))
+	(defq id *mouse_id* now (pii-time) to (. (wheel-view view) :get_id)
+		dx (getf msg +gui_event_x) dy (getf msg +gui_event_y)
+		running (and (< (- now *wheel_time*) +wheel_gap) (not (wheel-push? dx dy))))
+	(setq *wheel_time* now *wheel_turn* (list dx dy))
+	(unless (and running *wheel_id* (/= to *wheel_id*))
+		(setq *wheel_id* to)
+		(if (defq owner (. view :find_owner))
+			(mail-send owner (setf-> (str-alloc +ev_msg_wheel_size)
+				(+ev_msg_type +ev_type_wheel)
+				(+ev_msg_target_id id)
+				;the way round the user has it, usr/Guest/env.inc
+				(+ev_msg_wheel_x (* (get :wheel_x *env*) (getf msg +gui_event_x)))
+				(+ev_msg_wheel_y (* (get :wheel_y *env*) (getf msg +gui_event_y)))
+				(+ev_msg_wheel_direction (getf msg +gui_event_direction)))))))
 
 (defun action-mouse-motion ()
 	(setq *mouse_x* (getf msg +gui_event_x)
@@ -272,5 +293,5 @@
 ;as this was read. A thing kept here was not, and the first pen or finger
 ;there ever was on a desktop stopped the GUI, it was not bound
 (export-symbols
-	'(*event_map* *pointer_views* *wheel_id* *wheel_time* screen-children))
+	'(*event_map* *pointer_views* *wheel_id* *wheel_time* *wheel_turn* screen-children))
 (env-pop)

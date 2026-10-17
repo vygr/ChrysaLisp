@@ -118,18 +118,21 @@
 (assert-list-eq "a second finger is its own" (list +ev_type_pointer 0x10008 1 100 50) (ga-pointer +gui_ev_pointer_down 0x10008 100 50 1))
 (ga-pointer +gui_ev_pointer_up 0x10008 100 50 0)
 
-;a turn of the wheel belongs to the view it began over: turns that come one
-;soon after another go where the first went, wherever the mouse has got to
+;a turn of the wheel is for the view under the mouse as it turns, and never
+;for another. Chris: "you should never be able to have a scroll region
+;consume wheel events that were over another scroll region, regardless of
+;the speed of the scrolling !" Turns that run on over another view, soon
+;after the last, go to nobody, Chris: "drop them"
 (defun mouse-type (view rx ry))
 (defq *mouse_buttons* 0 ga_other (View) ga_mbox2 (mail-mbox))
 (def *env* :wheel_x 1 :wheel_y 1)
 (. ga_other :set_bounds 100 180 200 100)
 (. *screen* :add_child ga_other)
 (. ga_other :set_owner ga_mbox2)
-(defun ga-wheel (x y)
+(defun ga-wheel (x y &optional dy)
 	;the mouse at a point and a turn of the wheel there: which of the two views was told of it
 	(setq *mouse_x* x *mouse_y* y)
-	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type +gui_ev_mouse_wheel) (+gui_event_x 0) (+gui_event_y 1)) out (list))
+	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type +gui_ev_mouse_wheel) (+gui_event_x 0) (+gui_event_y (ifn dy 1))) out (list))
 	((. *event_map* :find +gui_ev_mouse_wheel))
 	(each (lambda (mbox name)
 		(while (mail-poll (list mbox))
@@ -137,20 +140,26 @@
 		(list ga_mbox ga_mbox2) '(:first :second))
 	out)
 ;"at once" is to be at once: a machine that held this task longer than the
-;latch between two turns has made them two, rightly, and that says nothing
-;of the latch. The soak found it so on the Pi, 2026-10-15. Each is timed
-;from before the turn before it: if the two took less than the latch, the
-;turns were within it. If not, it is not asked, the fast machines ask it
+;gap between two turns has made them two, rightly, and that says nothing of
+;dropping them. Each is asked only if it came within the gap
 (defq ga_t (pii-time))
 (assert-list-eq "a turn of the wheel over a view is told to it" '(:first) (ga-wheel 150 80))
 (defq ga_t1 (pii-time) ga_got (ga-wheel 150 230))
-(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "the mouse moves over another view and a turn comes at once: it is the first view's still, the wheel ran on"
-	'(:first) ga_got))
+(if (< (- (pii-time) ga_t) 300000)
+	(assert-list-eq "the mouse moves over another view and a turn comes at once: it is nobody's, it ran on" '() ga_got))
 (setq ga_got (ga-wheel 150 240))
-(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '(:first) ga_got))
+(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '() ga_got))
+(setq ga_t (pii-time) ga_got (ga-wheel 150 240 -1))
+(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "but one the other way is a new push, that view's" '(:second) ga_got))
+(task-sleep 500000)
+(ga-wheel 150 80)
+(setq ga_t (pii-time) ga_got (ga-wheel 150 240 5))
+(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "and one bigger by the push, the same way, is too" '(:second) ga_got))
 (task-sleep 500000)
 (assert-list-eq "after a pause a turn is a new one, for the view the mouse is over" '(:second) (ga-wheel 150 240))
-(assert-list-eq "and stays that one's when the mouse goes back and they keep coming" '(:second) (ga-wheel 150 80))
+(assert-list-eq "and the next, while they keep coming" '(:second) (ga-wheel 150 250))
+(task-sleep 500000)
+(assert-list-eq "after a pause back over the first, the first's" '(:first) (ga-wheel 150 80))
 (task-sleep 500000)
 (def *env* :wheel_y -1)
 (setq *mouse_x* 150 *mouse_y* 80)
