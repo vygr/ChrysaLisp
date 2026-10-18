@@ -16,7 +16,9 @@
 ; all. So it is what is, not what was done: sent again it does nothing, a
 ; slow link is sent less and later and loses nothing, and a fast one is
 ; sent each frame. What is being drawn, and what a hand holds and moves,
-; go with it, as they are then.
+; go with it, as they are then. Not the size of the paper, nor where a
+; board is looking, nor its zoom: each board's own, full screen on one and
+; a window on another.
 ;
 ; Nothing here sends anything, it makes and takes text. The app sends it.
 ; A test can have boards share with no machine at all.
@@ -66,8 +68,11 @@
 
 (defun share-self-holds (board)
 	; (share-self-holds board) -> board
-	;what this board's hands hold now is its own, if no one else has it
-	(defq holds (get :share_holds board) mine (share-tops (get :doc board) (get :floating board)) gone (list))
+	;what this board's hands hold now, and what its users have selected, is
+	;its own, if no one else has it: a thing selected here is not to be
+	;taken there, "own only", as it is not by another user here
+	(defq holds (get :share_holds board) gone (list)
+		mine (share-tops (get :doc board) (cat (get :floating board) (get :selected board))))
 	(. holds :each (lambda (id who) (and (eql who :self) (not (find id mine)) (push gone id))))
 	(each (# (. holds :erase %0)) gone)
 	(each (# (unless (. holds :find %0) (. holds :insert %0 :self))) mine)
@@ -149,8 +154,7 @@
 			(tree-save out (scatter (Emap)
 				:ids now :gone gone :all (if all 1 0)
 				:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
-				:temps temps :held taken
-				:width (. doc :find :width) :height (. doc :find :height)))
+				:temps temps :held taken))
 			(elem-set peer +peer_last now)
 			(elem-set peer +peer_changed (list))
 			(elem-set peer +peer_busy :t)
@@ -212,8 +216,8 @@
 		(each (# (elem-set kept %0 %1)) places theirs)
 		(clear items)
 		(each (# (push items %0)) kept)
-		(and (num? (defq w (. data :find :width))) (. doc :insert :width w))
-		(and (num? (defq h (. data :find :height))) (. doc :insert :height h))
+		;not the paper: its size, as the view, is each board's own, one full
+		;screen, one a window, Chris: "it's our individual choices"
 		;what it was drawing
 		(defq temps (get :remote_temp board) old (list))
 		(. temps :each (lambda (k (src shape)) (if (eql src from) (push old k))))

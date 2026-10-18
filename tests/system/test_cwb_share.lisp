@@ -106,3 +106,30 @@
 (. sh_a :select (list))
 (sh-round) (sh-round)
 (assert-eq "let go and put down, no one has it" :nil (. (get :share_holds sh_t) :find 1))
+
+;a thing selected on one board is held on all, "own only": no other board
+;can take it, by a box, a tap or a hand, and each sees it is held
+(. sh_a :select (list 1))
+(sh-round) (sh-round)
+(assert-eq "selected there, it is held for that board" :a (. (get :share_holds sh_t) :find 1))
+(assert-list-eq "and the other board can see it is taken" (list 1) (. sh_b :taken))
+(. sh_b :select (list 1))
+(assert-list-eq "a box there does not take it" (list) (. sh_b :get_selected))
+(. sh_b :pick_up 1 0)
+(assert-list-eq "nor a tap" (list) (. sh_b :get_selected))
+(assert-eq "and it has no one of that board's as its selector" :nil (. sh_b :holder 1))
+(assert-list-eq "the teacher can not take it either" (list) (progn (. sh_t :select (list 1)) (. sh_t :get_selected)))
+(. sh_a :select (list))
+(sh-round) (sh-round)
+(assert-list-eq "put down, it is no one's" (list) (. sh_b :taken))
+(. sh_b :select (list 1))
+(sh-round) (sh-round)
+(assert-eq "and the other board may have it now" :b (. (get :share_holds sh_t) :find 1))
+(. sh_b :select (list))
+(sh-round) (sh-round)
+
+;the paper is each board's own: one may be full screen, one a window
+(. (. sh_t :get_doc) :insert :width 1920)
+(. sh_t :add (cwb-shape (cwb-d-rect 10 10 20 20) :fill 0xff0000ff :stroke 0))
+(sh-round)
+(assert-eq "the teacher's paper is not the student's" 400 (. (. sh_a :get_doc) :find :width))

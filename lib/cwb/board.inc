@@ -1743,8 +1743,12 @@
 
 	(defmethod :select (ids)
 		; (. board :select ids) -> board
-		;who picked up what is kept only for what is selected still
-		(def this :selected (cat ids))
+		;who picked up what is kept only for what is selected still. What a
+		;board this shares with holds is not taken, by a box, a tap or a
+		;hand, "own only": it is left out, (:taken)
+		(def this :selected (if (nempty? (defq taken (. this :taken)))
+			(filter (# (not (find %0 taken))) ids) (cat ids)))
+		(setq ids (get :selected this))
 		(defq selectors (get :selectors this) gone (list))
 		(. selectors :each (lambda (id &ignore) (unless (find id ids) (push gone id))))
 		(each (# (. selectors :erase %0)) gone)
@@ -1770,8 +1774,18 @@
 		; (. board :pick_up id user) -> board
 		;selected, and that user's
 		(unless (find id (get :selected this)) (. this :select (cat (get :selected this) (list id))))
-		(. (get :selectors this) :insert id user)
+		;not if it could not be, another board has it
+		(if (find id (get :selected this)) (. (get :selectors this) :insert id user))
 		this)
+
+	(defmethod :taken ()
+		; (. board :taken) -> ids
+		;what a board this shares with has hold of, selected or in hand
+		;there, lib/cwb/share.inc. None if it shares with no one
+		(defq out (list))
+		(if (defq holds (get :share_holds this))
+			(. holds :each (lambda (id who) (unless (eql who :self) (push out id)))))
+		out)
 
 	(defmethod :others_of (user)
 		; (. board :others_of user) -> ids
@@ -2532,6 +2546,15 @@
 			(cwb-draw-items canvas (list (cwb-shape (cwb-d-rect x y x1 y1)
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
 		(unless no_selected (. this :draw_selected canvas m))
+		;what a board this shares with has hold of, a line round each in
+		;another color and no handles: it is someone else's just now
+		(when (nempty? (defq taken (. this :taken)))
+			(defq want (cwb-id-set taken))
+			(cwb-draw-items canvas (reduce (lambda (out (name flags items))
+					(each (# (if (defq corners (board-item-corners %0))
+						(push out (cwb-shape (cwb-d-points corners :t)
+							:stroke 0xffff8000 :width thin :join :miter)))) (cwb-pick items want))
+					out) (cwb-layers (get :doc this)) (list)) m))
 		this)
 
 	(defmethod :draw_selected (canvas &optional m)
