@@ -337,9 +337,10 @@
 
 (defun test-held ()
 	; (test-held) -> kb
-	;what this node holds, once what a task's end lets go of is let go of
-	(bind '(& used avail &ignore) (kernel-stats :t))
-	(/ (- used avail) 1024))
+	;what this node holds, once what a task's end lets go of is let go of:
+	;the cells in use, not the total less what is free, which moves as a
+	;heap takes a block or gives one back
+	(/ (elem-get (kernel-stats :t) 5) 1024))
 
 (defun test-leak-run (module)
 	;a module run alone, in a task of its own on this node, twice: what it

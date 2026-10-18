@@ -466,7 +466,7 @@
 (ffi "sys/kernel/lisp_sysid" system-id)
 ; (system-id) -> nodeid
 (ffi "sys/kernel/lisp_stats" kernel-stats)
-; (kernel-stats [flush]) -> (task_count mem_used mem_avail max_stack idle_time)
+; (kernel-stats [flush]) -> (task_count mem_total mem_avail max_stack idle_time mem_inuse)
 ;given flush, first what a task's end lets go of: the numbers and symbols
 ;no one holds, and the free blocks given back. mem_used less mem_avail is
 ;then what is held

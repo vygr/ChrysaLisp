@@ -19,4 +19,5 @@
 	(dec-method :realloc sys/mem/realloc :static (:r0 :r1 :r2) (:r0 :r1) (:r0-:r5 :f0-:f15))
 	(dec-method :recalloc sys/mem/recalloc :static (:r0 :r1 :r2) (:r0 :r1) (:r0-:r7 :f0-:f15))
 	(dec-method :avail sys/mem/avail :static :nil (:r0) (:r0-:r4))
+	(dec-method :inuse sys/mem/inuse :static :nil (:r0) (:r0-:r6))
 	(dec-method :collect sys/mem/collect :static :nil :nil (:r0-:r9 :f0-:f15)))

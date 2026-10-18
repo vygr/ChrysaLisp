@@ -86,6 +86,42 @@
 
 (def-func-end)
 
+(def-method :sys_mem :inuse)
+	;outputs
+	;:r0 = in the cells that are in use (uint)
+	;trashes
+	;:r0-:r6
+	;info
+	;what is held, the cells of every block less those on the free lists,
+	;each at the size it gives. Not the total less what is free, which has
+	;in it the headers of free cells and the end of a block too short for
+	;another, and moves as a heap takes a block or gives one back
+
+	(fn-bind 'sys/statics/statics :r2)
+	(vp-xor-rr :r0 :r0)
+	(vp-cpy-cr +mem_cell_min_size :r1)
+	(vp-add-cr statics_sys_mem_heaps :r2)
+	(vp-lea-i :r2 (* (length +mem_heap_cell_sizes) +hp_heap_size) :r4)
+	(loop-start)
+		;the cells of its blocks
+		(vp-xor-rr :r5 :r5)
+		(loop-list-forward :r2 0 :r3 :r6)
+			(assign '((:r3 +hp_block_cellcnt)) '(:r3))
+			(vp-add-rr :r3 :r5)
+		(loop-end)
+		;less those that are free
+		(loop-flist :r2 +hp_heap_free_flist :r3 :r3)
+			(vp-sub-cr 1 :r5)
+		(loop-end)
+		(vp-mul-rr :r1 :r5)
+		(vp-add-rr :r5 :r0)
+		(vp-add-cr +hp_heap_size :r2)
+		(vp-add-rr :r1 :r1)
+	(loop-until '(:r2 = :r4))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :sys_mem :alloc)
 	;inputs
 	;:r0 = minimum amount (bytes)

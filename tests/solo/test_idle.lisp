@@ -2,8 +2,8 @@
 
 (defun id-idle () (elem-get (kernel-stats) 4))
 
-(assert-eq "the kernel says five things of itself" 5 (length (kernel-stats)))
-(assert-true "the last is the time it has been idle" (>= (id-idle) 0))
+(assert-eq "the kernel says six things of itself" 6 (length (kernel-stats)))
+(assert-true "the fifth is the time it has been idle" (>= (id-idle) 0))
 
 ;a task that works and does not give way, the node is not idle at all
 (defq id_before (id-idle) id_start (pii-time))
