@@ -7,7 +7,9 @@
 // mixer is the lock of the stream.
 //
 // The microphone is a recording stream of SDL's, which keeps what it hears
-// till it is read, made 16 bit mono at MIC_RATE by SDL, see mic.h.
+// till it is read, made 16 bit mono at MIC_RATE by SDL, see mic.h. What is
+// mixed is the reference of the echo cancelling, and the echo of it is
+// taken from what the microphone hears, see aec.h.
 
 #include <SDL3/SDL.h>
 #include <stdint.h>
@@ -15,6 +17,7 @@
 #include <string.h>
 #include "mixer.h"
 #include "mic.h"
+#include "aec.h"
 
 static SDL_AudioStream *stream = nullptr;
 static SDL_AudioStream *mic = nullptr;
@@ -35,6 +38,7 @@ static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additio
 	{
 		int n = frames < 1024 ? frames : 1024;
 		mixer_mix(mix, n);
+		aec_far_put(mix, n);
 		SDL_PutAudioStreamData(s, mix, (int)(sizeof(float) * MIXER_CHANNELS * n));
 		frames -= n;
 	}
@@ -61,6 +65,7 @@ int host_audio_init()
 	}
 	SDL_AudioSpec spec = {SDL_AUDIO_F32, MIXER_CHANNELS, MIXER_RATE};
 	mixer_reset();
+	aec_far_rate(MIXER_RATE);
 	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, mix_callback, nullptr);
 	if (!stream)
 	{
@@ -186,6 +191,7 @@ int64_t host_audio_mic_open()
 		return -1;
 	}
 	SDL_ResumeAudioStreamDevice(mic);
+	aec_reset();
 	return 0;
 }
 
@@ -194,7 +200,10 @@ int64_t host_audio_mic_read(int16_t *samples, int max)
 	if (mic_tone) return mic_tone_take(samples, max, SDL_GetTicksNS() / 1000);
 	if (!mic) return -1;
 	int got = SDL_GetAudioStreamData(mic, samples, max * (int)sizeof(int16_t));
-	return got < 0 ? -1 : got / (int)sizeof(int16_t);
+	if (got < 0) return -1;
+	got /= (int)sizeof(int16_t);
+	aec_near(samples, got);
+	return got;
 }
 
 int64_t host_audio_mic_close()

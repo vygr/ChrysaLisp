@@ -18,6 +18,7 @@
 #include <time.h>
 #include "mixer.h"
 #include "mic.h"
+#include "aec.h"
 #include "wav.h"
 
 #define FEED_FRAMES 512
@@ -80,6 +81,8 @@ static void *feed(void *arg)
 		pthread_mutex_lock(&feed_lock);
 		mixer_mix(mix, FEED_FRAMES);
 		pthread_mutex_unlock(&feed_lock);
+		//the reference of the echo cancelling, aec.h
+		aec_far_put(mix, FEED_FRAMES);
 		for (int i = 0; i < FEED_FRAMES * MIXER_CHANNELS; ++i)
 		{
 			float s = mix[i] * 32767.0f;
@@ -116,6 +119,7 @@ int host_audio_init()
 		return -1;
 	}
 	mixer_reset();
+	aec_far_rate(MIXER_RATE);
 	feeding = true;
 	if (pthread_create(&feed_thread, nullptr, feed, nullptr))
 	{
@@ -238,6 +242,7 @@ int64_t host_audio_mic_open()
 	pthread_mutex_lock(&capture_lock);
 	mic_ring_reset();
 	pthread_mutex_unlock(&capture_lock);
+	aec_reset();
 	capturing = true;
 	if (pthread_create(&capture_thread, nullptr, capture_feed, nullptr))
 	{
@@ -256,6 +261,8 @@ int64_t host_audio_mic_read(int16_t *samples, int max)
 	pthread_mutex_lock(&capture_lock);
 	int n = mic_ring_take(samples, max);
 	pthread_mutex_unlock(&capture_lock);
+	//what was played heard again, taken away, aec.h
+	aec_near(samples, n);
 	return n;
 }
 
