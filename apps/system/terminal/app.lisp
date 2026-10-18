@@ -47,7 +47,7 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh))
-		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
+		sx (clamp sx 0 smaxx) sy (clamp sy 0 smaxy))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
 	(. *edit* :set_scroll sx sy))

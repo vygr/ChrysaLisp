@@ -71,11 +71,11 @@
 			(when vslider
 				(unless (setq vval (get :value vslider)) (setq vval 0))
 				(defq mo (max 0 (- ch (- h sh))))
-				(def vslider :maximum mo :portion (- h sh) :value (setq vval (max 0 (min vval mo)))))
+				(def vslider :maximum mo :portion (- h sh) :value (setq vval (clamp vval 0 mo))))
 			(when hslider
 				(unless (setq hval (get :value hslider)) (setq hval 0))
 				(defq mo (max 0 (- cw (- w sw))))
-				(def hslider :maximum mo :portion (- w sw) :value (setq hval (max 0 (min hval mo)))))
+				(def hslider :maximum mo :portion (- w sw) :value (setq hval (clamp hval 0 mo))))
 			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
 

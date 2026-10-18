@@ -52,7 +52,7 @@
 		disk_apps (filter (lambda (name) (notany (# (ends-with %0 name)) exclude_list))
 			(files-all "apps" '("app.lisp") 5 -10)))
 	(each (lambda (app_path)
-		(defq app_name (slice app_path (ifn (rfind "/" app_path) 0) -1) found :nil)
+		(defq app_name (path-name app_path) found :nil)
 		(. name_to_path_map :insert app_name app_path)
 		(. categories :each (lambda (name cat_data)
 			(if (find app_name (. cat_data :find :apps)) (setq found :t))))

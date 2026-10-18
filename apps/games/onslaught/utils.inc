@@ -153,8 +153,8 @@
 		cam_y (- (+ y h -16) (const (/ +window_height 2)))
 		max_cam_x (const (- (* +map_width +tile_width) +window_width))
 		max_cam_y (const (- (* +map_height +tile_height) +window_height))
-		cx (max 0 (min max_cam_x cam_x))
-		cy (max 0 (min max_cam_y cam_y)))
+		cx (clamp cam_x 0 max_cam_x)
+		cy (clamp cam_y 0 max_cam_y))
 	; store pure unscaled simulation coordinates
 	(setq *cam_x* cx *cam_y* cy)
 	; scroll GUI rendering layers
@@ -165,10 +165,10 @@
 	(defq stack_val (max 0 (min 32 (* (length *enemy_stack*) 2)))
 		flag_y (+ +status_flag_y (- 32 stack_val))
 		flag_oy (- 32 stack_val)
-		power_val (max 0 (min 32 (/ (* (max 0 (min +max_power *man_power*)) 32) +max_power)))
+		power_val (clamp (/ (* (clamp *man_power* 0 +max_power) 32) +max_power) 0 32)
 		power_y (+ +status_level_y (- 32 power_val))
 		power_oy (- 32 power_val)
-		strength_val (max 0 (min 32 (/ (* (max 0 (min +max_strength *man_strength*)) 32) +max_strength)))
+		strength_val (clamp (/ (* (clamp *man_strength* 0 +max_strength) 32) +max_strength) 0 32)
 		strength_y (+ +status_level_y (- 32 strength_val))
 		strength_oy (- 32 strength_val))
 	(def *layer_panel_items* :canvas *img_frm_16x16*

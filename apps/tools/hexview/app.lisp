@@ -53,7 +53,7 @@
 	(bind '(w h) (. buffer :get_size))
 	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
-		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
+		sx (clamp sx 0 smaxx) sy (clamp sy 0 smaxy))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
 	(scatter meta :sx sx :sy sy)

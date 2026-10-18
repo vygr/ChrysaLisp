@@ -162,8 +162,8 @@
 (defun create-file-view (sender path page_w)
 	;a file in the chat: a picture is shown, no wider than the page, the
 	;words of a .md are, and of anything else where it was kept is said
-	(defq name (slice path (ifn (rfind "/" path) 0) -1)
-		ext (if (defq dot (rfind "." name)) (slice name (dec dot) -1) ""))
+	(defq name (path-name path)
+		ext (path-ext name))
 	;one that came is kept as chat_<time>_<name>, it is shown by its name
 	(and (starts-with "chat_" name) (defq under (find "_" (slice name 5 -1)))
 		(setq name (slice name (+ 6 under) -1)))
@@ -528,7 +528,7 @@
 					(connect-chat)
 					(mail-timeout (elem-get select +select_heartbeat) +heartbeat_us 0))
 				(defq my_name (get :clear_text *chat_name*)
-					name (slice path (ifn (rfind "/" path) 0) -1)
+					name (path-name path)
 					is_dm (and *current_sys_id* (nql *current_name* "global"))
 					msg (cat "FILE:" (if is_dm *current_name* "") (ascii-char 10) my_name (ascii-char 10)
 						name (ascii-char 10) data)
@@ -570,7 +570,7 @@
 	;only a name, no folder of the sender's is made here
 	(when (defq parts (parse-file-msg msg))
 		(bind '(target sender name data) parts)
-		(defq path (file-keep (slice name (ifn (rfind "/" name) 0) -1) data))
+		(defq path (file-keep (path-name name) data))
 		(add-chat-message (cat (if (nempty? target) (cat "DM:" target ":") "")
 			"<" sender "> @file " path))))
 

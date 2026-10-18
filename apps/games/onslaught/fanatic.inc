@@ -185,7 +185,7 @@
 			(if (= man_jump (length +jump_offsets))
 				(def this :man_jump :nil)
 				(def this :man_jump man_jump))
-			(setq x (max 0 (min max_x x)))
+			(setq x (clamp x 0 max_x))
 			(. this :sp_set_pos x y)
 			this)
 
@@ -284,7 +284,7 @@
 						(when (or (bits? flags1 +fmap_stand) (bits? flags2 +fmap_stand))
 							(. this :sp_set_frame +frm_fanatic_l_stance)))))
 
-			(setq x (max 0 (min max_x x)))
+			(setq x (clamp x 0 max_x))
 			(. this :sp_set_pos x y)
 			(when (or (<= *man_power* 0) (<= *man_strength* 0))
 				(. this :sp_kill))

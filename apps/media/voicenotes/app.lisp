@@ -35,7 +35,7 @@
 (defun note-text (file)
 	; (note-text file) -> str
 	;as the list shows it, 2026-10-18 10:02:31  0:05
-	(defq name (slice file (ifn (rfind "/" file) 0) -5))
+	(defq name (path-stem file))
 	(cat (slice name 0 10) " " (join (split (slice name 11 -1) "-") ":")
 		"  " (clock-text (sound-seconds file))))
 
@@ -44,7 +44,7 @@
 	(. *status* :layout))
 
 (defun level (value)
-	(def (. *level* :dirty) :value (max 0 (min 100 value))))
+	(def (. *level* :dirty) :value (clamp value 0 100)))
 
 (defun notes-refresh ()
 	;the notes, newest first, as buttons, the one selected marked

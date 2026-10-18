@@ -207,7 +207,7 @@
 	(setd svc (storage-service))
 	(when (and (defq object (storage-manifest name svc)) (defq info (storage-info svc)))
 		(defq size (. info :find :block_size) end (min (first object) (+ offset len))
-			offset (max 0 (min offset end)) parts (list "") lost :nil at (/ offset size))
+			offset (clamp offset 0 end) parts (list "") lost :nil at (/ offset size))
 		(while (and (not lost) (< (* at size) end))
 			(if (defq data (storage-block (elem-get (second object) at) svc))
 				(push parts (slice data (max 0 (- offset (* at size))) (min (length data) (- end (* at size)))))

@@ -17,7 +17,7 @@
 		(setq *canvas* new_canvas)
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
-		(def *window_title* :text (cat "Images -> " (slice file (ifn (rfind "/" file) 0) -1)))
+		(def *window_title* :text (cat "Images -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
 		(. *window_title* :layout)
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))

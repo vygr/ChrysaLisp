@@ -937,7 +937,7 @@
 	(when (and (defq entry (store-stat store name))
 			(defq object (store-manifest store (elem-get entry +store_entry_hash))))
 		(defq size (get :block_size store) end (min (first object) (+ offset len))
-			offset (max 0 (min offset end)) parts (list "") lost :nil
+			offset (clamp offset 0 end) parts (list "") lost :nil
 			at (/ offset size))
 		(while (and (not lost) (< (* at size) end))
 			(if (defq data (store-block-get store (elem-get (second object) at)))

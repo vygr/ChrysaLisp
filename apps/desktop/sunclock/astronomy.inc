@@ -66,7 +66,7 @@
 		((>= x 0.9999) +fp_hpi)
 		((<= x -0.9999) (neg +fp_hpi))
 		(:t
-			(defq clamped (min 1.0 (max -1.0 x))
+			(defq clamped (clamp x -1.0 1.0)
 				om_x2 (- 1.0 (* clamped clamped))
 				denom (sqrt (max 0.0 om_x2)))
 			(atan2 clamped denom))))
@@ -145,7 +145,7 @@
 		d_lon (geo-deg-to-rad (- lon_deg sun_lon_deg))
 		cos_zenith (+ (* (sin phi) (sin delta))
 			(* (* (cos phi) (cos delta)) (cos d_lon)))
-		clamped (min 1.0 (max -1.0 cos_zenith))
+		clamped (clamp cos_zenith -1.0 1.0)
 		elev_rad (asin clamped))
 	(geo-rad-to-deg elev_rad))
 
@@ -177,7 +177,7 @@
 			; Midnight sun: Sun never sets
 			(list :nil noon_utc :nil 24.0 :polar_day))
 		(:t
-			(defq h0_rad (acos (min 1.0 (max -1.0 cos_h0)))
+			(defq h0_rad (acos (clamp cos_h0 -1.0 1.0))
 				h0_hours (* (/ h0_rad +fp_pi) 12.0)
 				sunrise_utc (% (+ (- noon_utc h0_hours) 24.0) 24.0)
 				sunset_utc (% (+ (+ noon_utc h0_hours) 24.0) 24.0)
