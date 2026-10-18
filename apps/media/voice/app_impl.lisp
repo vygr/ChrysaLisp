@@ -31,7 +31,7 @@
 	*running_pipe* :nil *ctl* :nil *started* 0 *saving* :nil
 	;the call as the service says it is, the calls of the mesh, the one
 	;picked to join, and the tap a recording of the call is sent by
-	*call* :nil *call_list* (list) *tap* :nil *beat* 0)
+	*call* :nil *call_list* (list) *tap* :nil *beat* 0 *call_shown* :nil)
 
 (defun note-name ()
 	; (note-name) -> str
@@ -110,16 +110,30 @@
 	row)
 
 (defun window-fit ()
-	;the window as tall as what is in it now asks, no narrower than it is
+	;the window grown to what is in it now, if that asks more than it has,
+	;and laid out again; never made smaller, its size is the user's
 	(bind '(w h) (. *window* :get_size))
 	(bind '(pw ph) (. *window* :pref_size))
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (list (max w pw) ph))))
-	(. *window* :change_dirty x y w h))
+	(cond
+		((or (> pw w) (> ph h))
+			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (list (max w pw) (max h ph)))))
+			(. *window* :change_dirty x y w h))
+		((.-> *window* :layout :dirty_all))))
 
 (defun call-show ()
-	;the call part made again. In a call: its name, who is in it and what
-	;each is doing, talking, recording, and this one muted, and its buttons.
-	;In none: the calls of the mesh, each to join, and one to start
+	;the call part made again, if what it shows has changed: the state is
+	;sent again each time the call is watched again, as well as on a change.
+	;In a call: its name, who is in it and what each is doing, talking,
+	;recording, and this one muted, and its buttons. In none: the calls of
+	;the mesh, each to join, and one to start
+	(defq shown (if (call-in?)
+		(str (map (# (. *call* :find %0)) '(:id :name :muted :headphones :members :talking :inbox)))
+		(str *call_list*)))
+	(unless (eql shown *call_shown*)
+		(setq *call_shown* shown)
+		(call-show-now)))
+
+(defun call-show-now ()
 	(each (# (. %0 :sub)) (. *call_area* :children))
 	(cond
 		((call-in?)
