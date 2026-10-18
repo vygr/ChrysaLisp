@@ -49,7 +49,7 @@
 ;its tree, by the rules that come with it, and folder is what is in one
 ;folder of that tree
 (enums +sync_type 0
-	(enum list put del quit mode root folder from waypoint))
+	(enum list put del quit mode root folder from waypoint spread))
 
 (structure +sync_rpc 0
 	(netid reply_id)
@@ -62,7 +62,9 @@
 	(offset data))
 
 ;a file goes over this much at a time, and how long an answer is waited for
-(defq +sync_chunk 131072 +sync_wait 120000000)
+(defq +sync_chunk 131072 +sync_wait 120000000
+	;how often a service looks for a machine that is new to it
+	+sync_look 10000000)
 
 (defun sync-rules (text)
 	; (sync-rules text) -> rules
@@ -219,14 +221,17 @@
 	; (sync-waypoint-text commit time top) -> str
 	(cat commit (ascii-char 10) (str time) (ascii-char 10) top (ascii-char 10)))
 
+(defun sync-own-rules (root)
+	; (sync-own-rules root) -> rules
+	;the rules of a tree, its own .gitignore, and what is the machine's own
+	;and not the tree's: its waypoint, who it takes a sync from, its key
+	(sync-rules (cat (ifn (load (cat root "/.gitignore")) "")
+		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key" (ascii-char 10))))))
+
 (defun sync-top (root &optional kept)
 	; (sync-top root [kept]) -> hash
-	;the top of the tree of hashes of a tree, by its own .gitignore, and
-	;never with what is the machine's own and not the tree's: its
-	;waypoint, who it takes a sync from, its key
-	(hash-tree-root (sync-tree root (sync-rules (cat (ifn (load (cat root "/.gitignore")) "")
-		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key" (ascii-char 10)))))
-		kept)))
+	;the top of the tree of hashes of a tree, by its own rules
+	(hash-tree-root (sync-tree root (sync-own-rules root) kept)))
 
 (defun sync-clean (root &optional kept top)
 	; (sync-clean root [kept top]) -> :nil | (commit time top)
@@ -249,20 +254,24 @@
 	;is a node one of the machines of those system ids
 	(some (# (if (find node (lisp-nodes (hex-decode %0))) :t)) systems))
 
-(defun sync-from (node said root kept me &optional named)
-	; (sync-from node said root kept me [named]) -> :rig | :herd | :no
+(defun sync-from (node said root kept me &optional named herd_only)
+	; (sync-from node said root kept me [named herd_only]) -> :rig | :herd | :no
 	;what a machine may do here, by who it is and the waypoint it says it
-	;is at: anything, if it is this machine or one named; as the herd, if
-	;this tree is at a waypoint, has no .git, and it is at a newer one; or
-	;nothing
+	;is at: anything, if it is this machine or one named, unless it asks
+	;only as the herd; as the herd, if this tree has no .git and is at a
+	;waypoint and it is at a newer one, or this tree is already exactly the
+	;one at its waypoint, and only the waypoint is to be noted; or nothing
 	(cond
-		((sync-of? node (cat (list me) (ifn named (sync-named)))) :rig)
+		((and (not herd_only) (sync-of? node (cat (list me) (ifn named (sync-named))))) :rig)
 		((and (nempty? said) (not (pii-fstat (cat root "/.git")))
-				(defq here (sync-clean root kept))
 				(defq there (map (# (trim %0)) (split said (ascii-char 10))))
 				(>= (length there) 3)
-				(nql (first there) (first here))
-				(> (str-as-num (second there)) (second here)))
+				(defq top (sync-top root kept))
+				;not one it is at already
+				(nql (first there) (first (sync-waypoint root)))
+				(or (eql (third there) top)
+					(and (defq here (sync-clean root kept top))
+						(> (str-as-num (second there)) (second here)))))
 			:herd)
 		(:no)))
 
@@ -294,8 +303,8 @@
 		((/= (first reply) 0) :old)
 		((second reply))))
 
-(defun sync-push (svc root rules_text &optional check remove kept no_modes)
-	; (sync-push svc root rules_text [check remove kept no_modes])
+(defun sync-push (svc root rules_text &optional check remove kept no_modes herd_only)
+	; (sync-push svc root rules_text [check remove kept no_modes herd_only])
 	;	-> :nil | :old | (sent bytes removed failed send gone remoded)
 	;make the tree a sync service has the same as the one under root. With
 	;check nothing is changed there. With remove, what is there and not
@@ -304,7 +313,9 @@
 	;and run it, and one that is the same but for its mode has that set,
 	;unless no_modes, for a host that has no such thing. :nil if the
 	;service does not answer, :old if it is from before there were trees,
-	;:refused if it takes nothing from this one, (Who takes a sync)
+	;:refused if it takes nothing from this one, (Who takes a sync). With
+	;herd_only it is asked to take it only as the herd would, not as one of
+	;the machines it names
 	(defq reply_mbox (mail-mbox) rules (sync-rules rules_text)
 		mine (sync-tree root rules kept no_modes)
 		;the waypoint this tree is at, if it is exactly that, for the herd
@@ -312,7 +323,7 @@
 			(eql (third at) (hash-tree-root mine)) at))
 	;who this is, and then it works out its tree as this one is, by the
 	;same rules. One from before there was a from says it does not know it
-	(sync-tell svc reply_mbox +sync_type_from (if claim (apply (const sync-waypoint-text) claim) ""))
+	(sync-tell svc reply_mbox +sync_type_from (if claim (apply (const sync-waypoint-text) claim) "") 0 0 (if herd_only 1 0))
 	(defq said (sync-hear reply_mbox))
 	(cond
 		((and said (= (first said) -6)) (setq said :refused))

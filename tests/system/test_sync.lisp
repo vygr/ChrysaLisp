@@ -199,6 +199,35 @@
 (assert-eq "a folder asked for with no tree worked out, after a write, is refused" -5 (first (sync-hear sy_mbox)))
 (pii-remove (cat sy_dst "/late2.txt"))
 
+;a push from a tree exactly at its waypoint notes it there too, when that
+;tree is then the same; and the herd's, asked only as the herd, is taken by
+;a tree at an older waypoint and not by one at its own or with a change
+(defq sy_rt (cat sy_text (ascii-char 10) "/waypoint"))
+(save sy_rt (cat sy_src "/.gitignore"))
+(save (sync-waypoint-text "cccc" 300 (sync-top sy_src)) (cat sy_src "/waypoint"))
+(setq sy_res (sync-push sy_svc sy_src sy_rt :nil :t))
+(assert-eq "a push from a tree at its waypoint, none failed" 0 (elem-get sy_res 3))
+(assert-eq "notes that waypoint there" "cccc" (first (sync-waypoint sy_dst)))
+(assert-true "and there it is exactly at it" (sync-clean sy_dst))
+(assert-eq "as the herd, at that waypoint already, it is refused" :refused
+	(sync-push sy_svc sy_src sy_rt :nil :t :nil :nil :t))
+(save (sync-waypoint-text "dddd" 400 (sync-top sy_src)) (cat sy_src "/waypoint"))
+(setq sy_res (sync-push sy_svc sy_src sy_rt :nil :t :nil :nil :t))
+(assert-eq "a newer one of the same tree, as the herd, sends nothing" 0 (first sy_res))
+(assert-eq "and is noted" "dddd" (first (sync-waypoint sy_dst)))
+(save "mine" (cat sy_dst "/mine.txt"))
+(save (sync-waypoint-text "eeee" 500 (sync-top sy_src)) (cat sy_src "/waypoint"))
+(assert-eq "a tree with a change of its own refuses the herd" :refused
+	(sync-push sy_svc sy_src sy_rt :nil :t :nil :nil :t))
+(pii-remove (cat sy_dst "/mine.txt"))
+(save "new" (cat sy_src "/new.txt"))
+(save (sync-waypoint-text "eeee" 500 (sync-top sy_src)) (cat sy_src "/waypoint"))
+(setq sy_res (sync-push sy_svc sy_src sy_rt :nil :t :nil :nil :t))
+(assert-eq "a newer one with a change, as the herd, sends it" "new" (load (cat sy_dst "/new.txt")))
+(assert-eq "and is noted" "eeee" (first (sync-waypoint sy_dst)))
+(each (# (pii-remove (cat sy_src %0))) '("/.gitignore" "/waypoint" "/new.txt"))
+(each (# (pii-remove (cat sy_dst %0))) '("/.gitignore" "/waypoint" "/new.txt"))
+
 ;a sync from before there were trees knows nothing of a top, and is told
 ;apart. It says it does not know each thing it is asked: a top, and of a
 ;push, who it is from and a top
@@ -236,11 +265,20 @@
 	(sync-from sy_far "" sy_dst :nil sy_me (list)) :no
 	(sync-from sy_far (sync-waypoint-text "bbbb" 200 "x") sy_dst :nil sy_me (list)) :herd
 	(sync-from sy_far (sync-waypoint-text "aaaa" 200 "x") sy_dst :nil sy_me (list)) :no
-	(sync-from sy_far (sync-waypoint-text "bbbb" 50 "x") sy_dst :nil sy_me (list)) :no)
+	(sync-from sy_far (sync-waypoint-text "bbbb" 50 "x") sy_dst :nil sy_me (list)) :no
+	(sync-from (task-nodeid) "" sy_dst :nil sy_me (list) :t) :no
+	(sync-from (task-nodeid) (sync-waypoint-text "bbbb" 200 "x") sy_dst :nil sy_me (list) :t) :herd)
 (save "a change of its own" (cat sy_dst "/mine.txt"))
 (assert-eq "changed, it is at no waypoint" :nil (sync-clean sy_dst))
 (assert-eq "and the herd may not touch it" :no (sync-from sy_far (sync-waypoint-text "bbbb" 200 "x") sy_dst :nil sy_me (list)))
 (pii-remove (cat sy_dst "/mine.txt"))
+;one with no waypoint noted that is already exactly the tree offered
+(pii-remove (cat sy_dst "/waypoint"))
+(assert-eq "already exactly it, only the waypoint is to be noted" :herd
+	(sync-from sy_far (sync-waypoint-text "bbbb" 200 sy_top) sy_dst :nil sy_me (list)))
+(save (sync-waypoint-text "bbbb" 100 sy_top) (cat sy_dst "/waypoint"))
+(assert-eq "but not one it is at already" :no
+	(sync-from sy_far (sync-waypoint-text "bbbb" 200 sy_top) sy_dst :nil sy_me (list)))
 ;a tree of its own with a .git, at a waypoint
 (defq sy_git "tests/scratch/sync_git")
 (save "a tree" (cat sy_git "/kept.txt")) (save "" (cat sy_git "/.git/HEAD"))
@@ -251,4 +289,4 @@
 (each (# (pii-remove (cat sy_dst %0))) '("/waypoint" "/kept.txt"))
 
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
+(undef (env) 'sy_rt 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)

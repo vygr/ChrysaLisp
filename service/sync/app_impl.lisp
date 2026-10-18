@@ -10,6 +10,12 @@
 ; machine that tells it, as it says who it is, (sync-from), see lib/sync/
 ; sync.inc, Who takes a sync: itself and those named in sync_from, or by
 ; the herd, at waypoints. Told by any other, it does nothing.
+;
+; And it spreads the herd's: its child, ./spread.lisp, offers this tree's
+; waypoint to the others, as it starts, when it has taken one, when a
+; machine that takes a sync is new to it, and when told by this machine,
+; the waypoint command. No machine is in charge of it, each offers what
+; it is at and takes what is newer, and a waypoint goes round them all.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/sync/sync.inc")
@@ -38,43 +44,68 @@
 		live (Fmap 101)
 		out :nil out_path "" out_at 0 running :t real (Fset 31)
 		;what each node that tells it may do, as it said who it is, and the
-		;waypoint of each that came by the herd
-		told (Fmap 31) herd (Fmap 31))
+		;waypoint each said it was at
+		told (Fmap 31) said_at (Fmap 31)
+		;the child that offers this tree's waypoint, and the machines that
+		;take a sync it has seen, by system id
+		spread (open-child "service/sync/spread.lisp" +kn_call_pin)
+		seen (Fset 31) looked (- (pii-time) +sync_look))
+	(mail-send spread (cat name (ascii-char 10) root))
 	;the root is the system's own tree, or a folder in it. Nowhere else, and
 	;not by way of a link, whatever it was started with. If it is not, the
 	;service takes nothing
 	(defq fenced (or (eql root ".") (and (sync-safe? root) (sync-inside? "." (cat root "/x")))))
 	(while running
-		(defq msg (mail-read (task-mbox)))
-		(when (>= (length msg) +sync_rpc_size)
+		;a machine that is new, and this one as it starts, is offered it,
+		;looked for when there has been a while to
+		(when (>= (- (pii-time) looked) +sync_look)
+			(setq looked (pii-time))
+			(defq new :nil)
+			(each (# (unless (. seen :find (second %0)) (. seen :insert (second %0)) (setq new :t)))
+				(sync-services name))
+			(if new (mail-send spread "go")))
+		(defq msg (mail-read-timeout (task-mbox) +sync_look))
+		(when (and msg (>= (length msg) +sync_rpc_size))
 			(defq reply_id (getf msg +sync_rpc_reply_id) kind (getf msg +sync_rpc_type)
 				at (getf msg +sync_rpc_at) total (getf msg +sync_rpc_total)
 				mode (logand (getf msg +sync_rpc_mode) 511)
 				data (slice msg +sync_rpc_data -1) status 0 back ""
 				node (slice reply_id +long_size -1))
-			;who it is is said first; one from before that was said is
-			;taken as saying no waypoint
-			;a yes is kept, a no is not: a machine just linked may not yet be
-			;known to be the one it is, and is asked about again next time
-			(when (= kind +sync_type_from)
-				(defq may (sync-from node data root kept me (cat (sync-named) also)))
-				(if (nql may :no) (. told :insert node may))
-				(if (eql may :herd) (. herd :insert node data)))
-			(unless (defq may (. told :find node))
-				(if (nql (setq may (sync-from node "" root kept me (cat (sync-named) also))) :no)
-					(. told :insert node may)))
+			;who it is is said first, with a mode of 1 if only as the herd; one
+			;from before that was said is taken as saying no waypoint. A yes is
+			;kept, a no is not: a machine just linked may not yet be known to be
+			;the one it is, and is asked about again next time
+			(defq may (cond
+				((= kind +sync_type_from)
+					(. told :erase node) (. said_at :erase node)
+					(when (nql (defq may (sync-from node data root kept me (cat (sync-named) also) (= mode 1))) :no)
+						(. told :insert node may)
+						(if (nempty? data) (. said_at :insert node data)))
+					may)
+				((. told :find node))
+				((nql (defq may (sync-from node "" root kept me (cat (sync-named) also))) :no)
+					(. told :insert node may) may)
+				(may)))
 			(catch
 				(case (cond ((= kind +sync_type_quit) kind) ((eql may :no) -6) (fenced kind) (-1))
 					(+sync_type_from)
 					(+sync_type_waypoint
-						;the herd's push is done: if the tree is now the same as
-						;the one at that waypoint, it is at it too
+						;a push from one at a waypoint is done: if the tree is now
+						;the same as the one at that waypoint, it is at it too, and
+						;offers it on
 						(setq held :nil)
-						(when (and (eql may :herd) (defq said (. herd :find node)))
+						(when (defq said (. said_at :find node))
 							(defq lines (map (# (trim %0)) (split said (ascii-char 10))))
-							(if (eql (sync-top root kept) (third lines))
-								(save said (cat root "/waypoint"))
-								(setq status -7))))
+							(cond
+								((eql (sync-top root kept) (third lines))
+									;one new to it is offered on
+									(unless (eql (first lines) (first (sync-waypoint root)))
+										(save said (cat root "/waypoint"))
+										(mail-send spread "go")))
+								((setq status -7)))))
+					(+sync_type_spread
+						;this machine's waypoint is noted, by one of its own
+						(if (eql may :rig) (mail-send spread "go") (setq status -6)))
 					(+sync_type_root
 						;the rules are the sender's, and a mode of 1 is no modes
 						(setq held (sync-tree root (sync-rules data) kept (= mode 1) live)
@@ -118,4 +149,5 @@
 				(progn (setq status -4 back (str _) out :nil out_path "") :t))
 			(mail-send reply_id (cat (setf-> (str-alloc +sync_reply_size)
 				(+sync_reply_status status)) back))))
+	(mail-send spread "")
 	(mail-forget service)))
