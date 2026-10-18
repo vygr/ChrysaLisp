@@ -1298,8 +1298,10 @@
 	;the mailboxes of the stripes are waited on after this task's own
 	(defq select (cat (task-mboxes +select_size) (. *stripes* :mboxes)) *id* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	;it is there to be invited to a board that is shared
+	;it is there to be invited to a board that is shared, and has back what
+	;it put by if it was closed while joined to one
 	(share-declare :nil)
+	(share-kept-back)
 	;a corner keeps the shape of what it sizes, till the lock is put off
 	(board-resized)
 	;as it was when it was last closed, if it has been: where it was and

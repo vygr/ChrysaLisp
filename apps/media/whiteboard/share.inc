@@ -95,9 +95,37 @@
 			(each (lambda ((mbox &ignore)) (share-send mbox "i" (ifn (get :user *env*) "Guest"))) (share-boards))
 			(share-title))))
 
+(defun share-kept-file ()
+	; (share-kept-file) -> path
+	;where a board that joins keeps its own document, unsaved as it may be,
+	;in the user's own folder, not over the file it came from
+	(cat (get :home *env*) "whiteboard_kept.cwb"))
+
+(defun share-keep (doc)
+	;the document of a board that joins, as it is, put by: "they may be in
+	;the middle of doing something and not want to save at that point".
+	;What it was saved as goes beside it, to be had again
+	(cwb-save doc (file-stream (share-kept-file) +file_open_write))
+	(save (ifn *file* "") (cat (share-kept-file) ".name")))
+
+(defun share-kept-forget ()
+	(pii-remove (share-kept-file))
+	(pii-remove (cat (share-kept-file) ".name")))
+
+(defun share-kept-back ()
+	;a board closed, or a machine stopped, while it was joined has what it
+	;put by back as it opens, under the name it had, and it is put by no more
+	(when (and (pii-fstat (defq kept (share-kept-file))) (board-load kept))
+		(defq was (ifn (load (cat kept ".name")) ""))
+		(setq *file* (if (nempty? was) was :nil))
+		(share-kept-forget)
+		(def *title* :text "Whiteboard, brought back from before a share")
+		(.-> *title* :layout :dirty_all)))
+
 (defun share-end ()
-	;a board that joined has its own document back
+	;a board that joined has its own document back, and it is put by no more
 	(share-stop *board*)
+	(share-kept-forget)
 	(def *board* :user_base :nil :trusted :nil)
 	(if *share_own_doc* (. *board* :set_doc *share_own_doc*))
 	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil *share_trust* :nil)
@@ -172,6 +200,7 @@
 				(setq *share_invite* :nil)
 				(bind '(base users save &optional trust) (map (const str-to-num) (split payload ",")))
 				(defq doc (. *board* :get_doc))
+				(share-keep doc)
 				(setq *share_own_doc* doc *share* :joined *share_may_save* (= save 1) *share_trust* (eql trust 1))
 				(def *board* :trusted *share_trust*)
 				(. *board* :set_doc (cwb-doc (. doc :find :width) (. doc :find :height)))
