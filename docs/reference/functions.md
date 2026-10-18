@@ -162,6 +162,30 @@ bytes before them, so it is quick, and most things that show
 pictures show it
 ```
 
+### WAV-head
+
+```code
+(WAV-head stream rate) -> stream
+
+the head of a 16 bit mono file whose length is not known yet
+```
+
+### WAV-info
+
+```code
+(WAV-info stream) -> (rate channels bits bytes) | (-1 -1 -1 -1)
+
+the stream is left at the first sample
+```
+
+### WAV-tail
+
+```code
+(WAV-tail stream rate bytes) -> stream
+
+the length put in the head, once it is known
+```
+
 ### XML-parse
 
 ```code
@@ -6865,6 +6889,151 @@ the innermost open form that is not transparent
 the default fcmp is cmp, which is for strings
 ```
 
+### sound-from-file
+
+```code
+(sound-from-file in out path [ctl])
+
+the samples of a sound file, by its format, or till ctl is sent anything
+```
+
+### sound-gain
+
+```code
+(sound-gain in out percent)
+
+louder or quieter, 100 as it is
+```
+
+### sound-info
+
+```code
+(sound-info file) -> :nil | (rate channels bits bytes)
+
+what a sound file is, and how many bytes of samples it has
+```
+
+### sound-level
+
+```code
+(sound-level in out who)
+
+each piece passed on, and how loud it was sent to who, a number
+```
+
+### sound-loader
+
+```code
+(sound-loader ext info head tail)
+
+files whose names end ext are read and written by these
+```
+
+### sound-loader-of
+
+```code
+(sound-loader-of file) -> :nil | (ext info head tail)
+```
+
+### sound-lowpass
+
+```code
+(sound-lowpass in out hz)
+
+what is above hz let through less, a pole of its own
+```
+
+### sound-map
+
+```code
+(sound-map data fn) -> data
+
+each sample of the piece made new, (fn sample) -> sample, kept in range
+```
+
+### sound-mic
+
+```code
+(sound-mic in out ctl)
+
+what the microphone hears, in the order it was heard, till ctl is sent
+anything. A piece that is not there when two after it are is lost
+```
+
+### sound-peak
+
+```code
+(sound-peak data) -> num
+
+the loudest of a piece, every other sample looked at
+```
+
+### sound-pieces
+
+```code
+(sound-pieces in fn)
+
+each piece of the in stream, to its end, given to fn
+```
+
+### sound-sample
+
+```code
+(sound-sample data index) -> num
+
+the 16 bit sample at index of samples, signed
+```
+
+### sound-seconds
+
+```code
+(sound-seconds file) -> num
+
+how long a sound file is, in whole seconds
+```
+
+### sound-speaker
+
+```code
+(sound-speaker in out)
+
+played on the Audio service, at the pace it is heard, 100ms ahead
+```
+
+### sound-stage
+
+```code
+(sound-stage fn [arg ...]) -> stage
+
+a stage of this module
+```
+
+### sound-stopped?
+
+```code
+(sound-stopped? ctl) -> :t | :nil
+
+has a source been told to stop, ctl sent anything, if it has a ctl
+```
+
+### sound-to-file
+
+```code
+(sound-to-file in out path)
+
+the samples to a sound file by its format, written as they come, its
+length put in at the end
+```
+
+### sound-tone
+
+```code
+(sound-tone in out hz ms [level ctl])
+
+a tone of hz a second for ms, at level of 32767, or till ctl is sent
+anything
+```
+
 ### split-cells
 
 ```code
@@ -7079,6 +7248,17 @@ a mailbox as a form
 
 ```code
 (stages-load stream pixmap type stages) -> :t | :nil
+```
+
+### stages-run
+
+```code
+(stages-run stages [done]) -> stages
+
+a pipeline whose ends are stages too: the first a source, made with no
+in stream, :nil, the last a sink, with no out stream, :nil. Sound is
+so, a microphone at one end, a speaker or a file at the other. It runs
+by itself, done, if given, is sent :t when the sink has finished
 ```
 
 ### stages-save

@@ -17,7 +17,7 @@
 	(defq reply (mail-mbox))
 	;the structures are imported first, a form apart, as the one after is
 	;made with them
-	(open-task (cat "(import {service/audio/app.inc})" (ascii-char 10)
+	(open-task (cat "(import {lib/audio/stages.inc})" (ascii-char 10)
 			(str `(mail-send (hex-decode ,(hex-encode reply)) (str ,form))))
 		am_node +kn_call_pin 0 (mail-mbox))
 	(mail-read-timeout reply (task-timeout (ifn wait 10))))
@@ -91,7 +91,30 @@
 			last) 15))
 		(defq am_last (if am_lease (str-as-num am_lease) 0))
 		(assert-true "a listener whose lease is out is sent no more" (< am_last (+ +audio_lease 2000000)))
-		(assert-true "but is sent till then" (> am_last (- +audio_lease 1000000)))))
+		(assert-true "but is sent till then" (> am_last (- +audio_lease 1000000)))
+		;a pipeline, the microphone to a file for a second, then the file to
+		;the speaker, each run on the desktop's node
+		(defq am_pipe (am-ask '(progn
+			(defq ctl (mail-mbox) done (mail-mbox) file "tests/scratch/test_mic.wav" peak 0)
+			(stages-run (list (sound-stage 'sound-mic (stage-mbox ctl)) (sound-stage 'sound-to-file file)) done)
+			(task-sleep 1000000)
+			(mail-send ctl "")
+			(defq saved (mail-read-timeout done 5000000) info (sound-info file)
+				stream (file-stream file))
+			(WAV-info stream)
+			(while (and (defq data (read-blk stream 4096)) (nempty? data))
+				(setq peak (max peak (sound-peak data))))
+			(stages-run (list (sound-stage 'sound-from-file file) (sound-stage 'sound-speaker)) done)
+			(defq t0 (pii-time) played (mail-read-timeout done 5000000) took (- (pii-time) t0))
+			(pii-remove file)
+			(join (map (const str) (list (if saved 1 0) (if info (elem-get info 3) 0) peak
+				(if played 1 0) took)) " ")) 20))
+		(defq am_p (map (const str-as-num) (split (ifn am_pipe "0 0 0 0 0") " ")))
+		(assert-eq "the microphone to a file, it says it is done" 1 (first am_p))
+		(assert-true "about a second of it in the file" (<= 24000 (second am_p) 36000))
+		(assert-true "the tone in the file" (<= 8000 (third am_p) 8192))
+		(assert-eq "the file to the speaker, it says it is done" 1 (elem-get am_p 3))
+		(assert-true "at the pace it plays, about a second" (<= 900000 (elem-get am_p 4) 2000000))))
 
 ;the desktop goes, and the network is as it was
 (when am_pid

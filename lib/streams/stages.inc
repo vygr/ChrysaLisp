@@ -4,6 +4,7 @@
 ; (stage imports fn [arg ...]) -> stage
 ; (stages-load stream pixmap type stages) -> :t | :nil
 ; (stages-save pixmap type stream stages) -> :t
+; (stages-run stages [done]) -> stages
 ;
 ; How an image is read and written: a CPM's rle and lz4, a PNG's chunks,
 ; inflate and filters, a JPEG's scan. A stage is a task of its own, made
@@ -89,6 +90,22 @@
 	(mail-read handshake)
 	:t)
 
+(defun stages-run (stages &optional done)
+	; (stages-run stages [done]) -> stages
+	;a pipeline whose ends are stages too: the first a source, made with no
+	;in stream, :nil, the last a sink, with no out stream, :nil. Sound is
+	;so, a microphone at one end, a speaker or a file at the other. It runs
+	;by itself, done, if given, is sent :t when the sink has finished
+	(defq handshake (mail-mbox) last_at (dec (length stages)))
+	(each! (lambda (s)
+			(open-child (stage-form s
+					(if (= (!) 0) :nil (stage-in handshake))
+					(if (= (!) last_at) :nil (list 'out-stream (stage-mbox (mail-read handshake))))
+					(if (= (!) last_at) done))
+				+kn_call_pin))
+		(list stages) -1 0)
+	stages)
+
 ;module
-(export-symbols '(stage stages-load stages-save))
+(export-symbols '(stage stage-mbox stages-load stages-save stages-run))
 (env-pop)

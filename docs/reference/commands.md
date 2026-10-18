@@ -969,14 +969,16 @@ Usage: mic [options]
     options:
         -h --help: this help info.
         -s --seconds num: how long to listen, default 3.
-        -o --out path: what was heard written to a .wav file.
-        -p --play: what was heard played back, as a stream is.
+        -o --out path: what was heard kept in a sound file, .wav,
+            default tests/scratch/mic.wav.
+        -p --play: what was heard played back.
 
     Listen to the microphone of the Audio service of this machine, and
-    say what was heard: how many pieces, how many samples, any lost or
-    out of order, and how loud, at its loudest and on the whole. What is
-    heard is 16 bit mono at 16000 a second. A desktop that is never seen,
-    -hidden, hears a tone of 440 a second, not a device.
+    say what was heard: how long, how loud at its loudest and on the
+    whole. What is heard is 16 bit mono at 16000 a second. It is a sound
+    pipeline, lib/audio/stages.inc, the microphone, how loud, to the
+    file; and to play it, the file to the speaker. A desktop that is
+    never seen, -hidden, hears a tone of 440 a second, not a device.
 
     On macOS the program the host runs under, the terminal, must be let
     use the microphone, or it hears nothing.
