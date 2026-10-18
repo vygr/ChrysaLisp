@@ -26,7 +26,7 @@ for the other machines, `link -l 3333 -a` and `link -a`, and takes a sync,
 
 ```code
 ./rack.sh up        start this machine's member
-./rack.sh status    is it up
+./rack.sh status    is it up, or updating
 ./rack.sh down      stop it, and only it
 ./rack.sh run 'rack "tests -a"'
 ```
@@ -42,6 +42,18 @@ A member builds nothing and tests nothing. It runs the boot image and the
 Lisp it was started on, and goes on doing so while the tree changes under
 it. After a change to the Net service, the mesh, sync or `lib/rack` itself,
 stop it and start it.
+
+But not when the herd has changed it. `rack.sh up` keeps the member in a
+loop, started by `nohup` as `rack.sh loop`. A member on a tree with no
+`.git`, that the herd has taken to a newer waypoint, leaves the file
+`/tmp/chrysalisp_rack_update` and ends. The loop stops the nodes that
+member started, and no others, a desktop of someone's is left as it is;
+does `make install`; and starts the member again on what was built. If the
+install fails, the host programs and boot image that were there are put
+back first, so the machine stays in the mesh. A member that ends with no
+such file, `down` or a fault, is not started again. What it did is in
+`/tmp/chrysalisp_rack.log`. A tree with a `.git` is someone's own, kept by
+git, and its member never does this.
 
 ## What it lets in
 
