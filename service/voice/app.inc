@@ -20,7 +20,9 @@
 
 ;a watcher, or a member of a call, not heard from for so long is gone,
 ;and each says it is still there twice in that time
-(defq +call_lease 6000000 +call_beat 2000000)
+(defq +call_lease 6000000 +call_beat 2000000
+	;one heard within this is talking, and the service looks this often
+	+call_talk_for 600000 +call_talk_look 200000)
 
 (defun call-service ()
 	; (call-service) -> :nil | net_id
@@ -80,6 +82,12 @@
 	;lib/audio/voice.inc (voice-mix); :nil for none
 	(call-ask (cat "P" (if mbox (hex-encode mbox) ""))))
 
+(defun call-headphones (on)
+	; (call-headphones on)
+	;with headphones what is heard is not heard by the microphone, so all
+	;may talk at once: half duplex off
+	(call-ask (if on "H1" "H0")))
+
 (defun call-unwatch (mbox)
 	; (call-unwatch mbox)
 	(call-ask (cat "U" (hex-encode mbox))))
@@ -96,6 +104,7 @@
 (defun call-state-read (msg)
 	; (call-state-read msg) -> :nil | state
 	;what a watcher is sent: an Emap of :id, hex or :nil if in no call,
-	;:name, :muted, :recording, :inbox, where this one hears, and :members,
-	;a list of (name inbox rec) of all in it, rec 1 for one that records
+	;:name, :muted, :recording, :headphones, :inbox, where this one hears,
+	;:members, a list of (name inbox rec) of all in it, rec 1 for one that
+	;records, and :talking, the inboxes of those talking now
 	(and (defq data (catch (tree-load (string-stream msg)) :t)) (Emap? data) data))

@@ -23,15 +23,15 @@
 	(enum main tip timer done level call))
 
 (defq +rate 250000 +folder (cat (get :home *env*) "voice_notes/") +max_notes 200
-	;the button of each call of the mesh, past those of the notes
-	+event_pick (+ +event_note 256) +max_calls 64
+	;the Join of each call of the mesh, past the notes
+	+event_join (+ +event_note 256) +max_calls 64
 	*note_files* (list) *selected* :nil
 	;what runs: :record or :play, the mailbox its source stops by, and when
 	;it started
 	*running_pipe* :nil *ctl* :nil *started* 0 *saving* :nil
 	;the call as the service says it is, the calls of the mesh, the one
 	;picked to join, and the tap a recording of the call is sent by
-	*call* :nil *call_list* (list) *call_pick* :nil *tap* :nil *beat* 0)
+	*call* :nil *call_list* (list) *tap* :nil *beat* 0)
 
 (defun note-name ()
 	; (note-name) -> str
@@ -55,7 +55,9 @@
 	(. *status* :layout))
 
 (defun level (value)
-	(def (. *level* :dirty) :value (clamp value 0 100)))
+	;how loud, green while it runs, a grey trough when it does not
+	(def (. *level* :dirty) :value (clamp value 0 100)
+		:paper (if *running_pipe* +argb_green +argb_grey12)))
 
 (defun notes-refresh ()
 	;the notes, newest first, as buttons, the one selected marked
@@ -81,45 +83,80 @@
 
 (defun call-in? () (and *call* (. *call* :find :id)))
 
+(defun call-label (text &optional font ink)
+	(def (defq lbl (Label)) :text text)
+	(view-variant lbl :font (ifn font :font_button))
+	(if ink (def lbl :ink ink))
+	lbl)
+
+(defun call-row (left right)
+	;a line of the call, who and what they are doing
+	(def (defq row (Flow)) :flow_flags +flow_right_fill)
+	(def (defq name (call-label left)) :min_width 200)
+	(. row :add_child name)
+	(. row :add_child (call-label right :font_button +argb_grey8))
+	row)
+
+(defun call-buttons (buttons)
+	;a row of buttons with words, ((text event lit) ...), one that is on lit
+	(def (defq row (Flow)) :flow_flags +flow_right)
+	(each (lambda ((text event lit))
+			(def (defq btn (Button)) :text text :border 1)
+			(view-variant btn :font :font_button)
+			(if lit (view-variant btn :paper :paper_highlight))
+			(. btn :connect event)
+			(. row :add_child btn))
+		buttons)
+	row)
+
+(defun window-fit ()
+	;the window as tall as what is in it now asks, no narrower than it is
+	(bind '(w h) (. *window* :get_size))
+	(bind '(pw ph) (. *window* :pref_size))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (list (max w pw) ph))))
+	(. *window* :change_dirty x y w h))
+
 (defun call-show ()
-	;who is in the call, those that record marked, and mute lit as a toggle is
-	(def (. *call_status* :dirty) :text
-		(cond
-			((call-in?)
-				(cat "In " (. *call* :find :name) ": "
-					(join (map (lambda ((who inbox rec)) (if (= rec 1) (cat who " (recording)") who))
-						(ifn (. *call* :find :members) (list))) ", ")
-					(if (. *call* :find :muted) ", muted" "")))
-			("In no call")))
-	(.-> *call_status* :layout :dirty_all)
-	(when (defq btn (some (# (if (eql (get :text %0) (num-to-utf8 +sym_mute)) %0)) (. *call_toolbar* :children)))
-		(if (and *call* (. *call* :find :muted))
-			(def (. btn :dirty) :paper (canvas-brighter (get :paper *call_toolbar*)))
-			(undef (. btn :dirty) :paper))))
+	;the call part made again. In a call: its name, who is in it and what
+	;each is doing, talking, recording, and this one muted, and its buttons.
+	;In none: the calls of the mesh, each to join, and one to start
+	(each (# (. %0 :sub)) (. *call_area* :children))
+	(cond
+		((call-in?)
+			(defq talking (ifn (. *call* :find :talking) (list)) me (. *call* :find :inbox)
+				muted (. *call* :find :muted))
+			(. *call_area* :add_child (call-label (. *call* :find :name) :font_bold))
+			(each (lambda ((who inbox rec))
+					(defq talks (find inbox talking))
+					(. *call_area* :add_child (call-row
+						(cat (if talks "* " "  ") who (if (eql inbox me) " (you)" ""))
+						(cond
+							((= rec 1) "recording")
+							(talks "talking")
+							((and (eql inbox me) muted) "muted")
+							("")))))
+				(ifn (. *call* :find :members) (list)))
+			(. *call_area* :add_child (call-buttons (list
+				(list (if muted "Unmute" "Mute") +event_mute muted)
+				(list "Headphones" +event_headphones (. *call* :find :headphones))
+				(list "Leave" +event_leave :nil)))))
+		(:t (each (lambda ((id name))
+					(def (defq row (Flow)) :flow_flags +flow_right_fill)
+					(def (defq lbl (call-label name)) :min_width 240)
+					(. row :add_child lbl)
+					(. row :add_child (call-buttons (list (list "Join" (+ +event_join (!)) :nil))))
+					(. *call_area* :add_child row))
+				*call_list*)
+			(if (empty? *call_list*) (. *call_area* :add_child (call-label "No calls to join" :font_button +argb_grey8)))
+			(. *call_area* :add_child (call-buttons (list (list "Start a call" +event_start :nil))))))
+	(window-fit))
 
 (defun calls-refresh ()
-	;the calls of the mesh, as buttons, the one picked marked, the one this
-	;is in said so
+	;the calls of the mesh, and the call part made again if they changed
+	(defq was (str *call_list*))
 	(setq *call_list* (call-list))
 	(if (> (length *call_list*) +max_calls) (setq *call_list* (slice *call_list* 0 +max_calls)))
-	(unless (some (# (eql (first %0) *call_pick*)) *call_list*) (setq *call_pick* :nil))
-	(each (# (. %0 :sub)) (. *calls* :children))
-	(each (lambda ((id name))
-			(defq btn (Button))
-			(def btn :text (if (and (call-in?) (eql id (. *call* :find :id))) (cat name ", this one") name)
-				:border (if (eql id *call_pick*) 1 0))
-			(view-variant btn :font :font_button)
-			(if (eql id *call_pick*) (view-variant btn :paper :paper_highlight))
-			(. btn :connect (+ +event_pick (!)))
-			(. *calls* :add_child btn))
-		*call_list*)
-	(when (empty? *call_list*)
-		(def (defq hint (Label)) :text "No calls, start one" :ink +argb_grey8)
-		(. *calls* :add_child hint))
-	(bind '(w h) (. *calls* :pref_size))
-	(bind '(sw &ignore) (. *calls_scroll* :get_size))
-	(. *calls* :change_dirty 0 0 (max w (- sw 16) 300) (max h 24) :t)
-	(.-> *calls_scroll* :layout :dirty_all))
+	(unless (or (call-in?) (eql was (str *call_list*))) (call-show)))
 
 (defun pipe-stop ()
 	;what runs is told to stop, and says when it is done
@@ -218,25 +255,20 @@
 				(when (defq state (call-state-read *msg*))
 					(setq *call* state)
 					(and *tap* (not (call-in?)) (pipe-stop))
-					(call-show)
-					(calls-refresh)))
+					(call-show)))
 			((= idx +select_level)
 				(if *running_pipe* (level (/ (* (str-as-num *msg*) 100) 16384))))
 			((= idx +select_done)
 				(pipe-done))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq *running* :nil))
-			((= id +event_call) (call-start (cat (ifn (get :user *env*) "Guest") "'s call")))
-			((= id +event_join)
-				(cond
-					(*call_pick* (call-join *call_pick*))
-					((status "Pick a call to join"))))
+			((= id +event_start) (call-start (cat (ifn (get :user *env*) "Guest") "'s call")))
 			((= id +event_leave) (call-leave))
 			((= id +event_mute) (if (call-in?) (call-mute (not (. *call* :find :muted)))))
-			((<= +event_pick id (+ +event_pick +max_calls -1))
-				(when (< (defq i (- id +event_pick)) (length *call_list*))
-					(setq *call_pick* (first (elem-get *call_list* i)))
-					(calls-refresh)))
+			((= id +event_headphones) (if (call-in?) (call-headphones (not (. *call* :find :headphones)))))
+			((<= +event_join id (+ +event_join +max_calls -1))
+				(if (< (defq i (- id +event_join)) (length *call_list*))
+					(call-join (first (elem-get *call_list* i)))))
 			((= id +event_record) (unless *running_pipe* (record-start select)))
 			((= id +event_stop) (pipe-stop))
 			((= id +event_play) (unless *running_pipe* (play-start select)))

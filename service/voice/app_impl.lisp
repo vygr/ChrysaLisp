@@ -10,8 +10,9 @@
 ;					beat and as it changes
 ;	e	id			it is ended
 ;From an app, a capital: S user,name, J user,id, L, M 1|0, W mailbox, U mailbox,
-;R 1|0 recording or not, P mailbox the tap, (voice-tap), P alone none, and
-;Q, out of any call and the service ends. Who is recording is told to all
+;R 1|0 recording or not, P mailbox the tap, (voice-tap), P alone none,
+;H 1|0 headphones or not, half duplex off with them, and Q, out of any call
+;and the service ends. From the voice stages, T inbox: that one is talking. Who is recording is told to all
 ;in the call, each sees it
 ;A member not heard from for +call_lease is gone, and a call whose keeper
 ;is not heard from for as long is ended: what is on another machine can
@@ -25,7 +26,9 @@
 	;who is in it, ((user inbox rec) ...), and when the keeper was last heard
 	roster (list) heard 0 beat 0
 	;what is said and heard, and the tap of an app that records it, hex
-	voice :nil muted :nil recording :nil tap :nil
+	voice :nil muted :nil recording :nil tap :nil headphones :nil
+	;who is talking, by inbox, and when last, and those said to be
+	talking (Fmap 11) talking_said (list)
 	;the apps watching, by mailbox, and when their lease is out
 	watchers (Fmap 11))
 
@@ -37,7 +40,8 @@
 (defun state-push (&optional only)
 	;the watchers told the state of the call here
 	(defq text (tree-text (scatter (Emap) :id call_id :name call_name :muted muted :members roster
-		:inbox (if voice (voice-inbox voice)) :recording recording)))
+		:inbox (if voice (voice-inbox voice)) :recording recording :headphones headphones
+		:talking talking_said)))
 	(if only
 		(mail-send (hex-decode only) text)
 		(. watchers :each (lambda (who due) (mail-send (hex-decode who) text)))))
@@ -51,8 +55,9 @@
 (defun voice-up ()
 	;the microphone and the speaker for a call, muted or not as this is, and
 	;to the tap if one records
-	(setq voice (voice-start))
+	(setq voice (voice-start (task-mbox)))
 	(voice-mute voice muted)
+	(voice-duplex voice (not headphones))
 	(if tap (voice-tap voice (hex-decode tap))))
 
 (defun roster-send (&optional changed)
@@ -125,6 +130,11 @@
 				(keeper (roster-send :t))
 				(call_id (join-beat)))
 			(state-push))
+		((eql kind "H")
+			(setq headphones (eql rest "1"))
+			(if voice (voice-duplex voice (not headphones)))
+			(state-push))
+		((eql kind "T") (. talking :insert rest now))
 		((eql kind "P")
 			(setq tap (if (nempty? rest) rest))
 			(if voice (voice-tap voice (if tap (hex-decode tap)))))
@@ -157,6 +167,18 @@
 		((eql kind "e")
 			(and (eql rest call_id) (not keeper) (call-drop)))))
 
+(defun talking-look (now)
+	;who is talking now, those heard of late; the watchers told if that changed
+	(defq gone (list))
+	(. talking :each (lambda (who said) (if (> (- now said) +call_talk_for) (push gone who))))
+	(each (# (. talking :erase %0)) gone)
+	(defq now_talking (list))
+	(. talking :each (lambda (who said) (push now_talking who)))
+	(sort now_talking (const cmp))
+	(unless (eql (str now_talking) (str talking_said))
+		(setq talking_said now_talking)
+		(state-push)))
+
 (defun tick (now)
 	;each beat: members say they are still there, the keeper says who is,
 	;and those not heard from are gone
@@ -176,8 +198,10 @@
 (defun main ()
 	(defq service (mail-declare (task-mbox) "@Voice" "Voice Service 0.1") running :t)
 	(while running
-		(defq msg (mail-read-timeout (task-mbox) +call_beat) now (pii-time))
+		;in a call, often, to say who has stopped talking
+		(defq msg (mail-read-timeout (task-mbox) (if call_id +call_talk_look +call_beat)) now (pii-time))
 		(and msg (nempty? msg) (message msg now))
+		(talking-look now)
 		(when (> (- now beat) +call_beat)
 			(setq beat now)
 			(tick now)))

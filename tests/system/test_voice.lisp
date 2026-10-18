@@ -23,7 +23,7 @@
 	(if tap (mail-send ctl (cat "p" (hex-encode tap))))
 	(each (# (mail-send ctl %0)) (ifn said (list)))
 	(stages-run (list (sound-stage 'sound-tone 440 200 (ifn level 6000))
-		(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from))) done)
+		(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from) :nil)) done)
 	(mail-read-timeout done (task-timeout 20))
 	(map (lambda (box) (vc-got box from)) (if tap (cat boxes (list tap)) boxes)))
 (defun vc-got (box from)
