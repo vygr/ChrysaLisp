@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 340
-	:height 1141
+	:height 1124
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 168
+	:next_id 174
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 165)
+					((:list 171)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 305.5371 0 A 8 8 0 0 1 313.5371 8 L 313.5371 1107 A 8 8 0 0 1 305.5371 1115 L 8 1115 A 8 8 0 0 1 0 1107 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 305.5371 0 A 8 8 0 0 1 313.5371 8 L 313.5371 1090 A 8 8 0 0 1 305.5371 1098 L 8 1098 A 8 8 0 0 1 0 1090 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -756,7 +756,7 @@
 							:stroke
 							0
 							:text
-							"[:redo_stack]"
+							"[:pointer_at]"
 							:font_size
 							12
 							:pos
@@ -776,7 +776,7 @@
 							:stroke
 							0
 							:text
-							"[:rub_mode]"
+							"[:redo_stack]"
 							:font_size
 							12
 							:pos
@@ -796,7 +796,7 @@
 							:stroke
 							0
 							:text
-							"[:rub_reach]"
+							"[:remote_pointers]"
 							:font_size
 							12
 							:pos
@@ -816,7 +816,7 @@
 							:stroke
 							0
 							:text
-							"[:rub_todo]"
+							"[:rub_mode]"
 							:font_size
 							12
 							:pos
@@ -836,7 +836,7 @@
 							:stroke
 							0
 							:text
-							"[:rubber]"
+							"[:rub_reach]"
 							:font_size
 							12
 							:pos
@@ -856,7 +856,7 @@
 							:stroke
 							0
 							:text
-							"[:seen]"
+							"[:rub_todo]"
 							:font_size
 							12
 							:pos
@@ -876,7 +876,7 @@
 							:stroke
 							0
 							:text
-							"[:selected]"
+							"[:rubber]"
 							:font_size
 							12
 							:pos
@@ -896,12 +896,12 @@
 							:stroke
 							0
 							:text
-							"[:selectors]"
+							"[:seen]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								85.00000
 							)
 						)
@@ -916,12 +916,12 @@
 							:stroke
 							0
 							:text
-							"[:settings]"
+							"[:selected]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								102.00000
 							)
 						)
@@ -936,12 +936,12 @@
 							:stroke
 							0
 							:text
-							"[:show_contacts]"
+							"[:selectors]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								119.00000
 							)
 						)
@@ -956,12 +956,12 @@
 							:stroke
 							0
 							:text
-							"[:snap]"
+							"[:settings]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								136.00000
 							)
 						)
@@ -976,12 +976,12 @@
 							:stroke
 							0
 							:text
-							"[:snap_angle]"
+							"[:show_contacts]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								153.00000
 							)
 						)
@@ -996,12 +996,12 @@
 							:stroke
 							0
 							:text
-							"[:snap_gap]"
+							"[:snap]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								170.00000
 							)
 						)
@@ -1016,12 +1016,12 @@
 							:stroke
 							0
 							:text
-							"[:stage]"
+							"[:snap_angle]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								187.00000
 							)
 						)
@@ -1036,12 +1036,12 @@
 							:stroke
 							0
 							:text
-							"[:surface]"
+							"[:snap_gap]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								204.00000
 							)
 						)
@@ -1056,12 +1056,12 @@
 							:stroke
 							0
 							:text
-							"[:temp]"
+							"[:stage]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								221.00000
 							)
 						)
@@ -1076,12 +1076,12 @@
 							:stroke
 							0
 							:text
-							"[:text]"
+							"[:surface]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								238.00000
 							)
 						)
@@ -1096,12 +1096,12 @@
 							:stroke
 							0
 							:text
-							"[:things]"
+							"[:temp]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								255.00000
 							)
 						)
@@ -1116,12 +1116,12 @@
 							:stroke
 							0
 							:text
-							"[:time]"
+							"[:text]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								272.00000
 							)
 						)
@@ -1136,12 +1136,12 @@
 							:stroke
 							0
 							:text
-							"[:undo_stack]"
+							"[:things]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								289.00000
 							)
 						)
@@ -1156,12 +1156,12 @@
 							:stroke
 							0
 							:text
-							"[:users]"
+							"[:time]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								306.00000
 							)
 						)
@@ -1176,12 +1176,12 @@
 							:stroke
 							0
 							:text
-							"[:was_back]"
+							"[:undo_stack]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								323.00000
 							)
 						)
@@ -1196,12 +1196,12 @@
 							:stroke
 							0
 							:text
-							"[:width]"
+							"[:users]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
+								216.56738
 								340.00000
 							)
 						)
@@ -1216,19 +1216,59 @@
 							:stroke
 							0
 							:text
+							"[:was_back]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								216.56738
+								357.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							64
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:width]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								216.56738
+								374.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							65
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
 							"[:zoom]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								198.60546
-								357.00000
+								216.56738
+								391.00000
 							)
 						)
 						((:list 13)
 							:shape
 							:id
-							64
+							66
 							:d
 							"[M 0 405 L 313.5371 405]"
 							:stroke
@@ -1243,7 +1283,7 @@
 						((:list 17)
 							:shape
 							:id
-							65
+							67
 							:kind
 							:text
 							:fill
@@ -1265,7 +1305,7 @@
 						((:list 15)
 							:shape
 							:id
-							66
+							68
 							:kind
 							:text
 							:fill
@@ -1285,7 +1325,7 @@
 						((:list 15)
 							:shape
 							:id
-							67
+							69
 							:kind
 							:text
 							:fill
@@ -1305,7 +1345,7 @@
 						((:list 15)
 							:shape
 							:id
-							68
+							70
 							:kind
 							:text
 							:fill
@@ -1325,7 +1365,7 @@
 						((:list 15)
 							:shape
 							:id
-							69
+							71
 							:kind
 							:text
 							:fill
@@ -1345,7 +1385,47 @@
 						((:list 15)
 							:shape
 							:id
-							70
+							72
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:share_hold_who]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								508.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							73
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:share_holds]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								120.43310
+								440.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							74
 							:kind
 							:text
 							:fill
@@ -1358,14 +1438,34 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								508.00000
+								120.43310
+								457.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							71
+							75
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:trusted]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								120.43310
+								474.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							76
 							:kind
 							:text
 							:fill
@@ -1378,14 +1478,14 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								525.00000
+								120.43310
+								491.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							72
+							77
 							:kind
 							:text
 							:fill
@@ -1398,16 +1498,16 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								542.00000
+								120.43310
+								508.00000
 							)
 						)
 						((:list 13)
 							:shape
 							:id
-							73
+							78
 							:d
-							"[M 0 556 L 313.5371 556]"
+							"[M 0 522 L 313.5371 522]"
 							:stroke
 							4282140240
 							:width
@@ -1420,7 +1520,7 @@
 						((:list 17)
 							:shape
 							:id
-							74
+							79
 							:kind
 							:text
 							:fill
@@ -1436,107 +1536,7 @@
 							:pos
 							((:list 2)
 								12.00000
-								572.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							75
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:add
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								591.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							76
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:align
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								608.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							77
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:angle_step
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								625.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							78
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:appoint
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								642.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							79
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:back?
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								659.00000
+								538.00000
 							)
 						)
 						((:list 15)
@@ -1550,13 +1550,13 @@
 							:stroke
 							0
 							:text
-							:bite
+							:add
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								676.00000
+								557.00000
 							)
 						)
 						((:list 15)
@@ -1570,13 +1570,13 @@
 							:stroke
 							0
 							:text
-							:bite_area
+							:align
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								693.00000
+								574.00000
 							)
 						)
 						((:list 15)
@@ -1590,13 +1590,13 @@
 							:stroke
 							0
 							:text
-							:busy?
+							:angle_step
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								710.00000
+								591.00000
 							)
 						)
 						((:list 15)
@@ -1610,13 +1610,13 @@
 							:stroke
 							0
 							:text
-							:changed
+							:appoint
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								727.00000
+								608.00000
 							)
 						)
 						((:list 15)
@@ -1630,13 +1630,13 @@
 							:stroke
 							0
 							:text
-							:clear
+							:back?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								744.00000
+								625.00000
 							)
 						)
 						((:list 15)
@@ -1650,13 +1650,13 @@
 							:stroke
 							0
 							:text
-							:commit
+							:bite
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								761.00000
+								642.00000
 							)
 						)
 						((:list 15)
@@ -1670,13 +1670,13 @@
 							:stroke
 							0
 							:text
-							:crop
+							:bite_area
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								778.00000
+								659.00000
 							)
 						)
 						((:list 15)
@@ -1690,13 +1690,13 @@
 							:stroke
 							0
 							:text
-							:delete
+							:busy?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								795.00000
+								676.00000
 							)
 						)
 						((:list 15)
@@ -1710,13 +1710,13 @@
 							:stroke
 							0
 							:text
-							:device_slot
+							:changed
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								812.00000
+								693.00000
 							)
 						)
 						((:list 15)
@@ -1730,13 +1730,13 @@
 							:stroke
 							0
 							:text
-							:device_uses
+							:clear
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								829.00000
+								710.00000
 							)
 						)
 						((:list 15)
@@ -1750,13 +1750,13 @@
 							:stroke
 							0
 							:text
-							:devices_seen
+							:commit
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								846.00000
+								727.00000
 							)
 						)
 						((:list 15)
@@ -1770,13 +1770,13 @@
 							:stroke
 							0
 							:text
-							:dirty?
+							:crop
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								863.00000
+								744.00000
 							)
 						)
 						((:list 15)
@@ -1790,13 +1790,13 @@
 							:stroke
 							0
 							:text
-							:dismiss
+							:delete
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								880.00000
+								761.00000
 							)
 						)
 						((:list 15)
@@ -1810,13 +1810,13 @@
 							:stroke
 							0
 							:text
-							:draw
+							:device_slot
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								897.00000
+								778.00000
 							)
 						)
 						((:list 15)
@@ -1830,13 +1830,13 @@
 							:stroke
 							0
 							:text
-							:draw_actors
+							:device_uses
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								914.00000
+								795.00000
 							)
 						)
 						((:list 15)
@@ -1850,13 +1850,13 @@
 							:stroke
 							0
 							:text
-							:draw_flight
+							:devices_seen
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								931.00000
+								812.00000
 							)
 						)
 						((:list 15)
@@ -1870,13 +1870,13 @@
 							:stroke
 							0
 							:text
-							:draw_overlay
+							:dirty?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								948.00000
+								829.00000
 							)
 						)
 						((:list 15)
@@ -1890,13 +1890,13 @@
 							:stroke
 							0
 							:text
-							:draw_selected
+							:dismiss
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								965.00000
+								846.00000
 							)
 						)
 						((:list 15)
@@ -1910,13 +1910,13 @@
 							:stroke
 							0
 							:text
-							:drop_temp
+							:draw
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								982.00000
+								863.00000
 							)
 						)
 						((:list 15)
@@ -1930,13 +1930,13 @@
 							:stroke
 							0
 							:text
-							:duplicate
+							:draw_actors
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								999.00000
+								880.00000
 							)
 						)
 						((:list 15)
@@ -1950,13 +1950,13 @@
 							:stroke
 							0
 							:text
-							:fill_pen
+							:draw_flight
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1016.00000
+								897.00000
 							)
 						)
 						((:list 15)
@@ -1970,13 +1970,13 @@
 							:stroke
 							0
 							:text
-							:fit
+							:draw_overlay
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1033.00000
+								914.00000
 							)
 						)
 						((:list 15)
@@ -1990,13 +1990,13 @@
 							:stroke
 							0
 							:text
-							:float
+							:draw_selected
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1050.00000
+								931.00000
 							)
 						)
 						((:list 15)
@@ -2010,13 +2010,13 @@
 							:stroke
 							0
 							:text
-							:fly
+							:drop_temp
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1067.00000
+								948.00000
 							)
 						)
 						((:list 15)
@@ -2030,13 +2030,13 @@
 							:stroke
 							0
 							:text
-							:forget
+							:duplicate
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1084.00000
+								965.00000
 							)
 						)
 						((:list 15)
@@ -2050,13 +2050,13 @@
 							:stroke
 							0
 							:text
-							:get_bindings
+							:fill_pen
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								1101.00000
+								982.00000
 							)
 						)
 						((:list 15)
@@ -2070,13 +2070,13 @@
 							:stroke
 							0
 							:text
-							:get_doc
+							:fit
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								591.00000
+								12.00000
+								999.00000
 							)
 						)
 						((:list 15)
@@ -2090,13 +2090,13 @@
 							:stroke
 							0
 							:text
-							:get_selected
+							:float
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								608.00000
+								12.00000
+								1016.00000
 							)
 						)
 						((:list 15)
@@ -2110,13 +2110,13 @@
 							:stroke
 							0
 							:text
-							:get_stage
+							:fly
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								625.00000
+								12.00000
+								1033.00000
 							)
 						)
 						((:list 15)
@@ -2130,13 +2130,13 @@
 							:stroke
 							0
 							:text
-							:group
+							:forget
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								642.00000
+								12.00000
+								1050.00000
 							)
 						)
 						((:list 15)
@@ -2150,13 +2150,13 @@
 							:stroke
 							0
 							:text
-							:hold
+							:get_bindings
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								659.00000
+								12.00000
+								1067.00000
 							)
 						)
 						((:list 15)
@@ -2170,13 +2170,13 @@
 							:stroke
 							0
 							:text
-							:holder
+							:get_doc
 							:font_size
 							12
 							:pos
 							((:list 2)
-								110.81054
-								676.00000
+								12.00000
+								1084.00000
 							)
 						)
 						((:list 15)
@@ -2190,13 +2190,13 @@
 							:stroke
 							0
 							:text
-							:hovering
+							:get_selected
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								693.00000
+								557.00000
 							)
 						)
 						((:list 15)
@@ -2210,13 +2210,13 @@
 							:stroke
 							0
 							:text
-							:in_flight?
+							:get_stage
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								710.00000
+								574.00000
 							)
 						)
 						((:list 15)
@@ -2230,13 +2230,13 @@
 							:stroke
 							0
 							:text
-							:ink_of
+							:group
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								727.00000
+								591.00000
 							)
 						)
 						((:list 15)
@@ -2250,13 +2250,13 @@
 							:stroke
 							0
 							:text
-							:ink_pair
+							:hold
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								744.00000
+								608.00000
 							)
 						)
 						((:list 15)
@@ -2270,13 +2270,13 @@
 							:stroke
 							0
 							:text
-							:keep_shape?
+							:holder
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								761.00000
+								625.00000
 							)
 						)
 						((:list 15)
@@ -2290,13 +2290,13 @@
 							:stroke
 							0
 							:text
-							:layer_index
+							:hovering
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								778.00000
+								642.00000
 							)
 						)
 						((:list 15)
@@ -2310,13 +2310,13 @@
 							:stroke
 							0
 							:text
-							:new
+							:in_flight?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								795.00000
+								659.00000
 							)
 						)
 						((:list 15)
@@ -2330,13 +2330,13 @@
 							:stroke
 							0
 							:text
-							:new_shape
+							:ink_of
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								812.00000
+								676.00000
 							)
 						)
 						((:list 15)
@@ -2350,13 +2350,13 @@
 							:stroke
 							0
 							:text
-							:order
+							:ink_pair
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								829.00000
+								693.00000
 							)
 						)
 						((:list 15)
@@ -2370,13 +2370,13 @@
 							:stroke
 							0
 							:text
-							:others_of
+							:keep_shape?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								846.00000
+								710.00000
 							)
 						)
 						((:list 15)
@@ -2390,13 +2390,13 @@
 							:stroke
 							0
 							:text
-							:paint
+							:layer_index
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								863.00000
+								727.00000
 							)
 						)
 						((:list 15)
@@ -2410,13 +2410,13 @@
 							:stroke
 							0
 							:text
-							:pen_of
+							:new
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								880.00000
+								744.00000
 							)
 						)
 						((:list 15)
@@ -2430,13 +2430,13 @@
 							:stroke
 							0
 							:text
-							:pick
+							:new_shape
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								897.00000
+								761.00000
 							)
 						)
 						((:list 15)
@@ -2450,13 +2450,13 @@
 							:stroke
 							0
 							:text
-							:pick_up
+							:order
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								914.00000
+								778.00000
 							)
 						)
 						((:list 15)
@@ -2470,13 +2470,13 @@
 							:stroke
 							0
 							:text
-							:place_new
+							:others_of
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								931.00000
+								795.00000
 							)
 						)
 						((:list 15)
@@ -2490,13 +2490,13 @@
 							:stroke
 							0
 							:text
-							:pointer_free?
+							:paint
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								948.00000
+								812.00000
 							)
 						)
 						((:list 15)
@@ -2510,13 +2510,13 @@
 							:stroke
 							0
 							:text
-							:pointer_idle
+							:pen_of
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								965.00000
+								829.00000
 							)
 						)
 						((:list 15)
@@ -2530,13 +2530,13 @@
 							:stroke
 							0
 							:text
-							:pointer_settings
+							:pick
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								982.00000
+								846.00000
 							)
 						)
 						((:list 15)
@@ -2550,13 +2550,13 @@
 							:stroke
 							0
 							:text
-							:pointers
+							:pick_up
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								999.00000
+								863.00000
 							)
 						)
 						((:list 15)
@@ -2570,13 +2570,13 @@
 							:stroke
 							0
 							:text
-							:put_state
+							:place_new
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1016.00000
+								880.00000
 							)
 						)
 						((:list 15)
@@ -2590,13 +2590,13 @@
 							:stroke
 							0
 							:text
-							:reach
+							:pointer_free?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1033.00000
+								897.00000
 							)
 						)
 						((:list 15)
@@ -2610,13 +2610,13 @@
 							:stroke
 							0
 							:text
-							:redo
+							:pointer_idle
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1050.00000
+								914.00000
 							)
 						)
 						((:list 15)
@@ -2630,13 +2630,13 @@
 							:stroke
 							0
 							:text
-							:remove
+							:pointer_settings
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1067.00000
+								931.00000
 							)
 						)
 						((:list 15)
@@ -2650,13 +2650,13 @@
 							:stroke
 							0
 							:text
-							:resize
+							:pointers
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1084.00000
+								948.00000
 							)
 						)
 						((:list 15)
@@ -2670,13 +2670,13 @@
 							:stroke
 							0
 							:text
-							:rub
+							:put_state
 							:font_size
 							12
 							:pos
 							((:list 2)
 								110.81054
-								1101.00000
+								965.00000
 							)
 						)
 						((:list 15)
@@ -2690,13 +2690,13 @@
 							:stroke
 							0
 							:text
-							:rub_along
+							:reach
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								591.00000
+								110.81054
+								982.00000
 							)
 						)
 						((:list 15)
@@ -2710,13 +2710,13 @@
 							:stroke
 							0
 							:text
-							:select
+							:redo
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								608.00000
+								110.81054
+								999.00000
 							)
 						)
 						((:list 15)
@@ -2730,13 +2730,13 @@
 							:stroke
 							0
 							:text
-							:select_all
+							:remove
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								625.00000
+								110.81054
+								1016.00000
 							)
 						)
 						((:list 15)
@@ -2750,13 +2750,13 @@
 							:stroke
 							0
 							:text
-							:selected_by
+							:resize
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								642.00000
+								110.81054
+								1033.00000
 							)
 						)
 						((:list 15)
@@ -2770,13 +2770,13 @@
 							:stroke
 							0
 							:text
-							:selected_items
+							:rub
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								659.00000
+								110.81054
+								1050.00000
 							)
 						)
 						((:list 15)
@@ -2790,13 +2790,13 @@
 							:stroke
 							0
 							:text
-							:selecting?
+							:rub_along
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								676.00000
+								110.81054
+								1067.00000
 							)
 						)
 						((:list 15)
@@ -2810,13 +2810,13 @@
 							:stroke
 							0
 							:text
-							:set_doc
+							:select
 							:font_size
 							12
 							:pos
 							((:list 2)
-								218.84375
-								693.00000
+								110.81054
+								1084.00000
 							)
 						)
 						((:list 15)
@@ -2830,13 +2830,13 @@
 							:stroke
 							0
 							:text
-							:settle_select
+							:select_all
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								710.00000
+								557.00000
 							)
 						)
 						((:list 15)
@@ -2850,13 +2850,13 @@
 							:stroke
 							0
 							:text
-							:snap_end
+							:selected_by
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								727.00000
+								574.00000
 							)
 						)
 						((:list 15)
@@ -2870,13 +2870,13 @@
 							:stroke
 							0
 							:text
-							:snap_step
+							:selected_items
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								744.00000
+								591.00000
 							)
 						)
 						((:list 15)
@@ -2890,13 +2890,13 @@
 							:stroke
 							0
 							:text
-							:snap_x
+							:selecting?
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								761.00000
+								608.00000
 							)
 						)
 						((:list 15)
@@ -2910,13 +2910,13 @@
 							:stroke
 							0
 							:text
-							:snap_y
+							:set_doc
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								778.00000
+								625.00000
 							)
 						)
 						((:list 15)
@@ -2930,13 +2930,13 @@
 							:stroke
 							0
 							:text
-							:snapshot
+							:settle_select
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								795.00000
+								642.00000
 							)
 						)
 						((:list 15)
@@ -2950,13 +2950,13 @@
 							:stroke
 							0
 							:text
-							:state
+							:snap_end
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								812.00000
+								659.00000
 							)
 						)
 						((:list 15)
@@ -2970,13 +2970,13 @@
 							:stroke
 							0
 							:text
-							:step_to
+							:snap_step
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								829.00000
+								676.00000
 							)
 						)
 						((:list 15)
@@ -2990,13 +2990,13 @@
 							:stroke
 							0
 							:text
-							:style
+							:snap_x
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								846.00000
+								693.00000
 							)
 						)
 						((:list 15)
@@ -3010,13 +3010,13 @@
 							:stroke
 							0
 							:text
-							:style_ids
+							:snap_y
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								863.00000
+								710.00000
 							)
 						)
 						((:list 15)
@@ -3030,13 +3030,13 @@
 							:stroke
 							0
 							:text
-							:switch_of
+							:snapshot
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								880.00000
+								727.00000
 							)
 						)
 						((:list 15)
@@ -3050,13 +3050,13 @@
 							:stroke
 							0
 							:text
-							:take_appended
+							:state
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								897.00000
+								744.00000
 							)
 						)
 						((:list 15)
@@ -3070,13 +3070,13 @@
 							:stroke
 							0
 							:text
-							:take_changes
+							:step_to
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								914.00000
+								761.00000
 							)
 						)
 						((:list 15)
@@ -3090,13 +3090,13 @@
 							:stroke
 							0
 							:text
-							:take_damage
+							:style
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								931.00000
+								778.00000
 							)
 						)
 						((:list 15)
@@ -3110,13 +3110,13 @@
 							:stroke
 							0
 							:text
-							:tick
+							:style_ids
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								948.00000
+								795.00000
 							)
 						)
 						((:list 15)
@@ -3130,13 +3130,13 @@
 							:stroke
 							0
 							:text
-							:toggle_select
+							:switch_of
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								965.00000
+								812.00000
 							)
 						)
 						((:list 15)
@@ -3150,13 +3150,13 @@
 							:stroke
 							0
 							:text
-							:touch
+							:take_appended
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								982.00000
+								829.00000
 							)
 						)
 						((:list 15)
@@ -3170,13 +3170,13 @@
 							:stroke
 							0
 							:text
-							:touch_order
+							:take_changes
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								999.00000
+								846.00000
 							)
 						)
 						((:list 15)
@@ -3190,13 +3190,13 @@
 							:stroke
 							0
 							:text
-							:transform
+							:take_damage
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1016.00000
+								863.00000
 							)
 						)
 						((:list 15)
@@ -3210,13 +3210,13 @@
 							:stroke
 							0
 							:text
-							:undo
+							:taken
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1033.00000
+								880.00000
 							)
 						)
 						((:list 15)
@@ -3230,13 +3230,13 @@
 							:stroke
 							0
 							:text
-							:ungroup
+							:tick
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1050.00000
+								897.00000
 							)
 						)
 						((:list 15)
@@ -3250,13 +3250,13 @@
 							:stroke
 							0
 							:text
-							:user_of
+							:toggle_select
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1067.00000
+								914.00000
 							)
 						)
 						((:list 15)
@@ -3270,13 +3270,13 @@
 							:stroke
 							0
 							:text
-							:whole_step
+							:touch
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1084.00000
+								931.00000
 							)
 						)
 						((:list 15)
@@ -3290,13 +3290,133 @@
 							:stroke
 							0
 							:text
+							:touch_order
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								948.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							168
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:transform
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								965.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							169
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:undo
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								982.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							170
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:ungroup
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								999.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							171
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:user_of
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								1016.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							172
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:whole_step
+							:font_size
+							12
+							:pos
+							((:list 2)
+								218.84375
+								1033.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							173
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
 							:written
 							:font_size
 							12
 							:pos
 							((:list 2)
 								218.84375
-								1101.00000
+								1050.00000
 							)
 						)
 					)

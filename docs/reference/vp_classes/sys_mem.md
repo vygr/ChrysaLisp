@@ -139,6 +139,20 @@ trashes
 :r0-:r2
 ```
 
+### :inuse -> sys/mem/inuse
+
+```code
+outputs
+:r0 = in the cells that are in use (uint)
+trashes
+:r0-:r6
+info
+what is held, the cells of every block less those on the free lists,
+each at the size it gives. Not the total less what is free, which has
+in it the headers of free cells and the end of a block too short for
+another, and moves as a heap takes a block or gives one back
+```
+
 ### :realloc -> sys/mem/realloc
 
 ```code

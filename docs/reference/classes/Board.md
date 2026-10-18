@@ -81,6 +81,8 @@ people !" Whose eraser it is is not known, a pen and a finger
 are two devices and may be one person, so anybody's does
 A user's eraser leaves what another made, the teacher's takes from
 all, see (board-bite)
+what a board this shares with holds is theirs, it is not bitten, as
+it is not taken into a selection, "own only"
 ```
 
 ### :busy?
@@ -141,9 +143,10 @@ is locked stay. How many went
 ### :delete
 
 ```code
-(. board :delete [ids]) -> board
+(. board :delete [ids user]) -> board
 
-take out what is selected, or of those ids
+take out what is selected, or of those ids, of what that user may
+rub out, as an eraser does, (board-may-rub?)
 ```
 
 ### :device_slot
@@ -604,7 +607,9 @@ step of half its reach
 ```code
 (. board :select ids) -> board
 
-who picked up what is kept only for what is selected still
+who picked up what is kept only for what is selected still. What a
+board this shares with holds is not taken, by a box, a tap or a
+hand, "own only": it is left out, (:taken)
 ```
 
 ### :select_all
@@ -763,6 +768,15 @@ was last asked: all of it, or only these boxes of it, which may
 be none
 ```
 
+### :taken
+
+```code
+(. board :taken) -> ids
+
+what a board this shares with has hold of, selected or in hand
+there, lib/cwb/share.inc. None if it shares with no one
+```
+
 ### :tick
 
 ```code
@@ -794,9 +808,14 @@ What is selected is in flight: it is not drawn with the document,
 it is drawn by itself, (:draw_flight), in front of the document or
 behind it, :float_back, and the document is not drawn again while
 it is moved, turned or sized, however long that goes on. It lands
-when it is no longer selected. So here, where every change comes,
-what is in flight is made what is selected, and if that is not
-what it was the document is to be drawn again, once
+when it is no longer selected, or when something is over it and in
+front of it in the document and no hand or handle has it, nor is it
+behind: what is drawn over it
+after, here or on a board this shares with, is then in front of it
+as it is in the document, and it is in flight again as it is taken
+hold of. So here, where every change comes, what is in flight is
+made so, and if that is not what it was the document is to be
+drawn again, once
 
 Not all of it need be. When a few things go into flight or come
 out of it the picture of the document changes only where they
@@ -853,7 +872,9 @@ the teacher's, (:appoint), and a pen bound to rub out is that pen's
 user. SDL3 gives the other end of a pen as an :eraser, so here that
 is the teacher's whoever's pen it is
 A board that joined another's is a student's: what is the teacher
-here is that board's own number, :user_base, see lib/cwb/share.inc
+here is that board's own number, :user_base, see lib/cwb/share.inc.
+Unless the host trusts the boards that joined, :trusted: then the
+teacher here is the teacher, and rubs out what anyone made
 ```
 
 ### :whole_step

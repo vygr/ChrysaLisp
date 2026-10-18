@@ -285,6 +285,126 @@ alone. Each of the two is made up with 0 to a whole 16 bytes, and
 how long they were comes last
 ```
 
+### aes-block
+
+```code
+(aes-block keys block) -> str
+```
+
+### aes-block
+
+```code
+(aes-block keys block) -> str
+```
+
+### aes-count
+
+```code
+(aes-count counter n) -> str
+
+the counter n blocks on, its last 4 bytes counted up, high first
+```
+
+### aes-count
+
+```code
+(aes-count counter n) -> str
+
+the counter n blocks on, its last 4 bytes counted up, high first
+```
+
+### aes-ctr
+
+```code
+(aes-ctr keys counter data) -> str
+```
+
+### aes-ctr
+
+```code
+(aes-ctr keys counter data) -> str
+```
+
+### aes-key
+
+```code
+(aes-key key) -> keys
+
+the round keys, 4 numbers of 32 bits a round, as a str
+```
+
+### aes-key
+
+```code
+(aes-key key) -> keys
+
+the round keys, 4 numbers of 32 bits a round, as a str
+```
+
+### aes-sbox
+
+```code
+(aes-sbox) -> str
+
+what each byte becomes, its inverse in the field turned by the affine
+map of the standard: 3 is a generator, so its powers and their
+logarithms give each inverse
+```
+
+### aes-sbox
+
+```code
+(aes-sbox) -> str
+
+what each byte becomes, its inverse in the field turned by the affine
+map of the standard: 3 is a generator, so its powers and their
+logarithms give each inverse
+```
+
+### aes-sub
+
+```code
+each byte of a word through the box
+```
+
+### aes-sub
+
+```code
+each byte of a word through the box
+```
+
+### aes-tables
+
+```code
+(aes-tables) -> str
+
+the four tables of a round, 256 numbers of 4 bytes each, then the box
+itself, as the native code wants them. A byte of row r of a column
+goes to the four rows as the column mixing has it
+```
+
+### aes-tables
+
+```code
+(aes-tables) -> str
+
+the four tables of a round, 256 numbers of 4 bytes each, then the box
+itself, as the native code wants them. A byte of row r of a column
+goes to the four rows as the column mixing has it
+```
+
+### aes-xtime
+
+```code
+b times x in the field of AES
+```
+
+### aes-xtime
+
+```code
+b times x in the field of AES
+```
+
 ### age
 
 ```code
@@ -647,6 +767,25 @@ items that can be changed and leave those they were copied from as
 they were. What a shape is flattened to goes with it, it is the same
 ```
 
+### board-covered?
+
+```code
+(board-covered? doc ids) -> :t | :nil
+
+is anything that is not one of these in front of one of them, and
+over it, of the things of the document that are not in a group
+```
+
+### board-ghost-line
+
+```code
+(board-ghost-line paths zoom col) -> (shape shape)
+
+a closed line of what is someone else's, a hold, a finger: of a color
+with white dashes along it, 6 on and 6 off on the screen whatever the
+zoom, so that it is seen over anything, dark or light
+```
+
 ### board-hull
 
 ```code
@@ -675,6 +814,17 @@ the box of an item, and the matrix that puts it where it is: its own
 box and its own matrix, turned and sized as it is. A box is always a
 rectangle: a place has no slant, lib/cwb/doc.inc. :nil if it draws
 nothing
+```
+
+### board-may-rub?
+
+```code
+(board-may-rub? user item) -> :t | :nil
+
+may that user rub out or delete what that item is: the teacher's, or
+one with no user said, takes anything, any other only what it made.
+Chris: "students could not erase things the teacher or the other
+student had written", and of a delete, the same
 ```
 
 ### board-none?
@@ -2123,12 +2273,27 @@ the next job on the queue to a child, if there is one
 (ec-add p1 p2 fm) -> :nil | pt
 ```
 
+### ec-affine
+
+```code
+(ec-affine pt fm) -> :nil | (x y)
+```
+
 ### ec-dbl
 
 ```code
 (ec-dbl pt fm) -> :nil | pt
 
 twice a point, :nil the point at infinity
+```
+
+### ec-mul
+
+```code
+(ec-mul k pt fm) -> :nil | pt
+
+a point times a number, a bit at a time from the top, giving way to
+the other tasks of the node
 ```
 
 ### ec-on-curve?
@@ -2139,12 +2304,33 @@ twice a point, :nil the point at infinity
 y^2 = x^3 - 3x + b, and each less than the prime
 ```
 
+### ec-secret
+
+```code
+(ec-secret curve secret) -> nums
+
+a secret of random bytes as a number from 1 to n - 1, mod n, and 1
+for the one in 2 to the 256 that is 0
+```
+
 ### ec-small
 
 ```code
 (ec-small a k fm) -> nums
 
 a times a small number, mod
+```
+
+### ecdh-public
+
+```code
+(ecdh-public curve secret) -> str
+```
+
+### ecdh-shared
+
+```code
+(ecdh-shared curve secret public) -> :nil | str
 ```
 
 ### ecdsa-curve
@@ -2812,9 +2998,7 @@ is a cluster in use, the bitmap has a bit for each, cluster 2 is bit 0
 (exfat-walk vol path fnc) -> vol
 
 (fnc path entry)
-every file and directory under a path, a directory before what is in
-it. It keeps a list of the directories still to do, it does not call
-itself, so the depth of the tree costs no stack.
+every file and directory under a path, a directory before what is in it
 ```
 
 ### exfat-write
@@ -2971,9 +3155,7 @@ Latin 1
 (fat32-walk vol path fnc) -> vol
 
 (fnc path entry)
-every file and directory under a path, a directory before what is in
-it. It keeps a list of the directories still to do, it does not call
-itself, so the depth of the tree costs no stack.
+every file and directory under a path, a directory before what is in it
 ```
 
 ### fcluster
@@ -3199,6 +3381,20 @@ tidies.
 (found? text substr) -> :t | :nil
 ```
 
+### fs-walk
+
+```code
+(fs-walk vol path fnc lister) -> vol
+
+(fnc path entry) (lister vol path) -> :nil | entries
+every file and directory under a path, a directory before what is in
+it, of any file system whose lister gives what is in a directory, as
+exfat-list and fat32-list do. It keeps a list of the directories still
+to do, it does not call itself, so the depth of the tree costs no stack.
+fnc is called from inside it, so the names it uses are not these: vol
+path fnc lister todo dirs entry child
+```
+
 ### func-load
 
 ```code
@@ -3233,6 +3429,38 @@ the weight of the gap before argument j of a form, :nil for never
 (gather map|set [key] ...) -> (val|key|:nil ...)
 
 gather a list of [key|val|:nil]
+```
+
+### gcm-hash
+
+```code
+(gcm-hash state h data) -> state
+
+the data taken into the hash, the last block made up with zeros
+```
+
+### gcm-key
+
+```code
+(gcm-key key) -> (keys h)
+```
+
+### gcm-open
+
+```code
+(gcm-open gkey nonce aad sealed) -> :nil | str
+```
+
+### gcm-seal
+
+```code
+(gcm-seal gkey nonce aad data) -> str
+```
+
+### gcm-tag
+
+```code
+(gcm-tag gkey j0 aad cipher) -> str
 ```
 
 ### gen-norms
@@ -4092,10 +4320,33 @@ over, not looked at
 (macro? form) -> :t | :nil
 ```
 
+### mail-here
+
+```code
+(mail-here name) -> :nil | net_id
+
+one said as name, (mail-declare), on this node, whose task is still
+there: one that died without (mail-forget) is still said, its mailbox
+is gone. Each desktop is a node, so this is the one of this desktop,
+the guard of a service or an app there is to be one of
+```
+
 ### mail-read-timeout
 
 ```code
 (mail-read-timeout mbox [timeout_us]) -> msg | :nil
+```
+
+### mail-service
+
+```code
+(mail-service name) -> :nil | net_id
+
+the service said as name to use: the one on this node, the desktop's,
+if it is still there, else one on another node. A task on a node with
+no desktop has any one on the machine. One on this node that is not
+here is dead; one on another can not be asked, (mail-validate) knows
+only the mailboxes of the node it is asked on
 ```
 
 ### mat3x2-mul-f
@@ -6823,9 +7074,10 @@ one no longer sent to, and what it was drawing goes
 ### share-held-for
 
 ```code
-(share-held-for board key) -> ids
+(share-held-for board key) -> ((id who) ...)
 
-what is held by any but that one: what it is to be told is taken
+what is held by any but that one: what it is to be told is taken, and
+the number of the board that has it, as a pointer has, for its color
 ```
 
 ### share-id-base
@@ -6853,12 +7105,26 @@ the ids of the document's items, the back one first
 what has changed since this was last asked is told to each it sends to
 ```
 
+### share-pointers
+
+```code
+(share-pointers board key) -> ((name x y kind down who) ...)
+
+where this board's pointers are, those that have moved of late, and
+those of the boards that send here but the one it is to go to, which
+has its own. Names are this board's own ids, and as they came to it.
+who is the number of the board a pointer is of, the host 0 and each
+that joined the next, by where its users begin, for its color
+```
+
 ### share-self-holds
 
 ```code
 (share-self-holds board) -> board
 
-what this board's hands hold now is its own, if no one else has it
+what this board's hands hold now, and what its users have selected, is
+its own, if no one else has it: a thing selected here is not to be
+taken there, "own only", as it is not by another user here
 ```
 
 ### share-start
@@ -6926,6 +7192,15 @@ the innermost open form that is not transparent
 (sort list [fcmp start end]) -> list
 
 the default fcmp is cmp, which is for strings
+```
+
+### sound-add
+
+```code
+(sound-add datas) -> data
+
+pieces added, sample by sample, as long as the first, kept in range: a
+mix. One shorter than the first is quiet after its end
 ```
 
 ### sound-from-file
@@ -6999,6 +7274,15 @@ what the microphone hears, in the order it was heard, till ctl is sent
 anything. A piece that is not there when two after it are is lost
 ```
 
+### sound-order
+
+```code
+(sound-order seq) -> order
+
+the place in what comes: the number of the piece to be had next, and
+what has come before it is wanted
+```
+
 ### sound-peak
 
 ```code
@@ -7055,6 +7339,16 @@ a stage of this module
 has a source been told to stop, ctl sent anything, if it has a ctl
 ```
 
+### sound-take
+
+```code
+(sound-take order seq data) -> datas
+
+a piece come, and what can be had now, in order: one that is not there
+when more than two after it are is lost, and one that comes after
+that is let go
+```
+
 ### sound-to-file
 
 ```code
@@ -7071,6 +7365,15 @@ length put in at the end
 
 a tone of hz a second for ms, at level of 32767, or till ctl is sent
 anything
+```
+
+### sound-write
+
+```code
+(sound-write out data)
+
+a piece passed on now: a stream holds what is written till it has some
+6KB, nearly ten pieces, 190ms of a voice before any of it went on
 ```
 
 ### split-cells
@@ -7858,6 +8161,16 @@ takes the last of them away
 (store-read store path offset len) -> :nil | data
 
 part of an object, only the blocks that part is in are read
+```
+
+### store-rename
+
+```code
+(store-rename store from to [was]) -> (:ok entry) | (:stale entry) | (:none :nil)
+
+the path to is set to the object from is, with its copies, and from is
+then no more, provided to is now the object was, as (store-commit). The
+two in one call: a service, one task, answers nothing between them
 ```
 
 ### store-resize
@@ -8934,17 +9247,18 @@ the theme a user has from now on
 ### tls-certificates
 
 ```code
-(tls-certificates msg) -> (cert ...)
+(tls-certificates msg [v12]) -> (cert ...)
 
 the certificates of a Certificate message, read, :nil for one that
-does not read
+does not read. Of 1.2 there is no context before them and nothing
+after each
 what the server sent, so no index past what is there
 ```
 
 ### tls-client-hello
 
 ```code
-(tls-client-hello host public) -> str
+(tls-client-hello host public random) -> str
 ```
 
 ### tls-close
@@ -8968,6 +9282,26 @@ itself after the handshake, a ticket, is read past
 
 ```code
 (tls-handshake state host) -> :nil | :t
+```
+
+### tls-handshake12
+
+```code
+(tls-handshake12 state host transcript secret crandom sh) -> :nil | :t
+
+the rest of a handshake of TLS 1.2, RFC 5246 7.3, after the
+ServerHello: the server's Certificate, its share signed, perhaps a
+request for one of this side, which is sent none, and its done. Then
+this side's share, the keys, a change of cipher spec and this side's
+Finished, and the server's two, checked
+```
+
+### tls-handshake13
+
+```code
+(tls-handshake13 state host transcript secret share) -> :nil | :t
+
+the rest of a handshake of TLS 1.3, after the ServerHello
 ```
 
 ### tls-keys
@@ -9020,6 +9354,22 @@ the next record that is not a change of cipher spec, opened with
 the keys of the other side if it is sealed
 ```
 
+### tls-open12
+
+```code
+(tls-open12 state type body) -> :nil | data
+
+a record of TLS 1.2 opened with the keys of the other side
+```
+
+### tls-prf
+
+```code
+(tls-prf secret label seed len) -> str
+
+the PRF of TLS 1.2, RFC 5246 5, P_SHA256
+```
+
 ### tls-record-read
 
 ```code
@@ -9042,14 +9392,26 @@ a signature scheme of TLS 1.3 as lib/crypto/x509.inc has it
 data of a type, sealed with the keys of this side, as a record
 ```
 
-### tls-server-share
+### tls-server-hello
 
 ```code
-(tls-server-share hello) -> :nil | public
+(tls-server-hello hello) -> :nil | (version suite random share ems)
 
-the server's X25519 share of its ServerHello, if it took TLS 1.3 and
-the one suite. A HelloRetryRequest, a random of a set value, is not
-taken: there is no other group to offer it
+what the server took of what was offered: TLS 1.3 and the one suite,
+its X25519 share, or TLS 1.2 and a suite of it, and whether it makes
+the keys of the whole handshake, ems. A HelloRetryRequest, a random of
+a set value, is not taken: there is no other group to offer it. Nor a
+server of 1.2 whose random says it has 1.3
+```
+
+### tls-server-kx
+
+```code
+(tls-server-kx msg cert crandom srandom) -> :nil | (group public)
+
+the server's share of a ServerKeyExchange of 1.2, X25519 or P-256, if
+it is signed, with both randoms, by the key of its certificate. cert
+:nil, and it is not checked
 ```
 
 ### tls-vec
@@ -9540,6 +9902,7 @@ the point of a line nearest a point, and how far along it that is, 0 to 1
 
 (loops) of a tree of views, a view's children under it. An app's
 window should have none
+check off, View? is the GUI's, there when there are views to look at
 ```
 
 ### view-resolve
@@ -9561,6 +9924,132 @@ a plain property of a view made by hand, not by a ui- form, given its
 variant's value, the user's, as a ui- form gives it, and which variant
 it was kept, :variants, so a theme or a user finds it again by it,
 (view-resolve). (view-variant label :font :font_small)
+```
+
+### voice-duplex
+
+```code
+(voice-duplex voice on)
+
+half duplex, on to begin with: one heard of late is not spoken over.
+Off with headphones, where nothing heard is heard by the microphone
+```
+
+### voice-hear
+
+```code
+(voice-hear in out inbox ctl said talk)
+
+a stage that is both ends: what comes to inbox played, each that sends
+on a stream of its own, in the order it was said, till ctl is sent e.
+p and a tap's mailbox hex, or p alone, as voice-send. said, the ctl of
+the voice-send beside it, is told h as another is heard, half duplex.
+talk, if not :nil, is told T and who, hex, as each is heard
+```
+
+### voice-inbox
+
+```code
+(voice-inbox voice) -> hex
+
+where what is to be heard here is sent, to tell the others
+```
+
+### voice-mix
+
+```code
+(voice-mix in out tap own ctl)
+
+a source: what comes to tap made one sound, till ctl is sent anything.
+What is said here, from own, hex, is the clock: as each piece of it
+comes, it is written with the next of each other's added in. One
+further ahead than +voice_mix_ahead has its oldest let go
+```
+
+### voice-mute
+
+```code
+(voice-mute voice on)
+
+none of what is said here sent, while on
+```
+
+### voice-piece
+
+```code
+(voice-piece from seq data) -> str
+```
+
+### voice-play
+
+```code
+(voice-play voice path)
+
+the sound file at path sent in place of the microphone till it ends,
+"" to stop it. 16000 a second, mono, 16 bit, as the microphone is
+```
+
+### voice-send
+
+```code
+(voice-send in out ctl from talk)
+
+a sink: each piece mailed, numbered, to each that is to hear it. ctl
+is sent t and who that is, the mailboxes hex, a comma between; m1 or
+m0, muted or not; p and a tap's mailbox hex, or p alone for none; d1
+or d0, half duplex or not, on to begin with; h, another was heard; f
+and the path of a sound file, f alone for none: what it has is sent
+in place of what the microphone hears, a piece of it for each piece
+of the microphone, so at the pace it is heard, till it ends.
+
+Only speech is sent, the gate: quiet, nothing goes, no hiss and no
+traffic. And half duplex: one heard of late is not spoken over, unless
+this one was speaking first, so what another says, played from the
+speaker here and heard by the microphone, is not sent back to them.
+Headphones have no need of it, d0. talk, if not :nil, is told T and
+from, hex, while this one is sent, who is talking
+```
+
+### voice-stage
+
+```code
+(voice-stage fn [arg ...]) -> stage
+
+a stage of this module
+```
+
+### voice-start
+
+```code
+(voice-start [talk]) -> voice
+
+the microphone sent to none yet, and what is sent here heard. talk, a
+mailbox, is told T and an inbox, hex, as each in it talks, this one too
+```
+
+### voice-stop
+
+```code
+(voice-stop voice)
+
+neither said nor heard any more
+```
+
+### voice-tap
+
+```code
+(voice-tap voice mbox)
+
+mbox sent all that is said and heard, to be mixed, (voice-mix); :nil
+for none
+```
+
+### voice-to
+
+```code
+(voice-to voice to)
+
+who hears what is said here now: their inboxes, hex
 ```
 
 ### wheel-push?
@@ -9747,6 +10236,14 @@ GeneralizedTime, YYYYMMDDHHMMSSZ, as seconds from 1970
 (zip seq ...) -> seq
 ```
 
+### zip-dos
+
+```code
+(zip-dos stamp) -> (time date)
+
+a time as a zip has it, MS-DOS's: two seconds at a time, from 1980
+```
+
 ### zip-end
 
 ```code
@@ -9767,7 +10264,7 @@ folder of the zip given by its own name
 ### zip-list
 
 ```code
-(zip-list data) -> :nil | ((name method packed full at) ...)
+(zip-list data) -> :nil | ((name method packed full at crc) ...)
 
 what is in a zip, its directory. A folder is a name that ends in /.
 :nil if it is not a zip
@@ -9780,5 +10277,17 @@ what is in a zip, its directory. A folder is a name that ends in /.
 
 what one thing of a zip is, to a stream. :nil if it was packed some
 other way, or is not all there
+```
+
+### zip-write
+
+```code
+(zip-write out files [stamp]) -> :nil | count
+
+a zip of files, ((name data) ...), to a stream: each packed by DEFLATE,
+or stored as it is when that is no smaller, a name that ends in / a
+folder, then the directory and the record that ends it. stamp is the
+time each is said to be of, (date), now if not given. :nil if there
+are more than 65535 or it would be past 4GB, which want ZIP64
 ```
 

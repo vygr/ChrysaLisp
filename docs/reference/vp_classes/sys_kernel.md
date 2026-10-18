@@ -6,7 +6,7 @@ docs/reference/vp_classes/sys_kernel.cwb
 
 ## Lisp Bindings
 
-### (kernel-stats [flush]) -> (task_count mem_used mem_avail max_stack idle_time)
+### (kernel-stats [flush]) -> (task_count mem_total mem_avail max_stack idle_time mem_inuse)
 
 ### (system-id) -> nodeid
 
