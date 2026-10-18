@@ -256,7 +256,10 @@
 	(unless (pii-fstat +folder)
 		(save "" (cat +folder ".keep")) (pii-remove (cat +folder ".keep")))
 	(notes-refresh)
+	;the call part made now: with no service on this desktop yet, none
+	;sends the state of the call till one is started or joined
 	(calls-refresh)
+	(call-show)
 	(call-watch (elem-get select +select_call))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
