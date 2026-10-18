@@ -263,16 +263,5 @@
 (defun fat32-walk (vol path fnc)
 	; (fat32-walk vol path fnc) -> vol
 	; (fnc path entry)
-	;every file and directory under a path, a directory before what is in
-	;it. It keeps a list of the directories still to do, it does not call
-	;itself, so the depth of the tree costs no stack.
-	(defq todo (list path))
-	(while (defq path (pop todo))
-		(defq dirs (list))
-		(each (lambda (entry)
-			(defq child (cat path "/" (first entry)))
-			(fnc child entry)
-			(if (second entry) (push dirs child))) (ifn (fat32-list vol path) '()))
-		;so that they come off the list in the order they were found
-		(reach (# (push todo %0)) dirs))
-	vol)
+	;every file and directory under a path, a directory before what is in it
+	(fs-walk vol path fnc fat32-list))

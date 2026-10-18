@@ -506,22 +506,31 @@
 		(bind '(& & size start no_fat &rest _) entry)
 		(exfat-data vol start size no_fat)))
 
-(defun exfat-walk (vol path fnc)
-	; (exfat-walk vol path fnc) -> vol
-	; (fnc path entry)
+(defun fs-walk (vol path fnc lister)
+	; (fs-walk vol path fnc lister) -> vol
+	; (fnc path entry) (lister vol path) -> :nil | entries
 	;every file and directory under a path, a directory before what is in
-	;it. It keeps a list of the directories still to do, it does not call
-	;itself, so the depth of the tree costs no stack.
+	;it, of any file system whose lister gives what is in a directory, as
+	;exfat-list and fat32-list do. It keeps a list of the directories still
+	;to do, it does not call itself, so the depth of the tree costs no stack.
+	;fnc is called from inside it, so the names it uses are not these: vol
+	;path fnc lister todo dirs entry child
 	(defq todo (list path))
 	(while (defq path (pop todo))
 		(defq dirs (list))
 		(each (lambda (entry)
 			(defq child (cat path "/" (first entry)))
 			(fnc child entry)
-			(if (second entry) (push dirs child))) (ifn (exfat-list vol path) '()))
+			(if (second entry) (push dirs child))) (ifn (lister vol path) '()))
 		;so that they come off the list in the order they were found
 		(reach (# (push todo %0)) dirs))
 	vol)
+
+(defun exfat-walk (vol path fnc)
+	; (exfat-walk vol path fnc) -> vol
+	; (fnc path entry)
+	;every file and directory under a path, a directory before what is in it
+	(fs-walk vol path fnc exfat-list))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; writing, the bitmap and the clusters
