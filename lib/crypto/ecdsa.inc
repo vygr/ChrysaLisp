@@ -1,7 +1,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; ECDSA, the check of a signature, on the curves P-256 and P-384
+; ECDSA, the check of a signature, on the curves P-256 and P-384, and
+; ECDH, a secret two sides agree on, as TLS 1.2 has it of a server with no
+; X25519
 ;
 ; (ecdsa-verify curve public digest r s) -> :t | :nil
+; (ecdh-public curve secret) -> the point of a secret, 4 then x then y
+; (ecdh-shared curve secret public) -> :nil | x of the secret times the
+; other side's point, :nil if that point is not on the curve
 ;
 ; curve *ecdsa_p256* or *ecdsa_p384*. public the point of the key, as a
 ; certificate has it, 4 then x then y. digest what was signed, hashed. r and
@@ -125,6 +130,48 @@
 					(defq zi (bn-invmod z fm) x (bn-mulmod x (bn-mulmod zi zi fm) fm))
 					(= (bn-cmp (bn-mod x nm) r) 0))))))
 
+(defun ec-affine (pt fm)
+	; (ec-affine pt fm) -> :nil | (x y)
+	(when pt
+		(bind '(x y z) pt)
+		(unless (bn-zero? z)
+			(defq zi (bn-invmod z fm) zi2 (bn-mulmod zi zi fm))
+			(list (bn-mulmod x zi2 fm) (bn-mulmod y (bn-mulmod zi2 zi fm) fm)))))
+
+(defun ec-mul (k pt fm)
+	; (ec-mul k pt fm) -> :nil | pt
+	;a point times a number, a bit at a time from the top, giving way to
+	;the other tasks of the node
+	(defq acc :nil i (bn-bits k))
+	(while (> i 0)
+		(task-slice)
+		(-- i)
+		(setq acc (ec-dbl acc fm))
+		(if (= (bn-bit k i) 1) (setq acc (ec-add acc pt fm))))
+	acc)
+
+(defun ec-secret (curve secret)
+	; (ec-secret curve secret) -> nums
+	;a secret of random bytes as a number from 1 to n - 1, mod n, and 1
+	;for the one in 2 to the 256 that is 0
+	(defq k (bn-mod (bn-from-bytes secret) (second curve)))
+	(if (bn-zero? k) (bn-from-num 1) k))
+
+(defun ecdh-public (curve secret)
+	; (ecdh-public curve secret) -> str
+	(bind '(fm & & g len) curve)
+	(bind '(x y) (ec-affine (ec-mul (ec-secret curve secret) g fm) fm))
+	(cat (char 4) (bn-bytes x len) (bn-bytes y len)))
+
+(defun ecdh-shared (curve secret public)
+	; (ecdh-shared curve secret public) -> :nil | str
+	(bind '(fm & & & len) curve)
+	(when (and (= (length public) (inc (* 2 len))) (= (code public 1 0) 4))
+		(defq qx (bn-from-bytes (slice public 1 (inc len))) qy (bn-from-bytes (slice public (inc len) -1)))
+		(and (ec-on-curve? qx qy curve)
+			(defq xy (ec-affine (ec-mul (ec-secret curve secret) (list qx qy (bn-from-num 1)) fm) fm))
+			(bn-bytes (first xy) len))))
+
 ;module
-(export-symbols '(ecdsa-verify *ecdsa_p256* *ecdsa_p384*))
+(export-symbols '(ecdsa-verify ecdh-public ecdh-shared *ecdsa_p256* *ecdsa_p384*))
 (env-pop)

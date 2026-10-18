@@ -767,3 +767,321 @@
 	(signature '(:NUM)))
 
 (def-func-end)
+
+(def-func (path-to-absolute "./aes_ctr_xor"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(aes-ctr-xor keys tables counter data out offset length) -> out
+	;length bytes of data, from that offset, go to the same place in out,
+	;each xored with the next byte of the stream of AES, FIPS 197, of the
+	;counter block and those after it, its last 4 bytes counted up high
+	;first, as GCM has it. keys are the round keys of lib/crypto/aes.inc,
+	;176 bytes for AES-128 or 240 for AES-256, tables its four tables of
+	;a round and its box, counter is 16 bytes, for the block the offset is
+	;the start of. out can be the data itself.
+
+	;the four columns of the state are numbers of 32 bits, the first byte
+	;of each the low one, and so are the tables and the round keys
+	(vp-rdef (s0 s1 s2 s3 t0 t1 t2 t3 tab rk idx tm rn))
+
+	(defq +ae_ctr 0 +ae_tail 16 +ae_in 32 +ae_out 40 +ae_left 48 +ae_this 56 +ae_obj 64
+		+ae_real 72 +ae_part 80 +ae_n 88 +ae_keys 96 +ae_tab 104 +ae_rounds 112 +ae_stack 128)
+
+	(defun ae-col (tc sa sb sc sd k)
+		;a column of a round, the four tables of the bytes of four columns
+		(vp-cpy-rr sa idx) (vp-and-cr 0xff idx) (vp-shl-cr 2 idx) (vp-cpy-dr-ui tab idx tc)
+		(each (lambda (sx shift table)
+			(vp-cpy-rr sx idx) (vp-shr-cr shift idx) (vp-and-cr 0xff idx) (vp-shl-cr 2 idx)
+			(vp-add-cr table idx) (vp-cpy-dr-ui tab idx tm) (vp-xor-rr tm tc))
+			(list sb sc sd) '(8 16 24) '(1024 2048 3072))
+		(vp-cpy-ir-ui rk (* k 4) tm) (vp-xor-rr tm tc))
+
+	(defun ae-last (tc sa sb sc sd k)
+		;a column of the last round, each byte through the box
+		(vp-cpy-rr sa idx) (vp-and-cr 0xff idx) (vp-add-cr 4096 idx) (vp-cpy-dr-ub tab idx tc)
+		(each (lambda (sx shift)
+			(vp-cpy-rr sx idx) (vp-shr-cr shift idx) (vp-and-cr 0xff idx)
+			(vp-add-cr 4096 idx) (vp-cpy-dr-ub tab idx tm) (vp-shl-cr shift tm) (vp-or-rr tm tc))
+			(list sb sc sd) '(8 16 24))
+		(vp-cpy-ir-ui rk (* k 4) tm) (vp-xor-rr tm tc))
+
+	(defun ae-bytes (from to count label)
+		;count bytes from one place to another, count is not 0
+		(vp-label label)
+		(vp-cpy-ir-ub from 0 tm)
+		(vp-cpy-ri-b tm to 0)
+		(vp-add-cr 1 from) (vp-add-cr 1 to)
+		(vp-sub-cr 1 count)
+		(vp-bne-cr 0 count label))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 7)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :obj :obj :obj :num :num))
+(errorcase
+	(assign '((:r2 +str_length) (:r3 +str_length) (:r4 +str_length)) '(:r9 :r10 :r11))
+	(vpif '(:r9 /= 176))
+		(gotoif '(:r9 /= 240) 'error)
+	(endif)
+	(gotoif '(:r10 /= 4352) 'error)
+	(gotoif '(:r11 /= 16) 'error)
+	(gotoif '(:r7 < 0) 'error)
+	(gotoif '(:r8 < 0) 'error)
+	(vp-cpy-rr :r7 :r9)
+	(vp-add-rr :r8 :r9)
+	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
+	(gotoif '(:r9 > :r10) 'error)
+	(gotoif '(:r9 > :r11) 'error))
+
+	(vp-alloc +ae_stack)
+	(vp-cpy-ri :r0 :rsp +ae_this)
+	(vp-cpy-ri :r6 :rsp +ae_obj)
+	;the rounds, from how many keys there are, less the last
+	(assign '((:r2 +str_length)) '(:r9))
+	(vp-shr-cr 4 :r9)
+	(vp-sub-cr 2 :r9)
+	(vp-cpy-ri :r9 :rsp +ae_rounds)
+	(vp-add-cr +str_data :r2)
+	(vp-cpy-ri :r2 :rsp +ae_keys)
+	(vp-add-cr +str_data :r3)
+	(vp-cpy-ri :r3 :rsp +ae_tab)
+	;the counter block, its first 12 bytes as given, and the number of its
+	;last 4 kept apart
+	(each (lambda (i)
+		(vp-cpy-ir-ui :r4 (+ +str_data (* i 4)) :r9)
+		(vp-cpy-ri-i :r9 :rsp (+ +ae_ctr (* i 4)))) (range 0 3))
+	(vp-xor-rr :r10 :r10)
+	(each (lambda (i)
+		(vp-cpy-ir-ub :r4 (+ +str_data 12 i) :r9)
+		(vp-shl-cr 8 :r10)
+		(vp-or-rr :r9 :r10)) (range 0 4))
+	(vp-cpy-ri :r10 :rsp +ae_n)
+	(vp-add-cr +str_data :r5)
+	(vp-add-cr +str_data :r6)
+	(vp-add-rr :r7 :r5)
+	(vp-add-rr :r7 :r6)
+	(vp-cpy-ri :r5 :rsp +ae_in)
+	(vp-cpy-ri :r6 :rsp +ae_out)
+	(vp-cpy-ri :r8 :rsp +ae_left)
+	(vp-xor-rr :r9 :r9)
+	(vp-cpy-ri :r9 :rsp +ae_part)
+
+(vp-label 'ae_block)
+	(vp-cpy-ir :rsp +ae_left s0)
+	(vp-beq-cr 0 s0 'ae_done)
+	(vp-blt-cr 16 s0 'ae_short)
+	(vp-sub-cr 16 s0)
+	(vp-cpy-ri s0 :rsp +ae_left)
+	(vp-jmp 'ae_go)
+(vp-label 'ae_short)
+	;less than a block is left. It is copied to the stack, done there,
+	;and what comes of it copied out
+	(vp-cpy-ri s0 :rsp +ae_part)
+	(vp-xor-rr s1 s1)
+	(vp-cpy-ri s1 :rsp +ae_left)
+	(vp-cpy-ir :rsp +ae_in s1)
+	(vp-lea-i :rsp +ae_tail s2)
+	(ae-bytes s1 s2 s0 'ae_copy_in)
+	(vp-cpy-ir :rsp +ae_out s1)
+	(vp-cpy-ri s1 :rsp +ae_real)
+	(vp-lea-i :rsp +ae_tail s2)
+	(vp-cpy-ri s2 :rsp +ae_in)
+	(vp-cpy-ri s2 :rsp +ae_out)
+(vp-label 'ae_go)
+	;the counter's number into its last 4 bytes, high first
+	(vp-cpy-ir :rsp +ae_n tm)
+	(each (lambda (i)
+		(vp-cpy-rr tm idx)
+		(vp-shr-cr (* (- 3 i) 8) idx)
+		(vp-cpy-ri-b idx :rsp (+ +ae_ctr 12 i))) (range 0 4))
+	(vp-add-cr 1 tm)
+	(vp-cpy-cr 0xffffffff idx)
+	(vp-and-rr idx tm)
+	(vp-cpy-ri tm :rsp +ae_n)
+	;the block, the first round key added, the rounds, and the last
+	(vp-cpy-ir :rsp +ae_keys rk)
+	(vp-cpy-ir :rsp +ae_tab tab)
+	(each (lambda (s i)
+		(vp-cpy-ir-ui :rsp (+ +ae_ctr (* i 4)) s)
+		(vp-cpy-ir-ui rk (* i 4) tm)
+		(vp-xor-rr tm s)) (list s0 s1 s2 s3) (range 0 4))
+	(vp-cpy-ir :rsp +ae_rounds rn)
+(vp-label 'ae_round)
+	(vp-add-cr 16 rk)
+	(ae-col t0 s0 s1 s2 s3 0)
+	(ae-col t1 s1 s2 s3 s0 1)
+	(ae-col t2 s2 s3 s0 s1 2)
+	(ae-col t3 s3 s0 s1 s2 3)
+	(vp-cpy-rr t0 s0) (vp-cpy-rr t1 s1) (vp-cpy-rr t2 s2) (vp-cpy-rr t3 s3)
+	(vp-sub-cr 1 rn)
+	(vp-bne-cr 0 rn 'ae_round)
+	(vp-add-cr 16 rk)
+	(ae-last t0 s0 s1 s2 s3 0)
+	(ae-last t1 s1 s2 s3 s0 1)
+	(ae-last t2 s2 s3 s0 s1 2)
+	(ae-last t3 s3 s0 s1 s2 3)
+	;each 4 bytes of the data xored with a column
+	(vp-cpy-ir :rsp +ae_in s0)
+	(vp-cpy-ir :rsp +ae_out s1)
+	(each (lambda (tc i)
+		(vp-cpy-ir-ui s0 (* i 4) tm)
+		(vp-xor-rr tc tm)
+		(vp-cpy-ri-i tm s1 (* i 4))) (list t0 t1 t2 t3) (range 0 4))
+	(vp-add-cr 16 s0)
+	(vp-add-cr 16 s1)
+	(vp-cpy-ri s0 :rsp +ae_in)
+	(vp-cpy-ri s1 :rsp +ae_out)
+	(vp-cpy-ir :rsp +ae_part s0)
+	(vp-beq-cr 0 s0 'ae_block)
+	(vp-lea-i :rsp +ae_tail s1)
+	(vp-cpy-ir :rsp +ae_real s2)
+	(ae-bytes s1 s2 s0 'ae_copy_out)
+
+(vp-label 'ae_done)
+	(vp-cpy-ir :rsp +ae_this :r0)
+	(vp-cpy-ir :rsp +ae_obj :r1)
+	(vp-free +ae_stack)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(aes-ctr-xor keys tables counter data out offset length)" +error_msg_wrong_types))
+	(signature '(:str :str :str :str :str :NUM :NUM)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./ghash_blocks"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(ghash-blocks state h data offset count) -> state
+	;count blocks of 16 bytes, from that offset of the data, are taken into
+	;the hash of GCM, NIST SP 800-38D: each xored into the state, and the
+	;state times h in the field of 2 to the 128. The state and h are 16
+	;bytes, the state a str changed in place.
+
+	;each is two numbers of 64 bits, the first byte the high one. The bits
+	;of the state are taken from the top, each one set adds the power of h
+	;so far, and h is halved each time, the field's polynomial put back in
+	;at the top for a bit that falls off the bottom
+	(vp-rdef (zh zl vh vl xh xl hh hl xw tm cnt pd pn ps))
+
+	(defun gh-load (reg base off)
+		;8 bytes, the first the high one
+		(vp-xor-rr reg reg)
+		(each (lambda (i)
+			(vp-cpy-ir-ub base (+ off i) tm)
+			(vp-shl-cr 8 reg)
+			(vp-or-rr tm reg)) (range 0 8)))
+
+	(defun gh-store (reg base off)
+		(each (lambda (i)
+			(vp-cpy-rr reg tm)
+			(vp-shr-cr (* (- 7 i) 8) tm)
+			(vp-cpy-ri-b tm base (+ off i))) (range 0 8)))
+
+	(defun gh-word (label)
+		;the 64 bits of xw, from the top
+		(vp-cpy-cr 64 cnt)
+	(vp-label label)
+		(vp-bge-cr 0 xw (sym (cat label "_clear")))
+		(vp-xor-rr vh zh)
+		(vp-xor-rr vl zl)
+	(vp-label (sym (cat label "_clear")))
+		(vp-shl-cr 1 xw)
+		(vp-cpy-rr vl tm)
+		(vp-and-cr 1 tm)
+		(vp-shr-cr 1 vl)
+		(vp-cpy-rr vh pn)
+		(vp-shl-cr 63 pn)
+		(vp-or-rr pn vl)
+		(vp-shr-cr 1 vh)
+		(vp-beq-cr 0 tm (sym (cat label "_even")))
+		(vp-cpy-cr 0xe100000000000000 pn)
+		(vp-xor-rr pn vh)
+	(vp-label (sym (cat label "_even")))
+		(vp-sub-cr 1 cnt)
+		(vp-bne-cr 0 cnt label))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6) '(:obj :obj :obj :num :num))
+(errorcase
+	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
+	(gotoif '(:r7 /= 16) 'error)
+	(gotoif '(:r8 /= 16) 'error)
+	(gotoif '(:r5 < 0) 'error)
+	(gotoif '(:r6 < 0) 'error)
+	(vp-cpy-rr :r6 :r7)
+	(vp-shl-cr 4 :r7)
+	(vp-add-rr :r5 :r7)
+	(assign '((:r4 +str_length)) '(:r8))
+	(gotoif '(:r7 > :r8) 'error))
+
+	(vp-push :r0 :r2)
+	;the count is kept on the stack, its register is the top bits of v
+	(vp-push :r6)
+	(vp-cpy-rr :r2 ps)
+	(vp-cpy-rr :r4 pd)
+	(vp-add-cr +str_data pd)
+	(vp-add-rr :r5 pd)
+	(gh-load hh :r3 +str_data)
+	(gh-load hl :r3 (+ +str_data 8))
+	(gh-load xh ps +str_data)
+	(gh-load xl ps (+ +str_data 8))
+
+(vp-label 'gh_block)
+	(vp-cpy-ir :rsp 0 cnt)
+	(vp-beq-cr 0 cnt 'gh_done)
+	(vp-sub-cr 1 cnt)
+	(vp-cpy-ri cnt :rsp 0)
+	(gh-load xw pd 0)
+	(vp-xor-rr xw xh)
+	(gh-load xw pd 8)
+	(vp-xor-rr xw xl)
+	(vp-add-cr 16 pd)
+	(vp-xor-rr zh zh)
+	(vp-xor-rr zl zl)
+	(vp-cpy-rr hh vh)
+	(vp-cpy-rr hl vl)
+	(vp-cpy-rr xh xw)
+	(gh-word 'gh_high)
+	(vp-cpy-rr xl xw)
+	(gh-word 'gh_low)
+	(vp-cpy-rr zh xh)
+	(vp-cpy-rr zl xl)
+	(vp-jmp 'gh_block)
+
+(vp-label 'gh_done)
+	(vp-free +ptr_size)
+	(gh-store xh ps +str_data)
+	(gh-store xl ps (+ +str_data 8))
+	(vp-pop :r0 :r1)
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(ghash-blocks state h data offset count)" +error_msg_wrong_types))
+	(signature '(:str :str :str :NUM :NUM)))
+
+(def-func-end)

@@ -38,3 +38,16 @@
 (assert-true "nor a signature as long as n and more than it" (not (rsa-verify-pkcs1 ts_n ts_e :sha256 (sha256 ts_msg) (apply (const cat) (map (lambda (&) (char 0xff)) (range 0 256))))))
 
 (assert-eq "SHA-384 of abc, FIPS 180-2" "CB00753F45A35E8BB5A03D699AC65007272C32AB0EDED1631A8B605A43FF5BED8086072BA1E7CC2358BAECA134C825A7" (hex-encode (sha384 "abc")))
+
+;ECDH on P-256, the example of RFC 5903 8.1, checked by Python
+(defq ts_i (hex-decode "C88F01F510D9AC3F70A292DAA2316DE544E9AAB8AFE84049C62A9C57862D1433")
+	ts_r (hex-decode "C6EF9C5D78AE012A011164ACB397CE2088685D8F06BF9BE0B283AB46476BEE53")
+	ts_gi (ecdh-public *ecdsa_p256* ts_i) ts_gr (ecdh-public *ecdsa_p256* ts_r))
+(assert-eq "ECDH, P-256, a point of a secret"
+	"04DAD0B65394221CF9B051E1FECA5787D098DFE637FC90B9EF945D0C37725811805271A0461CDB8252D61F1C456FA3E59AB1F45B33ACCF5F58389E0577B8990BB3"
+	(hex-encode ts_gi))
+(assert-eq "and the secret both sides have"
+	"D6840F6B42F6EDAFD13116E0E12565202FEF8E9ECE7DCE03812464D04B9442DE" (hex-encode (ecdh-shared *ecdsa_p256* ts_i ts_gr)))
+(assert-eq "the same from the other side" (ecdh-shared *ecdsa_p256* ts_i ts_gr) (ecdh-shared *ecdsa_p256* ts_r ts_gi))
+(assert-eq "a point not on the curve is not taken" :nil
+	(ecdh-shared *ecdsa_p256* ts_i (cat (slice ts_gr 0 -2) (char (logxor (code ts_gr 1 64) 1)))))
