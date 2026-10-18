@@ -11,11 +11,8 @@
 	(defmethod :draw ()
 		; (. slider :draw) -> slider
 		(defq maximum (get :maximum this) portion (get :portion this) col (get :paper this))
-		;a trough, a shade of the color with a thin edge a shade darker,
-		;and no black line
 		(bind '(w h) (. this :get_size))
-		(.-> this (:ctx_set_color (canvas-darker (defq trough (canvas-darker col)))) (:ctx_box 0 0 w h)
-			(:ctx_set_color trough) (:ctx_filled_box 1 1 (- w 2) (- h 2)))
+		(. this :ctx_trough col 0 0 w h)
 		;elevator, the color, a pixel clear of the edge all round
 		(. this :ctx_set_color (if (= (get :state this) 0) col (canvas-brighter col)))
 		(cond

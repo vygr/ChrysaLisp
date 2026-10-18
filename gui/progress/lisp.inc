@@ -10,14 +10,11 @@
 	(defmethod :draw ()
 		; (. progress :draw) -> progress
 
-		;as a slider is, a trough, a shade of the color with a thin edge a
-		;shade darker
 		(bind '(w h) (. this :get_size))
-		(defq col (get :paper this) trough (canvas-darker col)
-			gap (/ (* (get :value this) (- w 4)) (get :maximum this)))
-		(.-> this (:ctx_set_color (canvas-darker trough)) (:ctx_box 0 0 w h)
-			(:ctx_set_color trough) (:ctx_filled_box 1 1 (- w 2) (- h 2))
-			;what is done, the color, a pixel clear of the edge
+		(defq col (get :paper this) gap (/ (* (get :value this) (- w 4)) (get :maximum this)))
+		;a trough as a slider has, and what is done the color, a pixel clear
+		;of the edge
+		(.-> this (:ctx_trough col 0 0 w h)
 			(:ctx_set_color col) (:ctx_filled_box 2 2 gap (- h 4))))
 
 	(defmethod :constraint ()

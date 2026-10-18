@@ -38,17 +38,13 @@
 
 	(defmethod :action (event)
 		; (. radiobar :action event) -> radiobar
-		(defq button (. this :find_id (getf event +ev_msg_action_source_id))
-			children (. this :children) idx (find button children)
-			radio_col (canvas-brighter (get :paper this)))
+		(defq button (. this :find_id (getf event +ev_msg_action_source_id)))
 		(if (get :mode this)
 			;toggle mode
 			(if (def? :paper (. button :dirty))
 				(undef button :paper)
-				(def button :paper radio_col))
-			;radio mode
-			(each (# (undef (. %0 :dirty) :paper)
-					(if (= (!) idx) (def %0 :paper radio_col)))
-				children))
+				(def button :paper (canvas-brighter (get :paper this))))
+			;radio mode, this one selected and no other
+			(. this :set_selected (find button (. this :children))))
 		(. this :emit))
 	)

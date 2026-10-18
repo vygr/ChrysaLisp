@@ -198,6 +198,15 @@
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
 		; (. view :ctx_blit texture col x y width height [sx sy]) -> view
 
+	(defmethod :ctx_trough (col x y width height)
+		; (. view :ctx_trough col x y width height) -> view
+		;a trough for something to move in, a slider's or a progress bar's:
+		;a shade darker than col with a thin edge a shade darker again, and
+		;no black line
+		(defq trough (canvas-darker col))
+		(.-> this (:ctx_set_color (canvas-darker trough)) (:ctx_box x y width height)
+			(:ctx_set_color trough) (:ctx_filled_box (inc x) (inc y) (- width 2) (- height 2))))
+
 	(defmethod :ctx_panel (col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
 		;a panel that stands up or is sunk, by its edges. They are a little
