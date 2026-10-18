@@ -847,6 +847,23 @@
 (bk-tap +pev_left :mouse 370 210)
 (assert-list-eq "and again puts it down" '() (. bk_board :get_selected))
 (assert-eq "and rubs nothing out" bk_look (bk-look))
+;a tap is short as well as near, for a pen and an eraser alike, (board-tap?):
+;held down longer, still, it is no tap, it rubs out, or draws
+(defun bk-hold (buttons x y x1 y1)
+	(. bk_board :tick 1000000) (. bk_board :pointers (list (ptr-event 0 :mouse buttons x y)))
+	(. bk_board :tick (+ 1000000 +board_tap_time 1)) (. bk_board :pointers (list (ptr-event 0 :mouse buttons x1 y1)))
+	(. bk_board :pointers (list (ptr-event 0 :mouse 0 x1 y1))))
+(bk-hold +pev_left 370 210 371 211)
+(assert-list-eq "the eraser held down on a thing longer than a tap selects nothing, and rubs it out" '(() :t)
+	(list (. bk_board :get_selected) (nql bk_look (bk-look))))
+(. bk_board :undo)
+(def bk_board :mode :frect)
+(defq bk_n (length (cwb-items bk_doc)))
+(bk-hold +pev_left 370 210 371 211)
+(assert-list-eq "and so a pen: it draws, and selects nothing" (list (list) (inc bk_n))
+	(list (. bk_board :get_selected) (length (cwb-items bk_doc))))
+(. bk_board :undo)
+(. bk_board :tick 0)
 (def bk_board :mode :select)
 
 ;what is written: a line by hand begun soon after the last was ended, by the same pen, is put in a group with it
