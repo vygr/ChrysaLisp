@@ -11,6 +11,10 @@
 ;
 ; It is of the VP source alone. The Lisp a node loads as it runs is not in
 ; it, that is the tree, and a matter for sync.
+;
+; The files it is of are written beside it too, boot_files, so the id the
+; tree would give now can be worked out with no build, and a boot image
+; made from other source than the tree has is known, (boot-id-tree).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././crypto/sha256.inc")
@@ -29,6 +33,18 @@
 (defun boot-id-file (cpu abi)
 	; (boot-id-file cpu abi) -> path
 	(cat "obj/" cpu "/" abi "/sys/boot_id"))
+
+(defun boot-files-file (cpu abi)
+	; (boot-files-file cpu abi) -> path
+	(cat "obj/" cpu "/" abi "/sys/boot_files"))
+
+(defun boot-id-tree ()
+	; (boot-id-tree) -> :nil | hex
+	;the id of the files this node's boot image was made from, as the tree
+	;has them now, :nil if it was made before their names were kept. Not
+	;the boot image's own id, it was made from other source than is here
+	(when (defq text (load (cat (load-path) "sys/boot_files")))
+		(boot-id-of (filter (const nempty?) (split text (ascii-char 10))))))
 
 (defun boot-id ()
 	; (boot-id) -> hex | ""

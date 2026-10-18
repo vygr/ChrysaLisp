@@ -21,6 +21,9 @@
 ;has one only if the vp64 image was made on this machine since there were ids
 (defq bi_mine (boot-id))
 (assert-true "this node's id is an id, or it has none" (or (eql bi_mine "") (= (length bi_mine) 64)))
+(defq bi_tree (boot-id-tree))
+(assert-true "the files it was made from give an id, or they were not kept"
+	(or (not bi_tree) (= (length bi_tree) 64)))
 (assert-eq "it is where the boot image is" bi_mine
 	(trim (ifn (load (boot-id-file (second (split (load-path) "/")) (third (split (load-path) "/")))) "")
 		(const (char-class " \t\r\n"))))
