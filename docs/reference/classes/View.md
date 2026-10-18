@@ -140,6 +140,16 @@ and no more
 (. view :ctx_set_color col) -> view
 ```
 
+### :ctx_trough
+
+```code
+(. view :ctx_trough col x y width height) -> view
+
+a trough for something to move in, a slider's or a progress bar's:
+a shade darker than col with a thin edge a shade darker again, and
+no black line
+```
+
 ### :dirty
 
 ```code

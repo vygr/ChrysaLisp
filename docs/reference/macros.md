@@ -38,6 +38,12 @@ the original template args are renamed for safety !
 (.super this :method [arg ...])
 ```
 
+### Normal
+
+```code
+a triangle with no area adds nothing to a smooth normal
+```
+
 ### and
 
 ```code
@@ -193,6 +199,24 @@ should provide the concreate handler
 (every lambda seq ...) -> :nil | form
 ```
 
+### exfat-checksum
+
+```code
+the checksum of the entries of a file, all but the checksum itself
+```
+
+### exfat-sum
+
+```code
+the checksum of the boot sectors and of the upper case table, 32 bit
+```
+
+### fat32-checksum
+
+```code
+the checksum of an 8 and 3 name, each part of a long name has it
+```
+
 ### filter
 
 ```code
@@ -331,6 +355,12 @@ stopping, and the error was lost: once in a hundred or two
 (insert seq pos seq) -> seq
 ```
 
+### jpg-be
+
+```code
+two bytes high first, as a .jpg has its numbers
+```
+
 ### let
 
 ```code
@@ -401,6 +431,20 @@ stopping, and the error was lost: once in a hundred or two
 
 ```code
 (pcase key symbols [(key|(key ...) body)] ...)
+```
+
+### png-be
+
+```code
+(png-be data at) -> num
+
+four bytes high first, as a .png has its numbers
+```
+
+### png-be4
+
+```code
+four bytes high first
 ```
 
 ### raise
@@ -619,6 +663,20 @@ print the time for the body
 
 ```code
 (times num [body])
+```
+
+### tls-be
+
+```code
+(tls-be n bytes) -> str
+
+a number as so many bytes, the high first, as TLS has its numbers
+```
+
+### tls-num
+
+```code
+(tls-num data at bytes) -> num
 ```
 
 ### ui-backdrop

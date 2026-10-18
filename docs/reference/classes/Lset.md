@@ -22,12 +22,6 @@ docs/reference/classes/Lset.cwb
 (. lset :deep_copy) -> lset
 ```
 
-### :difference
-
-```code
-(. lset :difference set) -> lset
-```
-
 ### :each
 
 ```code
@@ -88,12 +82,6 @@ docs/reference/classes/Lset.cwb
 (. lset :move) -> lset
 ```
 
-### :not_intersect
-
-```code
-(. lset :not_intersect set) -> lset
-```
-
 ### :resize
 
 ```code
@@ -110,11 +98,5 @@ docs/reference/classes/Lset.cwb
 
 ```code
 (. lset :tolist) -> list
-```
-
-### :union
-
-```code
-(. lset :union set) -> lset
 ```
 

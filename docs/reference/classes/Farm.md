@@ -22,6 +22,38 @@ runs what it is sent, see docs/ai_digest/alien_nodes.md
 close tasks
 ```
 
+### :grow_to
+
+```code
+(. farm :grow_to want) -> farm
+
+children started till there are want
+```
+
+### :grown
+
+```code
+(. farm :grown) -> farm
+
+after a refresh, a farm stays the size it was made
+```
+
+### :nodes
+
+```code
+(. farm :nodes) -> nodes
+
+the nodes a child may be started on, all those that have not refused
+```
+
+### :place
+
+```code
+(. farm :place key nodes) -> nodes
+
+where the child of key is asked for, any of them
+```
+
 ### :refresh
 
 ```code

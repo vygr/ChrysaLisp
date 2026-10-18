@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
-	:width 212
+	:width 176
 	:height 215
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 27
+	:next_id 23
 	:items
 	((:list 3)
 		((:list 7)
@@ -205,7 +205,7 @@
 			:stroke
 			0
 			:text
-			"[3 classes come of it]"
+			"[2 classes come of it]"
 			:font
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
@@ -227,7 +227,7 @@
 					:id
 					14
 					:items
-					((:list 3)
+					((:list 2)
 						((:list 5)
 							:group
 							:id
@@ -237,15 +237,15 @@
 								((:list 5)
 									:group
 									:id
-									18
+									17
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											21
+											19
 											:d
-											"[M 6 0 L 52.00976 0 A 6 6 0 0 1 58.00976 6 L 58.00976 18 A 6 6 0 0 1 52.00976 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+											"[M 6 0 L 51.99365 0 A 6 6 0 0 1 57.99365 6 L 57.99365 18 A 6 6 0 0 1 51.99365 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
 											4294112502
 											:stroke
@@ -256,7 +256,7 @@
 										((:list 15)
 											:shape
 											:id
-											22
+											20
 											:kind
 											:text
 											:fill
@@ -264,7 +264,7 @@
 											:stroke
 											0
 											:text
-											Kmplps
+											Regexp
 											:font_size
 											12
 											:pos
@@ -286,67 +286,13 @@
 								((:list 5)
 									:group
 									:id
-									19
+									18
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											23
-											:d
-											"[M 6 0 L 51.99365 0 A 6 6 0 0 1 57.99365 6 L 57.99365 18 A 6 6 0 0 1 51.99365 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
-											:fill
-											4294112502
-											:stroke
-											4282140240
-											:width
-											1.19999
-										)
-										((:list 15)
-											:shape
-											:id
-											24
-											:kind
-											:text
-											:fill
-											4280296488
-											:stroke
-											0
-											:text
-											Regexp
-											:font_size
-											12
-											:pos
-											((:list 2)
-												10.00000
-												16.00000
-											)
-										)
-									)
-								)
-							)
-							:pos
-							((:list 2)
-								66.00976
-								0.00000
-							)
-						)
-						((:list 7)
-							:group
-							:id
-							17
-							:items
-							((:list 1)
-								((:list 5)
-									:group
-									:id
-									20
-									:items
-									((:list 2)
-										((:list 11)
-											:shape
-											:id
-											25
+											21
 											:d
 											"[M 6 0 L 48.30078 0 A 6 6 0 0 1 54.30078 6 L 54.30078 18 A 6 6 0 0 1 48.30078 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -359,7 +305,7 @@
 										((:list 15)
 											:shape
 											:id
-											26
+											22
 											:kind
 											:text
 											:fill
@@ -381,7 +327,7 @@
 							)
 							:pos
 							((:list 2)
-								132.00341
+								65.99365
 								0.00000
 							)
 						)

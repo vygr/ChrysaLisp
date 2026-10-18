@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 53
+	:next_id 49
 	:items
 	((:list 6)
 		((:list 7)
@@ -651,7 +651,7 @@
 			:stroke
 			0
 			:text
-			"[3 classes come of it]"
+			"[2 classes come of it]"
 			:font
 			"[fonts/OpenSans-Bold.ctf]"
 			:font_size
@@ -673,7 +673,7 @@
 					:id
 					40
 					:items
-					((:list 3)
+					((:list 2)
 						((:list 5)
 							:group
 							:id
@@ -683,13 +683,13 @@
 								((:list 5)
 									:group
 									:id
-									44
+									43
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											47
+											45
 											:d
 											"[M 6 0 L 39.28027 0 A 6 6 0 0 1 45.28027 6 L 45.28027 18 A 6 6 0 0 1 39.28027 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -702,7 +702,7 @@
 										((:list 15)
 											:shape
 											:id
-											48
+											46
 											:kind
 											:text
 											:fill
@@ -732,13 +732,13 @@
 								((:list 5)
 									:group
 									:id
-									45
+									44
 									:items
 									((:list 2)
 										((:list 11)
 											:shape
 											:id
-											49
+											47
 											:d
 											"[M 6 0 L 45.60546 0 A 6 6 0 0 1 51.60546 6 L 51.60546 18 A 6 6 0 0 1 45.60546 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 											:fill
@@ -751,7 +751,7 @@
 										((:list 15)
 											:shape
 											:id
-											50
+											48
 											:kind
 											:text
 											:fill
@@ -774,60 +774,6 @@
 							:pos
 							((:list 2)
 								53.28027
-								0.00000
-							)
-						)
-						((:list 7)
-							:group
-							:id
-							43
-							:items
-							((:list 1)
-								((:list 5)
-									:group
-									:id
-									46
-									:items
-									((:list 2)
-										((:list 11)
-											:shape
-											:id
-											51
-											:d
-											"[M 6 0 L 39.63769 0 A 6 6 0 0 1 45.63769 6 L 45.63769 18 A 6 6 0 0 1 39.63769 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
-											:fill
-											4294112502
-											:stroke
-											4282140240
-											:width
-											1.19999
-										)
-										((:list 15)
-											:shape
-											:id
-											52
-											:kind
-											:text
-											:fill
-											4280296488
-											:stroke
-											0
-											:text
-											Local
-											:font_size
-											12
-											:pos
-											((:list 2)
-												10.00000
-												16.00000
-											)
-										)
-									)
-								)
-							)
-							:pos
-							((:list 2)
-								112.88574
 								0.00000
 							)
 						)

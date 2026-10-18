@@ -22,12 +22,6 @@ docs/reference/classes/Fset.cwb
 (. fset :deep_copy) -> fset
 ```
 
-### :difference
-
-```code
-(. fset :difference set) -> fset
-```
-
 ### :each
 
 ```code
@@ -88,12 +82,6 @@ docs/reference/classes/Fset.cwb
 (. fset :move) -> fset
 ```
 
-### :not_intersect
-
-```code
-(. fset :not_intersect set) -> fset
-```
-
 ### :resize
 
 ```code
@@ -110,11 +98,5 @@ docs/reference/classes/Fset.cwb
 
 ```code
 (. fset :tolist) -> list
-```
-
-### :union
-
-```code
-(. fset :union set) -> fset
 ```
 

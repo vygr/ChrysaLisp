@@ -190,7 +190,9 @@ Usage: check [options] [path] ...
             import, nor of what root.inc imports. A module that
             works only because what loaded it first had
             imported the structure fails on its own, and on a
-            release build its class is not made at all.
+            release build its class is not made at all. And
+            in any file, a (structure +x) where root.inc's
+            imports have a +x already.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes

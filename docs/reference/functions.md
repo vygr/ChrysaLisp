@@ -995,6 +995,14 @@ on to the next after cols of them, from 0 0
 (chacha20 key nonce counter data) -> str
 ```
 
+### char-be
+
+```code
+(char-be num width) -> str
+
+a number as width bytes, the high byte first; (char) has the low first
+```
+
 ### char-class
 
 ```code
@@ -1025,6 +1033,23 @@ cached circle generation, quantised to 1/4 pixel
 (civil-from-days days) -> (year month day)
 
 O(1) arithmetic calendar conversion (month 0..11, day 1..31)
+```
+
+### clamp
+
+```code
+(clamp x lo hi) -> x
+
+x, no lower than lo and no higher than hi
+```
+
+### code-be
+
+```code
+(code-be str width [idx]) -> num
+
+a number of width bytes from idx, the high byte first, as a file or a
+protocol of the net has them; (code) has the low first
 ```
 
 ### cpu
@@ -2418,12 +2443,6 @@ out, or the power goes, whoever mounts it next can tell.
 the clusters of a file or a directory. A len of :nil is all of the chain
 ```
 
-### exfat-checksum
-
-```code
-the checksum of the entries of a file, all but the checksum itself
-```
-
 ### exfat-cluster-offset
 
 ```code
@@ -2748,12 +2767,6 @@ is made zero. The rest of the last cluster is not written, nobody is
 given it to read, and a directory is always whole clusters
 ```
 
-### exfat-sum
-
-```code
-the checksum of the boot sectors and of the upper case table, 32 bit
-```
-
 ### exfat-sync
 
 ```code
@@ -2855,12 +2868,6 @@ that says it is known, or a reader takes the stamp as its own time
 
 the clusters of a file or a directory. A chain that goes round on
 itself is cut off at the size of the volume
-```
-
-### fat32-checksum
-
-```code
-the checksum of an 8 and 3 name, each part of a long name has it
 ```
 
 ### fat32-data
@@ -3167,6 +3174,14 @@ the rule for the form that opens at token i, given the rule of the
 form around it, and the index of that form's last element
 ```
 
+### format-group
+
+```code
+(format-group prefix indices) -> (str ...)
+
+runs of indices as the prefix and their ends, "r" (1 2 3 5) -> ("r1-r3" "r5")
+```
+
 ### format-lisp
 
 ```code
@@ -3247,12 +3262,6 @@ in it is, or a line that closes what was opened before it
 the inputs as uniforms, the constants, the globals and the functions
 
 of a program, onto the lines of whoever calls
-```
-
-### grow
-
-```code
-start children till the herd is the size the worker nodes call for
 ```
 
 ### gui-at-rpc
@@ -3425,6 +3434,12 @@ the view the mouse is on. While a button is held that is the view it
 
 went down on, a window being dragged can lag behind the pointer, and
 to look under the pointer again would let go of it
+```
+
+### herd-want
+
+```code
+how many workers a herd of these nodes is to have
 ```
 
 ### hex-decode-stream
@@ -4535,6 +4550,7 @@ a number of a corner as an index from 0, -1 if there is none
 
 the normal of a triangle, the way it faces when its corners go round
 counter clockwise
+one with no area faces up
 ```
 
 ### obj-read
@@ -4822,6 +4838,23 @@ length
 a point on the end of a dash, unless it is the one already there
 ```
 
+### path-dir
+
+```code
+(path-dir path) -> str
+
+the folders of a path, apps/x/y.wav -> apps/x, "" if it has none
+```
+
+### path-ext
+
+```code
+(path-ext path) -> str
+
+the extension of a file's name, with its dot, y.wav -> .wav, "" if it
+has none. A dot it starts with is not one, .gitignore has none
+```
+
 ### path-gen-earc
 
 ```code
@@ -4856,10 +4889,26 @@ distance to go, it is a line
 (path-gen-rect x y x1 y1 rx ry dst) -> dst
 ```
 
+### path-name
+
+```code
+(path-name path) -> str
+
+the name of a file, the path less its folders, apps/x/y.wav -> y.wav
+```
+
 ### path-smooth
 
 ```code
 (path-smooth src) -> dst
+```
+
+### path-stem
+
+```code
+(path-stem path) -> str
+
+the name of a file less its extension, apps/x/y.wav -> y
 ```
 
 ### path-stroke-polygons
@@ -5023,20 +5072,6 @@ small, and that, a thousand times, is a thing that creeps
 
 ```code
 (pmap? form) -> :t | :nil
-```
-
-### png-be
-
-```code
-(png-be data at) -> num
-
-four bytes high first, as a .png has its numbers
-```
-
-### png-be4
-
-```code
-four bytes high first
 ```
 
 ### png-channels
@@ -5605,12 +5640,6 @@ this works perfectly with $0 in replace-matches
 restart a child
 ```
 
-### restart
-
-```code
-restart a child
-```
-
 ### rle-compress
 
 ```code
@@ -5621,6 +5650,16 @@ restart a child
 
 ```code
 (rle-decompress in_stream out_stream [token_bits run_bits max_tokens])
+```
+
+### ror-sum
+
+```code
+(ror-sum data bits [skip]) -> num
+
+the checksum of the FAT file systems: the sum turned right a bit and
+each byte added, bits wide, the bytes at the indices of skip left out.
+exFAT's entries and its boot sectors, FAT32's long names
 ```
 
 ### rpad
@@ -7270,25 +7309,13 @@ by itself, done, if given, is sent :t when the sink has finished
 ### start
 
 ```code
-start a child
-```
-
-### start
-
-```code
-start a child, on the worker nodes in turn
+start a child, where the farm says
 ```
 
 ### stdio-get-args
 
 ```code
 (stdio-get-args stdio) -> cmd_line
-```
-
-### stop
-
-```code
-stop a child
 ```
 
 ### stop
@@ -8904,14 +8931,6 @@ the theme a user has from now on
 (timezone-offset-seconds tz) -> seconds
 ```
 
-### tls-be
-
-```code
-(tls-be n bytes) -> str
-
-a number as so many bytes, the high first, as TLS has its numbers
-```
-
 ### tls-certificates
 
 ```code
@@ -8980,12 +8999,6 @@ whole of it with its head, as the transcript has it
 (tls-nonce iv seq) -> str
 
 the iv with the number of the record in its last 8 bytes, xor
-```
-
-### tls-num
-
-```code
-(tls-num data at bytes) -> num
 ```
 
 ### tls-open
@@ -9477,6 +9490,15 @@ the box round two boxes, either can be :nil
 does a line from one point to another touch a box, be in it, cross
 it or end in it. The line is cut to each side of the box in turn, and
 touches if anything of it is left
+```
+
+### vector-face-normal
+
+```code
+(vector-face-normal p0 p1 p2 none) -> reals
+
+the normal of a triangle of reals, the way it faces when its corners go
+round counter clockwise, none if it has no area and faces no way
 ```
 
 ### vector-nearest-on-line-2d

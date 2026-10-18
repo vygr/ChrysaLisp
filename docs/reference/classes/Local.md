@@ -4,7 +4,7 @@
 docs/reference/classes/Local.cwb
 ```
 
-## Fmap
+## Farm
 
 ```code
 (Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
@@ -15,20 +15,28 @@ for each node other than this one, and no more than herd_max. They are
 started at once, on each node in turn.
 ```
 
-### :close
+### :grown
 
 ```code
-(. local :close) -> local
+(. local :grown) -> local
 
-close tasks
+more nodes may have joined, the herd grown to what they call for
 ```
 
-### :refresh
+### :nodes
 
 ```code
-(. local :refresh [timeout]) -> :t | :nil
+(. local :nodes) -> nodes
 
-scan known nodes and update map
+the nodes of this machine
+```
+
+### :place
+
+```code
+(. local :place key nodes) -> nodes
+
+each child on the next of the nodes in turn
 ```
 
 ### :reply
@@ -39,13 +47,5 @@ scan known nodes and update map
 what a kernel answers when it is asked to start a worker: its
 entry, to keep the id in, :nil if none was started. The nodes of
 a herd are this machine's, there is none of them to leave
-```
-
-### :restart
-
-```code
-(. local :restart key val) -> local
-
-restart task
 ```
 
