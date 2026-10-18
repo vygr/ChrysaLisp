@@ -1,3 +1,4 @@
+(import "./app.inc")
 (import "./layer.inc")
 
 ;module
@@ -622,9 +623,9 @@
 								(-- index))))))
 			(when (>= (. this :get_verbosity) 1)
 				(mail-send prog_mbox
-					(setf-> (str-alloc +progress_size)
-						(+progress_total (length netlist))
-						(+progress_current index)))
+					(setf-> (str-alloc +pcb_progress_size)
+						(+pcb_progress_total (length netlist))
+						(+pcb_progress_current index)))
 				(. this :print_pcb (defq ss (string-stream (cat ""))))
 				(mail-send reply_mbox (str ss))))
 		retval)

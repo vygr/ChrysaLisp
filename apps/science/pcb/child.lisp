@@ -38,8 +38,8 @@
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(apply (const route) (cat
 					(list select)
-					(getf-> msg +job_reply +job_prog
-						+job_grid_res +job_vias_cost +job_quant
-						+job_flood_range +job_even_range +job_odd_range)
-					(list (slice msg +job_data -1)))))))
+					(getf-> msg +pcb_job_reply +pcb_job_prog
+						+pcb_job_grid_res +pcb_job_vias_cost +pcb_job_quant
+						+pcb_job_flood_range +pcb_job_even_range +pcb_job_odd_range)
+					(list (slice msg +pcb_job_data -1)))))))
 	(profile-report "Pcb"))
