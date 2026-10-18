@@ -35,15 +35,17 @@
 	;on the GPU, the pair, and is it wanted; here, the pipeline
 	gpu_pair :nil gpu_want :t pipeline :nil cpu_time 0 cpu_frames 0
 	;models to show it can, the cube of its own, and others fetched from
-	;the internet as they are picked, over https, by lib/net/tls.inc: the
-	;examples of the three.js project on GitHub, each an .obj, its .mtl
-	;and the pictures that names
+	;the internet as they are picked, over https, by lib/net/tls.inc, each
+	;an .obj, its .mtl and the pictures that names: examples of the three.js
+	;project and test models of assimp, on GitHub. (name address [picture]),
+	;the picture for a model that names none
 	*models* (list
 		(list "Cube" :nil)
 		(list "Man" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/male02/male02.obj")
 		(list "Woman" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/female02/female02.obj")
-		(list "Walt" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/walt/WaltHead.obj")
-		(list "Tree" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/tree.obj")))
+		(list "Spider" "https://raw.githubusercontent.com/assimp/assimp/master/test/models/OBJ/spider.obj")
+		(list "Gun" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/cerberus/Cerberus.obj"
+			"https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/cerberus/Cerberus_A.jpg")))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Model" (+sym_close) +event_close)
@@ -55,7 +57,7 @@
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *model* ("Cube" "Man" "Woman" "Walt" "Tree") (:font :font_body :paper :paper_toolbar2))
+		(. (ui-radio-bar *model* ("Cube" "Man" "Woman" "Spider" "Gun") (:font :font_body :paper :paper_toolbar2))
 			:connect +event_model)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-label *status* (:text "..." :font :font_body))
@@ -124,10 +126,11 @@
 	;colour is the tint
 	(.-> (Canvas 1 1 1) (:fill +argb_white) (:swap +swap_write)))
 
-(defun model-load (path)
-	; (model-load path) -> :nil | :t
+(defun model-load (path &optional picture)
+	; (model-load path [picture]) -> :nil | :t
 	;the model of that file, its parts, each a material, in place of what
-	;there was
+	;there was. picture, an address, is the picture of a model that names
+	;none
 	(when (defq source (model-source path))
 		(bind '(text named pictures) source)
 		;each file it names had the once, two materials may name one picture
@@ -144,7 +147,10 @@
 		(defq stem (first (split (last (split path "/")) "._"))
 			lone (and (nempty? pictures) (notany (# (and (defq m (. materials :find (first %0))) (. m :find :map))) (. obj :find :groups))
 				(model-picture (defq lone_name (ifn (some (# (if (starts-with stem (last (split %0 "/"))) %0)) pictures) (first pictures)))
-					(fetch lone_name))))
+					(fetch lone_name)))
+			;one given, for a model that names none
+			lone (or lone (and picture (notany (# (and (defq m (. materials :find (first %0))) (. m :find :map))) (. obj :find :groups))
+				(model-picture picture (model-fetch picture)))))
 		(each (lambda ((material corners))
 				(defq said (. materials :find material) picture lone
 					;a picture is its colour, at full
@@ -254,12 +260,12 @@
 						(setq gpu_want (= (. *mode* :get_selected) 1)))
 					((= id +event_model)
 						;one of the models it knows, the cube here, the rest fetched
-						(bind '(pick address) (elem-get *models* (. *model* :get_selected)))
+						(bind '(pick address &optional picture) (elem-get *models* (. *model* :get_selected)))
 						(cond
 							((not address)
 								(if (model-load (cat *app_root* "data/cube.obj"))
 									(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
-							((model-load address)
+							((model-load address picture)
 								(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
 							((say (cat "Could not fetch " pick " from " address ".")))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)

@@ -33,7 +33,7 @@
 			'Games (scatter (Emap) :collapsed :nil
 				:apps '("chess" "minefield" "slider" "pairs" "solitaire" "onslaught"))
 			'Demos (scatter (Emap) :collapsed :nil
-				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "raymarch" "surface" "planets"))
+				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "raymarch" "surface" "planets" "model"))
 			'Science (scatter (Emap) :collapsed :nil
 				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
 
