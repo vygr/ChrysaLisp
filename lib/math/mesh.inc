@@ -19,12 +19,9 @@
 ;the triangle pipeline of lib/gpu/ take. Each of the makers below gives its
 ;faces so, and a mesh that is loaded is taken to be so.
 
-(defun Normal (p0 p1 p2)
-	(defq n (apply (const reals) (vector-cross-3d
-			(vector-sub p0 p1 +reals_tmp3)
-			(vector-sub p0 p2 (const (cat +reals_tmp3)))))
-		d (vector-dot n n))
-	(if (= d +real_0) +reals_zero3 (vector-scale n (recip (sqrt d)))))
+(defmacro Normal (p0 p1 p2)
+	;a triangle with no area adds nothing to a smooth normal
+	(static-qq (vector-face-normal ,p0 ,p1 ,p2 +reals_zero3)))
 
 (defun opt-vector (vector part)
 	; (opt-vector vector part) -> (new_vector new_indices)

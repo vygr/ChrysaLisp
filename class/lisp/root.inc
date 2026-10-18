@@ -1289,21 +1289,29 @@
 			(char (+ 0x80c0 (>> %0 6) (logand (<< %0 8) 0x3f00)) 2))
 		(:t (char %0))))
 
+(defun char-be (n width)
+	; (char-be num width) -> str
+	;a number as width bytes, the high byte first; (char) has the low first
+	(defq out (list))
+	(while (>= (setq width (dec width)) 0)
+		(push out (char (logand (>> n (* width 8)) 0xff))))
+	(apply (const cat) out))
+
 (defun byte-to-hex-str (%0)
 	; (byte-to-hex-str num) -> str
 	(hex-encode (char %0)))
 
 (defun short-to-hex-str (%0)
 	; (short-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char %0 +short_size))))))
+	(hex-encode (char-be %0 +short_size)))
 
 (defun int-to-hex-str (%0)
 	; (int-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char %0 +int_size))))))
+	(hex-encode (char-be %0 +int_size)))
 
 (defun long-to-hex-str (%0)
 	; (long-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char %0 +long_size))))))
+	(hex-encode (char-be %0 +long_size)))
 
 (defun type-to-size (%0)
 	; (type-to-size sym) -> num
@@ -1391,14 +1399,6 @@
 	(defq n 0 i (setd idx 0) e (+ idx width))
 	(while (< i e) (setq n (+ (<< n 8) (get-ubyte s i)) i (inc i)))
 	n)
-
-(defun char-be (n width)
-	; (char-be num width) -> str
-	;a number as width bytes, the high byte first; (char) has the low first
-	(defq out (list))
-	(while (>= (setq width (dec width)) 0)
-		(push out (char (logand (>> n (* width 8)) 0xff))))
-	(apply (const cat) out))
 
 (defmacro get-real (obj idx)
 	; (get-real str idx) -> real

@@ -146,6 +146,16 @@
 		(- (* z1 x2) (* x1 z2))
 		(- (* x1 y2) (* y1 x2))))
 
+(defun vector-face-normal (p0 p1 p2 none)
+	; (vector-face-normal p0 p1 p2 none) -> reals
+	;the normal of a triangle of reals, the way it faces when its corners go
+	;round counter clockwise, none if it has no area and faces no way
+	(defq n (apply (const reals) (vector-cross-3d
+			(vector-sub p1 p0 (const (cat +reals_zero3)))
+			(vector-sub p2 p0 (const (cat +reals_zero3)))))
+		d (vector-dot n n))
+	(if (= d (n2r 0)) none (vector-scale n (recip (sqrt d)))))
+
 (defun vector-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vector-det av bv)
 		da (vector-det (vector-add l1_p1 av) l1_p1)

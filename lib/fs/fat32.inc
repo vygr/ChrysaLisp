@@ -167,9 +167,9 @@
 	(apply (const cat) (map (# (num-to-utf8 (code %0)))
 		(if (nempty? ext) (cat base "." ext) base))))
 
-(defun fat32-checksum (name)
+(defmacro fat32-checksum (name)
 	;the checksum of an 8 and 3 name, each part of a long name has it
-	(reduce (# (logand (+ (if (= (logand %0 1) 1) 0x80 0) (>> %0 1) (code %1)) 0xff)) name 0))
+	(static-qq (ror-sum ,name 8)))
 
 (defun fat32-entries (vol start)
 	; (fat32-entries vol start) -> ((name dir size start no_fat index count) ...)

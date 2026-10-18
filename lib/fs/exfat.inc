@@ -400,14 +400,21 @@
 			hash (logand (+ (if (= (logand hash 1) 1) 0x8000 0) (>> hash 1) (logand unit 0xff)) 0xffff))
 		(logand (+ (if (= (logand hash 1) 1) 0x8000 0) (>> hash 1) (>> unit 8)) 0xffff)) units 0))
 
-(defun exfat-checksum (set)
-	;the checksum of the entries of a file, all but the checksum itself
-	(defq sum 0)
-	(each (lambda (i)
-		(unless (<= 2 i 3)
-			(setq sum (logand (+ (if (= (logand sum 1) 1) 0x8000 0) (>> sum 1) (code set 1 i)) 0xffff))))
-		(range 0 (length set)))
+(defun ror-sum (data bits &optional skip)
+	; (ror-sum data bits [skip]) -> num
+	;the checksum of the FAT file systems: the sum turned right a bit and
+	;each byte added, bits wide, the bytes at the indices of skip left out.
+	;exFAT's entries and its boot sectors, FAT32's long names
+	(defq top (<< 1 (dec bits)) mask (dec (<< 1 bits)) sum 0 i 0 n (length data))
+	(while (< i n)
+		(unless (and skip (find i skip))
+			(setq sum (logand (+ (if (bits? sum 1) top 0) (>> sum 1) (code data 1 i)) mask)))
+		(setq i (inc i)))
 	sum)
+
+(defmacro exfat-checksum (set)
+	;the checksum of the entries of a file, all but the checksum itself
+	(static-qq (ror-sum ,set 16 '(2 3))))
 
 (defun exfat-entries (vol start len no_fat)
 	; (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
@@ -929,14 +936,9 @@
 ; a new volume, with nothing in it
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun exfat-sum (data skip)
+(defmacro exfat-sum (data skip)
 	;the checksum of the boot sectors and of the upper case table, 32 bit
-	(defq sum 0)
-	(each (lambda (i)
-		(unless (find i skip)
-			(setq sum (logand (+ (if (= (logand sum 1) 1) 0x80000000 0) (>> sum 1) (code data 1 i)) 0xffffffff))))
-		(range 0 (length data)))
-	sum)
+	(static-qq (ror-sum ,data 32 ,skip)))
 
 (defun exfat-format (device size &optional label cluster_shift)
 	; (exfat-format path | stream size [label cluster_shift]) -> :nil | :t

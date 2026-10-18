@@ -261,7 +261,7 @@
 
 (defun sym-code-hex (code)
 	;a code as four hex digits, the high byte first
-	(to-lower (hex-encode (cat (char (>> code 8)) (char (logand code 0xff))))))
+	(to-lower (short-to-hex-str code)))
 
 (defun sym-names-text ()
 	;lib/consts/symbols.inc, the name of each symbol and its code

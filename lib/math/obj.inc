@@ -28,9 +28,8 @@
 	; (obj-normal p0 p1 p2) -> reals
 	;the normal of a triangle, the way it faces when its corners go round
 	;counter clockwise
-	(defq n (apply (const reals) (vector-cross-3d (vector-sub p1 p0 (reals 0 0 0)) (vector-sub p2 p0 (reals 0 0 0))))
-		d (vector-dot n n))
-	(if (= d +real_0) (reals +real_0 +real_0 +real_1) (vector-scale n (recip (sqrt d)))))
+	;one with no area faces up
+	(vector-face-normal p0 p1 p2 (reals +real_0 +real_0 +real_1)))
 
 (defun obj-index (text count)
 	; (obj-index text count) -> index
