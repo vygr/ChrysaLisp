@@ -29,7 +29,7 @@
 			'Tools (scatter (Emap) :collapsed :nil
 				:apps '("edit" "viewer" "hexview" "fonts" "benchmark"))
 			'Media (scatter (Emap) :collapsed :nil
-				:apps '("images" "films" "whiteboard"))
+				:apps '("images" "films" "whiteboard" "voicenotes"))
 			'Games (scatter (Emap) :collapsed :nil
 				:apps '("chess" "minefield" "slider" "pairs" "solitaire" "onslaught"))
 			'Demos (scatter (Emap) :collapsed :nil
