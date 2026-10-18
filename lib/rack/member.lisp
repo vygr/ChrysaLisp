@@ -7,6 +7,11 @@
 ;It is also a way in from a shell. A command line left in the file
 ;/tmp/chrysalisp_rack_job is run here, and what it said is left in
 ;/tmp/chrysalisp_rack_result, with DONE as its last line.
+;
+;A tree with no .git that the herd has taken to a newer waypoint is run
+;by what was built before it: the member leaves /tmp/chrysalisp_rack_update
+;and ends, and rack.sh does make install and starts it again. One with a
+;.git is someone's own, kept by git, and is left to them
 (import "./rack.inc")
 (when (empty? (mail-enquire "@Net,")) (open-child "service/net/app.lisp" +kn_call_run) (task-sleep 200000))
 (net-quiet 300000 4)
@@ -17,7 +22,14 @@
 (pipe-run "link -a" (const prin))
 (pipe-run "sync -a" (const prin))
 (stream-flush (io-stream "stdout"))
+(defq at_start (first (sync-waypoint ".")) looked (pii-time))
 (while :t
+	;a newer waypoint taken by the herd, looked for each few seconds
+	(when (> (- (pii-time) looked) 5000000)
+		(setq looked (pii-time))
+		(and (not (pii-fstat ".git")) (defq at (sync-waypoint "."))
+			(nql (first at) at_start) (sync-clean "." (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+			(progn (save (first at) "/tmp/chrysalisp_rack_update") (pii-exit))))
 	(when (defq text (load "/tmp/chrysalisp_rack_job"))
 		(pii-remove "/tmp/chrysalisp_rack_job")
 		(defq out (list))
