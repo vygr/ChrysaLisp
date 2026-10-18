@@ -15,10 +15,12 @@
 ;	a	the last delta is had
 ;	s	may a copy be saved, from the host as it is changed, 1 or 0
 ;	t	are the boards that joined teachers, from the host, 1 or 0
+;	v	voice, from the host: 1 and the id of its call, all join it, or 0
 ;	b	bye
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/cwb/share.inc")
+(import "service/voice/app.inc")
 
 ;:nil, :asking, :joined or :host. The host's *Whiteboard, the boards
 ;joined to it, and how many have, each given ids and users of its own.
@@ -31,13 +33,18 @@
 	;other working together, yes
 	*share_trust* :nil
 	;the host that invited this one, and its user's name
-	*share_invite* :nil *share_invite_name* :nil)
+	*share_invite* :nil *share_invite_name* :nil
+	;voice: the call of the session, its id, :nil if there is none; and the
+	;call of this desktop as its voice service says it is, service/voice
+	*share_voice* :nil *share_call* :nil)
 
 (defun share-title ()
 	;the title says if the board is shared, and how
 	(def *title* :text (cat "Whiteboard" (case *share*
-		(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")))
-		(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")))
+		(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")
+			(if *share_voice* ", voice" "")))
+		(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")
+			(if *share_voice* ", voice" "")))
 		(:asking ", joining")
 		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) "")))))
 	(.-> *title* :layout :dirty_all))
@@ -126,6 +133,7 @@
 	;a board that joined has its own document back, and it is put by no more
 	(share-stop *board*)
 	(share-kept-forget)
+	(share-voice-end)
 	(def *board* :user_base :nil :trusted :nil)
 	(if *share_own_doc* (. *board* :set_doc *share_own_doc*))
 	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil *share_trust* :nil)
@@ -140,7 +148,55 @@
 
 (defun share-copies-show ()
 	(share-switch-show +sym_copy *share_may_save*)
-	(share-switch-show +sym_eraser *share_trust*))
+	(share-switch-show +sym_eraser *share_trust*)
+	(share-switch-show +sym_mic *share_voice*)
+	(share-switch-show +sym_mute (share-muted?)))
+
+;voice: the host's switch starts a call of the session, and each board joins
+;it. It is a call as any other, service/voice, its mute this desktop's
+
+(defun share-in-call? ()
+	; (share-in-call?) -> :t | :nil
+	;is this desktop in the call of the session
+	(and *share_voice* *share_call* (eql (. *share_call* :find :id) *share_voice*)))
+
+(defun share-muted? ()
+	(and *share_call* (. *share_call* :find :id) (. *share_call* :find :muted)))
+
+(defun share-voice-send (to)
+	;one board told the call of the session, or that there is none
+	(share-send to "v" (if *share_voice* (cat "1," *share_voice*) "0")))
+
+(defun share-voice-end ()
+	;out of the call of the session, if this is in it
+	(if (share-in-call?) (call-leave))
+	(setq *share_voice* :nil))
+
+(defun action-voice ()
+	;the host starts a call of the session, or ends it, and every board is
+	;told: "If the teacher or presenter enables voice mode, everybody can
+	;hear everybody else"
+	(when (eql *share* :host)
+		(cond
+			(*share_voice* (share-voice-end))
+			(:t (call-start (cat "Whiteboard of " (ifn (get :user *env*) "Guest")))
+				;the call is kept by the voice service of this desktop, its id
+				;is that service
+				(setq *share_voice* (hex-encode (call-service)))))
+		(each (const share-voice-send) *share_peers*)
+		(share-copies-show)
+		(share-title)))
+
+(defun action-mute ()
+	;none of what is said here is heard by the others, "a mute button so
+	;that people can press that to talk privately"
+	(and *share_call* (. *share_call* :find :id) (call-mute (not (share-muted?)))))
+
+(defun share-call-state (msg)
+	;what the voice service says of the call now
+	(when (defq state (call-state-read msg))
+		(setq *share_call* state)
+		(share-copies-show)))
 
 (defun action-teachers ()
 	;the host says if the boards joined to it are teachers, who rub out
@@ -164,6 +220,7 @@
 	;the host ends the session for all, one that joined leaves it
 	(cond
 		((eql *share* :host)
+			(share-voice-end)
 			(each (# (share-send %0 "b")) *share_peers*)
 			(share-stop *board*)
 			(share-declare :nil)
@@ -194,7 +251,9 @@
 				(push *share_peers* from)
 				(defq n (++ *share_joined*))
 				(share-send from "w" (cat (str (* n 1000000)) "," (str (* n 100)) "," (if *share_may_save* "1" "0")
-					"," (if *share_trust* "1" "0")))))
+					"," (if *share_trust* "1" "0")))
+				;and the call of the session, if there is one
+				(if *share_voice* (share-voice-send from))))
 		((eql kind "w")
 			(when (eql *share* :asking)
 				(setq *share_invite* :nil)
@@ -219,6 +278,16 @@
 			;the host has said again if a copy may be saved
 			(when (and (eql *share* :joined) (eql from *share_host*))
 				(setq *share_may_save* (eql payload "1"))
+				(share-title)))
+		((eql kind "v")
+			;the host has a call of the session, or has ended it
+			(when (and (eql *share* :joined) (eql from *share_host*))
+				(cond
+					((starts-with "1," payload)
+						(setq *share_voice* (slice payload 2 -1))
+						(call-join *share_voice*))
+					((share-voice-end)))
+				(share-copies-show)
 				(share-title)))
 		((eql kind "t")
 			;the host has said again if this board is a teacher

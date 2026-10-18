@@ -29,7 +29,7 @@
 ;where the host has it. This task does not wait while they do.
 
 (enums +select 0
-	(enum main picker timer tip share))
+	(enum main picker timer tip share call))
 
 ;the zooms there are, stepped through, so that in and then out is where it was
 ;the zooms it comes to rest at, each twice the last: at one of these the
@@ -1302,6 +1302,8 @@
 	;it put by if it was closed while joined to one
 	(share-declare :nil)
 	(share-kept-back)
+	;the call of this desktop, to show its mute and if it is the session's
+	(call-watch (elem-get select +select_call))
 	;a corner keeps the shape of what it sizes, till the lock is put off
 	(board-resized)
 	;as it was when it was last closed, if it has been: where it was and
@@ -1353,14 +1355,19 @@
 				(redraw)
 				;the boards this is shared with are sent what has changed
 				(share-tick)
-				;once a second the nodes that draw are looked to
+				;once a second the nodes that draw are looked to, and the call of
+				;this desktop watched again
 				(when (> (setq *kept* (inc *kept*)) 60)
 					(setq *kept* 0)
+					(call-watch (elem-get select +select_call))
 					(frame-watch)
 					(. *stripes* :keep)))
 			((= idx +select_share)
 				;from a board this is shared with
 				(share-message *msg*))
+			((= idx +select_call)
+				;the call of this desktop, as it is now
+				(share-call-state *msg*))
 			((= idx +select_picker)
 				;save/load picker response
 				(setq *msg* (trim *msg*))
@@ -1378,6 +1385,7 @@
 	;close window. It is kept as a window, not as all of the screen. A
 	;session is left, and this board's own document is what is kept
 	(share-leave)
+	(call-unwatch (elem-get select +select_call))
 	(share-forget)
 	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))

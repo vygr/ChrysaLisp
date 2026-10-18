@@ -15,6 +15,8 @@
 	+event_share action-share
 	+event_copies action-copies
 	+event_teachers action-teachers
+	+event_voice action-voice
+	+event_mute action-mute
 	+event_zoom_in action-zoom-in
 	+event_zoom_out action-zoom-out
 	+event_undo action-undo
