@@ -76,6 +76,10 @@
 (while (and (empty? (setq al_gui (mail-enquire "@Gui,"))) (< (- (pii-time) al_t0) (task-timeout 10)))
 	(task-sleep 50000))
 (cond
+	((starts-with "obj/vp64" (load-path))
+		;what an app holds is the same however its VP is run, and the
+		;emulator takes minutes to open each app three times
+		(test-skip "apps on a desktop" "the emulator, leaks are measured by the native hosts"))
 	((empty? al_gui)
 		;a host with no display, an emulator say, can not make a desktop
 		(test-skip "apps on a desktop" "no desktop could be started on this host"))
