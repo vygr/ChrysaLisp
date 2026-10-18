@@ -66,9 +66,14 @@
             looked for as the form is made, when the
             function runs, and the module's names are gone.
     ignore  a name after &ignore in a (bind) list or a list
-            of parameters: &ignore ends the list, and the
-            name is never bound. & is the place that takes
-            a thing and binds nothing.
+            of parameters, or a list in one: &ignore ends
+            the list, and the name is never bound. & is the
+            place that takes a thing and binds nothing.
+    param   a list of parameters, or a list in one, whose
+            first name is a macro of the system, (defun f
+            (bits) ...): it is expanded as a call of it.
+    empty   () given to a call, (list () x): it is run as
+            a form, and calls nothing. (list) or '().
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -150,7 +155,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -280,11 +285,41 @@
 			(tree-form? (third (second forms))))
 		((and (find head '("defun" "defmacro")) (> (length forms) 2)) (tree-form? (third forms)))
 		((and (eql head "lambda") (> (length forms) 1)) (tree-form? (second forms)))))
-	(when names
+	;and each list in it, (lambda (k (a &ignore b)) ...)
+	(defq todo (if names (list names) (list)))
+	(while (defq names (pop todo))
 		(setq names (forms-of names))
+		(each (# (if (defq inner (tree-form? %0)) (push todo inner))) names)
 		(and (defq at (some (# (and (eql (first %0) :symbol) (eql (third %0) "&ignore") (!))) names))
 			(< (inc at) (length names))
 			(found file (elem-get names at) "ignore" "names after &ignore are never bound, it ends the list; & takes one thing and binds nothing"))))
+
+(defun check-param (file forms head)
+	;(defun f (bits) ...): a list of parameters is expanded as any list is,
+	;and one whose first name is a macro of the system is a call of it
+	(defq names (cond
+		((and (find head '("defun" "defmacro")) (> (length forms) 2)) (third forms))
+		((and (eql head "lambda") (> (length forms) 1)) (second forms))))
+	(defq todo (if (and names (tree-form? names)) (list (tree-form? names)) (list)))
+	(while (defq kids (pop todo))
+		(defq inner (forms-of kids))
+		(each (# (if (defq more (tree-form? %0)) (push todo more))) inner)
+		(and (nempty? inner) (eql (first (first inner)) :symbol)
+			(. *root_macros* :find (third (first inner)))
+			(found file (first inner) "param" (third (first inner))
+				" first in a list of parameters is the name of a macro of the system, the list is taken as a call of it"))))
+
+(defun check-empty (file forms head)
+	;(f a () b): an empty list as a thing given to a call is run as a form,
+	;and there is nothing to call. (list) is an empty list, '() too. Only a
+	;function of the system: a macro, or a form, may take one as it is
+	(and (. *root_names* :find head) (not (. *root_macros* :find head))
+		(not (find head '("lambda" "#" "defun" "defmacro" "defmethod" "macro" "bind" "let" "let*"
+			"cond" "condn" "case" "catch" "defq" "setq" "quote" "quasi-quote" "while" "if" "when" "unless")))
+		(each! (lambda (arg)
+				(and (defq inner (tree-form? arg)) (empty? (forms-of inner))
+					(found file arg "empty" "() given to (" head ") is run, and calls nothing: (list) or '()")))
+			(list forms) 1 -1)))
 
 (defun check-made (file kids)
 	;in a (defq), a + name and then a form that makes a list
@@ -514,7 +549,8 @@
 			(defq seqs (cond
 				((eql head "filter") (if (= (length forms) 3) (list (third forms))))
 				((eql head "reduce") (if (= (length forms) 4) (list (third forms))))
-				((slice forms 2 -1))))
+				;a list of parameters (map) is no call of it
+				((> (length forms) 2) (slice forms 2 -1))))
 			(nempty? seqs)
 			(defq parts (map (const copy-part) seqs))
 			(every (const identity) parts)
@@ -945,6 +981,8 @@
 							(if (find "inner" checks) (check-inner file forms head))
 							(if (find "eqlist" checks) (check-eqlist file forms head))
 							(if (find "ignore" checks) (check-ignore file forms head))
+							(if (find "param" checks) (check-param file forms head))
+							(if (find "empty" checks) (check-empty file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
@@ -970,11 +1008,14 @@
 		(defq checks (if opt_c (filter (# (find %0 +check_names)) (split opt_c ",")) +check_names)
 			;the names of the system, what a function, a macro or a form is
 			;bound to in the environment every task starts with
-			*root_names* (Fset 101)
+			*root_names* (Fset 101) *root_macros* (Fset 31)
 			;the functions of each file imported, as read, (import-defuns)
 			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
-			(if (or (func? val) (lambda? val) (macro? val)) (. *root_names* :insert (str name))))
+			;a macro is a list that begins with macro
+			(defq is_macro (and (list? val) (nempty? val) (eql (first val) macro)))
+			(if (or (func? val) (lambda? val) is_macro) (. *root_names* :insert (str name)))
+			(if is_macro (. *root_macros* :insert (str name))))
 			(tolist *root_env*))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))

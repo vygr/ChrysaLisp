@@ -167,6 +167,16 @@
 	(tt-check "args" "(map (# (<< 1 (!))) slots)" "(. m :each (# (print 1)))" "(each! (# (f)) (list a b))" "(sort l (# 0))"
 		"(map (# (inc %0)) slots)" "(map (lambda (x) 1) slots)" "(defmacro m (p) `(each (# (f ,p)) s))"
 		"(each! (# (f)) '() 0 9)" "(filter (# (g (# %0))) l)" "(f (# (g)))"))
+;&ignore ends a list of names, in a list inside one too; a list of
+;parameters whose first name is a macro is a call of it; () given to a
+;function is run, and calls nothing. Not () given to a macro, nor a macro's
+;name later in a list, nor (lambda () ...)
+(assert-list-eq "ignore, param and empty: in a list in the parameters too, a macro first, () to a function"
+	'("(1) ignore: names after &ignore are never bound, it ends the list; & takes one thing and binds nothing"
+		"(2) param: bits first in a list of parameters is the name of a macro of the system, the list is taken as a call of it"
+		"(3) empty: () given to (list) is run, and calls nothing: (list) or '()")
+	(tt-check "ignore,param,empty" "(each (lambda (k (a &ignore b)) b) x)" "(defun f (bits) bits)" "(list () x)"
+		"(lambda (x (y z when)) z)" "(ui-window w ())" "(lambda () 1)" "(list (list) '())"))
 ;(relies), where a function goes by more than is declared of what it calls:
 ;a function made up, as an assembled one is left. It calls :sys_mem :alloc,
 ;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,
