@@ -4,6 +4,25 @@
 
 ------
 
+The release check for 7.3, every stage passes on every machine.
+
+*	An Apple M4 Max, a 2018 x86_64 MacBook Pro and a Raspberry Pi 4.
+	`make install` from the snapshot as it is, every test with `tests -a`,
+	172 modules and 7,337 tests on each, the boot images of all six CPUs,
+	the lint, the forward check and a restore, clean.
+
+*	RISC-V and LoongArch under QEMU, a self hosted build the same to the
+	byte as the Mac's cross build, and every test. The Windows host under
+	Wine, `make install` and every test.
+
+*	The emulator's release image on 2 nodes, 7,093 tests. On every core
+	`test_storage_replay` can not finish in its time, the emulator's speed.
+
+*	The snapshot is not made again. `make install` works from it on all
+	three.
+
+------
+
 **Whiteboard, as Chris's boards were: devices drive it. The toolbars and floating menus bind the device and buttons that press them, a dot of each device on a menu; a quick tap toggles a thing's select mode; who made a thing is kept, a student's eraser leaves the teacher's; pairs only of one touch device; two layers in flight; no layers in the file, version 5. Design in whiteboard.md, "The board to come".**
 
 **Whiteboard shared between boards: `lib/cwb/share.inc`, deltas by state, first come first served for holds; the Share button, the teacher invites, a joined board's title says so.**
