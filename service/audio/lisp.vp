@@ -357,3 +357,291 @@
 	(signature '(:NUM :NUM)))
 
 (def-func-end)
+
+(def-method :host_audio :lisp_mic_open)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(long c_ret))
+
+	(entry :host_audio :lisp_mic_open '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_mic_open '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :mic_open '() '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-mic-open)" +error_msg_wrong_types)))
+
+(def-func-end)
+
+(def-method :host_audio :lisp_mic_read)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;what the microphone has heard written into the string, 16 bit mono,
+	;as many samples as it holds at most, how many it wrote returned
+
+	(structure local 0
+		(ptr this)
+		(pubyte c_data)
+		(long c_max c_ret))
+
+	(entry :host_audio :lisp_mic_read '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r0) '(:obj))
+	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
+	(vp-shr-cr 1 :r1)
+	(assign '(:r0 :r1) '((:rsp local_c_data) (:rsp local_c_max)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_mic_read '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :mic_read '((:r0 local_c_data) (:r0 local_c_max)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-mic-read buf)" +error_msg_wrong_types))
+	(signature '(:str)))
+
+(def-func-end)
+
+(def-method :host_audio :lisp_mic_close)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(long c_ret))
+
+	(entry :host_audio :lisp_mic_close '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_mic_close '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :mic_close '() '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-mic-close)" +error_msg_wrong_types)))
+
+(def-func-end)
+
+(def-method :host_audio :lisp_stream_open)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(long c_ret))
+
+	(entry :host_audio :lisp_stream_open '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_stream_open '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :stream_open '() '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-stream-open)" +error_msg_wrong_types)))
+
+(def-func-end)
+
+(def-method :host_audio :lisp_stream_write)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;the samples of the string, 16 bit mono, given to the stream to play,
+	;how many it took returned
+
+	(structure local 0
+		(ptr this)
+		(long c_handle)
+		(pubyte c_data)
+		(long c_frames c_ret))
+
+	(entry :host_audio :lisp_stream_write '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r1 :r0) '(:num :obj))
+	(assign '(:r1) '((:rsp local_c_handle)))
+	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
+	(vp-shr-cr 1 :r1)
+	(assign '(:r0 :r1) '((:rsp local_c_data) (:rsp local_c_frames)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_stream_write '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :stream_write
+		'((:r0 local_c_handle) (:r0 local_c_data) (:r0 local_c_frames)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-stream-write handle buf)" +error_msg_wrong_types))
+	(signature '(:NUM :str)))
+
+(def-func-end)
+
+(def-method :host_audio :lisp_stream_close)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+
+	(structure local 0
+		(ptr this)
+		(long c_handle c_ret))
+
+	(entry :host_audio :lisp_stream_close '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r1) '(:num))
+	(assign '(:r1) '((:rsp local_c_handle)))
+	(call :sys_task :callback '(:rsp ($ callback)))
+	(call :num :create '((:rsp local_c_ret)) '(:r1))
+
+	(exit :host_audio :lisp_stream_close '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(host-audio-call :host_audio :stream_close '((:r0 local_c_handle)) '(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_c_ret)))
+	(vp-ret)
+
+(errorcase
+	(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(audio-stream-close handle)" +error_msg_wrong_types))
+	(signature '(:NUM)))
+
+(def-func-end)

@@ -5,13 +5,19 @@
 // buffer. ALSA gives the device. The mixing is done by the mixer in
 // mixer.h, and a wav file is read by wav.h, neither of which know of ALSA.
 // A thread of its own feeds the device, and holds the lock while it mixes.
+//
+// The microphone is the default capture device, read 16 bit mono at
+// MIC_RATE by a thread of its own into the ring of mic.h, with a lock of
+// its own round the ring.
 
 #include <alsa/asoundlib.h>
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "mixer.h"
+#include "mic.h"
 #include "wav.h"
 
 #define FEED_FRAMES 512
@@ -20,6 +26,48 @@ static snd_pcm_t *pcm = nullptr;
 static pthread_t feed_thread;
 static pthread_mutex_t feed_lock = PTHREAD_MUTEX_INITIALIZER;
 static volatile bool feeding = false;
+
+static snd_pcm_t *capture = nullptr;
+static pthread_t capture_thread;
+static pthread_mutex_t capture_lock = PTHREAD_MUTEX_INITIALIZER;
+static volatile bool capturing = false;
+static bool mic_tone = false;
+
+// -hidden in the args, a desktop that is never seen, hears the tone of
+// mic.h and no device
+
+extern char **host_argv;
+
+static bool host_audio_hidden(void)
+{
+	if (host_argv) for (char **arg = host_argv; *arg; arg++) if (!strcmp(*arg, "-hidden")) return true;
+	return false;
+}
+
+static uint64_t host_audio_now_us(void)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (uint64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+}
+
+// what the device hears, into the ring, a read waits till there is some
+
+static void *capture_feed(void *arg)
+{
+	int16_t in[FEED_FRAMES];
+	while (capturing)
+	{
+		snd_pcm_sframes_t n = snd_pcm_readi(capture, in, FEED_FRAMES);
+		// an overrun, or the device was suspended, is got over and tried again
+		if (n < 0) n = snd_pcm_recover(capture, (int)n, 1);
+		if (n < 0) break;
+		pthread_mutex_lock(&capture_lock);
+		mic_ring_put(in, (int)n);
+		pthread_mutex_unlock(&capture_lock);
+	}
+	return nullptr;
+}
 
 // the device is fed 16 bit samples, a write waits till there is room
 
@@ -79,8 +127,11 @@ int host_audio_init()
 	return 0;
 }
 
+int64_t host_audio_mic_close();
+
 int host_audio_deinit()
 {
+	host_audio_mic_close();
 	if (pcm)
 	{
 		feeding = false;
@@ -160,6 +211,98 @@ int host_audio_remove_sfx(uint32_t handle)
 	return 0;
 }
 
+// the microphone, opened, read, closed. Read gives how many samples it
+// put in samples, up to max, 0 if none have come, -1 if it is not open
+
+int64_t host_audio_mic_open()
+{
+	if (capture || mic_tone) return 0;
+	if (host_audio_hidden())
+	{
+		mic_tone = true;
+		mic_tone_reset(host_audio_now_us());
+		return 0;
+	}
+	if (snd_pcm_open(&capture, "default", SND_PCM_STREAM_CAPTURE, 0) < 0)
+	{
+		capture = nullptr;
+		return -1;
+	}
+	if (snd_pcm_set_params(capture, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED,
+		1, MIC_RATE, 1, 50000) < 0)
+	{
+		snd_pcm_close(capture);
+		capture = nullptr;
+		return -1;
+	}
+	pthread_mutex_lock(&capture_lock);
+	mic_ring_reset();
+	pthread_mutex_unlock(&capture_lock);
+	capturing = true;
+	if (pthread_create(&capture_thread, nullptr, capture_feed, nullptr))
+	{
+		capturing = false;
+		snd_pcm_close(capture);
+		capture = nullptr;
+		return -1;
+	}
+	return 0;
+}
+
+int64_t host_audio_mic_read(int16_t *samples, int max)
+{
+	if (mic_tone) return mic_tone_take(samples, max, host_audio_now_us());
+	if (!capture) return -1;
+	pthread_mutex_lock(&capture_lock);
+	int n = mic_ring_take(samples, max);
+	pthread_mutex_unlock(&capture_lock);
+	return n;
+}
+
+int64_t host_audio_mic_close()
+{
+	if (capture)
+	{
+		capturing = false;
+		snd_pcm_drop(capture);
+		pthread_join(capture_thread, nullptr);
+		snd_pcm_close(capture);
+		capture = nullptr;
+	}
+	mic_tone = false;
+	return 0;
+}
+
+// a stream played as it comes, see mixer.h. Open gives its handle, 0 if
+// there is no room or no device; write how many samples it took
+
+int64_t host_audio_stream_open()
+{
+	if (!pcm) return 0;
+	pthread_mutex_lock(&feed_lock);
+	uint32_t handle = mixer_stream_open();
+	pthread_mutex_unlock(&feed_lock);
+	return handle;
+}
+
+int64_t host_audio_stream_write(uint32_t handle, const int16_t *samples, int frames)
+{
+	if (!pcm) return -1;
+	pthread_mutex_lock(&feed_lock);
+	int result = mixer_stream_write(handle, samples, frames);
+	pthread_mutex_unlock(&feed_lock);
+	return result;
+}
+
+int64_t host_audio_stream_close(uint32_t handle)
+{
+	if (!pcm) return -1;
+	pthread_mutex_lock(&feed_lock);
+	int result = mixer_stream_close(handle);
+	pthread_mutex_unlock(&feed_lock);
+	return result;
+}
+
 void (*host_audio_funcs[]) = {
 	(void*)host_audio_init,
 	(void*)host_audio_deinit,
@@ -167,6 +310,12 @@ void (*host_audio_funcs[]) = {
 	(void*)host_audio_play_sfx,
 	(void*)host_audio_change_sfx,
 	(void*)host_audio_remove_sfx,
+	(void*)host_audio_mic_open,
+	(void*)host_audio_mic_read,
+	(void*)host_audio_mic_close,
+	(void*)host_audio_stream_open,
+	(void*)host_audio_stream_write,
+	(void*)host_audio_stream_close,
 };
 
 #endif

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
-	:width 176
+	:width 255
 	:height 344
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 23
+	:next_id 35
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 20)
+					((:list 32)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 310 A 8 8 0 0 1 142 318 L 8 318 A 8 8 0 0 1 0 310 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 220.65429 0 A 8 8 0 0 1 228.65429 8 L 228.65429 310 A 8 8 0 0 1 220.65429 318 L 8 318 A 8 8 0 0 1 0 310 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -38,7 +38,7 @@
 							:id
 							4
 							:d
-							"[M 0 50 L 0 8 Q 0 0 8 0 L 142 0 Q 150 0 150 8 L 150 50 Z]"
+							"[M 0 50 L 0 8 Q 0 0 8 0 L 220.65429 0 Q 228.65429 0 228.65429 8 L 228.65429 50 Z]"
 							:fill
 							4292339447
 							:stroke
@@ -93,7 +93,7 @@
 							:id
 							7
 							:d
-							"[M 0 50 L 150 50]"
+							"[M 0 50 L 228.65429 50]"
 							:stroke
 							4282140240
 							:width
@@ -216,7 +216,7 @@
 							:stroke
 							0
 							:text
-							"[:play]"
+							"[:mic_close]"
 							:font_size
 							12
 							:pos
@@ -236,7 +236,7 @@
 							:stroke
 							0
 							:text
-							"[:remove]"
+							"[:mic_open]"
 							:font_size
 							12
 							:pos
@@ -245,12 +245,132 @@
 								170.00000
 							)
 						)
-						((:list 13)
+						((:list 15)
 							:shape
 							:id
 							15
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:mic_read]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								85.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							16
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:play]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								102.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							17
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:remove]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								119.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							18
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:stream_close]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								136.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							19
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:stream_open]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								153.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							20
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:stream_write]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								85.69287
+								170.00000
+							)
+						)
+						((:list 13)
+							:shape
+							:id
+							21
 							:d
-							"[M 0 184 L 150 184]"
+							"[M 0 184 L 228.65429 184]"
 							:stroke
 							4282140240
 							:width
@@ -263,7 +383,7 @@
 						((:list 17)
 							:shape
 							:id
-							16
+							22
 							:kind
 							:text
 							:fill
@@ -285,7 +405,7 @@
 						((:list 15)
 							:shape
 							:id
-							17
+							23
 							:kind
 							:text
 							:fill
@@ -305,7 +425,7 @@
 						((:list 15)
 							:shape
 							:id
-							18
+							24
 							:kind
 							:text
 							:fill
@@ -325,7 +445,7 @@
 						((:list 15)
 							:shape
 							:id
-							19
+							25
 							:kind
 							:text
 							:fill
@@ -345,7 +465,7 @@
 						((:list 15)
 							:shape
 							:id
-							20
+							26
 							:kind
 							:text
 							:fill
@@ -365,7 +485,67 @@
 						((:list 15)
 							:shape
 							:id
-							21
+							27
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-mic-close]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								287.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							28
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-mic-open]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								304.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							29
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-mic-read]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								114.94580
+								219.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							30
 							:kind
 							:text
 							:fill
@@ -378,14 +558,14 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								287.00000
+								114.94580
+								236.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							22
+							31
 							:kind
 							:text
 							:fill
@@ -398,7 +578,67 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
+								114.94580
+								253.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							32
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-stream-close]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								114.94580
+								270.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							33
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-stream-open]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								114.94580
+								287.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							34
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[audio-stream-write]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								114.94580
 								304.00000
 							)
 						)

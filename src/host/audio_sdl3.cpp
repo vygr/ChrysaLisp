@@ -5,14 +5,20 @@
 // mixing is done by the mixer in mixer.h, which has no SDL in it, so there
 // is no mixer library to depend on. The lock held round every call to the
 // mixer is the lock of the stream.
+//
+// The microphone is a recording stream of SDL's, which keeps what it hears
+// till it is read, made 16 bit mono at MIC_RATE by SDL, see mic.h.
 
 #include <SDL3/SDL.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include "mixer.h"
+#include "mic.h"
 
 static SDL_AudioStream *stream = nullptr;
+static SDL_AudioStream *mic = nullptr;
+static bool mic_tone = false;
 
 static void logAudioError(const char *msg)
 {
@@ -66,8 +72,11 @@ int host_audio_init()
 	return 0;
 }
 
+int64_t host_audio_mic_close();
+
 int host_audio_deinit()
 {
+	host_audio_mic_close();
 	if (stream)
 	{
 		SDL_DestroyAudioStream(stream);
@@ -157,6 +166,78 @@ int host_audio_remove_sfx(uint32_t handle)
 	return 0;
 }
 
+// the microphone, opened, read, closed. Read gives how many samples it
+// put in samples, up to max, 0 if none have come, -1 if it is not open
+
+int64_t host_audio_mic_open()
+{
+	if (mic || mic_tone) return 0;
+	if (host_audio_hidden())
+	{
+		mic_tone = true;
+		mic_tone_reset(SDL_GetTicksNS() / 1000);
+		return 0;
+	}
+	SDL_AudioSpec spec = {SDL_AUDIO_S16, 1, MIC_RATE};
+	mic = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_RECORDING, &spec, nullptr, nullptr);
+	if (!mic)
+	{
+		logAudioError("SDL_OpenAudioDeviceStream recording");
+		return -1;
+	}
+	SDL_ResumeAudioStreamDevice(mic);
+	return 0;
+}
+
+int64_t host_audio_mic_read(int16_t *samples, int max)
+{
+	if (mic_tone) return mic_tone_take(samples, max, SDL_GetTicksNS() / 1000);
+	if (!mic) return -1;
+	int got = SDL_GetAudioStreamData(mic, samples, max * (int)sizeof(int16_t));
+	return got < 0 ? -1 : got / (int)sizeof(int16_t);
+}
+
+int64_t host_audio_mic_close()
+{
+	if (mic)
+	{
+		SDL_DestroyAudioStream(mic);
+		mic = nullptr;
+	}
+	mic_tone = false;
+	return 0;
+}
+
+// a stream played as it comes, see mixer.h. Open gives its handle, 0 if
+// there is no room or no device; write how many samples it took
+
+int64_t host_audio_stream_open()
+{
+	if (!stream) return 0;
+	SDL_LockAudioStream(stream);
+	uint32_t handle = mixer_stream_open();
+	SDL_UnlockAudioStream(stream);
+	return handle;
+}
+
+int64_t host_audio_stream_write(uint32_t handle, const int16_t *samples, int frames)
+{
+	if (!stream) return -1;
+	SDL_LockAudioStream(stream);
+	int result = mixer_stream_write(handle, samples, frames);
+	SDL_UnlockAudioStream(stream);
+	return result;
+}
+
+int64_t host_audio_stream_close(uint32_t handle)
+{
+	if (!stream) return -1;
+	SDL_LockAudioStream(stream);
+	int result = mixer_stream_close(handle);
+	SDL_UnlockAudioStream(stream);
+	return result;
+}
+
 void (*host_audio_funcs[]) = {
 	(void*)host_audio_init,
 	(void*)host_audio_deinit,
@@ -164,6 +245,12 @@ void (*host_audio_funcs[]) = {
 	(void*)host_audio_play_sfx,
 	(void*)host_audio_change_sfx,
 	(void*)host_audio_remove_sfx,
+	(void*)host_audio_mic_open,
+	(void*)host_audio_mic_read,
+	(void*)host_audio_mic_close,
+	(void*)host_audio_stream_open,
+	(void*)host_audio_stream_write,
+	(void*)host_audio_stream_close,
 };
 
 #endif

@@ -18,7 +18,7 @@
 ;by an install that did not finish. Once for a tree, so one that make
 ;install does not mend is not built for ever
 (import "./rack.inc")
-(import "lib/boot/id.inc")
+(import "././boot/id.inc")
 (when (empty? (mail-enquire "@Net,")) (open-child "service/net/app.lisp" +kn_call_run) (task-sleep 200000))
 (net-quiet 300000 4)
 (save (str (pii-pid)) "/tmp/chrysalisp_rack.pid")

@@ -962,6 +962,25 @@ Usage: mesh [options]
 
     docs/intro/mesh.md is the guide.
 ```
+## mic
+```code
+Usage: mic [options]
+
+    options:
+        -h --help: this help info.
+        -s --seconds num: how long to listen, default 3.
+        -o --out path: what was heard written to a .wav file.
+        -p --play: what was heard played back, as a stream is.
+
+    Listen to the microphone of the Audio service of this machine, and
+    say what was heard: how many pieces, how many samples, any lost or
+    out of order, and how loud, at its loudest and on the whole. What is
+    heard is 16 bit mono at 16000 a second. A desktop that is never seen,
+    -hidden, hears a tone of 440 a second, not a device.
+
+    On macOS the program the host runs under, the terminal, must be let
+    use the microphone, or it hears nothing.
+```
 ## mv
 ```code
 Usage: mv [options] path1 path2
@@ -1660,14 +1679,23 @@ Usage: waypoint [options]
 
     Note the waypoint this machine's tree is at, the file waypoint at
     its root: the commit git has it at, when that was made, read from
-    .git, and the top of its tree of hashes. Run it when the tree is exactly a commit of master or of
-    a release, after a git pull.
+    .git, and the top of its tree of hashes. Run it when the tree is
+    exactly a commit of master or of a release, after a git pull; it is
+    not noted if it is not.
 
     Only a tree that is exactly at its waypoint takes part in the herd,
     a sync to or from a machine that is not one of its own: a tree with
     a change of its own since is not, and nothing is pushed to it or
     taken from it. Pull and note the waypoint again and it is back.
     lib/sync/sync.inc, Who takes a sync.
+
+    It is exactly the commit if git's index is the commit's tree, each
+    file is the size, time and mode the index has, and there is no file
+    git does not know of and is not told to leave out. A file only
+    touched is taken as changed till git status has looked at it.
+
+    If this machine takes a sync, sync -a, the waypoint is offered to
+    the others that do, and goes round the herd by itself.
 
     With -c, the waypoint it was last at and if it is still exactly that.
 ```

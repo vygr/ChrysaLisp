@@ -1177,6 +1177,45 @@ Audio playback daemon interface (`service/audio/app.inc`).
 
 	*	`(audio-remove-rpc handle)`
 
+The microphone and streams. What is heard, and what a stream plays, is 16
+bit mono at `+audio_rate`, 16000 a second, the rate of a voice. The host
+drivers do the device and the conversion, `src/host/mic.h` and
+`src/host/mixer.h`; the SDL2 driver, on SDL_mixer, has neither and says so.
+What is on another node can not be asked if it is still there, so a
+listener says so again before `+audio_lease`, 5s, is out, and a stream not
+written to for that long is closed. A desktop that is never seen,
+`-hidden`, hears a tone of 440 a second and no device, for the tests,
+`tests/release/test_audio_mic.lisp`. The `mic` command listens, says what it
+heard, and writes it to a `.wav` or plays it back. On macOS the program the
+host runs under, the terminal, has to be let use the microphone.
+
+*	**`audio-listen-rpc`**: Has the microphone's pieces sent to a mailbox, as
+	`+audio_heard`, a sequence number and the samples, every 20ms while
+	there are any. Said again within the lease to go on. `:nil` if there is
+	no microphone.
+
+	*	`(audio-listen-rpc who) -> :t | :nil`
+
+*	**`audio-hush-rpc`**: No more pieces to that mailbox. With the last
+	listener gone the device is closed.
+
+	*	`(audio-hush-rpc who)`
+
+*	**`audio-stream-open-rpc`**: A stream, a sound played as it comes, a
+	voice from far away. It starts once it has 60ms, and again so after it
+	runs dry, so a late piece is not a gap. Up to 8 at once.
+
+	*	`(audio-stream-open-rpc) -> :nil | handle`
+
+*	**`audio-stream-write-rpc`**: The next of a stream, 16 bit mono samples.
+	No answer, it is sent a piece every 20ms.
+
+	*	`(audio-stream-write-rpc handle data)`
+
+*	**`audio-stream-close-rpc`**: The stream stopped and forgotten.
+
+	*	`(audio-stream-close-rpc handle)`
+
 ## Network Stack and Protocols
 
 TCP socket daemon interface (`service/net/app.inc`), URI codec (`lib/net/url.inc`),

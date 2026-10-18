@@ -14,9 +14,21 @@ docs/reference/vp_classes/host_audio.cwb
 
 ### (audio-init)
 
+### (audio-mic-close)
+
+### (audio-mic-open)
+
+### (audio-mic-read buf)
+
 ### (audio-play handle pan)
 
 ### (audio-remove handle)
+
+### (audio-stream-close handle)
+
+### (audio-stream-open)
+
+### (audio-stream-write handle buf)
 
 ## VP methods
 
@@ -28,7 +40,19 @@ docs/reference/vp_classes/host_audio.cwb
 
 ### :init -> :nil
 
+### :mic_close -> :nil
+
+### :mic_open -> :nil
+
+### :mic_read -> :nil
+
 ### :play -> :nil
 
 ### :remove -> :nil
+
+### :stream_close -> :nil
+
+### :stream_open -> :nil
+
+### :stream_write -> :nil
 

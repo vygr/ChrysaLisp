@@ -739,6 +739,12 @@ of what its mode draws, the board's if it has none, and select mode the
 hand, so a mouse alone can do everything
 ```
 
+### boot-files-file
+
+```code
+(boot-files-file cpu abi) -> path
+```
+
 ### boot-id
 
 ```code
@@ -761,6 +767,16 @@ before there was one
 
 the id of those source files, whatever order they are given in. The
 name of each and the hash of what is in it, all hashed
+```
+
+### boot-id-tree
+
+```code
+(boot-id-tree) -> :nil | hex
+
+the id of the files this node's boot image was made from, as the tree
+has them now, :nil if it was made before their names were kept. Not
+the boot image's own id, it was made from other source than is here
 ```
 
 ### bot-breathe
@@ -8384,12 +8400,13 @@ nothing since, :nil if it has none or is not. top, if it is known
 ### sync-from
 
 ```code
-(sync-from node said root kept me [named]) -> :rig | :herd | :no
+(sync-from node said root kept me [named herd_only]) -> :rig | :herd | :no
 
 what a machine may do here, by who it is and the waypoint it says it
-is at: anything, if it is this machine or one named; as the herd, if
-this tree is at a waypoint, has no .git, and it is at a newer one; or
-nothing
+is at: anything, if it is this machine or one named, unless it asks
+only as the herd; as the herd, if this tree has no .git and is at a
+waypoint and it is at a newer one, or this tree is already exactly the
+one at its waypoint, and only the waypoint is to be noted; or nothing
 ```
 
 ### sync-hear
@@ -8461,10 +8478,19 @@ the machines named in this machine's sync_from, or that file, each the
 is a node one of the machines of those system ids
 ```
 
+### sync-own-rules
+
+```code
+(sync-own-rules root) -> rules
+
+the rules of a tree, its own .gitignore, and what is the machine's own
+and not the tree's: its waypoint, who it takes a sync from, its key
+```
+
 ### sync-push
 
 ```code
-(sync-push svc root rules_text [check remove kept no_modes])
+(sync-push svc root rules_text [check remove kept no_modes herd_only])
 
 	-> :nil | :old | (sent bytes removed failed send gone remoded)
 make the tree a sync service has the same as the one under root. With
@@ -8474,7 +8500,9 @@ only there. A file is given the mode it has here, who may read, write
 and run it, and one that is the same but for its mode has that set,
 unless no_modes, for a host that has no such thing. :nil if the
 service does not answer, :old if it is from before there were trees,
-:refused if it takes nothing from this one, (Who takes a sync)
+:refused if it takes nothing from this one, (Who takes a sync). With
+herd_only it is asked to take it only as the herd would, not as one of
+the machines it names
 ```
 
 ### sync-root
@@ -8536,9 +8564,7 @@ a message to a sync service
 ```code
 (sync-top root [kept]) -> hash
 
-the top of the tree of hashes of a tree, by its own .gitignore, and
-never with what is the machine's own and not the tree's: its
-waypoint, who it takes a sync from, its key
+the top of the tree of hashes of a tree, by its own rules
 ```
 
 ### sync-tree

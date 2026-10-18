@@ -150,6 +150,16 @@ int host_audio_remove_sfx(uint32_t handle) {
     return -1;
 }
 
+// the microphone and streams are of the other drivers, this one built on
+// SDL_mixer has neither, each says so, -1, and a stream's open 0
+
+int64_t host_audio_mic_open() { return -1; }
+int64_t host_audio_mic_read(int16_t *samples, int max) { return -1; }
+int64_t host_audio_mic_close() { return 0; }
+int64_t host_audio_stream_open() { return 0; }
+int64_t host_audio_stream_write(uint32_t handle, const int16_t *samples, int frames) { return -1; }
+int64_t host_audio_stream_close(uint32_t handle) { return -1; }
+
 void (*host_audio_funcs[]) = {
 	(void*)host_audio_init,
 	(void*)host_audio_deinit,
@@ -157,6 +167,12 @@ void (*host_audio_funcs[]) = {
     (void*)host_audio_play_sfx,
     (void*)host_audio_change_sfx,
     (void*)host_audio_remove_sfx,
+	(void*)host_audio_mic_open,
+	(void*)host_audio_mic_read,
+	(void*)host_audio_mic_close,
+	(void*)host_audio_stream_open,
+	(void*)host_audio_stream_write,
+	(void*)host_audio_stream_close,
 };
 
 #endif
