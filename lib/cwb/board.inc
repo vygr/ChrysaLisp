@@ -80,6 +80,16 @@
 		(cwb-shape (cwb-d-paths paths :t) :fill 0x40ffffff :stroke 0)
 		(cwb-shape (cwb-d-paths dashes) :stroke 0xff808080 :width (* 1.5 thin) :fill 0))))
 
+(defun board-ghost-line (paths zoom col)
+	; (board-ghost-line paths zoom col) -> (shape shape)
+	;a closed line of what is someone else's, a hold, a finger: of a color
+	;with white dashes along it, 6 on and 6 off on the screen whatever the
+	;zoom, so that it is seen over anything, dark or light
+	(defq thin (/ 1.0 zoom) w (* 1.5 thin)
+		dashes (apply (const cat) (map (# (path-dash %0 (* 6.0 thin) (* 6.0 thin) :t)) paths)))
+	(list (cwb-shape (cwb-d-paths paths :t) :stroke col :width w :fill 0 :join :miter)
+		(cwb-shape (cwb-d-paths dashes) :stroke 0xffffffff :width w :fill 0)))
+
 (defun board-none? (ink)
 	; (board-none? ink) -> :t | :nil
 	;an ink that is wholly see through is none, whatever its colour
@@ -2555,7 +2565,8 @@
 			(defq rgb (elem-get +board_guest_colors (% (ifn who 0) (length +board_guest_colors)))
 				col (+ rgb (if down 0xe0000000 0x90000000)))
 			(if (eql kind :touch)
-				(push marks (cwb-shape (cwb-d-ellipse x y (* s 16.0)) :stroke col :width (* s 2.0) :fill (+ rgb 0x30000000)))
+				(progn (push marks (cwb-shape (cwb-d-ellipse x y (* s 16.0)) :stroke 0 :fill (+ rgb 0x30000000)))
+					(each (# (push marks %0)) (board-ghost-line (list (path-gen-arc x y 0.0 +fp_2pi (* s 16.0) (path))) (get :zoom this) col)))
 				(push marks (cwb-shape (cwb-d-points (list x y x (+ y (* s 18.0)) (+ x (* s 5.0)) (+ y (* s 14.0))
 						(+ x (* s 12.0)) (+ y (* s 13.0))) :t)
 					:fill col :stroke 0xffffffff :width s :join :miter)))))
@@ -2619,14 +2630,15 @@
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
 		(unless no_selected (. this :draw_selected canvas m))
 		;what a board this shares with has hold of, a line round each in
-		;another color and no handles: it is someone else's just now
+		;another color, with dashes, and no handles: it is someone else's
+		;just now
 		(when (nempty? (defq taken (. this :taken)))
-			(defq want (cwb-id-set taken))
-			(cwb-draw-items canvas (reduce (lambda (out (name flags items))
-					(each (# (if (defq corners (board-item-corners %0))
-						(push out (cwb-shape (cwb-d-points corners :t)
-							:stroke 0xffff8000 :width thin :join :miter)))) (cwb-pick items want))
-					out) (cwb-layers (get :doc this)) (list)) m))
+			(defq want (cwb-id-set taken) boxes (list))
+			(each (lambda ((name flags items))
+					(each (# (if (defq corners (board-item-corners %0)) (push boxes (apply (const path) corners))))
+						(cwb-pick items want)))
+				(cwb-layers (get :doc this)))
+			(if (nempty? boxes) (cwb-draw-items canvas (board-ghost-line boxes zoom 0xffff8000) m)))
 		this)
 
 	(defmethod :draw_selected (canvas &optional m)
