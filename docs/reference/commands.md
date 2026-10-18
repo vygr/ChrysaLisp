@@ -183,6 +183,14 @@ Usage: check [options] [path] ...
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
             what is written after may not be read.
+    struct  in a module, a file with an (env-push), a field
+            of a structure, in (getf), (setf) or (setf->),
+            that no (structure), (enums) or (defq) gives, of
+            this file, of what it imports, and of what those
+            import, nor of what root.inc imports. A module that
+            works only because what loaded it first had
+            imported the structure fails on its own, and on a
+            release build its class is not made at all.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes

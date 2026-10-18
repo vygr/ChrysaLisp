@@ -1707,7 +1707,9 @@ slants, an item turned in a group that was sized more one way than the
 other, is a place and a slant, and a place can not slant: the slant is
 put into what it is. A group's is put into its items, the same way, and
 a shape is made what it draws, its fill and its line, each a polygon,
-slanted, as a bite makes it. Those new ones have no id
+slanted, as a bite makes it. Those new ones have no id. No function
+here calls itself: what is still to do is a list, each an item, its
+matrix and the list what it makes goes into
 ```
 
 ### cwb-walk
@@ -9320,6 +9322,17 @@ window should have none
 each view of it, it too, given a variant for a plain property has the
 variant's value, found from where it is. Which variant it was is
 kept, :variants, so a new theme or user can be found again by it
+```
+
+### view-variant
+
+```code
+(view-variant view key variant) -> view
+
+a plain property of a view made by hand, not by a ui- form, given its
+variant's value, the user's, as a ui- form gives it, and which variant
+it was kept, :variants, so a theme or a user finds it again by it,
+(view-resolve). (view-variant label :font :font_small)
 ```
 
 ### wheel-push?
