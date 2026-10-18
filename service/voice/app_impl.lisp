@@ -11,7 +11,8 @@
 ;	e	id			it is ended
 ;From an app, a capital: S user,name, J user,id, L, M 1|0, W mailbox, U mailbox,
 ;R 1|0 recording or not, P mailbox the tap, (voice-tap), P alone none,
-;H 1|0 headphones or not, half duplex off with them, V mailbox, a watch of
+;H 1|0 headphones or not, half duplex off with them, F path a sound file
+;sent in place of the microphone till it ends, F alone to stop it, V mailbox, a watch of
 ;one that shows the call as its own, a Whiteboard in its session's call, X
 ;out of the call unless one of those shows it, and Q, out of any call and
 ;the service ends. From the voice stages, T inbox: that one is talking. Who is recording is told to all
@@ -139,6 +140,7 @@
 			(setq headphones (eql rest "1"))
 			(if voice (voice-duplex voice (not headphones)))
 			(state-push))
+		((eql kind "F") (if voice (voice-play voice rest)))
 		((eql kind "T") (. talking :insert rest now))
 		((eql kind "P")
 			(setq tap (if (nempty? rest) rest))

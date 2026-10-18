@@ -74,4 +74,27 @@
 (assert-list-eq "five pieces said here, the first three with the other's three added" '(10000 10000 10000 6000 6000) vc_pieces)
 (pii-remove vc_file)
 
-(undef (env) 'vc_order 'vc_a 'vc_b 'vc_tap 'vc_ctl 'vc_done 'vc_own 'vc_other 'vc_file 'vc_here 'vc_there 'vc_stream 'vc_pieces)
+;a file sent in place of the microphone: a loud tone of three pieces and a
+;half, the microphone quiet. Its pieces go, the last made up with silence,
+;then the microphone's again, sent on as the gate is still open
+(defq vc_done (mail-mbox) vc_file "tests/scratch/voice_play.wav")
+(stages-run (list (sound-stage 'sound-tone 1000 70 20000) (sound-stage 'sound-to-file vc_file)) vc_done)
+(mail-read-timeout vc_done (task-timeout 10))
+(defq vc_box (mail-mbox) vc_ctl (mail-mbox) vc_from (mail-mbox) vc_got (list))
+(mail-send vc_ctl (cat "t" (hex-encode vc_box)))
+(mail-send vc_ctl (cat "f" vc_file))
+(stages-run (list (sound-stage 'sound-tone 440 200 500)
+	(voice-stage 'voice-send (stage-mbox vc_ctl) (stage-mbox vc_from) :nil)) vc_done)
+(mail-read-timeout vc_done (task-timeout 20))
+(while (defq msg (mail-read-timeout vc_box 100000))
+	(push vc_got (list (getf msg +voice_piece_seq) (slice msg +voice_piece_data -1))))
+(sort vc_got (# (- (first %0) (first %1))))
+(defq vc_half (/ +sound_piece 2))
+(assert-list-eq "the file's pieces are sent, the microphone's after them"
+	'(:t :t :t :t :nil :nil) (map! (# (> (sound-peak (second %0)) 5000)) (list vc_got) 0 6))
+(assert-list-eq "the last of the file made up with silence"
+	'(:t 0) (list (> (sound-peak (slice (second (elem-get vc_got 3)) 0 vc_half)) 5000)
+		(sound-peak (slice (second (elem-get vc_got 3)) vc_half -1))))
+(pii-remove vc_file)
+
+(undef (env) 'vc_box 'vc_from 'vc_got 'vc_half 'vc_order 'vc_a 'vc_b 'vc_tap 'vc_ctl 'vc_done 'vc_own 'vc_other 'vc_file 'vc_here 'vc_there 'vc_stream 'vc_pieces)

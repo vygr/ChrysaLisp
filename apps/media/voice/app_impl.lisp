@@ -32,6 +32,8 @@
 	;the call as the service says it is, the calls of the mesh, the one
 	;picked to join, and the tap a recording of the call is sent by
 	*call* :nil *call_list* (list) *tap* :nil *beat* 0 *call_shown* :nil
+	;a note played into the call, till when
+	*into_call* :nil
 	;the line of each in the call, by inbox, (name doing who)
 	*call_rows* (Fmap 11))
 
@@ -208,8 +210,13 @@
 	(status (if *tap* "Recording the call 0:00" "Recording 0:00")))
 
 (defun play-start (select)
+	;in a call, the note to the others in place of the microphone
 	(cond
 		((not *selected*) (status "Select a note to play"))
+		((call-in?)
+			(call-play *selected*)
+			(setq *into_call* (+ (pii-time) (* (inc (sound-seconds *selected*)) 1000000)))
+			(status (cat "Playing " (note-text *selected*) " into the call")))
 		(:t (setq *ctl* (mail-mbox) *running_pipe* :play *started* (pii-time))
 			(stages-run (list
 					(sound-stage 'sound-from-file *selected* (stage-mbox *ctl*))
@@ -271,6 +278,9 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_timer)
+				(when (and *into_call* (> (pii-time) *into_call*))
+					(setq *into_call* :nil)
+					(status "Ready"))
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(if (eql *running_pipe* :record)
 					(status (cat (if *tap* "Recording the call " "Recording ") (clock-text (/ (- (pii-time) *started*) 1000000)))))
@@ -301,7 +311,12 @@
 				(if (< (defq i (- id +event_join)) (length *call_list*))
 					(call-join (first (elem-get *call_list* i)))))
 			((= id +event_record) (unless *running_pipe* (record-start select)))
-			((= id +event_stop) (pipe-stop))
+			((= id +event_stop)
+				(when *into_call*
+					(call-play "")
+					(setq *into_call* :nil)
+					(status "Ready"))
+				(pipe-stop))
 			((= id +event_play) (unless *running_pipe* (play-start select)))
 			((= id +event_delete) (unless *running_pipe* (note-delete)))
 			((<= +event_note id (+ +event_note +max_notes -1))

@@ -96,6 +96,12 @@
 	;lib/audio/voice.inc (voice-mix); :nil for none
 	(call-ask (cat "P" (if mbox (hex-encode mbox) ""))))
 
+(defun call-play (path)
+	; (call-play path)
+	;the sound file at path sent to the call in place of the microphone
+	;till it ends, "" to stop it, a note played to the others
+	(call-ask (cat "F" path)))
+
 (defun call-headphones (on)
 	; (call-headphones on)
 	;with headphones what is heard is not heard by the microphone, so all

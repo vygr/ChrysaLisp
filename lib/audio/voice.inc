@@ -65,7 +65,10 @@
 	;a sink: each piece mailed, numbered, to each that is to hear it. ctl
 	;is sent t and who that is, the mailboxes hex, a comma between; m1 or
 	;m0, muted or not; p and a tap's mailbox hex, or p alone for none; d1
-	;or d0, half duplex or not, on to begin with; h, another was heard.
+	;or d0, half duplex or not, on to begin with; h, another was heard; f
+	;and the path of a sound file, f alone for none: what it has is sent
+	;in place of what the microphone hears, a piece of it for each piece
+	;of the microphone, so at the pace it is heard, till it ends.
 	;
 	;Only speech is sent, the gate: quiet, nothing goes, no hiss and no
 	;traffic. And half duplex: one heard of late is not spoken over, unless
@@ -73,7 +76,8 @@
 	;speaker here and heard by the microphone, is not sent back to them.
 	;Headphones have no need of it, d0. talk, if not :nil, is told T and
 	;from, hex, while this one is sent, who is talking
-	(defq to (list) seq 0 sent_seq 0 muted :nil tap :nil duplex :t
+	(defq to (list) seq 0 sent_seq 0 muted :nil tap :nil duplex :t file :nil file_left 0
+		silence (sound-map (str-alloc +sound_piece) (lambda (_) 0))
 		speech_until 0 heard_until 0 sending :nil told 0 from_hex (hex-encode from))
 	(sound-pieces in (lambda (data)
 		(while (mail-poll (list ctl))
@@ -83,7 +87,21 @@
 				((eql kind "m") (setq muted (eql rest "1")))
 				((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))
 				((eql kind "d") (setq duplex (eql rest "1")))
-				((eql kind "h") (setq heard_until (+ (pii-time) +voice_hang)))))
+				((eql kind "h") (setq heard_until (+ (pii-time) +voice_hang)))
+				((eql kind "f")
+					;a file of this rate, mono 16 bit, as the microphone is
+					(setq file :nil file_left 0)
+					(when (and (nempty? rest) (defq loader (sound-loader-of rest)) (defq stream (file-stream rest)))
+						(bind '(rate channels bits bytes) ((second loader) stream))
+						(and (= rate +sound_rate) (= channels 1) (= bits 16)
+							(setq file stream file_left bytes))))))
+		;a file sent in place of the microphone, the last piece made up with
+		;silence, and then the microphone again
+		(when file
+			(defq got (read-blk file (min file_left (length data))))
+			(setq file_left (- file_left (length got)))
+			(if (or (empty? got) (<= file_left 0)) (setq file :nil))
+			(if (nempty? got) (setq data (cat got (slice silence (length got) (length data))))))
 		(defq now (pii-time))
 		(if (> (sound-peak data) +voice_gate) (setq speech_until (+ now +voice_hang)))
 		;speech, not muted, and not over another unless this one was first.
@@ -208,6 +226,12 @@
 	;half duplex, on to begin with: one heard of late is not spoken over.
 	;Off with headphones, where nothing heard is heard by the microphone
 	(mail-send (elem-get voice 3) (if on "d1" "d0")))
+
+(defun voice-play (voice path)
+	; (voice-play voice path)
+	;the sound file at path sent in place of the microphone till it ends,
+	;"" to stop it. 16000 a second, mono, 16 bit, as the microphone is
+	(mail-send (elem-get voice 3) (cat "f" path)))
 
 (defun voice-tap (voice mbox)
 	; (voice-tap voice mbox)
