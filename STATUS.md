@@ -29,6 +29,14 @@ The release check for 7.3, every stage passes on every machine.
 
 **Chat sends files: a picture shown in the chat, a `.md` shown as its words.**
 
+**TLS 1.2 in the client: ECDHE X25519 or P-256, ChaCha20-Poly1305 or AES-128-GCM, RSA or ECDSA, extended master secret, the downgrade sentinel refused. `lib/crypto/aes.inc`, `gcm.inc`, natives for counter mode and GHASH; ECDH in `ecdsa.inc`. The Model demo has Spot from CMU, and a fetch that fails says why.**
+
+**Echo cancelling rebuilt, `src/host/aec.h`: blocks in the frequency domain, two filters, a residual suppressor, set on recordings of two real rooms. Not heard live yet. A sound file can be played into a call, Voice's play in a call.**
+
+**`zip` and `unzip` commands; `zip-write` in `lib/files/zip.inc`.**
+
+**The Model demo fetches on a task of its own, the window drawn meanwhile.**
+
 **`input`, the mouse, keys, pens and fingers driven from a command.**
 
 **HTTPS: `lib/net/tls.inc`, a TLS 1.3 client, X25519 and ChaCha20-Poly1305; `https://` in `http.inc` and `curl`. Fetched from example.com and GitHub. The certificate is checked: X.509, ECDSA P-256 and P-384, RSA PKCS #1 and PSS, up to the host's roots; `curl -k` does not. `curl -I` no longer waits on a body.**
