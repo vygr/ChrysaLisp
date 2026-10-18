@@ -74,6 +74,8 @@
             (bits) ...): it is expanded as a call of it.
     empty   () given to a call, (list () x): it is run as
             a form, and calls nothing. (list) or '().
+    past    (inc) of an (rfind), which gives the place after
+            what it found already: one more is past it.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -155,7 +157,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty" "past")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -308,6 +310,17 @@
 			(. *root_macros* :find (third (first inner)))
 			(found file (first inner) "param" (third (first inner))
 				" first in a list of parameters is the name of a macro of the system, the list is taken as a call of it"))))
+
+(defun check-past (file forms head)
+	;(inc (rfind ...)): (rfind) gives the place after what it found, one
+	;more is past it, (slice path 0 (inc (rfind "/" path))) cuts a letter
+	;into the folder. And so (inc (ifn (rfind ...) n))
+	(when (and (eql head "inc") (= (length forms) 2) (defq inner (tree-form? (second forms))))
+		(defq in (forms-of inner))
+		(and (nempty? in) (eql (first (first in)) :symbol)
+			(or (eql (third (first in)) "rfind")
+				(and (eql (third (first in)) "ifn") (> (length in) 1) (tree-form? (second in) "rfind")))
+			(found file (second forms) "past" "(inc) of an (rfind), which gives the place after what it found already"))))
 
 (defun check-empty (file forms head)
 	;(f a () b): an empty list as a thing given to a call is run as a form,
@@ -983,6 +996,7 @@
 							(if (find "ignore" checks) (check-ignore file forms head))
 							(if (find "param" checks) (check-param file forms head))
 							(if (find "empty" checks) (check-empty file forms head))
+							(if (find "past" checks) (check-past file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
