@@ -50,8 +50,7 @@
 		;which is of any length, so it goes the long way
 		(defq u (pbkdf2-bytes (sha256-blocks (cat outer)
 				(cat (sha256-end (sha256-add (list (cat inner) "" 64)
-					(cat salt (char (>> block_num 24)) (char (logand (>> block_num 16) 0xff))
-						(char (logand (>> block_num 8) 0xff)) (char (logand block_num 0xff)))))
+					(cat salt (char-be block_num 4))))
 					+pbkdf2_tail) 0 1))
 			total (cat u))
 		;each time after is of the 32 bytes of the time before, and all of

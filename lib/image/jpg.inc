@@ -46,8 +46,9 @@
 ;K as one nums of 64, its rows one after the other, for the native IDCT
 (defq *jpg_kflat* (apply (const cat) *jpg_k*))
 
-(defun jpg-be (data at)
-	(+ (<< (code data 1 at) 8) (code data 1 (inc at))))
+(defmacro jpg-be (data at)
+	;two bytes high first, as a .jpg has its numbers
+	(static-qq (code-be ,data 2 ,at)))
 
 (defun jpg-segment (out kind data)
 	; (jpg-segment out kind data) -> :t | :nil

@@ -53,12 +53,11 @@
 	(defq bits (* total 8) tail (cat pending (ascii-char 0x80)))
 	(sha512-blocks state
 		(setq tail (cat tail (slice +sha512_zeros 0 (% (- 240 (length tail)) 128)) (char 0 8)
-			(apply (const cat) (map (# (char (logand (>> bits %0) 0xff)))
-				(static-q (56 48 40 32 24 16 8 0))))))
+			(char-be bits 8)))
 		0 (/ (length tail) 128))
 	;the state, each number the top byte first
 	(apply (const cat) (map (lambda (i) (defq word (get-long state (* i 8)))
-		(apply (const cat) (map (# (char (logand (>> word %0) 0xff))) (static-q (56 48 40 32 24 16 8 0)))))
+		(char-be word 8))
 		(range 0 8))))
 
 (defun sha512 (data)

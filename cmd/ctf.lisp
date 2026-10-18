@@ -200,18 +200,15 @@
 ; big-endian memory getters (otf)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun get-uint16-be (buf idx)
-	(+ (<< (get-ubyte buf idx) 8) (get-ubyte buf (inc idx))))
+(defmacro get-uint16-be (buf idx)
+	(static-qq (code-be ,buf 2 ,idx)))
 
 (defun get-int16-be (buf idx)
 	(if (>= (defq val (get-uint16-be buf idx)) 32768)
 		(- val 65536) val))
 
-(defun get-uint32-be (buf idx)
-	(+ (<< (get-ubyte buf idx) 24)
-	(<< (get-ubyte buf (+ idx 1)) 16)
-	(<< (get-ubyte buf (+ idx 2)) 8)
-	(get-ubyte buf (+ idx 3))))
+(defmacro get-uint32-be (buf idx)
+	(static-qq (code-be ,buf 4 ,idx)))
 
 (defun get-int32-be (buf idx)
 	(if (>= (defq val (get-uint32-be buf idx)) 0x80000000)

@@ -64,8 +64,7 @@
 	;the hash of the seed and a count, again and again, len bytes of it
 	(defq out "" count 0)
 	(while (< (length out) len)
-		(setq out (cat out (rsa-hash hash_name (cat seed (char (logand (>> count 24) 0xff))
-			(char (logand (>> count 16) 0xff)) (char (logand (>> count 8) 0xff)) (char (logand count 0xff))))) count (inc count)))
+		(setq out (cat out (rsa-hash hash_name (cat seed (char-be count 4)))) count (inc count)))
 	(slice out 0 len))
 
 (defun rsa-verify-pss (n e hash_name digest signature)

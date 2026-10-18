@@ -1384,6 +1384,22 @@
 	; (get-long str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_long)))
 
+(defun code-be (s width &optional idx)
+	; (code-be str width [idx]) -> num
+	;a number of width bytes from idx, the high byte first, as a file or a
+	;protocol of the net has them; (code) has the low first
+	(defq n 0 i (setd idx 0) e (+ idx width))
+	(while (< i e) (setq n (+ (<< n 8) (get-ubyte s i)) i (inc i)))
+	n)
+
+(defun char-be (n width)
+	; (char-be num width) -> str
+	;a number as width bytes, the high byte first; (char) has the low first
+	(defq out (list))
+	(while (>= (setq width (dec width)) 0)
+		(push out (char (logand (>> n (* width 8)) 0xff))))
+	(apply (const cat) out))
+
 (defmacro get-real (obj idx)
 	; (get-real str idx) -> real
 	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_real)))

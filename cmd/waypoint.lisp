@@ -61,9 +61,9 @@
 
 (defq *idxs* :nil)
 
-(defun git-be32 (s i)
+(defmacro git-be32 (s i)
 	; (git-be32 str index) -> num
-	(logior (<< (code s 1 i) 24) (<< (code s 1 (+ i 1)) 16) (<< (code s 1 (+ i 2)) 8) (code s 1 (+ i 3))))
+	(static-qq (code-be ,s 4 ,i)))
 
 (defun git-unzip (stream)
 	; (git-unzip stream) -> :nil | str

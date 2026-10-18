@@ -30,10 +30,10 @@
 
 (defq +png_signature (cat (char 0x89) "PNG" (char 13) (char 10) (char 26) (char 10)))
 
-(defun png-be (data at)
+(defmacro png-be (data at)
 	; (png-be data at) -> num
 	;four bytes high first, as a .png has its numbers
-	(+ (<< (code data 1 at) 24) (<< (code data 1 (+ at 1)) 16) (<< (code data 1 (+ at 2)) 8) (code data 1 (+ at 3))))
+	(static-qq (code-be ,data 4 ,at)))
 
 (defun png-chunk (stream)
 	; (png-chunk stream) -> :nil | (type data)
@@ -150,9 +150,9 @@
 				(setq canvas :nil))))
 	canvas)
 
-(defun png-be4 (v)
+(defmacro png-be4 (v)
 	;four bytes high first
-	(cat (char (logand (>> v 24) 0xff)) (char (logand (>> v 16) 0xff)) (char (logand (>> v 8) 0xff)) (char (logand v 0xff))))
+	(static-qq (char-be ,v 4)))
 
 (defun png-chunk-write (stream kind data)
 	; (png-chunk-write stream kind data)
