@@ -31,7 +31,9 @@
 	*running_pipe* :nil *ctl* :nil *started* 0 *saving* :nil
 	;the call as the service says it is, the calls of the mesh, the one
 	;picked to join, and the tap a recording of the call is sent by
-	*call* :nil *call_list* (list) *tap* :nil *beat* 0 *call_shown* :nil)
+	*call* :nil *call_list* (list) *tap* :nil *beat* 0 *call_shown* :nil
+	;the line of each in the call, by inbox, (name doing who)
+	*call_rows* (Fmap 11))
 
 (defun note-name ()
 	; (note-name) -> str
@@ -89,12 +91,14 @@
 	(if ink (def lbl :ink ink))
 	lbl)
 
-(defun call-row (left right)
-	;a line of the call, who and what they are doing
+(defun call-row (inbox who)
+	;a line of the call, who and what they are doing, kept by inbox so what
+	;they are doing is told without the line being made again
 	(def (defq row (Flow)) :flow_flags +flow_right_fill)
-	(def (defq name (call-label left)) :min_width 200)
+	(def (defq name (call-label who)) :min_width 200)
 	(. row :add_child name)
-	(. row :add_child (call-label right :font_button +argb_grey8))
+	(. row :add_child (defq doing (call-label "" :font_button +argb_grey8)))
+	(. *call_rows* :insert inbox (list name doing who))
 	row)
 
 (defun call-buttons (buttons)
@@ -118,38 +122,49 @@
 	(. *call_area* :change_dirty 0 0 (max w (- sw 16) 300) (max h 40) :t)
 	(.-> *call_scroll* :layout :dirty_all))
 
+(defun call-doing ()
+	;what each in the call is doing, talking, recording, this one muted:
+	;the words of their lines, the lines and the buttons left as they are,
+	;they change many times a second and a tip would never be shown
+	(defq talking (ifn (. *call* :find :talking) (list)) me (. *call* :find :inbox)
+		muted (. *call* :find :muted) recs (Fmap 11))
+	(each (lambda ((who inbox rec)) (. recs :insert inbox rec)) (ifn (. *call* :find :members) (list)))
+	(. *call_rows* :each (lambda (inbox (name doing who))
+		(defq talks (find inbox talking)
+			left (cat (if talks "* " "  ") who (if (eql inbox me) " (you)" ""))
+			right (cond
+				((eql (. recs :find inbox) 1) "recording")
+				(talks "talking")
+				((and (eql inbox me) muted) "muted")
+				("")))
+		(unless (eql left (get :text name)) (def (. name :dirty) :text left) (. name :layout))
+		(unless (eql right (get :text doing)) (def (. doing :dirty) :text right) (. doing :layout)))))
+
 (defun call-show ()
-	;the call part made again, if what it shows has changed: the state is
-	;sent again each time the call is watched again, as well as on a change.
-	;In a call: its name, who is in it and what each is doing, talking,
-	;recording, and this one muted, and its buttons. In none: the calls of
-	;the mesh, each to join, and one to start
+	;the call part made again if who is in it, or its buttons, have
+	;changed; the state is sent again each time the call is watched again,
+	;as well as on a change. What each is doing is only told, (call-doing).
+	;In a call: its name, who is in it and what each is doing, and its
+	;buttons. In none: the calls of the mesh, each to join, and one to start
 	(defq shown (if (call-in?)
-		(str (map (# (. *call* :find %0)) '(:id :name :muted :headphones :members :talking :inbox)))
+		(str (map (# (. *call* :find %0)) '(:id :name :muted :headphones :inbox))
+			(map (# (slice %0 0 2)) (ifn (. *call* :find :members) (list))))
 		(str *call_list*)))
 	(unless (eql shown *call_shown*)
 		(setq *call_shown* shown)
-		(call-show-now)))
+		(call-show-now))
+	(if (call-in?) (call-doing)))
 
 (defun call-show-now ()
 	(each (# (. %0 :sub)) (. *call_area* :children))
+	(. *call_rows* :empty)
 	(cond
 		((call-in?)
-			(defq talking (ifn (. *call* :find :talking) (list)) me (. *call* :find :inbox)
-				muted (. *call* :find :muted))
 			(. *call_area* :add_child (call-label (. *call* :find :name) :font_bold))
-			(each (lambda ((who inbox rec))
-					(defq talks (find inbox talking))
-					(. *call_area* :add_child (call-row
-						(cat (if talks "* " "  ") who (if (eql inbox me) " (you)" ""))
-						(cond
-							((= rec 1) "recording")
-							(talks "talking")
-							((and (eql inbox me) muted) "muted")
-							("")))))
+			(each (lambda ((who inbox rec)) (. *call_area* :add_child (call-row inbox who)))
 				(ifn (. *call* :find :members) (list)))
 			(. *call_area* :add_child (call-buttons (list
-				(list +sym_mute +event_mute muted "mute")
+				(list +sym_mute +event_mute (. *call* :find :muted) "mute")
 				(list +sym_headphones +event_headphones (. *call* :find :headphones) "headphones")
 				(list +sym_hangup +event_leave :nil "leave")))))
 		(:t (each (lambda ((id name))
