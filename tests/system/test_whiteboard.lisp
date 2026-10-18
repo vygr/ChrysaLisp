@@ -240,7 +240,7 @@
 	;allways moves it"
 	"(. *board* :select (list))"
 	;the other end of the pen takes a bite out of its side
-	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 62) (wa-ptr 0x20001 2 0 49 62)"
+	"(wa-ptr 0x20001 2 1 48 60) (wa-ptr 0x20001 2 1 49 70) (wa-ptr 0x20001 2 0 49 70)"
 	"(print (wa-ids))"
 	;zoomed about its top left, a point of the view is a point of the document over the zoom
 	"(zoom-set 2.0 0 0) (wa-ptr 0x20001 1 1 200 200) (wa-ptr 0x20001 1 1 400 400) (wa-ptr 0x20001 1 0 400 400)"

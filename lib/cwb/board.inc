@@ -509,14 +509,21 @@
 				;how far it reaches is the width this pointer draws with:
 				;thin, it rubs out a little, thick, a lot. Chris: "The
 				;eraser mode, should use the current pen size ?"
-				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board))))
+				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board)))
+					near (/ +board_near (get :zoom board)))
+				;near where it went down it may be a tap, that selects and
+				;rubs nothing out, (:end). Gone further, it rubs out all
+				;the way from there: item says it has
 				(cond
-					((eql (get :rub_mode board) :bite)
-						(defq todo (get :rub_todo board) going (. todo :find id))
-						(unless going (. todo :insert id (setq going (list (path ox oy) reach (. board :user_of event)))))
-						(push (first going) x y))
-					((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
-				(elem-set state +stroke_points (list x y))
+					((and (not item) (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)))
+					(:t (elem-set state +stroke_item :t)
+						(cond
+							((eql (get :rub_mode board) :bite)
+								(defq todo (get :rub_todo board) going (. todo :find id))
+								(unless going (. todo :insert id (setq going (list (path ox oy) reach (. board :user_of event)))))
+								(push (first going) x y))
+							((. board :rub_along ox oy x y reach) (elem-set state +stroke_moved :t)))
+						(elem-set state +stroke_points (list x y))))
 				(def board :rubber (list x y reach))
 				(. board :touch +board_dirty_overlay))
 			(:t ;something is drawn. A line from where it began, at a step of
@@ -573,11 +580,20 @@
 				;a pen rubs out with the button on its side held, and it has
 				;no other way to its menu: a tap of that on nothing, that
 				;rubbed nothing out, is the board's menu, as a tap of a hand
-				;is. Not the other end of a pen, which is an eraser and no more
-				(defq near (/ +board_near (get :zoom board)))
-				(and (not moved) (eql kind :pen) (defq menu (get :menu board))
-						(<= (abs (- x sx)) near) (<= (abs (- y sy)) near)
-					(menu board x y event))
+				;is. Not the other end of a pen, which is an eraser and no more.
+				;A tap that rubbed nothing out, on a thing, picks it up or puts
+				;it down, as a tap of what draws does: a short click selects in
+				;any mode. Not what another user holds, that is theirs
+				(defq near (/ +board_near (get :zoom board)) user (. board :user_of event))
+				(cond
+					((or moved item))
+					((defq hit (cwb-hit (get :doc board) x y near))
+						(and (. this :tap? state x y)
+							(not (board-theirs? board (defq hit_id (elem-get (first hit) +cwb_id)) user))
+							(. board :toggle_select hit_id user)))
+					((and (eql kind :pen) (defq menu (get :menu board))
+							(<= (abs (- x sx)) near) (<= (abs (- y sy)) near))
+						(menu board x y event)))
 				(. board :touch +board_dirty_overlay))
 			(:t ;what was drawn goes into the document, if it is anything
 				(. board :drop_temp id)

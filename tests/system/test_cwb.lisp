@@ -837,6 +837,17 @@
 (. bk_board :select (list 4))
 (assert-list-eq "what is drawn after it but not over it leaves it in flight" '(4) (get :floating bk_board))
 (. bk_board :select (list))
+;a short click selects in any mode, rubbing out too: a tap of the eraser on
+;a thing picks it up, and again puts it down, and rubs nothing out
+(def bk_board :mode :eraser)
+(defun bk-look () (str (map (# (list (elem-get %0 +cwb_id) (cwb-bounds (list %0)))) (cwb-items bk_doc))))
+(defq bk_look (bk-look))
+(bk-tap +pev_left :mouse 370 210)
+(assert-list-eq "a tap of the eraser on a thing selects it" '(5) (. bk_board :get_selected))
+(bk-tap +pev_left :mouse 370 210)
+(assert-list-eq "and again puts it down" '() (. bk_board :get_selected))
+(assert-eq "and rubs nothing out" bk_look (bk-look))
+(def bk_board :mode :select)
 
 ;what is written: a line by hand begun soon after the last was ended, by the same pen, is put in a group with it
 (defq wr_board (Board (cwb-doc 600 400)) wr_doc (. wr_board :get_doc) wr_now 1000000)
