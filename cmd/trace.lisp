@@ -39,12 +39,6 @@
 	;it trashes all, which its own instructions do not show
 	+all_clobber_funcs ''("sys/task/defer"))
 
-(defun format-group (prefix indices)
-	(map (lambda ((s e)) (if (= s (-- e))
-			(str prefix s)
-			(str prefix s "-" prefix e)))
-		(slices indices)))
-
 (defun format-trashes (func_map)
 	(defq r_indices (list) f_indices (list))
 	(each (# (if (nql %0 :rsp) (if (starts-with ":r" %0)

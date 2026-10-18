@@ -70,20 +70,6 @@
 			(get :buckets this) that_buckets)
 		that)
 
-	(defmethod :union (that)
-		; (. fset :union set) -> fset
-		(unless (eql this that)
-			(. that :each (# (. this :insert %0))))
-		this)
-
-	(defmethod :difference (that)
-		; (. fset :difference set) -> fset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. that :each (# (. this :erase %0)))
-				this)))
-
 	(defmethod :intersect (that)
 		; (. fset :intersect set) -> fset
 		(unless (eql this that)
@@ -93,15 +79,6 @@
 				(get :buckets this) new_buckets)
 			(set this :buckets new_buckets))
 		this)
-
-	(defmethod :not_intersect (that)
-		; (. fset :not_intersect set) -> fset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. (defq other (. that :copy)) :difference this)
-				(. this :difference that)
-				(. this :union other))))
 
 	(defmethod :empty ()
 		; (. fset :empty) -> fset

@@ -68,35 +68,12 @@
 		(def that :buckets (map (const copy) (get :buckets this)))
 		that)
 
-	(defmethod :union (that)
-		; (. xset :union set) -> xset
-		(unless (eql this that)
-			(. that :each (# (. this :insert %0))))
-		this)
-
-	(defmethod :difference (that)
-		; (. xset :difference set) -> xset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. that :each (# (. this :erase %0)))
-				this)))
-
 	(defmethod :intersect (that)
 		; (. xset :intersect set) -> xset
 		(unless (eql this that)
 			(each (# (elem-set _b (!) (filter (# (. that :find %0)) %0)))
 				(defq _b (get :buckets this))))
 		this)
-
-	(defmethod :not_intersect (that)
-		; (. xset :not_intersect set) -> xset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. (defq other (. that :copy)) :difference this)
-				(. this :difference that)
-				(. this :union other))))
 
 	(defmethod :empty ()
 		; (. xset :empty) -> xset

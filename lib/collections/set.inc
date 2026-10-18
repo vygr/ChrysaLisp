@@ -32,12 +32,31 @@
 		; (. set :inserted key) -> :nil | set
 	(defabstractmethod :intern (key))
 		; (. set :intern key) -> key
-	(defabstractmethod :union (that))
-		; (. set :union set) -> set
-	(defabstractmethod :difference (that))
-		; (. set :difference set) -> set
 	(defabstractmethod :intersect (that))
 		; (. set :intersect set) -> set
-	(defabstractmethod :not_intersect (that))
+
+	;the same for every set, made of what each set does its own way
+
+	(defmethod :union (that)
+		; (. set :union set) -> set
+		(unless (eql this that)
+			(. that :each (# (. this :insert %0))))
+		this)
+
+	(defmethod :difference (that)
+		; (. set :difference set) -> set
+		(cond
+			((eql this that)
+				(. this :empty))
+			(:t (. that :each (# (. this :erase %0)))
+				this)))
+
+	(defmethod :not_intersect (that)
 		; (. set :not_intersect set) -> set
+		(cond
+			((eql this that)
+				(. this :empty))
+			(:t (. (defq other (. that :copy)) :difference this)
+				(. this :difference that)
+				(. this :union other))))
 	)

@@ -60,20 +60,6 @@
 		(each (lambda (key) (pinsert that_bucket (copy key))) (get :bucket this))
 		that)
 
-	(defmethod :union (that)
-		; (. lset :union set) -> lset
-		(unless (eql this that)
-			(. that :each (# (. this :insert %0))))
-		this)
-
-	(defmethod :difference (that)
-		; (. lset :difference set) -> lset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. that :each (# (. this :erase %0)))
-				this)))
-
 	(defmethod :intersect (that)
 		; (. lset :intersect set) -> lset
 		(unless (eql this that)
@@ -81,15 +67,6 @@
 			(each (lambda (k) (if (. that :find k) (pinsert new_bucket k))) (get :bucket this))
 			(set this :bucket new_bucket))
 		this)
-
-	(defmethod :not_intersect (that)
-		; (. lset :not_intersect set) -> lset
-		(cond
-			((eql this that)
-				(. this :empty))
-			(:t (. (defq other (. that :copy)) :difference this)
-				(. this :difference that)
-				(. this :union other))))
 
 	(defmethod :empty ()
 		; (. lset :empty) -> lset

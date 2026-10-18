@@ -16,6 +16,8 @@
 	+func_db_file (cat *lib_root* "func_db.tre"))
 
 (defun format-group (prefix indices)
+	; (format-group prefix indices) -> (str ...)
+	;runs of indices as the prefix and their ends, "r" (1 2 3 5) -> ("r1-r3" "r5")
 	(map (lambda ((s e)) (if (= s (-- e))
 			(str prefix s)
 			(str prefix s "-" prefix e)))
@@ -358,5 +360,5 @@
 			(tree-load (file-stream +func_db_file)))))
 
 ;module
-(export-symbols '(files-classes-info files-function-info files-all-vp-source))
+(export-symbols '(files-classes-info files-function-info files-all-vp-source format-group))
 (env-pop)
