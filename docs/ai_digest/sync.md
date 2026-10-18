@@ -77,16 +77,25 @@ machine, `(sync-from)`:
 * `:rig`, anything: it is this machine, or one named in the file
   `sync_from` at the root of the tree, a system id a line. The machines the
   tests are run on name the one the work is on, it names none.
-* `:herd`: this tree is exactly at its waypoint and has no `.git`, and the
-  one pushing is at a newer waypoint, another commit noted later. A push of
-  the herd ends with `+sync_type_waypoint`, and a tree now the same as the
-  one at that waypoint notes it as its own.
+* `:herd`: this tree has no `.git` and is not at that waypoint already,
+  and either it is exactly at its own waypoint and the one pushing is at a
+  newer one, another commit noted later, or it is already exactly the tree
+  at the waypoint offered, and only the waypoint is to be noted: a test
+  rig given a tree by `rack` joins the herd so. A push from a tree at its
+  waypoint ends with `+sync_type_waypoint`, and a tree now the same as the
+  one at that waypoint notes it as its own, from the herd or a machine it
+  names. A push may ask to be taken only as the herd, a mode of 1 on its
+  `+sync_type_from`, and then a machine it names is not let do more.
 * `:no`: refused, status -6, and `(sync-push)` gives `:refused`. A no is
   not kept, a machine just linked may not yet be known to be what it is.
 
 A waypoint is the file `waypoint` at the root, the commit, when it was
 made and the top of the tree of hashes then, written by the `waypoint`
-command after a `git pull`. When it was made is the commit's own time, read
+command after a `git pull`, and only if the tree is exactly the commit, as
+`git status` first looks: git's index is the commit's tree, each file is
+the size, time and mode the index has, and git knows of every file it is not
+told to leave out. A file only touched is taken as changed till `git status`
+has looked at it. When it was made is the commit's own time, read
 from `.git` by the command itself, the object loose or in a pack, so the
 herd's order is the order of the commits; if it can not be read the time it
 was noted is kept in its place. A tree changed since is at none, `(sync-clean)`,
@@ -94,6 +103,23 @@ and takes no part, pushed to or from: a machine taken out to be worked on is
 left alone till what was done is pushed and it has pulled. The top is never
 of the machine's own files, `waypoint`, `sync_from` and `mesh_key`, and a
 tree with a `.git` is kept in step by git, never by the herd.
+
+## The herd by itself
+
+No machine is in charge of it. Each sync service has a child,
+`service/sync/spread.lisp`, that offers this tree's waypoint, if it is
+exactly at it, to every other machine that takes a sync, as the herd and
+never as one they name, with what is only there removed. It offers as the
+service starts, when a service is new to it, looked for each 10s and new by
+its mailbox, so a machine come back with its node started again is new,
+when it has taken a waypoint itself, and when `waypoint` notes one on this
+machine, `+sync_type_spread`. One at an older waypoint takes it and offers
+it on in turn; one at its own change, with a `.git`, or at the same or a
+newer waypoint refuses it, a message each. One task offers, one machine at
+a time, so two of its pushes never meet at a machine.
+
+What a sync does not do is change what is running: a service, a member,
+the boot image in memory, keep the code they were started with.
 
 ## It can not get out of the ChrysaLisp tree
 
@@ -219,10 +245,8 @@ alone.
   who is to have it. This is the aim, push is the first step.
 * Which of two trees is the newer. The top of a tree says if two are the
   same, not which came first. And a restart when a newer one has arrived.
-* The herd by itself: a machine at an older waypoint that sees a newer one
-  and asks for it. Today a herd push is asked for, `sync -t` or `rack`.
-* `waypoint` sure that the tree is the commit, by git's own index, not
-  taken on trust.
+* A machine that has taken a newer waypoint making itself new: the boot
+  image, the host programs, and its member started again on them.
 * A folder that is empty, and a folder that is left empty by a remove.
 * An older sync. One from before the tree of hashes is told apart, and
   nothing is sent to it. It has to be updated another way, once.

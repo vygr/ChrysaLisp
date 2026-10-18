@@ -195,8 +195,13 @@ sync". A machine takes a sync:
 
 *	by the herd, only when its tree is exactly a waypoint, noted by
 	`waypoint` after a pull, and has no `.git`, from a machine at a newer
-	one. A tree changed since is at no waypoint and takes no part, pushed
-	to or from;
+	one, or when it is already exactly the tree offered. A tree changed
+	since is at no waypoint and takes no part, pushed to or from. A
+	waypoint goes round by itself: each sync service offers its own to the
+	others, `service/sync/spread.lisp`, see `docs/ai_digest/sync.md`, "The
+	herd by itself". In our rig only the M4 has a `.git`; `waypoint` there,
+	once Chris has pushed and the tree is exactly the commit, and the x64
+	and the Pi take it;
 
 *	from nobody else: the push is refused, `sync -t` and `rack` say so.
 
