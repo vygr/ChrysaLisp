@@ -65,11 +65,20 @@
 	; (call-mute on)
 	(call-ask (if on "M1" "M0")))
 
-(defun call-watch (mbox)
-	; (call-watch mbox)
+(defun call-watch (mbox &optional shows)
+	; (call-watch mbox [shows])
 	;mbox is sent the state of the call each time it changes, (call-state-read),
-	;and now. Again within +call_lease to go on being
-	(call-ask (cat "W" (hex-encode mbox))))
+	;and now. Again within +call_lease to go on being. shows, if the app shows
+	;the call as its own, a Whiteboard in its session's call: then the call
+	;is not left when another that showed it is put away, (call-put-away)
+	(call-ask (cat (if shows "V" "W") (hex-encode mbox))))
+
+(defun call-put-away ()
+	; (call-put-away)
+	;the app that showed the call is closed: out of it, unless another app
+	;shows it as its own. A live microphone is never with nothing on the
+	;screen to say so
+	(call-ask "X"))
 
 (defun call-record (on)
 	; (call-record on)

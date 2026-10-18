@@ -315,8 +315,10 @@
 		(pipe-stop)
 		(mail-read-timeout (elem-get select +select_done) (task-timeout 3))
 		(if *tap* (pipe-done)))
-	;the call goes on, as a phone call does when its app is put away: the
-	;service has it, and another app, or this one opened again, shows it
+	;the call is left, unless another app shows it as its own, a Whiteboard
+	;in its session's call: a live microphone is never with nothing on the
+	;screen to say so
 	(call-unwatch (elem-get select +select_call))
+	(if (call-in?) (call-put-away))
 	(mail-forget entry)
 	(gui-sub-rpc *window*))

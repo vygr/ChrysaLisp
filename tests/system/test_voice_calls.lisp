@@ -59,5 +59,20 @@
 (assert-eq "the starter leaves, and the call is ended for all" :nil (. (vc-state vc_wb (# (not (. %0 :find :id)))) :find :id))
 (assert-eq "and is on the mesh no more" :nil (find (hex-encode vc_a) (map (const first) (call-list))))
 
+;an app that showed the call put away: the call is left, unless another
+;shows it as its own
+(vc-tell vc_a "SAnn,Physics")
+(vc-state vc_wa (# (. %0 :find :id)))
+(vc-tell vc_b (cat "JBob," (hex-encode vc_a)))
+(vc-state vc_wb (# (= (length (ifn (. %0 :find :members) (list))) 2)))
+(defq vc_shows (mail-mbox))
+(vc-tell vc_b (cat "V" (hex-encode vc_shows)))
+(vc-tell vc_b "X")
+(task-sleep 300000)
+(assert-eq "put away while another app shows it, it stays in the call" 2 (length (. (vc-state vc_wb (const identity)) :find :members)))
+(vc-tell vc_b (cat "U" (hex-encode vc_shows)))
+(vc-tell vc_b "X")
+(assert-eq "put away with nothing else showing it, it leaves" :nil (. (vc-state vc_wb (# (not (. %0 :find :id)))) :find :id))
+
 (vc-tell vc_a "Q") (vc-tell vc_b "Q")
 (undef (env) 'vc_a 'vc_b 'vc_wa 'vc_wb 'vc_s)

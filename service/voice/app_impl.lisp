@@ -11,8 +11,10 @@
 ;	e	id			it is ended
 ;From an app, a capital: S user,name, J user,id, L, M 1|0, W mailbox, U mailbox,
 ;R 1|0 recording or not, P mailbox the tap, (voice-tap), P alone none,
-;H 1|0 headphones or not, half duplex off with them, and Q, out of any call
-;and the service ends. From the voice stages, T inbox: that one is talking. Who is recording is told to all
+;H 1|0 headphones or not, half duplex off with them, V mailbox, a watch of
+;one that shows the call as its own, a Whiteboard in its session's call, X
+;out of the call unless one of those shows it, and Q, out of any call and
+;the service ends. From the voice stages, T inbox: that one is talking. Who is recording is told to all
 ;in the call, each sees it
 ;A member not heard from for +call_lease is gone, and a call whose keeper
 ;is not heard from for as long is ended: what is on another machine can
@@ -30,7 +32,10 @@
 	;who is talking, by inbox, and when last, and those said to be
 	talking (Fmap 11) talking_said (list)
 	;the apps watching, by mailbox, and when their lease is out
-	watchers (Fmap 11))
+	watchers (Fmap 11)
+	;those of them that show the call as their own: a mic that is live is
+	;never with nothing on the screen to say so
+	showing (Fmap 11))
 
 (defun tree-text (data)
 	(defq out (string-stream (cat "")))
@@ -138,10 +143,20 @@
 		((eql kind "P")
 			(setq tap (if (nempty? rest) rest))
 			(if voice (voice-tap voice (if tap (hex-decode tap)))))
-		((eql kind "W")
+		((find kind '("W" "V"))
 			(. watchers :insert rest (+ now +call_lease))
+			(if (eql kind "V") (. showing :insert rest (+ now +call_lease)) (. showing :erase rest))
 			(state-push rest))
-		((eql kind "U") (. watchers :erase rest))
+		((eql kind "U")
+			(. watchers :erase rest)
+			(. showing :erase rest))
+		((eql kind "X")
+			;the app the call was shown in is put away: out of it, unless
+			;another shows it
+			(defq gone (list))
+			(. showing :each (lambda (who due) (if (< due now) (push gone who))))
+			(each (# (. showing :erase %0)) gone)
+			(if (. showing :empty?) (call-end)))
 		((eql kind "Q") (call-end) (setq running :nil))
 		;from the others of a call
 		((eql kind "j")
@@ -193,7 +208,7 @@
 			(:t (join-beat))))
 	(defq gone (list))
 	(. watchers :each (lambda (who due) (if (< due now) (push gone who))))
-	(each (# (. watchers :erase %0)) gone))
+	(each (# (. watchers :erase %0) (. showing :erase %0)) gone))
 
 (defun main ()
 	(defq service (mail-declare (task-mbox) "@Voice" "Voice Service 0.1") running :t)

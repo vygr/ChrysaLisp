@@ -1359,7 +1359,7 @@
 				;this desktop watched again
 				(when (> (setq *kept* (inc *kept*)) 60)
 					(setq *kept* 0)
-					(call-watch (elem-get select +select_call))
+					(call-watch (elem-get select +select_call) (share-in-call?))
 					(frame-watch)
 					(. *stripes* :keep)))
 			((= idx +select_share)
