@@ -28,7 +28,7 @@
 
 ;what a board keeps of each it sends to, by a key the app gives it
 (enums +peer 0
-	(enum last changed busy temps))
+	(enum last changed busy temps held))
 
 (defun share-ids (doc)
 	; (share-ids doc) -> ids
@@ -94,7 +94,7 @@
 (defun share-add (board key)
 	; (share-add board key) -> board
 	;a board to send to, that has nothing yet: the first it is sent is all
-	(. (get :share_peers board) :insert key (list (list) (list :all) :nil :nil))
+	(. (get :share_peers board) :insert key (list (list) (list :all) :nil :nil ""))
 	board)
 
 (defun share-drop (board key)
@@ -141,7 +141,7 @@
 	(share-note board)
 	(share-self-holds board)
 	(when (and (defq peer (. (get :share_peers board) :find key)) (not (elem-get peer +peer_busy)))
-		(bind '(last changed & sent_temps) peer)
+		(bind '(last changed & sent_temps sent_held) peer)
 		(defq doc (get :doc board) now (share-ids doc) gone (filter (# (not (find %0 now))) last)
 			all (find :all changed)
 			;what a hand holds moves with no change said, it goes each time
@@ -149,7 +149,10 @@
 			put (if all now (cat (share-tops doc changed) (filter (# (not (find %0 last))) now) held))
 			temps (share-temps board key) taken (share-held-for board key))
 		(setq put (reduce (# (if (find %1 %0) %0 (push %0 %1))) put (list)))
-		(when (or (nempty? put) (nempty? gone) (not (eql (str now) (str last))) (nempty? temps) sent_temps (nempty? taken))
+		;what is held is sent when it is not what was, a thing let go of too:
+		;with nothing else changed the one that waited on it would wait on
+		(when (or (nempty? put) (nempty? gone) (not (eql (str now) (str last))) (nempty? temps) sent_temps
+				(nql (str taken) sent_held))
 			(defq want (cwb-id-set put) out (string-stream (cat "")))
 			(tree-save out (scatter (Emap)
 				:ids now :gone gone :all (if all 1 0)
@@ -159,6 +162,7 @@
 			(elem-set peer +peer_changed (list))
 			(elem-set peer +peer_busy :t)
 			(elem-set peer +peer_temps (nempty? temps))
+			(elem-set peer +peer_held (str taken))
 			(str out))))
 
 (defun share-acked (board key)

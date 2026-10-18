@@ -248,11 +248,12 @@
 		(each (lambda (item)
 			(defq pieces :nil)
 			(cond
+				;held, a group too, and all that is in it
+				((and but (find (elem-get item +cwb_id) but)))
 				((cwb-group? item)
 					;what is in it, in its own space, later
 					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
 				((and lines (cwb-rub? item)))
-				((and but (find (elem-get item +cwb_id) but)))
 				((and user (/= user +board_teacher) (/= user (elem-get item +cwb_user))))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
@@ -1964,7 +1965,7 @@
 		;rubbed out
 		(defq doc (get :doc this) r (n2f (ifn r (/ (get :rub_reach this) (get :zoom this))))
 			x (n2f x) y (n2f y) reach (list (- x r) (- y r) (+ x r) (+ y r)) done :nil
-			mode (get :rub_mode this))
+			mode (get :rub_mode this) taken (. this :taken))
 		;a bite is another thing altogether
 		(and (eql mode :bite) (not lines) (setq done (. this :bite (path x y) r)))
 		(when (find mode '(:part :lines))
@@ -1973,6 +1974,8 @@
 					(defq out (list) changed :nil)
 					(each (lambda (item)
 						(cond
+							;what a board this shares with holds is theirs
+							((find (elem-get item +cwb_id) taken) (push out item))
 							((and (cwb-rub? item)
 									(defq box (cwb-bounds (list item)))
 									(vector-collide-boxes-2d reach (list (- (first box) 1.0) (- (second box) 1.0)
@@ -2007,7 +2010,8 @@
 		;what is not a line has a bite out
 		(and (eql mode :part) (not lines) (. this :bite (path x y) r) (setq done :t))
 		(when (and (not done) (not lines) (find mode '(:lines :whole))
-				(defq hit (cwb-hit doc x y (/ +board_near (get :zoom this)))))
+				(defq hit (cwb-hit doc x y (/ +board_near (get :zoom this))))
+				(not (find (elem-get (first hit) +cwb_id) taken)))
 			(. this :remove (list (elem-get (first hit) +cwb_id)))
 			(setq done :t))
 		(if done (. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
@@ -2058,8 +2062,10 @@
 		;are two devices and may be one person, so anybody's does
 		;A user's eraser leaves what another made, the teacher's takes from
 		;all, see (board-bite)
+		;what a board this shares with holds is theirs, it is not bitten, as
+		;it is not taken into a selection, "own only"
 		(when (and (nempty? swept) (defq did (board-bite (get :doc this) swept (not (eql (get :rub_mode this) :bite))
-				:nil (/ 0.25 (get :zoom this)) user)))
+				(. this :taken) (/ 0.25 (get :zoom this)) user)))
 			(bind '(made gone swaps) did)
 			;what is left of a thing picked up is held by who held it
 			(defq carried (list))

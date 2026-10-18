@@ -133,3 +133,28 @@
 (. sh_t :add (cwb-shape (cwb-d-rect 10 10 20 20) :fill 0xff0000ff :stroke 0))
 (sh-round)
 (assert-eq "the teacher's paper is not the student's" 400 (. (. sh_a :get_doc) :find :width))
+
+;what another board holds is theirs to the eraser too: it is not bitten
+;nor cut here, and so it does not snap back when the host says it is as it
+;was. Put down, the eraser has it
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t) sh_a (share-start (Board (cwb-doc 400 300))))
+(share-add sh_t :a) (share-add sh_a :t) (share-id-base sh_a 1000000)
+(. sh_t :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xffff0000 :stroke 0))
+(. sh_t :add (cwb-shape (cwb-d-points (list 10 50 390 50) :nil) :stroke 0xff000000 :width 4))
+(sh-go sh_t :a sh_a :t)
+(. sh_t :select (list 1 2))
+(sh-go sh_t :a sh_a :t)
+(defun sh-has (board id) (if (find id (map (# (elem-get %0 +cwb_id)) (cwb-items (. board :get_doc)))) :t :nil))
+(defun sh-look (board) (str (cwb-items (. board :get_doc))))
+(defq sh_was (sh-look sh_a))
+(def sh_a :rub_mode :part)
+(. sh_a :bite (path 140.0 150.0 160.0 150.0) 10)
+(. sh_a :rub 200 50 6)
+(assert-eq "what another holds is not bitten nor cut" sh_was (sh-look sh_a))
+(. sh_t :select (list))
+(sh-go sh_t :a sh_a :t)
+(assert-list-eq "put down, the other board is told, with nothing else changed" (list) (. sh_a :taken))
+(. sh_a :bite (path 140.0 150.0 160.0 150.0) 10)
+(. sh_a :rub 200 50 6)
+(assert-true "and the eraser has it" (nql sh_was (sh-look sh_a)))
+(assert-eq "the line cut" :nil (sh-has sh_a 2))
