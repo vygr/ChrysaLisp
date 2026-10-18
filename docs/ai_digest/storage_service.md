@@ -497,8 +497,12 @@ round with. The tick costs about 36ns each time round on an M4.
 
 If one sent on has the gopher and its word back is lost, the next member is
 sent it too, and there are two. Both walk to the end and both answer. Who
-asked reads the first, the second is to a mailbox nobody reads. For a gopher
-that reads, that is all. One that writes is not provided for.
+asked reads the first, the second is to a mailbox nobody reads, and that is
+all: a gopher reads. It is sent out to gather and bring back, and the one
+that sent it decides what is to be done with what it brought, and writes
+it, with a stream or `(storage-put)`. A gopher does not write: what it
+would write it could not take with it, a stream is of one task on one
+member, and the gopher goes on from member to member.
 
 ## Streams
 
@@ -526,6 +530,29 @@ has it, as with a file; to set it provided it is what it was is
 
 It is made of `(lisp-stream fill [seek write])`, `class/lstream/`, a stream
 whose reading, seeking and writing are Lisp functions.
+
+A stream that is written is as a file is: what is written goes as blocks
+fill, and one let go of half way, a task that ended, leaves half an object
+at its path. What is to come through anything does as programs do with
+files: it writes a path of its own, sees that all went as it should, and
+renames it to where it is to be.
+
+```
+(storage-rename from to [was svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
+```
+
+`to` is given the object `from` is, with its copies, and `from` is then
+no more, in one step of the service. Nothing is copied, whatever its
+size: a path is only the name of the object it is. `was` is what `to` is
+to be now for it to be done, as `from` is to `(storage-put)`, `""` for
+none, so two writers of one path can not overwrite each other unknowing.
+
+```
+(defq part (cat path ".part") out (storage-stream part +file_open_write))
+...
+(setq out :nil)
+(if (all-went-as-it-should) (storage-rename part path) (storage-delete part))
+```
 
 ```
 (storage-put-stream path stream [from svc])   a stream to its end, a few blocks at a time

@@ -797,6 +797,20 @@
 		((not (store-stat store name)) (list :none :nil))
 		((store-set store name "" 0 from :t))))
 
+(defun store-rename (store from to &optional was)
+	; (store-rename store from to [was]) -> (:ok entry) | (:stale entry) | (:none :nil)
+	;the path to is set to the object from is, with its copies, and from is
+	;then no more, provided to is now the object was, as (store-commit). The
+	;two in one call: a service, one task, answers nothing between them
+	(defq entry (store-stat store from))
+	(cond
+		((not entry) (list :none :nil))
+		((and was (nql was (store-now store to))) (list :stale (store-stat store to)))
+		(:t (defq got (store-set store to (elem-get entry +store_entry_hash) (elem-get entry +store_entry_bytes)
+				was :nil (elem-get entry +store_entry_copies)))
+			(store-set store from "" 0 :nil :t)
+			got)))
+
 (defun store-copies (store name &optional copies)
 	; (store-copies store path [copies]) -> :nil | num | (:ok entry) | (:none :nil)
 	;how many members are to keep the blocks of the object a path is: the
@@ -1196,7 +1210,7 @@
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
-	store-commit store-put store-delete store-copies store-get store-read store-fold store-walk store-list
+	store-commit store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 	store-entry-line store-entry-read store-journal-write

@@ -177,6 +177,12 @@
 								result (wrote "delete" (store-delete store (slice body (inc at) -1) (from-of (slice body 0 at))) (slice body (inc at) -1)))
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
 							result)
+						(+storage_type_rename
+							(bind '(was from to) (split body +storage_lf))
+							(defq got (store-rename store from to (from-of was)) result (wrote "set" got to))
+							(if (eql (first got) :ok) (storage-record recorder member "delete" from))
+							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))
+							result)
 						(+storage_type_copies
 							(defq at (find +storage_lf body)
 								result (wrote "copies" (store-copies store (slice body (inc at) -1) (str-as-num (slice body 0 at))) (slice body (inc at) -1)))

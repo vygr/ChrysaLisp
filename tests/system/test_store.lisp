@@ -199,6 +199,22 @@
 (assert-list-eq "of no such object: none to ask of, none to set" '(:nil :none)
 	(list (store-copies so "a/no such") (so-is (store-copies so "a/no such" 4))))
 
+;;;;;;;;;
+; renamed
+;;;;;;;;;
+
+(store-put so "r/part" "written whole")
+(store-copies so "r/part" 4)
+(assert-eq "a path renamed to another" :ok (so-is (store-rename so "r/part" "r/doc")))
+(assert-list-eq "the other is its object, with its copies, and it is no more" '("written whole" 4 :nil)
+	(list (store-get so "r/doc") (store-copies so "r/doc") (store-get so "r/part")))
+(assert-eq "one that is not, none" :none (so-is (store-rename so "r/part" "r/doc")))
+(store-put so "r/part" "again")
+(assert-eq "provided the other is what it is not, stale" :stale (so-is (store-rename so "r/part" "r/doc" (sha256 "other"))))
+(assert-eq "and nothing changed" "written whole" (store-get so "r/doc"))
+(store-delete so "r/part")
+(store-delete so "r/doc")
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; deleted, and swept
 ;;;;;;;;;;;;;;;;;;;;;;

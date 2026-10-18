@@ -140,6 +140,26 @@
 	(assert-eq "500 lines written with (write-line) are read with (lines!)" "(500 \qline 0\q \qline 499\q)"
 		(str (list (length sg_lines) (first sg_lines) (last sg_lines))))
 	(assert-true "no mode is to read, as it was" (storage-stream "w/lines" :nil sg_svc))
+	;a program that is to come through anything writes a path of its own,
+	;sees all went as it should, and renames it to where it is to be
+	(storage-put "w/doc" "the old" :nil sg_svc)
+	(defq sg_out (storage-stream "w/doc.part" +file_open_write sg_svc))
+	(write-blk sg_out "the new, whole")
+	(setq sg_out :nil)
+	(assert-eq "written to a path of its own, the path it is for is as it was" "the old" (storage-get "w/doc" sg_svc))
+	(assert-eq "renamed, it is the new" :ok (first (storage-rename "w/doc.part" "w/doc" :nil sg_svc)))
+	(assert-list-eq "the new whole at the path, the path of its own gone" '("the new, whole" :nil)
+		(list (storage-get "w/doc" sg_svc) (storage-stat "w/doc.part" sg_svc)))
+	(assert-eq "a path that is not, renamed, is none" :none (first (storage-rename "w/no such" "w/doc" :nil sg_svc)))
+	(storage-put "w/doc.part" "another" :nil sg_svc)
+	(assert-eq "provided the path it is to is what it is not, stale, and nothing changed" :stale
+		(first (storage-rename "w/doc.part" "w/doc" (sha256 "not it") sg_svc)))
+	(assert-list-eq "both as they were" '("the new, whole" "another")
+		(list (storage-get "w/doc" sg_svc) (storage-get "w/doc.part" sg_svc)))
+	(assert-eq "provided it is what it is, renamed" :ok
+		(first (storage-rename "w/doc.part" "w/doc" (elem-get (storage-stat "w/doc" sg_svc) +store_entry_hash) sg_svc)))
+	(assert-eq "to one there is none of, provided none" :ok (first (storage-rename "w/doc" "w/fresh" "" sg_svc)))
+	(assert-eq "it is there" "another" (storage-get "w/fresh" sg_svc))
 
 	;a function has a second for a block. It is made to look at the clock
 	;wherever it can go round, so one that never comes back is done with

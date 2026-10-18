@@ -27,7 +27,9 @@
 		;snapshots, lib/storage/store.inc
 		snapshot restore snapshot_drop
 		;a store moved to a volume of another size
-		resize))
+		resize
+		;a path given the object of another, which is then no more
+		rename))
 
 (structure +storage_rpc 0
 	(netid reply_id)
@@ -368,6 +370,18 @@
 	;there is no object of that name from now, provided it is from
 	(storage-result (storage-ask (ifn svc (storage-service)) +storage_type_delete
 		(cat (storage-from from) +storage_lf name))))
+
+(defun storage-rename (from to &optional was svc)
+	; (storage-rename from to [was svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
+	;the path to is given the object the path from is, and from is then no
+	;more, in one step: nothing is copied, a path is only the name of the
+	;object it is. Provided to is now the object was, "" for none, :nil not
+	;to say, :stale with what it is if it is not. :none if from is not.
+	;What a program does that is to come through anything: write a path of
+	;its own, see that all went as it should, and rename it to where it is
+	;to be, and who reads that has the old object or the new, whole
+	(storage-result (storage-ask (ifn svc (storage-service)) +storage_type_rename
+		(cat (storage-from was) +storage_lf from +storage_lf to))))
 
 (defun storage-copies (name &optional copies svc)
 	; (storage-copies path [copies svc]) -> :nil | num | (:ok entry) | (:none :nil) | (:lost :nil)
