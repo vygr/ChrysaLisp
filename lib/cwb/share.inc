@@ -58,7 +58,7 @@
 	;from now what changes in the document is noted for those it is shared
 	;with. The host's, the teacher's, says who has hold of what
 	(def board :share_log (list) :share_peers (Fmap 11) :remote_temp (Fmap 11)
-		:share_holds (Fmap 11) :share_host host)
+		:share_holds (Fmap 11) :share_hold_who (Fmap 11) :share_host host)
 	board)
 
 ;Who has hold of what. Chris: "first come first served for who is
@@ -82,10 +82,12 @@
 	board)
 
 (defun share-held-for (board key)
-	; (share-held-for board key) -> ids
-	;what is held by any but that one: what it is to be told is taken
-	(defq out (list))
-	(. (get :share_holds board) :each (lambda (id who) (unless (eql who key) (push out id))))
+	; (share-held-for board key) -> ((id who) ...)
+	;what is held by any but that one: what it is to be told is taken, and
+	;the number of the board that has it, as a pointer has, for its color
+	(defq out (list) me (/ (ifn (get :user_base board) 0) 100) whos (get :share_hold_who board))
+	(. (get :share_holds board) :each (lambda (id who)
+		(unless (eql who key) (push out (list id (if (eql who :self) me (ifn (. whos :find id) 0)))))))
 	out)
 
 (defun share-stop (board)
@@ -202,7 +204,8 @@
 		(defq doc (get :doc board) items (cwb-items doc)
 			ids (ifn (. data :find :ids) (list)) gone (cwb-id-set (ifn (. data :find :gone) (list)))
 			put (map (const cwb-item-in) (ifn (. data :find :put) (list)))
-			held (ifn (. data :find :held) (list)) holds (get :share_holds board))
+			held_who (ifn (. data :find :held) (list)) held (map (const first) held_who)
+			holds (get :share_holds board) whos (get :share_hold_who board))
 		;who has hold of what, first come first served
 		(share-self-holds board)
 		(cond
@@ -222,6 +225,11 @@
 				(defq taken (cwb-id-set held))
 				(if (some (# (cwb-id? taken %0)) (get :selected board))
 					(. board :select (filter (# (not (cwb-id? taken %0))) (get :selected board))))))
+		;the number of the board that has each, for its color
+		(each (lambda ((id who)) (. whos :insert id who)) held_who)
+		(defq stale (list))
+		(. whos :each (lambda (id who) (unless (. holds :find id) (push stale id))))
+		(each (# (. whos :erase %0)) stale)
 		;a thing another has hold of is not moved by what this one sends
 		(setq put (filter (# (or (not (defq who (. holds :find (elem-get %0 +cwb_id)))) (eql who from))) put))
 		;what is gone

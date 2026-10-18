@@ -2630,15 +2630,19 @@
 				:stroke 0xff0080ff :width thin :fill 0x200080ff :join :miter)) m)))
 		(unless no_selected (. this :draw_selected canvas m))
 		;what a board this shares with has hold of, a line round each in
-		;another color, with dashes, and no handles: it is someone else's
-		;just now
+		;the color of the board that has it, as its pointer is, with
+		;dashes, and no handles: it is someone else's just now
 		(when (nempty? (defq taken (. this :taken)))
-			(defq want (cwb-id-set taken) boxes (list))
+			(defq want (cwb-id-set taken) whos (get :share_hold_who this) marks (list))
 			(each (lambda ((name flags items))
-					(each (# (if (defq corners (board-item-corners %0)) (push boxes (apply (const path) corners))))
+					(each (lambda (item)
+							(when (defq corners (board-item-corners item))
+								(defq who (ifn (and whos (. whos :find (elem-get item +cwb_id))) 0))
+								(each (# (push marks %0)) (board-ghost-line (list (apply (const path) corners)) zoom
+									(+ 0xff000000 (elem-get +board_guest_colors (% who (length +board_guest_colors))))))))
 						(cwb-pick items want)))
 				(cwb-layers (get :doc this)))
-			(if (nempty? boxes) (cwb-draw-items canvas (board-ghost-line boxes zoom 0xffff8000) m)))
+			(if (nempty? marks) (cwb-draw-items canvas marks m)))
 		this)
 
 	(defmethod :draw_selected (canvas &optional m)
