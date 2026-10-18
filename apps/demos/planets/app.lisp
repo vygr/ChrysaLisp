@@ -134,6 +134,8 @@
 			(shader-pack vertex vvals) (shader-pack pixel (list (list 'sun sun))) (list tid)))))
 		(cond
 			((eql drawn :error)
+				;a pair the driver could not build is still let go of
+				(canvas-shader-destroy gpu_pair)
 				(setq gpu_pair :nil gpu_want :nil)
 				(. *mode* :set_selected 0)
 				:nil)
