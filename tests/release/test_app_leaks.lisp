@@ -40,6 +40,16 @@
 	(if (defq text (al-ask '(progn (defq s (kernel-stats :t)) (- (elem-get s 1) (elem-get s 2)))))
 		(str-as-num text) 0))
 
+(defun al-settled ()
+	; (al-settled) -> num
+	;what the node holds once it has stopped letting go of things: what an
+	;app shared with tasks on other nodes, the maps of Planets, is let go
+	;of as they end, later when the machine is busy
+	(defq was (al-used) now (progn (task-sleep 300000) (al-used)) n 0)
+	(while (and (< (- now was) -4096) (< (++ n) 20))
+		(setq was now now (progn (task-sleep 300000) (al-used))))
+	now)
+
 (defun al-tasks ()
 	; (al-tasks) -> num
 	;how many tasks the desktop's node has, the one that asks among them
@@ -95,11 +105,11 @@
 		(defq al_grew (list))
 		(each (lambda (app)
 				(al-run app desk)
-				(defq u1 (al-used))
+				(defq u1 (al-settled))
 				(al-run app desk)
-				(defq u2 (al-used))
+				(defq u2 (al-settled))
 				(al-run app desk)
-				(defq u3 (al-used) grew (list (- u2 u1) (- u3 u2)))
+				(defq u3 (al-settled) grew (list (- u2 u1) (- u3 u2)))
 				(if (every (# (> %0 16384)) grew) (push al_grew (cat app " " (str grew)))))
 			al_apps)
 		(assert-list-eq "no app leaves its node holding more each time it is opened and closed" '() al_grew)))
