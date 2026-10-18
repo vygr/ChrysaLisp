@@ -55,6 +55,15 @@ such file, `down` or a fault, is not started again. What it did is in
 `/tmp/chrysalisp_rack.log`. A tree with a `.git` is someone's own, kept by
 git, and its member never does this.
 
+As it starts, a member does the same for a boot image that is not of the
+tree it is on: the tree exactly at its waypoint, its image made from other
+source, by hand or by an install that did not finish. The build writes the
+files an image is made from beside its id, `boot_files`, and
+`(boot-id-tree)`, `lib/boot/id.inc`, works out the id they give now. It
+asks once for a tree, so one that `make install` does not mend is said, in
+the log, and not built for ever. The id is of the VP source and of the
+Lisp the build itself runs, `lib/asm/` and the like.
+
 ## What it lets in
 
 A member takes a sync, from its own machine, from the machines named in its
