@@ -177,6 +177,16 @@
 		"(3) empty: () given to (list) is run, and calls nothing: (list) or '()")
 	(tt-check "ignore,param,empty" "(each (lambda (k (a &ignore b)) b) x)" "(defun f (bits) bits)" "(list () x)"
 		"(lambda (x (y z when)) z)" "(ui-window w ())" "(lambda () 1)" "(list (list) '())"))
+;a call of what nothing names: not of a function of the file, made later
+;in it, nor a parameter that is a function, nor a name a macro makes, nor
+;a clause of a cond or a binding of a let, which are no calls
+(assert-list-eq "unbound: a call of nothing, in a cond and a let too; not what the file, a parameter or a macro names"
+	'("(1) unbound: no-such is called, and is no function or macro of the system, of this file, or of what it imports"
+		"(3) unbound: nor-this is called, and is no function or macro of the system, of this file, or of what it imports"
+		"(4) unbound: nor-that is called, and is no function or macro of the system, of this file, or of what it imports")
+	(tt-check "unbound" "(defun f (x fn) (no-such x) (later x) (fn x))" "(defun later (x) x)"
+		"(defun g (x) (cond (x (nor-this x)) ((> x 1) 2)))" "(defun h (x) (let ((a 1)) (nor-that a)))"
+		"(defmacro gen (n) `(defun ,(sym (cat \qmade-\q n)) () 1))" "(defun k () (made-one))"))
 (assert-list-eq "past: an inc of an rfind, as it is and in an ifn; not an inc of a find"
 	'("(1) past: (inc) of an (rfind), which gives the place after what it found already"
 		"(2) past: (inc) of an (rfind), which gives the place after what it found already")

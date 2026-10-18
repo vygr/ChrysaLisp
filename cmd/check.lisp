@@ -76,6 +76,12 @@
             a form, and calls nothing. (list) or '().
     past    (inc) of an (rfind), which gives the place after
             what it found already: one more is past it.
+    unbound a call of what is no function or macro of the
+            system, nor named by the file or anything it
+            imports, at any depth: a program, or a module.
+            What runs it may give it more, the tests their
+            suite, the diagrams make's; the assembler, which
+            runs in an env of many files, is not looked at.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -157,7 +163,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty" "past")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty" "past" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -887,6 +893,124 @@
 	(unless *root_provides* (setq *root_provides* (provides-from (list "class/lisp/root.inc"))))
 	*root_provides*)
 
+;what each file names, a function, a macro, a class, an ffi, or a name it
+;binds, anywhere in it, and what it imports, read the once by this task:
+;what a call there may be of, (check-unbound)
+(defq *names_of* (Fmap 31) +unbound_data ''("enums" "structure" "bits" "static-q" "static-qq"
+		"static-qqp" "macrobind" "lists" "raise" "import" "import-cmd" "import-from" "ffi"
+		"export-symbols" "export-classes" "quote" "quasi-quote")
+	+unbound_defs ''("defun" "defmacro" "redefun" "redefmacro")
+	;a file run by another that gives it names it does not import: the
+	;tests by the tests command, the diagrams by make docs, the parts of
+	;the assembler in the env it makes. And what is not to be looked at
+	+unbound_context ''(("tests/" "tests/suite.inc" "tests/bench.inc")
+		("docs/diagrams/" "lib/cwb/diagram.inc" "cmd/make.lisp")
+		("service/gui/" "sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc" "service/gui/app_impl.lisp")
+		("cmd/make.lisp" "lib/asm/class.inc")
+		("apps/desktop/docs/handlers/" "apps/desktop/docs/app.lisp"))
+	;the assembler and its translators run in the env it makes of many
+	;files, not by import
+	+unbound_skip ''("tests/scratch/" "lib/asm/" "lib/trans/")
+	+unbound_methods ''("defmethod" "defabstractmethod" "deffimethod" "defgetmethod" "defsetmethod" "defproxymethod"))
+
+(defun head-of (inner)
+	(and (nempty? inner) (eql (first (first inner)) :symbol) (third (first inner))))
+
+(defun names-of (path)
+	; (names-of path) -> (names imports)
+	(unless (defq got (. *names_of* :find path))
+		(defq names (list) more (list) top (if (defq in (file-stream path)) (first (tree-read in))) todo (if top (list top) (list)))
+		(while (defq nodes (pop todo))
+			(each (lambda (node)
+				(when (defq kids (tree-form? node))
+					(push todo kids)
+					(defq inner (forms-of kids) head (head-of inner) n (length inner))
+					(cond
+						((not head))
+						;a name made by a macro, (sym (cat "edit-" n)): what it begins
+						;with, any name that does may be one
+						((and (eql head "sym") (> n 1) (defq made (tree-form? (second inner)))
+								(defq made (forms-of made)) (> (length made) 1)
+								(find (head-of made) '("cat" "str")) (eql (first (second made)) :string1))
+							(defq prefix (catch (first (read (string-stream (third (second made))))) :nil))
+							(and (str? prefix) (nempty? prefix) (push names (cat "prefix " prefix))))
+						((and (find head +unbound_defs) (> n 2))
+							(if (eql (first (second inner)) :symbol) (push names (third (second inner))))
+							(each (# (push names %0)) (params-of (third inner))))
+						((and (eql head "defclass") (> n 2))
+							(when (eql (first (second inner)) :symbol)
+								(push names (third (second inner)))
+								(push names (cat (third (second inner)) "?")))
+							(each (# (push names %0)) (params-of (third inner))))
+						((and (find head +unbound_methods) (> n 2)) (each (# (push names %0)) (params-of (third inner))))
+						((and (eql head "lambda") (> n 1)) (each (# (push names %0)) (params-of (second inner))))
+						((and (eql head "ffi") (> n 2) (eql (first (third inner)) :symbol)) (push names (third (third inner))))
+						((find head '("defq" "setq" "setd"))
+							(each! (# (and (odd? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list inner) 1))
+						((and (eql head "bind") (> n 1) (eql (first (second inner)) :quoted))
+							(each (# (push names %0)) (params-of (third (second inner)))))
+						((and (find head '("let" "let*")) (> n 1) (defq binds (tree-form? (second inner))))
+							(each (# (if (defq b (tree-form? %0)) (each (# (push names %0)) (params-of (first (forms-of b))))))
+								(forms-of binds)))
+						;an import anywhere, in a function or a catch, what it names may
+						;be called after it
+						((and (eql head "import") (> n 1) (eql (first (second inner)) :string1)
+								(str? (defq to (catch (first (read (string-stream (third (second inner))))) :nil)))
+								(str? (setq to (catch (path-to-absolute to path) :nil))) (/= 0 (age to)))
+							(push more to))
+						((and (eql head "raise") (> n 2) (defq binds (tree-form? (third inner))))
+							(each! (# (and (even? (!)) (eql (first %0) :symbol) (push names (third %0)))) (list (forms-of binds)))))))
+				nodes))
+		(. *names_of* :insert path (setq got (list names more))))
+	got)
+
+(defun names-from (paths)
+	; (names-from paths) -> fset
+	;what those files name, and every file they import, at any depth
+	(defq out (Fset 101) seen (Fset 31) todo (cat paths))
+	(while (defq path (pop todo))
+		(unless (. seen :find path)
+			(. seen :insert path)
+			(bind '(n i) (names-of path))
+			(each (# (. out :insert %0)) n)
+			(each (# (push todo %0)) i)))
+	out)
+
+(defun check-unbound (file top)
+	;(f ...) where f is no function, macro or name of the system, nor named
+	;by this file or anything it imports at any depth: a call of nothing,
+	;the app would not start. Only for a file that stands by itself
+	(defq context (some (# (if (starts-with (first %0) file) (rest %0))) +unbound_context)
+		known (names-from (cat (list file "class/lisp/root.inc") (ifn context (list)))) todo (list top)
+		prefixes (list))
+	(. known :each (# (if (starts-with "prefix " %0) (push prefixes (slice %0 7 -1)))))
+	(while (defq nodes (pop todo))
+		(each (lambda (node)
+			(when (defq kids (tree-form? node))
+				(defq inner (forms-of kids) head (head-of inner) n (length inner))
+				(and head (not (. *root_all* :find head)) (not (. known :find head))
+					(not (find (first head) ":+%&.,~'`0123456789"))
+					(notany (# (starts-with %0 head)) prefixes)
+					(found file (first inner) "unbound" head " is called, and is no function or macro of the system, of this file, or of what it imports"))
+				(cond
+					((not head) (push todo inner))
+					((find head +unbound_data))
+					((find head +unbound_defs) (push todo (slice inner (min n 3) -1)))
+					((find head +unbound_methods) (push todo (slice inner (min n 3) -1)))
+					((eql head "defclass") (push todo (slice inner (min n 4) -1)))
+					((eql head "lambda") (push todo (slice inner (min n 2) -1)))
+					((find head '("let" "let*"))
+						(and (> n 1) (defq binds (tree-form? (second inner)))
+							(each (# (if (defq b (tree-form? %0)) (push todo (rest (forms-of b))))) (forms-of binds)))
+						(push todo (slice inner (min n 2) -1)))
+					((find head '("cond" "condn"))
+						(each! (# (if (defq c (tree-form? %0)) (push todo (forms-of c)))) (list inner) 1))
+					((find head '("case" "pcase"))
+						(if (> n 1) (push todo (list (second inner))))
+						(each! (# (if (defq c (tree-form? %0)) (push todo (rest (forms-of c))))) (list inner) (min n 2)))
+					((push todo (rest inner))))))
+			nodes)))
+
 (defun check-root-struct (file forms)
 	;(structure +x ...) where root.inc's imports have a +x already: a task
 	;that has both can not tell them apart, and one of fields in other
@@ -935,6 +1059,10 @@
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
 			(if (or (find "unquote" checks) (find "global" checks)) (check-unquote file top))
+			;a file that stands by itself: a program, or a module
+			(and (find "unbound" checks) (not (ends-with ".vp" file)) (notany (# (starts-with %0 file)) +unbound_skip)
+				(or (ends-with ".lisp" file) (some (# (tree-form? %0 "env-push")) (forms-of top)))
+				(check-unbound file top))
 			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
@@ -1022,12 +1150,13 @@
 		(defq checks (if opt_c (filter (# (find %0 +check_names)) (split opt_c ",")) +check_names)
 			;the names of the system, what a function, a macro or a form is
 			;bound to in the environment every task starts with
-			*root_names* (Fset 101) *root_macros* (Fset 31)
+			*root_names* (Fset 101) *root_macros* (Fset 31) *root_all* (Fset 101)
 			;the functions of each file imported, as read, (import-defuns)
 			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
 			;a macro is a list that begins with macro
 			(defq is_macro (and (list? val) (nempty? val) (eql (first val) macro)))
+			(. *root_all* :insert (str name))
 			(if (or (func? val) (lambda? val) is_macro) (. *root_names* :insert (str name)))
 			(if is_macro (. *root_macros* :insert (str name))))
 			(tolist *root_env*))
