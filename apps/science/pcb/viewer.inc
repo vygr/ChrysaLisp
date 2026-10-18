@@ -2,6 +2,8 @@
 ; viewer
 ;;;;;;;;
 
+(import "gui/lisp.inc")
+
 ;module
 (env-push)
 

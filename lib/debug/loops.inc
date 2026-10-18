@@ -45,6 +45,7 @@
 	; (view-loops view) -> ((holder key) ...)
 	;(loops) of a tree of views, a view's children under it. An app's
 	;window should have none
+	;check off, View? is the GUI's, there when there are views to look at
 	(loops root (# (if (View? %0) (. %0 :children)))))
 
 ;module

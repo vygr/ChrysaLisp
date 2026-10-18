@@ -5,6 +5,7 @@
 (import "./mesh.inc")
 (import "././gpu/vp.inc")
 (import "gui/canvas/struct.inc")
+(import "gui/path/lisp.inc")
 
 ;the two shaders the faces of a scene are drawn with. And the two for a
 ;scene, or an object, that is to shine, a highlight as Phong has it, and

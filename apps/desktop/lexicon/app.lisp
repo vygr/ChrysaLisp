@@ -60,7 +60,7 @@
 		("adj" "Adjective")
 		("adv" "Adverb")
 		("u" "Interjection")
-		(:t (upper (str tag)))))
+		(:t (to-upper (str tag)))))
 
 (defun format-word-markdown (word phonetic defs syns ants)
 	(defq lines (list (cat "# " (to-lower word)) ""))

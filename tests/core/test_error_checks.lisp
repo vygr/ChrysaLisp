@@ -71,6 +71,7 @@
 (assert-error "lambda too many" ((lambda (a) a) 1 2))
 (assert-error "apply num" (apply + 5))
 (assert-error "eval no args" (eval))
+;check off, a call of nothing is the very thing
 (assert-error "unbound function" (test_no_such_function 1))
 (assert-error "unbound symbol" test_no_such_symbol)
 (assert-error "setq unbound" (setq test_no_such_symbol 1))
