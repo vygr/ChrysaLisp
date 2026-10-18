@@ -69,6 +69,17 @@
 	;and now. Again within +call_lease to go on being
 	(call-ask (cat "W" (hex-encode mbox))))
 
+(defun call-record (on)
+	; (call-record on)
+	;this desktop is recording the call, or not: all in it are told
+	(call-ask (if on "R1" "R0")))
+
+(defun call-tap (mbox)
+	; (call-tap mbox)
+	;mbox is sent all that is said and heard in the call, to be mixed,
+	;lib/audio/voice.inc (voice-mix); :nil for none
+	(call-ask (cat "P" (if mbox (hex-encode mbox) ""))))
+
 (defun call-unwatch (mbox)
 	; (call-unwatch mbox)
 	(call-ask (cat "U" (hex-encode mbox))))
@@ -85,6 +96,6 @@
 (defun call-state-read (msg)
 	; (call-state-read msg) -> :nil | state
 	;what a watcher is sent: an Emap of :id, hex or :nil if in no call,
-	;:name, :muted, and :members, a
-	;list of (name inbox) of all in it
+	;:name, :muted, :recording, :inbox, where this one hears, and :members,
+	;a list of (name inbox rec) of all in it, rec 1 for one that records
 	(and (defq data (catch (tree-load (string-stream msg)) :t)) (Emap? data) data))

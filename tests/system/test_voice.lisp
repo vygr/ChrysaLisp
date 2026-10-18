@@ -13,25 +13,55 @@
 	(sound-take vc_order 17 "h"))
 (assert-list-eq "and it is let go if it comes after all" '() (sound-take vc_order 14 "e"))
 
-;a tone in place of the microphone, mailed to two that are to hear it
-(defun vc-run (to)
-	; (vc-run to) -> ((seq from bytes) ...) of each that was sent to
+;a tone in place of the microphone, mailed to two that are to hear it, or
+;none, muted or not, and to a tap or not
+(defun vc-run (to &optional muted tap)
+	; (vc-run to [muted tap]) -> ((seq from bytes peak) ...) of each that was sent to
 	(defq done (mail-mbox) ctl (mail-mbox) from (mail-mbox) boxes (map (lambda (_) (mail-mbox)) to))
-	(mail-send ctl (join (map (const hex-encode) (filter (const identity) (map (# (if %0 %1)) to boxes))) ","))
+	(mail-send ctl (cat "t" (join (map (const hex-encode) (filter (const identity) (map (# (if %0 %1)) to boxes))) ",")))
+	(if muted (mail-send ctl "m1"))
+	(if tap (mail-send ctl (cat "p" (hex-encode tap))))
 	(stages-run (list (sound-stage 'sound-tone 440 200 6000)
 		(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from))) done)
 	(mail-read-timeout done (task-timeout 20))
-	(map (lambda (box)
-			(defq got (list))
-			(while (defq msg (mail-read-timeout box 100000))
-				(push got (list (getf msg +voice_piece_seq) (eql (hex-encode (getf msg +voice_piece_from)) (hex-encode from))
-					(- (length msg) +voice_piece_data))))
-			got)
-		boxes))
-(defq vc_got (vc-run '(:t :t)))
+	(map (lambda (box) (vc-got box from)) (if tap (cat boxes (list tap)) boxes)))
+(defun vc-got (box from)
+	(defq got (list))
+	(while (defq msg (mail-read-timeout box 100000))
+		(push got (list (getf msg +voice_piece_seq) (eql (hex-encode (getf msg +voice_piece_from)) (hex-encode from))
+			(- (length msg) +voice_piece_data) (> (sound-peak (slice msg +voice_piece_data -1)) 5000))))
+	(sort got (# (- (first %0) (first %1)))))
+(defun vc-all (peak) (map (# (list %0 :t +sound_piece peak)) (range 0 10)))
 (assert-list-eq "each that is to hear is sent each piece of 20ms, numbered, from who said it"
-	(list (map (# (list %0 :t +sound_piece)) (range 0 10)) (map (# (list %0 :t +sound_piece)) (range 0 10)))
-	(map (lambda (got) (sort got (# (- (first %0) (first %1))))) vc_got))
-(assert-list-eq "muted, sent to none, nothing is sent" '(() ()) (vc-run '(:nil :nil)))
+	(list (vc-all :t) (vc-all :t)) (vc-run '(:t :t)))
+(assert-list-eq "to none, nothing is sent" '(() ()) (vc-run '(:nil :nil)))
+(assert-list-eq "muted, nothing is sent to those to hear it, and the tap has each piece, quiet"
+	(list (list) (vc-all :nil)) (vc-run '(:t) :t (mail-mbox)))
+(assert-list-eq "not muted, the tap has what is said" (list (vc-all :t) (vc-all :t)) (vc-run '(:t) :nil (mail-mbox)))
 
-(undef (env) 'vc_order 'vc_got)
+;pieces added, sample by sample
+(defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (_) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (_) -5000)))
+(assert-list-eq "a mix of two is the sum of them, kept in range, as long as the first"
+	'(15000 15000 20000 20000) (map (# (sound-sample (sound-add (list vc_a vc_b)) %0)) (range 0 4)))
+(assert-list-eq "and loud ones are kept in range" '(32767 32767)
+	(map (# (sound-sample (sound-add (list vc_a vc_a)) %0)) (range 0 2)))
+
+;a mix of what is said here and what another says, to a file: what is said
+;here is the clock, a piece of the file for each of it, the other's added in
+(defq vc_tap (mail-mbox) vc_ctl (mail-mbox) vc_done (mail-mbox) vc_own (mail-mbox) vc_other (mail-mbox)
+	vc_file "tests/scratch/voice_mix.wav"
+	vc_here (sound-map (str-alloc +sound_piece) (lambda (_) 6000)) vc_there (sound-map (str-alloc +sound_piece) (lambda (_) 4000)))
+(each (# (mail-send vc_tap (voice-piece vc_other %0 vc_there))) (range 0 3))
+(each (# (mail-send vc_tap (voice-piece vc_own %0 vc_here))) (range 0 5))
+(stages-run (list (voice-stage 'voice-mix (stage-mbox vc_tap) (hex-encode vc_own) (stage-mbox vc_ctl))
+	(sound-stage 'sound-to-file vc_file)) vc_done)
+(task-sleep 500000)
+(mail-send vc_ctl "")
+(mail-read-timeout vc_done (task-timeout 10))
+(defq vc_stream (file-stream vc_file))
+(WAV-info vc_stream)
+(defq vc_pieces (map (lambda (_) (sound-peak (read-blk vc_stream +sound_piece))) (range 0 5)))
+(assert-list-eq "five pieces said here, the first three with the other's three added" '(10000 10000 10000 6000 6000) vc_pieces)
+(pii-remove vc_file)
+
+(undef (env) 'vc_order 'vc_a 'vc_b 'vc_tap 'vc_ctl 'vc_done 'vc_own 'vc_other 'vc_file 'vc_here 'vc_there 'vc_stream 'vc_pieces)

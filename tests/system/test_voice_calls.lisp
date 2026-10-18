@@ -10,8 +10,11 @@
 (defun vc-state (watcher test)
 	;the state a watcher is told, the first that passes test, or the last
 	;in five seconds
-	(defq got :nil done :nil until (+ (pii-time) 5000000))
-	(while (and (not done) (< (pii-time) until))
+	(defq got :nil done :nil due (+ (pii-time) 5000000))
+	;watched again, as an app does within the lease, and so told at once
+	(vc-tell vc_a (cat "W" (hex-encode vc_wa)))
+	(vc-tell vc_b (cat "W" (hex-encode vc_wb)))
+	(while (and (not done) (< (pii-time) due))
 		(when (defq msg (mail-read-timeout watcher 200000))
 			(setq got (call-state-read msg) done (test got))))
 	got)
@@ -35,6 +38,12 @@
 (assert-eq "a name of a call has no comma, the mesh keeps one after one" "a b" (call-name "a,b"))
 (assert-eq "and the starter is told so" 2 (length (. (vc-state vc_wa (# (= (length (. %0 :find :members)) 2))) :find :members)))
 
+(vc-tell vc_b "R1")
+(defun vc-rec (state) (map (# (list (first %0) (elem-get %0 2))) (sort (cat (ifn (. state :find :members) (list))) (# (cmp (first %0) (first %1))))))
+(assert-list-eq "one that records says so, and the others in the call are told it" '(("Ann" 0) ("Bob" 1))
+	(vc-rec (vc-state vc_wa (# (find '("Bob" 1) (vc-rec %0))))))
+(vc-tell vc_b "R0")
+(assert-list-eq "and when it stops" '(("Ann" 0) ("Bob" 0)) (vc-rec (vc-state vc_wa (# (find '("Bob" 0) (vc-rec %0))))))
 (vc-tell vc_b "M1")
 (assert-eq "mute is said to the watchers" :t (. (vc-state vc_wb (# (. %0 :find :muted))) :find :muted))
 (vc-tell vc_b "M0")

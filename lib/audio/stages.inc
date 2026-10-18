@@ -38,6 +38,20 @@
 		(setq i (inc i)))
 	(apply (const cat) (cat (list "") out)))
 
+(defun sound-add (datas)
+	; (sound-add datas) -> data
+	;pieces added, sample by sample, as long as the first, kept in range: a
+	;mix. One shorter than the first is quiet after its end
+	(cond
+		((= (length datas) 1) (first datas))
+		(:t (defq n (/ (length (first datas)) 2) out (list) i 0)
+			(while (< i n)
+				(defq v 0 at (* i 2))
+				(each (# (if (< at (length %0)) (setq v (+ v (sound-sample %0 i))))) datas)
+				(push out (char (clamp v -32768 32767) 2))
+				(setq i (inc i)))
+			(apply (const cat) (cat (list "") out)))))
+
 (defun sound-peak (data)
 	; (sound-peak data) -> num
 	;the loudest of a piece, every other sample looked at

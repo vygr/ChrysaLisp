@@ -9,14 +9,19 @@
 ;	voice-hear			each one's pieces in order to its stream
 ;
 ; Those it goes to are mailboxes, the inbox of each voice-hear that is to
-; hear it, and are told to voice-send as they change: none is mute, the
-; microphone still heard here and sent nowhere. Mail is not kept in
-; order, so each piece is numbered, and who it is from is the inbox of
+; hear it, and are told to voice-send as they change. Mute is said to it
+; too: the microphone still heard here and sent nowhere. Mail is not kept
+; in order, so each piece is numbered, and who it is from is the inbox of
 ; the one that sent it. An app says who is to hear whom, (voice-to), this
-; knows nothing of sessions. The Whiteboard and Chat both use it.
+; knows nothing of calls, service/voice does.
 ;
 ; Each start is a new inbox, so what was sent to the last is never heard
 ; by the next: an app tells the others the new one, (voice-inbox).
+;
+; To record it all, a tap, (voice-tap): a mailbox each stage sends each
+; piece to as well, what is said here, nothing of it while muted, and what
+; each other says in its order. voice-mix makes one sound of them, a source
+; of a pipeline, to a file as any other is.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./stages.inc")
@@ -28,8 +33,9 @@
 	(offset data))
 
 ;one not heard from for so long has its stream closed, and it is begun
-;again if it is heard again
-(defq +voice_quiet 1000000)
+;again if it is heard again. A mix keeps no more than so many pieces of
+;one that is ahead of what is said here
+(defq +voice_quiet 1000000 +voice_mix_ahead 10)
 
 ;the stages
 
@@ -38,31 +44,45 @@
 	;a stage of this module
 	(apply (const stage) (cat (list "lib/audio/voice.inc" fn) args)))
 
+(defun voice-piece (from seq data)
+	; (voice-piece from seq data) -> str
+	(cat (setf-> (str-alloc +voice_piece_size) (+voice_piece_from from) (+voice_piece_seq seq)) data))
+
 (defun voice-send (in out ctl from)
 	; (voice-send in out ctl from)
 	;a sink: each piece mailed, numbered, to each that is to hear it. ctl
-	;is sent who that is, the mailboxes hex, a comma between, "" for none
-	(defq to (list) seq 0)
+	;is sent t and who that is, the mailboxes hex, a comma between; m1 or
+	;m0, muted or not; p and a tap's mailbox hex, or p alone for none
+	(defq to (list) seq 0 muted :nil tap :nil)
 	(sound-pieces in (lambda (data)
 		(while (mail-poll (list ctl))
-			(setq to (map (const hex-decode) (filter (const nempty?) (split (mail-read ctl) ",")))))
-		(when (nempty? to)
-			(defq piece (cat (setf-> (str-alloc +voice_piece_size)
-					(+voice_piece_from from) (+voice_piece_seq seq)) data))
+			(defq msg (mail-read ctl) kind (first msg) rest (slice msg 1 -1))
+			(cond
+				((eql kind "t") (setq to (map (const hex-decode) (filter (const nempty?) (split rest ",")))))
+				((eql kind "m") (setq muted (eql rest "1")))
+				((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))))
+		(unless muted
+			(defq piece (voice-piece from seq data))
 			(each (# (mail-send %0 piece)) to))
+		;a mix goes by what is said here, so a piece goes to the tap muted or
+		;not, as quiet when it is
+		(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (_) 0)) data))))
 		(setq seq (inc seq)))))
 
 (defun voice-hear (in out inbox ctl)
 	; (voice-hear in out inbox ctl)
 	;a stage that is both ends: what comes to inbox played, each that sends
-	;on a stream of its own, in the order it was said, till ctl is sent
-	;anything. A piece that is not there when two after it are is lost
-	(defq select (list inbox ctl) running :t talkers (Fmap 11))
-	;a talker, by who it is from, its mailbox hex: (handle order last)
+	;on a stream of its own, in the order it was said, till ctl is sent e.
+	;p and a tap's mailbox hex, or p alone, as voice-send
+	(defq select (list inbox ctl) running :t talkers (Fmap 11) tap :nil)
+	;a talker, by who it is from, its mailbox hex: (handle order last seq)
 	(while running
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)) now (pii-time))
 		(cond
-			((= idx 1) (setq running :nil))
+			((= idx 1)
+				(if (eql (first msg) "p")
+					(setq tap (if (> (length msg) 1) (hex-decode (slice msg 1 -1))))
+					(setq running :nil)))
 			(:t (defq from (hex-encode (getf msg +voice_piece_from)) seq (getf msg +voice_piece_seq)
 					talker (. talkers :find from))
 				;one quiet a while is begun again, its stream may be gone
@@ -71,20 +91,48 @@
 					(. talkers :erase from)
 					(setq talker :nil))
 				(unless talker
-					(when (defq handle (audio-stream-open-rpc))
-						(. talkers :insert from (setq talker (list handle (sound-order seq) now)))))
-				(when talker
-					(elem-set talker 2 now)
-					(each (# (audio-stream-write-rpc (first talker) %0))
-						(sound-take (second talker) seq (slice msg +voice_piece_data -1))))
+					(. talkers :insert from (setq talker (list (audio-stream-open-rpc) (sound-order seq) now 0))))
+				(elem-set talker 2 now)
+				(each (lambda (data)
+						(if (first talker) (audio-stream-write-rpc (first talker) data))
+						(when tap
+							(mail-send tap (voice-piece (getf msg +voice_piece_from) (elem-get talker 3) data))
+							(elem-set talker 3 (inc (elem-get talker 3)))))
+					(sound-take (second talker) seq (slice msg +voice_piece_data -1)))
 				;and those quiet a while, closed
 				(defq gone (list))
-				(. talkers :each (lambda (who (handle &ignore last))
-					(when (> (- now last) +voice_quiet)
-						(audio-stream-close-rpc handle)
+				(. talkers :each (lambda (who (handle order heard tapped))
+					(when (> (- now heard) +voice_quiet)
+						(if handle (audio-stream-close-rpc handle))
 						(push gone who))))
 				(each (# (. talkers :erase %0)) gone))))
-	(. talkers :each (lambda (who (handle &ignore)) (audio-stream-close-rpc handle))))
+	(. talkers :each (lambda (who (handle &ignore)) (if handle (audio-stream-close-rpc handle)))))
+
+(defun voice-mix (in out tap own ctl)
+	; (voice-mix in out tap own ctl)
+	;a source: what comes to tap made one sound, till ctl is sent anything.
+	;What is said here, from own, hex, is the clock: as each piece of it
+	;comes, it is written with the next of each other's added in. One
+	;further ahead than +voice_mix_ahead has its oldest let go
+	(defq select (list tap ctl) running :t queues (Fmap 11))
+	(while running
+		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
+		(cond
+			((= idx 1) (setq running :nil))
+			(:t (defq from (hex-encode (getf msg +voice_piece_from)) data (slice msg +voice_piece_data -1))
+				(cond
+					((eql from own)
+						(defq datas (list data) taken (list))
+						(. queues :each (lambda (who queue)
+							(when (nempty? queue)
+								(push datas (first queue))
+								(push taken who))))
+						(each (# (. queues :insert %0 (rest (. queues :find %0)))) taken)
+						(write-blk out (sound-add datas)))
+					(:t (defq queue (ifn (. queues :find from) (list)))
+						(push queue data)
+						(if (> (length queue) +voice_mix_ahead) (setq queue (rest queue)))
+						(. queues :insert from queue)))))))
 
 ;for an app
 
@@ -104,11 +152,24 @@
 
 (defun voice-to (voice to)
 	; (voice-to voice to)
-	;who hears what is said here now: their inboxes, hex, none for mute
-	(mail-send (elem-get voice 3) (join to ",")))
+	;who hears what is said here now: their inboxes, hex
+	(mail-send (elem-get voice 3) (cat "t" (join to ","))))
+
+(defun voice-mute (voice on)
+	; (voice-mute voice on)
+	;none of what is said here sent, while on
+	(mail-send (elem-get voice 3) (if on "m1" "m0")))
+
+(defun voice-tap (voice mbox)
+	; (voice-tap voice mbox)
+	;mbox sent all that is said and heard, to be mixed, (voice-mix); :nil
+	;for none
+	(defq text (cat "p" (if mbox (hex-encode mbox) "")))
+	(mail-send (elem-get voice 3) text)
+	(mail-send (elem-get voice 1) text))
 
 (defun voice-stop (voice)
 	; (voice-stop voice)
 	;neither said nor heard any more
 	(mail-send (elem-get voice 2) "")
-	(mail-send (elem-get voice 1) ""))
+	(mail-send (elem-get voice 1) "e"))
