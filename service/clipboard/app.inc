@@ -18,12 +18,7 @@
 	;one, so a desktop that quits does not take the clipboard of another.
 	;On a host with a clipboard of its own they are all that one clipboard.
 	;A task on a node with no desktop has any one there is on the machine
-	(defq me (slice (task-mbox) +mailbox_id_size -1) found :nil)
-	(each (lambda (entry)
-		(defq id (hex-decode (second (split entry ","))))
-		(if (or (not found) (eql (slice id +mailbox_id_size -1) me)) (setq found id)))
-		(mail-enquire "@Clipboard,"))
-	found)
+	(mail-service "@Clipboard"))
 
 (defun clip-put-rpc (string)
 	; (clip-put-rpc string)

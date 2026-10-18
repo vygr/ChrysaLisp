@@ -60,12 +60,7 @@
 	;is on its desktop's node and has that one, so a desktop that quits
 	;takes its own sound with it and nobody else's. A task on a node with
 	;no desktop has any one there is on the machine
-	(defq me (slice (task-mbox) +mailbox_id_size -1) found :nil)
-	(each (lambda (entry)
-		(defq id (hex-decode (second (split entry ","))))
-		(if (or (not found) (eql (slice id +mailbox_id_size -1) me)) (setq found id)))
-		(mail-enquire "@Audio,"))
-	found)
+	(mail-service "@Audio"))
 
 (defun audio-add-rpc (file_path)
 	; (audio-add-rpc file_path) -> handle

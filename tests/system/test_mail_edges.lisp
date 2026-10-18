@@ -70,3 +70,20 @@
 
 ;a message is a string, not a list
 (assert-error "send a list" (mail-send me_a (list 1 2)))
+
+;one said as a name on this node whose task is still there, (mail-here): a
+;task that ends without (mail-forget) is still said, its mailbox is gone,
+;and it is no guard of one to be the only one
+(defq me_said (mail-declare (task-mbox) "ZzHere" "a test"))
+(assert-eq "one said here that is here is had" (hex-encode (task-mbox)) (hex-encode (mail-here "ZzHere")))
+(assert-eq "and is the service to use" (hex-encode (task-mbox)) (hex-encode (mail-service "ZzHere")))
+(mail-forget me_said)
+(save "(mail-declare (task-mbox) \qZzGone\q \qa test\q)" "tests/scratch/zz_gone.lisp")
+(open-child "tests/scratch/zz_gone.lisp" +kn_call_pin)
+(defq me_until (+ (pii-time) 3000000))
+(while (and (empty? (mail-enquire "ZzGone,")) (< (pii-time) me_until)) (task-sleep 20000))
+(task-sleep 200000)
+(assert-list-eq "one that ended without (mail-forget) is still said, and is not here, nor a service to use" '(:t :nil :nil)
+	(list (nempty? (mail-enquire "ZzGone,")) (mail-here "ZzGone") (mail-service "ZzGone")))
+(pii-remove "tests/scratch/zz_gone.lisp")
+(undef (env) 'me_said 'me_until)

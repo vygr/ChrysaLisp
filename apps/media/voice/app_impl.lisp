@@ -20,7 +20,7 @@
 ;when to stop
 
 (enums +select 0
-	(enum main tip timer done level call here))
+	(enum main tip timer done level call))
 
 (defq +rate 250000 +folder (cat (get :home *env*) "voice_notes/") +max_notes 200
 	;the Join of each call of the mesh, past the notes
@@ -249,9 +249,8 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t
 		;said, so a second is not opened on this desktop, app.lisp
-		;said, so a second is not opened on this desktop, app.lisp: by a
-		;mailbox that answers, so one that died without going is known
-		entry (mail-declare (elem-get select +select_here) "Voice" "Voice App"))
+		;said, so a second is not opened on this desktop, app.lisp
+		entry (mail-declare (task-mbox) "Voice" "Voice App"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;the folder made, if it is not there, by saving into it
 	(unless (pii-fstat +folder)
@@ -287,9 +286,6 @@
 					(call-show)))
 			((= idx +select_level)
 				(if *running_pipe* (level (/ (* (str-as-num *msg*) 100) 16384))))
-			((= idx +select_here)
-				;another is being opened: this one is here, it says so
-				(mail-send (hex-decode *msg*) ""))
 			((= idx +select_done)
 				(pipe-done))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)

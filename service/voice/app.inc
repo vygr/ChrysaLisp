@@ -27,15 +27,20 @@
 (defun call-service ()
 	; (call-service) -> :nil | net_id
 	;the voice service of this desktop, on its node, or any on the machine
-	(defq me (slice (task-mbox) +mailbox_id_size -1) found :nil)
-	(each (lambda (entry)
-		(defq id (hex-decode (second (split entry ","))))
-		(if (or (not found) (eql (slice id +mailbox_id_size -1) me)) (setq found id)))
-		(mail-enquire "@Voice,"))
-	found)
+	(mail-service "@Voice"))
 
 (defun call-ask (text)
 	(if (defq service (call-service)) (mail-send service text)))
+
+(defun call-ask-up (text)
+	;as (call-ask), the service of this desktop started first if it has
+	;none: it is there only once a call is started or joined, a desktop
+	;that never calls has none
+	(unless (mail-here "@Voice")
+		(open-child "service/voice/app.lisp" +kn_call_pin)
+		(defq until_up (+ (pii-time) 2000000))
+		(while (and (not (mail-here "@Voice")) (< (pii-time) until_up)) (task-sleep 20000)))
+	(call-ask text))
 
 (defun call-user ()
 	; (call-user) -> name
@@ -50,12 +55,12 @@
 (defun call-start (name)
 	; (call-start name)
 	;a new call, of that name, that this desktop is in
-	(call-ask (cat "S" (call-name (call-user)) "," (call-name name))))
+	(call-ask-up (cat "S" (call-name (call-user)) "," (call-name name))))
 
 (defun call-join (id)
 	; (call-join id)
 	;the call of that id, hex, (call-list)
-	(call-ask (cat "J" (call-name (call-user)) "," id)))
+	(call-ask-up (cat "J" (call-name (call-user)) "," id)))
 
 (defun call-leave ()
 	; (call-leave)

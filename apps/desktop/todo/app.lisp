@@ -1,3 +1,3 @@
 ;single instance per node only
-(if (= 0 (length (mail-enquire "Todo,")))
+(unless (mail-here "Todo")
 	(import "./app_impl.lisp"))

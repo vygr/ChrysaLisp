@@ -11,6 +11,31 @@
 	(setd mbox (task-mbox))
 	(slice mbox +mailbox_id_size -1))
 
+(defun mail-here (name)
+	; (mail-here name) -> :nil | net_id
+	;one said as name, (mail-declare), on this node, whose task is still
+	;there: one that died without (mail-forget) is still said, its mailbox
+	;is gone. Each desktop is a node, so this is the one of this desktop,
+	;the guard of a service or an app there is to be one of
+	(defq node (task-nodeid))
+	(some (lambda (entry)
+			(defq id (hex-decode (second (split entry ","))))
+			(and (eql (task-nodeid id) node) (mail-validate id) id))
+		(mail-enquire (cat name ","))))
+
+(defun mail-service (name)
+	; (mail-service name) -> :nil | net_id
+	;the service said as name to use: the one on this node, the desktop's,
+	;if it is still there, else one on another node. A task on a node with
+	;no desktop has any one on the machine. One on this node that is not
+	;here is dead; one on another can not be asked, (mail-validate) knows
+	;only the mailboxes of the node it is asked on
+	(or (mail-here name)
+		(some (lambda (entry)
+				(defq id (hex-decode (second (split entry ","))))
+				(if (nql (task-nodeid id) (task-nodeid)) id))
+			(mail-enquire (cat name ",")))))
+
 (defun task-mboxes (size)
 	; (task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
 	(defq select (list (task-mbox)))
