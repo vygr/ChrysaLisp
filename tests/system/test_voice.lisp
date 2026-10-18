@@ -15,13 +15,14 @@
 
 ;a tone in place of the microphone, mailed to two that are to hear it, or
 ;none, muted or not, and to a tap or not
-(defun vc-run (to &optional muted tap)
-	; (vc-run to [muted tap]) -> ((seq from bytes peak) ...) of each that was sent to
+(defun vc-run (to &optional muted tap level said)
+	; (vc-run to [muted tap level said]) -> ((seq from bytes peak) ...) of each that was sent to
 	(defq done (mail-mbox) ctl (mail-mbox) from (mail-mbox) boxes (map (lambda (_) (mail-mbox)) to))
 	(mail-send ctl (cat "t" (join (map (const hex-encode) (filter (const identity) (map (# (if %0 %1)) to boxes))) ",")))
 	(if muted (mail-send ctl "m1"))
 	(if tap (mail-send ctl (cat "p" (hex-encode tap))))
-	(stages-run (list (sound-stage 'sound-tone 440 200 6000)
+	(each (# (mail-send ctl %0)) (ifn said (list)))
+	(stages-run (list (sound-stage 'sound-tone 440 200 (ifn level 6000))
 		(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from))) done)
 	(mail-read-timeout done (task-timeout 20))
 	(map (lambda (box) (vc-got box from)) (if tap (cat boxes (list tap)) boxes)))
@@ -38,6 +39,15 @@
 (assert-list-eq "muted, nothing is sent to those to hear it, and the tap has each piece, quiet"
 	(list (list) (vc-all :nil)) (vc-run '(:t) :t (mail-mbox)))
 (assert-list-eq "not muted, the tap has what is said" (list (vc-all :t) (vc-all :t)) (vc-run '(:t) :nil (mail-mbox)))
+;the gate: what is quiet is not sent, the tap has it all
+(defun vc-quiet (got) (map (lambda ((seq from bytes peak)) (list seq from bytes)) got))
+(assert-list-eq "quiet, below the gate, nothing is sent, and the tap has each piece"
+	(list (list) (map (# (list %0 :t +sound_piece)) (range 0 10))) (map (const vc-quiet) (vc-run '(:t) :nil (mail-mbox) 500)))
+;half duplex: another heard of late is not spoken over
+(assert-list-eq "another just heard, what is said here is not sent over them" '(())
+	(vc-run '(:t) :nil :nil :nil '("h")))
+(assert-list-eq "half duplex off, as with headphones, it is" (list (vc-all :t))
+	(vc-run '(:t) :nil :nil :nil '("d0" "h")))
 
 ;pieces added, sample by sample
 (defq vc_a (sound-map (slice (str-alloc 8) 0 8) (lambda (_) 20000)) vc_b (sound-map (slice (str-alloc 4) 0 4) (lambda (_) -5000)))

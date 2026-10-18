@@ -18,6 +18,11 @@
 ; Each start is a new inbox, so what was sent to the last is never heard
 ; by the next: an app tells the others the new one, (voice-inbox).
 ;
+; Only speech is sent: a gate, quiet goes nowhere. And half duplex, one
+; heard of late is not spoken over, so a speaker's sound heard again by the
+; microphone is not sent back: with headphones that is not needed, and it
+; is put off, (voice-duplex).
+;
 ; To record it all, a tap, (voice-tap): a mailbox each stage sends each
 ; piece to as well, what is said here, nothing of it while muted, and what
 ; each other says in its order. voice-mix makes one sound of them, a source
@@ -35,7 +40,12 @@
 ;one not heard from for so long has its stream closed, and it is begun
 ;again if it is heard again. A mix keeps no more than so many pieces of
 ;one that is ahead of what is said here
-(defq +voice_quiet 1000000 +voice_mix_ahead 10)
+(defq +voice_quiet 1000000 +voice_mix_ahead 10
+	;the gate: a piece louder than this, of 32767, is speech, and what is
+	;said is sent till so long after the last of it, so the ends of words
+	;are not cut. As long after another is heard, this one does not begin:
+	;half duplex. And the hearing tells the saying no more often than this
+	+voice_gate 1000 +voice_hang 400000 +voice_heard_every 100000)
 
 ;the stages
 
@@ -52,29 +62,47 @@
 	; (voice-send in out ctl from)
 	;a sink: each piece mailed, numbered, to each that is to hear it. ctl
 	;is sent t and who that is, the mailboxes hex, a comma between; m1 or
-	;m0, muted or not; p and a tap's mailbox hex, or p alone for none
-	(defq to (list) seq 0 muted :nil tap :nil)
+	;m0, muted or not; p and a tap's mailbox hex, or p alone for none; d1
+	;or d0, half duplex or not, on to begin with; h, another was heard.
+	;
+	;Only speech is sent, the gate: quiet, nothing goes, no hiss and no
+	;traffic. And half duplex: one heard of late is not spoken over, unless
+	;this one was speaking first, so what another says, played from the
+	;speaker here and heard by the microphone, is not sent back to them.
+	;Headphones have no need of it, d0
+	(defq to (list) seq 0 sent_seq 0 muted :nil tap :nil duplex :t
+		speech_until 0 heard_until 0 sending :nil)
 	(sound-pieces in (lambda (data)
 		(while (mail-poll (list ctl))
 			(defq msg (mail-read ctl) kind (first msg) rest (slice msg 1 -1))
 			(cond
 				((eql kind "t") (setq to (map (const hex-decode) (filter (const nempty?) (split rest ",")))))
 				((eql kind "m") (setq muted (eql rest "1")))
-				((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))))
-		(unless muted
-			(defq piece (voice-piece from seq data))
-			(each (# (mail-send %0 piece)) to))
+				((eql kind "p") (setq tap (if (nempty? rest) (hex-decode rest))))
+				((eql kind "d") (setq duplex (eql rest "1")))
+				((eql kind "h") (setq heard_until (+ (pii-time) +voice_hang)))))
+		(defq now (pii-time))
+		(if (> (sound-peak data) +voice_gate) (setq speech_until (+ now +voice_hang)))
+		;speech, not muted, and not over another unless this one was first.
+		;What goes to others is numbered without gaps, a gap is a loss to them
+		(setq sending (and (< now speech_until) (not muted)
+			(or sending (not duplex) (>= now heard_until))))
+		(when sending
+			(defq piece (voice-piece from sent_seq data))
+			(each (# (mail-send %0 piece)) to)
+			(setq sent_seq (inc sent_seq)))
 		;a mix goes by what is said here, so a piece goes to the tap muted or
 		;not, as quiet when it is
 		(if tap (mail-send tap (voice-piece from seq (if muted (sound-map data (lambda (_) 0)) data))))
 		(setq seq (inc seq)))))
 
-(defun voice-hear (in out inbox ctl)
-	; (voice-hear in out inbox ctl)
+(defun voice-hear (in out inbox ctl said)
+	; (voice-hear in out inbox ctl said)
 	;a stage that is both ends: what comes to inbox played, each that sends
 	;on a stream of its own, in the order it was said, till ctl is sent e.
-	;p and a tap's mailbox hex, or p alone, as voice-send
-	(defq select (list inbox ctl) running :t talkers (Fmap 11) tap :nil)
+	;p and a tap's mailbox hex, or p alone, as voice-send. said, the ctl of
+	;the voice-send beside it, is told h as another is heard, half duplex
+	(defq select (list inbox ctl) running :t talkers (Fmap 11) tap :nil told 0)
 	;a talker, by who it is from, its mailbox hex: (handle order last seq)
 	(while running
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)) now (pii-time))
@@ -93,6 +121,9 @@
 				(unless talker
 					(. talkers :insert from (setq talker (list (audio-stream-open-rpc) (sound-order seq) now 0))))
 				(elem-set talker 2 now)
+				(when (> (- now told) +voice_heard_every)
+					(setq told now)
+					(mail-send said "h"))
 				(each (lambda (data)
 						(if (first talker) (audio-stream-write-rpc (first talker) data))
 						(when tap
@@ -140,7 +171,7 @@
 	; (voice-start) -> voice
 	;the microphone sent to none yet, and what is sent here heard
 	(defq inbox (mail-mbox) hear_ctl (mail-mbox) mic_ctl (mail-mbox) send_ctl (mail-mbox))
-	(stages-run (list (voice-stage 'voice-hear (stage-mbox inbox) (stage-mbox hear_ctl))))
+	(stages-run (list (voice-stage 'voice-hear (stage-mbox inbox) (stage-mbox hear_ctl) (stage-mbox send_ctl))))
 	(stages-run (list (sound-stage 'sound-mic (stage-mbox mic_ctl))
 		(voice-stage 'voice-send (stage-mbox send_ctl) (stage-mbox inbox))))
 	(list inbox hear_ctl mic_ctl send_ctl))
@@ -159,6 +190,12 @@
 	; (voice-mute voice on)
 	;none of what is said here sent, while on
 	(mail-send (elem-get voice 3) (if on "m1" "m0")))
+
+(defun voice-duplex (voice on)
+	; (voice-duplex voice on)
+	;half duplex, on to begin with: one heard of late is not spoken over.
+	;Off with headphones, where nothing heard is heard by the microphone
+	(mail-send (elem-get voice 3) (if on "d1" "d0")))
 
 (defun voice-tap (voice mbox)
 	; (voice-tap voice mbox)
