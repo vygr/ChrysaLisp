@@ -47,7 +47,7 @@
 		;waypoint each said it was at
 		told (Fmap 31) said_at (Fmap 31)
 		;the child that offers this tree's waypoint, and the machines that
-		;take a sync it has seen, by system id
+		;take a sync it has seen, by mailbox
 		spread (open-child "service/sync/spread.lisp" +kn_call_pin)
 		seen (Fset 31) looked (- (pii-time) +sync_look))
 	(mail-send spread (cat name (ascii-char 10) root))
@@ -56,13 +56,16 @@
 	;service takes nothing
 	(defq fenced (or (eql root ".") (and (sync-safe? root) (sync-inside? "." (cat root "/x")))))
 	(while running
-		;a machine that is new, and this one as it starts, is offered it,
-		;looked for when there has been a while to
+		;a service that is new, and this one as it starts, is offered it,
+		;looked for when there has been a while to. New by its mailbox, not
+		;its machine: a machine come back, its node started again, is new
 		(when (>= (- (pii-time) looked) +sync_look)
 			(setq looked (pii-time))
-			(defq new :nil)
-			(each (# (unless (. seen :find (second %0)) (. seen :insert (second %0)) (setq new :t)))
+			(defq now (Fset 31) new :nil)
+			(each (# (. now :insert (defq m (hex-encode (first %0))))
+					(unless (. seen :find m) (setq new :t)))
 				(sync-services name))
+			(setq seen now)
 			(if new (mail-send spread "go")))
 		(defq msg (mail-read-timeout (task-mbox) +sync_look))
 		(when (and msg (>= (length msg) +sync_rpc_size))
