@@ -109,16 +109,12 @@
 		buttons)
 	row)
 
-(defun window-fit ()
-	;the window grown to what is in it now, if that asks more than it has,
-	;and laid out again; never made smaller, its size is the user's
-	(bind '(w h) (. *window* :get_size))
-	(bind '(pw ph) (. *window* :pref_size))
-	(cond
-		((or (> pw w) (> ph h))
-			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (list (max w pw) (max h ph)))))
-			(. *window* :change_dirty x y w h))
-		((.-> *window* :layout :dirty_all))))
+(defun call-area-fit ()
+	;the call part its size in its scroll, as the notes are
+	(bind '(w h) (. *call_area* :pref_size))
+	(bind '(sw &ignore) (. *call_scroll* :get_size))
+	(. *call_area* :change_dirty 0 0 (max w (- sw 16) 300) (max h 40) :t)
+	(.-> *call_scroll* :layout :dirty_all))
 
 (defun call-show ()
 	;the call part made again, if what it shows has changed: the state is
@@ -163,7 +159,7 @@
 				*call_list*)
 			(if (empty? *call_list*) (. *call_area* :add_child (call-label "No calls to join" :font_button +argb_grey8)))
 			(. *call_area* :add_child (call-buttons (list (list "Start a call" +event_start :nil))))))
-	(window-fit))
+	(call-area-fit))
 
 (defun calls-refresh ()
 	;the calls of the mesh, and the call part made again if they changed

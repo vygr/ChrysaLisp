@@ -10,8 +10,10 @@
 (ui-window *window* ()
 	(ui-title-bar *title* "Voice" (+sym_close) +event_close)
 	(ui-label _ (:text "Call" :font :font_sub_title))
-	;made again as the call changes, (call-show)
-	(ui-flow *call_area* (:flow_flags +flow_down_fill :min_width 340))
+	;made again as the call changes, (call-show), in a scroll as the notes
+	;are, which is given its size each time
+	(ui-scroll *call_scroll* +scroll_flag_vertical (:min_width 340 :min_height 150)
+		(ui-flow *call_area* (:flow_flags +flow_down_fill)))
 	(ui-label _ (:text "Notes" :font :font_sub_title))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
