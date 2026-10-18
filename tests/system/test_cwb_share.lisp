@@ -240,3 +240,33 @@
 (defq sh_cols (sh-colors sh_canvas 134 290 310))
 (assert-list-eq "and a finger of another board has a ring of its color with white dashes" '(:t :t)
 	(list (if (find 0xffffff sh_cols) :t) (if (some (# (/= %0 0xffffff)) sh_cols) :t)))
+
+;an order changed on one board is not undone by what the other sends at
+;the same time, its pointers moving, with its order as it was: each makes
+;its delta before it has the other's
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t) sh_a (share-start (Board (cwb-doc 400 300))))
+(share-add sh_t :a) (share-add sh_a :t) (share-id-base sh_a 1000000) (def sh_a :user_base 100)
+(defun sh-cross ()
+	(defq ta (share-delta sh_a :t) tt (share-delta sh_t :a))
+	(when ta (share-apply sh_t ta :a) (share-acked sh_a :t))
+	(when tt (share-apply sh_a tt :t) (share-acked sh_t :a)))
+(defun sh-busy (n)
+	;so many crossings, each pointer moved before each
+	(each (lambda (i)
+			(. sh_a :pointers (list (ptr-event 0 :mouse 0 (+ 300 i) 250)))
+			(. sh_t :pointers (list (ptr-event 0 :mouse 0 (+ 300 i) 260)))
+			(sh-cross))
+		(range 0 n))
+	(list (sh-ids sh_t) (sh-ids sh_a)))
+(defun sh-tap (board buttons x y)
+	(. board :select (list))
+	(. board :pointers (list (ptr-event 0 :mouse buttons x y))) (. board :pointers (list (ptr-event 0 :mouse 0 x y))))
+(each (# (. sh_t :add (cwb-shape (cwb-d-rect %0 50 (+ %0 100) 150) :fill 0xffff0000 :stroke 0))) '(50 100 150))
+(def sh_t :mode :select) (def sh_a :mode :select)
+(sh-busy 2)
+(sh-tap sh_t +pev_right 220 100)
+(assert-eq "the teacher sends one to the back, and it stays there on both" (str (list "(3 1 2)" "(3 1 2)")) (str (sh-busy 4)))
+(sh-tap sh_t +pev_left 80 100)
+(assert-eq "brings one to the front, and it stays there on both" (str (list "(3 2 1)" "(3 2 1)")) (str (sh-busy 4)))
+(sh-tap sh_a +pev_right 80 100)
+(assert-eq "and the student sends one to the back, and so it is on both" (str (list "(1 3 2)" "(1 3 2)")) (str (sh-busy 4)))

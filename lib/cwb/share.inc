@@ -176,6 +176,9 @@
 			(defq want (cwb-id-set put) out (string-stream (cat "")))
 			(tree-save out (scatter (Emap)
 				:ids now :gone gone :all (if all 1 0)
+				;is the order not what that one has: one that is says nothing of
+				;it, else an order of its that crossed this would be undone
+				:order (if (or all (not (eql (str now) (str last)))) 1 0)
 				:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
 				:temps temps :held taken :pointers pointers))
 			(elem-set peer +peer_last now)
@@ -239,8 +242,9 @@
 				(defq id (elem-get item +cwb_id) at (some (# (if (= (elem-get %0 +cwb_id) id) (!))) kept))
 				(if at (elem-set kept at item) (push kept item)))
 			put)
-		;those it knows, in its order, in the places they are in here
-		(defq order (cwb-id-set ids)
+		;those it knows, in its order, in the places they are in here, if
+		;its order is new to it
+		(defq order (cwb-id-set (if (eql (. data :find :order) 0) (list) ids))
 			places (filter (# (cwb-id? order (elem-get (elem-get kept %0) +cwb_id))) (range 0 (length kept)))
 			theirs (map (# (elem-get kept %0)) places))
 		(sort theirs (# (- (find (elem-get %0 +cwb_id) ids) (find (elem-get %1 +cwb_id) ids))))
