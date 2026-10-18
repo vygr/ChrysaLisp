@@ -30,6 +30,8 @@
 	;sound is played by the host of this node, the one with the GUI. Another
 	;node of the machine may be on a host with no audio driver.
 	(open-child "service/audio/app.lisp" +kn_call_pin)
+	;calls, which have this desktop's microphone and speaker
+	(open-child "service/voice/app.lisp" +kn_call_pin)
 	(open-child "service/net/app.lisp" +kn_call_run))
 
 (defun ask ()

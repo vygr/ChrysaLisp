@@ -1,0 +1,90 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; service/voice/app.inc - calls, for any app
+;
+; A call is voice between the desktops in it, each heard by all the rest.
+; It is its own thing on the mesh, said there as *Call by its name, and
+; any app joins it: a Whiteboard its host's, Chat, the Voice app to listen
+; in with neither. Each desktop has one voice service, @Voice, which has
+; its microphone and its speaker, lib/audio/voice.inc, and is in one call
+; at a time: to join another leaves the first, as a phone does. An app
+; never has the microphone itself, it asks the service.
+;
+; Mute is the call's here, not an app's: none of what is said here is
+; sent while it is on, whichever app put it on.
+;
+; An app that shows a call says it is watching, and again within
+; +call_lease, and is sent the state of the call here each time it
+; changes, (call-state-read): what is on another node can not be asked
+; if it is still there, so it has to say so.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;a watcher, or a member of a call, not heard from for so long is gone,
+;and each says it is still there twice in that time
+(defq +call_lease 6000000 +call_beat 2000000)
+
+(defun call-service ()
+	; (call-service) -> :nil | net_id
+	;the voice service of this desktop, on its node, or any on the machine
+	(defq me (slice (task-mbox) +mailbox_id_size -1) found :nil)
+	(each (lambda (entry)
+		(defq id (hex-decode (second (split entry ","))))
+		(if (or (not found) (eql (slice id +mailbox_id_size -1) me)) (setq found id)))
+		(mail-enquire "@Voice,"))
+	found)
+
+(defun call-ask (text)
+	(if (defq service (call-service)) (mail-send service text)))
+
+(defun call-user ()
+	; (call-user) -> name
+	;who is asking, as the others in a call see them: the user of the app,
+	;a service has none
+	(ifn (and (defq user_env (def? '*env*)) (get :user user_env)) "Guest"))
+
+(defun call-name (text)
+	;a comma is not of a name, the mesh keeps one after one
+	(join (split text ",") " "))
+
+(defun call-start (name)
+	; (call-start name)
+	;a new call, of that name, that this desktop is in
+	(call-ask (cat "S" (call-name (call-user)) "," (call-name name))))
+
+(defun call-join (id)
+	; (call-join id)
+	;the call of that id, hex, (call-list)
+	(call-ask (cat "J" (call-name (call-user)) "," id)))
+
+(defun call-leave ()
+	; (call-leave)
+	(call-ask "L"))
+
+(defun call-mute (on)
+	; (call-mute on)
+	(call-ask (if on "M1" "M0")))
+
+(defun call-watch (mbox)
+	; (call-watch mbox)
+	;mbox is sent the state of the call each time it changes, (call-state-read),
+	;and now. Again within +call_lease to go on being
+	(call-ask (cat "W" (hex-encode mbox))))
+
+(defun call-unwatch (mbox)
+	; (call-unwatch mbox)
+	(call-ask (cat "U" (hex-encode mbox))))
+
+(defun call-list ()
+	; (call-list) -> ((id name) ...)
+	;the calls of the mesh
+	(reduce (lambda (out entry)
+			(defq parts (split entry ","))
+			(if (= (length parts) 4) (push out (list (elem-get parts 1) (elem-get parts 3))))
+			out)
+		(mail-enquire "*Call,") (list)))
+
+(defun call-state-read (msg)
+	; (call-state-read msg) -> :nil | state
+	;what a watcher is sent: an Emap of :id, hex or :nil if in no call,
+	;:name, :muted, and :members, a
+	;list of (name inbox) of all in it
+	(and (defq data (catch (tree-load (string-stream msg)) :t)) (Emap? data) data))

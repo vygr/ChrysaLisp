@@ -1,0 +1,54 @@
+(report-header "Voice calls: started, joined, who is in, mute, left and ended")
+
+(import "service/voice/app.inc")
+
+;two voice services, as two desktops would have, each told by mail
+(defq vc_a (open-child "service/voice/app_impl.lisp" +kn_call_pin)
+	vc_b (open-child "service/voice/app_impl.lisp" +kn_call_pin)
+	vc_wa (mail-mbox) vc_wb (mail-mbox))
+(defun vc-tell (svc text) (mail-send svc text))
+(defun vc-state (watcher test)
+	;the state a watcher is told, the first that passes test, or the last
+	;in five seconds
+	(defq got :nil done :nil until (+ (pii-time) 5000000))
+	(while (and (not done) (< (pii-time) until))
+		(when (defq msg (mail-read-timeout watcher 200000))
+			(setq got (call-state-read msg) done (test got))))
+	got)
+(defun vc-names (state) (sort (map (const first) (ifn (. state :find :members) (list))) (const cmp)))
+(vc-tell vc_a (cat "W" (hex-encode vc_wa)))
+(vc-tell vc_b (cat "W" (hex-encode vc_wb)))
+(assert-eq "a watcher is told at once, in no call" :nil (. (vc-state vc_wa (const identity)) :find :id))
+(vc-state vc_wb (const identity))
+
+(vc-tell vc_a "SAnn,Maths  the class")
+(defq vc_s (vc-state vc_wa (# (. %0 :find :id))))
+(assert-list-eq "a call started is the starter's, of its name, with it alone in it" (list (hex-encode vc_a) "Maths  the class" 1)
+	(list (. vc_s :find :id) (. vc_s :find :name) (length (. vc_s :find :members))))
+(assert-eq "and is on the mesh by that name" "Maths  the class"
+	(some (# (if (eql (first %0) (hex-encode vc_a)) (second %0))) (call-list)))
+
+(vc-tell vc_b (cat "JBob," (hex-encode vc_a)))
+(defq vc_s (vc-state vc_wb (# (= (length (ifn (. %0 :find :members) (list))) 2))))
+(assert-list-eq "one that joins is in it with its name, both are, by their users" (list (hex-encode vc_a) "Maths  the class" '("Ann" "Bob"))
+	(list (. vc_s :find :id) (. vc_s :find :name) (vc-names vc_s)))
+(assert-eq "a name of a call has no comma, the mesh keeps one after one" "a b" (call-name "a,b"))
+(assert-eq "and the starter is told so" 2 (length (. (vc-state vc_wa (# (= (length (. %0 :find :members)) 2))) :find :members)))
+
+(vc-tell vc_b "M1")
+(assert-eq "mute is said to the watchers" :t (. (vc-state vc_wb (# (. %0 :find :muted))) :find :muted))
+(vc-tell vc_b "M0")
+(vc-state vc_wb (# (not (. %0 :find :muted))))
+
+(vc-tell vc_b "L")
+(assert-eq "one that leaves is out of it" :nil (. (vc-state vc_wb (# (not (. %0 :find :id)))) :find :id))
+(assert-eq "and the starter is alone again" 1 (length (. (vc-state vc_wa (# (= (length (. %0 :find :members)) 1))) :find :members)))
+
+(vc-tell vc_b (cat "JBob," (hex-encode vc_a)))
+(vc-state vc_wb (# (= (length (ifn (. %0 :find :members) (list))) 2)))
+(vc-tell vc_a "L")
+(assert-eq "the starter leaves, and the call is ended for all" :nil (. (vc-state vc_wb (# (not (. %0 :find :id)))) :find :id))
+(assert-eq "and is on the mesh no more" :nil (find (hex-encode vc_a) (map (const first) (call-list))))
+
+(vc-tell vc_a "Q") (vc-tell vc_b "Q")
+(undef (env) 'vc_a 'vc_b 'vc_wa 'vc_wb 'vc_s)
