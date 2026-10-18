@@ -28,7 +28,10 @@
 
 ;what a board keeps of each it sends to, by a key the app gives it
 (enums +peer 0
-	(enum last changed busy temps held))
+	(enum last changed busy temps held pointers))
+
+;a pointer still for so long is not shown on the other boards
+(defq +share_pointer_still 3000000)
 
 (defun share-ids (doc)
 	; (share-ids doc) -> ids
@@ -94,7 +97,7 @@
 (defun share-add (board key)
 	; (share-add board key) -> board
 	;a board to send to, that has nothing yet: the first it is sent is all
-	(. (get :share_peers board) :insert key (list (list) (list :all) :nil :nil ""))
+	(. (get :share_peers board) :insert key (list (list) (list :all) :nil :nil "" ""))
 	board)
 
 (defun share-drop (board key)
@@ -134,6 +137,20 @@
 		(unless (eql from key) (push out (list name (cwb-item-out shape))))))
 	out)
 
+(defun share-pointers (board key)
+	; (share-pointers board key) -> ((name x y kind down who) ...)
+	;where this board's pointers are, those that have moved of late, and
+	;those of the boards that send here but the one it is to go to, which
+	;has its own. Names are this board's own ids, and as they came to it.
+	;who is the number of the board a pointer is of, the host 0 and each
+	;that joined the next, by where its users begin, for its color
+	(defq out (list) now (pii-time) me (/ (ifn (get :user_base board) 0) 100))
+	(. (get :pointer_at board) :each (lambda (id (x y kind down when))
+		(if (< (- now when) +share_pointer_still) (push out (list (str id) x y kind down me)))))
+	(. (get :remote_pointers board) :each (lambda (name (from x y kind down who))
+		(unless (eql from key) (push out (list name x y kind down who)))))
+	out)
+
 (defun share-delta (board key)
 	; (share-delta board key) -> :nil | text
 	;what that one is to be sent now, if it is not waiting on the last, and
@@ -141,28 +158,30 @@
 	(share-note board)
 	(share-self-holds board)
 	(when (and (defq peer (. (get :share_peers board) :find key)) (not (elem-get peer +peer_busy)))
-		(bind '(last changed & sent_temps sent_held) peer)
+		(bind '(last changed & sent_temps sent_held sent_pointers) peer)
 		(defq doc (get :doc board) now (share-ids doc) gone (filter (# (not (find %0 now))) last)
 			all (find :all changed)
 			;what a hand holds moves with no change said, it goes each time
 			held (share-tops doc (get :floating board))
 			put (if all now (cat (share-tops doc changed) (filter (# (not (find %0 last))) now) held))
-			temps (share-temps board key) taken (share-held-for board key))
+			temps (share-temps board key) taken (share-held-for board key)
+			pointers (share-pointers board key))
 		(setq put (reduce (# (if (find %1 %0) %0 (push %0 %1))) put (list)))
 		;what is held is sent when it is not what was, a thing let go of too:
 		;with nothing else changed the one that waited on it would wait on
 		(when (or (nempty? put) (nempty? gone) (not (eql (str now) (str last))) (nempty? temps) sent_temps
-				(nql (str taken) sent_held))
+				(nql (str taken) sent_held) (nql (str pointers) sent_pointers))
 			(defq want (cwb-id-set put) out (string-stream (cat "")))
 			(tree-save out (scatter (Emap)
 				:ids now :gone gone :all (if all 1 0)
 				:put (map (const cwb-item-out) (filter (# (cwb-id? want (elem-get %0 +cwb_id))) (cwb-items doc)))
-				:temps temps :held taken))
+				:temps temps :held taken :pointers pointers))
 			(elem-set peer +peer_last now)
 			(elem-set peer +peer_changed (list))
 			(elem-set peer +peer_busy :t)
 			(elem-set peer +peer_temps (nempty? temps))
 			(elem-set peer +peer_held (str taken))
+			(elem-set peer +peer_pointers (str pointers))
 			(str out))))
 
 (defun share-acked (board key)
@@ -228,6 +247,14 @@
 		(each (# (. temps :erase %0)) old)
 		(each (lambda ((name shape)) (. temps :insert (cat (str from) "/" name) (list from (cwb-item-in shape))))
 			(ifn (. data :find :temps) (list)))
+		;where its pointers are, and those it passes on, each with the
+		;number of the board it is of, for its color
+		(defq pointers (get :remote_pointers board) old (list))
+		(. pointers :each (lambda (k (src &ignore)) (if (eql src from) (push old k))))
+		(each (# (. pointers :erase %0)) old)
+		(each (lambda ((name x y kind down who)) (. pointers :insert (cat (str from) "/" name) (list from x y kind down who)))
+			(ifn (. data :find :pointers) (list)))
+		(. board :touch +board_dirty_overlay)
 		;noted for the rest, and that one has it all now
 		(. board :changed (if (/= (. data :find :all) 0) :all (cat (map (# (elem-get %0 +cwb_id)) put) (map (const identity) (ifn (. data :find :gone) (list))))))
 		(share-note board)

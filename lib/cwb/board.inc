@@ -36,7 +36,10 @@
 ;who made a thing, and who a device is: the teacher, the presenter, is 0,
 ;touch is anybody, and a student is a number from +board_first_student,
 ;each pen its own, see (. board :user_of)
-(defq +board_teacher 0 +board_anybody 1 +board_first_student 2)
+(defq +board_teacher 0 +board_anybody 1 +board_first_student 2
+	;the color of each board's pointers on the others, by its number in a
+	;share, the host's first, eight that are told apart
+	+board_guest_colors ''(0xff4000 0x0060ff 0x00a040 0xc000c0 0xe0a000 0x00a0c0 0x8040ff 0xa05020))
 
 ;a tap: a contact that lifts within this long, microseconds, and this near
 ;to where it landed, on the screen. Chris: "a short tap for select mode
@@ -1220,6 +1223,10 @@
 		:auto_group 1500000 :last_stroke :nil
 		:temp (Fmap 11) :bands (Fmap 11) :pan :nil :dirty (+ +board_dirty_doc +board_dirty_overlay)
 		:contacts (Fmap 11) :show_contacts :t
+		;where each pointer of this board last was, down or only near, and
+		;when, for the boards it is shared with to show; and theirs here,
+		;by the name they come by, lib/cwb/share.inc
+		:pointer_at (Fmap 11) :remote_pointers (Fmap 11)
 		;a pen or a mouse that is near and not down, where it is, and
 		;:hover_edges: it is shown the catch of the edge of an instrument
 		;that would have it if it went down, those are :hover_shown
@@ -2409,9 +2416,15 @@
 		; (. board :pointers events) -> board
 		;a batch of pointer events, each in the space of the document
 		;where each finger that is down is, is kept, to be shown, (:draw_actors)
-		(defq contacts (get :contacts this) seen :nil devices (get :seen this))
+		(defq contacts (get :contacts this) seen :nil devices (get :seen this)
+			at (get :pointer_at this) now (pii-time))
 		(each (lambda (event)
 			(bind '(id kind buttons &ignore) event)
+			;where it is, down or near: a finger that lifts is gone, it is
+			;not near as a pen or a mouse is
+			(if (and (eql kind :touch) (not (ptr-down? event)))
+				(. at :erase id)
+				(. at :insert id (list (elem-get event +pev_x) (elem-get event +pev_y) kind (ptr-down? event) now)))
 			;a device as it presses, its main button or its second
 			(when (and (/= buttons 0) (/= (logand buttons (logior +pev_left +pev_right)) 0))
 				(defq press (list kind (ptr-device id) (if (/= (logand buttons +pev_right) 0) +pev_right +pev_left)))
@@ -2508,6 +2521,20 @@
 				(push rings (cwb-shape (cwb-d-ellipse x y r) :stroke 0xc0ff4000 :width thin :fill 0x30ff4000)
 					(cwb-shape (cwb-d-ellipse x y (* r 0.15)) :fill 0xc0ff4000 :stroke 0))))
 			(if (nempty? rings) (cwb-draw-items canvas rings m)))
+		;and the pointers of the boards this is shared with, so what someone
+		;does and points at is seen, each board in a color of its own: a
+		;mouse or a pen an arrow, solid when down and lighter when only
+		;near, a finger a ring as these are
+		(defq marks (list) s (/ 1.0 (get :zoom this)))
+		(. (get :remote_pointers this) :each (lambda (name (from x y kind down who))
+			(defq rgb (elem-get +board_guest_colors (% (ifn who 0) (length +board_guest_colors)))
+				col (+ rgb (if down 0xe0000000 0x90000000)))
+			(if (eql kind :touch)
+				(push marks (cwb-shape (cwb-d-ellipse x y (* s 16.0)) :stroke col :width (* s 2.0) :fill (+ rgb 0x30000000)))
+				(push marks (cwb-shape (cwb-d-points (list x y x (+ y (* s 18.0)) (+ x (* s 5.0)) (+ y (* s 14.0))
+						(+ x (* s 12.0)) (+ y (* s 13.0))) :t)
+					:fill col :stroke 0xffffffff :width s :join :miter)))))
+		(if (nempty? marks) (cwb-draw-items canvas marks m))
 		this)
 
 	;;;;;;;;;

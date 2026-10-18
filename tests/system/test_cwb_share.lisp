@@ -182,3 +182,26 @@
 (assert-eq "and deletes what the teacher made" :nil (sh-has sh_a 1))
 (. sh_a :bite (path 290.0 150.0 310.0 150.0) 10 :nil sh_mouse)
 (assert-true "and rubs it out" (nql sh_was (sh-look sh_a)))
+
+;the pointers of each board are shown on the others, each board by its
+;number for its color, the host passing them on: a mouse that moves, and
+;one still for a while that is shown no more
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t)
+	sh_a (share-start (Board (cwb-doc 400 300))) sh_b (share-start (Board (cwb-doc 400 300))))
+(share-add sh_t :a) (share-add sh_t :b) (share-add sh_a :t) (share-add sh_b :t)
+(share-id-base sh_a 1000000) (share-id-base sh_b 2000000) (def sh_a :user_base 100) (def sh_b :user_base 200)
+(. sh_a :pointers (list (ptr-event 0 :mouse 0 120 130)))
+(sh-round) (sh-round)
+(defun sh-pointers (board)
+	(defq out (list))
+	(. (get :remote_pointers board) :each (lambda (k (from x y kind down who)) (push out (list (n2i x) (n2i y) kind who))))
+	out)
+(assert-eq "a student's mouse is on the teacher's board, as that board's" (str (list (list 120 130 :mouse 1))) (str (sh-pointers sh_t)))
+(assert-eq "and passed on to the other student's" (str (list (list 120 130 :mouse 1))) (str (sh-pointers sh_b)))
+(assert-eq "and not back to its own" "()" (str (sh-pointers sh_a)))
+;still for longer than is shown
+(. (get :pointer_at sh_a) :each (lambda (id (x y kind down when))
+	(. (get :pointer_at sh_a) :insert id (list x y kind down (- (pii-time) 10000000)))))
+(sh-round) (sh-round)
+(assert-eq "a mouse still for a while is shown no more" "()" (str (sh-pointers sh_t)))
+(assert-eq "anywhere" "()" (str (sh-pointers sh_b)))
