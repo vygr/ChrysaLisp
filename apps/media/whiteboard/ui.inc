@@ -115,14 +115,17 @@
 
 (defun teacher-pressed? ()
 	(cond
-		;a board that joined another's is no teacher of it
-		((eql *share* :joined) :nil)
+		;a board that joined another's is no teacher of it, unless the host
+		;trusts the boards that joined, its teachers switch
+		((and (eql *share* :joined) (not *share_trust*)) :nil)
 		((defq event (msg-press)) (= (. *board* :user_of event) +board_teacher))
 		(:t)))
 (defun action-undo () (if (teacher-pressed?) (. *board* :undo)))
 (defun action-redo () (if (teacher-pressed?) (. *board* :redo)))
-(defun action-clear () (. *board* :clear))
-(defun action-crop () (. *board* :crop))
+;all of the board, or all that is off its paper: what anyone made, so the
+;teacher's to do, as undo is
+(defun action-clear () (if (teacher-pressed?) (. *board* :clear)))
+(defun action-crop () (if (teacher-pressed?) (. *board* :crop)))
 
 (defun action-new ()
 	;an empty board, of the size the size field says. It can be undone,
@@ -262,7 +265,9 @@
 ;Chris: "2 users can select seperate item", a key to all that is selected
 (defun action-group () (. *board* :group (msg-mine)))
 (defun action-ungroup () (. *board* :ungroup (msg-mine)))
-(defun action-delete () (. *board* :delete (msg-mine)))
+(defun action-delete ()
+	;of the presser's selection, what they may rub out, (board-may-rub?)
+	(. *board* :delete (msg-mine) (if (defq event (msg-press)) (. *board* :user_of event))))
 (defun action-duplicate () (. *board* :duplicate :nil :nil (msg-mine)))
 (defun action-to-front () (. *board* :order :t (msg-mine)))
 (defun action-to-back () (. *board* :order :nil (msg-mine)))

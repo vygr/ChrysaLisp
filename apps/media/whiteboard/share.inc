@@ -9,10 +9,12 @@
 ; what it is, the mailbox it is from, a comma, and what it carries:
 ;	i	an invite, from the host, with its user's name
 ;	h	hello, I would join
-;	w	welcome: ids from, users from, may a copy be saved, 1 or 0
+;	w	welcome: ids from, users from, may a copy be saved, are they
+;		teachers, each 1 or 0
 ;	d	a delta, (share-delta)
 ;	a	the last delta is had
 ;	s	may a copy be saved, from the host as it is changed, 1 or 0
+;	t	are the boards that joined teachers, from the host, 1 or 0
 ;	b	bye
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -24,14 +26,18 @@
 ;whether a copy may be saved, which the host says and is no unless it does
 (defq *share* :nil *share_entry* :nil *share_peers* (list) *share_joined* 0
 	*share_host* :nil *share_own_doc* :nil *share_may_save* :nil
+	;are the boards that joined teachers, who rub out what anyone made: a
+	;class, no, its students rub out what is theirs; people who trust each
+	;other working together, yes
+	*share_trust* :nil
 	;the host that invited this one, and its user's name
 	*share_invite* :nil *share_invite_name* :nil)
 
 (defun share-title ()
 	;the title says if the board is shared, and how
 	(def *title* :text (cat "Whiteboard" (case *share*
-		(:host (if *share_may_save* ", shared, copies may be saved" ", shared"))
-		(:joined (if *share_may_save* ", joined, may save a copy" ", joined"))
+		(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")))
+		(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")))
 		(:asking ", joining")
 		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) "")))))
 	(.-> *title* :layout :dirty_all))
@@ -92,17 +98,30 @@
 (defun share-end ()
 	;a board that joined has its own document back
 	(share-stop *board*)
-	(def *board* :user_base :nil)
+	(def *board* :user_base :nil :trusted :nil)
 	(if *share_own_doc* (. *board* :set_doc *share_own_doc*))
-	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil)
+	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil *share_trust* :nil)
 	(share-title))
 
-(defun share-copies-show ()
-	;the switch beside Share lit while copies may be saved, as a toggle is
-	(when (defq btn (some (# (if (eql (get :text %0) (num-to-utf8 +sym_copy)) %0)) (. *main_toolbar* :children)))
-		(if *share_may_save*
+(defun share-switch-show (sym on)
+	;a switch beside Share lit while it is on, as a toggle is
+	(when (defq btn (some (# (if (eql (get :text %0) (num-to-utf8 sym)) %0)) (. *main_toolbar* :children)))
+		(if on
 			(def (. btn :dirty) :paper (canvas-brighter (get :paper *main_toolbar*)))
 			(undef (. btn :dirty) :paper))))
+
+(defun share-copies-show ()
+	(share-switch-show +sym_copy *share_may_save*)
+	(share-switch-show +sym_eraser *share_trust*))
+
+(defun action-teachers ()
+	;the host says if the boards joined to it are teachers, who rub out
+	;what anyone made, and tells them now
+	(when (eql *share* :host)
+		(setq *share_trust* (not *share_trust*))
+		(each (# (share-send %0 "t" (if *share_trust* "1" "0"))) *share_peers*)
+		(share-copies-show)
+		(share-title)))
 
 (defun action-copies ()
 	;the host says if the boards joined to it may save a copy of the
@@ -120,7 +139,7 @@
 			(each (# (share-send %0 "b")) *share_peers*)
 			(share-stop *board*)
 			(share-declare :nil)
-			(setq *share* :nil *share_peers* (list) *share_may_save* :nil)
+			(setq *share* :nil *share_peers* (list) *share_may_save* :nil *share_trust* :nil)
 			(share-copies-show)
 			(share-title))
 		((find *share* '(:joined :asking))
@@ -146,13 +165,15 @@
 				(share-add *board* from)
 				(push *share_peers* from)
 				(defq n (++ *share_joined*))
-				(share-send from "w" (cat (str (* n 1000000)) "," (str (* n 100)) "," (if *share_may_save* "1" "0")))))
+				(share-send from "w" (cat (str (* n 1000000)) "," (str (* n 100)) "," (if *share_may_save* "1" "0")
+					"," (if *share_trust* "1" "0")))))
 		((eql kind "w")
 			(when (eql *share* :asking)
 				(setq *share_invite* :nil)
-				(bind '(base users save) (map (const str-to-num) (split payload ",")))
+				(bind '(base users save &optional trust) (map (const str-to-num) (split payload ",")))
 				(defq doc (. *board* :get_doc))
-				(setq *share_own_doc* doc *share* :joined *share_may_save* (= save 1))
+				(setq *share_own_doc* doc *share* :joined *share_may_save* (= save 1) *share_trust* (eql trust 1))
+				(def *board* :trusted *share_trust*)
 				(. *board* :set_doc (cwb-doc (. doc :find :width) (. doc :find :height)))
 				(share-start *board*)
 				(share-add *board* from)
@@ -169,6 +190,12 @@
 			;the host has said again if a copy may be saved
 			(when (and (eql *share* :joined) (eql from *share_host*))
 				(setq *share_may_save* (eql payload "1"))
+				(share-title)))
+		((eql kind "t")
+			;the host has said again if this board is a teacher
+			(when (and (eql *share* :joined) (eql from *share_host*))
+				(setq *share_trust* (eql payload "1"))
+				(def *board* :trusted *share_trust*)
 				(share-title)))
 		((eql kind "b")
 			(cond

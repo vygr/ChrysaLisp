@@ -213,6 +213,14 @@
 		;a polygon, no group of them
 		out))
 
+(defun board-may-rub? (user item)
+	; (board-may-rub? user item) -> :t | :nil
+	;may that user rub out or delete what that item is: the teacher's, or
+	;one with no user said, takes anything, any other only what it made.
+	;Chris: "students could not erase things the teacher or the other
+	;student had written", and of a delete, the same
+	(or (not user) (= user +board_teacher) (= user (elem-get item +cwb_user))))
+
 (defun board-bite (doc swept &optional lines but tol user)
 	; (board-bite doc swept [lines but tol user]) -> :nil | (made gone swaps)
 	;user, whose eraser it is: a shape another made is left as it is, but
@@ -254,7 +262,7 @@
 					;what is in it, in its own space, later
 					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
 				((and lines (cwb-rub? item)))
-				((and user (/= user +board_teacher) (/= user (elem-get item +cwb_user))))
+				((not (board-may-rub? user item)))
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(and (vector-collide-boxes-2d reach (Mat3x2-box box full))
@@ -1286,7 +1294,9 @@
 		;user. SDL3 gives the other end of a pen as an :eraser, so here that
 		;is the teacher's whoever's pen it is
 		;A board that joined another's is a student's: what is the teacher
-		;here is that board's own number, :user_base, see lib/cwb/share.inc
+		;here is that board's own number, :user_base, see lib/cwb/share.inc.
+		;Unless the host trusts the boards that joined, :trusted: then the
+		;teacher here is the teacher, and rubs out what anyone made
 		(bind '(id kind &ignore) event)
 		(defq users (get :users this) key (ptr-device id)
 			user (cond
@@ -1297,7 +1307,9 @@
 				(:t (. users :insert key (defq user (get :next_user this)))
 					(def this :next_user (inc user))
 					user)))
-		(if (or (= user +board_anybody) (not (defq base (get :user_base this)))) user (+ base user)))
+		(if (or (= user +board_anybody) (not (defq base (get :user_base this)))
+				(and (= user +board_teacher) (get :trusted this)))
+			user (+ base user)))
 
 	(defmethod :device_slot (kind id &optional buttons)
 		; (. board :device_slot kind id [buttons]) -> :nil | 0 to 11
@@ -2083,10 +2095,12 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
 			:t))
 
-	(defmethod :delete (&optional ids)
-		; (. board :delete [ids]) -> board
-		;take out what is selected, or of those ids
-		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id)) (. this :selected_items ids))))
+	(defmethod :delete (&optional ids user)
+		; (. board :delete [ids user]) -> board
+		;take out what is selected, or of those ids, of what that user may
+		;rub out, as an eraser does, (board-may-rub?)
+		(when (nempty? (defq ids (map (# (elem-get %0 +cwb_id))
+				(filter (# (board-may-rub? user %0)) (. this :selected_items ids)))))
 			(. this :snapshot)
 			(. this :remove ids))
 		this)

@@ -158,3 +158,27 @@
 (. sh_a :rub 200 50 6)
 (assert-true "and the eraser has it" (nql sh_was (sh-look sh_a)))
 (assert-eq "the line cut" :nil (sh-has sh_a 2))
+
+;a board that joined is a student's: its mouse rubs out and deletes only
+;what it made, the teacher's are left. Trusted by the host, its teachers
+;switch, the mouse there is the teacher, and has anything not held
+(defq sh_t (share-start (Board (cwb-doc 400 300)) :t) sh_a (share-start (Board (cwb-doc 400 300))))
+(share-add sh_t :a) (share-add sh_a :t) (share-id-base sh_a 1000000) (def sh_a :user_base 100)
+(. sh_t :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xffff0000 :stroke 0))
+(. sh_t :add (cwb-shape (cwb-d-rect 250 100 350 200) :fill 0xff00ff00 :stroke 0))
+(sh-go sh_t :a sh_a :t)
+(defq sh_mouse (. sh_a :user_of (ptr-event 0 :mouse 0 10 10)))
+(assert-eq "the mouse of a board that joined is not the teacher" 100 sh_mouse)
+(. sh_a :select (list 1)) (. sh_a :delete (list 1) sh_mouse)
+(assert-eq "it deletes nothing of the teacher's" :t (sh-has sh_a 1))
+(. sh_a :select (list))
+(defq sh_was (sh-look sh_a))
+(. sh_a :bite (path 290.0 150.0 310.0 150.0) 10 :nil sh_mouse)
+(assert-eq "nor rubs it out" sh_was (sh-look sh_a))
+(def sh_a :trusted :t)
+(defq sh_mouse (. sh_a :user_of (ptr-event 0 :mouse 0 10 10)))
+(assert-eq "trusted, its mouse is the teacher" +board_teacher sh_mouse)
+(. sh_a :select (list 1)) (. sh_a :delete (list 1) sh_mouse)
+(assert-eq "and deletes what the teacher made" :nil (sh-has sh_a 1))
+(. sh_a :bite (path 290.0 150.0 310.0 150.0) 10 :nil sh_mouse)
+(assert-true "and rubs it out" (nql sh_was (sh-look sh_a)))
