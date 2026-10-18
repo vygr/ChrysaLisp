@@ -98,16 +98,18 @@
 	row)
 
 (defun call-buttons (buttons)
-	;a row of buttons with words, ((text event lit) ...), one that is on lit
-	(def (defq row (Flow)) :flow_flags +flow_right)
-	(each (lambda ((text event lit))
-			(def (defq btn (Button)) :text text :border 1)
-			(view-variant btn :font :font_button)
+	;a tool bar, as (ui-tool-bar) makes one, ((symbol event lit tip) ...),
+	;one that is on lit
+	(def (defq bar (Flow)) :flow_flags +flow_right)
+	(view-variant bar :paper :paper_toolbar)
+	(view-variant bar :font :font_symbol)
+	(each (lambda ((sym event lit tip))
+			(def (defq btn (Button)) :text (num-to-utf8 sym) :tip_text tip)
 			(if lit (view-variant btn :paper :paper_highlight))
 			(. btn :connect event)
-			(. row :add_child btn))
+			(. bar :add_child btn))
 		buttons)
-	row)
+	bar)
 
 (defun call-area-fit ()
 	;the call part its size in its scroll, as the notes are
@@ -147,18 +149,18 @@
 							("")))))
 				(ifn (. *call* :find :members) (list)))
 			(. *call_area* :add_child (call-buttons (list
-				(list (if muted "Unmute" "Mute") +event_mute muted)
-				(list "Headphones" +event_headphones (. *call* :find :headphones))
-				(list "Leave" +event_leave :nil)))))
+				(list +sym_mute +event_mute muted "mute")
+				(list +sym_headphones +event_headphones (. *call* :find :headphones) "headphones")
+				(list +sym_hangup +event_leave :nil "leave")))))
 		(:t (each (lambda ((id name))
 					(def (defq row (Flow)) :flow_flags +flow_right_fill)
 					(def (defq lbl (call-label name)) :min_width 240)
 					(. row :add_child lbl)
-					(. row :add_child (call-buttons (list (list "Join" (+ +event_join (!)) :nil))))
+					(. row :add_child (call-buttons (list (list +sym_dial (+ +event_join (!)) :nil "join"))))
 					(. *call_area* :add_child row))
 				*call_list*)
 			(if (empty? *call_list*) (. *call_area* :add_child (call-label "No calls to join" :font_button +argb_grey8)))
-			(. *call_area* :add_child (call-buttons (list (list "Start a call" +event_start :nil))))))
+			(. *call_area* :add_child (call-buttons (list (list +sym_dial +event_start :nil "call"))))))
 	(call-area-fit))
 
 (defun calls-refresh ()

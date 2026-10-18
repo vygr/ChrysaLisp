@@ -252,7 +252,9 @@
 	;a microphone, for voice, and one with a cross beside it, apart from
 	;it, for none of it sent: mute
 	(list "mic" s_mic)
-	(list "mute" (cat s_mic_left (s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))))
+	(list "mute" (cat s_mic_left (s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))
+	;headphones, a band over two cups
+	(list "headphones" (cat (s-arc 12 14 8 0 180) (s-rrect 3 14 7.5 21 1.5) (s-rrect 16.5 14 21 21 1.5)))))
 
 ;;;;;;;;;;;;
 ; the themes
