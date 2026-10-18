@@ -827,6 +827,16 @@
 (assert-list-eq "one dragged by the left button is at the front, in flight in front of the document" '((1 2 3) (3) :nil :t)
 	(list (bk-ids) (get :floating bk_board) (get :float_back bk_board) (. bk_board :in_flight?)))
 (. bk_board :pointers (list (ptr-event 0 :mouse 0 250 110)))
+;a selection only sitting there with something drawn over it after, here or by a board shared with, lands in its place, under that
+(. bk_board :select (list 3))
+(assert-list-eq "selected and on top, it is in flight" '(3) (get :floating bk_board))
+(. bk_board :add (cwb-shape (cwb-d-rect 180 60 260 140) :fill 0xff00ff00 :stroke 0))
+(. bk_board :select (list 3))
+(assert-list-eq "drawn over, it is in the document under what is over it, still selected" '(() (3)) (list (get :floating bk_board) (. bk_board :get_selected)))
+(. bk_board :add (cwb-shape (cwb-d-rect 360 200 380 220) :fill 0xff00ff00 :stroke 0))
+(. bk_board :select (list 4))
+(assert-list-eq "what is drawn after it but not over it leaves it in flight" '(4) (get :floating bk_board))
+(. bk_board :select (list))
 
 ;what is written: a line by hand begun soon after the last was ended, by the same pen, is put in a group with it
 (defq wr_board (Board (cwb-doc 600 400)) wr_doc (. wr_board :get_doc) wr_now 1000000)

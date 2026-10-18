@@ -528,12 +528,13 @@
 		(assert-eq "one that has been out three seconds is given up: the nodes are let go, it is counted, and the app's task has drawn it"
 			"(:t :nil 1 :gone :t)" (elem-get wa_out 9))))
 
-;a thing taken up, or put down, changes only its part of the document's picture, and the board says which
+;a thing taken up, or put down, changes only its part of the document's picture, and the board says which.
+;What is taken up is on top: one with something over it is in its place in the document till a hand has it
 (defq wa_dmg (wa-run (cat
-	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
 	"(wa-mode :pen) (wa-drag 1 150 150 380 390)"
+	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
 	"(. *board* :select (list)) (. *board* :take_damage)"
-	"(. *board* :select (list 2)) (defq d1 (. *board* :take_damage)) (print (list (length d1) (map (const n2i) (first d1))))"
+	"(. *board* :select (list 3)) (defq d1 (. *board* :take_damage)) (print (list (length d1) (map (const n2i) (first d1))))"
 	"(. *board* :select (list)) (defq d2 (. *board* :take_damage)) (print (list (length d2) (map (const n2i) (first d2))))"
 	;a thing drawn is put on top and is no part to draw again, a few taken up are parts, and a change to them is all of it
 	"(wa-mode :frect) (wa-drag 1 500 500 520 520) (prin (. *board* :take_damage))"
@@ -546,17 +547,18 @@
 (defq wa_part (wa-run (cat
 	"(defun pic () (task-slice) (defq s (memory-stream)) (pixmap-write (getf *committed* +canvas_pixmap 0) s 32) (stream-seek s 0 0) (read-blk s 100000000))"
 	;boxes, a line and an ellipse that lie over one another
-	"(wa-mode :frect) (wa-drag 1 100 100 300 300) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
+	"(wa-mode :frect) (wa-drag 1 100 100 300 300)"
 	"(wa-mode :pen) (. *ink_toolbar* :set_selected 4) (wa-do +event_ink) (wa-drag 1 150 150 380 390) (wa-mode :ellipse) (wa-drag 1 250 120 420 330)"
+	"(wa-mode :frect) (. *ink_toolbar* :set_selected 2) (wa-do +event_ink) (wa-drag 1 200 200 400 400)"
 	"(. *board* :select (list)) (. *board* :dirty? +board_dirty_doc) (. *board* :take_damage) (draw-local (view-matrix)) (defq p0 (pic))"
-	;the red box, in the middle of them, is taken up
-	"(. *board* :select (list 2)) (defq d1 (. *board* :take_damage) parts (draw-damage d1 (view-matrix)) p1 (pic))"
+	;the red box, over them, is taken up
+	"(. *board* :select (list 4)) (defq d1 (. *board* :take_damage) parts (draw-damage d1 (view-matrix)) p1 (pic))"
 	"(draw-local (view-matrix)) (defq p2 (pic))"
 	"(print (list *damage_parts* parts (> (length p0) 3000000) (eql p1 p2) (eql p0 p1) (. *committed* :get_clip)))"
 	;and put down again
 	"(. *board* :select (list)) (draw-damage (. *board* :take_damage) (view-matrix)) (print (eql (pic) p0))"
-	;one at the corner of the paper, part of it off it
-	"(. *board* :select (list 1)) (. *board* :transform (Mat3x2-translate -150.0 -150.0)) (. *board* :select (list)) (. *board* :take_damage) (draw-local (view-matrix)) (defq p3 (pic))"
+	;one at the corner of the paper, part of it off it, and clear of the rest
+	"(. *board* :select (list 1)) (. *board* :transform (Mat3x2-translate -200.0 -200.0)) (. *board* :select (list)) (. *board* :take_damage) (draw-local (view-matrix)) (defq p3 (pic))"
 	"(. *board* :select (list 1)) (draw-damage (. *board* :take_damage) (view-matrix)) (defq p4 (pic)) (draw-local (view-matrix)) (print (list (eql p4 (pic)) (eql p4 p3)))")))
 (assert-eq "one thing taken up: that part of the picture is made clear and drawn, and the picture is then what all of it drawn again is, and not what it was. The canvas is left whole to draw on"
 	"(:t ((195 195 405 405)) :t :t :nil (0 0 1024 768))" (first wa_part))

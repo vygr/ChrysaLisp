@@ -216,6 +216,23 @@
 		;a polygon, no group of them
 		out))
 
+(defun board-covered? (doc ids)
+	; (board-covered? doc ids) -> :t | :nil
+	;is anything that is not one of these in front of one of them, and
+	;over it, of the things of the document that are not in a group
+	(defq want (cwb-id-set ids) boxes (list) covered :nil)
+	(each (lambda ((name flags items))
+			(each (lambda (item)
+					(cond
+						((cwb-id? want (elem-get item +cwb_id))
+							(if (defq box (cwb-bounds (list item))) (push boxes box)))
+						((and (nempty? boxes) (defq over (cwb-bounds (list item)))
+								(some (# (vector-collide-boxes-2d over %0)) boxes))
+							(setq covered :t))))
+				items))
+		(cwb-layers doc))
+	covered)
+
 (defun board-may-rub? (user item)
 	; (board-may-rub? user item) -> :t | :nil
 	;may that user rub out or delete what that item is: the teacher's, or
@@ -1374,9 +1391,14 @@
 		;it is drawn by itself, (:draw_flight), in front of the document or
 		;behind it, :float_back, and the document is not drawn again while
 		;it is moved, turned or sized, however long that goes on. It lands
-		;when it is no longer selected. So here, where every change comes,
-		;what is in flight is made what is selected, and if that is not
-		;what it was the document is to be drawn again, once
+		;when it is no longer selected, or when something is over it and in
+		;front of it in the document and no hand or handle has it, nor is it
+		;behind: what is drawn over it
+		;after, here or on a board this shares with, is then in front of it
+		;as it is in the document, and it is in flight again as it is taken
+		;hold of. So here, where every change comes, what is in flight is
+		;made so, and if that is not what it was the document is to be
+		;drawn again, once
 		;
 		;Not all of it need be. When a few things go into flight or come
 		;out of it the picture of the document changes only where they
@@ -1385,6 +1407,9 @@
 		;here with +board_dirty_doc, and then it is all of it
 		(if (bits? flags +board_dirty_doc) (def this :damage_full :t))
 		(defq selected (get :selected this) floating (get :floating this))
+		(and (nempty? selected) (empty? (get :back_ids this))
+			(not (. (get :things this) :holding)) (= (. (get :handles this) :held) 0)
+			(board-covered? (get :doc this) selected) (setq selected (list)))
 		(unless (and (= (length selected) (length floating)) (every (const =) selected floating))
 			(defq was (cwb-id-set floating) is (cwb-id-set selected)
 				moved (cat (filter (# (not (cwb-id? was %0))) selected) (filter (# (not (cwb-id? is %0))) floating)))
