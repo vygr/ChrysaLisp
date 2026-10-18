@@ -33,6 +33,9 @@
 	s_m_on (cat (s-fill 5 5 13 12 5 19) (s-line 19 5 19 19))
 	s_m_end (cat (s-fill 2 6 8 12 2 18) (s-fill 10 6 16 12 10 18) (s-line 20.5 5 20.5 19))
 	s_pause (cat (s-line 9 5 9 19) (s-line 15 5 15 19))
+	;a microphone on its stand, and the same moved over
+	s_mic (cat (s-rrect 9 2.5 15 14 3) (s-arc 12 10.5 6.5 180 360) (s-line 12 17 12 20.5) (s-line 8.5 20.5 15.5 20.5))
+	s_mic_left (cat (s-rrect 5 2.5 11 14 3) (s-arc 8 10.5 6.5 180 360) (s-line 8 17 8 20.5) (s-line 4.5 20.5 11.5 20.5))
 	s_step (cat (s-arc-arrow 12 15 8 170 10) (s-disc 12 20 1.8))
 	s_fwd (cat (s-loop 3 6 11 12 3 18) (s-loop 13 6 21 12 13 18))
 	s_swap (cat (s-arrow 4 8 19 8) (s-arrow 20 16 5 16))
@@ -245,7 +248,11 @@
 	(list "menu" (cat (s-rrect 3 3 21 21 2) (s-line 3 8 21 8)
 		(s-line 16 4.5 18.5 6.5) (s-line 18.5 4.5 16 6.5)
 		(s-box 6 11 9 14) (s-box 10.5 11 13.5 14) (s-box 15 11 18 14)
-		(s-box 6 16 9 19) (s-box 10.5 16 13.5 19) (s-box 15 16 18 19)))))
+		(s-box 6 16 9 19) (s-box 10.5 16 13.5 19) (s-box 15 16 18 19)))
+	;a microphone, for voice, and one with a cross beside it, apart from
+	;it, for none of it sent: mute
+	(list "mic" s_mic)
+	(list "mute" (cat s_mic_left (s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))))
 
 ;;;;;;;;;;;;
 ; the themes
