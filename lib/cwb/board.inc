@@ -509,13 +509,13 @@
 				;how far it reaches is the width this pointer draws with:
 				;thin, it rubs out a little, thick, a lot. Chris: "The
 				;eraser mode, should use the current pen size ?"
-				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board)))
-					near (/ +board_near (get :zoom board)))
-				;near where it went down it may be a tap, that selects and
-				;rubs nothing out, (:end). Gone further, it rubs out all
-				;the way from there: item says it has
+				(defq reach (. board :reach (. (get :bindings board) :value event :width (get :width board))))
+				;while it may be a tap, that selects and rubs nothing out,
+				;(:end), by the test a pen's tap is, (board-tap?). Gone
+				;further, or down longer, it rubs out all the way from where
+				;it went down: item says it has
 				(cond
-					((and (not item) (<= (abs (- x sx)) near) (<= (abs (- y sy)) near)))
+					((and (not item) (board-tap? board state x y)))
 					(:t (elem-set state +stroke_item :t)
 						(cond
 							((eql (get :rub_mode board) :bite)
