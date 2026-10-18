@@ -12,6 +12,7 @@
 ;	w	welcome: ids from, users from, may a copy be saved, 1 or 0
 ;	d	a delta, (share-delta)
 ;	a	the last delta is had
+;	s	may a copy be saved, from the host as it is changed, 1 or 0
 ;	b	bye
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -28,7 +29,10 @@
 
 (defun share-title ()
 	;the title says if the board is shared, and how
-	(def *title* :text (cat "Whiteboard" (case *share* (:host ", shared") (:joined ", joined") (:asking ", joining")
+	(def *title* :text (cat "Whiteboard" (case *share*
+		(:host (if *share_may_save* ", shared, copies may be saved" ", shared"))
+		(:joined (if *share_may_save* ", joined, may save a copy" ", joined"))
+		(:asking ", joining")
 		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) "")))))
 	(.-> *title* :layout :dirty_all))
 
@@ -93,6 +97,22 @@
 	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil)
 	(share-title))
 
+(defun share-copies-show ()
+	;the switch beside Share lit while copies may be saved, as a toggle is
+	(when (defq btn (some (# (if (eql (get :text %0) (num-to-utf8 +sym_copy)) %0)) (. *main_toolbar* :children)))
+		(if *share_may_save*
+			(def (. btn :dirty) :paper (canvas-brighter (get :paper *main_toolbar*)))
+			(undef (. btn :dirty) :paper))))
+
+(defun action-copies ()
+	;the host says if the boards joined to it may save a copy of the
+	;session, to their own files, and tells them now
+	(when (eql *share* :host)
+		(setq *share_may_save* (not *share_may_save*))
+		(each (# (share-send %0 "s" (if *share_may_save* "1" "0"))) *share_peers*)
+		(share-copies-show)
+		(share-title)))
+
 (defun share-leave ()
 	;the host ends the session for all, one that joined leaves it
 	(cond
@@ -100,7 +120,8 @@
 			(each (# (share-send %0 "b")) *share_peers*)
 			(share-stop *board*)
 			(share-declare :nil)
-			(setq *share* :nil *share_peers* (list))
+			(setq *share* :nil *share_peers* (list) *share_may_save* :nil)
+			(share-copies-show)
 			(share-title))
 		((find *share* '(:joined :asking))
 			(share-send *share_host* "b")
@@ -144,6 +165,11 @@
 				(share-send from "a")))
 		((eql kind "a")
 			(if (find *share* '(:host :joined)) (share-acked *board* from)))
+		((eql kind "s")
+			;the host has said again if a copy may be saved
+			(when (and (eql *share* :joined) (eql from *share_host*))
+				(setq *share_may_save* (eql payload "1"))
+				(share-title)))
 		((eql kind "b")
 			(cond
 				((eql *share* :host)

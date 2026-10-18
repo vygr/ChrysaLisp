@@ -2,7 +2,7 @@
 (import "lib/cwb/tools.inc")
 
 (enums +event +event_user
-	(enum undo redo new load save clear crop share)
+	(enum undo redo new load save clear crop share copies)
 	(enum style)
 	(enum snap snap_angle keep_shape)
 	(enum radius ink)
@@ -37,7 +37,7 @@
 	(ui-title-bar *title* "Whiteboard" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_save +sym_clear +sym_cut +sym_media_join) +event_undo))
+			(ui-buttons (+sym_undo +sym_redo +sym_new +sym_open +sym_save +sym_clear +sym_cut +sym_media_join +sym_copy) +event_undo))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_lines +sym_axis)
 			(:paper :paper_toolbar2)) :connect +event_style)
 		(ui-tool-bar *snap_toolbar* ()
@@ -75,7 +75,7 @@
 			(ui-backdrop *backdrop* (:paper 0xffa8acb0)))))
 
 (ui-tool-tips *main_toolbar*
-	'("undo" "redo" "new" "open" "save" "clear" "crop" "share"))
+	'("undo" "redo" "new" "open" "save" "clear" "crop" "share" "copies"))
 
 (ui-tool-tips *style_toolbar*
 	'("plain" "grid" "lines" "axis"))
