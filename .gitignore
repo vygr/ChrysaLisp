@@ -7,6 +7,8 @@ deps/
 /usr/*/*.tre
 /usr/*/chat_*
 /usr/*/theme
+/usr/*/voice_notes/
+/usr/*/whiteboard_kept.*
 /lib/files/*.tre
 /tests/scratch/
 os
