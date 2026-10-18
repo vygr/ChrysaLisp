@@ -73,9 +73,9 @@
 
 (defun make-label (text)
 	(defq label (Label))
-	(def label :text text :border (get :border_label *env*) :min_width 64
+	(def label :text text :min_width 64
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))
-	label)
+	(view-variant label :border :border_label))
 
 (defun make-controls ()
 	;a slider for each input of the shader that has a range, the app
@@ -85,10 +85,11 @@
 			(defq slider (Slider) label (make-label "")
 				steps (if (eql type :int) (- hi lo) +steps))
 			(def slider :maximum steps :portion (max 1 (/ steps 10))
-				:min_width 256 :paper (get :paper_slider *env*)
+				:min_width 256
 				:value (defq init (if (eql type :int) (- val lo)
 					(n2i (/ (* (- (shader-real val) (shader-real lo)) (n2r steps))
 						(- (shader-real hi) (shader-real lo)))))))
+			(view-variant slider :paper :paper_slider)
 			(. *names* :add_child (make-label (str name)))
 			(. *values* :add_child label)
 			(. *sliders* :add_child slider)

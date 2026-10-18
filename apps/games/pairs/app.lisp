@@ -33,7 +33,7 @@
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (+sym_scramble +sym_peek) +event_scramble))
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
-					 :paper (get :paper_window *env*) :font *font*)
+					 :paper :paper_window :font *font*)
 		(each (lambda (i)
 			(. (ui-button _ (:min_width 60 :min_height 60))
 			   :connect (+ +event_click i)))
