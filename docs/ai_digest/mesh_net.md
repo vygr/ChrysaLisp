@@ -122,6 +122,18 @@ that, the Sync service takes one only from its own machine, those named in
 its `sync_from` and the herd at waypoints, [`sync.md`](sync.md), "And from whom",
 and `rack -o` names the machines a run touches. Tasks are not guarded.
 
+## Machines on other builds
+
+A beacon says the build of the machine, the id of what its boot image was
+made from, `lib/boot/id.inc`, and `mesh` names one that differs. It is only
+said: such a machine links and is used as any other. Tried with a machine
+given a false id, and with one whose boot image was built from changed VP
+source: each linked, its services were seen, it ran `rack` work and took a
+sync. So machines at different waypoints of the herd keep in touch while
+they update, one at a time. What would part them is a change to what goes
+between nodes, the mail and link messages; such a change has to reach every
+machine before they talk again, by some other way than the mesh.
+
 ## Not here yet
 
 * A guest link: one that carries mail to the services a machine offers and
