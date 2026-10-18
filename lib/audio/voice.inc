@@ -128,7 +128,7 @@
 								(push datas (first queue))
 								(push taken who))))
 						(each (# (. queues :insert %0 (rest (. queues :find %0)))) taken)
-						(write-blk out (sound-add datas)))
+						(sound-write out (sound-add datas)))
 					(:t (defq queue (ifn (. queues :find from) (list)))
 						(push queue data)
 						(if (> (length queue) +voice_mix_ahead) (setq queue (rest queue)))

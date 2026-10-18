@@ -60,6 +60,13 @@
 		(setq peak (max peak (abs (sound-sample data i))) i (+ i 2)))
 	peak)
 
+(defun sound-write (out data)
+	; (sound-write out data)
+	;a piece passed on now: a stream holds what is written till it has some
+	;6KB, nearly ten pieces, 190ms of a voice before any of it went on
+	(write-blk out data)
+	(stream-flush out))
+
 (defun sound-pieces (in fn)
 	; (sound-pieces in fn)
 	;each piece of the in stream, to its end, given to fn
@@ -109,7 +116,7 @@
 				((= idx 1) (setq running :nil))
 				(:t (defq seq (getf msg +audio_heard_seq))
 					(unless order (setq order (sound-order seq)))
-					(each (# (write-blk out %0)) (sound-take order seq (slice msg +audio_heard_data -1))))))
+					(each (# (sound-write out %0)) (sound-take order seq (slice msg +audio_heard_data -1))))))
 		(audio-hush-rpc heard)))
 
 (defun sound-stopped? (ctl)
@@ -128,7 +135,7 @@
 		(while (< at end)
 			(push piece (char (n2i (* (n2r level) (sin (* step (n2r at))))) 2))
 			(setq at (inc at)))
-		(write-blk out (apply (const cat) (cat (list "") piece)))
+		(sound-write out (apply (const cat) (cat (list "") piece)))
 		(task-slice)))
 
 (defun sound-from-file (in out path &optional ctl)
@@ -138,7 +145,7 @@
 		(bind '(rate & & bytes) ((second kind) stream))
 		(while (and (> bytes 0) (not (sound-stopped? ctl))
 				(defq data (read-blk stream (min bytes +sound_piece))) (nempty? data))
-			(write-blk out data)
+			(sound-write out data)
 			(setq bytes (- bytes (length data)))
 			(task-slice))))
 
@@ -148,7 +155,7 @@
 	; (sound-gain in out percent)
 	;louder or quieter, 100 as it is
 	(sound-pieces in (lambda (data)
-		(write-blk out (sound-map data (# (/ (* %0 percent) 100)))))))
+		(sound-write out (sound-map data (# (/ (* %0 percent) 100)))))))
 
 (defun sound-lowpass (in out hz)
 	; (sound-lowpass in out hz)
@@ -156,7 +163,7 @@
 	(defq k (n2i (* (n2r 65536) (/ (* (const (n2r +fp_2pi)) (n2r hz)) (+ (n2r +sound_rate) (* (const (n2r +fp_2pi)) (n2r hz))))))
 		y 0)
 	(sound-pieces in (lambda (data)
-		(write-blk out (sound-map data (lambda (x)
+		(sound-write out (sound-map data (lambda (x)
 			(setq y (+ y (/ (* k (- x y)) 65536)))))))))
 
 (defun sound-level (in out who)
@@ -164,7 +171,7 @@
 	;each piece passed on, and how loud it was sent to who, a number
 	(sound-pieces in (lambda (data)
 		(mail-send who (str (sound-peak data)))
-		(write-blk out data))))
+		(sound-write out data))))
 
 ;sinks
 
