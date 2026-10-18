@@ -73,6 +73,11 @@
 	(when (defq i (find (char 0x22) %0))
 		(slice %0 (inc i) (find (char 0x22) %0 (inc i)))))
 
+(defun struct-beside (file)
+	; (struct-beside file) -> :nil | stream
+	;the struct.inc beside a class.inc, which has the structures of its class
+	(file-stream (cat (path-dir file) (if (find "/" file) "/" "") "struct.inc")))
+
 (defun vp-fields (file name)
 	; (vp-fields file name) -> (str ...)
 	;the fields of a VP class, each as its type and its name, from the
@@ -81,8 +86,7 @@
 	;with what is said after a ; left out, and each bracketed part of it
 	;is a type and the names that are of that type, on as many lines as
 	;they are
-	(defq out (list) state :nil depth 0 text (list) at (rfind "/" file)
-		stream (file-stream (cat (slice file 0 (ifn at 0)) "struct.inc")))
+	(defq out (list) state :nil depth 0 text (list) stream (struct-beside file))
 	(when stream
 		(lines! (lambda (line)
 			(defq note (find ";" line) code (if note (slice line 0 note) line))
@@ -113,8 +117,7 @@
 	;a VP class whose fields do not go after those of the class it comes
 	;of, but begin at one of them and lie over it, :hmap is one: that
 	;field, as "elems of :array". From what its structure begins at
-	(defq out :nil at (rfind "/" file)
-		stream (file-stream (cat (slice file 0 (ifn at 0)) "struct.inc")))
+	(defq out :nil stream (struct-beside file))
 	(when stream
 		(lines! (lambda (line)
 			(when (starts-with (cat "(structure +" name " +") line)
