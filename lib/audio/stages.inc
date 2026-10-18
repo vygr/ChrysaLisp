@@ -53,6 +53,30 @@
 		(fn data)
 		(task-slice)))
 
+;what comes by mail, which is not kept in order, put back in it
+
+(defun sound-order (seq)
+	; (sound-order seq) -> order
+	;the place in what comes: the number of the piece to be had next, and
+	;what has come before it is wanted
+	(list seq (Fmap 11)))
+
+(defun sound-take (order seq data)
+	; (sound-take order seq data) -> datas
+	;a piece come, and what can be had now, in order: one that is not there
+	;when more than two after it are is lost, and one that comes after
+	;that is let go
+	(bind '(next early) order)
+	(if (>= seq next) (. early :insert seq data))
+	(defq out (list))
+	(while (or (defq data (. early :find next)) (> (. early :size) 2))
+		(when data
+			(. early :erase next)
+			(push out data))
+		(setq next (inc next)))
+	(elem-set order 0 next)
+	out)
+
 ;sources
 
 (defun sound-mic (in out ctl)
@@ -60,7 +84,7 @@
 	;what the microphone hears, in the order it was heard, till ctl is sent
 	;anything. A piece that is not there when two after it are is lost
 	(defq heard (mail-mbox) select (list heard ctl) running :t
-		renewed (pii-time) next :nil early (Fmap 11))
+		renewed (pii-time) order :nil)
 	(when (audio-listen-rpc heard)
 		(while running
 			(when (> (- (pii-time) renewed) (/ +audio_lease 2))
@@ -70,14 +94,8 @@
 			(cond
 				((= idx 1) (setq running :nil))
 				(:t (defq seq (getf msg +audio_heard_seq))
-					(unless next (setq next seq))
-					(if (>= seq next) (. early :insert seq (slice msg +audio_heard_data -1)))
-					;what is in order, written, and past a gap of more than two
-					(while (or (defq data (. early :find next))
-							(and (> (. early :size) 2) (setq next (inc next)) :nil))
-						(. early :erase next)
-						(write-blk out data)
-						(setq next (inc next))))))
+					(unless order (setq order (sound-order seq)))
+					(each (# (write-blk out %0)) (sound-take order seq (slice msg +audio_heard_data -1))))))
 		(audio-hush-rpc heard)))
 
 (defun sound-stopped? (ctl)
