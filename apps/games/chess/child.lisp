@@ -456,16 +456,16 @@
 				;main mailbox, reset timeout and reply with move
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				;read job
-				(defq reply_mbox (getf msg +job_reply)
-					max_time_per_move (getf msg +job_move_time)
-					job_type (getf msg +job_type)
-					color (getf msg +job_color)
-					brd (slice msg +job_board (+ +job_board 68))
-					history (list) history_offset (+ +job_board 68)
+				(defq reply_mbox (getf msg +chess_job_reply)
+					max_time_per_move (getf msg +chess_job_move_time)
+					job_type (getf msg +chess_job_type)
+					color (getf msg +chess_job_color)
+					brd (slice msg +chess_job_board (+ +chess_job_board 68))
+					history (list) history_offset (+ +chess_job_board 68)
 					next_seq 0)
 				(while (< history_offset (length msg))
 					(push history (slice msg history_offset (setq history_offset (+ history_offset 68)))))
-				(if (= job_type +job_type_move)
+				(if (= job_type +chess_kind_move)
 					(progn
 						;next move
 						(defq new_brd (best-move brd color history))

@@ -135,7 +135,9 @@
             import, nor of what root.inc imports. A module that
             works only because what loaded it first had
             imported the structure fails on its own, and on a
-            release build its class is not made at all.
+            release build its class is not made at all. And
+            in any file, a (structure +x) where root.inc's
+            imports have a +x already.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes
@@ -817,8 +819,9 @@
 	got)
 
 (defun provides-from (paths)
-	; (provides-from paths) -> (prefixes names)
-	;what those files give, and every file they import, at any depth
+	; (provides-from paths) -> (prefixes names files)
+	;what those files give, and every file they import, at any depth, and
+	;those files
 	(defq prefixes (list) names (list) seen (Fset 31) todo (cat paths))
 	(while (defq path (pop todo))
 		(unless (. seen :find path)
@@ -827,7 +830,23 @@
 			(each (# (push prefixes %0)) p)
 			(each (# (push names %0)) n)
 			(each (# (push todo %0)) i)))
-	(list prefixes names))
+	(list prefixes names seen))
+
+(defun root-provides ()
+	; (root-provides) -> (prefixes names files)
+	;what every task has from root.inc, worked out the once
+	(unless *root_provides* (setq *root_provides* (provides-from (list "class/lisp/root.inc"))))
+	*root_provides*)
+
+(defun check-root-struct (file forms)
+	;(structure +x ...) where root.inc's imports have a +x already: a task
+	;that has both can not tell them apart, and one of fields in other
+	;places is a field redefined
+	(bind '(prefixes & files) (root-provides))
+	(and (> (length forms) 1) (eql (first (second forms)) :symbol)
+		(starts-with "+" (defq name (third (second forms))))
+		(find name prefixes) (not (. files :find file))
+		(found file (second forms) "struct" "(structure " name ") is one of root.inc's imports too, use that one or name this for its app")))
 
 (defun provided? (field prov)
 	; (provided? field prov) -> :t | :nil
@@ -881,9 +900,8 @@
 					;a module stands by itself, a part of a file, as an app's
 					;actions.inc, has what the file it is put in has
 					(some (# (tree-form? %0 "env-push")) (forms-of top)))
-				(unless *root_provides* (setq *root_provides* (provides-from (list "class/lisp/root.inc"))))
-				(bind '(p n) (provides-from (list file)))
-				(list (cat p (first *root_provides*)) (cat n (second *root_provides*)))))
+				(bind '(p n &ignore) (provides-from (list file)))
+				(list (cat p (first (root-provides))) (cat n (second (root-provides))))))
 			(when (find "capture" checks)
 				;the functions of the files it imports, and its own after, which
 				;are the ones a name is had of if both have it
@@ -937,7 +955,8 @@
 							(if (find "capture" checks) (check-capture file forms head))
 							(if (find "held" checks) (check-held file forms head))
 							(if (find "args" checks) (check-args file forms head))
-							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov)))))
+							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov))
+							(and (find "struct" checks) (eql head "structure") (check-root-struct file forms)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))

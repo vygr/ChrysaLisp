@@ -4,11 +4,11 @@
 ;board square/piece types
 (defq +white 1 +empty 0 +black -1)
 
-(enums +job_type 0
+(enums +chess_kind 0
 	(enum move get_moves))
 
-;job structure
-(structure +job 0
+;job structure, named for the app, lib/task/jobs.inc has a +job
+(structure +chess_job 0
 	(netid reply)
 	(long move_time)
 	(byte type color)

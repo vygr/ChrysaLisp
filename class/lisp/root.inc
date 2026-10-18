@@ -1476,6 +1476,34 @@
 			(join (cat (slice c_parts 0 (- -1 i)) (slice p_parts i -1)) "/"))
 		(target)))
 
+(defun path-name (path)
+	; (path-name path) -> str
+	;the name of a file, the path less its folders, apps/x/y.wav -> y.wav
+	(if (defq i (rfind "/" path)) (slice path i -1) path))
+
+(defun path-dir (path)
+	; (path-dir path) -> str
+	;the folders of a path, apps/x/y.wav -> apps/x, "" if it has none
+	(if (defq i (rfind "/" path)) (slice path 0 (dec i)) ""))
+
+(defun path-ext (path)
+	; (path-ext path) -> str
+	;the extension of a file's name, with its dot, y.wav -> .wav, "" if it
+	;has none. A dot it starts with is not one, .gitignore has none
+	(defq name (path-name path))
+	(if (and (defq i (rfind "." name)) (> i 1)) (slice name (dec i) -1) ""))
+
+(defun path-stem (path)
+	; (path-stem path) -> str
+	;the name of a file less its extension, apps/x/y.wav -> y
+	(defq name (path-name path))
+	(slice name 0 (- (length name) (length (path-ext name)))))
+
+(defun clamp (x lo hi)
+	; (clamp x lo hi) -> x
+	;x, no lower than lo and no higher than hi
+	(max lo (min hi x)))
+
 (defun import (module &optional dst_env)
 	; (import path [env])
 	(if (= (age (setq module (path-to-absolute module))) 0)
@@ -1610,6 +1638,11 @@
 (import "././lisp.inc")
 (import "lib/options/options.inc")
 (import "lib/text/syntax.inc")
+;the files of a tree, a pipe of commands, and a farm of jobs, used by most
+;commands and many apps, so held once in a node for all its tasks
+(import "lib/files/files.inc")
+(import "lib/task/pipe.inc")
+(import "lib/task/cmd.inc")
 
 ;useful frequency trackers
 ;; (defq *freq_map* (Fmap 101))
