@@ -71,7 +71,10 @@
 	(setq t0 (pii-time))
 	(while (and (or (al-alive mbox) (> (al-windows) desk) (> (al-tasks) tasks))
 			(< (- (pii-time) t0) (task-timeout 60)))
-		(task-sleep 100000)))
+		(task-sleep 100000))
+	;the views of the frame being drawn as it went are let go of with that
+	;frame, at the next
+	(task-sleep 250000))
 
 (while (and (empty? (setq al_gui (mail-enquire "@Gui,"))) (< (- (pii-time) al_t0) (task-timeout 10)))
 	(task-sleep 50000))
