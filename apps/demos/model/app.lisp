@@ -19,7 +19,7 @@
 
 ;the timer is last, what is first in the list is what is read first
 (enums +select 0
-	(enum main picker timer))
+	(enum main fetch picker timer))
 
 (defq +size 512 +timer_rate (/ 1000000 30) +near +real_1 +far (n2r 20)
 	vertex (shader-load (cat *app_root* "model_vertex.shader"))
@@ -28,6 +28,10 @@
 	sun (reals (n2r -0.4) (n2r 0.5) (n2r 0.77))
 	lens (Mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
 	select :nil id :t picker :nil
+	;what a fetch, a task of its own, fetched: each address and its bytes,
+	;read in place of the internet as a model is made of them, and what was
+	;asked for, (name address picture), till it answers
+	*fetched* :nil fetching :nil
 	;how it is turned, how far away, and where the mouse was when pressed
 	yaw (n2r 0.6) pitch (n2r 0.4) away (n2r 3.2) drag :nil
 	;the parts of the model, a material each: (verts tris canvas tint mesh)
@@ -86,8 +90,43 @@
 
 (defun model-fetch (url)
 	; (model-fetch url) -> :nil | str
-	;what is at an address, if it is there
-	(and (defq resp (http-get url)) (= (pfind resp :status) 200) (http-body-str resp)))
+	;what is at an address, if it is there: of what the fetch task
+	;fetched, if it has
+	(if *fetched* (. *fetched* :find url)
+		(and (defq resp (http-get url)) (= (pfind resp :status) 200) (http-body-str resp))))
+
+(defun fetch-start (pick address picture)
+	; (fetch-start pick address picture)
+	;the files of a model fetched by a task of its own, the window drawn
+	;meanwhile. A new mailbox each time, what a fetch asked before says is
+	;not heard, the last picked is the one shown
+	(say (cat "Fetching " (ifn pick address) " ..."))
+	(elem-set select +select_fetch (defq reply (mail-mbox)))
+	(setq fetching (list pick address picture))
+	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin)
+		(cat reply address (ascii-char 10) (ifn picture ""))))
+
+(defun fetch-done (msg)
+	; (fetch-done msg)
+	;the files of the model, as the fetch task sends them, and the model
+	;made of them
+	(bind '(pick address picture) fetching)
+	(setq fetching :nil *fetched* (Fmap 11))
+	(defq at 0 nl (ascii-char 10))
+	(while (< at (length msg))
+		(defq e (find nl msg at) url (slice msg at e)
+			e1 (find nl msg (inc e)) n (str-as-num (slice msg (inc e) e1)))
+		(. *fetched* :insert url (slice msg (inc e1) (+ e1 1 n)))
+		(setq at (+ e1 1 n)))
+	(defq loaded (and (nempty? msg) (model-load address picture)))
+	(setq *fetched* :nil)
+	(cond
+		((and loaded pick)
+			(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
+		(loaded
+			(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
+		(pick (say (cat "Could not fetch " pick " from " address ".")))
+		((say (cat "Could not fetch a model from " address ".")))))
 
 (defun model-source (path)
 	; (model-source path) -> :nil | (obj_text fetch pictures)
@@ -250,12 +289,7 @@
 					((= id +event_open) (picker-open))
 					((= id +event_url)
 						;a model fetched, over https
-						(defq address (trim (get :clear_text *url*)))
-						(say (cat "Fetching " address " ..."))
-						(cond
-							((model-load address)
-								(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
-							((say (cat "Could not fetch a model from " address ".")))))
+						(fetch-start :nil (trim (get :clear_text *url*)) :nil))
 					((= id +event_mode)
 						(setq gpu_want (= (. *mode* :get_selected) 1)))
 					((= id +event_model)
@@ -265,9 +299,7 @@
 							((not address)
 								(if (model-load (cat *app_root* "data/cube.obj"))
 									(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
-							((model-load address picture)
-								(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
-							((say (cat "Could not fetch " pick " from " address ".")))))
+							((fetch-start pick address picture))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;nearer or further
 						(setq away (max (n2r 1.5) (min (n2r 12) (+ away (* (n2r 0.2) (n2r (getf msg +ev_msg_wheel_y))))))))
@@ -281,6 +313,8 @@
 									drag (list mx my)))
 							((setq drag (list mx my)))))
 					((. *window* :event msg))))
+			(+select_fetch
+				(fetch-done msg))
 			(+select_picker
 				;the model to open, or "" the picker closed
 				(mail-send picker "")
