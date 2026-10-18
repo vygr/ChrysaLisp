@@ -121,9 +121,22 @@ Usage: check [options] [path] ...
             looked for as the form is made, when the
             function runs, and the module's names are gone.
     ignore  a name after &ignore in a (bind) list or a list
-            of parameters: &ignore ends the list, and the
-            name is never bound. & is the place that takes
-            a thing and binds nothing.
+            of parameters, or a list in one: &ignore ends
+            the list, and the name is never bound. & is the
+            place that takes a thing and binds nothing.
+    param   a list of parameters, or a list in one, whose
+            first name is a macro of the system, (defun f
+            (bits) ...): it is expanded as a call of it.
+    empty   () given to a call, (list () x): it is run as
+            a form, and calls nothing. (list) or '().
+    past    (inc) of an (rfind), which gives the place after
+            what it found already: one more is past it.
+    unbound a call of what is no function or macro of the
+            system, nor named by the file or anything it
+            imports, at any depth: a program, or a module.
+            What runs it may give it more, the tests their
+            suite, the diagrams make's; the assembler, which
+            runs in an env of many files, is not looked at.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -1661,6 +1674,22 @@ Usage: unrle [options] [file]
     If no file is given, it reads from stdin.
     Output is written to stdout.
 ```
+## unzip
+```code
+Usage: unzip [options] archive [name ...]
+
+    options:
+        -h --help: this help info.
+        -l --list: what is in it, not taken out.
+        -d --dir folder: where to put what is taken out, default
+            where it is run.
+
+    Take what a .zip holds out of it, each to its name in the
+    folder, or only those named, by the name in the zip or the
+    last part of it. Each is checked against the sum it was
+    made with. A name that would put a file outside the folder,
+    one that begins with / or has .. in it, is not taken out.
+```
 ## vpstats
 ```code
 Usage: vpstats [options] [path] ...
@@ -1746,4 +1775,17 @@ Usage: widgets [options]
     line, as deep in as it is, its type, its bounds in its
     parent, and its properties, key=value. A value with bytes
     that are not text in it, a mailbox, is said as <n bytes>.
+```
+## zip
+```code
+Usage: zip [options] archive path ...
+
+    options:
+        -h --help: this help info.
+
+    Make a .zip of files: each path a file, or a folder and all
+    in it, its files named in the zip as they are named here.
+    Each is packed by DEFLATE, or stored as it is when that is
+    no smaller. The archive is made new, what was there before
+    is gone. unzip takes them out again.
 ```

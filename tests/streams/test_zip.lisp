@@ -1,7 +1,8 @@
-(report-header "Streams: a .zip read, its directory and each thing in it, stored or by DEFLATE")
+(report-header "Streams: a .zip read, its directory and each thing in it, stored or by DEFLATE, and a .zip made")
 
 (import "lib/files/zip.inc")
 (import "lib/crypto/sha256.inc")
+(import "lib/hash/sums.inc")
 
 (defq tz_data (load "tests/streams/data/zip_test.zip") tz_list (zip-list tz_data))
 (assert-list-eq "what is in it, a folder too" '("model/" "model/cube.obj" "model/readme.txt" "model/big.txt")
@@ -16,3 +17,21 @@
 (assert-eq "a bigger one, all of it" 30000 (length tz_big))
 (assert-eq "and what it was" "4D41C2468F0CEA46F8CE8B4F626963705C0EC148942264B98A4AA225B591A0F4" (hex-encode (sha256 tz_big)))
 (assert-eq "not a zip is not one" :nil (zip-list "not a zip, nothing like one"))
+
+;a zip made, and read back by what reads them: a folder, one too small to
+;pack, one that packs well and one that packs some
+(defq tz_files (list (list "a/" "") (list "a/small.txt" "hi")
+		(list "a/big.txt" (apply (const cat) (map (# (str "line " %0 " of a file that packs well\n")) (range 0 2000))))
+		(list "a/b/some.bin" (apply (const cat) (map (# (char (logand (* %0 7919) 0xff))) (range 0 3000)))))
+	tz_out (string-stream (cat "")))
+(assert-eq "a zip made of four" 4 (zip-write tz_out tz_files '(30 15 10 18 9 2026 0)))
+(defq tz_made (str tz_out) tz_made_list (zip-list tz_made))
+(assert-list-eq "its directory, the names" (map (const first) tz_files) (map (const first) tz_made_list))
+(assert-list-eq "stored, stored, packed, packed" '(0 0 8 8) (map (# (elem-get %0 +zip_entry_method)) tz_made_list))
+(assert-true "each read back as it was, and its sum as made"
+	(every (lambda ((name data))
+			(defq ss (string-stream (cat "")) entry (zip-find tz_made_list name))
+			(and (zip-read tz_made entry ss) (eql (str ss) data) (= (crc32 data) (elem-get entry +zip_entry_crc))))
+		tz_files))
+(assert-list-eq "the time, 2026-10-18 10:15:30, as MS-DOS has it" (list (+ (<< 10 11) (<< 15 5) 15) (+ (<< 46 9) (<< 10 5) 18))
+	(zip-dos '(30 15 10 18 9 2026 0)))
