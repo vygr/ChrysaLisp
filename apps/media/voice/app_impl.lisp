@@ -183,7 +183,9 @@
 		(notes-refresh)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) *running* :t)
+	(defq select (task-mboxes +select_size) *running* :t
+		;said, so a second is not opened on this desktop, app.lisp
+		entry (mail-declare (task-mbox) "Voice" "Voice App"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;the folder made, if it is not there, by saving into it
 	(unless (pii-fstat +folder)
@@ -252,4 +254,5 @@
 	;the call goes on, as a phone call does when its app is put away: the
 	;service has it, and another app, or this one opened again, shows it
 	(call-unwatch (elem-get select +select_call))
+	(mail-forget entry)
 	(gui-sub-rpc *window*))

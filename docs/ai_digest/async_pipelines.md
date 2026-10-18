@@ -505,13 +505,13 @@ it is done. Nothing is torn down from outside:
 
 ### 9.7 Pipelines in Use
 
-The Voice Notes app, `apps/media/voicenotes/`, starts a pipeline for each
+The Voice app, `apps/media/voice/`, once Voice Notes, starts a pipeline for each
 thing it does and tells a source when to stop. Recording is the microphone,
 how loud, to a file; playing is the file, how loud, to the speaker. The app
 holds no sound:
 
 ```file
-apps/media/voicenotes/app.lisp "(defun record-start" "(defun pipe-done"
+apps/media/voice/app_impl.lisp "(defun record-start" "(defun pipe-done"
 ```
 
 The `mic` command is the same two, from a terminal, and says how long and
