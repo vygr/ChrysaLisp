@@ -15,7 +15,7 @@
 ;data/
 
 (enums +event +event_user
-	(enum open mode url))
+	(enum open mode url model))
 
 ;the timer is last, what is first in the list is what is read first
 (enums +select 0
@@ -33,7 +33,17 @@
 	;the parts of the model, a material each: (verts tris canvas tint mesh)
 	parts (list) name "" triangles 0
 	;on the GPU, the pair, and is it wanted; here, the pipeline
-	gpu_pair :nil gpu_want :t pipeline :nil cpu_time 0 cpu_frames 0)
+	gpu_pair :nil gpu_want :t pipeline :nil cpu_time 0 cpu_frames 0
+	;models to show it can, the cube of its own, and others fetched from
+	;the internet as they are picked, over https, by lib/net/tls.inc: the
+	;examples of the three.js project on GitHub, each an .obj, its .mtl
+	;and the pictures that names
+	*models* (list
+		(list "Cube" :nil)
+		(list "Man" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/male02/male02.obj")
+		(list "Woman" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/female02/female02.obj")
+		(list "Walt" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/walt/WaltHead.obj")
+		(list "Tree" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/tree.obj")))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Model" (+sym_close) +event_close)
@@ -43,6 +53,10 @@
 		(. (ui-textfield *url* (:paper +argb_white :clear_text "" :min_width 240
 			:hint_text "or an https:// address, of a .zip or an .obj")) :connect +event_url)
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
+		(ui-backdrop _ (:paper :paper_toolbar)))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(. (ui-radio-bar *model* ("Cube" "Man" "Woman" "Walt" "Tree") (:font :font_body :paper :paper_toolbar2))
+			:connect +event_model)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
@@ -88,11 +102,12 @@
 					(nempty? (defq objs (filter (# (ends-with ".obj" (to-lower (first %0)))) entries))))
 				;of several, the most of it, the most detailed
 				(defq obj (reduce (# (if (> (elem-get %1 +zip_entry_full) (elem-get %0 +zip_entry_full)) %1 %0)) objs (first objs))
-					folder (slice (first obj) 0 (inc (ifn (rfind "/" (first obj)) -1))))
+					;(rfind) gives the place after the slash, the folder is up to it
+					folder (slice (first obj) 0 (ifn (rfind "/" (first obj)) 0)))
 				(list (zip-text data obj)
 					`(lambda (name) (,zip-fetch ',data ',entries ,folder name))
 					(filter (# (canvas-loader-of (to-lower %0))) (map (const first) entries)))))
-		(:t (defq folder (slice path 0 (inc (ifn (rfind "/" path) -1))))
+		(:t (defq folder (slice path 0 (ifn (rfind "/" path) 0)))
 			(list data (if remote `(lambda (name) (,model-fetch (cat ,folder name)))
 				`(lambda (name) (load (cat ,folder name)))) (list)))))
 
@@ -114,7 +129,11 @@
 	;the model of that file, its parts, each a material, in place of what
 	;there was
 	(when (defq source (model-source path))
-		(bind '(text fetch pictures) source)
+		(bind '(text named pictures) source)
+		;each file it names had the once, two materials may name one picture
+		(defq got (Fmap 11) fetch (lambda (file)
+			(unless (. got :find file) (. got :insert file (list (named file))))
+			(first (. got :find file))))
 		(defq obj (obj-read (string-stream text)) materials (Fmap 11) fit (obj-fit obj) out (list) count 0)
 		(each (lambda (library)
 				(if (defq mtl (fetch library))
@@ -209,6 +228,7 @@
 	(setq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *mode* :set_selected 1)
+	(. *model* :set_selected 0)
 	(if (model-load (cat *app_root* "data/cube.obj"))
 		(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer.")))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -232,6 +252,16 @@
 							((say (cat "Could not fetch a model from " address ".")))))
 					((= id +event_mode)
 						(setq gpu_want (= (. *mode* :get_selected) 1)))
+					((= id +event_model)
+						;one of the models it knows, the cube here, the rest fetched
+						(bind '(pick address) (elem-get *models* (. *model* :get_selected)))
+						(cond
+							((not address)
+								(if (model-load (cat *app_root* "data/cube.obj"))
+									(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
+							((model-load address)
+								(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
+							((say (cat "Could not fetch " pick " from " address ".")))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;nearer or further
 						(setq away (max (n2r 1.5) (min (n2r 12) (+ away (* (n2r 0.2) (n2r (getf msg +ev_msg_wheel_y))))))))
