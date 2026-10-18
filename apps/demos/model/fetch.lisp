@@ -7,11 +7,19 @@
 ;the model will ask for: the .obj, the .mtl files it names and the
 ;pictures they name, or the .zip alone, that has the rest in it. All are
 ;sent back in one message, each its address, its length and its bytes,
-;or "" if the model itself could not be had
+;or if the model itself could not be had, ! and why
+
+;why the last fetch had nothing
+(defq *why* "")
 
 (defun fetch (url)
 	; (fetch url) -> :nil | str
-	(and (defq resp (http-get url)) (= (pfind resp :status) 200) (http-body-str resp)))
+	(defq resp (http-get url))
+	(cond
+		((not resp) (setq *why* (ifn (tls-why) "no connection")) :nil)
+		((/= (pfind resp :status) 200)
+			(setq *why* (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) ""))) :nil)
+		((http-body-str resp))))
 
 (defun main ()
 	(defq msg (mail-read (task-mbox)) reply (slice msg 0 +net_id_size)
@@ -39,6 +47,6 @@
 					:nil)
 				(string-stream text)))
 		(if (nempty? picture) (take picture)))
-	(mail-send reply (if (empty? got) ""
+	(mail-send reply (if (empty? got) (cat "!" *why*)
 		(apply (const cat) (map (lambda ((url data))
 			(cat url (ascii-char 10) (str (length data)) (ascii-char 10) data)) got)))))

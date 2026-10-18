@@ -41,7 +41,8 @@
 	;models to show it can, the cube of its own, and others fetched from
 	;the internet as they are picked, over https, by lib/net/tls.inc, each
 	;an .obj, its .mtl and the pictures that names: examples of the three.js
-	;project and test models of assimp, on GitHub. (name address [picture]),
+	;project and test models of assimp, on GitHub, and Keenan Crane's model
+	;repository at CMU. (name address [picture]),
 	;the picture for a model that names none
 	*models* (list
 		(list "Cube" :nil)
@@ -49,7 +50,10 @@
 		(list "Woman" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/female02/female02.obj")
 		(list "Spider" "https://raw.githubusercontent.com/assimp/assimp/master/test/models/OBJ/spider.obj")
 		(list "Gun" "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/cerberus/Cerberus.obj"
-			"https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/cerberus/Cerberus_A.jpg")))
+			"https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/obj/cerberus/Cerberus_A.jpg")
+		;Keenan Crane's cow, a .zip of the .obj and its picture, from a
+		;server of TLS 1.2
+		(list "Spot" "https://www.cs.cmu.edu/~kmcrane/Projects/ModelRepository/spot.zip")))
 
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Model" (+sym_close) +event_close)
@@ -61,7 +65,7 @@
 		(. (ui-radio-bar *mode* ("CPU" "GPU") (:font :font_body :paper :paper_toolbar2)) :connect +event_mode)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(. (ui-radio-bar *model* ("Cube" "Man" "Woman" "Spider" "Gun") (:font :font_body :paper :paper_toolbar2))
+		(. (ui-radio-bar *model* ("Cube" "Man" "Woman" "Spider" "Gun" "Spot") (:font :font_body :paper :paper_toolbar2))
 			:connect +event_model)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-label *status* (:text "..." :font :font_body))
@@ -112,21 +116,22 @@
 	;made of them
 	(bind '(pick address picture) fetching)
 	(setq fetching :nil *fetched* (Fmap 11))
-	(defq at 0 nl (ascii-char 10))
-	(while (< at (length msg))
+	(defq at 0 nl (ascii-char 10) why (if (starts-with "!" msg) (slice msg 1 -1)))
+	(while (and (not why) (< at (length msg)))
 		(defq e (find nl msg at) url (slice msg at e)
 			e1 (find nl msg (inc e)) n (str-as-num (slice msg (inc e) e1)))
 		(. *fetched* :insert url (slice msg (inc e1) (+ e1 1 n)))
 		(setq at (+ e1 1 n)))
-	(defq loaded (and (nempty? msg) (model-load address picture)))
+	(defq loaded (and (not why) (nempty? msg) (model-load address picture))
+		why (if why (cat ": " why) "."))
 	(setq *fetched* :nil)
 	(cond
 		((and loaded pick)
 			(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
 		(loaded
 			(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
-		(pick (say (cat "Could not fetch " pick " from " address ".")))
-		((say (cat "Could not fetch a model from " address ".")))))
+		(pick (say (cat "Could not fetch " pick why)))
+		((say (cat "Could not fetch a model from " address why)))))
 
 (defun model-source (path)
 	; (model-source path) -> :nil | (obj_text fetch pictures)
