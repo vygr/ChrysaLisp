@@ -2,6 +2,9 @@
 (env-push)
 
 (import "lib/consts/scodes.inc")
+(import "sys/pii/lisp.inc")
+(import "gui/view/struct.inc")
+(import "service/gui/lisp.inc")
 
 (defq +mod_scodes `'(
 		,+sc_lshift ,+sc_rshift ,+sc_lctrl ,+sc_rctrl

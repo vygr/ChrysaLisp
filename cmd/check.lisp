@@ -128,6 +128,14 @@
             (defq). It is let go of as soon as it has been
             looked at, its streams say they are stopping, and
             what is written after may not be read.
+    struct  in a module, a file with an (env-push), a field
+            of a structure, in (getf), (setf) or (setf->),
+            that no (structure), (enums) or (defq) gives, of
+            this file, of what it imports, and of what those
+            import, nor of what root.inc imports. A module that
+            works only because what loaded it first had
+            imported the structure fails on its own, and on a
+            release build its class is not made at all.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes
@@ -140,7 +148,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -782,6 +790,62 @@
 						(each (# (if (defq k (tree-form? %0)) (push todo k))) nodes))))))
 		top))
 
+;what each file gives as a name, (structure), (enums) and (defq) of a
+;+name at its top, and what it imports, read the once by this task
+(defq *provides* (Fmap 31) *root_provides* :nil)
+
+(defun provides-of (path)
+	; (provides-of path) -> (prefixes names imports)
+	(unless (defq got (. *provides* :find path))
+		(defq prefixes (list) names (list) top :nil)
+		(if (defq in (file-stream path)) (setq top (first (tree-read in))))
+		(when top
+			(each (lambda (node)
+				(when (defq kids (tree-form? node))
+					(defq forms (forms-of kids)
+						head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+					(cond
+						((and (find head '("structure" "enums")) (> (length forms) 1)
+								(eql (first (second forms)) :symbol) (starts-with "+" (third (second forms))))
+							(push prefixes (third (second forms))))
+						((eql head "defq")
+							;the names of a (defq) are 1, 3, 5 and on
+							(each! (# (and (odd? (!)) (eql (first %0) :symbol) (starts-with "+" (third %0)) (push names (third %0))))
+								(list forms) 1)))))
+				(forms-of top)))
+		(. *provides* :insert path (setq got (list prefixes names (if top (imports-of path top) (list))))))
+	got)
+
+(defun provides-from (paths)
+	; (provides-from paths) -> (prefixes names)
+	;what those files give, and every file they import, at any depth
+	(defq prefixes (list) names (list) seen (Fset 31) todo (cat paths))
+	(while (defq path (pop todo))
+		(unless (. seen :find path)
+			(. seen :insert path)
+			(bind '(p n i) (provides-of path))
+			(each (# (push prefixes %0)) p)
+			(each (# (push names %0)) n)
+			(each (# (push todo %0)) i)))
+	(list prefixes names))
+
+(defun provided? (field prov)
+	; (provided? field prov) -> :t | :nil
+	(bind '(prefixes names) prov)
+	(or (find field names) (some (# (starts-with (cat %0 "_") field)) prefixes)))
+
+(defun check-struct (file forms head prov)
+	;(getf msg +x_field) (setf msg +x_field v) (setf-> msg (+x_field v) ...)
+	;where nothing this file can see gives +x_field
+	(defq fields (cond
+		((find head '("getf" "setf")) (if (> (length forms) 2) (list (third forms))))
+		((eql head "setf->") (map! (# (if (defq k (tree-form? %0)) (first (forms-of k)))) (list forms) 2 -1))))
+	(each (lambda (field)
+			(and field (eql (first field) :symbol) (starts-with "+" (defq name (third field)))
+				(find "_" name) (not (provided? name prov))
+				(found file field "struct" name " is given by no (structure) or (enums) this file imports, import where it is made")))
+		(ifn fields (list))))
+
 ;do the work on a file
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
@@ -811,6 +875,15 @@
 					(push *found* (list 0 (cat file " (1) bracket: " (str (second whole)) " not closed by the end of the file"))))
 				(if (> (third whole) 0)
 					(push *found* (list 0 (cat file " (1) bracket: " (str (third whole)) " that close nothing")))))
+			;what the file can see of structures and constants, its own, what it
+			;imports at any depth, and what every task has from root.inc
+			(defq prov (when (and (find "struct" checks) (not (ends-with ".vp" file))
+					;a module stands by itself, a part of a file, as an app's
+					;actions.inc, has what the file it is put in has
+					(some (# (tree-form? %0 "env-push")) (forms-of top)))
+				(unless *root_provides* (setq *root_provides* (provides-from (list "class/lisp/root.inc"))))
+				(bind '(p n) (provides-from (list file)))
+				(list (cat p (first *root_provides*)) (cat n (second *root_provides*)))))
 			(when (find "capture" checks)
 				;the functions of the files it imports, and its own after, which
 				;are the ones a name is had of if both have it
@@ -863,7 +936,8 @@
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
 							(if (find "capture" checks) (check-capture file forms head))
 							(if (find "held" checks) (check-held file forms head))
-							(if (find "args" checks) (check-args file forms head)))))
+							(if (find "args" checks) (check-args file forms head))
+							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))
