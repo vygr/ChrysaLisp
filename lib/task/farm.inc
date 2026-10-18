@@ -2,6 +2,12 @@
 ; farm task object
 ;;;;;;;;;;;;;;;;;;
 
+;Children started on the nodes, kept, and started again when one has
+;gone. Which nodes a child is started on is the farm's to say, (:nodes)
+;and (:place key nodes), and what it does after a refresh, (:grown): a
+;Farm asks any node that has not refused, lib/task/local.inc keeps a herd
+;on the nodes of this machine and grows it as they join.
+
 ;module
 (env-push)
 
@@ -11,11 +17,11 @@
 	(. this :erase key))
 
 (defun start ()
-	;start a child
+	;start a child, where the farm says
 	(defq key (def this :key (inc (get :key this))) val (env 1))
 	(. this :insert key val)
 	(def val :timestamp now)
-	(callback create e key val network_nodes))
+	(callback create e key val (. this :place key network_nodes)))
 
 (defun restart ()
 	;restart a child
@@ -40,12 +46,35 @@
 	(defq network_nodes (lisp-nodes) now (pii-time) e (penv))
 	(times size (start))
 
+	(defmethod :nodes ()
+		; (. farm :nodes) -> nodes
+		;the nodes a child may be started on, all those that have not refused
+		(nodes-to-ask (get :refused this)))
+
+	(defmethod :place (key nodes)
+		; (. farm :place key nodes) -> nodes
+		;where the child of key is asked for, any of them
+		nodes)
+
+	(defmethod :grown ()
+		; (. farm :grown) -> farm
+		;after a refresh, a farm stays the size it was made
+		this)
+
+	(defmethod :grow_to (want)
+		; (. farm :grow_to want) -> farm
+		;children started till there are want
+		(while (< (. this :size) want)
+			(setq mutated :t)
+			(start))
+		this)
+
 	(defmethod :refresh (&optional timeout)
 		; (. farm :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map, merge local node here as well
 		;a child on a node that refused is not there to be found, it is
 		;all the nodes there are that a child is looked for in
-		(defq all_nodes (lisp-nodes) network_nodes (nodes-to-ask (get :refused this))
+		(defq all_nodes (lisp-nodes) network_nodes (. this :nodes)
 			old_keys (list) old_vals (list)
 			create (get :create this) destroy (get :destroy this)
 			mutated :nil now (pii-time) e (penv))
@@ -63,12 +92,13 @@
 						(restart)))
 				(:t ;not found child
 					(restart)))) old_keys old_vals)
+		(. this :grown)
 		mutated)
 
 	(defmethod :restart (key val)
 		; (. farm :restart key val) -> farm
 		;restart task
-		(defq network_nodes (nodes-to-ask (get :refused this)) mutated :nil now (pii-time) e (penv)
+		(defq network_nodes (. this :nodes) mutated :nil now (pii-time) e (penv)
 			create (get :create this) destroy (get :destroy this))
 		(restart) this)
 
