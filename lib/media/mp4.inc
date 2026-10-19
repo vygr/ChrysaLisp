@@ -99,8 +99,8 @@
 
 (defun mp4-track (s trak &optional film_scale)
 	; (mp4-track str trak [film_scale]) -> track
-	;what a track is, and where each of its samples is, how long, when,
-	;and which are keys
+	;what a track is, its kind, codec, size or sound and setup, how many
+	;samples it has and where it begins
 	(defq track (scatter (Emap) :film_scale (ifn film_scale 0)) mdhd (mp4-in s trak '("mdia" "mdhd")) hdlr (mp4-in s trak '("mdia" "hdlr"))
 		stbl (mp4-in s trak '("mdia" "minf" "stbl")))
 	;its time, the units of a second it counts in
@@ -128,6 +128,23 @@
 					(:t (scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
 						:sample_rate (mp4-n s (+ entry 32) 2)
 						:config (mp4-config s (+ entry (if (= (mp4-n s (+ entry 16) 2) 1) 52 36)) entry_end)))))))
+	;how many samples, and the tables of them now if it is the video's,
+	;else when they are asked for, (mp4-tables): those of the sound of a
+	;film of two hours are half a second
+	(defq stsz (mp4-in s stbl '("stsz")))
+	(scatter track :samples (if stsz (mp4-n s (+ (second stsz) 8) 4) 0) :moov s :stbl stbl)
+	(if (eql (. track :find :kind) "vide") (mp4-tables track))
+	(mp4-edits s trak track))
+
+(defun mp4-tables (track)
+	; (mp4-tables track) -> track
+	;the tables of a track's samples, if they have not been read yet: where
+	;each sample is in the file, how long, when it is decoded and shown,
+	;and which are keys
+	(unless (. track :find :sizes) (mp4-tables-read track (. track :find :moov) (. track :find :stbl)))
+	track)
+
+(defun mp4-tables-read (track s stbl)
 	;the samples: their sizes
 	(defq stsz (mp4-in s stbl '("stsz")) sizes (list))
 	(when stsz
@@ -176,8 +193,7 @@
 						(elem-set shown at (+ (elem-get shown at) offset))
 						(setq at (inc at)))))
 			(mp4-table s ctts 0 2)))
-	(scatter track :sizes sizes :offsets offsets :times when_at :shown shown :keys keys :samples (length sizes))
-	(mp4-edits s trak track))
+	(scatter track :sizes sizes :offsets offsets :times when_at :shown shown :keys keys :samples (length sizes)))
 
 (defun mp4-edits (s trak track)
 	; (mp4-edits str trak track) -> track
@@ -266,10 +282,16 @@
 	;made again at another scale has it: the sort of the frames of a film
 	;of two hours is half a second. With no ctts they are shown as decoded
 	(unless (defq order (. reel :find :order))
-		(setq order (if (. (. reel :find :video) :find :reordered)
-			(sort (range 0 (. reel :find :frames))
-				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b))))
-			(range 0 (. reel :find :frames))))
+		;each its time shown and its packet in one num, sorted by the
+		;native -, as a lambda that looks up the times is ten times slower
+		(setq order (cond
+			((not (. (. reel :find :video) :find :reordered)) (range 0 (. reel :find :frames)))
+			((< (. reel :find :frames) 0x100000)
+				(map (# (logand %0 0xfffff))
+					(sort (map (# (+ (<< %0 20) (!))) (. reel :find :shown)) (const -))))
+			;a film of more than 12 hours at 24 a second
+			((sort (range 0 (. reel :find :frames))
+				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
 		(. reel :insert :order order))
 	order)
 

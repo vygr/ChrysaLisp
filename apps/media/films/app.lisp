@@ -184,9 +184,11 @@
 	(played-load)
 	(played-show)
 	;the window the size the film has made it
-	;the film shown last, where it was left, else Raymarch's
-	(bind '(x y w h) (apply view-locate (. (win-refresh
-		(if (and *last* (reel-open *last*)) *last* (cat *app_root* "data/raymarch.flm"))) :get_size)))
+	;the film shown last, where it was left, else Raymarch's. Its reel read
+	;the once, a film of two hours takes a second
+	(bind '(x y w h) (apply view-locate (. (if (and *last* (defq reel (reel-open *last*)))
+		(win-refresh *last* :nil :nil reel)
+		(win-refresh (cat *app_root* "data/raymarch.flm"))) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(tick select)
 	(while *running*
