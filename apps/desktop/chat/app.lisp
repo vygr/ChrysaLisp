@@ -65,7 +65,7 @@
 			(ui-flow *input_bar* (:flow_flags +flow_right_fill :border 1
 					:paper +argb_white :ink +argb_black :font :font_button)
 				(ui-label _ (:text "Chat:" :font :font_bold))
-				(ui-tool-bar _ () (ui-buttons (+sym_open) +event_attach))
+				(ui-tool-bar *attach_toolbar* () (ui-buttons (+sym_open) +event_attach))
 				(. (ui-textfield *chat_text* (:flow_flags +flow_right_fill :hint_text "Type markdown message..." :clear_text ""))
 					:connect +event_send))
 			(ui-scroll *chat_scroll* +scroll_flag_vertical (:min_width 480 :min_height 380)
@@ -578,7 +578,8 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(ui-tool-tips *main_toolbar* '("dial / join" "hangup / leave")))
+	(ui-tool-tips *main_toolbar* '("dial / join" "hangup / leave"))
+	(ui-tool-tips *attach_toolbar* '("attach")))
 
 ;;;; ── main ───────────────────────────────────────────────────────────────────
 
