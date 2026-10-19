@@ -16,6 +16,7 @@
 
 (import "./huff.inc")
 (import "./bits.inc")
+(import "./mdct.inc")
 
 ;module
 (env-push)
@@ -348,32 +349,6 @@
 ; the spectrum to samples
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;the native of the DCT-IV, its path as this is read, its ffi taken as a
-;decoder is made
-(defq *aac_dct4* (path-to-absolute "./aac_dct4"))
-
-;pi, as a real, by Newton's steps for tan p = 0 from 3
-(defq *aac_pi* (n2r 3))
-(times 4 (setq *aac_pi* (- *aac_pi* (/ (sin *aac_pi*) (cos *aac_pi*)))))
-
-(defun aac-dct4-tables (n)
-	; (aac-dct4-tables n) -> (tw rev)
-	;what lib/media/lisp.vp aac_dct4 takes for a DCT-IV of n: the twiddles
-	;before, e^(-i pi (4j+1)/4n), after, e^(-i pi k/n), of the FFT of m,
-	;n/2, e^(-2 pi i k/m), each cos and sin, and the bit reversal of m
-	(defq m (>> n 1) tw (reals) rev (nums) bits 0
-		aac-twiddle (lambda (a) (push tw (cos a) (sin a))))
-	(each (# (aac-twiddle (/ (* (neg (. +aac :find :pi)) (n2r (inc (* 4 %0)))) (n2r (* 4 n))))) (range 0 m))
-	(each (# (aac-twiddle (/ (* (neg (. +aac :find :pi)) (n2r %0)) (n2r n)))) (range 0 m))
-	(each (# (aac-twiddle (/ (* (n2r -2) (. +aac :find :pi) (n2r %0)) (n2r m)))) (range 0 (>> m 1)))
-	(while (< (<< 1 bits) m) (setq bits (inc bits)))
-	(each (lambda (i)
-			(defq r 0)
-			(each (# (if (/= 0 (logand i (<< 1 %0))) (setq r (logior r (<< 1 (- bits 1 %0)))))) (range 0 bits))
-			(push rev r))
-		(range 0 m))
-	(list tw rev))
-
 (defun aac-power (x n)
 	(defq p (n2r 1))
 	(times n (setq p (* p x)))
@@ -389,30 +364,10 @@
 		(setq last r r (/ (+ (* (n2r (dec n)) r) (/ x (aac-power r (dec n)))) (n2r n))))
 	last)
 
-(defun aac-i0 (x)
-	; (aac-i0 x) -> real
-	;the Bessel function I0, its series, the terms till they are nothing
-	(defq sum (n2r 1) term (n2r 1) k 1 q (/ (* x x) (n2r 4)))
-	(while (> (* term (n2r 100000000000000000)) sum)
-		(setq term (/ (* term q) (n2r (* k k))) sum (+ sum term) k (inc k)))
-	sum)
-
 (defun aac-windows (n)
 	; (aac-windows n) -> (sine kbd)
-	;the rising halves, n of them, of the sine window of 2n and the
-	;Kaiser-Bessel derived one, alpha 4 for the long, 6 for the short
-	(defq alpha (if (= n 1024) 4 6) sine (reals) kbd (reals) sum (n2r 0) kernel (list))
-	(each (# (push sine (sin (/ (* (. +aac :find :pi) (+ (n2r %0) (n2r 0.5))) (n2r (* 2 n)))))) (range 0 n))
-	(each (lambda (j)
-			(defq t (- (/ (* (n2r 2) (n2r j)) (n2r n)) (n2r 1)))
-			(push kernel (aac-i0 (* (. +aac :find :pi) (n2r alpha) (sqrt (- (n2r 1) (* t t)))))))
-		(range 0 (inc n)))
-	(defq total (reduce (const +) kernel (n2r 0)))
-	(each (lambda (j)
-			(setq sum (+ sum (elem-get kernel j)))
-			(push kbd (sqrt (/ sum total))))
-		(range 0 n))
-	(list sine kbd))
+	;the rising halves of the windows, alpha 4 for the long, 6 for the short
+	(list (mdct-sine n) (mdct-kbd n (if (= n 1024) 4 6))))
 
 (defun aac-tables ()
 	; (aac-tables) -> tables
@@ -428,7 +383,7 @@
 		(. +aac :insert :huff (ffi "lib/media/media_huff"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
 			:long (aac-windows 1024) :short (aac-windows 128)
-			:dct_long (aac-dct4-tables 1024) :dct_short (aac-dct4-tables 128))))
+			:dct_long (mdct-tables 1024) :dct_short (mdct-tables 128))))
 	(. +aac :find :made))
 
 ;the bands TNS may filter at most, of a long window and a short, by rate
@@ -575,19 +530,13 @@
 	(defq tables (aac-tables) zeros (reals))
 	(times 1024 (push zeros (n2r 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
-		:tables tables :dct4 (ffi (. +aac :find :dct4)) :seed 1
+		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))
 		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (apply (const reals) (map (lambda (_) (n2r 1)) (range 0 1024))))))
 
 (defun aac-unfold (decoder lines n)
 	; (aac-unfold decoder lines n) -> reals
-	;the 2n samples of the IMDCT of n lines: their DCT-IV y, by 1/n, as y from n/2,
-	;then -y backwards, then -y to n/2
-	(bind '(tw rev) (. (. decoder :find :tables) :find (if (= n 1024) :dct_long :dct_short)))
-	;by 2/N, 1/n, as the IMDCT is defined: the samples as 16 bit ones are
-	(defq y (nums-scale ((. decoder :find :dct4) lines tw rev (cat lines)) (/ (n2r 1) (n2r n)))
-		neg (nums-scale y (n2r -1)))
-	(cat (slice y (>> n 1) n) (reverse neg) (slice neg 0 (>> n 1))))
+	(mdct-imdct (. decoder :find :dct4) (. (. decoder :find :tables) :find (if (= n 1024) :dct_long :dct_short)) lines n))
 
 (defun aac-imdct (decoder lines info c)
 	; (aac-imdct decoder lines info channel) -> reals
@@ -651,8 +600,8 @@
 ;what the functions read as they run
 (scatter +aac :rates *aac_rates* :sf (huff-table *aac_sf_book*) :spectral (map (const huff-table) *aac_books*)
 	:sf_lisp *aac_sf* :spectral_lisp *aac_spectral* :kinds *aac_book_kinds*
-	:bands_long *aac_bands_long* :bands_short *aac_bands_short* :pi *aac_pi* :dct4 *aac_dct4*
-	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil
+	:bands_long *aac_bands_long* :bands_short *aac_bands_short*
+	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil :pi (mdct-pi)
 	:centre (sqrt (/ (n2r 1) (n2r 2))))
 
 ;module
