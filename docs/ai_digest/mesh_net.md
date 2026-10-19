@@ -34,7 +34,18 @@ hears the others say the same.
 
 The key is the file `mesh_key` at the root of the tree. `make install`
 makes one if there is none, so a machine has its own from the first day,
-and is by itself. To join machines, give them the same file.
+and is by itself. To join machines, give them the same key.
+
+A machine keeps the keys it holds by name, its keyring, the files of
+`keys/`, `service/net/keys.inc`, and the `key` command lists them with
+their fingerprints, makes, takes in, says, renames and forgets them, and
+puts one in use by copying it to `mesh_key`. It will not put another in use
+while the one in use is in no keyring file, which would lose it. A
+fingerprint is four groups of four hex digits of a hash of the key's 32
+bytes, so the same key written in hex or as its passphrase has the one
+print. `keys/` and `mesh_key` are never committed, and a sync, from
+whoever, never writes nor removes them, nor `sync_from` and `waypoint`:
+`(sync-safe?)` refuses them on the side that takes it.
 
 ```image
 docs/diagrams/mesh_states.cwb

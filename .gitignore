@@ -31,6 +31,7 @@ typos.toml
 /src/obj/
 sdl3_prefix
 mesh_key
+/keys/
 sync_from
 waypoint
 

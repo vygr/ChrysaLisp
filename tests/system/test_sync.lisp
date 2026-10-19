@@ -31,6 +31,12 @@
 	(sync-safe? "") :nil
 	(sync-safe? "/etc/passwd") :nil
 	(sync-safe? "../up.txt") :nil
+	(sync-safe? "mesh_key") :nil
+	(sync-safe? "sync_from") :nil
+	(sync-safe? "waypoint") :nil
+	(sync-safe? "keys/rig") :nil
+	(sync-safe? "docs/mesh_key") :t
+	(sync-safe? "monkeys/a") :t
 	(sync-safe? "a/../../up.txt") :nil
 	(sync-safe? "a//b") :nil
 	(sync-safe? ".git/config") :nil

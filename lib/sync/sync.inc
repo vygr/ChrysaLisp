@@ -110,11 +110,15 @@
 	; (sync-safe? path) -> :nil | :t
 	;a path the service will write to, by how it is written. Under its
 	;root, and not up out of it. No .., no start at the top of the host's
-	;files or of a drive, no ~, and no character below a space
+	;files or of a drive, no ~, and no character below a space. Nor what
+	;is the machine's own, whatever the rules of one that sends say: its
+	;key in use and its keyring, who it takes a sync from, its waypoint
 	(and (str? path) (nempty? path) (not (starts-with "/" path)) (not (starts-with "~" path))
 		(not (find ":" path)) (not (find (ascii-char 92) path)) (not (found? path "//"))
 		(not (some (# (< (code %0) 32)) path))
-		(not (some (# (or (eql %0 "..") (eql %0 ".") (eql %0 ".git"))) (split path "/")))))
+		(not (some (# (or (eql %0 "..") (eql %0 ".") (eql %0 ".git"))) (split path "/")))
+		(notany (# (eql path %0)) '("mesh_key" "sync_from" "waypoint"))
+		(not (starts-with "keys/" path))))
 
 (defun sync-kind (folder entry)
 	; (sync-kind folder entry) -> :nil | kind
@@ -225,8 +229,10 @@
 	; (sync-own-rules root) -> rules
 	;the rules of a tree, its own .gitignore, and what is the machine's own
 	;and not the tree's: its waypoint, who it takes a sync from, its key
+	;and its keyring
 	(sync-rules (cat (ifn (load (cat root "/.gitignore")) "")
-		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key" (ascii-char 10))))))
+		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key"
+			(ascii-char 10) "/keys/" (ascii-char 10))))))
 
 (defun sync-top (root &optional kept)
 	; (sync-top root [kept]) -> hash

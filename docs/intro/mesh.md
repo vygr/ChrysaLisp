@@ -13,24 +13,36 @@ A key is a small file that says which machines belong together. Only
 machines with the same key will join each other.
 
 Every machine has one from the day it is installed, `make install` makes
-it: the file `mesh_key` in the ChrysaLisp folder, next to `run.sh`. Each
-machine's is its own, so a new machine is by itself, and nothing on your
-network can join it.
+it, called `own`. Each machine's is its own, so a new machine is by
+itself, and nothing on your network can join it.
 
-Pick one machine. Copy its `mesh_key` into the ChrysaLisp folder of each
-other machine, in the same place, over the one that is there. Use a USB
-stick, AirDrop, a shared folder, whatever you have. ChrysaLisp never
-sends it for you, and git does not track it.
+The keys a machine holds are its keyring, the folder `keys/` in the
+ChrysaLisp folder, a file each, and the one in use is the file
+`mesh_key`. The `key` command looks after them:
 
-That is all. A machine that is running sees the file change, within a
-few seconds: it ends the links it had, and joins the machines that have
-the new key. One that is not running joins when it is next started.
+```code
+key                 the keys, each with its fingerprint, and the one in use
+key -x own          say the key own, to give it to another machine
+key -i home file    take in a key you were given, as home
+key -u home         use the key home from now on
+```
 
-Take the file away and the machine is off the network till it is put
-back. There is no joining without a key.
+Pick one machine. Say its key with `key -x own`, put it in a file on each
+other machine, a USB stick, AirDrop, a shared folder, whatever you have,
+and there take it in and use it: `key -i home file`, then `key -u home`.
+ChrysaLisp never sends a key for you, git does not track the keyring, and
+a sync never touches it.
 
-A tree that was never installed, or was installed before this, may have
-no key. `mesh -k` makes one.
+That is all. A machine that is running sees its key change, within a few
+seconds: it ends the links it had, and joins the machines that have the
+new key. One that is not running joins when it is next started.
+
+To check two machines hold the same key, run `key` on each and compare the
+fingerprints, four groups of four. Say the fingerprint aloud, never the key.
+
+With no key in use a machine is off the network. There is no joining
+without a key. A tree that was never installed, or was installed before
+this, may have none: `mesh -k` makes one.
 
 ## 2. Have every machine on the same version
 

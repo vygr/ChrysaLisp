@@ -9011,6 +9011,7 @@ is a node one of the machines of those system ids
 
 the rules of a tree, its own .gitignore, and what is the machine's own
 and not the tree's: its waypoint, who it takes a sync from, its key
+and its keyring
 ```
 
 ### sync-push
@@ -9058,7 +9059,9 @@ folder is never listed
 
 a path the service will write to, by how it is written. Under its
 root, and not up out of it. No .., no start at the top of the host's
-files or of a drive, no ~, and no character below a space
+files or of a drive, no ~, and no character below a space. Nor what
+is the machine's own, whatever the rules of one that sends say: its
+key in use and its keyring, who it takes a sync from, its waypoint
 ```
 
 ### sync-seg?

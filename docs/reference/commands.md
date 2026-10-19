@@ -767,6 +767,36 @@ Usage: input [options] action ...
     Given to the GUI of this network, as if from its mouse and
     keyboard, so to the windows of any app, as they would be.
 ```
+## key
+```code
+Usage: key [options] [name] [file]
+
+    options:
+        -h --help: this help info.
+        -n --new: make a key of that name, 32 bytes at random.
+        -u --use: use that key from now on: it is put in
+            mesh_key, and the Net service ends its links and
+            joins the machines that have it.
+        -k --keep: keep the key in use by that name, one
+            that was put in mesh_key by hand.
+        -i --import: a key someone gave you, in a file of the
+            host, into the keyring by that name.
+        -x --export: say the key of that name, to give it to
+            someone. Give it only to those you trust.
+        -r --rename: the key of that name by the new name, the
+            file given.
+        -d --delete: forget the key of that name. If it is the
+            one in use it stays in use.
+
+    With no option, the keys this machine holds, each with its
+    fingerprint, and the one in use. Two machines with the same
+    fingerprint have the same key, and can join each other: say
+    the fingerprint, never the key, to check.
+
+    The keys are the files of keys/, the key in use mesh_key,
+    the machine's own, never committed nor taken by a sync.
+    A key is 64 hex digits, or any other text, a passphrase.
+```
 ## launch
 ```code
 Usage: launch app ...
@@ -788,7 +818,7 @@ Usage: link [options] [host[:port] ...]
         -l --listen [port]: listen for incoming TCP network link (default: 3333).
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
-        -k --key: make a key for this machine, the file mesh_key, if it has none.
+        -k --key: make a key for this machine, own, and use it, if it has none.
         -s --seal: seal the links to the hosts given, as one over the internet is.
         -v --verbose: verbose output.
 
@@ -961,7 +991,7 @@ Usage: mesh [options]
             It does by itself as it starts, this is to ask again.
         -t --to host: join by way of one machine, its name or address,
             for when the others are not found by themselves.
-        -k --key: make a key, the file mesh_key, if there is none. An
+        -k --key: make a key, own, and use it, if there is none. An
             install has made one.
 
     The machines of a network that have the same key join into one, by
@@ -972,9 +1002,9 @@ Usage: mesh [options]
     what it is. If something looks wrong it says what to look at.
 
     A machine has a key from its install, its own, and is by itself. To
-    join it to the others copy their mesh_key to the same place on it,
-    by hand. It sees the file change, and joins. Take the file away and
-    it is off the network till it is put back.
+    join it to the others take their key into its keyring and use it,
+    key -i and key -u, the key command. It sees the key change, and
+    joins. With no key in use it is off the network.
 
     Of the sessions of one machine, a desktop and a terminal say, the
     first to start is its member of the mesh. Another takes its place

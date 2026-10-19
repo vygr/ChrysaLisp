@@ -16,7 +16,7 @@
         -l --listen [port]: listen for incoming TCP network link (default: 3333).
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
-        -k --key: make a key for this machine, the file mesh_key, if it has none.
+        -k --key: make a key for this machine, own, and use it, if it has none.
         -s --seal: seal the links to the hosts given, as one over the internet is.
         -v --verbose: verbose output.
 
@@ -75,11 +75,12 @@
 			(defq stdio (create-stdio))
 			(defq opt_l :nil opt_a :nil opt_m :nil opt_k :nil opt_s :nil opt_v :nil args (options stdio usage)))
 		(when opt_k
-			(import "lib/crypto/random.inc")
+			(import "service/net/keys.inc")
 			(cond
-				((pii-fstat "mesh_key") (print "This machine has a key already, mesh_key. It is left as it is."))
-				(:t (save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
-					(print "A key for this machine is in mesh_key. Put the same file on every machine that is to link to it."))))
+				((pii-fstat "mesh_key") (print "This machine has a key already, mesh_key. It is left as it is, key lists the keys."))
+				((and (or (keys-new "own") (pii-fstat (keys-file "own"))) (keys-use "own"))
+					(print "A key for this machine, own, is in use, " (keys-print (door-key)) ". key -x own says it, to put in the keyring of each machine that is to link to it, key -i."))
+				((print "No key could be made."))))
 		(when opt_l
 			(start-link (cat ":" (str opt_l)) opt_v)
 			(when opt_a

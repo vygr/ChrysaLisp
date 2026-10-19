@@ -27,10 +27,11 @@
 ;as it is. Only machines with the same key join each other, so a new one
 ;is by itself till it is given the key of the others, the file mesh_key
 (unless (pii-fstat "mesh_key")
-	(import "lib/crypto/random.inc")
-	(save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
-	(print "This machine has been given a key, the file mesh_key.")
-	(print "To join it to your other machines put their mesh_key in its place.")
+	(import "service/net/keys.inc")
+	(unless (pii-fstat (keys-file "own")) (keys-new "own"))
+	(keys-use "own")
+	(print "This machine has been given a key of its own, own, in keys/ and in use.")
+	(print "To join it to your other machines take in their key: key -i name file, then key -u name.")
 	(print))
 (print "Install complete.")
 (print)

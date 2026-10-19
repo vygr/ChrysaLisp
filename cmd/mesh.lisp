@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/pipe.inc")
 (import "service/net/app.inc")
+(import "service/net/keys.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -12,7 +13,7 @@
             It does by itself as it starts, this is to ask again.
         -t --to host: join by way of one machine, its name or address,
             for when the others are not found by themselves.
-        -k --key: make a key, the file mesh_key, if there is none. An
+        -k --key: make a key, own, and use it, if there is none. An
             install has made one.
 
     The machines of a network that have the same key join into one, by
@@ -23,9 +24,9 @@
     what it is. If something looks wrong it says what to look at.
 
     A machine has a key from its install, its own, and is by itself. To
-    join it to the others copy their mesh_key to the same place on it,
-    by hand. It sees the file change, and joins. Take the file away and
-    it is off the network till it is put back.
+    join it to the others take their key into its keyring and use it,
+    key -i and key -u, the key command. It sees the key change, and
+    joins. With no key in use it is off the network.
 
     Of the sessions of one machine, a desktop and a terminal say, the
     first to start is its member of the mesh. Another takes its place
@@ -48,8 +49,8 @@
 
 (defun status ()
 	(defq key (if (pii-fstat "mesh_key") :t) is_joined (joined?) systems (lisp-systems))
-	(print (if key "Key:     mesh_key, only machines with the same file can join."
-		"Key:     none. This machine is off the network till it has one. Copy in the mesh_key of the others, or mesh -k makes one."))
+	(print (if key (cat "Key:     " (ifn (keys-in-use) "mesh_key") ", " (keys-print (door-key)) ", only machines with the same key can join.")
+		"Key:     none. This machine is off the network till it has one. Take in the key of the others, key -i and key -u, or mesh -k makes one."))
 	(print (cond
 		(is_joined "Joined:  yes.")
 		(key "Joined:  no. Another session of this machine may be its member, the first to start is. Or it is a moment too soon.")
@@ -78,7 +79,7 @@
 		(print)
 		(print "No other machine is seen. If one should be:")
 		(print "    Has it joined too ? mesh there, to see.")
-		(print "    Has it the same mesh_key file, in the same place ?")
+		(print "    Has it the same key ? key on each says its fingerprint.")
 		(print "    Is it the same version ? Update and make install on both.")
 		(print "    Does a firewall stop it ? TCP port 3333 and UDP port 3334 must be let in.")
 		(print "    Are they on one network ? If not, or if it will not find it, name one: mesh -t address")))
@@ -91,7 +92,7 @@
 		(when opt_k
 			(pipe-run "link -k" (const prin))
 			(unless opt_j
-				(print "Copy mesh_key to the same place on each other machine, by hand.")
+				(print "key -x own says it, to take into the keyring of each other machine, key -i, and use, key -u.")
 				(print "Each sees it and joins.")))
 		(when (or opt_j opt_t)
 			;listen, say so to the network, and look for the others. Or
