@@ -69,7 +69,8 @@
 
 (defun net-start-link (key target)
 	; (net-start-link key target) -> :nil | net_id
-	;a link, ":port" to listen or "host:port" to dial. It is through the
+	;a link, ":port" to listen or "host:port" to dial, "!host:port" to dial
+	;a link that is sealed though the host is inside. It is through the
 	;door, service/net/door.inc, each end proves it has the key before
 	;the link carries anything. A machine with no key has no links over
 	;the network, :nil
@@ -80,7 +81,9 @@
 			(if (/= (get-long child 0) 0)
 				(mail-send child (cat key (if (eql target ":") "3333" (slice target 1 -1))))))
 		(:t (defq child (open-child "service/net/door.lisp" +kn_call_pin))
-			(if (/= (get-long child 0) 0) (mail-send child (cat "D" key target)))))
+			(if (/= (get-long child 0) 0)
+				(mail-send child (if (starts-with "!" target)
+					(cat "S" key (slice target 1 -1)) (cat "D" key target))))))
 	child)
 
 (defun main ()

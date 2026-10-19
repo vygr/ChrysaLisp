@@ -4,6 +4,7 @@
 (include "class/nodeid/class.inc")
 (include "class/array/class.inc")
 (include "./class.inc")
+(include "sys/crypto/class.inc")
 
 (def-method :host_net :send_all)
 	;inputs
@@ -334,8 +335,9 @@
 
 	(def-vars
 		(struct lk_node lk_node_size)
+		(struct keys 64)
 		(ptr msg data)
-		(long conn_handle))
+		(long conn_handle sealed))
 
 	(vp-rdef (tmp))
 	(vp-rdef (lst iter_begin iter_end) (method-output :array :get_both))
@@ -362,30 +364,72 @@
 	(assign (vpx (& lk_node)) '(:r1))
 	(call :array :push_back '(:r0 :r1))
 
-	;read params msg
+	;read params msg: the handle, whether it is sealed, and its two keys,
+	;the one the out link seals with and the one the in link opens with
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
 	(assign `((,params_data 0)) '(:r2))
 	(assign '(:r2) (vpx conn_handle))
+	(assign `((,params_data +long_size)) '(:r2))
+	(assign '(:r2) (vpx sealed))
+	(assign (vpx (& keys)) '(:r3))
+	(assign `((,params_data 16)) '(:r2))
+	(assign '(:r2) '((:r3 0)))
+	(assign `((,params_data 24)) '(:r2))
+	(assign '(:r2) '((:r3 8)))
+	(assign `((,params_data 32)) '(:r2))
+	(assign '(:r2) '((:r3 16)))
+	(assign `((,params_data 40)) '(:r2))
+	(assign '(:r2) '((:r3 24)))
+	(assign `((,params_data 48)) '(:r2))
+	(assign '(:r2) '((:r3 32)))
+	(assign `((,params_data 56)) '(:r2))
+	(assign '(:r2) '((:r3 40)))
+	(assign `((,params_data 64)) '(:r2))
+	(assign '(:r2) '((:r3 48)))
+	(assign `((,params_data 72)) '(:r2))
+	(assign '(:r2) '((:r3 56)))
 	(call :sys_mail :free `(,params_msg))
 
 	;the handle again: the free is declared to trash where it was
 	(assign (vpx conn_handle) '(:r2))
 	(gotoif '(:r2 <= 0) 'conn_exit)
 
-	;start out link and send params
-	(call :sys_mail :alloc '(16) (vpx msg data))
+	;start out link and send params, with the key it seals with
+	(call :sys_mail :alloc '(56) (vpx msg data))
 	(call :sys_task :start (vpx (@ ,(f-path :host_net :out))) '(_ _ :r2 :r3 :r4))
 	(assign (vpx msg data (& lk_node) conn_handle) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(assign (vpx sealed) '(:r5))
+	(assign '(:r5) '((:r1 16)))
+	(assign (vpx (& keys)) '(:r6))
+	(assign '((:r6 0)) '(:r5))
+	(assign '(:r5) '((:r1 24)))
+	(assign '((:r6 8)) '(:r5))
+	(assign '(:r5) '((:r1 32)))
+	(assign '((:r6 16)) '(:r5))
+	(assign '(:r5) '((:r1 40)))
+	(assign '((:r6 24)) '(:r5))
+	(assign '(:r5) '((:r1 48)))
 	(call :sys_mail :send '(:r0))
 
-	;start in link and send params
-	(call :sys_mail :alloc '(16) (vpx msg data))
+	;start in link and send params, with the key it opens with
+	(call :sys_mail :alloc '(56) (vpx msg data))
 	(call :sys_task :start (vpx (@ ,(f-path :host_net :in))) '(_ _ :r2 :r3 :r4))
 	(assign (vpx msg data (& lk_node) conn_handle) '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(assign (vpx sealed) '(:r5))
+	(assign '(:r5) '((:r1 16)))
+	(assign (vpx (& keys)) '(:r6))
+	(assign '((:r6 32)) '(:r5))
+	(assign '(:r5) '((:r1 24)))
+	(assign '((:r6 40)) '(:r5))
+	(assign '(:r5) '((:r1 32)))
+	(assign '((:r6 48)) '(:r5))
+	(assign '(:r5) '((:r1 40)))
+	(assign '((:r6 56)) '(:r5))
+	(assign '(:r5) '((:r1 48)))
 	(call :sys_mail :send '(:r0))
 
 	;wait till link dies
@@ -437,8 +481,41 @@
 	(def-vars
 		(struct ping_pkt +net_ping_pkt_size)
 		(struct frag_pkt +net_frag_pkt_size)
-		(ptr lk_node key msg)
-		(long conn_handle then))
+		(struct skey 32)
+		(struct nonce 16)
+		(ptr lk_node key msg sbuf)
+		(long conn_handle then sealed count slen))
+
+	(defun out-sealed (fail)
+		;a sealed link: the packet in sbuf after its length, slen bytes,
+		;sealed in place with the next count as its nonce, the length put in
+		;front, and all of it sent
+		(assign (vpx count) '(:r0))
+		(assign (vpx (& nonce)) '(:r1))
+		(assign '(:r0) '((:r1 0)))
+		(assign (vpx (+ count 1)) (vpx count))
+		(assign (vpx (& skey) (& nonce) sbuf slen) '(:r0 :r1 :r2 :r4))
+		(vp-add-cr +long_size :r2)
+		(vp-cpy-rr :r2 :r3)
+		(call :sys_crypto :aead_seal '(:r0 :r1 :r2 :r3 :r4))
+		(assign (vpx sbuf slen) '(:r0 :r1))
+		(vp-cpy-ri :r1 :r0 0)
+		(call :host_net :send_all (vpx conn_handle sbuf (+ slen +long_size +aead_tag_size)) `(,send_status))
+		(gotoif `(,send_status < 0) fail))
+
+	(defun out-ping (fail)
+		;the ping, sealed or not
+		(vpif (vpx (/= sealed 0)))
+			(assign (vpx (& ping_pkt) sbuf) '(:r0 :r1))
+			(vp-add-cr +long_size :r1)
+			(vp-cpy-cr +net_ping_pkt_size :r2)
+			(call :sys_mem :copy '(:r0 :r1 :r2))
+			(assign (vpx +net_ping_pkt_size) (vpx slen))
+			(out-sealed fail)
+		(else)
+			(call :host_net :send_all (vpx conn_handle (& ping_pkt) +net_ping_pkt_size) `(,send_status))
+			(gotoif `(,send_status < 0) fail)
+		(endif))
 
 	(vp-rdef (send_handle send_buf send_rem) (method-input :host_net :send_all))
 	(vp-rdef (send_status) (method-output :host_net :send_all))
@@ -450,11 +527,30 @@
 
 	(call :nodeid :create '(0) (vpx key))
 
-	;read params msg
+	;read params msg, and of a sealed link its key, and a buffer to seal in
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
 	(assign `((,params_data 0) (,params_data +ptr_size)) '(:r2 :r3))
 	(assign '(:r2 :r3) (vpx lk_node conn_handle))
+	(assign `((,params_data 16)) '(:r2))
+	(assign '(:r2) (vpx sealed))
+	(assign (vpx (& skey)) '(:r3))
+	(assign `((,params_data 24)) '(:r2))
+	(assign '(:r2) '((:r3 0)))
+	(assign `((,params_data 32)) '(:r2))
+	(assign '(:r2) '((:r3 8)))
+	(assign `((,params_data 40)) '(:r2))
+	(assign '(:r2) '((:r3 16)))
+	(assign `((,params_data 48)) '(:r2))
+	(assign '(:r2) '((:r3 24)))
 	(call :sys_mail :free `(,params_msg))
+	(assign '(0) '(:r0))
+	(assign '(:r0 :r0) (vpx count sbuf))
+	(assign (vpx (& nonce)) '(:r1))
+	(assign '(:r0 :r0) '((:r1 0) (:r1 8)))
+	(vpif (vpx (/= sealed 0)))
+		(call :sys_mem :alloc (vpx (+ +long_size +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
+		(assign '(:r0) (vpx sbuf))
+	(endif)
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_out_link_priority))
@@ -476,8 +572,7 @@
 	(assign `(,node2) `((,ping_pkt +net_ping_pkt_task_count)))
 
 	;send initial ping
-	(call :host_net :send_all (vpx conn_handle (& ping_pkt) +net_ping_pkt_size) `(,send_status))
-	(gotoif `(,send_status < 0) 'out_exit)
+	(out-ping 'out_exit)
 	(call :host_os :pii_time :nil '(:r0))
 	(assign '(:r0) (vpx then))
 
@@ -528,27 +623,39 @@
 			'(+net_frag_pkt_wire_length +net_frag_pkt_wire_type)
 			`(,t0 ,t1))
 
-		;send frag header (72 bytes)
-		(call :host_net :send_all (vpx conn_handle (& frag_pkt) +net_frag_pkt_size) `(,send_status))
-		(vpif `(,send_status < 0))
-			(call :sys_mail :free (vpx msg))
-			(goto 'out_exit)
-		(endif)
+		(vpif (vpx (/= sealed 0)))
+			;sealed: the frag header and its payload one packet, sealed
+			(assign (vpx (& frag_pkt) sbuf) '(:r0 :r1))
+			(vp-add-cr +long_size :r1)
+			(vp-cpy-cr +net_frag_pkt_size :r2)
+			(call :sys_mem :copy '(:r0 :r1 :r2))
+			(assign (vpx msg sbuf) '(:r5 :r1))
+			(assign '((:r5 +msg_length) (:r5 +msg_data)) '(:r2 :r0))
+			(vp-add-cr (+ +long_size +net_frag_pkt_size) :r1)
+			(assign '(:r2) (vpx slen))
+			(call :sys_mem :copy '(:r0 :r1 :r2))
+			(assign (vpx (+ slen +net_frag_pkt_size)) (vpx slen))
+			(out-sealed 'out_frag_fail)
+		(else)
+			;send frag header (72 bytes)
+			(call :host_net :send_all (vpx conn_handle (& frag_pkt) +net_frag_pkt_size) `(,send_status))
+			(gotoif `(,send_status < 0) 'out_frag_fail)
 
-		;send payload data if len > 0
-		(assign (vpx conn_handle msg) `(,send_handle :r5))
-		(assign '((:r5 +msg_length) (:r5 +msg_data)) `(,send_rem ,send_buf))
-		(vpif `(,send_rem > 0))
-			(call :host_net :send_all `(,send_handle ,send_buf ,send_rem) `(,send_status))
-			(vpif `(,send_status < 0))
-				(call :sys_mail :free (vpx msg))
-				(goto 'out_exit)
+			;send payload data if len > 0
+			(assign (vpx conn_handle msg) `(,send_handle :r5))
+			(assign '((:r5 +msg_length) (:r5 +msg_data)) `(,send_rem ,send_buf))
+			(vpif `(,send_rem > 0))
+				(call :host_net :send_all `(,send_handle ,send_buf ,send_rem) `(,send_status))
+				(gotoif `(,send_status < 0) 'out_frag_fail)
 			(endif)
 		(endif)
 
 		;free msg
 		(call :sys_mail :free (vpx msg))
 		(goto 'out_loop)
+	(vp-label 'out_frag_fail)
+		(call :sys_mail :free (vpx msg))
+		(goto 'out_exit)
 	(endif)
 
 	;no mail to send, sleep up to 5s or until woken by wake_links
@@ -570,8 +677,7 @@
 		(assign (vpx (& ping_pkt)) '(:r4))
 		(assign '((:r1 statics_sys_task_task_count)) '(:r0))
 		(assign '(:r0) '((:r4 +net_ping_pkt_task_count)))
-		(call :host_net :send_all (vpx conn_handle (& ping_pkt) +net_ping_pkt_size) `(,send_status))
-		(gotoif `(,send_status < 0) 'out_exit)
+		(out-ping 'out_exit)
 	(endif)
 	(goto 'out_loop)
 
@@ -588,6 +694,10 @@
 		`(,cnt ,zero ,zero ,zero ,zero))
 
 	(call :nodeid :destroy (vpx key))
+	(assign (vpx sbuf) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call :sys_mem :free '(:r0))
+	(endif)
 	(pop-scope)
 	(return)
 
@@ -601,20 +711,48 @@
 		(struct ping_payload lk_node_size)
 		(nodeid node_id)
 		(struct wire_hdr +net_wire_hdr_size)
-		(ptr lk_node msg data frag_buf)
-		(long conn_handle)
+		(struct rkey 32)
+		(struct nonce 16)
+		(ptr lk_node msg data frag_buf rbuf cursor)
+		(long conn_handle sealed count rlen)
 		(uint frag_len))
+
+	(defmacro in-take (dst len)
+		;of a sealed link, len bytes of the record opened, to dst
+		`(progn
+			(assign (vpx cursor ,dst ,len) '(:r0 :r1 :r2))
+			(call :sys_mem :copy '(:r0 :r1 :r2) '(:r0 _))
+			(assign '(:r0) (vpx cursor))))
 
 	(vp-rdef (recv_status) (method-output :host_net :recv_all))
 	(vp-rdef (params_msg params_data) (method-output :sys_mail :mymail))
 
 	(push-scope)
 
-	;read params msg
+	;read params msg, and of a sealed link its key, and a buffer to open in
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
 	(assign `((,params_data 0) (,params_data +ptr_size)) '(:r2 :r3))
 	(assign '(:r2 :r3) (vpx lk_node conn_handle))
+	(assign `((,params_data 16)) '(:r2))
+	(assign '(:r2) (vpx sealed))
+	(assign (vpx (& rkey)) '(:r3))
+	(assign `((,params_data 24)) '(:r2))
+	(assign '(:r2) '((:r3 0)))
+	(assign `((,params_data 32)) '(:r2))
+	(assign '(:r2) '((:r3 8)))
+	(assign `((,params_data 40)) '(:r2))
+	(assign '(:r2) '((:r3 16)))
+	(assign `((,params_data 48)) '(:r2))
+	(assign '(:r2) '((:r3 24)))
 	(call :sys_mail :free `(,params_msg))
+	(assign '(0) '(:r0))
+	(assign '(:r0 :r0) (vpx count rbuf))
+	(assign (vpx (& nonce)) '(:r1))
+	(assign '(:r0 :r0) '((:r1 0) (:r1 8)))
+	(vpif (vpx (/= sealed 0)))
+		(call :sys_mem :alloc (vpx (+ +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
+		(assign '(:r0) (vpx rbuf))
+	(endif)
 
 	;switch to link priority
 	(call :sys_task :set_priority '(tk_in_link_priority))
@@ -627,9 +765,31 @@
 
 	;inbound packet loop
 (vp-label 'in_loop)
-	;read 8-byte wire header
-	(call :host_net :recv_all (vpx conn_handle (& wire_hdr) +net_wire_hdr_size lk_node) `(,recv_status))
-	(gotoif `(,recv_status < 0) 'in_exit)
+	(vpif (vpx (/= sealed 0)))
+		;sealed: a record, its length, then the packet and its tag. Opened
+		;with the next count as its nonce, or the link is dropped: one
+		;changed, or sent again, or out of its order, is not taken
+		(call :host_net :recv_all (vpx conn_handle (& rlen) +long_size lk_node) `(,recv_status))
+		(gotoif `(,recv_status < 0) 'in_exit)
+		(gotoif (vpx (< rlen +net_wire_hdr_size)) 'in_exit)
+		(gotoif (vpx (> rlen (+ +net_frag_pkt_size lk_data_size))) 'in_exit)
+		(call :host_net :recv_all (vpx conn_handle rbuf (+ rlen +aead_tag_size) lk_node) `(,recv_status))
+		(gotoif `(,recv_status < 0) 'in_exit)
+		(assign (vpx count) '(:r0))
+		(assign (vpx (& nonce)) '(:r1))
+		(assign '(:r0) '((:r1 0)))
+		(assign (vpx (+ count 1)) (vpx count))
+		(assign (vpx (& rkey) (& nonce) rbuf rbuf rlen) '(:r0 :r1 :r2 :r3 :r4))
+		(call :sys_crypto :aead_open '(:r0 :r1 :r2 :r3 :r4) '(:r0))
+		(gotoif '(:r0 = 0) 'in_exit)
+		(assign (vpx rbuf) '(:r0))
+		(assign '(:r0) (vpx cursor))
+		(in-take (& wire_hdr) +net_wire_hdr_size)
+	(else)
+		;read 8-byte wire header
+		(call :host_net :recv_all (vpx conn_handle (& wire_hdr) +net_wire_hdr_size lk_node) `(,recv_status))
+		(gotoif `(,recv_status < 0) 'in_exit)
+	(endif)
 
 	(assign (vpx (& wire_hdr)) '(:r4))
 	(assign '((:r4 +net_wire_hdr_type)) '(:r0))
@@ -640,8 +800,12 @@
 
 (vp-label 'in_ping)
 	;read the ping payload, 40 bytes, the start of a link's record
-	(call :host_net :recv_all (vpx conn_handle (& ping_payload) +net_ping_payload_size lk_node) `(,recv_status))
-	(gotoif `(,recv_status < 0) 'in_exit)
+	(vpif (vpx (/= sealed 0)))
+		(in-take (& ping_payload) +net_ping_payload_size)
+	(else)
+		(call :host_net :recv_all (vpx conn_handle (& ping_payload) +net_ping_payload_size lk_node) `(,recv_status))
+		(gotoif `(,recv_status < 0) 'in_exit)
+	(endif)
 
 	;update peer node id, peer system id, and task count on lk_node
 	(vp-rdef (src dst t0 t1 t2 t3 t4))
@@ -667,15 +831,25 @@
 
 (vp-label 'in_frag)
 	;read 64-byte frag payload header into frag_buf
-	(call :host_net :recv_all (vpx conn_handle frag_buf lk_frag_size lk_node) `(,recv_status))
-	(gotoif `(,recv_status < 0) 'in_exit)
+	(vpif (vpx (/= sealed 0)))
+		(in-take frag_buf lk_frag_size)
+	(else)
+		(call :host_net :recv_all (vpx conn_handle frag_buf lk_frag_size lk_node) `(,recv_status))
+		(gotoif `(,recv_status < 0) 'in_exit)
+	(endif)
 
 	;read payload data directly after header in frag_buf
 	(assign (vpx (.> frag_buf lk_frag_length)) (vpx frag_len))
 	(gotoif (vpx (> frag_len lk_data_size)) 'in_exit)
 	(vpif (vpx (> frag_len 0)))
-		(call :host_net :recv_all (vpx conn_handle (& (.> frag_buf lk_frag_size)) frag_len lk_node) `(,recv_status))
-		(gotoif `(,recv_status < 0) 'in_exit)
+		(vpif (vpx (/= sealed 0)))
+			;all of it inside the record that was opened
+			(gotoif (vpx (> (+ frag_len lk_frag_size +net_wire_hdr_size) rlen)) 'in_exit)
+			(in-take (& (.> frag_buf lk_frag_size)) frag_len)
+		(else)
+			(call :host_net :recv_all (vpx conn_handle (& (.> frag_buf lk_frag_size)) frag_len lk_node) `(,recv_status))
+			(gotoif `(,recv_status < 0) 'in_exit)
+		(endif)
 	(endif)
 
 	;is this msg part of a parcel for this node
@@ -719,8 +893,12 @@
 	(goto 'in_loop)
 
 (vp-label 'in_exit)
-	;free private fragment buffer
+	;free private fragment buffer, and the buffer records are opened in
 	(call :sys_mem :free (vpx frag_buf))
+	(assign (vpx rbuf) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call :sys_mem :free '(:r0))
+	(endif)
 
 	;mark link closed
 	(vp-rdef (node cnt zero))

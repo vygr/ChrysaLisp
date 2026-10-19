@@ -17,6 +17,12 @@
 (import "./chacha20.inc")
 (import "./poly1305.inc")
 
+(ffi (path-to-absolute "./aead_seal") aead-seal-native)
+; (aead-seal-native key nonce data) -> str
+(ffi (path-to-absolute "./aead_open") aead-open-native)
+; (aead-open-native key nonce sealed) -> :nil | str
+;with no aad, all of it native code, :sys_crypto, as a link seals
+
 (defq +aead_zeros (apply (const cat) (map (lambda (&) (char 0 8)) (range 0 8))))
 
 (defun aead-tag (key nonce aad cipher)
@@ -33,14 +39,22 @@
 
 (defun aead-seal (key nonce aad data)
 	; (aead-seal key nonce aad data) -> str
-	(defq cipher (chacha20 key nonce 1 data))
-	(cat cipher (aead-tag key nonce aad cipher)))
+	(cond
+		((eql aad "") (aead-seal-native key nonce data))
+		(:t (defq cipher (chacha20 key nonce 1 data))
+			(cat cipher (aead-tag key nonce aad cipher)))))
 
-(defun aead-open (key nonce aad sealed)
-	; (aead-open key nonce aad sealed) -> :nil | str
+(defun aead-open-lisp (key nonce aad sealed)
+	; (aead-open-lisp key nonce aad sealed) -> :nil | str
 	(when (>= (defq size (- (length sealed) 16)) 0)
 		(defq cipher (slice sealed 0 size) tag (aead-tag key nonce aad cipher) differ 0)
 		;every byte of the tag is looked at, right or wrong
 		(each (# (setq differ (logior differ (logxor (code %0) (code %1)))))
 			tag (slice sealed size -1))
 		(if (= differ 0) (chacha20 key nonce 1 cipher))))
+
+(defun aead-open (key nonce aad sealed)
+	; (aead-open key nonce aad sealed) -> :nil | str
+	(cond
+		((eql aad "") (aead-open-native key nonce sealed))
+		((aead-open-lisp key nonce aad sealed))))

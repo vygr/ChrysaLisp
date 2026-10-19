@@ -102,6 +102,9 @@
     reverse (reverse (slice x s e)), two copies, is (slice x e s),
             one. Of a (rest) or a (most), (slice x -1 1) or
             (slice x -2 0), which of an empty one is an error.
+    width   (char x n) of a number n written there that is
+            not 1 to 8: (char) makes no more than 8 bytes,
+            (char 0 32) is 8 of them, not 32.
     cut     (slice (str x) 0 n), a string of something cut to
             a number written there: one that is shorter than
             that is an error, (min n (length s)).
@@ -163,7 +166,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "struct" "param" "empty" "past" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "width" "struct" "param" "empty" "past" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -561,6 +564,15 @@
 		(found file (second forms) "reverse" "(reverse) of a part is one copy more, (slice "
 			(tree-text seq) " " (second ends) " " (first ends) ")"
 			(if empty ", and if it can be empty it is an error" ""))))
+
+(defun check-width (file forms head)
+	;(char) of a width written there that it does not make
+	(and (eql head "char") (= (length forms) 3)
+		(nempty? (defq text (tree-text (third forms))))
+		(every (# (find %0 "0123456789")) text)
+		(not (<= 1 (str-as-num text) 8))
+		(found file (third forms) "width" "(char x " text
+			") makes no more than 8 bytes, of 1 to 8")))
 
 (defun check-copy (file forms head)
 	;an iterator given only copies of the one part of its sequences
@@ -1129,6 +1141,7 @@
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
 							(if (find "reverse" checks) (check-reverse file forms head))
+							(if (find "width" checks) (check-width file forms head))
 							(if (find "style" checks) (check-style file node forms head))
 							(if (find "doc" checks) (check-doc file node forms head nodes at))
 							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))

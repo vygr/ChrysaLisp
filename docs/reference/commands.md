@@ -157,6 +157,9 @@ Usage: check [options] [path] ...
     reverse (reverse (slice x s e)), two copies, is (slice x e s),
             one. Of a (rest) or a (most), (slice x -1 1) or
             (slice x -2 0), which of an empty one is an error.
+    width   (char x n) of a number n written there that is
+            not 1 to 8: (char) makes no more than 8 bytes,
+            (char 0 32) is 8 of them, not 32.
     cut     (slice (str x) 0 n), a string of something cut to
             a number written there: one that is shorter than
             that is an error, (min n (length s)).
@@ -786,6 +789,7 @@ Usage: link [options] [host[:port] ...]
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
         -k --key: make a key for this machine, the file mesh_key, if it has none.
+        -s --seal: seal the links to the hosts given, as one over the internet is.
         -v --verbose: verbose output.
 
     Start TCP network link driver/s.
@@ -810,6 +814,10 @@ Usage: link [options] [host[:port] ...]
     network, by hand, it is never sent. The Net service sees the file
     change: it ends the links it has and joins those with the new key.
     With no key a machine has no links, it is off the network.
+
+    A link to a host outside the private addresses, over the internet, is
+    sealed: each message on it encrypted and signed. One on the LAN is
+    not, and costs nothing more, unless -s says it is to be.
 
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.
@@ -987,6 +995,12 @@ Usage: mic [options]
         -o --out path: what was heard kept in a sound file, .wav,
             default tests/scratch/mic.wav.
         -p --play: what was heard played back.
+        -e --echo file: the sound file played on the speaker while
+            the microphone is heard, from its second second, for as
+            long as it lasts and 2 more, and how loud each second was
+            said: the echo canceller of this machine tried alone. The
+            room quiet, what is heard after the first second should
+            be near what it was in it.
 
     Listen to the microphone of the Audio service of this machine, and
     say what was heard: how long, how loud at its loudest and on the
@@ -1355,6 +1369,10 @@ Usage: storage [options] [path]
             and -k say otherwise.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
+        -o --on machine: the store of another machine, by the
+            start of its system id as mesh lists it, 90D57181:
+            looked at, put to or got from as a client, this
+            machine no member of it, and none of it kept here.
         -L --travels on|off: this machine is one that is
             taken away from the others, a laptop, or is not.
             With -j, or of a member. One that travels pins

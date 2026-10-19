@@ -144,6 +144,9 @@
 	'("(1) cut: a (str ) cut to 200 is an error if it is shorter, (min 200 (length s))")
 	(tt-check "cut" "(prin (slice (str _) 0 200))" "(slice (defq t (str _)) 0 (min 200 (length t)))"
 		"(slice (str x) 2 5)" "(slice s 0 8)"))
+(assert-list-eq "width: (char) of a width written there of more than 8, or 0; not one of 1 to 8, nor a name"
+	'("(1) width: (char x 32) makes no more than 8 bytes, of 1 to 8" "(2) width: (char x 0) makes no more than 8 bytes, of 1 to 8")
+	(tt-check "width" "(defq z (char 0 32) a (char 0 8))" "(char 1 0)" "(char 0 +long_size)" "(char c)"))
 (assert-list-eq "made: a + name given a list made as it runs; not a quoted one, nor a number, nor a name of *stars*"
 	'("(1) made: +scenes is a list made by (map), put in as a form where it is used, make it a *name*")
 	(tt-check "made" "(defq +scenes (map (const first) (scene-list)) +size 4)" "(defq +ok ''(1 2) *scenes* (map f l) +quoted (list quote l) +name (cat a b))"))

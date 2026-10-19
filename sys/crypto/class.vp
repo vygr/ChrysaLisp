@@ -1,0 +1,424 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+
+(def-method :sys_crypto :chacha20)
+	;inputs
+	;:r0 = key, 32 bytes (ptr)
+	;:r1 = nonce, 12 bytes (ptr)
+	;:r2 = counter, the block of 64 bytes in starts at (uint)
+	;:r3 = in (ptr)
+	;:r4 = out (ptr)
+	;:r5 = length (bytes)
+	;trashes
+	;:r0-:r14
+	;info
+	;length bytes of in to out, each xored with the next byte of the key
+	;stream of ChaCha20, RFC 8439. out can be in.
+
+	;the 16 numbers of a block are 32 bits each. 12 of them are in
+	;registers through the rounds, and the four of the third row are on
+	;the stack, one of them in a register for the quarter round that
+	;uses it
+	(vp-rdef (x0 x1 x2 x3 x4 x5 x6 x7 x12 x13 x14 x15 ct tm cm))
+
+	(defq +cc_state 0 +cc_work 64 +cc_tail 128 +cc_in 192 +cc_out 200 +cc_left 208
+		+cc_rounds 216 +cc_real 224 +cc_part 232 +cc_stack 240)
+
+	(defun cc-rotl (x n)
+		;x rotated left by n, of 32 bits
+		(vp-cpy-rr x tm) (vp-shl-cr n x) (vp-shr-cr (- 32 n) tm)
+		(vp-or-rr tm x) (vp-and-rr cm x))
+
+	(defun cc-quarter (xa xb ic xd)
+		;a quarter round, on three registers and number ic of the block
+		(vp-add-rr xb xa) (vp-and-rr cm xa) (vp-xor-rr xa xd) (cc-rotl xd 16)
+		(vp-cpy-ir-ui :rsp (+ +cc_work (* ic 4)) ct)
+		(vp-add-rr xd ct) (vp-and-rr cm ct) (vp-xor-rr ct xb) (cc-rotl xb 12)
+		(vp-add-rr xb xa) (vp-and-rr cm xa) (vp-xor-rr xa xd) (cc-rotl xd 8)
+		(vp-add-rr xd ct) (vp-and-rr cm ct) (vp-xor-rr ct xb) (cc-rotl xb 7)
+		(vp-cpy-ri-i ct :rsp (+ +cc_work (* ic 4))))
+
+	(defun cc-bytes (from to count label)
+		;count bytes from one place to another, count is not 0
+		(vp-label label)
+		(vp-cpy-ir-ub from 0 tm)
+		(vp-cpy-ri-b tm to 0)
+		(vp-add-cr 1 from) (vp-add-cr 1 to)
+		(vp-sub-cr 1 count)
+		(vp-bne-cr 0 count label))
+
+	(entry :sys_crypto :chacha20 '(:r0 :r1 :r2 :r3 :r4 :r5))
+
+	(vp-alloc +cc_stack)
+	;the block as it starts, four numbers that never change, the key,
+	;the counter, and the nonce
+	(each (lambda (word)
+		(vp-cpy-cr word :r9)
+		(vp-cpy-ri-i :r9 :rsp (+ +cc_state (* (!) 4))))
+		'(0x61707865 0x3320646e 0x79622d32 0x6b206574))
+	(each (lambda (i)
+		(vp-cpy-ir-ui :r0 (* i 4) :r9)
+		(vp-cpy-ri-i :r9 :rsp (+ +cc_state 16 (* i 4)))) (range 0 8))
+	(vp-cpy-ri-i :r2 :rsp (+ +cc_state 48))
+	(each (lambda (i)
+		(vp-cpy-ir-ui :r1 (* i 4) :r9)
+		(vp-cpy-ri-i :r9 :rsp (+ +cc_state 52 (* i 4)))) (range 0 3))
+	(vp-cpy-ri :r3 :rsp +cc_in)
+	(vp-cpy-ri :r4 :rsp +cc_out)
+	(vp-cpy-ri :r5 :rsp +cc_left)
+	(vp-xor-rr :r9 :r9)
+	(vp-cpy-ri :r9 :rsp +cc_part)
+
+(vp-label 'cc_block)
+	(vp-cpy-ir :rsp +cc_left x0)
+	(vp-beq-cr 0 x0 'cc_done)
+	(vp-blt-cr 64 x0 'cc_short)
+	(vp-sub-cr 64 x0)
+	(vp-cpy-ri x0 :rsp +cc_left)
+	(vp-jmp 'cc_go)
+(vp-label 'cc_short)
+	;less than a block is left. It is copied to the stack, done there,
+	;and what comes of it copied out
+	(vp-cpy-ri x0 :rsp +cc_part)
+	(vp-xor-rr x1 x1)
+	(vp-cpy-ri x1 :rsp +cc_left)
+	(vp-cpy-ir :rsp +cc_in x1)
+	(vp-lea-i :rsp +cc_tail x2)
+	(cc-bytes x1 x2 x0 'cc_copy_in)
+	(vp-cpy-ir :rsp +cc_out x1)
+	(vp-cpy-ri x1 :rsp +cc_real)
+	(vp-lea-i :rsp +cc_tail x2)
+	(vp-cpy-ri x2 :rsp +cc_in)
+	(vp-cpy-ri x2 :rsp +cc_out)
+(vp-label 'cc_go)
+	(each (lambda (x i) (vp-cpy-ir-ui :rsp (+ +cc_state (* i 4)) x))
+		(list x0 x1 x2 x3 x4 x5 x6 x7 x12 x13 x14 x15) '(0 1 2 3 4 5 6 7 12 13 14 15))
+	(each (lambda (i)
+		(vp-cpy-ir-ui :rsp (+ +cc_state (* i 4)) ct)
+		(vp-cpy-ri-i ct :rsp (+ +cc_work (* i 4)))) '(8 9 10 11))
+	(vp-cpy-cr 0xffffffff cm)
+	(vp-cpy-cr 10 tm)
+	(vp-cpy-ri tm :rsp +cc_rounds)
+(vp-label 'cc_round)
+	;down the columns, then along the diagonals
+	(cc-quarter x0 x4 8 x12)
+	(cc-quarter x1 x5 9 x13)
+	(cc-quarter x2 x6 10 x14)
+	(cc-quarter x3 x7 11 x15)
+	(cc-quarter x0 x5 10 x15)
+	(cc-quarter x1 x6 11 x12)
+	(cc-quarter x2 x7 8 x13)
+	(cc-quarter x3 x4 9 x14)
+	(vp-cpy-ir :rsp +cc_rounds tm)
+	(vp-sub-cr 1 tm)
+	(vp-cpy-ri tm :rsp +cc_rounds)
+	(vp-bne-cr 0 tm 'cc_round)
+	;all 16 on the stack, then each, with what it started as added, is
+	;xored with 4 bytes of the data
+	(each (lambda (x i) (vp-cpy-ri-i x :rsp (+ +cc_work (* i 4))))
+		(list x0 x1 x2 x3 x4 x5 x6 x7 x12 x13 x14 x15) '(0 1 2 3 4 5 6 7 12 13 14 15))
+	(vp-cpy-ir :rsp +cc_in x0)
+	(vp-cpy-ir :rsp +cc_out x1)
+	(each (lambda (i)
+		(vp-cpy-ir-ui :rsp (+ +cc_work (* i 4)) x2)
+		(vp-cpy-ir-ui :rsp (+ +cc_state (* i 4)) x3)
+		(vp-add-rr x3 x2)
+		(vp-cpy-ir-ui x0 (* i 4) x3)
+		(vp-xor-rr x3 x2)
+		(vp-cpy-ri-i x2 x1 (* i 4))) (range 0 16))
+	(vp-add-cr 64 x0)
+	(vp-add-cr 64 x1)
+	(vp-cpy-ri x0 :rsp +cc_in)
+	(vp-cpy-ri x1 :rsp +cc_out)
+	;the next block has the next counter
+	(vp-cpy-ir-ui :rsp (+ +cc_state 48) x2)
+	(vp-add-cr 1 x2)
+	(vp-cpy-ri-i x2 :rsp (+ +cc_state 48))
+	(vp-cpy-ir :rsp +cc_part x0)
+	(vp-beq-cr 0 x0 'cc_block)
+	(vp-lea-i :rsp +cc_tail x1)
+	(vp-cpy-ir :rsp +cc_real x2)
+	(cc-bytes x1 x2 x0 'cc_copy_out)
+
+(vp-label 'cc_done)
+	(vp-free +cc_stack)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_crypto :poly1305_init)
+	;inputs
+	;:r0 = key, 32 bytes, its first half r (ptr)
+	;:r1 = state, +poly1305_state_size bytes (ptr)
+	;trashes
+	;:r0-:r14
+	;info
+	;a tag with nothing in it yet: h 0, r its bits cleared as RFC 8439 has
+	;it, as five numbers of 26 bits, and the top four of r times 5
+
+	(vp-rdef (key st lo hi q0 q1 q2 q3 q4 tm))
+	(defq +pl_mask 0x3ffffff)
+
+	(entry :sys_crypto :poly1305_init `(,key ,st))
+
+	(vp-cpy-ir key 0 lo)
+	(vp-cpy-cr 0x0ffffffc0fffffff tm)
+	(vp-and-rr tm lo)
+	(vp-cpy-ir key 8 hi)
+	(vp-cpy-cr 0x0ffffffc0ffffffc tm)
+	(vp-and-rr tm hi)
+	(vp-cpy-rr lo q0) (vp-and-cr +pl_mask q0)
+	(vp-cpy-rr lo q1) (vp-shr-cr 26 q1) (vp-and-cr +pl_mask q1)
+	(vp-cpy-rr lo q2) (vp-shr-cr 52 q2) (vp-cpy-rr hi tm) (vp-shl-cr 12 tm) (vp-or-rr tm q2) (vp-and-cr +pl_mask q2)
+	(vp-cpy-rr hi q3) (vp-shr-cr 14 q3) (vp-and-cr +pl_mask q3)
+	(vp-cpy-rr hi q4) (vp-shr-cr 40 q4)
+	;h, then r, then 5 times each of r but its first, then the top bit's slot
+	(vp-xor-rr tm tm)
+	(each (# (vp-cpy-ri tm st (* %0 8))) '(0 1 2 3 4 14))
+	(each (lambda (r i) (vp-cpy-ri r st (* (+ 5 i) 8))) (list q0 q1 q2 q3 q4) '(0 1 2 3 4))
+	(each (lambda (r i)
+		(vp-cpy-rr r tm) (vp-shl-cr 2 tm) (vp-add-rr r tm)
+		(vp-cpy-ri tm st (* (+ 10 i) 8))) (list q1 q2 q3 q4) '(0 1 2 3))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_crypto :poly1305_blocks)
+	;inputs
+	;:r0 = state (ptr)
+	;:r1 = data (ptr)
+	;:r2 = count of blocks of 16 bytes
+	;:r3 = top, 1 for whole blocks, 0 for a last that has had its own put in
+	;trashes
+	;:r0-:r14
+	;info
+	;the blocks taken into the sum of Poly1305, RFC 8439
+
+	;h is a number of 130 bits, kept as five of 26. h times r is 25
+	;products that each fit in 64 bits with room to add five of them,
+	;and what would go above 130 bits comes back in at the bottom times
+	;5, 2 to the 130 being 5 more than the prime
+	(vp-rdef (h0 h1 h2 h3 h4 d0 d1 d2 d3 d4 t0 t1 pm ps pn))
+	(defq +pl_mask 0x3ffffff)
+
+	(entry :sys_crypto :poly1305_blocks '(:r0 :r1 :r2 :r3))
+
+	(vp-cpy-rr :r0 ps)
+	(vp-cpy-rr :r1 pm)
+	(vp-cpy-rr :r2 pn)
+	(vp-shl-cr 24 :r3)
+	(vp-cpy-ri :r3 ps 112)
+	(defq hs (list h0 h1 h2 h3 h4) ds (list d0 d1 d2 d3 d4))
+	(each (lambda (h) (vp-cpy-ir ps (* (!) 8) h)) hs)
+
+(vp-label 'pl_block)
+	(vp-beq-cr 0 pn 'pl_done)
+	;the 16 bytes, as five numbers of 26 bits, added to h
+	(vp-cpy-ir pm 0 t0)
+	(vp-cpy-ir pm 8 t1)
+	(vp-cpy-rr t0 d0) (vp-and-cr +pl_mask d0) (vp-add-rr d0 h0)
+	(vp-cpy-rr t0 d0) (vp-shr-cr 26 d0) (vp-and-cr +pl_mask d0) (vp-add-rr d0 h1)
+	(vp-shr-cr 52 t0) (vp-cpy-rr t1 d1) (vp-shl-cr 12 d1) (vp-or-rr d1 t0)
+	(vp-and-cr +pl_mask t0) (vp-add-rr t0 h2)
+	(vp-cpy-rr t1 d0) (vp-shr-cr 14 d0) (vp-and-cr +pl_mask d0) (vp-add-rr d0 h3)
+	(vp-shr-cr 40 t1) (vp-add-rr t1 h4)
+	(vp-cpy-ir ps 112 t1) (vp-add-rr t1 h4)
+	;h times r. Number k of the answer is every h i times r k - i, and
+	;where that is off the bottom, 5 times the r that many from the top
+	(each (lambda (d k)
+		(each (lambda (h i)
+			(defq slot (* (if (<= i k) (+ 5 (- k i)) (+ 9 (- (+ 5 k) i))) 8))
+			(cond
+				((= i 0) (vp-cpy-ir ps slot d) (vp-mul-rr h d))
+				(:t (vp-cpy-ir ps slot t0) (vp-mul-rr h t0) (vp-add-rr t0 d))))
+			hs '(0 1 2 3 4)))
+		ds '(0 1 2 3 4))
+	;what is above 26 bits of each goes on to the next, and of the last,
+	;times 5, to the first
+	(each (lambda (d h next)
+		(vp-cpy-rr d t0) (vp-shr-cr 26 t0)
+		(vp-cpy-rr d h) (vp-and-cr +pl_mask h)
+		(if next (vp-add-rr t0 next)))
+		ds hs (list d1 d2 d3 d4 :nil))
+	(vp-cpy-rr t0 t1) (vp-shl-cr 2 t0) (vp-add-rr t1 t0) (vp-add-rr t0 h0)
+	(vp-cpy-rr h0 t0) (vp-shr-cr 26 t0) (vp-and-cr +pl_mask h0) (vp-add-rr t0 h1)
+	(vp-add-cr 16 pm)
+	(vp-sub-cr 1 pn)
+	(vp-jmp 'pl_block)
+
+(vp-label 'pl_done)
+	(each (lambda (h) (vp-cpy-ri h ps (* (!) 8))) hs)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_crypto :poly1305_finish)
+	;inputs
+	;:r0 = state (ptr)
+	;:r1 = s, the second half of the key, 16 bytes (ptr)
+	;:r2 = tag out, 16 bytes (ptr)
+	;trashes
+	;:r0-:r14
+	;info
+	;the tag of all the blocks taken in: h mod the prime, and s added
+
+	(vp-rdef (st s out h0 h1 h2 h3 h4 g0 g1 g2 g3 g4 c tm))
+	(defq +pl_mask 0x3ffffff)
+
+	(entry :sys_crypto :poly1305_finish `(,st ,s ,out))
+
+	(each (lambda (h i) (vp-cpy-ir st (* i 8) h)) (list h0 h1 h2 h3 h4) '(0 1 2 3 4))
+	;every part of h down to 26 bits, what is over going on to the next
+	(defun pl-carry (from to)
+		(vp-cpy-rr from c) (vp-shr-cr 26 c) (vp-and-cr +pl_mask from) (vp-add-rr c to))
+	(pl-carry h1 h2) (pl-carry h2 h3) (pl-carry h3 h4)
+	(vp-cpy-rr h4 c) (vp-shr-cr 26 c) (vp-and-cr +pl_mask h4)
+	(vp-cpy-rr c tm) (vp-shl-cr 2 tm) (vp-add-rr tm c) (vp-add-rr c h0)
+	(pl-carry h0 h1)
+	;h less the prime, which is h and 5 less 2 to the 130. If that is not
+	;below 0 then h was not less than the prime, and it is what is wanted
+	(vp-cpy-rr h0 g0) (vp-add-cr 5 g0)
+	(vp-cpy-rr g0 c) (vp-shr-cr 26 c) (vp-and-cr +pl_mask g0)
+	(each (lambda (g h)
+		(vp-cpy-rr h g) (vp-add-rr c g)
+		(vp-cpy-rr g c) (vp-shr-cr 26 c) (vp-and-cr +pl_mask g))
+		(list g1 g2 g3) (list h1 h2 h3))
+	(vp-cpy-rr h4 g4) (vp-add-rr c g4)
+	(vp-cpy-cr (<< 1 26) tm)
+	(vp-sub-rr tm g4)
+	(vpif `(,g4 >= 0))
+		(each (lambda (h g) (vp-cpy-rr g h)) (list h0 h1 h2 h3 h4) (list g0 g1 g2 g3 g4))
+	(endif)
+	;as four numbers of 32 bits, to which s is added, what is over 128 bits
+	;let go
+	(vp-shl-cr 26 h1) (vp-or-rr h1 h0) (vp-shr-cr 26 h1)
+	(vp-shr-cr 6 h1) (vp-cpy-rr h2 tm) (vp-shl-cr 20 tm) (vp-or-rr tm h1)
+	(vp-shr-cr 12 h2) (vp-cpy-rr h3 tm) (vp-shl-cr 14 tm) (vp-or-rr tm h2)
+	(vp-shr-cr 18 h3) (vp-shl-cr 8 h4) (vp-or-rr h4 h3)
+	(vp-xor-rr c c)
+	(each (lambda (w i)
+		(vp-cpy-cr 0xffffffff tm) (vp-and-rr tm w)
+		(vp-shr-cr 32 c)
+		(vp-add-rr w c)
+		(vp-cpy-ir-ui s (* i 4) tm)
+		(vp-add-rr tm c)
+		(vp-cpy-ri-i c out (* i 4)))
+		(list h0 h1 h2 h3) '(0 1 2 3))
+	(vp-ret)
+
+(def-func-end)
+
+(defq +ae_key 0 +ae_nonce 8 +ae_in 16 +ae_out 24 +ae_len 32 +ae_ok 40
+	+ae_state 48 +ae_pkey (+ 48 +poly1305_state_size) +ae_blk (+ +ae_pkey 64)
+	+ae_tag (+ +ae_blk 16) +ae_size (+ +ae_tag 16))
+
+(defun aead-start ()
+	;the inputs kept on the stack, and the key of the tag, the first 32
+	;bytes of block 0 of the stream
+	(vp-alloc +ae_size)
+	(each (lambda (r o) (vp-cpy-ri r :rsp o)) '(:r0 :r1 :r2 :r3 :r4) (list +ae_key +ae_nonce +ae_in +ae_out +ae_len))
+	(call :sys_mem :fill `((& :rsp ,+ae_pkey) 64 0))
+	(assign `((:rsp ,+ae_key) (:rsp ,+ae_nonce)) '(:r0 :r1))
+	(call :sys_crypto :chacha20 `(:r0 :r1 0 (& :rsp ,+ae_pkey) (& :rsp ,+ae_pkey) 64)))
+
+(defun aead-tag (data out)
+	;the tag of len bytes at data to out, both offsets on the stack: each
+	;whole 16 bytes, the last made up with 0, then no aad and the length
+	(call :sys_crypto :poly1305_init `((& :rsp ,+ae_pkey) (& :rsp ,+ae_state)))
+	(assign `((:rsp ,+ae_len)) '(:r2))
+	(vp-shr-cr 4 :r2)
+	(vpif '(:r2 /= 0))
+		(assign `((:rsp ,data)) '(:r1))
+		(call :sys_crypto :poly1305_blocks `((& :rsp ,+ae_state) :r1 :r2 1))
+	(endif)
+	(assign `((:rsp ,+ae_len)) '(:r2))
+	(vp-and-cr 15 :r2)
+	(vpif '(:r2 /= 0))
+		(call :sys_mem :fill `((& :rsp ,+ae_blk) 16 0))
+		(assign `((:rsp ,data) (:rsp ,+ae_len)) '(:r0 :r2))
+		(vp-cpy-rr :r2 :r1)
+		(vp-and-cr -16 :r1)
+		(vp-add-rr :r1 :r0)
+		(vp-and-cr 15 :r2)
+		(vp-lea-i :rsp +ae_blk :r1)
+		(call :sys_mem :copy '(:r0 :r1 :r2))
+		(call :sys_crypto :poly1305_blocks `((& :rsp ,+ae_state) (& :rsp ,+ae_blk) 1 1))
+	(endif)
+	(vp-xor-rr :r0 :r0)
+	(vp-cpy-ri :r0 :rsp +ae_blk)
+	(assign `((:rsp ,+ae_len)) '(:r0))
+	(vp-cpy-ri :r0 :rsp (+ +ae_blk 8))
+	(call :sys_crypto :poly1305_blocks `((& :rsp ,+ae_state) (& :rsp ,+ae_blk) 1 1))
+	(assign `((:rsp ,out)) '(:r2))
+	(call :sys_crypto :poly1305_finish `((& :rsp ,+ae_state) (& :rsp ,(+ +ae_pkey 16)) :r2)))
+
+(def-method :sys_crypto :aead_seal)
+	;inputs
+	;:r0 = key, 32 bytes (ptr)
+	;:r1 = nonce, 12 bytes (ptr)
+	;:r2 = in (ptr)
+	;:r3 = out, length + +aead_tag_size bytes (ptr)
+	;:r4 = length (bytes)
+	;trashes
+	;:r0-:r14
+	;info
+	;the data encrypted, and its tag after it, ChaCha20-Poly1305 of RFC
+	;8439 with no aad. out can be in, with room for the tag.
+
+	(entry :sys_crypto :aead_seal '(:r0 :r1 :r2 :r3 :r4))
+
+	(aead-start)
+	(assign `((:rsp ,+ae_key) (:rsp ,+ae_nonce) (:rsp ,+ae_in) (:rsp ,+ae_out) (:rsp ,+ae_len)) '(:r0 :r1 :r3 :r4 :r5))
+	(call :sys_crypto :chacha20 '(:r0 :r1 1 :r3 :r4 :r5))
+	;the tag goes after what was encrypted
+	(assign `((:rsp ,+ae_out) (:rsp ,+ae_len)) '(:r0 :r1))
+	(vp-add-rr :r1 :r0)
+	(vp-cpy-ri :r0 :rsp +ae_tag)
+	(aead-tag +ae_out +ae_tag)
+	(vp-free +ae_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_crypto :aead_open)
+	;inputs
+	;:r0 = key, 32 bytes (ptr)
+	;:r1 = nonce, 12 bytes (ptr)
+	;:r2 = in, length + +aead_tag_size bytes, the tag last (ptr)
+	;:r3 = out, length bytes (ptr)
+	;:r4 = length, not counting the tag (bytes)
+	;outputs
+	;:r0 = 1 if the tag is right and out has the data, else 0
+	;trashes
+	;:r0-:r14
+	;info
+	;the tag worked out, and every byte of it looked at, right or wrong;
+	;only if it is right is the data decrypted. out can be in.
+
+	(entry :sys_crypto :aead_open '(:r0 :r1 :r2 :r3 :r4))
+
+	(aead-start)
+	;the tag worked out to the stack
+	(vp-lea-i :rsp +ae_tag :r0)
+	(vp-cpy-ri :r0 :rsp +ae_ok)
+	(aead-tag +ae_in +ae_ok)
+	(assign `((:rsp ,+ae_in) (:rsp ,+ae_len)) '(:r0 :r1))
+	(vp-add-rr :r1 :r0)
+	(vp-cpy-ir :r0 0 :r1)
+	(vp-cpy-ir :r0 8 :r2)
+	(vp-cpy-ir :rsp +ae_tag :r3)
+	(vp-cpy-ir :rsp (+ +ae_tag 8) :r4)
+	(vp-xor-rr :r3 :r1)
+	(vp-xor-rr :r4 :r2)
+	(vp-or-rr :r2 :r1)
+	(vpif '(:r1 = 0))
+		(assign `((:rsp ,+ae_key) (:rsp ,+ae_nonce) (:rsp ,+ae_in) (:rsp ,+ae_out) (:rsp ,+ae_len)) '(:r0 :r1 :r3 :r4 :r5))
+		(call :sys_crypto :chacha20 '(:r0 :r1 1 :r3 :r4 :r5))
+		(vp-cpy-cr 1 :r0)
+	(else)
+		(vp-xor-rr :r0 :r0)
+	(endif)
+	(vp-free +ae_size)
+	(vp-ret)
+
+(def-func-end)

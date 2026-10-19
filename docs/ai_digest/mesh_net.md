@@ -57,6 +57,34 @@ docs/diagrams/door_proof.cwb
 text is a passphrase, and is made into a key the slow way, PBKDF2, so that
 it is dear to guess.
 
+## Sealed over the internet
+
+A link the dialler made to a host outside the private addresses is sealed.
+Inside are IPv4 10/8, 172.16/12, 192.168/16, 127/8 and 169.254/16, IPv6
+loopback, link local and unique local, `localhost`, and names that end
+`.local`, `.lan`, `.home` or `.internal`; anything else is outside,
+`(door-outside? host)`. `link -s host` seals a link inside as well.
+
+The dialler's hello says whether it is sealed, one byte, and the proof is of
+that byte and both X25519 shares as well as the nonces, so one in between
+who has the key can neither swap shares nor say the link is plain. Each end
+works out the shared secret, refuses one of nothing, and with HKDF over it
+and the key, salted with the two nonces, makes a key each way. The keys are
+new each link.
+
+On a sealed link each packet, wire header and all, goes as a record: 8 bytes
+of its length, the packet encrypted, a 16 byte tag, ChaCha20-Poly1305 of RFC
+8439 with no aad, `sys/crypto/class.vp`. The nonce is a count of the
+records each way, so one sent again, dropped, or out of order fails to open.
+A record that does not open drops the link, and the mesh dials again. The
+out task seals in a buffer of its own and the in task opens in one, so a
+plain link runs the same code it did. The cipher does some 350 MB/s on an
+M4, and a sealed link between two networks on one machine moved mail as
+fast as a plain one.
+
+The handshake is CLDOOR2. A machine on CLDOOR1 links to none on CLDOOR2,
+its hello is too short and the door waits it out.
+
 ## Who dials
 
 ```image
@@ -122,8 +150,11 @@ The Net services find each other by the name `*Mesh`, and so does the
 * `cmd/mesh.lisp` and `cmd/link.lisp`, the commands.
 
 * `tests/solo/test_tcp_link.lisp`, two networks and a real connection
-  between them: mail over it, the link dropped, and first come first
-  served of a port.
+  between them, sealed: mail over it, the link dropped, and first come
+  first served of a port.
+
+* `sys/crypto/`, ChaCha20, Poly1305 and the AEAD for VP code, which the
+  Lisp natives of `lib/crypto/lisp.vp` call as well.
 
 ## Others' machines
 
@@ -151,9 +182,6 @@ machine before they talk again, by some other way than the mesh.
 * A guest link: one that carries mail to the services a machine offers and
   starts no task on its nodes, and a machine that says which it is to
   others. Today a key is all or nothing.
-
-* What goes over a link is in the clear. The door says who may link, and
-  no more.
 
 * On Windows a second listener on a port may not be refused, so first
   come first served is not yet known to hold there.

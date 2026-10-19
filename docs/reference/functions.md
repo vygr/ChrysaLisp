@@ -269,6 +269,12 @@ the host window is on show again
 (aead-open key nonce aad sealed) -> :nil | str
 ```
 
+### aead-open-lisp
+
+```code
+(aead-open-lisp key nonce aad sealed) -> :nil | str
+```
+
 ### aead-seal
 
 ```code

@@ -159,3 +159,25 @@
 (assert-true "hidden" (not (eql ae_plain (slice ae_sealed 0 -17))))
 (assert-true "another nonce"
 	(not (eql ae_sealed (aead-seal ae_key (ae-flip ae_nonce 5) ae_aad ae_plain))))
+
+;the native code of the core, :sys_crypto, with no aad, as a link seals:
+;the same as the Lisp of the RFC each size about the edges of the blocks
+;of both, opened again, and not opened with a byte changed
+(defq ae_k2 (apply (const cat) (map (# (char (logand (* %0 7) 0xff))) (range 0 32)))
+	ae_n2 (apply (const cat) (map (# (char (+ %0 1))) (range 0 12))))
+(assert-true "native sealing is the RFC's, every size 0 to 299"
+	(every (lambda (n)
+			(defq data (slice ae_text 0 n) cipher (chacha20 ae_k2 ae_n2 1 data))
+			(eql (aead-seal-native ae_k2 ae_n2 data) (cat cipher (aead-tag ae_k2 ae_n2 "" cipher))))
+		(range 0 300)))
+(assert-true "and opened, every size"
+	(every (lambda (n)
+			(defq data (slice ae_text 0 n))
+			(eql data (aead-open-native ae_k2 ae_n2 (aead-seal-native ae_k2 ae_n2 data))))
+		(range 0 300)))
+(defq ae_s2 (aead-seal-native ae_k2 ae_n2 (slice ae_text 0 100)))
+(assert-eq "not opened with a byte of it changed" :nil
+	(aead-open-native ae_k2 ae_n2 (cat (char (logxor (code ae_s2) 1)) (slice ae_s2 1 -1))))
+(assert-eq "nor with a byte of its tag changed" :nil
+	(aead-open-native ae_k2 ae_n2 (cat (slice ae_s2 0 -2) (char (logxor (code ae_s2 1 -2) 1)))))
+(assert-eq "nor too short to have a tag" :nil (aead-open-native ae_k2 ae_n2 "short"))

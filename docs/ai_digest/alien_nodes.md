@@ -174,5 +174,7 @@ application that farms over the whole network, each time it is started.
 
 * The version of the protocol, and what two nodes do that do not agree on it.
 
-* What goes over a link is in the clear once the door is passed. An alien
-  node holds the same `mesh_key` as every other, and is trusted as they are.
+* A link the dialler made over the internet is sealed once the door is
+  passed, ChaCha20-Poly1305 records, [`mesh_net.md`](mesh_net.md); one on
+  the LAN is in the clear. An alien node holds the same `mesh_key` as every
+  other, and is trusted as they are.

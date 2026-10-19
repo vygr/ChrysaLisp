@@ -17,6 +17,7 @@
         -a --auto: auto-discovery mode (beacon when listening, discover when client).
         -m --mesh: link to the peers of whoever is linked to, with no discovery.
         -k --key: make a key for this machine, the file mesh_key, if it has none.
+        -s --seal: seal the links to the hosts given, as one over the internet is.
         -v --verbose: verbose output.
 
     Start TCP network link driver/s.
@@ -42,12 +43,17 @@
     change: it ends the links it has and joins those with the new key.
     With no key a machine has no links, it is off the network.
 
+    A link to a host outside the private addresses, over the internet, is
+    sealed: each message on it encrypted and signed. One on the LAN is
+    not, and costs nothing more, unless -s says it is to be.
+
     If no host names given on command line and -l/-a/-m not passed,
     then names are read from stdin.")
 (("-l" "--listen") ,(opt-listen 'opt_l))
 (("-a" "--auto") ,(opt-flag 'opt_a))
 (("-m" "--mesh") ,(opt-flag 'opt_m))
 (("-k" "--key") ,(opt-flag 'opt_k))
+(("-s" "--seal") ,(opt-flag 'opt_s))
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 ))
 
@@ -56,9 +62,9 @@
 	(unless (eql (net-discover-rpc mesh_only) 0)
 		(print "link: no auto discovery or mesh. The Net service could not start it, the port may be in use, or the boot image is older than the source, make all boot.")))
 
-(defun start-link (target verbose)
+(defun start-link (target verbose &optional seal)
 	(when verbose (print "Starting network link: " target))
-	(unless (eql (net-link-rpc target) 0)
+	(unless (eql (net-link-rpc (if (and seal (not (starts-with ":" target))) (cat "!" target) target)) 0)
 		(print "link: no link. "
 			(if (pii-fstat "mesh_key") "The Net service could not start it."
 				"This machine has no key, the file mesh_key, and is off the network till it has. link -k makes one."))))
@@ -67,7 +73,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_l :nil opt_a :nil opt_m :nil opt_k :nil opt_v :nil args (options stdio usage)))
+			(defq opt_l :nil opt_a :nil opt_m :nil opt_k :nil opt_s :nil opt_v :nil args (options stdio usage)))
 		(when opt_k
 			(import "lib/crypto/random.inc")
 			(cond
@@ -89,9 +95,9 @@
 			((<= (length args) 1)
 				(unless (or opt_l opt_m opt_k)
 					;from stdin
-					(lines! (# (start-link %0 opt_v) :nil) (io-stream 'stdin))))
+					(lines! (# (start-link %0 opt_v opt_s) :nil) (io-stream 'stdin))))
 			(:t
 				;from args
-				(each! (# (start-link %0 opt_v)) (list args) 1 -1)))))
+				(each! (# (start-link %0 opt_v opt_s)) (list args) 1 -1)))))
 
 

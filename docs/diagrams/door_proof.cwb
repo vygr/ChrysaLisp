@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
 	:width 686
-	:height 347
+	:height 363
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 62
+	:next_id 63
 	:items
-	((:list 21)
+	((:list 22)
 		((:list 7)
 			:group
 			:id
@@ -69,12 +69,12 @@
 			:stroke
 			0
 			:text
-			"[CLDOOR1 and the nonce, each way]"
+			"[CLDOOR2, nonce, share, seal?]"
 			:font_size
 			11
 			:pos
 			((:list 2)
-				260.27172
+				272.01159
 				51.00000
 			)
 		)
@@ -324,12 +324,12 @@
 							:stroke
 							0
 							:text
-							"[makes up 16 bytes]"
+							"[makes up a nonce and an]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								51.84930
+								36.18316
 								18.00000
 							)
 						)
@@ -344,12 +344,12 @@
 							:stroke
 							0
 							:text
-							"[its nonce, new each time]"
+							"[X25519 share, new each time]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								36.58599
+								26.33526
 								34.00000
 							)
 						)
@@ -398,12 +398,12 @@
 							:stroke
 							0
 							:text
-							"[makes up 16 bytes]"
+							"[makes up a nonce and an]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								51.84930
+								36.18316
 								18.00000
 							)
 						)
@@ -418,12 +418,12 @@
 							:stroke
 							0
 							:text
-							"[its nonce, new each time]"
+							"[X25519 share, new each time]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								36.58599
+								26.33526
 								34.00000
 							)
 						)
@@ -492,12 +492,12 @@
 							:stroke
 							0
 							:text
-							"[D and both nonces]"
+							"[D and all that was said]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								51.17388
+								42.96014
 								34.00000
 							)
 						)
@@ -714,12 +714,12 @@
 							:stroke
 							0
 							:text
-							"[L and both nonces]"
+							"[L and all that was said]"
 							:font_size
 							11
 							:pos
 							((:list 2)
-								52.11920
+								43.90545
 								34.00000
 							)
 						)
@@ -931,13 +931,33 @@
 			:stroke
 			0
 			:text
-			"[What then goes over the link is not hidden and not signed: the door says who may link, no more.]"
+			"[Dialled outside the private addresses, the link is sealed: keys each way from the shares and the key.]"
 			:font_size
 			11
 			:pos
 			((:list 2)
 				13.00000
 				332.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			62
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[On the LAN it is not, and costs nothing more. The seal byte is the dialler's, and in the proof.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				348.00000
 			)
 		)
 	)
