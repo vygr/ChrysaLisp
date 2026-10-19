@@ -155,13 +155,14 @@
 	(defq keys (if (defq stss (mp4-in s stbl '("stss")))
 		(map (# (dec (first %0))) (mp4-table s stss 0 1)) :all))
 	;when each is shown: its time, and what ctts adds to it where frames
-	;are decoded in another order than they are shown, B-frames. Version 1
-	;of ctts has the offsets signed, one may be before its time
+	;are decoded in another order than they are shown, B-frames. The
+	;offsets are taken as signed, one may be before its time: version 1
+	;says so, and QuickTime writes them so in version 0 as well
 	(defq shown (cat when_at))
 	(when (defq ctts (mp4-in s stbl '("ctts")))
-		(defq signed (= (code s 1 (second ctts)) 1) at 0)
+		(defq at 0)
 		(each (lambda ((count offset))
-				(and signed (>= offset 0x80000000) (setq offset (- offset 0x100000000)))
+				(if (>= offset 0x80000000) (setq offset (- offset 0x100000000)))
 				(times count
 					(when (< at (length shown))
 						(elem-set shown at (+ (elem-get shown at) offset))
