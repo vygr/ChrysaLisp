@@ -10,8 +10,9 @@
 ; before moov or after it. moov is read whole and the rest stepped over.
 ;
 ; (mp4-reel stream) gives the reel of the first video track: its packets
-; are its samples in order, its rate the frames a second their times come
-; to. :tracks says what every track is. A codec is what the codec of a
+; are its samples in the order they are decoded, its rate the frames a
+; second their times come to, and :shown when each is shown, which with
+; B-frames is another order. :tracks says what every track is. A codec is what the codec of a
 ; track says: none is here yet, so (reel-codec) of one gives :nil.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -130,7 +131,20 @@
 		(ifn (mp4-table s (mp4-in s stbl '("stts")) 0 2) (list)))
 	(defq keys (if (defq stss (mp4-in s stbl '("stss")))
 		(map (# (dec (first %0))) (mp4-table s stss 0 1)) :all))
-	(scatter track :sizes sizes :offsets offsets :times when_at :keys keys :samples (length sizes))
+	;when each is shown: its time, and what ctts adds to it where frames
+	;are decoded in another order than they are shown, B-frames. Version 1
+	;of ctts has the offsets signed, one may be before its time
+	(defq shown (cat when_at))
+	(when (defq ctts (mp4-in s stbl '("ctts")))
+		(defq signed (= (code s 1 (second ctts)) 1) at 0)
+		(each (lambda ((count offset))
+				(and signed (>= offset 0x80000000) (setq offset (- offset 0x100000000)))
+				(times count
+					(when (< at (length shown))
+						(elem-set shown at (+ (elem-get shown at) offset))
+						(setq at (inc at)))))
+			(mp4-table s ctts 0 2)))
+	(scatter track :sizes sizes :offsets offsets :times when_at :shown shown :keys keys :samples (length sizes))
 	track)
 
 (defun mp4-reel (stream)
@@ -150,7 +164,7 @@
 				:height (. video :find :height) :codec (. video :find :codec)
 				:rate (if (> span 0) (/ (* (n2f (dec frames)) (n2f (. video :find :timescale))) (n2f span)) 0.0)
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
-				:keys (. video :find :keys) :times when_at :video video))
+				:keys (. video :find :keys) :times when_at :shown (. video :find :shown) :video video))
 		reel))
 
 (defun mp4-packet (reel index)

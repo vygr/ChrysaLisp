@@ -42,7 +42,7 @@
 					(if (eql keys :all) "every one a key" (cat (str (length keys)) " keys")))
 				(each (lambda (i)
 						(print "    " i " at " (elem-get (. reel :find :offsets) i) " " (elem-get (. reel :find :lengths) i)
-							" bytes, time " (elem-get (. reel :find :times) i)
+							" bytes, time " (elem-get (. reel :find :times) i) " shown " (elem-get (. reel :find :shown) i)
 							(if (or (eql keys :all) (find i keys)) " key" "")))
 					(range 0 (min opt_s (. reel :find :frames))))))))
 
