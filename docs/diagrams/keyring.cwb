@@ -1,0 +1,803 @@
+((:Emap 1)
+	:version 1
+	:width 711
+	:height 258
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 54
+	:items
+	((:list 16)
+		((:list 7)
+			:group
+			:id
+			1
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					2
+					:items
+					((:list 2)
+						((:list 11)
+							:shape
+							:id
+							3
+							:d
+							"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 144 A 6 6 0 0 1 164 150 L 6 150 A 6 6 0 0 1 0 144 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294112502
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 13)
+							:shape
+							:id
+							4
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:font_size
+							13
+							:pos
+							((:list 2)
+								85.00000
+								80.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			5
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					6
+					:d
+					"[M 160 90 L 270 94]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					7
+					:d
+					"[M 270 94 L 260.86071 97.67033 261.15136 89.6757 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			8
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[key -u rig]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				206.72979
+				99.22654
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			9
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					10
+					:d
+					"[M 420 94 L 500 94]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					11
+					:d
+					"[M 500 94 L 491 98 491 90 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			12
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[changed]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				452.93829
+				102.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			13
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					14
+					:d
+					"[M 585 116 L 585 150]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					15
+					:d
+					"[M 585 150 L 581 141 589 141 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 17)
+			:shape
+			:id
+			16
+			:kind
+			:text
+			:fill
+			4280296488
+			:stroke
+			0
+			:text
+			"[keys/, the keyring]"
+			:font
+			"[fonts/OpenSans-Bold.ctf]"
+			:font_size
+			12
+			:pos
+			((:list 2)
+				23.00000
+				29.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			17
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					18
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							19
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 30 A 6 6 0 0 1 144 36 L 6 36 A 6 6 0 0 1 0 30 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							20
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[own]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								64.84259
+								14.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							21
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[made by the install]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								30.55218
+								30.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				23.00000
+				43.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			22
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					23
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							24
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 30 A 6 6 0 0 1 144 36 L 6 36 A 6 6 0 0 1 0 30 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							25
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[rig]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								69.07904
+								14.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							26
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[4F7D-E9D5-CA7D-FC34]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								17.93347
+								30.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				23.00000
+				85.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			27
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					28
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							29
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 30 A 6 6 0 0 1 144 36 L 6 36 A 6 6 0 0 1 0 30 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							30
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[wan]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								65.27966
+								14.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							31
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[7339-EED1-C603-6817]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								23.08770
+								30.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				23.00000
+				127.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			32
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					33
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							34
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 38 A 6 6 0 0 1 144 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294961320
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							35
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[mesh_key]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								51.05700
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							36
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[the key in use]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								43.03997
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				283.00000
+				85.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			37
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					38
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							39
+							:d
+							"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 38 A 6 6 0 0 1 164 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292866264
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							40
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[the Net service]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								48.85589
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							41
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[looks each 2 seconds]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								34.81250
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				513.00000
+				85.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			42
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					43
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							44
+							:d
+							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292866264
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							45
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[its links ended, and those]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								40.21704
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							46
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[with the new key made]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								44.42193
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				498.00000
+				163.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			47
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					48
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							49
+							:d
+							"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 38 A 6 6 0 0 1 164 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294432727
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							50
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[a sync, from whoever]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								32.70904
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							51
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[never writes either]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								39.29870
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				283.00000
+				163.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			52
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[key lists the keyring with fingerprints; -i takes in a key given, -x says one to give, -k keeps one put in mesh_key by hand.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				227.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			53
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[Two machines with the same fingerprint have the same key. Say the fingerprint, never the key.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				243.00000
+			)
+		)
+	)
+	:props :nil
+	:view :nil
+)

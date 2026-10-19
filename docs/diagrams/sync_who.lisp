@@ -1,0 +1,11 @@
+;docs/ai_digest/sync.md: who a machine takes a sync from
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6 red 0xfff7d7d7 dark 0xff202428)
+(dia-put s 'in (dia-box '("a push comes" "it says who it is from first") 200 44 blue 11) 250 0)
+(dia-put s 'me (dia-box '("this machine itself" "yes") 160 44 green 11) 0 90)
+(dia-put s 'na (dia-box '("a machine in sync_from" "yes") 170 44 green 11) 180 90)
+(dia-put s 'hd (dia-box '("the herd: this tree has no .git," "is at a waypoint, theirs is newer") 230 44 gold 11) 370 90)
+(dia-put s 'no (dia-box '("anyone else" "no, -6") 120 44 red 11) 620 90)
+(dia-join s 'in 'me "") (dia-join s 'in 'na "") (dia-join s 'in 'hd "") (dia-join s 'in 'no "")
+(dia-put s 'own (dia-box '("and never, from any of them: mesh_key, keys/," "sync_from, waypoint, .git, or out of the tree") 330 44 red 11) 190 180)
+(dia-say s "Decided once for each machine as it says who it is. A yes is kept, a no is not: a machine just linked is asked again." 0 246 11)
+(diagram "sync_who" (dia-scene-doc s))

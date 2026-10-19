@@ -1,0 +1,680 @@
+((:Emap 1)
+	:version 1
+	:width 686
+	:height 220
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 45
+	:items
+	((:list 16)
+		((:list 7)
+			:group
+			:id
+			1
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					2
+					:d
+					"[M 160 62 L 250 22]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					3
+					:d
+					"[M 250 22 L 243.40028 29.31036 240.15126 21.99993 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			4
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[offers]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				203.36578
+				43.49591
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			5
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					6
+					:d
+					"[M 160 62 L 250 112]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					7
+					:d
+					"[M 250 112 L 240.19012 111.1258 244.07525 104.13264 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			8
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[offers]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				224.00000
+				104.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			9
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					10
+					:d
+					"[M 400 22 L 500 22]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					11
+					:d
+					"[M 500 22 L 491 26 491 18 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			12
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[offers]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				448.36578
+				30.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			13
+			:items
+			((:list 2)
+				((:list 13)
+					:shape
+					:id
+					14
+					:d
+					"[M 400 112 L 500 112]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					15
+					:d
+					"[M 500 112 L 491 116 491 108 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				13.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			16
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[offers]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				448.36578
+				120.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			17
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					18
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							19
+							:d
+							"[M 6 0 L 154 0 A 6 6 0 0 1 160 6 L 160 38 A 6 6 0 0 1 154 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294961320
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							20
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[a clean clone]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								50.18103
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							21
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[git pull, waypoint]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								39.46636
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				53.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			22
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					23
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							24
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 38 A 6 6 0 0 1 144 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							25
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[no .git, at an]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								46.22637
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							26
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[older waypoint]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								38.95190
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				263.00000
+				13.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			27
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					28
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							29
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 38 A 6 6 0 0 1 144 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							30
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[no .git, at an]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								46.22637
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							31
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[older waypoint]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								38.95190
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				263.00000
+				103.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			32
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					33
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							34
+							:d
+							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 38 A 6 6 0 0 1 144 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							35
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[takes it from b,]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								39.55749
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							36
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[offers it on]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								48.78973
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				513.00000
+				13.00000
+			)
+		)
+		((:list 7)
+			:group
+			:id
+			37
+			:items
+			((:list 1)
+				((:list 5)
+					:group
+					:id
+					38
+					:items
+					((:list 3)
+						((:list 11)
+							:shape
+							:id
+							39
+							:d
+							"[M 6 0 L 154 0 A 6 6 0 0 1 160 6 L 160 38 A 6 6 0 0 1 154 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							:fill
+							4294432727
+							:stroke
+							4282140240
+							:width
+							1.19999
+						)
+						((:list 15)
+							:shape
+							:id
+							40
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[a .git, or a change]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								38.78826
+								18.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							41
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[of its own: refuses]"
+							:font_size
+							11
+							:pos
+							((:list 2)
+								35.81805
+								34.00000
+							)
+						)
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				513.00000
+				103.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			42
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[Each sync service offers its tree's waypoint, if it is exactly at it, as it starts, when it takes one, and when a machine]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				173.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			43
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[that takes a sync is new to it. A machine at an older one takes it, made exactly the same, and offers it on. No one is in charge.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				189.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			44
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[A member run by rack.sh up that has taken a newer waypoint is built and started again on it, rack.md.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				205.00000
+			)
+		)
+	)
+	:props :nil
+	:view :nil
+)

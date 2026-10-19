@@ -1,0 +1,13 @@
+;docs/ai_digest/sync.md: a waypoint going round the herd by itself
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6 red 0xfff7d7d7 dark 0xff202428)
+(dia-put s 'a (dia-box '("a clean clone" "git pull, waypoint") 160 44 gold 11) 0 40)
+(dia-put s 'b (dia-box '("no .git, at an" "older waypoint") 150 44 blue 11) 250 0)
+(dia-put s 'c (dia-box '("no .git, at an" "older waypoint") 150 44 blue 11) 250 90)
+(dia-put s 'd (dia-box '("takes it from b," "offers it on") 150 44 blue 11) 500 0)
+(dia-put s 'e (dia-box '("a .git, or a change" "of its own: refuses") 160 44 red 11) 500 90)
+(dia-join s 'a 'b "offers") (dia-join s 'a 'c "offers")
+(dia-join s 'b 'd "offers") (dia-join s 'c 'e "offers")
+(dia-say s "Each sync service offers its tree's waypoint, if it is exactly at it, as it starts, when it takes one, and when a machine" 0 160 11)
+(dia-say s "that takes a sync is new to it. A machine at an older one takes it, made exactly the same, and offers it on. No one is in charge." 0 176 11)
+(dia-say s "A member run by rack.sh up that has taken a newer waypoint is built and started again on it, rack.md." 0 192 11)
+(diagram "herd_spread" (dia-scene-doc s))

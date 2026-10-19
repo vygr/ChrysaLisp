@@ -32,6 +32,10 @@ So:
 
 ## What a node is, to the network
 
+```image
+docs/diagrams/link_packet.cwb
+```
+
 Four things, each on top of the one before. They are described in
 `messages_and_routing.md` and `mesh_net.md`, and those are the start of
 the writing down.

@@ -68,6 +68,10 @@ service for its own machine.
 
 ## And from whom
 
+```image
+docs/diagrams/sync_who.cwb
+```
+
 A key shared with another's machine, a guest in the mesh dialled over the
 internet, trusts it with every service. So the service does not take a sync
 from just anyone. A push starts by saying who it is from and the waypoint
@@ -105,6 +109,10 @@ of the machine's own files, `waypoint`, `sync_from` and `mesh_key`, and a
 tree with a `.git` is kept in step by git, never by the herd.
 
 ## The herd by itself
+
+```image
+docs/diagrams/herd_spread.cwb
+```
 
 No machine is in charge of it. Each sync service has a child,
 `service/sync/spread.lisp`, that offers this tree's waypoint, if it is

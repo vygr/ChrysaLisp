@@ -36,6 +36,10 @@ The key is the file `mesh_key` at the root of the tree. `make install`
 makes one if there is none, so a machine has its own from the first day,
 and is by itself. To join machines, give them the same key.
 
+```image
+docs/diagrams/keyring.cwb
+```
+
 A machine keeps the keys it holds by name, its keyring, the files of
 `keys/`, `service/net/keys.inc`, and the `key` command lists them with
 their fingerprints, makes, takes in, says, renames and forgets them, and
@@ -70,6 +74,10 @@ it is dear to guess.
 
 ## Sealed over the internet
 
+```image
+docs/diagrams/sealed_keys.cwb
+```
+
 A link the dialler made to a host outside the private addresses is sealed.
 Inside are IPv4 10/8, 172.16/12, 192.168/16, 127/8 and 169.254/16, IPv6
 loopback, link local and unique local, `localhost`, and names that end
@@ -82,6 +90,10 @@ who has the key can neither swap shares nor say the link is plain. Each end
 works out the shared secret, refuses one of nothing, and with HKDF over it
 and the key, salted with the two nonces, makes a key each way. The keys are
 new each link.
+
+```image
+docs/diagrams/sealed_record.cwb
+```
 
 On a sealed link each packet, wire header and all, goes as a record: 8 bytes
 of its length, the packet encrypted, a 16 byte tag, ChaCha20-Poly1305 of RFC

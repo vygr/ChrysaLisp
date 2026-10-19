@@ -32,6 +32,10 @@ for the other machines, `link -l 3333 -a` and `link -a`, and takes a sync,
 ./rack.sh run 'rack "tests -a"'
 ```
 
+```image
+docs/diagrams/rack_watch.cwb
+```
+
 `rack -v` gives what each session says as it says it, so a run that hangs
 shows where. A session's asker, the node that waits for it, writes the time
 each second, and if that stops, the asker stopped by hand or gone, the
@@ -63,6 +67,10 @@ such file, `down` or a fault, is not started again. What it did is in
 git, and its member never does this, unless it is followed.
 
 ## Followed
+
+```image
+docs/diagrams/rack_update.cwb
+```
 
 `./rack.sh up -f` is for a machine left to keep itself up to date, a
 server, a store of the team's: a git clone kept for it and nothing done in

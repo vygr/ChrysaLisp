@@ -3513,7 +3513,8 @@ the title of the window at x y on the screen, the one in front there,
 (gui-grab-rpc [title area]) -> :nil | why | (w h pixels)
 
 what is on the screen now, of the window whose title has title in it,
-or of all of it, or of an area of it, (x y w h), read by the GUI from
+or of all of it, or of an area of it, (x y w h), or "mouse w h" an area
+that big round the mouse, read by the GUI from
 its back buffer: its width, its height and its pixels, 32 bits each,
 blue green red alpha
 ```
@@ -5766,7 +5767,7 @@ for it. An empty pattern stays empty, and matches as it would without.
 ### rack-fresh
 
 ```code
-(rack-fresh phases [user gui]) -> str
+(rack-fresh phases [user gui asker]) -> str
 
 on this machine, a new session for each phase, a list of command
 lines, one after another, and what they said. A session is started by
@@ -5774,14 +5775,16 @@ the host, so it is on the boot image as it is on disk now, which a
 phase before it may have made. With a user the session is theirs, and
 not whoever last signed on to the machine, as run.sh -u has it. With
 gui the session is on the GUI host, a desktop, its GUI up before the
-command lines are run, as run.sh -f has it
+command lines are run, as run.sh -f has it. With asker, a mailbox,
+what a session says is mailed to it as it comes, "LINE text", and
+if its node has gone the session is let go, and stops
 the form has no space or tab in it, a node's args are split at those
 ```
 
 ### rack-run
 
 ```code
-(rack-run cmdline [make_first leave_out gone user tree gui all skip only]) -> (line ...)
+(rack-run cmdline [make_first leave_out gone user tree gui all skip only said]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
 the command line on each, and on this one. With make_first, make and
@@ -5795,9 +5798,24 @@ session said comes back, not only those of how it went. skip is the
 machines not to touch at all, not made the same and not run on: one
 that is not ours, in the mesh as a guest. only, if given, is the
 machines to touch, the start of a system id each, and no other: our
-own rig, with guests in the mesh of any kind. The lines are SYNC and GONE
+own rig, with guests in the mesh of any kind. said, a function, is
+given what each session says as it says it, so a run that hangs shows
+where. The lines are SYNC and GONE
 for each other machine, SKIP for each skipped, RAN for each machine,
 and DONE
+```
+
+### rack-session-clear
+
+```code
+(rack-session-clear)
+
+the nodes a session started stopped, and its note, and the note of
+every node it names, and of those they name: a node of the session
+that started nodes of its own left one, a test that starts a node which
+starts six more, and nothing else clears it away. The files of the
+links they name go with them. A list of those still to look at, this
+does not call itself
 ```
 
 ### range
