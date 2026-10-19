@@ -490,6 +490,23 @@
 	(memoize (str files)
 		(slice (shader-key (apply (const cat) (map (# (ifn (load %0) "")) files))) 0 8) 11))
 
+(defun shader-sweep (letters makes)
+	; (shader-sweep letters makes) -> :t
+	;what a back end keeps in lib/gpu/jit/ is named a letter of its own,
+	;its make, 8 hex digits, and then the program. Kept by another make
+	;it is never found again, so it goes: every file of these letters
+	;whose make is not one of these is removed. Once for a task for each
+	;set of makes, the first time it is asked
+	(memoize (cat letters (join makes " "))
+		(progn
+			(defq folder (cat (load-path) "lib/gpu/jit/"))
+			(each! (lambda (name kind)
+					(and (eql kind "8") (> (length name) 9) (find (first name) letters)
+						(notany (# (eql (slice name 1 9) %0)) makes)
+						(pii-remove (cat folder name))))
+				(unzip (split (ifn (pii-dirlist folder) "") ",") 2))
+			:t) 11))
+
 (defun shader-kept-text (name make)
 	; (shader-kept-text name lambda) -> str
 	;what a back end makes of a program, text or a module, kept in a

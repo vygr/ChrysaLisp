@@ -31,10 +31,13 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
-	;the files this back end is written in. A hash of them is part of
-	;the name of every native function, so a change to any of them is a
-	;new name, and the functions the old ones made are not found
-	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc"))
+	;the files this back end is written in, and the pixmap's layout, whose
+	;offsets the code it makes has in it. A hash of them is part of the
+	;name of every native function, so a change to any of them is a new
+	;name, and the functions the old ones made are not found: kept from
+	;before the pixmap lost three fields, eyes read its pixels at the old
+	;place and the desktop went down
+	+sv_made_by ''("lib/gpu/vp.inc" "lib/gpu/shader.inc" "gui/pixmap/struct.inc"))
 
 ;a vertex function reads the attrs of a vertex where they are, by :r11,
 ;and writes where it is and its varyings where they are to go, by :r10.
@@ -1499,6 +1502,7 @@
 (defun sv-name (letter program)
 	;the name of the native function of a program, from the hash of its
 	;source, and which make of this back end it is
+	(shader-sweep "fstv" (list (shader-make +sv_made_by)))
 	(cat "lib/gpu/jit/" letter (shader-make +sv_made_by) "_" (elem-get program 5)))
 
 (defun sv-kept (name)

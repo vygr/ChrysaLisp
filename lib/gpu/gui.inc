@@ -13,11 +13,16 @@
 (defq +gui_msl_by ''("lib/gpu/msl.inc" "lib/gpu/shader.inc")
 	+gui_spirv_by ''("lib/gpu/spirv.inc" "lib/gpu/shader.inc"))
 
+(defun shader-gui-sweep ()
+	;what the GUI back ends keep of another make goes, the first time
+	(shader-sweep "gp" (list (shader-make +gui_msl_by) (shader-make +gui_spirv_by))))
+
 (defun shader-gui (program)
 	; (shader-gui program) -> :nil | shader
 	;a shader the GPU can draw into a canvas, with (. canvas :shade shader
 	;block), where block is from (shader-pack). :nil if this host can not.
 	;The driver builds it in its own time, till then :shade draws nothing.
+	(shader-gui-sweep)
 	(case (canvas-shader-format)
 		(1 (defq shader (canvas-shader-create (shader-msl-vertex)
 				(shader-kept-text (cat "g" (shader-make +gui_msl_by) "_" (elem-get program 5) ".msl")
@@ -37,6 +42,7 @@
 	; -> (vertex_stage fragment_stage)
 	;the two stages of a pair, kept, both made if either is not there.
 	;The fragment stage is written last, so if it is there both are
+	(shader-gui-sweep)
 	(defq name (cat "p" (shader-make by) "_" (elem-get vertex 5) "_" (elem-get pixel 5))
 		path (cat (load-path) "lib/gpu/jit/" name))
 	(cond
