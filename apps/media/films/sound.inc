@@ -44,7 +44,7 @@
 	(. sound :insert :decoder (aac-decoder (. sound :find :config)))
 	(if (< (dec packet) (. (. sound :find :track) :find :samples)) (sound-packet sound (dec packet)))
 	(scatter sound :next packet :drop (- (max sample 0) (* (dec packet) 1024)) :time time
-		:written 0 :left 0 :handle (audio-stream-open-rpc rate 2)))
+		:written 0 :left 0 :anchor (pii-time) :handle (audio-stream-open-rpc rate 2)))
 
 (defun sound-pcm (left right from)
 	;16 bit stereo, left first, from a frame on
@@ -76,3 +76,19 @@
 	;has been heard of what was written since
 	(+ (. sound :find :time)
 		(/ (n2f (- (. sound :find :written) (. sound :find :left))) (n2f (. sound :find :rate)))))
+
+(defun sound-smooth (sound)
+	; (sound-smooth sound) -> seconds
+	;the time the pictures are shown at: of the system's clock from an
+	;anchor, as what is heard is told in steps, as the mixer takes a
+	;buffer of 20ms or more, and a film of 60 a second shown by them would
+	;jerk. Anchored again where nothing has been heard yet, and where the
+	;two are more than 100ms apart
+	(defq now (pii-time) heard (sound-clock sound)
+		;in ms, a fixed number holds no more than 2^31 of the us of a film
+		smooth (+ (. sound :find :time) (/ (n2f (/ (- now (. sound :find :anchor)) 1000)) 1000.0)))
+	(cond
+		((or (= (. sound :find :written) (. sound :find :left)) (> (abs (- smooth heard)) 0.1))
+			(. sound :insert :anchor (- now (* 1000 (n2i (* (- heard (. sound :find :time)) 1000.0)))))
+			heard)
+		(smooth)))

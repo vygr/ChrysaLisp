@@ -10,7 +10,8 @@
 ; (aac-decoder config) holds what a channel carries from one block to
 ; the next, (aac-decode decoder packet) gives the 1024 samples of each
 ; channel of a packet. Of more than two channels, 5.1 or 7.1, only the
-; front pair is read and made.
+; centre and the front pair are read, and made the front pair with the
+; centre in each at 0.707, a downmix to two.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
@@ -313,8 +314,9 @@
 	;many bits it took
 	(defq in (list (cat packet (char 0 8)) 0) channels (list) rate_index (. decoder :find :rate_index)
 		kind 0)
-	;of more than two channels only the front pair is wanted, the first pair
-	;of elements: what is after it is not read, its blocks are its length
+	;of more than two channels only the centre and the front pair are wanted,
+	;the elements to the first pair: what is after it is not read, its
+	;blocks are its length
 	(defq front (> (. decoder :find :channels) 2))
 	(while (and (/= (setq kind (aac-bits in 3)) +aac_end)
 			(not (and front (some (# (eql (. %0 :find :pair) :right)) channels))))
@@ -348,10 +350,7 @@
 				(elem-set in 1 (+ (second in) (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
 	(. decoder :insert :bits (second in))
-	;of more, the front pair, not the centre before it
-	(if (and front (defq i (some (# (if (eql (. %0 :find :pair) :left) (!))) channels)))
-		(slice channels i (+ i 2))
-		channels))
+	channels)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the spectrum to samples
@@ -642,12 +641,24 @@
 				(aac-stereo ch (elem-get channels (inc (!))) (elem-get lines (!)) (elem-get lines (inc (!))) tables)))
 		channels)
 	(each (# (aac-tns-apply %0 (elem-get lines (!)) rate_index)) channels)
-	(map (# (aac-imdct decoder (elem-get lines (!)) (. %0 :find :info) (!))) channels))
+	(defq out (map (# (aac-imdct decoder (elem-get lines (!)) (. %0 :find :info) (!))) channels))
+	;of more than two channels, the front pair with the centre before it in
+	;each at 0.707, as a downmix to two has it; a recording in the centre
+	;alone is heard on both
+	(cond
+		((and (> (. decoder :find :channels) 2) (defq i (some (# (if (eql (. %0 :find :pair) :left) (!))) channels)))
+			(defq left (elem-get out i) right (elem-get out (inc i)))
+			(when (> i 0)
+				(defq centre (nums-scale (elem-get out (dec i)) (. +aac :find :centre)))
+				(setq left (nums-add left centre) right (nums-add right centre)))
+			(list left right))
+		(out)))
 
 ;what the functions read as they run
 (scatter +aac :rates *aac_rates* :sf *aac_sf* :spectral *aac_spectral* :kinds *aac_book_kinds*
 	:bands_long *aac_bands_long* :bands_short *aac_bands_short* :pi *aac_pi* :dct4 *aac_dct4*
-	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil)
+	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil
+	:centre (sqrt (/ (n2r 1) (n2r 2))))
 
 ;module
 (export-symbols '(aac-config aac-track-config aac-decoder aac-decode))

@@ -216,7 +216,7 @@
 			(sound-feed *sound*)
 			;the sound heard *sync* ms later than it was coded, the pictures
 			;as much ahead of the clock
-			(defq n (frame-at (+ (sound-clock *sound*) (/ (n2f *sync*) 1000.0))))
+			(defq n (frame-at (+ (sound-smooth *sound*) (/ (n2f *sync*) 1000.0))))
 			(cond
 				((>= n (dec (. *reel* :find :frames)))
 					(show 0)
