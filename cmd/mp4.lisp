@@ -13,7 +13,9 @@
     What is in a film of boxes, .mp4 .m4v .mov: each track, its
     kind and codec, its size or its sound, and how many samples
     it has; and of the first video track, the frames a second
-    its times come to and how many keys.
+    its times come to and how many keys. A track whose edit list
+    starts it later says from what time of its own, and after how
+    long of nothing.
 
     If no paths given on command line
     then paths are read from stdin.")
@@ -33,7 +35,11 @@
 							((eql kind "vide") (cat (str (. track :find :width)) "x" (str (. track :find :height))))
 							((eql kind "soun") (cat (str (. track :find :sample_rate)) "Hz " (str (. track :find :channels)) " channels"))
 							(""))
-						", " (. track :find :samples) " samples, " (n2i seconds) "s"))
+						", " (. track :find :samples) " samples, " (n2i seconds) "s"
+						(if (or (/= 0 (. track :find :start)) (/= 0 (. track :find :delay)))
+							(cat ", from " (str (. track :find :start)) (if (/= 0 (. track :find :delay))
+								(cat " after " (str (. track :find :delay))) ""))
+							"")))
 				(. reel :find :tracks))
 			(when (. reel :find :frames)
 				(defq keys (. reel :find :keys))

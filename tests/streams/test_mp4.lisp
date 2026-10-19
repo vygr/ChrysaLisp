@@ -15,7 +15,7 @@
 ;the samples, each its own bytes, seven of them
 (defq m4_samples (map (# (apply (const cat) (map (lambda (_) (char (+ 65 %0))) (range 0 (+ 10 (* %0 7)))))) (range 0 7)))
 
-(defun m4-moov (chunk_offsets wide &optional ctts)
+(defun m4-moov (chunk_offsets wide &optional ctts edts)
 	;a moov of one video track, 320 by 240, avc1, at 600 a second each
 	;sample 20 of those, so 30 a second; samples 1 and 5 are keys; three
 	;chunks of 3, 2 and 2 samples, at the offsets given
@@ -23,6 +23,7 @@
 		(m4-full "mvhd" (m4-be 0 8) (m4-be 600 4) (m4-be 140 4) (m4-be 0 80))
 		(m4-box "trak"
 			(m4-full "tkhd" (m4-be 0 76) (m4-be (<< 320 16) 4) (m4-be (<< 240 16) 4))
+			(if edts edts "")
 			(m4-box "mdia"
 				(m4-full "mdhd" (m4-be 0 8) (m4-be 600 4) (m4-be 140 4) (m4-be 0 4))
 				(m4-full "hdlr" (m4-be 0 4) "vide" (m4-be 0 12) "video" (char 0))
@@ -91,6 +92,23 @@
 		(list 1 '((1 0) (1 40) (2 -20) (1 40) (2 -20)) '(0 60 20 40 120 80 100))))
 (assert-list-eq "with no ctts, shown as decoded" '(0 20 40 60 80 100 120)
 	(. (mp4-reel (string-stream (m4-file :nil :nil))) :find :shown))
+
+;an edit list: the film's time is 600 a second as the track's is, here
+;an edit of nothing for 30, then from 40 of the track's own; version 1
+;as well, 8 byte lengths and times, from 60
+(defun m4-edts (version edits)
+	(defq wide (if (= version 1) 8 4))
+	(m4-box "edts" (m4-box "elst" (m4-be (<< version 24) 4) (m4-be (length edits) 4)
+		(apply (const cat) (map (lambda ((span start))
+			(cat (m4-be span wide) (m4-be (if (= wide 4) (logand start 0xffffffff) start) wide) (m4-be 0x10000 4))) edits)))))
+(each (lambda ((version edits want))
+	(defq reel (mp4-reel (string-stream (cat (m4-box "ftyp" "isom") (m4-moov '(100 200 300) :nil :nil (m4-edts version edits))))))
+	(assert-list-eq (cat "where it begins, by its edit list, version " (str version)) want
+		(list (. reel :find :start) (. reel :find :delay))))
+	(list (list 0 '((30 -1) (110 40)) '(40 30)) (list 1 '((140 60)) '(60 0))))
+(defq m4_plain (mp4-reel (string-stream (m4-file :nil :nil))))
+(assert-list-eq "with no edit list, from the start" '(0 0)
+	(list (. m4_plain :find :start) (. m4_plain :find :delay)))
 
 (assert-eq "a file with no moov is no reel" :nil (mp4-reel (string-stream (m4-box "ftyp" "isom"))))
 (assert-true "an mp4 is a kind of reel" (some (# (eql (first %0) ".mp4")) *reel_kinds*))
