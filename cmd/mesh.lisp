@@ -46,15 +46,6 @@
 	(some (# (find (slice (hex-decode (second (split %0 ","))) +mailbox_id_size -1) here))
 		(mail-enquire "*Mesh,")))
 
-(defun what-is (system)
-	;what a machine says it is, arm64/Darwin, asked of one of its nodes
-	(defq mbox (mail-mbox) nodes (lisp-nodes system))
-	(cond
-		((empty? nodes) "?")
-		(:t (open-task (str `(mail-send (hex-decode ,(hex-encode mbox)) (cat (str (cpu)) "/" (str (os)))))
-				(first nodes) +kn_call_pin 0 (mail-mbox))
-			(ifn (mail-read-timeout mbox (task-timeout 2)) "no answer"))))
-
 (defun status ()
 	(defq key (if (pii-fstat "mesh_key") :t) is_joined (joined?) systems (lisp-systems))
 	(print (if key "Key:     mesh_key, only machines with the same file can join."
@@ -66,7 +57,7 @@
 	(print "Machines:")
 	(each (lambda (system)
 		(print "    " (slice (hex-encode system) 0 8) "  "
-			(pad (str (length (lisp-nodes system))) 3) " nodes  " (what-is system)
+			(pad (str (length (lisp-nodes system))) 3) " nodes  " (net-what-is system)
 			(if (eql system (cat (system-id))) "  (this machine)" "")))
 		systems)
 	;what the Net service has heard of, by their beacons. One that is

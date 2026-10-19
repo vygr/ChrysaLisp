@@ -2,6 +2,7 @@
 (import "service/storage/app.inc")
 (import "service/storage/scene.inc")
 (import "lib/files/files.inc")
+(import "service/net/app.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -16,7 +17,8 @@
             from the mesh key, so every machine with that
             key is of the one store. From then on it starts
             by itself, whenever this machine is up. -m, -i
-            and -k say otherwise.
+            and -k say otherwise. It says what it joined
+            and the other members, who keep what is put.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
         -o --on machine: the store of another machine, by the
@@ -47,9 +49,9 @@
             \q(lambda (state data at count) ...)\q, which gives
             (state next). What it comes back with, and the
             members it went to.
-        -M --members: who the members are, and which are
-            there now. With +id or -id as path, one is
-            joined or retired.
+        -M --members: who the members are, which are
+            there now, and what and where each is. With
+            +id or -id as path, one is joined or retired.
         -x --stop: stop the service.
         -z --resize megabytes: the store of this member put on
             a volume of that many MB, bigger, or smaller if what
@@ -136,6 +138,53 @@
 (("-G" "--group") ,(opt-str 'opt_G))
 ))
 
+(defun store-there (svc)
+	;the members of the store that are up now, anywhere in the mesh: each
+	;says the store and the member it is as it joins the group, the name,
+	;the service, its machine, then those
+	(defq id (cat (. (storage-info svc) :find :id) " "))
+	(reduce (lambda (out entry)
+			(and (> (length (defq parts (split entry ","))) 3) (starts-with id (elem-get parts 3))
+				(push out (slice (elem-get parts 3) (length id) -1)))
+			out)
+		(mail-enquire (cat +storage_group ",")) (list)))
+
+(defun store-known (svc)
+	;the members of a store, as it and every other member up now know them:
+	;one just joined has not met them yet
+	(defq id (. (defq info (storage-info svc)) :find :id) me (. info :find :member)
+		all (ifn (storage-members :nil svc) (list)))
+	(each (lambda (entry)
+			;the group's name, the service, its machine, and the store and member
+			(defq parts (split entry ","))
+			(and (> (length parts) 3) (starts-with (cat id " ") (elem-get parts 3))
+				(nql (cat id " " me) (elem-get parts 3))
+				(each (# (unless (find %0 all) (push all %0)))
+					(ifn (storage-members :nil (hex-decode (second parts))) (list)))))
+		(mail-enquire (cat +storage_group ",")))
+	(sort all))
+
+(defun store-say (svc members)
+	;each member of the store, a line each: this machine, one that is
+	;there or one that is not, and as far as the mesh knows, what it is
+	;and where
+	(defq me (. (storage-info svc) :find :member) there (store-there svc)
+		peers (ifn (net-peers-rpc) (list)) systems (lisp-systems))
+	(each (lambda (member)
+			(defq sys (some (# (if (eql (hex-encode %0) (to-upper member)) %0)) systems)
+				ip (some (lambda ((id ip &ignore)) (if (eql (to-upper id) (to-upper member)) ip)) peers)
+				state (cond ((eql member me) "this machine") ((find member there) "there") ("not there")))
+			(defq more (cat (if sys (cat "  " (net-what-is sys)) "") (if ip (cat "  " ip) "")))
+			(print "    " (slice member 0 8) "  " state (if (nempty? more) (cat (pad "" (- 12 (length state))) more) "")))
+		members))
+
+(defun store-to (svc)
+	;before a put, the store it goes to and who keeps it, on one line
+	(defq info (storage-info svc) me (. info :find :member) there (store-there svc))
+	(print "To " (. info :find :id) ", kept by its members: "
+		(join (map (# (cat (slice %0 0 8) (cond ((eql %0 me) " this machine") ((find %0 there) " there") (" not there"))))
+			(ifn (storage-members :nil svc) (list))) ", ")))
+
 (defun show (entry)
 	;a line of an object: how long, how many times written, how many of
 	;the members have it, who wrote it, its path
@@ -164,9 +213,18 @@
 				((storage-service) (print "The Storage service is running already."))
 				((not (storage-claim opt_s))
 					(print "Another session of this machine is serving the store at " opt_s "."))
-				((storage-join opt_s size opt_i (if (> opt_k 0) opt_k) opt_F)
+				((defq joined (storage-join opt_s size opt_i (if (> opt_k 0) opt_k) opt_F))
 					;and by itself from now on
-					(storage-member-save opt_s size opt_i (if (> opt_k 0) opt_k)))
+					(storage-member-save opt_s size opt_i (if (> opt_k 0) opt_k))
+					;what it joined, and who else is of it: a store of the mesh's
+					;own id is every machine's that has this key and was joined
+					(defq id (. (storage-info joined) :find :id) known (store-known joined))
+					(print "Joined the store " id
+						(if (eql id (storage-key-id)) ", the store of every machine with this mesh_key." "."))
+					(cond
+						((<= (length known) 1) (print "No other machine is a member of it yet."))
+						(:t (print "Its members, who keep what is put in it:")
+							(store-say joined known))))
 				((print "No store at " opt_s ", and none made."))))
 		(when opt_L
 			(cond
@@ -227,7 +285,8 @@
 			(opt_p
 				(cond
 					((eql name "") (print "A path to put it at."))
-					(:t (bind '(what entry) (storage-put-file name opt_p :nil svc))
+					(:t (store-to svc)
+						(bind '(what entry) (storage-put-file name opt_p :nil svc))
 						(cond
 							((eql what :ok) (show entry))
 							((eql what :none) (print "No file " opt_p))
@@ -252,6 +311,7 @@
 					put 0 same 0 bytes 0 t0 (pii-time))
 				(defun at (file) (cat name (if (starts-with "./" file) (slice file 2 -1) file)))
 				(when opt_T
+					(store-to svc)
 					(each (lambda (file)
 						(defq what (first (storage-put-file (at file) file :nil svc)))
 						(if (eql what :ok) (++ put) (print "Not put: " what " " file)))
@@ -275,10 +335,8 @@
 					((print "It did not come back."))))
 			(opt_M
 				(if (or (starts-with "+" name) (starts-with "-" name)) (setq members (storage-members name svc)))
-				(defq there (map (# (first (split %0 " "))) (filter (const nempty?)
-					(split (ifn (storage-ask svc +storage_type_peers) "") (ascii-char 10)))))
-				(each (# (print %0 (cond ((eql %0 (. (storage-info svc) :find :member)) "  this one")
-					((find %0 there) "  there") ("  not there")))) members))
+				(print "Store:   " (. (storage-info svc) :find :id))
+				(store-say svc members))
 			(opt_w (print (storage-sweep svc) " blocks let go of."))
 			((or opt_c opt_C)
 				(defq bad (storage-check opt_C svc))

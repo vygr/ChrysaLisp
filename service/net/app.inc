@@ -188,6 +188,17 @@
 
 
 
+(defun net-what-is (system)
+	; (net-what-is system) -> str
+	;what a machine of the mesh says it is, arm64/Darwin, asked of one of
+	;its nodes. ? if none of its nodes is seen
+	(defq mbox (mail-mbox) nodes (lisp-nodes system))
+	(cond
+		((empty? nodes) "?")
+		(:t (open-task (str `(mail-send (hex-decode ,(hex-encode mbox)) (cat (str (cpu)) "/" (str (os)))))
+				(first nodes) +kn_call_pin 0 (mail-mbox))
+			(ifn (mail-read-timeout mbox (task-timeout 2)) "no answer"))))
+
 (defun net-peers-rpc ()
 	; (net-peers-rpc) -> :nil | ((system_id ip port linked build) ...)
 	;what the Net service of this machine knows of the others, from their

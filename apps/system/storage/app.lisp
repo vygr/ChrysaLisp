@@ -14,8 +14,9 @@
 ;			is, or still, there, whatever comes in
 ;	start, end	to the start, or to the end, and what comes is followed
 ;	live		the store this system is a member of, what it has and
-;			then what it does. It is what the app opens on, and what
-;			it goes back to after a scene
+;			then what it does, or of none, the stores of the other
+;			machines, as a client. It is what the app opens on, and
+;			what it goes back to after a scene
 ;	record		all of what the store of this system does is kept, and
 ;			the timeline goes back to the start. Off, the last few
 ;			thousand events
@@ -504,13 +505,17 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +tick 0)
 	;the store this system is a member of, as it is and then as it works,
-	;if it is a member of one
+	;or of none, those of the other machines of the mesh, as a client: what
+	;is recorded is of every member there is, wherever it is
 	(cond
 		((storage-service)
 			(say (if *record* "The store of this system, as it is and as it works, all of it recorded."
 				(cat "The store of this system, as it is and as it works, the last " (str +live_keep) " events kept. Record keeps all.")))
 			(watch "-"))
-		(:t (say "This system is a member of no store. Choose a scene and Run.")
+		((nempty? (storage-record-members))
+			(say "This system is a member of no store. The stores of the other machines, as they are and as they work.")
+			(watch "-"))
+		(:t (say "No store on this system or the mesh. Choose a scene and Run.")
 			(draw)))
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -529,9 +534,12 @@
 					((= id +event_live)
 						;back to the store of this system, if it is not what is watched
 						(cond
-							((not (storage-service))
-								(say "This system is a member of no store, a scene is all there is to watch."))
+							((and (not (storage-service)) (empty? (storage-record-members)))
+								(say "No store on this system or the mesh, a scene is all there is to watch."))
 							((and *run* *live*))
+							((not (storage-service))
+								(say "The stores of the other machines, as they are and as they work.")
+								(watch "-"))
 							(:t (say "The store of this system, as it is and as it works.")
 								(watch "-"))))
 					((= id +event_join)

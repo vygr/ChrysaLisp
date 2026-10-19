@@ -1366,7 +1366,8 @@ Usage: storage [options] [path]
             from the mesh key, so every machine with that
             key is of the one store. From then on it starts
             by itself, whenever this machine is up. -m, -i
-            and -k say otherwise.
+            and -k say otherwise. It says what it joined
+            and the other members, who keep what is put.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
         -o --on machine: the store of another machine, by the
@@ -1397,9 +1398,9 @@ Usage: storage [options] [path]
             "(lambda (state data at count) ...)", which gives
             (state next). What it comes back with, and the
             members it went to.
-        -M --members: who the members are, and which are
-            there now. With +id or -id as path, one is
-            joined or retired.
+        -M --members: who the members are, which are
+            there now, and what and where each is. With
+            +id or -id as path, one is joined or retired.
         -x --stop: stop the service.
         -z --resize megabytes: the store of this member put on
             a volume of that many MB, bigger, or smaller if what
