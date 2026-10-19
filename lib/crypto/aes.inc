@@ -134,6 +134,11 @@
 				(aes-word keys (* (+ (* rounds 4) c) 4))) 4))
 		(range 0 4))))
 
+(defun aes-count (counter n)
+	; (aes-count counter n) -> str
+	;the counter n blocks on, its last 4 bytes counted up, high first
+	(cat (slice counter 0 12) (char-be (logand (+ (code-be counter 4 12) n) 0xffffffff) 4)))
+
 (defun aes-ctr (keys counter data)
 	; (aes-ctr keys counter data) -> str
 	(defq size (length data) out (str-alloc size) at 0)
@@ -143,11 +148,6 @@
 		(setq at (+ at some_bytes))
 		(if (< at size) (task-slice)))
 	out)
-
-(defun aes-count (counter n)
-	; (aes-count counter n) -> str
-	;the counter n blocks on, its last 4 bytes counted up, high first
-	(cat (slice counter 0 12) (char-be (logand (+ (code-be counter 4 12) n) 0xffffffff) 4)))
 
 ;module
 (export-symbols '(aes-key aes-block aes-ctr aes-count))

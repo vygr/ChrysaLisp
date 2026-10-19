@@ -374,6 +374,24 @@
 (enums +stroke 0
 	(enum tool x y points item moved last_x last_y snap box again began buttons grow solo))
 
+;;;;;;;;;;;;
+; the things
+;;;;;;;;;;;;
+
+(defun board-theirs? (board id user)
+	; (board-theirs? board id user) -> :t | :nil
+	;held by a user other than that one. What no one holds, anyone may
+	;take
+	(and (defq who (. board :holder id)) (not (eql who user))))
+
+(defun board-tap? (board state x y)
+	; (board-tap? board state x y) -> :t | :nil
+	;did a contact lift as a tap: soon, and near where it landed. A board
+	;that is told no time, (:tick), goes by the distance alone
+	(defq near (/ +board_tap_near (get :zoom board)))
+	(and (<= (abs (- x (elem-get state +stroke_x))) near) (<= (abs (- y (elem-get state +stroke_y))) near)
+		(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
+
 (defclass Surface (board) (Actor)
 	; (Surface board) -> surface
 	;the canvas, the actor at the back, every point is on it: what no
@@ -648,24 +666,6 @@
 		this)
 
 	)
-
-;;;;;;;;;;;;
-; the things
-;;;;;;;;;;;;
-
-(defun board-theirs? (board id user)
-	; (board-theirs? board id user) -> :t | :nil
-	;held by a user other than that one. What no one holds, anyone may
-	;take
-	(and (defq who (. board :holder id)) (not (eql who user))))
-
-(defun board-tap? (board state x y)
-	; (board-tap? board state x y) -> :t | :nil
-	;did a contact lift as a tap: soon, and near where it landed. A board
-	;that is told no time, (:tick), goes by the distance alone
-	(defq near (/ +board_tap_near (get :zoom board)))
-	(and (<= (abs (- x (elem-get state +stroke_x))) near) (<= (abs (- y (elem-get state +stroke_y))) near)
-		(< (- (get :time board) (elem-get state +stroke_began)) +board_tap_time)))
 
 (defclass Things (board) (Actor)
 	; (Things board) -> things
