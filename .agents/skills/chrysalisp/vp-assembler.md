@@ -364,6 +364,35 @@ method)` gives the registers.
 	arm64. A side path goes before the `(errorcase` that holds the error
 	labels.
 
+*	**The scope stays till after the errorcase.** A side path moved in
+	front of the errorcase does not take the function's `(pop-scope-syms)`
+	with it: the error code that follows still wants the scope. Never pop
+	the scope early to make room for a side path, and never give a side
+	path a `(push-scope)` of its own inside the function's. A callback run
+	on the host's stack, `:sys_task :callback`, is written in plain VP with
+	the `local` structure of its caller, as the natives of
+	`service/audio/lisp.vp` and `:lisp_shade` in `gui/canvas/lisp.vp` are:
+
+		(vp-label 'callback)
+			;inputs
+			;:r0 = user data (ptr)
+
+			(entry :sys_task :task_callback '(:r0))
+			(vp-cpy-rr :rsp :r1)
+			(vp-alloc 16)
+			(vp-and-cr -16 :rsp)
+			(assign '(:r0 :r1) '((:rsp 0) (:rsp 8)))
+			(host-gui-call :host_gui :video_close '((:r0 local_handle)))
+			(assign '((:rsp 8)) '(:rsp))
+			(vp-ret)
+
+		(errorcase
+		(vp-label 'error)
+			(jump :lisp :repl_error ...)
+			(signature ...))
+
+		(def-func-end)
+
 ## Named Locals
 
 Every function with named locals, `(def-vars)` and `(push-scope)`, has them
