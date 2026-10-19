@@ -317,7 +317,9 @@
 					(setq *into_call* :nil)
 					(status "Ready"))
 				(pipe-stop))
-			((= id +event_play) (unless *running_pipe* (play-start select)))
+			;in a call, play is into the call, by the service, and goes with a
+			;recording of the call
+			((= id +event_play) (if (or (call-in?) (not *running_pipe*)) (play-start select)))
 			((= id +event_delete) (unless *running_pipe* (note-delete)))
 			((<= +event_note id (+ +event_note +max_notes -1))
 				(when (and (not *running_pipe*) (< (defq i (- id +event_note)) (length *note_files*)))
