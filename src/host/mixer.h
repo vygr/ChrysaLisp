@@ -16,11 +16,13 @@
 // good reason. A task is only run when the tasks before it let go, and a
 // device that is not fed in time is heard.
 //
-// A stream is a sound that comes as it is made, a voice from far away:
-// 16 bit mono at MIXER_STREAM_RATE, written in pieces as they come and
-// played as it goes. Each holds what is to come, up to two seconds, and
-// starts, and starts again after it has run dry, only once it has a
-// little, MIXER_STREAM_START, so a piece that is late is not a gap.
+// A stream is a sound that comes as it is made, a voice from far away or
+// the sound of a film: 16 bit, mono or stereo, at a rate of its own,
+// MIXER_STREAM_RATE if it says none, written in pieces as they come and
+// played as it goes. Each holds what is to come, up to a second at the
+// most it may be, MIXER_STREAM_HOLD, and starts, and starts again after
+// it has run dry, only once it has a little, 60ms, so a piece that is
+// late is not a gap.
 
 #include <stdint.h>
 #include <string.h>
@@ -57,16 +59,17 @@ static uint64_t mixer_play_count = 0;
 
 #define MIXER_MAX_STREAMS 8
 #define MIXER_STREAM_RATE 16000
-#define MIXER_STREAM_HOLD (MIXER_STREAM_RATE * 2)
-#define MIXER_STREAM_START (MIXER_STREAM_RATE * 60 / 1000)
+#define MIXER_STREAM_MAX_RATE 48000
+#define MIXER_STREAM_HOLD (MIXER_STREAM_MAX_RATE * 2)
 
-// a stream, what is to come of it in a ring, and where it is between
-// two of its samples, as its rate is not the mix rate
+// a stream, what is to come of it in a ring, its frames, each a sample of
+// each of its channels, and where it is between two of them, as its rate
+// is not the mix rate
 struct MixerStream
 {
 	uint32_t handle;
 	int16_t ring[MIXER_STREAM_HOLD];
-	int head, count;
+	int head, count, rate, channels, hold;
 	float frac;
 	bool playing;
 };
@@ -126,11 +129,12 @@ static void mixer_stream_mix(MixerStream *st, float *mix, int frames)
 {
 	if (!st->playing)
 	{
-		if (st->count < MIXER_STREAM_START) return;
+		if (st->count < st->rate * 60 / 1000) return;
 		st->playing = true;
 		st->frac = 0.0f;
 	}
-	const float step = (float)MIXER_STREAM_RATE / (float)MIXER_RATE;
+	const float step = (float)st->rate / (float)MIXER_RATE;
+	const int ch = st->channels;
 	for (int i = 0; i < frames; ++i)
 	{
 		if (st->count < 2)
@@ -139,50 +143,76 @@ static void mixer_stream_mix(MixerStream *st, float *mix, int frames)
 			st->playing = false;
 			return;
 		}
-		float a = st->ring[st->head] / 32768.0f;
-		float b = st->ring[(st->head + 1) % MIXER_STREAM_HOLD] / 32768.0f;
-		float s = a + (b - a) * st->frac;
-		mix[i * 2] += s;
-		mix[i * 2 + 1] += s;
+		// this frame and the next, mono to both sides, stereo each its own
+		const int16_t *a = &st->ring[st->head * ch];
+		const int16_t *b = &st->ring[((st->head + 1) % st->hold) * ch];
+		float l = (a[0] + (b[0] - a[0]) * st->frac) / 32768.0f;
+		float r = ch == 2 ? (a[1] + (b[1] - a[1]) * st->frac) / 32768.0f : l;
+		mix[i * 2] += l;
+		mix[i * 2 + 1] += r;
 		st->frac += step;
 		while (st->frac >= 1.0f)
 		{
 			st->frac -= 1.0f;
-			st->head = (st->head + 1) % MIXER_STREAM_HOLD;
+			st->head = (st->head + 1) % st->hold;
 			st->count--;
 		}
 	}
 }
 
-// a new stream, its handle, or 0 if there is no room for another
+// a new stream, its handle, or 0 if there is no room for another. Of a
+// rate, 8000 to 48000, and 1 or 2 channels; a rate or channels out of
+// those is MIXER_STREAM_RATE mono, as a stream was before it had them
 
-static uint32_t mixer_stream_open()
+static uint32_t mixer_stream_open(uint64_t rate, uint64_t channels)
 {
+	if (rate < 8000 || rate > MIXER_STREAM_MAX_RATE || channels < 1 || channels > 2)
+	{
+		rate = MIXER_STREAM_RATE;
+		channels = 1;
+	}
 	for (int i = 0; i < MIXER_MAX_STREAMS; ++i)
 	{
 		if (mixer_streams[i].handle) continue;
 		memset(&mixer_streams[i], 0, sizeof(MixerStream));
 		mixer_streams[i].handle = mixer_next_stream++;
+		mixer_streams[i].rate = (int)rate;
+		mixer_streams[i].channels = (int)channels;
+		mixer_streams[i].hold = MIXER_STREAM_HOLD / (int)channels;
 		return mixer_streams[i].handle;
 	}
 	return 0;
 }
 
-// the next of a stream, 16 bit mono. What does not fit is left out, the
-// newest; returns how many samples it took, or -1 for no such stream
+// the next of a stream, 16 bit samples, each frame a sample of each of its
+// channels, left first. What does not fit is left out, the newest; returns
+// how many samples it took, or -1 for no such stream
 
-static int mixer_stream_write(uint32_t handle, const int16_t *samples, int frames)
+static int mixer_stream_write(uint32_t handle, const int16_t *samples, int count)
 {
 	MixerStream *st = mixer_stream_find(handle);
 	if (!st) return -1;
-	int room = MIXER_STREAM_HOLD - st->count;
+	const int ch = st->channels;
+	int frames = count / ch;
+	int room = st->hold - st->count;
 	if (frames > room) frames = room;
 	for (int i = 0; i < frames; ++i)
 	{
-		st->ring[(st->head + st->count) % MIXER_STREAM_HOLD] = samples[i];
+		int at = ((st->head + st->count) % st->hold) * ch;
+		for (int c = 0; c < ch; ++c) st->ring[at + c] = samples[i * ch + c];
 		st->count++;
 	}
-	return frames;
+	return frames * ch;
+}
+
+// how many frames of a stream are still to be played, -1 for no such
+// stream: a player keeps what it sends so far ahead, and its pictures to
+// what is heard
+
+static int mixer_stream_left(uint32_t handle)
+{
+	MixerStream *st = mixer_stream_find(handle);
+	return st ? st->count : -1;
 }
 
 // a stream stopped and forgotten, 0, or -1 for no such stream

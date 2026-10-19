@@ -217,14 +217,15 @@ int64_t host_audio_mic_close()
 	return 0;
 }
 
-// a stream played as it comes, see mixer.h. Open gives its handle, 0 if
-// there is no room or no device; write how many samples it took
+// a stream played as it comes, see mixer.h. Open, of a rate and 1 or 2
+// channels, gives its handle, 0 if there is no room or no device; write
+// how many samples it took; left how many frames are still to be played
 
-int64_t host_audio_stream_open()
+int64_t host_audio_stream_open(uint64_t rate, uint64_t channels)
 {
 	if (!stream) return 0;
 	SDL_LockAudioStream(stream);
-	uint32_t handle = mixer_stream_open();
+	uint32_t handle = mixer_stream_open(rate, channels);
 	SDL_UnlockAudioStream(stream);
 	return handle;
 }
@@ -247,6 +248,15 @@ int64_t host_audio_stream_close(uint32_t handle)
 	return result;
 }
 
+int64_t host_audio_stream_left(uint32_t handle)
+{
+	if (!stream) return -1;
+	SDL_LockAudioStream(stream);
+	int result = mixer_stream_left(handle);
+	SDL_UnlockAudioStream(stream);
+	return result;
+}
+
 void (*host_audio_funcs[]) = {
 	(void*)host_audio_init,
 	(void*)host_audio_deinit,
@@ -260,6 +270,7 @@ void (*host_audio_funcs[]) = {
 	(void*)host_audio_stream_open,
 	(void*)host_audio_stream_write,
 	(void*)host_audio_stream_close,
+	(void*)host_audio_stream_left,
 };
 
 #endif

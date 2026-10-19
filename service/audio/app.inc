@@ -2,7 +2,7 @@
 
 ; define the message types for the service
 (enums +audio_type 0
-	(enum add play change remove listen hush stream_open stream_write stream_close))
+	(enum add play change remove listen hush stream_open stream_write stream_close stream_left))
 
 ; common header for all messages
 (structure +audio_rpc 0
@@ -52,6 +52,11 @@
 (structure +audio_stream +audio_rpc_size
 	(uint handle)
 	(offset data))
+
+; audio_stream_open - params and return, the rate and channels of a
+; stream, a request without them is of 16000 mono
+(structure +audio_stream_open +audio_rpc_size
+	(uint rate channels))
 
 (defun audio-service ()
 	; (audio-service) -> :nil | net_id
@@ -128,20 +133,39 @@
 			(+audio_listen_who who)))
 		(mail-read-timeout mbox)))
 
-(defun audio-stream-open-rpc ()
-	; (audio-stream-open-rpc) -> :nil | handle
-	;a stream to play as it comes, :nil if there is no room or no sound
+(defun audio-stream-open-rpc (&optional rate channels)
+	; (audio-stream-open-rpc [rate channels]) -> :nil | handle
+	;a stream to play as it comes, :nil if there is no room or no sound. Of
+	;16 bit samples, 1 or 2 channels, left first, at a rate of 8000 to
+	;48000; 16000 mono, +sound_rate, if not said
 	(when (defq service (audio-service))
 		(defq mbox (mail-mbox))
-		(mail-send service (setf-> (str-alloc +audio_rpc_size)
+		(mail-send service (setf-> (str-alloc +audio_stream_open_size)
 			(+audio_rpc_reply_id mbox)
-			(+audio_rpc_type +audio_type_stream_open)))
+			(+audio_rpc_type +audio_type_stream_open)
+			(+audio_stream_open_rate (ifn rate 16000))
+			(+audio_stream_open_channels (ifn channels 1))))
 		(and (defq reply (mail-read-timeout mbox))
 			(/= (defq handle (getf reply +audio_ret_retval)) 0) handle)))
 
+(defun audio-stream-left-rpc (handle)
+	; (audio-stream-left-rpc handle) -> :nil | frames
+	;how many frames of a stream are still to be played, what was written
+	;less what has been heard: a player keeps its pictures to its sound so
+	(when (defq service (audio-service))
+		(defq mbox (mail-mbox))
+		(mail-send service (setf-> (str-alloc +audio_remove_size)
+			(+audio_rpc_reply_id mbox)
+			(+audio_rpc_type +audio_type_stream_left)
+			(+audio_remove_handle handle)))
+		;the answer is a uint, no such stream, -1, is all ones
+		(and (defq reply (mail-read-timeout mbox))
+			(/= (defq left (getf reply +audio_ret_retval)) 0xffffffff) left)))
+
 (defun audio-stream-write-rpc (handle data)
 	; (audio-stream-write-rpc handle data)
-	;the next of a stream, 16 bit mono samples, no answer
+	;the next of a stream, 16 bit samples, a frame each of its channels,
+	;no answer
 	(when (defq service (audio-service))
 		(mail-send service (cat (setf-> (str-alloc +audio_stream_size)
 			(+audio_rpc_type +audio_type_stream_write)

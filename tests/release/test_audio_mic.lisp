@@ -82,6 +82,24 @@
 		(when (= (first am_s) 1)
 			(assert-eq "and closed" 1 (second am_s))
 			(assert-eq "and closed again, it is not there" 1 (third am_s)))
+		;a stream of a film's sound, 48000 stereo: half a second of silence
+		;written, what is still to play of it goes down as it is heard
+		(defq am_film (am-ask '(progn
+			(defq handle (audio-stream-open-rpc 48000 2))
+			(cond
+				(handle
+					(defq piece (str-alloc (* 960 4)))
+					(times 25 (audio-stream-write-rpc handle piece))
+					(defq one (progn (task-sleep 150000) (audio-stream-left-rpc handle))
+						two (progn (task-sleep 200000) (audio-stream-left-rpc handle)))
+					(audio-stream-close-rpc handle)
+					(join (map (const str) (list 1 (ifn one -1) (ifn two -1))) " "))
+				("0")))))
+		(defq am_f (map (const str-as-num) (split (ifn am_film "0") " ")))
+		(assert-eq "a stream of 48000 stereo is opened" 1 (first am_f))
+		(when (= (first am_f) 1)
+			(assert-true "what is left of it is less than was written" (< 0 (second am_f) 24000))
+			(assert-true "and less again a little later, it is being heard" (< (third am_f) (second am_f))))
 		;a listener that does not say so again is let go when its lease is out
 		(defq am_lease (am-ask '(progn
 			(defq who (mail-mbox) t0 (pii-time) last 0)

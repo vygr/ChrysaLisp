@@ -97,7 +97,10 @@
 							(if (. listeners :empty?) (audio-raw mic_close)))
 						(audio-reply 0))
 					(+audio_type_stream_open
-						(defq handle (audio-raw stream_open))
+						;one from before streams had a rate is 16000 mono
+						(defq handle (if (>= (length msg) +audio_stream_open_size)
+							(audio-raw stream_open (getf msg +audio_stream_open_rate) (getf msg +audio_stream_open_channels))
+							(audio-raw stream_open 16000 1)))
 						(if (/= handle 0) (. streams :insert handle (pii-time)))
 						(audio-reply handle))
 					(+audio_type_stream_write
@@ -105,6 +108,9 @@
 						(when (. streams :find (defq handle (getf msg +audio_stream_handle)))
 							(. streams :insert handle (pii-time))
 							(audio-raw stream_write handle (slice msg +audio_stream_data -1))))
+					(+audio_type_stream_left
+						(audio-reply (if (. streams :find (defq handle (getf msg +audio_remove_handle)))
+							(audio-raw stream_left handle) -1)))
 					(+audio_type_stream_close
 						(defq handle (getf msg +audio_remove_handle))
 						(audio-reply (cond
