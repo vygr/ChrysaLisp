@@ -18,7 +18,8 @@
 ; Reading. (flm-reel stream) has the packets found, where each is and how
 ; long, and (flm-packet) gives one. (flm-codec reel) owns a canvas and
 ; (flm-decode codec packet index) puts a packet on it: packet 0 is a whole
-; frame, the rest each the next. lib/media/reel.inc is what a player uses,
+; frame, the rest each the next. (flm-frame codec n) gives frame n, from
+; the one it gave last or from the first. lib/media/reel.inc is what a player uses,
 ; this is the flm kind of it. A film of an older version, with no packets,
 ; is made this one by (flm-convert), toflm -c.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -232,7 +233,7 @@
 	;far as building it, gui/pixmap/flm.vp
 	(scatter (Emap) :canvas (Canvas (. reel :find :width) (. reel :find :height) 1)
 		:format (. reel :find :format) :flags (. reel :find :flags)
-		:delta (ffi "gui/pixmap/lisp_flm_delta")))
+		:delta (ffi "gui/pixmap/lisp_flm_delta") :reel reel :at -1))
 
 (defun flm-decode (codec packet index)
 	; (flm-decode codec packet index) -> :nil | canvas
@@ -262,6 +263,18 @@
 		;on with the runs of the packet
 		(((. codec :find :delta) pixmap in format) canvas)))
 
+(defun flm-frame (codec n)
+	; (flm-frame codec n) -> :nil | canvas
+	;frame n, each packet after the frame given last, or after the first
+	;if n is before it
+	(defq reel (. codec :find :reel) at (. codec :find :at) canvas :nil)
+	(if (< n at) (setq at -1))
+	(if (= n at) (setq canvas (. codec :find :canvas)))
+	(while (< at n)
+		(setq at (inc at) canvas (flm-decode codec (flm-packet reel at) at)))
+	(. codec :insert :at at)
+	canvas)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a film shown as a picture, its first
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -280,7 +293,7 @@
 (canvas-loader ".flm" FLM-info FLM-load)
 
 ;and played as a reel
-(reel-kind ".flm" flm-reel flm-packet flm-codec flm-decode)
+(reel-kind ".flm" flm-reel flm-packet flm-codec flm-frame)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a film of an older version, made this one

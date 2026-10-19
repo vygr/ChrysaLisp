@@ -12,8 +12,13 @@
 ; (mp4-reel stream) gives the reel of the first video track: its packets
 ; are its samples in the order they are decoded, its rate the frames a
 ; second their times come to, and :shown when each is shown, which with
-; B-frames is another order. :tracks says what every track is. A codec is what the codec of a
-; track says: none is here yet, so (reel-codec) of one gives :nil.
+; B-frames is another order. :tracks says what every track is.
+;
+; The codec is the host's, src/host/video.cpp, for what it has one for,
+; avc1, H.264, by VideoToolbox on macOS. (reel-codec) of a film it has
+; none for gives :nil. Frame n is the one shown nth: the codec feeds the
+; host the packets till that picture is out, and to go anywhere else it
+; starts again from the key before it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./reel.inc")
@@ -78,6 +83,10 @@
 			(setq at (+ at (* width 4))))
 		out))
 
+(defun mp4-config (s at end)
+	; (mp4-config str at end) -> ((name str) ...)
+	(map (lambda ((name body end)) (list name (slice s body end))) (mp4-boxes s at end)))
+
 (defun mp4-track (s trak)
 	; (mp4-track str trak) -> track
 	;what a track is, and where each of its samples is, how long, when,
@@ -97,11 +106,11 @@
 		(cond
 			((eql (. track :find :kind) "vide")
 				(scatter track :width (mp4-n s (+ entry 32) 2) :height (mp4-n s (+ entry 34) 2)
-					:config (mp4-boxes s (+ entry 86) entry_end)))
+					:config (mp4-config s (+ entry 86) entry_end)))
 			((eql (. track :find :kind) "soun")
 				(scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
 					:sample_rate (mp4-n s (+ entry 32) 2)
-					:config (mp4-boxes s (+ entry 36) entry_end)))))
+					:config (mp4-config s (+ entry 36) entry_end)))))
 	;the samples: their sizes
 	(defq stsz (mp4-in s stbl '("stsz")) sizes (list))
 	(when stsz
@@ -176,10 +185,48 @@
 		(read-blk stream (elem-get (. reel :find :lengths) index))))
 
 (defun mp4-codec (reel)
-	; (mp4-codec reel) -> :nil
-	;no codec is here yet for what an mp4 holds
+	; (mp4-codec reel) -> :nil | codec
+	;the host's decoder of the video track's codec, on a canvas of its own,
+	;:nil if it has none. Its native is taken as the codec is made, not as
+	;this is read, as flm-codec does
+	(and (defq video (. reel :find :video) config (. video :find :config)
+			setup (some (# (if (eql (first %0) "avcC") (second %0))) config))
+		(defq native (ffi "service/gui/lisp_video")
+			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
+		(/= handle 0)
+		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
+			:canvas (Canvas (. reel :find :width) (. reel :find :height) 1)
+			;frame n is the packet shown nth
+			:order (sort (range 0 (. reel :find :frames))
+				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
+
+(defun mp4-frame (codec n)
+	; (mp4-frame codec n) -> :nil | canvas
+	;the picture shown nth on the canvas, the packets fed to the host till
+	;it is out. Not the one after the last given, the host starts again
+	;from the key before its packet
+	(defq reel (. codec :find :reel) native (. codec :find :native) frames (. reel :find :frames)
+		packet (elem-get (. codec :find :order) n) shown (elem-get (. reel :find :shown) packet)
+		pixmap (getf (defq canvas (. codec :find :canvas)) +canvas_pixmap 0) fed (. codec :find :fed))
+	(unless (= n (inc (. codec :find :at)))
+		(defq keys (. reel :find :keys) key 0)
+		(if (eql keys :all) (setq key packet) (each (# (if (<= %0 packet) (setq key %0))) keys))
+		(native 3 (. codec :find :handle) "" 0)
+		(. codec :insert :handle (native 0 (code-be (. reel :find :codec) 4 0) (. codec :find :setup) 0))
+		(setq fed key))
+	;a picture is out a few packets after its own at most, if it is not by
+	;then it will not be, its packet would not decode
+	(defq last (min frames (+ packet 32)))
+	(while (and (< (native 2 (. codec :find :handle) pixmap shown) 0) (< fed last))
+		(native 1 (. codec :find :handle) (mp4-packet reel fed) (elem-get (. reel :find :shown) fed))
+		(setq fed (inc fed)))
+	(scatter codec :fed fed :at n)
+	canvas)
+
+(defun mp4-close (codec)
+	; (mp4-close codec) -> :nil
+	((. codec :find :native) 3 (. codec :find :handle) "" 0)
+	(. codec :insert :handle 0)
 	:nil)
 
-(defun mp4-decode (codec packet index) :nil)
-
-(each (# (reel-kind %0 mp4-reel mp4-packet mp4-codec mp4-decode)) '(".mp4" ".m4v" ".mov"))
+(each (# (reel-kind %0 mp4-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mp4" ".m4v" ".mov"))

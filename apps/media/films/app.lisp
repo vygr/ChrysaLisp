@@ -5,10 +5,8 @@
 (import "lib/media/reel.inc")
 (import "lib/media/mp4.inc")
 
-;A film as a projector shows it: a reel, lib/media/reel.inc, its packets
-;one a frame, and the codec that makes a frame of each on its canvas, at
-;the rate the reel says. The first packet is a whole frame, and going
-;back, or round again, starts from it.
+;A film as a projector shows it: a reel, lib/media/reel.inc, and the codec
+;that puts each frame on its canvas, at the rate the reel says.
 
 ;our UI widgets
 (import "./widgets.inc")
@@ -19,11 +17,9 @@
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *playing* :t)
 
 (defun show (n)
-	;frame n on the canvas, from the frame shown or from the first
-	(when (< n *at*) (setq *at* -1))
-	(while (< *at* n)
-		(setq *at* (inc *at*))
-		(reel-decode *codec* (reel-packet *reel* *at*) *at*))
+	;frame n on the canvas, the codec reads the packets it needs for it
+	(setq *at* n)
+	(reel-frame *codec* n)
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
@@ -47,13 +43,27 @@
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
+(defun open-path (file)
+	;a film by the path typed, or why not
+	(cond
+		((not (find (path-ext file) +file_types))
+			(say (cat file ": not a kind of film this plays")))
+		((not (file-stream file)) (say (cat file ": not there")))
+		((not (reel-open file)) (say (cat file ": not a film it can read")))
+		((win-refresh file))))
+
+(defun say (text)
+	(set *status* :text text)
+	(.-> *status* :layout :dirty))
+
 (defun win-refresh (file)
 	(cond
 		((not (defq reel (reel-open file))))
-		((not (reel-codec reel)) (say-what reel file))
+		((not (defq codec (reel-codec reel))) (say-what reel file))
 		(:t
 		;the scroll lets go of the canvas it had as it is given the new one
-		(setq *reel* reel *codec* (reel-codec reel) *canvas* (. *codec* :find :canvas) *at* -1)
+		(if *codec* (reel-close *codec*))
+		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1)
 		(show 0)
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
@@ -93,7 +103,9 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_timer) (tick select))
-			((and *reel* (= (defq id (getf *msg* +ev_msg_target_id)) +event_timeline))
+			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
+				(open-path (trim (get :clear_text *path*))))
+			((and *reel* (= id +event_timeline))
 				(play :nil)
 				(show (get :value *timeline*)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
@@ -106,4 +118,5 @@
 					((= id +event_start) (play :nil) (show 0))))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	(if *codec* (reel-close *codec*))
 	(gui-sub-rpc *window*))

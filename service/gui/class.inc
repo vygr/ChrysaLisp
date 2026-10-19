@@ -34,6 +34,10 @@
 	(dec-method :pair_create :nil :virtual (abi-args 5) (:r0))
 	(dec-method :tris_draw :nil :virtual (abi-args 3) (:r0))
 	(dec-method :read_screen :nil :virtual (abi-args 6) (:r0))
+	(dec-method :video_open :nil :virtual (abi-args 3) (:r0))
+	(dec-method :video_decode :nil :virtual (abi-args 4) (:r0))
+	(dec-method :video_frame :nil :virtual (abi-args 6) (:r0))
+	(dec-method :video_close :nil :virtual (abi-args 1) (:r0))
 	(dec-method :update service/gui/update :static (:r0 :r1 :r2) :nil (:r0-:r14 :f0-:f15))
 	(dec-method :composite service/gui/composite :static (:r0) (:r7 :r8 :r9 :r10) (:r0-:r14 :f0-:f15))
 	(dec-method :frame_view service/gui/frame_view :static (:r0) (:r0) (:r1-:r3 :r7-:r11 :f0-:f15))
@@ -44,7 +48,8 @@
 	(dec-method :lisp_update service/gui/lisp_update :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_event service/gui/lisp_event :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :lisp_info service/gui/lisp_info :static (:r0 :r1) (:r0 :r1) (:r1-:r4 :r7-:r11 :r14 :f0-:f15))
-	(dec-method :lisp_read_screen service/gui/lisp_read_screen :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15)))
+	(dec-method :lisp_read_screen service/gui/lisp_read_screen :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
+	(dec-method :lisp_video service/gui/lisp_video :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15)))
 
 (defun host-gui-call (%0 %1 &optional %2 %3 %4 %5)
 	;%0 = class name

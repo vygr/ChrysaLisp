@@ -72,7 +72,7 @@
 		(assert-list-eq (cat "every packet its sample, from the chunk the tables say, " what) m4_samples
 			(map (# (mp4-packet reel %0)) (range 0 7)))
 		(assert-list-eq (cat "the keys, " what) '(0 4) (. reel :find :keys))
-		(assert-eq (cat "its setup, the avcC, " what) "avcC" (first (first (. (. reel :find :video) :find :config))))))
+		(assert-list-eq (cat "its setup, the avcC, " what) '("avcC" "setup") (first (. (. reel :find :video) :find :config)))))
 	'((:nil :nil "moov after mdat, as a camera writes it") (:t :nil "moov first, as the web has it")
 		(:nil :t "64 bit chunk offsets and an mdat with a 64 bit size")))
 
@@ -94,3 +94,5 @@
 
 (assert-eq "a file with no moov is no reel" :nil (mp4-reel (string-stream (m4-box "ftyp" "isom"))))
 (assert-true "an mp4 is a kind of reel" (some (# (eql (first %0) ".mp4")) *reel_kinds*))
+(assert-eq "with no host decoder for it, a setup that is not avcC, no codec" :nil
+	(mp4-codec (mp4-reel (string-stream (m4-file :nil :nil)))))

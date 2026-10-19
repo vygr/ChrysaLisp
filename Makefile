@@ -75,7 +75,7 @@ OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
 OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
 
 SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/net.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
-SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/audio_alsa.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c
+SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/audio_alsa.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c src/host/video.cpp
 
 OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
 OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_DRIVERS))
@@ -196,6 +196,11 @@ snapshot:
 
 inst:
 	@./run_tui.sh -n 0 -i -e -f
+
+#the decoders of films, video.cpp, are the system's own on macOS
+ifeq ($(OS),Darwin)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT): LDFLAGS += -framework VideoToolbox -framework CoreMedia -framework CoreVideo -framework CoreFoundation
+endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(GUI_DRIVER)
 	$(CXX) -o $@ $(filter %.o,$^) $(SDL_LIBS) $(LDFLAGS)

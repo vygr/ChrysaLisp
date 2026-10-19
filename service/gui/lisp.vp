@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "gui/view/class.inc")
 (include "gui/region/class.inc")
+(include "gui/pixmap/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
@@ -382,5 +383,112 @@
 	(assign (vpx old_stack) '(:rsp))
 	(pop-scope-syms)
 	(return)
+
+(def-func-end)
+
+(def-method :host_gui :lisp_video)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(gui-video op handle data n) -> num, the decoder of films of the host,
+	;src/host/video.cpp, called on the stack of the host
+	;op 0, open: handle the codec, its 4 letters as a num, data its setup,
+	;	gives the decoder, 0 if the host has none for it or no GUI
+	;op 1, decode: data a packet, n when it is shown, gives 0, -1 if not
+	;op 2, frame: data a pixmap, given the picture shown at n, gives n, -1
+	;	if that is not out yet
+	;op 3, close: the decoder gone, data any, gives 0
+
+	(structure local 0
+		(ptr this args data)
+		(long op handle len n w h stride out))
+
+	(entry :host_gui :lisp_video '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-alloc local_size)
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :obj :num))
+(errorcase
+	;a frame is put in a pixmap, the rest are given a str
+	(vp-push :r0 :r1 :r2 :r3)
+	(vpif '(:r0 = 2))
+		(call :obj :inst_of `(:r2 (@ ,(f-path :pixmap :vtable))) '(_ :r4))
+	(else)
+		(call :obj :inst_of `(:r2 (@ ,(f-path :str :vtable))) '(_ :r4))
+	(endif)
+	(vp-pop :r0 :r1 :r2 :r3)
+	(gotoif '(:r4 = 0) 'error1))
+	(assign '(:r0 :r1 :r3) '((:rsp local_op) (:rsp local_handle) (:rsp local_n)))
+	(vpif '(:r0 = 2))
+		(assign '((:r2 +pixmap_data) (:r2 +pixmap_width ui) (:r2 +pixmap_height ui) (:r2 +pixmap_stride ui))
+			'(:r0 :r1 :r3 :r4))
+		(assign '(:r0 :r1 :r3 :r4) '((:rsp local_data) (:rsp local_w) (:rsp local_h) (:rsp local_stride)))
+	(else)
+		(assign '((:r2 +str_length ui) (& :r2 +str_data)) '(:r1 :r0))
+		(assign '(:r0 :r1) '((:rsp local_data) (:rsp local_len)))
+	(endif)
+	(vp-cpy-cr -1 :r0)
+	(assign '(:r0) '((:rsp local_out)))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_load_host_gui_funcs)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
+	(endif)
+	(assign '((:rsp local_out) (:rsp local_op)) '(:r0 :r1))
+	(vpif '(:r1 = 0))
+		;no decoder is 0
+		(vpif '(:r0 < 0))
+			(vp-xor-rr :r0 :r0)
+		(endif)
+	(endif)
+	(call :num :create '(:r0) '(:r1))
+
+	(exit :host_gui :lisp_video '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-cpy-rr :rsp :r1)
+	(vp-alloc 16)
+	(vp-and-cr -16 :rsp)
+	(assign '(:r0 :r1) '((:rsp 0) (:rsp 8)))
+	(assign '((:r0 local_op)) '(:r1))
+	(vpif '(:r1 = 0))
+		(host-gui-call :host_gui :video_open '((:r0 local_handle) (:r0 local_data) (:r0 local_len)) '(:r0))
+	(elseif '(:r1 = 1))
+		(host-gui-call :host_gui :video_decode
+			'((:r0 local_handle) (:r0 local_data) (:r0 local_len) (:r0 local_n)) '(:r0))
+	(elseif '(:r1 = 2))
+		(host-gui-call :host_gui :video_frame
+			'((:r0 local_handle) (:r0 local_data) (:r0 local_w) (:r0 local_h) (:r0 local_stride) (:r0 local_n))
+			'(:r0))
+	(else)
+		(host-gui-call :host_gui :video_close '((:r0 local_handle)))
+		(vp-xor-rr :r0 :r0)
+	(endif)
+	(assign '((:rsp 0)) '(:r1))
+	(assign '(:r0) '((:r1 local_out)))
+	(assign '((:rsp 8)) '(:rsp))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error1)
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
+	(vp-free local_size)
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(gui-video op handle data n)" +error_msg_wrong_types))
+	(signature '(:NUM :NUM :obj :NUM)))
 
 (def-func-end)

@@ -6,18 +6,28 @@
 ; one, give a packet of it, and make and use its codec. (reel-open)
 ; gives the reel, its :frames, :rate in frames a second, :width and
 ; :height. (reel-packet) gives packet n. (reel-codec) makes what puts
-; frames on a canvas of its own, (reel-decode codec packet n) puts one
-; there and gives the canvas. Packet 0 is a whole frame; a player that
-; goes back, or round again, starts from it. lib/media/flm.inc is a kind.
+; frames on a canvas of its own, (reel-frame codec n) puts frame n there
+; and gives the canvas, (reel-close codec) lets go of what it holds.
+; Frames are counted in the order they are shown, packets in the order
+; they are decoded, and with B-frames those differ: the codec reads the
+; packets it needs, from a key where it must, so a player only says
+; which frame. lib/media/flm.inc and lib/media/mp4.inc are kinds.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *reel_kinds* (list))
 
-(defun reel-kind (ext open packet codec decode)
-	; (reel-kind ext open packet codec decode)
+(defun reel-kind (ext open packet codec frame &optional close)
+	; (reel-kind ext open packet codec frame [close])
 	;files whose names end ext are reels: (open stream) -> :nil | reel,
-	;(packet reel n), (codec reel), (decode codec packet n)
-	(push *reel_kinds* (list ext open packet codec decode)))
+	;(packet reel n), (codec reel), (frame codec n), (close codec). The
+	;kinds are of the shared root of a GUI's node, gui/canvas/lisp.inc
+	;imports them, and one of a name already there is replaced: a kind
+	;added by a task would hold that task's functions, and so the task,
+	;after it had gone
+	(defq kind (list ext open packet codec frame close))
+	(if (defq i (some (# (if (eql (first %0) ext) (!))) *reel_kinds*))
+		(elem-set *reel_kinds* i kind)
+		(push *reel_kinds* kind)))
 
 (defun reel-open (file)
 	; (reel-open file) -> :nil | reel
@@ -38,6 +48,12 @@
 		(. codec :insert :kind (. reel :find :kind))
 		codec))
 
-(defun reel-decode (codec packet n)
-	; (reel-decode codec packet n) -> :nil | canvas
-	((elem-get (. codec :find :kind) 4) codec packet n))
+(defun reel-frame (codec n)
+	; (reel-frame codec n) -> :nil | canvas
+	;frame n, in the order they are shown, on the codec's canvas
+	((elem-get (. codec :find :kind) 4) codec n))
+
+(defun reel-close (codec)
+	; (reel-close codec) -> :nil
+	;let go of what the codec holds that is not in Lisp, a host decoder
+	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))

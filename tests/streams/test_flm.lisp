@@ -3,7 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/media/flm.inc")
 
-(defun flm-frame (n)
+(defun flm-made (n)
 	;a small frame, a box that moves and changes colour with its number
 	(defq canvas (Canvas 48 32 1))
 	(.-> canvas (:fill 0xff203040)
@@ -27,8 +27,8 @@
 (each (lambda (format)
 	;six frames pumped in, the film comes out of the stream
 	(defq out (memory-stream) film (flm-open out format 25)
-		want (map (# (flm-pixels (flm-frame %0))) (range 0 6)))
-	(each (# (flm-add film (flm-frame %0))) (range 0 6))
+		want (map (# (flm-pixels (flm-made %0))) (range 0 6)))
+	(each (# (flm-add film (flm-made %0))) (range 0 6))
 	(assert-eq (cat "frames written, " (str format) " bit") 6 (flm-close film))
 	;a reel of it, a packet a frame and the rate it was made at
 	(defq reel (flm-reel out))
@@ -45,6 +45,10 @@
 	(assert-eq "back to the first, it is the first again" (first want)
 		(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
 	(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))
+	;as a player has it, a frame by its number, on and back and on
+	(defq codec (flm-codec reel))
+	(assert-list-eq "frames by number, as a player asks" (map (# (elem-get want %0)) '(0 1 4 2 2 5 0))
+		(map (# (flm-pixels (flm-frame codec %0))) '(0 1 4 2 2 5 0)))
 	;the same film as an older version was: no packets, version 2. It is
 	;made this version again, and plays the same
 	(stream-seek out 0 0)

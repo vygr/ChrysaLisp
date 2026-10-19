@@ -277,6 +277,8 @@ uint64_t host_gui_tris_draw(void *texture, const void *frame, uint64_t size)
 // copy what was last drawn, a rectangle of the back buffer, into a buffer,
 // 32 bit argb, opaque
 
+#include "video.h"
+
 uint64_t host_gui_read_screen(uint32_t *data, int64_t x, int64_t y, uint64_t w, uint64_t h, uint64_t stride)
 {
 	if (!renderer || !backbuffer) return 0;
@@ -323,6 +325,10 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_pair_create,
 	(void*)host_gui_tris_draw,
 	(void*)host_gui_read_screen,
+	(void*)host_video_open,
+	(void*)host_video_decode,
+	(void*)host_video_frame,
+	(void*)host_video_close,
 };
 
 #endif
