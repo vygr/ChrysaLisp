@@ -22,8 +22,8 @@
             and not whoever last signed on to each machine.
         -g --gui: each session is a desktop, its GUI up before the
             command is run, on the machine's own screen.
-        -v --verbose: every line each session said, not only those
-            of how the tests went.
+        -v --verbose: every line each session says, as it says
+            it, not only those of how the tests went.
 
     Run a command line on every machine of the mesh. Each machine that
     takes a sync, sync -a, is first made the same as this one. Then each,
@@ -54,4 +54,7 @@
 		(if (<= (length args) 1)
 			(print "A command line to run is needed, rack -h.")
 			(each (const print) (rack-run (join (rest args) " ")
-				opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g opt_v (split opt_x ",") (if opt_o (split opt_o ",")))))))
+				opt_b (split opt_l ",") (split opt_d ":") opt_u :nil opt_g :nil (split opt_x ",") (if opt_o (split opt_o ","))
+				;-v, what each session says as it says it, so one that hangs
+				;shows where
+				(if opt_v (lambda (text) (prin text) (stream-flush (io-stream 'stdout)))))))))

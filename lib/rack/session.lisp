@@ -1,13 +1,18 @@
 ;a session of a rack run, started by a node of this machine with
 ;(pii-spawn), so on the boot image as it is on disk now. It sizes itself
-;to the machine, runs each command line it was left, leaves what they said,
-;and then stops every node it started and goes. No launch script watches
-;over it, so it clears up after itself: each node it started is sent a task
-;that exits it, and the files of its links are removed, and the notes and
-;links of whatever those nodes started in turn.
+;to the machine, runs each command line it was left, leaves what they said
+;as they say it, and then stops every node it started and goes. No launch
+;script watches over it, so it clears up after itself, (rack-session-clear).
+;And if what waits for it has gone it stops in the middle, ./watch.lisp.
 (import "./rack.inc")
 ;the node that started it gave the run a name, its files end with it
-(defq out (list) me (task-nodeid) t0 (pii-time) run (ifn (get '*rack_run*) ""))
+(defq me (task-nodeid) t0 (pii-time) run (ifn (get '*rack_run*) "")
+	out (file-stream (cat +rack_out run) +file_open_write))
+(defun said (text)
+	;what was said, there as it comes, for what waits to pass on
+	(write-blk out text)
+	(stream-flush out))
+(mail-send (open-child "lib/rack/watch.lisp" +kn_call_pin) run)
 (catch (progn
 		(node-auto)
 		;a desktop: the GUI on this node, the host's, as run.sh -f has it,
@@ -19,30 +24,11 @@
 				(task-sleep 100000)))
 		(each (lambda (cmdline)
 			(when (nempty? cmdline)
-				(pipe-run cmdline (# (push out %0)))))
+				(pipe-run cmdline (const said))))
 			(split (ifn (load (cat +rack_cmds run)) "") (ascii-char 10))))
-	(progn (push out (cat "SESSION ERROR " (str _) (ascii-char 10))) :t))
-(push out (cat "[" (str (/ (- (pii-time) t0) 1000000)) "s]" (ascii-char 10)))
-(each (lambda (node) (unless (eql node me) (open-task "(pii-exit)" node +kn_call_pin 0 (mail-mbox)))) (lisp-nodes :t))
-;its note, and the note of every node it names, and of those they name: a
-;node of this session that started nodes of its own left one, a test that
-;starts a node which starts six more, and nothing else clears it away.
-;The files of the links they name go with them. A list of those still to
-;look at, this does not call itself
-(defq todo (list (pii-pid)) seen (list))
-(while (defq pid (pop todo))
-	(unless (find pid seen)
-		(push seen pid)
-		(defq file (cat "/tmp/chrysalisp_" (str pid) ".session"))
-		(when (defq text (load file))
-			(each (lambda (line)
-				(defq parts (split line " "))
-				(cond
-					((< (length parts) 2))
-					((eql (first parts) "link") (pii-remove (cat "/tmp/" (second parts))))
-					((find (first parts) '("pid" "front")) (push todo (str-as-num (second parts))))))
-				(split text (ascii-char 10)))
-			(pii-remove file))))
+	(progn (said (cat "SESSION ERROR " (str _) (ascii-char 10))) :t))
+(rack-session-clear)
 (task-sleep 200000)
-(save (apply (const cat) (cat (list "") out)) (cat +rack_out run))
+;the last line, how long it took, is what says it is all there
+(said (cat "[" (str (/ (- (pii-time) t0) 1000000)) "s]" (ascii-char 10)))
 (pii-exit)

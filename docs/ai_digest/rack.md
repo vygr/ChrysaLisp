@@ -32,6 +32,12 @@ for the other machines, `link -l 3333 -a` and `link -a`, and takes a sync,
 ./rack.sh run 'rack "tests -a"'
 ```
 
+`rack -v` gives what each session says as it says it, so a run that hangs
+shows where. A session's asker, the node that waits for it, writes the time
+each second, and if that stops, the asker stopped by hand or gone, the
+session stops itself, `lib/rack/watch.lisp`: its nodes, a hidden desktop
+too, and its files.
+
 `run` is the way in from a shell. The command line is left in a file, the
 member runs it as a terminal would, and what it said comes back. Any
 command, `./rack.sh run sync` lists who takes a sync.
