@@ -10,7 +10,7 @@
 ;none. The key command does the same, key -h.
 
 (enums +select 0
-	(enum main picker timer))
+	(enum main picker tip))
 
 (enums +event 0
 	(enum close)
@@ -124,6 +124,7 @@
 	(defq id :t select (task-mboxes +select_size)
 		*select* select *names* (list) *chosen* (keys-in-use)
 		*picker* :nil *picker_save* :nil *take_name* :nil *give_name* :nil)
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(rows)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -148,6 +149,10 @@
 						(rows)
 						(unless (eql said now) (say now) (layout)))
 					((. *window* :event msg))))
+			(+select_tip
+				;what a button is for
+				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
+					(. view :show_tip)))
 			(+select_picker
 				;the file chosen, or "" closed
 				(mail-send *picker* "")
