@@ -37,8 +37,11 @@
 	(task-sleep 100000))
 (assert-true "its node is seen over the connection, and runs a task" tl_new)
 (when tl_new
+	;a link whose other end is not yet known has a peer of nothing, all 0,
+	;which (str-alloc) is not: it does not clear what it gives
+	(defq tl_none (apply (const cat) (map (lambda (_) (char 0 +long_size)) (range 0 (/ +node_id_size +long_size)))))
 	(assert-true "this node has a link whose other end is that node, or one on the way to it"
-		(some (# (nql (getf %0 +link_peer_node) (const (str-alloc +node_id_size)))) (net-links)))
+		(some (# (nql (getf %0 +link_peer_node) tl_none)) (net-links)))
 	;mail too big for one packet, there and back, and it is what was sent.
 	;A mailbox of its own, an answer to the search above may yet come late
 	(defq tl_big (apply (const cat) (map (# (str %0 " ")) (range 0 30000))) tl_echo (mail-mbox))
