@@ -30,13 +30,29 @@ docs/diagrams/test_cache.cwb
   of a file.
 * Every command any of them runs, `cmd/<name>.lisp`, where a string starts
   with the name of a command, or has one after a `|`.
-* And under every module, the boot image, the host programs, the Lisp every
-  task starts with, `class/lisp/root.inc` and `class/lisp/task.inc`, and the
-  suite itself, `tests/suite.inc` and `cmd/tests.lisp`, with all they
-  import.
+* The native functions it calls: a line with an `ffi` on it stands on the
+  function it names, `lib/crypto/lisp.vp#aes_ctr_xor`, the block of that
+  `def-func` and the head of its file, its includes and what is set up before
+  the first function. Not the rest of the file: a change to AES is not a
+  change to SHA-256.
+* And under every module, the core's native code by its source, the `.vp`
+  of `sys/`, `class/`, `gui/` and `service/` and all they include, and what
+  builds it, `lib/asm`, `lib/trans` and `lib/boot`; the host programs; the
+  Lisp every task starts with, `class/lisp/root.inc` and
+  `class/lisp/task.inc`; and the suite itself, `tests/suite.inc` and
+  `cmd/tests.lisp`, with all they import.
 
-The native code of a library, a `lisp.vp`, is in the boot image, so a change
-to VP is a change to what is under everything, once it is built.
+The native code of a library or an app is in the boot image too, but only
+what calls it stands on it. A change to the core's VP is a change to what is
+under everything; a change to a library's or an app's is not. A
+change to the AES block of `lib/crypto/lisp.vp` runs `test_gcm` and
+`test_tls`, and `test_suite_cache`, which reads that file, of 177.
+
+It is the source that is hashed, not the boot image, so a change that is
+not yet built is tested on the native code that is: build first, as `-b`
+and the VP gate do. And the rules of what a file names have a version in
+the cache, `+test_scan_version`: when the rules change, what a file was
+said to name before is read again.
 
 What a file names is found by reading it, not by running it, and it can name
 too much, a word in a string that happens to be a path. That costs a run

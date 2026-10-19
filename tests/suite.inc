@@ -172,17 +172,75 @@
 	;the first 16 bytes, as hex
 	(apply (const cat) (map! (# (byte-to-hex-str (code %0))) (list bytes) 0 16)))
 
+(defun test-vp-of (folder)
+	; (test-vp-of folder) -> paths
+	;the .vp files of a folder, not of those in it
+	(defq out (list))
+	(and (nempty? folder) (/= (age folder) 0)
+		(each! (lambda (name type)
+				(and (eql type "8") (ends-with ".vp" name) (push out (cat folder "/" name))))
+			(unzip (split (pii-dirlist folder) ",") 2)))
+	out)
+
+(defun test-def-func? (line fname)
+	; (test-def-func? line fname) -> :t | :nil
+	;is this the line a native function of that name starts on
+	(and (starts-with "(def-func " line) (ends-with (cat "/" fname (ascii-char 34) "))") line)))
+
+(defun test-natives (file line)
+	; (test-natives file line) -> paths
+	;the native code a line with an ffi on it calls, each function named
+	;as file#name: the .vp file of the file's own folder, or of the folder a
+	;path on the line is in, that makes a function of the name the path
+	;ends with. Native code that is not the core's, a library's or an
+	;app's, is in the boot image, but only what calls a function of it
+	;stands on it, and on that function, not the rest of its file
+	(defq out (list))
+	(each (lambda (piece)
+			(each (lambda (word)
+					(when (and (find "/" word) (= (age word) 0))
+						;(rfind) gives the place after the slash
+						(defq at (ifn (rfind "/" word) 1) fname (slice word at -1)
+							folder (if (starts-with "./" word)
+								(slice file 0 (max 0 (dec (ifn (rfind "/" file) 1))))
+								(slice word 0 (dec at))))
+						(each (lambda (vp)
+								(and (some (# (test-def-func? %0 fname)) (split (ifn (load vp) "") (ascii-char 10)))
+									(not (find (defq name (cat vp "#" fname)) out))
+									(push out name)))
+							(test-vp-of folder))))
+				(split piece " ()")))
+		(split line (const (cat (ascii-char 34) "{}"))))
+	out)
+
+(defun test-native-text (vp fname)
+	; (test-native-text vp fname) -> str
+	;what a native function is made of: its file's head, the includes and
+	;what is set up before the first function, and its own block
+	(defq head (list) block (list) in :nil started :nil)
+	(each (lambda (line)
+			(cond
+				(in (push block line) (if (starts-with "(def-func-end)" line) (setq in :nil)))
+				((starts-with "(def-func " line)
+					(setq started :t)
+					(when (test-def-func? line fname) (setq in :t) (push block line)))
+				((not started) (push head line))))
+		(split (ifn (load vp) "") (ascii-char 10)))
+	(join (cat head block) (ascii-char 10)))
+
 (defun test-file-scan (file text)
 	; (test-file-scan file text) -> paths
 	;the files a Lisp file names. What it imports or includes. Any word
-	;of a line with a string on it that is the path of a file. And the
-	;command a string starts with, or has after a |. It can name too
-	;much, which costs a run that was not needed, and that is the safe
-	;way to be wrong.
+	;of a line with a string on it that is the path of a file. The native
+	;code of a line with an ffi on it. And the command a string starts
+	;with, or has after a |. It can name too much, which costs a run that
+	;was not needed, and that is the safe way to be wrong.
 	(unless *test_cmds*
 		(setq *test_cmds* (map (# (slice %0 4 -6)) (files-all "cmd" '(".lisp")))))
 	(defq names (list))
 	(each (lambda (line)
+		(if (find "ffi" (split line " ()"))
+			(each (# (unless (find %0 names) (push names %0))) (test-natives file line)))
 		(when (or (find (ascii-char 34) line) (find "{" line))
 			(defq pieces (split line (const (cat (ascii-char 34) "{}"))))
 			(each (lambda (piece)
@@ -207,20 +265,27 @@
 	names)
 
 ;a file that is named and is longer than this is not read
-(defq +test_file_most 16777216)
+(defq +test_file_most 16777216
+	;the rules of what a file names, (test-file-scan): when they change,
+	;what a cache made by others says a file names is not kept
+	+test_scan_version "2")
 
 (defun test-file-info (file)
 	; (test-file-info file) -> (age hash names)
 	;what is known of a file. It is read only if it has changed since it
 	;was last looked at
-	(defq info (. *test_files* :find file) now (age file))
+	;a native function, file#name, is its file's age and its own block
+	(defq hash_at (find "#" file) real (if hash_at (slice file 0 hash_at) file)
+		info (. *test_files* :find file) now (age real))
 	(unless (and info (= (first info) now))
 		;not all of a file that is very big, a film, a store: it is taken as
 		;its time and its length. A test that named this machine's store, 4GB
 		;of it, asked for that much memory and the run stopped
-		(defq stat (pii-fstat file) size (if stat (second stat) 0)
-			text (if (> size +test_file_most)
-				(cat (str now) " " (str size)) (ifn (load file) "")))
+		(defq stat (pii-fstat real) size (if stat (second stat) 0)
+			text (cond
+				(hash_at (test-native-text real (slice file (inc hash_at) -1)))
+				((> size +test_file_most) (cat (str now) " " (str size)))
+				((ifn (load file) ""))))
 		(. *test_files* :insert file (setq info (list now (test-hex (sha256 text))
 			(if (or (ends-with ".lisp" file) (ends-with ".inc" file))
 				(test-file-scan file text) (list))))))
@@ -240,13 +305,44 @@
 	;the names and the hashes of files, one after another
 	(apply (const cat) (map (# (cat %0 (second (test-file-info %0)))) files)))
 
+(defun test-core ()
+	; (test-core) -> paths
+	;the native code under everything, the core's: the .vp of sys/, class/,
+	;gui/ and service/ and all they include, and what builds it, the
+	;assembler, the translators and what makes the boot image. The native
+	;code of a library or an app is not here: only what calls it stands on
+	;it, (test-natives)
+	;only what they include, as the native code is built: a service names
+	;the Lisp of a library, and that is its Lisp's to stand on, not the core
+	(defq files (cat
+		(filter (# (some (lambda (top) (starts-with top %0)) '("sys/" "class/" "gui/" "service/")))
+			(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0)) (files-all "." '(".vp"))))
+		(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0))
+			(cat (files-all "lib/asm" '(".inc" ".lisp")) (files-all "lib/trans" '(".inc" ".lisp")) (files-all "lib/boot" '(".inc" ".lisp")))))
+		at 0)
+	(while (< at (length files))
+		(defq file (elem-get files at))
+		(each (lambda (line)
+				(when (find (ascii-char 34) line)
+					(defq pieces (split line (const (ascii-char 34))))
+					(each! (lambda (piece)
+							(when (ends-with "(include " (elem-get pieces (dec (!))))
+								(defq name (catch (path-to-absolute piece file) :nil))
+								(and name (/= (age name) 0) (not (find name files)) (push files name))))
+						(list pieces) 1)))
+			(split (ifn (load file) "") (ascii-char 10)))
+		(setq at (inc at)))
+	(sort files))
+
 (defun test-base ()
 	; (test-base) -> str
-	;what every module stands on, the boot image, the host programs, the
-	;Lisp every task starts with, and the suite itself with all that it
-	;imports, which a module can call
+	;what every module stands on: the core's native code by its source, the
+	;host programs, the Lisp every task starts with, and the suite itself
+	;with all that it imports, which a module can call. Not the boot image
+	;as a whole: a library's native code is in it too, and a change to that
+	;is a change to what calls it, not to everything
 	(test-hash-of (cat
-		(list (cat (load-path) "sys/boot_image"))
+		(test-core)
 		(sort (files-all (slice (load-path) 0 -2) '("main_gui" "main_tui" "main_gui.exe" "main_tui.exe")))
 		(test-stands-on (list "class/lisp/root.inc" "class/lisp/task.inc" "tests/suite.inc" "cmd/tests.lisp")))))
 
@@ -259,23 +355,25 @@
 	; (test-cache-load) -> fmap
 	;what was kept, of the files to *test_files*, and of the modules as a
 	;map of (key passes failures skips)
-	(defq kept (Fmap 31) tab (ascii-char 9))
+	(defq kept (Fmap 31) tab (ascii-char 9)
+		lines (split (ifn (load (test-cache-path)) "") (ascii-char 10))
+		scans (some (# (if (starts-with (cat "V" tab) %0) (eql (slice %0 2 -1) +test_scan_version))) lines))
 	(each (lambda (line)
 		(defq fields (split line tab))
 		(cond
-			((and (eql (first fields) "F") (>= (length fields) 4))
+			((and scans (eql (first fields) "F") (>= (length fields) 4))
 				(. *test_files* :insert (second fields) (list (str-as-num (third fields))
 					(elem-get fields 3) (if (> (length fields) 4) (split (elem-get fields 4) " ") (list)))))
 			((and (eql (first fields) "M") (= (length fields) 6))
 				;the key, then the three counts, into the one list
 				(. kept :insert (second fields)
 					(map! (const str-as-num) (list fields) 3 6 (list (third fields)))))))
-		(split (ifn (load (test-cache-path)) "") (ascii-char 10)))
+		lines)
 	kept)
 
 (defun test-cache-save (kept)
 	; (test-cache-save kept)
-	(defq lines (list) tab (ascii-char 9))
+	(defq lines (list (cat "V" (ascii-char 9) +test_scan_version)) tab (ascii-char 9))
 	;a file or a module that is gone is not kept
 	(. *test_files* :each (lambda (file (mtime hash names))
 		(if (/= mtime 0)

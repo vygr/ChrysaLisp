@@ -22,7 +22,16 @@
 (assert-eq "three things known of a file" 3 (length sc_info))
 (assert-eq "when it was changed" (age "lib/crypto/poly1305.inc") (first sc_info))
 (assert-eq "a hash of 32 hex digits" 32 (length (second sc_info)))
-(assert-true "it has no imports, it names nothing" (empty? (third sc_info)))
+(assert-list-eq "it has no imports, it names only the native function it calls"
+	'("lib/crypto/lisp.vp#poly1305_blocks") (third sc_info))
+;the native code under everything is the core's, a library's is only under
+;what calls it, by the function: a change to AES is not a change to SHA-256
+(assert-true "no library's native code is under every module"
+	(notany (# (and (starts-with "lib/" %0) (ends-with ".vp" %0))) (test-core)))
+(defq sc_aes (split (test-native-text "lib/crypto/lisp.vp" "aes_ctr_xor") (ascii-char 10)))
+(assert-true "a native function is its own block, and not the others of its file"
+	(and (some (# (test-def-func? %0 "aes_ctr_xor")) sc_aes)
+		(notany (# (test-def-func? %0 "sha256_blocks")) sc_aes)))
 (assert-eq "a file that is not Lisp names nothing" 0
 	(length (third (test-file-info "lib/gpu/shaders/raymarch.shader"))))
 (assert-eq "a file that is not there has an age of 0" 0 (first (test-file-info "lib/no/such/file.inc")))
