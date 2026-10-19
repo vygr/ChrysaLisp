@@ -36,7 +36,7 @@ LDFLAGS := $(MINGW_LDFLAGS)
 include Makefile
 
 # Target-specific variables to append necessary flags for Windows binaries
-obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe: LDFLAGS += -mwindows
+obj/$(CPU)/$(ABI)/$(OS)/main_gui.exe: LDFLAGS += -mwindows -lmfuuid -lole32
 obj/$(CPU)/$(ABI)/$(OS)/main_tui.exe: LDFLAGS += -lwinmm
 
 win_dirs:

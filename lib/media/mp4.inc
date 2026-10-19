@@ -316,9 +316,14 @@
 	;a picture is out a few packets after its own at most, if it is not by
 	;then it will not be, its packet would not decode
 	(defq last (min frames (+ packet 32)))
-	(while (and (< (native 2 (. codec :find :handle) pixmap shown) 0) (< fed last))
+	(defq got -1)
+	(while (and (< (setq got (native 2 (. codec :find :handle) pixmap shown)) 0) (< fed last))
 		(native 1 (. codec :find :handle) (mp4-packet reel fed) (elem-get (. reel :find :shown) fed))
 		(setq fed (inc fed)))
+	;past the last packet: the end said, a decoder in hardware holds the
+	;last pictures back till it is
+	(and (< got 0) (= fed frames)
+		(progn (native 1 (. codec :find :handle) "" 0) (native 2 (. codec :find :handle) pixmap shown)))
 	(scatter codec :fed fed :at n))
 
 (defun mp4-frame (codec n)
