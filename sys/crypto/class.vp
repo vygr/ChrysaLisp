@@ -151,7 +151,7 @@
 	;:r0 = key, 32 bytes, its first half r (ptr)
 	;:r1 = state, +poly1305_state_size bytes (ptr)
 	;trashes
-	;:r0-:r14
+	;:r2-:r9
 	;info
 	;a tag with nothing in it yet: h 0, r its bits cleared as RFC 8439 has
 	;it, as five numbers of 26 bits, and the top four of r times 5
@@ -258,7 +258,7 @@
 	;:r1 = s, the second half of the key, 16 bytes (ptr)
 	;:r2 = tag out, 16 bytes (ptr)
 	;trashes
-	;:r0-:r14
+	;:r3-:r14
 	;info
 	;the tag of all the blocks taken in: h mod the prime, and s added
 
