@@ -51,7 +51,9 @@
             members it went to.
         -M --members: who the members are, which are
             there now, and what and where each is. With
-            +id or -id as path, one is joined or retired.
+            +id as path, that one is joined.
+        -e --retire id: the member of that id retired, and
+            the members said, as -M does.
         -x --stop: stop the service.
         -z --resize megabytes: the store of this member put on
             a volume of that many MB, bigger, or smaller if what
@@ -115,6 +117,7 @@
 (("-k" "--copies") ,(opt-num 'opt_k))
 (("-q" "--query") ,(opt-str 'opt_q))
 (("-M" "--members") ,(opt-flag 'opt_M))
+(("-e" "--retire") ,(opt-str 'opt_e))
 (("-x" "--stop") ,(opt-flag 'opt_x))
 (("-z" "--resize") ,(opt-num 'opt_z))
 (("-l" "--list") ,(opt-flag 'opt_l))
@@ -197,7 +200,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_o :nil opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
+			(defq opt_o :nil opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_e :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_L :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
@@ -333,8 +336,12 @@
 					(back (print (first back))
 						(print "by way of " (join (map (# (cat (slice (first %0) 0 8) "@" (str (second %0)))) (second back)) " ")))
 					((print "It did not come back."))))
-			(opt_M
-				(if (or (starts-with "+" name) (starts-with "-" name)) (setq members (storage-members name svc)))
+			((or opt_M opt_e)
+				;a word of the command line that starts with - is an option, so
+				;one is retired by -e, joined by +id
+				(cond
+					(opt_e (setq members (storage-members (cat "-" (trim-start opt_e "-")) svc)))
+					((starts-with "+" name) (setq members (storage-members name svc))))
 				(print "Store:   " (. (storage-info svc) :find :id))
 				(store-say svc members))
 			(opt_w (print (storage-sweep svc) " blocks let go of."))
