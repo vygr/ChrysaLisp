@@ -80,9 +80,20 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
+	;the view is given back with the reference its parent had of it. One
+	;that is in no parent has none to give, it is given with one of its
+	;own, so that a :sub of a view that is out already does nothing: it was
+	;let go of one more time than it was held, a canvas and its texture
+	;freed twice
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
-	(call :view :sub '(:r0) '(:r1))
+	(assign '((:r0 +hmap_parent)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r0 :r1)
+		(class/obj/ref :r1 :r2)
+	(else)
+		(call :view :sub '(:r0) '(:r1))
+	(endif)
 	(vp-pop :r0)
 
 	(exit :view :lisp_sub '(:r0 :r1))

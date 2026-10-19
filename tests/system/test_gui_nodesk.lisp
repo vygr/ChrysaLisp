@@ -93,3 +93,16 @@
 (assert-eq "one that holds a view above it is a loop, by its key, and one in a list by the list and where in it"
 	(str (list (list :nil 1) (list :t :scroll)))
 	(str (sort (map (lambda ((v k)) (list (eql v nd_low) k)) (view-loops nd_top)) (lambda (a b) (cmp (str (second a)) (str (second b)))))))
+
+;a view taken out of its parent comes back with the reference the parent
+;had, and one taken out again, in no parent, does nothing: it is held as
+;many times after as before. It was let go of each time, and a canvas and
+;its texture were freed twice when a scroll took out a child its app had
+(defq nd_parent (View) nd_child (View))
+(. nd_parent :add_child nd_child)
+(defq nd_held (getf nd_child +obj_count 0))
+(. nd_child :sub)
+(assert-eq "taken out, held one less, by this alone" (dec nd_held) (getf nd_child +obj_count 0))
+(times 3 (. nd_child :sub))
+(assert-eq "and taken out again and again, held the same" (dec nd_held) (getf nd_child +obj_count 0))
+(undef (env) 'nd_parent 'nd_child 'nd_held)
