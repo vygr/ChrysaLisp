@@ -81,6 +81,24 @@ reaches them all.
 `status` says the branch followed and the commit. `down` ends following,
 and `up` with no `-f` starts a member that does not follow.
 
+## On Windows
+
+Windows builds no host programs, they come in `snapshot.zip`, so a change to
+`src/host` goes with a new snapshot: `make -f Makefile.mingw windows_all` and
+`make snapshot`, which writes `snapshot_host`, the hash of the host source
+the snapshot was made from. `tests/system/test_snapshot.lisp` fails while
+`src/host` is other than that.
+
+`rack.bat` runs `rack.ps1`, the member and its loop as `rack.sh` has them,
+`up`, `up -f`, `down`, `status` and `run`. Followed, an update is the commit
+from git, its `snapshot.zip` unpacked and the system built by the emulator,
+as `install.bat` does, with the same putting back of a commit that fails.
+Windows will not let a host program that is running be written, so while a
+desktop or other nodes are up the update waits, and the log says so. The
+member's files are in `\tmp` of the tree's drive. There is no herd on
+Windows, a Windows tree can not say it is at a waypoint, so it updates by
+following or by hand.
+
 As it starts, a member does the same for a boot image that is not of the
 tree it is on: the tree exactly at its waypoint, its image made from other
 source, by hand or by an install that did not finish. The build writes the

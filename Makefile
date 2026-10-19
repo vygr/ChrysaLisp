@@ -181,8 +181,14 @@ endif
 	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
 	@if [ "`cat $(GUI_DRIVER) 2>/dev/null`" != "$(OBJ_GUI)" ]; then echo $(OBJ_GUI) > $(GUI_DRIVER); rm -f obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT); fi
 
+#the snapshot carries the Windows host programs, which Windows does not
+#build. snapshot_host is the hash of the host source they were built from,
+#a line a file, its path and its sha256, and tests/system/test_snapshot.lisp
+#fails while src/host is other than that
 snapshot:
 	@rm -f snapshot.zip
+	@for f in `ls src/host | LC_ALL=C sort`; do echo "src/host/$$f `shasum -a 256 < src/host/$$f | cut -d' ' -f1`"; done \
+		| shasum -a 256 | cut -d' ' -f1 > snapshot_host
 	@zip -9q snapshot.zip \
 		obj/vp64/VP64/sys/boot_image \
 		`find obj -name "main_gui.exe"` \

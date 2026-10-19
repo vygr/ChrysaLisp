@@ -30,7 +30,7 @@
 (pipe-run "link -a" (const prin))
 (pipe-run "sync -a" (const prin))
 ;followed, the tree is at a commit of its branch, noted if it is clean
-(if (and (pii-fstat ".git") (pii-fstat "/tmp/chrysalisp_rack_follow"))
+(and (pii-fstat ".git") (pii-fstat "/tmp/chrysalisp_rack_follow")
 	(pipe-run "waypoint" (const prin)))
 (stream-flush (io-stream "stdout"))
 (defq at_start (first (sync-waypoint ".")) looked (pii-time)
