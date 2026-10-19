@@ -47,7 +47,9 @@
 (defq +disco_udp_port 3334 +beacon_interval 2000000
 	;where this machine listens for the others, and how long till it tries
 	;again for that port when another session of the machine has it
-	+mesh_tcp_port 3333 +mesh_retry 10000000)
+	+mesh_tcp_port 3333 +mesh_retry 10000000
+	;a desktop that asked another session for the port asks again this soon
+	+mesh_ask 1500000)
 
 (defun session-close (sessions handle)
 	(net-close handle)
@@ -55,6 +57,15 @@
 		(when (eql (get :type session) :stream)
 			(in-set-state (get :server_in session) +stream_mail_state_aborted)))
 	(. sessions :erase handle))
+
+(defun session-gui? ()
+	; (session-gui? ) -> :t | :nil
+	;is this session a desktop: a GUI on one of its own nodes. Another
+	;session of this machine is not linked to this one, so the nodes of this
+	;machine known here are this session's
+	(defq mine (lisp-nodes :t))
+	(some (# (find (slice (hex-decode (second (split %0 ","))) +long_size (+ +long_size +node_id_size)) mine))
+		(mail-enquire "@Gui,")))
 
 (defun net-start-link (key target)
 	; (net-start-link key target) -> :nil | net_id
@@ -105,6 +116,18 @@
 		my_build (boot-id)
 		my_sys_id (hex-encode (system-id))
 		my_inst_id (hex-encode (first (lisp-nodes))))
+	;what was made as this session joined, the listener, the beacon, the
+	;links, let go of: the key has changed, or a desktop of this machine
+	;asked for the port
+	(defun mesh-leave ()
+		(each (# (mail-send %0 "")) gates)
+		(when (> beacon_socket 0) (net-close beacon_socket))
+		(when (> disco_socket 0) (net-close disco_socket))
+		(if mesh_service (mail-forget mesh_service))
+		(when store_auto (mail-send store_auto "") (setq store_auto :nil))
+		(setq gates (list) beacon_socket 0 beacon_ports (Fset 7) disco_socket 0
+			mesh :nil mesh_service :nil mesh_peers (Fmap 31)
+			member :nil dropping *net_can_drop*))
 	(mail-timeout (elem-get select +select_timer) sleep_time 0)
 	(while running
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
@@ -225,14 +248,8 @@
 						;and with none it stays off the network till it has
 						(when (and own (/= (defq new_age (age +door_key_file)) key_age))
 							(setq key_age new_age net_key (door-key) active :t)
-							(each (# (mail-send %0 "")) gates)
-							(when (> beacon_socket 0) (net-close beacon_socket))
-							(when (> disco_socket 0) (net-close disco_socket))
-							(if mesh_service (mail-forget mesh_service))
-							(when store_auto (mail-send store_auto "") (setq store_auto :nil))
-							(setq gates (list) beacon_socket 0 beacon_ports (Fset 7) disco_socket 0
-								mesh :nil mesh_service :nil mesh_peers (Fmap 31)
-								member :nil dropping *net_can_drop* next_join 0))
+							(mesh-leave)
+							(setq next_join 0))
 						;a link is told it is closed till none is left to tell
 						(if dropping (setq dropping (/= (net-drop) 0) active :t))
 						;first come first served: the session that has the port
@@ -258,7 +275,16 @@
 											(setq mesh_service (mail-declare (task-mbox) "*Mesh" "Mesh 0.1")))
 										(if (= disco_socket 0) (setq disco_socket (net-udp-bind +disco_udp_port))))
 									(:t (mail-send gate "")
-										(setq next_join (+ now +mesh_retry)))))))
+										(cond
+											;another session of this machine has the port. A
+											;desktop asks it to step aside, one that is not a
+											;desktop gives way, and is asked again soon
+											((session-gui?)
+												(when (> (defq ask (net-udp-bind 0)) 0)
+													(net-udp-send ask "127.0.0.1" +disco_udp_port (cat "YIELD " my_inst_id))
+													(net-close ask))
+												(setq next_join (+ now +mesh_ask)))
+											((setq next_join (+ now +mesh_retry)))))))))
 					; Broadcast beacons if advertising
 					(and (> beacon_socket 0) (nempty? beacon_ports)
 						(when (> (- now last_beacon_time) +beacon_interval)
@@ -272,9 +298,16 @@
 					; Poll incoming beacons if auto-discovery active
 					(when (> disco_socket 0)
 						(defq pkt :nil)
-						(while (setq pkt (net-udp-recv disco_socket 256))
+						(while (and (> disco_socket 0) (setq pkt (net-udp-recv disco_socket 256)))
 							(setq active :t)
 							(defq data (first pkt) src_ip (second pkt))
+							;a desktop of this machine asks for the port: this session
+							;is not a desktop, it steps aside, and asks for the port
+							;again when it would have, the desktop has it till it goes
+							(when (and (starts-with "YIELD " data) (eql src_ip "127.0.0.1")
+									(nql (slice data 6 -1) my_inst_id) member (not (session-gui?)))
+								(mesh-leave)
+								(setq next_join (+ now +mesh_retry)))
 							(when (defq beacon (mesh-beacon-read data))
 								(bind '(tcp_port peer_sys_id peer_inst_id dials build) beacon)
 								;what is heard is noted, the links are made below.

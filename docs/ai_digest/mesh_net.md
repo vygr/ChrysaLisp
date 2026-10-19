@@ -76,6 +76,18 @@ Only one process can listen on a port, and that settles it: the first
 session to ask has port 3333, and is the machine's member. A session that
 finds it taken asks again every ten seconds.
 
+But a desktop comes first. A session with a GUI on one of its own nodes
+that finds the port taken sends `YIELD` and its instance to the holder, by
+UDP to 127.0.0.1 on port 3334, which the holder hears beacons on, and asks
+for the port again in a second and a half. A holder that is not a desktop,
+a member left up for `rack`, steps aside as it would for a new key: its
+listener, beacon and links let go of, its store stopped. It asks for the
+port every ten seconds as any other, and has it again once the desktop has
+gone. A holder that is a desktop does not step aside: of two desktops, the
+first keeps the port. Sessions of one machine are not linked to each
+other, the mesh knows a machine once, so the one that gives way is off the
+mesh while the desktop is up.
+
 A session started with `-a`, alone, does not ask at all. A run of the
 tests is one, and every session a `rack` run starts: or, with no member
 up, the tests would become the machine's member for as long as they ran,
