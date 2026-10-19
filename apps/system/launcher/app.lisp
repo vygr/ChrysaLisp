@@ -23,7 +23,7 @@
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
 				:apps '("terminal" "services" "debug" "profile" "netmon"
-					"netmap" "netspeed" "storage" "files" "themes" "logout"))
+					"netmap" "netspeed" "storage" "keys" "files" "themes" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
 				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "rosetta"))
 			'Tools (scatter (Emap) :collapsed :nil
@@ -56,6 +56,15 @@
 		(. name_to_path_map :insert app_name app_path)
 		(. categories :each (lambda (name cat_data)
 			(if (find app_name (. cat_data :find :apps)) (setq found :t))))
+		;one new since the layout was kept goes where the default has it, if
+		;that is there, else with the others no category has
+		(unless found
+			(defq home (some (lambda ((name cat_data))
+					(and (find app_name (. cat_data :find :apps)) (. categories :find name) name))
+				(. (. (config-default) :find :categories) :tolist)))
+			(when home
+				(. (. categories :find home) :update :apps (# (push %0 app_name)))
+				(setq found :t)))
 		(unless found
 			(. categories :update 'Generic (lambda (generic_cat)
 				(if generic_cat

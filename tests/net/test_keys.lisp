@@ -29,6 +29,15 @@
 (save (to-upper (load (keys-file "wan" ky_root))) "tests/scratch/key_given")
 (assert-eq "hex in another case is the same key" ky_print (keys-print (door-key "tests/scratch/key_given")))
 
+;one given as its words
+(assert-true "words given are taken" (keys-take-text "said" "  a phrase told me  " ky_root))
+(assert-eq "trimmed, the same key as the phrase" (door-key (keys-file "said" ky_root))
+	(progn (save "a phrase told me" "tests/scratch/key_said") (door-key "tests/scratch/key_said")))
+(pii-remove "tests/scratch/key_said")
+(assert-eq "nothing is no key, and leaves nothing" :nil (keys-take-text "blank" "   " ky_root))
+(assert-eq "no file of it" :nil (pii-fstat (keys-file "blank" ky_root)))
+(keys-remove "said" ky_root)
+
 ;one given, kept in use by hand, renamed, forgotten
 (assert-true "a key given is taken" (keys-take "given" "tests/scratch/key_given" ky_root))
 (save "  " "tests/scratch/key_given")

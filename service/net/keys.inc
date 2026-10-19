@@ -94,6 +94,16 @@
 		(keys-save (load file) (keys-file name root))
 		:t))
 
+(defun keys-take-text (name text &optional root)
+	; (keys-take-text name text [root]) -> :nil | :t
+	;a key given as its words, 64 hex digits or a passphrase, into the
+	;keyring. :nil if it is no key, or there is a key of that name
+	(unless (pii-fstat (keys-file name root))
+		(keys-save (cat (trim text (const (char-class " \t\r\n"))) (ascii-char 10)) (keys-file name root))
+		(cond
+			((door-key (keys-file name root)) :t)
+			(:t (pii-remove (keys-file name root)) :nil))))
+
 (defun keys-rename (old new &optional root)
 	; (keys-rename old new [root]) -> :nil | :t
 	(when (and (defq text (load (keys-file old root))) (not (pii-fstat (keys-file new root))))
