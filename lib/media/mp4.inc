@@ -21,7 +21,11 @@
 ; anywhere else it starts again from the key before it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "gui/canvas/lisp.inc")
 (import "./reel.inc")
+
+;module
+(env-push)
 
 (defun mp4-n (s at bytes)
 	;a number of so many bytes, high first
@@ -97,51 +101,34 @@
 	; (mp4-config str at end) -> ((name str) ...)
 	(map (lambda ((name body end)) (list name (slice s body end))) (mp4-boxes s at end)))
 
-(defun mp4-track (s trak &optional film_scale)
-	; (mp4-track str trak [film_scale]) -> track
-	;what a track is, its kind, codec, size or sound and setup, how many
-	;samples it has and where it begins
-	(defq track (scatter (Emap) :film_scale (ifn film_scale 0)) mdhd (mp4-in s trak '("mdia" "mdhd")) hdlr (mp4-in s trak '("mdia" "hdlr"))
-		stbl (mp4-in s trak '("mdia" "minf" "stbl")))
-	;its time, the units of a second it counts in
-	(defq v (code s 1 (second mdhd)))
-	(scatter track :kind (slice s (+ (second hdlr) 8) (+ (second hdlr) 12))
-		:timescale (mp4-n s (+ (second mdhd) (if (= v 1) 20 12)) 4)
-		:duration (mp4-n s (+ (second mdhd) (if (= v 1) 24 16)) (if (= v 1) 8 4)))
-	;the first sample entry, its codec, size or sound, and its setup
-	(when (defq stsd (mp4-in s stbl '("stsd")))
-		(defq entry (+ (second stsd) 8))
-		(. track :insert :codec (slice s (+ entry 4) (+ entry 8)))
-		(defq entry_end (+ entry (mp4-n s entry 4)))
-		(cond
-			((eql (. track :find :kind) "vide")
-				(scatter track :width (mp4-n s (+ entry 32) 2) :height (mp4-n s (+ entry 34) 2)
-					:config (mp4-config s (+ entry 86) entry_end)))
-			((eql (. track :find :kind) "soun")
-				;a sound entry of QuickTime's has a version: 0 as ISO's is, 1 is
-				;16 bytes longer, 2 has the rate as a float of 8 bytes and the
-				;channels as 4, and is 72 long before its boxes
-				(case (mp4-n s (+ entry 16) 2)
-					(2 (scatter track :channels (mp4-n s (+ entry 48) 4) :bits (mp4-n s (+ entry 56) 4)
-						:sample_rate (mp4-f64 s (+ entry 40))
-						:config (mp4-config s (+ entry 72) entry_end)))
-					(:t (scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
-						:sample_rate (mp4-n s (+ entry 32) 2)
-						:config (mp4-config s (+ entry (if (= (mp4-n s (+ entry 16) 2) 1) 52 36)) entry_end)))))))
-	;how many samples, and the tables of them now if it is the video's,
-	;else when they are asked for, (mp4-tables): those of the sound of a
-	;film of two hours are half a second
-	(defq stsz (mp4-in s stbl '("stsz")))
-	(scatter track :samples (if stsz (mp4-n s (+ (second stsz) 8) 4) 0) :moov s :stbl stbl)
-	(if (eql (. track :find :kind) "vide") (mp4-tables track))
-	(mp4-edits s trak track))
-
-(defun mp4-tables (track)
-	; (mp4-tables track) -> track
-	;the tables of a track's samples, if they have not been read yet: where
-	;each sample is in the file, how long, when it is decoded and shown,
-	;and which are keys
-	(unless (. track :find :sizes) (mp4-tables-read track (. track :find :moov) (. track :find :stbl)))
+(defun mp4-edits (s trak track)
+	; (mp4-edits str trak track) -> track
+	;where the track begins, by its edit list, edts elst: :start the time,
+	;of its own, that is shown first, and :delay how long, of its own time,
+	;nothing of it is shown before that, an edit of no media first. What a
+	;sample is shown at, of the film's time, is its shown less start, and
+	;delay more. Each edit is its length, in the film's time, mvhd's, the
+	;time of the track it starts at, -1 for none, and a rate. Only the
+	;first edit with media is taken, as a player of a film from start to
+	;end has it
+	(scatter track :start 0 :delay 0)
+	(when (defq elst (mp4-in s trak '("edts" "elst")))
+		(defq at (second elst) wide (if (= (code s 1 at) 1) 8 4)
+			count (mp4-n s (+ at 4) 4) delay 0 found :nil)
+		(setq at (+ at 8))
+		(while (and (> count 0) (not found))
+			(defq span (mp4-n s at wide) start (mp4-n s (+ at wide) wide))
+			;signed, -1 an edit of no media; 8 bytes are a num as they are
+			(and (= wide 4) (>= start 0x80000000) (setq start (- start 0x100000000)))
+			(if (< start 0)
+				(setq delay (+ delay span))
+				(setq found :t))
+			(setq at (+ at wide wide 4) count (dec count)))
+		(when found
+			;the length of the empty edits, of the film's time to the track's
+			(defq film (. track :find :film_scale))
+			(scatter track :start start
+				:delay (if (> film 0) (/ (* delay (. track :find :timescale)) film) 0))))
 	track)
 
 (defun mp4-tables-read (track s stbl)
@@ -195,35 +182,52 @@
 			(mp4-table s ctts 0 2)))
 	(scatter track :sizes sizes :offsets offsets :times when_at :shown shown :keys keys :samples (length sizes)))
 
-(defun mp4-edits (s trak track)
-	; (mp4-edits str trak track) -> track
-	;where the track begins, by its edit list, edts elst: :start the time,
-	;of its own, that is shown first, and :delay how long, of its own time,
-	;nothing of it is shown before that, an edit of no media first. What a
-	;sample is shown at, of the film's time, is its shown less start, and
-	;delay more. Each edit is its length, in the film's time, mvhd's, the
-	;time of the track it starts at, -1 for none, and a rate. Only the
-	;first edit with media is taken, as a player of a film from start to
-	;end has it
-	(scatter track :start 0 :delay 0)
-	(when (defq elst (mp4-in s trak '("edts" "elst")))
-		(defq at (second elst) wide (if (= (code s 1 at) 1) 8 4)
-			count (mp4-n s (+ at 4) 4) delay 0 found :nil)
-		(setq at (+ at 8))
-		(while (and (> count 0) (not found))
-			(defq span (mp4-n s at wide) start (mp4-n s (+ at wide) wide))
-			;signed, -1 an edit of no media; 8 bytes are a num as they are
-			(and (= wide 4) (>= start 0x80000000) (setq start (- start 0x100000000)))
-			(if (< start 0)
-				(setq delay (+ delay span))
-				(setq found :t))
-			(setq at (+ at wide wide 4) count (dec count)))
-		(when found
-			;the length of the empty edits, of the film's time to the track's
-			(defq film (. track :find :film_scale))
-			(scatter track :start start
-				:delay (if (> film 0) (/ (* delay (. track :find :timescale)) film) 0))))
+(defun mp4-tables (track)
+	; (mp4-tables track) -> track
+	;the tables of a track's samples, if they have not been read yet: where
+	;each sample is in the file, how long, when it is decoded and shown,
+	;and which are keys
+	(unless (. track :find :sizes) (mp4-tables-read track (. track :find :moov) (. track :find :stbl)))
 	track)
+
+(defun mp4-track (s trak &optional film_scale)
+	; (mp4-track str trak [film_scale]) -> track
+	;what a track is, its kind, codec, size or sound and setup, how many
+	;samples it has and where it begins
+	(defq track (scatter (Emap) :film_scale (ifn film_scale 0)) mdhd (mp4-in s trak '("mdia" "mdhd")) hdlr (mp4-in s trak '("mdia" "hdlr"))
+		stbl (mp4-in s trak '("mdia" "minf" "stbl")))
+	;its time, the units of a second it counts in
+	(defq v (code s 1 (second mdhd)))
+	(scatter track :kind (slice s (+ (second hdlr) 8) (+ (second hdlr) 12))
+		:timescale (mp4-n s (+ (second mdhd) (if (= v 1) 20 12)) 4)
+		:duration (mp4-n s (+ (second mdhd) (if (= v 1) 24 16)) (if (= v 1) 8 4)))
+	;the first sample entry, its codec, size or sound, and its setup
+	(when (defq stsd (mp4-in s stbl '("stsd")))
+		(defq entry (+ (second stsd) 8))
+		(. track :insert :codec (slice s (+ entry 4) (+ entry 8)))
+		(defq entry_end (+ entry (mp4-n s entry 4)))
+		(cond
+			((eql (. track :find :kind) "vide")
+				(scatter track :width (mp4-n s (+ entry 32) 2) :height (mp4-n s (+ entry 34) 2)
+					:config (mp4-config s (+ entry 86) entry_end)))
+			((eql (. track :find :kind) "soun")
+				;a sound entry of QuickTime's has a version: 0 as ISO's is, 1 is
+				;16 bytes longer, 2 has the rate as a float of 8 bytes and the
+				;channels as 4, and is 72 long before its boxes
+				(case (mp4-n s (+ entry 16) 2)
+					(2 (scatter track :channels (mp4-n s (+ entry 48) 4) :bits (mp4-n s (+ entry 56) 4)
+						:sample_rate (mp4-f64 s (+ entry 40))
+						:config (mp4-config s (+ entry 72) entry_end)))
+					(:t (scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
+						:sample_rate (mp4-n s (+ entry 32) 2)
+						:config (mp4-config s (+ entry (if (= (mp4-n s (+ entry 16) 2) 1) 52 36)) entry_end)))))))
+	;how many samples, and the tables of them now if it is the video's,
+	;else when they are asked for, (mp4-tables): those of the sound of a
+	;film of two hours are half a second
+	(defq stsz (mp4-in s stbl '("stsz")))
+	(scatter track :samples (if stsz (mp4-n s (+ (second stsz) 8) 4) 0) :moov s :stbl stbl)
+	(if (eql (. track :find :kind) "vide") (mp4-tables track))
+	(mp4-edits s trak track))
 
 (defun mp4-reel (stream)
 	; (mp4-reel stream) -> :nil | reel
@@ -236,12 +240,12 @@
 				(filter (# (eql (first %0) "trak")) (mp4-boxes moov 0 (length moov))))
 			video (some (# (if (eql (. %0 :find :kind) "vide") %0)) tracks)
 			reel (Emap))
-		(. reel :insert :tracks tracks)
+		(scatter reel :tracks tracks :stream stream)
 		(when video
 			;the rate the times come to, over the whole of it
 			(defq frames (. video :find :samples) when_at (. video :find :times)
 				span (if (> frames 1) (- (last when_at) (first when_at)) 0))
-			(scatter reel :stream stream :frames frames :width (. video :find :width)
+			(scatter reel :frames frames :width (. video :find :width)
 				:height (. video :find :height) :codec (. video :find :codec)
 				;the seconds first: frames by the timescale is past what a fixed
 				;number holds, for a film of two hours
@@ -258,23 +262,6 @@
 		(defq stream (. reel :find :stream))
 		(stream-seek stream (elem-get (. reel :find :offsets) index) 0)
 		(read-blk stream (elem-get (. reel :find :lengths) index))))
-
-(defun mp4-codec (reel &optional scale)
-	; (mp4-codec reel [scale]) -> :nil | codec
-	;the host's decoder of the video track's codec, on a canvas of its own,
-	;:nil if it has none. Its native is taken as the codec is made, not as
-	;this is read, as flm-codec does
-	(and (defq video (. reel :find :video) config (. video :find :config)
-			setup (some (# (if (find (first %0) '("avcC" "hvcC")) (second %0))) config))
-		(defq native (ffi "service/gui/lisp_video")
-			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
-		(/= handle 0)
-		(defq scale (ifn scale 1))
-		;shown smaller by a scale, the edge of a size it does not go into
-		;left off, a picture is put in its pixmap as far as that goes
-		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
-			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
-			:order (mp4-order reel))))
 
 (defun mp4-order (reel)
 	; (mp4-order reel) -> (packet ...)
@@ -294,6 +281,23 @@
 				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
 		(. reel :insert :order order))
 	order)
+
+(defun mp4-codec (reel &optional scale)
+	; (mp4-codec reel [scale]) -> :nil | codec
+	;the host's decoder of the video track's codec, on a canvas of its own,
+	;:nil if it has none. Its native is taken as the codec is made, not as
+	;this is read, as flm-codec does
+	(and (defq video (. reel :find :video) config (. video :find :config)
+			setup (some (# (if (find (first %0) '("avcC" "hvcC")) (second %0))) config))
+		(defq native (ffi "service/gui/lisp_video")
+			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
+		(/= handle 0)
+		(defq scale (ifn scale 1))
+		;shown smaller by a scale, the edge of a size it does not go into
+		;left off, a picture is put in its pixmap as far as that goes
+		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
+			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
+			:order (mp4-order reel))))
 
 (defun mp4-feed (codec n)
 	;the packets fed to the host till the picture shown nth is out on the
@@ -330,3 +334,7 @@
 	:nil)
 
 (each (# (reel-kind %0 mp4-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mp4" ".m4v" ".mov"))
+
+;module
+(export-symbols '(mp4-reel mp4-packet mp4-codec mp4-frame mp4-close mp4-tables))
+(env-pop)

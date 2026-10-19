@@ -16,6 +16,9 @@
 
 (defq *reel_kinds* (list))
 
+;module
+(env-push)
+
 (defun reel-kind (ext open packet codec frame &optional close)
 	; (reel-kind ext open packet codec frame [close])
 	;files whose names end ext are reels: (open stream) -> :nil | reel,
@@ -60,3 +63,7 @@
 	; (reel-close codec) -> :nil
 	;let go of what the codec holds that is not in Lisp, a host decoder
 	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))
+
+;module
+(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close))
+(env-pop)

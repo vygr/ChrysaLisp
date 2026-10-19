@@ -29,6 +29,9 @@
 (import "././streams/lz4.inc")
 (import "././streams/rle.inc")
 
+;module
+(env-push)
+
 (defq +flm_version 3 +flm_rate 30 +flm_header 28)
 
 (defun flm-bits (format)
@@ -337,3 +340,7 @@
 				(setq frames (inc frames)))
 			(stream-flush out)
 			frames)))
+
+;module
+(export-symbols '(flm-open flm-add flm-close flm-encode flm-reel flm-packet flm-codec flm-decode flm-frame flm-convert FLM-info FLM-load))
+(env-pop)

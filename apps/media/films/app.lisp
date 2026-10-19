@@ -49,24 +49,6 @@
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
-(defun open-path (file)
-	;a film by the path typed, or why not
-	(cond
-		((not (find (path-ext file) +file_types))
-			(played file :nil)
-			(say (cat file ": not a kind of film this plays")))
-		((not (file-stream file))
-			(played file :nil)
-			(say (cat file ": not there")))
-		((not (reel-open file))
-			(played file :nil)
-			(say (cat file ": not a film it can read")))
-		((win-refresh file))))
-
-(defun say (text)
-	(set *status* :text text)
-	(.-> *status* :layout :dirty))
-
 (defun played-load ()
 	;the films that have played, the last first, as the user's films.tre has
 	;them, where each was left, its scale, the frame it was at and if it
@@ -162,6 +144,24 @@
 		(. *file_selector* :select_node file)
 		(. *window* :change_dirty x y w h))))
 
+(defun say (text)
+	(set *status* :text text)
+	(.-> *status* :layout :dirty))
+
+(defun open-path (file)
+	;a film by the path typed, or why not
+	(cond
+		((not (find (path-ext file) +file_types))
+			(played file :nil)
+			(say (cat file ": not a kind of film this plays")))
+		((not (file-stream file))
+			(played file :nil)
+			(say (cat file ": not there")))
+		((not (reel-open file))
+			(played file :nil)
+			(say (cat file ": not a film it can read")))
+		((win-refresh file))))
+
 ;import actions and bindings directly from the images app!
 (import "././images/actions.inc")
 
@@ -201,7 +201,8 @@
 			((and (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_played (defq id (getf *msg* +ev_msg_target_id)) (+ +event_played +played_max -1)))
 				;one of those that played, again, its path in the field
-				(when (defq file (elem-get *played_list* (- id +event_played)))
+				(when (and (< (- id +event_played) (length *played_list*))
+						(defq file (elem-get *played_list* (- id +event_played))))
 					(.-> *path* (:set_text file) :layout :dirty)
 					(open-path file)))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
