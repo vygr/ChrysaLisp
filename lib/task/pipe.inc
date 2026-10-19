@@ -185,9 +185,12 @@
 		;and each new one was put in its place among those: a task that
 		;ran command after command grew slower as it went
 		(mail-timeout timer 0 0)
-		;did we break out due to the abort timer ?
+		;did we break out due to the abort timer ? It is noted, :aborted, so
+		;what closed it can tell a close that waited for nothing from one
+		;that was given up on, whatever the time it took
 		(when (nempty? streams)
 			(lower :select :streams)
+			(def this :aborted :t)
 			(. this :abort))
 		this)
 	)

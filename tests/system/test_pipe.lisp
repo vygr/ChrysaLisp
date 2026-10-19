@@ -116,21 +116,21 @@
 ;of the stdout is still coming, and the close then waited for it to stop
 ;again, which it never would, till the abort timer of 2 seconds went.
 ;
-;At once is not the abort timer, and that is what is held to: three
-;quarters of it. It was half a second, and a Pi with every test running
-;failed it once in twenty runs. A command says its streams are stopping,
-;and then that they have stopped, and between the two its task may be made
-;to wait by one that does not give way: 400 closes by themselves were each
-;under a millisecond, and with all the tests beside them one was 174ms,
-;both its streams stopping and not yet stopped
+;At once is not the abort timer, and that is what is held to: the close
+;was not given up on, :aborted. It was a time, half a second and then
+;three quarters of the timer, and a Pi with every test running failed each
+;now and then. A command says its streams are stopping, and then that they
+;have stopped, and between the two its task may be made to wait by one of
+;another module on its node that does not give way: 400 closes by
+;themselves were each under a millisecond, and with all the tests beside
+;them one was 174ms. A time says how busy the nodes were, not whether the
+;close was right
 (each (lambda (cmdline)
 	(defq pc (Pipe cmdline) pc_out (list))
 	(. pc :eof)
 	(while (defq pc_data (. pc :read)) (if (str? pc_data) (push pc_out pc_data)))
-	(defq pc_t0 (pii-time))
 	(. pc :close)
-	(assert-true (cat "closes at once after eof, " cmdline)
-		(< (- (pii-time) pc_t0) (max 1500000 (/ (task-timeout 1) 2))))
+	(assert-eq (cat "closes at once after eof, " cmdline) :nil (get :aborted pc))
 	(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
 	(list "echo one two" "files cmd/ .lisp" "make all boot" "files cmd/ | head -n 3"))
 
