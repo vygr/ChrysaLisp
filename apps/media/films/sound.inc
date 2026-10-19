@@ -1,27 +1,43 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; the sound of a film: its AAC track decoded a packet at a time, a little
-; ahead of what is heard, into a stream of the Audio service, 16 bit
-; stereo at its rate. What has been heard is the film's clock, and the
+; the sound of a film: its AAC, AC-3 or E-AC-3 track decoded a packet at
+; a time, a little ahead of what is heard, into a stream of the Audio
+; service, 16 bit stereo at its rate. What has been heard is the film's clock, and the
 ; pictures are kept to it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "service/audio/app.inc")
 (import "lib/media/aac.inc")
+(import "lib/media/ac3.inc")
 
 ;how far ahead of what is heard the stream is kept, in seconds
 (defq +sound_ahead 0.25)
 
 (defun sound-of (reel)
 	; (sound-of reel) -> :nil | sound
-	;the AAC-LC track of a film of an mp4, if it has one and it is that
-	(and (defq tracks (. reel :find :tracks))
-		(defq track (some (# (and (eql (. %0 :find :kind) "soun") (eql (. %0 :find :codec) "mp4a") %0)) tracks))
-		(progn (mp4-tables track) (defq config (aac-track-config track)))
-		(= (first config) 2)
-		(scatter (Emap) :track track :config config :rate (third config) :stream (. reel :find :stream)
-			:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0
-			;the native that makes 16 bit samples, taken now, not as this is read
-			:s16 (ffi "lib/media/media_s16"))))
+	;the sound track of a film of an mp4 that there is a decoder for here:
+	;AAC-LC, its packets of 1024 samples, each after the one before; AC-3
+	;and E-AC-3, of 1536, a block of 256 late. Each made two channels
+	(when (defq tracks (. reel :find :tracks))
+		(defq track (some (# (and (eql (. %0 :find :kind) "soun") (find (. %0 :find :codec) '("mp4a" "ec-3" "ac-3")) %0)) tracks))
+		(when track
+			(mp4-tables track)
+			(defq sound (scatter (Emap) :track track :stream (. reel :find :stream)
+				:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0
+				;the native that makes 16 bit samples, taken now, not as this is read
+				:s16 (ffi "lib/media/media_s16")))
+			(cond
+				((eql (. track :find :codec) "mp4a")
+					(and (defq config (aac-track-config track)) (= (first config) 2)
+						;a lambda finds nothing of where it was made, what it wants is
+						;in the sound
+						(scatter sound :rate (third config) :size 1024 :delay 1024 :config config
+							:make (lambda (sound) (aac-decoder (. sound :find :config)))
+							:decode (lambda (decoder packet) (aac-decode decoder packet)))))
+				(:t (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+					(defq head (ac3-header (bits-of (read-blk (. sound :find :stream) 16))))
+					(and head (scatter sound :rate (. head :find :rate) :size (* 256 (. head :find :blocks)) :delay 256 :head head
+						:make (lambda (sound) (ac3-decoder (. sound :find :head)))
+						:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet))))))))))
 
 (defun sound-stop (sound)
 	; (sound-stop sound)
@@ -33,19 +49,21 @@
 	;the samples of packet n of the track, a list of reals a channel
 	(defq track (. sound :find :track) stream (. sound :find :stream))
 	(stream-seek stream (elem-get (. track :find :offsets) n) 0)
-	(aac-decode (. sound :find :decoder) (read-blk stream (elem-get (. track :find :sizes) n))))
+	((. sound :find :decode) (. sound :find :decoder) (read-blk stream (elem-get (. track :find :sizes) n))))
 
 (defun sound-start (sound time)
 	; (sound-start sound seconds)
-	;heard from a time of the film: the packet that has it decoded after the
-	;one before, which only fills the overlap, so what comes out first is
-	;that packet's, and what is before the time in it left out
+	;heard from a time of the film: the packet whose samples have it,
+	;decoded after the one before, which only fills the overlap, and what
+	;is before the time in it left out. A packet's samples come so many
+	;late, its delay: those of packet q are from q by its size less that
 	(sound-stop sound)
-	(defq rate (. sound :find :rate) sample (+ (n2i (* time (n2f rate))) (. sound :find :start))
-		packet (inc (/ (max sample 0) 1024)))
-	(. sound :insert :decoder (aac-decoder (. sound :find :config)))
-	(if (< (dec packet) (. (. sound :find :track) :find :samples)) (sound-packet sound (dec packet)))
-	(scatter sound :next packet :drop (- (max sample 0) (* (dec packet) 1024)) :time time
+	(defq rate (. sound :find :rate) size (. sound :find :size) delay (. sound :find :delay)
+		sample (+ (max 0 (+ (n2i (* time (n2f rate))) (. sound :find :start))) delay)
+		packet (/ sample size))
+	(. sound :insert :decoder ((. sound :find :make) sound))
+	(and (> packet 0) (< (dec packet) (. (. sound :find :track) :find :samples)) (sound-packet sound (dec packet)))
+	(scatter sound :next packet :drop (- sample (* packet size)) :time time
 		:written 0 :left 0 :anchor (pii-time) :handle (audio-stream-open-rpc rate 2)))
 
 (defun sound-pcm (sound left right from)
@@ -65,7 +83,8 @@
 			(defq chans (sound-packet sound next) drop (. sound :find :drop)
 				data (sound-pcm sound (first chans) (ifn (second chans) (first chans)) drop))
 			(audio-stream-write-rpc handle data)
-			(setq written (+ written (- 1024 drop)) left (+ left (- 1024 drop)) next (inc next))
+			(defq got (- (length (first chans)) drop))
+			(setq written (+ written got) left (+ left got) next (inc next))
 			(. sound :insert :drop 0))
 		(scatter sound :written written :next next)))
 
