@@ -2,6 +2,8 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
+(import "lib/collections/tree.inc")
+(import "service/lock/app.inc")
 (import "lib/media/reel.inc")
 (import "lib/media/mp4.inc")
 
@@ -15,7 +17,8 @@
 	(enum main timer tip))
 
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
-	*file* :nil *scale* :nil)
+	*file* :nil *scale* :nil *played_list* (list)
+	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
 (defun show (n)
 	;frame n on the canvas, the codec reads the packets it needs for it
@@ -50,14 +53,60 @@
 	;a film by the path typed, or why not
 	(cond
 		((not (find (path-ext file) +file_types))
+			(played file :nil)
 			(say (cat file ": not a kind of film this plays")))
-		((not (file-stream file)) (say (cat file ": not there")))
-		((not (reel-open file)) (say (cat file ": not a film it can read")))
+		((not (file-stream file))
+			(played file :nil)
+			(say (cat file ": not there")))
+		((not (reel-open file))
+			(played file :nil)
+			(say (cat file ": not a film it can read")))
 		((win-refresh file))))
 
 (defun say (text)
 	(set *status* :text text)
 	(.-> *status* :layout :dirty))
+
+(defun played-load ()
+	;the films that have played, the last first, as the user's films.tre has them
+	(defq tree (with-read-lock +played_file (tree-load (file-stream +played_file))))
+	(setq *played_list* (if (and tree (eql (. tree :find :version) +played_version))
+		(ifn (. tree :find :films) (list)) (list))))
+
+(defun played-save ()
+	(with-write-lock +played_file
+		(tree-save (file-stream +played_file +file_open_write)
+			(scatter (Emap) :version +played_version :films *played_list*))))
+
+(defun played-show ()
+	;a button a film, its name, a click plays it
+	(each (# (. %0 :sub)) (. *played* :children))
+	(when (nempty? *played_list*)
+		(def (defq title (Title)) :text "Played")
+		(view-variant title :paper :paper_title)
+		(. *played* :add_child title)
+		(each (lambda (file)
+				(def (defq button (Button)) :text (path-name file))
+				(view-variant button :font :font_button)
+				(. button :connect (+ +event_played (!)))
+				(. *played* :add_child button))
+			*played_list*))
+	;new buttons have no size till they are constrained, the first pass of
+	;a layout, and the column the size it was is not laid out again by its
+	;parent: the column constrained and laid out, all of it
+	(.-> *left* (:constrain :t) :dirty_all))
+
+(defun played (file ok)
+	;a new film that played is put first of them, one there already keeps
+	;its place, and one that did not play is let go
+	(defq now (cond
+		((not ok) (filter (# (nql %0 file)) *played_list*))
+		((find file *played_list*) *played_list*)
+		((slice (cat (list file) *played_list*) 0 (min +played_max (inc (length *played_list*)))))))
+	(unless (eql (str now) (str *played_list*))
+		(setq *played_list* now)
+		(played-save)
+		(played-show)))
 
 (defun fit-scale (reel)
 	;the least scale, 1 to 4, that has the film in 3/4 of the screen
@@ -72,9 +121,12 @@
 	;the film of a file, at a scale, the one that fits the screen if not
 	;said, from a frame, the first if not said
 	(cond
-		((not (defq reel (reel-open file))))
-		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel))))) (say-what reel file))
+		((not (defq reel (reel-open file))) (played file :nil))
+		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel)))))
+			(played file :nil)
+			(say-what reel file))
 		(:t
+		(played file :t)
 		;the scroll lets go of the canvas it had as it is given the new one
 		(if *codec* (reel-close *codec*))
 		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
@@ -110,6 +162,8 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *file_selector* :populate "." +file_types 2)
+	(played-load)
+	(played-show)
 	;the window the size the film has made it
 	(bind '(x y w h) (apply view-locate (. (win-refresh (cat *app_root* "data/raymarch.flm")) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -121,6 +175,10 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_timer) (tick select))
+			((and (= (getf *msg* +ev_msg_type) +ev_type_action)
+					(<= +event_played (defq id (getf *msg* +ev_msg_target_id)) (+ +event_played +played_max -1)))
+				;one of those that played, again
+				(if (defq file (elem-get *played_list* (- id +event_played))) (open-path file)))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
