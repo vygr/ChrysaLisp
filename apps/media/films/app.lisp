@@ -19,7 +19,7 @@
 	(enum main timer tip))
 
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
-	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil
+	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
 (defun show (n)
@@ -32,6 +32,7 @@
 	(set *status* :text (cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
 		", " (str (n2i (. *reel* :find :rate))) " a second"
 		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
+		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
 		(if *playing* "" ", paused")))
 	(.-> *status* :layout :dirty))
 
@@ -77,8 +78,9 @@
 
 (defun played-load ()
 	;the films that have played, the last first, as the user's films.tre has
-	;them, where each was left, its scale, the frame it was at and if it
-	;was playing, and the one shown last, which is shown first
+	;them, where each was left, its scale, the frame it was at, if it was
+	;playing and how much later its sound is heard, and the one shown last,
+	;which is shown first
 	(defq tree (with-read-lock +played_file (tree-load (file-stream +played_file))))
 	(when (and tree (eql (. tree :find :version) +played_version))
 		(setq *played_list* (ifn (. tree :find :films) (list)) *last* (. tree :find :last))
@@ -96,7 +98,7 @@
 
 (defun place-keep ()
 	;where the film shown is, kept for when it is played again
-	(and *file* *reel* (. *places* :insert *file* (list *scale* (max *at* 0) (if *playing* 1 0)))))
+	(and *file* *reel* (. *places* :insert *file* (list *scale* (max *at* 0) (if *playing* 1 0) *sync*))))
 
 (defun played-show ()
 	;a button a film, its name, a click plays it
@@ -146,6 +148,10 @@
 	(and (not scale) (defq place (. *places* :find file))
 		(setq scale (first place) frame (second place)
 			*playing* (/= 0 (ifn (third place) 1))))
+	;another film's own sync, 0 if it has none kept
+	(unless (eql file *file*)
+		(defq kept (. *places* :find file))
+		(setq *sync* (if (and kept (> (length kept) 3)) (elem-get kept 3) 0)))
 	(cond
 		((not (setq reel (ifn reel (reel-open file)))) (played file :nil))
 		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel)))))
@@ -208,7 +214,9 @@
 			;the frame of what is heard, the sound fed first; round again after
 			;the last, sound and all
 			(sound-feed *sound*)
-			(defq n (frame-at (sound-clock *sound*)))
+			;the sound heard *sync* ms later than it was coded, the pictures
+			;as much ahead of the clock
+			(defq n (frame-at (+ (sound-clock *sound*) (/ (n2f *sync*) 1000.0))))
 			(cond
 				((>= n (dec (. *reel* :find :frames)))
 					(show 0)
@@ -253,6 +261,11 @@
 				(setq *playing* :nil *seek* (get :value *timeline*))
 				(sound-stop *sound*)
 				(unless (mail-poll select) (show *seek*)))
+			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
+					(<= +event_sooner id +event_later))
+				;the sound a step sooner or later than the pictures
+				(setq *sync* (+ *sync* (if (= id +event_sooner) (neg +sync_step) +sync_step)))
+				(show *at*))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_smaller id +event_bigger))
 				;the film again, smaller or bigger, from the frame it is at

@@ -8,8 +8,9 @@
 ; windows of 128. (aac-config setup) says what the setup of the track,
 ; its esds, says: the object type, the rate and the channels.
 ; (aac-decoder config) holds what a channel carries from one block to
-; the next, (aac-spectra decoder packet) gives the spectrum of each
-; channel of a packet, (aac-decode decoder packet) its samples.
+; the next, (aac-decode decoder packet) gives the 1024 samples of each
+; channel of a packet. Of more than two channels, 5.1 or 7.1, only the
+; front pair is read and made.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
@@ -312,7 +313,11 @@
 	;many bits it took
 	(defq in (list (cat packet (char 0 8)) 0) channels (list) rate_index (. decoder :find :rate_index)
 		kind 0)
-	(while (/= (setq kind (aac-bits in 3)) +aac_end)
+	;of more than two channels only the front pair is wanted, the first pair
+	;of elements: what is after it is not read, its blocks are its length
+	(defq front (> (. decoder :find :channels) 2))
+	(while (and (/= (setq kind (aac-bits in 3)) +aac_end)
+			(not (and front (some (# (eql (. %0 :find :pair) :right)) channels))))
 		(aac-bits in 4)
 		(cond
 			((or (= kind +aac_sce) (= kind +aac_lfe)) (push channels (aac-channel in :nil rate_index)))
@@ -343,7 +348,10 @@
 				(elem-set in 1 (+ (second in) (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
 	(. decoder :insert :bits (second in))
-	channels)
+	;of more, the front pair, not the centre before it
+	(if (and front (defq i (some (# (if (eql (. %0 :find :pair) :left) (!))) channels)))
+		(slice channels i (+ i 2))
+		channels))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the spectrum to samples
