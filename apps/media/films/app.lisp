@@ -14,11 +14,11 @@
 (enums +select 0
 	(enum main timer tip))
 
-(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *playing* :t)
+(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t)
 
 (defun show (n)
 	;frame n on the canvas, the codec reads the packets it needs for it
-	(setq *at* n)
+	(setq *at* n *seek* n)
 	(reel-frame *codec* n)
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
@@ -86,7 +86,10 @@
 	;the next frame when it is due, round again after the last
 	(mail-timeout (elem-get select +select_timer)
 		(if *reel* (n2i (/ 1000000.0 (. *reel* :find :rate))) 33333) 0)
-	(and *playing* *reel* (show (if (>= (inc *at*) (. *reel* :find :frames)) 0 (inc *at*)))))
+	(cond
+		((not *reel*))
+		(*playing* (show (if (>= (inc *at*) (. *reel* :find :frames)) 0 (inc *at*))))
+		((/= *seek* *at*) (show *seek*))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
@@ -106,8 +109,10 @@
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
-				(play :nil)
-				(show (get :value *timeline*)))
+				;a drag of it sends many, only the last is shown: the tick
+				;shows it if more are waiting now
+				(setq *playing* :nil *seek* (get :value *timeline*))
+				(unless (mail-poll select) (show *seek*)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_play id +event_start))
 				(cond

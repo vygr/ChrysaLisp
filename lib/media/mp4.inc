@@ -200,17 +200,17 @@
 			:order (sort (range 0 (. reel :find :frames))
 				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
 
-(defun mp4-frame (codec n)
-	; (mp4-frame codec n) -> :nil | canvas
-	;the picture shown nth on the canvas, the packets fed to the host till
-	;it is out. Not the one after the last given, the host starts again
-	;from the key before its packet
+(defun mp4-feed (codec n)
+	;the packets fed to the host till the picture shown nth is out on the
+	;canvas. One before the last given, or after the next key, the host
+	;starts again from the key before its packet; one after it, before the
+	;next key, is fed on to, which is no more work
 	(defq reel (. codec :find :reel) native (. codec :find :native) frames (. reel :find :frames)
 		packet (elem-get (. codec :find :order) n) shown (elem-get (. reel :find :shown) packet)
-		pixmap (getf (defq canvas (. codec :find :canvas)) +canvas_pixmap 0) fed (. codec :find :fed))
-	(unless (= n (inc (. codec :find :at)))
-		(defq keys (. reel :find :keys) key 0)
-		(if (eql keys :all) (setq key packet) (each (# (if (<= %0 packet) (setq key %0))) keys))
+		pixmap (getf (. codec :find :canvas) +canvas_pixmap 0) fed (. codec :find :fed)
+		keys (. reel :find :keys) key 0)
+	(if (eql keys :all) (setq key packet) (each (# (if (<= %0 packet) (setq key %0))) keys))
+	(when (or (< n (. codec :find :at)) (> key fed))
 		(native 3 (. codec :find :handle) "" 0)
 		(. codec :insert :handle (native 0 (code-be (. reel :find :codec) 4 0) (. codec :find :setup) 0))
 		(setq fed key))
@@ -220,8 +220,13 @@
 	(while (and (< (native 2 (. codec :find :handle) pixmap shown) 0) (< fed last))
 		(native 1 (. codec :find :handle) (mp4-packet reel fed) (elem-get (. reel :find :shown) fed))
 		(setq fed (inc fed)))
-	(scatter codec :fed fed :at n)
-	canvas)
+	(scatter codec :fed fed :at n))
+
+(defun mp4-frame (codec n)
+	; (mp4-frame codec n) -> :nil | canvas
+	;the picture shown nth on the canvas, as it is if it is there already
+	(unless (= n (. codec :find :at)) (mp4-feed codec n))
+	(. codec :find :canvas))
 
 (defun mp4-close (codec)
 	; (mp4-close codec) -> :nil
