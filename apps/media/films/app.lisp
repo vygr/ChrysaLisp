@@ -14,7 +14,8 @@
 (enums +select 0
 	(enum main timer tip))
 
-(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t)
+(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
+	*file* :nil *scale* :nil)
 
 (defun show (n)
 	;frame n on the canvas, the codec reads the packets it needs for it
@@ -24,7 +25,9 @@
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
 	(set *status* :text (cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
-		", " (str (n2i (. *reel* :find :rate))) " a second" (if *playing* "" ", paused")))
+		", " (str (n2i (. *reel* :find :rate))) " a second"
+		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
+		(if *playing* "" ", paused")))
 	(.-> *status* :layout :dirty))
 
 (defun play (on)
@@ -56,18 +59,30 @@
 	(set *status* :text text)
 	(.-> *status* :layout :dirty))
 
-(defun win-refresh (file)
+(defun fit-scale (reel)
+	;the least scale, 1 to 4, that has the film in 3/4 of the screen
+	(bind '(& & sw sh) (gui-info))
+	(defq w (. reel :find :width) h (. reel :find :height))
+	(cond
+		((<= sw 0) 1)
+		((some (# (and (<= (* 4 (/ w %0)) (* 3 sw)) (<= (* 4 (/ h %0)) (* 3 sh)) %0)) '(1 2 3)))
+		(4)))
+
+(defun win-refresh (file &optional scale frame)
+	;the film of a file, at a scale, the one that fits the screen if not
+	;said, from a frame, the first if not said
 	(cond
 		((not (defq reel (reel-open file))))
-		((not (defq codec (reel-codec reel))) (say-what reel file))
+		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel))))) (say-what reel file))
 		(:t
 		;the scroll lets go of the canvas it had as it is given the new one
 		(if *codec* (reel-close *codec*))
-		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1)
-		(show 0)
+		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
+			*file* file *scale* (. codec :find :scale))
+		(show (ifn frame 0))
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
-		(def *timeline* :value 0 :maximum (dec (. reel :find :frames)))
+		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
 		(def *window_title* :text (cat "Films -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
 		(. *window_title* :layout)
@@ -113,6 +128,11 @@
 				;shows it if more are waiting now
 				(setq *playing* :nil *seek* (get :value *timeline*))
 				(unless (mail-poll select) (show *seek*)))
+			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
+					(<= +event_smaller id +event_bigger))
+				;the film again, smaller or bigger, from the frame it is at
+				(defq scale (if (= id +event_smaller) (min 4 (inc *scale*)) (max 1 (dec *scale*))))
+				(if (/= scale *scale*) (win-refresh *file* scale *at*)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_play id +event_start))
 				(cond

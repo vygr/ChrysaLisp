@@ -19,7 +19,7 @@
 (defun reel-kind (ext open packet codec frame &optional close)
 	; (reel-kind ext open packet codec frame [close])
 	;files whose names end ext are reels: (open stream) -> :nil | reel,
-	;(packet reel n), (codec reel), (frame codec n), (close codec). The
+	;(packet reel n), (codec reel scale), (frame codec n), (close codec). The
 	;kinds are of the shared root of a GUI's node, gui/canvas/lisp.inc
 	;imports them, and one of a name already there is replaced: a kind
 	;added by a task would hold that task's functions, and so the task,
@@ -41,10 +41,13 @@
 	; (reel-packet reel n) -> :nil | str
 	((third (. reel :find :kind)) reel n))
 
-(defun reel-codec (reel)
-	; (reel-codec reel) -> :nil | codec
-	;:nil if there is none here for what the reel holds
-	(when (defq codec ((elem-get (. reel :find :kind) 3) reel))
+(defun reel-codec (reel &optional scale)
+	; (reel-codec reel [scale]) -> :nil | codec
+	;:nil if there is none here for what the reel holds. With a scale, 2
+	;3 or 4, the frames are shown that much smaller, the codec's canvas is
+	;made with that scale and its :swap makes them so. :scale of the codec
+	;is the one it took, a kind may take only some
+	(when (defq codec ((elem-get (. reel :find :kind) 3) reel (ifn scale 1)))
 		(. codec :insert :kind (. reel :find :kind))
 		codec))
 

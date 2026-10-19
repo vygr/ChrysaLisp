@@ -224,14 +224,18 @@
 		(stream-seek stream (elem-get (. reel :find :offsets) index) 0)
 		(read-blk stream (elem-get (. reel :find :lengths) index))))
 
-(defun flm-codec (reel)
-	; (flm-codec reel) -> codec
+(defun flm-codec (reel &optional scale)
+	; (flm-codec reel [scale]) -> codec
 	;what makes frames of the packets of a film, on a canvas of its own
 	;the native of a delta frame is taken as the codec is made, not as this
 	;is read: this is read by every task that loads a picture, and one that
 	;named a function the system had not been built with yet never got as
 	;far as building it, gui/pixmap/flm.vp
-	(scatter (Emap) :canvas (Canvas (. reel :find :width) (. reel :find :height) 1)
+	;a scale only if it is of the whole size: a frame is drawn on the one
+	;before by its runs, as wide as the film
+	(defq w (. reel :find :width) h (. reel :find :height) scale (ifn scale 1))
+	(if (or (/= 0 (% w scale)) (/= 0 (% h scale))) (setq scale 1))
+	(scatter (Emap) :canvas (Canvas (/ w scale) (/ h scale) scale) :scale scale
 		:format (. reel :find :format) :flags (. reel :find :flags)
 		:delta (ffi "gui/pixmap/lisp_flm_delta") :reel reel :at -1))
 

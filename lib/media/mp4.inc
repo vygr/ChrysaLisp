@@ -184,8 +184,8 @@
 		(stream-seek stream (elem-get (. reel :find :offsets) index) 0)
 		(read-blk stream (elem-get (. reel :find :lengths) index))))
 
-(defun mp4-codec (reel)
-	; (mp4-codec reel) -> :nil | codec
+(defun mp4-codec (reel &optional scale)
+	; (mp4-codec reel [scale]) -> :nil | codec
 	;the host's decoder of the video track's codec, on a canvas of its own,
 	;:nil if it has none. Its native is taken as the codec is made, not as
 	;this is read, as flm-codec does
@@ -194,8 +194,11 @@
 		(defq native (ffi "service/gui/lisp_video")
 			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
 		(/= handle 0)
+		(defq scale (ifn scale 1))
+		;shown smaller by a scale, the edge of a size it does not go into
+		;left off, a picture is put in its pixmap as far as that goes
 		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
-			:canvas (Canvas (. reel :find :width) (. reel :find :height) 1)
+			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
 			;frame n is the packet shown nth
 			:order (sort (range 0 (. reel :find :frames))
 				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))

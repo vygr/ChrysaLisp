@@ -45,6 +45,15 @@
 	(assert-eq "back to the first, it is the first again" (first want)
 		(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
 	(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))
+	;shown at half size, the frames the same, the canvas half as big; a
+	;scale its size is not of is not taken
+	(defq half (flm-codec reel 2))
+	(assert-list-eq "a codec at half size, its canvas half as big" '(2 24 16)
+		(cat (list (. half :find :scale)) (. (. half :find :canvas) :pref_size)))
+	(assert-eq "its frames the same, before they are made smaller" (elem-get want 3)
+		(progn (flm-frame half 3) (defq hp (memory-stream))
+			(pixmap-write (getf (. half :find :canvas) +canvas_pixmap 0) hp 32) (stream-seek hp 0 0) (read-blk hp 100000)))
+	(assert-eq "a scale its size is not of, 5, is not taken" 1 (. (flm-codec reel 5) :find :scale))
 	;as a player has it, a frame by its number, on and back and on
 	(defq codec (flm-codec reel))
 	(assert-list-eq "frames by number, as a player asks" (map (# (elem-get want %0)) '(0 1 4 2 2 5 0))
