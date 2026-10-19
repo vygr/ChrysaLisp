@@ -17,7 +17,7 @@
 	(enum main timer tip))
 
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
-	*file* :nil *scale* :nil *played_list* (list)
+	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
 (defun show (n)
@@ -68,15 +68,27 @@
 	(.-> *status* :layout :dirty))
 
 (defun played-load ()
-	;the films that have played, the last first, as the user's films.tre has them
+	;the films that have played, the last first, as the user's films.tre has
+	;them, where each was left, its scale, the frame it was at and if it
+	;was playing, and the one shown last, which is shown first
 	(defq tree (with-read-lock +played_file (tree-load (file-stream +played_file))))
-	(setq *played_list* (if (and tree (eql (. tree :find :version) +played_version))
-		(ifn (. tree :find :films) (list)) (list))))
+	(when (and tree (eql (. tree :find :version) +played_version))
+		(setq *played_list* (ifn (. tree :find :films) (list)) *last* (. tree :find :last))
+		(each (lambda ((file &rest place)) (. *places* :insert file place))
+			(ifn (. tree :find :places) (list)))))
 
 (defun played-save ()
+	;the places of those in the list only
 	(with-write-lock +played_file
 		(tree-save (file-stream +played_file +file_open_write)
-			(scatter (Emap) :version +played_version :films *played_list*))))
+			(scatter (Emap) :version +played_version :films *played_list* :last *file*
+				:places (reduce (lambda (out file)
+						(if (defq place (. *places* :find file)) (push out (cat (list file) place)) out))
+					*played_list* (list))))))
+
+(defun place-keep ()
+	;where the film shown is, kept for when it is played again
+	(and *file* *reel* (. *places* :insert *file* (list *scale* (max *at* 0) (if *playing* 1 0)))))
 
 (defun played-show ()
 	;a button a film, its name, a click plays it
@@ -118,8 +130,13 @@
 		(4)))
 
 (defun win-refresh (file &optional scale frame)
-	;the film of a file, at a scale, the one that fits the screen if not
-	;said, from a frame, the first if not said
+	;the film of a file, at a scale, from a frame. If not said, where it was
+	;left if it has played before, else the scale that fits the screen and
+	;the first frame. Where the one shown till now is, kept
+	(place-keep)
+	(and (not scale) (defq place (. *places* :find file))
+		(setq scale (first place) frame (second place)
+			*playing* (/= 0 (ifn (third place) 1))))
 	(cond
 		((not (defq reel (reel-open file))) (played file :nil))
 		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel)))))
@@ -127,11 +144,12 @@
 			(say-what reel file))
 		(:t
 		(played file :t)
+		(played-save)
 		;the scroll lets go of the canvas it had as it is given the new one
 		(if *codec* (reel-close *codec*))
 		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
 			*file* file *scale* (. codec :find :scale))
-		(show (ifn frame 0))
+		(show (min (ifn frame 0) (dec (. reel :find :frames))))
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
 		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
@@ -165,7 +183,9 @@
 	(played-load)
 	(played-show)
 	;the window the size the film has made it
-	(bind '(x y w h) (apply view-locate (. (win-refresh (cat *app_root* "data/raymarch.flm")) :get_size)))
+	;the film shown last, where it was left, else Raymarch's
+	(bind '(x y w h) (apply view-locate (. (win-refresh
+		(if (and *last* (reel-open *last*)) *last* (cat *app_root* "data/raymarch.flm"))) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(tick select)
 	(while *running*
@@ -177,8 +197,10 @@
 			((= idx +select_timer) (tick select))
 			((and (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_played (defq id (getf *msg* +ev_msg_target_id)) (+ +event_played +played_max -1)))
-				;one of those that played, again
-				(if (defq file (elem-get *played_list* (- id +event_played))) (open-path file)))
+				;one of those that played, again, its path in the field
+				(when (defq file (elem-get *played_list* (- id +event_played)))
+					(.-> *path* (:set_text file) :layout :dirty)
+					(open-path file)))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
@@ -201,5 +223,7 @@
 					((= id +event_start) (play :nil) (show 0))))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	(place-keep)
+	(played-save)
 	(if *codec* (reel-close *codec*))
 	(gui-sub-rpc *window*))
