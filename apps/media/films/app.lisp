@@ -3,6 +3,7 @@
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
 (import "lib/media/reel.inc")
+(import "lib/media/mp4.inc")
 
 ;A film as a projector shows it: a reel, lib/media/reel.inc, its packets
 ;one a frame, and the codec that makes a frame of each on its canvas, at
@@ -15,7 +16,7 @@
 (enums +select 0
 	(enum main timer tip))
 
-(defq +file_types ''(".flm") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *playing* :t)
+(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *playing* :t)
 
 (defun show (n)
 	;frame n on the canvas, from the frame shown or from the first
@@ -34,8 +35,23 @@
 	(setq *playing* on)
 	(if *reel* (show *at*)))
 
+(defun say-what (reel file)
+	;a film there is no codec for yet: what it is, and no picture
+	(setq *reel* :nil)
+	(set *status* :text (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
+		(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
+		(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
+	(.-> *status* :layout :dirty)
+	(def *window_title* :text (cat "Films -> " (path-name file)))
+	(. *window_title* :layout)
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
+
 (defun win-refresh (file)
-	(when (defq reel (reel-open file))
+	(cond
+		((not (defq reel (reel-open file))))
+		((not (reel-codec reel)) (say-what reel file))
+		(:t
 		;the scroll lets go of the canvas it had as it is given the new one
 		(setq *reel* reel *codec* (reel-codec reel) *canvas* (. *codec* :find :canvas) *at* -1)
 		(show 0)
@@ -48,7 +64,7 @@
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 		(def *image_scroll* :min_width 128 :min_height 128)
 		(. *file_selector* :select_node file)
-		(. *window* :change_dirty x y w h)))
+		(. *window* :change_dirty x y w h))))
 
 ;import actions and bindings directly from the images app!
 (import "././images/actions.inc")

@@ -32,10 +32,11 @@
 	((third (. reel :find :kind)) reel n))
 
 (defun reel-codec (reel)
-	; (reel-codec reel) -> codec
-	(defq codec ((elem-get (. reel :find :kind) 3) reel))
-	(. codec :insert :kind (. reel :find :kind))
-	codec)
+	; (reel-codec reel) -> :nil | codec
+	;:nil if there is none here for what the reel holds
+	(when (defq codec ((elem-get (. reel :find :kind) 3) reel))
+		(. codec :insert :kind (. reel :find :kind))
+		codec))
 
 (defun reel-decode (codec packet n)
 	; (reel-decode codec packet n) -> :nil | canvas

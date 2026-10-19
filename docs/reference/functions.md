@@ -4534,6 +4534,79 @@ from corner to corner and a ball of faces is round
 (month-of-the-year month) -> str
 ```
 
+### mp4-boxes
+
+```code
+(mp4-boxes str at end) -> ((name body end) ...)
+
+the boxes from at to end of a str: each name, where what is in it
+starts, and where it ends
+```
+
+### mp4-codec
+
+```code
+(mp4-codec reel) -> :nil
+
+no codec is here yet for what an mp4 holds
+```
+
+### mp4-in
+
+```code
+(mp4-in str box path) -> :nil | box
+
+the first box down a path of names, in a box
+```
+
+### mp4-moov
+
+```code
+(mp4-moov stream) -> :nil | str
+
+the moov box of a file, what is in it, its other boxes stepped over
+```
+
+### mp4-n
+
+```code
+a number of so many bytes, high first
+```
+
+### mp4-packet
+
+```code
+(mp4-packet reel index) -> :nil | str
+
+the bytes of a sample of the video track
+```
+
+### mp4-reel
+
+```code
+(mp4-reel stream) -> :nil | reel
+
+the reel of the first video track of a file, every track in :tracks
+```
+
+### mp4-table
+
+```code
+(mp4-table str box head width) -> ((n ...) ...)
+
+the entries of a table box: after its version and flags, a count, and
+the entries, each so many 4 byte numbers, head more bytes before them
+```
+
+### mp4-track
+
+```code
+(mp4-track str trak) -> track
+
+what a track is, and where each of its samples is, how long, when,
+and which are keys
+```
+
 ### msafe?
 
 ```code
@@ -5928,7 +6001,9 @@ does not call itself
 ### reel-codec
 
 ```code
-(reel-codec reel) -> codec
+(reel-codec reel) -> :nil | codec
+
+:nil if there is none here for what the reel holds
 ```
 
 ### reel-decode

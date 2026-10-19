@@ -1042,6 +1042,23 @@ Usage: mic [options]
     On macOS the program the host runs under, the terminal, must be let
     use the microphone, or it hears nothing.
 ```
+## mp4
+```code
+Usage: mp4 [options] [path] ...
+
+    options:
+        -h --help: this help info.
+        -s --samples num: the first num samples of the video track
+            too, where each is, how long, when, and which are keys.
+
+    What is in a film of boxes, .mp4 .m4v .mov: each track, its
+    kind and codec, its size or its sound, and how many samples
+    it has; and of the first video track, the frames a second
+    its times come to and how many keys.
+
+    If no paths given on command line
+    then paths are read from stdin.
+```
 ## mv
 ```code
 Usage: mv [options] path1 path2
