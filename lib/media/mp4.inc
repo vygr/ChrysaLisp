@@ -15,10 +15,10 @@
 ; B-frames is another order. :tracks says what every track is.
 ;
 ; The codec is the host's, src/host/video.cpp, for what it has one for,
-; avc1, H.264, by VideoToolbox on macOS. (reel-codec) of a film it has
-; none for gives :nil. Frame n is the one shown nth: the codec feeds the
-; host the packets till that picture is out, and to go anywhere else it
-; starts again from the key before it.
+; avc1 H.264 and hvc1 H.265, by VideoToolbox on macOS. (reel-codec) of a
+; film it has none for gives :nil. Frame n is the one shown nth: the
+; codec feeds the host the packets till that picture is out, and to go
+; anywhere else it starts again from the key before it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./reel.inc")
@@ -87,7 +87,10 @@
 		(setq at (+ at 4))
 		(times count
 			(push out (map (# (mp4-n s (+ at (* %0 4)) 4)) (range 0 width)))
-			(setq at (+ at (* width 4))))
+			(setq at (+ at (* width 4)))
+			;the tables of a long film have hundreds of thousands of entries,
+			;the other tasks of its node, the GUI's, are let run as it goes
+			(task-slice))
 		out))
 
 (defun mp4-config (s at end)
@@ -138,11 +141,15 @@
 			((defq co (mp4-in s stbl '("co64")))
 				(map (# (mp4-n s (+ (second co) 8 (* %0 8)) 8)) (range 0 (mp4-n s (+ (second co) 4) 4))))
 			((list)))
-		runs (mp4-table s (mp4-in s stbl '("stsc")) 0 3) offsets (list) at 0)
+		runs (mp4-table s (mp4-in s stbl '("stsc")) 0 3) offsets (list) at 0 run 0 per 0)
 	(each (lambda (chunk_at)
-			(defq chunk (inc (!)) per 0)
-			;the run this chunk is in, the last that starts at or before it
-			(each (# (if (<= (first %0) chunk) (setq per (second %0)))) runs)
+			;the run this chunk is in, the last that starts at or before it:
+			;the runs are in order of the chunk they start at, and are stepped
+			;through as the chunks are. A film may have a run a chunk
+			(defq chunk (inc (!)))
+			(while (and (< run (length runs)) (<= (first (elem-get runs run)) chunk))
+				(setq per (second (elem-get runs run)) run (inc run)))
+			(task-slice)
 			(times per
 				(when (< (length offsets) (length sizes))
 					(push offsets chunk_at)
@@ -159,6 +166,7 @@
 	;offsets are taken as signed, one may be before its time: version 1
 	;says so, and QuickTime writes them so in version 0 as well
 	(defq shown (cat when_at))
+	(. track :insert :reordered (if (mp4-in s stbl '("ctts")) :t :nil))
 	(when (defq ctts (mp4-in s stbl '("ctts")))
 		(defq at 0)
 		(each (lambda ((count offset))
@@ -219,7 +227,9 @@
 				span (if (> frames 1) (- (last when_at) (first when_at)) 0))
 			(scatter reel :stream stream :frames frames :width (. video :find :width)
 				:height (. video :find :height) :codec (. video :find :codec)
-				:rate (if (> span 0) (/ (* (n2f (dec frames)) (n2f (. video :find :timescale))) (n2f span)) 0.0)
+				;the seconds first: frames by the timescale is past what a fixed
+				;number holds, for a film of two hours
+				:rate (if (> span 0) (/ (n2f (dec frames)) (/ (n2f span) (n2f (. video :find :timescale)))) 0.0)
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
 				:keys (. video :find :keys) :times when_at :shown (. video :find :shown) :video video
 				:start (. video :find :start) :delay (. video :find :delay)))
@@ -239,7 +249,7 @@
 	;:nil if it has none. Its native is taken as the codec is made, not as
 	;this is read, as flm-codec does
 	(and (defq video (. reel :find :video) config (. video :find :config)
-			setup (some (# (if (eql (first %0) "avcC") (second %0))) config))
+			setup (some (# (if (find (first %0) '("avcC" "hvcC")) (second %0))) config))
 		(defq native (ffi "service/gui/lisp_video")
 			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
 		(/= handle 0)
@@ -248,9 +258,20 @@
 		;left off, a picture is put in its pixmap as far as that goes
 		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
 			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
-			;frame n is the packet shown nth
-			:order (sort (range 0 (. reel :find :frames))
-				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b)))))))
+			:order (mp4-order reel))))
+
+(defun mp4-order (reel)
+	; (mp4-order reel) -> (packet ...)
+	;the packet shown nth, worked out once and kept in the reel, a codec
+	;made again at another scale has it: the sort of the frames of a film
+	;of two hours is half a second. With no ctts they are shown as decoded
+	(unless (defq order (. reel :find :order))
+		(setq order (if (. (. reel :find :video) :find :reordered)
+			(sort (range 0 (. reel :find :frames))
+				(lambda (a b) (- (elem-get (. reel :find :shown) a) (elem-get (. reel :find :shown) b))))
+			(range 0 (. reel :find :frames))))
+		(. reel :insert :order order))
+	order)
 
 (defun mp4-feed (codec n)
 	;the packets fed to the host till the picture shown nth is out on the

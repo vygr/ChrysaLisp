@@ -2,7 +2,8 @@
 // the GUI's table of the driver this host was built with.
 //
 // open: a decoder for a codec, its 4 letters high first, from its setup as
-// the film has it, avcC of avc1, H.264, 0 if this host has none for it. decode: one packet of the
+// the film has it, avcC of avc1, H.264, hvcC of hvc1, H.265, 0 if this host
+// has none for it. decode: one packet of the
 // film, in the order they are decoded, and when it is shown, -1 if it could
 // not be. The pictures are held till asked for. frame: the picture shown at
 // a time, its pixels of 32 bits, blue green red alpha, into the buffer
@@ -46,36 +47,84 @@ static void video_out(void *ref, void *frame_ref, OSStatus status, VTDecodeInfoF
 	decoder->held.push_back({shown.value, image});
 }
 
-uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
+static bool video_avcc(const uint8_t *setup, uint64_t len, std::vector<const uint8_t*> &sets,
+	std::vector<size_t> &sizes, int &nal_length)
 {
 	//avcC: version, profile, its compatibility, level, the bytes of a
 	//length less 1, then its parameter sets, SPS and then PPS, each a
 	//length of 2 bytes and its bytes
-	if (codec != 0x61766331 || len < 7 || setup[0] != 1) return 0;
-	std::vector<const uint8_t*> sets;
-	std::vector<size_t> sizes;
+	if (len < 7 || setup[0] != 1) return false;
 	size_t at = 5;
 	for (int kind = 0; kind < 2; kind++)
 	{
-		if (at >= len) return 0;
+		if (at >= len) return false;
 		int count = kind == 0 ? (setup[at] & 31) : setup[at];
 		at++;
 		for (int i = 0; i < count; i++)
 		{
-			if (at + 2 > len) return 0;
+			if (at + 2 > len) return false;
 			size_t size = (setup[at] << 8) | setup[at + 1];
 			at += 2;
-			if (at + size > len) return 0;
+			if (at + size > len) return false;
 			sets.push_back(setup + at);
 			sizes.push_back(size);
 			at += size;
 		}
 	}
-	if (sets.size() < 2) return 0;
-	int nal_length = (setup[4] & 3) + 1;
+	nal_length = (setup[4] & 3) + 1;
+	return sets.size() >= 2;
+}
+
+static bool video_hvcc(const uint8_t *setup, uint64_t len, std::vector<const uint8_t*> &sets,
+	std::vector<size_t> &sizes, int &nal_length)
+{
+	//hvcC: 21 bytes of what the stream is, the bytes of a length less 1,
+	//then arrays, each the kind of its units, VPS SPS PPS and others, how
+	//many, and each a length of 2 bytes and its bytes
+	if (len < 23 || setup[0] != 1) return false;
+	size_t at = 23;
+	for (int array = 0, arrays = setup[22]; array < arrays; array++)
+	{
+		if (at + 3 > len) return false;
+		int kind = setup[at] & 63;
+		int count = (setup[at + 1] << 8) | setup[at + 2];
+		at += 3;
+		for (int i = 0; i < count; i++)
+		{
+			if (at + 2 > len) return false;
+			size_t size = (setup[at] << 8) | setup[at + 1];
+			at += 2;
+			if (at + size > len) return false;
+			//the parameter sets, VPS SPS PPS
+			if (kind >= 32 && kind <= 34)
+			{
+				sets.push_back(setup + at);
+				sizes.push_back(size);
+			}
+			at += size;
+		}
+	}
+	nal_length = (setup[21] & 3) + 1;
+	return sets.size() >= 3;
+}
+
+uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
+{
+	//the parameter sets of the codec's setup, avc1 H.264, hvc1 H.265
+	std::vector<const uint8_t*> sets;
+	std::vector<size_t> sizes;
+	int nal_length = 4;
+	bool hevc = codec == 0x68766331;
+	if (codec == 0x61766331) { if (!video_avcc(setup, len, sets, sizes, nal_length)) return 0; }
+	else if (hevc) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return 0; }
+	else return 0;
 	auto decoder = new Video_Decoder();
-	if (CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, sets.size(),
-			sets.data(), sizes.data(), nal_length, &decoder->format) != noErr)
+	OSStatus made = hevc
+		? CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault, sets.size(),
+			sets.data(), sizes.data(), nal_length, nullptr, &decoder->format)
+		: CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, sets.size(),
+			sets.data(), sizes.data(), nal_length, &decoder->format);
+	if (made != noErr)
 	{
 		delete decoder;
 		return 0;
