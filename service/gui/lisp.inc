@@ -123,7 +123,8 @@
 (defun gui-grab-rpc (&optional title area)
 	; (gui-grab-rpc [title area]) -> :nil | why | (w h pixels)
 	;what is on the screen now, of the window whose title has title in it,
-	;or of all of it, or of an area of it, (x y w h), read by the GUI from
+	;or of all of it, or of an area of it, (x y w h), or "mouse w h" an area
+	;that big round the mouse, read by the GUI from
 	;its back buffer: its width, its height and its pixels, 32 bits each,
 	;blue green red alpha
 	(when (nempty? (defq service (mail-enquire "@Gui,")))
