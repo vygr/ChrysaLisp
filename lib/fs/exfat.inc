@@ -601,7 +601,7 @@
 	(while (and (< cluster to) (not found))
 		(cond
 			((and (= (logand (- cluster 2) 7) 0) (<= (+ cluster 8) to)
-					(= (logand (code bitmap 1 (>> (- cluster 2) 3)) 0xff) 0xff))
+					(= (logand (code bitmap 1 (>>> (- cluster 2) 3)) 0xff) 0xff))
 				(setq run 0 cluster (+ cluster 8)))
 			((exfat-used? vol cluster)
 				(setq run 0 cluster (inc cluster)))

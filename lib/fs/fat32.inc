@@ -129,7 +129,7 @@
 			(if (= total 0) (setq total (get-ushort boot 19)))
 			(def vol
 				:fat_offset reserved :heap_offset heap_offset
-				:cluster_count (min (>> (- total heap_offset) cluster_shift)
+				:cluster_count (min (>>> (- total heap_offset) cluster_shift)
 					(- (/ (<< fat_length sector_shift) 4) 2))
 				:root (get-uint boot +fat32_boot_root)
 				:sector_shift sector_shift

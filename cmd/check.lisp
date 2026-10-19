@@ -76,6 +76,10 @@
             a form, and calls nothing. (list) or '().
     past    (inc) of an (rfind), which gives the place after
             what it found already: one more is past it.
+    shift   (>> (- a b) n), a logical shift of a difference:
+            one less than 0 is made a large number, the place
+            in a table of an AC-3 decoder 15 bits not 0.
+            (>>>) shifts it as a signed number.
     unbound a call of what is no function or macro of the
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
@@ -166,7 +170,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "width" "struct" "param" "empty" "past" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "width" "struct" "param" "empty" "past" "shift" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -330,6 +334,14 @@
 			(or (eql (third (first in)) "rfind")
 				(and (eql (third (first in)) "ifn") (> (length in) 1) (tree-form? (second in) "rfind")))
 			(found file (second forms) "past" "(inc) of an (rfind), which gives the place after what it found already"))))
+
+(defun check-shift (file forms head)
+	;(>> (- a b) n): >> is a logical shift, a difference that is less than
+	;0 is made a large number. >>> shifts it as a signed one. Not in a .vp,
+	;where (vpx (>> ...)) is the VP's shift of what it is, pointers apart
+	(and (eql head ">>") (not (ends-with ".vp" file)) (> (length forms) 1) (defq inner (tree-form? (second forms)))
+		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol) (eql (third (first in)) "-")
+		(found file (second forms) "shift" "(>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")))
 
 (defun check-empty (file forms head)
 	;(f a () b): an empty list as a thing given to a call is run as a form,
@@ -1137,6 +1149,7 @@
 							(if (find "param" checks) (check-param file forms head))
 							(if (find "empty" checks) (check-empty file forms head))
 							(if (find "past" checks) (check-past file forms head))
+							(if (find "shift" checks) (check-shift file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))

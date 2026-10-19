@@ -194,6 +194,9 @@
 	'("(1) past: (inc) of an (rfind), which gives the place after what it found already"
 		"(2) past: (inc) of an (rfind), which gives the place after what it found already")
 	(tt-check "past" "(slice p 0 (inc (rfind \q/\q p)))" "(slice p 0 (inc (ifn (rfind \q/\q p) -1)))" "(inc (find x s))"))
+(assert-list-eq "shift: a logical shift of a difference; not a signed one, nor of a sum"
+	'("(1) shift: (>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")
+	(tt-check "shift" "(>> (- psd m) 5)" "(>>> (- psd m) 5)" "(>> (+ a b) 1)"))
 ;(relies), where a function goes by more than is declared of what it calls:
 ;a function made up, as an assembled one is left. It calls :sys_mem :alloc,
 ;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,
