@@ -48,6 +48,19 @@
 	(and (nempty? (defq found (mail-enquire (cat (ifn name +storage_name) ","))))
 		(hex-decode (second (split (first found) ",")))))
 
+(defun storage-service-on (system)
+	; (storage-service-on system) -> :nil | netid
+	;the Storage service of another machine, by the start of its system id
+	;in hex, as mesh lists it: what is in its store looked at, put or got,
+	;as a client, this machine no member of it
+	(defq system (to-upper system))
+	(some (lambda (entry)
+			(defq svc (hex-decode (second (split entry ",")))
+				node (slice svc +long_size (+ +long_size +node_id_size)))
+			(if (some (# (and (starts-with system (to-upper (hex-encode %0))) (find node (lisp-nodes %0)))) (lisp-systems))
+				svc))
+		(mail-enquire (cat +storage_group ","))))
+
 (defun storage-ask (svc type &optional body wait)
 	; (storage-ask svc type [body wait]) -> :nil | answer
 	;one thing asked of a service, and what it says. :nil if it says

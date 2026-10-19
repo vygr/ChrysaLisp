@@ -19,6 +19,10 @@
             and -k say otherwise.
         -f --forget: this machine no longer starts its
             store by itself. The store is left as it is.
+        -o --on machine: the store of another machine, by the
+            start of its system id as mesh lists it, 90D57181:
+            looked at, put to or got from as a client, this
+            machine no member of it, and none of it kept here.
         -L --travels on|off: this machine is one that is
             taken away from the others, a laptop, or is not.
             With -j, or of a member. One that travels pins
@@ -100,6 +104,7 @@
     no option, what the store is and what is in it.")
 (("-j" "--join") ,(opt-flag 'opt_j))
 (("-f" "--forget") ,(opt-flag 'opt_f))
+(("-o" "--on") ,(opt-str 'opt_o))
 (("-L" "--travels") ,(opt-str 'opt_L))
 (("-s" "--start") ,(opt-str 'opt_s))
 (("-m" "--make") ,(opt-num 'opt_m))
@@ -143,7 +148,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
+			(defq opt_o :nil opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
 				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_L :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
@@ -173,7 +178,7 @@
 				((defq pinned (storage-user-pin))
 					(print "This machine travels, and holds all of " pinned " from now on."))
 				((print "This machine travels. Its user's area is pinned as its store starts."))))
-		(defq svc (storage-service) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
+		(defq svc (if opt_o (storage-service-on opt_o) (storage-service)) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
 		(cond
 			((and opt_t (eql name ""))
 				(each (lambda ((scene what)) (print scene (pad "" (max 1 (- 12 (length scene)))) what)) (scene-list)))
@@ -194,7 +199,10 @@
 					(:t (defq lines (storage-record-run (lambda (line) (if line (write-line out line)))
 							(+ (pii-time) (* opt_S 1000000)) opt_G))
 						(stream-flush out)
-						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc) (unless opt_s (print "The Storage service is not running, storage -s image.")))
+						(unless (eql opt_r "-") (print lines " lines to " opt_r)))))			((not svc)
+				(cond
+					(opt_o (print "No store on a machine " opt_o " in the mesh, mesh lists them."))
+					((not opt_s) (print "The Storage service is not running, storage -s image."))))
 			((> opt_z 0)
 				(print "Copying the store to a volume of " opt_z " MB ...")
 				(if (defq moved_to (storage-resize opt_z svc))
