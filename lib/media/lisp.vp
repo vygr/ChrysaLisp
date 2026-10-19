@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/reals/class.inc")
+(include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
 (def-func (path-to-absolute "./aac_dct4"))
@@ -211,5 +212,172 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(aac-dct4 x tw rev out)" +error_msg_wrong_types))
 	(signature '(:reals :reals :nums :reals)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_s16"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f4
+	;info
+	;(media-s16 out chans from) -> out, the samples of each channel, reals
+	;all as long, from frame from, written to the str out one frame after
+	;another, each a 16 bit sample of each channel, low byte first, rounded
+	;to the nearest and held to -32768 to 32767. out is to be as long as
+	;that, a frame is 2 bytes a channel
+
+	(vp-rdef (out chans from n len c src dst i step x top bottom)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,chans ,from) '(:obj :obj :num))
+	(vp-push out)
+	(assign `((,chans +array_length ui) (,chans +array_begin)) `(,n ,chans))
+	(vp-lea-i out +str_data out)
+	;the length of the first channel, the frames are to it
+	(assign `((,chans 0)) `(,len))
+	(assign `((,len +array_length ui)) `(,len))
+	;a frame is 2n bytes, half a unit to round by, and the bounds
+	(vp-cpy-rr n step)
+	(vp-shl-cr 1 step)
+	(vp-cpy-cr 1 x)
+	(vp-cvt-rf x :f2)
+	(vp-cpy-cr 2 x)
+	(vp-cvt-rf x :f3)
+	(vp-div-ff :f3 :f2)
+	(vp-neg-ff :f2 :f3)
+	(vp-cpy-cr 32767 top)
+	(vp-cpy-cr -32768 bottom)
+	(vp-xor-rr c c)
+	(vpif `(,from < ,len))
+	(loop-start)
+		;each channel its own column of the frames
+		(vp-cpy-rr c src)
+		(vp-shl-cr 3 src)
+		(vp-add-rr chans src)
+		(assign `((,src 0)) `(,src))
+		(assign `((,src +array_begin)) `(,src))
+		(vp-cpy-rr c dst)
+		(vp-shl-cr 1 dst)
+		(vp-add-rr out dst)
+		(vp-cpy-rr from i)
+		(loop-start)
+			(vp-cpy-rr i x)
+			(vp-shl-cr 3 x)
+			(vp-cpy-df src x :f0)
+			;half away from 0, then the whole part
+			(vp-cpy-ff :f2 :f1)
+			(vp-xor-rr x x)
+			(vp-cvt-rf x :f4)
+			(vpif '(:f0 < :f4))
+				(vp-cpy-ff :f3 :f1)
+			(endif)
+			(vp-add-ff :f1 :f0)
+			(vp-cvt-fr :f0 x)
+			(vpif `(,x > ,top))
+				(vp-cpy-rr top x)
+			(elseif `(,x < ,bottom))
+				(vp-cpy-rr bottom x)
+			(endif)
+			(vp-cpy-ri-s x dst 0)
+			(vp-add-rr step dst)
+			(vp-add-cr 1 i)
+		(loop-until `(,i = ,len))
+		(vp-add-cr 1 c)
+	(loop-until `(,c = ,n))
+	(endif)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-s16 out chans from)" +error_msg_wrong_types))
+	(signature '(:str :list :num)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_huff"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r8, :r14, :f0-:f15
+	;info
+	;(media-huff data at table) -> num, the code of a Huffman book at bit
+	;at of the str data, high bit first: what it stands for by 2^32, and
+	;the bit after it. table is nums, levels of 256 entries, each by 8 bits
+	;of the code: an entry of 0 or more is a code that ends in this level,
+	;what it stands for by 256 and its bits in it; less than 0 the next
+	;level, at -entry. data is to have 4 bytes past the last code read.
+	;lib/media/huff.inc makes the tables
+
+	(vp-rdef (data at table e byte x level)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,data ,at ,table) '(:obj :num :obj))
+	(vp-lea-i data +str_data data)
+	(assign `((,table +array_begin)) `(,table))
+	(vp-cpy-rr table level)
+	(loop-start)
+		;the next 8 bits: the 2 bytes at at, by where at is in the first
+		(vp-cpy-rr at byte)
+		(vp-shr-cr 3 byte)
+		(vp-add-rr data byte)
+		(vp-cpy-ir-ub byte 0 x)
+		(vp-cpy-ir-ub byte 1 e)
+		(vp-shl-cr 8 x)
+		(vp-add-rr e x)
+		(vp-cpy-rr at e)
+		(vp-and-cr 7 e)
+		(vp-shl-rr e x)
+		(vp-shr-cr 8 x)
+		(vp-and-cr 255 x)
+		;its entry
+		(vp-shl-cr 3 x)
+		(vp-cpy-dr level x e)
+		(breakif `(,e >= 0))
+		;the next level, its entries from the start of the table
+		(vp-add-cr 8 at)
+		(vp-mul-cr -8 e)
+		(vp-cpy-rr table level)
+		(vp-add-rr e level)
+	(loop-end)
+	;what it stands for, and at past it
+	(vp-cpy-rr e x)
+	(vp-and-cr 255 x)
+	(vp-add-rr x at)
+	(vp-shr-cr 8 e)
+	(vp-shl-cr 32 e)
+	(vp-add-rr at e)
+	(call :num :create `(,e) '(:r1))
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-huff data at table)" +error_msg_wrong_types))
+	(signature '(:str :num :nums)))
 
 (def-func-end)

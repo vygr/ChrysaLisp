@@ -14,6 +14,9 @@
 ; centre in each at 0.707, a downmix to two.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./huff.inc")
+(import "./bits.inc")
+
 ;module
 (env-push)
 
@@ -31,25 +34,6 @@
 	;the books that are not Huffman books of the spectrum
 	+aac_zero 0 +aac_noise 13 +aac_intensity2 14 +aac_intensity 15)
 
-;;;;;;;;;;;;;;
-; bits of a str
-;;;;;;;;;;;;;;
-
-;a reader is (str at), at in bits from the first, high bit first
-
-(defun aac-bits (in n)
-	; (aac-bits reader n) -> num
-	;the next n bits, 0 to 25
-	(defq at (second in) s (first in) byte (>> at 3))
-	(elem-set in 1 (+ at n))
-	(logand (>> (code-be s 4 byte) (- 32 (logand at 7) n)) (dec (<< 1 n))))
-
-(defun aac-bit (in)
-	; (aac-bit reader) -> 0 | 1
-	(defq at (second in))
-	(elem-set in 1 (inc at))
-	(logand (>> (code (first in) 1 (>> at 3)) (- 7 (logand at 7))) 1))
-
 ;;;;;;;;;;;;;;;;;
 ; the Huffman books
 ;;;;;;;;;;;;;;;;;
@@ -66,10 +50,18 @@
 
 (defq *aac_sf* (aac-book *aac_sf_book*) *aac_spectral* (map (const aac-book) *aac_books*))
 
-(defun aac-huff (in book)
-	; (aac-huff reader book) -> index
-	;the code next, what it stands for: the bits of the longest code looked
-	;at, one more each time till one is a code
+(defun aac-huff (in table)
+	; (aac-huff reader table) -> index
+	;the code next, what it stands for, by the native reader of a book's
+	;table, lib/media/lisp.vp media_huff
+	(defq got ((. +aac :find :huff) (first in) (second in) table))
+	(elem-set in 1 (logand got 0xffffffff))
+	(>> got 32))
+
+(defun aac-huff-lisp (in book)
+	; (aac-huff-lisp reader book) -> index
+	;the same in Lisp, the bits of the longest code looked at, one more
+	;each time till one is a code: what the native one is checked against
 	(bind '(lookup longest) book)
 	(defq at (second in) s (first in) byte (>> at 3) shift (logand at 7)
 		;the next 32 bits, and those after the first byte
@@ -122,11 +114,11 @@
 	;what an AudioSpecificConfig says: the object type, 2 is AAC-LC, the
 	;index of its rate, the rate, and the channels
 	(when (>= (length setup) 2)
-		(defq in (list (cat setup (char 0 8)) 0) type (aac-bits in 5))
-		(if (= type 31) (setq type (+ 32 (aac-bits in 6))))
-		(defq index (aac-bits in 4)
-			rate (if (= index 15) (aac-bits in 24) (elem-get (. +aac :find :rates) (min index 12))))
-		(list type index rate (aac-bits in 4))))
+		(defq in (bits-of setup) type (bits-get in 5))
+		(if (= type 31) (setq type (+ 32 (bits-get in 6))))
+		(defq index (bits-get in 4)
+			rate (if (= index 15) (bits-get in 24) (elem-get (. +aac :find :rates) (min index 12))))
+		(list type index rate (bits-get in 4))))
 
 (defun aac-track-config (track)
 	; (aac-track-config track) -> :nil | config
@@ -152,11 +144,11 @@
 	; (aac-ics-info reader rate_index) -> info
 	;its window, its shape, how many bands are coded, and the groups of
 	;short windows, how many windows in each, and the bands' bounds
-	(aac-bit in)
-	(defq sequence (aac-bits in 2) shape (aac-bit in) info (Emap))
+	(bits-1 in)
+	(defq sequence (bits-get in 2) shape (bits-1 in) info (Emap))
 	(cond
 		((= sequence +aac_eight_short)
-			(defq max_sfb (aac-bits in 4) grouping (aac-bits in 7) lengths (list 1))
+			(defq max_sfb (bits-get in 4) grouping (bits-get in 7) lengths (list 1))
 			;a 1 of the grouping puts the next window in the group before it
 			(each (lambda (i)
 					(if (/= 0 (logand grouping (<< 1 (- 6 i))))
@@ -164,9 +156,9 @@
 						(push lengths 1)))
 				(range 0 7))
 			(scatter info :windows 8 :lengths lengths :bands (elem-get (. +aac :find :bands_short) rate_index)))
-		(:t (defq max_sfb (aac-bits in 6))
+		(:t (defq max_sfb (bits-get in 6))
 			;no prediction in AAC-LC
-			(if (/= 0 (aac-bit in)) (throw "aac: prediction is not of AAC-LC" sequence))
+			(if (/= 0 (bits-1 in)) (throw "aac: prediction is not of AAC-LC" sequence))
 			(scatter info :windows 1 :lengths (list 1) :bands (elem-get (. +aac :find :bands_long) rate_index))))
 	(scatter info :sequence sequence :shape shape :max_sfb max_sfb))
 
@@ -178,9 +170,9 @@
 	(map (lambda (_)
 			(defq books (list))
 			(while (< (length books) max_sfb)
-				(defq book (aac-bits in 4) run 0 more escape)
+				(defq book (bits-get in 4) run 0 more escape)
 				(while (= more escape)
-					(setq more (aac-bits in bits) run (+ run more)))
+					(setq more (bits-get in bits) run (+ run more)))
 				(times run (push books book)))
 			books)
 		(. info :find :lengths)))
@@ -199,7 +191,7 @@
 							(setq position (+ position (- (aac-huff in (. +aac :find :sf)) 60))))
 						((= book +aac_noise)
 							(if first_noise
-								(setq first_noise :nil noise (+ noise (- (aac-bits in 9) 256)))
+								(setq first_noise :nil noise (+ noise (- (bits-get in 9) 256)))
 								(setq noise (+ noise (- (aac-huff in (. +aac :find :sf)) 60)))))
 						(:t (setq scale (+ scale (- (aac-huff in (. +aac :find :sf)) 60))))))
 				books))
@@ -207,8 +199,8 @@
 
 (defun aac-pulses (in)
 	; (aac-pulses reader) -> (start (offset amp) ...)
-	(defq count (inc (aac-bits in 2)) start (aac-bits in 6))
-	(cat (list start) (map (lambda (_) (list (aac-bits in 5) (aac-bits in 4))) (range 0 count))))
+	(defq count (inc (bits-get in 2)) start (bits-get in 6))
+	(cat (list start) (map (lambda (_) (list (bits-get in 5) (bits-get in 4))) (range 0 count))))
 
 (defun aac-tns (in info)
 	; (aac-tns reader info) -> (((length direction (coef ...)) ...) ...)
@@ -216,17 +208,17 @@
 	;its direction and its coefficients, as the indices they were sent as
 	(defq short (= (. info :find :sequence) +aac_eight_short))
 	(map (lambda (_)
-			(defq count (aac-bits in (if short 1 2)) filters (list))
+			(defq count (bits-get in (if short 1 2)) filters (list))
 			(when (> count 0)
-				(defq res (aac-bit in))
+				(defq res (bits-1 in))
 				(times count
-					(defq len (aac-bits in (if short 4 6)) order (aac-bits in (if short 3 5)))
+					(defq len (bits-get in (if short 4 6)) order (bits-get in (if short 3 5)))
 					(cond
 						((> order 0)
-							(defq direction (aac-bit in) compress (aac-bit in)
+							(defq direction (bits-1 in) compress (bits-1 in)
 								bits (- (+ res 3) compress))
 							(push filters (list len direction
-								(map (lambda (_) (aac-bits in bits)) (range 0 order)) res compress)))
+								(map (lambda (_) (bits-get in bits)) (range 0 order)) res compress)))
 						(:t (push filters (list len 0 (list) res 0))))))
 			filters)
 		(range 0 (. info :find :windows))))
@@ -245,8 +237,8 @@
 	;a value of 16 or more of book 11: so many 1s and a 0, then 4 bits more
 	;than there were 1s
 	(defq ones 0)
-	(while (= (aac-bit in) 1) (setq ones (inc ones)))
-	(+ (<< 1 (+ ones 4)) (aac-bits in (+ ones 4))))
+	(while (= (bits-1 in) 1) (setq ones (inc ones)))
+	(+ (<< 1 (+ ones 4)) (bits-get in (+ ones 4))))
 
 (defun aac-values (in book)
 	; (aac-values reader book) -> (value ...)
@@ -259,7 +251,7 @@
 	(cond
 		(signed (map (# (- %0 top)) values))
 		(:t ;a sign bit after the code for each that is not 0, then escapes
-			(setq values (map (# (if (and (/= %0 0) (= (aac-bit in) 1)) (neg %0) %0)) values))
+			(setq values (map (# (if (and (/= %0 0) (= (bits-1 in) 1)) (neg %0) %0)) values))
 			(if (= book 11)
 				(map (# (if (= (abs %0) 16) (* (if (< %0 0) -1 1) (aac-escape in)) %0)) values)
 				values))))
@@ -293,14 +285,14 @@
 	; (aac-channel reader info rate_index [common]) -> channel
 	;an individual channel stream: its gain, window, unless it has the one
 	;of its pair, sections, scales, pulses, TNS and spectrum
-	(defq ch (Emap) global (aac-bits in 8))
+	(defq ch (Emap) global (bits-get in 8))
 	(unless common (setq info (aac-ics-info in rate_index)))
 	(defq sections (aac-sections in info) scales (aac-scales in info sections global) pulses :nil tns :nil)
-	(when (= (aac-bit in) 1)
+	(when (= (bits-1 in) 1)
 		(if (= (. info :find :sequence) +aac_eight_short) (throw "aac: pulses in short windows" 0))
 		(setq pulses (aac-pulses in)))
-	(if (= (aac-bit in) 1) (setq tns (aac-tns in info)))
-	(if (= (aac-bit in) 1) (throw "aac: gain control is not of AAC-LC" 0))
+	(if (= (bits-1 in) 1) (setq tns (aac-tns in info)))
+	(if (= (bits-1 in) 1) (throw "aac: gain control is not of AAC-LC" 0))
 	(scatter ch :info info :sections sections :scales scales :pulses pulses :tns tns
 		:spectrum (aac-spectrum in info sections)))
 
@@ -312,24 +304,24 @@
 	; (aac-block decoder packet) -> (channel ...) | :nil
 	;the channels of a raw data block, the elements read till END, and how
 	;many bits it took
-	(defq in (list (cat packet (char 0 8)) 0) channels (list) rate_index (. decoder :find :rate_index)
+	(defq in (bits-of packet) channels (list) rate_index (. decoder :find :rate_index)
 		kind 0)
 	;of more than two channels only the centre and the front pair are wanted,
 	;the elements to the first pair: what is after it is not read, its
 	;blocks are its length
 	(defq front (> (. decoder :find :channels) 2))
-	(while (and (/= (setq kind (aac-bits in 3)) +aac_end)
+	(while (and (/= (setq kind (bits-get in 3)) +aac_end)
 			(not (and front (some (# (eql (. %0 :find :pair) :right)) channels))))
-		(aac-bits in 4)
+		(bits-get in 4)
 		(cond
 			((or (= kind +aac_sce) (= kind +aac_lfe)) (push channels (aac-channel in :nil rate_index)))
 			((= kind +aac_cpe)
-				(defq common (aac-bit in) info :nil ms 0 ms_mask :nil)
+				(defq common (bits-1 in) info :nil ms 0 ms_mask :nil)
 				(when (= common 1)
-					(setq info (aac-ics-info in rate_index) ms (aac-bits in 2))
+					(setq info (aac-ics-info in rate_index) ms (bits-get in 2))
 					(if (= ms 1)
 						(setq ms_mask (map (lambda (_)
-								(map (lambda (_) (aac-bit in)) (range 0 (. info :find :max_sfb))))
+								(map (lambda (_) (bits-1 in)) (range 0 (. info :find :max_sfb))))
 							(. info :find :lengths)))))
 				(defq left (aac-channel in info rate_index (= common 1))
 					right (aac-channel in info rate_index (= common 1)))
@@ -338,15 +330,15 @@
 				(push channels left right))
 			((= kind +aac_dse)
 				;data, stepped over: aligned or not, and its length
-				(defq align (aac-bit in) count (aac-bits in 8))
-				(if (= count 255) (setq count (+ count (aac-bits in 8))))
+				(defq align (bits-1 in) count (bits-get in 8))
+				(if (= count 255) (setq count (+ count (bits-get in 8))))
 				(if (= align 1) (elem-set in 1 (* 8 (/ (+ (second in) 7) 8))))
 				(elem-set in 1 (+ (second in) (* 8 count))))
 			((= kind +aac_fil)
 				;fill, stepped over; its 4 bits of count were read as the tag
 				(elem-set in 1 (- (second in) 4))
-				(defq count (aac-bits in 4))
-				(if (= count 15) (setq count (+ count (aac-bits in 8) -1)))
+				(defq count (bits-get in 4))
+				(if (= count 15) (setq count (+ count (bits-get in 8) -1)))
 				(elem-set in 1 (+ (second in) (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
 	(. decoder :insert :bits (second in))
@@ -432,6 +424,8 @@
 		(times 512 (push gain g) (setq g (* g step)))
 		;|v|^(4/3), to 8191
 		(each (# (defq v (n2r %0)) (push pow (* v (aac-root v 3)))) (range 1 8192))
+		;the native reader of codes, taken now, not as this is read
+		(. +aac :insert :huff (ffi "lib/media/media_huff"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
 			:long (aac-windows 1024) :short (aac-windows 128)
 			:dct_long (aac-dct4-tables 1024) :dct_short (aac-dct4-tables 128))))
@@ -655,7 +649,8 @@
 		(out)))
 
 ;what the functions read as they run
-(scatter +aac :rates *aac_rates* :sf *aac_sf* :spectral *aac_spectral* :kinds *aac_book_kinds*
+(scatter +aac :rates *aac_rates* :sf (huff-table *aac_sf_book*) :spectral (map (const huff-table) *aac_books*)
+	:sf_lisp *aac_sf* :spectral_lisp *aac_spectral* :kinds *aac_book_kinds*
 	:bands_long *aac_bands_long* :bands_short *aac_bands_short* :pi *aac_pi* :dct4 *aac_dct4*
 	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil
 	:centre (sqrt (/ (n2r 1) (n2r 2))))

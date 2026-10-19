@@ -19,7 +19,9 @@
 		(progn (mp4-tables track) (defq config (aac-track-config track)))
 		(= (first config) 2)
 		(scatter (Emap) :track track :config config :rate (third config) :stream (. reel :find :stream)
-			:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0)))
+			:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0
+			;the native that makes 16 bit samples, taken now, not as this is read
+			:s16 (ffi "lib/media/media_s16"))))
 
 (defun sound-stop (sound)
 	; (sound-stop sound)
@@ -46,12 +48,9 @@
 	(scatter sound :next packet :drop (- (max sample 0) (* (dec packet) 1024)) :time time
 		:written 0 :left 0 :anchor (pii-time) :handle (audio-stream-open-rpc rate 2)))
 
-(defun sound-pcm (left right from)
-	;16 bit stereo, left first, from a frame on
-	(apply (const cat) (map! (lambda (l r)
-			(cat (char (logand (max -32768 (min 32767 (n2i l))) 0xffff) 2)
-				(char (logand (max -32768 (min 32767 (n2i r))) 0xffff) 2)))
-		(list left right) from -1)))
+(defun sound-pcm (sound left right from)
+	;16 bit stereo, left first, from a frame on, lib/media/lisp.vp media_s16
+	((. sound :find :s16) (str-alloc (* 4 (- (length left) from))) (list left right) from))
 
 (defun sound-feed (sound)
 	; (sound-feed sound)
@@ -64,7 +63,7 @@
 		(. sound :insert :left left)
 		(while (and (< left ahead) (< next packets))
 			(defq chans (sound-packet sound next) drop (. sound :find :drop)
-				data (sound-pcm (first chans) (ifn (second chans) (first chans)) drop))
+				data (sound-pcm sound (first chans) (ifn (second chans) (first chans)) drop))
 			(audio-stream-write-rpc handle data)
 			(setq written (+ written (- 1024 drop)) left (+ left (- 1024 drop)) next (inc next))
 			(. sound :insert :drop 0))
