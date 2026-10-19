@@ -8,16 +8,18 @@
 (import "lib/media/mp4.inc")
 
 ;A film as a projector shows it: a reel, lib/media/reel.inc, and the codec
-;that puts each frame on its canvas, at the rate the reel says.
+;that puts each frame on its canvas, at the rate the reel says, or kept to
+;its sound as it is heard, ./sound.inc.
 
 ;our UI widgets
 (import "./widgets.inc")
+(import "./sound.inc")
 
 (enums +select 0
 	(enum main timer tip))
 
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
-	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil
+	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
 (defun show (n)
@@ -33,8 +35,32 @@
 		(if *playing* "" ", paused")))
 	(.-> *status* :layout :dirty))
 
+(defun frame-time (n)
+	; (frame-time n) -> seconds
+	;when frame n is shown, of a film of an mp4, its time less where its
+	;edit list starts it
+	(defq video (. *reel* :find :video))
+	(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
+		(n2f (. video :find :timescale))))
+
+(defun frame-at (time)
+	; (frame-at seconds) -> n
+	;the last frame shown by a time, the frames being in the order shown
+	(defq low 0 high (dec (. *reel* :find :frames)))
+	(while (< low high)
+		(defq mid (>> (+ low high 1) 1))
+		(if (<= (frame-time mid) time) (setq low mid) (setq high (dec mid))))
+	low)
+
+(defun sound-on? ()
+	(and *sound* *playing* (. *sound* :find :handle)))
+
 (defun play (on)
+	;the sound started from the frame shown, or stopped
 	(setq *playing* on)
+	(cond
+		((and on *sound*) (sound-start *sound* (frame-time *at*)))
+		(*sound* (sound-stop *sound*)))
 	(if *reel* (show *at*)))
 
 (defun say-what (reel file)
@@ -130,9 +156,13 @@
 		(played-save)
 		;the scroll lets go of the canvas it had as it is given the new one
 		(if *codec* (reel-close *codec*))
+		(sound-stop *sound*)
 		(setq *reel* reel *codec* codec *canvas* (. *codec* :find :canvas) *at* -1
 			*file* file *scale* (. codec :find :scale))
 		(show (min (ifn frame 0) (dec (. reel :find :frames))))
+		;its sound, heard from the frame shown if it is playing
+		(setq *sound* (sound-of reel))
+		(and *sound* *playing* (sound-start *sound* (frame-time *at*)))
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
 		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
@@ -174,6 +204,16 @@
 		(if *reel* (n2i (/ 1000000.0 (. *reel* :find :rate))) 33333) 0)
 	(cond
 		((not *reel*))
+		((sound-on?)
+			;the frame of what is heard, the sound fed first; round again after
+			;the last, sound and all
+			(sound-feed *sound*)
+			(defq n (frame-at (sound-clock *sound*)))
+			(cond
+				((>= n (dec (. *reel* :find :frames)))
+					(show 0)
+					(sound-start *sound* (frame-time 0)))
+				((/= n *at*) (show n))))
 		(*playing* (show (if (>= (inc *at*) (. *reel* :find :frames)) 0 (inc *at*))))
 		((/= *seek* *at*) (show *seek*))))
 
@@ -211,6 +251,7 @@
 				;a drag of it sends many, only the last is shown: the tick
 				;shows it if more are waiting now
 				(setq *playing* :nil *seek* (get :value *timeline*))
+				(sound-stop *sound*)
 				(unless (mail-poll select) (show *seek*)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_smaller id +event_bigger))
@@ -230,5 +271,6 @@
 			((. *window* :event *msg*))))
 	(place-keep)
 	(played-save)
+	(sound-stop *sound*)
 	(if *codec* (reel-close *codec*))
 	(gui-sub-rpc *window*))
