@@ -43,7 +43,8 @@
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp* *ignore_case*)
-	(. *edit* :underlay)
+	;the masks made again, the edit and all in it to be drawn again
+	(.-> *edit* :underlay :dirty)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
 	;update status bar

@@ -38,7 +38,8 @@
 (defun refresh-display ()
 	;load the vdu widgets with the text and selection
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(. *edit* :underlay)
+	;the masks made again, the edit and all in it to be drawn again
+	(.-> *edit* :underlay :dirty)
 	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)))
 
 (defun refresh-sliders ()

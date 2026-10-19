@@ -147,6 +147,23 @@ run again, the list let go of (`:view :forget_draws`), when:
 * it keeps no list at all, `+view_flag_nocache`, as the vdu does, which
   draws only the lines that are dirty.
 
+So the rule for a view: whatever changes what its `:draw` would draw marks
+it dirty, `:add_dirty`, `:dirty` and the like. Nothing else tells the
+compositor its list is old. And any change of a view's opaque region,
+`:add_opaque`, `:sub_opaque`, `:clr_opaque`, or its `+view_flag_opaque`,
+needs a dirty too: the region is also what the compositor draws nothing
+behind. That is the application's to do, at the level it works at, not each
+widget's at the level of its parts: one `:dirty` of a view marks all in it. Before the
+lists were kept, a view that changed its look and said nothing still came
+out right wherever something else was drawn again; now its old list is
+played, and where it is opaque nothing behind it is drawn either, so what
+was on the screen there stays. The Edit's masks were such: a `Mask` draws
+its opaque region, and `:underlay` changed the regions with `:add_opaque`
+and `:clr_opaque`, which mark nothing, so a selection drawn once stayed
+drawn and the new one was left unpainted under the text. The apps that
+call `:underlay`, Terminal, Editor, Viewer and Hexview, now mark the Edit
+dirty after it.
+
 `:change_dirty` ends in `:dirty_all`, so the view and those in it draw
 again. A move and nothing else is `:move_dirty`, which keeps their lists; a
 window dragged by its title is moved so. `+view_flag_drawn` says a view has
