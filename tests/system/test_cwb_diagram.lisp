@@ -87,3 +87,12 @@
 (defq dg_sdoc (dia-scene-doc dg_scene))
 (assert-true "the document of a scene has what lies under first, then its lines, then its boxes"
 	(and (= (length (cwb-items dg_sdoc)) 7) (> (. dg_sdoc :find :width) 500)))
+
+;every diagram drawn for the docs fits a page of the Docs app, 80 columns
+;of the terminal font: one wider is given a scroll of its own, and is read
+;a piece at a time beside the words it is of
+(import "gui/canvas/lisp.inc")
+(def (defq dg_vdu (Vdu)) :font (create-font (first (font-info (get :font_terminal *env*))) 16) :vdu_width 80 :vdu_height 1)
+(defq dg_page (first (. dg_vdu :pref_size)))
+(assert-list-eq (cat "no diagram is wider than a page of the docs, " (str dg_page))
+	'() (filter (# (> (first (. (canvas-load %0 0) :pref_size)) dg_page)) (sort (files-all "docs/diagrams" '(".cwb")))))

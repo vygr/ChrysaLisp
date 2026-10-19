@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
-	:width 820
-	:height 402
+	:width 664
+	:height 424
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 56
+	:next_id 55
 	:items
-	((:list 15)
+	((:list 14)
 		((:list 7)
 			:group
 			:id
@@ -830,33 +830,13 @@
 			:stroke
 			0
 			:text
-			"[An action changes the Document, each change a step of its undo;]"
+			"[An action changes the Document, each change a step of its undo; the controller then has the widget draw what the Document now is.]"
 			:font_size
 			11
 			:pos
 			((:list 2)
-				483.00000
-				343.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			55
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[the controller then has the widget draw what the Document now is.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				483.00000
-				359.00000
+				13.00000
+				409.00000
 			)
 		)
 	)

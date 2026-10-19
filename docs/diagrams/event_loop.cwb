@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
-	:width 826
-	:height 278
+	:width 786
+	:height 296
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 75
+	:next_id 76
 	:items
-	((:list 20)
+	((:list 21)
 		((:list 7)
 			:group
 			:id
@@ -253,7 +253,7 @@
 					:id
 					20
 					:d
-					"[M 590 86 L 650 86]"
+					"[M 590 86 L 620 86]"
 					:stroke
 					4282140240
 					:width
@@ -268,7 +268,7 @@
 					:id
 					21
 					:d
-					"[M 650 86 L 641 90 641 82 Z]"
+					"[M 620 86 L 611 90 611 82 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -297,7 +297,7 @@
 			11
 			:pos
 			((:list 2)
-				626.14916
+				611.14916
 				94.00000
 			)
 		)
@@ -312,7 +312,7 @@
 					:id
 					24
 					:d
-					"[M 715 108 L 715 150]"
+					"[M 685 108 L 675 150]"
 					:stroke
 					4282140240
 					:width
@@ -327,7 +327,7 @@
 					:id
 					25
 					:d
-					"[M 715 150 L 711 141 719 141 Z]"
+					"[M 675 150 L 673.19334 140.3184 680.97569 142.17131 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -984,7 +984,7 @@
 			)
 			:pos
 			((:list 2)
-				663.00000
+				633.00000
 				77.00000
 			)
 		)
@@ -1080,7 +1080,7 @@
 			)
 			:pos
 			((:list 2)
-				643.00000
+				603.00000
 				163.00000
 			)
 		)
@@ -1095,13 +1095,33 @@
 			:stroke
 			0
 			:text
-			"[The earlier a mailbox is in the list, the sooner its mail is taken. No message needs to say what kind it is.]"
+			"[The earlier a mailbox is in the list, the sooner its mail is taken.]"
 			:font_size
 			12
 			:pos
 			((:list 2)
 				13.00000
 				263.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			75
+			:kind
+			:text
+			:fill
+			4280296488
+			:stroke
+			0
+			:text
+			"[No message needs to say what kind it is.]"
+			:font_size
+			12
+			:pos
+			((:list 2)
+				13.00000
+				281.00000
 			)
 		)
 	)

@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
-	:width 859
-	:height 318
+	:width 646
+	:height 396
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 47
+	:next_id 46
 	:items
-	((:list 15)
+	((:list 14)
 		((:list 7)
 			:group
 			:id
@@ -619,8 +619,8 @@
 			11
 			:pos
 			((:list 2)
-				663.00000
-				113.00000
+				13.00000
+				325.00000
 			)
 		)
 		((:list 15)
@@ -634,39 +634,19 @@
 			:stroke
 			0
 			:text
-			"[The emulator needs no translator,]"
+			"[The emulator needs no translator, so the PII is tested first.]"
 			:font_size
 			11
 			:pos
 			((:list 2)
-				663.00000
-				129.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			44
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[so the PII is tested first.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				663.00000
-				145.00000
+				13.00000
+				341.00000
 			)
 		)
 		((:list 17)
 			:shape
 			:id
-			45
+			44
 			:kind
 			:text
 			:fill
@@ -681,14 +661,14 @@
 			11
 			:pos
 			((:list 2)
-				663.00000
-				177.00000
+				13.00000
+				365.00000
 			)
 		)
 		((:list 15)
 			:shape
 			:id
-			46
+			45
 			:kind
 			:text
 			:fill
@@ -701,8 +681,8 @@
 			11
 			:pos
 			((:list 2)
-				663.00000
-				193.00000
+				13.00000
+				381.00000
 			)
 		)
 	)

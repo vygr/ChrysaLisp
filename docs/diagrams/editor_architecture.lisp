@@ -11,6 +11,5 @@
 (dia-join s 'ctrl 'ui "")
 (dia-join s 'ui 'layers "")
 (dia-join s 'layers 'doc "its :buffer")
-(dia-say s "An action changes the Document, each change a step of its undo;" 470 330 11)
-(dia-say s "the controller then has the widget draw what the Document now is." 470 346 11)
+(dia-say s "An action changes the Document, each change a step of its undo; the controller then has the widget draw what the Document now is." 0 396 11)
 (diagram "editor_architecture" (dia-scene-doc s))

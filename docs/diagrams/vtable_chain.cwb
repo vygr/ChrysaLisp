@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
-	:width 1006
-	:height 127
+	:width 771
+	:height 192
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 45
+	:next_id 47
 	:items
-	((:list 11)
+	((:list 13)
 		((:list 7)
 			:group
 			:id
@@ -19,7 +19,7 @@
 					:id
 					2
 					:d
-					"[M 170 31 L 230 31]"
+					"[M 160 31 L 205 31]"
 					:stroke
 					4282140240
 					:width
@@ -34,7 +34,7 @@
 					:id
 					3
 					:d
-					"[M 230 31 L 221 35 221 27 Z]"
+					"[M 205 31 L 196 35 196 27 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -58,7 +58,7 @@
 					:id
 					5
 					:d
-					"[M 380 31 L 430 31]"
+					"[M 355 31 L 400 31]"
 					:stroke
 					4282140240
 					:width
@@ -73,7 +73,7 @@
 					:id
 					6
 					:d
-					"[M 430 31 L 421 35 421 27 Z]"
+					"[M 400 31 L 391 35 391 27 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -97,7 +97,7 @@
 					:id
 					8
 					:d
-					"[M 580 31 L 630 31]"
+					"[M 550 31 L 595 31]"
 					:stroke
 					4282140240
 					:width
@@ -112,7 +112,7 @@
 					:id
 					9
 					:d
-					"[M 630 31 L 621 35 621 27 Z]"
+					"[M 595 31 L 586 35 586 27 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -136,7 +136,7 @@
 					:id
 					11
 					:d
-					"[M 780 31 L 830 31]"
+					"[M 670 62 L 670 100]"
 					:stroke
 					4282140240
 					:width
@@ -151,7 +151,7 @@
 					:id
 					12
 					:d
-					"[M 830 31 L 821 35 821 27 Z]"
+					"[M 670 100 L 666 91 674 91 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -181,7 +181,7 @@
 							:id
 							15
 							:d
-							"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 56 A 6 6 0 0 1 164 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 6 0 L 154 0 A 6 6 0 0 1 160 6 L 160 56 A 6 6 0 0 1 154 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 							:fill
 							4294961320
 							:stroke
@@ -207,7 +207,7 @@
 							11
 							:pos
 							((:list 2)
-								42.23535
+								37.23535
 								19.00000
 							)
 						)
@@ -227,7 +227,7 @@
 							11
 							:pos
 							((:list 2)
-								47.81524
+								42.81524
 								35.00000
 							)
 						)
@@ -247,7 +247,7 @@
 							11
 							:pos
 							((:list 2)
-								55.91687
+								50.91687
 								51.00000
 							)
 						)
@@ -352,7 +352,7 @@
 			)
 			:pos
 			((:list 2)
-				243.00000
+				218.00000
 				13.00000
 			)
 		)
@@ -448,7 +448,7 @@
 			)
 			:pos
 			((:list 2)
-				443.00000
+				413.00000
 				13.00000
 			)
 		)
@@ -544,7 +544,7 @@
 			)
 			:pos
 			((:list 2)
-				643.00000
+				608.00000
 				13.00000
 			)
 		)
@@ -640,8 +640,8 @@
 			)
 			:pos
 			((:list 2)
-				843.00000
-				13.00000
+				608.00000
+				113.00000
 			)
 		)
 		((:list 15)
@@ -655,13 +655,13 @@
 			:stroke
 			0
 			:text
-			"[Is it a :num ? class/obj/inst_of walks this list and compares each pointer with the vtable of :num. As many steps as the class is deep.]"
+			"[Is it a :num ? class/obj/inst_of walks this list and compares each]"
 			:font_size
 			11
 			:pos
 			((:list 2)
 				13.00000
-				97.00000
+				123.00000
 			)
 		)
 		((:list 15)
@@ -675,13 +675,53 @@
 			:stroke
 			0
 			:text
-			"[A vtable has the header of a function and no code, so the boot linker binds its entries as it binds the calls of a function.]"
+			"[pointer with the vtable of :num. As many steps as the class is deep.]"
 			:font_size
 			11
 			:pos
 			((:list 2)
 				13.00000
-				113.00000
+				139.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			45
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[A vtable has the header of a function and no code, so the boot linker]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				163.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			46
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[binds its entries as it binds the calls of a function.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				179.00000
 			)
 		)
 	)

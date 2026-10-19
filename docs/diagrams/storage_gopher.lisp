@@ -1,9 +1,9 @@
 ;docs/ai_digest/storage_service.md: a gopher goes to the blocks, and its answer comes back
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'asker (dia-box '("who asks" "a function and where to start") 190 44 grey 11 :first) 440 120)
+(dia-put s 'asker (dia-box '("who asks" "a function and where to start") 190 44 grey 11 :first) 420 120)
 (dia-put s 'a (dia-box '("member m-a" "blocks 1, 2, 3") 150 44 green 11 :first) 200 0)
-(dia-put s 'b (dia-box '("member m-c" "blocks 4, 5") 150 44 green 11 :first) 460 0)
-(dia-put s 'c (dia-box '("member m-d" "block 6, the last") 150 44 green 11 :first) 670 0)
+(dia-put s 'b (dia-box '("member m-c" "blocks 4, 5") 150 44 green 11 :first) 430 0)
+(dia-put s 'c (dia-box '("member m-d" "block 6, the last") 150 44 green 11 :first) 620 0)
 (dia-join s 'asker 'a "sent")
 (dia-join s 'a 'b "goes on")
 (dia-join s 'b 'c "goes on")

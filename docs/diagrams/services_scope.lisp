@@ -1,7 +1,7 @@
 ;docs/ai_digest/mesh_net.md: which services are a machine's own, an @ name, and which are seen from every machine of the mesh, a * name
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6 dark 0xff202428)
 (each (lambda (i)
-	(defq x (* i 480))
+	(defq x (* i 450))
 	(dia-under s (dia-box "" 310 250 grey) x 0)
 	(dia-say s (elem-get '("one machine" "another machine") i) (+ x 12) 20 12 :t dark)
 	(each (lambda (j)

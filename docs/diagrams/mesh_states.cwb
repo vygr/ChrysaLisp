@@ -1,13 +1,13 @@
 ((:Emap 1)
 	:version 1
-	:width 836
-	:height 319
+	:width 796
+	:height 335
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 48
+	:next_id 49
 	:items
-	((:list 17)
+	((:list 18)
 		((:list 7)
 			:group
 			:id
@@ -19,7 +19,7 @@
 					:id
 					2
 					:d
-					"[M 200 91 L 300 91]"
+					"[M 200 91 L 285 91]"
 					:stroke
 					4282140240
 					:width
@@ -34,7 +34,7 @@
 					:id
 					3
 					:d
-					"[M 300 91 L 291 95 291 87 Z]"
+					"[M 285 91 L 276 95 276 87 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -63,7 +63,7 @@
 			11
 			:pos
 			((:list 2)
-				231.99804
+				224.49804
 				88.00000
 			)
 		)
@@ -78,7 +78,7 @@
 					:id
 					6
 					:d
-					"[M 510 91 L 610 91]"
+					"[M 495 91 L 570 91]"
 					:stroke
 					4282140240
 					:width
@@ -93,7 +93,7 @@
 					:id
 					7
 					:d
-					"[M 610 91 L 601 95 601 87 Z]"
+					"[M 570 91 L 561 95 561 87 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -122,7 +122,7 @@
 			11
 			:pos
 			((:list 2)
-				537.36077
+				509.86077
 				88.00000
 			)
 		)
@@ -137,7 +137,7 @@
 					:id
 					10
 					:d
-					"[M 610 91 L 530 221]"
+					"[M 570 91 L 515 221]"
 					:stroke
 					4282140240
 					:width
@@ -152,7 +152,7 @@
 					:id
 					11
 					:d
-					"[M 530 221 L 531.31022 211.23873 538.12345 215.43148 Z]"
+					"[M 515 221 L 514.82286 211.15283 522.19053 214.26989 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -181,7 +181,7 @@
 			11
 			:pos
 			((:list 2)
-				472.22607
+				444.72607
 				162.00000
 			)
 		)
@@ -196,7 +196,7 @@
 					:id
 					14
 					:d
-					"[M 280 221 L 200 91]"
+					"[M 265 221 L 200 91]"
 					:stroke
 					4282140240
 					:width
@@ -211,7 +211,7 @@
 					:id
 					15
 					:d
-					"[M 200 91 L 208.12345 96.56851 201.31022 100.76126 Z]"
+					"[M 200 91 L 207.60253 97.261 200.44714 100.83863 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -240,7 +240,7 @@
 			11
 			:pos
 			((:list 2)
-				259.00000
+				251.50000
 				162.00000
 			)
 		)
@@ -255,7 +255,7 @@
 					:id
 					18
 					:d
-					"[M 405 190 L 405 122]"
+					"[M 390 190 L 390 122]"
 					:stroke
 					4282140240
 					:width
@@ -270,7 +270,7 @@
 					:id
 					19
 					:d
-					"[M 405 122 L 409 131 401 131 Z]"
+					"[M 390 122 L 394 131 386 131 Z]"
 					:fill
 					4282140240
 					:stroke
@@ -299,7 +299,7 @@
 			11
 			:pos
 			((:list 2)
-				424.00000
+				409.00000
 				162.00000
 			)
 		)
@@ -491,7 +491,7 @@
 			)
 			:pos
 			((:list 2)
-				313.00000
+				298.00000
 				62.00000
 			)
 		)
@@ -587,7 +587,7 @@
 			)
 			:pos
 			((:list 2)
-				623.00000
+				583.00000
 				62.00000
 			)
 		)
@@ -683,7 +683,7 @@
 			)
 			:pos
 			((:list 2)
-				293.00000
+				278.00000
 				192.00000
 			)
 		)
@@ -718,7 +718,7 @@
 			:stroke
 			0
 			:text
-			"[First come, first served: of the sessions of one machine the first to ask has the port, and when it goes the next to ask has it.]"
+			"[First come, first served: of the sessions of one machine the first to ask has the port,]"
 			:font_size
 			11
 			:pos
@@ -738,13 +738,33 @@
 			:stroke
 			0
 			:text
-			"[A session started alone, -a, stays in the middle and does not ask. A subnet with a system id of its own has no key: it stays at the left.]"
+			"[and when it goes the next to ask has it. A session started alone, -a, stays in the middle and does not ask.]"
 			:font_size
 			11
 			:pos
 			((:list 2)
 				13.00000
 				304.00000
+			)
+		)
+		((:list 15)
+			:shape
+			:id
+			48
+			:kind
+			:text
+			:fill
+			4284245616
+			:stroke
+			0
+			:text
+			"[A subnet with a system id of its own has no key: it stays at the left.]"
+			:font_size
+			11
+			:pos
+			((:list 2)
+				13.00000
+				320.00000
 			)
 		)
 	)
