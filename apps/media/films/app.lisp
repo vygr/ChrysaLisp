@@ -129,16 +129,17 @@
 		((some (# (and (<= (* 4 (/ w %0)) (* 3 sw)) (<= (* 4 (/ h %0)) (* 3 sh)) %0)) '(1 2 3)))
 		(4)))
 
-(defun win-refresh (file &optional scale frame)
-	;the film of a file, at a scale, from a frame. If not said, where it was
-	;left if it has played before, else the scale that fits the screen and
-	;the first frame. Where the one shown till now is, kept
+(defun win-refresh (file &optional scale frame reel)
+	;the film of a file, at a scale, from a frame, of the reel given or one
+	;read from it. If not said, where it was left if it has played before,
+	;else the scale that fits the screen and the first frame. Where the one
+	;shown till now is, kept
 	(place-keep)
 	(and (not scale) (defq place (. *places* :find file))
 		(setq scale (first place) frame (second place)
 			*playing* (/= 0 (ifn (third place) 1))))
 	(cond
-		((not (defq reel (reel-open file))) (played file :nil))
+		((not (setq reel (ifn reel (reel-open file)))) (played file :nil))
 		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel)))))
 			(played file :nil)
 			(say-what reel file))
@@ -212,7 +213,8 @@
 					(<= +event_smaller id +event_bigger))
 				;the film again, smaller or bigger, from the frame it is at
 				(defq scale (if (= id +event_smaller) (min 4 (inc *scale*)) (max 1 (dec *scale*))))
-				(if (/= scale *scale*) (win-refresh *file* scale *at*)))
+				;the reel as it is, a codec of it made again at the scale
+				(if (/= scale *scale*) (win-refresh *file* scale *at* *reel*)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_play id +event_start))
 				(cond
