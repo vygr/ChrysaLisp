@@ -96,7 +96,8 @@
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri
 		vp-cpy-fi vp-cpy-ri)
-		 (find w "bBsSiIlpfx")))
+		 ;the type's first char, of what is stored to
+		 (find (first w) "bBsSiIlpfx")))
 	(add-inst (list w x y 0)))
 
 (defun compile-ref (%0)

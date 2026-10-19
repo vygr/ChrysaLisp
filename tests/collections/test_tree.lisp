@@ -97,7 +97,7 @@
 (stream-seek ms7 0 0)
 (defq bin_serialized (read-line ms7))
 ; verify :cat statement was written
-(assert-true "Tree Save: binary :cat chunking" (find "(:cat" (read-line ms7)))
+(assert-true "Tree Save: binary :cat chunking" (found? (read-line ms7) "(:cat"))
 (stream-seek ms7 0 0)
 (defq loaded_bin (tree-load ms7))
 (assert-eq "Tree Load: large binary string (all 0-255 bytes)" large_bin (. loaded_bin :find :demo))
@@ -110,7 +110,7 @@
 (tree-save ms8 tree_txt)
 (stream-seek ms8 0 0)
 (read-line ms8)
-(assert-true "Tree Save: text :cat chunking" (find "(:cat" (read-line ms8)))
+(assert-true "Tree Save: text :cat chunking" (found? (read-line ms8) "(:cat"))
 (stream-seek ms8 0 0)
 (defq loaded_txt (tree-load ms8))
 (assert-eq "Tree Load: large text string" large_txt (. loaded_txt :find :text))

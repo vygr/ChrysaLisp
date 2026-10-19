@@ -235,7 +235,11 @@
 	(vpcase `(,ovtable = ,vtable))
 	(errorcase
 		(assign `((,element +obj_vtable)) `(,ovtable))
-		(gotoif `(,ovtable /= ,vtable) 'error1))
+		(gotoif `(,ovtable /= ,vtable) 'error1)
+		;one char found in a str, not a run of them: a longer one would be
+		;taken as its first char, and the answer be wrong with no word
+		(assign `((,element +str_length)) `(,ovtable))
+		(gotoif `(,ovtable /= 1) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)
@@ -312,7 +316,11 @@
 	(vpcase `(,ovtable = ,vtable))
 	(errorcase
 		(assign `((,element +obj_vtable)) `(,ovtable))
-		(gotoif `(,ovtable /= ,vtable) 'error1))
+		(gotoif `(,ovtable /= ,vtable) 'error1)
+		;one char found in a str, not a run of them: a longer one would be
+		;taken as its first char, and the answer be wrong with no word
+		(assign `((,element +str_length)) `(,ovtable))
+		(gotoif `(,ovtable /= 1) 'error1))
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)

@@ -119,7 +119,8 @@
 
 (assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n"))) ;check off, the trap itself
 (assert-eq "with a class of them it does" "ab" (trim (cat "  ab " (ascii-char 10)) (char-class " \t\r\n")))
-(assert-eq "find of a str in a str is of its first character" 1 (find "elx" "hello"))
+(assert-true "find of a str of more than one character in a str is an error in a debug build, of its first character in release"
+	(let ((got (catch (find "elx" "hello") :error))) (or (eql got :error) (eql got 1))))
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))
 (assert-error "sort of numbers with nothing said" (sort (list 3 1 2)))
 (defq tr_sort (list 3 1 2))

@@ -325,6 +325,11 @@ Searching algorithms and character-class predicates.
 
 	*	`(rfind elem seq [idx]) -> :nil | idx`
 
+	*	In a str the element is one character. A str of more than one is an
+		error in a debug build: it was taken as its first character, and
+		the answer was wrong with no word. For a str in a str, `(found?
+		text sub)` or `(substr text sub)`, lib/text/searching.inc.
+
 *	**`bfind`**: Fast binary search for a byte within a sorted character-class.
 
 	*	`(bfind char cls) -> :nil | idx`

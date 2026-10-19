@@ -11,7 +11,7 @@
 (defq pipe_out (list))
 (pipe-run "lisp -r (print (if (eql (in-mbox (io-stream 'stdin)) (task-mbox)) {shared} {free}))"
 	(# (push pipe_out %0)))
-(assert-true "stdin not task mailbox" (find "free" (apply (const cat) pipe_out)))
+(assert-true "stdin not task mailbox" (found? (apply (const cat) pipe_out) "free"))
 
 ; --- Close, the stdin EOF path, of a command blocked on stdin ---
 (defq reply_mbox (mail-mbox)
@@ -29,7 +29,7 @@
 (while (defq data (. pipe :read))
 	(unless (eql data :t) (push pipe_out data)))
 (. pipe :close)
-(assert-true "pipe eof, then its output" (find "after eof" (apply (const cat) pipe_out)))
+(assert-true "pipe eof, then its output" (found? (apply (const cat) pipe_out) "after eof"))
 
 ; --- Abort, the signal path, signals are a debug build only feature ---
 (defq reply_mbox (mail-mbox)
@@ -50,7 +50,7 @@
 		(each (lambda ((name cmdline err))
 				(defq pipe_out (list))
 				(pipe-run cmdline (# (push pipe_out %0)))
-				(assert-true name (find err (apply (const cat) pipe_out))))
+				(assert-true name (found? (apply (const cat) pipe_out) err)))
 			'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
 			("read unexpected )" "lisp -r (print 1))" "unexpected )"))))
 	(:t ;release build, so wake the child to let it exit
@@ -68,7 +68,7 @@
 	;is the machine's affair
 	(defq pipe (Pipe (cat "lisp -r (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
 		"}) {started}) (catch " body " (progn (mail-send (hex-decode {" (hex-encode reply_mbox)
-		"}) (if (find {task_aborted} (str _)) {aborted} {other})) :nil)))")))
+		"}) (if (found? (str _) {task_aborted}) {aborted} {other})) :nil)))")))
 	(assert-eq "the command starts" "started" (mail-read-timeout reply_mbox (task-timeout 10)))
 	pipe)
 ;a task is stopped by an error, so this is of a build that checks for them
@@ -240,7 +240,7 @@
 	(defq pipe_out (list))
 	(pipe-run "lisp -r (write-line (io-stream (quote stderr)) {oops, on stderr}) (print {said})" (# (push pipe_out %0)))
 	(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
-	(unless (find "oops, on stderr" pipe_said) (++ pipe_lost))
-	(and (find "oops, on stderr" pipe_said) (find "said" pipe_said) (++ pipe_both)))
+	(unless (found? pipe_said "oops, on stderr") (++ pipe_lost))
+	(and (found? pipe_said "oops, on stderr") (found? pipe_said "said") (++ pipe_both)))
 (assert-eq "of 60 commands that say a thing on their stderr as they end, what not one says is lost" 0 pipe_lost)
 (assert-eq "and each says what it said on its stdout as well" 60 pipe_both)

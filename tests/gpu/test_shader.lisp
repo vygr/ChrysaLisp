@@ -567,7 +567,7 @@
 (assert-list-eq "inputs" '(time resolution arg_aa arg_aa_adaptive arg_aa_debug arg_depth
 	arg_aa_limit arg_ao arg_ref arg_shadow arg_bump arg_dis arg_march) (map (const first) (first prog)))
 (assert-eq "functions" 19 (length (elem-get prog 3)))
-(assert-true "GLSL scene" (find (join '(
+(assert-true "GLSL scene" (found? text (join '(
 	"float scene(vec3 p)"
 	"{"
 	"	float d = 0.0000;"
@@ -577,7 +577,7 @@
 	"	}"
 	"	p = (fract(p) - 0.5000);"
 	"	return (sphere(p, vec3(0.0000), 0.3500) + d);"
-	"}") sh_lf) text))
+	"}") sh_lf)))
 
 ;pixels of a 64 by 48 frame at time 2.0, against what an Apple M4 Max gave
 ;for the GLSL text, read back as floats
