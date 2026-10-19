@@ -119,7 +119,11 @@ newer waypoint refuses it, a message each. One task offers, one machine at
 a time, so two of its pushes never meet at a machine.
 
 What a sync does not do is change what is running: a service, a member,
-the boot image in memory, keep the code they were started with.
+the boot image in memory, keep the code they were started with. The member
+of a machine run by `rack.sh up` does: one that has taken a newer waypoint
+ends, and is built and started again, [`rack.md`](rack.md). And where a new
+waypoint comes from, a machine followed, `rack.sh up -f`, a clone that takes
+its branch on from git by itself and notes each commit it is at.
 
 ## It can not get out of the ChrysaLisp tree
 
@@ -243,10 +247,6 @@ alone.
 * Pull. A machine that sees a newer tree on a neighbour and fetches it, so
   an update spreads from machine to machine and nobody holds the list of
   who is to have it. This is the aim, push is the first step.
-* Which of two trees is the newer. The top of a tree says if two are the
-  same, not which came first. And a restart when a newer one has arrived.
-* A machine that has taken a newer waypoint making itself new: the boot
-  image, the host programs, and its member started again on them.
 * A folder that is empty, and a folder that is left empty by a remove.
 * An older sync. One from before the tree of hashes is told apart, and
   nothing is sent to it. It has to be updated another way, once.

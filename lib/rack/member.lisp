@@ -11,7 +11,9 @@
 ;A tree with no .git that the herd has taken to a newer waypoint is run
 ;by what was built before it: the member leaves /tmp/chrysalisp_rack_update
 ;and ends, and rack.sh does make install and starts it again. One with a
-;.git is someone's own, kept by git, and is left to them.
+;.git is someone's own, kept by git, and is left to them, unless it is
+;followed, rack.sh up -f: then rack.sh takes it on from git, and the member
+;notes the waypoint as it starts, for the herd to take on to the others.
 ;
 ;So is one whose boot image was made from other VP source than the tree,
 ;at its waypoint, has now, as it starts: an image built here by hand, or
@@ -27,6 +29,9 @@
 (pipe-run "link -l 3333 -a" (const prin))
 (pipe-run "link -a" (const prin))
 (pipe-run "sync -a" (const prin))
+;followed, the tree is at a commit of its branch, noted if it is clean
+(if (and (pii-fstat ".git") (pii-fstat "/tmp/chrysalisp_rack_follow"))
+	(pipe-run "waypoint" (const prin)))
 (stream-flush (io-stream "stdout"))
 (defq at_start (first (sync-waypoint ".")) looked (pii-time)
 	kept (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))

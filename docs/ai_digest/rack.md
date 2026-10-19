@@ -26,6 +26,7 @@ for the other machines, `link -l 3333 -a` and `link -a`, and takes a sync,
 
 ```code
 ./rack.sh up        start this machine's member
+./rack.sh up -f     start it to follow the tree's git branch
 ./rack.sh status    is it up, or updating
 ./rack.sh down      stop it, and only it
 ./rack.sh run 'rack "tests -a"'
@@ -53,7 +54,32 @@ install fails, the host programs and boot image that were there are put
 back first, so the machine stays in the mesh. A member that ends with no
 such file, `down` or a fault, is not started again. What it did is in
 `/tmp/chrysalisp_rack.log`. A tree with a `.git` is someone's own, kept by
-git, and its member never does this.
+git, and its member never does this, unless it is followed.
+
+## Followed
+
+`./rack.sh up -f` is for a machine left to keep itself up to date, a
+server, a store of the team's: a git clone kept for it and nothing done in
+it by hand. The loop fetches the clone's branch a minute after it starts and
+then each 10 minutes. If the branch has moved on, the tree is clean, `git
+status` has nothing to say, and the new commit follows from the one it is
+at, the member is stopped, the tree fast forwarded to it, and `make install`
+done, as for the herd. The member starts again and notes the waypoint, so
+the herd takes it on to the machines with no `.git`; and as the machine's
+member it starts its store, if it was made a member of one, `storage -j`.
+
+An install that fails says so: `make` fails, or `apps/tui/install.lisp`
+leaves `obj/install_failed`, a build that said an error or wrote no native
+boot image of the source, as the host program's exit can not. If the
+install fails the tree is put back to the commit it was at and built
+again, and the commit that failed is not tried again; a newer one is. A tree
+with a change of its own is not taken on, the log says so each time it
+looks. Each machine followed updates from git itself, not by the mesh, so a
+change to what goes between machines, that old and new can not link over,
+reaches them all.
+
+`status` says the branch followed and the commit. `down` ends following,
+and `up` with no `-f` starts a member that does not follow.
 
 As it starts, a member does the same for a boot image that is not of the
 tree it is on: the tree exactly at its waypoint, its image made from other

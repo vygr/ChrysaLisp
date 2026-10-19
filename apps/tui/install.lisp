@@ -4,9 +4,25 @@
 (print "Building platform native boot image.")
 (print "Please wait...")
 (print)
+(import "lib/boot/id.inc")
+;a build that went wrong is said, and leaves obj/install_failed, as the
+;host program's exit says nothing: rack.sh looks for it, to put back
+;what was there. Wrong is an error said, or no native boot image whose id
+;is of the files it says it was made from
+(pii-remove "obj/install_failed")
+(defq errors 0)
 (pipe-run "make -v 1 all boot | time -s"
-	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))))
+	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))
+		(if (found? %0 "Error") (++ errors))))
 (print)
+(defq files (load (boot-files-file (cpu) (abi)))
+	built (and files (eql (trim (ifn (load (boot-id-file (cpu) (abi))) ""))
+		(boot-id-of (filter (const nempty?) (split files (ascii-char 10)))))))
+(when (or (> errors 0) (not built))
+	(save (if built "errors" "no image") "obj/install_failed")
+	(print "Install failed: " (if (> errors 0) (cat (str errors) " errors in the build") "no native boot image of this source"))
+	(print)
+	(pii-exit))
 ;a machine has a key from the day it is installed, and one it has is left
 ;as it is. Only machines with the same key join each other, so a new one
 ;is by itself till it is given the key of the others, the file mesh_key
