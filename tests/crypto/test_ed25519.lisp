@@ -78,7 +78,9 @@
 	(ed25519-verify ed_pub ed_msg (ed25519-sign ed_seed "ChrysaLisp release 7.4")))
 (assert-eq "a signature cut short" :nil (ed25519-verify ed_pub ed_msg (slice ed_sig 0 63)))
 (assert-eq "a key cut short" :nil (ed25519-verify (slice ed_pub 0 31) ed_msg ed_sig))
-(assert-eq "a signature of nothing but zeros" :nil (ed25519-verify ed_pub ed_msg (str-alloc 64)))
+;(str-alloc) does not clear what it gives, so the zeros are made
+(assert-eq "a signature of nothing but zeros" :nil
+	(ed25519-verify ed_pub ed_msg (apply (const cat) (map (lambda (_) (char 0 +long_size)) (range 0 8)))))
 ;the second half with the order of the base point added is the same number, written another way, and is refused
 (defq ed_carry 0 ed_more (apply (const cat) (map (lambda (j)
 	(defq v (+ (code ed_sig 1 (+ 32 j)) (elem-get *ed_l* j) ed_carry))
