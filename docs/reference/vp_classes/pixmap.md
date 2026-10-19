@@ -10,6 +10,8 @@ docs/reference/vp_classes/pixmap.cwb
 
 ### (pixmap-as-argb pixmap) -> pixmap
 
+### (pixmap-flm-delta pixmap stream type)
+
 ### (pixmap-from-argb32 pixel type) -> pixel
 
 ### (pixmap-read pixmap stream type) -> :nil | pixmap
@@ -114,6 +116,25 @@ trashes
 :r2-:r11
 ```
 
+### :flm_delta -> gui/pixmap/flm_delta
+
+```code
+inputs
+:r0 = pixmap object (ptr)
+:r1 = stream object (ptr)
+:r2 = pixel type of the stream (uint)
+outputs
+:r0 = pixmap object (ptr)
+:r1 = 1 if the frame was whole, 0 if the stream ended first (uint)
+trashes
+:r1-:r8, :f0-:f15
+info
+a frame of a film made from the frame before: runs, each a byte, of
+pixels to keep, 256 less the count, or of pixels to draw, the count
+and then the pixels, till every pixel of the pixmap is covered.
+lib/media/flm.inc has the packets of a film
+```
+
 ### :from_argb32 -> gui/pixmap/from_argb32
 
 ```code
@@ -140,17 +161,6 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r3
-```
-
-### :next_frame -> gui/pixmap/next_frame
-
-```code
-inputs
-:r0 = pixmap object (ptr)
-outputs
-:r0 = pixmap object (ptr)
-trashes
-:r1-:r8, :f0-:f15
 ```
 
 ### :resize -> gui/pixmap/resize

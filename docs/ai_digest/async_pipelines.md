@@ -332,7 +332,7 @@ automatically connects the mailboxes without modification.
 
 ## 8. Films: A Stream of Frames
 
-`lib/streams/flm.inc` is the same pattern turned to writing a film. `(flm-open
+`lib/media/flm.inc` is the same pattern turned to writing a film. `(flm-open
 stream format)` starts the encoder as a pinned task of raw Lisp, which sends
 back the mailbox of its input stream, and the producer makes an `out-stream`
 to it. `(flm-add film canvas)` writes the pixels of a frame to that feed, and

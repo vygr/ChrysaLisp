@@ -63,10 +63,8 @@
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 		(assign '(0) '(:r1))
-		(assign '(:r1 :r1 :r1 :r1 :r1 :r1 :r1)
-			'((:r0 +pixmap_texture) (:r0 +pixmap_stream)
-			(:r0 +pixmap_bufp) (:r0 +pixmap_stream_type)
-			(:r0 +pixmap_key) (:r0 +pixmap_handle) (:r0 +pixmap_owner)))
+		(assign '(:r1 :r1 :r1 :r1)
+			'((:r0 +pixmap_texture) (:r0 +pixmap_key) (:r0 +pixmap_handle) (:r0 +pixmap_owner)))
 
 		;the pixels follow the object, clear them
 		(assign '((& :r0 +pixmap_pixels)) '(:r1))
@@ -95,11 +93,7 @@
 
 	(vp-push :r0)
 
-	;free any flm stream
-	(call :stream :deref_if '((:r0 +pixmap_stream)))
-
 	;free any texture
-	(assign '((:rsp 0)) '(:r0))
 	(call :texture :deref_if '((:r0 +pixmap_texture)))
 
 	;let go of any shared memory, and of its key if this made it

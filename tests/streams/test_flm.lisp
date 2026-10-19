@@ -1,7 +1,7 @@
-(report-header "Streams: flm, a film written a frame at a time")
+(report-header "Streams: flm, a film written a frame at a time, and read as a reel of packets")
 
 (import "gui/lisp.inc")
-(import "lib/streams/flm.inc")
+(import "lib/media/flm.inc")
 
 (defun flm-frame (n)
 	;a small frame, a box that moves and changes colour with its number
@@ -11,34 +11,54 @@
 		(:set_color 0xffffffff) (:plot (- 47 n) 30)))
 
 (defun flm-pixels (canvas)
-	;the pixels of a canvas, by way of a copy so that the canvas, which
-	;may be a film part way through, is not disturbed
+	;the pixels of a canvas, by way of a copy, premultiplied as a frame of
+	;a film is once it has been drawn on
 	(defq copy (Canvas 48 32 1) stream (memory-stream))
 	(. copy :resize canvas)
 	(pixmap-write (getf copy +canvas_pixmap 0) stream 32)
 	(stream-seek stream 0 0)
 	(read-blk stream 100000))
 
+(defun flm-play (reel)
+	;every frame of a reel, in order, as pixels
+	(defq codec (flm-codec reel))
+	(map (# (flm-pixels (flm-decode codec (flm-packet reel %0) %0))) (range 0 (. reel :find :frames))))
+
 (each (lambda (format)
 	;six frames pumped in, the film comes out of the stream
-	(defq out (memory-stream) film (flm-open out format)
+	(defq out (memory-stream) film (flm-open out format 25)
 		want (map (# (flm-pixels (flm-frame %0))) (range 0 6)))
 	(each (# (flm-add film (flm-frame %0))) (range 0 6))
 	(assert-eq (cat "frames written, " (str format) " bit") 6 (flm-close film))
-	;and played back, a frame at a time
+	;a reel of it, a packet a frame and the rate it was made at
+	(defq reel (flm-reel out))
+	(assert-true (cat "a reel of it, " (str format) " bit") (and reel (= (. reel :find :version) 3)))
+	(assert-eq (cat "a packet a frame, " (str format) " bit") 6 (. reel :find :frames))
+	(assert-eq "the rate it was made at" 25 (n2i (. reel :find :rate)))
+	;every frame comes back to the bit, the first whole, those after it
+	;each from the one before
+	(assert-eq (cat "every frame played back to the bit, " (str format) " bit") 6
+		(length (filter (const identity) (map (const eql) (flm-play reel) want))))
+	;round again from the first, as a player that loops does
+	(defq codec (flm-codec reel))
+	(each (# (flm-decode codec (flm-packet reel %0) %0)) (range 0 4))
+	(assert-eq "back to the first, it is the first again" (first want)
+		(flm-pixels (flm-decode codec (flm-packet reel 0) 0)))
+	(assert-true "frames that differ are told apart" (not (eql (first want) (second want))))
+	;the same film as an older version was: no packets, version 2. It is
+	;made this version again, and plays the same
 	(stream-seek out 0 0)
-	(defq size (stream-seek out 0 2) played (CPM-load (progn (stream-seek out 0 0) out)))
-	(assert-true (cat "a film to play, " (str format) " bit") played)
-	(when played
-		(setf (getf played +canvas_pixmap 0) +pixmap_stream out 0)
-		;every frame comes back to the bit, the first, and those after it,
-		;which are decoded a run at a time and premultiplied as they are
-		(defq same 0)
-		(each (lambda (frame)
-			(if (eql (flm-pixels played) frame) (setq same (inc same)))
-			(. played :next_frame)) want)
-		(assert-eq (cat "every frame played back to the bit, " (str format) " bit") 6 same)
-		;and two frames that differ are told apart
-		(assert-true "frames that differ are told apart"
-			(not (eql (first want) (second want))))))
+	(defq whole (read-blk out 10000000) old (cat (slice whole 0 8) (char 2 4) (slice whole 12 28)) at 28)
+	(while (< at (length whole))
+		(defq len (code whole 4 at))
+		(setq old (cat old (slice whole (+ at 4) (+ at 4 len))) at (+ at 4 len)))
+	(defq again (memory-stream))
+	(assert-eq (cat "an older film is made this version, " (str format) " bit") 6
+		(flm-convert (string-stream old) again 25))
+	(assert-list-eq "and plays the same" want (flm-play (flm-reel again))))
 	'(32 24))
+
+;the reel layer finds the kind by the name
+(assert-true "a film is a kind of reel" (some (# (eql (first %0) ".flm")) *reel_kinds*))
+(assert-true "a film shows as a picture of its first frame"
+	(canvas-load "apps/media/films/data/cradle.flm" +load_flag_noswap))

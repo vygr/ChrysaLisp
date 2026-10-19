@@ -47,8 +47,7 @@
 				pixmap (getf canvas +canvas_pixmap 0))
 			; 12 and 15 bit images are padded to 16 num_bits in the stream
 			(if (or (= type 12) (= type 15)) (setq num_bits 16))
-			; save stream type for any film players !
-			(setf-> pixmap (+pixmap_stream_type type 0) (+pixmap_type 32 0))
+			(setf pixmap +pixmap_type 32 0)
 			;the stages in the order the data goes, stream to pixmap
 			(defq stages (list))
 			(if lz4 (push stages (stage "lib/streams/lz4.inc" 'lz4-decompress)))
@@ -83,7 +82,6 @@
 
 ;the canvas is told what this reads
 (canvas-loader ".cpm" CPM-info CPM-load CPM-save)
-(canvas-loader ".flm" CPM-info CPM-load)
 
 ;module
 (export-symbols '(CPM-load CPM-info CPM-save))

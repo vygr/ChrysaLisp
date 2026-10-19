@@ -26,8 +26,6 @@ docs/reference/vp_classes/canvas.cwb
 
 ### (canvas-mesh-destroy mesh)
 
-### (canvas-next-frame canvas)
-
 ### (canvas-pair-create vertex fragment layout)
 
 ### (canvas-plot canvas x y)

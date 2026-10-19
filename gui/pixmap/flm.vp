@@ -1,0 +1,87 @@
+(include "lib/asm/func.inc")
+(include "class/stream/class.inc")
+(include "./class.inc")
+
+(def-method :pixmap :flm_delta)
+	;inputs
+	;:r0 = pixmap object (ptr)
+	;:r1 = stream object (ptr)
+	;:r2 = pixel type of the stream (uint)
+	;outputs
+	;:r0 = pixmap object (ptr)
+	;:r1 = 1 if the frame was whole, 0 if the stream ended first (uint)
+	;trashes
+	;:r1-:r8, :f0-:f15
+	;info
+	;a frame of a film made from the frame before: runs, each a byte, of
+	;pixels to keep, 256 less the count, or of pixels to draw, the count
+	;and then the pixels, till every pixel of the pixmap is covered.
+	;lib/media/flm.inc has the packets of a film
+
+	(def-vars
+		(ptr this src)
+		(puint data data_end)
+		(long col bit_pool)
+		(int len)
+		(uint bit_pool_size num_bits type ok))
+
+	(push-scope)
+	(entry :pixmap :flm_delta (vpx this src type))
+
+	;must be premul
+	(call :pixmap :as_premul (vpx this))
+
+	(assign (vpx type 0) (vpx num_bits ok))
+	(vpif (vpx (= num_bits 12)))
+		(assign (vpx 16) (vpx num_bits))
+	(endif)
+	(vpif (vpx (= num_bits 15)))
+		(assign (vpx 16) (vpx num_bits))
+	(endif)
+	(assign (vpx (.> this +pixmap_data)) (vpx data))
+	(assign (vpx (+ data (* (.> this +pixmap_height) (.> this +pixmap_stride)))) (vpx data_end))
+	(assign (vpx 0 0) (vpx bit_pool bit_pool_size))
+
+	(vp-rdef (stream len bit_pool bit_pool_size col data data_end)
+		(method-input :stream :read_bits))
+	(loop-start)
+		;the next run, the frame is short if the stream ends first
+		(call :stream :read_bits (vpx src 8 bit_pool bit_pool_size)
+			`(,stream ,len ,bit_pool ,bit_pool_size))
+		(gotoif `(,len = -1) 'short)
+		(assign `(,bit_pool ,bit_pool_size) (vpx bit_pool bit_pool_size))
+
+		(vpif `(,len >= 128))
+			;pixels kept
+			(assign (vpx data data_end) `(,data ,data_end))
+			(vp-sub-cr 256 len)
+			(vp-shl-cr (log2 +int_size) len)
+			(vp-sub-rr len data)
+		(else)
+			;pixels drawn
+			(loop-start)
+				(assign `(,len) (vpx len))
+				(call :stream :read_bits (vpx src num_bits bit_pool bit_pool_size)
+					(vpx _ col bit_pool bit_pool_size))
+				(gotoif (vpx (= col (- 1))) 'short)
+				(call :pixmap :to_argb32 (vpx col type) `(,col))
+				(call :pixmap :to_premul `(,col) `(,col))
+				(assign (vpx len data data_end) `(,len ,data ,data_end))
+				(gotoif `(,data >= ,data_end) 'short)
+				(vp-cpy-ri-i col data 0)
+				(vp-sub-cr 1 len)
+				(vp-add-cr +int_size data)
+				(assign `(,data) (vpx data))
+			(loop-until `(,len = 0))
+		(endif)
+		(assign `(,data) (vpx data))
+	(loop-until `(,data >= ,data_end))
+	(assign (vpx 1) (vpx ok))
+
+(vp-label 'short)
+	(exit :pixmap :flm_delta (vpx this ok))
+	(pop-scope)
+	(return)
+
+
+(def-func-end)

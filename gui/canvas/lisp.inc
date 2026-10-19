@@ -117,10 +117,6 @@
 		(setf that +canvas_flags (logior (logand that_flags keep) (logand flags mask)) 0)
 		(. this :dirty))
 
-	(defmethod :next_frame ()
-		; (. canvas :next_frame) -> canvas
-		((const (ffi "gui/canvas/lisp_next_frame")) this))
-
 	(defmethod :resize (that)
 		; (. canvas :resize canvas) -> canvas
 		((const (ffi "gui/canvas/lisp_resize")) this that))
@@ -256,17 +252,13 @@
 		;check cache first
 		(when (defq this (. *pixmap_cache* :find file))
 			(defq this (Canvas-pixmap this))))
-	(when (and (not this)
-			(defq stream (if (bits? flags +load_flag_film)
-				(string-stream (load file)) (file-stream file))))
+	(when (and (not this) (defq stream (file-stream file)))
 		;load and maybe add to cache
 		(defq this (if (defq kind (canvas-loader-of file)) ((third kind) stream)))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
 			(if (bits? flags +load_flag_shared)
 				(. *pixmap_cache* :insert file pixmap))
-			(if (bits? flags +load_flag_film)
-				(setf pixmap +pixmap_stream stream 0))
 			(ifn (bits? flags +load_flag_noswap)
 				(. this :swap (if (bits? flags +load_flag_free)
 					(+ swap_mode +swap_flag_free) swap_mode)))))
@@ -324,3 +316,4 @@
 (import "lib/image/cpm.inc")
 (import "lib/image/png.inc")
 (import "lib/image/jpg.inc")
+(import "lib/media/flm.inc")

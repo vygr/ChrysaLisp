@@ -26,7 +26,7 @@
 
 ;load flags, free is for an image that is only ever shown
 (bits +load_flag 0
-	(bit shared film noswap free))
+	(bit shared noswap free))
 
 ;flags
 (bits +canvas_flag 0

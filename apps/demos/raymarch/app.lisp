@@ -4,7 +4,7 @@
 (import "lib/gpu/shader.inc")
 (import "lib/gpu/gui.inc")
 (import "lib/gpu/tile.inc")
-(import "lib/streams/flm.inc")
+(import "lib/media/flm.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; The Raymarch film. A shader is drawn for each frame of a flight into

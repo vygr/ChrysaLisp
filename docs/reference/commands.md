@@ -1647,6 +1647,10 @@ Usage: toflm [options] [path] ...
         -h --help: this help info.
         -f --format 1|8|12|15|16|24|32: pixel format, default 32.
         -n --name path: output film filename, default film.flm.
+        -r --rate fps: frames a second, default 30.
+        -c --convert: the films named, of an older version, made
+            this version in place: each a packet a frame, the rate
+            in the header.
 
     Convert images to a .flm animation.
 

@@ -87,12 +87,6 @@ that is only ever shown, it can not be drawn on after this.
 (. canvas :get_color) -> argb
 ```
 
-### :next_frame
-
-```code
-(. canvas :next_frame) -> canvas
-```
-
 ### :plot
 
 ```code

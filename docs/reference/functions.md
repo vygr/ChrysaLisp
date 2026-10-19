@@ -32,6 +32,18 @@
 each pixel is scale by scale samples, default 1
 ```
 
+### FLM-info
+
+```code
+(FLM-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### FLM-load
+
+```code
+(FLM-load stream) -> :nil | canvas
+```
+
 ### JPG-info
 
 ```code
@@ -3276,6 +3288,12 @@ the next frame of the film, what is on the canvas now. It must be
 the size of the first. The pixmap of the canvas is left as argb.
 ```
 
+### flm-bits
+
+```code
+the bits a pixel of a format takes in the stream
+```
+
 ### flm-close
 
 ```code
@@ -3284,6 +3302,39 @@ the size of the first. The pixmap of the canvas is left as argb.
 no more frames. The feed is flushed and let go, which is the end of
 it for the encoder, and when it has written the last of the film it
 says how many frames it made, which is the result
+```
+
+### flm-codec
+
+```code
+(flm-codec reel) -> codec
+
+what makes frames of the packets of a film, on a canvas of its own
+the native of a delta frame is taken as the codec is made, not as this
+is read: this is read by every task that loads a picture, and one that
+named a function the system had not been built with yet never got as
+far as building it, gui/pixmap/flm.vp
+```
+
+### flm-convert
+
+```code
+(flm-convert in out [rate]) -> :nil | frames
+
+a film of version 1 or 2 read, and written to out as this version: a
+whole first frame and then each frame after it, found by its runs.
+Those have no packets, a frame ends where its runs have covered every
+pixel. :nil if in is not such a film, or of a format whose pixels are
+not whole bytes
+```
+
+### flm-decode
+
+```code
+(flm-decode codec packet index) -> :nil | canvas
+
+the frame of a packet on the codec's canvas: packet 0 is a whole frame,
+each after it is drawn on the frame before it
 ```
 
 ### flm-encode
@@ -3297,7 +3348,7 @@ frame of pixels, till it ends
 ### flm-encode-frame
 
 ```code
-the next frame of the film, written to its stream
+the next frame of the film, a packet written to its stream
 ```
 
 ### flm-encoder
@@ -3306,14 +3357,46 @@ the next frame of the film, written to its stream
 the state of a film being written to a stream
 ```
 
+### flm-head
+
+```code
+(flm-head stream) -> :nil | (version flags type width height rate)
+
+what the header of a film says, rate in frames a second
+```
+
 ### flm-open
 
 ```code
-(flm-open stream format) -> film
+(flm-open stream format [rate]) -> film
 
 a film to be written to a stream, format is the bits of a pixel,
-1, 8, 12, 15, 16, 24 or 32. The encoder is started, and waits for
-frames
+1, 8, 12, 15, 16, 24 or 32, and rate the frames a second, 30 if not
+said. The encoder is started, and waits for frames
+```
+
+### flm-packet
+
+```code
+(flm-packet reel index) -> :nil | str
+
+the bytes of a packet of the film
+```
+
+### flm-packet-write
+
+```code
+a packet, its length and its bytes
+```
+
+### flm-reel
+
+```code
+(flm-reel stream) -> :nil | reel
+
+a film to be read from a stream that can seek: its header, and where
+each packet is and how long, found by their lengths. :nil if it is no
+film of this version, :version says which it is
 ```
 
 ### flm-stage
@@ -5842,6 +5925,39 @@ does not call itself
 (reals? form) -> :t | :nil
 ```
 
+### reel-codec
+
+```code
+(reel-codec reel) -> codec
+```
+
+### reel-decode
+
+```code
+(reel-decode codec packet n) -> :nil | canvas
+```
+
+### reel-kind
+
+```code
+(reel-kind ext open packet codec decode)
+
+files whose names end ext are reels: (open stream) -> :nil | reel,
+(packet reel n), (codec reel), (decode codec packet n)
+```
+
+### reel-open
+
+```code
+(reel-open file) -> :nil | reel
+```
+
+### reel-packet
+
+```code
+(reel-packet reel n) -> :nil | str
+```
+
 ### reflow
 
 ```code
@@ -6625,6 +6741,12 @@ the two stages of a pair, kept, both made if either is not there.
 The fragment stage is written last, so if it is there both are
 ```
 
+### shader-gui-sweep
+
+```code
+what the GUI back ends keep of another make goes, the first time
+```
+
 ### shader-gui-texture
 
 ```code
@@ -6845,6 +6967,18 @@ shader, if it has any, in the order it has them, each of
 a picture as a strip names it, for a canvas whose pixels are in
 shared memory, (canvas-shared). :nil if they are not, the children
 of a farm can not reach them
+```
+
+### shader-sweep
+
+```code
+(shader-sweep letters makes) -> :t
+
+what a back end keeps in lib/gpu/jit/ is named a letter of its own,
+its make, 8 hex digits, and then the program. Kept by another make
+it is never found again, so it goes: every file of these letters
+whose make is not one of these is removed. Once for a task for each
+set of makes, the first time it is asked
 ```
 
 ### shader-texture

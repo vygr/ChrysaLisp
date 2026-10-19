@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**Films: FLM version 3, a reel of packets, its rate in the header, lib/media/reel.inc and lib/media/flm.inc; the codec gui/pixmap/flm.vp; the film hack gone from the pixmap and canvas-load; toflm -r -c; the Films app a player. Old films: toflm -c.**
+
 **Links over the internet sealed: X25519 per link, HKDF keys each way, ChaCha20-Poly1305 records with counted nonces; LAN links plain; `link -s` seals any. Handshake CLDOOR2, every machine updates together. `sys/crypto/` for VP code.**
 
 **Whiteboard, as Chris's boards were: devices drive it. The toolbars and floating menus bind the device and buttons that press them, a dot of each device on a menu; a quick tap toggles a thing's select mode; who made a thing is kept, a student's eraser leaves the teacher's; pairs only of one touch device; two layers in flight; no layers in the file, version 5. Design in whiteboard.md, "The board to come".**
