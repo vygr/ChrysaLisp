@@ -120,10 +120,18 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
+	;as :sub, the view is given back with the reference its parent had of
+	;it, it is in no parent after. One that is in none already is given
+	;with one of its own, a :hide of it does nothing
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
-	(call :view :hide '(:r0) '(:r1))
-	(class/obj/ref :r1 :r2)
+	(assign '((:r0 +hmap_parent)) '(:r1))
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r0 :r1)
+		(class/obj/ref :r1 :r2)
+	(else)
+		(call :view :hide '(:r0) '(:r1))
+	(endif)
 	(vp-pop :r0)
 
 	(exit :view :lisp_hide '(:r0 :r1))
