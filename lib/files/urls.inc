@@ -10,8 +10,9 @@
 		(unzip (split (pii-dirlist url) ",") 2)))
 
 (defun url-split (url ctx)
+	;the folder and the start of a name, a path from / of the host's as it is
 	(if (defq i (rfind "/" url))
-		(list (cat "./" (slice url 0 i)) (slice url i -1))
+		(list (if (starts-with "/" url) (slice url 0 i) (cat "./" (slice url 0 i))) (slice url i -1))
 		(list (if (= ctx 0) "./cmd/" "./") url)))
 
 (defun url-ctx (url cx)
@@ -33,6 +34,8 @@
 (defun url-ext (url cx &optional ctx)
 	(setd ctx (url-ctx url cx))
 	(defq url (slice url (if (defq i (rfind " " (slice url 0 cx))) i 0) cx))
+	;a word with a / in it is a path, of any file, not the name of a command
+	(if (found? url "/") (setq ctx (max ctx 1)))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (# (if (= ctx 0) (cat (slice %0 (length file) -7) " ") (slice %0 (length file) -1)))
 		(filter (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
