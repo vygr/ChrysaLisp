@@ -16,10 +16,19 @@
 		(uint x y x2 y2)
 		(uint x1a x1b x1c x1d y1a y1b y1c y1d)
 		(uint a r g b q weight_x weight_y)
-		(long fw fh))
+		(long sw256 sh256 dw dh))
 
 	(assign '((:r0 +pixmap_width) (:r0 +pixmap_height) (:r1 +pixmap_width) (:r1 +pixmap_height))
 		'(:r2 :r3 :r4 :r5))
+	;the same size, a copy
+	(vpif '(:r2 = :r4) '(:r3 = :r5))
+		(vp-push :r0)
+		(assign '((:r1 +pixmap_data) (:r0 +pixmap_data) (:r1 +pixmap_stride)) '(:r6 :r7 :r8))
+		(vp-mul-rr :r3 :r8)
+		(call :sys_mem :copy '(:r6 :r7 :r8))
+		(vp-pop :r0)
+		(vp-ret)
+	(endif)
 	(vp-simd vp-shl-cr '(1) '(:r2 :r3))
 	(vpif '(:r2 = :r4) '(:r3 = :r5))
 		(jump :pixmap :resize_2 '(:r0 :r1))
@@ -33,23 +42,26 @@
 	(push-scope)
 	(entry :pixmap :resize (vpx this source))
 
+	;where each column starts in the source, in 256ths of a pixel, each
+	;worked out from the sizes and not by steps, which drift: with a step of
+	;a third of a pixel cut to 256ths, three columns came to a 256th short of
+	;the next pixel, and every edge of a 3x was blended
 	(call :sys_mem :alloc (vpx (* (+ (.> this +pixmap_width) 1) +int_size)) (vpx buf _))
-	(assign (vpx (</ (* (.> source +pixmap_width) 256) (.> this +pixmap_width))) (vpx fw))
-	(assign (vpx (</ (* (.> source +pixmap_height) 256) (.> this +pixmap_height))) (vpx fh))
+	(assign (vpx (* (.> source +pixmap_width) 256) (* (.> source +pixmap_height) 256)
+		(.> this +pixmap_width) (.> this +pixmap_height)) (vpx sw256 sh256 dw dh))
 
 	(assign (vpx 0) (vpx x2))
-	(loop-while (vpx (< x2 (.> this +pixmap_width))))
-		(assign (vpx (*> x2 fw)) (vpx (elem buf (* x2 +int_size))))
+	(loop-while (vpx (<= x2 dw)))
+		(assign (vpx (/ (* x2 sw256) dw)) (vpx (elem buf (* x2 +int_size))))
 		(assign (vpx (+ x2 1)) (vpx x2))
 	(loop-end)
-	(assign (vpx (* (.> source +pixmap_width) 256)) (vpx (elem buf (* x2 +int_size))))
 
 	(assign (vpx (.> this +pixmap_data)) (vpx data))
 	(assign (vpx 0) (vpx y2))
 	(loop-while (vpx (< y2 (.> this +pixmap_height))))
-		(assign (vpx (*> y2 fh)) (vpx y1a))
+		(assign (vpx (/ (* y2 sh256) dh)) (vpx y1a))
 		(assign (vpx (>> y1a 8)) (vpx y1c))
-		(assign (vpx (- (*> (+ y2 1) fh) 1)) (vpx y1b))
+		(assign (vpx (- (/ (* (+ y2 1) sh256) dh) 1)) (vpx y1b))
 		(assign (vpx (>> y1b 8)) (vpx y1d))
 
 		(assign (vpx 0) (vpx x2))
@@ -58,6 +70,17 @@
 			(assign (vpx (>> x1a 8)) (vpx x1c))
 			(assign (vpx (- (elem buf (* (+ x2 1) +int_size)) 1)) (vpx x1b))
 			(assign (vpx (>> x1b 8)) (vpx x1d))
+
+			;all of it in one pixel of the source, as most are made bigger:
+			;that pixel, with no weights and no divide
+			(vpif (vpx (= x1c x1d)))
+				(vpif (vpx (= y1c y1d)))
+					(assign (vpx (+ (.> source +pixmap_data) (* (+ (* y1c (.> source +pixmap_width)) x1c) +int_size))) (vpx sdata))
+					(assign (vpx (elem sdata 0)) (vpx (elem data 0)))
+					(assign (vpx (+ data +int_size)) (vpx data))
+					(goto 'next_pixel)
+				(endif)
+			(endif)
 
 			(assign (vpx (=> (=> (=> (=> 0 a) r) g) b)) (vpx q))
 
@@ -116,17 +139,21 @@
 				(assign (vpx (+ y 1)) (vpx y))
 			(loop-end)
 
-			;divide by the pixel weight and store
-			(vp-rdef (q r g b a data))
-			(assign (vpx (/ (<< 1 32) q) r g b a data) (list q r g b a data))
+			;divide by the pixel weight, to the nearest, and store. The
+			;reciprocal is rounded up, and of 2^40, so a solid colour comes
+			;out as it went in: rounded down, and of 2^32, white was 254
+			(vp-rdef (q h r g b a data))
+			(assign (vpx (/ (+ (<< 1 40) (- q 1)) q) (>> q 1) r g b a data) (list q h r g b a data))
+			(vp-simd vp-add-rr `(,h) `(,r ,g ,b ,a))
 			(vp-simd vp-mul-rr `(,q) `(,r ,g ,b ,a))
-			(vp-simd vp-shr-cr '(32) `(,r ,g ,b ,a))
+			(vp-simd vp-shr-cr '(40) `(,r ,g ,b ,a))
 			(vp-simd vp-shl-cr '(8 16 24) `(,g ,b ,a))
 			(vp-simd vp-add-rr `(,g ,b ,a) `(,r))
 			(vp-cpy-ri-i r data 0)
 			(vp-add-cr +int_size data)
 			(assign (list data) (vpx data))
 
+		(vp-label 'next_pixel)
 			(assign (vpx (+ x2 1)) (vpx x2))
 		(loop-end)
 		(assign (vpx (+ y2 1)) (vpx y2))
@@ -185,7 +212,9 @@
 			(vp-simd vp-and-rr `(,mga ,mrb) `(,sga ,srb))
 			(vp-simd vp-add-rr `(,sga ,srb) `(,ga ,rb))
 
-			;divide by the pixel weight and store
+			;divide by the pixel weight, to the nearest, and store
+			(vp-simd vp-cpy-cr '(0x02000200 0x00020002) `(,sga ,srb))
+			(vp-simd vp-add-rr `(,sga ,srb) `(,ga ,rb))
 			(vp-simd vp-shr-cr '(2) `(,ga ,rb))
 			(vp-simd vp-and-rr `(,mga ,mrb) `(,ga ,rb))
 			(vp-add-rr ga rb)
@@ -216,7 +245,9 @@
 	(entry :pixmap :resize_3 (list this source))
 
 	(assign `((,this +pixmap_data) (,source +pixmap_data)) `(,data , sdata))
-	(assign `(,(/ (<< 1 32) 9) (,source +pixmap_stride) (,source +pixmap_height) 0xff00ff00 0xff00ff)
+	;a ninth, rounded up, so with half of 9 added the sums round to the
+	;nearest and a solid colour comes out as it went in
+	(assign `(,(/ (+ (<< 1 32) 8) 9) (,source +pixmap_stride) (,source +pixmap_height) 0xff00ff00 0xff00ff)
 		(list q sw ydata mga mrb))
 
 	(vp-mul-rr sw ydata)
@@ -277,6 +308,7 @@
 			(vp-simd vp-cpy-rr `(,ga ,rb) `(,sga ,srb))
 			(vp-simd vp-shr-cr '(24 16 8) `(,sga ,srb ,ga))
 			(vp-simd vp-and-cr '(0xfff) `(,rb ,ga))
+			(vp-simd vp-add-cr '(4) `(,sga ,srb ,ga ,rb))
 			(vp-simd vp-mul-rr `(,q) `(,sga ,srb ,ga ,rb))
 			(vp-simd vp-shr-cr '(32) `(,sga ,srb ,ga ,rb))
 			(vp-simd vp-shl-cr '(8 16 24) `(,ga ,srb ,sga))
