@@ -5,20 +5,20 @@
 
 ; Events
 (enums +event +event_user
-	(enum launch toggle))
+	(enum launch toggle collapse expand))
 
 ; Mailbox selection enums
 (enums +select 0
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil +config_version 20 +config_file (cat (get :home *env*) "launcher.tre"))
+(defq *config* :nil +config_version 21 +config_file (cat (get :home *env*) "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
 (defun config-default ()
 	(scatter (Emap)
-		:version +config_version :columns 2
+		:version +config_version :columns 3
 		:exclude '("launcher" "login" "wallpaper" "tui")
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
@@ -83,6 +83,23 @@
 		(. app_grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 		(. *main_flow* :add_child cat_flow)))
 
+(defun cat-set (cat_flow collapsed)
+	; (cat-set cat_flow collapsed)
+	;a category collapsed or not, its toggle and its grid, and kept so
+	(bind '(header grid) (. cat_flow :children))
+	(. (. (. *config* :find :categories) :find (get :cat_name cat_flow)) :insert :collapsed collapsed)
+	(def (first (. header :children)) :text (num-to-utf8 (if collapsed +sym_next +sym_up)))
+	(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden))
+
+(defun window-fit ()
+	; (window-fit)
+	;the window its size again after categories are shown or hidden, all
+	;laid out again, a toggle is a new size and the row it is in is not
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit x y w h))
+	(. *window* :change_dirty x y w h :t))
+
 (defun build-ui ()
 	(defq categories (. *config* :find :categories)
 		columns (. *config* :find :columns))
@@ -92,11 +109,17 @@
 ; Main Window Layout
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Launcher" (+sym_close) +event_close)
+	(ui-tool-bar *main_toolbar* ()
+		(ui-buttons (+sym_up +sym_down) +event_collapse))
 	(ui-flow *main_flow* (:flow_flags +flow_down_fill)))
+
+(ui-tool-tips *main_toolbar*
+	'("collapse" "expand"))
 
 (defun main ()
 	; Initialization
 	(defq select (task-mboxes +select_size) running :t name_to_path_map (Fmap 11))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(config-load)
 	(scan-apps)
 	(build-ui)
@@ -120,24 +143,13 @@
 				(open-child (app-path (. name_to_path_map :find (get :text button))) +kn_call_pin)
 				(setq running :nil))
 			((= id +event_toggle)
-				(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))
-					cat_flow (penv (penv toggle))
-					grid (second (. cat_flow :children))
-					cat_name (get :cat_name cat_flow)
-					categories (. *config* :find :categories)
-					cat_data (. categories :find cat_name)
-					collapsed (not (. cat_data :find :collapsed)))
-				(. cat_data :insert :collapsed collapsed)
-				(def toggle :text (num-to-utf8 (if collapsed +sym_next +sym_up)))
-				(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
-
-				; Recalculate size and update scrollbars after visibility change,
-				; all laid out again, the toggle is a new size and the row it is
-				; in is not
-				(bind '(x y) (. *window* :get_pos))
-				(bind '(w h) (. *window* :pref_size))
-				(bind '(x y w h) (view-fit x y w h))
-				(. *window* :change_dirty x y w h :t))
+				(defq cat_flow (penv (penv (. *window* :find_id (getf msg +ev_msg_action_source_id)))))
+				(cat-set cat_flow (not (. (. (. *config* :find :categories) :find (get :cat_name cat_flow)) :find :collapsed)))
+				(window-fit))
+			((or (= id +event_collapse) (= id +event_expand))
+				;every category the one way
+				(each (# (cat-set %0 (= id +event_collapse))) (. *main_flow* :children))
+				(window-fit))
 			((. *window* :event msg))))
 
 	(config-save)
