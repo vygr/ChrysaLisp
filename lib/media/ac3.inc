@@ -11,6 +11,7 @@
 
 (import "./bits.inc")
 (import "./mdct.inc")
+(import "./ac3_tables.inc")
 
 ;module
 (env-push)
@@ -86,6 +87,21 @@
 	:rematrix '(13 25 37 61 253)
 	:cpl_bands '(0 0 0 0 0 0 0 0 1 0 1 1 0 1 1 1 1 1)
 	:spx_bands '(0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1))
+
+;the adaptive hybrid transform of E-AC-3: the high efficiency bap by the
+;address, the bits of each, and the remapping of the gain adaptive
+;quantisation's numbers, of 1/32768, by bap less 8, without a gain and
+;of a large number by a gain of 2 and of 4
+(scatter +ac3 :hebap '(0 1 2 3 4 5 6 7 8 8 8 8 9 9 9 10
+		10 10 10 11 11 11 11 12 12 12 12 13 13 13 13 14
+		14 14 14 15 15 15 15 16 16 16 16 17 17 17 17 18
+		18 18 18 18 18 18 18 19 19 19 19 19 19 19 19 19)
+	:hebap_bits '(0 2 3 4 5 7 8 9 3 4 5 6 7 8 9 10 11 12 14 16)
+	:gaq_remap '(4681 2185 1057 520 258 129 64 32 16 8 2 0)
+	:gaq_remap_a '((-10923 -4681) (-14043 -6554) (-15292 -7399) (-15855 -7802) (-16124 -7998)
+		(-16255 -8096) (-16320 -8144) (-16352 -8168) (-16368 -8180))
+	:gaq_remap_b '((-5461 -1170) (-11703 -4915) (-14199 -6606) (-15327 -7412) (-15864 -7805)
+		(-16126 -7999) (-16255 -8096) (-16320 -8144) (-16352 -8168)))
 
 (defun ac3-bsi (in h)
 	;the rest of AC-3's: dialogue level, compression, language, production,
@@ -333,10 +349,11 @@
 			dba))
 	mask)
 
-(defun ac3-bap (d psd mask start end snr)
-	; (ac3-bap decoder psd mask start end snr) -> bap
-	;the bits of each mantissa, the address of the power above the mask
-	(defq bap (map (lambda (_) 0) (range 0 256)) tab (. +ac3 :find :bap) floor (. d :find :floor))
+(defun ac3-bap (d psd mask start end snr tab)
+	; (ac3-bap decoder psd mask start end snr tab) -> bap
+	;the bits of each mantissa, the address of the power above the mask,
+	;by the table of AC-3 or of AHT
+	(defq bap (fill (nums) 256 0) floor (. d :find :floor))
 	(unless (= snr -960)
 		(defq bin_band (. +ac3 :find :bin_band) band_start (. +ac3 :find :band_start) bin start)
 		(while (< bin end)
@@ -371,7 +388,9 @@
 		;coordinates still to come, and its blends of noise and signal
 		:spx 0 :spx_uses (map (lambda (_) 0) (range 0 n)) :spx_first (map (lambda (_) 1) (range 0 n))
 		:spx_noise (map (lambda (_) (list)) (range 0 n)) :spx_signal (map (lambda (_) (list)) (range 0 n))
-		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0))
+		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
+		;the 6 blocks' mantissas of each channel of AHT
+		:aht (map (lambda (_) :nil) (range 0 n))))
 
 (defun ac3-groups (in strategy groups prev)
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
@@ -412,6 +431,78 @@
 	;the next of the dither, a real of -0.707 to 0.707
 	(* (ac3-noise d) (n2r 0.707)))
 
+(defun ac3-idct6 ((p0 p1 p2 p3 p4 p5))
+	; (ac3-idct6 (m ...)) -> (m ...)
+	;the DCT of 6 back, a bin's mantissas across the blocks, as the
+	;standard's, of root 2 by the cosines of 2, 0 and 5 twelfths of pi
+	(defq even2 (* p2 (n2r 1.2247449)) tmp (* p4 (n2r 1.4142136)) odd0 (* (+ p1 p5) (n2r 0.3660254))
+		odd1 (- p1 p3 p5) even1 (- p0 tmp) even0 (+ p0 (* tmp (n2r 0.5)))
+		e0 (+ even0 even2) e2 (- even0 even2) o0 (+ odd0 p1 p3) o2 (- (+ odd0 p5) p3))
+	(list (+ e0 o0) (+ even1 odd1) (+ e2 o2) (- e2 o2) (- even1 odd1) (- e0 o0)))
+
+(defun ac3-signed (in n)
+	;a number of n bits, two's complement
+	(if (>= (defq v (bits-get in n)) (<< 1 (dec n))) (- v (<< 1 n)) v))
+
+(defun ac3-gaq (in b bits g)
+	;a mantissa of the gain adaptive quantisation, of bap 8 and more, of
+	;fewer bits by its gain, a large one escaped to its own bits; each
+	;remapped for the quantiser not being even about 0
+	(defq v (ac3-signed in (- bits g)))
+	(cond
+		((and (> g 0) (= v (neg (<< 1 (- bits g 1)))))
+			(defq mbits (- bits (- 2 g)) v (ac3-signed in mbits) x (/ (n2r v) (n2r (<< 1 (dec mbits)))))
+			(+ x (/ (* x (n2r (elem-get (elem-get (. +ac3 :find :gaq_remap_a) (- b 8)) (dec g)))) (n2r 32768))
+				(if (>= v 0) (/ (n2r 1) (n2r (<< 1 g)))
+					(/ (n2r (elem-get (elem-get (. +ac3 :find :gaq_remap_b) (- b 8)) (dec g))) (n2r 32768)))))
+		(:t (defq x (/ (n2r v) (n2r (<< 1 (dec bits)))))
+			(if (= g 0) (+ x (/ (* x (n2r (elem-get (. +ac3 :find :gaq_remap) (- b 8)))) (n2r 32768))) x))))
+
+(defun ac3-aht (d in c)
+	; (ac3-aht decoder reader channel) -> (reals ...)
+	;the mantissas of a channel of AHT for all 6 blocks, all sent in the
+	;first: by its high efficiency bap, 0 noise, 1 to 7 a vector of 6 by
+	;one code, 8 and more 6 numbers by the gain adaptive quantisation; then
+	;the DCT of 6 back across the blocks, a reals of 256 for each block
+	(defq bap (elem-get (. d :find :bap) c) bins (range (elem-get (. d :find :start) c) (elem-get (. d :find :end) c))
+		bits_of (. +ac3 :find :hebap_bits) gaq (bits-get in 2) top (if (< gaq 2) 12 17) gains (list) gi 0
+		out (map (lambda (_) (fill (reals) 256 (n2r 0))) (range 0 6)))
+	;the gains of the bins of bap 8 to the top, of 1 bit each, or 3 to a
+	;code of 5 bits
+	(case gaq
+		((1 2) (each (# (if (< 7 (elem-get bap %0) top) (push gains (<< (bits-1 in) (dec gaq))))) bins))
+		(3 (defq k 0)
+			(each (lambda (bin)
+					(when (< 7 (elem-get bap bin) 17)
+						(when (= 0 (% k 3))
+							(defq v (min 26 (bits-get in 5)))
+							(push gains (/ v 9) (% (/ v 3) 3) (% v 3)))
+						(setq k (inc k))))
+				bins)))
+	(each (lambda (bin)
+			(defq b (elem-get bap bin) bits (elem-get bits_of b))
+			(each (# (elem-set (elem-get out (!)) bin %0)) (ac3-idct6 (cond
+				((= b 0) (map (lambda (_) (* (ac3-noise d) (n2r 0.5))) (range 0 6)))
+				((< b 8)
+					(defq vq (elem-get *ac3_aht_vq* b) row (* 6 (bits-get in bits)))
+					(map (# (/ (n2r (elem-get vq (+ row %0))) (n2r 32768))) (range 0 6)))
+				(:t (defq g 0)
+					(and (/= gaq 0) (< b top) (setq g (elem-get gains gi) gi (inc gi)))
+					(map (lambda (_) (ac3-gaq in b bits g)) (range 0 6)))))))
+		bins)
+	out)
+
+(defun ac3-aht-coeffs (d in c blk)
+	; (ac3-aht-coeffs decoder reader channel blk) -> reals
+	;a block's coefficients of a channel of AHT, its mantissas read in the
+	;first block, by 2^-exponent
+	(if (= blk 0) (elem-set (. d :find :aht) c (ac3-aht d in c)))
+	(defq pre (elem-get (elem-get (. d :find :aht) c) blk) exps (elem-get (. d :find :exps) c)
+		out (fill (reals) 256 (n2r 0)))
+	(each (# (elem-set out %0 (/ (elem-get pre %0) (n2r (<< 1 (elem-get exps %0))))))
+		(range (elem-get (. d :find :start) c) (elem-get (. d :find :end) c)))
+	out)
+
 (defun ac3-mantissas (d in c groups)
 	; (ac3-mantissas decoder reader channel groups) -> reals
 	;the coefficients of a channel's bins, each its mantissa by 2^-exponent:
@@ -421,8 +512,7 @@
 	(defq bap (elem-get (. d :find :bap) c) exps (elem-get (. d :find :exps) c)
 		start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
 		dither (or (= c 0) (= 1 (elem-get (. d :find :dither) c)))
-		qbits (. +ac3 :find :qbits) out (reals))
-	(times 256 (push out (n2r 0)))
+		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)))
 	(each (lambda (bin)
 			(defq b (elem-get bap bin) m (n2r 0))
 			(cond
@@ -521,7 +611,7 @@
 	;the LFE, by 2^-exponent
 	(defq fbw (. d :find :fbw) lfe (. d :find :lfe) mode (. d :find :mode) eac3 (. h :find :eac3)
 		lfe_ch (inc fbw) channels (+ fbw lfe) stages (map (lambda (_) 0) (range 0 (+ fbw 2)))
-		start (. d :find :start) end (. d :find :end) in_cpl (. d :find :in_cpl))
+		start (. d :find :start) end (. d :find :end) in_cpl (. d :find :in_cpl) aht (. h :find :aht))
 	;block switching, and dither
 	(each (# (elem-set (. d :find :blksw) %0 (if (= (. h :find :blkswe) 1) (bits-1 in) 0))) (range 1 (inc fbw)))
 	(if (= (. h :find :dithflage) 1)
@@ -724,16 +814,19 @@
 					(elem-get (. d :find :fgain) c) (= c lfe_ch) (elem-get (. d :find :dba) c))))
 			(if (> st 0)
 				(elem-set (. d :find :bap) c (ac3-bap d (elem-get (. d :find :psd) c) (elem-get (. d :find :mask) c)
-					(elem-get start c) (elem-get end c) (elem-get (. d :find :snr) c)))))
+					(elem-get start c) (elem-get end c) (elem-get (. d :find :snr) c)
+					(. +ac3 :find (if (= 0 (elem-get aht c)) :bap :hebap))))))
 		(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
 	;dummy data, stepped over
 	(and (= (. h :find :skipflde) 1) (= (bits-1 in) 1) (bits-skip in (* 8 (bits-get in 9))))
 	;the mantissas, the coupling channel's after the first coupled one's
-	(defq groups (list (list) (list) (list)) out (list) cpl :nil)
+	;those of a channel of AHT all in the first block
+	(defq groups (list (list) (list) (list)) out (list) cpl :nil
+		mants (lambda (c) (if (= 0 (elem-get aht c)) (ac3-mantissas d in c groups) (ac3-aht-coeffs d in c blk))))
 	(each (lambda (c)
-			(defq coeffs (ac3-mantissas d in c groups))
+			(defq coeffs (mants c))
 			(when (= 1 (elem-get in_cpl c))
-				(unless cpl (setq cpl (ac3-mantissas d in 0 groups)))
+				(unless cpl (setq cpl (mants 0)))
 				;the coupled bins, the coupling channel's by this one's coordinates
 				(defq bin (elem-get start 0) coords (elem-get (. d :find :coords) c))
 				(each (lambda (size)
@@ -772,13 +865,12 @@
 	;channel switched to short blocks, the KBD window of alpha 5, and half
 	;overlapped with the block before, as A/52 has it in its halves
 	(defq in (bits-of packet) h (ac3-header in))
-	(if (. h :find :eac3) (progn (ac3-frame-info in h)
-			;AHT's mantissas are not read here yet, nor is the rest of a frame
-			(if (some (# (= %0 1)) (. h :find :aht)) (throw "ac3: AHT is not here yet" (. h :find :aht))))
+	(if (. h :find :eac3) (ac3-frame-info in h)
 		;AC-3: its syntax has all of these in each block, what E-AC-3 sends
-		;once for a frame
+		;once for a frame, and no AHT
 		(scatter h :blkswe 1 :dithflage 1 :bamode 1 :frmfgaincode 0 :dbaflde 1 :skipflde 1 :snroffststr 2
-			:cplstre (list) :cplinu (list) :expstr (list) :lfe_expstr (list)))
+			:cplstre (list) :cplinu (list) :expstr (list) :lfe_expstr (list)
+			:aht (fill (nums) (+ (. h :find :fbw) 2) 0)))
 	;each frame of E-AC-3 sends its coupling and spectral extension
 	;coordinates and its leaks afresh
 	;in its first block, with no flag before them; AC-3 has the flags
