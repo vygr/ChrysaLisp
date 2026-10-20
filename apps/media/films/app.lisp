@@ -206,8 +206,7 @@
 
 (defun tick (select)
 	;the next frame when it is due, round again after the last
-	(mail-timeout (elem-get select +select_timer)
-		(if *reel* (n2i (/ 1000000.0 (. *reel* :find :rate))) 33333) 0)
+	(defq period (if *reel* (n2i (/ 1000000.0 (. *reel* :find :rate))) 33333) wait :nil start (pii-time))
 	(cond
 		((not *reel*))
 		((sound-on?)
@@ -216,14 +215,22 @@
 			(sound-feed *sound*)
 			;the sound heard *sync* ms later than it was coded, the pictures
 			;as much ahead of the clock
-			(defq n (frame-at (+ (sound-smooth *sound*) (/ (n2f *sync*) 1000.0))))
+			(defq ahead (/ (n2f *sync*) 1000.0) n (frame-at (+ (sound-smooth *sound*) ahead)))
 			(cond
 				((>= n (dec (. *reel* :find :frames)))
 					(show 0)
 					(sound-start *sound* (frame-time 0)))
-				((/= n *at*) (show n))))
+				((/= n *at*) (show n)))
+			;woken when the next is due by the clock, not a period on: a sleep
+			;wakes a little late, and a period on from each would let a frame
+			;go now and then
+			(when (< (inc *at*) (. *reel* :find :frames))
+				(setq wait (max 2000 (min period
+					(n2i (* (- (frame-time (inc *at*)) (+ (sound-smooth *sound*) ahead)) 1000000.0)))))))
 		(*playing* (show (if (>= (inc *at*) (. *reel* :find :frames)) 0 (inc *at*))))
-		((/= *seek* *at*) (show *seek*))))
+		((/= *seek* *at*) (show *seek*)))
+	;with no sound a period from when this began
+	(mail-timeout (elem-get select +select_timer) (ifn wait (max 2000 (- period (- (pii-time) start)))) 0))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
