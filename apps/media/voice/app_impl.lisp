@@ -142,21 +142,6 @@
 		(unless (eql left (get :text name)) (def (. name :dirty) :text left) (. name :layout))
 		(unless (eql right (get :text doing)) (def (. doing :dirty) :text right) (. doing :layout)))))
 
-(defun call-show ()
-	;the call part made again if who is in it, or its buttons, have
-	;changed; the state is sent again each time the call is watched again,
-	;as well as on a change. What each is doing is only told, (call-doing).
-	;In a call: its name, who is in it and what each is doing, and its
-	;buttons. In none: the calls of the mesh, each to join, and one to start
-	(defq shown (if (call-in?)
-		(str (map (# (. *call* :find %0)) '(:id :name :muted :headphones :inbox))
-			(map (# (slice %0 0 2)) (ifn (. *call* :find :members) (list))))
-		(str *call_list*)))
-	(unless (eql shown *call_shown*)
-		(setq *call_shown* shown)
-		(call-show-now))
-	(if (call-in?) (call-doing)))
-
 (defun call-show-now ()
 	(each (# (. %0 :sub)) (. *call_area* :children))
 	(. *call_rows* :empty)
@@ -179,6 +164,21 @@
 			(if (empty? *call_list*) (. *call_area* :add_child (call-label "No calls to join" :font_button +argb_grey8)))
 			(. *call_area* :add_child (call-buttons (list (list +sym_dial +event_start :nil "call"))))))
 	(call-area-fit))
+
+(defun call-show ()
+	;the call part made again if who is in it, or its buttons, have
+	;changed; the state is sent again each time the call is watched again,
+	;as well as on a change. What each is doing is only told, (call-doing).
+	;In a call: its name, who is in it and what each is doing, and its
+	;buttons. In none: the calls of the mesh, each to join, and one to start
+	(defq shown (if (call-in?)
+		(str (map (# (. *call* :find %0)) '(:id :name :muted :headphones :inbox))
+			(map (# (slice %0 0 2)) (ifn (. *call* :find :members) (list))))
+		(str *call_list*)))
+	(unless (eql shown *call_shown*)
+		(setq *call_shown* shown)
+		(call-show-now))
+	(if (call-in?) (call-doing)))
 
 (defun calls-refresh ()
 	;the calls of the mesh, and the call part made again if they changed

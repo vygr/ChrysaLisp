@@ -129,28 +129,12 @@
 		(def *title* :text "Whiteboard, brought back from before a share")
 		(.-> *title* :layout :dirty_all)))
 
-(defun share-end ()
-	;a board that joined has its own document back, and it is put by no more
-	(share-stop *board*)
-	(share-kept-forget)
-	(share-voice-end)
-	(def *board* :user_base :nil :trusted :nil)
-	(if *share_own_doc* (. *board* :set_doc *share_own_doc*))
-	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil *share_trust* :nil)
-	(share-title))
-
 (defun share-switch-show (sym on)
 	;a switch beside Share lit while it is on, as a toggle is
 	(when (defq btn (some (# (if (eql (get :text %0) (num-to-utf8 sym)) %0)) (. *main_toolbar* :children)))
 		(if on
 			(def (. btn :dirty) :paper (canvas-brighter (get :paper *main_toolbar*)))
 			(undef (. btn :dirty) :paper))))
-
-(defun share-copies-show ()
-	(share-switch-show +sym_copy *share_may_save*)
-	(share-switch-show +sym_eraser *share_trust*)
-	(share-switch-show +sym_mic *share_voice*)
-	(share-switch-show +sym_mute (share-muted?)))
 
 ;voice: the host's switch starts a call of the session, and each board joins
 ;it. It is a call as any other, service/voice, its mute this desktop's
@@ -163,6 +147,12 @@
 (defun share-muted? ()
 	(and *share_call* (. *share_call* :find :id) (. *share_call* :find :muted)))
 
+(defun share-copies-show ()
+	(share-switch-show +sym_copy *share_may_save*)
+	(share-switch-show +sym_eraser *share_trust*)
+	(share-switch-show +sym_mic *share_voice*)
+	(share-switch-show +sym_mute (share-muted?)))
+
 (defun share-voice-send (to)
 	;one board told the call of the session, or that there is none
 	(share-send to "v" (if *share_voice* (cat "1," *share_voice*) "0")))
@@ -171,6 +161,16 @@
 	;out of the call of the session, if this is in it
 	(if (share-in-call?) (call-leave))
 	(setq *share_voice* :nil))
+
+(defun share-end ()
+	;a board that joined has its own document back, and it is put by no more
+	(share-stop *board*)
+	(share-kept-forget)
+	(share-voice-end)
+	(def *board* :user_base :nil :trusted :nil)
+	(if *share_own_doc* (. *board* :set_doc *share_own_doc*))
+	(setq *share* :nil *share_host* :nil *share_own_doc* :nil *share_may_save* :nil *share_trust* :nil)
+	(share-title))
 
 (defun action-voice ()
 	;the host starts a call of the session, or ends it, and every board is

@@ -13,6 +13,12 @@
 	(sound-take vc_order 17 "h"))
 (assert-list-eq "and it is let go if it comes after all" '() (sound-take vc_order 14 "e"))
 
+(defun vc-got (box from)
+	(defq got (list))
+	(while (defq msg (mail-read-timeout box 100000))
+		(push got (list (getf msg +voice_piece_seq) (eql (hex-encode (getf msg +voice_piece_from)) (hex-encode from))
+			(- (length msg) +voice_piece_data) (> (sound-peak (slice msg +voice_piece_data -1)) 5000))))
+	(sort got (# (- (first %0) (first %1)))))
 ;a tone in place of the microphone, mailed to two that are to hear it, or
 ;none, muted or not, and to a tap or not
 (defun vc-run (to &optional muted tap level said)
@@ -26,12 +32,6 @@
 		(voice-stage 'voice-send (stage-mbox ctl) (stage-mbox from) :nil)) done)
 	(mail-read-timeout done (task-timeout 20))
 	(map (lambda (box) (vc-got box from)) (if tap (cat boxes (list tap)) boxes)))
-(defun vc-got (box from)
-	(defq got (list))
-	(while (defq msg (mail-read-timeout box 100000))
-		(push got (list (getf msg +voice_piece_seq) (eql (hex-encode (getf msg +voice_piece_from)) (hex-encode from))
-			(- (length msg) +voice_piece_data) (> (sound-peak (slice msg +voice_piece_data -1)) 5000))))
-	(sort got (# (- (first %0) (first %1)))))
 (defun vc-all (peak) (map (# (list %0 :t +sound_piece peak)) (range 0 10)))
 (assert-list-eq "each that is to hear is sent each piece of 20ms, numbered, from who said it"
 	(list (vc-all :t) (vc-all :t)) (vc-run '(:t :t)))

@@ -110,29 +110,6 @@
 	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin)
 		(cat reply address (ascii-char 10) (ifn picture ""))))
 
-(defun fetch-done (msg)
-	; (fetch-done msg)
-	;the files of the model, as the fetch task sends them, and the model
-	;made of them
-	(bind '(pick address picture) fetching)
-	(setq fetching :nil *fetched* (Fmap 11))
-	(defq at 0 nl (ascii-char 10) why (if (starts-with "!" msg) (slice msg 1 -1)))
-	(while (and (not why) (< at (length msg)))
-		(defq e (find nl msg at) url (slice msg at e)
-			e1 (find nl msg (inc e)) n (str-as-num (slice msg (inc e) e1)))
-		(. *fetched* :insert url (slice msg (inc e1) (+ e1 1 n)))
-		(setq at (+ e1 1 n)))
-	(defq loaded (and (not why) (nempty? msg) (model-load address picture))
-		why (if why (cat ": " why) "."))
-	(setq *fetched* :nil)
-	(cond
-		((and loaded pick)
-			(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
-		(loaded
-			(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
-		(pick (say (cat "Could not fetch " pick why)))
-		((say (cat "Could not fetch a model from " address why)))))
-
 (defun model-source (path)
 	; (model-source path) -> :nil | (obj_text fetch pictures)
 	;the text of the .obj, a function that gives the bytes of a file it
@@ -214,6 +191,29 @@
 			(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
 			(setq parts out triangles count name (last (split path "/")))
 			:t)))
+
+(defun fetch-done (msg)
+	; (fetch-done msg)
+	;the files of the model, as the fetch task sends them, and the model
+	;made of them
+	(bind '(pick address picture) fetching)
+	(setq fetching :nil *fetched* (Fmap 11))
+	(defq at 0 nl (ascii-char 10) why (if (starts-with "!" msg) (slice msg 1 -1)))
+	(while (and (not why) (< at (length msg)))
+		(defq e (find nl msg at) url (slice msg at e)
+			e1 (find nl msg (inc e)) n (str-as-num (slice msg (inc e) e1)))
+		(. *fetched* :insert url (slice msg (inc e1) (+ e1 1 n)))
+		(setq at (+ e1 1 n)))
+	(defq loaded (and (not why) (nempty? msg) (model-load address picture))
+		why (if why (cat ": " why) "."))
+	(setq *fetched* :nil)
+	(cond
+		((and loaded pick)
+			(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
+		(loaded
+			(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
+		(pick (say (cat "Could not fetch " pick why)))
+		((say (cat "Could not fetch a model from " address why)))))
 
 ;;;;;;;;;;;
 ; drawing
