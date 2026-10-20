@@ -61,9 +61,8 @@
 (defun mdct-sine (n)
 	; (mdct-sine n) -> reals
 	;the rising half, n, of the sine window of 2n
-	(defq out (cap n (reals)) pi (. +mdct :find :pi))
-	(each (# (push out (sin (/ (* pi (+ (n2r %0) (n2r 0.5))) (n2r (* 2 n)))))) (range 0 n))
-	out)
+	(defq pi (. +mdct :find :pi))
+	(reduce (# (push %0 (sin (/ (* pi (+ (n2r %1) (n2r 0.5))) (n2r (* 2 n)))))) (range 0 n) (cap n (reals))))
 
 (defun mdct-kbd (n alpha)
 	; (mdct-kbd n alpha) -> reals

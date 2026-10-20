@@ -432,11 +432,9 @@
 						(defq w window)
 						(times count
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
-								energy (n2r 0) values (cap (- to from) (list)))
-							(times (- to from)
-								(noise-next seed)
-								(push values (n2r (- seed 0x80000000)))
-								(setq energy (+ energy (* (last values) (last values)))))
+								values (reduce (# (noise-next seed) (push %0 (n2r (- seed 0x80000000))))
+									(range from to) (cap (- to from) (reals)))
+								energy (nums-sum (nums-mul values values)))
 							(defq scale (if (> energy (n2r 0))
 								(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0)))
 							(each (# (elem-set out (+ from (!)) (* %0 scale))) values)
@@ -581,8 +579,8 @@
 			(and (eql (. ch :find :pair) :left) (. ch :find :ms)
 				(aac-stereo ch (elem-get channels (inc (!))) (elem-get lines (!)) (elem-get lines (inc (!))) tables)))
 		channels)
-	(each (# (aac-tns-apply %0 (elem-get lines (!)) rate_index)) channels)
-	(defq out (map (# (aac-imdct decoder (elem-get lines (!)) (. %0 :find :info) (!))) channels))
+	(each (# (aac-tns-apply %0 %1 rate_index)) channels lines)
+	(defq out (map (# (aac-imdct decoder %1 (. %0 :find :info) (!))) channels lines))
 	;of more than two channels, the front pair with the centre before it in
 	;each at 0.707, as a downmix to two has it; a recording in the centre
 	;alone is heard on both

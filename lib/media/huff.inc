@@ -34,9 +34,7 @@
 						(. subs :insert at (push (ifn (. subs :find at) (list)) (list sym n v))))))
 			level_codes)
 		(. subs :each (lambda (at list) (push todo (list (+ base at) list (+ used 8))))))
-	(defq out (cap (length table) (nums)))
-	(each (# (push out %0)) table)
-	out)
+	(reduce (# (push %0 %1)) table (cap (length table) (nums))))
 
 ;module
 (export-symbols '(huff-table))

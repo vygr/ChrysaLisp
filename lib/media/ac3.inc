@@ -386,9 +386,9 @@
 		:coords (map (lambda (_) (list)) (range 0 n)) :phase (list) :cpl_sizes (list) :cpl_struct (list)
 		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map (lambda (_) 0) (range 0 n)) :shorts 0
 		;spectral extension, in use, each channel using it, its first
-		;coordinates still to come, and its blends of noise and signal
+		;coordinates still to come, and its blend of noise and signal a band
 		:spx 0 :spx_uses (map (lambda (_) 0) (range 0 n)) :spx_first (map (lambda (_) 1) (range 0 n))
-		:spx_noise (map (lambda (_) (list)) (range 0 n)) :spx_signal (map (lambda (_) (list)) (range 0 n))
+		:spx_blend (map (lambda (_) (list)) (range 0 n))
 		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
 		;the 6 blocks' mantissas of each channel of AHT
 		:aht (map (lambda (_) :nil) (range 0 n))
@@ -471,7 +471,7 @@
 	;the gains of the bins of bap 8 to the top, of 1 bit each, or 3 to a
 	;code of 5 bits
 	(case gaq
-		((1 2) (each (# (if (< 7 (elem-get bap %0) top) (push gains (<< (bits-1 in) (dec gaq))))) bins))
+		((1 2) (reduce (# (if (< 7 (elem-get bap %1) top) (push %0 (<< (bits-1 in) (dec gaq))) %0)) bins gains))
 		(3 (defq k 0)
 			(each (lambda (bin)
 					(when (< 7 (elem-get bap bin) 17)
@@ -482,7 +482,7 @@
 				bins)))
 	(each (lambda (bin)
 			(defq b (elem-get bap bin) bits (elem-get bits_of b))
-			(each (# (elem-set (elem-get out (!)) bin %0)) (ac3-idct6 (cond
+			(each (# (elem-set %0 bin %1)) out (ac3-idct6 (cond
 				((= b 0) (map (lambda (_) (noise-next seed) (* (noise-real seed) (const (n2r 0.5)))) (range 0 6)))
 				((< b 8)
 					(defq vq (elem-get *ac3_aht_vq* b) row (* 6 (bits-get in bits)))
@@ -590,20 +590,20 @@
 				(when (>= (defq code (elem-get (. h :find :spxatten) (dec c))) 0)
 					(defq at (- src 2)
 						atten (map (# (pow (n2r 2) (/ (n2r (* (inc %0) (inc code))) (n2r -15)))) '(0 1 2 1 0)))
-					(each (lambda (size)
-							(if (= 1 (elem-get wraps (!)))
+					(each (lambda (size wrap)
+							(if (= 1 wrap)
 								(each (# (elem-set coeffs (+ at (!)) (* (elem-get coeffs (+ at (!))) %0))) atten))
 							(setq at (+ at size)))
-						sizes))
-				;the blend of the signal copied and the noise
-				(defq at src noise (elem-get (. d :find :spx_noise) c) signal (elem-get (. d :find :spx_signal) c))
-				(each (lambda (size)
-						(defq k (elem-get signal (!)) q (* (elem-get noise (!)) (elem-get rms (!))))
+					sizes wraps))
+			;the blend of the signal copied and the noise
+				(defq at src)
+				(each (lambda (size (noise k) r)
+						(defq q (* noise r))
 						(times size
 							(noise-next seed)
 							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (noise-real seed))))
 							(setq at (inc at))))
-					sizes)))
+					sizes (elem-get (. d :find :spx_blend) c) rms)))
 	(range 1 (inc (. d :find :fbw))))
 (. d :insert :seed seed))
 
@@ -655,20 +655,16 @@
 					((or (= 1 (elem-get first c)) (= 1 (bits-1 in)))
 						(elem-set first c 0)
 						(defq blend (/ (n2r (bits-get in 5)) (n2r 32)) master (* 3 (bits-get in 2))
-							bin (. d :find :spx_src) top (n2r (. d :find :spx_end))
-							noise (cap (length (. d :find :spx_sizes)) (list)) signal (cap (length (. d :find :spx_sizes)) (list)))
-						(each (lambda (size)
+							bin (. d :find :spx_src) top (n2r (. d :find :spx_end)))
+						(elem-set (. d :find :spx_blend) c (map (lambda (size)
 								;the higher the band, the more of it is noise
 								(defq ratio (max (n2r 0) (min (n2r 1) (- (/ (n2r (+ bin (>> size 1))) top) blend)))
 									e (bits-get in 4) m (bits-get in 2)
 									coord (/ (n2r (<< (if (= e 15) (<< m 1) (+ m 4)) (- 25 e master))) (n2r 0x800000)))
 								(setq bin (+ bin size))
 								;noise of -1 to 1 by root 3 is of the power of the signal
-								(push noise (* (sqrt (* (n2r 3) ratio)) coord))
-								(push signal (* (sqrt (- (n2r 1) ratio)) coord)))
-							(. d :find :spx_sizes))
-						(elem-set (. d :find :spx_noise) c noise)
-						(elem-set (. d :find :spx_signal) c signal))))
+								(list (* (sqrt (* (n2r 3) ratio)) coord) (* (sqrt (- (n2r 1) ratio)) coord)))
+							(. d :find :spx_sizes))))))
 			(range 1 (inc fbw))))
 	;coupling: its strategy, given by the frame of E-AC-3, by each block of
 	;AC-3, which keeps that of the block before if it says none
@@ -803,14 +799,13 @@
 	(cond
 		((and (= (. h :find :dbaflde) 1) (= (bits-1 in) 1))
 			(defq modes (map (lambda (_) (bits-get in 2)) (range (if (= cplinu 1) 0 1) (inc fbw))))
-			(each (lambda (c)
-					(defq m (elem-get modes (!)))
+			(each (lambda (c m)
 					(cond
 						((= m 1) (elem-set (. d :find :dba) c
 							(map (lambda (_) (list (bits-get in 5) (bits-get in 4) (bits-get in 3))) (range 0 (inc (bits-get in 3))))))
 						((= m 2) (elem-set (. d :find :dba) c :nil)))
 					(elem-set stages c (max (elem-get stages c) 2)))
-				(range (if (= cplinu 1) 0 1) (inc fbw))))
+				(range (if (= cplinu 1) 0 1) (inc fbw)) modes))
 		((= blk 0) (each (# (elem-set (. d :find :dba) %0 :nil)) (range 0 (+ fbw 2)))))
 	;the bit allocation of each channel, as far as it has changed
 	(each (lambda (c)
@@ -839,14 +834,13 @@
 				(unless cpl (setq cpl (mants 0)))
 				;the coupled bins, the coupling channel's by this one's coordinates
 				(defq bin (elem-get start 0) coords (elem-get (. d :find :coords) c))
-				(each (lambda (size)
-						(defq k (elem-get coords (!)) band (!))
-						(and (= c 2) (= mode 2) (= 1 (elem-get (. d :find :phase) band)) (setq k (neg k)))
+				(each (lambda (size k)
+						(and (= c 2) (= mode 2) (= 1 (elem-get (. d :find :phase) (!))) (setq k (neg k)))
 						(times size
 							(elem-set coeffs bin (* (if (and (= 0 (elem-get (elem-get (. d :find :bap) 0) bin))
 									(= 0 (elem-get (. d :find :dither) c))) (n2r 0) (elem-get cpl bin)) k))
 							(setq bin (inc bin))))
-					(. d :find :cpl_sizes)))
+					(. d :find :cpl_sizes) coords))
 			coeffs)
 		(range 1 (inc channels))))
 	;rematrixing of a pair, the sum and difference
@@ -862,7 +856,7 @@
 			(. d :find :rematrix)))
 	;the dynamic range gain, of the first of a dual mono to the second
 	(defq drc (. d :find :drc))
-	(each (# (elem-set out (!) (nums-scale %0 (elem-get drc (if (and (= mode 0) (= (!) 1)) 1 0))))) out)
+	(each (# (nums-scale %0 (elem-get drc (if (and (= mode 0) (= (!) 1)) 1 0)) %0)) out)
 	(if (= 1 (. d :find :spx)) (ac3-spx d h out))
 	out)
 
@@ -910,8 +904,8 @@
 							;a short block, two transforms of 128 lines, the even
 							;coefficients and the odd: the first is this block's,
 							;the second what is carried to the next
-							(defq evens (cap 128 (reals)) odds (cap 128 (reals)))
-							(each (# (if (even? (!)) (push evens %0) (push odds %0))) coeffs)
+							(bind '(evens odds) (reduce (# (push (elem-get %0 (logand (!) 1)) %1) %0)
+								coeffs (list (cap 128 (reals)) (cap 128 (reals)))))
 							;each of 128 lines, by 1/128, half the scale of the long one
 							(setq now (nums-scale (half evens 128 (. d :find :short_tables)) (n2r 0.5))
 								next (nums-scale (half odds 128 (. d :find :short_tables)) (n2r 0.5)))
