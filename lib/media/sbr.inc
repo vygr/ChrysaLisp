@@ -28,6 +28,8 @@
 ; (sbr-matvec matrix rows cols x from out) -> out
 (ffi (path-to-absolute "./media_gather") sbr-gather)
 ; (sbr-gather out arrays index) -> out
+(ffi (path-to-absolute "./media_window") sbr-window)
+; (sbr-window v d out at scale n parts dstep vstep doff voff) -> out
 
 ;what the functions read as they run, this one map, the tables of
 ;sbr_tables.inc taken in as this is read: a module's names are gone by
@@ -874,18 +876,13 @@
 	;the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
 	;bands newest in v, its 10 parts by the window, summed. Of its cos by
 	;the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
+	;the window's sum native, lib/media/lisp.vp media_window, as MP3's
 	(defq syn_c (. +sbr :find :syn_c) syn_s (. +sbr :find :syn_s) win (. +sbr :find :window)
-		v (. ch :find :synthesis) out (cap 2048 (reals)) zero (n2r 0))
+		v (. ch :find :synthesis) zero (n2r 0) out (fill (reals) 2048 zero) one (n2r 1))
 	(each! (lambda ((re im))
 			(defq a (sbr-matvec syn_c 64 64 re 0 (fill (reals) 64 zero)) b (sbr-matvec syn_s 64 64 im 0 (fill (reals) 64 zero)))
 			(setq v (cat (nums-sub a b) (slice (nums-sub (nums-scale a (n2r -1)) b) 64 0) (slice v 0 1152)))
-			(defq sum (fill (reals) 64 (n2r 0)))
-			(each (lambda (m)
-					(defq a (* 256 m) c (* 128 m))
-					(setq sum (nums-add sum (nums-add (nums-mul (slice v a (+ a 64)) (slice win c (+ c 64)))
-						(nums-mul (slice v (+ a 192) (+ a 256)) (slice win (+ c 64) (+ c 128)))))))
-				(range 0 5))
-			(setq out (cat out sum)))
+			(sbr-window v win out (* 64 (!)) one 64 5 128 256 64 192))
 		(list slots) 0 32)
 	(. ch :insert :synthesis v)
 	out)

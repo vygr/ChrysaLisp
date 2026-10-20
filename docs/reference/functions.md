@@ -8055,6 +8055,7 @@ the borders of bands of widths from start
 the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
 bands newest in v, its 10 parts by the window, summed. Of its cos by
 the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
+the window's sum native, lib/media/lisp.vp media_window, as MP3's
 ```
 
 ### sbr-tables

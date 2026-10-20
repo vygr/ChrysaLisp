@@ -97,7 +97,7 @@
 		(defq pi (mp3-pi) third (/ (n2r 4) (n2r 3)))
 		(scatter +mp3 :made :t
 			:matvec (ffi "lib/media/media_matvec") :lines (ffi "lib/media/media_mp3_lines") :dequant (ffi "lib/media/media_dequant")
-			:window (ffi "lib/media/media_mp3_window") :alias_native (ffi "lib/media/media_mp3_alias")
+			:window (ffi "lib/media/media_window") :alias_native (ffi "lib/media/media_mp3_alias")
 			:starts (map (lambda (widths) (reduce (# (push %0 (+ (last %0) %1))) widths (list 0))) (. +mp3 :find :long))
 			:pow (reduce (# (push %0 (if (= %1 0) (n2r 0) (pow (n2r %1) third)))) (range 0 8207) (cap 8207 (reals)))
 			:cs (reduce (# (push %0 (/ (n2r 1) (sqrt (+ (n2r 1) (* (str-to-real %1) (str-to-real %1))))))) (. +mp3 :find :alias) (reals))
@@ -415,7 +415,7 @@
 	(each (lambda (t)
 			(defq s (reduce (# (push %0 (elem-get %1 t))) subbands (cap 32 (reals))))
 			(setq v (cat ((. +mp3 :find :matvec) rows 64 32 s 0 (fill (reals) 64 (n2r 0))) (slice v 0 960)))
-			((. +mp3 :find :window) v d pcm (+ at (* 32 t)) k))
+			((. +mp3 :find :window) v d pcm (+ at (* 32 t)) k 32 8 64 128 32 96))
 		(range 0 18))
 	v)
 

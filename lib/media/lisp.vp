@@ -1889,7 +1889,7 @@
 
 (def-func-end)
 
-(def-func (path-to-absolute "./media_mp3_window"))
+(def-func (path-to-absolute "./media_window"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -1897,51 +1897,54 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r9, :f0-:f3
+	;:r1-:r14, :f0-:f3
 	;info
-	;(media-mp3-window v d out at scale) -> out, of MP3's filterbank, the 32
-	;samples of a time into out from at: each j the sum over i of 8 of d
-	;64i + j by v 128i + j and d 64i + 32 + j by v 128i + 96 + j, by scale
+	;(media-window v d out at scale n parts dstep vstep doff voff) -> out,
+	;the last stage of a polyphase filterbank, MP3's and SBR's, n samples
+	;into out from at: each j the sum over i of parts of d dstep i + j by v
+	;vstep i + j and d dstep i + doff + j by v vstep i + voff + j, by scale
 
-	(vp-rdef (v d out j i p q x)
-		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
+	(vp-rdef (v d out j i p q n parts ds vs dof vof)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 5)
+	(errorif-lisp-args-sig 'error :r1 11)
 
 	(vp-push :r0)
-	(list-bind-args :r1 `(,v ,d ,out ,j ,x) '(:obj :obj :obj :num :obj))
+	(list-bind-args :r1 `(,v ,d ,out ,j ,i ,n ,parts ,ds ,vs ,dof ,vof)
+		'(:obj :obj :obj :num :obj :num :num :num :num :num :num))
 	(vp-push out)
-	(vp-cpy-if x +num_value :f3)
+	(vp-cpy-if i +num_value :f3)
 	(assign `((,v +array_begin) (,d +array_begin) (,out +array_begin)) `(,v ,d ,out))
 	(vp-shl-cr 3 j)
 	(vp-add-rr j out)
+	(each (# (vp-shl-cr 3 %0)) (list n ds vs dof vof))
 	(vp-xor-rr j j)
 	(loop-start)
-		(vp-xor-rr x x)
-		(vp-cvt-rf x :f0)
+		(vp-xor-rr q q)
+		(vp-cvt-rf q :f0)
 		(vp-lea-d d j p)
 		(vp-lea-d v j q)
-		(vp-cpy-cr 8 i)
+		(vp-cpy-rr parts i)
 		(loop-start)
 			(vp-cpy-if p 0 :f1)
 			(vp-cpy-if q 0 :f2)
 			(vp-mul-ff :f2 :f1)
 			(vp-add-ff :f1 :f0)
-			(vp-cpy-if p (* 32 +long_size) :f1)
-			(vp-cpy-if q (* 96 +long_size) :f2)
+			(vp-cpy-df p dof :f1)
+			(vp-cpy-df q vof :f2)
 			(vp-mul-ff :f2 :f1)
 			(vp-add-ff :f1 :f0)
-			(vp-add-cr (* 64 +long_size) p)
-			(vp-add-cr (* 128 +long_size) q)
+			(vp-add-rr ds p)
+			(vp-add-rr vs q)
 			(vp-sub-cr 1 i)
 		(loop-until `(,i = 0))
 		(vp-mul-ff :f3 :f0)
 		(vp-cpy-fi :f0 out 0)
 		(vp-add-cr +long_size out)
 		(vp-add-cr +long_size j)
-	(loop-until `(,j = ,(* 32 +long_size)))
+	(loop-until `(,j = ,n))
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
@@ -1950,8 +1953,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(media-mp3-window v d out at scale)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :num :real)))
+	(jump :lisp :repl_error '(:r1 "(media-window v d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
+	(signature '(:reals :reals :reals :num :real :num :num :num :num :num :num)))
 
 (def-func-end)
 
