@@ -366,7 +366,12 @@
 		:dba (map (lambda (_) :nil) (range 0 n)) :dither (map (lambda (_) 1) (range 0 n))
 		:in_cpl (map (lambda (_) 0) (range 0 n)) :first_coords (map (lambda (_) 1) (range 0 n))
 		:coords (map (lambda (_) (list)) (range 0 n)) :phase (list) :cpl_sizes (list) :cpl_struct (list)
-		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map (lambda (_) 0) (range 0 n)) :shorts 0))
+		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map (lambda (_) 0) (range 0 n)) :shorts 0
+		;spectral extension, in use, each channel using it, its first
+		;coordinates still to come, and its blends of noise and signal
+		:spx 0 :spx_uses (map (lambda (_) 0) (range 0 n)) :spx_first (map (lambda (_) 1) (range 0 n))
+		:spx_noise (map (lambda (_) (list)) (range 0 n)) :spx_signal (map (lambda (_) (list)) (range 0 n))
+		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0))
 
 (defun ac3-groups (in strategy groups prev)
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
@@ -397,11 +402,15 @@
 		(range 1 n))
 	(list struct sizes))
 
-(defun ac3-random (d)
-	;the next of the dither, a real of -0.707 to 0.707
+(defun ac3-noise (d)
+	;the next of the noise, a real of -1 to 1
 	(defq seed (logand (+ (* (. d :find :seed) 1664525) 1013904223) 0xffffffff))
 	(. d :insert :seed seed)
-	(* (- (/ (n2r seed) (n2r 0x80000000)) (n2r 1)) (n2r 0.707)))
+	(- (/ (n2r seed) (n2r 0x80000000)) (n2r 1)))
+
+(defun ac3-random (d)
+	;the next of the dither, a real of -0.707 to 0.707
+	(* (ac3-noise d) (n2r 0.707)))
 
 (defun ac3-mantissas (d in c groups)
 	; (ac3-mantissas decoder reader channel groups) -> reals
@@ -448,6 +457,62 @@
 		:slow_gain (elem-get (. +ac3 :find :slow_gain) 1) :db_per_bit (elem-get (. +ac3 :find :db_per_bit) 2)
 		:floor (elem-get (. +ac3 :find :floor) 7)))
 
+(defun ac3-spx (d h out)
+	; (ac3-spx decoder header out)
+	;the bins of spectral extension of each channel using it: the bins from
+	;its start copied up, again from the start each time the copying comes
+	;to where they are copied to, each band blended with noise to the
+	;energy it is said to have, and a notch where a copy begins
+	(defq dst (. d :find :spx_dst) src (. d :find :spx_src) sizes (. d :find :spx_sizes)
+		wraps (list) copies (list) bin dst)
+	(each (lambda (size)
+			(push wraps (if (= (!) 0) 1 0))
+			(when (> (+ bin size) src)
+				(push copies (- bin dst))
+				(setq bin dst)
+				(elem-set wraps -2 1))
+			(defq i 0)
+			(while (< i size)
+				(when (= bin src)
+					(push copies (- bin dst))
+					(setq bin dst))
+				(defq n (min (- size i) (- src bin)))
+				(setq bin (+ bin n) i (+ i n))))
+		sizes)
+	(push copies (- bin dst))
+	(each (lambda (c)
+			(when (= 1 (elem-get (. d :find :spx_uses) c))
+				(defq coeffs (elem-get out (dec c)) at src)
+				(each (lambda (n)
+						(each (# (elem-set coeffs (+ at %0) (elem-get coeffs (+ dst %0)))) (range 0 n))
+						(setq at (+ at n)))
+					copies)
+				;the power of each band as copied
+				(defq rms (list) at src)
+				(each (lambda (size)
+						(defq band (slice coeffs at (+ at size)))
+						(push rms (sqrt (/ (nums-sum (nums-mul band band)) (n2r size))))
+						(setq at (+ at size)))
+					sizes)
+				;the notch, two bins either side of where a copy begins
+				(when (>= (defq code (elem-get (. h :find :spxatten) (dec c))) 0)
+					(defq at (- src 2)
+						atten (map (# (pow (n2r 2) (/ (n2r (* (inc %0) (inc code))) (n2r -15)))) '(0 1 2 1 0)))
+					(each (lambda (size)
+							(if (= 1 (elem-get wraps (!)))
+								(each (# (elem-set coeffs (+ at (!)) (* (elem-get coeffs (+ at (!))) %0))) atten))
+							(setq at (+ at size)))
+						sizes))
+				;the blend of the signal copied and the noise
+				(defq at src noise (elem-get (. d :find :spx_noise) c) signal (elem-get (. d :find :spx_signal) c))
+				(each (lambda (size)
+						(defq k (elem-get signal (!)) q (* (elem-get noise (!)) (elem-get rms (!))))
+						(times size
+							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (ac3-noise d))))
+							(setq at (inc at))))
+					sizes)))
+		(range 1 (inc (. d :find :fbw)))))
+
 (defun ac3-block (d in h blk)
 	; (ac3-block decoder reader header blk) -> (reals ...)
 	;a block: its strategies, coupling, exponents, the bit allocation where
@@ -464,9 +529,47 @@
 		(each (# (elem-set (. d :find :dither) %0 1)) (range 1 (inc fbw))))
 	;dynamic range, read and let be
 	(times (if (= mode 0) 2 1) (if (= (bits-1 in) 1) (bits-get in 8)))
-	;spectral extension
-	(and eac3 (or (= blk 0) (= (bits-1 in) 1)) (= (bits-1 in) 1)
-		(throw "ac3: spectral extension is not here yet" blk))
+	;spectral extension, of E-AC-3: the high bins of a channel made from
+	;its lower ones, copied up and blended with noise to the energy each
+	;band is said to have. Which channels, from where to where, its bands
+	(defq uses (. d :find :spx_uses) first (. d :find :spx_first))
+	(when (and eac3 (or (= blk 0) (= (bits-1 in) 1)))
+		(. d :insert :spx (bits-1 in))
+		(when (= 1 (. d :find :spx))
+			(each (# (elem-set uses %0 (if (= mode 1) 1 (bits-1 in)))) (range 1 (inc fbw)))
+			(defq dst (bits-get in 2) s0 (+ 2 (bits-get in 3)) e0 (+ 5 (bits-get in 3)))
+			(if (> s0 7) (setq s0 (+ s0 (- s0 7))))
+			(if (> e0 7) (setq e0 (+ e0 (- e0 7))))
+			(if (or (>= s0 e0) (>= (+ 25 (* 12 dst)) (+ 25 (* 12 s0))))
+				(throw "ac3: spectral extension range is wrong" (list dst s0 e0)))
+			(scatter d :spx_dst (+ 25 (* 12 dst)) :spx_src (+ 25 (* 12 s0)) :spx_end (+ 25 (* 12 e0)))
+			(bind '(struct sizes) (ac3-bands in blk eac3 s0 e0 (. +ac3 :find :spx_bands) (. d :find :spx_struct)))
+			(scatter d :spx_struct struct :spx_sizes sizes)))
+	(unless (and eac3 (= 1 (. d :find :spx)))
+		(. d :insert :spx 0)
+		(each (# (elem-set uses %0 0) (elem-set first %0 1)) (range 1 (inc fbw))))
+	;its coordinates, each band's blend of noise and of the signal copied
+	(when (= 1 (. d :find :spx))
+		(each (lambda (c)
+				(cond
+					((= 0 (elem-get uses c)) (elem-set first c 1))
+					((or (= 1 (elem-get first c)) (= 1 (bits-1 in)))
+						(elem-set first c 0)
+						(defq blend (/ (n2r (bits-get in 5)) (n2r 32)) master (* 3 (bits-get in 2))
+							bin (. d :find :spx_src) top (n2r (. d :find :spx_end)) noise (list) signal (list))
+						(each (lambda (size)
+								;the higher the band, the more of it is noise
+								(defq ratio (max (n2r 0) (min (n2r 1) (- (/ (n2r (+ bin (>> size 1))) top) blend)))
+									e (bits-get in 4) m (bits-get in 2)
+									coord (/ (n2r (<< (if (= e 15) (<< m 1) (+ m 4)) (- 25 e master))) (n2r 0x800000)))
+								(setq bin (+ bin size))
+								;noise of -1 to 1 by root 3 is of the power of the signal
+								(push noise (* (sqrt (* (n2r 3) ratio)) coord))
+								(push signal (* (sqrt (- (n2r 1) ratio)) coord)))
+							(. d :find :spx_sizes))
+						(elem-set (. d :find :spx_noise) c noise)
+						(elem-set (. d :find :spx_signal) c signal))))
+			(range 1 (inc fbw))))
 	;coupling: its strategy, given by the frame of E-AC-3, by each block of
 	;AC-3, which keeps that of the block before if it says none
 	(unless eac3
@@ -483,7 +586,9 @@
 					(progn (elem-set in_cpl 1 1) (elem-set in_cpl 2 1))
 					(each (# (elem-set in_cpl %0 (bits-1 in))) (range 1 (inc fbw))))
 				(. d :insert :phase_in_use (if (= mode 2) (bits-1 in) 0))
-				(defq begf (bits-get in 4) endf (+ 3 (bits-get in 4)))
+				;with spectral extension coupling ends where it begins
+				(defq begf (bits-get in 4)
+					endf (if (= 1 (. d :find :spx)) (/ (- (. d :find :spx_src) 37) 12) (+ 3 (bits-get in 4))))
 				(elem-set start 0 (+ 37 (* 12 begf)))
 				(elem-set end 0 (+ 37 (* 12 endf)))
 				(bind '(struct sizes) (ac3-bands in blk eac3 begf endf (. +ac3 :find :cpl_bands) (. d :find :cpl_struct)))
@@ -511,7 +616,9 @@
 	(when (= mode 2)
 		(when (or (and eac3 (= blk 0)) (= (bits-1 in) 1))
 			(defq bands 4)
-			(and (= cplinu 1) (<= (elem-get start 0) 61) (setq bands (- bands 1 (if (= (elem-get start 0) 37) 1 0))))
+			(cond
+				((and (= cplinu 1) (<= (elem-get start 0) 61)) (setq bands (- bands 1 (if (= (elem-get start 0) 37) 1 0))))
+				((and (= 1 (. d :find :spx)) (<= (. d :find :spx_src) 61)) (setq bands (dec bands))))
 			(. d :insert :rematrix (map (lambda (_) (bits-1 in)) (range 0 bands)))))
 	;the strategies of the exponents, from the frame of E-AC-3, of AC-3 in
 	;each block, 2 bits, the LFE's 1
@@ -524,7 +631,10 @@
 			(elem-set start c 0)
 			(unless (= 0 (elem-get strategy c))
 				(defq prev (elem-get end c))
-				(elem-set end c (if (= 1 (elem-get in_cpl c)) (elem-get start 0) (+ 73 (* 3 (bits-get in 6)))))
+				(elem-set end c (cond
+					((= 1 (elem-get in_cpl c)) (elem-get start 0))
+					((= 1 (elem-get uses c)) (. d :find :spx_src))
+					((+ 73 (* 3 (bits-get in 6))))))
 				(and (> blk 0) (/= prev (elem-get end c)) (each (# (elem-set stages %0 3)) (range 0 (+ fbw 2))))))
 		(range 1 (inc fbw)))
 	(when (= lfe 1) (elem-set start lfe_ch 0) (elem-set end lfe_ch 7))
@@ -647,6 +757,7 @@
 							(elem-set (second out) k (- a b)))
 						(range (elem-get bands (!)) (min lo (elem-get bands (inc (!))))))))
 			(. d :find :rematrix)))
+	(if (= 1 (. d :find :spx)) (ac3-spx d h out))
 	out)
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -661,14 +772,18 @@
 	;channel switched to short blocks, the KBD window of alpha 5, and half
 	;overlapped with the block before, as A/52 has it in its halves
 	(defq in (bits-of packet) h (ac3-header in))
-	(if (. h :find :eac3) (ac3-frame-info in h)
+	(if (. h :find :eac3) (progn (ac3-frame-info in h)
+			;AHT's mantissas are not read here yet, nor is the rest of a frame
+			(if (some (# (= %0 1)) (. h :find :aht)) (throw "ac3: AHT is not here yet" (. h :find :aht))))
 		;AC-3: its syntax has all of these in each block, what E-AC-3 sends
 		;once for a frame
 		(scatter h :blkswe 1 :dithflage 1 :bamode 1 :frmfgaincode 0 :dbaflde 1 :skipflde 1 :snroffststr 2
 			:cplstre (list) :cplinu (list) :expstr (list) :lfe_expstr (list)))
-	;each frame of E-AC-3 sends its coupling coordinates and leaks afresh
+	;each frame of E-AC-3 sends its coupling and spectral extension
+	;coordinates and its leaks afresh
 	;in its first block, with no flag before them; AC-3 has the flags
 	(. d :insert :first_coords (map (lambda (_) 1) (. d :find :first_coords)))
+	(if (. h :find :eac3) (. d :insert :spx_first (map (lambda (_) 1) (. d :find :spx_first))))
 	(. d :insert :first_cpl_leak (if (. h :find :eac3) 1 0))
 	(unless (. d :find :window)
 		(scatter d :window (mdct-kbd 256 5) :tables (mdct-tables 256) :short_tables (mdct-tables 128)
