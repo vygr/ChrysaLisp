@@ -39,6 +39,16 @@
 
 ; --- apply ---
 (assert-eq "apply +" 6 (apply (const +) '(1 2 3)))
+;a native function is given a seq that is not a list as a list of its
+;elements, a lambda binds from any seq
+(assert-eq "apply + of a nums" 6 (apply (const +) (nums 1 2 3)))
+(assert-true "apply nums of a nums" (nums? (apply (const nums) (nums 1 2 3))))
+(assert-list-eq "apply nums of a nums, its elements" '(1 2 3) (apply (const nums) (nums 1 2 3)))
+(assert-eq "apply + of a reals" 3.0 (n2f (apply (const +) (reals (n2r 1) (n2r 2)))))
+(assert-eq "apply cat of a str, its chars" "abc" (apply (const cat) "abc"))
+(assert-true "apply list of a nums, a list" (list? (apply (const list) (nums 4 5))))
+(assert-eq "apply a lambda of a nums" 3 (apply (lambda (a b) (+ a b)) (nums 1 2)))
+(assert-eq "apply a lambda of a str" "b" (apply (lambda (a b) b) "ab"))
 
 ; --- identity ---
 (assert-eq "identity" 100 (identity 100))

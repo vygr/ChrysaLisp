@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././hmap/class.inc")
+(include "././func/class.inc")
 
 (def-method :lisp :lisp_apply)
 	;inputs
@@ -12,11 +13,62 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
+	(structure local 0
+		(ptr this func seq list)
+		(long n i))
+
 	(entry :lisp :lisp_apply '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args :r1 '(:r2 :r1))
+	;a native function takes its args as a list of objects: a list is
+	;given it at once, as :repl_apply would, a seq of another kind, a nums
+	;or a str, as a list of its elements, let go of after. A lambda binds
+	;from any seq, by :repl_apply
+	(assign `((:r2 +obj_vtable) (@ ,(f-path :func :vtable))) '(:r3 :r4))
+	(vpif '(:r3 = :r4))
+		(f-bind :list :vtable :r4)
+		(assign '((:r1 +obj_vtable)) '(:r3))
+		(vpif '(:r3 = :r4))
+			(assign '((:r2 +num_value)) '(:r2))
+			(vp-and-cr (neg +ptr_size) :r2)
+			(r-jump :lisp :repl_eval '(:r0 :r1) :r2)
+		(else)
+			(vp-alloc local_size)
+			(assign '(:r0 :r2 :r1) '((:rsp local_this) (:rsp local_func) (:rsp local_seq)))
+			(call :list :create :nil '(:r0))
+			(assign '(:r0) '((:rsp local_list)))
+			(assign '((:rsp local_seq)) '(:r0))
+			(call :seq :get_length '(:r0) '(_ :r1))
+			(assign '(:r1) '((:rsp local_n)))
+			(assign '((:rsp local_list)) '(:r0))
+			(call :array :set_cap '(:r0 :r1))
+			(vp-xor-rr :r1 :r1)
+			(assign '(:r1) '((:rsp local_i)))
+			(assign '((:rsp local_n)) '(:r2))
+			(vpif '(:r1 < :r2))
+			(loop-start)
+				(assign '((:rsp local_seq)) '(:r0))
+				(call :seq :ref_elem '(:r0 :r1) '(_ :r1))
+				(assign '((:rsp local_list)) '(:r0))
+				(call :array :push_back '(:r0 :r1))
+				(assign '((:rsp local_i) (:rsp local_n)) '(:r1 :r2))
+				(vp-add-cr 1 :r1)
+				(assign '(:r1) '((:rsp local_i)))
+			(loop-until '(:r1 = :r2))
+			(endif)
+			(assign '((:rsp local_this) (:rsp local_list) (:rsp local_func)) '(:r0 :r1 :r2))
+			(call :lisp :repl_apply '(:r0 :r1 :r2) '(_ :r1))
+			(assign '(:r1) '((:rsp local_seq)))
+			(assign '((:rsp local_list)) '(:r0))
+			(call :obj :deref '(:r0))
+			(assign '((:rsp local_this) (:rsp local_seq)) '(:r0 :r1))
+			(vp-free local_size)
+			(exit :lisp :lisp_apply '(:r0 :r1))
+			(vp-ret)
+		(endif)
+	(endif)
 	(jump :lisp :repl_apply '(:r0 :r1 :r2))
 
 (errorcase
