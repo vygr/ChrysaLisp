@@ -366,7 +366,7 @@
 		:dba (map (lambda (_) :nil) (range 0 n)) :dither (map (lambda (_) 1) (range 0 n))
 		:in_cpl (map (lambda (_) 0) (range 0 n)) :first_coords (map (lambda (_) 1) (range 0 n))
 		:coords (map (lambda (_) (list)) (range 0 n)) :phase (list) :cpl_sizes (list) :cpl_struct (list)
-		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1))
+		:first_cpl_leak 1 :cpl_fast_leak 0 :cpl_slow_leak 0 :seed 1 :blksw (map (lambda (_) 0) (range 0 n)) :shorts 0))
 
 (defun ac3-groups (in strategy groups prev)
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
@@ -458,8 +458,7 @@
 		lfe_ch (inc fbw) channels (+ fbw lfe) stages (map (lambda (_) 0) (range 0 (+ fbw 2)))
 		start (. d :find :start) end (. d :find :end) in_cpl (. d :find :in_cpl))
 	;block switching, and dither
-	(when (= (. h :find :blkswe) 1)
-		(each (# (if (= (bits-1 in) 1) (throw "ac3: short blocks are not here yet" %0))) (range 0 fbw)))
+	(each (# (elem-set (. d :find :blksw) %0 (if (= (. h :find :blkswe) 1) (bits-1 in) 0))) (range 1 (inc fbw)))
 	(if (= (. h :find :dithflage) 1)
 		(each (# (elem-set (. d :find :dither) %0 (bits-1 in))) (range 1 (inc fbw)))
 		(each (# (elem-set (. d :find :dither) %0 1)) (range 1 (inc fbw))))
@@ -658,8 +657,9 @@
 	; (ac3-frame decoder packet) -> ((reals ...) ...)
 	;the samples of a frame, 256 a block a channel, each channel's blocks
 	;one after another: the header, the frame's strategies, and each
-	;block's coefficients through the IMDCT of 512, the KBD window of alpha
-	;5, and half overlapped with the block before
+	;block's coefficients through the IMDCT of 512, or two of 256 where a
+	;channel switched to short blocks, the KBD window of alpha 5, and half
+	;overlapped with the block before, as A/52 has it in its halves
 	(defq in (bits-of packet) h (ac3-header in))
 	(if (. h :find :eac3) (ac3-frame-info in h)
 		;AC-3: its syntax has all of these in each block, what E-AC-3 sends
@@ -671,17 +671,39 @@
 	(. d :insert :first_coords (map (lambda (_) 1) (. d :find :first_coords)))
 	(. d :insert :first_cpl_leak (if (. h :find :eac3) 1 0))
 	(unless (. d :find :window)
-		(scatter d :window (mdct-kbd 256 5) :tables (mdct-tables 256) :dct4 (ffi "lib/media/media_dct4")
-			:overlap (map (lambda (_) (reals)) (range 0 8))))
-	(defq rise (. d :find :window) fall (reverse rise) window (cat rise fall)
-		channels (+ (. d :find :fbw) (. d :find :lfe)) out (map (lambda (_) (list)) (range 0 channels)))
+		(scatter d :window (mdct-kbd 256 5) :tables (mdct-tables 256) :short_tables (mdct-tables 128)
+			:dct4 (ffi "lib/media/media_dct4") :delay (map (lambda (_) :nil) (range 0 8))))
+	(defq rise (slice (. d :find :window) 0 128) fall (slice (. d :find :window) 256 128)
+		dct4 (. d :find :dct4) blksw (. d :find :blksw) fbw (. d :find :fbw)
+		channels (+ fbw (. d :find :lfe)) out (map (lambda (_) (list)) (range 0 channels))
+		half (lambda (lines n tables)
+			;the middle half of the IMDCT, n of its 2n samples, what the
+			;window and the block before make a block of
+			(slice (mdct-imdct dct4 tables lines n) (>> n 1) (+ n (>> n 1)))))
 	(each (lambda (blk)
 			(each (lambda (coeffs)
-					(defq c (!) x (nums-mul (mdct-imdct (. d :find :dct4) (. d :find :tables) coeffs 256) window)
-						before (elem-get (. d :find :overlap) c))
-					(if (empty? before) (setq before (nums-scale (slice x 0 256) (n2r 0))))
-					(push (elem-get out c) (nums-add (slice x 0 256) before))
-					(elem-set (. d :find :overlap) c (slice x 256 512)))
+					(defq c (!) delay (elem-get (. d :find :delay) c))
+					(unless delay (setq delay (nums-scale (slice rise 0 128) (n2r 0))))
+					(defq now :nil next :nil)
+					(cond
+						((and (< c fbw) (= 1 (elem-get blksw (inc c))))
+							;a short block, two transforms of 128 lines, the even
+							;coefficients and the odd: the first is this block's,
+							;the second what is carried to the next
+							(defq evens (reals) odds (reals))
+							(each (# (if (even? (!)) (push evens %0) (push odds %0))) coeffs)
+							;each of 128 lines, by 1/128, half the scale of the long one
+							(setq now (nums-scale (half evens 128 (. d :find :short_tables)) (n2r 0.5))
+								next (nums-scale (half odds 128 (. d :find :short_tables)) (n2r 0.5)))
+							(. d :insert :shorts (inc (. d :find :shorts))))
+						(:t (defq h (half coeffs 256 (. d :find :tables)))
+							(setq now (slice h 0 128) next (slice h 128 256))))
+					;the window over what was carried and what is now: the
+					;first 128 samples of the block and, backwards, the last
+					(defq back (reverse now))
+					(push (elem-get out c) (cat (nums-sub (nums-mul delay fall) (nums-mul back rise))
+						(reverse (nums-add (nums-mul delay rise) (nums-mul back fall)))))
+					(elem-set (. d :find :delay) c next))
 				(ac3-block d in h blk)))
 		(range 0 (. h :find :blocks)))
 	(map (# (apply (const cat) %0)) out))
