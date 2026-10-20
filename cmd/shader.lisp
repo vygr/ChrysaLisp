@@ -101,13 +101,13 @@
 (defun tree-listing (program)
 	;the program, a declaration to a line
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
-	(defq lines (list))
-	(each (# (push lines (cat "input " (str %0)))) inputs)
-	(each (# (push lines (cat "const " (str %0)))) consts)
-	(each (# (push lines (cat "global " (str %0)))) globals)
+	;each kind collected into the one list, the inputs' made by a map
+	(defq lines (map (# (cat "input " (str %0))) inputs))
+	(map! (# (cat "const " (str %0))) (list consts) 0 -1 lines)
+	(map! (# (cat "global " (str %0))) (list globals) 0 -1 lines)
 	(each (lambda ((name type params block))
 		(push lines "" (cat "func " (str name) " " (str type) " " (str params)))
-		(each (# (push lines (cat (ascii-char 9) (str %0)))) block)) funcs)
+		(map! (# (cat (ascii-char 9) (str %0))) (list block) 0 -1 lines)) funcs)
 	(join lines (ascii-char 10)))
 
 (defun vp-listing (program)

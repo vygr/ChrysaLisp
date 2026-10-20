@@ -219,16 +219,16 @@
 		(defq prev (map (lambda (n) (list)) next))
 		(each (lambda (on) (defq from (!)) (each (# (push (elem-get prev %0) from)) on)) next)
 		;a label nothing is seen to go to is gone to by a way not seen
-		(each (lambda (inst)
-			(and (eql (first inst) 'emit-label) (> (!) 0) (empty? (elem-get prev (!))) (setq never :t)))
-			insts)
+		(each (lambda (inst from)
+			(and (eql (first inst) 'emit-label) (> (!) 0) (empty? from) (setq never :t)))
+			insts prev)
 		(when (and (not never) (defq framed (keep-stacks insts next)))
 			(bind '(stacks sizes) framed)
 			;what is done to which local at each instruction, and what each
 			;call trashes. A local that can not be kept is put in pinned
 			(defq slots (list) places (list) taken_at (list) pinned (list) events (list) home_calls (list) taken (cat fixed))
-			(each (lambda (inst)
-				(defq op (first inst) stack (ifn (elem-get stacks (!)) (list)) event :nil place :nil whole :t called :nil)
+			(each (lambda (inst stack)
+				(defq op (first inst) stack (ifn stack (list)) event :nil place :nil whole :t called :nil)
 				(cond
 					((and (find op +keep_loads) (eql (second inst) :rsp))
 						(if (setq place (keep-place stack sizes (third inst))) (setq event :load whole (eql op 'emit-cpy-ir))))
@@ -259,14 +259,13 @@
 						(and (not (and named whole)) (not (find name pinned)) (push pinned name))
 						(push events (list event name)))
 					((push events :nil))))
-				insts)
+				insts stacks)
 			;an address taken is of all that is above it in the frame, for all
 			;that is known here: a call given it may fill more than the one
-			(each (lambda (slot)
-				(defq place (elem-get places (!)))
+			(each (lambda (slot place)
 				(and (some (# (and (= (first %0) (first place)) (<= (second %0) (second place)))) taken_at)
 					(not (find slot pinned)) (push pinned slot)))
-				slots)
+				slots places)
 			(unless never
 				;the registers a local may have: the most wanted local first,
 				;and for it the register the fewest calls trash
@@ -284,10 +283,10 @@
 				(each (lambda (called)
 					(when called
 						(defq trashes (first called))
-						(each (lambda (home)
+						(each (lambda (home uses)
 							(if (or (not trashes) (find home trashes))
-								(elem-set trashed (!) (inc (elem-get trashed (!))))))
-							homes)))
+								(elem-set trashed (!) (inc uses))))
+							homes trashed)))
 					home_calls)
 				(defq keeping (sort (filter (# (not (find %0 pinned))) slots)
 						(# (- (elem-get used_by (find %1 slots)) (elem-get used_by (find %0 slots)))))
@@ -303,17 +302,16 @@
 				(while (and (not settled) (nempty? keeping) (nempty? homes))
 					(defq using (slice keeping 0 (min (length keeping) (length homes) 60))
 						loads (list) stores (list) kills (list))
-					(each (lambda (event)
-						(defq bit (and event (find (second event) using)) mask (if bit (<< 1 bit) 0)
-							called (elem-get home_calls (!)) kill 0)
+					(each (lambda (event called)
+						(defq bit (and event (find (second event) using)) mask (if bit (<< 1 bit) 0) kill 0)
 						(push loads (if (and bit (eql (first event) :load)) mask 0))
 						(push stores (if (and bit (eql (first event) :store)) mask 0))
 						(when called
 							(defq trashes (first called))
-							(each (lambda (slot) (if (or (not trashes) (find (elem-get homes (!)) trashes))
-								(setq kill (logior kill (<< 1 (!)))))) using))
+							(each (lambda (slot home) (if (or (not trashes) (find home trashes))
+								(setq kill (logior kill (<< 1 (!)))))) using homes))
 						(push kills kill))
-						events)
+						events home_calls)
 					(bind '(wanted had memory) (keep-flow next prev loads stores kills))
 					;what each read and write becomes, and what that saves
 					(defq all_edits (map (lambda (n) (list)) using)
@@ -337,20 +335,20 @@
 										(list 'emit-cpy-rr home (last inst)))))))))
 						events)
 					(cond
-						((defq idle (some (lambda (slot) (if (= 0 (+ (elem-get reads (!)) (elem-get writes (!)))) (!))) using))
+						((defq idle (some (lambda (slot r w) (if (= 0 (+ r w)) (!))) using reads writes))
 							(setq keeping (cat (slice keeping 0 idle) (slice keeping (inc idle) -1))))
 						(:t (setq settled :t)
-							(each (lambda (slot)
-								(each (lambda ((at with)) (elem-set edits at with)) (elem-get all_edits (!)))
-								(push kept (list slot (elem-get homes (!)) (elem-get reads (!)) (elem-get writes (!)))))
-								using))))
+							(each (lambda (slot home r w mine)
+								(each (lambda ((at with)) (elem-set edits at with)) mine)
+								(push kept (list slot home r w)))
+								using homes reads writes all_edits))))
 				(when (nempty? kept)
 					(defq out (list))
-					(each (lambda (inst)
-						(if (defq with (elem-get edits (!)))
+					(each (lambda (inst with)
+						(if with
 							(each (# (push out %0)) with)
 							(push out inst)))
-						insts)
+						insts edits)
 					(list out kept))))))
 
 ;module

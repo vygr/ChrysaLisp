@@ -157,6 +157,16 @@
 	'("(1) eqlist: (eql) of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each"
 		"(2) eqlist: (nql) of a quoted list with a str or a list in it, those are never the same objects as another's, compare (str ) of each")
 	(tt-check "eqlist" "(eql got '(({monday} 2)))" "(nql got '({a}))" "(eql got '(2 0))" "(eql got '(a :b))" "(eql got '())" "(eql got 'a)"))
+(assert-list-eq "index: (elem-get x (!)) in an iterator's function; not of one it makes, nor one whose length it looks at, nor (inc (!)), and of a nested one its own"
+	'("(1) index: (elem-get bs (!)) in the function of (each), give bs to it beside the others, (each (lambda (... e) ...) ... bs)"
+		"(5) index: (elem-get bs (!)) in the function of (each), give bs to it beside the others, (each (lambda (... e) ...) ... bs)")
+	(tt-check "index" "(each (lambda (a) (print (elem-get bs (!)))) as)" "(each (lambda (a) (defq ev (g a)) (elem-get ev (!))) as)"
+		"(each (# (and (< (!) (length bs)) (elem-get bs (!)))) as)" "(map (# (+ %0 (elem-get bs (inc (!))))) as)"
+		"(each (# (each (# (elem-get bs (!))) cs)) as)"))
+(assert-list-eq "collect: (defq out (list)) then an (each) to (push out x); not to a list with things in it, nor a push of two"
+	'("(3) collect: (defq out (list)) then (each) to (push out x), it is (defq out (map ... as))")
+	(tt-check "collect" "(defun f (as)" "	(defq out (list))" "	(each (# (push out (g %0))) as)" "	(defq todo (list 1))"
+		"	(each (# (push todo %0)) as)" "	(defq o2 (list))" "	(each (# (push o2 %0 %0)) as))"))
 (assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
 	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")

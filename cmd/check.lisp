@@ -103,6 +103,18 @@
             (most) of an empty one is (), where the ! form
             from 1, or to -2, is an error: if it can be empty
             it is not the same.
+    index   (elem-get x (!)) in the function given to an
+            iterator, (each), (map), (reduce), (some) and the
+            rest, and their ! forms, not in an iterator inside
+            it: x is walked beside what it is given, (each
+            (lambda (a b) ...) as x). Not of an x the function
+            makes, nor one whose (length x) it looks at, which
+            may be shorter: walked beside, the walk would end
+            at its end.
+    collect (defq out (list)) and then at once (each (# (push
+            out x)) seq), or of a (lambda), its whole function
+            one (push) of one thing to that name: it is (defq
+            out (map (# x) seq)), which is quicker.
     reverse (reverse (slice x s e)), two copies, is (slice x e s),
             one. Of a (rest) or a (most), (slice x -1 1) or
             (slice x -2 0), which of an empty one is an error.
@@ -171,7 +183,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "reverse" "width" "struct" "param" "empty" "past" "shift" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "param" "empty" "past" "shift" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -609,6 +621,101 @@
 					(if (eql before "") ")" "))")))
 			", (!) is then the index in the whole"
 			(if (some (# (third %0)) parts) ", and if it can be empty it is an error" ""))))
+
+;the iterators that take a function first, and its sequences after
+(defq +iterators ''("each" "map" "some" "every" "notany" "notevery" "reach" "rmap" "rsome"
+	"filter" "reduce" "rreduce" "each!" "map!" "some!" "filter!" "reduce!"))
+
+(defun iter-body (node)
+	; (iter-body node) -> :nil | nodes
+	;the forms of the body of a function written there, (lambda (...) ...)
+	;or (# ...), its parameters left out
+	(when (defq kids (tree-form? node))
+		(defq forms (forms-of kids))
+		(cond
+			((tree-form? node "#") (slice forms 1 -1))
+			((and (tree-form? node "lambda") (> (length forms) 2)) (slice forms 2 -1)))))
+
+(defun index-gets (body)
+	; (index-gets body) -> (node ...)
+	;each (elem-get x (!)) in the forms of a body, not in an iterator in
+	;them, whose (!) is its own
+	(defq out (list) todo (cat body))
+	(while (defq node (pop todo))
+		(when (defq kids (tree-form? node))
+			(defq forms (forms-of kids)
+				head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+			(cond
+				((find head +iterators))
+				((and (eql head "elem-get") (= (length forms) 3)
+						(defq at (tree-form? (third forms) "!")) (= (length (forms-of at)) 1))
+					(push out node))
+				((reduce (# (push %0 %1)) forms todo)))))
+	out)
+
+(defun names-in (node names)
+	; (names-in node names) -> names
+	;each symbol of a list of parameters or of a (bind) list, at any depth
+	(defq todo (list node))
+	(while (defq node (pop todo))
+		(cond
+			((eql (first node) :symbol) (. names :insert (third node)))
+			((defq kids (tree-form? node)) (reduce (# (push %0 %1)) (forms-of kids) todo))))
+	names)
+
+(defun bound-in (node)
+	; (bound-in node) -> fset
+	;the names a function written there binds: its parameters, and what a
+	;(defq), (setq), (bind) or (lambda) in it gives a name, at any depth
+	(defq names (Fset 11) todo (list node))
+	(while (defq node (pop todo))
+		(when (defq kids (tree-form? node))
+			(defq forms (forms-of kids)
+				head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
+			(cond
+				((find head '("defq" "setq"))
+					(each! (# (if (odd? (!)) (names-in %0 names) (push todo %0))) (list forms) 1 -1))
+				((find head '("lambda" "bind"))
+					(if (> (length forms) 1) (names-in (second forms) names))
+					(reduce! (# (push %0 %1)) (list forms) todo 2 -1))
+				((reduce (# (push %0 %1)) forms todo)))))
+	names)
+
+(defun check-index (file forms head)
+	;(each (lambda (a) (f (elem-get b (!)))) as): b walked beside as, if
+	;b is not made in the function each time round
+	(when (and (find head +iterators) (> (length forms) 2) (defq body (iter-body (second forms))))
+		(defq bound (bound-in (second forms)) text (tree-text (second forms)))
+		(each (lambda (node)
+				(defq what (second (forms-of (third node))) x (tree-text what))
+				;one it may be shorter than, a (length) of it looked at, is not
+				(unless (or (and (eql (first what) :symbol) (. bound :find x)) (found? text (cat "(length " x ")")))
+					(found file node "index" "(elem-get " x " (!)) in the function of (" head
+						"), give " x " to it beside the others, (" head " (lambda (... e) ...) ... " x ")"
+						(if (ends-with "!" head) " in its list" ""))))
+			(index-gets body))))
+
+;what a (defq) gives a name, the form after it, if that is the last
+;name of it
+(defun last-defq (forms)
+	(and (> (length forms) 2) (odd? (length forms))
+		(eql (first (elem-get forms -3)) :symbol)
+		(list (third (elem-get forms -3)) (elem-get forms -2))))
+
+(defun check-collect (file forms)
+	;(defq out (list)) then (each (# (push out x)) seq): out is a (map)
+	(each! (lambda (a b)
+			(and (defq dkids (tree-form? a "defq"))
+				(defq given (last-defq (forms-of dkids)))
+				(defq made (tree-form? (second given) "list")) (= (length (forms-of made)) 1)
+				(defq ekids (tree-form? b "each")) (= (length (defq eforms (forms-of ekids))) 3)
+				(defq body (iter-body (second eforms))) (= (length body) 1)
+				(defq pkids (tree-form? (first body) "push"))
+				(= (length (defq pushed (forms-of pkids))) 3)
+				(eql (first (second pushed)) :symbol) (eql (third (second pushed)) (first given))
+				(found file b "collect" "(defq " (first given) " (list)) then (each) to (push " (first given)
+					" x), it is (defq " (first given) " (map ... " (tree-text (third eforms)) "))")))
+		(list forms (slice forms 1 -1))))
 
 (defun check-style (file node forms head)
 	;an (ifn) has the test of an (if) the other way about, and a (condn)
@@ -1154,6 +1261,8 @@
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
+							(if (find "index" checks) (check-index file forms head))
+							(if (find "collect" checks) (check-collect file forms))
 							(if (find "reverse" checks) (check-reverse file forms head))
 							(if (find "width" checks) (check-width file forms head))
 							(if (find "style" checks) (check-style file node forms head))

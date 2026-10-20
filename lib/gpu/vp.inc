@@ -763,12 +763,13 @@
 		;a function Lisp calls reads a reals arg where it is, if it never
 		;sets it, and what it gives goes where it is to go
 		(and *sv_entry* (eql name (first *sv_entry*))
-			(each! (lambda ((which reg))
+			(each! (lambda (entry)
+				(bind '(which reg) entry)
 				(cond
 					((eql which :ret)
 						(push *sv_maps* (list ret_offset (+ ret_offset (* (shader-size type) 8)) reg 0)))
 					((sv-sets? block (first (elem-get params which)))
-						(elem-set (elem-get *sv_entry* (!)) 1 :nil))
+						(elem-set entry 1 :nil))
 					(:t (defq at (elem-get offsets which))
 						(push *sv_maps* (list at (+ at (* (shader-size (second (elem-get params which))) 8)) reg 0)))))
 				(list *sv_entry*) 1))

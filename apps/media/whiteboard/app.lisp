@@ -203,8 +203,8 @@
 					(if (eql (. uses :find key) value) (push out slot)))
 				devices)
 			out))
-		(each (# (button-lights %0 (slots-of :mode (elem-get *modes* (!))))) (. *mode_toolbar* :children))
-		(each (# (button-lights %0 (slots-of :width (elem-get *widths* (!))))) (. *radius_toolbar* :children))
+		(each (# (button-lights %0 (slots-of :mode %1))) (. *mode_toolbar* :children) *modes*)
+		(each (# (button-lights %0 (slots-of :width %1))) (. *radius_toolbar* :children) *widths*)
 		;each pen lit for the device buttons that hold it
 		(each (# (button-lights %0 (slots-of :pen (!)))) (. *ink_toolbar* :children))
 		;a switch is lit for a device that has it on, its own or the board's

@@ -153,8 +153,8 @@
 			;each instruction. One whose address is taken, or that is a
 			;struct, is in memory and stays there
 			(defq slots (list) named (list) events (cap count (list)) pinned (list) escapes :nil)
-			(each (lambda (inst)
-				(defq op (first inst) stack (ifn (elem-get stacks (!)) (list)) event :nil place :nil)
+			(each (lambda (inst stack)
+				(defq op (first inst) stack (ifn stack (list)) event :nil place :nil)
 				(cond
 					((find op +data_ops))
 					((and (find op +load_ops) (eql (second inst) :rsp))
@@ -174,7 +174,7 @@
 						(and (or struct (eql event :addr)) (not (find name pinned)) (push pinned name))
 						(push events (list event name)))
 					((push events :nil))))
-				insts)
+				insts stacks)
 			;which locals are still wanted after each instruction: one is
 			;wanted before an instruction that reads it, and before one that
 			;does not write it if it is wanted after. Gone round till
@@ -213,7 +213,7 @@
 			;way, dirty, and is wanted after. Both gone round till nothing
 			;changes, forwards
 			(defq keeps (if (or escapes big) 0
-					(reduce (# (if (and (elem-get named (!)) (not (find %1 pinned))) (logior %0 (elem-get bits (!))) %0)) slots 0))
+					(reduce! (# (if (and %2 (not (find %1 pinned))) (logior %0 %3) %0)) (list slots named bits) 0))
 				prev (map (lambda (n) (list)) next) had (map (lambda (n) -1) next) dirty (map (lambda (n) 0) next)
 				calls (map (# (if (find (first %0) +call_ops) :t)) insts) changed :t
 				ones (lambda (n) (defq c 0) (while (/= n 0) (setq n (logand n (dec n))) (++ c)) c))

@@ -628,8 +628,7 @@
 	(while (defq next (pop todo))
 		(bind '(item out) next)
 		(push out (elem-get item +cwb_type))
-		(each (lambda (key default)
-			(defq val (elem-get item (!)))
+		(each (lambda (key default val)
 			(cond
 				((find key '(:type :cache :m :inv)))
 				((eql key :items)
@@ -646,7 +645,7 @@
 						(if (or (/= sx 1.0) (/= sy 1.0)) (push out :scale (list sx sy)))))
 				((eql val default))
 				((push out key val))))
-			+cwb_keys +cwb_defaults))
+			+cwb_keys +cwb_defaults item))
 	root)
 
 (defun cwb-item-in (tree)
