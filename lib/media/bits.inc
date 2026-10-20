@@ -16,9 +16,11 @@
 
 (defun bits-get (in n)
 	; (bits-get reader n) -> num
-	(defq at (second in) byte (>> at 3))
+	;the 4 bytes at, by the native (code), the low first, turned high first
+	(defq at (second in) v (code (first in) 4 (>> at 3)))
 	(elem-set in 1 (+ at n))
-	(logand (>> (code-be (first in) 4 byte) (- 32 (logand at 7) n)) (dec (<< 1 n))))
+	(logand (>> (logior (<< (logand v 0xff) 24) (<< (logand v 0xff00) 8) (logand (>> v 8) 0xff00) (>> v 24))
+		(- 32 (logand at 7) n)) (dec (<< 1 n))))
 
 (defun bits-1 (in)
 	; (bits-1 reader) -> 0 | 1
