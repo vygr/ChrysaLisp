@@ -390,7 +390,16 @@
 		:spx_noise (map (lambda (_) (list)) (range 0 n)) :spx_signal (map (lambda (_) (list)) (range 0 n))
 		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
 		;the 6 blocks' mantissas of each channel of AHT
-		:aht (map (lambda (_) :nil) (range 0 n))))
+		:aht (map (lambda (_) :nil) (range 0 n))
+		;the dynamic range gains, of one or a dual mono's two
+		:drc (list (n2r 1) (n2r 1))))
+
+(defun ac3-drc (v)
+	; (ac3-drc code) -> real
+	;a gain of dynamic range, 2^x by 1 to 2 in 32nds, x signed of 3 bits
+	(defq x (>> v 5))
+	(if (>= x 4) (setq x (- x 8)))
+	(/ (n2r (<< (+ 32 (logand v 31)) (+ x 4))) (n2r 512)))
 
 (defun ac3-groups (in strategy groups prev)
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
@@ -617,8 +626,13 @@
 	(if (= (. h :find :dithflage) 1)
 		(each (# (elem-set (. d :find :dither) %0 (bits-1 in))) (range 1 (inc fbw)))
 		(each (# (elem-set (. d :find :dither) %0 1)) (range 1 (inc fbw))))
-	;dynamic range, read and let be
-	(times (if (= mode 0) 2 1) (if (= (bits-1 in) 1) (bits-get in 8)))
+	;dynamic range, the gain of the block, of each of a dual mono, 1 if
+	;the first block has none, else kept
+	(each (lambda (i)
+			(cond
+				((= (bits-1 in) 1) (elem-set (. d :find :drc) i (ac3-drc (bits-get in 8))))
+				((= blk 0) (elem-set (. d :find :drc) i (n2r 1)))))
+		(range 0 (if (= mode 0) 2 1)))
 	;spectral extension, of E-AC-3: the high bins of a channel made from
 	;its lower ones, copied up and blended with noise to the energy each
 	;band is said to have. Which channels, from where to where, its bands
@@ -850,6 +864,9 @@
 							(elem-set (second out) k (- a b)))
 						(range (elem-get bands (!)) (min lo (elem-get bands (inc (!))))))))
 			(. d :find :rematrix)))
+	;the dynamic range gain, of the first of a dual mono to the second
+	(defq drc (. d :find :drc))
+	(each (# (elem-set out (!) (nums-scale %0 (elem-get drc (if (and (= mode 0) (= (!) 1)) 1 0))))) out)
 	(if (= 1 (. d :find :spx)) (ac3-spx d h out))
 	out)
 
