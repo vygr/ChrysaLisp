@@ -33,24 +33,30 @@
 				:s16 (ffi "lib/media/media_s16")))
 			(cond
 				((eql (. track :find :codec) "mp3")
-					(defq head (. reel :find :head))
-					(scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0 :before 3
+					;of an MP3 its reel's packets, of a film's track its own, its first
+					;frame's header what it is
+					(defq own (. reel :find :head) head (or own
+						(progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+							(mp3-header (ifn (read-blk (. sound :find :stream) 4) "") 0))))
+					(and head (scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0 :before 3
 						:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
-						:read (lambda (sound n) (reel-packet (. sound :find :reel) n))
+						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
 						;a frame not read is heard as nothing
 						:decode (lambda (decoder packet)
 							(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
-							(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet)))))
+							(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet))))))
 				((eql (. track :find :codec) "flac")
-					;a FLAC's frames as they are heard, lossless, the reel's packets
-					(scatter sound :rate (. (. reel :find :info) :find :rate) :size (. reel :find :block) :delay 0 :before 0
-						:make (lambda (sound) (. (. sound :find :reel) :find :info))
-						:read (lambda (sound n) (reel-packet (. sound :find :reel) n))
+					;a FLAC's frames as they are heard, lossless, of a FLAC its reel's
+					;packets, of a film's track its own, its metadata the track's setup
+					(defq own (. reel :find :info) info (or own (and (. track :find :private) (flac-info (string-stream (. track :find :private))))))
+					(and info (scatter sound :rate (. info :find :rate) :size (. info :find :max_block) :delay 0 :before 0 :info info
+						:make (lambda (sound) (. sound :find :info))
+						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
 						;a frame not read is heard as nothing
 						:decode (lambda (info packet)
 							(defq got (if packet (catch (flac-frame info packet) :t)))
 							(if (list? got) (flac-pcm info (first got))
-								(list (defq quiet (fill (reals) (. info :find :max_block) (n2r 0))) quiet)))))
+								(list (defq quiet (fill (reals) (. info :find :max_block) (n2r 0))) quiet))))))
 				((eql (. track :find :codec) "mp4a")
 					(and (defq config (aac-track-config track)) (= (first config) 2)
 						;HE-AAC's SBR at twice the rate of its core, packets of 2048 and

@@ -339,6 +339,10 @@
 
 (each (# (reel-kind %0 mp4-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mp4" ".m4v" ".mov"))
 
+;a film of Matroska or WebM, its tracks as an mp4's, played by this codec
+(import "./mkv.inc")
+(each (# (reel-kind %0 mkv-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mkv" ".webm"))
+
 ;module
 (export-symbols '(mp4-reel mp4-packet mp4-codec mp4-frame mp4-close mp4-tables))
 (env-pop)

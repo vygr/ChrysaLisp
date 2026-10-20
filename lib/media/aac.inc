@@ -156,19 +156,21 @@
 
 (defun aac-track-config (track)
 	; (aac-track-config track) -> :nil | config
-	;of a sound track of an mp4, from its esds, or one in a QuickTime wave
-	(defq config (. track :find :config)
-		esds (some (# (if (eql (first %0) "esds") (second %0))) config))
-	(unless esds
-		(when (defq wave (some (# (if (eql (first %0) "wave") (second %0))) config))
-			;the boxes of the wave, each its size, 4 bytes high first, and name
-			(defq at 0)
-			(while (and (not esds) (<= (+ at 8) (length wave)))
-				(defq size (code-be wave 4 at))
-				(if (eql (slice wave (+ at 4) (+ at 8)) "esds")
-					(setq esds (slice wave (+ at 8) (min (length wave) (+ at size)))))
-				(setq at (+ at (max size 8))))))
-	(and esds (defq setup (aac-esds esds)) (aac-config setup)))
+	;of a sound track of an mp4, from its esds, or one in a QuickTime wave,
+	;or as Matroska has it, the AudioSpecificConfig alone, :asc
+	(if (defq asc (. track :find :asc)) (aac-config asc)
+		(defq config (. track :find :config)
+			esds (some (# (if (eql (first %0) "esds") (second %0))) config))
+		(unless esds
+			(when (defq wave (some (# (if (eql (first %0) "wave") (second %0))) config))
+				;the boxes of the wave, each its size, 4 bytes high first, and name
+				(defq at 0)
+				(while (and (not esds) (<= (+ at 8) (length wave)))
+					(defq size (code-be wave 4 at))
+					(if (eql (slice wave (+ at 4) (+ at 8)) "esds")
+						(setq esds (slice wave (+ at 8) (min (length wave) (+ at size)))))
+					(setq at (+ at (max size 8))))))
+		(and esds (defq setup (aac-esds esds)) (aac-config setup))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; a channel's window
