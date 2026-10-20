@@ -41,7 +41,7 @@
 	;the children that draw a strip each, they have said they are ready,
 	;a frame is out with them and when it went, and they can not be used
 	farm :nil farm_ready :nil farm_asked :nil farming :nil farm_began 0 no_farm :nil ticks 0
-	+retry_timeout (task-timeout 10)
+	+retry_timeout (task-timeout 60)
 	;a child with nothing to do for 5 seconds goes. When the farm was last
 	;given a frame, and how long after that it is not to be counted on
 	last_farm 0 +farm_stale 3000000)

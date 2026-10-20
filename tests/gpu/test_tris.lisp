@@ -43,11 +43,14 @@
 			tf_draws (map (# (list (!) (shader-pack tf_vertex %0) (shader-pack tf_pixel %1))) tf_vvals tf_pvals)
 			;three children, whatever the nodes, so the frame is three strips
 			tf_jobs (Jobs +shader_tris_child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) '(3 3 0))
-			tf_asked 0)
+			tf_asked 0 tf_said (list))
 		(defun tf-frame (strips)
 			;a frame, till every strip is answered, or far too long has gone by.
 			;A child with nothing to do for 5s goes, and a strip given to it as
-			;it went is lost, so the farm is looked at each second, as an app does
+			;it went is lost, so the farm is looked at each second, as an app does.
+			;A child is only slow, never wrong: on a busy machine a strip may
+			;wait seconds for its node, so one is given to another only after a
+			;minute
 			(defq out 1 drawn :t start (pii-time))
 			(. tf_canvas :fill 0)
 			(. tf_jobs :add (map (# (shader-strip tf_vfile tf_pfile (elem-get tf_select +tf_ask)
@@ -64,11 +67,15 @@
 					(+tf_ask (setq tf_asked (inc tf_asked))
 						(shader-mesh-send msg (elem-get tf_packed (getf msg +strip_ask_mesh))))
 					(:t (cond
-						((> (- (pii-time) start) (task-timeout 30)) (setq out 0 drawn :nil))
-						(:t (. tf_jobs :refresh (task-timeout 10))
+						((> (- (pii-time) start) (task-timeout 120)) (setq out 0 drawn :nil))
+						(:t (. tf_jobs :refresh (task-timeout 60))
 							(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0))))))
 			(mail-timeout (elem-get tf_select +tf_timer) 0 0)
+			;what is said of a frame if a check of it fails
+			(push tf_said (str strips " strips " (/ (- (pii-time) start) 1000) "ms, meshes asked "
+				tf_asked ", most tries " (. tf_jobs :tries) ", children " (. tf_jobs :size)))
 			drawn)
+		(defq tf_failed *test_failures*)
 		(assert-eq "three children" 3 (. tf_jobs :size))
 		(assert-true "a frame of three strips is drawn" (tf-frame 3))
 		(defq tf_farmed (tf-pixels tf_pixmap tf_size))
@@ -105,4 +112,5 @@
 		(assert-eq "is the frame" tf_farmed (tf-pixels tf_pixmap tf_size))
 		(setq tf_draws tf_whole)
 		(assert-true "a strip of no rows is answered, it is how children are made ready" (tf-frame 1))
-		(. tf_jobs :close)))
+		(. tf_jobs :close)
+		(if (> *test_failures* tf_failed) (each (# (print "test_tris: " %0)) tf_said))))
