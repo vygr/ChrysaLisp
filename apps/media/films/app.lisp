@@ -18,7 +18,7 @@
 (enums +select 0
 	(enum main timer tip))
 
-(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
+(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov" ".mp3") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
 	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
@@ -29,8 +29,10 @@
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
-	(set *status* :text (cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
-		", " (str (n2i (. *reel* :find :rate))) " a second"
+	(set *status* :text (cat (if (. *reel* :find :audio)
+			(cat (clock-of (frame-time *at*)) " of " (clock-of (frame-time (. *reel* :find :frames))))
+			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
+				", " (str (n2i (. *reel* :find :rate))) " a second"))
 		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
 		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
 		(if *playing* "" ", paused")))
@@ -39,19 +41,29 @@
 (defun frame-time (n)
 	; (frame-time n) -> seconds
 	;when frame n is shown, of a film of an mp4, its time less where its
-	;edit list starts it
-	(defq video (. *reel* :find :video))
-	(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
-		(n2f (. video :find :timescale))))
+	;edit list starts it, else by the rate, frames of an MP3 are evenly
+	;spaced
+	(if (defq video (. *reel* :find :video))
+		(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
+			(n2f (. video :find :timescale)))
+		(/ (n2f n) (. *reel* :find :rate))))
 
 (defun frame-at (time)
 	; (frame-at seconds) -> n
 	;the last frame shown by a time, the frames being in the order shown
 	(defq low 0 high (dec (. *reel* :find :frames)))
-	(while (< low high)
-		(defq mid (>> (+ low high 1) 1))
-		(if (<= (frame-time mid) time) (setq low mid) (setq high (dec mid))))
-	low)
+	(cond
+		((not (. *reel* :find :video)) (max low (min high (n2i (* time (. *reel* :find :rate))))))
+		(:t (while (< low high)
+				(defq mid (>> (+ low high 1) 1))
+				(if (<= (frame-time mid) time) (setq low mid) (setq high (dec mid))))
+			low)))
+
+(defun clock-of (time)
+	; (clock-of seconds) -> str
+	;h:mm:ss of a time
+	(defq s (n2i time))
+	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
 
 (defun sound-on? ()
 	(and *sound* *playing* (. *sound* :find :handle)))

@@ -14,6 +14,8 @@
 ; scale of 16 bits.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "gui/canvas/lisp.inc")
+(import "./reel.inc")
 (import "./bits.inc")
 (import "./huff.inc")
 
@@ -135,15 +137,21 @@
 				kbps (elem-get (elem-get (. +mp3 :find :bitrates) (if lsf 1 0)) br))
 			(scatter (Emap) :lsf lsf :rate rate :sri (+ (* 3 kind) sr) :crc (= 0 (logand (>> h 16) 1))
 				:mode mode :ext (logand (>> h 4) 3) :channels (if (= mode 3) 1 2) :granules (if lsf 1 2)
-				:samples (if lsf 576 1152) :size (+ (/ (* (if lsf 72 144) kbps 1000) rate) (logand (>> h 9) 1))))))
+				:samples (if lsf 576 1152) :kbps kbps :size (+ (/ (* (if lsf 72 144) kbps 1000) rate) (logand (>> h 9) 1))))))
+
+(defun mp3-id3 (s)
+	; (mp3-id3 str) -> bytes
+	;the bytes of an ID3v2 tag at the start, and its footer, 0 if none
+	(if (and (>= (length s) 10) (eql (slice s 0 3) "ID3"))
+		(+ 10 (if (/= 0 (logand (code s 1 5) 0x10)) 10 0)
+			(reduce (# (+ (<< %0 7) (logand (code s 1 (+ 6 %1)) 127))) (range 0 4) 0))
+		0))
 
 (defun mp3-frames (s)
 	; (mp3-frames str) -> ((at size) ...)
 	;the frames of the bytes of a file, after an ID3v2 tag if it has one,
 	;each found where the one before ends, or the next header after
-	(defq at 0 out (list))
-	(and (>= (length s) 10) (eql (slice s 0 3) "ID3")
-		(setq at (+ 10 (reduce (# (+ (<< %0 7) (logand (code s 1 (+ 6 %1)) 127))) (range 0 4) 0))))
+	(defq at (mp3-id3 s) out (list))
 	(while (< (+ at 4) (length s))
 		(cond
 			((and (defq h (mp3-header s at)) (<= (+ at (. h :find :size)) (length s)))
@@ -458,6 +466,143 @@
 				grans)))
 	(if (= nch 1) (list (first pcm) (first pcm)) pcm))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a file of MP3 as a reel, a frame a packet
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun mp3-sync (s at)
+	; (mp3-sync str at) -> :nil | (at header)
+	;the first frame from at on: a header, and one of the same rate where
+	;it ends, if that is in the str, a header alone may be of a frame's
+	;bytes
+	(defq h :nil end (- (length s) 4))
+	(while (and (< at end)
+			(not (and (setq h (mp3-header s at))
+				(or (> (+ at (. h :find :size)) end)
+					(and (defq next (mp3-header s (+ at (. h :find :size)))) (= (. next :find :sri) (. h :find :sri)))))))
+		(setq at (inc at)))
+	(if (< at end) (list at h)))
+
+(defun mp3-xing (s at h)
+	; (mp3-xing str at header) -> :nil | (frames bytes toc vbr)
+	;what a first frame of Xing or Info, of nothing heard, says of those
+	;after it: how many, their bytes, and where each hundredth of them
+	;begins, by 1/256 of the bytes, :nil of each it does not say, and if
+	;their bit rate varies, Xing's. A table is taken only if it rises,
+	;some coders leave it all 0, and not that of Info, of a constant bit
+	;rate, the rate is nearer
+	(defq o (+ at 4 (if (. h :find :crc) 2 0) (if (. h :find :lsf)
+		(if (= (. h :find :channels) 1) 9 17) (if (= (. h :find :channels) 1) 17 32)))
+		tag (slice s (min o (length s)) (min (+ o 4) (length s))))
+	(when (and (<= (+ o 120) (length s)) (or (eql tag "Xing") (eql tag "Info")))
+		(defq flags (code-be s 4 (+ o 4)) p (+ o 8) frames :nil bytes :nil toc :nil)
+		(when (/= 0 (logand flags 1)) (setq frames (code-be s 4 p) p (+ p 4)))
+		(when (/= 0 (logand flags 2)) (setq bytes (code-be s 4 p) p (+ p 4)))
+		(and (/= 0 (logand flags 4)) (eql tag "Xing") (> (code s 1 (+ p 99)) (code s 1 p))
+			(setq toc (slice s p (+ p 100))))
+		(list frames bytes toc (eql tag "Xing"))))
+
+(defun mp3-unit (h)
+	;the bytes of a frame of a constant bit rate, by the rate
+	(* (if (. h :find :lsf) 72 144) (. h :find :kbps) 1000))
+
+(defun mp3-reel (stream)
+	; (mp3-reel stream) -> :nil | reel
+	;a file of MP3 as a reel of its frames, each found as it is wanted, not
+	;all now: a book of 40 hours is 2GB. They are counted by a first frame
+	;of Xing or Info if it has one, else by the bit rate, :frames, and a
+	;frame a packet, :rate of them a second. Its :tracks the one of sound,
+	;of codec "mp3", and its pictures those of lib/media/mp3.inc's codec,
+	;:width by :height, the samples of each frame
+	(defq end (stream-seek stream 0 2) at 0)
+	(stream-seek stream 0 0)
+	(setq at (mp3-id3 (ifn (read-blk stream 10) "")))
+	;before an ID3v1 tag at the end
+	(when (> end 128)
+		(stream-seek stream (- end 128) 0)
+		(if (eql (read-blk stream 3) "TAG") (setq end (- end 128))))
+	(stream-seek stream at 0)
+	(when (and (defq s (read-blk stream 16384)) (defq found (mp3-sync s 0)))
+		(bind '(i h) found)
+		(defq frames :nil bytes :nil toc :nil vbr :nil xing (mp3-xing s i h))
+		(setq at (+ at i))
+		(when xing
+			(bind '(frames bytes toc vbr) xing)
+			(setq at (+ at (. h :find :size))))
+		(setq bytes (ifn bytes (- end at))
+			frames (ifn frames (/ (+ (* bytes (. h :find :rate)) (/ (mp3-unit h) 2)) (mp3-unit h))))
+		(scatter (Emap) :stream stream :head h :start at :end end :bytes bytes :toc toc :vbr vbr :known (list)
+			:frames frames :rate (/ (n2f (. h :find :rate)) (n2f (. h :find :samples)))
+			:width 512 :height 192 :codec "mp3" :audio :t
+			:tracks (list (scatter (Emap) :kind "soun" :codec "mp3" :samples frames :start 0)))))
+
+(defun mp3-guess (reel n)
+	;where frame n should begin: by the table of a first frame of Xing,
+	;between two of its hundredths, else of a varying bit rate by the
+	;bytes a frame of them all, else by the bit rate of the first
+	(defq frames (. reel :find :frames) bytes (. reel :find :bytes) h (. reel :find :head))
+	(+ (. reel :find :start) (if (defq toc (. reel :find :toc))
+		(progn (defq i (min 99 (/ (* n 100) frames)) a (code toc 1 i) b (if (< i 99) (code toc 1 (inc i)) 256))
+			(/ (* bytes (+ (* a frames) (* (- b a) (- (* n 100) (* i frames))))) (* 256 frames)))
+		(if (. reel :find :vbr) (/ (* n bytes) frames) (/ (* n (mp3-unit h)) (. h :find :rate))))))
+
+(defun mp3-packet (reel n)
+	; (mp3-packet reel n) -> :nil | str
+	;frame n: where one read ends if it was n - 1, else the first found
+	;from a little before where it should be. The ends of the last four
+	;read are kept, the sound and the picture each read one after another
+	(when (< -1 n (. reel :find :frames))
+		(defq stream (. reel :find :stream) known (. reel :find :known)
+			at (some (# (if (= (first %0) n) (second %0))) known))
+		(unless at
+			(stream-seek stream (setq at (max (. reel :find :start) (- (mp3-guess reel n) 2))) 0)
+			(setq at (and (defq s (read-blk stream 8192)) (defq found (mp3-sync s 0)) (+ at (first found)))))
+		(when at
+			(stream-seek stream at 0)
+			(when (and (defq frame (read-blk stream 4)) (defq h (mp3-header frame 0))
+					(<= (+ at (. h :find :size)) (. reel :find :end)))
+				(. reel :insert :known (cat (list (list (inc n) (+ at (. h :find :size)))) (slice known 0 (min 3 (length known)))))
+				(cat frame (read-blk stream (- (. h :find :size) 4)))))))
+
+(defun mp3-codec (reel &optional scale)
+	; (mp3-codec reel [scale]) -> codec
+	;what shows a frame: its samples, the left above the right, on a
+	;canvas of its own, by a decoder of its own; a scale is not taken
+	(scatter (Emap) :canvas (Canvas (. reel :find :width) (. reel :find :height) 1) :scale 1
+		:reel reel :decoder (mp3-decoder) :at -1))
+
+(defun mp3-samples (codec n)
+	;frame n's samples, :nil of one not there or not read
+	(and (defq frame (mp3-packet (. codec :find :reel) n))
+		(list? (defq pcm (catch (mp3-frame (. codec :find :decoder) frame) :t)))
+		pcm))
+
+(defun mp3-picture (codec n)
+	; (mp3-picture codec n) -> canvas
+	;frame n's samples drawn: after the one before, else with the three
+	;before it decoded first, for the reservoir and the overlap
+	(defq canvas (. codec :find :canvas) w (. (. codec :find :reel) :find :width) h (. (. codec :find :reel) :find :height))
+	(unless (= n (. codec :find :at))
+		(unless (= n (inc (. codec :find :at)))
+			(. (. codec :find :decoder) :insert :reservoir "")
+			(each (# (mp3-samples codec %0)) (range (max 0 (- n 3)) n)))
+		(. codec :insert :at n)
+		(.-> canvas (:fill +argb_black) (:set_color 0xff303030) (:fbox 0 (dec (/ h 2)) w 1))
+		(when (defq pcm (mp3-samples codec n))
+			;a column of two pixels a sample, joined to the one before
+			(each (lambda (samples mid colour)
+					(defq len (length samples) k (/ (n2r (/ h 4)) (n2r 32768)) y0 mid)
+					(. canvas :set_color colour)
+					(each (lambda (x)
+							(defq y (- mid (n2i (* (elem-get samples (/ (* x len) w)) k))))
+							(. canvas :fbox x (min y y0) 2 (inc (abs (- y y0))))
+							(setq y0 y))
+						(range 0 w 2)))
+				pcm (list (/ h 4) (* 3 (/ h 4))) '(0xff40c060 0xff4080e0))))
+	canvas)
+
+(each (# (reel-kind %0 mp3-reel mp3-packet mp3-codec mp3-picture)) '(".mp3"))
+
 ;module
-(export-symbols '(mp3-header mp3-decoder mp3-frame mp3-frames))
+(export-symbols '(mp3-header mp3-decoder mp3-frame mp3-frames mp3-reel mp3-packet mp3-codec mp3-picture))
 (env-pop)

@@ -62,3 +62,23 @@
 	(> (m3-ratio left (# (* (n2r 0.25) (sin (* m3_two_pi (n2r 440) %0)))) 2000 5000) (n2r 100)))
 (assert-true "MPEG-2: the right is the 660 it was"
 	(> (m3-ratio right (# (* (n2r 0.25) (sin (* m3_two_pi (n2r 660) %0)))) 2000 5000) (n2r 100)))
+
+;a file as a reel, its frames found as they are wanted: each the frame
+;mp3-frames finds, after LAME's of Info, in order and by a seek, and
+;counted by the Info frame or by the bit rate, none after the last
+(defun m3-reel (file)
+	; (m3-reel file) -> (counted found in_order by_seek past)
+	(defq reel (reel-open file) s (load file) frames (mp3-frames s))
+	(if (/= (. reel :find :start) (first (first frames))) (setq frames (rest frames)))
+	(defq frame (lambda (n) (bind '(at size) (elem-get frames n)) (slice s at (+ at size))))
+	(list (. reel :find :frames) (length frames)
+		(every (lambda (_) (eql (reel-packet reel (!)) (frame (!)))) frames)
+		(every (# (eql (reel-packet reel %0) (frame %0))) (list 9 3 15 0 7 8 2 (dec (length frames))))
+		(reel-packet reel (length frames))))
+(each (lambda ((file name))
+		(bind '(counted found in_order by_seek past) (m3-reel file))
+		(assert-eq (cat "reel " name ": its frames counted") found counted)
+		(assert-true (cat "reel " name ": each frame in order") in_order)
+		(assert-true (cat "reel " name ": each frame by a seek") by_seek)
+		(assert-eq (cat "reel " name ": none after the last") :nil past))
+	'(("tests/streams/data/tone_mp3.mp3" "tone") ("tests/streams/data/tone22_mp3.mp3" "MPEG-2")))

@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**MP3 in Films: an `.mp3` reel kind in lib/media/mp3.inc, frames found as wanted, seeks by bit rate, a rising Xing table or VBR average; a book of 48 hours opens in 1 ms. Sound starts past 13 hours.**
+
 **Films: FLM version 3, a reel of packets, its rate in the header, lib/media/reel.inc and lib/media/flm.inc; the codec gui/pixmap/flm.vp; the film hack gone from the pixmap and canvas-load; toflm -r -c; the Films app a player. Old films: toflm -c.**
 
 **Links over the internet sealed: X25519 per link, HKDF keys each way, ChaCha20-Poly1305 records with counted nonces; LAN links plain; `link -s` seals any. Handshake CLDOOR2, every machine updates together. `sys/crypto/` for VP code.**
