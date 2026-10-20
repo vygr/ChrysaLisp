@@ -36,14 +36,14 @@
 		(3 1 0 0 0 0) (3 1 0 0 0 3) (3 2 0 0 2 0) (3 2 0 0 3 3) (3 2 0 2 0 0) (3 2 0 2 0 3) (3 2 0 3 2 0) (3 2 0 3 3 3)
 		(3 3 1 0 0 0) (3 3 2 0 0 3) (3 3 2 0 2 0) (3 3 2 0 3 3) (3 3 3 2 0 0) (3 3 3 2 0 3) (3 3 3 3 2 0) (3 3 3 3 3 3)))
 
-;the tables of the bit allocation: the first bin of each of the 50 bands,
-;the band of each bin, the log addition, the hearing threshold of each
-;band at each rate, and the bits a mantissa has by its address
-(scatter +ac3 :band_start '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+;the tables of the bit allocation the native code reads: the first bin
+;of each of the 50 bands, the band of each bin, the log addition, and the
+;bits a mantissa has by its address, of AC-3 and of AHT
+(defq +ac3_band_start (nums 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 		16 17 18 19 20 21 22 23 24 25 26 27 28 31 34 37
 		40 43 46 49 55 61 67 73 79 85 97 109 121 133 157 181
 		205 229 253)
-	:bin_band '(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+	+ac3_bin_band (nums 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
 		24 25 26 27 28 28 28 29 29 29 30 30 30 31 31 31 32 32 32 33 33 33 34 34
 		34 35 35 35 35 35 35 36 36 36 36 36 36 37 37 37 37 37 37 38 38 38 38 38
 		38 39 39 39 39 39 39 40 40 40 40 40 40 41 41 41 41 41 41 41 41 41 41 41
@@ -54,7 +54,7 @@
 		47 47 47 47 47 47 47 47 47 47 47 47 47 48 48 48 48 48 48 48 48 48 48 48
 		48 48 48 48 48 48 48 48 48 48 48 48 48 49 49 49 49 49 49 49 49 49 49 49
 		49 49 49 49 49 49 49 49 49 49 49 49 49)
-	:log_add '(64 63 62 61 60 59 58 57 56 55 54 53 52 52 51 50 49 48 47 47
+	+ac3_log_add (nums 64 63 62 61 60 59 58 57 56 55 54 53 52 52 51 50 49 48 47 47
 		46 45 44 44 43 42 41 41 40 39 38 38 37 36 36 35 35 34 33 33
 		32 32 31 30 30 29 29 28 28 27 27 26 26 25 25 24 24 23 23 22
 		22 21 21 21 20 20 19 19 19 18 18 18 17 17 17 16 16 16 15 15
@@ -67,7 +67,18 @@
 		1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 		0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
-	:threshold '((1232 1264 1408) (1232 1264 1408) (1088 1120 1200) (1024 1040 1104) (992 992 1056) (960 976 1008)
+	+ac3_bap (nums 0 1 1 1 1 1 2 2 3 3 3 4 4 5 5 6
+		6 6 6 7 7 7 7 8 8 8 8 9 9 9 9 10
+		10 10 10 11 11 11 11 12 12 12 12 13 13 13 13 14
+		14 14 14 14 14 14 14 15 15 15 15 15 15 15 15 15)
+	+ac3_hebap (nums 0 1 2 3 4 5 6 7 8 8 8 8 9 9 9 10
+		10 10 10 11 11 11 11 12 12 12 12 13 13 13 13 14
+		14 14 14 15 15 15 15 16 16 16 16 17 17 17 17 18
+		18 18 18 18 18 18 18 19 19 19 19 19 19 19 19 19))
+
+;the hearing threshold of each band at each rate, and the rest of the bit
+;allocation's tables
+(scatter +ac3 :threshold '((1232 1264 1408) (1232 1264 1408) (1088 1120 1200) (1024 1040 1104) (992 992 1056) (960 976 1008)
 		(944 960 992) (944 944 976) (928 944 960) (928 928 944) (928 928 944) (928 928 944)
 		(928 928 928) (912 928 928) (912 912 928) (912 912 928) (896 912 928) (896 896 928)
 		(880 896 928) (880 896 928) (864 880 912) (864 880 912) (848 864 912) (848 864 912)
@@ -76,10 +87,6 @@
 		(832 800 752) (912 848 752) (992 912 768) (1056 992 784) (1120 1056 816) (1168 1104 848)
 		(1184 1184 960) (1120 1168 1040) (1088 1120 1136) (1088 1088 1184) (1312 1152 1120) (2048 1584 1088)
 		(2112 2112 1104) (2112 2112 1248))
-	:bap '(0 1 1 1 1 1 2 2 3 3 3 4 4 5 5 6
-		6 6 6 7 7 7 7 8 8 8 8 9 9 9 9 10
-		10 10 10 11 11 11 11 12 12 12 12 13 13 13 13 14
-		14 14 14 14 14 14 14 15 15 15 15 15 15 15 15 15)
 	:slow_decay '(15 17 19 21) :fast_decay '(63 83 103 123) :slow_gain '(1344 1240 1144 1040)
 	:db_per_bit '(0 1792 2304 2816) :floor '(752 688 624 560 496 368 240 -2048)
 	:fast_gain '(128 256 384 512 640 768 896 1024)
@@ -87,15 +94,11 @@
 	:cpl_bands '(0 0 0 0 0 0 0 0 1 0 1 1 0 1 1 1 1 1)
 	:spx_bands '(0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1))
 
-;the adaptive hybrid transform of E-AC-3: the high efficiency bap by the
-;address, the bits of each, and the remapping of the gain adaptive
-;quantisation's numbers, of 1/32768, by bap less 8, without a gain and
-;of a large number by a gain of 2 and of 4
-(scatter +ac3 :hebap '(0 1 2 3 4 5 6 7 8 8 8 8 9 9 9 10
-		10 10 10 11 11 11 11 12 12 12 12 13 13 13 13 14
-		14 14 14 15 15 15 15 16 16 16 16 17 17 17 17 18
-		18 18 18 18 18 18 18 19 19 19 19 19 19 19 19 19)
-	:hebap_bits '(0 2 3 4 5 7 8 9 3 4 5 6 7 8 9 10 11 12 14 16)
+;the adaptive hybrid transform of E-AC-3: the bits of each high
+;efficiency bap, and the remapping of the gain adaptive quantisation's
+;numbers, of 1/32768, by bap less 8, without a gain and of a large number
+;by a gain of 2 and of 4
+(scatter +ac3 :hebap_bits '(0 2 3 4 5 7 8 9 3 4 5 6 7 8 9 10 11 12 14 16)
 	:gaq_remap '(4681 2185 1057 520 258 129 64 32 16 8 2 0)
 	:gaq_remap_a '((-10923 -4681) (-14043 -6554) (-15292 -7399) (-15855 -7802) (-16124 -7998)
 		(-16255 -8096) (-16320 -8144) (-16352 -8168) (-16368 -8180))
@@ -117,11 +120,15 @@
 
 ;the levels of each code of bap 1, 2 and 4, at 0, 96 and 480, and of bap
 ;3 and 5, at 736 and 744, for the native reader of the mantissas
-(scatter +ac3 :levels (reduce (# (push %0 %1)) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
+(defq +ac3_levels (reduce (# (push %0 %1)) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
 		(map (# (/ (n2r (- (* 2 %0) 6)) (n2r 7))) (range 0 8)) (map (# (/ (n2r (- (* 2 %0) 14)) (n2r 15))) (range 0 16)))
 	(cap 760 (reals))))
 
 (ffi (path-to-absolute "./media_ac3_mantissas") ac3-read-mantissas)
+(ffi (path-to-absolute "./media_ac3_psd") ac3-native-psd)
+; (ac3-native-psd exps start end psd band_psd band_start bin_band log_add) -> psd
+(ffi (path-to-absolute "./media_ac3_bap") ac3-native-bap)
+; (ac3-native-bap psd mask start end snr floor tab bap band_start bin_band) -> bap
 ; (ac3-read-mantissas reader bap exps start end out groups noise dither table) -> out
 
 (defun ac3-bsi (in h)
@@ -287,23 +294,11 @@
 
 (defun ac3-psd (exps start end)
 	; (ac3-psd exps start end) -> (psd band_psd)
-	;the power of each bin from its exponent, and of each band, the bins of
-	;a band added as logs are, by the table
-	(defq psd (map (# (- 3072 (<< %0 7))) exps) band_psd (fill (list) 50 0)
-		band_start (. +ac3 :find :band_start) log_add (. +ac3 :find :log_add) bin start)
-	(while (< bin (min end 28))
-		(elem-set band_psd bin (elem-get psd bin))
-		(setq bin (inc bin)))
-	(when (< bin end)
-		(defq band (elem-get (. +ac3 :find :bin_band) bin) more :t)
-		(while more
-			(defq v (elem-get psd bin) band_end (min (elem-get band_start (inc band)) end))
-			(setq bin (inc bin))
-			(while (< bin band_end)
-				(defq p (elem-get psd bin) top (max v p))
-				(setq v (+ top (elem-get log_add (min 255 (- top (>> (+ v p 1) 1))))) bin (inc bin)))
-			(elem-set band_psd band v)
-			(setq band (inc band) more (> end (elem-get band_start band)))))
+	;the power of each bin from its exponent, and of each band, the first 28
+	;bins a band each, the bins of the others added as logs are, by the
+	;table. Native, lib/media/lisp.vp media_ac3_psd
+	(defq psd (fill (nums) 256 0) band_psd (fill (nums) 50 0))
+	(ac3-native-psd exps start end psd band_psd +ac3_band_start +ac3_bin_band +ac3_log_add)
 	(list psd band_psd))
 
 (defun ac3-lowcomp1 (a b0 b1 c)
@@ -316,7 +311,7 @@
 	; (ac3-mask decoder band_psd start end fast_gain lfe dba) -> mask
 	;the masking curve of each band: the excitation by fast and slow leaks
 	;and low frequency compensation, the hearing threshold, and the deltas
-	(defq bin_band (. +ac3 :find :bin_band) band_start_ (elem-get bin_band start)
+	(defq bin_band +ac3_bin_band band_start_ (elem-get bin_band start)
 		band_end (inc (elem-get bin_band (dec end))) excite (fill (list) 50 0)
 		slow_gain (. d :find :slow_gain) fast_decay (. d :find :fast_decay) slow_decay (. d :find :slow_decay)
 		lowcomp 0 fastleak 0 slowleak 0 begin 0)
@@ -353,7 +348,7 @@
 			(elem-set excite band (max fastleak slowleak)))
 		(range begin band_end))
 	;the masking curve, the threshold of hearing at least
-	(defq mask (fill (list) 50 0) threshold (. +ac3 :find :threshold)
+	(defq mask (fill (nums) 50 0) threshold (. +ac3 :find :threshold)
 		db_per_bit (. d :find :db_per_bit) rate_code (. d :find :rate_code))
 	(each (lambda (band)
 			(defq tmp (- db_per_bit (elem-get band_psd band)))
@@ -373,17 +368,10 @@
 (defun ac3-bap (d psd mask start end snr tab)
 	; (ac3-bap decoder psd mask start end snr tab) -> bap
 	;the bits of each mantissa, the address of the power above the mask,
-	;by the table of AC-3 or of AHT
-	(defq bap (fill (nums) 256 0) floor (. d :find :floor))
+	;by the table of AC-3 or of AHT. Native, lib/media/lisp.vp media_ac3_bap
+	(defq bap (fill (nums) 256 0))
 	(unless (= snr -960)
-		(defq bin_band (. +ac3 :find :bin_band) band_start (. +ac3 :find :band_start) bin start)
-		(while (< bin end)
-			(defq band (if (< bin 28) bin (elem-get bin_band bin))
-				m (+ (logand (max (- (elem-get mask band) snr floor) 0) 0x1fe0) floor)
-				to (if (< bin 28) (inc bin) (min (elem-get band_start (inc band)) end)))
-			(while (< bin to)
-				(elem-set bap bin (elem-get tab (max 0 (min 63 (>>> (- (elem-get psd bin) m) 5)))))
-				(setq bin (inc bin)))))
+		(ac3-native-bap psd mask start end snr (. d :find :floor) tab bap +ac3_band_start +ac3_bin_band))
 	bap)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -538,7 +526,7 @@
 	;the dither, of -0.707 to 0.707, made for all the bins at once
 	(if dither (. d :insert :seed (noise-fill noise start end (. d :find :seed) (const (/ (n2r 0.707) (n2r 0x80000000))))))
 	(ac3-read-mantissas in (elem-get (. d :find :bap) c) (elem-get (. d :find :exps) c) start end
-		(fill (reals) 256 (n2r 0)) groups noise (if dither 1 0) (. +ac3 :find :levels)))
+		(fill (reals) 256 (n2r 0)) groups noise (if dither 1 0) +ac3_levels))
 
 ;the default bit allocation of E-AC-3 without its syntax, and its codes
 (defun ac3-defaults (d)
@@ -816,7 +804,7 @@
 			(if (> st 0)
 				(elem-set (. d :find :bap) c (ac3-bap d (elem-get (. d :find :psd) c) (elem-get (. d :find :mask) c)
 					(elem-get start c) (elem-get end c) (elem-get (. d :find :snr) c)
-					(. +ac3 :find (if (= 0 (elem-get aht c)) :bap :hebap))))))
+					(if (= 0 (elem-get aht c)) +ac3_bap +ac3_hebap)))))
 		(range (if (= cplinu 1) 0 1) (+ fbw 1 lfe)))
 	;dummy data, stepped over
 	(and (= (. h :find :skipflde) 1) (= (bits-1 in) 1) (bits-skip in (* 8 (bits-get in 9))))
