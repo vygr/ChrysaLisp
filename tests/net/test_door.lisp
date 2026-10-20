@@ -61,7 +61,7 @@
 	;a child that connects, runs the code with the connection as h, and says what came of it
 	(open-task (str `(progn
 			(import "service/net/door.inc")
-			(defq h (net-connect "127.0.0.1" ,dr_port) until (+ (pii-time) 3000000))
+			(defq h (net-connect "127.0.0.1" ,dr_port) until (+ (pii-time) (task-timeout 3)))
 			(while (and (= 0 (logand (net-poll h) 2)) (< (pii-time) until)) (task-sleep 5000))
 			(defq r (catch ,code :nil))
 			(mail-send (hex-decode ,(hex-encode dr_reply))
@@ -83,23 +83,23 @@
 	;the child is a task that starts and imports before it dials, which on
 	;a Pi with the suite beside it has taken over 3s, and one that dials
 	;late is taken by the next test
-	(defq until (+ (pii-time) 15000000) handle 0)
+	(defq until (+ (pii-time) (task-timeout 15)) handle 0)
 	(while (and (<= handle 0) (< (pii-time) until))
 		(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
-	(defq mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait 3000000)) :nil)) "none")
-		theirs (ifn (mail-read-timeout dr_reply 5000000) "silent"))
+	(defq mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait (task-timeout 3))) :nil)) "none")
+		theirs (ifn (mail-read-timeout dr_reply (task-timeout 5)) "silent"))
 	(if (> handle 0) (net-close handle))
 	(setq dr_said (list mine theirs))
 	(map (# (slice %0 0 (min 3 (length %0)))) dr_said))
 
 (assert-list-eq "the same key, both ends are through" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 (assert-list-eq "and again, the nonces are new each time" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 (assert-list-eq "another key, neither end is" '("no" "no")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_other)) :t :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_other)) :t :nil (task-timeout 3))))
 (assert-list-eq "an end that takes the wrong part is not" '("no" "no")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :nil :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :nil :nil (task-timeout 3))))
 (assert-eq "one that says something else is closed on" "no"
 	(first (dr-meet dr_key '(progn (door-send h "GET / HTTP/1.0 and a good deal more than a nonce" (+ (pii-time) 1000000)) :nil))))
 (assert-eq "one that says nothing is not waited on for ever" "no"
@@ -107,11 +107,11 @@
 (assert-eq "one that sends the word and then goes" "no"
 	(first (dr-meet dr_key '(progn (door-send h "CLDOOR2" (+ (pii-time) 1000000)) :nil) 600000)))
 (assert-list-eq "not sealed, the dialler said not" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 (assert-eq "so neither end has keys, two of 32 bytes of nothing" (cat "yesU" (hex-encode (apply (const cat) (map (lambda (_) (char 0 8)) (range 0 8)))))
 	(first dr_said))
 (assert-list-eq "sealed, the dialler said so" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :t 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :t (task-timeout 3))))
 (bind '(dr_l dr_d) dr_said)
 (assert-true "both ends know it is sealed"
 	(and (eql (slice dr_l 0 4) "yesS") (eql (slice dr_d 0 4) "yesS")))
@@ -122,18 +122,18 @@
 (assert-true "each way its own key"
 	(not (eql (slice dr_l 4 68) (slice dr_l 68 132))))
 (assert-list-eq "sealed again, new keys" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :t 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :t (task-timeout 3))))
 (assert-true "the keys are new each link"
 	(not (eql (slice dr_l 4 68) (slice (first dr_said) 4 68))))
 (assert-list-eq "a share that makes a secret of nothing is not taken, though the key is right" '("no" "yes")
 	(dr-meet dr_key `(progn
-		(defq u (+ (pii-time) 3000000) k (hex-decode ,(hex-encode dr_key)) n (random-bytes 16) z +door_nothing)
+		(defq u (+ (pii-time) (task-timeout 3)) k (hex-decode ,(hex-encode dr_key)) n (random-bytes 16) z +door_nothing)
 		(door-send h (cat "CLDOOR2" n z (char 1 1)) u)
 		(defq hl (door-recv h 56 u) said (cat n (slice hl 7 23) z (slice hl 23 55) (char 1 1)))
 		(door-send h (door-tag k :t said) u)
 		(door-recv h 32 u))))
 (assert-list-eq "and after all that the same key is still through" '("yes" "yes")
-	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil 3000000)))
+	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 
 (net-close dr_listener)
 (undef (env) 'dr_file 'dr_hex 'dr_key 'dr_other 'dr_n1 'dr_n2 'dr_port 'dr_listener 'dr_reply 'dr_said 'dr_l 'dr_d)

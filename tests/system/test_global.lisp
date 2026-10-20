@@ -73,16 +73,18 @@
 (defun fm-destroy (key val)
 	(++ fm_gone))
 
-(defun fm-replies (farm)
-	;the answers, till no more come: how many were of a child started
-	(defq started 0)
-	(while (defq msg (mail-read-timeout fm_mbox (task-timeout 1)))
+(defun fm-replies (farm want)
+	;the answers, till no more come: how many were of a child started. While
+	;fewer than want have come a quiet second is a busy machine, not the end
+	(defq started 0 got 0)
+	(while (defq msg (mail-read-timeout fm_mbox (task-timeout (if (< got want) 10 1))))
+		(++ got)
 		(if (. farm :reply msg) (++ started)))
 	started)
 
 (defq fm (Farm fm-create fm-destroy 1))
 (assert-eq "a farm of one child asks one node for it" 1 (length fm_asked))
-(assert-eq "no node can start a child that is not there" 0 (fm-replies fm))
+(assert-eq "no node can start a child that is not there" 0 (fm-replies fm (length (lisp-nodes))))
 (assert-eq "every node was asked, the once, each as the one before said no"
 	(str (sort (map (const hex-encode) (lisp-nodes)))) (str (sort (map (const hex-encode) fm_asked))))
 (assert-eq "and each is known to have refused" (length (lisp-nodes)) (length (. fm :refused)))
@@ -95,6 +97,6 @@
 ;one that can be started: its entry is given back, and no node is left
 (setq fm_asked (list) fm_task "(task-sleep 1)")
 (defq fm (Farm fm-create fm-destroy 3))
-(assert-eq "three children that can be started are" 3 (fm-replies fm))
+(assert-eq "three children that can be started are" 3 (fm-replies fm 3))
 (assert-eq "none refused" 0 (length (. fm :refused)))
 (. fm :close)

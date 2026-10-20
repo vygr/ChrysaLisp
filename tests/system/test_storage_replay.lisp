@@ -96,7 +96,7 @@
 (defq rp2 (replay-new) rp_box (mail-mbox) rp_end :nil
 	rp_run (open-child "apps/system/storage/run.lisp" +kn_call_run) rp_t0 (pii-time))
 (mail-send rp_run (cat (hex-encode rp_box) (ascii-char 10) "stop"))
-(while (and (not rp_end) (< (- (pii-time) rp_t0) 120000000))
+(while (and (not rp_end) (< (- (pii-time) rp_t0) (task-timeout 120)))
 	(when (defq rp_msg (mail-read-timeout rp_box 1000000))
 		(cond
 			((starts-with "lines" rp_msg) (each! (# (replay-add rp2 %0)) (list (split rp_msg (ascii-char 10))) 1 -1))
