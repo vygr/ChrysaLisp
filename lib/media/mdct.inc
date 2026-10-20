@@ -29,7 +29,7 @@
 	;what media_dct4 takes for a DCT-IV of n: the twiddles before,
 	;e^(-i pi (4j+1)/4n), after, e^(-i pi k/n), of the FFT of m, n/2,
 	;e^(-2 pi i k/m), each cos and sin, and the bit reversal of m
-	(defq m (>> n 1) tw (reals) rev (nums) bits 0 pi (. +mdct :find :pi)
+	(defq m (>> n 1) tw (cap (* 5 m) (reals)) rev (cap m (nums)) bits 0 pi (. +mdct :find :pi)
 		twiddle (lambda (a) (push tw (cos a) (sin a))))
 	(each (# (twiddle (/ (* (neg pi) (n2r (inc (* 4 %0)))) (n2r (* 4 n))))) (range 0 m))
 	(each (# (twiddle (/ (* (neg pi) (n2r %0)) (n2r n)))) (range 0 m))
@@ -61,18 +61,18 @@
 (defun mdct-sine (n)
 	; (mdct-sine n) -> reals
 	;the rising half, n, of the sine window of 2n
-	(defq out (reals) pi (. +mdct :find :pi))
+	(defq out (cap n (reals)) pi (. +mdct :find :pi))
 	(each (# (push out (sin (/ (* pi (+ (n2r %0) (n2r 0.5))) (n2r (* 2 n)))))) (range 0 n))
 	out)
 
 (defun mdct-kbd (n alpha)
 	; (mdct-kbd n alpha) -> reals
 	;the rising half, n, of the Kaiser-Bessel derived window of 2n
-	(defq out (reals) sum (n2r 0) kernel (list) pi (. +mdct :find :pi))
-	(each (lambda (j)
-			(defq t (- (/ (* (n2r 2) (n2r j)) (n2r n)) (n2r 1)))
-			(push kernel (mdct-i0 (* pi (n2r alpha) (sqrt (- (n2r 1) (* t t)))))))
-		(range 0 (inc n)))
+	(defq out (cap n (reals)) sum (n2r 0) pi (. +mdct :find :pi)
+		kernel (map (lambda (j)
+				(defq t (- (/ (* (n2r 2) (n2r j)) (n2r n)) (n2r 1)))
+				(mdct-i0 (* pi (n2r alpha) (sqrt (- (n2r 1) (* t t))))))
+			(range 0 (inc n))))
 	(defq total (reduce (const +) kernel (n2r 0)))
 	(each (lambda (j)
 			(setq sum (+ sum (elem-get kernel j)))

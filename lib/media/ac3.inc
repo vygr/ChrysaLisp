@@ -206,7 +206,7 @@
 		expstre (if six (bits-1 in) 1) ahte (if six (bits-1 in) 0)
 		snroffststr (bits-get in 2) transproce (bits-1 in) blkswe (bits-1 in) dithflage (bits-1 in)
 		bamode (bits-1 in) frmfgaincode (bits-1 in) dbaflde (bits-1 in) skipflde (bits-1 in)
-		spxattene (bits-1 in) cplstre (list) cplinu (list))
+		spxattene (bits-1 in) cplstre (cap blocks (list)) cplinu (cap blocks (list)))
 	;coupling, its strategy each block, and if it is in use
 	(each (lambda (b)
 			(cond
@@ -268,7 +268,7 @@
 	; (ac3-psd exps start end) -> (psd band_psd)
 	;the power of each bin from its exponent, and of each band, the bins of
 	;a band added as logs are, by the table
-	(defq psd (map (# (- 3072 (<< %0 7))) exps) band_psd (map (lambda (_) 0) (range 0 50))
+	(defq psd (map (# (- 3072 (<< %0 7))) exps) band_psd (fill (list) 50 0)
 		band_start (. +ac3 :find :band_start) log_add (. +ac3 :find :log_add) bin start)
 	(while (< bin (min end 28))
 		(elem-set band_psd bin (elem-get psd bin))
@@ -296,7 +296,7 @@
 	;the masking curve of each band: the excitation by fast and slow leaks
 	;and low frequency compensation, the hearing threshold, and the deltas
 	(defq bin_band (. +ac3 :find :bin_band) band_start_ (elem-get bin_band start)
-		band_end (inc (elem-get bin_band (dec end))) excite (map (lambda (_) 0) (range 0 50))
+		band_end (inc (elem-get bin_band (dec end))) excite (fill (list) 50 0)
 		slow_gain (. d :find :slow_gain) fast_decay (. d :find :fast_decay) slow_decay (. d :find :slow_decay)
 		lowcomp 0 fastleak 0 slowleak 0 begin 0)
 	(cond
@@ -332,7 +332,7 @@
 			(elem-set excite band (max fastleak slowleak)))
 		(range begin band_end))
 	;the masking curve, the threshold of hearing at least
-	(defq mask (map (lambda (_) 0) (range 0 50)) threshold (. +ac3 :find :threshold)
+	(defq mask (fill (list) 50 0) threshold (. +ac3 :find :threshold)
 		db_per_bit (. d :find :db_per_bit) rate_code (. d :find :rate_code))
 	(each (lambda (band)
 			(defq tmp (- db_per_bit (elem-get band_psd band)))
@@ -405,7 +405,7 @@
 	; (ac3-groups reader strategy groups prev) -> (exp ...)
 	;exponents sent as differences of 5 values, 3 to 7 bits, each from the
 	;one before, each so many bins wide by its strategy
-	(defq out (list) size (elem-get '(0 1 2 4) strategy))
+	(defq size (elem-get '(0 1 2 4) strategy) out (cap (* groups 3 size) (list)))
 	(times groups
 		(defq v (bits-get in 7))
 		(each (lambda (d)
@@ -563,7 +563,7 @@
 	;to where they are copied to, each band blended with noise to the
 	;energy it is said to have, and a notch where a copy begins
 	(defq dst (. d :find :spx_dst) src (. d :find :spx_src) sizes (. d :find :spx_sizes)
-		wraps (list) copies (list) bin dst)
+		wraps (cap (length sizes) (list)) copies (list) bin dst)
 	(each (lambda (size)
 			(push wraps (if (= (!) 0) 1 0))
 			(when (> (+ bin size) src)
@@ -587,12 +587,11 @@
 						(setq at (+ at n)))
 					copies)
 				;the power of each band as copied
-				(defq rms (list) at src)
-				(each (lambda (size)
+				(defq at src rms (map (lambda (size)
 						(defq band (slice coeffs at (+ at size)))
-						(push rms (sqrt (/ (nums-sum (nums-mul band band)) (n2r size))))
-						(setq at (+ at size)))
-					sizes)
+						(setq at (+ at size))
+						(sqrt (/ (nums-sum (nums-mul band band)) (n2r size))))
+					sizes))
 				;the notch, two bins either side of where a copy begins
 				(when (>= (defq code (elem-get (. h :find :spxatten) (dec c))) 0)
 					(defq at (- src 2)
@@ -619,7 +618,7 @@
 	;channels by their coordinates; a reals of 256 a channel, 1 to fbw and
 	;the LFE, by 2^-exponent
 	(defq fbw (. d :find :fbw) lfe (. d :find :lfe) mode (. d :find :mode) eac3 (. h :find :eac3)
-		lfe_ch (inc fbw) channels (+ fbw lfe) stages (map (lambda (_) 0) (range 0 (+ fbw 2)))
+		lfe_ch (inc fbw) channels (+ fbw lfe) stages (fill (list) (+ fbw 2) 0)
 		start (. d :find :start) end (. d :find :end) in_cpl (. d :find :in_cpl) aht (. h :find :aht))
 	;block switching, and dither
 	(each (# (elem-set (. d :find :blksw) %0 (if (= (. h :find :blkswe) 1) (bits-1 in) 0))) (range 1 (inc fbw)))
@@ -660,7 +659,8 @@
 					((or (= 1 (elem-get first c)) (= 1 (bits-1 in)))
 						(elem-set first c 0)
 						(defq blend (/ (n2r (bits-get in 5)) (n2r 32)) master (* 3 (bits-get in 2))
-							bin (. d :find :spx_src) top (n2r (. d :find :spx_end)) noise (list) signal (list))
+							bin (. d :find :spx_src) top (n2r (. d :find :spx_end))
+							noise (cap (length (. d :find :spx_sizes)) (list)) signal (cap (length (. d :find :spx_sizes)) (list)))
 						(each (lambda (size)
 								;the higher the band, the more of it is noise
 								(defq ratio (max (n2r 0) (min (n2r 1) (- (/ (n2r (+ bin (>> size 1))) top) blend)))
@@ -835,9 +835,9 @@
 	(and (= (. h :find :skipflde) 1) (= (bits-1 in) 1) (bits-skip in (* 8 (bits-get in 9))))
 	;the mantissas, the coupling channel's after the first coupled one's
 	;those of a channel of AHT all in the first block
-	(defq groups (list (list) (list) (list)) out (list) cpl :nil
+	(defq groups (list (list) (list) (list)) cpl :nil
 		mants (lambda (c) (if (= 0 (elem-get aht c)) (ac3-mantissas d in c groups) (ac3-aht-coeffs d in c blk))))
-	(each (lambda (c)
+	(defq out (map (lambda (c)
 			(defq coeffs (mants c))
 			(when (= 1 (elem-get in_cpl c))
 				(unless cpl (setq cpl (mants 0)))
@@ -851,8 +851,8 @@
 									(= 0 (elem-get (. d :find :dither) c))) (n2r 0) (elem-get cpl bin)) k))
 							(setq bin (inc bin))))
 					(. d :find :cpl_sizes)))
-			(push out coeffs))
-		(range 1 (inc channels)))
+			coeffs)
+		(range 1 (inc channels))))
 	;rematrixing of a pair, the sum and difference
 	(when (and (= mode 2) (. d :find :rematrix))
 		(defq lo (min (elem-get end 1) (elem-get end 2)) bands (. +ac3 :find :rematrix))
@@ -899,7 +899,7 @@
 			:dct4 (ffi "lib/media/media_dct4") :delay (map (lambda (_) :nil) (range 0 8))))
 	(defq rise (slice (. d :find :window) 0 128) fall (slice (. d :find :window) 256 128)
 		dct4 (. d :find :dct4) blksw (. d :find :blksw) fbw (. d :find :fbw)
-		channels (+ fbw (. d :find :lfe)) out (map (lambda (_) (list)) (range 0 channels))
+		channels (+ fbw (. d :find :lfe)) out (map (lambda (_) (cap (. h :find :blocks) (list))) (range 0 channels))
 		half (lambda (lines n tables)
 			;the middle half of the IMDCT, n of its 2n samples, what the
 			;window and the block before make a block of
@@ -914,7 +914,7 @@
 							;a short block, two transforms of 128 lines, the even
 							;coefficients and the odd: the first is this block's,
 							;the second what is carried to the next
-							(defq evens (reals) odds (reals))
+							(defq evens (cap 128 (reals)) odds (cap 128 (reals)))
 							(each (# (if (even? (!)) (push evens %0) (push odds %0))) coeffs)
 							;each of 128 lines, by 1/128, half the scale of the long one
 							(setq now (nums-scale (half evens 128 (. d :find :short_tables)) (n2r 0.5))

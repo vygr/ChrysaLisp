@@ -34,7 +34,7 @@
 						(. subs :insert at (push (ifn (. subs :find at) (list)) (list sym n v))))))
 			level_codes)
 		(. subs :each (lambda (at list) (push todo (list (+ base at) list (+ used 8))))))
-	(defq out (nums))
+	(defq out (cap (length table) (nums)))
 	(each (# (push out %0)) table)
 	out)
 

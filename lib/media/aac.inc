@@ -169,7 +169,7 @@
 	(defq short (= (. info :find :sequence) +aac_eight_short)
 		bits (if short 3 5) escape (dec (<< 1 bits)) max_sfb (. info :find :max_sfb))
 	(map (lambda (_)
-			(defq books (list))
+			(defq books (cap max_sfb (list)))
 			(while (< (length books) max_sfb)
 				(defq book (bits-get in 4) run 0 more escape)
 				(while (= more escape)
@@ -263,8 +263,7 @@
 	;after the other, 128 each. A group's lines are sent band by band, each
 	;band of each of its windows in turn
 	(defq bands (. info :find :bands) window 0 max_sfb (. info :find :max_sfb)
-		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (cap 1024 (list)))
-	(times 1024 (push out 0))
+		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (list) 1024 0))
 	(each (lambda (count books)
 			(each (lambda (sfb)
 					(defq book (elem-get books sfb) from (elem-get bands sfb) to (elem-get bands (inc sfb))
@@ -373,7 +372,7 @@
 	; (aac-tables) -> tables
 	;made the once, as the first decoder is
 	(unless (. +aac :find :made)
-		(defq gain (reals) step (sqrt (sqrt (n2r 2))) g (n2r 1) pow (reals (n2r 0)))
+		(defq gain (cap 512 (reals)) step (sqrt (sqrt (n2r 2))) g (n2r 1) pow (cap 8192 (reals (n2r 0))))
 		;2^(0.25 (i - 100)), i from 0 to 255, and 2^(0.25 i) from -100
 		(times 100 (setq g (/ g step)))
 		(times 512 (push gain g) (setq g (* g step)))
@@ -396,7 +395,7 @@
 	;the pulses added to them first; noise and intensity bands left 0
 	(defq info (. ch :find :info) q (. ch :find :spectrum) bands (. info :find :bands)
 		short (= (. info :find :sequence) +aac_eight_short) size (if short 128 1024)
-		pow (. tables :find :pow) gain (. tables :find :gain) out (reals) window 0)
+		pow (. tables :find :pow) gain (. tables :find :gain) out (fill (reals) 1024 (n2r 0)) window 0)
 	(when (defq pulses (. ch :find :pulses))
 		(setq q (cat q))
 		(defq k (elem-get bands (first pulses)))
@@ -404,7 +403,6 @@
 				(setq k (+ k offset))
 				(elem-set q k (if (> (elem-get q k) 0) (+ (elem-get q k) amp) (- (elem-get q k) amp))))
 			(list pulses) 1 -1))
-	(times 1024 (push out (n2r 0)))
 	(each (lambda (count books scales)
 			(each (lambda (sfb)
 					(defq book (elem-get books sfb))
@@ -433,7 +431,7 @@
 						(defq w window)
 						(times count
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
-								energy (n2r 0) values (list))
+								energy (n2r 0) values (cap (- to from) (list)))
 							(times (- to from)
 								(defq seed (logand (+ (* (. decoder :find :seed) 1664525) 1013904223) 0xffffffff))
 								(. decoder :insert :seed seed)
@@ -527,8 +525,7 @@
 	;what a channel carries from one block to the next: the half of its
 	;window that overlaps the next, and the shape of its window. The native
 	;of the DCT-IV is taken now, not as this is read
-	(defq tables (aac-tables) zeros (reals))
-	(times 1024 (push zeros (n2r 0)))
+	(defq tables (aac-tables) zeros (fill (reals) 1024 (n2r 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))

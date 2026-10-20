@@ -87,15 +87,14 @@
 	;the entries of a table box: after its version and flags, a count, and
 	;the entries, each so many 4 byte numbers, head more bytes before them
 	(when box
-		(defq at (+ (second box) 4 head) count (mp4-n s at 4) out (list))
-		(setq at (+ at 4))
-		(times count
-			(push out (map (# (mp4-n s (+ at (* %0 4)) 4)) (range 0 width)))
-			(setq at (+ at (* width 4)))
-			;the tables of a long film have hundreds of thousands of entries,
-			;the other tasks of its node, the GUI's, are let run as it goes
-			(task-slice))
-		out))
+		(defq at (+ (second box) 8 head))
+		(map (lambda (i)
+				;the tables of a long film have hundreds of thousands of entries,
+				;the other tasks of its node, the GUI's, are let run as it goes
+				(task-slice)
+				(defq e (+ at (* i width 4)))
+				(map (# (mp4-n s (+ e (* %0 4)) 4)) (range 0 width)))
+			(range 0 (mp4-n s (- at 4) 4)))))
 
 (defun mp4-config (s at end)
 	; (mp4-config str at end) -> ((name str) ...)
@@ -145,7 +144,7 @@
 			((defq co (mp4-in s stbl '("co64")))
 				(map (# (mp4-n s (+ (second co) 8 (* %0 8)) 8)) (range 0 (mp4-n s (+ (second co) 4) 4))))
 			((list)))
-		runs (mp4-table s (mp4-in s stbl '("stsc")) 0 3) offsets (list) at 0 run 0 per 0)
+		runs (mp4-table s (mp4-in s stbl '("stsc")) 0 3) offsets (cap (length sizes) (list)) at 0 run 0 per 0)
 	(each (lambda (chunk_at)
 			;the run this chunk is in, the last that starts at or before it:
 			;the runs are in order of the chunk they start at, and are stepped
@@ -160,7 +159,7 @@
 					(setq chunk_at (+ chunk_at (elem-get sizes (dec (length offsets))))))))
 		chunks)
 	;when each is, and which are keys, all of them if it does not say
-	(defq when_at (list) clock 0)
+	(defq when_at (cap (length sizes) (list)) clock 0)
 	(each (lambda ((count delta)) (times count (push when_at clock) (setq clock (+ clock delta))))
 		(ifn (mp4-table s (mp4-in s stbl '("stts")) 0 2) (list)))
 	(defq keys (if (defq stss (mp4-in s stbl '("stss")))
