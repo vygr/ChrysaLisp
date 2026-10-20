@@ -310,6 +310,40 @@
 
 (def-func-end)
 
+(defun huff-walk (data off at table e byte x level)
+	;a code of a Huffman book's table, lib/media/huff.inc, at bit at of the
+	;bytes at data and off: what it stands for into e, and at past it
+	(vp-cpy-rr table level)
+	(loop-start)
+		;the next 8 bits: the 2 bytes at at, by where at is in the first
+		(vp-cpy-rr at byte)
+		(vp-shr-cr 3 byte)
+		(vp-add-rr data byte)
+		(vp-cpy-ir-ub byte off x)
+		(vp-cpy-ir-ub byte (+ off 1) e)
+		(vp-shl-cr 8 x)
+		(vp-add-rr e x)
+		(vp-cpy-rr at e)
+		(vp-and-cr 7 e)
+		(vp-shl-rr e x)
+		(vp-shr-cr 8 x)
+		(vp-and-cr 255 x)
+		;its entry
+		(vp-shl-cr 3 x)
+		(vp-cpy-dr level x e)
+		(breakif `(,e >= 0))
+		;the next level, its entries from the start of the table
+		(vp-add-cr 8 at)
+		(vp-mul-cr -8 e)
+		(vp-cpy-rr table level)
+		(vp-add-rr e level)
+	(loop-end)
+	;what it stands for, and at past it
+	(vp-cpy-rr e x)
+	(vp-and-cr 255 x)
+	(vp-add-rr x at)
+	(vp-shr-cr 8 e))
+
 (def-func (path-to-absolute "./media_huff"))
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -339,36 +373,7 @@
 	(list-bind-args :r1 `(,data ,at ,table) '(:obj :num :obj))
 	(vp-lea-i data +str_data data)
 	(assign `((,table +array_begin)) `(,table))
-	(vp-cpy-rr table level)
-	(loop-start)
-		;the next 8 bits: the 2 bytes at at, by where at is in the first
-		(vp-cpy-rr at byte)
-		(vp-shr-cr 3 byte)
-		(vp-add-rr data byte)
-		(vp-cpy-ir-ub byte 0 x)
-		(vp-cpy-ir-ub byte 1 e)
-		(vp-shl-cr 8 x)
-		(vp-add-rr e x)
-		(vp-cpy-rr at e)
-		(vp-and-cr 7 e)
-		(vp-shl-rr e x)
-		(vp-shr-cr 8 x)
-		(vp-and-cr 255 x)
-		;its entry
-		(vp-shl-cr 3 x)
-		(vp-cpy-dr level x e)
-		(breakif `(,e >= 0))
-		;the next level, its entries from the start of the table
-		(vp-add-cr 8 at)
-		(vp-mul-cr -8 e)
-		(vp-cpy-rr table level)
-		(vp-add-rr e level)
-	(loop-end)
-	;what it stands for, and at past it
-	(vp-cpy-rr e x)
-	(vp-and-cr 255 x)
-	(vp-add-rr x at)
-	(vp-shr-cr 8 e)
+	(huff-walk data 0 at table e byte x level)
 	(vp-shl-cr 32 e)
 	(vp-add-rr at e)
 	(call :num :create `(,e) '(:r1))
@@ -1477,5 +1482,415 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-lpc out start count step lpc)" +error_msg_wrong_types))
 	(signature '(:reals :num :num :num :reals)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_matvec"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :f0-:f2
+	;info
+	;(media-matvec matrix rows cols x from out) -> out, the matrix, reals of
+	;rows of cols one after another, by cols reals of x from from: each
+	;row's sum of its products into out, as many as rows
+
+	(vp-rdef (m rows cols x from out r c p q)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,m ,rows ,cols ,x ,from ,out) '(:obj :num :num :obj :num :obj))
+	(vp-push out)
+	(assign `((,m +array_begin) (,x +array_begin) (,out +array_begin)) `(,m ,x ,out))
+	(vp-shl-cr 3 from)
+	(vp-add-rr from x)
+	(vpif `(,rows > 0) `(,cols > 0))
+		(vp-xor-rr r r)
+		(loop-start)
+			(vp-cpy-rr x q)
+			(vp-cpy-rr cols c)
+			(vp-xor-rr p p)
+			(vp-cvt-rf p :f0)
+			(loop-start)
+				(vp-cpy-if m 0 :f1)
+				(vp-cpy-if q 0 :f2)
+				(vp-mul-ff :f2 :f1)
+				(vp-add-ff :f1 :f0)
+				(vp-add-cr +long_size m)
+				(vp-add-cr +long_size q)
+				(vp-sub-cr 1 c)
+			(loop-until `(,c = 0))
+			(vp-cpy-fi :f0 out 0)
+			(vp-add-cr +long_size out)
+			(vp-add-cr 1 r)
+		(loop-until `(,r = ,rows))
+	(endif)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-matvec matrix rows cols x from out)" +error_msg_wrong_types))
+	(signature '(:reals :num :num :reals :num :reals)))
+
+(def-func-end)
+
+(defun mp3-sign (v n x y data at)
+	;v of the other sign if the next bit is 1, if v is not 0
+	(vpif `(,v /= 0))
+		(media-read data at 1 n x y)
+		(vpif `(,n /= 0))
+			(vp-xor-rr x x)
+			(vp-sub-rr v x)
+			(vp-cpy-rr x v)
+		(endif)
+	(endif))
+
+(def-func (path-to-absolute "./media_mp3_lines"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(media-mp3-lines reader lines end regions quad) -> lines, the 576 lines
+	;of a granule's channel of MP3 into the nums lines, quantised and signed,
+	;read from a reader of lib/media/bits.inc to the bit end: the big values
+	;by regions, a list of the pairs, the book's table, its nums of x by 16
+	;and y, and the more bits of each of 3, a table of no length the pairs
+	;0; each value of 15 more by its bits, then each not 0 its sign. Then
+	;quads of 1 and 0 by the table quad till the end, one that goes past it
+	;not had. The reader left at the end. The tables of lib/media/huff.inc
+
+	(vp-rdef (data at lp idx end table xy lin n level e x byte y w)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r0 :r1))
+	(defq s_atp 0 s_reg 8 s_cnt 16 s_quad 24 s_size 32)
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,data ,lp ,end ,table ,level) '(:obj :obj :num :obj :obj))
+	(vp-push lp)
+	(vp-alloc s_size)
+	(assign `((,table +array_begin) (,level +array_begin)) `(,table ,level))
+	(vp-cpy-cr 3 x)
+	(assign `(,table ,x ,level) `((:rsp ,s_reg) (:rsp ,s_cnt) (:rsp ,s_quad)))
+	;the reader's str and the nums of its place
+	(assign `((,data +array_begin)) `(,x))
+	(assign `((,x 0) (,x +ptr_size)) `(,data ,x))
+	(assign `((,x +array_begin)) `(,x))
+	(assign `(,x) `((:rsp ,s_atp)))
+	(assign `((,x 0)) `(,at))
+	(assign `((,lp +array_begin)) `(,lp))
+	(vp-xor-rr idx idx)
+	;the big values, region by region
+	(loop-start)
+		(assign `((:rsp ,s_reg)) `(,x))
+		(assign `((,x 0) (,x 8) (,x 16) (,x 24)) `(,n ,table ,xy ,lin))
+		(assign `((,n +num_value) (,lin +num_value)) `(,n ,lin))
+		(vp-add-cr 32 x)
+		(assign `(,x) `((:rsp ,s_reg)))
+		(assign `((,table +array_length ui)) `(,e))
+		(vpif `(,e = 0))
+			(vp-add-rr n idx)
+			(vp-add-rr n idx)
+		(elseif `(,n > 0) `(,at < ,end))
+			(assign `((,table +array_begin) (,xy +array_begin)) `(,table ,xy))
+			(loop-start)
+				(huff-walk data +str_data at table e byte x level)
+				;x high and y low
+				(vp-shl-cr 3 e)
+				(vp-cpy-dr xy e byte)
+				(vp-cpy-rr byte level)
+				(vp-and-cr 15 level)
+				(vp-shr-cr 4 byte)
+				(each (lambda (v)
+						(vpif `(,v = 15) `(,lin > 0))
+							(media-read data at lin w x y)
+							(vp-add-rr w v)
+						(endif)
+						(mp3-sign v w x y data at))
+					(list byte level))
+				(vp-cpy-rr idx x)
+				(vp-shl-cr 3 x)
+				(vp-add-rr lp x)
+				(assign `(,byte ,level) `((,x 0) (,x 8)))
+				(vp-add-cr 2 idx)
+				(vp-sub-cr 1 n)
+				(breakif `(,at >= ,end))
+			(loop-until `(,n = 0))
+		(endif)
+		(assign `((:rsp ,s_cnt)) `(,x))
+		(vp-sub-cr 1 x)
+		(assign `(,x) `((:rsp ,s_cnt)))
+	(loop-until `(,x = 0))
+	;the quads of the count1 lines
+	(vpif `(,idx <= 572) `(,at < ,end))
+	(loop-start 'quads)
+		(assign `((:rsp ,s_quad)) `(,table))
+		(huff-walk data +str_data at table e byte x level)
+		(each (lambda (bit k)
+				(vp-cpy-rr e byte)
+				(vp-and-cr bit byte)
+				(vpif `(,byte /= 0))
+					(vp-cpy-cr 1 byte)
+					(mp3-sign byte w x y data at)
+				(endif)
+				(vp-cpy-rr idx x)
+				(vp-shl-cr 3 x)
+				(vp-add-rr lp x)
+				(assign `(,byte) `((,x ,(* k 8)))))
+			'(8 4 2 1) '(0 1 2 3))
+		;past the end, not had
+		(vpif `(,at > ,end))
+			(vp-xor-rr byte byte)
+			(assign `(,byte ,byte ,byte ,byte) `((,x 0) (,x 8) (,x 16) (,x 24)))
+			(break 'quads)
+		(endif)
+		(vp-add-cr 4 idx)
+		(breakif `(,idx > 572))
+	(loop-until `(,at >= ,end))
+	(endif)
+	;the reader at the end of the part
+	(assign `((:rsp ,s_atp)) `(,x))
+	(assign `(,end) `((,x 0)))
+	(vp-free s_size)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-mp3-lines reader lines end regions quad)" +error_msg_wrong_types))
+	(signature '(:list :nums :num :list :nums)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_dequant"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r9, :f0-:f1
+	;info
+	;(media-dequant out q from to pow gain) -> out, the lines from to of the
+	;nums q, quantised and signed, each not 0 into out as the reals pow at
+	;its size, at most the last of pow, by gain, of its sign, as AAC and
+	;MP3 requantise, pow |v|^4/3. The rest of out left as it is
+
+	(vp-rdef (out q i end pow n v x)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,q ,i ,end ,pow ,x) '(:obj :obj :num :num :obj :obj))
+	(vp-push out)
+	(vp-cpy-if x +num_value :f1)
+	(assign `((,pow +array_length ui) (,out +array_begin) (,q +array_begin) (,pow +array_begin)) `(,n ,out ,q ,pow))
+	(vp-sub-cr 1 n)
+	(vpif `(,i < ,end))
+	(loop-start)
+		(vp-cpy-rr i x)
+		(vp-shl-cr 3 x)
+		(vp-cpy-dr q x v)
+		(vpif `(,v /= 0))
+			(vpif `(,v > 0))
+				(vpif `(,v > ,n))
+					(vp-cpy-rr n v)
+				(endif)
+				(vp-shl-cr 3 v)
+				(vp-cpy-df pow v :f0)
+				(vp-mul-ff :f1 :f0)
+			(else)
+				(vp-xor-rr x x)
+				(vp-sub-rr v x)
+				(vpif `(,x > ,n))
+					(vp-cpy-rr n x)
+				(endif)
+				(vp-shl-cr 3 x)
+				(vp-cpy-df pow x :f0)
+				(vp-mul-ff :f1 :f0)
+				(vp-neg-ff :f0 :f0)
+			(endif)
+			(vp-cpy-rr i v)
+			(vp-shl-cr 3 v)
+			(vp-cpy-fd :f0 out v)
+		(endif)
+		(vp-add-cr 1 i)
+	(loop-until `(,i = ,end))
+	(endif)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-dequant out q from to pow gain)" +error_msg_wrong_types))
+	(signature '(:reals :nums :num :num :reals :real)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_mp3_window"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r9, :f0-:f3
+	;info
+	;(media-mp3-window v d out at scale) -> out, of MP3's filterbank, the 32
+	;samples of a time into out from at: each j the sum over i of 8 of d
+	;64i + j by v 128i + j and d 64i + 32 + j by v 128i + 96 + j, by scale
+
+	(vp-rdef (v d out j i p q x)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,v ,d ,out ,j ,x) '(:obj :obj :obj :num :obj))
+	(vp-push out)
+	(vp-cpy-if x +num_value :f3)
+	(assign `((,v +array_begin) (,d +array_begin) (,out +array_begin)) `(,v ,d ,out))
+	(vp-shl-cr 3 j)
+	(vp-add-rr j out)
+	(vp-xor-rr j j)
+	(loop-start)
+		(vp-xor-rr x x)
+		(vp-cvt-rf x :f0)
+		(vp-lea-d d j p)
+		(vp-lea-d v j q)
+		(vp-cpy-cr 8 i)
+		(loop-start)
+			(vp-cpy-if p 0 :f1)
+			(vp-cpy-if q 0 :f2)
+			(vp-mul-ff :f2 :f1)
+			(vp-add-ff :f1 :f0)
+			(vp-cpy-if p (* 32 +long_size) :f1)
+			(vp-cpy-if q (* 96 +long_size) :f2)
+			(vp-mul-ff :f2 :f1)
+			(vp-add-ff :f1 :f0)
+			(vp-add-cr (* 64 +long_size) p)
+			(vp-add-cr (* 128 +long_size) q)
+			(vp-sub-cr 1 i)
+		(loop-until `(,i = 0))
+		(vp-mul-ff :f3 :f0)
+		(vp-cpy-fi :f0 out 0)
+		(vp-add-cr +long_size out)
+		(vp-add-cr +long_size j)
+	(loop-until `(,j = ,(* 32 +long_size)))
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-mp3-window v d out at scale)" +error_msg_wrong_types))
+	(signature '(:reals :reals :reals :num :real)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_mp3_alias"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r9, :f0-:f5
+	;info
+	;(media-mp3-alias x bands cs ca) -> x, of MP3, the 8 butterflies at
+	;each boundary of the 576 reals x's subbands 1 to bands, by the reals
+	;cs and ca: below by cs less above by ca, above by cs and below by ca
+
+	(vp-rdef (x sb cs ca i lo hi c a)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r1))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,x ,sb ,cs ,ca) '(:obj :num :obj :obj))
+	(vp-push x)
+	(assign `((,x +array_begin) (,cs +array_begin) (,ca +array_begin)) `(,x ,cs ,ca))
+	(vpif `(,sb > 0))
+	(loop-start)
+		;the boundary of subband sb, below and above it
+		(vp-cpy-rr sb lo)
+		(vp-mul-cr (* 18 +long_size) lo)
+		(vp-add-rr x lo)
+		(vp-cpy-rr lo hi)
+		(vp-sub-cr +long_size lo)
+		(vp-cpy-rr cs c)
+		(vp-cpy-rr ca a)
+		(vp-cpy-cr 8 i)
+		(loop-start)
+			(vp-cpy-if lo 0 :f0)
+			(vp-cpy-if hi 0 :f1)
+			(vp-cpy-if c 0 :f2)
+			(vp-cpy-if a 0 :f3)
+			(vp-cpy-ff :f0 :f4)
+			(vp-mul-ff :f2 :f4)
+			(vp-cpy-ff :f1 :f5)
+			(vp-mul-ff :f3 :f5)
+			(vp-sub-ff :f5 :f4)
+			(vp-cpy-fi :f4 lo 0)
+			(vp-mul-ff :f2 :f1)
+			(vp-mul-ff :f3 :f0)
+			(vp-add-ff :f0 :f1)
+			(vp-cpy-fi :f1 hi 0)
+			(vp-sub-cr +long_size lo)
+			(vp-add-cr +long_size hi)
+			(vp-add-cr +long_size c)
+			(vp-add-cr +long_size a)
+			(vp-sub-cr 1 i)
+		(loop-until `(,i = 0))
+		(vp-sub-cr 1 sb)
+	(loop-until `(,sb = 0))
+	(endif)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-mp3-alias x bands cs ca)" +error_msg_wrong_types))
+	(signature '(:reals :num :reals :reals)))
 
 (def-func-end)

@@ -26,6 +26,8 @@
 
 (ffi (path-to-absolute "./media_lpc") lpc-filter)
 ; (lpc-filter out start count step lpc) -> out
+(ffi (path-to-absolute "./media_dequant") aac-native-dequant)
+; (aac-native-dequant out q from to pow gain) -> out
 
 ;what the functions read as they run: a module's names are gone by then,
 ;and a + constant is put in the code as it is read, this one map
@@ -267,7 +269,7 @@
 	;after the other, 128 each. A group's lines are sent band by band, each
 	;band of each of its windows in turn
 	(defq bands (. info :find :bands) window 0 max_sfb (. info :find :max_sfb)
-		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (list) 1024 0))
+		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (nums) 1024 0))
 	(each (lambda (count books)
 			(each (lambda (sfb)
 					(defq book (elem-get books sfb) from (elem-get bands sfb) to (elem-get bands (inc sfb))
@@ -283,7 +285,7 @@
 				(range 0 max_sfb))
 			(setq window (+ window count)))
 		(. info :find :lengths) sections)
-	(apply (const nums) out))
+	out)
 
 (defun aac-channel (in info rate_index &optional common)
 	; (aac-channel reader info rate_index [common]) -> channel
@@ -412,12 +414,9 @@
 					(defq book (elem-get books sfb))
 					(when (<= 1 book 11)
 						(defq g (elem-get gain (elem-get scales sfb)) w window)
+						;each window of the group, native, lib/media/lisp.vp media_dequant
 						(times count
-							(each (lambda (k)
-									(defq v (elem-get q k))
-									(if (/= v 0) (elem-set out k
-										(if (> v 0) (* (elem-get pow (min v 8191)) g) (neg (* (elem-get pow (min (neg v) 8191)) g))))))
-								(range (+ (* w size) (elem-get bands sfb)) (+ (* w size) (elem-get bands (inc sfb)))))
+							(aac-native-dequant out q (+ (* w size) (elem-get bands sfb)) (+ (* w size) (elem-get bands (inc sfb))) pow g)
 							(setq w (inc w)))))
 				(range 0 (. info :find :max_sfb)))
 			(setq window (+ window count)))
