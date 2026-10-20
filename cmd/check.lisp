@@ -170,6 +170,13 @@
             release build its class is not made at all. And
             in any file, a (structure +x) where root.inc's
             imports have a +x already.
+    vpname  a + name given by a (defq) in a .vp file that a
+            (defq) of another .vp file gives as well. The
+            assembler reads the files of its jobs into the one
+            environment, and a + name is put in as it is read:
+            where the two are read by the one task, the second
+            file's (defq) of it is of the first's value, a number
+            where a name is to be. A prefix of the file's own.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes
@@ -183,7 +190,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "param" "empty" "past" "shift" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "empty" "past" "shift" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -981,7 +988,50 @@
 
 ;what each file gives as a name, (structure), (enums) and (defq) of a
 ;+name at its top, and what it imports, read the once by this task
-(defq *provides* (Fmap 31) *root_provides* :nil)
+(defq *provides* (Fmap 31) *root_provides* :nil *vp_plus* :nil)
+
+(defun plus-made (top)
+	; (plus-made top) -> ((name node) ...)
+	;the + names any (defq) in a tree gives, at any depth
+	(defq out (list) todo (list top))
+	(while (defq nodes (pop todo))
+		(each (lambda (node)
+				(when (defq kids (tree-form? node))
+					(push todo kids)
+					(defq forms (forms-of kids))
+					(and (nempty? forms) (eql (first (first forms)) :symbol) (eql (third (first forms)) "defq")
+						(each! (# (and (odd? (!)) (eql (first %0) :symbol) (starts-with "+" (third %0))
+								(push out (list (third %0) %0))))
+							(list forms) 1 -1))))
+			nodes))
+	out)
+
+(defun vp-plus-table ()
+	; (vp-plus-table) -> fmap
+	;of every .vp file of the tree, the + names its (defq)s give, each name
+	;to the files that give it, made the once
+	(unless *vp_plus*
+		(setq *vp_plus* (Fmap 101))
+		(each (lambda (path)
+				(defq file (if (starts-with "./" path) (slice path 2 -1) path))
+				(when (defq in (file-stream file))
+					(each (lambda ((name &ignore))
+							(defq had (. *vp_plus* :find name))
+							(cond
+								((not had) (. *vp_plus* :insert name (list file)))
+								((not (find file had)) (push had file))))
+						(plus-made (first (tree-read in))))))
+			(files-all "." '(".vp"))))
+	*vp_plus*)
+
+(defun check-vpname (file top)
+	;a + name this .vp file's (defq) gives that another .vp file's gives
+	(defq file (if (starts-with "./" file) (slice file 2 -1) file) table (vp-plus-table))
+	(each (lambda ((name node))
+			(when (nempty? (defq others (filter (# (nql %0 file)) (ifn (. table :find name) (list)))))
+				(found file node "vpname" name " is given by a (defq) in " (join others ", ")
+					" as well: read by the one assembler task the second is of the first's value, give it a prefix of this file's own")))
+		(plus-made top)))
 
 (defun provides-of (path)
 	; (provides-of path) -> (prefixes names imports)
@@ -1196,6 +1246,7 @@
 				(or (ends-with ".lisp" file) (some (# (tree-form? %0 "env-push")) (forms-of top)))
 				(check-unbound file top))
 			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
+			(and (find "vpname" checks) (ends-with ".vp" file) (check-vpname file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
 			(when (find "bracket" checks)

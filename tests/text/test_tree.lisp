@@ -167,6 +167,14 @@
 	'("(3) collect: (defq out (list)) then (each) to (push out x), it is (defq out (map ... as))")
 	(tt-check "collect" "(defun f (as)" "	(defq out (list))" "	(each (# (push out (g %0))) as)" "	(defq todo (list 1))"
 		"	(each (# (push todo %0)) as)" "	(defq o2 (list))" "	(each (# (push o2 %0 %0)) as))"))
+;a .vp file of its own, the names of the others' (defq)s are what it is checked against
+(defq tt_vp "tmp_check_test.vp" tt_said (list))
+(save (cat "(defq +ae_ctr 0 +tt_own 8)" tt_lf) tt_vp)
+(pipe-run (cat "check -c vpname " tt_vp) (# (push tt_said %0)))
+(pii-remove tt_vp)
+(assert-list-eq "vpname: a + name of a .vp file's (defq) another .vp file's (defq) gives too; not one of its own alone"
+	'("(1) vpname: +ae_ctr is given by a (defq) in lib/crypto/lisp.vp as well: read by the one assembler task the second is of the first's value, give it a prefix of this file's own")
+	(map (# (slice %0 (inc (length tt_vp)) -1)) (filter (const nempty?) (split (join tt_said "") tt_lf))))
 (assert-list-eq "early: a + constant that is a quoted list used in the (defq) that makes it, in a function there too; not in a later (defq), nor a number"
 	'("(1) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)"
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")
