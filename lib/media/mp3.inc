@@ -3,11 +3,12 @@
 ;
 ; A frame is a header of 4 bytes, side information, and main data that
 ; may begin in the frames before it, the bit reservoir. Its 2 granules
-; of MPEG-1, or 1 of MPEG-2, are 576 lines a channel: scale factors, the
-; lines by Huffman codes, requantised, the pair's middle and side made
-; left and right, short blocks reordered, aliases reduced, the IMDCT of
-; 36 or three of 12 a subband, overlapped, and the 32 subbands made
-; samples by the polyphase filterbank. (mp3-header str at) reads what a
+; of MPEG-1, or 1 of MPEG-2 and 2.5, are 576 lines a channel: scale
+; factors, the lines by Huffman codes, requantised, a pair's middle and
+; side made left and right and its intensity stereo shared, short blocks
+; reordered, aliases reduced, the IMDCT of 36 or three of 12 a subband,
+; overlapped, and the 32 subbands made samples by the polyphase
+; filterbank. (mp3-header str at) reads what a
 ; frame is, (mp3-decoder) holds what goes from frame to frame, and
 ; (mp3-frame decoder frame) gives its samples, a reals a channel, at the
 ; scale of 16 bits.
@@ -50,6 +51,10 @@
 	;the bits of the scale factors of MPEG-1, slen1 and slen2, by the
 	;scalefac_compress
 	:slen '((0 0) (0 1) (0 2) (0 3) (3 0) (1 1) (1 2) (1 3) (2 1) (2 2) (2 3) (3 1) (3 2) (3 3) (4 2) (4 3))
+	;of MPEG-2 and 2.5, the scale factors of each of the 4 parts, by the
+	;split of the scalefac_compress and the block, long, short or mixed
+	:nsf '(((6 5 5 5) (9 9 9 9) (6 9 9 9)) ((6 5 7 3) (9 9 12 6) (6 9 12 6)) ((11 10 0 0) (18 18 0 0) (15 18 0 0))
+		((7 7 7 0) (12 12 12 0) (6 15 12 0)) ((6 6 6 3) (12 9 9 6) (6 12 9 6)) ((8 8 5 0) (15 12 9 0) (6 18 9 0)))
 	;the book and the more bits of each table select, of the books of
 	;mp3_tables.inc from 1, 0 none
 	:select '((0 0) (1 0) (2 0) (3 0) (0 0) (4 0) (5 0) (6 0) (7 0) (8 0) (9 0) (10 0) (11 0) (12 0) (0 0) (13 0)
@@ -157,7 +162,7 @@
 	(defq e0 (min (first regions) big) e1 (min (second regions) big))
 	(scatter (Emap) :part part :big big :gain gain :sfc sfc :bt bt :mixed mixed :tables tables :sbg sbg
 		:pairs (list e0 (- e1 e0) (- big e1))
-		:preflag (if lsf (if (>= sfc 500) 1 0) (bits-1 in)) :sfscale (bits-1 in) :count1 (bits-1 in)))
+		:preflag (if lsf 0 (bits-1 in)) :sfscale (bits-1 in) :count1 (bits-1 in)))
 
 (defun mp3-side (in h)
 	; (mp3-side reader header) -> (main_data_begin scfsi granules)
@@ -181,6 +186,109 @@
 		(push (apply (const cat) (map (lambda (n bits k start)
 				(if (and (= gr 1) (/= 0 (logand scfsi (>> 8 k)))) (slice prev start (+ start n)) (sfs n bits)))
 			'(6 5 5 5) (list s1 s1 s2 s2) '(0 1 2 3) '(0 6 11 16))) 0)))
+
+(defun mp3-split (sf n1 n2 n3)
+	; (mp3-split sf n1 n2 n3) -> (slen ...)
+	;the 4 lengths of MPEG-2's scale factors in one number, the last by n3,
+	;then n2 and n1, each of 0 a length of 0
+	(defq out (list))
+	(each (lambda (n)
+			(cond
+				((= n 0) (push out 0))
+				(:t (push out (% sf n)) (setq sf (/ sf n)))))
+		(list n3 n2 n1))
+	(push out sf)
+	(reverse out))
+
+(defun mp3-scales-lsf (in g h ch)
+	; (mp3-scales-lsf reader granule header ch) -> (sf ...)
+	;the scale factors of MPEG-2 and 2.5: the 9 bits of the scalefac_compress
+	;split to the lengths of 4 parts, of the right of intensity stereo its
+	;own way, as many in each part as the table has, 40 in all; of 500 or
+	;more the pretab used
+	(defq sfc (. g :find :sfc) block (if (= (. g :find :bt) 2) (if (= 1 (. g :find :mixed)) 2 1) 0)
+		is (and (= ch 1) (/= 0 (logand (. h :find :ext) 1))) slen :nil part 0)
+	(cond
+		(is (setq sfc (>> sfc 1))
+			(cond
+				((< sfc 180) (setq slen (mp3-split sfc 6 6 0) part 3))
+				((< sfc 244) (setq slen (mp3-split (- sfc 180) 4 4 0) part 4))
+				(:t (setq slen (mp3-split (- sfc 244) 3 0 0) part 5))))
+		((< sfc 400) (setq slen (mp3-split sfc 5 4 4) part 0))
+		((< sfc 500) (setq slen (mp3-split (- sfc 400) 5 4 0) part 1))
+		(:t (setq slen (mp3-split (- sfc 500) 3 0 0) part 2) (. g :insert :preflag 1)))
+	(defq out (reduce! (lambda (out n bits) (reduce (lambda (out _) (push out (if (> bits 0) (bits-get in bits) 0))) (range 0 n) out))
+		(list (elem-get (elem-get (. +mp3 :find :nsf) part) block) slen) (cap 40 (list))))
+	(while (< (length out) 40) (push out 0))
+	out)
+
+(defun mp3-positions (lsf sfc)
+	; (mp3-positions lsf sfc) -> ((kl kr) ...)
+	;the shares of left and right of each position of intensity stereo: of
+	;MPEG-1 tan(pos pi/12) to 1, of MPEG-2 by 2^-1/4 or 2^-1/2 a step, the
+	;scalefac_compress's last bit, to the left at an odd position, the right
+	;at an even
+	(defq one (n2r 1))
+	(if lsf
+		(map (lambda (i)
+				(defq f (pow (n2r 2) (/ (n2r (neg (* (inc sfc) (>> (inc i) 1)))) (n2r 4))))
+				(if (odd? i) (list f one) (list one f)))
+			(range 0 16))
+		(map (lambda (i)
+				(cond
+					((= i 6) (list one (n2r 0)))
+					(:t (defq x (/ (* (n2r i) (mp3-pi)) (n2r 12)) t (/ (sin x) (cos x)))
+						(list (/ t (+ one t)) (/ one (+ one t))))))
+			(range 0 7))))
+
+(defun mp3-intensity (l r g sf h)
+	; (mp3-intensity left right granule sf header)
+	;of a pair of intensity stereo, from the top band down, each band the
+	;right has nothing in shares the left's by the right's scale factor, its
+	;position, those below it of middle and side if the frame says; a short
+	;block each window its own way, the last band by the scale factor of
+	;the band before
+	(defq lsf (. h :find :lsf) sri (. h :find :sri) ms (/= 0 (logand (. h :find :ext) 2))
+		bt (. g :find :bt) mixed (. g :find :mixed) at 576 k1 (sqrt (/ (n2r 1) (n2r 2)))
+		long_end (if (= bt 2) (if (= mixed 1) (if (<= sri 2) 8 6) 0) 22)
+		short_start (if (= bt 2) (if (= mixed 1) 3 0) 13)
+		sfmax (if lsf 16 7) tab (mp3-positions lsf (logand (. g :find :sfc) 1))
+		nonzero (lambda (from len) (some! (# (/= %0 (n2r 0))) (list r) :nil from (+ from len)))
+		ms-band (lambda (from len)
+			(if ms (each! (lambda (a b)
+					(elem-set l (!) (* (+ a b) k1))
+					(elem-set r (!) (* (- a b) k1)))
+				(list l r) from (+ from len))))
+		is-band (lambda (from len pos)
+			(bind '(kl kr) (elem-get tab pos))
+			(each! (lambda (a)
+					(elem-set l (!) (* a kl))
+					(elem-set r (!) (* a kr)))
+				(list l) from (+ from len)))
+		found (list :nil :nil :nil) k (+ (* 3 (- 13 short_start)) long_end -3) i 12
+		widths (elem-get (. +mp3 :find :short) sri))
+	(while (>= i short_start)
+		(if (/= i 11) (setq k (- k 3)))
+		(defq len (elem-get widths i))
+		(each (lambda (w)
+				(setq at (- at len))
+				(cond
+					((elem-get found w) (ms-band at len))
+					((nonzero at len) (elem-set found w :t) (ms-band at len))
+					((>= (defq pos (elem-get sf (+ k w))) sfmax) (ms-band at len))
+					((is-band at len pos))))
+			'(2 1 0))
+		(setq i (dec i)))
+	(defq any (some (const identity) found) widths (elem-get (. +mp3 :find :long) sri) i (dec long_end))
+	(while (>= i 0)
+		(defq len (elem-get widths i))
+		(setq at (- at len))
+		(cond
+			(any (ms-band at len))
+			((nonzero at len) (setq any :t) (ms-band at len))
+			((>= (defq pos (elem-get sf (if (= i 21) 20 i))) sfmax) (ms-band at len))
+			((is-band at len pos)))
+		(setq i (dec i))))
 
 (defun mp3-huff (in table)
 	; (mp3-huff reader table) -> index
@@ -281,8 +389,9 @@
 	; (mp3-imdct lines granule overlap) -> (reals ...)
 	;each subband's 18 samples: the IMDCT of 36 of its 18 lines, or of a
 	;short block three of 12 of its 6 a window, by the window of its block
-	;type, the first half on what the last left, the second half left for
-	;the next; of an odd subband the odd samples the other sign
+	;type, the two lowest of a mixed block of any type the plain window's;
+	;the first half on what the last left, the second half left for the
+	;next; of an odd subband the odd samples the other sign
 	(defq c36 (. +mp3 :find :c36) c12 (. +mp3 :find :c12) windows (. +mp3 :find :windows)
 		bt (. g :find :bt) mixed (. g :find :mixed) zero (n2r 0))
 	(map (lambda (sb)
@@ -299,7 +408,7 @@
 						z)
 					(:t (defq xs (slice x (* 18 sb) (+ (* 18 sb) 18)))
 						(nums-mul (reduce (# (push %0 (nums-sum (nums-mul %1 xs)))) c36 (cap 36 (reals)))
-							(elem-get windows (if (= bt 2) 0 bt)))))
+							(elem-get windows (if (or (= bt 2) (and (= mixed 1) (< sb 2))) 0 bt)))))
 				out (nums-add (slice z 0 18) (elem-get overlap sb)))
 			(elem-set overlap sb (slice z 18 36))
 			(if (odd? sb) (each (# (elem-set out %0 (neg (elem-get out %0)))) '(1 3 5 7 9 11 13 15 17)))
@@ -343,8 +452,6 @@
 	;right, each to samples; nothing heard of a frame whose main data
 	;begins before what the reservoir has
 	(defq h (mp3-header frame 0) nch (. h :find :channels) in (bits-of frame))
-	(if (. h :find :lsf) (throw "mp3: MPEG-2 and 2.5 scale factors are not here yet" (. h :find :rate)))
-	(and (= (. h :find :mode) 1) (/= 0 (logand (. h :find :ext) 1)) (throw "mp3: intensity stereo is not here yet" (. h :find :ext)))
 	(bits-skip in (if (. h :find :crc) 48 32))
 	(bind '(mdb scfsi grans) (mp3-side in h))
 	(defq res (. d :find :reservoir) main (slice frame (>> (bits-at in) 3) (min (length frame) (. h :find :size)))
@@ -356,14 +463,20 @@
 		(:t (defq md (bits-of (slice all (- (length res) mdb) -1)) sri (. h :find :sri))
 			(each (lambda (chans)
 					(defq gr (!) xs (map (lambda (g ch scfsi)
-								(defq start (bits-at md) sf (mp3-scales md g gr scfsi (elem-get (. d :find :scales) ch)))
+								(defq start (bits-at md) sf (if (. h :find :lsf) (mp3-scales-lsf md g h ch)
+										(mp3-scales md g gr scfsi (elem-get (. d :find :scales) ch))))
 								(elem-set (. d :find :scales) ch sf)
 								(mp3-requant g (mp3-lines d md g (+ start (. g :find :part))) sf sri))
 							chans (range 0 nch) scfsi))
-					;the middle and side of a pair, made left and right
-					(when (and (= nch 2) (= (. h :find :mode) 1) (/= 0 (logand (. h :find :ext) 2)))
-						(defq m (first xs) s (second xs) k (sqrt (/ (n2r 1) (n2r 2))))
-						(setq xs (list (nums-scale (nums-add m s) k) (nums-scale (nums-sub m s) k))))
+					;the middle and side of a pair made left and right, and intensity
+					;stereo, by the right's scale factors
+					(and (= nch 2) (= (. h :find :mode) 1)
+						(cond
+							((/= 0 (logand (. h :find :ext) 1))
+								(mp3-intensity (first xs) (second xs) (second chans) (elem-get (. d :find :scales) 1) h))
+							((/= 0 (logand (. h :find :ext) 2))
+								(defq m (first xs) s (second xs) k (sqrt (/ (n2r 1) (n2r 2))))
+								(setq xs (list (nums-scale (nums-add m s) k) (nums-scale (nums-sub m s) k))))))
 					(each (lambda (x g ch)
 							(mp3-reorder x g sri)
 							(mp3-alias x g)

@@ -7,9 +7,10 @@
 ;clicks_mp3.mp3 is 0.6 seconds of near the same on both sides, 440 and
 ;1320 and a little 2000 on the right, and every quarter second a click
 ;of 3000 for 2ms, joint stereo: its middle and side frames and its short
-;blocks. The samples come 2257 late, LAME's first frame of its tag, 1152
-;of nothing, and its delay of 1105
-(defq m3_late 2257 m3_two_pi (* (n2r 2) (n2r 3.14159265)))
+;blocks. tone22_mp3.mp3 is the tone of the first at 22050, MPEG-2, 48
+;kbit/s. The samples come 2257 late, LAME's first frame of its tag, 1152
+;of nothing, and its delay of 1105; of MPEG-2 1105 late, 576 and 529
+(defq m3_late 2257 m3_rate 44100 m3_two_pi (* (n2r 2) (n2r 3.14159265)))
 
 (defun m3-decode (file)
 	; (m3-decode file) -> (frames bad left right)
@@ -25,7 +26,7 @@
 	;the signal to the error, from lo to hi of the signal, want of a time
 	(defq sig (n2r 0) err (n2r 0))
 	(each (lambda (i)
-			(defq w (* (n2r 32767) (want (/ (n2r i) (n2r 44100)))) x (elem-get got (+ i m3_late)))
+			(defq w (* (n2r 32767) (want (/ (n2r i) (n2r m3_rate)))) x (elem-get got (+ i m3_late)))
 			(setq sig (+ sig (* w w)) err (+ err (* (- x w) (- x w)))))
 		(range lo hi))
 	(/ sig err))
@@ -52,3 +53,12 @@
 (assert-true "clicks: the right, of its own 2000 too, is as it was"
 	(> (m3-ratio right (# (+ (* (n2r 0.28) (sin (* m3_two_pi (n2r 440) %0))) (* (n2r 0.1) (sin (* m3_two_pi (n2r 1320) %0)))
 		(* (n2r 0.03) (sin (* m3_two_pi (n2r 2000) %0))))) 4000 10000) (n2r 100)))
+
+(setq m3_late 1105 m3_rate 22050)
+(bind '(frames bad left right) (m3-decode "tests/streams/data/tone22_mp3.mp3"))
+(assert-eq "MPEG-2: every frame decodes, its scale factors" 0 bad)
+(assert-eq "MPEG-2: 576 samples a frame a side" (* frames 576) (length left))
+(assert-true "MPEG-2: the left is the 440 it was"
+	(> (m3-ratio left (# (* (n2r 0.25) (sin (* m3_two_pi (n2r 440) %0)))) 2000 5000) (n2r 100)))
+(assert-true "MPEG-2: the right is the 660 it was"
+	(> (m3-ratio right (# (* (n2r 0.25) (sin (* m3_two_pi (n2r 660) %0)))) 2000 5000) (n2r 100)))
