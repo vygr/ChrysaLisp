@@ -294,24 +294,38 @@
 				(map (# (if (= (abs %0) 16) (* (if (< %0 0) -1 1) (aac-escape in)) %0)) values)
 				values))))
 
+(defun aac-book-values ((dims signed top base))
+	; (aac-book-values kind) -> (values kind)
+	;of a book, each code's values for the native reader, lib/media/lisp.vp
+	;media_aac_values: 6 bits each and 16 more than it is, the first highest,
+	;signed as the book has them; and what kind of book it is to that reader
+	(list (reduce (lambda (out index)
+				(push out (reduce (# (+ (<< %0 6) 16 (if signed (- %1 top) %1)))
+					(if (= dims 4)
+						(list (/ index (* base base base)) (% (/ index (* base base)) base) (% (/ index base) base) (% index base))
+						(list (/ index base) (% index base)))
+					0)))
+			(range 0 (if (= dims 4) (* base base base base) (* base base))) (nums))
+		(+ (if (= dims 4) 2 0) (if signed 4 0) (if (= base 17) 8 0))))
+
 (defun aac-spectrum (in info sections)
 	; (aac-spectrum reader info sections) -> nums
 	;the 1024 quantised lines, of a long window, or of 8 short ones one
 	;after the other, 128 each. A group's lines are sent band by band, each
 	;band of each of its windows in turn
+	;each band of each window by the native reader, lib/media/lisp.vp
+	;media_aac_values, as aac-values reads them one code at a time
 	(defq bands (. info :find :bands) window 0 max_sfb (. info :find :max_sfb)
-		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (nums) 1024 0))
+		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) out (fill (nums) 1024 0)
+		native (. +aac :find :values) tables (. +aac :find :spectral) books_values (. +aac :find :book_values))
 	(each (lambda (count books)
 			(each (lambda (sfb)
 					(defq book (elem-get books sfb) from (elem-get bands sfb) to (elem-get bands (inc sfb))
 						w window)
 					(times count
 						(when (<= 1 book 11)
-							(defq at (+ (* w size) from) end (+ (* w size) to)
-								dims (first (elem-get (. +aac :find :kinds) (dec book))))
-							(while (< at end)
-								(each (# (elem-set out (+ at (!)) %0)) (aac-values in book))
-								(setq at (+ at dims))))
+							(bind '(values kind) (elem-get books_values (dec book)))
+							(native in (elem-get tables (dec book)) values out (+ (* w size) from) (+ (* w size) to) kind))
 						(setq w (inc w))))
 				(range 0 max_sfb))
 			(setq window (+ window count)))
@@ -438,6 +452,7 @@
 		(each (# (defq v (n2r %0)) (push pow (* v (aac-root v 3)))) (range 1 8192))
 		;the native reader of codes, taken now, not as this is read
 		(. +aac :insert :huff (ffi "lib/media/media_huff"))
+		(. +aac :insert :values (ffi "lib/media/media_aac_values"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
 			:long (aac-windows 1024) :short (aac-windows 128)
 			:dct_long (mdct-tables 1024) :dct_short (mdct-tables 128))))
@@ -665,6 +680,7 @@
 ;what the functions read as they run
 (scatter +aac :rates *aac_rates* :sf (huff-table *aac_sf_book*) :spectral (map (const huff-table) *aac_books*)
 	:sf_lisp *aac_sf* :spectral_lisp *aac_spectral* :kinds *aac_book_kinds*
+	:book_values (map (const aac-book-values) *aac_book_kinds*)
 	:bands_long *aac_bands_long* :bands_short *aac_bands_short*
 	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil :pi (mdct-pi)
 	:centre (sqrt (/ (n2r 1) (n2r 2))))

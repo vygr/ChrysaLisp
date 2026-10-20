@@ -242,6 +242,16 @@ many bits it took
 a book to read codes of: each code, its length high, to what it stands for
 ```
 
+### aac-book-values
+
+```code
+(aac-book-values kind) -> (values kind)
+
+of a book, each code's values for the native reader, lib/media/lisp.vp
+media_aac_values: 6 bits each and 16 more than it is, the first highest,
+signed as the book has them; and what kind of book it is to that reader
+```
+
 ### aac-channel
 
 ```code
@@ -412,6 +422,8 @@ the book of each band of each group, in runs
 the 1024 quantised lines, of a long window, or of 8 short ones one
 after the other, 128 each. A group's lines are sent band by band, each
 band of each of its windows in turn
+each band of each window by the native reader, lib/media/lisp.vp
+media_aac_values, as aac-values reads them one code at a time
 ```
 
 ### aac-stereo
@@ -5425,7 +5437,7 @@ canvas of its own, by a decoder of its own; a scale is not taken
 
 what goes from frame to frame: the reservoir of main data, of each
 channel its scale factors, the halves of its IMDCT and its v, and the
-books made native tables
+books made native tables, made the once by (mp3-tables)
 ```
 
 ### mp3-frame

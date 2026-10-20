@@ -40,3 +40,30 @@
 (bench "AC-3 5.1 made stereo, a frame" (length bm_ac3_packets)
 	(defq d (ac3-decoder (ac3-header (bits-of (first bm_ac3_packets)))))
 	(each (# (ac3-stereo d (ac3-frame d %0))) bm_ac3_packets))
+
+(import "lib/media/reel.inc")
+(import "lib/media/mp3.inc")
+(import "lib/media/flac.inc")
+
+(defun bm-packets (file)
+	;the packets of a reel, each as the reel gives it
+	(defq reel (reel-open file))
+	(map (# (reel-packet reel %0)) (range 0 (. reel :find :frames))))
+
+(bind '(bm_he bm_he_packets) (bm-track "tests/streams/data/he_aac.m4a"))
+(bind '(bm_ps bm_ps_packets) (bm-track "tests/streams/data/he_ps.m4a"))
+(defq bm_mp3_packets (bm-packets "tests/streams/data/tone_mp3.mp3")
+	bm_flac_info (flac-info (file-stream "tests/streams/data/flac_lpc.flac"))
+	bm_flac_packets (bm-packets "tests/streams/data/flac_lpc.flac"))
+
+(bench "HE-AAC (SBR) stereo, a packet of 2048" (length bm_he_packets)
+	(defq d (aac-decoder (aac-track-config bm_he)))
+	(each (# (aac-decode d %0)) bm_he_packets))
+(bench "HE-AAC v2 (SBR and PS), a packet of 2048" (length bm_ps_packets)
+	(defq d (aac-decoder (aac-track-config bm_ps)))
+	(each (# (aac-decode d %0)) bm_ps_packets))
+(bench "MP3, a frame of 1152" (length bm_mp3_packets)
+	(defq d (mp3-decoder))
+	(each (# (mp3-frame d %0)) bm_mp3_packets))
+(bench "FLAC LPC 16 bit stereo, a frame" (length bm_flac_packets)
+	(each (# (flac-frame bm_flac_info %0)) bm_flac_packets))

@@ -120,7 +120,12 @@
 				(elem-set d i (/ (n2r v) k))
 				(if (< 0 i 256) (elem-set d (- 512 i) (/ (n2r (if (= 0 (logand i 63)) v (neg v))) k))))
 			(. +mp3 :find :half_window))
-		(. +mp3 :insert :d d))
+		(. +mp3 :insert :d d)
+		;the books made native tables, read only, so every decoder has these
+		(scatter +mp3 :books (map (lambda ((w codes)) (list w (huff-table codes)
+				(reduce (# (push %0 (+ (<< (/ %1 w) 4) (% %1 w)))) (range 0 (* w w)) (cap (* w w) (nums)))))
+			(. +mp3 :find :book_codes))
+			:quads (map (const huff-table) (. +mp3 :find :quad_codes))))
 	+mp3)
 
 (defun mp3-header (s at)
@@ -418,15 +423,12 @@
 	; (mp3-decoder) -> decoder
 	;what goes from frame to frame: the reservoir of main data, of each
 	;channel its scale factors, the halves of its IMDCT and its v, and the
-	;books made native tables
+	;books made native tables, made the once by (mp3-tables)
 	(mp3-tables)
 	(scatter (Emap) :reservoir "" :scales (list (list) (list))
 		:overlap (map (lambda (_) (map (lambda (_) (fill (reals) 18 (n2r 0))) (range 0 32))) (range 0 2))
 		:v (map (lambda (_) (fill (reals) 1024 (n2r 0))) (range 0 2))
-		:books (map (lambda ((w codes)) (list w (huff-table codes)
-				(reduce (# (push %0 (+ (<< (/ %1 w) 4) (% %1 w)))) (range 0 (* w w)) (cap (* w w) (nums)))))
-			(. +mp3 :find :book_codes))
-		:quads (map (const huff-table) (. +mp3 :find :quad_codes))))
+		:books (. +mp3 :find :books) :quads (. +mp3 :find :quads)))
 
 (defun mp3-frame (d frame)
 	; (mp3-frame decoder frame) -> (left right)

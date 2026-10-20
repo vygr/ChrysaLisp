@@ -1683,6 +1683,140 @@
 
 (def-func-end)
 
+(def-func (path-to-absolute "./media_aac_values"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+	;info
+	;(media-aac-values reader table values lines from to kind) -> lines, the
+	;quantised lines of AAC from from to to, one code of a book after
+	;another, each its 2 or 4 values, read from a reader of
+	;lib/media/bits.inc. table is the book's, lib/media/huff.inc; values
+	;each code's, 6 bits each and 16 more than it is, the first highest.
+	;kind the values to a code, 4 more if they are signed by the book, 8
+	;more if they escape, book 11: else a sign bit after the code for each
+	;that is not 0, then for each of 16 so many 1s and a 0, and 4 bits more
+	;than there were 1s. The reader left after the last, or where it would
+	;go past the end of its str
+
+	(vp-rdef (data pos table vals p pend kind stop e byte x level w y q)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(defq s_atp 0 s_size 8)
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 7)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,data ,table ,vals ,p ,e ,byte ,kind) '(:obj :obj :obj :obj :num :num :num))
+	(vp-push p)
+	(vp-alloc s_size)
+	(assign `((,table +array_begin) (,vals +array_begin) (,p +array_begin)) `(,table ,vals ,p))
+	(vp-shl-cr 3 e)
+	(vp-shl-cr 3 byte)
+	(vp-lea-d p byte pend)
+	(vp-add-rr e p)
+	;the reader's str, the nums of its place, and the last bit to read
+	(assign `((,data +array_begin)) `(,x))
+	(assign `((,x 0) (,x +ptr_size)) `(,data ,x))
+	(assign `((,x +array_begin)) `(,x))
+	(assign `(,x) `((:rsp ,s_atp)))
+	(assign `((,x 0) (,data +str_length ui)) `(,pos ,stop))
+	(vp-shl-cr 3 stop)
+	(vpif `(,p < ,pend))
+	(loop-start 'codes)
+		(breakif `(,pos >= ,stop) 'codes)
+		(huff-walk data +str_data pos table e byte x level)
+		;its values, the last first, as they are
+		(vp-shl-cr 3 e)
+		(vp-cpy-dr vals e q)
+		(vp-cpy-rr kind x)
+		(vp-and-cr 3 x)
+		(vp-cpy-rr x byte)
+		(vp-shl-cr 3 byte)
+		(vp-add-cr 16 byte)
+		(vp-add-rr p byte)
+		(vp-cpy-rr byte x)
+		(loop-start)
+			(vp-sub-cr 8 x)
+			(vp-cpy-rr q w)
+			(vp-and-cr 63 w)
+			(vp-sub-cr 16 w)
+			(assign `(,w) `((,x 0)))
+			(vp-shr-cr 6 q)
+		(loop-until `(,x = ,p))
+		;the signs, of an unsigned book
+		(vp-cpy-rr kind w)
+		(vp-and-cr 4 w)
+		(vpif `(,w = 0))
+			(loop-start)
+				(assign `((,x 0)) `(,w))
+				(mp3-sign w e level q data pos)
+				(assign `(,w) `((,x 0)))
+				(vp-add-cr 8 x)
+			(loop-until `(,x = ,byte))
+		(endif)
+		;the escapes, of book 11
+		(vp-cpy-rr kind w)
+		(vp-and-cr 8 w)
+		(vpif `(,w /= 0))
+			(vp-cpy-rr p x)
+			(loop-start)
+				(assign `((,x 0)) `(,w))
+				(vp-cpy-rr w y)
+				(vpif `(,y < 0))
+					(vp-mul-cr -1 y)
+				(endif)
+				(vpif `(,y = 16))
+					;so many 1s, then a 0, not past the end
+					(vp-cpy-cr 4 y)
+					(loop-start)
+						(breakif `(,pos >= ,stop))
+						(breakif `(,y >= 13))
+						(media-read data pos 1 e level q)
+						(breakif `(,e = 0))
+						(vp-add-cr 1 y)
+					(loop-end)
+					(media-read data pos y e level q)
+					(vp-cpy-cr 1 level)
+					(vp-shl-rr y level)
+					(vp-add-rr e level)
+					(vpif `(,w < 0))
+						(vp-mul-cr -1 level)
+					(endif)
+					(assign `(,level) `((,x 0)))
+				(endif)
+				(vp-add-cr 8 x)
+			(loop-until `(,x = ,byte))
+		(endif)
+		(vp-cpy-rr byte p)
+	(loop-until `(,p >= ,pend))
+	(endif)
+	;the reader after the last read, not past its str
+	(vpif `(,pos > ,stop))
+		(vp-cpy-rr stop pos)
+	(endif)
+	(assign `((:rsp ,s_atp)) `(,x))
+	(assign `(,pos) `((,x 0)))
+	(vp-free s_size)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-aac-values reader table values lines from to kind)" +error_msg_wrong_types))
+	(signature '(:list :nums :nums :nums :num :num :num)))
+
+(def-func-end)
+
 (def-func (path-to-absolute "./media_dequant"))
 	;inputs
 	;:r0 = lisp object (ptr)
