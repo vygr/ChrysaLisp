@@ -258,7 +258,8 @@ of its pair, sections, scales, pulses, TNS and spectrum
 
 what an AudioSpecificConfig says: the object type, 2 is AAC-LC, the
 index of its rate, the rate, the channels, and if SBR and parametric
-stereo are there, HE-AAC and its v2, the core then the type. They are
+stereo are there, HE-AAC and its v2, the core then the type, ps :no if
+it is said not to be, :nil if it is not said. They are
 said first, types 5 and 29 before the core's, or after its config by
 the sync extensions 0x2b7 and 0x548, which a decoder of AAC-LC alone
 does not read
@@ -454,7 +455,8 @@ filter, run over its bands, up or down
 ```code
 (aac-track-config track) -> :nil | config
 
-of a sound track of an mp4, from its esds, or one in a QuickTime wave
+of a sound track of an mp4, from its esds, or one in a QuickTime wave,
+or as Matroska has it, the AudioSpecificConfig alone, :asc
 ```
 
 ### aac-type
@@ -626,6 +628,8 @@ the sync word, and what the frame is: AC-3 if the stream id is 10 or
 less, E-AC-3 if 11 to 16; the size of the frame in bytes, the rate,
 the blocks, the channels and if there is an LFE. What is only to
 inform or to mix is stepped over
+of AC-3 ids 9 and 10 are its half and quarter rates, not here, the
+masking of the bit allocation by the rate's own bands
 ```
 
 ### ac3-mantissas
@@ -3766,6 +3770,185 @@ lines are not, and need no more than a look for a break that must be.
 (fixeds?? form) -> :t | :nil
 ```
 
+### flac-bits
+
+```code
+(flac-bits reader n) -> num
+
+n bits, 0 to 32, high first
+```
+
+### flac-codec
+
+```code
+(flac-codec reel [scale]) -> codec
+
+what shows a frame: its samples, the left above the right, on a canvas
+of its own; a scale is not taken
+```
+
+### flac-crc8
+
+```code
+(flac-crc8 str from to) -> num
+```
+
+### flac-find
+
+```code
+(flac-find reel at) -> :nil | (at frame)
+
+the first header from at on, of 2 bytes of sync and its CRC-8 good
+```
+
+### flac-frame
+
+```code
+(flac-frame info str) -> :nil | (chans bytes)
+
+the frame at the start of str: its header, a subframe a channel, a
+side of one bit more, then the channels made left and right; the
+bytes, the frame aligned to a byte and its CRC-16
+```
+
+### flac-head
+
+```code
+(flac-head info str) -> :nil | head
+
+the header of a frame at the start of str, checked by its CRC-8: its
+block size, sample size, channel assignment, its frame or sample
+number and which, and the bits of it, by their codes or of STREAMINFO
+of no more than 16 bytes, the least frame of silence 15, the reader's
+bytes past them 0 and the CRC-8 to say
+```
+
+### flac-index
+
+```code
+(flac-index reel) -> reel
+
+of a FLAC of blocks of sizes that vary, where each frame is, found the
+once from the first, each next the one of its sample and its size on
+```
+
+### flac-info
+
+```code
+(flac-info stream) -> :nil | info
+
+of a file's start, after an ID3v2 tag if it has one: STREAMINFO's block
+sizes, frame sizes, rate, channels, bits a sample and samples, and the
+points of a SEEKTABLE, (sample offset) each, the rest stepped over.
+:start is where the first frame is
+```
+
+### flac-locate
+
+```code
+(flac-locate reel n) -> :nil | at
+
+where frame n begins: where one read ended if it was n - 1, else from
+where the bytes say it should be, back if a later frame is found there,
+then on header by header to it
+```
+
+### flac-native
+
+```code
+(flac-native key) -> function
+```
+
+### flac-next
+
+```code
+(flac-next reel at n) -> :nil | (at frame)
+
+the header of frame n from at on: the sync and the CRC-8 of a header
+are in a frame's bytes now and then, those of another number passed
+```
+
+### flac-number
+
+```code
+(flac-number reel head) -> num
+
+the frame a header is of, or of blocks of sizes that vary its sample,
+which is what such a frame's header has
+```
+
+### flac-packet
+
+```code
+(flac-packet reel n) -> :nil | str
+
+frame n, to the header of frame n + 1; the ends of the last four kept
+```
+
+### flac-pcm
+
+```code
+(flac-pcm info chans) -> (left right)
+
+a frame's channels as reals at the scale of 16 bits, the first two, the
+one of one on both
+```
+
+### flac-picture
+
+```code
+(flac-picture codec n) -> canvas
+```
+
+### flac-reel
+
+```code
+(flac-reel stream) -> :nil | reel
+
+a file of FLAC as a reel of its frames, each found as it is wanted, of
+STREAMINFO's block size, :rate of them a second. Its :tracks the one of
+sound, of codec "flac", its pictures the samples of each frame, as an
+MP3's
+```
+
+### flac-residual
+
+```code
+(flac-residual reader samples order n)
+
+the residual of a subframe of n, from order on: its partitions each
+of a Rice parameter, of 4 bits or 5, or the escape and its raw bits
+```
+
+### flac-signed
+
+```code
+(flac-signed reader n) -> num
+
+n bits of two's complement
+```
+
+### flac-subframe
+
+```code
+(flac-subframe reader n bps) -> nums
+
+a channel's n samples of bps bits: one number, the samples as they
+are, a fixed prediction, or an LPC one, then any bits wasted put back.
+One the format forbids, an order past its samples, a precision of 16, a
+shift down by less than 0, a reserved type, is heard as nothing: a
+release build does not stop at a throw, the error a value that would
+go on into the natives
+```
+
+### flac-unary
+
+```code
+(flac-unary reader) -> num
+
+the 0s before a 1
+```
+
 ### flatten
 
 ```code
@@ -5093,6 +5276,107 @@ from corner to corner and a ball of faces is round
 (min-length list) -> min
 ```
 
+### mkv-asc
+
+```code
+(mkv-asc name rate channels) -> str
+
+an AudioSpecificConfig of AAC-LC of a rate and channels, or if the
+name ends /SBR, of type 5, SBR on a core of half the rate
+```
+
+### mkv-block
+
+```code
+(mkv-block str at end start tracks key)
+
+a block: its track, its time from the cluster's start, its keys, and
+its frames into its track's tables, each frame of a laced block where
+it is in the file, str of the block from start
+```
+
+### mkv-children
+
+```code
+(mkv-children str at end) -> ((id body end) ...)
+
+the elements from at to end of a str
+```
+
+### mkv-cluster
+
+```code
+(mkv-cluster stream at end tracks) -> at
+
+a Cluster's time and its blocks, read a window of a MB at a time, an
+element longer than that read whole: a Cluster of no size, of a
+recording, ends where the next element of the top is, and that may be
+the file's end. Its end
+```
+
+### mkv-element
+
+```code
+(mkv-element str body stop start tracks id)
+
+an element of a Cluster, of a str from start: its time, or a block
+```
+
+### mkv-float
+
+```code
+(mkv-float str at end) -> num
+
+a whole number held as a float of 4 or 8 bytes, a rate of sound
+```
+
+### mkv-head
+
+```code
+(mkv-head stream at) -> :nil | (id size data_at)
+
+the element at at of a stream: its id, its size, -1 not known, and
+where what it holds begins
+```
+
+### mkv-laced
+
+```code
+(mkv-laced str at end lacing) -> ((at size) ...)
+
+the frames of a block from at, its lacing: none, Xiph's, fixed, or
+EBML's, each where it begins and how long
+```
+
+### mkv-reel
+
+```code
+(mkv-reel stream) -> :nil | reel
+
+the reel of the first video track of a Matroska file, every track in
+:tracks: its EBML header, then its Segment's Info, Tracks and
+Clusters, the rest stepped over
+```
+
+### mkv-track
+
+```code
+(mkv-track str at end) -> track
+
+a TrackEntry: its number, kind as an mp4's, its codec named as an mp4
+names it, its setup, size or sound
+```
+
+### mkv-vint
+
+```code
+(mkv-vint str at) -> (value bytes marked)
+
+a number of 1 to 8 bytes at at, its first byte's leading 0s one less
+than its bytes: its value without the length bit, how long it is, and
+its value with it, as an id is. All ones is a size not known, -1
+```
+
 ### month-of-the-year
 
 ```code
@@ -5114,6 +5398,15 @@ media_mp3_alias
 a band's lines requantised, |x|^4/3 by 2^(e/4), signed, native,
 
 lib/media/lisp.vp media_dequant
+```
+
+### mp3-before
+
+```code
+(mp3-before size) -> frames
+
+how many frames of a size are decoded first, before one, for the
+reservoir to hold the 511 bytes a frame may begin back
 ```
 
 ### mp3-codec
@@ -5164,6 +5457,8 @@ of a channel of a granule, its side information: the bits of its scale
 factors and lines, the big values, the gain, the scale factors' code,
 the block type, mixed or not, the tables of its regions and the pairs
 of each, the gains of short windows, and the flags after
+big values of no more than the 288 pairs of the 576 lines: a frame that
+says more is wrong, and the native would write past them
 ```
 
 ### mp3-guess
@@ -5251,8 +5546,8 @@ pi, by Newton from 3, sin(x) to 0
 ```code
 (mp3-picture codec n) -> canvas
 
-frame n's samples drawn: after the one before, else with the three
-before it decoded first, for the reservoir and the overlap
+frame n's samples drawn: after the one before, else with those before
+it decoded first, for the reservoir and the overlap
 ```
 
 ### mp3-positions
@@ -7134,6 +7429,16 @@ after it had gone
 (reel-packet reel n) -> :nil | str
 ```
 
+### reel-wave
+
+```code
+(reel-wave canvas w h pcm) -> canvas
+
+the picture of a reel of sound, a frame's samples, pcm the left and the
+right as reals at the scale of 16 bits, or :nil for none: the left above
+the right, a column of two pixels a sample, joined to the one before
+```
+
 ### reflow
 
 ```code
@@ -7448,11 +7753,12 @@ window, its 5 parts of 64 summed, by the cos and sin of each band
 ### sbr-apply
 
 ```code
-(sbr-apply sbr kind chans) -> (reals ...)
+(sbr-apply sbr kind chans [alone]) -> (reals ...)
 
 the 2048 samples of each of an element's channels of 1024, its kind
 0 a channel or 1 a pair: each to the QMF bank's bands, its high band
-made by the data read, and to samples at twice the rate
+made by the data read, and to samples at twice the rate; with PS, of
+a channel alone in its block, the two of it
 ```
 
 ### sbr-assemble
@@ -7462,7 +7768,8 @@ made by the data read, and to samples at twice the rate
 
 the high band of each slot, its gains smoothed over the slots before
 unless at a transient, its noise, or its sinusoid, in the slots of
-this frame's Y
+this frame's Y: each slot's bands of the high band made a vector by
+the gather, and all by vectors of the bands
 ```
 
 ### sbr-bands
@@ -7734,7 +8041,8 @@ the borders of bands of widths from start
 (sbr-synthesis data slots) -> reals
 
 the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
-bands newest in v, its 10 parts by the window, summed
+bands newest in v, its 10 parts by the window, summed. Of its cos by
+the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
 ```
 
 ### sbr-tables

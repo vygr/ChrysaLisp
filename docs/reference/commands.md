@@ -198,10 +198,14 @@ Usage: check [options] [path] ...
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
-    args    a (# ...) with no %0 in it, which takes nothing,
-            given to (map), (each), (filter), (some), (reduce),
-            (sort), (lines!) or the like, or the :each of a
-            map or a set, which call it with an element.
+    args    a (# ...) given to (map), (each), (filter), (some),
+            (reduce), (sort), (lines!) or the like, or the :each
+            of a map or a set, that takes another number than
+            it is called with: one a %n in it, none of no %n,
+            and a %n in an inner (# ) its own; an iterator
+            gives an element of each sequence, reduce and sort
+            two; an :each, of a map two and a set one, only one
+            of no %n.
     global  a *name* made at the top of a module, not
             exported, used in a function of it: it is looked
             for when the function runs, and is gone by then.
