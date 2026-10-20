@@ -573,7 +573,7 @@ Type inspection and structural verification predicates.
 
 	*	`(real? form) -> :t | :nil`
 
-*	**`nums?` / `fixeds?` / `reals?` / `nums??` / `fixeds??`**: Numeric
+*	**`nums?` / `fixeds?` / `reals?` / `nums??` / `fixeds??` / `reals??`**: Numeric
 	vector type checks, and for one that is that class itself.
 
 	*	`(nums? form) -> :t | :nil`
@@ -585,6 +585,8 @@ Type inspection and structural verification predicates.
 	*	`(fixeds?? form) -> :t | :nil`
 
 	*	`(reals? form) -> :t | :nil`
+
+	*	`(reals?? form) -> :t | :nil`
 
 *	**`func?` / `str?` / `str??` / `sym?` / `env?` / `seq?`**: Core object type
 	checks. A symbol is a str, `str??` is a str that is not one.

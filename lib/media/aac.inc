@@ -337,7 +337,7 @@
 	; (aac-sbr decoder element) -> sbr
 	;the SBR of an element, made as it is first wanted
 	(defq sbrs (. decoder :find :sbr))
-	(while (<= (length sbrs) element) (push sbrs (sbr-new (. decoder :find :rate))))
+	(while (<= (length sbrs) element) (push sbrs (sbr-new (. decoder :find :rate) (. decoder :find :ps))))
 	(elem-get sbrs element))
 
 (defun aac-block (decoder packet)
@@ -387,7 +387,8 @@
 				(defq at (bits-at in))
 				(when (and (> count 0) (>= element 0) (. decoder :find :sbr))
 					(defq type (bits-get in 4))
-					(if (or (= type 13) (= type 14))
+					(when (or (= type 13) (= type 14))
+						(. decoder :insert :sbr_on :t)
 						(sbr-read (aac-sbr decoder element) in (= type 14) count element_kind)))
 				(bits-seek in (+ at (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
@@ -569,7 +570,13 @@
 	;of the DCT-IV is taken now, not as this is read
 	(defq tables (aac-tables) zeros (fill (reals) 1024 (n2r 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
-		:sbr (and (> (length config) 4) (elem-get config 4) (list))
+		;SBR said, or a core of 24000 or less that may have it unsaid, which
+		;is taken from the first fill that holds it; of one channel, or those
+		;a program config gives, PS too
+		:sbr_on (and (> (length config) 4) (elem-get config 4))
+		:sbr (and (or (and (> (length config) 4) (elem-get config 4)) (<= (third config) 24000)) (list))
+		:ps (or (and (> (length config) 5) (elem-get config 5))
+			(and (not (and (> (length config) 4) (elem-get config 4))) (<= (elem-get config 3) 1)))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))
 		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (apply (const reals) (map (lambda (_) (n2r 1)) (range 0 1024))))))
@@ -626,7 +633,7 @@
 	(each (# (aac-tns-apply %0 %1 rate_index)) channels lines)
 	(defq out (map (# (aac-imdct decoder %1 (. %0 :find :info) (!))) channels lines))
 	;with SBR each element's channels at twice the rate, 2048 samples
-	(when (. decoder :find :sbr)
+	(when (. decoder :find :sbr_on)
 		(defq doubled (list))
 		(each (lambda (ch)
 				(when (or (= (. ch :find :kind) 0) (eql (. ch :find :pair) :left))

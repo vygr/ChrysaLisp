@@ -145,6 +145,8 @@
 	'(:nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil :nil) (pq-which (const nums??)))
 (assert-list-eq "fixeds?? is a fixeds that is not a reals or a path"
 	'(:nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil :nil) (pq-which (const fixeds??)))
+(assert-list-eq "reals?? is a reals"
+	'(:nil :nil :nil :nil :nil :nil :nil :nil :nil :t :nil :nil) (pq-which (const reals??)))
 (assert-list-eq "where one ? is true of all that are built on the class, a num here"
 	'(:t :t :t :nil :nil :nil :nil :nil :nil :nil :nil :nil) (pq-which (const num?)))
 (assert-list-eq "an array here, all seven kinds of one"

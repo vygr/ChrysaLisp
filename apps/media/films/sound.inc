@@ -45,7 +45,15 @@
 						;HE-AAC's SBR at twice the rate of its core, packets of 2048 and
 						;the track's start in the core's time; a lambda finds nothing of
 						;where it was made, what it wants is in the sound
-						(defq times (if (elem-get config 4) 2 1))
+						;of a core of 24000 or less SBR may be there unsaid, its first
+						;packet decoded to see
+						(defq times (cond
+							((elem-get config 4) 2)
+							((> (third config) 24000) 1)
+							((progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
+								(defq got (catch (aac-decode (aac-decoder config) (read-blk (. sound :find :stream) (elem-get (. track :find :sizes) 0))) :t))
+								(and (list? got) (= (length (first got)) 2048))) 2)
+							(1)))
 						(scatter sound :rate (* times (third config)) :size (* times 1024) :delay (* times 1024)
 							:start (* times (. sound :find :start)) :config config
 							:make (lambda (sound) (aac-decoder (. sound :find :config)))

@@ -676,6 +676,10 @@
 	; (reals? form) -> :t | :nil
 	(find :reals (type-of %0)))
 
+(defun reals?? (%0)
+	; (reals?? form) -> :t | :nil
+	(eql :reals (pop (type-of %0))))
+
 (defun func? (%0)
 	; (func? form) -> :t | :nil
 	(find :func (type-of %0)))

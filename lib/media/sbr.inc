@@ -17,6 +17,7 @@
 (import "./huff.inc")
 (import "./bits.inc")
 (import "./mdct.inc")
+(import "./ps.inc")
 
 ;module
 (env-push)
@@ -250,16 +251,16 @@
 		:g_temp (map (lambda (_) (fill (reals) 48 (n2r 0))) (range 0 42)) :q_temp (map (lambda (_) (fill (reals) 48 (n2r 0))) (range 0 42))
 		:analysis (fill (reals) 288 (n2r 0)) :synthesis (fill (reals) 1280 (n2r 0))))
 
-(defun sbr-new (rate)
-	; (sbr-new rate) -> sbr
+(defun sbr-new (rate &optional ps)
+	; (sbr-new rate [ps]) -> sbr
 	;of an element of a core of a rate, the SBR at twice it, till its first
-	;header only the banks
+	;header only the banks; with ps, parametric stereo makes two of its one
 	(sbr-tables)
 	(scatter (Emap) :rate (* 2 rate) :start :nil :reset :nil :ready :nil :id -1 :coupling 0
 		:start_freq -1 :stop_freq -1 :xover -1 :freq_scale -1 :alter_scale -1 :noise_bands -1
 		:amp_res_header 0 :limiter_bands -1 :limiter_gains 2 :interpol_freq 1 :smoothing_mode 1
 		:kx 32 :kx_old 32 :m 0 :m_old 0 :n (nums 0 0) :n_q 0 :pushed :nil
-		:huff (ffi "lib/media/media_huff")
+		:huff (ffi "lib/media/media_huff") :ps (if ps (ps-new))
 		:data (list (sbr-channel) (sbr-channel))))
 
 (defun sbr-off (sbr)
@@ -480,11 +481,19 @@
 						(sbr-noise sbr in left 0) (sbr-noise sbr in right 1)
 						(progn (sbr-harmonics sbr in left) (sbr-harmonics sbr in right) :t))))))
 		(progn
-			;the extensions, parametric stereo among them, stepped over here
+			;the extensions, each its id of 2 bits, parametric stereo's 2, any
+			;other the rest stepped over
 			(when (= (bits-1 in) 1)
 				(defq size (bits-get in 4))
 				(if (= size 15) (setq size (+ size (bits-get in 8))))
-				(bits-skip in (* 8 size)))
+				(defq left (* 8 size))
+				(while (> left 7)
+					(defq id (bits-get in 2))
+					(setq left (- left 2))
+					(cond
+						((and (= id 2) (. sbr :find :ps)) (setq left (- left (ps-read (. sbr :find :ps) in left))))
+						(:t (bits-skip in left) (setq left 0))))
+				(if (> left 0) (bits-skip in left)))
 			:t)))
 
 (defun sbr-read (sbr in crc bytes kind)
@@ -850,15 +859,15 @@
 
 (defun sbr-x (sbr ch low)
 	; (sbr-x sbr data low) -> ((re im) ...)
-	;the 32 slots of 64 bands to the synthesis: the low band, and the high
-	;band made, of the frame before for the slots its last envelope runs
-	;into this one
+	;the 38 slots of 64 bands, 32 to the synthesis and the 6 after to the
+	;hybrid filters of PS: the low band, and the high band made, of the
+	;frame before for the slots its last envelope runs into this one
 	(defq kx (. sbr :find :kx) m (. sbr :find :m) kx_old (. sbr :find :kx_old) m_old (. sbr :find :m_old)
 		ypos (. ch :find :ypos) y1 (elem-get (. ch :find :y) ypos) y0 (elem-get (. ch :find :y) (logxor ypos 1))
 		i_temp (max (- (* 2 (. ch :find :t_env_old)) 32) 0) zeros (. +sbr :find :zeros64))
 	(map (lambda (i)
-			(defq re (cat zeros) im (cat zeros) old (< i i_temp) top (if old kx_old kx) span (if old m_old m)
-				from (if old (elem-get y0 (+ i 32)) (elem-get y1 i)))
+			(defq re (cat zeros) im (cat zeros) old (< i i_temp) top (if old kx_old kx) span (if (or old (< i 32)) (if old m_old m) 0)
+				from (if old (elem-get y0 (+ i 32)) (elem-get y1 (min i 31))))
 			(each (lambda (k)
 					(bind '(r im_) (elem-get low k))
 					(elem-set re k (elem-get r (+ i 2)))
@@ -869,14 +878,14 @@
 					(elem-set im k (elem-get (second from) k)))
 				(range top (+ top span)))
 			(list re im))
-		(range 0 32)))
+		(range 0 38)))
 
 (defun sbr-synthesis (ch slots)
 	; (sbr-synthesis data slots) -> reals
 	;the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
 	;bands newest in v, its 10 parts by the window, summed
 	(defq syn (. +sbr :find :syn) win (. +sbr :find :window) v (. ch :find :synthesis) out (cap 2048 (reals)))
-	(each (lambda ((re im))
+	(each! (lambda ((re im))
 			(setq v (cat (sbr-matvec syn 128 128 (cat re im) 0 (fill (reals) 128 (n2r 0))) (slice v 0 1152)))
 			(defq sum (fill (reals) 64 (n2r 0)))
 			(each (lambda (m)
@@ -885,7 +894,7 @@
 						(nums-mul (slice v (+ a 192) (+ a 256)) (slice win (+ c 64) (+ c 128)))))))
 				(range 0 5))
 			(setq out (cat out sum)))
-		slots)
+		(list slots) 0 32)
 	(. ch :insert :synthesis v)
 	out)
 
@@ -902,8 +911,8 @@
 	(when (. sbr :find :start)
 		(sbr-dequant sbr)
 		(. sbr :insert :ready :nil))
-	(defq data (. sbr :find :data))
-	(map (lambda (samples ch)
+	(defq data (. sbr :find :data) ps (. sbr :find :ps))
+	(defq xs (map (lambda (samples ch)
 			(defq ypos (. ch :find :ypos))
 			(elem-set (. ch :find :w) ypos (sbr-analysis ch samples))
 			(defq low (sbr-low sbr ch))
@@ -913,8 +922,13 @@
 				(sbr-chirp sbr ch)
 				(and (defq high (sbr-high sbr ch low alphas)) (defq maps (sbr-mapping sbr ch))
 					(sbr-assemble sbr ch high (sbr-gains sbr ch maps (sbr-estimate sbr ch high)))))
-			(sbr-synthesis ch (sbr-x sbr ch low)))
+			(sbr-x sbr ch low))
 		chans data))
+	;of one channel with PS, the left and the right made of it, the one
+	;on both till its first header
+	(and ps (= kind 0)
+		(setq xs (if (. ps :find :start) (ps-apply ps (first xs) (+ (. sbr :find :kx) (. sbr :find :m))) (list (first xs) (first xs)))))
+	(map (# (sbr-synthesis %1 %0)) xs data))
 
 ;module
 (export-symbols '(sbr-new sbr-read sbr-apply sbr-tables))

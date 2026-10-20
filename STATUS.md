@@ -23,7 +23,7 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
-**HE-AAC: SBR in `lib/media/sbr.inc`, signalled either way, 78 dB of ffmpeg; Films plays it at twice the core's rate. 4 ms a stereo packet, the assembly and the X matrix to go native. PS (v2) next.**
+**HE-AAC v1 and v2: SBR in `lib/media/sbr.inc`, PS in `lib/media/ps.inc`, said by the config or found in the stream; 65 to 78 dB of ffmpeg on its conformance streams. Films plays both. 3 to 4 ms a packet, the loops to go native. `reals??`.**
 
 **MP3 in Films: an `.mp3` reel kind in lib/media/mp3.inc, frames found as wanted, seeks by bit rate, a rising Xing table or VBR average; a book of 48 hours opens in 1 ms. Sound starts past 13 hours.**
 
