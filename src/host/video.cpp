@@ -589,6 +589,23 @@ struct Video_Decoder
 
 //mfplat.dll is found as it is wanted, the host starts without it, as on
 //the N editions of Windows that have none
+//the host is built with no exceptions, but a vector that grows can still
+//throw, and linked statically that brings in libstdc++'s whole machinery
+//of exceptions and its demangler, 150KB, and so does a new that fails.
+//These end the program as a throw would, and keep it out
+namespace std
+{
+	void __throw_length_error(const char*) { abort(); }
+	void __throw_bad_alloc() { abort(); }
+	void __throw_bad_array_new_length() { abort(); }
+}
+void *operator new(size_t n) { void *p = malloc(n ? n : 1); if (!p) abort(); return p; }
+void *operator new[](size_t n) { void *p = malloc(n ? n : 1); if (!p) abort(); return p; }
+void operator delete(void *p) noexcept { free(p); }
+void operator delete[](void *p) noexcept { free(p); }
+void operator delete(void *p, size_t) noexcept { free(p); }
+void operator delete[](void *p, size_t) noexcept { free(p); }
+
 static bool video_started = false;
 static HRESULT (WINAPI *mf_startup)(ULONG, DWORD);
 static HRESULT (WINAPI *mf_enum)(GUID, UINT32, const MFT_REGISTER_TYPE_INFO*, const MFT_REGISTER_TYPE_INFO*, IMFActivate***, UINT32*);
