@@ -50,6 +50,8 @@ docs/reference/vp_classes/num.cwb
 
 ### (logior [num] ...) -> num
 
+### (pow num power) -> num
+
 ### (random num) -> num
 
 ### (<< num cnt) -> num
@@ -303,6 +305,20 @@ outputs
 :r0 = result num object (ptr)
 trashes
 :r0-:r2, :r12, :r14, :f0-:f15
+```
+
+### :pow -> class/num/pow
+
+```code
+inputs
+:r0 = num object (ptr)
+:r1 = power num object (ptr)
+outputs
+:r0 = result num object (ptr)
+trashes
+:r0-:r3, :r12, :r14, :f0-:f15
+info
+by squaring, 1 for a power not greater than 0
 ```
 
 ### :print -> class/num/print

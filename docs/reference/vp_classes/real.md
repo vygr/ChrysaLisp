@@ -209,6 +209,20 @@ trashes
 :r0-:r2, :r14, :f0-:f15
 ```
 
+### :pow -> class/real/pow
+
+```code
+inputs
+:r0 = real object (ptr)
+:r1 = power real object (ptr)
+outputs
+:r0 = result real object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+info
+0 if the real is not greater than 0, :sys_math :r_pow
+```
+
 ### :print -> class/real/print
 
 ```code

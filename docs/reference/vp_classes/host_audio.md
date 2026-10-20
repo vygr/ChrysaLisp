@@ -26,7 +26,9 @@ docs/reference/vp_classes/host_audio.cwb
 
 ### (audio-stream-close handle)
 
-### (audio-stream-open)
+### (audio-stream-left handle)
+
+### (audio-stream-open rate channels)
 
 ### (audio-stream-write handle buf)
 
@@ -51,6 +53,8 @@ docs/reference/vp_classes/host_audio.cwb
 ### :remove -> :nil
 
 ### :stream_close -> :nil
+
+### :stream_left -> :nil
 
 ### :stream_open -> :nil
 

@@ -18,6 +18,8 @@ docs/reference/vp_classes/host_gui.cwb
 
 ### (gui-update mx my flags) -> :nil
 
+### (gui-video op handle data n)
+
 ## VP methods
 
 ### :begin_composite -> :nil
@@ -134,4 +136,12 @@ views to draw found, those that must draw again drawing into their
 lists, Lisp or VP, the others' kept lists used, then the frame put on
 the back buffer and the screen
 ```
+
+### :video_close -> :nil
+
+### :video_decode -> :nil
+
+### :video_frame -> :nil
+
+### :video_open -> :nil
 

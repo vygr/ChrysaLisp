@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 355
-	:height 529
+	:height 563
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 53
+	:next_id 58
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 50)
+					((:list 55)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 321.06591 0 A 8 8 0 0 1 329.06591 8 L 329.06591 495 A 8 8 0 0 1 321.06591 503 L 8 503 A 8 8 0 0 1 0 495 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 321.06591 0 A 8 8 0 0 1 329.06591 8 L 329.06591 529 A 8 8 0 0 1 321.06591 537 L 8 537 A 8 8 0 0 1 0 529 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -341,8 +341,8 @@
 							12
 							:pos
 							((:list 2)
-								124.81738
-								85.00000
+								12.00000
+								255.00000
 							)
 						)
 						((:list 15)
@@ -362,7 +362,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								102.00000
+								85.00000
 							)
 						)
 						((:list 15)
@@ -382,7 +382,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								119.00000
+								102.00000
 							)
 						)
 						((:list 15)
@@ -402,7 +402,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								136.00000
+								119.00000
 							)
 						)
 						((:list 15)
@@ -422,7 +422,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								153.00000
+								136.00000
 							)
 						)
 						((:list 15)
@@ -442,7 +442,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								170.00000
+								153.00000
 							)
 						)
 						((:list 15)
@@ -462,7 +462,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								187.00000
+								170.00000
 							)
 						)
 						((:list 15)
@@ -482,7 +482,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								204.00000
+								187.00000
 							)
 						)
 						((:list 15)
@@ -502,7 +502,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								221.00000
+								204.00000
 							)
 						)
 						((:list 15)
@@ -522,7 +522,7 @@
 							:pos
 							((:list 2)
 								124.81738
-								238.00000
+								221.00000
 							)
 						)
 						((:list 15)
@@ -541,8 +541,8 @@
 							12
 							:pos
 							((:list 2)
-								223.91796
-								85.00000
+								124.81738
+								238.00000
 							)
 						)
 						((:list 15)
@@ -561,8 +561,8 @@
 							12
 							:pos
 							((:list 2)
-								223.91796
-								102.00000
+								124.81738
+								255.00000
 							)
 						)
 						((:list 15)
@@ -582,7 +582,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								119.00000
+								85.00000
 							)
 						)
 						((:list 15)
@@ -602,7 +602,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								136.00000
+								102.00000
 							)
 						)
 						((:list 15)
@@ -622,7 +622,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								153.00000
+								119.00000
 							)
 						)
 						((:list 15)
@@ -642,7 +642,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								170.00000
+								136.00000
 							)
 						)
 						((:list 15)
@@ -662,7 +662,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								187.00000
+								153.00000
 							)
 						)
 						((:list 15)
@@ -682,7 +682,7 @@
 							:pos
 							((:list 2)
 								223.91796
-								204.00000
+								170.00000
 							)
 						)
 						((:list 15)
@@ -702,15 +702,95 @@
 							:pos
 							((:list 2)
 								223.91796
+								187.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							38
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:video_close]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								223.91796
+								204.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							39
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:video_decode]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								223.91796
 								221.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							40
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:video_frame]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								223.91796
+								238.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							41
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:video_open]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								223.91796
+								255.00000
 							)
 						)
 						((:list 13)
 							:shape
 							:id
-							38
+							42
 							:d
-							"[M 0 252 L 329.06591 252]"
+							"[M 0 269 L 329.06591 269]"
 							:stroke
 							4282140240
 							:width
@@ -723,7 +803,7 @@
 						((:list 17)
 							:shape
 							:id
-							39
+							43
 							:kind
 							:text
 							:fill
@@ -739,87 +819,7 @@
 							:pos
 							((:list 2)
 								12.00000
-								268.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:composite]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								287.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							41
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:frame_free]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								304.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							42
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:frame_view]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								321.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							43
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:replay]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								338.00000
+								285.00000
 							)
 						)
 						((:list 15)
@@ -833,7 +833,67 @@
 							:stroke
 							0
 							:text
-							"[:update]"
+							"[:composite]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								304.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							45
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:frame_free]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								321.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							46
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:frame_view]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								338.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							47
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:replay]"
 							:font_size
 							12
 							:pos
@@ -842,12 +902,32 @@
 								355.00000
 							)
 						)
+						((:list 15)
+							:shape
+							:id
+							48
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:update]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								372.00000
+							)
+						)
 						((:list 13)
 							:shape
 							:id
-							45
+							49
 							:d
-							"[M 0 369 L 329.06591 369]"
+							"[M 0 386 L 329.06591 386]"
 							:stroke
 							4282140240
 							:width
@@ -860,7 +940,7 @@
 						((:list 17)
 							:shape
 							:id
-							46
+							50
 							:kind
 							:text
 							:fill
@@ -876,87 +956,7 @@
 							:pos
 							((:list 2)
 								12.00000
-								385.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							47
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[gui-deinit]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								404.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							48
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[gui-event]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								421.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							49
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[gui-info]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								438.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							50
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[gui-init]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								455.00000
+								402.00000
 							)
 						)
 						((:list 15)
@@ -970,13 +970,13 @@
 							:stroke
 							0
 							:text
-							"[gui-read-screen]"
+							"[gui-deinit]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								472.00000
+								421.00000
 							)
 						)
 						((:list 15)
@@ -990,13 +990,113 @@
 							:stroke
 							0
 							:text
-							"[gui-update]"
+							"[gui-event]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								438.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							53
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[gui-info]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								455.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							54
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[gui-init]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								472.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							55
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[gui-read-screen]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
 								489.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							56
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[gui-update]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								506.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							57
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[gui-video]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								523.00000
 							)
 						)
 					)

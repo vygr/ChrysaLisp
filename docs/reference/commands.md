@@ -131,6 +131,10 @@ Usage: check [options] [path] ...
             a form, and calls nothing. (list) or '().
     past    (inc) of an (rfind), which gives the place after
             what it found already: one more is past it.
+    shift   (>> (- a b) n), a logical shift of a difference:
+            one less than 0 is made a large number, the place
+            in a table of an AC-3 decoder 15 bits not 0.
+            (>>>) shifts it as a signed number.
     unbound a call of what is no function or macro of the
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
@@ -154,6 +158,18 @@ Usage: check [options] [path] ...
             (most) of an empty one is (), where the ! form
             from 1, or to -2, is an error: if it can be empty
             it is not the same.
+    index   (elem-get x (!)) in the function given to an
+            iterator, (each), (map), (reduce), (some) and the
+            rest, and their ! forms, not in an iterator inside
+            it: x is walked beside what it is given, (each
+            (lambda (a b) ...) as x). Not of an x the function
+            makes, nor one whose (length x) it looks at, which
+            may be shorter: walked beside, the walk would end
+            at its end.
+    collect (defq out (list)) and then at once (each (# (push
+            out x)) seq), or of a (lambda), its whole function
+            one (push) of one thing to that name: it is (defq
+            out (map (# x) seq)), which is quicker.
     reverse (reverse (slice x s e)), two copies, is (slice x e s),
             one. Of a (rest) or a (most), (slice x -1 1) or
             (slice x -2 0), which of an empty one is an error.
@@ -209,14 +225,22 @@ Usage: check [options] [path] ...
             release build its class is not made at all. And
             in any file, a (structure +x) where root.inc's
             imports have a +x already.
+    vpname  a + name given by a (defq) in a .vp file that a
+            (defq) of another .vp file gives as well. The
+            assembler reads the files of its jobs into the one
+            environment, and a + name is put in as it is read:
+            where the two are read by the one task, the second
+            file's (defq) of it is of the first's value, a number
+            where a name is to be. A prefix of the file's own.
     capture a function written where it is given to another
             of this file, or of a file it imports, that uses
             a name the other has as a parameter, or makes
             with a (defq). A name is found where a function
             is called from, so it is the other's that is had.
 
-    If no paths given on command line
-    then will test files from stdin.
+    A path that is a folder is the source files in it, at
+    any depth. If no paths given on command line then will
+    test files from stdin.
 ```
 ## cluster
 ```code
@@ -1054,7 +1078,9 @@ Usage: mp4 [options] [path] ...
     What is in a film of boxes, .mp4 .m4v .mov: each track, its
     kind and codec, its size or its sound, and how many samples
     it has; and of the first video track, the frames a second
-    its times come to and how many keys.
+    its times come to and how many keys. A track whose edit list
+    starts it later says from what time of its own, and after how
+    long of nothing.
 
     If no paths given on command line
     then paths are read from stdin.
@@ -1447,7 +1473,9 @@ Usage: storage [options] [path]
             members it went to.
         -M --members: who the members are, which are
             there now, and what and where each is. With
-            +id or -id as path, one is joined or retired.
+            +id as path, that one is joined.
+        -e --retire id: the member of that id retired, and
+            the members said, as -M does.
         -x --stop: stop the service.
         -z --resize megabytes: the store of this member put on
             a volume of that many MB, bigger, or smaller if what

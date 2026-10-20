@@ -403,6 +403,18 @@ two bytes high first, as a .jpg has its numbers
 (memoize key form [num_buckets]) -> (eval form)
 ```
 
+### noise-next
+
+```code
+(noise-next seed) -> seed
+```
+
+### noise-real
+
+```code
+(noise-real seed) -> real
+```
+
 ### not
 
 ```code

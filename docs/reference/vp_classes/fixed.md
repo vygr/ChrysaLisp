@@ -113,6 +113,20 @@ trashes
 :r0-:r4, :r14, :f0-:f15
 ```
 
+### :pow -> class/fixed/pow
+
+```code
+inputs
+:r0 = fixed object (ptr)
+:r1 = power fixed object (ptr)
+outputs
+:r0 = result fixed object (ptr)
+trashes
+:r0-:r2, :r14, :f0-:f15
+info
+0 if the number is not greater than 0, :sys_math :r_pow
+```
+
 ### :print -> class/fixed/print
 
 ```code

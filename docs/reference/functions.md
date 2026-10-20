@@ -225,10 +225,462 @@ unions that are open are a list, each (lines next base longest)
 a line that is not a union, the base after it
 ```
 
+### aac-block
+
+```code
+(aac-block decoder packet) -> (channel ...) | :nil
+
+the channels of a raw data block, the elements read till END, and how
+many bits it took
+```
+
+### aac-book
+
+```code
+(aac-book codes) -> (fmap longest)
+
+a book to read codes of: each code, its length high, to what it stands for
+```
+
+### aac-channel
+
+```code
+(aac-channel reader info rate_index [common]) -> channel
+
+an individual channel stream: its gain, window, unless it has the one
+of its pair, sections, scales, pulses, TNS and spectrum
+```
+
+### aac-config
+
+```code
+(aac-config setup) -> :nil | (type rate_index rate channels sbr ps)
+
+what an AudioSpecificConfig says: the object type, 2 is AAC-LC, the
+index of its rate, the rate, the channels, and if SBR and parametric
+stereo are there, HE-AAC and its v2, the core then the type. They are
+said first, types 5 and 29 before the core's, or after its config by
+the sync extensions 0x2b7 and 0x548, which a decoder of AAC-LC alone
+does not read
+```
+
+### aac-decode
+
+```code
+(aac-decode decoder packet) -> ((reals) ...)
+
+the 1024 samples of each channel of a packet
+```
+
+### aac-decoder
+
+```code
+(aac-decoder config) -> decoder
+
+what a channel carries from one block to the next: the half of its
+window that overlaps the next, and the shape of its window. The native
+of the DCT-IV is taken now, not as this is read
+```
+
+### aac-dequant
+
+```code
+(aac-dequant channel tables) -> reals
+
+the 1024 lines of a channel, each |v|^(4/3) by the gain of its band,
+the pulses added to them first; noise and intensity bands left 0
+```
+
+### aac-descriptor
+
+```code
+(aac-descriptor str at) -> (tag len body_at)
+
+a descriptor of an esds, its tag, and its length of 1 to 4 bytes of
+7 bits each, the top bit set but in the last
+```
+
+### aac-escape
+
+```code
+(aac-escape reader) -> num
+
+a value of 16 or more of book 11: so many 1s and a 0, then 4 bits more
+than there were 1s
+```
+
+### aac-esds
+
+```code
+(aac-esds str) -> :nil | str
+
+the AudioSpecificConfig of what is in an esds box, past its version
+```
+
+### aac-huff
+
+```code
+(aac-huff reader table) -> index
+
+the code next, what it stands for, by the native reader of a book's
+table, lib/media/lisp.vp media_huff
+```
+
+### aac-huff-lisp
+
+```code
+(aac-huff-lisp reader book) -> index
+
+the same in Lisp, the bits of the longest code looked at, one more
+each time till one is a code: what the native one is checked against
+```
+
+### aac-ics-info
+
+```code
+(aac-ics-info reader rate_index) -> info
+
+its window, its shape, how many bands are coded, and the groups of
+short windows, how many windows in each, and the bands' bounds
+```
+
+### aac-imdct
+
+```code
+(aac-imdct decoder lines info channel) -> reals
+
+the 1024 samples of a channel's lines: the IMDCT, windowed, its first
+half added to what the block before left, its second half left
+```
+
+### aac-noise
+
+```code
+(aac-noise channel lines tables decoder)
+
+each band of noise filled, random lines of the band's energy
+```
+
+### aac-pulses
+
+```code
+(aac-pulses reader) -> (start (offset amp) ...)
+```
+
+### aac-root
+
+```code
+(aac-root x n) -> real
+
+the nth root of a real of 1 or more, by Newton's steps, from above it,
+so each is less than the one before till it is there: a step that is
+not less ends it, as the last bit may go to and fro
+```
+
+### aac-sbr
+
+```code
+(aac-sbr decoder element) -> sbr
+
+the SBR of an element, made as it is first wanted
+```
+
+### aac-scales
+
+```code
+(aac-scales reader info sections global) -> ((scale ...) ...)
+
+the scale of each band of each group: of a spectral book, from the
+global gain by the differences; of intensity, its position; of noise,
+its energy, the first of 9 bits of its own
+```
+
+### aac-sections
+
+```code
+(aac-sections reader info) -> ((book ...) ...)
+
+the book of each band of each group, in runs
+```
+
+### aac-spectrum
+
+```code
+(aac-spectrum reader info sections) -> nums
+
+the 1024 quantised lines, of a long window, or of 8 short ones one
+after the other, 128 each. A group's lines are sent band by band, each
+band of each of its windows in turn
+```
+
+### aac-stereo
+
+```code
+(aac-stereo left right l_lines r_lines tables)
+
+of a pair with a common window: M/S, L = M + S and R = M - S, and
+intensity, R the L of the band by its position, its sign by its book
+and by the M/S mask
+```
+
+### aac-tables
+
+```code
+(aac-tables) -> tables
+
+made the once, as the first decoder is
+```
+
+### aac-tns
+
+```code
+(aac-tns reader info) -> (((length direction (coef ...)) ...) ...)
+
+the filters of each window, each over so many bands down from the top,
+its direction and its coefficients, as the indices they were sent as
+```
+
+### aac-tns-apply
+
+```code
+(aac-tns-apply channel lines rate_index)
+
+each filter of each window, its parcor coefficients to those of a
+filter, run over its bands, up or down
+```
+
+### aac-track-config
+
+```code
+(aac-track-config track) -> :nil | config
+
+of a sound track of an mp4, from its esds, or one in a QuickTime wave
+```
+
+### aac-type
+
+```code
+(aac-type reader) -> type
+```
+
+### aac-unfold
+
+```code
+(aac-unfold decoder lines n) -> reals
+```
+
+### aac-values
+
+```code
+(aac-values reader book) -> (value ...)
+
+the 2 or 4 values of the next code of a book, signed
+```
+
+### aac-windows
+
+```code
+(aac-windows n) -> (sine kbd)
+
+the rising halves of the windows, alpha 4 for the long, 6 for the short
+```
+
 ### abi
 
 ```code
 (abi) -> sym
+```
+
+### ac3-aht
+
+```code
+(ac3-aht decoder reader channel) -> reals
+
+the mantissas of a channel of AHT for all 6 blocks, all sent in the
+first: the gains of the gain adaptive quantisation read here, then by
+the native reader, lib/media/lisp.vp media_ac3_aht, each bin by its high
+efficiency bap, 0 noise, 1 to 7 a vector of 6 by one code, 8 and more 6
+numbers, the DCT of 6 back across the blocks, by 2^-exponent, the
+exponents the same in all 6: a reals of 6 blocks of 256
+```
+
+### ac3-aht-coeffs
+
+```code
+(ac3-aht-coeffs decoder reader channel blk) -> reals
+
+a block's coefficients of a channel of AHT, its mantissas read in the
+first block, by 2^-exponent
+```
+
+### ac3-bands
+
+```code
+(ac3-bands reader blk eac3 start end default struct) -> (struct sizes)
+
+which subbands of 12 bins are in the band before, of coupling or of
+spectral extension, read or left as they were, and the bands' sizes
+```
+
+### ac3-bap
+
+```code
+(ac3-bap decoder psd mask start end snr tab) -> bap
+
+the bits of each mantissa, the address of the power above the mask,
+by the table of AC-3 or of AHT. Native, lib/media/lisp.vp media_ac3_bap
+```
+
+### ac3-block
+
+```code
+(ac3-block decoder reader header blk) -> (reals ...)
+
+a block: its strategies, coupling, exponents, the bit allocation where
+it changes, and the mantissas, made coefficients, those of the coupled
+channels by their coordinates; a reals of 256 a channel, 1 to fbw and
+the LFE, by 2^-exponent
+```
+
+### ac3-bsi
+
+```code
+the rest of AC-3's: dialogue level, compression, language, production,
+
+time codes or the other syntax of id 6, and more to step over
+```
+
+### ac3-decoder
+
+```code
+(ac3-decoder header) -> decoder
+
+what is carried from block to block, and frame to frame, of each
+channel: 0 the coupling channel, 1 to fbw the full ones, fbw+1 the LFE
+```
+
+### ac3-drc
+
+```code
+(ac3-drc code) -> real
+
+a gain of dynamic range, 2^x by 1 to 2 in 32nds, x signed of 3 bits
+```
+
+### ac3-eac3-bsi
+
+```code
+the rest of E-AC-3's header, its stream id, dialogue level and
+
+compression, the channel map of a dependent stream, mixing and
+information metadata, all stepped over
+```
+
+### ac3-frame
+
+```code
+(ac3-frame decoder packet) -> ((reals ...) ...)
+
+the samples of a frame, 256 a block a channel, each channel's blocks
+one after another: the header, the frame's strategies, and each
+block's coefficients through the IMDCT of 512, or two of 256 where a
+channel switched to short blocks, the KBD window of alpha 5, and half
+overlapped with the block before, as A/52 has it in its halves
+```
+
+### ac3-frame-info
+
+```code
+(ac3-frame-info reader header) -> header
+
+of E-AC-3, the strategies for all the blocks of a frame: which syntax
+each block has, coupling, the exponent strategy of each channel in
+each block, AHT, SNR offset, and what is stepped over
+```
+
+### ac3-grouped
+
+```code
+(ac3-grouped codes per levels) -> (real ...)
+
+the levels of each code of a grouped bap, per to a code, of a code v the
+first v mod levels, the next of v by levels, the last what is left, in
+the order a list of them is popped, the last first
+```
+
+### ac3-groups
+
+```code
+(ac3-groups reader strategy groups prev) -> (exp ...)
+
+exponents sent as differences of 5 values, 3 to 7 bits, each from the
+one before, each so many bins wide by its strategy
+```
+
+### ac3-header
+
+```code
+(ac3-header reader) -> :nil | header
+
+the sync word, and what the frame is: AC-3 if the stream id is 10 or
+less, E-AC-3 if 11 to 16; the size of the frame in bytes, the rate,
+the blocks, the channels and if there is an LFE. What is only to
+inform or to mix is stepped over
+```
+
+### ac3-mantissas
+
+```code
+(ac3-mantissas decoder reader channel groups) -> reals
+
+the coefficients of a channel's bins, each its mantissa by 2^-exponent:
+bap 1 2 and 4 are levels sent three or two to a code, those codes
+shared by the channels of the block, groups; 3 and 5 levels of 3 and 4
+bits; 6 to 15 numbers of so many bits; 0 is dither or nothing. Read by
+the native reader, lib/media/lisp.vp media_ac3_mantissas
+```
+
+### ac3-mask
+
+```code
+(ac3-mask decoder band_psd start end fast_gain lfe dba) -> mask
+
+the masking curve of each band: the excitation by fast and slow leaks
+and low frequency compensation, the hearing threshold, native, lib/media/
+lisp.vp media_ac3_mask, and the deltas
+```
+
+### ac3-psd
+
+```code
+(ac3-psd exps start end) -> (psd band_psd)
+
+the power of each bin from its exponent, and of each band, the first 28
+bins a band each, the bins of the others added as logs are, by the
+table. Native, lib/media/lisp.vp media_ac3_psd
+```
+
+### ac3-spx
+
+```code
+(ac3-spx decoder header out)
+
+the bins of spectral extension of each channel using it: the bins from
+its start copied up, again from the start each time the copying comes
+to where they are copied to, each band blended with noise to the
+energy it is said to have, and a notch where a copy begins
+```
+
+### ac3-stereo
+
+```code
+(ac3-stereo decoder chans) -> (left right)
+
+the full channels of a frame made two, as 16 bit samples are: by
+-2^24, the sign the standard's, the size of mantissas by 2^-exponent
+through the IMDCT as 16 bit samples, matched to afconvert's decode;
+and of more than two the centre and the surrounds in
+each side at 0.707, the sum held to full scale; the LFE left out
 ```
 
 ### action-maximise
@@ -547,6 +999,36 @@ have left/right default to black/white"
 
 ```code
 (bitcnt n) -> num bits
+```
+
+### bits-at
+
+```code
+(bits-at reader) -> num
+```
+
+### bits-of
+
+```code
+(bits-of str) -> reader
+```
+
+### bits-seek
+
+```code
+(bits-seek reader at) -> reader
+```
+
+### bits-skip
+
+```code
+(bits-skip reader n) -> reader
+```
+
+### bits-str
+
+```code
+(bits-str reader) -> str
 ```
 
 ### bn-add
@@ -998,6 +1480,15 @@ to ensure merges are handled correctly.
 initialize :overrides as an empty list for ALL existing method entries
 ```
 
+### byte-swap
+
+```code
+(byte-swap num width) -> num
+
+the low width bytes of a number the other way about, the high first,
+of 2, 4 and 8 by shifts, of other widths a byte at a time
+```
+
 ### byte-to-hex-str
 
 ```code
@@ -1168,7 +1659,8 @@ on to the next after cols of them, from 0 0
 ```code
 (char-be num width) -> str
 
-a number as width bytes, the high byte first; (char) has the low first
+a number as width bytes, the high byte first; (char) has the low first,
+and makes them, of 1 to 8
 ```
 
 ### char-class
@@ -1217,7 +1709,8 @@ x, no lower than lo and no higher than hi
 (code-be str width [idx]) -> num
 
 a number of width bytes from idx, the high byte first, as a file or a
-protocol of the net has them; (code) has the low first
+protocol of the net has them; (code) has the low first, and reads them,
+of 1 to 8
 ```
 
 ### cpu
@@ -3307,13 +3800,15 @@ says how many frames it made, which is the result
 ### flm-codec
 
 ```code
-(flm-codec reel) -> codec
+(flm-codec reel [scale]) -> codec
 
 what makes frames of the packets of a film, on a canvas of its own
 the native of a delta frame is taken as the codec is made, not as this
 is read: this is read by every task that loads a picture, and one that
 named a function the system had not been built with yet never got as
 far as building it, gui/pixmap/flm.vp
+a scale only if it is of the whole size: a frame is drawn on the one
+before by its runs, as wide as the film
 ```
 
 ### flm-convert
@@ -3355,6 +3850,15 @@ the next frame of the film, a packet written to its stream
 
 ```code
 the state of a film being written to a stream
+```
+
+### flm-frame
+
+```code
+(flm-frame codec n) -> :nil | canvas
+
+frame n, each packet after the frame given last, or after the first
+if n is before it
 ```
 
 ### flm-head
@@ -3854,6 +4358,18 @@ Close and flush all idle pooled sockets
 
 ```code
 (http-request method url [headers body dest_stream]) -> pmap | :nil
+```
+
+### huff-table
+
+```code
+(huff-table codes) -> nums
+
+levels of 256, each by the next 8 bits of a code: a code that ends in
+a level fills each entry its bits begin, what it stands for by 256 and
+how many of the 8 it is; a longer one's entry is the next level, at
+-entry. A list of the levels yet to make, each the entry of the one
+before to link to it, its codes and the bits of them taken already
 ```
 
 ### huffman-book
@@ -4491,6 +5007,55 @@ folder up, each . is no move, and what is after a # is a place in
 the file, not part of its name
 ```
 
+### mdct-i0
+
+```code
+(mdct-i0 x) -> real
+
+the Bessel function I0, its series, the terms till they are nothing
+```
+
+### mdct-imdct
+
+```code
+(mdct-imdct dct4 tables lines n) -> reals
+
+the 2n samples of the IMDCT of n lines: their DCT-IV y, by 2/N, 1/n,
+as y from n/2, then -y backwards, then -y to n/2
+```
+
+### mdct-kbd
+
+```code
+(mdct-kbd n alpha) -> reals
+
+the rising half, n, of the Kaiser-Bessel derived window of 2n
+```
+
+### mdct-pi
+
+```code
+(mdct-pi) -> real
+```
+
+### mdct-sine
+
+```code
+(mdct-sine n) -> reals
+
+the rising half, n, of the sine window of 2n
+```
+
+### mdct-tables
+
+```code
+(mdct-tables n) -> (tw rev)
+
+what media_dct4 takes for a DCT-IV of n: the twiddles before,
+e^(-i pi (4j+1)/4n), after, e^(-i pi k/n), of the FFT of m, n/2,
+e^(-2 pi i k/m), each cos and sin, and the bit reversal of m
+```
+
 ### mesh-ball
 
 ```code
@@ -4534,6 +5099,306 @@ from corner to corner and a ball of faces is round
 (month-of-the-year month) -> str
 ```
 
+### mp3-alias
+
+```code
+the butterflies between each two subbands of long blocks, of a mixed
+
+one the first two alone, of short none, native, lib/media/lisp.vp
+media_mp3_alias
+```
+
+### mp3-band
+
+```code
+a band's lines requantised, |x|^4/3 by 2^(e/4), signed, native,
+
+lib/media/lisp.vp media_dequant
+```
+
+### mp3-codec
+
+```code
+(mp3-codec reel [scale]) -> codec
+
+what shows a frame: its samples, the left above the right, on a
+canvas of its own, by a decoder of its own; a scale is not taken
+```
+
+### mp3-decoder
+
+```code
+(mp3-decoder) -> decoder
+
+what goes from frame to frame: the reservoir of main data, of each
+channel its scale factors, the halves of its IMDCT and its v, and the
+books made native tables
+```
+
+### mp3-frame
+
+```code
+(mp3-frame decoder frame) -> (left right)
+
+a frame's samples, its main data from the reservoir and itself, each
+granule's channels read, the pair's middle and side made left and
+right, each to samples; nothing heard of a frame whose main data
+begins before what the reservoir has
+```
+
+### mp3-frames
+
+```code
+(mp3-frames str) -> ((at size) ...)
+
+the frames of the bytes of a file, after an ID3v2 tag if it has one,
+each found where the one before ends, or the next header after
+```
+
+### mp3-granule
+
+```code
+(mp3-granule reader lsf sri) -> granule
+
+of a channel of a granule, its side information: the bits of its scale
+factors and lines, the big values, the gain, the scale factors' code,
+the block type, mixed or not, the tables of its regions and the pairs
+of each, the gains of short windows, and the flags after
+```
+
+### mp3-guess
+
+```code
+where frame n should begin: by the table of a first frame of Xing,
+
+between two of its hundredths, else of a varying bit rate by the
+bytes a frame of them all, else by the bit rate of the first
+```
+
+### mp3-header
+
+```code
+(mp3-header str at) -> :nil | header
+
+the 4 bytes at at, if they are a header of layer III: MPEG-1, 2 or 2.5,
+the rate and its index of the band tables, the mode and its extension,
+the channels, granules and samples, and the bytes of the frame
+```
+
+### mp3-id3
+
+```code
+(mp3-id3 str) -> bytes
+
+the bytes of an ID3v2 tag at the start, and its footer, 0 if none
+```
+
+### mp3-imdct
+
+```code
+(mp3-imdct lines granule overlap) -> (reals ...)
+
+each subband's 18 samples: the IMDCT of 36 of its 18 lines, or of a
+short block three of 12 of its 6 a window, by the window of its block
+type, the two lowest of a mixed block of any type the plain window's;
+the first half on what the last left, the second half left for the
+next; of an odd subband the odd samples the other sign
+```
+
+### mp3-intensity
+
+```code
+(mp3-intensity left right granule sf header)
+
+of a pair of intensity stereo, from the top band down, each band the
+right has nothing in shares the left's by the right's scale factor, its
+position, those below it of middle and side if the frame says; a short
+block each window its own way, the last band by the scale factor of
+the band before
+```
+
+### mp3-lines
+
+```code
+(mp3-lines decoder reader granule end) -> nums
+
+the 576 lines of a channel's granule, quantised and signed, by the
+native reader, lib/media/lisp.vp media_mp3_lines: the big values by
+pairs, each region by its book, 15 the more bits of its table and then
+the sign; then quads of 1 and 0 till the end of the part
+```
+
+### mp3-packet
+
+```code
+(mp3-packet reel n) -> :nil | str
+
+frame n: where one read ends if it was n - 1, else the first found
+from a little before where it should be. The ends of the last four
+read are kept, the sound and the picture each read one after another
+```
+
+### mp3-pi
+
+```code
+(mp3-pi) -> real
+
+pi, by Newton from 3, sin(x) to 0
+```
+
+### mp3-picture
+
+```code
+(mp3-picture codec n) -> canvas
+
+frame n's samples drawn: after the one before, else with the three
+before it decoded first, for the reservoir and the overlap
+```
+
+### mp3-positions
+
+```code
+(mp3-positions lsf sfc) -> ((kl kr) ...)
+
+the shares of left and right of each position of intensity stereo: of
+MPEG-1 tan(pos pi/12) to 1, of MPEG-2 by 2^-1/4 or 2^-1/2 a step, the
+scalefac_compress's last bit, to the left at an odd position, the right
+at an even
+```
+
+### mp3-reel
+
+```code
+(mp3-reel stream) -> :nil | reel
+
+a file of MP3 as a reel of its frames, each found as it is wanted, not
+all now: a book of 40 hours is 2GB. They are counted by a first frame
+of Xing or Info if it has one, else by the bit rate, :frames, and a
+frame a packet, :rate of them a second. Its :tracks the one of sound,
+of codec "mp3", and its pictures those of lib/media/mp3.inc's codec,
+:width by :height, the samples of each frame
+```
+
+### mp3-reorder
+
+```code
+a short block's lines from band, window, line to band, line, window
+```
+
+### mp3-requant
+
+```code
+(mp3-requant granule lines sf sri) -> reals
+
+each line by the gain of its band: the global gain, less its scale
+factor and the pretab by the scale, of a short window its gain too
+```
+
+### mp3-rows
+
+```code
+(mp3-rows rows cols f) -> reals
+
+a matrix of (f row col), its rows one after another, as the native
+media_matvec takes it
+```
+
+### mp3-samples
+
+```code
+frame n's samples, :nil of one not there or not read
+```
+
+### mp3-scales
+
+```code
+(mp3-scales reader granule gr scfsi prev) -> (sf ...)
+
+the scale factors of MPEG-1: of short blocks 3 a band, of a mixed one
+the 8 long first, of long the 4 groups of bands, any the first granule
+gives the second by the scfsi; each so many bits by its slen
+```
+
+### mp3-scales-lsf
+
+```code
+(mp3-scales-lsf reader granule header ch) -> (sf ...)
+
+the scale factors of MPEG-2 and 2.5: the 9 bits of the scalefac_compress
+split to the lengths of 4 parts, of the right of intensity stereo its
+own way, as many in each part as the table has, 40 in all; of 500 or
+more the pretab used
+```
+
+### mp3-side
+
+```code
+(mp3-side reader header) -> (main_data_begin scfsi granules)
+
+the side information: where the main data begins, back in the
+reservoir, the scale factors each channel shares between its two
+granules, and each granule's channels
+```
+
+### mp3-split
+
+```code
+(mp3-split sf n1 n2 n3) -> (slen ...)
+
+the 4 lengths of MPEG-2's scale factors in one number, the last by n3,
+then n2 and n1, each of 0 a length of 0
+```
+
+### mp3-sync
+
+```code
+(mp3-sync str at) -> :nil | (at header)
+
+the first frame from at on: a header, and one of the same rate where
+it ends, if that is in the str, a header alone may be of a frame's
+bytes
+```
+
+### mp3-synth
+
+```code
+(mp3-synth subbands v pcm at) -> v
+
+the polyphase filterbank: for each of the 18 times, the 32 subbands'
+samples into the 64 of the matrix, on the front of the 1024 of v, and
+of the window D over 16 of them 32 samples, into pcm from at
+```
+
+### mp3-tables
+
+```code
+(mp3-tables) -> tables
+
+made the once, as the first decoder is: the starts of the long bands
+by the rate, |x|^4/3 to 8206, the butterflies, the cosines of the IMDCT
+of 36 and of 12, the windows of the 4 block types and of the short, the
+matrix of the filterbank and its window of 512
+```
+
+### mp3-unit
+
+```code
+the bytes of a frame of a constant bit rate, by the rate
+```
+
+### mp3-xing
+
+```code
+(mp3-xing str at header) -> :nil | (frames bytes toc vbr)
+
+what a first frame of Xing or Info, of nothing heard, says of those
+after it: how many, their bytes, and where each hundredth of them
+begins, by 1/256 of the bytes, :nil of each it does not say, and if
+their bit rate varies, Xing's. A table is taken only if it rises,
+some coders leave it all 0, and not that of Info, of a constant bit
+rate, the rate is nearer
+```
+
 ### mp4-boxes
 
 ```code
@@ -4543,12 +5408,67 @@ the boxes from at to end of a str: each name, where what is in it
 starts, and where it ends
 ```
 
+### mp4-close
+
+```code
+(mp4-close codec) -> :nil
+```
+
 ### mp4-codec
 
 ```code
-(mp4-codec reel) -> :nil
+(mp4-codec reel [scale]) -> :nil | codec
 
-no codec is here yet for what an mp4 holds
+the host's decoder of the video track's codec, on a canvas of its own,
+:nil if it has none. Its native is taken as the codec is made, not as
+this is read, as flm-codec does
+```
+
+### mp4-config
+
+```code
+(mp4-config str at end) -> ((name str) ...)
+```
+
+### mp4-edits
+
+```code
+(mp4-edits str trak track) -> track
+
+where the track begins, by its edit list, edts elst: :start the time,
+of its own, that is shown first, and :delay how long, of its own time,
+nothing of it is shown before that, an edit of no media first. What a
+sample is shown at, of the film's time, is its shown less start, and
+delay more. Each edit is its length, in the film's time, mvhd's, the
+time of the track it starts at, -1 for none, and a rate. Only the
+first edit with media is taken, as a player of a film from start to
+end has it
+```
+
+### mp4-f64
+
+```code
+(mp4-f64 str at) -> num
+
+a whole number held as a float of 8 bytes, high first, a rate of sound
+```
+
+### mp4-feed
+
+```code
+the packets fed to the host till the picture shown nth is out on the
+
+canvas. One before the last given, or after the next key, the host
+starts again from the key before its packet; one after it, before the
+next key, is fed on to, which is no more work
+```
+
+### mp4-frame
+
+```code
+(mp4-frame codec n) -> :nil | canvas
+
+the picture shown nth on the canvas, as it is if it is there already
 ```
 
 ### mp4-in
@@ -4571,6 +5491,16 @@ the moov box of a file, what is in it, its other boxes stepped over
 
 ```code
 a number of so many bytes, high first
+```
+
+### mp4-order
+
+```code
+(mp4-order reel) -> (packet ...)
+
+the packet shown nth, worked out once and kept in the reel, a codec
+made again at another scale has it: the sort of the frames of a film
+of two hours is half a second. With no ctts they are shown as decoded
 ```
 
 ### mp4-packet
@@ -4598,13 +5528,29 @@ the entries of a table box: after its version and flags, a count, and
 the entries, each so many 4 byte numbers, head more bytes before them
 ```
 
+### mp4-tables
+
+```code
+(mp4-tables track) -> track
+
+the tables of a track's samples, if they have not been read yet: where
+each sample is in the file, how long, when it is decoded and shown,
+and which are keys
+```
+
+### mp4-tables-read
+
+```code
+the samples: their sizes
+```
+
 ### mp4-track
 
 ```code
-(mp4-track str trak) -> track
+(mp4-track str trak [film_scale]) -> track
 
-what a track is, and where each of its samples is, how long, when,
-and which are keys
+what a track is, its kind, codec, size or sound and setup, how many
+samples it has and where it begins
 ```
 
 ### msafe?
@@ -5817,16 +6763,148 @@ is added at the end
 (pos? num) -> :t | :nil
 ```
 
-### pow
-
-```code
-(pow base exponent) -> integer
-```
-
 ### profile-report
 
 ```code
 (profile-report name [reset])
+```
+
+### ps-analysis
+
+```code
+(ps-analysis ps slots is34) -> ((re im) ...)
+
+the 71 or 91 hybrid bands of the 38 slots of a channel: the lowest 3 or
+5 bands split by the hybrid filters, each with 6 slots before, the rest
+as they are
+```
+
+### ps-apply
+
+```code
+(ps-apply ps slots top) -> (left right)
+
+the 32 QMF slots of each side, of the 38 of the one, top the band above
+the last SBR made, the delays above it let go
+```
+
+### ps-bad?
+
+```code
+(ps-bad? ps e) -> :nil | :t
+
+an intensity or a coherence of an envelope out of its range
+```
+
+### ps-decorrelate
+
+```code
+(ps-decorrelate ps bands is34) -> ((re im) ...)
+
+the second channel's bands, each unlike the first's: by its parameter
+band's transients a gain, then the lowest by all-pass filters of 3
+links of their delays, those above by a delay of 14 slots, the top by 1
+```
+
+### ps-filter
+
+```code
+(ps-filter re im filter n) -> ((re im) ...)
+
+n sub-subbands of a band of 44 slots, 6 before, by a complex filter
+of 13 taps, symmetric, the 7 of each in the table
+```
+
+### ps-filter2
+
+```code
+(ps-filter2 re im g reverse) -> ((re im) (re im))
+
+a band of 44 slots two, by a real filter of 13 taps of which only the
+centre and the odd are not 0
+```
+
+### ps-huff
+
+```code
+(ps-huff ps reader book) -> value
+```
+
+### ps-map
+
+```code
+(ps-map to from spec) -> to
+
+each band of the spec the mean of its bands of from, of numbers as C
+divides them, to 0, of reals by the count
+```
+
+### ps-new
+
+```code
+(ps-new) -> ps
+```
+
+### ps-par
+
+```code
+(ps-par ps reader par num book e dt mask)
+
+the parameters of an envelope, from those of the one before in time,
+or each from the band below in frequency, kept to 3 bits if masked
+```
+
+### ps-read
+
+```code
+(ps-read ps reader bits) -> bits
+
+the PS of an extension of bits, read by a reader of its own: its header
+if it has one, its envelopes' borders, the intensities and coherences
+of each, and of its extension the phases. How many bits it took, all
+of them if it is wrong, and that wrong frame's parameters left none
+```
+
+### ps-remap
+
+```code
+(ps-remap par num is34 full) -> nums
+
+an envelope's parameters of num bands as those of 34 or 20
+```
+
+### ps-series
+
+```code
+(ps-series slots q n) -> (re im)
+
+band q's first n slots, of slots of 64 bands each
+```
+
+### ps-stereo
+
+```code
+(ps-stereo ps left right is34)
+
+each band's two of the one and the unlike, mixed by its parameter
+band's matrix of each envelope, interpolated over the envelope's
+slots from the one before, its phases too if they were sent
+```
+
+### ps-synthesis
+
+```code
+(ps-synthesis bands is34) -> ((re im) ...)
+
+the 32 slots of 64 QMF bands of the hybrid bands, those split summed
+```
+
+### ps-tables
+
+```code
+(ps-tables)
+
+the books made native tables and the rest reals, made the once
 ```
 
 ### pset?
@@ -5998,27 +7076,50 @@ does not call itself
 (reals? form) -> :t | :nil
 ```
 
+### reals??
+
+```code
+(reals?? form) -> :t | :nil
+```
+
+### reel-close
+
+```code
+(reel-close codec) -> :nil
+
+let go of what the codec holds that is not in Lisp, a host decoder
+```
+
 ### reel-codec
 
 ```code
-(reel-codec reel) -> :nil | codec
+(reel-codec reel [scale]) -> :nil | codec
 
-:nil if there is none here for what the reel holds
+:nil if there is none here for what the reel holds. With a scale, 2
+3 or 4, the frames are shown that much smaller, the codec's canvas is
+made with that scale and its :swap makes them so. :scale of the codec
+is the one it took, a kind may take only some
 ```
 
-### reel-decode
+### reel-frame
 
 ```code
-(reel-decode codec packet n) -> :nil | canvas
+(reel-frame codec n) -> :nil | canvas
+
+frame n, in the order they are shown, on the codec's canvas
 ```
 
 ### reel-kind
 
 ```code
-(reel-kind ext open packet codec decode)
+(reel-kind ext open packet codec frame [close])
 
 files whose names end ext are reels: (open stream) -> :nil | reel,
-(packet reel n), (codec reel), (decode codec packet n)
+(packet reel n), (codec reel scale), (frame codec n), (close codec). The
+kinds are of the shared root of a GUI's node, gui/canvas/lisp.inc
+imports them, and one of a name already there is replaced: a kind
+added by a task would hold that task's functions, and so the task,
+after it had gone
 ```
 
 ### reel-open
@@ -6333,6 +7434,329 @@ ever. It leaves room for a badge
 (s-turn items) -> items
 
 across for down, a thing that lies along is made to stand
+```
+
+### sbr-analysis
+
+```code
+(sbr-analysis data samples) -> ((re im) ...)
+
+the 32 slots of 32 bands of 1024 samples: the newest 320 by the
+window, its 5 parts of 64 summed, by the cos and sin of each band
+```
+
+### sbr-apply
+
+```code
+(sbr-apply sbr kind chans) -> (reals ...)
+
+the 2048 samples of each of an element's channels of 1024, its kind
+0 a channel or 1 a pair: each to the QMF bank's bands, its high band
+made by the data read, and to samples at twice the rate
+```
+
+### sbr-assemble
+
+```code
+(sbr-assemble sbr data high gains)
+
+the high band of each slot, its gains smoothed over the slots before
+unless at a transient, its noise, or its sinusoid, in the slots of
+this frame's Y
+```
+
+### sbr-bands
+
+```code
+(sbr-bands start stop n) -> nums
+
+the widths of n bands from start to stop, each the same ratio wider
+```
+
+### sbr-channel
+
+```code
+(sbr-channel) -> data
+
+what a channel keeps: of the frame before its grid and the last of its
+envelope and noise, its filters and the states of its QMF banks
+```
+
+### sbr-chirp
+
+```code
+(sbr-chirp sbr data)
+
+each noise band's chirp, of how hard it is to be filtered, now and in
+the frame before, smoothed
+```
+
+### sbr-data
+
+```code
+(sbr-data sbr reader kind) -> :nil | :t
+
+a frame's data of a channel or a pair, coupled or not, and its
+extensions stepped over
+```
+
+### sbr-dequant
+
+```code
+(sbr-dequant sbr)
+
+the envelopes and noise floors as levels: of a coupled pair the first
+the level and the second the balance, made each side's
+```
+
+### sbr-derived
+
+```code
+(sbr-derived sbr) -> :nil | :t
+
+the high and low tables, the noise floor's and the limiter's, and the
+patches, of the master table and where the high band begins
+```
+
+### sbr-dtdf
+
+```code
+(sbr-dtdf reader data)
+
+each envelope and noise floor coded in time or in frequency
+```
+
+### sbr-envelope
+
+```code
+(sbr-envelope sbr reader data channel) -> :nil | :t
+
+each envelope's scale factors, the first of a channel coded in
+frequency from a start, else each from the one before it, in time
+from the last envelope, its table of the other resolution mapped
+```
+
+### sbr-estimate
+
+```code
+(sbr-estimate sbr data high) -> (reals ...)
+
+of each envelope the energy of the high band made, each band's, or
+over each band of its table, by the slots of the envelope
+```
+
+### sbr-gains
+
+```code
+(sbr-gains sbr data maps energies) -> ((gain noise sine) ...)
+
+of each envelope each band's gain, noise and sinusoid, each limiter
+band's gains kept to its limit and its energy made what was sent
+```
+
+### sbr-grid
+
+```code
+(sbr-grid sbr reader data) -> :nil | :t
+
+the envelopes in time of a frame of 16 slots, the borders of each and
+of the noise floors, and which is the one a transient starts
+```
+
+### sbr-grid-copy
+
+```code
+(sbr-grid-copy to from)
+
+the second channel of a coupled pair has the first's grid, its own of
+the frame before kept
+```
+
+### sbr-harmonics
+
+```code
+(sbr-harmonics sbr reader data)
+
+which high bands have a sinusoid added
+```
+
+### sbr-header
+
+```code
+(sbr-header sbr reader)
+
+a header: the spectrum, a reset if that is not as it was, and the
+limiter, its bands made again if they are another number
+```
+
+### sbr-high
+
+```code
+(sbr-high sbr data low alphas) -> ((re im) ...) | :nil
+
+the high band, the bands above kx each a band of a patch filtered by
+its prediction and its noise band's chirp, over the slots of the
+envelopes
+```
+
+### sbr-huff
+
+```code
+(sbr-huff sbr reader book) -> value
+
+a code of one of the 10 books, what it stands for
+```
+
+### sbr-inverse
+
+```code
+(sbr-inverse sbr low) -> (alpha0 alpha1)
+
+of each band below k0 the two terms of its prediction, by its
+autocorrelation, each (re im), none of a band too tonal to predict
+```
+
+### sbr-invf
+
+```code
+(sbr-invf sbr reader data)
+
+how hard each noise band is filtered, the last kept
+```
+
+### sbr-limiter
+
+```code
+(sbr-limiter sbr)
+
+the bands of the limiter: of the low table and the borders of the
+patches, those closer than its bands an octave merged, a patch's
+border kept over another
+```
+
+### sbr-log2
+
+```code
+(sbr-log2 real) -> real
+
+of 1 or more, by halving the step to it, pow being there and log not
+```
+
+### sbr-low
+
+```code
+(sbr-low sbr data) -> ((re im) ...)
+
+the low band, each of 32 bands its 40 slots: 8 of the frame before and
+the 32 of this one, below kx and kx before
+```
+
+### sbr-mapping
+
+```code
+(sbr-mapping sbr data) -> :nil | ((orig noise sines) ...)
+
+of each envelope, each band of the high band its level, its noise
+floor's, and if a sinusoid is in its band, of those added; which are
+added, of the frame before too, kept
+```
+
+### sbr-master
+
+```code
+(sbr-master sbr) -> :nil | :t
+
+the master table, the borders of the bands of the high band, k0 to k2
+```
+
+### sbr-new
+
+```code
+(sbr-new rate [ps]) -> sbr
+
+of an element of a core of a rate, the SBR at twice it, till its first
+header only the banks; with ps, parametric stereo makes two of its one
+```
+
+### sbr-noise
+
+```code
+(sbr-noise sbr reader data channel) -> :nil | :t
+
+each noise floor's levels, as the envelopes are
+```
+
+### sbr-off
+
+```code
+(sbr-off sbr)
+
+back to the banks alone, as when a frame's data is wrong
+```
+
+### sbr-patches
+
+```code
+(sbr-patches sbr) -> :nil | :t
+
+the patches, each the bands below it that a run of bands above is
+copied from, to the top of the high band
+```
+
+### sbr-read
+
+```code
+(sbr-read sbr reader crc bytes kind) -> bits
+
+the SBR of a fill element of bytes, the reader past its 4 bits of
+type, of the element of a kind before it, 0 a channel, 1 a pair: its
+header if it has one, the tables made again if that says, and its
+data. How many bits it took, a wrong frame turns SBR off
+```
+
+### sbr-round
+
+```code
+(sbr-round real) -> num
+```
+
+### sbr-sums
+
+```code
+(sbr-sums start widths) -> nums
+
+the borders of bands of widths from start
+```
+
+### sbr-synthesis
+
+```code
+(sbr-synthesis data slots) -> reals
+
+the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
+bands newest in v, its 10 parts by the window, summed
+```
+
+### sbr-tables
+
+```code
+(sbr-tables)
+
+the books made native tables, the window, the noise and the matrices
+of the banks, made the once. The analysis's 32 bands of 64 sums of
+the window, each 2 e^(i pi (k + 1/2)(2n - 1/2)/64), its cos and its
+sin; the synthesis's 128 of the 64 bands, re and im, each e^(i pi
+(k + 1/2)(2n - 255)/128)/64, its re part
+```
+
+### sbr-x
+
+```code
+(sbr-x sbr data low) -> ((re im) ...)
+
+the 38 slots of 64 bands, 32 to the synthesis and the 6 after to the
+hybrid filters of PS: the low band, and the high band made, of the
+frame before for the slots its last envelope runs into this one
 ```
 
 ### scan-line
@@ -10032,6 +11456,12 @@ of nodes it is part way through, each (nodes at)
 
 ```code
 (url-scheme-port scheme) -> num
+```
+
+### url-split
+
+```code
+the folder and the start of a name, a path from / of the host's as it is
 ```
 
 ### usort
