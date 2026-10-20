@@ -750,15 +750,15 @@
 		(loop-until `(,x = ,p))
 	(endif)
 	;the first 28 a band each
-	(vpif `(,bin < ,end))
+	(vpif `(,bin < ,end) `(,bin < 28))
 	(loop-start)
-		(breakif `(,bin >= 28))
 		(vp-cpy-rr bin x)
 		(vp-shl-cr 3 x)
 		(vp-cpy-dr psd x v)
 		(vp-cpy-rd v band_psd x)
 		(vp-add-cr 1 bin)
-	(loop-until `(,bin = ,end))
+		(breakif `(,bin = ,end) `(,bin = 28))
+	(loop-end)
 	(endif)
 	;the rest by bands, each its bins added as logs
 	(vpif `(,bin < ,end))
