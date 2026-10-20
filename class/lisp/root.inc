@@ -1285,13 +1285,29 @@
 			(char (+ 0x80c0 (>> %0 6) (logand (<< %0 8) 0x3f00)) 2))
 		(:t (char %0))))
 
+(defun byte-swap (n width)
+	; (byte-swap num width) -> num
+	;the low width bytes of a number the other way about, the high first,
+	;of 2, 4 and 8 by shifts, of other widths a byte at a time
+	(case width
+		(1 (logand n 0xff))
+		(2 (logior (<< (logand n 0xff) 8) (logand (>> n 8) 0xff)))
+		(4 (logior (<< (logand n 0xff) 24) (<< (logand n 0xff00) 8) (logand (>> n 8) 0xff00) (logand (>> n 24) 0xff)))
+		(8 (logior (<< (logand n 0xff) 56) (<< (logand n 0xff00) 40) (<< (logand n 0xff0000) 24) (<< (logand n 0xff000000) 8)
+			(logand (>> n 8) 0xff000000) (logand (>> n 24) 0xff0000) (logand (>> n 40) 0xff00) (logand (>> n 56) 0xff)))
+		(:t (defq v 0)
+			(times width (setq v (logior (<< v 8) (logand n 0xff)) n (>> n 8)))
+			v)))
+
 (defun char-be (n width)
 	; (char-be num width) -> str
-	;a number as width bytes, the high byte first; (char) has the low first
-	(defq out (list))
-	(while (>= (setq width (dec width)) 0)
-		(push out (char (logand (>> n (* width 8)) 0xff))))
-	(apply (const cat) out))
+	;a number as width bytes, the high byte first; (char) has the low first,
+	;and makes them, of 1 to 8
+	(if (<= 1 width 8) (char (byte-swap n width) width)
+		(defq out (list))
+		(while (>= (setq width (dec width)) 0)
+			(push out (char (logand (>> n (* width 8)) 0xff))))
+		(apply (const cat) out)))
 
 (defun byte-to-hex-str (%0)
 	; (byte-to-hex-str num) -> str
@@ -1391,10 +1407,13 @@
 (defun code-be (s width &optional idx)
 	; (code-be str width [idx]) -> num
 	;a number of width bytes from idx, the high byte first, as a file or a
-	;protocol of the net has them; (code) has the low first
-	(defq n 0 i (setd idx 0) e (+ idx width))
-	(while (< i e) (setq n (+ (<< n 8) (get-ubyte s i)) i (inc i)))
-	n)
+	;protocol of the net has them; (code) has the low first, and reads them,
+	;of 1 to 8
+	(setd idx 0)
+	(if (<= 1 width 8) (byte-swap (code s width idx) width)
+		(defq n 0 e (+ idx width))
+		(while (< idx e) (setq n (+ (<< n 8) (get-ubyte s idx)) idx (inc idx)))
+		n))
 
 (defmacro get-real (obj idx)
 	; (get-real str idx) -> real
