@@ -545,3 +545,154 @@
 	(signature '(:reals :num :num :num :real)))
 
 (def-func-end)
+
+(defun media-read (data at n v x y)
+	;the next n bits of the str data at bit at, high bit first, into v, and
+	;at moved past them. n a reg or a constant, x and y trashed
+	(vp-cpy-rr at x)
+	(vp-shr-cr 3 x)
+	(vp-add-rr data x)
+	(vp-cpy-ir-ub x +str_data v)
+	(each (lambda (i)
+			(vp-shl-cr 8 v)
+			(vp-cpy-ir-ub x (+ +str_data i) y)
+			(vp-add-rr y v))
+		'(1 2 3))
+	(vp-cpy-rr at y)
+	(vp-and-cr 7 y)
+	(vp-shl-rr y v)
+	(vp-cpy-cr 32 y)
+	(if (num? n) (vp-sub-cr n y) (vp-sub-rr n y))
+	(vp-shr-rr y v)
+	(vp-cpy-cr 1 y)
+	(if (num? n) (vp-shl-cr n y) (vp-shl-rr n y))
+	(vp-sub-cr 1 y)
+	(vp-and-rr y v)
+	(if (num? n) (vp-add-cr n at) (vp-add-rr n at)))
+
+(def-func (path-to-absolute "./media_ac3_mantissas"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f1
+	;info
+	;(media-ac3-mantissas reader bap exps start end out groups noise dither
+	;table) -> out, the coefficients of AC-3 bins start to end into out, each
+	;its mantissa by 2^-exponent, read from a reader of lib/media/bits.inc.
+	;bap 1, 2 and 4 are codes of 5, 7 and 7 bits of 3, 3 and 2 levels,
+	;groups the nums of the count left and the code of each, shared by the
+	;channels of a block; the levels of a code from table, at 0, 96 and
+	;480, 3, 3 and 2 a code in the order they are used. bap 3 and 5 are 3
+	;and 4 bits, their levels at 736 and 744; 6 to 15 numbers of 5 to 16
+	;bits. bap 0 is noise of the reals noise, or 0 if dither is 0
+
+	(vp-rdef (in bap exps bin end out groups noise dither table at b v x y)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r0 :r1))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 10)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,in ,bap ,exps ,bin ,end ,out ,groups ,noise ,dither ,table)
+		'(:obj :obj :obj :num :num :obj :obj :obj :num :obj))
+	(vp-push out)
+	;the reader's str and the nums of its place
+	(assign `((,in +array_begin)) `(,x))
+	(assign `((,x 0) (,x +ptr_size)) `(,in ,x))
+	(assign `((,x +array_begin)) `(,x))
+	(vp-push x)
+	(assign `((,x 0)) `(,at))
+	(assign `((,bap +array_begin) (,exps +array_begin) (,out +array_begin) (,groups +array_begin)
+		(,noise +array_begin) (,table +array_begin)) `(,bap ,exps ,out ,groups ,noise ,table))
+	(vpif `(,bin < ,end))
+	(loop-start)
+		(vp-cpy-rr bin x)
+		(vp-shl-cr 3 x)
+		(vp-cpy-dr bap x b)
+		(vpif `(,b = 0))
+			(vpif `(,dither /= 0))
+				(vp-cpy-df noise x :f0)
+			(else)
+				(vp-xor-rr v v)
+				(vp-cvt-rf v :f0)
+			(endif)
+		(elseif `(,b < 6))
+			(vpif `(,b = 3))
+				(media-read in at 3 v x y)
+				(vp-add-cr 736 v)
+			(elseif `(,b = 5))
+				(media-read in at 4 v x y)
+				(vp-add-cr 744 v)
+			(else)
+				;a level of a code, a new code when the last is used up
+				(each (lambda ((k off bits levels base))
+						(if (= k 1) (vpif `(,b = 1)) (if (= k 2) (elseif `(,b = 2)) (else)))
+						(assign `((,groups ,off)) `(,b))
+						(vpif `(,b = 0))
+							(media-read in at bits v x y)
+							(assign `(,v) `((,groups ,(+ off 8))))
+							(vp-cpy-cr levels b)
+						(endif)
+						(vp-sub-cr 1 b)
+						(assign `(,b) `((,groups ,off)))
+						(assign `((,groups ,(+ off 8))) `(,v))
+						(vp-mul-cr levels v)
+						(vp-add-rr b v)
+						(vp-add-cr base v))
+					'((1 0 5 3 0) (2 16 7 3 96) (4 32 7 2 480)))
+				(endif)
+			(endif)
+			(vp-shl-cr 3 v)
+			(vp-cpy-df table v :f0)
+		(else)
+			;a number of q bits, q b - 1 to 13 bits, then 14 and 16, by 2^-(q-1)
+			(vpif `(,b < 14))
+				(vp-sub-cr 1 b)
+			(else)
+				(vp-add-rr b b)
+				(vp-sub-cr 14 b)
+			(endif)
+			(media-read in at b v x y)
+			(vp-cpy-cr 64 x)
+			(vp-sub-rr b x)
+			(vp-shl-rr x v)
+			(vp-asr-rr x v)
+			(vp-cvt-rf v :f0)
+			(vp-sub-cr 1 b)
+			(vp-cpy-cr 1 y)
+			(vp-shl-rr b y)
+			(vp-cvt-rf y :f1)
+			(vp-div-ff :f1 :f0)
+		(endif)
+		;by 2^-exponent
+		(vp-cpy-rr bin x)
+		(vp-shl-cr 3 x)
+		(vp-cpy-dr exps x b)
+		(vp-cpy-cr 1 y)
+		(vp-shl-rr b y)
+		(vp-cvt-rf y :f1)
+		(vp-div-ff :f1 :f0)
+		(vp-cpy-fd :f0 out x)
+		(vp-add-cr 1 bin)
+	(loop-until `(,bin = ,end))
+	(endif)
+	;the reader's place
+	(vp-pop x)
+	(assign `(,at) `((,x 0)))
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-ac3-mantissas reader bap exps start end out groups noise dither table)" +error_msg_wrong_types))
+	(signature '(:list :nums :nums :num :num :reals :nums :reals :num :reals)))
+
+(def-func-end)

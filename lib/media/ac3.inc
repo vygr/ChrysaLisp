@@ -83,8 +83,6 @@
 	:slow_decay '(15 17 19 21) :fast_decay '(63 83 103 123) :slow_gain '(1344 1240 1144 1040)
 	:db_per_bit '(0 1792 2304 2816) :floor '(752 688 624 560 496 368 240 -2048)
 	:fast_gain '(128 256 384 512 640 768 896 1024)
-	;the bits of a mantissa of bap 6 to 15
-	:qbits '(0 0 0 0 0 0 5 6 7 8 9 10 11 12 14 16)
 	:rematrix '(13 25 37 61 253)
 	:cpl_bands '(0 0 0 0 0 0 0 0 1 0 1 1 0 1 1 1 1 1)
 	:spx_bands '(0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1))
@@ -103,6 +101,28 @@
 		(-16255 -8096) (-16320 -8144) (-16352 -8168) (-16368 -8180))
 	:gaq_remap_b '((-5461 -1170) (-11703 -4915) (-14199 -6606) (-15327 -7412) (-15864 -7805)
 		(-16126 -7999) (-16255 -8096) (-16320 -8144) (-16352 -8168)))
+
+(defun ac3-grouped (codes per levels)
+	; (ac3-grouped codes per levels) -> (real ...)
+	;the levels of each code of a grouped bap, per to a code, of a code v the
+	;first v mod levels, the next of v by levels, the last what is left, in
+	;the order a list of them is popped, the last first
+	(reduce (lambda (out v)
+			(each (lambda (i)
+					(defq q (/ v (pow levels i)))
+					(push out (/ (n2r (- (* 2 (if (= i (dec per)) q (% q levels))) (dec levels))) (n2r levels))))
+				(range 0 per))
+			out)
+		(range 0 codes) (list)))
+
+;the levels of each code of bap 1, 2 and 4, at 0, 96 and 480, and of bap
+;3 and 5, at 736 and 744, for the native reader of the mantissas
+(scatter +ac3 :levels (reduce (# (push %0 %1)) (cat (ac3-grouped 32 3 3) (ac3-grouped 128 3 5) (ac3-grouped 128 2 11)
+		(map (# (/ (n2r (- (* 2 %0) 6)) (n2r 7))) (range 0 8)) (map (# (/ (n2r (- (* 2 %0) 14)) (n2r 15))) (range 0 16)))
+	(cap 760 (reals))))
+
+(ffi (path-to-absolute "./media_ac3_mantissas") ac3-read-mantissas)
+; (ac3-read-mantissas reader bap exps start end out groups noise dither table) -> out
 
 (defun ac3-bsi (in h)
 	;the rest of AC-3's: dialogue level, compression, language, production,
@@ -374,9 +394,9 @@
 	; (ac3-decoder header) -> decoder
 	;what is carried from block to block, and frame to frame, of each
 	;channel: 0 the coupling channel, 1 to fbw the full ones, fbw+1 the LFE
-	(defq n (+ (. h :find :fbw) 2) zeros (map (lambda (_) 0) (range 0 256)))
+	(defq n (+ (. h :find :fbw) 2))
 	(scatter (Emap) :fbw (. h :find :fbw) :lfe (. h :find :lfe) :mode (. h :find :mode) :rate_code (. h :find :rate_code)
-		:exps (map (lambda (_) (cat zeros)) (range 0 n)) :bap (map (lambda (_) (cat zeros)) (range 0 n))
+		:exps (map (lambda (_) (fill (nums) 256 0)) (range 0 n)) :bap (map (lambda (_) (fill (nums) 256 0)) (range 0 n))
 		:psd (map (lambda (_) :nil) (range 0 n)) :band_psd (map (lambda (_) :nil) (range 0 n))
 		:mask (map (lambda (_) :nil) (range 0 n))
 		:start (map (lambda (_) 0) (range 0 n)) :end (map (lambda (_) 0) (range 0 n))
@@ -511,40 +531,14 @@
 	;the coefficients of a channel's bins, each its mantissa by 2^-exponent:
 	;bap 1 2 and 4 are levels sent three or two to a code, those codes
 	;shared by the channels of the block, groups; 3 and 5 levels of 3 and 4
-	;bits; 6 to 15 numbers of so many bits; 0 is dither or nothing
-	(defq bap (elem-get (. d :find :bap) c) exps (elem-get (. d :find :exps) c)
-		start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
-		dither (or (= c 0) (= 1 (elem-get (. d :find :dither) c)))
-		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)) noise (. d :find :noise))
+	;bits; 6 to 15 numbers of so many bits; 0 is dither or nothing. Read by
+	;the native reader, lib/media/lisp.vp media_ac3_mantissas
+	(defq start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
+		dither (or (= c 0) (= 1 (elem-get (. d :find :dither) c))) noise (. d :find :noise))
 	;the dither, of -0.707 to 0.707, made for all the bins at once
 	(if dither (. d :insert :seed (noise-fill noise start end (. d :find :seed) (const (/ (n2r 0.707) (n2r 0x80000000))))))
-	(each (lambda (bin)
-			(defq b (elem-get bap bin) m (n2r 0))
-			(cond
-				((= b 0) (if dither (setq m (elem-get noise bin))))
-				((= b 1)
-					(when (empty? (first groups))
-						(defq v (bits-get in 5))
-						(elem-set groups 0 (list (% v 3) (% (/ v 3) 3) (/ v 9))))
-					(setq m (/ (n2r (- (* 2 (pop (first groups))) 2)) (n2r 3))))
-				((= b 2)
-					(when (empty? (second groups))
-						(defq v (bits-get in 7))
-						(elem-set groups 1 (list (% v 5) (% (/ v 5) 5) (/ v 25))))
-					(setq m (/ (n2r (- (* 2 (pop (second groups))) 4)) (n2r 5))))
-				((= b 3) (setq m (/ (n2r (- (* 2 (bits-get in 3)) 6)) (n2r 7))))
-				((= b 4)
-					(when (empty? (third groups))
-						(defq v (bits-get in 7))
-						(elem-set groups 2 (list (% v 11) (/ v 11))))
-					(setq m (/ (n2r (- (* 2 (pop (third groups))) 10)) (n2r 11))))
-				((= b 5) (setq m (/ (n2r (- (* 2 (bits-get in 4)) 14)) (n2r 15))))
-				(:t (defq q (elem-get qbits b) v (bits-get in q))
-					(if (>= v (<< 1 (dec q))) (setq v (- v (<< 1 q))))
-					(setq m (/ (n2r v) (n2r (<< 1 (dec q)))))))
-			(elem-set out bin (/ m (n2r (<< 1 (elem-get exps bin))))))
-		(range start end))
-	out)
+	(ac3-read-mantissas in (elem-get (. d :find :bap) c) (elem-get (. d :find :exps) c) start end
+		(fill (reals) 256 (n2r 0)) groups noise (if dither 1 0) (. +ac3 :find :levels)))
 
 ;the default bit allocation of E-AC-3 without its syntax, and its codes
 (defun ac3-defaults (d)
@@ -828,7 +822,7 @@
 	(and (= (. h :find :skipflde) 1) (= (bits-1 in) 1) (bits-skip in (* 8 (bits-get in 9))))
 	;the mantissas, the coupling channel's after the first coupled one's
 	;those of a channel of AHT all in the first block
-	(defq groups (list (list) (list) (list)) cpl :nil
+	(defq groups (fill (nums) 6 0) cpl :nil
 		mants (lambda (c) (if (= 0 (elem-get aht c)) (ac3-mantissas d in c groups) (ac3-aht-coeffs d in c blk))))
 	(defq out (map (lambda (c)
 			(defq coeffs (mants c))
