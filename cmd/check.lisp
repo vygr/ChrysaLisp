@@ -164,8 +164,9 @@
             with a (defq). A name is found where a function
             is called from, so it is the other's that is had.
 
-    If no paths given on command line
-    then will test files from stdin.")
+    A path that is a folder is the source files in it, at
+    any depth. If no paths given on command line then will
+    test files from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
@@ -1190,8 +1191,12 @@
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0) :nil) (io-stream 'stdin)))
-		;only source files
-		(setq jobs (filter (lambda (f) (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))) jobs))
+		;only source files, a folder the source files in it at any depth
+		(setq jobs (reduce (lambda (out f)
+				(if (some (# (ends-with %0 f)) '(".vp" ".inc" ".lisp"))
+					(push out f)
+					(reduce (# (push %0 %1)) (files-all f '(".vp" ".inc" ".lisp")) out)))
+			jobs (list)))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)

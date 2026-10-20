@@ -835,9 +835,11 @@
 			(when (= 1 (elem-get in_cpl c))
 				(unless cpl (setq cpl (mants 0)))
 				;the coupled bins, the coupling channel's by this one's coordinates
+				;the right of a pair has them by its phase, a band's turned over
 				(defq bin (elem-get start 0) coords (elem-get (. d :find :coords) c))
+				(and (= c 2) (= mode 2)
+					(setq coords (map (# (if (= 1 %1) (neg %0) %0)) coords (. d :find :phase))))
 				(each (lambda (size k)
-						(and (= c 2) (= mode 2) (= 1 (elem-get (. d :find :phase) (!))) (setq k (neg k)))
 						(times size
 							(elem-set coeffs bin (* (if (and (= 0 (elem-get (elem-get (. d :find :bap) 0) bin))
 									(= 0 (elem-get (. d :find :dither) c))) (n2r 0) (elem-get cpl bin)) k))

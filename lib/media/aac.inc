@@ -576,10 +576,10 @@
 				out)
 			channels))
 	;the pairs, M/S and intensity, before TNS
-	(each (lambda (ch)
+	(each (lambda (ch l)
 			(and (eql (. ch :find :pair) :left) (. ch :find :ms)
-				(aac-stereo ch (elem-get channels (inc (!))) (elem-get lines (!)) (elem-get lines (inc (!))) tables)))
-		channels)
+				(aac-stereo ch (elem-get channels (inc (!))) l (elem-get lines (inc (!))) tables)))
+		channels lines)
 	(each (# (aac-tns-apply %0 %1 rate_index)) channels lines)
 	(defq out (map (# (aac-imdct decoder %1 (. %0 :find :info) (!))) channels lines))
 	;of more than two channels, the front pair with the centre before it in
