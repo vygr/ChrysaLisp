@@ -22,22 +22,6 @@
 	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
-(defun show (n)
-	;frame n on the canvas, the codec reads the packets it needs for it
-	(setq *at* n *seek* n)
-	(reel-frame *codec* n)
-	(. *canvas* :swap +swap_write)
-	(def *timeline* :value *at*)
-	(. *timeline* :dirty)
-	(set *status* :text (cat (if (. *reel* :find :audio)
-			(cat (clock-of (frame-time *at*)) " of " (clock-of (frame-time (. *reel* :find :frames))))
-			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
-				", " (str (n2i (. *reel* :find :rate))) " a second"))
-		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
-		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
-		(if *playing* "" ", paused")))
-	(.-> *status* :layout :dirty))
-
 (defun frame-time (n)
 	; (frame-time n) -> seconds
 	;when frame n is shown, of a film of an mp4, its time less where its
@@ -64,6 +48,22 @@
 	;h:mm:ss of a time
 	(defq s (n2i time))
 	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
+
+(defun show (n)
+	;frame n on the canvas, the codec reads the packets it needs for it
+	(setq *at* n *seek* n)
+	(reel-frame *codec* n)
+	(. *canvas* :swap +swap_write)
+	(def *timeline* :value *at*)
+	(. *timeline* :dirty)
+	(set *status* :text (cat (if (. *reel* :find :audio)
+			(cat (clock-of (frame-time *at*)) " of " (clock-of (frame-time (. *reel* :find :frames))))
+			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
+				", " (str (n2i (. *reel* :find :rate))) " a second"))
+		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
+		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
+		(if *playing* "" ", paused")))
+	(.-> *status* :layout :dirty))
 
 (defun sound-on? ()
 	(and *sound* *playing* (. *sound* :find :handle)))
