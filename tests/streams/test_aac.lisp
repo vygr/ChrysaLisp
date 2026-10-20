@@ -11,7 +11,7 @@
 	ac_track (some (# (if (eql (. %0 :find :kind) "soun") %0)) (. ac_reel :find :tracks)))
 (assert-true "a sound track" ac_track)
 (mp4-tables ac_track)
-(assert-list-eq "AAC-LC, 48000, stereo, by its esds" '(2 3 48000 2) (aac-track-config ac_track))
+(assert-list-eq "AAC-LC, 48000, stereo, by its esds" '(2 3 48000 2 :nil :nil) (aac-track-config ac_track))
 
 (defq ac_decoder (aac-decoder (aac-track-config ac_track)) ac_stream (. ac_reel :find :stream)
 	ac_left (list) ac_right (list) ac_bad 0)
@@ -37,3 +37,45 @@
 	(/ sig err))
 (assert-true "the left is the tone of 440 it was" (> (ac-ratio ac_left 440) (n2r 1000)))
 (assert-true "the right is the tone of 660 it was" (> (ac-ratio ac_right 660) (n2r 1000)))
+
+;he_aac.m4a is 0.6 seconds of 440 on the left and 660 on the right, 8192
+;high, at 44100, the left with white noise above 9000 too, made HE-AAC by
+;afconvert at 48 kbit/s: a core of AAC-LC at 22050, said by the sync
+;extension of its config, and SBR in its fill elements, which makes the
+;band above the core again of the band below. Of the second differences
+;of the samples, which the 660 a second barely has, ffmpeg's decode gives
+;9421 on the left and 55 on the right
+(defq he_reel (mp4-reel (file-stream "tests/streams/data/he_aac.m4a"))
+	he_track (some (# (if (eql (. %0 :find :kind) "soun") %0)) (. he_reel :find :tracks)))
+(mp4-tables he_track)
+(assert-list-eq "HE-AAC: a core at 22050, stereo, SBR, by its sync extension" '(2 7 22050 2 :t :nil) (aac-track-config he_track))
+(defq he_decoder (aac-decoder (aac-track-config he_track)) he_stream (. he_reel :find :stream)
+	he_left (list) he_right (list) he_sizes (list))
+(each (lambda (i)
+		(stream-seek he_stream (elem-get (. he_track :find :offsets) i) 0)
+		(defq chans (aac-decode he_decoder (read-blk he_stream (elem-get (. he_track :find :sizes) i))))
+		(push he_sizes (length (first chans)))
+		(push he_left (first chans))
+		(push he_right (second chans)))
+	(range 0 (. he_track :find :samples)))
+(assert-true "HE-AAC: every packet 2048 samples a side, at 44100" (every (# (= %0 2048)) he_sizes))
+(setq he_left (apply (const cat) he_left) he_right (apply (const cat) he_right))
+(defun he-second (x)
+	; (he-second samples) -> real
+	;the rms of the second differences, from 6000 to 24000
+	(defq a (slice x 5999 23999) b (slice x 6000 24000) c (slice x 6001 24001)
+		d (nums-add (nums-sub c b) (nums-sub a b)))
+	(sqrt (/ (nums-dot d d) (n2r 18000))))
+(defun he-tone (x hz)
+	; (he-tone samples hz) -> real
+	;the level of a tone, from 6000 to 24000
+	(defq w (/ (* (n2r 2) (n2r 3.14159265) (n2r hz)) (n2r 44100)) c (n2r 0) s (n2r 0))
+	(each! (lambda (v)
+			(defq a (* w (n2r (!))))
+			(setq c (+ c (* v (cos a))) s (+ s (* v (sin a)))))
+		(list x) 6000 24000)
+	(/ (* (n2r 2) (sqrt (+ (* c c) (* s s)))) (n2r 18000)))
+(assert-true "HE-AAC: the left's 440 as it was coded" (< (n2r 7500) (he-tone he_left 440) (n2r 8800)))
+(assert-true "HE-AAC: the right's 660 as it was coded" (< (n2r 7500) (he-tone he_right 660) (n2r 8800)))
+(assert-true "HE-AAC: the left's band above the core made again, as ffmpeg makes it" (< (n2r 7500) (he-second he_left) (n2r 11300)))
+(assert-true "HE-AAC: the right with none made, it had none" (< (he-second he_right) (n2r 200)))

@@ -17,7 +17,8 @@
 (defun sound-of (reel)
 	; (sound-of reel) -> :nil | sound
 	;the sound track of a film of an mp4 that there is a decoder for here:
-	;AAC-LC, its packets of 1024 samples, each after the one before; AC-3
+	;AAC-LC, its packets of 1024 samples, each after the one before, and
+	;HE-AAC's of 2048 at twice the rate; AC-3
 	;and E-AC-3, of 1536, a block of 256 late. Of an MP3 its frames, of
 	;1152 or 576, as they are heard, the packets of its reel, and those
 	;before one decoded first fill the reservoir. Each made two channels
@@ -41,9 +42,12 @@
 							(if (list? pcm) pcm (list (defq quiet (fill (reals) (. decoder :find :samples) (n2r 0))) quiet)))))
 				((eql (. track :find :codec) "mp4a")
 					(and (defq config (aac-track-config track)) (= (first config) 2)
-						;a lambda finds nothing of where it was made, what it wants is
-						;in the sound
-						(scatter sound :rate (third config) :size 1024 :delay 1024 :config config
+						;HE-AAC's SBR at twice the rate of its core, packets of 2048 and
+						;the track's start in the core's time; a lambda finds nothing of
+						;where it was made, what it wants is in the sound
+						(defq times (if (elem-get config 4) 2 1))
+						(scatter sound :rate (* times (third config)) :size (* times 1024) :delay (* times 1024)
+							:start (* times (. sound :find :start)) :config config
 							:make (lambda (sound) (aac-decoder (. sound :find :config)))
 							:decode (lambda (decoder packet) (aac-decode decoder packet)))))
 				(:t (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)

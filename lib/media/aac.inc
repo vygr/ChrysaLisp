@@ -18,6 +18,7 @@
 (import "./bits.inc")
 (import "./mdct.inc")
 (import "./noise.inc")
+(import "./sbr.inc")
 
 ;module
 (env-push)
@@ -116,16 +117,42 @@
 			(:t (setq at (+ body len)))))
 	found)
 
+(defun aac-type (in)
+	; (aac-type reader) -> type
+	(defq type (bits-get in 5))
+	(if (= type 31) (+ 32 (bits-get in 6)) type))
+
 (defun aac-config (setup)
-	; (aac-config setup) -> :nil | (type rate_index rate channels)
+	; (aac-config setup) -> :nil | (type rate_index rate channels sbr ps)
 	;what an AudioSpecificConfig says: the object type, 2 is AAC-LC, the
-	;index of its rate, the rate, and the channels
+	;index of its rate, the rate, the channels, and if SBR and parametric
+	;stereo are there, HE-AAC and its v2, the core then the type. They are
+	;said first, types 5 and 29 before the core's, or after its config by
+	;the sync extensions 0x2b7 and 0x548, which a decoder of AAC-LC alone
+	;does not read
 	(when (>= (length setup) 2)
-		(defq in (bits-of setup) type (bits-get in 5))
-		(if (= type 31) (setq type (+ 32 (bits-get in 6))))
+		(defq in (bits-of setup) end (* 8 (length setup)) type (aac-type in) sbr :nil ps :nil)
 		(defq index (bits-get in 4)
-			rate (if (= index 15) (bits-get in 24) (elem-get (. +aac :find :rates) (min index 12))))
-		(list type index rate (bits-get in 4))))
+			rate (if (= index 15) (bits-get in 24) (elem-get (. +aac :find :rates) (min index 12)))
+			channels (bits-get in 4))
+		(when (or (= type 5) (= type 29))
+			(setq sbr :t ps (= type 29))
+			(if (= (bits-get in 4) 15) (bits-skip in 24))
+			(setq type (aac-type in)))
+		(when (= type 2)
+			;the GASpecificConfig: frame length, depends on a core and its
+			;delay, an extension flag
+			(bits-skip in 1)
+			(if (= (bits-1 in) 1) (bits-skip in 14))
+			(bits-skip in 1)
+			(and (not sbr) (>= (- end (bits-at in)) 16) (= (bits-get in 11) 0x2b7) (= (aac-type in) 5)
+				(= (bits-1 in) 1)
+				(progn
+					(setq sbr :t)
+					(if (= (bits-get in 4) 15) (bits-skip in 24))
+					(and (>= (- end (bits-at in)) 12) (= (bits-get in 11) 0x548)
+						(setq ps (= (bits-1 in) 1))))))
+		(list type index rate channels sbr ps)))
 
 (defun aac-track-config (track)
 	; (aac-track-config track) -> :nil | config
@@ -306,12 +333,19 @@
 ; a block of a packet
 ;;;;;;;;;;;;;;;;;;;
 
+(defun aac-sbr (decoder element)
+	; (aac-sbr decoder element) -> sbr
+	;the SBR of an element, made as it is first wanted
+	(defq sbrs (. decoder :find :sbr))
+	(while (<= (length sbrs) element) (push sbrs (sbr-new (. decoder :find :rate))))
+	(elem-get sbrs element))
+
 (defun aac-block (decoder packet)
 	; (aac-block decoder packet) -> (channel ...) | :nil
 	;the channels of a raw data block, the elements read till END, and how
 	;many bits it took
 	(defq in (bits-of packet) channels (list) rate_index (. decoder :find :rate_index)
-		kind 0)
+		kind 0 element -1 element_kind 0)
 	;of more than two channels only the centre and the front pair are wanted,
 	;the elements to the first pair: what is after it is not read, its
 	;blocks are its length
@@ -319,8 +353,12 @@
 	(while (and (/= (setq kind (bits-get in 3)) +aac_end)
 			(not (and front (some (# (eql (. %0 :find :pair) :right)) channels))))
 		(bits-get in 4)
+		;each channel the element it is of, its SBR the data of a fill after it
+		(if (or (= kind +aac_sce) (= kind +aac_cpe) (= kind +aac_lfe))
+			(setq element (inc element) element_kind (if (= kind +aac_cpe) 1 0)))
 		(cond
-			((or (= kind +aac_sce) (= kind +aac_lfe)) (push channels (aac-channel in :nil rate_index)))
+			((or (= kind +aac_sce) (= kind +aac_lfe))
+				(push channels (scatter (aac-channel in :nil rate_index) :element element :kind 0)))
 			((= kind +aac_cpe)
 				(defq common (bits-1 in) info :nil ms 0 ms_mask :nil)
 				(when (= common 1)
@@ -331,8 +369,8 @@
 							(. info :find :lengths)))))
 				(defq left (aac-channel in info rate_index (= common 1))
 					right (aac-channel in info rate_index (= common 1)))
-				(scatter left :ms ms :ms_mask ms_mask :pair :left)
-				(scatter right :ms ms :ms_mask ms_mask :pair :right)
+				(scatter left :ms ms :ms_mask ms_mask :pair :left :element element :kind 1)
+				(scatter right :ms ms :ms_mask ms_mask :pair :right :element element :kind 1)
 				(push channels left right))
 			((= kind +aac_dse)
 				;data, stepped over: aligned or not, and its length
@@ -341,11 +379,17 @@
 				(if (= align 1) (bits-seek in (* 8 (/ (+ (bits-at in) 7) 8))))
 				(bits-skip in (* 8 count)))
 			((= kind +aac_fil)
-				;fill, stepped over; its 4 bits of count were read as the tag
+				;fill, its 4 bits of count were read as the tag: of a stream with
+				;SBR, the SBR of the element before it, else stepped over
 				(bits-skip in -4)
 				(defq count (bits-get in 4))
 				(if (= count 15) (setq count (+ count (bits-get in 8) -1)))
-				(bits-skip in (* 8 count)))
+				(defq at (bits-at in))
+				(when (and (> count 0) (>= element 0) (. decoder :find :sbr))
+					(defq type (bits-get in 4))
+					(if (or (= type 13) (= type 14))
+						(sbr-read (aac-sbr decoder element) in (= type 14) count element_kind)))
+				(bits-seek in (+ at (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
 	(. decoder :insert :bits (bits-at in))
 	channels)
@@ -525,6 +569,7 @@
 	;of the DCT-IV is taken now, not as this is read
 	(defq tables (aac-tables) zeros (fill (reals) 1024 (n2r 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
+		:sbr (and (> (length config) 4) (elem-get config 4) (list))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))
 		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (apply (const reals) (map (lambda (_) (n2r 1)) (range 0 1024))))))
@@ -580,6 +625,16 @@
 		channels lines)
 	(each (# (aac-tns-apply %0 %1 rate_index)) channels lines)
 	(defq out (map (# (aac-imdct decoder %1 (. %0 :find :info) (!))) channels lines))
+	;with SBR each element's channels at twice the rate, 2048 samples
+	(when (. decoder :find :sbr)
+		(defq doubled (list))
+		(each (lambda (ch)
+				(when (or (= (. ch :find :kind) 0) (eql (. ch :find :pair) :left))
+					(defq i (!) e (. ch :find :element)
+						chans (if (= (. ch :find :kind) 1) (slice out i (+ i 2)) (slice out i (inc i))))
+					(setq doubled (cat doubled (sbr-apply (aac-sbr decoder e) (. ch :find :kind) chans)))))
+			channels)
+		(setq out doubled))
 	;of more than two channels, the front pair with the centre before it in
 	;each at 0.707, as a downmix to two has it; a recording in the centre
 	;alone is heard on both
