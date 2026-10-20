@@ -24,6 +24,9 @@
 
 (import "./aac_tables.inc")
 
+(ffi (path-to-absolute "./media_lpc") lpc-filter)
+; (lpc-filter out start count step lpc) -> out
+
 ;what the functions read as they run: a module's names are gone by then,
 ;and a + constant is put in the code as it is read, this one map
 (defq +aac (Emap))
@@ -500,7 +503,7 @@
 										(if (>= c (<< 1 (dec bits))) (setq c (- c (<< 1 bits))))
 										(sin (/ (n2r c) (if (>= c 0) iqp iqm))))
 									coefs)
-								lpc (list (n2r 1)))
+								lpc (reals (n2r 1)))
 							(each (lambda (k)
 									(defq b (cat lpc) p (elem-get parcor k))
 									(push lpc p)
@@ -508,14 +511,10 @@
 								(range 0 order))
 							(defq from (+ (* w size) (elem-get bands (min bottom top_bands)))
 								to (+ (* w size) (elem-get bands (min top top_bands))))
-							(when (> to from)
-								(defq lines (if (= direction 1) (reverse (range from to)) (range from to)) done (list))
-								(each (lambda (k)
-										(defq y (elem-get out k))
-										(each (# (if (<= %0 (length done)) (setq y (- y (* (elem-get lpc %0) (elem-get done (- (length done) %0))))))) (range 1 (inc order)))
-										(elem-set out k y)
-										(push done y))
-									lines)))
+							;the filter over the lines, down them if the direction says,
+							;native, lib/media/lisp.vp media_lpc
+							(if (> to from)
+								(if (= direction 1) (lpc-filter out (dec to) (- to from) -1 lpc) (lpc-filter out from (- to from) 1 lpc))))
 						(setq top bottom))
 					filters))
 			tns)))

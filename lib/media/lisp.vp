@@ -1409,3 +1409,73 @@
 	(signature '(:list :nums :nums :num :num :num :nums :reals :reals :reals :nums :nums)))
 
 (def-func-end)
+
+(def-func (path-to-absolute "./media_lpc"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :f0-:f2
+	;info
+	;(media-lpc out start count step lpc) -> out, the all pole filter of the
+	;reals lpc, its first the 1 it is of, run over count reals of out in
+	;place, from start a step of 1 or -1 at a time: each less the sum of
+	;the outputs before it by lpc 1 on, as many as there are before it
+
+	(vp-rdef (out p n s l o k m q j)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,p ,n ,s ,l) '(:obj :num :num :num :obj))
+	(vp-push out)
+	(assign `((,l +array_length ui) (,l +array_begin) (,out +array_begin)) `(,o ,l ,out))
+	(vp-sub-cr 1 o)
+	(vp-shl-cr 3 p)
+	(vp-add-rr out p)
+	(vp-shl-cr 3 s)
+	(vp-xor-rr k k)
+	(vpif `(,n > 0))
+	(loop-start)
+		(vp-cpy-if p 0 :f0)
+		;as many of the outputs before it as there are, to the order
+		(vp-cpy-rr k m)
+		(vpif `(,m > ,o))
+			(vp-cpy-rr o m)
+		(endif)
+		(vpif `(,m > 0))
+			(vp-cpy-rr p q)
+			(vp-lea-i l +long_size j)
+			(loop-start)
+				(vp-sub-rr s q)
+				(vp-cpy-if q 0 :f1)
+				(vp-cpy-if j 0 :f2)
+				(vp-mul-ff :f2 :f1)
+				(vp-sub-ff :f1 :f0)
+				(vp-add-cr +long_size j)
+				(vp-sub-cr 1 m)
+			(loop-until `(,m = 0))
+		(endif)
+		(vp-cpy-fi :f0 p 0)
+		(vp-add-rr s p)
+		(vp-add-cr 1 k)
+	(loop-until `(,k = ,n))
+	(endif)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-lpc out start count step lpc)" +error_msg_wrong_types))
+	(signature '(:reals :num :num :num :reals)))
+
+(def-func-end)
