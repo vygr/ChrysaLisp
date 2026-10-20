@@ -15,4 +15,9 @@
 (assert-true "there are host sources" (> (length sn_files) 10))
 (assert-eq "snapshot.zip was made from src/host as it is, make -f Makefile.mingw windows_all and make snapshot after a host change"
 	sn_made sn_now)
-(undef (env) 'sn_files 'sn_lines 'sn_now 'sn_made)
+;and it stays small: 168KB in 2026-10, when a host change had taken it to
+;224KB unseen, a static libstdc++ bringing in all its exceptions. A limit
+;passed is a growth to look at, and only then raised
+(defq sn_size (length (load "snapshot.zip")))
+(assert-true (cat "snapshot.zip is under 192KB, it is " (str (/ sn_size 1024)) "KB, look at what grew") (< sn_size (* 192 1024)))
+(undef (env) 'sn_files 'sn_lines 'sn_now 'sn_made 'sn_size)
