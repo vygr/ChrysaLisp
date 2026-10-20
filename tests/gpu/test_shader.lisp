@@ -489,7 +489,7 @@
 (assert-eq "SPIR-V functions" 3 (length (filter (# (= (first %0) 54)) insts)))
 (assert-true "SPIR-V set of components" (and (spvt-has? insts 82) (spvt-has? insts 79 :nil :nil :nil :nil 0 3 4)))
 
-(defq module (shader-spirv (shader-load "lib/gpu/shaders/raymarch.shader"))
+(defq module (shader-spirv (shader-load "apps/demos/surface/surface.shader"))
 	words (spvt-words module) insts (spvt-insts module))
 (assert-true "SPIR-V raymarch stream" insts)
 (assert-list-eq "SPIR-V raymarch ids" (range 1 (elem-get words 3)) (spvt-ids insts))
@@ -562,7 +562,7 @@
 
 (report-header "GPU: the raymarch shader")
 
-(defq prog (shader-load "lib/gpu/shaders/raymarch.shader") text (shader-glsl prog))
+(defq prog (shader-load "apps/demos/surface/surface.shader") text (shader-glsl prog))
 (assert-eq "inputs block size" 64 (first (shader-layout prog)))
 (assert-list-eq "inputs" '(time resolution arg_aa arg_aa_adaptive arg_aa_debug arg_depth
 	arg_aa_limit arg_ao arg_ref arg_shadow arg_bump arg_dis arg_march) (map (const first) (first prog)))
@@ -1154,7 +1154,7 @@
 ;a file is loaded with only its head read, and a hash of it taken. Its
 ;native code is kept under that hash, so a file that has been met before
 ;costs no reading or checking of its functions
-(defq kf_file "lib/gpu/shaders/raymarch.shader" kf_prog (shader-load kf_file))
+(defq kf_file "apps/demos/surface/surface.shader" kf_prog (shader-load kf_file))
 (assert-eq "only the head is read" :lazy (second kf_prog))
 (assert-eq "a key of 32 hex digits" 32 (length (elem-get kf_prog 5)))
 (assert-eq "the key is the hash of the file" (shader-key (load kf_file)) (elem-get kf_prog 5))

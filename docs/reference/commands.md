@@ -1340,10 +1340,10 @@ Usage: shader [options] file
     it is compiled to, or writes it to a file for use outside
     ChrysaLisp. See docs/ai_digest/shader_language.md.
 
-    shader lib/gpu/shaders/raymarch.shader
+    shader apps/demos/surface/surface.shader
     shader -t vp lib/gpu/shaders/mesh_vertex.shader
-    shader -t msl -o raymarch.metal lib/gpu/shaders/raymarch.shader
-    shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+    shader -t msl -o surface.metal apps/demos/surface/surface.shader
+    shader -t spirv -o surface.spv apps/demos/surface/surface.shader
     shader -p lib/gpu/shaders/mesh_lit.shader lib/gpu/shaders/mesh_vertex.shader
 ```
 ## shuffle

@@ -39,7 +39,7 @@ rewrite of every shader.
 * `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
 * `src/host/gui_sdl3.cpp`, the SDL3 GUI driver, which can draw one.
-* `lib/gpu/shaders/raymarch.shader`, the surface raymarch demo, a port of
+* `apps/demos/surface/surface.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
 * `apps/demos/surface/`, an app that runs that shader, on the GPU or with none.
 * `apps/demos/raymarch/`, a second shader, `film.shader`, and an app that
@@ -630,7 +630,7 @@ compute on a GPU, and is to come.
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
-(defq program (shader-load "lib/gpu/shaders/raymarch.shader"))
+(defq program (shader-load "apps/demos/surface/surface.shader"))
 ```
 
 `(shader-load file)` reads and checks a file. `(shader-compile forms)` does
@@ -650,10 +650,10 @@ a shader written once here and handed to a GLSL, a Metal or a Vulkan
 program.
 
 ```code
-shader lib/gpu/shaders/raymarch.shader
-shader -t msl lib/gpu/shaders/raymarch.shader
-shader -t spirv lib/gpu/shaders/raymarch.shader
-shader -t spirv -o raymarch.spv lib/gpu/shaders/raymarch.shader
+shader apps/demos/surface/surface.shader
+shader -t msl apps/demos/surface/surface.shader
+shader -t spirv apps/demos/surface/surface.shader
+shader -t spirv -o surface.spv apps/demos/surface/surface.shader
 ```
 
 The targets, `-t`, are `glsl`, the default, `msl`, `spirv`, `vp`, the VP

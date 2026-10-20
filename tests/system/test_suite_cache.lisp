@@ -8,13 +8,13 @@
 	"(import \q./test_pipe.lisp\q)"
 	"(import \qlib/files/files.inc\q)"
 	"(import \qlib/no/such/file.inc\q)"
-	"(defq a (load \qlib/gpu/shaders/raymarch.shader\q) b {cmd/tests.lisp})"
+	"(defq a (load \qapps/demos/surface/surface.shader\q) b {cmd/tests.lisp})"
 	"(pipe-run \qsort -r | head -n 2\q print)"
 	"(defq me \qtests/system/test_suite_cache.lisp\q)"
 	"(defq no_string (+ 1 2) path lib/task/pipe.inc)") (ascii-char 10))))
 (assert-list-eq "what a file names"
-	'("cmd/head.lisp" "cmd/sort.lisp" "cmd/tests.lisp" "lib/files/files.inc"
-		"lib/gpu/shaders/raymarch.shader" "tests/system/test_pipe.lisp")
+	'("apps/demos/surface/surface.shader" "cmd/head.lisp" "cmd/sort.lisp" "cmd/tests.lisp"
+		"lib/files/files.inc" "tests/system/test_pipe.lisp")
 	(sort (cat sc_names)))
 
 ;what is known of a file, when it was changed, a hash, and what it names
@@ -33,7 +33,7 @@
 	(and (some (# (test-def-func? %0 "aes_ctr_xor")) sc_aes)
 		(notany (# (test-def-func? %0 "sha256_blocks")) sc_aes)))
 (assert-eq "a file that is not Lisp names nothing" 0
-	(length (third (test-file-info "lib/gpu/shaders/raymarch.shader"))))
+	(length (third (test-file-info "apps/demos/surface/surface.shader"))))
 (assert-eq "a file that is not there has an age of 0" 0 (first (test-file-info "lib/no/such/file.inc")))
 
 ;what a module stands on is all it names, and they name, sorted
