@@ -76,17 +76,19 @@
 		14 14 14 15 15 15 15 16 16 16 16 17 17 17 17 18
 		18 18 18 18 18 18 18 19 19 19 19 19 19 19 19 19))
 
-;the hearing threshold of each band at each rate, and the rest of the bit
-;allocation's tables
-(scatter +ac3 :threshold '((1232 1264 1408) (1232 1264 1408) (1088 1120 1200) (1024 1040 1104) (992 992 1056) (960 976 1008)
-		(944 960 992) (944 944 976) (928 944 960) (928 928 944) (928 928 944) (928 928 944)
-		(928 928 928) (912 928 928) (912 912 928) (912 912 928) (896 912 928) (896 896 928)
-		(880 896 928) (880 896 928) (864 880 912) (864 880 912) (848 864 912) (848 864 912)
-		(832 848 896) (832 848 896) (816 832 896) (800 832 880) (784 800 864) (768 784 848)
-		(752 768 832) (752 752 816) (752 752 800) (752 752 784) (768 752 768) (784 768 752)
-		(832 800 752) (912 848 752) (992 912 768) (1056 992 784) (1120 1056 816) (1168 1104 848)
-		(1184 1184 960) (1120 1168 1040) (1088 1120 1136) (1088 1088 1184) (1312 1152 1120) (2048 1584 1088)
-		(2112 2112 1104) (2112 2112 1248))
+;the hearing threshold of each band at each rate, 3 a band
+(defq +ac3_threshold (nums 1232 1264 1408 1232 1264 1408 1088 1120 1200 1024 1040 1104 992 992 1056 960 976 1008
+		944 960 992 944 944 976 928 944 960 928 928 944 928 928 944 928 928 944
+		928 928 928 912 928 928 912 912 928 912 912 928 896 912 928 896 896 928
+		880 896 928 880 896 928 864 880 912 864 880 912 848 864 912 848 864 912
+		832 848 896 832 848 896 816 832 896 800 832 880 784 800 864 768 784 848
+		752 768 832 752 752 816 752 752 800 752 752 784 768 752 768 784 768 752
+		832 800 752 912 848 752 992 912 768 1056 992 784 1120 1056 816 1168 1104 848
+		1184 1184 960 1120 1168 1040 1088 1120 1136 1088 1088 1184 1312 1152 1120 2048 1584 1088
+		2112 2112 1104 2112 2112 1248))
+
+;the rest of the bit allocation's tables
+(scatter +ac3 
 	:slow_decay '(15 17 19 21) :fast_decay '(63 83 103 123) :slow_gain '(1344 1240 1144 1040)
 	:db_per_bit '(0 1792 2304 2816) :floor '(752 688 624 560 496 368 240 -2048)
 	:fast_gain '(128 256 384 512 640 768 896 1024)
@@ -128,6 +130,8 @@
 (ffi (path-to-absolute "./media_ac3_psd") ac3-native-psd)
 ; (ac3-native-psd exps start end psd band_psd band_start bin_band log_add) -> psd
 (ffi (path-to-absolute "./media_ac3_bap") ac3-native-bap)
+(ffi (path-to-absolute "./media_ac3_mask") ac3-native-mask)
+; (ac3-native-mask band_psd start end fast_gain lfe params threshold bin_band mask) -> mask
 ; (ac3-native-bap psd mask start end snr floor tab bap band_start bin_band) -> bap
 ; (ac3-read-mantissas reader bap exps start end out groups noise dither table) -> out
 
@@ -301,63 +305,19 @@
 	(ac3-native-psd exps start end psd band_psd +ac3_band_start +ac3_bin_band +ac3_log_add)
 	(list psd band_psd))
 
-(defun ac3-lowcomp1 (a b0 b1 c)
-	(cond ((= (+ b0 256) b1) c) ((> b0 b1) (max (- a 64) 0)) (a)))
-
-(defun ac3-lowcomp (a b0 b1 bin)
-	(cond ((< bin 7) (ac3-lowcomp1 a b0 b1 384)) ((< bin 20) (ac3-lowcomp1 a b0 b1 320)) ((max (- a 128) 0))))
-
 (defun ac3-mask (d band_psd start end fast_gain lfe dba)
 	; (ac3-mask decoder band_psd start end fast_gain lfe dba) -> mask
 	;the masking curve of each band: the excitation by fast and slow leaks
-	;and low frequency compensation, the hearing threshold, and the deltas
-	(defq bin_band +ac3_bin_band band_start_ (elem-get bin_band start)
-		band_end (inc (elem-get bin_band (dec end))) excite (fill (list) 50 0)
-		slow_gain (. d :find :slow_gain) fast_decay (. d :find :fast_decay) slow_decay (. d :find :slow_decay)
-		lowcomp 0 fastleak 0 slowleak 0 begin 0)
-	(cond
-		((= band_start_ 0)
-			(setq lowcomp (ac3-lowcomp1 0 (elem-get band_psd 0) (elem-get band_psd 1) 384))
-			(elem-set excite 0 (- (elem-get band_psd 0) fast_gain lowcomp))
-			(setq lowcomp (ac3-lowcomp1 lowcomp (elem-get band_psd 1) (elem-get band_psd 2) 384))
-			(elem-set excite 1 (- (elem-get band_psd 1) fast_gain lowcomp))
-			(setq begin 7)
-			(defq band 2 done :nil)
-			(while (and (< band 7) (not done))
-				(unless (and lfe (= band 6))
-					(setq lowcomp (ac3-lowcomp1 lowcomp (elem-get band_psd band) (elem-get band_psd (inc band)) 384)))
-				(setq fastleak (- (elem-get band_psd band) fast_gain) slowleak (- (elem-get band_psd band) slow_gain))
-				(elem-set excite band (- fastleak lowcomp))
-				(and (not (and lfe (= band 6))) (<= (elem-get band_psd band) (elem-get band_psd (inc band)))
-					(setq begin (inc band) done :t))
-				(setq band (inc band)))
-			(each (lambda (band)
-					(unless (and lfe (= band 6))
-						(setq lowcomp (ac3-lowcomp lowcomp (elem-get band_psd band) (elem-get band_psd (inc band)) band)))
-					(setq fastleak (max (- fastleak fast_decay) (- (elem-get band_psd band) fast_gain))
-						slowleak (max (- slowleak slow_decay) (- (elem-get band_psd band) slow_gain)))
-					(elem-set excite band (max (- fastleak lowcomp) slowleak)))
-				(range begin (min band_end 22)))
-			(setq begin 22))
-		(:t ;the coupling channel, its leaks from the stream
-			(setq begin band_start_ fastleak (+ (<< (. d :find :cpl_fast_leak) 8) 768)
-				slowleak (+ (<< (. d :find :cpl_slow_leak) 8) 768))))
-	(each (lambda (band)
-			(setq fastleak (max (- fastleak fast_decay) (- (elem-get band_psd band) fast_gain))
-				slowleak (max (- slowleak slow_decay) (- (elem-get band_psd band) slow_gain)))
-			(elem-set excite band (max fastleak slowleak)))
-		(range begin band_end))
-	;the masking curve, the threshold of hearing at least
-	(defq mask (fill (nums) 50 0) threshold (. +ac3 :find :threshold)
-		db_per_bit (. d :find :db_per_bit) rate_code (. d :find :rate_code))
-	(each (lambda (band)
-			(defq tmp (- db_per_bit (elem-get band_psd band)))
-			(if (> tmp 0) (elem-set excite band (+ (elem-get excite band) (>> tmp 2))))
-			(elem-set mask band (max (elem-get (elem-get threshold band) rate_code) (elem-get excite band))))
-		(range band_start_ band_end))
+	;and low frequency compensation, the hearing threshold, native, lib/media/
+	;lisp.vp media_ac3_mask, and the deltas
+	(defq mask (fill (nums) 50 0))
+	(ac3-native-mask band_psd start end fast_gain (if lfe 1 0)
+		(nums (. d :find :slow_gain) (. d :find :fast_decay) (. d :find :slow_decay) (. d :find :db_per_bit)
+			(. d :find :rate_code) (. d :find :cpl_fast_leak) (. d :find :cpl_slow_leak))
+		+ac3_threshold +ac3_bin_band mask)
 	;delta bit allocation, its segments
 	(when dba
-		(defq band band_start_)
+		(defq band (elem-get +ac3_bin_band start))
 		(each (lambda ((offset len value))
 				(setq band (+ band offset))
 				(defq delta (* 128 (if (>= value 4) (- value 3) (- value 4))))
