@@ -38,7 +38,10 @@
 					(defq own (. reel :find :head) head (or own
 						(progn (stream-seek (. sound :find :stream) (elem-get (. track :find :offsets) 0) 0)
 							(mp3-header (ifn (read-blk (. sound :find :stream) 4) "") 0))))
-					(and head (scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0 :before 3
+					;the frames before one decoded first till the reservoir holds the 511
+					;bytes a frame may begin back
+					(and head (scatter sound :rate (. head :find :rate) :size (. head :find :samples) :delay 0
+						:before (mp3-before (. head :find :size))
 						:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
 						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
 						;a frame not read is heard as nothing
@@ -140,9 +143,11 @@
 (defun sound-clock (sound)
 	; (sound-clock sound) -> seconds
 	;the time of the film that is being heard: where it started, and what
-	;has been heard of what was written since
-	(+ (. sound :find :time)
-		(/ (n2f (- (. sound :find :written) (. sound :find :left))) (n2f (. sound :find :rate)))))
+	;has been heard of what was written since, its whole seconds as numbers:
+	;a fixed number divided is shifted up first, no more than 2^31 samples,
+	;13 hours of 44100, and a book is longer
+	(defq heard (- (. sound :find :written) (. sound :find :left)) rate (. sound :find :rate))
+	(+ (. sound :find :time) (n2f (/ heard rate)) (/ (n2f (% heard rate)) (n2f rate))))
 
 (defun sound-smooth (sound)
 	; (sound-smooth sound) -> seconds

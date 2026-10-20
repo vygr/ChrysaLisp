@@ -9,7 +9,7 @@
 ; and sinusoids where it said, then all 64 bands to samples at twice the
 ; rate. (sbr-new rate) holds what goes from frame to frame for an element,
 ; a channel or a pair, rate that of the core; (sbr-read sbr reader crc
-; bytes kind) reads the data of a fill element; (sbr-apply sbr chans)
+; bytes kind) reads the data of a fill element; (sbr-apply sbr kind chans)
 ; gives each channel's 2048 samples of its 1024. With no data yet it is
 ; the QMF banks alone, the core's band at the new rate.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -145,7 +145,7 @@
 						(defq vk0 (sbr-sorted (sbr-bands k0 k1 n0)) top0 (last vk0))
 						(when (> (reduce (const min) vk0 64) 0)
 							(cond
-								(two (defq warp (if (= (. sbr :find :alter_scale) 1) (n2r 0.76923076923076923077) (n2r 1))
+								(two (defq warp (if (= (. sbr :find :alter_scale) 1) (str-to-real "0.76923076923076923077") (n2r 1))
 										n1 (* 2 (sbr-round (* (n2r half) warp (sbr-log2 (/ (n2r k2) (n2r k1))))))
 										vk1 (sbr-bands k1 k2 n1))
 									(when (< (reduce (const min) vk1 64) top0)
@@ -194,7 +194,7 @@
 	(defq low (. sbr :find :low) kx (. sbr :find :kx) bands (. sbr :find :limiter_bands))
 	(cond
 		((> bands 0)
-			(defq warped (elem-get (list (n2r 1.32715174233856803909) (n2r 1.18509277094158210129) (n2r 1.11987160404675912501)) (dec bands))
+			(defq warped (str-to-real (elem-get '("1.32715174233856803909" "1.18509277094158210129" "1.11987160404675912501") (dec bands)))
 				borders (sbr-sums kx (. sbr :find :patch_counts))
 				table (sbr-sorted (cat low (slice borders 1 -2))) out 0 in 1)
 			;out is the last kept, in the next looked at, as ffmpeg walks them
@@ -492,14 +492,14 @@
 			(when (= (bits-1 in) 1)
 				(defq size (bits-get in 4))
 				(if (= size 15) (setq size (+ size (bits-get in 8))))
-				(defq left (* 8 size))
-				(while (> left 7)
+				(defq bits_left (* 8 size))
+				(while (> bits_left 7)
 					(defq id (bits-get in 2))
-					(setq left (- left 2))
+					(setq bits_left (- bits_left 2))
 					(cond
-						((and (= id 2) (. sbr :find :ps)) (setq left (- left (ps-read (. sbr :find :ps) in left))))
-						(:t (bits-skip in left) (setq left 0))))
-				(if (> left 0) (bits-skip in left)))
+						((and (= id 2) (. sbr :find :ps)) (setq bits_left (- bits_left (ps-read (. sbr :find :ps) in bits_left))))
+						(:t (bits-skip in bits_left) (setq bits_left 0))))
+				(if (> bits_left 0) (bits-skip in bits_left)))
 			:t)))
 
 (defun sbr-read (sbr in crc bytes kind)
@@ -534,7 +534,7 @@
 	;the envelopes and noise floors as levels: of a coupled pair the first
 	;the level and the second the balance, made each side's
 	(bind '(left right) (. sbr :find :data))
-	(defq n (. sbr :find :n) n_q (. sbr :find :n_q) sqrt2 (sqrt (n2r 2)) one (n2r 1)
+	(defq n (. sbr :find :n) n_q (. sbr :find :n_q) sqrt2 (sqrt (n2r 2)) one (n2r 1) big (str-to-real "1e20")
 		level (lambda (q add amp)
 			(if (= amp 1) (sbr-exp2 (+ q add))
 				(* (sbr-exp2 (+ (>>> q 1) add)) (if (= (logand q 1) 1) sqrt2 one)))))
@@ -546,7 +546,7 @@
 						f0 (elem-get (. left :find :env) e) f1 (elem-get (. right :find :env) e))
 					(each (lambda (k)
 							(defq t1 (level (elem-get q0 k) 7 amp) t2 (level (- pan (elem-get q1 k)) 0 amp))
-							(if (> t1 (n2r 100000000000000000000)) (setq t1 one))
+							(if (> t1 big) (setq t1 one))
 							(defq fac (/ t1 (+ one t2)))
 							(elem-set f0 k fac)
 							(elem-set f1 k (* fac t2)))
@@ -567,7 +567,7 @@
 							(defq q (elem-get (. ch :find :env_q) e) f (elem-get (. ch :find :env) e))
 							(each (lambda (k)
 									(defq v (level (elem-get q k) 6 amp))
-									(elem-set f k (if (> v (n2r 100000000000000000000)) one v)))
+									(elem-set f k (if (> v big) one v)))
 								(range 0 (elem-get n (elem-get (. ch :find :freq_res) e)))))
 						(range 1 (inc (. ch :find :num_env))))
 					(each (lambda (e)
@@ -890,11 +890,12 @@
 	(. ch :insert :synthesis v)
 	out)
 
-(defun sbr-apply (sbr kind chans)
-	; (sbr-apply sbr kind chans) -> (reals ...)
+(defun sbr-apply (sbr kind chans &optional alone)
+	; (sbr-apply sbr kind chans [alone]) -> (reals ...)
 	;the 2048 samples of each of an element's channels of 1024, its kind
 	;0 a channel or 1 a pair: each to the QMF bank's bands, its high band
-	;made by the data read, and to samples at twice the rate
+	;made by the data read, and to samples at twice the rate; with PS, of
+	;a channel alone in its block, the two of it
 	(if (/= kind (. sbr :find :id)) (sbr-off sbr))
 	(and (. sbr :find :start) (not (. sbr :find :ready)) (sbr-off sbr))
 	(if (. sbr :find :pushed)
@@ -912,13 +913,17 @@
 			(when (. sbr :find :start)
 				(defq alphas (sbr-inverse sbr low))
 				(sbr-chirp sbr ch)
-				(and (defq high (sbr-high sbr ch low alphas)) (defq maps (sbr-mapping sbr ch))
-					(sbr-assemble sbr ch high (sbr-gains sbr ch maps (sbr-estimate sbr ch high)))))
+				(cond
+					((not (defq high (sbr-high sbr ch low alphas))))
+					((defq maps (sbr-mapping sbr ch))
+						(sbr-assemble sbr ch high (sbr-gains sbr ch maps (sbr-estimate sbr ch high))))
+					;tables not made again for kx: SBR off, as ffmpeg turns it off
+					((sbr-off sbr))))
 			(sbr-x sbr ch low))
 		chans data))
 	;of one channel with PS, the left and the right made of it, the one
 	;on both till its first header
-	(and ps (= kind 0)
+	(and ps alone (= kind 0)
 		(setq xs (if (. ps :find :start) (ps-apply ps (first xs) (+ (. sbr :find :kx) (. sbr :find :m))) (list (first xs) (first xs)))))
 	(map (# (sbr-synthesis %1 %0)) xs data))
 

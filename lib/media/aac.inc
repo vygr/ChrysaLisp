@@ -126,7 +126,8 @@
 	; (aac-config setup) -> :nil | (type rate_index rate channels sbr ps)
 	;what an AudioSpecificConfig says: the object type, 2 is AAC-LC, the
 	;index of its rate, the rate, the channels, and if SBR and parametric
-	;stereo are there, HE-AAC and its v2, the core then the type. They are
+	;stereo are there, HE-AAC and its v2, the core then the type, ps :no if
+	;it is said not to be, :nil if it is not said. They are
 	;said first, types 5 and 29 before the core's, or after its config by
 	;the sync extensions 0x2b7 and 0x548, which a decoder of AAC-LC alone
 	;does not read
@@ -150,8 +151,9 @@
 				(progn
 					(setq sbr :t)
 					(if (= (bits-get in 4) 15) (bits-skip in 24))
+					;PS said there, or said not, :no
 					(and (>= (- end (bits-at in)) 12) (= (bits-get in 11) 0x548)
-						(setq ps (= (bits-1 in) 1))))))
+						(setq ps (if (= (bits-1 in) 1) :t :no))))))
 		(list type index rate channels sbr ps)))
 
 (defun aac-track-config (track)
@@ -353,7 +355,8 @@
 	;blocks are its length
 	(defq front (> (. decoder :find :channels) 2))
 	(while (and (/= (setq kind (bits-get in 3)) +aac_end)
-			(not (and front (some (# (eql (. %0 :find :pair) :right)) channels))))
+			;past the front pair a fill still read, its SBR after it
+			(not (and front (/= kind +aac_fil) (some (# (eql (. %0 :find :pair) :right)) channels))))
 		(bits-get in 4)
 		;each channel the element it is of, its SBR the data of a fill after it
 		(if (or (= kind +aac_sce) (= kind +aac_cpe) (= kind +aac_lfe))
@@ -389,12 +392,14 @@
 				(defq at (bits-at in))
 				(when (and (> count 0) (>= element 0) (. decoder :find :sbr))
 					(defq type (bits-get in 4))
-					(when (or (= type 13) (= type 14))
+					;SBR not said is taken from the first block only, as a player has
+					;the rate of the first; after it the core's band alone
+					(when (and (or (= type 13) (= type 14)) (or (. decoder :find :sbr_on) (= (. decoder :find :blocks) 0)))
 						(. decoder :insert :sbr_on :t)
 						(sbr-read (aac-sbr decoder element) in (= type 14) count element_kind)))
 				(bits-seek in (+ at (* 8 count))))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
-	(. decoder :insert :bits (bits-at in))
+	(scatter decoder :bits (bits-at in) :blocks (inc (. decoder :find :blocks)))
 	channels)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -573,12 +578,13 @@
 	(defq tables (aac-tables) zeros (fill (reals) 1024 (n2r 0)))
 	(scatter (Emap) :rate_index (second config) :rate (third config) :channels (elem-get config 3)
 		;SBR said, or a core of 24000 or less that may have it unsaid, which
-		;is taken from the first fill that holds it; of one channel, or those
-		;a program config gives, PS too
-		:sbr_on (and (> (length config) 4) (elem-get config 4))
+		;is taken from the first fill that holds it; PS said, or unless said
+		;not of one channel, or of a program config's, which may be one: used
+		;as its extension is found in the SBR of a block of one channel alone
+		:sbr_on (and (> (length config) 4) (elem-get config 4)) :blocks 0
 		:sbr (and (or (and (> (length config) 4) (elem-get config 4)) (<= (third config) 24000)) (list))
-		:ps (or (and (> (length config) 5) (elem-get config 5))
-			(and (not (and (> (length config) 4) (elem-get config 4))) (<= (elem-get config 3) 1)))
+		:ps (and (> (length config) 5)
+			(or (eql (elem-get config 5) :t) (and (not (elem-get config 5)) (<= (elem-get config 3) 1))))
 		:tables tables :dct4 (ffi "lib/media/media_dct4") :seed 1
 		:overlap (map (lambda (_) (cat zeros)) (range 0 8)) :shape (map (lambda (_) 0) (range 0 8))
 		:zeros zeros :ones (nums-add (nums-scale zeros (n2r 0)) (apply (const reals) (map (lambda (_) (n2r 1)) (range 0 1024))))))
@@ -641,7 +647,7 @@
 				(when (or (= (. ch :find :kind) 0) (eql (. ch :find :pair) :left))
 					(defq i (!) e (. ch :find :element)
 						chans (if (= (. ch :find :kind) 1) (slice out i (+ i 2)) (slice out i (inc i))))
-					(setq doubled (cat doubled (sbr-apply (aac-sbr decoder e) (. ch :find :kind) chans)))))
+					(setq doubled (cat doubled (sbr-apply (aac-sbr decoder e) (. ch :find :kind) chans (= (length channels) 1))))))
 			channels)
 		(setq out doubled))
 	;of more than two channels, the front pair with the centre before it in

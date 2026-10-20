@@ -88,13 +88,13 @@
 			(reduce (# (+ (<< %0 7) (logand (code head 1 (+ 6 %1)) 127))) (range 0 4) 0))))
 	(stream-seek stream at 0)
 	(when (eql (read-blk stream 4) "fLaC")
-		(defq info (Emap) last 0 ok :t seek (list))
+		(defq info (Emap) final 0 ok :t seek (list))
 		(setq at (+ at 4))
-		(while (and ok (= last 0))
+		(while (and ok (= final 0))
 			(defq h (read-blk stream 4))
 			(cond
 				((or (not h) (< (length h) 4)) (setq ok :nil))
-				(:t (setq last (>> (code h 1 0) 7))
+				(:t (setq final (>> (code h 1 0) 7))
 					(defq type (logand (code h 1 0) 0x7f) len (code-be h 3 1) body (read-blk stream len))
 					(cond
 						((or (not body) (< (length body) len)) (setq ok :nil))
@@ -133,26 +133,31 @@
 (defun flac-subframe (in n bps)
 	; (flac-subframe reader n bps) -> nums
 	;a channel's n samples of bps bits: one number, the samples as they
-	;are, a fixed prediction, or an LPC one, then any bits wasted put back
+	;are, a fixed prediction, or an LPC one, then any bits wasted put back.
+	;One the format forbids, an order past its samples, a precision of 16, a
+	;shift down by less than 0, a reserved type, is heard as nothing: a
+	;release build does not stop at a throw, the error a value that would
+	;go on into the natives
 	(bits-skip in 1)
 	(defq type (bits-get in 6) wasted (if (= (bits-1 in) 1) (inc (flac-unary in)) 0)
-		bits (- bps wasted) samples (fill (nums) n 0))
+		bits (- bps wasted) samples (fill (nums) n 0)
+		warm (lambda (order) (each (# (elem-set samples %0 (flac-signed in bits))) (range 0 order))))
 	(cond
 		((= type 0) (fill samples n (flac-signed in bits)))
-		((= type 1) (each (# (elem-set samples %0 (flac-signed in bits))) (range 0 n)))
-		((<= 8 type 12)
+		((= type 1) (warm n))
+		((and (<= 8 type 12) (<= (- type 8) n))
 			(defq order (- type 8))
-			(each (# (elem-set samples %0 (flac-signed in bits))) (range 0 order))
+			(warm order)
 			(flac-residual in samples order n)
 			((flac-native :lpc) samples order (elem-get (. +flac :find :fixed) order) 0))
-		((>= type 32)
+		((and (>= type 32) (<= (- type 31) n))
 			(defq order (- type 31))
-			(each (# (elem-set samples %0 (flac-signed in bits))) (range 0 order))
-			(defq precision (inc (bits-get in 4)) shift (flac-signed in 5)
-				coeffs (reduce (lambda (out _) (push out (flac-signed in precision))) (range 0 order) (cap order (nums))))
-			(flac-residual in samples order n)
-			((flac-native :lpc) samples order coeffs shift))
-		((throw "flac: a subframe of a reserved type" type)))
+			(warm order)
+			(defq precision (inc (bits-get in 4)) shift (flac-signed in 5))
+			(when (and (< precision 16) (>= shift 0))
+				(defq coeffs (reduce (lambda (out _) (push out (flac-signed in precision))) (range 0 order) (cap order (nums))))
+				(flac-residual in samples order n)
+				((flac-native :lpc) samples order coeffs shift))))
 	(if (> wasted 0) (nums-mul samples (fill (nums) n (<< 1 wasted)) samples) samples))
 
 (defun flac-head (info s)
@@ -160,8 +165,10 @@
 	;the header of a frame at the start of str, checked by its CRC-8: its
 	;block size, sample size, channel assignment, its frame or sample
 	;number and which, and the bits of it, by their codes or of STREAMINFO
-	(when (and (>= (length s) 16) (= (code s 1 0) 0xff) (= (logand (code s 1 1) 0xfe) 0xf8))
-		(defq in (bits-of (slice s 0 16)))
+	;of no more than 16 bytes, the least frame of silence 15, the reader's
+	;bytes past them 0 and the CRC-8 to say
+	(when (and (>= (length s) 6) (= (code s 1 0) 0xff) (= (logand (code s 1 1) 0xfe) 0xf8))
+		(defq in (bits-of (slice s 0 (min 16 (length s)))))
 		(bits-skip in 15)
 		(defq variable (bits-1 in) bs_code (bits-get in 4) sr_code (bits-get in 4) assign (bits-get in 4) ss_code (bits-get in 3))
 		(bits-skip in 1)
@@ -203,25 +210,11 @@
 ; a file of FLAC as a reel, a frame a packet
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun flac-reel (stream)
-	; (flac-reel stream) -> :nil | reel
-	;a file of FLAC as a reel of its frames, each found as it is wanted, of
-	;STREAMINFO's block size, :rate of them a second. Its :tracks the one of
-	;sound, of codec "flac", its pictures the samples of each frame, as an
-	;MP3's
-	(when (defq info (flac-info stream))
-		(defq end (stream-seek stream 0 2) block (max 1 (. info :find :max_block)) total (. info :find :total)
-			start (. info :find :start)
-			;of no count of samples, by the bytes of a frame at the most
-			frames (if (> total 0) (/ (+ total block -1) block) (/ (- end start) (max 1 (. info :find :max_frame)))))
-		(scatter (Emap) :stream stream :info info :start start :end end :block block :known (list)
-			:frames frames :rate (/ (n2f (. info :find :rate)) (n2f block))
-			:width 512 :height 192 :codec "flac" :audio :t
-			:tracks (list (scatter (Emap) :kind "soun" :codec "flac" :samples frames :start 0)))))
-
 (defun flac-number (reel h)
-	;the frame a header is of, its sample number by the block if it says that
-	(if (= (. h :find :variable) 1) (/ (. h :find :number) (. reel :find :block)) (. h :find :number)))
+	; (flac-number reel head) -> num
+	;the frame a header is of, or of blocks of sizes that vary its sample,
+	;which is what such a frame's header has
+	(. h :find :number))
 
 (defun flac-find (reel at)
 	; (flac-find reel at) -> :nil | (at frame)
@@ -247,13 +240,31 @@
 	(while (and found (/= (second found) n)) (setq found (flac-find reel (inc (first found)))))
 	found)
 
+(defun flac-index (reel)
+	; (flac-index reel) -> reel
+	;of a FLAC of blocks of sizes that vary, where each frame is, found the
+	;once from the first, each next the one of its sample and its size on
+	(defq info (. reel :find :info) stream (. reel :find :stream) at (. reel :find :start) offsets (list) done :nil)
+	(until done
+		(stream-seek stream at 0)
+		(cond
+			((defq h (flac-head info (ifn (read-blk stream 16) "")))
+				(push offsets at)
+				(defq next (flac-next reel (+ at 2) (+ (. h :find :number) (. h :find :n))))
+				(if next (setq at (first next)) (setq done :t)))
+			((setq done :t))))
+	(defq frames (length offsets) total (. info :find :total))
+	(scatter reel :offsets offsets :frames frames
+		:rate (if (> total 0) (/ (n2f frames) (/ (n2f total) (n2f (. info :find :rate)))) (. reel :find :rate))))
+
 (defun flac-locate (reel n)
 	; (flac-locate reel n) -> :nil | at
 	;where frame n begins: where one read ended if it was n - 1, else from
 	;where the bytes say it should be, back if a later frame is found there,
 	;then on header by header to it
 	(defq start (. reel :find :start) end (. reel :find :end) frames (. reel :find :frames)
-		at (some (# (if (= (first %0) n) (second %0))) (. reel :find :known)) tries 0)
+		at (if (defq offsets (. reel :find :offsets)) (elem-get offsets n)
+			(some (# (if (= (first %0) n) (second %0))) (. reel :find :known))) tries 0)
 	(unless at
 		(defq guess (+ start (/ (* n (- end start)) (max 1 frames))) step (/ (- end start) (max 1 frames)))
 		(while (and (not at) (< tries 24))
@@ -270,11 +281,37 @@
 	; (flac-packet reel n) -> :nil | str
 	;frame n, to the header of frame n + 1; the ends of the last four kept
 	(when (and (< -1 n (. reel :find :frames)) (defq at (flac-locate reel n)))
-		(defq next (flac-next reel (+ at 2) (inc n)) to (if next (first next) (. reel :find :end))
+		(defq offsets (. reel :find :offsets)
+			next (if offsets (if (< (inc n) (length offsets)) (list (elem-get offsets (inc n)))) (flac-next reel (+ at 2) (inc n)))
+			to (if next (first next) (. reel :find :end))
 			known (. reel :find :known) stream (. reel :find :stream))
 		(. reel :insert :known (cat (list (list (inc n) to)) (slice known 0 (min 3 (length known)))))
 		(stream-seek stream at 0)
 		(read-blk stream (- to at))))
+
+(defun flac-reel (stream)
+	; (flac-reel stream) -> :nil | reel
+	;a file of FLAC as a reel of its frames, each found as it is wanted, of
+	;STREAMINFO's block size, :rate of them a second. Its :tracks the one of
+	;sound, of codec "flac", its pictures the samples of each frame, as an
+	;MP3's
+	(when (defq info (flac-info stream))
+		(defq end (stream-seek stream 0 2) block (max 1 (. info :find :max_block)) total (. info :find :total)
+			start (. info :find :start)
+			;of no count of samples, by the bytes of a frame between the least
+			;and the most, else of half the bytes of its samples as they are
+			frame_bytes (max 1 (if (> (. info :find :max_frame) 0) (/ (+ (. info :find :min_frame) (. info :find :max_frame)) 2)
+				(/ (* block (. info :find :channels) (. info :find :bps)) 16)))
+			frames (if (> total 0) (/ (+ total block -1) block) (max 1 (/ (- end start) frame_bytes)))
+			reel (scatter (Emap) :stream stream :info info :start start :end end :block block :known (list)
+				:frames frames :rate (/ (n2f (. info :find :rate)) (n2f block))
+				:width 512 :height 192 :codec "flac" :audio :t))
+		;of blocks of sizes that vary, each frame's place found the once
+		(stream-seek stream start 0)
+		(and (defq h (flac-head info (ifn (read-blk stream 16) ""))) (= (. h :find :variable) 1)
+			(flac-index reel))
+		(. reel :insert :tracks (list (scatter (Emap) :kind "soun" :codec "flac" :samples (. reel :find :frames) :start 0)))
+		reel))
 
 (defun flac-pcm (info chans)
 	; (flac-pcm info chans) -> (left right)

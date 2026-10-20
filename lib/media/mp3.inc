@@ -61,19 +61,18 @@
 	;mp3_tables.inc from 1, 0 none
 	:select '((0 0) (1 0) (2 0) (3 0) (0 0) (4 0) (5 0) (6 0) (7 0) (8 0) (9 0) (10 0) (11 0) (12 0) (0 0) (13 0)
 		(14 1) (14 2) (14 3) (14 4) (14 6) (14 8) (14 10) (14 13) (15 4) (15 5) (15 6) (15 7) (15 8) (15 9) (15 11) (15 13))
-	;the aliases' butterflies, the c of the standard's cs and ca
-	:alias '(-0.6 -0.535 -0.33 -0.185 -0.095 -0.041 -0.0142 -0.0037))
+	;the aliases' butterflies, the c of the standard's cs and ca, as str,
+	;a fixed number is not exact to these places
+	:alias '("-0.6" "-0.535" "-0.33" "-0.185" "-0.095" "-0.041" "-0.0142" "-0.0037"))
 
-(ffi (path-to-absolute "./media_matvec") mp3-matvec)
-; (mp3-matvec matrix rows cols x from out) -> out
-(ffi (path-to-absolute "./media_mp3_lines") mp3-native-lines)
-; (mp3-native-lines reader lines end regions quad) -> lines
-(ffi (path-to-absolute "./media_dequant") mp3-dequant)
-; (mp3-dequant out q from to pow gain) -> out
-(ffi (path-to-absolute "./media_mp3_window") mp3-window)
-; (mp3-window v d out at scale) -> out
-(ffi (path-to-absolute "./media_mp3_alias") mp3-native-alias)
-; (mp3-native-alias x bands cs ca) -> x
+;its natives are taken as the first decoder is made, mp3-tables, not as this
+;is read: gui/canvas/lisp.inc imports this as a desktop starts, and a system
+;not yet built with them would never start to build them
+;	(media-matvec matrix rows cols x from out) -> out
+;	(media-mp3-lines reader lines end regions quad) -> lines
+;	(media-dequant out q from to pow gain) -> out
+;	(media-mp3-window v d out at scale) -> out
+;	(media-mp3-alias x bands cs ca) -> x
 
 (defun mp3-pi ()
 	; (mp3-pi) -> real
@@ -97,10 +96,12 @@
 	(unless (. +mp3 :find :made)
 		(defq pi (mp3-pi) third (/ (n2r 4) (n2r 3)))
 		(scatter +mp3 :made :t
+			:matvec (ffi "lib/media/media_matvec") :lines (ffi "lib/media/media_mp3_lines") :dequant (ffi "lib/media/media_dequant")
+			:window (ffi "lib/media/media_mp3_window") :alias_native (ffi "lib/media/media_mp3_alias")
 			:starts (map (lambda (widths) (reduce (# (push %0 (+ (last %0) %1))) widths (list 0))) (. +mp3 :find :long))
 			:pow (reduce (# (push %0 (if (= %1 0) (n2r 0) (pow (n2r %1) third)))) (range 0 8207) (cap 8207 (reals)))
-			:cs (reduce (# (push %0 (/ (n2r 1) (sqrt (+ (n2r 1) (* (n2r %1) (n2r %1))))))) (. +mp3 :find :alias) (reals))
-			:ca (reduce (# (push %0 (/ (n2r %1) (sqrt (+ (n2r 1) (* (n2r %1) (n2r %1))))))) (. +mp3 :find :alias) (reals))
+			:cs (reduce (# (push %0 (/ (n2r 1) (sqrt (+ (n2r 1) (* (str-to-real %1) (str-to-real %1))))))) (. +mp3 :find :alias) (reals))
+			:ca (reduce (# (push %0 (/ (str-to-real %1) (sqrt (+ (n2r 1) (* (str-to-real %1) (str-to-real %1))))))) (. +mp3 :find :alias) (reals))
 			:c36 (mp3-rows 36 18 (lambda (i k) (cos (/ (* pi (n2r (* (+ (* 2 i) 19) (inc (* 2 k))))) (n2r 72)))))
 			:c12 (mp3-rows 12 6 (lambda (i k) (cos (/ (* pi (n2r (* (+ (* 2 i) 7) (inc (* 2 k))))) (n2r 24)))))
 			:synth (mp3-rows 64 32 (lambda (i k) (cos (/ (* pi (n2r (* (+ 16 i) (inc (* 2 k))))) (n2r 64))))))
@@ -166,7 +167,9 @@
 	;factors and lines, the big values, the gain, the scale factors' code,
 	;the block type, mixed or not, the tables of its regions and the pairs
 	;of each, the gains of short windows, and the flags after
-	(defq part (bits-get in 12) big (bits-get in 9) gain (bits-get in 8) sfc (bits-get in (if lsf 9 4)))
+	;big values of no more than the 288 pairs of the 576 lines: a frame that
+	;says more is wrong, and the native would write past them
+	(defq part (bits-get in 12) big (min 288 (bits-get in 9)) gain (bits-get in 8) sfc (bits-get in (if lsf 9 4)))
 	(defq bt 0 mixed 0 tables :nil sbg (list 0 0 0) regions :nil)
 	(cond
 		((= (bits-1 in) 1)
@@ -314,7 +317,7 @@
 	;pairs, each region by its book, 15 the more bits of its table and then
 	;the sign; then quads of 1 and 0 till the end of the part
 	(defq books (. d :find :books) select (. +mp3 :find :select) none (nums))
-	(mp3-native-lines in (fill (nums) 576 0) end
+	((. +mp3 :find :lines) in (fill (nums) 576 0) end
 		(reduce! (lambda (out pairs table)
 				(bind '(book more) (elem-get select table))
 				(if (= book 0) (push out pairs none none 0)
@@ -326,7 +329,7 @@
 (defun mp3-band (out lines at width e pow)
 	;a band's lines requantised, |x|^4/3 by 2^(e/4), signed, native,
 	;lib/media/lisp.vp media_dequant
-	(mp3-dequant out lines at (+ at width) pow (pow (n2r 2) (/ (n2r e) (n2r 4)))))
+	((. +mp3 :find :dequant) out lines at (+ at width) pow (pow (n2r 2) (/ (n2r e) (n2r 4)))))
 
 (defun mp3-requant (g lines sf sri)
 	; (mp3-requant granule lines sf sri) -> reals
@@ -367,7 +370,7 @@
 	;one the first two alone, of short none, native, lib/media/lisp.vp
 	;media_mp3_alias
 	(unless (and (= (. g :find :bt) 2) (= 0 (. g :find :mixed)))
-		(mp3-native-alias x (if (= (. g :find :bt) 2) 1 31) (. +mp3 :find :cs) (. +mp3 :find :ca))))
+		((. +mp3 :find :alias_native) x (if (= (. g :find :bt) 2) 1 31) (. +mp3 :find :cs) (. +mp3 :find :ca))))
 
 (defun mp3-imdct (x g overlap)
 	; (mp3-imdct lines granule overlap) -> (reals ...)
@@ -387,10 +390,10 @@
 								(each (lambda (y win)
 										(defq i (+ 6 (* 6 w) (!)))
 										(elem-set z i (+ (elem-get z i) (* win y))))
-									(mp3-matvec c12 12 6 xw 0 (fill (reals) 12 zero)) (elem-get windows 2)))
+									((. +mp3 :find :matvec) c12 12 6 xw 0 (fill (reals) 12 zero)) (elem-get windows 2)))
 							'(0 1 2))
 						z)
-					(:t (nums-mul (mp3-matvec c36 36 18 x (* 18 sb) (fill (reals) 36 zero))
+					(:t (nums-mul ((. +mp3 :find :matvec) c36 36 18 x (* 18 sb) (fill (reals) 36 zero))
 							(elem-get windows (if (or (= bt 2) (and (= mixed 1) (< sb 2))) 0 bt)))))
 				out (nums-add (slice z 0 18) (elem-get overlap sb)))
 			(elem-set overlap sb (slice z 18 36))
@@ -406,8 +409,8 @@
 	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (n2r 32768))
 	(each (lambda (t)
 			(defq s (reduce (# (push %0 (elem-get %1 t))) subbands (cap 32 (reals))))
-			(setq v (cat (mp3-matvec rows 64 32 s 0 (fill (reals) 64 (n2r 0))) (slice v 0 960)))
-			(mp3-window v d pcm (+ at (* 32 t)) k))
+			(setq v (cat ((. +mp3 :find :matvec) rows 64 32 s 0 (fill (reals) 64 (n2r 0))) (slice v 0 960)))
+			((. +mp3 :find :window) v d pcm (+ at (* 32 t)) k))
 		(range 0 18))
 	v)
 
@@ -446,7 +449,7 @@
 								(defq start (bits-at md) sf (if (. h :find :lsf) (mp3-scales-lsf md g h ch)
 										(mp3-scales md g gr scfsi (elem-get (. d :find :scales) ch))))
 								(elem-set (. d :find :scales) ch sf)
-								(mp3-requant g (mp3-lines d md g (+ start (. g :find :part))) sf sri))
+								(mp3-requant g (mp3-lines d md g (min (+ start (. g :find :part)) (* 8 (- (length (bits-str md)) 8)))) sf sri))
 							chans (range 0 nch) scfsi))
 					;the middle and side of a pair made left and right, and intensity
 					;stereo, by the right's scale factors
@@ -526,12 +529,14 @@
 		(bind '(i h) found)
 		(defq frames :nil bytes :nil toc :nil vbr :nil xing (mp3-xing s i h))
 		(setq at (+ at i))
+		;a Xing table's places are from the start of the Xing frame
+		(defq base at)
 		(when xing
 			(bind '(frames bytes toc vbr) xing)
 			(setq at (+ at (. h :find :size))))
 		(setq bytes (ifn bytes (- end at))
 			frames (ifn frames (/ (+ (* bytes (. h :find :rate)) (/ (mp3-unit h) 2)) (mp3-unit h))))
-		(scatter (Emap) :stream stream :head h :start at :end end :bytes bytes :toc toc :vbr vbr :known (list)
+		(scatter (Emap) :stream stream :head h :start at :base base :end end :bytes bytes :toc toc :vbr vbr :known (list)
 			:frames frames :rate (/ (n2f (. h :find :rate)) (n2f (. h :find :samples)))
 			:width 512 :height 192 :codec "mp3" :audio :t
 			:tracks (list (scatter (Emap) :kind "soun" :codec "mp3" :samples frames :start 0)))))
@@ -541,10 +546,12 @@
 	;between two of its hundredths, else of a varying bit rate by the
 	;bytes a frame of them all, else by the bit rate of the first
 	(defq frames (. reel :find :frames) bytes (. reel :find :bytes) h (. reel :find :head))
-	(+ (. reel :find :start) (if (defq toc (. reel :find :toc))
-		(progn (defq i (min 99 (/ (* n 100) frames)) a (code toc 1 i) b (if (< i 99) (code toc 1 (inc i)) 256))
-			(/ (* bytes (+ (* a frames) (* (- b a) (- (* n 100) (* i frames))))) (* 256 frames)))
-		(if (. reel :find :vbr) (/ (* n bytes) frames) (/ (* n (mp3-unit h)) (. h :find :rate))))))
+	(cond
+		((defq toc (. reel :find :toc))
+			(defq i (min 99 (/ (* n 100) frames)) a (code toc 1 i) b (if (< i 99) (code toc 1 (inc i)) 256))
+			(+ (. reel :find :base) (/ (* bytes (+ (* a frames) (* (- b a) (- (* n 100) (* i frames))))) (* 256 frames))))
+		((. reel :find :vbr) (+ (. reel :find :start) (/ (* n bytes) frames)))
+		((+ (. reel :find :start) (/ (* n (mp3-unit h)) (. h :find :rate))))))
 
 (defun mp3-packet (reel n)
 	; (mp3-packet reel n) -> :nil | str
@@ -553,16 +560,21 @@
 	;read are kept, the sound and the picture each read one after another
 	(when (< -1 n (. reel :find :frames))
 		(defq stream (. reel :find :stream) known (. reel :find :known)
-			at (some (# (if (= (first %0) n) (second %0))) known))
-		(unless at
+			at (some (# (if (= (first %0) n) (second %0))) known)
+			;the header there, if it is one in the file
+			head-at (lambda (at)
+				(stream-seek stream at 0)
+				(and (defq frame (read-blk stream 4)) (defq h (mp3-header frame 0))
+					(<= (+ at (. h :find :size)) (. reel :find :end)) h)))
+		;where one ended, unless what is there is not a header, junk or a tag
+		;between frames: then found as a frame not read before is
+		(unless (and at (head-at at))
 			(stream-seek stream (setq at (max (. reel :find :start) (- (mp3-guess reel n) 2))) 0)
 			(setq at (and (defq s (read-blk stream 8192)) (defq found (mp3-sync s 0)) (+ at (first found)))))
-		(when at
+		(when (and at (defq h (head-at at)))
+			(. reel :insert :known (cat (list (list (inc n) (+ at (. h :find :size)))) (slice known 0 (min 3 (length known)))))
 			(stream-seek stream at 0)
-			(when (and (defq frame (read-blk stream 4)) (defq h (mp3-header frame 0))
-					(<= (+ at (. h :find :size)) (. reel :find :end)))
-				(. reel :insert :known (cat (list (list (inc n) (+ at (. h :find :size)))) (slice known 0 (min 3 (length known)))))
-				(cat frame (read-blk stream (- (. h :find :size) 4)))))))
+			(read-blk stream (. h :find :size)))))
 
 (defun mp3-codec (reel &optional scale)
 	; (mp3-codec reel [scale]) -> codec
@@ -577,15 +589,21 @@
 		(list? (defq pcm (catch (mp3-frame (. codec :find :decoder) frame) :t)))
 		pcm))
 
+(defun mp3-before (size)
+	; (mp3-before size) -> frames
+	;how many frames of a size are decoded first, before one, for the
+	;reservoir to hold the 511 bytes a frame may begin back
+	(inc (/ (+ 511 size -1) size)))
+
 (defun mp3-picture (codec n)
 	; (mp3-picture codec n) -> canvas
-	;frame n's samples drawn: after the one before, else with the three
-	;before it decoded first, for the reservoir and the overlap
+	;frame n's samples drawn: after the one before, else with those before
+	;it decoded first, for the reservoir and the overlap
 	(defq canvas (. codec :find :canvas) w (. (. codec :find :reel) :find :width) h (. (. codec :find :reel) :find :height))
 	(unless (= n (. codec :find :at))
 		(unless (= n (inc (. codec :find :at)))
 			(. (. codec :find :decoder) :insert :reservoir "")
-			(each (# (mp3-samples codec %0)) (range (max 0 (- n 3)) n)))
+			(each (# (mp3-samples codec %0)) (range (max 0 (- n (mp3-before (. (. (. codec :find :reel) :find :head) :find :size)))) n)))
 		(. codec :insert :at n)
 		(reel-wave canvas w h (mp3-samples codec n)))
 	canvas)
@@ -593,5 +611,5 @@
 (each (# (reel-kind %0 mp3-reel mp3-packet mp3-codec mp3-picture)) '(".mp3"))
 
 ;module
-(export-symbols '(mp3-header mp3-decoder mp3-frame mp3-frames mp3-reel mp3-packet mp3-codec mp3-picture))
+(export-symbols '(mp3-header mp3-decoder mp3-frame mp3-frames mp3-before mp3-reel mp3-packet mp3-codec mp3-picture))
 (env-pop)

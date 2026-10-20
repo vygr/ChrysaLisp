@@ -82,6 +82,21 @@
 		(:t (defq power (- (logand (>> bits 52) 0x7ff) 1023))
 			(if (< power 0) 0 (>> (logior (logand bits 0xfffffffffffff) 0x10000000000000) (- 52 power))))))
 
+(defun mkv-asc (name rate channels)
+	; (mkv-asc name rate channels) -> str
+	;an AudioSpecificConfig of AAC-LC of a rate and channels, or if the
+	;name ends /SBR, of type 5, SBR on a core of half the rate
+	(defq rates '(96000 88200 64000 48000 44100 32000 24000 22050 16000 12000 11025 8000 7350)
+		index (lambda (r) (ifn (some (# (if (= %0 r) (!))) rates) 4))
+		fields (if (ends-with "/SBR" name)
+			(list 5 5 (index (/ rate 2)) 4 channels 4 (index rate) 4 2 5 0 3)
+			(list 2 5 (index rate) 4 channels 4 0 3))
+		bits 0 count 0)
+	(each (lambda ((v w)) (setq bits (logior (<< bits w) v) count (+ count w))) (partition fields 2))
+	;the bits high first, made whole bytes
+	(defq pad (logand (- 8 (logand count 7)) 7) bits (<< bits pad) n (/ (+ count pad) 8))
+	(apply (const cat) (map (# (char (logand (>> bits (* 8 (- n 1 %0))) 0xff))) (range 0 n))))
+
 (defun mkv-track (s at end)
 	; (mkv-track str at end) -> track
 	;a TrackEntry: its number, kind as an mp4's, its codec named as an mp4
@@ -93,9 +108,10 @@
 				((= id +mkv_number) (. track :insert :number (mkv-uint s body stop)))
 				((= id +mkv_type) (. track :insert :kind (case (mkv-uint s body stop) (1 "vide") (2 "soun") (:t "other"))))
 				((= id +mkv_codec)
+					;of AAC the A_AAC/MPEG4/LC and the like of before as well
 					(defq name (slice s body stop) codecs (. +mkv :find :codecs)
 						i (some (# (and (= (logand (!) 1) 0) (eql %0 name) (!))) codecs))
-					(scatter track :matroska name :codec (if i (elem-get codecs (inc i)) name)))
+					(scatter track :matroska name :codec (cond (i (elem-get codecs (inc i))) ((starts-with "A_AAC" name) "mp4a") (name))))
 				((= id +mkv_private) (. track :insert :private (slice s body stop)))
 				((= id +mkv_duration) (. track :insert :frame_ns (mkv-uint s body stop)))
 				((= id +mkv_delay) (. track :insert :codec_delay (mkv-uint s body stop)))
@@ -119,6 +135,10 @@
 			((eql (. track :find :codec) "avc1") (. track :insert :config (list (list "avcC" private))))
 			((eql (. track :find :codec) "hvc1") (. track :insert :config (list (list "hvcC" private))))
 			((eql (. track :find :codec) "mp4a") (. track :insert :asc private))))
+	;an AAC of an id of before and no CodecPrivate, its config made of its
+	;rate and channels, and if its id says SBR, of a core of half the rate
+	(and (eql (. track :find :codec) "mp4a") (not private) (. track :find :sample_rate)
+		(. track :insert :asc (mkv-asc (. track :find :matroska) (. track :find :sample_rate) (ifn (. track :find :channels) 2))))
 	track)
 
 (defun mkv-laced (s at end lacing)
@@ -140,7 +160,7 @@
 					(bind '(first_size n _) (mkv-vint s at))
 					(push sizes first_size)
 					(setq at (+ at n))
-					(times (- count 2)
+					(times (max 0 (- count 2))
 						(bind '(v n _) (mkv-vint s at))
 						(push sizes (+ (last sizes) (- v (dec (<< 1 (dec (* 7 n)))))))
 						(setq at (+ at n)))))
@@ -159,37 +179,59 @@
 	(when (defq track (some (# (if (= (. %0 :find :number) number) %0)) tracks))
 		(defq rel (code-be s 2 (+ at n)) flags (code s 1 (+ at n 2)))
 		(if (>= rel 0x8000) (setq rel (- rel 0x10000)))
+		;the frames of a laced block each its frame's time on, the track's
+		;DefaultDuration in the cluster's time, :step
 		(each (lambda ((frame_at size))
 				(if (or (eql key :t) (and (eql key :simple) (/= 0 (logand flags 0x80))))
 					(push (. track :find :keys) (length (. track :find :offsets))))
 				(push (. track :find :offsets) (+ start frame_at))
 				(push (. track :find :sizes) size)
-				(push (. track :find :shown) (+ (. track :find :cluster) rel)))
+				(push (. track :find :shown) (+ (. track :find :cluster) rel (* (!) (. track :find :step)))))
 			(mkv-laced s (+ at n 3) end (logand (>> flags 1) 3)))))
+
+(defun mkv-element (s body stop start tracks id)
+	; (mkv-element str body stop start tracks id)
+	;an element of a Cluster, of a str from start: its time, or a block
+	(cond
+		((= id +mkv_time) (each (# (. %0 :insert :cluster (mkv-uint s body stop))) tracks))
+		((= id +mkv_simple) (mkv-block s body stop start tracks :simple))
+		((= id +mkv_group)
+			;a Block with no ReferenceBlock in its group is a key
+			(defq kids (mkv-children s body stop))
+			(when (defq block (some (# (if (= (first %0) +mkv_block) %0)) kids))
+				(mkv-block s (second block) (third block) start tracks
+					(if (some (# (= (first %0) +mkv_reference)) kids) :nil :t))))))
 
 (defun mkv-cluster (stream at end tracks)
 	; (mkv-cluster stream at end tracks) -> at
-	;a Cluster's time and its blocks, read the once; its end, of a Cluster
-	;of no size where the next element of the top is
-	(stream-seek stream at 0)
-	(defq s (read-blk stream (- end at)) tops (. +mkv :find :tops) i 0 done :nil)
-	(while (and (not done) (< (+ i 2) (length s)))
-		(bind '(_ n id) (mkv-vint s i))
-		(cond
-			((find id tops) (setq done :t))
-			(:t (bind '(size m _) (mkv-vint s (+ i n)))
-				(defq body (+ i n m) stop (if (< size 0) (length s) (min (length s) (+ body size))))
-				(cond
-					((= id +mkv_time) (each (# (. %0 :insert :cluster (mkv-uint s body stop))) tracks))
-					((= id +mkv_simple) (mkv-block s body stop at tracks :simple))
-					((= id +mkv_group)
-						;a Block with no ReferenceBlock in its group is a key
-						(defq kids (mkv-children s body stop))
-						(when (defq block (some (# (if (= (first %0) +mkv_block) %0)) kids))
-							(mkv-block s (second block) (third block) at tracks
-								(if (some (# (= (first %0) +mkv_reference)) kids) :nil :t)))))
-				(setq i stop))))
-	(+ at i))
+	;a Cluster's time and its blocks, read a window of a MB at a time, an
+	;element longer than that read whole: a Cluster of no size, of a
+	;recording, ends where the next element of the top is, and that may be
+	;the file's end. Its end
+	(defq tops (. +mkv :find :tops) window 1048576 done :nil)
+	(while (and (not done) (< (+ at 2) end))
+		(stream-seek stream at 0)
+		(defq s (read-blk stream (min (- end at) window)) i 0 refill :nil ends (>= (+ at (length s)) end))
+		;each element whole in the window, its header there too unless the
+		;window is the last
+		(while (and (not done) (not refill) (< (+ i 2) (length s)) (or ends (<= (+ i 16) (length s))))
+			(bind '(_ n id) (mkv-vint s i))
+			(cond
+				((find id tops) (setq done :t))
+				(:t (bind '(size m _) (mkv-vint s (+ i n)))
+					(defq body (+ i n m) stop (if (< size 0) (length s) (+ body size)))
+					(cond
+						((<= stop (length s)) (mkv-element s body stop at tracks id) (setq i stop))
+						((= i 0)
+							(stream-seek stream at 0)
+							(defq whole (read-blk stream (min (- end at) stop)))
+							(mkv-element whole body (min stop (length whole)) at tracks id)
+							(setq i (min stop (length whole)) refill :t))
+						((setq refill :t))))))
+		;no element begun in it, its end
+		(if (= i 0) (setq done :t))
+		(setq at (+ at i)))
+	at)
 
 (defun mkv-reel (stream)
 	; (mkv-reel stream) -> :nil | reel
@@ -212,7 +254,10 @@
 					(stream-seek stream body 0)
 					(defq s (read-blk stream (- el_end body)))
 					(setq tracks (map (lambda ((id b e)) (mkv-track s b e))
-						(filter (# (= (first %0) +mkv_entry)) (mkv-children s 0 (length s))))))
+						(filter (# (= (first %0) +mkv_entry)) (mkv-children s 0 (length s)))))
+					;a frame's length in the clusters' time, of the scale said in the
+					;Info before the Tracks
+					(each (# (. %0 :insert :step (/ (ifn (. %0 :find :frame_ns) 0) (max 1 scale)))) tracks))
 				((= id +mkv_cluster)
 					(each (# (. %0 :insert :cluster 0)) tracks)
 					(setq el_end (mkv-cluster stream body el_end tracks))
@@ -226,14 +271,14 @@
 			tracks)
 		(scatter reel :tracks tracks :stream stream)
 		(when video
-			(defq frames (. video :find :samples) times (. video :find :times)
-				span (if (> frames 1) (- (last times) (first times)) 0))
+			(defq frames (. video :find :samples) stamps (. video :find :times)
+				span (if (> frames 1) (- (last stamps) (first stamps)) 0))
 			(scatter reel :frames frames :width (. video :find :width) :height (. video :find :height)
 				:codec (. video :find :codec)
 				:rate (if (> span 0) (/ (n2f (dec frames)) (/ (n2f span) (n2f timescale))) 0.0)
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
-				:keys (. video :find :keys) :times times :shown (. video :find :shown) :video video
-				:start (first times) :delay 0))
+				:keys (. video :find :keys) :times stamps :shown (. video :find :shown) :video video
+				:start (first stamps) :delay 0))
 		reel))
 
 ;module

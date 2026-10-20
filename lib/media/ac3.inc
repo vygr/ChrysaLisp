@@ -214,8 +214,12 @@
 	;less, E-AC-3 if 11 to 16; the size of the frame in bytes, the rate,
 	;the blocks, the channels and if there is an LFE. What is only to
 	;inform or to mix is stepped over
-	(when (= (bits-get in 16) 0x0b77)
-		(defq h (Emap) id (logand (>> (code-be (bits-str in) 4 (>> (bits-at in) 3)) 3) 31))
+	;of AC-3 ids 9 and 10 are its half and quarter rates, not here, the
+	;masking of the bit allocation by the rate's own bands
+	(when (and (= (bits-get in 16) 0x0b77)
+			(defq id (logand (>> (code-be (bits-str in) 4 (>> (bits-at in) 3)) 3) 31))
+			(not (<= 9 id 10)))
+		(defq h (Emap))
 		(cond
 			((<= id 10)
 				(bits-get in 16)

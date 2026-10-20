@@ -31,3 +31,15 @@
 			(stream-seek mk_stream at 0)
 			(list? (catch (aac-decode mk_decoder (read-blk mk_stream size)) :t)))
 		(. mk_sound :find :offsets) (. mk_sound :find :sizes)))
+
+;film_unsized.mkv is film.mkv with each Cluster's size all ones, not known,
+;as a recording writes them that cannot go back: each ends where the next
+;element of the top begins. Its frames are the same, where and when
+(defq mk_un (mkv-reel (file-stream "tests/streams/data/film_unsized.mkv")) mk_un_stream (. mk_un :find :stream)
+	mk_read (lambda (s at size) (stream-seek s at 0) (read-blk s size)))
+(assert-true "Clusters of no size, each track's frames the same bytes and times"
+	(every (lambda (ta tb)
+			(and (= (. ta :find :samples) (. tb :find :samples)) (eql (str (. ta :find :shown)) (str (. tb :find :shown)))
+				(every (lambda (oa za ob zb) (eql (mk_read mk_stream oa za) (mk_read mk_un_stream ob zb)))
+					(. ta :find :offsets) (. ta :find :sizes) (. tb :find :offsets) (. tb :find :sizes))))
+		(. mk_reel :find :tracks) (. mk_un :find :tracks)))

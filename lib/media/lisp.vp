@@ -2080,7 +2080,8 @@
 	;parameter k of a reader of lib/media/bits.inc into the nums out from
 	;from: each its quotient in unary, 0s ended by a 1, then k bits, the two
 	;one number folded, even the positive and odd the negative. The str is
-	;to have 8 bytes past the last bit read
+	;to have 8 bytes past the last bit read, as bits-of gives it: the 0s of
+	;a code go no further than those, a bad frame read to its end, not past
 
 	(vp-rdef (in out from n k e p at q v x y num)
 		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -2098,6 +2099,10 @@
 	(assign `((,num 0) (,out +array_begin)) `(,at ,out))
 	(vp-shl-cr 3 from)
 	(vp-add-rr from out)
+	;from now the bit the str's own bytes end at
+	(assign `((,p +str_length)) `(,from))
+	(vp-sub-cr 8 from)
+	(vp-shl-cr 3 from)
 	(vpif `(,n > 0))
 	(loop-start)
 		;the 0s to a 1, the bit at at of its byte the top one
@@ -2113,6 +2118,7 @@
 			(vp-and-cr 0x80 v)
 			(vp-add-cr 1 at)
 			(vp-add-cr 1 q)
+			(breakif `(,at >= ,from))
 		(loop-until `(,v /= 0))
 		;the k bits, of the 8 bytes from at's byte
 		(vp-xor-rr v v)

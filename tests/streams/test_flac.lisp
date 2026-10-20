@@ -9,13 +9,15 @@
 ;bits, one channel; flac_fixed the fixed predictors and frames of one
 ;number, its silence; flac_wasted 8 bit samples at 16, 8 bits a sample
 ;wasted; flac_verbatim noise, the samples as they are; flac_stereo the
-;left and side, the right and side, and the mid and side
+;left and side, the right and side, and the mid and side; flac_quiet
+;silence, its frames of 14 bytes, less than a header is read at
 (defq fl_files '(("flac_lpc" 44100 2 16 22050 5036 -7524371853)
 	("flac_24" 48000 1 24 4800 -2479503 -91223653820)
 	("flac_fixed" 22050 2 16 11026 -70 -609100600)
 	("flac_wasted" 16000 1 16 3200 0 -151961600)
 	("flac_verbatim" 44100 2 16 4410 -236261 209520494)
-	("flac_stereo" 44100 2 16 26460 5156 -5473313300)))
+	("flac_stereo" 44100 2 16 26460 5156 -5473313300)
+	("flac_quiet" 44100 2 16 16384 0 0)))
 
 (defun fl-walk (file)
 	; (fl-walk file) -> (info frames count sum placed)
