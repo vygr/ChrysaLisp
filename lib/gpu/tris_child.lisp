@@ -56,10 +56,14 @@
 		(. orders :insert count (setq tris (apply (const nums) (range 0 count)))))
 	tris)
 
-(defun strip (msg)
+(defun strip (msg main)
 	;draw the strip, and say it is done. Every mesh of it is got, even if
 	;the strip has no rows, an app asks for such a strip to have its
-	;children ready before the first frame
+	;children ready before the first frame. A child that was too long over
+	;its strip has been told to go, its strip given to another: it stops
+	;as it sees that, before its next mesh, and says nothing, so it does
+	;not draw into a frame that is no longer its own. A child has one strip
+	;at a time, so all that can come to its mailbox meanwhile is that
 	(bind '(key reply ask pixels_key width height y y1 cull vfile_length pfile_length draws)
 		(getf-> msg +job_key +job_reply +strip_ask +strip_shared +strip_width +strip_height
 			+strip_y +strip_y1 +strip_cull +strip_vfile_length +strip_pfile_length +strip_draws))
@@ -73,7 +77,9 @@
 	(defq pixmap (attach pixels_key width height)
 		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
 		attrs (elem-get (third pipeline) 2))
+	(defq gone :nil)
 	(times draws
+		(setq gone (or gone (mail-poll (list main))))
 		(bind '(id vlen plen dy dy1 tlen) (getf-> (slice msg at (+ at +strip_draw_size))
 			+strip_draw_mesh +strip_draw_vblock_length +strip_draw_pblock_length
 			+strip_draw_y +strip_draw_y1 +strip_draw_tfiles_length))
@@ -81,7 +87,7 @@
 		;and not asked for till it is. A strip of no rows asks for them all
 		(defq blocks (+ at +strip_draw_blocks)
 			verts (if (or (= y1 y) (and (< dy y1) (> dy1 y))) (mesh id ask)))
-		(and depth verts
+		(and depth verts (not gone)
 			(shader-vp-draw-tris pipeline verts (order (/ (length verts) 8 attrs)) pixmap depth
 				(shader-unpack vertex (slice msg blocks (+ blocks vlen)))
 				;the inputs of the pixel shader, and each of its textures
@@ -93,8 +99,9 @@
 						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) (ascii-char 10))))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
 		(setq at (+ blocks vlen plen tlen)))
-	(mail-send reply (setf-> (str-alloc +strip_reply_size)
-		(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0)))))
+	(unless gone
+		(mail-send reply (setf-> (str-alloc +strip_reply_size)
+			(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))
 
 (defun main ()
 	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
@@ -108,4 +115,4 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and draw the strip
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(strip msg)))))
+				(strip msg (elem-get select +select_main))))))
