@@ -64,7 +64,7 @@
 	(. sound :insert :decoder ((. sound :find :make) sound))
 	(and (> packet 0) (< (dec packet) (. (. sound :find :track) :find :samples)) (sound-packet sound (dec packet)))
 	(scatter sound :next packet :drop (- sample (* packet size)) :time time
-		:written 0 :left 0 :anchor (pii-time) :handle (audio-stream-open-rpc rate 2)))
+		:written 0 :left 0 :anchor (pii-time) :began (pii-time) :handle (audio-stream-open-rpc rate 2)))
 
 (defun sound-pcm (sound left right from)
 	;16 bit stereo, left first, from a frame on, lib/media/lisp.vp media_s16
@@ -100,13 +100,20 @@
 	;the time the pictures are shown at: of the system's clock from an
 	;anchor, as what is heard is told in steps, as the mixer takes a
 	;buffer of 20ms or more, and a film of 60 a second shown by them would
-	;jerk. Anchored again where nothing has been heard yet, and where the
-	;two are more than 100ms apart
-	(defq now (pii-time) heard (sound-clock sound)
+	;jerk. For its first second what is heard is not believed, the mixer
+	;takes in a buffer it has yet to play, and it reads 200ms ahead. Then
+	;drawn to what is heard by no more than 2ms at a time, which is not
+	;seen, and never back. Anchored again where nothing has been written
+	;yet, and where the two are half a second apart, after a stall
+	(defq now (pii-time) heard (sound-clock sound) time (. sound :find :time)
 		;in ms, a fixed number holds no more than 2^31 of the us of a film
-		smooth (+ (. sound :find :time) (/ (n2f (/ (- now (. sound :find :anchor)) 1000)) 1000.0)))
+		smooth (+ time (/ (n2f (/ (- now (. sound :find :anchor)) 1000)) 1000.0)))
 	(cond
-		((or (= (. sound :find :written) (. sound :find :left)) (> (abs (- smooth heard)) 0.1))
-			(. sound :insert :anchor (- now (* 1000 (n2i (* (- heard (. sound :find :time)) 1000.0)))))
+		((= (. sound :find :written) 0) time)
+		((> (abs (- smooth heard)) 0.5)
+			(. sound :insert :anchor (- now (* 1000 (n2i (* (- heard time) 1000.0)))))
 			heard)
-		(smooth)))
+		((< (- now (. sound :find :began)) 1000000) smooth)
+		(:t (defq to (+ smooth (max -0.002 (min 0.002 (- heard smooth)))))
+			(. sound :insert :anchor (- now (* 1000 (n2i (* (- to time) 1000.0)))))
+			to)))
