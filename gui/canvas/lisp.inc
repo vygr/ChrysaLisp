@@ -319,3 +319,4 @@
 (import "lib/media/flm.inc")
 (import "lib/media/mp4.inc")
 (import "lib/media/mp3.inc")
+(import "lib/media/flac.inc")

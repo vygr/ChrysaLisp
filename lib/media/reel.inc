@@ -8,10 +8,11 @@
 ; :height. (reel-packet) gives packet n. (reel-codec) makes what puts
 ; frames on a canvas of its own, (reel-frame codec n) puts frame n there
 ; and gives the canvas, (reel-close codec) lets go of what it holds.
+; (reel-wave canvas w h pcm) draws a frame of a reel of sound.
 ; Frames are counted in the order they are shown, packets in the order
 ; they are decoded, and with B-frames those differ: the codec reads the
 ; packets it needs, from a key where it must, so a player only says
-; which frame. lib/media/flm.inc and lib/media/mp4.inc are kinds.
+; which frame. lib/media/flm.inc, mp4.inc, mp3.inc and flac.inc are kinds.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *reel_kinds* (list))
@@ -59,11 +60,29 @@
 	;frame n, in the order they are shown, on the codec's canvas
 	((elem-get (. codec :find :kind) 4) codec n))
 
+(defun reel-wave (canvas w h pcm)
+	; (reel-wave canvas w h pcm) -> canvas
+	;the picture of a reel of sound, a frame's samples, pcm the left and the
+	;right as reals at the scale of 16 bits, or :nil for none: the left above
+	;the right, a column of two pixels a sample, joined to the one before
+	(.-> canvas (:fill 0xff000000) (:set_color 0xff303030) (:fbox 0 (dec (/ h 2)) w 1))
+	(when pcm
+		(each (lambda (samples mid colour)
+				(defq len (length samples) k (/ (n2r (/ h 4)) (n2r 32768)) y0 mid)
+				(. canvas :set_color colour)
+				(each (lambda (x)
+						(defq y (- mid (n2i (* (elem-get samples (/ (* x len) w)) k))))
+						(. canvas :fbox x (min y y0) 2 (inc (abs (- y y0))))
+						(setq y0 y))
+					(range 0 w 2)))
+			pcm (list (/ h 4) (* 3 (/ h 4))) '(0xff40c060 0xff4080e0)))
+	canvas)
+
 (defun reel-close (codec)
 	; (reel-close codec) -> :nil
 	;let go of what the codec holds that is not in Lisp, a host decoder
 	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))
 
 ;module
-(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close))
+(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close reel-wave))
 (env-pop)

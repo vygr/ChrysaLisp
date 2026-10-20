@@ -143,10 +143,14 @@
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
-    args    a (# ...) with no %0 in it, which takes nothing,
-            given to (map), (each), (filter), (some), (reduce),
-            (sort), (lines!) or the like, or the :each of a
-            map or a set, which call it with an element.
+    args    a (# ...) given to (map), (each), (filter), (some),
+            (reduce), (sort), (lines!) or the like, or the :each
+            of a map or a set, that takes another number than
+            it is called with: one a %n in it, none of no %n,
+            and a %n in an inner (# ) its own; an iterator
+            gives an element of each sequence, reduce and sort
+            two; an :each, of a map two and a set one, only one
+            of no %n.
     global  a *name* made at the top of a module, not
             exported, used in a function of it: it is looked
             for when the function runs, and is gone by then.
@@ -881,47 +885,64 @@
 				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
 			(list forms) 1 -1)))
 
-(defun takes-none? (node)
-	; (takes-none? node) -> :nil | :t
-	;is it a (# ...) with no %0, %1 and so on anywhere in it: a function
-	;of no arguments, to call it with one is an error. Not if a part of
-	;it is put in as it is made, ,x or ~x in a macro: what that part has
-	;in it is not here to be seen, and it may be the %0
+(defun hash-arity (node)
+	; (hash-arity node) -> :nil | num
+	;of a (# ...), how many it takes, as root.inc's (#) makes it: one a %n
+	;that is in it, %1 alone is one, none of no %n at all; called with
+	;another number is an error. A (# ) inside it has its own. :nil if not
+	;one, or if a part of it is put in as it is made, ,x or ~x in a macro:
+	;what that part has in it is not here to be seen, and it may be the %n
 	(when (and (defq kids (tree-form? node)) (nempty? (defq inner (forms-of kids)))
 			(eql (first (first inner)) :symbol) (eql (third (first inner)) "#"))
-		(defq todo (list kids) none :t)
-		(while (and none (defq nodes (pop todo)))
+		(defq todo (list kids) used (list) known :t)
+		(while (and known (defq nodes (pop todo)))
 			(each (lambda (form)
 				(cond
 					((eql (first form) :symbol)
-						(if (or (and (starts-with "%" (third form)) (> (length (third form)) 1))
-								(find (first (third form)) ",~"))
-							(setq none :nil)))
-					((eql (first form) :form) (push todo (third form)))))
+						(defq name (third form))
+						(cond
+							((find (first name) ",~") (setq known :nil))
+							((and (starts-with "%" name) (> (length name) 1) (<= 0 (defq n (str-to-num (slice name 1 -1))) 9)
+									(find (second name) "0123456789"))
+								(unless (find n used) (push used n)))))
+					((and (eql (first form) :form)
+							(not (and (nempty? (defq in (forms-of (third form)))) (eql (first (first in)) :symbol) (eql (third (first in)) "#"))))
+						(push todo (third form)))))
 				nodes))
-		none))
+		(if known (length used))))
 
 (defun check-args (file forms head)
-	;(map (# (f)) seq): a (# ) with no %0 in it takes nothing, and what
-	;it is given to is known to call it with something. Only where that
-	;is known: each of these calls its function with an element, or two.
-	;Chris, who had asked of this rule "how do you know what will call
-	;it ?": "if there are cases we can spot and we see they are wrong,
-	;then by all means let's spot them"
-	(defq at (cond
-		((find head '("each" "map" "filter" "some" "every" "notany" "notevery" "reach" "rmap" "reduce" "rreduce" "lines!"))
-			(if (> (length forms) 2) 1))
+	;(map (# (f)) seq): a (# ) takes one a %n in it, none of no %n, and
+	;what it is given to is known to call it with so many.
+	;Only where that is known: an iterator an element of each of its
+	;sequences, (reduce) and (sort) two, the :each of a map or a set only
+	;of none, a map gives two and a set one. Chris, who had asked of this
+	;rule "how do you know
+	;what will call it ?": "if there are cases we can spot and we see they
+	;are wrong, then by all means let's spot them"
+	(defq calls :nil at (cond
+		((find head '("each" "map" "filter" "some" "every" "notany" "notevery" "reach" "rmap"))
+			(when (> (length forms) 2) (setq calls (- (length forms) 2)) 1))
+		((find head '("reduce" "rreduce")) (when (> (length forms) 2) (setq calls 2) 1))
+		((eql head "lines!") (if (> (length forms) 2) 1))
 		;one with a ! is given its sequences in a list, which may have none in it
 		((find head '("each!" "map!" "some!" "filter!"))
 			(and (> (length forms) 2) (defq kids (tree-form? (third forms)))
-				(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list") 1))
-		((eql head "sort") (if (> (length forms) 2) 2))
-		;the :each of a map or a set, every one of them calls it with what it holds
+				(> (length (defq seqs (forms-of kids))) 1) (eql (first (first seqs)) :symbol) (eql (third (first seqs)) "list")
+				(progn (unless (eql head "filter!") (setq calls (dec (length seqs)))) 1)))
+		((eql head "sort") (when (> (length forms) 2) (setq calls 2) 2))
+		;the :each of a map or a set, every one of them calls it with what it
+		;holds, a map's two and a set's one, which is not here to be seen
 		((and (eql head ".") (> (length forms) 3) (eql (first (third forms)) :keysym) (eql (third (third forms)) ":each"))
 			(setq head ". :each") 3)))
-	(and at (takes-none? (elem-get forms at))
-		(found file (elem-get forms at) "args" "a (# ) with no %0 in it takes nothing, and (" head
-			") calls it with something, (lambda (x) ...)")))
+	(and at (defq arity (hash-arity (elem-get forms at)))
+		(cond
+			((= arity 0)
+				(found file (elem-get forms at) "args" "a (# ) with no %0 in it takes nothing, and (" head
+					") calls it with something, (lambda (x) ...)"))
+			((and calls (/= arity calls))
+				(found file (elem-get forms at) "args" (cat "a (# ) of " (str arity) " %n takes " (str arity) ", and (") head
+					(cat ") calls it with " (str calls) ", (lambda (" (join (map (# (elem-get '("x" "y" "z" "w") (min %0 3))) (range 0 calls)) " ") ") ...)"))))))
 
 (defun check-held (file forms head)
 	;(when (create-stdio) ...): the stdio is the value of the test and no more

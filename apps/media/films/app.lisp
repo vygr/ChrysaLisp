@@ -18,7 +18,7 @@
 (enums +select 0
 	(enum main timer tip))
 
-(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov" ".mp3") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
+(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov" ".mp3" ".flac") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
 	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 

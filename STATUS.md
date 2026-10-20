@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**FLAC: our own decoder, `lib/media/flac.inc`, every sample exact against the reference encoder's sources; a `.flac` reel kind, Films plays and seeks it. Natives for the Rice codes, the integer LPC, the stereo and the samples to reals. check's args rule counts a (#)'s %n against its caller.**
+
 **HE-AAC v1 and v2: SBR in `lib/media/sbr.inc`, PS in `lib/media/ps.inc`, said by the config or found in the stream; 65 to 78 dB of ffmpeg on its conformance streams. Films plays both. 1.5 to 1.7 ms a packet, by media_gather, media_ps_allpass and a synthesis of half the product. `reals??`.**
 
 **MP3 in Films: an `.mp3` reel kind in lib/media/mp3.inc, frames found as wanted, seeks by bit rate, a rising Xing table or VBR average; a book of 48 hours opens in 1 ms. Sound starts past 13 hours.**

@@ -180,14 +180,24 @@
 		"(2) early: +tt is used in the (defq) that makes it, where it is not yet a constant, use it in a later (defq)")
 	(tt-check "early" "(defq +tt ''((1) (2) (3)) m (map (lambda (x) :nil) +tt)" "	f (lambda () (length +tt)))"
 		"(defq +ok ''((1) (2)) n 5)" "(defq m2 (length +ok) +num 5 k (* +num 2))"))
-(assert-list-eq "args: a (# ) with no %0 given to what calls it with something; not one with a %0, nor a lambda, nor one with a part put in, nor (each!) of no sequences; the :each of a map too"
+(assert-list-eq "args: a (# ) with no %0 given to what calls it with something, an inner (# )'s %0 not its; not one with a %0, nor a lambda, nor one with a part put in, nor (each!) of no sequences; the :each of a map too"
 	'("(1) args: a (# ) with no %0 in it takes nothing, and (map) calls it with something, (lambda (x) ...)"
 		"(2) args: a (# ) with no %0 in it takes nothing, and (. :each) calls it with something, (lambda (x) ...)"
 		"(3) args: a (# ) with no %0 in it takes nothing, and (each!) calls it with something, (lambda (x) ...)"
-		"(4) args: a (# ) with no %0 in it takes nothing, and (sort) calls it with something, (lambda (x) ...)")
+		"(4) args: a (# ) with no %0 in it takes nothing, and (sort) calls it with something, (lambda (x) ...)"
+		"(9) args: a (# ) with no %0 in it takes nothing, and (filter) calls it with something, (lambda (x) ...)")
 	(tt-check "args" "(map (# (<< 1 (!))) slots)" "(. m :each (# (print 1)))" "(each! (# (f)) (list a b))" "(sort l (# 0))"
 		"(map (# (inc %0)) slots)" "(map (lambda (x) 1) slots)" "(defmacro m (p) `(each (# (f ,p)) s))"
 		"(each! (# (f)) '() 0 9)" "(filter (# (g (# %0))) l)" "(f (# (g)))"))
+(assert-list-eq "args: a (# ) of so many %n given to what calls it with another number: (reduce) two, (map) one a sequence, (each!) one a sequence of its list, %1 alone one; not when it matches, nor an inner (# )'s %n, nor an :each, a map's two and a set's one, nor (filter!)"
+	'("(1) args: a (# ) of 1 %n takes 1, and (reduce) calls it with 2, (lambda (x y) ...)"
+		"(2) args: a (# ) of 2 %n takes 2, and (map) calls it with 1, (lambda (x) ...)"
+		"(3) args: a (# ) of 1 %n takes 1, and (each!) calls it with 2, (lambda (x y) ...)"
+		"(10) args: a (# ) of 1 %n takes 1, and (reduce) calls it with 2, (lambda (x y) ...)")
+	(tt-check "args" "(reduce (# (push %0 1)) l (list))" "(map (# (+ %0 %1)) a)" "(each! (# (g %0)) (list a b) 0 3)"
+		"(reduce (# (push %0 %1)) l (list))" "(map (# (+ %0 %1)) a b)" "(sort l (# (- %0 %1)))"
+		"(map (# (reduce (# (+ %0 %1)) %0 0)) l)" "(. s :each (# (h %0)))" "(filter! (# (> %0 2)) (list 1 2 3 4))"
+		"(reduce (# (push out %1)) l (list))" "(map (# (f %1)) a)"))
 ;&ignore ends a list of names, in a list inside one too; a list of
 ;parameters whose first name is a macro is a call of it; () given to a
 ;function is run, and calls nothing. Not () given to a macro, nor a macro's
