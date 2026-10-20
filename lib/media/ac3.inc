@@ -390,8 +390,9 @@
 		:spx 0 :spx_uses (map (lambda (_) 0) (range 0 n)) :spx_first (map (lambda (_) 1) (range 0 n))
 		:spx_blend (map (lambda (_) (list)) (range 0 n))
 		:spx_struct (list) :spx_sizes (list) :spx_dst 0 :spx_src 0 :spx_end 0
-		;the 6 blocks' mantissas of each channel of AHT
-		:aht (map (lambda (_) :nil) (range 0 n))
+		;the 6 blocks' mantissas of each channel of AHT, and the noise made
+		;for the bins of a channel that are dither or extension
+		:aht (map (lambda (_) :nil) (range 0 n)) :noise (fill (reals) 256 (n2r 0))
 		;the dynamic range gains, of one or a dual mono's two
 		:drc (list (n2r 1) (n2r 1))))
 
@@ -514,11 +515,13 @@
 	(defq bap (elem-get (. d :find :bap) c) exps (elem-get (. d :find :exps) c)
 		start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
 		dither (or (= c 0) (= 1 (elem-get (. d :find :dither) c)))
-		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)) seed (. d :find :seed))
+		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)) noise (. d :find :noise))
+	;the dither, of -0.707 to 0.707, made for all the bins at once
+	(if dither (. d :insert :seed (noise-fill noise start end (. d :find :seed) (const (/ (n2r 0.707) (n2r 0x80000000))))))
 	(each (lambda (bin)
 			(defq b (elem-get bap bin) m (n2r 0))
 			(cond
-				((= b 0) (when dither (noise-next seed) (setq m (* (noise-real seed) (const (n2r 0.707))))))
+				((= b 0) (if dither (setq m (elem-get noise bin))))
 				((= b 1)
 					(when (empty? (first groups))
 						(defq v (bits-get in 5))
@@ -541,7 +544,6 @@
 					(setq m (/ (n2r v) (n2r (<< 1 (dec q)))))))
 			(elem-set out bin (/ m (n2r (<< 1 (elem-get exps bin))))))
 		(range start end))
-	(. d :insert :seed seed)
 	out)
 
 ;the default bit allocation of E-AC-3 without its syntax, and its codes
@@ -557,7 +559,7 @@
 	;to where they are copied to, each band blended with noise to the
 	;energy it is said to have, and a notch where a copy begins
 	(defq dst (. d :find :spx_dst) src (. d :find :spx_src) sizes (. d :find :spx_sizes)
-		wraps (cap (length sizes) (list)) copies (list) bin dst seed (. d :find :seed))
+		wraps (cap (length sizes) (list)) copies (list) bin dst noise (. d :find :noise))
 	(each (lambda (size)
 			(push wraps (if (= (!) 0) 1 0))
 			(when (> (+ bin size) src)
@@ -595,17 +597,17 @@
 								(each (# (elem-set coeffs (+ at (!)) (* (elem-get coeffs (+ at (!))) %0))) atten))
 							(setq at (+ at size)))
 					sizes wraps))
-			;the blend of the signal copied and the noise
+				;the blend of the signal copied and the noise of -1 to 1, the noise
+				;for the bins of the extension made at once
+				(. d :insert :seed (noise-fill noise src (. d :find :spx_end) (. d :find :seed) (const (/ (n2r 1) (n2r 0x80000000)))))
 				(defq at src)
-				(each (lambda (size (noise k) r)
-						(defq q (* noise r))
+				(each (lambda (size (n k) r)
+						(defq q (* n r))
 						(times size
-							(noise-next seed)
-							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (noise-real seed))))
+							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (elem-get noise at))))
 							(setq at (inc at))))
 					sizes (elem-get (. d :find :spx_blend) c) rms)))
-	(range 1 (inc (. d :find :fbw))))
-(. d :insert :seed seed))
+		(range 1 (inc (. d :find :fbw)))))
 
 (defun ac3-block (d in h blk)
 	; (ac3-block decoder reader header blk) -> (reals ...)

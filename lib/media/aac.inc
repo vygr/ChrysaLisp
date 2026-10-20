@@ -431,13 +431,14 @@
 					(when (= (elem-get books sfb) +aac_noise)
 						(defq w window)
 						(times count
+							;the band's noise made once to know its energy, then again
+							;from the same seed into the lines, by the scale it gives
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
-								values (reduce (# (noise-next seed) (push %0 (n2r (- seed 0x80000000))))
-									(range from to) (cap (- to from) (reals)))
-								energy (nums-sum (nums-mul values values)))
-							(defq scale (if (> energy (n2r 0))
-								(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0)))
-							(each (# (elem-set out (+ from (!)) (* %0 scale))) values)
+								values (fill (reals) (- to from) (n2r 0)))
+							(noise-fill values 0 (- to from) seed (n2r 1))
+							(defq energy (nums-sum (nums-mul values values)))
+							(setq seed (noise-fill out from to seed (if (> energy (n2r 0))
+								(/ (elem-get (. tables :find :gain) (+ 100 (elem-get scales sfb))) (sqrt energy)) (n2r 0))))
 							(setq w (inc w)))))
 				(range 0 (. info :find :max_sfb)))
 			(setq window (+ window count)))

@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/reals/class.inc")
+(include "class/real/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
@@ -483,5 +484,64 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-bits-1 reader)" +error_msg_wrong_types))
 	(signature '(:list)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_noise"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r12, :r14, :f0-:f15
+	;info
+	;(media-noise out start end seed scale) -> seed, the reals of out from
+	;start to end each the next of the generator of lib/media/noise.inc,
+	;seed by 1664525 and 1013904223 of 32 bits, less 2^31, by scale
+
+	(vp-rdef (out start end seed scale p e half mul add)
+		'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 5)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,start ,end ,seed ,scale) '(:obj :num :num :num :obj))
+	(vp-cpy-if scale +num_value :f1)
+	(assign `((,out +array_begin)) `(,p))
+	(vp-shl-cr 3 start)
+	(vp-shl-cr 3 end)
+	(vp-lea-d p end e)
+	(vp-add-rr start p)
+	(vp-cpy-cr 1 half)
+	(vp-shl-cr 31 half)
+	(vp-cpy-cr 1664525 mul)
+	(vp-cpy-cr 1013904223 add)
+	(vpif `(,p < ,e))
+		(loop-start)
+			(vp-mul-rr mul seed)
+			(vp-add-rr add seed)
+			(vp-shl-cr 32 seed)
+			(vp-shr-cr 32 seed)
+			(vp-cpy-rr seed end)
+			(vp-sub-rr half end)
+			(vp-cvt-rf end :f0)
+			(vp-mul-ff :f1 :f0)
+			(vp-cpy-fi :f0 p 0)
+			(vp-add-cr +long_size p)
+		(loop-until `(,p = ,e))
+	(endif)
+	(call :num :create `(,seed) '(:r1))
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-noise out start end seed scale)" +error_msg_wrong_types))
+	(signature '(:reals :num :num :num :real)))
 
 (def-func-end)
