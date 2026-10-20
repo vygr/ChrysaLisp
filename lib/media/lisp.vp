@@ -381,3 +381,107 @@
 	(signature '(:str :num :nums)))
 
 (def-func-end)
+
+(defun media-bits-read (in n e num at p v x)
+	;the next n bits of the reader in, (str (nums at)), high bit first, into
+	;v, and at moved past them, in its nums. n a reg or a constant. Trashes
+	;the regs given
+	(assign `((,in +array_begin)) `(,e))
+	(assign `((,e 0) (,e +ptr_size)) `(,p ,num))
+	(assign `((,num +array_begin)) `(,num))
+	(assign `((,num 0)) `(,at))
+	;the 4 bytes at at, high first
+	(vp-cpy-rr at x)
+	(vp-shr-cr 3 x)
+	(vp-add-rr x p)
+	(vp-cpy-ir-ub p +str_data v)
+	(each (lambda (i)
+			(vp-shl-cr 8 v)
+			(vp-cpy-ir-ub p (+ +str_data i) x)
+			(vp-add-rr x v))
+		'(1 2 3))
+	;the n of them from at, the bits above taken off
+	(vp-cpy-rr at x)
+	(vp-and-cr 7 x)
+	(vp-shl-rr x v)
+	(vp-cpy-cr 32 x)
+	(if (num? n) (vp-sub-cr n x) (vp-sub-rr n x))
+	(vp-shr-rr x v)
+	(vp-cpy-cr 1 x)
+	(if (num? n) (vp-shl-cr n x) (vp-shl-rr n x))
+	(vp-sub-cr 1 x)
+	(vp-and-rr x v)
+	;at past them
+	(if (num? n) (vp-add-cr n at) (vp-add-rr n at))
+	(assign `(,at) `((,num 0))))
+
+(def-func (path-to-absolute "./media_bits_get"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r10, :r14, :f0-:f15
+	;info
+	;(media-bits-get reader n) -> num, the next n bits, 0 to 25, of a reader
+	;of lib/media/bits.inc, (str (nums at)), high bit first, and at moved
+	;past them. The str is to have 4 bytes past the last bit read
+
+	(vp-rdef (in n e num at p v x)
+		'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,in ,n) '(:obj :num))
+	(media-bits-read in n e num at p v x)
+	(call :num :create `(,v) '(:r1))
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-bits-get reader n)" +error_msg_wrong_types))
+	(signature '(:list :num)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_bits_1"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r10, :r14, :f0-:f15
+	;info
+	;(media-bits-1 reader) -> 0 | 1, the next bit of a reader of
+	;lib/media/bits.inc, (str (nums at)), and at moved past it
+
+	(vp-rdef (in e num at p v x)
+		'(:r3 :r5 :r6 :r7 :r8 :r9 :r10))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,in) '(:obj))
+	(media-bits-read in 1 e num at p v x)
+	(call :num :create `(,v) '(:r1))
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-bits-1 reader)" +error_msg_wrong_types))
+	(signature '(:list)))
+
+(def-func-end)

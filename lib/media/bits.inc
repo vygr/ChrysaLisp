@@ -1,42 +1,45 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; bits, of a str, high bit first, as the coded sound of films has them
 ;
-; A reader is (str at), at in bits from the first. (bits-of str) makes
-; one, the str with bytes enough after it to read past its end.
-; (bits-get reader n) the next n bits, 0 to 25, (bits-1 reader) the
-; next, (bits-skip reader n) steps over n, (bits-at reader) where it is.
+; A reader is (str (nums at)), at in bits from the first, a raw number
+; the native reads and writes in place. (bits-of str) makes one, the str
+; with bytes enough after it to read past its end. (bits-get reader n)
+; the next n bits, 0 to 25, (bits-1 reader) the next, both native,
+; (bits-skip reader n) steps over n, (bits-at reader) where it is,
+; (bits-seek reader at) puts it there, (bits-str reader) its str.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
 (env-push)
 
+(ffi (path-to-absolute "./media_bits_get") bits-get)
+; (bits-get reader n) -> num
+(ffi (path-to-absolute "./media_bits_1") bits-1)
+; (bits-1 reader) -> 0 | 1
+
 (defun bits-of (s)
 	; (bits-of str) -> reader
-	(list (cat s (char 0 8)) 0))
-
-(defun bits-get (in n)
-	; (bits-get reader n) -> num
-	;the 4 bytes at, by the native (code), the low first, turned high first
-	(defq at (second in) v (code (first in) 4 (>> at 3)))
-	(elem-set in 1 (+ at n))
-	(logand (>> (logior (<< (logand v 0xff) 24) (<< (logand v 0xff00) 8) (logand (>> v 8) 0xff00) (>> v 24))
-		(- 32 (logand at 7) n)) (dec (<< 1 n))))
-
-(defun bits-1 (in)
-	; (bits-1 reader) -> 0 | 1
-	(defq at (second in))
-	(elem-set in 1 (inc at))
-	(logand (>> (code (first in) 1 (>> at 3)) (- 7 (logand at 7))) 1))
+	(list (cat s (char 0 8)) (nums 0)))
 
 (defun bits-skip (in n)
 	; (bits-skip reader n) -> reader
-	(elem-set in 1 (+ (second in) n))
+	(defq at (second in))
+	(elem-set at 0 (+ (first at) n))
 	in)
 
 (defun bits-at (in)
 	; (bits-at reader) -> num
-	(second in))
+	(first (second in)))
+
+(defun bits-seek (in at)
+	; (bits-seek reader at) -> reader
+	(elem-set (second in) 0 at)
+	in)
+
+(defun bits-str (in)
+	; (bits-str reader) -> str
+	(first in))
 
 ;module
-(export-symbols '(bits-of bits-get bits-1 bits-skip bits-at))
+(export-symbols '(bits-of bits-get bits-1 bits-skip bits-at bits-seek bits-str))
 (env-pop)

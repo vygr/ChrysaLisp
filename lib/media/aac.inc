@@ -56,8 +56,8 @@
 	; (aac-huff reader table) -> index
 	;the code next, what it stands for, by the native reader of a book's
 	;table, lib/media/lisp.vp media_huff
-	(defq got ((. +aac :find :huff) (first in) (second in) table))
-	(elem-set in 1 (logand got 0xffffffff))
+	(defq got ((. +aac :find :huff) (bits-str in) (bits-at in) table))
+	(bits-seek in (logand got 0xffffffff))
 	(>> got 32))
 
 (defun aac-huff-lisp (in book)
@@ -65,7 +65,7 @@
 	;the same in Lisp, the bits of the longest code looked at, one more
 	;each time till one is a code: what the native one is checked against
 	(bind '(lookup longest) book)
-	(defq at (second in) s (first in) byte (>> at 3) shift (logand at 7)
+	(defq at (bits-at in) s (bits-str in) byte (>> at 3) shift (logand at 7)
 		;the next 32 bits, and those after the first byte
 		window (logior (<< (code-be s 4 byte) 8) (code s 1 (+ byte 4)))
 		len 0 found :nil)
@@ -74,7 +74,7 @@
 		(setq found (. lookup :find (+ (<< len 24)
 			(logand (>> window (- 40 shift len)) (dec (<< 1 len))))))
 		(if (> len longest) (throw "aac: no such code" len)))
-	(elem-set in 1 (+ at len))
+	(bits-seek in (+ at len))
 	found)
 
 ;;;;;;;;;;;
@@ -333,16 +333,16 @@
 				;data, stepped over: aligned or not, and its length
 				(defq align (bits-1 in) count (bits-get in 8))
 				(if (= count 255) (setq count (+ count (bits-get in 8))))
-				(if (= align 1) (elem-set in 1 (* 8 (/ (+ (second in) 7) 8))))
-				(elem-set in 1 (+ (second in) (* 8 count))))
+				(if (= align 1) (bits-seek in (* 8 (/ (+ (bits-at in) 7) 8))))
+				(bits-skip in (* 8 count)))
 			((= kind +aac_fil)
 				;fill, stepped over; its 4 bits of count were read as the tag
-				(elem-set in 1 (- (second in) 4))
+				(bits-skip in -4)
 				(defq count (bits-get in 4))
 				(if (= count 15) (setq count (+ count (bits-get in 8) -1)))
-				(elem-set in 1 (+ (second in) (* 8 count))))
+				(bits-skip in (* 8 count)))
 			(:t (throw "aac: an element not of AAC-LC" kind))))
-	(. decoder :insert :bits (second in))
+	(. decoder :insert :bits (bits-at in))
 	channels)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;

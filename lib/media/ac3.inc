@@ -168,7 +168,7 @@
 	;the blocks, the channels and if there is an LFE. What is only to
 	;inform or to mix is stepped over
 	(when (= (bits-get in 16) 0x0b77)
-		(defq h (Emap) id (logand (>> (code-be (first in) 4 (>> (bits-at in) 3)) 3) 31))
+		(defq h (Emap) id (logand (>> (code-be (bits-str in) 4 (>> (bits-at in) 3)) 3) 31))
 		(cond
 			((<= id 10)
 				(bits-get in 16)
