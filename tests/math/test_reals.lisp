@@ -21,6 +21,11 @@
 (assert-eq "Real Frac"  (n2r 0.75) (frac (n2r 3.75)))
 (assert-eq "Real Sign"  (n2r 1.0) (sign (n2r 5.0)))
 (assert-eq "Real Sqrt"  (n2r 3.0) (sqrt (n2r 9.0)))
+(assert-eq "Real Pow"   (n2r 8.0) (pow (n2r 2.0) (n2r 3.0)))
+(assert-eq "Real Pow root" (n2r 2.0) (pow (n2r 4.0) (n2r 0.5)))
+(assert-eq "Real Pow less than 0" (n2r 0.5) (pow (n2r 2.0) (n2r -1.0)))
+(assert-eq "Real Pow of 0" (n2r 0.0) (pow (n2r 0.0) (n2r 2.0)))
+(assert-error "Real Pow of another type" (pow (n2r 2.0) 3))
 
 ; Trig (Scalar)
 (assert-eq "Real Sin 0" 0.0 (n2f (sin (n2r 0.0))))

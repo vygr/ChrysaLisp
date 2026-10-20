@@ -30,4 +30,5 @@
 	(dec-method :le class/real/le :final :nil :nil (:r1-:r3 :f0-:f1) (:r1-:r3 :f0-:f1))
 	(dec-method :ge class/real/ge :final :nil :nil (:r1-:r3 :f0-:f1) (:r1-:r3 :f0-:f1))
 	(dec-method :quant class/real/quant :final (:r0 :r1) (:r0) (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
+	(dec-method :pow class/real/pow :final :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :lisp_quant class/real/lisp_quant :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r13-:r14 :f0-:f15)))

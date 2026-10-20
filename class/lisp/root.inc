@@ -92,6 +92,8 @@
 ; (abs num) -> num
 (ffi "class/num/lisp_sqrt" sqrt)
 ; (sqrt num) -> num
+(ffi "class/num/lisp_pow" pow)
+; (pow num power) -> num
 (ffi "class/num/lisp_sign" sign)
 ; (sign num) -> -1 | 0 | 1
 (ffi "class/num/lisp_n2i" n2i)
@@ -1071,12 +1073,6 @@
 		(defq i 0)
 		(while (/= 0 (setq %0 (>> %0 1)))
 			(++ i)) i))
-
-(defun pow (base exponent)
-	; (pow base exponent) -> integer
-	(defq res 1)
-	(times exponent (setq res (* res base)))
-	res)
 
 (defun ntz (%0)
 	; (ntz num) -> num

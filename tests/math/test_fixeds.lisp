@@ -27,6 +27,9 @@
 
 ; Trig (Scalar)
 (assert-eq "Fixed Sin 0" 0.0 (sin 0.0))
+(assert-eq "Fixed Pow" 8.0 (pow 2.0 3.0))
+(assert-eq "Fixed Pow root" 2.0 (pow 4.0 0.5))
+(assert-eq "Fixed Pow less than 0" 0.5 (pow 2.0 -1.0))
 (assert-eq "Fixed Cos 0" 1.0 (cos 0.0))
 ; pi/2 is approx 1.570796. +fp_hpi is 1.570796.
 (assert-eq "Fixed Sin PI/2" 1.0 (sin 1.570796))

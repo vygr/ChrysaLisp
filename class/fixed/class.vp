@@ -187,6 +187,35 @@
 
 (def-func-end)
 
+(def-method :fixed :pow)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;:r1 = power fixed object (ptr)
+	;outputs
+	;:r0 = result fixed object (ptr)
+	;trashes
+	;:r0-:r2, :r14, :f0-:f15
+	;info
+	;0 if the number is not greater than 0, :sys_math :r_pow
+
+	(entry :fixed :pow '(:r0 :r1))
+
+	(assign '((:r0 +num_value) (:r1 +num_value)) '(:r0 :r1))
+	(vp-lea-p 'fn_consts :r2)
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f2))
+	(vp-cvt-rf :r0 :f0)
+	(vp-mul-ff :f2 :f0)
+	(vp-cvt-rf :r1 :f1)
+	(vp-mul-ff :f2 :f1)
+	(call :sys_math :r_pow '(:f0 :f1) '(:f0))
+	(vp-lea-p 'fn_consts :r2)
+	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
+	(jump :fixed :create '(:r0))
+
+(def-func-end)
+
 (def-method :fixed :sign)
 	;inputs
 	;:r0 = fixed object (ptr)

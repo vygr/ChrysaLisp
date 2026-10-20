@@ -12,6 +12,7 @@
 	(dec-method :mod class/fixed/mod :override :nil :nil (:r0-:r6 :r14 :f0-:f15) (:r0-:r2 :r4-:r6 :r14 :f0-:f15))
 	(dec-method :sign class/fixed/sign :override :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :sqrt class/fixed/sqrt :override :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
+	(dec-method :pow class/fixed/pow :override :nil :nil (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :frac class/fixed/frac :virtual (:r0) (:r0) (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :floor class/fixed/floor :virtual (:r0) (:r0) (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
 	(dec-method :ceil class/fixed/ceil :virtual (:r0) (:r0) (:r0-:r2 :r14 :f0-:f15) (:r0-:r2 :r14 :f0-:f15))
