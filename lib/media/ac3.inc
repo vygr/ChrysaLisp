@@ -11,6 +11,7 @@
 
 (import "./bits.inc")
 (import "./mdct.inc")
+(import "./noise.inc")
 (import "./ac3_tables.inc")
 
 ;module
@@ -430,16 +431,6 @@
 		(range 1 n))
 	(list struct sizes))
 
-(defun ac3-noise (d)
-	;the next of the noise, a real of -1 to 1
-	(defq seed (logand (+ (* (. d :find :seed) 1664525) 1013904223) 0xffffffff))
-	(. d :insert :seed seed)
-	(- (/ (n2r seed) (n2r 0x80000000)) (n2r 1)))
-
-(defun ac3-random (d)
-	;the next of the dither, a real of -0.707 to 0.707
-	(* (ac3-noise d) (n2r 0.707)))
-
 (defun ac3-idct6 ((p0 p1 p2 p3 p4 p5))
 	; (ac3-idct6 (m ...)) -> (m ...)
 	;the DCT of 6 back, a bin's mantissas across the blocks, as the
@@ -475,6 +466,7 @@
 	;the DCT of 6 back across the blocks, a reals of 256 for each block
 	(defq bap (elem-get (. d :find :bap) c) bins (range (elem-get (. d :find :start) c) (elem-get (. d :find :end) c))
 		bits_of (. +ac3 :find :hebap_bits) gaq (bits-get in 2) top (if (< gaq 2) 12 17) gains (list) gi 0
+		seed (. d :find :seed)
 		out (map (lambda (_) (fill (reals) 256 (n2r 0))) (range 0 6)))
 	;the gains of the bins of bap 8 to the top, of 1 bit each, or 3 to a
 	;code of 5 bits
@@ -491,7 +483,7 @@
 	(each (lambda (bin)
 			(defq b (elem-get bap bin) bits (elem-get bits_of b))
 			(each (# (elem-set (elem-get out (!)) bin %0)) (ac3-idct6 (cond
-				((= b 0) (map (lambda (_) (* (ac3-noise d) (n2r 0.5))) (range 0 6)))
+				((= b 0) (map (lambda (_) (noise-next seed) (* (noise-real seed) (const (n2r 0.5)))) (range 0 6)))
 				((< b 8)
 					(defq vq (elem-get *ac3_aht_vq* b) row (* 6 (bits-get in bits)))
 					(map (# (/ (n2r (elem-get vq (+ row %0))) (n2r 32768))) (range 0 6)))
@@ -499,6 +491,7 @@
 					(and (/= gaq 0) (< b top) (setq g (elem-get gains gi) gi (inc gi)))
 					(map (lambda (_) (ac3-gaq in b bits g)) (range 0 6)))))))
 		bins)
+	(. d :insert :seed seed)
 	out)
 
 (defun ac3-aht-coeffs (d in c blk)
@@ -521,11 +514,11 @@
 	(defq bap (elem-get (. d :find :bap) c) exps (elem-get (. d :find :exps) c)
 		start (elem-get (. d :find :start) c) end (elem-get (. d :find :end) c)
 		dither (or (= c 0) (= 1 (elem-get (. d :find :dither) c)))
-		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)))
+		qbits (. +ac3 :find :qbits) out (fill (reals) 256 (n2r 0)) seed (. d :find :seed))
 	(each (lambda (bin)
 			(defq b (elem-get bap bin) m (n2r 0))
 			(cond
-				((= b 0) (if dither (setq m (ac3-random d))))
+				((= b 0) (when dither (noise-next seed) (setq m (* (noise-real seed) (const (n2r 0.707))))))
 				((= b 1)
 					(when (empty? (first groups))
 						(defq v (bits-get in 5))
@@ -548,6 +541,7 @@
 					(setq m (/ (n2r v) (n2r (<< 1 (dec q)))))))
 			(elem-set out bin (/ m (n2r (<< 1 (elem-get exps bin))))))
 		(range start end))
+	(. d :insert :seed seed)
 	out)
 
 ;the default bit allocation of E-AC-3 without its syntax, and its codes
@@ -563,7 +557,7 @@
 	;to where they are copied to, each band blended with noise to the
 	;energy it is said to have, and a notch where a copy begins
 	(defq dst (. d :find :spx_dst) src (. d :find :spx_src) sizes (. d :find :spx_sizes)
-		wraps (cap (length sizes) (list)) copies (list) bin dst)
+		wraps (cap (length sizes) (list)) copies (list) bin dst seed (. d :find :seed))
 	(each (lambda (size)
 			(push wraps (if (= (!) 0) 1 0))
 			(when (> (+ bin size) src)
@@ -606,10 +600,12 @@
 				(each (lambda (size)
 						(defq k (elem-get signal (!)) q (* (elem-get noise (!)) (elem-get rms (!))))
 						(times size
-							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (ac3-noise d))))
+							(noise-next seed)
+							(elem-set coeffs at (+ (* (elem-get coeffs at) k) (* q (noise-real seed))))
 							(setq at (inc at))))
 					sizes)))
-		(range 1 (inc (. d :find :fbw)))))
+	(range 1 (inc (. d :find :fbw))))
+(. d :insert :seed seed))
 
 (defun ac3-block (d in h blk)
 	; (ac3-block decoder reader header blk) -> (reals ...)

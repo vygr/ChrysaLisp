@@ -17,6 +17,7 @@
 (import "./huff.inc")
 (import "./bits.inc")
 (import "./mdct.inc")
+(import "./noise.inc")
 
 ;module
 (env-push)
@@ -424,7 +425,7 @@
 	; (aac-noise channel lines tables decoder)
 	;each band of noise filled, random lines of the band's energy
 	(defq info (. ch :find :info) bands (. info :find :bands) window 0
-		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024))
+		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024) seed (. decoder :find :seed))
 	(each (lambda (count books scales)
 			(each (lambda (sfb)
 					(when (= (elem-get books sfb) +aac_noise)
@@ -433,8 +434,7 @@
 							(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb)))
 								energy (n2r 0) values (cap (- to from) (list)))
 							(times (- to from)
-								(defq seed (logand (+ (* (. decoder :find :seed) 1664525) 1013904223) 0xffffffff))
-								(. decoder :insert :seed seed)
+								(noise-next seed)
 								(push values (n2r (- seed 0x80000000)))
 								(setq energy (+ energy (* (last values) (last values)))))
 							(defq scale (if (> energy (n2r 0))
@@ -443,7 +443,8 @@
 							(setq w (inc w)))))
 				(range 0 (. info :find :max_sfb)))
 			(setq window (+ window count)))
-		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales)))
+		(. info :find :lengths) (. ch :find :sections) (. ch :find :scales))
+	(. decoder :insert :seed seed))
 
 (defun aac-stereo (left right l r tables)
 	; (aac-stereo left right l_lines r_lines tables)
