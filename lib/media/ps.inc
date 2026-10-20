@@ -21,6 +21,11 @@
 
 (import "./ps_tables.inc")
 
+(ffi (path-to-absolute "./media_gather") ps-gather)
+; (ps-gather out arrays index) -> out
+(ffi (path-to-absolute "./media_ps_allpass") ps-allpass)
+; (ps-allpass out_r out_i dr di links coeffs gains) -> out_r
+
 ;what the functions read as they run, this one map, the tables of
 ;ps_tables.inc taken in as this is read
 (defq +ps (Emap))
@@ -244,8 +249,8 @@
 (defun ps-series (slots q n)
 	; (ps-series slots q n) -> (re im)
 	;band q's first n slots, of slots of 64 bands each
-	(list (reduce! (# (push %0 (elem-get (first %1) q))) (list slots) (cap n (reals)) 0 n)
-		(reduce! (# (push %0 (elem-get (second %1) q))) (list slots) (cap n (reals)) 0 n)))
+	(list (ps-gather (fill (reals) n (n2r 0)) (map! (const first) (list slots) 0 n) q)
+		(ps-gather (fill (reals) n (n2r 0)) (map! (const second) (list slots) 0 n) q)))
 
 (defun ps-filter (xr xi filter n)
 	; (ps-filter re im filter n) -> ((re im) ...)
@@ -347,26 +352,16 @@
 			(cond
 				((< k nr_ap)
 					(defq slope (max zero (min one (- one (* (n2r (- k cutoff)) (n2r 0.05)))))
-						ag (map (# (* %0 slope)) links) pr (elem-get phi_tab (* 2 k)) pi_ (elem-get phi_tab (inc (* 2 k)))
-						qs (map (# (list (elem-get q_tab (* 2 (+ (* 3 k) %0))) (elem-get q_tab (inc (* 2 (+ (* 3 k) %0)))))) (range 0 3))
-						aps (map (lambda ((r i)) (list (cat (slice r 32 37) (. +ps :find :zeros32)) (cat (slice i 32 37) (. +ps :find :zeros32))))
+						at (* 6 k) z32 (. +ps :find :zeros32)
+						;the phase, then each link's fractional delay and decayed gain
+						coeffs (reals (elem-get phi_tab (* 2 k)) (elem-get phi_tab (inc (* 2 k)))
+							(elem-get q_tab at) (elem-get q_tab (+ at 1)) (* (first links) slope)
+							(elem-get q_tab (+ at 2)) (elem-get q_tab (+ at 3)) (* (second links) slope)
+							(elem-get q_tab (+ at 4)) (elem-get q_tab (+ at 5)) (* (third links) slope))
+						aps (map (lambda ((r i)) (list (cat (slice r 32 37) z32) (cat (slice i 32 37) z32)))
 							(elem-get (. ps :find :ap) k))
-						out_r (cap 32 (reals)) out_i (cap 32 (reals)))
-					(each (lambda (n)
-							(defq xr (elem-get dr (+ 12 n)) xi (elem-get di (+ 12 n))
-								in_r (- (* xr pr) (* xi pi_)) in_i (+ (* xr pi_) (* xi pr)))
-							(each (lambda ((ar ai) (qr qi) a)
-									(defq m (!) lr (elem-get ar (- (+ n 2) m)) li (elem-get ai (- (+ n 2) m))
-										apd_r in_r apd_i in_i)
-									(setq in_r (- (- (* lr qr) (* li qi)) (* a in_r))
-										in_i (- (+ (* lr qi) (* li qr)) (* a in_i)))
-									(elem-set ar (+ n 5) (+ apd_r (* a in_r)))
-									(elem-set ai (+ n 5) (+ apd_i (* a in_i))))
-								aps qs ag)
-							(defq gn (elem-get g n))
-							(push out_r (* gn in_r))
-							(push out_i (* gn in_i)))
-						(range 0 32))
+						out_r (fill (reals) 32 zero) out_i (fill (reals) 32 zero))
+					(ps-allpass out_r out_i dr di (reduce (# (push %0 (first %1) (second %1))) aps (list)) coeffs g)
 					(elem-set (. ps :find :ap) k aps)
 					(list out_r out_i))
 				((< k short) (list (nums-mul (slice dr 0 32) g) (nums-mul (slice di 0 32) g)))
@@ -451,10 +446,8 @@
 		qmf (if (= is34 1)
 			(cat (list (sum 0 12) (sum 12 20) (sum 20 24) (sum 24 28) (sum 28 32)) (slice bands 32 91))
 			(cat (list (sum 0 6) (sum 6 8) (sum 8 10)) (slice bands 10 71))))
-	(map (lambda (n)
-			(list (reduce (# (push %0 (elem-get (first %1) n))) qmf (cap 64 (reals)))
-				(reduce (# (push %0 (elem-get (second %1) n))) qmf (cap 64 (reals)))))
-		(range 0 32)))
+	(defq qr (map (const first) qmf) qi (map (const second) qmf) zero (n2r 0))
+	(map (# (list (ps-gather (fill (reals) 64 zero) qr %0) (ps-gather (fill (reals) 64 zero) qi %0))) (range 0 32)))
 
 (defun ps-apply (ps slots top)
 	; (ps-apply ps slots top) -> (left right)

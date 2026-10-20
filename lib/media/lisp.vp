@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/reals/class.inc")
 (include "class/real/class.inc")
-(include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
 (def-func (path-to-absolute "./media_dct4"))
@@ -1892,5 +1891,177 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mp3-alias x bands cs ca)" +error_msg_wrong_types))
 	(signature '(:reals :num :reals :reals)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_gather"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r7
+	;info
+	;(media-gather out arrays index) -> out, element index of each of a list
+	;of arrays of numbers or reals in turn into out, which is to be as long
+	;as the list: a column of rows, the bands of one slot of a list of
+	;slots, or a slot of a list of bands
+
+	(vp-rdef (out arrays index p end e v)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r1))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out ,arrays ,index) '(:obj :obj :num))
+	(vp-push out)
+	(assign `((,arrays +array_length ui) (,arrays +array_begin) (,out +array_begin)) `(,end ,p ,out))
+	(vp-shl-cr 3 index)
+	(vpif `(,end > 0))
+		(vp-shl-cr 3 end)
+		(vp-add-rr p end)
+		(loop-start)
+			(assign `((,p 0)) `(,e))
+			(assign `((,e +array_begin)) `(,e))
+			(vp-cpy-dr e index v)
+			(vp-cpy-ri v out 0)
+			(vp-add-cr +ptr_size p)
+			(vp-add-cr +long_size out)
+		(loop-until `(,p = ,end))
+	(endif)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-gather out arrays index)" +error_msg_wrong_types))
+	(signature '(:array :list :num)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_ps_allpass"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f11
+	;info
+	;(media-ps-allpass out_r out_i dr di links coeffs gains) -> out_r, a band
+	;of parametric stereo made unlike itself, its 32 slots: each slot of the
+	;delay line, reals dr and di, from 12 on, turned by the band's phase,
+	;then through the 3 links of the all-pass filter, links their reals re
+	;and im one after another, each 5 slots before and the 32 of this frame
+	;written in place: of link m the slot 2 - m before by its fractional
+	;delay, less the decayed gain by the slot, and its own slot 5 on the
+	;slot and the gain by what comes out. coeffs is the phase re and im, then
+	;each link's delay re and im and gain. Each slot out by its gain
+
+	(vp-rdef (out_r out_i dr di gains coeffs a0r a0i a1r a1i a2r a2i c)
+		'(:r14 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 7)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,out_r ,out_i ,dr ,di ,a0r ,coeffs ,gains) '(:obj :obj :obj :obj :obj :obj :obj))
+	(vp-push out_r)
+	;the links' 6 reals of the list, the list's own register last
+	(assign `((,a0r +array_begin)) `(,a0r))
+	(vp-cpy-ir a0r +ptr_size a0i)
+	(vp-cpy-ir a0r (* 2 +ptr_size) a1r)
+	(vp-cpy-ir a0r (* 3 +ptr_size) a1i)
+	(vp-cpy-ir a0r (* 4 +ptr_size) a2r)
+	(vp-cpy-ir a0r (* 5 +ptr_size) a2i)
+	(vp-cpy-ir a0r 0 a0r)
+	(assign `((,out_r +array_begin) (,out_i +array_begin) (,dr +array_begin) (,di +array_begin) (,gains +array_begin) (,coeffs +array_begin)
+			(,a0r +array_begin) (,a0i +array_begin) (,a1r +array_begin) (,a1i +array_begin) (,a2r +array_begin) (,a2i +array_begin))
+		`(,out_r ,out_i ,dr ,di ,gains ,coeffs ,a0r ,a0i ,a1r ,a1i ,a2r ,a2i))
+	;the phase
+	(vp-cpy-if coeffs 0 :f2)
+	(vp-cpy-if coeffs +long_size :f3)
+	(vp-cpy-cr 32 c)
+	(loop-start)
+		;the slot turned by the phase
+		(vp-cpy-if dr (* 12 +long_size) :f4)
+		(vp-cpy-if di (* 12 +long_size) :f5)
+		(vp-cpy-ff :f4 :f0)
+		(vp-mul-ff :f2 :f0)
+		(vp-cpy-ff :f5 :f6)
+		(vp-mul-ff :f3 :f6)
+		(vp-sub-ff :f6 :f0)
+		(vp-cpy-ff :f4 :f1)
+		(vp-mul-ff :f3 :f1)
+		(vp-cpy-ff :f5 :f6)
+		(vp-mul-ff :f2 :f6)
+		(vp-add-ff :f6 :f1)
+		;each link, its delay, gain and buffers
+		(each (lambda (m ar ai)
+				(defq at (* (+ 2 (* 3 m)) +long_size))
+				(vp-cpy-if coeffs at :f4)
+				(vp-cpy-if coeffs (+ at +long_size) :f5)
+				(vp-cpy-if coeffs (+ at (* 2 +long_size)) :f6)
+				(vp-cpy-if ar (* (- 2 m) +long_size) :f7)
+				(vp-cpy-if ai (* (- 2 m) +long_size) :f8)
+				;the new, the link's slot by its delay less the gain by this
+				(vp-cpy-ff :f7 :f9)
+				(vp-mul-ff :f4 :f9)
+				(vp-cpy-ff :f8 :f11)
+				(vp-mul-ff :f5 :f11)
+				(vp-sub-ff :f11 :f9)
+				(vp-cpy-ff :f0 :f11)
+				(vp-mul-ff :f6 :f11)
+				(vp-sub-ff :f11 :f9)
+				(vp-cpy-ff :f7 :f10)
+				(vp-mul-ff :f5 :f10)
+				(vp-cpy-ff :f8 :f11)
+				(vp-mul-ff :f4 :f11)
+				(vp-add-ff :f11 :f10)
+				(vp-cpy-ff :f1 :f11)
+				(vp-mul-ff :f6 :f11)
+				(vp-sub-ff :f11 :f10)
+				;the link's own slot 5 on, this and the gain by the new
+				(vp-cpy-ff :f9 :f11)
+				(vp-mul-ff :f6 :f11)
+				(vp-add-ff :f11 :f0)
+				(vp-cpy-fi :f0 ar (* 5 +long_size))
+				(vp-cpy-ff :f10 :f11)
+				(vp-mul-ff :f6 :f11)
+				(vp-add-ff :f11 :f1)
+				(vp-cpy-fi :f1 ai (* 5 +long_size))
+				(vp-cpy-ff :f9 :f0)
+				(vp-cpy-ff :f10 :f1))
+			'(0 1 2) (list a0r a1r a2r) (list a0i a1i a2i))
+		;out by the slot's gain
+		(vp-cpy-if gains 0 :f4)
+		(vp-mul-ff :f4 :f0)
+		(vp-mul-ff :f4 :f1)
+		(vp-cpy-fi :f0 out_r 0)
+		(vp-cpy-fi :f1 out_i 0)
+		(each (# (vp-add-cr +long_size %0)) (list out_r out_i dr di gains a0r a0i a1r a1i a2r a2i))
+		(vp-sub-cr 1 c)
+	(loop-until `(,c = 0))
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-ps-allpass out_r out_i dr di links coeffs gains)" +error_msg_wrong_types))
+	(signature '(:reals :reals :reals :reals :list :reals :reals)))
 
 (def-func-end)

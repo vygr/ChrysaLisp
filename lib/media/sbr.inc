@@ -26,6 +26,8 @@
 
 (ffi (path-to-absolute "./media_matvec") sbr-matvec)
 ; (sbr-matvec matrix rows cols x from out) -> out
+(ffi (path-to-absolute "./media_gather") sbr-gather)
+; (sbr-gather out arrays index) -> out
 
 ;what the functions read as they run, this one map, the tables of
 ;sbr_tables.inc taken in as this is read: a module's names are gone by
@@ -52,14 +54,18 @@
 		(scatter +sbr :tables (map (# (huff-table (second %0))) books) :least (map (const first) books) :window window
 			:window_ds (reduce (# (push %0 (elem-get window (* 2 %1)))) (range 0 320) (cap 320 (reals)))
 			:noise (apply (const reals) (map (# (* (n2r %0) k)) (. +sbr :find :noise_q31)))
+			;the noise's re and im apart, the first 64 again after the 512, so a
+			;run of bands from anywhere is a slice of it
+			:noise_re (apply (const reals) (map (# (* (n2r (elem-get (. +sbr :find :noise_q31) (* 2 (% %0 512)))) k)) (range 0 576)))
+			:noise_im (apply (const reals) (map (# (* (n2r (elem-get (. +sbr :find :noise_q31) (inc (* 2 (% %0 512))))) k)) (range 0 576)))
+			:alt (apply (const reals) (map (# (n2r (if (= (logand %0 1) 0) 1 -1))) (range 0 64)))
+			:ones (fill (reals) 64 (n2r 1))
 			:ana_re (reduce (lambda (out j) (push out (* two (cos (angle (/ j 64) (% j 64) 64 half))))) (range 0 2048) (cap 2048 (reals)))
 			:ana_im (reduce (lambda (out j) (push out (* two (sin (angle (/ j 64) (% j 64) 64 half))))) (range 0 2048) (cap 2048 (reals)))
-			:syn (reduce (lambda (out j)
-					(defq n (/ j 128) c (% j 128))
-					(push out (if (< c 64)
-						(* a64 (cos (angle c n 128 at)))
-						(* a64 (neg (sin (angle (- c 64) n 128 at)))))))
-				(range 0 16384) (cap 16384 (reals)))
+			;of the synthesis rows 0 to 63, its cos and its sin: row 127 - n is
+			;of the cos of the other sign and the same sin
+			:syn_c (reduce (lambda (out j) (push out (* a64 (cos (angle (% j 64) (/ j 64) 128 at))))) (range 0 4096) (cap 4096 (reals)))
+			:syn_s (reduce (lambda (out j) (push out (* a64 (sin (angle (% j 64) (/ j 64) 128 at))))) (range 0 4096) (cap 4096 (reals)))
 			:smooth (map (const str-to-real) '("0.33333333333333" "0.30150283239582" "0.21816949906249" "0.11516383427084" "0.03183050093751"))
 			:limgain (map (const str-to-real) '("0.70795" "1.0" "1.41254" "10000000000"))
 			:bw (map (const str-to-real) '("0.0" "0.75" "0.9" "0.98"))
@@ -590,21 +596,15 @@
 	; (sbr-low sbr data) -> ((re im) ...)
 	;the low band, each of 32 bands its 40 slots: 8 of the frame before and
 	;the 32 of this one, below kx and kx before
-	(defq w (. ch :find :w) now (elem-get w (. ch :find :ypos)) before (elem-get w (logxor (. ch :find :ypos) 1))
-		kx (. sbr :find :kx) kx_old (. sbr :find :kx_old) zeros (. +sbr :find :zeros40))
+	(defq w (. ch :find :w) now (elem-get w (. ch :find :ypos)) before (slice (elem-get w (logxor (. ch :find :ypos) 1)) 24 32)
+		kx (. sbr :find :kx) kx_old (. sbr :find :kx_old) zero (n2r 0)
+		now_r (map (const first) now) now_i (map (const second) now)
+		before_r (map (const first) before) before_i (map (const second) before)
+		;band k of the slots, those of the frame before or none
+		column (lambda (slots k n on) (if on (sbr-gather (fill (reals) n zero) slots k) (fill (reals) n zero))))
 	(map (lambda (k)
-			(defq re (cat zeros) im (cat zeros))
-			(when (< k kx)
-				(each (lambda ((r i))
-						(elem-set re (+ (!) 8) (elem-get r k))
-						(elem-set im (+ (!) 8) (elem-get i k)))
-					now))
-			(when (< k kx_old)
-				(each! (lambda ((r i))
-						(elem-set re (- (!) 24) (elem-get r k))
-						(elem-set im (- (!) 24) (elem-get i k)))
-					(list before) 24 32))
-			(list re im))
+			(list (cat (column before_r k 8 (< k kx_old)) (column now_r k 32 (< k kx)))
+				(cat (column before_i k 8 (< k kx_old)) (column now_i k 32 (< k kx)))))
 		(range 0 32)))
 
 (defun sbr-inverse (sbr low)
@@ -788,11 +788,16 @@
 	; (sbr-assemble sbr data high gains)
 	;the high band of each slot, its gains smoothed over the slots before
 	;unless at a transient, its noise, or its sinusoid, in the slots of
-	;this frame's Y
+	;this frame's Y: each slot's bands of the high band made a vector by
+	;the gather, and all by vectors of the bands
 	(defq kx (. sbr :find :kx) m_max (. sbr :find :m) t_env (. ch :find :t_env) e_a (. ch :find :e_a)
 		h_sl (if (= (. sbr :find :smoothing_mode) 0) 4 0) g_temp (. ch :find :g_temp) q_temp (. ch :find :q_temp)
-		y (elem-get (. ch :find :y) (. ch :find :ypos)) smooth (. +sbr :find :smooth) noise (. +sbr :find :noise)
-		index_noise (. ch :find :index_noise) index_sine (. ch :find :index_sine) t0 (* 2 (first t_env)))
+		y (elem-get (. ch :find :y) (. ch :find :ypos)) smooth (. +sbr :find :smooth)
+		noise_re (. +sbr :find :noise_re) noise_im (. +sbr :find :noise_im)
+		alt (slice (. +sbr :find :alt) 0 m_max) ones (slice (. +sbr :find :ones) 0 m_max)
+		high_r (map! (const first) (list high) kx (+ kx m_max)) high_i (map! (const second) (list high) kx (+ kx m_max))
+		index_noise (. ch :find :index_noise) index_sine (. ch :find :index_sine) t0 (* 2 (first t_env))
+		zero (n2r 0) one (n2r 1) top (+ kx m_max))
 	(cond
 		((. sbr :find :reset)
 			(each (lambda (i)
@@ -813,45 +818,34 @@
 				(range (* 2 (elem-get t_env e)) (* 2 (elem-get t_env (inc e))))))
 		gains)
 	(each (lambda ((_ _ s_m))
-			(defq e (!) edge (or (= e (first e_a)) (= e (second e_a))))
+			(defq e (!) edge (or (= e (first e_a)) (= e (second e_a))) sm (slice s_m 0 m_max)
+				;1 where there is no sinusoid, the noise's place
+				quiet (reduce! (# (push %0 (if (= %1 zero) one zero))) (list s_m) (cap m_max (reals)) 0 m_max))
 			(each (lambda (i)
 					(defq g_filt (elem-get g_temp (+ i h_sl)) q_filt (elem-get q_temp i))
 					(when (and (> h_sl 0) (not edge))
 						(defq at (+ i h_sl))
-						(setq g_filt (reduce (# (nums-add %0 (nums-scale (elem-get g_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 (n2r 0)))
-							q_filt (reduce (# (nums-add %0 (nums-scale (elem-get q_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 (n2r 0)))))
-					(bind '(yr yi) (elem-get y i))
-					(each (lambda (m)
-							(bind '(r im) (elem-get high (+ kx m)))
-							(defq g (elem-get g_filt m))
-							(elem-set yr (+ kx m) (* (elem-get r (+ i 2)) g))
-							(elem-set yi (+ kx m) (* (elem-get im (+ i 2)) g)))
-						(range 0 m_max))
+						(setq g_filt (reduce (# (nums-add %0 (nums-scale (elem-get g_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 zero))
+							q_filt (reduce (# (nums-add %0 (nums-scale (elem-get q_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 zero))))
+					(defq g (slice g_filt 0 m_max)
+						yr (nums-mul (sbr-gather (fill (reals) m_max zero) high_r (+ i 2)) g)
+						yi (nums-mul (sbr-gather (fill (reals) m_max zero) high_i (+ i 2)) g))
 					(cond
 						((not edge)
 							;noise where there is no sinusoid, which goes round the
 							;four phases by the slot, the odd bands' of the other sign
-							(defq sign0 (elem-get '(1 0 -1 0) index_sine)
-								sign1 (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1)))) at index_noise)
-							(each (lambda (m)
-									(setq at (logand (inc at) 0x1ff))
-									(defq sm (elem-get s_m m) k (+ kx m))
-									(cond
-										((/= sm (n2r 0))
-											(elem-set yr k (+ (elem-get yr k) (* sm (n2r sign0))))
-											(elem-set yi k (+ (elem-get yi k) (* sm (n2r sign1)))))
-										(:t (defq qf (elem-get q_filt m))
-											(elem-set yr k (+ (elem-get yr k) (* qf (elem-get noise (* 2 at)))))
-											(elem-set yi k (+ (elem-get yi k) (* qf (elem-get noise (inc (* 2 at))))))))
-									(setq sign1 (neg sign1)))
-								(range 0 m_max)))
+							(defq from (logand (inc index_noise) 0x1ff) q (nums-mul (slice q_filt 0 m_max) quiet)
+								sign1 (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1)))))
+							(setq yr (nums-add (nums-add yr (nums-mul q (slice noise_re from (+ from m_max))))
+									(nums-scale sm (n2r (elem-get '(1 0 -1 0) index_sine))))
+								yi (nums-add (nums-add yi (nums-mul q (slice noise_im from (+ from m_max))))
+									(nums-scale (nums-mul sm alt) (n2r sign1)))))
 						(:t ;at a transient the sinusoids alone, on re or im by the phase
-							(defq part (if (= (logand index_sine 1) 1) yi yr)
-								a (- 1 (logand (+ index_sine (logand kx 1)) 2)) b (if (= (logand index_sine 1) 1) (neg a) a))
-							(each (lambda (m)
-									(defq k (+ kx m))
-									(elem-set part k (+ (elem-get part k) (* (elem-get s_m m) (n2r (if (= (logand m 1) 0) a b))))))
-								(range 0 m_max))))
+							(defq a (- 1 (logand (+ index_sine (logand kx 1)) 2))
+								add (nums-scale (nums-mul sm (if (= (logand index_sine 1) 1) alt ones)) (n2r a)))
+							(if (= (logand index_sine 1) 1) (setq yi (nums-add yi add)) (setq yr (nums-add yr add)))))
+					(bind '(old_r old_i) (elem-get y i))
+					(elem-set y i (list (cat (slice old_r 0 kx) yr (slice old_r top 64)) (cat (slice old_i 0 kx) yi (slice old_i top 64))))
 					(setq index_noise (logand (+ index_noise m_max) 0x1ff) index_sine (logand (inc index_sine) 3)))
 				(range (* 2 (elem-get t_env e)) (* 2 (elem-get t_env (inc e))))))
 		gains)
@@ -864,29 +858,27 @@
 	;frame before for the slots its last envelope runs into this one
 	(defq kx (. sbr :find :kx) m (. sbr :find :m) kx_old (. sbr :find :kx_old) m_old (. sbr :find :m_old)
 		ypos (. ch :find :ypos) y1 (elem-get (. ch :find :y) ypos) y0 (elem-get (. ch :find :y) (logxor ypos 1))
-		i_temp (max (- (* 2 (. ch :find :t_env_old)) 32) 0) zeros (. +sbr :find :zeros64))
+		i_temp (max (- (* 2 (. ch :find :t_env_old)) 32) 0) zeros (. +sbr :find :zeros64)
+		low_r (map (const first) low) low_i (map (const second) low) zero (n2r 0))
+	;each slot the low band's slot i + 2 below top, the high band made above
+	;it, 0 above that
 	(map (lambda (i)
-			(defq re (cat zeros) im (cat zeros) old (< i i_temp) top (if old kx_old kx) span (if (or old (< i 32)) (if old m_old m) 0)
-				from (if old (elem-get y0 (+ i 32)) (elem-get y1 (min i 31))))
-			(each (lambda (k)
-					(bind '(r im_) (elem-get low k))
-					(elem-set re k (elem-get r (+ i 2)))
-					(elem-set im k (elem-get im_ (+ i 2))))
-				(range 0 top))
-			(each (lambda (k)
-					(elem-set re k (elem-get (first from) k))
-					(elem-set im k (elem-get (second from) k)))
-				(range top (+ top span)))
-			(list re im))
+			(defq old (< i i_temp) top (if old kx_old kx) span (if (or old (< i 32)) (if old m_old m) 0)
+				from (if old (elem-get y0 (+ i 32)) (elem-get y1 (min i 31))) rest (- 64 top span))
+			(list (cat (sbr-gather (fill (reals) top zero) (slice low_r 0 top) (+ i 2)) (slice (first from) top (+ top span)) (slice zeros 0 rest))
+				(cat (sbr-gather (fill (reals) top zero) (slice low_i 0 top) (+ i 2)) (slice (second from) top (+ top span)) (slice zeros 0 rest))))
 		(range 0 38)))
 
 (defun sbr-synthesis (ch slots)
 	; (sbr-synthesis data slots) -> reals
 	;the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
-	;bands newest in v, its 10 parts by the window, summed
-	(defq syn (. +sbr :find :syn) win (. +sbr :find :window) v (. ch :find :synthesis) out (cap 2048 (reals)))
+	;bands newest in v, its 10 parts by the window, summed. Of its cos by
+	;the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
+	(defq syn_c (. +sbr :find :syn_c) syn_s (. +sbr :find :syn_s) win (. +sbr :find :window)
+		v (. ch :find :synthesis) out (cap 2048 (reals)) zero (n2r 0))
 	(each! (lambda ((re im))
-			(setq v (cat (sbr-matvec syn 128 128 (cat re im) 0 (fill (reals) 128 (n2r 0))) (slice v 0 1152)))
+			(defq a (sbr-matvec syn_c 64 64 re 0 (fill (reals) 64 zero)) b (sbr-matvec syn_s 64 64 im 0 (fill (reals) 64 zero)))
+			(setq v (cat (nums-sub a b) (slice (nums-sub (nums-scale a (n2r -1)) b) 64 0) (slice v 0 1152)))
 			(defq sum (fill (reals) 64 (n2r 0)))
 			(each (lambda (m)
 					(defq a (* 256 m) c (* 128 m))
