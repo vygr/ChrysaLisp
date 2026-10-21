@@ -190,25 +190,32 @@ smaller system, and had not been measured again till now.
 ChrysaLisp's "linkerless" direct-offset architecture produces self-contained,
 minimal `boot_image` binaries across all supported architectures:
 
-* `obj/vp64/VP64/sys/boot_image`: **178,004 bytes**
+* `obj/vp64/VP64/sys/boot_image`: **129,844 bytes**
 
-* `obj/x86_64/AMD64/sys/boot_image`: **242,380 bytes**
+* `obj/x86_64/AMD64/sys/boot_image`: **173,900 bytes**
 
-* `obj/x86_64/WIN64/sys/boot_image`: **242,956 bytes**
+* `obj/x86_64/WIN64/sys/boot_image`: **174,108 bytes**
 
-* `obj/arm64/ARM64/sys/boot_image`: **255,868 bytes**
+* `obj/arm64/ARM64/sys/boot_image`: **187,940 bytes**
 
-* `obj/riscv64/RISCV64/sys/boot_image`: **298,036 bytes**
+* `obj/riscv64/RISCV64/sys/boot_image`: **218,556 bytes**
 
-* `obj/la64/LA64/sys/boot_image`: **297,156 bytes**
+* `obj/la64/LA64/sys/boot_image`: **218,052 bytes**
 
-These are the sizes on 2026-10-11, about 10% up on those of 2026-10-06,
-which were 160,764, 218,524, 219,076, 233,164, 270,540 and 270,108. The
-network, the whiteboard's set logic of polygons and the crypto of the mesh
-went in between. Each holds every function of the system that is not an
-application's own, 944 of them. Everything is packed into the image purely
-for convenience. None of it has to be there, and the next section is what
-the image comes to when it is not.
+These are the sizes on 2026-10-21. Since that day an image holds what an
+install needs and no more, 773 functions of the 1,027 there are; the rest
+are bound from their files as they are asked for, see the next section.
+With every function in them, as the images were till then, the same tree
+gives 217,308, 303,908, 304,532, 312,732, 360,684 and 359,460 bytes.
+
+They had grown. With every function in them they were 160,764, 218,524,
+219,076, 233,164, 270,540 and 270,108 bytes on 2026-10-06, and 178,004,
+242,380, 242,956, 255,868, 298,036 and 297,156 on 2026-10-11: the network,
+the whiteboard's set logic of polygons and the crypto of the mesh went in.
+In the ten days after, more of the native kernels that libraries reach by
+`ffi` went in, for media, crypto, images, maths and streams, till they were
+45 KB of the VP64 image, and only four of them, the crypto of a machine's
+key, are needed to install, as the next section measured.
 
 The three link register targets include call fusion, see `lib/trans/vp.inc`.
 It was measured when it went in, on 2026-10-03. The images were then 221,900,
@@ -219,7 +226,7 @@ nodes went from a mean of 0.0714 to 0.0723 seconds over 8 interleaved runs
 each, and the bootstrap install from 1.79 to 1.82 seconds, as they were that
 day. Both differences are inside the run to run noise.
 
-Because these complete system images are from 178 to 298 KB, they fit entirely
+Because these system images are from 130 to 219 KB, they fit entirely
 inside the L1/L2 instruction and data caches of modern CPU cores. The CPU rarely
 stalls on main memory access during core execution, resulting in near-zero memory
 bus latency.
@@ -237,10 +244,11 @@ the functions of an application under `apps/` arrive, they are never in the
 image.
 
 So what is in the image is what was chosen to be bound ahead of time, and
-nothing more than that. **The images pack in everything outside `apps/`
-purely for convenience:** one file to ship, one file to boot from, and no
-list to keep of what an install will ask for. It is not a need of the
-system, and it is not for speed. The loader's `init` does not even hold the kernel:
+nothing more than that. **Till 2026-10-21 the images packed in everything
+outside `apps/`, purely for convenience:** one file to ship, one file to
+boot from, and no list to keep of what an install will ask for. It was not
+a need of the system, and it was not for speed. Now they hold what an
+install needs, see below. The loader's `init` does not even hold the kernel:
 it binds `sys/kernel/kernel` by its name, as it would any function, once it
 has its statics and its buffer for relocating paths.
 
@@ -304,20 +312,68 @@ the set logic of polygons. What it does touch that might not be guessed is
 `random-bytes` and SHA-256, for the key a machine is given the day it is
 installed.
 
-**Why the full image is what is shipped: convenience.** The saving is 30 KB
-of download.
-Against it, the list of 527 is true of one tree on one day, and an image
-that is one function short of it fails on a clean machine, which is the
-worst place there is to fail. An image with everything in it can not be
-short. So the images hold every function outside `apps/`, by choice, and
-the numbers above are what that choice costs: about 220 KB of memory a
-node, and nothing that was measured in time.
+**Why the full image was shipped till 2026-10-21: convenience.** The saving
+was then 30 KB of download. Against it, the list of 527 was true of one
+tree on one day, and an image that is one function short of it fails on a
+clean machine, which is the worst place there is to fail. An image with
+everything in it can not be short.
 
-**What was not measured.** Many nodes starting at once, each binding the
-same files; a desktop, which binds far more at its start than a terminal
-session; a machine other than the Pi 4; and how near the deepest chain of
-functions binding one another came to the end of the loader's buffer for
-relocating paths, which is two pages and is used as a stack.
+**Why it no longer is.** In the ten days after, the image with every
+function in it grew by 39 KB, most of it native kernels that only a
+library's `ffi` reaches, and `snapshot.zip` from 129 KB, the one of
+2026-10-08, to 172 KB. So the
+image is now what an install needs, by a rule and not by a list of 527:
+
+* **Everything in `sys/` and `class/`,** the kernel and Lisp, and what
+  their functions call.
+
+* **And 29 others by name,** in `+boot_extras` of `lib/boot/image.inc`: the
+  font, pixmap and path functions Lisp's boot asks for, the four crypto
+  kernels a machine's key is made with, and the Net service's sockets.
+  `(boot-funcs)` there is what `make-boot-all` asks.
+
+The 29 were measured as the 527 were. An emulated install was run from an
+image of the kernel alone, the VP64 function files beside it, the loader
+of that tree made to say each file it read; of the files it read, those
+outside `sys/` and `class/` are the 29. Then:
+
+| The VP64 image of the snapshot | Functions | Bytes | Zipped |
+|---|---|---|---|
+| Every function, till 2026-10-21 | 1,027 | 217,308 | 91,783 |
+| What an install read, 2026-10-21 | 736 | 121,932 | |
+| `sys/`, `class/` and the 29, as shipped | 773 | 129,844 | 53,807 |
+
+The rule costs 8 KB over the bare list. For that, a new function in
+`sys/` or `class/` is in the image without anyone saying so, and only a
+new one elsewhere that an install binds before it has built anything has
+to be named. One that is not, stops the install with `Bind error:` and its
+name. `snapshot.zip` went from 172 KB to 134 KB.
+
+**What it was checked by, 2026-10-21:**
+
+* **Installs from the image alone,** nothing else under `obj/`: on the M4
+  from a copy of the tree, 16 emulated nodes; on the Pi 4 in a new folder,
+  `make install`, 57 seconds with the host programs compiled; and under
+  Wine from the new `snapshot.zip`. Each made its native image and its key.
+
+* **`tests -a` on the M4 on the new images,** 16 nodes: 186 modules, 7,791
+  tests, none failed. That includes the release modules, and the one that
+  starts a hidden desktop and opens every application on it, so a desktop
+  binding what it needs at its start was done too.
+
+* **A one node session started and ended on the M4,** timed from outside:
+  28 to 29 ms with the new arm64 image, 30 to 36 ms with the full one,
+  three runs each.
+
+**What was not measured.** Many desktops starting at once, each binding the
+same files; and how near the deepest chain of functions binding one
+another came to the end of the loader's buffer for relocating paths, which
+is two pages and is used as a stack.
+
+**What it leaves to know.** A tree that once built VP64 keeps those
+function files through `make install`, whose `clean` removes only the host
+programs. A function the image does not hold would be bound from such a
+file, from whatever source it was built of. No install binds one today.
 
 ## The VP64 Target: A Blueprint for Silicon
 
