@@ -41,5 +41,4 @@
 					(getf-> msg +pcb_job_reply +pcb_job_prog
 						+pcb_job_grid_res +pcb_job_vias_cost +pcb_job_quant
 						+pcb_job_flood_range +pcb_job_even_range +pcb_job_odd_range)
-					(list (slice msg +pcb_job_data -1)))))))
-	(profile-report "Pcb"))
+					(list (slice msg +pcb_job_data -1))))))))

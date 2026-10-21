@@ -196,19 +196,20 @@ but it's convenient to express it as the concatenation of a space and lf char.
 
 ## Macros can decorate existing functions
 
-A great example here is the profiling library. The library is imported with:
+A great example here is the stack frames library. The library is imported
+with:
 
 ```vdu
-(import "lib/debug/profile.inc")
+(import "lib/debug/frames.inc")
 ```
 
-This redefines the `(defun)` and `(defmethod)` macros to collect timing
-information. Your function and method existing functionality is not affected
-but supplemented with wrapper code that builds and maintains the profiling
-information.
+This redefines the `(defun)` and `(defmethod)` macros to record each call as
+it is made, so that an error says which function, and which line of it, was
+running. Your function and method existing functionality is not affected but
+supplemented with wrapper code that keeps the record of the calls.
 
 ```file
-lib/debug/profile.inc
+lib/debug/frames.inc
 ```
 
 Another example of wrapping code in a decorator macro is the [Editor](../apps/editor.md) application

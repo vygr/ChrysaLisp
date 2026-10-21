@@ -1,6 +1,5 @@
 (case :nil
-	(0 (import "lib/debug/frames.inc"))
-	(1 (import "lib/debug/profile.inc")))
+	(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")

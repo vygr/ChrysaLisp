@@ -23,10 +23,6 @@
 ; --- System info ---
 (assert-true "abi" (sym? (abi)))
 
-; --- Debug/Profile stubs ---
-(profile-report "test")
-(assert-true "profile-report" :t)
-
 ; --- Inline task execution ---
 (defq reply_mbox (mail-mbox))
 

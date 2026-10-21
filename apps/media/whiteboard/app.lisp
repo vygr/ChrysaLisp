@@ -1,7 +1,6 @@
 ;debug options
 (case :nil
 (0 (import "lib/debug/frames.inc"))
-(1 (import "lib/debug/profile.inc"))
 (2 (import "lib/debug/debug.inc")))
 
 (import "usr/env.inc")
@@ -1391,5 +1390,4 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
 	(gui-sub-rpc *window*)
-	(if *committed* (. *committed* :free))
-	(profile-report "Whiteboard App"))
+	(if *committed* (. *committed* :free)))

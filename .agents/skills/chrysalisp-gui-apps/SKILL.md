@@ -75,7 +75,6 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 	;debug options
 	(case 2
 	(0 (import "lib/debug/frames.inc"))
-	(1 (import "lib/debug/profile.inc"))
 	(2 (import "lib/debug/debug.inc")))
 
 	(import "usr/env.inc")
@@ -115,8 +114,7 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 				;must be +select_main
 				((. *window* :dispatch *msg*))
 				((. *window* :event *msg*))))
-		(gui-sub-rpc *window*)
-		(profile-report "Template"))
+		(gui-sub-rpc *window*))
 
 Key points:
 
@@ -142,9 +140,9 @@ Key points:
 	size on screen; `view-fit` clamps an explicit position and size to
 	the screen.
 
-*	The `case 2` debug header selects stack frames, profiling, or
-	debugger support. `(debug-brk "name")` and `profile-report` are
-	no-ops unless the matching debug import is active.
+*	The `case 2` debug header selects stack frames or debugger support.
+	`(debug-brk "name")` is a no-op unless the debugger import is active.
+	To time a part of an app, wrap it in `(time-it name ...)`, root.inc.
 
 ## widgets.inc — The Widget Tree
 

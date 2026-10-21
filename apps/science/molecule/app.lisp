@@ -245,5 +245,4 @@
 					(render)))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(gui-sub-rpc *window*)
-	(profile-report "Molecule"))
+	(gui-sub-rpc *window*))

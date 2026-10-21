@@ -65,6 +65,14 @@ as (:answered), for a job that went wrong. It is not put back
 on the queue, and its child is started again.
 ```
 
+### :give
+
+```code
+(. jobs :give key val) -> jobs
+
+the next job on the queue to that child, if there is one
+```
+
 ### :job
 
 ```code
@@ -72,7 +80,8 @@ on the queue, and its child is started again.
 
 the job an answer is to, msg is what came to the reply mailbox,
 asked before it is passed to (:answered). :nil if the answer
-is from a child that has since been started again.
+is from a child that has since been started again, or is a child
+saying it has gone, and then what it had is put back on the queue
 ```
 
 ### :launched

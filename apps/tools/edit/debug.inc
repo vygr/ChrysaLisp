@@ -15,7 +15,7 @@
 		(defq file (slice file 5 (dec (ifn (rfind "/" file) 0))))
 		(unless (some (# (ends-with %0 file))
 				'("login" "logout" "wallpaper" "tui"
-				"edit" "debug" "profile"))
+				"edit" "debug"))
 			(setq app (cat "apps/" file "/app.lisp"))))
 	app)
 

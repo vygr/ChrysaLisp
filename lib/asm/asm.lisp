@@ -23,9 +23,7 @@
 ;debug options
 (case :nil
 (0 (import "lib/debug/frames.inc"))
-(1 (import "lib/debug/profile.inc"))
-(2 (import "lib/debug/debug.inc"))
-(3 (import-from "lib/debug/profile.inc" '(profile-report))))
+(2 (import "lib/debug/debug.inc")))
 
 (defun main ()
 	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil)
@@ -51,5 +49,4 @@
 					(catch (each include *files*) (progn (print _) :t))
 					;send reply, the key it was given, then what was said
 					(mail-send *reply_mbox* (apply (const cat)
-						(insert *msg* 0 (list (char *reply_key* +long_size))))))))))
-	(profile-report "Asm"))
+						(insert *msg* 0 (list (char *reply_key* +long_size)))))))))))

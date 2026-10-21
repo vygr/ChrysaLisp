@@ -334,5 +334,4 @@
 	;what was kept on the GPU
 	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
-	(gui-sub-rpc *window*)
-	(profile-report "Mesh"))
+	(gui-sub-rpc *window*))

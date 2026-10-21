@@ -168,20 +168,6 @@
 (ascii-code "X") action-clear-all
 ```
 
-## apps/system/profile/actions.inc
-
-### *key_map*
-
-```code
-(ascii-code "x") action-clear
-```
-
-### *key_map_shift*
-
-```code
-(ascii-code "X") action-clear-all
-```
-
 ## apps/system/terminal/actions.inc
 
 ### *key_map*

@@ -77,7 +77,7 @@
 			:nil)
 		((some (# (starts-with %0 func))
 			'(quote const exec macro
-				quasi- static- debug- profile- stack-))
+				quasi- static- debug- stack-))
 			;blacklisted function, do not step in or wrap !
 			:nil)
 		((func? (setq func (get func)))

@@ -991,11 +991,6 @@ Instrumentation hooks and profiling tools.
 
 	*	`(debug-brk break_id [condition])`
 
-*	**`profile-report`**: Formats and transmits accumulated execution profiles
-	to the profiling service.
-
-	*	`(profile-report name [reset])`
-
 *	**`*stack_frame*`**: Global call-stack list populated when running under
 	`lib/debug/frames.inc`.
 

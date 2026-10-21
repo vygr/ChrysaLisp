@@ -1,6 +1,5 @@
 (defq _ (env))
 ;import into the shared boot env of this node !
-;comment next line out if need to profile...
 (defq _ *root_env*)
 ;import the GUI system in dependency order to keep machine stack usage small
 (import "lib/files/files.inc" _)
@@ -18,8 +17,8 @@
 (enums +select 0
 	(enum main timer mouse))
 
-;profiling and stack frame callbacks on the GUI thread from :draw method etc !!!
-(setq *profile_map* (env 1) *stack_frame* (list) *debug_state* :gui)
+;stack frame callbacks on the GUI thread from :draw method etc !!!
+(setq *stack_frame* (list) *debug_state* :gui)
 
 ;frame rate
 (defq +rate (/ 1000000 60)

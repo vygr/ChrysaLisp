@@ -327,5 +327,4 @@
 	(action-save-all)
 	(clear-matches)
 	(gui-sub-rpc *window*)
-	(mail-forget edit_service)
-	(profile-report "Editor"))
+	(mail-forget edit_service))

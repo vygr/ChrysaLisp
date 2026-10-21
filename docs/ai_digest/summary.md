@@ -176,8 +176,6 @@ custom Virtual Processor (VP64).
 
     * `frames.inc`: Provides stack frame information.
 
-    * `profile.inc`: For profiling function execution times.
-
 * **Options Parsing (`lib/options/options.inc`):** A utility for parsing
   command-line arguments for applications.
 
@@ -217,9 +215,6 @@ capabilities:
 
     * `debug`: A graphical debugger that receives and displays messages from
       instrumented code.
-
-    * `profile`: A profiler application that displays reports from
-      `profile-report`.
 
     * `terminal`: A command-line terminal application.
 

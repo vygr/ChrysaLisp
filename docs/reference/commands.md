@@ -563,8 +563,9 @@ Usage: forward [options] [path] ...
         -j --jobs num: max jobs per batch, default 1.
 
     Scan source files for a function or macro that is
-    used above where it is defined, and for a function
-    that calls itself.
+    used above where it is defined, as the head of a form
+    or named in (const), and for a function that calls
+    itself.
 
     Such a use is not bound to the function as the code
     is read, the name is looked up each time it is run.
@@ -1642,6 +1643,11 @@ Usage: tests [options] [path] ...
             before it, once what a task's end lets go of is let go
             of, (kernel-stats :t): what grows each time is a leak,
             what is made once and kept is not. Slower.
+        -p --progress: say how the run goes as it goes, a line each
+            that starts =p=, for a progress bar: plan, then cached or
+            dirty for each module and why, start and done as each one
+            runs, start with how long it took the last time it ran, ms,
+            lost for one whose batch had no result, and end.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.

@@ -1435,6 +1435,14 @@ hand, so a mouse alone can do everything
 (boot-files-file cpu abi) -> path
 ```
 
+### boot-funcs
+
+```code
+(boot-funcs funcs [all]) -> funcs
+
+those of these functions a boot image holds, every one of them with all
+```
+
 ### boot-id
 
 ```code
@@ -2780,12 +2788,6 @@ added, or the one changed for the other
 
 ```code
 a line, or the first and last of a run of them
-```
-
-### dispatch
-
-```code
-the next job on the queue to a child, if there is one
 ```
 
 ### each-mergeable
@@ -4280,6 +4282,14 @@ the inputs as uniforms, the constants, the globals and the functions
 of a program, onto the lines of whoever calls
 ```
 
+### going
+
+```code
+a child has said it has gone, :t if msg is that. The job it had is
+
+put back on the queue, not counted as tried, and it is started again
+```
+
 ### gui-at-rpc
 
 ```code
@@ -4745,6 +4755,18 @@ the codes of a block of fixed codes
 
 determine the index into the edge table which
 tells us which vertices are inside the surface
+```
+
+### job-child
+
+```code
+(job-child timeout fn_work)
+
+the loop of a child of a farm. Each job that comes is given to
+fn_work, (fn_work msg mbox), with the mailbox it came to, till the
+child is told to go, an empty message, or has had nothing for
+timeout. Going of its own accord, a child that has had a job tells
+its farm, so a job sent to it as it went is not lost
 ```
 
 ### join
@@ -6645,13 +6667,15 @@ boot image of before it was written still starts
 ### pipe-farm
 
 ```code
-(pipe-farm jobs [retry_timeout]) -> ((job result) ...)
+(pipe-farm jobs [retry_timeout told]) -> ((job result) ...)
 
 run pipe farm and collect output. A job that is not answered within
 retry_timeout, in microseconds, a minute if not given, is given to a
 new worker, and so is one whose node has gone. A job that has been
 given out three times with no answer stops the farm, and it and any
-that are still out have no result.
+that are still out have no result. With told the farm says how it
+goes as it goes, (told :start job) and (told :done job result), see
+(Monitored)
 ```
 
 ### pipe-run
@@ -7068,12 +7092,6 @@ is added at the end
 
 ```code
 (pos? num) -> :t | :nil
-```
-
-### profile-report
-
-```code
-(profile-report name [reset])
 ```
 
 ### ps-analysis
@@ -7870,7 +7888,8 @@ over each band of its table, by the slots of the envelope
 (sbr-gains sbr data maps energies) -> ((gain noise sine) ...)
 
 of each envelope each band's gain, noise and sinusoid, each limiter
-band's gains kept to its limit and its energy made what was sent
+band's gains kept to its limit and its energy made what was sent,
+native, lib/media/lisp.vp media_sbr_gains
 ```
 
 ### sbr-grid

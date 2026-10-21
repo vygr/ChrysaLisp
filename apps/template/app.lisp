@@ -1,7 +1,6 @@
 ;debug options
 (case 2
 (0 (import "lib/debug/frames.inc"))
-(1 (import "lib/debug/profile.inc"))
 (2 (import "lib/debug/debug.inc")))
 
 (import "usr/env.inc")
@@ -41,5 +40,4 @@
 			;must be +select_main
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(gui-sub-rpc *window*)
-	(profile-report "Template"))
+	(gui-sub-rpc *window*))
