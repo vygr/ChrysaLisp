@@ -71,13 +71,15 @@
 	(when (nempty? odd)
 		(print "Heard, and not right:")
 		(each (lambda ((sys ip port linked build link))
+			(defq other (notany (# (eql link %0)) '("same" "unknown")))
 			(print "    " (slice (to-upper sys) 0 8) "  " ip
 				(if (find (to-upper sys) known) "" ", has not joined")
 				(cond
-					((find link '("same" "unknown")) "")
-					((eql link "0") ", is of before the link had versions, and can not link to this one.")
-					((cat ", speaks version " link " of the link, not this one's, and can not link to it.")))
-				(if (eql build "differs") ", is on a different build. Update, and make install, on both." "")))
+					((not other) "")
+					((eql link "0") ", is of before the link had versions")
+					((cat ", speaks version " link " of the link")))
+				(if (eql build "differs") ", is on a different build" "")
+				(if (or other (eql build "differs")) ". Update, and make install, on both." "")))
 			odd))
 	;what to look at when it is not as hoped
 	(when (and is_joined (= (length systems) 1) (empty? odd))
