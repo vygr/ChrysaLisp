@@ -14,6 +14,14 @@
 
 static int32_t host_gui_sdl3_wheel = 1;
 
+/* how many pixels of the window a pixel of the GUI is. 1 but on Android,
+   where SDL gives the window in pixels, not in points as iOS and a desktop
+   do, and the GUI would be half the size or less on a phone. There the
+   driver sets it to what the display says, and the GUI is told the window
+   is that much smaller, and where the pointer is in its own pixels. */
+
+static float host_gui_sdl3_scale = 1.0f;
+
 /* A finger on a screen is a pointer. A finger on a trackpad is not, it moves
    the mouse, and its place on the pad is not a place in the window. With
    CL_TOUCH_TRACKPAD set in the environment it is taken as one all the same,
@@ -171,8 +179,8 @@ static void host_gui_sdl3_pen_event(host_gui_event *out, uint32_t type, uint32_t
 	uint32_t id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, which) << 24;
 	uint32_t *pressure = host_gui_sdl3_pen(id);
 	out->type = type;
-	out->x = (int32_t)x;
-	out->y = (int32_t)y;
+	out->x = (int32_t)(x / host_gui_sdl3_scale);
+	out->y = (int32_t)(y / host_gui_sdl3_scale);
 	out->id = id;
 	out->kind = (state & SDL_PEN_INPUT_ERASER_TIP) ? host_gui_kind_eraser : host_gui_kind_pen;
 	/* only a pen that touches has buttons held. A button of its barrel
@@ -201,8 +209,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			return true;
 		case SDL_EVENT_WINDOW_RESIZED:
 			out->type = host_gui_event_resized;
-			out->x = e.window.data1;
-			out->y = e.window.data2;
+			out->x = (int32_t)(e.window.data1 / host_gui_sdl3_scale);
+			out->y = (int32_t)(e.window.data2 / host_gui_sdl3_scale);
 			return true;
 		case SDL_EVENT_WINDOW_SHOWN:
 		case SDL_EVENT_WINDOW_RESTORED:
@@ -231,8 +239,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			bool up = e.type == SDL_EVENT_FINGER_UP || e.type == SDL_EVENT_FINGER_CANCELED;
 			out->type = e.type == SDL_EVENT_FINGER_DOWN ? host_gui_event_pointer_down
 				: up ? host_gui_event_pointer_up : host_gui_event_pointer_motion;
-			out->x = (int32_t)(e.tfinger.x * (float)w);
-			out->y = (int32_t)(e.tfinger.y * (float)h);
+			out->x = (int32_t)(e.tfinger.x * (float)w / host_gui_sdl3_scale);
+			out->y = (int32_t)(e.tfinger.y * (float)h / host_gui_sdl3_scale);
 			out->id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_TOUCH, (uint64_t)e.tfinger.touchID);
 			out->id = (out->id << 24) | host_gui_sdl3_contact(out->id, (uint64_t)e.tfinger.fingerID, up);
 			out->kind = host_gui_kind_touch;
@@ -272,8 +280,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 				|| (e.motion.which == SDL_PEN_MOUSEID && host_gui_sdl3_pens_seen)) break;
 			if (host_gui_sdl3_pad_down()) break;
 			out->type = host_gui_event_mouse_motion;
-			out->x = (int32_t)e.motion.x;
-			out->y = (int32_t)e.motion.y;
+			out->x = (int32_t)(e.motion.x / host_gui_sdl3_scale);
+			out->y = (int32_t)(e.motion.y / host_gui_sdl3_scale);
 			out->buttons = e.motion.state;
 			return true;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -281,8 +289,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			if ((e.button.which == SDL_TOUCH_MOUSEID && host_gui_sdl3_fingers)
 				|| (e.button.which == SDL_PEN_MOUSEID && host_gui_sdl3_pens_seen)) break;
 			out->type = e.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? host_gui_event_mouse_down : host_gui_event_mouse_up;
-			out->x = (int32_t)e.button.x;
-			out->y = (int32_t)e.button.y;
+			out->x = (int32_t)(e.button.x / host_gui_sdl3_scale);
+			out->y = (int32_t)(e.button.y / host_gui_sdl3_scale);
 			out->buttons = e.button.button;
 			out->count = e.button.clicks;
 			return true;
