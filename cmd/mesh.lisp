@@ -81,6 +81,18 @@
 				(if (eql build "differs") ", is on a different build" "")
 				(if (or other (eql build "differs")) ". Update, and make install, on both." "")))
 			odd))
+	;the machines a door closed on lately, for their link: one dialled over
+	;the internet is heard by no beacon, and this is how its link is known
+	(when (nempty? (defq refused (ifn (net-refused-rpc) (list))))
+		(print "Refused, of another link:")
+		(each (lambda ((where head seconds))
+				(print "    " where
+					(if (and (starts-with "CLDOOR3" head) (>= (length head) 11))
+						(cat ", speaks version " (str (code head 4 7)) " of the link")
+						(cat ", says " (slice head 0 (min 7 (length head))) ", of before the link had versions"))
+					", " (if (< seconds 120) (cat (str seconds) " s") (cat (str (/ seconds 60)) " min")) " ago."
+					" Update, and make install, on both."))
+			refused))
 	;what to look at when it is not as hoped
 	(when (and is_joined (= (length systems) 1) (empty? odd))
 		(print)

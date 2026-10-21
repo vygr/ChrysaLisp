@@ -54,7 +54,7 @@
 ;the port is below 32768: Linux gives a connection going out a port of its
 ;own from 32768 to 60999, macOS from 49152, and on the Pi with the suite
 ;beside it the test failed now and then as if one of those had it
-(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox) dr_said :nil dr_took 0)
+(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox) dr_said :nil dr_took 0 dr_heard (list))
 (assert-true "a listener" (> dr_listener 0))
 
 (defun dr-dial (code)
@@ -87,7 +87,7 @@
 	(defq until (+ (pii-time) (task-timeout 15)) handle 0)
 	(while (and (<= handle 0) (< (pii-time) until))
 		(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
-	(defq t0 (pii-time) mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait (task-timeout 3))) :nil)) "none")
+	(defq t0 (pii-time) mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait (task-timeout 3)) (setq dr_heard (list))) :nil)) "none")
 		dr_shook (pii-time)
 		theirs (ifn (mail-read-timeout dr_reply (task-timeout 5)) "silent"))
 	(if (> handle 0) (net-close handle))
@@ -116,6 +116,7 @@
 		(door-send h (cat "CLDOOR2" (random-bytes 49)) (+ (pii-time) (task-timeout 1)))
 		(task-sleep 2000000) :nil)))
 (assert-true "at once" (< dr_took (task-timeout 1)))
+(assert-eq "and what it said of its link is kept, for mesh to say" "CLDOOR2" (slice (ifn (first dr_heard) "") 0 7))
 (assert-list-eq "and one of another version" '("no" "no")
 	(dr-meet dr_key '(progn
 		(door-send h (cat +door_word (char (inc +door_version) 4) (random-bytes +door_rest_size)) (+ (pii-time) (task-timeout 1)))
@@ -151,4 +152,4 @@
 	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 
 (net-close dr_listener)
-(undef (env) 'dr_file 'dr_hex 'dr_key 'dr_other 'dr_n1 'dr_n2 'dr_port 'dr_listener 'dr_reply 'dr_said 'dr_l 'dr_d 'dr_took)
+(undef (env) 'dr_file 'dr_hex 'dr_key 'dr_other 'dr_n1 'dr_n2 'dr_port 'dr_listener 'dr_reply 'dr_said 'dr_l 'dr_d 'dr_took 'dr_heard)

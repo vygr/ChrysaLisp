@@ -1,6 +1,6 @@
 ; RPC command types
 (enums +net_rpc_type 0
-	(enum connect listen accept link beacon discover hello peers))
+	(enum connect listen accept link beacon discover hello peers refused refusals))
 
 ; Common RPC request header
 (structure +net_rpc 0
@@ -43,6 +43,16 @@
 ; Peers: what the service knows of the other machines, its reply is the
 ; reply header and then text, a line a peer, (mesh-peers-text)
 (structure +net_rpc_peers +net_rpc_size)
+
+; Refused: a door closed on a machine of another link, where it is and the
+; first 11 bytes of its hello, its word and version. No reply
+(structure +net_rpc_refused +net_rpc_size
+	(offset text))
+
+; Refusals: those the service has been told of, its reply is the reply
+; header and then text, a line each: where, the hello's bytes in hex, and
+; how many seconds ago
+(structure +net_rpc_refusals +net_rpc_size)
 
 ; Reply header to connect or accept
 (structure +net_rpc_reply 0
@@ -198,6 +208,30 @@
 		(:t (open-task (str `(mail-send (hex-decode ,(hex-encode mbox)) (cat (str (cpu)) "/" (str (os)))))
 				(first nodes) +kn_call_pin 0 (mail-mbox))
 			(ifn (mail-read-timeout mbox (task-timeout 2)) "no answer"))))
+
+(defun net-refused (where head)
+	; (net-refused where head)
+	;a door tells the Net service of this machine it closed on another
+	;machine for its link: where, host:port, or "dialled in", and the first
+	;bytes of its hello
+	(if (defq svc (net-service))
+		(mail-send svc (cat (setf-> (str-alloc +net_rpc_refused_size)
+				(+net_rpc_type +net_rpc_type_refused)) where " " (hex-encode head)))))
+
+(defun net-refused-rpc ()
+	; (net-refused-rpc) -> :nil | ((where head seconds) ...)
+	;the machines a door closed on lately, for speaking another link: where,
+	;the first bytes of the hello it sent, and how long ago
+	(when (defq svc (net-service))
+		(defq reply_mbox (mail-mbox))
+		(mail-send svc (setf-> (str-alloc +net_rpc_refusals_size)
+			(+net_rpc_type +net_rpc_type_refusals)
+			(+net_rpc_reply_id reply_mbox)))
+		(when (defq reply (mail-read-timeout reply_mbox))
+			(reduce (lambda (out line)
+				(when (= (length (defq parts (split line " "))) 3)
+					(push out (list (first parts) (hex-decode (to-upper (second parts))) (str-as-num (third parts)))))
+				out) (split (slice reply +net_rpc_reply_size -1) (ascii-char 10)) (list)))))
 
 (defun net-peers-rpc ()
 	; (net-peers-rpc) -> :nil | ((system_id ip port linked build link) ...)

@@ -114,6 +114,9 @@
 		mesh :nil
 		mesh_service :nil
 		mesh_peers (Fmap 31)
+		;the machines a door closed on lately for their link, (where head
+		;time), the last of each where, the 8 last
+		refusals (list)
 		last_mesh_time 0
 		;the id of the boot image this machine has, to say in the beacon
 		my_build (boot-id)
@@ -221,6 +224,19 @@
 									(if *net_can_mesh* (map (# (hex-encode (slice %0 +node_id_size
 										(const (* 2 +node_id_size))))) (net-links)) (list))
 									my_build +door_version))))
+						(+net_rpc_type_refused
+							(defq text (slice msg +net_rpc_refused_text -1) at (find " " text))
+							(when at
+								(defq where (slice text 0 at))
+								(setq refusals (filter (# (nql (first %0) where)) refusals))
+								(push refusals (list where (hex-decode (to-upper (slice text (inc at) -1))) (pii-time)))
+								(if (> (length refusals) 8) (setq refusals (slice refusals -9 -1)))))
+						(+net_rpc_type_refusals
+							(mail-send reply_id (cat (setf-> (str-alloc +net_rpc_reply_size)
+									(+net_rpc_reply_handle 0) (+net_rpc_reply_status 0))
+								(apply (const cat) (cat (list "") (map (lambda ((where head time))
+									(cat where " " (hex-encode head) " " (str (/ (- (pii-time) time) 1000000)) (ascii-char 10)))
+									refusals))))))
 						(+net_rpc_type_hello
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover

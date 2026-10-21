@@ -137,17 +137,19 @@
 			(:t (task-sleep 1000))))
 	(if ok got))
 
-(defun door-shake (handle key dialler sealed &optional wait)
-	; (door-shake handle key dialler sealed [wait]) -> :nil | (sealed send recv)
+(defun door-shake (handle key dialler sealed &optional wait heard)
+	; (door-shake handle key dialler sealed [wait heard]) -> :nil | (sealed send recv)
 	;prove to the other end of a connection that this one has the key,
 	;and have it prove the same. :nil if either did not. Else whether the
 	;link is sealed, as the end that dialled said, and its two keys, the
-	;one this end seals with and the one it opens with
+	;one this end seals with and the one it opens with. Closed on for its
+	;word or version, what it said of them is pushed on heard, a list
 	(defq until (+ (pii-time) (ifn wait +door_wait)) mine (random-bytes +door_nonce_size)
 		secret (random-bytes 32) share (x25519-public secret) theirs :nil)
 	(and (door-send handle (cat +door_head mine share (char (if (and dialler sealed) 1 0))) until)
-		;of this version, or closed on now
-		(eql (door-recv handle (length +door_head) until) +door_head)
+		;of this version, or closed on now, and what it said kept
+		(defq head (door-recv handle (length +door_head) until))
+		(or (eql head +door_head) (progn (and heard head (push heard head)) :nil))
 		(defq hello (door-recv handle +door_rest_size until))
 		(setq theirs (slice hello 0 +door_nonce_size))
 		;the two nonces must not be the one, or an end could be answered with itself

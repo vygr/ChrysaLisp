@@ -9,6 +9,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./door.inc")
+(import "./app.inc")
 
 (defun main ()
 	(defq msg (mail-read (task-mbox)) kind (slice msg 0 1) key (slice msg 1 33)
@@ -31,7 +32,12 @@
 		;a link dialled outside the private addresses is sealed, the end
 		;that listens is told so in the proof
 		(when (> handle 0)
+			(defq heard (list))
 			(if (defq shook (catch (door-shake handle key (nql kind "A")
-						(or (eql kind "S") (and (eql kind "D") (door-outside? host)))) :nil))
+						(or (eql kind "S") (and (eql kind "D") (door-outside? host))) :nil heard) :nil))
 				(door-carry handle shook)
-				(net-close handle)))))
+				(net-close handle))
+			;one of another link, of before there were versions or of another,
+			;is said to the Net service, mesh says it: not other traffic
+			(and (nempty? heard) (starts-with "CLDOOR" (first heard))
+				(net-refused (if (eql kind "A") "dialled-in" what) (first heard))))))
