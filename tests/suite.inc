@@ -43,6 +43,11 @@
 	;run again beside itself is slower, and after three the farm stops
 	;and every batch still out has no result
 	+test_counts "=== " +test_module_counts "=#= " +test_retry 300000000
+	;with -p a run says how it goes, a line each, for a progress bar or
+	;whatever reads it as it comes: what is to run and why, what was kept,
+	;each module as it starts and as it is done, and when it is over
+	+test_progress "=p= " *test_progress* :nil *test_t0* 0 *test_ran* 0 *test_to_run* 0
+	*test_batches* :nil
 	;what is known of each file, (age hash names), the counts of each
 	;module that was run, and the commands there are
 	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil
@@ -457,6 +462,46 @@
 		(setq *test_module* (slice module 6 -6))
 		(test-fail "memory" (cat "no more than " (str +test_leak_kb) "kb held after it") (cat (str more) "kb more held"))))
 
+;;;;;;;;;;
+; progress
+;;;;;;;;;;
+
+(defun test-say (&rest fields)
+	; (test-say field ...)
+	;a line of how the run goes, with -p
+	(if *test_progress* (print +test_progress (join (map (const str) fields) " "))))
+
+(defun test-ms ()
+	;how long since the run began, as it is said
+	(cat (str (/ (- (pii-time) *test_t0*) 1000)) "ms"))
+
+(defun test-done-say (module)
+	;a module is done, what it counted and how many of the run are
+	(when *test_progress*
+		(++ *test_ran*)
+		(bind '(passes failures skips) (ifn (. *test_done* :find module) (list 0 0 0)))
+		(test-say "done" module passes failures skips (test-ms)
+			(cat (str *test_ran*) "/" (str *test_to_run*)))))
+
+(defun test-farm-told (what cmd &optional out)
+	;what the farm says of a batch as it goes: it is given to a worker,
+	;again if its worker went, or its answer has come, with a line for
+	;each module it ran and what that counted
+	(case what
+		(:start (each (# (test-say "start" %0 (test-ms))) (ifn (. *test_batches* :find cmd) (list))))
+		(:done (each (lambda (line)
+				(when (starts-with +test_module_counts line)
+					(defq fields (split (slice line (length +test_module_counts) -1) " "))
+					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1))
+					(test-done-say (first fields))))
+			(split (ifn out "") "\n")))))
+
+(defun test-run-said (file)
+	;a module run here, said as it starts and as it is done
+	(test-say "start" file (test-ms))
+	(test-run-counted file)
+	(test-done-say file))
+
 (defun test-run-counted (file)
 	;run a module, and note what it alone counted. The task of a batch
 	;prints that, for the task that farmed it out to note
@@ -497,8 +542,8 @@
 	(sort (map (lambda (&) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
 		(# (- %1 %0))))
 
-(defun run-suite (modules &optional verbose frames jobs child all stale watch leaks)
-	; (run-suite modules [verbose frames jobs child all stale watch leaks]) -> :t | :nil
+(defun run-suite (modules &optional verbose frames jobs child all stale watch leaks progress)
+	; (run-suite modules [verbose frames jobs child all stale watch leaks progress]) -> :t | :nil
 	;run the modules, at most jobs of them to a task. If they all fit in
 	;one batch they run here, one after another. A child is the task of a
 	;batch, it ends with a line of counts in place of the summary.
@@ -508,11 +553,13 @@
 	;waiting on each node while the modules ran is said at the end,
 	;(test-watch). With leaks each runs alone, one after another, in a
 	;task of its own on this node, and one that leaves the node holding
-	;more fails, (test-leak-run).
+	;more fails, (test-leak-run). With progress the run says how it goes,
+	;(test-say), as it goes.
 	(setd jobs 1)
 	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
-		*test_verbose* verbose *test_frames* frames *test_child* child)
-	(defq run modules kept :nil keys (Fmap 31))
+		*test_verbose* verbose *test_frames* frames *test_child* child
+		*test_progress* (and progress (not child) (not stale)) *test_t0* (pii-time) *test_ran* 0)
+	(defq run modules kept :nil keys (Fmap 31) why (Fmap 31))
 	(unless child
 		(setq kept (test-cache-load))
 		(defq base (test-base))
@@ -521,14 +568,29 @@
 			(. keys :insert module key)
 			(cond
 				;one in tests/release/ is for a release, -a, and no other run
-				((and (not all) (starts-with "tests/release/" module)) :nil)
+				((and (not all) (starts-with "tests/release/" module))
+					(. why :insert module "release") :nil)
 				((and was (not all) (eql (first was) key))
 					(bind '(& passes failures skips) was)
 					(setq *test_passes* (+ *test_passes* passes)
 						*test_failures* (+ *test_failures* failures)
 						*test_skips* (+ *test_skips* skips))
+					(. why :insert module "cached")
 					:nil)
-				(:t))) modules)))
+				;run, with all, or what it stands on has changed, or no
+				;result of it is kept, never run or failed the last time
+				((. why :insert module (cond (all "all") (was "changed") ("unkept")))))) modules)))
+	;what is to run, and why, and what is as it was
+	(when *test_progress*
+		(setq *test_to_run* (length run))
+		(test-say "plan" (length run) (length (filter (# (eql (. why :find %0) "cached")) modules)) (length modules))
+		(each (lambda (module)
+				(defq said (ifn (. why :find module) "all"))
+				(cond
+					((eql said "cached") (test-say "cached" module))
+					((eql said "release") (test-say "skipped" module "release"))
+					((test-say "dirty" module said))))
+			modules))
 	(when stale
 		(each (const print) run)
 		(test-cache-save kept)
@@ -544,18 +606,23 @@
 		((and leaks (not child))
 			(each (const test-leak-run) others))
 		((or child (<= (length run) jobs))
-			(each (const test-run-counted) others))
+			(each (const test-run-said) others))
 		(:t ;farm out the batches, show the results in module order
 			(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
-				cmds (map (# (cat "tests" opts " " (join %0 " ")))
-					(partition others jobs))
+				parts (partition others jobs)
+				cmds (map (# (cat "tests" opts " " (join %0 " "))) parts)
 				outs (Fmap 31))
+			;which modules each batch is, for what is said as it goes
+			(setq *test_batches* (Fmap 31))
+			(each (# (. *test_batches* :insert %0 %1)) cmds parts)
 			(each (lambda ((cmd out)) (. outs :insert cmd out))
-				(pipe-farm (cat cmds) +test_retry))
-			(each (# (test-collect %0 (. outs :find %0))) cmds)))
+				(pipe-farm (cat cmds) +test_retry (if *test_progress* (const test-farm-told))))
+			(each (# (test-collect %0 (. outs :find %0))) cmds)
+			;a batch with no result, its modules are said to be lost
+			(each (# (unless (. *test_done* :find %0) (test-say "lost" %0 (test-ms)))) others)))
 	;the watchers go before the modules that count the nodes and what is on them
 	(if watching (setq waits (test-watched watching)))
-	(each (const test-run-counted) solo)
+	(each (const test-run-said) solo)
 	;what ran to its end with nothing failed is kept. What failed is
 	;not, so it is run again the next time, whatever has changed
 	(unless (or child stale)
@@ -566,6 +633,7 @@
 				(. kept :erase module))) run)
 		(test-cache-save kept))
 	(if frames (setq *stack_frame* :nil))
+	(test-say "end" (test-ms))
 	(cond
 		(child (print +test_counts *test_passes* " " *test_failures* " " *test_skips*))
 		(stale)

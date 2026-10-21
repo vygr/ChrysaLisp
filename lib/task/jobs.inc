@@ -29,17 +29,6 @@
 ;these are called by the farm, from inside a method of the jobs object,
 ;so this is the jobs object
 
-(defun dispatch (key val)
-	;the next job on the queue to a child, if there is one
-	(cond
-		((defq job (pop (get :queue this)))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> job
-					(+job_key key)
-					(+job_reply (get :reply_mbox this)))))
-		(:t (undef val :job :timestamp))))
-
 (defun create (key val nodes)
 	;a child is started, the word that it has comes to the task mailbox.
 	;If the children are to be away from this node, and there is another,
@@ -72,7 +61,7 @@
 	;every child that is up and has no job is given one
 	(. (get :farm this) :each (lambda (key val)
 		(and (get :child val) (not (get :job val))
-			(dispatch key val)))))
+			(. this :give key val)))))
 
 (defclass Jobs (path task_mbox reply_mbox &optional size away) :nil
 	; (Jobs path task_mbox reply_mbox [size away]) -> jobs
@@ -92,6 +81,19 @@
 	(def this :farm (if (list? size)
 		(apply (const Local) (cat (list (const create) (const destroy)) size))
 		(Farm (const create) (const destroy) (ifn size (max 1 (length (lisp-nodes)))))))
+
+	(defmethod :give (key val)
+		; (. jobs :give key val) -> jobs
+		;the next job on the queue to that child, if there is one
+		(cond
+			((defq job (pop (get :queue this)))
+				(def val :job job :timestamp (pii-time))
+				(mail-send (get :child val)
+					(setf-> job
+						(+job_key key)
+						(+job_reply (get :reply_mbox this)))))
+			(:t (undef val :job :timestamp)))
+		this)
 
 	(defmethod :add (jobs)
 		; (. jobs :add jobs) -> jobs
@@ -113,7 +115,7 @@
 		;leaves the node that could not, and asks for the child of another
 		(when (defq val (. (get :farm this) :reply msg))
 			(def val :child (getf msg +kn_msg_reply_id))
-			(dispatch (getf msg +kn_msg_key) val))
+			(. this :give (getf msg +kn_msg_key) val))
 		this)
 
 	(defmethod :answered (msg)
@@ -125,7 +127,7 @@
 		(defq key (getf msg +job_reply_key))
 		(when (and (defq val (. (get :farm this) :find key)) (get :job val))
 			(def this :out (dec (get :out this)))
-			(dispatch key val)
+			(. this :give key val)
 			(get :out this)))
 
 	(defmethod :job (msg)
@@ -206,6 +208,28 @@
 		this)
 	)
 
+(defclass Monitored (path task_mbox reply_mbox told &optional size away) (Jobs path task_mbox reply_mbox size away)
+	; (Monitored path task_mbox reply_mbox told [size away]) -> jobs
+	;jobs that say how they go as they go. told is called with the app's
+	;own part of a job, what follows its +job: (told :start job) as it is
+	;given to a child, again if it is given again, its child gone or too
+	;long over it, and (told :done job answer) as its answer comes, the
+	;app's own part of that too, what follows its +job_reply
+	(def this :told told)
+
+	(defmethod :give (key val)
+		; (. jobs :give key val) -> jobs
+		(.super this :give key val)
+		(if (defq job (get :job val)) ((get :told this) :start (slice job +job_size -1)))
+		this)
+
+	(defmethod :answered (msg)
+		; (. jobs :answered msg) -> :nil | num
+		(if (defq job (. this :job msg))
+			((get :told this) :done (slice job +job_size -1) (slice msg +job_reply_size -1)))
+		(.super this :answered msg))
+	)
+
 ;module
-(export-classes '(Jobs))
+(export-classes '(Jobs Monitored))
 (env-pop)

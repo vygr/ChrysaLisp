@@ -27,6 +27,10 @@
             before it, once what a task's end lets go of is let go
             of, (kernel-stats :t): what grows each time is a leak,
             what is made once and kept is not. Slower.
+        -p --progress: say how the run goes as it goes, a line each
+            that starts =p=, for a progress bar: plan, then cached or
+            dirty for each module and why, start and done as each one
+            runs, lost for one whose batch had no result, and end.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
@@ -55,19 +59,20 @@
 (("-s" "--stale") ,(opt-flag 'opt_s))
 (("-w" "--watch") ,(opt-flag 'opt_w))
 (("-e" "--leaks") ,(opt-flag 'opt_e))
+(("-p" "--progress") ,(opt-flag 'opt_p))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_m :nil opt_l :nil opt_v :nil opt_f :nil opt_j 1 opt_c :nil opt_a :nil opt_s :nil opt_w :nil opt_e :nil
+			(defq opt_m :nil opt_l :nil opt_v :nil opt_f :nil opt_j 1 opt_c :nil opt_a :nil opt_s :nil opt_w :nil opt_e :nil opt_p :nil
 				args (options stdio usage)))
 		(defq modules (if (empty? (defq modules (rest args))) (test-modules opt_m) modules))
 		(cond
 			(opt_l (each (const print) modules))
 			((catch
-				(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w opt_e)
+				(run-suite modules opt_v opt_f opt_j opt_c opt_a opt_s opt_w opt_e opt_p)
 				(progn
 					(print "CRITICAL ERROR: Test suite crashed or threw exception.")
 					(print "Error object: " _)
