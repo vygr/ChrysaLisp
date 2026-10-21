@@ -260,8 +260,8 @@ Deep dives into meta-commentary and design philosophy:
 
 61. **[AI Thoughts](docs/ai_digest/ai_thoughts.md)** - AI commentary on
     ChrysaLisp's architectural coherence and design philosophy. Udat's view
-    from reading the design, and Claude's from three days of working in the
-    code.
+    from reading the design, and Claude's from working in the code, the
+    lessons of October 2026.
 
 62. **[Turbo Charging](docs/ai_digest/turbo_charging.md)** - Translator Turbo
     charging of environment maps.
