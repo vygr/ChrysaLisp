@@ -114,7 +114,36 @@
 
 (defq +exfat_block_shift 12 +exfat_block_size 4096 +exfat_cache_blocks 512
 	;this many whole blocks, or more, are written straight to the device
-	+exfat_direct_blocks 4)
+	+exfat_direct_blocks 4
+	;between an (exfat-begin) and its (exfat-end) such writes wait, as they
+	;are, till there are this many bytes of them
+	+exfat_pending_most 4194304)
+
+(defun exfat-pending-write (vol)
+	; (exfat-pending-write vol) -> vol
+	;the writes of whole blocks that wait, to the device, in the order
+	;they are on it, those that are next to each other as one
+	(when (nempty? (defq pending (get :pending vol)))
+		(sort pending (# (- (first %0) (first %1))))
+		(defq i 0 n (length pending))
+		(while (< i n)
+			(defq at (first (elem-get pending i)) end at parts (list "") j i)
+			(while (and (< j n) (= (first (elem-get pending j)) end))
+				(push parts (second (elem-get pending j)))
+				(setq end (+ end (length (second (elem-get pending j)))) j (inc j)))
+			(exfat-raw-write vol at (apply (const cat) parts))
+			(setq i j))
+		(def vol :pending (list) :pending_size 0))
+	vol)
+
+(defun exfat-pending-over (vol offset len)
+	; (exfat-pending-over vol offset len) -> vol
+	;what waits is written now if any of it is of those bytes: what is read
+	;of them is what was written, and a write of them again is the last
+	(defq end (+ offset len))
+	(if (some (# (and (< (first %0) end) (> (+ (first %0) (length (second %0))) offset))) (get :pending vol))
+		(exfat-pending-write vol))
+	vol)
 
 (defun exfat-raw-read (vol offset len)
 	;whole blocks from the device, :nil if they are not all there. Each
@@ -122,6 +151,7 @@
 	;work is a great deal of reading and writing, and the node is not its
 	;alone
 	(task-breathe)
+	(exfat-pending-over vol offset len)
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
 	(and (defq data (read-blk stream len)) (= (length data) len) data))
@@ -137,6 +167,7 @@
 	; (exfat-flush vol) -> vol
 	;the blocks that were changed, to the device, in the order they are on
 	;it, and those that are next to each other as one write
+	(exfat-pending-write vol)
 	(defq cache (get :cache vol) dirty (list))
 	(. (get :dirty vol) :each (lambda (index _) (push dirty index)))
 	(sort dirty (const -))
@@ -212,14 +243,16 @@
 	;bytes to the device. A run of whole blocks goes straight to it. The
 	;rest, the ends of a long write and all of a short one, change the
 	;blocks that are kept, a block that is only part written is read first.
-	;Between an (exfat-begin) and its (exfat-end) all of it is kept: the
-	;files written one after another are next to each other, and go to
-	;the device as one write, not one each, which a flash stick is slow at
+	;Between an (exfat-begin) and its (exfat-end) the run waits, as it is:
+	;the files written one after another are next to each other, and go
+	;to the device as one write, not one each, which a flash stick is slow
+	;at. A write of what waits writes that first
+	(exfat-pending-over vol offset (length data))
 	(defq end (+ offset (length data)) dirty (get :dirty vol)
 		lo (>> offset +exfat_block_shift) hi (>> (+ end (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_lo (>> (+ offset (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_hi (>> end +exfat_block_shift))
-	(if (or (< (- whole_hi whole_lo) +exfat_direct_blocks) (> (get :depth vol) 0)) (setq whole_hi whole_lo))
+	(if (< (- whole_hi whole_lo) +exfat_direct_blocks) (setq whole_hi whole_lo))
 	(each (lambda (index)
 		(defq base (<< index +exfat_block_shift)
 			from (max offset base) to (min end (+ base +exfat_block_size)))
@@ -234,10 +267,14 @@
 					(slice data (- from offset) (- to offset))
 					(slice old (min (length old) (- to base)) -1)))
 				(. dirty :insert index :t)))) (range lo hi))
-	(if (> whole_hi whole_lo)
-		(exfat-raw-write vol (<< whole_lo +exfat_block_shift)
-			(slice data (- (<< whole_lo +exfat_block_shift) offset)
-				(- (<< whole_hi +exfat_block_shift) offset))))
+	(when (> whole_hi whole_lo)
+		(defq at (<< whole_lo +exfat_block_shift)
+			run (slice data (- at offset) (- (<< whole_hi +exfat_block_shift) offset)))
+		(cond
+			((= (get :depth vol) 0) (exfat-raw-write vol at run))
+			(:t (push (get :pending vol) (list at run))
+				(def vol :pending_size (+ (get :pending_size vol) (length run)))
+				(if (> (get :pending_size vol) +exfat_pending_most) (exfat-pending-write vol)))))
 	vol)
 
 (defun exfat-sync (vol)
@@ -361,7 +398,7 @@
 	;to be read and written. A stream can be a memory stream.
 	(when (defq stream (if (str? device) (file-stream device +file_open_append) device))
 		(def (defq vol (env 1)) :stream stream :file (str? device)
-			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0
+			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0 :pending (list) :pending_size 0
 			:hint 2 :dirty_lo -1 :dirty_hi -1)
 		(defq boot (exfat-read vol 0 +exfat_boot_size))
 		(when (and boot (= (length boot) +exfat_boot_size)

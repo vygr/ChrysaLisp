@@ -143,13 +143,13 @@
 				;writes. Anything else asked ends it first, so a path is set
 				;only to blocks that are on the device, and so does nothing
 				;asked for a moment
-				(when batch
-					(defq t0 (pii-time))
-					(while (and batch (not (mail-poll (list (task-mbox)))))
-						(if (> (- (pii-time) t0) +batch_quiet)
-							(setq batch (progn (exfat-end batch) :nil))
-							(task-sleep 1000))))
-				(defq msg (mail-read (task-mbox)) reply (getf msg +storage_rpc_reply_id)
+				;waited for, not looked for now and then: the next block is
+				;here as soon as it is sent
+				(defq msg (and batch (mail-read-timeout (task-mbox) +batch_quiet)))
+				(unless msg
+					(if batch (setq batch (progn (exfat-end batch) :nil)))
+					(setq msg (mail-read (task-mbox))))
+				(defq reply (getf msg +storage_rpc_reply_id)
 					type (getf msg +storage_rpc_type) body (slice msg +storage_rpc_size -1))
 				(cond
 					((= type +storage_type_block_put)

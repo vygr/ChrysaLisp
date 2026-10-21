@@ -113,7 +113,7 @@
 	;can be a memory stream. A volume that is FAT12 or FAT16 is not taken.
 	(when (defq stream (if (str? device) (file-stream device) device))
 		(def (defq vol (env 1)) :stream stream :file (str? device)
-			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0)
+			:cache (Fmap 101) :cached 0 :dirty (Fmap 31) :depth 0 :pending (list) :pending_size 0)
 		(defq boot (exfat-read vol 0 +fat32_boot_size))
 		(when (and boot (= (length boot) +fat32_boot_size)
 				(= (get-ushort boot +fat32_boot_mark) 0xaa55)
