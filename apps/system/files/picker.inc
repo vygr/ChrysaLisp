@@ -2,6 +2,13 @@
 ; file picker
 ;;;;;;;;;;;;;
 
+(import "lib/collections/tree.inc")
+(import "service/lock/app.inc")
+
+;what the picker keeps for each user, of every app: the last file taken
+;and the folders taken from, newest first
+(defq +places_version 1)
+
 (defun file-pick (reply title &optional root kinds save app names places)
 	; (file-pick reply title [root kinds save app names places]) -> picker
 	;the file picker opened, a window of its own, apps/system/files/child.lisp:
@@ -22,3 +29,24 @@
 		"|" (if save "save" "open") "|" (if (nempty? (ifn app "")) app "-") "|" (if names "names" "-")
 		"|" (if (nempty? (ifn places '())) (join places (ascii-char 9)) "-")))
 	picker)
+
+(defun file-places-file ()
+	; (file-places-file) -> path
+	(cat (get :home *env*) "places.tre"))
+
+(defun places-load ()
+	; (places-load) -> :nil | tree
+	;the user's places of every app, :nil if none kept
+	(defq file (file-places-file) tree (if (/= (age file) 0)
+		(with-read-lock file (tree-load (file-stream file)))))
+	(and tree (eql (. tree :find :version) +places_version) tree))
+
+(defun places-of (app)
+	; (places-of app) -> (last_file folder ...)
+	(ifn (and app (defq tree (places-load)) (. tree :find (sym (cat ":" app)))) (list "")))
+
+(defun file-pick-last (app)
+	; (file-pick-last app) -> :nil | path
+	;the last file the app took by the picker, for the user, if it is
+	;there still, so it can show it again as it starts
+	(and (nempty? (defq file (first (places-of app)))) (/= (age file) 0) file))

@@ -34,7 +34,7 @@
 ;our UI widgets and events
 (import "./widgets.inc")
 
-(defq +places_file (cat (get :home *env*) "places.tre") +places_recent 50 +places_version 1
+(defq +places_file (file-places-file) +places_recent 50
 	;how many things are looked at, for all the folders of a listing, to
 	;see if there is any wanted in each, before the rest are shown unlooked
 	+filter_most 20000)
@@ -162,16 +162,6 @@
 ;;;;;;;;
 ; places
 ;;;;;;;;
-
-(defun places-load ()
-	;the user's places of every app, :nil if none kept
-	(defq tree (if (/= (age +places_file) 0)
-		(with-read-lock +places_file (tree-load (file-stream +places_file)))))
-	(and tree (eql (. tree :find :version) +places_version) tree))
-
-(defun places-of (app)
-	; (places-of app) -> (last_file folder ...)
-	(ifn (and app (defq tree (places-load)) (. tree :find (sym (cat ":" app)))) (list "")))
 
 (defun places-keep (app path)
 	;the folder of a path taken first of the app's places, and the path its

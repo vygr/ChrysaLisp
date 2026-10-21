@@ -55,8 +55,9 @@
 	(. *window* :change_dirty x y w h))
 
 ;the font shown, opened by the file picker, which keeps where fonts were
-;taken from; the second of the tree's to start
-(defq id :t *file* (second (sort (files-all "fonts/" '(".ctf")))) *picker* :nil)
+;taken from and the last one, shown again as it starts; the second of the
+;tree's if none was
+(defq id :t *file* (ifn (file-pick-last "fonts") (second (sort (files-all "fonts/" '(".ctf"))))) *picker* :nil)
 
 (ui-window *window* ()
 	(ui-title-bar *window_title* "" (+sym_close) +event_close)
