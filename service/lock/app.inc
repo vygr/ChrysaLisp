@@ -39,7 +39,14 @@
 	(defq svc (ensure-lock-service) mbox (mail-mbox))
 	(setd mode +lock_mode_write timeout (task-timeout 10))
 	(cond
-		((not svc) :nil)
+		((not svc)
+			;there is no lock to have, and what was to be done under it is not
+			;done. It is said: a command that reads a file under a lock did
+			;nothing with it, and said nothing, and looked as if all was well
+			(defq err (io-stream 'stderr))
+			(write-line err (cat "No Lock service, " (if (eql key "") "the root" key) " is not locked, and what was to be done with it is not done"))
+			(stream-flush err)
+			:nil)
 		((progn
 				(mail-send svc (setf-> (cat (str-alloc +lock_claim_size) key)
 					(+lock_rpc_reply_id mbox)
