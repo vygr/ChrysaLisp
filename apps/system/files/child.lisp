@@ -29,8 +29,8 @@
 (import "./widgets.inc")
 
 (defq +places_file (cat (get :home *env*) "places.tre") +places_recent 50 +places_version 1
-	;how many things a filter looks at in a folder before it gives up and
-	;shows the folder anyway
+	;how many things are looked at, for all the folders of a listing, to
+	;see if there is any wanted in each, before the rest are shown unlooked
 	+filter_most 20000)
 
 (defun say (text)
@@ -74,15 +74,15 @@
 
 (defun folder-has? (folder engine meta)
 	;anything wanted in a folder, or a folder in it, and so on down: the
-	;first found ends the look. Not hidden folders, nor what is built, and
-	;a folder too big to look all through, past so many, is said to have
-	(defq stack (list folder) seen 0 found :nil)
+	;first found ends the look. Not hidden folders, nor what is built. Once
+	;the listing has looked at so many, *seen*, a folder is said to have
+	(defq stack (list folder) found :nil)
 	(while (and (not found) (defq at (pop stack)))
 		(each! (lambda (name type)
 				(cond
 					(found)
 					((starts-with "." name))
-					((> (++ seen) +filter_most) (setq found :t))
+					((> (++ *seen*) +filter_most) (setq found :t))
 					((eql type "4") (unless (eql name "obj") (push stack (path-in at name))))
 					((wanted? name engine meta) (setq found :t))))
 			(unzip (split (ifn (pii-dirlist at) "") ",") 2)))
@@ -92,14 +92,15 @@
 	;the drawer open at a folder: its folders, then its files of the kinds,
 	;of those the filter finds
 	(setq *folder* folder *replace* :nil)
-	(defq folders (list) files (list) engine :nil meta :nil)
+	(defq folders (list) files (list) engine :nil meta :nil *seen* 0)
 	;the filter as grep and the editor take one, (query), a regexp
 	(if (nempty? *pattern*) (bind '(engine meta &ignore) (query *pattern* :nil :t :nil)))
 	(each! (lambda (name type)
 			(unless (starts-with "." name)
 				(cond
-					;with a filter, a folder only if there is something in it it finds
-					((eql type "4") (if (or (not meta) (folder-has? (path-in folder name) engine meta))
+					;of kinds, or a filter, a folder only if there is something in it
+					;of them, the filter finds
+					((eql type "4") (if (or (and (not meta) (empty? *exts*)) (folder-has? (path-in folder name) engine meta))
 						(push folders (cat name "/"))))
 					((wanted? name engine meta) (push files name)))))
 		(unzip (split (ifn (pii-dirlist folder) "") ",") 2))
