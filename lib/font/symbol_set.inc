@@ -254,7 +254,10 @@
 	(list "mic" s_mic)
 	(list "mute" (cat s_mic_left (s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))
 	;headphones, a band over two cups
-	(list "headphones" (cat (s-arc 12 14 8 0 180) (s-rrect 3 14 7.5 21 1.5) (s-rrect 16.5 14 21 21 1.5)))))
+	(list "headphones" (cat (s-arc 12 14 8 0 180) (s-rrect 3 14 7.5 21 1.5) (s-rrect 16.5 14 21 21 1.5)))
+	;what is in a file put in with what is there, a folder with a plus, as
+	;new is a document with one
+	(list "insert" (cat s_folder (s-line 9 13 15 13) (s-line 12 10 12 16)))))
 
 ;;;;;;;;;;;;
 ; the themes

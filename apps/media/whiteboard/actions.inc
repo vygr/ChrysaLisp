@@ -23,6 +23,7 @@
 	+event_redo action-redo
 	+event_new action-new
 	+event_load action-load
+	+event_insert action-insert
 	+event_save action-save
 	+event_clear action-clear
 	+event_crop action-crop

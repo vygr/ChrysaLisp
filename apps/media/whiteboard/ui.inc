@@ -295,6 +295,14 @@
 		(setq *picker_mode* :t *picker_mbox*
 			(file-pick (elem-get select +select_picker) "Save Whiteboard..." (ifn *file* ".") ".cwb" :t :nil :t '("apps/media/whiteboard/data" "docs/diagrams")))))
 
+(defun action-insert ()
+	;a board file's things added to this board, not in place of it: who
+	;pressed is who made them, and holds them, kept for when it is picked
+	(if *picker_mbox* (mail-send *picker_mbox* ""))
+	(setq *picker_mode* :insert *insert_user* (if (defq event (msg-press)) (. *board* :user_of event))
+		*picker_mbox* (file-pick (elem-get select +select_picker) "Insert Whiteboard..." (ifn *file* ".")
+			".cwb" :nil :nil :t '("apps/media/whiteboard/data" "docs/diagrams"))))
+
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(setq *picker_mode* :nil *picker_mbox*

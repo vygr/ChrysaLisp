@@ -2419,6 +2419,36 @@
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
+	(defmethod :insert (items x y &optional user)
+		; (. board :insert items x y [user]) -> :nil | ids
+		;the items of another document added, copies with ids of their own,
+		;the middle of them at x y, made by that user, the teacher's if not
+		;said, as one step that can be undone. They are selected, that
+		;user's, a loose group, and what that user had selected is put down
+		;first; what others hold is left. :nil if they draw nothing
+		(when (and (nempty? items) (defq box (cwb-bounds items)))
+			(. this :snapshot)
+			(bind '(bx by bx1 by1) box)
+			(defq doc (get :doc this) user (ifn user +board_teacher) ids (list)
+				dx (n2i (- x (* 0.5 (+ bx bx1)))) dy (n2i (- y (* 0.5 (+ by by1)))))
+			(each (lambda (copy)
+				;a copy and all in it has ids of its own, and is the user's
+				(defq todo (list copy))
+				(while (defq next (pop todo))
+					(elem-set next +cwb_id 0)
+					(elem-set next +cwb_user user)
+					(if (cwb-group? next) (each (# (push todo %0)) (elem-get next +cwb_items))))
+				(cwb-place! copy (place-move (elem-get copy +cwb_place) dx dy))
+				(cwb-add doc copy (. this :layer_index))
+				(push ids (elem-get copy +cwb_id)))
+				(board-copy-items items))
+			(defq mine (. this :selected_by user))
+			(. this :select (cat (filter (# (not (find %0 mine))) (get :selected this)) ids))
+			(each (# (. this :pick_up %0 user)) ids)
+			(. this :changed ids)
+			(. this :touch (+ +board_dirty_doc +board_dirty_overlay))
+			ids))
+
 	;;;;;;;;;;
 	; pointers
 	;;;;;;;;;;

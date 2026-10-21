@@ -69,7 +69,7 @@
 	;It is here and not there: what is in that file is read as a module,
 	;and a thing of it that changes is not there to find afterwards
 	*full* :nil
-	*file* :nil *picker_mbox* :nil *picker_mode* :nil *running* :t
+	*file* :nil *picker_mbox* :nil *picker_mode* :nil *insert_user* :nil *running* :t
 	*committed* :nil *overlay* :nil *flight* :nil *paper* :nil *paper_dirty* :t *flight_used* :nil
 	*canvas_size* :nil
 	;the size of the paper on the screen, not turned, :nil for the
@@ -1290,6 +1290,15 @@
 		(board-resized)
 		(view-changed)))
 
+(defun board-insert (file)
+	;the things of a board file added to this one, in the middle of what
+	;shows, selected, the one who asked's, as one step, (. board :insert)
+	(when (and (ends-with ".cwb" file) (defq stream (name-stream file)) (defq doc (cwb-load stream)))
+		(bind '(w h) (. *board_view* :get_size))
+		(bind '(x y) (. *board_view* :to_doc (/ w 2) (/ h 2)))
+		(. *board* :insert (reduce (lambda (out (name flags items)) (cat out items)) (cwb-layers doc) (list))
+			x y *insert_user*)))
+
 ;import actions and bindings
 (import "./share.inc")
 (import "./actions.inc")
@@ -1380,6 +1389,7 @@
 				(cond
 					;closed picker
 					((eql *msg* ""))
+					((eql *picker_mode* :insert) (board-insert *msg*))
 					(*picker_mode* (board-save *msg*))
 					(:t (board-load *msg*))))
 			;must be gui event to main mailbox

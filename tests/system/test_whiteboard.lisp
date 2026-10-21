@@ -773,3 +773,21 @@
 	" (= (. *board* :ink_of (ptr-event 0 :mouse +pev_left 0 0)) +argb_black)))")))
 (assert-eq "a pen refilled is the document's; a new document has the pens as they first were, Chris: a new document resets to the standard default pens and markers inks, and the mouse holds the first pen again, as everything is as it began"
 	"(:nil :t :t)" (first wa_new))
+
+;a board file inserted, Insert: its things added, not in place of what is
+;there, copies with ids of their own, in the middle of the view, selected
+;as a loose group of whoever pressed, the teacher for no press, what they
+;had selected put down first; one undo takes them all away
+(defq wa_insert (wa-run (cat
+	"(wa-mode :rect) (wa-drag 1 10 10 60 60) (defq was (wa-ids)) (. *board* :pick_up (first was) +board_teacher)"
+	"(board-insert {apps/media/whiteboard/data/test.cwb})"
+	"(defq now (wa-ids) sel (. *board* :get_selected))"
+	"(bind '(w h) (. *board_view* :get_size)) (bind '(cx cy) (. *board_view* :to_doc (/ w 2) (/ h 2)))"
+	"(bind '(x y x1 y1) (cwb-bounds (. *board* :selected_items)))"
+	"(print (list (length was) (> (length now) (length was)) (= (length sel) (- (length now) (length was)))"
+	" (not (find (first was) sel)) (every (# (eql (. *board* :holder %0) +board_teacher)) sel)"
+	" (< (abs (- (* 0.5 (+ x x1)) cx)) 2.0) (< (abs (- (* 0.5 (+ y y1)) cy)) 2.0)))"
+	"(wa-do +event_undo) (print (length (wa-ids)))")))
+(assert-eq "a board inserted: its things added to the one rectangle, they alone selected, the teacher's, the rectangle put down, in the middle of the view"
+	"(1 :t :t :t :t :t :t)" (first wa_insert))
+(assert-eq "one undo takes all the inserted away" "1" (second wa_insert))
