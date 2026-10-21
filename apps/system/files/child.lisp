@@ -198,8 +198,9 @@
 		(:t (go-to ".") (. *name* :set_text root)))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	;the places sized again now the window has its size
+	;the places and the sheet sized again now the window has its size
 	(places-show)
+	(go-to *folder*)
 	(defq select (task-mboxes 2))
 	(def *window* :tip_mbox (elem-get select 1))
 	(while *running*
