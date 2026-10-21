@@ -93,17 +93,11 @@
 	(when (empty? *items*)
 		(def (defq hint (Label)) :text (if *save* "Nothing here yet" "Nothing here") :ink +argb_grey8)
 		(. *list* :add_child hint))
-	;the sheet as long as the rows, and the scroll at least, ruled at the
-	;height of a row
-	(bind '(w h) (. *list* :pref_size))
-	(bind '(sw sh) (. *scroll* :get_size))
-	(defq w (max w (- sw 10) (- (get :min_width *scroll*) 10)) h (max h sh (get :min_height *scroll*) 40))
-	;a row and its line, the sheet's lines from the bottom of the first
+	;a row and its line, the sheet's lines from the bottom of the first,
+	;and the sheet made to fit, (fit-drawer)
 	(when (nempty? *items*)
 		(defq row (second (. (first (. *list* :children)) :pref_size)))
 		(def *ruled* :spacing (inc row) :origin_y row))
-	(. *list* :change 0 0 w (second (. *list* :pref_size)) :t)
-	(. *ruled* :change_dirty 0 0 w h :t)
 	(.-> *scroll* :layout :dirty_all)
 	(.-> *path* (:set_text (folder-said folder)) :layout :dirty)
 	(if (and (nempty? *pattern*) (not meta)) (say "The filter is no regexp.") (say "")))
@@ -163,10 +157,31 @@
 			(. button :connect (+ +event_place (!)))
 			(. *places* :add_child button))
 		*place_list*)
-	(bind '(w h) (. *places* :pref_size))
-	(bind '(sw &ignore) (. *places_scroll* :get_size))
-	(. *places* :change_dirty 0 0 (max w (- sw 16) 144) h :t)
 	(.-> *places_scroll* :layout :dirty_all))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; what the two scrolls hold, made to fit them as they change
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun sheet-width (sheet)
+	;the width of a scroll less its slider
+	(bind '(w &ignore) (. sheet :get_size))
+	(bind '(sw &ignore) (. (get :vslider sheet) :get_constraint))
+	(max 0 (- w sw)))
+
+(defun fit-drawer (sheet)
+	;the rows the width of the scroll, the ruled sheet that too, and as
+	;long as the rows or the scroll, whichever is longer
+	(bind '(& h) (. sheet :get_size))
+	(defq w (sheet-width sheet) rows (second (. *list* :pref_size)))
+	(. *list* :change_dirty 0 0 w rows :t)
+	(. *ruled* :change_dirty 0 0 w (max rows h)))
+
+(defun fit-places (sheet)
+	(. *places* :change_dirty 0 0 (sheet-width sheet) (second (. *places* :pref_size)) :t))
+
+(def *scroll* :fit fit-drawer)
+(def *places_scroll* :fit fit-places)
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
