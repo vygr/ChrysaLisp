@@ -123,7 +123,9 @@ int64_t pii_open(const char *path, uint64_t mode)
 }
 
 char link_buf[128];
-static struct stat pii_stat_fs;
+//the 64 bit forms: on Windows a long, and the plain ones, are 32 bits,
+//and a seek or a size past 2GB, a store image, is wrong
+static struct _stat64 pii_stat_fs;
 
 int64_t pii_open_shared(const char *path, size_t len)
 {
@@ -192,12 +194,12 @@ int64_t pii_write(int64_t fd, void *addr, size_t len)
 
 int64_t pii_seek(int64_t fd, int64_t pos, unsigned char offset)
 {
-	return (lseek((int)fd, (long)pos, offset));
+	return (_lseeki64((int)fd, pos, offset));
 }
 
 int64_t pii_stat(const char *path, struct pii_stat_info *st)
 {
-	if (stat(path, &pii_stat_fs) != 0) return -1;
+	if (_stat64(path, &pii_stat_fs) != 0) return -1;
 	st->mtime = pii_stat_fs.st_mtime;
 	st->fsize = pii_stat_fs.st_size;
 	st->mode = pii_stat_fs.st_mode;
@@ -325,7 +327,7 @@ int folder_visit_remove(const char *fname, int state)
 
 int64_t pii_remove(const char *fqname)
 {
-	if(stat(fqname, &pii_stat_fs) == 0)
+	if(_stat64(fqname, &pii_stat_fs) == 0)
 	{
 		if(S_ISDIR(pii_stat_fs.st_mode) != 0 )
 		{

@@ -107,8 +107,10 @@
 	(defq ready (hex-decode ready) size (if size (str-as-num size) 0) block (if block (str-as-num block) 0)
 		id (ifn id "store") name (ifn name +storage_name) group (ifn group +storage_group)
 		member (ifn member (hex-encode (system-id)))
-		;the store that is there
-		store (if (/= (age image) 0) (store-open image member)))
+		;the store that is there. One that can not be read, a file cut
+		;short, is no store, and not the end of the service
+		store (if (/= (age image) 0) (catch (store-open image member) :bad))
+		store (if (nql store :bad) store))
 	;or a new one, where there is nothing. Where there is something that
 	;is no store, only if it was said to
 	(and (not store) (> size 0) (or (= (age image) 0) force)
