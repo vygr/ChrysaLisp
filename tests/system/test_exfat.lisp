@@ -202,3 +202,21 @@
 (defq kept_free (exfat-free vol))
 (def vol :free :nil)
 (assert-eq "the room kept as it goes is the room counted" (exfat-free vol) kept_free)
+
+;a folder that files are added to one after another keeps what it was read
+;as, with each new one put in, and is not read again for each: what it
+;says it has is what a mount of the volume after finds there
+(bind '(xf_d xf_d_stream) (xf-volume 0x200000))
+(exfat-mkdir xf_d "many")
+(defq xf_d_want (map (# (cat "f" (str %0))) (range 0 300)))
+(exfat-begin xf_d)
+(each (# (exfat-save xf_d (cat "many/" %0) (xf-bytes 100 (length %0)))) xf_d_want)
+(exfat-end xf_d)
+(assert-list-eq "files added one after another are all in the folder" (sort (cat xf_d_want)) (xf-names xf_d "many"))
+(assert-eq "and each is found, as it was saved" (xf-bytes 100 4) (exfat-load xf_d "many/f150"))
+(exfat-delete xf_d "many/f7")
+(exfat-save xf_d "many/later" "after the delete")
+(assert-eq "one added after a delete is there" "after the delete" (exfat-load xf_d "many/later"))
+(defq xf_d_again (exfat-mount xf_d_stream))
+(assert-list-eq "mounted again it has the same" (xf-names xf_d "many") (xf-names xf_d_again "many"))
+(assert-eq "and the same in each" (xf-bytes 100 4) (exfat-load xf_d_again "many/f150"))

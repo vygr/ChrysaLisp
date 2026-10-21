@@ -813,7 +813,18 @@
 			(cond
 				(slot
 					(exfat-store vol clusters data)
-					(exfat-dir-put vol (last (second slot)) (first slot) eset)
+					(defq at (first slot) folder (last (second slot))
+						had (. (get :dirs vol) :find (elem-get folder 3)))
+					(exfat-dir-put vol folder at eset)
+					;the directory as it was read, with the new one put in it, not
+					;read again: a folder of many files was read, all of it, for
+					;each one added
+					(when had
+						(defq new (list name dir size (if (empty? clusters) 0 (first clusters)) no_fat at
+							(dec (/ (length eset) +exfat_entry_size))))
+						(push (first had) new)
+						(. (second had) :insert (exfat-key vol name) new)
+						(. (get :dirs vol) :insert (elem-get folder 3) had))
 					(setq ok :t))
 				;no room for its entries, so its clusters are free again
 				(:t (each (# (exfat-mark vol %0 :nil)) clusters))))
