@@ -295,8 +295,25 @@
 ;path, how long a block is, the names of the whole blocks put so far,
 ;what is written and not yet a whole block, and if there is anything the
 ;path has not been set to
+;and the blocks on their way, a few at once, (mbox hash), the oldest first
 (enums +storage_out 0
-	(enum svc name block names part dirty))
+	(enum svc name block names part dirty flight))
+
+;how many blocks a stream that is written has on their way at once
+(defq +storage_put_ahead 4)
+
+(defun storage-stream-land (st most)
+	; (storage-stream-land st most) -> st
+	;the answers to the blocks on their way, the oldest first, till no more
+	;than most are. One not put as it should be, and the path is never set
+	(defq flight (elem-get st +storage_out_flight))
+	(while (> (length flight) most)
+		(bind '(mbox hash) (first flight))
+		(unless (eql (mail-read-timeout mbox (task-timeout +storage_wait)) hash)
+			(elem-set st +storage_out_dirty :lost))
+		(setq flight (rest flight)))
+	(elem-set st +storage_out_flight flight)
+	st)
 
 (defun storage-stream-put (st data flush)
 	; (storage-stream-put st data flush) -> :nil | (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
@@ -307,19 +324,25 @@
 	;it was, and one who reads it sees the old or the new and never a
 	;part. What is left over is kept, a stream can be written on after
 	;a flush, and the next sets the path again
-	(bind '(svc name size names part dirty) st)
+	(bind '(svc name size names part dirty &ignore) st)
 	(when (nempty? data)
 		(setq part (cat part data))
-		(if (nql dirty :lost) (setq dirty :t))
+		(if (nql dirty :lost) (elem-set st +storage_out_dirty :t))
 		(while (>= (length part) size)
-			(defq block (slice part 0 size) hash (sha256 block))
-			;no room for it, or nothing said: the path is not set, ever
-			(if (eql (storage-ask svc +storage_type_block_put block) hash)
-				(push names hash)
-				(setq dirty :lost))
+			;sent, and hashed while the service has it: a few on their way
+			;at once, and what each is said to be is looked at in turn. No
+			;room for one, or nothing said: the path is not set, ever
+			(defq block (slice part 0 size) mbox (storage-send svc +storage_type_block_put block)
+				hash (sha256 block))
+			(push (elem-get st +storage_out_flight) (list mbox hash))
+			(push names hash)
+			(storage-stream-land st +storage_put_ahead)
 			(setq part (slice part size -1)))
-		(elem-set st +storage_out_part part)
-		(elem-set st +storage_out_dirty dirty))
+		(elem-set st +storage_out_part part))
+	;all of them answered before a flush sets the path
+	(when flush
+		(storage-stream-land st 0)
+		(setq dirty (elem-get st +storage_out_dirty)))
 	(when (and flush (eql dirty :t))
 		(defq all (cat names) bytes (+ (* (length names) size) (length part)))
 		(when (or (empty? part) (and (eql (storage-ask svc +storage_type_block_put part) (defq hash (sha256 part)))
@@ -364,7 +387,7 @@
 				(setq names (cat (second object)))
 				(and (nempty? names) (/= 0 (% (first object) size))
 					(setq part (ifn (storage-block (pop names) svc) "") dirty (if (empty? part) :lost dirty))))
-			(defq st (list svc name size names part dirty))
+			(defq st (list svc name size names part dirty (list)))
 			(lisp-stream '(lambda () :nil) :nil
 				`(lambda (data flush) (,storage-stream-put ',st data flush))))))
 
@@ -640,16 +663,18 @@
 	;not heard from before what it kept is kept by others.
 	;
 	;wait is how long it is given to say it is up, 30 s, or :t, as long
-	;as it takes while its task is there, on this node: a big store is
-	;minutes opening, and one given up on comes up all the same
+	;as it takes while its task is there, or its node, on another: a big
+	;store is minutes opening, and one given up on comes up all the same.
+	;
+	;node is the node it is started on, this one if not said. Another
+	;was tried, so that the hashing of a block and its writing were done
+	;beside what the asker does: each block's crossing of the link cost
+	;more than the second core gave, a copy into a store fell 61 to 50
+	;MB/s, a read from it 116 to 60
 	(defq opts (apply (const scatter) (cat (list (Emap)) opts)) name (ifn (. opts :find :name) +storage_name))
 	(cond
 		((storage-service name))
-		(:t (defq said (mail-mbox) node (. opts :find :node)
-				;on this node unless another is said. It was let go to a node
-				;the kernel picks, for a day: a service on another node is
-				;known here only when its name has come by a ping, a second or
-				;more, and now and then longer than is waited for below
+		(:t (defq said (mail-mbox) here (task-nodeid) node (. opts :find :node)
 				task (if node (open-remote "service/storage/app.lisp" node +kn_call_pin)
 					(open-child "service/storage/app.lisp" +kn_call_pin)))
 			(when (/= 0 (get-long task 0))
@@ -659,14 +684,21 @@
 					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
 				(defq wait (ifn (. opts :find :wait) 30) answer :nil)
+				;a task of this node can be asked if it is there, one of
+				;another only if its node is
 				(until (or (setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait))))
-					(nql wait :t) (not (mail-validate task))))
+					(nql wait :t)
+					(if (eql (task-nodeid task) here) (not (mail-validate task))
+						(not (find (task-nodeid task) (lisp-nodes))))))
+				;the task's mailbox is the service's. Its name, from another
+				;node, is known here a moment after, a second or more: it is
+				;waited for, a start that asks again by the name finds this
+				;one, but not for ever, the service is up all the same
 				(when (eql answer "ok")
-					;on another node, its name is known here a moment after
 					(defq t0 (pii-time))
-					(until (or (defq svc (storage-service name)) (> (- (pii-time) t0) (task-timeout 5)))
+					(until (or (storage-service name) (> (- (pii-time) t0) (task-timeout 10)))
 						(task-sleep 10000))
-					svc)))))
+					task)))))
 
 (defun storage-stop (&optional svc)
 	; (storage-stop [svc]) -> :nil | :t
