@@ -48,10 +48,14 @@
 			((= id +event_layout)
 				;resized GUI
 				(refresh-wallpaper))
-			((= (getf msg +ev_msg_type) +ev_type_mouse)
-				;mouse event
+			;the mouse, or a finger or pen: the backdrop is in no window, which
+			;would make a pointer the mouse of a view that takes none, so here
+			;a pointer down and up is a click as the mouse's is
+			((defq buttons (cond
+					((= (getf msg +ev_msg_type) +ev_type_mouse) (getf msg +ev_msg_mouse_buttons))
+					((= (getf msg +ev_msg_type) +ev_type_pointer) (getf msg +ev_msg_pointer_buttons))))
 				(cond
-					((/= (getf msg +ev_msg_mouse_buttons) 0)
+					((/= buttons 0)
 						;mouse button is down
 						(case mouse_state
 							(:d ;was down last time
