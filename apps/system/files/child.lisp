@@ -28,7 +28,10 @@
 ;our UI widgets and events
 (import "./widgets.inc")
 
-(defq +places_file (cat (get :home *env*) "places.tre") +places_recent 50 +places_version 1)
+(defq +places_file (cat (get :home *env*) "places.tre") +places_recent 50 +places_version 1
+	;how many things a filter looks at in a folder before it gives up and
+	;shows the folder anyway
+	+filter_most 20000)
 
 (defun say (text)
 	(def *note* :text text)
@@ -64,6 +67,27 @@
 		((eql folder "/") "/")
 		((cat folder "/"))))
 
+(defun wanted? (name engine meta)
+	;a file of the kinds, that the filter finds if there is one
+	(and (or (empty? *exts*) (some (# (ends-with %0 name)) *exts*))
+		(or (not meta) (. engine :match? name meta))))
+
+(defun folder-has? (folder engine meta)
+	;anything wanted in a folder, or a folder in it, and so on down: the
+	;first found ends the look. Not hidden folders, nor what is built, and
+	;a folder too big to look all through, past so many, is said to have
+	(defq stack (list folder) seen 0 found :nil)
+	(while (and (not found) (defq at (pop stack)))
+		(each! (lambda (name type)
+				(cond
+					(found)
+					((starts-with "." name))
+					((> (++ seen) +filter_most) (setq found :t))
+					((eql type "4") (unless (eql name "obj") (push stack (path-in at name))))
+					((wanted? name engine meta) (setq found :t))))
+			(unzip (split (ifn (pii-dirlist at) "") ",") 2)))
+	found)
+
 (defun go-to (folder)
 	;the drawer open at a folder: its folders, then its files of the kinds,
 	;of those the filter finds
@@ -74,10 +98,10 @@
 	(each! (lambda (name type)
 			(unless (starts-with "." name)
 				(cond
-					((eql type "4") (push folders (cat name "/")))
-					((and (or (empty? *exts*) (some (# (ends-with %0 name)) *exts*))
-							(or (not meta) (. engine :match? name meta)))
-						(push files name)))))
+					;with a filter, a folder only if there is something in it it finds
+					((eql type "4") (if (or (not meta) (folder-has? (path-in folder name) engine meta))
+						(push folders (cat name "/"))))
+					((wanted? name engine meta) (push files name)))))
 		(unzip (split (ifn (pii-dirlist folder) "") ",") 2))
 	(setq *items* (cat (sort folders) (sort files)))
 	(each (# (. %0 :sub)) (. *list* :children))
