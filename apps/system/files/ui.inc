@@ -36,12 +36,12 @@
 	(and *save* (= (length *exts*) 1) (nempty? name) (not (ends-with (first *exts*) name))
 			(not (folder? (path-in *folder* name)))
 		(setq name (cat name (first *exts*))))
-	(defq path (if (starts-with "/" name) name (path-in *folder* name)))
+	(defq path (if (or (starts-with "/" name) (and *names* (name-in-store name))) name (path-in *folder* name)))
 	(cond
 		((eql name "") (say (if *save* "Write a name." "Take a file, or write its name.")))
 		((folder? path) (.-> *name* (:set_text "") :layout :dirty) (go-to (folder-of path)))
-		((not *save*) (if (/= (age path) 0) (answer path) (say (cat "No file " name " here."))))
-		((or (= (age path) 0) (eql path *replace*)) (answer path))
+		((not *save*) (if (name-size path) (answer path) (say (cat "No file " name " here."))))
+		((or (not (name-size path)) (eql path *replace*)) (answer path))
 		(:t (setq *replace* path) (say (cat name " is here. OK again to replace it.")))))
 
 (defun action-item (n)

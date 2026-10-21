@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;
 
 (import "lib/files/files.inc")
+(import "lib/files/names.inc")
 
 ;the ways a file can be shown small, each (test make). A previewer,
 ;apps/system/files/previewers/, says what it is for as it is read,
@@ -45,15 +46,15 @@
 	;if given, as a preview or a picture in a chat shows it
 	;loaded with its pixels kept, not sent on to be drawn yet, so that a
 	;smaller one can be made from them: what is sent on is the one shown
-	(and (canvas-loader-of path) (defq canvas (canvas-load path +load_flag_noswap))
+	(and (canvas-loader-of path) (defq canvas (canvas-load path +load_flag_noswap :nil (name-whole-stream path)))
 		(. (canvas-fit canvas most_w most_h) :swap 0)))
 
 (defun file-lines (path &optional n)
 	; (file-lines path [n]) -> :nil | (line ...)
 	;the lines of a file of text, the first n if given, read so far only;
 	;:nil if there is no such file, or it is not text, a 0 byte in it
-	(when (defq stream (file-stream path))
-		(defq text (ifn (if n (read-blk stream 16384) (load path)) ""))
+	(when (defq stream (if n (name-stream path) (name-whole-stream path)))
+		(defq text (ifn (read-blk stream (if n 16384 (ifn (name-size path) 0))) ""))
 		(unless (find (ascii-char 0) text)
 			(defq lines (split text (ascii-char 10)))
 			(if (and n (> (length lines) n)) (slice lines 0 n) lines))))

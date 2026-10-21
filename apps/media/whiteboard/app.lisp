@@ -5,6 +5,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "apps/system/files/picker.inc")
+(import "lib/files/names.inc")
 (import "./widgets.inc")
 (import "lib/cwb/stripes.inc")
 (import "lib/cwb/palette.inc")
@@ -1265,12 +1266,16 @@
 	;what was drawn is the paper now, and is seen in the middle of what shows
 	(view-home)
 	(view-to-doc)
-	(cwb-save (. *board* :get_doc) (file-stream *file* +file_open_write))
+	;a file, or an object of the store, lib/files/names.inc, which is set
+	;to what was written as its stream is flushed
+	(when (defq stream (name-stream *file* +file_open_write))
+		(cwb-save (. *board* :get_doc) stream)
+		(stream-flush stream))
 	(board-resized)
 	(view-changed))
 
 (defun board-load (file)
-	(when (and (ends-with ".cwb" file) (defq doc (cwb-load (file-stream file))))
+	(when (and (ends-with ".cwb" file) (defq stream (name-stream file)) (defq doc (cwb-load stream)))
 		(setq *file* file)
 		(. *board* :set_doc doc)
 		;the paper is the size of what is on it, whatever size the file said

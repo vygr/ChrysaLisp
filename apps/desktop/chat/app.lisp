@@ -505,7 +505,7 @@
 
 (defun action-attach ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(setq *picker_mbox* (file-pick (elem-get select +select_picker) "Send a file...")))
+	(setq *picker_mbox* (file-pick (elem-get select +select_picker) "Send a file..." :nil :nil :nil :nil :t)))
 
 (defun file-keep (name data)
 	; (file-keep name data) -> path
@@ -515,7 +515,10 @@
 
 (defun send-file (path)
 	;to the channel that is shown, as a message is sent
-	(and (> (length path) 0) (defq data (load path))
+	;a file, or an object of the store, lib/files/names.inc
+	(and (> (length path) 0) (defq data (if (name-in-store path)
+			(and (defq stream (name-whole-stream path)) (read-blk stream (ifn (name-size path) 0)))
+			(load path)))
 		(cond
 			((> (length data) +max_file)
 				(add-chat-message (cat "<System> " path " is more than " (str (/ +max_file 1048576)) "MB, not sent")))

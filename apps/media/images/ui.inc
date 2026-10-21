@@ -26,4 +26,4 @@
 	;from, the one open told to go first
 	(if *picker* (mail-send *picker* ""))
 	(setq *picker* (file-pick (elem-get select +select_picker) "Open image..." (ifn *file* ".")
-		(join +file_types " ") :nil "images")))
+		(join +file_types " ") :nil "images" :t)))

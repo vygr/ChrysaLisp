@@ -244,15 +244,17 @@
 			(defq stream (file-stream file +file_open_write))
 		(apply save (cat (list canvas stream type) optionals))))
 
-(defun canvas-load (file flags &optional swap_mode)
-	; (canvas-load file flags [swap_mode]) -> :nil | canvas
+(defun canvas-load (file flags &optional swap_mode stream)
+	; (canvas-load file flags [swap_mode stream]) -> :nil | canvas
+	;the picture of a file, its kind by its name, read from the stream if
+	;given, as for an object of a store, lib/files/names.inc
 	(defq this :nil)
 	(setd swap_mode +pixmap_mode_normal)
 	(when (bits? flags +load_flag_shared)
 		;check cache first
 		(when (defq this (. *pixmap_cache* :find file))
 			(defq this (Canvas-pixmap this))))
-	(when (and (not this) (defq stream (file-stream file)))
+	(when (and (not this) (setq stream (ifn stream (file-stream file))))
 		;load and maybe add to cache
 		(defq this (if (defq kind (canvas-loader-of file)) ((third kind) stream)))
 		(when this

@@ -3,6 +3,7 @@
 (import "lib/collections/tree.inc")
 (import "lib/text/searching.inc")
 (import "service/lock/app.inc")
+(import "lib/files/names.inc")
 (import "./picker.inc")
 (import "./preview.inc")
 
@@ -13,17 +14,18 @@
 ;save, a name may be written of one not there, in a folder not there yet,
 ;which the host makes as the file is written, and one that is there is
 ;replaced only when asked again. A folder of the tree is from its top,
-;one of the host from /.
+;one of the host from /, one of the store from store:, lib/files/names.inc.
 ;
 ;Down the side the places to go to: the tree, the user's folder, the
-;docs, and those of the app that asked, where it last took a file from,
+;docs, the store if there is one and the app takes its objects, and those of the app that asked, where it last took a file from,
 ;newest first, kept for each user and app in the user's places.tre.
 ;
-;It is mailed reply_mbox then title|root[|kinds[|mode[|app]]]: root a
+;It is mailed reply_mbox then title|root[|kinds[|mode[|app[|names]]]]: root a
 ;folder, or a file to start at, its name in the field, "." to start where
 ;the app last was; kinds the ends of names it lists, as ".cwb .md", * or
 ;none for all; mode open or save; app the name its places are kept by, -
-;or none for none kept. No field is left empty, (split) leaves it out. It answers
+;or none for none kept; names if the app takes objects of the store,
+;store:path, - or none if only files. No field is left empty, (split) leaves it out. It answers
 ;the once, the path taken or "" for none, to reply_mbox, and goes.
 ;apps/system/files/picker.inc.
 
@@ -40,33 +42,42 @@
 	(.-> *note* :layout :dirty))
 
 (defun folder? (path)
-	(and (defq info (pii-fstat path)) (= (logand (third info) 0xf000) 0x4000)))
+	(name-folder? path))
 
 (defun folder-of (path)
 	;a folder written as it is kept: of the tree from its top, no ./, of
-	;the host from /, and no / at the end
+	;the host from /, of the store from store:, and no / at the end
 	(while (starts-with "./" path) (setq path (slice path 2 -1)))
-	(while (and (> (length path) 1) (ends-with "/" path)) (setq path (slice path 0 -2)))
+	(while (and (> (length path) 1) (ends-with "/" path) (nql path +name_store)) (setq path (slice path 0 -2)))
 	(if (eql path "") "." path))
 
 (defun folder-above (folder)
-	;the folder a folder is in, the top of the tree or of the host no further
+	;the folder a folder is in, the top of the tree, of the host or of the
+	;store no further
 	(cond
-		((or (eql folder ".") (eql folder "/")) folder)
+		((find folder (list "." "/" +name_store)) folder)
 		((defq at (rfind "/" folder)) (if (= at 1) "/" (slice folder 0 (dec at))))
+		((name-in-store folder) +name_store)
 		(".")))
 
 (defun path-in (folder name)
 	(cond
 		((eql folder ".") name)
-		((eql folder "/") (cat "/" name))
+		((find folder (list "/" +name_store)) (cat folder name))
 		((cat folder "/" name))))
+
+(defun name-last (full)
+	;the name of a path without the folder it is in
+	(cond
+		((defq at (rfind "/" full)) (slice full at -1))
+		((defq name (name-in-store full)) name)
+		(full)))
 
 (defun folder-said (folder)
 	;a folder as the path field and a place say it
 	(cond
 		((eql folder ".") "./")
-		((eql folder "/") "/")
+		((find folder (list "/" +name_store)) folder)
 		((cat folder "/"))))
 
 (defun wanted? (name engine meta)
@@ -87,7 +98,7 @@
 					((> (++ *seen*) +filter_most) (setq found :t))
 					((eql type "4") (unless (eql name "obj") (push stack (path-in at name))))
 					((wanted? name engine meta) (setq found :t))))
-			(unzip (split (ifn (pii-dirlist at) "") ",") 2)))
+			(name-list at)))
 	found)
 
 (defun go-to (folder)
@@ -105,7 +116,7 @@
 					((eql type "4") (if (or (and (not meta) (empty? *exts*)) (folder-has? (path-in folder name) engine meta))
 						(push folders (cat name "/"))))
 					((wanted? name engine meta) (push files name)))))
-		(unzip (split (ifn (pii-dirlist folder) "") ",") 2))
+		(name-list folder))
 	(setq *items* (cat (sort folders) (sort files)))
 	(each (# (. %0 :sub)) (. *list* :children))
 	(each (lambda (name)
@@ -137,9 +148,12 @@
 	;what a file taken is, as it can be seen, by the previewers there are,
 	;./preview.inc, as a chat shows them; how long it is if none can
 	(each (# (. %0 :sub)) (. *preview* :children))
-	(when (and file (nempty? file) (/= (age file) 0) (not (folder? file)))
-		(unless (defq shown (file-preview file 212 212))
-			(def (setq shown (Label)) :text (cat (str (second (pii-fstat file))) " bytes")))
+	(when (and file (nempty? file) (defq size (name-size file)))
+		;a previewer that fails shows nothing, the picker goes on
+		(defq shown :nil)
+		(catch (setq shown (file-preview file 212 212)) (progn (prin _) (print) (setq shown :nil) :t))
+		(unless shown
+			(def (setq shown (Label)) :text (cat (str size) " bytes")))
 		(. *preview* :add_child shown))
 	(.-> *preview* (:constrain :t) :layout :dirty_all))
 
@@ -163,8 +177,7 @@
 	(when app
 		(defq tree (ifn (places-load) (scatter (Emap) :version +places_version))
 			key (sym (cat ":" app)) was (rest (ifn (. tree :find key) (list "")))
-			folder (folder-above (if (starts-with "/" path) path (cat "./" path)))
-			folder (folder-of folder))
+			folder (folder-of (folder-above (if (or (starts-with "/" path) (name-in-store path)) path (cat "./" path)))))
 		(defq was (filter (# (nql %0 folder)) was))
 		(. tree :insert key (cat (list path folder) (slice was 0 (min (length was) (dec +places_recent)))))
 		(with-write-lock +places_file
@@ -181,23 +194,27 @@
 		((cat name "/"))))
 
 (defun places-show ()
-	;the places down the side: the tree, the user's folder, the docs, then
-	;those of the app, a button each, in a scroll of their own
-	(defq home (folder-of (get :home *env*)))
-	(setq *place_list* (cat (list "." home "docs")
-		(filter! (# (and (nempty? %0) (not (find %0 (list "." home "docs"))))) *app_places* 1 -1)))
+	;the places down the side: the tree, the user's folder, the docs, the
+	;store if this machine has one and the app takes its objects, then
+	;those of the app, a button each,
+	;in a scroll of their own
+	(defq home (folder-of (get :home *env*))
+		fixed (cat (list "." home "docs") (if (and *names* (storage-service)) (list +name_store) (list)))
+		names (list "The tree" "Your folder" "docs/" "The store"))
+	(setq *place_list* (cat fixed
+		(filter! (# (and (nempty? %0) (not (find %0 fixed)))) *app_places* 1 -1)))
 	(if (> (length *place_list*) +places_max) (setq *place_list* (slice *place_list* 0 +places_max)))
+	(defq mine (slice *place_list* (length fixed) -1)
+		labels (cat (slice names 0 (length fixed)) (map (# (place-name %0 mine)) mine)))
 	(each (# (. %0 :sub)) (. *places* :children))
-	(each (lambda (folder)
+	(each (lambda (folder label)
 			(defq button (Button))
-			(def button :text (cond ((= (!) 0) "The tree") ((= (!) 1) "Your folder")
-					((place-name folder (slice *place_list* 3 -1))))
-				:tip_text (folder-said folder))
+			(def button :text label :tip_text (folder-said folder))
 			(view-variant button :font :font_button)
 			(view-variant button :border :border_button)
 			(. button :connect (+ +event_place (!)))
 			(. *places* :add_child button))
-		*place_list*)
+		*place_list* labels)
 	(.-> *places_scroll* :layout :dirty_all))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -233,8 +250,8 @@
 (defun main ()
 	;read parameters from parent
 	(defq msg (mail-read (task-mbox)) reply_mbox (slice msg 0 +net_id_size))
-	(bind '(title root &optional kinds mode app) (split (slice msg +net_id_size -1) "|"))
-	(defq *running* :t *save* (eql mode "save") *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
+	(bind '(title root &optional kinds mode app names) (split (slice msg +net_id_size -1) "|"))
+	(defq *running* :t *save* (eql mode "save") *names* (eql names "names") *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
 		*app* (and app (nempty? app) (nql app "-") app) *app_places* (places-of *app*)
 		*pattern* "" *place_list* (list)
 		*folder* "." *items* (list) *replace* :nil root (folder-of (ifn root ".")))
@@ -247,11 +264,9 @@
 	;a root that is a file starts at its folder, with its name taken
 	(cond
 		((folder? root) (go-to root))
-		((defq at (rfind "/" root))
-			(defq folder (folder-above root))
+		(:t (defq folder (folder-above root))
 			(go-to (if (folder? folder) folder "."))
-			(. *name* :set_text (slice root at -1)))
-		(:t (go-to ".") (. *name* :set_text root)))
+			(. *name* :set_text (name-last root))))
 	(preview-show (path-in *folder* (trim (. *name* :get_text))))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))

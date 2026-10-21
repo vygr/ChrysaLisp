@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "apps/system/files/picker.inc")
+(import "lib/files/names.inc")
 (import "lib/files/files.inc")
 
 ;our UI widgets
@@ -13,8 +14,9 @@
 (defq +file_types ''(".cpm" ".png" ".jpg" ".jpeg" ".tga" ".svg" ".cwb" ".flm") *canvas* :nil *file* :nil *picker* :nil)
 
 (defun win-refresh (file)
-	;the image is only ever shown, so its pixmap is freed once it is a texture
-	(when (defq new_canvas (canvas-load file +load_flag_free))
+	;the image is only ever shown, so its pixmap is freed once it is a texture.
+	;A file, or an object of the store, lib/files/names.inc
+	(when (defq new_canvas (canvas-load file +load_flag_free :nil (name-whole-stream file)))
 		(setq *canvas* new_canvas *file* file)
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)

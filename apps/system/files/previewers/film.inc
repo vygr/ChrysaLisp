@@ -4,7 +4,7 @@
 (file-previewer
 	(lambda (file) (some (# (ends-with (first %0) file)) *reel_kinds*))
 	(lambda (file most_w most_h)
-		(when (defq reel (reel-open file))
+		(when (defq reel (reel-open file (name-stream file)))
 			(defq scale (max 1 (min 4 (/ (ifn (. reel :find :width) most_w) most_w)))
 				view (Flow) rate (. reel :find :rate) frame :nil)
 			(when (defq codec (reel-codec reel scale))

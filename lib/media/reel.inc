@@ -33,10 +33,12 @@
 		(elem-set *reel_kinds* i kind)
 		(push *reel_kinds* kind)))
 
-(defun reel-open (file)
-	; (reel-open file) -> :nil | reel
+(defun reel-open (file &optional stream)
+	; (reel-open file [stream]) -> :nil | reel
+	;the reel of a file, its kind by its name, read from the stream if
+	;given, as for an object of a store, lib/files/names.inc
 	(and (defq kind (some (# (if (ends-with (first %0) file) %0)) *reel_kinds*))
-		(defq stream (file-stream file))
+		(setq stream (ifn stream (file-stream file)))
 		(defq reel ((second kind) stream))
 		(> (ifn (. reel :find :frames) 0) 0)
 		(progn (. reel :insert :kind kind) reel)))

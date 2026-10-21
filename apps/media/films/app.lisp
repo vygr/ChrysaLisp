@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "apps/system/files/picker.inc")
+(import "lib/files/names.inc")
 (import "lib/files/files.inc")
 (import "lib/collections/tree.inc")
 (import "service/lock/app.inc")
@@ -147,7 +148,8 @@
 		(defq kept (. *places* :find file))
 		(setq *sync* (if (and kept (> (length kept) 3)) (elem-get kept 3) 0)))
 	(cond
-		((not (setq reel (ifn reel (reel-open file)))) (played file :nil))
+		;a file, or an object of the store, lib/files/names.inc
+		((not (setq reel (ifn reel (reel-open file (name-stream file))))) (played file :nil))
 		((not (defq codec (reel-codec reel (ifn scale (fit-scale reel)))))
 			(played file :nil)
 			(say-what reel file))
@@ -183,10 +185,10 @@
 		((not (find (path-ext file) +file_types))
 			(played file :nil)
 			(say (cat file ": not a kind of film this plays")))
-		((not (file-stream file))
+		((not (name-size file))
 			(played file :nil)
 			(say (cat file ": not there")))
-		((not (reel-open file))
+		((not (reel-open file (name-stream file)))
 			(played file :nil)
 			(say (cat file ": not a film it can read")))
 		((win-refresh file))))
@@ -232,7 +234,7 @@
 	;the window the size the film has made it
 	;the film shown last, where it was left, else Raymarch's. Its reel read
 	;the once, a film of two hours takes a second
-	(bind '(x y w h) (apply view-locate (. (if (and *last* (defq reel (reel-open *last*)))
+	(bind '(x y w h) (apply view-locate (. (if (and *last* (defq reel (reel-open *last* (name-stream *last*))))
 		(win-refresh *last* :nil :nil reel)
 		(win-refresh (cat *app_root* "data/raymarch.flm"))) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -255,7 +257,7 @@
 				;the one open told to go first
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open film..." (ifn *file* ".")
-					(join +file_types " ") :nil "films")))
+					(join +file_types " ") :nil "films" :t)))
 			((= id +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
