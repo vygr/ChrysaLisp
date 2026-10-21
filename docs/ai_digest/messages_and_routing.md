@@ -1,5 +1,7 @@
 # ChrysaLisp Network & IPC Architecture
 
+The wire itself, every packet byte by byte, is [link_protocol.md](link_protocol.md).
+
 ChrysaLisp implements a location-transparent, message-passing microkernel
 architecture. Communication between tasks uses the same semantics whether the
 tasks are on the same core, different cores, or different physical machines.
@@ -42,8 +44,8 @@ protocol during initialization (in `sys/link/class.vp` `:link` task):
    `host_b` to signal its presence to the owner. It uses `chan_2` for
    transmission and `chan_1` for reception.
 
-5. Both nodes wait for both `host_a` and `host_b` to be non-zero before
-   starting the TX and RX tasks, ensuring a fully established link.
+5. Nothing more is waited for: neither waits for `host_b`. Who the other
+   end is comes in its first ping.
 
 ### Channel Protocol (`lk_chan`)
 
@@ -65,13 +67,14 @@ chunk is prefixed with a header (`lk_buf`) containing the `length` and a
 
 ### Transmission (`:out` task)
 
-The `:out` task (`sys/link/out.vp`) manages transmission:
+The `:out` task (in `sys/link/class.vp`) manages transmission:
 
 1. **Space Check:** It calculates the `free` space between its write head and
    the reader's tail. If insufficient, it yields.
 
-2. **Ping / Load Balancing:** If the local kernel's `task_count` has changed
-   since the last update, it writes a `ping` status block sharing the new load.
+2. **Ping / Load Balancing:** When the local kernel's `task_count` has changed,
+   and once a second as a heartbeat once the link is up, it writes a `ping`
+   record: its node id, system id, task count and host process id.
 
 3. **Queue Polling:** It queries `:sys_mail :ready` for messages destined for
    the peer.
@@ -92,7 +95,7 @@ The `:out` task (`sys/link/out.vp`) manages transmission:
 
 ### Reception (`:in` task)
 
-The `:in` task (`sys/link/in.vp`) handles incoming ring data:
+The `:in` task (in `sys/link/class.vp`) handles incoming ring data:
 
 1. **Poll:** It spins/yields, waiting for the head's `status` to change from
    `ready`.
@@ -101,8 +104,9 @@ The `:in` task (`sys/link/in.vp`) handles incoming ring data:
 
    * **`skip` (3):** Wraps the read pointer back to the start of the ring.
 
-   * **`ping` (1):** Updates the local `lk_node` struct with the peer's current
-     `task_count` (used for emergent load balancing).
+   * **`ping` (1):** Updates the local `lk_node` struct with the peer's node
+     id, system id, current `task_count` (used for emergent load balancing)
+     and host process id.
 
    * **`frag` (2):**
 
@@ -174,8 +178,9 @@ network.
 ### Node Mapping (`node_map`)
 
 The kernel maintains a `node_map` (`sys/statics/class.inc`), mapping a target
-`node_id` to a routing tuple: `[service_set, timestamp, session, hops,
-via_node_1, via_node_2...]`.
+`node_id` to a routing tuple, `sys/mail/class.inc`: `[service_set, time,
+cluster_session, system_session, system_id1, system_id2, hops, via_node_1,
+via_node_2...]`.
 
 * Multipath routing is supported by appending multiple `via_node`s to the tuple.
 
@@ -261,8 +266,9 @@ second, messages and parcels each `ping_period` (5 seconds).
 
 * Scans the `statics_sys_mail_outbound_list` (outgoing queue).
 
-* Any outbound message queued for longer than `ping_period * 2` is freed,
-  preventing undeliverable messages from causing memory leaks.
+* An outbound message queued for longer than `ping_period * 2`, 10 seconds,
+  whose dest node is no longer known, is freed, preventing undeliverable
+  messages from causing memory leaks. One for a node that is known is kept.
 
 ### 3. Parcel Purging (Reassembly Cleanup)
 

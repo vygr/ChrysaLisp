@@ -171,10 +171,10 @@ application that farms over the whole network, each time it is started.
 
 ## Not written down yet
 
-* The link protocol as a specification: the bytes of a link, the door, a
-  fragment, each kernel call, a ping. The two documents named above describe
-  them from the inside. What an implementer needs is the layout and the
-  rules, and a way to test against them.
+* The link protocol is written as a specification,
+  [link_protocol.md](link_protocol.md): the bytes of a link, the door, a
+  fragment, each kernel call, a ping. Not yet: a way to test another
+  implementation against it.
 
 * The version of the protocol, and what two nodes do that do not agree on it.
 
