@@ -5,608 +5,601 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 39
+	:next_id 40
 	:items
-	((:list 12)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 125 62 L 125 120]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 125 120 L 121 111 129 111 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[Enter: action-break takes the line]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				144.00000
-				108.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					6
-					:d
-					"[M 250 151 L 320 151]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					7
-					:d
-					"[M 320 151 L 311 155 311 147 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			8
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[makes]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				282.79980
-				159.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			9
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					10
-					:d
-					"[M 540 151 L 600 151]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					11
-					:d
-					"[M 600 151 L 591 155 591 147 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			12
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[(open-pipe)]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				556.65478
-				159.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			13
-			:items
-			((:list 1)
+			((:list 12)
 				((:list 5)
 					:group
 					:id
-					14
+					2
 					:items
-					((:list 4)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							14
+							:d
+							"[M 125 62 L 125 120]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							15
 							:d
-							"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 125 120 L 121 111 129 111 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
+							:stroke
+							0
 						)
-						((:list 17)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[Enter: action-break takes the line]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						131.00000
+						95.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							16
-							:kind
-							:text
-							:fill
-							4280296488
+							:d
+							"[M 250 151 L 320 151]"
 							:stroke
-							0
-							:text
-							"[*edit*, a Terminal-edit]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								66.80822
-								19.00000
-							)
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 15)
+						((:list 9)
 							:shape
 							:id
 							17
-							:kind
-							:text
+							:d
+							"[M 320 151 L 311 155 311 147 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[shows the Buffer: the whole session,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								36.62536
-								35.00000
-							)
 						)
-						((:list 15)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					5
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[makes]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						269.79980
+						146.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					6
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							18
-							:kind
-							:text
+							:d
+							"[M 540 151 L 600 151]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							19
+							:d
+							"[M 600 151 L 591 155 591 147 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[only the last line can be changed]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								48.58612
-								51.00000
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					7
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[(open-pipe)]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						543.65478
+						146.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					8
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							20
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									24
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									25
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*edit*, a Terminal-edit]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										66.80822
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[shows the Buffer: the whole session,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										36.62536
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[only the last line can be changed]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										48.58612
+										51.00000
+									)
+								)
 							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			19
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					20
+					9
 					:items
-					((:list 4)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							21
-							:d
-							"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									28
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									29
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the loop of app.lisp]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										75.41607
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[waits on *select*: the GUI,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										62.33544
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[and the pipe while there is one]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.94073
+										51.00000
+									)
+								)
+							)
 						)
-						((:list 17)
-							:shape
+					)
+					:pos
+					((:list 2)
+						0.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							22
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the loop of app.lisp]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								75.41607
-								19.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									32
+									:d
+									"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*pipe*, a Pipe]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										75.52899
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[(Pipe cmdline *select*)]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										55.82714
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its mailbox is put in *select*]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										44.03826
+										51.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						320.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							23
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[waits on *select*: the GUI,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								62.33544
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[and the pipe while there is one]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.94073
-								51.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									36
+									:d
+									"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 56 A 6 6 0 0 1 164 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the command]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										48.99420
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a task of its own,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										44.42474
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[cmd/ls.lisp say]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										50.36181
+										51.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						600.00000
+						120.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				133.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			25
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					26
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							27
-							:d
-							"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							28
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[*pipe*, a Pipe]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								75.52899
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[(Pipe cmdline *select*)]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								55.82714
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[its mailbox is put in *select*]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								44.03826
-								51.00000
-							)
-						)
+					12
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[stdout and stderr come back as mail. (. *pipe* :read) gives text, which action-insert puts on the end of the Buffer,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						206.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				333.00000
-				133.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			31
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					32
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							33
-							:d
-							"[M 6 0 L 164 0 A 6 6 0 0 1 170 6 L 170 56 A 6 6 0 0 1 164 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the command]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								48.99420
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a task of its own,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								44.42474
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							36
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[cmd/ls.lisp say]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								50.36181
-								51.00000
-							)
-						)
+					13
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[or :nil when the command has ended: the Pipe is closed, *pipe* is :nil again, and a new prompt is printed.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						222.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
-				613.00000
-				133.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			37
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[stdout and stderr come back as mail. (. *pipe* :read) gives text, which action-insert puts on the end of the Buffer,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				219.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			38
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[or :nil when the command has ended: the Pipe is closed, *pipe* is :nil again, and a new prompt is printed.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				235.00000
 			)
 		)
 	)

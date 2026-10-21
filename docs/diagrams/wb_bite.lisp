@@ -23,8 +23,8 @@
 		(map (lambda ((way r)) (cwb-shape (join (map (# (cwb-d-points %0 :t))
 			(poly-sweep (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) way)) " ") :stroke 0xffc03030 :width 1.0)) ways)))
 	right (cwb-group (cwb-items after) :m (Mat3x2-translate 395 0)))
-(cwb-add doc left)
-(cwb-add doc right)
-(cwb-add doc (cwb-text {three strokes of an eraser, in red, where they will go} 20 310 :font_size 12))
-(cwb-add doc (cwb-text {and after them: (. board :bite points radius)} 415 310 :font_size 12))
+;one picture, one group, as every diagram is, lib/cwb/diagram.inc
+(cwb-add doc (cwb-group (list left right
+	(cwb-text {three strokes of an eraser, in red, where they will go} 20 310 :font_size 12)
+	(cwb-text {and after them: (. board :bite points radius)} 415 310 :font_size 12))))
 (diagram "wb_bite" doc)

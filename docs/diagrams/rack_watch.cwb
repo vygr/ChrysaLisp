@@ -5,642 +5,630 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 43
+	:next_id 44
 	:items
-	((:list 15)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 105 90 L 105 44]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 105 44 L 109 53 101 53 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[LINE ... as they come]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				124.00000
-				84.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					6
-					:d
-					"[M 210 112 L 330 112]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					7
-					:d
-					"[M 330 112 L 321 116 321 108 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			8
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[starts]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				268.61352
-				120.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			9
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					10
-					:d
-					"[M 105 134 L 115 180]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					11
-					:d
-					"[M 115 180 L 109.17955 172.05511 116.99693 170.35577 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			12
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[writes]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				129.00000
-				174.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			13
-			:items
-			((:list 1)
-				((:list 13)
-					:shape
-					:id
-					14
-					:d
-					"[M 330 202 L 230 202]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			15
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[reads]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				279.94622
-				210.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			16
-			:items
-			((:list 1)
+			((:list 15)
 				((:list 5)
 					:group
 					:id
-					17
+					2
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							17
+							:d
+							"[M 105 90 L 105 44]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							18
 							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 105 44 L 109 53 101 53 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
 							:stroke
 							0
-							:text
-							"[rack -v, where it was asked]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								41.83660
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							20
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[prints the lines as they come]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.08520
-								34.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			21
-			:items
-			((:list 1)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[LINE ... as they come]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						111.00000
+						71.00000
+					)
+				)
 				((:list 5)
 					:group
 					:id
-					22
+					4
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							19
+							:d
+							"[M 210 112 L 330 112]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							20
+							:d
+							"[M 330 112 L 321 116 321 108 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					5
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[starts]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						255.61352
+						107.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					6
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							21
+							:d
+							"[M 105 134 L 115 180]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							22
+							:d
+							"[M 115 180 L 109.17955 172.05511 116.99693 170.35577 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					7
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[writes]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						116.00000
+						161.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					8
+					:items
+					((:list 1)
+						((:list 13)
 							:shape
 							:id
 							23
 							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
+							"[M 330 202 L 230 202]"
 							:stroke
 							4282140240
 							:width
-							1.19999
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 15)
-							:shape
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					9
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[reads]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						266.94622
+						197.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					10
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[rack-fresh, on that machine]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								39.97888
-								18.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									29
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[rack -v, where it was asked]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										41.83660
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[prints the lines as they come]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.08520
+										34.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							25
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[waits for the session]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								55.37243
-								34.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									32
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[rack-fresh, on that machine]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										39.97888
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[waits for the session]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										55.37243
+										34.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						0.00000
+						90.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				103.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			26
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					27
+					12
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							26
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									35
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the session, a process of its own]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										47.62670
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[runs the commands, writes as it goes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										36.08020
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						330.00000
+						90.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							27
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									38
+									:d
+									"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 38 A 6 6 0 0 1 224 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the time, each second]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										63.01586
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									40
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[/tmp/chrysalisp_rack_alive_<run>]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										35.74279
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						180.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					14
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							28
-							:d
-							"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the session, a process of its own]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								47.62670
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[runs the commands, writes as it goes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								36.08020
-								34.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									41
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its watch: the time 15s old,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										62.88262
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the session, its nodes and files, gone]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.08966
+										34.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						330.00000
+						180.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				343.00000
-				103.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			31
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					32
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							33
-							:d
-							"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 38 A 6 6 0 0 1 224 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the time, each second]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								63.01586
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[/tmp/chrysalisp_rack_alive_<run>]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								35.74279
-								34.00000
-							)
-						)
+					15
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[rack-fresh stops writing when the asker's node has left the mesh, or it is stopped itself, so a session no one waits for]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						246.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				193.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			36
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					37
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							38
-							:d
-							"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 38 A 6 6 0 0 1 244 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294432727
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[its watch: the time 15s old,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								62.88262
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the session, its nodes and files, gone]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.08966
-								34.00000
-							)
-						)
+					16
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[stops itself, a hidden desktop too.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						262.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
-				343.00000
-				193.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			41
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[rack-fresh stops writing when the asker's node has left the mesh, or it is stopped itself, so a session no one waits for]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				259.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			42
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[stops itself, a hidden desktop too.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				275.00000
 			)
 		)
 	)

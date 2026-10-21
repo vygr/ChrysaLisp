@@ -5,617 +5,555 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 43
+	:next_id 44
 	:items
-	((:list 27)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 1)
-				((:list 11)
-					:shape
+			((:list 27)
+				((:list 5)
+					:group
 					:id
 					2
-					:d
-					"[M 40 10 L 230 60 90 190 Z]"
-					:fill
-					4292339447
-					:stroke
-					4282140240
-					:width
-					1.39999
+					:items
+					((:list 1)
+						((:list 11)
+							:shape
+							:id
+							29
+							:d
+							"[M 40 10 L 230 60 90 190 Z]"
+							:fill
+							4292339447
+							:stroke
+							4282140240
+							:width
+							1.39999
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			3
-			:items
-			((:list 1)
-				((:list 11)
-					:shape
+				((:list 5)
+					:group
+					:id
+					3
+					:items
+					((:list 1)
+						((:list 11)
+							:shape
+							:id
+							30
+							:d
+							"[M 150 0 L 280 150 20 120 Z]"
+							:fill
+							4294961320
+							:stroke
+							4282140240
+							:width
+							1.39999
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					4
-					:d
-					"[M 150 0 L 280 150 20 120 Z]"
-					:fill
-					4294961320
-					:stroke
-					4282140240
-					:width
-					1.39999
+					:items
+					((:list 1)
+						((:list 11)
+							:shape
+							:id
+							31
+							:d
+							"[M 117.16725 30.30715 L 60.23809 82.85714 72.22956 126.02647 149.31576 134.92105 149.31579 134.92105 214.4855 74.40632 214.48547 74.40632 193.72726 50.45454 Z]"
+							:fill
+							4290765748
+							:stroke
+							4282140240
+							:width
+							1.39999
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 1)
-				((:list 11)
-					:shape
+				((:list 5)
+					:group
+					:id
+					5
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							32
+							:d
+							"[M 0 0 L 300 0]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					6
-					:d
-					"[M 117.16725 30.30715 L 60.23809 82.85714 72.22956 126.02647 149.31576 134.92105 149.31579 134.92105 214.4855 74.40632 214.48547 74.40632 193.72726 50.45454 Z]"
-					:fill
-					4290765748
-					:stroke
-					4282140240
-					:width
-					1.39999
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							33
+							:d
+							"[M 0 10 L 300 10]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			7
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
+				((:list 5)
+					:group
+					:id
+					7
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							34
+							:d
+							"[M 0 30.30715 L 300 30.30715]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					8
-					:d
-					"[M 0 0 L 300 0]"
-					:stroke
-					4288324782
-					:width
-					0.79998
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							35
+							:d
+							"[M 0 50.45454 L 300 50.45454]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			9
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
+				((:list 5)
+					:group
+					:id
+					9
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							36
+							:d
+							"[M 0 60 L 300 60]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					10
-					:d
-					"[M 0 10 L 300 10]"
-					:stroke
-					4288324782
-					:width
-					0.79998
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							37
+							:d
+							"[M 0 74.40632 L 300 74.40632]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
+				((:list 5)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							38
+							:d
+							"[M 0 82.85714 L 300 82.85714]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					12
-					:d
-					"[M 0 30.30715 L 300 30.30715]"
-					:stroke
-					4288324782
-					:width
-					0.79998
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							39
+							:d
+							"[M 0 120 L 300 120]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			13
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
+				((:list 5)
+					:group
+					:id
+					13
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							40
+							:d
+							"[M 0 126.02647 L 300 126.02647]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					14
-					:d
-					"[M 0 50.45454 L 300 50.45454]"
-					:stroke
-					4288324782
-					:width
-					0.79998
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							41
+							:d
+							"[M 0 134.92105 L 300 134.92105]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			15
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
+				((:list 5)
+					:group
+					:id
+					15
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							42
+							:d
+							"[M 0 150 L 300 150]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
+				)
+				((:list 5)
+					:group
 					:id
 					16
-					:d
-					"[M 0 60 L 300 60]"
-					:stroke
-					4288324782
-					:width
-					0.79998
+					:items
+					((:list 1)
+						((:list 9)
+							:shape
+							:id
+							43
+							:d
+							"[M 0 190 L 300 190]"
+							:stroke
+							4288324782
+							:width
+							0.79998
+						)
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			17
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 17)
+					:shape
+					:id
+					17
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[a]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						70.00000
+						40.00000
+					)
+				)
+				((:list 17)
 					:shape
 					:id
 					18
-					:d
-					"[M 0 74.40632 L 300 74.40632]"
+					:kind
+					:text
+					:fill
+					4280296488
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[b]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						232.00000
+						136.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			19
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 15)
+					:shape
+					:id
+					19
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[11 bands. A line is at each y a point of a or b is at,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						30.00000
+					)
+				)
+				((:list 15)
 					:shape
 					:id
 					20
-					:d
-					"[M 0 82.85714 L 300 82.85714]"
+					:kind
+					:text
+					:fill
+					4284245616
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[and at each y two edges cross. So in a band no]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						46.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			21
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 15)
+					:shape
+					:id
+					21
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[edges cross, and each goes from its top to its bottom.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						62.00000
+					)
+				)
+				((:list 15)
 					:shape
 					:id
 					22
-					:d
-					"[M 0 120 L 300 120]"
+					:kind
+					:text
+					:fill
+					4284245616
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[In a band the edges are gone along from the left,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						94.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			23
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 15)
+					:shape
+					:id
+					23
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[counting how each of a and b is wound round. Where]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						110.00000
+					)
+				)
+				((:list 15)
 					:shape
 					:id
 					24
-					:d
-					"[M 0 126.02647 L 300 126.02647]"
+					:kind
+					:text
+					:fill
+					4284245616
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[what is asked for begins and where it ends, here in]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						126.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			25
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 15)
+					:shape
+					:id
+					25
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[both, are the two sides of a piece of the answer.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						142.00000
+					)
+				)
+				((:list 15)
 					:shape
 					:id
 					26
-					:d
-					"[M 0 134.92105 L 300 134.92105]"
+					:kind
+					:text
+					:fill
+					4284245616
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[The sides of the pieces, and the lines across where a]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						174.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			27
-			:items
-			((:list 1)
-				((:list 9)
+				((:list 15)
+					:shape
+					:id
+					27
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[band has a piece and the next has none, join up]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						190.00000
+					)
+				)
+				((:list 15)
 					:shape
 					:id
 					28
-					:d
-					"[M 0 150 L 300 150]"
+					:kind
+					:text
+					:fill
+					4284245616
 					:stroke
-					4288324782
-					:width
-					0.79998
+					0
+					:text
+					"[into rings: the answer, green.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						320.00000
+						206.00000
+					)
 				)
 			)
 			:pos
 			((:list 2)
 				13.00000
 				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			29
-			:items
-			((:list 1)
-				((:list 9)
-					:shape
-					:id
-					30
-					:d
-					"[M 0 190 L 300 190]"
-					:stroke
-					4288324782
-					:width
-					0.79998
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			31
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[a]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				83.00000
-				53.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			32
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[b]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				245.00000
-				149.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			33
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[11 bands. A line is at each y a point of a or b is at,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				43.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			34
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[and at each y two edges cross. So in a band no]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				59.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			35
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[edges cross, and each goes from its top to its bottom.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				75.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			36
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[In a band the edges are gone along from the left,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				107.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			37
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[counting how each of a and b is wound round. Where]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				123.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			38
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[what is asked for begins and where it ends, here in]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				139.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			39
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[both, are the two sides of a piece of the answer.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				155.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			40
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[The sides of the pieces, and the lines across where a]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				187.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			41
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[band has a piece and the next has none, join up]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				203.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			42
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[into rings: the answer, green.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				333.00000
-				219.00000
 			)
 		)
 	)

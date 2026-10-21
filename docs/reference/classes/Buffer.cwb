@@ -5,2310 +5,2305 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 123
+	:next_id 124
 	:items
-	((:list 3)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 1)
+			((:list 3)
 				((:list 5)
 					:group
 					:id
 					2
 					:items
-					((:list 113)
-						((:list 11)
-							:shape
-							:id
-							3
-							:d
-							"[M 8 0 L 422.96777 0 A 8 8 0 0 1 430.96777 8 L 430.96777 769 A 8 8 0 0 1 422.96777 777 L 8 777 A 8 8 0 0 1 0 769 L 0 8 A 8 8 0 0 1 8 0 Z]"
-							:fill
-							4294967295
-							:stroke
-							4282140240
-							:width
-							1.39999
-						)
-						((:list 11)
-							:shape
-							:id
-							4
-							:d
-							"[M 0 50 L 0 8 Q 0 0 8 0 L 422.96777 0 Q 430.96777 0 430.96777 8 L 430.96777 50 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.39999
-						)
-						((:list 17)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							5
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							Buffer
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							18
-							:pos
-							((:list 2)
-								12.00000
-								24.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							6
-							:kind
-							:text
-							:fill
-							4284245616
-							:stroke
-							0
-							:text
-							"[(Buffer [flags syntax]) -> buffer]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								12.00000
-								40.00000
-							)
-						)
-						((:list 13)
-							:shape
-							:id
-							7
-							:d
-							"[M 0 50 L 430.96777 50]"
-							:stroke
-							4282140240
-							:width
-							1.00000
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-						((:list 17)
-							:shape
-							:id
-							8
-							:kind
-							:text
-							:fill
-							4284245616
-							:stroke
-							0
-							:text
-							"[properties it gives itself]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								12.00000
-								66.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							9
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_brackets]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								85.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							10
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_buckets]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								102.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							11
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_found]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								119.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							12
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_lines]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								136.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							13
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_states]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								153.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							14
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:buffer_syntax]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								170.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							15
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:cursors]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								187.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							16
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:dirty_flags]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								204.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							17
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:flags]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								221.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							18
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:focus]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								238.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:last_find]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								85.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							20
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:last_key]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								102.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							21
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:mark]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								119.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							22
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:max_width]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								136.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							23
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:modified]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								153.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:redo_stack]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								170.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							25
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:syntax_engine]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								187.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							26
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:tab_width]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								204.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							27
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:undo_stack]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								221.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							28
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:wrap_width]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								118.00732
-								238.00000
-							)
-						)
-						((:list 13)
-							:shape
-							:id
-							29
-							:d
-							"[M 0 252 L 430.96777 252]"
-							:stroke
-							4282140240
-							:width
-							1.00000
-							:cap1
-							:butt
-							:cap2
-							:butt
-						)
-						((:list 17)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4284245616
-							:stroke
-							0
-							:text
-							"[methods]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								12.00000
-								268.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							31
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:add_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								287.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							32
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:add_found_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								304.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							33
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:backspace
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								321.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:bottom
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								338.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:bottom_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								355.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							36
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:clear_undo
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								372.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							37
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:clip_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								389.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							38
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:copy
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								406.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:copy_parts
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								423.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:cut
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								440.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							41
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:delete
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								457.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							42
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:down
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								474.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							43
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:down_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								491.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							44
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:end
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								508.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							45
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:end_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								525.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							46
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:eof
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								542.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							47
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:filter_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								559.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							48
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								576.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							49
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find_add_next
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								593.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							50
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find_left_bracket
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								610.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							51
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find_next
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								627.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							52
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find_prev
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								644.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							53
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:find_right_bracket
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								661.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							54
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:floor_selection
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								678.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							55
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:forwardwind
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								695.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							56
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_buffer_found
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								712.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							57
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_buffer_lines
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								729.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							58
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								746.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							59
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								763.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							60
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_cursors_extent
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								287.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							61
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_cursors_sorted
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								304.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							62
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_focus
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								321.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							63
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_last_find
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								338.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							64
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_mark
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								355.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							65
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_modified
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								372.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							66
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_primary_text
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								389.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							67
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_size
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								406.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							68
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_syntax_engine
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								423.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							69
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_tab_width
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								440.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							70
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_text_line
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								457.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							71
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:get_wrap_width
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								474.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							72
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:home
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								491.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							73
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:home_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								508.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							74
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:icopy
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								525.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							75
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:idelete
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								542.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							76
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:iinsert
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								559.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							77
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:insert
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								576.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							78
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								593.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							79
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left_bracket
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								610.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							80
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left_bracket_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								627.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							81
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								644.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							82
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left_white_space
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								661.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							83
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:left_white_space_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								678.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							84
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:merge_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								695.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							85
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:next_found_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								712.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							86
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:next_mark
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								729.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							87
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:paste
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								746.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							88
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:paste_parts
-							:font_size
-							12
-							:pos
-							((:list 2)
-								136.44531
-								763.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							89
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:prev_found_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								287.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							90
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:primary_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								304.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							91
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:push_undo
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								321.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							92
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:redo
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								338.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							93
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:rewind
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								355.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							94
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								372.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							95
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right_bracket
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								389.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							96
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right_bracket_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								406.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							97
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								423.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							98
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right_white_space
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								440.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							99
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:right_white_space_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								457.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							100
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_cursor
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								474.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							101
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								491.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							102
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_focus
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								508.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							103
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_found_cursors
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								525.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							104
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_tab_width
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								542.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							105
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:set_wrap_width
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								559.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							106
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:sof
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								576.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							107
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:stream_load
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								593.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							108
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:stream_load_hex
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								610.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							109
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:stream_save
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								627.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							110
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:top
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								644.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							111
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:top_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								661.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							112
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:undo
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								678.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							113
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:up
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								695.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							114
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:up_select
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								712.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							115
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							:vdu_load
-							:font_size
-							12
-							:pos
-							((:list 2)
-								285.20410
-								729.00000
+							:items
+							((:list 113)
+								((:list 11)
+									:shape
+									:id
+									7
+									:d
+									"[M 8 0 L 422.96777 0 A 8 8 0 0 1 430.96777 8 L 430.96777 769 A 8 8 0 0 1 422.96777 777 L 8 777 A 8 8 0 0 1 0 769 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									:fill
+									4294967295
+									:stroke
+									4282140240
+									:width
+									1.39999
+								)
+								((:list 11)
+									:shape
+									:id
+									8
+									:d
+									"[M 0 50 L 0 8 Q 0 0 8 0 L 422.96777 0 Q 430.96777 0 430.96777 8 L 430.96777 50 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.39999
+								)
+								((:list 17)
+									:shape
+									:id
+									9
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									Buffer
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									18
+									:pos
+									((:list 2)
+										12.00000
+										24.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									10
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[(Buffer [flags syntax]) -> buffer]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										12.00000
+										40.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									11
+									:d
+									"[M 0 50 L 430.96777 50]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									12
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[properties it gives itself]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										12.00000
+										66.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									13
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_brackets]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										85.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									14
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_buckets]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										102.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									15
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_found]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										119.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									16
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_lines]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										136.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									17
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_states]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										153.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									18
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:buffer_syntax]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										170.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									19
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:cursors]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										187.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:dirty_flags]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										204.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									21
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:flags]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										221.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:focus]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										238.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:last_find]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										85.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:last_key]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										102.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:mark]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										119.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:max_width]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										136.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:modified]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										153.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									28
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:redo_stack]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										170.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:syntax_engine]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										187.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:tab_width]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										204.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:undo_stack]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										221.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:wrap_width]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										118.00732
+										238.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									33
+									:d
+									"[M 0 252 L 430.96777 252]"
+									:stroke
+									4282140240
+									:width
+									1.00000
+									:cap1
+									:butt
+									:cap2
+									:butt
+								)
+								((:list 17)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4284245616
+									:stroke
+									0
+									:text
+									"[methods]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										12.00000
+										268.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:add_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										287.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:add_found_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										304.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:backspace
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										321.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:bottom
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										338.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:bottom_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										355.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									40
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:clear_undo
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										372.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:clip_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										389.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:copy
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										406.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:copy_parts
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										423.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									44
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:cut
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										440.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									45
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:delete
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										457.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:down
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										474.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									47
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:down_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										491.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									48
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:end
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										508.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:end_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										525.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									50
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:eof
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										542.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:filter_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										559.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									52
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										576.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									53
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find_add_next
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										593.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find_left_bracket
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										610.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find_next
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										627.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									56
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find_prev
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										644.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:find_right_bracket
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										661.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									58
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:floor_selection
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										678.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									59
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:forwardwind
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										695.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									60
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_buffer_found
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										712.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									61
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_buffer_lines
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										729.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									62
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										746.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										763.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									64
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_cursors_extent
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										287.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									65
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_cursors_sorted
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										304.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									66
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_focus
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										321.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									67
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_last_find
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										338.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									68
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_mark
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										355.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									69
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_modified
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										372.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									70
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_primary_text
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										389.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									71
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_size
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										406.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									72
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_syntax_engine
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										423.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									73
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_tab_width
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										440.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									74
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_text_line
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										457.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									75
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:get_wrap_width
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										474.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									76
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:home
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										491.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									77
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:home_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										508.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									78
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:icopy
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										525.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									79
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:idelete
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										542.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									80
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:iinsert
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										559.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									81
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:insert
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										576.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									82
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										593.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									83
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left_bracket
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										610.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									84
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left_bracket_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										627.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									85
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										644.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									86
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left_white_space
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										661.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									87
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:left_white_space_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										678.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									88
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:merge_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										695.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									89
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:next_found_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										712.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									90
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:next_mark
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										729.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									91
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:paste
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										746.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									92
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:paste_parts
+									:font_size
+									12
+									:pos
+									((:list 2)
+										136.44531
+										763.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									93
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:prev_found_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										287.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									94
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:primary_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										304.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									95
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:push_undo
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										321.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									96
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:redo
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										338.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									97
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:rewind
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										355.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									98
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										372.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									99
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right_bracket
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										389.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									100
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right_bracket_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										406.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									101
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										423.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									102
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right_white_space
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										440.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									103
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:right_white_space_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										457.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									104
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_cursor
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										474.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									105
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										491.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									106
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_focus
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										508.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									107
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_found_cursors
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										525.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									108
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_tab_width
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										542.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									109
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:set_wrap_width
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										559.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									110
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:sof
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										576.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									111
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:stream_load
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										593.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									112
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:stream_load_hex
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										610.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									113
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:stream_save
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										627.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									114
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:top
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										644.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									115
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:top_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										661.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									116
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:undo
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										678.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									117
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:up
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										695.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									118
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:up_select
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										712.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									119
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:vdu_load
+									:font_size
+									12
+									:pos
+									((:list 2)
+										285.20410
+										729.00000
+									)
+								)
 							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			116
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[1 class comes of it]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				814.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			117
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 17)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[1 class comes of it]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						801.00000
+					)
+				)
+				((:list 7)
 					:group
 					:id
-					118
+					4
 					:items
 					((:list 1)
 						((:list 5)
 							:group
 							:id
-							119
+							6
 							:items
 							((:list 1)
 								((:list 5)
@@ -2316,38 +2311,46 @@
 									:id
 									120
 									:items
-									((:list 2)
-										((:list 11)
-											:shape
+									((:list 1)
+										((:list 5)
+											:group
 											:id
 											121
-											:d
-											"[M 6 0 L 68.46582 0 A 6 6 0 0 1 74.46582 6 L 74.46582 18 A 6 6 0 0 1 68.46582 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
-											:fill
-											4294112502
-											:stroke
-											4282140240
-											:width
-											1.19999
-										)
-										((:list 15)
-											:shape
-											:id
-											122
-											:kind
-											:text
-											:fill
-											4280296488
-											:stroke
-											0
-											:text
-											Document
-											:font_size
-											12
-											:pos
+											:items
 											((:list 2)
-												10.00000
-												16.00000
+												((:list 11)
+													:shape
+													:id
+													122
+													:d
+													"[M 6 0 L 68.46582 0 A 6 6 0 0 1 74.46582 6 L 74.46582 18 A 6 6 0 0 1 68.46582 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
+													:fill
+													4294112502
+													:stroke
+													4282140240
+													:width
+													1.19999
+												)
+												((:list 15)
+													:shape
+													:id
+													123
+													:kind
+													:text
+													:fill
+													4280296488
+													:stroke
+													0
+													:text
+													Document
+													:font_size
+													12
+													:pos
+													((:list 2)
+														10.00000
+														16.00000
+													)
+												)
 											)
 										)
 									)
@@ -2355,12 +2358,17 @@
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						0.00000
+						809.00000
+					)
 				)
 			)
 			:pos
 			((:list 2)
 				13.00000
-				822.00000
+				13.00000
 			)
 		)
 	)

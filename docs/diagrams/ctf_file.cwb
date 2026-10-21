@@ -5,564 +5,567 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 36
+	:next_id 37
 	:items
-	((:list 8)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
+			((:list 8)
+				((:list 5)
+					:group
 					:id
 					2
-					:d
-					"[M 340 103 L 430 133]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							10
+							:d
+							"[M 340 103 L 430 133]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							11
+							:d
+							"[M 430 133 L 420.19708 133.94866 422.72686 126.35931 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
 				)
-				((:list 9)
+				((:list 15)
 					:shape
 					:id
 					3
-					:d
-					"[M 430 133 L 420.19708 133.94866 422.72686 126.35931 Z]"
+					:kind
+					:text
 					:fill
-					4282140240
+					4284245616
 					:stroke
 					0
+					:text
+					"[an offset]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						363.39477
+						105.79826
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[an offset]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				376.39477
-				118.79826
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 1)
 				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							12
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									17
+									:d
+									"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									18
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header, 8 bytes]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										85.30291
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									19
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ascent, descent, xkern: shorts, 3.13]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										42.19250
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[2 bytes of 0]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										96.98101
+										51.00000
+									)
+								)
+							)
+						)
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					5
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							13
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									21
+									:d
+									"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 56 A 6 6 0 0 1 334 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									22
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a page, for a run of character codes]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										77.25531
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[end, start: ushorts]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										125.58239
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									24
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[an offset for each code: uints, from the start of the file]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										39.07354
+										51.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						72.00000
+					)
+				)
+				((:list 7)
 					:group
 					:id
 					6
 					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							7
-							:d
-							"[M 6 0 L 244 0 A 6 6 0 0 1 250 6 L 250 56 A 6 6 0 0 1 244 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							8
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[header, 8 bytes]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								85.30291
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							9
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[ascent, descent, xkern: shorts, 3.13]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								42.19250
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							10
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[2 bytes of 0]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								96.98101
-								51.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					12
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							13
-							:d
-							"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 56 A 6 6 0 0 1 334 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							14
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a page, for a run of character codes]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								77.25531
-								19.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									25
+									:d
+									"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 38 A 6 6 0 0 1 334 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									26
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[more pages ...]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										134.02575
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									27
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[then a uint of 0 to end them]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										103.99932
+										34.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						0.00000
+						144.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							15
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[end, start: ushorts]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								125.58239
-								35.00000
+							:items
+							((:list 7)
+								((:list 11)
+									:shape
+									:id
+									28
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 116 A 6 6 0 0 1 274 122 L 6 122 A 6 6 0 0 1 0 116 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									29
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a glyph, 12 bytes and its data]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										64.29107
+										25.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									30
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[char_code ushort, advance short 3.13]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.77075
+										41.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[plen uint, klen uint]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										97.70062
+										57.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[path elements, plen bytes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										78.63659
+										73.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[kerning pairs, klen of 4 bytes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										71.85760
+										89.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[0s to the next 4 bytes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										87.60565
+										105.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						430.00000
+						72.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					8
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							16
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[an offset for each code: uints, from the start of the file]"
-							:font_size
-							11
-							:pos
+							:items
 							((:list 2)
-								39.07354
-								51.00000
+								((:list 11)
+									:shape
+									:id
+									35
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 24 A 6 6 0 0 1 274 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									36
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[more glyphs ...]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										105.73712
+										19.00000
+									)
+								)
 							)
 						)
 					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				85.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			17
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					18
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							19
-							:d
-							"[M 6 0 L 334 0 A 6 6 0 0 1 340 6 L 340 38 A 6 6 0 0 1 334 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							20
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[more pages ...]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								134.02575
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							21
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[then a uint of 0 to end them]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								103.99932
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				157.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			22
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					23
-					:items
-					((:list 7)
-						((:list 11)
-							:shape
-							:id
-							24
-							:d
-							"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 116 A 6 6 0 0 1 274 122 L 6 122 A 6 6 0 0 1 0 116 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							25
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a glyph, 12 bytes and its data]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								64.29107
-								25.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							26
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[char_code ushort, advance short 3.13]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.77075
-								41.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							27
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[plen uint, klen uint]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								97.70062
-								57.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							28
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[path elements, plen bytes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								78.63659
-								73.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[kerning pairs, klen of 4 bytes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								71.85760
-								89.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[0s to the next 4 bytes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								87.60565
-								105.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				443.00000
-				85.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			31
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					32
-					:items
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							33
-							:d
-							"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 24 A 6 6 0 0 1 274 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[more glyphs ...]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								105.73712
-								19.00000
-							)
-						)
+						430.00000
+						204.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					9
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[A code is looked for in the pages by its start and end, its offset is taken, and that is where its glyph is.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						258.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
-				443.00000
-				217.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			35
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[A code is looked for in the pages by its start and end, its offset is taken, and that is where its glyph is.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				271.00000
+				13.00000
 			)
 		)
 	)

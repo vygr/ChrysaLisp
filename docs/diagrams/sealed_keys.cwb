@@ -5,1013 +5,996 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 70
+	:next_id 71
 	:items
-	((:list 21)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 3)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 210 52 L 470 52]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 470 52 L 461 56 461 48 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-				((:list 9)
-					:shape
-					:id
-					4
-					:d
-					"[M 210 52 L 219 48 219 56 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			5
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[56 bytes each way]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				308.69384
-				55.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			6
-			:items
-			((:list 3)
-				((:list 13)
-					:shape
-					:id
-					7
-					:d
-					"[M 210 122 L 470 122]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					8
-					:d
-					"[M 470 122 L 461 126 461 118 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-				((:list 9)
-					:shape
-					:id
-					9
-					:d
-					"[M 210 122 L 219 118 219 126 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			10
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[32 bytes each way, each checks the other's]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				250.33154
-				125.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					12
-					:d
-					"[M 210 192 L 230 262]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					13
-					:d
-					"[M 230 262 L 223.68145 254.44522 231.37359 252.24746 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			14
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					15
-					:d
-					"[M 470 192 L 460 262]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					16
-					:d
-					"[M 460 262 L 457.31298 252.52482 465.23254 253.65617 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			17
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					18
-					:d
-					"[M 230 262 L 210 325]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					19
-					:d
-					"[M 210 325 L 208.91065 315.21174 216.53553 317.63227 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			20
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					21
-					:d
-					"[M 460 262 L 470 325]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					22
-					:d
-					"[M 470 325 L 464.63871 316.73838 472.53971 315.48435 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				8.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			23
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[the end that dialled]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				13.00000
-				22.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			24
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[the end that listened]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				483.00000
-				22.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			25
-			:items
-			((:list 1)
+			((:list 21)
 				((:list 5)
 					:group
 					:id
-					26
+					2
 					:items
 					((:list 3)
-						((:list 11)
+						((:list 13)
+							:shape
+							:id
+							23
+							:d
+							"[M 210 52 L 470 52]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							24
+							:d
+							"[M 470 52 L 461 56 461 48 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+						((:list 9)
+							:shape
+							:id
+							25
+							:d
+							"[M 210 52 L 219 48 219 56 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[56 bytes each way]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						295.69384
+						47.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 3)
+						((:list 13)
+							:shape
+							:id
+							26
+							:d
+							"[M 210 122 L 470 122]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							27
 							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 470 122 L 461 126 461 118 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
+							:stroke
+							0
 						)
-						((:list 15)
+						((:list 9)
 							:shape
 							:id
 							28
-							:kind
-							:text
+							:d
+							"[M 210 122 L 219 118 219 126 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[CLDOOR2, a nonce, a new X25519]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								25.03582
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[share, and the seal byte: 1]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								44.83837
-								34.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				38.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			30
-			:items
-			((:list 1)
+				((:list 15)
+					:shape
+					:id
+					5
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[32 bytes each way, each checks the other's]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						237.33154
+						117.00000
+					)
+				)
 				((:list 5)
 					:group
 					:id
-					31
+					6
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							29
+							:d
+							"[M 210 192 L 230 262]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							30
+							:d
+							"[M 230 262 L 223.68145 254.44522 231.37359 252.24746 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					7
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							31
+							:d
+							"[M 470 192 L 460 262]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							32
 							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 460 262 L 457.31298 252.52482 465.23254 253.65617 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
+							:stroke
+							0
 						)
-						((:list 15)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					8
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							33
-							:kind
-							:text
-							:fill
-							4280296488
+							:d
+							"[M 230 262 L 210 325]"
 							:stroke
-							0
-							:text
-							"[CLDOOR2, a nonce, a new X25519]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								25.03582
-								18.00000
-							)
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 15)
+						((:list 9)
 							:shape
 							:id
 							34
-							:kind
-							:text
+							:d
+							"[M 210 325 L 208.91065 315.21174 216.53553 317.63227 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[share, and the seal byte: 0]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								43.65673
-								34.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				483.00000
-				38.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			35
-			:items
-			((:list 1)
 				((:list 5)
 					:group
 					:id
-					36
+					9
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
 							:shape
+							:id
+							35
+							:d
+							"[M 460 262 L 470 325]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							36
+							:d
+							"[M 470 325 L 464.63871 316.73838 472.53971 315.48435 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					10
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[the end that dialled]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						0.00000
+						14.00000
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					11
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[the end that listened]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						470.00000
+						14.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							37
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									46
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									47
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[CLDOOR2, a nonce, a new X25519]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										25.03582
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									48
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[share, and the seal byte: 1]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										44.83837
+										34.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						0.00000
+						30.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							38
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[HMAC under the mesh key of D,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								30.04101
-								18.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									49
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									50
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[CLDOOR2, a nonce, a new X25519]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										25.03582
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[share, and the seal byte: 0]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										43.65673
+										34.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						470.00000
+						30.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					14
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[both nonces, both shares, seal]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								33.64971
-								34.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									52
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									53
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[HMAC under the mesh key of D,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										30.04101
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[both nonces, both shares, seal]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										33.64971
+										34.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						0.00000
+						100.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				108.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			40
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					41
+					15
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							40
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									55
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									56
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[HMAC under the mesh key of L,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										30.40289
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[both nonces, both shares, seal]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										33.64971
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						470.00000
+						100.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							41
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									58
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									59
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[shared secret: its secret]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										48.15100
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									60
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[with their share, X25519]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										47.91131
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						170.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							42
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									61
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									62
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[shared secret: its secret]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										48.15100
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[with their share, X25519]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										47.91131
+										34.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						470.00000
+						170.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					18
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							43
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[HMAC under the mesh key of L,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								30.40289
-								18.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									64
+									:d
+									"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 38 A 6 6 0 0 1 224 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									65
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[HKDF, salted with the two nonces,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										33.96563
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									66
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[of the secret and the mesh key]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										41.19848
+										34.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						230.00000
+						240.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					19
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							44
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[both nonces, both shares, seal]"
-							:font_size
-							11
-							:pos
+							:items
 							((:list 2)
-								33.64971
-								34.00000
+								((:list 11)
+									:shape
+									:id
+									67
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 24 A 6 6 0 0 1 204 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									68
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a key, dialler to listener]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.10211
+										19.00000
+									)
+								)
 							)
 						)
 					)
-				)
-			)
-			:pos
-			((:list 2)
-				483.00000
-				108.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			45
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					46
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							47
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							48
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[shared secret: its secret]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								48.15100
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							49
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[with their share, X25519]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								47.91131
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				178.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			50
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					51
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							52
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 38 A 6 6 0 0 1 204 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							53
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[shared secret: its secret]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								48.15100
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							54
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[with their share, X25519]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								47.91131
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				483.00000
-				178.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			55
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					56
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							57
-							:d
-							"[M 6 0 L 224 0 A 6 6 0 0 1 230 6 L 230 38 A 6 6 0 0 1 224 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							58
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[HKDF, salted with the two nonces,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								33.96563
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							59
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[of the secret and the mesh key]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								41.19848
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				243.00000
-				248.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			60
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					61
-					:items
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							62
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 24 A 6 6 0 0 1 204 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294432727
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							63
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a key, dialler to listener]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.10211
-								19.00000
-							)
-						)
+						0.00000
+						310.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				318.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			64
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					65
+					20
 					:items
-					((:list 2)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
-							66
-							:d
-							"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 24 A 6 6 0 0 1 204 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294432727
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							67
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a key, listener to dialler]"
-							:font_size
-							11
-							:pos
+							45
+							:items
 							((:list 2)
-								52.10211
-								19.00000
+								((:list 11)
+									:shape
+									:id
+									69
+									:d
+									"[M 6 0 L 204 0 A 6 6 0 0 1 210 6 L 210 24 A 6 6 0 0 1 204 30 L 6 30 A 6 6 0 0 1 0 24 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									70
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a key, listener to dialler]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.10211
+										19.00000
+									)
+								)
 							)
 						)
+					)
+					:pos
+					((:list 2)
+						470.00000
+						310.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					21
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[The seal byte is the dialler's: 1 for a host outside the private addresses, or link -s. It is in the proof, so it can not be changed.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						360.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					22
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[The secrets are new each link and forgotten after: a mesh key found later does not open what went before.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						376.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
-				483.00000
-				318.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			68
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[The seal byte is the dialler's: 1 for a host outside the private addresses, or link -s. It is in the proof, so it can not be changed.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				368.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			69
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[The secrets are new each link and forgotten after: a mesh key found later does not open what went before.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				384.00000
+				8.00000
 			)
 		)
 	)

@@ -5,574 +5,582 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 38
+	:next_id 39
 	:items
-	((:list 11)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
+			((:list 11)
+				((:list 5)
+					:group
 					:id
 					2
-					:d
-					"[M 500 142 L 460 142]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							13
+							:d
+							"[M 500 142 L 460 142]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							14
+							:d
+							"[M 460 142 L 469 138 469 146 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
 				)
-				((:list 9)
+				((:list 17)
 					:shape
 					:id
 					3
-					:d
-					"[M 460 142 L 469 138 469 146 Z]"
+					:kind
+					:text
 					:fill
-					4282140240
+					4280296488
 					:stroke
 					0
+					:text
+					"[plain, on the LAN]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						0.00000
+						14.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							15
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									21
+									:d
+									"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 38 A 6 6 0 0 1 104 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									22
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[wire header]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										26.54125
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[8 bytes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.64263
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						30.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					5
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							16
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									24
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 38 A 6 6 0 0 1 254 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									25
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ping or fragment, and its data]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										58.84576
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[as the wire header says]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										73.60150
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						110.00000
+						30.00000
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					6
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[sealed, over the internet]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						0.00000
+						104.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							17
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									27
+									:d
+									"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									28
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[length]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										30.05560
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[8 bytes, clear]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										13.73284
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					8
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							18
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									30
+									:d
+									"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 38 A 6 6 0 0 1 274 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the same packet, wire header and all,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.16247
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[encrypted, ChaCha20]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										88.06152
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						90.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					9
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							19
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									33
+									:d
+									"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[tag]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.15350
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[16 bytes]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										25.71173
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						370.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							20
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									36
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[nonce: the count of records]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										34.68011
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[this way, from 0]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										62.30633
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						500.00000
+						120.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					11
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[Poly1305 over what is encrypted gives the tag, RFC 8439 with no aad, a key each way. A record that does not open,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						190.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					12
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[changed, sent again or out of its order, drops the link, and the mesh dials again.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						206.00000
+					)
 				)
 			)
 			:pos
 			((:list 2)
 				13.00000
 				8.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[plain, on the LAN]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				13.00000
-				22.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					6
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							7
-							:d
-							"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 38 A 6 6 0 0 1 104 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							8
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[wire header]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								26.54125
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							9
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[8 bytes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.64263
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				38.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			10
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					11
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							12
-							:d
-							"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 38 A 6 6 0 0 1 254 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							13
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[ping or fragment, and its data]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								58.84576
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							14
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[as the wire header says]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								73.60150
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				123.00000
-				38.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			15
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[sealed, over the internet]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				13.00000
-				112.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			16
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					17
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							18
-							:d
-							"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[length]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								30.05560
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							20
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[8 bytes, clear]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								13.73284
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				128.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			21
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					22
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							23
-							:d
-							"[M 6 0 L 274 0 A 6 6 0 0 1 280 6 L 280 38 A 6 6 0 0 1 274 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the same packet, wire header and all,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.16247
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							25
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[encrypted, ChaCha20]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								88.06152
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				103.00000
-				128.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			26
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					27
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							28
-							:d
-							"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294432727
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[tag]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.15350
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[16 bytes]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								25.71173
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				383.00000
-				128.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			31
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					32
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							33
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[nonce: the count of records]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								34.68011
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[this way, from 0]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								62.30633
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				513.00000
-				128.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			36
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[Poly1305 over what is encrypted gives the tag, RFC 8439 with no aad, a key each way. A record that does not open,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				198.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			37
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[changed, sent again or out of its order, drops the link, and the mesh dials again.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				214.00000
 			)
 		)
 	)

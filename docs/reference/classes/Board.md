@@ -384,6 +384,18 @@ the inks of the pens of the device's main and second buttons. Touch
 has one pen, both
 ```
 
+### :insert
+
+```code
+(. board :insert items x y [user]) -> :nil | ids
+
+the items of another document added, copies with ids of their own,
+the middle of them at x y, made by that user, the teacher's if not
+said, as one step that can be undone. They are selected, that
+user's, a loose group, and what that user had selected is put down
+first; what others hold is left. :nil if they draw nothing
+```
+
 ### :keep_shape?
 
 ```code

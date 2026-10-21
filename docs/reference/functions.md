@@ -1558,7 +1558,10 @@ they are its own
 ### canvas-load
 
 ```code
-(canvas-load file flags [swap_mode]) -> :nil | canvas
+(canvas-load file flags [swap_mode stream]) -> :nil | canvas
+
+the picture of a file, its kind by its name, read from the stream if
+given, as for an object of a store, lib/files/names.inc
 ```
 
 ### canvas-loader
@@ -2179,7 +2182,8 @@ the inverse of an item's matrix, kept with it
 ```code
 (cwb-item-in tree) -> item
 
-an item from what a file has of it. A key that is not known is left.
+an item from what a file has of it. A key that is not known is kept,
+in others, to be written back as it was.
 Each item is put in its place in the list that is to hold it, which
 is made first, with a place for each
 ```
@@ -2630,7 +2634,9 @@ below that the classes that come of it. chain and kids are names
 (dia-doc parts [pad]) -> doc
 
 a document of parts, each a group or a shape, as big as they are and
-pad round them, default 12. Nothing behind them, the page shows
+pad round them, default 12. Nothing behind them, the page shows. It is
+one picture, so its parts are one group, as a board inserting it or
+opening it has it, and taken apart by an ungroup
 ```
 
 ### dia-elbow
@@ -5959,6 +5965,64 @@ is the form broken however short, as it has more than the one of its
 last arguments
 ```
 
+### name-folder?
+
+```code
+(name-folder? name) -> :nil | :t
+
+a folder of the host, or of the store, one there is an object in
+```
+
+### name-in-store
+
+```code
+(name-in-store name) -> :nil | path
+
+the path in the store of a name of it, "" for its top
+```
+
+### name-list
+
+```code
+(name-list folder) -> ((name ...) (type ...))
+
+what is in a folder, as (pii-dirlist) says it, unzipped: each name, and
+its type, "4" a folder, "8" a file
+```
+
+### name-size
+
+```code
+(name-size name) -> :nil | bytes
+
+how long the thing named is, :nil if there is none, or it is a folder
+```
+
+### name-stream
+
+```code
+(name-stream name [mode]) -> :nil | stream
+
+the thing named as a stream, mode as (file-stream) has it
+```
+
+### name-there?
+
+```code
+(name-there? name) -> :nil | :t
+
+a file, an object, or a folder of either, of that name
+```
+
+### name-whole-stream
+
+```code
+(name-whole-stream name) -> :nil | stream
+
+the thing named as a stream any task of this node can read: a file's
+own, or all of an object, read now, as a string stream
+```
+
 ### neg?
 
 ```code
@@ -7450,7 +7514,10 @@ after it had gone
 ### reel-open
 
 ```code
-(reel-open file) -> :nil | reel
+(reel-open file [stream]) -> :nil | reel
+
+the reel of a file, its kind by its name, read from the stream if
+given, as for an object of a store, lib/files/names.inc
 ```
 
 ### reel-packet

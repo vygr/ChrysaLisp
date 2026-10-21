@@ -5,1162 +5,1125 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 82
+	:next_id 83
 	:items
-	((:list 25)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 130 95 L 190 97]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 190 97 L 180.87184 100.69795 181.13832 92.70246 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			4
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					5
-					:d
-					"[M 266 63 L 330 43]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					6
-					:d
-					"[M 330 43 L 322.60284 49.50224 320.21673 41.8665 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			7
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					8
-					:d
-					"[M 266 97 L 330 97]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					9
-					:d
-					"[M 330 97 L 321 101 321 93 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			10
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					11
-					:d
-					"[M 266 131 L 330 151]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					12
-					:d
-					"[M 330 151 L 320.21673 152.13349 322.60284 144.49775 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			13
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					14
-					:d
-					"[M 390 43 L 450 89]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					15
-					:d
-					"[M 450 89 L 440.42393 86.69851 445.29136 80.34976 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			16
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					17
-					:d
-					"[M 390 97 L 450 89]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					18
-					:d
-					"[M 450 89 L 441.60758 94.15431 440.55033 86.2245 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			19
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					20
-					:d
-					"[M 390 151 L 450 89]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					21
-					:d
-					"[M 450 89 L 446.61561 98.24905 440.86683 92.68569 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			22
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					23
-					:d
-					"[M 590 89 L 640 89]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					24
-					:d
-					"[M 640 89 L 631 93 631 85 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			25
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[whole]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				613.60546
-				97.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			26
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					27
-					:d
-					"[M 695 114 L 695 150]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					28
-					:d
-					"[M 695 150 L 691 141 699 141 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			29
-			:items
-			((:list 1)
+			((:list 25)
 				((:list 5)
 					:group
 					:id
-					30
+					2
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							27
+							:d
+							"[M 130 95 L 190 97]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							28
+							:d
+							"[M 190 97 L 180.87184 100.69795 181.13832 92.70246 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					3
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							29
+							:d
+							"[M 266 63 L 330 43]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							30
+							:d
+							"[M 330 43 L 322.60284 49.50224 320.21673 41.8665 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							31
 							:d
-							"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 44 A 6 6 0 0 1 124 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
+							"[M 266 97 L 330 97]"
 							:stroke
 							4282140240
 							:width
-							1.19999
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 17)
+						((:list 9)
 							:shape
 							:id
 							32
-							:kind
-							:text
+							:d
+							"[M 330 97 L 321 101 321 93 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[sending task]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								28.35546
-								21.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							33
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:sys_mail :send]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								26.82690
-								38.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				83.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			34
-			:items
-			((:list 1)
 				((:list 5)
 					:group
 					:id
-					35
+					5
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							33
+							:d
+							"[M 266 131 L 330 151]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							34
+							:d
+							"[M 330 151 L 320.21673 152.13349 322.60284 144.49775 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					6
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							35
+							:d
+							"[M 390 43 L 450 89]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							36
 							:d
-							"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 44 A 6 6 0 0 1 144 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 450 89 L 440.42393 86.69851 445.29136 80.34976 Z]"
 							:fill
-							4294961320
-							:stroke
 							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							37
-							:kind
-							:text
-							:fill
-							4280296488
 							:stroke
 							0
-							:text
-							"[message]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								51.78546
-								21.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							38
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[header + body, a String]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								20.49816
-								37.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			39
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[a big one is cut into packets]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				181.00000
-				43.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			40
-			:items
-			((:list 1)
 				((:list 5)
 					:group
 					:id
-					41
+					7
 					:items
 					((:list 2)
-						((:list 11)
+						((:list 13)
+							:shape
+							:id
+							37
+							:d
+							"[M 390 97 L 450 89]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							38
+							:d
+							"[M 450 89 L 441.60758 94.15431 440.55033 86.2245 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					8
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							39
+							:d
+							"[M 390 151 L 450 89]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							40
+							:d
+							"[M 450 89 L 446.61561 98.24905 440.86683 92.68569 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					9
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							41
+							:d
+							"[M 590 89 L 640 89]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							42
 							:d
-							"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 640 89 L 631 93 631 85 Z]"
 							:fill
-							4294961320
-							:stroke
 							4282140240
-							:width
-							1.19999
+							:stroke
+							0
 						)
-						((:list 15)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					10
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[whole]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						600.60546
+						84.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					11
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							43
-							:kind
-							:text
+							:d
+							"[M 695 114 L 695 150]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							44
+							:d
+							"[M 695 150 L 691 141 699 141 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[packet 1]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								19.34216
-								17.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				203.00000
-				63.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			44
-			:items
-			((:list 1)
+				((:list 7)
+					:group
+					:id
+					12
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							45
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									56
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 44 A 6 6 0 0 1 124 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sending task]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										28.35546
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									58
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_mail :send]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										26.82690
+										38.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						70.00000
+					)
+				)
 				((:list 5)
 					:group
 					:id
-					45
+					13
 					:items
-					((:list 2)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							46
-							:d
-							"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									59
+									:d
+									"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 44 A 6 6 0 0 1 144 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									60
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[message]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										51.78546
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									61
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[header + body, a String]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										20.49816
+										37.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					14
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[a big one is cut into packets]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						168.00000
+						30.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					15
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							47
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[packet 2]"
-							:font_size
-							11
-							:pos
+							:items
 							((:list 2)
-								18.17663
-								17.00000
+								((:list 11)
+									:shape
+									:id
+									62
+									:d
+									"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[packet 1]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										19.34216
+										17.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						190.00000
+						50.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				203.00000
-				97.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			48
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					49
+					16
 					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							48
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									64
+									:d
+									"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									65
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[packet 2]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.17663
+										17.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
+						190.00000
+						84.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							49
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									66
+									:d
+									"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									67
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[packet 3]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.18737
+										17.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						118.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					18
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							50
-							:d
-							"[M 6 0 L 70 0 A 6 6 0 0 1 76 6 L 76 20 A 6 6 0 0 1 70 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									68
+									:d
+									"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									69
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[node]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.15405
+										17.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						330.00000
+						30.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					19
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							51
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[packet 3]"
-							:font_size
-							11
-							:pos
+							:items
 							((:list 2)
-								18.18737
-								17.00000
+								((:list 11)
+									:shape
+									:id
+									70
+									:d
+									"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									71
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[node]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.15405
+										17.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						330.00000
+						84.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				203.00000
-				131.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			52
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					53
+					20
 					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							52
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									72
+									:d
+									"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									73
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[node]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.15405
+										17.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
+						330.00000
+						138.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					21
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[routes in parallel,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						312.00000
+						196.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					22
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[in no promised order]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						308.00000
+						212.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					23
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							53
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									74
+									:d
+									"[M 6 0 L 134 0 A 6 6 0 0 1 140 6 L 140 44 A 6 6 0 0 1 134 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									75
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[put together]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										36.17352
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									76
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[at the node it is for]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										25.19567
+										37.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						450.00000
+						64.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					24
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							54
-							:d
-							"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									77
+									:d
+									"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 44 A 6 6 0 0 1 104 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294967295
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									78
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[mailbox]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										32.57324
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									79
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[mailbox_id]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										27.73339
+										38.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						640.00000
+						64.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					25
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							55
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[node]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.15405
-								17.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									80
+									:d
+									"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 44 A 6 6 0 0 1 124 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									81
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[receiving task]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										23.87377
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									82
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:sys_mail :read]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										27.69482
+										38.00000
+									)
+								)
 							)
 						)
 					)
-				)
-			)
-			:pos
-			((:list 2)
-				343.00000
-				43.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			56
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					57
-					:items
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							58
-							:d
-							"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							59
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[node]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.15405
-								17.00000
-							)
-						)
+						630.00000
+						150.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				343.00000
-				97.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			60
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					61
-					:items
+					26
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[The receiver sees the whole message or nothing, never a part of one.]"
+					:font_size
+					12
+					:pos
 					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							62
-							:d
-							"[M 6 0 L 54 0 A 6 6 0 0 1 60 6 L 60 20 A 6 6 0 0 1 54 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							63
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[node]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.15405
-								17.00000
-							)
-						)
+						0.00000
+						250.00000
 					)
 				)
 			)
-			:pos
-			((:list 2)
-				343.00000
-				151.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			64
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[routes in parallel,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				325.00000
-				209.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			65
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[in no promised order]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				321.00000
-				225.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			66
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					67
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							68
-							:d
-							"[M 6 0 L 134 0 A 6 6 0 0 1 140 6 L 140 44 A 6 6 0 0 1 134 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							69
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[put together]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								36.17352
-								21.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							70
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[at the node it is for]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								25.19567
-								37.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				463.00000
-				77.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			71
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					72
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							73
-							:d
-							"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 44 A 6 6 0 0 1 104 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294967295
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							74
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[mailbox]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								32.57324
-								21.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							75
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[mailbox_id]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								27.73339
-								38.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				653.00000
-				77.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			76
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					77
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							78
-							:d
-							"[M 6 0 L 124 0 A 6 6 0 0 1 130 6 L 130 44 A 6 6 0 0 1 124 50 L 6 50 A 6 6 0 0 1 0 44 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							79
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[receiving task]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								23.87377
-								21.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							80
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:sys_mail :read]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								27.69482
-								38.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				643.00000
-				163.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			81
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[The receiver sees the whole message or nothing, never a part of one.]"
-			:font_size
-			12
 			:pos
 			((:list 2)
 				13.00000
-				263.00000
+				13.00000
 			)
 		)
 	)

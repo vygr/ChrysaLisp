@@ -5,483 +5,491 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 32
+	:next_id 33
 	:items
-	((:list 7)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 1)
+			((:list 7)
 				((:list 5)
 					:group
 					:id
 					2
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
-							3
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							4
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[store]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								246.11572
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							5
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[what it is: magic, the store's id, the member's, the block size, copies]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								100.74035
-								32.00000
+							9
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									15
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									16
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[store]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										246.11572
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									17
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[what it is: magic, the store's id, the member's, the block size, copies]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										100.74035
+										32.00000
+									)
+								)
 							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			6
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
+					:group
+					:id
+					3
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							10
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									18
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									19
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[members, retired]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										214.03350
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									20
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[who the members are, and were]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										182.42260
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						40.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					4
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							11
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									21
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									22
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[pins, pinned]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										229.25384
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									23
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[what this member holds all of, and what each does]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										139.50823
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						80.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					5
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							12
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									24
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									25
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[paths]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										245.24291
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									26
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the path map, a line an entry, written whole]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										156.89111
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						120.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					6
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							13
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									27
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									28
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[journal]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										241.24414
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									29
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the entries set since, a 64th of the volume, written where it is]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										113.86260
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						160.00000
+					)
+				)
+				((:list 7)
 					:group
 					:id
 					7
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							8
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							9
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[members, retired]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								214.03350
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							10
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[who the members are, and were]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								182.42260
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				53.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					12
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							13
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							14
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[pins, pinned]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								229.25384
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							15
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[what this member holds all of, and what each does]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								139.50823
-								32.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									30
+									:d
+									"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									31
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[blocks/xx/yyyy...]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										212.78405
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									32
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[each block, its name in hex, xx the first two of it]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										145.54870
+										32.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						0.00000
+						200.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				93.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			16
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					17
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							18
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[paths]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								245.24291
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							20
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the path map, a line an entry, written whole]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								156.89111
-								32.00000
-							)
-						)
+					8
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[A real exFAT volume: the Mac mounts it, lists these files, and checks it clean.]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						0.00000
+						266.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
 				13.00000
-				133.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			21
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					22
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							23
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[journal]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								241.24414
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							25
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the entries set since, a 64th of the volume, written where it is]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								113.86260
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
 				13.00000
-				173.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			26
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					27
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							28
-							:d
-							"[M 6 0 L 514 0 A 6 6 0 0 1 520 6 L 520 34 A 6 6 0 0 1 514 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[blocks/xx/yyyy...]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								212.78405
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[each block, its name in hex, xx the first two of it]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								145.54870
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				213.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			31
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[A real exFAT volume: the Mac mounts it, lists these files, and checks it clean.]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				13.00000
-				279.00000
 			)
 		)
 	)

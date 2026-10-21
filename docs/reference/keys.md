@@ -53,6 +53,15 @@
 (ascii-code "-") action-minimise
 ```
 
+## apps/media/films/actions.inc
+
+### *key_map_control*
+
+```code
+(ascii-code "=") action-maximise
+(ascii-code "-") action-minimise
+```
+
 ## apps/media/images/actions.inc
 
 ### *key_map_control*
@@ -135,8 +144,7 @@
 (ascii-code "3") action-show-3
 (ascii-code "4") action-show-4
 (ascii-code "r") action-reset
-(ascii-code "n") action-next
-(ascii-code "p") action-prev
+(ascii-code "o") action-open
 ```
 
 ### *key_map_control*

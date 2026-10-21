@@ -5,838 +5,826 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 55
+	:next_id 56
 	:items
-	((:list 14)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 380 31 L 330 31]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 330 31 L 339 27 339 35 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[RPC]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				358.70532
-				39.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					6
-					:d
-					"[M 220 62 L 95 110]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					7
-					:d
-					"[M 95 110 L 101.96789 103.03959 104.83569 110.50785 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			8
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					9
-					:d
-					"[M 220 62 L 330 110]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					10
-					:d
-					"[M 330 110 L 320.15145 110.06674 323.35092 102.73446 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					12
-					:d
-					"[M 330 172 L 330 212]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					13
-					:d
-					"[M 330 212 L 326 203 334 203 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			14
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					15
-					:d
-					"[M 330 274 L 330 314]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					16
-					:d
-					"[M 330 314 L 326 305 334 305 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			17
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[its :buffer]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				349.00000
-				311.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			18
-			:items
-			((:list 1)
+			((:list 14)
 				((:list 5)
 					:group
 					:id
-					19
+					2
 					:items
-					((:list 4)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							16
+							:d
+							"[M 380 31 L 330 31]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							17
+							:d
+							"[M 330 31 L 339 27 339 35 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[RPC]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						345.70532
+						26.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							18
+							:d
+							"[M 220 62 L 95 110]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							19
+							:d
+							"[M 95 110 L 101.96789 103.03959 104.83569 110.50785 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					5
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							20
 							:d
-							"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
+							"[M 220 62 L 330 110]"
 							:stroke
 							4282140240
 							:width
-							1.19999
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 17)
+						((:list 9)
 							:shape
 							:id
 							21
-							:kind
-							:text
+							:d
+							"[M 330 110 L 320.15145 110.06674 323.35092 102.73446 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[the @Edit service]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								64.36987
-								19.00000
-							)
 						)
-						((:list 15)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					6
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							22
-							:kind
-							:text
-							:fill
-							4280296488
+							:d
+							"[M 330 172 L 330 212]"
 							:stroke
-							0
-							:text
-							"[other apps ask it to open a file]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.33953
-								35.00000
-							)
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 15)
+						((:list 9)
 							:shape
 							:id
 							23
-							:kind
-							:text
+							:d
+							"[M 330 212 L 326 203 334 203 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[and go to a line]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								75.02880
-								51.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				393.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			24
-			:items
-			((:list 1)
 				((:list 5)
 					:group
 					:id
-					25
+					7
 					:items
-					((:list 4)
-						((:list 11)
+					((:list 2)
+						((:list 13)
 							:shape
+							:id
+							24
+							:d
+							"[M 330 274 L 330 314]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							25
+							:d
+							"[M 330 314 L 326 305 334 305 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					8
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[its :buffer]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						336.00000
+						298.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					9
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							26
-							:d
-							"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									32
+									:d
+									"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the @Edit service]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										64.36987
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									34
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[other apps ask it to open a file]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.33953
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									35
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[and go to a line]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										75.02880
+										51.00000
+									)
+								)
+							)
 						)
-						((:list 17)
-							:shape
+					)
+					:pos
+					((:list 2)
+						380.00000
+						0.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							27
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[app_impl.lisp]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								77.10070
-								19.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									36
+									:d
+									"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[app_impl.lisp]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										77.10070
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									38
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the controller: the event loop,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										40.04217
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[(dispatch-action)]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										70.68426
+										51.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						110.00000
+						0.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							28
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the controller: the event loop,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								40.04217
-								35.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									40
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 56 A 6 6 0 0 1 184 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									41
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[widgets.inc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										64.52911
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the view: the window,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										42.77081
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its toolbars and trees]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										44.32104
+										51.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						0.00000
+						110.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[(dispatch-action)]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								70.68426
-								51.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									45
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ui.inc]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										86.64611
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Editor-edit, an Edit widget]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.92529
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									47
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[for this app]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										72.97064
+										51.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						230.00000
+						110.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				123.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			30
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					31
+					13
 					:items
-					((:list 4)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
-							32
-							:d
-							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 56 A 6 6 0 0 1 184 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							33
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[widgets.inc]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								64.52911
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the view: the window,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								42.77081
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[its toolbars and trees]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								44.32104
-								51.00000
+							30
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									48
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									49
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the Edit widget's layers]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.67486
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									50
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Vdu: glyphs, and masks for]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										36.38543
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the selection and brackets]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.54559
+										51.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						230.00000
+						212.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				123.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			36
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					37
+					14
 					:items
-					((:list 4)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
-							38
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[ui.inc]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								86.64611
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[Editor-edit, an Edit widget]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.92529
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							41
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[for this app]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								72.97064
-								51.00000
+							31
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									52
+									:d
+									"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									53
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Document]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										82.71887
+										19.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the model: the text, the cursors,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										32.88854
+										35.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the undo and redo stacks]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										49.58660
+										51.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						220.00000
+						314.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				243.00000
-				123.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			42
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					43
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							44
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 56 A 6 6 0 0 1 194 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							45
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the Edit widget's layers]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.67486
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							46
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[Vdu: glyphs, and masks for]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								36.38543
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							47
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the selection and brackets]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.54559
-								51.00000
-							)
-						)
+					15
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[An action changes the Document, each change a step of its undo; the controller then has the widget draw what the Document now is.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						396.00000
 					)
 				)
 			)
-			:pos
-			((:list 2)
-				243.00000
-				225.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			48
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					49
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							50
-							:d
-							"[M 6 0 L 214 0 A 6 6 0 0 1 220 6 L 220 56 A 6 6 0 0 1 214 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							51
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[Document]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								82.71887
-								19.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							52
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the model: the text, the cursors,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								32.88854
-								35.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							53
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the undo and redo stacks]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								49.58660
-								51.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				233.00000
-				327.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			54
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[An action changes the Document, each change a step of its undo; the controller then has the widget draw what the Document now is.]"
-			:font_size
-			11
 			:pos
 			((:list 2)
 				13.00000
-				409.00000
+				13.00000
 			)
 		)
 	)

@@ -191,10 +191,12 @@
 (defun dia-doc (parts &optional pad)
 	; (dia-doc parts [pad]) -> doc
 	;a document of parts, each a group or a shape, as big as they are and
-	;pad round them, default 12. Nothing behind them, the page shows
+	;pad round them, default 12. Nothing behind them, the page shows. It is
+	;one picture, so its parts are one group, as a board inserting it or
+	;opening it has it, and taken apart by an ungroup
 	(defq doc (cwb-doc 16 16))
 	(. doc :insert :style :plain)
-	(each (# (cwb-add doc %0)) parts)
+	(cwb-add doc (if (> (length parts) 1) (cwb-group parts) (first parts)))
 	(cwb-fit doc (ifn pad 12))
 	doc)
 

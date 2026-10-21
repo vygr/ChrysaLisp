@@ -48,16 +48,21 @@
 		(= (second (dg-xy "root")) (* 0.5 (+ (second (dg-xy "a")) (second (dg-xy "b")))))))
 (assert-true "one whose parent is not among them is a root too, at the left" (= (first (dg-xy "lost")) (first (dg-xy "root"))))
 
+;a diagram is one picture, one group, its parts in it
+(defun dg-parts (doc)
+	(defq items (cwb-items doc))
+	(if (and (= (length items) 1) (cwb-group? (first items))) (elem-get (first items) +cwb_items) (list)))
+
 ;the diagram of a class, and of them all, are documents the size of what is in them, that save and load
 (defq dg_doc (dia-class ":canvas" "gui/canvas/class.inc" '(":obj" ":view") '(":kid")
 	(list (list "fields" '("ptr pixmap")) (list "static methods" '(":create" ":fill")))))
 (assert-true "the diagram of a class is a document with its parts in it, and a size"
-	(and (> (. dg_doc :find :width) 100) (> (. dg_doc :find :height) 100) (>= (length (cwb-items dg_doc)) 5)))
+	(and (> (. dg_doc :find :width) 100) (> (. dg_doc :find :height) 100) (>= (length (dg-parts dg_doc)) 5)))
 (defq dg_stream (string-stream (cat "")))
 (cwb-save dg_doc dg_stream)
 (defq dg_back (cwb-load (string-stream (str dg_stream))))
-(assert-list-eq "it is saved and loaded as any document is" (list (. dg_doc :find :width) (. dg_doc :find :height) (length (cwb-items dg_doc)))
-	(list (. dg_back :find :width) (. dg_back :find :height) (length (cwb-items dg_back))))
+(assert-list-eq "it is saved and loaded as any document is" (list (. dg_doc :find :width) (. dg_doc :find :height) (length (dg-parts dg_doc)))
+	(list (. dg_back :find :width) (. dg_back :find :height) (length (dg-parts dg_back))))
 (defq dg_all (dia-hierarchy '((":obj" :nil) (":num" ":obj") (":sys_mem" :nil) (":sys_task" :nil))))
 (assert-true "the tree of them all has those that come of nothing set apart under it"
 	(> (. dg_all :find :height) 100))
@@ -86,7 +91,7 @@
 (assert-eq "a line to a name that is not there is no line: two lines and the words of one" 3 (length (first dg_scene)))
 (defq dg_sdoc (dia-scene-doc dg_scene))
 (assert-true "the document of a scene has what lies under first, then its lines, then its boxes"
-	(and (= (length (cwb-items dg_sdoc)) 7) (> (. dg_sdoc :find :width) 500)))
+	(and (= (length (dg-parts dg_sdoc)) 7) (> (. dg_sdoc :find :width) 500)))
 
 ;every diagram drawn for the docs fits a page of the Docs app, 80 columns
 ;of the terminal font: one wider is given a scroll of its own, and is read

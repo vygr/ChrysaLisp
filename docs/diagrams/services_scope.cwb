@@ -5,1277 +5,1280 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 83
+	:next_id 84
 	:items
-	((:list 21)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 1)
+			((:list 21)
 				((:list 5)
 					:group
 					:id
 					2
 					:items
-					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							3
-							:d
-							"[M 6 0 L 304 0 A 6 6 0 0 1 310 6 L 310 244 A 6 6 0 0 1 304 250 L 6 250 A 6 6 0 0 1 0 244 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 13)
-							:shape
-							:id
-							4
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:font_size
-							13
-							:pos
-							((:list 2)
-								155.00000
-								130.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					6
-					:items
-					((:list 2)
-						((:list 11)
-							:shape
-							:id
-							7
-							:d
-							"[M 6 0 L 304 0 A 6 6 0 0 1 310 6 L 310 244 A 6 6 0 0 1 304 250 L 6 250 A 6 6 0 0 1 0 244 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294112502
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 13)
-							:shape
-							:id
-							8
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:font_size
-							13
-							:pos
-							((:list 2)
-								155.00000
-								130.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				463.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			9
-			:items
-			((:list 3)
-				((:list 13)
-					:shape
-					:id
-					10
-					:d
-					"[M 298 177 L 462 177]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					11
-					:d
-					"[M 462 177 L 453 181 453 173 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-				((:list 9)
-					:shape
-					:id
-					12
-					:d
-					"[M 298 177 L 307 173 307 181 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			13
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[seen from each other]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				341.54425
-				185.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			14
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[one machine]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				25.00000
-				33.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			15
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					16
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							17
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							18
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Net]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								54.67395
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[links, the key, the mesh]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								14.90234
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				25.00000
-				47.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			20
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					21
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							22
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							23
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Lock]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
+							:items
 							((:list 2)
-								51.85882
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[who may write a file]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								20.29559
-								32.00000
+								((:list 11)
+									:shape
+									:id
+									40
+									:d
+									"[M 6 0 L 304 0 A 6 6 0 0 1 310 6 L 310 244 A 6 6 0 0 1 304 250 L 6 250 A 6 6 0 0 1 0 244 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 13)
+									:shape
+									:id
+									41
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:font_size
+									13
+									:pos
+									((:list 2)
+										155.00000
+										130.00000
+									)
+								)
 							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				173.00000
-				47.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			25
-			:items
-			((:list 1)
+				((:list 7)
+					:group
+					:id
+					3
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							24
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									42
+									:d
+									"[M 6 0 L 304 0 A 6 6 0 0 1 310 6 L 310 244 A 6 6 0 0 1 304 250 L 6 250 A 6 6 0 0 1 0 244 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 13)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:font_size
+									13
+									:pos
+									((:list 2)
+										155.00000
+										130.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						450.00000
+						0.00000
+					)
+				)
 				((:list 5)
 					:group
 					:id
-					26
+					4
 					:items
 					((:list 3)
-						((:list 11)
+						((:list 13)
+							:shape
+							:id
+							25
+							:d
+							"[M 298 177 L 462 177]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							26
+							:d
+							"[M 462 177 L 453 181 453 173 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+						((:list 9)
 							:shape
 							:id
 							27
 							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 298 177 L 307 173 307 181 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
+							:stroke
+							0
 						)
-						((:list 17)
-							:shape
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					5
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[seen from each other]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						328.54425
+						172.00000
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					6
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[one machine]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						12.00000
+						20.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					7
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							28
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Clipboard]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								39.24615
-								16.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									45
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Net]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										54.67395
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[links, the key, the mesh]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										14.90234
+										32.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						12.00000
+						34.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					8
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[what was copied]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								28.78326
-								32.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									47
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									48
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Lock]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										51.85882
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[who may write a file]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										20.29559
+										32.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						160.00000
+						34.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				25.00000
-				95.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			30
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					31
+					9
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							30
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									50
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Clipboard]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										39.24615
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									52
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[what was copied]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										28.78326
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						12.00000
+						82.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					10
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							31
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									53
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Audio]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										49.44116
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sounds]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										51.93872
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						160.00000
+						82.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							32
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									56
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*Mesh]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.18579
+										15.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									58
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a Net service]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.25653
+										31.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									59
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[that makes the mesh]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.68157
+										47.00000
+									)
+								)
+							)
 						)
-						((:list 17)
-							:shape
+					)
+					:pos
+					((:list 2)
+						12.00000
+						150.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							33
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Audio]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								49.44116
-								16.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									60
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									61
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*Sync]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										53.57086
+										15.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									62
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[takes a tree, if asked,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.89910
+										31.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sync -a]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.35900
+										47.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						160.00000
+						150.00000
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					13
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[another machine]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						462.00000
+						20.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					14
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							34
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[sounds]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								51.93872
-								32.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									64
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									65
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Net]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										54.67395
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									66
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[links, the key, the mesh]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										14.90234
+										32.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						462.00000
+						34.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				173.00000
-				95.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			35
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					36
+					15
 					:items
-					((:list 4)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							35
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									67
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									68
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Lock]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										51.85882
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									69
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[who may write a file]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										20.29559
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						610.00000
+						34.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							36
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									70
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									71
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Clipboard]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										39.24615
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									72
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[what was copied]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										28.78326
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						462.00000
+						82.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							37
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									73
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									74
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[@Audio]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										49.44116
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									75
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sounds]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										51.93872
+										32.00000
+									)
+								)
+							)
 						)
-						((:list 17)
-							:shape
+					)
+					:pos
+					((:list 2)
+						610.00000
+						82.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					18
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							38
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[*Mesh]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.18579
-								15.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									76
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									77
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*Mesh]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.18579
+										15.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									78
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[a Net service]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										38.25653
+										31.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									79
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[that makes the mesh]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.68157
+										47.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						462.00000
+						150.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					19
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a Net service]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.25653
-								31.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[that makes the mesh]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.68157
-								47.00000
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									80
+									:d
+									"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									81
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[*Sync]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										53.57086
+										15.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									82
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[takes a tree, if asked,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.89910
+										31.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									83
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[sync -a]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										52.35900
+										47.00000
+									)
+								)
 							)
 						)
 					)
+					:pos
+					((:list 2)
+						610.00000
+						150.00000
+					)
 				)
-			)
-			:pos
-			((:list 2)
-				25.00000
-				163.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			41
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					42
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							43
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							44
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[*Sync]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								53.57086
-								15.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							45
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[takes a tree, if asked,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.89910
-								31.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							46
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[sync -a]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.35900
-								47.00000
-							)
-						)
+					20
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[An @ name is found only by tasks of the machine it is on: each machine has its own, and they do not meet.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						272.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				173.00000
-				163.00000
-			)
-		)
-		((:list 17)
-			:shape
-			:id
-			47
-			:kind
-			:text
-			:fill
-			4280296488
-			:stroke
-			0
-			:text
-			"[another machine]"
-			:font
-			"[fonts/OpenSans-Bold.ctf]"
-			:font_size
-			12
-			:pos
-			((:list 2)
-				475.00000
-				33.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			48
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					49
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							50
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							51
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Net]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								54.67395
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							52
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[links, the key, the mesh]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								14.90234
-								32.00000
-							)
-						)
+					21
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[A * name is told to every machine that is linked: (mail-enquire) on any of them finds them all.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						288.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				475.00000
-				47.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			53
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					54
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							55
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							56
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Lock]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								51.85882
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							57
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[who may write a file]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								20.29559
-								32.00000
-							)
-						)
+					22
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[The Net services use *Mesh to find each other for the hello. A sync finds every *Sync and sends each the tree.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						304.00000
 					)
 				)
 			)
-			:pos
-			((:list 2)
-				623.00000
-				47.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			58
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					59
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							60
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							61
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Clipboard]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								39.24615
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							62
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[what was copied]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								28.78326
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				475.00000
-				95.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			63
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					64
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							65
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 34 A 6 6 0 0 1 132 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							66
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[@Audio]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								49.44116
-								16.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							67
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[sounds]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								51.93872
-								32.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				623.00000
-				95.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			68
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					69
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							70
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							71
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[*Mesh]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.18579
-								15.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							72
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[a Net service]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								38.25653
-								31.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							73
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[that makes the mesh]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.68157
-								47.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				475.00000
-				163.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			74
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					75
-					:items
-					((:list 4)
-						((:list 11)
-							:shape
-							:id
-							76
-							:d
-							"[M 6 0 L 132 0 A 6 6 0 0 1 138 6 L 138 48 A 6 6 0 0 1 132 54 L 6 54 A 6 6 0 0 1 0 48 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 17)
-							:shape
-							:id
-							77
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[*Sync]"
-							:font
-							"[fonts/OpenSans-Bold.ctf]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								53.57086
-								15.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							78
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[takes a tree, if asked,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								18.89910
-								31.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							79
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[sync -a]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								52.35900
-								47.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				623.00000
-				163.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			80
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[An @ name is found only by tasks of the machine it is on: each machine has its own, and they do not meet.]"
-			:font_size
-			11
 			:pos
 			((:list 2)
 				13.00000
-				285.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			81
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[A * name is told to every machine that is linked: (mail-enquire) on any of them finds them all.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				301.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			82
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[The Net services use *Mesh to find each other for the hello. A sync finds every *Sync and sends each the tree.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				317.00000
 			)
 		)
 	)

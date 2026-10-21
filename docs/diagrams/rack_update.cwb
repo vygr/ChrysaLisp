@@ -5,844 +5,817 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 58
+	:next_id 59
 	:items
-	((:list 19)
+	((:list 1)
 		((:list 7)
 			:group
 			:id
 			1
 			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					2
-					:d
-					"[M 190 22 L 310 22]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					3
-					:d
-					"[M 310 22 L 301 26 301 18 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			4
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[-f: each 10 min]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				230.11547
-				30.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			5
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					6
-					:d
-					"[M 430 44 L 430 80]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					7
-					:d
-					"[M 430 80 L 426 71 434 71 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			8
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					9
-					:d
-					"[M 430 124 L 430 160]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					10
-					:d
-					"[M 430 160 L 426 151 434 151 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			11
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					12
-					:d
-					"[M 330 182 L 200 182]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					13
-					:d
-					"[M 200 182 L 209 178 209 186 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			14
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[built]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				268.09301
-				190.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			15
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					16
-					:d
-					"[M 430 204 L 435 240]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					17
-					:d
-					"[M 435 240 L 429.80006 231.63592 437.72389 230.53546 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			18
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[failed]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				451.50000
-				239.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			19
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					20
-					:d
-					"[M 100 160 L 95 44]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					21
-					:d
-					"[M 95 44 L 99.38381 52.81938 91.39126 53.16386 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			22
-			:items
-			((:list 2)
-				((:list 13)
-					:shape
-					:id
-					23
-					:d
-					"[M 300 262 L 200 182]"
-					:stroke
-					4282140240
-					:width
-					1.39999
-					:cap1
-					:butt
-					:cap2
-					:butt
-				)
-				((:list 9)
-					:shape
-					:id
-					24
-					:d
-					"[M 200 182 L 209.52659 184.49877 204.52903 190.74572 Z]"
-					:fill
-					4282140240
-					:stroke
-					0
-				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			25
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[started again on it]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				269.00000
-				239.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			26
-			:items
-			((:list 1)
+			((:list 19)
 				((:list 5)
 					:group
 					:id
-					27
+					2
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							21
+							:d
+							"[M 190 22 L 310 22]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							22
+							:d
+							"[M 310 22 L 301 26 301 18 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[-f: each 10 min]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						217.11547
+						17.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							23
+							:d
+							"[M 430 44 L 430 80]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							24
+							:d
+							"[M 430 80 L 426 71 434 71 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					5
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							25
+							:d
+							"[M 430 124 L 430 160]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							26
+							:d
+							"[M 430 160 L 426 151 434 151 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					6
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							27
+							:d
+							"[M 330 182 L 200 182]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
 							:shape
 							:id
 							28
 							:d
-							"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+							"[M 200 182 L 209 178 209 186 Z]"
 							:fill
-							4292339447
-							:stroke
 							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
 							:stroke
 							0
-							:text
-							"[the member runs]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								53.52575
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							30
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[rack.sh's loop waits on it]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.46820
-								34.00000
-							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				13.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			31
-			:items
-			((:list 1)
+				((:list 15)
+					:shape
+					:id
+					7
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[built]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						255.09301
+						177.00000
+					)
+				)
 				((:list 5)
 					:group
 					:id
-					32
+					8
 					:items
-					((:list 3)
-						((:list 11)
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							29
+							:d
+							"[M 430 204 L 435 240]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							30
+							:d
+							"[M 435 240 L 429.80006 231.63592 437.72389 230.53546 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					9
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[failed]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						438.50000
+						226.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					10
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							31
+							:d
+							"[M 100 160 L 95 44]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							32
+							:d
+							"[M 95 44 L 99.38381 52.81938 91.39126 53.16386 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					11
+					:items
+					((:list 2)
+						((:list 13)
 							:shape
 							:id
 							33
 							:d
-							"[M 6 0 L 234 0 A 6 6 0 0 1 240 6 L 240 38 A 6 6 0 0 1 234 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294961320
+							"[M 300 262 L 200 182]"
 							:stroke
 							4282140240
 							:width
-							1.19999
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
 						)
-						((:list 15)
+						((:list 9)
 							:shape
 							:id
 							34
-							:kind
-							:text
+							:d
+							"[M 200 182 L 209.52659 184.49877 204.52903 190.74572 Z]"
 							:fill
-							4280296488
+							4282140240
 							:stroke
 							0
-							:text
-							"[the herd gave a newer waypoint, or,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								34.53381
-								18.00000
-							)
 						)
-						((:list 15)
-							:shape
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					12
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[started again on it]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						256.00000
+						226.00000
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					13
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							35
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[followed, -f, the branch moved on]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								40.96166
-								34.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									41
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									42
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the member runs]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										53.52575
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[rack.sh's loop waits on it]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.46820
+										34.00000
+									)
+								)
 							)
 						)
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				323.00000
-				13.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			36
-			:items
-			((:list 1)
-				((:list 5)
+				((:list 7)
 					:group
 					:id
-					37
+					14
 					:items
-					((:list 3)
-						((:list 11)
-							:shape
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							36
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 234 0 A 6 6 0 0 1 240 6 L 240 38 A 6 6 0 0 1 234 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									45
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the herd gave a newer waypoint, or,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										34.53381
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[followed, -f, the branch moved on]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										40.96166
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						310.00000
+						0.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					15
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							37
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									47
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									48
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[the member stopped, and]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.71343
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[-f, the tree fast forwarded]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										37.72015
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						330.00000
+						80.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							38
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292339447
-							:stroke
-							4282140240
-							:width
-							1.19999
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									50
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[make install]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										72.60943
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									52
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[Windows: rack.bat, the snapshot]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										21.47058
+										34.00000
+									)
+								)
+							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						330.00000
+						160.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							39
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[the member stopped, and]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.71343
-								18.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									53
+									:d
+									"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[built: started again on it,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										42.98718
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									55
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[notes the waypoint]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										53.60784
+										34.00000
+									)
+								)
 							)
 						)
-						((:list 15)
-							:shape
+					)
+					:pos
+					((:list 2)
+						0.00000
+						160.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					18
+					:items
+					((:list 1)
+						((:list 5)
+							:group
 							:id
 							40
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[-f, the tree fast forwarded]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								37.72015
-								34.00000
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									56
+									:d
+									"[M 6 0 L 264 0 A 6 6 0 0 1 270 6 L 270 38 A 6 6 0 0 1 264 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294432727
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[failed: back to the commit it was at,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										50.90277
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									58
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[built again, that commit not tried again]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										43.26910
+										34.00000
+									)
+								)
 							)
 						)
 					)
-				)
-			)
-			:pos
-			((:list 2)
-				343.00000
-				93.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			41
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					42
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							43
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							44
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[make install]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								72.60943
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							45
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[Windows: rack.bat, the snapshot]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								21.47058
-								34.00000
-							)
-						)
+					:pos
+					((:list 2)
+						300.00000
+						240.00000
 					)
 				)
-			)
-			:pos
-			((:list 2)
-				343.00000
-				173.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			46
-			:items
-			((:list 1)
-				((:list 5)
-					:group
+				((:list 15)
+					:shape
 					:id
-					47
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							48
-							:d
-							"[M 6 0 L 194 0 A 6 6 0 0 1 200 6 L 200 38 A 6 6 0 0 1 194 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4292866264
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							49
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[built: started again on it,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								42.98718
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							50
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[notes the waypoint]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								53.60784
-								34.00000
-							)
-						)
+					19
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[A tree with a change of its own is not taken on. Each machine followed updates from git itself, not by the mesh,]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						304.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					20
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[so a change that old and new machines can not link over still reaches them all.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						320.00000
 					)
 				)
 			)
 			:pos
 			((:list 2)
 				13.00000
-				173.00000
-			)
-		)
-		((:list 7)
-			:group
-			:id
-			51
-			:items
-			((:list 1)
-				((:list 5)
-					:group
-					:id
-					52
-					:items
-					((:list 3)
-						((:list 11)
-							:shape
-							:id
-							53
-							:d
-							"[M 6 0 L 264 0 A 6 6 0 0 1 270 6 L 270 38 A 6 6 0 0 1 264 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
-							:fill
-							4294432727
-							:stroke
-							4282140240
-							:width
-							1.19999
-						)
-						((:list 15)
-							:shape
-							:id
-							54
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[failed: back to the commit it was at,]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								50.90277
-								18.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							55
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[built again, that commit not tried again]"
-							:font_size
-							11
-							:pos
-							((:list 2)
-								43.26910
-								34.00000
-							)
-						)
-					)
-				)
-			)
-			:pos
-			((:list 2)
-				313.00000
-				253.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			56
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[A tree with a change of its own is not taken on. Each machine followed updates from git itself, not by the mesh,]"
-			:font_size
-			11
-			:pos
-			((:list 2)
 				13.00000
-				317.00000
-			)
-		)
-		((:list 15)
-			:shape
-			:id
-			57
-			:kind
-			:text
-			:fill
-			4284245616
-			:stroke
-			0
-			:text
-			"[so a change that old and new machines can not link over still reaches them all.]"
-			:font_size
-			11
-			:pos
-			((:list 2)
-				13.00000
-				333.00000
 			)
 		)
 	)
