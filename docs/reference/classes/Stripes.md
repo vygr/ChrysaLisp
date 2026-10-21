@@ -45,10 +45,13 @@ would not have each sent the whole document first
 ### :frame
 
 ```code
-(. stripes :frame canvas zoom style) -> :t | :nil
+(. stripes :frame canvas zoom style [m]) -> :t | :nil
 
 draw the document, all of it, onto a canvas whose pixels are
-shared, a stripe for each child. With a style the paper is drawn
+shared, a stripe for each child, by m, the matrix from the document
+to the canvas, a view moved, zoomed and turned, the zoom's if not
+given: each draws the rows of the canvas it has, of what of the
+document they show. With a style the paper is drawn
 behind it, lib/cwb/paper.inc. With :nil there is none, the
 shapes are drawn on what is there, which the caller has made
 clear, for a board whose paper is a picture of its own. :nil, and nothing is done, if
@@ -71,7 +74,9 @@ drawn
 ### :job
 
 ```code
-(. stripes :job key width height y y1 zoom back style gap skip) -> job
+(. stripes :job key width height y y1 zoom back style gap skip [m]) -> job
+
+m the matrix from the document to the canvas, the zoom's if not given
 ```
 
 ### :keep
