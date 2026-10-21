@@ -5,23 +5,20 @@
 (import "./reader.inc")
 (import "./viewer.inc")
 (import "service/lock/app.inc")
+(import "apps/system/files/picker.inc")
+(import "lib/files/names.inc")
 
 (enums +event +event_user
-	(enum prev next reset)
+	(enum open reset)
 	(enum mode)
 	(enum layer))
 
 (enums +select 0
-	(enum main reply prog tip))
+	(enum main reply prog tip picker))
 
-(defun all-pcbs (p)
-	(defq out (list))
-	(each! (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") 2))
-	(sort out))
-
-(defq *pcbs* (all-pcbs (cat *app_root* "data/"))
-	*index* (some (# (if (eql (cat *app_root* "data/test1.pcb") %0) (!))) *pcbs*)
+;the board shown, opened by the file picker, which keeps where boards were
+;taken from, and kept as the one to show next time
+(defq *file* (cat *app_root* "data/test1.pcb") *picker* :nil
 	canvas_scale 1 *mode* 0 *show* -1
 	+max_zoom 15.0 +min_zoom 5.0 *config* :nil +config_version 1
 	+config_file (cat (get :home *env*) "pcb.tre")
@@ -31,7 +28,7 @@
 	(ui-title-bar *window_title* "" (+sym_close) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_prev +sym_next +sym_route) +event_prev)
+			(ui-buttons (+sym_open +sym_route) +event_open)
 			(ui-buttons (+sym_zoom_in +sym_zoom_out) +event_zoom_in))
 		(. (ui-radio-bar *mode_toolbar* (+sym_pcb +sym_gerber)) :connect +event_mode)
 		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
@@ -56,9 +53,11 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 ;a PCB is drawn once and then only ever shown, so the pixmap of its
-;canvas is freed once it is a texture
-(defun win-load (%0)
-	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* %0)))) pcb (pcb-read pcb_data))
+;canvas is freed once it is a texture. A file, or an object of the store,
+;lib/files/names.inc
+(defun win-load (file)
+	(defq stream (name-whole-stream file))
+	(setq pcb_data (read-blk stream (ifn (name-size file) 0)) pcb (pcb-read pcb_data) *file* file)
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def *window_title* :text (cat "Pcb -> " (slice file (rfind "/" file) -1)))
@@ -83,7 +82,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	;a bar at a time, the two views and the layers are bars of their own
 	(ui-tool-tips *main_toolbar*
-		'("prev" "next" "route" "zoom in" "zoom out"))
+		'("open" "route" "zoom in" "zoom out"))
 	(ui-tool-tips *mode_toolbar*
 		'("pcb" "gerber"))
 	(ui-tool-tips *layer_toolbar*
@@ -112,17 +111,19 @@
 (import "./actions.inc")
 
 (defun config-default ()
-	(scatter (Emap) :version +config_version :zoom 1.0))
+	(scatter (Emap) :version +config_version :zoom 1.0 :file *file*))
 
 (defun config-load ()
 	(setq *config* (with-read-lock +config_file
 		(tree-load (file-stream +config_file))))
 	(if (or (not *config*) (/= (. *config* :find :version) +config_version))
 		(setq *config* (config-default)))
-	(def *window* :zoom (. *config* :find :zoom)))
+	(def *window* :zoom (. *config* :find :zoom))
+	;the board shown last, if it is still there
+	(and (defq file (. *config* :find :file)) (name-size file) (setq *file* file)))
 
 (defun config-save ()
-	(scatter *config* :zoom (get :zoom *window*))
+	(scatter *config* :zoom (get :zoom *window*) :file *file*)
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
@@ -135,7 +136,7 @@
 	(config-load)
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
-	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
+	(bind '(x y w h) (apply view-locate (. (win-load *file*) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -148,6 +149,12 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
+			((= idx +select_picker)
+				;the board taken, or "" none
+				(setq *picker* :nil)
+				(unless (eql (defq file (trim *msg*)) "")
+					(stop-route)
+					(win-load file)))
 			((= idx +select_prog)
 				;progress report mail
 				(set (. progress :dirty) :value (getf *msg* +pcb_progress_current)
@@ -155,6 +162,8 @@
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
+	;a picker still open goes with it
+	(if *picker* (mail-send *picker* ""))
 	(stop-route)
 	(config-save)
 	(gui-sub-rpc *window*))

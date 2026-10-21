@@ -8,13 +8,12 @@
 (defun action-reset ()
 	(route))
 
-(defun action-prev ()
-	(win-load (% (+ (dec *index*) (length *pcbs*)) (length *pcbs*)))
-	(stop-route))
-
-(defun action-next ()
-	(win-load (% (+ (inc *index*) (length *pcbs*)) (length *pcbs*)))
-	(stop-route))
+(defun action-open ()
+	;the picker, at the board shown, its places those boards were taken
+	;from, the one open told to go first
+	(if *picker* (mail-send *picker* ""))
+	(setq *picker* (file-pick (elem-get select +select_picker) "Open board..." *file*
+		".pcb" :nil "pcb" :t)))
 
 (defun action-scale-up ()
 	(defq old_zoom (get :zoom *window*)

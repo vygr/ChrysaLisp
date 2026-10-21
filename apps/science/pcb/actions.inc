@@ -11,8 +11,7 @@
 *event_map* (scatter (Fmap)
 	+event_close action-close
 	+event_reset action-reset
-	+event_prev action-prev
-	+event_next action-next
+	+event_open action-open
 	+event_zoom_in action-scale-up
 	+event_zoom_out action-scale-down
 	+event_layer action-layer
@@ -27,8 +26,7 @@
 	(ascii-code "3") action-show-3
 	(ascii-code "4") action-show-4
 	(ascii-code "r") action-reset
-	(ascii-code "n") action-next
-	(ascii-code "p") action-prev)
+	(ascii-code "o") action-open)
 
 *key_map_shift* (scatter (Fmap))
 
