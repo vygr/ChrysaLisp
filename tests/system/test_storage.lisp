@@ -210,7 +210,8 @@
 	(defq sg_t0 (pii-time))
 	(while (and (storage-service sg_name) (< (- (pii-time) sg_t0) (task-timeout 5))) (task-sleep 10000))
 	(assert-eq "and is not there" :nil (storage-service sg_name))
-	(assert-true "started again on the store" (setq sg_svc (storage-start sg_image :name sg_name :group sg_group :tick 0)))
+	;waited for as long as it takes, as the store of a machine is: it is up
+	(assert-true "started again on the store" (setq sg_svc (storage-start sg_image :name sg_name :group sg_group :tick 0 :wait :t)))
 	(assert-eq "what was put is there" sg_big (storage-get "b/copy" sg_svc))
 	(assert-eq "what was deleted is not" :nil (storage-get "c/x" sg_svc))
 	(assert-eq "it is the store it was" "testing" (. (storage-info sg_svc) :find :id))

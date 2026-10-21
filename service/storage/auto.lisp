@@ -31,8 +31,10 @@
 			(if (defq had (storage-service))
 				;it is up already, in this session: asked for by hand
 				(setq svc had image (. said :find :image))
+				;as long as it takes: told to go while it starts, the store
+				;is stopped once it is up, not left up and claimed
 				(when (setq svc (storage-join (. said :find :image) (. said :find :size)
-						(. said :find :id) (. said :find :copies)))
+						(. said :find :id) (. said :find :copies) :nil :t))
 					(setq image (. said :find :image))
 					;a machine that travels holds all of its user's area
 					(storage-user-pin svc))))
@@ -40,7 +42,12 @@
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(mail-timeout (elem-get select +select_timer) 0 0)
 		(if (= idx +select_main) (setq running :nil)))
-	;told to go: the store is another session's to serve now
+	;told to go: the store is another session's to serve now. One that is
+	;up with no hold on it here, its start not seen through, is this
+	;session's if its image is this process's
+	(and (not svc) (defq said (storage-member)) (defq had (storage-service))
+		(eql (trim (ifn (load (cat (. said :find :image) ".member")) "") (const (char-class " \t\r\n"))) (str (pii-pid)))
+		(setq svc had image (. said :find :image)))
 	(when svc
 		(storage-stop svc)
 		(storage-unclaim image)))
