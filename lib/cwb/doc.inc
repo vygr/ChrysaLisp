@@ -42,22 +42,26 @@
 ;of its own by that name. The first few are of both kinds, then those
 ;of a shape, the items of a group, and what is kept and not saved. user
 ;is who made it, 0 the teacher, see lib/cwb/board.inc. Chris: "students
-;could not erase things the teacher or the other student had written"
+;could not erase things the teacher or the other student had written".
+;others is what a file had of it that is not known here, a key and its
+;value each, from a newer Whiteboard, written back as it was, so what is
+;new is not lost by a save here
 (enums +cwb 0
 	(enum type id name m props user)
 	(enum kind d fill stroke width rule join cap1 cap2 text font font_size)
 	(enum items)
-	(enum cache place inv))
+	(enum cache place inv)
+	(enum others))
 
 ;the name of each slot in a file, and what a slot has when the file does
 ;not say. A list quoted twice, a + constant that is a list is put in place
 ;of its name as code is read
 (defq +cwb_keys ''(:type :id :name :m :props :user
 		:kind :d :fill :stroke :width :rule :join :cap1 :cap2 :text :font :font_size
-		:items :cache :place :inv)
+		:items :cache :place :inv :others)
 	+cwb_defaults ''(:shape 0 "" :nil :nil 0
 		:path "" 0 0xff000000 2.0 :nonzero :round :round :round "" "fonts/OpenSans-Regular.ctf" 24
-		:nil :nil :nil :nil))
+		:nil :nil :nil :nil :nil))
 
 ;;;;;;;;;;
 ; matrices
@@ -636,6 +640,9 @@
 						(defq outs (map (lambda (&) (list)) val))
 						(push out :items outs)
 						(each (# (push todo (list %0 %1))) val outs)))
+				;what a file had that is not known here, as it was
+				((eql key :others)
+					(each (lambda ((k v)) (push out k v)) (partition (ifn val (list)) 2)))
 				;where it is, what of it is not as it would be anyway
 				((eql key :place)
 					(when val
@@ -650,7 +657,8 @@
 
 (defun cwb-item-in (tree)
 	; (cwb-item-in tree) -> item
-	;an item from what a file has of it. A key that is not known is left.
+	;an item from what a file has of it. A key that is not known is kept,
+	;in others, to be written back as it was.
 	;Each item is put in its place in the list that is to hold it, which
 	;is made first, with a place for each
 	(defq root (list :nil) todo (list (list tree root 0)))
@@ -669,7 +677,8 @@
 				((eql key :angle) (cwb-place! item (scatter-place (cwb-place item) 2 val)))
 				((eql key :scale) (bind '(x y) val) (cwb-place! item (scatter-place (cwb-place item) 3 x 4 y)))
 				((find key '(:m :place :inv :cache)))
-				((defq index (find key +cwb_keys)) (elem-set item index val))))
+				((and (nql key :others) (defq index (find key +cwb_keys))) (elem-set item index val))
+				((elem-set item +cwb_others (cat (ifn (elem-get item +cwb_others) (list)) (list key val))))))
 			(partition (rest tree) 2)))
 	(first root))
 
@@ -692,6 +701,9 @@
 	;the inks of its pens, what shows it says what they are.
 	;Only if it has them: a document made by a script, a diagram, has none
 	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :swatches :inks))
+	;and what a file had that is not known here, as it was
+	(if (defq others (. doc :find :others))
+		(. others :each (lambda (key val) (unless (. out :find key) (. out :insert key val)))))
 	out)
 
 (defun cwb-save (doc stream)
@@ -704,8 +716,12 @@
 	;else is not a document
 	(when (and (Emap? data) (eql (. data :find :version) +cwb_version))
 		(defq doc (cwb-doc))
-		(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val)))
-			'(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
+		(defq known '(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
+		(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val))) known)
+		;a key not known here, of a newer Whiteboard, is kept to be written back
+		(defq others (Emap))
+		(. data :each (lambda (key val) (unless (find key (cat '(:version :items) known)) (. others :insert key val))))
+		(unless (. others :empty?) (. doc :insert :others others))
 		;the one list, the back one first
 		(. doc :insert :layers (list (list "Layer 1" 0 (map (const cwb-item-in) (ifn (. data :find :items) (list))))))
 		;an item with no id, one written by hand, is given one
