@@ -3,7 +3,10 @@
 //
 // open: a decoder for a codec, its 4 letters high first, from its setup as
 // the film has it, avcC of avc1, H.264, hvcC of hvc1, H.265, 0 if this host
-// has none for it. decode: one packet of the
+// has none for it. Of mp4v, MPEG-4 Part 2, and jpeg, Motion JPEG, the setup
+// is the picture's width and height, four bytes each low first, and of
+// mp4v then its headers, VOS, VO and VOL, as the start of its first frame
+// has them: their packets are given as they are. decode: one packet of the
 // film, in the order they are decoded, and when it is shown, -1 if it could
 // not be. The pictures are held till asked for. frame: the picture shown at
 // a time, its pixels of 32 bits, blue green red alpha, into the buffer
@@ -11,10 +14,12 @@
 // out only once those it was made from are. Those to be shown before it go.
 // close: the decoder gone.
 //
-// macOS: VideoToolbox, the hardware's decoder, H.264 and H.265. Linux: the
-// stateful decoder of V4L2, /dev/video10, H.264, the Raspberry Pi's.
-// Windows: a decoder of Media Foundation, H.264, and H.265 if one is
-// installed, not yet tried on Windows itself. Elsewhere none, open is 0.
+// macOS: VideoToolbox, the hardware's decoder, H.264 and H.265 and Motion
+// JPEG, and MPEG-4 Part 2 by its own. Linux: the stateful decoder of V4L2,
+// /dev/video10, H.264 and Motion JPEG, the Raspberry Pi's. Windows: a
+// decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
+// Part 2 and Motion JPEG, not yet tried on Windows itself. Elsewhere none,
+// open is 0.
 
 #include <stdint.h>
 #include <string.h>
@@ -115,18 +120,61 @@ static void video_out(void *ref, void *frame_ref, OSStatus status, VTDecodeInfoF
 	decoder->held.push_back({shown.value, image});
 }
 
+static CFDictionaryRef video_esds(const uint8_t *headers, uint64_t len)
+{
+	//the esds an mp4 has of MPEG-4 Part 2, of its headers: an ES descriptor,
+	//of it a decoder config of MPEG-4 visual and its specific info, the
+	//headers, and a sync layer config, each a tag and a length
+	if (len > 100000) return nullptr;
+	std::vector<uint8_t> esds = {0, 0, 0, 0};
+	auto descriptor = [&](uint8_t tag, size_t n)
+	{
+		esds.push_back(tag);
+		esds.push_back(0x80 | ((n >> 21) & 0x7f)); esds.push_back(0x80 | ((n >> 14) & 0x7f));
+		esds.push_back(0x80 | ((n >> 7) & 0x7f)); esds.push_back(n & 0x7f);
+	};
+	descriptor(0x03, 3 + 5 + 13 + 5 + len + 5 + 1);
+	esds.insert(esds.end(), {0, 1, 0});
+	descriptor(0x04, 13 + 5 + len);
+	esds.insert(esds.end(), {0x20, 0x11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+	descriptor(0x05, len);
+	esds.insert(esds.end(), headers, headers + len);
+	descriptor(0x06, 1);
+	esds.push_back(2);
+	auto data = CFDataCreate(kCFAllocatorDefault, esds.data(), esds.size());
+	const void *k1[] = {CFSTR("esds")}, *v1[] = {data};
+	auto atoms = CFDictionaryCreate(kCFAllocatorDefault, k1, v1, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	const void *k2[] = {kCMFormatDescriptionExtension_SampleDescriptionExtensionAtoms}, *v2[] = {atoms};
+	auto ext = CFDictionaryCreate(kCFAllocatorDefault, k2, v2, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+	CFRelease(atoms);
+	CFRelease(data);
+	return ext;
+}
+
 uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
-	//the parameter sets of the codec's setup, avc1 H.264, hvc1 H.265
+	//the parameter sets of the codec's setup, avc1 H.264, hvc1 H.265; of
+	//mp4v and jpeg the size, and of mp4v its headers
 	std::vector<const uint8_t*> sets;
 	std::vector<size_t> sizes;
 	int nal_length = 4;
-	bool hevc = codec == 0x68766331;
+	bool hevc = codec == 0x68766331, mp4v = codec == 0x6d703476, jpeg = codec == 0x6a706567;
 	if (codec == 0x61766331) { if (!video_avcc(setup, len, sets, sizes, nal_length)) return 0; }
 	else if (hevc) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return 0; }
+	else if ((mp4v || jpeg) && len >= 8) {}
 	else return 0;
 	auto decoder = new Video_Decoder();
-	OSStatus made = hevc
+	OSStatus made;
+	if (mp4v || jpeg)
+	{
+		int32_t w = (int32_t)(setup[0] | (setup[1] << 8) | (setup[2] << 16) | ((uint32_t)setup[3] << 24));
+		int32_t h = (int32_t)(setup[4] | (setup[5] << 8) | (setup[6] << 16) | ((uint32_t)setup[7] << 24));
+		auto ext = mp4v ? video_esds(setup + 8, len - 8) : nullptr;
+		made = CMVideoFormatDescriptionCreate(kCFAllocatorDefault,
+			mp4v ? kCMVideoCodecType_MPEG4Video : kCMVideoCodecType_JPEG, w, h, ext, &decoder->format);
+		if (ext) CFRelease(ext);
+	}
+	else made = hevc
 		? CMVideoFormatDescriptionCreateFromHEVCParameterSets(kCFAllocatorDefault, sets.size(),
 			sets.data(), sizes.data(), nal_length, nullptr, &decoder->format)
 		: CMVideoFormatDescriptionCreateFromH264ParameterSets(kCFAllocatorDefault, sets.size(),
@@ -254,6 +302,8 @@ struct Video_Decoder
 	int fd = -1;
 	int nal_length = 4;
 	std::vector<uint8_t> sets;
+	//of JPEG, YUV of the full range, 0 to 255, not of video's 16 to 235
+	bool full = false;
 	bool first = true;
 	bool capturing = false;
 	uint32_t width = 0, height = 0, stride = 0, plane = 0;
@@ -350,20 +400,23 @@ static bool video_capture_start(Video_Decoder *d)
 
 static void video_convert(Video_Decoder *d, const uint8_t *yuv, std::vector<uint32_t> &out)
 {
-	//YUV 4:2:0, a plane of Y, then U and V each a quarter, BT.601 limited
+	//YUV 4:2:0, a plane of Y, then U and V each a quarter, BT.601 limited,
+	//or of JPEG full
 	uint32_t w = d->width, h = d->height, ys = d->stride, cs = d->stride / 2;
 	const uint8_t *py = yuv, *pu = yuv + ys * d->plane, *pv = pu + cs * (d->plane / 2);
+	int ky = d->full ? 256 : 298, oy = d->full ? 0 : 16, kr = d->full ? 359 : 409,
+		kgu = d->full ? 88 : 100, kgv = d->full ? 183 : 208, kb = d->full ? 454 : 516;
 	out.resize((size_t)w * h);
 	for (uint32_t y = 0; y < h; y++)
 	{
 		for (uint32_t x = 0; x < w; x++)
 		{
-			int c = 298 * ((int)py[y * ys + x] - 16);
+			int c = ky * ((int)py[y * ys + x] - oy);
 			int u = (int)pu[(y / 2) * cs + x / 2] - 128;
 			int v = (int)pv[(y / 2) * cs + x / 2] - 128;
-			int r = (c + 409 * v + 128) >> 8;
-			int g = (c - 100 * u - 208 * v + 128) >> 8;
-			int b = (c + 516 * u + 128) >> 8;
+			int r = (c + kr * v + 128) >> 8;
+			int g = (c - kgu * u - kgv * v + 128) >> 8;
+			int b = (c + kb * u + 128) >> 8;
 			r = r < 0 ? 0 : r > 255 ? 255 : r;
 			g = g < 0 ? 0 : g > 255 ? 255 : g;
 			b = b < 0 ? 0 : b > 255 ? 255 : b;
@@ -427,13 +480,17 @@ static void video_drain(Video_Decoder *d, int wait)
 
 uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
-	//H.264 only, avc1, its parameter sets each after a start code
+	//H.264, avc1, its parameter sets each after a start code, or Motion
+	//JPEG, jpeg, its frames as they are, a nal_length of 0
 	std::vector<const uint8_t*> sets;
 	std::vector<size_t> sizes;
 	int nal_length = 4;
-	if (codec != 0x61766331 || !video_avcc(setup, len, sets, sizes, nal_length)) return 0;
+	bool jpeg = codec == 0x6a706567;
+	if (jpeg) { if (len < 8) return 0; nal_length = 0; }
+	else if (codec != 0x61766331 || !video_avcc(setup, len, sets, sizes, nal_length)) return 0;
 	auto d = new Video_Decoder();
 	d->nal_length = nal_length;
+	d->full = jpeg;
 	for (size_t i = 0; i < sets.size(); i++)
 	{
 		static const uint8_t start[] = {0, 0, 0, 1};
@@ -444,7 +501,7 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	if (d->fd < 0) { video_free(d); return 0; }
 	v4l2_format fmt = {};
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_H264;
+	fmt.fmt.pix_mp.pixelformat = jpeg ? V4L2_PIX_FMT_MJPEG : V4L2_PIX_FMT_H264;
 	fmt.fmt.pix_mp.num_planes = 1;
 	fmt.fmt.pix_mp.plane_fmt[0].sizeimage = 1 << 20;
 	if (video_ioctl(d->fd, VIDIOC_S_FMT, &fmt) < 0) { video_free(d); return 0; }
@@ -489,7 +546,14 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 		used = d->sets.size();
 		d->first = false;
 	}
-	for (uint64_t k = 0; k + d->nal_length <= len;)
+	//a frame of Motion JPEG as it is
+	if (d->nal_length == 0)
+	{
+		if (used + len > room) return -1;
+		memcpy(at + used, data, len);
+		used += len;
+	}
+	else for (uint64_t k = 0; k + d->nal_length <= len;)
 	{
 		size_t n = 0;
 		for (int b = 0; b < d->nal_length; b++) n = (n << 8) | data[k + b];
@@ -765,13 +829,17 @@ static void video_drain(Video_Decoder *d)
 
 uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
-	//avc1 H.264, hvc1 H.265, the parameter sets each after a start code
+	//avc1 H.264, hvc1 H.265, the parameter sets each after a start code;
+	//mp4v MPEG-4 Part 2 and jpeg Motion JPEG, their frames as they are, a
+	//nal_length of 0, their size, and of mp4v its headers
 	std::vector<const uint8_t*> sets;
 	std::vector<size_t> sizes;
 	int nal_length = 4;
 	GUID kind;
+	bool sized = (codec == 0x6d703476 || codec == 0x6a706567) && len >= 8;
 	if (codec == 0x61766331) { if (!video_avcc(setup, len, sets, sizes, nal_length)) return 0; kind = MFVideoFormat_H264; }
 	else if (codec == 0x68766331) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return 0; kind = MFVideoFormat_HEVC; }
+	else if (sized) { nal_length = 0; kind = codec == 0x6d703476 ? MFVideoFormat_MP4V : MFVideoFormat_MJPG; }
 	else return 0;
 	if (!video_start()) return 0;
 	auto d = new Video_Decoder();
@@ -800,6 +868,13 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	type->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
 	type->SetGUID(MF_MT_SUBTYPE, kind);
 	type->SetUINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_MixedInterlaceOrProgressive);
+	if (sized)
+	{
+		UINT64 w = setup[0] | (setup[1] << 8) | (setup[2] << 16) | ((UINT64)setup[3] << 24);
+		UINT64 h = setup[4] | (setup[5] << 8) | (setup[6] << 16) | ((UINT64)setup[7] << 24);
+		type->SetUINT64(MF_MT_FRAME_SIZE, (w << 32) | h);
+		if (len > 8) type->SetBlob(MF_MT_MPEG_SEQUENCE_HEADER, setup + 8, (UINT32)(len - 8));
+	}
 	HRESULT r = d->mft->SetInputType(0, type, 0);
 	type->Release();
 	if (FAILED(r) || !video_output_type(d)) { video_free(d); return 0; }
@@ -820,14 +895,16 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 		video_drain(d);
 		return 0;
 	}
-	//Annex B: the sets before the first packet, each NAL after a start code
+	//Annex B: the sets before the first packet, each NAL after a start code,
+	//or a frame of mp4v or jpeg as it is
 	std::vector<uint8_t> annexb;
 	if (d->first)
 	{
 		annexb = d->sets;
 		d->first = false;
 	}
-	for (uint64_t k = 0; k + d->nal_length <= len;)
+	if (d->nal_length == 0) annexb.insert(annexb.end(), data, data + len);
+	else for (uint64_t k = 0; k + d->nal_length <= len;)
 	{
 		size_t n = 0;
 		for (int b = 0; b < d->nal_length; b++) n = (n << 8) | data[k + b];
