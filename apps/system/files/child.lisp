@@ -28,7 +28,7 @@
 ;our UI widgets and events
 (import "./widgets.inc")
 
-(defq +places_file (cat (get :home *env*) "places.tre") +places_recent 8 +places_version 1)
+(defq +places_file (cat (get :home *env*) "places.tre") +places_recent 50 +places_version 1)
 
 (defun say (text)
 	(def *note* :text text)
@@ -82,20 +82,28 @@
 	(setq *items* (cat (sort folders) (sort files)))
 	(each (# (. %0 :sub)) (. *list* :children))
 	(each (lambda (name)
-			(defq button (Button))
-			(def button :text name :border 0)
+			;a row white, and a line under it, the lines of the sheet go on below
+			(defq button (Button) rule (Backdrop))
+			(def button :text name :border 0 :paper +argb_white :ink +argb_black)
 			(view-variant button :font :font_button)
 			(. button :connect (+ +event_item (!)))
-			(. *list* :add_child button))
+			(def rule :paper +argb_grey14 :min_height 1)
+			(.-> *list* (:add_child button) (:add_child rule)))
 		*items*)
 	(when (empty? *items*)
 		(def (defq hint (Label)) :text (if *save* "Nothing here yet" "Nothing here") :ink +argb_grey8)
 		(. *list* :add_child hint))
-	;the last of a column is stretched to its foot, so it is the space below
-	(. *list* :add_child (Backdrop))
+	;the sheet as long as the rows, and the scroll at least, ruled at the
+	;height of a row
 	(bind '(w h) (. *list* :pref_size))
-	(bind '(sw &ignore) (. *scroll* :get_size))
-	(. *list* :change_dirty 0 0 (max w (- sw 16) 400) (max h 40) :t)
+	(bind '(sw sh) (. *scroll* :get_size))
+	(defq w (max w (- sw 10) (- (get :min_width *scroll*) 10)) h (max h sh (get :min_height *scroll*) 40))
+	;a row and its line, the sheet's lines from the bottom of the first
+	(when (nempty? *items*)
+		(defq row (second (. (first (. *list* :children)) :pref_size)))
+		(def *ruled* :spacing (inc row) :origin_y row))
+	(. *list* :change 0 0 w (second (. *list* :pref_size)) :t)
+	(. *ruled* :change_dirty 0 0 w h :t)
 	(.-> *scroll* :layout :dirty_all)
 	(.-> *path* (:set_text (folder-said folder)) :layout :dirty)
 	(if (and (nempty? *pattern*) (not meta)) (say "The filter is no regexp.") (say "")))
@@ -127,26 +135,38 @@
 		(with-write-lock +places_file
 			(tree-save (file-stream +places_file +file_open_write) tree))))
 
+(defun place-name (folder all)
+	;a folder by its own name, and the folder above it too where another of
+	;all has that name, so the side stays narrow, its path its tip
+	(defq parts (split folder "/") name (last parts))
+	(cond
+		((not name) (folder-said folder))
+		((> (length (filter (# (eql (last (split %0 "/")) name)) all)) 1)
+			(cat (join (slice parts (max 0 (- (length parts) 2)) -1) "/") "/"))
+		((cat name "/"))))
+
 (defun places-show ()
 	;the places down the side: the tree, the user's folder, the docs, then
-	;those of the app, a button each
+	;those of the app, a button each, in a scroll of their own
 	(defq home (folder-of (get :home *env*)))
 	(setq *place_list* (cat (list "." home "docs")
 		(filter! (# (and (nempty? %0) (not (find %0 (list "." home "docs"))))) *app_places* 1 -1)))
 	(if (> (length *place_list*) +places_max) (setq *place_list* (slice *place_list* 0 +places_max)))
 	(each (# (. %0 :sub)) (. *places* :children))
-	(def (defq title (Title)) :text "Places")
-	(view-variant title :paper :paper_title)
-	(. *places* :add_child title)
 	(each (lambda (folder)
 			(defq button (Button))
-			(def button :text (cond ((= (!) 0) "The tree") ((= (!) 1) "Your folder") ((folder-said folder))) :border 0)
+			(def button :text (cond ((= (!) 0) "The tree") ((= (!) 1) "Your folder")
+					((place-name folder (slice *place_list* 3 -1))))
+				:tip_text (folder-said folder))
 			(view-variant button :font :font_button)
+			(view-variant button :border :border_button)
 			(. button :connect (+ +event_place (!)))
 			(. *places* :add_child button))
 		*place_list*)
-	;the last of a column is stretched to its foot, so it is the space below
-	(. *places* :add_child (Backdrop)))
+	(bind '(w h) (. *places* :pref_size))
+	(bind '(sw &ignore) (. *places_scroll* :get_size))
+	(. *places* :change_dirty 0 0 (max w (- sw 16) 144) h :t)
+	(.-> *places_scroll* :layout :dirty_all))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
@@ -178,9 +198,17 @@
 		(:t (go-to ".") (. *name* :set_text root)))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
+	;the places sized again now the window has its size
+	(places-show)
+	(defq select (task-mboxes 2))
+	(def *window* :tip_mbox (elem-get select 1))
 	(while *running*
-		(defq *msg* (mail-read (task-mbox)) id (getf *msg* +ev_msg_target_id))
+		(defq idx (mail-select select) *msg* (mail-read (elem-get select idx)) id (getf *msg* +ev_msg_target_id))
 		(cond
+			((= idx 1)
+				;what a place is, its path
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
 			((eql *msg* "")
 				(setq *running* :nil))
 			;a row of the drawer, or a place
