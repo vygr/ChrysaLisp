@@ -73,9 +73,8 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 ## app.lisp — The Event Loop
 
 	;debug options
-	(case 2
-	(0 (import "lib/debug/frames.inc"))
-	(2 (import "lib/debug/debug.inc")))
+	(case :nil
+	(0 (import "lib/debug/frames.inc")))
 
 	(import "usr/env.inc")
 	(import "gui/lisp.inc")
@@ -140,9 +139,9 @@ Key points:
 	size on screen; `view-fit` clamps an explicit position and size to
 	the screen.
 
-*	The `case 2` debug header selects stack frames or debugger support.
-	`(debug-brk "name")` is a no-op unless the debugger import is active.
-	To time a part of an app, wrap it in `(time-it name ...)`, root.inc.
+*	The debug header, `(case 0` in place of `(case :nil`, imports stack
+	frames, so an error says which function and line was running. To time
+	a part of an app, wrap it in `(time-it name ...)`, root.inc.
 
 ## widgets.inc — The Widget Tree
 
@@ -267,11 +266,9 @@ Key points:
 		(setq *running* :nil))
 
 	(defun action-button-1 ()
-	(debug-brk "button1")
 		(def (. *b1* :dirty) :paper +argb_red))
 
 	(defun action-minimise ()
-	(debug-brk "minimize")
 		(bind '(x y w h) (apply view-fit
 			(cat (. *window* :get_pos) (. *window* :pref_size))))
 		(. *window* :change_dirty x y w h))
@@ -283,9 +280,6 @@ Key points:
 
 *	Window resizes go through `view-fit`/`view-locate` then
 	`:change_dirty`.
-
-*	`(debug-brk "name")` goes on its own line at column 0 — that is how
-	the debugger wants to see them.
 
 ## Advanced Patterns
 

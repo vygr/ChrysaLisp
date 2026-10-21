@@ -39,16 +39,10 @@
 			(. *edit* :set_cursor cx cy)
 			(refresh))))
 
-(defun action-breakpoint (brk_id file line)
-	;search backwards from line to find breakpoint
+(defun action-jump (file line)
+	;the file opened, if there is one, and its line selected
 	(when (/= 0 (age file))
-		;file exists !
 		(open-file file)
-		(when (defq pattern (cat "debug-brk \q" brk_id "\q")
-				lines (.-> *edit* :get_buffer :get_buffer_lines)
-				cy (min line (length lines))
-				cy (some! (# (if (found? %0 pattern) (!))) (list lines)
-						:nil cy (max 0 (- cy 256))))
-			;found the breakpoint
-			(.-> *edit* (:set_cursor 0 cy) :select_line)
-			(refresh))))
+		(defq lines (.-> *edit* :get_buffer :get_buffer_lines))
+		(.-> *edit* (:set_cursor 0 (max 0 (min line (dec (length lines))))) :select_line)
+		(refresh)))

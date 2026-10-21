@@ -3,13 +3,13 @@
 ;;;;;;;;;;;;;;
 
 (defun action-undo ()
-(debug-brk "undo")
-)
+	;what the template does for it, here
+	:nil)
 
 (defun action-redo ()
-(debug-brk "redo")
-)
+	;what the template does for it, here
+	:nil)
 
 (defun action-rewind ()
-(debug-brk "rewind")
-)
+	;what the template does for it, here
+	:nil)

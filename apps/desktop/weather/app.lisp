@@ -1,7 +1,6 @@
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc"))
-(2 (import "lib/debug/debug.inc")))
+(0 (import "lib/debug/frames.inc")))
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")

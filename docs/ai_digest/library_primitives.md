@@ -984,12 +984,7 @@ Object-oriented container hierarchy implementing maps, sets, and trees.
 
 ## Debugging and Profiling
 
-Instrumentation hooks and profiling tools.
-
-*	**`debug-brk`**: Conditional breakpoint that halts execution and signals the
-	debug service.
-
-	*	`(debug-brk break_id [condition])`
+Instrumentation hooks.
 
 *	**`*stack_frame*`**: Global call-stack list populated when running under
 	`lib/debug/frames.inc`.

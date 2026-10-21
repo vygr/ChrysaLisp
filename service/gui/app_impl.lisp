@@ -18,7 +18,7 @@
 	(enum main timer mouse))
 
 ;stack frame callbacks on the GUI thread from :draw method etc !!!
-(setq *stack_frame* (list) *debug_state* :gui)
+(setq *stack_frame* (list))
 
 ;frame rate
 (defq +rate (/ 1000000 60)

@@ -108,12 +108,6 @@ sort cursor so (cx cy) <= (ax ay) return (ax ay)
 sort cursor so (cx cy) <= (ax ay) return (cx cy)
 ```
 
-### debug-brk
-
-```code
-(debug-brk brk_id [condition])
-```
-
 ### dec
 
 ```code

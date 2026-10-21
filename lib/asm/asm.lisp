@@ -22,8 +22,7 @@
 
 ;debug options
 (case :nil
-(0 (import "lib/debug/frames.inc"))
-(2 (import "lib/debug/debug.inc")))
+(0 (import "lib/debug/frames.inc")))
 
 (defun main ()
 	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil)

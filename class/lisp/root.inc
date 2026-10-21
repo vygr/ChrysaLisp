@@ -577,8 +577,6 @@
 ; Debug stubs
 ;;;;;;;;;;;;;
 
-(defmacro debug-brk (brk_id &optional condition) :nil)
-	; (debug-brk brk_id [condition])
 
 ;;;;;;;;;;;;;;
 ; Default opts

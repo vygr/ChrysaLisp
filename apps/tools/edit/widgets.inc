@@ -12,9 +12,7 @@
 		save save_all load_selected load_all_depends new)
 	(enum global region whole_words regexp ignore_case find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
-	(enum macro_playback macro_to_eof macro_global macro_record)
-	(enum debug_launch debug_toggle debug_remove
-		debug_enable_all debug_disable_all debug_remove_all))
+	(enum macro_playback macro_to_eof macro_global macro_record))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +status_min_size 48)
@@ -33,8 +31,6 @@
 			(ui-buttons (+sym_play +sym_play_end +sym_play_global +sym_record) +event_macro_playback))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_left_fill)
-		(ui-tool-bar *debug_toolbar* (:paper :paper_toolbar2)
-			(ui-buttons (+sym_save_debug +sym_breakpoint +sym_breakpoint_remove +sym_enable_all +sym_disable_all +sym_remove_all) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *buffer_toolbar* (:paper (get :paper *macro_toolbar*))
 				(ui-buttons (+sym_prev +sym_next +sym_scratchpad +sym_close_file +sym_close_all +sym_save +sym_save_all +sym_load +sym_load_all +sym_new) +event_prev))
@@ -99,6 +95,3 @@
 	'("collect" "collect global" "replace" "replace all"
 	"replace global"))
 
-(ui-tool-tips *debug_toolbar*
-	'("save all and debug" "toggle breakpoint" "remove breakpoint"
-	"enable all" "disable all" "remove all"))

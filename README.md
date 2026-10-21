@@ -1,6 +1,6 @@
 # ChrysaLisp
 
-ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground up for parallel and distributed computing. It's a complete, self-hosting environment featuring its own toolchain, a Virtual Processor (VP) for cross-platform portability, a responsive graphical user interface (GUI), a powerful command-line terminal with Unix-like pipes, an object-oriented assembler, extensive class libraries, a vpx compiler for efficient low-level coding, a unique Lisp interpreter, an integrated debugger, powerful programers editor, and vector font engine. Machines that run it find each other and join into one system, keep their files in step, and share a distributed object store. Its shader language draws the same picture on a GPU, or with none on every CPU of the network.
+ChrysaLisp is a unique, 64-bit, MIMD operating system designed from the ground up for parallel and distributed computing. It's a complete, self-hosting environment featuring its own toolchain, a Virtual Processor (VP) for cross-platform portability, a responsive graphical user interface (GUI), a powerful command-line terminal with Unix-like pipes, an object-oriented assembler, extensive class libraries, a vpx compiler for efficient low-level coding, a unique Lisp interpreter, a powerful programers editor, and vector font engine. Machines that run it find each other and join into one system, keep their files in step, and share a distributed object store. Its shader language draws the same picture on a GPU, or with none on every CPU of the network.
 
 ![](./screen_shot_1.png)
 

@@ -17,16 +17,9 @@
 (import "./macros.inc")
 (import "./ui.inc")
 (import "./state.inc")
-(import "./debug.inc")
 
 (defq
 *event_map* (scatter (Fmap)
-	+event_debug_launch action-debug-launch
-	+event_debug_toggle action-debug-toggle
-	+event_debug_remove action-debug-remove
-	+event_debug_remove_all action-debug-remove-all
-	+event_debug_enable_all action-debug-enable-all
-	+event_debug_disable_all action-debug-disable-all
 	+event_close_all action-close-all
 	+event_close_buffer action-close-buffer
 	+event_macro_record action-macro-record
@@ -217,7 +210,7 @@
 	'(*recorded_actions* *find_actions* *replace_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
 	*global_undo_stack* *global_redo_stack*
-	action-insert action-save-all action-maximise action-breakpoint
+	action-insert action-save-all action-maximise action-jump
 	select-word action-select-word action-insert context-words
 	macro-record config-load config-save find-count update-find-toolbar))
 (export-classes

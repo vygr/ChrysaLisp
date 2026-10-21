@@ -47,12 +47,6 @@ The ChrysaLisp Editor utilizes several key architectural elements of the OS:
 	extract matches across the active region, buffer, or all open files into the
 	scratchpad.
 
-*	**Integrated Debugger Subsystem:** Features a dedicated `*debug_toolbar*`
-	with bidirectional RPC integration with the ChrysaLisp Debugger
-	(`apps/system/debug/app.lisp`). It automates target application detection,
-	manages inline `(debug-brk "0xHEX")` breakpoints, and handles remote
-	breakpoint navigation.
-
 *	**Intelligent Word Autocompletion:** Integrates a global `Dictionary` object
 	that indexes words from loaded files and standard text databases. The
 	`show-matches` system captures context words in a 20-line radius around the
@@ -73,8 +67,7 @@ The ChrysaLisp Editor utilizes several key architectural elements of the OS:
 
 *	**RPC-Driven Inter-Process Communication:** Registers an "@Edit" service using
 	`mail-declare` to handle remote requests like `+edit_rpc_type_jump`, enabling
-	external tools (such as the Debugger) to trigger file opening and cursor
-	jump-to-line operations.
+	other tasks to open a file at a line.
 
 ### 2. Application Architecture
 
@@ -96,8 +89,7 @@ are managed via the `+select` enum:
 
 *	`+select_tip`: Manages tooltips for all toolbars.
 
-*	`+select_remote`: Manages incoming RPC requests (e.g., jump-to-breakpoint from the
-	debugger).
+*	`+select_remote`: Manages incoming RPC requests (e.g., open a file at a line).
 
 #### 2.2 Dual-Tree Workspace Layout
 
@@ -208,27 +200,10 @@ cluster-wide:
 	tasks across active network nodes using `pipe-farm`, skipping dictionary files and
 	pasting aggregated results into the scratchpad.
 
-#### 4.2 Integrated Debugger Subsystem (`debug.inc`)
+#### 4.2 Jumping to a File and Line (`action-jump` in `cursor.inc`)
 
-The editor features deep, bidirectional integration with the ChrysaLisp Debugger:
-
-*	**Launch and Target Detection (`action-debug-launch`):** Saves all open files,
-	launches `apps/system/debug/app.lisp`, inspects the paths of open files to identify
-	the associated target application (e.g. `apps/demos/boing/app.lisp`), and launches
-	the application child task under the debugger.
-
-*	**Breakpoint Management:**
-	*	`action-debug-toggle`: Inserts a `(debug-brk "0xHEX")` breakpoint with a randomized ID
-		on the current line, or toggles an existing breakpoint on/off by commenting it with `;;; `.
-	*	`action-debug-remove`: Deletes the auto-breakpoint on the current line.
-	*	`action-debug-enable-all` / `action-debug-disable-all`: Mass-enables or disables breakpoints
-		across the entire buffer.
-	*	`action-debug-remove-all`: Strips all auto-breakpoints from the active buffer.
-
-*	**Breakpoint Hit Traversal (`action-breakpoint` in `cursor.inc`):** When a breakpoint
-	triggers in a running application, the Debugger transmits an `edit-jump-rpc` message.
-	The editor opens the file, scans backward up to 256 lines to locate the `(debug-brk "brk_id")`
-	token, selects the line, and positions the cursor.
+*	**The `@Edit` service's jump:** another task sends `(edit-jump-rpc file line)`,
+	`apps/tools/edit/rpc.inc`, and the editor opens the file and selects the line.
 
 #### 4.3 Buffer, File, and Dependency Automation (`file.inc`)
 

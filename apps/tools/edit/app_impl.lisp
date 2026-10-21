@@ -300,8 +300,8 @@
 				(case (getf *msg* +edit_rpc_type)
 					(+edit_rpc_type_jump
 						(mail-send (getf *msg* +edit_rpc_reply_id) "")
-						(bind '(brk_id file line) (split (slice *msg* +edit_rpc_jump_names -1) "|"))
-						(action-breakpoint brk_id file (str-to-num line)))))
+						(bind '(file line) (split (slice *msg* +edit_rpc_jump_names -1) "|"))
+						(action-jump file (str-to-num line)))))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
 				;key up event
 				)

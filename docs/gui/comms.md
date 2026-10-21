@@ -114,8 +114,8 @@ tasks via a call to `:sys_mail :enquire` with the given name. A service entry
 can be removed with the `:sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
-task `net_id`. An example service is the current GUI `@Debug` application
-`apps/system/debug/app.lisp`.
+task `net_id`. An example service is the Editor's `@Edit`, declared in
+`apps/tools/edit/app_impl.lisp`, which other tasks ask to open a file at a line.
 
 Services who's names begin with a `'*'` character will be discoverable by all
 nodes in the network, otherwise only discoverable by other local tasks.

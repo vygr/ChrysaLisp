@@ -62,11 +62,9 @@ minimal.
         keyboard shortcuts.
 
     * **`apps/template/ui.inc`:** This is where the action handler functions are
-        implemented. In the template, these functions are just **stubs**. They
-        contain a `(debug-brk "name")` call, which will pause execution in
-        the debugger and if one is attached, immediately showing the developer that
-        their event was correctly dispatched. This is followed by a trivial UI
-        update, like changing a button's color.
+        implemented. In the template, these functions are just **stubs**: a
+        trivial UI update, like changing a button's color, that shows the
+        developer their event was correctly dispatched.
 
     * **`apps/template/app.lisp`:** The `main` function contains the core event
         loop. It waits for messages, determines their type, and uses the maps in
@@ -133,14 +131,8 @@ application. A developer would typically follow these steps:
 
     ```vdu
     (defun action-button-1 ()
-        (debug-brk "button1")
         (def (. *b1* :dirty) :paper (random-color)))
     ```
-
-    * `(debug-brk "button1")`: This is a powerful tool for a new developer.
-        It sets a conditional breakpoint. If the debugger app is running, this
-        line will cause the Template app to pause, confirming that the event was
-        correctly wired and dispatched.
 
     * `(def (. *b1* :dirty) :paper (random-color))`: This is the minimal "do
         something visible" action. It changes the color of the button that was
@@ -169,7 +161,7 @@ application. A developer would typically follow these steps:
 ### 4. Placeholder Utility Files
 
 The inclusion of `undo.inc`, `clipboard.inc`, and `utils.inc` is a structural
-guide. Their functions are stubs that simply call `(debug-brk ...)`. This
+guide. Their functions are stubs that do nothing or next to nothing. This
 teaches the developer:
 
 *   **Where to put undo logic:** The `action-undo` function in `undo.inc` is the

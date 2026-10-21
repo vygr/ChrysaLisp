@@ -22,7 +22,7 @@
 		:exclude '("launcher" "login" "wallpaper" "tui")
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
-				:apps '("terminal" "services" "debug" "netmon"
+				:apps '("terminal" "services" "netmon"
 					"netmap" "netspeed" "storage" "keys" "files" "themes" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
 				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "rosetta" "magnifier"))
