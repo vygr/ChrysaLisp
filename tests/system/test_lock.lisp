@@ -165,9 +165,11 @@
 
 ;a claim that should be granted is given plenty of time, as the service
 ;can be on another node, it comes back as soon as it is granted. How long
-;that is depends on the machine, the emulator is slow, (task-timeout). A claim
+;that is depends on the machine, the emulator is slow, (task-timeout), and
+;on the shape of the network: on a busy Pi in a ring a claim and its grant
+;go through the nodes between, and took more than two seconds. A claim
 ;that can not be granted waits only le_wait, then gives :nil.
-(defq le_wait 30000 le_long (task-timeout 2))
+(defq le_wait 30000 le_long (task-timeout 10))
 
 (defun le-claim (key &optional mode)
 	; claim a lock that should be free
