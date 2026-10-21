@@ -21,7 +21,9 @@
 		(def *image_scroll* :min_width 128 :min_height 128)
 		(. *window* :change_dirty x y w h)))
 
-(defun action-file-leaf-action ()
-	;load the file selected
-	(win-refresh (. *file_selector* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+(defun action-open ()
+	;the picker, at the picture shown, its places those pictures were taken
+	;from, the one open told to go first
+	(if *picker* (mail-send *picker* ""))
+	(setq *picker* (file-pick (elem-get select +select_picker) "Open image..." (ifn *file* ".")
+		(join +file_types " ") :nil "images")))

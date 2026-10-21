@@ -12,7 +12,7 @@
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
-	+event_file_leaf_action action-file-leaf-action)
+	+event_open action-open)
 
 *key_map* (scatter (Fmap))
 

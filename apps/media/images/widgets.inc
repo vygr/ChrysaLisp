@@ -1,8 +1,11 @@
 (enums +event +event_user
-	(enum file_folder_action file_leaf_action))
+	(enum open))
 
+;a picture, opened by the file picker, which keeps where pictures were taken from
 (ui-window *window* ()
 	(ui-title-bar *window_title* "" (+sym_close +sym_max +sym_min) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-files *file_selector* "Files" +event_file_folder_action :nil)
-		(ui-scroll *image_scroll* +scroll_flag_both)))
+	(ui-tool-bar *tools* ()
+		(ui-buttons (+sym_open) +event_open))
+	(ui-scroll *image_scroll* +scroll_flag_both))
+
+(ui-tool-tips *tools* '("open"))
