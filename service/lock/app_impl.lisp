@@ -60,7 +60,7 @@
 		(clear history)
 		(each (# (push history %0)) keep)))
 
-(defun merge-locks (writes reads pending nodes known now history)
+(defun merge-locks (writes reads pending nodes known now history granted)
 	(defq blocked (list) new_pending (list))
 	(each (lambda (req)
 		(defq node (pfind req :node))
@@ -78,6 +78,7 @@
 						(progn
 							(pinsert req :time now)
 							(push writes req)
+							(push granted (list (pfind req :reply) now))
 							(log-lock-history history "lock" key "write")
 							(mail-send (pfind req :reply) ""))
 						(push blocked req)
@@ -88,6 +89,7 @@
 							(if (defq rec (some (# (if (eql (pfind %0 :key) key) %0)) reads))
 								(pinsert rec :mode (inc (pfind rec :mode)) :time now)
 								(push reads (pmap :key key :path key_path :mode 1 :time now)))
+							(push granted (list (pfind req :reply) now))
 							(log-lock-history history "lock" key "read")
 							(mail-send (pfind req :reply) ""))
 						(push blocked req)
@@ -100,7 +102,12 @@
 		;every node we have ever been routed to
 		lock_known (list)
 		;nodes missing from the routes, and since when
-		lock_gone (list))
+		lock_gone (list)
+		;the claims granted, and the cancels of claims not yet come, each
+		;(reply time): mail has no order over more than one route, and a
+		;cancel can come before its claim. That claim is dropped as it
+		;comes, it would be granted to nobody. Both are kept a lease
+		lock_granted (list) lock_cancelled (list))
 	(mail-timeout (elem-get select +select_timer) +check_rate 0)
 	(while :t
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
@@ -110,11 +117,15 @@
 					(defq key (slice msg +lock_rpc_size -1) key_path (split key "/"))
 					(case type
 						(+lock_type_claim
-							(defq caller_node (task-nodeid reply_id))
-							(push lock_pending (pmap :key key :path key_path :mode mode :reply reply_id
-								:node caller_node :time (pii-time) :timeout timeout))
-							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
+							(cond
+								((defq idx (some (# (if (eql (first %0) reply_id) (!))) lock_cancelled))
+									;its caller gave up before it came
+									(setq lock_cancelled (erase lock_cancelled idx (inc idx))))
+								(:t (defq caller_node (task-nodeid reply_id))
+									(push lock_pending (pmap :key key :path key_path :mode mode :reply reply_id
+										:node caller_node :time (pii-time) :timeout timeout))
+									(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
+										(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))))
 						(+lock_type_release
 							; 1. check writes
 							(ifn (defq idx (some (# (if (eql (pfind %0 :key) key) (!))) lock_writes))
@@ -131,11 +142,18 @@
 								(log-lock-history lock_history "unlock" key "write"))
 							(mail-send reply_id "")
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
+								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
 						(+lock_type_cancel
 							;the caller gave up waiting for a claim
-							(ifn (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_pending))
-								;not waiting, so it was granted as the caller gave up, undo that
+							(cond
+								((defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_pending))
+									;still waiting, forget it
+									(setq lock_pending (erase lock_pending idx (inc idx))))
+								((not (defq idx (some (# (if (eql (first %0) reply_id) (!))) lock_granted)))
+									;not come yet, it is dropped when it does
+									(push lock_cancelled (list reply_id (pii-time))))
+								;granted as the caller gave up, undo that
+								(:t (setq lock_granted (erase lock_granted idx (inc idx)))
 								(cond
 									((= mode +lock_mode_write)
 										(when (defq idx (some (# (if (eql (pfind %0 :reply) reply_id) (!))) lock_writes))
@@ -148,11 +166,9 @@
 											(pinsert rec :mode cnt)
 											(elem-set lock_reads idx (last lock_reads))
 											(pop lock_reads))
-										(log-lock-history lock_history "unlock" key "read")))
-								;still waiting, forget it
-								(setq lock_pending (erase lock_pending idx (inc idx))))
+										(log-lock-history lock_history "unlock" key "read")))))
 							(setq lock_pending (merge-locks lock_writes lock_reads lock_pending
-								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history)))
+								(defq nodes (lisp-nodes)) (merge lock_known nodes) (pii-time) lock_history lock_granted)))
 						(+lock_type_history
 							;the last +lock_max_history entries
 							(mail-send reply_id (join (slice lock_history
@@ -161,6 +177,9 @@
 					(mail-timeout (elem-get select +select_timer) +check_rate 0)
 					(defq nodes (lisp-nodes) now (pii-time)
 						purged (purge-expired lock_writes lock_reads nodes (merge lock_known nodes) now))
+					;what is kept of claims and cancels for a lease, then let go
+					(setq lock_granted (filter (# (< (- now (second %0)) +lock_default_lease)) lock_granted)
+						lock_cancelled (filter (# (< (- now (second %0)) +lock_default_lease)) lock_cancelled))
 					(when (or purged (nempty? lock_pending))
-						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes lock_known now lock_history)))))))
+						(setq lock_pending (merge-locks lock_writes lock_reads lock_pending nodes lock_known now lock_history lock_granted)))))))
 	(mail-forget lock_service))

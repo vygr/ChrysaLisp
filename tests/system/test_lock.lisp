@@ -279,6 +279,25 @@
 (assert-eq "waiting claim, granted on release" :t (le-granted? le_mbox))
 (lock-release-rpc "le/q1")
 
+;a cancel can come before its claim, mail has no order over more than one
+;route. The claim is dropped as it comes: granted when the lock is let go,
+;it would be held by nobody, and the next claim would wait out its lease
+(le-claim "le/race")
+(defq le_late (mail-mbox))
+(mail-send (ensure-lock-service) (setf-> (cat (str-alloc +lock_cancel_size) "le/race")
+	(+lock_rpc_reply_id le_late)
+	(+lock_rpc_type +lock_type_cancel)
+	(+lock_rpc_mode +lock_mode_write)))
+(mail-send (ensure-lock-service) (setf-> (cat (str-alloc +lock_claim_size) "le/race")
+	(+lock_rpc_reply_id le_late)
+	(+lock_rpc_type +lock_type_claim)
+	(+lock_rpc_mode +lock_mode_write)
+	(+lock_rpc_timeout le_long)))
+(lock-release-rpc "le/race")
+(assert-eq "a claim that comes after its cancel is not granted" :t (le-claim "le/race"))
+(assert-eq "nor told it was" :nil (mail-read-timeout le_late 100000))
+(lock-release-rpc "le/race")
+
 ;a waiting write is not overtaken by a later read. Two messages sent one
 ;after the other can arrive the other way round, where there is more than
 ;one route between the nodes, so see the write is waiting before the read
