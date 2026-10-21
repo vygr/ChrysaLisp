@@ -468,8 +468,11 @@
 
 (defun test-say (&rest fields)
 	; (test-say field ...)
-	;a line of how the run goes, with -p
-	(if *test_progress* (print +test_progress (join (map (const str) fields) " "))))
+	;a line of how the run goes, with -p, sent on at once: what reads it
+	;is to have it as it happens, not when a buffer is full
+	(when *test_progress*
+		(print +test_progress (join (map (const str) fields) " "))
+		(stream-flush (io-stream 'stdout))))
 
 (defun test-ms ()
 	;how long since the run began, as it is said
