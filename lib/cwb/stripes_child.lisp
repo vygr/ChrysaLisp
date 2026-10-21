@@ -76,9 +76,10 @@
 				(>= have version)))))
 
 (defun draw-stripe (key reply msg)
-	(bind '(shared version zoom back sync width height y y1 gap style)
+	(bind '(shared version zoom back sync width height y y1 gap style a b tx c d ty)
 		(getf-> msg +stripe_shared +stripe_version +stripe_zoom +stripe_back +stripe_sync
-			+stripe_width +stripe_height +stripe_y +stripe_y1 +stripe_gap +stripe_style))
+			+stripe_width +stripe_height +stripe_y +stripe_y1 +stripe_gap +stripe_style
+			+stripe_m_a +stripe_m_b +stripe_m_tx +stripe_m_c +stripe_m_d +stripe_m_ty))
 	(defq
 		skip (cwb-id-set (map (const str-as-num) (split (slice msg +stripe_skip -1) " ")))
 		drawn (cond
@@ -94,12 +95,16 @@
 				(if (> gap 0) (cwb-paper canvas width height back (elem-get +stripe_styles style) gap y y1))
 				(unless bands (setq bands (make-bands)))
 				;a row more each way, an edge that lies on the line between
-				;two rows can shade the one it is not in
-				(defq m (if (= zoom 1.0) :nil (Mat3x2-scale zoom))
-					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1))))
+				;two rows can shade the one it is not in. What of the
+				;document those rows show is the box round them taken back
+				;by the matrix, moved, zoomed and turned, its bands' items
+				(defq m (if (and (= a 1.0) (= b 0.0) (= tx 0.0) (= c 0.0) (= d 1.0) (= ty 0.0)) :nil
+						(fixeds a b tx c d ty))
+					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1)))
+					seen (if m (Mat3x2-box clip (Mat3x2-invert m)) clip))
 				(reduce (lambda (count (flags rows none))
 						(if (bits? flags 1) count
-							(defq found (band-items rows none (/ (second clip) zoom) (/ (elem-get clip 3) zoom)))
+							(defq found (band-items rows none (second seen) (elem-get seen 3)))
 							(+ count (cwb-draw-items canvas
 								(if (and (not (Fset? skip)) (empty? skip)) found (cwb-pick found skip :t))
 								m clip))))

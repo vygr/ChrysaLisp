@@ -28,12 +28,13 @@
 (import "./paper.inc")
 
 ;a stripe for a child to draw: the key of the shared pixels and their size,
-;the version of the document and where to ask for it, the rows, the zoom,
-;and the paper. After it, text, the ids of the
+;the version of the document and where to ask for it, the rows, the zoom
+;and the matrix from the document to the canvas, moved, zoomed and
+;turned, and the paper. After it, text, the ids of the
 ;items not to draw, those being moved about, with a space between
 (structure +stripe +job_size
 	(long shared version)
-	(fixed zoom)
+	(fixed zoom m_a m_b m_tx m_c m_d m_ty)
 	(long back)
 	(netid sync)
 	(uint width height y y1 gap style)
@@ -169,20 +170,26 @@
 		(and (. this :ready?)
 			(not (stripes-full? (get :log this) (get :synced this) (get :version this)))))
 
-	(defmethod :job (key width height y y1 zoom back style gap skip)
-		; (. stripes :job key width height y y1 zoom back style gap skip) -> job
+	(defmethod :job (key width height y y1 zoom back style gap skip &optional m)
+		; (. stripes :job key width height y y1 zoom back style gap skip [m]) -> job
+		;m the matrix from the document to the canvas, the zoom's if not given
+		(bind '(a b tx c d ty) (ifn m (Mat3x2-scale zoom)))
 		(cat (setf-> (str-alloc +stripe_size)
 				(+stripe_shared (ifn key 0)) (+stripe_version (get :version this))
 				(+stripe_zoom (n2f zoom)) (+stripe_back back)
+				(+stripe_m_a a) (+stripe_m_b b) (+stripe_m_tx tx) (+stripe_m_c c) (+stripe_m_d d) (+stripe_m_ty ty)
 				(+stripe_sync (get :sync_mbox this))
 				(+stripe_width width) (+stripe_height height) (+stripe_y y) (+stripe_y1 y1)
 				(+stripe_gap gap) (+stripe_style (ifn (find style +stripe_styles) 0)))
 			(join (map (const str) skip) " ")))
 
-	(defmethod :frame (canvas zoom style)
-		; (. stripes :frame canvas zoom style) -> :t | :nil
+	(defmethod :frame (canvas zoom style &optional m)
+		; (. stripes :frame canvas zoom style [m]) -> :t | :nil
 		;draw the document, all of it, onto a canvas whose pixels are
-		;shared, a stripe for each child. With a style the paper is drawn
+		;shared, a stripe for each child, by m, the matrix from the document
+		;to the canvas, a view moved, zoomed and turned, the zoom's if not
+		;given: each draws the rows of the canvas it has, of what of the
+		;document they show. With a style the paper is drawn
 		;behind it, lib/cwb/paper.inc. With :nil there is none, the
 		;shapes are drawn on what is there, which the caller has made
 		;clear, for a board whose paper is a picture of its own. :nil, and nothing is done, if
@@ -195,7 +202,7 @@
 			(def this :state :frame :sent (get :version this) :drawn 0 :bad 0 :stamp (pii-time))
 			(. jobs :add (map (# (. this :job key w h (/ (* %0 h) count) (/ (* (inc %0) h) count)
 					zoom (. doc :find :background) style
-					(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board)))
+					(if style (max 2 (n2i (* (n2f (. doc :find :grid)) (n2f zoom)))) 0) (get :floating board) m))
 				(range 0 count)))
 			:t))
 

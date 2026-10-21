@@ -1038,11 +1038,10 @@
 (defun farm? ()
 	;is the document one for the nodes to draw: it took this task a while
 	;last time, the pixels are where they can reach, and it has not kept
-	;going wrong
-	;and it is seen from 0 0 at 1: the nodes do not know of a pan, and
-	;draw rows of a canvas that is the document's own size
-	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)
-		(= *zoom* 1.0) (= *pan_x* 0.0) (= *pan_y* 0.0) (= *turn* 0)))
+	;going wrong. However it is seen: each node is given the view's matrix
+	;and draws the rows of the canvas it has of what of the document they
+	;show
+	(and (> *local_ms* *farm_ms*) (< *farm_fails* 3) (/= (canvas-key *committed*) 0)))
 
 (defun redraw ()
 	;draw what has changed. All of the document; or only what was put on
@@ -1079,7 +1078,7 @@
 		((and doc_dirty (farm?) (. *stripes* :cheap?)
 				;they draw the shapes and no paper, on pixels made clear for them.
 				;What shows is as it was till they have done
-				(progn (. *committed* :fill 0) (. *stripes* :frame *committed* *zoom* :nil)))
+				(progn (. *committed* :fill 0) (. *stripes* :frame *committed* *zoom* :nil m)))
 			;the nodes draw it, (frame-done) when they have. What was
 			;landing is in this frame
 			(. *board* :take_appended)

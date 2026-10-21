@@ -156,6 +156,17 @@
 		(. st_stripes :note)
 		(assert-eq "at half the size, on another canvas" :done (st-frame 0.5 :grid))
 		(assert-true "it is what one task draws at half the size" (eql (st-bytes st_shared) (st-local st_board 320 240 0.5 :grid)))
+		;a view moved, zoomed and turned, as the app has one: no paper, the
+		;matrix to each node, the rows of the canvas of what of the document
+		;they show
+		(defq st_m (Mat3x2-mul (Mat3x2-rot 0.5 160 120) (Mat3x2-mul (Mat3x2-scale 0.75) (Mat3x2-translate -40 -30))))
+		(. st_shared :fill 0)
+		(assert-eq "a view moved, zoomed and turned is drawn by them" :done
+			(and (. st_stripes :frame st_shared 0.75 :nil st_m) (st-pump (lambda () :nil) 20)))
+		(assert-true "it is what one task draws by that matrix"
+			(eql (st-bytes st_shared)
+				(progn (defq st_c (Canvas 320 240 1)) (. st_c :set_canvas_flags +canvas_flag_antialias)
+					(. st_board :draw st_c st_m) (st-bytes st_c))))
 		(assert-eq "kept, with nothing to do for no time at all, they are left be" :idle
 			(progn (. st_stripes :keep) (get :state st_stripes)))
 		(def st_stripes :stamp (- (pii-time) 6000000))
