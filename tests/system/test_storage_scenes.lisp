@@ -11,7 +11,9 @@
 (each (lambda (name)
 	(defq said (list) recorded (list)
 		result (scene-run name (lambda (line) (push said line)) (lambda (line) (if line (push recorded line))) 120))
-	(assert-true (cat name ": it ran to the end") result)
+	;one that did not, says where it had got to
+	(assert-true (cat name ": it ran to the end" (if result "" (cat ", the last it said: " (ifn (last said) "nothing"))))
+		result)
 	(when result
 		(assert-eq (cat name ": no check of it failed, " (join (filter (# (starts-with "  FAIL" %0)) said) "; ")) 0 (second result))
 		(assert-true (cat name ": its checks held") (> (first result) 0))

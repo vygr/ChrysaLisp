@@ -209,6 +209,22 @@
 			(list name what))
 		(sort (filter (# (ends-with ".lisp" %0)) (files-all +scene_folder '(".lisp"))))))
 
+(defun scene-sweep ()
+	; (scene-sweep) -> count
+	;the stores of scenes whose process has gone are removed. A scene cut
+	;short, its test given up on or its node gone, never stopped its members
+	;nor removed their stores, and its images were left in obj/. Each has
+	;the process of its scene in its name, how many were removed
+	(defq gone 0)
+	(each! (lambda (file type)
+			(when (and (eql type "8") (starts-with "storage_scene_" file)
+					(or (ends-with ".img" file) (ends-with ".img.member" file))
+					(not (pii-alive (str-as-num (first (split (slice file 14 -1) "_"))))))
+				(pii-remove (cat "obj/" file))
+				(++ gone)))
+		(unzip (split (pii-dirlist "obj") ",") 2))
+	gone)
+
 (defun scene-run (name say &optional record wait)
 	; (scene-run name say [record wait]) -> :nil | (passed failed)
 	;the scene of that name is started, and each line it says given to say.
@@ -219,6 +235,7 @@
 	;called here, finds its own and not these
 	(defq scene_file (cat +scene_folder "/" name ".lisp"))
 	(when (/= (age scene_file) 0)
+		(scene-sweep)
 		(defq scene_said (mail-mbox) scene_heard (mail-mbox) scene_group (cat "*StorageScene" (str (pii-pid)) "_" (str (random 1000000)))
 			scene_child (open-child scene_file +kn_call_run) scene_result :nil scene_going :t scene_next 0
 			scene_until (+ (pii-time) (task-timeout (ifn wait 600))) scene_heard_at (pii-time))
@@ -244,6 +261,12 @@
 					(1 (each record (split (mail-read scene_heard) +storage_lf)))
 					;nothing for a while, which a record that holds lines back is told
 					(:t (if record (record :nil))))))
+		;one given up on says why, as its last line
+		(unless scene_result
+			(say (cat "given up on, " (cond
+				((>= (pii-time) scene_until) (cat "not done in " (str (ifn wait 600)) "s"))
+				((>= (- (pii-time) scene_heard_at) (task-timeout 60)) "nothing said for 60s")
+				("it went")))))
 		;what the members still have to say, till they have said nothing for
 		;half a second. What comes after that is to a mailbox nobody reads
 		(and record scene_result
