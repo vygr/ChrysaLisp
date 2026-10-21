@@ -38,7 +38,12 @@
 ;	pinned		what every member holds all of, as far as is known here
 ;	paths		the path map, a line an entry
 ;	journal		the paths set since the map was last written, see below
-;	blocks/xx/y	a block, its name in hex, xx the first two of it
+;	blocks/wN/name	a block, its name in hex, in the folder blocks were
+;			put in as it was, so many to a folder: a run of blocks
+;			put is a write of one directory, not one each, and a
+;			flash stick is slow at the many
+;	blocks/xx/y	a block, its name in hex, xx the first two of it: of a
+;			store of before there were wN, read still
 ;
 ; Nothing here calls itself, and nothing here knows of mail or of another
 ; member: service/storage/ is that.
@@ -58,6 +63,9 @@
 
 (defq +store_magic "CHRYSA_STORE 1" +store_object_magic "CHRYSA_OBJECT 1"
 	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10)
+	;how many blocks are put in a folder before the next is begun: the
+	;directory of so many is a cluster of a volume
+	+store_folder_blocks 256
 	;how long the journal of the path map is at most, it is no more than
 	;a 64th of the volume. 0 and there is none, and every change of a
 	;path writes the whole map as it did
@@ -418,8 +426,8 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fset 11) :manifests (Fmap 11)
-			:folders (Fset 11))
+			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :manifests (Fmap 11)
+			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
 		(store-head-save store)
@@ -429,15 +437,22 @@
 		(store-save store)
 		:t))
 
-(defun store-blocks (store)
-	; (store-blocks store) -> (name ...)
-	;every block that is kept here, whatever is in it, as the volume has it
+(defun store-blocks-found (store)
+	; (store-blocks-found store) -> ((name folder) ...)
+	;every block that is kept here, whatever is in it, as the volume has
+	;it, and the folder it is in
 	(defq out (list))
 	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
 		(unless (second entry)
-			(defq parts (split file "/"))
-			(push out (hex-decode (cat (elem-get parts 1) (elem-get parts 2)))))))
+			(defq parts (split file "/") folder (elem-get parts 1))
+			(push out (list (hex-decode (if (starts-with "w" folder) (elem-get parts 2) (cat folder (elem-get parts 2))))
+				(cat "blocks/" folder))))))
 	out)
+
+(defun store-blocks (store)
+	; (store-blocks store) -> (name ...)
+	;every block that is kept here, whatever is in it, as the volume has it
+	(map (const first) (store-blocks-found store)))
 
 (defun store-open (device member)
 	; (store-open path | stream member) -> :nil | store
@@ -452,7 +467,7 @@
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
 			:map (Fmap 101) :objects 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
-			:folders (Fset 101))
+			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
 			(defq at (find " " line) key (slice line 0 at) val (slice line (inc at) -1))
@@ -474,9 +489,19 @@
 			(store-lines (exfat-load vol "paths")))
 		(store-journal-open store)
 		(store-count store)
-		;the names of the blocks it has
-		(def store :held (Fset 1021) :manifests (Fmap 1021) :plan :nil)
-		(each (# (. (get :held store) :insert %0)) (store-blocks store))
+		;the names of the blocks it has, and where each is. Blocks are put
+		;in the last folder of them, the highest wN, while it has room
+		(def store :held (Fmap 1021) :manifests (Fmap 1021) :plan :nil)
+		(defq last -1 in_last 0)
+		(each (lambda ((name folder))
+				(. (get :held store) :insert name folder)
+				(when (starts-with "blocks/w" folder)
+					(defq n (str-as-num (slice folder (const (length "blocks/w")) -1)))
+					(cond
+						((> n last) (setq last n in_last 1))
+						((= n last) (++ in_last)))))
+			(store-blocks-found store))
+		(def store :folder_next (max 0 last) :folder_count in_last)
 		(unless (eql had member)
 			;it is this member's now
 			(def store :was had
@@ -529,11 +554,21 @@
 		(exfat-sync resize_to)
 		store))
 
-(defun store-block-file (name)
-	; (store-block-file name) -> path
-	;where on the volume a block of that name is kept
-	(defq hex (hex-encode name))
-	(cat "blocks/" (slice hex 0 2) "/" (slice hex 2 -1)))
+(defun store-folder (store)
+	; (store-folder store) -> path
+	;the folder blocks are put in now, the next once one has so many
+	(when (>= (get :folder_count store) +store_folder_blocks)
+		(def store :folder_next (inc (get :folder_next store)) :folder_count 0))
+	(cat "blocks/w" (str (get :folder_next store))))
+
+(defun store-block-file (store name)
+	; (store-block-file store name) -> path
+	;where on the volume a block of that name is kept, or is to be put
+	(defq hex (hex-encode name) folder (. (get :held store) :find name))
+	(cond
+		((not folder) (cat (store-folder store) "/" hex))
+		((starts-with "blocks/w" folder) (cat folder "/" hex))
+		((cat folder "/" (slice hex 2 -1)))))
 
 (defun store-block-has? (store name)
 	; (store-block-has? store name) -> :nil | :t
@@ -550,7 +585,7 @@
 	;a member is asked for many it has not got, by those looking for one
 	(task-breathe)
 	(and (store-block-has? store name)
-		(defq found (exfat-load (get :vol store) (store-block-file name)))
+		(defq found (exfat-load (get :vol store) (store-block-file store name)))
 		(eql (sha256 found) name) found))
 
 (defun store-manifest-text (size names)
@@ -690,11 +725,11 @@
 	;a block of this data is kept, and its name. If it is kept already
 	;there is no more to do. :nil if there is no room for it
 	(task-breathe)
-	(defq vol (get :vol store) name (sha256 data) file (store-block-file name)
-		folder (slice file 0 (const (length "blocks/xx"))))
+	(defq vol (get :vol store) name (sha256 data))
 	(cond
 		((store-block-has? store name) name)
-		(:t (exfat-begin vol)
+		(:t (defq folder (store-folder store) file (cat folder "/" (hex-encode name)))
+			(exfat-begin vol)
 			;the folders of blocks are made as they are wanted and never go,
 			;and to look for one was a read of the folder all the blocks are in
 			(unless (. (get :folders store) :find folder)
@@ -703,23 +738,25 @@
 			(defq kept (exfat-save vol file data))
 			(exfat-end vol)
 			(when kept
-				(. (get :held store) :insert name)
+				(. (get :held store) :insert name folder)
+				(def store :folder_count (inc (get :folder_count store)))
 				(store-plan-held store name)
 				name))))
 
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
+	(defq file (store-block-file store name))
 	(. (get :held store) :erase name)
 	(. (get :manifests store) :erase name)
 	(store-plan-dropped store name)
-	(exfat-delete (get :vol store) (store-block-file name)))
+	(exfat-delete (get :vol store) file))
 
 (defun store-held (store)
 	; (store-held store) -> (name ...)
 	;the names of the blocks kept here, as they are held: what
 	;(store-block-has?) goes by. No reading of the volume
 	(defq out (list))
-	(. (get :held store) :each (# (push out %0)))
+	(. (get :held store) :each (lambda (name _) (push out name)))
 	out)
 
 ;;;;;;;;;
@@ -1208,7 +1245,7 @@
 (export-symbols '(store-make store-open store-close store-resize store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
-	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file
+	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks
 	store-cut store-manifest store-manifest-text store-find store-stat store-now
 	store-commit store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info

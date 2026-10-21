@@ -46,7 +46,7 @@
 (assert-eq "a name of nothing kept is nothing" :nil (store-block-get so (sha256 "not here")))
 (assert-list-eq "nothing kept is wrong" '() (store-check so))
 ;what is kept under a name is made not to be it, as a disk gone wrong would
-(exfat-save (get :vol so) (store-block-file so_n1) (so-bytes 3000 2))
+(exfat-save (get :vol so) (store-block-file so so_n1) (so-bytes 3000 2))
 (assert-eq "a block that is not what its name says is not given" :nil (store-block-get so so_n1))
 (assert-list-eq "and is found" (list so_n1) (store-check so))
 (assert-list-eq "mended, it is let go of" (list so_n1) (store-check so :t))
@@ -394,3 +394,29 @@
 (store-put so_s "docs/a" (so-bytes 100 6))
 (assert-true "with no snapshot, a sweep lets go of what nothing is made of" (> (store-sweep so_s) 0))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; where blocks are on the volume: in the folder they were put in, so many to
+; a folder, and those of a store of before, by the start of their names
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(bind '(so_f so_f_stream) (so-new 0x400000 "folders" "aaaa" 4096))
+(defq so_f_names (map (# (store-block-put so_f (cat (char %0 8)))) (range 0 (inc +store_folder_blocks))))
+(assert-true "blocks are put in the first folder"
+	(starts-with "blocks/w0/" (store-block-file so_f (first so_f_names))))
+(assert-true "till it has so many, then the next"
+	(starts-with "blocks/w1/" (store-block-file so_f (last so_f_names))))
+;a block of a store of before, under the first two of its name
+(defq so_f_old (cat "a block of before") so_f_hex (hex-encode (sha256 so_f_old)))
+(exfat-mkdir (get :vol so_f) (cat "blocks/" (slice so_f_hex 0 2)))
+(exfat-save (get :vol so_f) (cat "blocks/" (slice so_f_hex 0 2) "/" (slice so_f_hex 2 -1)) so_f_old)
+(store-close so_f)
+(defq so_f (store-open so_f_stream "aaaa"))
+(assert-eq "opened again, a block of before is found where it is" so_f_old (store-block-get so_f (sha256 so_f_old)))
+(assert-eq "and those put in folders" (cat (char 0 8)) (store-block-get so_f (first so_f_names)))
+(assert-eq "every one of them" (+ 2 +store_folder_blocks) (length (store-blocks so_f)))
+(assert-true "the next is put in the last folder, which has room"
+	(starts-with "blocks/w1/" (store-block-file so_f (store-block-put so_f (cat "one more")))))
+(assert-true "a block let go of is gone from where it was"
+	(and (store-block-drop so_f (sha256 so_f_old)) (not (store-block-get so_f (sha256 so_f_old)))))
+(assert-list-eq "and nothing kept is wrong" '() (store-check so_f))

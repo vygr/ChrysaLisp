@@ -212,11 +212,14 @@
 	;bytes to the device. A run of whole blocks goes straight to it. The
 	;rest, the ends of a long write and all of a short one, change the
 	;blocks that are kept, a block that is only part written is read first.
+	;Between an (exfat-begin) and its (exfat-end) all of it is kept: the
+	;files written one after another are next to each other, and go to
+	;the device as one write, not one each, which a flash stick is slow at
 	(defq end (+ offset (length data)) dirty (get :dirty vol)
 		lo (>> offset +exfat_block_shift) hi (>> (+ end (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_lo (>> (+ offset (const (dec +exfat_block_size))) +exfat_block_shift)
 		whole_hi (>> end +exfat_block_shift))
-	(if (< (- whole_hi whole_lo) +exfat_direct_blocks) (setq whole_hi whole_lo))
+	(if (or (< (- whole_hi whole_lo) +exfat_direct_blocks) (> (get :depth vol) 0)) (setq whole_hi whole_lo))
 	(each (lambda (index)
 		(defq base (<< index +exfat_block_shift)
 			from (max offset base) to (min end (+ base +exfat_block_size)))

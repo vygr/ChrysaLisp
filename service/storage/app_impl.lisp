@@ -64,6 +64,10 @@
 ;how long what was learnt from another member may wait to be written
 (defq +dirty_most 2000000)
 
+;a run of block puts is one writing of the volume, ended by anything else
+;asked, or by nothing asked for this long
+(defq +batch_quiet 100000)
+
 (defun notes-text (store at)
 	;what one member tells another: where its count of changes is now,
 	;who the members are, and its path map, or what of it is not as it was
@@ -124,7 +128,7 @@
 		(:t (defq service (mail-declare (task-mbox) name "Storage Service 0.2")
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
-				running :t cut (list) peers (list) recorder (storage-record-new)
+				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -133,8 +137,24 @@
 					(ifn grace (str +storage_grace))) +storage_lf)))
 			(mail-send ready "ok")
 			(while running
+				;a run of block puts is one writing of the volume, so what they
+				;are goes to the device together, the blocks next to each other
+				;and their folder once: a flash stick is slow at many small
+				;writes. Anything else asked ends it first, so a path is set
+				;only to blocks that are on the device, and so does nothing
+				;asked for a moment
+				(when batch
+					(defq t0 (pii-time))
+					(while (and batch (not (mail-poll (list (task-mbox)))))
+						(if (> (- (pii-time) t0) +batch_quiet)
+							(setq batch (progn (exfat-end batch) :nil))
+							(task-sleep 1000))))
 				(defq msg (mail-read (task-mbox)) reply (getf msg +storage_rpc_reply_id)
 					type (getf msg +storage_rpc_type) body (slice msg +storage_rpc_size -1))
+				(cond
+					((= type +storage_type_block_put)
+						(unless batch (setq batch (exfat-begin (get :vol store)))))
+					(batch (setq batch (progn (exfat-end batch) :nil))))
 				;a thing asked that throws is said to have, and the service goes on
 				(defq answer (catch (case type
 						(+storage_type_info (info-text store))
