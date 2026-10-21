@@ -21,6 +21,7 @@
 		:version +config_version
 		:difficulty 0
 		:mode +mode_auto
+		:zoom *zoom*
 		:hiscore_names +default_hiscore_names
 		:hiscore_values +default_hiscore_values
 		:demo_score 0
@@ -40,7 +41,11 @@
 		*best_demo_score* (. *config* :find :demo_score)
 		*best_demo_data* (. *config* :find :demo)
 		*session_best_score* *best_demo_score*
-		*session_best_demo* *best_demo_data*))
+		*session_best_demo* *best_demo_data*
+		;the zoom it was left at, one of a file kept before it was kept the
+		;one it starts at
+		*zoom* (max +zoom_min (min +zoom_max (ifn (. *config* :find :zoom) *zoom*))))
+	(def *window* :zoom *zoom*))
 
 (defun config-save ()
 	(when *session_best_demo*
@@ -49,6 +54,7 @@
 	(scatter *config*
 		:difficulty *menu_difficulty*
 		:mode *menu_mode*
+		:zoom *zoom*
 		:hiscore_names *hiscore_names*
 		:hiscore_values *hiscore_values*
 		:campaign *campaign_state*
