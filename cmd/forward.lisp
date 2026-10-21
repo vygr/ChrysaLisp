@@ -13,8 +13,9 @@
         -j --jobs num: max jobs per batch, default 1.
 
     Scan source files for a function or macro that is
-    used above where it is defined, and for a function
-    that calls itself.
+    used above where it is defined, as the head of a form
+    or named in (const), and for a function that calls
+    itself.
 
     Such a use is not bound to the function as the code
     is read, the name is looked up each time it is run.
@@ -41,7 +42,7 @@
 			(defq tok_state :text line_no 0 depth 0 defs_map (Fmap 11) uses (list)
 				;the definitions that are open, the innermost last, each
 				;(name depth kind), and what the next symbol is
-				open (list) after_open :nil want :nil)
+				open (list) after_open :nil want :nil after_const :nil)
 			(lines! (lambda (raw_line)
 				(task-slice)
 				(++ line_no)
@@ -55,8 +56,8 @@
 					(case state
 						(:text (each (lambda (ch)
 							(cond
-								((eql ch "(") (++ depth) (setq after_open :t))
-								((eql ch ")") (-- depth) (setq after_open :nil)
+								((eql ch "(") (++ depth) (setq after_open :t after_const :nil))
+								((eql ch ")") (-- depth) (setq after_open :nil after_const :nil)
 									;the end of a definition
 									(and (nempty? open) (<= depth (second (last open))) (pop open)))
 								((find ch " \t"))
@@ -69,6 +70,13 @@
 									(setq want :nil))
 								((and after_open (or (eql tok "defun") (eql tok "defmacro")))
 									(setq want tok))
+								;a function named in (const), its value is taken as the
+								;code is read, as a head of a form is bound then
+								(after_const
+									(push uses (list tok line_no (if (nempty? open) (last open)) :t))
+									(setq after_const :nil))
+								((and after_open (eql tok "const"))
+									(setq after_const :t))
 								((push uses (list tok line_no (if (nempty? open) (last open)) after_open))))
 							(setq after_open :nil))
 						(:t (setq after_open :nil))))
