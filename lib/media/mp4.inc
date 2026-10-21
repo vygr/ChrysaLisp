@@ -256,11 +256,14 @@
 
 (defun mp4-packet (reel index)
 	; (mp4-packet reel index) -> :nil | str
-	;the bytes of a sample of the video track
-	(when (< -1 index (ifn (. reel :find :frames) 0))
-		(defq stream (. reel :find :stream))
-		(stream-seek stream (elem-get (. reel :find :offsets) index) 0)
-		(read-blk stream (elem-get (. reel :find :lengths) index))))
+	;the bytes of a sample of the video track, or as the reel's :packet_fn
+	;gives them, the frames of a reel of another kind re-framed for the host
+	(cond
+		((defq fn (. reel :find :packet_fn)) (fn reel index))
+		((< -1 index (ifn (. reel :find :frames) 0))
+			(defq stream (. reel :find :stream))
+			(stream-seek stream (elem-get (. reel :find :offsets) index) 0)
+			(read-blk stream (elem-get (. reel :find :lengths) index)))))
 
 (defun mp4-order (reel)
 	; (mp4-order reel) -> (packet ...)
@@ -287,7 +290,7 @@
 	;:nil if it has none. Its native is taken as the codec is made, not as
 	;this is read, as flm-codec does
 	(and (defq video (. reel :find :video) config (. video :find :config)
-			setup (some (# (if (find (first %0) '("avcC" "hvcC")) (second %0))) config))
+			setup (some (# (if (find (first %0) '("avcC" "hvcC" "setup")) (second %0))) config))
 		(defq native (ffi "service/gui/lisp_video")
 			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
 		(/= handle 0)
@@ -343,6 +346,26 @@
 (import "./mkv.inc")
 (each (# (reel-kind %0 mkv-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mkv" ".webm"))
 
+;a film of AVI, its tracks as an mp4's: its pictures by the host's codec,
+;or of Motion JPEG by lib/image/jpg.inc's, lib/media/avi.inc
+(import "./avi.inc")
+
+(defun avi-codec (reel &optional scale)
+	; (avi-codec reel [scale]) -> :nil | codec
+	;Motion JPEG by the host's, the hardware's, if it has one, else ours
+	(if (eql (. reel :find :codec) "jpeg") (or (mp4-codec reel scale) (avi-mjpeg-codec reel scale)) (mp4-codec reel scale)))
+
+(defun avi-frame (codec n)
+	; (avi-frame codec n) -> :nil | canvas
+	(if (. codec :find :mjpeg) (avi-mjpeg-frame codec n) (mp4-frame codec n)))
+
+(defun avi-close (codec)
+	; (avi-close codec) -> :nil
+	(unless (. codec :find :mjpeg) (mp4-close codec)))
+
+(reel-kind ".avi" avi-reel avi-packet avi-codec avi-frame avi-close)
+
 ;module
-(export-symbols '(mp4-reel mp4-packet mp4-codec mp4-frame mp4-close mp4-tables))
+(export-symbols '(mp4-reel mp4-packet mp4-codec mp4-frame mp4-close mp4-tables avi-codec avi-frame avi-close
+	avi-reel avi-packet avi-track-stream avi-ts-fill avi-ts-seek avi-mjpeg-codec avi-mjpeg-frame))
 (env-pop)

@@ -743,6 +743,56 @@ the host window is on show again
 (adler32 data [adler]) -> adler
 ```
 
+### adpcm-ima-block
+
+```code
+(adpcm-ima-block str channels) -> (left right)
+
+a block of IMA ADPCM, as WAV has it
+```
+
+### adpcm-ms-block
+
+```code
+(adpcm-ms-block str channels coefs) -> (left right)
+
+a block of Microsoft ADPCM
+```
+
+### adpcm-ms-coefs
+
+```code
+(adpcm-ms-coefs extra) -> (coef1 coef2 ...)
+
+the pairs of coefficients a format of Microsoft ADPCM says, after its
+samples a block and how many pairs, or the seven every one has
+```
+
+### adpcm-pcm
+
+```code
+(adpcm-pcm str channels bits) -> (left right)
+
+PCM of 8 bits, offset by 128, or of 16 or 24 signed, low byte first,
+channels one after another in each frame
+```
+
+### adpcm-reals
+
+```code
+(adpcm-reals chans) -> (left right)
+
+channels of nums, the first two as reals, the one of one on both
+```
+
+### adpcm-s16
+
+```code
+(adpcm-s16 str at) -> num
+
+two bytes low first, signed
+```
+
 ### aead-open
 
 ```code
@@ -953,6 +1003,312 @@ are of a line, or a part of one that begins at the char start.
 
 ```code
 (atom? o) -> :t | :nil
+```
+
+### avi-avc
+
+```code
+(avi-avc stream video)
+
+of a stream of H.264, its avcC, made of its first SPS and PPS if its
+format has none, and the order its frames are shown in: by IDR, each
+frame from one to the next in the order of its picture order count
+```
+
+### avi-avc-key?
+
+```code
+(avi-avc-key? str) -> :t | :nil
+
+has a frame of H.264, its NALs each after a start code, an IDR slice
+```
+
+### avi-avc-packet
+
+```code
+(avi-avc-packet reel n) -> :nil | str
+
+a frame of H.264 of Annex B as the host's decoder takes it, as an mp4
+has it: each NAL after four bytes of its length, the delimiters left out
+```
+
+### avi-avc-poc
+
+```code
+(avi-avc-poc str nals sps) -> :nil | (idr ref lsb)
+
+of a frame's first slice, is it an IDR, is it a reference, and its
+picture order count's low bits
+```
+
+### avi-avcc-sps
+
+```code
+(avi-avcc-sps avcc) -> :nil | rbsp
+
+the first SPS of an avcC, its bytes after its header
+```
+
+### avi-children
+
+```code
+(avi-children str at end) -> ((id body stop kind) ...)
+
+the chunks of a str from at to end: its four letters, where what it
+holds begins and ends, and of a LIST or RIFF the four letters of what
+kind. A length past the end is the end, a file cut short
+```
+
+### avi-chunk
+
+```code
+(avi-chunk track offset size key)
+
+a chunk of a stream's into its tables, where what it holds is in the
+file, how long, a key or not
+```
+
+### avi-close
+
+```code
+(avi-close codec) -> :nil
+```
+
+### avi-codec
+
+```code
+(avi-codec reel [scale]) -> :nil | codec
+
+Motion JPEG by the host's, the hardware's, if it has one, else ours
+```
+
+### avi-frame
+
+```code
+(avi-frame codec n) -> :nil | canvas
+```
+
+### avi-idx1
+
+```code
+(avi-idx1 stream at stop movi tracks) -> :t | :nil
+
+the chunks of idx1, each 16 bytes, its id, flags, where it is and how
+long. Where, from the movi's four letters as it should be, or of some
+writers from the start of the file: the first is looked at to see
+```
+
+### avi-mjpeg-codec
+
+```code
+(avi-mjpeg-codec reel [scale]) -> codec
+
+a picture of each frame by lib/image/jpg.inc, put on a canvas of its own
+```
+
+### avi-mjpeg-frame
+
+```code
+(avi-mjpeg-frame codec n) -> :nil | canvas
+
+frame n, a picture of its own, made the size of the canvas and put on
+it. One that does not decode leaves the one before
+```
+
+### avi-mp4v-headers
+
+```code
+(avi-mp4v-headers stream track) -> str
+
+the VOS, VO and VOL of MPEG-4 Part 2: the extra bytes of its format if
+they have its VOL, else the start of its first frame, all before its
+first VOP
+```
+
+### avi-mp4v-key?
+
+```code
+(avi-mp4v-key? str) -> :t | :nil
+
+has a frame of MPEG-4 Part 2 a VOP coded as I: its start code, 0x1b6,
+and the two bits after it 0
+```
+
+### avi-nals
+
+```code
+(avi-nals str [prefix]) -> ((type at end) ...)
+
+the NALs of a frame: each after a start code, Annex B, or with prefix,
+of an avcC, each after a number of that many bytes high first
+```
+
+### avi-number
+
+```code
+(avi-number id) -> :nil | num
+
+the stream a chunk of the movi is of, the two digits it begins with
+```
+
+### avi-odml
+
+```code
+(avi-odml stream track) -> :t | :nil
+
+the OpenDML index of a stream: its indx, of the ix chunks each of a
+part of it, each a base and the chunks from it, a top bit set not a key
+```
+
+### avi-odml?
+
+```code
+(avi-odml? track) -> :t | :nil
+
+has a stream an OpenDML index, an indx of indexes of chunks
+```
+
+### avi-packet
+
+```code
+(avi-packet reel n) -> :nil | str
+
+the bytes of frame n of the pictures, as the file has them
+```
+
+### avi-rbsp
+
+```code
+(avi-rbsp str at end) -> str
+
+a NAL's bytes after its header, each 3 that follows two 0s taken out
+```
+
+### avi-read
+
+```code
+(avi-read stream at len) -> str
+
+bytes of the file, as many as it has from at
+```
+
+### avi-reel
+
+```code
+(avi-reel stream) -> :nil | reel
+
+the reel of the first stream of pictures of an AVI, every stream in
+:tracks. Its chunks from the OpenDML index if there is one, else idx1,
+else as the movi are read. Each a time a frame of its own, the rate
+its strh says, in the order they are in the file
+```
+
+### avi-scan
+
+```code
+(avi-scan stream movis tracks)
+
+the chunks of each movi read one after another, as there is no index
+to say: a file cut short, or one whose index is lost. A LIST rec in it
+is gone in to. Which are keys is not said: of a picture of one frame
+each, Motion JPEG, all are, of the rest what their own bytes say
+```
+
+### avi-scan-keys
+
+```code
+(avi-scan-keys stream track) -> (n ...)
+
+the keys of a stream of pictures from their own bytes: of Motion JPEG
+each, of MPEG-4 a VOP coded as I, of H.264 an IDR slice, of DivX 3 a
+frame whose first bit is 0
+```
+
+### avi-se
+
+```code
+(avi-se reader) -> num
+```
+
+### avi-sps
+
+```code
+(avi-sps rbsp) -> (frame_bits poc_type poc_bits frame_mbs_only)
+
+of an SPS what a slice header's widths are
+```
+
+### avi-start-code
+
+```code
+(avi-start-code str byte) -> :nil | index
+
+where a start code, 00 00 01 and that byte, is first in a str
+```
+
+### avi-stream
+
+```code
+(avi-stream str body stop) -> track
+
+a strl: its strh, strf and indx, what kind, its codec as an mp4's,
+its size or its sound
+```
+
+### avi-tops
+
+```code
+(avi-tops stream end) -> ((id at stop kind) ...)
+
+the chunks at the top of each RIFF of the file, where each begins in
+the file, its hdrl and the movi of each read later as they are wanted
+```
+
+### avi-track-stream
+
+```code
+(avi-track-stream reel track) -> stream
+
+all of a stream's chunks, one after the other, as a stream of its own
+that can be seeked, wherever they are in the file: a new one each time
+```
+
+### avi-ts-fill
+
+```code
+(avi-ts-fill st) -> :nil | str
+
+what is next, the rest of the chunk it is in, no more than 64KB
+```
+
+### avi-ts-piece
+
+```code
+(avi-ts-piece st at) -> index
+
+the chunk that byte at of the stream is in, by halves of the starts
+```
+
+### avi-ts-seek
+
+```code
+(avi-ts-seek st offset whence) -> pos
+```
+
+### avi-ue
+
+```code
+(avi-ue reader) -> num
+
+a number of Exp-Golomb: so many 0s, a 1, and that many bits
+```
+
+### avi-word
+
+```code
+(avi-word str at) -> num
+
+four bytes, low first
 ```
 
 ### backdrop-lines
@@ -3365,6 +3721,24 @@ every file that is found, saved or removed comes by here, and many
 of them in one batch touch the device not at all: it gives way here too
 ```
 
+### exfat-pending-over
+
+```code
+(exfat-pending-over vol offset len) -> vol
+
+what waits is written now if any of it is of those bytes: what is read
+of them is what was written, and a write of them again is the last
+```
+
+### exfat-pending-write
+
+```code
+(exfat-pending-write vol) -> vol
+
+the writes of whole blocks that wait, to the device, in the order
+they are on it, those that are next to each other as one
+```
+
 ### exfat-raw-read
 
 ```code
@@ -3544,6 +3918,10 @@ every file and directory under a path, a directory before what is in it
 bytes to the device. A run of whole blocks goes straight to it. The
 rest, the ends of a long write and all of a short one, change the
 blocks that are kept, a block that is only part written is read first.
+Between an (exfat-begin) and its (exfat-end) the run waits, as it is:
+the files written one after another are next to each other, and go
+to the device as one write, not one each, which a flash stick is slow
+at. A write of what waits writes that first
 ```
 
 ### exfat-zeros
@@ -5843,7 +6221,8 @@ of two hours is half a second. With no ctts they are shown as decoded
 ```code
 (mp4-packet reel index) -> :nil | str
 
-the bytes of a sample of the video track
+the bytes of a sample of the video track, or as the reel's :packet_fn
+gives them, the frames of a reel of another kind re-framed for the host
 ```
 
 ### mp4-reel
@@ -6713,6 +7092,12 @@ top byte first
 
 ```code
 (pbkdf2-sha256 password salt count size) -> str
+```
+
+### period-end
+
+```code
+the frames since the last IDR, each its place by its count
 ```
 
 ### pii-kill
@@ -9708,9 +10093,9 @@ where its count of changes is now, to give back to (store-since)
 ### store-block-file
 
 ```code
-(store-block-file name) -> path
+(store-block-file store name) -> path
 
-where on the volume a block of that name is kept
+where on the volume a block of that name is kept, or is to be put
 ```
 
 ### store-block-get
@@ -9749,6 +10134,15 @@ there is no more to do. :nil if there is no room for it
 (store-blocks store) -> (name ...)
 
 every block that is kept here, whatever is in it, as the volume has it
+```
+
+### store-blocks-found
+
+```code
+(store-blocks-found store) -> ((name folder) ...)
+
+every block that is kept here, whatever is in it, as the volume has
+it, and the folder it is in
 ```
 
 ### store-check
@@ -9873,6 +10267,14 @@ with what the last one gave: what it gives at the end, as (store-walk).
 A name is found where a function is called from, not where it is
 written: what (store-walk) calls its function must not be step, or
 the step below would be this very lambda
+```
+
+### store-folder
+
+```code
+(store-folder store) -> path
+
+the folder blocks are put in now, the next once one has so many
 ```
 
 ### store-get
