@@ -39,7 +39,7 @@
 	(bind '(reply group) (split (mail-read (task-mbox)) +storage_lf))
 	(defq scene (Emap))
 	(scatter scene :reply (hex-decode reply) :group group :tag (cat (str (pii-pid)) "_" (str (random 1000000)))
-		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil :near :nil)
+		:svcs (list) :images (list) :passed 0 :failed 0 :starts 0 :big :nil :near :nil :cut (list))
 	(scene-say scene what)
 	scene)
 
@@ -81,11 +81,16 @@
 
 (defun scene-seen-all? (scene)
 	; (scene-seen-all? scene) -> :nil | :t
-	;each member that is running sees all the others. One just started is
-	;known on another node only when its name has come by in a ping
-	(defq svcs (. scene :find :svcs) want (dec (length svcs)))
+	;each member that is running sees all the others it is not cut off
+	;from. One just started is known on another node only when its name
+	;has come by in a ping. One cut off sees none, and the rest do not see
+	;it: wanting more of them, a settle went round all its rounds
+	(defq svcs (. scene :find :svcs) cut (. scene :find :cut)
+		away (length (filter (# (find (first %0) cut)) svcs))
+		want (- (length svcs) 1 away))
 	(every (lambda ((id svc))
-			(>= (length (filter (const nempty?) (split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf))) want))
+			(>= (length (filter (const nempty?) (split (ifn (storage-ask svc +storage_type_peers) "") +storage_lf)))
+				(if (find id cut) 0 want)))
 		svcs))
 
 (defun scene-settle (scene)
@@ -142,12 +147,14 @@
 	(defq others (filter (# (nql (first %0) id)) (. scene :find :svcs)))
 	(storage-cut (map (const first) others) (scene-svc scene id))
 	(each (# (storage-cut (list id) (second %0))) others)
+	(unless (find id (. scene :find :cut)) (push (. scene :find :cut) id))
 	scene)
 
 (defun scene-heal (scene)
 	; (scene-heal scene) -> scene
 	;all can reach all
 	(each (# (storage-cut (list) (second %0))) (. scene :find :svcs))
+	(. scene :insert :cut (list))
 	scene)
 
 (defun scene-bytes (count seed)
