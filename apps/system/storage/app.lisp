@@ -35,7 +35,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "apps/system/files/picker.inc")
+(import "././files/picker.inc")
 (import "lib/cwb/doc.inc")
 (import "service/lock/app.inc")
 (import "service/storage/scene.inc")

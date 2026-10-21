@@ -1,6 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
-(import "apps/system/files/picker.inc")
+(import "././files/picker.inc")
 (import "service/net/keys.inc")
 
 ;The keys of this machine, its keyring, service/net/keys.inc. A row for
