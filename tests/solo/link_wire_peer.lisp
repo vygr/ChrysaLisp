@@ -29,13 +29,13 @@
 		;one of this end's, as a node of its own
 		(door-send h (cat (char 40 4) (char 1 4) node system (char 0 4) (char 0 4)) until)
 		(tell "pinged" "")
-		;the fragment the test sends, to mailbox 7 of this made up node: past
-		;the pings that come each second, and the kernel's own mail to a
-		;node it has just heard of
+		;the fragment the test sends, to mailbox 0x51ab0c of this made up
+		;node, one no other mail is to: past the pings that come each
+		;second, and the kernel's own mail to a node it has just heard of
 		(defq until (+ (pii-time) (task-timeout 10)) frag :nil)
 		(while (and (not frag) (< (pii-time) until) (defq wire (door-recv h 8 until)))
 			(defq body (door-recv h (code wire 4 0) until))
-			(and body (= (code wire 4 4) 2) (eql (slice body 0 8) (char 7 8))
+			(and body (= (code wire 4 4) 2) (eql (slice body 0 8) (char 0x51ab0c 8))
 				(setq frag (cat wire body))))
 		(tell "frag" (hex-encode (ifn frag ""))))
 	(task-sleep 500000)

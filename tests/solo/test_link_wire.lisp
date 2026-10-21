@@ -63,7 +63,7 @@
 
 ;a fragment: mail from here to the made up node goes over this link
 (lw-heard "pinged")
-(defq lw_body "a fragment, on the wire" lw_to (cat (char 7 8) lw_node) lw_t0 (pii-time))
+(defq lw_body "a fragment, on the wire" lw_to (cat (char 0x51ab0c 8) lw_node) lw_t0 (pii-time))
 ;its ping is taken in a moment after it is read
 (task-sleep 200000)
 (mail-send lw_to lw_body)
