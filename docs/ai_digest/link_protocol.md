@@ -388,6 +388,17 @@ it must take them:
   ends that open it then are both guests. The scripts that start nodes take
   the files away; now a link that closes does too.
 
+## Tested
+
+`tests/solo/test_link_wire.lisp` holds the TCP link to this document. A
+node's real end, the door and the link tasks, meets a bare socket in
+`tests/solo/link_wire_peer.lisp`, which goes through the door by the
+formulas here and takes apart what it is sent: the hello field by field, the
+proof, the first ping, and a fragment, with their offsets written out as
+numbers, so a change to the code that this document does not have fails it.
+A shared memory link can not be tapped from Lisp: its size check is
+`tests/solo/test_link_size.lisp`.
+
 ## The files
 
 | | |
