@@ -30,7 +30,8 @@
         -p --progress: say how the run goes as it goes, a line each
             that starts =p=, for a progress bar: plan, then cached or
             dirty for each module and why, start and done as each one
-            runs, lost for one whose batch had no result, and end.
+            runs, start with how long it took the last time it ran, ms,
+            lost for one whose batch had no result, and end.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.

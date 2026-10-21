@@ -47,7 +47,8 @@
 	;whatever reads it as it comes: what is to run and why, what was kept,
 	;each module as it starts and as it is done, and when it is over
 	+test_progress "=p= " *test_progress* :nil *test_t0* 0 *test_ran* 0 *test_to_run* 0
-	*test_batches* :nil
+	;the batches, and how long each module took the last time it ran, ms
+	*test_batches* :nil *test_last* (Fmap 31)
 	;what is known of each file, (age hash names), the counts of each
 	;module that was run, and the commands there are
 	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil
@@ -359,7 +360,7 @@
 (defun test-cache-load ()
 	; (test-cache-load) -> fmap
 	;what was kept, of the files to *test_files*, and of the modules as a
-	;map of (key passes failures skips)
+	;map of (key passes failures skips [ms]), ms how long it took to run
 	(defq kept (Fmap 31) tab (ascii-char 9)
 		lines (split (ifn (load (test-cache-path)) "") (ascii-char 10))
 		scans (some (# (if (starts-with (cat "V" tab) %0) (eql (slice %0 2 -1) +test_scan_version))) lines))
@@ -369,10 +370,10 @@
 			((and scans (eql (first fields) "F") (>= (length fields) 4))
 				(. *test_files* :insert (second fields) (list (str-as-num (third fields))
 					(elem-get fields 3) (if (> (length fields) 4) (split (elem-get fields 4) " ") (list)))))
-			((and (eql (first fields) "M") (= (length fields) 6))
-				;the key, then the three counts, into the one list
+			((and (eql (first fields) "M") (<= 6 (length fields) 7))
+				;the key, then the three counts and the time, into the one list
 				(. kept :insert (second fields)
-					(map! (const str-as-num) (list fields) 3 6 (list (third fields)))))))
+					(map! (const str-as-num) (list fields) 3 -1 (list (third fields)))))))
 		lines)
 	kept)
 
@@ -383,9 +384,9 @@
 	(. *test_files* :each (lambda (file (mtime hash names))
 		(if (/= mtime 0)
 			(push lines (cat "F" tab file tab (str mtime) tab hash tab (join names " "))))))
-	(. kept :each (lambda (module (key passes failures skips))
+	(. kept :each (lambda (module entry)
 		(if (/= (age module) 0)
-			(push lines (cat "M" tab module tab key tab (str passes) tab (str failures) tab (str skips))))))
+			(push lines (cat "M" tab module tab (join (map (const str) entry) tab))))))
 	(save (join (sort lines) (ascii-char 10)) (test-cache-path)))
 
 ;;;;;;;;
@@ -482,16 +483,21 @@
 	;a module is done, what it counted and how many of the run are
 	(when *test_progress*
 		(++ *test_ran*)
-		(bind '(passes failures skips) (ifn (. *test_done* :find module) (list 0 0 0)))
-		(test-say "done" module passes failures skips (test-ms)
+		(defq counts (ifn (. *test_done* :find module) (list 0 0 0)))
+		(test-say "done" module (first counts) (second counts) (third counts) (test-ms)
 			(cat (str *test_ran*) "/" (str *test_to_run*)))))
+
+(defun test-start-say (module)
+	;a module goes to be run, and how long it took the last time, if it
+	;was ever run here: what reads this can tell from that if it is stuck
+	(test-say "start" module (test-ms) (ifn (. *test_last* :find module) "-")))
 
 (defun test-farm-told (what cmd &optional out)
 	;what the farm says of a batch as it goes: it is given to a worker,
 	;again if its worker went, or its answer has come, with a line for
 	;each module it ran and what that counted
 	(case what
-		(:start (each (# (test-say "start" %0 (test-ms))) (ifn (. *test_batches* :find cmd) (list))))
+		(:start (each (const test-start-say) (ifn (. *test_batches* :find cmd) (list))))
 		(:done (each (lambda (line)
 				(when (starts-with +test_module_counts line)
 					(defq fields (split (slice line (length +test_module_counts) -1) " "))
@@ -499,22 +505,23 @@
 					(test-done-say (first fields))))
 			(split (ifn out "") "\n")))))
 
-(defun test-run-said (file)
-	;a module run here, said as it starts and as it is done
-	(test-say "start" file (test-ms))
-	(test-run-counted file)
-	(test-done-say file))
-
 (defun test-run-counted (file)
-	;run a module, and note what it alone counted. The task of a batch
-	;prints that, for the task that farmed it out to note
-	(defq passes *test_passes* failures *test_failures* skips *test_skips*)
+	;run a module, and note what it alone counted, and how long it took in
+	;ms, of itself, not the wait for a worker. The task of a batch prints
+	;that, for the task that farmed it out to note
+	(defq passes *test_passes* failures *test_failures* skips *test_skips* t0 (pii-time))
 	(test-run-module file)
 	(setq passes (- *test_passes* passes) failures (- *test_failures* failures)
-		skips (- *test_skips* skips))
+		skips (- *test_skips* skips) t0 (/ (- (pii-time) t0) 1000))
 	(if *test_child*
-		(print +test_module_counts file " " passes " " failures " " skips)
-		(. *test_done* :insert file (list passes failures skips))))
+		(print +test_module_counts file " " passes " " failures " " skips " " t0)
+		(. *test_done* :insert file (list passes failures skips t0))))
+
+(defun test-run-said (file)
+	;a module run here, said as it starts and as it is done
+	(test-start-say file)
+	(test-run-counted file)
+	(test-done-say file))
 
 (defun test-watch (nodes)
 	; (test-watch nodes) -> (stop back)
@@ -574,17 +581,20 @@
 				((and (not all) (starts-with "tests/release/" module))
 					(. why :insert module "release") :nil)
 				((and was (not all) (eql (first was) key))
-					(bind '(& passes failures skips) was)
-					(setq *test_passes* (+ *test_passes* passes)
-						*test_failures* (+ *test_failures* failures)
-						*test_skips* (+ *test_skips* skips))
+					(setq *test_passes* (+ *test_passes* (elem-get was 1))
+						*test_failures* (+ *test_failures* (elem-get was 2))
+						*test_skips* (+ *test_skips* (elem-get was 3)))
 					(. why :insert module "cached")
 					:nil)
 				;run, with all, or what it stands on has changed, or no
-				;result of it is kept, never run or failed the last time
-				((. why :insert module (cond (all "all") (was "changed") ("unkept")))))) modules)))
-	;what is to run, and why, and what is as it was
+				;result of it is kept, it was never run, or it failed the last time
+				((. why :insert module (cond (all "all") ((not was) "unkept")
+					((eql (first was) "-") "failed") ("changed")))))) modules)))
+	;what is to run, and why, and what is as it was, and how long each
+	;took the last time
 	(when *test_progress*
+		(setq *test_last* (Fmap 31))
+		(when kept (. kept :each (# (if (> (length %1) 4) (. *test_last* :insert %0 (elem-get %1 4))))))
 		(setq *test_to_run* (length run))
 		(test-say "plan" (length run) (length (filter (# (eql (. why :find %0) "cached")) modules)) (length modules))
 		(each (lambda (module)
@@ -626,14 +636,16 @@
 	;the watchers go before the modules that count the nodes and what is on them
 	(if watching (setq waits (test-watched watching)))
 	(each (const test-run-said) solo)
-	;what ran to its end with nothing failed is kept. What failed is
-	;not, so it is run again the next time, whatever has changed
+	;what ran to its end is kept, and how long it took. What failed is kept
+	;with no key, so it is run again the next time, whatever has changed:
+	;what is kept of it is the time. One that did not run to its end is not
 	(unless (or child stale)
 		(each (lambda (module)
 			(defq counts (. *test_done* :find module))
-			(if (and counts (= (second counts) 0))
-				(. kept :insert module (cat (list (. keys :find module)) counts))
-				(. kept :erase module))) run)
+			(cond
+				((not counts) (. kept :erase module))
+				((. kept :insert module (cat (list (if (= (second counts) 0) (. keys :find module) "-")) counts)))))
+			run)
 		(test-cache-save kept))
 	(if frames (setq *stack_frame* :nil))
 	(test-say "end" (test-ms))
