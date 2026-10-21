@@ -1,9 +1,6 @@
 (import "gui/lisp.inc")
 (import "./scene.inc")
 
-(enums +select 0
-	(enum main timeout))
-
 ;the canvas of the app, on its pixels in shared memory, and the key they
 ;were found by
 (defq shared_key 0 canvas :nil)
@@ -30,16 +27,6 @@
 			((scene-draw canvas packed y y1)))))))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
-	(while running
-		(mail-timeout (elem-get select +select_timeout) +timeout 0)
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((or (= idx +select_timeout) (eql msg ""))
-				;timeout or quit
-				(setq running :nil))
-			((= idx +select_main)
-				;a slice to draw
-				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(apply draw-slice (push (getf-> msg +job_key +job_reply +slice_shared +slice_y +slice_y1)
-					(slice msg +slice_bouncers -1)))))))
+	(job-child 5000000 (lambda (msg mbox)
+		(apply draw-slice (push (getf-> msg +job_key +job_reply +slice_shared +slice_y +slice_y1)
+			(slice msg +slice_bouncers -1))))))

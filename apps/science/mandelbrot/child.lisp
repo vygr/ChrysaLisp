@@ -5,9 +5,6 @@
 (import "gui/lisp.inc")
 (import "./app.inc")
 
-(enums +select 0
-	(enum main timeout))
-
 ;the colour of a point, -1 if it does not get out of the set in top turns
 (ffi (cat *app_root* "shade") shade)
 ; (shade x0 y0 top palette) -> -1 | argb
@@ -82,17 +79,7 @@
 		((mail-send mbox (cat reply buf)))))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
-	(while running
-		(mail-timeout (elem-get select +select_timeout) +timeout 0)
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((or (= idx +select_timeout) (eql msg ""))
-				;timeout or quit
-				(setq running :nil))
-			((= idx +select_main)
-				;main mailbox, reset timeout and reply with result
-				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(apply mandel (getf-> msg +job_key +job_reply
-					+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
-					+rect_cx +rect_cy +rect_z))))))
+	(job-child 5000000 (lambda (msg mbox)
+		(apply mandel (getf-> msg +job_key +job_reply
+			+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
+			+rect_cx +rect_cy +rect_z)))))

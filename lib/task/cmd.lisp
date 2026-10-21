@@ -6,36 +6,17 @@
 (import "./jobs.inc")
 
 ;a worker with no job for this long ends, its farm has gone and did not
-;say. It must be long, the farm's node may be busy, and a job sent to a
-;worker that has ended is lost.
+;say. A job sent to it as it went is given to another, (job-child), but
+;the farm's node may be busy, and it is long so that is seldom.
 (defq +timeout (task-timeout 60))
 
-(enums +select 0
-	(enum main timeout))
-
 (defun main ()
-	(defq *select* (task-mboxes +select_size) *working* :t *msg* :nil)
-	(while *working*
-		(mail-timeout (elem-get *select* +select_timeout) +timeout 0)
-		(setq *msg* (mail-read (elem-get *select* (defq *idx* (mail-select *select*)))))
-		(cond
-			;timeout or quit
-			((or (= *idx* +select_timeout) (eql *msg* ""))
-				(setq *working* :nil))
-			;main mailbox
-			((= *idx* +select_main)
-				;clear timeout
-				(mail-timeout (elem-get *select* +select_timeout) 0 0)
-				;read job
-				(defq *reply_key* (getf *msg* +job_key)
-					*reply_mbox* (getf *msg* +job_reply)
-					;what to run follows the job's head, lib/task/jobs.inc
-					*cmd* (slice *msg* +job_size -1))
-				;run the command and catch output
-				;the reply is the key it was given, then what the command said
-				(setq *msg* (string-stream (cat "")))
-				(write-blk *msg* (char *reply_key* +long_size))
-				(catch (pipe-run *cmd* (# (write-blk *msg* (str %0))))
-					(progn (write-line *msg* (str _ " " *cmd*)) :t))
-				;send reply
-				(mail-send *reply_mbox* (str *msg*))))))
+	(job-child +timeout (lambda (msg mbox)
+		;what to run follows the job's head, lib/task/jobs.inc, and the
+		;reply is the key it was given, then what the command said
+		(defq reply_key (getf msg +job_key) reply_mbox (getf msg +job_reply)
+			cmd (slice msg +job_size -1) out (string-stream (cat "")))
+		(write-blk out (char reply_key +long_size))
+		(catch (pipe-run cmd (# (write-blk out (str %0))))
+			(progn (write-line out (str _ " " cmd)) :t))
+		(mail-send reply_mbox (str out)))))

@@ -112,3 +112,25 @@
 (task-sleep 300000)
 (assert-eq "nor does one come in late" :nil (mail-poll (list (elem-get jt_select +jt_reply))))
 (. jobs :close)
+
+;a child that goes of its own accord says so, and a job given to it as it
+;went is not lost: it goes to another as soon as the farm is told. One
+;child, so it is the one each job goes to
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_going_child.lisp"
+	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
+(assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1)) (task-timeout 10)))
+;it has nothing now, and goes, and says so
+(defq jt_going (mail-read-timeout (elem-get jt_select +jt_reply) (task-timeout 5)))
+(assert-true "a child with nothing to do goes, and says it has"
+	(and jt_going (/= 0 (logand (getf jt_going +job_reply_key) +job_going))))
+;the farm has not heard yet, so a job is given to the child that has gone
+(. jobs :add (list (jt-work 7)))
+(assert-eq "a job given to it after it went is out" 1 (. jobs :out))
+(assert-eq "and is not answered" :nil (mail-read-timeout (elem-get jt_select +jt_reply) 500000))
+;told, the farm puts the job back and starts the child again
+(assert-eq "what it said is no answer" :nil (. jobs :answered jt_going))
+(assert-list-eq "and the job it was given is done by the one started after it" '(14)
+	(jt-run (list) (task-timeout 10)))
+(assert-eq "it was not counted as tried" 0 (. jobs :tries))
+(. jobs :close)

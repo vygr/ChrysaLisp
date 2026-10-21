@@ -11,26 +11,17 @@
 (import "lib/task/jobs.inc")
 (import "service/storage/app.inc")
 
-(enums +select 0
-	(enum main timeout))
-
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t)
-	(while running
-		;one with nothing to do for a while goes
-		(mail-timeout (elem-get select +select_timeout) 5000000 0)
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((or (= idx +select_timeout) (eql msg "")) (setq running :nil))
-			(:t (mail-timeout (elem-get select +select_timeout) 0 0)
-				(bind '(what svc path file) (split (slice msg +job_size -1) (ascii-char 10)))
-				(defq svc (hex-decode svc)
-					answer (catch (cond
-							((eql what "p")
-								(if (eql (defq how (first (storage-put-file path file :nil svc))) :ok) "1"
-									(cat "0 the store said " (rest (str how)))))
-							((defq size (storage-same-file? path file svc)) (cat "1 " (str size)))
-							("0 it is not the same"))
-						(cat "0 " (slice (str _) 0 (min 120 (length (str _)))))))
-				(mail-send (getf msg +job_reply)
-					(cat (setf-> (str-alloc +job_reply_size) (+job_reply_key (getf msg +job_key))) answer))))))
+	;one with nothing to do for a while goes
+	(job-child 5000000 (lambda (msg mbox)
+		(bind '(what svc path file) (split (slice msg +job_size -1) (ascii-char 10)))
+		(defq svc (hex-decode svc)
+			answer (catch (cond
+					((eql what "p")
+						(if (eql (defq how (first (storage-put-file path file :nil svc))) :ok) "1"
+							(cat "0 the store said " (rest (str how)))))
+					((defq size (storage-same-file? path file svc)) (cat "1 " (str size)))
+					("0 it is not the same"))
+				(cat "0 " (slice (str _) 0 (min 120 (length (str _)))))))
+		(mail-send (getf msg +job_reply)
+			(cat (setf-> (str-alloc +job_reply_size) (+job_reply_key (getf msg +job_key))) answer)))))

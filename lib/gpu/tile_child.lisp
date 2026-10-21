@@ -4,9 +4,6 @@
 (import "./vp.inc")
 (import "./tile.inc")
 
-(enums +select 0
-	(enum main timeout))
-
 ;the shader last asked for, as native code, the VP back end. It is
 ;assembled by the first child on this machine to ask for it
 (defq shader_file "" program :nil native :nil)
@@ -40,18 +37,8 @@
 		(+tile_reply_x1 x1) (+tile_reply_y1 y1)) data)))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
-	(while running
-		(mail-timeout (elem-get select +select_timeout) +timeout 0)
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((or (= idx +select_timeout) (eql msg ""))
-				;timeout or quit
-				(setq running :nil))
-			((= idx +select_main)
-				;main mailbox, reset timeout and reply with result
-				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(apply rect (push (getf-> msg +job_key +job_reply
-						+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width
-						+tile_file_length +tile_shared)
-					(slice msg +tile_file -1)))))))
+	(job-child 5000000 (lambda (msg mbox)
+		(apply rect (push (getf-> msg +job_key +job_reply
+				+tile_x +tile_y +tile_x1 +tile_y1 +tile_height +tile_width
+				+tile_file_length +tile_shared)
+			(slice msg +tile_file -1))))))

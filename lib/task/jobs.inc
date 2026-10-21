@@ -10,7 +10,9 @@
 ; The app has a mailbox for the word that a child has started and one
 ; for the answers, and passes what comes in on them to (:launched) and
 ; (:answered). A child that dies, or takes too long, is started again
-; by (:refresh), and its job goes back on the queue.
+; by (:refresh), and its job goes back on the queue. A child that goes of
+; its own accord, (job-child), says so on the reply mailbox, and a job
+; given it as it went goes back on the queue at once.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./farm.inc")
@@ -22,6 +24,30 @@
 
 (structure +job_reply 0
 	(long key))
+
+;a reply whose key has this in it is a child saying it has gone
+(defq +job_going 0x4000000000000000)
+
+(defun job-child (timeout fn_work)
+	; (job-child timeout fn_work)
+	;the loop of a child of a farm. Each job that comes is given to
+	;fn_work, (fn_work msg mbox), with the mailbox it came to, till the
+	;child is told to go, an empty message, or has had nothing for
+	;timeout. Going of its own accord, a child that has had a job tells
+	;its farm, so a job sent to it as it went is not lost
+	(defq job_select (task-mboxes 2) job_running :t job_last :nil job_idx 0)
+	(while job_running
+		(mail-timeout (elem-get job_select 1) timeout 0)
+		(defq job_msg (mail-read (elem-get job_select (setq job_idx (mail-select job_select)))))
+		(cond
+			((or (= job_idx 1) (eql job_msg "")) (setq job_running :nil))
+			(:t (mail-timeout (elem-get job_select 1) 0 0)
+				(setq job_last job_msg)
+				(fn_work job_msg (elem-get job_select 0)))))
+	(and job_last (= job_idx 1)
+		(mail-send (getf job_last +job_reply)
+			(setf-> (str-alloc +job_reply_size)
+				(+job_reply_key (logior (getf job_last +job_key) +job_going))))))
 
 ;module
 (env-push)
@@ -56,6 +82,18 @@
 		(def this :tries (max n (get :tries this)))
 		(push (get :queue this) job)
 		(undef val :job)))
+
+(defun going (msg)
+	;a child has said it has gone, :t if msg is that. The job it had is
+	;put back on the queue, not counted as tried, and it is started again
+	(when (/= 0 (logand (getf msg +job_reply_key) +job_going))
+		(defq key (logxor (getf msg +job_reply_key) +job_going) farm (get :farm this))
+		(when (defq val (. farm :find key))
+			(when (defq job (get :job val))
+				(push (get :queue this) job)
+				(undef val :job :timestamp))
+			(. farm :restart key val))
+		:t))
 
 (defun idle ()
 	;every child that is up and has no job is given one
@@ -125,7 +163,7 @@
 		;from a child that has since been started again, its job went
 		;back on the queue and the answer is to be left alone.
 		(defq key (getf msg +job_reply_key))
-		(when (and (defq val (. (get :farm this) :find key)) (get :job val))
+		(when (and (not (going msg)) (defq val (. (get :farm this) :find key)) (get :job val))
 			(def this :out (dec (get :out this)))
 			(. this :give key val)
 			(get :out this)))
@@ -134,8 +172,9 @@
 		; (. jobs :job msg) -> :nil | job
 		;the job an answer is to, msg is what came to the reply mailbox,
 		;asked before it is passed to (:answered). :nil if the answer
-		;is from a child that has since been started again.
-		(and (defq val (. (get :farm this) :find (getf msg +job_reply_key)))
+		;is from a child that has since been started again, or is a child
+		;saying it has gone, and then what it had is put back on the queue
+		(and (not (going msg)) (defq val (. (get :farm this) :find (getf msg +job_reply_key)))
 			(get :job val)))
 
 	(defmethod :failed (msg)

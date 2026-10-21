@@ -5,9 +5,6 @@
 (import "./vp.inc")
 (import "./tris.inc")
 
-(enums +select 0
-	(enum main timeout))
-
 ;the pair of shaders last asked for, as native code. They are assembled
 ;by the first child on this machine to ask for them
 (defq shader_files "" pipeline :nil vertex :nil pixel :nil)
@@ -104,15 +101,4 @@
 			(+job_reply_key key) (+strip_reply_y y) (+strip_reply_drawn (if pixmap 1 0))))))
 
 (defun main ()
-	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
-	(while running
-		(mail-timeout (elem-get select +select_timeout) +timeout 0)
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((or (= idx +select_timeout) (eql msg ""))
-				;timeout or quit
-				(setq running :nil))
-			((= idx +select_main)
-				;main mailbox, reset timeout and draw the strip
-				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(strip msg (elem-get select +select_main))))))
+	(job-child 5000000 (lambda (msg mbox) (strip msg mbox))))
