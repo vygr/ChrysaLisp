@@ -35,6 +35,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "lib/cwb/doc.inc")
 (import "service/lock/app.inc")
 (import "service/storage/scene.inc")
@@ -443,8 +444,8 @@
 (defun picker (save)
 	;the Files app's picker, to say where a recording is to go or come from
 	(if *picker* (mail-send *picker* ""))
-	(mail-send (setq *picker_save* save *picker* (open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get *select* +select_picker) (if save "Save recording..." "Open recording...") "|" ".")))
+	(setq *picker_save* save *picker*
+		(file-pick (elem-get *select* +select_picker) (if save "Save recording..." "Open recording...") "." "" save)))
 
 (defun recording-save (file)
 	;every event there is, a line each, as a recorder says them, so that

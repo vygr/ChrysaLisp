@@ -3,6 +3,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 
@@ -508,8 +509,7 @@
 
 (defun action-attach ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(mail-send (setq *picker_mbox* (open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get select +select_picker) "Send a file..." "|" ".")))
+	(setq *picker_mbox* (file-pick (elem-get select +select_picker) "Send a file...")))
 
 (defun file-keep (name data)
 	; (file-keep name data) -> path

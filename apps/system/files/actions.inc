@@ -10,11 +10,12 @@
 (defq
 *event_map* (scatter (Fmap)
 	+event_close action-close
-	+event_ok_action action-ok
-	+event_exts_action action-exts
-	+event_file_action action-file-action
-	+event_file_leaf_action action-file-leaf-action))
+	+event_up action-up
+	+event_path action-path
+	+event_ok action-ok
+	+event_kinds action-kinds
+	+event_filter action-filter))
 
 ;module
-(export-symbols '(*event_map*))
+(export-symbols '(*event_map* action-item))
 (env-pop)

@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "lib/math/matrix.inc")
 (import "lib/math/obj.inc")
 (import "lib/gpu/vp.inc")
@@ -271,8 +272,7 @@
 (defun picker-open ()
 	;the Files app's picker, for the model to open
 	(if picker (mail-send picker ""))
-	(mail-send (setq picker (open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get select +select_picker) "Open model..." "|" ".")))
+	(setq picker (file-pick (elem-get select +select_picker) "Open model...")))
 
 (defun main ()
 	(setq select (task-mboxes +select_size))

@@ -4,6 +4,7 @@
 
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "./widgets.inc")
 (import "lib/cwb/stripes.inc")
 (import "lib/cwb/palette.inc")

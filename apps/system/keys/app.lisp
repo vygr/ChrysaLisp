@@ -1,5 +1,6 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "service/net/keys.inc")
 
 ;The keys of this machine, its keyring, service/net/keys.inc. A row for
@@ -78,8 +79,8 @@
 (defun picker (save)
 	;the Files app's picker, for a file a key comes from or goes to
 	(if *picker* (mail-send *picker* ""))
-	(mail-send (setq *picker_save* save *picker* (open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get *select* +select_picker) (if save "Give key to..." "Take key from...") "|" ".")))
+	(setq *picker_save* save *picker*
+		(file-pick (elem-get *select* +select_picker) (if save "Give key to..." "Take key from...") "." "" save)))
 
 (defun action (id)
 	(case id

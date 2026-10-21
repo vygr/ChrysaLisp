@@ -292,12 +292,10 @@
 	;said so, Chris: "They could take a photo, but they can't save the doc"
 	(unless (and (eql *share* :joined) (not *share_may_save*))
 		(if *picker_mbox* (mail-send *picker_mbox* ""))
-		(mail-send (setq *picker_mode* :t *picker_mbox*
-			(open-child "apps/system/files/child.lisp" +kn_call_pin))
-			(cat (elem-get select +select_picker) "Save Whiteboard..." "|" "."))))
+		(setq *picker_mode* :t *picker_mbox*
+			(file-pick (elem-get select +select_picker) "Save Whiteboard..." (ifn *file* ".") ".cwb" :t))))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(mail-send (setq *picker_mode* :nil *picker_mbox*
-		(open-child "apps/system/files/child.lisp" +kn_call_pin))
-		(cat (elem-get select +select_picker) "Load Whiteboard..." "|" "." "|" ".cwb")))
+	(setq *picker_mode* :nil *picker_mbox*
+		(file-pick (elem-get select +select_picker) "Load Whiteboard..." (ifn *file* ".") ".cwb")))

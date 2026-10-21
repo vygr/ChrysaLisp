@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "apps/system/files/picker.inc")
 (import "lib/files/files.inc")
 (import "lib/collections/tree.inc")
 (import "service/lock/app.inc")
@@ -16,7 +17,7 @@
 (import "./sound.inc")
 
 (enums +select 0
-	(enum main timer tip))
+	(enum main timer tip picker))
 
 (defq +file_types ''(".flm" ".mp4" ".m4v" ".mov" ".mp3" ".flac" ".mkv" ".webm") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
 	*file* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
@@ -112,24 +113,6 @@
 	;where the film shown is, kept for when it is played again
 	(and *file* *reel* (. *places* :insert *file* (list *scale* (max *at* 0) (if *playing* 1 0) *sync*))))
 
-(defun played-show ()
-	;a button a film, its name, a click plays it
-	(each (# (. %0 :sub)) (. *played* :children))
-	(when (nempty? *played_list*)
-		(def (defq title (Title)) :text "Played")
-		(view-variant title :paper :paper_title)
-		(. *played* :add_child title)
-		(each (lambda (file)
-				(def (defq button (Button)) :text (path-name file))
-				(view-variant button :font :font_button)
-				(. button :connect (+ +event_played (!)))
-				(. *played* :add_child button))
-			*played_list*))
-	;new buttons have no size till they are constrained, the first pass of
-	;a layout, and the column the size it was is not laid out again by its
-	;parent: the column constrained and laid out, all of it
-	(.-> *left* (:constrain :t) :dirty_all))
-
 (defun played (file ok)
 	;a new film that played is put first of them, one there already keeps
 	;its place, and one that did not play is let go
@@ -139,8 +122,7 @@
 		((slice (cat (list file) *played_list*) 0 (min +played_max (inc (length *played_list*)))))))
 	(unless (eql (str now) (str *played_list*))
 		(setq *played_list* now)
-		(played-save)
-		(played-show)))
+		(played-save)))
 
 (defun fit-scale (reel)
 	;the least scale, 1 to 4, that has the film in 3/4 of the screen
@@ -189,7 +171,6 @@
 		(. *window_title* :layout)
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 		(def *image_scroll* :min_width 128 :min_height 128)
-		(. *file_selector* :select_node file)
 		(. *window* :change_dirty x y w h))))
 
 (defun say (text)
@@ -210,8 +191,8 @@
 			(say (cat file ": not a film it can read")))
 		((win-refresh file))))
 
-;import actions and bindings directly from the images app!
-(import "././images/actions.inc")
+;import actions and bindings
+(import "./actions.inc")
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (prin _) (print) :t)))
@@ -247,9 +228,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(. *file_selector* :populate "." +file_types 2)
 	(played-load)
-	(played-show)
 	;the window the size the film has made it
 	;the film shown last, where it was left, else Raymarch's. Its reel read
 	;the once, a film of two hours takes a second
@@ -265,14 +244,15 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_timer) (tick select))
-			((and (= (getf *msg* +ev_msg_type) +ev_type_action)
-					(<= +event_played (defq id (getf *msg* +ev_msg_target_id)) (+ +event_played +played_max -1)))
-				;one of those that played, again, its path in the field
-				(when (and (< (- id +event_played) (length *played_list*))
-						(defq file (elem-get *played_list* (- id +event_played))))
+			((= idx +select_picker)
+				;the film taken, or "" none, its path in the field
+				(unless (eql (defq file (trim *msg*)) "")
 					(.-> *path* (:set_text file) :layout :dirty)
 					(open-path file)))
-			((= (defq id (getf *msg* +ev_msg_target_id)) +event_path)
+			((= (defq id (getf *msg* +ev_msg_target_id)) +event_open)
+				;the picker, at the film shown, its places those films were taken from
+				(file-pick (elem-get select +select_picker) "Open film..." (ifn *file* ".") (join +file_types " ") :nil "films"))
+			((= id +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
 				;a drag of it sends many, only the last is shown: the tick
