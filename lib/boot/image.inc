@@ -10,6 +10,30 @@
 (enums +blob 0
 	(enum body links refs))
 
+;what a boot image holds of all the functions there are. One that is not in
+;it is bound from its file under obj/ the first time it is asked for, so the
+;image need only hold what an install binds before it has built anything:
+;the kernel and Lisp, in these folders, and these few besides, the font,
+;pixmap and path classes Lisp's boot asks for, the crypto a machine's key is
+;made with and the Net service's sockets. What they call comes in with them
+(defq +boot_folders ''("sys/" "class/")
+	+boot_extras ''(gui/font/flush gui/path/create gui/path/type gui/path/vtable
+		gui/pixmap/as_argb gui/pixmap/deinit gui/pixmap/from_argb32 gui/pixmap/lisp_as_argb
+		gui/pixmap/lisp_from_argb32 gui/pixmap/lisp_read gui/pixmap/lisp_shared
+		gui/pixmap/lisp_to_argb32 gui/pixmap/lisp_write gui/pixmap/to_argb gui/pixmap/to_argb32
+		gui/pixmap/vtable gui/view/get_prop gui/view/ref_prop
+		lib/crypto/gf25519_mul lib/crypto/random_bytes lib/crypto/sha256_blocks lib/crypto/sha512_blocks
+		service/net/lisp_accept service/net/lisp_close service/net/lisp_connect service/net/lisp_listen
+		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send))
+
+(defun boot-funcs (funcs &optional all)
+	; (boot-funcs funcs [all]) -> funcs
+	;those of these functions a boot image holds, every one of them with all
+	(if all funcs
+		(filter (lambda (fn_path)
+				(or (some (# (starts-with %0 fn_path)) +boot_folders) (find (sym fn_path) +boot_extras)))
+			funcs)))
+
 (defun func-obj-path (%0)
 	(sym (cat "obj/" *cpu* "/" *abi* "/" %0)))
 
@@ -84,5 +108,5 @@
 	:nil)
 
 ;module
-(export-symbols '(boot-image func-obj-path))
+(export-symbols '(boot-image boot-funcs func-obj-path))
 (env-pop)

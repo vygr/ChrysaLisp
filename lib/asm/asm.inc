@@ -158,7 +158,8 @@
 			;what the image is built from, as one number, beside it
 			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
 			(save (join (sort (cat l)) (ascii-char 10)) (boot-files-file *cpu* *abi*))
-			*prods*)) *abi* *cpu*))
+			;not all of them, lib/boot/image.inc says which
+			(boot-funcs *prods*))) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
