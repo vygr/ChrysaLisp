@@ -50,4 +50,4 @@
 	(cond
 		((ends-with "/" name) (go-to (path-in *folder* (slice name 0 -2))))
 		((eql name (trim (. *name* :get_text))) (action-ok))
-		((.-> *name* (:set_text name) :layout :dirty) (say ""))))
+		((.-> *name* (:set_text name) :layout :dirty) (say "") (preview-show (path-in *folder* name)))))

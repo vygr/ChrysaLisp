@@ -3,6 +3,8 @@
 (import "lib/collections/tree.inc")
 (import "lib/text/searching.inc")
 (import "service/lock/app.inc")
+(import "./picker.inc")
+(import "./preview.inc")
 
 ;The file picker, a drawer: a folder is open, what is in it listed,
 ;folders first and then the files of the kinds asked for, those whose
@@ -127,6 +129,20 @@
 	(.-> *path* (:set_text (folder-said folder)) :layout :dirty)
 	(if (and (nempty? *pattern*) (not meta)) (say "The filter is no regexp.") (say "")))
 
+;;;;;;;;;
+; preview
+;;;;;;;;;
+
+(defun preview-show (file)
+	;what a file taken is, as it can be seen, by the previewers there are,
+	;./preview.inc, as a chat shows them; how long it is if none can
+	(each (# (. %0 :sub)) (. *preview* :children))
+	(when (and file (nempty? file) (/= (age file) 0) (not (folder? file)))
+		(unless (defq shown (file-preview file 212 212))
+			(def (setq shown (Label)) :text (cat (str (second (pii-fstat file))) " bytes")))
+		(. *preview* :add_child shown))
+	(.-> *preview* (:constrain :t) :layout :dirty_all))
+
 ;;;;;;;;
 ; places
 ;;;;;;;;
@@ -236,6 +252,7 @@
 			(go-to (if (folder? folder) folder "."))
 			(. *name* :set_text (slice root at -1)))
 		(:t (go-to ".") (. *name* :set_text root)))
+	(preview-show (path-in *folder* (trim (. *name* :get_text))))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	;the places and the sheet sized again now the window has its size

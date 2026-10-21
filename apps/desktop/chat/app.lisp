@@ -4,6 +4,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "apps/system/files/picker.inc")
+(import "apps/system/files/preview.inc")
 (import "service/lock/app.inc")
 (import "lib/consts/colors.inc")
 
@@ -29,7 +30,7 @@
 	*current_sys_id* :nil *current_name* :nil
 	*connected* :nil *chat_entry* :nil select :nil *picker_mbox* :nil
 	;a file sent is no bigger than this, and those that come are kept here
-	+max_file (* 8 1024 1024) +image_types ''(".png" ".jpg" ".jpeg" ".cpm" ".cwb" ".tga" ".svg")
+	+max_file (* 8 1024 1024)
 	*my_sys_id_hex* (hex-encode (system-id)))
 
 (defun channel-key (sys_id_hex cname)
@@ -160,8 +161,9 @@
 			lines)))
 
 (defun create-file-view (sender path page_w)
-	;a file in the chat: a picture is shown, no wider than the page, the
-	;words of a .md are, and of anything else where it was kept is said
+	;a file in the chat: the words of a .md are shown, anything else as the
+	;file picker's preview shows it, no wider than the page, and of one none
+	;can show where it was kept is said
 	(defq name (path-name path)
 		ext (path-ext name))
 	;one that came is kept as chat_<time>_<name>, it is shown by its name
@@ -172,20 +174,14 @@
 	(def (defq md (Md)) :page_width page_w :zoom 1.0 :base_font_size 13)
 	(. view :add_child md)
 	(cond
-		((and (find ext +image_types) (defq canvas (canvas-load path +load_flag_free)))
-			(. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""))
-			(bind '(w h) (. canvas :pref_size))
-			(defq most (max 64 (- page_w 24)))
-			(when (> w most)
-				(defq small (Canvas most (max 1 (/ (* h most) w)) 1))
-				(. small :resize canvas)
-				(setq canvas small))
-			(def (defq frame (Flow)) :flow_flags +flow_right :paper +argb_grey15)
-			(. frame :add_child canvas)
-			(. view :add_child frame))
-		((and (eql ext ".md") (defq text (load path)))
+		((and (eql ext ".md") (defq lines (file-lines path)))
 			(. md :populate_lines (cat (list (cat "**" sender "** *sent* `" name "`") "")
-				(split text (ascii-char 10)) (list "" "---"))))
+				lines (list "" "---"))))
+		((defq shown (file-preview path (max 64 (- page_w 24))))
+			(. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""))
+			(def (defq frame (Flow)) :flow_flags +flow_right :paper +argb_grey15)
+			(. frame :add_child shown)
+			(. view :add_child frame))
 		(:t (. md :populate_lines (list (cat "**" sender "** *sent* `" name "`") ""
 			(cat "Kept as `" path "`") "" "---"))))
 	view)
