@@ -128,6 +128,10 @@ opened and saved by an older Whiteboard loses nothing that is new. An item's
 are in its `+cwb_others`, a key and its value each; the document's in an Emap
 under `:others`.
 
+`:script` is reserved, a key of an item and of the document, for the Lisp each
+is to run when scripts on shapes come. Nothing runs it yet, it is kept and
+saved as any key is.
+
 `lib/image/cwb.inc` is the `.cwb` loader of a canvas. As a picture a document
 is its shapes, at the size it says it is, on its background, which is nothing
 unless it was given one.

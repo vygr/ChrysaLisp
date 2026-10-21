@@ -43,11 +43,12 @@
 ;of a shape, the items of a group, and what is kept and not saved. user
 ;is who made it, 0 the teacher, see lib/cwb/board.inc. Chris: "students
 ;could not erase things the teacher or the other student had written".
-;others is what a file had of it that is not known here, a key and its
+;script is the Lisp the item is to run, reserved, nothing runs it yet,
+;see docs/ai_digest/whiteboard.md. others is what a file had of it that is not known here, a key and its
 ;value each, from a newer Whiteboard, written back as it was, so what is
 ;new is not lost by a save here
 (enums +cwb 0
-	(enum type id name m props user)
+	(enum type id name m props user script)
 	(enum kind d fill stroke width rule join cap1 cap2 text font font_size)
 	(enum items)
 	(enum cache place inv)
@@ -56,10 +57,10 @@
 ;the name of each slot in a file, and what a slot has when the file does
 ;not say. A list quoted twice, a + constant that is a list is put in place
 ;of its name as code is read
-(defq +cwb_keys ''(:type :id :name :m :props :user
+(defq +cwb_keys ''(:type :id :name :m :props :user :script
 		:kind :d :fill :stroke :width :rule :join :cap1 :cap2 :text :font :font_size
 		:items :cache :place :inv :others)
-	+cwb_defaults ''(:shape 0 "" :nil :nil 0
+	+cwb_defaults ''(:shape 0 "" :nil :nil 0 :nil
 		:path "" 0 0xff000000 2.0 :nonzero :round :round :round "" "fonts/OpenSans-Regular.ctf" 24
 		:nil :nil :nil :nil :nil))
 
@@ -700,7 +701,8 @@
 	;what lay on it that is not of it, the instruments and the menus, and
 	;the inks of its pens, what shows it says what they are.
 	;Only if it has them: a document made by a script, a diagram, has none
-	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :swatches :inks))
+	;its script, reserved, nothing runs it yet
+	(each (# (if (defq val (. doc :find %0)) (. out :insert %0 val))) '(:tools :menus :swatches :inks :script))
 	;and what a file had that is not known here, as it was
 	(if (defq others (. doc :find :others))
 		(. others :each (lambda (key val) (unless (. out :find key) (. out :insert key val)))))
@@ -716,7 +718,7 @@
 	;else is not a document
 	(when (and (Emap? data) (eql (. data :find :version) +cwb_version))
 		(defq doc (cwb-doc))
-		(defq known '(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks))
+		(defq known '(:width :height :background :style :grid :next_id :props :view :tools :menus :swatches :inks :script))
 		(each (lambda (key) (if (defq val (. data :find key)) (. doc :insert key val))) known)
 		;a key not known here, of a newer Whiteboard, is kept to be written back
 		(defq others (Emap))

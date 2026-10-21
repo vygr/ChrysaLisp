@@ -143,7 +143,7 @@
 (defq wb_new (cwb-load (string-stream (cat
 	"((:Emap 1) :version 1 :width 64 :height 48 :future 42"
 	" :items ((:list 2) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :glow 3)"
-	" ((:list 3) :group :items ((:list 1) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :script \q[x]\q)))))"))))
+	" ((:list 3) :group :items ((:list 1) ((:list 5) :shape :d \q[M 5 5 L 9 9]\q :sparkle \q[x]\q)))))"))))
 (assert-true "a file with keys not known here loads" wb_new)
 (when wb_new
 	(defq wb_new_s (string-stream (cat "")))
@@ -151,9 +151,24 @@
 	(defq wb_new2 (cwb-load (string-stream (str wb_new_s))) wb_new_items (cwb-items wb_new2))
 	(assert-eq "the document's key not known here is saved back" 42 (. (. wb_new2 :find :others) :find :future))
 	(assert-list-eq "a thing's" '(:glow 3) (elem-get (first wb_new_items) +cwb_others))
-	(assert-list-eq "and one in a group's" '(:script "x")
+	(assert-list-eq "and one in a group's" '(:sparkle "x")
 		(elem-get (first (elem-get (second wb_new_items) +cwb_items)) +cwb_others))
 	(assert-eq "what is known is as it was" "M 0 0 L 10 10" (cwb-get (first wb_new_items) :d)))
+
+;:script is a key of a thing and of the document, reserved for the Lisp
+;each is to run, nothing runs it yet: kept as any key is, not as one
+;not known
+(defq wb_scr (cwb-load (string-stream (cat
+	"((:Emap 1) :version 1 :width 64 :height 48 :script \q[(doc)]\q"
+	" :items ((:list 1) ((:list 5) :shape :d \q[M 0 0 L 10 10]\q :script \q[(item)]\q)))"))))
+(when wb_scr
+	(defq wb_scr_s (string-stream (cat "")))
+	(cwb-save wb_scr wb_scr_s)
+	(defq wb_scr2 (cwb-load (string-stream (str wb_scr_s))))
+	(assert-list-eq "a script of a thing and of the document are kept, as theirs"
+		'("(item)" "(doc)" :nil :nil)
+		(list (cwb-get (first (cwb-items wb_scr2)) :script) (. wb_scr2 :find :script)
+			(elem-get (first (cwb-items wb_scr2)) +cwb_others) (. wb_scr2 :find :others))))
 
 ;the file shown in docs/ai_digest/whiteboard.md is a file
 (defq wb_page (list) wb_on :nil)
