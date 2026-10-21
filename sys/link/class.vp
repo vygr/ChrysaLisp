@@ -93,7 +93,7 @@
 		;unmap object
 		(call :host_os :pii_munmap (vpx mem lk_shmem_size +mmap_shared))
 	(else)
-		(call :host_os :pii_write_str '(2 "Link: no shared memory !\n"))
+		(call :host_os :pii_write_str '(2 "Link: no shared memory, or the other end's is another size, another build !\n"))
 	(endif)
 
 	;remove link node from link array

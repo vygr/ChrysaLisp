@@ -54,7 +54,7 @@
 ;the port is below 32768: Linux gives a connection going out a port of its
 ;own from 32768 to 60999, macOS from 49152, and on the Pi with the suite
 ;beside it the test failed now and then as if one of those had it
-(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox) dr_said :nil)
+(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox) dr_said :nil dr_took 0)
 (assert-true "a listener" (> dr_listener 0))
 
 (defun dr-dial (code)
@@ -78,7 +78,8 @@
 
 (defun dr-meet (key code &optional wait)
 	;what the listener made of a connection, and what the child did, (listener
-	;child), through or not, and in dr_said all they said
+	;child), through or not, and in dr_said all they said, in dr_took how
+	;long the listener took
 	(dr-dial code)
 	;the child is a task that starts and imports before it dials, which on
 	;a Pi with the suite beside it has taken over 3s, and one that dials
@@ -86,10 +87,11 @@
 	(defq until (+ (pii-time) (task-timeout 15)) handle 0)
 	(while (and (<= handle 0) (< (pii-time) until))
 		(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
-	(defq mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait (task-timeout 3))) :nil)) "none")
+	(defq t0 (pii-time) mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait (task-timeout 3))) :nil)) "none")
+		dr_shook (pii-time)
 		theirs (ifn (mail-read-timeout dr_reply (task-timeout 5)) "silent"))
 	(if (> handle 0) (net-close handle))
-	(setq dr_said (list mine theirs))
+	(setq dr_said (list mine theirs) dr_took (- dr_shook t0))
 	(map (# (slice %0 0 (min 3 (length %0)))) dr_said))
 
 (assert-list-eq "the same key, both ends are through" '("yes" "yes")
@@ -105,7 +107,20 @@
 (assert-eq "one that says nothing is not waited on for ever" "no"
 	(first (dr-meet dr_key '(progn (task-sleep 1500000) :nil) 400000)))
 (assert-eq "one that sends the word and then goes" "no"
-	(first (dr-meet dr_key '(progn (door-send h "CLDOOR2" (+ (pii-time) 1000000)) :nil) 600000)))
+	(first (dr-meet dr_key '(progn (door-send h +door_head (+ (pii-time) 1000000)) :nil) 600000)))
+;closed on as soon as the word and the version are heard, not when the
+;listener has waited the 3 seconds for the rest: the child holds the
+;connection open for 2, saying nothing more
+(assert-list-eq "a door of before there were versions is closed on" '("no" "no")
+	(dr-meet dr_key '(progn
+		(door-send h (cat "CLDOOR2" (random-bytes 49)) (+ (pii-time) (task-timeout 1)))
+		(task-sleep 2000000) :nil)))
+(assert-true "at once" (< dr_took (task-timeout 1)))
+(assert-list-eq "and one of another version" '("no" "no")
+	(dr-meet dr_key '(progn
+		(door-send h (cat +door_word (char (inc +door_version) 4) (random-bytes +door_rest_size)) (+ (pii-time) (task-timeout 1)))
+		(task-sleep 2000000) :nil)))
+(assert-true "at once too" (< dr_took (task-timeout 1)))
 (assert-list-eq "not sealed, the dialler said not" '("yes" "yes")
 	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 (assert-eq "so neither end has keys, two of 32 bytes of nothing" (cat "yesU" (hex-encode (apply (const cat) (map (lambda (_) (char 0 8)) (range 0 8)))))
@@ -128,12 +143,12 @@
 (assert-list-eq "a share that makes a secret of nothing is not taken, though the key is right" '("no" "yes")
 	(dr-meet dr_key `(progn
 		(defq u (+ (pii-time) (task-timeout 3)) k (hex-decode ,(hex-encode dr_key)) n (random-bytes 16) z +door_nothing)
-		(door-send h (cat "CLDOOR2" n z (char 1 1)) u)
-		(defq hl (door-recv h 56 u) said (cat n (slice hl 7 23) z (slice hl 23 55) (char 1 1)))
+		(door-send h (cat +door_head n z (char 1 1)) u)
+		(defq hl (door-recv h 60 u) said (cat n (slice hl 11 27) z (slice hl 27 59) (char 1 1)))
 		(door-send h (door-tag k :t said) u)
 		(door-recv h 32 u))))
 (assert-list-eq "and after all that the same key is still through" '("yes" "yes")
 	(dr-meet dr_key `(door-shake h (hex-decode ,(hex-encode dr_key)) :t :nil (task-timeout 3))))
 
 (net-close dr_listener)
-(undef (env) 'dr_file 'dr_hex 'dr_key 'dr_other 'dr_n1 'dr_n2 'dr_port 'dr_listener 'dr_reply 'dr_said 'dr_l 'dr_d)
+(undef (env) 'dr_file 'dr_hex 'dr_key 'dr_other 'dr_n1 'dr_n2 'dr_port 'dr_listener 'dr_reply 'dr_said 'dr_l 'dr_d 'dr_took)

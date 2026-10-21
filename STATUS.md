@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**The link has a version: handshake CLDOOR3 says it, `+door_version` 1, a node of another or of v7.4 is closed on at once; beacons say it, `:P1`, and `mesh` names a machine that speaks another. The link protocol written down, `docs/ai_digest/link_protocol.md`; its pad bytes written 0, a closed shared memory link takes its file away, one of another size is given up on in 5 s.**
+
 **Matroska and WebM: `lib/media/mkv.inc`, a reel of its tracks as an mp4's; Films plays H.264 and H.265 by the host and AAC, AC-3, E-AC-3, MP3 and FLAC sound of it. Opus next.**
 
 **FLAC: our own decoder, `lib/media/flac.inc`, every sample exact against the reference encoder's sources; a `.flac` reel kind, Films plays and seeks it. Natives for the Rice codes, the integer LPC, the stereo and the samples to reals. check's args rule counts a (#)'s %n against its caller.**

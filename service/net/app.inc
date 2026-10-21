@@ -200,11 +200,12 @@
 			(ifn (mail-read-timeout mbox (task-timeout 2)) "no answer"))))
 
 (defun net-peers-rpc ()
-	; (net-peers-rpc) -> :nil | ((system_id ip port linked build) ...)
+	; (net-peers-rpc) -> :nil | ((system_id ip port linked build link) ...)
 	;what the Net service of this machine knows of the others, from their
 	;beacons and from each other. linked is "linked" or "unlinked", build
 	;is "same", "differs" or "unknown", the boot image they run as against
-	;this one's. :nil if the service does not answer
+	;this one's, and link "same", "unknown", or the version of the link
+	;they speak if it is another. :nil if the service does not answer
 	(when (defq svc (net-service))
 		(defq reply_mbox (mail-mbox))
 		(mail-send svc (setf-> (str-alloc +net_rpc_peers_size)
@@ -212,5 +213,5 @@
 			(+net_rpc_reply_id reply_mbox)))
 		(when (defq reply (mail-read-timeout reply_mbox))
 			(reduce (lambda (out line)
-				(if (= (length (defq parts (split line " "))) 5) (push out parts))
+				(if (= (length (defq parts (split line " "))) 6) (push out parts))
 				out) (split (slice reply +net_rpc_reply_size -1) (ascii-char 10)) (list)))))

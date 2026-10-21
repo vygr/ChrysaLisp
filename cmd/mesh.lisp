@@ -63,15 +63,20 @@
 		systems)
 	;what the Net service has heard of, by their beacons. One that is
 	;heard and is not a machine above has not joined, and one on another
-	;build is why
+	;build, or that speaks another version of the link, is why
 	(defq heard (ifn (net-peers-rpc) (list)) known (map (const hex-encode) systems)
-		odd (filter (lambda ((sys ip port linked build))
-			(or (eql build "differs") (not (find (to-upper sys) known)))) heard))
+		odd (filter (lambda ((sys ip port linked build link))
+			(or (eql build "differs") (notany (# (eql link %0)) '("same" "unknown"))
+				(not (find (to-upper sys) known)))) heard))
 	(when (nempty? odd)
 		(print "Heard, and not right:")
-		(each (lambda ((sys ip port linked build))
+		(each (lambda ((sys ip port linked build link))
 			(print "    " (slice (to-upper sys) 0 8) "  " ip
 				(if (find (to-upper sys) known) "" ", has not joined")
+				(cond
+					((find link '("same" "unknown")) "")
+					((eql link "0") ", is of before the link had versions, and can not link to this one.")
+					((cat ", speaks version " link " of the link, not this one's, and can not link to it.")))
 				(if (eql build "differs") ", is on a different build. Update, and make install, on both." "")))
 			odd))
 	;what to look at when it is not as hoped

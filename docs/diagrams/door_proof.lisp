@@ -10,7 +10,7 @@
 		(:left (dia-join s (sym (cat "r" (str y))) (sym (cat "l" (str y))) label))
 		(:both (dia-join s (sym (cat "l" (str y))) (sym (cat "r" (str y))) label :both))
 		(:t (dia-join s (sym (cat "l" (str y))) (sym (cat "r" (str y))) label :none))))
-	'((26 ("makes up a nonce and an" "X25519 share, new each time") ("makes up a nonce and an" "X25519 share, new each time") "CLDOOR2, nonce, share, seal?" :both)
+	'((26 ("makes up a nonce and an" "X25519 share, new each time") ("makes up a nonce and an" "X25519 share, new each time") "CLDOOR3, version, nonce, share, seal?" :both)
 	(92 ("HMAC-SHA256 under the key of" "D and all that was said") ("checks it" "with its own copy of the key") "32 bytes" :right)
 	(158 ("checks it" "with its own copy of the key") ("HMAC-SHA256 under the key of" "L and all that was said") "32 bytes" :left)
 	(224 ("both right: a link" "wrong, or too slow: closed") ("both right: a link" "wrong, or too slow: closed") "5 seconds for all of it" :check)))

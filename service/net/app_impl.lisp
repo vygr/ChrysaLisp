@@ -220,7 +220,7 @@
 								(mesh-peers-text mesh_peers
 									(if *net_can_mesh* (map (# (hex-encode (slice %0 +node_id_size
 										(const (* 2 +node_id_size))))) (net-links)) (list))
-									my_build))))
+									my_build +door_version))))
 						(+net_rpc_type_hello
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))
 						(+net_rpc_type_discover
@@ -295,7 +295,7 @@
 							(. beacon_ports :each (lambda (p)
 								;the D says this one hears beacons and dials, so of two
 								;that both do, only one need
-								(defq beacon_msg (mesh-beacon-text p my_sys_id my_inst_id (> disco_socket 0) my_build))
+								(defq beacon_msg (mesh-beacon-text p my_sys_id my_inst_id (> disco_socket 0) my_build +door_version))
 								(net-udp-send beacon_socket "255.255.255.255" +disco_udp_port beacon_msg)
 								(net-udp-send beacon_socket "127.0.0.1" +disco_udp_port beacon_msg)))))
 					; Poll incoming beacons if auto-discovery active
@@ -312,14 +312,14 @@
 								(mesh-leave)
 								(setq next_join (+ now +mesh_retry)))
 							(when (defq beacon (mesh-beacon-read data))
-								(bind '(tcp_port peer_sys_id peer_inst_id dials build) beacon)
+								(bind '(tcp_port peer_sys_id peer_inst_id dials build link) beacon)
 								;what is heard is noted, the links are made below.
 								;Not my own, nor that of another session of this
 								;machine: it is this system, there is no link to
 								;make to it, and its address is my own
 								(unless (or (eql peer_inst_id my_inst_id) (eql peer_sys_id my_sys_id))
 									(mesh-beacon mesh_peers peer_sys_id src_ip tcp_port dials
-										(nempty? beacon_ports) now build)))))
+										(nempty? beacon_ports) now build link)))))
 					; The mesh. A link to each peer there is none to, and a hello to
 					; each of the other services
 					(when (and mesh (> (- now last_mesh_time) +beacon_interval))

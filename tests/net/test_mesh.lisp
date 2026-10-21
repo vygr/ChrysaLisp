@@ -107,25 +107,30 @@
 (defq ms_id "0123456789abcdef0123456789abcdef" ms_other "ffff456789abcdef0123456789abcdef"
 	ms_text (mesh-beacon-text 3333 ms_a "N1" :t ms_id))
 (assert-eq "a beacon, with a D and the start of a build" "CHRYSA_BEACON:3333:AAAA:N1:D:B0123456789abcdef" ms_text)
-(assert-list-eq "is read back" (list 3333 ms_a "N1" :t "0123456789abcdef") (mesh-beacon-read ms_text))
+(assert-list-eq "is read back, of before versions of the link, 0" (list 3333 ms_a "N1" :t "0123456789abcdef" 0) (mesh-beacon-read ms_text))
+(assert-eq "a beacon that says the version of the link it speaks" "CHRYSA_BEACON:3333:AAAA:N1:D:B0123456789abcdef:P1"
+	(mesh-beacon-text 3333 ms_a "N1" :t ms_id 1))
+(assert-list-eq "is read back with it" (list 3333 ms_a "N1" :t "0123456789abcdef" 1)
+	(mesh-beacon-read (mesh-beacon-text 3333 ms_a "N1" :t ms_id 1)))
 (assert-eq "one that does not dial, and has no build, is as it was" "CHRYSA_BEACON:3333:AAAA:N1"
 	(mesh-beacon-text 3333 ms_a "N1" :nil ""))
-(assert-list-eq "a beacon from before there were builds is read" (list 3333 ms_a "N1" :t "")
+(assert-list-eq "a beacon from before there were builds is read" (list 3333 ms_a "N1" :t "" 0)
 	(mesh-beacon-read "CHRYSA_BEACON:3333:AAAA:N1:D"))
-(assert-list-eq "a build and no D" (list 3333 ms_a "N1" :nil "0123456789abcdef")
+(assert-list-eq "a build and no D" (list 3333 ms_a "N1" :nil "0123456789abcdef" 0)
 	(mesh-beacon-read (mesh-beacon-text 3333 ms_a "N1" :nil ms_id)))
 (assert-eq "what is not a beacon is not read" :nil (mesh-beacon-read "CHRYSA_HELLO AAAA"))
 (assert-eq "nor half of one" :nil (mesh-beacon-read "CHRYSA_BEACON:3333"))
 (defq ms_peers (Fmap 7))
-(mesh-beacon ms_peers ms_b "192.168.1.2" 3333 :t :t ms_now "0123456789abcdef")
-(mesh-beacon ms_peers ms_c "192.168.1.3" 3333 :t :t ms_now "ffff456789abcdef")
+(mesh-beacon ms_peers ms_b "192.168.1.2" 3333 :t :t ms_now "0123456789abcdef" 1)
+(mesh-beacon ms_peers ms_c "192.168.1.3" 3333 :t :t ms_now "ffff456789abcdef" 0)
 (mesh-beacon ms_peers "DDDD" "192.168.1.4" 3333 :t :t ms_now)
 (assert-eq "the build a beacon had is kept" "0123456789abcdef" (elem-get (mesh-peer ms_peers ms_b) +mesh_peer_build))
 (mesh-beacon ms_peers ms_b "192.168.1.2" 3333 :t :t ms_now)
 (assert-eq "and not lost to a beacon with none" "0123456789abcdef" (elem-get (mesh-peer ms_peers ms_b) +mesh_peer_build))
-(defq ms_lines (sort (split (mesh-peers-text ms_peers (list ms_b) ms_id) (ascii-char 10))))
-(assert-list-eq "what is known of the peers, for the mesh command"
-	'("BBBB 192.168.1.2 3333 linked same" "CCCC 192.168.1.3 3333 unlinked differs" "DDDD 192.168.1.4 3333 unlinked unknown")
+(assert-eq "and the version of the link it speaks" 1 (elem-get (mesh-peer ms_peers ms_b) +mesh_peer_link))
+(defq ms_lines (sort (split (mesh-peers-text ms_peers (list ms_b) ms_id 1) (ascii-char 10))))
+(assert-list-eq "what is known of the peers, for the mesh command, the build and the link"
+	'("BBBB 192.168.1.2 3333 linked same same" "CCCC 192.168.1.3 3333 unlinked differs 0" "DDDD 192.168.1.4 3333 unlinked unknown unknown")
 	ms_lines)
 (assert-true "with no build of my own, none is known to differ"
 	(every (# (ends-with " unknown" %0)) (split (mesh-peers-text ms_peers (list) "") (ascii-char 10))))

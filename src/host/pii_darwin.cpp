@@ -115,9 +115,17 @@ int64_t pii_open_shared(const char *path, size_t len)
 	int hndl = open(link_buf, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 	if (hndl == -1)
 	{
+		//the other end made it, and makes it its size at once. One that
+		//stays another size is of a build with another size of link, not
+		//to be talked to: given up on after 5 seconds, not waited for ever
+		struct timeval now;
+		gettimeofday(&now, NULL);
+		int64_t until = (int64_t)now.tv_sec * 1000000 + now.tv_usec + 5000000;
 		while (1)
 		{
 			if (stat(link_buf, &pii_stat_fs) == 0 && pii_stat_fs.st_size == (off_t)len) break;
+			gettimeofday(&now, NULL);
+			if ((int64_t)now.tv_sec * 1000000 + now.tv_usec > until) return -1;
 			sched_yield();
 		}
 		hndl = open(link_buf, O_RDWR, S_IRUSR | S_IWUSR);

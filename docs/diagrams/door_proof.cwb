@@ -70,12 +70,12 @@
 					:stroke
 					0
 					:text
-					"[CLDOOR2, nonce, share, seal?]"
+					"[CLDOOR3, version, nonce, share, seal?]"
 					:font_size
 					11
 					:pos
 					((:list 2)
-						259.01159
+						238.82971
 						43.00000
 					)
 				)

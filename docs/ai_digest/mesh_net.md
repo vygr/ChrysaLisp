@@ -105,8 +105,12 @@ plain link runs the same code it did. The cipher does some 350 MB/s on an
 M4, and a sealed link between two networks on one machine moved mail as
 fast as a plain one.
 
-The handshake is CLDOOR2. A machine on CLDOOR1 links to none on CLDOOR2,
-its hello is too short and the door waits it out.
+The handshake is CLDOOR3, and says the version of the link each end
+speaks, `+door_version` in `service/net/door.inc`, one more each time what
+goes over a link changes. Each end reads the other's word and version
+first, and closes at once on any other: a machine of v7.4, on CLDOOR2, or
+of another version, does not link. A beacon says the version too, `:P1`, so
+`mesh` can say why a machine it hears has not joined.
 
 ## Who dials
 

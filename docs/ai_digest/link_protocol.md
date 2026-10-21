@@ -11,8 +11,8 @@ How it all hangs together, and why, is in
 [messages_and_routing.md](messages_and_routing.md) and
 [mesh_net.md](mesh_net.md). This is the wire.
 
-There is no protocol version on any link. What there is is said under
-[Versions](#versions).
+A TCP link says the version of the link it speaks as it is made, in the
+door. This document is of version 1. See [Versions](#versions).
 
 ## Conventions
 
@@ -51,8 +51,12 @@ nodes of a link are each given it.
 
 The memory is a file `/tmp/<name>` on POSIX, opened to create and to fail if
 it is there; the first to open it sets its size, the other waits till it is
-that size and opens it. On Windows it is a mapping of that name. Its size is
-`lk_shmem_size`, 63648, and both ends must agree on it to the byte.
+that size and opens it, for 5 seconds at most. On Windows it is a mapping of
+that name. Its size is `lk_shmem_size`, 63648, and both ends must agree on it
+to the byte: an end that finds the file another size for 5 seconds gives the
+link up, and says `Link: no shared memory, or the other end's is another
+size, another build !`. The first end, which made it, waits for a second for
+ever, as it waits for any. The end that closes a link takes the file away.
 
 ### The memory
 
@@ -144,17 +148,20 @@ Every link the Net service makes goes through the door,
 this, and either end that finds anything wrong closes the socket, and says
 nothing. All of it must be done in 5 seconds.
 
-**1. Each sends its hello, 56 bytes:**
+**1. Each sends its hello, 60 bytes:**
 
 ```
-0    7   "CLDOOR2"
-7    16  nonce, random
-23   32  X25519 public share of a secret of 32 random bytes
-55   1   1 if this end dialled and seals the link, else 0
+0    7   "CLDOOR3"
+7    uint  the version of the link it speaks, 1
+11   16  nonce, random
+27   32  X25519 public share of a secret of 32 random bytes
+59   1   1 if this end dialled and seals the link, else 0
 ```
 
-**2. Each reads the other's 56 bytes.** The first 7 must be `CLDOOR2`, and
-its nonce must not be the one this end sent. A listener seals if the
+**2. Each reads the other's first 11 bytes**, and they must be its own:
+`CLDOOR3` and the version it speaks. If not, it closes at once, without
+waiting for more. Then the other 49. The other's nonce must not be the one
+this end sent. A listener seals if the
 dialler's last byte is 1; a dialler seals by its own choice, below.
 
 **3. Each makes what was said, 97 bytes:** the dialler's nonce, the
@@ -162,7 +169,7 @@ listener's nonce, the dialler's share, the listener's share, and the seal
 byte, that order whichever end it is.
 
 **4. Each sends its proof, 32 bytes:**
-`HMAC-SHA256(mesh key, "CLDOOR2" + "D" or "L" + what was said)`, `D` from the
+`HMAC-SHA256(mesh key, the first 11 bytes of a hello + "D" or "L" + what was said)`, `D` from the
 dialler, `L` from the listener.
 
 **5. Each reads the other's 32 bytes** and compares them with what the other's
@@ -326,8 +333,9 @@ What the Net services say to find each other is not on a link.
 
 * A beacon, UDP to port 3334, to 255.255.255.255 and 127.0.0.1, every 2
   seconds, text:
-  `CHRYSA_BEACON:<port>:<system id, 32 hex>:<instance, 32 hex>[:D][:B<boot id, up to 16 hex>]`.
-  `D` if it can be dialled.
+  `CHRYSA_BEACON:<port>:<system id, 32 hex>:<instance, 32 hex>[:D][:B<boot id, up to 16 hex>][:P<version>]`.
+  `D` if it can be dialled, `P` the version of the link it speaks. One with
+  no `P` is of before there were versions.
 * A hello, mail to each `*Mesh` service every 2 seconds: a 24 byte reply net
   id, a uint type 6, then the text
   `CHRYSA_HELLO <system id>` and a line `<system id> <ip> <port>` for each
@@ -335,17 +343,24 @@ What the Net services say to find each other is not on a link.
 
 ## Versions
 
-There is no version number in any link packet. What says one build from
-another:
+The version of the link is `+door_version` in `service/net/door.inc`, 1 now,
+for all that this document says goes over a link once it is through the
+door. It is one more each time any of that changes, and two machines that
+speak different versions do not link: each reads the other's version first
+in the hello and closes. What says one build from another:
 
-* `CLDOOR2` in the hello. A v7.3 node says `CLDOOR1`, and the door of a
-  v7.4 node closes on it: they do not link.
+* The version in the hello, after `CLDOOR3`. A v7.4 node says `CLDOOR2`, and
+  one of v7.3 `CLDOOR1`, and neither links to a node of now. They are closed
+  on as soon as their first 11 bytes are read.
+* The `P` field of a beacon, the same version, so a machine heard and not
+  linked can be said to speak another, by `mesh`, before it is dialled. A
+  beacon with no `P` is of before there were versions.
 * The `B` field of a beacon, the boot image's id, shown, not acted on.
 * "Net Service 0.1" and "Mesh 0.1", the info of two services.
 
-A shared memory link has nothing at all: two nodes of builds whose
-`lk_shmem_size` differ never open the link, the second waits for ever for a
-file of its size.
+A shared memory link has no version. Two nodes of builds whose
+`lk_shmem_size` differ do not link: the second end to open gives up after 5
+seconds. Two builds of the same size and another layout would.
 
 What two builds must agree on is all of this document: every offset, the
 enums (record status, wire type, kernel calls), `lk_data_size`, how the

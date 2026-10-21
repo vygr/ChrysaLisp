@@ -14,11 +14,14 @@
 ; one of its own. With no such file a machine has no links at all, the
 ; Net service makes none, service/net/app_impl.lisp.
 ;
-; The proof. Each end sends a word, 16 bytes it has just made up, a
-; nonce, a share of X25519 it has just made, and a byte: of the end
-; that dialled, whether the link is to be sealed. Each then sends an
-; HMAC SHA-256, under the key, of which end it is, both nonces, both
-; shares and that byte. Each checks the other's. The nonces are new
+; The proof. Each end sends a word, the version of the link it speaks,
+; 16 bytes it has just made up, a nonce, a share of X25519 it has just
+; made, and a byte: of the end that dialled, whether the link is to be
+; sealed. The word and the version are read first, and an end of another,
+; or of before there were versions, is closed on as soon as they are
+; heard. Each then sends an HMAC SHA-256, under the key, of the word and
+; the version, which end it is, both nonces, both shares and that byte.
+; Each checks the other's. The nonces are new
 ; every time, so an answer heard once is no use again, and the two
 ; ends say different things, so one's answer is no use sent back to
 ; it. And one in between who has the key can not put shares of its
@@ -49,8 +52,16 @@
 (ffi "service/net/lisp_close" net-close)
 (ffi "service/net/lisp_poll" net-poll)
 
-(defq +door_key_file "mesh_key" +door_word "CLDOOR2" +door_nonce_size 16
-	+door_share_size 32 +door_hello_size 56 +door_tag_size 32 +door_wait 5000000)
+(defq +door_key_file "mesh_key" +door_word "CLDOOR3" +door_nonce_size 16
+	+door_share_size 32 +door_tag_size 32 +door_wait 5000000)
+
+;the version of the link: of all that goes over it once it is through the
+;door, docs/ai_digest/link_protocol.md. One more each time any of that is
+;changed, so two machines that would not understand each other do not link.
+;What is heard first, the word and it, and what comes after, the nonce, the
+;share and the byte of the seal
+(defq +door_version 1 +door_head (cat +door_word (char +door_version 4))
+	+door_rest_size (+ +door_nonce_size +door_share_size 1))
 
 ;32 bytes of nothing, the keys of a link that is not sealed, and the
 ;secret of a share of a small order
@@ -88,7 +99,7 @@
 	; (door-tag key dialler said) -> str
 	;what an end says to prove it has the key, the end that dialled or the
 	;end that listened, of what both said
-	(hmac-sha256 key (cat +door_word (if dialler "D" "L") said)))
+	(hmac-sha256 key (cat +door_head (if dialler "D" "L") said)))
 
 (defun door-same? (a b)
 	; (door-same? a b) -> :nil | :t
@@ -134,14 +145,15 @@
 	;one this end seals with and the one it opens with
 	(defq until (+ (pii-time) (ifn wait +door_wait)) mine (random-bytes +door_nonce_size)
 		secret (random-bytes 32) share (x25519-public secret) theirs :nil)
-	(and (door-send handle (cat +door_word mine share (char (if (and dialler sealed) 1 0))) until)
-		(defq hello (door-recv handle +door_hello_size until))
-		(eql (slice hello 0 (length +door_word)) +door_word)
-		(setq theirs (slice hello (length +door_word) (+ (length +door_word) +door_nonce_size)))
+	(and (door-send handle (cat +door_head mine share (char (if (and dialler sealed) 1 0))) until)
+		;of this version, or closed on now
+		(eql (door-recv handle (length +door_head) until) +door_head)
+		(defq hello (door-recv handle +door_rest_size until))
+		(setq theirs (slice hello 0 +door_nonce_size))
 		;the two nonces must not be the one, or an end could be answered with itself
 		(not (door-same? mine theirs))
-		(defq their_share (slice hello (+ (length +door_word) +door_nonce_size) (dec +door_hello_size))
-			seal (if dialler sealed (= (code hello 1 (dec +door_hello_size)) 1))
+		(defq their_share (slice hello +door_nonce_size (dec +door_rest_size))
+			seal (if dialler sealed (= (code hello 1 (dec +door_rest_size)) 1))
 			said (if dialler (cat mine theirs share their_share) (cat theirs mine their_share share))
 			said (cat said (char (if seal 1 0))))
 		(door-send handle (door-tag key dialler said) until)
