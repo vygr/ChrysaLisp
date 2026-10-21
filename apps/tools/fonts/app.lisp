@@ -92,7 +92,7 @@
 			((= id +event_open)
 				;the picker, at the font shown, the one open told to go first
 				(if *picker* (mail-send *picker* ""))
-				(setq *picker* (file-pick (elem-get select +select_picker) "Open font..." *file* ".ctf" :nil "fonts")))
+				(setq *picker* (file-pick (elem-get select +select_picker) "Open font..." *file* ".ctf" :nil "fonts" :nil '("fonts"))))
 			((= +event_copy id)
 				(clip-put-rpc (to-lower (get :tip_text
 					(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))

@@ -272,7 +272,7 @@
 (defun picker-open ()
 	;the Files app's picker, for the model to open
 	(if picker (mail-send picker ""))
-	(setq picker (file-pick (elem-get select +select_picker) "Open model...")))
+	(setq picker (file-pick (elem-get select +select_picker) "Open model..." :nil :nil :nil :nil :nil '("apps/demos/model/data"))))
 
 (defun main ()
 	(setq select (task-mboxes +select_size))

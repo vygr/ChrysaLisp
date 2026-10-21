@@ -17,15 +17,17 @@
 ;one of the host from /, one of the store from store:, lib/files/names.inc.
 ;
 ;Down the side the places to go to: the tree, the user's folder, the
-;docs, the store if there is one and the app takes its objects, and those of the app that asked, where it last took a file from,
+;app's own folders, the store if there is one and the app takes its
+;objects, and those of the app that asked, where it last took a file from,
 ;newest first, kept for each user and app in the user's places.tre.
 ;
-;It is mailed reply_mbox then title|root[|kinds[|mode[|app[|names]]]]: root a
+;It is mailed reply_mbox then title|root[|kinds[|mode[|app[|names[|places]]]]]: root a
 ;folder, or a file to start at, its name in the field, "." to start where
 ;the app last was; kinds the ends of names it lists, as ".cwb .md", * or
 ;none for all; mode open or save; app the name its places are kept by, -
 ;or none for none kept; names if the app takes objects of the store,
-;store:path, - or none if only files. No field is left empty, (split) leaves it out. It answers
+;store:path, - or none if only files; places the app's own folders, a
+;tab between them, - or none for none. No field is left empty, (split) leaves it out. It answers
 ;the once, the path taken or "" for none, to reply_mbox, and goes.
 ;apps/system/files/picker.inc.
 
@@ -194,18 +196,26 @@
 		((cat name "/"))))
 
 (defun places-show ()
-	;the places down the side: the tree, the user's folder, the docs, the
-	;store if this machine has one and the app takes its objects, then
-	;those of the app, a button each,
-	;in a scroll of their own
+	;the places down the side: the tree, the user's folder, the folders the
+	;app gave that are there, the store if this machine has one and the app
+	;takes its objects, then where the app last took things from, a button
+	;each, in a scroll of their own
 	(defq home (folder-of (get :home *env*))
-		fixed (cat (list "." home "docs") (if (and *names* (storage-service)) (list +name_store) (list)))
-		names (list "The tree" "Your folder" "docs/" "The store"))
+		given (filter (# (and (folder? %0) (not (find %0 (list "." home))))) *given*)
+		fixed (cat (list "." home) given (if (and *names* (storage-service)) (list +name_store) (list))))
 	(setq *place_list* (cat fixed
 		(filter! (# (and (nempty? %0) (not (find %0 fixed)))) *app_places* 1 -1)))
 	(if (> (length *place_list*) +places_max) (setq *place_list* (slice *place_list* 0 +places_max)))
-	(defq mine (slice *place_list* (length fixed) -1)
-		labels (cat (slice names 0 (length fixed)) (map (# (place-name %0 mine)) mine)))
+	;the tree, the user's folder and the store by what they are, the rest by
+	;their names
+	(defq named (slice *place_list* 2 -1)
+		labels (map (lambda (folder)
+				(cond
+					((eql folder ".") "The tree")
+					((eql folder home) "Your folder")
+					((eql folder +name_store) "The store")
+					((place-name folder named))))
+			*place_list*))
 	(each (# (. %0 :sub)) (. *places* :children))
 	(each (lambda (folder label)
 			(defq button (Button))
@@ -250,8 +260,9 @@
 (defun main ()
 	;read parameters from parent
 	(defq msg (mail-read (task-mbox)) reply_mbox (slice msg 0 +net_id_size))
-	(bind '(title root &optional kinds mode app names) (split (slice msg +net_id_size -1) "|"))
-	(defq *running* :t *save* (eql mode "save") *names* (eql names "names") *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
+	(bind '(title root &optional kinds mode app names places) (split (slice msg +net_id_size -1) "|"))
+	(defq *running* :t *save* (eql mode "save") *names* (eql names "names")
+		*given* (if (and places (nql places "-")) (map (const folder-of) (split places (ascii-char 9))) (list)) *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
 		*app* (and app (nempty? app) (nql app "-") app) *app_places* (places-of *app*)
 		*pattern* "" *place_list* (list)
 		*folder* "." *items* (list) *replace* :nil root (folder-of (ifn root ".")))

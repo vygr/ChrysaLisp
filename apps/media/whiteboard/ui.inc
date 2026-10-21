@@ -293,9 +293,9 @@
 	(unless (and (eql *share* :joined) (not *share_may_save*))
 		(if *picker_mbox* (mail-send *picker_mbox* ""))
 		(setq *picker_mode* :t *picker_mbox*
-			(file-pick (elem-get select +select_picker) "Save Whiteboard..." (ifn *file* ".") ".cwb" :t :nil :t))))
+			(file-pick (elem-get select +select_picker) "Save Whiteboard..." (ifn *file* ".") ".cwb" :t :nil :t '("apps/media/whiteboard/data" "docs/diagrams")))))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(setq *picker_mode* :nil *picker_mbox*
-		(file-pick (elem-get select +select_picker) "Load Whiteboard..." (ifn *file* ".") ".cwb" :nil :nil :t)))
+		(file-pick (elem-get select +select_picker) "Load Whiteboard..." (ifn *file* ".") ".cwb" :nil :nil :t '("apps/media/whiteboard/data" "docs/diagrams"))))

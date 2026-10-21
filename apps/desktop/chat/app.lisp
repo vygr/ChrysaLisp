@@ -505,7 +505,7 @@
 
 (defun action-attach ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(setq *picker_mbox* (file-pick (elem-get select +select_picker) "Send a file..." :nil :nil :nil :nil :t)))
+	(setq *picker_mbox* (file-pick (elem-get select +select_picker) "Send a file..." :nil :nil :nil :nil :t '("docs"))))
 
 (defun file-keep (name data)
 	; (file-keep name data) -> path

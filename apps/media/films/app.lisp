@@ -257,7 +257,7 @@
 				;the one open told to go first
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open film..." (ifn *file* ".")
-					(join +file_types " ") :nil "films" :t)))
+					(join +file_types " ") :nil "films" :t (list (cat *app_root* "data")))))
 			((= id +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))

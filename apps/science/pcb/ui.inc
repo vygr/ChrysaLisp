@@ -13,7 +13,7 @@
 	;from, the one open told to go first
 	(if *picker* (mail-send *picker* ""))
 	(setq *picker* (file-pick (elem-get select +select_picker) "Open board..." *file*
-		".pcb" :nil "pcb" :t)))
+		".pcb" :nil "pcb" :t (list (cat *app_root* "data")))))
 
 (defun action-scale-up ()
 	(defq old_zoom (get :zoom *window*)
