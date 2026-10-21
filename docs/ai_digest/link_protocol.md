@@ -3,8 +3,9 @@
 What one node sends another over a link, byte by byte, so that something that
 is not this code, an alien node ([alien_nodes.md](alien_nodes.md)) or a
 ChrysaLisp written again, could talk to it. It says what the code does now,
-as of v7.4 and after. Where the code does something it should not, that is
-said apart, under [Faults found writing this](#faults-found-writing-this).
+as of v7.4 and after. What was found wrong in the code as this was written,
+and has been put right since, is under
+[Faults found writing this](#faults-found-writing-this).
 
 How it all hangs together, and why, is in
 [messages_and_routing.md](messages_and_routing.md) and
@@ -123,7 +124,7 @@ lk_frag, 64 bytes
 48   uint  length   of this fragment's data
 52   uint  offset   of this fragment's data in the whole message
 56   uint  total    length of the whole message, 0 for a message of one fragment
-60   4   not written, see Faults
+60   4   pad, 0
 ```
 
 ## A TCP link
@@ -210,7 +211,7 @@ Every packet starts with a wire header:
 8    16  node id of the sender
 24   16  system id of the sender
 40   uint  task count, its tasks, with no lag
-44   4   not written, see Faults
+44   4   pad, 0
 ```
 
 **A frag, 72 bytes and the data:**
@@ -352,20 +353,25 @@ services are hashed, and the byte order.
 
 ## Faults found writing this
 
-Found reading the code for this document, 2026-10-21, not fixed when written:
+Found reading the code for this document, 2026-10-21, and put right the
+same day. A node from before then does these things, and one that talks to
+it must take them:
 
-* **Bytes not written go out.** The 4 bytes at the end of a TCP ping (44 to
-  47), of a fragment header (60 to 63), and of a TCP frag packet's header (68
-  to 71) are never set, so they carry what was in that memory before. On an
-  unsealed TCP link they are on the wire. They should be 0.
-* **A TCP link with no door reads a seal it was not given.** `:host_net :link`,
-  the link made with no Net service (`net-link-rpc`, the loopback tests), sends
+* **Bytes not written went out.** The 4 pad bytes at the end of a TCP ping (44
+  to 47), and of a fragment header (60 to 63, 68 to 71 of a TCP frag packet),
+  were never set. They carried what was in that memory before: on a shared
+  memory link the ring's old data, on an unsealed TCP link stack bytes on the
+  wire. They are 0 now. A reader is not to look at them.
+* **A TCP link with no door read a seal it was not given.** `:host_net :link`,
+  the link made with no Net service (`net-link-rpc`, the loopback tests), sent
   its connection task a message of 16 bytes, the handle, and the task reads 80,
-  the handle, a seal flag and two keys. What it takes for the seal is what the
-  rest of a 16 byte message's cell had.
-* **A shared memory file is left behind.** `pii_close_shared` unlinks the name
-  it was given, not `/tmp/<name>` where the file was made. The scripts that
-  start nodes take the files away.
+  the handle, a seal flag and two keys. It took for the seal what the rest of
+  the message's cell had. It sends all 80 now, 0 but the handle: not sealed.
+* **A shared memory file was left behind.** `pii_close_shared` unlinked the
+  name it was given, not `/tmp/<name>` where the file was made. A file left
+  behind and opened again has the node ids of its last two ends in it, and the
+  ends that open it then are both guests. The scripts that start nodes take
+  the files away; now a link that closes does too.
 
 ## The files
 

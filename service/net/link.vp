@@ -238,8 +238,10 @@
 		(assign (vpx (. cb cb_link_handle)) (vpx conn_handle))
 		(vpif (vpx (> conn_handle 0)))
 			;spawn connection worker task
-			(assign (vpx conn_handle) '(:r0))
-			(call :sys_mail :alloc '(16) (vpx msg data))
+			;all :conn reads, the handle, the seal flag and two keys, 0 but
+			;the handle: not sealed
+			(call :sys_mail :alloc '(80) (vpx msg data))
+			(call :sys_mem :fill (vpx data 80 0))
 			(call :sys_task :start (vpx (@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
 			(assign (vpx msg data conn_handle) '(:r0 :r1 :r5))
 			(save-net-id :r0 +msg_dest :r2 :r3 :r4)
@@ -287,8 +289,9 @@
 		(goto 'poll_loop)
 
 	(vp-label 'poll_connected)
-		;spawn connection worker task
-		(call :sys_mail :alloc '(16) (vpx msg data))
+		;spawn connection worker task, not sealed, as above
+		(call :sys_mail :alloc '(80) (vpx msg data))
+		(call :sys_mem :fill (vpx data 80 0))
 		(call :sys_task :start (vpx (@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
 		(assign (vpx msg data conn_handle) '(:r0 :r1 :r5))
 		(save-net-id :r0 +msg_dest :r2 :r3 :r4)
@@ -547,6 +550,10 @@
 	(assign '(:r0 :r0) (vpx count sbuf))
 	(assign (vpx (& nonce)) '(:r1))
 	(assign '(:r0 :r0) '((:r1 0) (:r1 8)))
+	;the pads of the ping and the frag header, not written again
+	(assign (vpx (& ping_pkt) (& frag_pkt)) '(:r1 :r2))
+	(assign '(0) '(:r0))
+	(assign '(:r0 :r0) '((:r1 +net_ping_pkt_pad) (:r2 +net_frag_pkt_pad)))
 	(vpif (vpx (/= sealed 0)))
 		(call :sys_mem :alloc (vpx (+ +long_size +net_frag_pkt_size lk_data_size +aead_tag_size)) '(:r0 _))
 		(assign '(:r0) (vpx sbuf))

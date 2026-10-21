@@ -127,8 +127,11 @@ int64_t pii_open_shared(const char *path, size_t len)
 
 int64_t pii_close_shared(const char *path, int64_t hndl)
 {
+	//the file is the one pii_open_shared made, in /tmp
+	char file[128];
+	snprintf(file, sizeof(file), "/tmp/%s", path);
 	close((int)hndl);
-	return unlink(path);
+	return unlink(file);
 }
 
 // shared memory that is only ever memory, it has no file behind it for the

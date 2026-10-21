@@ -49,7 +49,8 @@
 ;fragment info
 (structure lk_frag 0
 	(netid dest src)
-	(uint length offset total)
+	;pad is 0, written so, the ring has old data under it
+	(uint length offset total pad)
 	(align))
 
 (structure lk_chan 0

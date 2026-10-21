@@ -64,7 +64,8 @@
 	(uint wire_length wire_type)
 	(nodeid peer_node_id)
 	(nodeid peer_system_id)
-	(uint task_count)
+	;pad is 0, so nothing of this node's memory goes out
+	(uint task_count pad)
 	(align))
 
 ;what follows the header of a ping on the wire, the start of a link's
@@ -75,5 +76,6 @@
 (structure +net_frag_pkt 0
 	(uint wire_length wire_type)
 	(netid dest src)
-	(uint length offset total)
+	;pad is 0, as the ping's
+	(uint length offset total pad)
 	(align))

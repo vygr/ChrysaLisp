@@ -430,6 +430,9 @@
 					,(+ lk_frag_src +net_id_node_id +node_id_node1)
 					,(+ lk_frag_src +net_id_node_id +node_id_node2))
 				`(,t0 ,t1 ,t2 ,t3 ,t4 ,t5 ,t6 ,t7 ,t8))
+			;the pad, where the ring had what went before
+			(vp-cpy-cr 0 t0)
+			(assign `(,t0) `((,tx_frag lk_frag_pad)))
 			(call :sys_mem :copy_to_ring (vpx (.> msg +msg_data)
 					(& (. (.> head lk_buf_size) lk_frag_size))
 					(.> msg +msg_length) lk_chan_size tx))
