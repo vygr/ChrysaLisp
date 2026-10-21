@@ -30,6 +30,8 @@
 ; (sbr-gather out arrays index) -> out
 (ffi (path-to-absolute "./media_window") sbr-window)
 ; (sbr-window v d out at scale n parts dstep vstep doff voff) -> out
+(ffi (path-to-absolute "./media_sbr_gains") sbr-envelope-gains)
+; (sbr-envelope-gains ins flags lim kx delta consts out) -> out
 
 ;what the functions read as they run, this one map, the tables of
 ;sbr_tables.inc taken in as this is read: a module's names are gone by
@@ -745,45 +747,16 @@
 (defun sbr-gains (sbr ch maps curr)
 	; (sbr-gains sbr data maps energies) -> ((gain noise sine) ...)
 	;of each envelope each band's gain, noise and sinusoid, each limiter
-	;band's gains kept to its limit and its energy made what was sent
+	;band's gains kept to its limit and its energy made what was sent,
+	;native, lib/media/lisp.vp media_sbr_gains
 	(defq kx (. sbr :find :kx) lim (. sbr :find :limiter) e_a (. ch :find :e_a) s_index (. ch :find :s_index)
-		one (n2r 1) zero (n2r 0) eps (. +sbr :find :flt_eps) tiny (. +sbr :find :flt_min)
-		limgain (elem-get (. +sbr :find :limgain) (. sbr :find :limiter_gains))
-		top (n2r 100000) boost_max (str-to-real "1.584893192"))
+		zero (n2r 0) consts (reals (n2r 1) (. +sbr :find :flt_eps) (. +sbr :find :flt_min) (n2r 100000)
+			(str-to-real "1.584893192") (elem-get (. +sbr :find :limgain) (. sbr :find :limiter_gains))))
 	(map (lambda ((orig q s) e_curr)
-			(defq e (!) delta (if (or (= e (second e_a)) (= e (first e_a))) 0 1) si (elem-get s_index (inc e))
-				gain (fill (reals) 48 zero) q_m (fill (reals) 48 zero) s_m (fill (reals) 48 zero))
-			(each (lambda (k)
-					(defq a (- (elem-get lim k) kx) b (- (elem-get lim (inc k)) kx) sum0 zero sum1 zero)
-					(each (lambda (m)
-							(defq o (elem-get orig m) qq (elem-get q m) c (elem-get e_curr m) temp (/ o (+ one qq)))
-							(elem-set q_m m (sqrt (* temp qq)))
-							(elem-set s_m m (sqrt (* temp (n2r (elem-get si m)))))
-							(elem-set gain m (+ tiny (if (= (elem-get s m) 0)
-								(sqrt (/ o (* (+ one c) (+ one (* qq (n2r delta))))))
-								(sqrt (/ (* o qq) (* (+ one c) (+ one qq)))))))
-							(setq sum0 (+ sum0 o) sum1 (+ sum1 c)))
-						(range a b))
-					(defq gain_max (min top (* limgain (sqrt (/ (+ eps sum0) (+ eps sum1))))))
-					(each (lambda (m)
-							(defq g (elem-get gain m))
-							(elem-set q_m m (min (elem-get q_m m) (/ (* (elem-get q_m m) gain_max) g)))
-							(elem-set gain m (min g gain_max)))
-						(range a b))
-					(setq sum0 zero sum1 zero)
-					(each (lambda (m)
-							(defq g (elem-get gain m) sm (elem-get s_m m) qm (elem-get q_m m))
-							(setq sum0 (+ sum0 (elem-get orig m))
-								sum1 (+ sum1 (* (elem-get e_curr m) g g) (* sm sm) (if (and (= delta 1) (= sm zero)) (* qm qm) zero))))
-						(range a b))
-					(defq boost (min boost_max (sqrt (/ (+ eps sum0) (+ eps sum1)))))
-					(each (lambda (m)
-							(elem-set gain m (* (elem-get gain m) boost))
-							(elem-set q_m m (* (elem-get q_m m) boost))
-							(elem-set s_m m (* (elem-get s_m m) boost)))
-						(range a b)))
-				(range 0 (dec (length lim))))
-			(list gain q_m s_m))
+			(defq e (!) delta (if (or (= e (second e_a)) (= e (first e_a))) 0 1)
+				out (sbr-envelope-gains (cat orig q e_curr) (cat s (elem-get s_index (inc e))) lim kx delta consts
+					(fill (reals) 144 zero)))
+			(list (slice out 0 48) (slice out 48 96) (slice out 96 144)))
 		maps curr))
 
 (defun sbr-assemble (sbr ch high gains)
