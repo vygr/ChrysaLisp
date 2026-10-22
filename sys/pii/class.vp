@@ -278,6 +278,29 @@
 
 (def-func-end)
 
+(def-method :host_os :pii_save)
+	;inputs
+	;:r0 = c string filename (pubyte)
+	;:r1 = buffer (pubyte)
+	;:r2 = len (long)
+	;outputs
+	;:r0 = 0 if all of it was written, else -1 (long)
+	;trashes
+	;:r0, :f0-:f15
+	;info
+	;the file is what is in the buffer and nothing else, made if it is
+	;not there. One that was there is written over, not cut to nothing
+	;first, which with many saving at once was most of what it cost
+
+	(entry :host_os :pii_save '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call :host_os :save '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit :host_os :pii_save '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :host_os :pii_rand)
 	;inputs
 	;:r0 = data buffer pointer (pubyte)

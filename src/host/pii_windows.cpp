@@ -666,6 +666,32 @@ int64_t pii_kill(int64_t pid)
 	return ok ? 0 : -1;
 }
 
+int64_t pii_save(const char *path, const void *addr, size_t len)
+{
+	//the file is this and nothing else. Not opened with O_TRUNC, cut to the
+	//length after, if it was longer, see pii_darwin.cpp. 0 if all of it was
+	//written, else -1
+	int fd = open(path, O_CREAT | O_WRONLY | O_BINARY, _S_IREAD | _S_IWRITE);
+	if (fd == -1)
+	{
+		rmkdir(path);
+		fd = open(path, O_CREAT | O_WRONLY | O_BINARY, _S_IREAD | _S_IWRITE);
+		if (fd == -1) return -1;
+	}
+	const char *p = (const char*)addr;
+	size_t left = len;
+	while (left)
+	{
+		int n = _write(fd, p, (unsigned int)(left > 0x40000000 ? 0x40000000 : left));
+		if (n <= 0) break;
+		p += n;
+		left -= n;
+	}
+	int64_t err = (left || _chsize_s(fd, (__int64)len)) ? -1 : 0;
+	close(fd);
+	return err;
+}
+
 void (*host_os_funcs[]) = {
 	(void*)exit,
 	(void*)pii_stat,
@@ -698,6 +724,7 @@ void (*host_os_funcs[]) = {
 	(void*)pii_chmod,
 	(void*)pii_kill,
 	(void*)pii_tick,
+	(void*)pii_save,
 };
 
 #endif

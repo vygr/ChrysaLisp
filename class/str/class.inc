@@ -44,7 +44,7 @@
 	(dec-method :lisp_rbskip class/str/lisp_rbskip :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :lisp_rbskipn class/str/lisp_rbskipn :static (:r0 :r1) (:r0 :r1) (:r1-:r9 :r14 :f0-:f15))
 	(dec-method :lisp_split class/str/lisp_split :static (:r0 :r1) (:r0 :r1) (:r1-:r14 :f0-:f15))
-	(dec-method :lisp_save class/str/lisp_save :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r10-:r13 :f0-:f15))
+	(dec-method :lisp_save class/str/lisp_save :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r11-:r13 :f0-:f15))
 	(dec-method :lisp_load class/str/lisp_load :static (:r0 :r1) (:r0 :r1) (:r1-:r6 :r13 :f0-:f15))
 	(dec-method :lisp_expand class/str/lisp_expand :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :f0-:f15))
 	(dec-method :lisp_compress class/str/lisp_compress :static (:r0 :r1) (:r0 :r1) (:r1-:r13 :f0-:f15))
