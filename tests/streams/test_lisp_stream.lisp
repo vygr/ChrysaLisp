@@ -64,7 +64,7 @@
 (defq ls_s (lisp-stream (lambda () 42)))
 (assert-eq "what is not a str is the end" :nil (read-char ls_s))
 (defq ls_s (lisp-stream (lambda () (throw "no" 1))))
-(assert-eq "a function that throws is the end" :nil (read-char ls_s))
+(assert-error "a function that throws, and the read at the end throws it" (read-char ls_s))
 
 ;seek
 (bind '(ls_st ls_s) (ls-open ls_parts))
@@ -144,3 +144,26 @@
 (assert-eq "inflate a byte at a time" :t (inflate-decompress (lisp-stream `(lambda () (,byte-fill ',zdata))) back :t))
 (stream-seek back 0 0)
 (assert-eq "what it was" "hello hello hello hello" (read-blk back 100))
+
+;a fill that throws ends the stream of that fault: what is read before it
+;is read, and the read at the end throws it, so a reader knows it is not
+;the end of what it reads. A throw is only caught on an error checked
+;build, so those are assert-error, skipped on a release one
+(defun fault-fill (state)
+	(if (first state) (throw "fault-fill: no more to be had" :lost) (elem-set state 0 :t))
+	"ab")
+(defun faulty () (lisp-stream `(lambda () (,fault-fill ',(list :nil)))))
+(defq bad (faulty))
+(assert-eq "read before the fault" "ab" (read-blk bad 2))
+(assert-error "read-blk at the fault throws" (read-blk bad 2))
+(assert-eq "read-blk of more than there is has the part before the fault" "ab" (read-blk (setq bad (faulty)) 10))
+(assert-error "and the next throws" (read-blk bad 10))
+(setq bad (faulty))
+(assert-list-eq "read-char before the fault" (list (ascii-code "a") (ascii-code "b")) (list (read-char bad) (read-char bad)))
+(assert-error "read-char at the fault throws" (read-char bad))
+(assert-eq "read-line, its line" "ab" (read-line (setq bad (faulty))))
+(assert-error "read-line at the fault throws" (read-line bad))
+(defq seen (list))
+(assert-error "lines! at the fault throws" (lines! (# (push seen %0) :nil) (faulty)))
+(assert-list-eq "after the lines before it" '("ab") seen)
+(assert-eq "an end with no fault is :nil, as ever" :nil (read-blk (lisp-stream '(lambda () :nil)) 10))

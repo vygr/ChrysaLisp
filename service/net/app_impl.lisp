@@ -232,6 +232,9 @@
 								(push refusals (list where (hex-decode (to-upper (slice text (inc at) -1))) (pii-time)))
 								(if (> (length refusals) 8) (setq refusals (slice refusals -9 -1)))))
 						(+net_rpc_type_refusals
+							;one not refused again in 10 minutes is let go, the
+							;machine may have been made new since
+							(setq refusals (filter (# (< (- (pii-time) (third %0)) 600000000)) refusals))
 							(mail-send reply_id (cat (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle 0) (+net_rpc_reply_status 0))
 								(apply (const cat) (cat (list "") (map (lambda ((where head time))

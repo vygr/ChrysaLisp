@@ -11,6 +11,7 @@
 	(dec-method :seek class/lstream/seek :final :nil :nil (:r1-:r11 :r14 :f0-:f15) (:r1-:r11 :r14 :f0-:f15))
 	(dec-method :write_next class/lstream/write_next :final :nil :nil (:r1-:r9 :f0-:f15) (:r1-:r9 :f0-:f15))
 	(dec-method :flush class/lstream/flush :final :nil :nil (:r1-:r9 :f0-:f15) (:r1-:r9 :f0-:f15))
+	(dec-method :fault class/lstream/fault :final :nil :nil (:r1) (:r1))
 	(dec-method :put class/lstream/put :static (:r0 :r1) (:r0) (:r1-:r14 :f0-:f15))
 	(dec-method :fill class/lstream/fill :static (:r0) (:r0 :r1) (:r1-:r14 :f0-:f15))
 	(dec-method :seek_to class/lstream/seek_to :static (:r0 :r1 :r2) (:r0 :r1) (:r1-:r14 :f0-:f15))

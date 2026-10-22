@@ -140,6 +140,15 @@
 	(assert-eq "500 lines written with (write-line) are read with (lines!)" "(500 \qline 0\q \qline 499\q)"
 		(str (list (length sg_lines) (first sg_lines) (last sg_lines))))
 	(assert-true "no mode is to read, as it was" (storage-stream "w/lines" :nil sg_svc))
+	;a block that can not be had, of the service or any member, is asked
+	;again for a while and then thrown, the read is not the end. The stream
+	;is made by hand, of the blocks of w/lines with one in it never put, and
+	;tries for a second here
+	(defq sg_names (second (storage-manifest "w/lines" sg_svc)))
+	(defq sg_st (list sg_svc (list (first sg_names) (sha256 "never put") (second sg_names)) 4096 12288 0 0 (list) 4 "" 1)
+		sg_in (lisp-stream `(lambda () (,storage-stream-fill ',sg_st))))
+	(assert-eq "a stream of a lost block reads what is before it" 4096 (length (read-blk sg_in 4096)))
+	(assert-error "and the read of the block that is lost throws" (read-blk sg_in 4096))
 	;a program that is to come through anything writes a path of its own,
 	;sees all went as it should, and renames it to where it is to be
 	(storage-put "w/doc" "the old" :nil sg_svc)

@@ -221,7 +221,8 @@
 (defun net-refused-rpc ()
 	; (net-refused-rpc) -> :nil | ((where head seconds) ...)
 	;the machines a door closed on lately, for speaking another link: where,
-	;the first bytes of the hello it sent, and how long ago
+	;the first bytes of the hello it sent, and how long ago. The last 8, of
+	;the last 10 minutes
 	(when (defq svc (net-service))
 		(defq reply_mbox (mail-mbox))
 		(mail-send svc (setf-> (str-alloc +net_rpc_refusals_size)

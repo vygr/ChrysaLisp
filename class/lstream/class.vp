@@ -54,6 +54,9 @@
 
 	;the functions are the stream's from now, the lisp is whose it is
 	(assign '(:r2 :r3 :r4 :r5) '((:r0 +lstream_fill) (:r0 +lstream_seek) (:r0 +lstream_lisp) (:r0 +lstream_write)))
+	;and no fault yet
+	(assign '(0) '(:r2))
+	(assign '(:r2) '((:r0 +lstream_fault)))
 	(vpif '(:r5 = 0))
 		;init parent, with nothing read yet
 		(s-jump :lstream :init '(:r0 :r1 0 0 0 0))
@@ -94,6 +97,8 @@
 	(call :obj :deref_if '((:r0 +lstream_seek)))
 	(assign '((:rsp 0)) '(:r0))
 	(call :obj :deref_if '((:r0 +lstream_write)))
+	(assign '((:rsp 0)) '(:r0))
+	(call :obj :deref_if '((:r0 +lstream_fault)))
 	(vp-pop :r0)
 
 	;parent deinit
@@ -218,6 +223,21 @@
 
 (def-func-end)
 
+(def-method :lstream :fault)
+	;inputs
+	;:r0 = lstream object (ptr)
+	;outputs
+	;:r0 = lstream object (ptr)
+	;:r1 = 0, else error object of the fill that ended it (ptr)
+	;trashes
+	;:r1
+
+	(entry :lstream :fault '(:r0))
+	(exit :lstream :fault '(:r0 (:r0 +lstream_fault)))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :lstream :fill)
 	;inputs
 	;:r0 = lstream object (ptr)
@@ -234,9 +254,11 @@
 	(push-scope)
 	(entry :lstream :fill (vpx this))
 
-	;what was read is let go of
+	;what was read is let go of, and any fault of the last fill
 	(call :obj :deref_if (vpx (.> this +stream_object)))
 	(assign (vpx 0 0 0) (vpx (.> this +stream_object) (.> this +stream_bufp) (.> this +stream_bufe)))
+	(call :obj :deref_if (vpx (.> this +lstream_fault)))
+	(assign (vpx 0) (vpx (.> this +lstream_fault)))
 
 	;the next of it is asked for
 	(call :list :create :nil (vpx args))
@@ -251,6 +273,11 @@
 			(assign (vpx (+ (.> this +stream_bufp) (.> value +str_length))) (vpx (.> this +stream_bufe)))
 			(assign (vpx 0 0) (vpx res value))
 		(endif)
+	(elseif (vpx (= (.> value +obj_vtable) (.> (.> this +lstream_lisp) +lisp_error))))
+		;an error, a fill that threw, is the end and is kept, so that
+		;what reads the stream is given it, (read-blk) and the rest throw it
+		(assign (vpx value) (vpx (.> this +lstream_fault)))
+		(assign (vpx 0) (vpx value))
 	(endif)
 	(call :obj :deref_if (vpx value))
 

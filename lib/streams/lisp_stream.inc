@@ -6,6 +6,9 @@
 ; fill is a function of no arguments that gives the next of it, a str of
 ; any length, or :nil, or an empty str, at the end. It is asked when what
 ; it gave last has been read, and not before. The stream keeps the one str.
+; A fill that throws ends it of that fault: the read at the end, (read-blk)
+; (read-line) (read-char) or (lines!), throws the error, so a reader knows
+; it is not the end of what it reads. VP that reads the stream sees the end.
 ;
 ; seek, if there is one, is a function of (offset whence), whence as
 ; (stream-seek) has it, 0 from the start, 1 from where it is, 2 from the
