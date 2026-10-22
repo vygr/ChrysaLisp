@@ -124,10 +124,25 @@
 	;modification time of a file, cached
 	(or (get (setq %0 (sym %0)) ages) (def ages %0 (age %0))))
 
+(defun newest-ages (files)
+	;the newest modification time of each file and all it includes and
+	;imports, and all they do. Each starts as its own, and takes the
+	;newest of what it includes, pass after pass, till a pass changes
+	;none: the includes have loops, so not once a file. Asking the whole
+	;list of each, merged, was 1.9 million compares for the system
+	(each (# (def newest (sym %0) (file-age %0))) files)
+	(defq changed :t)
+	(while changed
+		(setq changed :nil)
+		(each (lambda (f)
+			(defq k (sym f) v (get k newest)
+				m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
+			(when (> m v) (def newest k m) (setq changed :t))) files)))
+
 (defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq ages (env 31) info (env 31))
+		(defq ages (env 31) info (env 31) newest (env 31))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
 			(include "lib/asm/func.inc")
@@ -136,14 +151,12 @@
 				(bind '(d p) (make-info %0))
 				(merge files d)
 				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
+		(newest-ages files)
 		;filter to only the .vp files
 		(setq files (filter (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
 		(setq files (filter (#
-			(bind '(d p) (get (sym %0) info))
-			(setq p (reduce min (map (const file-age) p) +max_long))
-			(each-mergeable (# (merge d (first (get (sym %0) info)))) d)
-			(some (# (>= %0 p)) (map (const file-age) d))) files))
+			(>= (get (sym %0) newest) (reduce min (map (const file-age) (second (get (sym %0) info))) +max_long))) files))
 		;return the list to compile
 		files)) *abi* *cpu*))
 
