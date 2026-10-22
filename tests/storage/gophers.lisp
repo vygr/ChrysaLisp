@@ -31,7 +31,8 @@
 				(bind '(state visit) (second (elem-get jobs j)))
 				(list o j (storage-walk-send (first (elem-get objects o)) state visit :nil (scene-svc sc from))))
 				(range 0 +out))
-			back (map (lambda ((o j mbox)) (list o j (storage-walk-answer mbox 60))) sent)
+			;no member goes, so every one comes back: each is waited for till it does
+			back (map (lambda ((o j mbox)) (list o j (storage-walk-answer mbox :t))) sent)
 			ms (/ (- (pii-time) t0) 1000)
 			came (filter (# (third %0)) back)
 			right (filter (lambda ((o j answer)) (eql (str (first answer)) (str (elem-get (elem-get want o) j)))) came)

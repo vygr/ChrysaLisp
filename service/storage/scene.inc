@@ -237,7 +237,9 @@
 	;the scene of that name is started, and each line it says given to say.
 	;With record, each line its members record, given to that, and :nil
 	;when nothing has come for a tenth of a second. :nil if
-	;there is no such scene, or it is not done in wait seconds, 600. Its
+	;there is no such scene, or it is not done in wait seconds, 600. A
+	;wait of :t is till it is done, however long, as a test waits: a
+	;scene that never ends is the test runner's to say. Its
 	;names are its own, scene_..., so that a function it is given, which is
 	;called here, finds its own and not these
 	(defq scene_file (cat +scene_folder "/" name ".lisp"))
@@ -245,12 +247,13 @@
 		(scene-sweep)
 		(defq scene_said (mail-mbox) scene_heard (mail-mbox) scene_group (cat "*StorageScene" (str (pii-pid)) "_" (str (random 1000000)))
 			scene_child (open-child scene_file +kn_call_run) scene_result :nil scene_going :t scene_next 0
-			scene_until (+ (pii-time) (task-timeout (ifn wait 600))) scene_heard_at (pii-time))
+			scene_until (if (nql wait :t) (+ (pii-time) (task-timeout (ifn wait 600)))) scene_heard_at (pii-time))
 		(when (/= 0 (get-long scene_child 0))
 			(mail-send scene_child (join (list (hex-encode scene_said) scene_group) +storage_lf))
 			;and not for ever: a scene that has gone, it threw, says nothing more,
 			;and is given up on when it and its members have been quiet a minute
-			(while (and scene_going (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) (task-timeout 60)))
+			(while (and scene_going (or (not scene_until)
+					(and (< (pii-time) scene_until) (< (- (pii-time) scene_heard_at) (task-timeout 60)))))
 				;a recorder asks each member again, and asks those started since
 				(when (and record (>= (pii-time) scene_next))
 					(each (# (storage-send %0 +storage_type_record (hex-encode scene_heard))) (storage-record-members scene_group))
@@ -271,8 +274,8 @@
 		;one given up on says why, as its last line
 		(unless scene_result
 			(say (cat "given up on, " (cond
-				((>= (pii-time) scene_until) (cat "not done in " (str (ifn wait 600)) "s"))
-				((>= (- (pii-time) scene_heard_at) (task-timeout 60)) "nothing said for 60s")
+				((and scene_until (>= (pii-time) scene_until)) (cat "not done in " (str (ifn wait 600)) "s"))
+				((and scene_until (>= (- (pii-time) scene_heard_at) (task-timeout 60))) "nothing said for 60s")
 				("it went")))))
 		;what the members still have to say, till they have said nothing for
 		;half a second. What comes after that is to a mailbox nobody reads

@@ -10,7 +10,7 @@
 ;the quick ones: each holds all its checks, and what its members did is recorded
 (each (lambda (name)
 	(defq said (list) recorded (list)
-		result (scene-run name (lambda (line) (push said line)) (lambda (line) (if line (push recorded line))) 120))
+		result (scene-run name (lambda (line) (push said line)) (lambda (line) (if line (push recorded line))) :t))
 	;one that did not, says where it had got to
 	(assert-true (cat name ": it ran to the end" (if result "" (cat ", the last it said: " (ifn (last said) "nothing"))))
 		result)

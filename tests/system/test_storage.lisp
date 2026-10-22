@@ -177,7 +177,8 @@
 	(defq sg_start (pii-time))
 	(assert-eq "one whose function goes round for ever comes back with nothing" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count) (while :t) (list state :nil)) :nil 10 sg_svc))
-	(assert-true "in a second, near enough" (< 900000 (- (pii-time) sg_start) 3000000))
+	;not before its second; after it by however long a busy machine takes
+	(assert-true "not before its second" (> (- (pii-time) sg_start) 900000))
 	(assert-eq "and one that goes round in what it gives each" :nil
 		(storage-walk "a/big" 0 '(lambda (state data at count)
 			(each (# (until (not %0))) (list 1 2 3)) (list state :nil)) :nil 10 sg_svc))

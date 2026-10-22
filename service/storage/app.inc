@@ -466,8 +466,9 @@
 (defun storage-walk-answer (mbox &optional wait)
 	; (storage-walk-answer mbox [wait]) -> :nil | (state trail)
 	;what a gopher sent with (storage-walk-send) came back with, as
-	;(storage-walk), waited for so many seconds at most
-	(and mbox (defq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait))))
+	;(storage-walk), waited for so many seconds at most, or with :t till
+	;it comes
+	(and mbox (defq answer (if (eql wait :t) (mail-read mbox) (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
 		(starts-with "(" answer)
 		(first (read (string-stream answer)))))
 

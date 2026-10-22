@@ -237,32 +237,7 @@
 	(le-claim "le/a b") :t
 	(lock-release-rpc "le/a b") :t)
 
-;the empty key is the root, so covers every key. Every key anyone has:
-;another test that is going on beside this one may hold a lock, the
-;(locals) command does while it reads the classes again, some seconds on
-;a slow machine, and the root can not be had till it is let go. It
-;failed on the Pi for that, three asserts, twice in a night. So it is
-;asked for again and again, each time for a moment: a claim of the root
-;that waited long held up every other claim there was behind it, and
-;then it was the tests beside this one that failed. A moment is what a
-;claim takes here, timed on a key nobody has, four times over: on a busy Pi
-;in a ring the claim and its grant go through the nodes between, longer
-;than a quarter of a second, and every try gave up before its grant came
-(defun le-claim-root ()
-	(defq t0 (pii-time))
-	(le-claim "le/root_time")
-	(lock-release-rpc "le/root_time")
-	(defq moment (max (/ (task-timeout 1) 4) (* 4 (- (pii-time) t0))) t0 (pii-time) got :nil)
-	(until (or (setq got (lock-claim-rpc "" :nil moment)) (> (- (pii-time) t0) (task-timeout 30)))
-		(task-sleep 200000))
-	(if got :t))
-(test-cases
-	(le-claim-root) :t
-	(le-blocked "le/under_root") :t
-	(lock-release-rpc "") :t
-	(le-claim "le/under_root") :t
-	(le-blocked "") :t
-	(lock-release-rpc "le/under_root") :t)
+;the empty key, the root, is tested on its own, tests/solo/test_lock_root.lisp
 
 ; --- releasing a key that is not held is harmless ---
 (test-cases

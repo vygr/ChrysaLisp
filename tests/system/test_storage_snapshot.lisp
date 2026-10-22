@@ -2,9 +2,9 @@
 
 (import "service/storage/scene.inc")
 
-;4s on a quiet Pi, 66s and more under a full run's load; one stuck is still
-;given up on when nothing has been said for a minute
-(defq ss_said (list) ss_result (scene-run "snapshot" (lambda (line) (if line (push ss_said line)))))
+;waited for till it is done, 4s on a quiet Pi, 66s and more under a full
+;run's load: a test fails for what is wrong, not for how long it took
+(defq ss_said (list) ss_result (scene-run "snapshot" (lambda (line) (if line (push ss_said line))) :nil :t))
 (unless ss_result (print (last ss_said)))
 (assert-true "the snapshot scene ran to its end" ss_result)
 (when ss_result
