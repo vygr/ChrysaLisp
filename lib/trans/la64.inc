@@ -591,10 +591,19 @@
 	(emit-jmp-r +la64_rtmp1))
 ;la64_exit
 
+;a host call has its args in :r0 :r1 ... in order, see sys/pii/abi.inc,
+;where this ABI has them, and keeps all but :r0: the registers it trashes
+;are kept round it
+(defq +la64_vp_args `',(exec '(map (lambda (r) (emit-native-reg? r)) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
+	+la64_abi_save `',(exec '(map (lambda (r) (emit-native-reg? r)) '(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))))
+
 (case *abi*
 (LA64
-(defun emit-call-abi (r b c n &rest x)
-	(defq s (* +ptr_size (length x)))
+(defun emit-call-abi (r b c n &rest _)
+	;the args are in :r0 :r1 ... as this ABI has them, those after the
+	;8th on the stack, and the registers it trashes are kept round it
+	(defq x (slice +la64_vp_args n (min n 8)) s (* +ptr_size (length x)))
+	(apply (const emit-push) +la64_abi_save)
 	(emit-cpy-rr +la64_rsp +la64_rtmp4)
 	(emit-cpy-rr +la64_rlnk +la64_rtmp5)
 	(cond
@@ -606,7 +615,8 @@
 	(emit-cpy-ir b c +la64_rtmp1)
 	(la64-jirl +la64_rlnk +la64_rtmp1 0)
 	(emit-cpy-rr +la64_rtmp4 +la64_rsp)
-	(emit-cpy-rr +la64_rtmp5 +la64_rlnk)))
+	(emit-cpy-rr +la64_rtmp5 +la64_rlnk)
+	(apply (const emit-pop) +la64_abi_save)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;

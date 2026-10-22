@@ -101,9 +101,9 @@
 		(throw "Abi methods must be virtual !" (list %0 %1)))
 	(if (or (find %2 s) (find %5 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list %2 %5 s)))
+	;the args to :r0 :r1 ... in order, the translator puts them where its
+	;ABI wants them, see sys/pii/abi.inc
 	(assign %3 s)
-	(when (> (defq ls (length s)) (defq la (length (abi-args))))
-		(setq x (slice s ls la)))
 	(vp-call-abi %5 %2 (- (elem-get m 4) +ptr_size) (length s) x)
 	(if %4 (assign (elem-get m 3) %4)))
 

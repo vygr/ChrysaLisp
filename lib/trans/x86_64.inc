@@ -585,9 +585,37 @@
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
 
+;a host call has its args in :r0 :r1 ... in order, see sys/pii/abi.inc.
+;They are moved to where the ABI has them, those that do not fit in its
+;registers pushed, and the registers it trashes kept round the call
+(defq +x64_vp_args `',(exec '(map (lambda (r) (emit-native-reg? r)) '(:r0 :r1 :r2 :r3 :r4 :r5))))
+
+(defun x64-abi-args (n regs)
+	; (x64-abi-args n regs) -> stack args
+	;the args moved to the ABI's regs, by the stack, as many at once as
+	;may go to each other's places. Those left for the stack are not where
+	;any of them go, it is thrown if they were
+	(defq k (min n (length regs)) src (list) dst (list)
+		stack (slice +x64_vp_args n k))
+	(each! (lambda (s d) (when (/= s d) (push src s) (push dst d)))
+		(list +x64_vp_args regs) 0 k)
+	(if (some (# (find %0 dst)) stack) (throw "emit-call-abi stack arg overwritten !" n))
+	(when (nempty? src)
+		(apply (const emit-push) src)
+		(apply (const emit-pop) dst))
+	stack)
+
+;where the ABI has the args, and the registers it trashes
+(defq +x64_abi_regs `',(exec '(map (lambda (r) (emit-native-reg? r))
+		(if (eql *abi* 'WIN64) '(:r1 :r2 :r7 :r8) '(:r6 :r5 :r2 :r1 :r7 :r8))))
+	+x64_abi_save `',(exec '(map (lambda (r) (emit-native-reg? r))
+		(if (eql *abi* 'WIN64) '(:r1 :r2 :r7 :r8 :r9 :r10) '(:r1 :r2 :r5 :r6 :r7 :r8 :r9 :r10)))))
+
 (case *abi*
 (AMD64
-(defun emit-call-abi (r b c n &rest x)
+(defun emit-call-abi (r b c n &rest _)
+	(apply (const emit-push) +x64_abi_save)
+	(defq x (x64-abi-args n +x64_abi_regs))
 	(cond
 		((= *func_align* 16)
 			(apply (const emit-push) x)
@@ -598,9 +626,12 @@
 			(emit-and-cr -16 +x64_rsp)
 			(apply (const emit-push) x)
 			(emit-call-i b c)
-			(emit-cpy-ir +x64_rsp (* +ptr_size (- (length x) 2)) +x64_rsp)))))
+			(emit-cpy-ir +x64_rsp (* +ptr_size (- (length x) 2)) +x64_rsp)))
+	(apply (const emit-pop) +x64_abi_save)))
 (WIN64
-(defun emit-call-abi (r b c n &rest x)
+(defun emit-call-abi (r b c n &rest _)
+	(apply (const emit-push) +x64_abi_save)
+	(defq x (x64-abi-args n +x64_abi_regs))
 	(cond
 		((= *func_align* 16)
 			(if (odd? (length x))
@@ -617,7 +648,8 @@
 			(apply (const emit-push) y)
 			(emit-sub-cr 32 +x64_rsp)
 			(emit-call-i b c)
-			(emit-cpy-ir +x64_rsp (* +ptr_size (+ (length x) 4)) +x64_rsp)))))
+			(emit-cpy-ir +x64_rsp (* +ptr_size (+ (length x) 4)) +x64_rsp)))
+	(apply (const emit-pop) +x64_abi_save)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

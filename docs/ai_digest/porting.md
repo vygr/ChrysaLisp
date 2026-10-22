@@ -249,17 +249,22 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
   `host_audio_funcs` tables), the VP translator (or in this phase, the VP64
   emulator) must set up the call according to this *host C/C++ ABI*.
 
-* The `sys/pii/abi.inc` file (implied by its usage in VP code, e.g.
-  `sys/kernel/class.vp` using `abi-args`) is likely where Lisp macros like
-  `abi-args` and `abi-trashed` are defined. These macros would be used by
-  the VP code that *declares* the PII functions it expects to call, to
-  ensure VP registers are correctly mapped to the argument-passing
-  registers and stack layout of the target host C ABI.
+* A call of the host is the same VP on every platform. Its args are in
+  `:r0 :r1 ...` in order, its answer comes back in `:r0`, and every other
+  register is kept: `abi-args` in `sys/pii/abi.inc` gives that list for all
+  of them, and `abi-call-table` in `sys/pii/class.inc` makes the call, a
+  `vp-call-abi`. Where the ABI is, is the translator's `emit-call-abi` in
+  `lib/trans/<cpu>.inc`: it moves the args to the registers the ABI wants,
+  pushes those that do not fit, keeps the registers the ABI trashes round
+  the call, and keeps the stack aligned as the ABI wants.
 
-    * You may need to define a new section in `sys/pii/abi.inc` for your new
-      OS/ABI combination, specifying which VP registers correspond to the
-      first, second, etc., arguments of a C function, and which registers
-      are caller/callee-saved according to the target ABI.
+    * For a new OS/ABI on a CPU there is already, add its case to that
+      CPU's `emit-call-abi`: its arg registers, as VP registers, and the VP
+      registers it trashes, as `lib/trans/x86_64.inc` has AMD64 and WIN64.
+
+    * The loader, `sys/load/init`, is called *by* the host, and its own args
+      are where the host's ABI put them: `abi-entry-args` in `abi.inc`,
+      which does have a case for each ABI.
 
     * The VP64 emulator (`src/host/vp64.cpp`) in its `VP64_CALL_ABI` opcode
       handler performs the actual marshalling of arguments from VP
