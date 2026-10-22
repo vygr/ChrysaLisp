@@ -188,6 +188,12 @@
 		(join (map (# (cat (slice %0 0 8) (cond ((eql %0 me) " this machine") ((find %0 there) " there") (" not there"))))
 			(ifn (storage-members :nil svc) (list))) ", ")))
 
+(defun got-all (object)
+	;after the read of an object, an error if it ended of a fault, a block
+	;not had, and not at its end
+	(when (defq fault (stream-fault object))
+		(print "Error: not all of it, a block of it could not be had " (second fault))))
+
 (defun show (entry)
 	;a line of an object: how long, how many times written, how many of
 	;the members have it, who wrote it, its path
@@ -299,13 +305,15 @@
 					((not (defq object (storage-stream name +file_open_read svc))) (print "No object " name))
 					((eql opt_g "-")
 						(while (defq part (read-blk object 65536)) (prin part))
-						(stream-flush (io-stream 'stdout)))
+						(stream-flush (io-stream 'stdout))
+						(got-all object))
 					((defq host (file-stream opt_g +file_open_write) bytes 0)
 						(while (defq part (read-blk object 65536))
 							(write-blk host part)
 							(setq bytes (+ bytes (length part))))
 						(stream-flush host)
-						(print bytes " bytes to " opt_g))
+						(print bytes " bytes to " opt_g)
+						(got-all object))
 					((print "No file " opt_g " to write."))))
 			((or opt_T opt_V)
 				;not the files of a folder of deps, nor one whose name begins with a dot

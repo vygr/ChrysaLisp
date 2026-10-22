@@ -44,7 +44,7 @@ inputs
 :r0 = lstream object (ptr)
 outputs
 :r0 = lstream object (ptr)
-:r1 = 0, else error object of the fill that ended it (ptr)
+:r1 = 0, else what the fill that ended it gave (ptr)
 trashes
 :r1
 ```

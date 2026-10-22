@@ -332,6 +332,23 @@ trashes
 :r0, :f0-:f15
 ```
 
+### :pii_save -> sys/pii/save
+
+```code
+inputs
+:r0 = c string filename (pubyte)
+:r1 = buffer (pubyte)
+:r2 = len (long)
+outputs
+:r0 = 0 if all of it was written, else -1 (long)
+trashes
+:r0, :f0-:f15
+info
+the file is what is in the buffer and nothing else, made if it is
+not there. One that was there is written over, not cut to nothing
+first, which with many saving at once was most of what it cost
+```
+
 ### :pii_seek -> sys/pii/seek
 
 ```code
@@ -501,6 +518,8 @@ trashes
 ### :read -> :nil
 
 ### :remove -> :nil
+
+### :save -> :nil
 
 ### :seek -> :nil
 

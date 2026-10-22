@@ -1,7 +1,7 @@
 ((:Emap 1)
 	:version 1
 	:width 397
-	:height 857
+	:height 840
 	:background 0
 	:style :plain
 	:grid 32
@@ -170,7 +170,7 @@
 									:id
 									18
 									:d
-									"[M 8 0 L 195.65673 0 A 8 8 0 0 1 203.65673 8 L 203.65673 727 A 8 8 0 0 1 195.65673 735 L 8 735 A 8 8 0 0 1 0 727 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 195.65673 0 A 8 8 0 0 1 203.65673 8 L 203.65673 710 A 8 8 0 0 1 195.65673 718 L 8 718 A 8 8 0 0 1 0 710 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -689,7 +689,7 @@
 									:stroke
 									0
 									:text
-									"[:at_end]"
+									"[:avail]"
 									:font_size
 									12
 									:pos
@@ -709,7 +709,7 @@
 									:stroke
 									0
 									:text
-									"[:avail]"
+									"[:init]"
 									:font_size
 									12
 									:pos
@@ -729,7 +729,7 @@
 									:stroke
 									0
 									:text
-									"[:init]"
+									"[:read]"
 									:font_size
 									12
 									:pos
@@ -749,7 +749,7 @@
 									:stroke
 									0
 									:text
-									"[:read]"
+									"[:read_bits]"
 									:font_size
 									12
 									:pos
@@ -769,7 +769,7 @@
 									:stroke
 									0
 									:text
-									"[:read_bits]"
+									"[:read_char]"
 									:font_size
 									12
 									:pos
@@ -789,26 +789,6 @@
 									:stroke
 									0
 									:text
-									"[:read_char]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										519.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									51
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
 									"[:read_line]"
 									:font_size
 									12
@@ -821,7 +801,7 @@
 								((:list 15)
 									:shape
 									:id
-									52
+									51
 									:kind
 									:text
 									:fill
@@ -841,7 +821,7 @@
 								((:list 15)
 									:shape
 									:id
-									53
+									52
 									:kind
 									:text
 									:fill
@@ -861,7 +841,7 @@
 								((:list 15)
 									:shape
 									:id
-									54
+									53
 									:kind
 									:text
 									:fill
@@ -881,7 +861,7 @@
 								((:list 15)
 									:shape
 									:id
-									55
+									54
 									:kind
 									:text
 									:fill
@@ -901,9 +881,9 @@
 								((:list 13)
 									:shape
 									:id
-									56
+									55
 									:d
-									"[M 0 533 L 203.65673 533]"
+									"[M 0 516 L 203.65673 516]"
 									:stroke
 									4282140240
 									:width
@@ -916,7 +896,7 @@
 								((:list 17)
 									:shape
 									:id
-									57
+									56
 									:kind
 									:text
 									:fill
@@ -932,7 +912,27 @@
 									:pos
 									((:list 2)
 										12.00000
-										549.00000
+										532.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[copy-bits]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										551.00000
 									)
 								)
 								((:list 15)
@@ -946,7 +946,7 @@
 									:stroke
 									0
 									:text
-									"[copy-bits]"
+									"[file-stream]"
 									:font_size
 									12
 									:pos
@@ -966,7 +966,7 @@
 									:stroke
 									0
 									:text
-									"[file-stream]"
+									"[fill-bits]"
 									:font_size
 									12
 									:pos
@@ -986,7 +986,7 @@
 									:stroke
 									0
 									:text
-									"[fill-bits]"
+									"[io-stream]"
 									:font_size
 									12
 									:pos
@@ -1006,7 +1006,7 @@
 									:stroke
 									0
 									:text
-									"[io-stream]"
+									"[lines!]"
 									:font_size
 									12
 									:pos
@@ -1026,7 +1026,7 @@
 									:stroke
 									0
 									:text
-									"[lines!]"
+									"[memory-stream]"
 									:font_size
 									12
 									:pos
@@ -1046,7 +1046,7 @@
 									:stroke
 									0
 									:text
-									"[memory-stream]"
+									"[read-avail]"
 									:font_size
 									12
 									:pos
@@ -1066,7 +1066,7 @@
 									:stroke
 									0
 									:text
-									"[read-avail]"
+									"[read-bits]"
 									:font_size
 									12
 									:pos
@@ -1086,7 +1086,7 @@
 									:stroke
 									0
 									:text
-									"[read-bits]"
+									"[read-blk]"
 									:font_size
 									12
 									:pos
@@ -1106,7 +1106,7 @@
 									:stroke
 									0
 									:text
-									"[read-blk]"
+									"[read-char]"
 									:font_size
 									12
 									:pos
@@ -1126,13 +1126,13 @@
 									:stroke
 									0
 									:text
-									"[read-char]"
+									"[read-line]"
 									:font_size
 									12
 									:pos
 									((:list 2)
-										12.00000
-										721.00000
+										120.23535
+										551.00000
 									)
 								)
 								((:list 15)
@@ -1146,7 +1146,7 @@
 									:stroke
 									0
 									:text
-									"[read-line]"
+									"[stream-avail]"
 									:font_size
 									12
 									:pos
@@ -1166,7 +1166,7 @@
 									:stroke
 									0
 									:text
-									"[stream-avail]"
+									"[stream-fault]"
 									:font_size
 									12
 									:pos
@@ -1343,7 +1343,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						799.00000
+						782.00000
 					)
 				)
 				((:list 7)
@@ -1683,7 +1683,7 @@
 					:pos
 					((:list 2)
 						0.00000
-						807.00000
+						790.00000
 					)
 				)
 			)

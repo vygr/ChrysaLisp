@@ -177,6 +177,42 @@
 
 (def-func-end)
 
+(def-method :stream :lisp_fault)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6
+	;info
+	;what a stream that ended of a fault ended of, :nil for any other.
+	;Its reads gave the end, :nil, as at any end, this says which end
+
+	(entry :stream :lisp_fault '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r0) '(:stream))
+	(call :stream :fault '(:r0) '(_ :r1) :r2)
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(endif)
+	(class/obj/ref :r1 :r2)
+
+	(exit :stream :lisp_fault '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(stream-fault stream)" +error_msg_wrong_types))
+	(signature '(:stream)))
+
+(def-func-end)
+
 (def-method :stream :lisp_readavail)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -326,7 +362,6 @@
 		(vpif '(:r1 = -1))
 			(call :obj :deref (vpx value))
 			(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
-			(call :stream :at_end (vpx (elem iter_begin 0) value) (vpx _ value))
 			(goto 'exit)
 		(endif)
 		(assign (vpx chars chars_end) '(:r0 :r2))
@@ -490,9 +525,7 @@
 		(call :obj :deref (vpx buf))
 		(assign (vpx this) `(,this))
 		(assign `((,this +lisp_sym_nil)) `(,buf))
-		(class/obj/ref buf len)
-		(call :stream :at_end `(,stream ,buf) `(_ ,buf))
-		(assign (vpx this) `(,this))
+		(class/obj/ref buf stream)
 	(else)
 		(assign (vpx this buf) `(,this ,buf))
 		(assign `(,tmp) `((,buf +str_length)))
@@ -563,14 +596,12 @@
 	(vp-push :r0)
 	(defq in (method-input :stream :read_line))
 	(list-bind-args :r1 in '(:stream))
-	(call :stream :read_line in '(:r0 :r1))
-	(vpif '(:r1 = 0))
-		(assign '((:rsp 0)) '(:r1))
-		(assign '((:r1 +lisp_sym_nil)) '(:r1))
-		(class/obj/ref :r1 :r2)
-		(call :stream :at_end '(:r0 :r1) '(_ :r1))
-	(endif)
+	(call :stream :read_line in '(_ :r1))
 	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
 
 	(exit :stream :lisp_readline '(:r0 :r1))
 	(vp-ret)
@@ -913,11 +944,7 @@
 		(assign `(,idx) `((,this +lisp_seq_idx)))
 
 		(call :stream :read_line (vpx stream) (vpx _ value))
-		(vpifnot (vpx value))
-			(call :obj :ref (vpx (.> this +lisp_sym_nil)) (vpx value))
-			(call :stream :at_end (vpx stream value) (vpx _ value))
-			(goto 'exit)
-		(endif)
+		(breakifnot (vpx value))
 
 		(assign (vpx this start) `(,this ,start))
 		(assign `((,this +lisp_seq_idx)) `(,idx))

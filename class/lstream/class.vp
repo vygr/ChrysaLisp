@@ -228,7 +228,7 @@
 	;:r0 = lstream object (ptr)
 	;outputs
 	;:r0 = lstream object (ptr)
-	;:r1 = 0, else error object of the fill that ended it (ptr)
+	;:r1 = 0, else what the fill that ended it gave (ptr)
 	;trashes
 	;:r1
 
@@ -265,7 +265,8 @@
 	(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_fill)) (vpx _ value))
 	(call :obj :deref (vpx args))
 
-	;a str with something in it is more, anything else is the end
+	;a str with something in it is more, an empty one or :nil the end, and
+	;anything else is the end of a fault, kept for (stream-fault) to give
 	(assign (vpx (- 1)) (vpx res))
 	(vpif (vpx (= (.> value +obj_vtable) (@ ,(f-path :str :vtable)))))
 		(vpif (vpx (.> value +str_length)))
@@ -273,9 +274,7 @@
 			(assign (vpx (+ (.> this +stream_bufp) (.> value +str_length))) (vpx (.> this +stream_bufe)))
 			(assign (vpx 0 0) (vpx res value))
 		(endif)
-	(elseif (vpx (= (.> value +obj_vtable) (.> (.> this +lstream_lisp) +lisp_error))))
-		;an error, a fill that threw, is the end and is kept, so that
-		;what reads the stream is given it, (read-blk) and the rest throw it
+	(elseif (vpx (/= value (.> (.> this +lstream_lisp) +lisp_sym_nil))))
 		(assign (vpx value) (vpx (.> this +lstream_fault)))
 		(assign (vpx 0) (vpx value))
 	(endif)

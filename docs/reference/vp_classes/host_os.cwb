@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 95
+	:next_id 97
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,7 +19,7 @@
 					:id
 					2
 					:items
-					((:list 92)
+					((:list 94)
 						((:list 11)
 							:shape
 							:id
@@ -556,7 +556,7 @@
 							:stroke
 							0
 							:text
-							"[:seek]"
+							"[:save]"
 							:font_size
 							12
 							:pos
@@ -576,7 +576,7 @@
 							:stroke
 							0
 							:text
-							"[:shm_close]"
+							"[:seek]"
 							:font_size
 							12
 							:pos
@@ -596,7 +596,7 @@
 							:stroke
 							0
 							:text
-							"[:shm_open]"
+							"[:shm_close]"
 							:font_size
 							12
 							:pos
@@ -616,7 +616,7 @@
 							:stroke
 							0
 							:text
-							"[:sleep]"
+							"[:shm_open]"
 							:font_size
 							12
 							:pos
@@ -636,7 +636,7 @@
 							:stroke
 							0
 							:text
-							"[:spawn]"
+							"[:sleep]"
 							:font_size
 							12
 							:pos
@@ -656,7 +656,7 @@
 							:stroke
 							0
 							:text
-							"[:stat]"
+							"[:spawn]"
 							:font_size
 							12
 							:pos
@@ -676,7 +676,7 @@
 							:stroke
 							0
 							:text
-							"[:sysid]"
+							"[:stat]"
 							:font_size
 							12
 							:pos
@@ -696,7 +696,7 @@
 							:stroke
 							0
 							:text
-							"[:tick]"
+							"[:sysid]"
 							:font_size
 							12
 							:pos
@@ -716,7 +716,7 @@
 							:stroke
 							0
 							:text
-							"[:unlink]"
+							"[:tick]"
 							:font_size
 							12
 							:pos
@@ -736,7 +736,7 @@
 							:stroke
 							0
 							:text
-							"[:write]"
+							"[:unlink]"
 							:font_size
 							12
 							:pos
@@ -745,10 +745,30 @@
 								221.00000
 							)
 						)
-						((:list 13)
+						((:list 15)
 							:shape
 							:id
 							40
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:write]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								195.28759
+								238.00000
+							)
+						)
+						((:list 13)
+							:shape
+							:id
+							41
 							:d
 							"[M 0 269 L 314.13476 269]"
 							:stroke
@@ -763,7 +783,7 @@
 						((:list 17)
 							:shape
 							:id
-							41
+							42
 							:kind
 							:text
 							:fill
@@ -785,7 +805,7 @@
 						((:list 15)
 							:shape
 							:id
-							42
+							43
 							:kind
 							:text
 							:fill
@@ -805,7 +825,7 @@
 						((:list 15)
 							:shape
 							:id
-							43
+							44
 							:kind
 							:text
 							:fill
@@ -825,7 +845,7 @@
 						((:list 15)
 							:shape
 							:id
-							44
+							45
 							:kind
 							:text
 							:fill
@@ -845,7 +865,7 @@
 						((:list 15)
 							:shape
 							:id
-							45
+							46
 							:kind
 							:text
 							:fill
@@ -865,7 +885,7 @@
 						((:list 15)
 							:shape
 							:id
-							46
+							47
 							:kind
 							:text
 							:fill
@@ -885,7 +905,7 @@
 						((:list 15)
 							:shape
 							:id
-							47
+							48
 							:kind
 							:text
 							:fill
@@ -905,7 +925,7 @@
 						((:list 15)
 							:shape
 							:id
-							48
+							49
 							:kind
 							:text
 							:fill
@@ -925,7 +945,7 @@
 						((:list 15)
 							:shape
 							:id
-							49
+							50
 							:kind
 							:text
 							:fill
@@ -945,7 +965,7 @@
 						((:list 15)
 							:shape
 							:id
-							50
+							51
 							:kind
 							:text
 							:fill
@@ -965,7 +985,7 @@
 						((:list 15)
 							:shape
 							:id
-							51
+							52
 							:kind
 							:text
 							:fill
@@ -985,7 +1005,7 @@
 						((:list 15)
 							:shape
 							:id
-							52
+							53
 							:kind
 							:text
 							:fill
@@ -1005,7 +1025,7 @@
 						((:list 15)
 							:shape
 							:id
-							53
+							54
 							:kind
 							:text
 							:fill
@@ -1025,7 +1045,7 @@
 						((:list 15)
 							:shape
 							:id
-							54
+							55
 							:kind
 							:text
 							:fill
@@ -1045,7 +1065,7 @@
 						((:list 15)
 							:shape
 							:id
-							55
+							56
 							:kind
 							:text
 							:fill
@@ -1065,7 +1085,7 @@
 						((:list 15)
 							:shape
 							:id
-							56
+							57
 							:kind
 							:text
 							:fill
@@ -1085,7 +1105,7 @@
 						((:list 15)
 							:shape
 							:id
-							57
+							58
 							:kind
 							:text
 							:fill
@@ -1105,7 +1125,7 @@
 						((:list 15)
 							:shape
 							:id
-							58
+							59
 							:kind
 							:text
 							:fill
@@ -1125,7 +1145,7 @@
 						((:list 15)
 							:shape
 							:id
-							59
+							60
 							:kind
 							:text
 							:fill
@@ -1145,7 +1165,7 @@
 						((:list 15)
 							:shape
 							:id
-							60
+							61
 							:kind
 							:text
 							:fill
@@ -1165,7 +1185,7 @@
 						((:list 15)
 							:shape
 							:id
-							61
+							62
 							:kind
 							:text
 							:fill
@@ -1185,7 +1205,7 @@
 						((:list 15)
 							:shape
 							:id
-							62
+							63
 							:kind
 							:text
 							:fill
@@ -1205,7 +1225,7 @@
 						((:list 15)
 							:shape
 							:id
-							63
+							64
 							:kind
 							:text
 							:fill
@@ -1225,26 +1245,6 @@
 						((:list 15)
 							:shape
 							:id
-							64
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:pii_seek]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								120.08886
-								474.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
 							65
 							:kind
 							:text
@@ -1253,13 +1253,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_shm_close]"
+							"[:pii_save]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								120.08886
-								491.00000
+								474.00000
 							)
 						)
 						((:list 15)
@@ -1273,13 +1273,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_shm_open]"
+							"[:pii_seek]"
 							:font_size
 							12
 							:pos
 							((:list 2)
-								228.25683
-								304.00000
+								120.08886
+								491.00000
 							)
 						)
 						((:list 15)
@@ -1293,13 +1293,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_spawn]"
+							"[:pii_shm_close]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								321.00000
+								304.00000
 							)
 						)
 						((:list 15)
@@ -1313,13 +1313,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_stat]"
+							"[:pii_shm_open]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								338.00000
+								321.00000
 							)
 						)
 						((:list 15)
@@ -1333,13 +1333,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_sysid]"
+							"[:pii_spawn]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								355.00000
+								338.00000
 							)
 						)
 						((:list 15)
@@ -1353,13 +1353,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_tick]"
+							"[:pii_stat]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								372.00000
+								355.00000
 							)
 						)
 						((:list 15)
@@ -1373,13 +1373,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_time]"
+							"[:pii_sysid]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								389.00000
+								372.00000
 							)
 						)
 						((:list 15)
@@ -1393,13 +1393,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_unlink]"
+							"[:pii_tick]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								406.00000
+								389.00000
 							)
 						)
 						((:list 15)
@@ -1413,13 +1413,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_write]"
+							"[:pii_time]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								423.00000
+								406.00000
 							)
 						)
 						((:list 15)
@@ -1433,13 +1433,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_write_char]"
+							"[:pii_unlink]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								440.00000
+								423.00000
 							)
 						)
 						((:list 15)
@@ -1453,13 +1453,13 @@
 							:stroke
 							0
 							:text
-							"[:pii_write_num]"
+							"[:pii_write]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								228.25683
-								457.00000
+								440.00000
 							)
 						)
 						((:list 15)
@@ -1473,7 +1473,27 @@
 							:stroke
 							0
 							:text
-							"[:pii_write_str]"
+							"[:pii_write_char]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								228.25683
+								457.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							77
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:pii_write_num]"
 							:font_size
 							12
 							:pos
@@ -1482,10 +1502,30 @@
 								474.00000
 							)
 						)
+						((:list 15)
+							:shape
+							:id
+							78
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:pii_write_str]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								228.25683
+								491.00000
+							)
+						)
 						((:list 13)
 							:shape
 							:id
-							77
+							79
 							:d
 							"[M 0 505 L 314.13476 505]"
 							:stroke
@@ -1500,7 +1540,7 @@
 						((:list 17)
 							:shape
 							:id
-							78
+							80
 							:kind
 							:text
 							:fill
@@ -1522,7 +1562,7 @@
 						((:list 15)
 							:shape
 							:id
-							79
+							81
 							:kind
 							:text
 							:fill
@@ -1542,7 +1582,7 @@
 						((:list 15)
 							:shape
 							:id
-							80
+							82
 							:kind
 							:text
 							:fill
@@ -1562,7 +1602,7 @@
 						((:list 15)
 							:shape
 							:id
-							81
+							83
 							:kind
 							:text
 							:fill
@@ -1582,7 +1622,7 @@
 						((:list 15)
 							:shape
 							:id
-							82
+							84
 							:kind
 							:text
 							:fill
@@ -1602,7 +1642,7 @@
 						((:list 15)
 							:shape
 							:id
-							83
+							85
 							:kind
 							:text
 							:fill
@@ -1622,7 +1662,7 @@
 						((:list 15)
 							:shape
 							:id
-							84
+							86
 							:kind
 							:text
 							:fill
@@ -1642,7 +1682,7 @@
 						((:list 15)
 							:shape
 							:id
-							85
+							87
 							:kind
 							:text
 							:fill
@@ -1662,7 +1702,7 @@
 						((:list 15)
 							:shape
 							:id
-							86
+							88
 							:kind
 							:text
 							:fill
@@ -1682,7 +1722,7 @@
 						((:list 15)
 							:shape
 							:id
-							87
+							89
 							:kind
 							:text
 							:fill
@@ -1702,7 +1742,7 @@
 						((:list 15)
 							:shape
 							:id
-							88
+							90
 							:kind
 							:text
 							:fill
@@ -1722,7 +1762,7 @@
 						((:list 15)
 							:shape
 							:id
-							89
+							91
 							:kind
 							:text
 							:fill
@@ -1742,7 +1782,7 @@
 						((:list 15)
 							:shape
 							:id
-							90
+							92
 							:kind
 							:text
 							:fill
@@ -1762,7 +1802,7 @@
 						((:list 15)
 							:shape
 							:id
-							91
+							93
 							:kind
 							:text
 							:fill
@@ -1782,7 +1822,7 @@
 						((:list 15)
 							:shape
 							:id
-							92
+							94
 							:kind
 							:text
 							:fill
@@ -1802,7 +1842,7 @@
 						((:list 15)
 							:shape
 							:id
-							93
+							95
 							:kind
 							:text
 							:fill
@@ -1822,7 +1862,7 @@
 						((:list 15)
 							:shape
 							:id
-							94
+							96
 							:kind
 							:text
 							:fill

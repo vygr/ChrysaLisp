@@ -265,14 +265,15 @@
 	data)
 
 (defun storage-stream-fill (st)
-	; (storage-stream-fill st) -> :nil | data
+	; (storage-stream-fill st) -> :nil | data | (:lost hex)
 	;the next block. The blocks after it are asked for as this one is
 	;read, Chris: "We could implament read ahead at the point of
 	;consumtion ?", so that they are here, or on their way, when wanted.
 	;One that did not come, or is not what its name says, is had the slow
 	;way, from any member that has it, again and again for a while, a link
 	;that dropped is made again in a few seconds. One that can not be had
-	;is thrown, so that a reader knows it is not the end of the object
+	;is the stream's fault, (:lost hex) with its name, so that a reader can
+	;know it is not the end of the object, (stream-fault)
 	(bind '(svc names size bytes at drop flight ahead has retry) st)
 	(defq next (+ at (length flight)))
 	(while (and (< (length flight) ahead) (< next (length names)))
@@ -283,11 +284,11 @@
 		(elem-set st +storage_stream_flight (rest flight))
 		(unless (and data (eql (sha256 data) hash))
 			(setq data (storage-block-retry hash svc retry)))
-		(unless data (throw "storage: a block of the object can not be had" (hex-encode hash)))
-		(when data
-			(elem-set st +storage_stream_at (inc at))
-			(elem-set st +storage_stream_drop 0)
-			(if (> drop 0) (slice data (min drop (length data)) -1) data))))
+		(cond
+			((not data) (list :lost (hex-encode hash)))
+			(:t (elem-set st +storage_stream_at (inc at))
+				(elem-set st +storage_stream_drop 0)
+				(if (> drop 0) (slice data (min drop (length data)) -1) data)))))
 
 (defun storage-stream-seek (st offset whence)
 	; (storage-stream-seek st offset whence) -> pos

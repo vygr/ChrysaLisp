@@ -14,6 +14,8 @@ docs/reference/vp_classes/stream.cwb
 
 ### (lines! lambda stream [start end]) -> :nil | val
 
+### (stream-fault stream) -> :nil | fault
+
 ### (fill-bits stream (array bit_pool bit_pool_size) data num_bits cnt) -> stream
 
 ### (stream-flush stream) -> stream
@@ -47,22 +49,6 @@ docs/reference/vp_classes/stream.cwb
 ### (write-line stream str) -> bytes
 
 ## VP methods
-
-### :at_end -> class/stream/at_end
-
-```code
-inputs
-:r0 = stream object (ptr)
-:r1 = what a read at the end gives (ptr)
-outputs
-:r0 = stream object (ptr)
-:r1 = that, or the stream's fault in its place (ptr)
-trashes
-:r1-:r3, :f0-:f15
-info
-the end of a stream that ended of a fault is that fault, an error, so
-what reads it throws it
-```
 
 ### :avail -> class/stream/avail
 

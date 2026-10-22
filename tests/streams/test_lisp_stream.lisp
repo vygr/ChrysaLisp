@@ -64,7 +64,7 @@
 (defq ls_s (lisp-stream (lambda () 42)))
 (assert-eq "what is not a str is the end" :nil (read-char ls_s))
 (defq ls_s (lisp-stream (lambda () (throw "no" 1))))
-(assert-error "a function that throws, and the read at the end throws it" (read-char ls_s))
+(assert-eq "a function that throws is the end" :nil (read-char ls_s))
 
 ;seek
 (bind '(ls_st ls_s) (ls-open ls_parts))
@@ -145,25 +145,33 @@
 (stream-seek back 0 0)
 (assert-eq "what it was" "hello hello hello hello" (read-blk back 100))
 
-;a fill that throws ends the stream of that fault: what is read before it
-;is read, and the read at the end throws it, so a reader knows it is not
-;the end of what it reads. A throw is only caught on an error checked
-;build, so those are assert-error, skipped on a release one
+;a fill that gives what is not a str, nor :nil, ends the stream of that
+;fault: what is read before it is read, the reads see the end, and
+;(stream-fault) gives what it was, so a reader can know it is not the end
+;of what it reads. The same on a release build, there is no throw in it
 (defun fault-fill (state)
-	(if (first state) (throw "fault-fill: no more to be had" :lost) (elem-set state 0 :t))
-	"ab")
+	(cond
+		((first state) :lost)
+		(:t (elem-set state 0 :t) "ab")))
 (defun faulty () (lisp-stream `(lambda () (,fault-fill ',(list :nil)))))
 (defq bad (faulty))
 (assert-eq "read before the fault" "ab" (read-blk bad 2))
-(assert-error "read-blk at the fault throws" (read-blk bad 2))
+(assert-eq "no fault while there is more" :nil (stream-fault bad))
+(assert-eq "read-blk at the fault is the end" :nil (read-blk bad 2))
+(assert-eq "and the fault is what the fill gave" :lost (stream-fault bad))
 (assert-eq "read-blk of more than there is has the part before the fault" "ab" (read-blk (setq bad (faulty)) 10))
-(assert-error "and the next throws" (read-blk bad 10))
+(assert-eq "its fault" :lost (stream-fault bad))
 (setq bad (faulty))
-(assert-list-eq "read-char before the fault" (list (ascii-code "a") (ascii-code "b")) (list (read-char bad) (read-char bad)))
-(assert-error "read-char at the fault throws" (read-char bad))
-(assert-eq "read-line, its line" "ab" (read-line (setq bad (faulty))))
-(assert-error "read-line at the fault throws" (read-line bad))
-(defq seen (list))
-(assert-error "lines! at the fault throws" (lines! (# (push seen %0) :nil) (faulty)))
-(assert-list-eq "after the lines before it" '("ab") seen)
-(assert-eq "an end with no fault is :nil, as ever" :nil (read-blk (lisp-stream '(lambda () :nil)) 10))
+(assert-list-eq "read-char to the fault" (list (ascii-code "a") (ascii-code "b") :nil) (list (read-char bad) (read-char bad) (read-char bad)))
+(assert-eq "read-char's fault" :lost (stream-fault bad))
+(setq bad (faulty))
+(assert-list-eq "read-line to the fault" (list "ab" :nil) (list (read-line bad) (read-line bad)))
+(assert-eq "read-line's fault" :lost (stream-fault bad))
+(defq seen (list) bad (faulty))
+(lines! (# (push seen %0) :nil) bad)
+(assert-list-eq "lines! to the fault" '("ab") seen)
+(assert-eq "lines!'s fault" :lost (stream-fault bad))
+(defq bad (lisp-stream '(lambda () :nil)))
+(assert-eq "an end with no fault is :nil, as ever" :nil (read-blk bad 10))
+(assert-eq "and has no fault" :nil (stream-fault bad))
+(assert-eq "a stream of another kind has none" :nil (stream-fault (string-stream "x")))

@@ -279,7 +279,7 @@
 									:stroke
 									0
 									:text
-									"[16 toolchains made, each its own, one on each node]"
+									"[28 toolchains made, each its own, across 16 nodes]"
 									:font_size
 									11
 									:pos
