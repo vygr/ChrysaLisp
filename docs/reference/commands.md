@@ -887,19 +887,17 @@ Usage: lint [options]
 
     options:
         -h --help: this help info.
-        -k --keep: leave the debug build, do not make the
-            release build again after.
         -v --verbose: say what each step took.
 
     The lint of the VP source, all of it in the one go.
 
     The trace lint works out what each function really
     trashes, and says where that is not what its header has
-    written down. It is only right on a debug build, so this
-    makes one, 'make vp debug' then 'make apps debug', runs
-    'files obj/vp/ | trace -i -l', and puts the builds
-    back as they are with no mode, 'make vp', 'make apps'
-    then 'make all boot'.
+    written down. It is only right on a debug build, and a
+    build keeps the VP of each mode it makes, obj/vp/<mode>/,
+    so this makes what has changed, 'make' then 'make apps',
+    which are debug, and runs
+    'files obj/vp/debug/ | trace -i -l'.
 
     Then 'relies -q', on the same debug build: where a
     function reads a register after a call that is declared
@@ -945,8 +943,8 @@ Usage: locals [options] [function] ...
     What the named locals of each VP function cost, and what
     of that a compiler that kept them in registers could save.
     It reads the instructions of a function as they were
-    assembled, obj/vp/, which a build of the VP64 leaves,
-    'make vp', and sees the function whole: where its frame
+    assembled, the debug VP a build keeps, obj/vp/debug/,
+    and sees the function whole: where its frame
     is made and let go of, each place in the frame that is
     read or written, a local, which of them have their
     address taken, and, by where control goes, which are
@@ -994,7 +992,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
-    vp:         only the VP64 and obj/vp/ outputs.
+    vp:         only the VP64.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
@@ -1253,8 +1251,8 @@ Usage: relies [options] [function] ...
     changed inside what it declares, and what calls it is then
     wrong with nothing to say so.
 
-    This reads each function as it was assembled, obj/vp/,
-    'make vp', and works out which registers are still wanted
+    This reads each function as it was assembled, the debug
+    VP a build keeps, obj/vp/debug/, and works out which registers are still wanted
     after each instruction, backwards from where it ends, by
     what each instruction reads and writes. A call reads what
     its method takes and writes what it gives. A register
@@ -1643,14 +1641,15 @@ Usage: tests [options] [path] ...
             before it, once what a task's end lets go of is let go
             of, (kernel-stats :t): what grows each time is a leak,
             what is made once and kept is not. Slower.
-        -p --progress: say how the run goes as it goes, a line each
-            that starts =p=, for a progress bar: plan, then cached or
-            dirty for each module and why, start and done as each one
-            runs, start with how long it took the last time it ran, ms,
-            lost for one whose batch had no result, and end.
 
     Run the unit tests, tests/<category>/test_<name>.lisp, or
     just the module paths given.
+
+    A run says how it goes as it goes, always, a line each that
+    starts =p=, so it can be watched: plan, then cached or dirty
+    for each module and why, start and done as each one runs,
+    start with how long it took the last time it ran, ms, lost
+    for one whose batch had no result, and end.
 
     The modules run in parallel, a batch to a task, over the
     nodes. If they all fit in one batch they run in this task,

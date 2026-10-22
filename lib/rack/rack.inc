@@ -177,10 +177,12 @@
 	(each (lambda (reply)
 		(push out (cond
 			(all (cat "RAN " reply))
-			;the lines that say how it went, the rest is the session's chatter
-			((cat "RAN " (join (filter (# (or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
+			;the lines that say how it went, the rest is the session's chatter,
+			;and a run of tests' progress, its =p= lines, a line a module
+			((cat "RAN " (join (filter (# (and (not (starts-with "=p=" %0))
+					(or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
 					(found? %0 "FAIL") (found? %0 "rror") (found? %0 "boot_image") (found? %0 "/")
-					(found? %0 "RESULT") (starts-with "[" %0)))
+					(found? %0 "RESULT") (starts-with "[" %0))))
 				(split reply (ascii-char 10))) " "))))))
 		replies)
 	(push out (cat "DONE " (str (/ (- (pii-time) t0) 1000)) "ms")))
