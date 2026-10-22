@@ -59,11 +59,11 @@ stdout did lost that error, now and then, on a machine with a lot
 to do.
 
 So the pipe is closed when its stdout has stopped and every stderr
-has. A command says its stderr is stopping as it ends,
-class/stdio/class.vp. A system of before it did only says so of
-its stdout, and this file may be run by one, as a system is built
-from a snapshot: so once the stdout has stopped a stderr is waited
-for no longer than a moment with nothing said, +pipe_stderr_delay
+has, however long that takes. A command says its stderr is
+stopping as it ends, class/stdio/class.vp, as every system has
+since the snapshot of 2026-10-22. It waited no more than 50ms for
+a stderr once the stdout had stopped, for a system of before, and
+a Pi with every test running lost an error so
 ```
 
 ### :write

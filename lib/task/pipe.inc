@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +pipe_abort_delay 2000000 +pipe_stderr_delay 50000)
+(defq +pipe_abort_delay 2000000)
 
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> ((mode cmd) ...)
@@ -85,33 +85,22 @@
 		;to do.
 		;
 		;So the pipe is closed when its stdout has stopped and every stderr
-		;has. A command says its stderr is stopping as it ends,
-		;class/stdio/class.vp. A system of before it did only says so of
-		;its stdout, and this file may be run by one, as a system is built
-		;from a snapshot: so once the stdout has stopped a stderr is waited
-		;for no longer than a moment with nothing said, +pipe_stderr_delay
+		;has, however long that takes. A command says its stderr is
+		;stopping as it ends, class/stdio/class.vp, as every system has
+		;since the snapshot of 2026-10-22. It waited no more than 50ms for
+		;a stderr once the stdout had stopped, for a system of before, and
+		;a Pi with every test running lost an error so
 		(defq result :nil)
 		(while (and (not result) (get :state this))
-			(defq user_select_len (length (get :user_select this)) select (get :select this)
-				draining (eql (get :state this) :draining))
-			(when draining
-				(mail-timeout (defq timer (mail-mbox)) +pipe_stderr_delay 0)
-				(setq select (cat select (list timer))))
+			(defq user_select_len (length (get :user_select this)))
 			(cond
-				((< (defq idx (mail-select select)) user_select_len)
+				((< (defq idx (mail-select (get :select this))) user_select_len)
 					(setq result :t))
-				((and draining (= idx (dec (length select))))
-					;nothing more was said in that moment
-					(def this :state :nil))
 				(:t ;must be stdout or one of the stderr's
 					(in-next-msg (defq msg_in (elem-get (get :streams this) (inc (- idx user_select_len)))))
-					(cond
-						((some! (# (/= (in-get-state %0) +stream_mail_state_started)) (list (get :streams this)) :t 1 -1)
-							(def this :state :nil))
-						((/= (in-get-state (get :stdout this)) +stream_mail_state_started)
-							(def this :state :draining)))
-					(setq result (read-avail msg_in))))
-			(if draining (mail-timeout timer 0 0)))
+					(if (some! (# (/= (in-get-state %0) +stream_mail_state_started)) (list (get :streams this)) :t 1 -1)
+						(def this :state :nil))
+					(setq result (read-avail msg_in)))))
 		result)
 
 	(defmethod :write (string)
