@@ -209,6 +209,12 @@ platforms and what twelve touched files rebuilt. On 19 nodes, interleaved:
 | `make platforms`, nothing to do, 8 each | mean 0.157 | mean 0.143 |
 | `make all boot`, 5 each | mean 0.110 | mean 0.100 |
 
+A build of every platform walked the tree again in each of its six
+`make`s; the walk is now made once and handed down. Interleaved, 6 runs
+each: `make platforms` with nothing to do, mean 0.143 to 0.112;
+`make all boot platforms`, 0.605 to 0.565. The same objects were rebuilt
+on all six after six touched files.
+
 Reading every file for its includes, 13.6 ms, is most of what is left.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)

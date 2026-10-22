@@ -159,9 +159,10 @@
 				m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
 			(when (> m v) (def newest k m) (setq changed :t))) files)))
 
-(defun make (&optional files *abi* *cpu*)
-	(bind '(vps classes) (all-build-files))
-	(setd files vps *abi* (abi) *cpu* (cpu))
+(defun make (&optional files *abi* *cpu* walk)
+	;walk is what (all-build-files) gave, if it has been asked already
+	(bind '(vps classes) (ifn walk (all-build-files)))
+	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq ages (env 31) info (env 31) newest (env 31))
 		;list of all file imports while defining dependencies and products
@@ -180,11 +181,13 @@
 		;return the list to compile
 		files)) *abi* *cpu*))
 
-(defun make-boot-all (&optional *abi* *cpu*)
+(defun make-boot-all (&optional *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu))
 	(boot-image
 		(within-compile-env (lambda ()
-			(bind '(l classes) (all-build-files))
+			;its own list of the files, they are merged into
+			(bind '(l classes) (ifn walk (all-build-files)))
+			(setq l (copy l))
 			(class-env classes)
 			(defq *prods* (list))
 			;lists of all file imports and products
@@ -195,19 +198,19 @@
 			;not all of them, lib/boot/image.inc says which
 			(boot-funcs *prods*))) *abi* *cpu*))
 
-(defun make-all (&optional files *abi* *cpu*)
+(defun make-all (&optional files *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile (ifn files (all-vp-files)) *abi* *cpu*))
 
-(defun remake (&optional files *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
-	(make files *abi* *cpu*)
-	(make-boot-all *abi* *cpu*))
+(defun remake (&optional files *abi* *cpu* walk)
+	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files))
+	(make files *abi* *cpu* walk)
+	(make-boot-all *abi* *cpu* walk))
 
-(defun remake-all (&optional files *abi* *cpu*)
+(defun remake-all (&optional files *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-all files *abi* *cpu*)
-	(make-boot-all *abi* *cpu*))
+	(make-boot-all *abi* *cpu* walk))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; cross platform make
@@ -218,20 +221,23 @@
 
 (defun make-them (action &optional mode files)
 	;every platform. With a mode all of them are built in it. With none
-	;the native ones are debug and the VP64 is release
-	(setd files (all-vp-files))
+	;the native ones are debug and the VP64 is release. The tree is walked
+	;once for all of them
+	(defq walk (all-build-files))
+	(setd files (copy (first walk)))
 	(if mode (defq *build_mode* mode))
-	(each (# (action files %0 %1)) +supported_abi +supported_cpu)
+	(each (# (action files %0 %1 walk)) +supported_abi +supported_cpu)
 	(ifn mode (defq *build_mode* 0))
-	(action files 'VP64 'vp64))
+	(action files 'VP64 'vp64 walk))
 
 (defun make-vp (action &optional mode files)
 	;only the VP64, in a mode, release if none is given, as it is with
 	;none wherever it is built. The lint, which is only right on a debug
 	;build, asks for debug
-	(setd files (all-vp-files))
+	(defq walk (all-build-files))
+	(setd files (copy (first walk)))
 	(defq *build_mode* (ifn mode 0))
-	(action files 'VP64 'vp64))
+	(action files 'VP64 'vp64 walk))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))
 (defun make-all-platforms (&optional mode) (make-them (const make-all) mode))
