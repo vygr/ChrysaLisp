@@ -51,6 +51,11 @@
 	(defq s (n2i time))
 	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
 
+(defun say (text)
+	;what is shown, in the line at the foot
+	(set *status* :text text)
+	(.-> *status* :layout :dirty))
+
 (defun show (n)
 	;frame n on the canvas, the codec reads the packets it needs for it
 	(setq *at* n *seek* n)
@@ -58,14 +63,13 @@
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
-	(set *status* :text (cat (if (. *reel* :find :audio)
+	(say (cat (if (. *reel* :find :audio)
 			(cat (clock-of (frame-time *at*)) " of " (clock-of (frame-time (. *reel* :find :frames))))
 			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
 				", " (str (n2i (. *reel* :find :rate))) " a second"))
 		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
 		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
-		(if *playing* "" ", paused")))
-	(.-> *status* :layout :dirty))
+		(if *playing* "" ", paused"))))
 
 (defun sound-on? ()
 	(and *sound* *playing* (. *sound* :find :handle)))
@@ -81,10 +85,9 @@
 (defun say-what (reel file)
 	;a film there is no codec for yet: what it is, and no picture
 	(setq *reel* :nil)
-	(set *status* :text (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
+	(say (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
 		(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
 		(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
-	(.-> *status* :layout :dirty)
 	(def *window_title* :text (cat "Films -> " (path-name file)))
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -174,10 +177,6 @@
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 		(def *image_scroll* :min_width 128 :min_height 128)
 		(. *window* :change_dirty x y w h))))
-
-(defun say (text)
-	(set *status* :text text)
-	(.-> *status* :layout :dirty))
 
 (defun open-path (file)
 	;a film by the path typed, or why not
