@@ -160,37 +160,8 @@
 (assert-true "and some of them were bands that edges cross in, and some were not" (< 50 pg_cross 350))
 (assert-true "and lines were made of them" (> pg_lines 1000))
 
-;do two shapes with no dent touch, (poly-convex-hit?), held to the set logic
-(defq pg_h1 (poly-hull (list (path 10.0 10.0 50.0 10.0 50.0 50.0 10.0 50.0)))
-	pg_h2 (poly-hull (list (path 30.0 30.0 70.0 30.0 70.0 70.0 30.0 70.0)))
-	pg_h3 (poly-hull (list (path 60.0 10.0 80.0 10.0 80.0 15.0 60.0 15.0)))
-	pg_line (poly-hull (list (path 0.0 100.0 100.0 0.0))))
-(assert-true "two squares that overlap touch" (poly-convex-hit? pg_h1 pg_h2))
-(assert-true "two that are apart do not" (not (poly-convex-hit? pg_h1 pg_h3)))
-(assert-true "one inside the other" (poly-convex-hit? pg_h1 (poly-hull (list (path 20.0 20.0 30.0 20.0 30.0 30.0 20.0 30.0)))))
-(assert-true "a slanted line, and a square in the corner of its box that it does not cross" (not (poly-convex-hit? pg_line pg_h3)))
-(assert-true "and one it does cross" (poly-convex-hit? pg_line (poly-hull (list (path 40.0 40.0 60.0 40.0 60.0 60.0 40.0 60.0)))))
-(assert-eq "the furthest point of a hull a way, climbed to from anywhere" "(50.00000 50.00000)"
-	(str (map (# (elem-get pg_h1 (+ %0 (poly-support pg_h1 4 1.0 1.0)))) '(0 1))))
-;600 pairs of hulls of random points: never apart when the set logic has them share something of size
-(defq pg_hseed 4321 pg_wrong 0 pg_apart 0 pg_agree 0)
+(defq pg_hseed 4321)
 (defun pg-hrnd (n) (setq pg_hseed (logand (+ (* pg_hseed 1103515245) 12345) 0x7fffffff)) (% (>> pg_hseed 8) n))
-(defun pg-blob (cx cy r n)
-	(defq p (path))
-	(times n (push p (n2f (+ cx (- (pg-hrnd (* 2 r)) r))) (n2f (+ cy (- (pg-hrnd (* 2 r)) r)))))
-	(poly-hull (list p)))
-(times 600
-	(defq a (pg-blob (+ 100 (pg-hrnd 200)) (+ 100 (pg-hrnd 200)) (+ 5 (pg-hrnd 60)) (+ 3 (pg-hrnd 12)))
-		b (pg-blob (+ 100 (pg-hrnd 200)) (+ 100 (pg-hrnd 200)) (+ 5 (pg-hrnd 60)) (+ 3 (pg-hrnd 12))))
-	(when (and (>= (length a) 6) (>= (length b) 6))
-		(defq shared (poly-area (poly-intersect (list a) (list b))) hit (poly-convex-hit? a b))
-		(cond
-			((and (> shared 0.01) (not hit)) (setq pg_wrong (inc pg_wrong)))
-			((not hit) (setq pg_apart (inc pg_apart)))
-			((> shared 0.0) (setq pg_agree (inc pg_agree)))))
-	(task-slice))
-(assert-eq "of 600 pairs, none that share anything is said to be apart" 0 pg_wrong)
-(assert-true "many are apart, and many touch" (and (> pg_apart 100) (> pg_agree 100)))
 ;the lines joined into rings by the native code are the rings the Lisp gives, of 300 pairs of random shapes
 (defq pg_rwrong 0 pg_rings 0)
 (defun pg-shape (cx cy r n)

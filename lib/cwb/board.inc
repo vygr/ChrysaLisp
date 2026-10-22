@@ -272,11 +272,11 @@
 	(bind '((x y) (x1 y1)) (vector-bounds-2d swept))
 	(defq reach (list x y x1 y1) made (list) gone (list) todo (list) seen (list) swaps (list)
 		;what is swept, with no dent in it. A thing is found by its box,
-		;then by its hull against this, (poly-convex-hit?), and only then
-		;by all of its polygons, which is the dear one. Most things near
-		;an eraser are not touched by it, a line that slants has a box
-		;far bigger than it is
-		swept_hull (poly-hull swept))
+		;then by its hull against this, (poly-hit?), and only then by all
+		;of its polygons, which is the dear one. Most things near an
+		;eraser are not touched by it, a line that slants has a box far
+		;bigger than it is
+		swept_hull (list (poly-hull swept)))
 	(each (lambda ((name flags items))
 		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items :nil))))
 		(cwb-layers doc))
@@ -296,7 +296,7 @@
 				((defq box (third (cwb-flat item)))
 					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
 					(and (vector-collide-boxes-2d reach (Mat3x2-box box full))
-							(poly-convex-hit? (first (cwb-mat-paths full (list (board-hull item)))) swept_hull)
+							(poly-hit? (cwb-mat-paths full (list (board-hull item))) swept_hull)
 						(setq pieces (board-bite-shape item full m swept tol)))))
 			(cond
 				(pieces

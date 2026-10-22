@@ -7335,15 +7335,6 @@ This is the reference, in Lisp, and is not what is used: the native
 together on every machine, a band at a time.
 ```
 
-### poly-convex-hit?
-
-```code
-(poly-convex-hit? hull_a hull_b) -> :t | :nil
-
-do two paths with no dent in them touch, (poly-hull) gives such a
-path. :nil only if they are apart for sure
-```
-
 ### poly-cuts-ref
 
 ```code
@@ -7389,10 +7380,10 @@ an edge or a corner that only meets the other counts. a and b are
 lists of paths, of any shape, with holes, as (poly-op) takes them,
 and a mode is the winding rule a set is filled by, as there.
 
-It is told the cheap way first. Their boxes are apart, or their
-hulls are, (poly-convex-hit?), and they do not. Then an edge of the
-one meets an edge of the other, and only the edges that are in the
-box both boxes share are looked at, in whole numbers, so it is exact.
+It is told the cheap way first. Their boxes are apart and they do
+not. Then an edge of the one meets an edge of the other, and only the
+edges that are in the box both boxes share are looked at, in whole
+numbers, so it is exact.
 If none do, no line of either is on a line of the other, and each
 path is all in the other set or all out of it: one point of it says.
 
@@ -7496,16 +7487,6 @@ op is :union, :intersect, :difference, a and not b, or :xor.
 a and b are lists of paths, either may be empty. A mode is the
 winding rule a set is filled by, as (:fpoly) has them, 0 odd even,
 the default, or 1 non zero
-```
-
-### poly-support
-
-```code
-(poly-support hull at dx dy) -> at
-
-the point of a hull that is furthest the way of a vector, as where
-it is in the hull, an even index. Climbed to from at, where it was
-when last asked, 0 if never
 ```
 
 ### poly-sweep

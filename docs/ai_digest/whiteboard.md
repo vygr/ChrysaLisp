@@ -271,13 +271,13 @@ That picture is made by the board, as it is each time the docs are made.
 
 * A thing that is not touched is not changed. It is found in three steps,
   the cheap ones first: its box against the box of what the eraser
-  covers; its hull against the eraser's, `(poly-convex-hit?)`, GJK; and
+  covers; its hull against the eraser's, `(poly-hit?)` on the two; and
   only then all of its polygons, the set logic. Chris: "this is why
   correct bounding box then polygon to polygon colision hearchy is
   important". On a page of 300 strokes written by hand and 40 slanted
   lines, the boxes said touched 330 times for 60 moves of the eraser and
-  51 were. The hulls said 52, at a fourteenth of what the set logic takes
-  to say no. A shape's hull is worked out when first asked for and kept
+  51 were. The hulls said 52, for far less than the set logic takes to
+  say no. A shape's hull is worked out when first asked for and kept
   with its polygons, `(board-hull)`.
 
 * It is a step like any other. The eraser makes one as it goes down, and

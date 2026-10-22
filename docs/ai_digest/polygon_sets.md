@@ -298,38 +298,14 @@ if and only if what they share has a size.
 What it does not say is where, or how deep, or which way to push them
 apart, which a thing that bounces wants next.
 
-## Do two hulls touch: GJK
+## Do two hulls touch
 
 The set logic says exactly what two shapes share, and to ask it only "do
 they touch" is dear, 140 millionths of a second for a line drawn by hand
 and an eraser. Most things near an eraser are not touched by it. So there
-is a cheap question to ask first, of the hulls:
+is a cheap question to ask first, of the hulls, `(poly-hull)`: their two
+paths given to `(poly-hit?)`. It is exact, and on hulls of 4 to 64 sides
+takes 0.1 to 0.8 millionths of a second on the M4.
 
-* `(poly-convex-hit? hull_a hull_b) -> :t | :nil`. Two paths with no dent
-  in them, as `(poly-hull)` gives. `:nil` only if they are apart for
-  sure.
-
-* `(poly-support hull at dx dy) -> at`. The point of a hull furthest the
-  way of a vector, as its index, climbed to from `at`.
-
-It is the method of Gilbert, Johnson and Keerthi, in the plane, after a 3D
-one Chris gave, `gjk.cpp`. The points of one shape less the points of the
-other are a shape with no dent too, and the two touch if `0 0` is in it.
-That shape is never made: all that is asked of it is its furthest point
-some way, the furthest of the one that way less the furthest of the other
-the other way. Three of those are a triangle, moved each turn toward
-`0 0`, till it is inside, or till the furthest point there is some way is
-short of `0 0`, and then they are apart.
-
-The furthest point of a hull is found by climbing, which is what makes it
-fast. The points go round, so how far each is the way asked rises to one
-top and falls: from where it was last time, step to the neighbour that is
-further till neither is. From one turn to the next the way asked turns
-only a little, so it is a step or two, whatever the hull has.
-
-It is in fixeds as the paths are. A sum that is a hair wrong can only
-matter to shapes a hair apart, and what is in doubt is said to touch, so
-the set logic, which is exact, has the last word. Against it on 600 pairs
-of hulls of random points: none that share anything is said to be apart.
-
-10 millionths of a second a pair, in Lisp. Not yet native.
+There was a GJK for this, `(poly-convex-hit?)`, in Lisp. `(poly-hit?)`
+was 25 to 55 times quicker on the same hulls, so it went.

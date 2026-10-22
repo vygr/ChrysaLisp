@@ -23,6 +23,10 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**A message is made with its src and offset 0; a message of one fragment carried a reused block's old parcel header onto the wire.**
+
+**The GJK, `(poly-convex-hit?)` and `(poly-support)`, is gone: the eraser asks `(poly-hit?)` of the two hulls, 25 to 55 times quicker.**
+
 **AVI: `lib/media/avi.inc`, a reel of RIFF AVI as an mp4's, idx1, OpenDML, or its chunks read where there is no index; sound MP3, AC-3, PCM, Microsoft and IMA ADPCM (`lib/media/adpcm.inc`), each stream of sound one stream of its chunks; pictures Motion JPEG ours or the host's, H.264 its order from its picture order counts, MPEG-4 Part 2 by the host where it has one. DivX 3 and Advanced Simple Profile have no decoder on macOS or the Pi.**
 
 **The link has a version: handshake CLDOOR3 says it, `+door_version` 1, a node of another or of v7.4 is closed on at once; beacons say it, `:P1`, and `mesh` names a machine that speaks another. The link protocol written down, `docs/ai_digest/link_protocol.md`; its pad bytes written 0, a closed shared memory link takes its file away, one of another size is given up on in 5 s.**
