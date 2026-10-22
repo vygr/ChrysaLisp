@@ -112,8 +112,10 @@
 	(include "sys/statics/class.inc")
 	(each include classes))
 
-(defun make-info (%0)
-	;create lists of immediate dependencies and products
+(defun make-scan (%0)
+	;what make goes by of a file, read from it: its includes, as paths,
+	;and the lines that name what it makes, kind and names, made paths of
+	;by (make-products) with the classes declared
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" %0) p (list))
 	(lines! (lambda (%0)
 		(and (> (length %0) 10) (eql "(" (first %0))
@@ -121,28 +123,66 @@
 			(case (first s)
 				(("include" "import")
 					(push d (path-to-absolute (second s) file)))
-				("def-method"
-					(push p (f-path (sym (second s)) (sym (third s)))))
-				("gen-vtable"
-					(push p (f-path (sym (second s)) :vtable)))
-				("gen-type"
-					(push p (f-path (sym (second s)) :type)))
-				("gen-create"
-					(push p (f-path (sym (second s))
-						(if (> (length s) 2) (sym (cat :create_ (third s))) :create))))
+				(("def-method" "gen-vtable" "gen-type" "gen-create")
+					(push p (slice s 0 (min 3 (length s)))))
 				("def-func"
-					(if (eql (second s) "path-to-absolute")
-						(push p (sym (path-to-absolute (third s) file)))
-						(push p (sym (second s)))))))
+					(push p (list "def-func" (if (eql (second s) "path-to-absolute")
+						(path-to-absolute (third s) file) (second s)))))))
 		:nil)
 		(if (= (age %0) 0)
 			(throw "No such file !" %0)
 			(file-stream (defq file %0))))
 	(list d p))
 
+(defun make-products (p)
+	;the paths of the functions the lines of (make-scan) name
+	(map (lambda (line)
+		(defq kind (first line) a (second line) b (if (> (length line) 2) (third line)))
+		(case kind
+			("def-method" (f-path (sym a) (sym b)))
+			("gen-vtable" (f-path (sym a) :vtable))
+			("gen-type" (f-path (sym a) :type))
+			("gen-create" (f-path (sym a) (if b (sym (cat :create_ b)) :create)))
+			("def-func" (sym a)))) p))
+
+;what make read of each file is kept, by its age, and read again only of
+;a file that has changed. One that changed in the second the keep is
+;written is not kept, the age is of a second; and none is kept of an
+;asm.inc not as this one is, it says how a file is read
+(defq +make_scans "obj/make_scans")
+
+(defun scans-load ()
+	;the scans kept, an env of file to (age scan)
+	(defq scans (env 101))
+	(catch (progn
+		(when (and (defq data (load +make_scans)) (nempty? data))
+			(bind '(asm_age entries) (first (read (string-stream data))))
+			(when (= asm_age (age "lib/asm/asm.inc"))
+				(each (lambda ((f a d p)) (def scans (sym f) (list a (list d p)))) entries)))
+		:t) :t)
+	scans)
+
+(defun scans-save (scans)
+	;those of before this second kept, for the next make
+	(defq now (/ (pii-time) 1000000) entries (list))
+	(each (lambda ((k v))
+		(if (< (first v) now) (push entries (list (str k) (first v) (first (second v)) (second (second v))))))
+		(tolist scans))
+	(save (str (list (age "lib/asm/asm.inc") entries)) +make_scans))
+
 (defun file-age (%0)
 	;modification time of a file, cached
 	(or (get (setq %0 (sym %0)) ages) (def ages %0 (age %0))))
+
+(defun make-info (%0)
+	;create lists of immediate dependencies and products, of the scan
+	;kept if the file has not changed
+	(defq k (sym %0) a (file-age %0) c (get k scans))
+	(unless (and c (= (first c) a))
+		(setq scanned :t)
+		(def scans k (setq c (list a (make-scan %0)))))
+	(bind '(d p) (second c))
+	(list (copy d) (make-products p)))
 
 (defun newest-ages (files)
 	;the newest modification time of each file and all it includes and
@@ -164,7 +204,7 @@
 	(bind '(vps classes) (ifn walk (all-build-files)))
 	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq ages (env 31) info (env 31) newest (env 31))
+		(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil)
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
 			(class-env classes)
@@ -172,6 +212,7 @@
 				(bind '(d p) (make-info %0))
 				(merge files d)
 				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
+		(if scanned (scans-save scans))
 		(newest-ages files)
 		;filter to only the .vp files
 		(setq files (filter (# (ends-with ".vp" %0)) files))
@@ -189,9 +230,10 @@
 			(bind '(l classes) (ifn walk (all-build-files)))
 			(setq l (copy l))
 			(class-env classes)
-			(defq *prods* (list))
+			(defq *prods* (list) ages (env 31) scans (scans-load) scanned :nil)
 			;lists of all file imports and products
 			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d)) l)
+			(if scanned (scans-save scans))
 			;what the image is built from, as one number, beside it
 			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
 			(save (join (sort (cat l)) (ascii-char 10)) (boot-files-file *cpu* *abi*))

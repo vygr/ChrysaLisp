@@ -215,7 +215,21 @@ each: `make platforms` with nothing to do, mean 0.143 to 0.112;
 `make all boot platforms`, 0.605 to 0.565. The same objects were rebuilt
 on all six after six touched files.
 
-Reading every file for its includes, 13.6 ms, is most of what is left.
+Reading every file for its includes was 13.6 ms of what was left, 300
+files read a line at a time, all of it in the reading. What make reads of
+each file is now kept, by the file's age, in `obj/make_scans`, and a file
+is read again only when it has changed: none of one changed in the second
+the keep was written, and none at all if `lib/asm/asm.inc` is not the one
+they were read with. The same objects were rebuilt after twelve touched
+files, and after a `.vp` file was given a new include and that include
+touched; the boot images of all six platforms were the same. Interleaved,
+8 runs each:
+
+| On the M4 | Before | After |
+|---|---|---|
+| `make`, nothing to do | mean 0.0261 | mean 0.0173 |
+| `make platforms`, nothing to do | mean 0.110 | mean 0.058 |
+| `make all boot` | mean 0.100 | mean 0.091 |
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
