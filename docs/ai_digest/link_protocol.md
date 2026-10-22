@@ -131,6 +131,11 @@ lk_frag, 64 bytes
 60   4   pad, 0
 ```
 
+A message of one fragment has `src` and `offset` 0: they are set only for
+the fragments of a parcel, the mail service's own for each. A message is
+made with them 0, as the heap block it is made in may have held a
+fragment of a parcel before.
+
 ## A TCP link
 
 ### Ports, and who dials

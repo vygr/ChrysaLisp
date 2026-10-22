@@ -64,8 +64,13 @@
 ;a fragment: mail from here to the made up node goes over this link
 (lw-heard "pinged")
 (defq lw_body "a fragment, on the wire" lw_to (cat (char 0x51ab0c 8) lw_node) lw_t0 (pii-time))
-;its ping is taken in a moment after it is read
+;first a parcel of many fragments to another mailbox there, which the other
+;end passes over: the blocks its fragments were in are let go of as they go,
+;and mail made after it, this node's own too, is made in them, the src and
+;offset of a fragment under it. Its ping is taken in a moment after it is read
 (task-sleep 200000)
+(mail-send (cat (char 0x51ab0d 8) lw_node) (str-alloc 200000))
+(task-sleep 100000)
 (mail-send lw_to lw_body)
 (defq lw_frag (lw-heard "frag"))
 (assert-eq "a fragment is 72 bytes and its data" (+ 72 (length lw_body)) (length (ifn lw_frag "")))
@@ -80,5 +85,11 @@
 	(assert-eq "64, the whole message's length, 0 for one of one fragment" 0 (lw-uint lw_frag 64))
 	(assert-eq "68 to 71, the pad, 0" (char 0 4) (slice lw_frag 68 72))
 	(assert-eq "72 on, the data, as it was sent" lw_body (slice lw_frag 72 -1)))
+;every message of one fragment, the kernel's too: its src and offset are 0,
+;not what the block it was made in had from a fragment of the parcel
+(bind '(lw_ones lw_stale) (map! (const str-as-num)
+	(list (split (ifn (mail-read-timeout lw_reply (task-timeout 10)) "ones 0 -1") " ")) 1 3))
+(assert-true "messages of one fragment were seen" (> lw_ones 0))
+(assert-eq "none had a src or an offset that was not 0" 0 lw_stale)
 
 (net-close lw_listener)

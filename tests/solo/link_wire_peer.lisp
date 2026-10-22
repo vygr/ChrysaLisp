@@ -31,12 +31,19 @@
 		(tell "pinged" "")
 		;the fragment the test sends, to mailbox 0x51ab0c of this made up
 		;node, one no other mail is to: past the pings that come each
-		;second, and the kernel's own mail to a node it has just heard of
-		(defq until (+ (pii-time) (task-timeout 10)) frag :nil)
+		;second, the parcel before it, and the kernel's own mail to a node
+		;it has just heard of. And of every fragment that is a message of
+		;one, total 0, how many had a src or an offset that is not 0
+		(defq until (+ (pii-time) (task-timeout 10)) frag :nil ones 0 stale 0)
 		(while (and (not frag) (< (pii-time) until) (defq wire (door-recv h 8 until)))
 			(defq body (door-recv h (code wire 4 0) until))
-			(and body (= (code wire 4 4) 2) (eql (slice body 0 8) (char 0x51ab0c 8))
-				(setq frag (cat wire body))))
-		(tell "frag" (hex-encode (ifn frag ""))))
+			(when (and body (= (code wire 4 4) 2))
+				(when (= (code body 4 56) 0)
+					(setq ones (inc ones))
+					(unless (and (eql (slice body 24 48) (cat (char 0 8) (char 0 8) (char 0 8))) (= (code body 4 52) 0))
+						(setq stale (inc stale))))
+				(if (eql (slice body 0 8) (char 0x51ab0c 8)) (setq frag (cat wire body)))))
+		(tell "frag" (hex-encode (ifn frag "")))
+		(tell "ones" (cat (str ones) " " (str stale))))
 	(task-sleep 500000)
 	(if (> h 0) (net-close h)))
