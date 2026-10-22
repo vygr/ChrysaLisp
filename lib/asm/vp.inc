@@ -72,6 +72,10 @@
 ;is, and if there is any, the translator knows, (emit-save-state)
 (defun vp-save-state () (emit (list 'emit-save-state)))
 (defun vp-load-state () (emit (list 'emit-load-state)))
+;the first of the loader, called by the host with n args: they are put in
+;:r0 :r1 ... from where the host's ABI has them, and the stack is the VP's.
+;The reverse of (vp-call-abi), (emit-entry-abi)
+(defun vp-entry-abi (n) (emit (list 'emit-entry-abi n)))
 
 (defun vp-call-abi (r b i n x) (emit `(emit-call-abi ,r ,b ,i ,n ~x)))
 (defun vp-call (l) (emit `(emit-call ,(label-sym l))))

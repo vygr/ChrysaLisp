@@ -290,6 +290,10 @@
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* (- (length b) 1 (!)) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))
 
+;the host called the loader, the args and stack are where a host call
+;has them
+(defun emit-entry-abi (n))
+
 ;a task's state, what the CPU has besides the VP registers: none
 (defun emit-save-state ())
 (defun emit-load-state ())

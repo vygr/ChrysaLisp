@@ -262,9 +262,10 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
       CPU's `emit-call-abi`: its arg registers, as VP registers, and the VP
       registers it trashes, as `lib/trans/x86_64.inc` has AMD64 and WIN64.
 
-    * The loader, `sys/load/init`, is called *by* the host, and its own args
-      are where the host's ABI put them: `abi-entry-args` in `abi.inc`,
-      which does have a case for each ABI.
+    * The loader, `sys/load/init`, is called *by* the host, and starts with
+      `vp-entry-abi`, the reverse: the translator's `emit-entry-abi` moves
+      the args from where the ABI has them to `:r0 :r1`, and sets up the VP
+      stack if it is not the native one, as ARM64's is not.
 
     * The VP64 emulator (`src/host/vp64.cpp`) in its `VP64_CALL_ABI` opcode
       handler performs the actual marshalling of arguments from VP

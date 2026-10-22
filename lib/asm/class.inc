@@ -170,8 +170,7 @@
 		(if (list? trashes) (pinsert trashed mname trashes))
 		;what the class above said its function trashes is not of this one
 		(pinsert owned mname (if (list? own) own))
-		(and regs_in (or (lmatch? regs_in '(abi-args _)) (lmatch? regs_in '(abi-entry-args _)))
-			(setq regs_in (eval regs_in)))
+		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
 		(if (defq m (pfind vtable mname))
 			;existing method
 			(case mtype

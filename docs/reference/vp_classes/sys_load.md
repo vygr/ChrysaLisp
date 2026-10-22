@@ -36,18 +36,16 @@ trashes
 ### :init -> sys/load/init
 
 ```code
-inputs from OS, in a table ! Not via separate (abi-args)
-host OS function table
-host GUI function table
-host audio function table
-host net function table
+inputs
+:r0 = argv of the host (pptr)
+:r1 = the host's function tables, os gui audio net (pptr)
 outputs
 :r0 return code
 trashes
 :r0-:r14, :f0-:f15
 info
-register inputs are dependant on the platform ABI
-they are extracted via (abi-arg 0)-(abi-arg 2).
+called by the host, so its args are where the host's ABI puts them,
+(vp-entry-abi) has them to :r0 :r1 as a host call would.
 we need to keep the statics function on the front
 of the tail block, even though it dosn't get used
 because the boot image has relative link references

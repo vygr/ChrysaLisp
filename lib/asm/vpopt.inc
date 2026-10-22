@@ -39,12 +39,12 @@
 	;an offset from it before is not what is there after
 	+opt_read_kill_ops
 		(reduce (# (pinsert %0 %1
-			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state
+			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
 					emit-call-i emit-call-abi emit-call emit-call-r)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_write_kill_ops
 		(reduce (# (pinsert %0 %1
-			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state
+			(if (find %1 '(emit-label emit-call-p emit-free emit-alloc emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
 					emit-call-i emit-call-abi emit-call emit-call-r
 					emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
 					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr

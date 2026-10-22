@@ -471,6 +471,10 @@
 (defun emit-sync (n) (emitm-int 0xd5033fbf))
 (defun emit-brk (n))
 
+;the host called the loader, the args are where a host call has them,
+;and the VP stack is not the native one, it starts as it is
+(defun emit-entry-abi (n) (emit-cpy-rr +arm64_rsp +arm64_vp_rsp))
+
 ;a task's state, what the CPU has besides the VP registers, the link
 ;register, pushed as it is switched from and popped as it is switched to
 (defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
@@ -681,7 +685,7 @@
 	+arm64_barrier_map
 		(reduce (#
 			(pinsert %0 %1
-				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state
+				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
 						emit-arm64-call-h emit-arm64-call-r-h emit-arm64-call-i-h emit-arm64-call-p-h
 						emit-arm64-call-m emit-arm64-call-r-m emit-arm64-call-i-m emit-arm64-call-p-m

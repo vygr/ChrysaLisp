@@ -656,6 +656,16 @@
 	(apply (const emit-pop) +x64_abi_save)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
+;the host called the loader, its args are where the ABI has them, to
+;:r0 :r1 ... as a host call has them, all at once by the stack
+(defun emit-entry-abi (n)
+	(defq src (list) dst (list))
+	(each! (lambda (s d) (when (/= s d) (push src s) (push dst d)))
+		(list +x64_abi_regs +x64_vp_args) 0 n)
+	(when (nempty? src)
+		(apply (const emit-push) src)
+		(apply (const emit-pop) dst)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; x86_64 Specific Emitters
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -691,7 +701,7 @@
 	+x64_barrier_map
 		(reduce (#
 			(pinsert %0 %1
-				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state
+				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
 						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr

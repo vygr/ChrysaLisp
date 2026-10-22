@@ -567,6 +567,10 @@
 (defun emit-sync (n) (emitm-int 0x0ff0000f))
 (defun emit-brk (n))
 
+;the host called the loader, the args and stack are where a host call
+;has them
+(defun emit-entry-abi (n))
+
 ;a task's state, what the CPU has besides the VP registers, the link
 ;register, pushed as it is switched from and popped as it is switched to
 (defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
