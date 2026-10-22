@@ -72,8 +72,8 @@
 (defcvar 'ping_sys_tail 3)
 (defcvar 'ping_period_min 1000000 'ping_period_max 64000000 'ping_tick 100000
 	'ping_stagger 50000 'ping_stagger_min 1000000
-	'ping_window (if (eql *cpu* 'vp64) 30000000 3000000)
-	'ping_slack (if (eql *cpu* 'vp64) 20000000 2000000) 'ping_stall 1000000)
+	'ping_window 3000000
+	'ping_slack 2000000 'ping_stall 1000000)
 ;how late a node is in running a task that is ready counts as load, one
 ;more task for each this many us. See sys/statics/class.inc.
 (defcvar 'lag_per_task 32000)
