@@ -123,6 +123,32 @@
 	(assign '((:rsp local_os)) `(,os))
 	(abi-call-table :host_os :clear_icache os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len)))
 
+	;where the functions not in the image are, the folder the boot image
+	;was read from, argv[1] up to and with the / before sys/boot_image,
+	;obj/<cpu>/<abi>/. Put at the front of the name buffer, as much of it as
+	;fits, and its length kept. Not a string of this build, the same VP
+	;for every platform
+	(assign '((:rsp local_argv) (:rsp local_statics)) `(:r0 ,statics))
+	(assign `((:r0 +ptr_size) (,statics statics_sys_load_name_buffer)) '(:r0 :r1))
+	(vp-cpy-rr :r1 :r5)
+	(vp-add-cr (dec ld_name_size) :r5)
+	(vp-cpy-rr :r1 :r2)
+	(vp-cpy-rr :r1 :r3)
+	(loop-start)
+		(vp-cpy-ir-ub :r0 0 :r4)
+		(breakif '(:r4 = 0) '(:r1 = :r5))
+		(vp-cpy-ri-b :r4 :r1 0)
+		(vp-add-cr 1 :r0)
+		(vp-add-cr 1 :r1)
+		(vpif `(:r4 = ,(ascii-code "/")))
+			(vp-cpy-rr :r2 :r3)
+			(vp-cpy-rr :r1 :r2)
+		(endif)
+	(loop-end)
+	(assign `((,statics statics_sys_load_name_buffer)) '(:r1))
+	(vp-sub-rr :r1 :r3)
+	(assign '(:r3) `((,statics statics_sys_load_name_prefix)))
+
 	;call the kernel
 	(call 'bind '(($ bind_kernel) (:rsp local_statics)) '(:r1))
 	(assign '((:rsp local_argv)) '(:r0))
@@ -261,9 +287,9 @@
 		(vp-ret)
 	(endif)
 
-	;create filename
-	(call :sys_str :copy `(,(cat "obj/" *cpu* "/" *abi* "/") (:r7 statics_sys_load_name_buffer)) '(_ :r1))
-	(vp-sub-cr 1 :r1)
+	;create filename, after the folder of the image the buffer starts with
+	(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r1 :r0))
+	(vp-add-rr :r0 :r1)
 	(call :sys_str :copy '(:r6 :r1))
 	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
 

@@ -62,6 +62,9 @@
 		sys_load_block_start sys_load_block_end
 		sys_load_reloc_stack sys_load_reloc_buffer
 		sys_load_stat_buffer sys_load_name_buffer)
+	;the name buffer starts with the folder the boot image is in, the
+	;length of it, obj/<cpu>/<abi>/, (load-path)
+	(long sys_load_name_prefix)
 	(align)
 
 	;sys_math seed
