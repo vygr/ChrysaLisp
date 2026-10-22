@@ -278,6 +278,16 @@
 	(task-sleep 300000)
 	(assert-list-eq "told only again: a write stays where it was put" '(1 5) (storage-seen "paced2" (sn-of "m-a"))))
 
+;retired by the start of its id, case aside, as storage -e takes one
+(when (every (const identity) sn_svcs)
+	(assert-list-eq "the start of more than one member's id retires none"
+		'(:many "m-a" "m-b" "m-c" "m-d" "m-e") (storage-retire "m-" (sn-of "m-a")))
+	(assert-list-eq "nor does the start of none" '(:none) (storage-retire "x" (sn-of "m-a")))
+	(defq sn_got (storage-retire "M-E" (sn-of "m-a")))
+	(assert-eq "the start of one, in capitals, retires it" :ok (first sn_got))
+	(assert-true "and it is not among the members said" (not (find "m-e" (rest sn_got))))
+	(assert-eq "a whole id still does" :ok (first (storage-retire "m-d" (sn-of "m-a")))))
+
 (each (# (if %0 (storage-stop %0))) sn_svcs)
 (task-sleep 100000)
 (each (# (pii-remove (sn-image %0))) sn_ids)

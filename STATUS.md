@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**`storage -e` retires a member by the start of its id, as `-o` takes one, `(storage-retire)`; it needed the whole id.**
+
 **A message is made with its src and offset 0; a message of one fragment carried a reused block's old parcel header onto the wire.**
 
 **The GJK, `(poly-convex-hit?)` and `(poly-support)`, is gone: the eraser asks `(poly-hit?)` of the two hulls, 25 to 55 times quicker.**

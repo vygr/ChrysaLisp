@@ -752,6 +752,19 @@
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_members (ifn change "")))
 		(split answer " ")))
 
+(defun storage-retire (start &optional svc)
+	; (storage-retire start [svc]) -> (:ok member ...) | (:none) | (:many id ...) | :nil
+	;the member whose id starts so retired, case aside, as (storage-service-on)
+	;takes the start of a system id. Only if one member's id starts so:
+	;:none if none does, and :many and theirs if more than one, none retired
+	(setd svc (storage-service))
+	(when (defq members (storage-members :nil svc))
+		(defq start (to-upper start) hits (filter (# (starts-with start (to-upper %0))) members))
+		(case (length hits)
+			(0 (list :none))
+			(1 (cat (list :ok) (ifn (storage-members (cat "-" (first hits)) svc) (list))))
+			(:t (cat (list :many) hits)))))
+
 (defun storage-seen (name &optional svc)
 	; (storage-seen path [svc]) -> :nil | (seen members)
 	;how many of the members are known to have what a path is now, and

@@ -53,7 +53,8 @@
             there now, and what and where each is. With
             +id as path, that one is joined.
         -e --retire id: the member of that id retired, and
-            the members said, as -M does.
+            the members said, as -M does. The start of the id
+            is enough, if no other member's starts so.
         -x --stop: stop the service.
         -z --resize megabytes: the store of this member put on
             a volume of that many MB, bigger, or smaller if what
@@ -348,7 +349,12 @@
 				;a word of the command line that starts with - is an option, so
 				;one is retired by -e, joined by +id
 				(cond
-					(opt_e (setq members (storage-members (cat "-" (trim-start opt_e "-")) svc)))
+					;by the start of its id, as -o takes one
+					(opt_e (defq want (trim-start opt_e "-") got (storage-retire want svc))
+						(case (first got)
+							(:ok (setq members (rest got)))
+							(:none (print "No member's id starts " want ", none retired."))
+							(:many (print want " starts more than one member's id, none retired: " (join (rest got) " ")))))
 					((starts-with "+" name) (setq members (storage-members name svc))))
 				(print "Store:   " (. (storage-info svc) :find :id))
 				(store-say svc members))
