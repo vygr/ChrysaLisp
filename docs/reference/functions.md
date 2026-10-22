@@ -3136,6 +3136,23 @@ how wide words are in letters of that size
 words, their left end at x and the line they sit on at y
 ```
 
+### diagram
+
+```code
+(diagram name doc)
+
+what a script of docs/diagrams/ saves its scene with, beside itself by
+its own name, as make docs runs it
+```
+
+### diagram-save
+
+```code
+(diagram-save doc file)
+
+a diagram saved, a document of a whiteboard
+```
+
 ### diff-hunk
 
 ```code

@@ -220,14 +220,14 @@
 									:stroke
 									0
 									:text
-									"[obj/vp/]"
+									"[obj/vp/debug/]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										80.22296
+										61.37982
 										18.00000
 									)
 								)
@@ -242,12 +242,12 @@
 									:stroke
 									0
 									:text
-									"[every function, as it was built]"
+									"[every function's VP, as it was built]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										30.16772
+										19.56317
 										34.00000
 									)
 								)

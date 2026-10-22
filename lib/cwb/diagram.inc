@@ -355,3 +355,14 @@
 	; (dia-scene-doc scene [pad]) -> doc
 	;the document of a scene, its lines under its boxes
 	(dia-doc (cat (elem-get scene 3) (first scene) (second scene)) pad))
+
+(defun diagram-save (doc file)
+	; (diagram-save doc file)
+	;a diagram saved, a document of a whiteboard
+	(cwb-save doc (file-stream file +file_open_write)))
+
+(defun diagram (name doc)
+	; (diagram name doc)
+	;what a script of docs/diagrams/ saves its scene with, beside itself by
+	;its own name, as make docs runs it
+	(diagram-save doc (cat "docs/diagrams/" name ".cwb")))

@@ -187,16 +187,48 @@
 		files)
 	out)
 
-(defun diagram-save (doc file)
-	(cwb-save doc (file-stream file +file_open_write))
+(defun diagram-job (spec file)
+	;a diagram to be made, (kind args ...), :class the args of (dia-class),
+	;:tree of (dia-hierarchy), and saved to file, by (farm-diagrams)
+	(push dia_jobs (cat (list (first spec) file) (rest spec)))
 	(if (> *build_verb* 0) (print "-> " file)))
+
+(defun farm-diagrams (jobs)
+	;the diagrams made by a herd of children, lib/cwb/diagram_child.lisp,
+	;one on each node of this machine, a few to a job. They are each a
+	;layout and a save of their own, and they were most of the time of make
+	;docs, one after another. What went wrong with any is printed
+	(when (nempty? jobs)
+		(defq select (list (mail-mbox) (mail-mbox) (mail-mbox)) working :t told 0
+			units (partition jobs 4)
+			herd (Jobs "lib/cwb/diagram_child.lisp" (first select) (second select)
+				(list (length units) 1 1)))
+		(. herd :add (map (# (cat (const (str-alloc +job_size)) (str %0))) units))
+		(mail-timeout (third select) 1000000 0)
+		(while working
+			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+			(cond
+				((not msg) (setq working :nil))
+				((= idx 0) (. herd :launched msg))
+				((= idx 1)
+					(if (nempty? (defq said (slice msg +job_reply_size -1))) (print said))
+					(if (eql 0 (. herd :answered msg)) (setq working :nil)))
+				(:t ;a child that died, its job again, and not for ever
+					(mail-timeout (third select) 1000000 0)
+					(. herd :refresh (task-timeout 60))
+					(when (> (defq tries (. herd :tries)) told)
+						(setq told tries)
+						(when (>= tries 3)
+							(print "Error: no answer from the diagram makers")
+							(setq working :nil))))))
+		(. herd :close)))
 
 (defun make-docs ()
 	(print "Scanning source files...")
-	;the diagrams of the reference are made here too, lib/cwb/diagram.inc.
-	;It is brought in when docs are made and not as this file is read,
-	;a build of the system has no use for it
-	(import "lib/cwb/diagram.inc")
+	;the diagrams of the reference are made here too, by children that
+	;each have lib/cwb/diagram.inc, (farm-diagrams), each one as it is come
+	;to is put on the list
+	(defq dia_jobs (list))
 
 	;scan for Lisp functions, macros, classes, ffi and keys info
 	(defq docs_map (string-stream ""))
@@ -220,7 +252,7 @@
 				stream (file-stream document +file_open_write))
 			(write-line stream (cat "# " name +LF))
 			(write-line stream (cat "```image" +LF "docs/reference/classes/" name ".cwb" +LF "```" +LF))
-			(diagram-save (dia-class name (if (nempty? info) (first info) "")
+			(diagram-job (list :class name (if (nempty? info) (first info) "")
 					(chain-of name lisp_supers)
 					(sort (map (const first) (filter (# (eql (second %0) name)) lisp_nodes)) (const cmp))
 					;what each class it comes of gives itself, from the first, then
@@ -252,17 +284,14 @@
 		"class it comes of. Each has a page of its own under `classes/`, with" +LF
 		"its methods. Made from the source by `make docs`." +LF))
 	(write-line stream (cat "```image" +LF "docs/reference/class_hierarchy.cwb" +LF "```" +LF))
-	(diagram-save (dia-hierarchy lisp_nodes "And the classes that come of no other, and have none come of them")
+	(diagram-job (list :tree lisp_nodes "And the classes that come of no other, and have none come of them")
 		"docs/reference/class_hierarchy.cwb")
 	(if (> *build_verb* 0) (print "-> " document))
 
 	;the diagrams that are thought out and not worked out, each a script
 	;in docs/diagrams/ that makes a scene and saves it beside itself by
 	;its own name, (diagram name doc). Made again each time, as the rest
-	(defun diagram (name doc)
-		(diagram-save doc (cat "docs/diagrams/" name ".cwb")))
-	(each (# (catch (repl (file-stream %0) %0) (progn (print "Diagram " %0 ": " _) :t)))
-		(sort (files-all "docs/diagrams" '(".lisp") 0)))
+	(each (# (push dia_jobs (list :script %0))) (sort (files-all "docs/diagrams" '(".lisp") 0)))
 
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
@@ -387,7 +416,7 @@
 		"class it comes of. Each has a page of its own under `vp_classes/`, with" +LF
 		"its fields and its methods. Made from the source by `make docs`." +LF))
 	(write-line stream (cat "```image" +LF "docs/reference/vp_hierarchy.cwb" +LF "```" +LF))
-	(diagram-save (dia-hierarchy vp_nodes "And the classes that are only functions, they come of no other and have none come of them")
+	(diagram-job (list :tree vp_nodes "And the classes that are only functions, they come of no other and have none come of them")
 		"docs/reference/vp_hierarchy.cwb")
 	(if (> *build_verb* 0) (print "-> " document))
 	(each (lambda ((cls super &rest mthds))
@@ -397,7 +426,7 @@
 		(defq file (. class_files :find cls) named (lambda (kinds)
 				(sort (map (# (str (first %0))) (filter (# (and (find (third %0) kinds)
 					(not (starts-with ":lisp_" (first %0))) (not (eql (first %0) :vtable)))) mthds)) (const cmp))))
-		(diagram-save (dia-class (str cls) (ifn file "")
+		(diagram-job (list :class (str cls) (ifn file "")
 				(chain-of (str cls) vp_supers)
 				(sort (map (const first) (filter (# (eql (second %0) (str cls))) vp_nodes)) (const cmp))
 				(filter (# (nempty? (second %0))) (cat
@@ -444,6 +473,8 @@
 					(each (# (write-line stream %0)) info)
 					(write-line stream (const (str "```" +LF))))) mthds))
 		(if (> *build_verb* 0) (print (cat "-> docs/reference/vp_classes/" (rest cls) ".md")))) classes)
+	;and the diagrams, all of them at once
+	(farm-diagrams dia_jobs)
 	(print "Done"))
 
 (defun make-ai ()
