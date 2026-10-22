@@ -298,9 +298,9 @@ than wanted. The fix knew nothing more: the pipe sends a line of its own
 that loads the file. A form that is known can not fail, so it does the
 reporting.
 
-### The program is the VP
+### The program is the VP, 22 October 2026
 
-On the 22nd of October the VP stopped being a step on the way to six
+On the 22nd of October 2026 the VP stopped being a step on the way to six
 programs and became the program. 947 of the system's 1,033 functions
 already compiled to the same VP on every platform; the other 86 knew
 something they had no business knowing: which registers a host's C ABI
@@ -310,6 +310,17 @@ owns it, the translator of that CPU, and the VP of every function came out
 the same on all six. Then the build could compile a file once and
 translate it for each platform, and do only what had changed: the VP when
 the source changes, the code when the VP or that translator does.
+
+This is what [Taos](../intro/taos.md) did in 1990, and what the system has
+been working back towards. Taos compiled every program to its virtual
+processor and kept it in that form on disk; the translator was the only
+part to port to a new processor, and every program then ran on it with
+no recompiling. ChrysaLisp's VP is now that again: one program, kept as
+VP, and a translator for each CPU that makes its code. Taos went one step
+further, and translated a tool as it was loaded, across the network, into
+the processor that was to run it. With the VP the same everywhere, that
+is the next step here: a lib or an app kept as its VP, translated where
+it lands.
 
 Two things made a change this deep safe to make in a day. Every step was
 compared byte for byte, every object of every platform, the old build
