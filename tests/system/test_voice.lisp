@@ -89,12 +89,16 @@
 (while (defq msg (mail-read-timeout vc_box 100000))
 	(push vc_got (list (getf msg +voice_piece_seq) (slice msg +voice_piece_data -1))))
 (sort vc_got (# (- (first %0) (first %1))))
-(defq vc_half (/ +sound_piece 2))
-(assert-list-eq "the file's pieces are sent, the microphone's after them"
-	'(:t :t :t :t :nil :nil) (map! (# (> (sound-peak (second %0)) 5000)) (list vc_got) 0 6))
+;the tone is made as fast as it can be, not at the pace of a microphone,
+;so how many of its pieces come before the gate's hang ends is the load's
+(defq vc_half (/ +sound_piece 2) vc_loud (map (# (> (sound-peak (second %0)) 5000)) vc_got))
+(assert-list-eq "the file's pieces are sent first"
+	'(:t :t :t :t) (slice vc_loud 0 (min 4 (length vc_loud))))
+(assert-list-eq "and the microphone's after them, quiet"
+	'() (filter! (const identity) vc_loud (min 4 (length vc_loud)) -1))
 (assert-list-eq "the last of the file made up with silence"
 	'(:t 0) (list (> (sound-peak (slice (second (elem-get vc_got 3)) 0 vc_half)) 5000)
 		(sound-peak (slice (second (elem-get vc_got 3)) vc_half -1))))
 (pii-remove vc_file)
 
-(undef (env) 'vc_box 'vc_from 'vc_got 'vc_half 'vc_order 'vc_a 'vc_b 'vc_tap 'vc_ctl 'vc_done 'vc_own 'vc_other 'vc_file 'vc_here 'vc_there 'vc_stream 'vc_pieces)
+(undef (env) 'vc_box 'vc_from 'vc_got 'vc_half 'vc_loud 'vc_order 'vc_a 'vc_b 'vc_tap 'vc_ctl 'vc_done 'vc_own 'vc_other 'vc_file 'vc_here 'vc_there 'vc_stream 'vc_pieces)
