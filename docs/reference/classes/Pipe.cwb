@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 230
-	:height 378
+	:height 361
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 25
+	:next_id 24
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 22)
+					((:list 21)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 196.24047 0 A 8 8 0 0 1 204.24047 8 L 204.24047 344 A 8 8 0 0 1 196.24047 352 L 8 352 A 8 8 0 0 1 0 344 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 196.24047 0 A 8 8 0 0 1 204.24047 8 L 204.24047 327 A 8 8 0 0 1 196.24047 335 L 8 335 A 8 8 0 0 1 0 327 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -136,7 +136,7 @@
 							:stroke
 							0
 							:text
-							"[:aborted]"
+							"[:eof]"
 							:font_size
 							12
 							:pos
@@ -156,7 +156,7 @@
 							:stroke
 							0
 							:text
-							"[:eof]"
+							"[:ids]"
 							:font_size
 							12
 							:pos
@@ -176,7 +176,7 @@
 							:stroke
 							0
 							:text
-							"[:ids]"
+							"[:select]"
 							:font_size
 							12
 							:pos
@@ -196,7 +196,7 @@
 							:stroke
 							0
 							:text
-							"[:select]"
+							"[:state]"
 							:font_size
 							12
 							:pos
@@ -216,7 +216,7 @@
 							:stroke
 							0
 							:text
-							"[:state]"
+							"[:stdout]"
 							:font_size
 							12
 							:pos
@@ -236,7 +236,7 @@
 							:stroke
 							0
 							:text
-							"[:stdout]"
+							"[:streams]"
 							:font_size
 							12
 							:pos
@@ -256,7 +256,7 @@
 							:stroke
 							0
 							:text
-							"[:streams]"
+							"[:user_select]"
 							:font_size
 							12
 							:pos
@@ -265,32 +265,12 @@
 								187.00000
 							)
 						)
-						((:list 15)
-							:shape
-							:id
-							16
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[:user_select]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								204.00000
-							)
-						)
 						((:list 13)
 							:shape
 							:id
-							17
+							16
 							:d
-							"[M 0 218 L 204.24047 218]"
+							"[M 0 201 L 204.24047 201]"
 							:stroke
 							4282140240
 							:width
@@ -303,7 +283,7 @@
 						((:list 17)
 							:shape
 							:id
-							18
+							17
 							:kind
 							:text
 							:fill
@@ -319,7 +299,27 @@
 							:pos
 							((:list 2)
 								12.00000
-								234.00000
+								217.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							18
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							:abort
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								236.00000
 							)
 						)
 						((:list 15)
@@ -333,7 +333,7 @@
 							:stroke
 							0
 							:text
-							:abort
+							:close
 							:font_size
 							12
 							:pos
@@ -353,7 +353,7 @@
 							:stroke
 							0
 							:text
-							:close
+							:eof
 							:font_size
 							12
 							:pos
@@ -373,7 +373,7 @@
 							:stroke
 							0
 							:text
-							:eof
+							:poll
 							:font_size
 							12
 							:pos
@@ -393,7 +393,7 @@
 							:stroke
 							0
 							:text
-							:poll
+							:read
 							:font_size
 							12
 							:pos
@@ -413,33 +413,13 @@
 							:stroke
 							0
 							:text
-							:read
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								321.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							24
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
 							:write
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								338.00000
+								321.00000
 							)
 						)
 					)

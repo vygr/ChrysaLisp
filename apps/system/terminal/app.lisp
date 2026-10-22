@@ -130,6 +130,7 @@
 					(. view :show_tip)))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(if *pipe* (. *pipe* :close))
+	;nobody is left to read what it says
+	(if *pipe* (. *pipe* :abort))
 	(config-save)
 	(gui-sub-rpc *window*))

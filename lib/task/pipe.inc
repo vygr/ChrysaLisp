@@ -5,8 +5,6 @@
 ;module
 (env-push)
 
-(defq +pipe_abort_delay 2000000)
-
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> ((mode cmd) ...)
 	(defq i 0 out (list) quotes (partition (substr cmdline "\q") 2) mode +kn_call_run)
@@ -151,36 +149,23 @@
 		(elem-set streams 0 :nil)
 		;what is left to wait for, the stdout and stderr streams
 		(setq streams (rest streams))
-		;wait for stdout and stderr streams to stop
-		;if it goes on too long, then abort !
-		(mail-timeout (defq timer (last (push select (mail-mbox)))) +pipe_abort_delay 0)
+		;wait for stdout and stderr streams to stop, however long the
+		;commands take to end: one that is not to be waited for is ended
+		;with (. pipe :abort). It was given up on after 2 seconds, and a
+		;busy machine took longer than that
 		(defq user_select_len (length (get :user_select this)) at (length streams))
 		;a stream that has stopped already has no more to say, and is not
 		;waited for. After (. pipe :eof) a stderr can stop, and be read as
-		;stopped, while the last of the stdout is still coming. To wait for
-		;it then was to wait for the abort timer, every time
+		;stopped, while the last of the stdout is still coming
 		(while (>= (setq at (dec at)) 0)
 			(if (>= (in-get-state (elem-get streams at)) +stream_mail_state_stopped)
 				(setq streams (erase streams at (inc at))
 					select (erase select (+ at user_select_len) (+ at user_select_len 1)))))
-		(while (and (nempty? streams)
-					(< (defq mboxs (slice select user_select_len -1) idx (mail-select mboxs))
-						(dec (length mboxs))))
+		(while (nempty? streams)
+			(defq idx (mail-select (slice select user_select_len -1)))
 			(if (>= (in-get-state (in-next-msg (elem-get streams idx))) +stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
-		;the timer is put away. Left, it was kept by the kernel till its
-		;time came, 2 seconds, one for every pipe that had closed in them,
-		;and each new one was put in its place among those: a task that
-		;ran command after command grew slower as it went
-		(mail-timeout timer 0 0)
-		;did we break out due to the abort timer ? It is noted, :aborted, so
-		;what closed it can tell a close that waited for nothing from one
-		;that was given up on, whatever the time it took
-		(when (nempty? streams)
-			(lower :select :streams)
-			(def this :aborted :t)
-			(. this :abort))
 		this)
 	)
 
@@ -189,9 +174,9 @@
 	(task-count -1) ;we will be only collating results !
 	(setd out print)
 	(defq pipe (Pipe cmdline))
-	;an error from the outfun closes the pipe on its way by. A pipe let go
-	;of while still open waits for ever on a command that has not stopped,
-	;and the error is never seen
+	;an error from the outfun ends the pipe on its way by, what is left
+	;of it is not wanted. A pipe let go of while still open waits for ever
+	;on a command that has not stopped, and the error is never seen
 	(catch (while pipe
 			(defq data (. pipe :read))
 			(cond
@@ -201,7 +186,7 @@
 					(setq pipe :nil))
 				(:t ;string from pipe
 					(callback out (penv) data))))
-		(progn (. pipe :close) (task-count 1) :nil))
+		(progn (. pipe :abort) (task-count 1) :nil))
 	(task-count 1)) ;we where only collating results !
 
 ;module

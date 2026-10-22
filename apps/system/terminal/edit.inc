@@ -86,14 +86,10 @@
 	(refresh))
 
 (defun action-escape ()
-	(when *pipe*
-		(input-cursor
-			;EOF
-			(. *pipe* :close)
-			(setq *pipe* :nil)
-			(. buffer :insert (cat +char_class_lf (get :terminal_prompt *env*))))
-		(setq *margin_x* *cursor_x*)
-		(refresh)))
+	;EOF: the command is told its input has ended, and the pipe is closed
+	;when it has, as any that ends. To close it here waited for the command
+	;to end, and one that did not end held the window, abort too
+	(if *pipe* (. *pipe* :eof)))
 
 (defun action-abort ()
 	(when *pipe*
