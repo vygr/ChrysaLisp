@@ -165,7 +165,7 @@
 			(case (first s)
 				(("include" "import")
 					(push d (path-to-absolute (second s) file)))
-				(("def-method" "gen-vtable" "gen-type" "gen-create")
+				(("def-method" "gen-host-call" "gen-vtable" "gen-type" "gen-create")
 					(push p (slice s 0 (min 3 (length s)))))
 				("def-func"
 					(push p (list "def-func" (if (eql (second s) "path-to-absolute")
@@ -181,7 +181,7 @@
 	(map (lambda (line)
 		(defq kind (first line) a (second line) b (if (> (length line) 2) (third line)))
 		(case kind
-			("def-method" (f-path (sym a) (sym b)))
+			(("def-method" "gen-host-call") (f-path (sym a) (sym b)))
 			("gen-vtable" (f-path (sym a) :vtable))
 			("gen-type" (f-path (sym a) :type))
 			("gen-create" (f-path (sym a) (if b (sym (cat :create_ b)) :create)))

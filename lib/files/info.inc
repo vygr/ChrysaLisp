@@ -226,12 +226,12 @@
 										:file "none"
 										:trashes_line 0))))
 								(push (. f_entry :find :implements) (list active_class method_name)))
-							((and (find op '("def-method" "gen-create" "gen-type")) (first names))
+							((and (find op '("def-method" "gen-host-call" "gen-create" "gen-type")) (first names))
 								;generated functions are documented just as methods are,
 								;by the header comment after the (gen-create) (gen-type) call
 								(defq class_name (sym (first names))
 									method_name (cond
-										((eql op "def-method") (sym (second names)))
+										((find op '("def-method" "gen-host-call")) (sym (second names)))
 										((eql op "gen-type") :type)
 										((second names) (sym (cat ":create_" (second names))))
 										(:t :create)))

@@ -69,7 +69,6 @@
 	(dec-method :pii_kill sys/pii/kill :static (:r0) (:r0) (:r0 :f0-:f15))
 	(dec-method :pii_tick sys/pii/tick :static :nil (:r0) (:r0 :f0-:f15))
 	(dec-method :pii_save sys/pii/save :static (:r0 :r1 :r2) (:r0) (:r0 :f0-:f15))
-	(dec-method :pii_flush sys/pii/flush :static (:r0) (:r0))
 	(dec-method :lisp_readchar sys/pii/lisp_readchar :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :r14 :f0-:f15))
 	(dec-method :lisp_writechar sys/pii/lisp_writechar :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
 	(dec-method :lisp_time sys/pii/lisp_time :static (:r0 :r1) (:r0 :r1) (:r1-:r3 :r14 :f0-:f15))
@@ -120,6 +119,21 @@
 	(fn-bind 'sys/statics/statics %4)
 	(vp-cpy-ir %4 statics_sys_load_host_os_funcs %4)
 	(abi-call-table %0 %1 %4 %2 %3 %5))
+
+(defun gen-host-call (%0 %1 %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = host member name
+	;a method that is only a call of the host, with the method's in and out
+	;parameters. The host call keeps all but :r0 and the two it dispatches
+	;by, documented at the (gen-host-call) as a (def-method) is
+	(defq m (method-lookup %0 %1))
+	(def-func (f-path %0 %1))
+		(vp-push :r13 :r14)
+		(host-os-call %0 %2 (third m) (elem-get m 3))
+		(vp-pop :r13 :r14)
+		(vp-ret)
+	(def-func-end))
 
 ;debug helpers
 (defun debug-num (s n)

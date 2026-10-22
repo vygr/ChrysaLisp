@@ -97,7 +97,7 @@
 (rule "props" '(8 2) :pairs :fill)
 ;never broken, a source scanner reads the form as one line
 (rule "line import include ffi signature dec-method def-method def-func" '(-))
-(rule "def-func-end gen-vtable gen-create gen-type host-os-call" '(-))
+(rule "def-func-end gen-vtable gen-create gen-type host-os-call gen-host-call" '(-))
 (rule "host-gui-call host-audio-call deffimethod defgetmethod" '(-))
 (rule "defsetmethod defproxymethod" '(-))
 ;any other call, and a list of data
@@ -128,7 +128,7 @@
 			"structure enums bits defclass def-class")) +scanned `',(words (cat
 					"redefun defun redefmacro defmacro defabstractmethod defmethod "
 					"structure enums bits defclass def-class ffi import include "
-					"signature dec-method def-method def-func gen-vtable gen-create "
+					"signature dec-method def-method def-func gen-vtable gen-create gen-host-call "
 					"def-struct gen-type deffimethod defgetmethod defsetmethod "
 					"def-enum defproxymethod *key_map* *key_map_shift* "
 					"def-bit *key_map_control*")))

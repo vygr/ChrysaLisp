@@ -375,7 +375,7 @@
 								(if (and (> (length line_split) 3)
 										(find (elem-get line_split 3) '(":static" ":override" ":final" ":virtual")))
 									(sym (elem-get line_split 3)) :virtual))))
-						(def-method
+						((def-method gen-host-call)
 							(setq state :info)
 							(push docs (list))
 							(push functions (f-path (sym name) (sym (third line_split)))))

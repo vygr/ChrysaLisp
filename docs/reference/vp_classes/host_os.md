@@ -169,8 +169,6 @@ trashes
 :r0, :f0-:f15
 ```
 
-### :pii_flush -> sys/pii/flush
-
 ### :pii_host -> sys/pii/host
 
 ```code
