@@ -30,7 +30,7 @@
 	(import "service/net/keys.inc")
 	(unless (pii-fstat (keys-file "own")) (keys-new "own"))
 	(keys-use "own")
-	(print "This machine has been given a key of its own, own, in keys/ and in use.")
+	(print "This machine has been given a key of its own, named own, in keys/ and in use.")
 	(print "To join it to your other machines take in their key: key -i name file, then key -u name.")
 	(print))
 (print "Install complete.")
