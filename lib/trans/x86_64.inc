@@ -579,6 +579,10 @@
 ; Group 10: Stack & ABI Linkage
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;a task's state, what the CPU has besides the VP registers: none
+(defun emit-save-state ())
+(defun emit-load-state ())
+
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
@@ -687,7 +691,7 @@
 	+x64_barrier_map
 		(reduce (#
 			(pinsert %0 %1
-				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop
+				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
 						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr

@@ -64,13 +64,9 @@
 ; task macros
 ;;;;;;;;;;;;;
 
-(defun tk-save-state ()
-	(apply (const vp-push) stack_state))
-
-(defun tk-load-state ()
-(validatecase
-	;validate mode trashes all registers !
-	(vp-cpy-cr 0x7FF8000000000000 :r0)
-	(vp-simd vp-cpy-rf '(:r0) +vp_fregs)
-	(vp-simd vp-cpy-rr '(:r0) +vp_rregs_0_14))
-	(apply (const vp-pop) stack_state))
+(defun tk-validate-trash ()
+	;validate mode trashes all registers, before a task's state, (vp-load-state)
+	(validatecase
+		(vp-cpy-cr 0x7FF8000000000000 :r0)
+		(vp-simd vp-cpy-rf '(:r0) +vp_fregs)
+		(vp-simd vp-cpy-rr '(:r0) +vp_rregs_0_14)))

@@ -125,7 +125,7 @@
 	; stack / helpers
 	'emit-push '(&rest :reg) 'emit-pop '(&rest :reg) 'emit-trash '(&rest :reg) 'emit-alloc '(:c)
 	'emit-free '(:c) 'emit-ret '() 'emit-sync '(&optional :c) 'emit-brk '(&optional :c)
-	'emit-stack-init '(:r :r :r) 'emit-label '(:label) 'emit-tlabel '(:label) 'emit-align '(:c &optional :c)
+	'emit-stack-init '(:r :r :r) 'emit-save-state '() 'emit-load-state '() 'emit-label '(:label) 'emit-tlabel '(:label) 'emit-align '(:c &optional :c)
 	'emit-string '(:str) 'emit-byte '(&rest :c) 'emit-short '(&rest :c) 'emit-int '(&rest :c)
 	'emit-long '(&rest :c) 'emit-nop '() 'emit-vp-nop '()
 ))

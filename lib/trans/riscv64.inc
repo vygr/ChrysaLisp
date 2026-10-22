@@ -567,6 +567,11 @@
 (defun emit-sync (n) (emitm-int 0x0ff0000f))
 (defun emit-brk (n))
 
+;a task's state, what the CPU has besides the VP registers, the link
+;register, pushed as it is switched from and popped as it is switched to
+(defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
+(defun emit-load-state () (apply (const emit-pop) (map (lambda (r) (emit-native-reg? r)) stack_state)))
+
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)

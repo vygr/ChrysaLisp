@@ -124,7 +124,8 @@
 
 	;pop task state
 	(apply (const vp-trash) +vp_regs)
-	(tk-load-state)
+	(tk-validate-trash)
+	(vp-load-state)
 	(vp-ret)
 
 (def-func-end)
@@ -140,7 +141,7 @@
 	;has nothing left in a register, whatever these few instructions use
 
 	;push task state
-	(tk-save-state)
+	(vp-save-state)
 
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r1)
@@ -149,7 +150,8 @@
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r1 statics_sys_task_current_tcb) :rsp))
 
 	;pop task state
-	(tk-load-state)
+	(tk-validate-trash)
+	(vp-load-state)
 	(vp-ret)
 
 (def-func-end)
@@ -161,7 +163,7 @@
 	;suspend current task, switch to next task
 
 	;push task state
-	(tk-save-state)
+	(vp-save-state)
 
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r3)
@@ -234,7 +236,7 @@
 
 (vp-label 'away)
 	;push task state
-	(tk-save-state)
+	(vp-save-state)
 
 	;save stack pointer
 	(fn-bind 'sys/statics/statics :r4)

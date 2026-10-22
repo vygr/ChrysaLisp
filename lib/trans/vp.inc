@@ -70,7 +70,7 @@
 					(list (elem-get hs i) (elem-get ts i)))
 				((defq i (find name ts))
 					(list (elem-get ms i) :nil))
-				((find name '(emit-label emit-alloc emit-free emit-push emit-pop emit-call-abi
+				((find name '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state emit-call-abi
 						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr

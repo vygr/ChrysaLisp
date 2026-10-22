@@ -67,6 +67,11 @@
 (defun vp-brk (&optional n) (emit (static-qqp (emit-brk ,(ifn n 0)))))
 (defun vp-sync (&optional n) (emit (static-qqp (emit-sync ,(ifn n 0)))))
 (defun vp-stack-init (s f x) (emit `(emit-stack-init ,s ,f ,x)))
+;the state a task keeps on its stack as it is switched from, and gets back
+;as it is switched to, what the CPU has besides the VP registers. What it
+;is, and if there is any, the translator knows, (emit-save-state)
+(defun vp-save-state () (emit (list 'emit-save-state)))
+(defun vp-load-state () (emit (list 'emit-load-state)))
 
 (defun vp-call-abi (r b i n x) (emit `(emit-call-abi ,r ,b ,i ,n ~x)))
 (defun vp-call (l) (emit `(emit-call ,(label-sym l))))

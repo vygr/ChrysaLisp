@@ -452,7 +452,7 @@ into the native machine code for your target CPU.
       usually 0). It needs to arrange the stack so that when `vp-ret` is
       eventually executed from the task's main function, it returns to a
       known `exit` routine. The `arm64.inc` and `x86_64.inc` examples show
-      setting up a "return" to the `tk-load-state` which then `vp-ret`s to
+      setting up a "return" to the `vp-load-state` which then `vp-ret`s to
       the real caller, after pushing the `x` argument and the address of an
       `arm_exit` or `x64_exit` label. The details are architecture-
       specific.
@@ -463,9 +463,12 @@ into the native machine code for your target CPU.
       `riscv64-r` or `x64-rr` in existing translators) to simplify
       instruction encoding.
 
-    * Define `stack_align` and `stack_state` (list of registers
-      saved/restored by `tk-save-state`/`tk-load-state`) as per your target
-      ABI's requirements.
+    * Define `stack_align` and `stack_state` (the registers a task keeps
+      besides the VP ones, the link register say) as per your target, and
+      `emit-save-state` and `emit-load-state`, which push and pop them. The
+      task switch, `sys/task`, says only `vp-save-state` and
+      `vp-load-state`, the same VP on every platform; with no such
+      registers they emit nothing, as on x86_64 and VP64.
 
 ### 3.3. Boot Image Generation and Testing
 

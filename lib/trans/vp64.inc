@@ -290,6 +290,10 @@
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* (- (length b) 1 (!)) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))
 
+;a task's state, what the CPU has besides the VP registers: none
+(defun emit-save-state ())
+(defun emit-load-state ())
+
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
