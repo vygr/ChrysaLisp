@@ -155,6 +155,22 @@
 		(each (# (push *emit_list* %0)) (first got))
 		(setq *kept* (second got))))
 
+(defun vp-portable (form)
+	; (vp-portable form) -> form
+	;an arg of an instruction as it can be written and read back. A constant
+	;the Lisp that made it left as a call of a function, (+ 24 1) with +
+	;the function and not the symbol, would be written #add: it is worked
+	;out. One with anything but numbers in it can not be, and is thrown
+	(cond
+		((not (list? form)) form)
+		((empty? form) form)
+		((func? (first form))
+			(defq args (if (> (length form) 1) (map! vp-portable (list form) 1 -1) (list)))
+			(if (every (const num?) args)
+				(eval (cat (list (first form)) args))
+				(throw "VP not portable, a call of a function in an instruction !" form)))
+		((map vp-portable form))))
+
 (defun def-func-end ()
 	(env-pop)
 	(undef *compile_env* '*func_env*)
@@ -176,15 +192,25 @@
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(defq *emit_code* (emit-vp-code *emit_list*))
-	(when (or *build_emit* (eql *cpu* 'vp64))
-		;the instructions, and after them, where what reads only the one
-		;form does not see it, what the frames of named locals were
-		(defq *out* (cat "(" (join (map (const str) *emit_code*) "\n") ")"
+	(when *build_vp*
+		;a build's VP stage: the function's VP, the same for every platform,
+		;kept in obj/vp/<mode>/ for the other platforms' translate stage and
+		;for trace, vpstats and the rest. The instructions, and after them,
+		;where what reads only the one form does not see it, what the frames
+		;of named locals were, which of them were kept in registers, and the
+		;stack alignment the translator is to keep
+		(defq *out* (cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
+				(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
+				*emit_code*) "\n") ")"
 			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
-			;and which of them were kept in registers
-			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")))
-		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
-		(if *build_emit* (print *out*)))
+			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")
+			"\n" (str (list 'align *func_align*))))
+		(save *out* (cat *build_vp* (str *func_name*)))
+		(if *build_emit* (print *out*))
+		;the function made, and of what file, to the build, for the other
+		;platforms
+		(print "=> " *build_file* " " (str *func_name*)))
+	;and assembled for this platform at once
 	(defq *out* (emit-translate *emit_code*))
 	;the header has 16 bits for the length, and for where the links and paths are
 	(if (> (length *out*) 0xffff) (throw "Function too big, over 64KB !" *func_name*))

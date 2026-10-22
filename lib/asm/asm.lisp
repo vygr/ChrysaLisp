@@ -41,11 +41,18 @@
 					;read job
 					(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 					(each (# (def *compile_env* %0 %1))
-						'(*files* *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*)
+						'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb* *build_vp*)
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
-					;compile the file list and catch any errors
+					;a VP job is source files, their functions' VP to *build_vp*, a
+					;translate job is functions, their VP to this platform's code,
+					;and catch any errors
 					(setq *msg* (list))
-					(catch (each include *files*) (progn (print _) :t))
+					(catch (cond
+							((eql *kind* :vp)
+								(each (# (def *compile_env* '*build_file* %0) (include %0)) *files*))
+							(:t (include "lib/asm/func.inc")
+								(each (# (vp-translate %0 *build_vp*)) *files*)))
+						(progn (print _) :t))
 					;send reply, the key it was given, then what was said
 					(mail-send *reply_mbox* (apply (const cat)
 						(insert *msg* 0 (list (char *reply_key* +long_size)))))))))))

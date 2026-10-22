@@ -231,6 +231,62 @@ touched; the boot images of all six platforms were the same. Interleaved,
 | `make platforms`, nothing to do | mean 0.110 | mean 0.058 |
 | `make all boot` | mean 0.100 | mean 0.091 |
 
+### The VP Is The Package: One Compile, A Translation For Each Platform
+
+Each function is compiled from its source to VP, then translated to the
+native code of a platform. Until 2026-10-22 the VP of 86 of the 1,033
+functions of the system was not the same on every platform, and so each
+platform compiled everything from source. What differed, and what was done:
+
+* **Host calls**, 77 of them: their args were put in the host ABI's
+  registers and the ABI's trashed registers pushed, as the VP was made. Now
+  a host call has its args in `:r0 :r1 ...` and keeps every register but
+  `:r0`, and each translator's `emit-call-abi` moves them to its ABI and
+  keeps what its ABI trashes. `sys/pii/abi.inc` is gone.
+* **The task switch**, 4: it pushed the translator's `stack_state`. Now
+  `vp-save-state` and `vp-load-state`, which each translator expands.
+* **The loader**, 3: its object folder was a string of the build, and its
+  entry took its args where the host's ABI put them. Now the folder is the
+  one the host read the boot image from, argv, and `vp-entry-abi` is the
+  reverse of a host call.
+* **Three timeouts** were ten times as long on the VP64. The Pi 4 is about
+  the speed of the VP64 on the M4 and has always run the native times; the
+  VP64 now does too.
+
+Every function's VP, all six platforms, the same: 1,033 of 1,033 built
+debug, 1,032 of 1,032 built release.
+
+So a build now has two stages. The VP stage compiles a source file once
+for a build mode, keeps each function's VP in `obj/vp/<mode>/` and a
+manifest of the functions it made, and translates it for the platform it
+is building at once. The translate stage gives the other platforms their
+code from the VP kept. Each stage does only what has changed: a file's VP
+when its sources are newer than its manifest, a platform's code of a file
+when its VP, its sources or that platform's translator are newer than the
+platform's stamp of it. A change to a translator rebuilds that platform's
+code, from the VP kept, and nothing else, which the old `make` did not see
+at all, the translator being imported by a name made at run time.
+
+Every object of all six platforms, the apps with them, built from nothing
+both ways, was the same, byte for byte. Twelve touched files rebuilt the
+same objects as the old `make`, and a second `make` after each rebuilt
+none. On 19 nodes, interleaved, 4 to 5 runs each:
+
+| On the M4 | Before | After |
+|---|---|---|
+| `make all platforms` | mean 0.315 | mean 0.248 |
+| `make all`, this platform, the VP kept | mean 0.058 | mean 0.046 |
+| `make platforms`, nothing to do | mean 0.059 | mean 0.050 |
+| `make`, nothing to do | mean 0.0168 | mean 0.0159 |
+| `make` after a touch of `sys/pii/class.vp` | mean 0.0283 | mean 0.0278 |
+| `lint` | about 2 s | 0.69 s |
+
+The lint is quicker as it no longer builds the VP64 in debug and then in
+release again: every debug build keeps the debug VP the trace reads. The
+one that is not quicker is `make test`, a build of everything from source
+ten times over: it writes the 1,033 files of VP as well, about 4 ms a
+build on 19 nodes, 0.051 to 0.059.
+
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
 This test measures the time to simultaneously compile all system sources for six

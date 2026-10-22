@@ -16,7 +16,7 @@
     boot:       create a boot image.
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
-    vp:         only the VP64 and obj/vp/ outputs.
+    vp:         only the VP64.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.

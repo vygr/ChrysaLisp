@@ -31,7 +31,7 @@
 (("-i" "--integrity") ,(opt-flag 'opt_i))
 ))
 
-(defq +obj_dir "obj/vp/" +jit_dir "lib/gpu/jit/"
+(defq +obj_dir "obj/vp/debug/" +jit_dir "lib/gpu/jit/"
 	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
 	+all_abi_trashed_regs (list quote +vp_fregs)
 	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack")

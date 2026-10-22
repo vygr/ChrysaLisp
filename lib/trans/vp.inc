@@ -217,6 +217,24 @@
 			last_at at at (map (const eval) labels)))
 	buf)
 
+(defun vp-translate (name dir)
+	; (vp-translate name dir)
+	;a build's translate stage: the VP of the function of that name, as
+	;the VP stage left it in dir, obj/vp/<mode>/, to this platform's
+	;native code in obj/<cpu>/<abi>/. Its stack alignment is the form after
+	;the instructions that starts with align
+	(defq stream (file-stream (cat dir name)) code (first (read stream))
+		*func_align* stack_align form :t)
+	(while (and form (setq form (first (read stream))))
+		(and (list? form) (nempty? form) (eql (first form) 'align)
+			(setq *func_align* (second form))))
+	(defq out (emit-translate code))
+	;the header has 16 bits for the length, and for where the links and paths are
+	(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
+	(save out (cat "obj/" *cpu* "/" *abi* "/" name))
+	(if (> *build_verb* 0)
+		(print "-> " (cat "obj/" *cpu* "/" *abi* "/" name) " (" (length out) ")")))
+
 ;module
-(export-symbols '(emit-translate))
+(export-symbols '(emit-translate vp-translate))
 (env-pop)

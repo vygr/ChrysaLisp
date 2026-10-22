@@ -29,8 +29,8 @@
     What the named locals of each VP function cost, and what
     of that a compiler that kept them in registers could save.
     It reads the instructions of a function as they were
-    assembled, obj/vp/, which a build of the VP64 leaves,
-    'make vp', and sees the function whole: where its frame
+    assembled, the debug VP a build keeps, obj/vp/debug/,
+    and sees the function whole: where its frame
     is made and let go of, each place in the frame that is
     read or written, a local, which of them have their
     address taken, and, by where control goes, which are

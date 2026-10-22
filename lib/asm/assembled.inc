@@ -1,8 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a function as it was assembled, read back
 ;
-; A build of the VP64 leaves each function's instructions as text in
-; obj/vp/, 'make vp'. This reads one, and says where control goes from
+; A build keeps each function's VP as text, obj/vp/<mode>/, the debug
+; of it in obj/vp/debug/, see lib/asm/asm.inc. This reads one, and says where control goes from
 ; each instruction. It is what the commands that see a function whole
 ; stand on, (locals) and (relies).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -10,7 +10,7 @@
 ;module
 (env-push)
 
-(defq +obj_dir "obj/vp/" +jit_dir "lib/gpu/jit/"
+(defq +obj_dir "obj/vp/debug/" +jit_dir "lib/gpu/jit/"
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
 	+load_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i

@@ -13,29 +13,47 @@
 (enums +select 0
 	(enum reply launch timer))
 
-(defun compile (files &optional *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
-	(unless (list?? files) (setq files (list files)))
-	(when (nempty? files)
-		;the biggest first, the queue goes from the end. With the small
-		;ones last the workers all end at much the same time, shuffled
-		;one of them could be left with a big one when the others are done
-		(setq files (map (const second) (sort (map (# (list (second (pii-fstat %0)) %0)) files)
-			(# (- (first %0) (first %1))))))
+(defq +vp_modes ''("release" "debug" "validate"))
+
+(defun vp-dir (mode)
+	; (vp-dir mode) -> path
+	;where a build mode's VP is kept, obj/vp/<mode>/, a file for each
+	;function and nothing else, trace and the rest read them all
+	(cat "obj/vp/" (elem-get +vp_modes mode) "/"))
+
+(defun made-dir (mode)
+	; (made-dir mode) -> path
+	;where the manifests of a build mode's VP are kept, beside it,
+	;obj/vp/<mode>_files/, a file for each source file
+	(cat "obj/vp/" (elem-get +vp_modes mode) "_files/"))
+
+(defun biggest-first (units sizes)
+	;the units in the order the queue gives them out, the biggest first,
+	;the queue goes from the end. With the small ones last the workers all
+	;end at much the same time
+	(map (const second) (sort (map (const list) sizes units) (# (- (first %0) (first %1))))))
+
+(defun farm-jobs (kind units *abi* *cpu*)
+	; (farm-jobs kind units abi cpu) -> (made errors)
+	;each unit a job for a herd of workers, lib/asm/asm.lisp, a worker for
+	;each node of this machine: each has to set up to compile before its
+	;first job, more of them than that only each pay for it. kind :vp is a
+	;list of source files, their VP to (vp-dir), :trans a list of
+	;functions, their VP to this platform's code. What a worker says is
+	;printed, but the names a VP job gives of the functions it made, they
+	;are the made of the result, and the errors
+	(defq made (list) errors (list))
+	(when (nempty? units)
 		;a job is started again if its node goes. The timeout is only for a
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
-		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 60)
-			told 0
+		(defq timer_rate (/ 1000000 1) working :t retry_timeout (task-timeout 60) told 0
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
-			max_workers (length files)
-			;a worker for each node of this machine. Each has to set up to
-			;compile before its first file, more of them than that only
-			;each pay for it, and it was timed
 			jobs (Jobs "lib/asm/asm.lisp" (elem-get select +select_launch)
-				(elem-get select +select_reply) (list max_workers 1 1)))
+				(elem-get select +select_reply) (list (length units) 1 1)))
 		(. jobs :add (map (# (cat (const (str-alloc +job_size))
-			(str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*)))) files))
+			(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*
+				(vp-dir *build_mode*))))) units))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -54,7 +72,8 @@
 						((starts-with "Error:" %0)
 							(push errors %0)
 							(setq error_flag :t))
-						(:t (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
+						((starts-with "=> " %0) (push made (slice %0 3 -1)))
+						((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
 					(if (eql 0 (if error_flag (. jobs :failed msg) (. jobs :answered msg)))
@@ -62,8 +81,8 @@
 				(:t ;timer event
 					(mail-timeout (elem-get select +select_timer) timer_rate 0)
 					(. jobs :refresh retry_timeout)
-					;a file that has gone out and not come back, again
-					;and again, is not waited on for ever
+					;a job that has gone out and not come back, again and
+					;again, is not waited on for ever
 					(when (> (defq tries (. jobs :tries)) told)
 						(setq told tries)
 						(cond
@@ -72,8 +91,60 @@
 								(stream-flush (io-stream 'stdout)))
 							(:t (push errors "Error: no answer from the workers, the build is stopped")
 								(setq working :nil)))))))
-		(. jobs :close)
-		(each (const print) errors))
+		(. jobs :close))
+	(list made errors))
+
+(defun stamp (files *abi* *cpu*)
+	;a platform's stamp of each file, beside its code of the functions of it
+	;under the file's own name: when this platform's code of the file was
+	;made, all that the check of a build with nothing to do has to ask
+	(each (# (save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) files))
+
+(defun manifest (file)
+	; (manifest file) -> :nil | (name ...)
+	;the functions of the file the VP stage made, :nil if it has not
+	(if (defq text (load (cat (made-dir *build_mode*) file))) (first (read (string-stream text)))))
+
+(defun vp-stage (files *abi* *cpu*)
+	; (vp-stage files abi cpu) -> (made errors)
+	;the VP of the functions of the source files, the same for every
+	;platform, kept in (vp-dir) of the build mode, and this platform's code
+	;of it at once. And of each file a manifest, in (made-dir), of the
+	;functions it made: they are what the other
+	;platforms translate, a scan of the source can not say, a function in
+	;an (errorcase) is only made in some modes
+	(defq dir (vp-dir *build_mode*) manifests (Fmap 31))
+	(bind '(made errors) (farm-jobs :vp (map (const list)
+		(biggest-first files (map (# (second (pii-fstat %0))) files))) *abi* *cpu*))
+	(each (# (bind '(file name) (split %0 " "))
+		(. manifests :update file (# (if %0 (push %0 name) (list name))))) made)
+	;none if anything went wrong, a manifest is newer than its source and it
+	;would be taken that the file was made, the next build makes them again.
+	;This platform's code of them is made with it, its stamp says so
+	(when (empty? errors)
+		(each (# (save (str (ifn (. manifests :find %0) (list))) (cat (made-dir *build_mode*) %0))) files)
+		(stamp files *abi* *cpu*))
+	(list made errors))
+
+(defun translate-stage (files *abi* *cpu*)
+	; (translate-stage files abi cpu) -> (made errors)
+	;the VP of the functions of those source files, as their manifests have
+	;them, to this platform's code. A job is a file's functions, the
+	;biggest first, and the file stamped for this platform when all went
+	(defq units (map (# (ifn (manifest %0) (list))) files))
+	(bind '(made errors) (farm-jobs :trans
+		(biggest-first units (map (const length) units)) *abi* *cpu*))
+	(if (empty? errors) (stamp files *abi* *cpu*))
+	(list made errors))
+
+(defun compile (files &optional *abi* *cpu*)
+	; (compile files [abi cpu])
+	;the files, their VP and then this platform's code, whether or not
+	;they have changed
+	(setd *abi* (abi) *cpu* (cpu))
+	(unless (list?? files) (setq files (list files)))
+	(bind '(& errors) (vp-stage files *abi* *cpu*))
+	(each (const print) errors)
 	(print "Done") :nil)
 
 ;;;;;;;;;;;;;
@@ -202,28 +273,47 @@
 				m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
 			(when (> m v) (def newest k m) (setq changed :t))) files)))
 
-(defun make (&optional files *abi* *cpu* walk)
-	;walk is what (all-build-files) gave, if it has been asked already
+(defun make (&optional files *abi* *cpu* walk force)
+	; (make [files abi cpu walk force])
+	;the functions that have changed, of the files and all they include, in
+	;two stages. A file's VP is made again if anything it is made of is
+	;newer than the VP of any of its functions, and this platform's code of
+	;it with it. The code of the other files is made again, from their VP,
+	;if anything they are made of, or this platform's translator, is newer
+	;than it, or of all of them with force. walk is what (all-build-files)
+	;gave, if it has been asked already
 	(bind '(vps classes) (ifn walk (all-build-files)))
 	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
-	(compile ((lambda ()
-		(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil)
-		;list of all file imports while defining dependencies and products
-		(within-compile-env (lambda ()
-			(class-env classes)
-			(each-mergeable (#
-				(bind '(d p) (make-info %0))
-				(merge files d)
-				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
-		(if scanned (scans-save scans))
-		(newest-ages files)
-		;filter to only the .vp files
-		(setq files (filter (# (ends-with ".vp" %0)) files))
-		;filter to only the files who's oldest product is older than any dependency
-		(setq files (filter (#
-			(>= (get (sym %0) newest) (reduce min (map (const file-age) (second (get (sym %0) info))) +max_long))) files))
-		;return the list to compile
-		files)) *abi* *cpu*))
+	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
+		dir (vp-dir *build_mode*))
+	;list of all file imports while defining dependencies and functions
+	(within-compile-env (lambda ()
+		(class-env classes)
+		(each-mergeable (#
+			(bind '(d p) (make-info %0))
+			(merge files d)
+			(def info (sym %0) (list d p))) files)))
+	(if scanned (scans-save scans))
+	(newest-ages files)
+	(setq files (filter (# (ends-with ".vp" %0)) files))
+	;the VP stage, the files with anything newer than their VP: their VP,
+	;and this platform's code at once
+	(defq made (made-dir *build_mode*)
+		vp_files (filter (# (>= (get (sym %0) newest) (age (cat made %0)))) files))
+	(bind '(& errors) (vp-stage vp_files *abi* *cpu*))
+	;the translate stage, the other files whose VP, sources or this
+	;platform's translator are newer than this platform's stamp of them:
+	;their VP, from another platform's VP stage or one before, to this
+	;platform's code. Newer, not as new, for the VP: the two stages of one
+	;build may write both in the same second, and the age is of a second
+	(defq trans_age (max (age "lib/trans/vp.inc") (age (cat "lib/trans/" *cpu* ".inc"))))
+	(bind '(& more) (translate-stage (filter (lambda (file)
+		(and (not (find file vp_files))
+			(or force
+				(>= (get (sym file) newest) (defq done (age (cat "obj/" *cpu* "/" *abi* "/" file))))
+				(> trans_age done) (> (age (cat made file)) done)))) files) *abi* *cpu*))
+	(each (const print) (cat errors more))
+	(print "Done") :nil)
 
 (defun make-boot-all (&optional *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu))
@@ -244,8 +334,11 @@
 			(boot-funcs *prods*))) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu* walk)
-	(setd *abi* (abi) *cpu* (cpu))
-	(compile (ifn files (all-vp-files)) *abi* *cpu*))
+	; (make-all [files abi cpu walk])
+	;all of this platform's code of the files, whether or not it has
+	;changed. The VP is made again only where it has, the rest of the code
+	;is translated from the VP kept
+	(make files *abi* *cpu* walk :t))
 
 (defun remake (&optional files *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu) walk (all-build-files))

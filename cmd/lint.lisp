@@ -7,19 +7,17 @@
 
     options:
         -h --help: this help info.
-        -k --keep: leave the debug build, do not make the
-            release build again after.
         -v --verbose: say what each step took.
 
     The lint of the VP source, all of it in the one go.
 
     The trace lint works out what each function really
     trashes, and says where that is not what its header has
-    written down. It is only right on a debug build, so this
-    makes one, 'make vp debug' then 'make apps debug', runs
-    'files obj/vp/ | trace -i -l', and puts the builds
-    back as they are with no mode, 'make vp', 'make apps'
-    then 'make all boot'.
+    written down. It is only right on a debug build, and a
+    build keeps the VP of each mode it makes, obj/vp/<mode>/,
+    so this makes what has changed, 'make' then 'make apps',
+    which are debug, and runs
+    'files obj/vp/debug/ | trace -i -l'.
 
     Then 'relies -q', on the same debug build: where a
     function reads a register after a call that is declared
@@ -27,7 +25,6 @@
 
     Prints what the lint and the builds have to say, which
     is nothing when all is well, then a line to say so.")
-(("-k" "--keep") ,(opt-flag 'opt_k))
 (("-v" "--verbose") ,(opt-flag 'opt_v))
 ))
 
@@ -49,20 +46,15 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_k :nil opt_v :nil args (options stdio usage)))
+			(defq opt_v :nil args (options stdio usage)))
 		;all that is said goes into the one list, as it is said
 		(defq t0 (pii-time) said (list))
-		(build-errors "make vp debug" said)
-		(build-errors "make apps debug" said)
-		(each (# (push said %0)) (run-step "files obj/vp/ | trace -i -l"))
+		(build-errors "make" said)
+		(build-errors "make apps" said)
+		(each (# (push said %0)) (run-step "files obj/vp/debug/ | trace -i -l"))
 		;and where a register is read after a call that is declared to
 		;trash it: what trace does not see, it is of what calls
 		(each (# (push said %0)) (run-step "relies -q"))
-		(unless opt_k
-			(build-errors "make vp" said)
-			(build-errors "make apps" said)
-			(build-errors "make all boot" said))
 		(each (const print) said)
 		(print (if (empty? said) "lint: clean" "lint: see above")
-			", " (/ (- (pii-time) t0) 1000) "ms"
-			(if opt_k ", the debug build is left" ""))))
+			", " (/ (- (pii-time) t0) 1000) "ms")))

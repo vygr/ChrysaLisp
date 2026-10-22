@@ -1628,7 +1628,9 @@
 ;build_mode 0, release, strip all error checking
 ;build_mode 1, normal, with error checking
 ;build_mode 2, validate, with extra runtime validation checking
-(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0)
+;build_vp, a build's VP stage, the folder each function's VP is kept in,
+;obj/vp/<mode>/, and not assembled, see lib/asm/asm.inc
+(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0 *build_vp* :nil *build_file* :nil)
 
 ;what this machine is, the names the build and the object folders have,
 ;obj/<cpu>/<abi>/<os>. The host program says, it was built for them. They

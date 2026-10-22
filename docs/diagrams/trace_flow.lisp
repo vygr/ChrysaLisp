@@ -1,6 +1,6 @@
 ;docs/ai_digest/trace_command.md: from the built functions to what each really trashes
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
-(dia-put s 'obj (dia-box '("obj/vp/" "every function, as it was built") 200 44 grey 11 :first) 0 0)
+(dia-put s 'obj (dia-box '("obj/vp/debug/" "every function's VP, as it was built") 200 44 grey 11 :first) 0 0)
 (dia-put s 'deps (dia-box '("get-dependencies" "what each calls: a static call by name," "a virtual call by every class that has it") 265 62 blue 11 :first) 225 -9)
 (dia-put s 'sort (dia-box '("tsort" "leaves first, so what a function" "calls is known before it is") 215 62 blue 11 :first) 515 -9)
 (dia-put s 'ana (dia-box '("analyze-function" "runs the instructions with names for values:" "copied, spilled to the stack and put back, changed") 300 62 gold 11 :first) 0 110)

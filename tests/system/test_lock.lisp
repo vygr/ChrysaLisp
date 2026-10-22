@@ -104,7 +104,7 @@
 (pipe-run "trace sys/task/dump" (lambda (&) :nil))
 (defq hist6 (lock-history-rpc))
 (assert-true "lock-history contains trace read lock"
-	(nempty? (some (# (if (eql %0 "obj/vp/ (lock read)") %0)) hist6)))
+	(nempty? (some (# (if (eql %0 "obj/vp/debug/ (lock read)") %0)) hist6)))
 
 ; --- Test head and tail command locking ---
 (pipe-run "echo test_line | save tmp_head_tail.txt" (lambda (&) :nil))
