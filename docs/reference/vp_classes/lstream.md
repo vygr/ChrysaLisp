@@ -37,6 +37,18 @@ trashes
 :r1-:r9, :f0-:f15
 ```
 
+### :fault -> class/lstream/fault
+
+```code
+inputs
+:r0 = lstream object (ptr)
+outputs
+:r0 = lstream object (ptr)
+:r1 = 0, else error object of the fill that ended it (ptr)
+trashes
+:r1
+```
+
 ### :fill -> class/lstream/fill
 
 ```code

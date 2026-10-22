@@ -48,6 +48,22 @@ docs/reference/vp_classes/stream.cwb
 
 ## VP methods
 
+### :at_end -> class/stream/at_end
+
+```code
+inputs
+:r0 = stream object (ptr)
+:r1 = what a read at the end gives (ptr)
+outputs
+:r0 = stream object (ptr)
+:r1 = that, or the stream's fault in its place (ptr)
+trashes
+:r1-:r3, :f0-:f15
+info
+the end of a stream that ended of a fault is that fault, an error, so
+what reads it throws it
+```
+
 ### :avail -> class/stream/avail
 
 ```code
@@ -69,6 +85,18 @@ outputs
 :r0 = stream object (ptr)
 trashes
 :r1-:r2, :f0-:f15
+```
+
+### :fault -> class/stream/fault
+
+```code
+inputs
+:r0 = stream object (ptr)
+outputs
+:r0 = stream object (ptr)
+:r1 = 0, else error object (ptr)
+trashes
+:r1
 ```
 
 ### :flush -> class/stream/flush
