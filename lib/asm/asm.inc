@@ -106,8 +106,12 @@
 (defun class-env (classes)
 	;in a compile env, the classes declared, all that make-info needs to
 	;know the function of a method. Not lib/asm/func.inc, the assembler
-	;and the translator, a third of the time of a make with nothing to do
+	;and the translator, a third of the time of a make with nothing to do.
+	;But lib/asm/vp.inc: class.inc files take (const vp-push) and the like
+	;as they are read, and an unbound symbol is not checked on a release
+	;build, the VP64 of the snapshot that installs, it is a crash
 	(include "lib/asm/class.inc")
+	(include "lib/asm/vp.inc")
 	(include "sys/pii/abi.inc")
 	(include "sys/statics/class.inc")
 	(each include classes))
