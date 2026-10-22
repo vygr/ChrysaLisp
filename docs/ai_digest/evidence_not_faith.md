@@ -24,35 +24,41 @@ cold, and hermetic lifecycle across a shared-nothing cluster:
 docs/diagrams/build_cycle.cwb
 ```
 
-### 1. Phase 1: Synthesizing 28 Independent Toolchains Across 16 Nodes
+### 1. Phase 1: Synthesizing 16 Independent Toolchains Across 16 Nodes
 
 Before the build command executes, **no assembler, compiler, or code generator
 exists in memory on any node**. Because ChrysaLisp uses a strictly isolated,
 task-centric memory model across its nodes:
 
-* **28 Task-Isolated Syntheses:** The make pipeline (`lib/asm/asm.inc`) uses
+* **16 Task-Isolated Syntheses:** The make pipeline (`lib/asm/asm.inc`) uses
   `lib/task/local.inc` to spawn a herd of worker tasks (`lib/asm/asm.lisp`)
-  across the 16 VP nodes. The herd starts as a tenth of the number of source
-  files, 13 for the 135 `.vp` files, and has one more for each node other
-  than the one that asked, so 28 worker tasks on 16 nodes.
+  across the 16 VP nodes, one for each node of the machine. Each worker sets
+  up its compiler before its first file, about 8 ms of CPU on the M4, so a
+  worker more than there are nodes only adds that. Until 2026-10-22 the herd
+  was a tenth of the files and one more for each other node, 28 for 16 nodes
+  and 65 for 19, and as much CPU went on setting up as on compiling.
+
+* **Biggest First:** The files are queued by size, the biggest given out
+  first, so the small ones fill in at the end and the workers all finish
+  within a couple of ms of each other.
 
 * **Task-Local `within-compile-env` Environments:** While worker tasks share the
   root environment of their host node, the compilation environment is scoped per
   task. Each of the 28 worker tasks enters its own `(within-compile-env ...)`
   block, independently synthesizing its own private compiler environment from
-  scratch in parallel.
+  scratch in parallel. The 16 worker tasks each do this once.
 
 * **Zero-State Bootstrapping:** In the first fraction of a millisecond, each
   worker task evaluates `lib/asm/`, macro generators (`def-class`, `def-method`,
   `assign`), register allocation tables, and vpx transpilers.
 
-* **RAM-Native Toolchains:** Within microseconds, 28 complete, fully
+* **RAM-Native Toolchains:** Within milliseconds, 16 complete, fully
   functional native assembly engines are live in RAM across the 16-node
   cluster.
 
-### 2. Phase 2: Distributed Parallel Execution Across 28 Worker Tasks
+### 2. Phase 2: Distributed Parallel Execution Across 16 Worker Tasks
 
-Once the 28 worker tasks across the 16 nodes have independently synthesized
+Once the 16 worker tasks across the 16 nodes have independently synthesized
 their toolchains, the build workload is dynamically distributed:
 
 * **16 Host OS Processes:** The host kernel (macOS) actively schedules and
@@ -90,7 +96,7 @@ As soon as all compilation jobs finish and each worker task exits:
   structures are dereferenced, and memory cells are returned to the allocator
   via `:sys_mem :collect`.
 
-* **No Lingering State:** The 28 toolchain instances **do not remain cached in
+* **No Lingering State:** The 16 toolchain instances **do not remain cached in
   memory** between build cycles. The next run begins again from absolute zero.
 
 ## The Benchmarks: Multi-Platform Build Analysis
@@ -135,6 +141,25 @@ than processors no longer helps.
 These are quicker than the 0.070 seconds, on 20 nodes, that this document gave
 until 2026-10-03. The difference is the work on the Lisp engine, see
 [`docs/ai_digest/till_the_pips_squeak.md`](till_the_pips_squeak.md).
+
+By 2026-10-22 the source had grown to 142 `.vp` files and the M4 mean on 16
+nodes was 0.074 seconds, the worst run up to 0.090. Profiled serially, one
+core took 0.40 seconds for the whole tree: VP to native translation 132 ms of
+it, evaluating the function bodies 107 ms, the VP optimiser 37 ms, emitting
+41 ms, writing the 1,032 function files 40 ms. Two changes brought it back:
+the herd of one worker a node, biggest file first, above, and translation
+that stops as soon as a pass leaves every label where it was, which saves
+a pass of each function, 132 to 104 ms. Every product of all six platforms
+was the same, byte for byte. Three interleaved runs each, 16 nodes:
+
+| `make test` on the M4 | Mean | Best | Worst |
+|---|---|---|---|
+| Before, 2026-10-22 | 0.073 to 0.074 | 0.059 to 0.068 | 0.081 to 0.090 |
+| After | 0.057 to 0.059 | 0.055 to 0.056 | 0.059 to 0.066 |
+
+On 19 nodes the mean went from 0.074 to 0.056, and on one node from 0.405
+to 0.375. Splitting files into parcels of several was tried and made no
+difference: with the biggest first the herd was already even.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 

@@ -17,7 +17,11 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(unless (list?? files) (setq files (list files)))
 	(when (nempty? files)
-		(shuffle files)
+		;the biggest first, the queue goes from the end. With the small
+		;ones last the workers all end at much the same time, shuffled
+		;one of them could be left with a big one when the others are done
+		(setq files (map (const second) (sort (map (# (list (second (pii-fstat %0)) %0)) files)
+			(# (- (first %0) (first %1))))))
 		;a job is started again if its node goes. The timeout is only for a
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
@@ -25,13 +29,11 @@
 			told 0
 			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			max_workers (length files)
-			;a tenth of the files, and a tenth of that again for each more
-			;node. On one node a worker is all there is to gain, more of
-			;them only each set up to compile, and it was timed
-			init_workers (if (> (length (lisp-nodes :t)) 1) (/ (* max_workers 10) 100) 1)
-			new_workers (/ (* init_workers 10) 100)
+			;a worker for each node of this machine. Each has to set up to
+			;compile before its first file, more of them than that only
+			;each pay for it, and it was timed
 			jobs (Jobs "lib/asm/asm.lisp" (elem-get select +select_launch)
-				(elem-get select +select_reply) (list max_workers init_workers new_workers)))
+				(elem-get select +select_reply) (list max_workers 1 1)))
 		(. jobs :add (map (# (cat (const (str-alloc +job_size))
 			(str (list (list %0) *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*)))) files))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)

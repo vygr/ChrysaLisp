@@ -175,7 +175,7 @@
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
 	(defq emit_code (emit-prepass emit_code)
-		buf "" last_buf "" *offsets* (cap 64 (list))
+		buf "" last_buf "" *offsets* (cap 64 (list)) labels (list)
 		*pass* 0 *stream* (string-stream buf) *pc* 0)
 	(each! (lambda (inst)
 			;map vp reg syms to native reg nums
@@ -184,7 +184,8 @@
 			;create label and branch initial values
 			(cond
 				((eql (defq op (first inst)) 'emit-label)
-					(def (penv) (last (last inst)) 0))
+					(def (penv) (defq label (last (last inst))) 0)
+					(push labels label))
 				((pfind +emit_jmps op)
 					(push inst (dec (length (push *offsets* 0))))))
 			;bind emit func
@@ -200,13 +201,20 @@
 	;changing, then no label moves, and the next pass is the same. One
 	;that could get shorter can go to and fro with a label for ever: the
 	;LoongArch and the RISC-V had two, found 2026-10-12
+	;
+	;What a pass gives goes only by where the labels are and how far each
+	;branch has had to go. If no label has moved since the pass before,
+	;each branch was given its true place, none goes further, and the next
+	;pass would be the same: it is not run
 	(eval emit_code)
 	(setq buf (str *stream*) *pass* (inc *pass*))
-	(until (eql buf last_buf)
+	(defq at (map (const eval) labels) last_at :nil)
+	(until (and last_at (every (const =) at last_at))
 		(task-slice)
 		(defq b last_buf last_buf buf *stream* (string-stream b) *pc* 0)
 		(eval emit_code)
-		(setq buf (str *stream*) *pass* (inc *pass*)))
+		(setq buf (str *stream*) *pass* (inc *pass*)
+			last_at at at (map (const eval) labels)))
 	buf)
 
 ;module
