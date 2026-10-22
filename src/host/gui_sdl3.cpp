@@ -256,7 +256,29 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 		}
 	}
 	window = SDL_CreateWindow("ChrysaLisp GUI Window", rect->w, rect->h,
-		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0) | (hidden ? SDL_WINDOW_HIDDEN : 0));
+		SDL_WINDOW_RESIZABLE | (bare ? SDL_WINDOW_VULKAN : 0) | (hidden ? SDL_WINDOW_HIDDEN : 0)
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID)
+		| SDL_WINDOW_FULLSCREEN
+#endif
+		);
+#if defined(SDL_PLATFORM_IOS) || defined(SDL_PLATFORM_ANDROID)
+	// a phone or a tablet has the window the whole screen, whatever size was
+	// asked for, and the GUI is told the size it is, as with a bare display
+	if (window)
+	{
+#if defined(SDL_PLATFORM_ANDROID)
+		auto scale = SDL_GetDisplayContentScale(SDL_GetDisplayForWindow(window));
+		if (scale >= 1.0f) host_gui_sdl3_scale = scale;
+#endif
+		int w = 0, h = 0;
+		SDL_GetWindowSize(window, &w, &h);
+		if (w > 0 && h > 0)
+		{
+			rect->w = (uint64_t)(w / host_gui_sdl3_scale);
+			rect->h = (uint64_t)(h / host_gui_sdl3_scale);
+		}
+	}
+#endif
 	// the GPU renderer if there is one, so that a shader can share its device
 	device = create_device();
 #if HOST_GUI_GPU

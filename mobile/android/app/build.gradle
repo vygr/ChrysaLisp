@@ -1,0 +1,66 @@
+// ChrysaLisp for Android: SDL3's activity, from its source in mobile/deps/SDL,
+// and libmain.so, the GUI host program run in the VP64 emulator, built by
+// mobile/CMakeLists.txt. The files of the system are an asset, the tar
+// mobile/bundle.sh makes, see mobile/android/build.sh
+
+plugins {
+    id 'com.android.application'
+}
+
+def mobile = file('../..')
+
+android {
+    namespace = 'org.chrysalisp.app'
+    compileSdk 36
+    ndkVersion = project.findProperty('ndkVersion') ?: '30.0.15729638'
+
+    defaultConfig {
+        applicationId 'org.chrysalisp.app'
+        // posix_spawn, of pii_linux.cpp, is there from 28 on
+        minSdk 28
+        targetSdk 36
+        versionCode 1
+        versionName '1.0'
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-28'
+                abiFilters 'arm64-v8a', 'x86_64'
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // signed with the debug key, to be run, not published
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    sourceSets.main {
+        java.srcDirs += "${mobile}/deps/SDL/android-project/app/src/main/java"
+        assets.srcDirs = ["${mobile}/build/assets"]
+    }
+
+    // the tar is read as it is, not inflated first
+    androidResources {
+        noCompress 'tar'
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "${mobile}/CMakeLists.txt"
+            version '4.1.2'
+            buildStagingDirectory "${mobile}/build/android_cxx"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError = false
+    }
+}
