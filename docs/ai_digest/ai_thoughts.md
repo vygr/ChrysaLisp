@@ -298,6 +298,42 @@ than wanted. The fix knew nothing more: the pipe sends a line of its own
 that loads the file. A form that is known can not fail, so it does the
 reporting.
 
+### The program is the VP
+
+On the 22nd of October the VP stopped being a step on the way to six
+programs and became the program. 947 of the system's 1,033 functions
+already compiled to the same VP on every platform; the other 86 knew
+something they had no business knowing: which registers a host's C ABI
+wants its arguments in, which it trashes, what a CPU keeps when a task is
+switched, where its objects live. Each was moved to the one place that
+owns it, the translator of that CPU, and the VP of every function came out
+the same on all six. Then the build could compile a file once and
+translate it for each platform, and do only what had changed: the VP when
+the source changes, the code when the VP or that translator does.
+
+Two things made a change this deep safe to make in a day. Every step was
+compared byte for byte, every object of every platform, the old build
+against the new, so "it should be the same" was a comparison and not a
+belief. And every claim of speed was timed, the old and the new run in
+turn, on the same machine. The comparison caught a stop rule for the
+translator that was right on ARM and wrong on x86, before anything ran.
+The timing showed that what made the new build slower on one platform was
+not the number of files it wrote, which was the story, but the one task
+of the farm doing in turn what the workers could do at once.
+
+What the comparisons could not catch was a symbol that was not bound. A
+checked build makes it an error value and carries on; the release image,
+the one an install runs, reads whatever is there. The builds were the same,
+the tests passed, and an install from the snapshot crashed. It was found
+under Wine and bisected in an hour, by installing each commit in a scratch
+tree. A debug build is not the only build; the image that installs gets
+its own run after any change to the build.
+
+A question settled a thing that could have taken an afternoon of tests:
+were the VP64's ten times longer timeouts needed? A Pi 4 is about as fast
+as the VP64 on an M4, and the Pi had always run the short ones. The
+evidence was already there, in another machine.
+
 ### On being an AI working in it
 
 The code base is small and regular enough to hold whole, and the
