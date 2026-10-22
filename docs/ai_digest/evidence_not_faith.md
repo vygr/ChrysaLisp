@@ -257,11 +257,11 @@ Every function's VP, all six platforms, the same: 1,033 of 1,033 built
 debug, 1,032 of 1,032 built release.
 
 So a build now has two stages. The VP stage compiles a source file once
-for a build mode, keeps each function's VP in `obj/vp/<mode>/` and a
-manifest of the functions it made, and translates it for the platform it
-is building at once. The translate stage gives the other platforms their
+for a build mode, keeps the VP of its functions in a bundle under the
+file's name in `obj/vp/<mode>/`, and translates it for the platform it is
+building at once. The translate stage gives the other platforms their
 code from the VP kept. Each stage does only what has changed: a file's VP
-when its sources are newer than its manifest, a platform's code of a file
+when its sources are newer than its bundle, a platform's code of a file
 when its VP, its sources or that platform's translator are newer than the
 platform's stamp of it. A change to a translator rebuilds that platform's
 code, from the VP kept, and nothing else, which the old `make` did not see
@@ -286,6 +286,22 @@ release again: every debug build keeps the debug VP the trace reads. The
 one that is not quicker is `make test`, a build of everything from source
 ten times over: it writes the 1,033 files of VP as well, about 4 ms a
 build on 19 nodes, 0.051 to 0.059.
+
+At first each function's VP was a file of its own, 1,033 of them, and the
+farm's own task took a line from the workers for each function and wrote a
+manifest and a stamp for each source file, one after another. A bundle of
+each source file, written by the worker that made it, with its stamp, made
+142 files written at once, and a file that goes wrong has no bundle. The
+tools find a function in its bundle by an index of the first line of each
+entry. Interleaved, 4 runs each, means:
+
+| On the M4 | A file a function | A bundle a file |
+|---|---|---|
+| `make test`, from source | 0.0634 | 0.0550 |
+| `make all platforms` | 0.240 | 0.206 |
+| `make all`, the VP kept | 0.0471 | 0.0427 |
+| `make platforms`, nothing to do | 0.0513 | 0.0512 |
+| `lint` | 0.69 s | 0.77 s |
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 

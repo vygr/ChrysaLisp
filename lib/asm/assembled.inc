@@ -1,8 +1,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a function as it was assembled, read back
 ;
-; A build keeps each function's VP as text, obj/vp/<mode>/, the debug
-; of it in obj/vp/debug/, see lib/asm/asm.inc. This reads one, and says where control goes from
+; A build keeps the VP of each source file's functions as text, a bundle
+; of them under the file's name in obj/vp/<mode>/, the debug of it in
+; obj/vp/debug/, see lib/asm/asm.inc. This finds a function's, reads it, and says where control goes from
 ; each instruction. It is what the commands that see a function whole
 ; stand on, (locals) and (relies).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11,6 +12,8 @@
 (env-push)
 
 (defq +obj_dir "obj/vp/debug/" +jit_dir "lib/gpu/jit/"
+	;all of the VP kept, of every mode, what a reader of it locks
+	+vp_root "obj/vp/"
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
 	+load_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
@@ -22,6 +25,44 @@
 	;what is not an instruction of the function at all
 	+data_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long))
 
+(defun vp-index ()
+	; (vp-index) -> fmap
+	;of each function, the bundle its VP is in, found once. An entry of a
+	;bundle starts with a line of the name, ("name"
+	(memoize :index (progn
+		(defq index (Fmap 101))
+		(each (lambda (path)
+			(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
+				(. index :insert (slice %0 2 -2) path)) :nil) (file-stream path)))
+			(files-all (slice +obj_dir 0 -2) '("")))
+		index) 1))
+
+(defun vp-listing (function)
+	; (vp-listing function) -> :nil | (insts form ...)
+	;the VP of a function, its instructions and the forms after them
+	(when (defq path (. (vp-index) :find function))
+		(defq stream (file-stream path) found :nil)
+		(while (and (not found) (defq entry (first (read stream))))
+			(if (eql (first entry) function) (setq found (rest entry))))
+		found))
+
+(defun vp-functions-of (args)
+	; (vp-functions-of args) -> (function ...)
+	;the functions named, a bundle's own, obj/vp/debug/<file>, for each of
+	;a bundle given, or all of them for none
+	(cond
+		((empty? args)
+			(defq all (list))
+			(. (vp-index) :each (lambda (k v) (push all k)))
+			(sort all))
+		((reduce (lambda (out arg)
+			(cond
+				((and (starts-with +obj_dir arg) (/= (age arg) 0))
+					(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
+						(push out (slice %0 2 -2))) :nil) (file-stream arg))
+					out)
+				((push out arg)))) args (list)))))
+
 (defun insts-of (function)
 	; (insts-of function) -> :nil | (insts labels start frames)
 	;the instructions of a function, from where it is entered to where
@@ -29,9 +70,9 @@
 	;header, which has the two labels. And what its frames of named
 	;locals were, the form after the instructions, if it has any: each
 	;(which_alloc size ((name offset type) ...))
-	(when (and (defq stream (file-stream (cat +obj_dir function)))
-			(defq all (first (read stream))) (> (length all) 4))
-		(defq head (elem-get all 3) labels (Fmap 31) more (first (read stream)))
+	(when (and (defq listing (vp-listing function))
+			(defq all (first listing)) (> (length all) 4))
+		(defq head (elem-get all 3) labels (Fmap 31) more (second listing))
 		(each (# (if (find (first %0) '(emit-label emit-tlabel)) (. labels :insert (last (second %0)) (!)))) all)
 		(and (eql (first head) 'emit-short) (>= (length head) 4)
 			(defq start (. labels :find (third head))) (defq end (. labels :find (elem-get head 3)))
@@ -69,6 +110,6 @@
 		insts))
 
 ;module
-(export-symbols '(insts-of regs-of target-of next-of
-	+obj_dir +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
+(export-symbols '(insts-of vp-index vp-listing vp-functions-of regs-of target-of next-of
+	+obj_dir +vp_root +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
 (env-pop)

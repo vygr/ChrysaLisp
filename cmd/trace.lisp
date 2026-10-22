@@ -5,6 +5,7 @@
 (import "lib/asm/ops.inc")
 (import "lib/text/tree.inc")
 (import "service/lock/app.inc")
+(import "lib/asm/assembled.inc")
 
 
 (defq usage `(
@@ -31,8 +32,7 @@
 (("-i" "--integrity") ,(opt-flag 'opt_i))
 ))
 
-(defq +obj_dir "obj/vp/debug/" +jit_dir "lib/gpu/jit/"
-	+all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
+(defq +all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
 	+all_abi_trashed_regs (list quote +vp_fregs)
 	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack")
 	;a change of task in line: another task runs before it comes back, so
@@ -179,8 +179,7 @@
 (defun get-function-insts (function)
 	; (get-function-insts function) -> :nil | insts
 	(defq e (penv) insts (memoize function
-		(when (> (age (defq obj_path (cat +obj_dir function))) 0)
-			(defq loaded_insts (first (read (file-stream obj_path))))
+		(when (defq loaded_insts (first (vp-listing function)))
 			(and opt_i loaded_insts
 				(check-insts-integrity function loaded_insts))
 			loaded_insts) 101))
@@ -494,13 +493,11 @@
 		(if (empty? (defq functions (rest args)))
 			(lines! (# (push functions %0) :nil) (io-stream 'stdin)))
 		(when (nempty? functions)
-			(with-read-lock +obj_dir
+			(with-read-lock +vp_root
 				(if opt_w (setq opt_l :t))
 				;a shader that was assembled as it ran has no source to check
 				;it against, so those are left out
-				(defq functions (filter (# (not (starts-with +jit_dir %0)))
-						(map (# (if (starts-with +obj_dir %0)
-							(slice %0 (const (length +obj_dir)) -1) %0)) functions))
+				(defq functions (filter (# (not (starts-with +jit_dir %0))) (vp-functions-of functions))
 					*class_db* (files-classes-info)
 					*doc_db* (files-function-info *class_db*)
 					db (propagate-trashes functions))

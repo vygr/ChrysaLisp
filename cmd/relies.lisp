@@ -353,10 +353,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_v :nil opt_q :nil opt_s :nil args (options stdio usage)))
 		(defq functions (rest args))
-		(if (empty? functions)
-			(setq functions (filter (# (not (starts-with +jit_dir %0)))
-				(sort (map (# (slice %0 (length +obj_dir) -1)) (files-all (slice +obj_dir 0 -2) '(""))))))
-			(setq functions (map (# (if (starts-with +obj_dir %0) (slice %0 (length +obj_dir) -1) %0)) functions)))
+		(setq functions (filter (# (not (starts-with +jit_dir %0))) (vp-functions-of functions)))
 		(cond
 			((not (defq class_db (files-classes-info)))
 				(print "The classes could not be read."))

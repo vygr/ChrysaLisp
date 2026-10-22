@@ -194,22 +194,20 @@
 	(defq *emit_code* (emit-vp-code *emit_list*))
 	(when *build_vp*
 		;a build's VP stage: the function's VP, the same for every platform,
-		;kept in obj/vp/<mode>/ for the other platforms' translate stage and
-		;for trace, vpstats and the rest. The instructions, and after them,
-		;where what reads only the one form does not see it, what the frames
-		;of named locals were, which of them were kept in registers, and the
-		;stack alignment the translator is to keep
+		;an entry of its source file's bundle, obj/vp/<mode>/<file>, for the
+		;other platforms' translate stage and for trace and the rest. Its
+		;name, the instructions, and after them, what the frames of named
+		;locals were, which of them were kept in registers, and the stack
+		;alignment the translator is to keep
 		(defq *out* (cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
 				(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
 				*emit_code*) "\n") ")"
 			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
 			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")
 			"\n" (str (list 'align *func_align*))))
-		(save *out* (cat *build_vp* (str *func_name*)))
-		(if *build_emit* (print *out*))
-		;the function made, and of what file, to the build, for the other
-		;platforms
-		(print "=> " *build_file* " " (str *func_name*)))
+		(push *build_bundle* (cat (const (cat "(" (ascii-char 34))) (str *func_name*)
+			(const (cat (ascii-char 34) "\n")) *out* ")\n"))
+		(if *build_emit* (print *out*)))
 	;and assembled for this platform at once
 	(defq *out* (emit-translate *emit_code*))
 	;the header has 16 bits for the length, and for where the links and paths are

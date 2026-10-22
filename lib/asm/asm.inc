@@ -17,15 +17,9 @@
 
 (defun vp-dir (mode)
 	; (vp-dir mode) -> path
-	;where a build mode's VP is kept, obj/vp/<mode>/, a file for each
-	;function and nothing else, trace and the rest read them all
+	;where a build mode's VP is kept, obj/vp/<mode>/, a bundle for each
+	;source file of the VP of its functions, under the file's own name
 	(cat "obj/vp/" (elem-get +vp_modes mode) "/"))
-
-(defun made-dir (mode)
-	; (made-dir mode) -> path
-	;where the manifests of a build mode's VP are kept, beside it,
-	;obj/vp/<mode>_files/, a file for each source file
-	(cat "obj/vp/" (elem-get +vp_modes mode) "_files/"))
 
 (defun biggest-first (units sizes)
 	;the units in the order the queue gives them out, the biggest first,
@@ -34,14 +28,14 @@
 	(map (const second) (sort (map (const list) sizes units) (# (- (first %0) (first %1))))))
 
 (defun farm-jobs (kind units *abi* *cpu*)
-	; (farm-jobs kind units abi cpu) -> (made errors)
+	; (farm-jobs kind units abi cpu) -> (made errors), made is always ()
 	;each unit a job for a herd of workers, lib/asm/asm.lisp, a worker for
 	;each node of this machine: each has to set up to compile before its
 	;first job, more of them than that only each pay for it. kind :vp is a
-	;list of source files, their VP to (vp-dir), :trans a list of
-	;functions, their VP to this platform's code. What a worker says is
-	;printed, but the names a VP job gives of the functions it made, they
-	;are the made of the result, and the errors
+	;list of source files, their bundles of VP to (vp-dir) and this
+	;platform's code, :trans a list of source files, their bundles to this
+	;platform's code. The worker stamps each file for the platform as it
+	;is done. What a worker says is printed, the errors are the result
 	(defq made (list) errors (list))
 	(when (nempty? units)
 		;a job is started again if its node goes. The timeout is only for a
@@ -72,7 +66,6 @@
 						((starts-with "Error:" %0)
 							(push errors %0)
 							(setq error_flag :t))
-						((starts-with "=> " %0) (push made (slice %0 3 -1)))
 						((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
@@ -94,48 +87,23 @@
 		(. jobs :close))
 	(list made errors))
 
-(defun stamp (files *abi* *cpu*)
-	;a platform's stamp of each file, beside its code of the functions of it
-	;under the file's own name: when this platform's code of the file was
-	;made, all that the check of a build with nothing to do has to ask
-	(each (# (save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) files))
-
-(defun manifest (file)
-	; (manifest file) -> :nil | (name ...)
-	;the functions of the file the VP stage made, :nil if it has not
-	(if (defq text (load (cat (made-dir *build_mode*) file))) (first (read (string-stream text)))))
-
 (defun vp-stage (files *abi* *cpu*)
 	; (vp-stage files abi cpu) -> (made errors)
 	;the VP of the functions of the source files, the same for every
-	;platform, kept in (vp-dir) of the build mode, and this platform's code
-	;of it at once. And of each file a manifest, in (made-dir), of the
-	;functions it made: they are what the other
-	;platforms translate, a scan of the source can not say, a function in
-	;an (errorcase) is only made in some modes
-	(defq dir (vp-dir *build_mode*) manifests (Fmap 31))
-	(bind '(made errors) (farm-jobs :vp (map (const list)
-		(biggest-first files (map (# (second (pii-fstat %0))) files))) *abi* *cpu*))
-	(each (# (bind '(file name) (split %0 " "))
-		(. manifests :update file (# (if %0 (push %0 name) (list name))))) made)
-	;none if anything went wrong, a manifest is newer than its source and it
-	;would be taken that the file was made, the next build makes them again.
-	;This platform's code of them is made with it, its stamp says so
-	(when (empty? errors)
-		(each (# (save (str (ifn (. manifests :find %0) (list))) (cat (made-dir *build_mode*) %0))) files)
-		(stamp files *abi* *cpu*))
-	(list made errors))
+	;platform, a bundle of each file in (vp-dir) of the build mode, and this
+	;platform's code of it at once. The bundle is what the other platforms
+	;translate, not a scan of the source, a function in an (errorcase) is
+	;only made in some modes. A file that goes wrong has none written
+	(farm-jobs :vp (map (const list) (biggest-first files (map (# (second (pii-fstat %0))) files)))
+		*abi* *cpu*))
 
 (defun translate-stage (files *abi* *cpu*)
 	; (translate-stage files abi cpu) -> (made errors)
-	;the VP of the functions of those source files, as their manifests have
-	;them, to this platform's code. A job is a file's functions, the
-	;biggest first, and the file stamped for this platform when all went
-	(defq units (map (# (ifn (manifest %0) (list))) files))
-	(bind '(made errors) (farm-jobs :trans
-		(biggest-first units (map (const length) units)) *abi* *cpu*))
-	(if (empty? errors) (stamp files *abi* *cpu*))
-	(list made errors))
+	;the bundles of the source files to this platform's code, a job a
+	;file, the biggest first
+	(defq dir (vp-dir *build_mode*))
+	(farm-jobs :trans (map (const list)
+		(biggest-first files (map (# (second (pii-fstat (cat dir %0)))) files))) *abi* *cpu*))
 
 (defun compile (files &optional *abi* *cpu*)
 	; (compile files [abi cpu])
@@ -296,10 +264,9 @@
 	(if scanned (scans-save scans))
 	(newest-ages files)
 	(setq files (filter (# (ends-with ".vp" %0)) files))
-	;the VP stage, the files with anything newer than their VP: their VP,
-	;and this platform's code at once
-	(defq made (made-dir *build_mode*)
-		vp_files (filter (# (>= (get (sym %0) newest) (age (cat made %0)))) files))
+	;the VP stage, the files with anything newer than their bundle of VP:
+	;their VP, and this platform's code at once
+	(defq vp_files (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files))
 	(bind '(& errors) (vp-stage vp_files *abi* *cpu*))
 	;the translate stage, the other files whose VP, sources or this
 	;platform's translator are newer than this platform's stamp of them:
@@ -311,7 +278,7 @@
 		(and (not (find file vp_files))
 			(or force
 				(>= (get (sym file) newest) (defq done (age (cat "obj/" *cpu* "/" *abi* "/" file))))
-				(> trans_age done) (> (age (cat made file)) done)))) files) *abi* *cpu*))
+				(> trans_age done) (> (age (cat dir file)) done)))) files) *abi* *cpu*))
 	(each (const print) (cat errors more))
 	(print "Done") :nil)
 

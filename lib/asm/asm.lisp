@@ -43,15 +43,20 @@
 					(each (# (def *compile_env* %0 %1))
 						'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb* *build_vp*)
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
-					;a VP job is source files, their functions' VP to *build_vp*, a
-					;translate job is functions, their VP to this platform's code,
-					;and catch any errors
+					;a VP job is source files, the bundle of each of the VP of its
+					;functions to *build_vp*, a translate job is source files, their
+					;bundles to this platform's code, each file stamped for this
+					;platform as it is done, and catch any errors
 					(setq *msg* (list))
 					(catch (cond
 							((eql *kind* :vp)
-								(each (# (def *compile_env* '*build_file* %0) (include %0)) *files*))
+								(each (# (def *compile_env* '*build_bundle* (list))
+									(include %0)
+									(save (apply (const cat) (cat (list "") *build_bundle*)) (cat *build_vp* %0))
+									(save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) *files*))
 							(:t (include "lib/asm/func.inc")
-								(each (# (vp-translate %0 *build_vp*)) *files*)))
+								(each (# (vp-translate-file %0 *build_vp*)
+									(save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) *files*)))
 						(progn (print _) :t))
 					;send reply, the key it was given, then what was said
 					(mail-send *reply_mbox* (apply (const cat)
