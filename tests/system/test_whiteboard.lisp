@@ -473,11 +473,14 @@
 	"(defun wa-bytes (canvas) (defq stream (memory-stream)) (pixmap-write (getf canvas +canvas_pixmap 0) stream 32)"
 	" (stream-seek stream 0 0) (read-blk stream 100000000))"
 	"(defun wa-redraw () (catch (redraw) :t))"
-	"(defq wa_timer (mail-mbox) wa_select (cat (. *stripes* :mboxes) (list wa_timer)))"
-	"(defun wa-pump (done) (defq said :nil) (mail-timeout wa_timer (task-timeout 20) 0)"
+	;what the nodes say is waited for as long as it takes: on the Pi's cube
+	;of eight nodes, every test running, they took more than the 20 s this
+	;gave them to come up. One that never says is the test runner's to say
+	"(defq wa_select (. *stripes* :mboxes))"
+	"(defun wa-pump (done) (defq said :nil)"
 	" (until (or said (done)) (defq msg (mail-read (elem-get wa_select (defq idx (mail-select wa_select)))))"
-	" (if (= idx 3) (setq said :timeout) (progn (setq said (. *stripes* :handle idx msg)) (catch (frame-done said) :t))))"
-	" (mail-timeout wa_timer 0 0) said)"
+	" (setq said (. *stripes* :handle idx msg)) (catch (frame-done said) :t))"
+	" said)"
 	"(defun wa-same () (defq canvas (Canvas 1024 768 1)) (. canvas :set_canvas_flags +canvas_flag_antialias)"
 	" (. canvas :fill 0) (. *board* :draw canvas :nil) (eql (wa-bytes canvas) (wa-bytes *committed*)))"
 	;no more than three children, other tests are running

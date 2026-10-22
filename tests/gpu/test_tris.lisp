@@ -43,9 +43,9 @@
 			tf_draws (map (# (list (!) (shader-pack tf_vertex %0) (shader-pack tf_pixel %1))) tf_vvals tf_pvals)
 			;three children, whatever the nodes, so the frame is three strips
 			tf_jobs (Jobs +shader_tris_child (elem-get tf_select +tf_task) (elem-get tf_select +tf_reply) '(3 3 0))
-			tf_asked 0 tf_said (list))
+			tf_asked 0 tf_launched 0 tf_said (list))
 		(defun tf-frame (strips)
-			;a frame, till every strip is answered, or far too long has gone by.
+			;a frame, till every strip is answered, however long that takes.
 			;A child with nothing to do for 5s goes, and a strip given to it as
 			;it went is lost, so the farm is looked at each second, as an app does.
 			;A child is only slow, never wrong: on a busy machine a strip may
@@ -60,16 +60,14 @@
 			(while (> out 0)
 				(defq msg (mail-read (elem-get tf_select (defq idx (mail-select tf_select)))))
 				(case idx
-					(+tf_task (. tf_jobs :launched msg))
+					(+tf_task (setq tf_launched (inc tf_launched)) (. tf_jobs :launched msg))
 					(+tf_reply (when (defq o (. tf_jobs :answered msg))
 						(if (= (getf msg +strip_reply_drawn) 0) (setq drawn :nil))
 						(setq out o)))
 					(+tf_ask (setq tf_asked (inc tf_asked))
 						(shader-mesh-send msg (elem-get tf_packed (getf msg +strip_ask_mesh))))
-					(:t (cond
-						((> (- (pii-time) start) (task-timeout 120)) (setq out 0 drawn :nil))
-						(:t (. tf_jobs :refresh (task-timeout 60))
-							(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0))))))
+					(:t (. tf_jobs :refresh (task-timeout 60))
+						(mail-timeout (elem-get tf_select +tf_timer) (task-timeout 1) 0))))
 			(mail-timeout (elem-get tf_select +tf_timer) 0 0)
 			;what is said of a frame if a check of it fails
 			(push tf_said (str strips " strips " (/ (- (pii-time) start) 1000) "ms, meshes asked "
@@ -81,9 +79,9 @@
 		(defq tf_farmed (tf-pixels tf_pixmap tf_size))
 		;a child that drew asked for both meshes. A quick child may have
 		;drawn two of the strips before another was up, so it is two for
-		;each child that drew, and never more than two for each child
+		;each child that drew, and never more than two for each child started
 		(assert-true "a child that drew asked for each mesh, the once"
-			(and (even? tf_asked) (<= 2 tf_asked 6)))
+			(and (even? tf_asked) (<= 2 tf_asked (* 2 tf_launched))))
 		;the same frame by one task
 		(defq tf_alone (Canvas tf_size tf_size 1) tf_alone_pixmap (getf tf_alone +canvas_pixmap 0)
 			tf_depth (shader-vp-depth tf_size tf_size)
@@ -99,7 +97,10 @@
 			(> (length (filter (# (/= (get-uint tf_farmed %0) 0)) (range 0 (length tf_farmed) 4))) 2000))
 		(assert-true "a second frame, of seven strips" (tf-frame 7))
 		(assert-eq "is the same frame" tf_farmed (tf-pixels tf_pixmap tf_size))
-		(assert-true "and no child asked for a mesh again" (and (even? tf_asked) (<= tf_asked 6)))
+		;the children are kept while there is work, but one with none for 5s
+		;goes: on a busy machine the frame drawn by one task above took longer,
+		;and new children were started, each asking for the meshes as its own
+		(assert-true "and no child asked for a mesh again" (and (even? tf_asked) (<= tf_asked (* 2 tf_launched))))
 		;a draw that says which rows its mesh is on. A strip that is none
 		;of them does nothing for it, so with the wrong rows the mesh is
 		;not drawn, and with the right ones the frame is the frame
