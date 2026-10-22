@@ -432,6 +432,14 @@ run too far without a good known milestone."
 	and after a batch of commits. Say which machines have seen a thing
 	when it is reported.
 
+*	Overnight, a validate run on the fastest machine: `make all boot
+	validate`, `tests -a`, then `make all boot` to put the usual image
+	back. It fills a reused heap cell with a pattern, so a field never set
+	shows every time, not only when a block happens to be reused: a
+	message's src and offset went on the wire unset for years, seen only
+	when a full run gave a test's mail a reused block. Heap misuse is the
+	same on every CPU, one machine finds it. Not in the day.
+
 *	After any change under `src/host/`: `make` here, the host built on the
 	other machines too, and `make -f Makefile.mingw`, which builds the
 	Windows host here with mingw. It can be compiled, it can not be run.
