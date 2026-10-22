@@ -92,6 +92,26 @@
 	;filter to only the class.inc files, strip off the leading "./"
 	(files-all "." '("class.inc") 2))
 
+(defun all-build-files ()
+	; (all-build-files) -> (vp_files class_files)
+	;all-vp-files and all-class-files of one walk of the tree, each in the
+	;order it has there. A walk was 4 to 5 ms on the M4
+	(defq vps (list) classes (list))
+	(each (# (cond
+			((ends-with "class.inc" %0) (push classes %0))
+			((not (starts-with "apps/" %0)) (push vps %0))))
+		(files-all "." '(".vp" "class.inc") 2))
+	(list vps classes))
+
+(defun class-env (classes)
+	;in a compile env, the classes declared, all that make-info needs to
+	;know the function of a method. Not lib/asm/func.inc, the assembler
+	;and the translator, a third of the time of a make with nothing to do
+	(include "lib/asm/class.inc")
+	(include "sys/pii/abi.inc")
+	(include "sys/statics/class.inc")
+	(each include classes))
+
 (defun make-info (%0)
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" %0) p (list))
@@ -140,13 +160,13 @@
 			(when (> m v) (def newest k m) (setq changed :t))) files)))
 
 (defun make (&optional files *abi* *cpu*)
-	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
+	(bind '(vps classes) (all-build-files))
+	(setd files vps *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq ages (env 31) info (env 31) newest (env 31))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
-			(include "lib/asm/func.inc")
-			(each include (all-class-files))
+			(class-env classes)
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
 				(merge files d)
@@ -164,12 +184,11 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(boot-image
 		(within-compile-env (lambda ()
-			(include "lib/asm/func.inc")
-			(each include (all-class-files))
+			(bind '(l classes) (all-build-files))
+			(class-env classes)
 			(defq *prods* (list))
 			;lists of all file imports and products
-			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d))
-				(defq l (all-vp-files)))
+			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d)) l)
 			;what the image is built from, as one number, beside it
 			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
 			(save (join (sort (cat l)) (ascii-char 10)) (boot-files-file *cpu* *abi*))

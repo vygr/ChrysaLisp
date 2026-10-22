@@ -192,9 +192,24 @@ the new, gave the same objects every time. On 19 nodes, interleaved:
 | Nothing to do, 15 runs each | 0.039 to 0.044, mean 0.0416 | 0.033 to 0.037, mean 0.0337 |
 | After a touch of `sys/pii/class.vp`, 6 runs each | mean 0.0524 | mean 0.0466 |
 
-Of what is left of a `make` with nothing to do, 11 ms is setting up the
-compile environment, `lib/asm/func.inc` and every `class.inc`, and 13.6 ms
-is reading every file for its includes.
+Of what was left of a `make` with nothing to do, 11 ms was setting up the
+compile environment and finding the files: two walks of the tree, 4 to 5
+ms each, one for the `.vp` files and one for the `class.inc` files, and
+`lib/asm/func.inc`, the whole assembler and translator, 3.7 ms, where
+reading the classes needs only `lib/asm/class.inc`, `sys/pii/abi.inc` and
+`sys/statics/class.inc`, 1.0 ms. Now one walk gives both and that is
+what is loaded; what `make-info` found of all 300 files, includes and
+products, was the same either way, as were the boot images of all six
+platforms and what twelve touched files rebuilt. On 19 nodes, interleaved:
+
+| On the M4 | Before | After |
+|---|---|---|
+| `make`, nothing to do, 8 runs each | mean 0.0339 | mean 0.0258 |
+| `make` after a touch of `sys/pii/class.vp`, 6 each | mean 0.0447 | mean 0.0372 |
+| `make platforms`, nothing to do, 8 each | mean 0.157 | mean 0.143 |
+| `make all boot`, 5 each | mean 0.110 | mean 0.100 |
+
+Reading every file for its includes, 13.6 ms, is most of what is left.
 
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
