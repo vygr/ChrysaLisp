@@ -83,7 +83,7 @@
 	(:t
 		(. st_shared :set_canvas_flags +canvas_flag_antialias)
 		(defq st_board (Board (cwb-doc 640 480)) st_doc (. st_board :get_doc) st_stripes (Stripes st_board 3)
-			st_timer (mail-mbox) st_select (cat (. st_stripes :mboxes) (list st_timer)))
+			st_select (. st_stripes :mboxes))
 		;240 shapes, of every kind, all over it, and no more than three
 		;children, other tests are running
 		(each (lambda (i)
@@ -96,25 +96,24 @@
 				(:t (cwb-shape (board-pen-d (list x y (+ x 15) (+ y 25) (+ x 30) y (+ x 45) (+ y 25))) :stroke col :width 3)))))
 			(range 0 240))
 		(. st_board :changed :all)
-		(defun st-pump (done secs)
-			;what comes to the stripes is handled, till done says so or it has been too long
-			(defq result :nil t0 (pii-time))
-			(mail-timeout st_timer (task-timeout secs) 0)
+		(defun st-pump (done)
+			;what comes to the stripes is handled, till done says so or they
+			;say something, however long it takes. On the Pi's tree, every test
+			;running, a frame took more than the 20 s this gave it, and the
+			;steps after it were answered by the frame left out
+			(defq result :nil)
 			(until (or result (done))
 				(defq msg (mail-read (elem-get st_select (defq idx (mail-select st_select)))))
-				(cond
-					((= idx 3) (setq result :timeout))
-					((defq said (. st_stripes :handle idx msg)) (setq result said))))
-			(mail-timeout st_timer 0 0)
+				(if (defq said (. st_stripes :handle idx msg)) (setq result said)))
 			(ifn result :ok))
 		(defun st-frame (zoom style)
 			;a frame drawn by the nodes, :done when it is
 			(. st_shared :fill 0)
 			(and (. st_stripes :frame st_shared zoom style)
-				(st-pump (lambda () :nil) 20)))
+				(st-pump (lambda () :nil))))
 		(. st_stripes :start)
 		(assert-eq "the children start" :ok
-			(progn (st-pump (lambda () (. st_stripes :ready?)) 30) (if (. st_stripes :ready?) :ok :not)))
+			(progn (st-pump (lambda () (. st_stripes :ready?))) (if (. st_stripes :ready?) :ok :not)))
 		(assert-true "and are in step with the document as it was, so a frame is cheap" (. st_stripes :cheap?))
 		(assert-eq "a frame can not be asked for of a canvas whose pixels are its own" :nil
 			(. st_stripes :frame (Canvas 64 64 1) 1.0 :grid))
@@ -146,7 +145,7 @@
 		(. st_board :undo) (. st_board :undo)
 		(. st_stripes :note)
 		(assert-eq "after two undos a frame is not cheap, each child would be sent it all" :nil (. st_stripes :cheap?))
-		(assert-eq "they can be brought in step with no frame" :warm (progn (. st_stripes :warm) (st-pump (lambda () :nil) 20)))
+		(assert-eq "they can be brought in step with no frame" :warm (progn (. st_stripes :warm) (st-pump (lambda () :nil))))
 		(assert-true "and then one is" (. st_stripes :cheap?))
 		(assert-eq "after two undos" :done (st-frame 1.0 :axis))
 		(assert-true "it is the document as it is" (eql (st-bytes st_shared) (st-local st_board 640 480 1.0 :axis)))
@@ -162,7 +161,7 @@
 		(defq st_m (Mat3x2-mul (Mat3x2-rot 0.5 160 120) (Mat3x2-mul (Mat3x2-scale 0.75) (Mat3x2-translate -40 -30))))
 		(. st_shared :fill 0)
 		(assert-eq "a view moved, zoomed and turned is drawn by them" :done
-			(and (. st_stripes :frame st_shared 0.75 :nil st_m) (st-pump (lambda () :nil) 20)))
+			(and (. st_stripes :frame st_shared 0.75 :nil st_m) (st-pump (lambda () :nil))))
 		(assert-true "it is what one task draws by that matrix"
 			(eql (st-bytes st_shared)
 				(progn (defq st_c (Canvas 320 240 1)) (. st_c :set_canvas_flags +canvas_flag_antialias)
@@ -171,6 +170,6 @@
 			(progn (. st_stripes :keep) (get :state st_stripes)))
 		(def st_stripes :stamp (- (pii-time) 6000000))
 		(assert-eq "and after a while are brought in step, which keeps them" :warm
-			(progn (. st_stripes :keep) (st-pump (lambda () :nil) 20)))
+			(progn (. st_stripes :keep) (st-pump (lambda () :nil))))
 		(. st_stripes :close)
 		(assert-eq "closed, it is not ready" :nil (. st_stripes :ready?))))
