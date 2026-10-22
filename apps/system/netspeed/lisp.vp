@@ -17,8 +17,13 @@
 		`(progn ~(copy (slice _ 0 n))))
 
 	(defmacro test-block-s (n &rest _)
+		;shuffled by a generator of a seed that is always the same, the one
+		;of lib/media/noise.inc, so each build gives the same mix
 		(while (< (length _) n) (setq _ (cat _ _)))
-		`(progn ~(shuffle (copy (slice _ 0 n)))))
+		(defq _ (copy (slice _ 0 n)) seed 1)
+		(each! (lambda (&) (swap _ (!) (% (>> (setq seed (logand (+ (* seed 1664525) 1013904223) 0xffffffff)) 8) (inc (!)))))
+			(list _) n 0)
+		`(progn ~_))
 
 	(def-vars
 		(ptr this args mem1 mem2)
