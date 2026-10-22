@@ -161,6 +161,41 @@ On 19 nodes the mean went from 0.074 to 0.056, and on one node from 0.405
 to 0.375. Splitting files into parcels of several was tried and made no
 difference: with the biggest first the herd was already even.
 
+The same day, two more. Every function a build makes is a file, 1,032 of
+them, written from every node at once, and `(save)` opened each with
+`O_TRUNC`. A file cut to nothing and grown again has its blocks let go of
+and new ones found, and on APFS the processes doing it wait on each other:
+in C, 19 processes each rewriting 55 small files took 79 to 94 ms that way,
+7 to 8 ms written over and cut to the length after. The host's `pii_save`
+does the second. Same host, the old save against it, three interleaved
+runs each:
+
+| `make test` on the M4 | Old save | `pii_save` |
+|---|---|---|
+| 19 nodes | 0.056 to 0.057 | 0.048 to 0.052 |
+| 16 nodes | 0.057 to 0.060 | 0.052 to 0.054 |
+| 1 node | 0.378 to 0.382 | 0.362 to 0.373 |
+
+And `make` with something to find: it merged the include list of each
+`.vp` file with all it includes, and theirs, to see if any was newer than
+its oldest product, 97 files a closure on average and 1.9 million string
+compares for the system. Now each file has the newest age of it and all
+under it, found pass after pass till a pass changes none, as the includes
+have loops. Profiled on one node, the closure went from 6.0 ms to 0.65 ms;
+a merge of symbols was 3.4 ms, a hash set beside each list 14.8 ms, and a
+scan from the end of each list 4.3 million compares to the 1.9 million
+from the front. Twelve files touched in turn, each built by the old and
+the new, gave the same objects every time. On 19 nodes, interleaved:
+
+| `make` on the M4 | Before | After |
+|---|---|---|
+| Nothing to do, 15 runs each | 0.039 to 0.044, mean 0.0416 | 0.033 to 0.037, mean 0.0337 |
+| After a touch of `sys/pii/class.vp`, 6 runs each | mean 0.0524 | mean 0.0466 |
+
+Of what is left of a `make` with nothing to do, 11 ms is setting up the
+compile environment, `lib/asm/func.inc` and every `class.inc`, and 13.6 ms
+is reading every file for its includes.
+
 ### Test 2: Multi-Platform Simultaneous Cross-Compilation (Throughput)
 
 This test measures the time to simultaneously compile all system sources for six
