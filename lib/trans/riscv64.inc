@@ -590,7 +590,7 @@
 	(emit-jmp-r +riscv64_rtmp1))
 ;riscv_exit
 
-;a host call has its args in :r0 :r1 ... in order, see sys/pii/abi.inc,
+;a host call has its args in :r0 :r1 ... in order, see (abi-call-table) in sys/pii/class.inc,
 ;where this ABI has them, and keeps all but :r0: the registers it trashes
 ;are kept round it
 (defq +riscv64_vp_args `',(exec '(map (lambda (r) (emit-native-reg? r)) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))

@@ -251,8 +251,8 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
 
 * A call of the host is the same VP on every platform. Its args are in
   `:r0 :r1 ...` in order, its answer comes back in `:r0`, and every other
-  register is kept: `abi-args` in `sys/pii/abi.inc` gives that list for all
-  of them, and `abi-call-table` in `sys/pii/class.inc` makes the call, a
+  register is kept, as the host methods are declared, and `abi-call-table`
+  in `sys/pii/class.inc` makes the call, a
   `vp-call-abi`. Where the ABI is, is the translator's `emit-call-abi` in
   `lib/trans/<cpu>.inc`: it moves the args to the registers the ABI wants,
   pushes those that do not fit, keeps the registers the ABI trashes round

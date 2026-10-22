@@ -112,7 +112,6 @@
 	;build, the VP64 of the snapshot that installs, it is a crash
 	(include "lib/asm/class.inc")
 	(include "lib/asm/vp.inc")
-	(include "sys/pii/abi.inc")
 	(include "sys/statics/class.inc")
 	(each include classes))
 

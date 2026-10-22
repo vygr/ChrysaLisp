@@ -589,7 +589,7 @@
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
 
-;a host call has its args in :r0 :r1 ... in order, see sys/pii/abi.inc.
+;a host call has its args in :r0 :r1 ... in order, see (abi-call-table) in sys/pii/class.inc.
 ;They are moved to where the ABI has them, those that do not fit in its
 ;registers pushed, and the registers it trashes kept round the call
 (defq +x64_vp_args `',(exec '(map (lambda (r) (emit-native-reg? r)) '(:r0 :r1 :r2 :r3 :r4 :r5))))

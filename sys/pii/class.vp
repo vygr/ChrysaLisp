@@ -8,9 +8,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_exit '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :exit '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(vp-ret)
 
 (def-func-end)
@@ -25,9 +25,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_open '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :open '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_open '(:r0))
 	(vp-ret)
 
@@ -42,9 +42,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_close '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :close '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_close '(:r0))
 	(vp-ret)
 
@@ -61,9 +61,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_seek '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :seek '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_seek '(:r0))
 	(vp-ret)
 
@@ -78,9 +78,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_remove '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :remove '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_remove '(:r0))
 	(vp-ret)
 
@@ -96,9 +96,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_open_shared '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :open_shared '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_open_shared '(:r0))
 	(vp-ret)
 
@@ -114,9 +114,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_close_shared '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :close_shared '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_close_shared '(:r0))
 	(vp-ret)
 
@@ -133,9 +133,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_dirlist '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :dirlist '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_dirlist '(:r0))
 	(vp-ret)
 
@@ -156,7 +156,7 @@
 		(long fd))
 
 	(entry :host_os :pii_write_num '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r3 :r4)
+	(vp-push :r1 :r2 :r3 :r4)
 	(push-scope)
 	(scope-used buffer)
 	(assign '(:r0) (vpx fd))
@@ -180,7 +180,7 @@
 		(call :host_os :pii_write_char '(:r0 :r1) '(_))
 	(loop-until '(:r4 = :rsp))
 	(pop-scope)
-	(abi-pop-trashed :r1 :r2 :r3 :r4)
+	(vp-pop :r1 :r2 :r3 :r4)
 	(exit :host_os :pii_write_num '(:r0))
 	(vp-ret)
 
@@ -196,11 +196,11 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write_char '(:r0 :r1))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(vp-push :r1)
 	(host-os-call :host_os :write '(:r0 :rsp 1) '(:r0))
 	(vp-free +ptr_size)
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_write_char '(:r0))
 	(vp-ret)
 
@@ -217,9 +217,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :write '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_write '(:r0))
 	(vp-ret)
 
@@ -235,11 +235,11 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_write_str '(:r0 :r1))
-	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(vp-push :r1 :r2 :r3 :r13 :r14)
 	(vp-cpy-rr :r0 :r3)
 	(call :sys_str :length '(:r1) '(:r0 :r1))
 	(host-os-call :host_os :write '(:r3 :r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(vp-pop :r1 :r2 :r3 :r13 :r14)
 	(exit :host_os :pii_write_str '(:r0))
 	(vp-ret)
 
@@ -251,9 +251,9 @@
 	;trashes
 	;:r0, :f0-:f15
 
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :gettime :nil '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_time '(:r0))
 	(vp-ret)
 
@@ -270,9 +270,9 @@
 	;that says it is new enough has this, 3, and the kernel asks as it
 	;starts: statics_sys_task_tick
 
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :tick :nil '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_tick '(:r0))
 	(vp-ret)
 
@@ -293,9 +293,9 @@
 	;first, which with many saving at once was most of what it cost
 
 	(entry :host_os :pii_save '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :save '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_save '(:r0))
 	(vp-ret)
 
@@ -311,9 +311,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_rand '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :rand '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_rand '(:r0))
 	(vp-ret)
 
@@ -330,9 +330,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_mmap '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :mmap '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_mmap '(:r0))
 	(vp-ret)
 
@@ -349,9 +349,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_munmap '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :munmap '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_munmap '(:r0))
 	(vp-ret)
 
@@ -368,9 +368,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_mprotect '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :mprotect '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_mprotect '(:r0))
 	(vp-ret)
 
@@ -386,9 +386,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_clear_icache '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :clear_icache '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_clear_icache '(:r0))
 	(vp-ret)
 
@@ -405,9 +405,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_read '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :read '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_read '(:r0))
 	(vp-ret)
 
@@ -422,7 +422,7 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_read_char '(:r0))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(vp-xor-rr :r1 :r1)
 	(vp-push :r1)
 	(host-os-call :host_os :read '(:r0 :rsp 1) '(:r0))
@@ -436,7 +436,7 @@
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_read_char '(:r0))
 	(vp-ret)
 
@@ -451,9 +451,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_unlink '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :unlink '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_unlink '(:r0))
 	(vp-ret)
 
@@ -469,9 +469,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_stat '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :stat '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_stat '(:r0))
 	(vp-ret)
 
@@ -487,9 +487,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_sysid '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :sysid '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_sysid '(:r0))
 	(vp-ret)
 
@@ -506,9 +506,9 @@
 	;start another node, this host and this boot image, with these args
 
 	(entry :host_os :pii_spawn '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :spawn '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_spawn '(:r0))
 	(vp-ret)
 
@@ -522,9 +522,9 @@
 	;info
 	;the process id of this node
 
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :pid :nil '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_pid '(:r0))
 	(vp-ret)
 
@@ -541,9 +541,9 @@
 	;is this process running ?
 
 	(entry :host_os :pii_alive '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :alive '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_alive '(:r0))
 	(vp-ret)
 
@@ -557,9 +557,9 @@
 	;info
 	;the number of processors this machine has online
 
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :cpus :nil '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_cpus '(:r0))
 	(vp-ret)
 
@@ -573,9 +573,9 @@
 	;info
 	;the physical memory this machine has
 
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :memory :nil '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_memory '(:r0))
 	(vp-ret)
 
@@ -596,9 +596,9 @@
 	;so is one that is there to be made
 
 	(entry :host_os :pii_shm_open '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :shm_open '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_shm_open '(:r0))
 	(vp-ret)
 
@@ -615,9 +615,9 @@
 	;:r0, :f0-:f15
 
 	(entry :host_os :pii_shm_close '(:r0 :r1 :r2))
-	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(vp-push :r1 :r2 :r13 :r14)
 	(host-os-call :host_os :shm_close '(:r0 :r1 :r2) '(:r0))
-	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(vp-pop :r1 :r2 :r13 :r14)
 	(exit :host_os :pii_shm_close '(:r0))
 	(vp-ret)
 
@@ -636,9 +636,9 @@
 	;object folders have for them
 
 	(entry :host_os :pii_host '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :host '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_host '(:r0))
 	(vp-ret)
 
@@ -656,9 +656,9 @@
 	;set the mode of a file, who may read, write and run it
 
 	(entry :host_os :pii_chmod '(:r0 :r1))
-	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1 :r13 :r14)
 	(host-os-call :host_os :chmod '(:r0 :r1) '(:r0))
-	(abi-pop-trashed :r1 :r13 :r14)
+	(vp-pop :r1 :r13 :r14)
 	(exit :host_os :pii_chmod '(:r0))
 	(vp-ret)
 
@@ -676,9 +676,9 @@
 	;it is new enough has this, see (pii-kill) in sys/lisp.inc
 
 	(entry :host_os :pii_kill '(:r0))
-	(abi-push-trashed :r13 :r14)
+	(vp-push :r13 :r14)
 	(host-os-call :host_os :kill '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
+	(vp-pop :r13 :r14)
 	(exit :host_os :pii_kill '(:r0))
 	(vp-ret)
 
