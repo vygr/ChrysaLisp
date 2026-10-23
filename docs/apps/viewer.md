@@ -213,6 +213,10 @@ A major design strength of the Viewer is its direct reuse of the Editor's core
 utility modules. Rather than maintaining duplicated viewing and navigation logic,
 `apps/tools/viewer/actions.inc` directly imports from `apps/tools/edit/`:
 
+```image
+docs/diagrams/viewer_reuse.cwb
+```
+
 *	`apps/tools/edit/utils.inc`: Coordinate sorting, cursor clipping, and selection-aware
 	viewport metrics.
 
