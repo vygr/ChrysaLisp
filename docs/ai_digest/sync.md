@@ -177,8 +177,10 @@ never listed. The rules understood are a name, a `folder/`, a `/path` from
 the root, and a `*` in one part of a path. A rule that takes one back, `!`,
 is not.
 
-`-d` removes what is there and not here. Without it such files are counted
-and left. `-c` changes nothing and says what would be. `-v` names each file.
+`-d` removes what is there and not here, and a folder that leaves empty.
+A folder with anything left in it stays, if only what the rules leave
+out. A folder that is empty here is not made there: git keeps no empty
+folder, nor does a tree. Without `-d` such files are counted and left. `-c` changes nothing and says what would be. `-v` names each file.
 
 ## Speed
 
@@ -255,6 +257,5 @@ alone.
 * Pull. A machine that sees a newer tree on a neighbour and fetches it, so
   an update spreads from machine to machine and nobody holds the list of
   who is to have it. This is the aim, push is the first step.
-* A folder that is empty, and a folder that is left empty by a remove.
 * An older sync. One from before the tree of hashes is told apart, and
   nothing is sent to it. It has to be updated another way, once.

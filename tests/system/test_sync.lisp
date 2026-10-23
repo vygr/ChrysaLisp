@@ -164,6 +164,16 @@
 (assert-eq "with remove, what is only there goes" 1 (third sy_res))
 (assert-true "it has gone" (not (pii-fstat (cat sy_dst "/extra.txt"))))
 (assert-eq "but not what the rules leave out" "theirs" (load (cat sy_dst "/obj/built.txt")))
+;a folder a remove leaves empty goes with it, one with anything left in it stays
+(save "gone" (cat sy_dst "/old/deep/left.txt"))
+(save "gone" (cat sy_dst "/kept/left.txt"))
+(save "left out" (cat sy_dst "/kept/made.o"))
+(setq sy_res (sync-push sy_svc sy_src sy_text :nil :t))
+(assert-eq "two only there go" 2 (third sy_res))
+(assert-eq "and the folders they left empty" :nil (sync-kind sy_dst "old"))
+(assert-eq "not one that still has in it what the rules leave out" "4" (sync-kind sy_dst "kept"))
+(assert-eq "and the root is never removed" "4" (sync-kind "tests/scratch" "sync_dst"))
+(pii-remove (cat sy_dst "/kept"))
 ;now the two are the same, and one number from each says so
 (setq sy_top (hash-tree-root (sync-tree sy_src (sync-rules sy_text))))
 (assert-eq "the top of the service's tree, by the same rules, is the top of this one" sy_top

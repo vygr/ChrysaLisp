@@ -138,7 +138,8 @@
 					(+sync_type_del
 						(setq held :nil)
 						(if (and (sync-safe? data) (sync-inside? root data real))
-							(pii-remove (cat root "/" data))
+							;and the folders it leaves empty
+							(progn (pii-remove (cat root "/" data)) (sync-prune root data))
 							(setq status -2)))
 					(+sync_type_mode
 						(setq held :nil)

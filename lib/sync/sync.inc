@@ -153,6 +153,22 @@
 		(list segs))
 	ok)
 
+(defun sync-prune (root path)
+	; (sync-prune root path) -> count
+	;the folders above a path just removed that it left empty, removed from
+	;the bottom up, never the root. One with anything at all in it is left,
+	;what the rules leave out too, so a folder of obj/ stays. git does the
+	;same, a tree has no empty folder, and none is sent
+	(defq segs (split path "/") count 0)
+	(while (and (> (length segs) 1)
+			(defq folder (cat root "/" (join (setq segs (slice segs 0 -2)) "/")))
+			(every (# (or (eql %0 ".") (eql %0 "..")))
+				(first (unzip (split (ifn (pii-dirlist folder) "") ",") 2)))
+			(eql (sync-kind (cat root "/" (join (slice segs 0 -2) "/")) (last segs)) "4"))
+		(pii-remove folder)
+		(setq count (inc count)))
+	count)
+
 (defun sync-walk (root rules)
 	; (sync-walk root rules) -> paths
 	;every file under the root that the rules do not leave out, each a
