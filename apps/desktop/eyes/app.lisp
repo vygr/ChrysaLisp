@@ -119,11 +119,18 @@
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_timer)
-				(mail-timeout (elem-get select +select_timer) poll_rate 0)
+				(defq start (pii-time))
 				(bind '(mx my & &) (gui-info))
 				(when (or (/= mx last_mx) (/= my last_my))
 					(setq last_mx mx last_my my)
-					(redraw mx my)))
+					(redraw mx my))
+				;the next look is a poll on, or four times as long as this one
+				;took if that is more: on a slow machine the eyes are drawn
+				;less often, and they never have more than a quarter of their
+				;node, the apps beside them have the rest
+				(defq took (- (pii-time) start))
+				(mail-timeout (elem-get select +select_timer)
+					(- (max poll_rate (* took 4)) took) 0))
 			;must be for +select_main !
 			((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 				(setq *running* :nil))

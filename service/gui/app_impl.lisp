@@ -290,9 +290,13 @@
 					;takes the whole frame time the next would be due at once. The
 					;GUI runs above the apps on its node, so they would get no time
 					;at all while the screen kept changing, a window being dragged
-					;did not move till the mouse stopped. So they are left some.
+					;did not move till the mouse stopped. So they are left some, and
+					;as long as the frame took: on a Raspberry Pi a present waits for
+					;the display, 13 ms, however little changed, and a moving mouse
+					;changes every frame
+					(defq took (- (pii-time) frame_start))
 					(mail-timeout (elem-get select +select_timer)
-						(max +min_gap (- +rate (- (pii-time) frame_start))) 0)))))
+						(max +min_gap took (- +rate took)) 0)))))
 	(mail-forget service)
 	(mail-forget sys_service)
 	(mail-timeout (elem-get select +select_timer) 0 0)

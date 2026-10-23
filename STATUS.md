@@ -27,6 +27,8 @@ The release check for 7.3, every stage passes on every machine.
 
 **`run_tui.sh -V`: the VP64 emulator in validation mode, says each unaligned load or store; VP64 encodes 64 bit set constants and load/store offsets; `vp-brk` and lnot's spare register gone.**
 
+**On a slow machine apps share a node fairly: Eyes takes at most a quarter of its node, Molecule makes its atom images between frames and shows the nearest till then, the GUI leaves the apps as long as its last frame took.**
+
 **A hidden desktop quits, its node with it, on a plain kill.**
 
 **Tests wait for what they test, not a time: no check fails because a busy machine was slow; a real hang is the suite's to report.**

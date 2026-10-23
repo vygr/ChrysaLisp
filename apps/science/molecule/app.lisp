@@ -23,6 +23,9 @@
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
 	*verts* (reals) *radii* (reals) *colors* (list) *num_atoms* 0
 	atom_draw_list (list) atom_cache (Fmap 31) canvas_size +min_size
+	;images asked for and not made yet, each made between frames, a few
+	;milliseconds of them a tick, and the nearest made shown till it is
+	atom_waiting (Fmap 31) atom_queue (list) +make_budget (/ timer_rate 3)
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	+radius_quant (n2r 1.0)
@@ -105,34 +108,75 @@
 	(defq away (/ (const (* +real_2 +far +near)) (- (const (+ +far +near)) (* z (const (- +far +near))))))
 	(clamp (n2i (* (- +far away) (const (/ (n2r 5.99) (- +far +near))))) 0 5))
 
+(defun atom-key (size kind level)
+	(+ (* size 128) (* level 16) kind))
+
+(defun make-atom (size kind level)
+	; (make-atom size kind level) -> canvas
+	;the image of an atom this big, of this color, which of the palette,
+	;and this well lit, (lighting). The shader draws it straight onto the
+	;pixels of a canvas. It goes in the shared pixmap cache of the node, so
+	;every Molecule that is open has the one image of a color, a size and a
+	;light, and one another made is only wrapped
+	(defq name (cat "molecule/ball_" (str kind) "_" (str level) "_" (str size)))
+	(cond
+		((defq pixmap (. *pixmap_cache* :find name))
+			(defq canvas (Canvas-pixmap pixmap)))
+		(:t (defq canvas (Canvas size size 1))
+			(shader-vp-draw atom_native
+				(shader-vp-frame atom_program atom_native (list
+					(list 'resolution (list size size))
+					(list 'color (map (const n2r) (elem-get +palette kind)))
+					;from two thirds of the light at the back to all of it at the front
+					(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
+				(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
+			(. *pixmap_cache* :insert name pixmap)
+			(. canvas :swap +swap_write)))
+	(. atom_cache :insert (atom-key size kind level) canvas)
+	canvas)
+
+(defun near-atom (size kind level)
+	; (near-atom size kind level) -> :nil | canvas
+	;the made image of this color nearest to this size, of this light if
+	;there is one near, else of any
+	(defq canvas :nil d 0)
+	(while (and (not canvas) (<= (++ d) 8))
+		(setq canvas (or (. atom_cache :find (atom-key (- size d) kind level))
+			(. atom_cache :find (atom-key (+ size d) kind level)))))
+	(setq d -1)
+	(while (and (not canvas) (<= (++ d) 64))
+		(some! (# (setq canvas (or (. atom_cache :find (atom-key (- size d) kind %0))
+				(. atom_cache :find (atom-key (+ size d) kind %0)))))
+			(list (range 0 6))))
+	canvas)
+
 (defun get-atom-texture (radius kind level)
 	; (get-atom-texture radius kind level) -> (tid tw th) | (:nil 0 0)
-	;the image of an atom this big, of this color, which of the palette,
-	;and this well lit, (lighting). The shader draws it the first time it
-	;is asked for, straight onto the pixels of a canvas. It goes in the
-	;shared pixmap cache of the node, so every Molecule that is open has
-	;the one image of a color, a size and a light.
+	;the image of an atom, made between frames, (make-waiting): till then
+	;the nearest made of its color. Only the first of a color is made at
+	;once, there is nothing near it
 	(defq size (n2i (+ (* (quant radius +radius_quant) (n2r 2.0)) (n2r 0.5)))
-		key (+ (* size 128) (* level 16) kind))
+		key (atom-key size kind level))
 	(cond
 		((<= size 0) (list :nil 0 0))
 		(:t (unless (defq canvas (. atom_cache :find key))
-				(defq name (cat "molecule/ball_" (str kind) "_" (str level) "_" (str size)))
-				(cond
-					((defq pixmap (. *pixmap_cache* :find name))
-						(setq canvas (Canvas-pixmap pixmap)))
-					(:t (setq canvas (Canvas size size 1))
-						(shader-vp-draw atom_native
-							(shader-vp-frame atom_program atom_native (list
-								(list 'resolution (list size size))
-								(list 'color (map (const n2r) (elem-get +palette kind)))
-								;from two thirds of the light at the back to all of it at the front
-								(list 'light_level (/ (n2r (+ level 10)) (const (n2r 15))))))
-							(defq pixmap (getf canvas +canvas_pixmap 0)) 0 0 size size size :t)
-						(. *pixmap_cache* :insert name pixmap)
-						(. canvas :swap +swap_write)))
-				(. atom_cache :insert key canvas))
+				(unless (. atom_waiting :find key)
+					(. atom_waiting :insert key :t)
+					(push atom_queue (list size kind level)))
+				(setq canvas (ifn (near-atom size kind level) (make-atom size kind level))))
 			(texture-sized (getf canvas +canvas_texture 0)))))
+
+(defun make-waiting ()
+	; (make-waiting) -> :t | :nil
+	;the images waiting made, for as long as a tick allows, :t if any were
+	(defq start (pii-time) made :nil)
+	(while (and (nempty? atom_queue) (< (- (pii-time) start) +make_budget))
+		(bind '(size kind level) (pop atom_queue))
+		(. atom_waiting :erase (atom-key size kind level))
+		(unless (. atom_cache :find (atom-key size kind level))
+			(make-atom size kind level)
+			(setq made :t)))
+	made)
 
 (defun render ()
 	;the atoms are placed by the vertex shader, all of them in one call of
@@ -242,7 +286,9 @@
 					(set-rot *zrot_slider* *rotz*))
 				(when *dirty*
 					(setq *dirty* :nil)
-					(render)))
+					(render))
+				;the images the frame wanted, drawn by the next
+				(if (make-waiting) (setq *dirty* :t)))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(gui-sub-rpc *window*))
