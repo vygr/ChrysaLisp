@@ -116,3 +116,12 @@
 (defq av_mp4v (second (first (. (. av_divx :find :video) :find :config))))
 (assert-list-eq "its setup the size, then its headers from its VOS" '(160 120 0xb0)
 	(list (code av_mp4v 4 0) (code av_mp4v 4 4) (code av_mp4v 1 11)))
+
+;PCM to channels, native: each width as 16 bits, low byte first
+(defun av-ints (pcm) (str (map (lambda (ch) (map (const n2i) ch)) pcm)))
+(assert-eq "PCM of 16 bits, stereo, as it is" (str '((1 300) (-2 -32768)))
+	(av-ints (adpcm-pcm (cat (char 1 2) (char -2 2) (char 300 2) (char -32768 2)) 2 16)))
+(assert-eq "of 8 bits, offset by 128 and moved up, one channel on both" (str '((0 -32768 32512) (0 -32768 32512)))
+	(av-ints (adpcm-pcm (cat (char 128) (char 0) (char 255)) 1 8)))
+(assert-eq "of 24 bits, its top two bytes" (str '((4660 -1) (4660 -1)))
+	(av-ints (adpcm-pcm (cat (char 0x123456 3) (char -1 3)) 1 24)))

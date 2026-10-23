@@ -309,6 +309,87 @@
 
 (def-func-end)
 
+(def-func (path-to-absolute "./media_pcm"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r13
+	;info
+	;(media-pcm chans in width) -> chans, the samples of each channel of
+	;the str in, frames of a sample of width 1, 2 or 3 bytes a channel, low
+	;byte first, into chans, a nums each as long as there are frames: as 16
+	;bits, 8 offset by 128 and moved up, 24 its top two bytes
+
+	(vp-rdef (chans in width n len c src dst i step x y)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,chans ,in ,width) '(:obj :obj :num))
+	(vp-push chans)
+	(assign `((,chans +array_length ui) (,chans +array_begin)) `(,n ,chans))
+	(vp-lea-i in +str_data in)
+	;the length of the first channel, the frames are to it
+	(assign `((,chans 0)) `(,len))
+	(assign `((,len +array_length ui)) `(,len))
+	;a frame is width bytes a channel
+	(vp-cpy-rr n step)
+	(vp-mul-rr width step)
+	(vp-xor-rr c c)
+	(vpif `(,len /= 0))
+	(loop-start)
+		;each channel its own column of the frames
+		(vp-cpy-rr c dst)
+		(vp-shl-cr 3 dst)
+		(vp-add-rr chans dst)
+		(assign `((,dst 0)) `(,dst))
+		(assign `((,dst +array_begin)) `(,dst))
+		(vp-cpy-rr c src)
+		(vp-mul-rr width src)
+		(vp-add-rr in src)
+		(vp-cpy-rr len i)
+		(loop-start)
+			(vpif `(,width = 2))
+				(vp-cpy-ir-s src 0 x)
+			(elseif `(,width = 1))
+				(vp-cpy-ir-ub src 0 x)
+				(vp-sub-cr 128 x)
+				(vp-shl-cr 8 x)
+			(else)
+				(vp-cpy-ir-b src 2 x)
+				(vp-shl-cr 8 x)
+				(vp-cpy-ir-ub src 1 y)
+				(vp-or-rr y x)
+			(endif)
+			(vp-cpy-ri x dst 0)
+			(vp-add-cr +long_size dst)
+			(vp-add-rr step src)
+			(vp-sub-cr 1 i)
+		(loop-until `(,i = 0))
+		(vp-add-cr 1 c)
+	(loop-until `(,c = ,n))
+	(endif)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-pcm chans in width)" +error_msg_wrong_types))
+	(signature '(:list :str :num)))
+
+(def-func-end)
+
 (defun huff-walk (data off at table e byte x level)
 	;a code of a Huffman book's table, lib/media/huff.inc, at bit at of the
 	;bytes at data and off: what it stands for into e, and at past it

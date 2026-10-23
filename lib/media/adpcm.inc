@@ -97,17 +97,9 @@
 	; (adpcm-pcm str channels bits) -> (left right)
 	;PCM of 8 bits, offset by 128, or of 16 or 24 signed, low byte first,
 	;channels one after another in each frame
-	(defq width (/ bits 8) frames (/ (length s) (* width channels))
-		chans (map (lambda (_) (nums)) (range 0 channels)) at 0)
-	(times frames
-		(each (lambda (c)
-				(push (elem-get chans c) (cond
-					((= width 1) (<< (- (code s 1 at) 128) 8))
-					((= width 2) (get-short s at))
-					((>>> (sign-extend (code s 3 at) 24) 8))))
-				(setq at (+ at width)))
-			(range 0 channels)))
-	(reel-pcm chans))
+	(defq width (/ bits 8) frames (/ (length s) (* width channels)))
+	;the native taken as it is used, as (reel-pcm) does
+	(reel-pcm ((ffi "lib/media/media_pcm") (map (lambda (_) (fill (nums) frames 0)) (range 0 channels)) s width)))
 
 ;module
 (export-symbols '(adpcm-ms-coefs adpcm-ms-block adpcm-ima-block adpcm-pcm))
