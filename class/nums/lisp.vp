@@ -50,9 +50,7 @@
 
 (errorcase
 (vp-label 'error1)
-	(vp-push this)
 	(call :obj :deref `(,dst))
-	(vp-pop this)
 (vp-label 'error)
 	(exit :nums :lisp_vecop1 `(,this 0))
 	(vp-ret))
