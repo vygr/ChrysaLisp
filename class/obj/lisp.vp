@@ -113,8 +113,7 @@
 	;:r1-:r9, :f0-:f15
 
 	(def-vars
-		(ptr this obj val)
-		(int offset))
+		(ptr this obj))
 
 	(vp-rdef (this args obj offset type val num osize fsize sizes))
 
@@ -152,9 +151,9 @@
 	(vpcase `(,type >= 0))
 		(vpif `(,type = 0))
 			;object reference
-			(assign `(,val ,offset) (vpx val offset))
+			;:obj :deref_if leaves val and offset
 			(call :obj :deref_if `((,obj ,offset)))
-			(assign (vpx this obj val offset) `(,this ,obj ,val ,offset))
+			(assign (vpx this obj) `(,this ,obj))
 			(assign `((,this +lisp_sym_nil)) `(,this))
 			(vpif `(,val = ,this))
 				(vp-xor-rr val val)

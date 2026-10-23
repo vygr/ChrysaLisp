@@ -85,10 +85,9 @@
 	(assign `((,aiter +array_length)) `(,t))
 	(vp-mul-cr 3 t)
 	(vp-add-cr 6 t)
+	;which leaves all but d and t
 	(call :array :set_cap `(,d ,t))
 
-	(assign '((:rsp local_edges) (:rsp local_active) (:rsp local_y0) (:rsp local_y1))
-		`(,ebase ,aiter ,y0 ,y1))
 	(assign `((,aiter +array_length)) `(,aend))
 	(assign `((,ebase +array_begin) (,aiter +array_begin)) `(,ebase ,aiter))
 	(vp-shl-cr (log2 +long_size) aend)
