@@ -98,24 +98,27 @@ node of it, the newest first. A function goes on the list before its Vtable is
 bound, so functions that call each other in a ring bind: the second finds the
 first already there.
 
-Those are the node's own, server zero, what this machine has built. A task can
-also have a function server of another system, `+tk_node_server`, set by
-`(task-server folder)`. A server has a list, blocks and a folder of its own,
-`source/<system id>/` under `obj/<cpu>/<abi>/`, of functions of that system
-translated for this CPU. A bind of a task of a server looks in the server's
-list, then the node's. A function the server's folder has is loaded into the
-server, any other into the node's own, and the Vtable of one of the node's
-own is bound to the node's alone: none of the node's own functions can call a
-server's. A bind for a server that comes to a path there is none of fails,
-what it put on the server's list is taken off again, and the node goes on; of
-the node's own, the node can not go on, as before.
+Those are the node's own, server zero, what this machine has built, loaded
+from its files. A task can also have a function server of another system,
+`+tk_node_server`, by name, `(task-server name)`: a list and blocks of its
+own, in memory, nothing of it in a file. Its functions are not loaded, they
+are placed, `(:sys_load :place)`, `(task-place natives)`: each native copied
+into the server's blocks and put on its list, all of them first, and then the
+Vtable of each bound, to the server's functions, then the node's, loading the
+node's own as a bind would. So functions of the set that call each other bind.
+One whose length is not what it says, or that names a path there is none of,
+and the server's list is as it was, and the node goes on.
+
+A bind of a task of a server looks in the server's list, then the node's,
+and loads only the node's own. The Vtable of one of the node's own is bound to
+the node's alone: none of the node's own functions can call a server's.
 
 A server goes when no task of the node has it: when a task of one ends, the
 node's servers are marked by the tasks it has, every one of them, and those
-none has are let go of, their blocks and all. A task that ended any way at
-all lets go of its server so. `(task-server)` says the folders of the servers
-a node has. How a task of another system comes to have a server, and what is
-put in its folder, is [the Source Service](../ai_digest/source_service.md).
+none has are let go of, their blocks and all. A task that ended any way at all
+lets go of its server so. `(task-server)` says the names of the servers a node
+has. Which natives a task of another system has, and where they come from, is
+[the Source Service](../ai_digest/source_service.md).
 
 ## Low level Vtable, string, and calling/jumping
 

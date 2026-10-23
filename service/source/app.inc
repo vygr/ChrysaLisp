@@ -11,12 +11,21 @@
 ;session starts this service: there the name is not bound, and a task is
 ;never given a server
 (catch (ffi "sys/load/lisp_server" task-server) :t)
-; (task-server folder) -> :t
+; (task-server [name]) -> :t | (name ...)
+(catch (ffi "sys/load/lisp_place" task-place) :t)
+; (task-place natives) -> :t | :nil
 
 (defq +source_wait 10)
 
 (structure +source_rpc 0
 	(netid reply_id))
+
+(defun source-caching? ()
+	; (source-caching?) -> :t | :nil
+	;may translations be kept on this system's disk: not if the system says
+	;not, *env_source_cache* :nil, for its security or as it has no disk of
+	;its own, and then every one is made each time it is wanted
+	(if (def? '*env_source_cache*) *env_source_cache* :t))
 
 (defun source-service ()
 	; (source-service) -> :nil | netid
@@ -72,22 +81,35 @@
 (defun source-links (fn)
 	; (source-links fn) -> (name ...)
 	;the functions a native function links to, by the paths in it
-	(defq names (list) lo (get-short fn +fn_header_links) po (get-short fn +fn_header_paths))
+	(defq names (list) lo (get-ushort fn +fn_header_links) po (get-ushort fn +fn_header_paths))
 	(while (/= lo po)
 		(push names (get-cstr fn (+ (get-long fn lo) lo)))
 		(setq lo (+ lo +ptr_size)))
 	names)
 
+(defun source-split (text)
+	; (source-split text) -> (native ...)
+	;native functions one after another, each as long as its header says
+	(defq natives (list) at 0)
+	(while (< at (length text))
+		(defq len (get-ushort text (+ at +fn_header_length)))
+		(push natives (slice text at (+ at len)))
+		(setq at (+ at len)))
+	natives)
+
 (defun source-native (path)
 	; (source-native path)
-	;a native function of the system that sent this task, made ready in the
-	;task's server folder by this system's own @Source, which keeps a
-	;translator for this CPU: what the node has built is server zero's, the
-	;waypoint of this machine, and nothing is asked
-	(unless (or (eql *source_system* (hex-encode (system-id)))
-			(/= (age (cat (load-path) path)) 0)
-			(/= (age (cat (load-path) *source_folder* path)) 0))
-		(source-ask (source-here) (cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path))))
+	;a native function of the system that sent this task, and all it calls
+	;that this node has not the same of, made ready by this system's own
+	;@Source, which keeps a translator for this CPU, and placed in the
+	;task's function server: in memory, none of it kept in a file of the
+	;task's. What the node has the same VP of is server zero's, nothing is
+	;placed for it
+	(unless (eql *source_system* (hex-encode (system-id)))
+		(and (defq natives (source-ask (source-here)
+				(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)))
+			(nempty? natives)
+			(task-place (source-split natives)))))
 
 (defun source-ffi-form (path more)
 	; (source-ffi-form path more) -> form
@@ -100,11 +122,11 @@
 	;an import, in this environment, that reads from the system of the id
 	;by its @Source, the mailbox in hex: as root's own, a module once, its
 	;relative paths from the module that imports it, but by (source-stream).
-	;And an ffi that has a native from there too, translated here, bound by
-	;the task's own function server, source/<sid>/ under the load path
+	;And an ffi that has a native from there too, translated here, placed in
+	;the task's own function server, named by the system id
 	(static-qq (progn
 		(defq *source_system* ,sid *source_service* (hex-decode ,svc)
-			*source_folder* (cat "source/" ,sid "/") *source_ffi* ffi
+			*source_ffi* ffi
 			import (lambda (module &optional dst_env)
 				(setq module (path-to-absolute module))
 				(defq dst_env (ifn dst_env (penv))
@@ -114,5 +136,5 @@
 						(throw "No such file !" module))
 					(def dst_env import_sym :t)
 					(callback (const repl) dst_env stream module))))
-		(unless (eql *source_system* (hex-encode (system-id))) (task-server *source_folder*))
+		(unless (eql *source_system* (hex-encode (system-id))) (task-server *source_system*))
 		(redefmacro ffi (path &rest more) (source-ffi-form path more)))))

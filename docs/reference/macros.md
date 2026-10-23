@@ -635,8 +635,8 @@ four bytes high first
 an import, in this environment, that reads from the system of the id
 by its @Source, the mailbox in hex: as root's own, a module once, its
 relative paths from the module that imports it, but by (source-stream).
-And an ffi that has a native from there too, translated here, bound by
-the task's own function server, source/<sid>/ under the load path
+And an ffi that has a native from there too, translated here, placed in
+the task's own function server, named by the system id
 ```
 
 ### static-q

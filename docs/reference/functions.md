@@ -10293,6 +10293,16 @@ says nothing in the time. A new mailbox each time: an answer that comes
 late is to a mailbox nobody reads
 ```
 
+### source-caching?
+
+```code
+(source-caching?) -> :t | :nil
+
+may translations be kept on this system's disk: not if the system says
+not, *env_source_cache* :nil, for its security or as it has no disk of
+its own, and then every one is made each time it is wanted
+```
+
 ### source-ffi-form
 
 ```code
@@ -10332,10 +10342,12 @@ the build of this node, which VP it wants
 ```code
 (source-native path)
 
-a native function of the system that sent this task, made ready in the
-task's server folder by this system's own @Source, which keeps a
-translator for this CPU: what the node has built is server zero's, the
-waypoint of this machine, and nothing is asked
+a native function of the system that sent this task, and all it calls
+that this node has not the same of, made ready by this system's own
+@Source, which keeps a translator for this CPU, and placed in the
+task's function server: in memory, none of it kept in a file of the
+task's. What the node has the same VP of is server zero's, nothing is
+placed for it
 ```
 
 ### source-service
@@ -10344,6 +10356,14 @@ waypoint of this machine, and nothing is asked
 (source-service) -> :nil | netid
 
 the @Source of this system
+```
+
+### source-split
+
+```code
+(source-split text) -> (native ...)
+
+native functions one after another, each as long as its header says
 ```
 
 ### source-stream

@@ -67,34 +67,46 @@ Once its files are read the task runs its `main`, as any task does.
 
 ## Natives
 
-A task of another system has a function server of its own, `source/<id>/`,
-see [function servers](../vm/vp_functions.md). Its `ffi` makes the native
-ready before it is bound, `(source-native path)`:
+A task of another system has a function server of its own, named by that
+system's id, in memory, see [function servers](../vm/vp_functions.md). Its
+`ffi` makes the native ready first, `(source-native path)`, in one asking of
+this system's own `@Source`, started if it has none:
 
-* A native this node has built is server zero's, what this machine's waypoint
-  has, and is bound as ever. Nothing is asked.
-* One it has not is asked of this system's own `@Source`, started if it has
-  none. That service keeps a translator for this CPU, made the first time one
-  is wanted: the op and register lists of the VP, `lib/trans/vp.inc` and the
-  CPU's emitter, none of the assembler. It asks the sending system's
-  `@Source` for the bundle the function is in, `obj/vp/<mode>/<path>` in this
-  node's build mode, translates each function of it into the task's folder,
-  and then each function they call that this node has not built, a name seen
-  once so a ring ends. One request at a time, so a native asked for twice is
-  made once.
+1. That service asks the sending system's `@Source` for the manifest of the
+   function, `#<mode> <path>`: its name and the hash of its VP, and the same
+   of every function it calls, all the way, not the system's own, what a
+   boot image has, which is each machine's own.
+2. Each line is looked at here. A hash this node's own VP has is the node's,
+   server zero's, the waypoint of this machine, nothing is fetched for it; if
+   the node has not built it, it is translated from the node's own VP into
+   the node's place. A hash the cache has, `obj/<cpu>/<abi>/cache/<key>`, is
+   that native. The key is the hash of the VP, the build mode and this
+   translator's id, the hash of its files, so a translator changed is a miss.
+3. The VP of those not here is asked for at once, `$<mode> <path> ...`, only
+   those functions, and each translated and kept in the cache.
+4. The natives not the node's own go back to the task, one after another,
+   and it places them in its server, `(task-place)`, and binds.
 
-Then the task's `ffi` binds it, from its server. Only what the node has not
-built is fetched: two copies of a class on one node, two vtables, and an
-object of one is not an instance of the other.
+The translator is the service's, made the first time one is wanted and kept:
+the op and register lists of the VP, `lib/trans/vp.inc` and the CPU's
+emitter, none of the assembler. One request at a time, so a native asked for
+twice is made once. Only what the node has not the same of is placed: two
+copies of a class on one node, two vtables, and an object of one is not an
+instance of the other.
+
+A system that may not keep translations on its disk, for its security, or
+that has no disk of its own, says so in its root environment,
+`*env_source_cache*` `:nil`: nothing is written, each native is translated
+each time it is wanted, and the node's own are placed as the rest are.
 
 ## What the service gives
 
 Lisp that can be imported, `.lisp` and `.inc`, by a path from the root of
-the tree, and the VP bundle a function is in. Not a path that starts with `/`
+the tree, and the manifest and VP of functions. Not a path that starts with `/`
 or has `..` in it, and nothing in a user's own folder, `usr/<name>/`:
 `usr/env.inc` is the system's. The keys are files of the tree, `mesh_key` and
-`keys/`, and are never given. A request for a translation starts with `+`,
-the sending system's id, its `@Source`, the build mode and the function.
+`keys/`, and are never given. A request of a task for its natives starts with
+`+`, the sending system's id, its `@Source`, the build mode and the function.
 
 A request is the mailbox to answer to and the path. The answer is `y` and the
 file's text, or `n`. The asker waits 10 seconds, `+source_wait`, on a mailbox
@@ -108,7 +120,6 @@ of its own, so an answer that comes late goes to a mailbox nobody reads.
   reads where it runs, and so does an `import` inside a function of a library
   that was read before the task's `import` was made.
 * Every Lisp file comes from the sender, each time a task is sent, a whole
-  file in one answer. There is no cache of them by their content yet, and a
-  native once in a server's folder is not asked again if the sender's changes.
+  file in one answer. There is no cache of them by their content yet.
 * The translator is this system's own, not the sender's: the same on one
   waypoint.

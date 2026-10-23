@@ -8,6 +8,8 @@ docs/reference/vp_classes/sys_load.cwb
 
 ### (load-path) -> path
 
+### (task-place natives)
+
 ### (task-server [folder])
 
 ## VP methods
@@ -22,9 +24,9 @@ output
 trashes
 :r0-:r7, :f0-:f15
 info
-for the task's function server first, if it has one, then the node's
-own. One that fails to bind for a server leaves nothing of it: what it
-put on the server's list is taken off again
+of the task's function server first, if it has one, then the node's
+own, loaded from the node's files if it has not been. Nothing is
+loaded into a server by a bind, its functions are placed, (:place)
 ```
 
 ### :find -> sys/load/find
@@ -69,10 +71,24 @@ output
 :r0 = 0 else, function entry pointer (ptr)
 trashes
 :r0-:r7, :f0-:f15
+```
+
+### :place -> sys/load/place
+
+```code
+inputs
+:r0 = list of str objects, native functions (ptr)
+outputs
+:r0 = 0 if one could not be placed or bound, else not 0
+trashes
+:r0-:r7, :f0-:f15
 info
-a function of the server of the bind if its folder has it, else of
-the node. The links of one of the node's are bound to the node's
-alone, so none of the node's own can call a server's
+native functions put in the task's function server, none read from a
+file: all of them copied in and on its list first, then each one's
+Vtable bound, to them and the server's, then the node's, loading the
+node's own as a bind would. So functions of the set that call each
+other, in a ring too, bind. One that is not the length it says, or a
+path there is none of, and the server's list is as it was
 ```
 
 ### :search -> sys/load/search

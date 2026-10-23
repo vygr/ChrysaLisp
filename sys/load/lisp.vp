@@ -56,7 +56,7 @@
 		(fn-bind 'sys/statics/statics :r1)
 		(loop-flist :r1 statics_sys_load_server_flist :r1 :r1)
 			(vp-push :r1)
-			(call :str :create_from_cstr '((& :r1 +ld_server_prefix)) '(:r1))
+			(call :str :create_from_cstr '((& :r1 +ld_server_name)) '(:r1))
 			(assign `((:rsp ,+ptr_size)) '(:r0))
 			(call :list :push_back '(:r0 :r1) '(_ _ _ _))
 			(vp-pop :r1)
@@ -88,5 +88,44 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-server [folder])" +error_msg_wrong_types))
 	(signature '(:STR)))
+
+(def-func-end)
+
+(def-method :sys_load :lisp_place)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r7, :f0-:f15
+	;info
+	;(task-place natives) -> :t | :nil, native functions put in the task's
+	;function server and bound, (:sys_load :place)
+
+	(entry :sys_load :lisp_place '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 1)
+
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r0) '(:obj))
+	(call :sys_load :place '(:r0) '(:r0))
+	(assign '((:rsp 0)) '(:r1))
+	(vpif '(:r0 /= 0))
+		(assign '((:r1 +lisp_sym_t)) '(:r1))
+	(else)
+		(assign '((:r1 +lisp_sym_nil)) '(:r1))
+	(endif)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit :sys_load :lisp_place '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(task-place natives)" +error_msg_wrong_types))
+	(signature '(:LIST)))
 
 (def-func-end)

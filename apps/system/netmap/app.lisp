@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
+(import "service/source/app.inc")
 (import "lib/net/links.inc")
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
@@ -114,7 +115,7 @@
 		:idle 0 :time 0 :busy +real_0
 		:pos (reals (rnd) (rnd) (rnd)) :vel (reals +real_0 +real_0 +real_0)
 		:ball (share (Scene-object ball_mesh (fixeds 1.0 1.0 1.0 1.0)) ball_proto))
-	(open-task (const (cat *app_root* "child.lisp")) key +kn_call_pin 0 (elem-get select +select_task))
+	(open-task child_task key +kn_call_pin 0 (elem-get select +select_task))
 	(setq changed :t)
 	node)
 
@@ -234,6 +235,9 @@
 		(.-> *status* :layout :dirty)))
 
 (defun main ()
+	;each node's child is read from this system, by its @Source, the
+	;natives it binds too where that node has not the same of them
+	(defq child_task (source-task (cat *app_root* "child.lisp")))
 	(defq id :t select (task-mboxes +select_size) poll_que (list) changed :t canvas_size +size
 		machines (list) machine_hues (list) links (Fmap 31) top_rate (n2r +quiet) zoom +real_1
 		auto :nil rotx (const (n2r 0.4)) roty +real_0 rotz +real_0

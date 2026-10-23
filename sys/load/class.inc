@@ -10,10 +10,12 @@
 	(dec-method :load sys/load/load :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
 	(dec-method :find sys/load/find :static (:r0) (:r0 :r1) (:r0-:r2))
 	(dec-method :search sys/load/search :static (:r6) (:r0) (:r0-:r5 :r7))
+	(dec-method :place sys/load/place :static (:r0) (:r0) (:r0-:r7 :f0-:f15))
 	(dec-method :server sys/load/server :static (:r0) (:r0) (:r0-:r3 :r5-:r7 :f0-:f15))
 	(dec-method :sweep sys/load/sweep :static :nil :nil (:r0-:r2 :r5-:r13 :f0-:f15))
 	(dec-method :lisp_path sys/load/lisp_path :static (:r0 :r1) (:r0 :r1) (:r1-:r5 :f0-:f15))
-	(dec-method :lisp_server sys/load/lisp_server :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :f0-:f15)))
+	(dec-method :lisp_server sys/load/lisp_server :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :f0-:f15))
+	(dec-method :lisp_place sys/load/lisp_place :static (:r0 :r1) (:r0 :r1) (:r1-:r7 :f0-:f15)))
 
 ;;;;;;;;;;;;;;;;;
 ; load structures
@@ -36,4 +38,4 @@
 (structure +ld_server +ln_fnode_size
 	(ptr flist blocks start end)
 	(long mark)
-	(struct prefix ld_prefix_size))
+	(struct name ld_prefix_size))

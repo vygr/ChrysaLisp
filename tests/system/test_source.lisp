@@ -45,24 +45,19 @@
 		"(source-import {0} {" (hex-encode so_svc) "})" (ascii-char 10)
 		"(import {apps/system/netmon/child.lisp})")) 0))
 
-;a native the node has not built, of another system: its VP asked of the
-;service, translated here into the task's server folder, bound by the
-;task's own function server, which goes when the task does. The VP is
+;natives of another system: the hash of each asked of the service, and
+;the VP of those not the same as the node's own. Here the other system is
+;this one, so the VP is the node's own, server zero's: one the node has not
+;built is translated into the node's own place if it may be kept. The VP is
 ;NetSpeed's vops under names of this run's own
-(defq so_pid (str (pii-pid)) so_mode (source-mode) so_sid (cat "T" so_pid)
+(defq so_pid "run" so_mode (source-mode) so_sid (cat "T" so_pid)
 	so_dir (cat "obj/vp/" so_mode "/tests/source_" so_pid "/")
-	so_name (cat "tests/source_" so_pid "/vops") so_bad (cat "tests/source_" so_pid "/bad")
-	so_folder (cat (load-path) "source/" so_sid "/"))
-(defun so-renamed (name &optional from to)
-	;the VP of vops under another name, and with a link renamed
-	(defq entry (first (read (file-stream (cat "obj/vp/" so_mode "/apps/system/netspeed/lisp.vp"))))
-		old (first entry)
-		code (map (lambda (inst)
-				(if (list? inst) (map (# (cond ((eql %0 old) name) ((eql %0 from) to) (%0))) inst) inst))
-			(second entry)))
-	(str (cat (list name code) (slice entry 2 -1))))
-(save (so-renamed so_name) (cat so_dir "lisp.vp"))
-(save (so-renamed so_bad "sys/pii/time" (cat "tests/source_" so_pid "/none")) (cat so_dir "bad.vp"))
+	so_name (cat "tests/source_" so_pid "/vops"))
+(defq so_entry (first (read (file-stream (cat "obj/vp/" so_mode "/apps/system/netspeed/lisp.vp"))))
+	so_old (first so_entry))
+(save (str (cat (list so_name (map (lambda (inst)
+		(if (list? inst) (map (# (if (eql %0 so_old) so_name %0)) inst) inst)) (second so_entry)))
+	(slice so_entry 2 -1))) (cat so_dir "lisp.vp"))
 (defun so-native (fn)
 	;what a task of the other system has of its servers, and of the native
 	(defq mbox (mail-mbox))
@@ -71,16 +66,32 @@
 		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (task-server)"
 		" (catch (progn (ffi {" fn "} f) (length (f))) :failed))))") +kn_call_pin)
 	(mail-read mbox))
-(defq so_server (list (cat "source/" so_sid "/")))
-(assert-eq "a native this node has not built, asked, translated, bound by the task's server, and run"
-	(str (list so_server 3)) (so-native so_name))
-(assert-true "it is in the server's folder" (/= (age (cat so_folder so_name)) 0))
-(assert-eq "not where the node's own are" 0 (age (cat (load-path) so_name)))
-;a release build does not check a bind, the bad one would be called
-(if *test_checked*
-	(assert-eq "one that links to a function there is not fails its bind, and the task goes on"
-		(str (list so_server :failed)) (so-native so_bad))
-	(test-skip "a native that links to nothing" "needs an error checked build"))
-(until (empty? (task-server)) (task-sleep 10000))
-(assert-list-eq "the server goes when its tasks have" '() (task-server))
-(each (const pii-remove) (list (cat so_dir "lisp.vp") (cat so_dir "bad.vp") (cat so_folder so_name) (cat so_folder so_bad)))
+(when (source-caching?)
+	(assert-eq "a native of VP the node has, not built, translated into the node's place, and run"
+		(str (list (list so_sid) 3)) (so-native so_name))
+	(assert-true "it is the node's own now" (/= (age (cat (load-path) so_name)) 0))
+
+	;natives placed in a task's server, in memory, then bound: the same
+	;native from the server, and one with a link to a path there is none
+	;of, which is not placed, the server as it was
+	(defq so_native (load (cat (load-path) so_name)) so_bad so_native
+		lo (get-ushort so_native +fn_header_links) po (get-ushort so_native +fn_header_paths))
+	(while (/= lo po)
+		(defq at (+ (get-long so_native lo) lo))
+		(if (eql (get-cstr so_native at) "sys/pii/time")
+			(setq so_bad (cat (slice so_native 0 (+ at 11)) "f" (slice so_native (+ at 12) -1))))
+		(setq lo (+ lo +ptr_size)))
+	(task-server (cat "P" so_pid))
+	(assert-eq "a native placed in the task's server" :t (task-place (list so_native)))
+	(assert-eq "and bound from there, and run" 3 (length (progn (ffi so_name so_f) (so_f))))
+	(if *test_checked*
+		(assert-eq "one with a link to nothing is not placed" :nil (task-place (list so_bad)))
+		(test-skip "a native that links to nothing" "needs an error checked build"))
+	(assert-list-eq "the server is the task's" (list (cat "P" so_pid)) (filter (# (eql %0 (cat "P" so_pid))) (task-server)))
+	(task-server "")
+	;a task of a server that ends lets the rest go too
+	(so-native so_name)
+	(until (empty? (task-server)) (task-sleep 10000))
+	(assert-list-eq "and the servers go when no task has them" '() (task-server))
+	(pii-remove (cat (load-path) so_name)))
+(pii-remove (cat so_dir "lisp.vp"))
