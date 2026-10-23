@@ -105,5 +105,5 @@
 	(repl (string-stream "(defun error_checks_f () (const (+ 1 :a)))") "error_checks"))
 (assert-error "and of a macro not used"
 	(repl (string-stream "(defmacro error_checks_m () (static-qq (list (const (+ 1 :a)))))") "error_checks"))
-(assert-eq "and a body with no error is still read" :t
-	(progn (repl (string-stream "(defun error_checks_g () (const (+ 1 2)))") "error_checks") (= (error_checks_g) 3)))
+(assert-eq "and a body with no error is still read" 3
+	(repl (string-stream "(defun error_checks_g () (const (+ 1 2))) (error_checks_g)") "error_checks"))
