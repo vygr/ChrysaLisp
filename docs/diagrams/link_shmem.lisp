@@ -1,0 +1,30 @@
+;docs/ai_digest/link_protocol.md: a shared memory link, its memory, who sends on which channel, and a channel as a ring of records
+(defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
+(dia-say s "/tmp/<name>, 63648 bytes" 190 14 12 :t 0xff202428)
+(dia-put s 'chan_1 (dia-box '("chan_1, 0" "30880 bytes, the owner sends on it") 260 52 blue 11 :first) 190 24)
+(dia-put s :nil (dia-box '("host_a, 30880" "16 bytes, the owner's node id") 260 40 gold 11 :first) 190 76)
+(dia-put s :nil (dia-box '("host_b, 30896" "16 bytes, the guest's node id") 260 40 gold 11 :first) 190 116)
+(dia-put s :nil (dia-box "to the next 4096" 260 26 grey 11) 190 156)
+(dia-put s 'chan_2 (dia-box '("chan_2, 32768" "30880 bytes, the guest sends on it") 260 52 green 11 :first) 190 182)
+(dia-put s 'owner (dia-box '("owner" "first to find host_a 0" "and write its id there") 150 66 blue 11 :first) 0 24)
+(dia-put s 'guest (dia-box '("guest" "finds another's id there," "writes its own in host_b") 150 66 green 11 :first) 490 168)
+(dia-join s 'owner 'chan_1 "sends")
+(dia-join s 'guest 'chan_2 "sends")
+;each reads the other's channel, a line into its top or its foot, apart
+;from the line it sends by
+(each (lambda ((x y x1 y1 lx ly))
+		(push (first s) (cwb-shape (cwb-d "M" x y "L" x1 y "L" x1 y1) :stroke +dia_line :width 1.4
+			:join :miter :cap1 :butt :cap2 :butt))
+		(push (first s) (dia-head x1 (if (> y1 y) (- y1 20) (+ y1 20)) x1 y1))
+		(dia-say s "reads" lx ly 11))
+	'((190 208 75 90 84 202) (450 50 565 168 496 44)))
+;a channel opened out, the ring of records each writer goes round
+(dia-say s "A channel, a ring of records, each an 8 byte header, status then length, and its body:" 0 270 12 :t 0xff202428)
+(dia-put s :nil (dia-box '("ping" "64: header, lk_node") 110 44 gold 11 :first) 0 282)
+(dia-put s :nil (dia-box '("frag" "8 + 64 lk_frag + data, to 8") 190 44 blue 11 :first) 110 282)
+(dia-put s :nil (dia-box '("frag" "its data may run round") 160 44 blue 11 :first) 300 282)
+(dia-put s :nil (dia-box '("skip" "to the end") 90 44 grey 11 :first) 460 282)
+(dia-put s :nil (dia-box "0, ready" 90 44 green 11) 550 282)
+(dia-say s "status: 0 ready, 1 ping, 2 frag, 3 skip. The writer writes the record, a status of 0 after it, then the record's own" 0 346 11)
+(dia-say s "status, which makes it the reader's; the reader sets it back to 0 when it has it, which gives the writer the room." 0 362 11)
+(diagram "link_shmem" (dia-scene-doc s))

@@ -1,0 +1,1223 @@
+((:Emap 1)
+	:version 1
+	:width 666
+	:height 385
+	:background 0
+	:style :plain
+	:grid 32
+	:next_id 80
+	:items
+	((:list 1)
+		((:list 7)
+			:group
+			:id
+			1
+			:items
+			((:list 26)
+				((:list 5)
+					:group
+					:id
+					2
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							28
+							:d
+							"[M 150 57 L 190 50]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							29
+							:d
+							"[M 190 50 L 181.82437 55.49147 180.44534 47.61134 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					3
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[sends]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						156.15063
+						46.07637
+					)
+				)
+				((:list 5)
+					:group
+					:id
+					4
+					:items
+					((:list 2)
+						((:list 13)
+							:shape
+							:id
+							30
+							:d
+							"[M 490 201 L 450 208]"
+							:stroke
+							4282140240
+							:width
+							1.39999
+							:cap1
+							:butt
+							:cap2
+							:butt
+						)
+						((:list 9)
+							:shape
+							:id
+							31
+							:d
+							"[M 450 208 L 458.17562 202.50852 459.55465 210.38865 Z]"
+							:fill
+							4282140240
+							:stroke
+							0
+						)
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					5
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[sends]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						456.15063
+						197.07637
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					6
+					:d
+					"[M 190 208 L 75 208 L 75 90]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:join
+					:miter
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					7
+					:d
+					"[M 75 90 L 79 99 71 99 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+				((:list 15)
+					:shape
+					:id
+					8
+					:d
+					"[M 450 50 L 565 50 L 565 168]"
+					:stroke
+					4282140240
+					:width
+					1.39999
+					:join
+					:miter
+					:cap1
+					:butt
+					:cap2
+					:butt
+				)
+				((:list 9)
+					:shape
+					:id
+					9
+					:d
+					"[M 565 168 L 561 159 569 159 Z]"
+					:fill
+					4282140240
+					:stroke
+					0
+				)
+				((:list 17)
+					:shape
+					:id
+					10
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[/tmp/<name>, 63648 bytes]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						190.00000
+						14.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					11
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							32
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									44
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 46 A 6 6 0 0 1 254 52 L 6 52 A 6 6 0 0 1 0 46 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									45
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[chan_1, 0]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										108.10809
+										22.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									46
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[30880 bytes, the owner sends on it]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										45.83496
+										38.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						24.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					12
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							33
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									47
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 34 A 6 6 0 0 1 254 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									48
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[host_a, 30880]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										94.04925
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									49
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[16 bytes, the owner's node id]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										61.12445
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						76.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					13
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							34
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									50
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 34 A 6 6 0 0 1 254 40 L 6 40 A 6 6 0 0 1 0 34 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									51
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[host_b, 30896]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										94.04724
+										16.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									52
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[16 bytes, the guest's node id]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										62.83850
+										32.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						116.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					14
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							35
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									53
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 20 A 6 6 0 0 1 254 26 L 6 26 A 6 6 0 0 1 0 20 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									54
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[to the next 4096]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										89.81011
+										17.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						156.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					15
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							36
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									55
+									:d
+									"[M 6 0 L 254 0 A 6 6 0 0 1 260 6 L 260 46 A 6 6 0 0 1 254 52 L 6 52 A 6 6 0 0 1 0 46 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									56
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[chan_2, 32768]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										93.32617
+										22.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[30880 bytes, the guest sends on it]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										47.54901
+										38.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						190.00000
+						182.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					16
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							37
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									58
+									:d
+									"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 60 A 6 6 0 0 1 144 66 L 6 66 A 6 6 0 0 1 0 60 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									59
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[owner]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										58.11395
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									60
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[first to find host_a 0]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										26.26940
+										37.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									61
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[and write its id there]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										26.08612
+										53.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						24.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					17
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							38
+							:items
+							((:list 4)
+								((:list 11)
+									:shape
+									:id
+									62
+									:d
+									"[M 6 0 L 144 0 A 6 6 0 0 1 150 6 L 150 60 A 6 6 0 0 1 144 66 L 6 66 A 6 6 0 0 1 0 60 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									63
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[guest]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										59.93139
+										21.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									64
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[finds another's id there,]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.59277
+										37.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									65
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[writes its own in host_b]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										18.28997
+										53.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						490.00000
+						168.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					18
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[reads]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						84.00000
+						202.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					19
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[reads]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						496.00000
+						44.00000
+					)
+				)
+				((:list 17)
+					:shape
+					:id
+					20
+					:kind
+					:text
+					:fill
+					4280296488
+					:stroke
+					0
+					:text
+					"[A channel, a ring of records, each an 8 byte header, status then length, and its body:]"
+					:font
+					"[fonts/OpenSans-Bold.ctf]"
+					:font_size
+					12
+					:pos
+					((:list 2)
+						0.00000
+						270.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					21
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							39
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									66
+									:d
+									"[M 6 0 L 104 0 A 6 6 0 0 1 110 6 L 110 38 A 6 6 0 0 1 104 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294961320
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									67
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[ping]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										44.00067
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									68
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[64: header, lk_node]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										9.07110
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						0.00000
+						282.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					22
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							40
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									69
+									:d
+									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									70
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[frag]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										84.00201
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									71
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[8 + 64 lk_frag + data, to 8]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										35.39898
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						110.00000
+						282.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					23
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							41
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									72
+									:d
+									"[M 6 0 L 154 0 A 6 6 0 0 1 160 6 L 160 38 A 6 6 0 0 1 154 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292339447
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									73
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[frag]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										69.00201
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									74
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[its data may run round]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										26.11584
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						300.00000
+						282.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					24
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							42
+							:items
+							((:list 3)
+								((:list 11)
+									:shape
+									:id
+									75
+									:d
+									"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4294112502
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 17)
+									:shape
+									:id
+									76
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[skip]"
+									:font
+									"[fonts/OpenSans-Bold.ctf]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										34.43908
+										18.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									77
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[to the end]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										20.81933
+										34.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						460.00000
+						282.00000
+					)
+				)
+				((:list 7)
+					:group
+					:id
+					25
+					:items
+					((:list 1)
+						((:list 5)
+							:group
+							:id
+							43
+							:items
+							((:list 2)
+								((:list 11)
+									:shape
+									:id
+									78
+									:d
+									"[M 6 0 L 84 0 A 6 6 0 0 1 90 6 L 90 38 A 6 6 0 0 1 84 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
+									:fill
+									4292866264
+									:stroke
+									4282140240
+									:width
+									1.19999
+								)
+								((:list 15)
+									:shape
+									:id
+									79
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[0, ready]"
+									:font_size
+									11
+									:pos
+									((:list 2)
+										26.23541
+										26.00000
+									)
+								)
+							)
+						)
+					)
+					:pos
+					((:list 2)
+						550.00000
+						282.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					26
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[status: 0 ready, 1 ping, 2 frag, 3 skip. The writer writes the record, a status of 0 after it, then the record's own]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						346.00000
+					)
+				)
+				((:list 15)
+					:shape
+					:id
+					27
+					:kind
+					:text
+					:fill
+					4284245616
+					:stroke
+					0
+					:text
+					"[status, which makes it the reader's; the reader sets it back to 0 when it has it, which gives the writer the room.]"
+					:font_size
+					11
+					:pos
+					((:list 2)
+						0.00000
+						362.00000
+					)
+				)
+			)
+			:pos
+			((:list 2)
+				13.00000
+				8.00000
+			)
+		)
+	)
+	:props :nil
+	:view :nil
+)

@@ -70,6 +70,10 @@ offset   size    what
 
 `chan_2` is at the next 4096 after `host_b`.
 
+```image
+docs/diagrams/link_shmem.cwb
+```
+
 The first to find `host_a.node1` 0 writes its node id there and is the
 owner; the other, finding another's there, writes its own in `host_b` and is
 the guest. The owner sends on `chan_1` and reads `chan_2`, the guest the
