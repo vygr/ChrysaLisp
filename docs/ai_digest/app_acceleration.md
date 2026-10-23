@@ -177,6 +177,10 @@ than the longest is made up to that length with its last register.
 
 To make these functions available to the high-level Lisp interpreter:
 
+```image
+docs/diagrams/app_native.cwb
+```
+
 1. **Build:** `make apps` assembles every app's `lisp.vp`, as `make install`
    does. An app does not compile its VP as it runs.
 
