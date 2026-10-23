@@ -1,4 +1,4 @@
-;docs/ai_digest/docs_rendering.md: a page is made of sections, each by the handler for its tag
+;docs/ai_digest/docs_rendering.md and docs/apps/docs.md: a page is made of sections, each by the handler for its tag
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (dia-put s 'file (dia-box '("a .md file" "read a line at a time") 150 44 grey 11 :first) 0 70)
 (dia-put s 'router (dia-box '("handler-func" "the tag of a fenced block," "or text") 170 62 gold 11 :first) 180 61)

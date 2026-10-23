@@ -75,6 +75,10 @@ This is the most distinctive feature of the Docs application's implementation.
 It allows for extensible content rendering without modifying the core
 application logic.
 
+```image
+docs/diagrams/docs_sections.cwb
+```
+
 #### 4.1. Markup Convention
 
 Documentation files use a simple markup convention to define special sections. A
