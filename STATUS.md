@@ -31,6 +31,8 @@ The release check for 7.3, every stage passes on every machine.
 
 **A hidden desktop quits, its node with it, on a plain kill.** **On Linux it is drawn offscreen, so it needs no display: the Pi runs its desktop tests beside a desktop, or with the TV off.**
 
+**A macro that throws as it is expanded stops the load there, on a checked build, even inside a function not yet called.**
+
 **Tests wait for what they test, not a time: no check fails because a busy machine was slow; a real hang is the suite's to report.**
 
 **One of each helper written twice: `(crypto-same?)` for every tag (GCM compared with `eql`), `(sync-no-modes?)` (rack from Windows sent modes), `(bits-huff)`, `(date-dos)`, `(reel-pcm)`, `(sign-extend)`, `(dir-list)`, `(mail-first)`.**

@@ -94,3 +94,16 @@
 (assert-error "of an int not on 4" (set-int (str-alloc 32) 3 0))
 (assert-error "of a short not on 2" (set-short (str-alloc 32) 1 0))
 (assert-error "and obj-get of a long not on a word" (get-long (str-alloc 32) 4))
+
+; --- a macro that throws as it is expanded, in a body ---
+;its error took the place of the form it was expanded from, and in a body
+;that is not run as it is read it sat there till that body was called: a
+;file loaded, and a block of the docs passed, with it in them
+(assert-error "a macro's error at the top"
+	(repl (string-stream "(const (+ 1 :a))") "error_checks"))
+(assert-error "and in the body of a function not called"
+	(repl (string-stream "(defun error_checks_f () (const (+ 1 :a)))") "error_checks"))
+(assert-error "and of a macro not used"
+	(repl (string-stream "(defmacro error_checks_m () (static-qq (list (const (+ 1 :a)))))") "error_checks"))
+(assert-eq "and a body with no error is still read" :t
+	(progn (repl (string-stream "(defun error_checks_g () (const (+ 1 2)))") "error_checks") (= (error_checks_g) 3)))

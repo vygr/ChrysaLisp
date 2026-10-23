@@ -13,7 +13,7 @@
 
 	(structure local 0
 		(ptr this form args macro stack)
-		(pptr iter))
+		(pptr iter root))
 
 	(entry :lisp :repl_expand '(:r0 :r1))
 
@@ -23,7 +23,7 @@
 	(assign '((:r2 +obj_vtable)) '(:r4))
 	(vpif '(:r4 = :r3))
 		(vp-alloc local_size)
-		(assign '(:r0 :r1 :r2) '((:rsp local_this) (:rsp local_iter) (:rsp local_form)))
+		(assign '(:r0 :r1 :r1 :r2) '((:rsp local_this) (:rsp local_iter) (:rsp local_root) (:rsp local_form)))
 		(call :array :create :nil '((:rsp local_stack)))
 		(assign '((:rsp local_iter) (:rsp local_form)) '(:r1 :r2))
 		(loop-start 'try_expand)
@@ -75,6 +75,21 @@
 					(assign '((:rsp local_iter)) '(:r2))
 					(assign '(:r1) '((:r2 0)))
 					(call :obj :deref '((:rsp local_args)))
+				(errorcase
+					;a macro that threw: the error is the whole form, so the repl
+					;stops on it now, not when a body it was in is called
+					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
+					(assign '((:r1 0)) '(:r1))
+					(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
+					(vpif '(:r2 = :r3))
+						(class/obj/ref :r1 :r2)
+						(assign '(:r1) '((:rsp local_form)))
+						(assign '((:rsp local_root)) '(:r0))
+						(call :obj :deref '((:r0 0)))
+						(assign '((:rsp local_root) (:rsp local_form)) '(:r0 :r1))
+						(assign '(:r1) '((:r0 0)))
+						(break 'try_expand)
+					(endif))
 					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
 					(vp-cpy-ir :r1 0 :r2)
 					(f-bind :list :vtable :r3)
