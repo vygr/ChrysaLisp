@@ -24,8 +24,8 @@
 
 (import "./sbr_tables.inc")
 
-(ffi (path-to-absolute "./media_matvec") sbr-matvec)
-; (sbr-matvec matrix rows cols x from out) -> out
+(ffi (path-to-absolute "./media_dct4") sbr-dct4)
+; (sbr-dct4 x tw rev out) -> out
 (ffi (path-to-absolute "./media_gather") sbr-gather)
 ; (sbr-gather out arrays index) -> out
 (ffi (path-to-absolute "./media_window") sbr-window)
@@ -45,16 +45,15 @@
 
 (defun sbr-tables ()
 	; (sbr-tables)
-	;the books made native tables, the window, the noise and the matrices
-	;of the banks, made the once. The analysis's 32 bands of 64 sums of
-	;the window, each 2 e^(i pi (k + 1/2)(2n - 1/2)/64), its cos and its
-	;sin; the synthesis's 128 of the 64 bands, re and im, each e^(i pi
-	;(k + 1/2)(2n - 255)/128)/64, its re part
+	;the books made native tables, the window, the noise and what the
+	;banks take, made the once. The banks are DCT-IVs, of 32 and of 64,
+	;(sbr-analysis) and (sbr-synthesis) say how, and the analysis's
+	;twiddle after, 2 e^(-i 3 pi (k + 1/2)/128), its cos and its sin
 	(unless (. +sbr :find :tables)
 		(defq k (/ (n2r 1) (n2r 2147483648)) pi (mdct-pi) books (. +sbr :find :books)
 			window (apply (const reals) (map (# (* (n2r %0) k)) (. +sbr :find :window_q31)))
 			angle (lambda (k n d off) (/ (* pi (+ (n2r k) (n2r 0.5)) (- (n2r (* 2 n)) off)) (n2r d)))
-			two (n2r 2) half (n2r 0.5) at (n2r 255) a64 (/ (n2r 1) (n2r 64)))
+			two (n2r 2))
 		(scatter +sbr :tables (map (# (huff-table (second %0))) books) :least (map (const first) books) :window window
 			:window_ds (reduce (# (push %0 (elem-get window (* 2 %1)))) (range 0 320) (cap 320 (reals)))
 			:noise (apply (const reals) (map (# (* (n2r %0) k)) (. +sbr :find :noise_q31)))
@@ -64,12 +63,9 @@
 			:noise_im (apply (const reals) (map (# (* (n2r (elem-get (. +sbr :find :noise_q31) (inc (* 2 (% %0 512))))) k)) (range 0 576)))
 			:alt (apply (const reals) (map (# (n2r (if (= (logand %0 1) 0) 1 -1))) (range 0 64)))
 			:ones (fill (reals) 64 (n2r 1))
-			:ana_re (reduce (lambda (out j) (push out (* two (cos (angle (/ j 64) (% j 64) 64 half))))) (range 0 2048) (cap 2048 (reals)))
-			:ana_im (reduce (lambda (out j) (push out (* two (sin (angle (/ j 64) (% j 64) 64 half))))) (range 0 2048) (cap 2048 (reals)))
-			;of the synthesis rows 0 to 63, its cos and its sin: row 127 - n is
-			;of the cos of the other sign and the same sin
-			:syn_c (reduce (lambda (out j) (push out (* a64 (cos (angle (% j 64) (/ j 64) 128 at))))) (range 0 4096) (cap 4096 (reals)))
-			:syn_s (reduce (lambda (out j) (push out (* a64 (sin (angle (% j 64) (/ j 64) 128 at))))) (range 0 4096) (cap 4096 (reals)))
+			:dct32 (mdct-tables 32) :dct64 (mdct-tables 64)
+			:ana_c (apply (const reals) (map (# (* two (cos (angle %0 0 128 (n2r -3))))) (range 0 32)))
+			:ana_s (apply (const reals) (map (# (* two (sin (angle %0 0 128 (n2r -3))))) (range 0 32)))
 			:smooth (map (const str-to-real) '("0.33333333333333" "0.30150283239582" "0.21816949906249" "0.11516383427084" "0.03183050093751"))
 			:limgain (map (const str-to-real) '("0.70795" "1.0" "1.41254" "10000000000"))
 			:bw (map (const str-to-real) '("0.0" "0.75" "0.9" "0.98"))
@@ -581,17 +577,22 @@
 (defun sbr-analysis (ch samples)
 	; (sbr-analysis data samples) -> ((re im) ...)
 	;the 32 slots of 32 bands of 1024 samples: the newest 320 by the
-	;window, its 5 parts of 64 summed, by the cos and sin of each band
+	;window, its 5 parts of 64 summed, u, and band k 2 the sum of u n e^(i
+	;pi (k + 1/2)(2n - 1/2)/64). Of n and 63 - n together that is 2 e^(-i 3
+	;pi (k + 1/2)/128) by the DCT-IV of 32 of u n - u 63-n, re, and the
+	;DST-IV of u n + u 63-n, im, a DCT-IV of it backwards by -1 to the k
 	(defq x (cat (. ch :find :analysis) samples) win (. +sbr :find :window_ds)
-		ana_re (. +sbr :find :ana_re) ana_im (. +sbr :find :ana_im))
+		tables (. +sbr :find :dct32) tw (first tables) rev (second tables)
+		tc (. +sbr :find :ana_c) ts (. +sbr :find :ana_s) alt (slice (. +sbr :find :alt) 0 32))
 	;the 288 newest kept for the next
 	(. ch :insert :analysis (slice x 1024 1312))
 	(map (lambda (l)
 			;the window by the samples newest first
 			(defq z (nums-mul win (slice x (+ (* 32 l) 320) (* 32 l)))
-				u (nums-add (nums-add (nums-add (slice z 0 64) (slice z 64 128)) (nums-add (slice z 128 192) (slice z 192 256))) (slice z 256 320)))
-			(list (sbr-matvec ana_re 32 64 u 0 (fill (reals) 32 (n2r 0)))
-				(sbr-matvec ana_im 32 64 u 0 (fill (reals) 32 (n2r 0)))))
+				u (nums-add (nums-add (nums-add (slice z 0 64) (slice z 64 128)) (nums-add (slice z 128 192) (slice z 192 256))) (slice z 256 320))
+				lo (slice u 0 32) hi (slice u 64 32) d (nums-sub lo hi) s (nums-add lo hi)
+				re (sbr-dct4 d tw rev (cat d)) im (nums-mul (sbr-dct4 (slice s 32 0) tw rev s) alt))
+			(list (nums-add (nums-mul tc re) (nums-mul ts im)) (nums-sub (nums-mul tc im) (nums-mul ts re))))
 		(range 0 32)))
 
 (defun sbr-low (sbr ch)
@@ -845,14 +846,19 @@
 (defun sbr-synthesis (ch slots)
 	; (sbr-synthesis data slots) -> reals
 	;the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
-	;bands newest in v, its 10 parts by the window, summed. Of its cos by
-	;the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
-	;the window's sum native, lib/media/lisp.vp media_window, as MP3's
-	(defq syn_c (. +sbr :find :syn_c) syn_s (. +sbr :find :syn_s) win (. +sbr :find :window)
+	;bands newest in v, its 10 parts by the window, summed. Of the sum of
+	;the re by cos and the im by sin of pi (k + 1/2)(2n - 255)/128, over
+	;64, a and b, v n is a - b, v 127 - n is -a - b. The 255 is 2 pi (k +
+	;1/2) less than (n + 1/2)(k + 1/2), so a is the DCT-IV of 64 of the re
+	;over -64, b the DST-IV of the im, a DCT-IV of it backwards by -1 to
+	;the n, over -64. The window's sum native, lib/media/lisp.vp
+	;media_window, as MP3's
+	(defq tables (. +sbr :find :dct64) tw (first tables) rev (second tables)
+		alt (. +sbr :find :alt) win (. +sbr :find :window) a64 (/ (n2r 1) (n2r 64))
 		v (. ch :find :synthesis) zero (n2r 0) out (fill (reals) 2048 zero) one (n2r 1))
 	(each! (lambda ((re im))
-			(defq a (sbr-matvec syn_c 64 64 re 0 (fill (reals) 64 zero)) b (sbr-matvec syn_s 64 64 im 0 (fill (reals) 64 zero)))
-			(setq v (cat (nums-sub a b) (slice (nums-sub (nums-scale a (n2r -1)) b) 64 0) (slice v 0 1152)))
+			(defq a (sbr-dct4 re tw rev (cat re)) b (nums-mul (sbr-dct4 (slice im 64 0) tw rev (cat im)) alt))
+			(setq v (cat (nums-scale (nums-sub b a) a64) (slice (nums-scale (nums-add a b) a64) 64 0) (slice v 0 1152)))
 			(sbr-window v win out (* 64 (!)) one 64 5 128 256 64 192))
 		(list slots) 0 32)
 	(. ch :insert :synthesis v)
