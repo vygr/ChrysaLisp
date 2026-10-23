@@ -143,8 +143,22 @@
 	;push task state
 	(vp-save-state)
 
-	;save stack pointer
+	;the slice of the task deferred to starts now, (task-slice) measures
+	;from here, so a task coming in after one that waited on mail has the
+	;whole of its slice, as one coming in after a (task-slice)
+	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_tick)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(call :host_os :pii_tick :nil '(:r0))
+	(else)
+		(call :host_os :pii_time :nil '(:r0))
+	(endif)
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '(:r0) '((:r1 statics_sys_task_then)))
+	(vp-pop :r0)
+
+	;save stack pointer
 	(assign '((:r1 statics_sys_task_current_tcb)) '(:r2))
 	(vp-cpy-ri :rsp :r2 +tk_node_stack)
 	(assign '(:r0 (:r0 +tk_node_stack)) '((:r1 statics_sys_task_current_tcb) :rsp))
