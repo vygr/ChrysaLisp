@@ -66,11 +66,21 @@
 	(if (source-caching?) (save out (source-cache (hex-encode (sha256 (str entry))) mode)))
 	out)
 
+(defun source-vp-links (entry)
+	; (source-vp-links entry) -> (name ...)
+	;the functions a function calls, from its VP, with nothing translated:
+	;the strings after the label its header gives for where its paths begin
+	(defq code (second entry)
+		paths (elem-get (some (# (and (list? %0) (eql (first %0) 'emit-short) %0)) code) 4)
+		at (some (# (and (list? %0) (eql (first %0) 'emit-label) (eql (second (second %0)) paths) (!))) code))
+	(map (const second) (filter! (# (and (list? %0) (eql (first %0) 'emit-string))) code (inc at) -1)))
+
 (defun source-manifest (mode name)
 	; (source-manifest mode name) -> :nil | text
 	;a function of this system and every one it calls, its name and the
 	;hash of its VP, a line each, not the system's own, what a boot image
-	;has, which is each machine's own
+	;has, which is each machine's own. Read from the VP alone: the system
+	;that sends translates nothing, where it lands does
 	(defq todo (list name) seen (list) lines (list))
 	(while (defq name (pop todo))
 		(unless (or (find name seen) (nempty? (boot-funcs (list name))))
@@ -78,8 +88,7 @@
 			(cond
 				((defq hash (source-hash mode name))
 					(push lines (cat name " " hash))
-					(defq native (ifn (load (cat (load-path) name)) (source-make (first (source-entry mode name)) mode)))
-					(each (# (push todo %0)) (source-links native)))
+					(each (# (push todo %0)) (source-vp-links (first (source-entry mode name)))))
 				((setq lines :nil todo (list))))))
 	(if lines (join lines (ascii-char 10))))
 
