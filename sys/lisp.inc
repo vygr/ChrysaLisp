@@ -117,8 +117,13 @@
 		;the first thing they run. A node's args are split at spaces, and
 		;on Windows at tabs as well, so the form is written with neither,
 		;a vertical tab, which the reader takes for white space as it does
-		;anything up to a space
-		user (get '*env_node_user*) tab (ascii-char 11)
+		;anything up to a space. A hidden desktop of a session with no user
+		;of its own is the machine's user, usr/current, read and not
+		;written: it has no one to ask, its login window is never seen, and
+		;its services, Audio with them, start only once it knows
+		user (ifn (get '*env_node_user*)
+			(if (eql kind :gui_hidden) (trim (ifn (load "usr/current") "Guest"))))
+		tab (ascii-char 11)
 		;and so with a system id that is not the machine's. A node of such
 		;a system has it in *env_node_sid*, the nodes it starts are of the
 		;same system, and its Net service knows it is not the machine's
