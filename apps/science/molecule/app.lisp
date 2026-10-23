@@ -26,6 +26,10 @@
 	;images asked for and not made yet, each made between frames, a few
 	;milliseconds of them a tick, and the nearest made shown till it is
 	atom_waiting (Fmap 31) atom_queue (list) +make_budget (/ timer_rate 3)
+	;the atoms in view by depth, near to far, a bucket for each 1024th of it,
+	;kept from frame to frame
+	depth_buckets (map (lambda (_) (list)) (range 0 1024))
+	+bucket_scale (/ (n2r 1023) (- +far +near))
 	sdf_files (sort (files-all (cat *app_root* "data") '(".sdf")))
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	+radius_quant (n2r 1.0)
@@ -192,23 +196,28 @@
 				(list 'centre (list (>> w 1) (>> h 1)))
 				(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
 			*atoms*)
-		indices (if (> *num_atoms* 0)
-					(filter (# (<= +near (elem-get out (+ (* %0 +placed_size) 3)) +far))
-							(range 0 (dec *num_atoms*)))
-					(list))
-		indices (sort indices (# (if (<= (elem-get out (+ (* %0 +placed_size) 3))
-										(elem-get out (+ (* %1 +placed_size) 3))) 1 -1)))
-		new_draw_list (list))
+		new_draw_list (list) bucket_at (length depth_buckets))
+	;each atom in view to the bucket of its depth, one pass and no compares,
+	;and drawn from the furthest bucket in: two in one bucket are as near as
+	;makes no odds, which goes over which
 	(each (lambda (i)
-		(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
-		(when (<= +real_-1 z +real_1)
-			(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
-			(when tid
-				(defq col +argb_white
-					blit_x (n2i (- sx (n2r (/ tw 2))))
-					blit_y (n2i (- sy (n2r (/ th 2)))))
-				(push new_draw_list (list tid col blit_x blit_y tw th)))
-			(task-slice))) indices)
+			(defq w (elem-get out (+ (* i +placed_size) 3)))
+			(if (<= +near w +far)
+				(push (elem-get depth_buckets (n2i (* (- w +near) +bucket_scale))) i)))
+		(range 0 *num_atoms*))
+	(while (> bucket_at 0)
+		(defq bucket (elem-get depth_buckets (setq bucket_at (dec bucket_at))))
+		(each (lambda (i)
+			(bind '(sx sy r z at) (slice out (+ (* i +placed_size) 4) (* (inc i) +placed_size)))
+			(when (<= +real_-1 z +real_1)
+				(bind '(tid tw th) (get-atom-texture r (elem-get *colors* i) (lighting z)))
+				(when tid
+					(defq col +argb_white
+						blit_x (n2i (- sx (n2r (/ tw 2))))
+						blit_y (n2i (- sy (n2r (/ th 2)))))
+					(push new_draw_list (list tid col blit_x blit_y tw th)))
+				(task-slice))) bucket)
+		(clear bucket))
 	(set *main_widget* :atom_draw_list new_draw_list)
 	(. *main_widget* :dirty))
 
