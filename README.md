@@ -32,13 +32,11 @@ Featured videos include:
 
 * Insights into the GUI compositor.
 
-* A look at the integrated debugger.
-
 ## Key Features
 
 * **Self-Hosting**: Includes its own assembler, Lisp interpreter, and build tools (`make`).
 
-* **Virtual Processor (VP)**: A 64-bit RISC-like target ensuring portability across x64, ARM64, and RISC-V64, LA64, with a VP64 emulator for unsupported platforms or bootstrapping.
+* **Virtual Processor (VP)**: A 64-bit RISC-like target ensuring portability across x64, ARM64, RISC-V64 and LA64, with a VP64 emulator for unsupported platforms or bootstrapping. The VP of each function is made once and translated for each platform, and `docs/vm/vp_vm.md` is its spec, what every instruction does on every target. `run_tui.sh -V` runs the emulator in a mode that checks the VP as it goes.
 
 * **Parallel & Distributed**: Designed for MIMD architectures, supporting various network topologies simulated via shared memory links or linked directly across physical machines over native TCP networks.
 
@@ -64,13 +62,13 @@ Featured videos include:
 
 * **Whiteboard**: A board of shapes, not pixels, for many pointers at once, with instruments such as a ruler and a protractor that a pen runs along. A board is a `.cwb` text file that loads anywhere a picture does, and can be drawn by a hand, a script or an AI with the `cwb` command. The diagrams in the documentation are boards. See `docs/apps/whiteboard.md`.
 
-* **Cryptography**: Native SHA-256, SHA-512, HMAC, ChaCha20 with Poly1305 and Ed25519 signatures, in `lib/crypto/`. See `docs/ai_digest/crypto.md`.
+* **Cryptography**: SHA-256, SHA-512, HMAC, HKDF, PBKDF2, ChaCha20 with Poly1305, AES with GCM, X25519, Ed25519, ECDSA and RSA signatures, and X.509 certificates, in `lib/crypto/`. See `docs/ai_digest/crypto.md`.
 
 * **Network Stack**: URL, JSON and HTTP/1.1 libraries in `lib/net/`. See `docs/ai_digest/net_stack.md`.
 
 * **Command Terminal**: A familiar pipe-style command-line interface.
 
-* **Tests as a Cache**: Over 6,000 assertions in 140 modules. `tests` runs only the modules that stand on what has changed, so the test of a change is as big as the change. See `docs/ai_digest/test_cache.md`.
+* **Tests as a Cache**: Nearly 8,000 assertions in 191 modules. `tests` runs only the modules that stand on what has changed, so the test of a change is as big as the change. See `docs/ai_digest/test_cache.md`.
 
 * **Source Checking**: `check`, `lint`, `forward`, `imports` and `includes` read the source and report faults the text alone can show, before anything is run.
 
@@ -90,7 +88,7 @@ Future goals include bare-metal operation, UniKernel appliances, and a WebAssemb
 
 ## Quick Start Guide
 
-This guide is for users familiar with command-line tools and build systems. For a more detailed, step-by-step walkthrough, please see the `docs/intro.md` document.
+This guide is for users familiar with command-line tools and build systems. For a more detailed, step-by-step walkthrough, please see the `docs/intro/intro.md` document.
 
 ### 1. Download ChrysaLisp
 
@@ -145,7 +143,7 @@ older Mac or Pi, and for what each gives you.
 
 * **Raspberry Pi (Framebuffer mode)**:
 
-  * Follow specific setup in `docs/framebuffer.md` or the comprehensive `docs/intro.md`.
+  * Follow specific setup in `docs/intro/framebuffer.md` or the comprehensive `docs/intro/intro.md`.
 
 ### 3. Build and Install ChrysaLisp System
 
@@ -209,7 +207,7 @@ Once inside the ChrysaLisp TUI (Terminal app), you can rebuild the system:
 
 * `make apps`: Builds only the apps, for all platforms.
 
-* `release`, `debug`, `validate`: the mode to build in, with any of the above, as `make it validate` or `make vp release`. With none, `it` and `apps` build the VP64 in release and the rest in debug, `vp` builds it in debug, and the others build this platform in debug.
+* `release`, `debug`, `validate`: the mode to build in, with any of the above, as `make it validate` or `make vp release`. With none, `it`, `apps` and `vp` build the VP64 in release and the rest in debug, and the others build this platform in debug.
 
 * `make test`: Runs internal timing tests for the make process.
 
