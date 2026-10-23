@@ -672,9 +672,9 @@ All checks should be performed using standard TUI pipeline commands:
 	to the native host build across all target platforms:
 
 	```sh
-	rsync -av --delete obj/ ../ChrysaLisp_copy/obj/
+	rsync -av --delete obj/ /tmp/chrysalisp_obj_ref/
 	echo "make it | time -s" | ./run_tui.sh -e -f
-	diff -r obj/ ../ChrysaLisp_copy/obj/
+	diff -r obj/ /tmp/chrysalisp_obj_ref/
 	```
 
 	Must produce zero diff output (exit code 0).

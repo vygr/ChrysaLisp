@@ -616,7 +616,7 @@ From the host shell or automated tool invocations, pipe commands directly to
 	`echo "make it | time -s" | ./run_tui.sh -f`
 
 *	**Binary-to-Binary Verification & Diff Testing:**
-	The reference directory `../ChrysaLisp_copy/obj/` is used to verify exactly
+	A reference copy of `obj/`, `/tmp/chrysalisp_obj_ref/`, is used to verify exactly
 	what binaries changed across builds and to confirm that the VP64 emulator
 	(`-e`) produces bit-for-bit identical output to the native host:
 
@@ -624,9 +624,9 @@ From the host shell or automated tool invocations, pipe commands directly to
 
 		`echo "make it" | ./run_tui.sh -f`
 
-	2.	Sync `obj/` to `../ChrysaLisp_copy/obj/`:
+	2.	Sync `obj/` to `/tmp/chrysalisp_obj_ref/`:
 
-		`rsync -av --delete obj/ ../ChrysaLisp_copy/obj/`
+		`rsync -av --delete obj/ /tmp/chrysalisp_obj_ref/`
 
 	3.	Rebuild under the VP64 emulator:
 
@@ -634,4 +634,4 @@ From the host shell or automated tool invocations, pipe commands directly to
 
 	4.	Verify bit-for-bit identity using host `diff`:
 
-		`diff -r obj/ ../ChrysaLisp_copy/obj/`
+		`diff -r obj/ /tmp/chrysalisp_obj_ref/`
