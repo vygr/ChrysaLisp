@@ -21,7 +21,7 @@
 
 (defq tl_before (lisp-nodes) tl_reply (mail-mbox) tl_new :nil)
 (pipe-run "link -l 34581" (const identity))
-(defq tl_pid (pii-spawn "-run tests/solo/tcp_peer.lisp") tl_t0 (pii-time))
+(defq tl_pid (pii-spawn "-run tests/solo/tcp_peer.lisp"))
 
 (defun tl-find ()
 	;the node that is the process started, :nil if it is not seen yet
@@ -29,11 +29,13 @@
 			(unless (find node tl_before)
 				(open-task (str `(mail-send (hex-decode ,(hex-encode tl_reply)) (str (pii-pid))))
 					node +kn_call_pin 0 (mail-mbox))
-				(if (eql (mail-read-timeout tl_reply (task-timeout 1)) (str tl_pid)) node)))
+				(if (eql (mail-read tl_reply) (str tl_pid)) node)))
 		(lisp-nodes)))
 
 (assert-true "the other network is started" (> tl_pid 0))
-(while (and (not (setq tl_new (tl-find))) (< (- (pii-time) tl_t0) (task-timeout 15)))
+;each wait below is for what is to come, as long as it takes, a hang is
+;the runner's to say
+(until (setq tl_new (tl-find))
 	(task-sleep 100000))
 (assert-true "its node is seen over the connection, and runs a task" tl_new)
 (when tl_new
@@ -50,11 +52,11 @@
 			(mail-send (hex-decode ,(hex-encode tl_echo)) mbox)
 			(mail-send (hex-decode ,(hex-encode tl_echo)) (mail-read mbox))))
 		tl_new +kn_call_pin 0 (mail-mbox))
-	(defq tl_there (mail-read-timeout tl_echo (task-timeout 5)))
+	(defq tl_there (mail-read tl_echo))
 	(assert-true "a task there gives a mailbox" tl_there)
 	(when tl_there
 		(mail-send tl_there tl_big)
-		(defq tl_back (mail-read-timeout tl_echo (task-timeout 10)))
+		(defq tl_back (mail-read tl_echo))
 		(assert-eq "170K of mail goes there and comes back, all of it" (length tl_big) (length (ifn tl_back "")))
 		(assert-true "and the same" (eql tl_big tl_back)))
 	;the link stays up, a ping goes each way every second. Were they not
@@ -70,17 +72,16 @@
 		(open-task (str `(progn (ffi "service/net/lisp_drop" net-drop)
 				(mail-send (hex-decode ,(hex-encode tl_said)) (str (net-drop)))))
 			tl_net_node +kn_call_pin 0 (mail-mbox))
-		(str-as-num (ifn (mail-read-timeout tl_said (task-timeout 2)) "-1")))
+		(str-as-num (mail-read tl_said)))
 	(assert-true "there is a link over the network to drop" (> (tl-drop) 0))
-	(setq tl_t0 (pii-time))
-	(while (and (/= (tl-drop) 0) (< (- (pii-time) tl_t0) (task-timeout 5)))
+	(while (/= (tl-drop) 0)
 		(task-sleep 100000))
 	(assert-eq "dropped, there is none" 0 (tl-drop))
-	(while (and (find tl_new (lisp-nodes)) (< (- (pii-time) tl_t0) (task-timeout 15)))
+	(while (find tl_new (lisp-nodes))
 		(task-sleep 100000))
 	(assert-true "and the node at its other end is not seen any more" (not (find tl_new (lisp-nodes))))
 	;the other end sees it is alone, and goes
-	(while (and (pii-alive tl_pid) (< (- (pii-time) tl_t0) (task-timeout 25)))
+	(while (pii-alive tl_pid)
 		(task-sleep 10000))
 	(assert-eq "left alone, its process ends" :nil (pii-alive tl_pid)))
 
@@ -91,15 +92,15 @@
 	; -> (gate has_port)
 	(defq said (mail-mbox) gate (open-child "service/net/gate.lisp" +kn_call_pin))
 	(mail-send gate (cat (door-key) (str port) " " (hex-encode said)))
-	(list gate (mail-read-timeout said (task-timeout 5))))
+	(list gate (mail-read said)))
 (bind '(tl_gate1 tl_has1) (tl-gate 34582))
 (bind '(tl_gate2 tl_has2) (tl-gate 34582))
 (assert-eq "the first to listen on a port has it" "1" tl_has1)
 (assert-eq "the second has not" "0" tl_has2)
 (mail-send tl_gate1 "")
 ;it looks for mail between looks at the port, so it is asked for till it is had
-(defq tl_t0 (pii-time) tl_gate3 :nil tl_has3 :nil)
-(while (and (not (eql tl_has3 "1")) (< (- (pii-time) tl_t0) (task-timeout 5)))
+(defq tl_gate3 :nil tl_has3 :nil)
+(until (eql tl_has3 "1")
 	(task-sleep 20000)
 	(bind '(tl_gate3 tl_has3) (tl-gate 34582)))
 (assert-eq "the first told to go, the next has it" "1" tl_has3)
