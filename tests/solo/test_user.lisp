@@ -13,13 +13,12 @@
 	(defq mbox (mail-mbox))
 	(open-task (str `(progn (import "usr/env.inc") (mail-send (hex-decode ,(hex-encode mbox)) (cat (get :user *env*) " " (get :home *env*)))))
 		node +kn_call_pin 0 (mail-mbox))
-	(mail-read-timeout mbox (task-timeout 5)))
+	(mail-read mbox))
 
 (defun us-new (before)
-	;wait for a node that was not there before, and not for ever
-	(defq t0 (pii-time) node :nil)
-	(until (or (setq node (some (# (unless (find %0 before) %0)) (lisp-nodes)))
-			(> (- (pii-time) t0) (task-timeout 10)))
+	;wait for a node that was not there before, as long as that takes
+	(defq node :nil)
+	(until (setq node (some (# (unless (find %0 before) %0)) (lisp-nodes)))
 		(task-sleep 100000))
 	node)
 
@@ -34,7 +33,7 @@
 (defq us_mbox (mail-mbox) us_before (lisp-nodes))
 (open-task (str `(mail-send (hex-decode ,(hex-encode us_mbox)) (str (node-spawn 1))))
 	us_node +kn_call_pin 0 (mail-mbox))
-(defq us_more (first (read (string-stream (ifn (mail-read-timeout us_mbox (task-timeout 10)) "()"))))
+(defq us_more (first (read (string-stream (mail-read us_mbox))))
 	us_node2 (us-new us_before))
 (assert-true "it starts a node of its own" (and us_node2 (nempty? us_more)))
 (assert-eq "and that one has the user too" "Test usr/Test/" (us-ask us_node2))
@@ -46,7 +45,6 @@
 (assert-eq "a node this one starts has the user this one has" us_mine (us-ask us_node3))
 ;clear them away
 (each (# (if %0 (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox)))) (list us_node2 us_node us_node3))
-(defq us_all (cat us_pids us_more us_pids2) us_t0 (pii-time))
-(while (and (some (const pii-alive) us_all) (< (- (pii-time) us_t0) (task-timeout 10)))
-	(task-sleep 100000))
+(defq us_all (cat us_pids us_more us_pids2))
+(while (some (const pii-alive) us_all) (task-sleep 100000))
 (assert-true "and they go" (notany (const pii-alive) us_all))

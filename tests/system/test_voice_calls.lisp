@@ -8,15 +8,17 @@
 	vc_wa (mail-mbox) vc_wb (mail-mbox))
 (defun vc-tell (svc text) (mail-send svc text))
 (defun vc-state (watcher test)
-	;the state a watcher is told, the first that passes test, or the last
-	;in five seconds
-	(defq got :nil done :nil due (+ (pii-time) 5000000))
-	;watched again, as an app does within the lease, and so told at once
-	(vc-tell vc_a (cat "W" (hex-encode vc_wa)))
-	(vc-tell vc_b (cat "W" (hex-encode vc_wb)))
-	(while (and (not done) (< (pii-time) due))
+	;the state a watcher is told, the first that passes test, as long as
+	;that takes. Watched again, as an app does within the lease, and so told
+	;at once, and again whenever nothing has come for a fifth of a second
+	(defq got :nil done :nil quiet :t)
+	(until done
+		(when quiet
+			(vc-tell vc_a (cat "W" (hex-encode vc_wa)))
+			(vc-tell vc_b (cat "W" (hex-encode vc_wb))))
+		(setq quiet :t)
 		(when (defq msg (mail-read-timeout watcher 200000))
-			(setq got (call-state-read msg) done (test got))))
+			(setq got (call-state-read msg) done (test got) quiet :nil)))
 	got)
 (defun vc-names (state) (sort (map (const first) (ifn (. state :find :members) (list))) (const cmp)))
 (vc-tell vc_a (cat "W" (hex-encode vc_wa)))
@@ -40,10 +42,16 @@
 
 (vc-tell vc_b "R1")
 (defun vc-rec (state) (map (# (list (first %0) (elem-get %0 2))) (sort (cat (ifn (. state :find :members) (list))) (# (cmp (first %0) (first %1))))))
+(defq vc_bob_rec 1)
+(defun vc-bob? (state)
+	;a test of a state: Bob is in it, recording as vc_bob_rec says. A list
+	;is found by (find) only if it is the very same, so not by what is in it
+	(some (# (and (eql (first %0) "Bob") (= (second %0) vc_bob_rec))) (vc-rec state)))
 (assert-list-eq "one that records says so, and the others in the call are told it" '(("Ann" 0) ("Bob" 1))
-	(vc-rec (vc-state vc_wa (# (find '("Bob" 1) (vc-rec %0))))))
+	(vc-rec (vc-state vc_wa vc-bob?)))
 (vc-tell vc_b "R0")
-(assert-list-eq "and when it stops" '(("Ann" 0) ("Bob" 0)) (vc-rec (vc-state vc_wa (# (find '("Bob" 0) (vc-rec %0))))))
+(setq vc_bob_rec 0)
+(assert-list-eq "and when it stops" '(("Ann" 0) ("Bob" 0)) (vc-rec (vc-state vc_wa vc-bob?)))
 (vc-tell vc_b "M1")
 (assert-eq "mute is said to the watchers" :t (. (vc-state vc_wb (# (. %0 :find :muted))) :find :muted))
 (vc-tell vc_b "M0")
@@ -75,4 +83,4 @@
 (assert-eq "put away with nothing else showing it, it leaves" :nil (. (vc-state vc_wb (# (not (. %0 :find :id)))) :find :id))
 
 (vc-tell vc_a "Q") (vc-tell vc_b "Q")
-(undef (env) 'vc_a 'vc_b 'vc_wa 'vc_wb 'vc_s)
+(undef (env) 'vc_a 'vc_b 'vc_wa 'vc_wb 'vc_s 'vc_bob_rec)

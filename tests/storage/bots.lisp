@@ -23,7 +23,7 @@
 	(each (# (mail-send %0 "stop")) tasks)
 	(defq worst 0)
 	(times (/ (length tasks) 3)
-		(if (defq said (mail-read-timeout heard 5000000)) (setq worst (max worst (str-as-num said)))))
+		(setq worst (max worst (str-as-num (mail-read heard)))))
 	(/ worst 1000))
 
 (defun send-all (sc objects jobs late)
@@ -39,7 +39,8 @@
 				(second (elem-get jobs j))))
 			(list o j (< i late) (storage-walk-send (first (elem-get objects o)) state visit :nil (scene-svc sc from))))
 			(range 0 +out))
-		back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox 120))) (filter (# (not (third %0))) sent))
+		;a good one is waited for till it comes, a bad one has its tick
+		back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox :t))) (filter (# (not (third %0))) sent))
 		good_ms (/ (- (pii-time) t0) 1000)
 		back (cat back (map (lambda ((o j bad mbox)) (list o j bad (storage-walk-answer mbox 120))) (filter (# (third %0)) sent))))
 	(list (length (filter (lambda ((o j bad answer)) (and (not bad) answer

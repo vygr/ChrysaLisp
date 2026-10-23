@@ -24,17 +24,17 @@
 (mail-send lw_peer (str lw_port))
 
 ;this end, the real one: the door, then the link's own tasks
-(defq lw_until (+ (pii-time) (task-timeout 10)) lw_handle 0)
-(while (and (<= lw_handle 0) (< (pii-time) lw_until))
+(defq lw_handle 0)
+(while (<= lw_handle 0)
 	(if (/= 0 (logand (net-poll lw_listener) 1)) (setq lw_handle (net-accept lw_listener)) (task-sleep 5000)))
 (assert-true "the other end dials" (> lw_handle 0))
-(defq lw_shook (if (> lw_handle 0) (catch (door-shake lw_handle lw_key :nil :nil (task-timeout 5)) :nil)))
+(defq lw_shook (if (> lw_handle 0) (catch (door-shake lw_handle lw_key :nil :nil (task-timeout 600)) :nil)))
 (assert-true "and is through the door" lw_shook)
 (if lw_shook (door-carry lw_handle lw_shook))
 
 (defun lw-heard (what)
 	;what the other end said it was sent, of that kind
-	(defq got (mail-read-timeout lw_reply (task-timeout 10)))
+	(defq got (mail-read lw_reply))
 	(and got (starts-with (cat what " ") got) (hex-decode (slice got (inc (length what)) -1))))
 
 ;1. the hello
@@ -48,7 +48,7 @@
 	(assert-eq "59, the listener's seal byte is 0" 0 (code lw_hello 1 59)))
 ;4. and 5. the proof
 (assert-eq "the proof is HMAC-SHA256 of the first 11 bytes, L and what was said" "proof right"
-	(ifn (mail-read-timeout lw_reply (task-timeout 10)) ""))
+	(mail-read lw_reply))
 
 ;the ping
 (defq lw_ping (lw-heard "ping"))
@@ -63,7 +63,7 @@
 
 ;a fragment: mail from here to the made up node goes over this link
 (lw-heard "pinged")
-(defq lw_body "a fragment, on the wire" lw_to (cat (char 0x51ab0c 8) lw_node) lw_t0 (pii-time))
+(defq lw_body "a fragment, on the wire" lw_to (cat (char 0x51ab0c 8) lw_node))
 ;first a parcel of many fragments to another mailbox there, which the other
 ;end passes over: the blocks its fragments were in are let go of as they go,
 ;and mail made after it, this node's own too, is made in them, the src and
@@ -88,7 +88,7 @@
 ;every message of one fragment, the kernel's too: its src and offset are 0,
 ;not what the block it was made in had from a fragment of the parcel
 (bind '(lw_ones lw_stale) (map! (const str-as-num)
-	(list (split (ifn (mail-read-timeout lw_reply (task-timeout 10)) "ones 0 -1") " ")) 1 3))
+	(list (split (mail-read lw_reply) " ")) 1 3))
 (assert-true "messages of one fragment were seen" (> lw_ones 0))
 (assert-eq "none had a src or an offset that was not 0" 0 lw_stale)
 

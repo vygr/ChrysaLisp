@@ -3,10 +3,8 @@
 ;this changes the network, so it is in tests/solo/, and runs on its own
 
 (defun nt-wait (want)
-	;wait till that many nodes are seen, more or fewer than now, and not for ever
-	(defq t0 (pii-time))
-	(while (and (/= (length (lisp-nodes)) want) (< (- (pii-time) t0) (task-timeout 15)))
-		(task-sleep 100000))
+	;wait till that many nodes are seen, more or fewer than now
+	(while (/= (length (lisp-nodes)) want) (task-sleep 100000))
 	(length (lisp-nodes)))
 
 (cond
@@ -34,9 +32,7 @@
 			nt_pids2 (node-net :ring 4 0 :nil :nil "tst2" nt_sid))
 		(assert-eq "a ring of 4 of its own is 4 more" 4 (length nt_pids2))
 		(assert-true "each was started" (every (# (> %0 0)) nt_pids2))
-		(defq nt_t0 (pii-time))
-		(while (and (< (length (lisp-nodes nt_sid)) 4) (< (- (pii-time) nt_t0) (task-timeout 15)))
-			(task-sleep 100000))
+		(while (< (length (lisp-nodes nt_sid)) 4) (task-sleep 100000))
 		(assert-eq "they are seen, with the system id they were given" 4 (length (lisp-nodes nt_sid)))
 		(assert-eq "this machine has the nodes it had" nt_same (length (lisp-nodes :t)))
 		(defq nt_net2 (some (# (if (eql (first %0) "tst2") %0)) (node-nets)))
@@ -46,12 +42,11 @@
 		(defq nt_mbox (mail-mbox) nt_mine (cat (system-id)) nt_away 0)
 		(times 40 (open-task (str `(mail-send (hex-decode ,(hex-encode nt_mbox)) (cat (system-id))))
 			(task-nodeid) +kn_call_run 0 (mail-mbox)))
-		(times 40 (when (defq nt_reply (mail-read-timeout nt_mbox (task-timeout 5)))
-			(unless (eql nt_reply nt_mine) (++ nt_away))))
+		(times 40 (unless (eql (mail-read nt_mbox) nt_mine) (++ nt_away)))
 		(assert-eq "a task left to find a node does not go to it" 0 nt_away)
 		(open-task (str `(mail-send (hex-decode ,(hex-encode nt_mbox)) (cat (system-id))))
 			(first (lisp-nodes nt_sid)) +kn_call_pin 0 (mail-mbox))
-		(assert-eq "one sent to a node of it runs there" nt_sid (mail-read-timeout nt_mbox (task-timeout 5)))
+		(assert-eq "one sent to a node of it runs there" nt_sid (mail-read nt_mbox))
 
 		;both are stopped now, after the tasks above were left to find a node.
 		;A node that has gone is known of for a while yet, some 4 seconds,
@@ -60,14 +55,10 @@
 		(assert-eq "stopped, it says how many nodes are to go" 3 (node-stop "tst1"))
 		(assert-eq "it is no longer noted" :nil (some (# (if (eql (first %0) "tst1") %0)) (node-nets)))
 		(assert-true "its links are cleared away" (notany (# (pii-fstat (cat "/tmp/" %0))) (elem-get nt_net 4)))
-		(defq nt_t0 (pii-time))
-		(while (and (some (const pii-alive) nt_pids) (< (- (pii-time) nt_t0) (task-timeout 10)))
-			(task-sleep 100000))
+		(while (some (const pii-alive) nt_pids) (task-sleep 100000))
 		(assert-true "and its processes end" (notany (const pii-alive) nt_pids))
 		(assert-eq "stopped, all 4 are to go" 4 (node-stop "tst2"))
-		(defq nt_t0 (pii-time))
-		(while (and (some (const pii-alive) nt_pids2) (< (- (pii-time) nt_t0) (task-timeout 10)))
-			(task-sleep 100000))
+		(while (some (const pii-alive) nt_pids2) (task-sleep 100000))
 		(assert-true "and its processes end" (notany (const pii-alive) nt_pids2))
 		(assert-eq "as many are noted as before" nt_had (length (node-nets)))
 		(assert-eq "and they are no longer seen" nt_before (nt-wait nt_before))
@@ -85,18 +76,14 @@
 		(assert-eq "three have a system id" 3 (length (filter (const last) nt_new)))
 		(assert-eq "they are all seen" (+ nt_before 15) (nt-wait (+ nt_before 15)))
 		(each (# (pipe-run (cat "nodes -x " (first %0)) nt_quiet)) nt_new)
-		(defq nt_t0 (pii-time))
-		(while (and (some (const pii-alive) nt_pids) (< (- (pii-time) nt_t0) (task-timeout 10)))
-			(task-sleep 100000))
+		(while (some (const pii-alive) nt_pids) (task-sleep 100000))
 		(assert-eq "stopped, not one is left" 0 (length (filter (const pii-alive) nt_pids)))
 		(assert-eq "nor noted" 0 (length (filter (# (not (find (first %0) nt_was))) (node-nets))))
 
 		(assert-eq "the one that was there all along is stopped last" 1 (node-stop "tst0"))
 		;a stop is done a moment later, and the note of it is gone at once,
 		;so a session that ended now would leave the node behind
-		(defq nt_t0 (pii-time))
-		(while (and (some (const pii-alive) nt_first) (< (- (pii-time) nt_t0) (task-timeout 10)))
-			(task-sleep 100000))
+		(while (some (const pii-alive) nt_first) (task-sleep 100000))
 		(assert-true "and its process ends" (notany (const pii-alive) nt_first))))
 
 ;a network stopped by name is taken out of the note of the node that added

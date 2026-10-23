@@ -117,7 +117,7 @@
 	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5 sn_was)
 	(gopher-pass (list (sn-of "m-a")) sn_two "ver" 0 0 sn_len (list) (list) 5)
 	(gopher-pass (list (sn-of "m-a")) sn_two "big" 0 0 sn_visit (list) (list) 5)
-	(defq sn_said (map (lambda (i) (if (defq said (mail-read-timeout sn_two (task-timeout 30))) (first (first (read (string-stream said))))))
+	(defq sn_said (map (lambda (i) (if (defq said (mail-read sn_two)) (first (first (read (string-stream said))))))
 		(range 0 3)))
 	(assert-list-eq "three gophers at a member at once all come back, one of what the object was, one of what it is"
 		(sort (list (length (sn-bytes 2 "was")) (length (sn-bytes 3 "is")) sn_sum) (const -)) (sort (map (# (ifn %0 0)) sn_said) (const -)))
@@ -214,8 +214,7 @@
 
 	;m-e is switched off
 	(storage-stop (sn-of "m-e"))
-	(defq sn_t0 (pii-time))
-	(while (and (storage-service (cat "@SM" sn_pid "m-e")) (< (- (pii-time) sn_t0) (task-timeout 5))) (task-sleep 10000))
+	(while (storage-service (cat "@SM" sn_pid "m-e")) (task-sleep 10000))
 	(elem-set sn_svcs 4 :nil)
 	;before any of them has looked: a gopher goes by those that are there
 	(assert-eq "a member is gone, and a gopher comes back with the answer by way of the others" sn_sum
@@ -227,7 +226,7 @@
 	(assert-eq "a gopher sent on goes past a member that does not take it, to one that does" (sn-of "m-b")
 		(gopher-pass (list sn_gone (sn-of "m-b")) sn_mbox "big" 0 0 sn_visit (list) (defq sn_skip (list)) 1))
 	(assert-list-eq "the one that did not is not to be asked again" (list (hex-encode sn_gone)) sn_skip)
-	(defq sn_said (mail-read-timeout sn_mbox (task-timeout 30)))
+	(defq sn_said (mail-read sn_mbox))
 	(assert-eq "and comes back with the answer" sn_sum (if sn_said (first (first (read (string-stream sn_said))))))
 	(assert-eq "none of them takes it: it is not sent on" :nil
 		(gopher-pass (list sn_gone) sn_mbox "big" 0 0 sn_visit (list) (list) 1))
@@ -306,8 +305,7 @@
 		(assert-true "and is on that node" (eql (slice sn_svc +mailbox_id_size -1) (last sn_far)))
 		(assert-true "its name is known here" (storage-service sn_name))
 		(storage-stop sn_svc)
-		(defq sn_t0 (pii-time))
-		(while (and (storage-service sn_name) (< (- (pii-time) sn_t0) (task-timeout 5))) (task-sleep 10000))
+		(while (storage-service sn_name) (task-sleep 10000))
 		(assert-eq "stopped, its name is not known here any longer" :nil (storage-service sn_name)))
 	(pii-remove (sn-image "far")))
 

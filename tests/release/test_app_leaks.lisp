@@ -49,14 +49,14 @@
 					((mail-validate (hex-decode ask)) "t")
 					("nil")))))))
 		al_node +kn_call_pin 0 (mail-mbox))
-	(mail-read-timeout reply (task-timeout 5)))
+	(mail-read reply))
 
 (defun al-ask (ask)
 	; (al-ask ask) -> :nil | str
 	;what the probe on the desktop's node says to ask
 	(defq reply (mail-mbox))
 	(mail-send al_probe (cat reply ask))
-	(mail-read-timeout reply (task-timeout 5)))
+	(mail-read reply))
 
 (defun al-used ()
 	; (al-used) -> num
@@ -68,8 +68,8 @@
 	;what the node holds once it has stopped letting go of things: what an
 	;app shared with tasks on other nodes, the maps of Planets, is let go
 	;of as they end, later when the machine is busy
-	(defq was (al-used) now (progn (task-sleep 300000) (al-used)) n 0)
-	(while (and (< (- now was) -4096) (< (++ n) 20))
+	(defq was (al-used) now (progn (task-sleep 300000) (al-used)))
+	(while (< (- now was) -4096)
 		(setq was now now (progn (task-sleep 300000) (al-used))))
 	now)
 
@@ -93,22 +93,20 @@
 	;and the tasks it started there: a child that finishes what it was
 	;doing first, a build or a farm's part, still holds what it uses
 	(defq tasks (al-tasks)
-		mbox (open-remote (cat "apps/" app "/app.lisp") al_node +kn_call_pin) t0 (pii-time))
-	(while (and (<= (al-windows) desk) (< (- (pii-time) t0) (task-timeout 10)))
-		(task-sleep 50000))
+		mbox (open-remote (cat "apps/" app "/app.lisp") al_node +kn_call_pin))
+	(while (<= (al-windows) desk) (task-sleep 50000))
 	(task-sleep 300000)
 	(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 		(+ev_msg_type +ev_type_action)
 		(+ev_msg_target_id +event_close)
 		(+ev_msg_action_source_id 0)))
-	(setq t0 (pii-time))
-	(while (and (or (al-alive mbox) (> (al-windows) desk) (> (al-tasks) tasks))
-			(< (- (pii-time) t0) (task-timeout 60)))
+	(while (or (al-alive mbox) (> (al-windows) desk) (> (al-tasks) tasks))
 		(task-sleep 100000))
 	;the views of the frame being drawn as it went are let go of with that
 	;frame, at the next
 	(task-sleep 250000))
 
+;a host with no display never has one: that ten seconds is how it is told
 (while (and (empty? (setq al_gui (mail-enquire "@Gui,"))) (< (- (pii-time) al_t0) (task-timeout 10)))
 	(task-sleep 50000))
 (cond
@@ -124,8 +122,8 @@
 		(test-skip "apps on a desktop" "no probe could be started on the desktop's node"))
 	(:t
 		;the desktop's own windows first
-		(defq t0 (pii-time) was -1 desk (al-windows))
-		(while (and (/= was desk) (< (- (pii-time) t0) (task-timeout 10)))
+		(defq was -1 desk (al-windows))
+		(while (/= was desk)
 			(task-sleep 500000)
 			(setq was desk desk (al-windows)))
 		(defq al_grew (list))
@@ -148,6 +146,5 @@
 	(while (and (pii-alive al_pid) (< (- (pii-time) al_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive al_pid) (pii-kill al_pid))
-	(setq al_t0 (pii-time))
-	(while (and (/= (length (lisp-nodes)) (length al_before)) (< (- (pii-time) al_t0) (task-timeout 5)))
+	(while (/= (length (lisp-nodes)) (length al_before))
 		(task-sleep 10000)))

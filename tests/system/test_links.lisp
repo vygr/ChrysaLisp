@@ -20,7 +20,7 @@
 		lk_before (lk_sum) lk_mbox (mail-mbox)
 		lk_there (some (# (if (nql %0 (task-nodeid)) %0)) lk_nodes))
 	(open-task (str `(mail-send (hex-decode ,(hex-encode lk_mbox)) "back")) lk_there +kn_call_pin 0 (mail-mbox))
-	(assert-eq "a task on another node answers" "back" (mail-read-timeout lk_mbox (task-timeout 5)))
+	(assert-eq "a task on another node answers" "back" (mail-read lk_mbox))
 	(assert-true "and the links have carried more" (> (lk_sum) lk_before)))
 
 (defq lk_cyl (Mesh-cylinder +real_1 +real_2 8))

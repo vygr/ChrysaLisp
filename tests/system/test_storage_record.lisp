@@ -14,10 +14,14 @@
 	(while (and (> did 0) (< (++ rounds) 12))
 		(setq did 0)
 		(each (lambda (svc) (setq did (+ did (reduce (const +) (ifn (storage-settle svc) (list 0)) 0)))) sr_svcs)))
-(defun sr-take ()
-	;what has come, till nothing more does for a while, a line each
-	(while (defq text (mail-read-timeout sr_box 300000))
-		(each (lambda (line) (push sr_lines (split line " "))) (split text +storage_lf))))
+(defun sr-read (text)
+	(each (lambda (line) (push sr_lines (split line " "))) (split text +storage_lf)))
+(defun sr-take (&optional done)
+	;what has come, a line each: till done says what is looked for is all
+	;here, as long as that takes, then till nothing more comes for a while.
+	;With no done only the while, for what should not be said at all
+	(if done (until (done) (sr-read (mail-read sr_box))))
+	(while (defq text (mail-read-timeout sr_box 300000)) (sr-read text)))
 (defun sr-did (member kind &optional what)
 	;the lines of that member and kind, of that path or block if given
 	(filter (lambda (line) (and (eql (second line) member) (eql (third line) kind)
@@ -39,7 +43,10 @@
 	(defq sr_data (apply (const cat) (map (# (cat (sha256 (str "rec" %0)) (pad "" 4064 "."))) (range 0 3))))
 	(storage-put "doc/one" sr_data :nil (sr-of "r-a"))
 	(sr-settle)
-	(sr-take)
+	(sr-take (lambda () (and (nempty? (sr-did "r-a" "set" "doc/one")) (>= (length (sr-did "r-a" "block+")) 3)
+		(every (lambda (id) (some (# (eql (elem-get %0 4) "r-a")) (sr-did id "learnt" "doc/one"))) '("r-b" "r-c"))
+		(nempty? (sr-did "r-b" "meet"))
+		(some (# (eql (last %0) "r-a")) (cat (sr-did "r-b" "fetched") (sr-did "r-c" "fetched"))))))
 	(defq sr_set (sr-did "r-a" "set" "doc/one"))
 	(assert-eq "the put is said by the member it was put at" 1 (length sr_set))
 	(assert-eq "with the name of the object and its length" (str (length sr_data)) (elem-get (first sr_set) 4))
@@ -53,7 +60,9 @@
 	;a gopher
 	(setq sr_lines (list))
 	(storage-walk "doc/one" 0 '(lambda (state data at count) (list (+ state (length data)) (inc at))) :nil 30 (sr-of "r-b"))
-	(sr-take)
+	(sr-take (lambda () (and (nempty? (sr-did "r-b" "gopher" "doc/one"))
+		(>= (+ (length (sr-did "r-a" "gopher-step")) (length (sr-did "r-b" "gopher-step")) (length (sr-did "r-c" "gopher-step"))) 3)
+		(some (# (nempty? (sr-did %0 "gopher-done" "doc/one"))) sr_ids))))
 	(assert-true "a gopher is said where it starts" (nempty? (sr-did "r-b" "gopher" "doc/one")))
 	(assert-true "each block it is given is said" (>= (+ (length (sr-did "r-a" "gopher-step")) (length (sr-did "r-b" "gopher-step"))
 		(length (sr-did "r-c" "gopher-step"))) 3))
@@ -61,23 +70,23 @@
 	;a delete, and then no recorder
 	(setq sr_lines (list))
 	(storage-delete "doc/one" :nil (sr-of "r-c"))
-	(sr-take)
+	(sr-take (lambda () (nempty? (sr-did "r-c" "delete" "doc/one"))))
 	(assert-eq "a delete is said" 1 (length (sr-did "r-c" "delete" "doc/one")))
 	;two recorders at once, each is told all of it
 	(defq sr_box2 (mail-mbox))
 	(each (lambda (svc) (storage-record-ask svc sr_box2)) sr_svcs)
 	(storage-put "both" "told to two" :nil (sr-of "r-a"))
-	(sr-take)
+	(sr-take (lambda () (nempty? (sr-did "r-a" "set" "both"))))
 	(defq sr_two (list))
-	(while (defq text (mail-read-timeout sr_box2 300000))
-		(each (lambda (line) (push sr_two (split line " "))) (split text +storage_lf)))
+	(until (some (# (and (eql (third %0) "set") (eql (last %0) "both"))) sr_two)
+		(each (lambda (line) (push sr_two (split line " "))) (split (mail-read sr_box2) +storage_lf)))
 	(assert-true "a second recorder is told, and the first still is"
 		(and (nempty? (sr-did "r-a" "set" "both")) (some (# (and (eql (third %0) "set") (eql (last %0) "both"))) sr_two)))
 	;the second stops, the first is still told
 	(each (lambda (svc) (storage-record-ask svc sr_box2 :t)) sr_svcs)
 	(setq sr_lines (list))
 	(storage-put "one" "told to one" :nil (sr-of "r-a"))
-	(sr-take)
+	(sr-take (lambda () (nempty? (sr-did "r-a" "set" "one"))))
 	(assert-true "one that stops is not told, the other still is"
 		(and (nempty? (sr-did "r-a" "set" "one")) (not (mail-read-timeout sr_box2 300000))))
 	(each (lambda (svc) (storage-record-ask svc :nil)) sr_svcs)

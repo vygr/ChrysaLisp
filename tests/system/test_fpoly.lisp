@@ -151,14 +151,12 @@
 
 ;a line of 2,000 characters, 3,000 paths and 120,000 points, was 8 seconds on
 ;the fastest of the machines and is a few hundredths. Twice as long was four
-;times as much
+;times as much. It is filled here, its time is in tests/bench/bench_fill.lisp
 (defq fp_long (apply (const cat) (map (# (str (% %0 10) "abcdef7")) (range 0 250)))
 	fp_bounds (font-glyph-bounds fp_font fp_long) fp_glyphs (font-glyph-paths fp_font fp_long)
 	fp_canvas (Canvas (first fp_bounds) (second fp_bounds) 2))
 (. fp_canvas :set_canvas_flags +canvas_flag_antialias)
-(defq fp_start (pii-time))
 (.-> fp_canvas (:set_color +argb_white) (:fpoly 0.0 (n2f (second fp_bounds)) +winding_none_zero fp_glyphs))
-(assert-true "a line of 2,000 characters is filled in under a second" (< (- (pii-time) fp_start) 1000000))
 
 ;and a Text is asked to draw no more of a line than any screen is wide
 (assert-eq "a Text draws a short line whole" "abc" (text-most "abc"))

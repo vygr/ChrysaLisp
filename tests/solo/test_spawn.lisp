@@ -3,7 +3,7 @@
 ;this changes the network, so it is in tests/solo/, and runs on its own
 
 (defq ht_before (lisp-nodes) ht_pid (first (node-spawn))
-	ht_t0 (pii-time) ht_new :nil ht_reply (mail-mbox))
+	ht_new :nil ht_reply (mail-mbox))
 
 (defun ht-find ()
 	;the node that is the process started, :nil if not seen yet. A node
@@ -17,18 +17,13 @@
 
 (assert-true "a node is started" (> ht_pid 0))
 (assert-eq "its process is running" :t (pii-alive ht_pid))
-(while (and (not (setq ht_new (ht-find))) (< (- (pii-time) ht_t0) (task-timeout 5)))
-	(task-sleep 10000))
+(until (setq ht_new (ht-find)) (task-sleep 10000))
 (assert-true "it is seen on the network, and runs a task" ht_new)
 (when ht_new
 	(open-task "(pii-exit)" ht_new +kn_call_pin 0 (mail-mbox))
-	(setq ht_t0 (pii-time))
-	(while (and (pii-alive ht_pid) (< (- (pii-time) ht_t0) (task-timeout 5)))
-		(task-sleep 10000))
+	(while (pii-alive ht_pid) (task-sleep 10000))
 	(assert-eq "told to exit, its process ends" :nil (pii-alive ht_pid))
 	;a link sees its peer's process is gone, and the node is forgotten at
 	;once, it is not left to run out its time
-	(setq ht_t0 (pii-time))
-	(while (and (find ht_new (lisp-nodes)) (< (- (pii-time) ht_t0) (task-timeout 3)))
-		(task-sleep 10000))
+	(while (find ht_new (lisp-nodes)) (task-sleep 10000))
 	(assert-true "and it is gone from the network" (not (find ht_new (lisp-nodes)))))

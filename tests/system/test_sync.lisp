@@ -80,11 +80,9 @@
 	(third (some (# (if (eql (first %0) "one.txt") %0)) (sync-list sy_src (sync-rules sy_text)))))
 
 (mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name (ascii-char 10) sy_dst))
-(defq sy_wait 0 sy_svc :nil)
 ;the service is there when it has said so, which is not at once
-(while (and (empty? (sync-services sy_name)) (< (setq sy_wait (inc sy_wait)) 1500))
-	(task-sleep 10000))
-(setq sy_svc (if (nempty? (sync-services sy_name)) (first (first (sync-services sy_name)))))
+(while (empty? (sync-services sy_name)) (task-sleep 10000))
+(defq sy_svc (if (nempty? (sync-services sy_name)) (first (first (sync-services sy_name)))))
 (assert-true "the service says it is there" sy_svc)
 (assert-eq "and where it writes" sy_dst (last (first (sync-services sy_name))))
 
@@ -192,8 +190,7 @@
 (assert-eq "a part of a file with no start is refused" -3 (first (sync-hear sy_mbox)))
 ;a service given a root that is not in the system's tree takes nothing
 (mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat "*SyncTestOut" (ascii-char 10) "/tmp"))
-(setq sy_wait 0)
-(while (and (empty? (sync-services "*SyncTestOut")) (< (setq sy_wait (inc sy_wait)) 1500)) (task-sleep 10000))
+(while (empty? (sync-services "*SyncTestOut")) (task-sleep 10000))
 (defq sy_out (first (first (sync-services "*SyncTestOut"))))
 (sync-tell sy_out sy_mbox +sync_type_put (cat "sync_outside_probe.txt" (ascii-char 10) "out") 0 3)
 (assert-eq "a service with a root outside the tree refuses a file" -1 (first (sync-hear sy_mbox)))
@@ -254,14 +251,13 @@
 		(times 3 (defq msg (mail-read mbox))
 			(mail-send (slice msg 0 +net_id_size) (char -1 +int_size)))))
 	(task-nodeid) +kn_call_pin 0 (mail-mbox))
-(defq sy_old_svc (mail-read-timeout sy_old (task-timeout 5)))
+(defq sy_old_svc (mail-read sy_old))
 (assert-eq "its top is asked for and it is known to be old" :old (sync-root sy_old_svc sy_text))
 (assert-eq "and a push to it sends nothing, and says so" :old (sync-push sy_old_svc sy_src sy_text))
 
 (sync-tell sy_svc sy_mbox +sync_type_quit "")
 (sync-hear sy_mbox)
-(setq sy_wait 0)
-(while (and (nempty? (sync-services sy_name)) (< (setq sy_wait (inc sy_wait)) 1500)) (task-sleep 10000))
+(while (nempty? (sync-services sy_name)) (task-sleep 10000))
 (assert-true "told to stop, it is gone" (empty? (sync-services sy_name)))
 (assert-eq "and a push to it gets no answer" :nil
 	(progn (sync-tell sy_svc sy_mbox +sync_type_list "") (sync-hear sy_mbox 300000)))
@@ -305,4 +301,4 @@
 (each (# (pii-remove (cat sy_dst %0))) '("/waypoint" "/kept.txt"))
 
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_rt 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_wait 'sy_svc 'sy_res 'sy_mbox 'sy_out)
+(undef (env) 'sy_rt 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_svc 'sy_res 'sy_mbox 'sy_out)

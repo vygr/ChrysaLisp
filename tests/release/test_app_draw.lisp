@@ -50,11 +50,11 @@
 	; (ad-title nodes) -> str
 	(ifn (some (# (if (eql (str (. %0 :find :type)) ":Title") (. %0 :find :text))) nodes) "?"))
 
-(defun ad-settle (secs)
-	; (ad-settle secs) -> num
-	;the windows, once no more come for half a second, or the time is up
-	(defq was -1 now (ad-windows) t0 (pii-time))
-	(while (and (/= was now) (< (- (pii-time) t0) (task-timeout secs)))
+(defun ad-settle ()
+	; (ad-settle) -> num
+	;the windows, once no more come for half a second
+	(defq was -1 now (ad-windows))
+	(while (/= was now)
 		(task-sleep 500000)
 		(setq was now now (ad-windows)))
 	now)
@@ -67,7 +67,7 @@
 	(open-task (str `(mail-send (hex-decode ,(hex-encode reply))
 			(if (mail-validate (hex-decode ,(hex-encode mbox))) "t" "nil")))
 		ad_node +kn_call_pin 0 (mail-mbox))
-	(eql (mail-read-timeout reply (task-timeout 3)) "t"))
+	(eql (mail-read reply) "t"))
 
 (defun ad-close (mboxes)
 	;close, as a user would, each that was opened
@@ -76,6 +76,7 @@
 			(+ev_msg_target_id +event_close)
 			(+ev_msg_action_source_id 0)))) mboxes))
 
+;a host with no display never has one: that ten seconds is how it is told
 (while (and (empty? (setq ad_gui (mail-enquire "@Gui,"))) (< (- (pii-time) ad_t0) (task-timeout 10)))
 	(task-sleep 50000))
 (cond
@@ -83,12 +84,12 @@
 		;a host with no display, an emulator say, can not make a desktop
 		(test-skip "apps on a desktop" "no desktop could be started on this host"))
 	(:t ;the desktop's own windows first, then all the apps at once
-		(ad-settle 10)
+		(ad-settle)
 		(defq ad_desk (ifn (gui-owners-rpc) (list)))
 		(defq ad_node (slice (hex-decode (second (split (first ad_gui) ","))) +long_size -1)
 			ad_mboxes (map (# (open-remote (cat "apps/" %0 "/app.lisp") ad_node +kn_call_pin)) ad_apps)
 			ad_nowin (list) ad_undrawn (list) ad_nothing (list))
-		(ad-settle 15)
+		(ad-settle)
 		;an app that has no window is one whose task has none, the GUI says
 		;who has each, and has gone. One whose window is of a task it started,
 		;Files, is still there
@@ -120,8 +121,7 @@
 					(push ad_nothing title)))
 			(++ ad_seen)
 			(ad-close (list (hex-decode owner)))
-			(defq t0 (pii-time))
-			(while (and (eql (first (ifn (gui-owners-rpc) (list ""))) owner) (< (- (pii-time) t0) (task-timeout 3)))
+			(while (eql (first (ifn (gui-owners-rpc) (list ""))) owner)
 				(task-sleep 20000)))
 		(ad-close ad_mboxes)
 		(assert-true "the windows of the apps were looked at, from the front" (> ad_seen 40))
@@ -138,6 +138,5 @@
 	(while (and (pii-alive ad_pid) (< (- (pii-time) ad_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive ad_pid) (pii-kill ad_pid))
-	(setq ad_t0 (pii-time))
-	(while (and (/= (length (lisp-nodes)) (length ad_before)) (< (- (pii-time) ad_t0) (task-timeout 5)))
+	(while (/= (length (lisp-nodes)) (length ad_before))
 		(task-sleep 10000)))

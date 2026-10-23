@@ -26,8 +26,7 @@
 	;the answers to that many asked, how many of them were of a task started
 	(defq started 0)
 	(times num
-		(when (defq msg (mail-read-timeout gl_mbox (task-timeout 10)))
-			(if (. global :reply msg) (++ started))))
+		(if (. global :reply (mail-read gl_mbox)) (++ started)))
 	started)
 
 (defq gl (Global gl-create gl-destroy))
@@ -74,11 +73,13 @@
 	(++ fm_gone))
 
 (defun fm-replies (farm want)
-	;the answers, till no more come: how many were of a child started. While
-	;fewer than want have come a quiet second is a busy machine, not the end
+	;the answers, till no more come: how many were of a child started. The
+	;ones wanted are waited for, then a quiet second says there are no more
 	(defq started 0 got 0)
-	(while (defq msg (mail-read-timeout fm_mbox (task-timeout (if (< got want) 10 1))))
+	(while (and (< got want) (defq msg (mail-read fm_mbox)))
 		(++ got)
+		(if (. farm :reply msg) (++ started)))
+	(while (defq msg (mail-read-timeout fm_mbox (task-timeout 1)))
 		(if (. farm :reply msg) (++ started)))
 	started)
 

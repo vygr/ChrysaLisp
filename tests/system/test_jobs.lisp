@@ -18,16 +18,17 @@
 (defun jt-work (num &optional die)
 	(setf-> (str-alloc +work_size) (+work_num num) (+work_die (if die 1 0))))
 
-(defun jt-run (work timeout &optional done patience)
+(defun jt-run (work &optional done patience)
 	;add the work and take the answers till none are out, or done says
-	;so, or too long has gone by. The numbers that came back, sorted.
+	;so, as long as that takes. The numbers that came back, sorted.
 	;patience is how long a child has for a job before it is taken to be
-	;dead, and the job put back. It is long, a child that is only slow, on
-	;a small machine with every test running at once, is not a dead one.
-	;The run that has a job kill its child gives its own, short
-	(defq got (list) end (+ (pii-time) timeout) left :t patience (ifn patience (task-timeout 5)))
+	;dead, and the job put back. It is as long as the suite waits for a
+	;module, a child that is only slow, on a small machine with every test
+	;running at once, is not a dead one. The run that has a job kill its
+	;child gives its own, short
+	(defq got (list) left :t patience (ifn patience (task-timeout 600)))
 	(. jobs :add work)
-	(while (and left (< (pii-time) end) (not (and done (done))))
+	(while (and left (not (and done (done))))
 		(mail-timeout (elem-get jt_select +jt_timer) 200000 0)
 		(defq msg (mail-read (elem-get jt_select (defq idx (mail-select jt_select)))))
 		(case idx
@@ -43,15 +44,15 @@
 (assert-eq "children" 4 (. jobs :size))
 (assert-eq "nothing out" 0 (. jobs :out))
 (assert-list-eq "every job answered, once" (map (# (* 2 %0)) (range 0 40))
-	(jt-run (map (const jt-work) (range 0 40)) (task-timeout 10)))
+	(jt-run (map (const jt-work) (range 0 40))))
 (assert-eq "none out after" 0 (. jobs :out))
 (assert-list-eq "and again on the same children" '(200 202 204)
-	(jt-run (map (const jt-work) '(100 101 102)) (task-timeout 10)))
+	(jt-run (map (const jt-work) '(100 101 102))))
 
 ;every child started again, the queue emptied, and they work as before
 (. jobs :restart)
 (assert-eq "restart empties the queue" 0 (. jobs :out))
-(assert-list-eq "after a restart" '(2 4 6 8) (jt-run (map (const jt-work) '(1 2 3 4)) (task-timeout 10)))
+(assert-list-eq "after a restart" '(2 4 6 8) (jt-run (map (const jt-work) '(1 2 3 4))))
 
 ;a job its child dies of is put back, again and again, and is counted,
 ;which is how a job no child can do is told from a slow one
@@ -59,7 +60,7 @@
 ;it is run till the two that can be done are, and the other has been
 ;put back twice, however long a slow machine takes over that
 (assert-list-eq "the jobs beside one that kills its child" '(10 12)
-	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6)) (task-timeout 30)
+	(jt-run (list (jt-work 5) (jt-work 99 :t) (jt-work 6))
 		;check off, it is jt-run's own got that is read, on purpose
 		(# (and (= (length got) 2) (>= (. jobs :tries) 2))) (task-timeout 1)))
 (assert-eq "the one that kills is still out" 1 (. jobs :out))
@@ -79,7 +80,7 @@
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 2)))
 (assert-eq "a herd" (min 3 (inc (length (lisp-nodes :t)))) (. jobs :size))
-(assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
+(assert-list-eq "a herd does the work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3))))
 (. jobs :close)
 
 ;children kept away from this node, if this machine has another. New
@@ -89,17 +90,14 @@
 (defq jobs (Jobs "tests/system/data/jobs_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) '(3 3 0) :t)
 	jt_nodes (list))
-(mail-timeout (elem-get jt_select +jt_timer) (task-timeout 5) 0)
-(while (and (< (length jt_nodes) 3)
-		(= (defq jt_idx (mail-select jt_select)) +jt_task))
-	(defq jt_msg (mail-read (elem-get jt_select jt_idx)))
+(while (< (length jt_nodes) 3)
+	(defq jt_msg (mail-read (elem-get jt_select +jt_task)))
 	(push jt_nodes (task-nodeid (getf jt_msg +kn_msg_reply_id)))
 	(. jobs :launched jt_msg))
-(mail-timeout (elem-get jt_select +jt_timer) 0 0)
 (assert-eq "three children kept away" 3 (length jt_nodes))
 (assert-true "none of them on this node, if there is another"
 	(or (<= (length (lisp-nodes :t)) 1) (notany (# (eql %0 (task-nodeid))) jt_nodes)))
-(assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
+(assert-list-eq "and they work" '(2 4 6) (jt-run (map (const jt-work) '(1 2 3))))
 
 ;answers moved to another mailbox, and the old one let go of: work that is
 ;out is forgotten, and what it answers, late, comes nowhere
@@ -108,7 +106,7 @@
 (. jobs :reply_to (elem-get jt_select +jt_reply))
 (assert-eq "moved to another mailbox, nothing is out, though six were" 0 (. jobs :out))
 (assert-list-eq "work given after is answered there, and none of the six that were forgotten is among it" '(2 4 6)
-	(jt-run (map (const jt-work) '(1 2 3)) (task-timeout 10)))
+	(jt-run (map (const jt-work) '(1 2 3))))
 (task-sleep 300000)
 (assert-eq "nor does one come in late" :nil (mail-poll (list (elem-get jt_select +jt_reply))))
 (. jobs :close)
@@ -119,9 +117,9 @@
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_going_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
-(assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1)) (task-timeout 10)))
+(assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1))))
 ;it has nothing now, and goes, and says so
-(defq jt_going (mail-read-timeout (elem-get jt_select +jt_reply) (task-timeout 5)))
+(defq jt_going (mail-read (elem-get jt_select +jt_reply)))
 (assert-true "a child with nothing to do goes, and says it has"
 	(and jt_going (/= 0 (logand (getf jt_going +job_reply_key) +job_going))))
 ;the farm has not heard yet, so a job is given to the child that has gone
@@ -131,6 +129,6 @@
 ;told, the farm puts the job back and starts the child again
 (assert-eq "what it said is no answer" :nil (. jobs :answered jt_going))
 (assert-list-eq "and the job it was given is done by the one started after it" '(14)
-	(jt-run (list) (task-timeout 10)))
+	(jt-run (list)))
 (assert-eq "it was not counted as tried" 0 (. jobs :tries))
 (. jobs :close)

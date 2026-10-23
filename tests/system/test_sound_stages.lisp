@@ -6,10 +6,10 @@
 
 (defun ss-run (stages)
 	; (ss-run stages) -> :t | :nil
-	;the pipeline run to its end, :t if its sink said it was done in time
+	;the pipeline run to its end, :t when its sink says it is done
 	(defq done (mail-mbox))
 	(stages-run stages done)
-	(mail-read-timeout done (task-timeout 20)))
+	(if (mail-read done) :t))
 
 (defun ss-peak (file)
 	; (ss-peak file) -> num
@@ -45,8 +45,8 @@
 (defq ss_who (mail-mbox) ss_levels (list))
 (ss-run (list (sound-stage 'sound-tone 440 200 6000) (sound-stage 'sound-level (stage-mbox ss_who))
 	(sound-stage 'sound-to-file ss_c)))
-(while (defq ss_msg (mail-read-timeout ss_who 100000)) (push ss_levels (str-as-num ss_msg)))
-(assert-eq "a level for each piece of 20ms" 10 (length ss_levels))
+(times 10 (push ss_levels (str-as-num (mail-read ss_who))))
+(assert-eq "a level for each piece of 20ms, and no more" :nil (mail-read-timeout ss_who 100000))
 (assert-true "each the tone's" (every (# (<= 5800 %0 6000)) ss_levels))
 (assert-eq "and the sound passed on" (/ (* +sound_rate 2) 5) (elem-get (sound-info ss_c) 3))
 

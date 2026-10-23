@@ -11,8 +11,8 @@
 (defq am_before (lisp-nodes) am_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
 	am_t0 (pii-time) am_gui :nil am_node :nil)
 
-(defun am-ask (form &optional wait)
-	; (am-ask form [wait]) -> :nil | str
+(defun am-ask (form)
+	; (am-ask form) -> str
 	;form run on the desktop's node, what it gives back as text
 	(defq reply (mail-mbox))
 	;the structures are imported first, a form apart, as the one after is
@@ -20,8 +20,9 @@
 	(open-task (cat "(import {lib/audio/stages.inc})" (ascii-char 10)
 			(str `(mail-send (hex-decode ,(hex-encode reply)) (str ,form))))
 		am_node +kn_call_pin 0 (mail-mbox))
-	(mail-read-timeout reply (task-timeout (ifn wait 10))))
+	(mail-read reply))
 
+;a host with no display never has one: that ten seconds is how it is told
 (while (and (empty? (setq am_gui (mail-enquire "@Gui,"))) (< (- (pii-time) am_t0) (task-timeout 10)))
 	(task-sleep 50000))
 (cond
@@ -31,8 +32,7 @@
 		(test-skip "the microphone" "no desktop could be started on this host"))
 	(:t (setq am_node (slice (hex-decode (second (split (first am_gui) ","))) +long_size -1))
 		;its Audio service, on its node
-		(defq am_t0 (pii-time))
-		(while (not (or (eql (am-ask '(if (audio-service) "yes" "no")) "yes") (> (- (pii-time) am_t0) (task-timeout 10))))
+		(until (eql (am-ask '(if (audio-service) "yes" "no")) "yes")
 			(task-sleep 100000))
 		;a second of it: the pieces in order, the samples, the loudest, and
 		;how many times it crossed nought, twice for each of its waves
@@ -106,7 +106,7 @@
 			(audio-listen-rpc who)
 			(while (< (- (pii-time) t0) (+ +audio_lease 3000000))
 				(if (mail-read-timeout who 100000) (setq last (- (pii-time) t0))))
-			last) 15))
+			last)))
 		(defq am_last (if am_lease (str-as-num am_lease) 0))
 		(assert-true "a listener whose lease is out is sent no more" (< am_last (+ +audio_lease 2000000)))
 		(assert-true "but is sent till then" (> am_last (- +audio_lease 1000000)))
@@ -117,16 +117,16 @@
 			(stages-run (list (sound-stage 'sound-mic (stage-mbox ctl)) (sound-stage 'sound-to-file file)) done)
 			(task-sleep 1000000)
 			(mail-send ctl "")
-			(defq saved (mail-read-timeout done 5000000) info (sound-info file)
+			(defq saved (mail-read done) info (sound-info file)
 				stream (file-stream file))
 			(WAV-info stream)
 			(while (and (defq data (read-blk stream 4096)) (nempty? data))
 				(setq peak (max peak (sound-peak data))))
 			(stages-run (list (sound-stage 'sound-from-file file) (sound-stage 'sound-speaker)) done)
-			(defq t0 (pii-time) played (mail-read-timeout done 5000000) took (- (pii-time) t0))
+			(defq t0 (pii-time) played (mail-read done) took (- (pii-time) t0))
 			(pii-remove file)
 			(join (map (const str) (list (if saved 1 0) (if info (elem-get info 3) 0) peak
-				(if played 1 0) took)) " ")) 20))
+				(if played 1 0) took)) " "))))
 		(defq am_p (map (const str-as-num) (split (ifn am_pipe "0 0 0 0 0") " ")))
 		(assert-eq "the microphone to a file, it says it is done" 1 (first am_p))
 		(assert-true "about a second of it in the file" (<= 24000 (second am_p) 36000))
@@ -142,6 +142,5 @@
 	(while (and (pii-alive am_pid) (< (- (pii-time) am_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive am_pid) (pii-kill am_pid))
-	(setq am_t0 (pii-time))
-	(while (and (/= (length (lisp-nodes)) (length am_before)) (< (- (pii-time) am_t0) (task-timeout 5)))
+	(while (/= (length (lisp-nodes)) (length am_before))
 		(task-sleep 10000)))

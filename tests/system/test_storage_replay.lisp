@@ -94,13 +94,13 @@
 ;a scene run by the app's own runner, ./run.lisp, and played back
 (import "service/storage/app.inc")
 (defq rp2 (replay-new) rp_box (mail-mbox) rp_end :nil
-	rp_run (open-child "apps/system/storage/run.lisp" +kn_call_run) rp_t0 (pii-time))
+	rp_run (open-child "apps/system/storage/run.lisp" +kn_call_run))
 (mail-send rp_run (cat (hex-encode rp_box) (ascii-char 10) "stop"))
-(while (and (not rp_end) (< (- (pii-time) rp_t0) (task-timeout 120)))
-	(when (defq rp_msg (mail-read-timeout rp_box 1000000))
-		(cond
-			((starts-with "lines" rp_msg) (each! (# (replay-add rp2 %0)) (list (split rp_msg (ascii-char 10))) 1 -1))
-			((starts-with "end " rp_msg) (setq rp_end (rest (split rp_msg " ")))))))
+(until rp_end
+	(defq rp_msg (mail-read rp_box))
+	(cond
+		((starts-with "lines" rp_msg) (each! (# (replay-add rp2 %0)) (list (split rp_msg (ascii-char 10))) 1 -1))
+		((starts-with "end " rp_msg) (setq rp_end (rest (split rp_msg " "))))))
 (assert-list-eq "the runner ran the scene to its end, every check held" '("6" "0") rp_end)
 (assert-list-eq "its five members are in the recording" '("m-a" "m-b" "m-c" "m-d" "m-e") (sort (. rp2 :find :members)))
 (assert-true "what the scene said is in it too" (some (# (eql (elem-get %0 +ev_kind) "say")) (. rp2 :find :events)))

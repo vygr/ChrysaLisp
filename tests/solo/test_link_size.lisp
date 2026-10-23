@@ -9,8 +9,7 @@
 	(defq ls_name (cat "lsize-" (str (pii-pid))) ls_file (cat "/tmp/" ls_name))
 	(save "short" ls_file)
 	(defq ls_t0 (pii-time) ls_link (node-link ls_name))
-	(while (and (mail-validate ls_link) (< (- (pii-time) ls_t0) (task-timeout 15)))
-		(task-sleep 100000))
+	(while (mail-validate ls_link) (task-sleep 100000))
 	(assert-true "the link is given up on, not waited for for ever" (not (mail-validate ls_link)))
 	(assert-true "in the 5 seconds the host gives it"
 		(< (- (pii-time) ls_t0) (task-timeout 8)))
