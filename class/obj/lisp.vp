@@ -121,7 +121,6 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(push-scope)
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
 
 (errorcase
@@ -145,6 +144,8 @@
 		(gotoif `(,sizes /= ,offset) 'error1)
 	(endif))
 
+	;the frame after the checks, an error goes with the stack as it came
+	(push-scope)
 	(assign `(,this ,obj) (vpx this obj))
 	(assign `((,val +num_value)) `(,num))
 	(switch 'exit)

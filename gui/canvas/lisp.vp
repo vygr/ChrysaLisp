@@ -189,7 +189,8 @@
 	(vp-push :r0))
 
 (defun shader-callback-end ()
-	(vp-free +ptr_size)
+	;the user data pushed at the begin, popped, a push is undone by its pop
+	(vp-pop :r1)
 	(vp-ret))
 
 (defun shader-on-gui-node ()

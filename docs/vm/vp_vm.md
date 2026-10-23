@@ -194,6 +194,20 @@ the `:pixmap :resize_2` functions.
 (vp-free c)
 ```
 
+A push lays its registers on the stack as if each was pushed in turn, a word
+each: after `(vp-push :r0 :r1 :r2)` the `:r2` is at `(:rsp 0)`, `:r1` at
+`(:rsp +ptr_size)` and `:r0` at `(:rsp (* 2 +ptr_size))`. A pop takes them back
+in the same layout, the last first. `(vp-alloc c)` takes c bytes, `(vp-free c)`
+gives them back, and c is a whole number of words.
+
+What these put on the stack lies end to end, nothing before, after or
+between: a push of n registers is n words, an alloc of c is c bytes. So any
+word below `:rsp` that a function put there may be read or written by its
+offset, and what was put there may be taken back in any grouping: two pushes
+by one pop of both, a push by a free, an alloc by a pop, or the allocs of
+nested scopes by one free, as `(return)` does. What is taken back is never
+more than was put there, and a function leaves the stack as it found it.
+
 #### Swap, Extend
 
 ```vdu

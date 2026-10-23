@@ -81,3 +81,11 @@
 (assert-error "def num" (def 5 'a 1))
 (assert-error "get num" (get 5))
 (assert-error "env-push num" (env-push 5))
+
+; --- an error from inside a function that has a frame on the stack ---
+;obj-set made its frame before its checks, and its error went with the
+;frame still on, returning through the wrong word: it is said now, and the
+;task goes on
+(assert-error "obj-set before its object" (obj-set (str-alloc 16) -8 +type_long 0))
+(assert-error "obj-set past its object" (obj-set (str-alloc 16) 4096 +type_long 0))
+(assert-eq "and the task goes on after" 3 (+ 1 2))

@@ -69,10 +69,12 @@
 	(structure local 0
 		(ptr this))
 
-	(vp-alloc local_size)
 	(entry :host_gui :lisp_deinit '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	;the frame after the check, an error goes with the stack as it came
+	(vp-alloc local_size)
 
 	;kernel callback for deinit ?
 	(assign '(:r0) '((:rsp local_this)))
@@ -194,10 +196,12 @@
 	(structure local 0
 		(ptr this event))
 
-	(vp-alloc local_size)
 	(entry :host_gui :lisp_event '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	;the frame after the check, an error goes with the stack as it came
+	(vp-alloc local_size)
 
 	;kernel callback for event
 	(assign '(:r0) '((:rsp local_this)))

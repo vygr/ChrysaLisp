@@ -227,6 +227,34 @@
 	;it :r0 is as it was, whatever the caller had done with it.
 	(static-qq (if (eql ,callee "class/lisp/repl_error") (pinsert trace_map :r0 :r0))))
 
+(defq *stack_said* (Fmap 31))
+
+(defun stack-said (function said)
+	; (stack-said function said)
+	;the first fault of the stack a function has is kept, to be said
+	(unless (. *stack_said* :find function) (. *stack_said* :insert function said)))
+
+(defun stack-words (function size)
+	; (stack-words function size)
+	;an alloc or a free is of whole words, what is put on the stack lies end
+	;to end, docs/vm/vp_vm.md
+	(if (/= 0 (logand size (dec +long_size)))
+		(stack-said function (cat "an alloc or free of " (str size) ", not whole words"))))
+
+(defun stack-take (function depth size)
+	; (stack-take function depth size) -> depth
+	;a pop or a free of size bytes, of what this path of the function has
+	;put on the stack, which it may take back in any grouping, not more
+	(when (> size depth)
+		(stack-said function (cat "takes " (str size) " from the stack with " (str depth) " put on"))
+		(setq size depth))
+	(- depth size))
+
+(defun stack-left (function depth)
+	; (stack-left function depth)
+	;a function returns, or jumps out, with the stack as it found it
+	(if (/= depth 0) (stack-said function (cat "leaves with " (str depth) " still on the stack"))))
+
 (defun analyze-function (function db)
 	(cond
 		((not (defq insts (get-function-insts function)))
@@ -234,11 +262,11 @@
 		(;register tracing simulation ! (as near as we can anyways)
 		;start main trace from pc _s
 		(defq label_map (pmap) call_list (list) func_map (vpmap) trace -1
-			traces (list (list _s 0 (vpmap) (pmap) (list))))
+			traces (list (list _s 0 (vpmap) (pmap) (list) 0)))
 		(verbose 3 "\ttracing " function)
 		(while (defq trace (inc trace) trace_map (pop traces))
 			(task-slice)
-			(bind '(*pc* *rsp* trace_map stack_map call_stack) trace_map)
+			(bind '(*pc* *rsp* trace_map stack_map call_stack depth) trace_map)
 			(while (< *pc* _e)
 				(defq inst (elem-get insts *pc*) *pc* (inc *pc*))
 				(verbose 3 "\t\t" function " trace " trace " pc " *pc* "\n\t\t\t" inst)
@@ -262,7 +290,7 @@
 							lm (pfind label_map key))
 						(when (or (not lm) (vpmap-changed? trace_map lm))
 							(push traces (list pc *rsp*
-								(cat trace_map) (cat stack_map) (cat call_stack)))))
+								(cat trace_map) (cat stack_map) (cat call_stack) depth))))
 					((emit-cpy-rr emit-cpy-ff emit-cpy-rf emit-cpy-fr)
 						;copy value and mark as trashed or restored
 						(pinsert trace_map (last inst) (pfind trace_map (second inst))))
@@ -271,18 +299,22 @@
 						(each (# (pinsert trace_map %0 %1))
 							(rest inst) (map! (# (pfind trace_map %0)) (list inst) -1 1)))
 					(emit-alloc
-						(setq *rsp* (-- *rsp* (second inst))))
+						(stack-words function (second inst))
+						(setq depth (+ depth (second inst)) *rsp* (-- *rsp* (second inst))))
 					(emit-free
-						(setq *rsp* (++ *rsp* (second inst)))
+						(stack-words function (second inst))
+						(setq depth (stack-take function depth (second inst)) *rsp* (++ *rsp* (second inst)))
 						(each (lambda ((%0 &ignore))
 								(if (< %0 *rsp*) (perase stack_map %0)))
 							(partition stack_map 2)))
 					(emit-push
+						(setq depth (+ depth (* (dec (length inst)) +long_size)))
 						;push the values of all registers pushed
 						(each! (# (pinsert stack_map (-- *rsp* +long_size)
 								(pfind trace_map %0)))
 							(list inst) 1))
 					(emit-pop
+						(setq depth (stack-take function depth (* (dec (length inst)) +long_size)))
 						;pop the values of all registers popped
 						;and flag if register is now restored
 						(each! (# (pinsert trace_map %0 (pfind stack_map *rsp*))
@@ -318,6 +350,7 @@
 						;we are inside an inlined local subroutine, return to the caller
 						(unless (setq *pc* (pop call_stack))
 							;return from main, merge clobbers and terminate path
+							(stack-left function depth)
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call
@@ -353,6 +386,7 @@
 							(vpmap-clobber trace_map (second callee_entry)))
 						(lisp-restored callee)
 						(unless (setq *pc* (pop call_stack))
+							(stack-left function depth)
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call-r
@@ -382,6 +416,9 @@
 						(merge call_list calls)
 						(vpmap-clobber trace_map clobbers)
 						(unless (setq *pc* (pop call_stack))
+							;one that names no method is the return of a subroutine
+							;of the function's own, (subroutine), not a jump out
+							(if (third inst) (stack-left function depth))
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-jmp-i
@@ -395,6 +432,7 @@
 						(merge call_list calls)
 						(vpmap-clobber trace_map clobbers)
 						(unless (setq *pc* (pop call_stack))
+							(stack-left function depth)
 							(vpmap-merge func_map trace_map)
 							(setq *pc* +max_long)))
 					(emit-call-abi
@@ -507,6 +545,8 @@
 						(each (lambda (function)
 							(when (defq entry (. db :find function))
 								(when (nql (first entry) :external)
+									(if (defq said (. *stack_said* :find function))
+										(print "WARNING: Stack in " function ": " said))
 									(if (defq doc_set :nil file :nil line_num :nil
 											doc_entry (. *doc_db* :find function))
 										(bind '(doc_set file line_num)

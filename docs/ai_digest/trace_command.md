@@ -43,6 +43,16 @@ The tracer tracks register and stack lifecycles through several mechanisms:
   valid restore path) invalidates its symbolic state and adds it to the active
   `trace_map`.
 
+* **The Stack Kept Whole:** What a function puts on the stack lies end to end
+  in whole words, docs/vm/vp_vm.md, and may be taken back in any grouping, two
+  pushes by one pop, a push by a free, the allocs of nested scopes by one free.
+  Each path keeps how many bytes it has put on. Said, as `WARNING: Stack in`, in
+  lint mode: a pop or free of more than the path has on, an alloc or free that
+  is not whole words, and a return or a jump out (to a function, not the
+  computed return of a `(subroutine)`) with anything still on. The first was
+  an error path that jumped to `:lisp :repl_error` from inside a frame, which
+  returns through the wrong word.
+
 ## Control Flow and State Merging
 
 To handle complex control flow, `analyze-function` employs a multi-path tracing
