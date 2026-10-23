@@ -452,45 +452,12 @@ feature.
 ### A function as it is loaded
 
 A function is one block of bytes, `obj/<cpu>/<abi>/<path>`, with nothing
-outside it to say what it is. `(def-func)` starts it and `(def-func-end)`
-ends it, `lib/asm/func.inc`, and every target lays it out the same way, the
-`+fn_header` of `lib/asm/lisp.inc`:
-
-| Offset | Size | Field | What it holds |
-|---|---|---|---|
-| 0 | 8 | `ln_fnode` | -1 in the file; the loader's link in its list of functions |
-| 8 | 2 | `length` | the bytes of the whole function, header to end |
-| 10 | 2 | `entry` | where the code starts, from the start of the header |
-| 12 | 2 | `links` | where the links start |
-| 14 | 2 | `paths` | where the paths start, and so where the links end |
-| 16 | 2 | `stack` | the stack a task started at this function is given |
-| 18 | | `pathname` | the function's path, a string ending in a 0 byte |
-
-After the name the bytes up to `entry` are a word's alignment, every one of
-them the distance from the start of the name to `entry`, so the byte just
-before the code says how far back the name is. Then the code; then its
-strings, ending in 0 bytes; then its constants, words the VP stage pooled,
-`(fn-const)`, if it has any, aligned to a word; then at a word's alignment
-the links, a word each; then the paths, each a string ending in a 0 byte,
-padded to a word.
-
-The offsets being 16 bits, a function is at most 64KB; the translator throws
-at one larger.
-
-A link is how a function reaches another. In the file it holds the distance
-from the link to one of the paths. The loader, `sys/load/class.vp`, puts in
-its place the address of the `entry` of the function of that path, loading
-it first if it has to, so a call through a link, `vp-call-p` or `vp-jmp-p`,
-goes straight to the code. Nothing else in a function is moved when it is
-loaded: every other reference in it is relative to where it is.
-
-The boot image, `obj/<cpu>/<abi>/sys/boot_image`, `lib/boot/image.inc`, is
-the functions the kernel needs, end to end, `sys/load/init` first and
-`sys/statics/statics` second. Each is kept without its paths: its `length`
-is where they would have started, and each of its links holds the distance
-to the `pathname` of the function it names, in the image. The first word of
-the image, the first function's `ln_fnode`, is the length of the whole image,
-and after the last function a `length` of 0 ends it.
+outside it to say what it is: a header, its code, its strings, its constants,
+the links to the functions it calls and their paths, laid out the same on
+every target. `docs/vm/vp_functions.md` has the layout field by field, how the
+loader binds the links, and the boot image. A translator never lays it out
+itself: the header and everything after the code come to it in the bundle as
+data, below, and it makes them by doing what the data says.
 
 ### A bundle of VP
 
@@ -504,7 +471,7 @@ bundles of `debug`.
 
 A bundle is a run of forms, one a function, as `(read)` reads them:
 
-```lisp
+```vdu
 ("apps/system/netspeed/vops"
 (progn
 (emit-label '_0)

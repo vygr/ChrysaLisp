@@ -62,6 +62,8 @@ Featured videos include:
 
 * **Whiteboard**: A board of shapes, not pixels, for many pointers at once, with instruments such as a ruler and a protractor that a pen runs along. A board is a `.cwb` text file that loads anywhere a picture does, and can be drawn by a hand, a script or an AI with the `cwb` command. The diagrams in the documentation are boards. See `docs/apps/whiteboard.md`.
 
+* **Media**: The Films app plays MP4, MOV, MKV, WebM, AVI, MP3 and FLAC. The sound codecs are ChrysaLisp's own, AAC with SBR and PS, AC-3 and E-AC-3, MP3, FLAC and ADPCM, in `lib/media/`; the pictures, H.264, H.265, MPEG-4 Part 2 and Motion JPEG, are decoded by the host's hardware decoder. The Voice app makes calls between the machines of a mesh, each voice mixed on its own stream, and records notes and calls.
+
 * **Cryptography**: SHA-256, SHA-512, HMAC, HKDF, PBKDF2, ChaCha20 with Poly1305, AES with GCM, X25519, Ed25519, ECDSA and RSA signatures, and X.509 certificates, in `lib/crypto/`. See `docs/ai_digest/crypto.md`.
 
 * **Network Stack**: URL, JSON and HTTP/1.1 libraries in `lib/net/`. See `docs/ai_digest/net_stack.md`.

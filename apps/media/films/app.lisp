@@ -20,7 +20,8 @@
 (enums +select 0
 	(enum main timer tip picker))
 
-(defq +file_types ''(".flm" ".mp4" ".m4v" ".mov" ".mp3" ".flac" ".mkv" ".webm") *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
+;what it plays is every kind of reel its imports made, lib/media/reel.inc
+(defq *file_types* (map (const first) *reel_kinds*) *canvas* :nil *reel* :nil *codec* :nil *at* -1 *seek* 0 *playing* :t
 	*file* :nil *picker* :nil *scale* :nil *played_list* (list) *places* (Fmap 11) *last* :nil *sound* :nil *sync* 0 +sync_step 40
 	+played_max 12 +played_version 1 +played_file (cat (get :home *env*) "films.tre"))
 
@@ -175,7 +176,7 @@
 (defun open-path (file)
 	;a film by the path typed, or why not
 	(cond
-		((not (find (path-ext file) +file_types))
+		((not (find (path-ext file) *file_types*))
 			(played file :nil)
 			(say (cat file ": not a kind of film this plays")))
 		((not (name-size file))
@@ -250,7 +251,7 @@
 				;the one open told to go first
 				(if *picker* (mail-send *picker* ""))
 				(setq *picker* (file-pick (elem-get select +select_picker) "Open film..." (ifn *file* ".")
-					(join +file_types " ") :nil "films" :t (list (cat *app_root* "data")))))
+					(join *file_types* " ") :nil "films" :t (list (cat *app_root* "data")))))
 			((= id +event_path)
 				(open-path (trim (get :clear_text *path*))))
 			((and *reel* (= id +event_timeline))
