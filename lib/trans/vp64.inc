@@ -5,10 +5,6 @@
 ;module
 (env-push)
 
-;cpu specific requirements
-;no registers need saving !
-(defcvar 'stack_align 8 'stack_state '())
-
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!)))) +vp_rregs
 	(reduce (# (pinsert %0 %1 (num (!)))) +vp_fregs (cat +vp_regs_map))))
@@ -275,8 +271,8 @@
 (defun emit-cpy-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
 ; Helper functions (not opcodes)
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-alloc (c) (emit-sub-cr c (const (emit-native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr c (const (emit-native-reg? :rsp))))
 
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
@@ -299,10 +295,9 @@
 (defun emit-load-state ())
 
 (defun emit-stack-init (s f x)
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
-	(emit-cpy-ri f s tk_state_size)
-	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+	(emit-sub-cr (* +ptr_size 2) s)
+	(emit-cpy-ri f s 0)
+	(emit-cpy-ri x s +ptr_size))
 
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))

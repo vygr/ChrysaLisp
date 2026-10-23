@@ -99,8 +99,7 @@ docs/diagrams/compositor_passes.cwb
 
 **1. `:host_gui :update` (service/gui/class.vp)**
 
-The whole frame is one `:sys_task :callback`, on the host's stack, aligned
-to 16 bytes. While it runs no other task can change a view, so a frame is
+The whole frame is one `:sys_task :callback`, on the host's stack. While it runs no other task can change a view, so a frame is
 worked out from one state of the tree. A view's Lisp `:draw` runs there, in
 the GUI's Lisp, which `gui-init` puts in the kernel's tcb for it.
 

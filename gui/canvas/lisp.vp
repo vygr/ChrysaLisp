@@ -186,13 +186,10 @@
 (defun shader-callback-begin ()
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
-	(vp-cpy-rr :rsp :r1)
-	(vp-alloc 16)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r0 :r1) '((:rsp 0) (:rsp 8))))
+	(vp-push :r0))
 
 (defun shader-callback-end ()
-	(assign '((:rsp 8)) '(:rsp))
+	(vp-free +ptr_size)
 	(vp-ret))
 
 (defun shader-on-gui-node ()
@@ -200,7 +197,7 @@
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '((:r3 statics_sys_load_host_gui_funcs)) '(:r3)))
 
-(def-method :canvas :lisp_shade 16)
+(def-method :canvas :lisp_shade)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -258,15 +255,13 @@
 	;:r0 = user data
 
 	(def-vars
-		(ptr user this old_stack pixmap texture block part)
+		(ptr user this pixmap texture block part)
 		(long tex_id)
 		(uint w h)
 		(struct rect host_gui_rect_size))
 
-	(vp-cpy-rr :rsp :r1)
 	(push-scope)
-	(vp-and-cr -16 :rsp)
-	(entry (vpx user old_stack))
+	(entry (vpx user))
 
 	(assign (vpx (.> user local_this)) (vpx this))
 	(vpifnot (vpx (& (.> this +canvas_flags) +canvas_flag_shader)))
@@ -307,8 +302,7 @@
 		(endif)
 	(endif)
 
-	(assign (vpx old_stack) '(:rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (errorcase

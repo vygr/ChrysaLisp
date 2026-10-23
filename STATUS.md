@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**No stack alignment in the VP: `stack_align`, `stack_state`, the `16` of `def-method` and the hand aligned GUI callbacks are gone; each `emit-call-abi` lines the stack up to 16 at the call.**
+
 **`storage -e` retires a member by the start of its id, as `-o` takes one, `(storage-retire)`; it needed the whole id.**
 
 **A message is made with its src and offset 0; a message of one fragment carried a reused block's old parcel header onto the wire.**

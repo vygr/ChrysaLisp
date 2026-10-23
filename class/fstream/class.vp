@@ -202,7 +202,8 @@
 	(structure local 0
 		(ptr this)
 		(long off)
-		(uint pos))
+		(uint pos)
+		(align))
 
 	(vp-alloc local_size)
 	(entry :fstream :seek '(:r0 (:rsp local_off) (:rsp local_pos)))

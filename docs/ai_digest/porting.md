@@ -256,7 +256,11 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
   `vp-call-abi`. Where the ABI is, is the translator's `emit-call-abi` in
   `lib/trans/<cpu>.inc`: it moves the args to the registers the ABI wants,
   pushes those that do not fit, keeps the registers the ABI trashes round
-  the call, and keeps the stack aligned as the ABI wants.
+  the call, and lines the stack up as the ABI wants at the call itself,
+  whatever it was: no function, VP or translated, keeps it aligned, the
+  VP stack only ever holds whole words. On x86_64 the stack before is
+  kept in the temp register of the call, one the ABI keeps, and put back
+  after it.
 
     * For a new OS/ABI on a CPU there is already, add its case to that
       CPU's `emit-call-abi`: its arg registers, as VP registers, and the VP
@@ -464,9 +468,9 @@ into the native machine code for your target CPU.
       `riscv64-r` or `x64-rr` in existing translators) to simplify
       instruction encoding.
 
-    * Define `stack_align` and `stack_state` (the registers a task keeps
-      besides the VP ones, the link register say) as per your target, and
-      `emit-save-state` and `emit-load-state`, which push and pop them. The
+    * Define `emit-save-state` and `emit-load-state`, which push and pop
+      the registers a task keeps besides the VP ones, the link register
+      say, and `emit-stack-init` leaves room for them. The
       task switch, `sys/task`, says only `vp-save-state` and
       `vp-load-state`, the same VP on every platform; with no such
       registers they emit nothing, as on x86_64 and VP64.

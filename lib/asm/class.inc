@@ -209,9 +209,9 @@
 	`(progn (pinsert *vtables* ',class ',vtable) (pinsert *supers* ',class ',super)
 		(pinsert *trashes* ',class ',trashed) (pinsert *trashes_own* ',class ',owned)))
 
-(defmacro def-method (class member &optional alignment)
+(defmacro def-method (class member)
 	;the function knows which method it is, (fn-keep-locals) asks
-	`(progn (def-func (f-path ,class ,member) ,alignment)
+	`(progn (def-func (f-path ,class ,member))
 		(setq *func_method* (list ,class ,member))))
 
 ;;;;;;;;;;;;;;;;;;

@@ -40,7 +40,7 @@
 
 (defun push-scope ()
 	(elem-set (elem-get (scope-new) -3) 0
-		(setq *scopes_sp* (align *scopes_sp* stack_align)))
+		(setq *scopes_sp* (align *scopes_sp* +long_size)))
 	(when (/= *scopes_sp* 0)
 		(if *build_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)

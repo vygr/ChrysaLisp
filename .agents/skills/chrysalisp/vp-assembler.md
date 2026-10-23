@@ -378,12 +378,9 @@ method)` gives the registers.
 			;:r0 = user data (ptr)
 
 			(entry :sys_task :task_callback '(:r0))
-			(vp-cpy-rr :rsp :r1)
-			(vp-alloc 16)
-			(vp-and-cr -16 :rsp)
-			(assign '(:r0 :r1) '((:rsp 0) (:rsp 8)))
+			(vp-push :r0)
 			(host-gui-call :host_gui :video_close '((:r0 local_handle)))
-			(assign '((:rsp 8)) '(:rsp))
+			(vp-pop :r1)
 			(vp-ret)
 
 		(errorcase

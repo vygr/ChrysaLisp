@@ -5,10 +5,6 @@
 ;module
 (env-push)
 
-;cpu specific requirements
-;:r30 for link register
-(defcvar 'stack_align 8 'stack_state '(:r30))
-
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!))))
 		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
@@ -205,13 +201,6 @@
 	(cond
 		((= c -1))
 		((= c 0) (emit-xor-rr r r))
-		((eql r +arm64_rsp)
-			(if (/= -1 (defq i (arm64-limm c)))
-				(progn
-					(emit-cpy-rr +arm64_rsp +arm64_rtmp)
-					(emitm-int (+ 0x92000000 (<< i 10) (<< +arm64_rtmp 5) r)))
-				(arm64-mov-cr c +arm64_rtmp)
-				(emit-and-rr +arm64_rtmp r)))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
 				(emitm-int (+ 0x92000000 (<< i 10) (<< r 5) r))
@@ -308,13 +297,13 @@
 	(each (# (if (= (length %0) 2)
 		(if (= (!) 0)
 			(emitm-int (+ 0xa9800000
-				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x3f8) 12)
+				(<< (logand (neg (* +ptr_size (length b))) 0x3f8) 12)
 				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
 				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
 		(if (= (!) 0)
 			(emitm-int (+ 0xf8000c00
-				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x1ff) 12)
+				(<< (logand (neg (* +ptr_size (length b))) 0x1ff) 12)
 				(const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2))))))
 		(partition (reverse b) 2)))
@@ -323,13 +312,13 @@
 	(reach (# (if (= (length %0) 2)
 		(if (= (!) 0)
 			(emitm-int (+ 0xa8c00000
-				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x3f8) 12)
+				(<< (logand (* +ptr_size (length b)) 0x3f8) 12)
 				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emitm-int (+ 0xa9400000 (<< (* (!) 2) 15)
 				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
 		(if (= (!) 0)
 			(emitm-int (+ 0xf8400400
-				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x1ff) 12)
+				(<< (logand (* +ptr_size (length b)) 0x1ff) 12)
 				(const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (* (!) 2)) (first %0)))))
 		(partition (reverse b) 2)))
@@ -465,8 +454,8 @@
 (defun emit-cpy-df (s1 s2 d) (arm64-dr 0xFC606800 s1 s2 d))
 (defun emit-cpy-fd (s d1 d2) (arm64-dr 0xFC206800 d1 d2 s))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))
+(defun emit-alloc (c) (emit-sub-cr c +arm64_vp_rsp))
+(defun emit-free (c) (emit-add-cr c +arm64_vp_rsp))
 (defun emit-ret () (emitm-int 0xd65f03c0))
 (defun emit-sync (n) (emitm-int 0xd5033fbf))
 (defun emit-brk (n))
@@ -477,15 +466,13 @@
 
 ;a task's state, what the CPU has besides the VP registers, the link
 ;register, pushed as it is switched from and popped as it is switched to
-(defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
-(defun emit-load-state () (apply (const emit-pop) (map (lambda (r) (emit-native-reg? r)) stack_state)))
+(defun emit-save-state () (emit-push +arm64_rlnk))
+(defun emit-load-state () (emit-pop +arm64_rlnk))
 
 (defun emit-stack-init (s f x)
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
-	(emit-and-cr -16 s)
-	(emit-cpy-ri f s tk_state_size)
-	(emit-cpy-ri x s (+ tk_state_size +ptr_size))
+	(emit-sub-cr (* +ptr_size 3) s)
+	(emit-cpy-ri f s +ptr_size)
+	(emit-cpy-ri x s (* +ptr_size 2))
 	(emit-lea-p (+ *pc* 12) +arm64_rtmp)
 	(emit-cpy-ri +arm64_rtmp s 0)
 	(emit-jmp (+ *pc* 12) 0)
@@ -507,37 +494,19 @@
 		;8th on the stack, and the registers it trashes are kept round it
 		(defq x (slice +arm64_vp_args n (min n 8)) s (* +ptr_size (length x)))
 		(apply (const emit-push) +arm64_abi_save)
-		(cond
-			((= (% *func_align* 16) 0)
-				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
-				(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
-				(each (# (if (= (length %0) 2)
-					(if (= (!) 0)
-						(emitm-int (+ 0xa9800000
-							(<< (logand (neg (align s 16)) 0x3f8) 12)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
-					(if (= (!) 0)
-						(emitm-int (+ 0xf8000c00
-							(<< (logand (neg (align s 16)) 0x1ff) 12)
-							(const (<< +arm64_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
-					(partition (reverse x) 2))
-				(emit-cpy-ir b c r)
-				(emitm-int (+ 0xd63f0000 (<< r 5)))
-				(emit-cpy-rr +arm64_rtmp +arm64_rlnk))
-			(:t (emit-lea-i +arm64_vp_rsp (neg s) +arm64_rsp)
-				(emit-and-cr -16 +arm64_rsp)
-				(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
-				(each (# (if (= (length %0) 2)
-						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
-					(partition (reverse x) 2))
-				(emit-cpy-ir b c r)
-				(emitm-int (+ 0xd63f0000 (<< r 5)))
-				(emit-cpy-rr +arm64_rtmp +arm64_rlnk)))
+		;the native stack, below the VP one, lined up to 16: an and of sp is
+		;of xzr, so it is made in the temp and the and puts it in sp
+		(emit-lea-i +arm64_vp_rsp (neg s) +arm64_rtmp)
+		(emitm-int (+ 0x92000000 (<< (arm64-limm -16) 10) (const (<< +arm64_rtmp 5)) +arm64_rsp))
+		(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
+		(each (# (if (= (length %0) 2)
+				(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
+					(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+				(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
+			(partition (reverse x) 2))
+		(emit-cpy-ir b c r)
+		(emitm-int (+ 0xd63f0000 (<< r 5)))
+		(emit-cpy-rr +arm64_rtmp +arm64_rlnk)
 		(apply (const emit-pop) +arm64_abi_save)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 

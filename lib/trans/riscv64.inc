@@ -5,10 +5,6 @@
 ;module
 (env-push)
 
-;cpu specific requirements
-;:r30 for link register
-(defcvar 'stack_align 8 'stack_state '(:r30))
-
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!))))
 		'(:r29 :r30 :rsp								;zero, ra, sp (x0-x2)
@@ -378,13 +374,13 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(emit-sub-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)
+		(emit-sub-cr (* +ptr_size l) +riscv64_rsp)
 		(reach (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (- l 1 (!))))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(reach (# (emit-cpy-ir +riscv64_rsp (* +ptr_size (- l 1 (!))) %0)) b)
-		(emit-add-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)))
+		(emit-add-cr (* +ptr_size l) +riscv64_rsp)))
 
 (defun emit-call (l)
 	(emit-push +riscv64_rlnk)
@@ -561,8 +557,8 @@
 	(riscv64-r 0x33 +riscv64_rtmp1 d1 d2 0x0 0x0)
 	(riscv64-s 0x27 +riscv64_rtmp1 s 0x3 0))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
+(defun emit-alloc (c) (emit-sub-cr c +riscv64_rsp))
+(defun emit-free (c) (emit-add-cr c +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))
 (defun emit-sync (n) (emitm-int 0x0ff0000f))
 (defun emit-brk (n))
@@ -573,15 +569,13 @@
 
 ;a task's state, what the CPU has besides the VP registers, the link
 ;register, pushed as it is switched from and popped as it is switched to
-(defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
-(defun emit-load-state () (apply (const emit-pop) (map (lambda (r) (emit-native-reg? r)) stack_state)))
+(defun emit-save-state () (emit-push +riscv64_rlnk))
+(defun emit-load-state () (emit-pop +riscv64_rlnk))
 
 (defun emit-stack-init (s f x)
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
-	(emit-and-cr -16 s)
-	(emit-cpy-ri f s tk_state_size)
-	(emit-cpy-ri x s (+ tk_state_size +ptr_size))
+	(emit-sub-cr (* +ptr_size 3) s)
+	(emit-cpy-ri f s +ptr_size)
+	(emit-cpy-ri x s (* +ptr_size 2))
 	(emit-lea-p (+ *pc* 16) +riscv64_rtmp1)
 	(emit-cpy-ri +riscv64_rtmp1 s 0)
 	(emit-jmp (+ *pc* 20) 0)
@@ -605,11 +599,8 @@
 	(apply (const emit-push) +riscv64_abi_save)
 	(emit-cpy-rr +riscv64_rsp +riscv64_rtmp4)
 	(emit-cpy-rr +riscv64_rlnk +riscv64_rtmp5)
-	(cond
-		((= (% *func_align* 16) 0)
-			(emit-sub-cr (align s 16) +riscv64_rsp))
-		(:t (emit-sub-cr s +riscv64_rsp)
-			(emit-and-cr -16 +riscv64_rsp)))
+	(emit-sub-cr s +riscv64_rsp)
+	(emit-and-cr -16 +riscv64_rsp)
 	(reach (# (emit-cpy-ri %0 +riscv64_rsp (- s +ptr_size (* +ptr_size (!))))) x)
 	(emit-cpy-ir b c +riscv64_rtmp1)
 	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)

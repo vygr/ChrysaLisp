@@ -5,10 +5,6 @@
 ;module
 (env-push)
 
-;cpu specific requirements
-;$r1 (ra) is link register
-(defcvar 'stack_align 8 'stack_state '(:r30))
-
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!))))
 		'(:r29 :r30 :r28 :rsp							;$r0 (zero), $r1 (ra), $r2 (tp), $r3 (sp)
@@ -376,13 +372,13 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(emit-sub-cr (align (* +ptr_size l) stack_align) +la64_rsp)
+		(emit-sub-cr (* +ptr_size l) +la64_rsp)
 		(reach (lambda (r) (emit-cpy-ri r +la64_rsp (* (- l 1 (!)) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(reach (lambda (r) (emit-cpy-ir +la64_rsp (* (- l 1 (!)) +ptr_size) r)) b)
-		(emit-add-cr (align (* +ptr_size l) stack_align) +la64_rsp)))
+		(emit-add-cr (* +ptr_size l) +la64_rsp)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 10: Jumps & Calls
@@ -571,8 +567,8 @@
 ; Group 13: Stack & ABI Linkage
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +la64_rsp))
-(defun emit-free (c)  (emit-add-cr (align c stack_align) +la64_rsp))
+(defun emit-alloc (c) (emit-sub-cr c +la64_rsp))
+(defun emit-free (c)  (emit-add-cr c +la64_rsp))
 (defun emit-ret ()    (la64-jirl +la64_rzero +la64_rlnk 0)) ; jirl zero, ra, 0
 (defun emit-sync (n)  (emitm-int 0x38720000))               ; dbar 0
 (defun emit-brk (n)   (emitm-int 0x002a0000))               ; break 0
@@ -583,15 +579,13 @@
 
 ;a task's state, what the CPU has besides the VP registers, the link
 ;register, pushed as it is switched from and popped as it is switched to
-(defun emit-save-state () (apply (const emit-push) (map (lambda (r) (emit-native-reg? r)) stack_state)))
-(defun emit-load-state () (apply (const emit-pop) (map (lambda (r) (emit-native-reg? r)) stack_state)))
+(defun emit-save-state () (emit-push +la64_rlnk))
+(defun emit-load-state () (emit-pop +la64_rlnk))
 
 (defun emit-stack-init (s f x)
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
-	(emit-and-cr -16 s)
-	(emit-cpy-ri f s tk_state_size)
-	(emit-cpy-ri x s (+ tk_state_size +ptr_size))
+	(emit-sub-cr (* +ptr_size 3) s)
+	(emit-cpy-ri f s +ptr_size)
+	(emit-cpy-ri x s (* +ptr_size 2))
 	(emit-lea-p (+ *pc* 16) +la64_rtmp1)
 	(emit-cpy-ri +la64_rtmp1 s 0)
 	(emit-jmp (+ *pc* 20) 0)
@@ -615,11 +609,8 @@
 	(apply (const emit-push) +la64_abi_save)
 	(emit-cpy-rr +la64_rsp +la64_rtmp4)
 	(emit-cpy-rr +la64_rlnk +la64_rtmp5)
-	(cond
-		((= (% *func_align* 16) 0)
-			(emit-sub-cr (align s 16) +la64_rsp))
-		(:t (emit-sub-cr s +la64_rsp)
-			(emit-and-cr -16 +la64_rsp)))
+	(emit-sub-cr s +la64_rsp)
+	(emit-and-cr -16 +la64_rsp)
 	(reach (# (emit-cpy-ri %0 +la64_rsp (- s +ptr_size (* +ptr_size (!))))) x)
 	(emit-cpy-ir b c +la64_rtmp1)
 	(la64-jirl +la64_rlnk +la64_rtmp1 0)

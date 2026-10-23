@@ -5,10 +5,6 @@
 ;module
 (env-push)
 
-;cpu specific requirements
-;no registers need saving !
-(defcvar 'stack_align 8 'stack_state '())
-
 (defq +emit_native_regs
 	(reduce (# (pinsert %0 %1 (num (!))))
 		'(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
@@ -208,8 +204,8 @@
 (defun x64-cmp-rr (s d) (x64-r-r 0x39 s d))
 (defun x64-cmp-cr (c r) (if (= c 0) (x64-r-r 0x85 r r) (x64-alu-cr 7 c r)))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +x64_rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) +x64_rsp))
+(defun emit-alloc (c) (emit-sub-cr c +x64_rsp))
+(defun emit-free (c) (emit-add-cr c +x64_rsp))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 2: Memory Load & Store
@@ -584,10 +580,9 @@
 (defun emit-load-state ())
 
 (defun emit-stack-init (s f x)
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
-	(emit-cpy-ri f s tk_state_size)
-	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+	(emit-sub-cr (* +ptr_size 2) s)
+	(emit-cpy-ri f s 0)
+	(emit-cpy-ri x s +ptr_size))
 
 ;a host call has its args in :r0 :r1 ... in order, see (abi-call-table) in sys/pii/class.inc.
 ;They are moved to where the ABI has them, those that do not fit in its
@@ -609,50 +604,40 @@
 		(apply (const emit-pop) dst))
 	stack)
 
-;where the ABI has the args, and the registers it trashes
+;where the ABI has the args, the registers it trashes, and those it keeps.
+;The stack is lined up to 16 at the call, whatever it was: the one before
+;is kept in the temp register, one of those the ABI keeps
 (defq +x64_abi_regs `',(exec '(map (lambda (r) (emit-native-reg? r))
 		(if (eql *abi* 'WIN64) '(:r1 :r2 :r7 :r8) '(:r6 :r5 :r2 :r1 :r7 :r8))))
 	+x64_abi_save `',(exec '(map (lambda (r) (emit-native-reg? r))
-		(if (eql *abi* 'WIN64) '(:r1 :r2 :r7 :r8 :r9 :r10) '(:r1 :r2 :r5 :r6 :r7 :r8 :r9 :r10)))))
+		(if (eql *abi* 'WIN64) '(:r1 :r2 :r7 :r8 :r9 :r10) '(:r1 :r2 :r5 :r6 :r7 :r8 :r9 :r10))))
+	+x64_abi_kept `',(exec '(map (lambda (r) (emit-native-reg? r))
+		(if (eql *abi* 'WIN64) '(:r3 :r4 :r5 :r6 :r11 :r12 :r13 :r14) '(:r3 :r4 :r11 :r12 :r13 :r14)))))
+
+(defun x64-abi-align (r b x)
+	;the stack before kept in r, lined up to 16 with the stack args pushed
+	(if (or (not (find r +x64_abi_kept)) (eql r b))
+		(throw "emit-call-abi temp reg not kept by the ABI !" r))
+	(emit-cpy-rr +x64_rsp r)
+	(emit-and-cr -16 +x64_rsp)
+	(if (odd? (length x)) (emit-sub-cr +ptr_size +x64_rsp))
+	(apply (const emit-push) x))
 
 (case *abi*
 (AMD64
 (defun emit-call-abi (r b c n &rest _)
 	(apply (const emit-push) +x64_abi_save)
-	(defq x (x64-abi-args n +x64_abi_regs))
-	(cond
-		((= *func_align* 16)
-			(apply (const emit-push) x)
-			(emit-call-i b c)
-			(emit-add-cr (* +ptr_size (length x)) +x64_rsp))
-		(:t (setq x (cat (list r r) x))
-			(emit-cpy-rr +x64_rsp r)
-			(emit-and-cr -16 +x64_rsp)
-			(apply (const emit-push) x)
-			(emit-call-i b c)
-			(emit-cpy-ir +x64_rsp (* +ptr_size (- (length x) 2)) +x64_rsp)))
+	(x64-abi-align r b (x64-abi-args n +x64_abi_regs))
+	(emit-call-i b c)
+	(emit-cpy-rr r +x64_rsp)
 	(apply (const emit-pop) +x64_abi_save)))
 (WIN64
 (defun emit-call-abi (r b c n &rest _)
 	(apply (const emit-push) +x64_abi_save)
-	(defq x (x64-abi-args n +x64_abi_regs))
-	(cond
-		((= *func_align* 16)
-			(if (odd? (length x))
-				(setq x (cat (list r) x)))
-			(apply (const emit-push) x)
-			(emit-sub-cr 32 +x64_rsp)
-			(emit-call-i b c)
-			(emit-add-cr (* +ptr_size (+ (length x) 4)) +x64_rsp))
-		(:t (emit-cpy-rr +x64_rsp r)
-			(emit-and-cr -16 +x64_rsp)
-			(if (odd? (length x))
-				(defq y (cat (list r) x))
-				(defq y (cat (list r r) x)))
-			(apply (const emit-push) y)
-			(emit-sub-cr 32 +x64_rsp)
-			(emit-call-i b c)
-			(emit-cpy-ir +x64_rsp (* +ptr_size (+ (length x) 4)) +x64_rsp)))
+	(x64-abi-align r b (x64-abi-args n +x64_abi_regs))
+	(emit-sub-cr 32 +x64_rsp)
+	(emit-call-i b c)
+	(emit-cpy-rr r +x64_rsp)
 	(apply (const emit-pop) +x64_abi_save)))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 

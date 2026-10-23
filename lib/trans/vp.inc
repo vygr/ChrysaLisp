@@ -222,14 +222,10 @@
 	;a build's translate stage: the bundle of the source file, as the VP
 	;stage left it in dir, obj/vp/<mode>/, each of its functions' VP to this
 	;platform's native code in obj/<cpu>/<abi>/. An entry is the name, the
-	;instructions, and the forms after them, one starting with align the
-	;stack alignment
+	;instructions, and the forms after them
 	(defq stream (file-stream (cat dir file)))
 	(while (defq entry (first (read stream)))
-		(defq name (first entry) *func_align* stack_align)
-		(each (# (and (list? %0) (nempty? %0) (eql (first %0) 'align)
-			(setq *func_align* (second %0)))) entry)
-		(defq out (emit-translate (second entry)))
+		(defq name (first entry) out (emit-translate (second entry)))
 		;the header has 16 bits for the length, and for where the links and paths are
 		(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
 		(save out (cat "obj/" *cpu* "/" *abi* "/" name))

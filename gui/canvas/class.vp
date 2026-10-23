@@ -209,7 +209,7 @@
 
 (def-func-end)
 
-(def-method :canvas :read 16)
+(def-method :canvas :read)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;outputs
@@ -267,13 +267,11 @@
 	;:r0 = user data
 
 	(def-vars
-		(ptr user old_stack pixmap)
+		(ptr user pixmap)
 		(long ok))
 
-	(vp-cpy-rr :rsp :r1)
 	(push-scope)
-	(vp-and-cr -16 :rsp)
-	(entry (vpx user old_stack))
+	(entry (vpx user))
 
 	(assign (vpx (.> user local_pixmap)) (vpx pixmap))
 	(host-gui-call :host_gui :read_texture (vpx (.> user local_handle) (.> pixmap +pixmap_data)
@@ -281,8 +279,7 @@
 		(vpx ok))
 	(assign (vpx ok) (vpx (.> user local_ok)))
 
-	(assign (vpx old_stack) '(:rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)

@@ -111,7 +111,7 @@
 
 (def-func-end)
 
-(def-method :pixmap :upload 16)
+(def-method :pixmap :upload)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = pixmap upload flags (uint)
@@ -148,13 +148,11 @@
 	;:r0 = user data
 
 	(def-vars
-		(ptr user this old_stack)
+		(ptr user this)
 		(long tex_id))
 
-	(vp-cpy-rr :rsp :r1)
 	(push-scope)
-	(vp-and-cr -16 :rsp)
-	(entry (vpx user old_stack))
+	(entry (vpx user))
 
 	;free any texture
 	(assign (vpx (.> user local_this)) (vpx this))
@@ -179,8 +177,7 @@
 	;new texture
 	(call :texture :create (vpx tex_id (.> this +pixmap_width) (.> this +pixmap_height)) (vpx (.> this +pixmap_texture)))
 
-	(assign (vpx old_stack) '(:rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)

@@ -55,9 +55,8 @@
 	(if (get p) (throw "can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
-(defun def-func (*func_name* &optional *func_align* *func_stack*)
-	(defq *func_align* (ifn *func_align* stack_align)
-		*strings* (clear '()) *paths* (clear '()) *consts* (clear '())
+(defun def-func (*func_name* &optional *func_stack*)
+	(defq *strings* (clear '()) *paths* (clear '()) *consts* (clear '())
 		*links* (clear '()) *emit_list* (clear '()) *locals* (list) *func_regs* :t *kept* :nil *func_method* :nil *link_methods* (list)
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
@@ -197,14 +196,12 @@
 		;an entry of its source file's bundle, obj/vp/<mode>/<file>, for the
 		;other platforms' translate stage and for trace and the rest. Its
 		;name, the instructions, and after them, what the frames of named
-		;locals were, which of them were kept in registers, and the stack
-		;alignment the translator is to keep
+		;locals were and which of them were kept in registers
 		(defq *out* (cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
 				(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
 				*emit_code*) "\n") ")"
 			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
-			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")
-			"\n" (str (list 'align *func_align*))))
+			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")))
 		(push *build_bundle* (cat (const (cat "(" (ascii-char 34))) (str *func_name*)
 			(const (cat (ascii-char 34) "\n")) *out* ")\n"))
 		(if *build_emit* (print *out*)))

@@ -56,7 +56,7 @@
 
 (def-func-end)
 
-(def-method :host_gui :lisp_deinit 16)
+(def-method :host_gui :lisp_deinit)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -67,7 +67,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(structure local 0
-		(ptr this old_stack))
+		(ptr this))
 
 	(vp-alloc local_size)
 	(entry :host_gui :lisp_deinit '(:r0 :r1))
@@ -91,15 +91,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-	(structure local2 0
-		(ptr user old_stack))
-
 (vp-label 'deinit_callback)
-	(vp-cpy-rr :rsp :r1)
-	(vp-alloc local2_size)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r0 :r1) '((:rsp local2_user) (:rsp local2_old_stack)))
-
 	;free any screen
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_screen)) '(:r0))
@@ -150,7 +142,6 @@
 		(assign '(:r0) '((:r1 +tk_node_lisp)))
 	(endif)
 
-	(assign '((:rsp local2_old_stack)) '(:rsp))
 	(vp-ret)
 
 (errorcase
@@ -190,7 +181,7 @@
 
 (def-func-end)
 
-(def-method :host_gui :lisp_event 16)
+(def-method :host_gui :lisp_event)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -201,7 +192,7 @@
 	;:r1-:r14, :f0-:f15
 
 	(structure local 0
-		(ptr this event old_stack))
+		(ptr this event))
 
 	(vp-alloc local_size)
 	(entry :host_gui :lisp_event '(:r0 :r1))
@@ -218,13 +209,11 @@
 	(vp-ret)
 
 	(structure local1 0
-		(ptr user old_stack))
+		(ptr user))
 
 (vp-label 'event_callback)
-	(vp-cpy-rr :rsp :r1)
 	(vp-alloc local1_size)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r0 :r1) '((:rsp local1_user) (:rsp local1_old_stack)))
+	(assign '(:r0) '((:rsp local1_user)))
 
 	(host-gui-call :host_gui :poll_event '(0) '(:r0))
 	(vp-shl-cr 32 :r0)
@@ -241,7 +230,7 @@
 		(class/obj/ref :r1 :r2)
 		(assign '(:r1) '((:r0 local_event)))
 	(endif)
-	(assign '((:rsp local1_old_stack)) '(:rsp))
+	(vp-free local1_size)
 	(vp-ret)
 
 (errorcase
@@ -299,7 +288,7 @@
 
 (def-func-end)
 
-(def-method :host_gui :lisp_read_screen 16)
+(def-method :host_gui :lisp_read_screen)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -367,21 +356,18 @@
 	;:r0 = user data
 
 	(def-vars
-		(ptr user old_stack)
+		(ptr user)
 		(long ok))
 
-	(vp-cpy-rr :rsp :r1)
 	(push-scope)
-	(vp-and-cr -16 :rsp)
-	(entry (vpx user old_stack))
+	(entry (vpx user))
 
 	(host-gui-call :host_gui :read_screen (vpx (.> user local_data) (.> user local_x) (.> user local_y)
 			(.> user local_w) (.> user local_h) (* (.> user local_w) 4))
 		(vpx ok))
 	(assign (vpx ok) (vpx (.> user local_ok)))
 
-	(assign (vpx old_stack) '(:rsp))
-	(pop-scope-syms)
+	(pop-scope)
 	(return)
 
 (def-func-end)
@@ -460,10 +446,7 @@
 	;:r0 = user data (ptr)
 
 	(entry :sys_task :task_callback '(:r0))
-	(vp-cpy-rr :rsp :r1)
-	(vp-alloc 16)
-	(vp-and-cr -16 :rsp)
-	(assign '(:r0 :r1) '((:rsp 0) (:rsp 8)))
+	(vp-push :r0)
 	(assign '((:r0 local_op)) '(:r1))
 	(vpif '(:r1 = 0))
 		(host-gui-call :host_gui :video_open '((:r0 local_handle) (:r0 local_data) (:r0 local_len)) '(:r0))
@@ -478,9 +461,8 @@
 		(host-gui-call :host_gui :video_close '((:r0 local_handle)))
 		(vp-xor-rr :r0 :r0)
 	(endif)
-	(assign '((:rsp 0)) '(:r1))
+	(vp-pop :r1)
 	(assign '(:r0) '((:r1 local_out)))
-	(assign '((:rsp 8)) '(:rsp))
 	(vp-ret)
 
 (errorcase
