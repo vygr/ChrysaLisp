@@ -23,6 +23,12 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**Tests wait for what they test, not a time: no check fails because a busy machine was slow; a real hang is the suite's to report.**
+
+**One of each helper written twice: `(crypto-same?)` for every tag (GCM compared with `eql`), `(sync-no-modes?)` (rack from Windows sent modes), `(bits-huff)`, `(date-dos)`, `(reel-pcm)`, `(sign-extend)`, `(dir-list)`, `(mail-first)`.**
+
+**A sync with `-d` removes the folders its removes leave empty.**
+
 **No stack alignment in the VP: `stack_align`, `stack_state`, the `16` of `def-method` and the hand aligned GUI callbacks are gone; each `emit-call-abi` lines the stack up to 16 at the call.**
 
 **Apps no longer `(jit)` their `lisp.vp`: `make install` and `rack -b` do `make apps`.**

@@ -20,8 +20,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "gui/canvas/lisp.inc")
-(import "lib/streams/lisp_stream.inc")
-(import "././media/bits.inc")
+(import "././streams/lisp_stream.inc")
+(import "./bits.inc")
 
 ;module
 (env-push)

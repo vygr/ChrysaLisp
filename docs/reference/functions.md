@@ -777,22 +777,6 @@ PCM of 8 bits, offset by 128, or of 16 or 24 signed, low byte first,
 channels one after another in each frame
 ```
 
-### adpcm-reals
-
-```code
-(adpcm-reals chans) -> (left right)
-
-channels of nums, the first two as reals, the one of one on both
-```
-
-### adpcm-s16
-
-```code
-(adpcm-s16 str at) -> num
-
-two bytes low first, signed
-```
-
 ### aead-open
 
 ```code
@@ -1377,6 +1361,14 @@ have left/right default to black/white"
 
 ```code
 (bits-at reader) -> num
+```
+
+### bits-huff
+
+```code
+(bits-huff reader table) -> index
+
+the native gives where it ends in the low 32 bits and the index above
 ```
 
 ### bits-of
@@ -2247,6 +2239,12 @@ word is a Link, and is connected to the :link_event of the Md, if
 whoever made the Md gave it one
 ```
 
+### crypto-same?
+
+```code
+(crypto-same? a b) -> :nil | :t
+```
+
 ### csr-cmp
 
 ```code
@@ -2850,6 +2848,15 @@ next that asked, what they had been
 (date [secs]) -> (sec min hour day month year dotw)
 ```
 
+### date-dos
+
+```code
+(date-dos stamp) -> (time date)
+
+a (date) as MS-DOS keeps it, as zips and exFAT do: two seconds at a
+time, months from 1, years from 1980, none before
+```
+
 ### day-of-the-week
 
 ```code
@@ -3167,6 +3174,16 @@ added, or the one changed for the other
 
 ```code
 a line, or the first and last of a run of them
+```
+
+### dir-list
+
+```code
+(dir-list path) -> (names kinds)
+
+what is in a folder, each name and what the host says it is, "4" a
+folder, "8" a file, as two lists, "." and ".." among them. Nothing for
+a folder that is not there
 ```
 
 ### each-mergeable
@@ -3867,7 +3884,7 @@ If there is none the directory is grown, till there is.
 ### exfat-stamp
 
 ```code
-the time now, as a directory entry keeps it, months from 1
+the time now, as a directory entry keeps it, MS-DOS's date over its time
 ```
 
 ### exfat-store
@@ -4519,6 +4536,14 @@ film, and says how many frames there were
 
 ```code
 (flush-bits stream (array bit_pool bit_pool_size))
+```
+
+### folder-mode?
+
+```code
+(folder-mode? mode) -> :nil | :t
+
+is a mode, the third of what (pii-fstat) says, a folder's
 ```
 
 ### form-elems
@@ -5544,6 +5569,22 @@ over, not looked at
 (macro? form) -> :t | :nil
 ```
 
+### mail-entry-id
+
+```code
+(mail-entry-id entry) -> net_id
+
+the mailbox of an entry as (mail-enquire) gives them, name,id,info
+```
+
+### mail-first
+
+```code
+(mail-first name) -> :nil | net_id
+
+the mailbox of the first said as name, (mail-declare), wherever it is
+```
+
 ### mail-here
 
 ```code
@@ -5755,14 +5796,6 @@ the file's end. Its end
 (mkv-element str body stop start tracks id)
 
 an element of a Cluster, of a str from start: its time, or a block
-```
-
-### mkv-float
-
-```code
-(mkv-float str at end) -> num
-
-a whole number held as a float of 4 or 8 bytes, a rate of sound
 ```
 
 ### mkv-head
@@ -6173,14 +6206,6 @@ delay more. Each edit is its length, in the film's time, mvhd's, the
 time of the track it starts at, -1 for none, and a rate. Only the
 first edit with media is taken, as a player of a film from start to
 end has it
-```
-
-### mp4-f64
-
-```code
-(mp4-f64 str at) -> num
-
-a whole number held as a float of 8 bytes, high first, a rate of sound
 ```
 
 ### mp4-feed
@@ -7793,8 +7818,8 @@ the form has no space or tab in it, a node's args are split at those
 (rack-run cmdline [make_first leave_out gone user tree gui all skip only said]) -> (line ...)
 
 make every machine that takes a sync the same as this one, then run
-the command line on each, and on this one. With make_first, make and
-make all boot are run first, in a session before. leave_out is the
+the command line on each, and on this one. With make_first, make,
+make all boot and make apps are run first, in a session before. leave_out is the
 machines not to run on, as (sync-services) names them, they are still
 made the same. gone is paths to remove on the others. tree is the one
 that is sent, default the system's own, the test of this sends a small
@@ -7854,6 +7879,12 @@ does not call itself
 (reals?? form) -> :t | :nil
 ```
 
+### reel-clock
+
+```code
+(reel-clock seconds) -> str
+```
+
 ### reel-close
 
 ```code
@@ -7909,6 +7940,15 @@ given, as for an object of a store, lib/files/names.inc
 (reel-packet reel n) -> :nil | str
 ```
 
+### reel-pcm
+
+```code
+(reel-pcm chans [scale]) -> (left right)
+
+the native taken as it is used: a system not yet built with it can
+still import this, the kinds are of a desktop's shared root
+```
+
 ### reel-wave
 
 ```code
@@ -7917,6 +7957,12 @@ given, as for an object of a store, lib/files/names.inc
 the picture of a reel of sound, a frame's samples, pcm the left and the
 right as reals at the scale of 16 bits, or :nil for none: the left above
 the right, a column of two pixels a sample, joined to the one before
+```
+
+### reel-whole
+
+```code
+(reel-whole str at bytes) -> num
 ```
 
 ### reflow
@@ -9617,6 +9663,14 @@ in them one of these
 
 ```code
 (shuffle list [start end]) -> list
+```
+
+### sign-extend
+
+```code
+(sign-extend v bits) -> num
+
+v, the low bits of a number of two's complement, as that number
 ```
 
 ### slices
@@ -11422,6 +11476,15 @@ is never gone through, and nothing is written or removed beyond it.
 real is a set of the folders found to be so, to ask the host the once
 ```
 
+### sync-kept
+
+```code
+(sync-kept root) -> :nil | path
+
+the file the hashes of a tree are kept in from one asking to the next,
+with what else is built: the system's own tree only
+```
+
 ### sync-kind
 
 ```code
@@ -11454,6 +11517,15 @@ the machines named in this machine's sync_from, or that file, each the
 32 hex digits of a system id on a line of its own
 ```
 
+### sync-no-modes?
+
+```code
+(sync-no-modes? machine) -> :nil | :t
+
+is either end a host with no modes for its files, this one or the one
+named, "cpu/os" as a service says it: then none are sent or asked for
+```
+
 ### sync-of?
 
 ```code
@@ -11470,6 +11542,17 @@ is a node one of the machines of those system ids
 the rules of a tree, its own .gitignore, and what is the machine's own
 and not the tree's: its waypoint, who it takes a sync from, its key
 and its keyring
+```
+
+### sync-prune
+
+```code
+(sync-prune root path) -> count
+
+the folders above a path just removed that it left empty, removed from
+the bottom up, never the root. One with anything at all in it is left,
+what the rules leave out too, so a folder of obj/ stays. git does the
+same, a tree has no empty folder, and none is sent
 ```
 
 ### sync-push
@@ -11508,6 +11591,14 @@ does not answer, :old if it is a sync from before there were trees
 the rules of a .gitignore, each (anchored dir_only segments). Those
 that take back a rule, !, are not known and are left out. The .git
 folder is never listed
+```
+
+### sync-rules-text
+
+```code
+(sync-rules-text root) -> str
+
+the rules of a tree as its .gitignore has them, "" for none
 ```
 
 ### sync-safe?
@@ -12707,14 +12798,6 @@ GeneralizedTime, YYYYMMDDHHMMSSZ, as seconds from 1970
 
 ```code
 (zip seq ...) -> seq
-```
-
-### zip-dos
-
-```code
-(zip-dos stamp) -> (time date)
-
-a time as a zip has it, MS-DOS's: two seconds at a time, from 1980
 ```
 
 ### zip-end

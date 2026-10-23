@@ -4,7 +4,7 @@
 ;(:script file), a script of docs/diagrams/ that makes its own and saves it
 ;by (diagram name doc). What went wrong is the answer, "" for nothing. It
 ;goes when told to, or when it has had nothing to do for a while.
-(import "lib/task/jobs.inc")
+(import "././task/jobs.inc")
 (import "./diagram.inc")
 
 (defun main ()
