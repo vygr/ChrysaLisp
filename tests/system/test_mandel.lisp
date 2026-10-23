@@ -2,7 +2,6 @@
 
 (import "gui/lisp.inc")
 (import "apps/science/mandelbrot/app.inc")
-(jit "apps/science/mandelbrot/" "lisp.vp" '("shade"))
 (ffi "apps/science/mandelbrot/shade" mb_shade)
 
 (defun mb-at (x y &optional top)

@@ -104,8 +104,8 @@
 (defun rack-run (cmdline &optional make_first leave_out gone user tree gui all skip only said)
 	; (rack-run cmdline [make_first leave_out gone user tree gui all skip only said]) -> (line ...)
 	;make every machine that takes a sync the same as this one, then run
-	;the command line on each, and on this one. With make_first, make and
-	;make all boot are run first, in a session before. leave_out is the
+	;the command line on each, and on this one. With make_first, make,
+	;make all boot and make apps are run first, in a session before. leave_out is the
 	;machines not to run on, as (sync-services) names them, they are still
 	;made the same. gone is paths to remove on the others. tree is the one
 	;that is sent, default the system's own, the test of this sends a small
@@ -124,7 +124,7 @@
 		rules_text (ifn (load (cat (setd tree ".") "/.gitignore")) "")
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
 		cmdlines (map (# (trim %0)) (split cmdline ";"))
-		phases (if make_first (list (list "make" "make all boot") cmdlines) (list cmdlines)))
+		phases (if make_first (list (list "make" "make all boot" "make apps") cmdlines) (list cmdlines)))
 	(setd leave_out (list) gone (list) skip (list))
 	(defq skipped? (lambda (id machine)
 		(or (find machine skip)

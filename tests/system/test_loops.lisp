@@ -11,7 +11,6 @@
 (import "lib/cwb/palette.inc")
 (import "lib/cwb/stripes.inc")
 (defq *app_root* "apps/science/pcb/")
-(jit *app_root* "lisp.vp" (quote ("hit_line" "add_line" "sub_line")))
 (import "apps/science/pcb/reader.inc")
 (import "apps/science/pcb/router.inc")
 

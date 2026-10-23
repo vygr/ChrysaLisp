@@ -1434,10 +1434,6 @@ Task concurrency, cooperative scheduling, and process spawning.
 
 	*	`(open-pipe tasks [modes]) -> ([net_id | 0] ...)`
 
-*	**`jit`**: Triggers JIT compilation of VP source files with locking.
-
-	*	`(jit prefix file products)`
-
 ## Platform Implementation Interface (PII)
 
 Direct host operating system primitives provided by the host engine.

@@ -7,8 +7,8 @@
 
     options:
         -h --help: this help info.
-        -b --build: make, and make all boot, on each machine first, in a
-            session before the one that runs the command.
+        -b --build: make, make all boot and make apps, on each machine
+            first, in a session before the one that runs the command.
         -l --leave machines: machines to bring level and not run on, as
             sync lists them, arm64/Linux, with a , between.
         -x --skip machines: machines not to touch at all, not brought

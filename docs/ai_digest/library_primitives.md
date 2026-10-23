@@ -1002,11 +1002,6 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 
 	*	`(include file)`
 
-*	**`jit`**: Triggers JIT compilation of VP sources protected by a global
-	compilation lock.
-
-	*	`(jit prefix file products)`
-
 *	**`func-load` / `func-refs` / `func-obj-path`**: Object binary inspection.
 
 	*	`(func-load name) -> (body links refs)`

@@ -1,6 +1,4 @@
-;jit compile apps native functions
 (defq *app_root* (path-to-file))
-(jit *app_root* "lisp.vp" '("vops"))
 
 (import "./app.inc")
 

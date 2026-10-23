@@ -177,12 +177,8 @@ than the longest is made up to that length with its last register.
 
 To make these functions available to the high-level Lisp interpreter:
 
-1. **JIT Compile:** In the app script (e.g.,
-   `apps/science/mandelbrot/child.lisp`), compile the VP file.
-
-    ```vdu
-    (jit *app_root* "lisp.vp" '("shade"))
-    ```
+1. **Build:** `make apps` assembles every app's `lisp.vp`, as `make install`
+   does. An app does not compile its VP as it runs.
 
 2. **Define FFI:** Bind the native function name to a Lisp symbol.
 

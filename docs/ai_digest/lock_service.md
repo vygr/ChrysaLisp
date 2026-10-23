@@ -101,8 +101,8 @@ Client applications interact with `@Lock` via RPC helper functions:
 	`ensure-lock-service`, allocates a disposable mailbox, sends a claim
 	request, and waits for confirmation. It defaults to `+lock_mode_write` if the
 	mode argument is omitted, ensuring safe mutual exclusion by default and
-	retaining 100% backward compatibility with legacy call sites (such as `jit`
-	and `files-classes-info`).
+	retaining 100% backward compatibility with legacy call sites (such as
+	`files-classes-info`).
 
 *	`lock-release-rpc` does not require a mode argument because a key can only
 	ever reside in either the write list or the read list at any given moment.

@@ -1,7 +1,7 @@
 (import "lib/task/pipe.inc")
 (print)
 (print "ChrysaLisp Installer v0.1")
-(print "Building platform native boot image.")
+(print "Building platform native boot image and apps.")
 (print "Please wait...")
 (print)
 (import "lib/boot/id.inc")
@@ -10,10 +10,12 @@
 ;what was there. Wrong is an error said, or no native boot image whose id
 ;is of the files it says it was made from
 (pii-remove "obj/install_failed")
+;the apps too, their VP made here and not as each is first run
 (defq errors 0)
-(pipe-run "make -v 1 all boot | time -s"
-	(lambda (%0) (prin %0) (stream-flush (io-stream "stdout"))
-		(if (found? %0 "Error") (++ errors))))
+(each (# (pipe-run %0
+		(lambda (line) (prin line) (stream-flush (io-stream "stdout"))
+			(if (found? line "Error") (++ errors)))))
+	'("make -v 1 all boot | time -s" "make apps | time -s"))
 (print)
 (defq files (load (boot-files-file (cpu) (abi)))
 	built (and files (eql (trim (ifn (load (boot-id-file (cpu) (abi))) ""))

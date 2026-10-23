@@ -428,13 +428,3 @@
 			(setq stable 0 last_cnt cnt)))
 	(lisp-nodes))
 
-;jit helper
-(defun jit (prefix file products)
-	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
-	(defq obj_prefix (cat "obj/" *cpu* "/" *abi* "/" prefix)
-		file (cat prefix file) file_age (age file))
-	(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
-		(lock-claim-rpc obj_prefix)
-		(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
-			(catch (within-compile-env (# (include file))) :nil))
-		(lock-release-rpc obj_prefix)))
