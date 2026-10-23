@@ -157,6 +157,10 @@ Every link the Net service makes goes through the door,
 this, and either end that finds anything wrong closes the socket, and says
 nothing. All of it must be done in 5 seconds.
 
+```image
+docs/diagrams/link_door.cwb
+```
+
 **1. Each sends its hello, 60 bytes:**
 
 ```
