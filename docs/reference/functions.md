@@ -7288,6 +7288,14 @@ names here are long, fn is called with them about it
 (pad form width [str]) -> str
 ```
 
+### page-scale
+
+```code
+(page-scale size) -> size
+
+a size by the zoom of the app's *window*
+```
+
 ### pairs-value?
 
 ```code
@@ -10275,6 +10283,44 @@ a piece passed on now: a stream holds what is written till it has some
 6KB, nearly ten pieces, 190ms of a voice before any of it went on
 ```
 
+### source-ask
+
+```code
+(source-ask svc path) -> :nil | text
+
+a file's text from a @Source, :nil if it has none it will give, or it
+says nothing in the time. A new mailbox each time: an answer that comes
+late is to a mailbox nobody reads
+```
+
+### source-service
+
+```code
+(source-service) -> :nil | netid
+
+the @Source of this system
+```
+
+### source-stream
+
+```code
+(source-stream sid svc path) -> :nil | stream
+
+a file of a system as a stream, by the system id in hex and its
+@Source: a file stream on that system, the text asked of it on another
+```
+
+### source-task
+
+```code
+(source-task path) -> task
+
+what to open, with (open-task) and the rest, for a Lisp file of this
+system to run on any node of the mesh: it and what it imports are read
+from this system, and need not be where it runs. The path itself if
+this system has no @Source, read where it runs as any task is
+```
+
 ### split-cells
 
 ```code
@@ -11170,6 +11216,14 @@ know it is not the end of the object, (stream-fault)
 
 the answers to the blocks on their way, the oldest first, till no more
 than most are. One not put as it should be, and the path is never set
+```
+
+### storage-stream-next
+
+```code
+(storage-stream-next st) -> :nil | data | (:lost hex)
+
+the next block, had of the service, (storage-stream-fill)
 ```
 
 ### storage-stream-put
@@ -13263,6 +13317,14 @@ in radians is too small a number to be held well
 marks along a line, every step from its start, each a little line
 the way nx ny points, which is one long. Every fifth is longer and
 every tenth longer still
+```
+
+### toolbar-states
+
+```code
+(toolbar-states toolbar states)
+
+each button of a toolbar lit, or not, by its state in a list
 ```
 
 ### transfer

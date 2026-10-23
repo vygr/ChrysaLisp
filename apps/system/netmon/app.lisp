@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
+(import "service/source/app.inc")
 (import "./app.inc")
 
 
@@ -38,7 +39,7 @@
 	;function called when entry is created
 	(def (defq node (env 1)) :timestamp now)
 	(each (# (def node %0 (. %1 :add_bar))) +bars charts)
-	(open-task (const (cat *app_root* "child.lisp")) key +kn_call_pin 0 (elem-get select +select_task))
+	(open-task child_task key +kn_call_pin 0 (elem-get select +select_task))
 	node)
 
 (defun destroy (key node)
@@ -55,7 +56,10 @@
 (defun main ()
 	(defq id :t select (task-mboxes +select_size)
 		global_tasks (Global create destroy) poll_que (list)
-		charts (. *charts* :children))
+		charts (. *charts* :children)
+		;each node's child is read from this system, by its @Source, and
+		;needs no file of NetMon's where it runs
+		child_task (source-task (cat *app_root* "child.lisp")))
 	(show-nodes)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)

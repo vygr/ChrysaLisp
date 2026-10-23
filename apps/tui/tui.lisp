@@ -187,6 +187,7 @@
 	;sign on msg
 	(mail-declare tmbox "Terminal" "Terminal Services 0.2")
 	(open-child "service/lock/app.lisp" +kn_call_run)
+	(open-child "service/source/app.lisp" +kn_call_run)
 	(open-child "service/net/app.lisp" +kn_call_run)
 	(print "ChrysaLisp Terminal" +LF (get :terminal_prompt *env*))
 	;create child and send args

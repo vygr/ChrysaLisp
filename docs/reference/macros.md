@@ -627,6 +627,16 @@ four bytes high first
 (some lambda seq ...) -> :nil | form
 ```
 
+### source-import
+
+```code
+(source-import sid svc)
+
+an import, in this environment, that reads from the system of the id
+by its @Source, the mailbox in hex: as root's own, a module once, its
+relative paths from the module that imports it, but by (source-stream)
+```
+
 ### static-q
 
 ```code

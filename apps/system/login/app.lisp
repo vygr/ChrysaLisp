@@ -27,6 +27,7 @@
 	(open-child "apps/system/wallpaper/app.lisp" +kn_call_pin)
 	(open-child "service/clipboard/app.lisp" +kn_call_pin)
 	(open-child "service/lock/app.lisp" +kn_call_run)
+	(open-child "service/source/app.lisp" +kn_call_run)
 	;sound is played by the host of this node, the one with the GUI. Another
 	;node of the machine may be on a host with no audio driver.
 	(open-child "service/audio/app.lisp" +kn_call_pin)
