@@ -1,4 +1,4 @@
-;docs/ai_digest/mesh_net.md: what two ends of a connection say to prove each has the key
+;docs/ai_digest/mesh_net.md and link_protocol.md: what two ends of a connection say to prove each has the key
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6 dark 0xff202428)
 (dia-say s "the end that dialled" 0 14 12 :t dark)
 (dia-say s "the end that listened" 470 14 12 :t dark)

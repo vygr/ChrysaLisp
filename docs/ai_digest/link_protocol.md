@@ -158,7 +158,7 @@ this, and either end that finds anything wrong closes the socket, and says
 nothing. All of it must be done in 5 seconds.
 
 ```image
-docs/diagrams/link_door.cwb
+docs/diagrams/door_proof.cwb
 ```
 
 **1. Each sends its hello, 60 bytes:**
