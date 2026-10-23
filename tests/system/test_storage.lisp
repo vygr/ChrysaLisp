@@ -146,11 +146,21 @@
 	;is made by hand, of the blocks of w/lines with one in it never put, and
 	;tries for a second here
 	(defq sg_names (second (storage-manifest "w/lines" sg_svc)))
-	(defq sg_st (list sg_svc (list (first sg_names) (sha256 "never put") (second sg_names)) 4096 12288 0 0 (list) 4 "" 1)
+	(defq sg_st (list sg_svc (list (first sg_names) (sha256 "never put") (second sg_names)) 4096 12288 0 0 (list) 4 "" 1 (list -1 "") :nil)
 		sg_in (lisp-stream `(lambda () (,storage-stream-fill ',sg_st))))
 	(assert-eq "a stream of a lost block reads what is before it" 4096 (length (read-blk sg_in 4096)))
 	(assert-eq "then the end" :nil (read-blk sg_in 4096))
 	(assert-eq "of the fault of the lost block" (str (list :lost (hex-encode (sha256 "never put")))) (str (stream-fault sg_in)))
+	;a seek back into the block last read has it again, not asked for;
+	;one to the next block keeps what is on its way; one far off and then
+	;back to the old block reads the old block, not the far one. An MP3
+	;seeks twice a frame of a few hundred bytes
+	(storage-put "w/seek" (apply (const cat) (map (# (str %0 " ")) (range 0 4000))) :nil sg_svc)
+	(defq sg_all (storage-get "w/seek" sg_svc) sg_in (storage-stream "w/seek" :nil sg_svc))
+	(defq sg_at (lambda (at n) (stream-seek sg_in at 0) (read-blk sg_in n)))
+	(assert-list-eq "seeks back into a block, on to the next, far off and back read what is there"
+		(map (# (slice sg_all %0 (+ %0 %1))) '(100 10 4000 4100 16000 50 4500) '(50 50 200 50 100 100 100))
+		(map sg_at '(100 10 4000 4100 16000 50 4500) '(50 50 200 50 100 100 100)))
 	;a program that is to come through anything writes a path of its own,
 	;sees all went as it should, and renames it to where it is to be
 	(storage-put "w/doc" "the old" :nil sg_svc)

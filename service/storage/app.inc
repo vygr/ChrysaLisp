@@ -234,9 +234,10 @@
 ;block that is next, how much of that one is not wanted, the blocks asked
 ;for and not yet read, how many are asked for ahead, and which of the
 ;blocks the service has, and for how many seconds one that can not be
-;had is asked for again
+;had is asked for again; the last block read, (index data), and where in
+;it the next read is from when a seek went back into it
 (enums +storage_stream 0
-	(enum svc names block bytes at drop flight ahead has retry))
+	(enum svc names block bytes at drop flight ahead has retry kept again))
 
 (defun storage-stream-ask (st at)
 	; (storage-stream-ask st at) -> mbox
@@ -263,17 +264,10 @@
 		(task-sleep 1000000))
 	data)
 
-(defun storage-stream-fill (st)
-	; (storage-stream-fill st) -> :nil | data | (:lost hex)
-	;the next block. The blocks after it are asked for as this one is
-	;read, Chris: "We could implament read ahead at the point of
-	;consumtion ?", so that they are here, or on their way, when wanted.
-	;One that did not come, or is not what its name says, is had the slow
-	;way, from any member that has it, again and again for a while, a link
-	;that dropped is made again in a few seconds. One that can not be had
-	;is the stream's fault, (:lost hex) with its name, so that a reader can
-	;know it is not the end of the object, (stream-fault)
-	(bind '(svc names size bytes at drop flight ahead has retry) st)
+(defun storage-stream-next (st)
+	; (storage-stream-next st) -> :nil | data | (:lost hex)
+	;the next block, had of the service, (storage-stream-fill)
+	(bind '(svc names size bytes at drop flight ahead has retry &ignore) st)
 	(defq next (+ at (length flight)))
 	(while (and (< (length flight) ahead) (< next (length names)))
 		(push flight (storage-stream-ask st next))
@@ -287,7 +281,26 @@
 			((not data) (list :lost (hex-encode hash)))
 			(:t (elem-set st +storage_stream_at (inc at))
 				(elem-set st +storage_stream_drop 0)
+				(elem-set st +storage_stream_kept (list at data))
 				(if (> drop 0) (slice data (min drop (length data)) -1) data)))))
+
+(defun storage-stream-fill (st)
+	; (storage-stream-fill st) -> :nil | data | (:lost hex)
+	;the next block. The blocks after it are asked for as this one is
+	;read, Chris: "We could implament read ahead at the point of
+	;consumtion ?", so that they are here, or on their way, when wanted.
+	;One that did not come, or is not what its name says, is had the slow
+	;way, from any member that has it, again and again for a while, a link
+	;that dropped is made again in a few seconds. One that can not be had
+	;is the stream's fault, (:lost hex) with its name, so that a reader can
+	;know it is not the end of the object, (stream-fault)
+	(bind '(svc names size bytes at drop flight ahead has retry kept again) st)
+	(cond
+		;a seek back into the block last read: it is read again from there,
+		;nothing asked for
+		(again (elem-set st +storage_stream_again :nil)
+			(slice (second kept) (min again (length (second kept))) -1))
+		((storage-stream-next st))))
 
 (defun storage-stream-seek (st offset whence)
 	; (storage-stream-seek st offset whence) -> pos
@@ -297,14 +310,28 @@
 	;place is asked for at the next read. That read waits for a block,
 	;Chris: "a seek, pays the cost, but it allways does in any streaming
 	;object"
-	(bind '(svc names size bytes at drop flight ahead has &ignore) st)
+	(bind '(svc names size bytes at drop flight ahead has retry kept &ignore) st)
 	(defq pos (max 0 (min bytes (cond
 		((= whence 0) offset)
 		((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
-		((+ bytes offset))))))
-	(elem-set st +storage_stream_at (/ pos size))
-	(elem-set st +storage_stream_drop (% pos size))
-	(elem-set st +storage_stream_flight (list))
+		((+ bytes offset)))))
+		block (/ pos size))
+	(elem-set st +storage_stream_again :nil)
+	(cond
+		;into the block last read: had again from it, and what is on its way
+		;is still what comes after. An MP3 seeks twice a frame of a few
+		;hundred bytes
+		((and (= block (first kept)) (< pos bytes))
+			(elem-set st +storage_stream_again (% pos size)))
+		;to the next block: what is on its way is still wanted
+		((= block at)
+			(elem-set st +storage_stream_drop (% pos size)))
+		;anywhere else, the cost of a seek: what is kept is not the block
+		;before the next one now
+		(:t (elem-set st +storage_stream_at block)
+			(elem-set st +storage_stream_drop (% pos size))
+			(elem-set st +storage_stream_flight (list))
+			(elem-set st +storage_stream_kept (list -1 ""))))
 	pos)
 
 ;a stream of an object that is written. What it keeps: the service, the
@@ -392,7 +419,8 @@
 			(when (defq object (storage-manifest name svc))
 				(defq names (second object)
 					st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
-						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "") +storage_retry))
+						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "") +storage_retry
+						(list -1 "") :nil))
 				;the state is in the functions, a function has only what it is given
 				(lisp-stream `(lambda () (,storage-stream-fill ',st))
 					`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))
