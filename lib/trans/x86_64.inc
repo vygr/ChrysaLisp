@@ -15,6 +15,7 @@
 (defq +x64_rax (emit-native-reg? :r0)
 	+x64_rcx (emit-native-reg? :r1)
 	+x64_rdx (emit-native-reg? :r2)
+	+x64_rbx (emit-native-reg? :r3)
 	+x64_rsp (emit-native-reg? :rsp)
 	+x64_lookback_window 6)
 
@@ -41,10 +42,28 @@
 		(if (>= ,d 4) (emitm-byte (x64-rex 0 0 0 (>> ,d 3))))
 		(emitm-byte 0x0f (+ 0x20 ,cc) (x64-modrm 3 0 ,d))
 		(if (>= ,d 4) (emitm-byte (x64-rex 0 (>> ,d 3) 0 (>> ,d 3))))
-		(emitm-byte 0x0f 0xb6 (x64-modrm 3 ,d ,d))
-		(emitm-byte (x64-rex 1 0 0 (>> ,d 3)) 0xf7 (x64-modrm 3 3 ,d))))
+		(emitm-byte 0x0f 0xb6 (x64-modrm 3 ,d ,d))))
 
-(defun x64-mem-ir (w o reg base disp &optional pfx)
+(defun x64-mem-dr (w o reg base index &optional pfx)
+	(defq rh (>> reg 3) bh (>> base 3) ih (>> index 3))
+	(if pfx (emitm-byte pfx))
+	(cond
+		((= w 8)
+			(emitm-byte (x64-rex 1 rh ih bh)))
+		((= w 1)
+			(if (or (>= reg 4) (>= base 8) (>= index 8))
+				(emitm-byte (x64-rex 0 rh ih bh))))
+		((or (>= reg 8) (>= base 8) (>= index 8))
+			(emitm-byte (x64-rex 0 rh ih bh))))
+	(if (list?? o)
+		(emitm-byte (first o) (second o))
+		(emitm-byte o))
+	(cond
+		((and (/= base 5) (/= base 13))
+			(emitm-byte (x64-modrm 0 reg 4) (x64-sib 0 index base)))
+		(:t (emitm-byte (x64-modrm 1 reg 4) (x64-sib 0 index base) 0))))
+
+(defun x64-mem-ir-32 (w o reg base disp pfx)
 	(defq rh (>> reg 3) bh (>> base 3))
 	(if pfx (emitm-byte pfx))
 	(cond
@@ -70,27 +89,22 @@
 		((x64-within disp 32)
 			(emitm-byte (x64-modrm 2 reg base))
 			(if need_sib (emitm-byte 0x24))
-			(emitm-int disp))
-		(:t (throw "x64-mem-ir constant out of range !" disp))))
+			(emitm-int disp))))
 
-(defun x64-mem-dr (w o reg base index &optional pfx)
-	(defq rh (>> reg 3) bh (>> base 3) ih (>> index 3))
-	(if pfx (emitm-byte pfx))
+(defun x64-mem-ir (w o reg base disp &optional pfx)
 	(cond
-		((= w 8)
-			(emitm-byte (x64-rex 1 rh ih bh)))
-		((= w 1)
-			(if (or (>= reg 4) (>= base 8) (>= index 8))
-				(emitm-byte (x64-rex 0 rh ih bh))))
-		((or (>= reg 8) (>= base 8) (>= index 8))
-			(emitm-byte (x64-rex 0 rh ih bh))))
-	(if (list?? o)
-		(emitm-byte (first o) (second o))
-		(emitm-byte o))
-	(cond
-		((and (/= base 5) (/= base 13))
-			(emitm-byte (x64-modrm 0 reg 4) (x64-sib 0 index base)))
-		(:t (emitm-byte (x64-modrm 1 reg 4) (x64-sib 0 index base) 0))))
+		((x64-within disp 32)
+			(x64-mem-ir-32 w o reg base disp pfx))
+		;an offset of any size: in a register put by round it, one that is not
+		;the base or the data, and base plus index. A push moves :rsp, so an
+		;offset from it is 8 more. push, movabs and pop as their bytes, those
+		;come after this
+		(:t (defq t (some (# (if (notany (lambda (r) (= r %0)) (list reg base)) %0))
+				(list +x64_rax +x64_rcx +x64_rdx +x64_rbx)))
+			(emitm-byte (+ 0x50 t) (x64-rex 1 0 0 0) (+ 0xb8 t))
+			(emitm-long (if (= base +x64_rsp) (+ disp 8) disp))
+			(x64-mem-dr w o reg base t pfx)
+			(emitm-byte (+ 0x58 t)))))
 
 (defun x64-pr (o l d)
 	(defq l (- l *pc* 7))
@@ -100,17 +114,27 @@
 			(emitm-int l))
 		(:t (throw "x64-pr constant out of range !" l))))
 
+(defun x64-const (c)
+	;a constant of 8 bytes in the code, jumped over, for an instruction that
+	;comes straight after it to read by rip, at -8 less its own length
+	(emitm-byte 0xeb 8)
+	(emitm-long c))
+
 (defun x64-alu-cr (digit c r)
-	(emitm-byte (x64-rex 1 0 0 (>> r 3)))
 	(cond
 		((x64-within c 8)
-			(emitm-byte 0x83 (x64-modrm 3 digit r) c))
+			(emitm-byte (x64-rex 1 0 0 (>> r 3)) 0x83 (x64-modrm 3 digit r) c))
 		((x64-within c 32)
+			(emitm-byte (x64-rex 1 0 0 (>> r 3)))
 			(if (= r +x64_rax)
 				(emitm-byte (+ (<< digit 3) 5))
 				(emitm-byte 0x81 (x64-modrm 3 digit r)))
 			(emitm-int c))
-		(:t (throw "x64-alu-cr constant out of range !" c))))
+		;of any size: the op of r and the constant in the code, by rip, the
+		;register from memory form of add, or, and, sub, xor and cmp
+		(:t (x64-const c)
+			(emitm-byte (x64-rex 1 (>> r 3) 0 0) (+ (<< digit 3) 3) (x64-modrm 0 r 5))
+			(emitm-int -15))))
 
 (defun x64-shift-cr (digit c r)
 	(unless (= c 0)
@@ -118,7 +142,8 @@
 		(cond
 			((= c 1)
 				(emitm-byte 0xd1 (x64-modrm 3 digit r)))
-			((<= c 0xff)
+			;a shift by a constant of 0 to 63, docs/vm/vp_vm.md
+			((<= 2 c 63)
 				(emitm-byte 0xc1 (x64-modrm 3 digit r) c))
 			(:t (throw "x64-shift-cr constant out of range !" c)))))
 
@@ -140,7 +165,6 @@
 
 (defun emit-ret () (emitm-byte 0xc3))
 (defun emit-sync (n) (emitm-byte 0x0f 0xae 0xf0))
-(defun emit-brk (n))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; Group 1: ALU & Moves
@@ -277,22 +301,18 @@
 (defun emit-shr-rr (s d) (x64-shift-rr 5 s d))
 (defun emit-asr-rr (s d) (x64-shift-rr 7 s d))
 
-(defun emit-lnot-rr (r d)
-	(if (>= d 4)
-		(throw "emit-lnot-rr illegal register !" d))
-	(emit-cpy-rr d r)
-	(emit-xor-rr d d)
-	(x64-cmp-cr 0 r)
-	(emitm-byte 0x0f 0x94 (x64-modrm 3 0 d)))
+(defun emit-lnot-rr (d)
+	;d made 1 if it is 0, else 0, any register
+	(x64-cmp-cr 0 d)
+	(x64-s-cond 0x74 d))
 
 (defun emit-land-rr (s d)
-	(if (or (>= s 4) (>= d 4))
-		(throw "emit-land-rr illegal register !" (list s d)))
+	;d made 1 if both are not 0, else 0, s left as it is: d made 0 or 1,
+	;then a cmovz takes s's 0 when s is 0
 	(x64-cmp-cr 0 d)
-	(emitm-byte 0x0f 0x95 (x64-modrm 3 0 d))
+	(x64-s-cond 0x75 d)
 	(x64-cmp-cr 0 s)
-	(emitm-byte 0x0f 0x95 (x64-modrm 3 0 s))
-	(emit-and-rr s d))
+	(x64-0f-r-r 0x44 s d))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Group 4: Multiply, Divide, Ext
@@ -325,7 +345,10 @@
 				((x64-within c 32)
 					(emitm-byte (x64-rex 1 rh 0 rh) 0x69 (x64-modrm 3 r r))
 					(emitm-int c))
-				(:t (throw "emit-mul-cr constant out of range !" c))))))
+				;of any size, imul of r and the constant in the code, by rip
+				(:t (x64-const c)
+					(emitm-byte (x64-rex 1 rh 0 0) 0x0f 0xaf (x64-modrm 0 r 5))
+					(emitm-int -16))))))
 
 (defun x64-idiv (s)
 	;rdx:rax divided by s, signed. A divide means the one thing on every
@@ -553,11 +576,26 @@
 	(emit-pop +x64_rax))
 
 (defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d))
-(defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m))
-(defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x75 l m))
-(defun emit-blt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x72 l m))
+(defun x64-branch-size (l d)
+	; (x64-branch-size l d) -> 2 | 6
+	;how long the x64-branch to l of slot d, after this, will be: as it works
+	;it out, with nothing kept
+	(defq m (elem-get *offsets* d) l (- l *pc*))
+	(and (> *pass* 0) (> (abs l) (abs m)) (setq m l))
+	(if (x64-within (- m 2) 8) 2 6))
+
+;of a NaN, as IEEE has it, every compare is false but bne. ucomisd says an
+;unordered pair as equal and below, so beq is also not parity, bne also
+;parity, and blt and ble are compared the other way round as above and above
+;or equal, which a NaN is not
+(defun emit-beq-ff (s d l m)
+	(x64-cmp-ff s d)
+	(emitm-byte 0x7a (x64-branch-size (- l 2) m))
+	(x64-branch 0x74 l m))
+(defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x7a l m) (x64-branch 0x75 l m))
+(defun emit-blt-ff (s d l m) (x64-cmp-ff d s) (x64-branch 0x77 l m))
 (defun emit-bgt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x77 l m))
-(defun emit-ble-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x76 l m))
+(defun emit-ble-ff (s d l m) (x64-cmp-ff d s) (x64-branch 0x73 l m))
 (defun emit-bge-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x73 l m))
 
 (defun emit-cpy-if (s c d) (x64-mem-ir 8 '(0x0f 0x10) d s c 0xf2))
@@ -688,7 +726,7 @@
 			(pinsert %0 %1
 				(when (find %1 '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state emit-entry-abi
 						emit-call emit-call-r emit-call-i emit-call-p emit-call-abi
-						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
+						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
 						emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))

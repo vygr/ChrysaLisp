@@ -89,3 +89,8 @@
 (assert-error "obj-set before its object" (obj-set (str-alloc 16) -8 +type_long 0))
 (assert-error "obj-set past its object" (obj-set (str-alloc 16) 4096 +type_long 0))
 (assert-eq "and the task goes on after" 3 (+ 1 2))
+;a field not at its natural alignment, docs/vm/vp_vm.md
+(assert-error "obj-set of a long not on a word" (set-long (str-alloc 32) 7 0))
+(assert-error "of an int not on 4" (set-int (str-alloc 32) 3 0))
+(assert-error "of a short not on 2" (set-short (str-alloc 32) 1 0))
+(assert-error "and obj-get of a long not on a word" (get-long (str-alloc 32) 4))

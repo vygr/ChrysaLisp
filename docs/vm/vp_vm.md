@@ -41,6 +41,52 @@ symbols to help your source look nice. Or bind symbols to registers, via
 parameters if you desire. A great example of this is the `:canvas :fpoly`, or
 the `:pixmap :resize_2` functions.
 
+### What the machine is
+
+A word is 64 bits and memory is little endian, on every target. A load of
+`-b`, `-s` or `-i` sign extends the byte, short or int to a word, of `-ub`,
+`-us` or `-ui` zero extends it, and a store of one of those writes its low
+bytes and no more. A load or a store is at its natural alignment, a word at
+an address that is a whole number of words, an int of 4 bytes, a short of 2;
+one that is not is not defined, and `run_tui.sh -V`, the VP64 emulator in
+validation mode, says each place that is not, the function and where in it.
+The float registers hold IEEE doubles.
+
+A constant, and the offset of a load or a store, may be any 64 bit value: a
+translator makes one that does not fit an instruction of its CPU some other
+way, a temp register, a register put by round it, a constant in the code, a
+wider form, and the VP code never knows.
+
+Arithmetic is of words and wraps: a multiply keeps the low 64 bits of the
+product, `vp-abs-rr` of the most negative number is itself. A shift by a
+register uses the low 6 bits of the count; a shift by a constant takes a
+constant of 0 to 63, and a translator throws at one outside that.
+`(vp-div-rrr rs rdh rdl)` divides `rdl` by `rs`, the quotient to `rdl` and the
+remainder to `rdh`, whatever `rdh` held; the quotient goes towards 0 and the
+remainder has the sign of what was divided. A divide by 0 gives a quotient of 0
+and the remainder what was divided; the most negative number divided by -1
+gives itself and a remainder of 0. `vp-div-rrr-u` is the same of unsigned
+words.
+
+`(vp-ext-rr rs rd)` makes `rd` 0 or -1, the sign of `rs`, the high word of `rs`
+made two. `(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
+signed. `(vp-cvt-fr fs rd)` takes the whole part, towards 0, of a float in the
+range of a word; of one outside it, or of a NaN, what it gives is not defined.
+`(vp-cvt-rf rs fd)` is the nearest float. `vp-cpy-rf` and `vp-cpy-fr` copy the
+bits as they are. `vp-min-ff` and `vp-max-ff` of a NaN are not defined. Of the float
+branches, as IEEE has it, every compare with a NaN is false but `vp-bne-ff`.
+`(vp-sync c)` is a full barrier of memory, whatever `c`.
+
+A call leaves one word on the stack under the callee, and what is in it is not
+defined: the callee does not read it or write it, or look above it. Some
+targets have the return address there, some the link register of the caller,
+and a translator may join calls that follow each other on the one word.
+`(vp-call-abi rt rb i arg_list)` calls a host function: it gives its result in
+`:r0`, keeps every other general register of the VP but `rt`, which is left
+with anything in it, and keeps no float register, as a change of task keeps
+none. It lines the stack up as the host's ABI wants at the call, so the VP
+never does.
+
 ### VP Assembler instructions
 
 #### Constant to register
@@ -90,9 +136,13 @@ the `:pixmap :resize_2` functions.
 #### Logical And, Not
 
 ```vdu
-(vp-lnot-rr rt rd)
+(vp-lnot-rr rd)
 (vp-land-rr rs rd)
 ```
+
+`(vp-lnot-rr rd)` makes `rd` 1 if it was 0, else 0. `(vp-land-rr rs rd)`
+makes `rd` 1 if both were not 0, else 0, and leaves `rs` as it was. Any
+registers may be used.
 
 #### Register to Memory
 
@@ -158,6 +208,11 @@ the `:pixmap :resize_2` functions.
 (vp-sgt-rr rs rd)
 (vp-sge-rr rs rd)
 ```
+
+A compare is signed, there is no unsigned one. A branch goes to its label if
+the compare holds. A set, `vp-seq` to `vp-sge`, makes `rd` 1 if it holds and 0
+if not, on every target, so the value may be counted or added, not only
+tested.
 
 #### Effective address
 

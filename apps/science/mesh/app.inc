@@ -11,4 +11,6 @@
 (structure +mesh_reply +job_reply_size
 	(uint num_verts num_norms num_tris)
 	(struct name 16)
+	;the reals and longs after it each on a word
+	(align)
 	(offset data))

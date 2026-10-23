@@ -234,7 +234,7 @@
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
 (defun compile-ulnot (&)
-	(add-inst (list 'vp-lnot-rr (tmp-reg) (top-value))))
+	(add-inst (list 'vp-lnot-rr (top-value))))
 
 (defun compile-land (&)
 	(add-inst (list 'vp-land-rr (pop-value) (top-value))))

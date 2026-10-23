@@ -81,9 +81,12 @@
 (defun emit-shr-rr (s d) (la64-3r 0x00190000 d d s)) ; srl.d
 (defun emit-asr-rr (s d) (la64-3r 0x00198000 d d s)) ; sra.d
 
-(defun emit-shl-cr (c r) (la64-3r 0x00410000 r r (logand c 0x3f))) ; slli.d
-(defun emit-shr-cr (c r) (la64-3r 0x00450000 r r (logand c 0x3f))) ; srli.d
-(defun emit-asr-cr (c r) (la64-3r 0x00490000 r r (logand c 0x3f))) ; srai.d
+(defun la64-shift-c (c)
+	;a shift by a constant of 0 to 63, docs/vm/vp_vm.md
+	(if (<= 0 c 63) c (throw "la64 shift constant out of range !" c)))
+(defun emit-shl-cr (c r) (la64-3r 0x00410000 r r (la64-shift-c c))) ; slli.d
+(defun emit-shr-cr (c r) (la64-3r 0x00450000 r r (la64-shift-c c))) ; srli.d
+(defun emit-asr-cr (c r) (la64-3r 0x00490000 r r (la64-shift-c c))) ; srai.d
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; Group 2: ALU (RR)
@@ -257,11 +260,8 @@
 ; Group 6: Logic (LNOT & LAND)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-lnot-rr (r d)
-	;d is made 1 if it is 0, else 0. r is a register it may use to do that
-	;in, which this has no need of. It was d made of r, what r happened to
-	;hold, and (:view :flatten), the one thing that uses it, did not go
-	;down into the views of a view
+(defun emit-lnot-rr (d)
+	;d is made 1 if it is 0, else 0
 	(la64-2ri12 0x02400000 d d 1)) ; sltui d, d, 1
 
 (defun emit-land-rr (s d)
@@ -571,7 +571,6 @@
 (defun emit-free (c)  (emit-add-cr c +la64_rsp))
 (defun emit-ret ()    (la64-jirl +la64_rzero +la64_rlnk 0)) ; jirl zero, ra, 0
 (defun emit-sync (n)  (emitm-int 0x38720000))               ; dbar 0
-(defun emit-brk (n)   (emitm-int 0x002a0000))               ; break 0
 
 ;the host called the loader, the args and stack are where a host call
 ;has them

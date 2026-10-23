@@ -186,6 +186,9 @@ static void host_gui_sdl3_pen_event(host_gui_event *out, uint32_t type, uint32_t
 	host_gui_sdl3_pens_seen = true;
 }
 
+/* a desktop that is never seen, -hidden: its quit is said as one, x 1 */
+static bool host_gui_sdl3_hidden = false;
+
 /* the next event the GUI service takes, not every SDL event is one */
 
 static bool host_gui_sdl3_next(host_gui_event *out)
@@ -197,7 +200,10 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 		switch (e.type)
 		{
 		case SDL_EVENT_QUIT:
+			/* SDL makes a TERM or an INT signal a quit too: a hidden desktop has
+			   nobody to ask, so the GUI service quits at once, x 1 */
 			out->type = host_gui_event_quit;
+			out->x = host_gui_sdl3_hidden ? 1 : 0;
 			return true;
 		case SDL_EVENT_WINDOW_RESIZED:
 			out->type = host_gui_event_resized;

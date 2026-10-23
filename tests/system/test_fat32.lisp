@@ -8,6 +8,9 @@
 ;at cluster 2
 (defq +ff_sectors 1024 +ff_reserved 32 +ff_fat_sectors 8 +ff_heap (+ 32 8 8))
 
+;a field of the packed boot sector, at any byte, as the disk has it
+(defun ff-le (image at n v) (set-str image at (char v n)))
+
 (defun ff-fat (image cluster next)
 	;an entry of the table, in both copies of it
 	(set-int image (+ (* +ff_reserved 512) (* cluster 4)) next)
@@ -16,7 +19,7 @@
 (defun ff-new (label)
 	;an empty volume, as a string to be filled in
 	(defq image (exfat-zeros (* +ff_sectors 512)))
-	(set-short image 11 512) (set-byte image 13 1) (set-short image 14 +ff_reserved)
+	(ff-le image 11 2 512) (set-byte image 13 1) (set-short image 14 +ff_reserved)
 	(set-byte image 16 2) (set-int image 32 +ff_sectors) (set-int image 36 +ff_fat_sectors)
 	(set-int image 44 2) (set-short image 510 0xaa55)
 	(each (# (set-byte image (+ 71 (!)) (code %0))) (pad label 11 "           "))
@@ -163,7 +166,7 @@
 (assert-eq "an empty root" 0 (length (fat32-list (fat32-mount (string-stream image)) "")))
 (assert-eq "not a volume" :nil (fat32-mount (string-stream (cat (exfat-zeros 0x10000)))))
 ;a FAT16 volume has a root of a set size, and the length of its table at 22
-(defq image (ff-new "FAT16")) (set-short image 17 512) (set-short image 22 8)
+(defq image (ff-new "FAT16")) (ff-le image 17 2 512) (set-short image 22 8)
 (assert-eq "a FAT16 volume is not taken" :nil (fat32-mount (string-stream image)))
 (defq image (ff-new "NOMARK")) (set-short image 510 0)
 (assert-eq "no mark at the end of the first sector" :nil (fat32-mount (string-stream image)))

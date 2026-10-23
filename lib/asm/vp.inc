@@ -64,7 +64,6 @@
 (defun vp-alloc (c) (emit (static-qqp (emit-alloc ,(eval c (penv))))))
 (defun vp-free (c) (emit (static-qqp (emit-free ,(eval c (penv))))))
 (defun vp-ret () (emit `(emit-ret)))
-(defun vp-brk (&optional n) (emit (static-qqp (emit-brk ,(ifn n 0)))))
 (defun vp-sync (&optional n) (emit (static-qqp (emit-sync ,(ifn n 0)))))
 (defun vp-stack-init (s f x) (emit `(emit-stack-init ,s ,f ,x)))
 ;the state a task keeps on its stack as it is switched from, and gets back
@@ -145,7 +144,7 @@
 (defun vp-shl-rr (s d) (emit `(emit-shl-rr ,s ,d)))
 (defun vp-shr-rr (s d) (emit `(emit-shr-rr ,s ,d)))
 (defun vp-asr-rr (s d) (emit `(emit-asr-rr ,s ,d)))
-(defun vp-lnot-rr (s d) (emit `(emit-lnot-rr ,s ,d)))
+(defun vp-lnot-rr (d) (emit `(emit-lnot-rr ,d)))
 (defun vp-land-rr (s d) (emit `(emit-land-rr ,s ,d)))
 (defun vp-swp-rr (s d) (emit `(emit-swp-rr ,s ,d)))
 (defun vp-ext-rr (s d) (emit `(emit-ext-rr ,s ,d)))

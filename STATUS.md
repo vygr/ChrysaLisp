@@ -23,6 +23,12 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**The VP spec says what each instruction does at its edges, docs/vm/vp_vm.md, and tests/system/test_vp_spec.lisp holds every target to it: sets give 0 or 1, float branches follow IEEE on a NaN, constants and offsets of any size, loads and stores at their natural alignment, shift constants 0 to 63; RISC-V's long branches, x86's land, and the optimizer's narrow store forwarding mended.**
+
+**`run_tui.sh -V`: the VP64 emulator in validation mode, says each unaligned load or store; VP64 encodes 64 bit set constants and load/store offsets; `vp-brk` and lnot's spare register gone.**
+
+**A hidden desktop quits, its node with it, on a plain kill.**
+
 **Tests wait for what they test, not a time: no check fails because a busy machine was slow; a real hang is the suite's to report.**
 
 **One of each helper written twice: `(crypto-same?)` for every tag (GCM compared with `eql`), `(sync-no-modes?)` (rack from Windows sent modes), `(bits-huff)`, `(date-dos)`, `(reel-pcm)`, `(sign-extend)`, `(dir-list)`, `(mail-first)`.**

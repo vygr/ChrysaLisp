@@ -75,9 +75,12 @@
 (defun emit-shl-rr (s d) (riscv64-r 0x33 d d s 0x1 0x0))
 (defun emit-shr-rr (s d) (riscv64-r 0x33 d d s 0x5 0x0))
 (defun emit-asr-rr (s d) (riscv64-r 0x33 d d s 0x5 0x20))
-(defun emit-shl-cr (c r) (riscv64-i 0x13 r r 0x1 c))
-(defun emit-shr-cr (c r) (riscv64-i 0x13 r r 0x5 c))
-(defun emit-asr-cr (c r) (riscv64-i 0x13 r r 0x5 (+ c (riscv64-mask 1 10))))
+(defun riscv64-shift-c (c)
+	;a shift by a constant of 0 to 63, docs/vm/vp_vm.md
+	(if (<= 0 c 63) c (throw "riscv64 shift constant out of range !" c)))
+(defun emit-shl-cr (c r) (riscv64-i 0x13 r r 0x1 (riscv64-shift-c c)))
+(defun emit-shr-cr (c r) (riscv64-i 0x13 r r 0x5 (riscv64-shift-c c)))
+(defun emit-asr-cr (c r) (riscv64-i 0x13 r r 0x5 (+ (riscv64-shift-c c) (riscv64-mask 1 10))))
 
 (defun emit-cpy-rr (s d) (unless (eql s d) (riscv64-i 0x13 d s 0x0 0x0)))
 (defun emit-add-rr (s d) (riscv64-r 0x33 d d s 0x0 0x0))
@@ -193,7 +196,7 @@
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
-(defun riscv64-branch (o j d s l m)
+(defun riscv64-branch (o d s l m)
 	;short if it can be, and once long it is long: the furthest it has had
 	;to go is kept, in *offsets* at m, so how long it is only grows from
 	;pass to pass and the passes end, see la64.inc
@@ -202,15 +205,18 @@
 	(cond
 		((riscv64-within x 13)
 			(riscv64-b 0x63 d s o c))
-		(:t (riscv64-b 0x63 s d j 8)
+		;long, the condition the other way round, the low bit of funct3,
+		;round a jump: the operands are as they are, or blt of two the
+		;same jumped where it should not
+		(:t (riscv64-b 0x63 d s (logxor o 1) 8)
 			(riscv64-j 0x6f +riscv64_rzero (- l *pc*)))))
 
-(defun emit-beq-rr (s d l m) (riscv64-branch 0x0 0x1 d s l m))
-(defun emit-bne-rr (s d l m) (riscv64-branch 0x1 0x0 d s l m))
-(defun emit-blt-rr (s d l m) (riscv64-branch 0x4 0x4 d s l m))
-(defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 0x4 s d l m))
-(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 0x5 s d l m))
-(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 0x5 d s l m))
+(defun emit-beq-rr (s d l m) (riscv64-branch 0x0 d s l m))
+(defun emit-bne-rr (s d l m) (riscv64-branch 0x1 d s l m))
+(defun emit-blt-rr (s d l m) (riscv64-branch 0x4 d s l m))
+(defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 s d l m))
+(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 s d l m))
+(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 d s l m))
 
 (defun emit-beq-cr (c d l m)
 	(cond
@@ -249,7 +255,7 @@
 		(:t (emit-cpy-cr c +riscv64_rtmp1)
 			(emit-bge-rr +riscv64_rtmp1 d l m))))
 
-(defun emit-lnot-rr (r d) (riscv64-i 0x13 d d 0x3 0x1))
+(defun emit-lnot-rr (d) (riscv64-i 0x13 d d 0x3 0x1))
 
 (defun emit-land-rr (s d)
 	(riscv64-r 0x33 +riscv64_rtmp1 +riscv64_rzero s 0x3 0x0)
@@ -258,9 +264,11 @@
 
 (defun emit-seq-rr (s d)
 	(emit-sub-rr s d)
-	(emit-lnot-rr d d))
+	(emit-lnot-rr d))
 (defun emit-sne-rr (s d)
-	(emit-sub-rr s d))
+	;0 or 1, snez of the difference
+	(emit-sub-rr s d)
+	(riscv64-r 0x33 d +riscv64_rzero d 0x3 0x0))
 (defun emit-slt-rr (s d)
 	(riscv64-r 0x33 d d s 0x2 0x0))
 (defun emit-sgt-rr (s d)
@@ -277,12 +285,13 @@
 (defun emit-seq-cr (c d)
 	(cond
 		((= c 0)
-			(emit-lnot-rr d d))
+			(emit-lnot-rr d))
 		(:t (emit-cpy-cr c +riscv64_rtmp3)
 			(emit-seq-rr +riscv64_rtmp3 d))))
 (defun emit-sne-cr (c d)
 	(cond
-		((= c 0))
+		((= c 0)
+			(riscv64-r 0x33 d +riscv64_rzero d 0x3 0x0))
 		(:t (emit-cpy-cr c +riscv64_rtmp3)
 			(emit-sne-rr +riscv64_rtmp3 d))))
 (defun emit-slt-cr (c d)
@@ -301,7 +310,7 @@
 	(cond
 		((= c 0)
 			(riscv64-r 0x33 +riscv64_rtmp1 d +riscv64_rzero 0x2 0x0)
-			(emit-lnot-rr d d)
+			(emit-lnot-rr d)
 			(emit-or-rr +riscv64_rtmp1 d))
 		(:t (emit-cpy-cr c +riscv64_rtmp3)
 			(emit-sle-rr +riscv64_rtmp3 d))))
@@ -309,7 +318,7 @@
 	(cond
 		((= c 0)
 			(riscv64-r 0x33 +riscv64_rtmp1 +riscv64_rzero d 0x2 0x0)
-			(emit-lnot-rr d d)
+			(emit-lnot-rr d)
 			(emit-or-rr +riscv64_rtmp1 d))
 		(:t (emit-cpy-cr c +riscv64_rtmp3)
 			(emit-sge-rr +riscv64_rtmp3 d))))
@@ -505,27 +514,27 @@
 
 (defun emit-beq-ff (s d l m)
 	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
-	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-bne-ff (s d l m)
 	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
-	(riscv64-branch 0x0 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; beq tmp, zero, label
+	(riscv64-branch 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; beq tmp, zero, label
 
 (defun emit-blt-ff (s d l m)
 	(riscv64-fp-cmp 0xa2001053 s d) ; flt.d tmp, d, s (d < s)
-	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-bgt-ff (s d l m)
 	(riscv64-fp-cmp 0xa2001053 d s) ; flt.d tmp, s, d (s < d -> d > s)
-	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-ble-ff (s d l m)
 	(riscv64-fp-cmp 0xa2000053 s d) ; fle.d tmp, d, s (d <= s)
-	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-bge-ff (s d l m)
 	(riscv64-fp-cmp 0xa2000053 d s) ; fle.d tmp, s, d (s <= d -> d >= s)
-	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 ; fld rd, offset(rs1) (I-Type)
 (defun emit-cpy-if (s c d)
@@ -561,7 +570,6 @@
 (defun emit-free (c) (emit-add-cr c +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))
 (defun emit-sync (n) (emitm-int 0x0ff0000f))
-(defun emit-brk (n))
 
 ;the host called the loader, the args and stack are where a host call
 ;has them

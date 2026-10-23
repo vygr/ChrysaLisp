@@ -35,7 +35,9 @@
 	(vp-cpy-rr fsize sizes)
 	(vp-add-rr offset fsize)
 	(gotoif `(,fsize > ,osize) 'error1)
-	(vpif `(,sizes < 0))
+	;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
+	;an object starts on a word, so its offset is a whole number of its size
+	(vpif `(,type <= 0))
 		(vp-mul-cr -1 sizes)
 		(vp-and-rr offset sizes)
 		(gotoif `(,sizes /= ,offset) 'error1)
@@ -138,7 +140,9 @@
 	(vp-cpy-rr fsize sizes)
 	(vp-add-rr offset fsize)
 	(gotoif `(,fsize > ,osize) 'error1)
-	(vpif `(,sizes < 0))
+	;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
+	;an object starts on a word, so its offset is a whole number of its size
+	(vpif `(,type <= 0))
 		(vp-mul-cr -1 sizes)
 		(vp-and-rr offset sizes)
 		(gotoif `(,sizes /= ,offset) 'error1)

@@ -2,18 +2,19 @@
 
 (defq raw_obj (str-alloc 64))
 
+;each at its natural alignment, docs/vm/vp_vm.md
 (set-byte  raw_obj 0 -1)
-(set-short raw_obj 1 -1)
-(set-int   raw_obj 3 -1)
-(set-long  raw_obj 7 0x123456789ABCDEF0)
-(set-str   raw_obj 15 "HELLO")
+(set-short raw_obj 2 -1)
+(set-int   raw_obj 4 -1)
+(set-long  raw_obj 8 0x123456789ABCDEF0)
+(set-str   raw_obj 16 "HELLO")
 
 (assert-eq "get-ubyte" 255 (get-ubyte raw_obj 0))
 (assert-eq "get-byte"  -1  (get-byte raw_obj 0))
-(assert-eq "get-short" -1  (get-short raw_obj 1))
-(assert-eq "get-int"   -1  (get-int raw_obj 3))
-(assert-eq "get-long"  0x123456789ABCDEF0 (get-long raw_obj 7))
-(assert-eq "get-str"   "HELLO" (get-str raw_obj 15 5))
+(assert-eq "get-short" -1  (get-short raw_obj 2))
+(assert-eq "get-int"   -1  (get-int raw_obj 4))
+(assert-eq "get-long"  0x123456789ABCDEF0 (get-long raw_obj 8))
+(assert-eq "get-str"   "HELLO" (get-str raw_obj 16 5))
 
 ; --- type-to-size ---
 (assert-eq "type-to-size int" +int_size (type-to-size 'i))

@@ -278,7 +278,7 @@ function main
 			script=$2;
 			shift 2
 			;;
-		-e)
+		-e|-V)
 			emu=$1;
 			shift
 			;;
@@ -313,6 +313,7 @@ function main
 			echo "[-a] alone, the session does not join the mesh by itself"
 			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
+			echo "[-V] emulator mode, validating: each load and store is said if not at its alignment"
 			echo "[-f] foreground mode"
 			echo "[-h] help"
 			help=1

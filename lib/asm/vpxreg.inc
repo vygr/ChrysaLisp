@@ -58,7 +58,7 @@
 			((find op +keep_leaves) (list))
 			((or (eql op 'emit-jmp) (starts-with "emit-b" op))
 				(cond
-					((find op '(emit-brk emit-byte)) on)
+					((eql op 'emit-byte) on)
 					((defq to (. labels :find (last inst))) (if (eql op 'emit-jmp) (list to) (push on to)))
 					(:t (setq lost :t) on)))
 			(on)))

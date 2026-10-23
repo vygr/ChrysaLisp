@@ -83,7 +83,7 @@
 	; integer rr
 	'emit-cpy-rr '(:r :r) 'emit-add-rr '(:r :r) 'emit-sub-rr '(:r :r) 'emit-mul-rr '(:r :r)
 	'emit-and-rr '(:r :r) 'emit-or-rr '(:r :r) 'emit-xor-rr '(:r :r) 'emit-shl-rr '(:r :r)
-	'emit-shr-rr '(:r :r) 'emit-asr-rr '(:r :r) 'emit-lnot-rr '(:r :r) 'emit-land-rr '(:r :r)
+	'emit-shr-rr '(:r :r) 'emit-asr-rr '(:r :r) 'emit-lnot-rr '(:r) 'emit-land-rr '(:r :r)
 	'emit-swp-rr '(:r :r) 'emit-ext-rr '(:r :r) 'emit-seq-rr '(:r :r) 'emit-sne-rr '(:r :r)
 	'emit-slt-rr '(:r :r) 'emit-sgt-rr '(:r :r) 'emit-sle-rr '(:r :r) 'emit-sge-rr '(:r :r)
 	; integer cr
@@ -124,7 +124,7 @@
 	'emit-call-abi '(:r :r :c :c &rest :any) 'emit-cpy-pr '(:label :r) 'emit-lea-p '(:label :r)
 	; stack / helpers
 	'emit-push '(&rest :reg) 'emit-pop '(&rest :reg) 'emit-trash '(&rest :reg) 'emit-alloc '(:c)
-	'emit-free '(:c) 'emit-ret '() 'emit-sync '(&optional :c) 'emit-brk '(&optional :c)
+	'emit-free '(:c) 'emit-ret '() 'emit-sync '(&optional :c)
 	'emit-stack-init '(:r :r :r) 'emit-save-state '() 'emit-load-state '() 'emit-entry-abi '(:c) 'emit-label '(:label) 'emit-tlabel '(:label) 'emit-align '(:c &optional :c)
 	'emit-string '(:str) 'emit-byte '(&rest :c) 'emit-short '(&rest :c) 'emit-int '(&rest :c)
 	'emit-long '(&rest :c) 'emit-nop '() 'emit-vp-nop '()
@@ -446,7 +446,7 @@
 					((emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-fd)
 						;ignore as no reg writes
 						:ignore)
-					((emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)
+					((emit-land-rr emit-div-rrr emit-div-rrr-u)
 						;two reg writes
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) -3 -1))
 					((emit-min-cr emit-min-rr emit-max-cr emit-max-rr vp-abs-rr)

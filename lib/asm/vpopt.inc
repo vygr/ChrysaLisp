@@ -54,7 +54,7 @@
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
 			(cond
-				((find %1 '(emit-pop emit-swp-rr emit-land-rr emit-lnot-rr emit-div-rrr emit-div-rrr-u)) :multi)
+				((find %1 '(emit-pop emit-swp-rr emit-land-rr emit-div-rrr emit-div-rrr-u)) :multi)
 				((find %1 '(emit-cpy-cr emit-add-cr emit-sub-cr emit-mul-cr emit-and-cr emit-or-cr emit-xor-cr
 						emit-cpy-rr emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr
 						emit-shl-cr emit-shr-cr emit-asr-cr emit-shl-rr emit-shr-rr emit-asr-rr emit-ext-rr
@@ -67,7 +67,7 @@
 						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
 						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cpy-ff
 						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
-						emit-cpy-if emit-cpy-df)) -2))))
+						emit-cpy-if emit-cpy-df emit-lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its
@@ -109,9 +109,12 @@
 		(list emit_list) :nil _ emit_start)) (> _ -1) _)))
 
 (defun find-past-rw (_ rop wop b i)
+	;a store of a whole word there is what a load of it gives; a store of
+	;fewer bytes, or another, ends the search: the load extends what is
+	;stored, and before the store there was something else
 	(find-past
-		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst)))
-			(setq c 1) (!))
+		((and (find (first inst) +opt_write_ops) (eql b (third inst)) (= i (last inst)))
+			(if (and (eql wop (first inst)) (eql wop 'emit-cpy-ri)) (progn (setq c 1) (!)) -1))
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)

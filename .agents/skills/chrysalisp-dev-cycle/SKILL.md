@@ -288,6 +288,19 @@ From the machine the work is on:
 	`echo "echo hi" | ./run_tui.sh -e -n 1 -f`. A release build has no
 	error checks, no `catch` and no `throw`, tests that need them skip.
 
+6.	A change to a translator, `lib/trans/`, or to what the VP means, runs
+	`tests/system/test_vp_spec.lisp` natively, on `-e` and on `-V`, and on
+	every other CPU before it is done: it holds each target to
+	`docs/vm/vp_vm.md`, the sets, the float branches, constants of any size,
+	the long branches.
+
+7.	`./run_tui.sh -V` is the emulator in validation mode: each load or store
+	not at its natural alignment is said on stderr, `VP64 UNALIGNED`, the
+	function and where in it, once a place. The whole suite on it after a
+	change that moves data about: `echo "tests -a" | ./run_tui.sh -V -n 4 -f
+	-u Test -a`, and grep its output for UNALIGNED. It costs nothing when
+	not asked for, the interpreter is built twice.
+
 The six CPU build, `make it`, the whole suite on the emulator, `make
 install` and the QEMU platforms are for a tagged release, not for each
 commit. The `chrysalisp-tests` skill has the full list for a tag.

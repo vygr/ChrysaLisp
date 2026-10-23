@@ -231,6 +231,7 @@ static bool host_gui_hidden(void)
 void host_gui_init(host_gui_rect *rect, uint64_t flags)
 {
 	auto hidden = host_gui_hidden();
+	host_gui_sdl3_hidden = hidden;
 #if defined(__APPLE__)
 	// NSApplicationActivationPolicyRegular, or Accessory, no Dock icon
 	set_macos_activation_policy(hidden ? 1 : 0);

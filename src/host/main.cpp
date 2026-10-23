@@ -16,6 +16,7 @@
 
 #define VP64_STACK_SIZE 8192
 extern int vp64(uint8_t *data, int64_t *stack, int64_t *argv, void **host_calls);
+extern bool vp64_validate;
 extern bool run_emu;
 
 extern int64_t pii_open(const char *path, uint64_t mode);
@@ -100,11 +101,12 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 
-		//check for -e option
+		//check for -e option, or -V, the emulator in validation mode
 		for (int i = 0; i < argc; ++i)
 		{
-			if (!strcmp(argv[i], "-e"))
+			if (!strcmp(argv[i], "-e") || !strcmp(argv[i], "-V"))
 			{
+				if (argv[i][1] == 'V') vp64_validate = true;
 				//override boot image to emu image
 				run_emu = true;
 				argv[1] = (char*)"obj/vp64/VP64/sys/boot_image";

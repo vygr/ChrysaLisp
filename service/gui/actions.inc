@@ -273,8 +273,12 @@
 	(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 
 (defun action-quit ()
-	;launch logout app
-	(open-child "apps/system/logout/app.lisp" +kn_call_pin))
+	;launch logout app. A desktop never seen, -hidden, a test's, has nobody to
+	;ask: its host says so, x 1, as SDL makes a TERM signal a quit, and all its
+	;apps are closed and it goes, the node with it
+	(if (/= 0 (getf msg +gui_event_x))
+		(close-apps :t)
+		(open-child "apps/system/logout/app.lisp" +kn_call_pin)))
 
 (defq *event_map* (scatter (Fmap)
 	+gui_ev_mouse_wheel action-mouse-wheel

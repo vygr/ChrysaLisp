@@ -498,10 +498,10 @@
 	(assign (vpx (& system_id)) '(:r2))
 	(save-node-id :r2 0 :r0 :r1)
 
-	;inc hops
-	(assign `((,data ,+kn_msg_ping_hops)) '(:r0))
+	;inc hops, a uint
+	(assign `((,data ,+kn_msg_ping_hops ui)) '(:r0))
 	(vp-add-cr 1 :r0)
-	(assign '(:r0) `((,data ,+kn_msg_ping_hops)))
+	(assign '(:r0) `((,data ,+kn_msg_ping_hops i)))
 	;old via
 	(load-node-id data +kn_msg_ping_via vnode1 vnode2)
 	;set new via

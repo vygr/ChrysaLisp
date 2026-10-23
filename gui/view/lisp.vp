@@ -582,7 +582,7 @@
 	(vpif `(,node /= :r0))
 		(assign '((:r0 +view_flags)) '(:r1))
 		(vp-and-cr (+ +view_flag_subtree +view_flag_hidden) :r1)
-		(vp-lnot-rr :r2 :r1)
+		(vp-lnot-rr :r1)
 	(endif)
 	(exit :view :forward_tree_callback '(:r0 :r1))
 	(vp-ret)

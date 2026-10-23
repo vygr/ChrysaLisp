@@ -39,7 +39,9 @@
 (defmacro arm64-dr (o s1 s2 d) `(emitm-int (+ ,o (<< ,s2 16) (<< ,s1 5) ,d)))
 (defmacro arm64-fpr-rr (o s d) `(emitm-int (+ ,o (<< ,s 5) ,d)))
 (defmacro arm64-shift-rr (e o s d) `(arm64-rrr ,o ,s ,d ,d))
-(defmacro arm64-shift-cr (e o c x y r) `(cond ((= ,c 0)) ((arm64-bf ,o ,x ,y ,r ,r))))
+(defmacro arm64-shift-cr (e o c x y r)
+	;a shift by a constant of 0 to 63, docs/vm/vp_vm.md
+	`(cond ((= ,c 0)) ((<= 1 ,c 63) (arm64-bf ,o ,x ,y ,r ,r)) ((throw (cat "emit-" ,e "-cr constant out of range !") ,c))))
 
 (defun emit-xor-rr (s d) (arm64-rrr 0xca000000 s d d))
 
@@ -47,9 +49,11 @@
 	`(cond
 		((<= -0x100 ,c 0xff)
 			(emitm-int (+ ,o (<< (logand ,c 0x1ff) 12) (<< ,d 5) ,s)))
-		((<= 0 ,c (<< 0xfff ,w))
+		((and (<= 0 ,c (<< 0xfff ,w)) (= 0 (logand ,c (dec (<< 1 ,w)))))
 			(emitm-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< ,d 5) ,s)))
-		(:t (throw "arm64-ri/ir constant out of range !" ,c))))
+		;any other offset, of any size, in the temp, the register offset form
+		(:t (emit-cpy-cr ,c +arm64_rtmp)
+			(emitm-int (+ ,o 0x206800 (<< +arm64_rtmp 16) (<< ,d 5) ,s)))))
 
 (defmacro arm64-ir (w o s c d) `(arm64-ri ,w ,o ,d ,s ,c))
 
@@ -164,12 +168,15 @@
 					(defq f (logand c 0xfff) c (logand c 0xfff000))
 					(if (/= 0 f) (emitm-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
 					(if (/= 0 c) (emitm-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
-				(:t (throw "emit-add-cr constant out of range !" c))))
+				(:t (emit-cpy-cr (neg c) +arm64_rtmp)
+					(emit-add-rr +arm64_rtmp r))))
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f) (emitm-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c) (emitm-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
-		(:t (throw "emit-add-cr constant out of range !" c))))
+		;any other, of any size, in the temp
+		(:t (emit-cpy-cr c +arm64_rtmp)
+			(emit-add-rr +arm64_rtmp r))))
 
 (defun emit-sub-cr (c r)
 	(cond
@@ -180,12 +187,15 @@
 					(defq f (logand c 0xfff) c (logand c 0xfff000))
 					(if (/= 0 f) (emitm-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
 					(if (/= 0 c) (emitm-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
-				(:t (throw "emit-sub-cr constant out of range !" c))))
+				(:t (emit-cpy-cr (neg c) +arm64_rtmp)
+					(emit-sub-rr +arm64_rtmp r))))
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f) (emitm-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c) (emitm-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
-		(:t (throw "emit-sub-cr constant out of range !" c))))
+		;any other, of any size, in the temp
+		(:t (emit-cpy-cr c +arm64_rtmp)
+			(emit-sub-rr +arm64_rtmp r))))
 
 (defun emit-or-cr (c r)
 	(cond
@@ -240,7 +250,7 @@
 (defun emit-cpy-dr-us (s1 s2 d) (arm64-dru 0x78606800 15 s1 s2 d))
 (defun emit-cpy-dr-ui (s1 s2 d) (arm64-dru 0xb8606800 31 s1 s2 d))
 
-(defun emit-lnot-rr (r d) (arm64-cmp-cr 0 d) (emitm-int (+ 0x9a9f17e0 d)))
+(defun emit-lnot-rr (d) (arm64-cmp-cr 0 d) (emitm-int (+ 0x9a9f17e0 d)))
 (defun emit-land-rr (s d) (arm64-cmp-cr 0 d) (emitm-int (+ 0xfa401804 (<< s 5))) (emitm-int (+ 0x9a9f07e0 d)))
 
 (defun emit-shl-cr (c r) (arm64-shift-cr "shl" 0xd3400000 c (logand (- 64 c) 63) (- 63 c) r))
@@ -274,7 +284,7 @@
 	(emit-cpy-rr +arm64_rtmp d2))
 
 (defun arm64-csel (c s1 s2 d) (emitm-int (+ 0x9a800000 (<< s2 16) (<< c 12) (<< s1 5) d)))
-(defmacro arm64-csetm (c d) `(emitm-int (+ 0xda9f03e0 (<< (logxor ,c 1) 12) ,d)))
+(defmacro arm64-cset (c d) `(emitm-int (+ 0x9a9f07e0 (<< (logxor ,c 1) 12) ,d)))
 
 (defun emit-min-cr (c d)
 	(emit-cpy-cr c +arm64_rtmp)
@@ -347,19 +357,19 @@
 (defun emit-bgt-rr (s d l m) (arm64-cmp-rr s d) (arm64-branch 0xc l))
 (defun emit-ble-rr (s d l m) (arm64-cmp-rr s d) (arm64-branch 0xd l))
 
-(defun emit-seq-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0x0 d))
-(defun emit-sne-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0x1 d))
-(defun emit-slt-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0xb d))
-(defun emit-sle-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0xd d))
-(defun emit-sgt-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0xc d))
-(defun emit-sge-cr (c d) (arm64-cmp-cr c d) (arm64-csetm 0xa d))
+(defun emit-seq-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0x0 d))
+(defun emit-sne-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0x1 d))
+(defun emit-slt-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0xb d))
+(defun emit-sle-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0xd d))
+(defun emit-sgt-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0xc d))
+(defun emit-sge-cr (c d) (arm64-cmp-cr c d) (arm64-cset 0xa d))
 
-(defun emit-seq-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0x0 d))
-(defun emit-sne-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0x1 d))
-(defun emit-slt-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0xb d))
-(defun emit-sle-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0xd d))
-(defun emit-sgt-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0xc d))
-(defun emit-sge-rr (s d) (arm64-cmp-rr s d) (arm64-csetm 0xa d))
+(defun emit-seq-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0x0 d))
+(defun emit-sne-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0x1 d))
+(defun emit-slt-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0xb d))
+(defun emit-sle-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0xd d))
+(defun emit-sgt-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0xc d))
+(defun emit-sge-rr (s d) (arm64-cmp-rr s d) (arm64-cset 0xa d))
 
 (defun emit-call (l)
 	(emit-push +arm64_rlnk)
@@ -426,8 +436,10 @@
 (defun emit-bne-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x1 l))
 (defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l))
 (defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l))
-(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l))
-(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l))
+;of a NaN, as IEEE has it, every compare is false but bne: an unordered pair
+;sets C and V, so lt and le are mi and ls, which it is not
+(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x9 l))
+(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x4 l))
 
 (defun emit-cpy-if (s c d)
 	(cond
@@ -458,7 +470,6 @@
 (defun emit-free (c) (emit-add-cr c +arm64_vp_rsp))
 (defun emit-ret () (emitm-int 0xd65f03c0))
 (defun emit-sync (n) (emitm-int 0xd5033fbf))
-(defun emit-brk (n))
 
 ;the host called the loader, the args are where a host call has them,
 ;and the VP stack is not the native one, it starts as it is
@@ -659,7 +670,7 @@
 						emit-arm64-call-h emit-arm64-call-r-h emit-arm64-call-i-h emit-arm64-call-p-h
 						emit-arm64-call-m emit-arm64-call-r-m emit-arm64-call-i-m emit-arm64-call-p-m
 						emit-arm64-call-t emit-arm64-call-r-t emit-arm64-call-i-t emit-arm64-call-p-t
-						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync emit-brk
+						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync
 						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
 						emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))

@@ -100,7 +100,7 @@ function first_run {
 
 function boot_gui {
     $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_gui.exe"
-    $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
+    $boot = if ($global:emu -ne '') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }
     if ($global:ngui -eq 0) {
@@ -115,7 +115,7 @@ function boot_gui {
 
 function boot_tui {
     $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_tui.exe"
-    $boot = if ($global:emu -eq '-e') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
+    $boot = if ($global:emu -ne '') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }
     # a TUI is always waited for, it has the terminal
@@ -139,6 +139,7 @@ function main {
             "-i" { $global:script = "apps/tui/install.lisp" }
             "-s" { $global:script = $args[++$i] }
             "-e" { $global:emu = "-e" }
+            "-V" { $global:emu = "-V" }
             "-f" { $global:front = $TRUE }
             "-g" { $global:ngui = [int]$args[++$i] }
             "-n" { $global:ncpu = [int]$args[++$i] }
@@ -155,6 +156,7 @@ function main {
         Write-Output "[-g cnt] number of guis"
         Write-Output "[-s script_name] script mode"
         Write-Output "[-e] emulator mode"
+        Write-Output "[-V] emulator mode, validating: each load and store is said if not at its alignment"
         Write-Output "[-f] foreground mode"
         Write-Output "[-h] help"
     }

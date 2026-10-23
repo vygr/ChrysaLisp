@@ -63,7 +63,7 @@
 	+both_ops ''(emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr emit-shl-rr emit-shr-rr
 		emit-asr-rr emit-min-rr emit-max-rr emit-seq-rr emit-sne-rr emit-slt-rr emit-sgt-rr emit-sle-rr emit-sge-rr)
 	;that reads both and writes both
-	+swap_ops ''(emit-swp-rr emit-lnot-rr emit-land-rr)
+	+swap_ops ''(emit-swp-rr emit-land-rr)
 	;that reads the first and writes the second
 	+move_ops ''(emit-cpy-rr emit-ext-rr emit-abs-rr)
 	;of a constant and a register, read and written
@@ -77,7 +77,7 @@
 	+put2_ops ''(emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i)
 	;nothing of a general register in them
 	+none_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long
-		emit-alloc emit-free emit-ret emit-sync emit-brk emit-nop emit-vp-nop emit-jmp
+		emit-alloc emit-free emit-ret emit-sync emit-nop emit-vp-nop emit-jmp
 		emit-cpy-ff emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 		emit-abs-ff emit-neg-ff emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff))
 
@@ -111,6 +111,8 @@
 		((find op +swap_ops) (list (logior a b) (logior a b)))
 		((find op +move_ops) (list a b))
 		((find op +const_ops) (list b b))
+		;one register, read and written
+		((eql op 'emit-lnot-rr) (list a a))
 		((eql op 'emit-cpy-cr) (list 0 b))
 		((find op '(emit-div-rrr emit-div-rrr-u)) (list (logior a b c) (logior b c)))
 		((find op +branch_cr_ops) (list b 0))
