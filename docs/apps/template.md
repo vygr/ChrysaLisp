@@ -30,6 +30,10 @@ ChrysaLisp GUI development. It can be understood through the
 Model-View-Controller (MVC) pattern, though the "Model" is intentionally
 minimal.
 
+```image
+docs/diagrams/template_files.cwb
+```
+
 *   **Model (Application State):**
 
     * This is the part a developer would expand most. In the template, the model
