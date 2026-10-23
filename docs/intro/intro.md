@@ -389,6 +389,10 @@ other shapes:
 
     * `cube`: The same in three dimensions, six neighbors a node.
 
+```image
+docs/diagrams/net_shapes.cwb
+```
+
 * `-n <count>`: The number of nodes, or for a `mesh` or a `cube` how many
   wide it is. `-n 0`, and no count, sizes the network to the machine, the
   largest of that shape with no more than a node for each core. No more than
