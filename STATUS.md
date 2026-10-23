@@ -29,7 +29,7 @@ The release check for 7.3, every stage passes on every machine.
 
 **On a slow machine apps share a node fairly: Eyes takes at most a quarter of its node, Molecule makes its atom images between frames and shows the nearest till then, the GUI leaves the apps as long as its last frame took.**
 
-**A hidden desktop quits, its node with it, on a plain kill.**
+**A hidden desktop quits, its node with it, on a plain kill.** **On Linux it is drawn offscreen, so it needs no display: the Pi runs its desktop tests beside a desktop, or with the TV off.**
 
 **Tests wait for what they test, not a time: no check fails because a busy machine was slow; a real hang is the suite's to report.**
 

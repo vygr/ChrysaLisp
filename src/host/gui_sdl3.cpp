@@ -236,6 +236,13 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	// NSApplicationActivationPolicyRegular, or Accessory, no Dock icon
 	set_macos_activation_policy(hidden ? 1 : 0);
 #endif
+#if defined(__linux__)
+	// on Linux a hidden desktop is drawn offscreen and never asks for the
+	// display. With no window system, a Raspberry Pi's, the display is one
+	// process's at a time, the desktop someone works at has it, and with the
+	// screen turned off there is none at all. SDL_VIDEO_DRIVER still says
+	if (hidden) SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "offscreen");
+#endif
 	// a trackpad gives SDL no fingers unless it is told to, before it
 	// starts, and then it gives no mouse. CL_TOUCH_TRACKPAD asks for that
 	if (host_gui_sdl3_trackpad()) SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "1");
