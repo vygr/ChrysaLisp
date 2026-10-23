@@ -85,9 +85,6 @@
 	(. *window* :change_dirty x y w h)
 	(window-resize))
 
-(defun page-scale (s)
-	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
-
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 

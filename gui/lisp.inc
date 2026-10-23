@@ -315,6 +315,19 @@
 		:paper :paper_toolbar :font :font_symbol)
 	(static-qqp (ui-flow ,n ,p ~x)))
 
+(defun toolbar-states (toolbar states)
+	; (toolbar-states toolbar states)
+	;each button of a toolbar lit, or not, by its state in a list
+	(defq radio_col (canvas-brighter (get :paper toolbar)))
+	(each (# (undef (. %0 :dirty) :paper)
+			(if %1 (def %0 :paper radio_col)))
+		(. toolbar :children) states))
+
+(defun page-scale (s)
+	; (page-scale size) -> size
+	;a size by the zoom of the app's *window*
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
+
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p

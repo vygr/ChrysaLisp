@@ -27,9 +27,6 @@
 	+terminal_font (first (font-info (get :font_terminal *env*))) +symbol_font (first (font-info (get :font_symbol *env*)))
 	+config_version 1 +config_file (cat (get :home *env*) "docs.tre"))
 
-(defun page-scale (s)
-	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
-
 (defun config-default ()
 	(scatter (Emap) :version +config_version :zoom 1.0))
 
@@ -109,12 +106,6 @@
 			:value (if (defq pos (. scroll_pos :find file)) pos 0))
 		(.-> *page_scroll* (:add_child page_flow) :layout)
 		(.-> *doc_flow* :layout :dirty_all)))
-
-(defun toolbar-states (toolbar states)
-	(defq radio_col (canvas-brighter (get :paper toolbar)))
-	(each (# (undef (. %0 :dirty) :paper)
-			(if %1 (def %0 :paper radio_col)))
-		(. toolbar :children) states))
 
 ;import actions
 (import "./actions.inc")
