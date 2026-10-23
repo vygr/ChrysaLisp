@@ -874,6 +874,30 @@ screen, which draws itself by its own
 (when tst body) -> :nil | 'form
 ```
 
+### with-lock
+
+```code
+(with-lock key body ...)
+
+(with-lock (key [mode timeout]) body ...)
+```
+
+### with-read-lock
+
+```code
+(with-read-lock key body ...)
+
+(with-read-lock (key [timeout]) body ...)
+```
+
+### with-write-lock
+
+```code
+(with-write-lock key body ...)
+
+(with-write-lock (key [timeout]) body ...)
+```
+
 ### write-byte
 
 ```code

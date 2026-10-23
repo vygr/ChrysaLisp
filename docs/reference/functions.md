@@ -722,7 +722,10 @@ down on while it is down. The mouse is not moved by it
 ### action-quit
 
 ```code
-launch logout app
+launch logout app. A desktop never seen, -hidden, a test's, has nobody to
+
+ask: its host says so, x 1, as SDL makes a TERM signal a quit, and all its
+apps are closed and it goes, the node with it
 ```
 
 ### action-resized
@@ -987,6 +990,91 @@ are of a line, or a part of one that begins at the char start.
 
 ```code
 (atom? o) -> :t | :nil
+```
+
+### audio-add-rpc
+
+```code
+(audio-add-rpc file_path) -> handle
+```
+
+### audio-change-rpc
+
+```code
+(audio-change-rpc handle state)
+```
+
+### audio-hush-rpc
+
+```code
+(audio-hush-rpc who)
+```
+
+### audio-listen-rpc
+
+```code
+(audio-listen-rpc who) -> :t | :nil
+
+who is to be sent what the microphone hears, again before the lease is
+out to go on being. :nil if there is no microphone
+```
+
+### audio-play-rpc
+
+```code
+(audio-play-rpc handle [pan])
+```
+
+### audio-remove-rpc
+
+```code
+(audio-remove-rpc handle)
+```
+
+### audio-service
+
+```code
+(audio-service) -> :nil | net_id
+
+the audio service to use. Each desktop has one of its own, on its
+node, sound is played by the host of the node. An app with a window
+is on its desktop's node and has that one, so a desktop that quits
+takes its own sound with it and nobody else's. A task on a node with
+no desktop has any one there is on the machine
+```
+
+### audio-stream-close-rpc
+
+```code
+(audio-stream-close-rpc handle)
+```
+
+### audio-stream-left-rpc
+
+```code
+(audio-stream-left-rpc handle) -> :nil | frames
+
+how many frames of a stream are still to be played, what was written
+less what has been heard: a player keeps its pictures to its sound so
+```
+
+### audio-stream-open-rpc
+
+```code
+(audio-stream-open-rpc [rate channels]) -> :nil | handle
+
+a stream to play as it comes, :nil if there is no room or no sound. Of
+16 bit samples, 1 or 2 channels, left first, at a rate of 8000 to
+48000; 16000 mono, +sound_rate, if not said
+```
+
+### audio-stream-write-rpc
+
+```code
+(audio-stream-write-rpc handle data)
+
+the next of a stream, 16 bit samples, a frame each of its channels,
+no answer
 ```
 
 ### avi-avc
@@ -1867,6 +1955,147 @@ of 2, 4 and 8 by shifts, of other widths a byte at a time
 (byte-to-hex-str num) -> str
 ```
 
+### call-ask-up
+
+```code
+as (call-ask), the service of this desktop started first if it has
+
+none: it is there only once a call is started or joined, a desktop
+that never calls has none
+```
+
+### call-headphones
+
+```code
+(call-headphones on)
+
+with headphones what is heard is not heard by the microphone, so all
+may talk at once: half duplex off
+```
+
+### call-join
+
+```code
+(call-join id)
+
+the call of that id, hex, (call-list)
+```
+
+### call-leave
+
+```code
+(call-leave)
+```
+
+### call-list
+
+```code
+(call-list) -> ((id name) ...)
+
+the calls of the mesh
+```
+
+### call-mute
+
+```code
+(call-mute on)
+```
+
+### call-name
+
+```code
+a comma is not of a name, the mesh keeps one after one
+```
+
+### call-play
+
+```code
+(call-play path)
+
+the sound file at path sent to the call in place of the microphone
+till it ends, "" to stop it, a note played to the others
+```
+
+### call-put-away
+
+```code
+(call-put-away)
+
+the app that showed the call is closed: out of it, unless another app
+shows it as its own. A live microphone is never with nothing on the
+screen to say so
+```
+
+### call-record
+
+```code
+(call-record on)
+
+this desktop is recording the call, or not: all in it are told
+```
+
+### call-service
+
+```code
+(call-service) -> :nil | net_id
+
+the voice service of this desktop, on its node, or any on the machine
+```
+
+### call-start
+
+```code
+(call-start name)
+
+a new call, of that name, that this desktop is in
+```
+
+### call-state-read
+
+```code
+(call-state-read msg) -> :nil | state
+
+what a watcher is sent: an Emap of :id, hex or :nil if in no call,
+:name, :muted, :recording, :headphones, :inbox, where this one hears,
+:members, a list of (name inbox rec) of all in it, rec 1 for one that
+records, and :talking, the inboxes of those talking now
+```
+
+### call-tap
+
+```code
+(call-tap mbox)
+
+mbox is sent all that is said and heard in the call, to be mixed,
+lib/audio/voice.inc (voice-mix); :nil for none
+```
+
+### call-unwatch
+
+```code
+(call-unwatch mbox)
+```
+
+### call-user
+
+```code
+(call-user) -> name
+
+who is asking, as the others in a call see them: the user of the app,
+a service has none
+```
+
+### call-watch
+
+```code
+(call-watch mbox [shows])
+
+mbox is sent the state of the call each time it changes, (call-state-read),
+and now. Again within +call_lease to go on being. shows, if the app shows
+the call as its own, a Whiteboard in its session's call: then the call
+is not left when another that showed it is put away, (call-put-away)
+```
+
 ### canvas-brighter
 
 ```code
@@ -2076,6 +2305,31 @@ O(1) arithmetic calendar conversion (month 0..11, day 1..31)
 (clamp x lo hi) -> x
 
 x, no lower than lo and no higher than hi
+```
+
+### clip-get-rpc
+
+```code
+(clip-get-rpc) -> string
+```
+
+### clip-put-rpc
+
+```code
+(clip-put-rpc string)
+```
+
+### clip-service
+
+```code
+(clip-service) -> :nil | net_id
+
+the clipboard service to use. Each desktop has one of its own, on its
+node, it talks to the clipboard of the host through the GUI driver of
+the node. An app with a window is on its desktop's node and has that
+one, so a desktop that quits does not take the clipboard of another.
+On a host with a clipboard of its own they are all that one clipboard.
+A task on a node with no desktop has any one there is on the machine
 ```
 
 ### code-be
@@ -3439,6 +3693,27 @@ where the element that starts at token i ends
 
 ```code
 (encode-date [td]) -> str
+```
+
+### ensure-lock-service
+
+```code
+(ensure-lock-service) -> netid | :nil
+
+the service, waited for if it is not yet heard of, as it may not be
+in the first moments of a session. For two seconds, it was half of
+one, which a slow machine with a lot to do ran past now and then
+```
+
+### ensure-net-service
+
+```code
+(ensure-net-service) -> netid | :nil
+
+the Net service of this machine. It is waited for, a desktop or a
+terminal starts one as it comes up. A node that is neither has none,
+so one is started, or a link from there would go round the service,
+and round the key of the machine with it
 ```
 
 ### env-props
@@ -5506,6 +5781,30 @@ heard from has no system id, all zero.
 (load-stream path) -> :nil | stream
 ```
 
+### lock-claim-rpc
+
+```code
+(lock-claim-rpc key [mode timeout_us]) -> :t | :nil
+```
+
+### lock-history-rpc
+
+```code
+(lock-history-rpc [timeout_us]) -> list | :nil
+```
+
+### lock-release-rpc
+
+```code
+(lock-release-rpc key [timeout_us]) -> :t | :nil
+```
+
+### lock-service
+
+```code
+(lock-service) -> netid | :nil
+```
+
 ### log2
 
 ```code
@@ -6456,6 +6755,64 @@ own, or all of an object, read now, as a string stream
 (nempty? form) -> :t | :nil
 ```
 
+### net-accept-rpc
+
+```code
+(net-accept-rpc offer_msg) -> (client_in client_out) | :nil
+```
+
+### net-beacon-rpc
+
+```code
+(net-beacon-rpc port) -> status | :nil
+```
+
+### net-close-rpc
+
+```code
+(net-close-rpc (client_in client_out))
+```
+
+### net-discover-rpc
+
+```code
+(net-discover-rpc [mesh_only]) -> status | :nil
+
+the service makes a mesh with the others it can reach, and listens
+for their beacons. With mesh_only :t it does not listen, it has only
+what the other services tell it
+```
+
+### net-link-rpc
+
+```code
+(net-link-rpc target) -> status | :nil
+```
+
+### net-listen-rpc
+
+```code
+(net-listen-rpc port accept_mbox) -> listener_handle | :nil
+```
+
+### net-open-rpc
+
+```code
+(net-open-rpc host port) -> (client_in client_out) | :nil
+```
+
+### net-peers-rpc
+
+```code
+(net-peers-rpc) -> :nil | ((system_id ip port linked build link) ...)
+
+what the Net service of this machine knows of the others, from their
+beacons and from each other. linked is "linked" or "unlinked", build
+is "same", "differs" or "unknown", the boot image they run as against
+this one's, and link "same", "unknown", or the version of the link
+they speak if it is another. :nil if the service does not answer
+```
+
 ### net-quiet
 
 ```code
@@ -6464,6 +6821,41 @@ own, or all of an object, read now, as a string stream
 wait till the number of nodes known has stayed the same for a while.
 A network that never settles must not hang the caller, so it gives
 up, with what it has, after 20 times as long as a settled one takes.
+```
+
+### net-refused
+
+```code
+(net-refused where head)
+
+a door tells the Net service of this machine it closed on another
+machine for its link: where, host:port, or "dialled in", and the first
+bytes of its hello
+```
+
+### net-refused-rpc
+
+```code
+(net-refused-rpc) -> :nil | ((where head seconds) ...)
+
+the machines a door closed on lately, for speaking another link: where,
+the first bytes of the hello it sent, and how long ago. The last 8, of
+the last 10 minutes
+```
+
+### net-service
+
+```code
+(net-service) -> netid | :nil
+```
+
+### net-what-is
+
+```code
+(net-what-is system) -> str
+
+what a machine of the mesh says it is, arm64/Darwin, asked of one of
+its nodes. ? if none of its nodes is seen
 ```
 
 ### next-op
@@ -8273,7 +8665,10 @@ across for down, a thing that lies along is made to stand
 (sbr-analysis data samples) -> ((re im) ...)
 
 the 32 slots of 32 bands of 1024 samples: the newest 320 by the
-window, its 5 parts of 64 summed, by the cos and sin of each band
+window, its 5 parts of 64 summed, u, and band k 2 the sum of u n e^(i
+pi (k + 1/2)(2n - 1/2)/64). Of n and 63 - n together that is 2 e^(-i 3
+pi (k + 1/2)/128) by the DCT-IV of 32 of u n - u 63-n, re, and the
+DST-IV of u n + u 63-n, im, a DCT-IV of it backwards by -1 to the k
 ```
 
 ### sbr-apply
@@ -8568,9 +8963,13 @@ the borders of bands of widths from start
 (sbr-synthesis data slots) -> reals
 
 the 2048 samples of the 32 slots of 64 bands: each slot's 128 of its
-bands newest in v, its 10 parts by the window, summed. Of its cos by
-the re a and its sin by the im b, v n is a - b, v 127 - n is -a - b
-the window's sum native, lib/media/lisp.vp media_window, as MP3's
+bands newest in v, its 10 parts by the window, summed. Of the sum of
+the re by cos and the im by sin of pi (k + 1/2)(2n - 255)/128, over
+64, a and b, v n is a - b, v 127 - n is -a - b. The 255 is 2 pi (k +
+1/2) less than (n + 1/2)(k + 1/2), so a is the DCT-IV of 64 of the re
+over -64, b the DST-IV of the im, a DCT-IV of it backwards by -1 to
+the n, over -64. The window's sum native, lib/media/lisp.vp
+media_window, as MP3's
 ```
 
 ### sbr-tables
@@ -8578,11 +8977,10 @@ the window's sum native, lib/media/lisp.vp media_window, as MP3's
 ```code
 (sbr-tables)
 
-the books made native tables, the window, the noise and the matrices
-of the banks, made the once. The analysis's 32 bands of 64 sums of
-the window, each 2 e^(i pi (k + 1/2)(2n - 1/2)/64), its cos and its
-sin; the synthesis's 128 of the 64 bands, re and im, each e^(i pi
-(k + 1/2)(2n - 255)/128)/64, its re part
+the books made native tables, the window, the noise and what the
+banks take, made the once. The banks are DCT-IVs, of 32 and of 64,
+(sbr-analysis) and (sbr-synthesis) say how, and the analysis's
+twiddle after, 2 e^(-i 3 pi (k + 1/2)/128), its cos and its sin
 ```
 
 ### sbr-x
@@ -10126,6 +10524,785 @@ start a child, where the farm says
 
 ```code
 stop a child
+```
+
+### storage-ask
+
+```code
+(storage-ask svc type [body wait]) -> :nil | answer
+
+one thing asked of a service, and what it says. :nil if it says
+nothing in the time, seconds. A new mailbox each time: an answer that
+comes late is to a mailbox nobody reads
+```
+
+### storage-block
+
+```code
+(storage-block name [svc]) -> :nil | data
+
+a block by its name, from the service if it has it, and if not from
+another member that has. The asker goes to the other member, a
+service never asks another and waits: two that did, each of the
+other, would wait for ever
+```
+
+### storage-block-at
+
+```code
+(storage-block-at name svc) -> :nil | data
+
+a block by its name, if that service has it. It is checked against
+its name here too, what came may not be what was sent
+```
+
+### storage-block-retry
+
+```code
+(storage-block-retry name svc secs) -> :nil | data
+
+a block by its name, of any member that has it, asked again each
+second till there is one, or for secs seconds
+```
+
+### storage-check
+
+```code
+(storage-check [mend svc]) -> :nil | (name ...)
+
+the blocks that are not what their names say, in hex. With mend they
+are let go of
+```
+
+### storage-claim
+
+```code
+(storage-claim image) -> :nil | :t
+
+is the store in that file this process's to serve. It is if no
+process that is still there has said it is its own. It says so, in
+a file beside the image, waits a moment, and looks again: of two
+that say so at once the last to write is what both read, so one of
+them goes on and the other does not
+```
+
+### storage-copies
+
+```code
+(storage-copies path [copies svc]) -> :nil | num | (:ok entry) | (:none :nil) | (:lost :nil)
+
+how many members are to keep the blocks of the object a path is, the
+dial: more for what must not be lost, or is read a great deal, fewer
+for what can be had again. 0 is as many as the store says. It is a
+write of the path, and the members come to it as they hear. Without
+copies, how many it is now, :nil if there is no such object
+```
+
+### storage-cut
+
+```code
+(storage-cut members [svc]) -> :nil | :t
+
+for a test: the member is as if it could not reach those members,
+its tender does not look at them. None, and it can reach all again
+```
+
+### storage-delete
+
+```code
+(storage-delete path [from svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
+
+there is no object of that name from now, provided it is from
+```
+
+### storage-from
+
+```code
+what a path is said to be now, as it is sent: ? not said, - none
+```
+
+### storage-get
+
+```code
+(storage-get path [svc]) -> :nil | data
+
+all of an object. :nil if there is none, or a block of it can not be had
+```
+
+### storage-info
+
+```code
+(storage-info [svc]) -> :nil | emap
+
+what the store is: :id :member :members :block_size :copies :objects
+:blocks :free
+```
+
+### storage-info-read
+
+```code
+(storage-info-read answer) -> :nil | emap
+
+what a service said of its store, as (storage-info) gives it: for
+what asked with (storage-send), of several at once
+```
+
+### storage-join
+
+```code
+(storage-join [image size id copies force wait]) -> :nil | netid
+
+the store of this machine is started, in this session: the one in
+that file, storage/store.img if it is not said, made if there is
+none, of so many MB. Its id is what is said, or the mesh's own,
+(storage-key-id), or store. :nil if another process has it, or it
+could not be started. wait is as (storage-start) has it
+```
+
+### storage-key-id
+
+```code
+(storage-key-id [file]) -> :nil | id
+
+the id of the store of the mesh this machine is of: made from its
+key, so machines given the same key are of the same store with
+nothing said, and not the key, nor anything the key can be had from.
+:nil if the machine has no key
+```
+
+### storage-list
+
+```code
+(storage-list [prefix svc]) -> :nil | (entry ...)
+
+the paths that begin so, in order
+```
+
+### storage-manifest
+
+```code
+the blocks of the object a path is, (bytes names), :nil if there is none
+```
+
+### storage-member
+
+```code
+(storage-member [file]) -> :nil | emap
+
+what this machine was told when it was made a member: :image, :size
+in MB, :id and :copies if they were said, and :travels, :t if it is
+a machine that is taken away from the others, a laptop. :nil if it
+never was a member
+```
+
+### storage-member-forget
+
+```code
+(storage-member-forget [file])
+
+this machine is not started as a member by itself any more. Its
+store is left as it is
+```
+
+### storage-member-save
+
+```code
+(storage-member-save image size [id copies file travels])
+
+this machine is a member, of the store in that file, from now on
+```
+
+### storage-member-travels
+
+```code
+(storage-member-travels travels [file]) -> :nil | :t
+
+this machine is one that is taken away from the others, or is not
+now. :nil if it is no member
+```
+
+### storage-members
+
+```code
+(storage-members [change svc]) -> :nil | (member ...)
+
+who the members of the store are meant to be. With a change, "+id"
+a machine is joined to it, "-id" one is retired: it is told to this
+member, and the others hear of it as they meet
+```
+
+### storage-pace
+
+```code
+(storage-pace tick grace [svc]) -> :nil | :t
+
+how often the member's tender looks, 0 for only when told, and how
+long a member is not heard from before what it kept is kept by
+others, from now on
+```
+
+### storage-pin
+
+```code
+(storage-pin prefix [off svc]) -> :nil | (prefix ...)
+
+this system holds all of every object whose path begins so, or with
+off no longer does. What is pinned now
+```
+
+### storage-pinned-by
+
+```code
+(storage-pinned-by path [svc]) -> :nil | (member ...)
+
+the members that have that path pinned, that hold all of its object,
+as far as this system knows. Every member is told what each has pinned
+```
+
+### storage-pins-missing
+
+```code
+(storage-pins-missing [svc]) -> :nil | (name ...)
+
+the blocks of what is pinned that this system has not got yet, in
+hex. None, and it is all here
+```
+
+### storage-put
+
+```code
+(storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+
+a path is set to an object of this data, as (storage-put-stream)
+```
+
+### storage-put-file
+
+```code
+(storage-put-file path file [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil)
+
+a path is set to an object of what is in a file of the host, of any
+length. :none if there is no such file
+```
+
+### storage-put-stream
+
+```code
+(storage-put-stream path stream [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+
+a path is set to an object of what is read from a stream, to its
+end, provided it is now the object from: its name, "" for none, and
+not given, not to say. :stale with what it is if it is not that. It
+is read a few blocks at a time, so what is put can be of any length,
+and only the blocks the service has not got are sent
+```
+
+### storage-read
+
+```code
+(storage-read path offset len [svc]) -> :nil | data
+
+part of an object, only the blocks that part is in are asked for
+```
+
+### storage-record
+
+```code
+(storage-record rec member kind [what]) -> rec
+
+a thing done, kept to be sent, if there is a recorder
+```
+
+### storage-record-ask
+
+```code
+(storage-record-ask svc mbox [stop]) -> :nil | :t
+
+a member is to tell that mailbox what it does, for so long, or with
+stop, not to. With :nil for the mailbox, it is to tell nobody
+```
+
+### storage-record-members
+
+```code
+(storage-record-members [group]) -> (netid ...)
+
+the services of every member of a store of that group that is there,
+on every machine, *Storage if not given
+```
+
+### storage-record-name
+
+```code
+a block as a record names it, enough of it to be told from the rest,
+
+- for none, a path deleted
+```
+
+### storage-record-new
+
+```code
+(storage-record-new) -> rec
+
+what a task of a member keeps of its recorders: each, (mbox until),
+and the lines it has still to send
+```
+
+### storage-record-run
+
+```code
+(storage-record-run write until [group stop]) -> lines
+
+what every member of a group does, each line given to write as it
+comes, till the time is until, (pii-time), or a mail is on the stop
+mailbox. Each member is asked again each second, and one that has
+come since is asked then too. write is given :nil when nothing has
+come for a tenth of a second, for one that holds lines back to send a
+few at a time. How many lines there were. Its names
+are its own, record_..., so that write finds its own
+```
+
+### storage-record-seed
+
+```code
+(storage-record-seed write [group]) -> lines
+
+what every member of a group has now, as the lines a recording of it
+from the start would have left, each given to write: who each sees,
+what each has each path as, the blocks of each object, and which of
+them each keeps. So a recording begun now has what came before. How
+many lines there were. Its names are its own, seed_..., so that write
+finds its own
+```
+
+### storage-record-send
+
+```code
+(storage-record-send rec) -> rec
+
+what was kept is sent, in one mail
+```
+
+### storage-record-to
+
+```code
+(storage-record-to rec text) -> rec
+
+a recorder, the mailbox in hex, is told from now, or for longer. -
+and a mailbox, that one is not, and - alone, none is
+```
+
+### storage-recording?
+
+```code
+(storage-recording? rec) -> :nil | :t
+
+is a recorder told, those whose time is up are forgotten
+```
+
+### storage-rename
+
+```code
+(storage-rename from to [was svc]) -> (:ok entry) | (:stale entry) | (:none :nil) | (:lost :nil)
+
+the path to is given the object the path from is, and from is then no
+more, in one step: nothing is copied, a path is only the name of the
+object it is. Provided to is now the object was, "" for none, :nil not
+to say, :stale with what it is if it is not. :none if from is not.
+What a program does that is to come through anything: write a path of
+its own, see that all went as it should, and rename it to where it is
+to be, and who reads that has the old object or the new, whole
+```
+
+### storage-resize
+
+```code
+(storage-resize megabytes [svc]) -> :nil | path
+
+the store of this member put on a volume of that many MB, a copy on
+this machine, and the file it is in now: storage/store.8192MB.img for
+storage/store.img. A machine whose member it is starts it from there
+from now on. :nil if it is that size already, or can not be made so,
+and it is as it was. The member answers nothing while it copies
+```
+
+### storage-resized-name
+
+```code
+(storage-resized-name image megabytes) -> path
+
+where a store of that file is put when it is made that size: beside
+it, the size in the name, storage/store.8192MB.img
+```
+
+### storage-restore
+
+```code
+(storage-restore name [prefix svc]) -> :nil | (restored newer)
+
+the objects whose paths begin so are as they were in the snapshot,
+all of it if not said, how many were set back, and how many paths
+there are now under the prefix that the snapshot has not, which are
+left. :nil if there is no such snapshot
+```
+
+### storage-result
+
+```code
+(storage-result answer) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:none :nil) | (:lost :nil)
+
+what the service said of a write, as (store-commit) gives it. :lost
+if it said nothing
+```
+
+### storage-retire
+
+```code
+(storage-retire start [svc]) -> (:ok member ...) | (:none) | (:many id ...) | :nil
+
+the member whose id starts so retired, case aside, as (storage-service-on)
+takes the start of a system id. Only if one member's id starts so:
+:none if none does, and :many and theirs if more than one, none retired
+```
+
+### storage-same-file?
+
+```code
+(storage-same-file? path file [svc]) -> :nil | bytes
+
+an object, read as a stream, is what is in a file of the host, byte
+for byte and no longer. How long that is
+```
+
+### storage-seen
+
+```code
+(storage-seen path [svc]) -> :nil | (seen members)
+
+how many of the members are known to have what a path is now, and
+how many members there are: seen by 4 of 5
+```
+
+### storage-send
+
+```code
+(storage-send svc type [body]) -> mbox
+
+one thing asked of a service and not waited for. Where what it says
+will be, to be read when it is wanted: several can be asked at once,
+of several services, and be on their way together
+```
+
+### storage-service
+
+```code
+(storage-service [name]) -> :nil | netid
+
+the Storage service of this system, or one of another name, a test's
+```
+
+### storage-service-on
+
+```code
+(storage-service-on system) -> :nil | netid
+
+the Storage service of another machine, by the start of its system id
+in hex, as mesh lists it: what is in its store looked at, put or got,
+as a client, this machine no member of it
+```
+
+### storage-settle
+
+```code
+(storage-settle [svc wait]) -> :nil | (met fetched dropped)
+
+the member's tender is told to look now, and what it did is waited
+for: how many members it compared notes with and found something
+new, how many blocks it fetched, and how many it let go of
+```
+
+### storage-snapshot
+
+```code
+(storage-snapshot name [prefix svc]) -> :nil | count
+
+a snapshot of the objects whose paths begin so, all if not said, kept
+as snapshots/name/ and their paths, how many: no block is copied, see
+lib/storage/store.inc. :nil if the name is not one a snapshot may have,
+not empty, no / or space
+```
+
+### storage-snapshot-drop
+
+```code
+(storage-snapshot-drop name [svc]) -> :nil | count
+
+a snapshot is gone, how many paths it had. Its blocks are let go of by
+a sweep, if nothing else is made of them
+```
+
+### storage-snapshots
+
+```code
+(storage-snapshots [svc]) -> :nil | ((name count) ...)
+
+the snapshots there are, and how many objects each is of
+```
+
+### storage-start
+
+```code
+(storage-start image [:size bytes :id str :name str :block bytes :force :t
+
+	:group str :member str :tick us :grace us :copies num :node node :wait s]) -> :nil | netid
+the service is started on this node, or that one, to keep the store that is in
+that file of the host. If there is none there and a size is given,
+one is made of that many bytes, the store id, and this system its
+member. :nil if there is no store and none could be made. What is
+there and is not a store is left as it is, unless force: then it is
+made one, and what was there is gone, a disk that is to be a store.
+If the service of that name is there already, it is that one.
+
+name is what it is known by on this system, @Storage. group is what
+the members of a store find each other by, over every machine,
+*Storage. member is who it is, this system: another only for a test
+of several members on the one machine. tick is how often its tender
+looks, 0 for only when it is told to, and grace how long a member is
+not heard from before what it kept is kept by others.
+
+wait is how long it is given to say it is up, 30 s, or :t, as long
+as it takes while its task is there, or its node, on another: a big
+store is minutes opening, and one given up on comes up all the same.
+
+node is the node it is started on, this one if not said. Another
+was tried, so that the hashing of a block and its writing were done
+beside what the asker does: each block's crossing of the link cost
+more than the second core gave, a copy into a store fell 61 to 50
+MB/s, a read from it 116 to 60
+```
+
+### storage-stat
+
+```code
+(storage-stat path [svc]) -> :nil | entry
+
+what a path is now, :nil if there is no object of that name
+```
+
+### storage-state
+
+```code
+(storage-state [svc]) -> :nil | emap
+
+what a member is, as its tender and other members ask it: :member
+:store :digest :members :retired :cut :tender
+```
+
+### storage-state-read
+
+```code
+(storage-state-read answer) -> :nil | emap
+
+what a service said of itself, as (storage-state) gives it
+```
+
+### storage-stop
+
+```code
+(storage-stop [svc]) -> :nil | :t
+
+the service puts what it has on the volume and goes
+```
+
+### storage-stream
+
+```code
+(storage-stream path [mode svc ahead]) -> :nil | stream
+
+an object as a stream, as a file is, for what knows nothing of a
+store, mode as (file-stream) has it.
+
++file_open_read, or no mode: to read, (read-line) (read-blk)
+(read-char) (stream-seek) and the rest. It has a block of the object
+at a time, and the next few on their way, ahead, 4 if not said: so
+the object can be of any size. :nil if there is no object of that
+path.
+
++file_open_write: to write a new object, of nothing to begin with.
++file_open_append: to write on the end of the object that is there,
+or a new one if there is none. The path is set to what was written
+when the stream is flushed, (stream-flush), and when it is let go
+of, as a file is: not before, and whoever sets it last has it. One
+opened to write and let go of with nothing written is an object of
+nothing, as a file would be. :nil if there is no service
+```
+
+### storage-stream-ask
+
+```code
+(storage-stream-ask st at) -> mbox
+
+a block is asked for, and not waited for: of the service if it has
+it, and if not of a member that keeps it, one after another of them
+as the blocks go, so that what is ahead comes from several at once.
+Where the answer will be
+```
+
+### storage-stream-fill
+
+```code
+(storage-stream-fill st) -> :nil | data | (:lost hex)
+
+the next block. The blocks after it are asked for as this one is
+read, Chris: "We could implament read ahead at the point of
+consumtion ?", so that they are here, or on their way, when wanted.
+One that did not come, or is not what its name says, is had the slow
+way, from any member that has it, again and again for a while, a link
+that dropped is made again in a few seconds. One that can not be had
+is the stream's fault, (:lost hex) with its name, so that a reader can
+know it is not the end of the object, (stream-fault)
+```
+
+### storage-stream-land
+
+```code
+(storage-stream-land st most) -> st
+
+the answers to the blocks on their way, the oldest first, till no more
+than most are. One not put as it should be, and the path is never set
+```
+
+### storage-stream-put
+
+```code
+(storage-stream-put st data flush) -> :nil | (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+
+more of an object that is written, and if it is a flush. Each whole
+block is put as there is one, so what is written can be of any
+length. At a flush the path is set to the object of the blocks so
+far and what is left over, a last short block: till then it is what
+it was, and one who reads it sees the old or the new and never a
+part. What is left over is kept, a stream can be written on after
+a flush, and the next sets the path again
+```
+
+### storage-stream-seek
+
+```code
+(storage-stream-seek st offset whence) -> pos
+
+it is read from there from now: from the start, from where it is, or
+from the end. What was asked for ahead is not waited for, its
+answers are to mailboxes nobody reads, and what is ahead of the new
+place is asked for at the next read. That read waits for a block,
+Chris: "a seek, pays the cost, but it allways does in any streaming
+object"
+```
+
+### storage-sweep
+
+```code
+(storage-sweep [svc]) -> :nil | num
+
+the blocks no object is made of are let go of, how many
+```
+
+### storage-unclaim
+
+```code
+(storage-unclaim image)
+
+the store in that file is nobody's to serve, if it was this process's
+```
+
+### storage-user-pin
+
+```code
+(storage-user-pin [svc file]) -> :nil | prefix
+
+on a machine that travels, the area of the user of this session,
+usr/<user>/, is pinned here, so that when it is taken away it has all
+of it. The user is the session's own, run.sh -u name, or the one the
+machine has, usr/current. :nil if it does not travel, or there is no
+user, or no service
+```
+
+### storage-wait
+
+```code
+(storage-wait path [wait want svc]) -> :nil | (seen members)
+
+wait till most of the members have what a path is now, or as many as
+want, and not longer than wait, seconds, 10. :nil if they have not by
+then: a member that is cut off from most of the others has that
+every time, and that is how a writer knows.
+
+A write is taken by the one member whoever can be reached. One that
+most members have keeps its path when members that were apart meet,
+(store-keeps), so a writer that must not have its write set aside
+waits for this, and takes :nil as not written
+```
+
+### storage-walk
+
+```code
+(storage-walk path state visit [at wait svc]) -> :nil | (state trail)
+
+visit is '(lambda (state data at count) ... (list state next))
+a gopher is sent to an object. It has what it was given, state, and
+a function, visit, and goes to the
+blocks of the object one at a time, the first, or at: the function is
+given what it has, the block, which block it is and how many there
+are, and gives what it has now and the block to go to next, :nil when
+it is done. What it has then comes straight back here, with its
+trail, ((member at) ...), the members it was at in the order it went
+to them and the block it came to each for: where
+a block it wants is not kept by the member it is at, it is sent on,
+as it is, to one that keeps it, and carries on there.
+:nil if there is no such object, a block it went to could not be had,
+the function threw, or nothing came back in the time, seconds.
+
+visit is the function written out, quoted, not a function: it is
+sent as text, with what it has, and that is all there is of the
+gopher, so it can be sent on to wherever the next block is. What it
+has must print as it reads, numbers, strs, lists of them.
+
+Each member has a task that runs the gophers that are at it, a block
+of each in turn, ./gopher.lisp. A function has a second for a block:
+it is made to give way and to look at the clock each time it goes
+round, and one that has had its second is done with, :nil comes back.
+
+The rules of ChrysaLisp are the rules of a visit: it does not call
+itself. It goes round with a loop, or by asking for the block again
+```
+
+### storage-walk-answer
+
+```code
+(storage-walk-answer mbox [wait]) -> :nil | (state trail)
+
+what a gopher sent with (storage-walk-send) came back with, as
+(storage-walk), waited for so many seconds at most, or with :t till
+it comes
+```
+
+### storage-walk-send
+
+```code
+(storage-walk-send path state visit [at svc]) -> :nil | mbox
+
+a gopher sent, as (storage-walk), and not waited for: where what it
+comes back with will be, for (storage-walk-answer). So many can be
+out at once
+```
+
+### storage-where
+
+```code
+(storage-where name [svc]) -> (netid ...)
+
+the other members a block of that name may be had from, those that
+are to keep it first. The service says who, it does not ask them
 ```
 
 ### store-at

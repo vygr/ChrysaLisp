@@ -235,6 +235,8 @@
 	(defq lisp_files (sanitize (cat
 			(files-all "." '("lisp.inc" "actions.inc") 2)
 			(files-all "./lib" '(".inc") 2)
+			;each service's calls for those that use it
+			(files-all "./service" '("app.inc") 2)
 			'("class/lisp/root.inc" "class/lisp/task.inc"))))
 	(pipe-run (cat "docs -j 8 " (join lisp_files " "))
 		(# (write-blk docs_map %0)))
