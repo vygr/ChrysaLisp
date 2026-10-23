@@ -76,6 +76,13 @@ parameter in a `slice` operation without needing manual adjustments.
 
     *   **Signature:** `(rbskipn cls str idx) -> idx`
 
+Where each stops on a string with a space class, from the front and back
+from the end:
+
+```image
+docs/diagrams/text_skips.cwb
+```
+
 ## Practical Examples from ChrysaLisp's Source
 
 The elegance of this system is best demonstrated by how these simple
