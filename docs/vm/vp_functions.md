@@ -91,6 +91,32 @@ offset to the `pathname` of the function it names, in the image. The first
 word of the image, the first function's `ln_fnode`, is the length of the whole
 image, and after the last function a `length` of 0 ends it.
 
+### Function servers
+
+A node keeps the functions it has loaded on a list, each function its own
+node of it, the newest first. A function goes on the list before its Vtable is
+bound, so functions that call each other in a ring bind: the second finds the
+first already there.
+
+Those are the node's own, server zero, what this machine has built. A task can
+also have a function server of another system, `+tk_node_server`, set by
+`(task-server folder)`. A server has a list, blocks and a folder of its own,
+`source/<system id>/` under `obj/<cpu>/<abi>/`, of functions of that system
+translated for this CPU. A bind of a task of a server looks in the server's
+list, then the node's. A function the server's folder has is loaded into the
+server, any other into the node's own, and the Vtable of one of the node's
+own is bound to the node's alone: none of the node's own functions can call a
+server's. A bind for a server that comes to a path there is none of fails,
+what it put on the server's list is taken off again, and the node goes on; of
+the node's own, the node can not go on, as before.
+
+A server goes when no task of the node has it: when a task of one ends, the
+node's servers are marked by the tasks it has, every one of them, and those
+none has are let go of, their blocks and all. A task that ended any way at
+all lets go of its server so. `(task-server)` says the folders of the servers
+a node has. How a task of another system comes to have a server, and what is
+put in its folder, is [the Source Service](../ai_digest/source_service.md).
+
 ## Low level Vtable, string, and calling/jumping
 
 You do not normally need to use these low level features, but higher level

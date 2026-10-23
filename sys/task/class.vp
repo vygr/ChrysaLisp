@@ -338,7 +338,7 @@
 	;alloc task mailbox and set its owner to itself
 	(call :sys_mail :alloc_mbox :nil (vpx (.> tcb +tk_node_mbox_id) (.> tcb +tk_node_mbox_addr)))
 	(assign (vpx 0 tcb) (vpx (.> tcb +tk_node_lisp) (.> tcb +tk_node_mbox_addr +mbox_owner_tcb)))
-	(assign (vpx 0 0) (vpx (.> tcb +tk_node_dying) (.> tcb +tk_node_print)))
+	(assign (vpx 0 0 0) (vpx (.> tcb +tk_node_dying) (.> tcb +tk_node_print) (.> tcb +tk_node_server)))
 
 	;init task control block stack, pc and stop address's
 	(assign (vpx func tcb (+ tcb tcb_size) (- 1) tk_app_priority 0) '(:r1 :r4 :r0 :r2 :r3 :r6))
@@ -388,6 +388,13 @@
 	(vp-rdef (tcb next_tcb))
 	(assign (vpx tcb) (list tcb))
 	(ln-remove-node tcb next_tcb)
+
+	;a task of a function server gone, the server goes if no task has it
+	(assign (vpx tcb) (list tcb))
+	(assign `((,tcb +tk_node_server)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call :sys_load :sweep)
+	(endif)
 
 	;free our task control block, but our stack is inside it, so move onto
 	;the kernel task's stack first, below its saved state, for the call

@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 176
-	:height 225
+	:height 293
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 16
+	:next_id 20
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 13)
+					((:list 17)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 191 A 8 8 0 0 1 142 199 L 8 199 A 8 8 0 0 1 0 191 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 259 A 8 8 0 0 1 142 267 L 8 267 A 8 8 0 0 1 0 259 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -205,12 +205,72 @@
 								136.00000
 							)
 						)
-						((:list 13)
+						((:list 15)
 							:shape
 							:id
 							13
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:search]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								153.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							14
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:server]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								170.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							15
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:sweep]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								187.00000
+							)
+						)
+						((:list 13)
+							:shape
+							:id
+							16
 							:d
-							"[M 0 150 L 150 150]"
+							"[M 0 201 L 150 201]"
 							:stroke
 							4282140240
 							:width
@@ -223,7 +283,7 @@
 						((:list 17)
 							:shape
 							:id
-							14
+							17
 							:kind
 							:text
 							:fill
@@ -239,13 +299,13 @@
 							:pos
 							((:list 2)
 								12.00000
-								166.00000
+								217.00000
 							)
 						)
 						((:list 15)
 							:shape
 							:id
-							15
+							18
 							:kind
 							:text
 							:fill
@@ -259,7 +319,27 @@
 							:pos
 							((:list 2)
 								12.00000
-								185.00000
+								236.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							19
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[task-server]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								253.00000
 							)
 						)
 					)

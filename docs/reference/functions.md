@@ -10293,6 +10293,51 @@ says nothing in the time. A new mailbox each time: an answer that comes
 late is to a mailbox nobody reads
 ```
 
+### source-ffi-form
+
+```code
+(source-ffi-form path more) -> form
+
+what (ffi path ...) is in a task sent from another system: the native
+made ready first, then bound as ever
+```
+
+### source-here
+
+```code
+(source-here) -> netid
+
+this system's @Source, started if it has none, as a node that only
+runs what it is sent may not
+```
+
+### source-links
+
+```code
+(source-links fn) -> (name ...)
+
+the functions a native function links to, by the paths in it
+```
+
+### source-mode
+
+```code
+(source-mode) -> str
+
+the build of this node, which VP it wants
+```
+
+### source-native
+
+```code
+(source-native path)
+
+a native function of the system that sent this task, made ready in the
+task's server folder by this system's own @Source, which keeps a
+translator for this CPU: what the node has built is server zero's, the
+waypoint of this machine, and nothing is asked
+```
+
 ### source-service
 
 ```code

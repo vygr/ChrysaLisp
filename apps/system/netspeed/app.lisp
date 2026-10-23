@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/task/global.inc")
+(import "service/source/app.inc")
 (import "./app.inc")
 
 
@@ -46,7 +47,7 @@
 	;function called when entry is created
 	(def (defq node (env 1)) :timestamp now)
 	(each (# (def node %0 (. %2 :add_bar) %1 (list))) +bars +results charts)
-	(open-task (const (cat *app_root* "child.lisp")) key +kn_call_pin 0 (elem-get select +select_task))
+	(open-task child_task key +kn_call_pin 0 (elem-get select +select_task))
 	node)
 
 (defun destroy (key node)
@@ -84,7 +85,11 @@
 		charts (. *charts* :children) net_charts (. *net_charts* :children)
 		net_bars (map (# (. %0 :add_bar)) net_charts)
 		net_results (lists (length net_charts))
-		global_tasks (Global create destroy) poll_que (list))
+		global_tasks (Global create destroy) poll_que (list)
+		;each node's child is read from this system, by its @Source, its
+		;native vops too, translated where it runs if that node has not
+		;built it
+		child_task (source-task (cat *app_root* "child.lisp")))
 	(show-nodes)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change_dirty x y w h))

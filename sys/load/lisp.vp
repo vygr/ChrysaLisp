@@ -29,3 +29,64 @@
 	(jump :lisp :repl_error '(:r1 "(load-path)" +error_msg_wrong_num_of_args)))
 
 (def-func-end)
+
+(def-method :sys_load :lisp_server)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r7, :f0-:f15
+	;info
+	;(task-server [folder]) -> :t | (folder ...), the task binds functions of
+	;the server of that folder under the load path first, "" for none. With
+	;none, the folders of the servers the node has
+
+	(entry :sys_load :lisp_server '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 0 1)
+
+	(vp-push :r0)
+	(assign '((:r1 +array_length)) '(:r2))
+	(vpif '(:r2 = 0))
+		(call :list :create :nil '(:r0))
+		(vp-push :r0)
+		(fn-bind 'sys/statics/statics :r1)
+		(loop-flist :r1 statics_sys_load_server_flist :r1 :r1)
+			(vp-push :r1)
+			(call :str :create_from_cstr '((& :r1 +ld_server_prefix)) '(:r1))
+			(assign `((:rsp ,+ptr_size)) '(:r0))
+			(call :list :push_back '(:r0 :r1) '(_ _ _ _))
+			(vp-pop :r1)
+		(loop-end)
+		(vp-pop :r1)
+		(vp-pop :r0)
+		(exit :sys_load :lisp_server '(:r0 :r1))
+		(vp-ret)
+	(endif)
+	(list-bind-args :r1 '(:r0) '(:obj))
+	(assign '((:r0 +str_length)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(call :sys_load :server '((& :r0 +str_data)) '(:r0))
+	(else)
+		(vp-xor-rr :r0 :r0)
+	(endif)
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+	(assign '(:r0) '((:r1 +tk_node_server)))
+	(assign '((:rsp 0)) '(:r1))
+	(assign '((:r1 +lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit :sys_load :lisp_server '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(task-server [folder])" +error_msg_wrong_types))
+	(signature '(:STR)))
+
+(def-func-end)

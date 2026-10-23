@@ -2,7 +2,8 @@
 
 A Lisp task can be sent to run on any node of the mesh, on another machine,
 and read its files from the machine that sent it. The node it runs on needs
-none of the task's own files. NetMon sends its child to every node this way.
+none of the task's own files, Lisp or native. NetMon and NetSpeed send their
+children to every node this way.
 
 | File | What it is |
 |---|---|
@@ -64,12 +65,36 @@ from the module that imports it, as before. It reads by
 
 Once its files are read the task runs its `main`, as any task does.
 
+## Natives
+
+A task of another system has a function server of its own, `source/<id>/`,
+see [function servers](../vm/vp_functions.md). Its `ffi` makes the native
+ready before it is bound, `(source-native path)`:
+
+* A native this node has built is server zero's, what this machine's waypoint
+  has, and is bound as ever. Nothing is asked.
+* One it has not is asked of this system's own `@Source`, started if it has
+  none. That service keeps a translator for this CPU, made the first time one
+  is wanted: the op and register lists of the VP, `lib/trans/vp.inc` and the
+  CPU's emitter, none of the assembler. It asks the sending system's
+  `@Source` for the bundle the function is in, `obj/vp/<mode>/<path>` in this
+  node's build mode, translates each function of it into the task's folder,
+  and then each function they call that this node has not built, a name seen
+  once so a ring ends. One request at a time, so a native asked for twice is
+  made once.
+
+Then the task's `ffi` binds it, from its server. Only what the node has not
+built is fetched: two copies of a class on one node, two vtables, and an
+object of one is not an instance of the other.
+
 ## What the service gives
 
-Only Lisp that can be imported, `.lisp` and `.inc`, by a path from the root
-of the tree. Not a path that starts with `/` or has `..` in it, and nothing in
-a user's own folder, `usr/<name>/`: `usr/env.inc` is the system's. The keys
-are files of the tree, `mesh_key` and `keys/`, and are never given.
+Lisp that can be imported, `.lisp` and `.inc`, by a path from the root of
+the tree, and the VP bundle a function is in. Not a path that starts with `/`
+or has `..` in it, and nothing in a user's own folder, `usr/<name>/`:
+`usr/env.inc` is the system's. The keys are files of the tree, `mesh_key` and
+`keys/`, and are never given. A request for a translation starts with `+`,
+the sending system's id, its `@Source`, the build mode and the function.
 
 A request is the mailbox to answer to and the path. The answer is `y` and the
 file's text, or `n`. The asker waits 10 seconds, `+source_wait`, on a mailbox
@@ -82,5 +107,8 @@ of its own, so an answer that comes late goes to a mailbox nobody reads.
 * Only `import` reads from the sender. A `load` or a `file-stream` in the task
   reads where it runs, and so does an `import` inside a function of a library
   that was read before the task's `import` was made.
-* Every file comes from the sender, each time a task is sent, a whole file in
-  one answer. There is no cache of them by their content yet.
+* Every Lisp file comes from the sender, each time a task is sent, a whole
+  file in one answer. There is no cache of them by their content yet, and a
+  native once in a server's folder is not asked again if the sender's changes.
+* The translator is this system's own, not the sender's: the same on one
+  waypoint.

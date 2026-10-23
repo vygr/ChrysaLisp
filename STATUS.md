@@ -31,6 +31,8 @@ The release check for 7.3, every stage passes on every machine.
 
 **A hidden desktop quits, its node with it, on a plain kill.** **On Linux it is drawn offscreen, so it needs no display: the Pi runs its desktop tests beside a desktop, or with the TV off.**
 
+**Function servers: a task sent from another system binds that system's natives, its VP fetched and translated where it lands, kept in a server of its own that goes with its last task. NetSpeed's vops goes to a machine that has not built it this way.**
+
 **@Source, one to a system: a task sent to another machine reads its Lisp from the system that sent it; NetMon's children need no file of NetMon's where they run.**
 
 **A store's stream keeps its last block and what it asked for ahead across a near seek: MP3 frames from a store read 116 times faster, no gaps in Films.**

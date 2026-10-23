@@ -61,7 +61,10 @@
 		sys_load_function_flist sys_load_block_flist
 		sys_load_block_start sys_load_block_end
 		sys_load_reloc_stack sys_load_reloc_buffer
-		sys_load_stat_buffer sys_load_name_buffer)
+		sys_load_stat_buffer sys_load_name_buffer
+		;the function servers of other systems this node has, and the one a
+		;bind is for, 0 for the node's own
+		sys_load_server_flist sys_load_server)
 	;the name buffer starts with the folder the boot image is in, the
 	;length of it, obj/<cpu>/<abi>/, (load-path)
 	(long sys_load_name_prefix)

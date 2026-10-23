@@ -219,6 +219,21 @@
 
 (def-func-end)
 
+;the blocks of the node's own functions, and of the server of the bind,
+;to RW or RX. :r7 is the statics, the mode a constant
+(defun ld-protect (mode)
+	(loop-flist :r7 statics_sys_load_block_flist :r3 :r3)
+		(call :host_os :pii_mprotect `(:r3 ld_block_size ,mode) '(:r0))
+		(assert '(:r0 = 0))
+	(loop-end)
+	(assign '((:r7 statics_sys_load_server)) '(:r3))
+	(vpif '(:r3 /= 0))
+		(loop-flist :r3 +ld_server_blocks :r3 :r3)
+			(call :host_os :pii_mprotect `(:r3 ld_block_size ,mode) '(:r0))
+			(assert '(:r0 = 0))
+		(loop-end)
+	(endif))
+
 (def-method :sys_load :bind)
 	;input
 	;:r0 = c string function path name (pubyte)
@@ -226,39 +241,89 @@
 	;:r0 = 0 else, function entry pointer (ptr)
 	;trashes
 	;:r0-:r7, :f0-:f15
+	;info
+	;for the task's function server first, if it has one, then the node's
+	;own. One that fails to bind for a server leaves nothing of it: what it
+	;put on the server's list is taken off again
 
 	(entry :sys_load :bind '(:r6))
 
-	;check if function already present !
+	;the task's server is what this bind is for
 	(fn-bind 'sys/statics/statics :r7)
-	(loop-flist :r7 statics_sys_load_function_flist :r5 :r5)
-		(call :sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
-	(loop-until '(:r0 = 0))
-	(vpif '(:r5 /= 0))
-		;found function already loaded
-		(assign '((:r5 +fn_header_entry)) '(:r0))
-		(vp-add-rr :r5 :r0)
+	(assign '((:r7 statics_sys_task_current_tcb)) '(:r0))
+	(assign '((:r0 +tk_node_server)) '(:r0))
+	(assign '(:r0) '((:r7 statics_sys_load_server)))
+
+	;check if function already present !
+	(vp-push :r6)
+	(call :sys_load :search '(:r6) '(:r0))
+	(vp-pop :r6)
+	(vpif '(:r0 /= 0))
+		(exit :sys_load :bind '(:r0))
 		(vp-ret)
 	(endif)
 
 	;set the function buffers to RW
-	(loop-flist :r7 statics_sys_load_block_flist :r3 :r3)
-		(call :host_os :pii_mprotect '(:r3 ld_block_size +mmap_data) '(:r0))
-		(assert '(:r0 = 0))
-	(loop-end)
+	(fn-bind 'sys/statics/statics :r7)
+	(ld-protect +mmap_data)
 
-	;load the function/s
+	;load the function/s, the server's list as it was kept
+	(assign '((:r7 statics_sys_load_server)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(assign '((:r0 +ld_server_flist)) '(:r0))
+	(endif)
+	(vp-push :r0)
 	(call :sys_load :load '(:r6) '(:r4))
+	(vp-pop :r0)
+	(fn-bind 'sys/statics/statics :r7)
+	(vpif '(:r4 = 0))
+		(assign '((:r7 statics_sys_load_server)) '(:r1))
+		(vpif '(:r1 /= 0))
+			(assign '(:r0) '((:r1 +ld_server_flist)))
+		(endif)
+	(endif)
 
 	;set the function buffers to RX
-	(fn-bind 'sys/statics/statics :r7)
-	(loop-flist :r7 statics_sys_load_block_flist :r3 :r3)
-		(call :host_os :pii_mprotect '(:r3 ld_block_size +mmap_exec) '(:r0))
-		(assert '(:r0 = 0))
-	(loop-end)
+	(ld-protect +mmap_exec)
 
 	;return function address
 	(exit :sys_load :bind '(:r4))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_load :search)
+	;input
+	;:r6 = c string function path name (pubyte)
+	;output
+	;:r0 = 0 else, function entry pointer (ptr)
+	;trashes
+	;:r0-:r5, :r7
+	;info
+	;a function loaded already, of the server of the bind, then of the node
+
+	(entry :sys_load :search '(:r6))
+
+	(fn-bind 'sys/statics/statics :r7)
+	(vp-xor-rr :r5 :r5)
+	(assign '((:r7 statics_sys_load_server)) '(:r4))
+	(vpif '(:r4 /= 0))
+		(loop-flist :r4 +ld_server_flist :r5 :r5)
+			(call :sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
+		(loop-until '(:r0 = 0))
+	(endif)
+	(vpif '(:r5 = 0))
+		(loop-flist :r7 statics_sys_load_function_flist :r5 :r5)
+			(call :sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
+		(loop-until '(:r0 = 0))
+	(endif)
+	(vp-xor-rr :r0 :r0)
+	(vpif '(:r5 /= 0))
+		(assign '((:r5 +fn_header_entry)) '(:r0))
+		(vp-add-rr :r5 :r0)
+	(endif)
+
+	(exit :sys_load :search '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -270,34 +335,52 @@
 	;:r0 = 0 else, function entry pointer (ptr)
 	;trashes
 	;:r0-:r7, :f0-:f15
+	;info
+	;a function of the server of the bind if its folder has it, else of
+	;the node. The links of one of the node's are bound to the node's
+	;alone, so none of the node's own can call a server's
 
 	(entry :sys_load :load '(:r6))
 
 	;check if function already present !
-	(fn-bind 'sys/statics/statics :r7)
-	(loop-flist :r7 statics_sys_load_function_flist :r5 :r5)
-		(call :sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
-	(loop-until '(:r0 = 0))
-	(vpif '(:r5 /= 0))
-		;found function already loaded
-		(assign '((:r5 +fn_header_entry)) '(:r0))
-		(vp-add-rr :r5 :r0)
-		(vp-ret)
-	(endif)
-
-	;create filename, after the folder of the image the buffer starts with
-	(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r1 :r0))
-	(vp-add-rr :r0 :r1)
-	(call :sys_str :copy '(:r6 :r1))
-	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
-
-	;get length of function on disk
-	(call :host_os :pii_stat '(:r6 (:r7 statics_sys_load_stat_buffer)) '(:r0))
+	(vp-push :r6)
+	(call :sys_load :search '(:r6) '(:r0))
+	(vp-pop :r6)
 	(vpif '(:r0 /= 0))
-	(vp-label 'funcexit)
-		(vp-xor-rr :r0 :r0)
 		(vp-ret)
 	(endif)
+
+	;the server's, if its folder has it: the image's folder, the server's
+	;folder, the name, after the image's folder the buffer starts with
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_server)) '(:r4))
+	(vpif '(:r4 /= 0))
+		(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r1 :r0))
+		(vp-add-rr :r0 :r1)
+		(call :sys_str :copy '((& :r4 +ld_server_prefix) :r1) '(_ :r1))
+		(vp-sub-cr +byte_size :r1)
+		(call :sys_str :copy '(:r6 :r1))
+		(fn-bind 'sys/statics/statics :r7)
+		(call :host_os :pii_stat '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_stat_buffer)) '(:r0))
+		(vpif '(:r0 /= 0))
+			(vp-xor-rr :r4 :r4)
+		(endif)
+	(endif)
+	(vpif '(:r4 = 0))
+		;the node's own, after the image's folder
+		(vp-lea-i :r7 (- statics_sys_load_function_flist +ld_server_flist) :r4)
+		(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r1 :r0))
+		(vp-add-rr :r0 :r1)
+		(call :sys_str :copy '(:r6 :r1))
+		(fn-bind 'sys/statics/statics :r7)
+		(call :host_os :pii_stat '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_stat_buffer)) '(:r0))
+		(vpif '(:r0 /= 0))
+		(vp-label 'funcexit)
+			(vp-xor-rr :r0 :r0)
+			(vp-ret)
+		(endif)
+	(endif)
+	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
 
 	;test for regular file only
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
@@ -305,8 +388,9 @@
 	(vp-and-cr s_ifmt :r0)
 	(gotoif '(:r0 /= s_ifreg) 'funcexit)
 
-	;ensure space for new function
-	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_block_end) (:r7 statics_sys_load_stat_buffer))
+	;ensure space for new function, in the blocks of where it goes
+	(vp-push :r4)
+	(assign '((:r4 +ld_server_start) (:r4 +ld_server_end) (:r7 statics_sys_load_stat_buffer))
 		'(:r1 :r2 :r0))
 	(vp-sub-rr :r1 :r2)
 	(assign '((:r0 +stat_fsize)) '(:r0))
@@ -316,29 +400,34 @@
 		(assert '(:r0 /= 0))
 
 		;add to block list for freeing
-		(ln-add-fnode :r7 statics_sys_load_block_flist :r0 :r1)
+		(assign '((:rsp 0)) '(:r4))
+		(ln-add-fnode :r4 +ld_server_blocks :r0 :r1)
 
 		;set block pointers for loading
 		(vp-add-cr +ptr_size :r0)
-		(assign '(:r0) '((:r7 statics_sys_load_block_start)))
+		(assign '(:r0) '((:r4 +ld_server_start)))
 		(vp-add-cr (- ld_block_size +ptr_size) :r0)
-		(assign '(:r0) '((:r7 statics_sys_load_block_end)))
+		(assign '(:r0) '((:r4 +ld_server_end)))
 	(endif)
 
 	;open function file
 	(call :host_os :pii_open '(:r6 +file_open_read) '(:r6))
 
 	;read into buffer
-	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call :host_os :pii_read '(:r6 (:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
-	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:rsp 0) (:r7 statics_sys_load_stat_buffer)) '(:r4 :r2))
+	(call :host_os :pii_read '(:r6 (:r4 +ld_server_start) (:r2 +stat_fsize)))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:rsp 0) (:r7 statics_sys_load_stat_buffer)) '(:r4 :r2))
+	(call :host_os :pii_clear_icache '((:r4 +ld_server_start) (:r2 +stat_fsize)))
 
 	;close function file
 	(call :host_os :pii_close '(:r6))
 
 	;check loaded length equals file size
-	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:rsp 0)) '(:r4))
+	(assign '((:r4 +ld_server_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
 	(assign '((:r3 +fn_header_length) (:r2 +stat_fsize)) '(:r0 :r1))
 	(vpif '(:r0 /= :r1))
 		(call :host_os :pii_write_str '(2 "Length field error !"))
@@ -346,7 +435,7 @@
 	(endif)
 
 	;add to function list
-	(ln-add-fnode :r7 statics_sys_load_function_flist :r3 :r0)
+	(ln-add-fnode :r4 +ld_server_flist :r3 :r0)
 
 	;relocate vtable so we can discard paths
 	(assign '((:r7 statics_sys_load_reloc_stack)) '(:r1))
@@ -389,11 +478,22 @@
 	(loop-end)
 
 	;adjust block start
+	(assign '((:rsp 0)) '(:r4))
 	(assign '((:r3 +fn_header_paths)) '(:r0))
 	(vp-add-rr :r3 :r0)
 	(vp-add-cr (dec +ptr_size) :r0)
 	(vp-and-cr (neg +ptr_size) :r0)
-	(assign '(:r0) '((:r7 statics_sys_load_block_start)))
+	(assign '(:r0) '((:r4 +ld_server_start)))
+
+	;the links of one of the node's are of the node's alone, the server of
+	;the bind as it was kept
+	(assign '((:r7 statics_sys_load_server)) '(:r0))
+	(vp-lea-i :r7 (- statics_sys_load_function_flist +ld_server_flist) :r1)
+	(vpif '(:r4 = :r1))
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1) '((:r7 statics_sys_load_server)))
+	(endif)
+	(assign '(:r0) '((:rsp 0)))
 
 	;load and link function references
 	;now actual addresses of strings in the reloc buffer
@@ -406,7 +506,20 @@
 		(vp-push :r3 :r0)
 		(call 'fn_entry '((:r0 0)))
 		(vpif '(:r0 = 0))
-			;no such file
+			;no such function: of a server, the bind fails, of the node's
+			;own, the node can not go on
+			(fn-bind 'sys/statics/statics :r7)
+			(assign '((:r7 statics_sys_load_server)) '(:r1))
+			(vpif '(:r1 /= 0))
+				(vp-pop :r3 :r0)
+				(assign '((:r7 statics_sys_load_reloc_stack)) '(:r0))
+				(vp-cpy-ir :r0 (neg +ptr_size) :r0)
+				(assign '(:r0) '((:r7 statics_sys_load_reloc_stack)))
+				(vp-pop :r0)
+				(assign '(:r0) '((:r7 statics_sys_load_server)))
+				(vp-xor-rr :r0 :r0)
+				(vp-ret)
+			(endif)
 			(call :host_os :pii_write_str '(2 "Bind error: "))
 			(assign '((:rsp 0)) '(:r0))
 			(call :host_os :pii_write_str '(2 (:r0 0)))
@@ -419,11 +532,13 @@
 		(vp-add-cr +ptr_size :r0)
 	(loop-end)
 
-	;pop reloc buffer
+	;pop reloc buffer, the server of the bind back
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:r7 statics_sys_load_reloc_stack)) '(:r0))
 	(vp-cpy-ir :r0 (neg +ptr_size) :r0)
 	(assign '(:r0) '((:r7 statics_sys_load_reloc_stack)))
+	(vp-pop :r0)
+	(assign '(:r0) '((:r7 statics_sys_load_server)))
 
 	;return function address
 	(assign '((:r3 +fn_header_entry)) '(:r0))
@@ -442,22 +557,118 @@
 	;:r1 = function header offset (uint)
 	;trashes
 	;:r0-:r2
+	;info
+	;of the node's own functions, then of each server's
 
-	(vp-rdef (cptr node_end node))
+	(vp-rdef (cptr node_end node list) '(:r0 :r1 :r2 :r3))
 
 	(entry :sys_load :find `(,cptr))
 
+	(vp-push list)
 	(fn-bind 'sys/statics/statics node)
-	(loop-flist node statics_sys_load_function_flist node node)
-		(assign `((,node +fn_header_entry)) `(,node_end))
-		(vp-add-rr node node_end)
-		(continueif `(,cptr < ,node_end))
-		(assign `((,node +fn_header_links)) `(,node_end))
-		(vp-add-rr node node_end)
-	(loop-until `(,cptr < ,node_end))
+	(vp-lea-i node statics_sys_load_server_flist list)
+	(vp-add-cr statics_sys_load_function_flist node)
+	(loop-start 'lists)
+		(loop-flist node 0 node node)
+			(assign `((,node +fn_header_entry)) `(,node_end))
+			(vp-add-rr node node_end)
+			(continueif `(,cptr < ,node_end))
+			(assign `((,node +fn_header_links)) `(,node_end))
+			(vp-add-rr node node_end)
+		(loop-until `(,cptr < ,node_end))
+		(breakif `(,node /= 0))
+		;the next server's list
+		(assign `((,list +ln_fnode_next)) `(,list))
+		(breakif `(,list = 0))
+		(vp-lea-i list +ld_server_flist node)
+	(loop-end)
 	(vp-sub-rr node cptr)
+	(vp-pop list)
 
 	(exit :sys_load :find `(,node ,cptr))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_load :server)
+	;inputs
+	;:r0 = c string, the server's folder under the load path (pubyte)
+	;outputs
+	;:r0 = function server (ptr)
+	;trashes
+	;:r0-:r3, :r5-:r7, :f0-:f15
+	;info
+	;the node's server of that folder, made if it has none
+
+	(entry :sys_load :server '(:r6))
+
+	(fn-bind 'sys/statics/statics :r7)
+	(loop-flist :r7 statics_sys_load_server_flist :r5 :r5)
+		(call :sys_str :compare '(:r6 (& :r5 +ld_server_prefix)) '(:r0))
+	(loop-until '(:r0 = 0))
+	(vpif '(:r5 = 0))
+		(call :sys_mem :alloc '(+ld_server_size) '(:r5 _))
+		(vp-xor-rr :r0 :r0)
+		(assign '(:r0 :r0 :r0 :r0 :r0)
+			'((:r5 +ld_server_flist) (:r5 +ld_server_blocks) (:r5 +ld_server_start)
+			(:r5 +ld_server_end) (:r5 +ld_server_mark)))
+		(call :sys_str :copy '(:r6 (& :r5 +ld_server_prefix)))
+		(fn-bind 'sys/statics/statics :r7)
+		(ln-add-fnode :r7 statics_sys_load_server_flist :r5 :r0)
+	(endif)
+
+	(exit :sys_load :server '(:r5))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_load :sweep)
+	;trashes
+	;:r0-:r2, :r5-:r13, :f0-:f15
+	;info
+	;a server no task of the node has goes, its blocks and itself. Marked
+	;by the tasks there are, not counted, so a task that went any way at
+	;all, its server is let go of
+
+	(vp-rdef (statics srv last tasks tasks_end node next) '(:r7 :r8 :r9 :r10 :r11 :r12 :r13))
+
+	(fn-bind 'sys/statics/statics statics)
+
+	;none marked
+	(loop-flist statics statics_sys_load_server_flist srv srv)
+		(vp-xor-rr :r0 :r0)
+		(assign '(:r0) `((,srv +ld_server_mark)))
+	(loop-end)
+
+	;each task's server marked
+	(assign `((& ,statics statics_sys_task_suspend_list)) `(,tasks))
+	(assign `((& ,tasks ,(* (+ tk_num_task_lists 2) +lh_list_size))) `(,tasks_end))
+	(loop-start)
+		(loop-list-forward tasks 0 node next)
+			(assign `((,node +tk_node_server)) '(:r0))
+			(vpif '(:r0 /= 0))
+				(vp-cpy-cr 1 :r1)
+				(assign '(:r1) '((:r0 +ld_server_mark)))
+			(endif)
+		(loop-end)
+		(vp-add-cr +lh_list_size tasks)
+	(loop-until `(,tasks = ,tasks_end))
+
+	;the rest go
+	(loop-flist statics statics_sys_load_server_flist srv last)
+		(assign `((,srv +ld_server_mark)) '(:r0))
+		(continueif '(:r0 /= 0))
+		(assign `((,srv +ld_server_blocks)) '(:r6))
+		(loop-while '(:r6 /= 0))
+			(assign '((:r6 +ln_fnode_next)) '(:r5))
+			(call :host_os :pii_munmap '(:r6 ld_block_size +mmap_data))
+			(vp-cpy-rr :r5 :r6)
+		(loop-end)
+		(vp-cpy-rr srv :r0)
+		(ln-remove-fnode srv last)
+		(call :sys_mem :free '(:r0))
+	(loop-end)
+
 	(vp-ret)
 
 (def-func-end)
