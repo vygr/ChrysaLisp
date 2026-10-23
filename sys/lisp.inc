@@ -4,6 +4,17 @@
 (import "./task/struct.inc")
 (import "./mail/struct.inc")
 (import "./pii/struct.inc")
+
+(defun mail-entry-id (entry)
+	; (mail-entry-id entry) -> net_id
+	;the mailbox of an entry as (mail-enquire) gives them, name,id,info
+	(hex-decode (second (split entry ","))))
+
+(defun mail-first (name)
+	; (mail-first name) -> :nil | net_id
+	;the mailbox of the first said as name, (mail-declare), wherever it is
+	(if (nempty? (defq found (mail-enquire (cat name ",")))) (mail-entry-id (first found))))
+
 (import "service/lock/app.inc")
 
 (defun task-nodeid (&optional mbox)
@@ -19,7 +30,7 @@
 	;the guard of a service or an app there is to be one of
 	(defq node (task-nodeid))
 	(some (lambda (entry)
-			(defq id (hex-decode (second (split entry ","))))
+			(defq id (mail-entry-id entry))
 			(and (eql (task-nodeid id) node) (mail-validate id) id))
 		(mail-enquire (cat name ","))))
 
@@ -32,7 +43,7 @@
 	;only the mailboxes of the node it is asked on
 	(or (mail-here name)
 		(some (lambda (entry)
-				(defq id (hex-decode (second (split entry ","))))
+				(defq id (mail-entry-id entry))
 				(if (nql (task-nodeid id) (task-nodeid)) id))
 			(mail-enquire (cat name ",")))))
 
@@ -289,7 +300,7 @@
 					((eql (first parts) "link") (push (elem-get net 4) (second parts)))
 					(:t (push (elem-get net 3) (str-as-num (second parts))))))
 				(split (ifn (load file) "") (ascii-char 10)))))
-		(unzip (split (pii-dirlist "/tmp") ",") 2))
+		(dir-list "/tmp"))
 	out)
 
 (defun pii-kill (pid)

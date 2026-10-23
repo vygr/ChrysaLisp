@@ -34,7 +34,7 @@
 	(pipe-run "waypoint" (const prin)))
 (stream-flush (io-stream "stdout"))
 (defq at_start (first (sync-waypoint ".")) looked (pii-time)
-	kept (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+	kept (sync-kept "."))
 (and (not (pii-fstat ".git")) (sync-clean "." kept)
 	(defq want (boot-id-tree)) (nql want (boot-id))
 	(cond

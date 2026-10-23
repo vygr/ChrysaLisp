@@ -16,6 +16,7 @@
 
 (import "./chacha20.inc")
 (import "./poly1305.inc")
+(import "./same.inc")
 
 (ffi (path-to-absolute "./aead_seal") aead-seal-native)
 ; (aead-seal-native key nonce data) -> str
@@ -47,11 +48,9 @@
 (defun aead-open-lisp (key nonce aad sealed)
 	; (aead-open-lisp key nonce aad sealed) -> :nil | str
 	(when (>= (defq size (- (length sealed) 16)) 0)
-		(defq cipher (slice sealed 0 size) tag (aead-tag key nonce aad cipher) differ 0)
-		;every byte of the tag is looked at, right or wrong
-		(each (# (setq differ (logior differ (logxor (code %0) (code %1)))))
-			tag (slice sealed size -1))
-		(if (= differ 0) (chacha20 key nonce 1 cipher))))
+		(defq cipher (slice sealed 0 size))
+		(if (crypto-same? (aead-tag key nonce aad cipher) (slice sealed size -1))
+			(chacha20 key nonce 1 cipher))))
 
 (defun aead-open (key nonce aad sealed)
 	; (aead-open key nonce aad sealed) -> :nil | str

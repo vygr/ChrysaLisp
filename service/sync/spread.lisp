@@ -18,7 +18,7 @@
 (defun main ()
 	;the name of the service, and the root of its tree
 	(bind '(name root) (split (mail-read (task-mbox)) (ascii-char 10)))
-	(defq kept (if (eql root ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+	(defq kept (sync-kept root)
 		me (hex-encode (system-id)) running :t select (list (task-mbox)))
 	(while running
 		;an empty message is to stop, any other to offer, and all that came
@@ -29,10 +29,10 @@
 		(cond
 			((eql msg "") (setq running :nil))
 			((sync-clean root kept)
-				(defq rules_text (ifn (load (cat root "/.gitignore")) ""))
+				(defq rules_text (sync-rules-text root))
 				(each (lambda ((svc id machine &ignore))
-						;a host with no modes for its files can not say it is at a
-						;waypoint, so it is not one of the herd
-						(unless (or (eql id me) (ends-with "/Windows" machine))
+						;a host with no modes for its files, there or here, can not
+						;say it is at a waypoint, so it is not one of the herd
+						(unless (or (eql id me) (sync-no-modes? machine))
 							(sync-push svc root rules_text :nil :t kept :nil :t)))
 					(sync-services name))))))

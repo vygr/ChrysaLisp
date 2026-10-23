@@ -45,10 +45,10 @@
 	(door-outside? "nas.home") :nil
 	(door-outside? "mesh.internal") :nil)
 (test-cases
-	(door-same? "abc" "abc") :t
-	(door-same? "abc" "abd") :nil
-	(door-same? "abc" "ab") :nil
-	(door-same? "" "") :t)
+	(crypto-same? "abc" "abc") :t
+	(crypto-same? "abc" "abd") :nil
+	(crypto-same? "abc" "ab") :nil
+	(crypto-same? "" "") :t)
 
 ;the proof itself, over a real connection, this task listens and a child dials
 ;the port is below 32768: Linux gives a connection going out a port of its

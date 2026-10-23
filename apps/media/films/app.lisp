@@ -45,12 +45,6 @@
 				(if (<= (frame-time mid) time) (setq low mid) (setq high (dec mid))))
 			low)))
 
-(defun clock-of (time)
-	; (clock-of seconds) -> str
-	;h:mm:ss of a time
-	(defq s (n2i time))
-	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
-
 (defun say (text)
 	;what is shown, in the line at the foot
 	(set *status* :text text)
@@ -64,7 +58,7 @@
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
 	(say (cat (if (. *reel* :find :audio)
-			(cat (clock-of (frame-time *at*)) " of " (clock-of (frame-time (. *reel* :find :frames))))
+			(cat (reel-clock (frame-time *at*)) " of " (reel-clock (frame-time (. *reel* :find :frames))))
 			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
 				", " (str (n2i (. *reel* :find :rate))) " a second"))
 		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")

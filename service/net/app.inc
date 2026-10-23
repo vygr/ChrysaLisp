@@ -72,8 +72,7 @@
 
 (defun net-service ()
 	; (net-service) -> netid | :nil
-	(when (nempty? (defq s (mail-enquire "@Net,")))
-		(hex-decode (second (split (first s) ",")))))
+	(mail-first "@Net"))
 
 (defun ensure-net-service ()
 	; (ensure-net-service) -> netid | :nil

@@ -270,7 +270,7 @@
 		:start_freq -1 :stop_freq -1 :xover -1 :freq_scale -1 :alter_scale -1 :noise_bands -1
 		:amp_res_header 0 :limiter_bands -1 :limiter_gains 2 :interpol_freq 1 :smoothing_mode 1
 		:kx 32 :kx_old 32 :m 0 :m_old 0 :n (nums 0 0) :n_q 0 :pushed :nil
-		:huff (ffi "lib/media/media_huff") :ps (if ps (ps-new))
+		:ps (if ps (ps-new))
 		:data (list (sbr-channel) (sbr-channel))))
 
 (defun sbr-off (sbr)
@@ -283,9 +283,7 @@
 (defun sbr-huff (sbr in book)
 	; (sbr-huff sbr reader book) -> value
 	;a code of one of the 10 books, what it stands for
-	(defq got ((. sbr :find :huff) (bits-str in) (bits-at in) (elem-get (. +sbr :find :tables) book)))
-	(bits-seek in (logand got 0xffffffff))
-	(+ (>> got 32) (elem-get (. +sbr :find :least) book)))
+	(+ (bits-huff in (elem-get (. +sbr :find :tables) book)) (elem-get (. +sbr :find :least) book)))
 
 (defun sbr-header (sbr in)
 	; (sbr-header sbr reader)

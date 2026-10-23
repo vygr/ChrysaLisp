@@ -103,7 +103,7 @@
 	;atom's image, a texture with colors of its own is shown as it is and
 	;can not be dimmed after, so there is an image for each step
 	(defq away (/ (const (* +real_2 +far +near)) (- (const (+ +far +near)) (* z (const (- +far +near))))))
-	(max 0 (min 5 (n2i (* (- +far away) (const (/ (n2r 5.99) (- +far +near))))))))
+	(clamp (n2i (* (- +far away) (const (/ (n2r 5.99) (- +far +near))))) 0 5))
 
 (defun get-atom-texture (radius kind level)
 	; (get-atom-texture radius kind level) -> (tid tw th) | (:nil 0 0)
@@ -171,7 +171,7 @@
 (defun sdf-file (index)
 	(when (defq stream (file-stream (defq file (elem-get sdf_files index))))
 		(def (.-> *title* :layout :dirty) :text
-			(cat "Molecule -> " (slice file (rfind "/" file) -1)))
+			(cat "Molecule -> " (path-name file)))
 		(clear *verts* *radii* *colors*)
 		(times 3 (read-line stream))
 		(setq *num_atoms* (str-as-num (slice (read-line stream) 0 3)))

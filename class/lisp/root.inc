@@ -1506,6 +1506,23 @@
 			(join (cat (slice c_parts 0 (- -1 i)) (slice p_parts i -1)) "/"))
 		(target)))
 
+(defun sign-extend (v bits)
+	; (sign-extend v bits) -> num
+	;v, the low bits of a number of two's complement, as that number
+	(if (and (> bits 0) (>= v (<< 1 (dec bits)))) (- v (<< 1 bits)) v))
+
+(defun folder-mode? (mode)
+	; (folder-mode? mode) -> :nil | :t
+	;is a mode, the third of what (pii-fstat) says, a folder's
+	(= (logand mode 0xf000) 0x4000))
+
+(defun dir-list (path)
+	; (dir-list path) -> (names kinds)
+	;what is in a folder, each name and what the host says it is, "4" a
+	;folder, "8" a file, as two lists, "." and ".." among them. Nothing for
+	;a folder that is not there
+	(unzip (split (ifn (pii-dirlist path) "") ",") 2))
+
 (defun path-name (path)
 	; (path-name path) -> str
 	;the name of a file, the path less its folders, apps/x/y.wav -> y.wav

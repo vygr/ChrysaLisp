@@ -4,8 +4,8 @@
 ;
 ; (huff-table codes) makes the table of a book: codes is each code's
 ; length and value, in the order of what they stand for, as the tables
-; of a standard give them. (media-huff data at table) reads one, native
-; code taken by (ffi "lib/media/media_huff") where it is used.
+; of a standard give them. (bits-huff reader table) in lib/media/bits.inc
+; reads one.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module

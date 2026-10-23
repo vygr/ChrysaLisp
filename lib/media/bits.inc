@@ -7,6 +7,8 @@
 ; the next n bits, 0 to 25, (bits-1 reader) the next, both native,
 ; (bits-skip reader n) steps over n, (bits-at reader) where it is,
 ; (bits-seek reader at) puts it there, (bits-str reader) its str.
+; (bits-huff reader table) the next code of a Huffman table made by
+; lib/media/huff.inc, what it stands for, native too.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;module
@@ -16,6 +18,7 @@
 ; (bits-get reader n) -> num
 (ffi (path-to-absolute "./media_bits_1") bits-1)
 ; (bits-1 reader) -> 0 | 1
+(ffi (path-to-absolute "./media_huff") media-huff)
 
 (defun bits-of (s)
 	; (bits-of str) -> reader
@@ -40,6 +43,13 @@
 	; (bits-str reader) -> str
 	(first in))
 
+(defun bits-huff (in table)
+	; (bits-huff reader table) -> index
+	;the native gives where it ends in the low 32 bits and the index above
+	(defq got (media-huff (first in) (first (second in)) table))
+	(elem-set (second in) 0 (logand got 0xffffffff))
+	(>> got 32))
+
 ;module
-(export-symbols '(bits-of bits-get bits-1 bits-skip bits-at bits-seek bits-str))
+(export-symbols '(bits-of bits-get bits-1 bits-skip bits-at bits-seek bits-str bits-huff))
 (env-pop)

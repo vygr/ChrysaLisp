@@ -62,9 +62,7 @@
 	; (aac-huff reader table) -> index
 	;the code next, what it stands for, by the native reader of a book's
 	;table, lib/media/lisp.vp media_huff
-	(defq got ((. +aac :find :huff) (bits-str in) (bits-at in) table))
-	(bits-seek in (logand got 0xffffffff))
-	(>> got 32))
+	(bits-huff in table))
 
 (defun aac-huff-lisp (in book)
 	; (aac-huff-lisp reader book) -> index
@@ -451,7 +449,6 @@
 		;|v|^(4/3), to 8191
 		(each (# (defq v (n2r %0)) (push pow (* v (aac-root v 3)))) (range 1 8192))
 		;the native reader of codes, taken now, not as this is read
-		(. +aac :insert :huff (ffi "lib/media/media_huff"))
 		(. +aac :insert :values (ffi "lib/media/media_aac_values"))
 		(. +aac :insert :made (scatter (Emap) :gain gain :pow pow
 			:long (aac-windows 1024) :short (aac-windows 128)

@@ -31,13 +31,6 @@
 	;a number of so many bytes, high first
 	(code-be s bytes at))
 
-(defun mp4-f64 (s at)
-	; (mp4-f64 str at) -> num
-	;a whole number held as a float of 8 bytes, high first, a rate of sound
-	(defq bits (mp4-n s at 8) power (- (logand (>> bits 52) 0x7ff) 1023))
-	(if (< power 0) 0
-		(>> (logior (logand bits 0xfffffffffffff) 0x10000000000000) (- 52 power))))
-
 (defun mp4-boxes (s at end)
 	; (mp4-boxes str at end) -> ((name body end) ...)
 	;the boxes from at to end of a str: each name, where what is in it
@@ -118,7 +111,7 @@
 		(while (and (> count 0) (not found))
 			(defq span (mp4-n s at wide) start (mp4-n s (+ at wide) wide))
 			;signed, -1 an edit of no media; 8 bytes are a num as they are
-			(and (= wide 4) (>= start 0x80000000) (setq start (- start 0x100000000)))
+			(if (= wide 4) (setq start (sign-extend start 32)))
 			(if (< start 0)
 				(setq delay (+ delay span))
 				(setq found :t))
@@ -173,7 +166,7 @@
 	(when (defq ctts (mp4-in s stbl '("ctts")))
 		(defq at 0)
 		(each (lambda ((count offset))
-				(if (>= offset 0x80000000) (setq offset (- offset 0x100000000)))
+				(setq offset (sign-extend offset 32))
 				(times count
 					(when (< at (length shown))
 						(elem-set shown at (+ (elem-get shown at) offset))
@@ -215,7 +208,7 @@
 				;channels as 4, and is 72 long before its boxes
 				(case (mp4-n s (+ entry 16) 2)
 					(2 (scatter track :channels (mp4-n s (+ entry 48) 4) :bits (mp4-n s (+ entry 56) 4)
-						:sample_rate (mp4-f64 s (+ entry 40))
+						:sample_rate (reel-whole s (+ entry 40) 8)
 						:config (mp4-config s (+ entry 72) entry_end)))
 					(:t (scatter track :channels (mp4-n s (+ entry 24) 2) :bits (mp4-n s (+ entry 26) 2)
 						:sample_rate (mp4-n s (+ entry 32) 2)

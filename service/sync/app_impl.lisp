@@ -36,7 +36,7 @@
 	(defq service (mail-declare (task-mbox) name
 			(cat "Sync Service 0.1 " (cpu) "/" (os) " " root))
 		;the hashes of the system's own tree are kept, with what else is built
-		kept (if (eql root ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+		kept (sync-kept root)
 		;the tree of hashes it last worked out, to be asked of folder by
 		;folder. It is not kept once anything is written
 		held :nil

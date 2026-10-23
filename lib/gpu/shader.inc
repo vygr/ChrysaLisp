@@ -504,7 +504,7 @@
 					(and (eql kind "8") (> (length name) 9) (find (first name) letters)
 						(notany (# (eql (slice name 1 9) %0)) makes)
 						(pii-remove (cat folder name))))
-				(unzip (split (ifn (pii-dirlist folder) "") ",") 2))
+				(dir-list folder))
 			:t) 11))
 
 (defun shader-kept-text (name make)

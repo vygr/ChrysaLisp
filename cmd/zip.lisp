@@ -32,7 +32,7 @@
 										(defq file (if (starts-with "./" file) (slice file 2 -1) file))
 										(unless (or (eql file archive) (some (# (eql (first %0) file)) files))
 											(push files (list file (load file)))))
-									(if (= (logand (elem-get info 2) 0xf000) 0x4000) (files-all path) (list path))))
+									(if (folder-mode? (elem-get info 2)) (files-all path) (list path))))
 							((print "zip: no " path))))
 					(list args) 2 -1)
 				(each (# (setq bytes (+ bytes (length (second %0))))) files)

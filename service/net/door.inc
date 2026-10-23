@@ -43,6 +43,7 @@
 (import "lib/crypto/random.inc")
 (import "lib/crypto/x25519.inc")
 (import "lib/crypto/hkdf.inc")
+(import "lib/crypto/same.inc")
 
 (ffi "service/net/lisp_connect" net-connect)
 (ffi "service/net/lisp_listen" net-listen)
@@ -101,14 +102,6 @@
 	;end that listened, of what both said
 	(hmac-sha256 key (cat +door_head (if dialler "D" "L") said)))
 
-(defun door-same? (a b)
-	; (door-same? a b) -> :nil | :t
-	;are two strs the same, every byte looked at, same or not
-	(when (= (length a) (length b))
-		(defq differ 0)
-		(each (# (setq differ (logior differ (logxor (code %0) (code %1))))) a b)
-		(= differ 0)))
-
 (defun door-send (handle data until)
 	; (door-send handle data until) -> :nil | :t
 	;all of it sent, by the time given
@@ -153,18 +146,18 @@
 		(defq hello (door-recv handle +door_rest_size until))
 		(setq theirs (slice hello 0 +door_nonce_size))
 		;the two nonces must not be the one, or an end could be answered with itself
-		(not (door-same? mine theirs))
+		(not (crypto-same? mine theirs))
 		(defq their_share (slice hello +door_nonce_size (dec +door_rest_size))
 			seal (if dialler sealed (= (code hello 1 (dec +door_rest_size)) 1))
 			said (if dialler (cat mine theirs share their_share) (cat theirs mine their_share share))
 			said (cat said (char (if seal 1 0))))
 		(door-send handle (door-tag key dialler said) until)
 		(defq tag (door-recv handle +door_tag_size until))
-		(door-same? tag (door-tag key (not dialler) said))
+		(crypto-same? tag (door-tag key (not dialler) said))
 		(cond
 			((not seal) (list :nil +door_nothing +door_nothing))
 			;a share that makes nothing, of a small order, is no secret
-			((door-same? (defq shared (x25519 secret their_share)) +door_nothing) :nil)
+			((crypto-same? (defq shared (x25519 secret their_share)) +door_nothing) :nil)
 			(:t (defq prk (hkdf-extract (slice said 0 (* 2 +door_nonce_size)) (cat shared key))
 					to_l (hkdf-expand prk "ChrysaLisp link, dialler to listener" 32)
 					to_d (hkdf-expand prk "ChrysaLisp link, listener to dialler" 32))

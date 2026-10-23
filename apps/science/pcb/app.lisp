@@ -60,7 +60,7 @@
 	(setq pcb_data (read-blk stream (ifn (name-size file) 0)) pcb (pcb-read pcb_data) *file* file)
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
-	(def *window_title* :text (cat "Pcb -> " (slice file (rfind "/" file) -1)))
+	(def *window_title* :text (cat "Pcb -> " (path-name file)))
 	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))

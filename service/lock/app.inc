@@ -20,8 +20,7 @@
 
 (defun lock-service ()
 	; (lock-service) -> netid | :nil
-	(when (nempty? (defq s (mail-enquire "@Lock,")))
-		(hex-decode (second (split (first s) ",")))))
+	(mail-first "@Lock"))
 
 (defun ensure-lock-service ()
 	; (ensure-lock-service) -> netid | :nil

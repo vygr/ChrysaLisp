@@ -51,7 +51,7 @@
 	(defq z34 (lambda () (fill (reals) 34 (n2r 0))) h (lambda () (map (lambda (_) (map (lambda (_) (z34)) (range 0 6))) (range 0 4))))
 	(scatter (Emap) :start :nil :enable_iid 0 :iid_quant 0 :nr_iid_par 0 :nr_ipdopd_par 0 :enable_icc 0 :icc_mode 0
 		:nr_icc_par 0 :enable_ext 0 :frame_class 0 :num_env_old 0 :num_env 0 :enable_ipdopd 0
-		:border (fill (nums) 6 0) :is34 0 :is34_old 0 :huff (ffi "lib/media/media_huff")
+		:border (fill (nums) 6 0) :is34 0 :is34_old 0
 		:iid (map (lambda (_) (fill (nums) 34 0)) (range 0 6)) :icc (map (lambda (_) (fill (nums) 34 0)) (range 0 6))
 		:ipd (map (lambda (_) (fill (nums) 34 0)) (range 0 6)) :opd (map (lambda (_) (fill (nums) 34 0)) (range 0 6))
 		;the hybrid filters' 6 slots before of the 5 lowest bands, the delays and
@@ -69,9 +69,7 @@
 
 (defun ps-huff (ps in book)
 	; (ps-huff ps reader book) -> value
-	(defq got ((. ps :find :huff) (bits-str in) (bits-at in) (elem-get (. +ps :find :tables) book)))
-	(bits-seek in (logand got 0xffffffff))
-	(+ (>> got 32) (elem-get (. +ps :find :least) book)))
+	(+ (bits-huff in (elem-get (. +ps :find :tables) book)) (elem-get (. +ps :find :least) book)))
 
 (defun ps-par (ps in par num book e dt mask)
 	; (ps-par ps reader par num book e dt mask)

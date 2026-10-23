@@ -44,5 +44,5 @@
 	(when (/= 0 (age file))
 		(open-file file)
 		(defq lines (.-> *edit* :get_buffer :get_buffer_lines))
-		(.-> *edit* (:set_cursor 0 (max 0 (min line (dec (length lines))))) :select_line)
+		(.-> *edit* (:set_cursor 0 (clamp line 0 (dec (length lines)))) :select_line)
 		(refresh)))

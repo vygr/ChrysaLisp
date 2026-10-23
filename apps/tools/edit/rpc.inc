@@ -13,9 +13,8 @@
 (defun edit-jump-rpc (file_name line_num)
 	; (edit-jump-rpc file line) -> :nil | ""
 	;the Editor, if it is running, opens the file at the line
-	(when (nempty? (defq service (mail-enquire "@Edit,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Edit"))
+		(defq mbox (mail-mbox))
 		(mail-send service
 			(setf-> (cat (str-alloc +edit_rpc_jump_size) file_name "|" (str line_num))
 				(+edit_rpc_reply_id mbox)

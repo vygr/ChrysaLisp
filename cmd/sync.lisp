@@ -68,12 +68,11 @@
 				(defq targets (if (eql opt_t "all") there
 					(filter (# (starts-with (to-upper opt_t) (second %0))) services)))
 				(if (empty? targets) (print "No machine that takes a sync is " opt_t))
-				(defq rules_text (ifn (load (cat opt_r "/.gitignore")) "")
-					kept (if (eql opt_r ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes")))
+				(defq rules_text (sync-rules-text opt_r) kept (sync-kept opt_r))
 				(each (lambda ((svc id machine root))
 					;a host with no modes for its files is not sent them, or asked for them
 					(defq t0 (pii-time) result (sync-push svc opt_r rules_text opt_c opt_d kept
-						(or (eql (os) 'Windows) (ends-with "/Windows" machine))))
+						(sync-no-modes? machine)))
 					(cond
 						((not result) (print (slice id 0 8) " " machine " did not answer"))
 						((eql result :old) (print (slice id 0 8) " " machine
@@ -97,14 +96,13 @@
 			(:t (if (empty? services) (print "No machine takes a sync. Run sync -a on one that will."))
 				;is each one's tree the same as this one's ? One number from
 				;each says, the top of its tree of hashes
-				(defq rules_text (ifn (load (cat opt_r "/.gitignore")) "")
-					kept (if (eql opt_r ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes"))
+				(defq rules_text (sync-rules-text opt_r) kept (sync-kept opt_r)
 					mine (if (nempty? there) (Fmap 3)))
 				(each (lambda ((svc id machine root))
 					(print (slice id 0 8) " " machine " " root
 						(cond
 							((eql id me) " (this machine)")
-							(:t (defq no_modes (or (eql (os) 'Windows) (ends-with "/Windows" machine))
+							(:t (defq no_modes (sync-no-modes? machine)
 									theirs (sync-root svc rules_text no_modes 20000000))
 								;my own top, worked out the once, with modes or without
 								(unless (. mine :find no_modes)

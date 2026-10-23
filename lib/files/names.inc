@@ -46,7 +46,7 @@
 		((defq path (name-in-store name))
 			(and (defq entry (storage-stat path)) (not (elem-get entry 6)) (elem-get entry 2)))
 		((defq info (pii-fstat name))
-			(if (/= (logand (third info) 0xf000) 0x4000) (second info)))))
+			(unless (folder-mode? (third info)) (second info)))))
 
 (defun name-list (folder)
 	; (name-list folder) -> ((name ...) (type ...))
@@ -65,7 +65,7 @@
 							((nempty? rest) (push names rest) (push types "8")))))
 				(ifn (storage-list start) (list)))
 			(list names types))
-		((unzip (split (ifn (pii-dirlist folder) "") ",") 2))))
+		((dir-list folder))))
 
 (defun name-folder? (name)
 	; (name-folder? name) -> :nil | :t
@@ -74,7 +74,7 @@
 		((defq path (name-in-store name))
 			(or (empty? path) (and (storage-service)
 				(some (# (not (elem-get %0 6))) (ifn (storage-list (cat path "/")) (list))) :t)))
-		((and (defq info (pii-fstat name)) (= (logand (third info) 0xf000) 0x4000)))))
+		((and (defq info (pii-fstat name)) (folder-mode? (third info))))))
 
 (defun name-there? (name)
 	; (name-there? name) -> :nil | :t

@@ -20,7 +20,7 @@
 		ranges (reverse (font-glyph-ranges font)) symbol_grid (Grid)
 		drawn_rows (list))
 	(setq *file* ctf)
-	(def *window_title* :text (cat "Fonts -> " (slice ctf (ifn (rfind "/" ctf) 0) -5)))
+	(def *window_title* :text (cat "Fonts -> " (path-stem ctf)))
 	(while (defq s (pop ranges) e (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(each (lambda (row_idx)

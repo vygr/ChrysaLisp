@@ -64,7 +64,7 @@
 	;session of this machine is not linked to this one, so the nodes of this
 	;machine known here are this session's
 	(defq mine (lisp-nodes :t))
-	(some (# (find (slice (hex-decode (second (split %0 ","))) +long_size (+ +long_size +node_id_size)) mine))
+	(some (# (find (slice (mail-entry-id %0) +long_size (+ +long_size +node_id_size)) mine))
 		(mail-enquire "@Gui,")))
 
 (defun net-start-link (key target)
@@ -355,7 +355,7 @@
 								(+net_rpc_reply_id (task-mbox)))
 							(mesh-hello (mesh-forget mesh_peers now) my_sys_id now)))
 						(each (lambda (entry)
-							(defq mbox (hex-decode (second (split entry ","))))
+							(defq mbox (mail-entry-id entry))
 							(unless (eql mbox (task-mbox)) (mail-send mbox (cat hello))))
 							(mail-enquire "*Mesh,")))
 					(. sessions :each (lambda (handle session)

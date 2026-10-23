@@ -12,6 +12,8 @@
 ; the first two, the one of one on both, as lib/media/flac.inc's are.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./reel.inc")
+
 ;module
 (env-push)
 
@@ -25,21 +27,6 @@
 		1411 1552 1707 1878 2066 2272 2499 2749 3024 3327 3660 4026 4428 4871 5358 5894 6484 7132 7845 8630 9493
 		10442 11487 12635 13899 15289 16818 18500 20350 22385 24623 27086 29794 32767))
 
-(defun adpcm-s16 (s at)
-	; (adpcm-s16 str at) -> num
-	;two bytes low first, signed
-	(defq v (code s 2 at))
-	(if (>= v 0x8000) (- v 0x10000) v))
-
-(defun adpcm-clamp (v)
-	(max -32768 (min 32767 v)))
-
-(defun adpcm-reals (chans)
-	; (adpcm-reals chans) -> (left right)
-	;channels of nums, the first two as reals, the one of one on both
-	(defq ints (ffi "lib/media/media_flac_ints")
-		pcm (map! (# (ints (fill (reals) (length %0) (n2r 0)) %0 (n2r 1))) (list chans) 0 (min 2 (length chans))))
-	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
 
 (defun adpcm-ms-coefs (extra)
 	; (adpcm-ms-coefs extra) -> (coef1 coef2 ...)
@@ -47,7 +34,7 @@
 	;samples a block and how many pairs, or the seven every one has
 	(defq n (if (>= (length extra) 4) (code extra 2 2) 0))
 	(if (and (> n 0) (>= (length extra) (+ 4 (* n 4))))
-		(map (# (adpcm-s16 extra (+ 4 (* %0 2)))) (range 0 (* n 2)))
+		(map (# (get-short extra (+ 4 (* %0 2)))) (range 0 (* n 2)))
 		(. +adpcm :find :coefs)))
 
 (defun adpcm-ms-block (s channels coefs)
@@ -56,16 +43,16 @@
 	(defq adapt (. +adpcm :find :adapt) at 0
 		most (dec (/ (length coefs) 2))
 		preds (map (# (min most (code s 1 (+ at %0)))) (range 0 channels)) at (+ at channels)
-		deltas (map (# (adpcm-s16 s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
-		s1 (map (# (adpcm-s16 s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
-		s2 (map (# (adpcm-s16 s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
+		deltas (map (# (get-short s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
+		s1 (map (# (get-short s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
+		s2 (map (# (get-short s (+ at (* 2 %0)))) (range 0 channels)) at (+ at (* 2 channels))
 		chans (map (# (nums (elem-get s2 %0) (elem-get s1 %0))) (range 0 channels)) c 0)
 	(defun nibble (n)
 		(defq p (* 2 (elem-get preds c))
 			;a signed shift, >>>, the prediction may be less than 0
 			predict (>>> (+ (* (elem-get s1 c) (elem-get coefs p)) (* (elem-get s2 c) (elem-get coefs (inc p)))) 8)
 			delta (elem-get deltas c)
-			v (adpcm-clamp (+ predict (* (if (>= n 8) (- n 16) n) delta))))
+			v (clamp (+ predict (* (if (>= n 8) (- n 16) n) delta)) -32768 32767))
 		(elem-set deltas c (max 16 (>> (* (elem-get adapt n) delta) 8)))
 		(elem-set s2 c (elem-get s1 c))
 		(elem-set s1 c v)
@@ -76,23 +63,23 @@
 		(nibble (>> b 4))
 		(nibble (logand b 15))
 		(setq at (inc at)))
-	(adpcm-reals chans))
+	(reel-pcm chans))
 
 (defun adpcm-ima-block (s channels)
 	; (adpcm-ima-block str channels) -> (left right)
 	;a block of IMA ADPCM, as WAV has it
 	(defq steps (. +adpcm :find :ima_steps) index_table (. +adpcm :find :ima_index)
-		samples (map (# (adpcm-s16 s (* 4 %0))) (range 0 channels))
-		indexes (map (# (max 0 (min 88 (code s 1 (+ 2 (* 4 %0)))))) (range 0 channels))
+		samples (map (# (get-short s (* 4 %0))) (range 0 channels))
+		indexes (map (# (clamp (code s 1 (+ 2 (* 4 %0))) 0 88)) (range 0 channels))
 		chans (map (# (nums (elem-get samples %0))) (range 0 channels)) at (* 4 channels))
 	(defun nibble (c n)
 		(defq step (elem-get steps (elem-get indexes c)) diff (>> step 3))
 		(if (/= 0 (logand n 4)) (setq diff (+ diff step)))
 		(if (/= 0 (logand n 2)) (setq diff (+ diff (>> step 1))))
 		(if (/= 0 (logand n 1)) (setq diff (+ diff (>> step 2))))
-		(defq v (adpcm-clamp (if (/= 0 (logand n 8)) (- (elem-get samples c) diff) (+ (elem-get samples c) diff))))
+		(defq v (clamp (if (/= 0 (logand n 8)) (- (elem-get samples c) diff) (+ (elem-get samples c) diff)) -32768 32767))
 		(elem-set samples c v)
-		(elem-set indexes c (max 0 (min 88 (+ (elem-get indexes c) (elem-get index_table n)))))
+		(elem-set indexes c (clamp (+ (elem-get indexes c) (elem-get index_table n)) 0 88))
 		(push (elem-get chans c) v))
 	;a word a channel, 8 samples, low nibble first
 	(while (<= (+ at (* 4 channels)) (length s))
@@ -104,7 +91,7 @@
 					(range 0 4)))
 			(range 0 channels))
 		(setq at (+ at (* 4 channels))))
-	(adpcm-reals chans))
+	(reel-pcm chans))
 
 (defun adpcm-pcm (s channels bits)
 	; (adpcm-pcm str channels bits) -> (left right)
@@ -116,11 +103,11 @@
 		(each (lambda (c)
 				(push (elem-get chans c) (cond
 					((= width 1) (<< (- (code s 1 at) 128) 8))
-					((= width 2) (adpcm-s16 s at))
-					((defq v (code s 3 at)) (>>> (if (>= v 0x800000) (- v 0x1000000) v) 8))))
+					((= width 2) (get-short s at))
+					((>>> (sign-extend (code s 3 at) 24) 8))))
 				(setq at (+ at width)))
 			(range 0 channels)))
-	(adpcm-reals chans))
+	(reel-pcm chans))
 
 ;module
 (export-symbols '(adpcm-ms-coefs adpcm-ms-block adpcm-ima-block adpcm-pcm))

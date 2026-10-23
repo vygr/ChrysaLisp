@@ -93,9 +93,8 @@
 
 (defun gui-rpc (view cmd)
 	; (gui-rpc view cmd) -> :nil | view
-	(when (nempty? (defq service (mail-enquire "Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type cmd)
 			(+gui_rpc_reply_id mbox)
@@ -108,9 +107,8 @@
 	; (gui-theme-rpc name) -> :nil | name
 	;tell the GUI the theme of the desktop is now this one, it tells every
 	;window, lib/theme/theme.inc
-	(when (nempty? (defq service (mail-enquire "Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_theme)
 			(+gui_rpc_reply_id mbox)
@@ -127,9 +125,8 @@
 	;that big round the mouse, read by the GUI from
 	;its back buffer: its width, its height and its pixels, 32 bits each,
 	;blue green red alpha
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_grab)
 			(+gui_rpc_reply_id mbox)
@@ -145,9 +142,8 @@
 	; (gui-owners-rpc) -> :nil | (owner ...)
 	;the mailbox of the task that has each window of the screen, hex, the
 	;front one first. A test can tell from it which apps have a window
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_owners)
 			(+gui_rpc_reply_id mbox)
@@ -162,9 +158,8 @@
 	;all of the screen, as (ui-save) writes it: of the first in it whose key
 	;is value if a key is given, depth levels of children, :nil for all, and
 	;only the properties keys, a list, :nil for all
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_tree)
 			(+gui_rpc_reply_id mbox)
@@ -177,9 +172,8 @@
 	; (gui-input-rpc events) -> :nil | :t
 	;events, a str of +gui_event structs one after another, given to the GUI
 	;as if from the host's mouse and keyboard, in order, before it answers
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_input)
 			(+gui_rpc_reply_id mbox)
@@ -193,9 +187,8 @@
 	;first in it whose key is value if a key is given, as (ui-find) finds it,
 	;and the part of it that can be seen, why if none of it can. With front
 	;the window is put in front of the others first
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_locate)
 			(+gui_rpc_reply_id mbox)
@@ -211,9 +204,8 @@
 	; (gui-at-rpc x y) -> :nil | str
 	;the title of the window at x y on the screen, the one in front there,
 	;"" if no window is, :nil if the GUI does not answer
-	(when (nempty? (defq service (mail-enquire "@Gui,")))
-		(defq service (hex-decode (second (split (pop service) ",")))
-			mbox (mail-mbox))
+	(when (defq service (mail-first "@Gui"))
+		(defq mbox (mail-mbox))
 		(mail-send service (cat (setf-> (str-alloc +gui_rpc_size)
 			(+gui_rpc_type +gui_rpc_type_at)
 			(+gui_rpc_reply_id mbox)

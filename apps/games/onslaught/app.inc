@@ -21,8 +21,7 @@
 (defun onslaught-service ()
 	; (onslaught-service) -> netid | :nil
 	(or *onslaught_mbox*
-		(when (nempty? (defq s (mail-enquire "@Onslaught,")))
-			(hex-decode (second (split (first s) ","))))))
+		(mail-first "@Onslaught")))
 
 (defun onslaught-rpc (type &optional keys)
 	; (onslaught-rpc type [keys]) -> reply | :nil

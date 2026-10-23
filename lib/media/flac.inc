@@ -46,7 +46,7 @@
 	; (flac-native key) -> function
 	(unless (. +flac :find :rice)
 		(scatter +flac :rice (ffi "lib/media/media_flac_rice") :lpc (ffi "lib/media/media_flac_lpc")
-			:stereo (ffi "lib/media/media_flac_stereo") :ints (ffi "lib/media/media_flac_ints")))
+			:stereo (ffi "lib/media/media_flac_stereo")))
 	(. +flac :find key))
 
 (defun flac-bits (in n)
@@ -60,8 +60,7 @@
 (defun flac-signed (in n)
 	; (flac-signed reader n) -> num
 	;n bits of two's complement
-	(defq v (flac-bits in n))
-	(if (and (> n 0) (>= v (<< 1 (dec n)))) (- v (<< 1 n)) v))
+	(sign-extend (flac-bits in n) n))
 
 (defun flac-unary (in)
 	; (flac-unary reader) -> num
@@ -317,10 +316,7 @@
 	; (flac-pcm info chans) -> (left right)
 	;a frame's channels as reals at the scale of 16 bits, the first two, the
 	;one of one on both
-	(defq scale (pow (n2r 2) (n2r (- 16 (. info :find :bps))))
-		ints (flac-native :ints)
-		pcm (map! (lambda (ch) (ints (fill (reals) (length ch) (n2r 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
-	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
+	(reel-pcm chans (pow (n2r 2) (n2r (- 16 (. info :find :bps))))))
 
 (defun flac-codec (reel &optional scale)
 	; (flac-codec reel [scale]) -> codec

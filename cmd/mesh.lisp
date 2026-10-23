@@ -44,7 +44,7 @@
 (defun joined? ()
 	;has a node of this machine a Net service that is in the mesh
 	(defq here (lisp-nodes :t))
-	(some (# (find (slice (hex-decode (second (split %0 ","))) +mailbox_id_size -1) here))
+	(some (# (find (slice (mail-entry-id %0) +mailbox_id_size -1) here))
 		(mail-enquire "*Mesh,")))
 
 (defun status ()

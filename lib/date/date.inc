@@ -113,6 +113,14 @@
 	(bind '(year month day) (civil-from-days days))
 	(list sec min hour day month year dotw))
 
+(defun date-dos (stamp)
+	; (date-dos stamp) -> (time date)
+	;a (date) as MS-DOS keeps it, as zips and exFAT do: two seconds at a
+	;time, months from 1, years from 1980, none before
+	(bind '(sec mins hour day month year &ignore) stamp)
+	(list (logior (<< hour 11) (<< mins 5) (/ sec 2))
+		(logior (<< (max 0 (- year 1980)) 9) (<< (inc month) 5) day)))
+
 (defun float-time (&optional smooth)
 	; (float-time [smooth]) -> (sec min hour)
 	(defq now (pii-time)
@@ -171,7 +179,7 @@
 (export-symbols '(+time_size +tz_size leapyear? days-in-year days-in-month
 	week_abbr month_abbr day-of-the-week month-of-the-year
 	timezone-lookup timezone-offset-seconds timezone-init
-	civil-from-days days-from-civil date float-time
+	civil-from-days days-from-civil date date-dos float-time
 	check-date encode-date decode-date time-from-date
 	*local_timezone*))
 (env-pop)

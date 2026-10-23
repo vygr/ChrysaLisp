@@ -34,7 +34,7 @@
 	;each sample of the piece made new, (fn sample) -> sample, kept in range
 	(defq n (/ (length data) 2) out (list) i 0)
 	(while (< i n)
-		(push out (char (max -32768 (min 32767 (fn (sound-sample data i)))) 2))
+		(push out (char (clamp (fn (sound-sample data i)) -32768 32767) 2))
 		(setq i (inc i)))
 	(apply (const cat) (cat (list "") out)))
 

@@ -698,9 +698,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun exfat-stamp ()
-	;the time now, as a directory entry keeps it, months from 1
-	(bind '(sec min hour day month year &rest _) (date))
-	(logior (<< (- year 1980) 25) (<< (inc month) 21) (<< day 16) (<< hour 11) (<< min 5) (>> sec 1)))
+	;the time now, as a directory entry keeps it, MS-DOS's date over its time
+	(bind '(dos_time dos_date) (date-dos (date)))
+	(logior (<< dos_date 16) dos_time))
 
 (defun exfat-zone ()
 	;the time zone a stamp is in, quarter hours from UTC, and the bit

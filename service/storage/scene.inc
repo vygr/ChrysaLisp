@@ -229,7 +229,7 @@
 					(not (pii-alive (str-as-num (first (split (slice file 14 -1) "_"))))))
 				(pii-remove (cat "obj/" file))
 				(++ gone)))
-		(unzip (split (pii-dirlist "obj") ",") 2))
+		(dir-list "obj"))
 	gone)
 
 (defun scene-run (name say &optional record wait)

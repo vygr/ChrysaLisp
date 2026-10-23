@@ -121,7 +121,7 @@
 	;for each other machine, SKIP for each skipped, RAN for each machine,
 	;and DONE
 	(defq out (list) t0 (pii-time) me (hex-encode (system-id))
-		rules_text (ifn (load (cat (setd tree ".") "/.gitignore")) "")
+		rules_text (sync-rules-text (setd tree "."))
 		reply_mbox (mail-mbox) asked 0 ran (list (list me (cat (cpu) "/" (os))))
 		cmdlines (map (# (trim %0)) (split cmdline ";"))
 		phases (if make_first (list (list "make" "make all boot" "make apps") cmdlines) (list cmdlines)))
@@ -135,7 +135,7 @@
 	(each (lambda ((svc id machine root))
 		;the hashes of the system's tree are kept from run to run, in obj/
 		(defq t1 (pii-time) result (sync-push svc tree rules_text :nil :nil
-			(if (eql tree ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes")) (ends-with "/Windows" machine)))
+			(sync-kept tree) (sync-no-modes? machine)))
 		(push out (cond
 			((not result) (cat "SYNC " machine " no answer"))
 			((eql result :old) (setq result :nil) (cat "SYNC " machine " no answer, it has an older sync"))

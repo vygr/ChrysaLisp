@@ -273,7 +273,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c :nil args (options stdio usage)))
-		(defq kept (cat "obj/" (cpu) "/" (abi) "/sync_hashes") top (sync-top "." kept)
+		(defq kept (sync-kept ".") top (sync-top "." kept)
 			at (sync-waypoint "."))
 		(cond
 			(opt_c

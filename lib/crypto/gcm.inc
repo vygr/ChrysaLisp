@@ -16,6 +16,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./aes.inc")
+(import "./same.inc")
 
 (ffi (path-to-absolute "./ghash_blocks") ghash-blocks)
 ; (ghash-blocks state h data offset count) -> state
@@ -64,7 +65,7 @@
 	; (gcm-open gkey nonce aad sealed) -> :nil | str
 	(when (>= (length sealed) 16)
 		(defq j0 (cat nonce (char-be 1 4)) cipher (slice sealed 0 -17))
-		(if (eql (gcm-tag gkey j0 aad cipher) (slice sealed -17 -1))
+		(if (crypto-same? (gcm-tag gkey j0 aad cipher) (slice sealed -17 -1))
 			(aes-ctr (first gkey) (aes-count j0 1) cipher))))
 
 ;module

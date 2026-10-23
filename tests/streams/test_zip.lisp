@@ -34,4 +34,4 @@
 			(and (zip-read tz_made entry ss) (eql (str ss) data) (= (crc32 data) (elem-get entry +zip_entry_crc))))
 		tz_files))
 (assert-list-eq "the time, 2026-10-18 10:15:30, as MS-DOS has it" (list (+ (<< 10 11) (<< 15 5) 15) (+ (<< 46 9) (<< 10 5) 18))
-	(zip-dos '(30 15 10 18 9 2026 0)))
+	(date-dos '(30 15 10 18 9 2026 0)))

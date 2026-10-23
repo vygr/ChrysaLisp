@@ -9,6 +9,11 @@
 ; frames on a canvas of its own, (reel-frame codec n) puts frame n there
 ; and gives the canvas, (reel-close codec) lets go of what it holds.
 ; (reel-wave canvas w h pcm) draws a frame of a reel of sound.
+; (reel-whole str at bytes) is a whole number held as a float of 4 or 8
+; bytes, high first, as the containers hold a rate of sound.
+; (reel-pcm chans [scale]) is the channels of a frame of sound, nums, as
+; reals times scale, the first two, the one of one on both.
+; (reel-clock seconds) is a time as h:mm:ss.
 ; Frames are counted in the order they are shown, packets in the order
 ; they are decoded, and with B-frames those differ: the codec reads the
 ; packets it needs, from a key where it must, so a player only says
@@ -19,6 +24,29 @@
 
 ;module
 (env-push)
+
+(defun reel-whole (s at bytes)
+	; (reel-whole str at bytes) -> num
+	(defq bits (code-be s bytes at))
+	(cond
+		((= bytes 4)
+			(defq power (- (logand (>> bits 23) 0xff) 127))
+			(if (< power 0) 0 (>> (logior (logand bits 0x7fffff) 0x800000) (- 23 power))))
+		(:t (defq power (- (logand (>> bits 52) 0x7ff) 1023))
+			(if (< power 0) 0 (>> (logior (logand bits 0xfffffffffffff) 0x10000000000000) (- 52 power))))))
+
+(defun reel-pcm (chans &optional scale)
+	; (reel-pcm chans [scale]) -> (left right)
+	;the native taken as it is used: a system not yet built with it can
+	;still import this, the kinds are of a desktop's shared root
+	(defq ints (ffi "lib/media/media_flac_ints") scale (ifn scale (n2r 1))
+		pcm (map! (lambda (ch) (ints (fill (reals) (length ch) (n2r 0)) ch scale)) (list chans) 0 (min 2 (length chans))))
+	(if (= (length pcm) 1) (list (first pcm) (first pcm)) pcm))
+
+(defun reel-clock (time)
+	; (reel-clock seconds) -> str
+	(defq s (n2i time))
+	(cat (str (/ s 3600)) ":" (pad (str (% (/ s 60) 60)) 2 "0") ":" (pad (str (% s 60)) 2 "0")))
 
 (defun reel-kind (ext open packet codec frame &optional close)
 	; (reel-kind ext open packet codec frame [close])
@@ -86,5 +114,5 @@
 	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))
 
 ;module
-(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close reel-wave))
+(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close reel-wave reel-whole reel-pcm reel-clock))
 (env-pop)

@@ -25,7 +25,7 @@
 					(:t ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
-				(unzip (split (pii-dirlist root) ",") 2))))
+				(dir-list root))))
 	(if (or (/= 0 cut_start) (/= -1 cut_end))
 		(map (# (slice %0 cut_start cut_end)) paths)
 		paths))

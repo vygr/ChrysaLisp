@@ -69,13 +69,6 @@
 				(0 (write-blk out bytes) :t)
 				(8 (inflate-decompress (string-stream bytes) out))))))
 
-(defun zip-dos (stamp)
-	; (zip-dos stamp) -> (time date)
-	;a time as a zip has it, MS-DOS's: two seconds at a time, from 1980
-	(bind '(sec mins hour day month year &ignore) stamp)
-	(list (logior (<< hour 11) (<< mins 5) (/ sec 2))
-		(logior (<< (max 0 (- year 1980)) 9) (<< (inc month) 5) day)))
-
 (defun zip-write (out files &optional stamp)
 	; (zip-write out files [stamp]) -> :nil | count
 	;a zip of files, ((name data) ...), to a stream: each packed by DEFLATE,
@@ -83,7 +76,7 @@
 	;folder, then the directory and the record that ends it. stamp is the
 	;time each is said to be of, (date), now if not given. :nil if there
 	;are more than 65535 or it would be past 4GB, which want ZIP64
-	(bind '(dos_time dos_date) (zip-dos (ifn stamp (date))))
+	(bind '(dos_time dos_date) (date-dos (ifn stamp (date))))
 	(defq at 0 dir (list) ok (< (length files) 65535))
 	(each (lambda ((name data))
 			(when ok
@@ -110,6 +103,6 @@
 		(length dir)))
 
 ;module
-(export-symbols '(zip-list zip-find zip-read zip-write zip-dos
+(export-symbols '(zip-list zip-find zip-read zip-write
 	+zip_entry_name +zip_entry_method +zip_entry_packed +zip_entry_full +zip_entry_at +zip_entry_crc))
 (env-pop)

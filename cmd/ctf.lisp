@@ -204,15 +204,13 @@
 	(static-qq (code-be ,buf 2 ,idx)))
 
 (defun get-int16-be (buf idx)
-	(if (>= (defq val (get-uint16-be buf idx)) 32768)
-		(- val 65536) val))
+	(sign-extend (get-uint16-be buf idx) 16))
 
 (defmacro get-uint32-be (buf idx)
 	(static-qq (code-be ,buf 4 ,idx)))
 
 (defun get-int32-be (buf idx)
-	(if (>= (defq val (get-uint32-be buf idx)) 0x80000000)
-		(- val 0x100000000) val))
+	(sign-extend (get-uint32-be buf idx) 32))
 
 ;;;;;;;;;;;;;;;;;
 ; opentype parser

@@ -126,7 +126,7 @@
 	;anything else something else, a link for one. :nil if it is not there
 	(defq found :nil)
 	(each! (lambda (it kind) (if (eql it entry) (setq found kind)))
-		(unzip (split (pii-dirlist folder) ",") 2))
+		(dir-list folder))
 	found)
 
 (defun sync-inside? (root path &optional real)
@@ -163,7 +163,7 @@
 	(while (and (> (length segs) 1)
 			(defq folder (cat root "/" (join (setq segs (slice segs 0 -2)) "/")))
 			(every (# (or (eql %0 ".") (eql %0 "..")))
-				(first (unzip (split (ifn (pii-dirlist folder) "") ",") 2)))
+				(first (dir-list folder)))
 			(eql (sync-kind (cat root "/" (join (slice segs 0 -2) "/")) (last segs)) "4"))
 		(pii-remove folder)
 		(setq count (inc count)))
@@ -182,7 +182,7 @@
 					(cond
 						(is_dir (push stack path))
 						((eql kind "8") (push out path))))))
-			(unzip (split (pii-dirlist (if (eql folder "") root (cat root "/" folder))) ",") 2)))
+			(dir-list (if (eql folder "") root (cat root "/" folder)))))
 	(sort out))
 
 (defun sync-list (root rules &optional kept live)
@@ -241,12 +241,29 @@
 	; (sync-waypoint-text commit time top) -> str
 	(cat commit (ascii-char 10) (str time) (ascii-char 10) top (ascii-char 10)))
 
+(defun sync-kept (root)
+	; (sync-kept root) -> :nil | path
+	;the file the hashes of a tree are kept in from one asking to the next,
+	;with what else is built: the system's own tree only
+	(if (eql root ".") (cat "obj/" (cpu) "/" (abi) "/sync_hashes")))
+
+(defun sync-rules-text (root)
+	; (sync-rules-text root) -> str
+	;the rules of a tree as its .gitignore has them, "" for none
+	(ifn (load (cat root "/.gitignore")) ""))
+
+(defun sync-no-modes? (machine)
+	; (sync-no-modes? machine) -> :nil | :t
+	;is either end a host with no modes for its files, this one or the one
+	;named, "cpu/os" as a service says it: then none are sent or asked for
+	(or (eql (os) 'Windows) (ends-with "/Windows" machine)))
+
 (defun sync-own-rules (root)
 	; (sync-own-rules root) -> rules
 	;the rules of a tree, its own .gitignore, and what is the machine's own
 	;and not the tree's: its waypoint, who it takes a sync from, its key
 	;and its keyring
-	(sync-rules (cat (ifn (load (cat root "/.gitignore")) "")
+	(sync-rules (cat (sync-rules-text root)
 		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key"
 			(ascii-char 10) "/keys/" (ascii-char 10))))))
 

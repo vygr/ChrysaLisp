@@ -17,7 +17,7 @@
 (defun band-of (y count)
 	;the band a row of the document is in, the first or the last if it
 	;is off the document
-	(max 0 (min (dec count) (n2i (floor (/ y +band))))))
+	(clamp (n2i (floor (/ y +band))) 0 (dec count)))
 
 (defun make-bands ()
 	;for each layer (flags bands none), bands a list, for each band the

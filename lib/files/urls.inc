@@ -7,7 +7,7 @@
 
 (defun url-list (url)
 	(map! (lambda (f m) (cat f (if (eql m "4") "/" " ")))
-		(unzip (split (pii-dirlist url) ",") 2)))
+		(dir-list url)))
 
 (defun url-split (url ctx)
 	;the folder and the start of a name, a path from / of the host's as it is

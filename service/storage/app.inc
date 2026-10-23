@@ -45,8 +45,7 @@
 (defun storage-service (&optional name)
 	; (storage-service [name]) -> :nil | netid
 	;the Storage service of this system, or one of another name, a test's
-	(and (nempty? (defq found (mail-enquire (cat (ifn name +storage_name) ","))))
-		(hex-decode (second (split (first found) ",")))))
+	(mail-first (ifn name +storage_name)))
 
 (defun storage-service-on (system)
 	; (storage-service-on system) -> :nil | netid
@@ -55,7 +54,7 @@
 	;as a client, this machine no member of it
 	(defq system (to-upper system))
 	(some (lambda (entry)
-			(defq svc (hex-decode (second (split entry ",")))
+			(defq svc (mail-entry-id entry)
 				node (slice svc +long_size (+ +long_size +node_id_size)))
 			(if (some (# (and (starts-with system (to-upper (hex-encode %0))) (find node (lisp-nodes %0)))) (lisp-systems))
 				svc))
@@ -903,7 +902,7 @@
 	; (storage-record-members [group]) -> (netid ...)
 	;the services of every member of a store of that group that is there,
 	;on every machine, *Storage if not given
-	(map (# (hex-decode (second (split %0 ",")))) (mail-enquire (cat (ifn group +storage_group) ","))))
+	(map (const mail-entry-id) (mail-enquire (cat (ifn group +storage_group) ","))))
 
 (defun storage-record-run (write until &optional group stop)
 	; (storage-record-run write until [group stop]) -> lines

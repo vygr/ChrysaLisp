@@ -15,6 +15,8 @@
 ; and .webm reels of it with its own codec.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./reel.inc")
+
 ;module
 (env-push)
 
@@ -71,17 +73,6 @@
 (defun mkv-uint (s at end)
 	(if (> end at) (code-be s (- end at) at) 0))
 
-(defun mkv-float (s at end)
-	; (mkv-float str at end) -> num
-	;a whole number held as a float of 4 or 8 bytes, a rate of sound
-	(defq bits (code-be s (- end at) at))
-	(cond
-		((= (- end at) 4)
-			(defq power (- (logand (>> bits 23) 0xff) 127))
-			(if (< power 0) 0 (>> (logior (logand bits 0x7fffff) 0x800000) (- 23 power))))
-		(:t (defq power (- (logand (>> bits 52) 0x7ff) 1023))
-			(if (< power 0) 0 (>> (logior (logand bits 0xfffffffffffff) 0x10000000000000) (- 52 power))))))
-
 (defun mkv-asc (name rate channels)
 	; (mkv-asc name rate channels) -> str
 	;an AudioSpecificConfig of AAC-LC of a rate and channels, or if the
@@ -124,7 +115,7 @@
 				((= id +mkv_audio)
 					(each (lambda ((id body stop))
 							(cond
-								((= id +mkv_rate) (. track :insert :sample_rate (mkv-float s body stop)))
+								((= id +mkv_rate) (. track :insert :sample_rate (reel-whole s body (- stop body))))
 								((= id +mkv_channels) (. track :insert :channels (mkv-uint s body stop)))))
 						(mkv-children s body stop)))))
 		(mkv-children s at end))
@@ -178,7 +169,7 @@
 	(bind '(number n _) (mkv-vint s at))
 	(when (defq track (some (# (if (= (. %0 :find :number) number) %0)) tracks))
 		(defq rel (code-be s 2 (+ at n)) flags (code s 1 (+ at n 2)))
-		(if (>= rel 0x8000) (setq rel (- rel 0x10000)))
+		(setq rel (sign-extend rel 16))
 		;the frames of a laced block each its frame's time on, the track's
 		;DefaultDuration in the cluster's time, :step
 		(each (lambda ((frame_at size))
