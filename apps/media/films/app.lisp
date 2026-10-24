@@ -183,6 +183,24 @@
 		(def *image_scroll* :min_width 128 :min_height 128)
 		(. *window* :change_dirty x y w h))))
 
+(defun zoom (scale)
+	;the film at another scale, from the frame it is at. A codec that can
+	;keeps its decoder, and is given a canvas of the scale: nothing is
+	;decoded again and the sound goes on. One that can not is made again,
+	;from the key before the frame, which may be seconds of decoding
+	(cond
+		((reel-rescale *codec* scale)
+			(setq *canvas* (. *codec* :find :canvas) *scale* scale)
+			(show *at*)
+			(bind '(w h) (. *canvas* :pref_size))
+			(def *image_scroll* :min_width w :min_height h)
+			;the scroll lets go of the canvas it had as it is given the new one
+			(. *image_scroll* :add_child *canvas*)
+			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+			(def *image_scroll* :min_width 128 :min_height 128)
+			(. *window* :change_dirty x y w h))
+		((win-refresh *file* scale *at* *reel*))))
+
 (defun open-path (file)
 	;a film by the path typed, or why not
 	(cond
@@ -279,8 +297,7 @@
 					(<= +event_smaller id +event_bigger))
 				;the film again, smaller or bigger, from the frame it is at
 				(defq scale (if (= id +event_smaller) (min 4 (inc *scale*)) (max 1 (dec *scale*))))
-				;the reel as it is, a codec of it made again at the scale
-				(if (/= scale *scale*) (win-refresh *file* scale *at* *reel*)))
+				(if (/= scale *scale*) (zoom scale)))
 			((and *reel* (= (getf *msg* +ev_msg_type) +ev_type_action)
 					(<= +event_play id +event_start))
 				(cond

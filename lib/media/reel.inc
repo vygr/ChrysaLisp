@@ -109,11 +109,18 @@
 			pcm (list (/ h 4) (* 3 (/ h 4))) '(0xff40c060 0xff4080e0)))
 	canvas)
 
+(defun reel-rescale (codec scale)
+	; (reel-rescale codec scale) -> :nil | codec
+	;the codec shown at another scale, if its kind can: its decoder as it
+	;is, nothing decoded again, on a canvas of the scale with the picture it
+	;had. :nil if it can not, and a codec of the scale is to be made
+	(if (defq rescale (. codec :find :rescale)) (rescale codec scale)))
+
 (defun reel-close (codec)
 	; (reel-close codec) -> :nil
 	;let go of what the codec holds that is not in Lisp, a host decoder
 	(if (defq close (elem-get (. codec :find :kind) 5)) (close codec)))
 
 ;module
-(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-close reel-wave reel-whole reel-pcm reel-clock))
+(export-symbols '(reel-kind reel-open reel-packet reel-codec reel-frame reel-rescale reel-close reel-wave reel-whole reel-pcm reel-clock))
 (env-pop)

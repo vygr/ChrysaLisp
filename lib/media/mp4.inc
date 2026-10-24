@@ -277,6 +277,16 @@
 		(. reel :insert :order order))
 	order)
 
+(defun mp4-rescale (codec scale)
+	; (mp4-rescale codec scale) -> codec
+	;the scale is only the canvas's: the host's decoder is kept as it is,
+	;and a canvas of the scale given the picture the old one had. A codec
+	;made again would decode from the key before the frame, seconds of it
+	(defq reel (. codec :find :reel)
+		canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale))
+	(. canvas :resize (. codec :find :canvas))
+	(scatter codec :canvas canvas :scale scale))
+
 (defun mp4-codec (reel &optional scale)
 	; (mp4-codec reel [scale]) -> :nil | codec
 	;the host's decoder of the video track's codec, on a canvas of its own,
@@ -292,7 +302,8 @@
 		;left off, a picture is put in its pixmap as far as that goes
 		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed 0 :at -1
 			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale
-			:order (mp4-order reel))))
+			:order (mp4-order reel) :rescale (const mp4-rescale))))
+
 
 (defun mp4-feed (codec n)
 	;the packets fed to the host till the picture shown nth is out on the
