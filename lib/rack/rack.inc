@@ -70,12 +70,12 @@
 		;seen and never takes the input of whoever is at the machine, Chris:
 		;"It can come up and down as much as it wants and it never steals my
 		;input etc ? We get to work on the same desktop with no issues."
-		(pii-spawn (cat (if gui "-gui -hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+		(defq pid (pii-spawn (cat (if gui "-gui -hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
 			(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
 			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
 			;a run keeps to itself, the member is what is in the mesh
 			tab "(def" tab "*root_env*" tab "'*env_node_solo*" tab ":t)"
-			tab "(import" tab "{lib/rack/session.lisp}))"))
+			tab "(import" tab "{lib/rack/session.lisp}))")))
 		;the session's last line is how long it took, "[12s]". The file is
 		;there before it is all written, so it is that line that is waited
 		;for, not the file: taken as soon as it was there, it could be empty.
@@ -83,12 +83,22 @@
 		;three times on a desktop of its own, tests -a, it is 310s to 370s,
 		;past the 340s this was. Under the 1770s the asker waits for the reply,
 		;only a run that has died: one that hangs shows where, line by line
-		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0
-			asker_node (if asker (slice asker +mailbox_id_size -1)))
+		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0 quiet 30
+			asker_node (if asker (slice asker +mailbox_id_size -1))
+			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text (ascii-char 10))))))
+		(if (< pid 0) (said "session could not be started"))
 		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
 				(< (- (pii-time) t0) 1740000000)
+				;the session is still there, one that died says so below
+				(> pid 0) (pii-alive pid)
 				;the one that asked is still there, or it is let go
 				(or (not asker_node) (find asker_node (lisp-nodes))))
+			;a session that has said nothing at all is said to be quiet, at 30
+			;seconds and each time it is as long again: a machine whose run
+			;never starts is seen to be so, not waited for
+			(when (and (not res) (> (- (pii-time) t0) (* quiet 1000000)))
+				(said (cat "session not started after " (str quiet) "s"))
+				(setq quiet (* quiet 2)))
 			;what is new of what it said, to the one that asked, whole lines
 			;each with the machine it is of, as several come at once
 			(when (and asker res (> (length res) told)
@@ -100,7 +110,9 @@
 			(when (> (- (pii-time) beat) 1000000)
 				(save (str (setq beat (pii-time))) alive_file))
 			(task-sleep 100000))
-		(unless (and res (ends-with done res)) (setq res :nil))
+		(unless (and res (ends-with done res))
+			(if (and (> pid 0) (not (pii-alive pid))) (said "session ended with no result"))
+			(setq res :nil))
 		(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
 		(push acc (ifn res (cat "NO RESULT" (ascii-char 10)))))
 		phases)
