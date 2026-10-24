@@ -15,7 +15,8 @@
 	(defq obj (cat "obj/" *cpu* "/" *abi* "/" name))
 	(pii-remove obj)
 	(save text (cat obj ".vp"))
-	(within-compile-env (# (include (cat obj ".vp"))))
+	(within-compile-env (lambda ()
+		(each (lambda (entry) (vp-translate-save entry)) (vp-compile (cat obj ".vp")))))
 	(pii-remove (cat obj ".vp"))
 	(ffi name))
 

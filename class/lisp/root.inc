@@ -1646,9 +1646,9 @@
 ;build_mode 1, normal, with error checking
 ;build_mode 2, validate, with extra runtime validation checking
 ;build_vp, a build's VP stage, the folder each source file's bundle of the
-;VP of its functions is kept in, obj/vp/<mode>/, and build_bundle that
-;bundle as it is made, see lib/asm/asm.inc
-(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0 *build_vp* :nil *build_bundle* :nil)
+;VP of its functions is kept in, obj/vp/<mode>/, see lib/asm/asm.inc, and
+;build_entries the functions' VP as (vp-compile) gathers it
+(defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
 
 ;what this machine is, the names the build and the object folders have,
 ;obj/<cpu>/<abi>/<os>. The host program says, it was built for them. They
@@ -1675,6 +1675,15 @@
 	(defun include (module) (import module *compile_env*))
 	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
 		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
+
+(defun vp-compile (file)
+	; (vp-compile file) -> ((name code [(locals ...)] [(kept ...)]) ...)
+	;within a compile env, the VP of the functions of a source file, an
+	;entry each, as a bundle has them. Nothing is translated or saved: what
+	;is done with them, and where it is kept, is the caller's
+	(def *compile_env* '*build_entries* (list))
+	(include file)
+	(get '*build_entries* *compile_env*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

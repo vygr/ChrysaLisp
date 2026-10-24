@@ -1105,8 +1105,10 @@
 	+unbound_defs ''("defun" "defmacro" "redefun" "redefmacro")
 	;a file run by another that gives it names it does not import: the
 	;tests by the tests command, the diagrams by make docs, the parts of
-	;the assembler in the env it makes. And what is not to be looked at
-	+unbound_context ''(("tests/" "tests/suite.inc" "tests/bench.inc")
+	;the assembler in the env it makes, the translator's to the VP spec
+	;test in the env it compiles in. And what is not to be looked at
+	+unbound_context ''(("tests/system/test_vp_spec.lisp" "tests/suite.inc" "lib/trans/vp.inc")
+		("tests/" "tests/suite.inc" "tests/bench.inc")
 		("docs/diagrams/" "lib/cwb/diagram.inc" "cmd/make.lisp")
 		("service/gui/" "sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc" "service/gui/app_impl.lisp")
 		("cmd/make.lisp" "lib/asm/class.inc")

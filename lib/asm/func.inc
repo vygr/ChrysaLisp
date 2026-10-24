@@ -190,28 +190,31 @@
 		(vp-align +ptr_size))
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
-	(defq *emit_code* (emit-vp-code *emit_list*))
-	(when *build_vp*
-		;a build's VP stage: the function's VP, the same for every platform,
-		;an entry of its source file's bundle, obj/vp/<mode>/<file>, for the
-		;other platforms' translate stage and for trace and the rest. Its
-		;name, the instructions, and after them, what the frames of named
-		;locals were and which of them were kept in registers
-		(defq *out* (cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
-				(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
-				*emit_code*) "\n") ")"
-			(if (nempty? *locals*) (cat "\n" (str (cat '(locals) *locals*))) "")
-			(if *kept* (cat "\n" (str (cat '(kept) *kept*))) "")))
-		(push *build_bundle* (cat (const (cat "(" (ascii-char 34))) (str *func_name*)
-			(const (cat (ascii-char 34) "\n")) *out* ")\n"))
-		(if *build_emit* (print *out*)))
-	;and assembled for this platform at once
-	(defq *out* (emit-translate *emit_code*))
-	;the header has 16 bits for the length, and for where the links and paths are
-	(if (> (length *out*) 0xffff) (throw "Function too big, over 64KB !" *func_name*))
-	(save *out* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(if (> *build_verb* 0)
-		(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")"))))
+	;the function's VP, the same for every platform, all a compile gives:
+	;its name, the instructions, and after them what the frames of named
+	;locals were and which of them were kept in registers. A copy, the
+	;list (emit-vp-code) gives is its own and made again for the next
+	(unless *build_entries* (throw "VP compiled other than by (vp-compile) !" *func_name*))
+	(defq entry (list (str *func_name*) (cat (emit-vp-code *emit_list*))))
+	(if (nempty? *locals*) (push entry (cat '(locals) *locals*)))
+	(if *kept* (push entry (cat '(kept) *kept*)))
+	(push *build_entries* entry)
+	(if *build_emit* (print (vp-code-text entry))))
+
+(defun vp-code-text (entry)
+	; (vp-code-text entry) -> str
+	;an entry's instructions and the forms after them, as text that reads
+	;back the same: a constant the Lisp left as a call is worked out
+	(cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
+			(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
+			(second entry)) "\n") ")"
+		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
+
+(defun vp-entry-text (entry)
+	; (vp-entry-text entry) -> str
+	;an entry as a bundle in obj/vp/<mode>/ has it
+	(cat (const (cat "(" (ascii-char 34))) (first entry) (const (cat (ascii-char 34) "\n"))
+		(vp-code-text entry) ")\n"))
 
 (defun abort (&optional s)
 	;no ret as that screws up the tracer !

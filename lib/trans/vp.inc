@@ -217,21 +217,27 @@
 			last_at at at (map (const eval) labels)))
 	buf)
 
+(defun vp-translate-save (entry)
+	; (vp-translate-save entry)
+	;a build's: a function's VP to this platform's native code, saved in
+	;obj/<cpu>/<abi>/ by its name. An entry is the name, the instructions,
+	;and the forms after them
+	(defq name (first entry) out (emit-translate (second entry)))
+	;the header has 16 bits for the length, and for where the links and paths are
+	(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
+	(save out (cat "obj/" *cpu* "/" *abi* "/" name))
+	(if (> *build_verb* 0)
+		(print "-> " (cat "obj/" *cpu* "/" *abi* "/" name) " (" (length out) ")")))
+
 (defun vp-translate-file (file dir)
 	; (vp-translate-file file dir)
 	;a build's translate stage: the bundle of the source file, as the VP
-	;stage left it in dir, obj/vp/<mode>/, each of its functions' VP to this
-	;platform's native code in obj/<cpu>/<abi>/. An entry is the name, the
-	;instructions, and the forms after them
+	;stage left it in dir, obj/vp/<mode>/, each of its functions to this
+	;platform's native code
 	(defq stream (file-stream (cat dir file)))
 	(while (defq entry (first (read stream)))
-		(defq name (first entry) out (emit-translate (second entry)))
-		;the header has 16 bits for the length, and for where the links and paths are
-		(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
-		(save out (cat "obj/" *cpu* "/" *abi* "/" name))
-		(if (> *build_verb* 0)
-			(print "-> " (cat "obj/" *cpu* "/" *abi* "/" name) " (" (length out) ")"))))
+		(vp-translate-save entry)))
 
 ;module
-(export-symbols '(emit-translate vp-translate-file))
+(export-symbols '(emit-translate vp-translate-save vp-translate-file))
 (env-pop)

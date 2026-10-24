@@ -50,10 +50,17 @@
 					(setq *msg* (list))
 					(catch (cond
 							((eql *kind* :vp)
-								(each (# (def *compile_env* '*build_bundle* (list))
-									(include %0)
-									(save (apply (const cat) (cat (list "") *build_bundle*)) (cat *build_vp* %0))
-									(save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) *files*))
+								;the compile gives the VP, this keeps it: the bundle,
+								;and each function translated as it goes, by name
+								(each (lambda (file)
+										(defq bundle (list))
+										(each (lambda (entry)
+												(push bundle (vp-entry-text entry))
+												(vp-translate-save entry))
+											(vp-compile file))
+										(save (apply (const cat) (cat (list "") bundle)) (cat *build_vp* file))
+										(save "" (cat "obj/" *cpu* "/" *abi* "/" file)))
+									*files*))
 							(:t (include "lib/asm/func.inc")
 								(each (# (vp-translate-file %0 *build_vp*)
 									(save "" (cat "obj/" *cpu* "/" *abi* "/" %0))) *files*)))
