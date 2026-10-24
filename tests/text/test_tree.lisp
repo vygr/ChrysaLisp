@@ -49,6 +49,7 @@
 ;(each) was written three times in a day, and found three times by running
 ;it, when check had known of it all along. Not what tests leave in
 ;tests/scratch, some of that is wrong on purpose
+;stands on the whole tree
 (defq tt_said (list))
 (pipe-run "files | check -j 40" (# (push tt_said %0)))
 (assert-list-eq "check finds nothing wrong in any source file of the tree" '()

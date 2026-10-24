@@ -43,6 +43,8 @@
 	;run again beside itself is slower, and after three the farm stops
 	;and every batch still out has no result
 	+test_counts "=== " +test_module_counts "=#= " +test_retry 300000000
+	;the line of a module that looks at every source file of the tree
+	+test_whole_tree ";stands on the whole tree"
 	;with -p a run says how it goes, a line each, for a progress bar or
 	;whatever reads it as it comes: what is to run and why, what was kept,
 	;each module as it starts and as it is done, and when it is over
@@ -359,10 +361,20 @@
 		(sort (files-all (slice (load-path) 0 -2) '("main_gui" "main_tui" "main_gui.exe" "main_tui.exe")))
 		(test-stands-on (list "class/lisp/root.inc" "class/lisp/task.inc" "tests/suite.inc" "cmd/tests.lisp")))))
 
+(defun test-tree-files ()
+	; (test-tree-files) -> paths
+	;every source file of the tree, not what tests leave in tests/scratch
+	(filter (# (not (starts-with "tests/scratch/" %0)))
+		(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0)) (files-all "." '(".lisp" ".inc" ".vp")))))
+
 (defun test-key (module base)
 	; (test-key module base) -> str
-	;the hash of all a module stands on
-	(test-hex (sha256 (cat base (test-hash-of (test-stands-on (list module)))))))
+	;the hash of all a module stands on. One that looks at every source
+	;file, check run over the tree, says so in a line of its own, and every
+	;file is what it stands on, so a change to any of them runs it again
+	(defq files (test-stands-on (list module)))
+	(if (found? (ifn (load module) "") +test_whole_tree) (setq files (cat files (test-tree-files))))
+	(test-hex (sha256 (cat base (test-hash-of files)))))
 
 (defun test-cache-load ()
 	; (test-cache-load) -> fmap
