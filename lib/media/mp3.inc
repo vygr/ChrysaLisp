@@ -98,6 +98,9 @@
 		(scatter +mp3 :made :t
 			:matvec (ffi "lib/media/media_matvec") :lines (ffi "lib/media/media_mp3_lines") :dequant (ffi "lib/media/media_dequant")
 			:window (ffi "lib/media/media_window") :alias_native (ffi "lib/media/media_mp3_alias")
+			:column (ffi "lib/media/media_gather") :none (fill (reals) 18 (n2r 0))
+			;2^(e/4) of the gains of a band, from -1024
+			:gains (reduce (# (push %0 (pow (n2r 2) (/ (n2r (- %1 1024)) (n2r 4))))) (range 0 1280) (cap 1280 (reals)))
 			:starts (map (lambda (widths) (reduce (# (push %0 (+ (last %0) %1))) widths (list 0))) (. +mp3 :find :long))
 			:pow (reduce (# (push %0 (if (= %1 0) (n2r 0) (pow (n2r %1) third)))) (range 0 8207) (cap 8207 (reals)))
 			:cs (reduce (# (push %0 (/ (n2r 1) (sqrt (+ (n2r 1) (* (str-to-real %1) (str-to-real %1))))))) (. +mp3 :find :alias) (reals))
@@ -108,11 +111,14 @@
 		(defq sin36 (lambda (i) (sin (/ (* pi (+ (n2r i) (n2r 0.5))) (n2r 36))))
 			sin12 (lambda (i) (sin (/ (* pi (+ (n2r i) (n2r 0.5))) (n2r 12))))
 			zero (n2r 0) one (n2r 1))
-		(. +mp3 :insert :windows (list
+		(. +mp3 :insert :windows (defq windows (list
 			(reduce (# (push %0 (sin36 %1))) (range 0 36) (reals))
 			(reduce (# (push %0 (cond ((< %1 18) (sin36 %1)) ((< %1 24) one) ((< %1 30) (sin12 (- %1 18))) (zero)))) (range 0 36) (reals))
 			(reduce (# (push %0 (sin12 %1))) (range 0 12) (reals))
-			(reduce (# (push %0 (cond ((< %1 6) zero) ((< %1 12) (sin12 (- %1 6))) ((< %1 18) one) ((sin36 %1))))) (range 0 36) (reals))))
+			(reduce (# (push %0 (cond ((< %1 6) zero) ((< %1 12) (sin12 (- %1 6))) ((< %1 18) one) ((sin36 %1))))) (range 0 36) (reals)))))
+		;those of an odd subband, its odd samples of the other sign, theirs
+		;and the half left for the next both
+		(. +mp3 :insert :odd_windows (map (lambda (w) (reduce (# (push %0 (if (odd? (!)) (neg %1) %1))) w (cap (length w) (reals)))) windows))
 		;D of the standard, the half given and its mirror
 		(defq d (fill (reals) 512 (n2r 0)) k (n2r 65536))
 		(each (lambda (v)
@@ -334,7 +340,7 @@
 (defun mp3-band (out lines at width e pow)
 	;a band's lines requantised, |x|^4/3 by 2^(e/4), signed, native,
 	;lib/media/lisp.vp media_dequant
-	((. +mp3 :find :dequant) out lines at (+ at width) pow (pow (n2r 2) (/ (n2r e) (n2r 4)))))
+	((. +mp3 :find :dequant) out lines at (+ at width) pow (elem-get (. +mp3 :find :gains) (+ e 1024))))
 
 (defun mp3-requant (g lines sf sri)
 	; (mp3-requant granule lines sf sri) -> reals
@@ -383,27 +389,37 @@
 	;short block three of 12 of its 6 a window, by the window of its block
 	;type, the two lowest of a mixed block of any type the plain window's;
 	;the first half on what the last left, the second half left for the
-	;next; of an odd subband the odd samples the other sign
-	(defq c36 (. +mp3 :find :c36) c12 (. +mp3 :find :c12) windows (. +mp3 :find :windows)
-		bt (. g :find :bt) mixed (. g :find :mixed) zero (n2r 0))
+	;next; of an odd subband the odd samples the other sign, by its windows
+	(defq c36 (. +mp3 :find :c36) c12 (. +mp3 :find :c12) evens (. +mp3 :find :windows) odds (. +mp3 :find :odd_windows)
+		bt (. g :find :bt) mixed (. g :find :mixed) zero (n2r 0) y36 (fill (reals) 36 zero)
+		none (. +mp3 :find :none) top 32)
+	;the subbands above the highest with a line not 0, often a quarter,
+	;their IMDCT nothing: the half the last left heard as it is, none left
+	(while (and (> top 0) (= zero (nums-dot (defq q (slice x (* 18 (dec top)) (* 18 top))) q)))
+		(setq top (dec top)))
 	(map (lambda (sb)
-			(defq z (cond
-					((and (= bt 2) (not (and (= mixed 1) (< sb 2))))
-						(defq z (fill (reals) 36 zero))
-						(each (lambda (w)
-								(defq xw (reduce (# (push %0 (elem-get x (+ (* 18 sb) (* 3 %1) w)))) (range 0 6) (cap 6 (reals))))
-								(each (lambda (y win)
-										(defq i (+ 6 (* 6 w) (!)))
-										(elem-set z i (+ (elem-get z i) (* win y))))
-									((. +mp3 :find :matvec) c12 12 6 xw 0 (fill (reals) 12 zero)) (elem-get windows 2)))
-							'(0 1 2))
-						z)
-					(:t (nums-mul ((. +mp3 :find :matvec) c36 36 18 x (* 18 sb) (fill (reals) 36 zero))
-							(elem-get windows (if (or (= bt 2) (and (= mixed 1) (< sb 2))) 0 bt)))))
-				out (nums-add (slice z 0 18) (elem-get overlap sb)))
-			(elem-set overlap sb (slice z 18 36))
-			(if (odd? sb) (each (# (elem-set out %0 (neg (elem-get out %0)))) '(1 3 5 7 9 11 13 15 17)))
-			out)
+			(cond
+				((>= sb top)
+					(defq out (elem-get overlap sb))
+					(elem-set overlap sb none)
+					out)
+				(:t (defq windows (if (odd? sb) odds evens) z (cond
+							((and (= bt 2) (not (and (= mixed 1) (< sb 2))))
+								(defq z (fill (reals) 36 zero))
+								(each (lambda (w)
+										(defq xw (reduce (# (push %0 (elem-get x (+ (* 18 sb) (* 3 %1) w)))) (range 0 6) (cap 6 (reals))))
+										(each (lambda (y win)
+												(defq i (+ 6 (* 6 w) (!)))
+												(elem-set z i (+ (elem-get z i) (* win y))))
+											((. +mp3 :find :matvec) c12 12 6 xw 0 (fill (reals) 12 zero)) (elem-get windows 2)))
+									'(0 1 2))
+								z)
+							(:t (nums-mul ((. +mp3 :find :matvec) c36 36 18 x (* 18 sb) y36)
+									(elem-get windows (if (or (= bt 2) (and (= mixed 1) (< sb 2))) 0 bt)) y36)))
+						out (slice z 0 18))
+					(nums-add out (elem-get overlap sb) out)
+					(elem-set overlap sb (slice z 18 36))
+					out)))
 		(range 0 32)))
 
 (defun mp3-synth (subbands v pcm at)
@@ -411,10 +427,12 @@
 	;the polyphase filterbank: for each of the 18 times, the 32 subbands'
 	;samples into the 64 of the matrix, on the front of the 1024 of v, and
 	;of the window D over 16 of them 32 samples, into pcm from at
-	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (n2r 32768))
+	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (n2r 32768) column (. +mp3 :find :column)
+		s (fill (reals) 32 (n2r 0)) m (fill (reals) 64 (n2r 0)))
 	(each (lambda (t)
-			(defq s (reduce (# (push %0 (elem-get %1 t))) subbands (cap 32 (reals))))
-			(setq v (cat ((. +mp3 :find :matvec) rows 64 32 s 0 (fill (reals) 64 (n2r 0))) (slice v 0 960)))
+			;the subbands' samples of time t, native, lib/media/lisp.vp media_gather
+			(column s subbands t)
+			(setq v (cat ((. +mp3 :find :matvec) rows 64 32 s 0 m) (slice v 0 960)))
 			((. +mp3 :find :window) v d pcm (+ at (* 32 t)) k 32 8 64 128 32 96))
 		(range 0 18))
 	v)

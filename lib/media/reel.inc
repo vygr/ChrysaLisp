@@ -97,12 +97,13 @@
 	;the right, a column of two pixels a sample, joined to the one before
 	(.-> canvas (:fill 0xff000000) (:set_color 0xff303030) (:fbox 0 (dec (/ h 2)) w 1))
 	(when pcm
+		(defq fbox (const (ffi "gui/canvas/lisp_fbox")))
 		(each (lambda (samples mid colour)
-				(defq len (length samples) k (/ (n2r (/ h 4)) (n2r 32768)) y0 mid)
+				(defq len (length samples) y0 mid ys (nums-scale samples (/ (n2r (/ h 4)) (n2r 32768))))
 				(. canvas :set_color colour)
 				(each (lambda (x)
-						(defq y (- mid (n2i (* (elem-get samples (/ (* x len) w)) k))))
-						(. canvas :fbox x (min y y0) 2 (inc (abs (- y y0))))
+						(defq y (- mid (n2i (elem-get ys (/ (* x len) w)))))
+						(fbox canvas x (min y y0) 2 (inc (abs (- y y0))))
 						(setq y0 y))
 					(range 0 w 2)))
 			pcm (list (/ h 4) (* 3 (/ h 4))) '(0xff40c060 0xff4080e0)))

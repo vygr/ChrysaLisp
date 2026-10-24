@@ -13,8 +13,10 @@
 (import "lib/media/flac.inc")
 (import "lib/media/adpcm.inc")
 
-;how far ahead of what is heard the stream is kept, in seconds
-(defq +sound_ahead 0.25)
+;how far ahead of what is heard the stream is kept, in seconds, and how
+;many of the frames an MP3's sound decoded last it keeps for its pictures,
+;more than are written ahead
+(defq +sound_ahead 0.25 +sound_kept 32)
 
 (defun sound-of (reel)
 	; (sound-of reel) -> :nil | sound
@@ -55,6 +57,8 @@
 						:before (mp3-before (. head :find :size))
 						:make (lambda (sound) (scatter (mp3-decoder) :samples (. sound :find :size)))
 						:read (if own (lambda (sound n) (reel-packet (. sound :find :reel) n)))
+						;of an MP3 its pictures are its frames, kept as they are decoded
+						:kept (if own (map (lambda (_) :nil) (range 0 +sound_kept)))
 						;a frame not read is heard as nothing
 						:decode (lambda (decoder packet)
 							(defq pcm (if packet (catch (mp3-frame decoder packet) :t)))
@@ -198,13 +202,24 @@
 		(while (and (< left ahead) (< next packets))
 			;of PCM of 16 bit stereo, the packet as it is
 			(defq chans (sound-packet sound next) drop (. sound :find :drop)
+				kept (. sound :find :kept)
 				data (if (str? chans) (slice chans (* 4 drop) -1)
 					(sound-pcm sound (first chans) (ifn (second chans) (first chans)) drop)))
 			(audio-stream-write-rpc handle data)
+			(if kept (elem-set kept (% next +sound_kept) (list next chans)))
 			(defq got (if (str? chans) (- (/ (length chans) 4) drop) (- (length (first chans)) drop)))
 			(setq written (+ written got) left (+ left got) next (inc next))
 			(. sound :insert :drop 0))
 		(scatter sound :written written :next next)))
+
+(defun sound-kept (sound n)
+	; (sound-kept sound n) -> :nil | (left right)
+	;the samples of packet n, of a sound that keeps them, if it decoded it
+	;lately
+	(and (defq kept (. sound :find :kept))
+		(defq got (elem-get kept (% n +sound_kept)))
+		(= (first got) n)
+		(second got)))
 
 (defun sound-clock (sound)
 	; (sound-clock sound) -> seconds

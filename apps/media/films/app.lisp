@@ -51,10 +51,23 @@
 	(set *status* :text text)
 	(.-> *status* :layout :dirty))
 
+(defun sound-on? ()
+	(and *sound* *playing* (. *sound* :find :handle)))
+
+(defun frame-draw (n)
+	;frame n on the canvas, the codec reads the packets it needs for it. Of
+	;an MP3 being heard, the samples its sound decoded, not decoded again:
+	;the codec's own decoder is then behind, and starts again from before
+	;the next it is asked for
+	(ifn (and (sound-on?) (defq pcm (sound-kept *sound* n)))
+		(reel-frame *codec* n)
+		(reel-wave *canvas* (. *reel* :find :width) (. *reel* :find :height) pcm)
+		(. *codec* :insert :at -2)))
+
 (defun show (n)
-	;frame n on the canvas, the codec reads the packets it needs for it
+	;frame n on the canvas
 	(setq *at* n *seek* n)
-	(reel-frame *codec* n)
+	(frame-draw n)
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
@@ -65,9 +78,6 @@
 		(if (> (. *codec* :find :scale) 1) (cat ", 1/" (str (. *codec* :find :scale)) " size") "")
 		(cond ((> *sync* 0) (cat ", sound +" (str *sync*) "ms")) ((< *sync* 0) (cat ", sound " (str *sync*) "ms")) (""))
 		(if *playing* "" ", paused"))))
-
-(defun sound-on? ()
-	(and *sound* *playing* (. *sound* :find :handle)))
 
 (defun play (on)
 	;the sound started from the frame shown, or stopped
