@@ -25,17 +25,39 @@
 						(if entry (list entry (cat dir file))))))
 			(first (defq listed (dir-list dir))) (second listed))))
 
-(defun source-hash (mode name)
-	; (source-hash mode name) -> :nil | hex
+(defun source-known (mode name)
+	; (source-known mode name) -> :nil | (hash links)
 	;the hash of a function's VP as this system built it, the text of its
-	;entry, kept till its bundle is built again
+	;entry, and the functions it calls, kept till its bundle is built
+	;again: a bundle is read and its VP parsed once, not each time asked
 	(defq key (cat mode " " name) kept (. *source_hashes* :find key))
 	(cond
-		((and kept (= (age (first kept)) (second kept))) (third kept))
+		((and kept (= (age (first kept)) (second kept))) (slice kept 2 -1))
 		((defq found (source-entry mode name))
 			(bind '(entry file) found)
-			(defq hash (hex-encode (sha256 (str entry))))
-			(. *source_hashes* :insert key (list file (age file) hash))
+			(defq hash (hex-encode (sha256 (str entry))) links (source-vp-links entry))
+			(. *source_hashes* :insert key (list file (age file) hash links))
+			(list hash links))))
+
+(defun source-hash (mode name)
+	; (source-hash mode name) -> :nil | hex
+	(first (source-known mode name)))
+
+(defun source-links-of (mode name)
+	; (source-links-of mode name) -> (name ...)
+	(second (source-known mode name)))
+
+(defun source-file-hash (path)
+	; (source-file-hash path) -> :nil | hex
+	;the hash of a file that is given, kept till the file changes: what a
+	;task elsewhere reads its own copy of if it has the same
+	(defq at (age path) kept (. *source_files* :find path))
+	(cond
+		((= at 0) :nil)
+		((and kept (= (first kept) at)) (second kept))
+		((defq text (load path))
+			(defq hash (hex-encode (sha256 text)))
+			(. *source_files* :insert path (list at hash))
 			hash)))
 
 (defun source-translator ()
@@ -90,7 +112,7 @@
 			(cond
 				((defq hash (source-hash mode name))
 					(push lines (cat name " " hash))
-					(each (# (push todo %0)) (source-vp-links (first (source-entry mode name)))))
+					(each (# (push todo %0)) (source-links-of mode name)))
 				((setq lines :nil todo (list))))))
 	(if lines (join lines (ascii-char 10))))
 
@@ -115,7 +137,13 @@
 	;after another, for the task to place
 	(bind '(sid svc mode name) (split args " "))
 	(defq svc (hex-decode svc) self (eql svc (task-mbox))
-		manifest (if self (source-manifest mode name) (source-ask svc (cat "#" mode " " name)))
+		key (cat (hex-encode svc) " #" mode " " name)
+		;the manifest of another system's function is asked of it once and kept
+		manifest (cond
+			(self (source-manifest mode name))
+			((. *source_kept* :find key))
+			((defq got (source-ask svc (cat "#" mode " " name)))
+				(. *source_kept* :insert key got) got))
 		natives (list) missing (list) same (list) given (list) theirs_own (list))
 	(when manifest
 		(each (lambda (line)
@@ -139,7 +167,7 @@
 			(setq more :nil)
 			(each (lambda (name)
 					(when (and (not (find name theirs_own))
-							(some (# (find %0 theirs_own)) (source-vp-links (first (source-entry mode name)))))
+							(some (# (find %0 theirs_own)) (source-links-of mode name)))
 						(push theirs_own name)
 						(setq more :t)
 						(unless (find name given)
@@ -157,22 +185,161 @@
 			(if (/= got (length missing)) (setq manifest :nil))))
 	(if manifest (apply (const cat) (cat (list "") natives))))
 
+(defun source-tree (root)
+	; (source-tree root) -> (path ...)
+	;a file that is given and all it imports, all the way down, itself
+	;first: what a task elsewhere that imports it will want. By the imports
+	;its text names, one made at run time is asked for when it is made.
+	;Kept till one of them changes
+	(defq kept (. *source_trees* :find root))
+	(cond
+		((and kept (every (lambda ((path at)) (= (age path) at)) (first kept)))
+			(second kept))
+		(:t (defq paths (list root) at 0)
+			(while (< at (length paths))
+				(defq file (elem-get paths at))
+				(each (lambda (line)
+						(when (found? line "(import ")
+							(defq pieces (split line (const (cat (ascii-char 34) "{}"))))
+							(each! (lambda (piece)
+									(and (ends-with "(import " (elem-get pieces (dec (!))))
+										(defq name (catch (path-to-absolute piece file) :nil))
+										(/= (age name) 0) (source-given? name) (not (find name paths))
+										(push paths name)))
+								(list pieces) 1)))
+					(split (ifn (load file) "") (ascii-char 10)))
+				(setq at (inc at)))
+			(. *source_trees* :insert root (list (map (# (list %0 (age %0))) paths) paths))
+			paths)))
+
+(defun source-bundle (svc paths)
+	; (source-bundle svc paths) -> answer
+	;what a task here is given of those files of that system, as kept
+	(cat "y" (source-pack (map (# (cat (list %0) (. *source_kept* :find (cat svc " " %0)))) paths))))
+
+(defun source-fetch (args)
+	; (source-fetch args) -> :nil | answer
+	;a file of another system for a task here, "%sid svc path", and all it
+	;imports. That system is asked once, for the hash of each, and the text
+	;of those that are not the same as the copy here, and the answers kept:
+	;L, the copy here is the same, T and the text, or n. Each task that
+	;wants the file while that is asked waits, and is answered as it comes,
+	;and every one after from what was kept. :nil is that it is being
+	;asked. One asked longer ago than a task waits is asked again. What is
+	;kept is of that @Source: one started again has another mailbox
+	(defq at (find " " args) rest (slice args (inc at) -1)
+		at (find " " rest) svc (slice rest 0 at) path (slice rest (inc at) -1)
+		key (cat svc " " path) out (. *source_out* :find key))
+	(source-count :asked)
+	(cond
+		((not (source-given? path)) "n")
+		((defq tree (. *source_known* :find key)) (source-count :kept) (source-bundle svc tree))
+		((. *source_kept* :find key) (source-count :kept) (source-bundle svc (list path)))
+		((and out (< (- (pii-time) (first out)) (task-timeout +source_wait)))
+			(push (second out) (getf *source_msg* +source_rpc_reply_id))
+			:nil)
+		(:t (. *source_out* :insert key (list (pii-time) (list (getf *source_msg* +source_rpc_reply_id))))
+			(source-tell svc (cat "&" key (ascii-char 10) path))
+			:nil)))
+
+(defun source-count (what)
+	;one more of what this service has done, (source-stats)
+	(. *source_counts* :insert what (inc (ifn (. *source_counts* :find what) 0))))
+
+(defun source-tell (svc request)
+	;a request to the @Source of another system, its answer to come back
+	(source-count :told)
+	(mail-send (hex-decode svc) (cat (setf-> (str-alloc +source_rpc_size)
+		(+source_rpc_reply_id *source_back*)) request)))
+
+(defun source-done (key)
+	;the file of the key and all it imports are kept, the tasks that wait
+	;for it are given them
+	(defq at (find " " key) svc (slice key 0 at) tree (. *source_known* :find key))
+	(when (defq out (. *source_out* :find key))
+		(. *source_out* :erase key)
+		(each (# (mail-send %0 (if tree (source-bundle svc tree) "n"))) (second out))))
+
+(defun source-fetched (msg)
+	;an answer of another system. &: the hash of each file of the tree,
+	;those the same as the copy here are kept as L, and the text of the
+	;rest asked for. *: those texts, kept as T. Then the tasks that wait
+	;are given them
+	(defq at (find (ascii-char 10) msg) key (slice msg 1 at) body (slice msg (inc at) -1)
+		at (find " " key) svc (slice key 0 at))
+	(cond
+		((starts-with "&" msg)
+			(cond
+				((eql body "n") (source-done key))
+				(:t (defq tree (list) want (list))
+					(each (lambda (line)
+							(bind '(path theirs) (split line " "))
+							(push tree path)
+							(if (eql theirs (source-file-hash path))
+								(. *source_kept* :insert (cat svc " " path) (list "L" ""))
+								(push want path)))
+						(split body (ascii-char 10)))
+					(. *source_known* :insert key tree)
+					(if (empty? want) (source-done key)
+						(source-tell svc (cat "*" key (ascii-char 10) (join want (ascii-char 10))))))))
+		((starts-with "*" msg)
+			(each (lambda ((path tag text)) (. *source_kept* :insert (cat svc " " path) (list tag text)))
+				(source-unpack body))
+			(source-done key))))
+
+(defun source-tree-answer (args)
+	; (source-tree-answer args) -> answer
+	;"&key\npath" of a @Source elsewhere: the key back, then the path and
+	;hash of the file and each it imports, a line each, n if not given
+	(defq at (find (ascii-char 10) args) key (slice args 0 at) file (slice args (inc at) -1))
+	(cat "&" key (ascii-char 10)
+		(if (and (source-given? file) (/= (age file) 0))
+			(join (map (# (cat %0 " " (source-file-hash %0))) (source-tree file)) (ascii-char 10))
+			"n")))
+
+(defun source-texts-answer (args)
+	; (source-texts-answer args) -> answer
+	;"*key\npath..." of a @Source elsewhere: the key back, then those files
+	(defq paths (split args (ascii-char 10)) key (first paths))
+	(cat "*" key (ascii-char 10)
+		(source-pack (map! (# (if (source-given? %0) (list %0 "T" (ifn (load %0) "")) (list %0 "n" "")))
+			(list paths) 1 -1))))
+
+(defun source-answer (request)
+	; (source-answer request) -> :nil | answer
+	;what a request is answered with, :nil if it is answered later
+	(cond
+		;what it has done, "!": tasks' asks, those answered from what was
+		;kept, and the asks it made of other systems
+		((eql request "!")
+			(cat "y" (str (map (# (ifn (. *source_counts* :find %0) 0)) '(:asked :kept :told)))))
+		;a file of another system for a task here, "%sid svc path"
+		((starts-with "%" request) (source-fetch (slice request 1 -1)))
+		;a file and all it imports, of a @Source elsewhere, "&key\npath"
+		((starts-with "&" request) (source-tree-answer (slice request 1 -1)))
+		;the texts of files, of a @Source elsewhere, "*key\npath..."
+		((starts-with "*" request) (source-texts-answer (slice request 1 -1)))
+		((starts-with "+" request)
+			(if (defq natives (source-translate (slice request 1 -1))) (cat "y" natives) "n"))
+		;the hashes of a function and all it calls, "#mode name"
+		((starts-with "#" request)
+			(bind '(mode name) (split (slice request 1 -1) " "))
+			(if (defq text (source-manifest mode name)) (cat "y" text) "n"))
+		;the VP of functions, "$mode name ..."
+		((starts-with "$" request)
+			(defq names (split (slice request 1 -1) " "))
+			(cat "y" (source-entries (first names) (rest names))))
+		((and (source-given? request) (defq text (load request))) (cat "y" text))
+		("n")))
+
 (defun main ()
 	(defq service (mail-declare (task-mbox) "@Source" "Source Service 0.2") *source_env* (env)
-		*source_hashes* (Fmap 101))
+		*source_hashes* (Fmap 101) *source_files* (Fmap 101) *source_out* (Fmap 31) *source_kept* (Fmap 101)
+		*source_known* (Fmap 31) *source_trees* (Fmap 31) *source_counts* (Fmap 11)
+		*source_back* (mail-mbox) select (list (task-mbox) *source_back*) *source_msg* :nil)
 	(while :t
-		(defq msg (mail-read (task-mbox)) path (slice msg +source_rpc_size -1))
-		(mail-send (getf msg +source_rpc_reply_id)
-			(cond
-				((starts-with "+" path)
-					(if (defq natives (source-translate (slice path 1 -1))) (cat "y" natives) "n"))
-				;the hashes of a function and all it calls, "#mode name"
-				((starts-with "#" path)
-					(bind '(mode name) (split (slice path 1 -1) " "))
-					(if (defq text (source-manifest mode name)) (cat "y" text) "n"))
-				;the VP of functions, "$mode name ..."
-				((starts-with "$" path)
-					(defq names (split (slice path 1 -1) " "))
-					(cat "y" (source-entries (first names) (rest names))))
-				((and (source-given? path) (defq text (load path))) (cat "y" text))
-				("n")))))
+		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
+		(cond
+			((= idx 1) (source-fetched msg))
+			((defq *source_msg* msg answer (source-answer (slice msg +source_rpc_size -1)))
+				(mail-send (getf msg +source_rpc_reply_id) answer)))))

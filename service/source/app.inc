@@ -6,6 +6,7 @@
 ;docs/ai_digest/source_service.md
 
 (import "lib/asm/lisp.inc")
+(import "lib/crypto/sha256.inc")
 
 ;a boot image from before function servers has no lisp_server, and every
 ;session starts this service: there the name is not bound, and a task is
@@ -54,13 +55,45 @@
 		(defq answer (mail-read (first select)))
 		(if (starts-with "y" answer) (slice answer 1 -1))))
 
+(defun source-pack (entries)
+	; (source-pack entries) -> str
+	;files, (path tag text) each, one after another: its path, its tag and
+	;the length of its text on lines of their own, then the text
+	(apply (const cat) (cat (list "") (map (lambda ((path tag text))
+			(cat path (ascii-char 10) tag (ascii-char 10) (str (length text)) (ascii-char 10) text))
+		entries))))
+
+(defun source-unpack (data)
+	; (source-unpack str) -> ((path tag text) ...)
+	(defq out (list) at 0 lf (ascii-char 10))
+	(while (< at (length data))
+		(defq a (find lf data at) b (find lf data (inc a)) c (find lf data (inc b))
+			n (str-as-num (slice data (inc b) c)))
+		(push out (list (slice data at a) (slice data (inc a) b) (slice data (inc c) (+ (inc c) n))))
+		(setq at (+ (inc c) n)))
+	out)
+
 (defun source-stream (sid svc path)
 	; (source-stream sid svc path) -> :nil | stream
 	;a file of a system as a stream, by the system id in hex and its
-	;@Source: a file stream on that system, the text asked of it on another
-	(if (eql sid (hex-encode (system-id)))
-		(if (/= (age path) 0) (file-stream path))
-		(and (defq text (source-ask svc path)) (string-stream text))))
+	;@Source: a file stream on that system. On another the @Source of this
+	;one is asked, once, for the file and all it imports, all the way down:
+	;it has them of that system, asked once for all the tasks here. Each is
+	;L, the copy here is the same, as what the two systems have in common
+	;is, T and the text, or n. What this task is given it keeps, and its
+	;imports after are read from that
+	(defq got (ifn (get '*source_got*) (Fmap 11)))
+	(cond
+		((eql sid (hex-encode (system-id)))
+			(if (/= (age path) 0) (file-stream path)))
+		((or (. got :find path)
+				(and (defq answer (source-ask (source-here) (cat "%" sid " " (hex-encode svc) " " path)))
+					(progn (each (lambda ((p tag text)) (. got :insert p (list tag text))) (source-unpack answer))
+						(. got :find path))))
+			(bind '(tag text) (. got :find path))
+			(cond
+				((eql tag "L") (if (/= (age path) 0) (file-stream path)))
+				((eql tag "T") (string-stream text))))))
 
 (defun source-task (path)
 	; (source-task path) -> task
@@ -129,7 +162,7 @@
 	;And an ffi that has a native from there too, translated here, placed in
 	;the task's own function server, named by the system id
 	(static-qq (progn
-		(defq *source_system* ,sid *source_service* (hex-decode ,svc)
+		(defq *source_system* ,sid *source_service* (hex-decode ,svc) *source_got* (Fmap 31)
 			*source_ffi* ffi
 			import (lambda (module &optional dst_env)
 				(setq module (path-to-absolute module))

@@ -59,9 +59,32 @@ from the module that imports it, as before. It reads by
 
 * On the system that sent it, the ids are the same, and the file is read as a
   file, `file-stream`. Nothing is asked.
-* On another, the text is asked of the service, `(source-ask svc path)`, and
-  read as a `string-stream`. Each file the task imports is had this way, the
-  ones its files import too, and errors name the file and line as ever.
+* On another, the `@Source` of the system it runs on is asked, `%`, once,
+  for the file and all it imports, all the way down. Each comes back as `L`,
+  the copy there is the same, read as a file, `T` and the text, read as a
+  `string-stream`, or `n`. The task keeps what it is given, and its imports
+  after are read from that with no asking. Errors name the file and line as
+  ever.
+
+## One machine asks once
+
+The `@Source` of each machine is the broker for its tasks. Asked for a file
+of another system, `%sid svc path`, it asks that system's `@Source` once,
+`&`, for the file and all it imports, the hash of each, and compares them
+with the copies it has. The text is asked for, `*`, only of those that are
+not the same. What comes back is kept, and the tasks that asked meanwhile,
+200 children of a farm say, are all answered as it comes; every one after
+is answered from what was kept. The manifests of natives are kept the same
+way. So the system that sent the tasks is asked once for each tree, however
+many tasks it sent. What is kept is of that `@Source`: one started again has
+another mailbox, and is asked anew; a file changed under one that runs on is
+not seen till then.
+
+The service keeps the hash of each file of its own till the file changes,
+and of each function its hash and the functions it calls till its bundle is
+built again, so a bundle is read and parsed once. `!` says what it has done:
+the asks of tasks, those answered from what was kept, and the asks it made
+of other systems, as `tests/system/test_source.lisp` counts them.
 
 Once its files are read the task runs its `main`, as any task does.
 
@@ -125,7 +148,7 @@ of its own, so an answer that comes late goes to a mailbox nobody reads.
 * Only `import` reads from the sender. A `load` or a `file-stream` in the task
   reads where it runs, and so does an `import` inside a function of a library
   that was read before the task's `import` was made.
-* Every Lisp file comes from the sender, each time a task is sent, a whole
-  file in one answer. There is no cache of them by their content yet.
+* An import made at run time, a path worked out as the task goes, is not
+  in the tree its file names, and is asked for by itself.
 * The translator is this system's own, not the sender's: the same on one
   waypoint.

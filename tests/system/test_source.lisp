@@ -175,3 +175,28 @@
 	"(mail-send (hex-decode {" (hex-encode mbox) "}) (source-task {apps/system/netmon/child.lisp}))")
 	+kn_call_pin)
 (assert-true "a task it sends names its originator" (found? (mail-read mbox) "{Ulk}"))
+
+;a task of another system that imports a module, and all it imports: the
+;@Source here is asked once for the whole of it, and asks that system once,
+;the hash of each file, and its copies here are the same, so no text. A
+;second task like it is answered from what was kept, that system not asked
+(defun so-stats ()
+	; (so-stats) -> (asked kept told)
+	(first (read (string-stream (source-ask so_svc "!")))))
+(defun so-tree-task ()
+	;what a task of the other system was given, as it imports Mandelbrot's
+	;app.inc and so all that imports
+	(defq mbox (mail-mbox))
+	(open-child (cat "(import {service/source/app.inc})" (ascii-char 10)
+		"(source-import {0} {" (hex-encode so_svc) "})" (ascii-char 10)
+		"(import {apps/science/mandelbrot/app.inc})" (ascii-char 10)
+		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (length (tolist *source_got*))))") +kn_call_pin)
+	(str-as-num (mail-read mbox)))
+(defq so_was (so-stats) so_got (so-tree-task) so_now (so-stats))
+(assert-true "a task of another system is given the module and what it imports" (> so_got 1))
+(assert-eq "in one ask of the @Source here" 1 (- (first so_now) (first so_was)))
+(assert-eq "which asks that system once" 1 (- (third so_now) (third so_was)))
+(setq so_was so_now so_got (so-tree-task) so_now (so-stats))
+(assert-eq "a second task asks once too" 1 (- (first so_now) (first so_was)))
+(assert-eq "and is answered from what was kept" 1 (- (second so_now) (second so_was)))
+(assert-eq "that system is not asked again" 0 (- (third so_now) (third so_was)))
