@@ -53,6 +53,14 @@
 	;and of each batch out, when it went, how long it took the last time
 	;and when it is next said to be late
 	*test_batches* :nil *test_last* (Fmap 31) *test_out* (Fmap 31)
+	;each check as it is made, mailed to the task that farmed its module,
+	;-r: the module, which check it is of it, where and its name. That
+	;task keeps the last of each module and says it, so a module that hangs
+	;is seen at the check it last made. Where it is, file:line, is the
+	;reader's as the assertion's macro is expanded, (repl-info): the file it
+	;is in, the module or one it imports, and the line the top level form
+	;it is in ends on, its own when it is at the top level
+	*test_report* :nil *test_file* "" *test_seq* 0 *test_checks* :nil *test_at* (Fmap 31)
 	;a batch is late past three times its time the last time and 10 seconds,
 	;or 30 seconds if it has none, and is said to be so again each time it is
 	;as late again. A full run has the machine busy, and a module takes some
@@ -69,22 +77,46 @@
 ; reporting
 ;;;;;;;;;;;
 
-(defun test-pass (name)
+(defun test-where ()
+	; (test-where) -> str
+	;where the reader is, file:line, for an assertion's macro to keep
+	(bind '(file line) (repl-info))
+	(cat file ":" (str line)))
+
+(defun test-told (name where)
+	;a check is made, said to the task that farmed the module if there is
+	;one, with where it is, file:line, if it is known
+	(++ *test_seq*)
+	(if *test_report* (mail-send *test_report*
+		(cat *test_file* " " (str *test_seq*) " " (ifn where "-") " " name))))
+
+(defun test-note (text)
+	; (test-note text)
+	;what a module waits on, said to the task that farmed it as a check is,
+	;and not counted: a wait that does not end says what it waits for. It
+	;has the number of the check before it, and takes that check's place
+	(if *test_report* (mail-send *test_report* (cat *test_file* " " (str *test_seq*) " - " text)))
+	(if *test_verbose* (print "[NOTE] " text)))
+
+(defun test-pass (name &optional where)
 	;a module gives way to the others of its node between one thing held
 	;to and the next. One that works for a second with never a mail is a
 	;second that every task on its node is late by, (test-watch)
 	(task-slice)
 	(++ *test_passes*)
+	(test-told name where)
 	(if *test_verbose* (print "[PASS] " name)))
 
-(defun test-fail (name expected got)
+(defun test-fail (name expected got &optional where)
 	(++ *test_failures*)
+	(test-told name where)
 	(print "[FAIL] " *test_module* ": " name " | Expected: " expected " | Got: " got))
 
-(defun test-skip (name why)
-	; (test-skip name why)
+(defun test-skip (name why &optional where)
+	; (test-skip name why [where])
 	;a test that can't run here, shown in verbose mode, counted in the summary
 	(++ *test_skips*)
+	(test-told name where)
 	(if *test_verbose* (print "[SKIP] " name ", " why)))
 
 (defun report-header (section_name)
@@ -124,10 +156,10 @@
 	(pipe-run (cat "lisp -r " code) (# (push out %0)))
 	(join out ""))
 
-(defun test-check (name expected got)
+(defun test-check (name expected got &optional where)
 	(if (test-equal? expected got)
-		(test-pass name)
-		(test-fail name expected got)))
+		(test-pass name where)
+		(test-fail name expected got where)))
 
 ;;;;;;;;;;;;
 ; assertions
@@ -136,12 +168,12 @@
 (defmacro assert-eq (name expected form)
 	; (assert-eq name expected form)
 	;the form must give a result that is eql to expected
-	(defq res (gensym) exp (gensym))
+	(defq res (gensym) exp (gensym) where (test-where))
 	`(progn
 		(defq ,res ,form ,exp ,expected)
 		(if (eql ,exp ,res)
-			(test-pass ,name)
-			(test-fail ,name ,exp ,res))))
+			(test-pass ,name ,where)
+			(test-fail ,name ,exp ,res ,where))))
 
 (defmacro assert-true (name form)
 	; (assert-true name form)
@@ -150,29 +182,31 @@
 (defmacro assert-list-eq (name expected form)
 	; (assert-list-eq name expected form)
 	;the form must print the same as expected, so a list matches a nums
-	(defq res (gensym) exp (gensym))
+	(defq res (gensym) exp (gensym) where (test-where))
 	`(progn
 		(defq ,res ,form ,exp ,expected)
 		(if (eql (str ,exp) (str ,res))
-			(test-pass ,name)
-			(test-fail ,name ,exp ,res))))
+			(test-pass ,name ,where)
+			(test-fail ,name ,exp ,res ,where))))
 
 (defmacro assert-error (name form)
 	; (assert-error name form)
 	;the form must throw an error. Only an error checked build can tell,
 	;on a release build the form is not run and the test is skipped.
+	(defq where (test-where))
 	`(if *test_checked*
 		(if (catch (progn ,form :nil) :t)
-			(test-pass ,name)
-			(test-fail ,name "an error" "no error"))
-		(test-skip ,name "needs an error checked build")))
+			(test-pass ,name ,where)
+			(test-fail ,name "an error" "no error" ,where))
+		(test-skip ,name "needs an error checked build" ,where)))
 
 (defmacro test-cases (&rest cases)
 	; (test-cases form expected form expected ...)
 	;a table of forms and the result each must give, lists compared by
 	;content. Each case is named by the text of its form.
+	(defq where (test-where))
 	(cat '(progn) (map (lambda ((form expected))
-		(list 'test-check (str form) expected form)) (partition cases 2))))
+		(list 'test-check (str form) expected form where)) (partition cases 2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; the cache of results
@@ -427,6 +461,7 @@
 (defq +test_leak_kb 256)
 
 (defun test-run-module (file)
+	(setq *test_file* file *test_seq* 0)
 	(defq *test_module* (slice file 6 -6))
 	(env-push)
 	;with frames on, functions the module defines or imports record their
@@ -516,17 +551,47 @@
 	;how long these modules took the last time, :nil if one was not run
 	(reduce (# (and %0 (num? (defq ms (. *test_last* :find %1))) (+ %0 ms))) modules 0))
 
+(defun test-checks-read ()
+	;the checks the modules out have made since the last second: the
+	;latest of each is kept, and said. Mail is not in order, the highest
+	;number is the latest, and a note after a check has the same
+	(defq moved (list))
+	(while (mail-poll (list *test_checks*))
+		(defq msg (mail-read *test_checks*) a (find " " msg) b (find " " msg (inc a)) c (find " " msg (inc b))
+			file (slice msg 0 a) n (str-as-num (slice msg (inc a) b)) at (. *test_at* :find file))
+		(when (or (not at) (>= n (first at)))
+			(. *test_at* :insert file (list n (slice msg (inc b) c) (slice msg (inc c) -1)))
+			(unless (find file moved) (push moved file))))
+	(each (lambda (file)
+			(bind '(n where name) (. *test_at* :find file))
+			(test-say "at" file n where name))
+		moved))
+
+(defun test-at (modules)
+	; (test-at modules) -> str
+	;where a batch is: its module that is not done, and the check it last
+	;made and where, 0 if it has made none
+	(defq module (some (# (unless (. *test_done* :find %0) %0)) modules)
+		at (if module (. *test_at* :find module)))
+	(cond
+		((not module) "")
+		(at (cat "at " (str (first at)) " " (second at) " " (third at)))
+		("at 0")))
+
 (defun test-late-say ()
 	;each batch out that has gone past when it was to be done is said to
-	;be late, with how long it has been and how long it took the last time,
-	;so a run that hangs says where at once. It is not failed: a module
-	;waits for what it tests, and a slow machine is let be slow
+	;be late, with how long it has been, how long it took the last time,
+	;and the check it last made, so a run that hangs says where at once.
+	;It is not failed: a module waits for what it tests, and a slow
+	;machine is let be slow
 	(. *test_out* :each (lambda (cmd out)
 		(bind '(t0 usual next) out)
 		(when (>= (defq ms (/ (- (pii-time) t0) 1000)) next)
 			(elem-set out 2 (* 2 ms))
-			(test-say "late" (join (ifn (. *test_batches* :find cmd) (list cmd)) " ")
-				(cat (str ms) "ms") (if usual (cat "usual " (str usual) "ms") "usual unknown"))))))
+			(defq modules (ifn (. *test_batches* :find cmd) (list cmd)))
+			(test-say "late" (join modules " ")
+				(cat (str ms) "ms") (if usual (cat "usual " (str usual) "ms") "usual unknown")
+				(test-at modules))))))
 
 (defun test-farm-told (what &optional cmd out)
 	;what the farm says of a batch as it goes: it is given to a worker,
@@ -534,7 +599,7 @@
 	;each module it ran and what that counted, and each second, when what
 	;is out and late is said
 	(case what
-		(:tick (test-late-say))
+		(:tick (if *test_checks* (test-checks-read)) (test-late-say))
 		(:start
 			(defq modules (ifn (. *test_batches* :find cmd) (list)) usual (test-usual modules))
 			(. *test_out* :insert cmd (list (pii-time) usual
@@ -595,8 +660,8 @@
 	(sort (map (lambda (&) (/ (str-as-num (ifn (mail-read-timeout back (task-timeout 5)) "0")) 1000)) stop)
 		(# (- %1 %0))))
 
-(defun run-suite (modules &optional verbose frames jobs child all stale watch leaks progress)
-	; (run-suite modules [verbose frames jobs child all stale watch leaks progress]) -> :t | :nil
+(defun run-suite (modules &optional verbose frames jobs child all stale watch leaks progress report)
+	; (run-suite modules [verbose frames jobs child all stale watch leaks progress report]) -> :t | :nil
 	;run the modules, at most jobs of them to a task. If they all fit in
 	;one batch they run here, one after another. A child is the task of a
 	;batch, it ends with a line of counts in place of the summary.
@@ -607,11 +672,14 @@
 	;(test-watch). With leaks each runs alone, one after another, in a
 	;task of its own on this node, and one that leaves the node holding
 	;more fails, (test-leak-run). With progress the run says how it goes,
-	;(test-say), as it goes.
+	;(test-say), as it goes, and each check of the modules it farms out.
+	;report is the mailbox, in hex, of the task that farmed this one, to
+	;mail each check to as it is made
 	(setd jobs 1)
 	(setq *test_passes* 0 *test_failures* 0 *test_skips* 0
 		*test_verbose* verbose *test_frames* frames *test_child* child
-		*test_progress* (and progress (not child) (not stale)) *test_t0* (pii-time) *test_ran* 0)
+		*test_progress* (and progress (not child) (not stale)) *test_t0* (pii-time) *test_ran* 0
+		*test_report* (if report (hex-decode report)) *test_checks* (if *test_progress* (mail-mbox)))
 	(defq run modules kept :nil keys (Fmap 31) why (Fmap 31))
 	(unless child
 		(setq kept (test-cache-load))
@@ -660,7 +728,8 @@
 		watching (and watch (not child) (nempty? others) (test-watch (lisp-nodes :t))) waits :nil)
 	;batches of modules farmed out, each a task of its own, so this one is
 	;free to say as they go which are late; the results in module order
-	(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
+	(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" "")
+			(if *test_checks* (cat " -r " (hex-encode *test_checks*)) ""))
 		farm (lambda (parts retry)
 			(defq cmds (map (# (cat "tests" opts " " (join %0 " "))) parts) outs (Fmap 31))
 			;which modules each batch is, for what is said as it goes

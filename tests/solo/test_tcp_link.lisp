@@ -77,14 +77,27 @@
 	;a link is the node's that made it, the one the Net service is on
 	(defq tl_said (mail-mbox) tl_net_node (slice (net-service) +mailbox_id_size -1))
 	(defun tl-drop ()
-		(open-task (str `(progn (ffi "service/net/lisp_drop" net-drop)
-				(mail-send (hex-decode ,(hex-encode tl_said)) (str (net-drop)))))
+		; (tl-drop) -> (count links)
+		;how many links over the network were told to close, and of each
+		;link the node has, its peer, the peer's task count, and 1 if it is
+		;over the network
+		(open-task (str `(progn (ffi "service/net/lisp_drop" net-drop) (ffi "service/net/lisp_links" net-links)
+				(mail-send (hex-decode ,(hex-encode tl_said))
+					(str (list (net-drop) (map (const hex-encode) (net-links)))))))
 			tl_net_node +kn_call_pin 0 (mail-mbox))
-		(str-as-num (mail-read tl_said)))
-	(assert-true "there is a link over the network to drop" (> (tl-drop) 0))
-	(while (/= (tl-drop) 0)
+		(bind '(n links) (first (read (string-stream (mail-read tl_said)))))
+		(list n (map (lambda (link)
+				(setq link (hex-decode link))
+				(list (hex-encode (slice link 0 8)) (getf link +link_peer_tasks) (getf link +link_remote)))
+			links)))
+	(assert-true "there is a link over the network to drop" (> (first (tl-drop)) 0))
+	;as long as it takes; each 5 seconds it is not done, what is left is said
+	(defq tl_tries 0)
+	(while (/= (first (defq tl_left (tl-drop))) 0)
+		(if (= (% (++ tl_tries) 50) 0)
+			(test-note (cat "still " (str (first tl_left)) " to drop, the links: " (str (second tl_left)))))
 		(task-sleep 100000))
-	(assert-eq "dropped, there is none" 0 (tl-drop))
+	(assert-eq "dropped, there is none" 0 (first (tl-drop)))
 	(while (find tl_new (lisp-nodes :t))
 		(task-sleep 100000))
 	(assert-true "and the node at its other end is not seen any more" (not (find tl_new (lisp-nodes :t))))
