@@ -1876,7 +1876,8 @@ hand, so a mouse alone can do everything
 ```code
 (boot-funcs funcs [all]) -> funcs
 
-those of these functions a boot image holds, every one of them with all
+those of these functions an install's boot image holds, every one of
+them with all
 ```
 
 ### boot-id
@@ -5386,6 +5387,21 @@ the order of their codes
 every child that is up and has no job is given one
 ```
 
+### image-funcs
+
+```code
+(image-funcs funcs cpu) -> funcs
+
+those of these functions the boot image of a CPU holds, besides the
+loader, the statics and the kernel, and what they call, which every
+image has. The VP64 one is what an install runs, and what a node of a
+CPU with no translator runs: it holds what an install binds before it
+has built anything. A native one is made by an install, after it has
+built the rest, so it holds only the loader, and what it calls, and the
+loader binds the rest as it is asked for: what runs while it loads must
+not be in a block it is writing, docs/vm/vp_functions.md
+```
+
 ### import
 
 ```code
@@ -5895,6 +5911,16 @@ is gone. Each desktop is a node, so this is the one of this desktop,
 the guard of a service or an app there is to be one of
 ```
 
+### mail-lowest
+
+```code
+(mail-lowest name) -> :nil | net_id
+
+the lowest mailbox said as name. A service that is to be one may be
+started twice at once, by two that each found none: every task that
+sees both picks the same this way, the one that stays, (mail-single)
+```
+
 ### mail-read-timeout
 
 ```code
@@ -5911,6 +5937,19 @@ if it is still there, else one on another node. A task on a node with
 no desktop has any one on the machine. One on this node that is not
 here is dead; one on another can not be asked, (mail-validate) knows
 only the mailboxes of the node it is asked on
+```
+
+### mail-single
+
+```code
+(mail-single name mbox) -> :nil | net_id
+
+:nil if the service said as name with this mailbox is the one, else
+the one it is to give way to, the lowest. The names come to each node
+by its pings, so a service checks each time it wakes; one that has to
+give way stops saying its name, sends on what still comes to it, and
+goes. Only for a service a task may use any one of: two networks on
+one machine each have a Net service of their own
 ```
 
 ### mat3x2-mul-f
@@ -6264,7 +6303,7 @@ each subband's 18 samples: the IMDCT of 36 of its 18 lines, or of a
 short block three of 12 of its 6 a window, by the window of its block
 type, the two lowest of a mixed block of any type the plain window's;
 the first half on what the last left, the second half left for the
-next; of an odd subband the odd samples the other sign
+next; of an odd subband the odd samples the other sign, by its windows
 ```
 
 ### mp3-intensity
@@ -6572,6 +6611,16 @@ gives them, the frames of a reel of another kind re-framed for the host
 (mp4-reel stream) -> :nil | reel
 
 the reel of the first video track of a file, every track in :tracks
+```
+
+### mp4-rescale
+
+```code
+(mp4-rescale codec scale) -> codec
+
+the scale is only the canvas's: the host's decoder is kept as it is,
+and a canvas of the scale given the picture the old one had. A codec
+made again would decode from the key before the frame, seconds of it
 ```
 
 ### mp4-table
@@ -7566,7 +7615,7 @@ new worker, and so is one whose node has gone. A job that has been
 given out three times with no answer stops the farm, and it and any
 that are still out have no result. With told the farm says how it
 goes as it goes, (told :start job) and (told :done job result), see
-(Monitored)
+(Monitored), and (told :tick) each second, so it can say what is late
 ```
 
 ### pipe-run
@@ -8347,6 +8396,16 @@ given, as for an object of a store, lib/files/names.inc
 
 the native taken as it is used: a system not yet built with it can
 still import this, the kinds are of a desktop's shared root
+```
+
+### reel-rescale
+
+```code
+(reel-rescale codec scale) -> :nil | codec
+
+the codec shown at another scale, if its kind can: its decoder as it
+is, nothing decoded again, on a canvas of the scale with the picture it
+had. :nil if it can not, and a codec of the scale is to be made
 ```
 
 ### reel-wave
@@ -10350,6 +10409,15 @@ task's. What the node has the same VP of is server zero's, nothing is
 placed for it
 ```
 
+### source-pack
+
+```code
+(source-pack entries) -> str
+
+files, (path tag text) each, one after another: its path, its tag and
+the length of its text on lines of their own, then the text
+```
+
 ### source-service
 
 ```code
@@ -10372,7 +10440,12 @@ native functions one after another, each as long as its header says
 (source-stream sid svc path) -> :nil | stream
 
 a file of a system as a stream, by the system id in hex and its
-@Source: a file stream on that system, the text asked of it on another
+@Source: a file stream on that system. On another the @Source of this
+one is asked, once, for the file and all it imports, all the way down:
+it has them of that system, asked once for all the tasks here. Each is
+L, the copy here is the same, as what the two systems have in common
+is, T and the text, or n. What this task is given it keeps, and its
+imports after are read from that
 ```
 
 ### source-task
@@ -10382,8 +10455,16 @@ a file of a system as a stream, by the system id in hex and its
 
 what to open, with (open-task) and the rest, for a Lisp file of this
 system to run on any node of the mesh: it and what it imports are read
-from this system, and need not be where it runs. The path itself if
-this system has no @Source, read where it runs as any task is
+from this system, and need not be where it runs. A task that was sent
+from another system sends its tasks as of that one, which has its
+files. The path itself if there is no @Source, read where it runs as
+any task is
+```
+
+### source-unpack
+
+```code
+(source-unpack str) -> ((path tag text) ...)
 ```
 
 ### split-cells
