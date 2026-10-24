@@ -80,8 +80,10 @@ this system's own `@Source`, started if it has none:
    server zero's, the waypoint of this machine, nothing is fetched for it; if
    the node has not built it, it is translated from the node's own VP into
    the node's place. A hash the cache has, `obj/<cpu>/<abi>/cache/<key>`, is
-   that native. The key is the hash of the VP, the build mode and this
-   translator's id, the hash of its files, so a translator changed is a miss.
+   that native. The key is the hash of the VP and this translator's id, the hash
+   of its files, so a translator changed is a miss. Not the build mode: VP
+   that differs by mode has another hash, and what is the same in two modes,
+   most below the Lisp bindings, is translated once.
 3. The VP of those not here is asked for at once, `$<mode> <path> ...`, only
    those functions, and each translated and kept in the cache.
 4. The natives not the node's own go back to the task, one after another,

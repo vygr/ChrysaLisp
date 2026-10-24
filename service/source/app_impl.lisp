@@ -52,18 +52,20 @@
 			'*source_trans_id* (hex-encode (sha256 (apply (const cat) (cat (list "") (map (# (ifn (load %0) "")) files))))))
 		(each! (# (import %0 *source_env*)) (list files) 0 3)))
 
-(defun source-cache (hash mode)
-	; (source-cache hash mode) -> path
-	;where the native of VP of that hash is kept, by this translator
+(defun source-cache (hash)
+	; (source-cache hash) -> path
+	;where the native of VP of that hash is kept, by this translator. Not
+	;by the build mode: the VP of a mode that is not the same has another
+	;hash, and what is the same, most below the Lisp bindings, is made once
 	(source-translator)
-	(cat (load-path) "cache/" (hex-encode (sha256 (cat hash " " mode " " (get '*source_trans_id* *source_env*))))))
+	(cat (load-path) "cache/" (hex-encode (sha256 (cat hash " " (get '*source_trans_id* *source_env*))))))
 
-(defun source-make (entry mode)
-	; (source-make entry mode) -> native
+(defun source-make (entry)
+	; (source-make entry) -> native
 	;a function's VP translated for this CPU, kept in the cache if it may be
 	(source-translator)
 	(defq out ((get 'emit-translate *source_env*) (second entry)))
-	(if (source-caching?) (save out (source-cache (hex-encode (sha256 (str entry))) mode)))
+	(if (source-caching?) (save out (source-cache (hex-encode (sha256 (str entry))))))
 	out)
 
 (defun source-vp-links (entry)
@@ -122,12 +124,12 @@
 					((eql theirs (source-hash mode name))
 						(push same name)
 						(when (= (age (cat (load-path) name)) 0)
-							(defq out (source-make (first (source-entry mode name)) mode))
+							(defq out (source-make (first (source-entry mode name))))
 							(cond
 								((source-caching?) (save out (cat (load-path) name)))
 								((push natives out) (push given name)))))
 					((push theirs_own name)
-						(if (and (source-caching?) (defq kept (load (source-cache theirs mode))))
+						(if (and (source-caching?) (defq kept (load (source-cache theirs))))
 							(push natives kept)
 							(push missing name)))))
 			(split manifest (ascii-char 10)))
@@ -142,7 +144,7 @@
 						(setq more :t)
 						(unless (find name given)
 							(push natives (ifn (load (cat (load-path) name))
-								(source-make (first (source-entry mode name)) mode))))))
+								(source-make (first (source-entry mode name))))))))
 				same))
 		(when (nempty? missing)
 			(defq text (if self (source-entries mode missing)
@@ -151,7 +153,7 @@
 			(while (defq entry (first (read stream)))
 				(when (find (first entry) missing)
 					(++ got)
-					(push natives (source-make entry mode))))
+					(push natives (source-make entry))))
 			(if (/= got (length missing)) (setq manifest :nil))))
 	(if manifest (apply (const cat) (cat (list "") natives))))
 
