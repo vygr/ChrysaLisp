@@ -83,6 +83,15 @@ itself to a path, is replaced by the address of the code of the function of
 that path, loading that one first if it has to. Nothing else in a function is
 moved, every other reference in it is relative to where it is.
 
+A load is a burst: the function asked for and all it calls that is not loaded
+yet, or a set placed in a server. It goes to blocks new to it, of 128KB, and
+those blocks are made runnable when it ends. A block once runnable is never
+written again: the node may be running any function in it, the loader's own
+too. So any function, the loader itself, can be loaded at any time, and the
+boot image need not hold the loader to keep it out of a block being written.
+The tail of a burst's last block is not used again, and as a page that is not
+written takes no memory, a burst costs at most the page it ends in.
+
 The boot image, `obj/<cpu>/<abi>/sys/boot_image`, made by `lib/boot/image.inc`,
 is the functions the kernel needs end to end, `sys/load/init` first and
 `sys/statics/statics` second. Each is kept without its path string pool: its
