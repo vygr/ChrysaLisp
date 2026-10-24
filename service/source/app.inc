@@ -66,11 +66,15 @@
 	; (source-task path) -> task
 	;what to open, with (open-task) and the rest, for a Lisp file of this
 	;system to run on any node of the mesh: it and what it imports are read
-	;from this system, and need not be where it runs. The path itself if
-	;this system has no @Source, read where it runs as any task is
-	(ifn (defq svc (source-service)) path
+	;from this system, and need not be where it runs. A task that was sent
+	;from another system sends its tasks as of that one, which has its
+	;files. The path itself if there is no @Source, read where it runs as
+	;any task is
+	(defq sid (get '*source_system*) svc (get '*source_service*))
+	(unless sid (setq sid (hex-encode (system-id)) svc (source-service)))
+	(ifn svc path
 		(cat "(import {service/source/app.inc})" (ascii-char 10)
-			"(source-import {" (hex-encode (system-id)) "} {" (hex-encode svc) "})" (ascii-char 10)
+			"(source-import {" sid "} {" (hex-encode svc) "})" (ascii-char 10)
 			"(import {" path "})")))
 
 (defun source-mode ()

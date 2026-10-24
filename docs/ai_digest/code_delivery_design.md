@@ -78,8 +78,11 @@ Two separate things.
   different functions for different tasks. Linking is done on the node, in
   memory, and is never cached or sent.
 
-A linked copy can be shared by two contexts only if everything it calls, all
-the way down, is the same in both.
+A function's name is its contract: the same name takes the same inputs and
+returns the same outputs, it achieves its defined function, whatever it links
+to, more things or fewer. So any implementation of a name will do for a link
+to it. A task may be linked to the node's copy of a function, already linked
+to the node's own, and that is correct.
 
 VP is translated, to native or to VP64, on demand.
 
@@ -118,8 +121,6 @@ the waypoint. It is an ordinary machine whose storage is memory.
 
 What is on master now does some of this. The rest:
 
-* Linking that shares a copy only when everything it calls is the same; now
-  only the function's own hash is compared.
 * A task sent from another system that sends a task of its own should name
   its originator, not the system it runs on.
 * The kernel query for a system's `@Source`, and the retry by it.
