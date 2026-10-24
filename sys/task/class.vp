@@ -382,6 +382,29 @@
 	;free task mailbox and tls
 	(assign (vpx (@ sys/statics/statics)) (vpx statics))
 	(assign (vpx (.> statics statics_sys_task_current_tcb)) (vpx tcb))
+
+(errorcase
+	;a link's record is in the frame of the task that owns it, which takes
+	;it out of the node's link array before it ends. One left there is
+	;read by the kernel once this stack is freed: say so, and where it is.
+	;What is in it can not be said, this frame is over where it was
+	(call :array :get_both (vpx (.> statics statics_sys_mail_links_array)) '(_ :r1 :r2))
+	(assign (vpx tcb) '(:r5))
+	(assign '((:r5 +tk_node_stack_top)) '(:r4))
+	(loop-while '(:r1 /= :r2))
+		(assign '((:r1 0)) '(:r3))
+		(vp-add-cr +ptr_size :r1)
+		(vpif '(:r3 >= :r5) '(:r3 < :r4))
+			(vp-push :r1 :r2 :r4 :r5)
+			(vp-sub-rr :r3 :r4)
+			(vp-push :r4)
+			(call :host_os :pii_write_str '(2 "Task: ended with its link record still listed, at "))
+			(vp-pop :r1)
+			(call :host_os :pii_write_num '(2 :r1 10))
+			(call :host_os :pii_write_str '(2 " from its stack top\n"))
+			(vp-pop :r1 :r2 :r4 :r5)
+		(endif)
+	(loop-end))
 	(call :sys_mail :free_mbox (vpx (.> tcb +tk_node_mbox_id)))
 
 	;remove task control block

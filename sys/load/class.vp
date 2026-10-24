@@ -1,9 +1,8 @@
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
+(include "class/array/class.inc")
 (include "./class.inc")
 (include "././str/class.inc")
-(include "class/array/class.inc")
-(include "class/str/class.inc")
 
 (def-method :sys_load :init)
 	;inputs

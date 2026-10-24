@@ -11,9 +11,10 @@
 
 	(def-vars
 		(struct lk_node lk_node_size)
-		(ptr statics params msg data mem iter_begin iter_end)
+		(ptr statics params msg data mem)
+		(pptr iter_begin iter_end)
 		(pubyte pdata)
-		(long handle is_owner)
+		(long handle is_owner live)
 		(nodeid node_id))
 
 	(push-scope)
@@ -65,20 +66,28 @@
 				(vpx (. (.> mem lk_shmem_host_b) +node_id_node1) (. (.> mem lk_shmem_host_b) +node_id_node2)))
 		(endif)
 
+		;the in and out links have lk_node, here, and the shared memory till
+		;each says it has gone, live, the last thing it does
+		(assign (vpx 2) (vpx live))
+
 		;start out link and send params
-		(call :sys_mail :alloc (vpx 24) (vpx msg data))
+		(call :sys_mail :alloc (vpx 32) (vpx msg data))
 		(call :sys_task :start (vpx (@ ,(f-path :sys_link :out))) '(_ _ :r2 :r3 :r4))
 		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
 		(save-net-id :r0 +msg_dest)
 		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
+		(assign (vpx (& live)) '(:r5))
+		(assign '(:r5) '((:r1 (* 3 +ptr_size))))
 		(call :sys_mail :send '(:r0))
 
 		;start in link and send params
-		(call :sys_mail :alloc (vpx 24) (vpx msg data))
+		(call :sys_mail :alloc (vpx 32) (vpx msg data))
 		(call :sys_task :start (vpx (@ ,(f-path :sys_link :in))) '(_ _ :r2 :r3 :r4))
 		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
 		(save-net-id :r0 +msg_dest)
 		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
+		(assign (vpx (& live)) '(:r5))
+		(assign '(:r5) '((:r1 (* 3 +ptr_size))))
 		(call :sys_mail :send '(:r0))
 
 		;wait till link dies or told to quit...
@@ -87,8 +96,14 @@
 			(breakif (vpx (= (. lk_node lk_node_task_count) (- 1))))
 		(loop-end)
 
-		;wait for in link to exit before unmapping
-		(call :sys_task :sleep '(10000))
+		;wait for the in and out links to go before the memory is unmapped
+		;and lk_node goes with this frame: a time is not enough, the out link
+		;waits on its peer's process for some of it. The link is said to be
+		;closed again each time, a ping read can undo it
+		(loop-start)
+			(assign (vpx (- 1)) (vpx (. lk_node lk_node_task_count)))
+			(call :sys_task :sleep '(1000))
+		(loop-until (vpx (= live 0)))
 
 		;unmap object
 		(call :host_os :pii_munmap (vpx mem lk_shmem_size +mmap_shared))
@@ -96,15 +111,17 @@
 		(call :host_os :pii_write_str '(2 "Link: no shared memory, or the other end's is another size, another build !\n"))
 	(endif)
 
-	;remove link node from link array
+	;remove link node from link array, and once it is gone the walk is over:
+	;the array is one shorter than its end says
 	(call :array :get_both (vpx (.> statics statics_sys_mail_links_array)) (vpx _ iter_begin iter_end))
 	(loop-while (vpx (/= iter_begin iter_end)))
 		(vpif (vpx (= (* iter_begin) (& lk_node))))
 			(call :array :erase (vpx (.> statics statics_sys_mail_links_array) iter_begin))
-			(break)
+			(goto 'link_removed)
 		(endif)
 		(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
 	(loop-end)
+(vp-label 'link_removed)
 
 	;close it
 	(vpif (vpx (> (+ handle 1) 1)))
@@ -126,7 +143,7 @@
 	;:r0-:r10, :f0-:f15
 
 	(def-vars
-		(ptr lk_node msg data rx head)
+		(ptr lk_node msg data rx head live)
 		(nodeid node_id)
 		(long is_owner)
 		(uint length status sleep_time quiet))
@@ -138,6 +155,7 @@
 	(assign (vpx (ptr (+ data 0))) (vpx lk_node))
 	(assign (vpx (ptr (+ data +ptr_size))) (vpx rx))
 	(assign (vpx (ptr (+ data (* 2 +ptr_size)))) (vpx is_owner))
+	(assign (vpx (ptr (+ data (* 3 +ptr_size)))) (vpx live))
 	(call :sys_mail :free (vpx msg))
 
 	;switch to link priority
@@ -255,6 +273,11 @@
 		(breakif (vpx (= (.> lk_node lk_node_task_count) (- 1))))
 	(loop-end)
 
+	;gone, the last thing done with lk_node's frame
+	(assign (vpx live) '(:r0))
+	(assign '((:r0 0)) '(:r1))
+	(vp-sub-cr 1 :r1)
+	(assign '(:r1) '((:r0 0)))
 	(pop-scope)
 	(return)
 
@@ -275,7 +298,7 @@
 	;:r0-:r14, :f0-:f15
 
 	(def-vars
-		(ptr statics lk_node key msg data tx head tail)
+		(ptr statics lk_node key msg data tx head tail live)
 		(nodeid node_id system_id)
 		(long is_owner then now beat last gap timeout pid checked)
 		(ptr last_tail walk)
@@ -292,6 +315,7 @@
 	(assign (vpx (ptr (+ data 0))) (vpx lk_node))
 	(assign (vpx (ptr (+ data +ptr_size))) (vpx tx))
 	(assign (vpx (ptr (+ data (* 2 +ptr_size)))) (vpx is_owner))
+	(assign (vpx (ptr (+ data (* 3 +ptr_size)))) (vpx live))
 	(call :sys_mail :free (vpx msg))
 
 	;switch to link priority
@@ -599,6 +623,11 @@
 
 	(call :nodeid :destroy (vpx key))
 
+	;gone, the last thing done with lk_node's frame
+	(assign (vpx live) '(:r0))
+	(assign '((:r0 0)) '(:r1))
+	(vp-sub-cr 1 :r1)
+	(assign '(:r1) '((:r0 0)))
 	(pop-scope)
 	(return)
 

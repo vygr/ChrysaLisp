@@ -151,6 +151,11 @@
 	(add-inst (list 'vp-mul-cr -1 (top-value))))
 
 (defun compile-uderef (&)
+	;(* a), what a points at: a has to say what that is, a pptr, a pubyte,
+	;a (pptr a). Of a plain ptr nothing would be read, it would be a itself,
+	;a link's own record compared with the slot of the list it is in
+	(and (defq w (get-type)) (eql (rest w) "")
+		(throw "(* a) of a ptr, what it points at has no type, use a pptr or a cast !" (top-reg)))
 	(compile-deref))
 
 (defun compile-unot (&)

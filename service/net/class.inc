@@ -35,7 +35,7 @@
 	(dec-method :conn service/net/conn :static :nil :nil (:r0-:r7 :r13-:r14 :f0-:f15))
 	(dec-method :in service/net/in :static :nil :nil (:r0-:r14 :f0-:f15))
 	(dec-method :out service/net/out :static :nil :nil (:r0-:r14 :f0-:f15))
-	(dec-method :send_all service/net/send_all :static (:r0 :r1 :r2) (:r0) (:r0-:r2 :r13-:r14 :f0-:f15))
+	(dec-method :send_all service/net/send_all :static (:r0 :r1 :r2 :r3) (:r0) (:r0-:r2 :r13-:r14 :f0-:f15))
 	(dec-method :recv_all service/net/recv_all :static (:r0 :r1 :r2 :r3) (:r0) (:r0-:r14 :f0-:f15)))
 
 (defun host-net-call (%0 %1 &optional %2 %3 %4 %5)
