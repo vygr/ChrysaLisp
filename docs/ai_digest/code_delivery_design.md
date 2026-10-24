@@ -30,7 +30,9 @@ A node runs 100% native code or 100% emulated, VP64. Never both at once.
 ## The Baseline
 
 Install establishes a baseline: the common system shared by every system on
-the network, the VP and the Lisp. For now the baseline is the current flooded
+the network, the VP and the Lisp. The baseline is everything of the tree
+that is not under `apps/`. An application is not part of it: install builds
+none of its VP, see [Applications](#applications). For now the baseline is the current flooded
 snapshot, the waypoint, and install and sync keep every machine level with
 it. A machine that has moved off the waypoint, as a development machine does,
 still works with the others: functions are compared by the hash of their VP,
@@ -92,8 +94,8 @@ rest the task shares with the node.
 What a node has of its own, server zero, the baseline, is always bound by the
 kernel's loader from what install translated: install translates all of it,
 so none is ever missing, and the loader never waits on a service in a bind.
-Only code of another system is translated on demand, by the `@Source` of the
-machine it runs on, to native or to VP64.
+All other VP, an application's of this system or code of another, is made on
+demand by the `@Source` of the machine it runs on, to native or to VP64.
 
 ## Sources
 
@@ -118,6 +120,66 @@ mailbox does not answer, as after a reboot, the task asks a kernel of that
 system, mailbox 0 of any of its nodes, what its `@Source` is now, and keeps
 the answer. `@` names are still not advertised beyond their system.
 
+## Applications
+
+An application's VP is not built by install, and nothing of it is kept in
+`obj/` by name: two versions of one function, a development machine's and
+the waypoint's, or two systems', would fight over one file. It goes the way
+another system's code goes, through the machine's `@Source`, with this
+system as the originator.
+
+* Lisp reaches an application's VP only by `(ffi)`, so that is the one
+  place a miss is caught: the bind is tried, and on a miss the local
+  `@Source` is asked for the function, what it is given is placed, and the
+  bind is tried again. No application changes for it.
+* `(source-task)` keeps one meaning: a task that may be sent to another
+  system, whose code is read from home.
+* What a system has that is not the baseline is linked in the function
+  server named by its system id, on each node, so every task of it there
+  shares one copy. Server zero stays the baseline alone.
+
+## Three Stages, Each Pure
+
+| Stage | Takes | Gives | Done |
+|---|---|---|---|
+| Compile | a `.vp` file | the VP of its functions, an entry each | once for each hash of the file and all it includes, and the mode, at the originator, which alone has the source |
+| Translate | a function's VP | native, or VP64 | once for each hash of the VP and of the translator, CPU and ABI, on each machine, shared by its nodes |
+| Link | natives and names | a bound function | in each task's server, on its node, in memory |
+
+`(vp-compile)` gives the entries and `(emit-translate)` the native, and
+neither saves anything: what is done with a product is for whoever asked.
+In one task that is simply the value returned, used as the caller likes.
+
+A product is named by its inputs, so the same key gives the same bytes
+wherever it is made. Any node may make it, any cache may give it, and two
+nodes making the same one at once is work wasted, never a fault: no locks,
+no order.
+
+## Jobs And Where Products Go
+
+Compiles and translations are farmed as jobs over a machine's nodes, with
+the herd the build already uses. A job is a message, so where its product
+goes is said in it as data, one of a fixed set the worker knows, never a
+function the worker would have to run:
+
+| Destination | The worker | Used by |
+|---|---|---|
+| `:obj` | writes into `obj/<cpu>/<abi>/` by the function's name | the build of the baseline |
+| `:cache` | writes into the machine's cache under the name its key gives, by a temporary name and a rename | `@Source` |
+| `:mail` | sends the product to a mailbox | a machine with no disk, or one that may keep nothing; to the node of the task that wants it |
+
+The worker works out the path itself, so a job can not send a write outside
+`obj/` or the cache. Products go from the child that made them to its own
+machine's disk; what goes back to the farm is a few dozen bytes, done and
+the key, or an error. The only bulk that crosses the network is VP from the
+originator, once for each function a machine has not seen.
+
+`@Source` is one task to a system, so anything heavy in it is serial. It
+only keeps the books: a request in, the hashes looked up, a job started for
+each product that is missing, and every waiter told when the products are
+there, asked once however many wait. It never handles a product on a
+machine with a disk; a task's node loads from the cache what it needs.
+
 ## A Machine With No Disk
 
 Dumb compute. It is flashed with the host and the install image. When it
@@ -134,7 +196,13 @@ a file and all it imports and keeping the answers,
 [services.md](services.md); the install and native images apart; the
 emulator on every host, the Pi's had only stale files. The rest:
 
+* Compiling apart from translating and saving: done, `(vp-compile)`.
 * The kernel query for a system's `@Source`, and the retry by it.
+* Jobs for compile and translate, with their destinations, and `@Source`
+  only keeping the books: the translating and hashing it does in its own
+  loop now move out.
+* Applications: `(ffi)` asks `@Source` on a miss, install and `make` build
+  only the baseline, `make apps` and the applications' products in `obj/`
+  go.
 * A translation cache in memory, for a machine that may not keep one on disk.
-* Translation shared out over a machine's nodes.
 * Network install.
