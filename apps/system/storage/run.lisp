@@ -8,8 +8,9 @@
 ; tells, in batches, "lines" and then a line of a
 ; recording each, service/storage/app.inc, what the scene says among them
 ; as "time - say text"; and at the end "end", with how many of the scene's
-; checks held and how many did not. The store of this system is watched
-; till it is told to stop, a mail of anything.
+; checks held and how many did not, and how many "lines" it sent: mail is
+; not in order, the last of them may come after the end. The store of this
+; system is watched till it is told to stop, a mail of anything.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "service/storage/scene.inc")
@@ -19,18 +20,20 @@
 
 (defun main ()
 	(bind '(to what) (split (mail-read (task-mbox)) +run_lf))
-	(defq to (hex-decode to) pending (list) sent (pii-time))
+	(defq to (hex-decode to) pending (list) sent (pii-time) told 0)
 	(defun pass (line)
 		;a line kept, and what is kept sent when it has waited or is many,
 		;or nothing more has come for a while, :nil
 		(if line (push pending line))
 		(when (and (nempty? pending) (or (not line) (>= (length pending) +run_most) (> (- (pii-time) sent) +run_hold)))
 			(mail-send to (cat "lines" +run_lf (join pending +run_lf)))
-			(setq pending (list) sent (pii-time))))
+			(setq pending (list) sent (pii-time) told (inc told))))
 	(defq result (if (eql what "-")
 			;what the store has now first, then what it does from now
 			(progn (storage-record-seed pass) (pass :nil)
 				(storage-record-run pass 0x7fffffffffffffff :nil (task-mbox)) :nil)
 			(scene-run what (lambda (text) (pass (cat (str (pii-time)) " - say " text))) pass)))
-	(if (nempty? pending) (mail-send to (cat "lines" +run_lf (join pending +run_lf))))
-	(mail-send to (cat "end " (if result (join (map (const str) result) " ") "- -"))))
+	(when (nempty? pending)
+		(mail-send to (cat "lines" +run_lf (join pending +run_lf)))
+		(++ told))
+	(mail-send to (cat "end " (if result (join (map (const str) result) " ") "- -") " " (str told))))

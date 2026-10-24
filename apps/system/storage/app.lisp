@@ -665,7 +665,7 @@
 						(and *live* (not *record*) (replay-trim *replay* +live_keep))
 						(setq *changed* :t))
 					((starts-with "end " msg)
-						(bind '(passed failed) (rest (split msg " ")))
+						(defq passed (second (split msg " ")) failed (third (split msg " ")))
 						(setq *run* :nil *live* :nil)
 						(say (if (eql passed "-") "Stopped."
 							(cat "Done: " passed " held, " failed " did not. Live goes back to the store of this system."))))))
