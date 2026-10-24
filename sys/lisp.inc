@@ -15,6 +15,25 @@
 	;the mailbox of the first said as name, (mail-declare), wherever it is
 	(if (nempty? (defq found (mail-enquire (cat name ",")))) (mail-entry-id (first found))))
 
+(defun mail-lowest (name)
+	; (mail-lowest name) -> :nil | net_id
+	;the lowest mailbox said as name. A service that is to be one may be
+	;started twice at once, by two that each found none: every task that
+	;sees both picks the same this way, the one that stays, (mail-single)
+	(if (nempty? (defq found (mail-enquire (cat name ","))))
+		(hex-decode (reduce (# (if (< (cmp %1 %0) 0) %1 %0))
+			(map (# (second (split %0 ","))) found)))))
+
+(defun mail-single (name mbox)
+	; (mail-single name mbox) -> :nil | net_id
+	;:nil if the service said as name with this mailbox is the one, else
+	;the one it is to give way to, the lowest. The names come to each node
+	;by its pings, so a service checks each time it wakes; one that has to
+	;give way stops saying its name, sends on what still comes to it, and
+	;goes. Only for a service a task may use any one of: two networks on
+	;one machine each have a Net service of their own
+	(unless (eql (defq lowest (mail-lowest name)) mbox) lowest))
+
 (import "service/lock/app.inc")
 
 (defun task-nodeid (&optional mbox)

@@ -333,13 +333,30 @@
 		("n")))
 
 (defun main ()
+	;one to a system: two started at once give way to the lowest, (mail-single).
+	;Each checks as a task asks it and each second; the other stops saying its
+	;name, sends on to the one that stays what still comes to it, answers the
+	;tasks it was asking for already, and goes when nothing has come for as
+	;long as a task waits
 	(defq service (mail-declare (task-mbox) "@Source" "Source Service 0.2") *source_env* (env)
 		*source_hashes* (Fmap 101) *source_files* (Fmap 101) *source_out* (Fmap 31) *source_kept* (Fmap 101)
 		*source_known* (Fmap 31) *source_trees* (Fmap 31) *source_counts* (Fmap 11)
-		*source_back* (mail-mbox) select (list (task-mbox) *source_back*) *source_msg* :nil)
-	(while :t
+		*source_back* (mail-mbox) select (list (task-mbox) *source_back* (mail-mbox)) *source_msg* :nil
+		winner :nil heard (pii-time) running :t)
+	(mail-timeout (third select) 1000000 0)
+	(while running
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
+		(unless winner
+			(when (setq winner (mail-single "@Source" (task-mbox)))
+				(mail-forget service)
+				(setq heard (pii-time))))
 		(cond
+			((= idx 2)
+				(mail-timeout (third select) 1000000 0)
+				(and winner (empty? (tolist *source_out*))
+					(> (- (pii-time) heard) (task-timeout +source_wait))
+					(setq running :nil)))
 			((= idx 1) (source-fetched msg))
+			(winner (mail-send winner msg) (setq heard (pii-time)))
 			((defq *source_msg* msg answer (source-answer (slice msg +source_rpc_size -1)))
 				(mail-send (getf msg +source_rpc_reply_id) answer)))))

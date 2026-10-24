@@ -31,7 +31,7 @@
 (defun source-service ()
 	; (source-service) -> :nil | netid
 	;the @Source of this system
-	(mail-first "@Source"))
+	(mail-lowest "@Source"))
 
 (defun source-here ()
 	; (source-here) -> netid

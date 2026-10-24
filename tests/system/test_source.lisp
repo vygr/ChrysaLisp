@@ -200,3 +200,16 @@
 (assert-eq "a second task asks once too" 1 (- (first so_now) (first so_was)))
 (assert-eq "and is answered from what was kept" 1 (- (second so_now) (second so_was)))
 (assert-eq "that system is not asked again" 0 (- (third so_now) (third so_was)))
+
+;started twice at once, by two that each found none: every copy answers,
+;a request to one that gives way is sent on, and one of them stays, the
+;lowest, which every task picks, (mail-single)
+(open-child "service/source/app_impl.lisp" +kn_call_run)
+(open-child "service/source/app_impl.lisp" +kn_call_run)
+(until (> (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
+(defq so_all (map (const mail-entry-id) (mail-enquire "@Source,")))
+(assert-true "each copy answers, or sends on to the one that stays"
+	(every (# (eql (load so_inc) (source-ask %0 so_inc))) so_all))
+(until (= (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
+(assert-eq "and one stays" 1 (length (mail-enquire "@Source,")))
+(assert-eq "which answers" (load so_inc) (source-ask (source-service) so_inc))
