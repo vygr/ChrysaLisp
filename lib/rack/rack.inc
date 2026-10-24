@@ -84,15 +84,18 @@
 		;past the 340s this was. Under the 1770s the asker waits for the reply,
 		;only a run that has died: one that hangs shows where, line by line
 		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0 quiet 30
-			asker_node (if asker (slice asker +mailbox_id_size -1))
+			asker_node (if asker (slice asker +mailbox_id_size -1)) seen (pii-time)
 			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text (ascii-char 10))))))
 		(if (< pid 0) (said "session could not be started"))
 		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
 				(< (- (pii-time) t0) 1740000000)
 				;the session is still there, one that died says so below
 				(> pid 0) (pii-alive pid)
-				;the one that asked is still there, or it is let go
-				(or (not asker_node) (find asker_node (lisp-nodes))))
+				;the one that asked is still there, or it is let go: gone for 30
+				;seconds, not a moment, as a test that makes and drops links on
+				;its machine can hide it from the routes for one
+				(or (not asker_node) (and (find asker_node (lisp-nodes)) (setq seen (pii-time)))
+					(< (- (pii-time) seen) 30000000)))
 			;a session that has said nothing at all is said to be quiet, at 30
 			;seconds and each time it is as long again: a machine whose run
 			;never starts is seen to be so, not waited for
