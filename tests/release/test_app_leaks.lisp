@@ -106,8 +106,10 @@
 	;frame, at the next
 	(task-sleep 250000))
 
-;a host with no display never has one: that ten seconds is how it is told
-(while (and (empty? (setq al_gui (mail-enquire "@Gui,"))) (< (- (pii-time) al_t0) (task-timeout 10)))
+;its own desktop, of a node that was not there before it was started, not
+;one of someone at the machine. A host with no display never has one:
+;that ten seconds is how it is told
+(while (and (empty? (setq al_gui (filter (# (not (find (slice (hex-decode (second (split %0 ","))) +long_size -1) al_before))) (mail-enquire "@Gui,")))) (< (- (pii-time) al_t0) (task-timeout 10)))
 	(task-sleep 50000))
 (cond
 	((starts-with "obj/vp64" (load-path))
