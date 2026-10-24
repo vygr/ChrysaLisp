@@ -265,12 +265,21 @@ case $what in
 		rm -f $TEMP/chrysalisp_rack_result
 		echo "$*" > $TEMP/chrysalisp_rack_job.tmp
 		mv -f $TEMP/chrysalisp_rack_job.tmp $TEMP/chrysalisp_rack_job
+		#the member writes what the job says as it is said: it is shown as
+		#it comes, whole lines, till the DONE it ends with
+		shown=0
 		while kill -0 $pid 2>/dev/null
 		do
-			if [ -f $TEMP/chrysalisp_rack_result ] && grep -q "^DONE" $TEMP/chrysalisp_rack_result
+			if [ -f $TEMP/chrysalisp_rack_result ]
 			then
-				grep -v "^DONE$" $TEMP/chrysalisp_rack_result
-				exit 0
+				done=$(grep -c "^DONE$" $TEMP/chrysalisp_rack_result)
+				lines=$(wc -l < $TEMP/chrysalisp_rack_result)
+				if [ $lines -gt $shown ]
+				then
+					sed -n "$((shown + 1)),${lines}p" $TEMP/chrysalisp_rack_result | grep -v "^DONE$"
+					shown=$lines
+				fi
+				[ $done -gt 0 ] && exit 0
 			fi
 			sleep 0.1
 		done

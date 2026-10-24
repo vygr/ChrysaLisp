@@ -59,7 +59,7 @@
 	;what a session says is mailed to it as it comes, "LINE text", and
 	;if its node has gone the session is let go, and stops
 	;the form has no space or tab in it, a node's args are split at those
-	(defq acc (list) tab (ascii-char 11))
+	(defq acc (list) tab (ascii-char 11) machine (cat (cpu) "/" (os)))
 	(each (lambda (cmds)
 		;the name of this run, the session is told it as it is told its user
 		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
@@ -81,17 +81,22 @@
 		;for, not the file: taken as soon as it was there, it could be empty.
 		;The whole suite on the Pi was 105s to 145s; with every app opened
 		;three times on a desktop of its own, tests -a, it is 310s to 370s,
-		;past the 340s this was: under the 870s the asker waits for the reply
+		;past the 340s this was. Under the 1770s the asker waits for the reply,
+		;only a run that has died: one that hangs shows where, line by line
 		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0
 			asker_node (if asker (slice asker +mailbox_id_size -1)))
 		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
-				(< (- (pii-time) t0) 840000000)
+				(< (- (pii-time) t0) 1740000000)
 				;the one that asked is still there, or it is let go
 				(or (not asker_node) (find asker_node (lisp-nodes))))
-			;what is new of what it said, to the one that asked
-			(when (and asker res (> (length res) told))
-				(mail-send asker (cat "LINE " (slice res told -1)))
-				(setq told (length res)))
+			;what is new of what it said, to the one that asked, whole lines
+			;each with the machine it is of, as several come at once
+			(when (and asker res (> (length res) told)
+					;just past the last whole line, (rfind) is past what it finds
+					(defq cut (rfind (ascii-char 10) res)) (> cut told))
+				(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 (ascii-char 10)))
+					(split (slice res told (dec cut)) (ascii-char 10))))))
+				(setq told cut))
 			(when (> (- (pii-time) beat) 1000000)
 				(save (str (setq beat (pii-time))) alive_file))
 			(task-sleep 100000))
@@ -168,7 +173,7 @@
 		ran)
 	(defq replies (list) t2 (pii-time))
 	;what sessions say as they go, to said, and what each came back with
-	(while (and (< (length replies) asked) (< (- (pii-time) t2) 870000000))
+	(while (and (< (length replies) asked) (< (- (pii-time) t2) 1770000000))
 		(cond
 			((not (defq reply (mail-read-timeout reply_mbox 1000000))))
 			((starts-with "LINE " reply) (if said (said (slice reply 5 -1))))
