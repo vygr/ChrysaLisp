@@ -298,7 +298,7 @@
 			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
 			(save (join (sort (cat l)) (ascii-char 10)) (boot-files-file *cpu* *abi*))
 			;not all of them, lib/boot/image.inc says which
-			(boot-funcs *prods*))) *abi* *cpu*))
+			(image-funcs *prods* *cpu*))) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu* walk)
 	; (make-all [files abi cpu walk])

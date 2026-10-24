@@ -10,9 +10,10 @@
 (enums +blob 0
 	(enum body links refs))
 
-;what a boot image holds of all the functions there are. One that is not in
-;it is bound from its file under obj/ the first time it is asked for, so the
-;image need only hold what an install binds before it has built anything:
+;what an install's boot image, the VP64 one, holds of all the functions
+;there are. One that is not in it is bound from its file under obj/ the
+;first time it is asked for, so it need only hold what an install binds
+;before it has built anything:
 ;the kernel and Lisp, in these folders, and these few besides, the font,
 ;pixmap and path classes Lisp's boot asks for, the crypto a machine's key is
 ;made with and the Net service's sockets. What they call comes in with them
@@ -28,11 +29,25 @@
 
 (defun boot-funcs (funcs &optional all)
 	; (boot-funcs funcs [all]) -> funcs
-	;those of these functions a boot image holds, every one of them with all
+	;those of these functions an install's boot image holds, every one of
+	;them with all
 	(if all funcs
 		(filter (lambda (fn_path)
 				(or (some (# (starts-with %0 fn_path)) +boot_folders) (find (sym fn_path) +boot_extras)))
 			funcs)))
+
+(defun image-funcs (funcs cpu)
+	; (image-funcs funcs cpu) -> funcs
+	;those of these functions the boot image of a CPU holds, besides the
+	;loader, the statics and the kernel, and what they call, which every
+	;image has. The VP64 one is what an install runs, and what a node of a
+	;CPU with no translator runs: it holds what an install binds before it
+	;has built anything. A native one is made by an install, after it has
+	;built the rest, so it holds only the loader, and what it calls, and the
+	;loader binds the rest as it is asked for: what runs while it loads must
+	;not be in a block it is writing, docs/vm/vp_functions.md
+	(if (eql cpu 'vp64) (boot-funcs funcs)
+		(filter (# (starts-with "sys/load/" %0)) funcs)))
 
 (defun func-obj-path (%0)
 	(sym (cat "obj/" *cpu* "/" *abi* "/" %0)))
@@ -108,5 +123,5 @@
 	:nil)
 
 ;module
-(export-symbols '(boot-image boot-funcs func-obj-path))
+(export-symbols '(boot-image boot-funcs image-funcs func-obj-path))
 (env-pop)

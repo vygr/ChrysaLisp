@@ -221,11 +221,23 @@
 
 (def-func-end)
 
-;a block once made runnable is never made writable again: the node may be
-;running any function in it, the loader's own too. So a load goes to new
-;blocks, and those, from the head of their list down to where it was when
-;the load began, are made runnable after it. The tail of the last is not
-;used again, what is not written takes no memory
+;a load goes on in the block the last one ended in, made writable for it,
+;and in new blocks after that, and those are made runnable when it ends,
+;from the head of their list down to the one past where it began. Only the
+;newest block is ever made writable again, and nothing of it runs while it
+;is: what runs during a load is the loader and what it calls, and those the
+;boot image holds, lib/boot/image.inc. A function of it may be waiting on
+;the stack, which is runnable again before it is returned to
+(defun ld-open (block next)
+	;the newest block writable, next the one after it, where the seal stops
+	(vpif `(,block /= 0))
+		(call :host_os :pii_mprotect `(,block ld_block_size +mmap_data) '(:r0))
+		(assert '(:r0 = 0))
+		(assign `((,block +ln_fnode_next)) `(,next))
+	(else)
+		(vp-xor-rr next next)
+	(endif))
+
 (defun ld-seal (block stop)
 	(loop-while `(,block /= ,stop))
 		(call :host_os :pii_mprotect `(,block ld_block_size +mmap_exec) '(:r0))
@@ -262,14 +274,14 @@
 		(vp-ret)
 	(endif)
 
-	;load the function/s, the node's own, to new blocks
+	;load the function/s, the node's own, on in the newest block
 	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_block_flist) (:r7 statics_sys_load_block_end)) '(:r0 :r1))
-	(assign '(:r1) '((:r7 statics_sys_load_block_start)))
-	(vp-push :r0)
+	(assign '((:r7 statics_sys_load_block_flist)) '(:r3))
+	(ld-open :r3 :r5)
+	(vp-push :r5)
 	(call :sys_load :load '(:r6) '(:r4))
 
-	;the new blocks made runnable
+	;the blocks it wrote made runnable
 	(vp-pop :r5)
 	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:r7 statics_sys_load_block_flist)) '(:r3))
@@ -557,11 +569,13 @@
 	(assign (vpx 0) (vpx func))
 	(gotoif (vpx (= server 0)) 'exit)
 	(assign (vpx server (.> server +ld_server_flist)) (vpx (.> statics statics_sys_load_server) head))
-	;to new blocks, of the server and of the node's own it loads
-	(assign (vpx (.> server +ld_server_blocks) (.> statics statics_sys_load_block_flist))
-		(vpx sblocks nblocks))
-	(assign (vpx (.> server +ld_server_end) (.> statics statics_sys_load_block_end))
-		(vpx (.> server +ld_server_start) (.> statics statics_sys_load_block_start)))
+	;on in the newest block of the server, and of the node's own it loads
+	(assign (vpx (.> server +ld_server_blocks)) '(:r3))
+	(ld-open :r3 :r5)
+	(assign '(:r5) (vpx sblocks))
+	(assign (vpx (.> statics statics_sys_load_block_flist)) '(:r3))
+	(ld-open :r3 :r5)
+	(assign '(:r5) (vpx nblocks))
 
 	;each copied in and put on the list
 	(assign (vpx (.> list +array_begin) (.> list +array_length)) (vpx iter iter_end))

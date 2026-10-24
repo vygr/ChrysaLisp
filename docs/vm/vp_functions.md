@@ -84,13 +84,22 @@ that path, loading that one first if it has to. Nothing else in a function is
 moved, every other reference in it is relative to where it is.
 
 A load is a burst: the function asked for and all it calls that is not loaded
-yet, or a set placed in a server. It goes to blocks new to it, of 128KB, and
-those blocks are made runnable when it ends. A block once runnable is never
-written again: the node may be running any function in it, the loader's own
-too. So any function, the loader itself, can be loaded at any time, and the
-boot image need not hold the loader to keep it out of a block being written.
-The tail of a burst's last block is not used again, and as a page that is not
-written takes no memory, a burst costs at most the page it ends in.
+yet, or a set placed in a server. It goes on in the block the last one ended
+in, made writable for it, and in new blocks of 128KB after that, and those
+are made runnable when it ends. Only the newest block is ever made writable
+again, and nothing in it runs while it is: what runs during a load is the
+loader and what it calls, and a boot image always holds those. A function in
+it may be waiting further up the stack, and is runnable again before it is
+returned to. So loads are packed one after another, as they were when every
+block was made writable for each.
+
+There are two boot images. The VP64 one is what an install runs, and what a
+node of a CPU with no translator runs: it holds what an install binds before
+it has built anything, the kernel, Lisp, the font, pixmap and path classes,
+the crypto and the Net service's sockets. A native one is made by the
+install, after it has built the rest, and holds only the loader, the statics
+and the kernel and what they call, some 44KB; the loader binds the rest as it
+is asked for. `image-funcs` in `lib/boot/image.inc` says which.
 
 The boot image, `obj/<cpu>/<abi>/sys/boot_image`, made by `lib/boot/image.inc`,
 is the functions the kernel needs end to end, `sys/load/init` first and
