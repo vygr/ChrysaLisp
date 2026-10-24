@@ -123,8 +123,9 @@
 						(push same name)
 						(when (= (age (cat (load-path) name)) 0)
 							(defq out (source-make (first (source-entry mode name)) mode))
-							(if (source-caching?) (save out (cat (load-path) name))
-								(progn (push natives out) (push given name)))))
+							(cond
+								((source-caching?) (save out (cat (load-path) name)))
+								((push natives out) (push given name)))))
 					((push theirs_own name)
 						(if (and (source-caching?) (defq kept (load (source-cache theirs mode))))
 							(push natives kept)
