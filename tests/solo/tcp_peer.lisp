@@ -8,10 +8,16 @@
 (def *root_env* '*env_node_solo* :t)
 (import "lib/task/pipe.inc")
 (import "lib/net/links.inc")
-(pipe-run "link -s 127.0.0.1:34581" (const prin))
+;what it does is written down for the test, which says it if this ends
+;before the test has seen it, /tmp/tcp_peer_<pid>.log
+(defq tp_log (cat "/tmp/tcp_peer_" (str (pii-pid)) ".log") tp_said (list))
+(pipe-run "link -s 127.0.0.1:34581" (# (push tp_said %0) (prin %0)))
 (defq tp_t0 (pii-time) tp_linked :nil)
+(save (cat "link said: " (join tp_said "") ";") tp_log)
 (while (and (< (- (pii-time) tp_t0) (task-timeout 60))
 		(or (not tp_linked) (nempty? (net-links))))
 	(if (nempty? (net-links)) (setq tp_linked :t))
 	(task-sleep 200000))
+(save (cat "link said: " (join tp_said "") "; linked: " (if tp_linked "yes" "never")
+	"; ended after " (str (/ (- (pii-time) tp_t0) 1000000)) "s") tp_log)
 (pii-exit)

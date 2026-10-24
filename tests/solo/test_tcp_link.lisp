@@ -34,10 +34,18 @@
 
 (assert-true "the other network is started" (> tl_pid 0))
 ;each wait below is for what is to come, as long as it takes, a hang is
-;the runner's to say
-(until (setq tl_new (tl-find))
+;the runner's to say. The other network ending before it is seen is what
+;is to come too: it is said, with what it wrote of its link, and what this
+;node has, so a failure says why
+(until (or (setq tl_new (tl-find)) (not (pii-alive tl_pid)))
 	(task-sleep 100000))
-(assert-true "its node is seen over the connection, and runs a task" tl_new)
+(assert-true (if tl_new "its node is seen over the connection, and runs a task"
+		(cat "its node is seen over the connection, and runs a task. Not seen, it ended."
+			" It said: " (ifn (load (cat "/tmp/tcp_peer_" (str tl_pid) ".log")) "nothing")
+			" This node's links: " (str (length (net-links)))
+			", nodes of this machine: " (str (length (lisp-nodes :t)))
+			", this node: " (hex-encode (task-nodeid))))
+	tl_new)
 (when tl_new
 	;a link whose other end is not yet known has a peer of nothing, all 0,
 	;which (str-alloc) is not: it does not clear what it gives
@@ -84,6 +92,8 @@
 	(while (pii-alive tl_pid)
 		(task-sleep 10000))
 	(assert-eq "left alone, its process ends" :nil (pii-alive tl_pid)))
+;what the other network wrote of its link, kept only for a failure to say
+(pii-remove (cat "/tmp/tcp_peer_" (str tl_pid) ".log"))
 
 ;first come first served: one listener has a port, a second is told it
 ;has not, and when the first is told to go the port is there to have
