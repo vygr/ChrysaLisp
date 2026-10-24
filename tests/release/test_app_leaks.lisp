@@ -25,7 +25,7 @@
 		(get :launcher_auto_apps *env*))
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
 		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
-	al_before (lisp-nodes) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
+	al_before (lisp-nodes :t) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
 	al_t0 (pii-time) al_gui :nil al_node :nil al_probe :nil)
 
 (defun al-probe-start ()
@@ -140,11 +140,11 @@
 
 ;the desktop goes, and the network is as it was
 (when al_pid
-	(when (defq al_new (some (# (unless (find %0 al_before) %0)) (lisp-nodes)))
+	(when (defq al_new (some (# (unless (find %0 al_before) %0)) (lisp-nodes :t)))
 		(open-task "(pii-exit)" al_new +kn_call_pin 0 (mail-mbox)))
 	(setq al_t0 (pii-time))
 	(while (and (pii-alive al_pid) (< (- (pii-time) al_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive al_pid) (pii-kill al_pid))
-	(while (/= (length (lisp-nodes)) (length al_before))
+	(while (/= (length (lisp-nodes :t)) (length al_before))
 		(task-sleep 10000)))

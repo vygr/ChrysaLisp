@@ -8,7 +8,7 @@
 (import "lib/files/files.inc")
 (import "service/audio/app.inc")
 
-(defq am_before (lisp-nodes) am_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
+(defq am_before (lisp-nodes :t) am_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
 	am_t0 (pii-time) am_gui :nil am_node :nil)
 
 (defun am-ask (form)
@@ -136,11 +136,11 @@
 
 ;the desktop goes, and the network is as it was
 (when am_pid
-	(when (defq am_new (some (# (unless (find %0 am_before) %0)) (lisp-nodes)))
+	(when (defq am_new (some (# (unless (find %0 am_before) %0)) (lisp-nodes :t)))
 		(open-task "(pii-exit)" am_new +kn_call_pin 0 (mail-mbox)))
 	(setq am_t0 (pii-time))
 	(while (and (pii-alive am_pid) (< (- (pii-time) am_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive am_pid) (pii-kill am_pid))
-	(while (/= (length (lisp-nodes)) (length am_before))
+	(while (/= (length (lisp-nodes :t)) (length am_before))
 		(task-sleep 10000)))

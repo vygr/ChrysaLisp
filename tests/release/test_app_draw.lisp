@@ -23,7 +23,7 @@
 		(get :launcher_auto_apps *env*))
 	ad_apps (sort (filter (lambda (app) (not (find app ad_skip)))
 		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
-	ad_before (lisp-nodes) ad_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
+	ad_before (lisp-nodes :t) ad_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
 	ad_t0 (pii-time) ad_gui :nil)
 
 (defun ad-screen (&optional depth keys)
@@ -132,11 +132,11 @@
 
 ;the desktop goes, and the network is as it was
 (when ad_pid
-	(when (defq ad_new (some (# (unless (find %0 ad_before) %0)) (lisp-nodes)))
+	(when (defq ad_new (some (# (unless (find %0 ad_before) %0)) (lisp-nodes :t)))
 		(open-task "(pii-exit)" ad_new +kn_call_pin 0 (mail-mbox)))
 	(setq ad_t0 (pii-time))
 	(while (and (pii-alive ad_pid) (< (- (pii-time) ad_t0) (task-timeout 5)))
 		(task-sleep 10000))
 	(if (pii-alive ad_pid) (pii-kill ad_pid))
-	(while (/= (length (lisp-nodes)) (length ad_before))
+	(while (/= (length (lisp-nodes :t)) (length ad_before))
 		(task-sleep 10000)))
