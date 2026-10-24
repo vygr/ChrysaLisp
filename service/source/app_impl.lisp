@@ -121,6 +121,17 @@
 	;the VP of those functions of this system, an entry each
 	(join (map (# (str (first (source-entry mode %0)))) names) (ascii-char 10)))
 
+(defun source-ask-again (sid svc request)
+	; (source-ask-again sid svc request) -> (svc answer)
+	;a request of a system's @Source, and if it says nothing, of the one a
+	;kernel of that system says it has now, which is kept
+	(cond
+		((defq got (source-ask svc request)) (list svc got))
+		((and (defq found (source-find sid)) (nql found svc))
+			(. *source_svcs* :insert sid (hex-encode found))
+			(list found (source-ask found request)))
+		((list svc :nil))))
+
 (defun source-translate (args)
 	; (source-translate request) -> :nil | natives
 	;the request is the system id, its @Source in hex, the build mode and
@@ -136,15 +147,14 @@
 	;are translated, kept if they may be. What is given is the natives, one
 	;after another, for the task to place
 	(bind '(sid svc mode name) (split args " "))
-	(defq svc (hex-decode svc) self (eql svc (task-mbox))
-		key (cat (hex-encode svc) " #" mode " " name)
+	(defq svc (hex-decode (ifn (. *source_svcs* :find sid) svc)) self (eql svc (task-mbox))
 		;the manifest of another system's function is asked of it once and kept
-		manifest (cond
-			(self (source-manifest mode name))
-			((. *source_kept* :find key))
-			((defq got (source-ask svc (cat "#" mode " " name)))
-				(. *source_kept* :insert key got) got))
+		manifest (if self (source-manifest mode name)
+			(. *source_kept* :find (cat (hex-encode svc) " #" mode " " name)))
 		natives (list) missing (list) same (list) given (list) theirs_own (list))
+	(unless (or self manifest)
+		(bind '(svc manifest) (source-ask-again sid svc (cat "#" mode " " name)))
+		(if manifest (. *source_kept* :insert (cat (hex-encode svc) " #" mode " " name) manifest)))
 	(when manifest
 		(each (lambda (line)
 				(bind '(name theirs) (split line " "))
@@ -225,22 +235,57 @@
 	;L, the copy here is the same, T and the text, or n. Each task that
 	;wants the file while that is asked waits, and is answered as it comes,
 	;and every one after from what was kept. :nil is that it is being
-	;asked. One asked longer ago than a task waits is asked again. What is
-	;kept is of that @Source: one started again has another mailbox
-	(defq at (find " " args) rest (slice args (inc at) -1)
-		at (find " " rest) svc (slice rest 0 at) path (slice rest (inc at) -1)
+	;asked, (source-beat) sees to one not answered. What is kept is of that
+	;@Source: one started again has another mailbox, and the one found
+	;since is asked in place of the one the task was sent with
+	(bind '(sid svc path) (split args " "))
+	(defq svc (ifn (. *source_svcs* :find sid) svc)
 		key (cat svc " " path) out (. *source_out* :find key))
 	(source-count :asked)
 	(cond
 		((not (source-given? path)) "n")
 		((defq tree (. *source_known* :find key)) (source-count :kept) (source-bundle svc tree))
 		((. *source_kept* :find key) (source-count :kept) (source-bundle svc (list path)))
-		((and out (< (- (pii-time) (first out)) (task-timeout +source_wait)))
-			(push (second out) (getf *source_msg* +source_rpc_reply_id))
-			:nil)
-		(:t (. *source_out* :insert key (list (pii-time) (list (getf *source_msg* +source_rpc_reply_id))))
+		(out (push (second out) (getf *source_msg* +source_rpc_reply_id)) :nil)
+		(:t (. *source_out* :insert key (list (pii-time) (list (getf *source_msg* +source_rpc_reply_id)) sid path :nil))
 			(source-tell svc (cat "&" key (ascii-char 10) path))
 			:nil)))
+
+(defun source-beat ()
+	;each second: a file asked of another system's @Source and not answered
+	;in +source_seek, a kernel of that system is asked which it has now,
+	;once. One not answered in a task's wait has none, its tasks are told
+	(defq now (pii-time))
+	(each (lambda ((key out))
+			(bind '(at waiters sid path sought) out)
+			(cond
+				((> (- now at) (task-timeout (* 2 +source_wait))) (source-done key))
+				((and (not sought) (> (- now at) (task-timeout +source_seek)))
+					(. *source_out* :insert key (list at waiters sid path :t))
+					(source-count :sought)
+					(source-seek sid *source_back*))))
+		(. *source_out* :tolist)))
+
+(defun source-found (sid svc)
+	;a kernel of that system says which @Source it has now. One other than
+	;was asked: kept, and each file asked of the old one is asked of it.
+	;None: the tasks that wait are told
+	(each (lambda ((key out))
+			(bind '(& waiters out_sid path &) out)
+			(when (eql out_sid sid)
+				(defq old (slice key 0 (find " " key)))
+				(cond
+					((empty? svc) (source-done key))
+					((nql svc old)
+						(. *source_out* :erase key)
+						(defq key (cat svc " " path))
+						(cond
+							((defq there (. *source_out* :find key))
+								(each (# (push (second there) %0)) waiters))
+							(:t (. *source_out* :insert key (list (pii-time) waiters sid path :t))
+								(source-tell svc (cat "&" key (ascii-char 10) path))))))))
+		(. *source_out* :tolist))
+	(if (nempty? svc) (. *source_svcs* :insert sid svc)))
 
 (defun source-count (what)
 	;one more of what this service has done, (source-stats)
@@ -264,10 +309,11 @@
 	;an answer of another system. &: the hash of each file of the tree,
 	;those the same as the copy here are kept as L, and the text of the
 	;rest asked for. *: those texts, kept as T. Then the tasks that wait
-	;are given them
+	;are given them. ?: which @Source a system has now, (source-seek)
 	(defq at (find (ascii-char 10) msg) key (slice msg 1 at) body (slice msg (inc at) -1)
-		at (find " " key) svc (slice key 0 at))
+		at (find " " key) svc (if at (slice key 0 at)))
 	(cond
+		((starts-with "?" msg) (source-found key body))
 		((starts-with "&" msg)
 			(cond
 				((eql body "n") (source-done key))
@@ -312,7 +358,7 @@
 		;what it has done, "!": tasks' asks, those answered from what was
 		;kept, and the asks it made of other systems
 		((eql request "!")
-			(cat "y" (str (map (# (ifn (. *source_counts* :find %0) 0)) '(:asked :kept :told)))))
+			(cat "y" (str (map (# (ifn (. *source_counts* :find %0) 0)) '(:asked :kept :told :sought)))))
 		;a file of another system for a task here, "%sid svc path"
 		((starts-with "%" request) (source-fetch (slice request 1 -1)))
 		;a file and all it imports, of a @Source elsewhere, "&key\npath"
@@ -340,7 +386,7 @@
 	;long as a task waits
 	(defq service (mail-declare (task-mbox) "@Source" "Source Service 0.2") *source_env* (env)
 		*source_hashes* (Fmap 101) *source_files* (Fmap 101) *source_out* (Fmap 31) *source_kept* (Fmap 101)
-		*source_known* (Fmap 31) *source_trees* (Fmap 31) *source_counts* (Fmap 11)
+		*source_known* (Fmap 31) *source_trees* (Fmap 31) *source_counts* (Fmap 11) *source_svcs* (Fmap 11)
 		*source_back* (mail-mbox) select (list (task-mbox) *source_back* (mail-mbox)) *source_msg* :nil
 		winner :nil heard (pii-time) running :t)
 	(mail-timeout (third select) 1000000 0)
@@ -353,7 +399,8 @@
 		(cond
 			((= idx 2)
 				(mail-timeout (third select) 1000000 0)
-				(and winner (empty? (tolist *source_out*))
+				(source-beat)
+				(and winner (. *source_out* :empty?)
 					(> (- (pii-time) heard) (task-timeout +source_wait))
 					(setq running :nil)))
 			((= idx 1) (source-fetched msg))

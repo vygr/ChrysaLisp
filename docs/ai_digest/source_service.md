@@ -83,8 +83,26 @@ not seen till then.
 The service keeps the hash of each file of its own till the file changes,
 and of each function its hash and the functions it calls till its bundle is
 built again, so a bundle is read and parsed once. `!` says what it has done:
-the asks of tasks, those answered from what was kept, and the asks it made
-of other systems, as `tests/system/test_source.lisp` counts them.
+the asks of tasks, those answered from what was kept, the asks it made of
+other systems, and the kernels it asked, as `tests/system/test_source.lisp`
+counts them.
+
+## When the sender's `@Source` has gone
+
+A task carries its system's id and the mailbox of that system's `@Source` as
+it was when the task was sent. A system's id stays the same when it starts
+again; its `@Source` does not, the new one has another mailbox. So a file
+asked of the old one is never answered. Each second the broker looks at what
+it has asked and not had: one not answered in 2 seconds, `+source_seek`, has
+it ask a kernel of that system which `@Source` it has now, `(source-seek)`,
+a task pinned to one of its nodes that mails the answer back, `?sid` and
+the mailbox. One other than it asked is kept for that system, and what was
+asked of the old one is asked of it, the tasks that wait carried over. None
+there, or nothing in 20 seconds, and they are told there is none. A request
+for a function's manifest, which waits for its answer, asks the kernel the
+same way, `(source-find)`, and asks once more. The kernel is asked only when
+an answer does not come, so a `@Source` that is slow, not gone, only costs
+one small task.
 
 Once its files are read the task runs its `main`, as any task does.
 
@@ -152,3 +170,6 @@ of its own, so an answer that comes late goes to a mailbox nobody reads.
   in the tree its file names, and is asked for by itself.
 * The translator is this system's own, not the sender's: the same on one
   waypoint.
+* A manifest is asked for while the service waits for it, and natives are
+  translated in its own loop: one task to a system doing that is serial,
+  [code_delivery_design.md](code_delivery_design.md) moves it into jobs.

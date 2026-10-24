@@ -197,7 +197,8 @@ a file and all it imports and keeping the answers,
 emulator on every host, the Pi's had only stale files. The rest:
 
 * Compiling apart from translating and saving: done, `(vp-compile)`.
-* The kernel query for a system's `@Source`, and the retry by it.
+* The kernel query for a system's `@Source`, and the retry by it: done,
+  [source_service.md](source_service.md).
 * Jobs for compile and translate, with their destinations, and `@Source`
   only keeping the books: the translating and hashing it does in its own
   loop now move out.

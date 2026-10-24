@@ -181,7 +181,7 @@
 ;the hash of each file, and its copies here are the same, so no text. A
 ;second task like it is answered from what was kept, that system not asked
 (defun so-stats ()
-	; (so-stats) -> (asked kept told)
+	; (so-stats) -> (asked kept told sought)
 	(first (read (string-stream (source-ask so_svc "!")))))
 (defun so-tree-task ()
 	;what a task of the other system was given, as it imports Mandelbrot's
@@ -200,6 +200,17 @@
 (assert-eq "a second task asks once too" 1 (- (first so_now) (first so_was)))
 (assert-eq "and is answered from what was kept" 1 (- (second so_now) (second so_was)))
 (assert-eq "that system is not asked again" 0 (- (third so_now) (third so_was)))
+
+;a task sent with a @Source that has gone since: one started again has
+;another mailbox. Not answered, the @Source here asks a kernel of that
+;system which it has now, and asks that one. A mailbox nobody reads is the
+;one that has gone
+(setq so_was (so-stats))
+(defq so_gone (source-ask so_svc (cat "%" (hex-encode (system-id)) " " (hex-encode (mail-mbox)) " " so_inc)
+	(* 3 +source_wait)))
+(assert-eq "a file asked of a @Source that has gone comes from the one there is now"
+	so_inc (first (first (source-unpack (ifn so_gone "")))))
+(assert-eq "found by asking a kernel of that system" 1 (- (elem-get (so-stats) 3) (elem-get so_was 3)))
 
 ;started twice at once, by two that each found none: every copy answers,
 ;a request to one that gives way is sent on, and one of them stays, the

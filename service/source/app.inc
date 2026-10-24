@@ -16,7 +16,7 @@
 (catch (ffi "sys/load/lisp_place" task-place) :t)
 ; (task-place natives) -> :t | :nil
 
-(defq +source_wait 10)
+(defq +source_wait 10 +source_seek 2)
 
 (structure +source_rpc 0
 	(netid reply_id))
@@ -41,13 +41,13 @@
 	(until (source-service) (task-sleep 10000))
 	(source-service))
 
-(defun source-ask (svc path)
-	; (source-ask svc path) -> :nil | text
+(defun source-ask (svc path &optional wait)
+	; (source-ask svc path [wait]) -> :nil | text
 	;a file's text from a @Source, :nil if it has none it will give, or it
-	;says nothing in the time. A new mailbox each time: an answer that comes
-	;late is to a mailbox nobody reads
+	;says nothing in the time, +source_wait seconds or wait. A new mailbox
+	;each time: an answer that comes late is to a mailbox nobody reads
 	(defq select (list (mail-mbox) (mail-mbox)))
-	(mail-timeout (second select) (task-timeout +source_wait) 0)
+	(mail-timeout (second select) (task-timeout (ifn wait +source_wait)) 0)
 	(mail-send svc (cat (setf-> (str-alloc +source_rpc_size)
 		(+source_rpc_reply_id (first select))) path))
 	(when (= (mail-select select) 0)
@@ -73,6 +73,30 @@
 		(setq at (+ (inc c) n)))
 	out)
 
+(defun source-seek (sid reply)
+	; (source-seek sid reply) -> :nil | :t
+	;which @Source a system has now, by its id in hex, asked of a kernel of
+	;it: a task pinned to one of its nodes mails reply ?sid and a line,
+	;that @Source in hex, empty if it has none. What a task was sent with
+	;is the one of then, one started again since has another mailbox. :nil
+	;if no node of it is known
+	(when (defq node (first (lisp-nodes (hex-decode sid))))
+		(open-task (cat "(mail-send (hex-decode {" (hex-encode reply) "}) (cat {?" sid "} (ascii-char 10)"
+				" (if (defq s (mail-lowest {@Source})) (hex-encode s) {})))")
+			node +kn_call_pin 0 (mail-mbox))
+		:t))
+
+(defun source-find (sid)
+	; (source-find sid) -> :nil | netid
+	;the @Source a system has now, (source-seek) and its answer waited for
+	(defq select (list (mail-mbox) (mail-mbox)))
+	(when (source-seek sid (first select))
+		(mail-timeout (second select) (task-timeout +source_wait) 0)
+		(when (= (mail-select select) 0)
+			(mail-timeout (second select) 0 0)
+			(if (nempty? (defq got (second (split (mail-read (first select)) (ascii-char 10)))))
+				(hex-decode got)))))
+
 (defun source-stream (sid svc path)
 	; (source-stream sid svc path) -> :nil | stream
 	;a file of a system as a stream, by the system id in hex and its
@@ -87,7 +111,9 @@
 		((eql sid (hex-encode (system-id)))
 			(if (/= (age path) 0) (file-stream path)))
 		((or (. got :find path)
-				(and (defq answer (source-ask (source-here) (cat "%" sid " " (hex-encode svc) " " path)))
+				;the @Source here may have to find that system's again, so
+				;more than one wait
+				(and (defq answer (source-ask (source-here) (cat "%" sid " " (hex-encode svc) " " path) (* 3 +source_wait)))
 					(progn (each (lambda ((p tag text)) (. got :insert p (list tag text))) (source-unpack answer))
 						(. got :find path))))
 			(bind '(tag text) (. got :find path))
@@ -144,7 +170,8 @@
 	;placed for it
 	(unless (eql *source_system* (hex-encode (system-id)))
 		(and (defq natives (source-ask (source-here)
-				(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)))
+				(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)
+				(* 3 +source_wait)))
 			(nempty? natives)
 			(task-place (source-split natives)))))
 
