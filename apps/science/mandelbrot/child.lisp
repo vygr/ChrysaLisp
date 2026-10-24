@@ -1,6 +1,9 @@
 (defq *app_root* (path-to-file))
 
-(import "gui/lisp.inc")
+;the canvas alone, a child draws on the app's pixels and nothing else of
+;the GUI
+(import "lib/consts/colors.inc")
+(import "gui/canvas/lisp.inc")
 (import "./app.inc")
 
 ;the colour of a point, -1 if it does not get out of the set in top turns

@@ -2,6 +2,7 @@
 (import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "./app.inc")
+(import "service/source/app.inc")
 
 (enums +event +event_user
 	(enum home))
@@ -72,7 +73,10 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(setq jobs (Jobs (cat *app_root* "child.lisp")
+	;each child is read from this system, by its @Source, its Lisp and the
+	;VP of its shade, translated where it runs: it needs no file of the
+	;app's on another machine
+	(setq jobs (Jobs (source-task (cat *app_root* "child.lisp"))
 		(elem-get select +select_task) (elem-get select +select_reply)
 		(* 2 (max 1 (length (lisp-nodes))))))
 	(tooltips)
