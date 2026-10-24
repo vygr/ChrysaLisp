@@ -12,6 +12,7 @@
 
 #include <alsa/asoundlib.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,6 +89,13 @@ static void *feed(void *arg)
 			float s = mix[i] * 32767.0f;
 			out[i] = (int16_t)(s > 32767.0f ? 32767.0f : (s < -32768.0f ? -32768.0f : s));
 		}
+		// a hidden desktop has no device, what is mixed goes nowhere, at
+		// the pace a device would take it
+		if (!pcm)
+		{
+			usleep(FEED_FRAMES * 1000000 / MIXER_RATE);
+			continue;
+		}
 		const int16_t *at = out;
 		snd_pcm_sframes_t left = FEED_FRAMES;
 		while (left > 0 && feeding)
@@ -105,13 +113,14 @@ static void *feed(void *arg)
 
 int host_audio_init()
 {
-	// the default device, with a 50ms buffer
-	if (snd_pcm_open(&pcm, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0)
+	// the default device, with a 50ms buffer, none for a hidden desktop
+	if (host_audio_hidden()) pcm = nullptr;
+	else if (snd_pcm_open(&pcm, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0)
 	{
 		pcm = nullptr;
 		return -1;
 	}
-	if (snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED,
+	if (pcm && snd_pcm_set_params(pcm, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED,
 		MIXER_CHANNELS, MIXER_RATE, 1, 50000) < 0)
 	{
 		snd_pcm_close(pcm);
@@ -124,7 +133,7 @@ int host_audio_init()
 	if (pthread_create(&feed_thread, nullptr, feed, nullptr))
 	{
 		feeding = false;
-		snd_pcm_close(pcm);
+		if (pcm) snd_pcm_close(pcm);
 		pcm = nullptr;
 		return -1;
 	}
@@ -136,11 +145,11 @@ int64_t host_audio_mic_close();
 int host_audio_deinit()
 {
 	host_audio_mic_close();
-	if (pcm)
+	if (feeding)
 	{
 		feeding = false;
 		pthread_join(feed_thread, nullptr);
-		snd_pcm_close(pcm);
+		if (pcm) snd_pcm_close(pcm);
 		pcm = nullptr;
 	}
 	while (float *samples = mixer_take()) free(samples);

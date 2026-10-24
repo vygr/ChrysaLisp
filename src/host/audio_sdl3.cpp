@@ -46,7 +46,9 @@ static void SDLCALL mix_callback(void *userdata, SDL_AudioStream *s, int additio
 
 // -hidden in the args, a desktop that is never seen is not heard either:
 // what is played plays as it would, at no volume. Chris, of the app draw
-// test: "I can hear your Boing test... :)"
+// test: "I can hear your Boing test... :)". Nor does it need a device: it
+// plays to SDL's dummy driver, at the pace of one, on a machine with none,
+// a Pi whose only sound is a screen that is off
 
 extern char **host_argv;
 
@@ -58,6 +60,7 @@ static bool host_audio_hidden(void)
 
 int host_audio_init()
 {
+	if (host_audio_hidden()) SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "dummy");
 	if (!SDL_Init(SDL_INIT_AUDIO))
 	{
 		logAudioError("SDL_Init");

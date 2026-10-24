@@ -24,9 +24,21 @@ void logSDLError(const char* msg) {
     fprintf(stderr, "%s error: %s\n", msg, Mix_GetError());
 }
 
+// -hidden in the args, a desktop that is never seen plays to SDL's dummy
+// driver, and needs no device
+
+extern char **host_argv;
+
+static bool host_audio_hidden(void)
+{
+	if (host_argv) for (char **arg = host_argv; *arg; arg++) if (!strcmp(*arg, "-hidden")) return true;
+	return false;
+}
+
 int host_audio_init()
 {
 	SDL_SetMainReady();
+	if (host_audio_hidden()) SDL_SetHint(SDL_HINT_AUDIODRIVER, "dummy");
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         logSDLError("SDL_Init");
         return -1;
