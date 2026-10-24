@@ -50,7 +50,12 @@
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
 		disk_apps (filter (lambda (name) (notany (# (ends-with %0 name)) exclude_list))
-			(files-all "apps" '("app.lisp") 5 -10)))
+			(files-all "apps" '("app.lisp") 5 -10))
+		disk_names (map (const path-name) disk_apps))
+	;one kept in the layout that is no longer on the disk, an app taken out
+	;of the system, goes from it
+	(. categories :each (lambda (name cat_data)
+		(. cat_data :update :apps (lambda (apps) (filter (# (find %0 disk_names)) apps)))))
 	(each (lambda (app_path)
 		(defq app_name (path-name app_path) found :nil)
 		(. name_to_path_map :insert app_name app_path)
