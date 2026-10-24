@@ -10,9 +10,21 @@
 ;chosen is there, and the link, when it finds it gone, takes back what was
 ;never taken and posts it again, sys/kernel/class.vp and sys/link/class.vp.
 
-(defun gn-seen (want)
-	;wait till that many nodes are seen
-	(while (< (length (lisp-nodes)) want) (task-sleep 50000)))
+(defun gn-new (before)
+	; (gn-new before) -> (node ...)
+	;the nodes of this machine seen now that were not before
+	(filter (# (not (find %0 before))) (lisp-nodes :t)))
+
+(defun gn-seen (before n)
+	;wait till that many nodes are seen that were not before: only those
+	;the test made are counted, one of another test that is going as this
+	;starts is not
+	(while (< (length (gn-new before)) n) (task-sleep 50000)))
+
+(defun gn-unseen (nodes)
+	;wait till none of these nodes is seen, :t
+	(while (some (# (find %0 (lisp-nodes :t))) nodes) (task-sleep 100000))
+	:t)
 
 (defun gn-gone (pids)
 	;wait till these processes have gone
@@ -23,9 +35,9 @@
 ;once it leaves tasks to find a node. The six that have gone are the
 ;neighbours it knows with the least to do, tests/solo/gone_node.lisp. It
 ;is told what the tasks are by mail, they have this node's mailbox in them
-(defq gn_were (length (lisp-nodes)) gn_before (lisp-nodes) gn_pid (node-spawn 1) gn_mbox (mail-mbox) gn_done (mail-mbox) gn_kn (mail-mbox))
-(gn-seen (inc (length gn_before)))
-(defq gn_node (some (# (unless (find %0 gn_before) %0)) (lisp-nodes)))
+(defq gn_before (lisp-nodes :t) gn_pid (node-spawn 1) gn_mbox (mail-mbox) gn_done (mail-mbox) gn_kn (mail-mbox))
+(gn-seen gn_before 1)
+(defq gn_node (first (gn-new gn_before)))
 (assert-true "a node is started" gn_node)
 (open-task "tests/solo/gone_node.lisp" gn_node +kn_call_pin 0 gn_kn)
 (mail-send (getf (mail-read gn_kn) +kn_msg_reply_id)
@@ -41,9 +53,9 @@
 ;node across it. One of the three stops taking from its links, as a busy
 ;node does, and then goes. Mail sent meanwhile to the other two, some of it
 ;by way of that one
-(defq gn_before (lisp-nodes) gn_pids (node-net :ring 4 0 :nil :nil "gn_r"))
-(gn-seen (+ (length gn_before) 3))
-(defq gn_ring (filter (# (not (find %0 gn_before))) (lisp-nodes))
+(defq gn_before (lisp-nodes :t) gn_pids (node-net :ring 4 0 :nil :nil "gn_r"))
+(gn-seen gn_before 3)
+(defq gn_ring (gn-new gn_before)
 	gn_victim (first gn_ring) gn_others (rest gn_ring))
 (assert-eq "a ring of 4 is three more" 3 (length gn_ring))
 ;the ways round are worked out from the pings, give them a moment
@@ -82,17 +94,16 @@
 ;a node that has gone is no longer listed by the node that had a link to
 ;it, nor are those that were only reached by way of it, as these were.
 ;The test that runs after this one may count the nodes
-(while (> (length (lisp-nodes)) gn_were) (task-sleep 100000))
-(assert-eq "and the nodes that were started are no longer seen" gn_were (length (lisp-nodes)))
+(assert-true "and the nodes that were started are no longer seen" (gn-unseen gn_ring))
 
 ;a ring of 5, this node and four more. The node two round from here one way
 ;is three round the other, and only the short way is held. The node next to
 ;this one on the short way goes. The one behind it can not be reached, and
 ;is not listed, till it is heard by the long way, which the kick brings on.
 ;The one that went is not listed again, sys/link/class.vp, +node_hops_none
-(defq gn_before (lisp-nodes) gn_pids (node-net :ring 5 0 :nil :nil "gn_5"))
-(gn-seen (+ (length gn_before) 4))
-(defq gn_ring (filter (# (not (find %0 gn_before))) (lisp-nodes)))
+(defq gn_before (lisp-nodes :t) gn_pids (node-net :ring 5 0 :nil :nil "gn_5"))
+(gn-seen gn_before 4)
+(defq gn_ring (gn-new gn_before))
 (assert-eq "a ring of 5 is four more" 4 (length gn_ring))
 (task-sleep 800000)
 (defq gn_victim (some (lambda (node)
@@ -102,10 +113,10 @@
 (assert-true "the first of them is next to this node" gn_victim)
 (open-task "(pii-exit)" gn_victim +kn_call_pin 0 (mail-mbox))
 (gn-gone (list (first gn_pids)))
-(while (or (find gn_victim (lisp-nodes)) (notevery (# (find %0 (lisp-nodes))) gn_others))
+(while (or (find gn_victim (lisp-nodes :t)) (notevery (# (find %0 (lisp-nodes :t))) gn_others))
 	(task-sleep 20000))
-(assert-eq "the one that went is not listed" :nil (find gn_victim (lisp-nodes)))
-(assert-true "the three that are there are, the one behind it by the long way round" (every (# (find %0 (lisp-nodes))) gn_others))
+(assert-eq "the one that went is not listed" :nil (find gn_victim (lisp-nodes :t)))
+(assert-true "the three that are there are, the one behind it by the long way round" (every (# (find %0 (lisp-nodes :t))) gn_others))
 (each (# (open-task (str `(mail-send (hex-decode ,(hex-encode gn_mbox)) "there")) %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (assert-list-eq "and a task sent to each of them runs" '("there" "there" "there")
 	(map (lambda (&) (mail-read gn_mbox)) gn_others))
@@ -114,5 +125,4 @@
 (each (# (open-task "(progn (task-sleep 300000) (pii-exit))" %0 +kn_call_pin 0 (mail-mbox))) gn_others)
 (node-stop "gn_5")
 (assert-true "the ring of 5 is stopped" (gn-gone gn_pids))
-(while (> (length (lisp-nodes)) gn_were) (task-sleep 100000))
-(assert-eq "and none of it is seen" gn_were (length (lisp-nodes)))
+(assert-true "and none of it is seen" (gn-unseen gn_ring))

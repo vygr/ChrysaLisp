@@ -18,11 +18,11 @@
 (defun us-new (before)
 	;wait for a node that was not there before, as long as that takes
 	(defq node :nil)
-	(until (setq node (some (# (unless (find %0 before) %0)) (lisp-nodes)))
+	(until (setq node (some (# (unless (find %0 before) %0)) (lisp-nodes :t)))
 		(task-sleep 100000))
 	node)
 
-(defq us_mine (us-ask (task-nodeid)) us_before (lisp-nodes))
+(defq us_mine (us-ask (task-nodeid)) us_before (lisp-nodes :t))
 ;as if this node had been told it was Test's
 (defq *env_node_user* "Test")
 (defq us_pids (node-spawn 1) us_node (us-new us_before))
@@ -30,7 +30,7 @@
 (assert-eq "a task on it finds the user it was told, and their home" "Test usr/Test/" (us-ask us_node))
 (assert-eq "a task on this node has the user it had" us_mine (us-ask (task-nodeid)))
 ;what that node starts is told as well, it has it from the node that started it
-(defq us_mbox (mail-mbox) us_before (lisp-nodes))
+(defq us_mbox (mail-mbox) us_before (lisp-nodes :t))
 (open-task (str `(mail-send (hex-decode ,(hex-encode us_mbox)) (str (node-spawn 1))))
 	us_node +kn_call_pin 0 (mail-mbox))
 (defq us_more (first (read (string-stream (mail-read us_mbox))))
@@ -41,7 +41,7 @@
 ;user of its session if it is some user's, as a test run by rack -u is,
 ;and nothing if not, when it has the machine's as this one does
 (undef (env) '*env_node_user*)
-(defq us_before (lisp-nodes) us_pids2 (node-spawn 1) us_node3 (us-new us_before))
+(defq us_before (lisp-nodes :t) us_pids2 (node-spawn 1) us_node3 (us-new us_before))
 (assert-eq "a node this one starts has the user this one has" us_mine (us-ask us_node3))
 ;clear them away
 (each (# (if %0 (open-task "(pii-exit)" %0 +kn_call_pin 0 (mail-mbox)))) (list us_node2 us_node us_node3))

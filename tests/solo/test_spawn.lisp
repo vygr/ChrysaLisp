@@ -2,7 +2,7 @@
 
 ;this changes the network, so it is in tests/solo/, and runs on its own
 
-(defq ht_before (lisp-nodes) ht_pid (first (node-spawn))
+(defq ht_before (lisp-nodes :t) ht_pid (first (node-spawn))
 	ht_new :nil ht_reply (mail-mbox))
 
 (defun ht-find ()
@@ -13,7 +13,7 @@
 				(open-task (str `(mail-send (hex-decode ,(hex-encode ht_reply)) (str (pii-pid))))
 					node +kn_call_pin 0 (mail-mbox))
 				(if (eql (mail-read-timeout ht_reply (task-timeout 1)) (str ht_pid)) node)))
-		(lisp-nodes)))
+		(lisp-nodes :t)))
 
 (assert-true "a node is started" (> ht_pid 0))
 (assert-eq "its process is running" :t (pii-alive ht_pid))
@@ -25,5 +25,5 @@
 	(assert-eq "told to exit, its process ends" :nil (pii-alive ht_pid))
 	;a link sees its peer's process is gone, and the node is forgotten at
 	;once, it is not left to run out its time
-	(while (find ht_new (lisp-nodes)) (task-sleep 10000))
-	(assert-true "and it is gone from the network" (not (find ht_new (lisp-nodes)))))
+	(while (find ht_new (lisp-nodes :t)) (task-sleep 10000))
+	(assert-true "and it is gone from the network" (not (find ht_new (lisp-nodes :t)))))

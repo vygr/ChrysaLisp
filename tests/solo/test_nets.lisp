@@ -2,10 +2,25 @@
 
 ;this changes the network, so it is in tests/solo/, and runs on its own
 
-(defun nt-wait (want)
-	;wait till that many nodes are seen, more or fewer than now
-	(while (/= (length (lisp-nodes)) want) (task-sleep 100000))
-	(length (lisp-nodes)))
+(defun nt-new (before &optional sids)
+	; (nt-new before [sids]) -> (node ...)
+	;the nodes of this machine, and of the networks of their own of these
+	;system ids, that were not before: those the test made. Not a count of
+	;all of them, a node of another test that goes meanwhile, or another
+	;machine's, is nothing to it
+	(filter (# (not (find %0 before))) (apply (const cat) (cat (list (lisp-nodes :t)) (map (const lisp-nodes) (ifn sids (list)))))))
+
+(defun nt-seen (before n &optional sids)
+	; (nt-seen before n [sids]) -> (node ...)
+	;wait till n new nodes are seen, and they are
+	(while (< (length (nt-new before sids)) n) (task-sleep 100000))
+	(nt-new before sids))
+
+(defun nt-unseen (nodes)
+	; (nt-unseen nodes) -> :t
+	;wait till none of these nodes is seen
+	(while (some (# (find %0 (lisp-nodes))) nodes) (task-sleep 100000))
+	:t)
 
 (cond
 	((eql (os) 'Windows) (test-skip "a network by name" "the note of one is not kept on Windows"))
@@ -13,11 +28,12 @@
 		;has not has none, and a network is found either way. The first
 		;node of a session has, the test may be on any
 		(defq nt_first (node-net :full 2 0 :nil :nil "tst0"))
-		(defq nt_before (length (lisp-nodes)) nt_had (length (node-nets))
+		(defq nt_before (lisp-nodes :t) nt_had (length (node-nets))
 			nt_pids (node-net :ring 4 0 :nil :nil "tst1"))
 		(assert-eq "a ring of 4 with this node is 3 more" 3 (length nt_pids))
 		(assert-true "each was started" (every (# (> %0 0)) nt_pids))
-		(assert-eq "they are seen" (+ nt_before 3) (nt-wait (+ nt_before 3)))
+		(defq nt_mine (nt-seen nt_before 3))
+		(assert-eq "they are seen" 3 (length nt_mine))
 		(defq nt_net (some (# (if (eql (first %0) "tst1") %0)) (node-nets)))
 		(assert-true "the network is noted by its name" nt_net)
 		(assert-list-eq "with its shape and how many" '("ring" 4) (slice nt_net 1 3))
@@ -28,13 +44,14 @@
 		;a network that is a system of its own. It has a system id that is
 		;not this machine's, this node is not one of it, and tasks are
 		;not spread to it
-		(defq nt_sid "tst2systemidabcd" nt_same (length (lisp-nodes :t))
+		(defq nt_sid "tst2systemidabcd"
 			nt_pids2 (node-net :ring 4 0 :nil :nil "tst2" nt_sid))
 		(assert-eq "a ring of 4 of its own is 4 more" 4 (length nt_pids2))
 		(assert-true "each was started" (every (# (> %0 0)) nt_pids2))
 		(while (< (length (lisp-nodes nt_sid)) 4) (task-sleep 100000))
 		(assert-eq "they are seen, with the system id they were given" 4 (length (lisp-nodes nt_sid)))
-		(assert-eq "this machine has the nodes it had" nt_same (length (lisp-nodes :t)))
+		(defq nt_theirs (lisp-nodes nt_sid))
+		(assert-true "none of them is of this machine" (notany (# (find %0 (lisp-nodes :t))) nt_theirs))
 		(defq nt_net2 (some (# (if (eql (first %0) "tst2") %0)) (node-nets)))
 		(assert-list-eq "it is noted with its shape, how many, and its system id"
 			(list "ring" 4 nt_sid) (list (second nt_net2) (third nt_net2) (last nt_net2)))
@@ -61,12 +78,12 @@
 		(while (some (const pii-alive) nt_pids2) (task-sleep 100000))
 		(assert-true "and its processes end" (notany (const pii-alive) nt_pids2))
 		(assert-eq "as many are noted as before" nt_had (length (node-nets)))
-		(assert-eq "and they are no longer seen" nt_before (nt-wait nt_before))
+		(assert-true "and they are no longer seen" (and (nt-unseen nt_mine) (nt-unseen nt_theirs)))
 		;networks hung from the nodes of another, as a terminal makes them,
 		;each command placed on whichever node has least to do, and then all
 		;of them stopped. A node that goes cuts off those behind it
 		(import "lib/task/pipe.inc")
-		(defq nt_quiet (lambda (&)) nt_was (map (const first) (node-nets)))
+		(defq nt_quiet (lambda (&)) nt_was (map (const first) (node-nets)) nt_before (lisp-nodes :t))
 		(pipe-run "nodes -s ring -n 4" nt_quiet)
 		(times 3 (pipe-run "nodes -s ring -n 4 -o" nt_quiet))
 		(defq nt_new (filter (# (not (find (first %0) nt_was))) (node-nets))
@@ -74,7 +91,8 @@
 		(assert-eq "a ring and three of their own are four networks" 4 (length nt_new))
 		(assert-eq "of 15 nodes" 15 (length nt_pids))
 		(assert-eq "three have a system id" 3 (length (filter (const last) nt_new)))
-		(assert-eq "they are all seen" (+ nt_before 15) (nt-wait (+ nt_before 15)))
+		(assert-eq "they are all seen" 15
+			(length (nt-seen nt_before 15 (filter (const identity) (map (const last) nt_new)))))
 		(each (# (pipe-run (cat "nodes -x " (first %0)) nt_quiet)) nt_new)
 		(while (some (const pii-alive) nt_pids) (task-sleep 100000))
 		(assert-eq "stopped, not one is left" 0 (length (filter (const pii-alive) nt_pids)))

@@ -19,7 +19,7 @@
 	(save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
 	(task-sleep 3000000))
 
-(defq tl_before (lisp-nodes) tl_reply (mail-mbox) tl_new :nil)
+(defq tl_before (lisp-nodes :t) tl_reply (mail-mbox) tl_new :nil)
 (pipe-run "link -l 34581" (const identity))
 (defq tl_pid (pii-spawn "-run tests/solo/tcp_peer.lisp"))
 
@@ -30,7 +30,7 @@
 				(open-task (str `(mail-send (hex-decode ,(hex-encode tl_reply)) (str (pii-pid))))
 					node +kn_call_pin 0 (mail-mbox))
 				(if (eql (mail-read tl_reply) (str tl_pid)) node)))
-		(lisp-nodes)))
+		(lisp-nodes :t)))
 
 (assert-true "the other network is started" (> tl_pid 0))
 ;each wait below is for what is to come, as long as it takes, a hang is
@@ -62,7 +62,7 @@
 	;the link stays up, a ping goes each way every second. Were they not
 	;taken, the node would be dropped
 	(task-sleep (task-timeout 4))
-	(assert-true "four seconds on it is still seen" (find tl_new (lisp-nodes)))
+	(assert-true "four seconds on it is still seen" (find tl_new (lisp-nodes :t)))
 	;the links over the network are dropped, as the Net service does when
 	;the key of the machine is another. A link is told it is closed till
 	;there is none to tell
@@ -77,9 +77,9 @@
 	(while (/= (tl-drop) 0)
 		(task-sleep 100000))
 	(assert-eq "dropped, there is none" 0 (tl-drop))
-	(while (find tl_new (lisp-nodes))
+	(while (find tl_new (lisp-nodes :t))
 		(task-sleep 100000))
-	(assert-true "and the node at its other end is not seen any more" (not (find tl_new (lisp-nodes))))
+	(assert-true "and the node at its other end is not seen any more" (not (find tl_new (lisp-nodes :t))))
 	;the other end sees it is alone, and goes
 	(while (pii-alive tl_pid)
 		(task-sleep 10000))
