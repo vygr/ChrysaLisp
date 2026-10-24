@@ -89,7 +89,11 @@ the way down, a function the task's system has its own way of, is linked
 again for the task, in its server: the same translation, other links. The
 rest the task shares with the node.
 
-VP is translated, to native or to VP64, on demand.
+What a node has of its own, server zero, the baseline, is always bound by the
+kernel's loader from what install translated: install translates all of it,
+so none is ever missing, and the loader never waits on a service in a bind.
+Only code of another system is translated on demand, by the `@Source` of the
+machine it runs on, to native or to VP64.
 
 ## Sources
 
@@ -124,16 +128,13 @@ the waypoint. It is an ordinary machine whose storage is memory.
 
 ## Still To Build
 
-What is on master now does some of this. The rest:
+Done since these notes were written: a task that sends one of its own names
+its originator; Lisp found by hash, each machine's `@Source` asking once for
+a file and all it imports and keeping the answers,
+[services.md](services.md); the install and native images apart; the
+emulator on every host, the Pi's had only stale files. The rest:
 
-* A task sent from another system that sends a task of its own should name
-  its originator, not the system it runs on.
 * The kernel query for a system's `@Source`, and the retry by it.
-* A translation cache in memory, for each machine.
+* A translation cache in memory, for a machine that may not keep one on disk.
 * Translation shared out over a machine's nodes.
-* The loader asking for a translation of a baseline function it does not
-  have, not failing.
-* Lisp found by hash, as VP is; now each file is sent whole each time.
-* The install and runtime images apart.
 * Network install.
-* The emulator running on every host; it does not boot on the Pi.
