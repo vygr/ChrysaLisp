@@ -111,7 +111,7 @@
 				(save (str (setq beat (pii-time))) alive_file))
 			(task-sleep 100000))
 		(unless (and res (ends-with done res))
-			(if (and (> pid 0) (not (pii-alive pid))) (said "session ended with no result"))
+			(and (> pid 0) (not (pii-alive pid)) (said "session ended with no result"))
 			(setq res :nil))
 		(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
 		(push acc (ifn res (cat "NO RESULT" (ascii-char 10)))))

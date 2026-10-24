@@ -149,7 +149,7 @@
 			size (/ (* +ball_size (+ +real_1 load)) zoom))
 		(.-> ball (:set_translation (first pos) (second pos) (third pos)) (:set_scale size size size))
 		;the color of its machine, and whiter the harder it works
-		(def ball :paper (apply (const fixeds) (cat (list 1.0)
+		(def ball :color (apply (const fixeds) (cat (list 1.0)
 			(map (# (n2f (+ %0 (* (- +real_1 %0) busy))))
 				(if (defq at (find (get :system node) machines))
 					(hue-color (elem-get machine_hues at))
@@ -186,7 +186,7 @@
 				(second u) (second d) (second v) (second mid)
 				(third u) (third d) (third v) (third mid)
 				+real_0 +real_0 +real_0 +real_1)
-				:paper (fixeds 1.0
+				:color (fixeds 1.0
 					(n2f (+ (* cool (const (n2r 0.25))) red))
 					(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
 					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
