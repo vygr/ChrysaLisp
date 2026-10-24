@@ -105,25 +105,44 @@
 	;hashes of them all of that system's @Source, each looked at here, and
 	;the VP of those not here asked for at once. Of a hash this node's own
 	;VP has it is the node's, server zero's, and is not given unless the
-	;node has not built it and may not keep it. Of one the cache has, that.
-	;The rest are translated, kept if they may be. What is given is the
-	;natives, one after another, for the task to place
+	;node has not built it and may not keep it, or it calls, all the way
+	;down, one of that system's own that the node has not the same of: a
+	;link is to the task's own, so it is given, the node's translation, to
+	;be linked in the task's server. Of one the cache has, that. The rest
+	;are translated, kept if they may be. What is given is the natives, one
+	;after another, for the task to place
 	(bind '(sid svc mode name) (split args " "))
 	(defq svc (hex-decode svc) self (eql svc (task-mbox))
 		manifest (if self (source-manifest mode name) (source-ask svc (cat "#" mode " " name)))
-		natives (list) missing (list))
+		natives (list) missing (list) same (list) given (list) theirs_own (list))
 	(when manifest
 		(each (lambda (line)
 				(bind '(name theirs) (split line " "))
 				(cond
 					((eql theirs (source-hash mode name))
+						(push same name)
 						(when (= (age (cat (load-path) name)) 0)
 							(defq out (source-make (first (source-entry mode name)) mode))
-							(if (source-caching?) (save out (cat (load-path) name)) (push natives out))))
-					((and (source-caching?) (defq kept (load (source-cache theirs mode))))
-						(push natives kept))
-					((push missing name))))
+							(if (source-caching?) (save out (cat (load-path) name))
+								(progn (push natives out) (push given name)))))
+					((push theirs_own name)
+						(if (and (source-caching?) (defq kept (load (source-cache theirs mode))))
+							(push natives kept)
+							(push missing name)))))
 			(split manifest (ascii-char 10)))
+		;the node's own that link to theirs, and to those, till no more
+		(defq more :t)
+		(while more
+			(setq more :nil)
+			(each (lambda (name)
+					(when (and (not (find name theirs_own))
+							(some (# (find %0 theirs_own)) (source-vp-links (first (source-entry mode name)))))
+						(push theirs_own name)
+						(setq more :t)
+						(unless (find name given)
+							(push natives (ifn (load (cat (load-path) name))
+								(source-make (first (source-entry mode name)) mode))))))
+				same))
 		(when (nempty? missing)
 			(defq text (if self (source-entries mode missing)
 					(source-ask svc (cat "$" mode " " (join missing " "))))

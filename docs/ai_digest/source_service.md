@@ -92,7 +92,11 @@ the op and register lists of the VP, `lib/trans/vp.inc` and the CPU's
 emitter, none of the assembler. One request at a time, so a native asked for
 twice is made once. Only what the node has not the same of is placed: two
 copies of a class on one node, two vtables, and an object of one is not an
-instance of the other.
+instance of the other. And the node's own that call, all the way down, one
+that is placed: they are given too, the node's translation, to be linked in
+the task's server to the task's own. A name is a contract, which copy a link
+gets is the source's. A class with a method of that system's own is then the
+task's copy, vtable and all, as above.
 
 A system that may not keep translations on its disk, for its security, or
 that has no disk of its own, says so in its root environment,

@@ -80,9 +80,14 @@ Two separate things.
 
 A function's name is its contract: the same name takes the same inputs and
 returns the same outputs, it achieves its defined function, whatever it links
-to, more things or fewer. So any implementation of a name will do for a link
-to it. A task may be linked to the node's copy of a function, already linked
-to the node's own, and that is correct.
+to, more things or fewer. Any implementation of a name is safe for a link to
+it; which one a link gets is decided by the source. A function is not linked
+once, with every call to it then getting that entry point: a task of another
+system may use the node's algorithm and give it a function of its own, its
+own way of doing one part. So the node's copy of a function that calls, all
+the way down, a function the task's system has its own way of, is linked
+again for the task, in its server: the same translation, other links. The
+rest the task shares with the node.
 
 VP is translated, to native or to VP64, on demand.
 
