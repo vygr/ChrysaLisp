@@ -53,10 +53,10 @@
 (defq tt_said (list))
 (pipe-run "files | check -j 40" (# (push tt_said %0)))
 (assert-list-eq "check finds nothing wrong in any source file of the tree" '()
-	;nor the file this test makes further down, wrong on purpose, which a
+	;nor the files this test makes further down, wrong on purpose, which a
 	;run that was stopped part way leaves behind
 	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))
-			(not (starts-with "tmp_check_test.lisp" %0))))
+			(not (starts-with "tmp_check_test." %0))))
 		(split (join tt_said "") (ascii-char 10))))
 
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
