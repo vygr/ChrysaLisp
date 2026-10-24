@@ -47,8 +47,15 @@
 	;whatever reads it as it comes: what is to run and why, what was kept,
 	;each module as it starts and as it is done, and when it is over
 	+test_progress "=p= " *test_progress* :nil *test_t0* 0 *test_ran* 0 *test_to_run* 0
-	;the batches, and how long each module took the last time it ran, ms
-	*test_batches* :nil *test_last* (Fmap 31)
+	;the batches, and how long each module took the last time it ran, ms,
+	;and of each batch out, when it went, how long it took the last time
+	;and when it is next said to be late
+	*test_batches* :nil *test_last* (Fmap 31) *test_out* (Fmap 31)
+	;a batch is late past three times its time the last time and 10 seconds,
+	;or 30 seconds if it has none, and is said to be so again each time it is
+	;as late again. A full run has the machine busy, and a module takes some
+	;times its time alone, not more
+	+test_late_times 3 +test_late_ms 10000 +test_late_unknown 30000
 	;what is known of each file, (age hash names), the counts of each
 	;module that was run, and the commands there are
 	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil
@@ -492,13 +499,37 @@
 	;was ever run here: what reads this can tell from that if it is stuck
 	(test-say "start" module (test-ms) (ifn (. *test_last* :find module) "-")))
 
-(defun test-farm-told (what cmd &optional out)
+(defun test-usual (modules)
+	; (test-usual modules) -> :nil | ms
+	;how long these modules took the last time, :nil if one was not run
+	(reduce (# (and %0 (num? (defq ms (. *test_last* :find %1))) (+ %0 ms))) modules 0))
+
+(defun test-late-say ()
+	;each batch out that has gone past when it was to be done is said to
+	;be late, with how long it has been and how long it took the last time,
+	;so a run that hangs says where at once. It is not failed: a module
+	;waits for what it tests, and a slow machine is let be slow
+	(. *test_out* :each (lambda (cmd out)
+		(bind '(t0 usual next) out)
+		(when (>= (defq ms (/ (- (pii-time) t0) 1000)) next)
+			(elem-set out 2 (* 2 ms))
+			(test-say "late" (join (ifn (. *test_batches* :find cmd) (list cmd)) " ")
+				(cat (str ms) "ms") (if usual (cat "usual " (str usual) "ms") "usual unknown"))))))
+
+(defun test-farm-told (what &optional cmd out)
 	;what the farm says of a batch as it goes: it is given to a worker,
 	;again if its worker went, or its answer has come, with a line for
-	;each module it ran and what that counted
+	;each module it ran and what that counted, and each second, when what
+	;is out and late is said
 	(case what
-		(:start (each (const test-start-say) (ifn (. *test_batches* :find cmd) (list))))
-		(:done (each (lambda (line)
+		(:tick (test-late-say))
+		(:start
+			(defq modules (ifn (. *test_batches* :find cmd) (list)) usual (test-usual modules))
+			(. *test_out* :insert cmd (list (pii-time) usual
+				(if usual (+ (* +test_late_times usual) +test_late_ms) +test_late_unknown)))
+			(each (const test-start-say) modules))
+		(:done (. *test_out* :erase cmd)
+			(each (lambda (line)
 				(when (starts-with +test_module_counts line)
 					(defq fields (split (slice line (length +test_module_counts) -1) " "))
 					(. *test_done* :insert (first fields) (map! (const str-as-num) (list fields) 1))
@@ -615,27 +646,34 @@
 	(defq solo (filter (# (or (starts-with "tests/solo/" %0) (starts-with "tests/release/" %0))) run)
 		others (filter (# (not (or (starts-with "tests/solo/" %0) (starts-with "tests/release/" %0)))) run)
 		watching (and watch (not child) (nempty? others) (test-watch (lisp-nodes :t))) waits :nil)
-	(cond
-		((and leaks (not child))
-			(each (const test-leak-run) others))
-		((or child (<= (length run) jobs))
-			(each (const test-run-said) others))
-		(:t ;farm out the batches, show the results in module order
-			(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
-				parts (partition others jobs)
-				cmds (map (# (cat "tests" opts " " (join %0 " "))) parts)
-				outs (Fmap 31))
+	;batches of modules farmed out, each a task of its own, so this one is
+	;free to say as they go which are late; the results in module order
+	(defq opts (cat " -c -j " (str jobs) (if verbose " -v" "") (if frames " -f" ""))
+		farm (lambda (parts retry)
+			(defq cmds (map (# (cat "tests" opts " " (join %0 " "))) parts) outs (Fmap 31))
 			;which modules each batch is, for what is said as it goes
 			(setq *test_batches* (Fmap 31))
 			(each (# (. *test_batches* :insert %0 %1)) cmds parts)
 			(each (lambda ((cmd out)) (. outs :insert cmd out))
-				(pipe-farm (cat cmds) +test_retry (if *test_progress* (const test-farm-told))))
+				(pipe-farm (cat cmds) retry (if *test_progress* (const test-farm-told))))
 			(each (# (test-collect %0 (. outs :find %0))) cmds)
 			;a batch with no result, its modules are said to be lost
-			(each (# (unless (. *test_done* :find %0) (test-say "lost" %0 (test-ms)))) others)))
+			(each (# (unless (. *test_done* :find %0) (test-say "lost" %0 (test-ms)))) (flatten parts))))
+	(cond
+		((and leaks (not child))
+			(each (const test-leak-run) others))
+		(child (each (const test-run-said) others))
+		((nempty? others) (farm (partition others jobs) +test_retry)))
 	;the watchers go before the modules that count the nodes and what is on them
 	(if watching (setq waits (test-watched watching)))
-	(each (const test-run-said) solo)
+	;those that change the network one at a time, each farmed alone. One is
+	;given to a new worker only if it is long past its own time, as one of
+	;minutes, a desktop's apps opened over and over, is not to be run again
+	;beside itself
+	(if child (each (const test-run-said) solo)
+		(each (# (farm (list (list %0))
+				(max +test_retry (* 20000 (ifn (test-usual (list %0)) 0)))))
+			solo))
 	;what ran to its end is kept, and how long it took. What failed is kept
 	;with no key, so it is run again the next time, whatever has changed:
 	;what is kept of it is the time. One that did not run to its end is not

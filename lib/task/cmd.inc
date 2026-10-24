@@ -18,7 +18,7 @@
 	;given out three times with no answer stops the farm, and it and any
 	;that are still out have no result. With told the farm says how it
 	;goes as it goes, (told :start job) and (told :done job result), see
-	;(Monitored)
+	;(Monitored), and (told :tick) each second, so it can say what is late
 	(task-count -1) ;we will be only collating results !
 	(setd retry_timeout 60000000)
 	(defq timer_rate (/ 1000000 1) working (nempty? cmds) results (cap (length cmds) (list))
@@ -49,6 +49,7 @@
 					(if (= 0 (. jobs :answered msg)) (setq working :nil))))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
+				(if told (told :tick))
 				(. jobs :refresh retry_timeout)
 				(if (>= (. jobs :tries) 3) (setq working :nil)))))
 	(. jobs :close)
