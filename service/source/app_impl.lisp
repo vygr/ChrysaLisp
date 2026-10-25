@@ -92,6 +92,15 @@
 	(if (source-caching?) (save out (source-cache (hex-encode (sha256 (str entry))))))
 	out)
 
+(defun source-make-bin (bin hash)
+	; (source-make-bin bin hash) -> native
+	;a function's VP binary, as another system sends it, translated for this
+	;CPU, kept in the cache by the hash its manifest gave if it may be
+	(source-translator)
+	(defq out ((get 'vp-translate-bin *source_env*) bin))
+	(if (source-caching?) (save out (source-cache hash)))
+	out)
+
 (defun source-vp-links (entry)
 	; (source-vp-links entry) -> (name ...)
 	;the functions a function calls, from its VP, with nothing translated:
@@ -119,9 +128,15 @@
 	(if lines (join lines (ascii-char 10))))
 
 (defun source-entries (mode names)
-	; (source-entries mode names) -> text
-	;the VP of those functions of this system, an entry each
-	(join (map (# (str (first (source-entry mode %0)))) names) (ascii-char 10)))
+	; (source-entries mode names) -> data
+	;the VP of those functions of this system that it has, as VP binary,
+	;lib/trans/vpb.inc, one bundle of them: compact, and read where it
+	;lands with no parse
+	(source-translator)
+	(defq encode (get 'vpb-encode *source_env*))
+	((get 'vpb-bundle *source_env*)
+		(reduce (# (if (defq found (source-entry mode %1)) (push %0 (encode (first found))) %0))
+			names (list))))
 
 (defun source-ask-again (sid svc request)
 	; (source-ask-again sid svc request) -> (svc answer)
@@ -153,13 +168,14 @@
 		;the manifest of another system's function is asked of it once and kept
 		manifest (if self (source-manifest mode name)
 			(. *source_kept* :find (cat (hex-encode svc) " #" mode " " name)))
-		natives (list) missing (list) same (list) given (list) theirs_own (list))
+		natives (list) missing (list) same (list) given (list) theirs_own (list) hashes (Fmap 31))
 	(unless (or self manifest)
 		(bind '(svc manifest) (source-ask-again sid svc (cat "#" mode " " name)))
 		(if manifest (. *source_kept* :insert (cat (hex-encode svc) " #" mode " " name) manifest)))
 	(when manifest
 		(each (lambda (line)
 				(bind '(name theirs) (split line " "))
+				(. hashes :insert name theirs)
 				(cond
 					((eql theirs (source-hash mode name))
 						(push same name)
@@ -187,13 +203,14 @@
 								(source-make (first (source-entry mode name))))))))
 				same))
 		(when (nempty? missing)
-			(defq text (if self (source-entries mode missing)
+			(defq data (if self (source-entries mode missing)
 					(source-ask svc (cat "$" mode " " (join missing " "))))
-				stream (string-stream (ifn text "")) got 0)
-			(while (defq entry (first (read stream)))
-				(when (find (first entry) missing)
-					(++ got)
-					(push natives (source-make entry))))
+				got 0)
+			(each (lambda (bin)
+					(when (find (defq name ((get 'vpb-name *source_env*) bin)) missing)
+						(++ got)
+						(push natives (source-make-bin bin (. hashes :find name)))))
+				((get 'vpb-unbundle *source_env*) (ifn data "")))
 			(if (/= got (length missing)) (setq manifest :nil))))
 	(if manifest (apply (const cat) (cat (list "") natives))))
 
@@ -373,7 +390,7 @@
 		((starts-with "#" request)
 			(bind '(mode name) (split (slice request 1 -1) " "))
 			(if (defq text (source-manifest mode name)) (cat "y" text) "n"))
-		;the VP of functions, "$mode name ..."
+		;the VP binary of functions, "$mode name ..."
 		((starts-with "$" request)
 			(defq names (split (slice request 1 -1) " "))
 			(cat "y" (source-entries (first names) (rest names))))

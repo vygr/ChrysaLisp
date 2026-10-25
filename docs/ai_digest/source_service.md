@@ -126,13 +126,15 @@ this system's own `@Source`, started if it has none:
    that differs by mode has another hash, and what is the same in two modes,
    most below the Lisp bindings, is translated once.
 3. The VP of those not here is asked for at once, `$<mode> <path> ...`, only
-   those functions, and each translated and kept in the cache.
+   those functions. It comes as VP binary, one bundle of them,
+   [vp_translation.md](vp_translation.md): compact, and translated here with
+   no parse, each kept in the cache by the hash the manifest gave it.
 4. The natives not the node's own go back to the task, one after another,
    and it places them in its server, `(task-place)`, and binds.
 
-The translator is the service's, made the first time one is wanted and kept:
-the op and register lists of the VP, `lib/trans/vp.inc` and the CPU's
-emitter, none of the assembler. One request at a time, so a native asked for
+The translator is the service's, bound the first time one is wanted and
+kept: the op and register lists of the VP and `lib/trans/vp.inc`, which
+binds this CPU's translator, a VP function, none of the assembler. One request at a time, so a native asked for
 twice is made once. Only what the node has not the same of is placed: two
 copies of a class on one node, two vtables, and an object of one is not an
 instance of the other. And the node's own that call, all the way down, one

@@ -284,6 +284,8 @@ emulator on every host, the Pi's had only stale files. The rest:
   `tests/system/test_bind_translate.lisp`.
 * Install, and a build, translating no more than the native image holds,
   the rest left to the binds.
+* VP sent between systems as VP binary, not as text: done, `@Source`'s
+  `$` answer, translated where it lands with no parse.
 * The bind that waits, for code of another system only: the stub and its
   queue, filled by `@Source`, and the jobs for compile, with their
   destinations, `@Source` only keeping the books.
