@@ -36,6 +36,8 @@
 ; (sbr-predict hr hi r i from to c0 c1 c2 c3) -> hr
 (ffi (path-to-absolute "./media_sbr_dots") sbr-dots)
 ; (sbr-dots r i out) -> out
+(ffi (path-to-absolute "./media_sbr_ana") sbr-ana)
+; (sbr-ana u win x base) -> u
 
 ;what the functions read as they run, this one map, the tables of
 ;sbr_tables.inc taken in as this is read: a module's names are gone by
@@ -587,13 +589,14 @@
 	;DST-IV of u n + u 63-n, im, a DCT-IV of it backwards by -1 to the k
 	(defq x (cat (. ch :find :analysis) samples) win (. +sbr :find :window_ds)
 		tables (. +sbr :find :dct32) tw (first tables) rev (second tables)
-		tc (. +sbr :find :ana_c) ts (. +sbr :find :ana_s) alt (slice (. +sbr :find :alt) 0 32))
+		tc (. +sbr :find :ana_c) ts (. +sbr :find :ana_s) alt (slice (. +sbr :find :alt) 0 32)
+		zeros64 (. +sbr :find :zeros64))
 	;the 288 newest kept for the next
 	(. ch :insert :analysis (slice x 1024 1312))
 	(map (lambda (l)
-			;the window by the samples newest first
-			(defq z (nums-mul win (slice x (+ (* 32 l) 320) (* 32 l)))
-				u (nums-add (nums-add (nums-add (slice z 0 64) (slice z 64 128)) (nums-add (slice z 128 192) (slice z 192 256))) (slice z 256 320))
+			;the window by the samples newest first, its 5 parts summed,
+			;native, lib/media/lisp.vp media_sbr_ana
+			(defq u (sbr-ana (cat zeros64) win x (* 32 l))
 				lo (slice u 0 32) hi (slice u 64 32) d (nums-sub lo hi) s (nums-add lo hi)
 				re (sbr-dct4 d tw rev (cat d)) im (nums-mul (sbr-dct4 (slice s 32 0) tw rev s) alt))
 			(list (nums-add (nums-mul tc re) (nums-mul ts im)) (nums-sub (nums-mul tc im) (nums-mul ts re))))
