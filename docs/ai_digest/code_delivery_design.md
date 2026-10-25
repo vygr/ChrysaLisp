@@ -91,11 +91,61 @@ the way down, a function the task's system has its own way of, is linked
 again for the task, in its server: the same translation, other links. The
 rest the task shares with the node.
 
-What a node has of its own, server zero, the baseline, is always bound by the
-kernel's loader from what install translated: install translates all of it,
-so none is ever missing, and the loader never waits on a service in a bind.
-All other VP, an application's of this system or code of another, is made on
-demand by the `@Source` of the machine it runs on, to native or to VP64.
+What a node has of its own, server zero, the baseline, is bound by the
+kernel's loader as any other: what is not there yet is made on demand, the
+loader waiting for it as below. All other VP, an application's of this
+system or code of another, is made on demand by the `@Source` of the machine
+it runs on, to native or to VP64.
+
+## A Bind That Waits
+
+Decided on 2026-10-25, in place of the day before's "server zero is always
+bound from what install translated". It is how Taos did it.
+
+A bind looks for a function in this order, and only the last step waits:
+
+1. The function list: it is there, it is bound.
+2. A translation cached on the machine, for its CPU and ABI, under the hash
+   of the VP: loaded, as a load from `obj/` is now.
+3. A native made by hand for this CPU, where there is one: loaded, and its
+   VP is never translated.
+4. None of these: a stub is put in the function list in its place, and the
+   task waits.
+
+The translator is only ever called when no native is there, cached or made by
+hand. The loader never translates: it is VP, and the translator is Lisp. It
+puts the stub in, asks, and holds the task.
+
+A stub says "it is coming, hold on". It has the name and a queue of the
+tasks that want it. A second task that misses the same name joins the queue,
+no second request is sent. The request is a translate job with its product
+to go to `:cache`; when it is done the native is loaded from the cache into
+a new block, linked, made runnable, and put in the function list in place of
+the stub, and the tasks of the queue carry on.
+
+Closure first. A function is placed only when every function it calls, all
+the way down, is there or placed with it: its links are entry points written
+once into a block that is never written again, so there is nothing to patch
+later and no trampolines. A task is held until the whole chain it needs is
+loaded and translated, and the request asks for that chain in one go, by the
+hashes, as a task sent from another system does.
+
+Who may wait. A task waits in its own bind. The kernel task never waits on a
+stub, every task of its node would wait with it: a task to be started from a
+function that is not there yet is started, and it binds, and waits, itself.
+
+What can never miss. The loader, the kernel, Lisp, the translator, and what
+asks for and delivers a translation, each with everything it calls: a miss in
+those could never be filled, as what would fill it is what is missing. That
+is what the native image holds, [Install And Runtime](#install-and-runtime),
+and a miss there is fatal, as a missing file is now.
+
+When it goes wrong. On the ideal path the request is answered, the chain is
+placed and the tasks go on, all by messages. Should the answers stop, its
+service gone or a translation failed, a stub with nothing heard for long
+enough dissolves: the binds held on it give 0, an `(ffi)` waiting on one
+throws, and the stub is taken out, so a bind after asks again. A long
+translation that is still going is not inactivity. Nothing waits for ever.
 
 ## Sources
 
@@ -202,6 +252,9 @@ emulator on every host, the Pi's had only stale files. The rest:
 * Jobs for compile and translate, with their destinations, and `@Source`
   only keeping the books: the translating and hashing it does in its own
   loop now move out.
+* The bind that waits: the stub and its queue in the loader, filled by
+  those jobs, [A Bind That Waits](#a-bind-that-waits). Then install need
+  translate no more than the native image holds.
 * Applications: `(ffi)` asks `@Source` on a miss, install and `make` build
   only the baseline, `make apps` and the applications' products in `obj/`
   go.
