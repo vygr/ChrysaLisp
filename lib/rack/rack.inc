@@ -86,7 +86,9 @@
 		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0 quiet 30
 			asker_node (if asker (slice asker +mailbox_id_size -1)) seen (pii-time)
 			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text (ascii-char 10))))))
-		(if (< pid 0) (said "session could not be started"))
+		;said at once either way: a run of tests may say nothing of its own
+		;for a minute, the first after a build on a small machine
+		(said (if (< pid 0) "session could not be started" "session started"))
 		(while (and (not (and (setq res (load out_file)) (ends-with done res)))
 				(< (- (pii-time) t0) 1740000000)
 				;the session is still there, one that died says so below
