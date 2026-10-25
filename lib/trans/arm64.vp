@@ -641,7 +641,7 @@
 			(vp-ret)
 		(endif)
 	(endif)
-	(vpif '(:r1 >= -0x1000))
+	(vpif '(:r1 >= -0xfff))
 		(vpif '(:r1 <= 0xfff))
 			(vpif '(:r1 >= 0))
 				(w32 0x91000000 '(:r1 10 0xfff) '(:r0 5) '(:r2 0))

@@ -134,4 +134,37 @@
 			(vs-big-want a b) (vs_big a b)))
 	'((3 3) (123456789 0x6fffffffff) (-987654321 0x7000000000) (0x7fffffffff 0x7000000001) (-1 -1)))
 
-(undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs)
+;an address of a base and an offset at each edge of what a target's add
+;of a constant takes, 12 bits, 9 and 13 signed: the arm64 took -4096 for
+;one it could, and gave the base
+(defq vs_lea_c '(-4097 -4096 -4095 -257 -256 -1 1 255 256 4095 4096 4097))
+(defq vs_lea (vs-native "tests/vp_spec_lea" (cat (vs-head "tests/vp_spec_lea")
+	(apply (const cat) (map (# (cat "(vp-lea-i :r2 " (str %0) " :r5)" vs_lf
+		"(vp-mul-cr 3 :r4)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf)) vs_lea_c))
+	(vs-tail))))
+
+(each (lambda (a)
+		(assert-eq (cat "an address at each edge of an offset, of " (str a))
+			(reduce (# (+ (* %0 3) a %1)) vs_lea_c 0) (vs_lea a 0)))
+	'(0 100000 -100000))
+
+;a load and the add of what it loaded, with its base moved between them,
+;then with a float stored over it between them: the add is of what was
+;loaded. The x86_64 fuses a load into the op of what it loaded, and must
+;not over either
+(defq vs_fuse (vs-native "tests/vp_spec_fuse" (cat (vs-head "tests/vp_spec_fuse")
+	"(vp-alloc 16)" vs_lf "(vp-cpy-ri :r2 :rsp 0)" vs_lf "(vp-cpy-ri :r3 :rsp 8)" vs_lf
+	"(vp-cpy-rr :rsp :r6)" vs_lf
+	"(vp-cpy-ir :r6 0 :r5)" vs_lf "(vp-add-cr 8 :r6)" vs_lf "(vp-add-rr :r5 :r4)" vs_lf
+	"(vp-xor-rr :r5 :r5)" vs_lf "(vp-mul-cr 3 :r4)" vs_lf
+	"(vp-cpy-ir :r6 0 :r5)" vs_lf "(vp-cvt-rf :r4 :f0)" vs_lf "(vp-cpy-fi :f0 :r6 0)" vs_lf
+	"(vp-add-rr :r5 :r4)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf
+	"(vp-free 16)" vs_lf
+	(vs-tail))))
+
+(each (lambda ((a b))
+		(assert-eq (cat "a load and its add, its base moved or a float stored between, of " (str a) " and " (str b))
+			(+ (* a 3) b) (vs_fuse a b)))
+	'((1 1000) (-5 77) (123456 -654321)))
+
+(undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse)
