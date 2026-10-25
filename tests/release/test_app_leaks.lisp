@@ -92,9 +92,11 @@
 	;a user would, and waited for till its task and its window have gone,
 	;and the tasks it started there: a child that finishes what it was
 	;doing first, a build or a farm's part, still holds what it uses
+	(test-note (cat app " opened"))
 	(defq tasks (al-tasks)
 		mbox (open-remote (cat "apps/" app "/app.lisp") al_node +kn_call_pin))
 	(while (<= (al-windows) desk) (task-sleep 50000))
+	(test-note (cat app " up, closing"))
 	(task-sleep 300000)
 	(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 		(+ev_msg_type +ev_type_action)
