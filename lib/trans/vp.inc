@@ -16,8 +16,7 @@
 ;it is used: a variable of :nil is not prebound, and a task that calls
 ;(emit-translate) from its own environment would not find it
 (defq +vpb_native (progn
-	(defq vpb_name (cat "lib/trans/vpb_"
-		(if (eql *cpu* 'x86_64) (cat "x86_64_" (to-lower (str *abi*))) (str *cpu*))))
+	(defq vpb_name (trans-name *cpu* *abi*))
 	(if (or (> (age (cat (load-path) vpb_name)) 0) (image-has? vpb_name)) (ffi vpb_name))))
 
 (defun vp-translate-bin (bin)

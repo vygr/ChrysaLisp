@@ -264,10 +264,32 @@
 	(if scanned (scans-save scans))
 	(newest-ages files)
 	(setq files (filter (# (ends-with ".vp" %0)) files))
+	;the translators first, this platform's, the one that runs this, of
+	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
+	;for it, so those with anything they are made of newer are made before
+	;the rest. If this platform's own is one, it made them all, so then
+	;all are made again by the new one. They are not made by the stages
+	;after, as their own make would be newer than them. A platform with
+	;none of its own, the VP64 as it installs, translates with those of
+	;its boot image
+	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
+	(defq trans_files (filter (# (starts-with "lib/trans/" %0)) files) errors (list)
+		run_src (cat "lib/trans/" run_cpu ".vp")
+		stale (if (and force (eql *cpu* run_cpu) (eql *abi* run_abi)) trans_files
+			(filter (# (>= (get (sym %0) newest) (age (cat "obj/" run_cpu "/" run_abi "/" %0)))) trans_files)))
+	(when (and (nempty? stale) (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0))
+		(bind '(& more) (vp-stage stale run_abi run_cpu))
+		(setq errors (cat errors more))
+		(when (find run_src stale)
+			(bind '(& more) (vp-stage trans_files run_abi run_cpu))
+			(setq errors (cat errors more))))
+	(and (eql *cpu* run_cpu) (eql *abi* run_abi)
+		(setq files (filter (# (not (find %0 trans_files))) files)))
 	;the VP stage, the files with anything newer than their bundle of VP:
 	;their VP, and this platform's code at once
 	(defq vp_files (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files))
-	(bind '(& errors) (vp-stage vp_files *abi* *cpu*))
+	(bind '(& more) (vp-stage vp_files *abi* *cpu*))
+	(setq errors (cat errors more))
 	;the translate stage, the other files whose VP, sources or this
 	;platform's translator are newer than this platform's stamp of them:
 	;their VP, from another platform's VP stage or one before, to this
@@ -333,7 +355,12 @@
 	(defq walk (all-build-files))
 	(setd files (copy (first walk)))
 	(if mode (defq *build_mode* mode))
-	(each (# (action files %0 %1 walk)) +supported_abi +supported_cpu)
+	;this platform's first, its translators of each CPU are made with it
+	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
+	(each (# (and (eql %0 run_abi) (eql %1 run_cpu) (action files %0 %1 walk)))
+		+supported_abi +supported_cpu)
+	(each (# (unless (and (eql %0 run_abi) (eql %1 run_cpu)) (action files %0 %1 walk)))
+		+supported_abi +supported_cpu)
 	(ifn mode (defq *build_mode* 0))
 	(action files 'VP64 'vp64 walk))
 

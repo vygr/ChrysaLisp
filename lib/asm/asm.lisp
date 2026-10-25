@@ -24,8 +24,22 @@
 (case :nil
 (0 (import "lib/debug/frames.inc")))
 
+(import "lib/boot/image.inc")
+(import "lib/crypto/sha256.inc")
+(ffi "sys/load/lisp_server" task-server)
+(ffi "sys/load/lisp_place" task-place)
+
+(defun fresh-translator (cpu abi)
+	;the translator as its file is now, placed in a function server of
+	;this worker named by its hash, so the bind of it is that and not one
+	;its node bound before, from a file a build has since made again. A
+	;translator only in the boot image is bound as it is, it never changes
+	(when (defq native (load (cat (load-path) (trans-name cpu abi))))
+		(task-server (cat "trans_" (slice (hex-encode (sha256 native)) 0 16)))
+		(task-place (list native))))
+
 (defun main ()
-	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil)
+	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil *placed* :nil)
 	(within-compile-env (lambda ()
 		(while *working*
 			(mail-timeout (elem-get *select* +_select_timeout) +_timeout 0)
@@ -43,6 +57,7 @@
 					(each (# (def *compile_env* %0 %1))
 						'(*kind* *files* *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb* *build_vp*)
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
+					(unless *placed* (setq *placed* :t) (fresh-translator *cpu* *abi*))
 					;a VP job is source files, the bundle of each of the VP of its
 					;functions to *build_vp*, a translate job is source files, their
 					;bundles to this platform's code, each file stamped for this
