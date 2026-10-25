@@ -2346,6 +2346,220 @@
 
 (def-func-end)
 
+(def-func (path-to-absolute "./media_sbr_predict"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :f0-:f11
+	;info
+	;(media-sbr-predict hr hi r i from to c0 c1 c2 c3) -> hr, the slots from
+	;to of a band of SBR's high band, re into hr and im into hi: of the low
+	;band's slot, re r and im i, x n + (c0 + i c1) x n-2 + (c2 + i c3) x n-1.
+	;From is 2 or more
+
+	(vp-rdef (hr hi r i n e p q)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 10)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,hr ,hi ,r ,i ,n ,e :r8 :r9 :r10 :r11)
+		'(:obj :obj :obj :obj :num :num :obj :obj :obj :obj))
+	(vp-cpy-if :r8 +num_value :f0)
+	(vp-cpy-if :r9 +num_value :f1)
+	(vp-cpy-if :r10 +num_value :f2)
+	(vp-cpy-if :r11 +num_value :f3)
+	(vp-push hr)
+	(assign `((,hr +array_begin) (,hi +array_begin) (,r +array_begin) (,i +array_begin)) `(,hr ,hi ,r ,i))
+	(vp-shl-cr 3 n)
+	(vp-shl-cr 3 e)
+	(loop-while `(,n < ,e))
+		(vp-lea-d r n p)
+		(vp-lea-d i n q)
+		(vp-cpy-if p (* -2 +long_size) :f4)
+		(vp-cpy-if q (* -2 +long_size) :f5)
+		(vp-cpy-if p (neg +long_size) :f6)
+		(vp-cpy-if q (neg +long_size) :f7)
+		;re, r n + (r n-2 c0 - i n-2 c1) + (r n-1 c2 - i n-1 c3)
+		(vp-cpy-ff :f4 :f8)
+		(vp-mul-ff :f0 :f8)
+		(vp-cpy-ff :f5 :f9)
+		(vp-mul-ff :f1 :f9)
+		(vp-sub-ff :f9 :f8)
+		(vp-cpy-ff :f6 :f10)
+		(vp-mul-ff :f2 :f10)
+		(vp-cpy-ff :f7 :f11)
+		(vp-mul-ff :f3 :f11)
+		(vp-sub-ff :f11 :f10)
+		(vp-add-ff :f10 :f8)
+		(vp-cpy-if p 0 :f9)
+		(vp-add-ff :f8 :f9)
+		(vp-cpy-fd :f9 hr n)
+		;im, i n + (i n-2 c0 + r n-2 c1) + (i n-1 c2 + r n-1 c3)
+		(vp-cpy-ff :f5 :f8)
+		(vp-mul-ff :f0 :f8)
+		(vp-cpy-ff :f4 :f9)
+		(vp-mul-ff :f1 :f9)
+		(vp-add-ff :f9 :f8)
+		(vp-cpy-ff :f7 :f10)
+		(vp-mul-ff :f2 :f10)
+		(vp-cpy-ff :f6 :f11)
+		(vp-mul-ff :f3 :f11)
+		(vp-add-ff :f11 :f10)
+		(vp-add-ff :f10 :f8)
+		(vp-cpy-if q 0 :f9)
+		(vp-add-ff :f8 :f9)
+		(vp-cpy-fd :f9 hi n)
+		(vp-add-cr +long_size n)
+	(loop-end)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-sbr-predict hr hi r i from to c0 c1 c2 c3)" +error_msg_wrong_types))
+	(signature '(:reals :reals :reals :reals :num :num :real :real :real :real)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./media_sbr_dots"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r6, :f0-:f15
+	;info
+	;(media-sbr-dots r i out) -> out, the 14 sums of SBR's prediction of a
+	;band of 40 slots, re r and im i, each as (nums-dot) would give it, 0
+	;then each product added in turn: of n 0 to 37, r n r n+2, i n i n+2,
+	;r n i n+2, i n r n+2, r n r n+1, i n i n+1, r n i n+1, i n r n+1, r n+1
+	;r n+2, i n+1 i n+2, r n+1 i n+2, i n+1 r n+2, and of n 1 to 37, r n r
+	;n and i n i n
+
+	(vp-rdef (r i out p q e)
+		'(:r2 :r3 :r4 :r5 :r6 :r1))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 3)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,r ,i ,out) '(:obj :obj :obj))
+	(vp-push out)
+	(assign `((,r +array_begin) (,i +array_begin) (,out +array_begin)) `(,r ,i ,out))
+
+	;the eight of lags 2 and 1 from n
+	(each (# (vp-xor-rr p p) (vp-cvt-rf p %0)) '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7))
+	(vp-cpy-rr r p)
+	(vp-cpy-rr i q)
+	(vp-lea-i r (* 38 +long_size) e)
+	(loop-start)
+		(vp-cpy-if p 0 :f8)
+		(vp-cpy-if q 0 :f9)
+		(vp-cpy-if p +long_size :f10)
+		(vp-cpy-if q +long_size :f11)
+		(vp-cpy-if p (* 2 +long_size) :f12)
+		(vp-cpy-if q (* 2 +long_size) :f13)
+		(vp-cpy-ff :f8 :f15)
+		(vp-mul-ff :f12 :f15)
+		(vp-add-ff :f15 :f0)
+		(vp-cpy-ff :f9 :f15)
+		(vp-mul-ff :f13 :f15)
+		(vp-add-ff :f15 :f1)
+		(vp-cpy-ff :f8 :f15)
+		(vp-mul-ff :f13 :f15)
+		(vp-add-ff :f15 :f2)
+		(vp-cpy-ff :f9 :f15)
+		(vp-mul-ff :f12 :f15)
+		(vp-add-ff :f15 :f3)
+		(vp-cpy-ff :f8 :f15)
+		(vp-mul-ff :f10 :f15)
+		(vp-add-ff :f15 :f4)
+		(vp-cpy-ff :f9 :f15)
+		(vp-mul-ff :f11 :f15)
+		(vp-add-ff :f15 :f5)
+		(vp-cpy-ff :f8 :f15)
+		(vp-mul-ff :f11 :f15)
+		(vp-add-ff :f15 :f6)
+		(vp-cpy-ff :f9 :f15)
+		(vp-mul-ff :f10 :f15)
+		(vp-add-ff :f15 :f7)
+		(vp-add-cr +long_size p)
+		(vp-add-cr +long_size q)
+	(loop-until `(,p = ,e))
+	(each (# (vp-cpy-fi %0 out (* (!) +long_size))) '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7))
+
+	;the four of lag 1 from n + 1
+	(each (# (vp-xor-rr p p) (vp-cvt-rf p %0)) '(:f0 :f1 :f2 :f3))
+	(vp-cpy-rr r p)
+	(vp-cpy-rr i q)
+	(loop-start)
+		(vp-cpy-if p +long_size :f10)
+		(vp-cpy-if q +long_size :f11)
+		(vp-cpy-if p (* 2 +long_size) :f12)
+		(vp-cpy-if q (* 2 +long_size) :f13)
+		(vp-cpy-ff :f10 :f15)
+		(vp-mul-ff :f12 :f15)
+		(vp-add-ff :f15 :f0)
+		(vp-cpy-ff :f11 :f15)
+		(vp-mul-ff :f13 :f15)
+		(vp-add-ff :f15 :f1)
+		(vp-cpy-ff :f10 :f15)
+		(vp-mul-ff :f13 :f15)
+		(vp-add-ff :f15 :f2)
+		(vp-cpy-ff :f11 :f15)
+		(vp-mul-ff :f12 :f15)
+		(vp-add-ff :f15 :f3)
+		(vp-add-cr +long_size p)
+		(vp-add-cr +long_size q)
+	(loop-until `(,p = ,e))
+	(each (# (vp-cpy-fi %0 out (* (+ (!) 8) +long_size))) '(:f0 :f1 :f2 :f3))
+
+	;the two of lag 0, 1 to 37
+	(each (# (vp-xor-rr p p) (vp-cvt-rf p %0)) '(:f4 :f5))
+	(vp-lea-i r +long_size p)
+	(vp-lea-i i +long_size q)
+	(loop-start)
+		(vp-cpy-if p 0 :f8)
+		(vp-cpy-if q 0 :f9)
+		(vp-cpy-ff :f8 :f15)
+		(vp-mul-ff :f8 :f15)
+		(vp-add-ff :f15 :f4)
+		(vp-cpy-ff :f9 :f15)
+		(vp-mul-ff :f9 :f15)
+		(vp-add-ff :f15 :f5)
+		(vp-add-cr +long_size p)
+		(vp-add-cr +long_size q)
+	(loop-until `(,p = ,e))
+	(vp-cpy-fi :f4 out (* 12 +long_size))
+	(vp-cpy-fi :f5 out (* 13 +long_size))
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-sbr-dots r i out)" +error_msg_wrong_types))
+	(signature '(:reals :reals :reals)))
+
+(def-func-end)
+
 (def-func (path-to-absolute "./media_ps_allpass"))
 	;inputs
 	;:r0 = lisp object (ptr)

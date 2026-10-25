@@ -32,6 +32,10 @@
 ; (sbr-window v d out at scale n parts dstep vstep doff voff) -> out
 (ffi (path-to-absolute "./media_sbr_gains") sbr-envelope-gains)
 ; (sbr-envelope-gains ins flags lim kx delta consts out) -> out
+(ffi (path-to-absolute "./media_sbr_predict") sbr-predict)
+; (sbr-predict hr hi r i from to c0 c1 c2 c3) -> hr
+(ffi (path-to-absolute "./media_sbr_dots") sbr-dots)
+; (sbr-dots r i out) -> out
 
 ;what the functions read as they run, this one map, the tables of
 ;sbr_tables.inc taken in as this is read: a module's names are gone by
@@ -614,15 +618,14 @@
 	; (sbr-inverse sbr low) -> (alpha0 alpha1)
 	;of each band below k0 the two terms of its prediction, by its
 	;autocorrelation, each (re im), none of a band too tonal to predict
-	(defq zero (n2r 0) sixteen (n2r 16) k (str-to-real "1.000001"))
+	(defq zero (n2r 0) sixteen (n2r 16) k (str-to-real "1.000001") dots (fill (reals) 14 zero))
 	(map! (lambda ((r i))
-			(defq r0 (slice r 0 38) i0 (slice i 0 38) r1 (slice r 1 39) i1 (slice i 1 39) r2 (slice r 2 40) i2 (slice i 2 40)
-				rm (slice r 1 38) im (slice i 1 38)
-				;phi of lag 2, of lag 1 from 0 and from 1, of lag 0 from 0 and from 1
-				p01r (+ (nums-dot r0 r2) (nums-dot i0 i2)) p01i (- (nums-dot r0 i2) (nums-dot i0 r2))
-				p11r (+ (nums-dot r0 r1) (nums-dot i0 i1)) p11i (- (nums-dot r0 i1) (nums-dot i0 r1))
-				p00r (+ (nums-dot r1 (slice r 2 40)) (nums-dot i1 (slice i 2 40))) p00i (- (nums-dot r1 (slice i 2 40)) (nums-dot i1 (slice r 2 40)))
-				sum0 (+ (nums-dot rm rm) (nums-dot im im))
+			;its sums by lag, native, lib/media/lisp.vp media_sbr_dots
+			(sbr-dots r i dots)
+			(bind '(d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 d10 d11 d12 d13) dots)
+			;phi of lag 2, of lag 1 from 0 and from 1, of lag 0 from 0 and from 1
+			(defq p01r (+ d0 d1) p01i (- d2 d3) p11r (+ d4 d5) p11i (- d6 d7)
+				p00r (+ d8 d9) p00i (- d10 d11) sum0 (+ d12 d13)
 				p21 (+ sum0 (* (elem-get r 0) (elem-get r 0)) (* (elem-get i 0) (elem-get i 0)))
 				p10 (+ sum0 (* (elem-get r 38) (elem-get r 38)) (* (elem-get i 38) (elem-get i 38)))
 				dk (- (* p21 p10) (/ (+ (* p11r p11r) (* p11i p11i)) k))
@@ -667,20 +670,28 @@
 					(setq g (dec g))
 					(if (< g 0) (setq ok :nil))
 					(when ok
+						;the slots of the envelopes, the band by its prediction,
+						;native, lib/media/lisp.vp media_sbr_predict
 						(bind '(a0r a0i a1r a1i) (elem-get alphas p))
 						(bind '(r i) (elem-get low p))
-						(defq b (elem-get bw g) bb (* b b) c0 (* a1r bb) c1 (* a1i bb) c2 (* a0r b) c3 (* a0i b)
-							r0 (slice r (- from 2) (- to 2)) i0 (slice i (- from 2) (- to 2))
-							r1 (slice r (- from 1) (- to 1)) i1 (slice i (- from 1) (- to 1))
-							re (nums-add (slice r from to) (nums-add (nums-sub (nums-scale r0 c0) (nums-scale i0 c1)) (nums-sub (nums-scale r1 c2) (nums-scale i1 c3))))
-							im (nums-add (slice i from to) (nums-add (nums-add (nums-scale i0 c0) (nums-scale r0 c1)) (nums-add (nums-scale i1 c2) (nums-scale r1 c3)))))
-						(elem-set high k (list (cat (slice zeros 0 from) re (slice zeros to 40)) (cat (slice zeros 0 from) im (slice zeros to 40)))))
+						(defq b (elem-get bw g) bb (* b b) hr (cat zeros) hi (cat zeros))
+						(sbr-predict hr hi r i from to (* a1r bb) (* a1i bb) (* a0r b) (* a0i b))
+						(elem-set high k (list hr hi)))
 					(setq k (inc k)))
 				(range 0 count)))
 		(. sbr :find :patch_counts) (. sbr :find :patch_starts))
 	(when ok
 		(each (# (elem-set high %0 (list zeros zeros))) (range k (+ kx (. sbr :find :m))))
 		high))
+
+(defun sbr-runs (table count values kx)
+	; (sbr-runs table count values kx) -> reals
+	;48 reals from kx: of each of count bands of the table, its value over
+	;its run, 0 below its first and above its last
+	(defq zero (n2r 0) top (elem-get table count))
+	(apply (const cat) (cat (list (fill (reals) (- (first table) kx) zero))
+		(map (# (fill (reals) (- (elem-get table (inc %0)) (elem-get table %0)) (elem-get values %0))) (range 0 count))
+		(list (fill (reals) (- (+ kx 48) top) zero)))))
 
 (defun sbr-mapping (sbr ch)
 	; (sbr-mapping sbr data) -> :nil | ((orig noise sines) ...)
@@ -694,18 +705,13 @@
 	(each (# (elem-set s_index %0 (fill (nums) 48 0))) (range 1 8))
 	(when (and (= (first high) kx) (= (first low) kx))
 		(defq maps (map (lambda (e)
-				(defq res (elem-get freq_res (inc e)) table (if (= res 1) high low)
-					orig (fill (reals) 48 (n2r 0)) q (fill (reals) 48 (n2r 0)) s (fill (nums) 48 0)
+				(defq res (elem-get freq_res (inc e)) table (if (= res 1) high low) s (fill (nums) 48 0)
 					env (elem-get (. ch :find :env) (inc e)) si (elem-get s_index (inc e))
-					nf (elem-get (. ch :find :noise_f) (if (and (> (. ch :find :num_noise) 1) (>= (elem-get t_env e) (elem-get t_q 1))) 2 1)))
-				(each (lambda (i)
-						(defq v (elem-get env i))
-						(each (# (elem-set orig (- %0 kx) v)) (range (elem-get table i) (elem-get table (inc i)))))
-					(range 0 (elem-get n res)))
-				(each (lambda (i)
-						(defq v (elem-get nf i))
-						(each (# (elem-set q (- %0 kx) v)) (range (elem-get noise i) (elem-get noise (inc i)))))
-					(range 0 n_q))
+					nf (elem-get (. ch :find :noise_f) (if (and (> (. ch :find :num_noise) 1) (>= (elem-get t_env e) (elem-get t_q 1))) 2 1))
+					;each band's level and noise floor, the runs of a table's bands
+					;each its value, from kx, 0 after
+					orig (sbr-runs table (elem-get n res) env kx)
+					q (sbr-runs noise n_q nf kx))
 				(when (= (. ch :find :harmonic_flag) 1)
 					(defq before (first s_index))
 					(each (lambda (i)
