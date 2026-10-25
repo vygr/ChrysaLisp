@@ -142,19 +142,25 @@
 ;"at once" is to be at once: a machine that held this task longer than the
 ;gap between two turns has made them two, rightly, and that says nothing of
 ;dropping them. Each is asked only if it came within the gap
-(defq ga_t (pii-time))
+;one that did not come in the gap, the machine busy, is said to be skipped,
+;so the count of what was checked is the same each run
+(defq ga_t (pii-time) ga_slow "the turns did not come within the gap, the machine was busy")
 (assert-list-eq "a turn of the wheel over a view is told to it" '(:first) (ga-wheel 150 80))
 (defq ga_t1 (pii-time) ga_got (ga-wheel 150 230))
 (if (< (- (pii-time) ga_t) 300000)
-	(assert-list-eq "the mouse moves over another view and a turn comes at once: it is nobody's, it ran on" '() ga_got))
+	(assert-list-eq "the mouse moves over another view and a turn comes at once: it is nobody's, it ran on" '() ga_got)
+	(test-skip "the mouse moves over another view and a turn comes at once" ga_slow))
 (setq ga_got (ga-wheel 150 240))
-(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '() ga_got))
+(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '() ga_got)
+	(test-skip "and the next, while they keep coming" ga_slow))
 (setq ga_t (pii-time) ga_got (ga-wheel 150 240 -1))
-(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "but one the other way is a new push, that view's" '(:second) ga_got))
+(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "but one the other way is a new push, that view's" '(:second) ga_got)
+	(test-skip "but one the other way is a new push" ga_slow))
 (task-sleep 500000)
 (ga-wheel 150 80)
 (setq ga_t (pii-time) ga_got (ga-wheel 150 240 5))
-(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "and one bigger by the push, the same way, is too" '(:second) ga_got))
+(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "and one bigger by the push, the same way, is too" '(:second) ga_got)
+	(test-skip "and one bigger by the push, the same way, is too" ga_slow))
 (task-sleep 500000)
 (assert-list-eq "after a pause a turn is a new one, for the view the mouse is over" '(:second) (ga-wheel 150 240))
 (assert-list-eq "and the next, while they keep coming" '(:second) (ga-wheel 150 250))
