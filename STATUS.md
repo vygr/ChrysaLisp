@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**The translators are VP, lib/trans/<cpu>.vp: VP binary in, native out, the prepasses too; the Lisp ones are gone. The same code to the byte, the whole tree in 7 ms not 162. The VP64 image carries all six, so `make install` translates with them; a tree from before needs `make install` once.**
+
 **The VP spec says what each instruction does at its edges, docs/vm/vp_vm.md, and tests/system/test_vp_spec.lisp holds every target to it: sets give 0 or 1, float branches follow IEEE on a NaN, constants and offsets of any size, loads and stores at their natural alignment, shift constants 0 to 63; RISC-V's long branches, x86's land, and the optimizer's narrow store forwarding mended.**
 
 **`run_tui.sh -V`: the VP64 emulator in validation mode, says each unaligned load or store; VP64 encodes 64 bit set constants and load/store offsets; `vp-brk` and lnot's spare register gone.**

@@ -63,12 +63,14 @@
 (defun source-translator ()
 	; (source-translator)
 	;the translator for this CPU, made the first time it is wanted and kept:
-	;the op and register lists of the VP, the translator, this CPU's
-	;emitter. Its id is the hash of those files: a translation is kept by
-	;the hash of its VP and that, so one by another translator is not used
+	;the op and register lists of the VP, and the translator. Its id is the
+	;hash of those files and of the translator's VP source: a translation is
+	;kept by the hash of its VP and that, so one by another translator is
+	;not used
 	(unless (get 'emit-translate *source_env*)
 		(bind '(& cpu abi) (map (const sym) (split (load-path) "/")))
-		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc" (cat "lib/trans/" cpu ".inc")))
+		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc"
+			"lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc" (cat "lib/trans/" cpu ".vp")))
 		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* (if (eql (source-mode) "debug") 1 0)
 			'validatecase (macro (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 			'*source_trans_id* (hex-encode (sha256 (apply (const cat) (cat (list "") (map (# (ifn (load %0) "")) files))))))

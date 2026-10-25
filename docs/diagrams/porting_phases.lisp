@@ -2,7 +2,7 @@
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6)
 (dia-put s 'sys (dia-box '("ChrysaLisp" "VP assembly, and Lisp compiled to VP: not changed by a port") 620 44 grey 11 :first) 0 0)
 (dia-put s 'emu (dia-box '("VP64 emulator" "src/host/vp64.cpp" "runs the VP64 boot image as it is") 300 62 blue 11 :first) 0 90)
-(dia-put s 'trans (dia-box '("a translator" "lib/trans/mycpu_myabi.inc" "VP to the native code of the CPU") 300 62 gold 11 :first) 320 90)
+(dia-put s 'trans (dia-box '("a translator" "lib/trans/mycpu.vp" "VP to the native code of the CPU") 300 62 gold 11 :first) 320 90)
 (dia-put s 'pii (dia-box '("the host bootstrap and PII" "src/host/main.cpp and the pii functions: files, memory, time, and GUI and audio if wanted") 620 44 blue 11 :first) 0 196)
 (dia-put s 'os (dia-box "the host OS, its C/C++ compiler and ABI" 620 30 grey 11) 0 262)
 (dia-join s 'sys 'emu "")

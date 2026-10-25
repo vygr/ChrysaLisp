@@ -53,12 +53,15 @@
 								;the compile gives the VP, this keeps it: the bundle,
 								;and each function translated as it goes, by name
 								(each (lambda (file)
-										(defq bundle (list))
+										(defq bundle (list) bins (list))
 										(each (lambda (entry)
 												(push bundle (vp-entry-text entry))
-												(vp-translate-save entry))
+												(push bins (vp-translate-save entry)))
 											(vp-compile file))
 										(save (apply (const cat) (cat (list "") bundle)) (cat *build_vp* file))
+										;and the VP binary of them, for the translate stage to
+										;read with no parse, lib/trans/vpb.inc
+										(save (vpb-bundle bins) (cat *build_vp* file "b"))
 										(save "" (cat "obj/" *cpu* "/" *abi* "/" file)))
 									*files*))
 							(:t (include "lib/asm/func.inc")

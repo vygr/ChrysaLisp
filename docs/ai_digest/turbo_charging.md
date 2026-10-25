@@ -1,11 +1,18 @@
 # Translator Turbo Charging: Mastering O(1) Map Alignment
 
-The ChrysaLisp compilation and translation pipeline is engineered for extreme
-speed, capable of rebuilding the entire OS and libraries for 5 different
-platforms in 0.37 seconds (or a single platform like ARM64 in 0.069 seconds).
+This is a Lisp optimisation, shown as it was used in the old Lisp
+translators, `lib/trans/<cpu>.inc`. Those are gone: translation is now done
+by translators written in VP, `lib/trans/<cpu>.vp`, see
+[`vp_translation.md`](vp_translation.md), and the code quoted below is no
+longer in the tree. The technique still holds for any Lisp code that looks
+the same symbols up in several maps.
 
-Achieving this speed requires stripping away all hidden O(N) bottlenecks. A
-prime example of this is how the translator manages its instruction lookups
+The Lisp translators could rebuild the entire OS and libraries for 5
+different platforms in 0.37 seconds (or a single platform like ARM64 in 0.069
+seconds).
+
+Achieving that speed required stripping away all hidden O(N) bottlenecks. A
+prime example of this was how the translator managed its instruction lookups
 across multiple environments. By leveraging ChrysaLisp's unique `str_hashslot`
 cache mechanics, the system transforms what would normally be an O(N²)
 translation pass into a strictly O(1) operation.

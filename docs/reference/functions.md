@@ -5402,6 +5402,15 @@ loader binds the rest as it is asked for: what runs while it loads must
 not be in a block it is writing, docs/vm/vp_functions.md
 ```
 
+### image-has?
+
+```code
+(image-has? fn_path [target]) -> :nil | :t
+
+does the boot image of a CPU hold this function, by default the one
+running, which on the emulator is not (cpu) but (load-path)
+```
+
 ### import
 
 ```code
@@ -10345,11 +10354,11 @@ a piece passed on now: a stream holds what is written till it has some
 ### source-ask
 
 ```code
-(source-ask svc path) -> :nil | text
+(source-ask svc path [wait]) -> :nil | text
 
 a file's text from a @Source, :nil if it has none it will give, or it
-says nothing in the time. A new mailbox each time: an answer that comes
-late is to a mailbox nobody reads
+says nothing in the time, +source_wait seconds or wait. A new mailbox
+each time: an answer that comes late is to a mailbox nobody reads
 ```
 
 ### source-caching?
@@ -10369,6 +10378,14 @@ its own, and then every one is made each time it is wanted
 
 what (ffi path ...) is in a task sent from another system: the native
 made ready first, then bound as ever
+```
+
+### source-find
+
+```code
+(source-find sid) -> :nil | netid
+
+the @Source a system has now, (source-seek) and its answer waited for
 ```
 
 ### source-here
@@ -10416,6 +10433,18 @@ placed for it
 
 files, (path tag text) each, one after another: its path, its tag and
 the length of its text on lines of their own, then the text
+```
+
+### source-seek
+
+```code
+(source-seek sid reply) -> :nil | :t
+
+which @Source a system has now, by its id in hex, asked of a kernel of
+it: a task pinned to one of its nodes mails reply ?sid and a line,
+that @Source in hex, empty if it has none. What a task was sent with
+is the one of then, one started again since has another mailbox. :nil
+if no node of it is known
 ```
 
 ### source-service
@@ -13999,6 +14028,16 @@ for none
 (voice-to voice to)
 
 who hears what is said here now: their inboxes, hex
+```
+
+### vp-compile
+
+```code
+(vp-compile file) -> ((name code [(locals ...)] [(kept ...)]) ...)
+
+within a compile env, the VP of the functions of a source file, an
+entry each, as a bundle has them. Nothing is translated or saved: what
+is done with them, and where it is kept, is the caller's
 ```
 
 ### wheel-push?

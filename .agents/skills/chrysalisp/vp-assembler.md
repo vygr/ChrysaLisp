@@ -155,14 +155,14 @@ structured fields between memory objects and VP registers:
 	cooperate with CPU hardware streaming prefetchers.
 
 *	**Arm64 LDP/STP Instruction Fusion:** ChrysaLisp's ARM64 backend
-	translator features a peephole optimization pass (`emit-prepass` in
-	`lib/trans/arm64.inc`). When consecutive VP memory instructions share the
+	translator features a peephole optimization pass (the `prepass` routine
+	in `lib/trans/arm64.vp`). When consecutive VP memory instructions share the
 	same base register and access contiguous aligned offsets (e.g. `c` and
 	`c + 8`), the translator fuses two separate 64-bit loads into an ARM64
 	`ldp` (Load Pair) or two stores into `stp` (Store Pair). Out-of-order or
-	interleaved memory accesses prevent the translator's lookback window
-	from fusing them. Sorting guarantees that contiguous struct fields end up
-	adjacent in `emit_list`, maximizing `ldp`/`stp` pairing to halve memory
+	interleaved memory accesses prevent the prepass from fusing them, it only
+	pairs an instruction with the next. Sorting guarantees that contiguous
+	struct fields end up adjacent in `emit_list`, maximizing `ldp`/`stp` pairing to halve memory
 	instruction count.
 
 *	**Layout Independence Across Heterogeneous Structs:** When transferring

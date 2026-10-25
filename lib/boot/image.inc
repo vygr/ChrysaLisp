@@ -16,7 +16,8 @@
 ;before it has built anything:
 ;the kernel and Lisp, in these folders, and these few besides, the font,
 ;pixmap and path classes Lisp's boot asks for, the crypto a machine's key is
-;made with and the Net service's sockets. What they call comes in with them
+;made with and the Net service's sockets, and the translators to each CPU,
+;so an install translates with them. What they call comes in with them
 (defq +boot_folders ''("sys/" "class/")
 	+boot_extras ''(gui/font/flush gui/path/create gui/path/type gui/path/vtable
 		gui/pixmap/as_argb gui/pixmap/deinit gui/pixmap/from_argb32 gui/pixmap/lisp_as_argb
@@ -25,7 +26,9 @@
 		gui/pixmap/vtable gui/view/get_prop gui/view/ref_prop
 		lib/crypto/gf25519_mul lib/crypto/random_bytes lib/crypto/sha256_blocks lib/crypto/sha512_blocks
 		service/net/lisp_accept service/net/lisp_close service/net/lisp_connect service/net/lisp_listen
-		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send))
+		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send
+		lib/trans/vpb_arm64 lib/trans/vpb_la64 lib/trans/vpb_riscv64
+		lib/trans/vpb_vp64 lib/trans/vpb_x86_64_amd64 lib/trans/vpb_x86_64_win64))
 
 (defun boot-funcs (funcs &optional all)
 	; (boot-funcs funcs [all]) -> funcs
@@ -48,6 +51,12 @@
 	;not be in a block it is writing, docs/vm/vp_functions.md
 	(if (eql cpu 'vp64) (boot-funcs funcs)
 		(filter (# (starts-with "sys/load/" %0)) funcs)))
+
+(defun image-has? (fn_path &optional target)
+	; (image-has? fn_path [target]) -> :nil | :t
+	;does the boot image of a CPU hold this function, by default the one
+	;running, which on the emulator is not (cpu) but (load-path)
+	(nempty? (image-funcs (list (sym fn_path)) (ifn target (sym (second (split (load-path) "/")))))))
 
 (defun func-obj-path (%0)
 	(sym (cat "obj/" *cpu* "/" *abi* "/" %0)))
@@ -123,5 +132,5 @@
 	:nil)
 
 ;module
-(export-symbols '(boot-image boot-funcs image-funcs func-obj-path))
+(export-symbols '(boot-image boot-funcs image-funcs image-has? func-obj-path))
 (env-pop)

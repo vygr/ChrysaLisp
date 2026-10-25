@@ -71,7 +71,8 @@ docs/diagrams/porting_phases.cwb
 
 * Proficiency in C/C++ for the bootstrap and PII layer.
 
-* Proficiency in Lisp for the translator and build system.
+* Proficiency in VP assembly for the translator, and Lisp for the build
+  system.
 
 * A suitable C/C++ cross-compiler and development environment for the target
   platform.
@@ -253,8 +254,8 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
   `:r0 :r1 ...` in order, its answer comes back in `:r0`, and every other
   register is kept, as the host methods are declared, and `abi-call-table`
   in `sys/pii/class.inc` makes the call, a
-  `vp-call-abi`. Where the ABI is, is the translator's `emit-call-abi` in
-  `lib/trans/<cpu>.inc`: it moves the args to the registers the ABI wants,
+  `vp-call-abi`. Where the ABI is, is the translator's `e_call_abi` routine
+  in `lib/trans/<cpu>.vp`: it moves the args to the registers the ABI wants,
   pushes those that do not fit, keeps the registers the ABI trashes round
   the call, and lines the stack up as the ABI wants at the call itself,
   whatever it was: no function, VP or translated, keeps it aligned, the
@@ -263,11 +264,14 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
   after it.
 
     * For a new OS/ABI on a CPU there is already, add its case to that
-      CPU's `emit-call-abi`: its arg registers, as VP registers, and the VP
-      registers it trashes, as `lib/trans/x86_64.inc` has AMD64 and WIN64.
+      CPU's `e_call_abi`: its arg registers and the registers it trashes,
+      as `lib/trans/x86_64.vp` has AMD64 and WIN64, one body built as
+      `vpb_x86_64_amd64` and `vpb_x86_64_win64`. `lib/trans/vp.inc` binds
+      `vpb_<cpu>_<abi>` for x86_64, `vpb_<cpu>` for the rest, so a second
+      ABI of another CPU needs its name added there too.
 
     * The loader, `sys/load/init`, is called *by* the host, and starts with
-      `vp-entry-abi`, the reverse: the translator's `emit-entry-abi` moves
+      `vp-entry-abi`, the reverse: the translator's `e_entry_abi` moves
       the args from where the ABI has them to `:r0 :r1`, and sets up the VP
       stack if it is not the native one, as ARM64's is not.
 
@@ -338,77 +342,77 @@ If your target platform's CPU architecture is not one for which ChrysaLisp
 already has a native code translator (e.g., x86-64, Arm64, RISC-V 64 as
 implied by [`vp_translation.md`](vp_translation.md)), you will need to create one.
 
-This involves writing Lisp code that translates VP assembly instructions
-into the native machine code for your target CPU.
+This involves writing a translator, in VP, from VP binary to the native
+machine code of your target CPU.
 
 ### 3.1. Understanding VP-to-Native Translation
 
 * **[`vp_translation.md`](vp_translation.md):** This document is key. It describes the VP
-  architecture (registers, instruction set) and the multi-pass translation
-  pipeline.
+  architecture (registers, instruction set), the VP binary and the
+  translators.
 
-* **Translator Location:** Translators reside in `lib/trans/` as Lisp
-  include files (e.g., `lib/trans/x86_64.inc`, `lib/trans/arm64.inc`).
+* **Translator Location:** Translators reside in `lib/trans/` as `.vp`
+  files, each a single VP function (e.g., `lib/trans/x86_64.vp`,
+  `lib/trans/arm64.vp`), built to `obj/<cpu>/<abi>/lib/trans/vpb_<cpu>`.
 
 * **Core Components of a Translator File:**
 
-    * **`emit-native-reg?` function:** Maps symbolic VP register names
-      (e.g., `:r0`) to the target CPU's numerical register encodings.
+    * **`(vpb-driver)`:** from `lib/trans/vpb_trans.inc`, shared by all of
+      them: the entry, the decode of the VP binary, the passes and the
+      output.
 
-    * **`emit-xxx` Lisp functions:** A set of Lisp functions, one for each
-      VP instruction (e.g., `emit-add-rr`, `emit-cpy-cr`). These functions
-      take mapped native register numbers and immediate values as arguments
-      and generate the corresponding sequence of native machine code bytes.
-      Helper macros (like `x64-rr` for x86-64) are often used to construct
-      instruction encodings. These bytes are written to an output stream
-      (`*stream*`) and a program counter (`*pc*`) is updated.
+    * **`reg_map`:** the target CPU's number of each VP register, `:r0` to
+      `:rsp` then `:f0` to `:f15`, a byte each.
 
-* **`emit-call-abi` function:** This specific emitter is responsible for
-  generating the native instruction sequence to call external C functions
-  according to the target CPU's native C ABI (e.g., Windows on Arm64
-  AAPCS64). This is different from `vp-call` which uses ChrysaLisp's
-  internal VP calling convention.
+    * **A routine for each VP op:** registered with `(handler 'emit-add-rr
+      'e_add_rr)` and so on. It gets its operands in `:r0` to `:r3`, the
+      registers already in the CPU's numbers, and writes the native bytes
+      with `emit8`, `emit16`, `emit32` or `emit64`.
 
-* **Multi-Pass Translation:** `lib/trans/vp.inc` (function `emit-translate`)
-  handles this. It's needed to resolve forward branches and jumps. The
-  process repeats, re-emitting code and updating label addresses, until the
-  generated byte stream stabilizes. Your `emit-xxx` functions for branches
-  must correctly calculate offsets, potentially supporting short/long
-  forms, and interact with the `*offsets*` list if your architecture
-  requires it (like x86-64).
+* **`e_call_abi` routine:** This routine generates the native instruction
+  sequence to call external C functions according to the target CPU's
+  native C ABI (e.g., Windows on Arm64 AAPCS64). This is different from
+  `vp-call` which uses ChrysaLisp's internal VP calling convention.
 
-### 3.2. Creating `lib/trans/mycpu_myabi.inc`
+* **Multi-Pass Translation:** `(vpb-driver)` handles this. It's needed to
+  resolve forward branches and jumps. The passes repeat, re-emitting code
+  and updating label addresses, until no label moves. A branch routine with
+  a short and a long form sizes itself by the most it has had to reach, kept
+  in its record, `+vpbr_m`, so it only grows.
 
-1. **Copy an Existing Translator:** Start by copying an existing
-   translator file (e.g., `lib/trans/arm64.inc` if your target is ARM-based,
-   or `riscv64.inc` if RISC-V based) to `lib/trans/mycpu_myabi.inc`.
+### 3.2. Creating `lib/trans/mycpu.vp`
 
-2. **Define `emit-native-reg?`:**
+1. **Copy an Existing Translator:** Start by copying the nearest translator
+   (e.g., `lib/trans/arm64.vp` if your target is ARM-based, or
+   `riscv64.vp` if RISC-V based, or for most load/store CPUs with a link
+   register) to `lib/trans/mycpu.vp`, and name its function `vpb_mycpu`.
 
-    * Adapt this function to map VP registers (`:r0` - `:r14`, `:rsp`) to
-      the register numbers/encodings used by your target CPU and its
-      specific ABI's register usage (e.g., argument registers, callee-
-      saved, caller-saved, stack pointer, link register).
+2. **Define `reg_map`:**
 
-3. **Implement `emit-xxx` Emitter Functions:**
+    * Map VP registers (`:r0` - `:r14`, `:rsp`, `:f0` - `:f15`) to the
+      register numbers used by your target CPU, minding its ABI's register
+      usage (e.g., argument registers, callee-saved, caller-saved, stack
+      pointer, link register), and leave the temp registers the routines
+      need out of it.
 
-    * This is the most intensive part. For *each* VP instruction listed in
-      [`vp_vm.md`](../vm/vp_vm.md) (or inferred from existing translators), you must write a
-      Lisp function (e.g., `(defun emit-add-rr (s d) ...)`).
+3. **Write the Op Routines:**
 
-    * This function will receive native register numbers (as mapped by
-      `emit-native-reg?`) and immediate values as its arguments.
+    * This is the most intensive part. For *each* VP op in `+vp_emit_ops`
+      of `lib/asm/ops.inc` (see [`vp_vm.md`](../vm/vp_vm.md)), write a
+      routine and register it with `(handler)`. One with none makes the
+      translator fail on any function that uses it.
 
-    * It must use Lisp macros or functions (which you might also need to
-      write, e.g., `mycpu-rrr` for R-type instructions) to construct the
-      exact byte sequence for the corresponding native instruction on
-      `mycpu`. This requires deep knowledge of `mycpu`'s instruction set
-      architecture (ISA) and encoding.
+    * A routine may trash `:r0` to `:r13`, never `:r14`, the state.
 
-    * Use `(emitm-byte ...)` / `(emitm-short ...)` / `(emitm-int ...)` /
-      `(emitm-long ...)` (defined in `lib/trans/vp.inc`) to write the
-      generated machine code bytes to the `*stream*` and thereby advance
-      `*pc*`.
+    * Write Lisp helpers that build the instruction encodings, as
+      `rv-r` and the rest in `riscv64.vp` do with `vpb-emit`: the fixed
+      fields are added up when the translator is built, the register and
+      constant fields when it runs.
+
+    * A constant or an offset may be any 64 bit value: make one that does
+      not fit an instruction some other way, a temp register say. Go to
+      `h_none` only for what cannot be made, a shift by a constant outside
+      0 to 63 or a branch out of reach.
 
     * Pay close attention to:
 
@@ -427,53 +431,54 @@ into the native machine code for your target CPU.
           must correctly manipulate the native stack pointer according to
           the ABI.
 
-4. **Implement `emit-call-abi`:**
+4. **Write `e_call_abi` and `e_entry_abi`:**
 
-    * This function receives the VP registers holding arguments for an
-      external C call, the target function address (usually in a register),
-      and information about the number of arguments.
+    * `e_call_abi` gets the VP call's operands, the target function's
+      address and how many arguments there are. It must generate native
+      code to:
 
-    * It must generate native code to:
-
-        * Move arguments from VP registers/stack to the locations specified
-          by the target's C ABI (e.g., specific registers for the first N
+        * Move arguments from VP registers to the locations specified by
+          the target's C ABI (e.g., specific registers for the first N
           arguments, then the stack).
+
+        * Keep the registers the ABI trashes round the call.
 
         * Align the stack if required by the ABI before the call.
 
         * Execute the native call instruction (e.g., `BL` on ARM, `CALL` on
           x86).
 
-        * Handle the return value, moving it from the ABI-defined location
-          back to the appropriate VP register (usually `:r0`).
+        * Handle the return value, moving it back to `:r0`, and restore the
+          stack.
 
-        * Restore the stack if necessary.
+    * `e_entry_abi` is the reverse, for the loader the host calls.
 
 5. **Stack Frame Setup (`emit-stack-init`):**
 
-    * The `emit-stack-init` function is called by the bootstrap code to set
-      up the initial stack for a new task. It typically receives the stack
-      pointer (`s`), the function entry point (`f`), and an argument (`x`
-      usually 0). It needs to arrange the stack so that when `vp-ret` is
-      eventually executed from the task's main function, it returns to a
-      known `exit` routine. The `arm64.inc` and `x86_64.inc` examples show
-      setting up a "return" to the `vp-load-state` which then `vp-ret`s to
-      the real caller, after pushing the `x` argument and the address of an
-      `arm_exit` or `x64_exit` label. The details are architecture-
-      specific.
+    * The `emit-stack-init` routine sets up the initial stack for a new
+      task. It typically receives the stack pointer (`s`), the function
+      entry point (`f`), and an argument (`x` usually 0). It needs to
+      arrange the stack so that when `vp-ret` is eventually executed from
+      the task's main function, it returns to a known exit routine. The
+      `e_stack_init` routines of `arm64.vp` and `x86_64.vp` are examples.
+      The details are architecture-specific.
 
-6. **Constants and Helper Macros:**
+6. **Save and Load State:**
 
-    * Define any CPU-specific constants or helper Lisp macros (like
-      `riscv64-r` or `x64-rr` in existing translators) to simplify
-      instruction encoding.
+    * Register routines for `emit-save-state` and `emit-load-state`, which
+      push and pop the registers a task keeps besides the VP ones, the link
+      register say, and `emit-stack-init` leaves room for them. The task
+      switch, `sys/task`, says only `vp-save-state` and `vp-load-state`, the
+      same VP on every platform; with no such registers they are `h_nop`,
+      as on x86_64 and VP64.
 
-    * Define `emit-save-state` and `emit-load-state`, which push and pop
-      the registers a task keeps besides the VP ones, the link register
-      say, and `emit-stack-init` leaves room for them. The
-      task switch, `sys/task`, says only `vp-save-state` and
-      `vp-load-state`, the same VP on every platform; with no such
-      registers they emit nothing, as on x86_64 and VP64.
+7. **Prepass:**
+
+    * Every translator has a `prepass` routine, run on the decoded records
+      before the passes. It may be just a `vp-ret`, as `vp64.vp`'s is.
+      riscv64 and la64 use the generic call fusion, `(vpb-call-fusion)`;
+      arm64 and x86_64 have their own. Any fused op it makes goes in
+      `lib/trans/vpb_ops.inc`, so it has a number in the VP binary.
 
 ### 3.3. Boot Image Generation and Testing
 
@@ -483,8 +488,11 @@ into the native machine code for your target CPU.
       in `cmd/make.lisp` or `lib/asm/asm.inc` where these are defined (e.g.,
       `+supported_cpu`, `+supported_abi`).
 
-    * Ensure `make` selects `lib/trans/mycpu_myabi.inc` when compiling for
-      this target.
+    * Add `lib/trans/vpb_mycpu` to `+boot_extras` in
+      `lib/boot/image.inc`, so the VP64 boot image in `snapshot.zip`
+      carries the translator and `make install` can translate to the new
+      CPU. `lib/trans/vp.inc` binds it by `*cpu*`, and the build counts
+      `lib/trans/<cpu>.vp` among what the translate stage depends on.
 
 2. **Compile VP Code:** Use `make CPU=mycpu ABI=myabi` to compile some
    simple `.vp` files. Examine the generated object files
@@ -530,7 +538,7 @@ As mentioned in 3.3.1, `cmd/make.lisp` needs to be aware of the new
 platform:
 
 * It uses the `*cpu*` and `*abi*` Lisp variables to determine output paths
-  and select the correct translator file from `lib/trans/`.
+  and bind the correct translator, `vpb_<cpu>` from `lib/trans/`.
 
 * Ensure the `compile` function in `lib/asm/asm.inc` and the various
   `make-*` functions in `cmd/make.lisp` correctly handle the new platform
@@ -553,7 +561,7 @@ platform:
       instructions: arithmetic, memory access, branches, then calls.
 
 * **Disassembler:** Have a reliable disassembler for your target CPU to
-  verify the machine code generated by your `emit-xxx` functions.
+  verify the machine code generated by your op routines.
 
 * **Native Debugger:** Use GDB, LLDB, WinDbg, or your target's native
   debugger to:
@@ -564,11 +572,12 @@ platform:
 
 * **ChrysaLisp Debug Tools:**
 
-    * Use `(print)` extensively in your Lisp translator code.
+    * `(vpb-decode bin)` shows a VP binary as the instructions it holds,
+      to compare with what the translator made of it.
 
     * The `*build_emit*` and `*build_inst*` flags (see [`vp_assignment.md`](../vm/vp_assignment.md))
       can show the VP instructions before and after optimization, and the
-      final Lisp forms passed to `emit-translate`.
+      final forms passed to `emit-translate`.
 
 * **VP64 Emulator as a Reference:** If a native translation behaves
   unexpectedly, compare its register states and memory effects with the
@@ -586,7 +595,7 @@ Porting ChrysaLisp is a complex task that requires a methodical approach.
 By first focusing on the host OS PII layer with the VP64 emulator, potential
 issues with basic OS interaction and C/C++ ABI can be resolved.
 Subsequently, developing a new native CPU translator involves careful
-implementation of instruction emitters and rigorous testing.
+implementation of its op routines and rigorous testing.
 
 Adherence to ChrysaLisp's internal structures (PII function tables, VP
 instruction set, translator framework) and thorough testing are crucial for

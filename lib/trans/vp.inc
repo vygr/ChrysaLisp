@@ -5,239 +5,65 @@
 ;module
 (env-push)
 
-;pre-seed all standard VP opcodes in the module environment
-(each (# (def (env) %0 :nil)) +vp_emit_ops)
+;the translator in VP of the target, lib/trans/<cpu>.vp, VP binary in,
+;lib/trans/vpb.inc, native out. A platform has it made by its build, and
+;the VP64 boot image has those to each native CPU, so an install
+;translates with them. It translates any VP: one it gives back nothing
+;for is a fault in it
+(import "lib/trans/vpb.inc")
+(import "lib/boot/image.inc")
+;the translator, of its file or of the boot image. A constant, put in where
+;it is used: a variable of :nil is not prebound, and a task that calls
+;(emit-translate) from its own environment would not find it
+(defq +vpb_native (progn
+	(defq vpb_name (cat "lib/trans/vpb_"
+		(if (eql *cpu* 'x86_64) (cat "x86_64_" (to-lower (str *abi*))) (str *cpu*))))
+	(if (or (> (age (cat (load-path) vpb_name)) 0) (image-has? vpb_name)) (ffi vpb_name))))
 
-(defun emit-align (size &optional fill)
-	(defq pc *pc* fill (ifn fill 0) stream *stream*)
-	(setq *pc* (align pc size))
-	(while (<= (++ pc) *pc*) (write-char stream fill)))
-
-(defun emit-nop ())
-(defun emit-trash (&ignore))
-(defun emit-prepass (emit_list) emit_list)
-
-(defun emit-label (label) (set (penv) label *pc*))
-(defun emit-string (string) (++ *pc* (write-blk *stream* string)))
-(defun emit-byte (&rest data) (++ *pc* (write-char *stream* data)))
-(defun emit-short (&rest data) (++ *pc* (write-char *stream* data +short_size)))
-(defun emit-int (&rest data) (++ *pc* (write-char *stream* data +int_size)))
-(defun emit-long (&rest data) (++ *pc* (write-char *stream* data +long_size)))
-
-(defmacro emitm-byte (&rest data)
-	(if (= (length data) 1)
-		(static-qq (++ *pc* (write-char *stream* ~data)))
-		(static-qq (++ *pc* (write-char *stream* (list ~data))))))
-
-(defmacro emitm-short (&rest data)
-	(if (= (length data) 1)
-		(static-qq (++ *pc* (write-char *stream* ~data +short_size)))
-		(static-qq (++ *pc* (write-char *stream* (list ~data) +short_size)))))
-
-(defmacro emitm-int (&rest data)
-	(if (= (length data) 1)
-		(static-qq (++ *pc* (write-char *stream* ~data +int_size)))
-		(static-qq (++ *pc* (write-char *stream* (list ~data) +int_size)))))
-
-(defmacro emitm-long (&rest data)
-	(if (= (length data) 1)
-		(static-qq (++ *pc* (write-char *stream* ~data +long_size)))
-		(static-qq (++ *pc* (write-char *stream* (list ~data) +long_size)))))
-
-;;;;;;;;;;;;;
-; call fusion
-;;;;;;;;;;;;;
-
-;on a CPU with a link register a call saves the link on the stack around
-;itself. When one call follows another in a straight line, the restore after
-;the first and the save before the second cancel, so the first call can leave
-;the link on the stack, -h, the last can restore it, -t, and any between do
-;neither, -m. The stack is one slot deeper between them, so :rsp relative
-;access there is adjusted. This is legal as VP code may not look at the
-;return address on the stack. A translator that wants this defines the
-;emit-<cpu>-call[-r|-i|-p]-[h|m|t] functions and calls (trans-fuse-calls)
-;from its (emit-prepass).
-
-(defun trans-call-fuse-map (emit_list cpu)
-	; (trans-call-fuse-map emit_list cpu) -> map
-	;call -> (no restore version, no save version), barrier -> :t
-	(defq calls '(emit-call emit-call-r emit-call-i emit-call-p)
-		variant (lambda (v) (map (lambda (c) (sym (cat "emit-" cpu (slice c 4 -1) v))) calls))
-		hs (variant "-h") ms (variant "-m") ts (variant "-t"))
-	(reduce (lambda (m name)
-			(pinsert m name (cond
-				((defq i (find name calls))
-					(list (elem-get hs i) (elem-get ts i)))
-				((defq i (find name ts))
-					(list (elem-get ms i) :nil))
-				((find name '(emit-label emit-alloc emit-free emit-push emit-pop emit-save-state emit-load-state emit-entry-abi emit-call-abi
-						emit-jmp emit-jmp-r emit-jmp-i emit-jmp-p emit-ret emit-sync
-						emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
-						emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-						emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))
-					:t))))
-		emit_list (pmap)))
-
-(defun trans-sp-map (emit_list)
-	; (trans-sp-map emit_list) -> map
-	;:rsp relative access -> (base index, offset index), or :cpy
-	(reduce (lambda (m name)
-			(pinsert m name (cond
-				((find name '(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-						emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-if))
-					'(1 2))
-				((find name '(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi))
-					'(2 3))
-				((eql name 'emit-cpy-rr) :cpy))))
-		emit_list (pmap)))
-
-(defun trans-sp-adjust (inst sp_map)
-	; (trans-sp-adjust inst sp_map) -> :fail | inst
-	;the instruction, that uses :rsp, as it must be with the stack one slot
-	;deeper, :fail if it can't be adjusted
-	(cond
-		((/= 1 (length (filter (# (eql %0 :rsp)) inst))) :fail)
-		((not (defq info (pfind sp_map (first inst)))) :fail)
-		((eql info :cpy)
-			(if (eql (second inst) :rsp)
-				(list 'emit-lea-i :rsp +ptr_size (third inst))
-				:fail))
-		((and (eql (elem-get inst (first info)) :rsp)
-				(num? (defq c (elem-get inst (second info)))))
-			(elem-set (setq inst (slice inst 0 -1)) (second info) (+ c +ptr_size))
-			inst)
-		(:t :fail)))
-
-(defun trans-fuse-calls (emit_list call_map sp_map)
-	; (trans-fuse-calls emit_list call_map sp_map) -> emit_list
-	;one forward sweep, pend is the last call we could fuse the next call
-	;with, adj the :rsp adjusted instructions since it
-	(defq pend :nil pend_info :nil adj (list))
-	(each! (lambda (inst)
-		(defq k (!))
-		(cond
-			((not (defq info (pfind call_map (first inst))))
-				;straight line code
-				(and pend (find :rsp inst)
-					(if (eql (defq a (trans-sp-adjust inst sp_map)) :fail)
-						(setq pend :nil)
-						(push adj k a))))
-			((or (eql info :t) (find :rsp inst))
-				;barrier
-				(setq pend :nil))
-			(pend
-				;second call of a pair, and maybe the first of the next
-				(elem-set emit_list pend (cat (list (first pend_info)) (rest (elem-get emit_list pend))))
-				(elem-set emit_list k (cat (list (second info)) (rest inst)))
-				(each (lambda ((i a)) (elem-set emit_list i a)) (partition adj 2))
-				(clear adj)
-				(setq pend k pend_info (pfind call_map (second info))))
-			(:t ;first call
-				(clear adj)
-				(setq pend k pend_info info))))
-		(list emit_list) 9)
-	emit_list)
-
-;;;;;;;;;;;;;;;;;;;;;;;
-; native emit functions
-;;;;;;;;;;;;;;;;;;;;;;;
-
-(if (/= 0 (age (defq emit_file (cat "lib/trans/" *cpu* ".inc"))))
-	(import emit_file)
-	(throw "No such CPU !" *cpu*))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; gather all the emit funcs
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;map with all emit-* instructions
-(defq +emit_funcs (reduce (lambda (%0 (%1 %2))
-		(if (starts-with "emit-" %1) (pinsert %0 %1 %2) %0))
-	(tolist (env)) (pmap)))
-
-;emap with jump/branch instructions flagged
-(defq +emit_jmps (reduce (lambda (%0 (%1 &)) (pinsert %0 %1 (find %1
-		'(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
-		emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr emit-blt-cr
-		emit-blt-rr emit-bgt-rr emit-bgt-cr emit-beq-ff emit-bne-ff
-		emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff))))
-	(partition +emit_funcs 2) (pmap)))
-
-;validate that all instruction maps have identical symbols and slots
-(validatecase
-	(defq emit_lists (map (# (map (const first) %0))
-		(map (# (partition %0 2)) (cat (list +emit_funcs +emit_jmps) emit_maps))))
-	(unless (and (apply (const =) (map (const length) emit_lists))
-				(every (# (apply (const =) %0))
-					(map! (lambda (&rest %0) (map (const weak-ref) %0)) emit_lists)))
-		(throw "Mismatching instruction maps !" emit_lists)))
+(defun vp-translate-bin (bin)
+	; (vp-translate-bin bin) -> func_binary
+	;a function's VP binary to this platform's native code
+	(unless +vpb_native (throw "No translator to this CPU here, make install makes them !" *cpu*))
+	(ifn (+vpb_native bin)
+		(throw (cat "The " *cpu* " translator failed on this function !") (vpb-name bin))))
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(defq emit_code (emit-prepass emit_code)
-		buf "" last_buf "" *offsets* (cap 64 (list)) labels (list)
-		*pass* 0 *stream* (string-stream buf) *pc* 0)
-	(each! (lambda (inst)
-			;map vp reg syms to native reg nums
-			(each! (# (if (defq %0 (emit-native-reg? %0)) (elem-set inst (!) %0)))
-				(list inst) 1)
-			;create label and branch initial values
-			(cond
-				((eql (defq op (first inst)) 'emit-label)
-					(def (penv) (defq label (last (last inst))) 0)
-					(push labels label))
-				((pfind +emit_jmps op)
-					(push inst (dec (length (push *offsets* 0))))))
-			;bind emit func
-			(elem-set inst 0 (pfind +emit_funcs op)))
-		(list emit_code) 1)
-	;multi pass of native emit functions, till two passes give the same.
-	;That they will rests on one rule, which every (emit-) of every target
-	;must keep: an instruction whose length goes by where a label is can
-	;only get longer from one pass to the next, never shorter. A branch
-	;keeps the furthest it has had to go in *offsets*, and is as long as
-	;that needs. What is loaded from a label, or the address of one, is one
-	;length whatever. Lengths that only grow, and have a most, stop
-	;changing, then no label moves, and the next pass is the same. One
-	;that could get shorter can go to and fro with a label for ever: the
-	;LoongArch and the RISC-V had two, found 2026-10-12
-	;
-	;What a pass gives goes only by where the labels are and how far each
-	;branch has had to go. If no label has moved since the pass before,
-	;each branch was given its true place, none goes further, and the next
-	;pass would be the same: it is not run
-	(eval emit_code)
-	(setq buf (str *stream*) *pass* (inc *pass*))
-	(defq at (map (const eval) labels) last_at :nil)
-	(until (and last_at (every (const =) at last_at))
-		(task-slice)
-		(defq b last_buf last_buf buf *stream* (string-stream b) *pc* 0)
-		(eval emit_code)
-		(setq buf (str *stream*) *pass* (inc *pass*)
-			last_at at at (map (const eval) labels)))
-	buf)
+	(vp-translate-bin (vpb-encode (list "" emit_code))))
 
-(defun vp-translate-save (entry)
-	; (vp-translate-save entry)
-	;a build's: a function's VP to this platform's native code, saved in
-	;obj/<cpu>/<abi>/ by its name. An entry is the name, the instructions,
-	;and the forms after them
-	(defq name (first entry) out (emit-translate (second entry)))
+(defun vp-translate-out (name out)
+	;a function's native code saved in obj/<cpu>/<abi>/ by its name
 	;the header has 16 bits for the length, and for where the links and paths are
 	(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
 	(save out (cat "obj/" *cpu* "/" *abi* "/" name))
 	(if (> *build_verb* 0)
 		(print "-> " (cat "obj/" *cpu* "/" *abi* "/" name) " (" (length out) ")")))
 
+(defun vp-translate-save (entry)
+	; (vp-translate-save entry) -> bin
+	;a build's: a function's VP to this platform's native code, saved in
+	;obj/<cpu>/<abi>/ by its name. An entry is the name, the instructions,
+	;and the forms after them. Its VP binary is given back, for the binary
+	;bundle beside the text
+	(defq bin (vpb-encode entry))
+	(vp-translate-out (first entry) (vp-translate-bin bin))
+	bin)
+
 (defun vp-translate-file (file dir)
 	; (vp-translate-file file dir)
 	;a build's translate stage: the bundle of the source file, as the VP
 	;stage left it in dir, obj/vp/<mode>/, each of its functions to this
-	;platform's native code
-	(defq stream (file-stream (cat dir file)))
-	(while (defq entry (first (read stream)))
-		(vp-translate-save entry)))
+	;platform's native code. From the binary bundle beside it if it is as
+	;new, else from the text
+	(defq bins (cat dir file "b"))
+	(cond
+		((and (> (age bins) 0) (>= (age bins) (age (cat dir file))))
+			(each (# (vp-translate-out (vpb-name %0) (vp-translate-bin %0))) (vpb-unbundle (load bins))))
+		(:t (defq stream (file-stream (cat dir file)))
+			(while (defq entry (first (read stream)))
+				(vp-translate-save entry)))))
 
 ;module
-(export-symbols '(emit-translate vp-translate-save vp-translate-file))
+(export-symbols '(emit-translate vp-translate-save vp-translate-bin vp-translate-file
+	vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))
 (env-pop)

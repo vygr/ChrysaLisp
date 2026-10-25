@@ -576,12 +576,12 @@
 									:stroke
 									0
 									:text
-									"[x86_64.inc]"
+									"[x86_64.vp]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										70.31512
+										70.94689
 										19.00000
 									)
 								)
@@ -630,12 +630,12 @@
 									:stroke
 									0
 									:text
-									"[arm64.inc]"
+									"[arm64.vp]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										71.40747
+										72.03924
 										19.00000
 									)
 								)
@@ -684,12 +684,12 @@
 									:stroke
 									0
 									:text
-									"[riscv64.inc]"
+									"[riscv64.vp]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										69.52154
+										70.15332
 										19.00000
 									)
 								)
@@ -738,12 +738,12 @@
 									:stroke
 									0
 									:text
-									"[la64.inc]"
+									"[la64.vp]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										77.38818
+										78.01995
 										19.00000
 									)
 								)
@@ -792,12 +792,12 @@
 									:stroke
 									0
 									:text
-									"[vp64.inc, for the emulator]"
+									"[vp64.vp, for the emulator]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										32.74902
+										33.61376
 										19.00000
 									)
 								)
@@ -821,7 +821,7 @@
 					:stroke
 					0
 					:text
-					"[lib/trans/, the emit functions of each]"
+					"[lib/trans/, a VP translator of each]"
 					:font_size
 					11
 					:pos

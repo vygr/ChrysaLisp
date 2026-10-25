@@ -24,11 +24,11 @@ simple load/store addressing modes.
 :f0,:f1,:f2,:f3,:f4,:f5,:f6,:f7,:f8,:f9,:f10,:f11,:f12,:f13,:f14,:f15
 ```
 
-These are mapped to real physical registers by the target processor 'emit'
-functions, look in `lib/trans/x86_64.inc` and `lib/trans/arm64.inc`. On certain
+These are mapped to real physical registers by the target processor's
+translator, the `reg_map` of `lib/trans/x86_64.vp` and `lib/trans/arm64.vp`. On certain
 processors, like the x86_64, it's worth knowing that `:r0` and `:r2` are mapped
 to rax and rdx when it comes to scheduling VP div and rem code ! It makes no
-difference to the arm64 emit functions, so one does tend to make VP divide code
+difference to the arm64 translator, so one does tend to make VP divide code
 use `:r0` and `:r2` as it really helps the x86_64 code generation quality.
 
 ```image
@@ -60,7 +60,9 @@ wider form, and the VP code never knows.
 Arithmetic is of words and wraps: a multiply keeps the low 64 bits of the
 product, `vp-abs-rr` of the most negative number is itself. A shift by a
 register uses the low 6 bits of the count; a shift by a constant takes a
-constant of 0 to 63, and a translator throws at one outside that.
+constant of 0 to 63, and a translator fails on one outside that: it gives
+back nothing for the function, and `vp-translate-bin` throws `The <cpu>
+translator failed on this function !` with its name.
 `(vp-div-rrr rs rdh rdl)` divides `rdl` by `rs`, the quotient to `rdl` and the
 remainder to `rdh`, whatever `rdh` held; the quotient goes towards 0 and the
 remainder has the sign of what was divided. A divide by 0 gives a quotient of 0
@@ -463,11 +465,12 @@ data, below, and it makes them by doing what the data says.
 
 What a function is before any target, the VP its source file made, is kept as
 text, the bundle of that file, `obj/vp/<mode>/<file>`, where the mode is
-`release`, `debug` or `validate`, `lib/asm/asm.inc`. The VP stage writes the
-bundles once; each target's translate stage, `(vp-translate-file)` in
-`lib/trans/vp.inc`, reads them back and makes its own code from them, and the
-tools that look at a function whole, `trace`, `relies` and the rest, read the
-bundles of `debug`.
+`release`, `debug` or `validate`, `lib/asm/asm.inc`, and as VP binary beside
+it, `<file>b`, `lib/trans/vpb.inc`. The VP stage writes the bundles once; each
+target's translate stage, `(vp-translate-file)` in `lib/trans/vp.inc`, reads
+the binary one back and its translator, `lib/trans/<cpu>.vp`, makes its own
+code from it, and the tools that look at a function whole, `trace`, `relies`
+and the rest, read the text bundles of `debug`.
 
 A bundle is a run of forms, one a function, as `(read)` reads them:
 

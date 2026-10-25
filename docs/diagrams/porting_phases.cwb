@@ -409,12 +409,12 @@
 									:stroke
 									0
 									:text
-									"[lib/trans/mycpu_myabi.inc]"
+									"[lib/trans/mycpu.vp]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										87.44958
+										105.26214
 										35.00000
 									)
 								)
