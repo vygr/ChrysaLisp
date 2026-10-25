@@ -26,7 +26,7 @@
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
 		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
 	al_before (lisp-nodes :t) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
-	al_t0 (pii-time) al_gui :nil al_node :nil al_probe :nil)
+	al_t0 (pii-time) al_began (pii-time) al_gui :nil al_node :nil al_probe :nil)
 
 (defun al-probe-start ()
 	; (al-probe-start) -> :nil | mbox
@@ -92,11 +92,11 @@
 	;a user would, and waited for till its task and its window have gone,
 	;and the tasks it started there: a child that finishes what it was
 	;doing first, a build or a farm's part, still holds what it uses
-	(test-note (cat app " opened"))
+	(test-note (cat app " opened, " (str (/ (- (pii-time) al_began) 1000000)) "s in"))
 	(defq tasks (al-tasks)
 		mbox (open-remote (cat "apps/" app "/app.lisp") al_node +kn_call_pin))
 	(while (<= (al-windows) desk) (task-sleep 50000))
-	(test-note (cat app " up, closing"))
+	(test-note (cat app " up, closing, " (str (/ (- (pii-time) al_began) 1000000)) "s in"))
 	(task-sleep 300000)
 	(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 		(+ev_msg_type +ev_type_action)
