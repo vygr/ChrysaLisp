@@ -440,17 +440,25 @@ void *pii_flush_icache(void* addr, size_t len)
 
 void pii_random(char* addr, size_t len)
 {
+	// as much as /dev/urandom gives, a read can be short, and the rest, if
+	// it gives no more or is not there, from rand
+	size_t got = 0;
 	int fd = open("/dev/urandom", O_RDONLY);
 	if (fd >= 0) {
-		read(fd, addr, len);
+		while (got < len) {
+			ssize_t n = read(fd, addr + got, len - got);
+			if (n <= 0) break;
+			got += (size_t)n;
+		}
 		close(fd);
-	} else {
+	}
+	if (got < len) {
 		static bool seeded = false;
 		if (!seeded) {
 			srand((unsigned int)pii_gettime() ^ (unsigned int)getpid());
 			seeded = true;
 		}
-		for (size_t i = 0; i < len; ++i) addr[i] = rand() & 0xff;
+		for (size_t i = got; i < len; ++i) addr[i] = rand() & 0xff;
 	}
 }
 
@@ -502,8 +510,10 @@ int64_t pii_sysid(char *buf, size_t len)
 	pii_random(buf, 16);
 	fd = open(".system_id", O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
 	if (fd >= 0) {
-		write(fd, buf, 16);
+		// a file of less than the 16 is not left to be read as one
+		ssize_t n = write(fd, buf, 16);
 		close(fd);
+		if (n != 16) unlink(".system_id");
 	}
 	return 0;
 }

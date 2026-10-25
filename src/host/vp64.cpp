@@ -305,8 +305,10 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 #define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
 #define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
 #define vp_cpy_ff(sr, dr) fregs[dr] = fregs[sr]
-#define vp_cpy_rf(sr, dr) *(int64_t*)&fregs[dr] = regs[sr]
-#define vp_cpy_fr(sr, dr) regs[dr] = *(int64_t*)&fregs[sr]
+//the bits as they are, by memcpy, which is a move, a cast of the pointer
+//is not to be relied on at -O3
+#define vp_cpy_rf(sr, dr) memcpy(&fregs[dr], &regs[sr], sizeof(int64_t))
+#define vp_cpy_fr(sr, dr) memcpy(&regs[dr], &fregs[sr], sizeof(int64_t))
 #define vp_cmp_f(sr, dr) { compare_f1 = fregs[sr]; compare_f2 = fregs[dr]; }
 
 #define vd_dr() ((ir >> 8) & 0xf)
