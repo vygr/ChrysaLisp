@@ -23,9 +23,12 @@
 		(if (and (mail-validate (in-mbox in)) (not (mail-poll (list (in-mbox in)))))
 			(setq live_conn conn)
 			(net-close-rpc conn)))
-	(if live_conn
-		(list live_conn :t)
-		(if (defq new_conn (net-open-rpc host port))
+	(cond
+		(live_conn
+			;read from again, it is in use
+			(in-set-state (first live_conn) +stream_mail_state_started)
+			(list live_conn :t))
+		((defq new_conn (net-open-rpc host port))
 			(list new_conn :nil))))
 
 (defun http-pool-checkin (host port conn headers)
@@ -37,7 +40,12 @@
 				(= (in-get-state (first conn)) +stream_mail_state_started)
 				(or (pfind headers :content-length)
 					(found? (or (pfind headers :transfer-encoding) "") "chunked")))
-			; Connection is reusable and framed properly; return to pool
+			; Connection is reusable and framed properly; return to pool.
+			; Marked as no longer read: an in stream let go of waits for
+			; its sender to stop, and the Net service stops this one only
+			; when the server or its idle time closes it, a minute. The
+			; task that pooled it may end at any time, and not wait
+			(in-set-state (first conn) +stream_mail_state_aborted)
 			(. +http_pool :update key (# (if %0 (push %0 conn) (list conn)))))
 		(conn
 			; Connection: close or unverified framing; close socket
