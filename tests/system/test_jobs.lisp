@@ -113,11 +113,17 @@
 
 ;a child that goes of its own accord says so, and a job given to it as it
 ;went is not lost: it goes to another as soon as the farm is told. One
-;child, so it is the one each job goes to
+;child, so it is the one each job goes to. Neither side can know the
+;other is there: should the child go before its first job reaches it, a
+;busy machine, it can not say so, and the job is put back when the farm
+;has heard nothing of it for its patience, a short one here. That is
+;counted as a try, and the count is let go of after, it is the job
+;given as the child went that is to be not counted
 (defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
 (defq jobs (Jobs "tests/system/data/jobs_going_child.lisp"
 	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
-(assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1))))
+(assert-list-eq "a child that will go does the work" '(2) (jt-run (list (jt-work 1)) :nil (task-timeout 10)))
+(. jobs :clear)
 ;it has nothing now, and goes, and says so
 (defq jt_going (mail-read (elem-get jt_select +jt_reply)))
 (assert-true "a child with nothing to do goes, and says it has"
@@ -129,6 +135,6 @@
 ;told, the farm puts the job back and starts the child again
 (assert-eq "what it said is no answer" :nil (. jobs :answered jt_going))
 (assert-list-eq "and the job it was given is done by the one started after it" '(14)
-	(jt-run (list)))
+	(jt-run (list) :nil (task-timeout 10)))
 (assert-eq "it was not counted as tried" 0 (. jobs :tries))
 (. jobs :close)

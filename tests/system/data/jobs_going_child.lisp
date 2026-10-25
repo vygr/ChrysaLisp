@@ -1,5 +1,6 @@
 ;a child for the test of lib/task/jobs.inc that goes of its own accord, by
-;(job-child), when it has had nothing for a moment. It answers a job with
+;(job-child), when it has had nothing for two seconds: long enough that a
+;busy machine gives it its first job before it goes. It answers a job with
 ;its number doubled
 (import "lib/task/jobs.inc")
 
@@ -10,7 +11,7 @@
 	(long num))
 
 (defun main ()
-	(job-child 300000 (lambda (msg mbox)
+	(job-child 2000000 (lambda (msg mbox)
 		(mail-send (getf msg +job_reply)
 			(setf-> (str-alloc +work_reply_size)
 				(+job_reply_key (getf msg +job_key))
