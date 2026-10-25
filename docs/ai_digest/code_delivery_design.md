@@ -50,7 +50,7 @@ Each has a minimum boot image, and they do not hold the same things.
 | Code | VP64, one for every machine | native, one for each machine |
 | Made by | the snapshot, shipped | install, on the machine |
 | Its job | install, and run an emulated node | start the loader |
-| Holds | loader, kernel, Lisp, streams, the translator | the loader, the kernel, what they call |
+| Holds | loader, kernel, Lisp, streams, the translators to every CPU | the loader, the kernel, this CPU's translator, what they call |
 
 The VP64 image serves install, and any node that runs emulated only, as on a
 CPU with no translator yet; that is acceptable. Install boots it emulated,
@@ -92,60 +92,83 @@ again for the task, in its server: the same translation, other links. The
 rest the task shares with the node.
 
 What a node has of its own, server zero, the baseline, is bound by the
-kernel's loader as any other: what is not there yet is made on demand, the
-loader waiting for it as below. All other VP, an application's of this
-system or code of another, is made on demand by the `@Source` of the machine
-it runs on, to native or to VP64.
+kernel's loader as any other: what is not there yet is translated in the
+bind, from its VP on the machine, below. All other VP, an application's of
+this system or code of another, comes by the `@Source` of the machine it
+runs on, and is translated the same way when it is there.
 
-## A Bind That Waits
+## A Bind That Translates
 
-Decided on 2026-10-25, in place of the day before's "server zero is always
-bound from what install translated". It is how Taos did it.
+Decided on 2026-10-25, first as "a bind that waits", in place of the day
+before's "server zero is always bound from what install translated". It is
+how Taos did it. The same day the translators became VP,
+[vp_translation.md](vp_translation.md), and that changed what a miss needs:
+the loader can call the translator itself, VP to VP, no Lisp, no service and
+no message.
 
-A bind looks for a function in this order, and only the last step waits:
+A bind looks for a function in this order:
 
 1. The function list: it is there, it is bound.
-2. A translation cached on the machine, for its CPU and ABI, under the hash
-   of the VP: loaded, as a load from `obj/` is now.
-3. A native made by hand for this CPU, where there is one: loaded, and its
-   VP is never translated.
-4. None of these: a stub is put in the function list in its place, and the
-   task waits.
+2. A native on the machine: a translation cached for its CPU and ABI, or
+   one made by hand for this CPU, loaded as a load from `obj/` is now. The
+   translator is only ever called when there is none: a native made by hand
+   is never replaced by one translated.
+3. Its VP on the machine: the loader translates it, in the bind, and places
+   it.
+4. Its VP not on the machine, the code of another system: a stub is put in
+   the function list in its place, and the task waits, below.
 
-The translator is only ever called when no native is there, cached or made by
-hand. The loader never translates: it is VP, and the translator is Lisp. It
-puts the stub in, asks, and holds the task.
-
-A stub says "it is coming, hold on". It has the name and a queue of the
-tasks that want it. A second task that misses the same name joins the queue,
-no second request is sent. The request is a translate job with its product
-to go to `:cache`; when it is done the native is loaded from the cache into
-a new block, linked, made runnable, and put in the function list in place of
-the stub, and the tasks of the queue carry on.
+Translated in place. The translator of the node's CPU is a function of the
+native image, so a miss whose VP is on the machine is filled where it
+happens, by the task that missed: read the VP binary, translate it, a few
+microseconds a function, write the native to the cache, place it. Tasks are
+cooperative, so the bind is atomic on its node: no other task of the node
+runs till it is done, none can see the function half there or ask for it a
+second time, and there is no stub, no queue and no wait. Two nodes of the
+machine that miss the same function at once each translate it, and each
+writes the same bytes to the cache, by a temporary name and a rename: work
+wasted, never a fault.
 
 Closure first. A function is placed only when every function it calls, all
 the way down, is there or placed with it: its links are entry points written
 once into a block that is never written again, so there is nothing to patch
-later and no trampolines. A task is held until the whole chain it needs is
-loaded and translated, and the request asks for that chain in one go, by the
-hashes, as a task sent from another system does.
+later and no trampolines. The VP binary of a function names what it calls,
+so the bind gathers the whole chain that is missing, translates each, and
+places them together, `(:sys_load :place)`, which binds a set that calls
+itself, in a ring too.
+
+What can never miss. The loader, the kernel, the translator of the node's
+CPU, and each with everything it calls: a miss in those could never be
+filled, as what would fill it is what is missing. That is what the native
+image holds, [Install And Runtime](#install-and-runtime), and a miss there
+is fatal, as a missing file is now. A miss whose VP is not on the machine
+either, and is of server zero, is the same: the baseline is all on the
+machine after install.
+
+### A Bind That Waits
+
+Only code of another system waits: its VP is at its originator, and comes by
+message, [Sources](#sources).
+
+A stub says "it is coming, hold on". It has the name and a queue of the
+tasks that want it. A second task that misses the same name joins the queue,
+no second request is sent. The request asks the originator's `@Source` for
+the whole chain the task needs in one go, by the hashes, and is answered
+with VP binary, or a native a cache already has. What comes is translated in
+place as above, placed in place of the stub, and the tasks of the queue carry
+on.
 
 Who may wait. A task waits in its own bind. The kernel task never waits on a
 stub, every task of its node would wait with it: a task to be started from a
 function that is not there yet is started, and it binds, and waits, itself.
-
-What can never miss. The loader, the kernel, Lisp, the translator, and what
-asks for and delivers a translation, each with everything it calls: a miss in
-those could never be filled, as what would fill it is what is missing. That
-is what the native image holds, [Install And Runtime](#install-and-runtime),
-and a miss there is fatal, as a missing file is now.
+A translation in place is not a wait, the kernel may do it.
 
 When it goes wrong. On the ideal path the request is answered, the chain is
 placed and the tasks go on, all by messages. Should the answers stop, its
 service gone or a translation failed, a stub with nothing heard for long
 enough dissolves: the binds held on it give 0, an `(ffi)` waiting on one
-throws, and the stub is taken out, so a bind after asks again. A long
-translation that is still going is not inactivity. Nothing waits for ever.
+throws, and the stub is taken out, so a bind after asks again. Nothing waits
+for ever.
 
 ## Sources
 
@@ -249,12 +272,20 @@ emulator on every host, the Pi's had only stale files. The rest:
 * Compiling apart from translating and saving: done, `(vp-compile)`.
 * The kernel query for a system's `@Source`, and the retry by it: done,
   [source_service.md](source_service.md).
-* Jobs for compile and translate, with their destinations, and `@Source`
-  only keeping the books: the translating and hashing it does in its own
-  loop now move out.
-* The bind that waits: the stub and its queue in the loader, filled by
-  those jobs, [A Bind That Waits](#a-bind-that-waits). Then install need
-  translate no more than the native image holds.
+* The translators in VP, VP binary in and native out: done,
+  [vp_translation.md](vp_translation.md). The VP64 image carries all of
+  them, so install translates with no Lisp.
+* A function's VP binary found by its name on the machine, not only in the
+  bundle of its source file.
+* The translator called from VP, VP binary in a buffer and native out, and
+  the native image holding its CPU's.
+* The bind that translates: the loader translating a miss in place,
+  closure first, the native to the cache, [A Bind That
+  Translates](#a-bind-that-translates). Then install need translate no more
+  than the native image holds.
+* The bind that waits, for code of another system only: the stub and its
+  queue, filled by `@Source`, and the jobs for compile, with their
+  destinations, `@Source` only keeping the books.
 * Applications: `(ffi)` asks `@Source` on a miss, install and `make` build
   only the baseline, `make apps` and the applications' products in `obj/`
   go.
