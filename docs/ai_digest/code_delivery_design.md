@@ -275,14 +275,15 @@ emulator on every host, the Pi's had only stale files. The rest:
 * The translators in VP, VP binary in and native out: done,
   [vp_translation.md](vp_translation.md). The VP64 image carries all of
   them, so install translates with no Lisp.
-* A function's VP binary found by its name on the machine, not only in the
-  bundle of its source file.
-* The translator called from VP, VP binary in a buffer and native out, and
-  the native image holding its CPU's.
-* The bind that translates: the loader translating a miss in place,
-  closure first, the native to the cache, [A Bind That
-  Translates](#a-bind-that-translates). Then install need translate no more
-  than the native image holds.
+* The bind that translates, for server zero: done. A build keeps each
+  function's VP binary beside its native, `obj/<cpu>/<abi>/<name>.vpb`;
+  the translator has a call with no Lisp, `:r0` 0, the binary and its
+  length; `(:sys_load :load)` links its CPU's translator, so each image
+  holds it, and a native not there, or not whole, is translated from its
+  `.vpb` into the block and kept, its links each the same way,
+  `tests/system/test_bind_translate.lisp`.
+* Install, and a build, translating no more than the native image holds,
+  the rest left to the binds.
 * The bind that waits, for code of another system only: the stub and its
   queue, filled by `@Source`, and the jobs for compile, with their
   destinations, `@Source` only keeping the books.

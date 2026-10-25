@@ -3,6 +3,7 @@
 (include "class/array/class.inc")
 (include "./class.inc")
 (include "././str/class.inc")
+(include "class/str/class.inc")
 
 (def-method :sys_load :init)
 	;inputs
@@ -356,39 +357,17 @@
 	(call :sys_str :copy '(:r6 :r1))
 	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
 
-	;get length of function on disk
+	;get length of function on disk, none, or not a file, and it is made
+	;from its VP
 	(call :host_os :pii_stat '(:r6 (:r7 statics_sys_load_stat_buffer)) '(:r0))
-	(vpif '(:r0 /= 0))
-	(vp-label 'funcexit)
-		(vp-xor-rr :r0 :r0)
-		(vp-ret)
-	(endif)
-
-	;test for regular file only
+	(gotoif '(:r0 /= 0) 'from_vp)
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
 	(assign '((:r0 +stat_mode)) '(:r0))
 	(vp-and-cr s_ifmt :r0)
-	(gotoif '(:r0 /= s_ifreg) 'funcexit)
+	(gotoif '(:r0 /= s_ifreg) 'from_vp)
 
 	;ensure space for new function
-	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_block_end) (:r7 statics_sys_load_stat_buffer))
-		'(:r1 :r2 :r0))
-	(vp-sub-rr :r1 :r2)
-	(assign '((:r0 +stat_fsize)) '(:r0))
-	(vpif '(:r2 < :r0))
-		;not enough so allocate new function buffer
-		(call :host_os :pii_mmap '(ld_block_size -1 +mmap_data) '(:r0))
-		(assert '(:r0 /= 0))
-
-		;add to block list for freeing
-		(ln-add-fnode :r7 statics_sys_load_block_flist :r0 :r1)
-
-		;set block pointers for loading
-		(vp-add-cr +ptr_size :r0)
-		(assign '(:r0) '((:r7 statics_sys_load_block_start)))
-		(vp-add-cr (- ld_block_size +ptr_size) :r0)
-		(assign '(:r0) '((:r7 statics_sys_load_block_end)))
-	(endif)
+	(vp-call 'space)
 
 	;open function file
 	(call :host_os :pii_open '(:r6 +file_open_read) '(:r6))
@@ -396,20 +375,21 @@
 	;read into buffer
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
 	(call :host_os :pii_read '(:r6 (:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
-	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
 
 	;close function file
 	(call :host_os :pii_close '(:r6))
 
-	;check loaded length equals file size
+	;check loaded length equals file size, a file another node is writing
+	;is not, and it is made from its VP here too
+	(fn-bind 'sys/statics/statics :r7)
 	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
 	(assign '((:r3 +fn_header_length) (:r2 +stat_fsize)) '(:r0 :r1))
-	(vpif '(:r0 /= :r1))
-		(call :host_os :pii_write_str '(2 "Length field error !"))
-		(call :host_os :pii_exit '(1))
-	(endif)
+	(gotoif '(:r0 /= :r1) 'from_vp)
+	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_block_start)) '(:r3))
 
+(vp-label 'loaded)
 	;add to function list
 	(ln-add-fnode :r7 statics_sys_load_function_flist :r3 :r0)
 
@@ -495,6 +475,102 @@
 	(vp-add-rr :r3 :r0)
 
 	(exit :sys_load :load '(:r0))
+	(vp-ret)
+
+(vp-label 'from_vp)
+	;the native made by this CPU's translator from the VP binary beside
+	;where it would be, <name>.vpb, kept there for the next to load, and
+	;loaded from that as from its file. No VP, or no translation, and it
+	;is not there
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
+	(call :sys_str :length '(:r6) '(_ :r1))
+	(vp-add-rr :r6 :r1)
+	(vp-push :r1)
+	(call :sys_str :copy '(".vpb" :r1) '(_ _))
+	(fn-bind 'sys/statics/statics :r7)
+	(call :host_os :pii_stat '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_stat_buffer)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(vp-pop :r1)
+		(vp-xor-rr :r0 :r0)
+		(vp-cpy-ri-b :r0 :r1 0)
+		(vp-ret)
+	(endif)
+	;read it, [rsp] the buffer, then its length, then where the name ends
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
+	(assign '((:r0 +stat_fsize)) '(:r0))
+	(vp-push :r0)
+	(call :sys_mem :alloc '(:r0) '(:r0 _))
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r7)
+	(call :host_os :pii_open '((:r7 statics_sys_load_name_buffer) +file_open_read) '(:r0))
+	(vp-push :r0)
+	(call :host_os :pii_read `(:r0 (:rsp ,+ptr_size) (:rsp ,(* 2 +ptr_size))) '(_))
+	(vp-pop :r0)
+	(call :host_os :pii_close '(:r0))
+	;the name as it was
+	(assign `((:rsp ,(* 2 +ptr_size))) '(:r1))
+	(vp-xor-rr :r0 :r0)
+	(vp-cpy-ri-b :r0 :r1 0)
+	;translated, the str of it takes the buffer's place
+	(fn-bind (sym (trans-name *cpu* *abi*)) :r3)
+	(vp-xor-rr :r0 :r0)
+	(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r1 :r2))
+	(vp-call-r :r3)
+	(assign '((:rsp 0)) '(:r1))
+	(vp-cpy-ri :r0 :rsp 0)
+	(call :sys_mem :free '(:r1))
+	(vp-pop :r0)
+	(vp-free (* 2 +ptr_size))
+	(vpif '(:r0 = 0))
+		(vp-ret)
+	(endif)
+	(vp-push :r0)
+	;kept, the same bytes whoever makes it
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r0 +str_length)) '(:r2))
+	(vp-lea-i :r0 +str_data :r1)
+	(call :host_os :pii_save '((:r7 statics_sys_load_name_buffer) :r1 :r2) '(_))
+	;into the block as from its file
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:rsp 0) (:r7 statics_sys_load_stat_buffer)) '(:r0 :r1))
+	(assign '((:r0 +str_length)) '(:r0))
+	(assign '(:r0) '((:r1 +stat_fsize)))
+	(vp-call 'space)
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:rsp 0)) '(:r0))
+	(call :sys_mem :copy '((& :r0 +str_data) (:r7 statics_sys_load_block_start) (:r0 +str_length)) '(_ _))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
+	(call :host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 +stat_fsize)))
+	(vp-pop :r0)
+	(call :obj :deref '(:r0))
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_block_start)) '(:r3))
+	(vp-jmp 'loaded)
+
+(vp-label 'space)
+	;room in the block for the length in the stat buffer, a new block if not,
+	;:r7 the statics, trashes :r0-:r2
+	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_block_end) (:r7 statics_sys_load_stat_buffer))
+		'(:r1 :r2 :r0))
+	(vp-sub-rr :r1 :r2)
+	(assign '((:r0 +stat_fsize)) '(:r0))
+	(vpif '(:r2 < :r0))
+		;not enough so allocate new function buffer
+		(call :host_os :pii_mmap '(ld_block_size -1 +mmap_data) '(:r0))
+		(assert '(:r0 /= 0))
+
+		;add to block list for freeing
+		(ln-add-fnode :r7 statics_sys_load_block_flist :r0 :r1)
+
+		;set block pointers for loading
+		(vp-add-cr +ptr_size :r0)
+		(assign '(:r0) '((:r7 statics_sys_load_block_start)))
+		(vp-add-cr (- ld_block_size +ptr_size) :r0)
+		(assign '(:r0) '((:r7 statics_sys_load_block_end)))
+	(endif)
 	(vp-ret)
 
 (def-func-end)

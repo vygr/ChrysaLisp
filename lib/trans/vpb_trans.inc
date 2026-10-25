@@ -66,6 +66,13 @@
 	;the entry, the decode, the passes and the output, and the data
 	(setq *vpb_handlers* (list))
 		(entry '(:r0 :r1))
+		;the loader's call, no Lisp: :r0 = 0, :r1 = the VP binary, :r2 = its
+		;length -> :r0 = 0 else the str of the native
+		(vpif '(:r0 = 0))
+			(vp-cpy-rr :r1 :r0)
+			(vp-cpy-rr :r2 :r1)
+			(vp-jmp 'translate)
+		(endif)
 		(errorif-lisp-args-sig 'error :r1 1)
 		(list-bind-args :r1 '(:r2) '(:obj))
 		(vp-push :r0)

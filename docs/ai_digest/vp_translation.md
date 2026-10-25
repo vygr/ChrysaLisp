@@ -703,6 +703,17 @@ Other users of `emit-translate`, `@Source` and a shader's compile, bind the
 translator as any function is bound, and see a new one when their node is
 started again, as with any VP function made again.
 
+### The Loader's Own
+
+A build keeps each function's VP binary beside its native,
+`obj/<cpu>/<abi>/<name>.vpb`. The loader, `(:sys_load :load)`, links the
+translator of its CPU, so every boot image holds it, and calls it with no
+Lisp: `:r0` 0, `:r1` the VP binary and `:r2` its length, giving back the
+str of the native or 0. A native that is not there, or not as long as it
+says, as when another node is writing it, is translated from its `.vpb`,
+copied into the block as a file would be read, and kept for the next. See
+[code_delivery_design.md](code_delivery_design.md).
+
 ### Install
 
 The VP64 boot image in `snapshot.zip` carries all six translators already
