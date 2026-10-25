@@ -115,8 +115,8 @@ A bind looks for a function in this order:
    is never replaced by one translated.
 3. Its VP on the machine: the loader translates it, in the bind, and places
    it.
-4. Its VP not on the machine, the code of another system: a stub is put in
-   the function list in its place, and the task waits, below.
+4. Its VP not on the machine, the code of another system: the task's
+   `(ffi)` has it made ready first, by `@Source`, and waits for it, below.
 
 Translated in place. The translator of the node's CPU is a function of the
 native image, so a miss whose VP is on the machine is filled where it
@@ -150,25 +150,25 @@ machine after install.
 Only code of another system waits: its VP is at its originator, and comes by
 message, [Sources](#sources).
 
-A stub says "it is coming, hold on". It has the name and a queue of the
-tasks that want it. A second task that misses the same name joins the queue,
-no second request is sent. The request asks the originator's `@Source` for
-the whole chain the task needs in one go, by the hashes, and is answered
-with VP binary, or a native a cache already has. What comes is translated in
-place as above, placed in place of the stub, and the tasks of the queue carry
-on.
+Decided on 2026-10-25: no stub in the loader. A task of another system
+reaches that system's VP only by `(ffi)`, and its `(ffi)` already makes
+the native ready first, `(source-native)`,
+[source_service.md](source_service.md), and that has what the stub was to
+give:
 
-Who may wait. A task waits in its own bind. The kernel task never waits on a
-stub, every task of its node would wait with it: a task to be started from a
-function that is not there yet is started, and it binds, and waits, itself.
-A translation in place is not a wait, the kernel may do it.
+* The task waits in its own bind: it asks its node's `@Source` and waits on
+  its own mailbox, and nothing else of the node waits with it.
+* Closure first: `@Source` works from the originator's manifest, the whole
+  chain, and gives every native the node has not; the task places them all
+  in its server, `(task-place)`, and then binds.
+* Silence dissolves it: the ask gives up when nothing is heard for its
+  time, and the `(ffi)` fails; one after asks again. Nothing waits for ever.
 
-When it goes wrong. On the ideal path the request is answered, the chain is
-placed and the tasks go on, all by messages. Should the answers stop, its
-service gone or a translation failed, a stub with nothing heard for long
-enough dissolves: the binds held on it give 0, an `(ffi)` waiting on one
-throws, and the stub is taken out, so a bind after asks again. Nothing waits
-for ever.
+A stub would add only that two tasks of one system on one node, missing the
+same function at once, sent one request, not two; `@Source` answers one at
+a time and from its cache, so the second costs little. Against that it is
+the loader sending mail, holding a task and timing out, all below Lisp,
+where a fault hangs the node. Not worth it.
 
 ## Sources
 
@@ -286,9 +286,10 @@ emulator on every host, the Pi's had only stale files. The rest:
   the rest left to the binds.
 * VP sent between systems as VP binary, not as text: done, `@Source`'s
   `$` answer, translated where it lands with no parse.
-* The bind that waits, for code of another system only: the stub and its
-  queue, filled by `@Source`, and the jobs for compile, with their
-  destinations, `@Source` only keeping the books.
+* The bind that waits: not needed, `(ffi)`'s `(source-native)` does it, [A
+  Bind That Waits](#a-bind-that-waits).
+* The jobs for compile, with their destinations, `@Source` only keeping the
+  books.
 * Applications: `(ffi)` asks `@Source` on a miss, install and `make` build
   only the baseline, `make apps` and the applications' products in `obj/`
   go.
