@@ -648,20 +648,23 @@
 	(and (defq text (load note)) (eql (trim text (const (char-class " \t\r\n"))) (str (pii-pid)))
 		(pii-remove note)))
 
-(defun storage-join (&optional image size id copies force wait)
-	; (storage-join [image size id copies force wait]) -> :nil | netid
+(defun storage-join (&optional image size id copies force wait stop)
+	; (storage-join [image size id copies force wait stop]) -> :nil | netid
 	;the store of this machine is started, in this session: the one in
 	;that file, storage/store.img if it is not said, made if there is
 	;none, of so many MB. Its id is what is said, or the mesh's own,
 	;(storage-key-id), or store. :nil if another process has it, or it
-	;could not be started. wait is as (storage-start) has it
+	;could not be started, and then it is not claimed. wait and stop are
+	;as (storage-start) has them
 	(setd image +storage_image size +storage_size)
 	(and (storage-claim image)
 		;it is defined after this, so by its name as this is called, not as it is read
-		(apply storage-start (cat (list image :size (* size 1048576) :id (ifn id (ifn (storage-key-id) "store")))
-			(if (and copies (> copies 0)) (list :copies copies) (list))
-			(if force (list :force :t) (list))
-			(if wait (list :wait wait) (list))))))
+		(or (apply storage-start (cat (list image :size (* size 1048576) :id (ifn id (ifn (storage-key-id) "store")))
+				(if (and copies (> copies 0)) (list :copies copies) (list))
+				(if force (list :force :t) (list))
+				(if wait (list :wait wait) (list))
+				(if stop (list :stop stop) (list))))
+			(progn (storage-unclaim image) :nil))))
 
 (defun storage-pinned-by (name &optional svc)
 	; (storage-pinned-by path [svc]) -> :nil | (member ...)
@@ -691,7 +694,8 @@
 
 (defun storage-start (image &rest opts)
 	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
-	;	:group str :member str :tick us :grace us :copies num :node node :wait s]) -> :nil | netid
+	;	:group str :member str :tick us :grace us :copies num :node node :wait s
+	;	:stop mbox]) -> :nil | netid
 	;the service is started on this node, or that one, to keep the store that is in
 	;that file of the host. If there is none there and a size is given,
 	;one is made of that many bytes, the store id, and this system its
@@ -710,6 +714,9 @@
 	;wait is how long it is given to say it is up, 30 s, or :t, as long
 	;as it takes while its task is there, or its node, on another: a big
 	;store is minutes opening, and one given up on comes up all the same.
+	;Mail to stop, a mailbox of the caller, while it waits, and the service
+	;is told to give up its open: the caller is to go, and the store is to
+	;be another's. That mail is left there for the caller to read
 	;
 	;node is the node it is started on, this one if not said. Another
 	;was tried, so that the hashing of a block and its writing were done
@@ -728,10 +735,14 @@
 					(if (defq val (. opts :find key)) (push lines (cat (rest key) " " (if (eql val :t) "1" (str val))))))
 					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
-				(defq wait (ifn (. opts :find :wait) 30) answer :nil)
+				(defq wait (ifn (. opts :find :wait) 30) answer :nil stop (. opts :find :stop))
 				;a task of this node can be asked if it is there, one of
 				;another only if its node is
-				(until (or (setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait))))
+				(until (or (progn
+							(when (and stop (not (mail-poll (list said))) (mail-poll (list stop)))
+								(mail-send task "stop")
+								(setq stop :nil))
+							(setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait)))))
 					(nql wait :t)
 					(if (eql (task-nodeid task) here) (not (mail-validate task))
 						(not (find (task-nodeid task) (lisp-nodes))))))

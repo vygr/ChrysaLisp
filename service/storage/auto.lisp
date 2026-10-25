@@ -31,10 +31,11 @@
 			(if (defq had (storage-service))
 				;it is up already, in this session: asked for by hand
 				(setq svc had image (. said :find :image))
-				;as long as it takes: told to go while it starts, the store
-				;is stopped once it is up, not left up and claimed
+				;as long as it takes, but told to go while it starts, its
+				;open is given up, not finished for a store that is to be
+				;another session's, and it is not claimed
 				(when (setq svc (storage-join (. said :find :image) (. said :find :size)
-						(. said :find :id) (. said :find :copies) :nil :t))
+						(. said :find :id) (. said :find :copies) :nil :t (elem-get select +select_main)))
 					(setq image (. said :find :image))
 					;a machine that travels holds all of its user's area
 					(storage-user-pin svc))))

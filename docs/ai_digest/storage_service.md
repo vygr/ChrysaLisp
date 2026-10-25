@@ -186,6 +186,10 @@ that when its session becomes the machine's member of the mesh, and tells it
 to go when it is that no longer. Only one process can listen on the mesh's
 port, so only one session of a machine is its member, and only that one
 starts the store. A session started alone, a run of the tests, never does.
+Told to go while its store is still opening, a big store is a minute or
+more reading its block folders, it gives the open up there and then, and
+lets go of its claim: the store is to be the next session's, which opens
+it at once, not after this one has finished an open of it for nothing.
 Started by hand in another session, a note beside the image,
 `store.img.member`, says which process has it, `(storage-claim)`.
 
@@ -566,9 +570,9 @@ All in `service/storage/app.inc`. `svc` is a service, `(storage-service)`,
 this system's, if not given.
 
 ```
-(storage-start image [:size :id :name :block :force :group :member :tick :grace :copies :node])
+(storage-start image [:size :id :name :block :force :group :member :tick :grace :copies :node :wait :stop])
 (storage-stop [svc])       (storage-service [name])      (storage-info [svc])
-(storage-join [image size id copies force])
+(storage-join [image size id copies force wait stop])
 
 (storage-put path data [from svc])           (storage-get path [svc])
 (storage-read path offset len [svc])         (storage-stat path [svc])

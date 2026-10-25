@@ -112,8 +112,11 @@
 		id (ifn id "store") name (ifn name +storage_name) group (ifn group +storage_group)
 		member (ifn member (hex-encode (system-id)))
 		;the store that is there. One that can not be read, a file cut
-		;short, is no store, and not the end of the service
-		store (if (/= (age image) 0) (catch (store-open image member) :bad))
+		;short, is no store, and not the end of the service. Nobody knows
+		;this mailbox but its starter till it is up, so mail to it while it
+		;opens is to stop: a big store's open is a minute or more, given
+		;up, not finished, for a store it is to hand over
+		store (if (/= (age image) 0) (catch (store-open image member (# (not (mail-poll (list (task-mbox)))))) :bad))
 		store (if (nql store :bad) store))
 	;or a new one, where there is nothing. Where there is something that
 	;is no store, only if it was said to
@@ -149,6 +152,9 @@
 				(unless msg
 					(if batch (setq batch (progn (exfat-end batch) :nil)))
 					(setq msg (mail-read (task-mbox))))
+				;a stop to its open that came as it was up, (storage-start),
+				;is no request and is let go
+				(while (< (length msg) +storage_rpc_size) (setq msg (mail-read (task-mbox))))
 				(defq reply (getf msg +storage_rpc_reply_id)
 					type (getf msg +storage_rpc_type) body (slice msg +storage_rpc_size -1))
 				(cond
