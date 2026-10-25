@@ -203,14 +203,30 @@
 								(source-make (first (source-entry mode name))))))))
 				same))
 		(when (nempty? missing)
-			(defq data (if self (source-entries mode missing)
-					(source-ask svc (cat "$" mode " " (join missing " "))))
+			(defq data (ifn (if self (source-entries mode missing)
+					(source-ask svc (cat "$" mode " " (join missing " ")))) "")
 				got 0)
-			(each (lambda (bin)
+			;VP binary, or if it is not that, the text of the entries, from a
+			;@Source of before VP binary was sent, a system not at this one's
+			;version. One that is neither, cut short, is none, not the end of
+			;the service
+			(defq made (list))
+			(catch (each (lambda (bin)
 					(when (find (defq name ((get 'vpb-name *source_env*) bin)) missing)
 						(++ got)
-						(push natives (source-make-bin bin (. hashes :find name)))))
-				((get 'vpb-unbundle *source_env*) (ifn data "")))
+						(push made (source-make-bin bin (. hashes :find name)))))
+					((get 'vpb-unbundle *source_env*) data))
+				(setq got -1))
+			(when (/= got (length missing))
+				(setq got 0 made (list))
+				(catch (progn
+						(defq stream (string-stream data))
+						(while (defq entry (first (read stream)))
+							(when (find (first entry) missing)
+								(++ got)
+								(push made (source-make entry)))))
+					(setq got -1)))
+			(setq natives (cat natives made))
 			(if (/= got (length missing)) (setq manifest :nil))))
 	(if manifest (apply (const cat) (cat (list "") natives))))
 
