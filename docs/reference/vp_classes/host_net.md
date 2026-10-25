@@ -105,6 +105,7 @@ inputs
 :r0 = handle
 :r1 = buffer ptr
 :r2 = remaining bytes
+:r3 = lk_node ptr
 outputs
 :r0 = 0 if ok, -1 if error
 trashes

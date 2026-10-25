@@ -1636,6 +1636,9 @@ Usage: tests [options] [path] ...
             from running on each node, while the modules ran.
             One that does not give way for a second or two is
             why a test with a deadline fails now and then.
+        -r --report hex: mail each check, as it is made, to this
+            mailbox. A farmed batch is given it, its farm says
+            where each module is, and a late one's last check.
         -e --leaks: run each module alone, one after another, in
             a task of its own on this node, twice, and fail one that
             leaves the node holding more after its second run than
@@ -1649,7 +1652,8 @@ Usage: tests [options] [path] ...
     A run says how it goes as it goes, always, a line each that
     starts =p=, so it can be watched: plan, then cached or dirty
     for each module and why, start and done as each one runs,
-    start with how long it took the last time it ran, ms, lost
+    start with how long it took the last time it ran, ms, at
+    with a module's last check, once a second as it moves, lost
     for one whose batch had no result, and end.
 
     The modules run in parallel, a batch to a task, over the
