@@ -1,14 +1,12 @@
 (include "lib/asm/func.inc")
-(include "lib/asm/ops.inc")
-(include "lib/trans/vpb_ops.inc")
-(include "sys/mem/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "././asm/ops.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
 
 ;The la64 translator: VP binary, lib/trans/vpb.inc, to native code. Each
 ;VP op has a routine here, e_ and the name of its (emit-)
 
-(include "lib/trans/vpb_trans.inc")
 
 ;registers by la64's numbers
 (defq +la_zero 0 +la_ra 1 +la_sp 3 +la_t1 12 +la_t2 13 +la_t3 14 +la_t4 30 +la_t5 31)
@@ -63,7 +61,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r13, :f0-:f15
 	;info
 	;(vpb-la64 bin) -> :nil | str, a function's VP binary as la64 native
 	;code, :nil if it can not be

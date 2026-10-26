@@ -1,15 +1,13 @@
 (include "lib/asm/func.inc")
-(include "lib/asm/ops.inc")
-(include "lib/trans/vpb_ops.inc")
-(include "sys/mem/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "././asm/ops.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
 
 ;The VP64 translator: VP binary, lib/trans/vpb.inc, to VP64 code. An op of
 ;VP64 is numbered in the order src/host/vp64.cpp has them: here each is by
 ;name, those of 2 or 4 a first of as many
 
-(include "lib/trans/vpb_trans.inc")
 
 (defq +v64_vrsp 15
 	vp64_ops (list
@@ -50,7 +48,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r13, :f0-:f15
 	;info
 	;(vpb-vp64 bin) -> :nil | str, a function's VP binary as VP64 code, :nil
 	;if it can not be

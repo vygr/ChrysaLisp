@@ -9025,6 +9025,15 @@ data. How many bits it took, a wrong frame turns SBR off
 (sbr-round real) -> num
 ```
 
+### sbr-runs
+
+```code
+(sbr-runs table count values kx) -> reals
+
+48 reals from kx: of each of count bands of the table, its value over
+its run, 0 below its first and above its last
+```
+
 ### sbr-sums
 
 ```code
@@ -10871,13 +10880,14 @@ what asked with (storage-send), of several at once
 ### storage-join
 
 ```code
-(storage-join [image size id copies force wait]) -> :nil | netid
+(storage-join [image size id copies force wait stop]) -> :nil | netid
 
 the store of this machine is started, in this session: the one in
 that file, storage/store.img if it is not said, made if there is
 none, of so many MB. Its id is what is said, or the mesh's own,
 (storage-key-id), or store. :nil if another process has it, or it
-could not be started. wait is as (storage-start) has it
+could not be started, and then it is not claimed. wait and stop are
+as (storage-start) has them
 ```
 
 ### storage-key-id
@@ -11275,7 +11285,8 @@ the snapshots there are, and how many objects each is of
 ```code
 (storage-start image [:size bytes :id str :name str :block bytes :force :t
 
-	:group str :member str :tick us :grace us :copies num :node node :wait s]) -> :nil | netid
+	:group str :member str :tick us :grace us :copies num :node node :wait s
+	:stop mbox]) -> :nil | netid
 the service is started on this node, or that one, to keep the store that is in
 that file of the host. If there is none there and a size is given,
 one is made of that many bytes, the store id, and this system its
@@ -11294,6 +11305,9 @@ not heard from before what it kept is kept by others.
 wait is how long it is given to say it is up, 30 s, or :t, as long
 as it takes while its task is there, or its node, on another: a big
 store is minutes opening, and one given up on comes up all the same.
+Mail to stop, a mailbox of the caller, while it waits, and the service
+is told to give up its open: the caller is to go, and the store is to
+be another's. That mail is left there for the caller to read
 
 node is the node it is started on, this one if not said. Another
 was tried, so that the hashing of a block and its writing were done
@@ -11597,10 +11611,12 @@ every block that is kept here, whatever is in it, as the volume has it
 ### store-blocks-found
 
 ```code
-(store-blocks-found store) -> ((name folder) ...)
+(store-blocks-found store [going]) -> ((name folder) ...)
 
 every block that is kept here, whatever is in it, as the volume has
-it, and the folder it is in
+it, and the folder it is in. With going, it is asked before each
+folder is read, the long part of a big store's open, and if it says
+:nil the walk is given up, thrown, :stopped
 ```
 
 ### store-check
@@ -11944,13 +11960,15 @@ writer says it is setting it from
 ### store-open
 
 ```code
-(store-open path | stream member) -> :nil | store
+(store-open path | stream member [going]) -> :nil | store
 
 a store that is there. :nil if the volume is not one. It is opened by
 the member it was made for, or last opened by. Opened by another, a
 machine given a new id, a disk moved to another machine, that member
 takes the place of the one it was, in the members too: there is not
-one more member, and (get :was store) is who it was
+one more member, and (get :was store) is who it was. going is as
+(store-blocks-found) has it: an open given up has written nothing but
+a journal where there was none
 ```
 
 ### store-other-name
@@ -13500,6 +13518,14 @@ every tenth longer still
 (toolbar-states toolbar states)
 
 each button of a toolbar lit, or not, by its state in a list
+```
+
+### trans-name
+
+```code
+(trans-name cpu abi) -> str
+
+the function that translates VP to the code of that CPU and ABI
 ```
 
 ### transfer

@@ -1,14 +1,12 @@
 (include "lib/asm/func.inc")
-(include "lib/asm/ops.inc")
-(include "lib/trans/vpb_ops.inc")
-(include "sys/mem/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "././asm/ops.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
 
 ;The riscv64 translator: VP binary, lib/trans/vpb.inc, to native code. Each
 ;VP op has a routine here, e_ and the name of its (emit-)
 
-(include "lib/trans/vpb_trans.inc")
 
 ;registers by riscv64's numbers
 (defq +rv_zero 0 +rv_ra 1 +rv_sp 2 +rv_t1 31 +rv_t2 30 +rv_t3 29 +rv_t4 27 +rv_t5 26)
@@ -64,7 +62,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r13, :f0-:f15
 	;info
 	;(vpb-riscv64 bin) -> :nil | str, a function's VP binary as riscv64
 	;native code, :nil if it can not be

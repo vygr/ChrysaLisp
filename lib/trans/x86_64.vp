@@ -1,16 +1,14 @@
 (include "lib/asm/func.inc")
-(include "lib/asm/ops.inc")
-(include "lib/trans/vpb_ops.inc")
-(include "sys/mem/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "././asm/ops.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
 
 ;The x86_64 translator: VP binary, lib/trans/vpb.inc, to native code. One
 ;body, made for each ABI, AMD64 and WIN64: they differ only in where a host
 ;call has its args. Each VP op has a routine here, e_ and the name of its
 ;(emit-)
 
-(include "lib/trans/vpb_trans.inc")
 
 ;registers by x86_64's numbers
 (defq +x64_rax 0 +x64_rcx 1 +x64_rdx 2 +x64_rbx 3 +x64_xsp 4)
@@ -40,18 +38,7 @@
 (defun within32? (r l) (range? r -0x80000000 0x7fffffff l))
 
 (defun x64-body (abi name)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = return value object (ptr)
-	;trashes
-	;:r1-:r14
-	;info
-	;(vpb-x86-64 bin) -> :nil | str, a function's VP binary as x86_64 native
-	;code of this ABI, :nil if it can not be
-
+	;the body of each ABI's translator, its doc where it is made below
 	(vpb-driver)
 
 ;;;;;;;;;;;;;;;;;;;
@@ -1779,9 +1766,33 @@
 	(vp-ret))
 
 (def-func (path-to-absolute "./vpb_x86_64_amd64"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r0-:r13, :f0-:f15
+	;info
+	;(vpb-x86-64-amd64 bin) -> :nil | str, a function's VP binary as
+	;x86_64 native code of AMD64, :nil if it can not be
+
 	(x64-body 'AMD64 "vpb-x86-64-amd64")
 (def-func-end)
 
 (def-func (path-to-absolute "./vpb_x86_64_win64"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r0-:r13, :f0-:f15
+	;info
+	;(vpb-x86-64-win64 bin) -> :nil | str, a function's VP binary as
+	;x86_64 native code of WIN64, :nil if it can not be
+
 	(x64-body 'WIN64 "vpb-x86-64-win64")
 (def-func-end)

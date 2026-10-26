@@ -24,8 +24,8 @@
 (case :nil
 (0 (import "lib/debug/frames.inc")))
 
-(import "lib/boot/image.inc")
-(import "lib/crypto/sha256.inc")
+(import "././boot/image.inc")
+(import "././crypto/sha256.inc")
 (ffi "sys/load/lisp_server" task-server)
 (ffi "sys/load/lisp_place" task-place)
 

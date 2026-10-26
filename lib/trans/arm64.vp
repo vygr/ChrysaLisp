@@ -1,9 +1,8 @@
 (include "lib/asm/func.inc")
-(include "lib/asm/ops.inc")
-(include "lib/trans/vpb_ops.inc")
-(include "sys/mem/class.inc")
-(include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "././asm/ops.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
 
 ;The arm64 translator: VP binary, lib/trans/vpb.inc, to native code. Each
 ;VP op has a routine here, e_ and the name of its (emit-), its operands in
@@ -11,7 +10,6 @@
 ;The prepass is here too, (prepass), on the instructions as they are
 ;decoded, before the passes.
 
-(include "lib/trans/vpb_trans.inc")
 
 (defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31)
 
@@ -38,7 +36,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r13, :f0-:f15
 	;info
 	;(vpb-arm64 bin) -> :nil | str, a function's VP binary as arm64 native
 	;code, :nil if it can not be

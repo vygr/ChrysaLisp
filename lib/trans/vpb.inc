@@ -21,9 +21,9 @@
 ; Labels are numbered from 0 in the order they are first seen.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/asm/regs.inc")
-(import "lib/asm/ops.inc")
-(import "lib/trans/vpb_ops.inc")
+(import "././asm/regs.inc")
+(import "././asm/ops.inc")
+(import "./vpb_ops.inc")
 
 ;module
 (env-push)

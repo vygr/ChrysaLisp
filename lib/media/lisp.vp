@@ -2440,7 +2440,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r6, :f0-:f15
+	;:r1-:r6, :f0-:f13, :f15
 	;info
 	;(media-sbr-dots r i out) -> out, the 14 sums of SBR's prediction of a
 	;band of 40 slots, re r and im i, each as (nums-dot) would give it, 0

@@ -22,6 +22,10 @@
     and macros of a class.inc that are used. What such an inline
     needs in turn, its class.inc must include for itself.
 
+    Another .inc a file includes, lib/trans/vpb_trans.inc say,
+    is text put in the file: it is needed if the file uses a
+    name it defines, and what it uses is then needed too.
+
     If no paths given on command line
     then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
@@ -56,23 +60,63 @@
 		("lib/consts/chars.inc" "+char_")
 		("lib/consts/colors.inc" "+argb_")
 		("lib/consts/scodes.inc" "+sc_")))
+(defq +known_files (list quote (cat (list +implicit_file) (map (const first) +require_prefixes))))
 
 ;lookup the file the class was defined in
 ;else just use one they all need
 (defun find-file (cls)
 	(if (defq file (. defs_map :find cls)) file +implicit_file))
 
-;all a file includes, and all those include. Not (files-all-depends), which
-;puts in what the root environment imports: that is there for every file,
-;but a file says what it uses all the same
-(defun depends-of (file)
-	(defq files (list file))
-	(each-mergeable (# (each (lambda (&rest %0) (merge files %0)) (files-depends %0))) files)
+;what a file includes, its (include) lines alone: an (import) is made
+;once, in the environment that first asks for it, so what it defines
+;need not be in the one this file is made in
+(defun includes-of (file)
+	(defq files (list))
+	(when (defq stream (file-stream file))
+		(lines! (# (and (starts-with "(include \q" %0)
+					(push files (path-to-absolute
+						(slice %0 (defq i (inc (find "\q" %0))) (find "\q" %0 i)) file)))
+				:nil)
+			stream))
 	files)
 
-;do the work on a file
-(defun work (file)
-	(defq includes (list) classes (list) requires (list +implicit_file))
+;the kept includes in an order each comes after those whose names it
+;uses, as it is read where it is put: vpb_trans.inc after vpb_ops.inc
+(defun include-order (kept uses defines)
+	(defq out (list) left (range 0 (length kept)))
+	(until (empty? left)
+		(defq i (or (some (lambda (i)
+					(when (notany (lambda (j)
+							(and (/= i j) (some (# (. (elem-get uses i) :find %0)) (elem-get defines j))))
+							left) i))
+				left) (first left)))
+		(push out (elem-get kept i))
+		(setq left (filter (# (/= %0 i)) left)))
+	out)
+
+;all a file includes, and all those include
+(defun depends-of (file)
+	(defq files (list file))
+	(each-mergeable (# (merge files (includes-of %0))) files)
+	files)
+
+;the names a file that is not a class.inc defines at the start of a line,
+;none if it defines them some other way, a struct say
+(defun defines-of (file)
+	(defq names (list))
+	(with-read-lock file
+		(when (defq in_s (file-stream file))
+			(lines! (# (defq input (split %0 +split_class))
+					(and (starts-with "(" %0) (second input)
+						(find (first input) '("defun" "defmacro" "defq" "defcvar"))
+						(push names (second input)))
+					:nil)
+				in_s)))
+	names)
+
+;read a file for what it includes, the classes and the files its words
+;need, and its words
+(defun scan (file includes classes requires words)
 	;The file is read as the highlighter reads it, a token at a time, so
 	;what is in a comment is not looked at, on a line of its own or on
 	;the end of one. The words of a line are its tokens, each taken apart
@@ -104,6 +148,7 @@
 				(("signature")
 					(merge classes (map! (const to-lower) (list input) 1))))
 			(each (lambda (token)
+				(. words :insert token)
 				(cond
 					((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
 					((eql "vec-set" token) (merge classes '(":sys_math")))
@@ -117,11 +162,35 @@
 					;file that defines it is needed, (hmap-search) say
 					((and (not (starts-with ":" token)) (defq inline_file (. defs_map :find token)))
 						(merge requires (list inline_file)))))
-				input) :nil) (file-stream file)))
+				input) :nil) (file-stream file))))
+
+;do the work on a file
+(defun work (file)
+	(defq includes (list) classes (list) requires (list +implicit_file) words (Fset 101))
+	(scan file includes classes requires words)
+	(setq includes (map (# (path-to-absolute %0 file)) includes))
+	;an include not a class.inc, nor of the constants it knows, is text put
+	;in the file: it is needed when the file uses a name it defines, or if
+	;it defines none that can be seen, and then what it uses the file uses.
+	;An apps/ one is kept as it is, it has the app's Lisp in it too
+	(defq kept (list) uses (list) defines (list) more :t)
+	(while more
+		(setq more :nil)
+		(each (lambda (incl)
+				(unless (or (starts-with "apps/" incl) (ends-with "class.inc" incl)
+						(find incl +known_files) (find incl kept))
+					(defq defs (defines-of incl))
+					(when (or (empty? defs) (some (# (. words :find %0)) defs))
+						(defq own (Fset 101))
+						(scan incl (list) classes requires own)
+						(. own :each (# (. words :insert %0)))
+						(push kept incl) (push uses own) (push defines defs)
+						(setq more :t))))
+			includes))
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
-	(defq includes (map (# (path-to-absolute %0 file)) includes)
-		requires (map (# (path-to-absolute %0 file)) requires))
+	(setq requires (map (# (path-to-absolute %0 file)) requires))
+	(merge requires kept)
 	(merge requires (filter (# (starts-with "apps/" %0)) includes))
 	;remove any redundant files !
 	(defq depends_set (Fset 101))
@@ -141,9 +210,12 @@
 		(each (const print) requires)
 		;rewrite the file ?
 		(when opt_w
+			;the classes and constants, then the kept includes in their order
 			(defq requires (cat (list +implicit_file)
 					(reverse (sort (map (# (path-to-relative %0 file))
-						(filter (# (nql %0 +implicit_file)) requires)))))
+						(filter (# (not (or (eql %0 +implicit_file) (find %0 kept)))) requires))))
+					(map (# (path-to-relative %0 file))
+						(filter (# (find %0 requires)) (include-order kept uses defines))))
 				no_includes (memory-stream))
 			(with-write-lock file
 				(when (defq in_s (file-stream file))

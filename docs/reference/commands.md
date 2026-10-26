@@ -747,6 +747,10 @@ Usage: includes [options] [path] ...
     and macros of a class.inc that are used. What such an inline
     needs in turn, its class.inc must include for itself.
 
+    Another .inc a file includes, lib/trans/vpb_trans.inc say,
+    is text put in the file: it is needed if the file uses a
+    name it defines, and what it uses is then needed too.
+
     If no paths given on command line
     then will take paths from stdin.
 ```
