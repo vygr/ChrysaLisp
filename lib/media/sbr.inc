@@ -29,7 +29,7 @@
 (ffi (path-to-absolute "./media_gather") sbr-gather)
 ; (sbr-gather out arrays index) -> out
 (ffi (path-to-absolute "./media_window") sbr-window)
-; (sbr-window v d out at scale n parts dstep vstep doff voff) -> out
+; (sbr-window v new head d out at scale n parts dstep vstep doff voff) -> head
 (ffi (path-to-absolute "./media_sbr_gains") sbr-envelope-gains)
 ; (sbr-envelope-gains ins flags lim kx delta consts out) -> out
 (ffi (path-to-absolute "./media_sbr_predict") sbr-predict)
@@ -261,7 +261,7 @@
 		:w (map (lambda (_) (map (lambda (_) (list (fill (reals) 32 (n2r 0)) (fill (reals) 32 (n2r 0)))) (range 0 32))) (range 0 2))
 		:y (map (lambda (_) (map (lambda (_) (list (cat zeros) (cat zeros))) (range 0 38))) (range 0 2)) :ypos 0
 		:g_temp (map (lambda (_) (fill (reals) 48 (n2r 0))) (range 0 42)) :q_temp (map (lambda (_) (fill (reals) 48 (n2r 0))) (range 0 42))
-		:analysis (fill (reals) 288 (n2r 0)) :synthesis (fill (reals) 1280 (n2r 0))))
+		:analysis (fill (reals) 288 (n2r 0)) :synthesis (fill (reals) 2048 (n2r 0)) :synthesis_head 0))
 
 (defun sbr-new (rate &optional ps)
 	; (sbr-new rate [ps]) -> sbr
@@ -861,16 +861,18 @@
 	;1/2) less than (n + 1/2)(k + 1/2), so a is the DCT-IV of 64 of the re
 	;over -64, b the DST-IV of the im, a DCT-IV of it backwards by -1 to
 	;the n, over -64. The window's sum native, lib/media/lisp.vp
-	;media_window, as MP3's
+	;media_window, as MP3's: v a ring of 2048, its newest 1280 used, the
+	;128 of a slot put in front of them, nothing moved
 	(defq tables (. +sbr :find :dct64) tw (first tables) rev (second tables)
 		alt (. +sbr :find :alt) win (. +sbr :find :window) a64 (/ (n2r 1) (n2r 64))
-		v (. ch :find :synthesis) zero (n2r 0) out (fill (reals) 2048 zero) one (n2r 1))
+		v (. ch :find :synthesis) head (. ch :find :synthesis_head)
+		zero (n2r 0) out (fill (reals) 2048 zero) one (n2r 1))
 	(each! (lambda ((re im))
 			(defq a (sbr-dct4 re tw rev (cat re)) b (nums-mul (sbr-dct4 (slice im 64 0) tw rev (cat im)) alt))
-			(setq v (cat (nums-scale (nums-sub b a) a64) (slice (nums-scale (nums-add a b) a64) 64 0) (slice v 0 1152)))
-			(sbr-window v win out (* 64 (!)) one 64 5 128 256 64 192))
+			(setq head (sbr-window v (cat (nums-scale (nums-sub b a) a64) (slice (nums-scale (nums-add a b) a64) 64 0))
+				head win out (* 64 (!)) one 64 5 128 256 64 192)))
 		(list slots) 0 32)
-	(. ch :insert :synthesis v)
+	(. ch :insert :synthesis_head head)
 	out)
 
 (defun sbr-apply (sbr kind chans &optional alone)

@@ -71,7 +71,7 @@
 ;	(media-matvec matrix rows cols x from out) -> out
 ;	(media-mp3-lines reader lines end regions quad) -> lines
 ;	(media-dequant out q from to pow gain) -> out
-;	(media-mp3-window v d out at scale) -> out
+;	(media-window v new head d out at scale n parts dstep vstep doff voff) -> head
 ;	(media-mp3-alias x bands cs ca) -> x
 
 (defun mp3-pi ()
@@ -422,30 +422,32 @@
 					out)))
 		(range 0 32)))
 
-(defun mp3-synth (subbands v pcm at)
-	; (mp3-synth subbands v pcm at) -> v
+(defun mp3-synth (subbands v head pcm at)
+	; (mp3-synth subbands v head pcm at) -> head
 	;the polyphase filterbank: for each of the 18 times, the 32 subbands'
-	;samples into the 64 of the matrix, on the front of the 1024 of v, and
-	;of the window D over 16 of them 32 samples, into pcm from at
+	;samples into the 64 of the matrix, put in front of the 1024 of v, a
+	;ring from head, and of the window D over 16 of them 32 samples, into
+	;pcm from at
 	(defq rows (. +mp3 :find :synth) d (. +mp3 :find :d) k (n2r 32768) column (. +mp3 :find :column)
 		s (fill (reals) 32 (n2r 0)) m (fill (reals) 64 (n2r 0)))
 	(each (lambda (t)
 			;the subbands' samples of time t, native, lib/media/lisp.vp media_gather
 			(column s subbands t)
-			(setq v (cat ((. +mp3 :find :matvec) rows 64 32 s 0 m) (slice v 0 960)))
-			((. +mp3 :find :window) v d pcm (+ at (* 32 t)) k 32 8 64 128 32 96))
+			(setq head ((. +mp3 :find :window) v ((. +mp3 :find :matvec) rows 64 32 s 0 m) head
+				d pcm (+ at (* 32 t)) k 32 8 64 128 32 96)))
 		(range 0 18))
-	v)
+	head)
 
 (defun mp3-decoder ()
 	; (mp3-decoder) -> decoder
 	;what goes from frame to frame: the reservoir of main data, of each
-	;channel its scale factors, the halves of its IMDCT and its v, and the
-	;books made native tables, made the once by (mp3-tables)
+	;channel its scale factors, the halves of its IMDCT, and its v and the
+	;head of that ring, and the books made native tables, made the once by
+	;(mp3-tables)
 	(mp3-tables)
 	(scatter (Emap) :reservoir "" :scales (list (list) (list))
 		:overlap (map (lambda (_) (map (lambda (_) (fill (reals) 18 (n2r 0))) (range 0 32))) (range 0 2))
-		:v (map (lambda (_) (fill (reals) 1024 (n2r 0))) (range 0 2))
+		:v (map (lambda (_) (fill (reals) 1024 (n2r 0))) (range 0 2)) :vhead (list 0 0)
 		:books (. +mp3 :find :books) :quads (. +mp3 :find :quads)))
 
 (defun mp3-frame (d frame)
@@ -483,8 +485,9 @@
 					(each (lambda (x g ch)
 							(mp3-reorder x g sri)
 							(mp3-alias x g)
-							(elem-set (. d :find :v) ch
-								(mp3-synth (mp3-imdct x g (elem-get (. d :find :overlap) ch)) (elem-get (. d :find :v) ch) (elem-get pcm ch) (* 576 gr))))
+							(elem-set (. d :find :vhead) ch
+								(mp3-synth (mp3-imdct x g (elem-get (. d :find :overlap) ch)) (elem-get (. d :find :v) ch)
+									(elem-get (. d :find :vhead) ch) (elem-get pcm ch) (* 576 gr))))
 						xs chans (range 0 nch)))
 				grans)))
 	(if (= nch 1) (list (first pcm) (first pcm)) pcm))

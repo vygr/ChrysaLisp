@@ -1978,43 +1978,83 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r1-:r14, :f0-:f15
 	;info
-	;(media-window v d out at scale n parts dstep vstep doff voff) -> out,
-	;the last stage of a polyphase filterbank, MP3's and SBR's, n samples
-	;into out from at: each j the sum over i of parts of d dstep i + j by v
-	;vstep i + j and d dstep i + doff + j by v vstep i + voff + j, by scale
-
-	(vp-rdef (v d out j i p q n parts ds vs dof vof)
-		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	;(media-window v new head d out at scale n parts dstep vstep doff voff)
+	;-> head, the last stage of a polyphase filterbank, MP3's and SBR's. v
+	;is a ring, its length a power of two, its newest at head: new goes in
+	;front of it, by :sys_mem :copy_to_ring, nothing moved, and its new head
+	;is given back. Then n samples into out from at: each j the sum over i
+	;of parts of d dstep i + j by v vstep i + j and d dstep i + doff + j by v
+	;vstep i + voff + j, by scale, v from the head, round the ring
 
 	(entry `(:r0 :r1))
 
-	(errorif-lisp-args-sig 'error :r1 11)
+	(errorif-lisp-args-sig 'error :r1 13)
 
+	;the args on the stack, :r14 at 0 to :r2 at 96, this above
 	(vp-push :r0)
-	(list-bind-args :r1 `(,v ,d ,out ,j ,i ,n ,parts ,ds ,vs ,dof ,vof)
-		'(:obj :obj :obj :num :obj :num :num :num :num :num :num))
-	(vp-push out)
-	(vp-cpy-if i +num_value :f3)
-	(assign `((,v +array_begin) (,d +array_begin) (,out +array_begin)) `(,v ,d ,out))
-	(vp-shl-cr 3 j)
-	(vp-add-rr j out)
-	(each (# (vp-shl-cr 3 %0)) (list n ds vs dof vof))
-	(vp-xor-rr j j)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :num :obj :obj :num :obj))
+	(list-bind-args :r1 '(:r9 :r10 :r11 :r12 :r13 :r14) '(& & & & & & & :num :num :num :num :num :num))
+	(vp-push :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+
+	;new in front of the newest, the head back by its length round the ring
+	(assign '((:rsp 96) (:rsp 88) (:rsp 80)) '(:r6 :r9 :r11))
+	(assign '((:r6 +array_length) (:r6 +array_begin) (:r9 +array_length) (:r9 +array_begin))
+		'(:r7 :r8 :r10 :r9))
+	(vp-sub-rr :r10 :r11)
+	(vp-lea-i :r7 -1 :r12)
+	(vp-and-rr :r12 :r11)
+	(assign '(:r11) '((:rsp 80)))
+	(vp-cpy-rr :r9 :r0)
+	(vp-cpy-rr :r11 :r1)
+	(vp-shl-cr 3 :r1)
+	(vp-add-rr :r8 :r1)
+	(vp-cpy-rr :r10 :r2)
+	(vp-shl-cr 3 :r2)
+	(vp-cpy-rr :r7 :r3)
+	(vp-shl-cr 3 :r3)
+	(vp-cpy-rr :r8 :r4)
+	(call :sys_mem :copy_to_ring '(:r0 :r1 :r2 :r3 :r4) '(_ _))
+
+	;the window, each v by its offset from the head masked to the ring
+	(vp-rdef (vb d out end jv i p q parts ds vs dof vof mask tmp)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(vp-cpy-rr :r7 mask)
+	(vp-shl-cr 3 mask)
+	(vp-sub-cr 1 mask)
+	(vp-cpy-rr :r8 vb)
+	(vp-cpy-rr :r11 jv)
+	(vp-shl-cr 3 jv)
+	(assign '((:rsp 48)) `(,tmp))
+	(vp-cpy-if tmp +num_value :f3)
+	(assign '((:rsp 72) (:rsp 64) (:rsp 56) (:rsp 40)) `(,d ,out ,i ,end))
+	(assign `((,d +array_begin) (,out +array_begin)) `(,d ,out))
+	(vp-shl-cr 3 i)
+	(vp-add-rr i out)
+	(vp-shl-cr 3 end)
+	(vp-add-rr out end)
+	(assign '((:rsp 32) (:rsp 24) (:rsp 16) (:rsp 8) (:rsp 0)) `(,parts ,ds ,vs ,dof ,vof))
+	(each (# (vp-shl-cr 3 %0)) (list ds vs dof vof))
 	(loop-start)
-		(vp-xor-rr q q)
-		(vp-cvt-rf q :f0)
-		(vp-lea-d d j p)
-		(vp-lea-d v j q)
+		(vp-xor-rr tmp tmp)
+		(vp-cvt-rf tmp :f0)
+		(vp-cpy-rr d p)
+		(vp-cpy-rr jv q)
 		(vp-cpy-rr parts i)
 		(loop-start)
 			(vp-cpy-if p 0 :f1)
-			(vp-cpy-if q 0 :f2)
+			(vp-cpy-rr q tmp)
+			(vp-and-rr mask tmp)
+			(vp-add-rr vb tmp)
+			(vp-cpy-if tmp 0 :f2)
 			(vp-mul-ff :f2 :f1)
 			(vp-add-ff :f1 :f0)
 			(vp-cpy-df p dof :f1)
-			(vp-cpy-df q vof :f2)
+			(vp-lea-d q vof tmp)
+			(vp-and-rr mask tmp)
+			(vp-add-rr vb tmp)
+			(vp-cpy-if tmp 0 :f2)
 			(vp-mul-ff :f2 :f1)
 			(vp-add-ff :f1 :f0)
 			(vp-add-rr ds p)
@@ -2024,18 +2064,22 @@
 		(vp-mul-ff :f3 :f0)
 		(vp-cpy-fi :f0 out 0)
 		(vp-add-cr +long_size out)
-		(vp-add-cr +long_size j)
-	(loop-until `(,j = ,n))
-	(vp-pop :r1)
-	(class/obj/ref :r1 :r2)
+		(vp-add-cr +long_size d)
+		(vp-add-cr +long_size jv)
+	(loop-until `(,out = ,end))
+
+	;the new head
+	(assign '((:rsp 80)) '(:r0))
+	(call :num :create '(:r0) '(:r1))
+	(vp-free (* 13 +ptr_size))
 	(vp-pop :r0)
 	(exit `(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(media-window v d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :num :real :num :num :num :num :num :num)))
+	(jump :lisp :repl_error '(:r1 "(media-window v new head d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
+	(signature '(:reals :reals :num :reals :reals :num :real :num :num :num :num :num :num)))
 
 (def-func-end)
 

@@ -6244,8 +6244,9 @@ canvas of its own, by a decoder of its own; a scale is not taken
 (mp3-decoder) -> decoder
 
 what goes from frame to frame: the reservoir of main data, of each
-channel its scale factors, the halves of its IMDCT and its v, and the
-books made native tables, made the once by (mp3-tables)
+channel its scale factors, the halves of its IMDCT, and its v and the
+head of that ring, and the books made native tables, made the once by
+(mp3-tables)
 ```
 
 ### mp3-frame
@@ -6477,11 +6478,12 @@ bytes
 ### mp3-synth
 
 ```code
-(mp3-synth subbands v pcm at) -> v
+(mp3-synth subbands v head pcm at) -> head
 
 the polyphase filterbank: for each of the 18 times, the 32 subbands'
-samples into the 64 of the matrix, on the front of the 1024 of v, and
-of the window D over 16 of them 32 samples, into pcm from at
+samples into the 64 of the matrix, put in front of the 1024 of v, a
+ring from head, and of the window D over 16 of them 32 samples, into
+pcm from at
 ```
 
 ### mp3-tables
@@ -9062,7 +9064,8 @@ the re by cos and the im by sin of pi (k + 1/2)(2n - 255)/128, over
 1/2) less than (n + 1/2)(k + 1/2), so a is the DCT-IV of 64 of the re
 over -64, b the DST-IV of the im, a DCT-IV of it backwards by -1 to
 the n, over -64. The window's sum native, lib/media/lisp.vp
-media_window, as MP3's
+media_window, as MP3's: v a ring of 2048, its newest 1280 used, the
+128 of a slot put in front of them, nothing moved
 ```
 
 ### sbr-tables
