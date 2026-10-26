@@ -119,6 +119,13 @@
 	;are, till there are this many bytes of them
 	+exfat_pending_most 4194304)
 
+(defun exfat-raw-write (vol offset data)
+	;whole sectors to the device
+	(task-breathe)
+	(defq stream (get :stream vol))
+	(stream-seek stream offset 0)
+	(write-blk stream data))
+
 (defun exfat-pending-write (vol)
 	; (exfat-pending-write vol) -> vol
 	;the writes of whole blocks that wait, to the device, in the order
@@ -155,13 +162,6 @@
 	(defq stream (get :stream vol))
 	(stream-seek stream offset 0)
 	(and (defq data (read-blk stream len)) (= (length data) len) data))
-
-(defun exfat-raw-write (vol offset data)
-	;whole sectors to the device
-	(task-breathe)
-	(defq stream (get :stream vol))
-	(stream-seek stream offset 0)
-	(write-blk stream data))
 
 (defun exfat-flush (vol)
 	; (exfat-flush vol) -> vol

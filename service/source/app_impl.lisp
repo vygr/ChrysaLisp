@@ -25,6 +25,15 @@
 						(if entry (list entry (cat dir file))))))
 			(first (defq listed (dir-list dir))) (second listed))))
 
+(defun source-vp-links (entry)
+	; (source-vp-links entry) -> (name ...)
+	;the functions a function calls, from its VP, with nothing translated:
+	;the strings after the label its header gives for where its paths begin
+	(defq code (second entry)
+		paths (elem-get (some (# (and (list? %0) (eql (first %0) 'emit-short) %0)) code) 4)
+		at (some (# (and (list? %0) (eql (first %0) 'emit-label) (eql (second (second %0)) paths) (!))) code))
+	(map (const second) (filter! (# (and (list? %0) (eql (first %0) 'emit-string))) code (inc at) -1)))
+
 (defun source-known (mode name)
 	; (source-known mode name) -> :nil | (hash links)
 	;the hash of a function's VP as this system built it, the text of its
@@ -100,15 +109,6 @@
 	(defq out ((get 'vp-translate-bin *source_env*) bin))
 	(if (source-caching?) (save out (source-cache hash)))
 	out)
-
-(defun source-vp-links (entry)
-	; (source-vp-links entry) -> (name ...)
-	;the functions a function calls, from its VP, with nothing translated:
-	;the strings after the label its header gives for where its paths begin
-	(defq code (second entry)
-		paths (elem-get (some (# (and (list? %0) (eql (first %0) 'emit-short) %0)) code) 4)
-		at (some (# (and (list? %0) (eql (first %0) 'emit-label) (eql (second (second %0)) paths) (!))) code))
-	(map (const second) (filter! (# (and (list? %0) (eql (first %0) 'emit-string))) code (inc at) -1)))
 
 (defun source-manifest (mode name)
 	; (source-manifest mode name) -> :nil | text
@@ -262,6 +262,24 @@
 	;what a task here is given of those files of that system, as kept
 	(cat "y" (source-pack (map (# (cat (list %0) (. *source_kept* :find (cat svc " " %0)))) paths))))
 
+(defun source-count (what)
+	;one more of what this service has done, (source-stats)
+	(. *source_counts* :insert what (inc (ifn (. *source_counts* :find what) 0))))
+
+(defun source-tell (svc request)
+	;a request to the @Source of another system, its answer to come back
+	(source-count :told)
+	(mail-send (hex-decode svc) (cat (setf-> (str-alloc +source_rpc_size)
+		(+source_rpc_reply_id *source_back*)) request)))
+
+(defun source-done (key)
+	;the file of the key and all it imports are kept, the tasks that wait
+	;for it are given them
+	(defq at (find " " key) svc (slice key 0 at) tree (. *source_known* :find key))
+	(when (defq out (. *source_out* :find key))
+		(. *source_out* :erase key)
+		(each (# (mail-send %0 (if tree (source-bundle svc tree) "n"))) (second out))))
+
 (defun source-fetch (args)
 	; (source-fetch args) -> :nil | answer
 	;a file of another system for a task here, "%sid svc path", and all it
@@ -321,24 +339,6 @@
 								(source-tell svc (cat "&" key (ascii-char 10) path))))))))
 		(. *source_out* :tolist))
 	(if (nempty? svc) (. *source_svcs* :insert sid svc)))
-
-(defun source-count (what)
-	;one more of what this service has done, (source-stats)
-	(. *source_counts* :insert what (inc (ifn (. *source_counts* :find what) 0))))
-
-(defun source-tell (svc request)
-	;a request to the @Source of another system, its answer to come back
-	(source-count :told)
-	(mail-send (hex-decode svc) (cat (setf-> (str-alloc +source_rpc_size)
-		(+source_rpc_reply_id *source_back*)) request)))
-
-(defun source-done (key)
-	;the file of the key and all it imports are kept, the tasks that wait
-	;for it are given them
-	(defq at (find " " key) svc (slice key 0 at) tree (. *source_known* :find key))
-	(when (defq out (. *source_out* :find key))
-		(. *source_out* :erase key)
-		(each (# (mail-send %0 (if tree (source-bundle svc tree) "n"))) (second out))))
 
 (defun source-fetched (msg)
 	;an answer of another system. &: the hash of each file of the tree,

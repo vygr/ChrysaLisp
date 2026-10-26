@@ -332,13 +332,6 @@
 			(and start (< start n) (push out (list (logand (code s 1 start) 0x1f) start n)))))
 	out)
 
-(defun avi-avcc-sps (avcc)
-	; (avi-avcc-sps avcc) -> :nil | rbsp
-	;the first SPS of an avcC, its bytes after its header
-	(when (and (> (length avcc) 8) (> (logand (code avcc 1 5) 0x1f) 0))
-		(defq size (code-be avcc 2 6))
-		(if (<= (+ 8 size) (length avcc)) (avi-rbsp avcc 8 (+ 8 size)))))
-
 (defun avi-rbsp (s at end)
 	; (avi-rbsp str at end) -> str
 	;a NAL's bytes after its header, each 3 that follows two 0s taken out
@@ -352,6 +345,13 @@
 		(setq i (inc i)))
 	(push parts (slice s from end))
 	(apply (const cat) parts))
+
+(defun avi-avcc-sps (avcc)
+	; (avi-avcc-sps avcc) -> :nil | rbsp
+	;the first SPS of an avcC, its bytes after its header
+	(when (and (> (length avcc) 8) (> (logand (code avcc 1 5) 0x1f) 0))
+		(defq size (code-be avcc 2 6))
+		(if (<= (+ 8 size) (length avcc)) (avi-rbsp avcc 8 (+ 8 size)))))
 
 (defun avi-ue (in)
 	; (avi-ue reader) -> num

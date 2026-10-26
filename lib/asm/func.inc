@@ -160,15 +160,42 @@
 	;the Lisp that made it left as a call of a function, (+ 24 1) with +
 	;the function and not the symbol, would be written #add: it is worked
 	;out. One with anything but numbers in it can not be, and is thrown
-	(cond
-		((not (list? form)) form)
-		((empty? form) form)
-		((func? (first form))
-			(defq args (if (> (length form) 1) (map! vp-portable (list form) 1 -1) (list)))
-			(if (every (const num?) args)
-				(eval (cat (list (first form)) args))
-				(throw "VP not portable, a call of a function in an instruction !" form)))
-		((map vp-portable form))))
+	;each list of it copied, with the list it is in and where, outer ones
+	;first, then each worked out after all those in it, from the last
+	(if (list? form)
+		(progn
+			(defq lists (list (list (defq top (cat form)) :nil 0)) i -1)
+			(while (< (++ i) (length lists))
+				(defq l (first (elem-get lists i)))
+				(each (lambda (e)
+						(when (list? e)
+							(elem-set l (!) (defq c (cat e)))
+							(push lists (list c l (!)))))
+					l))
+			(reach (lambda ((l up at))
+					(when (and (nempty? l) (func? (first l)))
+						(unless (some! (const num?) (list l) :t 1)
+							(throw "VP not portable, a call of a function in an instruction !" l))
+						(setq l (eval l)))
+					(if up (elem-set up at l) (setq top l)))
+				lists)
+			top)
+		form))
+
+(defun vp-code-text (entry)
+	; (vp-code-text entry) -> str
+	;an entry's instructions and the forms after them, as text that reads
+	;back the same: a constant the Lisp left as a call is worked out
+	(cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
+			(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
+			(second entry)) "\n") ")"
+		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
+
+(defun vp-entry-text (entry)
+	; (vp-entry-text entry) -> str
+	;an entry as a bundle in obj/vp/<mode>/ has it
+	(cat (const (cat "(" (ascii-char 34))) (first entry) (const (cat (ascii-char 34) "\n"))
+		(vp-code-text entry) ")\n"))
 
 (defun def-func-end ()
 	(env-pop)
@@ -200,21 +227,6 @@
 	(if *kept* (push entry (cat '(kept) *kept*)))
 	(push *build_entries* entry)
 	(if *build_emit* (print (vp-code-text entry))))
-
-(defun vp-code-text (entry)
-	; (vp-code-text entry) -> str
-	;an entry's instructions and the forms after them, as text that reads
-	;back the same: a constant the Lisp left as a call is worked out
-	(cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
-			(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
-			(second entry)) "\n") ")"
-		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
-
-(defun vp-entry-text (entry)
-	; (vp-entry-text entry) -> str
-	;an entry as a bundle in obj/vp/<mode>/ has it
-	(cat (const (cat "(" (ascii-char 34))) (first entry) (const (cat (ascii-char 34) "\n"))
-		(vp-code-text entry) ")\n"))
 
 (defun abort (&optional s)
 	;no ret as that screws up the tracer !

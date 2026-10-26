@@ -18,6 +18,67 @@
 ;more than are written ahead
 (defq +sound_ahead 0.25 +sound_kept 32)
 
+(defun sound-track (reel)
+	; (sound-track reel) -> :nil | track
+	;the first sound track of a reel there is a decoder for here
+	(if (defq tracks (. reel :find :tracks))
+		(some (# (and (eql (. %0 :find :kind) "soun")
+			(find (. %0 :find :codec) '("mp4a" "ec-3" "ac-3" "mp3" "flac" "pcm" "adpcm_ms" "adpcm_ima")) %0)) tracks)))
+
+(defun sound-avi (reel track)
+	; (sound-avi reel track) -> :nil | sound
+	;the sound of an AVI that is not MP3: its chunks one stream, (avi-track-stream),
+	;cut into packets of a size, each read where it is. PCM of 16 bits and two
+	;channels is written as it is, the rest made reals. AC-3 its frames,
+	;each of the size its first says
+	(defq in (avi-track-stream reel track) bytes (stream-seek in 0 2) codec (. track :find :codec)
+		channels (max 1 (. track :find :channels)) align (max 1 (. track :find :block_align))
+		bits (. track :find :bits) extra (ifn (. track :find :extra) "")
+		;of a block, the samples a block it says, or worked out from its size
+		per (if (>= (length extra) 2) (code extra 2 0) 0)
+		sound (scatter (Emap) :stream (. reel :find :stream) :reel reel :in in
+			:start 0 :handle :nil :written 0 :left 0 :time 0.0 :before 0 :delay 0
+			:rate (. track :find :sample_rate) :channels channels :bits bits
+			:s16 (ffi "lib/media/media_s16")
+			:read (lambda (sound n)
+				(stream-seek (. sound :find :in) (* n (. sound :find :packet)) 0)
+				(read-blk (. sound :find :in) (. sound :find :packet)))))
+	(cond
+		((eql codec "pcm")
+			(scatter sound :size 1024 :packet (* 1024 align)
+				:make (lambda (sound) sound)
+				:decode (lambda (sound packet)
+					(cond
+						((not packet) (list (defq quiet (fill (reals) 1024 (n2r 0))) quiet))
+						((and (= (. sound :find :bits) 16) (= (. sound :find :channels) 2)) packet)
+						((adpcm-pcm packet (. sound :find :channels) (. sound :find :bits)))))))
+		((eql codec "adpcm_ms")
+			(scatter sound :size (if (> per 0) per (+ 2 (/ (* 2 (- align (* 7 channels))) channels))) :packet align
+				:coefs (adpcm-ms-coefs extra)
+				:make (lambda (sound) sound)
+				:decode (lambda (sound packet)
+					(if packet (adpcm-ms-block packet (. sound :find :channels) (. sound :find :coefs))
+						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
+		((eql codec "adpcm_ima")
+			(scatter sound :size (if (> per 0) per (inc (/ (* 2 (- align (* 4 channels))) channels))) :packet align
+				:make (lambda (sound) sound)
+				:decode (lambda (sound packet)
+					(if packet (adpcm-ima-block packet (. sound :find :channels))
+						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
+		((eql codec "ac-3")
+			(stream-seek in 0 0)
+			(when (defq head (ac3-header (bits-of (ifn (read-blk in 16) ""))))
+				(scatter sound :rate (. head :find :rate) :size (* 256 (. head :find :blocks)) :delay 256 :head head
+					:packet (. head :find :size)
+					:make (lambda (sound) (ac3-decoder (. sound :find :head)))
+					:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet)))))))
+	;how many packets, the last may be short
+	(when (. sound :find :make)
+		(. sound :insert :track (scatter (Emap) :kind "soun" :codec codec :start 0
+			:samples (/ (+ bytes (dec (. sound :find :packet))) (. sound :find :packet))))
+		sound))
+
+
 (defun sound-of (reel)
 	; (sound-of reel) -> :nil | sound
 	;the sound track of a film of an mp4 that there is a decoder for here:
@@ -26,18 +87,17 @@
 	;and E-AC-3, of 1536, a block of 256 late. Of an MP3 its frames, of
 	;1152 or 576, as they are heard, the packets of its reel, and those
 	;before one decoded first fill the reservoir. Each made two channels
-	(when (defq tracks (. reel :find :tracks))
-		(defq track (some (# (and (eql (. %0 :find :kind) "soun")
-			(find (. %0 :find :codec) '("mp4a" "ec-3" "ac-3" "mp3" "flac" "pcm" "adpcm_ms" "adpcm_ima")) %0)) tracks))
+	;of an AVI, its sound one stream of its chunks: an MP3's frames found in
+	;it as in a file of MP3, a reel of its own, the rest packets of a size
+	(and (defq track (sound-track reel)) (. track :find :avi)
+		(eql (. track :find :codec) "mp3")
+		(setq track (when (defq sub (mp3-reel (avi-track-stream reel track)))
+			(. sub :insert :kind (some (# (if (eql (first %0) ".mp3") %0)) *reel_kinds*))
+			(setq reel sub)
+			(sound-track sub))))
+	(when track
 		(cond
-			;of an AVI, its sound one stream of its chunks: an MP3's frames
-			;found in it as in a file of MP3, the rest packets of a size
-			((and track (. track :find :avi) (eql (. track :find :codec) "mp3"))
-				(defq sub (mp3-reel (avi-track-stream reel track)))
-				(when sub
-					(. sub :insert :kind (some (# (if (eql (first %0) ".mp3") %0)) *reel_kinds*))
-					(sound-of sub)))
-			((and track (. track :find :avi)) (sound-avi reel track))
+			((. track :find :avi) (sound-avi reel track))
 			(track
 			(unless (find (. track :find :codec) '("mp3" "flac")) (mp4-tables track))
 			(defq sound (scatter (Emap) :track track :stream (. reel :find :stream) :reel reel
@@ -99,58 +159,6 @@
 						:make (lambda (sound) (ac3-decoder (. sound :find :head)))
 						:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet)))))))))))
 
-(defun sound-avi (reel track)
-	; (sound-avi reel track) -> :nil | sound
-	;the sound of an AVI that is not MP3: its chunks one stream, (avi-track-stream),
-	;cut into packets of a size, each read where it is. PCM of 16 bits and two
-	;channels is written as it is, the rest made reals. AC-3 its frames,
-	;each of the size its first says
-	(defq in (avi-track-stream reel track) bytes (stream-seek in 0 2) codec (. track :find :codec)
-		channels (max 1 (. track :find :channels)) align (max 1 (. track :find :block_align))
-		bits (. track :find :bits) extra (ifn (. track :find :extra) "")
-		;of a block, the samples a block it says, or worked out from its size
-		per (if (>= (length extra) 2) (code extra 2 0) 0)
-		sound (scatter (Emap) :stream (. reel :find :stream) :reel reel :in in
-			:start 0 :handle :nil :written 0 :left 0 :time 0.0 :before 0 :delay 0
-			:rate (. track :find :sample_rate) :channels channels :bits bits
-			:s16 (ffi "lib/media/media_s16")
-			:read (lambda (sound n)
-				(stream-seek (. sound :find :in) (* n (. sound :find :packet)) 0)
-				(read-blk (. sound :find :in) (. sound :find :packet)))))
-	(cond
-		((eql codec "pcm")
-			(scatter sound :size 1024 :packet (* 1024 align)
-				:make (lambda (sound) sound)
-				:decode (lambda (sound packet)
-					(cond
-						((not packet) (list (defq quiet (fill (reals) 1024 (n2r 0))) quiet))
-						((and (= (. sound :find :bits) 16) (= (. sound :find :channels) 2)) packet)
-						((adpcm-pcm packet (. sound :find :channels) (. sound :find :bits)))))))
-		((eql codec "adpcm_ms")
-			(scatter sound :size (if (> per 0) per (+ 2 (/ (* 2 (- align (* 7 channels))) channels))) :packet align
-				:coefs (adpcm-ms-coefs extra)
-				:make (lambda (sound) sound)
-				:decode (lambda (sound packet)
-					(if packet (adpcm-ms-block packet (. sound :find :channels) (. sound :find :coefs))
-						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
-		((eql codec "adpcm_ima")
-			(scatter sound :size (if (> per 0) per (inc (/ (* 2 (- align (* 4 channels))) channels))) :packet align
-				:make (lambda (sound) sound)
-				:decode (lambda (sound packet)
-					(if packet (adpcm-ima-block packet (. sound :find :channels))
-						(list (defq quiet (fill (reals) (. sound :find :size) (n2r 0))) quiet)))))
-		((eql codec "ac-3")
-			(stream-seek in 0 0)
-			(when (defq head (ac3-header (bits-of (ifn (read-blk in 16) ""))))
-				(scatter sound :rate (. head :find :rate) :size (* 256 (. head :find :blocks)) :delay 256 :head head
-					:packet (. head :find :size)
-					:make (lambda (sound) (ac3-decoder (. sound :find :head)))
-					:decode (lambda (decoder packet) (ac3-stereo decoder (ac3-frame decoder packet)))))))
-	;how many packets, the last may be short
-	(when (. sound :find :make)
-		(. sound :insert :track (scatter (Emap) :kind "soun" :codec codec :start 0
-			:samples (/ (+ bytes (dec (. sound :find :packet))) (. sound :find :packet))))
-		sound))
 
 (defun sound-stop (sound)
 	; (sound-stop sound)

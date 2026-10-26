@@ -27,14 +27,14 @@
 
 ;no index: a file cut short, or whose idx1 is lost, read a chunk at a time,
 ;the same chunks, and of MPEG-4 the keys from its own bytes
-(defun av-cut (name)
-	;the file with no idx1, a stream of it with that chunk's four letters made JUNK
-	(defq data (load (cat "tests/streams/data/avi_" name ".avi")) at (find-rev-idx1 data))
-	(string-stream (cat (slice data 0 at) "JUNK" (slice data (+ at 4) -1))))
 (defun find-rev-idx1 (data)
 	(defq i (- (length data) 4) at :nil)
 	(while (and (not at) (>= i 0)) (if (eql (slice data i (+ i 4)) "idx1") (setq at i) (setq i (dec i))))
 	at)
+(defun av-cut (name)
+	;the file with no idx1, a stream of it with that chunk's four letters made JUNK
+	(defq data (load (cat "tests/streams/data/avi_" name ".avi")) at (find-rev-idx1 data))
+	(string-stream (cat (slice data 0 at) "JUNK" (slice data (+ at 4) -1))))
 (each (lambda (name)
 		(defq whole (av-reel name) cut (avi-reel (av-cut name)))
 		(assert-true (cat name " with no idx1 has the same chunks, read one after another")
