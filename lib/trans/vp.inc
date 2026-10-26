@@ -30,14 +30,14 @@
 	; (emit-translate emit_code) -> func_binary
 	(vp-translate-bin (vpb-encode (list "" emit_code))))
 
-(defun vp-translate-out (name out bin)
-	;a function's native code saved in obj/<cpu>/<abi>/ by its name, and its
-	;VP binary beside it, <name>.vpb, for the loader to translate it from if
-	;the native is not there. The header has 16 bits for the length, and for
-	;where the links and paths are
+(defun vp-translate-out (name out)
+	;a function's native code saved in obj/<cpu>/<abi>/ by its name. Its VP
+	;is once for every CPU, in the binary bundle of its file in
+	;obj/vp/<mode>/, where the loader finds it if the native is not there.
+	;The header has 16 bits for the length, and for where the links and
+	;paths are
 	(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
 	(save out (cat "obj/" *cpu* "/" *abi* "/" name))
-	(save bin (cat "obj/" *cpu* "/" *abi* "/" name ".vpb"))
 	(if (> *build_verb* 0)
 		(print "-> " (cat "obj/" *cpu* "/" *abi* "/" name) " (" (length out) ")")))
 
@@ -48,7 +48,7 @@
 	;and the forms after them. Its VP binary is given back, for the binary
 	;bundle beside the text
 	(defq bin (vpb-encode entry))
-	(vp-translate-out (first entry) (vp-translate-bin bin) bin)
+	(vp-translate-out (first entry) (vp-translate-bin bin))
 	bin)
 
 (defun vp-translate-file (file dir)
@@ -60,7 +60,7 @@
 	(defq bins (cat dir file "b"))
 	(cond
 		((and (> (age bins) 0) (>= (age bins) (age (cat dir file))))
-			(each (# (vp-translate-out (vpb-name %0) (vp-translate-bin %0) %0)) (vpb-unbundle (load bins))))
+			(each (# (vp-translate-out (vpb-name %0) (vp-translate-bin %0))) (vpb-unbundle (load bins))))
 		(:t (defq stream (file-stream (cat dir file)))
 			(while (defq entry (first (read stream)))
 				(vp-translate-save entry)))))

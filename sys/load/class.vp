@@ -477,56 +477,30 @@
 	(vp-ret)
 
 (vp-label 'from_vp)
-	;the native made by this CPU's translator from the VP binary beside
-	;where it would be, <name>.vpb, kept there for the next to load, and
-	;loaded from that as from its file. No VP, or no translation, and it
-	;is not there
-	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
-	(call :sys_str :length '(:r6) '(_ :r1))
-	(vp-add-rr :r6 :r1)
-	(vp-push :r1)
-	(call :sys_str :copy '(".vpb" :r1) '(_ _))
-	(fn-bind 'sys/statics/statics :r7)
-	(call :host_os :pii_stat '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_stat_buffer)) '(:r0))
-	(vpif '(:r0 /= 0))
-		(vp-pop :r1)
-		(vp-xor-rr :r0 :r0)
-		(vp-cpy-ri-b :r0 :r1 0)
-		(vp-ret)
-	(endif)
-	;read it, [rsp] the buffer, then its length, then where the name ends
-	(fn-bind 'sys/statics/statics :r7)
-	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r0))
-	(assign '((:r0 +stat_fsize)) '(:r0))
-	(vp-push :r0)
-	(call :sys_mem :alloc '(:r0) '(:r0 _))
-	(vp-push :r0)
-	(fn-bind 'sys/statics/statics :r7)
-	(call :host_os :pii_open '((:r7 statics_sys_load_name_buffer) +file_open_read) '(:r0))
-	(vp-push :r0)
-	(call :host_os :pii_read `(:r0 (:rsp ,+ptr_size) (:rsp ,(* 2 +ptr_size))) '(_))
-	(vp-pop :r0)
-	(call :host_os :pii_close '(:r0))
-	;the name as it was
-	(assign `((:rsp ,(* 2 +ptr_size))) '(:r1))
-	(vp-xor-rr :r0 :r0)
-	(vp-cpy-ri-b :r0 :r1 0)
-	;translated, the str of it takes the buffer's place. lib/trans/vpb is
-	;the translator of the CPU the image is made for, the image's maker
-	;links it: this VP is made once for every CPU
-	(fn-bind 'lib/trans/vpb :r3)
-	(vp-xor-rr :r0 :r0)
-	(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r1 :r2))
-	;the translator trashes more than a load may
+	;the native made by this CPU's translator from the function's VP, in a
+	;bundle of its folder in obj/vp/<mode>/, kept where the native would be
+	;for the next to load, and loaded from that as from its file. No VP, or
+	;no translation, and it is not there. The finding and the translator
+	;trash more than a load may
 	(vp-push :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-	(vp-call-r :r3)
+	(fn-bind 'sys/statics/statics :r7)
+	(assign '((:r7 statics_sys_load_name_buffer) (:r7 statics_sys_load_name_prefix)) '(:r0 :r1))
+	(vp-add-rr :r1 :r0)
+	(call :sys_load :vp_find '(:r0) '(:r0 :r1 :r2))
+	(vpif '(:r0 /= 0))
+		;translated, the str of it or 0. lib/trans/vpb is the translator of
+		;the CPU the image is made for, the image's maker links it: this VP
+		;is made once for every CPU
+		(vp-push :r0)
+		(fn-bind 'lib/trans/vpb :r3)
+		(vp-xor-rr :r0 :r0)
+		(vp-call-r :r3)
+		(vp-pop :r1)
+		(vp-push :r0)
+		(call :sys_mem :free '(:r1))
+		(vp-pop :r0)
+	(endif)
 	(vp-pop :r8 :r9 :r10 :r11 :r12 :r13 :r14)
-	(assign '((:rsp 0)) '(:r1))
-	(vp-cpy-ri :r0 :rsp 0)
-	(call :sys_mem :free '(:r1))
-	(vp-pop :r0)
-	(vp-free (* 2 +ptr_size))
 	(vpif '(:r0 = 0))
 		(vp-ret)
 	(endif)
@@ -576,6 +550,118 @@
 		(assign '(:r0) '((:r7 statics_sys_load_block_end)))
 	(endif)
 	(vp-ret)
+
+(def-func-end)
+
+(def-method :sys_load :vp_find)
+	;inputs
+	;:r0 = c string function name (pubyte)
+	;outputs
+	;:r0 = 0, else the bundle it is in, to free (ptr)
+	;:r1 = its VP binary (pubyte)
+	;:r2 = its VP binary length (uint)
+	;trashes
+	;:r0-:r14, :f0-:f15
+	;info
+	;the VP binary of a function, from the binary bundles of its folder in
+	;obj/vp/<mode>/, of the mode the image is made in, as @Source finds
+	;it. A build makes the VP once, for every CPU. Each bundle is its
+	;functions' VP binary, each after its length, and each begins with the
+	;length of its name and the name
+
+	(def-vars
+		(ptr data list stat)
+		(pubyte name path dir at end bin p q r e)
+		(long name_len len cap size n shift)
+		(ubyte b))
+
+	(push-scope)
+	(entry :sys_load :vp_find (vpx name))
+
+	(call :sys_str :length (vpx name) (vpx _ name_len))
+	(call :sys_mem :alloc (vpx (* ld_name_size 4)) (vpx path _))
+	;the folder, obj/vp/<mode>/ and the name up to its last /
+	(assign (vpx path) '(:r1))
+	(call :sys_str :copy `(,(cat "obj/vp/" (elem-get '("release" "debug" "validate") *build_mode*) "/") :r1) '(_ :r1))
+	(vp-sub-cr +byte_size :r1)
+	(assign '(:r1) (vpx dir))
+	(call :sys_str :copy (vpx name dir) (vpx _ at))
+	(loop-start)
+		(assign (vpx (- at 1)) (vpx at))
+	(loop-until (vpx (= (* at) +char_divide)))
+	(assign (vpx (+ at 1)) (vpx dir))
+	(assign (vpx 0) (vpx (* dir)))
+	;what is in it
+	(assign (vpx 0 0 4096) (vpx list cap size))
+	(loop-start)
+		(call :sys_mem :realloc (vpx list cap size) (vpx list cap))
+		(call :host_os :pii_dirlist (vpx path list cap) (vpx len))
+		(breakif (vpx (<= len cap)))
+		(assign (vpx len) (vpx size))
+	(loop-end)
+	(assign (vpx (@ sys/statics/statics)) (vpx stat))
+	(assign (vpx (.> stat statics_sys_load_stat_buffer) 0 list (+ list len))
+		(vpx stat data at end))
+	;each entry is its name, its type and a comma after each
+	(loop-while (vpx (< at end)))
+		(assign (vpx at) (vpx bin))
+		(loop-while (vpx (/= (* at) +char_comma)))
+			(assign (vpx (+ at 1)) (vpx at))
+		(loop-end)
+		(assign (vpx (- at bin) (elem at 1) (+ at 3)) (vpx n b at))
+		(continueif (vpx (/= b ,(ascii-code "8"))))
+		(continueif (vpx (< n 5)))
+		(continueif (vpx (> n (* ld_name_size 2))))
+		(call :sys_mem :copy (vpx bin dir n) (vpx _ q))
+		(assign (vpx 0) (vpx (* q)))
+		(assign (vpx (- q 4)) '(:r0))
+		(call :sys_str :compare '(:r0 ".vpb") '(:r0))
+		(continueif '(:r0 /= 0))
+		;a bundle, read in
+		(call :host_os :pii_stat (vpx path stat) (vpx n))
+		(continueif (vpx (/= n 0)))
+		(assign (vpx (.> stat +stat_fsize)) (vpx size))
+		(call :sys_mem :alloc (vpx size) (vpx data _))
+		(call :host_os :pii_open (vpx path +file_open_read) (vpx n))
+		(call :host_os :pii_read (vpx n data size) (vpx _))
+		(call :host_os :pii_close (vpx n) (vpx _))
+		;each VP binary in it, by its name
+		(assign (vpx data (+ data size)) (vpx bin q))
+		(loop-while (vpx (< bin q)))
+			(assign (vpx 0 0) (vpx n shift))
+			(loop-start)
+				(assign (vpx (* bin)) (vpx b))
+				(assign (vpx (+ bin 1) (| n (<< (& b 0x7f) shift)) (+ shift 7)) (vpx bin n shift))
+			(loop-until (vpx (= (& b 0x80) 0)))
+			(assign (vpx bin 0 0) (vpx p len shift))
+			(assign (vpx (+ bin n)) (vpx bin))
+			(loop-start)
+				(assign (vpx (* p)) (vpx b))
+				(assign (vpx (+ p 1) (| len (<< (& b 0x7f) shift)) (+ shift 7)) (vpx p len shift))
+			(loop-until (vpx (= (& b 0x80) 0)))
+			(continueif (vpx (/= len name_len)))
+			(assign (vpx name (+ p len)) (vpx r e))
+			(loop-while (vpx (< p e)))
+				(breakif (vpx (/= (* p) (* r))))
+				(assign (vpx (+ p 1) (+ r 1)) (vpx p r))
+			(loop-end)
+			(gotoif (vpx (= p e)) 'found)
+		(loop-end)
+		(call :sys_mem :free (vpx data))
+		(assign (vpx 0) (vpx data))
+	(loop-end)
+	(goto 'done)
+
+(vp-label 'found)
+	;its VP binary, the length before it went into n
+	(assign (vpx (- bin n)) (vpx bin))
+
+(vp-label 'done)
+	(call :sys_mem :free (vpx list))
+	(call :sys_mem :free (vpx path))
+	(exit :sys_load :vp_find (vpx data bin n))
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**One VP per build mode: a function's VP binary is only in its file's bundle in obj/vp/<mode>/, and the loader finds it there, `(:sys_load :vp_find)`; no .vpb is written beside each native, some 6,400 files fewer.**
+
 **A bind translates what it lacks: each function's VP binary is kept beside its native, and the loader, which now holds its CPU's translator, makes a missing native from it, closure first, and keeps it.**
 
 **The translators are VP, lib/trans/<cpu>.vp: VP binary in, native out, the prepasses too; the Lisp ones are gone. The same code to the byte, the whole tree in 7 ms not 162. The VP64 image carries all six, so `make install` translates with them; a tree from before needs `make install` once.**
