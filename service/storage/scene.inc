@@ -224,7 +224,7 @@
 	;the process of its scene in its name, how many were removed
 	(defq gone 0)
 	(each! (lambda (file type)
-			(when (and (eql type "8") (starts-with "storage_scene_" file)
+			(when (and (eql type "f") (starts-with "storage_scene_" file)
 					(or (ends-with ".img" file) (ends-with ".img.member" file))
 					(not (pii-alive (str-as-num (first (split (slice file 14 -1) "_"))))))
 				(pii-remove (cat "obj/" file))

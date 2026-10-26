@@ -18,8 +18,8 @@
 		(unless (or (starts-with "./obj" root) (starts-with "./storage" root))
 			(each! (lambda (file type)
 				(cond
-					((eql type "8")
-						;file
+					((or (eql type "f") (eql type "l"))
+						;file, or a link to one
 						(if (some (# (ends-with %0 file)) exts)
 							(push paths (cat root "/" file))))
 					(:t ;dir

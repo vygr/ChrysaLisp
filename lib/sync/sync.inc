@@ -122,8 +122,8 @@
 
 (defun sync-kind (folder entry)
 	; (sync-kind folder entry) -> :nil | kind
-	;what the host says an entry of a folder is, "4" a folder, "8" a file,
-	;anything else something else, a link for one. :nil if it is not there
+	;what the host says an entry of a folder is, "d" a folder, "f" a file,
+	;"l" a link to a file. :nil if it is not there, a link to a folder for one
 	(defq found :nil)
 	(each! (lambda (it kind) (if (eql it entry) (setq found kind)))
 		(dir-list folder))
@@ -145,7 +145,7 @@
 				(cond
 					;not there, so nothing is below it, and it will be made
 					((not kind) (setq end -1))
-					((eql kind (if is_last "8" "4"))
+					((eql kind (if is_last "f" "d"))
 						(and real (not is_last) (. real :insert next)))
 					(:t (setq ok :nil)))))
 		(setq at next)
@@ -162,9 +162,8 @@
 	(defq segs (split path "/") count 0)
 	(while (and (> (length segs) 1)
 			(defq folder (cat root "/" (join (setq segs (slice segs 0 -2)) "/")))
-			(every (# (or (eql %0 ".") (eql %0 "..")))
-				(first (dir-list folder)))
-			(eql (sync-kind (cat root "/" (join (slice segs 0 -2) "/")) (last segs)) "4"))
+			(empty? (first (dir-list folder)))
+			(eql (sync-kind (cat root "/" (join (slice segs 0 -2) "/")) (last segs)) "d"))
 		(pii-remove folder)
 		(setq count (inc count)))
 	count)
@@ -176,12 +175,11 @@
 	(defq stack (list "") out (list) folder :nil)
 	(while (setq folder (pop stack))
 		(each! (lambda (entry kind)
-			(unless (or (eql entry ".") (eql entry ".."))
-				(defq path (if (eql folder "") entry (cat folder "/" entry)) is_dir (eql kind "4"))
-				(unless (sync-ignored? rules (split path "/") is_dir)
-					(cond
-						(is_dir (push stack path))
-						((eql kind "8") (push out path))))))
+			(defq path (if (eql folder "") entry (cat folder "/" entry)) is_dir (eql kind "d"))
+			(unless (sync-ignored? rules (split path "/") is_dir)
+				(cond
+					(is_dir (push stack path))
+					((eql kind "f") (push out path)))))
 			(dir-list (if (eql folder "") root (cat root "/" folder)))))
 	(sort out))
 

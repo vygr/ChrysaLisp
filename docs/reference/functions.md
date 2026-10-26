@@ -3436,9 +3436,10 @@ a line, or the first and last of a run of them
 ```code
 (dir-list path) -> (names kinds)
 
-what is in a folder, each name and what the host says it is, "4" a
-folder, "8" a file, as two lists, "." and ".." among them. Nothing for
-a folder that is not there
+what is in a folder, each name and what the host says it is, "f" a
+file, "d" a folder, "l" a link to a file, as two lists. Not "." nor "..",
+nor a link to a folder, nor what is none of them. Nothing for a folder
+that is not there
 ```
 
 ### each-mergeable
@@ -6772,7 +6773,7 @@ the path in the store of a name of it, "" for its top
 (name-list folder) -> ((name ...) (type ...))
 
 what is in a folder, as (pii-dirlist) says it, unzipped: each name, and
-its type, "4" a folder, "8" a file
+its type, "d" a folder, "f" a file
 ```
 
 ### name-size
@@ -12925,8 +12926,8 @@ with what else is built: the system's own tree only
 ```code
 (sync-kind folder entry) -> :nil | kind
 
-what the host says an entry of a folder is, "4" a folder, "8" a file,
-anything else something else, a link for one. :nil if it is not there
+what the host says an entry of a folder is, "d" a folder, "f" a file,
+"l" a link to a file. :nil if it is not there, a link to a folder for one
 ```
 
 ### sync-list

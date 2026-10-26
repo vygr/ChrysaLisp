@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**A folder's entries are "f" a file, "d" a folder, "l" a link to a file, from every host: not Unix's d_type digits "8" and "4". No "." or "..", no link to a folder, so no walk goes round for ever; a link or an entry a file system does not type is asked of the entry itself. A new snapshot.zip; every tree needs `make install` once.**
+
 **MP3 and SBR synthesis keep v as a ring: media_window puts the new block in by :sys_mem :copy_to_ring, nothing moved or made. MP3 decode 12% faster, HE-AAC 3.5%, the same samples.**
 
 **A forced make, `make all`, translates the translators from their VP as any file, it made them twice in two stages: 28 to 33 ms, was 81 to 100. The Benchmark app times what make test does, `(make-time)`.**

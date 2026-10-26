@@ -609,7 +609,7 @@
 			(assign (vpx (+ at 1)) (vpx at))
 		(loop-end)
 		(assign (vpx (- at bin) (elem at 1) (+ at 3)) (vpx n b at))
-		(continueif (vpx (/= b ,(ascii-code "8"))))
+		(continueif (vpx (/= b ,(ascii-code "f"))))
 		(continueif (vpx (< n 5)))
 		(continueif (vpx (> n (* ld_name_size 2))))
 		(call :sys_mem :copy (vpx bin dir n) (vpx _ q))

@@ -501,7 +501,7 @@
 		(progn
 			(defq folder (cat (load-path) "lib/gpu/jit/"))
 			(each! (lambda (name kind)
-					(and (eql kind "8") (> (length name) 9) (find (first name) letters)
+					(and (eql kind "f") (> (length name) 9) (find (first name) letters)
 						(notany (# (eql (slice name 1 9) %0)) makes)
 						(pii-remove (cat folder name))))
 				(dir-list folder))

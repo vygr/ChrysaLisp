@@ -6,7 +6,7 @@
 (env-push)
 
 (defun url-list (url)
-	(map! (lambda (f m) (cat f (if (eql m "4") "/" " ")))
+	(map! (lambda (f m) (cat f (if (eql m "d") "/" " ")))
 		(dir-list url)))
 
 (defun url-split (url ctx)

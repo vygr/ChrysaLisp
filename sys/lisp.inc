@@ -309,7 +309,7 @@
 	;machine's. Whichever node of the machine started them
 	(defq out (list))
 	(each! (lambda (entry kind)
-		(when (and (eql kind "8") (starts-with "chrysalisp_" entry) (ends-with ".session" entry))
+		(when (and (eql kind "f") (starts-with "chrysalisp_" entry) (ends-with ".session" entry))
 			(defq file (cat "/tmp/" entry) net :nil)
 			(each (lambda (line)
 				(defq parts (split line " "))

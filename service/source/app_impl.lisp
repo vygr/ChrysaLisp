@@ -19,7 +19,7 @@
 	(defq dir (cat "obj/vp/" mode "/" (path-dir name) "/"))
 	(and (find mode '("release" "debug" "validate")) (not (find ".." (split name "/")))
 		(some (lambda (file kind)
-				(and (eql kind "8") (ends-with ".vp" file)
+				(and (eql kind "f") (ends-with ".vp" file)
 					(defq stream (file-stream (cat dir file)))
 					(progn (while (and (defq entry (first (read stream))) (nql (first entry) name)))
 						(if entry (list entry (cat dir file))))))

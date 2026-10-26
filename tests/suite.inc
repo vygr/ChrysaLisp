@@ -228,7 +228,7 @@
 	(defq out (list))
 	(and (nempty? folder) (/= (age folder) 0)
 		(each! (lambda (name type)
-				(and (eql type "8") (ends-with ".vp" name) (push out (cat folder "/" name))))
+				(and (eql type "f") (ends-with ".vp" name) (push out (cat folder "/" name))))
 			(unzip (split (pii-dirlist folder) ",") 2)))
 	out)
 

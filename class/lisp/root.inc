@@ -1518,9 +1518,10 @@
 
 (defun dir-list (path)
 	; (dir-list path) -> (names kinds)
-	;what is in a folder, each name and what the host says it is, "4" a
-	;folder, "8" a file, as two lists, "." and ".." among them. Nothing for
-	;a folder that is not there
+	;what is in a folder, each name and what the host says it is, "f" a
+	;file, "d" a folder, "l" a link to a file, as two lists. Not "." nor "..",
+	;nor a link to a folder, nor what is none of them. Nothing for a folder
+	;that is not there
 	(unzip (split (ifn (pii-dirlist path) "") ",") 2))
 
 (defun path-name (path)

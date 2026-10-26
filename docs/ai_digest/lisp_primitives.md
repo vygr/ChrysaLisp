@@ -1443,6 +1443,12 @@ Direct host operating system primitives provided by the host engine.
 
 	*	`(pii-dirlist path) -> info`
 
+	*	The info is each entry as its name, a comma, its kind and a comma:
+		`f` a file, `d` a folder, `l` a link to a file. `.` and `..`, a link
+		to a folder, and anything else, are left out, so a walk of the tree
+		can not go round a link for ever. `(dir-list path)` gives it as two
+		lists, the names and the kinds.
+
 *	**`pii-fstat`**: Retrieves modification time, file size, and mode of a host
 	path.
 

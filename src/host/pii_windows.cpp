@@ -47,21 +47,29 @@ int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 	HANDLE hFind = FindFirstFileA(pii_win_buf, &FindData);
 	if (hFind == INVALID_HANDLE_VALUE) return 0;
 
+	//each entry as its name, a comma, its kind, a comma: 'f' a file, 'd' a
+	//folder, 'l' a link to a file. "." and "..", and a link to a folder, are
+	//left out, a walk that went into one could go round for ever
 	int64_t total_len = 0;
 	do
 	{
-		size_t len = strlen(FindData.cFileName);
-		size_t entry_len = len + 3; // name,type,
+		const char *name = FindData.cFileName;
+		if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) continue;
+		DWORD attr = FindData.dwFileAttributes;
+		char kind = (attr & FILE_ATTRIBUTE_DIRECTORY) ? 'd' : 'f';
+		if (attr & FILE_ATTRIBUTE_REPARSE_POINT)
+		{
+			if (kind == 'd') continue;
+			kind = 'l';
+		}
+		size_t len = strlen(name);
+		size_t entry_len = len + 3; // name,kind,
 
 		if (buf && total_len + entry_len <= buf_len)
 		{
-			memcpy(buf + total_len, FindData.cFileName, len);
+			memcpy(buf + total_len, name, len);
 			buf[total_len + len] = ',';
-			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			{
-				buf[total_len + len + 1] = '4';
-			}
-			else buf[total_len + len + 1] = '8';
+			buf[total_len + len + 1] = kind;
 			buf[total_len + len + 2] = ',';
 		}
 		total_len += entry_len;

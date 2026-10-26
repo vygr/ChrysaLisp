@@ -9,7 +9,7 @@
 (import "lib/files/files.inc")
 
 (defq us_users (filter (# (and (nql %0 "Guest") (not (starts-with "." %0)) (/= (age (cat "usr/" %0 "/env.inc")) 0)))
-	(reduce (lambda (out (name kind)) (if (eql kind "4") (push out name) out))
+	(reduce (lambda (out (name kind)) (if (eql kind "d") (push out name) out))
 		(partition (split (pii-dirlist "usr") ",") 2) (list))))
 (assert-true "there is a user other than Guest to try" (nempty? us_users))
 (each (lambda (user)

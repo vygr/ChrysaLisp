@@ -29,23 +29,56 @@
 static char pii_path_buf[4096];
 static char pii_rmdir_buf[4096];
 
+static char pii_kind_buf[4096];
+
+static char pii_kind(const char *path, size_t path_len, struct dirent *entry)
+{
+	//what an entry of a folder is: 'f' a file, 'd' a folder, 'l' a link to
+	//a file, 0 anything else, left out. A link to a folder is left out, a
+	//walk that went into it could go round for ever. A file system that
+	//does not say, and a link, are asked of the entry itself
+	if (entry->d_type == DT_REG) return 'f';
+	if (entry->d_type == DT_DIR) return 'd';
+	if (entry->d_type != DT_LNK && entry->d_type != DT_UNKNOWN) return 0;
+	size_t len = strlen(entry->d_name);
+	if (path_len + len + 2 > sizeof(pii_kind_buf)) return 0;
+	memcpy(pii_kind_buf, path, path_len);
+	pii_kind_buf[path_len] = '/';
+	memcpy(pii_kind_buf + path_len + 1, entry->d_name, len + 1);
+	struct stat st;
+	if (lstat(pii_kind_buf, &st) != 0) return 0;
+	if (S_ISREG(st.st_mode)) return 'f';
+	if (S_ISDIR(st.st_mode)) return 'd';
+	if (S_ISLNK(st.st_mode) && stat(pii_kind_buf, &st) == 0 && S_ISREG(st.st_mode)) return 'l';
+	return 0;
+}
+
 int64_t pii_dirlist(const char *path, char *buf, size_t buf_len)
 {
+	//each entry of a folder as its name, a comma, its kind, a comma: 'f' a
+	//file, 'd' a folder, 'l' a link to a file. "." and "..", a link to a
+	//folder, and what is none of them, are left out. The length all of it
+	//needs, written only if it fits
 	DIR *dir = opendir(path);
 	if (dir == NULL) return 0;
 
+	size_t path_len = strlen(path);
 	int64_t total_len = 0;
 	struct dirent *entry;
 	while ((entry = readdir(dir)) != NULL)
 	{
-		size_t len = strlen(entry->d_name);
-		size_t entry_len = len + 3; // name,type,
+		const char *name = entry->d_name;
+		if (name[0] == '.' && (name[1] == 0 || (name[1] == '.' && name[2] == 0))) continue;
+		char kind = pii_kind(path, path_len, entry);
+		if (!kind) continue;
+		size_t len = strlen(name);
+		size_t entry_len = len + 3; // name,kind,
 
 		if (buf && total_len + entry_len <= buf_len)
 		{
-			memcpy(buf + total_len, entry->d_name, len);
+			memcpy(buf + total_len, name, len);
 			buf[total_len + len] = ',';
-			buf[total_len + len + 1] = entry->d_type + '0';
+			buf[total_len + len + 1] = kind;
 			buf[total_len + len + 2] = ',';
 		}
 		total_len += entry_len;

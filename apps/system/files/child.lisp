@@ -98,7 +98,7 @@
 					(found)
 					((starts-with "." name))
 					((> (++ *seen*) +filter_most) (setq found :t))
-					((eql type "4") (unless (eql name "obj") (push stack (path-in at name))))
+					((eql type "d") (unless (eql name "obj") (push stack (path-in at name))))
 					((wanted? name engine meta) (setq found :t))))
 			(name-list at)))
 	found)
@@ -115,7 +115,7 @@
 				(cond
 					;of kinds, or a filter, a folder only if there is something in it
 					;of them, the filter finds
-					((eql type "4") (if (or (and (not meta) (empty? *exts*)) (folder-has? (path-in folder name) engine meta))
+					((eql type "d") (if (or (and (not meta) (empty? *exts*)) (folder-has? (path-in folder name) engine meta))
 						(push folders (cat name "/"))))
 					((wanted? name engine meta) (push files name)))))
 		(name-list folder))

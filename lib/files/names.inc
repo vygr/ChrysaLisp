@@ -51,7 +51,7 @@
 (defun name-list (folder)
 	; (name-list folder) -> ((name ...) (type ...))
 	;what is in a folder, as (pii-dirlist) says it, unzipped: each name, and
-	;its type, "4" a folder, "8" a file
+	;its type, "d" a folder, "f" a file
 	(cond
 		((defq path (name-in-store folder))
 			(defq start (if (empty? path) "" (cat path "/")) names (list) types (list))
@@ -61,8 +61,8 @@
 						(cond
 							((defq at (find "/" rest))
 								(unless (find (defq name (slice rest 0 at)) names)
-									(push names name) (push types "4")))
-							((nempty? rest) (push names rest) (push types "8")))))
+									(push names name) (push types "d")))
+							((nempty? rest) (push names rest) (push types "f")))))
 				(ifn (storage-list start) (list)))
 			(list names types))
 		((dir-list folder))))
