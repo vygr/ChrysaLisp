@@ -35,9 +35,12 @@
 	(print "This machine has been given a key of its own, named own, in keys/ and in use.")
 	(print "To join it to your other machines take in their key: key -i name file, then key -u name.")
 	(print))
-;what was built is of the waypoint the tree is exactly at, if it is: a
-;system at the same one has the same, and @Source asks it nothing,
-;service/source/app.inc (source-waypoint). A make that builds takes it away
+;the tree's waypoint noted, if it is exactly a commit, as after a pull:
+;so a pull and an install is all it takes. Then what was built is of that
+;waypoint: a system at the same one has the same, and @Source asks it
+;nothing, service/source/app.inc (source-waypoint). A make that builds
+;takes it away
+(pipe-run "waypoint" (lambda (line) (prin line) (stream-flush (io-stream "stdout"))))
 (import "lib/sync/sync.inc")
 (if (defq at (sync-clean "." (sync-kept "."))) (save (first at) "obj/installed"))
 (print "Install complete.")

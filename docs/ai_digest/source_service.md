@@ -70,7 +70,8 @@ from the module that imports it, as before. It reads by
 
 A system names its server zero, all it has of its own, by the waypoint it
 is at: the commit `make install` built at, kept in `obj/installed` when the
-tree is exactly at its waypoint, and taken away by any `make` that builds
+tree is exactly at its waypoint, which the install notes first, as the
+`waypoint` command does, and taken away by any `make` that builds
 after, `(source-waypoint)`. A task carries it with its system's id, the
 third of `(source-import sid svc wp)`, empty if there is none. Where it
 lands at the same waypoint, all it is made of is there already: its files
