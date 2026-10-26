@@ -36,11 +36,12 @@
 	*test_verbose* :nil *test_frames* :nil *test_module* ""
 	;scripts under tests/ that are named test_ but are not suite modules
 	+test_excludes ''("tests/net/test_cluster.lisp")
-	;the last line a batch's task prints is its counts, and how long to
-	;give a task before a retry. Before it, a line for each module. The
-	;retry is for a node that has gone: a batch that is slow, test_tree's
-	;check of the whole tree on a Pi that has the rest of the suite on it,
-	;run again beside itself is slower, and after three the farm stops
+	;the last line a batch's task prints is its counts, and how long a
+	;task may say nothing before a retry. Before it, a line for each
+	;module. The retry is for a node that has gone: a batch that is slow,
+	;all of the suite one module after another on an emulated CPU, makes
+	;checks as it goes, and each one starts its time again. Run again
+	;beside itself it would be slower, and after three the farm stops
 	;and every batch still out has no result
 	+test_counts "=== " +test_module_counts "=#= " +test_retry 300000000
 	;the line of a module that looks at every source file of the tree
@@ -552,9 +553,11 @@
 	(reduce (# (and %0 (num? (defq ms (. *test_last* :find %1))) (+ %0 ms))) modules 0))
 
 (defun test-checks-read ()
+	; (test-checks-read) -> (file ...)
 	;the checks the modules out have made since the last second: the
-	;latest of each is kept, and said. Mail is not in order, the highest
-	;number is the latest, and a note after a check has the same
+	;latest of each is kept, and said, and the modules that made them
+	;given back. Mail is not in order, the highest number is the latest,
+	;and a note after a check has the same
 	(defq moved (list))
 	(while (mail-poll (list *test_checks*))
 		(defq msg (mail-read *test_checks*) a (find " " msg) b (find " " msg (inc a)) c (find " " msg (inc b))
@@ -565,7 +568,8 @@
 	(each (lambda (file)
 			(bind '(n where name) (. *test_at* :find file))
 			(test-say "at" file n where name))
-		moved))
+		moved)
+	moved)
 
 (defun test-at (modules)
 	; (test-at modules) -> str
@@ -599,7 +603,14 @@
 	;each module it ran and what that counted, and each second, when what
 	;is out and late is said
 	(case what
-		(:tick (if *test_checks* (test-checks-read)) (test-late-say))
+		(:tick
+			(defq moved (if *test_checks* (test-checks-read)) heard (list))
+			(test-late-say)
+			;the batches heard from, so the farm gives one again only when
+			;it has said nothing for its time, not when it is slow
+			(if moved (. *test_batches* :each (lambda (batch modules)
+				(if (some (# (find %0 modules)) moved) (push heard batch)))))
+			heard)
 		(:start
 			(defq modules (ifn (. *test_batches* :find cmd) (list)) usual (test-usual modules))
 			(. *test_out* :insert cmd (list (pii-time) usual

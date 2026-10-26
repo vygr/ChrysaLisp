@@ -225,6 +225,16 @@
 		;longer than the timeout
 		(. (get :farm this) :refresh timeout))
 
+	(defmethod :heard (job)
+		; (. jobs :heard job) -> jobs
+		;the child that has this job has been heard from: its time
+		;starts again, so it is started again only when it has said
+		;nothing for the timeout, not when it is slow
+		(. (get :farm this) :each (lambda (key val)
+			(and (defq out (get :job val)) (eql (slice out +job_size -1) job)
+				(def val :timestamp (pii-time)))))
+		this)
+
 	(defmethod :tries ()
 		; (. jobs :tries) -> num
 		;the most times any one job has been put back on the queue, its
