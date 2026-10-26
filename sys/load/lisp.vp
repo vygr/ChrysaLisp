@@ -24,9 +24,8 @@
 	(exit :sys_load :lisp_path '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(load-path)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(load-path)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -84,10 +83,9 @@
 	(exit :sys_load :lisp_server '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-server [folder])" +error_msg_wrong_types))
-	(signature '(:STR)))
+	(signature '(:STR))
 
 (def-func-end)
 
@@ -123,9 +121,8 @@
 	(exit :sys_load :lisp_place '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-place natives)" +error_msg_wrong_types))
-	(signature '(:LIST)))
+	(signature '(:LIST))
 
 (def-func-end)

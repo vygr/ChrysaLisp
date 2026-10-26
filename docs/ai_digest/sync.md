@@ -201,8 +201,7 @@ arrive in order however many routes there are between the two. 37MB goes to
 the Pi at 6MB a second, and to the x86_64 Mac, which is on Wi-Fi, at 1.5MB.
 Plain `ssh` does 8.7MB and 1.9MB over the same two, so it is the network
 that sets the pace and not the waiting. It was slower than that, 49 seconds
-to the Mac, till two faults in how mail goes over a TCP link were mended,
-see `STATUS.md`.
+to the Mac, till two faults in how mail goes over a TCP link were mended.
 
 ## The parts
 

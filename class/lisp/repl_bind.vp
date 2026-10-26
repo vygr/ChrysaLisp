@@ -161,12 +161,11 @@
 					(breakif '(:r2 = 0))
 					;stack this list for scanning
 					(assign '((:rsp local_stack)) '(:r0))
-				(errorcase
-					(assign '((:r0 +array_length)) '(:r2))
-					(vpif '(:r2 >= 2000))
-						(debug-str '("Excessive prebind recursion !"))
-						(break 'next_elem)
-					(endif))
+				(assign '((:r0 +array_length)) '(:r2))
+				(vpif '(:r2 >= 2000))
+					(debug-str '("Excessive prebind recursion !"))
+					(break 'next_elem)
+				(endif)
 					(call :array :push_back '(:r0 :r1))
 				(endif)
 

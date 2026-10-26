@@ -464,8 +464,8 @@ data, below, and it makes them by doing what the data says.
 ### A bundle of VP
 
 What a function is before any target, the VP its source file made, is kept as
-text, the bundle of that file, `obj/vp/<mode>/<file>`, where the mode is
-`release`, `debug` or `validate`, `lib/asm/asm.inc`, and as VP binary beside
+text, the bundle of that file, `obj/vp/<file>`, or `obj/vp_validate/<file>`
+for a validate build, `lib/asm/asm.inc`, and as VP binary beside
 it, `<file>b`, `lib/trans/vpb.inc`. The VP stage writes the bundles once; each
 target's translate stage, `(vp-translate-file)` in `lib/trans/vp.inc`, reads
 the binary one back and its translator, `lib/trans/<cpu>.vp`, makes its own

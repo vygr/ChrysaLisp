@@ -116,7 +116,7 @@ task is the most of it, 221 of its 1,257 instructions.
 trashes in the method declaration itself". What a method trashes was a
 comment in its function, which lint checked. It is now also the sixth
 thing of its `(dec-method)`, 930 of them, written by `trace -w` from a
-debug build and checked by lint as the comments are, and the assembler
+normal build and checked by lint as the comments are, and the assembler
 can ask, `(method-trashes class method)`. Nothing asks yet: every function
 of the six targets is the same to the byte.
 
@@ -184,7 +184,7 @@ and two writes gone, four copies between registers come. Its two calls
 that come after leave `:r7` alone, so `this` is read from it.
 
 As a trial, not kept, every function was made to ask. 23 could be done on
-a debug build: 86 locals, 303 reads and 53 writes of the stack gone. The
+a normal build: 86 locals, 303 reads and 53 writes of the stack gone. The
 first go crashed the system as it started, and lint named 42 functions
 that now trashed `:r0`: a read from the home had been taken to mean the
 stack was not wanted after it either, and the write went. Fixed, with a

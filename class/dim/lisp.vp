@@ -22,9 +22,8 @@
 	(bind '(dims elems) (method-input :dim :create))
 	(list-bind-args :r1 `(,dims ,elems) '(:nums :array))
 
-(errorcase
-	(assign `((,dims +array_length)) '(:r14))
-	(gotoif '(:r14 = 0) 'error1))
+(assign `((,dims +array_length)) '(:r14))
+(gotoif '(:r14 = 0) 'error1)
 
 	(call :dim :create `(,dims ,elems) '(:r1))
 	(vp-pop :r0 :r2)
@@ -32,12 +31,11 @@
 	(exit :dim :lisp_dim '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(dim nums nums)" +error_msg_wrong_types))
-	(signature '(:NUMS :nums)))
+	(signature '(:NUMS :nums))
 
 (def-func-end)
 
@@ -64,7 +62,7 @@
 	(assign `((,dims +dim_dims) (,dims +dim_elems)) `(,dims ,elems))
 	(assign `((,dims +array_length) (,indices +array_length)) `(,dims_len ,indices_len))
 
-	(errorif `(,indices_len > ,dims_len) 'error1)
+	(gotoif `(,indices_len > ,dims_len) 'error1)
 
 	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
@@ -79,10 +77,9 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(errorcase
-	(assign `((,elems +array_length)) `(,indices_len))
-	(gotoif `(,index < 0) 'error1)
-	(gotoif `(,index >= ,indices_len) 'error1))
+(assign `((,elems +array_length)) `(,indices_len))
+(gotoif `(,index < 0) 'error1)
+(gotoif `(,index >= ,indices_len) 'error1)
 
 	(call :nums :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
@@ -90,13 +87,12 @@
 	(exit :dim :lisp_get '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 	(jump :lisp :repl_error '(:r1 "(dim-get dim nums)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(dim-get dim nums)" +error_msg_wrong_types))
-	(signature '(:DIM :NUMS)))
+	(signature '(:DIM :NUMS))
 
 (def-func-end)
 
@@ -123,7 +119,7 @@
 	(assign `((,dims +dim_dims) (,dims +dim_elems)) `(,dims ,elems))
 	(assign `((,dims +array_length) (,indices +array_length)) `(,dims_len ,indices_len))
 
-	(errorif `(,indices_len > ,dims_len) 'error1)
+	(gotoif `(,indices_len > ,dims_len) 'error1)
 
 	(assign `((,dims +array_begin) (,indices +array_begin)) `(,dims_iter_begin ,indices_iter_begin))
 	(vp-shl-cr (log2 +ptr_size) indices_len)
@@ -138,10 +134,9 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(errorcase
-	(assign `((,elems +array_length)) `(,indices_len))
-	(gotoif `(,index < 0) 'error1)
-	(gotoif `(,index >= ,indices_len) 'error1))
+(assign `((,elems +array_length)) `(,indices_len))
+(gotoif `(,index < 0) 'error1)
+(gotoif `(,index >= ,indices_len) 'error1)
 
 	(call :nums :set_elem `(,elems (,obj +num_value) ,index) '(:r1))
 	(class/obj/ref :r1 :r2)
@@ -150,12 +145,11 @@
 	(exit :dim :lisp_set '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 	(jump :lisp :repl_error '(:r1 "(dim-set dim nums elem)" +error_msg_not_valid_index))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(dim-set dim nums elem)" +error_msg_wrong_types))
-	(signature '(:DIM :NUMS :num)))
+	(signature '(:DIM :NUMS :num))
 
 (def-func-end)

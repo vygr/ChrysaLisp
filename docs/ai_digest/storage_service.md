@@ -493,9 +493,8 @@ do and when it has none, and while it has, the lane waits at its next tick,
 and the time it waits is not of its second. So a gopher that loops for ever
 holds the others back by its 50ms, once. Measured with `storage -t bots` on
 the M4, 280 gophers behind 20 that loop for ever: 7.2 to 9.3s with the one
-runner, 0.75s with the lane. In a release build what passes an error back
-up is not there, and an error thrown in a loop would be a value it went
-round with. The tick costs about 36ns each time round on an M4.
+runner, 0.75s with the lane. The tick costs about 36ns each time round on
+an M4.
 
 ### When a gopher becomes two
 

@@ -15,13 +15,12 @@ height `<= 0` checks ! Because of the question, "Can it even legally happen ?"
 
 I think the best thing to say up front is that the responsibility for error
 checking inputs should be pushed as far up the call tree (towards the root) as
-possible. And, even then, once you have tested that your runtime validation of
-inputs is correct, you should be able to turn it all off to gain better
-performance and footprint.
+possible. Check once, at the top, and let the code below trust what it is
+given.
 
 You have to distinguish between erroneous inputs and sometimes `null` values.
 It might be totally legit to test that you got passed a 0 length vector to the
-`:path :transform` VP function. That's probably not an errorcase but a
+`:path :transform` VP function. That's probably not an error case but a
 legitimate result you should care about coping with.
 
 But if a VP level function is supposed to be passed a `:list` and you pass it an
@@ -75,43 +74,36 @@ this level it's just some bits and you perform some defined actions on them.
 
 ## Lisp throws
 
-We should try to type check everything we can at the Lisp interpreter level, IF
-running in debug mode. Front load all the type checking and stupid input
-checking on the Lisp binding `lisp_xxx` functions to test for types and just
-plane crap input, and provide some almost sensible error throws. But wrap all
-of that in the errorcase macros so we can strip it out when doing a release
-mode build.
+We should try to type check everything we can at the Lisp interpreter level.
+Front load all the type checking and stupid input checking on the Lisp binding
+`lisp_xxx` functions to test for types and just plane crap input, and provide
+some almost sensible error throws. These checks are in every build. The
+normal build, `*build_mode*` 1, is the default. The validate build,
+`*build_mode*` 2, adds heap patterns, guard words and dead object checks on
+top.
 
-## Helpful `errorcase` macros
+Leaving the checks out was measured and is not worth it. Natively there is no
+speed difference you can measure, `make test` and MP3 and HE-AAC decode run
+the same. Under the VP64 emulator it is about 5% faster, and the images are
+about 10% smaller. Not worth two builds that behave differently.
 
-The main way to wrap code that we do not want to include in `release mode` is
-by use of the `(errorcase)` macro. This macro simply tests the value of
-`*build_mode*`, and if greater than 0, includes the wrapped code.
+## Helpful check macros
 
 ```image
 docs/diagrams/error_checks.cwb
 ```
 
-```vdu
-(defmacro errorcase (&rest e) (if (> *build_mode* 0) `(progn ~e)))
-```
-
-The direct opposite, so inclusion of code, when not `(<= *build_mode* 0)`, is
-also provided.
+A check is plain code: test, and `(gotoif)` or `(gotoifnot)` to the error
+label. Code wanted only in a validate build is wrapped in `(validatecase)`.
+This macro simply tests the value of `*build_mode*`, and if 2 or more, includes
+the wrapped code.
 
 ```vdu
-(defmacro noterrorcase (&rest e) (if (<= *build_mode* 0) `(progn ~e)))
-```
-
-Simple jump macros that wrap a `(gotoif)` or `(gotoifnot)`.
-
-```vdu
-(defmacro errorif (e l) `(errorcase (gotoif ,e ,l)))
-(defmacro errorifnot (e l) `(errorcase (gotoifnot ,e ,l)))
+(defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 ```
 
 There are also specialist argument testing helpers to ease the validation of
-Lisp function arguments, while not being present in release mode. You will see
+Lisp function arguments. Each does a check call then a `(gotoif)`. You will see
 plenty of example uses of these macros in the Lisp binding methods that start
 with the `:lisp_`.
 

@@ -20,28 +20,27 @@
 
 	(list-bind-args args `(,obj ,offset ,type) '(:obj :num :num))
 
-(errorcase
-	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_real) 'error)
-	(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
-	(assign `((,osize +hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr +sys_mem_header_size osize)
-	(vp-cpy-rr type fsize)
-	(vpif `(,type <= 0))
-		(vp-lea-p 'type_sizes sizes)
-		(vp-sub-rr type sizes)
-		(vp-cpy-ir-ub sizes 0 fsize)
-	(endif)
-	(vp-cpy-rr fsize sizes)
-	(vp-add-rr offset fsize)
-	(gotoif `(,fsize > ,osize) 'error1)
-	;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
-	;an object starts on a word, so its offset is a whole number of its size
-	(vpif `(,type <= 0))
-		(vp-mul-cr -1 sizes)
-		(vp-and-rr offset sizes)
-		(gotoif `(,sizes /= ,offset) 'error1)
-	(endif))
+(gotoif `(,offset < 0) 'error1)
+(gotoif `(,type < +type_real) 'error)
+(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
+(assign `((,osize +hp_heap_cellsize)) `(,osize))
+(vp-sub-cr +sys_mem_header_size osize)
+(vp-cpy-rr type fsize)
+(vpif `(,type <= 0))
+	(vp-lea-p 'type_sizes sizes)
+	(vp-sub-rr type sizes)
+	(vp-cpy-ir-ub sizes 0 fsize)
+(endif)
+(vp-cpy-rr fsize sizes)
+(vp-add-rr offset fsize)
+(gotoif `(,fsize > ,osize) 'error1)
+;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
+;an object starts on a word, so its offset is a whole number of its size
+(vpif `(,type <= 0))
+	(vp-mul-cr -1 sizes)
+	(vp-and-rr offset sizes)
+	(gotoif `(,sizes /= ,offset) 'error1)
+(endif)
 
 	(switch)
 	(vpcase `(,type >= 0))
@@ -92,7 +91,6 @@
 	(exit :obj :lisp_get `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(obj-get obj offset type)" +error_msg_not_valid_index))
 (vp-label 'error)
@@ -100,7 +98,7 @@
 (vp-label 'type_sizes)
 	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
 		+int_size +int_size +long_size +long_size +long_size)
-	(signature '(:obj :NUM :NUM)))
+	(signature '(:obj :NUM :NUM))
 
 (def-func-end)
 
@@ -125,28 +123,27 @@
 
 	(list-bind-args args `(,obj ,offset ,type ,val) '(:obj :num :num :obj))
 
-(errorcase
-	(gotoif `(,offset < 0) 'error1)
-	(gotoif `(,type < +type_real) 'error)
-	(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
-	(assign `((,osize +hp_heap_cellsize)) `(,osize))
-	(vp-sub-cr +sys_mem_header_size osize)
-	(vp-cpy-rr type fsize)
-	(vpif `(,type <= 0))
-		(vp-lea-p 'type_sizes sizes)
-		(vp-sub-rr type sizes)
-		(vp-cpy-ir-ub sizes 0 fsize)
-	(endif)
-	(vp-cpy-rr fsize sizes)
-	(vp-add-rr offset fsize)
-	(gotoif `(,fsize > ,osize) 'error1)
-	;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
-	;an object starts on a word, so its offset is a whole number of its size
-	(vpif `(,type <= 0))
-		(vp-mul-cr -1 sizes)
-		(vp-and-rr offset sizes)
-		(gotoif `(,sizes /= ,offset) 'error1)
-	(endif))
+(gotoif `(,offset < 0) 'error1)
+(gotoif `(,type < +type_real) 'error)
+(vp-cpy-ir obj (- +sys_mem_header_heap +sys_mem_header_size) osize)
+(assign `((,osize +hp_heap_cellsize)) `(,osize))
+(vp-sub-cr +sys_mem_header_size osize)
+(vp-cpy-rr type fsize)
+(vpif `(,type <= 0))
+	(vp-lea-p 'type_sizes sizes)
+	(vp-sub-rr type sizes)
+	(vp-cpy-ir-ub sizes 0 fsize)
+(endif)
+(vp-cpy-rr fsize sizes)
+(vp-add-rr offset fsize)
+(gotoif `(,fsize > ,osize) 'error1)
+;a field of a type, not a struct, is at its natural alignment, docs/vm/vp_vm.md:
+;an object starts on a word, so its offset is a whole number of its size
+(vpif `(,type <= 0))
+	(vp-mul-cr -1 sizes)
+	(vp-and-rr offset sizes)
+	(gotoif `(,sizes /= ,offset) 'error1)
+(endif)
 
 	;the frame after the checks, an error goes with the stack as it came
 	(push-scope)
@@ -199,7 +196,6 @@
 	(exit :obj :lisp_set `(,this ,obj))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(obj-set obj offset type)" +error_msg_not_valid_index))
 (vp-label 'error)
@@ -207,7 +203,7 @@
 (vp-label 'type_sizes)
 	(vp-byte +ptr_size +ptr_size +byte_size +byte_size +short_size +short_size
 		+int_size +int_size +long_size +long_size +long_size)
-	(signature '(:obj :NUM :NUM :obj)))
+	(signature '(:obj :NUM :NUM :obj))
 
 (def-func-end)
 
@@ -235,9 +231,8 @@
 	(exit :obj :lisp_hash '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(hash obj)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(hash obj)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -264,9 +259,8 @@
 	(exit :obj :lisp_type '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(type-of obj)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(type-of obj)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -297,10 +291,9 @@
 	(exit :obj :lisp_weak_ref '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(weak-ref obj)" +error_msg_wrong_num_of_args))
-	(signature '(:obj)))
+	(signature '(:obj))
 
 (def-func-end)
 
@@ -321,9 +314,8 @@
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(vpif '(:r1 /= :r2))
-	(errorcase
-		(assign `((@ ,(f-path :num :vtable)) (:r2 +obj_vtable)) '(:r3 :r1))
-		(gotoif '(:r3 /= :r1) 'error1))
+	(assign `((@ ,(f-path :num :vtable)) (:r2 +obj_vtable)) '(:r3 :r1))
+	(gotoif '(:r3 /= :r1) 'error1)
 		(assign '((:r2 +num_value)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
@@ -331,12 +323,11 @@
 	(exit :obj :lisp_obj_ref '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-cpy-rr :r2 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(obj-ref num)" +error_msg_wrong_types))
-	(signature '(:obj)))
+	(signature '(:obj))
 
 (def-func-end)
 
@@ -354,9 +345,8 @@
 
 	(entry :obj :lisp_eql `(,this ,args))
 
-(errorcase
-	(assign `((,args +array_length)) `(,obj1))
-	(gotoif `(,obj1 /= 2) 'error))
+(assign `((,args +array_length)) `(,obj1))
+(gotoif `(,obj1 /= 2) 'error)
 
 	(array-bind-args args `(,obj1 ,obj2))
 	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
@@ -370,9 +360,8 @@
 	(exit :obj :lisp_eql `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(eql obj obj)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error `(,args "(eql obj obj)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -390,9 +379,8 @@
 
 	(entry :obj :lisp_nql `(,this ,args))
 
-(errorcase
-	(assign `((,args +array_length)) `(,obj1))
-	(gotoif `(,obj1 /= 2) 'error))
+(assign `((,args +array_length)) `(,obj1))
+(gotoif `(,obj1 /= 2) 'error)
 
 	(array-bind-args args `(,obj1 ,obj2))
 	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
@@ -406,8 +394,7 @@
 	(exit :obj :lisp_nql `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(nql obj obj)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error `(,args "(nql obj obj)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

@@ -33,8 +33,8 @@
     changed inside what it declares, and what calls it is then
     wrong with nothing to say so.
 
-    This reads each function as it was assembled, the debug
-    VP a build keeps, obj/vp/debug/, and works out which registers are still wanted
+    This reads each function as it was assembled, the VP a
+    normal build keeps, obj/vp/, and works out which registers are still wanted
     after each instruction, backwards from where it ends, by
     what each instruction reads and writes. A call reads what
     its method takes and writes what it gives. A register

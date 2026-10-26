@@ -331,7 +331,8 @@ each rule and worked examples of the right and wrong way. In short:
 
 *	**Control Flow and Error Prevention:**
 	There is no `return`, the last expression is the result. `catch` and
-	`throw` are for debugging, so validate inputs instead.
+	`throw` work in every build, but they are for faults, not for steering
+	normal code: validate inputs instead.
 
 *	**Conditionals & Branching (`if`, `ifn`, `when`, `unless`):**
 	The else of `if` and `ifn` is an implicit `progn`, never wrap it. Use `ifn`
@@ -578,26 +579,22 @@ sessions, developers and LLMs have direct access to the standard ChrysaLisp
 *	`make all boot` — recompile all host `.vp` files and regenerate the native
 	boot image (`obj/<arch>/<OS>/sys/boot_image`).
 
-*	`make it` — canonical full multi-platform rebuild of all target platforms:
-	native targets (`AMD64`, `WIN64`, `ARM64`, `RISCV64`, `LA64`) are built in
-	debug mode (`*build_mode* = 1`), while `VP64` is specifically built in release
-	mode (`*build_mode* = 0`). Also regenerates reference documentation under
+*	`make it` — canonical full multi-platform rebuild of all target platforms,
+	the natives (`AMD64`, `WIN64`, `ARM64`, `RISCV64`, `LA64`) and `VP64`, all
+	in the normal mode. Also regenerates reference documentation under
 	`docs/reference/`.
 
-*	`release`, `debug` or `validate` after any of these builds all of it in
-	that mode: `make it validate`, `make all boot release`, `make vp release`.
-	With none it is debug for all and the `VP64` is in release: so for `it`,
-	`apps` and `vp`, and the others build this platform, in debug.
+*	There are two build modes. Normal, `*build_mode*` 1, the default, has
+	every error check. `validate`, `*build_mode*` 2, adds more checks as it
+	runs, heap patterns, guard words, dead objects; `make it validate`, `make
+	all boot validate`. There is no release mode. The VP of a build is kept in
+	`obj/vp/` or `obj/vp_validate/`.
 
-*	`make vp`, the same as `make vp debug` — compile the debug VP64 emulator
-	image (`*build_mode* = 1`) used with `trace` (`cmd/trace.lisp`) for register clobber analysis. (Must never
-	go into `snapshot.zip`, which is executed by `make install` to cross-compile
-	the native host and needs the full speed of a release build; always restore
-	the release image with `make it`).
+*	`make vp` — the VP64 emulator image alone.
 
-*	`make apps debug` — compile the `apps/` VP functions with a debug VP64
-	build, which `make vp` does not do. Needed before `trace` so the app
-	functions are linted too; restore with `make apps`.
+*	`trace` (`cmd/trace.lisp`) lints the VP of a normal build, `files
+	obj/vp/ | trace -i -l`, the apps' too once `make apps` has built
+	them. `lint` does the builds and the trace and `relies` in one go.
 
 *	`make docs` — scan source files and regenerate all Markdown reference
 	documentation under `docs/reference/`.

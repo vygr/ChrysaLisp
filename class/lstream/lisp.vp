@@ -48,9 +48,8 @@
 	(exit :lstream :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(lisp-stream fill [seek write])" +error_msg_wrong_types))
-	(signature '(:obj :obj :obj)))
+	(signature '(:obj :obj :obj))
 
 (def-func-end)

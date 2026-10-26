@@ -177,9 +177,8 @@
 	(vp-cstr ":string")
 	(vp-cstr ":symbol")
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(xml-parse stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)

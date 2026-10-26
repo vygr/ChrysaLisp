@@ -141,7 +141,7 @@ trashes
 :r0-:r14, :f0-:f15
 info
 the VP binary of a function, from the binary bundles of its folder in
-obj/vp/<mode>/, of the mode the image is made in, as @Source finds
+obj/vp/, of the mode the image is made in, as @Source finds
 it. A build makes the VP once, for every CPU. Each bundle is its
 functions' VP binary, each after its length, and each begins with the
 length of its name and the name

@@ -401,8 +401,7 @@ options.
   a `(catch)` round the `(import)`. If the load throws, the
   handler, in the command's own task, takes its stdio from the pipe as its
   `main` would have, writes the error to its stderr, and the task goes. The
-  terminal that ran it shows why, and gets its prompt back. A release build
-  has no errors, there the `(catch)` is the `(import)` and no more.
+  terminal that ran it shows why, and gets its prompt back.
 
 * **A command that never gives way:** An abort is a signal to the kernel of
   the command's node, and a kernel runs when its tasks let it. A command

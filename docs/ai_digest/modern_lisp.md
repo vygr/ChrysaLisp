@@ -235,18 +235,17 @@ rule of error club is we don't pass errors."
 
 * Error checking is pushed up the call stack.
 
-* The `(errorcase)`, `(errorif)`, and various `errorif-lisp-args-*` macros
-(`lib/asm/code.inc`) allow for extensive type and argument checking in debug
-builds, which can be completely stripped out in release builds for maximum
-performance and minimal footprint. This is a powerful, pragmatic approach.
+* The various `errorif-lisp-args-*` macros (`lib/asm/code.inc`) check types
+and argument counts at the Lisp/VP boundary, in every build. `(validatecase)`
+adds deeper runtime checks in a validate build. Natively the checks cost no
+measurable speed.
 
 ### Strengths and Trade-offs
 
 **Strengths:**
 
 * **Performance:** The sequence-centric design, native iteration primitives,
-pre-binding, and optional stripping of debug checks all contribute to high
-performance.
+and pre-binding all contribute to high performance.
 
 * **Expressiveness:** Retains Lisp's powerful macros and functional
 programming capabilities, especially for sequence manipulation.

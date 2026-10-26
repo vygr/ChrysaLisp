@@ -21,9 +21,8 @@
 	(vp-push :r0 :r1)
 	(bind '(dst sp m3x2) (method-input :path :transform))
 	(list-bind-args :r1 `(,m3x2 ,sp ,dst) '(:fixeds :path :path))
-	(errorcase
-		(assign `((,m3x2 +array_length)) '(:r14))
-		(gotoif '(:r14 < 6) 'error1))
+	(assign `((,m3x2 +array_length)) '(:r14))
+	(gotoif '(:r14 < 6) 'error1)
 	(call :path :transform `(,dst ,sp ,m3x2) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0 :r2)
@@ -31,12 +30,11 @@
 	(exit :path :lisp_transform '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-transform m3x2 src dst)" +error_msg_wrong_types))
-	(signature '(:FIXEDS :PATH :PATH)))
+	(signature '(:FIXEDS :PATH :PATH))
 
 (def-func-end)
 
@@ -64,10 +62,9 @@
 	(exit :path :lisp_simplify '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-simplify tol src dst)" +error_msg_wrong_types))
-	(signature '(:FIXED :PATH :PATH)))
+	(signature '(:FIXED :PATH :PATH))
 
 (def-func-end)
 
@@ -95,10 +92,9 @@
 	(exit :path :lisp_filter '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-filter tol src dst)" +error_msg_wrong_types))
-	(signature '(:FIXED :PATH :PATH)))
+	(signature '(:FIXED :PATH :PATH))
 
 (def-func-end)
 
@@ -127,10 +123,9 @@
 	(exit :path :lisp_gen_quadratic '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst)" +error_msg_wrong_types))
-	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH))
 
 (def-func-end)
 
@@ -159,10 +154,9 @@
 	(exit :path :lisp_gen_cubic '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst)" +error_msg_wrong_types))
-	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :FIXED :PATH))
 
 (def-func-end)
 
@@ -191,10 +185,9 @@
 	(exit :path :lisp_gen_arc '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-gen-arc cx cy start end radius dst)" +error_msg_wrong_types))
-	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :PATH)))
+	(signature '(:FIXED :FIXED :FIXED :FIXED :FIXED :PATH))
 
 (def-func-end)
 
@@ -221,10 +214,9 @@
 	(exit :path :lisp_stroke_polyline '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-stroke-polyline path radius join cap1 cap2)" +error_msg_wrong_types))
-	(signature '(:PATH :FIXED :NUM :NUM :NUM)))
+	(signature '(:PATH :FIXED :NUM :NUM :NUM))
 
 (def-func-end)
 
@@ -253,10 +245,9 @@
 	(exit :path :lisp_stroke_polygon '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-stroke-polygon path radius join)" +error_msg_wrong_types))
-	(signature '(:PATH :FIXED :NUM)))
+	(signature '(:PATH :FIXED :NUM))
 
 (def-func-end)
 
@@ -310,11 +301,10 @@
 				(vp-cpy-cr 1 state)
 				(break 'next_char)
 			(endif)
-		(errorcase
-			(assign `(,c) `(,ch))
-			(assign (vpx command_chars) `(,st))
-			(d-call :str :find `(,st ,ch 0) '(_ _ idx))
-			(gotoif `(,idx = -1) 'error1))
+		(assign `(,c) `(,ch))
+		(assign (vpx command_chars) `(,st))
+		(d-call :str :find `(,st ,ch 0) '(_ _ idx))
+		(gotoif `(,idx = -1) 'error1)
 			;command
 			(call :str :create_from_buffer (vpx (& c) 1) '(sstr))
 			(bind '(l s) (method-input :list :push_back))
@@ -357,10 +347,7 @@
 	(exit :path :lisp_svg (vpx this commands))
 	(return)
 
-(noterrorcase
-	(pop-scope-syms))
 
-(errorcase
 (vp-label 'error1)
 	(call :str :destroy (vpx commands))
 	(call :str :destroy (vpx command_chars))
@@ -370,6 +357,6 @@
 	(pop-scope)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(path-svg d)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)

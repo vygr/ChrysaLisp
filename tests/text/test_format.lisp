@@ -70,10 +70,10 @@
 (fm-keep "block forms indent the lines between them"
 	(fm-src "(def-method :a :b)" "\t;inputs"
 		"\t(vpif '(:r0 = 0))" "\t\t(vp-cpy-rr :r0 :r1)" "\t(else)" "\t\t(vp-ret)" "\t(endif)"
-		"(errorcase" "(vp-label 'error)" "\t(jump :a :b))" "(def-func-end)")
+		"(validatecase" "(vp-label 'error)" "\t(jump :a :b))" "(def-func-end)")
 	(fm-src "(def-method :a :b)" " ;inputs" "(vpif '(:r0 = 0))"
 		"(vp-cpy-rr :r0 :r1)" "(else)" "(vp-ret)" "(endif)"
-		"(errorcase" "(vp-label 'error)" "(jump :a :b))" "(def-func-end)"))
+		"(validatecase" "(vp-label 'error)" "(jump :a :b))" "(def-func-end)"))
 (fm-keep "loops and a switch"
 	(fm-src "(def-func 'a)" "\t(loop-start)" "\t\t(switch)" "\t\t(vpcase '(:r0 = 0))" "\t\t\t(break)" "\t\t(default)"
 		"\t\t\t(vp-ret)"
@@ -118,10 +118,10 @@
 	(fm-src "(def-class :a :b" "(dec-method :c a/b/c :static (:r0) (:r0))"
 		"(dec-method :d a/b/d))"))
 (fm-check "a VP instruction is a line of its own"
-	(fm-src "(defun m ()" "\t(vp-cpy-rr :r0 :r1)" "\t(call :a :b '(:r0))" "\t(vp-ret))" "(def-func 'a)" "(errorcase"
+	(fm-src "(defun m ()" "\t(vp-cpy-rr :r0 :r1)" "\t(call :a :b '(:r0))" "\t(vp-ret))" "(def-func 'a)" "(validatecase"
 		"\t(call :a :b)"
 		"\t(jump :c :d))" "(def-func-end)") (fm-src "(defun m ()" "(vp-cpy-rr :r0 :r1)" "(call :a :b" "'(:r0))"
-			"(vp-ret))" "(def-func 'a)" "(errorcase" "(call :a :b)"
+			"(vp-ret))" "(def-func 'a)" "(validatecase" "(call :a :b)"
 			"(jump :c :d))" "(def-func-end)"))
 (fm-check "and is not moved to the start of a line if it was not at one"
 	(fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "\t(vp-ret))") (fm-src "(defun m () (vp-cpy-rr :r0 :r1)" "(vp-ret))"))

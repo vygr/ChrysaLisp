@@ -170,8 +170,7 @@
             this file, of what it imports, and of what those
             import, nor of what root.inc imports. A module that
             works only because what loaded it first had
-            imported the structure fails on its own, and on a
-            release build its class is not made at all. And
+            imported the structure fails on its own. And
             in any file, a (structure +x) where root.inc's
             imports have a +x already.
     vpname  a + name given by a (defq) in a .vp file that a

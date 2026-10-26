@@ -26,10 +26,9 @@
 	(exit :seq :lisp_length '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r1 "(length seq)" +error_msg_wrong_types))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -46,27 +45,24 @@
 	(entry :seq :lisp_elem '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error1 :r1 2)
-(errorcase
-	(assign '(:r1) '(:r13)))
+(assign '(:r1) '(:r13))
 
 	(assign '(:r0) '(:r12))
 	(list-bind-args :r1 '(:r0 :r11) '(:seq :num))
 	(call :seq :get_length '(:r0) '(:r0 :r1))
 	(seq-elem-index :r11 :r1)
-(errorcase
-	(gotoif '(:r11 < 0) 'error2)
-	(gotoif '(:r11 >= :r1) 'error2))
+(gotoif '(:r11 < 0) 'error2)
+(gotoif '(:r11 >= :r1) 'error2)
 	(call :seq :ref_elem '(:r0 :r11) '(_ :r1))
 
 	(exit :seq :lisp_elem '(:r12 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r1 "(elem-get seq idx)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error '(:r13 "(elem-get seq idx)" +error_msg_not_valid_index))
-	(signature '(:seq :NUM)))
+	(signature '(:seq :NUM))
 
 (def-func-end)
 
@@ -85,30 +81,27 @@
 	(entry :seq :lisp_slice `(,this ,args))
 
 	(errorif-lisp-args-sig 'error1 :r1 3)
-(errorcase
-	;get_length returns over args, keep it for the index error
-	(assign `(,args) '(:r12)))
+;get_length returns over args, keep it for the index error
+(assign `(,args) '(:r12))
 
 	(list-bind-args args `(,slc ,si ,ei) '(:seq :num :num))
 	(call :seq :get_length `(,slc) `(,slc ,len))
 	(seq-elem-index si len)
 	(seq-elem-index ei len)
-(errorcase
-	(gotoif `(,si < 0) 'error2)
-	(gotoif `(,ei < 0) 'error2)
-	(gotoif `(,si > ,len) 'error2)
-	(gotoif `(,ei > ,len) 'error2))
+(gotoif `(,si < 0) 'error2)
+(gotoif `(,ei < 0) 'error2)
+(gotoif `(,si > ,len) 'error2)
+(gotoif `(,ei > ,len) 'error2)
 	(call :seq :slice `(,slc ,si ,ei) `(,args))
 
 	(exit :seq :lisp_slice `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(slice seq start end)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error `(:r12 "(slice seq start end)" +error_msg_not_valid_index))
-	(signature '(:seq :NUM :NUM)))
+	(signature '(:seq :NUM :NUM))
 
 (def-func-end)
 
@@ -130,44 +123,42 @@
 	(errorif-lisp-args-sig 'error1 :r1 3)
 
 	(list-bind-args args `(,src1 ,src2 ,idxs) '(:seq :seq :nums))
-(errorcase
-	(assign `((,src1 +obj_vtable) (,src2 +obj_vtable)) `(,si ,ei))
-	(gotoif `(,si /= ,ei) 'error1)
-	(assign `((,idxs +array_length)) `(,si))
-	(vp-and-cr 1 si)
-	(gotoif `(,si /= 0) 'error1)
-	(class/array/get_both idxs idx_begin idx_end)
-	(vpif `(,idx_begin /= ,idx_end))
-		(call :seq :get_length `(,src1) `(_ ,len))
-		(call :seq :get_length `(,src2) `(_ ,ei))
-		(vp-cpy-rr len swp_xor)
-		(vp-xor-rr ei swp_xor)
-		(loop-start)
-			;indices
-			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
-			(vp-add-cr (* +long_size 2) idx_begin)
-			;the length this time
-			(seq-elem-index si len)
-			(seq-elem-index ei len)
-			;validate
-			(gotoif `(,si < 0) 'error2)
-			(gotoif `(,ei < 0) 'error2)
-			(gotoif `(,si > ,len) 'error2)
-			(gotoif `(,ei > ,len) 'error2)
-			(vp-xor-rr swp_xor len)
-		(loop-until `(,idx_begin = ,idx_end))
-	(endif))
+(assign `((,src1 +obj_vtable) (,src2 +obj_vtable)) `(,si ,ei))
+(gotoif `(,si /= ,ei) 'error1)
+(assign `((,idxs +array_length)) `(,si))
+(vp-and-cr 1 si)
+(gotoif `(,si /= 0) 'error1)
+(class/array/get_both idxs idx_begin idx_end)
+(vpif `(,idx_begin /= ,idx_end))
+	(call :seq :get_length `(,src1) `(_ ,len))
+	(call :seq :get_length `(,src2) `(_ ,ei))
+	(vp-cpy-rr len swp_xor)
+	(vp-xor-rr ei swp_xor)
+	(loop-start)
+		;indices
+		(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
+		(vp-add-cr (* +long_size 2) idx_begin)
+		;the length this time
+		(seq-elem-index si len)
+		(seq-elem-index ei len)
+		;validate
+		(gotoif `(,si < 0) 'error2)
+		(gotoif `(,ei < 0) 'error2)
+		(gotoif `(,si > ,len) 'error2)
+		(gotoif `(,ei > ,len) 'error2)
+		(vp-xor-rr swp_xor len)
+	(loop-until `(,idx_begin = ,idx_end))
+(endif)
 	(call :seq :splice `(,src1 ,src2 ,idxs) '(:r1))
 
 	(exit :seq :lisp_splice `(,this :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(splice seq1 seq2 idxs)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error `(,args "(splice seq1 seq2 idxs)" +error_msg_not_valid_index))
-	(signature '(:seq :seq :NUMS)))
+	(signature '(:seq :seq :NUMS))
 
 (def-func-end)
 
@@ -183,12 +174,11 @@
 
 	(entry :seq :lisp_cat '(:r0 :r1))
 
-(errorcase
-	(call :lisp :env_args_type `(:r1 (@ ,(f-path :str :vtable)) 1) '(_ tmp))
-	(vpif `(,tmp = 0))
-		(call :lisp :env_args_match `(:r1 (@ ,(f-path :seq :vtable)) 1) '(_ tmp))
-		(gotoif `(,tmp = 0) 'error)
-	(endif))
+(call :lisp :env_args_type `(:r1 (@ ,(f-path :str :vtable)) 1) '(_ tmp))
+(vpif `(,tmp = 0))
+	(call :lisp :env_args_match `(:r1 (@ ,(f-path :seq :vtable)) 1) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error)
+(endif)
 
 	(assign '(:r0) '(:r13))
 	(array-bind-args :r1 '(:r0))
@@ -197,9 +187,8 @@
 	(exit :seq :lisp_cat '(:r13 :r0))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(cat seq ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(cat seq ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -233,29 +222,26 @@
 	(switch)
 	(f-bind :str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
-	(errorcase
-		(assign `((,element +obj_vtable)) `(,ovtable))
-		(gotoif `(,ovtable /= ,vtable) 'error1)
-		;one char found in a str, not a run of them: a longer one would be
-		;taken as its first char, and the answer be wrong with no word
-		(assign `((,element +str_length)) `(,ovtable))
-		(gotoif `(,ovtable /= 1) 'error1))
+	(assign `((,element +obj_vtable)) `(,ovtable))
+	(gotoif `(,ovtable /= ,vtable) 'error1)
+	;one char found in a str, not a run of them: a longer one would be
+	;taken as its first char, and the answer be wrong with no word
+	(assign `((,element +str_length)) `(,ovtable))
+	(gotoif `(,ovtable /= 1) 'error1)
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)
 		(f-bind :list :vtable vtable)
 		(gotoif `(,ovtable = ,vtable) 'dofind)
-	(errorcase
-		(call :obj :inst_of `(,element (@ ,(f-path :num :vtable))) '(_ tmp))
-		(gotoif `(,tmp = 0) 'error1))
+	(call :obj :inst_of `(,element (@ ,(f-path :num :vtable))) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error1)
 		(list-cast-args `(,element) '(:num))
 	(vp-label 'dofind)
 		(call :seq :get_length `(,sequence) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'empty)
 		(seq-elem-index idx :r1)
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,idx > :r1) 'error2))
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,idx > :r1) 'error2)
 		(call :seq :find `(:r0 ,element ,idx) '(_ _ idx))
 		(vpif `(,idx = -1))
 		(vp-label 'empty)
@@ -271,7 +257,6 @@
 	(exit :seq :lisp_find '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error2)
 	(vp-pop :r0)
 	(jump :lisp :repl_error `(,args "(find elem seq [idx])" +error_msg_not_valid_index))
@@ -280,7 +265,7 @@
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(find elem seq [idx])" +error_msg_wrong_types))
-	(signature '(:obj :seq :NUM)))
+	(signature '(:obj :seq :NUM))
 
 (def-func-end)
 
@@ -314,29 +299,26 @@
 	(switch)
 	(f-bind :str :vtable vtable)
 	(vpcase `(,ovtable = ,vtable))
-	(errorcase
-		(assign `((,element +obj_vtable)) `(,ovtable))
-		(gotoif `(,ovtable /= ,vtable) 'error1)
-		;one char found in a str, not a run of them: a longer one would be
-		;taken as its first char, and the answer be wrong with no word
-		(assign `((,element +str_length)) `(,ovtable))
-		(gotoif `(,ovtable /= 1) 'error1))
+	(assign `((,element +obj_vtable)) `(,ovtable))
+	(gotoif `(,ovtable /= ,vtable) 'error1)
+	;one char found in a str, not a run of them: a longer one would be
+	;taken as its first char, and the answer be wrong with no word
+	(assign `((,element +str_length)) `(,ovtable))
+	(gotoif `(,ovtable /= 1) 'error1)
 		(list-cast-args `(,element) '(:char))
 		(goto 'dofind)
 	(default)
 		(f-bind :list :vtable vtable)
 		(gotoif `(,ovtable = ,vtable) 'dofind)
-	(errorcase
-		(call :obj :inst_of `(,element (@ ,(f-path :num :vtable))) '(_ tmp))
-		(gotoif `(,tmp = 0) 'error1))
+	(call :obj :inst_of `(,element (@ ,(f-path :num :vtable))) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error1)
 		(list-cast-args `(,element) '(:num))
 	(vp-label 'dofind)
 		(call :seq :get_length `(,sequence) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'empty)
 		(seq-elem-index idx :r1)
-	(errorcase
-		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,idx > :r1) 'error2))
+	(gotoif `(,idx < 0) 'error2)
+	(gotoif `(,idx > :r1) 'error2)
 		(call :seq :rfind `(:r0 ,element ,idx) '(_ _ idx))
 		(vpif `(,idx = 0))
 		(vp-label 'empty)
@@ -352,7 +334,6 @@
 	(exit :seq :lisp_rfind '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error2)
 	(vp-pop :r0)
 	(jump :lisp :repl_error `(,args "(rfind elem seq [idx])" +error_msg_not_valid_index))
@@ -361,7 +342,7 @@
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(rfind elem seq [idx])" +error_msg_wrong_types))
-	(signature '(:obj :seq :NUM)))
+	(signature '(:obj :seq :NUM))
 
 (def-func-end)
 
@@ -392,10 +373,9 @@
 	(exit :seq :lisp_first '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(first seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -426,10 +406,9 @@
 	(exit :seq :lisp_second '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(second seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -460,10 +439,9 @@
 	(exit :seq :lisp_third '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(third seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -494,10 +472,9 @@
 	(exit :seq :lisp_last '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(last seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -527,10 +504,9 @@
 	(exit :seq :lisp_rest '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(rest seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -561,10 +537,9 @@
 	(exit :seq :lisp_most '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(most seq)" +error_msg_not_a_sequence))
-	(signature '(:seq)))
+	(signature '(:seq))
 
 (def-func-end)
 
@@ -591,7 +566,7 @@
 		(vp-cpy-cr 1 cnt)
 	(else)
 		(list-bind-args args `(,seq ,cnt) '(:seq :num))
-		(errorif `(,cnt <= 0) 'error)
+		(gotoif `(,cnt <= 0) 'error)
 	(endif)
 
 	(vp-push this)
@@ -617,9 +592,8 @@
 	(exit :seq :lisp_partition `(,this ,lst))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(partition seq [cnt])" +error_msg_wrong_types))
-	(signature '(:seq :NUM)))
+	(signature '(:seq :NUM))
 
 (def-func-end)

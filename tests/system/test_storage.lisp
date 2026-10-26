@@ -82,12 +82,8 @@
 		(second (storage-walk "a/big" 0 '(lambda (state data at count) (list state (inc at))) :nil :nil sg_svc)))
 	(assert-eq "one sent to what there is none of comes back with nothing" :nil
 		(storage-walk "a/nothing" 0 '(lambda (state data at count) (list state :nil)) :nil :nil sg_svc))
-	;a release build is given only what is right, a function that throws
-	;is one only a checked build says is wrong
-	(if *test_checked*
-		(assert-eq "one whose function throws comes back with nothing, and the service is still there" :nil
-			(storage-walk "a/big" 0 '(lambda (state data at count) (throw "no" 0)) :nil :nil sg_svc))
-		(test-skip "one whose function throws comes back with nothing" "needs an error checked build"))
+	(assert-eq "one whose function throws comes back with nothing, and the service is still there" :nil
+		(storage-walk "a/big" 0 '(lambda (state data at count) (throw "no" 0)) :nil :nil sg_svc))
 	(assert-eq "it is" sg_big (storage-get "a/big" sg_svc))
 	;an object written as a stream, as a file is: the path is set to it when
 	;the stream is flushed, and when it is let go of

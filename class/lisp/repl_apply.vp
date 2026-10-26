@@ -25,26 +25,24 @@
 		(r-jump :lisp :repl_eval '(:r0 :r1) :r2)
 	(endif)
 
-(errorcase
-	(f-bind :list :vtable :r4)
-	(gotoif '(:r3 /= :r4) 'error2)
-	(assign '((:r2 +array_length)) '(:r3))
-	(gotoif '(:r3 < 2) 'error1))
+(f-bind :list :vtable :r4)
+(gotoif '(:r3 /= :r4) 'error2)
+(assign '((:r2 +array_length)) '(:r3))
+(gotoif '(:r3 < 2) 'error1)
 
 	(class/array/get_both :r2 :r3 :r4)
 
-(errorcase
-	(array-get-args :r3 '(:r5))
-	(switch)
-	(assign '((:r0 +lisp_func_lambda)) '(:r6))
-	(breakif '(:r5 = :r6))
-	(assign '((:r0 +lisp_func_macro)) '(:r6))
-	(breakif '(:r5 = :r6))
-	(assign '((:r0 +lisp_sym_lambda)) '(:r6))
-	(breakif '(:r5 = :r6))
-	(assign '((:r0 +lisp_sym_macro)) '(:r6))
-	(gotoif '(:r5 /= :r6) 'error2)
-	(endswitch))
+(array-get-args :r3 '(:r5))
+(switch)
+(assign '((:r0 +lisp_func_lambda)) '(:r6))
+(breakif '(:r5 = :r6))
+(assign '((:r0 +lisp_func_macro)) '(:r6))
+(breakif '(:r5 = :r6))
+(assign '((:r0 +lisp_sym_lambda)) '(:r6))
+(breakif '(:r5 = :r6))
+(assign '((:r0 +lisp_sym_macro)) '(:r6))
+(gotoif '(:r5 /= :r6) 'error2)
+(endswitch)
 
 	(vp-push :r1 :r3 :r4)
 	(call :lisp :env_push '(:r0) '(:r0 _))
@@ -59,10 +57,9 @@
 	(exit :lisp :repl_apply '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r2 "(lambda ([arg ...]) body)" +error_msg_wrong_num_of_args))
 (vp-label 'error2)
-	(jump :lisp :repl_error '(:r2 "(lambda ([arg ...]) body)" +error_msg_not_a_function)))
+	(jump :lisp :repl_error '(:r2 "(lambda ([arg ...]) body)" +error_msg_not_a_function))
 
 (def-func-end)

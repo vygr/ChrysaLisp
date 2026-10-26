@@ -25,6 +25,10 @@
     virtual methods and static functions. Analyses compiled instructions
     directly via symbolic execution and traces live registers.
 
+    The VP is a normal build's, obj/vp/, or a validate build's if
+    the bundles given are of obj/vp_validate/: the same trashes
+    hold for both, a (validatecase) must use no more registers.
+
     Shaders assembled as they ran, lib/gpu/jit/, are left out.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 (("-l" "--lint") ,(opt-flag 'opt_l))
@@ -34,7 +38,13 @@
 
 (defq +all_extern_trashed (static-q (filter (# (nql :rsp %0)) +vp_regs))
 	+all_abi_trashed_regs (list quote +vp_fregs)
-	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/dump" "sys/task/stack")
+	;what never comes back: the dump of a task, and the reports of a
+	;validate build that end in one. A path that goes to one ends there,
+	;what it trashed and put on the stack is of no caller
+	+no_return_funcs ''("sys/task/dump"
+		"class/obj/dead" "sys/heap/overrun" "sys/heap/double_free" "sys/mem/bad_free")
+	+zero_clobber_funcs ''("class/lisp/repl_error" "sys/task/stack" "sys/task/dump"
+		"class/obj/dead" "sys/heap/overrun" "sys/heap/double_free" "sys/mem/bad_free")
 	;a change of task in line: another task runs before it comes back, so
 	;it trashes all, which its own instructions do not show
 	+all_clobber_funcs ''("sys/task/defer"))
@@ -374,7 +384,8 @@
 								(defq callee_entry (. db :find callee)))
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
 							(vpmap-clobber trace_map (second callee_entry)))
-						(lisp-restored callee))
+						(lisp-restored callee)
+						(if (find callee +no_return_funcs) (setq *pc* +max_long)))
 					(emit-jmp-p
 						;exit function, merge and kill trace or
 						;return to local caller if in subroutine
@@ -385,10 +396,12 @@
 							(verbose 5 "\t\t\t\ttrashes " (format-trashes (second callee_entry)))
 							(vpmap-clobber trace_map (second callee_entry)))
 						(lisp-restored callee)
-						(unless (setq *pc* (pop call_stack))
-							(stack-left function depth)
-							(vpmap-merge func_map trace_map)
-							(setq *pc* +max_long)))
+						(cond
+							((find callee +no_return_funcs) (setq *pc* +max_long))
+							((setq *pc* (pop call_stack)))
+							(:t (stack-left function depth)
+								(vpmap-merge func_map trace_map)
+								(setq *pc* +max_long))))
 					(emit-call-r
 						(if (bind '(& & &optional c m) inst)
 							(defq clobbers (virtual-trashes-union c m)
@@ -531,7 +544,8 @@
 		(if (empty? (defq functions (rest args)))
 			(lines! (# (push functions %0) :nil) (io-stream 'stdin)))
 		(when (nempty? functions)
-			(with-read-lock +vp_root
+			(defq *vp_root* (vp-root functions))
+			(with-read-lock *vp_root*
 				(if opt_w (setq opt_l :t))
 				;a shader that was assembled as it ran has no source to check
 				;it against, so those are left out

@@ -158,10 +158,9 @@
 	(exit (vpx this args))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error (vpx args "(vops)" +error_msg_wrong_types))
-	(signature '()))
+	(signature '())
 
 	(pop-scope-syms)
 

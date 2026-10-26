@@ -193,7 +193,7 @@
 
 (defun vp-entry-text (entry)
 	; (vp-entry-text entry) -> str
-	;an entry as a bundle in obj/vp/<mode>/ has it
+	;an entry as a bundle in obj/vp/ has it
 	(cat (const (cat "(" (ascii-char 34))) (first entry) (const (cat (ascii-char 34) "\n"))
 		(vp-code-text entry) ")\n"))
 

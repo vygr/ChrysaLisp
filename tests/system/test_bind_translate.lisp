@@ -1,15 +1,15 @@
 (report-header "Bind: a function with no native is translated from its VP by the loader, and kept")
 
 ;two functions there is only VP of, the binary bundle of their file in
-;obj/vp/<mode>/, one calling the other: a bind of the first has the loader
+;obj/vp/, one calling the other: a bind of the first has the loader
 ;find and translate both, closure first, keep their natives where a build
 ;would, the same to the byte, and run. The bundle is put in the folder of
-;each mode, a test can not tell a debug image from a validate one
+;each mode, a test can not tell a normal image from a validate one
 (bind '(& bt_cpu bt_abi) (map (const sym) (split (load-path) "/")))
 (defq bt_lf (ascii-char 10) bt_id (str (pii-time))
 	bt_a (cat "tests/bt_" bt_id "_a") bt_b (cat "tests/bt_" bt_id "_b")
 	bt_obj (cat "obj/" bt_cpu "/" bt_abi "/") bt_src (cat bt_obj "tests/bt_" bt_id ".vp")
-	bt_vpb (map (# (cat "obj/vp/" %0 "/tests/bt_" bt_id ".vpb")) '("release" "debug" "validate"))
+	bt_vpb (map (# (cat %0 "tests/bt_" bt_id ".vpb")) '("obj/vp/" "obj/vp_validate/"))
 	bt_bins (list))
 
 ;b adds 3 to :r0, a is called from Lisp with a num and gives a num, of b of it

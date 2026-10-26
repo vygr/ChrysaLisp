@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 24
+	:next_id 25
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,7 +19,7 @@
 					:id
 					2
 					:items
-					((:list 21)
+					((:list 22)
 						((:list 11)
 							:shape
 							:id
@@ -176,7 +176,7 @@
 							:stroke
 							0
 							:text
-							"[:calloc]"
+							"[:bad_free]"
 							:font_size
 							12
 							:pos
@@ -196,7 +196,7 @@
 							:stroke
 							0
 							:text
-							"[:collect]"
+							"[:calloc]"
 							:font_size
 							12
 							:pos
@@ -216,7 +216,7 @@
 							:stroke
 							0
 							:text
-							"[:copy]"
+							"[:collect]"
 							:font_size
 							12
 							:pos
@@ -236,7 +236,7 @@
 							:stroke
 							0
 							:text
-							"[:copy_from_ring]"
+							"[:copy]"
 							:font_size
 							12
 							:pos
@@ -256,7 +256,7 @@
 							:stroke
 							0
 							:text
-							"[:copy_in_ring]"
+							"[:copy_from_ring]"
 							:font_size
 							12
 							:pos
@@ -276,7 +276,7 @@
 							:stroke
 							0
 							:text
-							"[:copy_to_ring]"
+							"[:copy_in_ring]"
 							:font_size
 							12
 							:pos
@@ -296,7 +296,7 @@
 							:stroke
 							0
 							:text
-							"[:fill]"
+							"[:copy_to_ring]"
 							:font_size
 							12
 							:pos
@@ -316,7 +316,7 @@
 							:stroke
 							0
 							:text
-							"[:free]"
+							"[:fill]"
 							:font_size
 							12
 							:pos
@@ -336,7 +336,7 @@
 							:stroke
 							0
 							:text
-							"[:inuse]"
+							"[:free]"
 							:font_size
 							12
 							:pos
@@ -356,7 +356,7 @@
 							:stroke
 							0
 							:text
-							"[:realloc]"
+							"[:inuse]"
 							:font_size
 							12
 							:pos
@@ -376,7 +376,7 @@
 							:stroke
 							0
 							:text
-							"[:recalloc]"
+							"[:realloc]"
 							:font_size
 							12
 							:pos
@@ -396,7 +396,7 @@
 							:stroke
 							0
 							:text
-							"[:statics_deinit]"
+							"[:recalloc]"
 							:font_size
 							12
 							:pos
@@ -416,13 +416,33 @@
 							:stroke
 							0
 							:text
-							"[:statics_init]"
+							"[:statics_deinit]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								116.05761
 								187.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							24
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:statics_init]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								116.05761
+								204.00000
 							)
 						)
 					)

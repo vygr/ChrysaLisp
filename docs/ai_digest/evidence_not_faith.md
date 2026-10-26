@@ -258,7 +258,7 @@ debug, 1,032 of 1,032 built release.
 
 So a build now has two stages. The VP stage compiles a source file once
 for a build mode, keeps the VP of its functions in a bundle under the
-file's name in `obj/vp/<mode>/`, and translates it for the platform it is
+file's name in `obj/vp/`, and translates it for the platform it is
 building at once. The translate stage gives the other platforms their
 code from the VP kept. Each stage does only what has changed: a file's VP
 when its sources are newer than its bundle, a platform's code of a file

@@ -19,9 +19,8 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args `(,nums) '(:nums))
-(errorcase
-	(assign `((,nums +array_length)) `(,len))
-	(gotoif `(,len < 4) 'error))
+(assign `((,nums +array_length)) `(,len))
+(gotoif `(,len < 4) 'error)
 
 	(call :array :slice `(,nums 0 4) `(,nums))
 	(assign `((,nums +array_begin)) `(,iter))
@@ -39,10 +38,9 @@
 	(exit `(,this ,nums))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(csr-sort csr)" +error_msg_wrong_types))
-	(signature '(:NUMS)))
+	(signature '(:NUMS))
 
 (def-func-end)
 
@@ -62,11 +60,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 	(list-bind-args args `(,nums1 ,nums2) '(:nums :nums))
-(errorcase
-	(assign `((,nums1 +array_length)) `(,len))
-	(gotoif `(,len < 4) 'error)
-	(assign `((,nums2 +array_length)) `(,len))
-	(gotoif `(,len < 4) 'error))
+(assign `((,nums1 +array_length)) `(,len))
+(gotoif `(,len < 4) 'error)
+(assign `((,nums2 +array_length)) `(,len))
+(gotoif `(,len < 4) 'error)
 
 	(assign `((,nums1 +array_begin)) `(,nums1))
 	(assign `((,nums2 +array_begin)) `(,nums2))
@@ -88,10 +85,9 @@
 	(exit `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(csr-cmp csr csr)" +error_msg_wrong_types))
-	(signature '(:NUMS :NUMS)))
+	(signature '(:NUMS :NUMS))
 
 (def-func-end)
 
@@ -146,10 +142,9 @@
 	(exit `(,dcy ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(csr-map-delete px py cx cy ax ay)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM)))
+	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM))
 
 (def-func-end)
 
@@ -199,9 +194,8 @@
 	(exit `(,ay ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(csr-map-insert px py icx icy ecx ecy dy ax ay)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM)))
+	(signature '(:NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM :NUM))
 
 (def-func-end)

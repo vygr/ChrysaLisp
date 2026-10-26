@@ -106,10 +106,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(png-unfilter-row row prev kind step)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM :NUM)))
+	(signature '(:str :str :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -187,10 +186,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(png-pixels row colour depth width palette clear)" +error_msg_wrong_types))
-	(signature '(:str :NUM :NUM :NUM :str :str)))
+	(signature '(:str :NUM :NUM :NUM :str :str))
 
 	(pop-scope-syms)
 
@@ -274,10 +272,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-idct-put c t k plane at pw)" +error_msg_wrong_types))
-	(signature '(:nums :nums :nums :str :NUM :NUM)))
+	(signature '(:nums :nums :nums :str :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -344,10 +341,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-line planes bases hs hmax width)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :NUM :NUM)))
+	(signature '(:list :nums :nums :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -500,10 +496,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-block-decode in state codes quant zigzag prior c)" +error_msg_wrong_types))
-	(signature '(:stream :nums :list :nums :nums :NUM :nums)))
+	(signature '(:stream :nums :list :nums :nums :NUM :nums))
 
 	(pop-scope-syms)
 
@@ -668,10 +663,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(jpg-prog-block kind in state code coefs base start end low val zigzag)" +error_msg_wrong_types))
-	(signature '(:NUM :stream :nums :obj :nums :NUM :NUM :NUM :NUM :NUM :nums)))
+	(signature '(:NUM :stream :nums :obj :nums :NUM :NUM :NUM :NUM :NUM :nums))
 
 	(pop-scope-syms)
 

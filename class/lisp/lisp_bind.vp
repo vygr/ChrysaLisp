@@ -15,18 +15,17 @@
 	(entry :lisp :lisp_env_push '(:r0 :r1))
 
 	(assign '((:r1 +array_length)) '(:r2))
-	(errorif '(:r2 > 1) 'error)
+	(gotoif '(:r2 > 1) 'error)
 	(vpif '(:r2 = 0))
 		(call :lisp :env_push '(:r0) '(:r0 :r1))
 		(class/obj/ref :r1 :r2)
 	(else)
 		(array-bind-args :r1 '(:r13))
-	(errorcase
-		(assign '((:r13 +obj_vtable)) '(:r3))
-		(f-bind :hmap :vtable :r4)
-		(gotoif '(:r4 /= :r3) 'error)
-		(assign '((:r13 +hmap_parent)) '(:r3))
-		(gotoif '(:r3 /= 0) 'error))
+	(assign '((:r13 +obj_vtable)) '(:r3))
+	(f-bind :hmap :vtable :r4)
+	(gotoif '(:r4 /= :r3) 'error)
+	(assign '((:r13 +hmap_parent)) '(:r3))
+	(gotoif '(:r3 /= 0) 'error)
 		(assign '((:r0 +lisp_environment)) '(:r2))
 		(assign '(:r2) '((:r13 +hmap_parent)))
 		(class/obj/ref :r13 :r2 2)
@@ -36,9 +35,8 @@
 	(exit :lisp :lisp_env_push '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(env-push [env])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(env-push [env])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -58,16 +56,15 @@
 
 	(assign '((:r0 +lisp_environment)) '(:r1))
 	(assign '((:r1 +hmap_parent)) '(:r2))
-	(errorif '(:r2 = 0) 'error)
+	(gotoif '(:r2 = 0) 'error)
 	(vp-xor-rr :r3 :r3)
 	(assign '(:r3 :r2) '((:r1 +hmap_parent) (:r0 +lisp_environment)))
 
 	(exit :lisp :lisp_env_pop '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(env-pop)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(env-pop)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -88,8 +85,7 @@
 	(array-bind-args :r1 '(:r1 :r2))
 	(jump :lisp :env_bind '(:r0 :r1 :r2))
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(bind (param ...) seq)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(bind (param ...) seq)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

@@ -13,13 +13,14 @@
 (enums +select 0
 	(enum reply launch timer))
 
-(defq +vp_modes ''("release" "debug" "validate"))
-
+;the build modes, 1 normal and 2 validate, a normal build and more checks
+;as it runs
 (defun vp-dir (mode)
 	; (vp-dir mode) -> path
-	;where a build mode's VP is kept, obj/vp/<mode>/, a bundle for each
-	;source file of the VP of its functions, under the file's own name
-	(cat "obj/vp/" (elem-get +vp_modes mode) "/"))
+	;where a build mode's VP is kept, obj/vp/, or obj/vp_validate/ beside
+	;it, a bundle for each source file of the VP of its functions, under the
+	;file's own name
+	(if (= mode 2) "obj/vp_validate/" "obj/vp/"))
 
 (defun biggest-first (units sizes)
 	;the units in the order the queue gives them out, the biggest first,
@@ -87,14 +88,16 @@
 		(. jobs :close))
 	(list made errors))
 
-(defun vp-stage (files *abi* *cpu*)
-	; (vp-stage files abi cpu) -> (made errors)
+(defun vp-stage (files *abi* *cpu* &optional kind)
+	; (vp-stage files abi cpu [kind]) -> (made errors)
 	;the VP of the functions of the source files, the same for every
 	;platform, a bundle of each file in (vp-dir) of the build mode, and this
-	;platform's code of it at once. The bundle is what the other platforms
-	;translate, not a scan of the source, a function in an (errorcase) is
-	;only made in some modes. A file that goes wrong has none written
-	(farm-jobs :vp (map (const list) (biggest-first files (map (# (second (pii-fstat %0))) files)))
+	;platform's code of it at once, or with kind :bundle no code of any
+	;platform. The bundle is what the other platforms translate, not a scan
+	;of the source, a function in a (validatecase) is only made in some
+	;modes. A file that goes wrong has none written
+	(setd kind :vp)
+	(farm-jobs kind (map (const list) (biggest-first files (map (# (second (pii-fstat %0))) files)))
 		*abi* *cpu*))
 
 (defun translate-stage (files *abi* *cpu*)
@@ -241,6 +244,21 @@
 				m (reduce (lambda (a d) (max a (get (sym d) newest))) (first (get k info)) v))
 			(when (> m v) (def newest k m) (setq changed :t))) files)))
 
+(defun make-newest (files classes)
+	; (make-newest files classes) -> files
+	;the files and all they include and import, each with the newest age of
+	;all it is made of in newest, and the .vp files of them given back. Of
+	;the caller's ages, info, newest, scans and scanned
+	(within-compile-env (lambda ()
+		(class-env classes)
+		(each-mergeable (#
+			(bind '(d p) (make-info %0))
+			(merge files d)
+			(def info (sym %0) (list d p))) files)))
+	(if scanned (scans-save scans))
+	(newest-ages files)
+	(filter (# (ends-with ".vp" %0)) files))
+
 (defun make (&optional files *abi* *cpu* walk force)
 	; (make [files abi cpu walk force])
 	;the functions that have changed, of the files and all they include, in
@@ -253,17 +271,7 @@
 	(bind '(vps classes) (ifn walk (all-build-files)))
 	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
 	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
-		dir (vp-dir *build_mode*))
-	;list of all file imports while defining dependencies and functions
-	(within-compile-env (lambda ()
-		(class-env classes)
-		(each-mergeable (#
-			(bind '(d p) (make-info %0))
-			(merge files d)
-			(def info (sym %0) (list d p))) files)))
-	(if scanned (scans-save scans))
-	(newest-ages files)
-	(setq files (filter (# (ends-with ".vp" %0)) files))
+		dir (vp-dir *build_mode*) files (make-newest files classes))
 	;the translators first, this platform's, the one that runs this, of
 	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
 	;for it, so those with anything they are made of newer are made before
@@ -309,6 +317,20 @@
 	(each (const print) (cat errors more))
 	(print "Done") :nil)
 
+(defun make-bundles (&optional mode)
+	; (make-bundles [mode])
+	;the VP alone of every file, the apps' too, that has anything newer than
+	;its bundle in (vp-dir) of the mode, no platform's code of it: what trace
+	;reads of a mode the platforms here are not built in
+	(if mode (defq *build_mode* mode))
+	(bind '(vps classes) (all-build-files))
+	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
+		dir (vp-dir *build_mode*) files (make-newest (cat vps (all-app-files)) classes))
+	(bind '(& errors) (vp-stage (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files)
+		(abi) (cpu) :bundle))
+	(each (const print) errors)
+	(print "Done") :nil)
+
 (defun make-boot-all (&optional *abi* *cpu* walk)
 	(setd *abi* (abi) *cpu* (cpu))
 	(boot-image
@@ -352,9 +374,8 @@
 	+supported_cpu ''(x86_64 x86_64 arm64 riscv64 la64))
 
 (defun make-them (action &optional mode files)
-	;every platform. With a mode all of them are built in it. With none
-	;the native ones are debug and the VP64 is release. The tree is walked
-	;once for all of them
+	;every platform, in the mode given or the one there is. The tree is
+	;walked once for all of them
 	(defq walk (all-build-files))
 	(setd files (copy (first walk)))
 	(if mode (defq *build_mode* mode))
@@ -364,16 +385,13 @@
 		+supported_abi +supported_cpu)
 	(each (# (unless (and (eql %0 run_abi) (eql %1 run_cpu)) (action files %0 %1 walk)))
 		+supported_abi +supported_cpu)
-	(ifn mode (defq *build_mode* 0))
 	(action files 'VP64 'vp64 walk))
 
 (defun make-vp (action &optional mode files)
-	;only the VP64, in a mode, release if none is given, as it is with
-	;none wherever it is built. The lint, which is only right on a debug
-	;build, asks for debug
+	;only the VP64, in the mode given or the one there is
 	(defq walk (all-build-files))
 	(setd files (copy (first walk)))
-	(defq *build_mode* (ifn mode 0))
+	(if mode (defq *build_mode* mode))
 	(action files 'VP64 'vp64 walk))
 
 (defun make-platforms (&optional mode) (make-them (const make) mode))
@@ -407,16 +425,11 @@
 	(print "Worst time " (time-in-seconds worst) " seconds")
 	:nil)
 
-(defun compile-test (&optional *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
-	(each (# (compile %0 *abi* *cpu*)) (defq files (all-vp-files)))
-	(compile files *abi* *cpu*))
-
 ;module
 (export-symbols
 	'(all-vp-files all-class-files
 	make make-all make-platforms make-all-platforms
 	remake remake-all make-app-platforms
 	remake-platforms remake-all-platforms remake-all-vp
-	compile-test make-time make-test))
+	make-bundles make-time make-test))
 (env-pop)

@@ -113,10 +113,6 @@
 	(defq ap_said (join ap_out ""))
 	(cond
 		((and (found? ap_said "Function override") (found? ap_said "main")) (++ ap_reached))
-		;a release build has no checks, a throw does not stop a load, and the
-		;main of the file is taken: loaded to its end, it got there. Found by
-		;the VP64 emulator, a release image, 2026-10-15
-		((and (not *test_checked*) (starts-with "loaded" ap_said)) (++ ap_reached))
 		(:t (push ap_stopped (cat file " " (slice ap_said 0 (min 160 (length ap_said)))))))
 	(cond
 		((found? ap_said "LAID OUT") (++ ap_laid))

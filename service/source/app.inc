@@ -138,8 +138,9 @@
 
 (defun source-mode ()
 	; (source-mode) -> str
-	;the build of this node, which VP it wants
-	(if (catch (progn (length "abc" 1) :nil) :t) "debug" "release"))
+	;the build of this node, which VP it wants: normal, a validate node is
+	;not told apart, and takes the VP of a normal one
+	"normal")
 
 (defun source-links (fn)
 	; (source-links fn) -> (name ...)

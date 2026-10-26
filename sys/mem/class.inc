@@ -11,6 +11,7 @@
 	(dec-method :alloc sys/mem/alloc :static (:r0) (:r0 :r1) (:r0-:r2 :f0-:f15))
 	(dec-method :calloc sys/mem/calloc :static (:r0) (:r0 :r1) (:r0-:r3 :f0-:f15))
 	(dec-method :free sys/mem/free :static (:r0) :nil (:r0-:r2))
+	(dec-method :bad_free sys/mem/bad_free :static :nil :nil ())
 	(dec-method :fill sys/mem/fill :static (:r0 :r1 :r2) (:r0) (:r0-:r1 :r3))
 	(dec-method :copy sys/mem/copy :static (:r0 :r1 :r2) (:r0 :r1) (:r0-:r3))
 	(dec-method :copy_to_ring sys/mem/copy_to_ring :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1) (:r0-:r3 :r5))

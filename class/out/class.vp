@@ -139,11 +139,10 @@
 		(assign `(,seq_num) `((,this +out_ack_seqnum)))
 		;wait for an ack
 		(vp-push this ack_num)
-	(errorcase
-		(assign `((,this +out_state)) `(,state))
-		(gotoif `(,state = +stream_mail_state_aborted) 'abort))
+	(assign `((,this +out_state)) `(,state))
+	(gotoif `(,state = +stream_mail_state_aborted) 'abort)
 		(call :sys_mail :read `((,this +out_ack_mbox_addr)) `(,this _))
-		(errorif `(,this = 0) 'abort)
+		(gotoif `(,this = 0) 'abort)
 		(call :sys_mail :free `(,this))
 		(vp-pop this ack_num)
 	(loop-end)
@@ -151,11 +150,10 @@
 	(exit :out :wait_acks `(,this))
 	(vp-ret)
 
-(errorcase
 (vp-label 'abort)
 	(vp-pop this ack_num)
 	(exit :out :wait_acks `(,this))
-	(vp-ret))
+	(vp-ret)
 
 (def-func-end)
 

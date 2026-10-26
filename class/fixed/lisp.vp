@@ -24,10 +24,9 @@
 
 	(mathop :sin)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sin fixed)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)
 
@@ -43,10 +42,9 @@
 
 	(mathop :cos)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(cos fixed)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)
 
@@ -62,10 +60,9 @@
 
 	(mathop :frac)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(frac num)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)
 
@@ -81,10 +78,9 @@
 
 	(mathop :floor)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(floor num)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)
 
@@ -100,10 +96,9 @@
 
 	(mathop :ceil)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(ceil num)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)
 
@@ -125,9 +120,8 @@
 	(assign '((:r1 +array_begin)) '(:r0))
 	(assign '((:r0 0)) '(:r0))
 
-(errorcase
-	(assign '((:r0 +num_value)) '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+(assign '((:r0 +num_value)) '(:r2))
+(gotoif '(:r2 = 0) 'error1)
 
 	(call :fixed :recip '(:r0) '(:r1))
 	(vp-pop :r0)
@@ -135,11 +129,10 @@
 	(exit :fixed :lisp_recip '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(recip fixed)" +error_msg_wrong_types))
-	(signature '(:fixed)))
+	(signature '(:fixed))
 
 (def-func-end)

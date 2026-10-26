@@ -25,10 +25,9 @@
 	(exit :num :lisp_num '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(num num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -53,9 +52,8 @@
 
 	(addop :add)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(+ num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(+ num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -71,9 +69,8 @@
 
 	(addop :sub)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(- num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(- num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -89,9 +86,8 @@
 
 	(addop :mul)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(* num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(* num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -107,9 +103,8 @@
 
 	(addop :min)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(min num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(min num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -125,9 +120,8 @@
 
 	(addop :max)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(max num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(max num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -138,8 +132,7 @@
 	(vp-cpy-rr :r1 :r13)
 	(assign '((:r1 +array_begin)) '(:r2))
 	(call :num %0 '((:r2 0) :r1) '(:r1))
-(errorcase
-	(gotoif '(:r1 = 0) 'error))
+(gotoif '(:r1 = 0) 'error)
 	(exit :num (sym (cat :lisp_ (rest %0))) '(:r12 :r1))
 	(vp-ret))
 
@@ -155,12 +148,11 @@
 
 	(divop :div)
 
-(errorcase
 (vp-label 'error)
 	(vp-cpy-rr :r12 :r0)
 	(vp-cpy-rr :r13 :r1)
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r1 "(/ num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(/ num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -176,12 +168,11 @@
 
 	(divop :mod)
 
-(errorcase
 (vp-label 'error)
 	(vp-cpy-rr :r12 :r0)
 	(vp-cpy-rr :r13 :r1)
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r1 "(% num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(% num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -215,9 +206,8 @@
 
 	(andop :and -1)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(logand [num] ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(logand [num] ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -233,9 +223,8 @@
 
 	(andop :or 0)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(logior [num] ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(logior [num] ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -251,9 +240,8 @@
 
 	(andop :xor 0)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(logxor [num] ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(logxor [num] ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -279,10 +267,9 @@
 
 	(shiftop :asr)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(>>> num cnt)" +error_msg_wrong_types))
-	(signature '(:num :NUM)))
+	(signature '(:num :NUM))
 
 (def-func-end)
 
@@ -298,10 +285,9 @@
 
 	(shiftop :shl)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(<< num cnt)" +error_msg_wrong_types))
-	(signature '(:num :NUM)))
+	(signature '(:num :NUM))
 
 (def-func-end)
 
@@ -317,10 +303,9 @@
 
 	(shiftop :shr)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(>> num cnt)" +error_msg_wrong_types))
-	(signature '(:num :NUM)))
+	(signature '(:num :NUM))
 
 (def-func-end)
 
@@ -351,9 +336,8 @@
 
 	(compareop :eq)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(= num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(= num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -369,9 +353,8 @@
 
 	(compareop :ge)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(>= num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(>= num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -387,9 +370,8 @@
 
 	(compareop :gt)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(> num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(> num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -405,9 +387,8 @@
 
 	(compareop :le)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(<= num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(<= num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -423,9 +404,8 @@
 
 	(compareop :lt)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(< num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(< num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -441,9 +421,8 @@
 
 	(compareop :ne)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(/= num num ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(/= num num ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -469,10 +448,9 @@
 
 	(mathop :random)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(random num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -488,10 +466,9 @@
 
 	(mathop :neg)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(neg num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -507,10 +484,9 @@
 
 	(mathop :sign)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sign num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -526,10 +502,9 @@
 
 	(mathop :abs)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(abs num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -549,20 +524,18 @@
 
 	(vp-cpy-rr :r0 :r13)
 	(array-bind-args :r1 '(:r0))
-(errorcase
-	(assign '((:r0 +num_value)) '(:r2))
-	(gotoif '(:r2 < 0) 'error1))
+(assign '((:r0 +num_value)) '(:r2))
+(gotoif '(:r2 < 0) 'error1)
 	(call :num :sqrt '(:r0) '(:r1))
 
 	(exit :num :lisp_sqrt '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-cpy-rr :r13 :r0)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sqrt num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -584,20 +557,18 @@
 
 	(vp-cpy-rr :r0 :r13)
 	(list-bind-args :r1 '(:r2 :r3) '(:obj :obj))
-(errorcase
-	(assign '((:r2 +obj_vtable) (:r3 +obj_vtable)) '(:r4 :r5))
-	(gotoif '(:r4 /= :r5) 'error1))
+(assign '((:r2 +obj_vtable) (:r3 +obj_vtable)) '(:r4 :r5))
+(gotoif '(:r4 /= :r5) 'error1)
 	(call :num :pow '(:r2 :r3) '(:r1))
 
 	(exit :num :lisp_pow '(:r13 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-cpy-rr :r13 :r0)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pow num power)" +error_msg_wrong_types))
-	(signature '(:num :num)))
+	(signature '(:num :num))
 
 (def-func-end)
 
@@ -640,10 +611,9 @@
 	(exit :num :lisp_n2i `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(n2i num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -689,10 +659,9 @@
 	(exit :num :lisp_n2f `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(n2f num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)
 
@@ -737,9 +706,8 @@
 	(exit :num :lisp_n2r `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(n2r num)" +error_msg_wrong_types))
-	(signature '(:num)))
+	(signature '(:num))
 
 (def-func-end)

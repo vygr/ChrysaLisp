@@ -93,24 +93,22 @@
 	(filter! (# (> %0 2)) (list 1 2 3 4)) '(3 4))
 
 ; --- an error thrown inside an iteration must not upset the loop around it ---
-;thrown errors are only caught by the iterators on an error checked build
+;thrown errors are caught by the iterators
 (defun it-nested (thrower)
 	; run thrower inside a catch, inside an each, and give the items and indices seen
 	(defq out (list))
 	(each (lambda (x) (catch (thrower) :t) (push out x (!))) (list 1 2 3))
 	out)
 
-(if *test_checked*
-	(test-cases
-		(it-nested (lambda () (each (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
-		(it-nested (lambda () (map (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
-		(it-nested (lambda () (filter (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
-		(it-nested (lambda () (some (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
-		(it-nested (lambda () (reduce (lambda (a y) (throw "e" 1)) (list 7 8) 0))) '(1 0 2 1 3 2)
-		;a bad argument list to the function, as a macro expansion can give
-		(it-nested (lambda () (map (lambda ((a b)) a) (list (list 1))))) '(1 0 2 1 3 2)
-		(it-nested (lambda () (sort (list 3 1 2) (lambda (a b) (throw "e" 1))))) '(1 0 2 1 3 2))
-	(test-skip "errors inside iteration" "needs an error checked build"))
+(test-cases
+	(it-nested (lambda () (each (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
+	(it-nested (lambda () (map (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
+	(it-nested (lambda () (filter (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
+	(it-nested (lambda () (some (lambda (y) (throw "e" 1)) (list 7 8)))) '(1 0 2 1 3 2)
+	(it-nested (lambda () (reduce (lambda (a y) (throw "e" 1)) (list 7 8) 0))) '(1 0 2 1 3 2)
+	;a bad argument list to the function, as a macro expansion can give
+	(it-nested (lambda () (map (lambda ((a b)) a) (list (list 1))))) '(1 0 2 1 3 2)
+	(it-nested (lambda () (sort (list 3 1 2) (lambda (a b) (throw "e" 1))))) '(1 0 2 1 3 2))
 
 ; --- times, while, until ---
 (defq it_count 0)

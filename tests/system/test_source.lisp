@@ -51,10 +51,10 @@
 ;this one, so the VP is the node's own, server zero's: one the node has not
 ;built is translated into the node's own place if it may be kept. The VP is
 ;NetSpeed's vops under names of this run's own
-(defq so_pid "run" so_mode (source-mode) so_sid (cat "T" so_pid)
-	so_dir (cat "obj/vp/" so_mode "/tests/source_" so_pid "/")
+(defq so_pid "run" so_sid (cat "T" so_pid)
+	so_dir (cat "obj/vp/tests/source_" so_pid "/")
 	so_name (cat "tests/source_" so_pid "/vops"))
-(defq so_entry (first (read (file-stream (cat "obj/vp/" so_mode "/apps/system/netspeed/lisp.vp"))))
+(defq so_entry (first (read (file-stream "obj/vp/apps/system/netspeed/lisp.vp")))
 	so_old (first so_entry))
 (save (str (cat (list so_name (map (lambda (inst)
 		(if (list? inst) (map (# (if (eql %0 so_old) so_name %0)) inst) inst)) (second so_entry)))
@@ -85,9 +85,7 @@
 	(task-server (cat "P" so_pid))
 	(assert-eq "a native placed in the task's server" :t (task-place (list so_native)))
 	(assert-eq "and bound from there, and run" 3 (length (progn (ffi so_name so_f) (so_f))))
-	(if *test_checked*
-		(assert-eq "one with a link to nothing is not placed" :nil (task-place (list so_bad)))
-		(test-skip "a native that links to nothing" "needs an error checked build"))
+	(assert-eq "one with a link to nothing is not placed" :nil (task-place (list so_bad)))
 	(assert-list-eq "the server is the task's" (list (cat "P" so_pid)) (filter (# (eql %0 (cat "P" so_pid))) (task-server)))
 	(task-server "")
 	;a task of a server that ends lets the rest go too
@@ -99,8 +97,8 @@
 
 ;a task of another system linked as that system: the node's functions that
 ;call one of its own, all the way down, linked again for its tasks
-(defq sl_svc so_svc sl_mode (source-mode)
-	sl_dir (cat "obj/vp/" sl_mode "/tests/source_lk/")
+(defq sl_svc so_svc
+	sl_dir "obj/vp/tests/source_lk/"
 	sl_f "tests/source_lk/f" sl_g "tests/source_lk/g"
 	sl_sender (cat sl_dir "sender.txt"))
 

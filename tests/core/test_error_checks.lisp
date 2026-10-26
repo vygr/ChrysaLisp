@@ -1,7 +1,5 @@
-(report-header "Error Checks: bad arguments must throw on a checked build")
+(report-header "Error Checks: bad arguments must throw")
 
-;these run only on an error checked build. A release build has no checks,
-;so there the forms are not run and are counted as skipped.
 
 ; --- index out of range ---
 (assert-error "elem-get past end str" (elem-get "abc" 3))

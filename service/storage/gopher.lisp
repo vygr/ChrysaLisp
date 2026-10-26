@@ -27,12 +27,9 @@
 ; the clock, it says no, and every loop of the function ends, and every
 ; function of it given to a map or an each does nothing more. So the
 ; function comes back by itself, soon, and is done with, who asked is
-; told none. Nothing is thrown: in a release build what an error is
-; passed back up by is not there, and an error thrown in a loop would be
-; a value it went round with. Chris: "it should be the case that
-; (time-slice) call if forced or injected into the gopher code", and, of
-; the throw it was first: "release mode is for fully tested code, it's
-; should never throw !"
+; told none. Nothing is thrown, it is told to stop and comes back by
+; itself. Chris: "it should be the case that (time-slice) call if forced
+; or injected into the gopher code"
 ;
 ; It is mailed its service, and then each gopher as the service is sent
 ; it: who to tell, a line, who asked, a line, - if that is who to tell,

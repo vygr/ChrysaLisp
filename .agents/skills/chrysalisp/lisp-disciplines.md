@@ -95,8 +95,8 @@ write new code this way.
 
 *	VP block forms, `(vpif)` `(loop-start)` `(switch)` and the like, indent
 	the lines between them. `(else)` `(vpcase)` `(vp-label)` sit one back.
-	`(errorcase)` `(validatecase)` `(noterrorcase)` add no indent, what is in
-	them sits where it would without them.
+	`(validatecase)` adds no indent, what is in it sits where it would
+	without it.
 
 *	No line starts with a close bracket, they gather on the line above.
 
@@ -287,9 +287,10 @@ independent, mutable empty list.
 
 There is no `return` keyword;
 a function yields the result of its last evaluated expression.
-Non-local exits (`catch`, `throw`) are strictly for debugging. Code must
-prioritize input validation to prevent invalid states from ever
-occurring, rather than catching errors after the fact.
+Non-local exits (`catch`, `throw`) work in every build, there is no build
+without them, but they are for faults and debugging, not a way to steer
+normal code. Code must prioritize input validation to prevent invalid
+states from ever occurring, rather than catching errors after the fact.
 
 ## Conditionals & Branching (`if`, `ifn`, `when`, `unless`)
 

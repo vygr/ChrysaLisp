@@ -553,8 +553,8 @@
 	;it, of any file system whose lister gives what is in a directory, as
 	;exfat-list and fat32-list do. It keeps a list of the directories still
 	;to do, it does not call itself, so the depth of the tree costs no stack.
-	;fnc giving :stop ends the walk there, no more read: not a throw, which
-	;a release build does not unwind. fnc is called from inside it, so the
+	;fnc giving :stop ends the walk there, no more read: not a throw. fnc
+	;is called from inside it, so the
 	;names it uses are not these: vol path fnc lister todo dirs entry child
 	(defq todo (list path))
 	(while (defq path (pop todo))

@@ -133,12 +133,11 @@
 	(vp-alloc local_size)
 	(assign `(,vars ,state) '((:rsp local_vars) (:rsp local_vals)))
 
-(errorcase
-	(assign `((,vars +obj_vtable) (@ ,(f-path :list :vtable))) `(,tmp ,tmp2))
-	(gotoif `(,tmp /= ,tmp2) 'error1)
-	(call :obj :inst_of `(,state (@ ,(f-path :seq :vtable))) `(_ ,tmp))
-	(gotoif `(,tmp = 0) 'error2)
-	(lisp-this this))
+(assign `((,vars +obj_vtable) (@ ,(f-path :list :vtable))) `(,tmp ,tmp2))
+(gotoif `(,tmp /= ,tmp2) 'error1)
+(call :obj :inst_of `(,state (@ ,(f-path :seq :vtable))) `(_ ,tmp))
+(gotoif `(,tmp = 0) 'error2)
+(lisp-this this)
 
 	(assign `((,this +lisp_sym_nil)) `(,tmp))
 	(class/obj/ref tmp tmp2)
@@ -228,7 +227,7 @@
 				(break)
 			(default)
 			(vp-label 'normal)
-				(errorif `(,index_vals = ,len) 'error)
+				(gotoif `(,index_vals = ,len) 'error)
 				(vp-add-cr 1 index_vals)
 				(assign `(,index_vals) '((:rsp local_index_vals)))
 				(vp-sub-cr 1 index_vals)
@@ -249,10 +248,9 @@
 			(lisp-this this)
 		(else)
 			;destructureing ?
-		(errorcase
-			(f-bind :list :vtable tmp2)
-			(gotoif `(,tmp /= ,tmp2) 'error1))
-			(errorif `(,index_vals = ,len) 'error)
+		(f-bind :list :vtable tmp2)
+		(gotoif `(,tmp /= ,tmp2) 'error1)
+			(gotoif `(,index_vals = ,len) 'error)
 			(vp-add-cr 1 index_vals)
 			(assign `(,index_vals) '((:rsp local_index_vals)))
 			(vp-sub-cr 1 index_vals)
@@ -265,16 +263,14 @@
 			(assign `(,tmp) '((:rsp local_value)))
 			(call :obj :deref '((:rsp local_sym)))
 			(lisp-this this)
-		(errorcase
-			(assign '((:rsp local_value)) `(,tmp))
-			(assign `((,tmp +obj_vtable) (,this +lisp_error)) `(,tmp ,tmp2))
-			(gotoif `(,tmp = ,tmp2) 'funcexit))
+		(assign '((:rsp local_value)) `(,tmp))
+		(assign `((,tmp +obj_vtable) (,this +lisp_error)) `(,tmp ,tmp2))
+		(gotoif `(,tmp = ,tmp2) 'funcexit)
 		(endif)
 	(loop-end)
 
-(errorcase
-	(assign '((:rsp local_index_vals) (:rsp local_len_vals)) '(:r1 :r2))
-	(gotoif '(:r1 /= :r2) 'error4))
+(assign '((:rsp local_index_vals) (:rsp local_len_vals)) '(:r1 :r2))
+(gotoif '(:r1 /= :r2) 'error4)
 
 (vp-label 'funcexit)
 	(assign '((:rsp local_value)) '(:r1))
@@ -289,7 +285,6 @@
 	(assign '((:rsp local_sym) (:rsp local_state)) '(:r3 :r2))
 	(goto 'derefed)
 
-(errorcase
 (vp-label 'error1)
 	(assign '((:rsp local_vars)) '(:r1))
 	(vp-free local_size)
@@ -307,6 +302,6 @@
 	(class/obj/ref :r2 :r3)
 	(call :list :push_back2 '(:r0 :r1 :r2) '(:r0 _ _ _ _))
 	(vp-free local_size)
-	(jump :lisp :repl_error '(:r0 "(bind (param ...) seq)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r0 "(bind (param ...) seq)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

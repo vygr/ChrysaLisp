@@ -99,7 +99,7 @@ simultaneously (e.g. `(assign '((:r0 +str_length)) '(:r1))`):
 	*	Open scope with `(push-scope)` at function start.
 
 	*	Place `(pop-scope-syms)` at the end of the `def-func` block (after
-		`errorcase` and `signature` sections) to cleanly purge compiler
+		the error labels and the `signature`) to cleanly purge compiler
 		tracking.
 
 *	**vpx Stack Packing & Unions:**
@@ -308,7 +308,7 @@ What a method trashes is in its declaration, `(dec-method name function type
 in out trashes own)` in the `class.inc`, and in the `;trashes` line of the
 function. `trashes` is what a call may trash, of a virtual method what any
 class called so may. `own` is what the one function does. Both are written
-by `trace -w` from a debug build, never by hand. `(method-trashes class
+by `trace -w` from a build, never by hand. `(method-trashes class
 method)` gives the registers.
 
 *	**Never make a function trash more than it does.** Hand-tuned callers
@@ -328,7 +328,8 @@ method)` gives the registers.
 	round, a register saved round a call that leaves it: a tool, not in
 	`lint`.
 
-*	**`trace -w` is one go**, on a debug build, then `lint`. It needed two
+*	**`trace -w` is one go**, `files obj/vp/ | trace -i -l -w`, then
+	`lint`. It needed two
 	till 2026-10-13: the database of classes was taken to be fresh when a
 	source had been written in the second it was made in, which is when
 	`trace -w` writes them. If it ever says the same thing twice, look
@@ -361,11 +362,10 @@ method)` gives the registers.
 
 *	Never put code after a function's `(signature ...)`. It is a table of
 	shorts and what follows can be two bytes off: fine on x64, a fault on
-	arm64. A side path goes before the `(errorcase` that holds the error
-	labels.
+	arm64. A side path goes before the error labels.
 
-*	**The scope stays till after the errorcase.** A side path moved in
-	front of the errorcase does not take the function's `(pop-scope-syms)`
+*	**The scope stays till after the error labels.** A side path moved in
+	front of them does not take the function's `(pop-scope-syms)`
 	with it: the error code that follows still wants the scope. Never pop
 	the scope early to make room for a side path, and never give a side
 	path a `(push-scope)` of its own inside the function's. A callback run
@@ -383,10 +383,9 @@ method)` gives the registers.
 			(vp-pop :r1)
 			(vp-ret)
 
-		(errorcase
 		(vp-label 'error)
 			(jump :lisp :repl_error ...)
-			(signature ...))
+			(signature ...)
 
 		(def-func-end)
 

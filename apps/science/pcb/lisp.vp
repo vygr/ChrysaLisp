@@ -62,10 +62,9 @@
 	(exit (vpx this hit))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(hit-line buckets minx miny maxx maxy width id func line)" +error_msg_wrong_types))
-	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :NUM :LIST :obj)))
+	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :NUM :LIST :obj))
 
 	(pop-scope-syms)
 
@@ -118,10 +117,9 @@
 	(exit `(,this ,record))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(add-line buckets minx miny maxx maxy width record)" +error_msg_wrong_types))
-	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :LIST)))
+	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :LIST))
 
 (def-func-end)
 
@@ -173,10 +171,9 @@
 	(exit (vpx this buckets))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sub-line buckets minx miny maxx maxy width line)" +error_msg_wrong_types))
-	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :FIXEDS)))
+	(signature '(:LIST :NUM :NUM :NUM :NUM :NUM :FIXEDS))
 
 	(pop-scope-syms)
 

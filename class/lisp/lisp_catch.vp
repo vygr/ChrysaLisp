@@ -20,10 +20,9 @@
 	(list-bind-args :r1 `(,desc ,payload) '(:str :obj))
 	(jump :lisp :repl_error `(,payload ,desc 0))
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(throw str form)" +error_msg_wrong_types))
-	(signature '(:str :obj)))
+	(signature '(:str :obj))
 
 (def-func-end)
 
@@ -43,9 +42,8 @@
 
 	(entry :lisp :lisp_catch '(:r0 :r1))
 
-(errorcase
-	(assign '((:r1 +array_length)) '(:r2))
-	(gotoif '(:r2 /= 3) 'error1))
+(assign '((:r1 +array_length)) '(:r2))
+(gotoif '(:r2 /= 3) 'error1)
 
 	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))
@@ -96,8 +94,7 @@
 	(vp-free +ptr_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error '(:r1 "(catch form eform)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(catch form eform)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

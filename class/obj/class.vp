@@ -185,7 +185,7 @@
 
 (validatecase (def-method :obj :dead)
 	;trashes
-	;:r0-:r1, :f0-:f15
+	;none
 	;info
 	;a ref or deref of an object that is not alive, report and dump
 

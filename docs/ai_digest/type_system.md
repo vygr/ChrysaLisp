@@ -5,11 +5,9 @@ engineering, perfectly encapsulating the system's core philosophies: "Know
 Thyself" and "Well, Don't Do That Then!".
 
 It achieves a seemingly impossible feat: a complete rebuild of the entire OS and
-libraries from source in under 0.1 seconds. Incredibly, this worst-case metric
-occurs in `*build_mode* 1` (debug mode), where the Lisp interpreter dynamically
-type-checks every function call signature at runtime. In `*build_mode* 0`
-(release mode), this entire type-checking apparatus compiles completely out of
-existence, yielding bare-metal speeds.
+libraries from source in under 0.1 seconds, with the Lisp interpreter
+dynamically type-checking every function call signature at runtime. The checks
+are always in, and they cost close to nothing.
 
 The secret to this performance lies in rejecting traditional Run-Time Type
 Information (RTTI) and bloated object headers in favor of radically simple,
@@ -71,8 +69,7 @@ binary format.
 
 ## Compile-Time Signatures and Runtime Resolution
 
-When operating in debug mode, functions validate their arguments against
-declared signatures (e.g., `(signature '(:str :num))`).
+Functions validate their arguments against declared signatures (e.g., `(signature '(:str :num))`).
 
 * **Static Offsets:** The VP assembler converts these signature declarations
   into an array of 16-bit relative offsets pointing into the VP function's link
@@ -87,25 +84,22 @@ declared signatures (e.g., `(signature '(:str :num))`).
   uses the 16-bit offset to find the absolute link entry address, and passes
   that directly into the `:obj :inst_of` linked-list traversal mentioned above.
 
-## The `errorcase` Macro: Zero-Cost Abstractions
+## Checks Always In, `validatecase` For More
 
-The magic behind the system's dual-mode performance is the ubiquitous
-`errorcase` (and `validatecase`) macro, which physically removes the type system
-from the execution path in production environments.
+There is no build that strips the type checks. The normal build,
+`*build_mode* 1`, is the default, and signature arrays and argument checks are
+always compiled in. A check is plain VP code: a call such as
+`:lisp :env_args_sig`, then a `gotoif` to the error label.
 
-* **Debug Mode (`*build_mode* 1`):** The `errorcase` macro expands its contents
-  normally. Signature arrays are embedded in the binary, and argument
-  verification logic is compiled into the VP assembler streams, providing robust
-  safety during development.
+* **Normal (`*build_mode* 1`):** Signature checks at the Lisp/VP boundary,
+  reader checks and the rest are in.
 
-* **Release Mode (`*build_mode* 0`):** The `errorcase` macro expands to nothing.
-  The entire Abstract Syntax Tree (AST) node representing the type
-  check—including the generation of the `(signature ...)` block itself—is
-  completely ignored by the Lisp parser and VP compiler.
+* **Validate (`*build_mode* 2`):** The `validatecase` macro adds deeper runtime
+  checks on top: heap patterns, guard words and dead object checks.
 
-The result is a codebase that guarantees type safety when requested, but incurs
-literally zero bytes of memory overhead and zero cycles of CPU overhead in
-deployment.
+Leaving the checks out was measured. Natively there was no speed difference
+that could be measured; under the VP64 emulator about 5% faster, and the
+images about 10% smaller. Not worth two builds that behave differently.
 
 ## Allocation-Free Type Vectors
 

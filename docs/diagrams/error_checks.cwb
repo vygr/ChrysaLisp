@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
-	:width 608
+	:width 585
 	:height 290
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 38
+	:next_id 37
 	:items
 	((:list 1)
 		((:list 7)
@@ -13,7 +13,7 @@
 			:id
 			1
 			:items
-			((:list 12)
+			((:list 11)
 				((:list 5)
 					:group
 					:id
@@ -23,7 +23,7 @@
 						((:list 13)
 							:shape
 							:id
-							14
+							13
 							:d
 							"[M 120 44 L 120 76]"
 							:stroke
@@ -38,7 +38,7 @@
 						((:list 9)
 							:shape
 							:id
-							15
+							14
 							:d
 							"[M 120 76 L 116 67 124 67 Z]"
 							:fill
@@ -57,7 +57,7 @@
 						((:list 13)
 							:shape
 							:id
-							16
+							15
 							:d
 							"[M 120 138 L 120 170]"
 							:stroke
@@ -72,7 +72,7 @@
 						((:list 9)
 							:shape
 							:id
-							17
+							16
 							:d
 							"[M 120 170 L 116 161 124 161 Z]"
 							:fill
@@ -91,7 +91,7 @@
 						((:list 13)
 							:shape
 							:id
-							18
+							17
 							:d
 							"[M 240 107 L 320 107]"
 							:stroke
@@ -106,7 +106,7 @@
 						((:list 9)
 							:shape
 							:id
-							19
+							18
 							:d
 							"[M 320 107 L 311 111 311 103 Z]"
 							:fill
@@ -145,13 +145,13 @@
 						((:list 5)
 							:group
 							:id
-							20
+							19
 							:items
 							((:list 3)
 								((:list 11)
 									:shape
 									:id
-									24
+									23
 									:d
 									"[M 6 0 L 234 0 A 6 6 0 0 1 240 6 L 240 38 A 6 6 0 0 1 234 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -164,7 +164,7 @@
 								((:list 17)
 									:shape
 									:id
-									25
+									24
 									:kind
 									:text
 									:fill
@@ -186,7 +186,7 @@
 								((:list 15)
 									:shape
 									:id
-									26
+									25
 									:kind
 									:text
 									:fill
@@ -216,13 +216,13 @@
 						((:list 5)
 							:group
 							:id
-							21
+							20
 							:items
 							((:list 4)
 								((:list 11)
 									:shape
 									:id
-									27
+									26
 									:d
 									"[M 6 0 L 234 0 A 6 6 0 0 1 240 6 L 240 56 A 6 6 0 0 1 234 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -235,7 +235,7 @@
 								((:list 17)
 									:shape
 									:id
-									28
+									27
 									:kind
 									:text
 									:fill
@@ -257,7 +257,7 @@
 								((:list 15)
 									:shape
 									:id
-									29
+									28
 									:kind
 									:text
 									:fill
@@ -277,7 +277,7 @@
 								((:list 15)
 									:shape
 									:id
-									30
+									29
 									:kind
 									:text
 									:fill
@@ -312,13 +312,13 @@
 						((:list 5)
 							:group
 							:id
-							22
+							21
 							:items
 							((:list 4)
 								((:list 11)
 									:shape
 									:id
-									31
+									30
 									:d
 									"[M 6 0 L 234 0 A 6 6 0 0 1 240 6 L 240 56 A 6 6 0 0 1 234 62 L 6 62 A 6 6 0 0 1 0 56 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -331,7 +331,7 @@
 								((:list 17)
 									:shape
 									:id
-									32
+									31
 									:kind
 									:text
 									:fill
@@ -353,7 +353,7 @@
 								((:list 15)
 									:shape
 									:id
-									33
+									32
 									:kind
 									:text
 									:fill
@@ -373,7 +373,7 @@
 								((:list 15)
 									:shape
 									:id
-									34
+									33
 									:kind
 									:text
 									:fill
@@ -408,13 +408,13 @@
 						((:list 5)
 							:group
 							:id
-							23
+							22
 							:items
 							((:list 3)
 								((:list 11)
 									:shape
 									:id
-									35
+									34
 									:d
 									"[M 6 0 L 184 0 A 6 6 0 0 1 190 6 L 190 38 A 6 6 0 0 1 184 44 L 6 44 A 6 6 0 0 1 0 38 L 0 6 A 6 6 0 0 1 6 0 Z]"
 									:fill
@@ -427,7 +427,7 @@
 								((:list 17)
 									:shape
 									:id
-									36
+									35
 									:kind
 									:text
 									:fill
@@ -449,7 +449,7 @@
 								((:list 15)
 									:shape
 									:id
-									37
+									36
 									:kind
 									:text
 									:fill
@@ -486,7 +486,7 @@
 					:stroke
 					0
 					:text
-					"[*build_mode* 1, debug: the checks are there, as drawn.]"
+					"[The checks are in every build, normal or validate.]"
 					:font_size
 					11
 					:pos
@@ -506,7 +506,7 @@
 					:stroke
 					0
 					:text
-					"[*build_mode* 0, release: they are not in the code at all.]"
+					"[A validate build adds checks of the heap as it runs.]"
 					:font_size
 					11
 					:pos
@@ -522,31 +522,11 @@
 					:kind
 					:text
 					:fill
-					4284245616
-					:stroke
-					0
-					:text
-					"[A wrong argument then stops the node, or worse.]"
-					:font_size
-					11
-					:pos
-					((:list 2)
-						320.00000
-						212.00000
-					)
-				)
-				((:list 15)
-					:shape
-					:id
-					13
-					:kind
-					:text
-					:fill
 					4280296488
 					:stroke
 					0
 					:text
-					"[Errors are for finding mistakes while a thing is made. What is shipped is meant to make none.]"
+					"[Check once at the boundary, and the code below can trust what it is given.]"
 					:font_size
 					12
 					:pos

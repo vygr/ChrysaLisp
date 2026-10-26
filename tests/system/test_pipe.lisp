@@ -31,32 +31,25 @@
 (. pipe :close)
 (assert-true "pipe eof, then its output" (found? (apply (const cat) pipe_out) "after eof"))
 
-; --- Abort, the signal path, signals are a debug build only feature ---
+; --- Abort, the signal path ---
 (defq reply_mbox (mail-mbox)
-	pipe (pipe-test-child reply_mbox "(mail-read (task-mbox))")
-	child_mbox (first (get :ids pipe)))
+	pipe (pipe-test-child reply_mbox "(mail-read (task-mbox))"))
 (assert-eq "pipe abort blocked" :nil (mail-read-timeout reply_mbox 100000))
 (. pipe :abort)
-(cond
-	((defq reply (mail-read-timeout reply_mbox))
-		(assert-eq "pipe abort mailbox" "done" reply)
-		(defq reply_mbox (mail-mbox)
-			pipe (pipe-test-child reply_mbox "(read-line (io-stream 'stdin))"))
-		(assert-eq "pipe abort stdin blocked" :nil (mail-read-timeout reply_mbox 100000))
-		(. pipe :abort)
-		(assert-eq "pipe abort stdin" "done" (mail-read-timeout reply_mbox))
-		;reader errors, also debug build only, an unbalanced form must be
-		;reported and must not crash the node
-		(each (lambda ((name cmdline err))
-				(defq pipe_out (list))
-				(pipe-run cmdline (# (push pipe_out %0)))
-				(assert-true name (found? (apply (const cat) pipe_out) err)))
-			'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
-			("read unexpected )" "lisp -r (print 1))" "unexpected )"))))
-	(:t ;release build, so wake the child to let it exit
-		(test-skip "pipe abort and reader errors" "needs an error checked build")
-		(mail-send child_mbox "")
-		(assert-eq "pipe abort child exit" "done" (mail-read-timeout reply_mbox))))
+(assert-eq "pipe abort mailbox" "done" (mail-read-timeout reply_mbox))
+(defq reply_mbox (mail-mbox)
+	pipe (pipe-test-child reply_mbox "(read-line (io-stream 'stdin))"))
+(assert-eq "pipe abort stdin blocked" :nil (mail-read-timeout reply_mbox 100000))
+(. pipe :abort)
+(assert-eq "pipe abort stdin" "done" (mail-read-timeout reply_mbox))
+;reader errors, an unbalanced form must be reported and must not crash
+;the node
+(each (lambda ((name cmdline err))
+		(defq pipe_out (list))
+		(pipe-run cmdline (# (push pipe_out %0)))
+		(assert-true name (found? (apply (const cat) pipe_out) err)))
+	'(("read missing )" "lisp -r (print (+ 1 2)" "missing )")
+	("read unexpected )" "lisp -r (print 1))" "unexpected )")))
 
 ; --- Abort of a command that never reads or writes. It is signalled, and
 ; --- (task-sleep) and (task-slice) are where it finds that it was, an
@@ -71,26 +64,23 @@
 		"}) (if (found? (str _) {task_aborted}) {aborted} {other})) :nil)))")))
 	(assert-eq "the command starts" "started" (mail-read reply_mbox))
 	pipe)
-;a task is stopped by an error, so this is of a build that checks for them
-(cond
-	((not *test_checked*) (test-skip "abort of a command that never reads or writes" "needs an error checked build"))
-	(:t
-	(defq reply_mbox (mail-mbox)
-		pipe (pipe-told reply_mbox (cat "(task-sleep " (str (task-timeout 600)) ")")))
-	(assert-eq "a command that only sleeps says no more" :nil (mail-read-timeout reply_mbox 200000))
-	;its sleep is longer than the suite waits for a module, so that it is
-	;told at all is that it was woken
-	(. pipe :abort)
-	(assert-eq "aborted, it is woken and stopped, it does not sleep on" "aborted" (mail-read reply_mbox))
-	(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox "(while :t (task-slice))"))
-	(assert-eq "a command that only works, and lets others run, says no more" :nil (mail-read-timeout reply_mbox 200000))
-	(. pipe :abort)
-	(assert-eq "aborted, it is stopped" "aborted" (mail-read reply_mbox))
-	(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox
-		(cat "(progn (catch (task-sleep " (str (task-timeout 600)) ") :t) (while :t (task-sleep 1000)))")))
-	(task-sleep 200000)
-	(. pipe :abort)
-	(assert-eq "one that catches the error and sleeps again is stopped again" "aborted" (mail-read reply_mbox))))
+;a task is stopped by an error
+(defq reply_mbox (mail-mbox)
+	pipe (pipe-told reply_mbox (cat "(task-sleep " (str (task-timeout 600)) ")")))
+(assert-eq "a command that only sleeps says no more" :nil (mail-read-timeout reply_mbox 200000))
+;its sleep is longer than the suite waits for a module, so that it is
+;told at all is that it was woken
+(. pipe :abort)
+(assert-eq "aborted, it is woken and stopped, it does not sleep on" "aborted" (mail-read reply_mbox))
+(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox "(while :t (task-slice))"))
+(assert-eq "a command that only works, and lets others run, says no more" :nil (mail-read-timeout reply_mbox 200000))
+(. pipe :abort)
+(assert-eq "aborted, it is stopped" "aborted" (mail-read reply_mbox))
+(defq reply_mbox (mail-mbox) pipe (pipe-told reply_mbox
+	(cat "(progn (catch (task-sleep " (str (task-timeout 600)) ") :t) (while :t (task-sleep 1000)))")))
+(task-sleep 200000)
+(. pipe :abort)
+(assert-eq "one that catches the error and sleeps again is stopped again" "aborted" (mail-read reply_mbox))
 ;a task that is not aborted sleeps and wakes as it did
 (defq t0 (pii-time))
 (task-sleep 50000)
@@ -128,7 +118,6 @@
 
 ;an outfun that goes wrong is an error the caller has, and not a task that
 ;waits for ever on the pipe it let go of
-;only a checked build has the error, a release build skips the two
 (defq pipe_err :nil)
 (assert-error "an outfun of the wrong number of args is an error" (pipe-run "echo one two" (# :nil)))
 (setq pipe_out (list))
@@ -195,26 +184,24 @@
 ;a command whose file is there and throws as it loads. Its task has no
 ;main, and went with the pipe still waiting to hear it was up. It is
 ;started as a form that catches the load, takes its stdio and says why
-(cond
-	((not *test_checked*) (test-skip "a command that throws as it loads" "needs an error checked build"))
-	(:t (save "(defq tmp_pipe_load (tmp-pipe-no-such-function 1))\n(defun main ()\n\t(print {never}))\n"
-			"cmd/tmp_pipe_bad_load.lisp")
-		(setq pipe_out (list))
-		(pipe-run "tmp_pipe_bad_load" (# (push pipe_out %0)))
-		(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
-		(assert-true "and the pipe is told why" (nempty? (substr pipe_said "symbol_not_bound")))
-		(assert-true "with the name of what was not there" (nempty? (substr pipe_said "tmp-pipe-no-such-function")))
-		(assert-true "its main is not run" (empty? (substr pipe_said "never")))
-		(setq pipe_out (list))
-		(pipe-run "echo one | tmp_pipe_bad_load | cat" (# (push pipe_out %0)))
-		(assert-true "in the middle of a pipeline it is the same"
-			(nempty? (substr (apply (const cat) (cat (list "") pipe_out)) "symbol_not_bound")))
-		(pii-remove "cmd/tmp_pipe_bad_load.lisp")
-		(setq pipe_out (list))
-		(pipe-run "echo one two" (# (push pipe_out %0)))
-		(assert-true "and a pipe run after it is as ever" (nempty? pipe_out))))
+(save "(defq tmp_pipe_load (tmp-pipe-no-such-function 1))\n(defun main ()\n\t(print {never}))\n"
+	"cmd/tmp_pipe_bad_load.lisp")
+(setq pipe_out (list))
+(pipe-run "tmp_pipe_bad_load" (# (push pipe_out %0)))
+(defq pipe_said (apply (const cat) (cat (list "") pipe_out)))
+(assert-true "and the pipe is told why" (nempty? (substr pipe_said "symbol_not_bound")))
+(assert-true "with the name of what was not there" (nempty? (substr pipe_said "tmp-pipe-no-such-function")))
+(assert-true "its main is not run" (empty? (substr pipe_said "never")))
+(setq pipe_out (list))
+(pipe-run "echo one | tmp_pipe_bad_load | cat" (# (push pipe_out %0)))
+(assert-true "in the middle of a pipeline it is the same"
+	(nempty? (substr (apply (const cat) (cat (list "") pipe_out)) "symbol_not_bound")))
+(pii-remove "cmd/tmp_pipe_bad_load.lisp")
+(setq pipe_out (list))
+(pipe-run "echo one two" (# (push pipe_out %0)))
+(assert-true "and a pipe run after it is as ever" (nempty? pipe_out))
 
-(undef (env) 'pipe_ask 'pipe_err 'pipe 'pipe_out 'reply_mbox 'child_mbox 'reply 'farmed)
+(undef (env) 'pipe_ask 'pipe_err 'pipe 'pipe_out 'reply_mbox 'farmed)
 
 ;what a command says on its stderr and what it says on its stdout are two
 ;streams, and come in either order. A pipe that took the stdout stopping

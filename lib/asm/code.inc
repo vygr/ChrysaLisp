@@ -171,41 +171,37 @@
 (defun endif ()
 	(endswitch))
 
-;;;;;;;;;;;;
-; errorcase
-;;;;;;;;;;;;
+;;;;;;;;;;;;;;
+; validatecase
+;;;;;;;;;;;;;;
 
+;the checks of a validate build, which a normal one has not
 (defmacro validatecase (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
-(defmacro errorcase (&rest e) (if (>= *build_mode* 1) `(progn ~e)))
-(defmacro noterrorcase (&rest e) (if (<= *build_mode* 0) `(progn ~e)))
-(defmacro errorif (e l) `(errorcase (gotoif ,e ,l)))
-(defmacro errorifnot (e l) `(errorcase (gotoifnot ,e ,l)))
 
 (defmacro errorif-lisp-args-len (l args cnd len)
-	`(errorcase
+	`(progn
 		(assign '((,args +array_length)) '(:r2))
 		(gotoif '(:r2 ,cnd ,len) ,l)))
 
 (defmacro errorif-lisp-args-sig (l args len1 &optional len2)
 	(setd len2 len1)
-	`(errorcase
+	`(progn
 		(call :lisp :env_args_sig '(,args ($ sig) ,len1 ,len2) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-match (l args class len)
-	`(errorcase
+	`(progn
 		(call :lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-type (l args class len)
-	`(errorcase
+	`(progn
 		(call :lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(_ tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 ;module
 (export-symbols
-	'(errorcase noterrorcase errorif errorifnot
-	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
+	'(errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
 	vpif vpifnot else elseif elseifnot endif validatecase

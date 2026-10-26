@@ -231,7 +231,7 @@
 ;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,
 ;and then reads :r1, which it was given, :r2, which it was not, and :r3,
 ;which is not trashed
-(defq tt_probe "obj/vp/debug/tests/scratch_relies_probe")
+(defq tt_probe "obj/vp/tests/scratch_relies_probe")
 (save (cat "(\qtests/scratch_relies_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
 	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-cpy-cr 5 :r2)" tt_lf "(emit-cpy-cr 6 :r3)" tt_lf
 	"(emit-call-p _7)" tt_lf "(emit-add-rr :r1 :r0)" tt_lf "(emit-add-rr :r2 :r0)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf
@@ -253,7 +253,7 @@
 ;docs/vm/vp_vm.md, and may be taken back in any grouping, but not more than
 ;was put on, nor left on as it returns. A function made up that pushes two,
 ;takes them back with one free, allocs 16 and frees 8, and returns
-(defq tt_probe "obj/vp/debug/tests/scratch_stack_probe")
+(defq tt_probe "obj/vp/tests/scratch_stack_probe")
 (save (cat "(\qtests/scratch_stack_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
 	"(emit-label '_1)" tt_lf "(emit-push :r1 :r3)" tt_lf "(emit-free 16)" tt_lf
 	"(emit-alloc 16)" tt_lf "(emit-free 8)" tt_lf "(emit-ret)" tt_lf
@@ -270,7 +270,7 @@
 ;leaves it. A function made up that pushes :r1 and :r3 round :sys_mem
 ;:alloc, which trashes :r0 to :r2 and gives :r0 and :r1: :r3 is put by
 ;for nothing, :r1 is not
-(defq tt_probe "obj/vp/debug/tests/scratch_saves_probe")
+(defq tt_probe "obj/vp/tests/scratch_saves_probe")
 (save (cat "(\qtests/scratch_saves_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _6 _8 4096)" tt_lf
 	"(emit-label '_1)" tt_lf "(emit-cpy-cr 8 :r0)" tt_lf "(emit-push :r1 :r3)" tt_lf
 	"(emit-call-p _7)" tt_lf "(emit-pop :r1 :r3)" tt_lf "(emit-add-rr :r3 :r0)" tt_lf "(emit-ret)" tt_lf
@@ -309,12 +309,12 @@
 (pipe-run (cat "rm " tt_file) (lambda (&) :nil))
 
 ;(locals), what a function's named locals cost: a function made up for it,
-;as an assembled one is left in obj/vp/debug/, with a frame of three, a, b and
+;as an assembled one is left in obj/vp/, with a frame of three, a, b and
 ;a struct s. a is read before the call, b after it, s has its address
 ;taken, and the last write of a is of nothing that is read. Kept in
 ;registers no call keeps: the read of a is of what was just written, and
 ;only b has to be written before the call
-(defq tt_probe "obj/vp/debug/tests/scratch_locals_probe")
+(defq tt_probe "obj/vp/tests/scratch_locals_probe")
 (save (cat "(\qtests/scratch_locals_probe\q" tt_lf "(progn" tt_lf "(emit-label '_0)" tt_lf "(emit-long -1)" tt_lf "(emit-short _9 _1 _8 _9 4096)" tt_lf
 	"(emit-label '_1)" tt_lf "(emit-alloc 32)" tt_lf "(emit-cpy-ri :r0 :rsp 0)" tt_lf "(emit-cpy-ri :r1 :rsp 8)" tt_lf
 	"(emit-cpy-ir :rsp 0 :r0)" tt_lf "(emit-call-p _7)" tt_lf "(emit-cpy-ir :rsp 8 :r1)" tt_lf

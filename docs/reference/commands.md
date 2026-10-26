@@ -225,8 +225,7 @@ Usage: check [options] [path] ...
             this file, of what it imports, and of what those
             import, nor of what root.inc imports. A module that
             works only because what loaded it first had
-            imported the structure fails on its own, and on a
-            release build its class is not made at all. And
+            imported the structure fails on its own. And
             in any file, a (structure +x) where root.inc's
             imports have a +x already.
     vpname  a + name given by a (defq) in a .vp file that a
@@ -897,13 +896,15 @@ Usage: lint [options]
 
     The trace lint works out what each function really
     trashes, and says where that is not what its header has
-    written down. It is only right on a debug build, and a
-    build keeps the VP of each mode it makes, obj/vp/<mode>/,
-    so this makes what has changed, 'make' then 'make apps',
-    which are debug, and runs
-    'files obj/vp/debug/ | trace -i -l'.
+    written down. A normal build keeps its VP in obj/vp/,
+    so this makes what has changed, 'make'
+    then 'make apps', and runs
+    'files obj/vp/ | trace -i -l'. And the same of the VP of
+    a validate build, 'make trace validate' then
+    'files obj/vp_validate/ | trace -i -l', no platform is
+    built in it: a (validatecase) must use no more registers.
 
-    Then 'relies -q', on the same debug build: where a
+    Then 'relies -q', on the same build: where a
     function reads a register after a call that is declared
     to trash it, which the trace does not look for.
 
@@ -947,7 +948,7 @@ Usage: locals [options] [function] ...
     What the named locals of each VP function cost, and what
     of that a compiler that kept them in registers could save.
     It reads the instructions of a function as they were
-    assembled, the debug VP a build keeps, obj/vp/debug/,
+    assembled, the VP a normal build keeps, obj/vp/,
     and sees the function whole: where its frame
     is made and let go of, each place in the frame that is
     read or written, a local, which of them have their
@@ -986,7 +987,7 @@ Usage: lz4 [options] [file]
 ## make
 ```code
 Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [vp] [release] [debug] [validate] [test] [fmt]
+    [vp] [trace] [validate] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -997,20 +998,18 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
     vp:         only the VP64.
+    trace:      only the VP of each file, the apps' too, no
+                code of any platform: what trace reads.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
     apps:       only the apps !
-    release:    release mode, no error checks.
-    debug:      debug mode, with error checks.
-    validate:   validate mode, debug and more checks as it runs.
+    validate:   validate mode, more checks as it runs.
     test:       test make timings.
     fmt:        format all the source files, with the fmt command.
 
-    A mode goes with any build, and all that is built is built
-    in it. With none it is debug for all, and the VP64 is in
-    release: so for 'it', 'apps' and 'vp', and the others
-    build this platform, in debug.
+    validate goes with any build, and all that is built is
+    built so, without it all is built in the normal mode.
 ```
 ## mesh
 ```code
@@ -1255,8 +1254,8 @@ Usage: relies [options] [function] ...
     changed inside what it declares, and what calls it is then
     wrong with nothing to say so.
 
-    This reads each function as it was assembled, the debug
-    VP a build keeps, obj/vp/debug/, and works out which registers are still wanted
+    This reads each function as it was assembled, the VP a
+    normal build keeps, obj/vp/, and works out which registers are still wanted
     after each instruction, backwards from where it ends, by
     what each instruction reads and writes. A call reads what
     its method takes and writes what it gives. A register
@@ -1736,6 +1735,10 @@ Usage: trace [options] [function_name] ...
     Calculate and trace active transitive register clobber state for
     virtual methods and static functions. Analyses compiled instructions
     directly via symbolic execution and traces live registers.
+
+    The VP is a normal build's, obj/vp/, or a validate build's if
+    the bundles given are of obj/vp_validate/: the same trashes
+    hold for both, a (validatecase) must use no more registers.
 
     Shaders assembled as they ran, lib/gpu/jit/, are left out.
 ```

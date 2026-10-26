@@ -4645,9 +4645,8 @@ n bits of two's complement
 a channel's n samples of bps bits: one number, the samples as they
 are, a fixed prediction, or an LPC one, then any bits wasted put back.
 One the format forbids, an order past its samples, a precision of 16, a
-shift down by less than 0, a reserved type, is heard as nothing: a
-release build does not stop at a throw, the error a value that would
-go on into the natives
+shift down by less than 0, a reserved type, is heard as nothing, not
+thrown
 ```
 
 ### flac-unary
@@ -4884,8 +4883,8 @@ every file and directory under a path, a directory before what is in
 it, of any file system whose lister gives what is in a directory, as
 exfat-list and fat32-list do. It keeps a list of the directories still
 to do, it does not call itself, so the depth of the tree costs no stack.
-fnc giving :stop ends the walk there, no more read: not a throw, which
-a release build does not unwind. fnc is called from inside it, so the
+fnc giving :stop ends the walk there, no more read: not a throw. fnc
+is called from inside it, so the
 names it uses are not these: vol path fnc lister todo dirs entry child
 ```
 
@@ -10431,7 +10430,8 @@ the functions a native function links to, by the paths in it
 ```code
 (source-mode) -> str
 
-the build of this node, which VP it wants
+the build of this node, which VP it wants: normal, a validate node is
+not told apart, and takes the VP of a normal one
 ```
 
 ### source-native
@@ -13222,6 +13222,23 @@ the theme a user has from now on
 (time-in-seconds time) -> str
 ```
 
+### time-report
+
+```code
+(time-report)
+
+each heading of (time-add), its total and how many times, the longest
+first, then they are all forgotten
+```
+
+### time-sum
+
+```code
+(time-sum heading us)
+
+us added to the heading's total, and one to how many times
+```
+
 ### timezone-init
 
 ```code
@@ -13746,7 +13763,7 @@ reads the comments under a definition, and the lines of a key map.
 Each file is read as a tree, lib/text/tree.inc, and every form of it
 
 looked at in the order they are written, those inside others too, a
-(def-func) in an (errorcase) say. A list of where it is in each list
+(def-func) in a (validatecase) say. A list of where it is in each list
 of nodes it is part way through, each (nodes at)
 ```
 

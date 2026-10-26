@@ -12,8 +12,8 @@
 	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1) (:r1-:r2 :f0-:f15))
 	(dec-method :free sys/heap/free :static (:r0 :r1) (:r0 :r1))
 	(dec-method :collect sys/heap/collect :static (:r0) (:r0) (:r1-:r8 :f0-:f15))
-	(dec-method :overrun sys/heap/overrun :static :nil :nil (:r0-:r1 :f0-:f15))
-	(dec-method :double_free sys/heap/double_free :static :nil :nil (:r0-:r1 :f0-:f15)))
+	(dec-method :overrun sys/heap/overrun :static :nil :nil ())
+	(dec-method :double_free sys/heap/double_free :static :nil :nil ()))
 
 ;;;;;;;;;;;;;
 ; heap macros

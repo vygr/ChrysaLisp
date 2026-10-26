@@ -26,10 +26,9 @@
 	(exit :sys_task :lisp_count '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-count bias)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -47,39 +46,35 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-(errorcase
-	;a task that was told to stop, before it sleeps or while it does, does
-	;not go on. A pipe that aborts a command signals it, and one that only
-	;ever sleeps would never see that any other way. It is stopped by an
-	;error, so only in a build that checks for them. In a release build an
-	;error is a value like any other, a loop would go round on it for ever
-	(fn-bind 'sys/statics/statics :r2)
-	(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
-	(assign '((:r2 +tk_node_flags)) '(:r2))
-	(gotoif '(:r2 /= 0) 'aborted))
+;a task that was told to stop, before it sleeps or while it does, does
+;not go on. A pipe that aborts a command signals it, and one that only
+;ever sleeps would never see that any other way. It is stopped by an
+;error
+(fn-bind 'sys/statics/statics :r2)
+(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
+(assign '((:r2 +tk_node_flags)) '(:r2))
+(gotoif '(:r2 /= 0) 'aborted)
 	(vp-push :r0)
 	(defq in (method-input :sys_task :sleep))
 	(list-bind-args :r1 in '(:num))
 	(call :sys_task :sleep in)
 	(vp-pop :r0)
-(errorcase
-	(fn-bind 'sys/statics/statics :r1)
-	(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
-	(assign '((:r1 +tk_node_flags)) '(:r1))
-	(gotoif '(:r1 /= 0) 'aborted))
+(fn-bind 'sys/statics/statics :r1)
+(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+(assign '((:r1 +tk_node_flags)) '(:r1))
+(gotoif '(:r1 /= 0) 'aborted)
 	(assign '((:r0 +lisp_sym_t)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :sys_task :lisp_sleep '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'aborted)
 	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(jump :lisp :repl_error '(:r1 "(task-sleep usec)" +error_msg_task_aborted))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-sleep usec)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -111,18 +106,17 @@
 	(vpif '(:r1 < -1000))
 		(assign '(:r0) '((:r2 statics_sys_task_then)))
 		(call :sys_task :sleep '(0))
-	(errorcase
-		;back from letting the others run, has it been told to stop ? A
-		;command that works and never reads or writes sees it here, in a
-		;build that checks for errors
-		(fn-bind 'sys/statics/statics :r2)
-		(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
-		(assign '((:r2 +tk_node_flags)) '(:r2))
-		(vpif '(:r2 /= 0))
-			(vp-pop :r0 :r1)
-			(assign '((:r0 +lisp_sym_nil)) '(:r1))
-			(jump :lisp :repl_error '(:r1 "(task-slice)" +error_msg_task_aborted))
-		(endif))
+	;back from letting the others run, has it been told to stop ? A
+	;command that works and never reads or writes sees it here, in a
+	;build that checks for errors
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
+	(assign '((:r2 +tk_node_flags)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(vp-pop :r0 :r1)
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
+		(jump :lisp :repl_error '(:r1 "(task-slice)" +error_msg_task_aborted))
+	(endif)
 	(endif)
 	(vp-pop :r0 :r1)
 	(class/obj/ref :r1 :r2)
@@ -157,9 +151,8 @@
 	(exit :sys_task :lisp_mailbox '(:r0 :r3))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(task-mbox)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(task-mbox)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -186,9 +179,8 @@
 	(exit :sys_task :lisp_flags '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(task-flags)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(task-flags)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -226,10 +218,9 @@
 	(exit :sys_task :lisp_priority '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(task-band band)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -263,9 +254,8 @@
 	(exit :sys_task :lisp_apps '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(task-apps?)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(task-apps?)" +error_msg_wrong_types))
 
 (def-func-end)
 

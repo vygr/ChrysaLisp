@@ -51,10 +51,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(crc32 data crc)" +error_msg_wrong_types))
-	(signature '(:str :NUM)))
+	(signature '(:str :NUM))
 
 	(pop-scope-syms)
 
@@ -108,10 +107,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(adler32 data adler)" +error_msg_wrong_types))
-	(signature '(:str :NUM)))
+	(signature '(:str :NUM))
 
 	(pop-scope-syms)
 

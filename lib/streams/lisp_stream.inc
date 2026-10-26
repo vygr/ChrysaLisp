@@ -9,8 +9,8 @@
 ; Anything else it gives ends it of a fault, a keyword say or a list that
 ; says why: the reads see the end, :nil, as at any end, and (stream-fault)
 ; gives what it was, so a reader can know it is not the end of what it
-; reads. Not a throw: a release build does not unwind one, what follows
-; it is run there, and a fill that threw would go on.
+; reads. Not a throw: a fault is a value the reader can look at, not an
+; error it has to catch.
 ;
 ; seek, if there is one, is a function of (offset whence), whence as
 ; (stream-seek) has it, 0 from the start, 1 from where it is, 2 from the

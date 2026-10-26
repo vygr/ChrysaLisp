@@ -148,7 +148,7 @@
 ;a fill that gives what is not a str, nor :nil, ends the stream of that
 ;fault: what is read before it is read, the reads see the end, and
 ;(stream-fault) gives what it was, so a reader can know it is not the end
-;of what it reads. The same on a release build, there is no throw in it
+;of what it reads. There is no throw in it
 (defun fault-fill (state)
 	(cond
 		((first state) :lost)

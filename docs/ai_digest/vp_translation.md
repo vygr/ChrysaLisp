@@ -657,7 +657,7 @@ install makes them !`. It has:
 ## Build and Install
 
 The VP stage of a build writes the bundle of each file as text,
-`obj/vp/<mode>/<file>`, and as binary beside it, `<file>b`. The translate
+`obj/vp/<file>`, and as binary beside it, `<file>b`. The translate
 stage of each target reads the binary bundle, falling back to the text if it
 is older. The whole tree translates in about 7 ms, against 162 ms for the
 old Lisp translators.

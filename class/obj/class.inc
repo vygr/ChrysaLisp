@@ -9,7 +9,7 @@
 	(dec-method :eql class/obj/eql :virtual (:r0 :r1) (:r0 :r1) (:r1-:r6) (:r1))
 	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0) (:r1-:r9 :r14 :f0-:f15) (:r1-:r5 :f0-:f15))
 	(dec-method :null class/obj/null :static :nil :nil ())
-	(dec-method :dead class/obj/dead :static :nil :nil (:r0-:r1 :f0-:f15))
+	(dec-method :dead class/obj/dead :static :nil :nil ())
 	(dec-method :destroy class/obj/destroy :static (:r0) :nil (:r0-:r2 :f0-:f15))
 	(dec-method :init class/obj/init :static (:r0 :r1) (:r0 :r1))
 	(dec-method :inst_of class/obj/inst_of :static (:r0 :r1) (:r0 :r1) (:r1-:r2))

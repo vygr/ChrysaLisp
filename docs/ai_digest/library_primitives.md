@@ -1051,11 +1051,9 @@ Virtual Processor compilation pipeline, code generation, and make engine.
 
 	*	`(make-app-platforms [mode])`
 
-*	**`make-test` / `compile-test`**: Benchmarking tools for build times.
+*	**`make-test`**: Benchmarking tool for build times.
 
 	*	`(make-test [iterations abi cpu])`
-
-	*	`(compile-test [abi cpu])`
 
 *	**`def-func` / `def-func-end`**: Declares a native VP function boundary.
 

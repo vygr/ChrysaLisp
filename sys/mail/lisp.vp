@@ -33,10 +33,9 @@
 	(exit :sys_mail :lisp_validate '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-validate mbox)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -75,10 +74,9 @@
 	(exit :sys_mail :lisp_read `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(mail-read mbox)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -114,10 +112,9 @@
 	(exit :sys_mail :lisp_poll '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-poll mboxs)" +error_msg_wrong_types))
-	(signature '(:LIST)))
+	(signature '(:LIST))
 
 (def-func-end)
 
@@ -147,10 +144,9 @@
 	(exit :sys_mail :lisp_select '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-select mboxs)" +error_msg_wrong_types))
-	(signature '(:LIST)))
+	(signature '(:LIST))
 
 (def-func-end)
 
@@ -179,10 +175,9 @@
 	(exit :sys_mail :lisp_send `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(mail-send mbox str)" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -209,10 +204,9 @@
 	(exit :sys_mail :lisp_declare '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-declare mbox name info)" +error_msg_wrong_types))
-	(signature '(:str :str :str)))
+	(signature '(:str :str :str))
 
 (def-func-end)
 
@@ -239,10 +233,9 @@
 	(exit :sys_mail :lisp_enquire '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-enquire prefix)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -272,10 +265,9 @@
 	(exit :sys_mail :lisp_forget '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-forget key)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -300,9 +292,8 @@
 	(exit :sys_mail :lisp_devices '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(mail-nodes)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(mail-nodes)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -368,10 +359,9 @@
 	(exit :sys_mail :lisp_timeout '(:r0 :r12))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(mail-timeout mbox ns id)" +error_msg_wrong_types))
-	(signature '(:str :NUM :NUM)))
+	(signature '(:str :NUM :NUM))
 
 (def-func-end)
 
@@ -396,8 +386,7 @@
 	(exit :sys_mail :lisp_netid '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(mail-mbox)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(mail-mbox)" +error_msg_wrong_types))
 
 (def-func-end)

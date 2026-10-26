@@ -17,7 +17,7 @@
 ; and the signature, which is checked with lib/crypto/ecdsa.inc,
 ; lib/crypto/rsa.inc or lib/crypto/ed25519.inc. What a server sends is
 ; not to be trusted till it is checked, so no index is taken past what is
-; there: a release build would not stop it.
+; there.
 ;
 ; NOT DONE: whether a certificate has been revoked, the constraints on the
 ; names an issuer may issue for, the uses a key is limited to, and the

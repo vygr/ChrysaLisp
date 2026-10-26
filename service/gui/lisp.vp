@@ -49,10 +49,9 @@
 	(exit :host_gui :lisp_init '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-init screen)" +error_msg_wrong_types))
-	(signature '(:VIEW)))
+	(signature '(:VIEW))
 
 (def-func-end)
 
@@ -146,9 +145,8 @@
 
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(gui-deinit)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(gui-deinit)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -176,10 +174,9 @@
 	(exit :host_gui :lisp_update '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-update mx my flags)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :NUM)))
+	(signature '(:NUM :NUM :NUM))
 
 (def-func-end)
 
@@ -237,9 +234,8 @@
 	(vp-free local1_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(gui-event)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(gui-event)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -286,9 +282,8 @@
 	(exit :host_gui :lisp_info '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(gui-info)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(gui-info)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -348,10 +343,9 @@
 	(exit :host_gui :lisp_read_screen (vpx this out))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-read-screen x y w h)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :NUM :NUM)))
+	(signature '(:NUM :NUM :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -406,16 +400,15 @@
 	(vp-alloc local_size)
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :obj :num))
-(errorcase
-	;a frame is put in a pixmap, the rest are given a str
-	(vp-push :r0 :r1 :r2 :r3)
-	(vpif '(:r0 = 2))
-		(call :obj :inst_of `(:r2 (@ ,(f-path :pixmap :vtable))) '(_ :r4))
-	(else)
-		(call :obj :inst_of `(:r2 (@ ,(f-path :str :vtable))) '(_ :r4))
-	(endif)
-	(vp-pop :r0 :r1 :r2 :r3)
-	(gotoif '(:r4 = 0) 'error1))
+;a frame is put in a pixmap, the rest are given a str
+(vp-push :r0 :r1 :r2 :r3)
+(vpif '(:r0 = 2))
+	(call :obj :inst_of `(:r2 (@ ,(f-path :pixmap :vtable))) '(_ :r4))
+(else)
+	(call :obj :inst_of `(:r2 (@ ,(f-path :str :vtable))) '(_ :r4))
+(endif)
+(vp-pop :r0 :r1 :r2 :r3)
+(gotoif '(:r4 = 0) 'error1)
 	(assign '(:r0 :r1 :r3) '((:rsp local_op) (:rsp local_handle) (:rsp local_n)))
 	(vpif '(:r0 = 2))
 		(assign '((:r2 +pixmap_data) (:r2 +pixmap_width ui) (:r2 +pixmap_height ui) (:r2 +pixmap_stride ui))
@@ -469,12 +462,11 @@
 	(assign '(:r0) '((:r1 local_out)))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
 	(vp-free local_size)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-video op handle data n)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :obj :NUM)))
+	(signature '(:NUM :NUM :obj :NUM))
 
 (def-func-end)

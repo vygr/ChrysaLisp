@@ -420,16 +420,13 @@ sorts the list it is given, it does not make another.
 
 ## Errors
 
-### The usual build checks, a release build does not
+### What the build checks, and what it does not
 
-`make all boot` is the checked build. A wrong number of args, a wrong type,
-an index past the end, are each an error with the name of the function. A
-release build, `make it`, the snapshot, and the emulator's image, has none
-of those checks, and the same mistake there stops the node or worse. Nor
-does a `throw` from a function given to `(pipe-run)` get out of it there.
-Work in the checked build. [`docs/ai_digest/exceptions.md`](exceptions.md).
+A wrong number of args, a wrong type, an index past the end, are each an
+error with the name of the function, in every build.
+[`docs/ai_digest/exceptions.md`](exceptions.md).
 
-Not every wrong type is caught in the checked build either. A set or a map
+Not every wrong type is caught. A set or a map
 is a list to `(list? x)`, see above, and `(find k x)` or `(nempty? x)` on
 one is a segmentation fault with nothing said, and what the session had
 printed is lost. Ask `(list?? x)`, or the class, `(Fset? x)`, first.

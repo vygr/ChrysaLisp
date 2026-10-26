@@ -25,17 +25,14 @@
 	(vp-push :r1)
 	(assign '((:r1 +array_begin)) '(:r1))
 	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
-(errorcase
-	(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
-	(gotoif '(:r2 = :r3) 'exit))
+(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
+(gotoif '(:r2 = :r3) 'exit)
 	(vp-push :r1)
-(errorcase
-	(call :obj :inst_of `(:r1 (@ ,(f-path :str :vtable))) '(_ :r1))
-	(gotoif '(:r1 = 0) 'error1)
-	(assign '((:rsp 0)) '(:r1)))
+(call :obj :inst_of `(:r1 (@ ,(f-path :str :vtable))) '(_ :r1))
+(gotoif '(:r1 = 0) 'error1)
+(assign '((:rsp 0)) '(:r1))
 	(call :sys_load :bind '((& :r1 +str_data)) '(:r0))
-(errorcase
-	(gotoif '(:r0 = 0) 'error1))
+(gotoif '(:r0 = 0) 'error1)
 
 	;the path goes, the function pointer takes its slot
 	(assign '((:rsp 0)) '(:r1))
@@ -70,13 +67,12 @@
 	(vp-free +ptr_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-pop :r0)
 	(call :obj :deref '(:r0))
 	(vp-pop :r1)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(ffi path [sym flags])" +error_msg_wrong_types))
-	(signature '(:obj :obj :SYM :NUM)))
+	(signature '(:obj :obj :SYM :NUM))
 
 (def-func-end)

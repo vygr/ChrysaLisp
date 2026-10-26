@@ -669,6 +669,15 @@ static quasi-quoted, prebind only !
 (structure name base [(byte field ...)] ...)
 ```
 
+### time-add
+
+```code
+(time-add heading body) -> what the body gives
+
+the time the body takes added to the heading's total, for what runs
+too often to print each time, (time-report) prints them
+```
+
 ### time-it
 
 ```code

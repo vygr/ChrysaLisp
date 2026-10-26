@@ -7,8 +7,8 @@ engineering philosophy: "Well, Don't Do That Then!"
 
 In traditional operating systems and language runtimes, error checking is
 ubiquitous. Functions at all levels of the stack redundantly validate
-parameters, check bounds, and assert state. ChrysaLisp rejects this approach for
-production environments, viewing it as an unacceptable drag on raw performance.
+parameters, check bounds, and assert state. ChrysaLisp rejects this approach,
+viewing it as an unacceptable drag on raw performance.
 
 The system is built on a strict division of responsibility:
 
@@ -29,42 +29,45 @@ The system is built on a strict division of responsibility:
 docs/diagrams/error_checks.cwb
 ```
 
-The exception system (`catch` and `throw`) and all FFI-level type checking are
-designed strictly as **development and testing tools**. They exist to help the
-programmer prove their logic is flawless before deployment.
-
-Once a ChrysaLisp system is compiled for release, the entire error-checking
-infrastructure ceases to exist in the generated binary.
+The FFI-level checks are in every build. The exception system (`catch` and
+`throw`) behaves the same in every build: a `throw` unwinds to the nearest
+`catch`. It is there for faults and debugging. It is not a way to steer the
+normal flow of a program: validate input instead.
 
 ## Build Modes and VP Assembler Macros
 
-The presence of the exception and validation system is dictated by the global
-`*build_mode*` variable during OS and library compilation.
+How much runtime validation there is, is set by the global `*build_mode*`
+variable during OS and library compilation.
 
-There are three primary build modes:
+There are two build modes:
 
-* **`*build_mode* 0` (Release):** All error checking, type validation, and
-  signature verification are completely stripped from the final compiled code.
-  The system runs at absolute maximum performance. Supplying invalid arguments
-  to a function in this mode will likely crash the node or corrupt memory.
+* **`*build_mode* 1` (Normal):** The default. FFI functions validate argument
+  counts, types, and sequence bounds before passing data to the inner core. If
+  a violation occurs, an error object is thrown. The reader's "missing )" and
+  "unexpected )" checks are in, and an abort signal wakes a blocked task.
 
-* **`*build_mode* 1` (Debug):** The standard development mode. FFI functions
-  validate argument counts, types, and sequence bounds before passing data to
-  the inner core. If a violation occurs, an error object is thrown.
+* **`*build_mode* 2` (Validate):** Normal, plus aggressive, deep-level runtime
+  validation. This includes heap patterns, guard words, dead object checks,
+  and expensive checks like verifying stack pointer boundaries via
+  `(call :sys_task :stack)` upon entry to functions, ensuring no stack
+  overflows occur during heavy recursion or deep call chains.
 
-* **`*build_mode* 2` (Validate):** Enables aggressive, deep-level runtime
-  validation. This includes expensive checks like verifying stack pointer
-  boundaries via `(call :sys_task :stack)` upon entry to functions, ensuring no
-  stack overflows occur during heavy recursion or deep call chains.
+`make` builds normal; `make validate` builds validate. Built VP is kept in
+`obj/vp/` and `obj/vp_validate/`.
 
-To accomplish this seamlessly at the VP assembler level, ChrysaLisp uses
-specific vpx/Lisp macros defined in `lib/asm/code.inc`:
+A build without the checks was measured and dropped. Natively there was no
+speed difference that could be measured: `make test`, MP3 and HE-AAC decode
+ran the same. Under the VP64 emulator it was about 5% faster, and the images
+about 10% smaller. Not worth two builds that behave differently.
 
-* `(errorcase ...)`: Emits the enclosed code block only if `*build_mode* >= 1`.
+At the VP assembler level an error check is plain code: a test and a `gotoif`
+or `gotoifnot` to an error label. `lib/asm/code.inc` adds:
 
-* `(validatecase ...)`: Emits the enclosed code block only if `*build_mode* >= 2`.
+* `(validatecase ...)`: Emits the enclosed code block only if
+  `*build_mode* >= 2`.
 
-* `(noterrorcase ...)`: Emits the enclosed code block only if `*build_mode* <= 0`.
+* `(errorif-lisp-args-sig ...)`, `-len`, `-match`, `-type`: A check call on
+  the args list, then a `gotoif` to the error label.
 
 For example, a typical Lisp FFI binding in the source code looks like this:
 
@@ -76,17 +79,12 @@ For example, a typical Lisp FFI binding in the source code looks like this:
 
 	; ... payload extraction ...
 
-(errorcase
 	(gotoif '(:r11 < 0) 'error2)
-	(gotoif '(:r11 >= :r1) 'error2))
+	(gotoif '(:r11 >= :r1) 'error2)
 
 	(call :seq :ref_elem '(:r0 :r11) '(_ :r1))
 	; ...
 ```
-
-In Release mode, the `errorif-lisp-args-sig` (which wraps an `errorcase`) and
-the bounds checking logic silently vanish during the build process, leaving only
-the raw parameter extraction and the high-speed `:seq :ref_elem` call.
 
 ## Lisp Level Exceptions: Catch and Throw
 
@@ -178,8 +176,7 @@ accurate.
 ## Stack Frame Capture
 
 ChrysaLisp provides a dynamic, opt-in mechanism for tracking the call stack,
-which is invaluable for debugging complex applications before compiling them for
-release.
+which is invaluable for debugging complex applications.
 
 To enable stack tracing, an application simply imports the frames debugging
 library:

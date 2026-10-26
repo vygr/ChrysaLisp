@@ -71,10 +71,9 @@
 	(endif)
 	(jump :lisp :repl_apply '(:r0 :r1 :r2))
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(apply lambda seq)" +error_msg_wrong_types))
-	(signature '(:obj :seq)))
+	(signature '(:obj :seq))
 
 (def-func-end)
 
@@ -96,21 +95,19 @@
 	(errorif-lisp-args-len 'error :r1 < 2)
 	(array-bind-args :r1 `(,obj ,mth))
 
-(errorcase
-	(call :obj :inst_of `(,obj (@ ,(f-path :hmap :vtable))) `(,obj tmp))
-	(gotoif `(,tmp = 0) 'error)
-	(assign `((,mth +obj_vtable) (@ ,(f-path :sym :vtable))) `(,vt1 ,vt2))
-	(gotoif `(,vt1 /= ,vt2) 'error))
+(call :obj :inst_of `(,obj (@ ,(f-path :hmap :vtable))) `(,obj tmp))
+(gotoif `(,tmp = 0) 'error)
+(assign `((,mth +obj_vtable) (@ ,(f-path :sym :vtable))) `(,vt1 ,vt2))
+(gotoif `(,vt1 /= ,vt2) 'error)
 
 	(fn-bind 'sys/statics/statics vt1)
 	(call :hmap :pfind `(,obj (,vt1 ,(+ statics_static_syms static_sym_vtable))) '(_ tmp _))
-	(errorif `(,tmp = 0) 'error2)
+	(gotoif `(,tmp = 0) 'error2)
 	(call :hmap :pfind `((,tmp +ptr_size) ,mth) '(_ tmp _))
-	(errorif `(,tmp = 0) 'error1)
+	(gotoif `(,tmp = 0) 'error1)
 
 	(jump :lisp :repl_apply `(,this ,args (,tmp +ptr_size)))
 
-(errorcase
 (vp-label 'error2)
 	(fn-bind 'sys/statics/statics args)
 	(assign `((,args ,(+ statics_static_syms static_sym_vtable))) `(,args))
@@ -118,6 +115,6 @@
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,mth "(. env sym [...])" +error_msg_symbol_not_bound))
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(. env sym [...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(. env sym [...])" +error_msg_wrong_types))
 
 (def-func-end)

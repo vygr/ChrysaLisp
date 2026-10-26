@@ -33,7 +33,7 @@
 (defun vp-translate-out (name out)
 	;a function's native code saved in obj/<cpu>/<abi>/ by its name. Its VP
 	;is once for every CPU, in the binary bundle of its file in
-	;obj/vp/<mode>/, where the loader finds it if the native is not there.
+	;obj/vp/, where the loader finds it if the native is not there.
 	;The header has 16 bits for the length, and for where the links and
 	;paths are
 	(if (> (length out) 0xffff) (throw "Function too big, over 64KB !" name))
@@ -54,7 +54,7 @@
 (defun vp-translate-file (file dir)
 	; (vp-translate-file file dir)
 	;a build's translate stage: the bundle of the source file, as the VP
-	;stage left it in dir, obj/vp/<mode>/, each of its functions to this
+	;stage left it in dir, obj/vp/, each of its functions to this
 	;platform's native code. From the binary bundle beside it if it is as
 	;new, else from the text
 	(defq bins (cat dir file "b"))

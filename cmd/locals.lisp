@@ -29,7 +29,7 @@
     What the named locals of each VP function cost, and what
     of that a compiler that kept them in registers could save.
     It reads the instructions of a function as they were
-    assembled, the debug VP a build keeps, obj/vp/debug/,
+    assembled, the VP a normal build keeps, obj/vp/,
     and sees the function whole: where its frame
     is made and let go of, each place in the frame that is
     read or written, a local, which of them have their

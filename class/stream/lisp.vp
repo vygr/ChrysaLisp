@@ -41,10 +41,9 @@
 	(exit :stream :lisp_iostream '(:r7 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(io-stream io)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -81,10 +80,9 @@
 	(exit :stream :lisp_fstream '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(file-stream path [mode])" +error_msg_wrong_types))
-	(signature '(:str :NUM)))
+	(signature '(:str :NUM))
 
 (def-func-end)
 
@@ -112,10 +110,9 @@
 	(exit :stream :lisp_sstream '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(string-stream str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -140,9 +137,8 @@
 	(exit :stream :lisp_mstream '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(memory-stream)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(memory-stream)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -170,10 +166,9 @@
 	(exit :stream :lisp_avail '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(stream-avail stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)
 
@@ -206,10 +201,9 @@
 	(exit :stream :lisp_fault '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(stream-fault stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)
 
@@ -238,10 +232,9 @@
 	(exit :stream :lisp_readavail '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(read-avail stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)
 
@@ -269,10 +262,9 @@
 	(exit :stream :lisp_flush '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(stream-flush stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)
 
@@ -300,10 +292,9 @@
 	(exit :stream :lisp_seek '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(stream-seek stream offset whence)" +error_msg_wrong_types))
-	(signature '(:stream :NUM :NUM)))
+	(signature '(:stream :NUM :NUM))
 
 (def-func-end)
 
@@ -328,20 +319,18 @@
 	(entry :stream :lisp_readchar (vpx this args))
 
 	(d-call :array :get_length (vpx args) (vpx _ length))
-	(errorifnot (vpx (|| (= length 1) (= length 2))) 'error1)
+	(gotoifnot (vpx (|| (= length 1) (= length 2))) 'error1)
 	(call :list :get_begin (vpx args) (vpx _ iter_begin))
 
-(errorcase
-	(call :obj :inst_of (vpx (elem iter_begin 0) (@ ,(f-path :stream :vtable))) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error2))
+(call :obj :inst_of (vpx (elem iter_begin 0) (@ ,(f-path :stream :vtable))) '(_ tmp))
+(gotoif `(,tmp = 0) 'error2)
 
 	(assign (vpx length 1 (- 1)) '(:r0 :r1 :r2))
 	(assign '(:r2) (vpx type))
 	(vpif '(:r0 = 2))
 		(assign (vpx (elem iter_begin +ptr_size)) '(:r0))
-	(errorcase
-		(assign `((@ ,(f-path :num :vtable)) (:r0 +obj_vtable)) '(:r1 :r2))
-		(gotoif '(:r1 /= :r2) 'error3))
+	(assign `((@ ,(f-path :num :vtable)) (:r0 +obj_vtable)) '(:r1 :r2))
+	(gotoif '(:r1 /= :r2) 'error3)
 		(assign '((:r0 +num_value)) '(:r1))
 		(assign '(:r1) (vpx type))
 		(vp-abs-rr :r1 :r1)
@@ -386,7 +375,6 @@
 	(exit :stream :lisp_readchar (vpx this value))
 	(return)
 
-(errorcase
 	(defq in (method-input :lisp :repl_error))
 (vp-label 'error1)
 	(vp-cpy-cr +error_msg_wrong_num_of_args (last in))
@@ -398,7 +386,7 @@
 	(vp-cpy-cr +error_msg_not_a_number (last in))
 (vp-label 'error)
 	(assign (vpx args) (slice in 0 1))
-	(jump :lisp :repl_error `(,(first in) "(read-char stream [width])" ,(last in))))
+	(jump :lisp :repl_error `(,(first in) "(read-char stream [width])" ,(last in)))
 
 	(pop-scope-syms)
 
@@ -440,9 +428,8 @@
 	(assign `((,iter_begin +ptr_size)) `(,value))
 	(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) '(:r13 :r14))
 	(vpif '(:r13 = :r14))
-	(errorcase
-		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(_ tmp))
-		(gotoif `(,tmp = 0) 'error2))
+	(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error2)
 		;:stream :write leaves all but this, the total is kept in value
 		(vp-push this)
 		(class/array/get_both value iter_begin iter_end)
@@ -458,11 +445,10 @@
 		(call :num :create `(,value) `(,stream))
 		(vp-pop this)
 	(else)
-	(errorcase
-		(assign `(,this) `(,iter_begin))
-		(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(_ tmp))
-		(assign `(,iter_begin) `(,this))
-		(gotoif `(,tmp = 0) 'error2))
+	(assign `(,this) `(,iter_begin))
+	(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(_ tmp))
+	(assign `(,iter_begin) `(,this))
+	(gotoif `(,tmp = 0) 'error2)
 		(vp-push this)
 		(call :stream :write `(,stream (& ,value +num_value) ,width))
 		(call :num :create `(,width) `(,stream))
@@ -472,7 +458,6 @@
 	(exit :stream :lisp_writechar `(,this ,stream))
 	(vp-ret)
 
-(errorcase
 	(defq err (method-input :lisp :repl_error 2))
 (vp-label 'error1)
 	(vp-cpy-cr +error_msg_wrong_num_of_args err)
@@ -481,7 +466,7 @@
 	(vp-cpy-cr +error_msg_wrong_types err)
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(write-char stream list|num [width])" ,err))
-	(signature '(:stream :obj :NUM)))
+	(signature '(:stream :obj :NUM))
 
 (def-func-end)
 
@@ -524,10 +509,9 @@
 	(exit :stream :lisp_readblk `(,this ,buf))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(read-blk stream bytes)" +error_msg_wrong_types))
-	(signature '(:stream :NUM)))
+	(signature '(:stream :NUM))
 
 (def-func-end)
 
@@ -561,10 +545,9 @@
 	(exit :stream :lisp_writeblk '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(write-blk stream str)" +error_msg_wrong_types))
-	(signature '(:stream :str)))
+	(signature '(:stream :str))
 
 (def-func-end)
 
@@ -595,10 +578,9 @@
 	(exit :stream :lisp_readline '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(read-line stream)" +error_msg_wrong_types))
-	(signature '(:stream)))
+	(signature '(:stream))
 
 (def-func-end)
 
@@ -635,10 +617,9 @@
 	(exit :stream :lisp_writeline '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(write-line stream str)" +error_msg_wrong_types))
-	(signature '(:stream :str)))
+	(signature '(:stream :str))
 
 (def-func-end)
 
@@ -663,11 +644,10 @@
 	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
-(errorcase
-	(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
-	(gotoif '(:r4 /= :r5) 'error1)
-	(assign '((:r3 +array_length)) '(:r4))
-	(gotoif '(:r4 < 2) 'error1))
+(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
+(gotoif '(:r4 /= :r5) 'error1)
+(assign '((:r3 +array_length)) '(:r4))
+(gotoif '(:r4 < 2) 'error1)
 
 	(assign '(:r0) (vpx stream))
 	(assign '((:r3 +array_begin)) '(:r3))
@@ -681,12 +661,11 @@
 	(exit :stream :lisp_read_bits '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error1)
 	(assign (vpx this args) '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM)))
+	(signature '(:stream :ARRAY :NUM))
 
 	(pop-scope-syms)
 
@@ -713,11 +692,10 @@
 	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
-(errorcase
-	(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
-	(gotoif '(:r4 /= :r5) 'error1)
-	(assign '((:r3 +array_length)) '(:r4))
-	(gotoif '(:r4 < 2) 'error1))
+(assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
+(gotoif '(:r4 /= :r5) 'error1)
+(assign '((:r3 +array_length)) '(:r4))
+(gotoif '(:r4 < 2) 'error1)
 
 	(assign '(:r0) (vpx stream))
 	(assign '((:r3 +array_begin)) '(:r3))
@@ -731,12 +709,11 @@
 	(exit :stream :lisp_write_bits '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error1)
 	(assign (vpx this args) '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM :NUM)))
+	(signature '(:stream :ARRAY :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -768,9 +745,8 @@
 	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
 	(assign `(,stream ,parray ,data ,num_bits ,cnt) (vpx stream parray data num_bits cnt))
 
-(errorcase
-	(assign `((,parray +array_length)) `(,len))
-	(gotoif `(,len < 2) 'error))
+(assign `((,parray +array_length)) `(,len))
+(gotoif `(,len < 2) 'error)
 
 	;load write pool state
 	(vp-rdef (stream data num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
@@ -800,10 +776,9 @@
 	(exit :stream :lisp_fill_bits `(,this ,args))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error (vpx args "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
-	(signature '(:stream :ARRAY :NUM :NUM :NUM)))
+	(signature '(:stream :ARRAY :NUM :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -835,11 +810,10 @@
 	(list-bind-args args `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
 		'(:stream :stream :array :array :num :num))
 
-(errorcase
-	(assign `((,wparray +array_length)) `(,len))
-	(gotoif `(,len < 2) 'error)
-	(assign `((,rparray +array_length)) `(,len))
-	(gotoif `(,len < 2) 'error))
+(assign `((,wparray +array_length)) `(,len))
+(gotoif `(,len < 2) 'error)
+(assign `((,rparray +array_length)) `(,len))
+(gotoif `(,len < 2) 'error)
 
 	(vp-simd vp-cpy-ir `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
 	(assign `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
@@ -876,10 +850,9 @@
 	(exit :stream :lisp_copy_bits `(,this ,args))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error (vpx args "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
-	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM)))
+	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -919,9 +892,8 @@
 	(endif)
 	(assign `(,func ,stream ,start ,end) (vpx func stream start end))
 
-(errorcase
-	(gotoif `(,start < 0) 'error2)
-	(gotoif `(,end < ,start) 'error2))
+(gotoif `(,start < 0) 'error2)
+(gotoif `(,end < ,start) 'error2)
 
 	(assign '(0) `(,idx))
 	(assign `((,this +lisp_seq_idx)) `(,old_idx))
@@ -966,12 +938,11 @@
 	(exit :stream :lisp_each `(,this ,args))
 	(return)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error (vpx args "(lines! lambda stream [start end])" +error_msg_not_valid_index))
-	(signature '(:obj :stream :NUM :NUM)))
+	(signature '(:obj :stream :NUM :NUM))
 
 	(pop-scope-syms)
 

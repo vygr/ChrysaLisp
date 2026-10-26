@@ -194,11 +194,7 @@
 (assert-true "words put by their middle have their middle there" (wb-near? (list (* 0.5 (+ x x1)) (* 0.5 (+ y y1))) '(200 100) 0.05))
 
 ;what is not a document is not loaded as one
-;a release build is given only what is right, text that is not a tree is
-;an error that only a checked build says
-(if *test_checked*
-	(assert-eq "text that is not a tree is not a document" :nil (cwb-load (string-stream "7 touch 1 300 330")))
-	(test-skip "text that is not a tree is not a document" "needs an error checked build"))
+(assert-eq "text that is not a tree is not a document" :nil (cwb-load (string-stream "7 touch 1 300 330")))
 (assert-eq "nor a tree of something else" :nil (cwb-load (string-stream "((:list 2) 1 2)")))
 (assert-eq "nor nothing" :nil (cwb-load (string-stream "")))
 

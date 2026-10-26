@@ -57,15 +57,14 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
-	(gotoif '(:r6 /= 32) 'error)
-	(gotoif '(:r4 < 0) 'error)
-	(gotoif '(:r5 < 0) 'error)
-	(vp-cpy-rr :r5 :r6)
-	(vp-shl-cr 6 :r6)
-	(vp-add-rr :r4 :r6)
-	(gotoif '(:r6 > :r7) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
+(gotoif '(:r6 /= 32) 'error)
+(gotoif '(:r4 < 0) 'error)
+(gotoif '(:r5 < 0) 'error)
+(vp-cpy-rr :r5 :r6)
+(vp-shl-cr 6 :r6)
+(vp-add-rr :r4 :r6)
+(gotoif '(:r6 > :r7) 'error)
 
 	;the stack has the 64 words of a block's schedule, then where the
 	;state is, where the next block is, how many are left, the lisp
@@ -168,10 +167,9 @@
 	(vp-int 0x748f82ee 0x78a5636f 0x84c87814 0x8cc70208)
 	(vp-int 0x90befffa 0xa4506ceb 0xbef9a3f7 0xc67178f2)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sha256-blocks state data offset count)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM :NUM)))
+	(signature '(:str :str :NUM :NUM))
 
 (def-func-end)
 
@@ -224,15 +222,14 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
-	(gotoif '(:r6 /= 64) 'error)
-	(gotoif '(:r4 < 0) 'error)
-	(gotoif '(:r5 < 0) 'error)
-	(vp-cpy-rr :r5 :r6)
-	(vp-shl-cr 7 :r6)
-	(vp-add-rr :r4 :r6)
-	(gotoif '(:r6 > :r7) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r6 :r7))
+(gotoif '(:r6 /= 64) 'error)
+(gotoif '(:r4 < 0) 'error)
+(gotoif '(:r5 < 0) 'error)
+(vp-cpy-rr :r5 :r6)
+(vp-shl-cr 7 :r6)
+(vp-add-rr :r4 :r6)
+(gotoif '(:r6 > :r7) 'error)
 
 	;the stack has the 80 words of a block's schedule, then where the
 	;state is, where the next block is, how many are left, the lisp
@@ -343,10 +340,9 @@
 	(vp-long 2944078676154940804 3659926193048069267 4368137639120453308 4836135668995329356)
 	(vp-long 5532061633213252278 6448918945643986474 6902733635092675308 7801388544844847127)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(sha512-blocks state data offset count)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM :NUM)))
+	(signature '(:str :str :NUM :NUM))
 
 (def-func-end)
 
@@ -371,17 +367,16 @@
 
 	(errorif-lisp-args-sig 'error :r1 7)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :num :obj :obj :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r9 :r10))
-	(gotoif '(:r9 /= 32) 'error)
-	(gotoif '(:r10 /= 12) 'error)
-	(gotoif '(:r7 < 0) 'error)
-	(gotoif '(:r8 < 0) 'error)
-	(vp-cpy-rr :r7 :r9)
-	(vp-add-rr :r8 :r9)
-	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
-	(gotoif '(:r9 > :r10) 'error)
-	(gotoif '(:r9 > :r11) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r9 :r10))
+(gotoif '(:r9 /= 32) 'error)
+(gotoif '(:r10 /= 12) 'error)
+(gotoif '(:r7 < 0) 'error)
+(gotoif '(:r8 < 0) 'error)
+(vp-cpy-rr :r7 :r9)
+(vp-add-rr :r8 :r9)
+(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
+(gotoif '(:r9 > :r10) 'error)
+(gotoif '(:r9 > :r11) 'error)
 
 	(vp-push :r0 :r6)
 	(vp-add-cr +str_data :r2)
@@ -397,10 +392,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(chacha20-xor key nonce counter data out offset length)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM :str :str :NUM :NUM)))
+	(signature '(:str :str :NUM :str :str :NUM :NUM))
 
 (def-func-end)
 
@@ -425,17 +419,16 @@
 
 	(errorif-lisp-args-sig 'error :r1 5)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6) '(:obj :obj :num :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
-	(gotoif '(:r7 /= 120) 'error)
-	(gotoif '(:r4 < 0) 'error)
-	(gotoif '(:r5 < 0) 'error)
-	(gotoif '(:r6 < 0) 'error)
-	(gotoif '(:r6 > 1) 'error)
-	(vp-cpy-rr :r5 :r7)
-	(vp-shl-cr 4 :r7)
-	(vp-add-rr :r4 :r7)
-	(gotoif '(:r7 > :r8) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
+(gotoif '(:r7 /= 120) 'error)
+(gotoif '(:r4 < 0) 'error)
+(gotoif '(:r5 < 0) 'error)
+(gotoif '(:r6 < 0) 'error)
+(gotoif '(:r6 > 1) 'error)
+(vp-cpy-rr :r5 :r7)
+(vp-shl-cr 4 :r7)
+(vp-add-rr :r4 :r7)
+(gotoif '(:r7 > :r8) 'error)
 
 	(vp-push :r0 :r2)
 	(vp-add-cr +str_data :r2)
@@ -448,10 +441,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly1305-blocks state data offset count top)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM :NUM :NUM)))
+	(signature '(:str :str :NUM :NUM :NUM))
 
 (def-func-end)
 
@@ -473,10 +465,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
-	(gotoif '(:r5 /= 32) 'error)
-	(gotoif '(:r6 /= 12) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
+(gotoif '(:r5 /= 32) 'error)
+(gotoif '(:r6 /= 12) 'error)
 
 	(vp-push :r0 :r2 :r3 :r4)
 	(assign '((:r4 +str_length)) '(:r1))
@@ -501,10 +492,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(aead-seal-native key nonce data)" +error_msg_wrong_types))
-	(signature '(:str :str :str)))
+	(signature '(:str :str :str))
 
 (def-func-end)
 
@@ -525,10 +515,9 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
-	(gotoif '(:r5 /= 32) 'error)
-	(gotoif '(:r6 /= 12) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r5 :r6))
+(gotoif '(:r5 /= 32) 'error)
+(gotoif '(:r6 /= 12) 'error)
 
 	(assign '((:r4 +str_length)) '(:r1))
 	(vpif '(:r1 < +aead_tag_size))
@@ -571,10 +560,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(aead-open-native key nonce sealed)" +error_msg_wrong_types))
-	(signature '(:str :str :str)))
+	(signature '(:str :str :str))
 
 (def-func-end)
 
@@ -605,10 +593,9 @@
 	(errorif-lisp-args-len 'error :r1 /= 3)
 	(errorif-lisp-args-match 'error :r1 :nums 3)
 	(array-bind-args :r1 `(,po ,pa ,pb))
-(errorcase
-	(each (lambda (r)
-		(assign `((,r +array_length)) '(:r2))
-		(gotoif '(:r2 < 16) 'error)) (list po pa pb)))
+(each (lambda (r)
+	(assign `((,r +array_length)) '(:r2))
+	(gotoif '(:r2 < 16) 'error)) (list po pa pb))
 
 	(vp-push :r0 po)
 	(assign `((,pa +array_begin) (,pb +array_begin)) `(,pa ,pb))
@@ -667,10 +654,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gf25519-mul o a b)" +error_msg_wrong_types))
-	(signature '(:nums :nums :nums)))
+	(signature '(:nums :nums :nums))
 
 (def-func-end)
 
@@ -693,8 +679,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args :r1 '(:r2) '(:num))
-(errorcase
-	(gotoif '(:r2 < 0) 'error))
+(gotoif '(:r2 < 0) 'error)
 
 	(vp-push :r0)
 	(call :str :create_from_buffer '(0 :r2) '(:r0))
@@ -708,10 +693,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(random-bytes size)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -772,20 +756,19 @@
 
 	(errorif-lisp-args-sig 'error :r1 7)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8) '(:obj :obj :obj :obj :obj :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length) (:r4 +str_length)) '(:r9 :r10 :r11))
-	(vpif '(:r9 /= 176))
-		(gotoif '(:r9 /= 240) 'error)
-	(endif)
-	(gotoif '(:r10 /= 4352) 'error)
-	(gotoif '(:r11 /= 16) 'error)
-	(gotoif '(:r7 < 0) 'error)
-	(gotoif '(:r8 < 0) 'error)
-	(vp-cpy-rr :r7 :r9)
-	(vp-add-rr :r8 :r9)
-	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
-	(gotoif '(:r9 > :r10) 'error)
-	(gotoif '(:r9 > :r11) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length) (:r4 +str_length)) '(:r9 :r10 :r11))
+(vpif '(:r9 /= 176))
+	(gotoif '(:r9 /= 240) 'error)
+(endif)
+(gotoif '(:r10 /= 4352) 'error)
+(gotoif '(:r11 /= 16) 'error)
+(gotoif '(:r7 < 0) 'error)
+(gotoif '(:r8 < 0) 'error)
+(vp-cpy-rr :r7 :r9)
+(vp-add-rr :r8 :r9)
+(assign '((:r5 +str_length) (:r6 +str_length)) '(:r10 :r11))
+(gotoif '(:r9 > :r10) 'error)
+(gotoif '(:r9 > :r11) 'error)
 
 	(vp-alloc +ae_stack)
 	(vp-cpy-ri :r0 :rsp +ae_this)
@@ -900,10 +883,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(aes-ctr-xor keys tables counter data out offset length)" +error_msg_wrong_types))
-	(signature '(:str :str :str :str :str :NUM :NUM)))
+	(signature '(:str :str :str :str :str :NUM :NUM))
 
 (def-func-end)
 
@@ -970,17 +952,16 @@
 
 	(errorif-lisp-args-sig 'error :r1 5)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6) '(:obj :obj :obj :num :num))
-(errorcase
-	(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
-	(gotoif '(:r7 /= 16) 'error)
-	(gotoif '(:r8 /= 16) 'error)
-	(gotoif '(:r5 < 0) 'error)
-	(gotoif '(:r6 < 0) 'error)
-	(vp-cpy-rr :r6 :r7)
-	(vp-shl-cr 4 :r7)
-	(vp-add-rr :r5 :r7)
-	(assign '((:r4 +str_length)) '(:r8))
-	(gotoif '(:r7 > :r8) 'error))
+(assign '((:r2 +str_length) (:r3 +str_length)) '(:r7 :r8))
+(gotoif '(:r7 /= 16) 'error)
+(gotoif '(:r8 /= 16) 'error)
+(gotoif '(:r5 < 0) 'error)
+(gotoif '(:r6 < 0) 'error)
+(vp-cpy-rr :r6 :r7)
+(vp-shl-cr 4 :r7)
+(vp-add-rr :r5 :r7)
+(assign '((:r4 +str_length)) '(:r8))
+(gotoif '(:r7 > :r8) 'error)
 
 	(vp-push :r0 :r2)
 	;the count is kept on the stack, its register is the top bits of v
@@ -1026,9 +1007,8 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(ghash-blocks state h data offset count)" +error_msg_wrong_types))
-	(signature '(:str :str :str :NUM :NUM)))
+	(signature '(:str :str :str :NUM :NUM))
 
 (def-func-end)

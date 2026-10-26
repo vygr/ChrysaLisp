@@ -594,10 +594,9 @@
 (defun vpb-tables (name)
 	;the error of the entry, and the routine of each op
 	;the error's signature is data, so after all the code
-	(errorcase
 	(vp-label 'error)
 		(jump :lisp :repl_error `(:r1 ,name +error_msg_wrong_types))
-		(signature '(:str)))
+		(signature '(:str))
 
 
 		(vp-align +long_size)

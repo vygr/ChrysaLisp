@@ -35,9 +35,8 @@
 
 	(to-array :array)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(array [num ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(array [num ...])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -53,9 +52,8 @@
 
 	(to-array :nums)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(nums [num ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(nums [num ...])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -71,9 +69,8 @@
 
 	(to-array :fixeds)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(fixeds [fixed ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(fixeds [fixed ...])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -89,9 +86,8 @@
 
 	(to-array :reals)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(reals [real ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(reals [real ...])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -107,9 +103,8 @@
 
 	(to-array :path)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(path [fixed ...])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(path [fixed ...])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -146,9 +141,8 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(clear array ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r1 "(clear array ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -181,10 +175,9 @@
 	(exit :array :lisp_pop '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pop array)" +error_msg_wrong_types))
-	(signature '(:array)))
+	(signature '(:array))
 
 (def-func-end)
 
@@ -207,13 +200,12 @@
 	(entry :array :lisp_push `(,this ,args))
 
 	(assign `((,args +array_length)) `(,argc))
-	(errorif `(,argc < 2) 'error)
+	(gotoif `(,argc < 2) 'error)
 	(assign `((,args +array_begin)) `(,src))
 	(assign `((,src 0)) `(,obj))
 
-(errorcase
-	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
-	(gotoif `(,v = 0) 'error))
+(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj v))
+(gotoif `(,v = 0) 'error)
 
 	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
 	(call :obj :inst_of `(,obj (@ ,(f-path :list :vtable))) '(_ v))
@@ -290,9 +282,8 @@
 	(exit :array :lisp_push `(,this ,obj))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(push array elem ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(push array elem ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -310,23 +301,20 @@
 
 	(entry :array :lisp_cap `(,this ,args))
 
-(errorcase
-	(assign `((,args +array_length)) `(,argc))
-	(gotoif `(,argc < 2) 'error))
+(assign `((,args +array_length)) `(,argc))
+(gotoif `(,argc < 2) 'error)
 	(class/array/get_both args iter_begin iter_end)
 	(assign `((,iter_begin 0)) `(,args))
 	(vp-add-cr +ptr_size iter_begin)
-(errorcase
-	(f-bind :num :vtable obj)
-	(assign `((,args +obj_vtable)) `(,res))
-	(gotoif `(,obj /= ,res) 'error))
+(f-bind :num :vtable obj)
+(assign `((,args +obj_vtable)) `(,res))
+(gotoif `(,obj /= ,res) 'error)
 	(assign `((,args +num_value)) `(,argc))
 	(loop-start)
 		(assign `((,iter_begin 0)) `(,obj))
 		(vp-add-cr +ptr_size iter_begin)
-	(errorcase
-		(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj ,res))
-		(gotoif `(,res = 0) 'error))
+	(call :obj :inst_of `(,obj (@ ,(f-path :array :vtable))) `(,obj ,res))
+	(gotoif `(,res = 0) 'error)
 		(call :array :set_cap `(,obj ,argc) `(,obj))
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref obj argc)
@@ -334,9 +322,8 @@
 	(exit :array :lisp_cap `(,this ,obj))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(cap len array ...)" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(cap len array ...)" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -361,9 +348,8 @@
 	(assign `((,a +array_length)) `(,len))
 	(seq-elem-index i len)
 
-(errorcase
-	(gotoif `(,i < 0) 'error2)
-	(gotoif `(,i >= ,len) 'error2))
+(gotoif `(,i < 0) 'error2)
+(gotoif `(,i >= ,len) 'error2)
 
 	;:list and its subclasses (:pset, :pmap, :hset, :hmap) store object references
 	(call :obj :inst_of `(,a (@ ,(f-path :list :vtable))) '(_ tmp))
@@ -382,13 +368,12 @@
 	(exit :array :lisp_set `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(vp-pop this args)
 	(jump :lisp :repl_error `(,args "(elem-set array idx elem)" +error_msg_not_valid_index))
-	(signature '(:array :NUM :obj)))
+	(signature '(:array :NUM :obj))
 
 (def-func-end)
 
@@ -417,20 +402,18 @@
 
 	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r3 :r4) '(:obj :num :obj))
-(errorcase
-	(gotoif '(:r3 < 0) 'error1))
+(gotoif '(:r3 < 0) 'error1)
 	(assign `((:r0 +obj_vtable) (@ ,(f-path :list :vtable))) '(:r1 :r2))
 	(vpif '(:r1 = :r2))
 		(d-call :list :fill '(:r0 :r3 :r4) '(:r0))
 	(else)
-		;a set or a map is refused in a release build as well, a fill would
-		;break it, not just give a wrong answer
+		;a set or a map is refused, a fill would break it, not just give a
+		;wrong answer
 		(vp-cpy-rr :r0 :r5)
 		(call :obj :inst_of `(:r0 (@ ,(f-path :list :vtable))) '(_ :r1))
 		(gotoif '(:r1 /= 0) 'refused)
-	(errorcase
-		(call :obj :inst_of `(:r4 (@ ,(f-path :num :vtable))) '(_ :r1))
-		(gotoif '(:r1 = 0) 'error1))
+	(call :obj :inst_of `(:r4 (@ ,(f-path :num :vtable))) '(_ :r1))
+	(gotoif '(:r1 = 0) 'error1)
 		(vp-cpy-rr :r5 :r0)
 		(assign '((:r4 +num_value)) '(:r4))
 		(call :array :fill '(:r0 :r3 :r4) '(:r0))
@@ -446,12 +429,11 @@
 	(assign (vpx this args) '(:r0 :r1))
 	(jump :lisp :repl_error '(:r1 "(fill array length value)" +error_msg_wrong_types))
 
-(errorcase
 (vp-label 'error1)
 	(assign (vpx this args) '(:r0 :r1))
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(fill array length value)" +error_msg_wrong_types))
-	(signature '(:array :NUM :obj)))
+	(signature '(:array :NUM :obj))
 
 	(pop-scope-syms)
 

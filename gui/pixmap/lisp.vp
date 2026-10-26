@@ -27,10 +27,9 @@
 	(exit :pixmap :lisp_as_argb '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pixmap-as-argb pixmap)" +error_msg_wrong_types))
-	(signature '(:PIXMAP)))
+	(signature '(:PIXMAP))
 
 (def-func-end)
 
@@ -58,10 +57,9 @@
 	(exit :pixmap :lisp_to_argb32 '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pixmap-to-argb32 pixel type)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM)))
+	(signature '(:NUM :NUM))
 
 (def-func-end)
 
@@ -89,10 +87,9 @@
 	(exit :pixmap :lisp_from_argb32 '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pixmap-from-argb32 pixel type)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM)))
+	(signature '(:NUM :NUM))
 
 (def-func-end)
 
@@ -193,10 +190,9 @@
 	(pop-scope)
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(pixmap-write pixmap stream type)" +error_msg_wrong_types))
-	(signature '(:PIXMAP :stream :NUM)))
+	(signature '(:PIXMAP :stream :NUM))
 
 (def-func-end)
 
@@ -297,10 +293,9 @@
 	(pop-scope)
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(pixmap-read pixmap stream type)" +error_msg_wrong_types))
-	(signature '(:PIXMAP :stream :NUM)))
+	(signature '(:PIXMAP :stream :NUM))
 
 (def-func-end)
 
@@ -334,10 +329,9 @@
 	(exit :pixmap :lisp_flm_delta '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pixmap-flm-delta pixmap stream type)" +error_msg_wrong_types))
-	(signature '(:PIXMAP :stream :NUM)))
+	(signature '(:PIXMAP :stream :NUM))
 
 (def-func-end)
 
@@ -422,9 +416,8 @@
 	(exit :pixmap :lisp_shared '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(pixmap-shared width height key)" +error_msg_wrong_types))
-	(signature '(:NUM :NUM :NUM)))
+	(signature '(:NUM :NUM :NUM))
 
 (def-func-end)

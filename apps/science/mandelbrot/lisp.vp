@@ -205,9 +205,8 @@
 	(exit `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(shade x0 y0 max palette)" +error_msg_wrong_types))
-	(signature '(:real :real :num :str)))
+	(signature '(:real :real :num :str))
 
 (def-func-end)

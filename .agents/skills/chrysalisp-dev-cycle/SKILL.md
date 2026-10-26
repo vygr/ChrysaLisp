@@ -38,10 +38,10 @@ marked mandatory apply to every session.
 	`rack`, the test cache, and what to run after which kind of change.
 
 *	**[After A VP Change](#after-a-vp-change)**
-	The build, the lint, and putting the release images back.
+	The build and the lint.
 
-*	**[A Release-Only Crash](#a-release-only-crash)**
-	Native release first, the emulator overnight, and a fault handler in
+*	**[A Node That Dies With No Word](#a-node-that-dies-with-no-word)**
+	A validate build first, the emulator overnight, and a fault handler in
 	it to name the Lisp that was running.
 
 *	**[A Desktop For The User](#a-desktop-for-the-user)**
@@ -76,8 +76,10 @@ marked mandatory apply to every session.
 	what is stale, `tests -m str` the modules with `str` in their path.
 	`docs/ai_digest/test_cache.md`, and the `chrysalisp-tests` skill.
 
-*	`lint`, `cmd/lint.lisp`: debug build, the `trace` lint of `obj/vp/`,
-	then `relies`, the native release build back. It must say `lint: clean`.
+*	`lint`, `cmd/lint.lisp`: `make` and `make apps`, the `trace` lint of
+	`obj/vp/`, then `make trace validate`, the VP of a validate build
+	alone, and the same lint of `obj/vp_validate/`: a `(validatecase)`
+	must use no more registers. Then `relies`. It must say `lint: clean`.
 
 *	`relies`, `locals`, `cmd/`: what VP code leans on and what its locals
 	cost. `relies -s` finds a register saved round a call that leaves it.
@@ -101,11 +103,11 @@ marked mandatory apply to every session.
 *	`nodes`, `cmd/nodes.lisp`: add nodes, a desktop, or a network of a shape
 	to a running one, and stop a network by name.
 
-*	`STATUS.md`: a short reminder of each change worth a release note,
-	newest first, a heading and a sentence or two. Not a copy of the
+*	`docs/releases/vX.Y.md`, the notes of the tag to come: each change
+	worth a note goes in as it lands, under its heading, a line or a few,
+	written for the people who read the release. Not a copy of the
 	commits: what was run and what was not seen go in the commit message
-	and in what is said to the user. The user, 2026-10-13: "STATUS.md was
-	allways just a quick reminder for the release notes work".
+	and in what is said to the user.
 
 ## Work As The Test User (Mandatory)
 
@@ -134,8 +136,8 @@ user's folder, `usr/Guest/`, their app settings and the like.
 
 ## Start Of A Session (Mandatory)
 
-1.	Read the skills in `.agents/skills/`, the top of `STATUS.md` back to
-	where you recognise it, and `docs/ai_digest/ai_thoughts.md`.
+1.	Read the skills in `.agents/skills/`, the notes of the tag to come,
+	`docs/releases/`, the newest, and `docs/ai_digest/ai_thoughts.md`.
 
 2.	`git status` and `git log`. A clean tree at the head of `master` is the
 	usual start.
@@ -272,29 +274,22 @@ From the machine the work is on:
 
 2.	`echo "lint" | ./run_tui.sh -n 0 -f`, it must say `lint: clean`. A
 	mismatch in a function you changed on purpose is written back with
-	`make vp debug`, `make apps debug`, then `files obj/vp/ | trace -i -l -w`,
-	and `lint` again.
+	`files obj/vp/ | trace -i -l -w`, and `lint` again.
 
 3.	`rack -b "tests"` on every machine, the native code is not the same on
 	each CPU.
 
-4.	The lint leaves the VP64 emulator image a debug build. Before anything
-	is run on the emulator, and before a snapshot, `make it` puts the
-	release one back, then `make apps`. A debug VP64 image is about 200K,
-	the release one about 170K.
+4.	A change under everything, the boot image, `class/lisp/root.inc`, the
+	launch path of a command, is tried on the emulator as well, after a
+	`make it`: `echo "echo hi" | ./run_tui.sh -e -n 1 -f`.
 
-5.	A change under everything, the boot image, `class/lisp/root.inc`, the
-	launch path of a command, is tried on the release emulator as well:
-	`echo "echo hi" | ./run_tui.sh -e -n 1 -f`. A release build has no
-	error checks, no `catch` and no `throw`, tests that need them skip.
-
-6.	A change to a translator, `lib/trans/`, or to what the VP means, runs
+5.	A change to a translator, `lib/trans/`, or to what the VP means, runs
 	`tests/system/test_vp_spec.lisp` natively, on `-e` and on `-V`, and on
 	every other CPU before it is done: it holds each target to
 	`docs/vm/vp_vm.md`, the sets, the float branches, constants of any size,
 	the long branches.
 
-7.	`./run_tui.sh -V` is the emulator in validation mode: each load or store
+6.	`./run_tui.sh -V` is the emulator in validation mode: each load or store
 	not at its natural alignment is said on stderr, `VP64 UNALIGNED`, the
 	function and where in it, once a place. The whole suite on it after a
 	change that moves data about: `echo "tests -a" | ./run_tui.sh -V -n 4 -f
@@ -305,28 +300,23 @@ The six CPU build, `make it`, the whole suite on the emulator, `make
 install` and the QEMU platforms are for a tagged release, not for each
 commit. The `chrysalisp-tests` skill has the full list for a tag.
 
-## A Release-Only Crash
+## A Node That Dies With No Word
 
-A release build has no checks: a primitive given what it was not to be
-calls through a vtable into nothing, and the node dies with no word, a
-batch "no result". Chris: "release build shouldn't have to check ! They
-should never recive incorrect types !" So the fix is the caller, never a
-check added to a library.
+A node that dies with no message, a batch "no result", has run into
+something the checks do not cover, a fault in VP code or memory used
+after it was let go of.
 
 1.	On the fast machine first, never a long emulator run in the day:
-	`make all boot release` on the M4, the category, `make all boot` to
-	put the debug image back. `make all boot validate` adds the heap,
-	dead object and stack checks. Emulator runs are for overnight.
+	`make all boot validate` on the M4 adds the heap, dead object and
+	stack checks, then `make all boot` puts the normal image back.
+	Emulator runs are for overnight.
 2.	If it is only on the emulator, it reproduces in seconds when it is a
 	crash. A SIGSEGV handler put into `vp64()` in src/host/vp64.cpp for
 	the hunt, not committed, says the last pcs and every list form the VP
 	stack points at: the forms name the Lisp that was running. An offset
 	of memory is one of the image file plus one shift, as sys/load moves
 	the image's tail; a function's name is before its code.
-3.	A test of what is wrong on purpose, a function that throws, text that
-	is not a document, is a checked build's: `(if *test_checked* (assert
-	...) (test-skip "..." "needs an error checked build"))`.
-4.	A guarded run that times out leaves its nodes up, and they take the
+3.	A guarded run that times out leaves its nodes up, and they take the
 	next run's batches. `pgrep -fl boot_image`, kill the VP64 and solo
 	ones, keep the standing member, `main_tui -shm_sweep`.
 
@@ -357,8 +347,8 @@ is done:
 	mesh. The second adds plain nodes, to fill the machine. For the user to
 	watch a small network, in the Network Map say, leave the second out.
 
-*	Say what to open and what to look for. Record in `STATUS.md` what the
-	user saw and said, a thing is "not seen" until then.
+*	Say what to open and what to look for, and say in the commit what the
+	user saw, a thing is "not seen" until then.
 
 *	**Do not change the tree under a desktop that is up.** It loaded the
 	GUI and `class/lisp/root.inc` once, at its start. An app opened later
@@ -420,12 +410,12 @@ is done:
 *	Commit to `master` in batches as work is verified. The user pushes.
 
 *	Before a commit: the harness passes on every machine, the lint is
-	clean if VP changed, `STATUS.md` has its entry at the top, and any doc
+	clean if VP changed, the release notes have the change, and any doc
 	that describes what changed is brought up to it. `make docs` if a
 	function's signature or a command's help changed.
 
-*	An entry in `STATUS.md` is a heading and a line or two, see above. The
-	commit message carries what was run, on what, and what was not seen.
+*	The commit message carries what was run, on what, and what was not
+	seen.
 
 *	After a push the other machines are brought level with
 	`origin/master` by git, on each: fetch, remove untracked files that

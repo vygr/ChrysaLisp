@@ -58,6 +58,15 @@ has nothing left in a register, whatever these few instructions use
 
 ### :dump -> sys/task/dump
 
+```code
+inputs
+none
+outputs
+none
+trashes
+:r0-:r14, :f0-:f15
+```
+
 ### :mailbox -> sys/task/mailbox
 
 ```code

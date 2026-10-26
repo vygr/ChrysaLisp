@@ -208,10 +208,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dct4 x tw rev out)" +error_msg_wrong_types))
-	(signature '(:reals :reals :nums :reals)))
+	(signature '(:reals :reals :nums :reals))
 
 (def-func-end)
 
@@ -302,10 +301,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-s16 out chans from)" +error_msg_wrong_types))
-	(signature '(:str :list :num)))
+	(signature '(:str :list :num))
 
 (def-func-end)
 
@@ -383,10 +381,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-pcm chans in width)" +error_msg_wrong_types))
-	(signature '(:list :str :num)))
+	(signature '(:list :str :num))
 
 (def-func-end)
 
@@ -461,10 +458,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-huff data at table)" +error_msg_wrong_types))
-	(signature '(:str :num :nums)))
+	(signature '(:str :num :nums))
 
 (def-func-end)
 
@@ -530,10 +526,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-bits-get reader n)" +error_msg_wrong_types))
-	(signature '(:list :num)))
+	(signature '(:list :num))
 
 (def-func-end)
 
@@ -565,10 +560,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-bits-1 reader)" +error_msg_wrong_types))
-	(signature '(:list)))
+	(signature '(:list))
 
 (def-func-end)
 
@@ -624,10 +618,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-noise out start end seed scale)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :num :real)))
+	(signature '(:reals :num :num :num :real))
 
 (def-func-end)
 
@@ -775,10 +768,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-mantissas reader bap exps start end out groups noise dither table)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :num :num :reals :nums :reals :num :reals)))
+	(signature '(:list :nums :nums :num :num :reals :nums :reals :num :reals))
 
 (def-func-end)
 
@@ -903,10 +895,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-psd exps start end psd band_psd band_start bin_band log_add)" +error_msg_wrong_types))
-	(signature '(:nums :num :num :nums :nums :nums :nums :nums)))
+	(signature '(:nums :num :num :nums :nums :nums :nums :nums))
 
 (def-func-end)
 
@@ -993,10 +984,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-bap psd mask start end snr floor tab bap band_start bin_band)" +error_msg_wrong_types))
-	(signature '(:nums :nums :num :num :num :num :nums :nums :nums :nums)))
+	(signature '(:nums :nums :num :num :num :num :nums :nums :nums :nums))
 
 (def-func-end)
 
@@ -1225,10 +1215,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-mask band_psd start end fast_gain lfe params threshold bin_band mask)" +error_msg_wrong_types))
-	(signature '(:nums :num :num :num :num :nums :nums :nums :nums)))
+	(signature '(:nums :num :num :num :num :nums :nums :nums :nums))
 
 (def-func-end)
 
@@ -1488,10 +1477,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ac3-aht reader bap exps start end top gains out vq consts itab state)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :num :num :num :nums :reals :reals :reals :nums :nums)))
+	(signature '(:list :nums :nums :num :num :num :nums :reals :reals :reals :nums :nums))
 
 (def-func-end)
 
@@ -1558,10 +1546,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-lpc out start count step lpc)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :num :reals)))
+	(signature '(:reals :num :num :num :reals))
 
 (def-func-end)
 
@@ -1619,10 +1606,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-matvec matrix rows cols x from out)" +error_msg_wrong_types))
-	(signature '(:reals :num :num :reals :num :reals)))
+	(signature '(:reals :num :num :reals :num :reals))
 
 (def-func-end)
 
@@ -1757,10 +1743,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mp3-lines reader lines end regions quad)" +error_msg_wrong_types))
-	(signature '(:list :nums :num :list :nums)))
+	(signature '(:list :nums :num :list :nums))
 
 (def-func-end)
 
@@ -1891,10 +1876,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-aac-values reader table values lines from to kind)" +error_msg_wrong_types))
-	(signature '(:list :nums :nums :nums :num :num :num)))
+	(signature '(:list :nums :nums :nums :num :num :num))
 
 (def-func-end)
 
@@ -1963,10 +1947,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-dequant out q from to pow gain)" +error_msg_wrong_types))
-	(signature '(:reals :nums :num :num :reals :real)))
+	(signature '(:reals :nums :num :num :reals :real))
 
 (def-func-end)
 
@@ -2076,10 +2059,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-window v new head d out at scale n parts dstep vstep doff voff)" +error_msg_wrong_types))
-	(signature '(:reals :reals :num :reals :reals :num :real :num :num :num :num :num :num)))
+	(signature '(:reals :reals :num :reals :reals :num :real :num :num :num :num :num :num))
 
 (def-func-end)
 
@@ -2257,10 +2239,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-gains ins flags lim kx delta consts out)" +error_msg_wrong_types))
-	(signature '(:reals :nums :nums :num :num :reals :reals)))
+	(signature '(:reals :nums :nums :num :num :reals :reals))
 
 (def-func-end)
 
@@ -2330,10 +2311,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-mp3-alias x bands cs ca)" +error_msg_wrong_types))
-	(signature '(:reals :num :reals :reals)))
+	(signature '(:reals :num :reals :reals))
 
 (def-func-end)
 
@@ -2383,10 +2363,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-gather out arrays index)" +error_msg_wrong_types))
-	(signature '(:array :list :num)))
+	(signature '(:array :list :num))
 
 (def-func-end)
 
@@ -2513,10 +2492,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode)" +error_msg_wrong_types))
-	(signature '(:reals :reals :num :list :list :num :reals :reals :reals :reals :reals :reals :num :real :real :reals :num)))
+	(signature '(:reals :reals :num :list :list :num :reals :reals :reals :reals :reals :reals :num :real :real :reals :num))
 
 (def-func-end)
 
@@ -2599,10 +2577,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-predict hr hi r i from to c0 c1 c2 c3)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :reals :num :num :real :real :real :real)))
+	(signature '(:reals :reals :reals :reals :num :num :real :real :real :real))
 
 (def-func-end)
 
@@ -2727,10 +2704,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-dots r i out)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals)))
+	(signature '(:reals :reals :reals))
 
 (def-func-end)
 
@@ -2797,10 +2773,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-sbr-ana u win x base)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :num)))
+	(signature '(:reals :reals :reals :num))
 
 (def-func-end)
 
@@ -2916,10 +2891,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-ps-allpass out_r out_i dr di links coeffs gains)" +error_msg_wrong_types))
-	(signature '(:reals :reals :reals :reals :list :reals :reals)))
+	(signature '(:reals :reals :reals :reals :list :reals :reals))
 
 (def-func-end)
 
@@ -3017,10 +2991,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-rice reader out from count k)" +error_msg_wrong_types))
-	(signature '(:list :nums :num :num :num)))
+	(signature '(:list :nums :num :num :num))
 
 (def-func-end)
 
@@ -3086,10 +3059,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-lpc samples order coeffs shift)" +error_msg_wrong_types))
-	(signature '(:nums :num :nums :num)))
+	(signature '(:nums :num :nums :num))
 
 (def-func-end)
 
@@ -3156,10 +3128,9 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-stereo a b mode)" +error_msg_wrong_types))
-	(signature '(:nums :nums :num)))
+	(signature '(:nums :nums :num))
 
 (def-func-end)
 
@@ -3206,9 +3177,8 @@
 	(exit `(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(media-flac-ints out ints scale)" +error_msg_wrong_types))
-	(signature '(:reals :nums :real)))
+	(signature '(:reals :nums :real))
 
 (def-func-end)

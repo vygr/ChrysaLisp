@@ -424,8 +424,7 @@ not known.
   `tls-open` is therefore defined after the module's `env-pop`. `cmd/check.lisp`
   now reports this.
 * **What a server sends is not trusted.** Lengths in a certificate or a
-  handshake message are checked before any index is taken: a release build
-  would not stop an index past the end.
+  handshake message are checked before any index is taken.
 
 ### 5.6. Tests
 

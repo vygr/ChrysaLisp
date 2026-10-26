@@ -297,10 +297,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-band edges active y0 y1 mode out)" +error_msg_wrong_types))
-	(signature '(:nums :nums :num :num :num :nums)))
+	(signature '(:nums :nums :num :num :num :nums))
 
 (def-func-end)
 
@@ -375,10 +374,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-cuts edges active ya yb cuts)" +error_msg_wrong_types))
-	(signature '(:nums :nums :num :num :nums)))
+	(signature '(:nums :nums :num :num :nums))
 
 (def-func-end)
 
@@ -559,10 +557,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-lines out y0 y1 above below segs openl openr)" +error_msg_wrong_types))
-	(signature '(:nums :num :num :nums :nums :nums :nums :nums)))
+	(signature '(:nums :num :num :nums :nums :nums :nums :nums))
 
 (def-func-end)
 
@@ -816,10 +813,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-rings segs)" +error_msg_wrong_types))
-	(signature '(:nums)))
+	(signature '(:nums))
 
 (def-func-end)
 
@@ -1089,10 +1085,9 @@
 (vp-label 'sort)
 	(ps-sort)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-setup a b edges ys openl openr)" +error_msg_wrong_types))
-	(signature '(:list :list :nums :nums :nums :nums)))
+	(signature '(:list :list :nums :nums :nums :nums))
 
 (def-func-end)
 
@@ -1329,10 +1324,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-scan edges ys openl openr mode segs)" +error_msg_wrong_types))
-	(signature '(:nums :nums :nums :nums :num :nums)))
+	(signature '(:nums :nums :nums :nums :num :nums))
 
 (def-func-end)
 
@@ -1640,10 +1634,9 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(poly-hit a b mode_a mode_b)" +error_msg_wrong_types))
-	(signature '(:list :list :num :num)))
+	(signature '(:list :list :num :num))
 
 (def-func-end)
 

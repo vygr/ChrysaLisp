@@ -17,10 +17,9 @@
 
 	(entry :pmap :lisp_pmap `(,this ,args))
 
-(errorcase
-	(assign `((,args +array_length)) `(,len))
-	(vp-and-cr 1 len)
-	(gotoif `(,len /= 0) 'error))
+(assign `((,args +array_length)) `(,len))
+(vp-and-cr 1 len)
+(gotoif `(,len /= 0) 'error)
 
 	;mutate list to pmap
 	(f-bind :pmap :vtable vt)
@@ -30,9 +29,8 @@
 	(exit :pmap :lisp_pmap `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,args "(pmap [key val] ...)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error `(,args "(pmap [key val] ...)" +error_msg_wrong_num_of_args))
 
 (def-func-end)
 
@@ -72,10 +70,9 @@
 	(exit :pmap :lisp_pfind `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(pfind props key)" +error_msg_wrong_types))
-	(signature '(:pset :obj)))
+	(signature '(:pset :obj))
 
 (def-func-end)
 
@@ -118,15 +115,14 @@
 			(assign `(,iter) '((:rsp local_iter_begin)))
 		(loop-until `(,iter = ,iter_end))
 	(else)
-	(errorcase
-		(assign '((:rsp local_lst)) `(,lst))
-		(assign `((@ ,(f-path :pmap :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
-		(gotoif `(,vt1 /= ,vt2) 'error2)
-		(assign '((:rsp local_args)) `(,args))
-		(assign `((,args +array_length)) `(,argc))
-		(gotoif `(,argc < 3) 'error1)
-		(vp-and-cr 1 argc)
-		(gotoif `(,argc = 0) 'error1))
+	(assign '((:rsp local_lst)) `(,lst))
+	(assign `((@ ,(f-path :pmap :vtable)) (,lst +obj_vtable)) `(,vt1 ,vt2))
+	(gotoif `(,vt1 /= ,vt2) 'error2)
+	(assign '((:rsp local_args)) `(,args))
+	(assign `((,args +array_length)) `(,argc))
+	(gotoif `(,argc < 3) 'error1)
+	(vp-and-cr 1 argc)
+	(gotoif `(,argc = 0) 'error1)
 		(loop-start)
 			(assign '((:rsp local_iter_begin)) `(,iter))
 			(assign '((:rsp local_lst)) `(,lst))
@@ -144,7 +140,6 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) `(,msg))
 	(goto 'error)
@@ -153,7 +148,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) `(,this ,args))
 	(vp-free local_size)
-	(jump :lisp :repl_error `(,args "(pinsert props key [val] ...)" ,msg)))
+	(jump :lisp :repl_error `(,args "(pinsert props key [val] ...)" ,msg))
 
 (def-func-end)
 
@@ -184,9 +179,8 @@
 	(array-get-args iter `(,lst))
 	(vp-add-cr +ptr_size iter)
 	(assign `(,lst ,iter ,iter_end) '((:rsp local_lst) (:rsp local_iter_begin) (:rsp local_iter_end)))
-(errorcase
-	(call :obj :inst_of `(,lst (@ ,(f-path :pset :vtable))) `(,lst ,match))
-	(gotoif `(,match = 0) 'error2))
+(call :obj :inst_of `(,lst (@ ,(f-path :pset :vtable))) `(,lst ,match))
+(gotoif `(,match = 0) 'error2)
 	(loop-start)
 		(assign '((:rsp local_iter_begin)) `(,iter))
 		(assign '((:rsp local_lst)) `(,lst))
@@ -211,7 +205,6 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) `(,msg))
 	(goto 'error)
@@ -220,7 +213,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) `(,this ,args))
 	(vp-free local_size)
-	(jump :lisp :repl_error `(,args "(perase props key [key] ...)" ,msg)))
+	(jump :lisp :repl_error `(,args "(perase props key [key] ...)" ,msg))
 
 (def-func-end)
 

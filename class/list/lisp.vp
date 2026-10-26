@@ -56,10 +56,9 @@
 	(exit :list :lisp_merge `(,this ,dlist))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(merge dlist slist)" +error_msg_wrong_types))
-	(signature '(:list :list)))
+	(signature '(:list :list))
 
 (def-func-end)
 
@@ -73,8 +72,8 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	;error is the value local, used in an error checked build to hold the
-	;first error the compare function throws
+	;error is the value local, used to hold the first error the compare
+	;function throws
 	(structure pdata 0
 		(ptr this func params error))
 
@@ -86,9 +85,8 @@
 		(ptr value list)
 		(pptr iter_begin liter hiter)
 		(int start end))
-(errorcase
-	(def-vars
-		(int length)))
+(def-vars
+	(int length))
 
 	(push-scope)
 	(entry :list :lisp_pivot (vpx this args))
@@ -100,18 +98,15 @@
 	(assign (vpx (elem iter_begin +ptr_size)) (vpx list))
 	(call :num :get_value (vpx (elem iter_begin (* +ptr_size 2))) (vpx _ start))
 	(call :num :get_value (vpx (elem iter_begin (* +ptr_size 3))) (vpx _ end))
-(errorcase
-	(d-call :array :get_length (vpx list) (vpx _ length))
-	(gotoif (vpx (|| (< start 0) (>= start end) (> end length))) 'error2))
+(d-call :array :get_length (vpx list) (vpx _ length))
+(gotoif (vpx (|| (< start 0) (>= start end) (> end length))) 'error2)
 
 	(call :list :create :nil (vpx params))
-(errorcase
-	(assign (vpx 0) (vpx value)))
+(assign (vpx 0) (vpx value))
 	(call :list :get_iter (vpx list start) (vpx _ liter))
 	(call :list :get_iter (vpx list end) (vpx _ hiter))
 	(call :list :pivot (vpx list liter hiter ($ callback) (& this)) (vpx _ liter))
-(errorcase
-	(gotoif (vpx value) 'error3))
+(gotoif (vpx value) 'error3)
 	(call :list :get_begin (vpx list) (vpx _ iter_begin))
 	(call :num :create (vpx (>> (- liter iter_begin) 3)) (vpx value))
 	(call :list :deref (vpx params))
@@ -120,7 +115,6 @@
 	(exit :list :lisp_pivot (vpx this value))
 	(return)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx args "(pivot lambda list start end)" +error_msg_wrong_types))
 (vp-label 'error2)
@@ -130,7 +124,7 @@
 	(call :list :deref (vpx params))
 	(exit :list :lisp_pivot (vpx this value))
 	(return)
-	(signature '(:obj :LIST :NUM :NUM)))
+	(signature '(:obj :LIST :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -143,9 +137,8 @@
 		(union
 			(pptr hiter)
 			(long result)))
-(errorcase
-	(def-vars
-		(ptr lisp)))
+(def-vars
+	(ptr lisp))
 
 	(push-scope)
 	(entry :array :sort_callback (vpx pdata liter hiter))
@@ -155,12 +148,11 @@
 	(d-call :list :clear (vpx (.> pdata pdata_params)))
 	(call :list :push_back2 (vpx (.> pdata pdata_params) liter hiter))
 	(call :lisp :repl_apply (vpx (.> pdata pdata_this) (.> pdata pdata_params) (.> pdata pdata_func)) (vpx _ value))
-(errorcase
-	(assign (vpx (.> pdata pdata_this)) (vpx lisp))
-	(vpif (vpx (&& (= (.> value +obj_vtable) (.> lisp +lisp_error)) (= (.> pdata pdata_error) 0))))
-		(call :obj :ref (vpx value))
-		(assign (vpx value) (vpx (.> pdata pdata_error)))
-	(endif))
+(assign (vpx (.> pdata pdata_this)) (vpx lisp))
+(vpif (vpx (&& (= (.> value +obj_vtable) (.> lisp +lisp_error)) (= (.> pdata pdata_error) 0))))
+	(call :obj :ref (vpx value))
+	(assign (vpx value) (vpx (.> pdata pdata_error)))
+(endif)
 	(assign (vpx 0) (vpx result))
 	(call :obj :inst_of (vpx value (@ ,(f-path :num :vtable))) '(val tmp))
 	(vpif `(,tmp /= 0))
@@ -216,10 +208,9 @@
 	(exit :list :lisp_match `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(lmatch? list list)" +error_msg_wrong_types))
-	(signature '(:LIST :LIST)))
+	(signature '(:LIST :LIST))
 
 (def-func-end)
 
@@ -251,8 +242,7 @@
 	(exit :list :lisp_copy '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(copy form)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(copy form)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

@@ -72,8 +72,7 @@
 	(exit :sys_kernel :lisp_sysid '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(system-id)" +error_msg_wrong_num_of_args)))
+	(jump :lisp :repl_error '(:r1 "(system-id)" +error_msg_wrong_num_of_args))
 
 (def-func-end)

@@ -220,14 +220,14 @@
 									:stroke
 									0
 									:text
-									"[obj/vp/debug/]"
+									"[obj/vp/]"
 									:font
 									"[fonts/OpenSans-Bold.ctf]"
 									:font_size
 									11
 									:pos
 									((:list 2)
-										61.37982
+										80.22296
 										18.00000
 									)
 								)

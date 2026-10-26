@@ -127,14 +127,12 @@
 	(loop-start)
 		(call 'next_seq `(,msg (& ,this +in_list) (,this +in_seqnum)) `(,buffer))
 		(breakif `(,buffer /= 0))
-	(errorcase
-		(assign `((,this +in_state)) `(,state))
-		(gotoif `(,state = +stream_mail_state_aborted) 'abort))
+	(assign `((,this +in_state)) `(,state))
+	(gotoif `(,state = +stream_mail_state_aborted) 'abort)
 		(call :sys_mail :read `((,this +in_mbox_addr)) `(,msg _))
-	(errorcase
-		(gotoif `(,msg = 0) 'abort)
-		(assign `((,this +in_state)) `(,state))
-		(gotoif `(,state = +stream_mail_state_aborted) 'abort))
+	(gotoif `(,msg = 0) 'abort)
+	(assign `((,this +in_state)) `(,state))
+	(gotoif `(,state = +stream_mail_state_aborted) 'abort)
 	(loop-end)
 	(assign `((,this +in_seqnum)) `(,seqnum))
 	(vp-add-cr 1 seqnum)
@@ -179,7 +177,6 @@
 	(exit :in :next_msg `(,this))
 	(vp-ret)
 
-(errorcase
 (vp-label 'abort)
 	;abort signal
 	(vp-xor-rr buffer buffer)
@@ -187,7 +184,7 @@
 	(save-fields this '(+stream_buffer +stream_bufp +stream_bufe +in_state)
 		`(,buffer ,buffer ,buffer ,state))
 	(exit :in :next_msg `(,this))
-	(vp-ret))
+	(vp-ret)
 
 (vp-label 'next_seq)
 	;inputs

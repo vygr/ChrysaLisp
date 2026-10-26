@@ -69,10 +69,7 @@
 	+test_late_times 3 +test_late_ms 10000 +test_late_unknown 30000
 	;what is known of each file, (age hash names), the counts of each
 	;module that was run, and the commands there are
-	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil
-	;an error checked build throws on bad arguments, a release build has no
-	;checks. An extra argument is ignored by release, so is safe to try.
-	*test_checked* (catch (progn (length "abc" 1) :nil) :t))
+	*test_files* (Fmap 101) *test_done* (Fmap 31) *test_cmds* :nil *test_child* :nil)
 
 ;;;;;;;;;;;
 ; reporting
@@ -192,14 +189,11 @@
 
 (defmacro assert-error (name form)
 	; (assert-error name form)
-	;the form must throw an error. Only an error checked build can tell,
-	;on a release build the form is not run and the test is skipped.
+	;the form must throw an error
 	(defq where (test-where))
-	`(if *test_checked*
-		(if (catch (progn ,form :nil) :t)
-			(test-pass ,name ,where)
-			(test-fail ,name "an error" "no error" ,where))
-		(test-skip ,name "needs an error checked build" ,where)))
+	`(if (catch (progn ,form :nil) :t)
+		(test-pass ,name ,where)
+		(test-fail ,name "an error" "no error" ,where)))
 
 (defmacro test-cases (&rest cases)
 	; (test-cases form expected form expected ...)
@@ -790,9 +784,7 @@
 						" as they were")))
 			(print "Passed: " *test_passes*)
 			(print "Failed: " *test_failures*)
-			(print "Skipped: " *test_skips*
-				(if (or *test_checked* (= *test_skips* 0)) ""
-					", release build, no error checks to test"))
+			(print "Skipped: " *test_skips*)
 			(if waits (print "Waited: " (join (map (const str) waits) " ") " ms, the longest a task was kept from running, each node"))
 			(print "RESULT: " (if (= *test_failures* 0) "SUCCESS" "FAILURE"))))
 	(= *test_failures* 0))

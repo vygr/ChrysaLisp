@@ -72,17 +72,16 @@ routes the operation to the correct VP-level or Script-level vtable.
 The developer focuses entirely on the *behavior* required by the algorithm, not
 the *lineage* of the data.
 
-## 4. Schrodinger's Strictness: The Dual-Mode Paradigm
+## 4. Strict at the Boundary, Trusting Below
 
 If ChrysaLisp relies on fluid duck typing, how does it prevent absolute chaos in
-a concurrent operating system? It achieves this through a dual-mode philosophy
-regarding strictness.
+a concurrent operating system? It checks once, at the boundary, and trusts
+below it.
 
-ChrysaLisp is **Strictly Typed during development, and Permissively Typed in
-production.**
+ChrysaLisp is **Strictly Typed at the Lisp/VP boundary, and Permissively Typed
+inside the VP core.**
 
-Through the `errorcase` macro, VP-level functions are littered with signature
-checks:
+VP-level Lisp bindings are littered with signature checks:
 
 ```vdu
 (errorif-lisp-args-sig 'error :r1 2)
@@ -90,15 +89,15 @@ checks:
 (signature '(:str :num))
 ```
 
-In `*build_mode* 1` (Debug), ChrysaLisp acts like a strict, statically typed
-language. It rigorously validates that the caller provided exactly a string and
-a number. If you pass an object, it halts with `wrong_types`.
+At this boundary ChrysaLisp acts like a strict, statically typed language. It
+rigorously validates that the caller provided exactly a string and a number.
+If you pass an object, it halts with `wrong_types`. These checks are in every
+build.
 
-But in `*build_mode* 0` (Release), the type system vanishes. The `errorcase`
-macros compile to nothing. The system transitions to the "Well, Don't Do That
-Then!" philosophy. It trusts that the polymorphic template logic you wrote and
-tested in debug mode is mathematically sound. It removes the training wheels and
-executes at bare-metal speeds.
+Below the boundary the type system is gone. The core VP routines do no checks
+of their own. The system follows the "Well, Don't Do That Then!" philosophy: it
+trusts that what passed the boundary is sound, and executes at bare-metal
+speeds.
 
 ## Conclusion
 
@@ -107,6 +106,6 @@ overhead of dynamic type-tracking.
 
 Instead, it offers a philosophical middle ground: **Template-driven
 Polymorphism**. By stripping away closures, relying on O(1) vtable dispatch, and
-erasing signature checks at compile time, it allows the developer to write
-incredibly generic, highly reusable code that miraculously compiles down to
-tightly optimized, strongly typed machine instructions.
+checking signatures only once at the Lisp boundary, it allows the developer to
+write incredibly generic, highly reusable code that miraculously compiles down
+to tightly optimized, strongly typed machine instructions.

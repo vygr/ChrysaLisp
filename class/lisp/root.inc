@@ -1385,6 +1385,15 @@
 
 ;the totals of (time-add), each heading and (nums us count), of the node
 (defq *time_sums* (list))
+(defun time-sum (heading us)
+	; (time-sum heading us)
+	;us added to the heading's total, and one to how many times
+	(ifn (defq row (some (# (if (eql (first %0) heading) %0)) *time_sums*))
+		(push *time_sums* (list heading (nums us 1)))
+		(defq total (second row))
+		(elem-set total 0 (+ (first total) us))
+		(elem-set total 1 (inc (second total)))))
+
 (defmacro time-add (heading &rest body)
 	; (time-add heading body) -> what the body gives
 	; the time the body takes added to the heading's total, for what runs
@@ -1394,15 +1403,6 @@
 		(defq ,then (pii-time) ,retval (progn ~body))
 		(time-sum ,heading (- (pii-time) ,then))
 		,retval))
-
-(defun time-sum (heading us)
-	; (time-sum heading us)
-	;us added to the heading's total, and one to how many times
-	(ifn (defq row (some (# (if (eql (first %0) heading) %0)) *time_sums*))
-		(push *time_sums* (list heading (nums us 1)))
-		(defq total (second row))
-		(elem-set total 0 (+ (first total) us))
-		(elem-set total 1 (inc (second total)))))
 
 (defun time-report ()
 	; (time-report)
@@ -1673,11 +1673,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;compilation options
-;build_mode 0, release, strip all error checking
 ;build_mode 1, normal, with error checking
 ;build_mode 2, validate, with extra runtime validation checking
 ;build_vp, a build's VP stage, the folder each source file's bundle of the
-;VP of its functions is kept in, obj/vp/<mode>/, see lib/asm/asm.inc, and
+;VP of its functions is kept in, obj/vp/ or obj/vp_validate/, see
+;lib/asm/asm.inc, and
 ;build_entries the functions' VP as (vp-compile) gathers it
 (defq *build_mode* 1 *build_emit* :nil *build_inst* :nil *build_verb* 0 *build_vp* :nil *build_entries* :nil)
 

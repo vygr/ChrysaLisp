@@ -19,14 +19,13 @@
 	(v-bind :fixeds :frac :r2 :r2)
 	(call :nums :lisp_vecop2 '(:r0 :r1 :r2) '(:r0 :r1))
 	(vp-pop :r3)
-	(errorif '(:r1 = 0) 'error)
+	(gotoif '(:r1 = 0) 'error)
 
 	(exit :fixeds :lisp_frac '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r3 "(fixeds-frac fixeds [fixeds])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r3 "(fixeds-frac fixeds [fixeds])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -47,14 +46,13 @@
 	(v-bind :fixeds :floor :r2 :r2)
 	(call :nums :lisp_vecop2 '(:r0 :r1 :r2) '(:r0 :r1))
 	(vp-pop :r3)
-	(errorif '(:r1 = 0) 'error)
+	(gotoif '(:r1 = 0) 'error)
 
 	(exit :fixeds :lisp_floor '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r3 "(fixeds-floor fixeds [fixeds])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r3 "(fixeds-floor fixeds [fixeds])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -75,13 +73,12 @@
 	(v-bind :fixeds :ceil :r2 :r2)
 	(call :nums :lisp_vecop2 '(:r0 :r1 :r2) '(:r0 :r1))
 	(vp-pop :r3)
-	(errorif '(:r1 = 0) 'error)
+	(gotoif '(:r1 = 0) 'error)
 
 	(exit :fixeds :lisp_ceil '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r3 "(fixeds-ceil fixeds [fixeds])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error '(:r3 "(fixeds-ceil fixeds [fixeds])" +error_msg_wrong_types))
 
 (def-func-end)

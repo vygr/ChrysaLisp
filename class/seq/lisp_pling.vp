@@ -45,11 +45,10 @@
 	(push-scope)
 	(entry :seq :lisp_each (vpx this seqs))
 
-(errorcase
-	(errorif-lisp-args-sig 'error1 :r1 2 4)
-	(assign '((:r1 +array_begin)) '(:r1))
-	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0))
+(errorif-lisp-args-sig 'error1 :r1 2 4)
+(assign '((:r1 +array_begin)) '(:r1))
+(assign `((:r1 +ptr_size)) '(:r1))
+(errorif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign (vpx seqs) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
@@ -69,11 +68,10 @@
 	(seq-elem-index idx len)
 	(seq-elem-index end len)
 
-(errorcase
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2))
+(gotoif `(,idx < 0) 'error2)
+(gotoif `(,end < 0) 'error2)
+(gotoif `(,idx > ,len) 'error2)
+(gotoif `(,end > ,len) 'error2)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -126,9 +124,8 @@
 			(endif)
 			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
 
-		(errorcase
-			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
-			(breakif `(,vt1 = ,vt2)))
+		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
+		(breakif `(,vt1 = ,vt2))
 
 			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
@@ -148,13 +145,12 @@
 	(call :obj :deref '(:r1))
 	(vp-jmp 'args_next)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
 	(jump :lisp :repl_error (vpx seqs "(each! lambda seqs [start end])" +error_msg_not_valid_index))
-	(signature '(:obj :LIST :NUM :NUM)))
+	(signature '(:obj :LIST :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -184,11 +180,10 @@
 	(push-scope)
 	(entry :seq :lisp_some (vpx this seqs))
 
-(errorcase
-	(errorif-lisp-args-sig 'error1 :r1 2 5)
-	(assign '((:r1 +array_begin)) '(:r1))
-	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0))
+(errorif-lisp-args-sig 'error1 :r1 2 5)
+(assign '((:r1 +array_begin)) '(:r1))
+(assign `((:r1 +ptr_size)) '(:r1))
+(errorif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign (vpx (.> this +lisp_sym_nil) seqs) `(,mode :r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
@@ -211,11 +206,10 @@
 	(seq-elem-index idx len)
 	(seq-elem-index end len)
 
-(errorcase
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2))
+(gotoif `(,idx < 0) 'error2)
+(gotoif `(,end < 0) 'error2)
+(gotoif `(,idx > ,len) 'error2)
+(gotoif `(,end > ,len) 'error2)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -268,9 +262,8 @@
 			(endif)
 			(assign (vpx this mode dir end func seqs) `(,this ,mode ,dir ,end ,func ,seqs))
 
-		(errorcase
-			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
-			(breakif `(,vt1 = ,vt2)))
+		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
+		(breakif `(,vt1 = ,vt2))
 
 			;break out based on mode and new value
 			(assign `((,this +lisp_sym_nil)) `(,vt1))
@@ -298,13 +291,12 @@
 	(call :obj :deref '(:r1))
 	(vp-jmp 'args_next)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seqs "(some! lambda seqs [mode start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
 	(jump :lisp :repl_error (vpx seqs "(some! lambda seqs [mode start end])" +error_msg_not_valid_index))
-	(signature '(:obj :LIST :obj :NUM :NUM)))
+	(signature '(:obj :LIST :obj :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -334,11 +326,10 @@
 	(push-scope)
 	(entry :seq :lisp_map (vpx this seqs))
 
-(errorcase
-	(errorif-lisp-args-sig 'error1 :r1 2 5)
-	(assign '((:r1 +array_begin)) '(:r1))
-	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0))
+(errorif-lisp-args-sig 'error1 :r1 2 5)
+(assign '((:r1 +array_begin)) '(:r1))
+(assign `((:r1 +ptr_size)) '(:r1))
+(errorif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign (vpx seqs) '(:r1))
 	(load-fields :r1 '(+array_length +array_begin) '(:r2 :r0))
@@ -364,11 +355,10 @@
 	(seq-elem-index idx len)
 	(seq-elem-index end len)
 
-(errorcase
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2))
+(gotoif `(,idx < 0) 'error2)
+(gotoif `(,end < 0) 'error2)
+(gotoif `(,idx > ,len) 'error2)
+(gotoif `(,end > ,len) 'error2)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -428,9 +418,8 @@
 			(endif)
 			(assign (vpx this) `(,this))
 
-		(errorcase
-			(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vt1 ,vt2))
-			(gotoif `(,vt1 = ,vt2) 'error3))
+		(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vt1 ,vt2))
+		(gotoif `(,vt1 = ,vt2) 'error3)
 
 			;collect value of function call
 			(assign (vpx out) '(:r0))
@@ -454,7 +443,6 @@
 	(call :obj :deref '(:r1))
 	(vp-jmp 'args_next)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seqs "(map! lambda seqs [start end out])" +error_msg_wrong_types))
 (vp-label 'error2)
@@ -467,7 +455,7 @@
 	(call :obj :deref (vpx out))
 	(exit :seq :lisp_map `(,this ,value))
 	(return)
-	(signature '(:obj :LIST :NUM :NUM :list)))
+	(signature '(:obj :LIST :NUM :NUM :list))
 
 	(pop-scope-syms)
 
@@ -497,11 +485,10 @@
 	(push-scope)
 	(entry :seq :lisp_reduce (vpx this seqs))
 
-(errorcase
-	(errorif-lisp-args-sig 'error1 :r1 3 5)
-	(assign '((:r1 +array_begin)) '(:r1))
-	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type 'error1 :r1 :seq 0))
+(errorif-lisp-args-sig 'error1 :r1 3 5)
+(assign '((:r1 +array_begin)) '(:r1))
+(assign `((:r1 +ptr_size)) '(:r1))
+(errorif-lisp-args-type 'error1 :r1 :seq 0)
 
 	(assign (vpx seqs) '(:r0))
 	(load-fields :r0 '(+array_length +array_begin) '(:r2 :r0))
@@ -521,11 +508,10 @@
 	(seq-elem-index idx len)
 	(seq-elem-index end len)
 
-(errorcase
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2))
+(gotoif `(,idx < 0) 'error2)
+(gotoif `(,end < 0) 'error2)
+(gotoif `(,idx > ,len) 'error2)
+(gotoif `(,end > ,len) 'error2)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -579,9 +565,8 @@
 			(endif)
 			(assign (vpx this dir end func seqs) `(,this ,dir ,end ,func ,seqs))
 
-		(errorcase
-			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
-			(breakif `(,vt1 = ,vt2)))
+		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
+		(breakif `(,vt1 = ,vt2))
 
 			(assign `((,this +lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
@@ -601,13 +586,12 @@
 	(call :obj :deref '(:r1))
 	(vp-jmp 'args_next)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seqs "(reduce! lambda seqs init [start end])" +error_msg_wrong_types))
 (vp-label 'error2)
 	(call :obj :deref `(,value))
 	(jump :lisp :repl_error (vpx seqs "(reduce! lambda seqs init [start end])" +error_msg_not_valid_index))
-	(signature '(:obj :LIST :obj :NUM :NUM)))
+	(signature '(:obj :LIST :obj :NUM :NUM))
 
 	(pop-scope-syms)
 
@@ -663,11 +647,10 @@
 	(seq-elem-index idx len)
 	(seq-elem-index end len)
 
-(errorcase
-	(gotoif `(,idx < 0) 'error2)
-	(gotoif `(,end < 0) 'error2)
-	(gotoif `(,idx > ,len) 'error2)
-	(gotoif `(,end > ,len) 'error2))
+(gotoif `(,idx < 0) 'error2)
+(gotoif `(,end < 0) 'error2)
+(gotoif `(,idx > ,len) 'error2)
+(gotoif `(,end > ,len) 'error2)
 
 	(vpif `(,idx /= ,end))
 		(vp-cpy-cr 1 dir)
@@ -706,9 +689,8 @@
 			(call :lisp :repl_apply `(,this ,%1 ,func) `(_ ,value))
 			(assign (vpx this) `(,this))
 
-		(errorcase
-			(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
-			(gotoif `(,vt1 = ,vt2) 'error3))
+		(assign `((,this +lisp_error) (,value +obj_vtable)) `(,vt1 ,vt2))
+		(gotoif `(,vt1 = ,vt2) 'error3)
 
 			;collect or ignore item
 			(assign `((,this +lisp_sym_nil)) `(,vt1))
@@ -761,7 +743,6 @@
 	(call :obj :deref '(:r1))
 	(vp-jmp 'args_next)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error (vpx seq "(filter! lambda seq [start end out])" +error_msg_wrong_types))
 (vp-label 'error2)
@@ -775,7 +756,7 @@
 	(assign (vpx this) '(:r0))
 	(exit :seq :lisp_filter `(:r0 ,value))
 	(return)
-	(signature '(:obj :seq :NUM :NUM :list)))
+	(signature '(:obj :seq :NUM :NUM :list))
 
 	(pop-scope-syms)
 

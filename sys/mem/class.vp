@@ -132,7 +132,7 @@
 	;:r0-:r2, :f0-:f15
 
 	(entry :sys_mem :alloc '(:r0))
-	(errorif `(:r0 > ,(- (last (last +mem_heap_cell_sizes)) +sys_mem_header_size)) 'error)
+	(gotoif `(:r0 > ,(- (last (last +mem_heap_cell_sizes)) +sys_mem_header_size)) 'error)
 
 	;extra bytes for allocation header
 	(vp-lea-i :r0 +sys_mem_header_size :r1)
@@ -156,13 +156,12 @@
 	(exit :sys_mem :alloc '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(vp-cpy-rr :r0 :r2)
 	(call :host_os :pii_write_str '(2 "Malloc fail !!! "))
 	(call :host_os :pii_write_num '(2 :r2 16))
 	(call :host_os :pii_write_str '(2 "\n"))
-	(jump :sys_task :dump))
+	(jump :sys_task :dump)
 
 (def-func-end)
 
@@ -204,9 +203,13 @@
 		;the address of a block we gave out
 		(fn-bind 'sys/statics/statics :r2)
 		(vp-add-cr statics_sys_mem_heaps :r2)
-		(gotoif '(:r1 < :r2) 'bad_free)
+		(vpif '(:r1 < :r2))
+			(jump :sys_mem :bad_free)
+		(endif)
 		(vp-add-cr (* (length +mem_heap_cell_sizes) +hp_heap_size) :r2)
-		(gotoif '(:r1 >= :r2) 'bad_free))
+		(vpif '(:r1 >= :r2))
+			(jump :sys_mem :bad_free)
+		(endif))
 		(vp-sub-cr +sys_mem_header_size :r0)
 		(hp-freecell :r1 :r0 :r2)
 	(endif)
@@ -214,12 +217,18 @@
 	(exit :sys_mem :free '())
 	(vp-ret)
 
-(validatecase
-(vp-label 'bad_free)
-	(call :host_os :pii_write_str '(2 "Bad free !\n"))
-	(jump :sys_task :dump))
-
 (def-func-end)
+
+(validatecase (def-method :sys_mem :bad_free)
+	;trashes
+	;none
+	;info
+	;a block being freed is not one that was given out, report and dump
+
+	(call :host_os :pii_write_str '(2 "Bad free !\n"))
+	(jump :sys_task :dump)
+
+(def-func-end))
 
 (def-method :sys_mem :realloc)
 	;inputs

@@ -2,8 +2,8 @@
 ; a function as it was assembled, read back
 ;
 ; A build keeps the VP of each source file's functions as text, a bundle
-; of them under the file's name in obj/vp/<mode>/, the debug of it in
-; obj/vp/debug/, see lib/asm/asm.inc. This finds a function's, reads it, and says where control goes from
+; of them under the file's name in obj/vp/, a validate one's beside it in
+; obj/vp_validate/, see lib/asm/asm.inc. This finds a function's, reads it, and says where control goes from
 ; each instruction. It is what the commands that see a function whole
 ; stand on, (locals) and (relies).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -11,9 +11,7 @@
 ;module
 (env-push)
 
-(defq +obj_dir "obj/vp/debug/" +jit_dir "lib/gpu/jit/"
-	;all of the VP kept, of every mode, what a reader of it locks
-	+vp_root "obj/vp/"
+(defq +obj_dir "obj/vp/" +jit_dir "lib/gpu/jit/"
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
 	+load_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
@@ -25,16 +23,23 @@
 	;what is not an instruction of the function at all
 	+data_ops ''(emit-label emit-tlabel emit-align emit-string emit-byte emit-short emit-int emit-long))
 
+(defun vp-root (functions)
+	; (vp-root functions) -> path
+	;the folder of VP the functions named are of, obj/vp_validate/ if they
+	;are bundles of a validate build, else a normal build's, obj/vp/. What
+	;(vp-index) reads is *vp_root*, a normal build's unless this is bound
+	(if (some (# (starts-with "obj/vp_validate/" %0)) functions) "obj/vp_validate/" +obj_dir))
+
 (defun vp-index ()
 	; (vp-index) -> fmap
-	;of each function, the bundle its VP is in, found once. An entry of a
-	;bundle starts with a line of the name, ("name"
+	;of each function, the bundle its VP is in, of *vp_root*, found once.
+	;An entry of a bundle starts with a line of the name, ("name"
 	(memoize :index (progn
 		(defq index (Fmap 101))
 		(each (lambda (path)
 			(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
 				(. index :insert (slice %0 2 -2) path)) :nil) (file-stream path)))
-			(files-all (slice +obj_dir 0 -2) '("")))
+			(files-all (slice *vp_root* 0 -2) '("")))
 		index) 1))
 
 (defun vp-listing (function)
@@ -48,7 +53,7 @@
 
 (defun vp-functions-of (args)
 	; (vp-functions-of args) -> (function ...)
-	;the functions named, a bundle's own, obj/vp/debug/<file>, for each of
+	;the functions named, a bundle's own, obj/vp/<file>, for each of
 	;a bundle given, or all of them for none
 	(cond
 		((empty? args)
@@ -57,7 +62,7 @@
 			(sort all))
 		((reduce (lambda (out arg)
 			(cond
-				((and (starts-with +obj_dir arg) (/= (age arg) 0))
+				((and (starts-with *vp_root* arg) (/= (age arg) 0))
 					(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
 						(push out (slice %0 2 -2))) :nil) (file-stream arg))
 					out)
@@ -110,6 +115,7 @@
 		insts))
 
 ;module
-(export-symbols '(insts-of vp-index vp-listing vp-functions-of regs-of target-of next-of
-	+obj_dir +vp_root +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
+(defq *vp_root* +obj_dir)
+(export-symbols '(*vp_root* insts-of vp-root vp-index vp-listing vp-functions-of regs-of target-of next-of
+	+obj_dir +jit_dir +load_ops +store_ops +leave_ops +call_ops +data_ops))
 (env-pop)

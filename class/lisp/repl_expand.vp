@@ -75,21 +75,20 @@
 					(assign '((:rsp local_iter)) '(:r2))
 					(assign '(:r1) '((:r2 0)))
 					(call :obj :deref '((:rsp local_args)))
-				(errorcase
-					;a macro that threw: the error is the whole form, so the repl
-					;stops on it now, not when a body it was in is called
-					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
-					(assign '((:r1 0)) '(:r1))
-					(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
-					(vpif '(:r2 = :r3))
-						(class/obj/ref :r1 :r2)
-						(assign '(:r1) '((:rsp local_form)))
-						(assign '((:rsp local_root)) '(:r0))
-						(call :obj :deref '((:r0 0)))
-						(assign '((:rsp local_root) (:rsp local_form)) '(:r0 :r1))
-						(assign '(:r1) '((:r0 0)))
-						(break 'try_expand)
-					(endif))
+				;a macro that threw: the error is the whole form, so the repl
+				;stops on it now, not when a body it was in is called
+				(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
+				(assign '((:r1 0)) '(:r1))
+				(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
+				(vpif '(:r2 = :r3))
+					(class/obj/ref :r1 :r2)
+					(assign '(:r1) '((:rsp local_form)))
+					(assign '((:rsp local_root)) '(:r0))
+					(call :obj :deref '((:r0 0)))
+					(assign '((:rsp local_root) (:rsp local_form)) '(:r0 :r1))
+					(assign '(:r1) '((:r0 0)))
+					(break 'try_expand)
+				(endif)
 					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
 					(vp-cpy-ir :r1 0 :r2)
 					(f-bind :list :vtable :r3)
@@ -101,12 +100,11 @@
 				;down this lists branches
 				(assign '((:rsp local_stack) (:rsp local_form)) '(:r0 :r6))
 
-			(errorcase
-				(assign '((:r0 +array_length)) '(:r2))
-				(vpif '(:r2 >= 1000))
-					(debug-str '("Excessive macro recursion !"))
-					(break 'next_iter)
-				(endif))
+			(assign '((:r0 +array_length)) '(:r2))
+			(vpif '(:r2 >= 1000))
+				(debug-str '("Excessive macro recursion !"))
+				(break 'next_iter)
+			(endif)
 
 				;push in reverse so as we pop we traverse left to right !
 				(class/array/get_both :r6 :r6 :r1)

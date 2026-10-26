@@ -22,8 +22,8 @@ every task.
 	the standard sanity tools, and how piped execution works.
 
 *	**[Standard TUI Make Commands](#standard-tui-make-commands)**
-	Every `make` option, which build each produces, and when a debug or
-	validate build is needed.
+	Every `make` option, which build each produces, and when a validate
+	build is needed.
 
 *	**[Suite Layout](#suite-layout)**
 	Which file is the command, the framework, and each test module.
@@ -111,20 +111,17 @@ and use a short wait only for what should not happen.
 
 Which boot image the suite runs on matters:
 
-*	**Native, `./run_tui.sh -f`:** the native image has the error checks
-	built in, so every test runs, including the error tests.
+*	**Native, `./run_tui.sh -f`:** every test runs, the error tests too.
 
-*	**Emulated VP64, `./run_tui.sh -e -f`:** `make it` builds the VP64 image
-	in release mode, with the error checks stripped out. The error tests
-	can not run there, so are counted as skipped, and the summary says so.
-	Run this when a change touches the VM or any VP level code.
+*	**Emulated VP64, `./run_tui.sh -e -f`:** the same image, with the same
+	checks, run by the emulator. Run this when a change touches the VM or
+	any VP level code.
 
 *	**Full system, `./run.sh -f`:** the same suite with the GUI service up,
 	and a TUI attached to the host.
 
-To run every test on the emulator too, build all the boot images with the
-checks in, `make it debug`, or with the extra runtime validation as well,
-`make it validate`. A validate build also fills every newly allocated heap
+Every build has its error checks. For the extra runtime validation as
+well, build with `make it validate`. A validate build also fills every newly allocated heap
 cell with a pattern, bytes of `0xA5`, so code that reads memory before
 setting it fails the same way each time, rather than by luck. It fills each
 freed cell with a second pattern, bytes of `0x5A`, and aborts on a double
@@ -134,14 +131,10 @@ a block that was given out, `Bad free !`. It keeps a guard word after
 every heap cell and tests it on free, `Heap overrun !`. A fault address or pc of `0x5a5a5a5a5a5a5a5a` means use after free.
 If a validate image will not boot, `make install` puts back the working
 VP64 image from `snapshot.zip`, and `./run_tui.sh -e` can build from it.
-The emulator
-run then reports `Skipped: 0`. Always finish
-with a plain `make it`. That puts back the release VP64 image, which is what
-goes into `snapshot.zip` and what `make install` runs on. It is release on
-purpose: installed code should have no errors to check for, and it installs
-about 20% faster.
+Always finish with a plain `make it`, which puts back the normal images,
+what goes into `snapshot.zip` and what `make install` runs on.
 
-	echo "make it debug" | ./run_tui.sh -f
+	echo "make it validate" | ./run_tui.sh -f
 	echo "tests" | ./run_tui.sh -e -f
 	echo "make it" | ./run_tui.sh -f
 
@@ -265,12 +258,9 @@ check and what it found. It must say nothing. `-c` names the checks to run:
 A test of the very thing has a comment that begins `;check off` on its line,
 or on the line before, and nothing is said of it.
 
-`trace` must only be run on debug VP objects: `make vp debug` for the system, and
-`make apps debug` for the `apps/` VP functions, which `make vp` does not
-build. Running it against release objects reports spurious mismatches, and
-`trace -w` would then write wrong trashes into the source. Always follow
-with `make it` and `make apps` to restore the release images (see the
-pre-release steps below).
+`trace` runs on the normal VP objects, `obj/vp/`: `make vp` for the
+system, and `make apps` for the `apps/` VP functions. `lint` does both and
+runs it.
 
 ### How Piped Execution Works
 
@@ -312,23 +302,22 @@ identically for builds as they do for tests:
 	echo "make it | time -s" | ./run_tui.sh -f
 	```
 
-	Recompiles all supported target platforms: native platforms (`AMD64`,
-	`WIN64`, `ARM64`, `RISCV64`, `LA64`) are built in debug mode (`*build_mode* =
-	1`), while `VP64` is specifically built in release mode (`*build_mode* = 0`).
-	Also regenerates Markdown documentation in `docs/reference/`.
+	Recompiles all supported target platforms (`AMD64`, `WIN64`, `ARM64`,
+	`RISCV64`, `LA64`, `VP64`), all in the normal mode (`*build_mode* = 1`),
+	and regenerates the Markdown documentation in `docs/reference/`.
 
-*	**Debug VP64 Build for Register Analysis:**
+*	**Register Analysis:**
+
+	```sh
+	echo "lint" | ./run_tui.sh -f
+	```
+
+	Builds the system and apps and runs `trace` (`cmd/trace.lisp`) over
+	their VP for register usage and clobber analysis, which by hand is:
 
 	```sh
 	echo "make vp" | ./run_tui.sh -f
-	```
-
-	Builds the VP64 image in debug mode (`*build_mode* = 1`). Used with `trace`
-	(`cmd/trace.lisp`) to perform register usage and clobber analysis, along
-	with `make apps debug` for the `apps/` VP functions:
-
-	```sh
-	echo "make apps debug" | ./run_tui.sh -f
+	echo "make apps" | ./run_tui.sh -f
 	echo "files obj/vp/ | trace -i -l" | ./run_tui.sh -f
 	```
 
@@ -338,11 +327,8 @@ identically for builds as they do for tests:
 	`trace -i -l -w` writes the calculated trashes back to the source on a
 	mismatch.
 
-	*Important:* The debug VP64 boot image produced by `make vp` must NEVER be
-	packaged into `snapshot.zip`. The VP64 image in `snapshot.zip` is executed
-	by the installer (`make install`) to cross-compile the host boot image, so it
-	requires the full speed of a release build. Always run `make it` afterwards
-	to restore the canonical release VP64 boot image (`*build_mode* = 0`).
+	*Important:* a validate image must never be packaged into
+	`snapshot.zip`. Run a plain `make it` before `make snapshot`.
 
 *	**App Rebuild:**
 
@@ -358,8 +344,8 @@ identically for builds as they do for tests:
 
 *	**Build Modes & Verbosity:**
 
-	`make` accepts `release`, `debug`, `validate`, `test`, `platforms`, and
-	`-v <num>` (verbosity). For example: `make -v 1 it`.
+	`make` accepts `validate`, `test`, `platforms`, and `-v <num>`
+	(verbosity). Without `validate` a build is normal. For example: `make -v 1 it`.
 
 ## Suite Layout
 
@@ -407,10 +393,7 @@ Assertions, each takes a short name first:
 	list matches a `nums` vector with the same elements.
 
 *	`(assert-error name form)` — the form must throw an error. This is how
-	the argument checks at the VP to Lisp boundary are tested. It can only
-	be judged on an error checked build. On a release build the form is not
-	run, as it would be undefined behaviour, and the test is counted as
-	skipped.
+	the argument checks at the VP to Lisp boundary are tested.
 
 *	`(test-skip name why)` — count a test that can not run here.
 
@@ -438,8 +421,7 @@ written:
 Edge case modules, `test_*_edges.lisp`, are written this way. When adding
 cases, test what the language defines: empty sequences, the first and last
 index, negative indices, zero, the largest and smallest integer, and so on.
-Do not test what wrong code does on a release build, that is undefined, test
-with `assert-error` that the checked build catches it.
+Test with `assert-error` that the build catches wrong code.
 
 A string in a test file can not hold an escaped `"`. Use a `{}` string when
 the text has a double quote in it, `{a "quoted" word}`.
@@ -464,17 +446,9 @@ Conventions:
 	`(pii-remove file)`. Null out the stream variable first — `(defq fs :nil)` —
 	to release the OS file descriptor before removal.
 
-*	**catch/throw are debug-only:** They are compiled out in `release` mode and
-	exist for testing. To throw an error use `(throw "Description !" obj)`, or
-	`:nil` if there is no object of interest. Do NOT use `catch` or `throw` in
-	runtime ChrysaLisp code.
-
-*	**Signals and error checks are debug-only:** The abort signal
-	(`(. pipe :abort)`, Ctrl-C) only wakes a blocked task in a debug build,
-	and the reader's "missing )" / "unexpected )" checks are compiled out
-	of a release build, where an unbalanced form is undefined behaviour.
-	`tests/system/test_pipe.lisp` detects a release image and counts both
-	as skipped with `(test-skip)`.
+*	**catch/throw are for faults:** They work the same in every build. To
+	throw an error use `(throw "Description !" obj)`, or `:nil` if there is
+	no object of interest. Do not use them to steer normal code.
 
 *	**Child tasks may be on another node:** A `Pipe` child can be placed on
 	any node, so `(mail-validate id)` cannot be used to check it is alive.
@@ -643,29 +617,27 @@ All checks should be performed using standard TUI pipeline commands:
 	metrics, run with `-v` (counts and depth) or `-v 2` (type breakdowns).
 
 5.	**Register Clobber & Lint Analysis (`trace`):**
-	Build the debug VP64 emulator image and verify register clobber integrity:
+	Verify register clobber integrity:
 
 	```sh
-	echo "make vp" | ./run_tui.sh -f
-	echo "make apps debug" | ./run_tui.sh -f
-	echo "files obj/vp/ | trace -i -l" | ./run_tui.sh -f
+	echo "lint" | ./run_tui.sh -f
 	```
 
-	Must output nothing (zero mismatches between documented and calculated
+	Must say `lint: clean` (zero mismatches between documented and calculated
 	transitive register trashes, for every function, apps and generated
 	create and type functions included).
 
 6.	**Full Canonical Multi-Platform Rebuild (`make it`):**
-	Recompile all platforms (native platforms in debug mode, VP64 in release
-	mode `*build_mode* = 0`) and regenerate reference documentation:
+	Recompile all platforms in the normal mode and regenerate reference
+	documentation:
 
 	```sh
 	echo "make it | time -s" | ./run_tui.sh -f
 	echo "make apps" | ./run_tui.sh -f
 	```
 
-	*Important:* `make snapshot` must only be done after `make it` (never after
-	`make vp`), so `snapshot.zip` contains the release VP64 boot image.
+	*Important:* `make snapshot` must only be done after a plain `make it`,
+	never a validate one.
 
 7.	**Emulator (-e) Deterministic Binary Diff Verification:**
 	Verify that the emulated VP64 build produces bit-for-bit identical binaries
@@ -696,12 +668,8 @@ All checks should be performed using standard TUI pipeline commands:
 		echo "tests" | ./run_tui.sh -e -f
 		```
 
-		Must report `Failed: 0` and `RESULT: SUCCESS`. The emulator runs the
-		release VP64 image, which has no error checks or signals, so the
-		error tests are counted as `Skipped`, and the summary says why. To
-		run them under the emulator build every image with the checks in,
-		`make it debug`, and again with `make it validate`. Both must give
-		`Skipped: 0`. Then restore the release image with `make it`.
+		Must report `Failed: 0`, `Skipped: 0` and `RESULT: SUCCESS`. Run it
+		again after `make it validate`, then restore with `make it`.
 
 9.	**Multi-Instance Network Link & Cluster Tests (Both Native and -e Modes):**
 	Verify distributed node discovery, connection, remote task dispatch, auto-discovery,
@@ -743,18 +711,12 @@ All checks should be performed using standard TUI pipeline commands:
 	make snapshot
 	```
 
-	*Vital Requirement:* It MUST be the canonical release version of the VP64
-	boot image produced by `make it` (`*build_mode* = 0`) that goes into
-	`snapshot.zip`, **NEVER** the debug version produced by `make vp`
-	(`*build_mode* = 1`). The reason is that `obj/vp64/VP64/sys/boot_image` in
-	`snapshot.zip` is executed by the installation script (`make install` ->
-	`./run_tui.sh -i -e -f`) to cross-compile the platform-native boot image and
-	classes for the host. Having the release build in `snapshot.zip` ensures the
-	installation process runs at maximum release speed without debug checking
-	overhead. Because `make vp` was run in Step 4 for trace linting, `make it`
-	in Step 5 restored the release image (`obj/vp64/VP64/sys/boot_image`,
-	~150 KB). Always confirm the VP64 image is the release build before running
-	`make snapshot`. `snapshot.zip` is the official distribution artifact for
+	*Vital Requirement:* it MUST be the normal VP64 boot image of a plain
+	`make it`, **NEVER** a validate one. `obj/vp64/VP64/sys/boot_image` in
+	`snapshot.zip` is run by the installation script (`make install` ->
+	`./run_tui.sh -i -e -f`) to translate the platform-native boot image and
+	classes for the host. The zip must stay under 192 KB, `test_snapshot`
+	fails over it. `snapshot.zip` is the official distribution artifact for
 	new releases and the master branch.
 
 12.	**Verify Clean Host Installation (`make install`):**
@@ -769,7 +731,7 @@ All checks should be performed using standard TUI pipeline commands:
 	This verifies the full end-to-end user onboarding flow: cleaning the host
 	objects, unzipping `snapshot.zip`, compiling host C++ executables, running
 	the installer under VP64 emulation to cross-compile the host native boot
-	image at release speed, and confirming that the installed environment
+	image, and confirming that the installed environment
 	passes all functional tests (`RESULT: SUCCESS`).
 
 ---

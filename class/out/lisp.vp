@@ -28,9 +28,8 @@
 	(exit :out :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(out-stream mbox)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)

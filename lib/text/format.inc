@@ -72,7 +72,7 @@
 (rule "redefun defun redefmacro defmacro defabstractmethod defmethod" '(- - 1) :one)
 (rule "structure enums bits def-class" '(- - 0))
 (rule "ui-root ui-stack defclass" '(- - - 0))
-(rule "def-vars union errorcase validatecase noterrorcase" '(0))
+(rule "def-vars union validatecase" '(0))
 ;conditionals
 (rule "cond condn" '(0) :clauses)
 (rule "case" '(- 0) :clauses)
@@ -113,11 +113,11 @@
 		(:open "loop-whilenot loop-flist loop-list-forward loop-list-backward") (:close
 				"def-func-end endif loop-end loop-until loop-untilnot endswitch")
 		(:mid "else elseif elseifnot vpcase vpcasenot default vp-label")
-		(:mid "errorcase validatecase noterrorcase")))
+		(:mid "validatecase")))
 
 ;forms that add no indent of their own, what is in them sits as if they
 ;were not there
-(defq +transparent `',(words "errorcase validatecase noterrorcase"))
+(defq +transparent `',(words "validatecase"))
 
 ;forms that define a name, or that a source scanner looks for at the start
 ;of a line. The opening line of a definition, the operator and its heads, is
@@ -146,7 +146,7 @@
 			"fn-jump fn-bind fn-string load-fields save-fields assign-fields goto "
 			"gotoif gotoifnot break breakif breakifnot continue continueif "
 			"continueifnot nextcaseif nextcaseifnot repeatif repeatifnot exitif "
-			"exitifnot errorif errorifnot errorif-lisp-args-sig "
+			"exitifnot errorif-lisp-args-sig "
 			"errorif-lisp-args-len errorif-lisp-args-match errorif-lisp-args-type "
 			"vpif vpifnot elseif elseifnot loop-while loop-whilenot loop-until "
 			"loop-untilnot vpcase vpcasenot")))

@@ -107,10 +107,9 @@ All of this, from cold, on each machine there is, each CPU and each OS.
   With them all at once a Raspberry Pi 4 is overrun, and a different test
   with a wait in it fails each time. A module at a time they all pass, in
   six and a half minutes.
-* `lint`, which must say `lint: clean`. It is `make vp debug`, `make apps
-  debug`, then `files obj/vp/ | trace -i -l`, and then `make vp`, `make
-  apps` and `make all boot` to leave the builds as they are with no mode,
-  all in the one session.
+* `lint`, which must say `lint: clean`. It is `make`, `make apps`, then
+  `files obj/vp/ | trace -i -l` and `relies -q`, all in the one
+  session.
 * RISC-V and LoongArch under QEMU. The host program is built there first,
   from the source as it is, one left from an older tree has a shorter table
   of calls than the boot image expects and the node dies of it. Then, from
@@ -144,13 +143,14 @@ lint: clean, 834ms
 ```
 
 The trace lint works out what each VP function really trashes, and says
-where that is not what its header has written down. It is only right on a
-debug build. `lint` makes one, runs the trace lint over every listing under
-`obj/vp/`, puts the release build back, and prints what any of it had to
-say, which is nothing when all is well. `-k` leaves the debug build, `-v`
-says what each step took. `cmd/lint.lisp`.
+where that is not what its header has written down. A build keeps the VP
+of each mode it makes, `obj/vp/` and `obj/vp_validate/`. `lint` makes
+what has changed, runs the trace lint over every listing under
+`obj/vp/`, then `relies -q` on the same build, and prints what any of
+it had to say, which is nothing when all is well. `-v` says what each step
+took. `cmd/lint.lisp`.
 
 It is run after any change to VP. It is under a second of work on an Apple
 M4 Max, and 1.4 seconds from a shell with the session to start and stop. It
 was 14 seconds as five commands, each a session of its own, and each of
-those waited 2 seconds for nothing, see `STATUS.md` for 2026-10-08.
+those waited 2 seconds for nothing.

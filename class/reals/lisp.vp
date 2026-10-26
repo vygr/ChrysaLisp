@@ -24,16 +24,15 @@
 	(assign `((,args +array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,reals1 ,tol))
 	(assign `((,reals1 +array_length)) `(,len1))
-	(errorif `(,len1 = 0) 'error)
+	(gotoif `(,len1 = 0) 'error)
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
 		(call :reals :set_cap `(,dst ,len1) `(,dst))
 		(assign `(,len1) `((,dst +array_length)))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-	(errorcase
-		(assign `((,dst +array_length)) `(,len2))
-		(gotoif `(,len1 > ,len2) 'error))
+	(assign `((,dst +array_length)) `(,len2))
+	(gotoif `(,len1 > ,len2) 'error)
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :quant `(,dst ,reals1 (,tol +num_value)) `(,dst))
@@ -41,10 +40,9 @@
 	(exit :reals :lisp_quant `(,this ,dst))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(quant reals tol [out])" +error_msg_wrong_types))
-	(signature '(:REALS :REAL :REALS)))
+	(signature '(:REALS :REAL :REALS))
 
 (def-func-end)
 
@@ -68,11 +66,10 @@
 	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,reals1 ,reals2))
 
-(errorcase
-	(assign `((,reals1 +array_length)) `(,len))
-	(gotoif `(,len /= 16) 'error)
-	(assign `((,reals2 +array_length)) `(,len))
-	(gotoif `(,len /= 16) 'error))
+(assign `((,reals1 +array_length)) `(,len))
+(gotoif `(,len /= 16) 'error)
+(assign `((,reals2 +array_length)) `(,len))
+(gotoif `(,len /= 16) 'error)
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -80,9 +77,8 @@
 		(call :reals :set_length `(,dst 16) `(,dst _))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-	(errorcase
-		(assign `((,dst +array_length)) `(,len))
-		(gotoif `(,len < 16) 'error))
+	(assign `((,dst +array_length)) `(,len))
+	(gotoif `(,len < 16) 'error)
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :mat4x4_mul `(,dst ,reals1 ,reals2) `(,dst))
@@ -90,10 +86,9 @@
 	(exit :reals :lisp_mat4x4_mul `(,this ,dst))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(mat4x4-mul ma mb [out])" +error_msg_wrong_types))
-	(signature '(:REALS :REALS :REALS)))
+	(signature '(:REALS :REALS :REALS))
 
 (def-func-end)
 
@@ -117,12 +112,11 @@
 	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,reals1 ,reals2))
 
-(errorcase
-	(assign `((,reals1 +array_length)) `(,len))
-	(gotoif `(,len /= 16) 'error))
+(assign `((,reals1 +array_length)) `(,len))
+(gotoif `(,len /= 16) 'error)
 
 	(assign `((,reals2 +array_length)) `(,len))
-	(errorif `(,len < 4) 'error)
+	(gotoif `(,len < 4) 'error)
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -130,9 +124,8 @@
 		(assign `(,len) `((,dst +array_length)))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-	(errorcase
-		(assign `((,dst +array_length)) `(,len))
-		(gotoif `(,len < 4) 'error))
+	(assign `((,dst +array_length)) `(,len))
+	(gotoif `(,len < 4) 'error)
 		(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :mat4x4_v4_mul `(,dst ,reals1 ,reals2) `(,dst))
@@ -140,10 +133,9 @@
 	(exit :reals :lisp_mat4x4_v4_mul `(,this ,dst))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(mat4x4-v4-mul ma v [out])" +error_msg_wrong_types))
-	(signature '(:REALS :REALS :REALS)))
+	(signature '(:REALS :REALS :REALS))
 
 (def-func-end)
 
@@ -167,12 +159,11 @@
 	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
 	(array-get-args iter_begin `(,reals1 ,reals2))
 
-(errorcase
-	(assign `((,reals1 +array_length)) `(,len))
-	(gotoif `(,len /= 16) 'error))
+(assign `((,reals1 +array_length)) `(,len))
+(gotoif `(,len /= 16) 'error)
 
 	(assign `((,reals2 +array_length)) `(,len))
-	(errorif `(,len < 3) 'error)
+	(gotoif `(,len < 3) 'error)
 
 	(vpif `(,argc = 2))
 		(call :reals :create :nil `(,dst))
@@ -180,19 +171,17 @@
 		(assign `(,len) `((,dst +array_length)))
 	(else)
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
-	(errorcase
-		(assign `((,dst +array_length)) `(,len))
-		(gotoif `(,len < 3) 'error)
-		(call :obj :ref `(,dst) `(,dst)))
+	(assign `((,dst +array_length)) `(,len))
+	(gotoif `(,len < 3) 'error)
+	(call :obj :ref `(,dst) `(,dst))
 	(endif)
 	(call :reals :mat4x4_v3_mul `(,dst ,reals1 ,reals2) `(,dst))
 
 	(exit :reals :lisp_mat4x4_v3_mul `(,this ,dst))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(mat4x4-v3-mul ma v [out])" +error_msg_wrong_types))
-	(signature '(:REALS :REALS :REALS)))
+	(signature '(:REALS :REALS :REALS))
 
 (def-func-end)

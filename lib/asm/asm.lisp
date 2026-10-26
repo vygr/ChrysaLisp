@@ -59,25 +59,28 @@
 						(first (read (string-stream (slice *msg* +_job_params -1)))))
 					(unless *placed* (setq *placed* :t) (fresh-translator *cpu* *abi*))
 					;a VP job is source files, the bundle of each of the VP of its
-					;functions to *build_vp*, a translate job is source files, their
-					;bundles to this platform's code, each file stamped for this
-					;platform as it is done, and catch any errors
+					;functions to *build_vp*, a bundle job the same with no code of
+					;any platform, a translate job is source files, their bundles to
+					;this platform's code, each file stamped for this platform as it
+					;is done, and catch any errors
 					(setq *msg* (list))
 					(catch (cond
-							((eql *kind* :vp)
+							((find *kind* '(:vp :bundle))
 								;the compile gives the VP, this keeps it: the bundle,
-								;and each function translated as it goes, by name
+								;and of a VP job each function translated as it goes,
+								;by name
 								(each (lambda (file)
 										(defq bundle (list) bins (list))
 										(each (lambda (entry)
 												(push bundle (vp-entry-text entry))
-												(push bins (vp-translate-save entry)))
+												(push bins (if (eql *kind* :vp)
+													(vp-translate-save entry) (vpb-encode entry))))
 											(vp-compile file))
 										(save (apply (const cat) (cat (list "") bundle)) (cat *build_vp* file))
 										;and the VP binary of them, for the translate stage to
 										;read with no parse, lib/trans/vpb.inc
 										(save (vpb-bundle bins) (cat *build_vp* file "b"))
-										(save "" (cat "obj/" *cpu* "/" *abi* "/" file)))
+										(if (eql *kind* :vp) (save "" (cat "obj/" *cpu* "/" *abi* "/" file))))
 									*files*))
 							(:t (include "lib/asm/func.inc")
 								(each (# (vp-translate-file %0 *build_vp*)

@@ -166,8 +166,7 @@
 		(vp-cpy-ir :r1 0 :r5)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r5 +num_value)) '(:f1))
-	(errorcase
-		(gotoif '(:f1 = :f3) 'error))
+	(gotoif '(:f1 = :f3) 'error)
 		(exec p)
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:f0) :r5 :r1)

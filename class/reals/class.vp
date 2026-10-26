@@ -160,7 +160,7 @@
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
-		(#	(errorif `(,%%1 = ,zero) 'error)
+		(#	(gotoif `(,%%1 = ,zero) 'error)
 			(vp-div-ff %1 %0) %0)
 		(#	(vp-cvt-rf idx1 zero)))
 
@@ -190,7 +190,7 @@
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
-		(#	(errorif `(,%%1 = ,zero) 'error)
+		(#	(gotoif `(,%%1 = ,zero) 'error)
 			(vp-cpy-ff %0 ftrunc)
 			(vp-div-ff %1 ftrunc)
 			(vp-cvt-fr ftrunc trunc)

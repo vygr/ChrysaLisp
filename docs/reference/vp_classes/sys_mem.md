@@ -27,6 +27,8 @@ trashes
 :r0-:r4
 ```
 
+### :bad_free -> sys/mem/bad_free
+
 ### :calloc -> sys/mem/calloc
 
 ```code

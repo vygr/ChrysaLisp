@@ -134,9 +134,8 @@
 	;a channel's n samples of bps bits: one number, the samples as they
 	;are, a fixed prediction, or an LPC one, then any bits wasted put back.
 	;One the format forbids, an order past its samples, a precision of 16, a
-	;shift down by less than 0, a reserved type, is heard as nothing: a
-	;release build does not stop at a throw, the error a value that would
-	;go on into the natives
+	;shift down by less than 0, a reserved type, is heard as nothing, not
+	;thrown
 	(bits-skip in 1)
 	(defq type (bits-get in 6) wasted (if (= (bits-1 in) 1) (inc (flac-unary in)) 0)
 		bits (- bps wasted) samples (fill (nums) n 0)

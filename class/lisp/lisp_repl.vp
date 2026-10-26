@@ -26,18 +26,17 @@
 	(vp-alloc local_size)
 	(assign '(:r1) '((:rsp local_args)))
 
-(errorcase
-	(assign '((:r1 +array_length)) '(:r2))
-	(gotoif '(:r2 /= 2) 'error1)
-	(assign '((:r1 +array_begin)) '(:r1))
-	(call :obj :inst_of `((:r1 0) (@ ,(f-path :stream :vtable))) '(_ :r1))
-	(gotoif '(:r1 = 0) 'error2)
-	(assign '((:rsp local_args)) '(:r1))
-	(assign '((:r1 +array_begin)) '(:r1))
-	(call :obj :inst_of `((:r1 ,+ptr_size) (@ ,(f-path :str :vtable))) '(_ :r1))
-	(gotoif '(:r1 = 0) 'error3)
-	(lisp-this :r0)
-	(assign '((:rsp local_args)) '(:r1)))
+(assign '((:r1 +array_length)) '(:r2))
+(gotoif '(:r2 /= 2) 'error1)
+(assign '((:r1 +array_begin)) '(:r1))
+(call :obj :inst_of `((:r1 0) (@ ,(f-path :stream :vtable))) '(_ :r1))
+(gotoif '(:r1 = 0) 'error2)
+(assign '((:rsp local_args)) '(:r1))
+(assign '((:r1 +array_begin)) '(:r1))
+(call :obj :inst_of `((:r1 ,+ptr_size) (@ ,(f-path :str :vtable))) '(_ :r1))
+(gotoif '(:r1 = 0) 'error3)
+(lisp-this :r0)
+(assign '((:rsp local_args)) '(:r1))
 
 	;push old repl info
 	;we have refs to the name (from the args), so we DON'T need to manage our use here !
@@ -78,10 +77,9 @@
 			(call :stream :write_char '((:r0 +lisp_stdout) +char_lf))
 			(lisp-this :r0)
 		(endif)
-	(errorcase
-		(assign '((:rsp local_value)) '(:r1))
-		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r1 :r2))
-		(breakif '(:r1 = :r2)))
+	(assign '((:rsp local_value)) '(:r1))
+	(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r1 :r2))
+	(breakif '(:r1 = :r2))
 		(assign '((:rsp local_char)) '(:r1))
 	(loop-end)
 
@@ -94,7 +92,6 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(vp-cpy-cr +error_msg_wrong_num_of_args :r3)
 	(goto 'error)
@@ -106,7 +103,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_args)) '(:r1))
 	(vp-free local_size)
-	(jump :lisp :repl_error '(:r1 "(repl stream path)" :r3)))
+	(jump :lisp :repl_error '(:r1 "(repl stream path)" :r3))
 
 (def-func-end)
 

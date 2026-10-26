@@ -118,7 +118,7 @@ root-lambdas
 ### `asm.inc` functions
 
 ```vdu
-all-vp-files compile compile-test make make-all make-all-platforms
+all-vp-files compile make make-all make-all-platforms
 make-boot-all make-info make-platforms make-test remake remake-platforms
 ```
 

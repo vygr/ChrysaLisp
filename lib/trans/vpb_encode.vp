@@ -171,10 +171,9 @@
 	(exit '(:r0 :r1))
 	(return)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(vpb-encode-vp entry stream ops regs labels quote - *pc*)" +error_msg_wrong_types))
-	(signature '(:list :stream :hmap :hmap :hmap :obj :obj :obj)))
+	(signature '(:list :stream :hmap :hmap :hmap :obj :obj :obj))
 
 	(pop-scope-syms)
 

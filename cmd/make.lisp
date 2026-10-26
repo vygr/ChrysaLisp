@@ -6,7 +6,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
-    [vp] [release] [debug] [validate] [test] [fmt]
+    [vp] [trace] [validate] [test] [fmt]
 
     options:
         -h --help: this help info.
@@ -17,20 +17,18 @@
     platforms:  for all platforms not just the host.
     docs:       scan source files and create documentation.
     vp:         only the VP64.
+    trace:      only the VP of each file, the apps' too, no
+                code of any platform: what trace reads.
     it:         all of the above, and then a check of the include
                 and import lists, what includes and imports would
                 change is printed.
     apps:       only the apps !
-    release:    release mode, no error checks.
-    debug:      debug mode, with error checks.
-    validate:   validate mode, debug and more checks as it runs.
+    validate:   validate mode, more checks as it runs.
     test:       test make timings.
     fmt:        format all the source files, with the fmt command.
 
-    A mode goes with any build, and all that is built is built
-    in it. With none it is debug for all, and the VP64 is in
-    release: so for 'it', 'apps' and 'vp', and the others
-    build this platform, in debug.")
+    validate goes with any build, and all that is built is
+    built so, without it all is built in the normal mode.")
 (("-v" "--verbosity") ,(opt-num 'opt_v))
 ))
 
@@ -516,8 +514,8 @@
 			(defq opt_v 0 args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
-				"release" "debug" "validate" "test" "ai" "vp" "fmt"))
-		(defq mode (or (if validate 2) (if debug 1) (if release 0))
+				"validate" "test" "ai" "vp" "trace" "fmt"))
+		(defq mode (if validate 2)
 			*build_verb* opt_v)
 		;a mode that was given is the mode of all that is built, for those
 		;below that do not take one themselves
@@ -526,6 +524,7 @@
 			(fmt (make-fmt))
 			(test (make-test))
 			(vp (remake-all-vp mode))
+			(trace (make-bundles mode))
 			(it (remake-all-platforms mode) (make-docs) (make-check))
 			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms mode))

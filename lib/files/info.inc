@@ -139,7 +139,7 @@
 (defun unified-pass (files class_db func_db)
 	;Each file is read as a tree, lib/text/tree.inc, and every form of it
 	;looked at in the order they are written, those inside others too, a
-	;(def-func) in an (errorcase) say. A list of where it is in each list
+	;(def-func) in a (validatecase) say. A list of where it is in each list
 	;of nodes it is part way through, each (nodes at)
 	(defq active_class :nil)
 	(each (lambda (file)

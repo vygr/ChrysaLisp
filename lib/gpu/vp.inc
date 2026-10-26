@@ -881,10 +881,9 @@
 
 } (sv-code-text) {
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(place frame verts out count is_str)" +error_msg_wrong_types))
-	(signature '(:str :obj :obj :num :num)))
+	(signature '(:str :obj :obj :num :num))
 
 (def-func-end)
 }))
@@ -1283,10 +1282,9 @@
 
 } funcs_text {
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(fill frame placed tris pixmap depth)" +error_msg_wrong_types))
-	(signature '(:str :obj :obj :obj :str)))
+	(signature '(:str :obj :obj :obj :str))
 
 (def-func-end)
 }))
@@ -1474,10 +1472,9 @@
 
 } (sv-code-text) {
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(shade x y x1 y1 frame out mode height)" +error_msg_wrong_types))
-	(signature '(:num :num :num :num :str :obj :num :num)))
+	(signature '(:num :num :num :num :str :obj :num :num))
 
 (def-func-end)
 }))
@@ -1627,8 +1624,7 @@
 	(entry '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 } (str (length params)) {)
-(errorcase
-} (apply (const cat) (cat (list "") (slice checks 0 -2))) {)
+} (apply (const cat) (cat (list "") (slice checks 0 -2))) {
 
 	(vp-push :r0)
 	(vp-alloc } (str (+ frame 16)) {)
@@ -1652,11 +1648,10 @@
 
 } (sv-code-text) {
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(} (str fname) arg_names {)" +error_msg_wrong_types))
 	(signature '(} (apply (const cat) (cat (list "") (map (lambda ((pname ptype)) (cond
-		((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {)))
+		((> (shader-size ptype) 1) ":REALS ") ((eql ptype :float) ":REAL ") (":NUM "))) params))) {))
 
 (def-func-end)
 }))

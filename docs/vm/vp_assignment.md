@@ -253,7 +253,7 @@ passed to `(assign)`.
 The vpx compiler emits all the code required to read and write the
 variables, with their correct data type.
 
-## Errorcases and debug modes
+## Build modes and emitted code
 
 If you are curious to see the code emitted by the compiler you can switch on
 printing of the emitted code by use of the `*build_emit*` and `*build_inst*`
@@ -349,25 +349,24 @@ For example the `:array :append` method.
 `*build_mode*` setting in the `class/lisp/root.inc` file lets you set the
 compile option for the system. The various mode are:
 
-* 0 release, strip all error checking
+* 1 normal, with error checking, the default
 
-* 1 normal, with error checking
+* 2 validate, normal plus heap patterns, guard words and dead object checks
 
-The `(errorcase)`, `(errorif)` and `(errorifnot)` macros alow you to
-conditionally include source code if the `*build_mode*` is greater than 0.
+The `(validatecase)` macro allows you to conditionally include source code
+only if the `*build_mode*` is 2 or more. Error checks themselves are plain
+code, a `(gotoif)` or `(gotoifnot)` to an error label, and are in every build.
 
-For example adding conditional type checking of input parameters that will be
-removed in release mode. The `(signature)` macro drops the label `sig` at the
-front of the function signature table !
+For example type checking of input parameters. The `(signature)` macro drops
+the label `sig` at the front of the function signature table !
 
 ```vdu
 	...
 	(errorif-lisp-args-sig 'error :r1 3)
 	...
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r0 :r1 "(piece-scans brd index vectors)" +error_msg_wrong_types))
-	(signature '(:str :num :list)))
+	(signature '(:str :num :list))
 	...
 ```
 

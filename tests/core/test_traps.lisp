@@ -18,9 +18,7 @@
 
 (defun tr-and-fn (&optional num) (and num (> num 0))) ;check off, the trap itself
 (defun tr-and-ok (&optional cnt) (and cnt (> cnt 0)))
-(if (starts-with "obj/vp64" (load-path))
-	(test-skip "a local with the name of a function, alone in an and" "needs an error checked build")
-	(assert-error "a local with the name of a function, alone in an and, is called" (tr-and-fn)))
+(assert-error "a local with the name of a function, alone in an and, is called" (tr-and-fn))
 (assert-eq "with another name it is looked at" :nil (tr-and-ok))
 
 ;check off, it is the trap, here to be fallen into
@@ -119,15 +117,14 @@
 
 (assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n"))) ;check off, the trap itself
 (assert-eq "with a class of them it does" "ab" (trim (cat "  ab " (ascii-char 10)) (char-class " \t\r\n")))
-(assert-true "find of a str of more than one character in a str is an error in a debug build, of its first character in release"
-	(let ((got (catch (find "elx" "hello") :error))) (or (eql got :error) (eql got 1))))
+(assert-error "find of a str of more than one character in a str is an error" (find "elx" "hello"))
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))
 (assert-error "sort of numbers with nothing said" (sort (list 3 1 2)))
 (defq tr_sort (list 3 1 2))
 (sort tr_sort (const -))
 (assert-list-eq "sort told how, and it is the list given that is sorted" '(1 2 3) tr_sort)
 
-(assert-error "a wrong number of args is an error, in the checked build" ((lambda (a) a) 1 2))
+(assert-error "a wrong number of args is an error" ((lambda (a) a) 1 2))
 (assert-eq "a handler that gives :nil passes the error on" :outer
 	(catch (catch (throw "inner" 1) :nil) :outer))
 (assert-eq "one that gives :t ends it" :t (catch (throw "inner" 1) :t))

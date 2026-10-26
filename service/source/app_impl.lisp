@@ -15,9 +15,9 @@
 (defun source-entry (mode name)
 	; (source-entry mode name) -> :nil | (entry file)
 	;the VP of a function as this system built it, the entry of its bundle
-	;in obj/vp/<mode>/, one of the bundles of the function's folder
-	(defq dir (cat "obj/vp/" mode "/" (path-dir name) "/"))
-	(and (find mode '("release" "debug" "validate")) (not (find ".." (split name "/")))
+	;in obj/vp/, one of the bundles of the function's folder
+	(defq dir (cat (if (eql mode "validate") "obj/vp_validate/" "obj/vp/") (path-dir name) "/"))
+	(and (find mode '("normal" "validate")) (not (find ".." (split name "/")))
 		(some (lambda (file kind)
 				(and (eql kind "f") (ends-with ".vp" file)
 					(defq stream (file-stream (cat dir file)))
@@ -80,7 +80,7 @@
 		(bind '(& cpu abi) (map (const sym) (split (load-path) "/")))
 		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc"
 			"lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc" (cat "lib/trans/" cpu ".vp")))
-		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* (if (eql (source-mode) "debug") 1 0)
+		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* 1
 			'validatecase (macro (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 			'*source_trans_id* (hex-encode (sha256 (apply (const cat) (cat (list "") (map (# (ifn (load %0) "")) files))))))
 		(each! (# (import %0 *source_env*)) (list files) 0 3)))

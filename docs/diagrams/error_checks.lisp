@@ -1,4 +1,4 @@
-;docs/ai_digest/exceptions.md: where a wrong argument is caught, and that in a release build it is not
+;docs/ai_digest/exceptions.md: where a wrong argument is caught, in every build
 (defq s (dia-scene) blue 0xffd7e6f7 green 0xffdff0d8 gold 0xffffe8a8 grey 0xfff2f4f6 red 0xfff7d7d7)
 (dia-put s 'app (dia-box '("the app, in Lisp" "checks what the user gives it") 240 44 gold 11 :first) 0 0)
 (dia-put s 'ffi (dia-box '("the Lisp bindings, lisp_ functions" "how many arguments, their types," "that an index is in its sequence") 240 62 blue 11 :first) 0 76)
@@ -7,8 +7,7 @@
 (dia-join s 'ffi 'core "")
 (dia-put s 'throw (dia-box '("an error is thrown" "(catch) can take it") 190 44 red 11 :first) 320 85)
 (dia-join s 'ffi 'throw "wrong")
-(dia-say s "*build_mode* 1, debug: the checks are there, as drawn." 320 180 11)
-(dia-say s "*build_mode* 0, release: they are not in the code at all." 320 196 11)
-(dia-say s "A wrong argument then stops the node, or worse." 320 212 11)
-(dia-say s "Errors are for finding mistakes while a thing is made. What is shipped is meant to make none." 0 262 12 :nil 0xff202428)
+(dia-say s "The checks are in every build, normal or validate." 320 180 11)
+(dia-say s "A validate build adds checks of the heap as it runs." 320 196 11)
+(dia-say s "Check once at the boundary, and the code below can trust what it is given." 0 262 12 :nil 0xff202428)
 (diagram "error_checks" (dia-scene-doc s))

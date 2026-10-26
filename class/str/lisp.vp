@@ -42,10 +42,9 @@
 		(vp-add-cr 1 index)
 	(endif)
 
-(errorcase
-	(gotoif `(,index < 0) 'error1)
-	(vp-sub-rr width len)
-	(gotoif `(,index > ,len) 'error1))
+(gotoif `(,index < 0) 'error1)
+(vp-sub-rr width len)
+(gotoif `(,index > ,len) 'error1)
 
 	(vp-add-cr +str_data value)
 	(vp-xor-rr len len)
@@ -58,10 +57,9 @@
 	(exit :str :lisp_code `(,this ,value))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error `(,args "(code str [width idx])" +error_msg_wrong_types))
-	(signature '(:str :NUM :NUM)))
+	(signature '(:str :NUM :NUM))
 
 (def-func-end)
 
@@ -81,10 +79,9 @@
 
 	(assign `((,args +array_length)) `(,len))
 
-(errorcase
-	(gotoif `(,len > 2) 'error1)
-	(call :lisp :env_args_type `(,args (@ ,(f-path :num :vtable)) 1) '(_ tmp))
-	(gotoif `(,tmp = 0) 'error1))
+(gotoif `(,len > 2) 'error1)
+(call :lisp :env_args_type `(,args (@ ,(f-path :num :vtable)) 1) '(_ tmp))
+(gotoif `(,tmp = 0) 'error1)
 
 	(assign `((,args +array_begin) 1) `(,iter_begin ,width))
 	(vp-cpy-ir iter_begin 0 value)
@@ -100,9 +97,8 @@
 	(exit :str :lisp_char (list this value))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
-	(jump :lisp :repl_error `(,args "(char num [width])" +error_msg_wrong_types)))
+	(jump :lisp :repl_error `(,args "(char num [width])" +error_msg_wrong_types))
 
 (def-func-end)
 
@@ -129,10 +125,9 @@
 	(exit :str :lisp_cmp '(:r13 :r0))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(cmp str str)" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -154,18 +149,17 @@
 	(vp-cpy-rr :r1 :r13)
 	(array-bind-args :r1 '(:r11 :r0))
 	(call :host_os :pii_save '((& :r0 +str_data) (& :r11 +str_data) (:r11 +str_length)) '(:r0))
-	(errorif '(:r0 /= 0) 'error2)
+	(gotoif '(:r0 /= 0) 'error2)
 	(class/obj/ref :r11 :r2)
 
 	(exit :str :lisp_save '(:r12 :r11))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r1 "(save str path)" +error_msg_wrong_types))
 (vp-label 'error2)
 	(jump :lisp :repl_error '(:r13 "(save str path)" +error_msg_open_error))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -194,10 +188,9 @@
 	(exit :str :lisp_load '(:r13 :r0))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(load path)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -275,10 +268,9 @@
 	(exit :str :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(str-alloc size)" +error_msg_wrong_types))
-	(signature '(:NUM)))
+	(signature '(:NUM))
 
 (def-func-end)
 
@@ -299,9 +291,8 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(list-bind-args :r1 `(,in ,tab_width ,idx) '(:obj :num :num))
-(errorcase
-	(gotoif `(,tab_width <= 0) 'error)
-	(gotoif `(,idx < 0) 'error))
+(gotoif `(,tab_width <= 0) 'error)
+(gotoif `(,idx < 0) 'error)
 
 	(vp-push :r0)
 	(assign `((,in +str_length)) `(,len))
@@ -360,10 +351,9 @@
 	(loop-until `(,iter_begin = ,iter_end))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(expand str tab_width idx)" +error_msg_wrong_types))
-	(signature '(:str :NUM :NUM)))
+	(signature '(:str :NUM :NUM))
 
 (def-func-end)
 
@@ -384,9 +374,8 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(list-bind-args args `(,src ,tab_width ,idx) '(:obj :num :num))
-(errorcase
-	(gotoif `(,tab_width <= 0) 'error)
-	(gotoif `(,idx < 0) 'error))
+(gotoif `(,tab_width <= 0) 'error)
+(gotoif `(,idx < 0) 'error)
 
 	(vp-push this)
 	(assign `((,src +str_length)) `(,idx1))
@@ -460,10 +449,9 @@
 	(loop-end)
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(:r1 "(compress str tab_width idx)" +error_msg_wrong_types))
-	(signature '(:str :NUM :NUM)))
+	(signature '(:str :NUM :NUM))
 
 (def-func-end)
 
@@ -496,10 +484,9 @@
 	(exit :str :lisp_to_num '(:r0 :r1))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(str-to-num str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -533,10 +520,9 @@
 	(exit :str :lisp_bfind `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(bfind char cls)" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -558,19 +544,17 @@
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src +str_length)) `(,len))
 	(seq-elem-index idx len)
-	(errorcase
-		(gotoif `(,idx < 0) 'error)
-		(gotoif `(,idx > ,len) 'error))
+	(gotoif `(,idx < 0) 'error)
+	(gotoif `(,idx > ,len) 'error)
 	(call :str :bskip `(,src ,cls ,idx) '(_ _ tmp))
 	(call :num :create `(,tmp) `(,args))
 
 	(exit :str :lisp_bskip `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(bskip cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM)))
+	(signature '(:str :str :NUM))
 
 (def-func-end)
 
@@ -592,19 +576,17 @@
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src +str_length)) `(,len))
 	(seq-elem-index idx len)
-	(errorcase
-		(gotoif `(,idx < 0) 'error)
-		(gotoif `(,idx > ,len) 'error))
+	(gotoif `(,idx < 0) 'error)
+	(gotoif `(,idx > ,len) 'error)
 	(call :str :bskipn `(,src ,cls ,idx) '(_ _ tmp))
 	(call :num :create `(,tmp) `(,args))
 
 	(exit :str :lisp_bskipn `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(bskipn cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM)))
+	(signature '(:str :str :NUM))
 
 (def-func-end)
 
@@ -627,9 +609,8 @@
 	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
 	(assign `((,src +str_length)) `(,len))
 	(seq-elem-index idx len)
-	(errorcase
-		(gotoif `(,idx < 0) 'error)
-		(gotoif `(,idx > ,len) 'error))
+	(gotoif `(,idx < 0) 'error)
+	(gotoif `(,idx > ,len) 'error)
 	(vpif `(,idx /= 0))
 		(assign `((& ,src ,(dec +str_data))) `(,src))
 		(loop-start)
@@ -644,11 +625,10 @@
 	(exit :str :lisp_rbskip `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(vp-pop this)
 	(jump :lisp :repl_error `(,args "(rbskip cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM)))
+	(signature '(:str :str :NUM))
 
 (def-func-end)
 
@@ -671,9 +651,8 @@
 	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
 	(assign `((,src +str_length)) `(,len))
 	(seq-elem-index idx len)
-	(errorcase
-		(gotoif `(,idx < 0) 'error)
-		(gotoif `(,idx > ,len) 'error))
+	(gotoif `(,idx < 0) 'error)
+	(gotoif `(,idx > ,len) 'error)
 	(vpif `(,idx /= 0))
 		(assign `((& ,src ,(dec +str_data))) `(,src))
 		(loop-start)
@@ -688,11 +667,10 @@
 	(exit :str :lisp_rbskipn `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(vp-pop this)
 	(jump :lisp :repl_error `(,args "(rbskipn cls str idx)" +error_msg_wrong_types))
-	(signature '(:str :str :NUM)))
+	(signature '(:str :str :NUM))
 
 (def-func-end)
 
@@ -755,10 +733,9 @@
 	(exit :str :lisp_split `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(split str [cls])" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -783,10 +760,9 @@
 	(exit :str :lisp_encode `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(hex-encode str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -806,19 +782,17 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args '(:r0) '(:obj))
-(errorcase
-	(assign '((:r0 +str_length)) '(:r2))
-	(vp-and-cr 1 :r2)
-	(gotoif '(:r2 /= 0) 'error))
+(assign '((:r0 +str_length)) '(:r2))
+(vp-and-cr 1 :r2)
+(gotoif '(:r2 /= 0) 'error)
 	(call :str :decode '(:r0) `(,args))
 
 	(exit :str :lisp_decode `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(hex-decode str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -849,10 +823,9 @@
 	(exit :str :lisp_startw `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(starts-with str str)" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -883,10 +856,9 @@
 	(exit :str :lisp_endw `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(ends-with str str)" +error_msg_wrong_types))
-	(signature '(:str :str)))
+	(signature '(:str :str))
 
 (def-func-end)
 
@@ -913,10 +885,9 @@
 	(exit :str :lisp_unescape `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(unescape str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -945,10 +916,9 @@
 	(exit :str :lisp_escape `(,saved_this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(escape str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -994,10 +964,9 @@
 	(exit :str :lisp_upper `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(to-upper str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)
 
@@ -1043,9 +1012,8 @@
 	(exit :str :lisp_lower `(,this ,args))
 	(vp-ret)
 
-(errorcase
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(to-lower str)" +error_msg_wrong_types))
-	(signature '(:str)))
+	(signature '(:str))
 
 (def-func-end)

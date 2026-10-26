@@ -320,28 +320,23 @@
 
 	(entry :sys_mail :read '(:r0))
 
-(errorcase
-	(fn-bind 'sys/statics/statics :r1)
-	(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
-	(assign '((:r1 +tk_node_flags)) '(:r2))
-	(gotoif '(:r2 /= 0) 'abort))
+(fn-bind 'sys/statics/statics :r1)
+(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
+(assign '((:r1 +tk_node_flags)) '(:r2))
+(gotoif '(:r2 /= 0) 'abort)
 
 	(lh-is-empty :r0 +mbox_list :r2)
 	(vpif '(:r2 = 0))
-	(noterrorcase
-		(fn-bind 'sys/statics/statics :r1)
-		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1)))
 		(assign '(:r1) '((:r0 +mbox_tcb)))
 		(apply vp-push +vp_rregs_0_14)
 		(call :sys_task :suspend)
 		(apply vp-pop +vp_rregs_0_14)
-	(errorcase
 		(assign '((:r1 +tk_node_flags)) '(:r2))
 		(breakif '(:r2 = 0))
 	(vp-label 'abort)
 		;signal to Lisp task
 		(exit :sys_mail :read '(0 0))
-		(vp-ret))
+		(vp-ret)
 	(endif)
 	(lh-get-head :r0 +mbox_list :r0)
 	(vp-cpy-rr :r0 :r1)
