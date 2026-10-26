@@ -35,7 +35,6 @@
 	(vp-free (* 8 n)))
 
 (defun within8? (r l) (range? r -0x80 0x7f l))
-(defun within32? (r l) (range? r -0x80000000 0x7fffffff l))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; the x86_64 prepass

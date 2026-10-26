@@ -62,6 +62,13 @@
 	(vpif `(,r < ,lo)) (vp-jmp l) (endif)
 	(vpif `(,r > ,hi)) (vp-jmp l) (endif))
 
+;goto l if r is not a signed field of 12 or 32 bits
+(defun within12? (r l) (range? r -0x800 0x7ff l))
+(defun within32? (r l) (range? r -0x80000000 0x7fffffff l))
+
+;an instruction of 32 bits, of its fields
+(defun ew (&rest parts) (apply (const vpb-emit) (cat (list 'emit32) parts)))
+
 (defun vpb-driver ()
 	;the entry, the decode, the passes and the output, and the data
 	(setq *vpb_handlers* (list))

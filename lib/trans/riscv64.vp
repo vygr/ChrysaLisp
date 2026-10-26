@@ -19,7 +19,6 @@
 			(if (>= shift 0) (<< x shift) (>> x (neg shift))))
 		(if mask (list x shift mask) (list x shift))))
 
-(defun ew (&rest parts) (apply (const vpb-emit) (cat (list 'emit32) parts)))
 (defun rv-r (o rd rs1 rs2 f3 f7) (ew o (rvf rd 7) (rvf rs1 15) (rvf rs2 20) (rvf f3 12) (<< f7 25)))
 (defun rv-i (o rd rs1 f3 imm) (ew o (rvf rd 7) (rvf rs1 15) (rvf f3 12) (rvf imm 20 0xfff)))
 (defun rv-s (o rs1 rs2 f3 imm) (ew o (rvf rs1 15) (rvf rs2 20) (rvf f3 12) (rvf imm 7 0x1f) (rvf imm 20 0xfe0)))
@@ -51,8 +50,6 @@
 		(range 0 (length args)))
 	(vp-call label))
 
-(defun within12? (r l) (range? r -0x800 0x7ff l))
-(defun within32? (r l) (range? r -0x80000000 0x7fffffff l))
 
 (def-func (path-to-absolute "./vpb_riscv64"))
 	;inputs
@@ -167,7 +164,7 @@
 	(vp-jmp 'e_add_rr)
 (handler 'emit-cpy-cr 'e_cpy_cr)
 
-(defun via-t1 (rr)
+(defun rv-via-t1 (rr)
 	;(c r), c to t1, then the rr of it into r
 	(vp-push :r1)
 	(vp-cpy-cr +rv_t1 :r1)
@@ -186,7 +183,7 @@
 		(rv-i 0x13 :r1 :r1 f3 :r0)
 		(vp-ret)
 	(vp-label (sym (cat label "_big")))
-		(via-t1 rr)
+		(rv-via-t1 rr)
 		(handler op label))
 	'((emit-add-cr e_add_cr 0 e_add_rr) (emit-xor-cr e_xor_cr 4 e_xor_rr) (emit-or-cr e_or_cr 6 e_or_rr)))
 
@@ -207,7 +204,7 @@
 	(rv-i 0x13 :r1 :r1 7 :r0)
 	(vp-ret)
 (vp-label 'e_and_cr_big)
-	(via-t1 'e_and_rr)
+	(rv-via-t1 'e_and_rr)
 (handler 'emit-and-cr 'e_and_cr)
 
 (vp-label 'e_mul_cr)
@@ -235,7 +232,7 @@
 			(vp-jmp 'e_shl_cr)
 		(endif)
 	(endif)
-	(via-t1 'e_mul_rr)
+	(rv-via-t1 'e_mul_rr)
 (handler 'emit-mul-cr 'e_mul_cr)
 
 (vp-label 'e_swp_rr)
@@ -670,24 +667,24 @@
 	(vp-jmp 'e_cpy_ir)
 (handler 'emit-cpy-pr 'e_cpy_pr)
 
-(defun via-t1-i (then)
+(defun rv-via-t1-i (then)
 	;(s i), the address loaded to t1
 	(vp-cpy-cr +rv_t1 :r2)
 	(vp-call 'e_cpy_ir)
 	(vp-cpy-cr +rv_t1 :r0)
 	(vp-jmp then))
 
-(defun via-t1-p (then)
+(defun rv-via-t1-p (then)
 	;(l), the address loaded to t1
 	(vp-cpy-cr +rv_t1 :r1)
 	(vp-call 'e_cpy_pr)
 	(vp-cpy-cr +rv_t1 :r0)
 	(vp-jmp then))
 
-(vp-label 'e_call_i) (via-t1-i 'e_call_r)
-(vp-label 'e_jmp_i) (via-t1-i 'e_jmp_r)
-(vp-label 'e_call_p) (via-t1-p 'e_call_r)
-(vp-label 'e_jmp_p) (via-t1-p 'e_jmp_r)
+(vp-label 'e_call_i) (rv-via-t1-i 'e_call_r)
+(vp-label 'e_jmp_i) (rv-via-t1-i 'e_jmp_r)
+(vp-label 'e_call_p) (rv-via-t1-p 'e_call_r)
+(vp-label 'e_jmp_p) (rv-via-t1-p 'e_jmp_r)
 (handler 'emit-call-i 'e_call_i)
 (handler 'emit-jmp-i 'e_jmp_i)
 (handler 'emit-call-p 'e_call_p)
@@ -720,7 +717,7 @@
 
 (each (lambda ((op label rr))
 		(vp-label label)
-		(via-t1 rr)
+		(rv-via-t1 rr)
 		(handler op label))
 	'((emit-min-cr e_min_cr e_min_rr) (emit-max-cr e_max_cr e_max_rr)))
 
@@ -907,12 +904,12 @@
 (vp-label 'e_call_r_t)
 	(vp-call 'jalr)
 	(vp-jmp 'pop_ra)
-(vp-label 'e_call_i_h) (via-t1-i 'e_call_r_h)
-(vp-label 'e_call_i_m) (via-t1-i 'jalr)
-(vp-label 'e_call_i_t) (via-t1-i 'e_call_r_t)
-(vp-label 'e_call_p_h) (via-t1-p 'e_call_r_h)
-(vp-label 'e_call_p_m) (via-t1-p 'jalr)
-(vp-label 'e_call_p_t) (via-t1-p 'e_call_r_t)
+(vp-label 'e_call_i_h) (rv-via-t1-i 'e_call_r_h)
+(vp-label 'e_call_i_m) (rv-via-t1-i 'jalr)
+(vp-label 'e_call_i_t) (rv-via-t1-i 'e_call_r_t)
+(vp-label 'e_call_p_h) (rv-via-t1-p 'e_call_r_h)
+(vp-label 'e_call_p_m) (rv-via-t1-p 'jalr)
+(vp-label 'e_call_p_t) (rv-via-t1-p 'e_call_r_t)
 (handler 'emit-riscv64-call-h 'e_call_h)
 (handler 'emit-riscv64-call-m 'jal)
 (handler 'emit-riscv64-call-t 'e_call_t)
