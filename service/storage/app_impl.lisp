@@ -117,7 +117,7 @@
 		;opens is to stop: a big store's open is a minute or more, given
 		;up, not finished, for a store it is to hand over
 		store (if (/= (age image) 0) (catch (store-open image member (# (not (mail-poll (list (task-mbox)))))) :bad))
-		store (if (nql store :bad) store))
+		store (if (find store '(:bad :stopped)) :nil store))
 	;or a new one, where there is nothing. Where there is something that
 	;is no store, only if it was said to
 	(and (not store) (> size 0) (or (= (age image) 0) force)

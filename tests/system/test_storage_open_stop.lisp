@@ -11,8 +11,8 @@
 (defq os_store (store-open os_image "aaaa") os_block (store-block-put os_store os_data))
 (store-close os_store)
 
-(assert-eq "an open whose going says no is given up" :bad
-	(catch (store-open os_image "aaaa" (# :nil)) :bad))
+(assert-eq "an open whose going says no is given up" :stopped
+	(store-open os_image "aaaa" (# :nil)))
 (defq os_store (store-open os_image "aaaa"))
 (assert-true "and the store opens after as it was, its block there" (store-block-has? os_store os_block))
 (store-close os_store)

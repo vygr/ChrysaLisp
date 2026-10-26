@@ -438,18 +438,21 @@
 		:t))
 
 (defun store-blocks-found (store &optional going)
-	; (store-blocks-found store [going]) -> ((name folder) ...)
+	; (store-blocks-found store [going]) -> :nil | ((name folder) ...)
 	;every block that is kept here, whatever is in it, as the volume has
 	;it, and the folder it is in. With going, it is asked before each
 	;folder is read, the long part of a big store's open, and if it says
-	;:nil the walk is given up, thrown, :stopped
+	;:nil the walk is given up, :nil
 	(defq out (list))
 	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
-		(and going (second entry) (not (going)) (throw "Store open stopped !" :stopped))
-		(unless (second entry)
-			(defq parts (split file "/") folder (elem-get parts 1))
-			(push out (list (hex-decode (if (starts-with "w" folder) (elem-get parts 2) (cat folder (elem-get parts 2))))
-				(cat "blocks/" folder))))))
+		(cond
+			((not (second entry))
+				(defq parts (split file "/") folder (elem-get parts 1))
+				(push out (list (hex-decode (if (starts-with "w" folder) (elem-get parts 2) (cat folder (elem-get parts 2))))
+					(cat "blocks/" folder))))
+			((and going (not (going)))
+				(setq out :nil)
+				:stop))))
 	out)
 
 (defun store-blocks (store)
@@ -458,14 +461,14 @@
 	(map (const first) (store-blocks-found store)))
 
 (defun store-open (device member &optional going)
-	; (store-open path | stream member [going]) -> :nil | store
+	; (store-open path | stream member [going]) -> :nil | :stopped | store
 	;a store that is there. :nil if the volume is not one. It is opened by
 	;the member it was made for, or last opened by. Opened by another, a
 	;machine given a new id, a disk moved to another machine, that member
 	;takes the place of the one it was, in the members too: there is not
 	;one more member, and (get :was store) is who it was. going is as
-	;(store-blocks-found) has it: an open given up has written nothing but
-	;a journal where there was none
+	;(store-blocks-found) has it: an open given up is :stopped, and has
+	;written nothing but a journal where there was none
 	(when (and (defq vol (exfat-mount device))
 			(defq head (store-lines (exfat-load vol "store")))
 			(nempty? head) (eql (first head) +store_magic))
@@ -498,25 +501,28 @@
 		;in the last folder of them, the highest wN, while it has room
 		(def store :held (Fmap 1021) :manifests (Fmap 1021) :plan :nil)
 		(defq last -1 in_last 0)
-		(each (lambda ((name folder))
-				(. (get :held store) :insert name folder)
-				(when (starts-with "blocks/w" folder)
-					(defq n (str-as-num (slice folder (const (length "blocks/w")) -1)))
-					(cond
-						((> n last) (setq last n in_last 1))
-						((= n last) (++ in_last)))))
-			(store-blocks-found store going))
-		(def store :folder_next (max 0 last) :folder_count in_last)
-		(unless (eql had member)
-			;it is this member's now
-			(def store :was had
-				:members (map (# (if (eql %0 had) member %0)) (get :members store)))
-			(unless (find member (get :members store)) (push (get :members store) member))
-			(exfat-begin vol)
-			(store-head-save store)
-			(exfat-end vol)
-			(store-save store))
-		store))
+		(cond
+			((not (defq found (store-blocks-found store going))) :stopped)
+			(:t
+				(each (lambda ((name folder))
+						(. (get :held store) :insert name folder)
+						(when (starts-with "blocks/w" folder)
+							(defq n (str-as-num (slice folder (const (length "blocks/w")) -1)))
+							(cond
+								((> n last) (setq last n in_last 1))
+								((= n last) (++ in_last)))))
+					found)
+				(def store :folder_next (max 0 last) :folder_count in_last)
+				(unless (eql had member)
+					;it is this member's now
+					(def store :was had
+						:members (map (# (if (eql %0 had) member %0)) (get :members store)))
+					(unless (find member (get :members store)) (push (get :members store) member))
+					(exfat-begin vol)
+					(store-head-save store)
+					(exfat-end vol)
+					(store-save store))
+				store))))
 
 (defun store-close (store)
 	; (store-close store) -> :nil

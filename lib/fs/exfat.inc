@@ -548,20 +548,23 @@
 
 (defun fs-walk (vol path fnc lister)
 	; (fs-walk vol path fnc lister) -> vol
-	; (fnc path entry) (lister vol path) -> :nil | entries
+	; (fnc path entry) -> :stop | any, (lister vol path) -> :nil | entries
 	;every file and directory under a path, a directory before what is in
 	;it, of any file system whose lister gives what is in a directory, as
 	;exfat-list and fat32-list do. It keeps a list of the directories still
 	;to do, it does not call itself, so the depth of the tree costs no stack.
-	;fnc is called from inside it, so the names it uses are not these: vol
-	;path fnc lister todo dirs entry child
+	;fnc giving :stop ends the walk there, no more read: not a throw, which
+	;a release build does not unwind. fnc is called from inside it, so the
+	;names it uses are not these: vol path fnc lister todo dirs entry child
 	(defq todo (list path))
 	(while (defq path (pop todo))
 		(defq dirs (list))
-		(each (lambda (entry)
-			(defq child (cat path "/" (first entry)))
-			(fnc child entry)
-			(if (second entry) (push dirs child))) (ifn (lister vol path) '()))
+		(some (lambda (entry)
+				(defq child (cat path "/" (first entry)))
+				(cond
+					((eql (fnc child entry) :stop) (setq dirs (list) todo (list)))
+					((second entry) (push dirs child) :nil)))
+			(ifn (lister vol path) '()))
 		;so that they come off the list in the order they were found
 		(reach (# (push todo %0)) dirs))
 	vol)
