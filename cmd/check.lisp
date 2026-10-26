@@ -1106,9 +1106,10 @@
 	;a file run by another that gives it names it does not import: the
 	;tests by the tests command, the diagrams by make docs, the parts of
 	;the assembler in the env it makes, the translator's to the VP spec
-	;and bind tests in the env they compile in. And what is not to be looked at
+	;bind and encode tests in the env they compile in. And what is not to be looked at
 	+unbound_context ''(("tests/system/test_vp_spec.lisp" "tests/suite.inc" "lib/trans/vp.inc")
 		("tests/system/test_bind_translate.lisp" "tests/suite.inc" "lib/trans/vp.inc")
+		("tests/system/test_vpb_encode.lisp" "tests/suite.inc" "lib/trans/vp.inc")
 		("tests/" "tests/suite.inc" "tests/bench.inc")
 		("docs/diagrams/" "lib/cwb/diagram.inc" "cmd/make.lisp")
 		("service/gui/" "sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc" "service/gui/app_impl.lisp")

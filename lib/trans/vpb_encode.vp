@@ -1,0 +1,181 @@
+(include "lib/asm/func.inc")
+(include "class/lisp/class.inc")
+(include "class/hmap/class.inc")
+(include "class/num/class.inc")
+(include "class/stream/class.inc")
+(include "./vpb_ops.inc")
+(include "./vpb_trans.inc")
+
+;The VP binary of a function, lib/trans/vpb.inc, the instructions of it,
+;in VP: what the Lisp (vpb-encode) does for every function of a build,
+;which took more than translating them all. What it can not do, a
+;constant still to be worked out, a number that is not a num, it gives
+;:nil for, and the Lisp does that function.
+
+(defun enc-char (form)
+	;a byte to the stream, form a vpx expression
+	(call :stream :write_char (vpx stream ,form)))
+
+(defun enc-uint (var)
+	;var as 64 bits unsigned, 7 bits a byte, low first
+	(loop-start)
+		(breakif (vpx (= (>> ,var 7) 0)))
+		(enc-char `(| 0x80 (& ,var 0x7f)))
+		(assign (vpx (>> ,var 7)) (vpx ,var))
+	(loop-end)
+	(enc-char var))
+
+(defun enc-label (sym)
+	;the number of the label, in the order they are first seen, to v
+	(call :hmap :pfind (vpx labels ,sym) (vpx _ it _))
+	(vpif (vpx (/= it 0)))
+		(assign (vpx (elem it +ptr_size)) (vpx num))
+		(assign (vpx (.> num +num_value)) (vpx v))
+	(else)
+		(call :num :create (vpx nlabels) (vpx num))
+		(call :hmap :pinsert (vpx labels ,sym num) (vpx _ _ _))
+		(call :obj :deref (vpx num))
+		(assign (vpx nlabels) (vpx v))
+		(assign (vpx (+ nlabels 1)) (vpx nlabels))
+	(endif))
+
+(def-func (path-to-absolute "./vpb_encode"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :r14, :f0-:f15
+	;info
+	;(vpb-encode-vp entry stream ops regs labels quote - *pc*) -> :nil | num
+	;the instructions of a bundle's entry, (name (progn inst ...) ...), as
+	;VP binary to the stream. ops has each op's number, regs each
+	;register's, 0 to 31, labels is empty and has the labels' after. The
+	;labels and the instructions, (+ (<< labels 32) insts), or :nil for one
+	;it can not do, the stream then part written
+
+	(def-vars
+		(ptr this args entry stream ops regs labels sym_quote sym_minus sym_pc)
+		(ptr inst o a b num vt)
+		(pptr ib ie ob oe it)
+		(pubyte p)
+		(long nlabels ninsts n v))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 8)
+
+	(assign '(:r0 :r1) (vpx this args))
+	(list-bind-args :r1 '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) '(:obj :obj :obj :obj :obj :obj :obj :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7)
+		(vpx entry stream ops regs labels sym_quote sym_minus sym_pc))
+	(assign (vpx 0 0 (elem (.> entry +array_begin) +ptr_size)) (vpx nlabels ninsts inst))
+	(assign (vpx (.> inst +array_begin) (.> inst +array_length)) (vpx ib n))
+	(assign (vpx (+ ib (* n +ptr_size)) (+ ib +ptr_size)) (vpx ie ib))
+	(loop-while (vpx (< ib ie)))
+		(assign (vpx (* ib)) (vpx inst))
+		(assign (vpx (.> inst +array_begin) (.> inst +array_length)) (vpx ob n))
+		(assign (vpx (+ ob (* n +ptr_size)) (- n 1)) (vpx oe n))
+		;the op and how many operands
+		(call :hmap :pfind (vpx ops (* ob)) (vpx _ it _))
+		(gotoif (vpx (= it 0)) 'cannot)
+		(assign (vpx (elem it +ptr_size)) (vpx num))
+		(enc-char '(.> num +num_value))
+		(enc-uint 'n)
+		(assign (vpx (+ ob +ptr_size)) (vpx ob))
+		(loop-while (vpx (< ob oe)))
+			(assign (vpx (* ob)) (vpx o))
+			(assign (vpx (.> o +obj_vtable)) (vpx vt))
+			(vpif (vpx (= vt (@ class/num/vtable))))
+				;a number, signed
+				(enc-char '+vpbk_num)
+				(assign (vpx (.> o +num_value)) (vpx v))
+				(assign (vpx (^ (<< v 1) (>>> v 63))) (vpx v))
+				(enc-uint 'v)
+			(elseif (vpx (= vt (@ class/sym/vtable))))
+				(assign (vpx (& (.> o +str_data))) (vpx p))
+				(call :hmap :pfind (vpx regs o) (vpx _ it _))
+				(vpif (vpx (/= it 0)))
+					;a register
+					(assign (vpx (elem it +ptr_size)) (vpx num))
+					(enc-char '+vpbk_reg)
+					(enc-char '(.> num +num_value))
+				(elseif (vpx (= (* p) ,(ascii-code ":"))))
+					;a name
+					(enc-char '+vpbk_name)
+					(assign (vpx (.> o +str_length)) (vpx v))
+					(enc-uint 'v)
+					(call :stream :write (vpx stream (& (.> o +str_data)) (.> o +str_length)) (vpx _))
+				(else)
+					(enc-char '+vpbk_label)
+					(enc-label 'o)
+					(enc-uint 'v)
+				(endif)
+			(elseif (vpx (= vt (@ class/str/vtable))))
+				(enc-char '+vpbk_string)
+				(assign (vpx (.> o +str_length)) (vpx v))
+				(enc-uint 'v)
+				(call :stream :write (vpx stream (& (.> o +str_data)) (.> o +str_length)) (vpx _))
+			(elseif (vpx (= vt (@ class/list/vtable))))
+				;'label, (- *pc* label), (- label *pc*) or (- label label), each
+				;with a symbol second. Tested a part at a time, nothing is read
+				;past the end of a short one
+				(assign (vpx (.> o +array_length) (.> o +array_begin)) (vpx n it))
+				(gotoif (vpx (< n 2)) 'cannot)
+				(assign (vpx (* it) (elem it +ptr_size)) (vpx a b))
+				(gotoif (vpx (/= (.> b +obj_vtable) (@ class/sym/vtable))) 'cannot)
+				(vpif (vpx (= a sym_quote)))
+					(enc-char '+vpbk_label)
+					(enc-label 'b)
+					(enc-uint 'v)
+				(else)
+					(gotoif (vpx (/= n 3)) 'cannot)
+					(gotoif (vpx (/= a sym_minus)) 'cannot)
+					(assign (vpx (elem it (* 2 +ptr_size))) (vpx o))
+					(gotoif (vpx (/= (.> o +obj_vtable) (@ class/sym/vtable))) 'cannot)
+					(vpif (vpx (= b sym_pc)))
+						(enc-char '+vpbk_pc_label)
+						(enc-label 'o)
+						(enc-uint 'v)
+					(elseif (vpx (= o sym_pc)))
+						(enc-char '+vpbk_label_pc)
+						(enc-label 'b)
+						(enc-uint 'v)
+					(else)
+						(enc-char '+vpbk_label_diff)
+						(enc-label 'b)
+						(enc-uint 'v)
+						(enc-label 'o)
+						(enc-uint 'v)
+					(endif)
+				(endif)
+			(else)
+				(goto 'cannot)
+			(endif)
+			(assign (vpx (+ ob +ptr_size)) (vpx ob))
+		(loop-end)
+		(assign (vpx (+ ninsts 1) (+ ib +ptr_size)) (vpx ninsts ib))
+	(loop-end)
+
+	(call :num :create (vpx (+ (<< nlabels 32) ninsts)) (vpx args))
+	(assign (vpx this args) '(:r0 :r1))
+	(exit '(:r0 :r1))
+	(return)
+
+(vp-label 'cannot)
+	(assign (vpx this (.> this +lisp_sym_nil)) '(:r0 :r1))
+	(class/obj/ref :r1 :r2)
+	(exit '(:r0 :r1))
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(vpb-encode-vp entry stream ops regs labels quote - *pc*)" +error_msg_wrong_types))
+	(signature '(:list :stream :hmap :hmap :hmap :obj :obj :obj)))
+
+	(pop-scope-syms)
+
+(def-func-end)

@@ -31,7 +31,12 @@
 (enums +vpb 0
 	(enum reg num label label_pc label_diff string name pc_label))
 
-(defq +vpb_ops (reduce (# (. %0 :insert %1 (!))) +vpb_all_ops (Fmap 101)))
+(defq +vpb_ops (reduce (# (. %0 :insert %1 (!))) +vpb_all_ops (Fmap 101))
+	;the encoder in VP, lib/trans/vpb_encode.vp, once it is built, with its
+	;maps: each op's number and each register's, 0 to 31
+	+vpb_encoder (if (> (age (cat (load-path) "lib/trans/vpb_encode")) 0) (ffi "lib/trans/vpb_encode"))
+	+vpb_ops_env (reduce (# (def %0 %1 (!)) %0) +vpb_all_ops (env 101))
+	+vpb_regs_env (reduce (# (def %0 %1 (!)) %0) (cat +vp_rregs +vp_fregs) (env 31)))
 
 (defun vpb-uint (out n)
 	;n as 64 bits unsigned
@@ -42,8 +47,8 @@
 
 (defun vpb-int (out n) (vpb-uint out (logxor (<< n 1) (>>> n 63))))
 
-(defun vpb-encode (entry)
-	; (vpb-encode entry) -> str
+(defun vpb-encode-lisp (entry)
+	; (vpb-encode-lisp entry) -> str
 	;the VP binary of a bundle's entry, (name (progn inst ...) ...)
 	(defq body (string-stream (cat "")) labels (Fmap 101) nlabels 0 insts 0
 		label (lambda (l)
@@ -109,6 +114,22 @@
 	(write-blk out (str body))
 	(str out))
 
+(defun vpb-encode (entry)
+	; (vpb-encode entry) -> str
+	;the VP binary of a bundle's entry, (name (progn inst ...) ...). Its
+	;instructions by the encoder in VP, and by (vpb-encode-lisp) when that
+	;is not built yet, or the entry has what it can not do
+	(defq body (string-stream (cat ""))
+		counts (if +vpb_encoder (+vpb_encoder entry body +vpb_ops_env +vpb_regs_env (env 31) 'quote '- '*pc*)))
+	(ifn counts (vpb-encode-lisp entry)
+		(defq out (string-stream (cat "")) name (first entry))
+		(vpb-uint out (length name))
+		(write-blk out name)
+		(vpb-uint out (>> counts 32))
+		(vpb-uint out (logand counts 0xffffffff))
+		(write-blk out (str body))
+		(str out)))
+
 (defun vpb-decode (data)
 	; (vpb-decode str) -> (name (progn inst ...))
 	;the entry the VP binary was made of, its labels named again
@@ -168,5 +189,5 @@
 	(slice bin at (+ at n)))
 
 ;module
-(export-symbols '(vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))
+(export-symbols '(vpb-encode vpb-encode-lisp vpb-decode vpb-bundle vpb-unbundle vpb-name))
 (env-pop)

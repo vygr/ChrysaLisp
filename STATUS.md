@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**The VP binary encoder is VP, lib/trans/vpb_encode.vp: every function of the system encoded in 6 ms, the Lisp took 93, more than translating them all. `make test` 53 to 57 ms, was 66 to 68, and 58 to 60 before the translators were VP.**
+
 **One VP per build mode: a function's VP binary is only in its file's bundle in obj/vp/<mode>/, and the loader finds it there, `(:sys_load :vp_find)`; no .vpb is written beside each native, some 6,400 files fewer.**
 
 **A bind translates what it lacks: each function's VP binary is kept beside its native, and the loader, which now holds its CPU's translator, makes a missing native from it, closure first, and keeps it.**
