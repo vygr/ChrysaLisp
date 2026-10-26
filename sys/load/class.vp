@@ -512,8 +512,10 @@
 	(assign `((:rsp ,(* 2 +ptr_size))) '(:r1))
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-ri-b :r0 :r1 0)
-	;translated, the str of it takes the buffer's place
-	(fn-bind (sym (trans-name *cpu* *abi*)) :r3)
+	;translated, the str of it takes the buffer's place. lib/trans/vpb is
+	;the translator of the CPU the image is made for, the image's maker
+	;links it: this VP is made once for every CPU
+	(fn-bind 'lib/trans/vpb :r3)
 	(vp-xor-rr :r0 :r0)
 	(assign `((:rsp 0) (:rsp ,+ptr_size)) '(:r1 :r2))
 	;the translator trashes more than a load may

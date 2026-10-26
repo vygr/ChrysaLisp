@@ -37,3 +37,18 @@
 
 (each (# (pii-remove (cat bt_obj %0)) (pii-remove (cat bt_obj %0 ".vpb"))) (list bt_a bt_b))
 (undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_bins 'bt_f 'bt-make)
+
+;each boot image made here holds the translator of its own CPU, which its
+;loader links, and of a native one no other: the loader's VP is made once
+;for every CPU, so the image's maker gives it the translator of the image's
+(import "lib/boot/image.inc")
+(each (lambda ((cpu abi))
+		(when (defq bt_image (load (cat "obj/" cpu "/" abi "/sys/boot_image")))
+			(defq bt_own (trans-name cpu abi))
+			(assert-true (cat cpu " " abi " holds its own translator") (found? bt_image bt_own))
+			(unless (eql cpu 'vp64)
+				(assert-eq (cat cpu " " abi " holds no other") :nil
+					(some (lambda ((c a)) (and (nql (trans-name c a) bt_own) (found? bt_image (trans-name c a)) (trans-name c a)))
+						'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64)))))))
+	'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64) (vp64 VP64)))
+(undef (env) 'bt_image 'bt_own)

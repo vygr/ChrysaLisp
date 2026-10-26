@@ -120,7 +120,10 @@ A bind looks for a function in this order:
 
 Translated in place. The translator of the node's CPU is a function of the
 native image, so a miss whose VP is on the machine is filled where it
-happens, by the task that missed: read the VP binary, translate it, a few
+happens, by the task that missed. The loader links it as `lib/trans/vpb`, a
+name the boot image's maker gives the translator of the CPU it makes the
+image for, `(func-refs)` in `lib/boot/image.inc`: the loader's VP is made
+once for every CPU, so it can not name one. The loader: read the VP binary, translate it, a few
 microseconds a function, write the native to the cache, place it. Tasks are
 cooperative, so the bind is atomic on its node: no other task of the node
 runs till it is done, none can see the function half there or ask for it a

@@ -68,11 +68,15 @@
 
 (defun func-refs (fobj)
 	; (func-refs fobj) -> ([sym] ...)
+	;the functions it links to. lib/trans/vpb is the translator of the CPU
+	;of this image, the loader's: its VP is the same for every CPU, so it
+	;can not name one
 	(defq paths (list)
 		lo (get-short fobj +fn_header_links)
 		po (get-short fobj +fn_header_paths))
 	(while (/= lo po)
-		(push paths (sym (get-cstr fobj (+ (get-long fobj lo) lo))))
+		(defq name (sym (get-cstr fobj (+ (get-long fobj lo) lo))))
+		(push paths (if (eql name 'lib/trans/vpb) (sym (trans-name *cpu* *abi*)) name))
 		(setq lo (+ lo +ptr_size)))
 	paths)
 

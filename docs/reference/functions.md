@@ -4878,13 +4878,14 @@ tidies.
 ```code
 (fs-walk vol path fnc lister) -> vol
 
-(fnc path entry) (lister vol path) -> :nil | entries
+(fnc path entry) -> :stop | any, (lister vol path) -> :nil | entries
 every file and directory under a path, a directory before what is in
 it, of any file system whose lister gives what is in a directory, as
 exfat-list and fat32-list do. It keeps a list of the directories still
 to do, it does not call itself, so the depth of the tree costs no stack.
-fnc is called from inside it, so the names it uses are not these: vol
-path fnc lister todo dirs entry child
+fnc giving :stop ends the walk there, no more read: not a throw, which
+a release build does not unwind. fnc is called from inside it, so the
+names it uses are not these: vol path fnc lister todo dirs entry child
 ```
 
 ### func-load
@@ -4899,6 +4900,10 @@ cache loading of function blobs etc
 
 ```code
 (func-refs fobj) -> ([sym] ...)
+
+the functions it links to. lib/trans/vpb is the translator of the CPU
+of this image, the loader's: its VP is the same for every CPU, so it
+can not name one
 ```
 
 ### func?
@@ -11611,12 +11616,12 @@ every block that is kept here, whatever is in it, as the volume has it
 ### store-blocks-found
 
 ```code
-(store-blocks-found store [going]) -> ((name folder) ...)
+(store-blocks-found store [going]) -> :nil | ((name folder) ...)
 
 every block that is kept here, whatever is in it, as the volume has
 it, and the folder it is in. With going, it is asked before each
 folder is read, the long part of a big store's open, and if it says
-:nil the walk is given up, thrown, :stopped
+:nil the walk is given up, :nil
 ```
 
 ### store-check
@@ -11960,15 +11965,15 @@ writer says it is setting it from
 ### store-open
 
 ```code
-(store-open path | stream member [going]) -> :nil | store
+(store-open path | stream member [going]) -> :nil | :stopped | store
 
 a store that is there. :nil if the volume is not one. It is opened by
 the member it was made for, or last opened by. Opened by another, a
 machine given a new id, a disk moved to another machine, that member
 takes the place of the one it was, in the members too: there is not
 one more member, and (get :was store) is who it was. going is as
-(store-blocks-found) has it: an open given up has written nothing but
-a journal where there was none
+(store-blocks-found) has it: an open given up is :stopped, and has
+written nothing but a journal where there was none
 ```
 
 ### store-other-name
