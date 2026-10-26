@@ -1549,6 +1549,17 @@ File path management, environment introspection, and timing helpers.
 
 	*	`(time-it heading body ...)`
 
+*	**`time-add`**: Adds the time a body takes to a running total for its
+	heading, printing nothing, for code that runs too often to print each
+	time, an inner loop. Gives back what the body gives.
+
+	*	`(time-add heading body ...)`
+
+*	**`time-report`**: Prints each heading's total from `time-add` and how
+	many times it ran, the longest first, then forgets them all.
+
+	*	`(time-report)`
+
 *	**`age`**: Returns the modification timestamp of a file in nanoseconds.
 
 	*	`(age path) -> 0 | time ns`

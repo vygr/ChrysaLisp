@@ -141,7 +141,9 @@ Key points:
 
 *	The debug header, `(case 0` in place of `(case :nil`, imports stack
 	frames, so an error says which function and line was running. To time
-	a part of an app, wrap it in `(time-it name ...)`, root.inc.
+	a part of an app, wrap it in `(time-it name ...)`, root.inc; for a part
+	that runs too often to print each time, an inner loop, `(time-add name
+	...)` adds up its time and `(time-report)` prints the totals.
 
 ## widgets.inc — The Widget Tree
 

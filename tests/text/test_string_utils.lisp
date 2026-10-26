@@ -47,6 +47,11 @@
 
 ; --- Time Utils ---
 (assert-eq "time-in-seconds" "1.234567" (time-in-seconds 1234567))
+(assert-true "time-add gives what its body gives"
+	(starts-with "42\n" (test-output "(print (time-add {su_x} 42)) (time-report)")))
+(defq su_report (test-output "(time-add {su_y} 1) (time-add {su_y} 2) (time-report)"))
+(assert-true "time-report says the heading, its total and how many times"
+	(and (starts-with "su_y 0." su_report) (ends-with " 2x\n" su_report)))
 
 ; --- String root parsing utilities ---
 (assert-eq "str-as-num" 123 (str-as-num "123"))

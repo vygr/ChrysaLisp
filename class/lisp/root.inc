@@ -1383,6 +1383,36 @@
 		(print)
 		,retval))
 
+;the totals of (time-add), each heading and (nums us count), of the node
+(defq *time_sums* (list))
+(defmacro time-add (heading &rest body)
+	; (time-add heading body) -> what the body gives
+	; the time the body takes added to the heading's total, for what runs
+	; too often to print each time, (time-report) prints them
+	(defq then (gensym) retval (gensym))
+	`(progn
+		(defq ,then (pii-time) ,retval (progn ~body))
+		(time-sum ,heading (- (pii-time) ,then))
+		,retval))
+
+(defun time-sum (heading us)
+	; (time-sum heading us)
+	;us added to the heading's total, and one to how many times
+	(ifn (defq row (some (# (if (eql (first %0) heading) %0)) *time_sums*))
+		(push *time_sums* (list heading (nums us 1)))
+		(defq total (second row))
+		(elem-set total 0 (+ (first total) us))
+		(elem-set total 1 (inc (second total)))))
+
+(defun time-report ()
+	; (time-report)
+	;each heading of (time-add), its total and how many times, the longest
+	;first, then they are all forgotten
+	(each (lambda ((heading total))
+			(print heading " " (time-in-seconds (first total)) " " (second total) "x"))
+		(sort *time_sums* (lambda (a b) (- (first (second b)) (first (second a))))))
+	(clear *time_sums*))
+
 ;;;;;;;;;;;;;;;;;;;;;;
 ; string object fields
 ;;;;;;;;;;;;;;;;;;;;;;
