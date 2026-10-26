@@ -268,23 +268,26 @@
 	;each CPU: a build translates with what is made of lib/trans/<cpu>.vp
 	;for it, so those with anything they are made of newer are made before
 	;the rest. If this platform's own is one, it made them all, so then
-	;all are made again by the new one. They are not made by the stages
-	;after, as their own make would be newer than them. A platform with
-	;none of its own, the VP64 as it installs, translates with those of
-	;its boot image
+	;all are made again by the new one. Those made here are not made by
+	;the stages after, as their own make would be newer than them; the
+	;others are made as any file is, a forced make translates them from
+	;their VP, it does not make them twice. A platform with none of its
+	;own, the VP64 as it installs, translates with those of its boot image
 	(bind '(& run_cpu run_abi) (map (const sym) (split (load-path) "/")))
 	(defq trans_files (filter (# (starts-with "lib/trans/" %0)) files) errors (list)
 		run_src (cat "lib/trans/" run_cpu ".vp")
-		stale (if (and force (eql *cpu* run_cpu) (eql *abi* run_abi)) trans_files
-			(filter (# (>= (get (sym %0) newest) (age (cat "obj/" run_cpu "/" run_abi "/" %0)))) trans_files)))
-	(when (and (nempty? stale) (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0))
-		(bind '(& more) (vp-stage stale run_abi run_cpu))
-		(setq errors (cat errors more))
-		(when (find run_src stale)
-			(bind '(& more) (vp-stage trans_files run_abi run_cpu))
-			(setq errors (cat errors more))))
+		stale (filter (# (>= (get (sym %0) newest) (age (cat "obj/" run_cpu "/" run_abi "/" %0)))) trans_files)
+		built trans_files)
+	(when (> (age (cat "obj/" run_cpu "/" run_abi "/" (trans-name run_cpu run_abi))) 0)
+		(setq built stale)
+		(when (nempty? stale)
+			(bind '(& more) (vp-stage stale run_abi run_cpu))
+			(setq errors (cat errors more))
+			(when (find run_src stale)
+				(bind '(& more) (vp-stage (setq built trans_files) run_abi run_cpu))
+				(setq errors (cat errors more)))))
 	(and (eql *cpu* run_cpu) (eql *abi* run_abi)
-		(setq files (filter (# (not (find %0 trans_files))) files)))
+		(setq files (filter (# (not (find %0 built))) files)))
 	;the VP stage, the files with anything newer than their bundle of VP:
 	;their VP, and this platform's code at once
 	(defq vp_files (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files))
@@ -384,14 +387,21 @@
 ; compile and make tests
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun make-time (&optional files *abi* *cpu*)
+	; (make-time [files abi cpu]) -> us
+	;how long a full build of the files takes, all of them compiled whether
+	;or not they have changed: what make test and the Benchmark app time
+	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
+	(defq start (pii-time))
+	(compile files *abi* *cpu*)
+	(- (pii-time) start))
+
 (defun make-test (&optional i *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu) i 10)
 	(defq best +max_long worst 0 total 0 files (all-vp-files))
 	(times i
-		(defq _ (pii-time))
-		(compile files *abi* *cpu*)
-		(setq _ (- (pii-time) _) total (+ total _)
-			best (min best _) worst (max worst _)))
+		(defq _ (make-time files *abi* *cpu*))
+		(setq total (+ total _) best (min best _) worst (max worst _)))
 	(print "Mean time " (time-in-seconds (/ total i)) " seconds")
 	(print "Best time " (time-in-seconds best) " seconds")
 	(print "Worst time " (time-in-seconds worst) " seconds")
@@ -408,5 +418,5 @@
 	make make-all make-platforms make-all-platforms
 	remake remake-all make-app-platforms
 	remake-platforms remake-all-platforms remake-all-vp
-	compile-test make-test))
+	compile-test make-time make-test))
 (env-pop)

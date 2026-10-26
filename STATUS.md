@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**A forced make, `make all`, translates the translators from their VP as any file, it made them twice in two stages: 28 to 33 ms, was 81 to 100. The Benchmark app times what make test does, `(make-time)`.**
+
 **The VP64 image carries the VP binary encoder, and the Lisp one is gone; a new snapshot.zip, 166KB, so an install encodes with it. A tree from before needs `make install` once.**
 
 **VP operands are only registers, nums, labels, label distances, strings and names: no fixed, real or form left to work out, docs/vm/vp_vm.md. The encoder refuses anything else and the build stops; the Lisp encoder is only for a tree that has not built the VP one. A fused vpx assign whose source is one of the destinations stored before it reads it first.**

@@ -23,7 +23,5 @@
 				(setq *working* :nil))
 			((= idx +select_main)
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(defq reply_mbox (slice msg 0 +net_id_size) start (pii-time))
-				(make-all files)
-				(defq duration (- (pii-time) start))
-				(mail-send reply_mbox (str duration))))))
+				;a full build, as make test times it
+				(mail-send (slice msg 0 +net_id_size) (str (make-time files)))))))
