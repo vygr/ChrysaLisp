@@ -38,6 +38,8 @@
 ; (sbr-predict hr hi r i from to c0 c1 c2 c3) -> hr
 (ffi (path-to-absolute "./media_sbr_dots") sbr-dots)
 ; (sbr-dots r i out) -> out
+(ffi (path-to-absolute "./media_sbr_energy") sbr-energy)
+; (sbr-energy high kx count a b out) -> out
 (ffi (path-to-absolute "./media_sbr_ana") sbr-ana)
 ; (sbr-ana u win x base) -> u
 
@@ -611,11 +613,15 @@
 		kx (. sbr :find :kx) kx_old (. sbr :find :kx_old) zero (n2r 0)
 		now_r (map (const first) now) now_i (map (const second) now)
 		before_r (map (const first) before) before_i (map (const second) before)
+		;the 40 slots in turn, of a band below both, as most are, one gather
+		all_r (cat before_r now_r) all_i (cat before_i now_i)
 		;band k of the slots, those of the frame before or none
 		column (lambda (slots k n on) (if on (sbr-gather (fill (reals) n zero) slots k) (fill (reals) n zero))))
 	(map (lambda (k)
-			(list (cat (column before_r k 8 (< k kx_old)) (column now_r k 32 (< k kx)))
-				(cat (column before_i k 8 (< k kx_old)) (column now_i k 32 (< k kx)))))
+			(if (and (< k kx_old) (< k kx))
+				(list (sbr-gather (fill (reals) 40 zero) all_r k) (sbr-gather (fill (reals) 40 zero) all_i k))
+				(list (cat (column before_r k 8 (< k kx_old)) (column now_r k 32 (< k kx)))
+					(cat (column before_i k 8 (< k kx_old)) (column now_i k 32 (< k kx))))))
 		(range 0 32)))
 
 (defun sbr-inverse (sbr low)
@@ -706,7 +712,8 @@
 		noise (. sbr :find :noise) n_q (. sbr :find :n_q) num_env (. ch :find :num_env)
 		freq_res (. ch :find :freq_res) t_env (. ch :find :t_env) t_q (. ch :find :t_q)
 		s_index (. ch :find :s_index) e_a (. ch :find :e_a) harmonic (. ch :find :harmonic))
-	(each (# (elem-set s_index %0 (fill (nums) 48 0))) (range 1 8))
+	;of each envelope of this frame, its own, none of a sinusoid yet
+	(each (# (elem-set s_index %0 (fill (nums) 48 0))) (range 1 (inc num_env)))
 	(when (and (= (first high) kx) (= (first low) kx))
 		(defq maps (map (lambda (e)
 				(defq res (elem-get freq_res (inc e)) table (if (= res 1) high low) s (fill (nums) 48 0)
@@ -722,11 +729,14 @@
 							(defq mid (- (>> (+ (elem-get high i) (elem-get high (inc i))) 1) kx))
 							(elem-set si mid (if (and (= (elem-get harmonic i) 1) (or (>= e (second e_a)) (= (elem-get before mid) 1))) 1 0)))
 						(range 0 (second n))))
-				(each (lambda (i)
-						(defq a (- (elem-get table i) kx) b (- (elem-get table (inc i)) kx)
-							present (if (some! (# (/= %0 0)) (list si) :nil a b) 1 0))
-						(each (# (elem-set s %0 present)) (range a b)))
-					(range 0 (elem-get n res)))
+				;each band with a sinusoid in it all 1, s is 0 elsewhere, all of it
+				;0 with none in the frame
+				(when (= (. ch :find :harmonic_flag) 1)
+					(each (lambda (i)
+							(defq a (- (elem-get table i) kx) b (- (elem-get table (inc i)) kx))
+							(if (some! (# (/= %0 0)) (list si) :nil a b)
+								(each (# (elem-set s %0 1)) (range a b))))
+						(range 0 (elem-get n res))))
 				(list orig q s))
 			(range 0 num_env)))
 		(elem-set s_index 0 (cat (elem-get s_index num_env)))
@@ -735,22 +745,23 @@
 (defun sbr-estimate (sbr ch high)
 	; (sbr-estimate sbr data high) -> (reals ...)
 	;of each envelope the energy of the high band made, each band's, or
-	;over each band of its table, by the slots of the envelope
-	(defq kx (. sbr :find :kx) m (. sbr :find :m) t_env (. ch :find :t_env) n (. sbr :find :n)
-		energy (lambda (k a b) (bind '(r i) (elem-get high k)) (defq r (slice r a b) i (slice i a b)) (+ (nums-dot r r) (nums-dot i i))))
+	;over each band of its table, by the slots of the envelope. Each band's
+	;energy over the slots native, lib/media/lisp.vp media_sbr_energy
+	(defq kx (. sbr :find :kx) m (. sbr :find :m) t_env (. ch :find :t_env) n (. sbr :find :n) zero (n2r 0))
 	(map (lambda (e)
-			(defq a (+ 2 (* 2 (elem-get t_env e))) b (+ 2 (* 2 (elem-get t_env (inc e)))) out (fill (reals) 48 (n2r 0)))
+			(defq a (+ 2 (* 2 (elem-get t_env e))) b (+ 2 (* 2 (elem-get t_env (inc e))))
+				out (sbr-energy high kx m a b (fill (reals) 48 zero)))
 			(cond
 				((= (. sbr :find :interpol_freq) 1)
-					(defq k (/ (n2r 1) (n2r (- b a))))
-					(each (# (elem-set out %0 (* (energy (+ kx %0) a b) k))) (range 0 m)))
-				(:t (defq res (elem-get (. ch :find :freq_res) (inc e)) table (if (= res 1) (. sbr :find :high) (. sbr :find :low)))
+					(nums-scale out (/ (n2r 1) (n2r (- b a))) out))
+				(:t (defq res (elem-get (. ch :find :freq_res) (inc e)) table (if (= res 1) (. sbr :find :high) (. sbr :find :low))
+						energies out out (fill (reals) 48 zero))
 					(each (lambda (p)
 							(defq lo (elem-get table p) hi (elem-get table (inc p))
-								sum (/ (reduce (# (+ %0 (energy %1 a b))) (range lo hi) (n2r 0)) (n2r (* (- b a) (- hi lo)))))
+								sum (/ (reduce! (# (+ %0 %1)) (list energies) zero (- lo kx) (- hi kx)) (n2r (* (- b a) (- hi lo)))))
 							(each (# (elem-set out (- %0 kx) sum)) (range lo hi)))
-						(range 0 (elem-get n res)))))
-			out)
+						(range 0 (elem-get n res)))
+					out)))
 		(range 0 (. ch :find :num_env))))
 
 (defun sbr-gains (sbr ch maps curr)

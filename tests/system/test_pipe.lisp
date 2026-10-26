@@ -114,7 +114,7 @@
 	(while (defq pc_data (. pc :read)) (if (str? pc_data) (push pc_out pc_data)))
 	(assert-eq (cat "closes after eof, " cmdline) pc (. pc :close))
 	(assert-true (cat "and all it said was read, " cmdline) (nempty? pc_out)))
-	(list "echo one two" "files cmd/ .lisp" "make all boot" "files cmd/ | head -n 3"))
+	(list "echo one two" "files cmd/ .lisp" "files lib/asm/ .inc | wc" "files cmd/ | head -n 3"))
 
 ;an outfun that goes wrong is an error the caller has, and not a task that
 ;waits for ever on the pipe it let go of

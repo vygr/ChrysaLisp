@@ -2742,6 +2742,87 @@
 
 (def-func-end)
 
+(def-func (path-to-absolute "./media_sbr_energy"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r11, :f0-:f1, :f8
+	;info
+	;(media-sbr-energy high kx count a b out) -> out, of each of count bands
+	;of the high band from kx, (re im) of its slots, the energy of its
+	;slots a to b: each as (+ (nums-dot re re) (nums-dot im im)) of those
+	;slots would give it, 0 then each square added in turn, re then im
+
+	(vp-rdef (high kx count a b out band p e i)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 6)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,high ,kx ,count ,a ,b ,out) '(:obj :num :num :num :num :obj))
+	(vp-push out)
+	(assign `((,high +array_begin) (,out +array_begin)) `(,high ,out))
+	(vp-shl-cr 3 kx)
+	(vp-add-rr kx high)
+	(vp-shl-cr 3 a)
+	(vp-shl-cr 3 b)
+	(vp-shl-cr 3 count)
+	(vp-add-rr out count)
+	(vpif `(,out /= ,count))
+	(loop-start)
+		(assign `((,high 0)) `(,band))
+		(assign `((,band +array_begin)) `(,band))
+		(vp-xor-rr i i)
+		(vp-cvt-rf i :f0)
+		(vp-cvt-rf i :f1)
+		(vpif `(,a < ,b))
+			;the squares of re, then of im, each in turn
+			(assign `((,band 0)) `(,p))
+			(assign `((,p +array_begin)) `(,p))
+			(vp-lea-d p b e)
+			(vp-add-rr a p)
+			(loop-start)
+				(vp-cpy-if p 0 :f8)
+				(vp-mul-ff :f8 :f8)
+				(vp-add-ff :f8 :f0)
+				(vp-add-cr +long_size p)
+			(loop-until `(,p = ,e))
+			(assign `((,band +ptr_size)) `(,p))
+			(assign `((,p +array_begin)) `(,p))
+			(vp-lea-d p b e)
+			(vp-add-rr a p)
+			(loop-start)
+				(vp-cpy-if p 0 :f8)
+				(vp-mul-ff :f8 :f8)
+				(vp-add-ff :f8 :f1)
+				(vp-add-cr +long_size p)
+			(loop-until `(,p = ,e))
+		(endif)
+		(vp-add-ff :f1 :f0)
+		(vp-cpy-fi :f0 out 0)
+		(vp-add-cr +ptr_size high)
+		(vp-add-cr +long_size out)
+	(loop-until `(,out = ,count))
+	(endif)
+
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-sbr-energy high kx count a b out)" +error_msg_wrong_types))
+	(signature '(:list :num :num :num :num :reals))
+
+(def-func-end)
+
 (def-func (path-to-absolute "./media_sbr_ana"))
 	;inputs
 	;:r0 = lisp object (ptr)

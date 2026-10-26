@@ -5,10 +5,13 @@
 
 ;one to a system, which only its own tasks look up: what it is is given
 ;to a task that is sent, it is said to nobody else
+;one. Tests at once may each start one where a session has none up, as
+;a rack one has no terminal to: two started together give way to the
+;lowest, (mail-single), within a second, so this waits for that
 (open-child "service/source/app.lisp" +kn_call_run)
-(until (source-service) (task-sleep 10000))
+(until (= 1 (length (mail-enquire "@Source,"))) (task-sleep 10000))
 (defq so_svc (source-service))
-(assert-eq "it is up, as @Source" 1 (length (mail-enquire "@Source,")))
+(assert-true "it is up, as @Source" so_svc)
 (assert-eq "and is not said to the mesh" 0 (length (mail-enquire "*Source,")))
 
 ;it gives the Lisp of the tree, and nothing else of it: the keys are in

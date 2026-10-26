@@ -131,7 +131,7 @@
 		(:t (defq service (mail-declare (task-mbox) name "Storage Service 0.2")
 				;how the members of a store find each other, whatever machine they are on
 				known (mail-declare (task-mbox) group (cat (get :id store) " " member))
-				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil
+				running :t cut (list) peers (list) recorder (storage-record-new) batch :nil stopped :nil
 				tender (open-child "service/storage/tender.lisp" +kn_call_pin)
 				runner (open-child "service/storage/gopher.lisp" +kn_call_pin))
 			(if (/= 0 (get-long runner 0)) (mail-send runner (hex-encode (task-mbox))))
@@ -328,7 +328,10 @@
 							(if (/= 0 (get-long tender 0)) (mail-send tender (cat "record " body)))
 							(if (/= 0 (get-long runner 0)) (mail-send runner (cat "record " body)))
 							"ok")
-						(+storage_type_stop (setq running :nil) "ok")
+						(+storage_type_stop
+							;answered once the volume is closed, so a caller may
+							;remove it then: Windows removes no file that is open
+							(setq running :nil stopped reply) :nil)
 						(:t "error"))
 					(progn (prin "Storage: " (slice (defq said_ (str _)) 0 (min 200 (length said_)))) (print) "error")))
 				(if answer (mail-send reply answer))
@@ -344,4 +347,7 @@
 			(if (/= 0 (get-long runner 0)) (mail-send runner "stop"))
 			(mail-forget service)
 			(mail-forget known)
-			(store-close store))))
+			;and let go of, its file is closed as the store is freed
+			(store-close store)
+			(setq store :nil)
+			(if stopped (mail-send stopped "ok")))))

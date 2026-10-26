@@ -28,7 +28,9 @@
 (assert-eq "as it was sent" "go" (mail-read os_stop))
 (defq os_store (store-open os_image "aaaa"))
 (assert-true "the store as it was" (store-block-has? os_store os_block))
+;and let go of, as a file that is open is not removed on Windows
 (store-close os_store)
+(setq os_store :nil)
 
 (pii-remove os_image)
 (undef (env) 'os_image 'os_name 'os_group 'os_data 'os_store 'os_block 'os_stop)
