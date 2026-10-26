@@ -84,8 +84,8 @@
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
             What runs it may give it more, the tests their
-            suite, the diagrams make's; the assembler, which
-            runs in an env of many files, is not looked at.
+            suite, the diagrams make's, the assembler the files
+            it includes into the env it compiles in.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
@@ -1113,10 +1113,10 @@
 		("docs/diagrams/" "lib/cwb/diagram.inc" "cmd/make.lisp")
 		("service/gui/" "sys/lisp.inc" "class/lisp.inc" "gui/lisp.inc" "service/gui/app_impl.lisp")
 		("cmd/make.lisp" "lib/asm/class.inc")
+		("lib/asm/" "lib/asm/func.inc" "lib/asm/class.inc" "lib/boot/image.inc")
+		("lib/trans/" "lib/asm/func.inc" "lib/asm/class.inc")
 		("apps/desktop/docs/handlers/" "apps/desktop/docs/app.lisp"))
-	;the assembler and its translators run in the env it makes of many
-	;files, not by import
-	+unbound_skip ''("tests/scratch/" "lib/asm/" "lib/trans/")
+	+unbound_skip ''("tests/scratch/")
 	+unbound_methods ''("defmethod" "defabstractmethod" "deffimethod" "defgetmethod" "defsetmethod" "defproxymethod"))
 
 (defun head-of (inner)
@@ -1160,7 +1160,7 @@
 								(forms-of binds)))
 						;an import anywhere, in a function or a catch, what it names may
 						;be called after it
-						((and (eql head "import") (> n 1) (eql (first (second inner)) :string1)
+						((and (find head '("import" "include")) (> n 1) (eql (first (second inner)) :string1)
 								(str? (defq to (catch (first (read (string-stream (third (second inner))))) :nil)))
 								(str? (setq to (catch (path-to-absolute to path) :nil))) (/= 0 (age to)))
 							(push more to))

@@ -106,23 +106,29 @@
 	(each (lambda (bin) (vpb-uint out (length bin)) (write-blk out bin)) bins)
 	(str out))
 
+(defun vpb-part (data at)
+	; (vpb-part str at) -> :nil | (start end)
+	;a part of the str at at, its length first, 7 bits a byte, low first:
+	;where it starts and ends, :nil if the str ends before it does, as one
+	;from another node may
+	(defq n 0 s 0 b 0x80 e (length data))
+	(while (and (/= 0 (logand b 0x80)) (< at e) (< s 63))
+		(setq b (code data 1 at) at (inc at) n (logior n (<< (logand b 0x7f) s)) s (+ s 7)))
+	(and (= 0 (logand b 0x80)) (>= n 0) (<= (+ at n) e) (list at (+ at n))))
+
 (defun vpb-unbundle (data)
 	; (vpb-unbundle str) -> (bin ...)
+	;the binaries of a bundle, as many as are whole
 	(defq at 0 bins (list))
-	(while (< at (length data))
-		(defq n 0 s 0 b 0x80)
-		(while (/= 0 (logand b 0x80))
-			(setq b (code data 1 at) at (inc at) n (logior n (<< (logand b 0x7f) s)) s (+ s 7)))
-		(push bins (slice data at (setq at (+ at n)))))
+	(while (and (< at (length data)) (defq part (vpb-part data at)))
+		(push bins (apply (const slice) (cat (list data) part)))
+		(setq at (second part)))
 	bins)
 
 (defun vpb-name (bin)
 	; (vpb-name bin) -> str
-	;the name of the function of a VP binary
-	(defq at 0 n 0 s 0 b 0x80)
-	(while (/= 0 (logand b 0x80))
-		(setq b (code bin 1 at) at (inc at) n (logior n (<< (logand b 0x7f) s)) s (+ s 7)))
-	(slice bin at (+ at n)))
+	;the name of the function of a VP binary, "" if it is not whole
+	(if (defq part (vpb-part bin 0)) (apply (const slice) (cat (list bin) part)) ""))
 
 ;module
 (export-symbols '(vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))

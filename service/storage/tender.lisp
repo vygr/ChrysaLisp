@@ -136,8 +136,10 @@
 					drops (map (lambda ((extra &rest holders))
 							(defq at_extra (!))
 							(and (every (lambda (holder)
+									;a peer that did not answer, or said less, has it not
 									(and (defq at_peer (some (# (if (eql (first %0) holder) (!))) peers))
-										(eql (elem-get (elem-get has at_peer) at_extra) "1")))
+										(< at_extra (length (defq said (elem-get has at_peer))))
+										(eql (elem-get said at_extra) "1")))
 									holders)
 								(storage-send svc +storage_type_block_drop (hex-decode extra))))
 						extras))

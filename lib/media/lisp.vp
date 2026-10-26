@@ -387,6 +387,13 @@
 
 (def-func-end)
 
+(defun media-bits-limit (s l)
+	;l the last bit a native may read from of the str s, 16 bytes before
+	;its end, lib/media/bits.inc puts 32 of 0 after what it is given
+	(assign `((,s +str_length ui)) `(,l))
+	(vp-sub-cr 16 l)
+	(vp-shl-cr 3 l))
+
 (defun huff-walk (data off at table e byte x level)
 	;a code of a Huffman book's table, lib/media/huff.inc, at bit at of the
 	;bytes at data and off: what it stands for into e, and at past it
@@ -439,8 +446,8 @@
 	;level, at -entry. data is to have 4 bytes past the last code read.
 	;lib/media/huff.inc makes the tables
 
-	(vp-rdef (data at table e byte x level)
-		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8))
+	(vp-rdef (data at table e byte x level d)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r1))
 
 	(entry `(:r0 :r1))
 
@@ -448,9 +455,22 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,data ,at ,table) '(:obj :num :obj))
+	;no further in than 16 bytes before the end, all 0 there, d what is
+	;past that, put back after
+	(media-bits-limit data e)
+	(vp-xor-rr d d)
+	(vpif `(,at > ,e))
+		(vp-cpy-rr at d)
+		(vp-sub-rr e d)
+		(vp-cpy-rr e at)
+	(elseif `(,at < 0))
+		(vp-cpy-rr at d)
+		(vp-xor-rr at at)
+	(endif)
 	(vp-lea-i data +str_data data)
 	(assign `((,table +array_begin)) `(,table))
 	(huff-walk data 0 at table e byte x level)
+	(vp-add-rr d at)
 	(vp-shl-cr 32 e)
 	(vp-add-rr at e)
 	(call :num :create `(,e) '(:r1))
@@ -466,14 +486,21 @@
 
 (defun media-bits-read (in n e num at p v x)
 	;the next n bits of the reader in, (str (nums at)), high bit first, into
-	;v, and at moved past them, in its nums. n a reg or a constant. Trashes
-	;the regs given
+	;v, and at moved past them, in its nums. n a reg or a constant. Past
+	;the end of the str they are 0. Trashes the regs given
 	(assign `((,in +array_begin)) `(,e))
 	(assign `((,e 0) (,e +ptr_size)) `(,p ,num))
 	(assign `((,num +array_begin)) `(,num))
 	(assign `((,num 0)) `(,at))
-	;the 4 bytes at at, high first
+	;the 4 bytes at at, high first, no further in than the limit, all 0
+	;there, and past it
+	(media-bits-limit p e)
 	(vp-cpy-rr at x)
+	(vpif `(,x > ,e))
+		(vp-cpy-rr e x)
+	(elseif `(,x < 0))
+		(vp-cpy-rr e x)
+	(endif)
 	(vp-shr-cr 3 x)
 	(vp-add-rr x p)
 	(vp-cpy-ir-ub p +str_data v)
@@ -509,7 +536,7 @@
 	;info
 	;(media-bits-get reader n) -> num, the next n bits, 0 to 25, of a reader
 	;of lib/media/bits.inc, (str (nums at)), high bit first, and at moved
-	;past them. The str is to have 4 bytes past the last bit read
+	;past them. Past the end of the str they are 0, lib/media/bits.inc
 
 	(vp-rdef (in n e num at p v x)
 		'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10))
@@ -1663,6 +1690,11 @@
 	(assign `((,x +array_begin)) `(,x))
 	(assign `(,x) `((:rsp ,s_atp)))
 	(assign `((,x 0)) `(,at))
+	;no further than the limit of the str, past it is 0s
+	(media-bits-limit data x)
+	(vpif `(,end > ,x))
+		(vp-cpy-rr x end)
+	(endif)
 	(assign `((,lp +array_begin)) `(,lp))
 	(vp-xor-rr idx idx)
 	;the big values, region by region
@@ -1792,8 +1824,8 @@
 	(assign `((,x 0) (,x +ptr_size)) `(,data ,x))
 	(assign `((,x +array_begin)) `(,x))
 	(assign `(,x) `((:rsp ,s_atp)))
-	(assign `((,x 0) (,data +str_length ui)) `(,pos ,stop))
-	(vp-shl-cr 3 stop)
+	(assign `((,x 0)) `(,pos))
+	(media-bits-limit data stop)
 	(vpif `(,p < ,pend))
 	(loop-start 'codes)
 		(breakif `(,pos >= ,stop) 'codes)

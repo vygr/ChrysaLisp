@@ -3,7 +3,9 @@
 ;
 ; A reader is (str (nums at)), at in bits from the first, a raw number
 ; the native reads and writes in place. (bits-of str) makes one, the str
-; with bytes enough after it to read past its end. (bits-get reader n)
+; with 32 bytes of 0 after it: a native reads no further in than 16 before
+; the end, so a read past the str, or a step of a decoder past where it
+; looks, is of 0s and not of what is after the str. (bits-get reader n)
 ; the next n bits, 0 to 25, (bits-1 reader) the next, both native,
 ; (bits-skip reader n) steps over n, (bits-at reader) where it is,
 ; (bits-seek reader at) puts it there, (bits-str reader) its str.
@@ -22,7 +24,7 @@
 
 (defun bits-of (s)
 	; (bits-of str) -> reader
-	(list (cat s (char 0 8)) (nums 0)))
+	(list (cat s (const (cat (char 0 8) (char 0 8) (char 0 8) (char 0 8)))) (nums 0)))
 
 (defun bits-skip (in n)
 	; (bits-skip reader n) -> reader

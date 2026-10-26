@@ -41,4 +41,19 @@
 (assert-true "every function encoded" (> (first ve_counts) 1000))
 (assert-eq "none differ" 0 (second ve_counts))
 
-(undef (env) 've_counts 've-run)
+
+;a bundle, or a binary, from another node may be cut short, or say a length
+;past its end: what is whole is had, and no more is read
+(defq ve_got (within-compile-env (lambda ()
+	(include "lib/trans/vpb.inc")
+	(defq b (vpb-bundle '("abc" "defgh")))
+	(list (vpb-unbundle b) (vpb-unbundle (slice b 0 -2)) (vpb-unbundle (cat (char 0x80) (char 0x80)))
+		(vpb-name (cat (char 3) "foobar")) (vpb-name (cat (char 9) "foo")) (vpb-name "")))))
+(assert-list-eq "a bundle unbundled" '("abc" "defgh") (first ve_got))
+(assert-list-eq "one cut short, what is whole" '("abc") (second ve_got))
+(assert-eq "a length that does not end" '() (third ve_got))
+(assert-eq "a name" "foo" (elem-get ve_got 3))
+(assert-eq "a name past the end" "" (elem-get ve_got 4))
+(assert-eq "no name" "" (elem-get ve_got 5))
+
+(undef (env) 've_counts 've-run 've_got)

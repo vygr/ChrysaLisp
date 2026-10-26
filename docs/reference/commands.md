@@ -139,8 +139,8 @@ Usage: check [options] [path] ...
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
             What runs it may give it more, the tests their
-            suite, the diagrams make's; the assembler, which
-            runs in an env of many files, is not looked at.
+            suite, the diagrams make's, the assembler the files
+            it includes into the env it compiles in.
     early   a + constant that is a quoted list, used in the
             (defq) that makes it: there it is not yet a
             constant, and is the quote and the list, two things.
