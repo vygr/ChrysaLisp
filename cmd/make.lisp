@@ -502,12 +502,12 @@
 	;the include list of every .vp file and the import paths of every source
 	;file, as (includes) and (imports) would have them. What they would
 	;change is printed, nothing is written, -w on either does that
-	(pipe-run "files | includes")
-	(pipe-run "files | imports"))
+	(pipe-run "files | includes" prin)
+	(pipe-run "files | imports" prin))
 
 (defun make-fmt ()
 	;format every source file, only those that need it are written
-	(pipe-run "files . | fmt -w"))
+	(pipe-run "files . | fmt -w" prin))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
