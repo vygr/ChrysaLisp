@@ -66,6 +66,19 @@ from the module that imports it, as before. It reads by
   after are read from that with no asking. Errors name the file and line as
   ever.
 
+## Two systems at one waypoint
+
+A system names its server zero, all it has of its own, by the waypoint it
+is at: the commit `make install` built at, kept in `obj/installed` when the
+tree is exactly at its waypoint, and taken away by any `make` that builds
+after, `(source-waypoint)`. A task carries it with its system's id, the
+third of `(source-import sid svc wp)`, empty if there is none. Where it
+lands at the same waypoint, all it is made of is there already: its files
+are read from the tree there, as on its own system, and its natives are
+server zero's, so nothing is asked of either `@Source`, nothing hashed and
+nothing placed. Anywhere else it is asked for as below. That an installed
+tree is not edited by hand after, with no `make`, is trusted.
+
 ## One machine asks once
 
 The `@Source` of each machine is the broker for its tasks. Asked for a file

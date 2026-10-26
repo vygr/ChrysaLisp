@@ -35,6 +35,11 @@
 	(print "This machine has been given a key of its own, named own, in keys/ and in use.")
 	(print "To join it to your other machines take in their key: key -i name file, then key -u name.")
 	(print))
+;what was built is of the waypoint the tree is exactly at, if it is: a
+;system at the same one has the same, and @Source asks it nothing,
+;service/source/app.inc (source-waypoint). A make that builds takes it away
+(import "lib/sync/sync.inc")
+(if (defq at (sync-clean "." (sync-kept "."))) (save (first at) "obj/installed"))
 (print "Install complete.")
 (print)
 (print "If on MacOS or Linux you may now run:")

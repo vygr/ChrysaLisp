@@ -29,11 +29,26 @@
 (assert-eq "of another, asked of its service, the same" (load so_inc) (read-blk so_there 100000))
 (assert-eq "and none if it will not give it" :nil (source-stream "0" so_svc "mesh_key"))
 
+;a system at the same waypoint as this one: what it has this one has, a
+;file of it is read here and nothing is asked of a @Source, not even of
+;none; and still not one it would not give
+(defq *source_same* :t)
+(assert-eq "at the same waypoint, a file is read here, nothing asked" (load so_inc) (read-blk (source-stream "0" :nil so_inc) 100000))
+(assert-eq "and none it would not give" :nil (source-stream "0" :nil "mesh_key"))
+(undef (env) '*source_same*)
+
+;the waypoint this system's server zero is of: none, or the one its tree is
+;noted at, where make install built and no make has built since
+(defq so_wp (source-waypoint))
+(assert-true "server zero's waypoint, none or the tree's"
+	(or (not so_wp) (eql so_wp (trim (first (split (load "waypoint") (ascii-char 10)))))))
+
 ;NetMon's child, sent as what source-task makes, replies; and again with
 ;the system said to be another, so that each import, the child's own of
 ;./app.inc too, is asked of the service as on another machine
 (defq so_task (source-task "apps/system/netmon/child.lisp"))
 (assert-true "a task to send is Lisp to run, not a path" (starts-with "(" so_task))
+(assert-true "and says the waypoint this system is at" (found? so_task (cat "{" (ifn so_wp "") "})")))
 (defun so-child (task)
 	(defq id (open-child task +kn_call_pin) mbox (mail-mbox))
 	(mail-send id mbox)
@@ -45,6 +60,16 @@
 	(> (so-child (cat "(import {service/source/app.inc})" (ascii-char 10)
 		"(source-import {0} {" (hex-encode so_svc) "})" (ascii-char 10)
 		"(import {apps/system/netmon/child.lisp})")) 0))
+
+;and from another system at the same waypoint as this one, its @Source a
+;mailbox nobody reads: it runs, as nothing is asked of it. Only where make
+;install built at the waypoint the tree is at, and no make has since
+(if so_wp
+	(assert-true "from a system at the same waypoint, nothing asked"
+		(> (so-child (cat "(import {service/source/app.inc})" (ascii-char 10)
+			"(source-import {0} {" (hex-encode (mail-mbox)) "} {" so_wp "})" (ascii-char 10)
+			"(import {apps/system/netmon/child.lisp})")) 0))
+	(test-skip "from a system at the same waypoint" "this system's build is not of a waypoint, make install at one"))
 
 ;natives of another system: the hash of each asked of the service, and
 ;the VP of those not the same as the node's own. Here the other system is

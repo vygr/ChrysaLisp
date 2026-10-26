@@ -309,11 +309,15 @@
 	(defq trans_age (reduce (# (max %0 (age %1)))
 		(list "lib/trans/vp.inc" "lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc"
 			(cat "lib/trans/" *cpu* ".vp")) 0))
-	(bind '(& more) (translate-stage (filter (lambda (file)
+	(defq to_translate (filter (lambda (file)
 		(and (not (find file vp_files))
 			(or force
 				(>= (get (sym file) newest) (defq done (age (cat "obj/" *cpu* "/" *abi* "/" file))))
-				(> trans_age done) (> (age (cat dir file)) done)))) files) *abi* *cpu*))
+				(> trans_age done) (> (age (cat dir file)) done)))) files))
+	(bind '(& more) (translate-stage to_translate *abi* *cpu*))
+	;what is built here is not what make install built at its waypoint any
+	;more, service/source/app.inc (source-waypoint)
+	(if (or (nempty? stale) (nempty? vp_files) (nempty? to_translate)) (pii-remove "obj/installed"))
 	(each (const print) (cat errors more))
 	(print "Done") :nil)
 

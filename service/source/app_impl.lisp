@@ -2,16 +2,6 @@
 (import "lib/boot/image.inc")
 (import "lib/crypto/sha256.inc")
 
-(defun source-given? (path)
-	; (source-given? path) -> :t | :nil
-	;a file that can be imported, Lisp, by a path from the root of the tree:
-	;none above it, none in a user's own folder, usr/env.inc is the
-	;system's. Nothing else of the tree is given, its keys are in it
-	(defq parts (split path "/"))
-	(and (or (ends-with ".lisp" path) (ends-with ".inc" path))
-		(not (or (starts-with "/" path) (find ".." parts)
-			(and (eql (first parts) "usr") (> (length parts) 2))))))
-
 (defun source-entry (mode name)
 	; (source-entry mode name) -> :nil | (entry file)
 	;the VP of a function as this system built it, the entry of its bundle

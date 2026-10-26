@@ -28,6 +28,27 @@
 	;its own, and then every one is made each time it is wanted
 	(if (def? '*env_source_cache*) *env_source_cache* :t))
 
+(defun source-given? (path)
+	; (source-given? path) -> :t | :nil
+	;a file that can be imported, Lisp, by a path from the root of the tree:
+	;none above it, none in a user's own folder, usr/env.inc is the
+	;system's. Nothing else of the tree is given, its keys are in it
+	(defq parts (split path "/"))
+	(and (or (ends-with ".lisp" path) (ends-with ".inc" path))
+		(not (or (starts-with "/" path) (find ".." parts)
+			(and (eql (first parts) "usr") (> (length parts) 2))))))
+
+(defun source-waypoint ()
+	; (source-waypoint) -> :nil | commit
+	;the waypoint this system's server zero is of: the commit make install
+	;built at, obj/installed, if no make has built since, which takes the
+	;note away, and the tree is noted at that waypoint still, the first line
+	;of the file waypoint. Of two systems at the same, each has what the
+	;other has, nothing is asked or sent, lib/sync/sync.inc
+	(defq made (first (split (ifn (load "obj/installed") "") (ascii-char 10)))
+		at (first (split (ifn (load "waypoint") "") (ascii-char 10))))
+	(and made (nempty? made) (eql made at) at))
+
 (defun source-service ()
 	; (source-service) -> :nil | netid
 	;the @Source of this system
@@ -110,6 +131,9 @@
 	(cond
 		((eql sid (hex-encode (system-id)))
 			(if (/= (age path) 0) (file-stream path)))
+		;a system at the same waypoint as this one has the same file
+		((get '*source_same*)
+			(and (source-given? path) (/= (age path) 0) (file-stream path)))
 		((or (. got :find path)
 				;the @Source here may have to find that system's again, so
 				;more than one wait
@@ -127,13 +151,13 @@
 	;system to run on any node of the mesh: it and what it imports are read
 	;from this system, and need not be where it runs. A task that was sent
 	;from another system sends its tasks as of that one, which has its
-	;files. The path itself if there is no @Source, read where it runs as
-	;any task is
-	(defq sid (get '*source_system*) svc (get '*source_service*))
-	(unless sid (setq sid (hex-encode (system-id)) svc (source-service)))
+	;files, and the waypoint it is of if it is at one. The path itself if
+	;there is no @Source, read where it runs as any task is
+	(defq sid (get '*source_system*) svc (get '*source_service*) wp (get '*source_waypoint*))
+	(unless sid (setq sid (hex-encode (system-id)) svc (source-service) wp (source-waypoint)))
 	(ifn svc path
 		(cat "(import {service/source/app.inc})" (ascii-char 10)
-			"(source-import {" sid "} {" (hex-encode svc) "})" (ascii-char 10)
+			"(source-import {" sid "} {" (hex-encode svc) "} {" (ifn wp "") "})" (ascii-char 10)
 			"(import {" path "})")))
 
 (defun source-mode ()
@@ -168,8 +192,8 @@
 	;@Source, which keeps a translator for this CPU, and placed in the
 	;task's function server: in memory, none of it kept in a file of the
 	;task's. What the node has the same VP of is server zero's, nothing is
-	;placed for it
-	(unless (eql *source_system* (hex-encode (system-id)))
+	;placed for it, nor for a system at the same waypoint as this one
+	(unless (or (eql *source_system* (hex-encode (system-id))) *source_same*)
 		(and (defq natives (source-ask (source-here)
 				(cat "+" *source_system* " " (hex-encode *source_service*) " " (source-mode) " " path)
 				(* 3 +source_wait)))
@@ -182,15 +206,19 @@
 	;made ready first, then bound as ever
 	(list 'progn (list 'source-native path) (cat (list *source_ffi* path) more)))
 
-(defmacro source-import (sid svc)
-	; (source-import sid svc)
+(defmacro source-import (sid svc &optional wp)
+	; (source-import sid svc [wp])
 	;an import, in this environment, that reads from the system of the id
 	;by its @Source, the mailbox in hex: as root's own, a module once, its
 	;relative paths from the module that imports it, but by (source-stream).
 	;And an ffi that has a native from there too, translated here, placed in
-	;the task's own function server, named by the system id
+	;the task's own function server, named by the system id. wp the waypoint
+	;that system is at, "" if none: at the same as this one, its files and
+	;natives are this one's, and nothing is asked
 	(static-qq (progn
 		(defq *source_system* ,sid *source_service* (hex-decode ,svc) *source_got* (Fmap 31)
+			*source_waypoint* ,(if (and wp (nempty? wp)) wp)
+			*source_same* ,(and wp (nempty? wp) (eql wp (source-waypoint)))
 			*source_ffi* ffi
 			import (lambda (module &optional dst_env)
 				(setq module (path-to-absolute module))

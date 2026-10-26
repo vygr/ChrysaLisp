@@ -10408,6 +10408,16 @@ made ready first, then bound as ever
 the @Source a system has now, (source-seek) and its answer waited for
 ```
 
+### source-given?
+
+```code
+(source-given? path) -> :t | :nil
+
+a file that can be imported, Lisp, by a path from the root of the tree:
+none above it, none in a user's own folder, usr/env.inc is the
+system's. Nothing else of the tree is given, its keys are in it
+```
+
 ### source-here
 
 ```code
@@ -10444,7 +10454,7 @@ that this node has not the same of, made ready by this system's own
 @Source, which keeps a translator for this CPU, and placed in the
 task's function server: in memory, none of it kept in a file of the
 task's. What the node has the same VP of is server zero's, nothing is
-placed for it
+placed for it, nor for a system at the same waypoint as this one
 ```
 
 ### source-pack
@@ -10507,14 +10517,26 @@ what to open, with (open-task) and the rest, for a Lisp file of this
 system to run on any node of the mesh: it and what it imports are read
 from this system, and need not be where it runs. A task that was sent
 from another system sends its tasks as of that one, which has its
-files. The path itself if there is no @Source, read where it runs as
-any task is
+files, and the waypoint it is of if it is at one. The path itself if
+there is no @Source, read where it runs as any task is
 ```
 
 ### source-unpack
 
 ```code
 (source-unpack str) -> ((path tag text) ...)
+```
+
+### source-waypoint
+
+```code
+(source-waypoint) -> :nil | commit
+
+the waypoint this system's server zero is of: the commit make install
+built at, obj/installed, if no make has built since, which takes the
+note away, and the tree is noted at that waypoint still, the first line
+of the file waypoint. Of two systems at the same, each has what the
+other has, nothing is asked or sent, lib/sync/sync.inc
 ```
 
 ### split-cells
