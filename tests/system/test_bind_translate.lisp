@@ -36,19 +36,30 @@
 	bt_bins)
 
 (each (# (pii-remove (cat bt_obj %0)) (pii-remove (cat bt_obj %0 ".vpb"))) (list bt_a bt_b))
-(undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_bins 'bt_f 'bt-make)
 
-;each boot image made here holds the translator of its own CPU, which its
-;loader links, and of a native one no other: the loader's VP is made once
-;for every CPU, so the image's maker gives it the translator of the image's
+;the loader's VP is made once for every CPU, so it names no CPU's
+;translator: it links lib/trans/vpb, which the maker of an image gives the
+;translator of the CPU it makes the image for. The image this runs on holds
+;its own CPU's
 (import "lib/boot/image.inc")
-(each (lambda ((cpu abi))
-		(when (defq bt_image (load (cat "obj/" cpu "/" abi "/sys/boot_image")))
-			(defq bt_own (trans-name cpu abi))
-			(assert-true (cat cpu " " abi " holds its own translator") (found? bt_image bt_own))
-			(unless (eql cpu 'vp64)
-				(assert-eq (cat cpu " " abi " holds no other") :nil
-					(some (lambda ((c a)) (and (nql (trans-name c a) bt_own) (found? bt_image (trans-name c a)) (trans-name c a)))
-						'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64)))))))
-	'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64) (vp64 VP64)))
-(undef (env) 'bt_image 'bt_own)
+(defq bt_names (map (lambda ((c a)) (trans-name c a))
+		'((arm64 ARM64) (x86_64 AMD64) (x86_64 WIN64) (riscv64 RISCV64) (la64 LA64) (vp64 VP64)))
+)
+(defun bt-loader ()
+	;the loader's VP, compiled here, as text
+	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
+	(defq out "")
+	(within-compile-env (lambda ()
+		(each (lambda (entry)
+				(if (eql (first entry) "sys/load/load") (setq out (str entry))))
+			(vp-compile "sys/load/class.vp"))))
+	out)
+(defq bt_loader (bt-loader))
+(assert-true "the loader's VP links lib/trans/vpb" (found? bt_loader "lib/trans/vpb"))
+(assert-eq "and names no CPU's translator" :nil (some (# (if (found? bt_loader %0) %0)) bt_names))
+(assert-true "the image this runs on holds its own CPU's translator"
+	(found? (load (cat (load-path) "sys/boot_image")) (trans-name bt_cpu bt_abi)))
+
+(undef (env) 'bt_cpu 'bt_abi 'bt_lf 'bt_id 'bt_a 'bt_b 'bt_obj 'bt_src 'bt_bins 'bt_f 'bt-make
+	'bt_names 'bt_loader 'bt-loader)
+
