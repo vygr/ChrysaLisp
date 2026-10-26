@@ -12933,8 +12933,10 @@ anything else something else, a link for one. :nil if it is not there
 
 the files of a tree, with the size and the SHA-256 of each. With a
 file to keep them in, a hash is not worked out again for a file whose
-time and size are as they were. One changed in the last two seconds is
-always hashed, its time may not change if it is changed again.
+time and size are as they were. A file's time is in seconds, so one
+changed again in the same second, to the same size, looks the same: a
+hash taken within two seconds of the file's time is kept with no time,
+-1, and worked out again the next time.
 live is a map to hold them in between one call and the next, for a
 task that stays, a service. The file is then read the once, and is
 what is there when the task starts again
