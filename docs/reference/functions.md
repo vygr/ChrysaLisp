@@ -8776,8 +8776,8 @@ a channel alone in its block, the two of it
 
 the high band of each slot, its gains smoothed over the slots before
 unless at a transient, its noise, or its sinusoid, in the slots of
-this frame's Y: each slot's bands of the high band made a vector by
-the gather, and all by vectors of the bands
+this frame's Y: each slot's bands written into its rows by
+(sbr-slot), nothing made
 ```
 
 ### sbr-bands

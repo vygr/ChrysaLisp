@@ -28,6 +28,8 @@
 ; (sbr-dct4 x tw rev out) -> out
 (ffi (path-to-absolute "./media_gather") sbr-gather)
 ; (sbr-gather out arrays index) -> out
+(ffi (path-to-absolute "./media_sbr_slot") sbr-slot)
+; (sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode) -> r
 (ffi (path-to-absolute "./media_window") sbr-window)
 ; (sbr-window v new head d out at scale n parts dstep vstep doff voff) -> head
 (ffi (path-to-absolute "./media_sbr_gains") sbr-envelope-gains)
@@ -68,7 +70,6 @@
 			:noise_re (apply (const reals) (map (# (* (n2r (elem-get (. +sbr :find :noise_q31) (* 2 (% %0 512)))) k)) (range 0 576)))
 			:noise_im (apply (const reals) (map (# (* (n2r (elem-get (. +sbr :find :noise_q31) (inc (* 2 (% %0 512))))) k)) (range 0 576)))
 			:alt (apply (const reals) (map (# (n2r (if (= (logand %0 1) 0) 1 -1))) (range 0 64)))
-			:ones (fill (reals) 64 (n2r 1))
 			:dct32 (mdct-tables 32) :dct64 (mdct-tables 64)
 			:ana_c (apply (const reals) (map (# (* two (cos (angle %0 0 128 (n2r -3))))) (range 0 32)))
 			:ana_s (apply (const reals) (map (# (* two (sin (angle %0 0 128 (n2r -3))))) (range 0 32)))
@@ -771,16 +772,16 @@
 	; (sbr-assemble sbr data high gains)
 	;the high band of each slot, its gains smoothed over the slots before
 	;unless at a transient, its noise, or its sinusoid, in the slots of
-	;this frame's Y: each slot's bands of the high band made a vector by
-	;the gather, and all by vectors of the bands
+	;this frame's Y: each slot's bands written into its rows by
+	;(sbr-slot), nothing made
 	(defq kx (. sbr :find :kx) m_max (. sbr :find :m) t_env (. ch :find :t_env) e_a (. ch :find :e_a)
 		h_sl (if (= (. sbr :find :smoothing_mode) 0) 4 0) g_temp (. ch :find :g_temp) q_temp (. ch :find :q_temp)
 		y (elem-get (. ch :find :y) (. ch :find :ypos)) smooth (. +sbr :find :smooth)
 		noise_re (. +sbr :find :noise_re) noise_im (. +sbr :find :noise_im)
-		alt (slice (. +sbr :find :alt) 0 m_max) ones (slice (. +sbr :find :ones) 0 m_max)
+		alt (slice (. +sbr :find :alt) 0 m_max)
 		high_r (map! (const first) (list high) kx (+ kx m_max)) high_i (map! (const second) (list high) kx (+ kx m_max))
 		index_noise (. ch :find :index_noise) index_sine (. ch :find :index_sine) t0 (* 2 (first t_env))
-		zero (n2r 0) one (n2r 1) top (+ kx m_max))
+		zero (n2r 0) one (n2r 1))
 	(cond
 		((. sbr :find :reset)
 			(each (lambda (i)
@@ -810,25 +811,18 @@
 						(defq at (+ i h_sl))
 						(setq g_filt (reduce (# (nums-add %0 (nums-scale (elem-get g_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 zero))
 							q_filt (reduce (# (nums-add %0 (nums-scale (elem-get q_temp (- at %1)) (elem-get smooth %1)))) (range 0 5) (fill (reals) 48 zero))))
-					(defq g (slice g_filt 0 m_max)
-						yr (nums-mul (sbr-gather (fill (reals) m_max zero) high_r (+ i 2)) g)
-						yi (nums-mul (sbr-gather (fill (reals) m_max zero) high_i (+ i 2)) g))
-					(cond
-						((not edge)
-							;noise where there is no sinusoid, which goes round the
-							;four phases by the slot, the odd bands' of the other sign
-							(defq from (logand (inc index_noise) 0x1ff) q (nums-mul (slice q_filt 0 m_max) quiet)
-								sign1 (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1)))))
-							(setq yr (nums-add (nums-add yr (nums-mul q (slice noise_re from (+ from m_max))))
-									(nums-scale sm (n2r (elem-get '(1 0 -1 0) index_sine))))
-								yi (nums-add (nums-add yi (nums-mul q (slice noise_im from (+ from m_max))))
-									(nums-scale (nums-mul sm alt) (n2r sign1)))))
-						(:t ;at a transient the sinusoids alone, on re or im by the phase
-							(defq a (- 1 (logand (+ index_sine (logand kx 1)) 2))
-								add (nums-scale (nums-mul sm (if (= (logand index_sine 1) 1) alt ones)) (n2r a)))
-							(if (= (logand index_sine 1) 1) (setq yi (nums-add yi add)) (setq yr (nums-add yr add)))))
-					(bind '(old_r old_i) (elem-get y i))
-					(elem-set y i (list (cat (slice old_r 0 kx) yr (slice old_r top 64)) (cat (slice old_i 0 kx) yi (slice old_i top 64))))
+					;the slot's bands of the high band by the gain, into its rows of Y
+					;from kx, native, lib/media/lisp.vp media_sbr_slot: with noise
+					;where there is no sinusoid, which goes round the four phases by
+					;the slot, the odd bands' of the other sign; at a transient the
+					;sinusoids alone, on re or im by the phase
+					(bind '(row_r row_i) (elem-get y i))
+					(ifn edge
+						(sbr-slot row_r row_i kx high_r high_i (+ i 2) g_filt q_filt quiet sm noise_re noise_im
+							(logand (inc index_noise) 0x1ff) (n2r (elem-get '(1 0 -1 0) index_sine))
+							(n2r (* (elem-get '(0 1 0 -1) index_sine) (- 1 (* 2 (logand kx 1))))) alt 0)
+						(sbr-slot row_r row_i kx high_r high_i (+ i 2) g_filt q_filt quiet sm noise_re noise_im 0
+							(n2r (- 1 (logand (+ index_sine (logand kx 1)) 2))) zero alt (if (= (logand index_sine 1) 1) 2 1)))
 					(setq index_noise (logand (+ index_noise m_max) 0x1ff) index_sine (logand (inc index_sine) 3)))
 				(range (* 2 (elem-get t_env e)) (* 2 (elem-get t_env (inc e))))))
 		gains)

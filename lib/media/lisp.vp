@@ -2390,6 +2390,136 @@
 
 (def-func-end)
 
+(def-func (path-to-absolute "./media_sbr_slot"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f11
+	;info
+	;(media-sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode)
+	;-> r, one slot of SBR's high band made, the m bands of sm, into r and
+	;i from kx: each band's high band, element at of its row of hr and hi,
+	;by its gain g. Mode 0, no transient: its noise, q by quiet by nre and
+	;nim from from, and its sinusoid, sm by cr and sm by alt by ci, added.
+	;Mode 1 and 2, at a transient: its sinusoid alone, sm by cr on r, or
+	;sm by alt by cr on i. Summed in the order the Lisp did
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 17)
+
+	;the args on the stack, mode at 0 to r at 128, this above
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11)
+		'(:obj :obj :num :obj :obj :num :obj :obj :obj :obj))
+	(vp-push :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11)
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8)
+		'(& & & & & & & & & & :obj :obj :num :obj :obj :obj :num))
+	(vp-push :r2 :r3 :r4 :r5 :r6 :r7 :r8)
+
+	(vp-rdef (rp ip hrp hip gp qp qtp smp nrep nimp altp atb cnt tmp mode)
+		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(assign '((:rsp 56)) `(,smp))
+	(assign `((,smp +array_length ui) (,smp +array_begin)) `(,cnt ,smp))
+	(assign '((:rsp 112) (:rsp 128) (:rsp 120)) `(,tmp ,rp ,ip))
+	(vp-shl-cr 3 tmp)
+	(assign `((,rp +array_begin) (,ip +array_begin)) `(,rp ,ip))
+	(vp-add-rr tmp rp)
+	(vp-add-rr tmp ip)
+	(assign '((:rsp 104) (:rsp 96) (:rsp 88) (:rsp 80) (:rsp 72) (:rsp 64)) `(,hrp ,hip ,atb ,gp ,qp ,qtp))
+	(assign `((,hrp +array_begin) (,hip +array_begin) (,gp +array_begin) (,qp +array_begin) (,qtp +array_begin))
+		`(,hrp ,hip ,gp ,qp ,qtp))
+	(vp-shl-cr 3 atb)
+	(assign '((:rsp 48) (:rsp 40) (:rsp 32) (:rsp 8)) `(,nrep ,nimp ,tmp ,altp))
+	(vp-shl-cr 3 tmp)
+	(assign `((,nrep +array_begin) (,nimp +array_begin) (,altp +array_begin)) `(,nrep ,nimp ,altp))
+	(vp-add-rr tmp nrep)
+	(vp-add-rr tmp nimp)
+	(assign '((:rsp 24)) `(,tmp))
+	(vp-cpy-if tmp +num_value :f10)
+	(assign '((:rsp 16)) `(,tmp))
+	(vp-cpy-if tmp +num_value :f11)
+	(assign '((:rsp 0)) `(,mode))
+
+	(vpif `(,cnt /= 0))
+		(loop-start)
+			;the high band by the gain, re and im
+			(assign `((,hrp 0)) `(,tmp))
+			(assign `((,tmp +array_begin)) `(,tmp))
+			(vp-add-rr atb tmp)
+			(vp-cpy-if tmp 0 :f0)
+			(vp-cpy-if gp 0 :f1)
+			(vp-mul-ff :f1 :f0)
+			(assign `((,hip 0)) `(,tmp))
+			(assign `((,tmp +array_begin)) `(,tmp))
+			(vp-add-rr atb tmp)
+			(vp-cpy-if tmp 0 :f6)
+			(vp-mul-ff :f1 :f6)
+			(vp-cpy-if smp 0 :f5)
+			(vpif `(,mode = 0))
+				;the noise and the sinusoid
+				(vp-cpy-if qp 0 :f2)
+				(vp-cpy-if qtp 0 :f3)
+				(vp-mul-ff :f3 :f2)
+				(vp-cpy-if nrep 0 :f4)
+				(vp-mul-ff :f2 :f4)
+				(vp-add-ff :f4 :f0)
+				(vp-cpy-ff :f5 :f8)
+				(vp-mul-ff :f10 :f5)
+				(vp-add-ff :f5 :f0)
+				(vp-cpy-if nimp 0 :f7)
+				(vp-mul-ff :f2 :f7)
+				(vp-add-ff :f7 :f6)
+				(vp-cpy-if altp 0 :f9)
+				(vp-mul-ff :f9 :f8)
+				(vp-mul-ff :f11 :f8)
+				(vp-add-ff :f8 :f6)
+			(elseif `(,mode = 1))
+				;a transient, the sinusoid on re
+				(vp-mul-ff :f10 :f5)
+				(vp-add-ff :f5 :f0)
+			(else)
+				;a transient, the sinusoid on im
+				(vp-cpy-if altp 0 :f9)
+				(vp-mul-ff :f9 :f5)
+				(vp-mul-ff :f10 :f5)
+				(vp-add-ff :f5 :f6)
+			(endif)
+			(vp-cpy-fi :f0 rp 0)
+			(vp-cpy-fi :f6 ip 0)
+			(vp-add-cr +long_size rp)
+			(vp-add-cr +long_size ip)
+			(vp-add-cr +ptr_size hrp)
+			(vp-add-cr +ptr_size hip)
+			(vp-add-cr +long_size gp)
+			(vp-add-cr +long_size qp)
+			(vp-add-cr +long_size qtp)
+			(vp-add-cr +long_size smp)
+			(vp-add-cr +long_size nrep)
+			(vp-add-cr +long_size nimp)
+			(vp-add-cr +long_size altp)
+			(vp-sub-cr 1 cnt)
+		(loop-until `(,cnt = 0))
+	(endif)
+
+	(assign '((:rsp 128)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-free (* 17 +ptr_size))
+	(vp-pop :r0)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(media-sbr-slot r i kx hr hi at g q quiet sm nre nim from cr ci alt mode)" +error_msg_wrong_types))
+	(signature '(:reals :reals :num :list :list :num :reals :reals :reals :reals :reals :reals :num :real :real :reals :num)))
+
+(def-func-end)
+
 (def-func (path-to-absolute "./media_sbr_predict"))
 	;inputs
 	;:r0 = lisp object (ptr)
