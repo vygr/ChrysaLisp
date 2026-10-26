@@ -370,6 +370,13 @@
 	; (script-compile form)
 	(vpx-form %0))
 
+(defun script-value (%0)
+	; (script-value form)
+	;a source compiled and read: a variable is left as its address till it
+	;is read, and a destination before it is assigned may be that variable
+	(vpx-form %0)
+	(top-value))
+
 ;the operators, by the token each is in the reverse polish. The two numbers
 ;were its precedence and which side it bound to, for text
 (scope-new)
@@ -426,7 +433,7 @@
 
 ;module
 (export-symbols
-	'(vpx-form vpx vpx? script? script-items script-ignored? script-compile
+	'(vpx-form vpx vpx? script? script-items script-ignored? script-compile script-value
 	reset-reg-stack def-reg-map
 	compile-deref? compile-arrow))
 (env-pop)

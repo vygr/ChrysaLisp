@@ -193,7 +193,13 @@
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)
-		(each (const script-compile) src)
+		;a variable source is left as its address, read when its destination
+		;is assigned, after the destinations right of it. One that is one of
+		;those is read now, (assign (vpx a (+ a b)) (vpx p a)) gave p the new a
+		(each (lambda (s)
+				(if (find (str s) (map! (const str) (list dst) (inc (!))))
+					(script-value s) (script-compile s)))
+			src)
 		(reach (# (script-compile %0) (compile-arrow)) dst)
 		(when *build_inst*
 			(print "pre opt:")
