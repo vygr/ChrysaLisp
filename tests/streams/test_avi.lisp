@@ -78,8 +78,12 @@
 (bind '(av_ac3 av_ac3_sound) (av-left "divx_ac3"))
 (assert-list-eq "AC-3, of 1536 a frame" '(48000 32 49152) (list (. av_ac3_sound :find :rate) (. (. av_ac3_sound :find :track) :find :samples) (length av_ac3)))
 
-;Motion JPEG by lib/image/jpg.inc, a picture of each frame on the codec's canvas
-(defq av_codec (avi-codec av_pcm))
+;Motion JPEG by lib/image/jpg.inc, a picture of each frame on the codec's
+;canvas. avi-codec takes the host's first, where it has one, VA-API's
+(defq av_any (avi-codec av_pcm))
+(assert-true "a codec for Motion JPEG, the host's or ours" (and av_any (avi-frame av_any 0)))
+(if av_any (avi-close av_any))
+(defq av_codec (avi-mjpeg-codec av_pcm))
 (assert-true "a codec of our own for Motion JPEG" (and av_codec (. av_codec :find :mjpeg)))
 (when av_codec
 	(defun av-pixels (canvas)

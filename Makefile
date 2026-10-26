@@ -201,6 +201,11 @@ inst:
 ifeq ($(OS),Darwin)
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT): LDFLAGS += -framework VideoToolbox -framework CoreMedia -framework CoreVideo -framework CoreFoundation
 endif
+#and on Linux VA-API's, if libva-dev was there to build it, its libva found
+#as it is wanted by dlopen, of libc since glibc 2.34 and of libdl before
+ifeq ($(OS),Linux)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT): LDFLAGS += -ldl
+endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT):	$(OBJ_FILES_CORE_GUI) $(OBJ_FILES_DRIVERS_GUI) $(GUI_DRIVER)
 	$(CXX) -o $@ $(filter %.o,$^) $(SDL_LIBS) $(LDFLAGS)

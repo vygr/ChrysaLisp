@@ -137,6 +137,13 @@ older Mac or Pi, and for what each gives you.
 
   * Or SDL2: `sudo apt-get install libsdl2-dev libsdl2-mixer-dev`
 
+  * Optional, films decoded by the PC's graphics hardware, VA-API:
+    `sudo apt-get install libva-dev` to build it, and a driver to run it,
+    `intel-media-va-driver` (Intel Broadwell and later), `i965-va-driver`
+    (older Intel) or `mesa-va-drivers` (AMD). `vainfo`, of the package of
+    that name, shows what a machine can decode. Without them Films is as it
+    was, see `docs/intro/intro.md`.
+
 * **Windows**:
 
   * Nothing to install, `install.bat` fetches `SDL3.dll`.
