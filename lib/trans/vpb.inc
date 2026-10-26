@@ -9,7 +9,7 @@
 ; zigzag, 0 -1 1 -2 2 ... as 0 1 2 3 4 ...
 ;
 ;	reg			a byte, :r0 to :rsp 0 to 15, :f0 to :f15 16 to 31
-;	num			signed
+;	num			signed, a num of 64 bits
 ;	label		its number: where it is
 ;	label_pc	its number: where it is less where this instruction is
 ;	label_diff	two numbers: where the first is less where the second is
@@ -18,7 +18,9 @@
 ;	name		a keyword that is not a register, the class and method a
 ;				call-i names, its length and its bytes
 ;
-; Labels are numbered from 0 in the order they are first seen.
+; Labels are numbered from 0 in the order they are first seen. There is
+; no other operand: not a fixed, a real, nor a form still to be worked
+; out, docs/vm/vp_vm.md, A bundle of VP.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "././asm/regs.inc")
@@ -67,7 +69,7 @@
 							(write-char body (list +vpb_reg r)))
 						((defq r (vp-freg? o))
 							(write-char body (list +vpb_reg (+ 16 r))))
-						((num? o)
+						((num?? o)
 							(write-char body +vpb_num)
 							(vpb-int body o))
 						((and (sym? o) (starts-with ":" o))
@@ -97,11 +99,8 @@
 									(vpb-uint body (label (second o)))
 									(vpb-uint body (label (third o))))
 								((throw "VP binary: no such operand !" o))))
-						;a constant still to be worked out, as the compile can give
-						;it, (+ 24 1), the number it comes to
-						((num? (defq v (eval o)))
-							(write-char body +vpb_num)
-							(vpb-int body v))
+						;a fixed, a real, a form still to be worked out, not VP,
+						;docs/vm/vp_vm.md
 						((throw "VP binary: no such operand !" o))))
 				(list inst) 1)
 			(setq insts (inc insts)))
@@ -117,12 +116,14 @@
 (defun vpb-encode (entry)
 	; (vpb-encode entry) -> str
 	;the VP binary of a bundle's entry, (name (progn inst ...) ...). Its
-	;instructions by the encoder in VP, and by (vpb-encode-lisp) when that
-	;is not built yet, or the entry has what it can not do
-	(defq body (string-stream (cat ""))
-		counts (if +vpb_encoder (+vpb_encoder entry body +vpb_ops_env +vpb_regs_env (env 31) 'quote '- '*pc*)))
-	(ifn counts (vpb-encode-lisp entry)
-		(defq out (string-stream (cat "")) name (first entry))
+	;instructions by the encoder in VP, and by (vpb-encode-lisp) only when
+	;that is not built yet. An operand it does not know, a form that is not
+	;a number nor a label's, is an error of the source that made it
+	(ifn +vpb_encoder (vpb-encode-lisp entry)
+		(defq body (string-stream (cat "")) name (first entry))
+		(unless (defq counts (+vpb_encoder entry body +vpb_ops_env +vpb_regs_env (env 31) 'quote '- '*pc*))
+			(throw "VP binary: an op or operand the encoder does not know !" name))
+		(defq out (string-stream (cat "")))
 		(vpb-uint out (length name))
 		(write-blk out name)
 		(vpb-uint out (>> counts 32))

@@ -471,9 +471,9 @@
 	;where across a pixel each of its 8 scan lines is sampled, less the
 	;half that (:set_edges) put on. They are the middles of eighths, the
 	;0.0625 more, so an edge on a whole number, or a hair off one, has
-	;every sample of a pixel to the same side of it
-	(apply (const vp-int) (map (lambda (o)
-		(- o 0.4375)) '(0.25 0.875 0.5 0.125 0.75 0.375 0.0 0.625)))
+	;every sample of a pixel to the same side of it. 16.16 fixed, 0.25 0.875
+	;0.5 0.125 0.75 0.375 0.0 0.625 less 0.4375
+	(vp-int -12288 28672 4096 -20480 20480 -4096 -28672 12288)
 
 (vp-label 'mask_to_coverage)
 	(apply (const vp-byte) (map (lambda (m)

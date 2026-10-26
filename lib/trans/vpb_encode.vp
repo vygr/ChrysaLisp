@@ -7,10 +7,10 @@
 (include "./vpb_trans.inc")
 
 ;The VP binary of a function, lib/trans/vpb.inc, the instructions of it,
-;in VP: what the Lisp (vpb-encode) does for every function of a build,
-;which took more than translating them all. What it can not do, a
-;constant still to be worked out, a number that is not a num, it gives
-;:nil for, and the Lisp does that function.
+;in VP: the Lisp (vpb-encode-lisp) took longer than translating them all,
+;and is only for a tree that has not built this yet. An op or operand it
+;does not know, a form left that is not a num nor a label's, a fixed, it
+;gives :nil for, and (vpb-encode) says so: the source is to give numbers.
 
 (defun enc-char (form)
 	;a byte to the stream, form a vpx expression
@@ -54,7 +54,7 @@
 	;VP binary to the stream. ops has each op's number, regs each
 	;register's, 0 to 31, labels is empty and has the labels' after. The
 	;labels and the instructions, (+ (<< labels 32) insts), or :nil for one
-	;it can not do, the stream then part written
+	;it does not know, the stream then part written
 
 	(def-vars
 		(ptr this args entry stream ops regs labels sym_quote sym_minus sym_pc)
