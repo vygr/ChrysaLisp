@@ -67,5 +67,5 @@
 
 ;module
 (export-symbols '(emit-translate vp-translate-save vp-translate-bin vp-translate-file trans-name
-	vpb-encode vpb-encode-lisp vpb-decode vpb-bundle vpb-unbundle vpb-name))
+	vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))
 (env-pop)

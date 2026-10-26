@@ -16,8 +16,9 @@
 ;before it has built anything:
 ;the kernel and Lisp, in these folders, and these few besides, the font,
 ;pixmap and path classes Lisp's boot asks for, the crypto a machine's key is
-;made with and the Net service's sockets, and the translators to each CPU,
-;so an install translates with them. What they call comes in with them
+;made with and the Net service's sockets, and the translators to each CPU
+;and the encoder of VP binary, so an install encodes and translates with
+;them. What they call comes in with them
 (defq +boot_folders ''("sys/" "class/")
 	+boot_extras ''(gui/font/flush gui/path/create gui/path/type gui/path/vtable
 		gui/pixmap/as_argb gui/pixmap/deinit gui/pixmap/from_argb32 gui/pixmap/lisp_as_argb
@@ -28,7 +29,8 @@
 		service/net/lisp_accept service/net/lisp_close service/net/lisp_connect service/net/lisp_listen
 		service/net/lisp_poll service/net/lisp_recv service/net/lisp_send
 		lib/trans/vpb_arm64 lib/trans/vpb_la64 lib/trans/vpb_riscv64
-		lib/trans/vpb_vp64 lib/trans/vpb_x86_64_amd64 lib/trans/vpb_x86_64_win64))
+		lib/trans/vpb_vp64 lib/trans/vpb_x86_64_amd64 lib/trans/vpb_x86_64_win64
+		lib/trans/vpb_encode))
 
 (defun boot-funcs (funcs &optional all)
 	; (boot-funcs funcs [all]) -> funcs

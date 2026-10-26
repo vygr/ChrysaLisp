@@ -7,10 +7,10 @@
 (include "./vpb_trans.inc")
 
 ;The VP binary of a function, lib/trans/vpb.inc, the instructions of it,
-;in VP: the Lisp (vpb-encode-lisp) took longer than translating them all,
-;and is only for a tree that has not built this yet. An op or operand it
-;does not know, a form left that is not a num nor a label's, a fixed, it
-;gives :nil for, and (vpb-encode) says so: the source is to give numbers.
+;in VP. The VP64 boot image carries it, so an install encodes with it. An
+;op or operand it does not know, a form left that is not a num nor a
+;label's, a fixed, it gives :nil for, and (vpb-encode) says so: the source
+;is to give numbers, docs/vm/vp_vm.md.
 
 (defun enc-char (form)
 	;a byte to the stream, form a vpx expression

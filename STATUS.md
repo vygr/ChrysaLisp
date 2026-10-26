@@ -23,6 +23,8 @@ The release check for 7.3, every stage passes on every machine.
 
 ------
 
+**The VP64 image carries the VP binary encoder, and the Lisp one is gone; a new snapshot.zip, 166KB, so an install encodes with it.**
+
 **VP operands are only registers, nums, labels, label distances, strings and names: no fixed, real or form left to work out, docs/vm/vp_vm.md. The encoder refuses anything else and the build stops; the Lisp encoder is only for a tree that has not built the VP one. A fused vpx assign whose source is one of the destinations stored before it reads it first.**
 
 **The VP binary encoder is VP, lib/trans/vpb_encode.vp: every function of the system encoded in 6 ms, the Lisp took 93, more than translating them all. `make test` 53 to 57 ms, was 66 to 68, and 58 to 60 before the translators were VP.**

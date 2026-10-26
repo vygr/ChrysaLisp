@@ -26,6 +26,7 @@
 (import "././asm/regs.inc")
 (import "././asm/ops.inc")
 (import "./vpb_ops.inc")
+(import "././boot/image.inc")
 
 ;module
 (env-push)
@@ -33,10 +34,11 @@
 (enums +vpb 0
 	(enum reg num label label_pc label_diff string name pc_label))
 
-(defq +vpb_ops (reduce (# (. %0 :insert %1 (!))) +vpb_all_ops (Fmap 101))
-	;the encoder in VP, lib/trans/vpb_encode.vp, once it is built, with its
-	;maps: each op's number and each register's, 0 to 31
-	+vpb_encoder (if (> (age (cat (load-path) "lib/trans/vpb_encode")) 0) (ffi "lib/trans/vpb_encode"))
+;the encoder, lib/trans/vpb_encode.vp, of its file or of the boot image,
+;the VP64 one carries it so an install encodes with it, and its maps:
+;each op's number and each register's, 0 to 31
+(defq +vpb_encoder (if (or (> (age (cat (load-path) "lib/trans/vpb_encode")) 0) (image-has? "lib/trans/vpb_encode"))
+		(ffi "lib/trans/vpb_encode"))
 	+vpb_ops_env (reduce (# (def %0 %1 (!)) %0) +vpb_all_ops (env 101))
 	+vpb_regs_env (reduce (# (def %0 %1 (!)) %0) (cat +vp_rregs +vp_fregs) (env 31)))
 
@@ -47,89 +49,22 @@
 		(setq n (>> n 7)))
 	(write-char out n))
 
-(defun vpb-int (out n) (vpb-uint out (logxor (<< n 1) (>>> n 63))))
-
-(defun vpb-encode-lisp (entry)
-	; (vpb-encode-lisp entry) -> str
-	;the VP binary of a bundle's entry, (name (progn inst ...) ...)
-	(defq body (string-stream (cat "")) labels (Fmap 101) nlabels 0 insts 0
-		label (lambda (l)
-			(unless (defq i (. labels :find l))
-				(. labels :insert l (setq i nlabels))
-				(setq nlabels (inc nlabels)))
-			i))
-	(each! (lambda (inst)
-			(unless (defq op (. +vpb_ops :find (first inst)))
-				(throw "VP binary: no such op !" inst))
-			(write-char body op)
-			(vpb-uint body (dec (length inst)))
-			(each! (lambda (o)
-					(cond
-						((defq r (vp-rreg? o))
-							(write-char body (list +vpb_reg r)))
-						((defq r (vp-freg? o))
-							(write-char body (list +vpb_reg (+ 16 r))))
-						((num?? o)
-							(write-char body +vpb_num)
-							(vpb-int body o))
-						((and (sym? o) (starts-with ":" o))
-							(write-char body +vpb_name)
-							(vpb-uint body (length o))
-							(write-blk body o))
-						((sym? o)
-							(write-char body +vpb_label)
-							(vpb-uint body (label o)))
-						((str? o)
-							(write-char body +vpb_string)
-							(vpb-uint body (length o))
-							(write-blk body o))
-						((and (list? o) (eql (first o) 'quote) (sym? (second o)))
-							(write-char body +vpb_label)
-							(vpb-uint body (label (second o))))
-						((and (list? o) (= (length o) 3) (eql (first o) '-) (eql (second o) '*pc*) (sym? (third o)))
-							(write-char body +vpb_pc_label)
-							(vpb-uint body (label (third o))))
-						((and (list? o) (= (length o) 3) (eql (first o) '-) (sym? (second o)))
-							(cond
-								((eql (third o) '*pc*)
-									(write-char body +vpb_label_pc)
-									(vpb-uint body (label (second o))))
-								((sym? (third o))
-									(write-char body +vpb_label_diff)
-									(vpb-uint body (label (second o)))
-									(vpb-uint body (label (third o))))
-								((throw "VP binary: no such operand !" o))))
-						;a fixed, a real, a form still to be worked out, not VP,
-						;docs/vm/vp_vm.md
-						((throw "VP binary: no such operand !" o))))
-				(list inst) 1)
-			(setq insts (inc insts)))
-		(list (second entry)) 1)
-	(defq out (string-stream (cat "")) name (first entry))
-	(vpb-uint out (length name))
-	(write-blk out name)
-	(vpb-uint out nlabels)
-	(vpb-uint out insts)
-	(write-blk out (str body))
-	(str out))
-
 (defun vpb-encode (entry)
 	; (vpb-encode entry) -> str
-	;the VP binary of a bundle's entry, (name (progn inst ...) ...). Its
-	;instructions by the encoder in VP, and by (vpb-encode-lisp) only when
-	;that is not built yet. An operand it does not know, a form that is not
-	;a number nor a label's, is an error of the source that made it
-	(ifn +vpb_encoder (vpb-encode-lisp entry)
-		(defq body (string-stream (cat "")) name (first entry))
-		(unless (defq counts (+vpb_encoder entry body +vpb_ops_env +vpb_regs_env (env 31) 'quote '- '*pc*))
-			(throw "VP binary: an op or operand the encoder does not know !" name))
-		(defq out (string-stream (cat "")))
-		(vpb-uint out (length name))
-		(write-blk out name)
-		(vpb-uint out (>> counts 32))
-		(vpb-uint out (logand counts 0xffffffff))
-		(write-blk out (str body))
-		(str out)))
+	;the VP binary of a bundle's entry, (name (progn inst ...) ...), its
+	;instructions by the encoder. An op or operand it does not know, a form
+	;that is not a num nor a label's, is an error of the source that made it
+	(unless +vpb_encoder (throw "No VP binary encoder here, make install makes it !" (first entry)))
+	(defq body (string-stream (cat "")) name (first entry))
+	(unless (defq counts (+vpb_encoder entry body +vpb_ops_env +vpb_regs_env (env 31) 'quote '- '*pc*))
+		(throw "VP binary: an op or operand the encoder does not know !" name))
+	(defq out (string-stream (cat "")))
+	(vpb-uint out (length name))
+	(write-blk out name)
+	(vpb-uint out (>> counts 32))
+	(vpb-uint out (logand counts 0xffffffff))
+	(write-blk out (str body))
+	(str out))
 
 (defun vpb-decode (data)
 	; (vpb-decode str) -> (name (progn inst ...))
@@ -190,5 +125,5 @@
 	(slice bin at (+ at n)))
 
 ;module
-(export-symbols '(vpb-encode vpb-encode-lisp vpb-decode vpb-bundle vpb-unbundle vpb-name))
+(export-symbols '(vpb-encode vpb-decode vpb-bundle vpb-unbundle vpb-name))
 (env-pop)
