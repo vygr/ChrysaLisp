@@ -73,6 +73,16 @@ on the queue, and its child is started again.
 the next job on the queue to that child, if there is one
 ```
 
+### :heard
+
+```code
+(. jobs :heard job) -> jobs
+
+the child that has this job has been heard from: its time
+starts again, so it is started again only when it has said
+nothing for the timeout, not when it is slow
+```
+
 ### :job
 
 ```code

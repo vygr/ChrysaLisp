@@ -300,5 +300,18 @@
 (each (# (pii-remove (cat sy_git %0))) '("/.git/HEAD" "/waypoint" "/kept.txt"))
 (each (# (pii-remove (cat sy_dst %0))) '("/waypoint" "/kept.txt"))
 
+;a file changed again in the second its hash was taken, to the same size,
+;has the same time and size: the hash kept is not trusted, and when it is
+;asked for again, seconds later, it is of what is there now
+(defq sy_kept "tests/scratch/sync_kept")
+(save "old" (cat sy_src "/same.txt"))
+(sync-list sy_src (sync-rules "") sy_kept)
+(save "new" (cat sy_src "/same.txt"))
+(task-sleep 3000000)
+(assert-eq "a file changed in the second it was hashed is hashed again"
+	(hex-encode (sha256 "new"))
+	(third (some (# (if (eql (first %0) "same.txt") %0)) (sync-list sy_src (sync-rules "") sy_kept))))
+(pii-remove sy_kept) (pii-remove (cat sy_src "/same.txt"))
+
 (sy-clear sy_src) (sy-clear sy_dst)
-(undef (env) 'sy_rt 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_svc 'sy_res 'sy_mbox 'sy_out)
+(undef (env) 'sy_kept 'sy_rt 'sy_git 'sy_me 'sy_far 'sy_rules 'sy_top 'sy_old 'sy_old_svc 'sy_src 'sy_dst 'sy_name 'sy_big 'sy_text 'sy_svc 'sy_res 'sy_mbox 'sy_out)

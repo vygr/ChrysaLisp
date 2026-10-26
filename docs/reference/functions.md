@@ -7629,7 +7629,10 @@ new worker, and so is one whose node has gone. A job that has been
 given out three times with no answer stops the farm, and it and any
 that are still out have no result. With told the farm says how it
 goes as it goes, (told :start job) and (told :done job result), see
-(Monitored), and (told :tick) each second, so it can say what is late
+(Monitored), and (told :tick) each second, so it can say what is late:
+what that gives back, a list of the jobs heard from since, has its
+time start again, so a job is given again when its worker has said
+nothing for retry_timeout, not when it is slow
 ```
 
 ### pipe-run
