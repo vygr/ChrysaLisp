@@ -101,15 +101,24 @@
 	files)
 
 ;the names a file that is not a class.inc defines at the start of a line,
-;none if it defines them some other way, a struct say
+;none if it defines them some other way, a struct say. An (enums) or a
+;(bits) at the start of a line defines its name and _size, and its name
+;and _ and each word of its (enum) or (bit) lines
 (defun defines-of (file)
-	(defq names (list))
+	(defq names (list) prefix :nil)
 	(with-read-lock file
 		(when (defq in_s (file-stream file))
-			(lines! (# (defq input (split %0 +split_class))
-					(and (starts-with "(" %0) (second input)
-						(find (first input) '("defun" "defmacro" "defq" "defcvar"))
-						(push names (second input)))
+			(lines! (lambda (line)
+					(defq input (split line +split_class))
+					(when (and (starts-with "(" line) (second input))
+						(setq prefix :nil)
+						(cond
+							((find (first input) '("defun" "defmacro" "defq" "defcvar"))
+								(push names (second input)))
+							((find (first input) '("enums" "bits"))
+								(push names (cat (setq prefix (second input)) "_size")))))
+					(and prefix (defq i (some (# (if (find %0 '("enum" "bit")) (!))) input))
+						(each! (lambda (word) (push names (cat prefix "_" word))) (list input) (inc i)))
 					:nil)
 				in_s)))
 	names)
