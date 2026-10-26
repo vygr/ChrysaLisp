@@ -128,3 +128,22 @@ by the tasks there are, not counted, so a task that went any way at
 all, its server is let go of
 ```
 
+### :vp_find -> sys/load/vp_find
+
+```code
+inputs
+:r0 = c string function name (pubyte)
+outputs
+:r0 = 0, else the bundle it is in, to free (ptr)
+:r1 = its VP binary (pubyte)
+:r2 = its VP binary length (uint)
+trashes
+:r0-:r14, :f0-:f15
+info
+the VP binary of a function, from the binary bundles of its folder in
+obj/vp/<mode>/, of the mode the image is made in, as @Source finds
+it. A build makes the VP once, for every CPU. Each bundle is its
+functions' VP binary, each after its length, and each begins with the
+length of its name and the name
+```
+

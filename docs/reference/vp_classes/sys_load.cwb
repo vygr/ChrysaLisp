@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 176
-	:height 327
+	:height 276
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 22
+	:next_id 23
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 19)
+					((:list 20)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 293 A 8 8 0 0 1 142 301 L 8 301 A 8 8 0 0 1 0 293 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 142 0 A 8 8 0 0 1 150 8 L 150 242 A 8 8 0 0 1 142 250 L 8 250 A 8 8 0 0 1 0 242 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -241,8 +241,8 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								170.00000
+								62.59375
+								85.00000
 							)
 						)
 						((:list 15)
@@ -261,8 +261,8 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								187.00000
+								62.59375
+								102.00000
 							)
 						)
 						((:list 15)
@@ -281,16 +281,36 @@
 							12
 							:pos
 							((:list 2)
-								12.00000
-								204.00000
+								62.59375
+								119.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							17
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[:vp_find]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								62.59375
+								136.00000
 							)
 						)
 						((:list 13)
 							:shape
 							:id
-							17
+							18
 							:d
-							"[M 0 218 L 150 218]"
+							"[M 0 167 L 150 167]"
 							:stroke
 							4282140240
 							:width
@@ -303,7 +323,7 @@
 						((:list 17)
 							:shape
 							:id
-							18
+							19
 							:kind
 							:text
 							:fill
@@ -319,27 +339,7 @@
 							:pos
 							((:list 2)
 								12.00000
-								234.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							19
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[load-path]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								253.00000
+								183.00000
 							)
 						)
 						((:list 15)
@@ -353,13 +353,13 @@
 							:stroke
 							0
 							:text
-							"[task-place]"
+							"[load-path]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								270.00000
+								202.00000
 							)
 						)
 						((:list 15)
@@ -373,13 +373,33 @@
 							:stroke
 							0
 							:text
+							"[task-place]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								219.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							22
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
 							"[task-server]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
-								287.00000
+								236.00000
 							)
 						)
 					)
