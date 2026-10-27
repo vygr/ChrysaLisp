@@ -348,7 +348,80 @@
 
 ;a film of Matroska or WebM, its tracks as an mp4's, played by this codec
 (import "./mkv.inc")
-(each (# (reel-kind %0 mkv-reel mp4-packet mp4-codec mp4-frame mp4-close)) '(".mkv" ".webm"))
+
+(defun mkv-codec (reel &optional scale)
+	; (mkv-codec reel [scale]) -> :nil | codec
+	;the host's decoder of the pictures of a reel read as it is played, on
+	;a canvas of its own, as an mp4's is, lib/media/mp4.inc: :fed is the
+	;place of the packet it is to be given next, (cluster index)
+	(and (defq video (. reel :find :video) config (. video :find :config)
+			setup (some (# (if (find (first %0) '("avcC" "hvcC" "setup")) (second %0))) config))
+		(defq native (ffi "service/gui/lisp_video")
+			handle (native 0 (code-be (. reel :find :codec) 4 0) setup 0))
+		(/= handle 0)
+		(defq scale (ifn scale 1))
+		(scatter (Emap) :native native :handle handle :setup setup :reel reel :fed :nil :at -1 :lazy :t
+			:which (some (# (if (eql %0 video) (!))) (. reel :find :tracks))
+			:canvas (Canvas (/ (. reel :find :width) scale) (/ (. reel :find :height) scale) scale) :scale scale)))
+
+(defun mkv-feed (codec n)
+	;packets given the host till the picture shown nth is out: from the key
+	;before it, or on from where it was given to if that is no further back
+	;than the key and the film goes on. Each is had by its Cluster, read as
+	;it is come to, (mkv-cluster-at)
+	(defq reel (. codec :find :reel) which (. codec :find :which) native (. codec :find :native)
+		pixmap (getf (. codec :find :canvas) +canvas_pixmap 0) stream (. reel :find :stream))
+	(when (defq found (mkv-locate reel which n))
+		(bind '(chain index place) found)
+		(defq frames (elem-get (third (elem-get chain index)) which) target (list (first (elem-get chain index)) place)
+			shown (elem-get (. frames :find :shown) place) key (list (first (first chain)) 0) fed (. codec :find :fed))
+		;the key last before it as they are decoded, in the Clusters to its own
+		(each (lambda ((at end tracks))
+				(each (# (unless (mkv-before? target (list at %0)) (setq key (list at %0))))
+					(. (elem-get tracks which) :find :keys)))
+			chain)
+		(when (or (not fed) (< n (. codec :find :at)) (mkv-before? fed key))
+			(native 3 (. codec :find :handle) "" 0)
+			(. codec :insert :handle (native 0 (code-be (. reel :find :codec) 4 0) (. codec :find :setup) 0))
+			(setq fed key))
+		;a picture is out a few packets after its own at most
+		(defq got -1 past 0 more :t)
+		(while (and (< (setq got (native 2 (. codec :find :handle) pixmap shown)) 0) more (< past 32))
+			(cond
+				((not (defq cluster (mkv-cluster-at reel (first fed)))) (setq more :nil))
+				((< (second fed) (length (defq offsets (. (defq own (elem-get (second cluster) which)) :find :offsets))))
+					(stream-seek stream (elem-get offsets (second fed)) 0)
+					(native 1 (. codec :find :handle) (read-blk stream (elem-get (. own :find :sizes) (second fed)))
+						(elem-get (. own :find :shown) (second fed)))
+					(unless (mkv-before? fed target) (++ past))
+					(setq fed (list (first fed) (inc (second fed)))))
+				;on to the next Cluster, if the next of the top is one
+				((setq fed (list (first cluster) 0)))))
+		;the end of the film: the host holds the last pictures back till it is said
+		(and (< got 0) (not more)
+			(progn (native 1 (. codec :find :handle) "" 0) (native 2 (. codec :find :handle) pixmap shown)))
+		(scatter codec :fed fed :at n)))
+
+(defun mkv-frame (codec n)
+	; (mkv-frame codec n) -> :nil | canvas
+	;the picture shown nth on the canvas, as it is if it is there already
+	(unless (= n (. codec :find :at)) (mkv-feed codec n))
+	(. codec :find :canvas))
+
+
+(defun mkv-any-codec (reel &optional scale)
+	; (mkv-any-codec reel [scale]) -> :nil | codec
+	;of a reel read as it is played, (mkv-reel), the codec that finds each
+	;frame's Cluster as it is wanted, else this file's
+	(if (. reel :find :lazy)
+		(if (defq codec (mkv-codec reel scale)) (scatter codec :rescale (const mp4-rescale)))
+		(mp4-codec reel scale)))
+
+(defun mkv-any-frame (codec n)
+	; (mkv-any-frame codec n) -> :nil | canvas
+	(if (. codec :find :lazy) (mkv-frame codec n) (mp4-frame codec n)))
+
+(each (# (reel-kind %0 mkv-reel mp4-packet mkv-any-codec mkv-any-frame mp4-close)) '(".mkv" ".webm"))
 
 ;a film of AVI, its tracks as an mp4's: its pictures by the host's codec,
 ;or of Motion JPEG by lib/image/jpg.inc's, lib/media/avi.inc

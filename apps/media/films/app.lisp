@@ -30,10 +30,13 @@
 	;when frame n is shown, of a film of an mp4, its time less where its
 	;edit list starts it, else by the rate, frames of an MP3 are evenly
 	;spaced
-	(if (defq video (. *reel* :find :video))
-		(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
-			(n2f (. video :find :timescale)))
-		(/ (n2f n) (. *reel* :find :rate))))
+	(cond
+		;a reel that knows its frames' times itself, one read as it is played
+		((defq time_of (. *reel* :find :frame_time)) (time_of *reel* n))
+		((defq video (. *reel* :find :video))
+			(/ (n2f (- (elem-get (. *reel* :find :shown) (elem-get (. *codec* :find :order) n)) (. *reel* :find :start)))
+				(n2f (. video :find :timescale))))
+		((/ (n2f n) (. *reel* :find :rate)))))
 
 (defun frame-at (time)
 	; (frame-at seconds) -> n

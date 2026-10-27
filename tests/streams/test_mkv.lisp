@@ -21,7 +21,7 @@
 (assert-eq "25 a second, by the times" 25 (n2i (+ (. mk_reel :find :rate) 0.5)))
 (assert-list-eq "the sound's codec, rate and channels" '("mp4a" 48000 2)
 	(list (. mk_sound :find :codec) (. mk_sound :find :sample_rate) (. mk_sound :find :channels)))
-(assert-eq "48 packets of sound" 48 (. mk_sound :find :samples))
+(assert-eq "48 packets of sound" 48 (length (. mk_sound :find :offsets)))
 (assert-eq "the sound's bytes" 11977 (reduce (const +) (. mk_sound :find :sizes) 0))
 (assert-list-eq "AAC-LC by its CodecPrivate, the AudioSpecificConfig alone" '(2 3 48000 2 :nil :nil) (aac-track-config mk_sound))
 ;each packet of sound read where the track says, and decoded
@@ -53,3 +53,16 @@
 (assert-list-eq "the first frames where they are when all is read"
 	(slice (. mk_reel :find :offsets) 0 (. mk_few :find :frames)) (. mk_few :find :offsets))
 (assert-eq "read whole, it is not partial" :nil (. mk_reel :find :partial))
+
+;its Cues say where its keys are, and its frames are each of one length:
+;it is read as it is played, the Cluster of a frame found by its time
+(assert-true "read as it is played, it has Cues" (. mk_reel :find :lazy))
+(assert-eq "its packets of sound by its Duration, the last cut by it" 47 (. mk_sound :find :samples))
+(defq mk_stream (. mk_reel :find :stream))
+(assert-eq "a packet of sound had by its time is the one there"
+	(progn (stream-seek mk_stream (elem-get (. mk_sound :find :offsets) 10) 0) (read-blk mk_stream (elem-get (. mk_sound :find :sizes) 10)))
+	(mkv-track-packet mk_reel mk_sound 10))
+(assert-true "a frame's time by its number, 25 a second" (< (abs (- (mkv-frame-time mk_reel 10) 0.4)) 0.002))
+(defq mk_at (mkv-locate mk_reel (some (# (if (eql %0 mk_video) (!))) (. mk_reel :find :tracks)) 3))
+(assert-eq "a frame is found in its Cluster by its time, 40 ms a frame" 120
+	(elem-get (. (elem-get (third (elem-get (first mk_at) (second mk_at))) 0) :find :shown) (third mk_at)))

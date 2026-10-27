@@ -25,7 +25,12 @@
 	+mkv_tracks 0x1654ae6b +mkv_entry 0xae +mkv_number 0xd7 +mkv_type 0x83 +mkv_codec 0x86
 	+mkv_private 0x63a2 +mkv_duration 0x23e383 +mkv_video 0xe0 +mkv_width 0xb0 +mkv_height 0xba
 	+mkv_audio 0xe1 +mkv_rate 0xb5 +mkv_channels 0x9f +mkv_delay 0x56aa
-	+mkv_cluster 0x1f43b675 +mkv_time 0xe7 +mkv_simple 0xa3 +mkv_group 0xa0 +mkv_block 0xa1 +mkv_reference 0xfb)
+	+mkv_cluster 0x1f43b675 +mkv_time 0xe7 +mkv_simple 0xa3 +mkv_group 0xa0 +mkv_block 0xa1 +mkv_reference 0xfb
+	+mkv_length 0x4489 +mkv_seekhead 0x114d9b74 +mkv_seek 0x4dbb +mkv_seek_id 0x53ab +mkv_seek_pos 0x53ac
+	+mkv_cues 0x1c53bb6b +mkv_cue 0xbb +mkv_cue_time 0xb3 +mkv_cue_place 0xb7 +mkv_cue_track 0xf7
+	+mkv_cue_cluster 0xf1
+	;how many Clusters a reel read as it is played keeps the frames of
+	+mkv_kept 16)
 
 ;what the functions read as they run, this one map
 (defq +mkv (Emap))
@@ -224,17 +229,130 @@
 		(setq at (+ at i)))
 	at)
 
+(defun mkv-seeks (s at end)
+	; (mkv-seeks str at end) -> ((id at) ...)
+	;the SeekHead: of each element of the top it names, where it is from the
+	;start of the Segment's data
+	(map (lambda ((_ body stop))
+			(defq id 0 place 0)
+			(each (lambda ((id_of b e))
+					(cond
+						((= id_of +mkv_seek_id) (setq id (mkv-uint s b e)))
+						((= id_of +mkv_seek_pos) (setq place (mkv-uint s b e)))))
+				(mkv-children s body stop))
+			(list id place))
+		(filter (# (= (first %0) +mkv_seek)) (mkv-children s at end))))
+
+(defun mkv-cues (s at end number seg)
+	; (mkv-cues str at end number seg) -> ((time at) ...)
+	;the Cues of a track: each key's time, and where in the file the Cluster
+	;it is in begins, seg the start of the Segment's data, in time order
+	(defq out (list))
+	(each (lambda ((id body stop))
+			(when (= id +mkv_cue)
+				(defq time -1 place -1)
+				(each (lambda ((id_of b e))
+						(cond
+							((= id_of +mkv_cue_time) (setq time (mkv-uint s b e)))
+							((= id_of +mkv_cue_place)
+								(defq track -1 cluster -1)
+								(each (lambda ((id_in bb ee))
+										(cond
+											((= id_in +mkv_cue_track) (setq track (mkv-uint s bb ee)))
+											((= id_in +mkv_cue_cluster) (setq cluster (mkv-uint s bb ee)))))
+									(mkv-children s b e))
+								(and (= track number) (>= cluster 0) (setq place (+ seg cluster))))))
+					(mkv-children s body stop))
+				(and (>= time 0) (>= place 0) (push out (list time place)))))
+		(mkv-children s at end))
+	(sort out (# (- (first %0) (first %1)))))
+
+(defun mkv-cluster-at (reel at)
+	; (mkv-cluster-at reel at) -> :nil | (end tracks)
+	;the frames of the Cluster at at, each track's as a reel's tracks have
+	;them, and where it ends: read the once and kept, the last few, as a
+	;film is played through them. :nil if there is no Cluster there
+	(defq lazy (. reel :find :lazy) kept (. lazy :find :kept))
+	(cond
+		((defq got (some (# (if (= (first %0) at) (second %0))) kept)) got)
+		((and (defq el (mkv-head (defq stream (. reel :find :stream)) at)) (= (first el) +mkv_cluster))
+			(bind '(_ size body) el)
+			(defq stop (. lazy :find :stop)
+				tracks (map (# (scatter (Emap) :number (. %0 :find :number) :step (. %0 :find :step) :cluster 0
+					:offsets (list) :sizes (list) :shown (list) :keys (list))) (. reel :find :tracks))
+				end (mkv-cluster stream body (if (< size 0) stop (min stop (+ body size))) tracks)
+				got (list end tracks))
+			(push kept (list at got))
+			(if (> (length kept) +mkv_kept) (. lazy :insert :kept (setq kept (slice kept 1 -1))))
+			got)))
+
+(defun mkv-number (track shown)
+	; (mkv-number track shown) -> n
+	;the frame of a track shown at a time, of a film of frames of one length
+	(defq lazy_scale (. track :find :scale) ns (. track :find :frame_ns))
+	(/ (+ (* (- shown (. track :find :first)) lazy_scale) (/ ns 2)) ns))
+
+(defun mkv-locate (reel which n)
+	; (mkv-locate reel which n) -> :nil | (chain index place)
+	;frame n of track which, as it is shown: the Clusters from the one of
+	;the key before it to the one it is in, (at end tracks) each, which of
+	;them it is in, and where it is in that one's frames. From the Cues: its
+	;time is its number by the length of a frame
+	(defq lazy (. reel :find :lazy) track (elem-get (. reel :find :tracks) which)
+		time (+ (. track :find :first) (/ (+ (* n (. track :find :frame_ns)) (/ (. track :find :scale) 2)) (. track :find :scale)))
+		cues (. lazy :find :cues) at (second (first cues)) chain (list) found :nil)
+	(each (# (if (<= (first %0) time) (setq at (second %0)))) cues)
+	;the Cluster that has it is this one or after it, a few at most
+	(while (and (not found) (>= at 0) (< (length chain) 64) (defq got (mkv-cluster-at reel at)))
+		(push chain (list at (first got) (second got)))
+		(defq frames (elem-get (second got) which) shown (. frames :find :shown) i -1)
+		(each (# (if (= (mkv-number track %0) n) (setq i (!)))) shown)
+		(cond
+			((>= i 0) (setq found (list chain (dec (length chain)) i)))
+			((and (nempty? shown) (> (mkv-number track (reduce (const max) shown -1)) n)) (setq at -1))
+			((setq at (first got)))))
+	found)
+
+(defun mkv-track-packet (reel track n)
+	; (mkv-track-packet reel track n) -> :nil | str
+	;packet n of a track of a reel read as it is played, by its time, as a
+	;sound is had: :nil if there is none
+	(when (defq which (some (# (if (eql %0 track) (!))) (. reel :find :tracks)))
+		(when (defq found (mkv-locate reel which n))
+			(bind '(chain index place) found)
+			(defq frames (elem-get (third (elem-get chain index)) which) stream (. reel :find :stream))
+			(stream-seek stream (elem-get (. frames :find :offsets) place) 0)
+			(read-blk stream (elem-get (. frames :find :sizes) place)))))
+
+(defun mkv-frame-time (reel n)
+	; (mkv-frame-time reel n) -> seconds
+	;when frame n is shown, of a reel read as it is played, by its number:
+	;its ms made a fixed, a film of more than 2^31 us is 36 minutes
+	(/ (n2f (/ (* n (. (. reel :find :video) :find :frame_ns)) 1000000)) (n2f 1000)))
+
+(defun mkv-before? (a b)
+	; (mkv-before? a b) -> :nil | :t
+	;is one place of a reel read as it is played before another, each
+	;(cluster index), a Cluster by where it is in the file
+	(or (< (first a) (first b)) (and (= (first a) (first b)) (< (second a) (second b)))))
+
 (defun mkv-reel (stream &optional few)
 	; (mkv-reel stream [few]) -> :nil | reel
 	;the reel of the first video track of a Matroska file, every track in
 	;:tracks: its EBML header, then its Segment's Info, Tracks and
 	;Clusters, the rest stepped over. With few, the first Cluster and no
-	;more, enough to show its start, the reel :partial: every Cluster is
-	;read to know where each frame is, all of a big film
-	(defq end (stream-seek stream 0 2) head (mkv-head stream 0) tracks (list) scale 1000000)
+	;more, enough to show its start, the reel :partial.
+	;
+	;Every Cluster read is the whole of a big film, and so a film whose
+	;Cues say where its keys are, and whose frames are each of one length,
+	;its Duration said, is read as it is played: the first Cluster now, the
+	;reel :lazy, and a frame's Cluster found by its time when it is wanted,
+	;(mkv-locate). Of any other every Cluster is read now
+	(defq end (stream-seek stream 0 2) head (mkv-head stream 0) tracks (list) scale 1000000
+		duration :nil seeks (list) cues_place :nil cues :nil tried :nil)
 	(when (and head (= (first head) +mkv_ebml) (defq segment (mkv-head stream (+ (third head) (second head))))
 			(= (first segment) +mkv_segment))
-		(defq at (third segment) stop (if (< (second segment) 0) end (min end (+ at (second segment)))))
+		(defq at (third segment) seg at stop (if (< (second segment) 0) end (min end (+ at (second segment)))))
 		(while (and (< at stop) (defq el (mkv-head stream at)))
 			(bind '(id size body) el)
 			(defq el_end (if (< size 0) stop (min stop (+ body size))))
@@ -242,7 +360,16 @@
 				((= id +mkv_info)
 					(stream-seek stream body 0)
 					(defq s (read-blk stream (- el_end body)))
-					(each (lambda ((id b e)) (if (= id +mkv_scale) (setq scale (mkv-uint s b e)))) (mkv-children s 0 (length s))))
+					(each (lambda ((id b e))
+							(cond
+								((= id +mkv_scale) (setq scale (mkv-uint s b e)))
+								((= id +mkv_length) (setq duration (reel-whole s b (- e b))))))
+						(mkv-children s 0 (length s))))
+				((= id +mkv_seekhead)
+					(stream-seek stream body 0)
+					(defq s (read-blk stream (- el_end body)))
+					(setq seeks (mkv-seeks s 0 (length s))))
+				((= id +mkv_cues) (setq cues_place (list body el_end)))
 				((= id +mkv_tracks)
 					(stream-seek stream body 0)
 					(defq s (read-blk stream (- el_end body)))
@@ -252,9 +379,21 @@
 					;Info before the Tracks
 					(each (# (. %0 :insert :step (/ (ifn (. %0 :find :frame_ns) 0) (max 1 scale)))) tracks))
 				((= id +mkv_cluster)
+					;at the first, are there Cues of the pictures, and are its frames
+					;each of one length: then this Cluster is all that is read now
+					(unless (or few tried)
+						(setq tried :t)
+						(and duration (defq picture (some (# (and (eql (. %0 :find :kind) "vide") (. %0 :find :frame_ns) %0)) tracks))
+							(or cues_place (and (defq seek (some (# (if (= (first %0) +mkv_cues) %0)) seeks))
+								(defq cues_el (mkv-head stream (+ seg (second seek)))) (= (first cues_el) +mkv_cues)
+								(setq cues_place (list (third cues_el) (+ (third cues_el) (second cues_el))))))
+							(progn (stream-seek stream (first cues_place) 0)
+								(defq s (read-blk stream (- (second cues_place) (first cues_place)))))
+							(setq cues (mkv-cues s 0 (length s) (. picture :find :number) seg))
+							(if (empty? cues) (setq cues :nil))))
 					(each (# (. %0 :insert :cluster 0)) tracks)
 					(setq el_end (mkv-cluster stream body el_end tracks))
-					(if few (setq el_end stop))
+					(if (or few cues) (setq el_end stop))
 					(task-slice)))
 			(setq at el_end))
 		(defq timescale (/ 1000000000 (max 1 scale)) video (some (# (if (eql (. %0 :find :kind) "vide") %0)) tracks) reel (Emap))
@@ -264,6 +403,17 @@
 					:times (sort (cat shown) (const -)) :reordered (some (# (and (> (!) 0) (< %0 (elem-get shown (dec (!)))))) shown)))
 			tracks)
 		(scatter reel :tracks tracks :stream stream :partial few)
+		(when (and cues video)
+			;read as it is played: how many frames by its Duration, each track's
+			;frames by their times, (mkv-locate)
+			(each (lambda (track)
+					(defq shown (. track :find :shown))
+					(scatter track :scale scale :first (if (nempty? shown) (reduce (const min) shown (first shown)) 0))
+					(if (defq ns (. track :find :frame_ns))
+						(. track :insert :samples (/ (* duration scale) ns))))
+				tracks)
+			(scatter reel :lazy (scatter (Emap) :cues cues :kept (list) :stop stop)
+				:frame_time (const mkv-frame-time) :track_packet (const mkv-track-packet)))
 		(when video
 			(defq frames (. video :find :samples) stamps (. video :find :times)
 				span (if (> frames 1) (- (last stamps) (first stamps)) 0))
@@ -272,9 +422,12 @@
 				:rate (if (> span 0) (/ (n2f (dec frames)) (/ (n2f span) (n2f timescale))) 0.0)
 				:offsets (. video :find :offsets) :lengths (. video :find :sizes)
 				:keys (. video :find :keys) :times stamps :shown (. video :find :shown) :video video
-				:start (first stamps) :delay 0))
+				:start (first stamps) :delay 0)
+			;of a reel read as it is played, how many and how fast by its Duration
+			(if cues (scatter reel :frames (. video :find :samples)
+				:rate (/ (n2f 1000) (/ (n2f (/ (. video :find :frame_ns) 1000)) (n2f 1000))))))
 		reel))
 
 ;module
-(export-symbols '(mkv-reel))
+(export-symbols '(mkv-reel mkv-locate mkv-cluster-at mkv-track-packet mkv-frame-time mkv-number mkv-before?))
 (env-pop)

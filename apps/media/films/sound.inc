@@ -104,6 +104,10 @@
 				:start (. track :find :start) :handle :nil :written 0 :left 0 :time 0.0 :before 1
 				;the native that makes 16 bit samples, taken now, not as this is read
 				:s16 (ffi "lib/media/media_s16")))
+			;of a reel read as it is played its packets are had by their times
+			(if (. reel :find :track_packet)
+				(. sound :insert :read (lambda (sound n)
+					((. (. sound :find :reel) :find :track_packet) (. sound :find :reel) (. sound :find :track) n))))
 			(cond
 				((eql (. track :find :codec) "mp3")
 					;of an MP3 its reel's packets, of a film's track its own, its first
