@@ -401,7 +401,19 @@ members       the members, a line each
 pins          the paths this member holds all of
 paths         the path map, a line an entry
 blocks/xx/y   a block, its name in hex, xx the first two of it
+held          the blocks kept, each folder and the names in it, as closed
 ```
+
+A store is opened with `held`, the names of the blocks it keeps as it
+was closed, in place of reading every folder of `blocks/`: of 20,000 blocks
+on the M4 0.0074 s against 0.132 s, and of a million the walk was minutes on
+an i5. The file goes as soon as a block is put or let go of, before the
+block is, so it is never other than what is kept; a store not closed as it
+should be is read from its folders, and the file written then. The maps of
+a store, of its blocks and its paths, have a bucket for every 32 in them
+and grow as it does: a find of a name whose hash it has is a look through
+its bucket, and 1.48 million finds took the same at 1 a bucket as at 8,
+and less at 32.
 
 An object is a manifest, how long it is and the names of its blocks in
 order, and is a block itself. A path is set to the name of one. The

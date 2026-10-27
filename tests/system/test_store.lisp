@@ -411,6 +411,8 @@
 (exfat-mkdir (get :vol so_f) (cat "blocks/" (slice so_f_hex 0 2)))
 (exfat-save (get :vol so_f) (cat "blocks/" (slice so_f_hex 0 2) "/" (slice so_f_hex 2 -1)) so_f_old)
 (store-close so_f)
+;a store of before has no file of what it holds, it is read from its folders
+(exfat-delete (get :vol so_f) "held")
 (defq so_f (store-open so_f_stream "aaaa"))
 (assert-eq "opened again, a block of before is found where it is" so_f_old (store-block-get so_f (sha256 so_f_old)))
 (assert-eq "and those put in folders" (cat (char 0 8)) (store-block-get so_f (first so_f_names)))
@@ -494,3 +496,40 @@
 		(list (first so_t_r) (second so_t_r) (length (third so_t_r)))))
 (assert-list-eq "walked, they are the names" so_t_names
 	(second (store-manifest-walk (store-manifest-make 5 so_t_names (const so-t-put)) (# (. so_t_held :find %0)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the blocks kept are a file, held, as the store is closed, and it is opened
+; with that, not by reading every folder of blocks/. Put or let go of a
+; block and the file goes, so a store not closed is read as it is
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(bind '(so_h so_h_stream) (so-new 0x400000 "held" "aaaa" 64))
+(store-put so_h "h/one" (so-bytes 6400 10))
+(defq so_h_blocks (sort (store-blocks so_h)))
+(assert-eq "a new store has no file held till it is closed" :nil (exfat-find (get :vol so_h) "held"))
+(store-close so_h)
+(assert-true "closed, it has" (exfat-find (get :vol so_h) "held"))
+(defq so_h (store-open so_h_stream "aaaa"))
+(assert-eq "opened, it is had from the file" :t (get :held_saved so_h))
+(assert-list-eq "and keeps the blocks it kept" so_h_blocks
+	(sort (progn (defq so_h_kept (list)) (. (get :held so_h) :each (lambda (k v) (push so_h_kept k))) so_h_kept)))
+(assert-eq "as many as it says" (length so_h_blocks) (get :blocks so_h))
+(assert-eq "and has the object" (so-bytes 6400 10) (store-get so_h "h/one"))
+(store-block-put so_h "one more block")
+(assert-eq "a block put, the file is gone" :nil (exfat-find (get :vol so_h) "held"))
+;not closed: opened again, every folder is read, and the file written
+(defq so_h (store-open so_h_stream "aaaa"))
+(assert-eq "not closed, it is read from its folders" (inc (length so_h_blocks)) (get :blocks so_h))
+(assert-true "and the file written" (and (get :held_saved so_h) (exfat-find (get :vol so_h) "held")))
+(assert-eq "the next block put goes in the folder it would have"
+	(store-block-file so_h (sha256 "and one more")) (progn (defq so_h_f (store-block-file so_h (sha256 "and one more")))
+		(store-block-put so_h "and one more") so_h_f))
+(store-close so_h)
+(store-block-drop (defq so_h (store-open so_h_stream "aaaa")) (sha256 "one more block"))
+(assert-eq "a block let go of, the file is gone too" :nil (exfat-find (get :vol so_h) "held"))
+(store-close so_h)
+;a file held cut short is not taken
+(defq so_h_text (exfat-load (get :vol so_h) "held"))
+(exfat-save (get :vol so_h) "held" (slice so_h_text 0 (- (length so_h_text) 40)))
+(defq so_h (store-open so_h_stream "aaaa"))
+(assert-eq "a file cut short is not taken, the folders are read" (inc (length so_h_blocks)) (get :blocks so_h))

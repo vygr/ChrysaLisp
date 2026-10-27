@@ -41,6 +41,10 @@
 ;	pinned		what every member holds all of, as far as is known here
 ;	paths		the path map, a line an entry
 ;	journal		the paths set since the map was last written, see below
+;	held		the blocks kept, each folder and the names in it, as the
+;			store was closed: it is opened with this, not by reading
+;			every folder, and the file goes as soon as a block is put
+;			or let go of, so it is never other than what is kept
 ;	blocks/wN/name	a block, its name in hex, in the folder blocks were
 ;			put in as it was, so many to a folder: a run of blocks
 ;			put is a write of one directory, not one each, and a
@@ -68,6 +72,10 @@
 	;how many names a block of a manifest has at most, 65 bytes each, so
 	;it is no bigger than a block of the object
 	+store_manifest_names 1000
+	;how many are in a bucket of a map of a store, of its blocks or paths
+	+store_per_bucket 32
+	;the first line of the file of the blocks kept, (store-held-save)
+	+store_held_magic "CHRYSA_HELD 1"
 	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10)
 	;how many blocks are put in a folder before the next is begun: the
 	;directory of so many is a cluster of a volume
@@ -231,6 +239,32 @@
 ; the path map, as it is held
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun store-buckets (count least)
+	; (store-buckets count least) -> num
+	;how many buckets a map of a store has for so many in it: one for every
+	;+store_per_bucket. A find of a str whose hash it has already is a look
+	;through its bucket, and so many is no slower than one a bucket, timed
+	(max least (/ count +store_per_bucket)))
+
+(defun store-grow (table count)
+	; (store-grow table count) -> table
+	;a map of a store made twice as big when it has more than so many to a
+	;bucket, as the store grows: once in a while, not at every insert
+	(defq buckets (get :num_buckets table))
+	(if (> count (* buckets +store_per_bucket)) (. table :resize (* buckets 2)))
+	table)
+
+(defun store-span (store)
+	; (store-span store) -> num
+	;how many blocks the objects of a store are made of at most, how long
+	;they are in blocks, or how many it keeps if more: what a map of its
+	;blocks is to be big enough for
+	(defq span_blocks 0 span_size (get :block_size store))
+	(. (get :map store) :each (lambda (path entry)
+		(unless (elem-get entry +store_entry_deleted)
+			(setq span_blocks (+ span_blocks 1 (/ (elem-get entry +store_entry_bytes) span_size))))))
+	(max span_blocks (get :blocks store)))
+
 (defun store-map-insert (store name entry)
 	;an entry goes in the path map, in place of what that path was. How
 	;many objects there are is kept as it goes, it is asked with every
@@ -241,7 +275,8 @@
 		(if (and was (not (elem-get was +store_entry_deleted))) -1 0)))
 	;what this member's share is, is to be worked out again
 	(def store :plan :nil)
-	(. (get :map store) :insert name entry))
+	(unless was (def store :paths (inc (get :paths store))))
+	(. (store-grow (get :map store) (get :paths store)) :insert name entry))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the journal of the path map
@@ -388,13 +423,13 @@
 	;member can be told only what is new since it last asked,
 	;(store-since). The counts are of this opening of it, which has a
 	;name, :epoch: one who knew the counts of another is told everything
-	(def store :rev 0 :revs (Fmap 1021) :dirty :nil
+	(def store :rev 0 :revs (Fmap (store-buckets (get :paths store) 101)) :dirty :nil
 		:epoch (hex-encode (slice (sha256 (cat (str (pii-time)) (get :member store) (str (random 1000000)))) 0 8))))
 
 (defun store-touch (store name)
 	;a path is not as it was
 	(def store :rev (inc (get :rev store)))
-	(. (get :revs store) :insert name (get :rev store)))
+	(. (store-grow (get :revs store) (get :paths store)) :insert name (get :rev store)))
 
 (defun store-later (store)
 	;the path map or the members are not as they were, and it is not
@@ -432,7 +467,7 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :blocks 0 :manifests (Fmap 11)
+			:map (Fmap 11) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -465,6 +500,52 @@
 		(ifn (exfat-list vol "blocks") '()))
 	out)
 
+(defun store-held-save (store)
+	; (store-held-save store) -> store
+	;the names of the blocks kept here, and their folders, as the file
+	;held: what a store is opened with next time, in place of reading
+	;every folder of blocks/, which of a million blocks took minutes. Each
+	;folder, how many, then their names as they are, 32 bytes each; and at
+	;the end how many in all, so that a file not all written is not taken
+	(defq groups (Fmap 101) parts (list +store_held_magic +store_lf) total 0)
+	(. (get :held store) :each (lambda (name folder)
+		(unless (defq names (. groups :find folder)) (. groups :insert folder (setq names (list))))
+		(push names name)))
+	(. groups :each (lambda (folder names)
+		(push parts folder " " (str (length names)) +store_lf)
+		(each (# (push parts %0)) names)
+		(setq total (+ total (length names)))))
+	(push parts "end " (str total) +store_lf)
+	(exfat-save (get :vol store) "held" (apply (const cat) parts))
+	(def store :held_saved :t)
+	store)
+
+(defun store-held-read (store)
+	; (store-held-read store) -> :nil | ((folder names) ...)
+	;the blocks kept here as the file held has them, (store-held-save). :nil
+	;if there is none, or it is not whole
+	(when (and (defq data (exfat-load (get :vol store) "held"))
+			(starts-with (cat +store_held_magic +store_lf) data))
+		(defq at (inc (length +store_held_magic)) out (list) total 0 whole :nil)
+		(while (and (not whole) (< at (length data)) (defq end (find +store_lf data at)))
+			(bind '(folder count) (split (slice data at end) " "))
+			(setq count (str-as-num (ifn count "-1")) at (inc end))
+			(cond
+				((eql folder "end") (setq whole (if (= count total) :t :bad)))
+				((or (< count 0) (> (+ at (* count 32)) (length data))) (setq whole :bad))
+				(:t (push out (list folder (map! (# (slice data %0 (+ %0 32))) (list (range at (+ at (* count 32)) 32)))))
+					(setq at (+ at (* count 32)) total (+ total count)))))
+		(if (eql whole :t) out)))
+
+(defun store-held-stale (store)
+	; (store-held-stale store) -> store
+	;what is kept here is about to change: the file held is no longer
+	;what is kept, and goes, before the change is made
+	(when (get :held_saved store)
+		(def store :held_saved :nil)
+		(exfat-delete (get :vol store) "held"))
+	store)
+
 (defun store-blocks (store)
 	; (store-blocks store) -> (name ...)
 	;every block that is kept here, whatever is in it, as the volume has it
@@ -484,7 +565,7 @@
 			(nempty? head) (eql (first head) +store_magic))
 		(def (defq store (env 1)) :vol vol :id "" :member member :was :nil
 			:block_size +store_block_size :copies +store_copies
-			:map (Fmap 101) :objects 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
+			:map (Fmap 101) :objects 0 :paths 0 :members (list) :retired (list) :pins (list) :pinned (Fmap 11)
 			:folders (Fset 101) :folder_next 0 :folder_count 0)
 		(defq had "")
 		(each! (lambda (line)
@@ -509,26 +590,39 @@
 		(store-count store)
 		;the names of the blocks it has, and where each is. Blocks are put
 		;in the last folder of them, the highest wN, while it has room
-		(def store :held (Fmap 1021) :blocks 0 :manifests (Fmap 1021) :plan :nil)
-		(defq last -1 in_last 0)
+		(def store :held (Fmap 1021) :blocks 0 :manifests (Fmap (store-buckets (get :objects store) 101)) :plan :nil :held_saved :nil)
+		;asked first whatever way the blocks are had: an open told to stop
+		;is given up, a quick one too
+		(defq high -1 in_last 0 groups (if (or (not going) (going)) (store-held-read store)) walked (not groups))
+		;of a store not closed as it should be, or of before there was the
+		;file held, every folder of blocks/ is read, and the file written
+		(when (and walked (or (not going) (going)))
+			(defq found (store-blocks-found store going) at "")
+			(setq groups (if found (list)))
+			(each (lambda ((name folder))
+					(unless (eql folder at) (push groups (list (setq at folder) (list))))
+					(push (second (last groups)) name))
+				(ifn found '())))
 		(cond
-			((not (defq found (store-blocks-found store going))) :stopped)
+			((not groups) :stopped)
 			(:t
-				;a bucket of the map for every few blocks, a store has a
+				;a bucket of the map for every so many blocks, a store has a
 				;million of them, and the number of a folder once for all
 				;its blocks, which come together
-				(defq held (. (get :held store) :resize (max 1021 (>> (length found) 2))) at "" n -1)
-				(each (lambda ((name folder))
-						(. held :insert name folder)
-						(unless (eql folder at)
-							(setq at folder n (if (starts-with "blocks/w" folder)
-								(str-as-num (slice folder (const (length "blocks/w")) -1)) -1)))
+				(defq held (. (get :held store) :resize (store-buckets (reduce (# (+ %0 (length (second %1)))) groups 0) 1021)))
+				(each (lambda ((folder names))
+						(each (# (. held :insert %0 folder)) names)
+						(defq n (if (starts-with "blocks/w" folder) (str-as-num (slice folder (const (length "blocks/w")) -1)) -1))
 						(when (>= n 0)
 							(cond
-								((> n last) (setq last n in_last 1))
-								((= n last) (++ in_last)))))
-					found)
-				(def store :folder_next (max 0 last) :folder_count in_last :blocks (. held :size))
+								((> n high) (setq high n in_last (length names)))
+								((= n high) (setq in_last (+ in_last (length names)))))))
+					groups)
+				(def store :folder_next (max 0 high) :folder_count in_last :blocks (. held :size) :held_saved (not walked))
+				(when walked
+					(exfat-begin vol)
+					(store-held-save store)
+					(exfat-end vol))
 				(unless (eql had member)
 					;it is this member's now
 					(def store :was had
@@ -544,6 +638,10 @@
 	; (store-close store) -> :nil
 	;all that it has is on the device
 	(if (get :dirty store) (store-save store))
+	(unless (get :held_saved store)
+		(exfat-begin (get :vol store))
+		(store-held-save store)
+		(exfat-end (get :vol store)))
 	(exfat-sync (get :vol store))
 	:nil)
 
@@ -693,7 +791,7 @@
 			(if parts (each (# (push (first parts) %0)) (third object)))
 			object)
 		((defq object (store-manifest-walk hash (# (store-block-get store %0)) parts))
-			(. known :insert hash object)
+			(. (store-grow known (get :objects store)) :insert hash object)
 			object)))
 
 (defun store-members (store)
@@ -734,7 +832,7 @@
 	(defq among (ifn among (store-members store)) key (join among " ") kept (def? :holders store)
 		copies (if (and copies (> copies 0)) copies (get :copies store)))
 	(unless (and kept (eql (first kept) key))
-		(def store :holders (setq kept (list key (Fmap 4093)))))
+		(def store :holders (setq kept (list key (Fmap (store-buckets (store-span store) 101))))))
 	(unless (defq order (. (second kept) :find name))
 		(. (second kept) :insert name (setq order (store-rank name among (length among)))))
 	(slice order 0 (min copies (length order))))
@@ -776,7 +874,9 @@
 	;what this member is to keep among those members, as it is now
 	(defq key (join among " ") plan (get :plan store))
 	(unless (and plan (eql (elem-get plan +plan_key) key))
-		(def store :plan (setq plan (list key (Fset 4093) (Fmap 4093) (Fmap 11) (Fset 1021) (Fset 101) among)))
+		(defq span (store-span store))
+		(def store :plan (setq plan (list key (Fset (store-buckets span 101)) (Fmap (store-buckets span 101)) (Fmap 11)
+			(Fset (store-buckets span 101)) (Fset (store-buckets span 101)) among)))
 		(. (get :map store) :each (lambda (path entry)
 			(unless (elem-get entry +store_entry_deleted)
 				(task-breathe)
@@ -835,10 +935,11 @@
 			(unless (. (get :folders store) :find folder)
 				(unless (exfat-find vol folder) (exfat-mkdir vol folder))
 				(. (get :folders store) :insert folder))
+			(store-held-stale store)
 			(defq kept (exfat-save vol file data))
 			(exfat-end vol)
 			(when kept
-				(. (get :held store) :insert name folder)
+				(. (store-grow (get :held store) (inc (get :blocks store))) :insert name folder)
 				(def store :folder_count (inc (get :folder_count store)) :blocks (inc (get :blocks store)))
 				(store-plan-held store name)
 				name))))
@@ -846,7 +947,9 @@
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
 	(defq file (store-block-file store name))
-	(if (store-block-has? store name) (def store :blocks (dec (get :blocks store))))
+	(when (store-block-has? store name)
+		(store-held-stale store)
+		(def store :blocks (dec (get :blocks store))))
 	(. (get :held store) :erase name)
 	(. (get :manifests store) :erase name)
 	(store-plan-dropped store name)
@@ -1035,8 +1138,9 @@
 	;and one deleted since is had again. How many were set back, and how
 	;many paths there are now under the prefix that the snapshot has not,
 	;which are left. :nil if there is no such snapshot
-	(defq at (cat +store_snapshots name "/") prefix (ifn prefix "") restored 0 had (Fset 101)
-		snap (filter (# (starts-with (cat at prefix) (first %0))) (store-list store at)))
+	(defq at (cat +store_snapshots name "/") prefix (ifn prefix "") restored 0
+		snap (filter (# (starts-with (cat at prefix) (first %0))) (store-list store at))
+		had (Fset (store-buckets (length snap) 101)))
 	(when (nempty? snap)
 		(each (lambda (entry)
 			(bind '(path hash bytes vv writer seen deleted copies) entry)
@@ -1253,7 +1357,7 @@
 	;its manifest are of an object too. An object whose manifest is not
 	;all kept here has those of it missing, what its other blocks are is
 	;not known
-	(defq held (Fset 101) missing (Fset 11))
+	(defq held (Fset (store-buckets (store-span store) 101)) missing (Fset 11))
 	(each (lambda (entry)
 		(defq parts (list (list) (list)))
 		(when (defq object (store-manifest store (elem-get entry +store_entry_hash) parts))

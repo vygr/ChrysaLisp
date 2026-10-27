@@ -11721,6 +11721,16 @@ so the folders are listed one after another, no walk of a tree: the
 blocks of one share the one string of its path
 ```
 
+### store-buckets
+
+```code
+(store-buckets count least) -> num
+
+how many buckets a map of a store has for so many in it: one for every
++store_per_bucket. A find of a str whose hash it has already is a look
+through its bucket, and so many is no slower than one a bucket, timed
+```
+
 ### store-check
 
 ```code
@@ -11874,6 +11884,15 @@ the folder blocks are put in now, the next once one has so many
 all of an object
 ```
 
+### store-grow
+
+```code
+(store-grow table count) -> table
+
+a map of a store made twice as big when it has more than so many to a
+bucket, as the store grows: once in a while, not at every insert
+```
+
 ### store-held
 
 ```code
@@ -11881,6 +11900,36 @@ all of an object
 
 the names of the blocks kept here, as they are held: what
 (store-block-has?) goes by. No reading of the volume
+```
+
+### store-held-read
+
+```code
+(store-held-read store) -> :nil | ((folder names) ...)
+
+the blocks kept here as the file held has them, (store-held-save). :nil
+if there is none, or it is not whole
+```
+
+### store-held-save
+
+```code
+(store-held-save store) -> store
+
+the names of the blocks kept here, and their folders, as the file
+held: what a store is opened with next time, in place of reading
+every folder of blocks/, which of a million blocks took minutes. Each
+folder, how many, then their names as they are, 32 bytes each; and at
+the end how many in all, so that a file not all written is not taken
+```
+
+### store-held-stale
+
+```code
+(store-held-stale store) -> store
+
+what is kept here is about to change: the file held is no longer
+what is kept, and goes, before the change is made
 ```
 
 ### store-holders
@@ -12392,6 +12441,16 @@ a name a snapshot may have: not empty, and no / or space in it
 (store-snapshots store) -> ((name count) ...)
 
 the snapshots there are, and how many objects each is of
+```
+
+### store-span
+
+```code
+(store-span store) -> num
+
+how many blocks the objects of a store are made of at most, how long
+they are in blocks, or how many it keeps if more: what a map of its
+blocks is to be big enough for
 ```
 
 ### store-stat
