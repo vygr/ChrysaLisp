@@ -50,7 +50,7 @@
 
 (defun reel-kind (ext open packet codec frame &optional close)
 	; (reel-kind ext open packet codec frame [close])
-	;files whose names end ext are reels: (open stream) -> :nil | reel,
+	;files whose names end ext are reels: (open stream [few]) -> :nil | reel,
 	;(packet reel n), (codec reel scale), (frame codec n), (close codec). The
 	;kinds are of the shared root of a GUI's node, gui/canvas/lisp.inc
 	;imports them, and one of a name already there is replaced: a kind
@@ -61,13 +61,15 @@
 		(elem-set *reel_kinds* i kind)
 		(push *reel_kinds* kind)))
 
-(defun reel-open (file &optional stream)
-	; (reel-open file [stream]) -> :nil | reel
+(defun reel-open (file &optional stream few)
+	; (reel-open file [stream few]) -> :nil | reel
 	;the reel of a file, its kind by its name, read from the stream if
-	;given, as for an object of a store, lib/files/names.inc
+	;given, as for an object of a store, lib/files/names.inc. With few,
+	;only as much as shows its start, if its kind can: a preview, or a
+	;look at what it is. Such a reel is :partial, its :frames those read
 	(and (defq kind (some (# (if (ends-with (first %0) file) %0)) *reel_kinds*))
 		(setq stream (ifn stream (file-stream file)))
-		(defq reel ((second kind) stream))
+		(defq reel ((second kind) stream few))
 		(> (ifn (. reel :find :frames) 0) 0)
 		(progn (. reel :insert :kind kind) reel)))
 

@@ -493,8 +493,8 @@
 ; the reel
 ;;;;;;;;;;;;;
 
-(defun avi-reel (stream)
-	; (avi-reel stream) -> :nil | reel
+(defun avi-reel (stream &optional few)
+	; (avi-reel stream [few]) -> :nil | reel
 	;the reel of the first stream of pictures of an AVI, every stream in
 	;:tracks. Its chunks from the OpenDML index if there is one, else idx1,
 	;else as the movi are read. Each a time a frame of its own, the rate

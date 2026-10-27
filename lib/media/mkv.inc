@@ -224,11 +224,13 @@
 		(setq at (+ at i)))
 	at)
 
-(defun mkv-reel (stream)
-	; (mkv-reel stream) -> :nil | reel
+(defun mkv-reel (stream &optional few)
+	; (mkv-reel stream [few]) -> :nil | reel
 	;the reel of the first video track of a Matroska file, every track in
 	;:tracks: its EBML header, then its Segment's Info, Tracks and
-	;Clusters, the rest stepped over
+	;Clusters, the rest stepped over. With few, the first Cluster and no
+	;more, enough to show its start, the reel :partial: every Cluster is
+	;read to know where each frame is, all of a big film
 	(defq end (stream-seek stream 0 2) head (mkv-head stream 0) tracks (list) scale 1000000)
 	(when (and head (= (first head) +mkv_ebml) (defq segment (mkv-head stream (+ (third head) (second head))))
 			(= (first segment) +mkv_segment))
@@ -252,6 +254,7 @@
 				((= id +mkv_cluster)
 					(each (# (. %0 :insert :cluster 0)) tracks)
 					(setq el_end (mkv-cluster stream body el_end tracks))
+					(if few (setq el_end stop))
 					(task-slice)))
 			(setq at el_end))
 		(defq timescale (/ 1000000000 (max 1 scale)) video (some (# (if (eql (. %0 :find :kind) "vide") %0)) tracks) reel (Emap))
@@ -260,7 +263,7 @@
 				(scatter track :timescale timescale :samples (length (. track :find :offsets))
 					:times (sort (cat shown) (const -)) :reordered (some (# (and (> (!) 0) (< %0 (elem-get shown (dec (!)))))) shown)))
 			tracks)
-		(scatter reel :tracks tracks :stream stream)
+		(scatter reel :tracks tracks :stream stream :partial few)
 		(when video
 			(defq frames (. video :find :samples) stamps (. video :find :times)
 				span (if (> frames 1) (- (last stamps) (first stamps)) 0))

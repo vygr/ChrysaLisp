@@ -532,8 +532,8 @@
 	;the bytes of a frame of a constant bit rate, by the rate
 	(* (if (. h :find :lsf) 72 144) (. h :find :kbps) 1000))
 
-(defun mp3-reel (stream)
-	; (mp3-reel stream) -> :nil | reel
+(defun mp3-reel (stream &optional few)
+	; (mp3-reel stream [few]) -> :nil | reel
 	;a file of MP3 as a reel of its frames, each found as it is wanted, not
 	;all now: a book of 40 hours is 2GB. They are counted by a first frame
 	;of Xing or Info if it has one, else by the bit rate, :frames, and a

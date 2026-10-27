@@ -221,8 +221,8 @@
 	(if (eql (. track :find :kind) "vide") (mp4-tables track))
 	(mp4-edits s trak track))
 
-(defun mp4-reel (stream)
-	; (mp4-reel stream) -> :nil | reel
+(defun mp4-reel (stream &optional few)
+	; (mp4-reel stream [few]) -> :nil | reel
 	;the reel of the first video track of a file, every track in :tracks
 	(when (defq moov (mp4-moov stream))
 		;the film's time, mvhd's, that the lengths of edits are in

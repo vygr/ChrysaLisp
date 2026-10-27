@@ -4,7 +4,8 @@
 (file-previewer
 	(lambda (file) (some (# (ends-with (first %0) file)) *reel_kinds*))
 	(lambda (file most_w most_h)
-		(when (defq reel (reel-open file (name-stream file)))
+		;as much as shows its start, a big film is not read all through
+		(when (defq reel (reel-open file (name-stream file) :t))
 			(defq scale (max 1 (min 4 (/ (ifn (. reel :find :width) most_w) most_w)))
 				view (Flow) rate (. reel :find :rate) frame :nil)
 			(when (defq codec (reel-codec reel scale))
@@ -13,7 +14,7 @@
 				(reel-close codec))
 			(def view :flow_flags +flow_down_fill :min_width most_w)
 			(if frame (. view :add_child frame))
-			(when (> rate 0.0)
+			(when (and (> rate 0.0) (not (. reel :find :partial)))
 				(def (defq label (Label)) :text (reel-clock (/ (n2f (. reel :find :frames)) rate)))
 				(. view :add_child label))
 			(if (nempty? (. view :children)) view))))

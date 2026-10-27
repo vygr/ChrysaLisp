@@ -195,8 +195,8 @@
 			(if (or (/= (code header 4 8) +flm_version) (= (defq hundredths (code header 4 24)) 0))
 				+flm_rate (/ (n2f hundredths) 100.0)))))
 
-(defun flm-reel (stream)
-	; (flm-reel stream) -> :nil | reel
+(defun flm-reel (stream &optional few)
+	; (flm-reel stream [few]) -> :nil | reel
 	;a film to be read from a stream that can seek: its header, and where
 	;each packet is and how long, found by their lengths. :nil if it is no
 	;film of this version, :version says which it is

@@ -287,8 +287,8 @@
 		(stream-seek stream at 0)
 		(read-blk stream (- to at))))
 
-(defun flac-reel (stream)
-	; (flac-reel stream) -> :nil | reel
+(defun flac-reel (stream &optional few)
+	; (flac-reel stream [few]) -> :nil | reel
 	;a file of FLAC as a reel of its frames, each found as it is wanted, of
 	;STREAMINFO's block size, :rate of them a second. Its :tracks the one of
 	;sound, of codec "flac", its pictures the samples of each frame, as an

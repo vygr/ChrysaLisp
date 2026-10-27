@@ -210,7 +210,7 @@
 		((not (name-size file))
 			(played file :nil)
 			(say (cat file ": not there")))
-		((not (reel-open file (name-stream file)))
+		((not (reel-open file (name-stream file) :t))
 			(played file :nil)
 			(say (cat file ": not a film it can read")))
 		((win-refresh file))))

@@ -43,3 +43,13 @@
 				(every (lambda (oa za ob zb) (eql (mk_read mk_stream oa za) (mk_read mk_un_stream ob zb)))
 					(. ta :find :offsets) (. ta :find :sizes) (. tb :find :offsets) (. tb :find :sizes))))
 		(. mk_reel :find :tracks) (. mk_un :find :tracks)))
+
+;with few, only its first Cluster is read, to show its start: a preview
+;of a big film reads none of the rest
+(defq mk_few (mkv-reel (file-stream "tests/streams/data/film.mkv") :t))
+(assert-eq "read for its start, the reel says it is partial" :t (. mk_few :find :partial))
+(assert-true "with frames, no more than all of them"
+	(<= 1 (. mk_few :find :frames) (. mk_reel :find :frames)))
+(assert-list-eq "the first frames where they are when all is read"
+	(slice (. mk_reel :find :offsets) 0 (. mk_few :find :frames)) (. mk_few :find :offsets))
+(assert-eq "read whole, it is not partial" :nil (. mk_reel :find :partial))
