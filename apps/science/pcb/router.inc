@@ -1,6 +1,10 @@
 (import "./app.inc")
 (import "./layer.inc")
 
+;native, apps/science/pcb/lisp.vp
+(ffi (cat *app_root* "flood_near") flood-near)
+; (flood-near ctx node flood_vecs via_vecs radius gap via out_n out_v) -> out_n
+
 ;module
 (env-push)
 
@@ -419,6 +423,10 @@
 			(defq nodes (cap (* width height depth grid_res grid_res) (nums))))
 		:width (* width grid_res) :height (* height grid_res) :depth depth
 		:deform (Fmap 101) :grid_res grid_res
+		;the points of :deform as the native flood reads them: of each node
+		;an index into deform_pts, 0 if it has none, and the points
+		:deform_idx (defq deform_idx (cap (* width height depth grid_res grid_res) (nums)))
+		:deform_pts (fixeds) :ctx :nil
 		:flood_vectors (list
 			(gen-vectors fr fr_even fr)
 			(gen-vectors fr fr fr_odd))
@@ -434,7 +442,7 @@
 						(n2i (* (n2f height) +spacial_hash_res))
 						depth (/ +spacial_hash_res (n2f grid_res)))
 		:nodes nodes)
-	(times (* width height depth grid_res grid_res) (push nodes 0))
+	(times (* width height depth grid_res grid_res) (push nodes 0) (push deform_idx 0))
 
 	(defgetmethod :depth)
 	(defgetmethod :grid_res)
@@ -475,7 +483,36 @@
 		; (. pcb :pad_point_to_node point) -> node
 		;convert pad point to node
 		(. (get :deform this) :insert (defq n (. this :point_to_node point)) point)
+		(bind '(x y z) n)
+		(raise :deform_idx :deform_pts (i (+ x (* (get :width this) (+ y (* (get :height this) z))))))
+		(cond
+			((= (defq k (elem-get deform_idx i)) 0)
+				(each (# (push deform_pts %0)) point)
+				(elem-set deform_idx i (/ (length deform_pts) 3)))
+			(:t (each (# (elem-set deform_pts (+ (* (dec k) 3) (!)) %0)) point)))
 		n)
+
+	(defmethod :flood_ctx ()
+		; (. pcb :flood_ctx) -> ctx
+		;what the native flood is given of the board, made once
+		(unless (defq ctx (get :ctx this))
+			(raise :nodes :deform_idx :deform_pts :width :height :depth)
+			(defq layer (first (get :layers (get :layers this))))
+			(set this :ctx (setq ctx (list nodes deform_idx deform_pts
+				(map (# (get :buckets %0)) (get :layers (get :layers this)))
+				(map (# (get :buckets %0)) (get :layers (get :via_layers this)))
+				width height depth (get :width layer) (get :height layer) (get :scale layer) (nums 0)))))
+		ctx)
+
+	(defmethod :flood_near_lisp (node radius gap via out_n out_v)
+		; (. pcb :flood_near_lisp node radius gap via out_n out_v) -> out_n
+		;the Lisp of what (flood-near) does, kept to hold it to
+		(raise :flood_vectors)
+		(each (# (push out_n %0)) (. this :all_not_shorting
+			(. this :all_not_marked flood_vectors node) node radius gap))
+		(each (# (push out_v %0)) (. this :all_not_shorting_via
+			(. this :all_not_marked +via_vectors node) node via gap))
+		out_n)
 
 	(defmethod :all_not_marked (vec node)
 		; (. pcb :all_not_marked vec node) -> nodes
@@ -524,7 +561,7 @@
 		; (. pcb :mark_distances starts ends radius gap via) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (Fmap 11))
-			frontier (. starts :copy) exit :t))
+			frontier (. starts :copy) exit :t ctx (. this :flood_ctx) out_n (list) out_v (list)))
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)
 			(. frontier :each (# (. this :set_node %0 distance)))
@@ -533,14 +570,13 @@
 					(setq exit :nil))
 				(:t (defq ns (alloc-node-set) vias_start (+ distance vias_cost))
 					(. frontier :each (lambda (node)
-						(each (# (. ns :insert %0))
-							(. this :all_not_shorting
-								(. this :all_not_marked flood_vectors node) node radius gap))
-						(when (/= 0 (length (defq nv (. this :all_not_shorting_via
-									(. this :all_not_marked +via_vectors node) node via gap))))
+						(flood-near ctx node flood_vectors +via_vectors radius gap via
+							(clear out_n) (clear out_v))
+						(each (# (. ns :insert %0)) out_n)
+						(when (nempty? out_v)
 							(unless (defq vns (. vias_map :find vias_start))
 								(. vias_map :insert vias_start (defq vns (alloc-node-set))))
-							(each (# (. vns :insert %0)) nv))))
+							(each (# (. vns :insert %0)) out_v))))
 					(when (defq delay_nodes (. vias_map :find distance))
 						(. delay_nodes :each (# (if (= (. this :get_node %0) 0) (. ns :insert %0))))
 						(free-node-set delay_nodes)

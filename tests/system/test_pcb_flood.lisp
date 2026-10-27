@@ -1,0 +1,40 @@
+(report-header "System: the Pcb router's native flood, against its Lisp, apps/science/pcb/router.inc")
+
+;a board with some of its nets routed, by the router itself, and some of
+;its nodes marked as a flood has them: what (flood-near) finds round a
+;node, the moves on a layer and the vias, is what the Lisp finds, in the
+;same order
+(defq *app_root* "apps/science/pcb/")
+(import "apps/science/pcb/app.inc")
+(import "apps/science/pcb/reader.inc")
+(import "apps/science/pcb/router.inc")
+
+(defq pf_list (pcb-read (load "apps/science/pcb/data/test1.pcb")))
+(bind '(pf_w pf_h pf_d) (first pf_list))
+(defq pcb (Pcb pf_w pf_h pf_d 1 0 1 0 2 1 1))
+(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
+		(setq pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
+		(. pcb :add_track (Track id track_radius via_radius track_gap pads '())))
+	(list pf_list) 1)
+(defq pf_routed (reduce! (# (if (. %1 :route) (inc %0) %0)) (list (get :netlist pcb)) 0 0 8))
+(assert-true "some nets are routed, so there are tracks to short with" (> pf_routed 0))
+
+(defq pf_n (* pf_w pf_h pf_d) pf_nodes (get :nodes pcb))
+(times (/ pf_n 5) (elem-set pf_nodes (random pf_n) (inc (random 9))))
+(defq pf_via (list (list (nums 0 0 -1) (nums 0 0 1)) (list (nums 0 0 -1) (nums 0 0 1)))
+	pf_ctx (. pcb :flood_ctx) pf_same 0 pf_asked 0 pf_found 0)
+(each! (lambda (net)
+		(defq r (get :radius net) g (get :gap net) v (get :via net) i 0)
+		(while (< i pf_n)
+			(defq node (nums (% i pf_w) (% (/ i pf_w) pf_h) (/ i (* pf_w pf_h)))
+				a_n (list) a_v (list) b_n (list) b_v (list))
+			(flood-near pf_ctx node (get :flood_vectors pcb) pf_via r g v a_n a_v)
+			(. pcb :flood_near_lisp node r g v b_n b_v)
+			(++ pf_asked)
+			(setq pf_found (+ pf_found (length a_n) (length a_v)))
+			(and (eql (str a_n) (str b_n)) (eql (str a_v) (str b_v)) (++ pf_same))
+			(setq i (+ i 7))))
+	(list (get :netlist pcb)) 0 2)
+(assert-eq "every node asked, the same moves as the Lisp" pf_asked pf_same)
+(assert-true "and moves are found" (> pf_found 0))
+(. pcb :unmark_distances)
