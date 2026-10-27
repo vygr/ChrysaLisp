@@ -223,7 +223,11 @@
 				((storage-service) (print "The Storage service is running already."))
 				((not (storage-claim opt_s))
 					(print "Another session of this machine is serving the store at " opt_s "."))
-				((defq joined (storage-join opt_s size opt_i (if (> opt_k 0) opt_k) opt_F))
+				;waited for while its task is there, as long as that is: a store
+				;made on a slow stick is minutes writing, and a fixed wait said
+				;none was made of one that was, and did not save the member
+				((progn (print "Starting the store at " opt_s ", it can be a while if it is made or big.")
+						(defq joined (storage-join opt_s size opt_i (if (> opt_k 0) opt_k) opt_F :t)))
 					;and by itself from now on
 					(storage-member-save opt_s size opt_i (if (> opt_k 0) opt_k))
 					;what it joined, and who else is of it: a store of the mesh's
