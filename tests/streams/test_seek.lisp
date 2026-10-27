@@ -39,7 +39,7 @@
 (defq ms :nil)
 
 ; --- 3. File Stream Seek ---
-(defq temp_file "tmp_seek_test.txt")
+(defq temp_file "obj/tmp_seek_test.txt")
 (save "abcdefghijklmnopqrstuvwxyz" temp_file)
 (defq fs (file-stream temp_file))
 (assert-true "fstream open" (not (nil? fs)))

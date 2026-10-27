@@ -1226,11 +1226,11 @@
 ;all of it, so a change to a file it imports is a change of key. The files
 ;are the test's own, and gone after
 (defq si_tag (hex-encode (task-mbox))
-	si_lib (cat "tmp_si_" si_tag "_lib.shader") si_lib2 (cat "tmp_si_" si_tag "_lib2.shader")
-	si_main (cat "tmp_si_" si_tag "_main.shader") si_dot (cat "tmp_si_" si_tag "_dot.shader")
-	si_a (cat "tmp_si_" si_tag "_a.shader") si_b (cat "tmp_si_" si_tag "_b.shader")
-	si_bad (cat "tmp_si_" si_tag "_bad.shader") si_late (cat "tmp_si_" si_tag "_late.shader")
-	si_use_bad (cat "tmp_si_" si_tag "_use_bad.shader")
+	si_lib (cat "obj/tmp_si_" si_tag "_lib.shader") si_lib2 (cat "obj/tmp_si_" si_tag "_lib2.shader")
+	si_main (cat "obj/tmp_si_" si_tag "_main.shader") si_dot (cat "obj/tmp_si_" si_tag "_dot.shader")
+	si_a (cat "obj/tmp_si_" si_tag "_a.shader") si_b (cat "obj/tmp_si_" si_tag "_b.shader")
+	si_bad (cat "obj/tmp_si_" si_tag "_bad.shader") si_late (cat "obj/tmp_si_" si_tag "_late.shader")
+	si_use_bad (cat "obj/tmp_si_" si_tag "_use_bad.shader")
 	si_twice "(defun twice :float ((x :float)) (* x 2.0))"
 	si_body "(defun main :vec4 ((frag :vec2)) (vec4 (twice 0.25)))")
 (defun si-imp (file) (cat "(import " (str (ascii-char 34)) file (str (ascii-char 34)) ")" sh_lf))
@@ -1245,7 +1245,7 @@
 (defq si_key (elem-get (shader-load si_main) 5))
 (save "(defun twice :float ((x :float)) (+ x x))" si_lib)
 (assert-true "a change to a file it imports is a change of key" (not (eql si_key (elem-get (shader-load si_main) 5))))
-(save (cat "(import " (str (ascii-char 34)) "./" si_lib (str (ascii-char 34)) ")" sh_lf si_body) si_dot)
+(save (cat "(import " (str (ascii-char 34)) "./" (slice si_lib 4 -1) (str (ascii-char 34)) ")" sh_lf si_body) si_dot)
 (assert-true "a path with ./ is from the folder of the file" (shader-load si_dot))
 (save (cat (si-imp si_b) "(defun fa :float ((x :float)) x)") si_a)
 (save (cat (si-imp si_a) "(defun fb :float ((x :float)) x)") si_b)

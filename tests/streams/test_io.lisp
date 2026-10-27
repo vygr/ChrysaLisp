@@ -80,7 +80,7 @@
 (assert-eq "lines! error propagation" 'caught err_ret)
 
 ; --- File and String Save/Load ---
-(defq test_file_io "tmp_test_file_io.txt")
+(defq test_file_io "obj/tmp_test_file_io.txt")
 (save "Hello World" test_file_io)
 (assert-eq "save/load" "Hello World" (load test_file_io))
 (defq fs_test (file-stream test_file_io))
