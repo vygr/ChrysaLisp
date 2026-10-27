@@ -854,11 +854,12 @@
 	(vp-ble-cr 0 :r2 'sh_vdone)
 	(vp-sub-cr 1 :r2)
 	(vp-cpy-ri :r2 :r13 } (str s_n) {)
-	;every so many vertices the other tasks of the node have a turn
-	(vp-and-cr 2047 :r2)
+	;every so many vertices the clock is looked at, and the other tasks
+	;of the node have a turn if this one's slice is up, (task-slice)
+	(vp-and-cr 255 :r2)
 	(vpif '(:r2 = 0))
 		(vp-push :r13 :r10 :r11)
-		(call :sys_task :sleep '(0))
+		(call :sys_task :slice)
 		(vp-pop :r13 :r10 :r11)
 		(vp-lea-p 'fn_consts :r12)
 	(endif)
@@ -1182,8 +1183,9 @@
 	(E 'vp-label (Q 'sr_rowend))
 	(LI s_y :r2) (E 'vp-add-cr 1 :r2) (SI :r2 s_y)
 	(E 'vp-jmp (Q 'sr_row))
-	;:r2 of work has been done. When enough has, the other tasks of the
-	;node are given a turn. It is called where nothing is in a register,
+	;:r2 of work has been done. When enough has, the clock is looked at,
+	;and the other tasks of the node have a turn if this one's slice is
+	;up, (task-slice). It is called where nothing is in a register,
 	;all that is kept is in the frame, so there is only the frame itself
 	;to keep hold of
 	(E 'vp-label (Q 'sr_work))
@@ -1194,7 +1196,7 @@
 	(E 'vp-xor-rr :r3 :r3)
 	(SI :r3 s_work)
 	(E 'vp-push :r13)
-	(E 'call :sys_task :sleep (Q '(0)))
+	(E 'call :sys_task :slice)
 	(E 'vp-pop :r13)
 	(E 'vp-lea-p (Q 'fn_consts) :r12)
 	(E 'vp-label (Q 'sr_worked))
@@ -1367,8 +1369,9 @@
 	(vp-cpy-ri :r8 :r13 } (str s_height) {)
 	(vp-call 'sh_init)
 (vp-label 'sh_yloop)
-	;after so many pixels, a row counts as its pixels, the other tasks of
-	;the node have a turn. All that is kept is in the frame
+	;after so many pixels, a row counts as its pixels, the clock is looked
+	;at, and the other tasks of the node have a turn if this one's slice is
+	;up, (task-slice). All that is kept is in the frame
 	(vp-cpy-ir :r13 } (str s_work) { :r2)
 	(vp-cpy-ir :r13 } (str s_x1) { :r3)
 	(vp-cpy-ir :r13 } (str s_x0) { :r4)
@@ -1378,7 +1381,7 @@
 		(vp-xor-rr :r2 :r2)
 		(vp-cpy-ri :r2 :r13 } (str s_work) {)
 		(vp-push :r13)
-		(call :sys_task :sleep '(0))
+		(call :sys_task :slice)
 		(vp-pop :r13)
 		(vp-lea-p 'fn_consts :r12)
 	(else)

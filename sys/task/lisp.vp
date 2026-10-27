@@ -94,21 +94,9 @@
 	;is the slice up ? Asked every time this is called, and of the time
 	;of day it was most of what a call cost, 10 to 50 ns. A host that is
 	;new enough has a clock that is cheap to ask, a ns or a few
-	(fn-bind 'sys/statics/statics :r2)
-	(assign '((:r2 statics_sys_task_tick)) '(:r1))
-	(vpif '(:r1 /= 0))
-		(call :host_os :pii_tick :nil '(:r0))
-	(else)
-		(call :host_os :pii_time :nil '(:r0))
-	(endif)
-	(assign '((:r2 statics_sys_task_then)) '(:r1))
-	(vp-sub-rr :r0 :r1)
-	(vpif '(:r1 < -1000))
-		(assign '(:r0) '((:r2 statics_sys_task_then)))
-		(call :sys_task :sleep '(0))
-	;back from letting the others run, has it been told to stop ? A
-	;command that works and never reads or writes sees it here, in a
-	;build that checks for errors
+	(call :sys_task :slice)
+	;has it been told to stop ? A command that works and never reads or
+	;writes sees it here
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_current_tcb)) '(:r2))
 	(assign '((:r2 +tk_node_flags)) '(:r2))
@@ -116,7 +104,6 @@
 		(vp-pop :r0 :r1)
 		(assign '((:r0 +lisp_sym_nil)) '(:r1))
 		(jump :lisp :repl_error '(:r1 "(task-slice)" +error_msg_task_aborted))
-	(endif)
 	(endif)
 	(vp-pop :r0 :r1)
 	(class/obj/ref :r1 :r2)

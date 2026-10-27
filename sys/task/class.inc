@@ -16,6 +16,7 @@
 	(dec-method :stop sys/task/stop :static :nil :nil (:r0-:r14 :f0-:f15))
 	(dec-method :restore sys/task/restore :static :nil :nil (:r0-:r14 :f0-:f15))
 	(dec-method :sleep sys/task/sleep :static (:r0) :nil (:r0 :f0-:f15))
+	(dec-method :slice sys/task/slice :static :nil :nil (:r0-:r2 :f0-:f15))
 	(dec-method :suspend sys/task/suspend :static :nil :nil (:r0-:r14 :f0-:f15))
 	(dec-method :resume sys/task/resume :static (:r0) (:r0) (:r1-:r2))
 	(dec-method :defer sys/task/defer :static (:r0) :nil (:r0-:r14 :f0-:f15))

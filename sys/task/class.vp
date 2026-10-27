@@ -228,6 +228,31 @@
 
 (def-func-end)
 
+;(task-slice) for VP: the clock, and a turn for the other tasks of the
+;node only if this one's slice is up. Cheap enough to call often, so a
+;long native function, a shader's draw, calls it as it goes and gives
+;way by the time it has had, on a fast machine or a slow one
+(def-method :sys_task :slice)
+	;trashes
+	;:r0-:r2, :f0-:f15
+
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_tick)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(call :host_os :pii_tick :nil '(:r0))
+	(else)
+		(call :host_os :pii_time :nil '(:r0))
+	(endif)
+	(assign '((:r2 statics_sys_task_then)) '(:r1))
+	(vp-sub-rr :r0 :r1)
+	(vpif '(:r1 < -1000))
+		(assign '(:r0) '((:r2 statics_sys_task_then)))
+		(call :sys_task :sleep '(0))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :sys_task :sleep)
 	;inputs
 	;:r0 = time delay in usec (long)
