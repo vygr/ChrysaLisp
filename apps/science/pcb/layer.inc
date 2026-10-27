@@ -46,7 +46,7 @@
 		((and (< dp1 (neg d)) (< dp2 (neg d))) :nil)
 		((vector-collide-thick-lines-2d p1 p2 (elem-get record +record_p1) (elem-get record +record_p2) d))))
 
-(defun hit-line (buckets minx miny maxx maxy width id func line)
+(defun hit-line (buckets minx miny maxx maxy width id line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (and (<= (++ miny width) maxy)
 				(not (defq hit (some!
@@ -54,7 +54,7 @@
 						(some (lambda (record)
 							(when (/= (elem-get record +record_id) id)
 								(elem-set record +record_id id)
-								(func record line)))
+								(hit-line? record line)))
 							bucket))
 					(list buckets) :nil (+ miny minx) (+ miny maxx 1)))))
 	hit))
@@ -77,9 +77,10 @@
 				(pop bucket)))
 			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
-;native versions
+;native versions, hit-line with the test of hit-line? in it, the same
+;fixed point, no call back for each record
 (ffi (cat *app_root* "hit_line") hit-line)
-; (hit-line buckets minx miny maxx maxy width id func line) -> flag
+; (hit-line buckets minx miny maxx maxy width id line) -> :t | :nil
 (ffi (cat *app_root* "add_line") add-line)
 ; (add-line buckets minx miny maxx maxy width record) -> record
 (ffi (cat *app_root* "sub_line") sub-line)
@@ -132,7 +133,7 @@
 		; (. layer :hit_line layer_line) -> :nil | :t
 		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(hit-line (get :buckets this) minx miny maxx maxy (get :width this) id (const hit-line?) layer_line))
+		(hit-line (get :buckets this) minx miny maxx maxy (get :width this) id layer_line))
 	)
 
 (defclass Layers (width height depth scale) :nil
@@ -211,6 +212,6 @@
 	)
 
 ;module
-(export-symbols '(Layer-line Layers-line))
+(export-symbols '(Layer-line Layers-line Record hit-line? hit-line))
 (export-classes '(Layer Layers))
 (env-pop)
