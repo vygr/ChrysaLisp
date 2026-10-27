@@ -109,6 +109,39 @@ Each begins with `def`, as `defun` and `defq` do in ChrysaLisp.
 * `(deftexture name)`. A picture a pixel shader reads from, see Textures
   below. A vertex shader has none.
 
+## Imports
+
+`(import path)` reads the functions, consts and globals of another file in
+its place, as if they were written there. The imports of a file come first,
+before any other declaration, so what a file imports is declared before it
+is used. A path is from the root, `"lib/gpu/shaders/sdf.shader"`, or from the
+folder of the file with `./`.
+
+```vdu
+(import "lib/gpu/shaders/sdf.shader")
+
+(defun main :vec4 ((frag :vec2))
+	(defq p (vec3 (/ frag 64.0) 0.0))
+	(vec4 (vec3 (noise p)) 1.0))
+```
+
+A file that is imported is a library: it has only `defun`, `defconst` and
+`defglobal`, no inputs, attrs, varyings or textures, and no `main`, those are
+the shader's own. It can import others. A file imported twice, by the shader
+and by a library it imports, is read once; a file that imports itself, by
+way of others or not, is refused. A name still means one thing, a library's
+names are the shader's.
+
+The imports are read by `(shader-text)`, before the checker or any back end
+sees the program, so every back end has them. The key a program's native
+code is kept under is the hash of all of it, the shader and what it
+imports, so a change to a library is a change of key, and native code made
+before it is not used.
+
+`lib/gpu/shaders/sdf.shader` is the first library: distance fields for a
+raymarch, `sphere`, `box`, `rounded_cube` and `smin`, and noise, `hash`,
+`hash33` and `noise`. The surface and Raymarch demos import it.
+
 ## Statements
 
 * `(defq name expr ...)`. New locals, the type is that of the expr.

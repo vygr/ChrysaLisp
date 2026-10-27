@@ -529,6 +529,8 @@
 		(unless (and (list? form) (nempty? form)) (sh-err "not a declaration" form))
 		(defq op (first form) n (dec (length form)) name (second form))
 		(cond
+			;an import is read in its place before this, (shader-text)
+			((eql op 'import))
 			((eql op 'definput)
 				(unless (<= 2 n 5) (sh-err "wrong number of args" form))
 				(sh-name name form)
@@ -653,14 +655,51 @@
 		(shader-varyings pixel))
 	(list vertex pixel))
 
+(defun sh-gather (file seen stack out lib)
+	;the text of each file a file imports, and of what they import, before
+	;its own, onto out, each file once. A file of a library, lib, has only
+	;functions, consts and globals and no main
+	(unless (defq text (load file)) (sh-err "no such file" file))
+	(defq heading :t folder (slice file 0 (ifn (rfind "/" file) 0)))
+	(each (lambda (form)
+			(cond
+				((and (list? form) (eql (first form) 'import))
+					(unless heading (sh-err "an import comes before any other declaration" form))
+					(unless (and (= (length form) 2) (str? (second form))) (sh-err "wrong import" form))
+					(defq path (second form))
+					(if (starts-with "./" path) (setq path (cat folder (slice path 2 -1))))
+					(if (find path stack) (sh-err "a loop of imports" form))
+					(unless (find path seen)
+						(push seen path)
+						(sh-gather path seen (cat stack (list path)) out :t)))
+				(:t (setq heading :nil)
+					(when lib
+						(unless (and (list? form) (find (first form) '(defun defconst defglobal)))
+							(sh-err "an imported file has only functions, consts and globals" form))
+						(if (eql (second form) 'main) (sh-err "an imported file has no main" form))))))
+		(shader-read (string-stream text)))
+	(push out text))
+
+(defun shader-text (file)
+	; (shader-text file) -> str
+	;the source of a shader as it is read: the files it imports, (import
+	;path), and those they import, each once, before its own. A path is
+	;from the root, or with ./ from the folder of the file. Its hash is
+	;its key, so a change to a file it imports is a change of key
+	(defq out (list))
+	(sh-gather file (list file) (list file) out :nil)
+	(defq text (first out))
+	(each! (# (setq text (cat text (ascii-char 10) %0))) (list out) 1)
+	text)
+
 (defun shader-load (file)
 	; (shader-load file) -> program
-	;a program from a file. Only its head is read, and a hash of the file
-	;taken, which is what its native code is kept under. The rest is read
-	;and checked when a back end has to make something from it,
-	;(shader-full), so a file whose native code is there already costs a
-	;hash and a few lines
-	(unless (defq text (load file)) (sh-err "no such file" file))
+	;a program from a file, and what it imports, (shader-text). Only its
+	;head is read, and a hash of it taken, which is what its native code
+	;is kept under. The rest is read and checked when a back end has to
+	;make something from it, (shader-full), so a file whose native code is
+	;there already costs a hash and a few lines
+	(defq text (shader-text file))
 	(defq program (shader-compile (shader-read (string-stream text)) :t))
 	(elem-set program 5 (shader-key text))
 	(elem-set program 6 text)

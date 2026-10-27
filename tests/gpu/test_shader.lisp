@@ -1157,7 +1157,9 @@
 (defq kf_file "apps/demos/surface/surface.shader" kf_prog (shader-load kf_file))
 (assert-eq "only the head is read" :lazy (second kf_prog))
 (assert-eq "a key of 32 hex digits" 32 (length (elem-get kf_prog 5)))
-(assert-eq "the key is the hash of the file" (shader-key (load kf_file)) (elem-get kf_prog 5))
+(assert-eq "the key is the hash of the source, the file and what it imports" (shader-key (shader-text kf_file)) (elem-get kf_prog 5))
+(assert-eq "of a file that imports nothing, the hash of the file"
+	(shader-key (load "apps/demos/planets/globe_lit.shader")) (elem-get (shader-load "apps/demos/planets/globe_lit.shader") 5))
 (assert-eq "the same file, the same key" (elem-get kf_prog 5) (elem-get (shader-load kf_file) 5))
 (assert-true "another file, another key"
 	(not (eql (elem-get kf_prog 5) (elem-get (shader-load "apps/demos/raymarch/film.shader") 5))))
@@ -1218,3 +1220,39 @@
 (defq kt_msl (shader-kept-text (cat "test_kept_" (elem-get kf_prog 5) ".msl") (# (shader-msl kf_prog))))
 (assert-eq "the Metal text of a file, kept, is what the back end makes" (shader-msl (shader-load kf_file)) kt_msl)
 (pii-remove (cat (load-path) "lib/gpu/jit/test_kept_" (elem-get kf_prog 5) ".msl"))
+
+;an import, (import path): the functions, consts and globals of another
+;file, read in its place, each file once, and the key of a program is of
+;all of it, so a change to a file it imports is a change of key. The files
+;are the test's own, and gone after
+(defq si_tag (hex-encode (task-mbox))
+	si_lib (cat "tmp_si_" si_tag "_lib.shader") si_lib2 (cat "tmp_si_" si_tag "_lib2.shader")
+	si_main (cat "tmp_si_" si_tag "_main.shader") si_dot (cat "tmp_si_" si_tag "_dot.shader")
+	si_a (cat "tmp_si_" si_tag "_a.shader") si_b (cat "tmp_si_" si_tag "_b.shader")
+	si_bad (cat "tmp_si_" si_tag "_bad.shader") si_late (cat "tmp_si_" si_tag "_late.shader")
+	si_use_bad (cat "tmp_si_" si_tag "_use_bad.shader")
+	si_twice "(defun twice :float ((x :float)) (* x 2.0))"
+	si_body "(defun main :vec4 ((frag :vec2)) (vec4 (twice 0.25)))")
+(defun si-imp (file) (cat "(import " (str (ascii-char 34)) file (str (ascii-char 34)) ")" sh_lf))
+(save si_twice si_lib)
+(defq si_thrice "(defun thrice :float ((x :float)) (+ x (twice x)))")
+(save (cat (si-imp si_lib) si_thrice) si_lib2)
+;the first library twice, as itself and by the second, read once
+(save (cat (si-imp si_lib) (si-imp si_lib2) si_body) si_main)
+(defq si_loaded (shader-full (shader-load si_main)) si_pasted (sh-src si_twice si_thrice si_body))
+(assert-eq "an imported function is the GLSL of one written in" (shader-glsl si_pasted) (shader-glsl si_loaded))
+(assert-list-eq "and draws the same" '(0.5 0.5 0.5 0.5) (sh-pixel si_loaded))
+(defq si_key (elem-get (shader-load si_main) 5))
+(save "(defun twice :float ((x :float)) (+ x x))" si_lib)
+(assert-true "a change to a file it imports is a change of key" (not (eql si_key (elem-get (shader-load si_main) 5))))
+(save (cat "(import " (str (ascii-char 34)) "./" si_lib (str (ascii-char 34)) ")" sh_lf si_body) si_dot)
+(assert-true "a path with ./ is from the folder of the file" (shader-load si_dot))
+(save (cat (si-imp si_b) "(defun fa :float ((x :float)) x)") si_a)
+(save (cat (si-imp si_a) "(defun fb :float ((x :float)) x)") si_b)
+(assert-error "a loop of imports" (shader-load si_a))
+(save "(definput level :float)" si_bad)
+(save (cat (si-imp si_bad) si_body) si_use_bad)
+(assert-error "an imported file has no inputs" (shader-load si_use_bad))
+(save (cat si_twice sh_lf (si-imp si_lib2) si_body) si_late)
+(assert-error "an import comes first" (shader-load si_late))
+(each (const pii-remove) (list si_lib si_lib2 si_main si_dot si_a si_b si_bad si_late si_use_bad))

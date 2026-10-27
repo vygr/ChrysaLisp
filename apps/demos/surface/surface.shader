@@ -5,6 +5,8 @@
 ; of main, which differ only in their test, are one.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/gpu/shaders/sdf.shader")
+
 ;inputs, name type default min max
 (definput time :float 0.0)
 (definput resolution :vec2)
@@ -32,24 +34,6 @@
 	(+ (:y cam_pos) (* 0.0 (sin time)))
 	(:z cam_pos)))
 
-(defun hash :float ((n :float))
-	(fract (* (sin n) 43758.5453)))
-
-(defun hash33 :vec3 ((p :vec3))
-	(defq n (sin (dot p (vec3 7 157 113))))
-	(fract (* (vec3 2097152 262144 32768) n)))
-
-(defun noise :float ((x :vec3))
-	(defq p (floor x) f (fract x))
-	(setq f (* f f (- 3.0 (* 2.0 f))))
-	(defq n (+ (* (:x p) 7.0) (* (:y p) 57.0) (* 111.0 (:z p))))
-	(mix
-		(mix (mix (hash (+ n 0.0)) (hash (+ n 7.0)) (:x f))
-			(mix (hash (+ n 57.0)) (hash (+ n 64.0)) (:x f)) (:y f))
-		(mix (mix (hash (+ n 111.0)) (hash (+ n 118.0)) (:x f))
-			(mix (hash (+ n 168.0)) (hash (+ n 175.0)) (:x f)) (:y f))
-		(:z f)))
-
 (defun sinusoidal_bump :float ((p :vec3))
 	(+
 		(* (sin (+ (* (:x p) 4.0) (* time 0.97)))
@@ -72,24 +56,6 @@
 			(bump (vec3 (:x p) (:y p) (- (:z p) eps))))) (+ eps eps)))
 	(setq grad (- grad (* n (dot n grad))))
 	(normalize (- n (* bf grad))))
-
-;field equation for a sphere
-(defun sphere :float ((p :vec3) (center :vec3) (radius :float))
-	(- (length (- p center)) radius))
-
-;field equation for a cube
-(defun box :float ((p :vec3) (b :vec3))
-	(defq d (- (abs p) b))
-	(+ (min (max (:x d) (max (:y d) (:z d))) 0.0) (length (max d 0.0))))
-
-;field equation for a rounded cube
-(defun rounded_cube :float ((p :vec3) (xt :vec3) (r :float))
-	(- (length (max (+ (- (abs p) xt) (vec3 r)) 0.0)) r))
-
-;smooth min between two values
-(defun smin :float ((a :float) (b :float) (k :float))
-	(defq h (clamp (+ 0.5 (/ (* 0.5 (- b a)) k)) 0.0 1.0))
-	(- (mix b a h) (* k h (- 1.0 h))))
 
 ;the scene
 (defun scene :float ((p :vec3))

@@ -8,6 +8,8 @@
 ; code, if there is none.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/gpu/shaders/sdf.shader")
+
 ;inputs, name type default min max
 (definput resolution :vec2)
 (definput cam_z :float -3.0 -3.0 -1.0)
@@ -27,7 +29,7 @@
 
 (defun scene :float ((p :vec3))
 	;a ball in every unit cube
-	(- (length (- (fract p) (vec3 0.5))) 0.35))
+	(sphere (fract p) (vec3 0.5) 0.35))
 
 (defun march :float ((origin :vec3) (dir :vec3) (start :float))
 	;how far along the ray the scene is, clip_far if it is not met
