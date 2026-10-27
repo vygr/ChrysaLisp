@@ -1106,6 +1106,8 @@
 	'(0 0 9 0) (list (ptr-device 0) (ptr-contact 0) (ptr-device 9) (ptr-contact 9)))
 (assert-list-eq "the third finger of the second device is contact 2 of it, and its device is the id of its contact 0"
 	(list 0x2000000 2 0x2000000 0) (list (ptr-device 0x2000002) (ptr-contact 0x2000002) (ptr-device 0x2000000) (ptr-contact 0x2000000)))
+(assert-list-eq "a device of another origin, above 32 bits, is its own, and its contacts its"
+	(list 0x302000000 2 0x2000000) (list (ptr-device 0x302000002) (ptr-contact 0x302000002) (ptr-device 0x2000002)))
 (defq dv_bind (.-> (Bindings) (:bind :nil :nil :nil '(:color 1)) (:bind :touch (ptr-device 0x2000003) :nil '(:color 2))
 	(:bind :pen (ptr-device 0x3000000) :nil '(:color 3))))
 (assert-list-eq "what one panel is bound to is every finger of it, and no finger of another panel, and a pen its own"

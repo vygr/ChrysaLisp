@@ -96,7 +96,9 @@
 ;given the next number, counting up, and no number is given again, so of
 ;two contacts of a device the one that landed later has the bigger. The
 ;host's driver gives both, and the id of a pointer is the two, device << 24
-;| contact, the mouse device 0. Whose a touch is, is its device. An id
+;| contact, the mouse device 0, and above 32 bits its origin, 0 for a
+;device of this desktop, so a device of another is a device of its own.
+;Whose a touch is, is its device. An id
 ;below 16777216 is a device of the one contact, as the mouse is, and as a
 ;test or a script may name a pen or a finger
 

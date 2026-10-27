@@ -175,8 +175,9 @@ docs/diagrams/host_layers.cwb
           mouse, window) and gives each as a `host_gui_event`, the one
           record every driver fills, see `src/host/gui_event.h` and
           `sys/pii/lisp.inc`. A pen or a finger is a pointer event of it,
-          with an id, a kind and how hard it is pressed, there can be
-          many at once; the sdl3 driver gives them, see
+          with an id, a kind, its buttons, each a bit of its own, and how
+          hard it is pressed, its down and up when it touches and lifts,
+          there can be many at once; the sdl3 driver gives them, see
           [`whiteboard.md`](whiteboard.md).
 
         * `host_gui_clip_put`, `host_gui_clip_get`, `host_gui_clip_free`: Put

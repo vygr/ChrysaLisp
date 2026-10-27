@@ -39,17 +39,24 @@ enum
 #define host_gui_buttons_middle 2
 #define host_gui_buttons_right 4
 
+/* the buttons of a pen, held in a pointer event, the same bits as a mouse's:
+   its tip, the lower button of its barrel and the upper */
+#define host_gui_buttons_tip 1
+#define host_gui_buttons_barrel 4
+#define host_gui_buttons_barrel2 2
+
 /* the kind of a pointer */
 #define host_gui_kind_mouse 0
 #define host_gui_kind_pen 1
 #define host_gui_kind_eraser 2
 #define host_gui_kind_touch 3
 
-/* A pointer event is of a pen or a finger. x and y are where it is. buttons
-   is those held, as in a mouse motion, left for a finger that is down or a
-   pen that touches, right or middle in place of left for a pen with a
-   button of its barrel held, and 0 for one that is up or only near. The
-   mouse is not told this way, it has its own events above, and where the
+/* A pointer event is of a pen or a finger. x and y are where it is. Down
+   and up are when it touches and lifts, a motion between them is of one
+   that touches, any other of one only near. buttons is those it has, each
+   its own bit: a pen's tip while it touches and the buttons of its barrel,
+   held together; a finger has none. The eraser end of a pen is a device of
+   its own, of the eraser kind. The mouse is not told this way, it has its own events above, and where the
    window system makes a mouse out of a finger or a pen for programs that
    know no better, that mouse is not passed on: what takes these events
    makes a mouse of them itself for whatever wants one. The three fields

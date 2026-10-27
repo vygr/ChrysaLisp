@@ -242,6 +242,8 @@
 			(setq *focus* (if (Textfield? view) view)))
 		((= type +gui_ev_pointer_up)
 			(. *pointer_views* :erase id)))
+	;it touches from its down to its up
+	(defq contact (if (. *pointer_views* :find id) 1 0))
 	(when (defq owner (. view :find_owner))
 		(mail-send owner (setf-> (str-alloc +ev_msg_pointer_size)
 			(+ev_msg_type +ev_type_pointer)
@@ -250,6 +252,7 @@
 			(+ev_msg_pointer_kind (getf msg +gui_event_kind))
 			(+ev_msg_pointer_buttons (getf msg +gui_event_buttons))
 			(+ev_msg_pointer_pressure (getf msg +gui_event_pressure))
+			(+ev_msg_pointer_contact contact)
 			(+ev_msg_pointer_x x)
 			(+ev_msg_pointer_y y)
 			(+ev_msg_pointer_rx (- x (getf view +view_ctx_x 0)))

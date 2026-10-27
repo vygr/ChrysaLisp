@@ -40,13 +40,18 @@
 	(uint buttons count)
 	(int x y rx ry))
 
-;a pen or a finger, there can be many at once. id is which, kind is a
-;+gui_kind, buttons those it has held, 0 when it is up or only near, as a
-;mouse has them, and pressure how hard, 0 to 65535. A view that has a
-;:pointer method is given it. For one that has not, the first that is down
-;is made a mouse, see (. window :event)
+;a pen or a finger, there can be many at once. id is which, its origin <<
+;32 | its device << 24 | which contact of the device, the origin 0 for a
+;device of this desktop; kind is a +gui_kind; contact 1 while it touches,
+;from when it goes down to when it comes up, else 0, only near; buttons
+;those it has held, each its own bit, as a mouse has them: a pen's tip,
+;the left, while it touches, and the buttons of its barrel, the right and
+;the middle; a finger has none; and pressure how hard, 0 to 65535. A view
+;that has a :pointer method is given it. For one that has not, the first
+;that touches is made a mouse, see (. window :event)
 (structure +ev_msg_pointer +ev_msg_size
-	(uint id kind buttons pressure)
+	(long id)
+	(uint kind buttons pressure contact)
 	(int x y rx ry))
 
 (structure +ev_msg_wheel +ev_msg_size

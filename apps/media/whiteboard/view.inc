@@ -208,8 +208,15 @@
 	(defmethod :pointer (event)
 		; (. board_view :pointer event) -> board_view
 		;a pen or a finger, as the GUI tells of one, to the board as it is:
-		;its own id, its kind, what it has held and how hard it is pressed
-		(defq id (getf event +ev_msg_pointer_id) buttons (getf event +ev_msg_pointer_buttons)
+		;its own id, its kind, the press it is and how hard. A press is
+		;while it touches: a pen's with a button of its barrel held is that
+		;button's, else, a pen's tip or a finger, the left
+		(defq id (getf event +ev_msg_pointer_id) held (getf event +ev_msg_pointer_buttons)
+			buttons (cond
+				((= (getf event +ev_msg_pointer_contact) 0) 0)
+				((/= (logand held +pev_right) 0) +pev_right)
+				((/= (logand held +pev_middle) 0) +pev_middle)
+				(+pev_left))
 			kind (elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
 			rx (getf event +ev_msg_pointer_rx) ry (getf event +ev_msg_pointer_ry)
 			pressure (/ (n2f (getf event +ev_msg_pointer_pressure)) 65535.0))
@@ -225,7 +232,7 @@
 		;take hold of what is seen, and have it till one of them comes up
 		(defq fingers (get :fingers this) id (getf event +ev_msg_pointer_id) board (get :board this)
 			grip (get :grip this) margin (get :margin this))
-		(if (/= (getf event +ev_msg_pointer_buttons) 0)
+		(if (/= (getf event +ev_msg_pointer_contact) 0)
 			(. fingers :insert id (list (getf event +ev_msg_pointer_rx) (getf event +ev_msg_pointer_ry)))
 			(. fingers :erase id))
 		;one of the two has come up: what is seen is let go of, and if it

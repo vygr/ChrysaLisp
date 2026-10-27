@@ -51,6 +51,7 @@ static bool host_gui_sdl3_pens_seen = false;
 #define HOST_GUI_SDL3_CONTACTS 32
 #define HOST_GUI_SDL3_DEVICE_TOUCH 1
 #define HOST_GUI_SDL3_DEVICE_PEN 2
+#define HOST_GUI_SDL3_DEVICE_ERASER 3
 static struct
 {
 	uint32_t kind;	/* 0 for a slot not used */
@@ -167,22 +168,23 @@ static uint32_t *host_gui_sdl3_pen(uint32_t id)
 static void host_gui_sdl3_pen_event(host_gui_event *out, uint32_t type, uint32_t which,
 	uint32_t state, float x, float y)
 {
-	/* a pen is a device of its own, with the one contact */
-	uint32_t id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_PEN, which) << 24;
+	/* a pen is a device of its own, with the one contact, and its eraser
+	   end is another, always an eraser */
+	bool eraser = (state & SDL_PEN_INPUT_ERASER_TIP) != 0;
+	uint32_t id = host_gui_sdl3_device(eraser ? HOST_GUI_SDL3_DEVICE_ERASER : HOST_GUI_SDL3_DEVICE_PEN, which) << 24;
 	uint32_t *pressure = host_gui_sdl3_pen(id);
 	out->type = type;
 	out->x = (int32_t)x;
 	out->y = (int32_t)y;
 	out->id = id;
-	out->kind = (state & SDL_PEN_INPUT_ERASER_TIP) ? host_gui_kind_eraser : host_gui_kind_pen;
-	/* only a pen that touches has buttons held. A button of its barrel
-	   makes it the right or the middle button and not the left */
-	out->buttons = !(state & SDL_PEN_INPUT_DOWN) ? 0
-		: (state & SDL_PEN_INPUT_BUTTON_1) ? host_gui_buttons_right
-		: (state & SDL_PEN_INPUT_BUTTON_2) ? host_gui_buttons_middle
-		: host_gui_buttons_left;
+	out->kind = eraser ? host_gui_kind_eraser : host_gui_kind_pen;
+	/* its buttons, each its own: the tip while it touches, and those of
+	   its barrel whether it touches or not */
+	out->buttons = ((state & SDL_PEN_INPUT_DOWN) ? host_gui_buttons_tip : 0)
+		| ((state & SDL_PEN_INPUT_BUTTON_1) ? host_gui_buttons_barrel : 0)
+		| ((state & SDL_PEN_INPUT_BUTTON_2) ? host_gui_buttons_barrel2 : 0);
 	/* a pen that does not say how hard is pressed as hard as can be */
-	out->pressure = out->buttons ? (*pressure ? *pressure : 65535u) : 0;
+	out->pressure = (state & SDL_PEN_INPUT_DOWN) ? (*pressure ? *pressure : 65535u) : 0;
 	host_gui_sdl3_pens_seen = true;
 }
 
@@ -242,7 +244,8 @@ static bool host_gui_sdl3_next(host_gui_event *out)
 			out->id = host_gui_sdl3_device(HOST_GUI_SDL3_DEVICE_TOUCH, (uint64_t)e.tfinger.touchID);
 			out->id = (out->id << 24) | host_gui_sdl3_contact(out->id, (uint64_t)e.tfinger.fingerID, up);
 			out->kind = host_gui_kind_touch;
-			out->buttons = up ? 0 : host_gui_buttons_left;
+			/* a finger has no buttons, that it touches is its down and up */
+			out->buttons = 0;
 			out->pressure = up ? 0 : e.tfinger.pressure > 0.0f ? (uint32_t)(e.tfinger.pressure * 65535.0f) : 65535u;
 			host_gui_sdl3_fingers = true;
 			if (host_gui_sdl3_trackpad()) host_gui_sdl3_pad_last = SDL_GetTicks();

@@ -166,11 +166,19 @@
 										(fnc target :mouse_hover event)))))))
 				((= type +ev_type_pointer)
 					;a pen or a finger. A view that takes pointers is given
-					;it. For one that does not, the first pointer that is
-					;down is its mouse: down, moves, and up, till it is up
+					;it. For one that does not, the first pointer that
+					;touches is its mouse: down, moves, and up, till it
+					;lifts. Its button is a pen's barrel's if one is held,
+					;else the left
 					(cond
 						((defq fnc (.? target :pointer)) (fnc target :pointer event))
-						(:t (defq id (getf event +ev_msg_pointer_id) buttons (getf event +ev_msg_pointer_buttons)
+						(:t (defq id (getf event +ev_msg_pointer_id) held (getf event +ev_msg_pointer_buttons)
+								touching (/= (getf event +ev_msg_pointer_contact) 0)
+								buttons (cond
+									((not touching) 0)
+									((/= (logand held 4) 0) 4)
+									((/= (logand held 2) 0) 2)
+									(1))
 								acting (get :pointer_id this)
 								mouse (setf-> (str-alloc +ev_msg_mouse_size)
 									(+ev_msg_type +ev_type_mouse)
@@ -182,13 +190,13 @@
 									(+ev_msg_mouse_rx (getf event +ev_msg_pointer_rx))
 									(+ev_msg_mouse_ry (getf event +ev_msg_pointer_ry))))
 							(cond
-								((and (not acting) (/= buttons 0))
+								((and (not acting) touching)
 									(def this :pointer_id id)
 									(def target :pressed_by (list id
 										(elem-get '(:mouse :pen :eraser :touch) (min 3 (getf event +ev_msg_pointer_kind)))
 										buttons))
 									(if (defq fnc (.? target :mouse_down)) (fnc target :mouse_down mouse)))
-								((and acting (= acting id) (/= buttons 0))
+								((and acting (= acting id) touching)
 									(if (defq fnc (.? target :mouse_move)) (fnc target :mouse_move mouse)))
 								((and acting (= acting id))
 									(def this :pointer_id :nil)

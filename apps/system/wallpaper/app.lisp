@@ -53,7 +53,7 @@
 			;a pointer down and up is a click as the mouse's is
 			((defq buttons (cond
 					((= (getf msg +ev_msg_type) +ev_type_mouse) (getf msg +ev_msg_mouse_buttons))
-					((= (getf msg +ev_msg_type) +ev_type_pointer) (getf msg +ev_msg_pointer_buttons))))
+					((= (getf msg +ev_msg_type) +ev_type_pointer) (getf msg +ev_msg_pointer_contact))))
 				(cond
 					((/= buttons 0)
 						;mouse button is down

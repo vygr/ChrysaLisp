@@ -224,7 +224,7 @@
 	;the kinds of pointer, as the host has them: 1 a pen, 2 its eraser, 3 a finger
 	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
 	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
-	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1))"
 	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
 	;a pen draws a box, the board is set to boxes
 	"(wa-mode :rect) (wa-ptr 0x20001 1 1 100 100) (wa-ptr 0x20001 1 1 200 180) (wa-ptr 0x20001 1 0 200 180)"
@@ -603,7 +603,7 @@
 (defq wa_out (wa-run (cat
 	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
 	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
-	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1))"
 	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
 	"(setq *margin* 240 *zoom* 1.0) (. *board* :new 1024 768) (board-resized) (bind (quote (w h)) (. *window* :pref_size)) (. *window* :change 0 0 w h)"
 	"(defun wa-view () (list (n2i *pan_x*) (n2i *pan_y*) *zoom* (if *zoom_to* (first *zoom_to*))))"
@@ -644,7 +644,7 @@
 (defq wa_out (wa-run (cat
 	"(defun wa-ptr (id kind buttons rx ry) (. *window* :event (setf-> (str-alloc +ev_msg_pointer_size)"
 	" (+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. *board_view* :get_id))"
-	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535)"
+	" (+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons) (+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1))"
 	" (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry) (+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))"
 	"(setq *margin* 0) (. *board* :new 400 200) (board-resized)"
 	"(defun wa-d () (cwb-get (last (cwb-items (. *board* :get_doc))) :d))"

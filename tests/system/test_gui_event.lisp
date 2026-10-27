@@ -53,7 +53,7 @@
 	(. ge_window :event (setf-> (str-alloc +ev_msg_pointer_size)
 		(+ev_msg_type +ev_type_pointer) (+ev_msg_target_id (. view :get_id))
 		(+ev_msg_pointer_id id) (+ev_msg_pointer_kind kind) (+ev_msg_pointer_buttons buttons)
-		(+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry)
+		(+ev_msg_pointer_pressure 65535) (+ev_msg_pointer_contact (if (= buttons 0) 0 1)) (+ev_msg_pointer_x rx) (+ev_msg_pointer_y ry)
 		(+ev_msg_pointer_rx rx) (+ev_msg_pointer_ry ry))))
 
 (ge-send ge_pointer 0x10001 +gui_kind_touch 1 10 20)
@@ -96,27 +96,31 @@
 (. ga_view :set_bounds 100 50 200 100)
 (. *screen* :add_child ga_view)
 (. ga_view :set_owner ga_mbox)
-(defun ga-pointer (type id x y buttons)
-	;an event of the driver done as the GUI's loop does it, and what was sent to the owner of the view
+(defun ga-pointer (type id x y)
+	;an event of the driver done as the GUI's loop does it, a finger, which
+	;has no buttons, and what was sent to the owner of the view: whether it
+	;touches is from its down and up
 	(defq msg (setf-> (str-alloc +gui_event_size) (+gui_event_type type) (+gui_event_x x) (+gui_event_y y)
-		(+gui_event_id id) (+gui_event_kind +gui_kind_touch) (+gui_event_buttons buttons) (+gui_event_pressure 65535)))
+		(+gui_event_id id) (+gui_event_kind +gui_kind_touch) (+gui_event_buttons 0) (+gui_event_pressure 65535)))
 	(defq threw (catch (progn ((. *event_map* :find type)) :nil) (str _)))
 	(cond
 		(threw)
 		((mail-poll (list ga_mbox))
 			(defq ev (mail-read ga_mbox))
-			(list (getf ev +ev_msg_type) (getf ev +ev_msg_pointer_id) (getf ev +ev_msg_pointer_buttons)
+			(list (getf ev +ev_msg_type) (getf ev +ev_msg_pointer_id) (getf ev +ev_msg_pointer_contact)
 				(getf ev +ev_msg_pointer_rx) (getf ev +ev_msg_pointer_ry)))
 		(:t :none)))
 ;where it is in the view is from where the view was last drawn, which here it has not been
 (assert-list-eq "a finger down on a view is told to its owner, as a pointer"
-	(list +ev_type_pointer 0x10007 1 150 80) (ga-pointer +gui_ev_pointer_down 0x10007 150 80 1))
-(assert-list-eq "moved off the view it is still that view's, it went down there"
-	(list +ev_type_pointer 0x10007 1 10 10) (ga-pointer +gui_ev_pointer_motion 0x10007 10 10 1))
-(assert-list-eq "and when it comes up" (list +ev_type_pointer 0x10007 0 10 10) (ga-pointer +gui_ev_pointer_up 0x10007 10 10 0))
-(assert-eq "after that, off the view, it is not" :none (ga-pointer +gui_ev_pointer_motion 0x10007 10 10 0))
-(assert-list-eq "a second finger is its own" (list +ev_type_pointer 0x10008 1 100 50) (ga-pointer +gui_ev_pointer_down 0x10008 100 50 1))
-(ga-pointer +gui_ev_pointer_up 0x10008 100 50 0)
+	(list +ev_type_pointer 0x10007 1 150 80) (ga-pointer +gui_ev_pointer_down 0x10007 150 80))
+(assert-list-eq "moved off the view it is still that view's, it went down there, and touches"
+	(list +ev_type_pointer 0x10007 1 10 10) (ga-pointer +gui_ev_pointer_motion 0x10007 10 10))
+(assert-list-eq "and when it comes up, it touches no more" (list +ev_type_pointer 0x10007 0 10 10) (ga-pointer +gui_ev_pointer_up 0x10007 10 10))
+(assert-eq "after that, off the view, it is not" :none (ga-pointer +gui_ev_pointer_motion 0x10007 10 10))
+(assert-list-eq "a second finger is its own" (list +ev_type_pointer 0x10008 1 100 50) (ga-pointer +gui_ev_pointer_down 0x10008 100 50))
+(ga-pointer +gui_ev_pointer_up 0x10008 100 50)
+(assert-eq "a pointer's id has room for an origin above the host's 32 bits"
+	0x300010009 (getf (setf-> (str-alloc +ev_msg_pointer_size) (+ev_msg_pointer_id 0x300010009)) +ev_msg_pointer_id))
 
 ;a turn of the wheel is for the view under the mouse as it turns, and never
 ;for another. Chris: "you should never be able to have a scroll region

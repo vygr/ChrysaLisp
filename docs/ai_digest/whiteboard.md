@@ -752,15 +752,18 @@ of the document are found by their own shapes.
 
 ## Pens and fingers, from the host up
 
-*To change: a contact said by the event, not by a button; the eraser a device of its own, see [The board to come](#devices-contacts-and-buttons).*
-
 The mouse comes as it always did. A pen or a finger is three more events of
 the host, `src/host/gui_event.h`, pointer down, motion and up, with an id, a
 kind, pen, eraser or touch, the buttons it has held and how hard it is
-pressed. The SDL3 driver fills them from SDL's finger and pen events. A
-finger has the left button while it touches. A pen has the left while its
-tip touches, the right or the middle in its place if a button of its barrel
-is held, and none when it is only near.
+pressed. The SDL3 driver fills them from SDL's finger and pen events.
+Whether it touches is said by the event, down when it lands, up when it
+lifts, and a motion between of one that touches; the GUI service passes it
+on as `contact`. Buttons are only buttons, each its own bit, as a mouse's: a
+finger has none; a pen has its tip, the left, while it touches, and the two
+buttons of its barrel, the right and the middle, near or touching, all of
+them held together. The eraser end of a pen is a device of its own. The id
+the GUI service gives is 64 bits, above the host's 32 is its origin, 0 for
+a device of this desktop, room for devices of other boards to join.
 
 SDL makes a mouse out of a finger or a pen for programs that know no better.
 That mouse is not passed on. The GUI service sends a pointer event,
@@ -1011,19 +1014,19 @@ shape sweeps. A tap of it is a small bite. On Chris's boards it was a
 device of its own, and the teacher's: "the eraser device input was always
 assumed to be under the control of the teacher. The bound to erase action
 of a pen was bound to the user id of that device." SDL3 gives the other end
-of a pen as an `:eraser`, with the pen's number, so here the other end of
-any pen is the teacher's eraser, and a pen's barrel button bound to rub
+of a pen as an `:eraser`, and the driver makes it a device of its own, so
+here the other end of any pen is the teacher's eraser, and a pen's barrel button bound to rub
 out is that pen's user.
 
 * Contacts of a device count up and are never given again.
 
 * A contact is not a button. Touching or not is said by the event, down,
-motion or up, not by a button being held. The host change for this, and for
-an id that has room for where a device comes from, is to be done with
-Chris's desktop free, with the Windows host built and a new snapshot. Today
-the driver gives a finger the left button, and a pen's barrel the right in
-place of the left, so tip and barrel together can not be told from the
-barrel alone.
+motion or up, not by a button being held, and a pointer's `contact` says
+it. A pen's tip and its barrel are bits of their own, so tip and barrel
+together are told from the barrel alone. The id has room for where a device
+comes from, its origin, above 32 bits. The board's view makes of these the
+press the board knows: while it touches, a barrel's button if one is held,
+else the left.
 
 ### What a contact is, decided as it lands
 
