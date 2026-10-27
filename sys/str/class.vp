@@ -118,8 +118,11 @@
 
 	(entry :sys_str :to_long `(,bufp ,base))
 
+	;it ends at the first char that is not a digit of the base, or the
+	;point: a newline or a space after a number was taken as a digit of
+	;it, "5\n" was 44
 	(vp-simd vp-xor-rr `(,num ,dot) `(,num ,dot))
-	(loop-start)
+	(loop-start 'digits)
 		(vp-cpy-ir-ub bufp 0 c)
 		(breakif `(,c = 0))
 		(vpif (list c '= (ascii-code ".")))
@@ -127,9 +130,13 @@
 		(else)
 			(vp-or-cr (- (ascii-code "a") (ascii-code "A")) c)
 			(vpif (list c '>= (ascii-code "a")))
-				(vp-sub-cr (- (ascii-code "a") (ascii-code "9") 1) c)
+				(vp-sub-cr (- (ascii-code "a") 10) c)
+			(else)
+				(breakif (list c '> (ascii-code "9")) 'digits)
+				(vp-sub-cr (ascii-code "0") c)
 			(endif)
-			(vp-sub-cr (ascii-code "0") c)
+			(breakif `(,c < 0) 'digits)
+			(breakif `(,c >= ,base) 'digits)
 			(vp-simd vp-mul-rr `(,base) `(,num ,dot))
 			(vp-add-rr c num)
 		(endif)

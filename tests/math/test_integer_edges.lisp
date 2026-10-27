@@ -88,6 +88,18 @@
 	(str-as-num "") 0
 	(str-as-num "9223372036854775807") edge_max)
 
+;a number ends at the first char that is not a digit of its base: what
+;follows it, a newline read with it from a file, a space, was taken as
+;digits, "5\n" was 44
+(test-cases
+	(str-as-num (cat "5" (ascii-char 10))) 5
+	(str-as-num (cat "12" (ascii-char 10))) 12
+	(str-as-num "12 ") 12
+	(str-as-num "12:3") 12
+	(str-as-num "0x1Fg") 31
+	(str-as-num "0b102") 2
+	(str-to-num (cat "3.25" (ascii-char 10))) 3.25)
+
 ; --- a shift is by the low 6 bits of its count, on every CPU and on the emulator ---
 (assert-eq "left by 64 is by 0" 1 (<< 1 64))
 (assert-eq "left by 65 is by 1" 2 (<< 1 65))
