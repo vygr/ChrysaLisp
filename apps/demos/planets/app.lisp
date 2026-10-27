@@ -260,10 +260,17 @@
 							((setq farm_ready :t farm_asked :nil last_farm (pii-time)))))))
 			(:t ;the timer, the globe turns and is drawn, if the last frame
 				;is not still out with the farm
-				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
+				(defq start (pii-time))
 				(unless farming
 					(setq turn (% (+ turn (n2r (elem-get (elem-get +planets which) 3))) +real_2pi))
 					(draw-frame))
+				;the next frame is a tick on, or four times as long as this
+				;one took here if that is more: on a slow machine drawing on
+				;its own node the globe turns less often, and never has more
+				;than a quarter of the node, the apps beside it have the rest
+				(defq took (- (pii-time) start))
+				(mail-timeout (elem-get select +select_timer)
+					(- (max +timer_rate (* took 4)) took) 0)
 				(and farm (= (setq ticks (% (inc ticks) 30)) 0)
 					(. farm :refresh +retry_timeout))
 				(when (>= (- (defq now (pii-time)) since) 1000000)

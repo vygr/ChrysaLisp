@@ -330,8 +330,15 @@
 						(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials.")))
 					((say (cat "Could not read a model from " msg ".")))))
 			(:t ;the timer, a frame
-				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
-				(draw-frame))))
+				(defq start (pii-time))
+				(draw-frame)
+				;the next frame is a tick on, or four times as long as this
+				;one took if that is more: on a slow machine drawing on its
+				;own node it turns less smoothly, and never has more than a
+				;quarter of the node, the apps beside it have the rest
+				(defq took (- (pii-time) start))
+				(mail-timeout (elem-get select +select_timer)
+					(- (max +timer_rate (* took 4)) took) 0))))
 	(if picker (mail-send picker ""))
 	(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))

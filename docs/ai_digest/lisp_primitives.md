@@ -1554,8 +1554,9 @@ File path management, environment introspection, and timing helpers.
 
 	*	`(time-add heading body ...)`
 
-*	**`time-report`**: Prints each heading's total from `time-add` and how
-	many times it ran, the longest first, then forgets them all.
+*	**`time-report`**: Prints each heading's total from `time-add`, how
+	many times it ran and the longest one time, the longest total first,
+	then forgets them all.
 
 	*	`(time-report)`
 

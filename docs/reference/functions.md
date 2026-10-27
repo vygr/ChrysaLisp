@@ -13249,8 +13249,8 @@ the theme a user has from now on
 ```code
 (time-report)
 
-each heading of (time-add), its total and how many times, the longest
-first, then they are all forgotten
+each heading of (time-add), its total, how many times and the longest
+one time, the longest total first, then they are all forgotten
 ```
 
 ### time-sum

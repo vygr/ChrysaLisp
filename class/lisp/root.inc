@@ -1383,16 +1383,19 @@
 		(print)
 		,retval))
 
-;the totals of (time-add), each heading and (nums us count), of the node
+;the totals of (time-add), each heading and (nums us count longest), of
+;the node
 (defq *time_sums* (list))
 (defun time-sum (heading us)
 	; (time-sum heading us)
-	;us added to the heading's total, and one to how many times
+	;us added to the heading's total, one to how many times, and the
+	;longest one time kept
 	(ifn (defq row (some (# (if (eql (first %0) heading) %0)) *time_sums*))
-		(push *time_sums* (list heading (nums us 1)))
+		(push *time_sums* (list heading (nums us 1 us)))
 		(defq total (second row))
 		(elem-set total 0 (+ (first total) us))
-		(elem-set total 1 (inc (second total)))))
+		(elem-set total 1 (inc (second total)))
+		(elem-set total 2 (max (third total) us))))
 
 (defmacro time-add (heading &rest body)
 	; (time-add heading body) -> what the body gives
@@ -1406,10 +1409,11 @@
 
 (defun time-report ()
 	; (time-report)
-	;each heading of (time-add), its total and how many times, the longest
-	;first, then they are all forgotten
+	;each heading of (time-add), its total, how many times and the longest
+	;one time, the longest total first, then they are all forgotten
 	(each (lambda ((heading total))
-			(print heading " " (time-in-seconds (first total)) " " (second total) "x"))
+			(print heading " " (time-in-seconds (first total)) " " (second total)
+				"x longest " (time-in-seconds (third total))))
 		(sort *time_sums* (lambda (a b) (- (first (second b)) (first (second a))))))
 	(clear *time_sums*))
 
