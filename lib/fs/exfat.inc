@@ -349,8 +349,27 @@
 	(defq data (apply (const cat) (cat (list "") parts)))
 	(if len (slice data 0 len) data))
 
+(defun exfat-ascii? (data n)
+	;are the first n bytes of 16 bit characters all ASCII, 8 bytes at a time
+	(defq i 0 ascii :t)
+	(while (and ascii (< i n))
+		(setq ascii (= 0 (logand (code data (defq w (min 8 (- n i))) i) (const 0xff80ff80ff80ff80)))
+			i (+ i w)))
+	ascii)
+
 (defun exfat-name (data units)
-	;a name is 16 bit characters, low byte first, here made UTF-8
+	;a name is 16 bit characters, low byte first, here made UTF-8. One of
+	;ASCII, as the names of a store's blocks are, is its low bytes, which
+	;are what is left of it when it is split at each 0: none of them is 0
+	;if there are as many as it has characters
+	(defq n (* units 2))
+	(if (and (exfat-ascii? data n)
+			(= (length (defq out (apply (const cat) (cat (list "") (split (slice data 0 n) (const (char 0))))))) units))
+		out
+		(exfat-name-units data units)))
+
+(defun exfat-name-units (data units)
+	;a name of any characters, a character at a time
 	(defq out (list) i 0)
 	(while (< i units)
 		(defq c (get-ushort data (* i 2)))
@@ -428,6 +447,8 @@
 					((= type +exfat_type_upcase)
 						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
 						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
+			;its upper case of ASCII is ASCII's own, a to z and nothing else
+			(def vol :ascii (every (# (= (exfat-upper vol %0) (if (<= 97 %0 122) (- %0 32) %0))) (range 0 128)))
 			(if (get :bitmap vol) vol))))
 
 (defun exfat-upper (vol unit)
@@ -459,27 +480,30 @@
 (defun exfat-entries (vol start len no_fat)
 	; (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
 	;the files and directories of a directory. A file is a set of entries,
-	;one for the file, one for its data, then as many as its name needs
+	;one for the file, one for its data, then as many as its name needs.
+	;Each is read where it is, a folder of a store has thousands
 	(defq data (exfat-data vol start len no_fat :t) out (list) i 0
 		n (/ (length data) +exfat_entry_size) type 1)
-	(defun entry (i)
-		(slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)))
-	(while (and (< i n) (/= (setq type (getf (defq e (entry i)) +exfat_entry_type)) +exfat_type_end))
+	(while (and (< i n) (/= (setq type (code data 1 (defq at (* i +exfat_entry_size)))) +exfat_type_end))
 		(defq count 0)
 		(when (= type +exfat_type_file)
-			(bind '(count attrs) (getf-> e +exfat_file_count +exfat_file_attributes))
+			(setq count (code data 1 (+ at +exfat_file_count)))
+			(defq attrs (code data 2 (+ at +exfat_file_attributes)) s (+ at +exfat_entry_size))
 			(when (and (>= count 2) (<= (+ i count) (dec n))
-					(= (getf (defq s (entry (inc i))) +exfat_entry_type) +exfat_type_stream))
-				(bind '(flags left size start) (getf-> s +exfat_stream_flags
-					+exfat_stream_name_length +exfat_stream_data_length +exfat_stream_first_cluster))
-				(defq name "" k 2)
+					(= (code data 1 s) +exfat_type_stream))
+				(defq flags (code data 1 (+ s +exfat_stream_flags))
+					units (code data 1 (+ s +exfat_stream_name_length))
+					size (code data 8 (+ s +exfat_stream_data_length))
+					start (code data 4 (+ s +exfat_stream_first_cluster))
+					parts (list "") left units k 2)
+				;the name, its parts in their entries, made one before it is read
 				(while (and (<= k count) (> left 0))
-					(when (= (getf (defq e (entry (+ i k))) +exfat_entry_type) +exfat_type_name)
-						(setq name (cat name (exfat-name (getf e +exfat_name_name)
-								(min left +exfat_name_units)))
-							left (- left +exfat_name_units)))
+					(when (= (code data 1 (defq e (* (+ i k) +exfat_entry_size))) +exfat_type_name)
+						(push parts (slice data (+ e +exfat_name_name) (+ e +exfat_name_name (* 2 (min left +exfat_name_units)))))
+						(setq left (- left +exfat_name_units)))
 					(setq k (inc k)))
-				(push out (list name (/= (logand attrs +exfat_attr_dir) 0) size start
+				(push out (list (exfat-name (apply (const cat) parts) (- units (max 0 left)))
+					(/= (logand attrs +exfat_attr_dir) 0) size start
 					(/= (logand flags +exfat_flag_no_fat) 0) i count))))
 		(setq i (+ i (inc count))))
 	out)
@@ -494,8 +518,19 @@
 	;the root as an entry, its length is not kept, its chain is followed
 	(list "" :t :nil (get :root vol) :nil -1 0))
 
+(defq +exfat_ascii (apply (const cat) (map (const char) (range 1 128))))
+
 (defun exfat-key (vol name)
-	;a name as the volume sees it, with no regard to case
+	;a name as the volume sees it, with no regard to case. Of a volume
+	;whose upper case of ASCII is ASCII's own, a name of ASCII is its own
+	;upper case, and any other is its 16 bit characters after a 0, which
+	;no name of ASCII has in it
+	(cond
+		((not (get :ascii vol)) (exfat-key-units vol name))
+		((= (bskip +exfat_ascii name 0) (length name)) (to-upper name))
+		((cat (char 0) (exfat-key-units vol name)))))
+
+(defun exfat-key-units (vol name)
 	(apply (const cat) (cat (list "") (map (# (char (exfat-upper vol %0) 2)) (exfat-units name)))))
 
 (defun exfat-dir-read (vol entry)
