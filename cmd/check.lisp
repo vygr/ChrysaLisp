@@ -72,6 +72,11 @@
     param   a list of parameters, or a list in one, whose
             first name is a macro of the system, (defun f
             (bits) ...): it is expanded as a call of it.
+    called  a parameter with the name of a function of the
+            system, called as a function in the body, (defun
+            f (get) (get x)): a call is bound to the system's
+            function as the code is read, the one given is
+            never called.
     empty   () given to a call, (list () x): it is run as
             a form, and calls nothing. (list) or '().
     past    (inc) of an (rfind), which gives the place after
@@ -193,7 +198,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "empty" "past" "shift" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -346,6 +351,25 @@
 			(. *root_macros* :find (third (first inner)))
 			(found file (first inner) "param" (third (first inner))
 				" first in a list of parameters is the name of a macro of the system, the list is taken as a call of it"))))
+
+(defun check-called (file forms head)
+	;(defun f (get) (get x)): a call is bound to the function of the system
+	;of its name as the code is read, so a function given as a parameter of
+	;that name is never called, the system's is
+	(defq at (cond
+			((and (eql head "defun") (> (length forms) 3)) 2)
+			((and (eql head "lambda") (> (length forms) 2)) 1))
+		names (if (and at (defq params (tree-form? (elem-get forms at))))
+			(filter (# (and (eql (first %0) :symbol) (. *root_names* :find (third %0)))) (forms-of params))
+			(list)))
+	(when (nempty? names)
+		(defq names (map (# (third %0)) names) todo (map (const tree-form?) (filter! (const tree-form?) forms (inc at) -1)))
+		(while (defq kids (pop todo))
+			(defq in (forms-of kids))
+			(each (# (if (defq more (tree-form? %0)) (push todo more))) in)
+			(and (nempty? in) (eql (first (first in)) :symbol) (find (third (first in)) names)
+				(found file (first in) "called" (third (first in))
+					" is a parameter called as a function, the call is of the function of the system of that name")))))
 
 (defun check-past (file forms head)
 	;(inc (rfind ...)): (rfind) gives the place after what it found, one
@@ -1330,6 +1354,7 @@
 							(if (find "eqlist" checks) (check-eqlist file forms head))
 							(if (find "ignore" checks) (check-ignore file forms head))
 							(if (find "param" checks) (check-param file forms head))
+							(if (find "called" checks) (check-called file forms head))
 							(if (find "empty" checks) (check-empty file forms head))
 							(if (find "past" checks) (check-past file forms head))
 							(if (find "shift" checks) (check-shift file forms head))
@@ -1365,10 +1390,10 @@
 			;the functions of each file imported, as read, (import-defuns)
 			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
-			;a macro is a list that begins with macro
-			(defq is_macro (and (list? val) (nempty? val) (eql (first val) macro)))
+			;as the Syntax class sorts them: a function of VP, of Lisp, a macro
+			(defq is_macro (macro-func? val))
 			(. *root_all* :insert (str name))
-			(if (or (func? val) (lambda? val) is_macro) (. *root_names* :insert (str name)))
+			(if (or (func? val) (lambda-func? val) is_macro) (. *root_names* :insert (str name)))
 			(if is_macro (. *root_macros* :insert (str name))))
 			(tolist *root_env*))
 		;from args ?

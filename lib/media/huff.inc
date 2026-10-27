@@ -33,7 +33,7 @@
 					(:t (defq at (logand (>> v (- left 8)) 255))
 						(. subs :insert at (push (ifn (. subs :find at) (list)) (list sym n v))))))
 			level_codes)
-		(. subs :each (lambda (at list) (push todo (list (+ base at) list (+ used 8))))))
+		(. subs :each (lambda (at codes) (push todo (list (+ base at) codes (+ used 8))))))
 	(reduce (# (push %0 %1)) table (cap (length table) (nums))))
 
 ;module

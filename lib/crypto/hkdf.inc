@@ -11,9 +11,9 @@
 	; (hkdf-extract salt secret) -> str
 	(hmac-sha256 (if (empty? salt) (apply (const cat) (map (lambda (&) (char 0)) (range 0 32))) salt) secret))
 
-(defun hkdf-expand (prk info length)
-	; (hkdf-expand prk info length) -> str
+(defun hkdf-expand (prk info len)
+	; (hkdf-expand prk info len) -> str
 	(defq out "" block "" n 0)
-	(while (< (length out) length)
+	(while (< (length out) len)
 		(setq n (inc n) block (hmac-sha256 prk (cat block info (char n))) out (cat out block)))
-	(slice out 0 length))
+	(slice out 0 len))

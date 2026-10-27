@@ -127,6 +127,11 @@ Usage: check [options] [path] ...
     param   a list of parameters, or a list in one, whose
             first name is a macro of the system, (defun f
             (bits) ...): it is expanded as a call of it.
+    called  a parameter with the name of a function of the
+            system, called as a function in the body, (defun
+            f (get) (get x)): a call is bound to the system's
+            function as the code is read, the one given is
+            never called.
     empty   () given to a call, (list () x): it is run as
             a form, and calls nothing. (list) or '().
     past    (inc) of an (rfind), which gives the place after
