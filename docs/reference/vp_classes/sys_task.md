@@ -120,6 +120,13 @@ info
 0 for yield
 ```
 
+### :slice -> sys/task/slice
+
+```code
+trashes
+:r0-:r2, :f0-:f15
+```
+
 ### :stack -> sys/task/stack
 
 ### :stacks -> sys/task/stacks

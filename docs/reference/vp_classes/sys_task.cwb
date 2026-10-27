@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 208
-	:height 412
+	:height 429
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 36
+	:next_id 37
 	:items
 	((:list 1)
 		((:list 7)
@@ -19,13 +19,13 @@
 					:id
 					2
 					:items
-					((:list 33)
+					((:list 34)
 						((:list 11)
 							:shape
 							:id
 							3
 							:d
-							"[M 8 0 L 173.75 0 A 8 8 0 0 1 181.75 8 L 181.75 378 A 8 8 0 0 1 173.75 386 L 8 386 A 8 8 0 0 1 0 378 L 0 8 A 8 8 0 0 1 8 0 Z]"
+							"[M 8 0 L 173.75 0 A 8 8 0 0 1 181.75 8 L 181.75 395 A 8 8 0 0 1 173.75 403 L 8 403 A 8 8 0 0 1 0 395 L 0 8 A 8 8 0 0 1 8 0 Z]"
 							:fill
 							4294967295
 							:stroke
@@ -316,6 +316,26 @@
 							:stroke
 							0
 							:text
+							"[:slice]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								238.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							19
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
 							"[:stack]"
 							:font_size
 							12
@@ -328,7 +348,7 @@
 						((:list 15)
 							:shape
 							:id
-							19
+							20
 							:kind
 							:text
 							:fill
@@ -348,7 +368,7 @@
 						((:list 15)
 							:shape
 							:id
-							20
+							21
 							:kind
 							:text
 							:fill
@@ -368,7 +388,7 @@
 						((:list 15)
 							:shape
 							:id
-							21
+							22
 							:kind
 							:text
 							:fill
@@ -388,7 +408,7 @@
 						((:list 15)
 							:shape
 							:id
-							22
+							23
 							:kind
 							:text
 							:fill
@@ -408,7 +428,7 @@
 						((:list 15)
 							:shape
 							:id
-							23
+							24
 							:kind
 							:text
 							:fill
@@ -428,7 +448,7 @@
 						((:list 15)
 							:shape
 							:id
-							24
+							25
 							:kind
 							:text
 							:fill
@@ -448,7 +468,7 @@
 						((:list 15)
 							:shape
 							:id
-							25
+							26
 							:kind
 							:text
 							:fill
@@ -468,7 +488,7 @@
 						((:list 15)
 							:shape
 							:id
-							26
+							27
 							:kind
 							:text
 							:fill
@@ -488,9 +508,9 @@
 						((:list 13)
 							:shape
 							:id
-							27
+							28
 							:d
-							"[M 0 235 L 181.75 235]"
+							"[M 0 252 L 181.75 252]"
 							:stroke
 							4282140240
 							:width
@@ -503,7 +523,7 @@
 						((:list 17)
 							:shape
 							:id
-							28
+							29
 							:kind
 							:text
 							:fill
@@ -519,27 +539,7 @@
 							:pos
 							((:list 2)
 								12.00000
-								251.00000
-							)
-						)
-						((:list 15)
-							:shape
-							:id
-							29
-							:kind
-							:text
-							:fill
-							4280296488
-							:stroke
-							0
-							:text
-							"[task-apps?]"
-							:font_size
-							12
-							:pos
-							((:list 2)
-								12.00000
-								270.00000
+								268.00000
 							)
 						)
 						((:list 15)
@@ -553,7 +553,7 @@
 							:stroke
 							0
 							:text
-							"[task-band]"
+							"[task-apps?]"
 							:font_size
 							12
 							:pos
@@ -573,7 +573,7 @@
 							:stroke
 							0
 							:text
-							"[task-count]"
+							"[task-band]"
 							:font_size
 							12
 							:pos
@@ -593,7 +593,7 @@
 							:stroke
 							0
 							:text
-							"[task-flags]"
+							"[task-count]"
 							:font_size
 							12
 							:pos
@@ -613,7 +613,7 @@
 							:stroke
 							0
 							:text
-							"[task-mbox]"
+							"[task-flags]"
 							:font_size
 							12
 							:pos
@@ -633,7 +633,7 @@
 							:stroke
 							0
 							:text
-							"[task-sleep]"
+							"[task-mbox]"
 							:font_size
 							12
 							:pos
@@ -653,13 +653,33 @@
 							:stroke
 							0
 							:text
-							"[task-slice]"
+							"[task-sleep]"
 							:font_size
 							12
 							:pos
 							((:list 2)
 								12.00000
 								372.00000
+							)
+						)
+						((:list 15)
+							:shape
+							:id
+							36
+							:kind
+							:text
+							:fill
+							4280296488
+							:stroke
+							0
+							:text
+							"[task-slice]"
+							:font_size
+							12
+							:pos
+							((:list 2)
+								12.00000
+								389.00000
 							)
 						)
 					)

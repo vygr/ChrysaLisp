@@ -241,6 +241,40 @@
 	(storage-stop sg_svc))
 (pii-remove sg_image)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a big object, of more blocks than a block of a manifest names: its
+; manifest is put as blocks, the path set by the name of its top, and read
+; a block of it at a time, so no message is the whole of it
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq sg_t_name (cat "@StoreTree" (str (pii-pid)))
+	sg_t_image (cat "obj/tmp_store_tree_" (str (pii-pid)) ".img")
+	sg_t_svc (storage-start sg_t_image :size 0x800000 :id "trees" :name sg_t_name :block 64
+		:group (cat "*StoreTree" (str (pii-pid))) :tick 0))
+(assert-true "a service of a store of small blocks" sg_t_svc)
+(when sg_t_svc
+	(defq sg_t_big (sg-bytes (+ (* 64 (inc +store_manifest_names)) 10) 9))
+	(assert-eq "a big object is put" :ok (first (storage-put "t/big" sg_t_big :nil sg_t_svc)))
+	(assert-eq "and had back" sg_t_big (storage-get "t/big" sg_t_svc))
+	(defq sg_t_m (storage-manifest "t/big" sg_t_svc))
+	(assert-list-eq "its manifest a top over two, had a block at a time"
+		(list (length sg_t_big) (+ 2 +store_manifest_names) 3)
+		(list (first sg_t_m) (length (second sg_t_m)) (length (third sg_t_m))))
+	(defq sg_t_in (storage-stream "t/big" +file_open_read sg_t_svc))
+	(assert-eq "read as a stream, it is all there" sg_t_big (read-blk sg_t_in (length sg_t_big)))
+	(stream-seek sg_t_in (- (length sg_t_big) 20) 0)
+	(assert-eq "and from near its end" (slice sg_t_big -21 -1) (read-blk sg_t_in 20))
+	(defq sg_t_out (storage-stream "t/big" +file_open_append sg_t_svc))
+	(write-blk sg_t_out "more")
+	(stream-flush sg_t_out)
+	(setq sg_t_out :nil)
+	(assert-eq "written on the end of, it is the more" (cat sg_t_big "more") (storage-get "t/big" sg_t_svc))
+	(assert-eq "and the same as a file of it" (+ (length sg_t_big) 4)
+		(progn (save (cat sg_t_big "more") (cat sg_t_image ".file")) (storage-same-file? "t/big" (cat sg_t_image ".file") sg_t_svc)))
+	(pii-remove (cat sg_t_image ".file"))
+	(storage-stop sg_t_svc))
+(pii-remove sg_t_image)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a machine made a member, and remembered
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

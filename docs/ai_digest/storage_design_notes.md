@@ -404,7 +404,17 @@ blocks/xx/y   a block, its name in hex, xx the first two of it
 ```
 
 An object is a manifest, how long it is and the names of its blocks in
-order, and is a block itself. A path is set to the name of one. An entry of
+order, and is a block itself. A path is set to the name of one. The
+manifest of an object of more than `+store_manifest_names` (1000) blocks is
+a tree: blocks of no more than 1000 names each, `CHRYSA_OBJECT 1` over
+blocks of the object, `CHRYSA_TREE 1` with its height over blocks of the
+manifest one lower, and only the top says how long the object is. So no
+block of a manifest is bigger than a block of the object, and no message is
+ever the whole of one: a writer puts the blocks of its manifest as it puts
+any block and sends only the name of its top, `(store-commit-root)`, and a
+reader has the manifest a block at a time, `(store-manifest-walk)`. Every
+block of a manifest is kept by every member, as a manifest of one block
+always was. One of 1000 blocks or fewer is the one block it always was. An entry of
 the path map is `(path hash bytes vv writer seen deleted)`.
 
 ```
@@ -412,6 +422,7 @@ the path map is `(path hash bytes vv writer seen deleted)`.
 (store-open device member) -> store               :was says who it was
 (store-put store path data [from])                (:ok entry) (:stale entry) (:full)
 (store-commit store path names bytes [from])      of blocks kept already
+(store-commit-root store path hash [from])        by the top of a manifest kept already
 (store-get store path)   (store-read store path offset len)
 (store-walk store path state visit [at])          a block at a time, where it says
 (store-fold store path state step)                in order
@@ -1153,8 +1164,6 @@ exported, and called above where they are made: `forward` says so.
 * Whether the store may show that two blocks are the same, and where the
   keys are kept, when there is encryption.
 * Cutting an object where its content says, not every 64KB.
-* A manifest of a very long object is itself long, it is one block of any
-  size for now.
 * A stream that is written sets its path whoever else has since. There is
   no way yet to say what the path was when it was opened.
 * How deep the stack is when a written stream is let go of is not

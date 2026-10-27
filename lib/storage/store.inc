@@ -9,8 +9,11 @@
 ; changes, two that are the same are one, and one that has gone wrong does
 ; not match its name and is known for it.
 ;
-; An object is the list of its blocks, a manifest, which is a block too. A
-; path is a name for one object, for now: the path map is the one part of
+; An object is the list of its blocks, a manifest, which is a block too.
+; The manifest of a big one, of more than +store_manifest_names blocks, is
+; a tree of blocks of no more than that many names each, so that it is no
+; bigger than any other block, (store-manifest-make). A path is a name
+; for one object, for now: the path map is the one part of
 ; a store that changes, and the one part members will ever have to agree
 ; on. An entry of it is
 ;
@@ -61,7 +64,10 @@
 ;module
 (env-push)
 
-(defq +store_magic "CHRYSA_STORE 1" +store_object_magic "CHRYSA_OBJECT 1"
+(defq +store_magic "CHRYSA_STORE 1" +store_object_magic "CHRYSA_OBJECT 1" +store_tree_magic "CHRYSA_TREE 1"
+	;how many names a block of a manifest has at most, 65 bytes each, so
+	;it is no bigger than a block of the object
+	+store_manifest_names 1000
 	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10)
 	;how many blocks are put in a folder before the next is begun: the
 	;directory of so many is a cluster of a volume
@@ -614,17 +620,80 @@
 	;what is kept for an object: how long it is, and its blocks in order
 	(store-text (cat (list +store_object_magic (str size)) (map (const hex-encode) names))))
 
-(defun store-manifest (store hash)
-	; (store-manifest store hash) -> :nil | (size names)
-	;the object of that name, if its manifest is kept here. One that has
-	;been read is held: a name is of the one thing for ever, and what an
-	;object is made of is asked again and again
+(defun store-tree-text (size height names)
+	; (store-tree-text size height names) -> data
+	;a block of the manifest of a big object, over the blocks of its
+	;manifest that are one lower, the lowest of them over its blocks
+	(store-text (cat (list +store_tree_magic (str size) (str height)) (map (const hex-encode) names))))
+
+(defun store-manifest-read (data)
+	; (store-manifest-read data) -> :nil | (size height names)
+	;a block of a manifest. Of height 0 its names are of the object's
+	;blocks, of more they are of blocks of the manifest one lower
+	(defq lines (store-lines data))
+	(cond
+		((and (> (length lines) 1) (eql (first lines) +store_object_magic))
+			(list (str-as-num (second lines)) 0 (map! (const hex-decode) (list lines) 2 -1)))
+		((and (> (length lines) 2) (eql (first lines) +store_tree_magic))
+			(list (str-as-num (second lines)) (str-as-num (third lines)) (map! (const hex-decode) (list lines) 3 -1)))))
+
+(defun store-manifest-make (size names put)
+	; (store-manifest-make size names put) -> :nil | hash
+	; (put data) -> :nil | hash
+	;the manifest of an object of these blocks, each block of it given to
+	;put, which keeps it and says its name: the name of its top. One of no
+	;more than +store_manifest_names blocks is the one block, as it always
+	;was. A bigger one is a tree of them, no block of it bigger than a
+	;block of the object, so no message is ever the whole of it. Only the
+	;top says how long the object is. :nil if put could not keep one
+	(defq height 0 level names)
+	(while (and level (> (length level) +store_manifest_names))
+		(defq up (list) at 0)
+		(while (and up (< at (length level)))
+			(defq part (slice level at (min (length level) (+ at +store_manifest_names)))
+				hash (put (if (= height 0) (store-manifest-text 0 part) (store-tree-text 0 height part))))
+			(setq up (if hash (push up hash)) at (+ at +store_manifest_names)))
+		(setq level up height (inc height)))
+	(and level (put (if (= height 0) (store-manifest-text size level) (store-tree-text size height level)))))
+
+(defun store-manifest-walk (hash fetch &optional parts)
+	; (store-manifest-walk hash fetch [parts]) -> :nil | (size names tree)
+	; (fetch name) -> :nil | data
+	;the object a manifest is of, each block of the manifest had by fetch:
+	;how long it is, the names of its blocks in order, and the names of
+	;the blocks of its manifest, the top first. :nil if a block of the
+	;manifest can not be had. parts, if given, a list of two lists, is
+	;given the names of the blocks of the manifest had and those not
+	(defq level (list hash) size :nil names (list) tree (list) whole :t)
+	(while level
+		(defq lower (list))
+		(each (lambda (name)
+				(cond
+					((and (defq data (fetch name)) (defq block (store-manifest-read data)))
+						(push tree name)
+						(unless size (setq size (first block)))
+						(each (# (push (if (= (second block) 0) names lower) %0)) (third block)))
+					(:t (setq whole :nil)
+						(if parts (push (second parts) name)))))
+			level)
+		(setq level (if (nempty? lower) lower)))
+	(if parts (each (# (push (first parts) %0)) tree))
+	(if whole (list size names tree)))
+
+(defun store-manifest (store hash &optional parts)
+	; (store-manifest store hash [parts]) -> :nil | (size names tree)
+	;the object of that name, if all its manifest is kept here, as
+	;(store-manifest-walk). One that has been read is held: a name is of
+	;the one thing for ever, and what an object is made of is asked again
+	;and again
+	;one that is held is so while its blocks are all still kept here
 	(defq known (get :manifests store))
 	(cond
-		((. known :find hash))
-		((and (defq lines (store-lines (store-block-get store hash)))
-				(> (length lines) 1) (eql (first lines) +store_object_magic))
-			(. known :insert hash (defq object (list (str-as-num (second lines)) (map! (const hex-decode) (list lines) 2 -1))))
+		((and (defq object (. known :find hash)) (every (# (store-block-has? store %0)) (third object)))
+			(if parts (each (# (push (first parts) %0)) (third object)))
+			object)
+		((defq object (store-manifest-walk hash (# (store-block-get store %0)) parts))
+			(. known :insert hash object)
 			object)))
 
 (defun store-members (store)
@@ -678,10 +747,15 @@
 	;the object of a path, into what is wanted and what is others'. If
 	;its manifest is not here, what it is made of is known when it comes
 	(defq hash (elem-get entry +store_entry_hash) me (get :member store) wanted (elem-get plan +plan_wanted)
-		others (elem-get plan +plan_others) among (elem-get plan +plan_among))
+		others (elem-get plan +plan_others) among (elem-get plan +plan_among)
+		unknown (elem-get plan +plan_unknown) parts (list (list) (list)))
+	;every block of a manifest is wanted, a big one's are a tree of them
 	(. wanted :insert hash)
+	(defq object (store-manifest store hash parts))
+	(each (# (. wanted :insert %0)) (cat (first parts) (second parts)))
+	(each (# (. (elem-get plan +plan_missing) :insert %0)) (second parts))
 	(cond
-		((defq object (store-manifest store hash))
+		(object
 			(defq pinned (store-pinned? store path) copies (elem-get entry +store_entry_copies))
 			(each (lambda (name)
 				(defq holders (store-holders store name among copies))
@@ -690,8 +764,12 @@
 					;as another object has it, it may have more keepers
 					((> (length holders) (length (ifn (. others :find name) '()))) (. others :insert name holders))))
 				(second object)))
-		(:t (. (elem-get plan +plan_unknown) :insert hash
-				(cat (ifn (. (elem-get plan +plan_unknown) :find hash) (list)) (list path))))))
+		(:t ;what it is made of is known when the blocks of its manifest
+			;that are not here come
+			(each (lambda (name)
+					(defq paths (ifn (. unknown :find name) (list)))
+					(unless (find path paths) (. unknown :insert name (cat paths (list path)))))
+				(second parts)))))
 
 (defun store-plan (store among)
 	; (store-plan store among) -> plan
@@ -716,24 +794,25 @@
 		(. (elem-get plan +plan_missing) :erase name)
 		(and (not (. (elem-get plan +plan_wanted) :find name)) (. (elem-get plan +plan_others) :find name)
 			(. (elem-get plan +plan_extras) :insert name))
-		;a manifest: what its object is made of is now known, and of its
-		;blocks those this member is to keep and has not got are wanted, and
-		;those it has and are others' are theirs
+		;a block of a manifest: what its object is made of may now be known,
+		;and of its blocks those this member is to keep and has not got are
+		;wanted, and those it has and are others' are theirs. Of a tree, the
+		;blocks of the manifest under this one are wanted now too
 		(when (defq paths (. (elem-get plan +plan_unknown) :find name))
 			(. (elem-get plan +plan_unknown) :erase name)
 			(defq wanted (elem-get plan +plan_wanted) others (elem-get plan +plan_others))
 			(each (lambda (path)
 				(when (defq entry (. (get :map store) :find path))
-					(store-plan-object store plan path entry)))
-				paths)
-			(each (lambda (block)
-				(cond
-					((. wanted :find block)
-						(. (elem-get plan +plan_extras) :erase block)
-						(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
-					((and (. others :find block) (store-block-has? store block))
-						(. (elem-get plan +plan_extras) :insert block))))
-				(second (store-manifest store name))))))
+					(store-plan-object store plan path entry)
+					(each (lambda (block)
+						(cond
+							((. wanted :find block)
+								(. (elem-get plan +plan_extras) :erase block)
+								(unless (store-block-has? store block) (. (elem-get plan +plan_missing) :insert block)))
+							((and (. others :find block) (store-block-has? store block))
+								(. (elem-get plan +plan_extras) :insert block))))
+						(ifn (second (store-manifest store (elem-get entry +store_entry_hash))) '()))))
+				paths))))
 
 (defun store-plan-dropped (store name)
 	;a block that is no longer kept
@@ -830,9 +909,25 @@
 	(cond
 		((nempty? missing) (list :missing missing))
 		((and from (nql from (store-now store name))) (list :stale (store-stat store name)))
-		((defq hash (store-block-put store (store-manifest-text size names)))
+		((defq hash (store-manifest-make size names (# (store-block-put store %0))))
 			(store-set store name hash size from :nil))
 		((list :full :nil))))
+
+(defun store-commit-root (store name hash &optional from)
+	; (store-commit-root store path hash [from]) -> (:ok entry) | (:stale entry) | (:missing names)
+	;a path is set to the object of the manifest of that name, as
+	;(store-commit), every block of the manifest and of the object kept
+	;here already: what is not is :missing, the blocks of the manifest that
+	;are not, or if they all are, those of the object. So the writer of a
+	;big object sends the blocks of its manifest as blocks, and then only
+	;the name of its top, (store-manifest-make)
+	(defq parts (list (list) (list)))
+	(cond
+		((not (defq object (store-manifest store hash parts))) (list :missing (second parts)))
+		((nempty? (defq missing (filter (# (not (store-block-has? store %0))) (second object))))
+			(list :missing missing))
+		((and from (nql from (store-now store name))) (list :stale (store-stat store name)))
+		((store-set store name hash (first object) from :nil))))
 
 (defun store-put (store name data &optional from)
 	; (store-put store path data [from]) -> (:ok entry) | (:stale entry) | (:full :nil)
@@ -1154,17 +1249,17 @@
 (defun store-wanted (store &optional prefix)
 	; (store-wanted store [prefix]) -> (held missing)
 	;the blocks the objects of these paths are made of, as two sets of
-	;names in hex: those kept here, and those that are not. An object
-	;whose manifest is not kept here is one block missing, what its other
-	;blocks are is not known
+	;names in hex: those kept here, and those that are not. The blocks of
+	;its manifest are of an object too. An object whose manifest is not
+	;all kept here has those of it missing, what its other blocks are is
+	;not known
 	(defq held (Fset 101) missing (Fset 11))
 	(each (lambda (entry)
-		(defq hash (elem-get entry +store_entry_hash))
-		(cond
-			((defq object (store-manifest store hash))
-				(. held :insert (hex-encode hash))
-				(each (# (. (if (store-block-has? store %0) held missing) :insert (hex-encode %0))) (second object)))
-			((. missing :insert (hex-encode hash)))))
+		(defq parts (list (list) (list)))
+		(when (defq object (store-manifest store (elem-get entry +store_entry_hash) parts))
+			(each (# (. (if (store-block-has? store %0) held missing) :insert (hex-encode %0))) (second object)))
+		(each (# (. held :insert (hex-encode %0))) (first parts))
+		(each (# (. missing :insert (hex-encode %0))) (second parts)))
 		(store-list store prefix))
 	(list held missing))
 
@@ -1268,12 +1363,13 @@
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks
-	store-cut store-manifest store-manifest-text store-find store-stat store-now
-	store-commit store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
+	store-cut store-manifest store-manifest-text store-tree-text store-manifest-read store-manifest-make store-manifest-walk
+	store-find store-stat store-now
+	store-commit store-commit-root store-put store-delete store-rename store-copies store-get store-read store-fold store-walk store-list
 	store-wanted store-sweep store-check store-pin store-pinned? store-pins-missing store-pinned-lines store-pinned-take store-pinned-by store-info
 	store-vv-bump store-vv-cmp store-vv-merge store-vv-count store-vv-total store-vv-text store-vv-read
 	store-entry-line store-entry-read store-journal-write
 	store-snapshot store-snapshots store-restore store-snapshot-drop store-snapshot-name? +store_snapshots
-	+store_block_size +store_copies +store_entry_path +store_entry_hash +store_entry_bytes
+	+store_block_size +store_copies +store_manifest_names +store_entry_path +store_entry_hash +store_entry_bytes
 	+store_entry_vv +store_entry_writer +store_entry_seen +store_entry_deleted +store_entry_copies))
 (env-pop)

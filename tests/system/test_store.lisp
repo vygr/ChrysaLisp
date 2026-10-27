@@ -420,3 +420,77 @@
 (assert-true "a block let go of is gone from where it was"
 	(and (store-block-drop so_f (sha256 so_f_old)) (not (store-block-get so_f (sha256 so_f_old)))))
 (assert-list-eq "and nothing kept is wrong" '() (store-check so_f))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the manifest of a big object is a tree of blocks of no more than so many
+; names each, none bigger than a block, and a small one's is the one block
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(bind '(so_t so_t_stream) (so-new 0x1000000 "trees" "aaaa" 16))
+(defq so_t_big (so-bytes (* 16 (+ +store_manifest_names 100)) 7) so_t_small (so-bytes 160 8))
+(assert-eq "an object of more blocks than a manifest block names is put" :ok (so-is (store-put so_t "t/big" so_t_big)))
+(assert-eq "and had back as it was" so_t_big (store-get so_t "t/big"))
+(defq so_t_top (elem-get (store-stat so_t "t/big") +store_entry_hash)
+	so_t_m (store-manifest so_t so_t_top))
+(defq so_t_read (store-manifest-read (store-block-get so_t so_t_top)))
+(assert-list-eq "its manifest is a top of height 1 over two blocks of it"
+	(list (length so_t_big) 1 2) (cat (slice so_t_read 0 2) (list (length (third so_t_read)))))
+(assert-list-eq "its blocks are all there, in order"
+	(map (# (sha256 (slice so_t_big %0 (+ %0 16)))) (range 0 (length so_t_big) 16)) (second so_t_m))
+(assert-eq "and the blocks of its manifest, the top first" 3 (length (third so_t_m)))
+(assert-eq "the top first" so_t_top (first (third so_t_m)))
+(assert-true "none of them bigger than a block of the object can be"
+	(every (# (<= (length (store-block-get so_t %0)) 65536)) (third so_t_m)))
+(assert-eq "part of it across two blocks of its manifest is read"
+	(slice so_t_big (- (* 16 +store_manifest_names) 5) (+ (* 16 +store_manifest_names) 5))
+	(store-read so_t "t/big" (- (* 16 +store_manifest_names) 5) 10))
+(assert-eq "a small object's manifest is the one block, as it was"
+	(store-manifest-text 160 (map (# (sha256 (slice so_t_small %0 (+ %0 16)))) (range 0 160 16)))
+	(progn (store-put so_t "t/small" so_t_small)
+		(store-block-get so_t (elem-get (store-stat so_t "t/small") +store_entry_hash))))
+(assert-true "the blocks of its manifest are wanted"
+	(every (# (. (first (store-wanted so_t)) :find (hex-encode %0))) (third so_t_m)))
+(store-sweep so_t)
+(assert-eq "and a sweep keeps them" so_t_big (store-get so_t "t/big"))
+
+;set by the name of its top, every block of it here already
+(assert-eq "a path set by the name of the top of a manifest kept here" :ok
+	(so-is (store-commit-root so_t "t/again" so_t_top)))
+(assert-eq "is the same object" so_t_big (store-get so_t "t/again"))
+(assert-list-eq "a top that is not here is the block missing"
+	(list :missing (list (sha256 "no top")))
+	(store-commit-root so_t "t/none" (sha256 "no top")))
+(defq so_t_lost (second (third so_t_m)))
+(store-block-drop so_t so_t_lost)
+(assert-list-eq "one under the top that is not here is the one missing"
+	(list :missing (list so_t_lost))
+	(store-commit-root so_t "t/none" so_t_top))
+(defq so_t_parts (list (list) (list)))
+(assert-eq "it is no object" :nil (store-manifest so_t so_t_top so_t_parts))
+(assert-list-eq "the blocks of it there are, and those not" (list 2 (list so_t_lost))
+	(list (length (first so_t_parts)) (second so_t_parts)))
+(assert-true "the block of it not here is wanted" (. (second (store-wanted so_t)) :find (hex-encode so_t_lost)))
+(store-block-put so_t (store-manifest-text 0 (slice (second so_t_m) 0 +store_manifest_names)))
+(assert-eq "put back, it is the object again" so_t_big (store-get so_t "t/big"))
+
+;a tree of any height is walked in order
+(defq so_t_held (Fmap 11) so_t_leaves (map (# (list (sha256 (str "a" %0)) (sha256 (str "b" %0)))) (range 0 4)))
+(defun so-t-put (data) (. so_t_held :insert (defq h (sha256 data)) data) h)
+(defq so_t_low (map (# (so-t-put (store-manifest-text 0 %0))) so_t_leaves)
+	so_t_mid (list (so-t-put (store-tree-text 0 1 (slice so_t_low 0 2))) (so-t-put (store-tree-text 0 1 (slice so_t_low 2 4))))
+	so_t_high (so-t-put (store-tree-text 99 2 so_t_mid)))
+(assert-list-eq "a tree of height 2 is walked in order, how long the top says"
+	(list 99 (apply (const cat) so_t_leaves) 7)
+	(progn (defq so_t_w (store-manifest-walk so_t_high (# (. so_t_held :find %0))))
+		(list (first so_t_w) (second so_t_w) (length (third so_t_w)))))
+(defq so_t_names (map (# (sha256 (str "n" %0))) (range 0 (inc +store_manifest_names))))
+(assert-list-eq "made of as many names as a block of a manifest has, it is the one block"
+	(list 5 0 +store_manifest_names)
+	(progn (defq so_t_r (store-manifest-read (. so_t_held :find (store-manifest-make 5 (slice so_t_names 0 -2) (const so-t-put)))))
+		(list (first so_t_r) (second so_t_r) (length (third so_t_r)))))
+(assert-list-eq "and of one more, a top over two"
+	(list 5 1 2)
+	(progn (defq so_t_r (store-manifest-read (. so_t_held :find (store-manifest-make 5 so_t_names (const so-t-put)))))
+		(list (first so_t_r) (second so_t_r) (length (third so_t_r)))))
+(assert-list-eq "walked, they are the names" so_t_names
+	(second (store-manifest-walk (store-manifest-make 5 so_t_names (const so-t-put)) (# (. so_t_held :find %0)))))

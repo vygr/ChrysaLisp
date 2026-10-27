@@ -37,7 +37,9 @@
 	(bind '(what val) result)
 	(case what
 		((:ok :stale) (cat (if (eql what :ok) "ok" "stale") +storage_lf (if val (store-entry-line val) "")))
-		(:missing (join (cat (list "missing") (map (const hex-encode) val)) +storage_lf))
+		;no more of them than a block of a manifest has, so no answer is
+		;ever the whole of a big object
+		(:missing (join (cat (list "missing") (map! (const hex-encode) (list val) 0 (min (length val) +store_manifest_names))) +storage_lf))
 		(:full "full")
 		(:t "none")))
 
@@ -191,12 +193,14 @@
 									"1")
 								("0")))
 						(+storage_type_commit
-							(bind '(from bytes path &rest names) (split body +storage_lf))
-							(defq got (store-commit store path (map (const hex-decode) names) (str-as-num bytes) (from-of from)))
+							;the name of the top of its manifest, whose blocks are
+							;all here, as the object's are, (store-commit-root)
+							(bind '(from bytes path top) (split body +storage_lf))
+							(defq got (store-commit-root store path (hex-decode (ifn top "")) (from-of from)))
 							;what an object is made of, so a recording can draw it
-							(and (eql (first got) :ok) (second got)
+							(and (eql (first got) :ok) (second got) (storage-recording? recorder)
 								(storage-record recorder member "object" (cat (storage-record-name (elem-get (second got) +store_entry_hash)) " "
-									(join (map (# (slice %0 0 16)) names) " "))))
+									(join (map (const storage-record-name) (second (store-manifest store (elem-get (second got) +store_entry_hash)))) " "))))
 							(defq result (wrote "set" got path))
 							;its tender is to tell the others, now and not at its next look
 							(if (/= 0 (get-long tender 0)) (mail-send tender "kick"))

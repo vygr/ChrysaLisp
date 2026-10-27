@@ -3791,6 +3791,12 @@ clusters there are, with a chain through them. :nil if there are
 too few. The clusters are marked as used.
 ```
 
+### exfat-ascii?
+
+```code
+are the first n bytes of 16 bit characters all ASCII, 8 bytes at a time
+```
+
 ### exfat-begin
 
 ```code
@@ -3898,7 +3904,8 @@ a block is no longer kept, and is not to be written
 (exfat-entries vol start len no_fat) -> ((name dir size start no_fat index count) ...)
 
 the files and directories of a directory. A file is a set of entries,
-one for the file, one for its data, then as many as its name needs
+one for the file, one for its data, then as many as its name needs.
+Each is read where it is, a folder of a store has thousands
 ```
 
 ### exfat-eset
@@ -3978,7 +3985,11 @@ to the device and all are let go
 ### exfat-key
 
 ```code
-a name as the volume sees it, with no regard to case
+a name as the volume sees it, with no regard to case. Of a volume
+
+whose upper case of ASCII is ASCII's own, a name of ASCII is its own
+upper case, and any other is its 16 bit characters after a 0, which
+no name of ASCII has in it
 ```
 
 ### exfat-list
@@ -4013,7 +4024,17 @@ to be read and written. A stream can be a memory stream.
 ### exfat-name
 
 ```code
-a name is 16 bit characters, low byte first, here made UTF-8
+a name is 16 bit characters, low byte first, here made UTF-8. One of
+
+ASCII, as the names of a store's blocks are, is its low bytes, which
+are what is left of it when it is split at each 0: none of them is 0
+if there are as many as it has characters
+```
+
+### exfat-name-units
+
+```code
+a name of any characters, a character at a time
 ```
 
 ### exfat-next
@@ -5191,7 +5212,7 @@ how many workers a herd of these nodes is to have
 ### hkdf-expand
 
 ```code
-(hkdf-expand prk info length) -> str
+(hkdf-expand prk info len) -> str
 ```
 
 ### hkdf-extract
@@ -8856,7 +8877,8 @@ from the last envelope, its table of the other resolution mapped
 (sbr-estimate sbr data high) -> (reals ...)
 
 of each envelope the energy of the high band made, each band's, or
-over each band of its table, by the slots of the envelope
+over each band of its table, by the slots of the envelope. Each band's
+energy over the slots native, lib/media/lisp.vp media_sbr_energy
 ```
 
 ### sbr-gains
@@ -9210,6 +9232,15 @@ what a back end makes of an expression, from the bottom up. fnc is
 made of those under it, in order. A back end's own function for an
 expression then calls nothing that calls it, the walk is here, with a
 list as the stack of what is still to do, as (flatten) does it
+```
+
+### sh-gather
+
+```code
+the text of each file a file imports, and of what they import, before
+
+its own, onto out, each file once. A file of a library, lib, has only
+functions, consts and globals and no main
 ```
 
 ### sh-literal
@@ -9618,11 +9649,11 @@ is found again without a line of it being read
 ```code
 (shader-load file) -> program
 
-a program from a file. Only its head is read, and a hash of the file
-taken, which is what its native code is kept under. The rest is read
-and checked when a back end has to make something from it,
-(shader-full), so a file whose native code is there already costs a
-hash and a few lines
+a program from a file, and what it imports, (shader-text). Only its
+head is read, and a hash of it taken, which is what its native code
+is kept under. The rest is read and checked when a back end has to
+make something from it, (shader-full), so a file whose native code is
+there already costs a hash and a few lines
 ```
 
 ### shader-make
@@ -9808,6 +9839,17 @@ its make, 8 hex digits, and then the program. Kept by another make
 it is never found again, so it goes: every file of these letters
 whose make is not one of these is removed. Once for a task for each
 set of makes, the first time it is asked
+```
+
+### shader-text
+
+```code
+(shader-text file) -> str
+
+the source of a shader as it is read: the files it imports, (import
+path), and those they import, each once, before its own. A path is
+from the root, or with ./ from the folder of the file. Its hash is
+its key, so a change to a file it imports is a change of key
 ```
 
 ### shader-texture
@@ -10850,6 +10892,17 @@ that say so at once the last to write is what both read, so one of
 them goes on and the other does not
 ```
 
+### storage-commit
+
+```code
+(storage-commit svc path from bytes names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
+
+a path set to the object of these blocks, all put already. The blocks
+of its manifest are put as blocks, (store-manifest-make), and only the
+name of its top is sent: no message is the whole of a big object. A
+block that was not answered is :lost, one there was no room for :full
+```
+
 ### storage-copies
 
 ```code
@@ -10891,6 +10944,16 @@ what a path is said to be now, as it is sent: ? not said, - none
 (storage-get path [svc]) -> :nil | data
 
 all of an object. :nil if there is none, or a block of it can not be had
+```
+
+### storage-has
+
+```code
+(storage-has svc names) -> str
+
+which of these blocks the service has, "1" or "0" for each, asked a
+manifest block's worth at a time, so no one ask is big. "0" for those
+it did not answer
 ```
 
 ### storage-info
@@ -10946,7 +11009,10 @@ the paths that begin so, in order
 ### storage-manifest
 
 ```code
-the blocks of the object a path is, (bytes names), :nil if there is none
+the blocks of the object a path is, (bytes names tree), :nil if there
+
+is none. Its manifest is had a block at a time, a big one's is a tree
+of them, (store-manifest-walk)
 ```
 
 ### storage-member
@@ -11650,7 +11716,9 @@ every block that is kept here, whatever is in it, as the volume has it
 every block that is kept here, whatever is in it, as the volume has
 it, and the folder it is in. With going, it is asked before each
 folder is read, the long part of a big store's open, and if it says
-:nil the walk is given up, :nil
+:nil the walk is given up, :nil. A block is in a folder of blocks/,
+so the folders are listed one after another, no walk of a tree: the
+blocks of one share the one string of its path
 ```
 
 ### store-check
@@ -11680,6 +11748,19 @@ a path is set to the object of these blocks, which are kept here
 already, provided it is now the object from: "" for none, :nil not
 to say. :stale with what it is if it is not. :missing with those of
 the blocks that are not kept here
+```
+
+### store-commit-root
+
+```code
+(store-commit-root store path hash [from]) -> (:ok entry) | (:stale entry) | (:missing names)
+
+a path is set to the object of the manifest of that name, as
+(store-commit), every block of the manifest and of the object kept
+here already: what is not is :missing, the blocks of the manifest that
+are not, or if they all are, those of the object. So the writer of a
+big object sends the blocks of its manifest as blocks, and then only
+the name of its top, (store-manifest-make)
 ```
 
 ### store-copies
@@ -11922,11 +12003,36 @@ that long. copies is how many members keep a block, 3
 ### store-manifest
 
 ```code
-(store-manifest store hash) -> :nil | (size names)
+(store-manifest store hash [parts]) -> :nil | (size names tree)
 
-the object of that name, if its manifest is kept here. One that has
-been read is held: a name is of the one thing for ever, and what an
-object is made of is asked again and again
+the object of that name, if all its manifest is kept here, as
+(store-manifest-walk). One that has been read is held: a name is of
+the one thing for ever, and what an object is made of is asked again
+and again
+one that is held is so while its blocks are all still kept here
+```
+
+### store-manifest-make
+
+```code
+(store-manifest-make size names put) -> :nil | hash
+
+(put data) -> :nil | hash
+the manifest of an object of these blocks, each block of it given to
+put, which keeps it and says its name: the name of its top. One of no
+more than +store_manifest_names blocks is the one block, as it always
+was. A bigger one is a tree of them, no block of it bigger than a
+block of the object, so no message is ever the whole of it. Only the
+top says how long the object is. :nil if put could not keep one
+```
+
+### store-manifest-read
+
+```code
+(store-manifest-read data) -> :nil | (size height names)
+
+a block of a manifest. Of height 0 its names are of the object's
+blocks, of more they are of blocks of the manifest one lower
 ```
 
 ### store-manifest-text
@@ -11935,6 +12041,19 @@ object is made of is asked again and again
 (store-manifest-text size names) -> data
 
 what is kept for an object: how long it is, and its blocks in order
+```
+
+### store-manifest-walk
+
+```code
+(store-manifest-walk hash fetch [parts]) -> :nil | (size names tree)
+
+(fetch name) -> :nil | data
+the object a manifest is of, each block of the manifest had by fetch:
+how long it is, the names of its blocks in order, and the names of
+the blocks of its manifest, the top first. :nil if a block of the
+manifest can not be had. parts, if given, a list of two lists, is
+given the names of the blocks of the manifest had and those not
 ```
 
 ### store-map-insert
@@ -12305,6 +12424,15 @@ is set
 a path is not as it was
 ```
 
+### store-tree-text
+
+```code
+(store-tree-text size height names) -> data
+
+a block of the manifest of a big object, over the blocks of its
+manifest that are one lower, the lowest of them over its blocks
+```
+
 ### store-vv-bump
 
 ```code
@@ -12370,9 +12498,10 @@ whoever has the next block
 (store-wanted store [prefix]) -> (held missing)
 
 the blocks the objects of these paths are made of, as two sets of
-names in hex: those kept here, and those that are not. An object
-whose manifest is not kept here is one block missing, what its other
-blocks are is not known
+names in hex: those kept here, and those that are not. The blocks of
+its manifest are of an object too. An object whose manifest is not
+all kept here has those of it missing, what its other blocks are is
+not known
 ```
 
 ### str-as-num
@@ -13258,7 +13387,8 @@ one time, the longest total first, then they are all forgotten
 ```code
 (time-sum heading us)
 
-us added to the heading's total, and one to how many times
+us added to the heading's total, one to how many times, and the
+longest one time kept
 ```
 
 ### timezone-init

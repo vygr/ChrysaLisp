@@ -156,6 +156,35 @@
 	(or (storage-block-at hash svc)
 		(some (# (storage-block-at hash %0)) (storage-where hash svc))))
 
+(defun storage-has (svc names)
+	; (storage-has svc names) -> str
+	;which of these blocks the service has, "1" or "0" for each, asked a
+	;manifest block's worth at a time, so no one ask is big. "0" for those
+	;it did not answer
+	(defq out (list "") at 0)
+	(while (< at (length names))
+		(defq part (slice names at (min (length names) (+ at +store_manifest_names)))
+			has (ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") part))) ""))
+		(push out (if (= (length has) (length part)) has (pad "" (length part) "0")))
+		(setq at (+ at +store_manifest_names)))
+	(apply (const cat) out))
+
+(defun storage-commit (svc name from bytes names)
+	; (storage-commit svc path from bytes names) -> (:ok entry) | (:stale entry) | (:missing names) | (:full :nil) | (:lost :nil)
+	;a path set to the object of these blocks, all put already. The blocks
+	;of its manifest are put as blocks, (store-manifest-make), and only the
+	;name of its top is sent: no message is the whole of a big object. A
+	;block that was not answered is :lost, one there was no room for :full
+	(defq full :nil
+		top (store-manifest-make bytes names (lambda (data)
+			(defq hash (sha256 data) said (storage-ask svc +storage_type_block_put data))
+			(cond ((eql said hash) hash) (said (setq full :t) :nil)))))
+	(cond
+		(full (list :full :nil))
+		((not top) (list :lost :nil))
+		((storage-result (storage-ask svc +storage_type_commit
+			(join (list (storage-from from) (str bytes) name (hex-encode top)) +storage_lf))))))
+
 (defun storage-put-stream (name stream &optional from svc)
 	; (storage-put-stream path stream [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
 	;a path is set to an object of what is read from a stream, to its
@@ -166,24 +195,25 @@
 	(setd svc (storage-service))
 	(cond
 		((not (defq info (storage-info svc))) (list :lost :nil))
-		(:t (defq size (. info :find :block_size) names (list) bytes 0 full :nil more :t)
-			(while (and more (not full))
+		(:t (defq size (. info :find :block_size) names (list) bytes 0 full :nil lost :nil more :t)
+			(while (and more (not full) (not lost))
 				(defq blocks (list))
 				(while (and (< (length blocks) 8) (setq more (read-blk stream size)))
 					(push blocks more))
 				(defq hashes (map (const sha256) blocks)
-					has (if (empty? blocks) ""
-						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") hashes))) "")))
+					has (if (empty? blocks) "" (storage-has svc hashes)))
 				(each (lambda (block hash)
 					(setq bytes (+ bytes (length block)))
 					(push names hash)
-					(unless (or full (eql (if (< (!) (length has)) (elem-get has (!))) "1"))
-						(if (nql (storage-ask svc +storage_type_block_put block) hash) (setq full :t))))
+					(unless (or full lost (eql (if (< (!) (length has)) (elem-get has (!))) "1"))
+						;no room is the service saying so, no answer is not
+						(defq said (storage-ask svc +storage_type_block_put block))
+						(cond ((eql said hash)) ((not said) (setq lost :t)) ((setq full :t)))))
 					blocks hashes))
-			(if full (list :full :nil)
-				(storage-result (storage-ask svc +storage_type_commit
-					(join (cat (list (storage-from from) (str bytes) name) (map (const hex-encode) names))
-						+storage_lf)))))))
+			(cond
+				(full (list :full :nil))
+				(lost (list :lost :nil))
+				((storage-commit svc name from bytes names))))))
 
 (defun storage-put (name data &optional from svc)
 	; (storage-put path data [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
@@ -199,12 +229,12 @@
 		(list :none :nil)))
 
 (defun storage-manifest (name &optional svc)
-	;the blocks of the object a path is, (bytes names), :nil if there is none
+	;the blocks of the object a path is, (bytes names tree), :nil if there
+	;is none. Its manifest is had a block at a time, a big one's is a tree
+	;of them, (store-manifest-walk)
 	(setd svc (storage-service))
 	(and (defq entry (storage-stat name svc))
-		(defq lines (filter (const nempty?) (split (ifn (storage-block (elem-get entry +store_entry_hash) svc) "") +storage_lf)))
-		(> (length lines) 1)
-		(list (str-as-num (second lines)) (map! (const hex-decode) (list lines) 2 -1))))
+		(store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 svc)))))
 
 (defun storage-get (name &optional svc)
 	; (storage-get path [svc]) -> :nil | data
@@ -391,8 +421,7 @@
 		(when (or (empty? part) (and (eql (storage-ask svc +storage_type_block_put part) (defq hash (sha256 part)))
 				(push all hash)))
 			(elem-set st +storage_out_dirty :nil)
-			(storage-result (storage-ask svc +storage_type_commit
-				(join (cat (list (storage-from :nil) (str bytes) name) (map (const hex-encode) all)) +storage_lf))))))
+			(storage-commit svc name :nil bytes all))))
 
 (defun storage-stream (name &optional mode svc ahead)
 	; (storage-stream path [mode svc ahead]) -> :nil | stream
@@ -419,7 +448,7 @@
 			(when (defq object (storage-manifest name svc))
 				(defq names (second object)
 					st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
-						(ifn (storage-ask svc +storage_type_has (apply (const cat) (cat (list "") names))) "") +storage_retry
+						(storage-has svc names) +storage_retry
 						(list -1 "") :nil))
 				;the state is in the functions, a function has only what it is given
 				(lisp-stream `(lambda () (,storage-stream-fill ',st))
