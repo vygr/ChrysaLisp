@@ -426,7 +426,7 @@
 	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
-			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :manifests (Fmap 11)
+			:map (Fmap 11) :objects 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :blocks 0 :manifests (Fmap 11)
 			:folders (Fset 11) :folder_next 0 :folder_count 0)
 		(store-count store)
 		(exfat-begin vol)
@@ -442,17 +442,21 @@
 	;every block that is kept here, whatever is in it, as the volume has
 	;it, and the folder it is in. With going, it is asked before each
 	;folder is read, the long part of a big store's open, and if it says
-	;:nil the walk is given up, :nil
-	(defq out (list))
-	(exfat-walk (get :vol store) "blocks" (lambda (file entry)
-		(cond
-			((not (second entry))
-				(defq parts (split file "/") folder (elem-get parts 1))
-				(push out (list (hex-decode (if (starts-with "w" folder) (elem-get parts 2) (cat folder (elem-get parts 2))))
-					(cat "blocks/" folder))))
-			((and going (not (going)))
-				(setq out :nil)
-				:stop))))
+	;:nil the walk is given up, :nil. A block is in a folder of blocks/,
+	;so the folders are listed one after another, no walk of a tree: the
+	;blocks of one share the one string of its path
+	(defq vol (get :vol store) out (list))
+	(some (lambda (entry)
+			(cond
+				((not (second entry)) :nil)
+				((and going (not (going))) (setq out :nil) :t)
+				(:t (defq folder (first entry) path (cat "blocks/" folder)
+						prefix (if (starts-with "w" folder) "" folder))
+					(each (lambda (file)
+							(unless (second file) (push out (list (hex-decode (cat prefix (first file))) path))))
+						(exfat-dir vol entry))
+					:nil)))
+		(ifn (exfat-list vol "blocks") '()))
 	out)
 
 (defun store-blocks (store)
@@ -499,20 +503,26 @@
 		(store-count store)
 		;the names of the blocks it has, and where each is. Blocks are put
 		;in the last folder of them, the highest wN, while it has room
-		(def store :held (Fmap 1021) :manifests (Fmap 1021) :plan :nil)
+		(def store :held (Fmap 1021) :blocks 0 :manifests (Fmap 1021) :plan :nil)
 		(defq last -1 in_last 0)
 		(cond
 			((not (defq found (store-blocks-found store going))) :stopped)
 			(:t
+				;a bucket of the map for every few blocks, a store has a
+				;million of them, and the number of a folder once for all
+				;its blocks, which come together
+				(defq held (. (get :held store) :resize (max 1021 (>> (length found) 2))) at "" n -1)
 				(each (lambda ((name folder))
-						(. (get :held store) :insert name folder)
-						(when (starts-with "blocks/w" folder)
-							(defq n (str-as-num (slice folder (const (length "blocks/w")) -1)))
+						(. held :insert name folder)
+						(unless (eql folder at)
+							(setq at folder n (if (starts-with "blocks/w" folder)
+								(str-as-num (slice folder (const (length "blocks/w")) -1)) -1)))
+						(when (>= n 0)
 							(cond
 								((> n last) (setq last n in_last 1))
 								((= n last) (++ in_last)))))
 					found)
-				(def store :folder_next (max 0 last) :folder_count in_last)
+				(def store :folder_next (max 0 last) :folder_count in_last :blocks (. held :size))
 				(unless (eql had member)
 					;it is this member's now
 					(def store :was had
@@ -750,13 +760,14 @@
 			(exfat-end vol)
 			(when kept
 				(. (get :held store) :insert name folder)
-				(def store :folder_count (inc (get :folder_count store)))
+				(def store :folder_count (inc (get :folder_count store)) :blocks (inc (get :blocks store)))
 				(store-plan-held store name)
 				name))))
 
 (defun store-block-drop (store name)
 	; (store-block-drop store name) -> :nil | :t
 	(defq file (store-block-file store name))
+	(if (store-block-has? store name) (def store :blocks (dec (get :blocks store))))
 	(. (get :held store) :erase name)
 	(. (get :manifests store) :erase name)
 	(store-plan-dropped store name)
@@ -1250,7 +1261,7 @@
 	; (store-info store) -> (objects blocks free)
 	;how many objects, how many blocks kept, and the room left in bytes
 	;counted, not listed and put in order to be counted: it is asked often
-	(list (get :objects store) (. (get :held store) :size) (exfat-free (get :vol store))))
+	(list (get :objects store) (get :blocks store) (exfat-free (get :vol store))))
 
 ;module
 (export-symbols '(store-make store-open store-close store-resize store-save

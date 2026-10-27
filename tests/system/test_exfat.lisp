@@ -220,3 +220,24 @@
 (defq xf_d_again (exfat-mount xf_d_stream))
 (assert-list-eq "mounted again it has the same" (xf-names xf_d "many") (xf-names xf_d_again "many"))
 (assert-eq "and the same in each" (xf-bytes 100 4) (exfat-load xf_d_again "many/f150"))
+
+;a name of ASCII is read as its low bytes, and found by its own upper
+;case. One whose characters have a 0 for their low byte, U+4E00 of CJK
+;is 0x00 0x4e, "N" if only its bytes that are not 0 were read, is not
+;one of ASCII, nor is it the same name as one of ASCII that looks like it
+(bind '(xf_n xf_n_stream) (xf-volume 0x200000))
+(defq xf_cjk (cat (num-to-utf8 0x4e00) (num-to-utf8 0x4100))
+	xf_part (cat "abc" (num-to-utf8 0xe9))
+	xf_hex "00ff1e2a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6")
+(assert-true "a name of ASCII the length of a block's" (exfat-save xf_n xf_hex "hex"))
+(assert-true "a name of characters whose low byte is 0" (exfat-save xf_n xf_cjk "cjk"))
+(assert-true "and one of ASCII its bytes would be" (exfat-save xf_n "NA" "na"))
+(assert-true "a name of ASCII but for one character" (exfat-save xf_n xf_part "e acute"))
+(assert-list-eq "each listed as it was saved" (sort (list xf_hex xf_cjk "NA" xf_part)) (xf-names xf_n ""))
+(assert-eq "found in upper case" "hex" (exfat-load xf_n (to-upper xf_hex)))
+(assert-eq "the one whose low bytes are 0" "cjk" (exfat-load xf_n xf_cjk))
+(assert-eq "is not the one of ASCII" "na" (exfat-load xf_n "na"))
+(assert-eq "upper case of one partly ASCII" "e acute" (exfat-load xf_n (cat "ABC" (num-to-utf8 0xc9))))
+(defq xf_n_again (exfat-mount xf_n_stream))
+(assert-list-eq "mounted again, the same names" (xf-names xf_n "") (xf-names xf_n_again ""))
+(assert-eq "and found" "cjk" (exfat-load xf_n_again xf_cjk))
