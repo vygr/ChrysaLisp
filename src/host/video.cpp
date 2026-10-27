@@ -274,29 +274,302 @@ void host_video_close(uint64_t handle)
 #elif defined(__linux__)
 
 // Linux, first: VA-API, the decoder of a PC's graphics, Intel's or AMD's,
-// H.264 and Motion JPEG. It is built if libva's headers are here, and libva
-// is loaded as it is wanted, so the host starts on a machine without it,
-// and it is used only for a profile its driver lists. Its decoding is
+// H.264 and Motion JPEG. It is in every Linux build, no libva-dev needed,
+// and libva is loaded as it is wanted, so the host starts on a machine
+// without it, and it is used only for a profile its driver lists. Its decoding is
 // stateless: the stream's headers are read here, and what each picture is
 // made from is kept and told it, as the standard has it. The pictures come
 // back NV12, or as a JPEG's sampling has them, and are made blue green red
 // alpha as they are asked for. What it can not, and on a Raspberry Pi, goes
 // to the V4L2 decoder below.
 
-#if __has_include(<va/va.h>) && __has_include(<va/va_drm.h>)
-
-#define VIDEO_VA 1
-
 #include <stdio.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <va/va.h>
-#include <va/va_drm.h>
-#include <va/va_drmcommon.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
+
+//what is used of VA-API, as libva 2.x has it, libva.so.2 and libva-drm.so.2:
+//its types and constants, the buffers of H.264 and of baseline JPEG, the
+//DRM PRIME descriptor, and the calls, which are found by dlsym. Declared
+//here and not included, so every Linux build has it, with or without
+//libva-dev, and the host still starts where there is no libva
+typedef void *VADisplay;
+typedef int VAStatus;
+typedef unsigned int VAGenericID;
+typedef VAGenericID VAConfigID;
+typedef VAGenericID VAContextID;
+typedef VAGenericID VASurfaceID;
+typedef VAGenericID VABufferID;
+typedef VAGenericID VAImageID;
+typedef void (*VAMessageCallback)(void *user_context, const char *message);
+struct VASurfaceAttrib;
+
+enum VAProfile
+{
+	VAProfileNone = -1,
+	VAProfileH264Main = 6,
+	VAProfileH264High = 7,
+	VAProfileJPEGBaseline = 12,
+	VAProfileH264ConstrainedBaseline = 13
+};
+enum VAEntrypoint { VAEntrypointVLD = 1 };
+enum VAConfigAttribType { VAConfigAttribRTFormat = 0 };
+enum VABufferType
+{
+	VAPictureParameterBufferType = 0,
+	VAIQMatrixBufferType = 1,
+	VASliceParameterBufferType = 4,
+	VASliceDataBufferType = 5,
+	VAHuffmanTableBufferType = 12
+};
+
+#define VA_STATUS_SUCCESS 0x00000000
+#define VA_INVALID_ID 0xffffffff
+#define VA_INVALID_SURFACE VA_INVALID_ID
+#define VA_PROGRESSIVE 0x1
+#define VA_RT_FORMAT_YUV420 0x00000001
+#define VA_RT_FORMAT_YUV422 0x00000002
+#define VA_RT_FORMAT_YUV444 0x00000004
+#define VA_RT_FORMAT_YUV411 0x00000008
+#define VA_RT_FORMAT_YUV400 0x00000010
+#define VA_SLICE_DATA_FLAG_ALL 0x00
+#define VA_PICTURE_H264_INVALID 0x00000001
+#define VA_PICTURE_H264_SHORT_TERM_REFERENCE 0x00000008
+#define VA_PICTURE_H264_LONG_TERM_REFERENCE 0x00000010
+#define VA_EXPORT_SURFACE_READ_ONLY 0x0001
+#define VA_EXPORT_SURFACE_COMPOSED_LAYERS 0x0008
+#define VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2 0x40000000
+#define VA_LSB_FIRST 1
+#define VA_FOURCC(ch0, ch1, ch2, ch3) \
+	((unsigned long)(unsigned char)(ch0) | ((unsigned long)(unsigned char)(ch1) << 8) | \
+	((unsigned long)(unsigned char)(ch2) << 16) | ((unsigned long)(unsigned char)(ch3) << 24))
+#define VA_FOURCC_NV12 0x3231564E
+#define VA_FOURCC_YUY2 0x32595559
+#define VA_FOURCC_UYVY 0x59565955
+#define VA_FOURCC_YV12 0x32315659
+#define VA_FOURCC_I420 0x30323449
+#define VA_FOURCC_IMC3 0x33434D49
+#define VA_FOURCC_411P 0x50313134
+#define VA_FOURCC_422H 0x48323234
+#define VA_FOURCC_422V 0x56323234
+#define VA_FOURCC_444P 0x50343434
+#define VA_FOURCC_Y800 0x30303859
+
+struct VAConfigAttrib
+{
+	VAConfigAttribType type;
+	uint32_t value;
+};
+
+struct VAImageFormat
+{
+	uint32_t fourcc, byte_order, bits_per_pixel, depth;
+	uint32_t red_mask, green_mask, blue_mask, alpha_mask;
+	uint32_t va_reserved[4];
+};
+
+struct VAImage
+{
+	VAImageID image_id;
+	VAImageFormat format;
+	VABufferID buf;
+	uint16_t width, height;
+	uint32_t data_size, num_planes, pitches[3], offsets[3];
+	int32_t num_palette_entries, entry_bytes;
+	int8_t component_order[4];
+	uint32_t va_reserved[4];
+};
+
+struct VAPictureH264
+{
+	VASurfaceID picture_id;
+	uint32_t frame_idx, flags;
+	int32_t TopFieldOrderCnt, BottomFieldOrderCnt;
+	uint32_t va_reserved[4];
+};
+
+struct VAPictureParameterBufferH264
+{
+	VAPictureH264 CurrPic;
+	VAPictureH264 ReferenceFrames[16];
+	uint16_t picture_width_in_mbs_minus1, picture_height_in_mbs_minus1;
+	uint8_t bit_depth_luma_minus8, bit_depth_chroma_minus8, num_ref_frames;
+	union
+	{
+		struct
+		{
+			uint32_t chroma_format_idc : 2;
+			uint32_t residual_colour_transform_flag : 1;
+			uint32_t gaps_in_frame_num_value_allowed_flag : 1;
+			uint32_t frame_mbs_only_flag : 1;
+			uint32_t mb_adaptive_frame_field_flag : 1;
+			uint32_t direct_8x8_inference_flag : 1;
+			uint32_t MinLumaBiPredSize8x8 : 1;
+			uint32_t log2_max_frame_num_minus4 : 4;
+			uint32_t pic_order_cnt_type : 2;
+			uint32_t log2_max_pic_order_cnt_lsb_minus4 : 4;
+			uint32_t delta_pic_order_always_zero_flag : 1;
+		} bits;
+		uint32_t value;
+	} seq_fields;
+	uint8_t num_slice_groups_minus1, slice_group_map_type;
+	uint16_t slice_group_change_rate_minus1;
+	int8_t pic_init_qp_minus26, pic_init_qs_minus26;
+	int8_t chroma_qp_index_offset, second_chroma_qp_index_offset;
+	union
+	{
+		struct
+		{
+			uint32_t entropy_coding_mode_flag : 1;
+			uint32_t weighted_pred_flag : 1;
+			uint32_t weighted_bipred_idc : 2;
+			uint32_t transform_8x8_mode_flag : 1;
+			uint32_t field_pic_flag : 1;
+			uint32_t constrained_intra_pred_flag : 1;
+			uint32_t pic_order_present_flag : 1;
+			uint32_t deblocking_filter_control_present_flag : 1;
+			uint32_t redundant_pic_cnt_present_flag : 1;
+			uint32_t reference_pic_flag : 1;
+		} bits;
+		uint32_t value;
+	} pic_fields;
+	uint16_t frame_num;
+	uint32_t va_reserved[8];
+};
+
+struct VAIQMatrixBufferH264
+{
+	uint8_t ScalingList4x4[6][16];
+	uint8_t ScalingList8x8[2][64];
+	uint32_t va_reserved[4];
+};
+
+struct VASliceParameterBufferH264
+{
+	uint32_t slice_data_size, slice_data_offset, slice_data_flag;
+	uint16_t slice_data_bit_offset, first_mb_in_slice;
+	uint8_t slice_type, direct_spatial_mv_pred_flag;
+	uint8_t num_ref_idx_l0_active_minus1, num_ref_idx_l1_active_minus1;
+	uint8_t cabac_init_idc;
+	int8_t slice_qp_delta;
+	uint8_t disable_deblocking_filter_idc;
+	int8_t slice_alpha_c0_offset_div2, slice_beta_offset_div2;
+	VAPictureH264 RefPicList0[32];
+	VAPictureH264 RefPicList1[32];
+	uint8_t luma_log2_weight_denom, chroma_log2_weight_denom;
+	uint8_t luma_weight_l0_flag;
+	int16_t luma_weight_l0[32], luma_offset_l0[32];
+	uint8_t chroma_weight_l0_flag;
+	int16_t chroma_weight_l0[32][2], chroma_offset_l0[32][2];
+	uint8_t luma_weight_l1_flag;
+	int16_t luma_weight_l1[32], luma_offset_l1[32];
+	uint8_t chroma_weight_l1_flag;
+	int16_t chroma_weight_l1[32][2], chroma_offset_l1[32][2];
+	uint32_t va_reserved[4];
+};
+
+struct VARectangle
+{
+	int16_t x, y;
+	uint16_t width, height;
+};
+
+struct VAPictureParameterBufferJPEGBaseline
+{
+	uint16_t picture_width, picture_height;
+	struct
+	{
+		uint8_t component_id, h_sampling_factor, v_sampling_factor, quantiser_table_selector;
+	} components[255];
+	uint8_t num_components, color_space;
+	uint32_t rotation;
+	VARectangle crop_rectangle;
+	uint32_t va_reserved[5];
+};
+
+struct VAIQMatrixBufferJPEGBaseline
+{
+	uint8_t load_quantiser_table[4];
+	uint8_t quantiser_table[4][64];
+	uint32_t va_reserved[4];
+};
+
+struct VAHuffmanTableBufferJPEGBaseline
+{
+	uint8_t load_huffman_table[2];
+	struct
+	{
+		uint8_t num_dc_codes[16], dc_values[12], num_ac_codes[16], ac_values[162], pad[2];
+	} huffman_table[2];
+	uint32_t va_reserved[4];
+};
+
+struct VASliceParameterBufferJPEGBaseline
+{
+	uint32_t slice_data_size, slice_data_offset, slice_data_flag;
+	uint32_t slice_horizontal_position, slice_vertical_position;
+	struct
+	{
+		uint8_t component_selector, dc_table_selector, ac_table_selector;
+	} components[4];
+	uint8_t num_components;
+	uint16_t restart_interval;
+	uint32_t num_mcus;
+	uint32_t va_reserved[4];
+};
+
+struct VADRMPRIMESurfaceDescriptor
+{
+	uint32_t fourcc, width, height, num_objects;
+	struct
+	{
+		int fd;
+		uint32_t size;
+		uint64_t drm_format_modifier;
+	} objects[4];
+	uint32_t num_layers;
+	struct
+	{
+		uint32_t drm_format, num_planes, object_index[4], offset[4], pitch[4];
+	} layers[4];
+};
+
+extern "C"
+{
+	VAStatus vaInitialize(VADisplay dpy, int *major_version, int *minor_version);
+	VAMessageCallback vaSetInfoCallback(VADisplay dpy, VAMessageCallback callback, void *user_context);
+	VAMessageCallback vaSetErrorCallback(VADisplay dpy, VAMessageCallback callback, void *user_context);
+	int vaMaxNumProfiles(VADisplay dpy);
+	VAStatus vaQueryConfigProfiles(VADisplay dpy, VAProfile *profile_list, int *num_profiles);
+	int vaMaxNumEntrypoints(VADisplay dpy);
+	VAStatus vaQueryConfigEntrypoints(VADisplay dpy, VAProfile profile, VAEntrypoint *entrypoint_list, int *num_entrypoints);
+	VAStatus vaCreateConfig(VADisplay dpy, VAProfile profile, VAEntrypoint entrypoint, VAConfigAttrib *attrib_list, int num_attribs, VAConfigID *config_id);
+	VAStatus vaDestroyConfig(VADisplay dpy, VAConfigID config_id);
+	VAStatus vaCreateSurfaces(VADisplay dpy, unsigned int format, unsigned int width, unsigned int height,
+		VASurfaceID *surfaces, unsigned int num_surfaces, VASurfaceAttrib *attrib_list, unsigned int num_attribs);
+	VAStatus vaDestroySurfaces(VADisplay dpy, VASurfaceID *surfaces, int num_surfaces);
+	VAStatus vaCreateContext(VADisplay dpy, VAConfigID config_id, int picture_width, int picture_height, int flag,
+		VASurfaceID *render_targets, int num_render_targets, VAContextID *context);
+	VAStatus vaDestroyContext(VADisplay dpy, VAContextID context);
+	VAStatus vaCreateBuffer(VADisplay dpy, VAContextID context, VABufferType type, unsigned int size,
+		unsigned int num_elements, void *data, VABufferID *buf_id);
+	VAStatus vaDestroyBuffer(VADisplay dpy, VABufferID buffer_id);
+	VAStatus vaBeginPicture(VADisplay dpy, VAContextID context, VASurfaceID render_target);
+	VAStatus vaRenderPicture(VADisplay dpy, VAContextID context, VABufferID *buffers, int num_buffers);
+	VAStatus vaEndPicture(VADisplay dpy, VAContextID context);
+	VAStatus vaSyncSurface(VADisplay dpy, VASurfaceID render_target);
+	VAStatus vaCreateImage(VADisplay dpy, VAImageFormat *format, int width, int height, VAImage *image);
+	VAStatus vaDestroyImage(VADisplay dpy, VAImageID image);
+	VAStatus vaGetImage(VADisplay dpy, VASurfaceID surface, int x, int y, unsigned int width, unsigned int height, VAImageID image);
+	VAStatus vaDeriveImage(VADisplay dpy, VASurfaceID surface, VAImage *image);
+	VAStatus vaMapBuffer(VADisplay dpy, VABufferID buf_id, void **pbuf);
+	VAStatus vaUnmapBuffer(VADisplay dpy, VABufferID buf_id);
+	VAStatus vaExportSurfaceHandle(VADisplay dpy, VASurfaceID surface_id, uint32_t mem_type, uint32_t flags, void *descriptor);
+	VADisplay vaGetDisplayDRM(int fd);
+}
 
 //the calls of libva, found as it is loaded
 #define VA_CALLS(X) X(vaInitialize) X(vaSetInfoCallback) X(vaSetErrorCallback) \
@@ -810,7 +1083,7 @@ __attribute__((target("sse4.1"))) static void va_untile(const uint8_t *from, uin
 }
 #endif
 
-static bool va_export(Va_Decoder *d, VASurfaceID id, Va_Held &pic, uint32_t x, uint32_t y)
+static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, uint32_t y)
 {
 	//an NV12 surface as the driver gave it to the GPU, its memory mapped,
 	//linear or of Y tiles: Intel's, faster than an image of it, which is
@@ -1805,8 +2078,6 @@ static void va_close(Va_Decoder *d)
 	delete d;
 }
 
-#endif
-
 // Linux: the stateful decoder of V4L2, a memory to memory device, the
 // Raspberry Pi's bcm2835-codec-decode. Packets are given it as Annex B,
 // each NAL after a start code, the parameter sets before the first, and
@@ -1835,10 +2106,8 @@ struct Video_Buffer
 
 struct Video_Decoder
 {
-#ifdef VIDEO_VA
 	//one of VA-API, which does all of what is asked
 	Va_Decoder *va = nullptr;
-#endif
 	int fd = -1;
 	int nal_length = 4;
 	std::vector<uint8_t> sets;
@@ -2028,14 +2297,12 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	bool jpeg = codec == 0x6a706567;
 	if (jpeg) { if (len < 8) return 0; nal_length = 0; }
 	else if (codec != 0x61766331 || !video_avcc(setup, len, sets, sizes, nal_length)) return 0;
-#ifdef VIDEO_VA
 	if (auto va = va_open(codec, setup, len))
 	{
 		auto d = new Video_Decoder();
 		d->va = va;
 		return (uint64_t)d;
 	}
-#endif
 	auto d = new Video_Decoder();
 	d->nal_length = nal_length;
 	d->full = jpeg;
@@ -2067,9 +2334,7 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 {
 	auto d = (Video_Decoder*)handle;
 	if (!d) return -1;
-#ifdef VIDEO_VA
 	if (d->va) return va_decode(d->va, data, len, shown);
-#endif
 	//nothing: the end, what the decoder holds back given up
 	if (len == 0)
 	{
@@ -2138,9 +2403,7 @@ int64_t host_video_frame(uint64_t handle, uint32_t *pixels, uint64_t w, uint64_t
 	//those to be shown before it are gone
 	auto d = (Video_Decoder*)handle;
 	if (!d) return -1;
-#ifdef VIDEO_VA
 	if (d->va) return va_frame(d->va, pixels, w, h, stride, shown);
-#endif
 	for (int round = 0; round < 2; round++)
 	{
 		int64_t got = -1;
@@ -2167,14 +2430,12 @@ void host_video_close(uint64_t handle)
 {
 	auto d = (Video_Decoder*)handle;
 	if (!d) return;
-#ifdef VIDEO_VA
 	if (d->va)
 	{
 		va_close(d->va);
 		delete d;
 		return;
 	}
-#endif
 	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	video_ioctl(d->fd, VIDIOC_STREAMOFF, &type);
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;

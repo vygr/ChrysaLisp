@@ -137,10 +137,11 @@ older Mac or Pi, and for what each gives you.
 
   * Or SDL2: `sudo apt-get install libsdl2-dev libsdl2-mixer-dev`
 
-  * Optional, films decoded by the PC's graphics hardware, VA-API:
-    `sudo apt-get install libva-dev` to build it, and a driver to run it,
+  * Optional, films decoded by the PC's graphics hardware, VA-API: nothing
+    to build it, every Linux host has it, and to run it the driver,
     `intel-media-va-driver` (Intel Broadwell and later), `i965-va-driver`
-    (older Intel) or `mesa-va-drivers` (AMD). `vainfo`, of the package of
+    (older Intel) or `mesa-va-drivers` (AMD, untested), with `libva2` and
+    `libva-drm2` if they did not come with it. `vainfo`, of the package of
     that name, shows what a machine can decode. Without them Films is as it
     was, see `docs/intro/intro.md`.
 

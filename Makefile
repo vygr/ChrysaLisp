@@ -201,8 +201,8 @@ inst:
 ifeq ($(OS),Darwin)
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT): LDFLAGS += -framework VideoToolbox -framework CoreMedia -framework CoreVideo -framework CoreFoundation
 endif
-#and on Linux VA-API's, if libva-dev was there to build it, its libva found
-#as it is wanted by dlopen, of libc since glibc 2.34 and of libdl before
+#and on Linux VA-API's, in every build, no libva-dev: its libva found as it
+#is wanted by dlopen, of libc since glibc 2.34 and of libdl before
 ifeq ($(OS),Linux)
 obj/$(CPU)/$(ABI)/$(OS)/main_gui$(EXE_EXT): LDFLAGS += -ldl
 endif

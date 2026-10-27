@@ -67,12 +67,12 @@ sudo apt-get install libsdl2-dev libsdl2-mixer-dev
 ```
 
 4. Optional, **VA-API**, so that Films has a PC's graphics hardware decode
-   H.264 and Motion JPEG. The host is built with it if `libva-dev` is there,
-   and at run time uses it only if a driver is, so the one host program
-   still starts on a machine without them:
+   H.264 and Motion JPEG. Every Linux host has it, nothing is needed to
+   build it, and at run time it is used only if libva and a driver are
+   there, so the one host program still starts on a machine without them:
 
 ```code
-sudo apt-get install libva-dev vainfo
+sudo apt-get install libva2 libva-drm2 vainfo
 ```
 
    and the driver of the machine's graphics, one of:
@@ -81,9 +81,9 @@ sudo apt-get install libva-dev vainfo
 |---|---|---|---|
 | Intel Broadwell (2014) and later | `intel-media-va-driver` | `intel-media-driver` | `intel-media-driver` |
 | Older Intel | `i965-va-driver` | `libva-intel-driver` | `libva-intel-driver` |
-| AMD | `mesa-va-drivers` | `mesa-va-drivers` | `libva-mesa-driver` |
+| AMD (untested) | `mesa-va-drivers` | `mesa-va-drivers` | `libva-mesa-driver` |
 
-   To build on Fedora it is `libva-devel`, on Arch `libva`. `vainfo` lists
+   On Fedora and Arch libva is `libva`. `vainfo` lists
    what the machine can decode, `VAEntrypointVLD` beside a profile. Without
    these, Films decodes as it did, by V4L2 on a Raspberry Pi. MP3 and the
    other sounds are ChrysaLisp's own decoders and need nothing.
