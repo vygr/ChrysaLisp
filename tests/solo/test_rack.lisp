@@ -46,7 +46,8 @@
 		;that takes a sync into a tree of its own. Both are small trees of
 		;tests/scratch/, not the system's
 		(defq rk_src "tests/scratch/rack_src" rk_dst "tests/scratch/rack_dst"
-			rk_sid "racktestsystemid" rk_me (hex-encode (system-id)))
+			rk_sid "racktestsystemid" rk_me (hex-encode (system-id))
+			rk_hex (to-upper (hex-encode rk_sid)))
 		(rk-clear rk_src) (rk-clear rk_dst)
 		(save "one" (cat rk_src "/one.txt"))
 		(save "two" (cat rk_src "/deep/two.txt"))
@@ -65,9 +66,11 @@
 			(open-task (str `(mail-send (open-child "service/sync/app.lisp" +kn_call_pin)
 					(cat "*Sync" (ascii-char 10) ,rk_dst (ascii-char 10) ,rk_me)))
 				rk_node +kn_call_pin 0 (mail-mbox))
-			(while (empty? (sync-services))
+			;its own, and no other: a real machine that takes a sync, come into
+			;reach since the test began, is never sent this tree, nor run on
+			(defq rk_svc :nil)
+			(until (setq rk_svc (some (# (if (eql (to-upper (second %0)) rk_hex) %0)) (sync-services)))
 				(task-sleep 50000))
-			(defq rk_svc (first (sync-services)))
 			(assert-true "it takes a sync, and is not this machine" (and rk_svc (nql (second rk_svc) rk_me)))
 			;it takes from this machine once it knows the machine, which a
 			;system just linked does not at once: asked till it does
@@ -79,7 +82,7 @@
 				;the sessions are a user's, and the command says whose. A line
 				;with a / in it is one a run keeps of what a session said
 				(defq rk_out (rack-run "lisp -r (print {user/} (get (quote *env_node_user*)))"
-						:nil :nil (list "gone.txt") "Test" rk_src)
+						:nil :nil (list "gone.txt") "Test" rk_src :nil :nil :nil (list rk_hex))
 					rk_sync (filter (# (starts-with "SYNC " %0)) rk_out)
 					rk_ran (filter (# (starts-with "RAN " %0)) rk_out))
 				(assert-eq "one other machine is made the same" 1 (length rk_sync))
@@ -99,7 +102,7 @@
 
 				;a machine can be made the same and left out of the run
 				(save "three" (cat rk_src "/three.txt"))
-				(setq rk_out (rack-run "echo ran here" :nil (list (elem-get rk_svc 2)) :nil :nil rk_src))
+				(setq rk_out (rack-run "echo ran here" :nil (list (elem-get rk_svc 2)) :nil :nil rk_src :nil :nil :nil (list rk_hex)))
 				(assert-true "a machine left out is still made the same"
 					(and (found? (first rk_out) " 1 sent ") (eql (load (cat rk_dst "/three.txt")) "three")))
 				(assert-true "and is said to be left out, not run"
