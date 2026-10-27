@@ -223,6 +223,12 @@
 	(assert-eq "not of what is there by another path" sg_big (storage-get "b/copy" sg_svc))
 	(assert-list-eq "nothing kept is wrong" '() (storage-check :nil sg_svc))
 
+	;a has of a name and a byte more, as a peer of another build may send,
+	;is of the whole name alone, and the service is still there after
+	(assert-eq "a has of a name and a byte more answers for the name" "0"
+		(storage-ask sg_svc +storage_type_has (cat (pad "" 32 "z") "x")))
+	(assert-true "and the service is still there" (storage-info sg_svc))
+
 	;stopped and started, it is what it was
 	(assert-eq "the service is stopped" :t (storage-stop sg_svc))
 	(while (storage-service sg_name) (task-sleep 10000))
