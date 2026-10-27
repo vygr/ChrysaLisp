@@ -60,8 +60,10 @@
 
 ;the film is made in a file of its own, and is the film only once it is
 ;whole: one stopped part way does not leave half a film in the tree,
-;item 124. There is no rename, it is copied over and let go of
-(defq +film_file (cat +film_path +film_name ".flm") +film_part (cat +film_path +film_name ".flm.part"))
+;item 124. There is no rename, it is copied over and let go of. The part
+;is made in obj/, out of the herd's sync, which would copy it to the
+;other machines and not take it away again
+(defq +film_file (cat +film_path +film_name ".flm") +film_part (cat "obj/" +film_name ".flm.part"))
 
 (defun film-keep ()
 	;the whole film is the film
