@@ -42,7 +42,7 @@
 ;the pcb router: a pcb holds its nets, a net held the pcb by a count
 (defq pcb_list (pcb-read (load "apps/science/pcb/data/test1.pcb")))
 (bind '(width height depth) (first pcb_list))
-(defq pcb (Pcb width height depth 1 0 1 0 2 1 1))
+(defq pcb (Pcb width height depth 1 0 0 2 1 1))
 (each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 	(setq wires '() pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
 	(. pcb :add_track (Track id track_radius via_radius track_gap pads wires))) (list pcb_list) 1)
