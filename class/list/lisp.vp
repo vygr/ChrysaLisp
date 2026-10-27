@@ -110,7 +110,9 @@
 	(call :list :get_begin (vpx list) (vpx _ iter_begin))
 	(call :num :create (vpx (>> (- liter iter_begin) 3)) (vpx value))
 	(call :list :deref (vpx params))
-	(call :sys_task :sleep '(0))
+	;the other tasks of the node have a turn if this one's slice is up, a
+	;sort is many of these
+	(call :sys_task :slice)
 
 	(exit :list :lisp_pivot (vpx this value))
 	(return)
