@@ -25,7 +25,7 @@
 				:apps '("terminal" "services" "netmon"
 					"netmap" "netspeed" "storage" "keys" "files" "themes" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
-				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "rosetta" "magnifier"))
+				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "magnifier"))
 			'Tools (scatter (Emap) :collapsed :nil
 				:apps '("edit" "viewer" "hexview" "fonts" "benchmark"))
 			'Media (scatter (Emap) :collapsed :nil
