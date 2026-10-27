@@ -6,9 +6,10 @@
 	(netid reply prog)
 	(offset data))
 
-;state: routing, every net routed, or ended with some not routed
+;state: routing, every net routed, ended with some not routed, or with a
+;fault the design rule check found
 (structure +pcb_progress 0
 	(uint total current state))
 
 (enums +pcb_state 0
-	(enum routing routed short))
+	(enum routing routed short drc))

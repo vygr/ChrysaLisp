@@ -160,8 +160,8 @@
 				;progress report mail
 				(bind '(total current state)
 					(getf-> *msg* +pcb_progress_total +pcb_progress_current +pcb_progress_state))
-				;red if it ended with nets not routed
-				(if (= state +pcb_state_short) (def progress :paper +argb_red))
+				;red if it ended with nets not routed, or a fault the check found
+				(if (or (= state +pcb_state_short) (= state +pcb_state_drc)) (def progress :paper +argb_red))
 				(set (. progress :dirty) :value current :maximum total))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))

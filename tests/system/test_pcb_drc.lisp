@@ -78,3 +78,16 @@
 (bind '(s & o) (pcb-drc (pcb-read (str pd_ss))))
 (assert-eq "nets of test1 the router routed, no short" 0 (length s))
 (assert-list-eq "and none off the board" '() o)
+
+;the router checks the board it ends with: clean with nets not routed,
+;they are not counted, and not when a net's track lies on another's
+(defq pd_nets (get :netlist pcb))
+(assert-true "the routed nets of test1, the check at the end passes" (. pcb :drc_clean pd_nets))
+(defq pd_a (some (# (if (nempty? (get :paths %0)) %0)) pd_nets)
+	pd_b (some (# (and (nempty? (get :paths %0)) (not (eql %0 pd_a)) %0)) pd_nets)
+	pd_saved (cat (get :paths pd_a)))
+(each (# (push (get :paths pd_a) %0)) (get :paths pd_b))
+(assert-eq "a net given another's track, the check fails" :nil (. pcb :drc_clean pd_nets))
+(clear (get :paths pd_a))
+(each (# (push (get :paths pd_a) %0)) pd_saved)
+(assert-true "and passes when it is put back" (. pcb :drc_clean pd_nets))

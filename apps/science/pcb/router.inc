@@ -1,5 +1,7 @@
 (import "./app.inc")
 (import "./layer.inc")
+(import "./reader.inc")
+(import "./drc.inc")
 
 ;native, apps/science/pcb/lisp.vp
 (ffi (cat *app_root* "flood_near") flood-near)
@@ -847,8 +849,26 @@
 		(if (get :trace this) (. this :trace_tracks nets (cat "straightened, passes " (str passes))))
 		(defq done (length (filter (# (get :routed %0)) nets)))
 		(. this :report reply_mbox prog_mbox done
-			(if (= done (length nets)) +pcb_state_routed +pcb_state_short))
+			(cond
+				((not (. this :drc_clean nets)) +pcb_state_drc)
+				((= done (length nets)) +pcb_state_routed)
+				(+pcb_state_short)))
 		(= done (length nets)))
+
+	(defmethod :drc_clean (nets)
+		; (. pcb :drc_clean nets) -> :t | :nil
+		;the board as it is printed, read back and checked by drc.inc: no
+		;short, nothing off the board, and every net routed joined. What it
+		;finds is printed
+		(. this :print_pcb (defq ss (string-stream (cat ""))))
+		(bind '(shorts unjoined outside) (pcb-drc (pcb-read (str ss))))
+		(defq routed (map (# (. %0 :get_id)) (filter (# (get :routed %0)) nets))
+			broken (filter (# (find %0 routed)) unjoined))
+		(cond
+			((and (empty? shorts) (empty? outside) (empty? broken)))
+			(:t (print "Pcb: the design rule check found shorts " shorts
+					" routed nets not joined " broken " off the board " outside)
+				:nil)))
 
 	(defmethod :restore (saved)
 		; (. pcb :restore saved) -> pcb
