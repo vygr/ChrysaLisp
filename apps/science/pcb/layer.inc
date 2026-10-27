@@ -134,6 +134,22 @@
 		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
 		(hit-line (get :buckets this) minx miny maxx maxy (get :width this) id layer_line))
+
+	(defmethod :count_line (layer_line)
+		; (. layer :count_line layer_line) -> num
+		;how many lines of the layer the line shorts with
+		(set this :id (defq id (inc (get :id this))))
+		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
+		(defq buckets (get :buckets this) width (get :width this) n 0
+			miny (* (dec miny) width) maxy (* maxy width))
+		(while (<= (++ miny width) maxy)
+			(each! (lambda (bucket)
+					(each (lambda (record)
+						(when (/= (elem-get record +record_id) id)
+							(elem-set record +record_id id)
+							(if (hit-line? record layer_line) (++ n)))) bucket))
+				(list buckets) (+ miny minx) (+ miny maxx 1)))
+		n)
 	)
 
 (defclass Layers (width height depth scale) :nil
@@ -198,6 +214,18 @@
 			(. (elem-get layers (n2i z1)) :sub_line layer_line)
 			(setq z1 (+ z1 1.0)))
 		this)
+
+	(defmethod :count_line (p1 p2 radius gap)
+		; (. layers :count_line p1 p2 radius gap) -> num
+		;how many lines of the layers p1 to p2 the line shorts with
+		(bind '(x1 y1 z1) p1)
+		(bind '(x2 y2 z2) p2)
+		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap) n 0)
+		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
+		(raise :layers)
+		(while (<= z1 z2)
+			(setq n (+ n (. (elem-get layers (n2i z1)) :count_line layer_line)) z1 (+ z1 1.0)))
+		n)
 
 	(defmethod :hit_layers_line (layers_line)
 		; (. layers :hit_layers_line layers_line) -> :nil | :t
