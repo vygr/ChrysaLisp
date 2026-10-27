@@ -1,6 +1,7 @@
 (defq *app_root* (path-to-file))
 (import "usr/env.inc")
 (import "gui/lisp.inc")
+(import "lib/consts/colors.inc")
 (import "./app.inc")
 (import "./reader.inc")
 (import "./viewer.inc")
@@ -39,9 +40,7 @@
 		(ui-label _ (:text "grid_res:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(ui-spinner res_spinner (:value 1 :maximum 3 :minimum 1))
 		(ui-label _ (:text "vias_cost:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
-		(ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0))
-		(ui-label _ (:text "quant:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
-		(ui-spinner quant_spinner (:value 1 :maximum 16 :minimum 1)))
+		(ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label _ (:text "flood_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(ui-spinner flood_spinner (:value 2 :maximum 4 :minimum 1))
@@ -96,11 +95,13 @@
 
 (defun route ()
 	(stop-route)
+	;the bar the color of the theme again, till it ends short
+	(if (def? :paper progress) (undef progress :paper))
+	(. progress :dirty)
 	(mail-send (setq child (open-child (const (cat *app_root* "child.lisp")) +kn_call_run))
 		(setf-> (cat (str-alloc +pcb_job_size) pcb_data)
 			(+pcb_job_grid_res (get :value res_spinner))
 			(+pcb_job_vias_cost (get :value vias_spinner))
-			(+pcb_job_quant (get :value quant_spinner))
 			(+pcb_job_flood_range (get :value flood_spinner))
 			(+pcb_job_even_range (get :value even_spinner))
 			(+pcb_job_odd_range (get :value odd_spinner))
@@ -157,8 +158,11 @@
 					(win-load file)))
 			((= idx +select_prog)
 				;progress report mail
-				(set (. progress :dirty) :value (getf *msg* +pcb_progress_current)
-					:maximum (getf *msg* +pcb_progress_total)))
+				(bind '(total current state)
+					(getf-> *msg* +pcb_progress_total +pcb_progress_current +pcb_progress_state))
+				;red if it ended with nets not routed
+				(if (= state +pcb_state_short) (def progress :paper +argb_red))
+				(set (. progress :dirty) :value current :maximum total))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))

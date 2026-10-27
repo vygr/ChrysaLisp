@@ -66,7 +66,7 @@
 (import "apps/science/pcb/router.inc")
 (defq pd_list (pcb-read (load "apps/science/pcb/data/test1.pcb")))
 (bind '(pd_w pd_h pd_d) (first pd_list))
-(defq pcb (Pcb pd_w pd_h pd_d 1 0 1 0 2 1 1))
+(defq pcb (Pcb pd_w pd_h pd_d 1 0 0 2 1 1))
 (each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(setq pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
 		(. pcb :add_track (Track id track_radius via_radius track_gap pads '())))

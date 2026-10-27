@@ -43,17 +43,16 @@
 		(++ y))
 	out)
 
-(defun aabb-pads (pads quant)
+(defun aabb-pads (pads)
 	;aabb of pads
 	(defq minxyz (Vec2-f 1000000.0 1000000.0)
-		maxxyz (Vec2-f -1000000.0 -1000000.0)
-		quant (n2f quant))
+		maxxyz (Vec2-f -1000000.0 -1000000.0))
 	(each (lambda (p)
 		(vector-min minxyz (setq p (. p :get_pos)) minxyz)
 		(vector-max maxxyz p maxxyz)) pads)
 	(bind '(minx miny) minxyz)
 	(bind '(maxx maxy) maxxyz)
-	(list (n2f (n2i (/ (* (- maxx minx) (- maxy miny)) quant)))
+	(list (* (- maxx minx) (- maxy miny))
 		(list minx miny maxx maxy)))
 
 (defun delay-node (delays at node)
@@ -201,7 +200,7 @@
 	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_lines)
 
 	;bounds
-	(bind '(area bbox) (aabb-pads pads (. pcb :get_quant)))
+	(bind '(area bbox) (aabb-pads pads))
 	(def this :area area :bbox bbox)
 
 	(defgetmethod :radius)
@@ -454,8 +453,8 @@
 		this)
 	)
 
-(defclass Pcb (width height depth grid_res verb quant vias_cost fr fr_even fr_odd) :nil
-	; (Pcb width height depth grid_res verb quant vias_cost fr fr_even fr_odd) -> pcb
+(defclass Pcb (width height depth grid_res verb vias_cost fr fr_even fr_odd) :nil
+	; (Pcb width height depth grid_res verb vias_cost fr fr_even fr_odd) -> pcb
 	(def this
 		:nodes_dim (dim (nums (* width grid_res) (* height grid_res) depth)
 			(defq nodes (cap (* width height depth grid_res grid_res) (nums))))
@@ -477,7 +476,7 @@
 			(gen-vectors (* fr +path_scale) (* fr_even +path_scale) (* fr +path_scale))
 			(gen-vectors (* fr +path_scale) (* fr +path_scale) (* fr_odd +path_scale)))
 		:netlist (list) :verbosity verb
-		:quant quant :vias_cost (* vias_cost grid_res)
+		:vias_cost (* vias_cost grid_res)
 		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
 						depth (/ +spacial_hash_res (n2f grid_res)))
@@ -492,7 +491,6 @@
 
 	(defgetmethod :depth)
 	(defgetmethod :grid_res)
-	(defgetmethod :quant)
 	(defgetmethod :layers)
 	(defgetmethod :via_layers)
 	(defgetmethod :verbosity)
@@ -746,7 +744,10 @@
 				(if (get :trace this) (print "local " local " no better, put back")))
 			(++ local))
 		;every net routed, or those left are left unrouted
-		(every (# (get :routed %0)) nets))
+		(defq done (length (filter (# (get :routed %0)) nets)))
+		(. this :report reply_mbox prog_mbox done
+			(if (= done (length nets)) +pcb_state_routed +pcb_state_short))
+		(= done (length nets)))
 
 	(defmethod :restore (saved)
 		; (. pcb :restore saved) -> pcb
@@ -803,6 +804,7 @@
 		(defq left (filter (# (not (get :routed %0))) queue))
 		(push (get :log this) (list :finish (length queue) (length left)))
 		(if (get :trace this) (print "finish of " (length queue) " left " (length left)))
+		(. this :report reply_mbox prog_mbox (length (filter (# (get :routed %0)) (get :netlist this))))
 		(empty? left))
 
 	(defmethod :conflicts (nets)
@@ -864,14 +866,22 @@
 			(. this :add_history conflicts)
 			(elem-set pf 0 (min +pf_most (* (first pf) +pf_rise)))
 			(++ round)
-			(when (>= (. this :get_verbosity) 1)
-				(mail-send prog_mbox
-					(setf-> (str-alloc +pcb_progress_size)
-						(+pcb_progress_total (length netlist))
-						(+pcb_progress_current (- (length netlist) (length conflicts)))))
-				(. this :print_pcb (defq ss (string-stream (cat ""))))
-				(mail-send reply_mbox (str ss))))
+			(. this :report reply_mbox prog_mbox (- (length netlist) (length conflicts))))
 		conflicts)
+
+	(defmethod :report (reply_mbox prog_mbox done &optional state)
+		; (. pcb :report reply_mbox prog_mbox done [state]) -> pcb
+		;to the app, how many nets are done of them all, whether it is still
+		;routing or how it ended, and the board
+		(when (>= (. this :get_verbosity) 1)
+			(mail-send prog_mbox
+				(setf-> (str-alloc +pcb_progress_size)
+					(+pcb_progress_total (length (get :netlist this)))
+					(+pcb_progress_current done)
+					(+pcb_progress_state (ifn state +pcb_state_routing))))
+			(. this :print_pcb (defq ss (string-stream (cat ""))))
+			(mail-send reply_mbox (str ss)))
+		this)
 
 	(defmethod :settle (conflicts nets)
 		; (. pcb :settle conflicts nets) -> num

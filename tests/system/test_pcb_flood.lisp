@@ -11,7 +11,7 @@
 
 (defq pf_list (pcb-read (load "apps/science/pcb/data/test1.pcb")))
 (bind '(pf_w pf_h pf_d) (first pf_list))
-(defq pcb (Pcb pf_w pf_h pf_d 1 0 1 0 2 1 1))
+(defq pcb (Pcb pf_w pf_h pf_d 1 0 0 2 1 1))
 (each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(setq pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
 		(. pcb :add_track (Track id track_radius via_radius track_gap pads '())))
@@ -42,7 +42,7 @@
 ;the negotiating router's flood: routed tracks soft, a move that shorts
 ;with them taken at a cost, more where it has before. (flood-cost) finds
 ;the moves and their delays the Lisp finds
-(defq pcb (Pcb pf_w pf_h pf_d 1 0 1 0 2 1 1))
+(defq pcb (Pcb pf_w pf_h pf_d 1 0 0 2 1 1))
 (each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(setq pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
 		(. pcb :add_track (Track id track_radius via_radius track_gap pads '())))
@@ -96,7 +96,7 @@
 		(list (get :netlist pcb)) 0 6)
 	(list asked same))
 (defun pf-board (negotiating)
-	(defq pcb (Pcb pf_w pf_h pf_d 1 0 1 2 2 1 1))
+	(defq pcb (Pcb pf_w pf_h pf_d 1 0 2 2 1 1))
 	(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 			(setq pads (map (lambda ((radius gap pos shape)) (Pad radius gap pos shape)) pads))
 			(. pcb :add_track (Track id track_radius via_radius track_gap pads '())))
