@@ -8,6 +8,8 @@
 ; (flood-near ctx node flood_vecs via_vecs radius gap via out_n out_v) -> out_n
 (ffi (cat *app_root* "flood_cost") flood-cost)
 (ffi (cat *app_root* "flood_wave") flood-wave)
+(ffi (cat *app_root* "flood_back") flood-back)
+; (flood-back ctx node path_vecs via_vecs radius gap via vias_cost mode out_n) -> num
 ; (flood-wave ctx starts ends flood_vecs via_vecs radius gap via vias_cost mode) -> :t
 ; (flood-cost ctx node flood_vecs via_vecs radius gap via out_n out_v out_nd out_vd) -> out_n
 
@@ -399,19 +401,14 @@
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
 		(defq pcb (obj-ref (get :pcb this))) (raise (path_vectors (. pcb :get_path_vectors)
-			nearer_nodes '() pth (list) path_node end_node exit :nil))
+			nearer_nodes (list) pth (list) path_node end_node exit :nil
+			ctx (. pcb :flood_ctx) vias_cost (get :vias_cost pcb) mode (if (get :negotiating pcb) 1 0)))
 		(until exit
 			(task-slice)
 			(push pth path_node)
-			(clear nearer_nodes)
-			(each (# (push nearer_nodes %0))
-				(. pcb :all_not_shorting
-					(. pcb :all_marked path_vectors path_node)
-					path_node radius gap))
-			(each (# (push nearer_nodes %0))
-				(. pcb :all_not_shorting_via
-					(. pcb :all_marked +via_vectors path_node)
-					path_node via gap))
+			;the marked nodes round it, and of them the step the flood took
+			(defq best (flood-back ctx path_node path_vectors +via_vectors
+				radius gap via vias_cost mode (clear nearer_nodes)))
 			(cond
 				((= (length nearer_nodes) 0)
 					;gone empty
@@ -419,10 +416,10 @@
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
 					(setq exit (push pth n)))
-				((get :negotiating pcb)
+				((>= best 0)
 					;the step the flood took here: the least of a mark and
 					;what the step from it cost, its delay, and a via's cost
-					(setq path_node (. this :back_step path_node nearer_nodes radius via gap)))
+					(setq path_node (elem-get nearer_nodes best)))
 				(:t ;sort nodes and take the first
 					(setq path_node (second (elem-get
 						(sort
@@ -432,12 +429,13 @@
 							(# (- (first %0) (first %1)))) 0))))))
 		exit)
 
-	(defmethod :back_step (node nears radius via gap)
-		; (. net :back_step node nears radius via gap) -> node
-		;of the marked nodes round a node, the one the flood came from: the
-		;least of its mark, the step, the delay of the step as the flood had
-		;it, (. pcb :step_delay), and the cost of a via, the nearest of
-		;those as much
+	(defmethod :back_step_lisp (node nears radius via gap)
+		; (. net :back_step_lisp node nears radius via gap) -> node
+		;the Lisp of the step (flood-back) picks, kept to hold it to: of the
+		;marked nodes round a node, the one the flood came from, the least of
+		;its mark, the step, the delay of the step as the flood had it,
+		;(. pcb :step_delay), and the cost of a via, the nearest of those as
+		;much
 		(defq pcb (obj-ref (get :pcb this)) soft (get :soft_layers pcb)
 			depth (n2f (dec (get :depth pcb))) np (. pcb :node_to_pad_point node)
 			best :nil best_cost 0 best_dist 0)

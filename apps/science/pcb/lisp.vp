@@ -1,8 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/num/class.inc")
 (include "class/lisp/class.inc")
 (include "class/fixeds/class.inc")
-(include "class/nums/class.inc")
 (include "class/fixed/class.inc")
 
 ;fixed point as the Lisp of layer.inc has it, (hit-line?): a product is
@@ -349,9 +347,10 @@
 	(assign `((:rsp ,out)) '(:r0))
 	(call :list :push_back '(:r0 :r1) '(_ _ _ _)))
 
-(defun pcb-candidate (vecs skip)
+(defun pcb-candidate (vecs skip &optional marked)
 	;the next of the vectors, the node it moves to as local_cx cy cz, if it is
-	;on the board and not marked, else on to skip
+	;on the board and not marked, else on to skip. With marked, one marked
+	;less than local_cur, its mark in local_mark, the backtrack's
 	(assign '((:rsp local_vec_iter)) '(:r0))
 	(assign '((:r0 0)) '(:r0))
 	(assign '((:r0 +array_begin)) '(:r0))
@@ -371,7 +370,13 @@
 	(assign '((:rsp local_grid)) '(:r0))
 	(vp-add-rr :r5 :r0)
 	(assign '((:r0 0)) '(:r0))
-	(gotoif '(:r0 /= 0) skip)
+	(cond
+		(marked
+			(gotoif '(:r0 <= 0) skip)
+			(assign '((:rsp local_cur)) '(:r1))
+			(gotoif '(:r0 >= :r1) skip)
+			(assign '(:r0) '((:rsp local_mark))))
+		(:t (gotoif '(:r0 /= 0) skip)))
 	(assign '((:rsp local_cx) (:rsp local_cy) (:rsp local_cz)) '(:r0 :r1 :r2))
 	(pcb-pad))
 
@@ -519,15 +524,16 @@
 (def-func-end)
 
 
-(defun pcb-delay-value ()
-	;how many steps more than one a move to local_cx cy cz costs, into :r0:
-	;(1 + its history) * (1 + pf * the soft tracks it shorts with), as the
-	;Lisp of router.inc, (. pcb :step_delay)
+(defun pcb-delay-value (&optional at)
+	;how many steps more than one a move to local_cx cy cz, or the node of
+	;the locals at, costs, into :r0: (1 + its history) * (1 + pf * the soft
+	;tracks it shorts with), as the Lisp of router.inc, (. pcb :step_delay)
+	(bind '(x y z) (ifn at '(local_cx local_cy local_cz)))
 	(assign '((:rsp local_count) (:rsp local_pf)) '(:r0 :r1))
 	(vp-shl-cr +fp_shift :r0)
 	(pcb-fmul :r0 :r1)
 	(vp-add-cr (<< 1 +fp_shift) :r0)
-	(assign '((:rsp local_cz) (:rsp local_h) (:rsp local_cy) (:rsp local_w) (:rsp local_cx))
+	(assign `((:rsp ,z) (:rsp local_h) (:rsp ,y) (:rsp local_w) (:rsp ,x))
 		'(:r2 :r3 :r4 :r5 :r6))
 	(vp-mul-rr :r2 :r3)
 	(vp-add-rr :r4 :r3)
@@ -687,6 +693,215 @@
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(flood-cost ctx node flood_vecs via_vecs radius gap via out_n out_v out_nd out_vd)" +error_msg_wrong_types))
 	(signature '(:LIST :NUMS :LIST :LIST :FIXED :FIXED :FIXED :LIST :LIST :NUMS :NUMS))
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; a step of the backtrack
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun pcb-back-cost (extra keep)
+	;the cost of the step from local_cx cy cz: its mark, one, the delay of
+	;the step at the node, local_nx ny nz, and extra, a local or :nil. The
+	;least so far, the nearest of those as much, is the best, local_best
+	;its place on out_n. Else on to keep
+	(pcb-delay-value '(local_nx local_ny local_nz))
+	(assign '((:rsp local_mark)) '(:r1))
+	(vp-add-rr :r1 :r0)
+	(vp-add-cr 1 :r0)
+	(when extra
+		(assign `((:rsp ,extra)) '(:r1))
+		(vp-add-rr :r1 :r0))
+	(assign '((:rsp local_cx) (:rsp local_nx)) '(:r1 :r2))
+	(vp-sub-rr :r2 :r1)
+	(vp-mul-rr :r1 :r1)
+	(each (lambda ((c n))
+			(assign `((:rsp ,c) (:rsp ,n)) '(:r2 :r3))
+			(vp-sub-rr :r3 :r2)
+			(vp-mul-rr :r2 :r2)
+			(vp-add-rr :r2 :r1))
+		'((local_cy local_ny) (local_cz local_nz)))
+	(assign '((:rsp local_best) (:rsp local_bcost)) '(:r2 :r3))
+	(vpif '(:r2 >= 0))
+		(gotoif '(:r0 > :r3) keep)
+		(vpif '(:r0 = :r3))
+			(assign '((:rsp local_bdist)) '(:r3))
+			(gotoif '(:r1 >= :r3) keep)
+		(endif)
+	(endif)
+	(assign '((:rsp local_idx)) '(:r2))
+	(assign '(:r2 :r0 :r1) '((:rsp local_best) (:rsp local_bcost) (:rsp local_bdist))))
+
+(defun pcb-back-next ()
+	;one more on out_n
+	(assign '((:rsp local_idx)) '(:r0))
+	(vp-add-cr 1 :r0)
+	(assign '(:r0) '((:rsp local_idx))))
+
+(def-func (path-to-absolute "./flood_back"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(flood-back ctx node path_vecs via_vecs radius gap via vias_cost mode out_n) -> num
+	;a step of router.inc's (. net :backtrack_path): the nodes round a node
+	;that are marked less than it and do not short with a hard track, a
+	;layer away then a via away, onto out_n, as (. pcb :all_not_shorting)
+	;of (. pcb :all_marked), and the same of vias. Mode 1, the negotiating
+	;router's, it gives the place on out_n of the step the flood took, as
+	;(. net :back_step): the least of a mark, one, the delay of the step at
+	;the node and a via's cost, the nearest of those as much. Else, or with
+	;none, -1
+
+	(structure local 0
+		(ptr this out_n line ldata idnum blist bl rec rec_iter rec_end)
+		(ptr vec_iter vec_end vecs vvecs grid didx dpts layers vlayers ctr soft hist)
+		(long w h d cw ch scale radius gap via nx ny nz px py pz cx cy cz pf count)
+		(long zlo zhi z minx maxx miny maxy row col)
+		(long mode vcost cur mark idx best bcost bdist))
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 10)
+
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11)
+		'(:list :nums :list :list :fixed :fixed :fixed :num :num :list))
+	(assign '(:r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11)
+		'((:rsp local_vecs) (:rsp local_vvecs) (:rsp local_radius) (:rsp local_gap)
+		(:rsp local_via) (:rsp local_vcost) (:rsp local_mode) (:rsp local_out_n)))
+	(assign '((:r3 +array_begin)) '(:r3))
+	(assign `((:r3 0) (:r3 +long_size) (:r3 ,(* 2 +long_size))) '(:r11 :r12 :r13))
+	(assign '(:r11 :r12 :r13) '((:rsp local_nx) (:rsp local_ny) (:rsp local_nz)))
+	;the board, (grid didx dpts layers vlayers w h d cw ch scale ctr soft hist pf)
+	(assign '((:r2 +array_begin)) '(:r2))
+	(each (lambda ((i field kind))
+			(assign `((:r2 ,(* i +ptr_size))) '(:r0))
+			(case kind
+				(:data (assign '((:r0 +array_begin)) '(:r0)))
+				(:val (assign '((:r0 +num_value)) '(:r0)))
+				(:first (assign '((:r0 +array_begin)) '(:r0)) (assign '((:r0 0)) '(:r0))))
+			(assign '(:r0) `((:rsp ,field))))
+		'((0 local_grid :data) (1 local_didx :data) (2 local_dpts :data)
+		(3 local_layers :data) (4 local_vlayers :data) (5 local_w :val) (6 local_h :val)
+		(7 local_d :val) (8 local_cw :val) (9 local_ch :val) (10 local_scale :val) (11 local_ctr :data)
+		(12 local_soft :data) (13 local_hist :data) (14 local_pf :first)))
+	;the node's own mark, none found yet
+	(assign '((:rsp local_nx) (:rsp local_ny) (:rsp local_nz) (:rsp local_w) (:rsp local_h))
+		'(:r0 :r1 :r2 :r3 :r4))
+	(vp-mul-rr :r4 :r2)
+	(vp-add-rr :r1 :r2)
+	(vp-mul-rr :r3 :r2)
+	(vp-add-rr :r0 :r2)
+	(vp-shl-cr (log2 +long_size) :r2)
+	(assign '((:rsp local_grid)) '(:r0))
+	(vp-add-rr :r2 :r0)
+	(assign '((:r0 0)) '(:r0))
+	(vp-xor-rr :r1 :r1)
+	(vp-cpy-cr -1 :r2)
+	(assign '(:r0 :r1 :r2) '((:rsp local_cur) (:rsp local_idx) (:rsp local_best)))
+	(assign '((:rsp local_nx) (:rsp local_ny) (:rsp local_nz)) '(:r0 :r1 :r2))
+	(pcb-pad)
+	(assign '(:r0 :r1 :r2) '((:rsp local_px) (:rsp local_py) (:rsp local_pz)))
+	(call :fixeds :create :nil '(:r0))
+	(assign '(:r0) '((:rsp local_line)))
+	(times 6 (call :array :push_back '(:r0 0) '(:r0 _ _ _)))
+	(assign '((:r0 +array_begin)) '(:r0))
+	(assign '(:r0) '((:rsp local_ldata)))
+
+	;a layer away
+	(pcb-vec-list 'local_vecs)
+	(loop-start)
+		(assign '((:rsp local_vec_iter) (:rsp local_vec_end)) '(:r0 :r1))
+		(breakif '(:r0 = :r1))
+		(pcb-candidate 'local_vecs 'back_next :t)
+		(assign '((:rsp local_ldata) (:rsp local_px) (:rsp local_py) (:rsp local_radius) (:rsp local_gap))
+			'(:r3 :r4 :r5 :r6 :r7))
+		(assign '(:r4 :r5 :r0 :r1 :r6 :r7)
+			`((:r3 0) (:r3 +long_size) (:r3 ,(* 2 +long_size)) (:r3 ,(* 3 +long_size))
+			(:r3 ,(* 4 +long_size)) (:r3 ,(* 5 +long_size))))
+		(assign '((:rsp local_pz)) '(:r0))
+		(vpif '(:r0 > :r2))
+			(vp-cpy-rr :r0 :r1) (vp-cpy-rr :r2 :r0) (vp-cpy-rr :r1 :r2)
+		(endif)
+		(assign '(:r0 :r2) '((:rsp local_zlo) (:rsp local_zhi)))
+		(pcb-new-id)
+		(pcb-hit-layers 'local_layers 'back_hit)
+		(pcb-push-node 'local_out_n)
+		(assign '((:rsp local_mode)) '(:r0))
+		(gotoif '(:r0 = 0) 'back_kept)
+		(vp-xor-rr :r0 :r0)
+		(assign '(:r0) '((:rsp local_count)))
+		(pcb-hit-layers 'local_soft :count)
+		(pcb-back-cost :nil 'back_kept)
+	(vp-label 'back_kept)
+		(pcb-back-next)
+	(vp-label 'back_hit)
+		(assign '((:rsp local_idnum)) '(:r0))
+		(call :obj :deref '(:r0))
+	(vp-label 'back_next)
+		(assign '((:rsp local_vec_iter)) '(:r0))
+		(vp-add-cr +ptr_size :r0)
+		(assign '(:r0) '((:rsp local_vec_iter)))
+	(loop-end)
+
+	;a via away
+	(pcb-vec-list 'local_vvecs)
+	(loop-start)
+		(assign '((:rsp local_vec_iter) (:rsp local_vec_end)) '(:r0 :r1))
+		(breakif '(:r0 = :r1))
+		(pcb-candidate 'local_vvecs 'via_next :t)
+		(assign '((:rsp local_ldata) (:rsp local_px) (:rsp local_py) (:rsp local_via) (:rsp local_gap))
+			'(:r3 :r4 :r5 :r6 :r7))
+		(assign '(:r4 :r5 :r0 :r1 :r6 :r7)
+			`((:r3 0) (:r3 +long_size) (:r3 ,(* 2 +long_size)) (:r3 ,(* 3 +long_size))
+			(:r3 ,(* 4 +long_size)) (:r3 ,(* 5 +long_size))))
+		(assign '((:rsp local_d)) '(:r0))
+		(vp-sub-cr 1 :r0)
+		(vp-shl-cr +fp_shift :r0)
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1 :r0) '((:rsp local_zlo) (:rsp local_zhi)))
+		(pcb-new-id)
+		(pcb-hit-layers 'local_vlayers 'via_hit)
+		(pcb-hit-layers 'local_layers 'via_hit)
+		(pcb-push-node 'local_out_n)
+		(assign '((:rsp local_mode)) '(:r0))
+		(gotoif '(:r0 = 0) 'via_kept)
+		(vp-xor-rr :r0 :r0)
+		(assign '(:r0) '((:rsp local_count)))
+		(pcb-hit-layers 'local_soft :count)
+		(pcb-back-cost 'local_vcost 'via_kept)
+	(vp-label 'via_kept)
+		(pcb-back-next)
+	(vp-label 'via_hit)
+		(assign '((:rsp local_idnum)) '(:r0))
+		(call :obj :deref '(:r0))
+	(vp-label 'via_next)
+		(assign '((:rsp local_vec_iter)) '(:r0))
+		(vp-add-cr +ptr_size :r0)
+		(assign '(:r0) '((:rsp local_vec_iter)))
+	(loop-end)
+
+	(assign '((:rsp local_line)) '(:r0))
+	(call :obj :deref '(:r0))
+	(assign '((:rsp local_best)) '(:r0))
+	(call :num :create '(:r0) '(:r1))
+	(assign '((:rsp local_this)) '(:r0))
+	(vp-free local_size)
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+	(pcb-collide)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(flood-back ctx node path_vecs via_vecs radius gap via vias_cost mode out_n)" +error_msg_wrong_types))
+	(signature '(:LIST :NUMS :LIST :LIST :FIXED :FIXED :FIXED :NUM :NUM :LIST))
 
 (def-func-end)
 
