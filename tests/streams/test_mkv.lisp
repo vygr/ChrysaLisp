@@ -44,15 +44,22 @@
 					(. ta :find :offsets) (. ta :find :sizes) (. tb :find :offsets) (. tb :find :sizes))))
 		(. mk_reel :find :tracks) (. mk_un :find :tracks)))
 
-;with few, only its first Cluster is read, to show its start: a preview
-;of a big film reads none of the rest
-(defq mk_few (mkv-reel (file-stream "tests/streams/data/film.mkv") :t))
-(assert-eq "read for its start, the reel says it is partial" :t (. mk_few :find :partial))
+;with few, of one with Cues it is read as it is played as ever, as cheap,
+;and of one with none only its first Cluster, to show its start: a
+;preview of a big film reads none of the rest. A copy with no Cues, its
+;Cues made Tags, which are stepped over
+(defq mk_data (load "tests/streams/data/film.mkv")
+	mk_at (first (first (first (substr mk_data (cat (char 0x1c) (char 0x53) (char 0xbb) (char 0x6b)))))))
+(defq mk_bare (cat (slice mk_data 0 mk_at) (char 0x12) (char 0x54) (char 0xc3) (char 0x67) (slice mk_data (+ mk_at 4) -1)))
+(defq mk_few (mkv-reel (string-stream mk_bare) :t) mk_whole (mkv-reel (string-stream mk_bare)))
+(assert-eq "of Cues, with few it is read as it is played, not partial" :nil (. (mkv-reel (file-stream "tests/streams/data/film.mkv") :t) :find :partial))
+(assert-eq "of none, read whole it is not read as it is played" :nil (. mk_whole :find :lazy))
+(assert-eq "read whole, every frame" 25 (. mk_whole :find :frames))
+(assert-eq "with few, read for its start, it says it is partial" :t (. mk_few :find :partial))
 (assert-true "with frames, no more than all of them"
-	(<= 1 (. mk_few :find :frames) (. mk_reel :find :frames)))
+	(<= 1 (. mk_few :find :frames) (. mk_whole :find :frames)))
 (assert-list-eq "the first frames where they are when all is read"
-	(slice (. mk_reel :find :offsets) 0 (. mk_few :find :frames)) (. mk_few :find :offsets))
-(assert-eq "read whole, it is not partial" :nil (. mk_reel :find :partial))
+	(slice (. mk_whole :find :offsets) 0 (. mk_few :find :frames)) (. mk_few :find :offsets))
 
 ;its Cues say where its keys are, and its frames are each of one length:
 ;it is read as it is played, the Cluster of a frame found by its time

@@ -340,8 +340,9 @@
 	; (mkv-reel stream [few]) -> :nil | reel
 	;the reel of the first video track of a Matroska file, every track in
 	;:tracks: its EBML header, then its Segment's Info, Tracks and
-	;Clusters, the rest stepped over. With few, the first Cluster and no
-	;more, enough to show its start, the reel :partial.
+	;Clusters, the rest stepped over. With few, of one that is not read
+	;as it is played, the first Cluster and no more, enough to show its
+	;start, the reel :partial.
 	;
 	;Every Cluster read is the whole of a big film, and so a film whose
 	;Cues say where its keys are, and whose frames are each of one length,
@@ -381,7 +382,7 @@
 				((= id +mkv_cluster)
 					;at the first, are there Cues of the pictures, and are its frames
 					;each of one length: then this Cluster is all that is read now
-					(unless (or few tried)
+					(unless tried
 						(setq tried :t)
 						(and duration (defq picture (some (# (and (eql (. %0 :find :kind) "vide") (. %0 :find :frame_ns) %0)) tracks))
 							(or cues_place (and (defq seek (some (# (if (= (first %0) +mkv_cues) %0)) seeks))
@@ -402,7 +403,7 @@
 				(scatter track :timescale timescale :samples (length (. track :find :offsets))
 					:times (sort (cat shown) (const -)) :reordered (some (# (and (> (!) 0) (< %0 (elem-get shown (dec (!)))))) shown)))
 			tracks)
-		(scatter reel :tracks tracks :stream stream :partial few)
+		(scatter reel :tracks tracks :stream stream :partial (and few (not cues)))
 		(when (and cues video)
 			;read as it is played: how many frames by its Duration, each track's
 			;frames by their times, (mkv-locate)

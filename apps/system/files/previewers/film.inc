@@ -1,6 +1,8 @@
 ;a film, or a sound, of any kind there is a reel for, lib/media/reel.inc:
-;its first frame small, and how long it is. Decoded at the least size that
-;is no narrower than the preview, the codec let go of once it is copied
+;a frame a tenth of the way in small, the first is often black, and how
+;long it is; of a reel read only for its start, its first frame. Decoded
+;at the least size that is no narrower than the preview, the codec let go
+;of once it is copied
 (file-previewer
 	(lambda (file) (some (# (ends-with (first %0) file)) *reel_kinds*))
 	(lambda (file most_w most_h)
@@ -9,7 +11,7 @@
 			(defq scale (max 1 (min 4 (/ (ifn (. reel :find :width) most_w) most_w)))
 				view (Flow) rate (. reel :find :rate) frame :nil)
 			(when (defq codec (reel-codec reel scale))
-				(if (defq canvas (reel-frame codec 0))
+				(if (defq canvas (reel-frame codec (if (. reel :find :partial) 0 (/ (. reel :find :frames) 10))))
 					(setq frame (. (canvas-fit canvas most_w most_h) :swap 0)))
 				(reel-close codec))
 			(def view :flow_flags +flow_down_fill :min_width most_w)
