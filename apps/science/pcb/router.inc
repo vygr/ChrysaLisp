@@ -21,7 +21,9 @@
 	+negotiate_rounds 100 +negotiate_stall 10 +pf_start 0.5 +pf_rise 1.5 +pf_most 10000.0
 	;times the nets left, and the nets in their way, are negotiated again
 	;on their own, the rest of the board kept
-	+local_rounds 4)
+	+local_rounds 4
+	;passes of straightening the tracks at most, once a board is routed
+	+straighten_passes 5)
 
 (defun alloc-node-set ()
 	(unless (defq ns (pop +node_sets))
@@ -282,6 +284,97 @@
 		(clear (get :paths this) (get :raw_paths this))
 		(set this :routed :nil)
 		this)
+
+	(defmethod :octi_link (a b)
+		; (. net :octi_link a b) -> :nil | (node ...)
+		;two nodes of a layer joined by a straight segment, or one along an
+		;axis and one at 45 degrees, either first, that short with nothing:
+		;the corner between them, none for one segment, :nil if no way does.
+		;A corner on a pad's node is not taken, its point is the pad's
+		(defq pcb (obj-ref (get :pcb this)) layers (get :layers pcb)
+			radius (get :radius this) gap (get :gap this))
+		(bind '(ax ay az) a)
+		(bind '(bx by bz) b)
+		(defq dx (- bx ax) dy (- by ay) adx (abs dx) ady (abs dy))
+		(defun clear? (p q)
+			(not (. layers :hit_line (. pcb :node_to_pad_point p) (. pcb :node_to_pad_point q) radius gap)))
+		(cond
+			((or (= dx 0) (= dy 0) (= adx ady))
+				(if (clear? a b) (list)))
+			(:t (defq d (min adx ady) sx (if (< dx 0) -1 1) sy (if (< dy 0) -1 1))
+				(some (lambda (c)
+						(and (not (. (get :deform pcb) :find c))
+							(clear? a c) (clear? c b)
+							(list c)))
+					(list (nums (+ ax (* sx d)) (+ ay (* sy d)) az)
+						(nums (- bx (* sx d)) (- by (* sy d)) az))))))
+
+	(defmethod :straighten_path (pth anchors)
+		; (. net :straighten_path path anchors) -> path
+		;each run of the path on a layer pulled tight: from a corner to the
+		;farthest after it that (. net :octi_link) joins, the corners
+		;between left out. A run ends at a via, where it changes layer, and
+		;at an anchor, the end of a path of the net, where another meets it:
+		;those are where they were
+		(defq out (list) run (list))
+		(defun pull (run)
+			(defq i 0 k (dec (length run)))
+			(push out (first run))
+			(while (< i k)
+				(defq j k found :nil)
+				(while (and (> j i) (not (setq found (. this :octi_link (elem-get run i) (elem-get run j)))))
+					(-- j))
+				(cond
+					(found (each (# (push out %0)) found)
+						(push out (elem-get run j))
+						(setq i j))
+					(:t (push out (elem-get run (inc i)))
+						(++ i)))))
+		(each (lambda (node)
+				(when (and (nempty? run) (/= (elem-get node +vec3_z) (elem-get (last run) +vec3_z)))
+					(pull run)
+					(setq run (list)))
+				(push run node)
+				(when (and (> (length run) 1) (. anchors :find node))
+					(pull run)
+					(pop out)
+					(setq run (list node))))
+			pth)
+		(if (nempty? run) (pull run))
+		out)
+
+	(defmethod :straighten ()
+		; (. net :straighten) -> :t | :nil
+		;its paths straightened, on the board as the other nets have it,
+		;its own lines out of the way. :t if any changed
+		(defq paths (get :paths this) changed :nil anchors (Fset 11))
+		(when (nempty? paths)
+			(each (# (. anchors :insert (first %0)) (. anchors :insert (last %0))) paths)
+			(.-> this :sub_paths_lines :sub_pad_lines :sub_wire_lines)
+			;from the path with every node of it, (get :raw_paths), so a node
+			;another path meets is in it though its corners leave it out. A
+			;path is kept straightened only if it is shorter, so it settles
+			(each (lambda (raw pth)
+					(defq new (. this :straighten_path raw anchors))
+					(when (< (+ (. this :path_length new) 0.01) (. this :path_length pth))
+						(elem-set paths (!) new)
+						(elem-set (get :raw_paths this) (!) new)
+						(setq changed :t)))
+				(get :raw_paths this) paths)
+			(.-> this :add_paths_lines :add_pad_lines :add_wire_lines))
+		changed)
+
+	(defmethod :path_length (pth)
+		; (. net :path_length path) -> fixed
+		;how long its track is on the layers
+		(defq pcb (obj-ref (get :pcb this)) len 0.0 p0 :nil)
+		(each (lambda (node)
+				(defq p (. pcb :node_to_pad_point node))
+				(and p0 (= (elem-get p0 +vec3_z) (elem-get p +vec3_z))
+					(setq len (+ len (vector-length (vector-sub (slice p 0 2) (slice p0 0 2))))))
+				(setq p0 p))
+			pth)
+		len)
 
 	(defmethod :optimise_paths (paths)
 		; (. net :optimise_paths paths) -> opt_paths
@@ -744,6 +837,14 @@
 				(if (get :trace this) (print "local " local " no better, put back")))
 			(++ local))
 		;every net routed, or those left are left unrouted
+		;the tracks straightened, while it changes any, a few times at most
+		(defq passes 0)
+		(if (get :trace this) (. this :trace_tracks nets "before straightening"))
+		(while (and (< passes +straighten_passes) (not (mail-poll select))
+				(reduce (lambda (any net) (if (. net :straighten) :t any))
+					(filter (# (get :routed %0)) nets) :nil))
+			(++ passes))
+		(if (get :trace this) (. this :trace_tracks nets (cat "straightened, passes " (str passes))))
 		(defq done (length (filter (# (get :routed %0)) nets)))
 		(. this :report reply_mbox prog_mbox done
 			(if (= done (length nets)) +pcb_state_routed +pcb_state_short))
@@ -806,6 +907,18 @@
 		(if (get :trace this) (print "finish of " (length queue) " left " (length left)))
 		(. this :report reply_mbox prog_mbox (length (filter (# (get :routed %0)) (get :netlist this))))
 		(empty? left))
+
+	(defmethod :trace_tracks (nets label)
+		; (. pcb :trace_tracks nets label) -> pcb
+		;how long the tracks of the nets are, and how many corners, printed
+		(defq len 0.0 corners 0)
+		(each (lambda (net)
+				(each (lambda (pth)
+						(setq len (+ len (. net :path_length pth)) corners (+ corners (length pth))))
+					(get :paths net)))
+			nets)
+		(print label ": track " len " corners " corners)
+		this)
 
 	(defmethod :conflicts (nets)
 		; (. pcb :conflicts nets) -> nets
