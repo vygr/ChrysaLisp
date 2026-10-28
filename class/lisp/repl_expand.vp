@@ -97,15 +97,9 @@
 					(break 'next_iter)
 				(endswitch)
 
-				;down this lists branches
+				;down this lists branches, the stack grows as it must: it holds
+				;the lists still to look at, so a wide form fills it as a deep one
 				(assign '((:rsp local_stack) (:rsp local_form)) '(:r0 :r6))
-
-			(assign '((:r0 +array_length)) '(:r2))
-			(vpif '(:r2 >= 1000))
-				(debug-str '("Excessive macro recursion !"))
-				(break 'next_iter)
-			(endif)
-
 				;push in reverse so as we pop we traverse left to right !
 				(class/array/get_both :r6 :r6 :r1)
 				(f-bind :list :vtable :r7)

@@ -62,6 +62,13 @@
 (assert-eq "macroexpand first" "#add" (str (first exp)))
 (assert-eq "macroexpand second" 'x (second exp))
 (assert-eq "macroexpand third" 1 (third exp))
+;a form of many lists: the expander's stack holds the lists still to be
+;looked at, so a wide form fills it as a deep one does. A cap on it left
+;the lists in hand unexpanded, and said nothing
+(defq mx_wide (cat (list 'list) (map (lambda (_) (list 'progn (list 'inc 'x))) (range 0 1500))))
+(defq mx_out (macroexpand mx_wide))
+(assert-true "a form of 1500 lists is expanded in every one of them"
+	(some! (# (eql "#add" (str (first (second %0))))) (list mx_out) :t 1 -1))
 
 ; --- eval-list ---
 (assert-list-eq "eval-list" '(3 7) (eval-list '((+ 1 2) (+ 3 4))))
