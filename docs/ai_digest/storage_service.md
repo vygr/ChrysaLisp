@@ -26,6 +26,7 @@ why, and what each measurement found on the way, is
 | `tests/storage/` | the scenes |
 | `cmd/storage.lisp` | `storage`, the command |
 | `apps/system/storage/` | the Storage app: a store watched as it works, and played back |
+| `apps/system/stores/` | the Stores app: what is in stores, copied between them and files of the host |
 
 ```image
 docs/diagrams/storage_member_tasks.cwb
@@ -558,10 +559,18 @@ none, so two writers of one path can not overwrite each other unknowing.
 ```
 
 ```
-(storage-put-stream path stream [from svc])   a stream to its end, a few blocks at a time
-(storage-put-file path file [from svc])       a file of the host
-(storage-same-file? path file [svc])          is the object the same as the file
+(storage-put-stream path stream [from svc tick])   a stream to its end, a few blocks at a time
+(storage-put-file path file [from svc tick])       a file of the host
+(storage-get-file path file [svc tick])            the object to a file of the host
+(storage-copy-object from to src dst [was tick])   from one store to another, no file between
+(storage-same-file? path file [svc])               is the object the same as the file
 ```
+
+A copy between stores sends only the blocks `dst` has not got, so one that
+was stopped goes on from where it was, and one of an object `dst` has much
+of already is little sent. `tick`, if given, is told the bytes as they go,
+and says `:nil` to stop: `:stopped`, and the path is as it was. The Stores
+app, `apps/system/stores/`, does its copies so, in a task of its own.
 
 ## The Calls
 

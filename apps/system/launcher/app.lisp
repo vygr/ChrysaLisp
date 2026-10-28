@@ -23,7 +23,7 @@
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
 				:apps '("terminal" "services" "netmon"
-					"netmap" "netspeed" "storage" "keys" "files" "themes" "logout"))
+					"netmap" "netspeed" "storage" "stores" "keys" "files" "themes" "logout"))
 			'Desktop (scatter (Emap) :collapsed :nil
 				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes" "weather" "crypto" "sunclock" "news" "lexicon" "magnifier"))
 			'Tools (scatter (Emap) :collapsed :nil
