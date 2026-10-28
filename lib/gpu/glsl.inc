@@ -105,7 +105,7 @@
 	(each (lambda ((name type e))
 		(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
 	(push lines "\tgl_FragColor = shader_main(gl_FragCoord.xy);" "}" "")
-	(join lines (ascii-char 10)))
+	(join lines "\n"))
 
 (defq *glsl_pair_head* '("#ifdef GL_ES" "precision highp float;" "#endif" ""
 	"vec3 sh_mul3(mat4 m, vec3 v) { return mat3(m[0].xyz, m[1].xyz, m[2].xyz) * v; }" ""))
@@ -141,7 +141,7 @@
 	(each (lambda ((name type e))
 		(push lines (cat "\t" (glsl-name name) " = " (glsl-expr e) ";"))) globals)
 	(push lines "\tgl_Position = shader_main();" "}" "")
-	(defq vertex_text (join lines (ascii-char 10)) lines (cat *glsl_pair_head*))
+	(defq vertex_text (join lines "\n") lines (cat *glsl_pair_head*))
 	(each (lambda ((name type))
 		(push lines (cat "varying " (glsl-type type) " " (glsl-name name) ";"))) (shader-varyings pixel))
 	(push lines "")
@@ -152,4 +152,4 @@
 	(push lines "\tvec4 c = clamp(shader_main(gl_FragCoord.xy), 0.0, 1.0);"
 		"\tif (c.a < 0.003921568627) discard;"
 		"\tgl_FragColor = vec4(c.rgb * c.a, c.a);" "}" "")
-	(list vertex_text (join lines (ascii-char 10))))
+	(list vertex_text (join lines "\n")))

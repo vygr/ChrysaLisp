@@ -5,7 +5,7 @@
 ;native host, the VP64 emulator and the machines of QEMU this checks the
 ;translator of that CPU against the spec
 
-(defq vs_ops '(seq sne slt sle sgt sge) vs_lf (ascii-char 10))
+(defq vs_ops '(seq sne slt sle sgt sge) vs_lf "\n")
 
 (defun vs-native (name text)
 	; (vs-native name text) -> func

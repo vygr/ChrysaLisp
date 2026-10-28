@@ -81,7 +81,7 @@
 ;who made a thing is kept in the file, and the teacher's is not written
 (defq us (us-board) us_out (string-stream (cat "")))
 (cwb-save (. us :get_doc) us_out)
-(assert-eq "only the student's says who made it" 1 (length (filter (# (nempty? (substr %0 ":user"))) (split (str us_out) (ascii-char 10)))))
+(assert-eq "only the student's says who made it" 1 (length (filter (# (nempty? (substr %0 ":user"))) (split (str us_out) "\n"))))
 (assert-eq "read back, each is who made it" (str (list +board_teacher +board_first_student))
 	(str (map (# (elem-get %0 +cwb_user)) (cwb-items (cwb-load (string-stream (str us_out)))))))
 

@@ -7,7 +7,7 @@
 ;exchange and images as well as .md text etc."
 (catch (import "apps/desktop/chat/app.lisp") :t)
 
-(defq cf_nl (ascii-char 10) cf_data (cat "a" cf_nl "b" (ascii-char 0) "c"))
+(defq cf_nl "\n" cf_data (cat "a" cf_nl "b" "\x00" "c"))
 (assert-eq "a file's message is who it is for, who sent it, its name and its bytes, with lines in them"
 	(str (list "kim" "lee" "notes.bin" cf_data))
 	(str (parse-file-msg (cat "FILE:kim" cf_nl "lee" cf_nl "notes.bin" cf_nl cf_data))))

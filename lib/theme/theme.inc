@@ -34,4 +34,4 @@
 (defun theme-save (home name)
 	; (theme-save home name)
 	;the theme a user has from now on
-	(save (cat name (ascii-char 10)) (cat home "theme")))
+	(save (cat name "\n") (cat home "theme")))

@@ -10,7 +10,7 @@
 	;what a command line says, its lines
 	(defq out (list))
 	(pipe-run cmdline (# (push out %0)))
-	(filter (const nempty?) (split (apply (const cat) (cat (list "") out)) (ascii-char 10))))
+	(filter (const nempty?) (split (apply (const cat) (cat (list "") out)) "\n")))
 
 (defq cc_file "tests/scratch/test_cwb_cmd.cwb" cc_pic "tests/scratch/test_cwb_cmd.tga"
 	cc_ptr "tests/scratch/test_cwb_cmd.txt")
@@ -29,14 +29,14 @@
 (assert-true "it was saved, and loads" (and cc_doc (= (length (cwb-items cc_doc)) 2)))
 
 ;pointers played to it: a finger holds a ruler while a pen is run along it, and the mouse draws by hand
-(save (cat "# a note" (ascii-char 10)
-	"7 touch 1 300 330" (ascii-char 10)
-	"1 pen 1 150 286 ; 7 touch 1 300 330" (ascii-char 10)
-	"1 pen 1 300 281 ; 7 touch 1 300 330" (ascii-char 10)
-	"1 pen 1 480 288 ; 7 touch 1 300 330   # two at once" (ascii-char 10)
-	"1 pen 0 480 288 ; 7 touch 0 300 330" (ascii-char 10)
-	"0 mouse 1 60 60" (ascii-char 10) "0 mouse 1 120 100" (ascii-char 10)
-	"0 mouse 1 200 50" (ascii-char 10) "0 mouse 0 200 50" (ascii-char 10)) cc_ptr)
+(save (cat "# a note" "\n"
+	"7 touch 1 300 330" "\n"
+	"1 pen 1 150 286 ; 7 touch 1 300 330" "\n"
+	"1 pen 1 300 281 ; 7 touch 1 300 330" "\n"
+	"1 pen 1 480 288 ; 7 touch 1 300 330   # two at once" "\n"
+	"1 pen 0 480 288 ; 7 touch 0 300 330" "\n"
+	"0 mouse 1 60 60" "\n" "0 mouse 1 120 100" "\n"
+	"0 mouse 1 200 50" "\n" "0 mouse 0 200 50" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -e \q(. (. board :get_stage) :add (Ruler board 320 330))\q -p " cc_ptr
 	" -i -o " cc_pic " -b 0xffffffff")))
 (assert-eq "two more things were drawn" "layer 0 \qLayer 1\q items 4" (second cc_out))
@@ -77,20 +77,20 @@
 (defq cc_board (Board (cwb-doc 800 600)) cc_pal (Palette cc_board 320 200)
 	cc_box (map (const n2i) (. cc_pal :where :tool :rect))
 	cc_sel (map (# (+ (n2i %0) %1)) (. cc_pal :where :tool :select) '(-10 10)))
-(save (cat "0 mouse 4 320 200" (ascii-char 10) "0 mouse 0 320 200" (ascii-char 10)
-	"wait 400" (ascii-char 10)) cc_ptr)
+(save (cat "0 mouse 4 320 200" "\n" "0 mouse 0 320 200" "\n"
+	"wait 400" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -o " cc_pic " -b 0xffffffff -k")))
 (defq cc_canvas (canvas-load cc_pic +load_flag_noswap))
 (when cc_canvas
 	(assert-true "a menu opened by a pointers file is in the picture, dark, where one of its cells is"
 		(every (# (< (logand (>> (cc-pixel cc_canvas (first cc_sel) (second cc_sel)) %0) 0xff) 0x60)) '(0 8 16)))
 	(assert-eq "and not off it" 0xffffffff (cc-pixel cc_canvas 600 380)))
-(save (cat "0 mouse 4 320 200" (ascii-char 10) "0 mouse 0 320 200" (ascii-char 10)
-	"wait 400" (ascii-char 10)
-	"0 mouse 1 " (str (first cc_box)) " " (str (second cc_box)) (ascii-char 10)
-	"0 mouse 0 " (str (first cc_box)) " " (str (second cc_box)) (ascii-char 10)
-	"wait 300" (ascii-char 10)
-	"0 mouse 1 420 40" (ascii-char 10) "0 mouse 1 600 100" (ascii-char 10) "0 mouse 0 600 100" (ascii-char 10)) cc_ptr)
+(save (cat "0 mouse 4 320 200" "\n" "0 mouse 0 320 200" "\n"
+	"wait 400" "\n"
+	"0 mouse 1 " (str (first cc_box)) " " (str (second cc_box)) "\n"
+	"0 mouse 0 " (str (first cc_box)) " " (str (second cc_box)) "\n"
+	"wait 300" "\n"
+	"0 mouse 1 420 40" "\n" "0 mouse 1 600 100" "\n" "0 mouse 0 600 100" "\n") cc_ptr)
 (defq cc_out (cc-run (cat "cwb " cc_file " -p " cc_ptr " -i -o " cc_pic " -b 0xffffffff -k")))
 (assert-eq "a tap on its box cell, and the mouse draws a box" "  5 rect box 418.5 38.5 601.5 101.5 d M 420 40 L 600 40 600 100 420 100 Z"
 	(elem-get cc_out 6))

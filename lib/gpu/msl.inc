@@ -170,7 +170,7 @@
 	(msl-set-inputs program lines)
 	(msl-set-textures program lines)
 	(push lines "\ts.shader_init();" "\treturn s.shader_main(in.frag);" "}" "")
-	(join lines (ascii-char 10)))
+	(join lines "\n"))
 
 (defun shader-msl-pair (vertex pixel)
 	; (shader-msl-pair vertex pixel) -> (vertex_text fragment_text)
@@ -214,7 +214,7 @@
 	(each (lambda ((name type))
 		(push lines (cat "\tout." (msl-name name) " = s." (msl-name name) ";"))) varyings)
 	(push lines "\treturn out;" "}" "")
-	(defq vertex_text (join lines (ascii-char 10)) lines (cat *msl_pair_head*))
+	(defq vertex_text (join lines "\n") lines (cat *msl_pair_head*))
 	(msl-inputs pixel lines)
 	(msl-struct pixel lines)
 	(push lines "struct FragmentIn" "{" "\tfloat4 position [[position]];")
@@ -234,7 +234,7 @@
 		"\tfloat4 c = clamp(s.shader_main(float2(in.position.x, float2(target.size).y - in.position.y)), 0.0, 1.0);"
 		"\tif (c.w < 0.003921568627) discard_fragment();"
 		"\treturn float4(c.xyz * c.w, c.w);" "}" "")
-	(list vertex_text (join lines (ascii-char 10))))
+	(list vertex_text (join lines "\n")))
 
 (defun shader-msl-vertex ()
 	; (shader-msl-vertex) -> str
@@ -251,4 +251,4 @@
 		"\tout.position = float4(p * 2.0 - 1.0, 0.0, 1.0);"
 		"\tout.frag = p * float2(target.size);"
 		"\treturn out;"
-		"}" "") (ascii-char 10)))
+		"}" "") "\n"))

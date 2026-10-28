@@ -229,7 +229,7 @@
 (defun test-def-func? (line fname)
 	; (test-def-func? line fname) -> :t | :nil
 	;is this the line a native function of that name starts on
-	(and (starts-with "(def-func " line) (ends-with (cat "/" fname (ascii-char 34) "))") line)))
+	(and (starts-with "(def-func " line) (ends-with (cat "/" fname "\q" "))") line)))
 
 (defun test-natives (file line)
 	; (test-natives file line) -> paths
@@ -249,12 +249,12 @@
 								(slice file 0 (max 0 (dec (ifn (rfind "/" file) 1))))
 								(slice word 0 (dec at))))
 						(each (lambda (vp)
-								(and (some (# (test-def-func? %0 fname)) (split (ifn (load vp) "") (ascii-char 10)))
+								(and (some (# (test-def-func? %0 fname)) (split (ifn (load vp) "") "\n"))
 									(not (find (defq name (cat vp "#" fname)) out))
 									(push out name)))
 							(test-vp-of folder))))
 				(split piece " ()")))
-		(split line (const (cat (ascii-char 34) "{}"))))
+		(split line "\q{}"))
 	out)
 
 (defun test-native-text (vp fname)
@@ -269,8 +269,8 @@
 					(setq started :t)
 					(when (test-def-func? line fname) (setq in :t) (push block line)))
 				((not started) (push head line))))
-		(split (ifn (load vp) "") (ascii-char 10)))
-	(join (cat head block) (ascii-char 10)))
+		(split (ifn (load vp) "") "\n"))
+	(join (cat head block) "\n"))
 
 (defun test-file-scan (file text)
 	; (test-file-scan file text) -> paths
@@ -285,8 +285,8 @@
 	(each (lambda (line)
 		(if (find "ffi" (split line " ()"))
 			(each (# (unless (find %0 names) (push names %0))) (test-natives file line)))
-		(when (or (find (ascii-char 34) line) (find "{" line))
-			(defq pieces (split line (const (cat (ascii-char 34) "{}"))))
+		(when (or (find "\q" line) (find "{" line))
+			(defq pieces (split line "\q{}"))
 			(each (lambda (piece)
 				(cond
 					((and (> (!) 0)
@@ -305,7 +305,7 @@
 										(push names word))) words)))
 						(split piece "|")))))
 				pieces)))
-		(split text (ascii-char 10)))
+		(split text "\n"))
 	names)
 
 ;a file that is named and is longer than this is not read
@@ -367,14 +367,14 @@
 	(while (< at (length files))
 		(defq file (elem-get files at))
 		(each (lambda (line)
-				(when (find (ascii-char 34) line)
-					(defq pieces (split line (const (ascii-char 34))))
+				(when (find "\q" line)
+					(defq pieces (split line "\q"))
 					(each! (lambda (piece)
 							(when (ends-with "(include " (elem-get pieces (dec (!))))
 								(defq name (catch (path-to-absolute piece file) :nil))
 								(and name (/= (age name) 0) (not (find name files)) (push files name))))
 						(list pieces) 1)))
-			(split (ifn (load file) "") (ascii-char 10)))
+			(split (ifn (load file) "") "\n"))
 		(setq at (inc at)))
 	(sort files))
 
@@ -409,8 +409,8 @@
 	; (test-cache-load) -> fmap
 	;what was kept, of the files to *test_files*, and of the modules as a
 	;map of (key passes failures skips [ms]), ms how long it took to run
-	(defq kept (Fmap 31) tab (ascii-char 9)
-		lines (split (ifn (load (test-cache-path)) "") (ascii-char 10))
+	(defq kept (Fmap 31) tab "\t"
+		lines (split (ifn (load (test-cache-path)) "") "\n")
 		scans (some (# (if (starts-with (cat "V" tab) %0) (eql (slice %0 2 -1) +test_scan_version))) lines))
 	(each (lambda (line)
 		(defq fields (split line tab))
@@ -427,7 +427,7 @@
 
 (defun test-cache-save (kept)
 	; (test-cache-save kept)
-	(defq lines (list (cat "V" (ascii-char 9) +test_scan_version)) tab (ascii-char 9))
+	(defq lines (list (cat "V" "\t" +test_scan_version)) tab "\t")
 	;a file or a module that is gone is not kept
 	(. *test_files* :each (lambda (file (mtime hash names))
 		(if (/= mtime 0)
@@ -435,7 +435,7 @@
 	(. kept :each (lambda (module entry)
 		(if (/= (age module) 0)
 			(push lines (cat "M" tab module tab (join (map (const str) entry) tab))))))
-	(save (join (sort lines) (ascii-char 10)) (test-cache-path)))
+	(save (join (sort lines) "\n") (test-cache-path)))
 
 ;;;;;;;;
 ; runner

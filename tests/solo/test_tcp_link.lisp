@@ -16,7 +16,7 @@
 ;Net service a moment to see it
 (defq tl_made_key (not (pii-fstat "mesh_key")))
 (when tl_made_key
-	(save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) "mesh_key")
+	(save (cat (to-lower (hex-encode (random-bytes 32))) "\n") "mesh_key")
 	(task-sleep 3000000))
 
 (defq tl_before (lisp-nodes :t) tl_reply (mail-mbox) tl_new :nil)

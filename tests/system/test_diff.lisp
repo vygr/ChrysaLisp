@@ -1,7 +1,7 @@
 (report-header "Streams: diff and patch, a patch of a diff gives the other file")
 (import "lib/streams/diff.inc")
 
-(defun df-text (lines) (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) lines))))
+(defun df-text (lines) (apply (const cat) (cat (list "") (map (# (cat %0 "\n")) lines))))
 (defun df-diff (a b)
 	;the diff of two texts, as text
 	(defq out (string-stream (cat "")))

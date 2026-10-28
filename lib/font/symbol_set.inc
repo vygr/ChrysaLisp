@@ -295,11 +295,11 @@
 		(defq item (cat "+sym_" name " 0x" (sym-code-hex (+ +sf_base (!)))
 			(if (= (!) (dec (length *symbols*))) ")" " ")))
 		(when (> (+ (length line) (length item)) 76)
-			(push out (cat (ascii-char 10) (ascii-char 9) (trim-end line)))
+			(push out (cat "\n" "\t" (trim-end line)))
 			(setq line ""))
 		(setq line (cat line item)))
 		*symbols*)
-	(push out (cat (ascii-char 10) (ascii-char 9) (trim-end line) (ascii-char 10)))
+	(push out (cat "\n" "\t" (trim-end line) "\n"))
 	;the header above is a string of this file, and a checkout on Windows
 	;may have a return before each of its ends of line
-	(join (split (apply (const cat) out) (ascii-char 13)) ""))
+	(join (split (apply (const cat) out) "\r") ""))

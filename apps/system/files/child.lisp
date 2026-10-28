@@ -252,7 +252,7 @@
 	(defq msg (mail-read (task-mbox)) reply_mbox (slice msg 0 +net_id_size))
 	(bind '(title root &optional kinds mode app names places) (split (slice msg +net_id_size -1) "|"))
 	(defq *running* :t *save* (eql mode "save") *names* (eql names "names")
-		*given* (if (and places (nql places "-")) (map (const folder-of) (split places (ascii-char 9))) (list)) *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
+		*given* (if (and places (nql places "-")) (map (const folder-of) (split places "\t")) (list)) *exts* (if (eql kinds "*") (list) (split (ifn kinds "") " "))
 		*app* (and app (nempty? app) (nql app "-") app) *app_places* (places-of *app*)
 		*pattern* "" *place_list* (list)
 		*folder* "." *items* (list) *replace* :nil root (folder-of (ifn root ".")))

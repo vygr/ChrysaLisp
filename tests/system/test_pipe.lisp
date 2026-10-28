@@ -90,7 +90,7 @@
 (import "lib/task/cmd.inc")
 (defq farmed (pipe-farm (list "echo one" "echo two" "echo three")))
 (assert-list-eq "pipe farm, every command answered" '("one" "three" "two")
-	(sort (map (# (first (split (second %0) (ascii-char 10)))) farmed)))
+	(sort (map (# (first (split (second %0) "\n"))) farmed)))
 (assert-eq "pipe farm, nothing to do" 0 (length (pipe-farm (list))))
 ;the slow one is given out three times, then the farm stops, with the
 ;result of the quick one and none for the slow

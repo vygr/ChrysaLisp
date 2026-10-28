@@ -17,7 +17,7 @@
 
 (defun main ()
 	;the name of the service, and the root of its tree
-	(bind '(name root) (split (mail-read (task-mbox)) (ascii-char 10)))
+	(bind '(name root) (split (mail-read (task-mbox)) "\n"))
 	(defq kept (sync-kept root)
 		me (hex-encode (system-id)) running :t select (list (task-mbox)))
 	(while running

@@ -689,7 +689,7 @@
 	(defq out (list))
 	(sh-gather file (list file) (list file) out :nil)
 	(defq text (first out))
-	(each! (# (setq text (cat text (ascii-char 10) %0))) (list out) 1)
+	(each! (# (setq text (cat text "\n" %0))) (list out) 1)
 	text)
 
 (defun shader-load (file)

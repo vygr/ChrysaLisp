@@ -50,7 +50,7 @@
 	(bind '(state pending total) ctx)
 	;a bit that is set, zeros till 8 bytes short of a whole block, and
 	;how many bits there were, the top byte first
-	(defq bits (* total 8) tail (cat pending (ascii-char 0x80)))
+	(defq bits (* total 8) tail (cat pending "\x80"))
 	(sha256-blocks state
 		(setq tail (cat tail (slice +sha256_zeros 0 (% (- 120 (length tail)) 64))
 			(char-be bits 8)))

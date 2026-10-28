@@ -58,7 +58,7 @@
 (assert-true "a peer that has me in its hello knows where I am" (elem-get (mesh-peer ms_bpeers ms_a) +mesh_peer_knows_me))
 (assert-true "so the higher of the two waits for it" (not (mesh-dial? (mesh-peer ms_bpeers ms_a) ms_b ms_a :nil ms_now)))
 ;what was heard first hand is not changed by what another says
-(defq ms_text2 (cat "CHRYSA_HELLO " ms_c (ascii-char 10) ms_a " 10.0.0.9 4444" (ascii-char 10)))
+(defq ms_text2 (cat "CHRYSA_HELLO " ms_c "\n" ms_a " 10.0.0.9 4444" "\n"))
 (mesh-heard ms_bpeers ms_b ms_text2 ms_now)
 (assert-eq "an address had is not changed by a hello" "192.168.1.1" (elem-get (mesh-peer ms_bpeers ms_a) +mesh_peer_ip))
 ;a beacon after a hello does not undo what the hello said
@@ -79,7 +79,7 @@
 	(mesh-dial? ms_peer ms_a ms_b :nil (+ ms_now +mesh_alive 4)))
 ;what another says of a peer keeps it alive, but is not passed on
 (defq ms_peers (Fmap 7) ms_t2 (+ ms_now 20000000)
-	ms_said (cat "CHRYSA_HELLO " ms_c (ascii-char 10) ms_b " 192.168.1.2 3333" (ascii-char 10)))
+	ms_said (cat "CHRYSA_HELLO " ms_c "\n" ms_b " 192.168.1.2 3333" "\n"))
 (mesh-heard ms_peers ms_a ms_said ms_now)
 (assert-true "a peer only told of is not in my hello" (not (found? (mesh-hello ms_peers ms_a ms_now) ms_b)))
 (mesh-heard ms_peers ms_a ms_said ms_t2)
@@ -128,12 +128,12 @@
 (mesh-beacon ms_peers ms_b "192.168.1.2" 3333 :t :t ms_now)
 (assert-eq "and not lost to a beacon with none" "0123456789abcdef" (elem-get (mesh-peer ms_peers ms_b) +mesh_peer_build))
 (assert-eq "and the version of the link it speaks" 1 (elem-get (mesh-peer ms_peers ms_b) +mesh_peer_link))
-(defq ms_lines (sort (split (mesh-peers-text ms_peers (list ms_b) ms_id 1) (ascii-char 10))))
+(defq ms_lines (sort (split (mesh-peers-text ms_peers (list ms_b) ms_id 1) "\n")))
 (assert-list-eq "what is known of the peers, for the mesh command, the build and the link"
 	'("BBBB 192.168.1.2 3333 linked same same" "CCCC 192.168.1.3 3333 unlinked differs 0" "DDDD 192.168.1.4 3333 unlinked unknown unknown")
 	ms_lines)
 (assert-true "with no build of my own, none is known to differ"
-	(every (# (ends-with " unknown" %0)) (split (mesh-peers-text ms_peers (list) "") (ascii-char 10))))
+	(every (# (ends-with " unknown" %0)) (split (mesh-peers-text ms_peers (list) "") "\n")))
 
 (undef (env) 'ms_id 'ms_other 'ms_lines)
 (undef (env) 'ms_peers 'ms_peer 'ms_cpeers 'ms_bpeers 'ms_text 'ms_text2 'ms_said 'ms_t2 'ms_ids 'ms_dials)

@@ -111,13 +111,13 @@
 ;the end says how many lines it sent, the last of them can come after it
 (defq rp2 (replay-new) rp_box (mail-mbox) rp_end :nil rp_got 0
 	rp_run (open-child "apps/system/storage/run.lisp" +kn_call_run))
-(mail-send rp_run (cat (hex-encode rp_box) (ascii-char 10) "stop"))
+(mail-send rp_run (cat (hex-encode rp_box) "\n" "stop"))
 (until (and rp_end (= rp_got (str-as-num (third rp_end))))
 	(defq rp_msg (mail-read rp_box))
 	(cond
 		((starts-with "lines" rp_msg)
 			(++ rp_got)
-			(each! (# (replay-add rp2 %0)) (list (split rp_msg (ascii-char 10))) 1 -1))
+			(each! (# (replay-add rp2 %0)) (list (split rp_msg "\n")) 1 -1))
 		((starts-with "end " rp_msg) (setq rp_end (rest (split rp_msg " "))))))
 (assert-list-eq "the runner ran the scene to its end, every check held" '("6" "0") (slice rp_end 0 2))
 (assert-list-eq "its five members are in the recording" '("m-a" "m-b" "m-c" "m-d" "m-e") (sort (. rp2 :find :members)))

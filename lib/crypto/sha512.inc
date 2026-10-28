@@ -50,7 +50,7 @@
 	(bind '(state pending total) ctx)
 	;a bit that is set, zeros till 16 bytes short of a whole block, and
 	;how many bits there were, in 16 bytes, the top byte first
-	(defq bits (* total 8) tail (cat pending (ascii-char 0x80)))
+	(defq bits (* total 8) tail (cat pending "\x80"))
 	(sha512-blocks state
 		(setq tail (cat tail (slice +sha512_zeros 0 (% (- 240 (length tail)) 128)) (char 0 8)
 			(char-be bits 8)))

@@ -349,7 +349,7 @@
 			(if scanned (scans-save scans))
 			;what the image is built from, as one number, beside it
 			(save (boot-id-of l) (boot-id-file *cpu* *abi*))
-			(save (join (sort (cat l)) (ascii-char 10)) (boot-files-file *cpu* *abi*))
+			(save (join (sort (cat l)) "\n") (boot-files-file *cpu* *abi*))
 			;not all of them, lib/boot/image.inc says which
 			(image-funcs *prods* *cpu*))) *abi* *cpu*))
 

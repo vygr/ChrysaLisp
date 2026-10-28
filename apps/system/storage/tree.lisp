@@ -32,7 +32,7 @@
 
 ;how often the farm is looked over, and how long a job may be: a film of
 ;tens of megabytes is one
-(defq +look_rate 1000000 +job_timeout 120000000 +lf (ascii-char 10))
+(defq +look_rate 1000000 +job_timeout 120000000 +lf "\n")
 
 (defun main ()
 	(defq select (task-mboxes +select_size))

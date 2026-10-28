@@ -36,7 +36,7 @@
 ))
 
 ;the ends of git's files, a line's end and spaces
-(defq +git_space (char-class (cat " " (ascii-char 9) (ascii-char 10) (ascii-char 13))))
+(defq +git_space (char-class " \t\n\r"))
 
 (defun git-commit ()
 	; (git-commit) -> :nil | commit
@@ -52,7 +52,7 @@
 					((some (lambda (line)
 							(defq parts (split line " "))
 							(and (= (length parts) 2) (eql (second parts) ref) (first parts)))
-						(split (ifn (load ".git/packed-refs") "") (ascii-char 10))))))
+						(split (ifn (load ".git/packed-refs") "") "\n")))))
 			((= (length head) 40) head))))
 
 ;the objects of git, read for the time of a commit. An object is a file of
@@ -75,7 +75,7 @@
 	; (git-loose sha) -> :nil | (type data)
 	(and (defq z (load (cat ".git/objects/" (slice sha 0 2) "/" (slice sha 2 -1))))
 		(defq raw (git-unzip (string-stream z)))
-		(list (slice raw 0 (find " " raw)) (slice raw (inc (find (ascii-char 0) raw)) -1))))
+		(list (slice raw 0 (find " " raw)) (slice raw (inc (find "\x00" raw)) -1))))
 
 (defun git-idx-find (idx sha)
 	; (git-idx-find idx sha) -> :nil | offset
@@ -199,7 +199,7 @@
 					;size, the name of its blob, and its flags
 					(defq flags (logior (<< (code idx 1 (+ i 60)) 8) (code idx 1 (+ i 61)))
 						start (+ i 62 (if (bits? flags 0x4000) 2 0))
-						end (find (ascii-char 0) idx start))
+						end (find "\x00" idx start))
 					(if (/= (logand (>> flags 12) 3) 0) (setq why "a merge is not finished"))
 					(push out (list (slice idx start end) (hex-encode (slice idx (+ i 40) (+ i 60)))
 						(git-be32 idx (+ i 24)) (git-be32 idx (+ i 36)) (git-be32 idx (+ i 8))))
@@ -218,7 +218,7 @@
 			((and (defq obj (git-object tsha)) (eql (first obj) "tree"))
 				(defq data (second obj) i 0)
 				(while (< i (length data))
-					(defq sp (find " " data i) nul (find (ascii-char 0) data sp)
+					(defq sp (find " " data i) nul (find "\x00" data sp)
 						name (cat pre (slice data (inc sp) nul))
 						osha (hex-encode (slice data (inc nul) (+ nul 21))))
 					(if (eql (slice data i sp) "40000")
@@ -264,7 +264,7 @@
 	; (git-commit-time sha) -> :nil | microseconds
 	;when a commit was made, as its committer line says, seconds since 1970
 	(and (defq obj (git-object sha)) (eql (first obj) "commit")
-		(defq line (some (# (if (starts-with "committer " %0) %0)) (split (second obj) (ascii-char 10))))
+		(defq line (some (# (if (starts-with "committer " %0) %0)) (split (second obj) "\n")))
 		(defq words (split line " ")) (>= (length words) 2)
 		(* (str-to-num (elem-get words (- (length words) 2))) 1000000)))
 

@@ -9,7 +9,7 @@
 			:t)
 		((= c -1)
 			;stdin EOF - send Ctrl-D to trigger clean exit
-			(mail-send mbox (ascii-char 4))
+			(mail-send mbox "\x04")
 			(setq running :nil)
 			:nil)
 		(:t :nil)))

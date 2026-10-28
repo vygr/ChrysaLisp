@@ -37,7 +37,7 @@
 	(memoize :index (progn
 		(defq index (Fmap 101))
 		(each (lambda (path)
-			(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
+			(lines! (# (if (starts-with "(\q" %0)
 				(. index :insert (slice %0 2 -2) path)) :nil) (file-stream path)))
 			(files-all (slice *vp_root* 0 -2) '("")))
 		index) 1))
@@ -63,7 +63,7 @@
 		((reduce (lambda (out arg)
 			(cond
 				((and (starts-with *vp_root* arg) (/= (age arg) 0))
-					(lines! (# (if (starts-with (const (cat "(" (ascii-char 34))) %0)
+					(lines! (# (if (starts-with "(\q" %0)
 						(push out (slice %0 2 -2))) :nil) (file-stream arg))
 					out)
 				((push out arg)))) args (list)))))

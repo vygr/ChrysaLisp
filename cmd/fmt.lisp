@@ -93,7 +93,7 @@
 (defun squash (text)
 	; (squash text) -> str
 	;the text with all white space taken out
-	(apply (const cat) (split text (const (char-class (cat " \t\r" (ascii-char 10)))))))
+	(apply (const cat) (split text (const (char-class " \t\r\n")))))
 
 (defun work (file)
 	; (work file) -> :nil | str
@@ -150,7 +150,7 @@
 						(each (# (if (starts-with "Needs formatting: " %0)
 									(push needs (slice %0 18 -1))
 									(print %0)))
-							(split result (ascii-char 10))))
+							(split result "\n")))
 					(pipe-farm (map (# (str (first args) " -c -j " opt_j " -l " opt_l " " (slice (str %0) 1 -2)))
 							(partition files opt_j))))
 				(each (lambda (file)

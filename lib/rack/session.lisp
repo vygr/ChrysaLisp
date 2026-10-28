@@ -25,10 +25,10 @@
 		(each (lambda (cmdline)
 			(when (nempty? cmdline)
 				(pipe-run cmdline (const said))))
-			(split (ifn (load (cat +rack_cmds run)) "") (ascii-char 10))))
-	(progn (said (cat "SESSION ERROR " (str _) (ascii-char 10))) :t))
+			(split (ifn (load (cat +rack_cmds run)) "") "\n")))
+	(progn (said (cat "SESSION ERROR " (str _) "\n")) :t))
 (rack-session-clear)
 (task-sleep 200000)
 ;the last line, how long it took, is what says it is all there
-(said (cat "[" (str (/ (- (pii-time) t0) 1000000)) "s]" (ascii-char 10)))
+(said (cat "[" (str (/ (- (pii-time) t0) 1000000)) "s]" "\n"))
 (pii-exit)

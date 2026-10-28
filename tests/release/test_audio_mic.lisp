@@ -17,7 +17,7 @@
 	(defq reply (mail-mbox))
 	;the structures are imported first, a form apart, as the one after is
 	;made with them
-	(open-task (cat "(import {lib/audio/stages.inc})" (ascii-char 10)
+	(open-task (cat "(import {lib/audio/stages.inc})" "\n"
 			(str `(mail-send (hex-decode ,(hex-encode reply)) (str ,form))))
 		am_node +kn_call_pin 0 (mail-mbox))
 	(mail-read reply))

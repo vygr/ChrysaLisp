@@ -27,7 +27,7 @@
 	;each field something, (split) leaves out an empty one: * all kinds, - no app
 	(mail-send picker (cat reply title "|" (ifn root ".") "|" (if (nempty? (ifn kinds "")) kinds "*")
 		"|" (if save "save" "open") "|" (if (nempty? (ifn app "")) app "-") "|" (if names "names" "-")
-		"|" (if (nempty? (ifn places '())) (join places (ascii-char 9)) "-")))
+		"|" (if (nempty? (ifn places '())) (join places "\t") "-")))
 	picker)
 
 (defun file-places-file ()

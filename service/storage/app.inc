@@ -35,7 +35,7 @@
 	(netid reply_id)
 	(uint type))
 
-(defq +storage_name "@Storage" +storage_group "*Storage" +storage_wait 10 +storage_lf (ascii-char 10)
+(defq +storage_name "@Storage" +storage_group "*Storage" +storage_wait 10 +storage_lf "\n"
 	;how often a tender looks, and how long a member is not heard from
 	;before what it kept is kept by others, microseconds
 	+storage_tick 2000000 +storage_grace 300000000

@@ -55,8 +55,8 @@
 	;:nil if there is no such file, or it is not text, a 0 byte in it
 	(when (defq stream (if n (name-stream path) (name-whole-stream path)))
 		(defq text (ifn (read-blk stream (if n 16384 (ifn (name-size path) 0))) ""))
-		(unless (find (ascii-char 0) text)
-			(defq lines (split text (ascii-char 10)))
+		(unless (find "\x00" text)
+			(defq lines (split text "\n"))
 			(if (and n (> (length lines) n)) (slice lines 0 n) lines))))
 
 ;the previewers there are, each says what it is for

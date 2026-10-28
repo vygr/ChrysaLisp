@@ -75,13 +75,13 @@
 	(defq at (case op (11 1) (15 2) (:t :nil)))
 	(cond
 		(at (defq text (apply (const cat) (map! (# (char %0 4)) (list args) at))
-				end (find (ascii-char 0) text)
+				end (find "\x00" text)
 				used (inc (/ end 4)))
 			;the words before the name, the name, the words after, into the
 			;one list
 			(map! (const str) (list args) (+ at used) -1
 				(push (map! (const str) (list args) 0 at)
-					(cat (ascii-char 34) (slice text 0 end) (ascii-char 34)))))
+					(cat "\q" (slice text 0 end) "\q"))))
 		((map (const str) args))))
 
 (defun spirv-listing (module)
@@ -96,7 +96,7 @@
 		(push lines (join (cat (list (ifn (. *spv_names* :find op) (cat "Op" (str op))))
 			(spirv-operands op (slice words (inc i) (+ i len)))) " "))
 		(setq i (+ i len)))
-	(join lines (ascii-char 10)))
+	(join lines "\n"))
 
 (defun tree-listing (program)
 	;the program, a declaration to a line
@@ -107,8 +107,8 @@
 	(map! (# (cat "global " (str %0))) (list globals) 0 -1 lines)
 	(each (lambda ((name type params block))
 		(push lines "" (cat "func " (str name) " " (str type) " " (str params)))
-		(map! (# (cat (ascii-char 9) (str %0))) (list block) 0 -1 lines)) funcs)
-	(join lines (ascii-char 10)))
+		(map! (# (cat "\t" (str %0))) (list block) 0 -1 lines)) funcs)
+	(join lines "\n"))
 
 (defun vp-listing (program)
 	;the VP source of the native code of a program, whatever kind it is.
@@ -121,7 +121,7 @@
 		((eql stage :func)
 			(join (map (lambda ((fname &rest _))
 				(sv-func-source program fname (cat name "_" (str fname))))
-				(shader-funcs program)) (ascii-char 10)))
+				(shader-funcs program)) "\n"))
 		((nempty? (shader-varyings program)) (first (sv-fill-source program name)))
 		((first (sv-source program name)))))
 
@@ -132,8 +132,8 @@
 		((eql stage :vertex) (str (shader-cpu-vertex program)))
 		((eql stage :func)
 			(join (map (lambda ((fname &rest _))
-				(cat ";" (str fname) (ascii-char 10) (str (shader-cpu-func program fname))))
-				(shader-funcs program)) (ascii-char 10)))
+				(cat ";" (str fname) "\n" (str (shader-cpu-func program fname))))
+				(shader-funcs program)) "\n"))
 		((str (shader-cpu program)))))
 
 (defun main ()

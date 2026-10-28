@@ -17,7 +17,7 @@
 ;what follows a hash of 32 bytes in the block it is the message of, when
 ;a block of 64 has gone before it. A bit, zeros, and 96 bytes as bits, the
 ;top byte first
-(defq +pbkdf2_tail (cat (ascii-char 0x80) (slice +sha256_zeros 0 29) (ascii-char 3) (ascii-char 0)))
+(defq +pbkdf2_tail (cat "\x80" (slice +sha256_zeros 0 29) "\x03" "\x00"))
 
 (defun pbkdf2-bytes (state)
 	; (pbkdf2-bytes state) -> str

@@ -45,7 +45,7 @@
 		; (. view :find_owner) -> :nil | netid
 		(defq root this)
 		(while (and root (eql (defq id (getf root +view_owner_id 0))
-					(const (pad "" +net_id_size (ascii-char 0)))))
+					(const (pad "" +net_id_size "\x00"))))
 			(setq root (penv root)))
 		(if root id))
 

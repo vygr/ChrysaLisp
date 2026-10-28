@@ -67,12 +67,12 @@
 	;the address of and have heard from myself, of late. What another told
 	;me is not passed on, or word of a peer that has gone would go round
 	;for ever
-	(defq out (list "CHRYSA_HELLO " my_sys (ascii-char 10)))
+	(defq out (list "CHRYSA_HELLO " my_sys "\n"))
 	(. peers :each (lambda (sys peer)
 		(and (> (elem-get peer +mesh_peer_port) 0)
 				(< (- now (elem-get peer +mesh_peer_t_heard)) +mesh_alive)
 			(push out sys " " (elem-get peer +mesh_peer_ip) " "
-				(str (elem-get peer +mesh_peer_port)) (ascii-char 10)))))
+				(str (elem-get peer +mesh_peer_port)) "\n"))))
 	(apply (const cat) out))
 
 (defun mesh-heard (peers my_sys text now)
@@ -80,7 +80,7 @@
 	;a hello from another service. It dials, and it knows where I am if I
 	;am in its list. A peer of its that I have no address for, I now have.
 	;What is not a hello, or is my own, is :nil
-	(defq lines (split text (ascii-char 10)) head (split (ifn (first lines) "") " "))
+	(defq lines (split text "\n") head (split (ifn (first lines) "") " "))
 	(when (and (= (length head) 2) (eql (first head) "CHRYSA_HELLO") (nql (second head) my_sys))
 		(defq from (mesh-peer peers (second head)) knows :nil)
 		(each! (lambda (line)
@@ -184,5 +184,5 @@
 				((or (not (defq link (elem-get peer +mesh_peer_link))) (not my_link)) "unknown")
 				((= link my_link) "same")
 				((str link)))
-			(ascii-char 10)))))
+			"\n"))))
 	(apply (const cat) (cat (list "") out)))

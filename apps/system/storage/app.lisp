@@ -437,7 +437,7 @@
 	(when *run* (mail-send *run* "stop"))
 	(setq *replay* (replay-new) *shown* :nil *gopher* :nil *snap* :nil *follow* :t *playing* :nil *live* (eql what "-")
 		*run* (open-child "apps/system/storage/run.lisp" +kn_call_run))
-	(mail-send *run* (cat (hex-encode (elem-get *select* +select_run)) (ascii-char 10) what))
+	(mail-send *run* (cat (hex-encode (elem-get *select* +select_run)) "\n" what))
 	(timeline)
 	(draw))
 
@@ -453,7 +453,7 @@
 	(defq events (. *replay* :find :events))
 	(cond
 		((empty? events) (say "Nothing recorded to save."))
-		((save (join (cat (map (const replay-line) events) (list "")) (ascii-char 10)) file)
+		((save (join (cat (map (const replay-line) events) (list "")) "\n") file)
 			(say "Saved " (length events) " events to " file "."))
 		((say "Could not save to " file "."))))
 
@@ -465,7 +465,7 @@
 		(:t (when *run* (mail-send *run* "stop") (setq *run* :nil))
 			(setq *replay* (replay-new) *shown* :nil *want* :nil *gopher* :nil *snap* :nil
 				*follow* :nil *playing* :nil *live* :nil)
-			(each (# (replay-add *replay* %0)) (split text (ascii-char 10)))
+			(each (# (replay-add *replay* %0)) (split text "\n"))
 			(go-to 0)
 			(say (if (empty? (. *replay* :find :events)) (cat file " has no events in it.")
 				(cat "Opened " (str (length (. *replay* :find :events))) " events of " file ". Play, or the timeline."))))))
@@ -660,7 +660,7 @@
 			(+select_run
 				(cond
 					((starts-with "lines" msg)
-						(each! (# (replay-add *replay* %0)) (list (split msg (ascii-char 10))) 1 -1)
+						(each! (# (replay-add *replay* %0)) (list (split msg "\n")) 1 -1)
 						;the store of this system not recorded, the last so many kept
 						(and *live* (not *record*) (replay-trim *replay* +live_keep))
 						(setq *changed* :t))

@@ -2,8 +2,8 @@
 (import "lib/sync/sync.inc")
 
 ;the rules of a .gitignore
-(defq sy_rules (sync-rules (cat ".vs/" (ascii-char 10) "/obj/" (ascii-char 10) "# a comment" (ascii-char 10)
-	"  os " (ascii-char 13) (ascii-char 10) "*.o" (ascii-char 10) "/usr/*/*.tre" (ascii-char 10) (ascii-char 10) "!kept" (ascii-char 10))))
+(defq sy_rules (sync-rules (cat ".vs/" "\n" "/obj/" "\n" "# a comment" "\n"
+	"  os " "\r" "\n" "*.o" "\n" "/usr/*/*.tre" "\n" "\n" "!kept" "\n")))
 (defun sy-out? (path is_dir) (sync-ignored? sy_rules (split path "/") is_dir))
 (test-cases
 	(sy-out? ".git" :t) :t
@@ -43,9 +43,9 @@
 	(sync-safe? "a/.git/config") :nil
 	(sync-safe? "c:/windows") :nil
 	(sync-safe? "~/Documents/x") :nil
-	(sync-safe? (cat "a" (ascii-char 0) "/../b")) :nil
-	(sync-safe? (cat "a" (ascii-char 10) "b")) :nil
-	(sync-safe? (cat "a" (ascii-char 92) "b")) :nil)
+	(sync-safe? "a\x00/../b") :nil
+	(sync-safe? "a\nb") :nil
+	(sync-safe? "a\\b") :nil)
 
 ;under the root as the host has it. A folder on the way has to be a folder
 (save "x" "tests/scratch/sync_fence/real/file.txt")
@@ -60,7 +60,7 @@
 
 ;a tree, a service with a root of its own, and a push from one to the other
 (defq sy_src "tests/scratch/sync_src" sy_dst "tests/scratch/sync_dst" sy_name "*SyncTest"
-	sy_big (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 30000))))
+	sy_big (apply (const cat) (map (# (cat "line " (str %0) "\n")) (range 0 30000))))
 (defun sy-clear (root)
 	(each (# (pii-remove (cat root "/" %0))) (sync-walk root (sync-rules ""))))
 (sy-clear sy_src) (sy-clear sy_dst)
@@ -73,13 +73,13 @@
 (save "old" (cat sy_dst "/one.txt"))
 (save "stays" (cat sy_dst "/extra.txt"))
 (save "theirs" (cat sy_dst "/obj/built.txt"))
-(defq sy_text (cat "/obj/" (ascii-char 10) "*.o"))
+(defq sy_text "/obj/\n*.o")
 
 (assert-eq "the files of a tree, less what the rules leave out" 4 (length (sync-walk sy_src (sync-rules sy_text))))
 (assert-eq "a list has the hash of each" (hex-encode (sha256 "one"))
 	(third (some (# (if (eql (first %0) "one.txt") %0)) (sync-list sy_src (sync-rules sy_text)))))
 
-(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name (ascii-char 10) sy_dst))
+(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name "\n" sy_dst))
 ;the service is there when it has said so, which is not at once
 (while (empty? (sync-services sy_name)) (task-sleep 10000))
 (defq sy_svc (if (nempty? (sync-services sy_name)) (first (first (sync-services sy_name)))))
@@ -87,7 +87,7 @@
 (assert-eq "and where it writes" sy_dst (last (first (sync-services sy_name))))
 
 ;a second one of the same name on this machine does not start
-(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name (ascii-char 10) "tests/scratch/sync_other"))
+(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat sy_name "\n" "tests/scratch/sync_other"))
 (task-sleep 500000)
 (assert-eq "one sync service of a name for a machine" 1 (length (sync-services sy_name)))
 (assert-eq "and it is the first" sy_dst (last (first (sync-services sy_name))))
@@ -180,19 +180,19 @@
 
 ;what the service will not do
 (defq sy_mbox (mail-mbox))
-(sync-tell sy_svc sy_mbox +sync_type_put (cat "../sync_escape.txt" (ascii-char 10) "out") 0 3)
+(sync-tell sy_svc sy_mbox +sync_type_put "../sync_escape.txt\nout" 0 3)
 (assert-eq "a path up out of its root is refused" -2 (first (sync-hear sy_mbox)))
 (assert-true "and not written" (not (pii-fstat "tests/scratch/sync_escape.txt")))
 (sync-tell sy_svc sy_mbox +sync_type_del "../sync_src/one.txt")
 (assert-eq "so is a remove of one" -2 (first (sync-hear sy_mbox)))
 (assert-true "and it is still there" (pii-fstat (cat sy_src "/one.txt")))
-(sync-tell sy_svc sy_mbox +sync_type_put (cat "late.txt" (ascii-char 10) "part") 4 8)
+(sync-tell sy_svc sy_mbox +sync_type_put "late.txt\npart" 4 8)
 (assert-eq "a part of a file with no start is refused" -3 (first (sync-hear sy_mbox)))
 ;a service given a root that is not in the system's tree takes nothing
-(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) (cat "*SyncTestOut" (ascii-char 10) "/tmp"))
+(mail-send (open-child "service/sync/app.lisp" +kn_call_pin) "*SyncTestOut\n/tmp")
 (while (empty? (sync-services "*SyncTestOut")) (task-sleep 10000))
 (defq sy_out (first (first (sync-services "*SyncTestOut"))))
-(sync-tell sy_out sy_mbox +sync_type_put (cat "sync_outside_probe.txt" (ascii-char 10) "out") 0 3)
+(sync-tell sy_out sy_mbox +sync_type_put "sync_outside_probe.txt\nout" 0 3)
 (assert-eq "a service with a root outside the tree refuses a file" -1 (first (sync-hear sy_mbox)))
 (assert-true "and it is not written" (not (pii-fstat "/tmp/sync_outside_probe.txt")))
 (sync-tell sy_out sy_mbox +sync_type_root "")
@@ -206,7 +206,7 @@
 (assert-eq "and what it does not know" -1 (first (sync-hear sy_mbox)))
 (sync-tell sy_svc sy_mbox +sync_type_list "")
 (assert-eq "the whole list, as an older sync asks for it, it no longer knows" -1 (first (sync-hear sy_mbox)))
-(sync-tell sy_svc sy_mbox +sync_type_put (cat "late2.txt" (ascii-char 10) "x") 0 1)
+(sync-tell sy_svc sy_mbox +sync_type_put "late2.txt\nx" 0 1)
 (sync-hear sy_mbox)
 (sync-tell sy_svc sy_mbox +sync_type_folder "")
 (assert-eq "a folder asked for with no tree worked out, after a write, is refused" -5 (first (sync-hear sy_mbox)))
@@ -215,7 +215,7 @@
 ;a push from a tree exactly at its waypoint notes it there too, when that
 ;tree is then the same; and the herd's, asked only as the herd, is taken by
 ;a tree at an older waypoint and not by one at its own or with a change
-(defq sy_rt (cat sy_text (ascii-char 10) "/waypoint"))
+(defq sy_rt (cat sy_text "\n" "/waypoint"))
 (save sy_rt (cat sy_src "/.gitignore"))
 (save (sync-waypoint-text "cccc" 300 (sync-top sy_src)) (cat sy_src "/waypoint"))
 (setq sy_res (sync-push sy_svc sy_src sy_rt :nil :t))
@@ -266,7 +266,7 @@
 ;named, anything; any other, by the herd, only to a tree that is exactly at
 ;a waypoint and has no .git, from one at a newer waypoint
 (save "a tree" (cat sy_dst "/kept.txt"))
-(defq sy_me (hex-encode (system-id)) sy_far (cat "far away node id" (ascii-char 0))
+(defq sy_me (hex-encode (system-id)) sy_far "far away node id\x00"
 	sy_top (sync-top sy_dst))
 (assert-eq "a tree with no waypoint is at none" :nil (sync-clean sy_dst))
 (save (sync-waypoint-text "aaaa" 100 sy_top) (cat sy_dst "/waypoint"))

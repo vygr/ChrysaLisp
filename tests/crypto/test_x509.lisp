@@ -12,7 +12,7 @@
 (assert-eq "base64 there and back" "the quick brown fox" (base64-decode (base64-encode "the quick brown fox")))
 (assert-eq "base64 of RFC 4648" "Zm9vYmFy" (base64-encode "foobar"))
 (assert-eq "and padded" "Zm9vYg==" (base64-encode "foob"))
-(assert-eq "and back past the end of a line" "foob" (base64-decode (cat "Zm9v" (ascii-char 10) "Yg==")))
+(assert-eq "and back past the end of a line" "foob" (base64-decode "Zm9v\nYg=="))
 
 (assert-true "each reads" (and tx_root tx_issuer tx_leaf tx_old))
 (assert-eq "the kinds of key" "(:p384 :rsa :p256)" (str (map (# (. %0 :find :key_kind)) (list tx_root tx_issuer tx_leaf))))

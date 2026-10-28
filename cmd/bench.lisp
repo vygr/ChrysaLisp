@@ -54,7 +54,7 @@
 		(cond
 			(opt_l (each (const print) modules))
 			(:t ;what a file written before has, by module and name
-				(defq was (Fmap 31) saved (list) tab (ascii-char 9))
+				(defq was (Fmap 31) saved (list) tab "\t")
 				(and opt_c (defq stream (file-stream opt_c))
 					(lines! (lambda (line)
 						(when (= (length (defq parts (split line tab))) 3)
@@ -83,4 +83,4 @@
 					(stream-flush (io-stream 'stdout)))
 					modules)
 				(and opt_s (nempty? saved)
-					(save (apply (const cat) (map (# (cat %0 (ascii-char 10))) saved)) opt_s))))))
+					(save (apply (const cat) (map (# (cat %0 "\n")) saved)) opt_s))))))

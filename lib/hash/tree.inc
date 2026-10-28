@@ -29,7 +29,7 @@
 	;a folder as text, a line each, in the order of their names. It is
 	;what a folder's hash is the hash of, and what goes in a message
 	(apply (const cat) (cat (list "") (map (lambda ((name kind hash meta))
-		(cat kind " " hash " " meta " " name (ascii-char 10))) kids))))
+		(cat kind " " hash " " meta " " name "\n")) kids))))
 
 (defun hash-tree-read (text)
 	; (hash-tree-read text) -> kids
@@ -37,7 +37,7 @@
 	(reduce (lambda (out line)
 		(if (>= (length (defq parts (split line " "))) 4)
 			(push out (list (join (slice parts 3 -1) " ") (first parts) (second parts) (third parts))))
-		out) (split text (ascii-char 10)) (list)))
+		out) (split text "\n") (list)))
 
 (defun hash-tree (things)
 	; (hash-tree things) -> tree

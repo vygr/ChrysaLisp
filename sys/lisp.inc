@@ -142,7 +142,7 @@
 		;its services, Audio with them, start only once it knows
 		user (ifn (get '*env_node_user*)
 			(if (eql kind :gui_hidden) (trim (ifn (load "usr/current") "Guest"))))
-		tab (ascii-char 11)
+		tab "\v"
 		;and so with a system id that is not the machine's. A node of such
 		;a system has it in *env_node_sid*, the nodes it starts are of the
 		;same system, and its Net service knows it is not the machine's
@@ -184,11 +184,11 @@
 		(defq file (cat "/tmp/chrysalisp_" (str (pii-pid)) ".session")
 			noted (get '*node_noted*)
 			text (cat (if (and noted (/= (age file) 0)) (load file) "")
-				(if net (cat "net " net (ascii-char 10)) "")
+				(if net (cat "net " net "\n") "")
 				(join (map (lambda (pid)
 					(if (> pid 0) (cat (if (and script (< (!) fronts)) "front " "pid ")
-						(str pid) (ascii-char 10)) "")) pids) "")
-				(join (map (# (cat "link " %0 (ascii-char 10))) names) "")))
+						(str pid) "\n") "")) pids) "")
+				(join (map (# (cat "link " %0 "\n")) names) "")))
 		(def *root_env* '*node_noted* :t)
 		;a node that started nothing leaves no note, there is nothing to
 		;stop or clear away for it. An empty one was left by every node
@@ -323,7 +323,7 @@
 					((not net))
 					((eql (first parts) "link") (push (elem-get net 4) (second parts)))
 					(:t (push (elem-get net 3) (str-as-num (second parts))))))
-				(split (ifn (load file) "") (ascii-char 10)))))
+				(split (ifn (load file) "") "\n"))))
 		(dir-list "/tmp"))
 	out)
 
@@ -437,12 +437,12 @@
 				;the end of the file and would run on from a last line that did not
 				;and with nothing left in it the note goes too, an empty one
 				;was left for each network stopped by name
-				(defq keep :t left (apply (const cat) (cat (list "") (map (# (cat %0 (ascii-char 10))) (filter (lambda (line)
+				(defq keep :t left (apply (const cat) (cat (list "") (map (# (cat %0 "\n")) (filter (lambda (line)
 						(cond
 							((empty? line) :nil)
 							((starts-with "net " line) (setq keep (nql (second (split line " ")) id)))
 							(keep)))
-					(split (ifn (load file) "") (ascii-char 10)))))))
+					(split (ifn (load file) "") "\n"))))))
 				(if (nempty? left) (save left file) (pii-remove file))
 				(setq told (+ told (length pids)))))
 			(list found) -1 0)

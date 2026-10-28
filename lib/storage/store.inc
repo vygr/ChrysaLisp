@@ -76,7 +76,7 @@
 	+store_per_bucket 32
 	;the first line of the file of the blocks kept, (store-held-save)
 	+store_held_magic "CHRYSA_HELD 1"
-	+store_block_size 65536 +store_copies 3 +store_lf (ascii-char 10)
+	+store_block_size 65536 +store_copies 3 +store_lf "\n"
 	;how many blocks are put in a folder before the next is begun: the
 	;directory of so many is a cluster of a volume
 	+store_folder_blocks 256

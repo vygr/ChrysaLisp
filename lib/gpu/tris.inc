@@ -78,7 +78,7 @@
 			(+strip_vfile_length (length vfile)) (+strip_pfile_length (length pfile))
 			(+strip_draws (length draws))) vfile pfile)
 		(map (lambda ((mesh vblock pblock &optional dy dy1 tfiles))
-			(defq tfiles (join (ifn tfiles '()) (ascii-char 10)))
+			(defq tfiles (join (ifn tfiles '()) "\n"))
 			(cat (setf-> (str-alloc +strip_draw_size)
 				(+strip_draw_mesh mesh)
 				(+strip_draw_vblock_length (length vblock))

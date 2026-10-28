@@ -85,6 +85,11 @@
             one less than 0 is made a large number, the place
             in a table of an AC-3 decoder 15 bits not 0.
             (>>>) shifts it as a signed number.
+    char    (ascii-char 10) of a code, or of a +char_ name:
+            it is a char known as the file is read, and is
+            written as one, \q\\n\q, with the escape the reader
+            has for it, \\r \\f \\v \\n \\t \\q \\b \\\\, the
+            char itself, or \\x and its code.
     unbound a call of what is no function or macro of the
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
@@ -198,7 +203,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -389,6 +394,24 @@
 	(and (eql head ">>") (not (ends-with ".vp" file)) (> (length forms) 1) (defq inner (tree-form? (second forms)))
 		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol) (eql (third (first in)) "-")
 		(found file (second forms) "shift" "(>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")))
+
+(defun check-char (file forms head)
+	;(ascii-char 10), (ascii-char +char_lf): a char known as the file is read,
+	;written as one, "\n". Of a number, or a + name of the system's that is one
+	(and (eql head "ascii-char") (= (length forms) 2) (find (first (second forms)) '(:number :symbol))
+		(defq text (third (second forms)))
+		(num? (defq code (cond
+			((eql (first (second forms)) :number) (catch (str-to-num text) :nil))
+			((starts-with "+char_" text) (. *char_codes* :find text)))))
+		(found file (second forms) "char" "(ascii-char " text ") is a char, write it " (char-literal code))))
+
+(defun char-literal (code)
+	; (char-literal code) -> str
+	;a char as the reader takes it in a string
+	(cat "\q" (cond
+		((defq at (find code '(13 12 11 10 9 34 8 92))) (cat "\\" (elem-get "rfvntqb\\" at)))
+		((< 31 code 127) (char code))
+		((cat "\\x" (slice (hex-encode (char code)) 0 2)))) "\q"))
 
 (defun check-empty (file forms head)
 	;(f a () b): an empty list as a thing given to a call is run as a form,
@@ -1358,6 +1381,7 @@
 							(if (find "empty" checks) (check-empty file forms head))
 							(if (find "past" checks) (check-past file forms head))
 							(if (find "shift" checks) (check-shift file forms head))
+							(if (find "char" checks) (check-char file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
@@ -1387,6 +1411,8 @@
 			;the names of the system, what a function, a macro or a form is
 			;bound to in the environment every task starts with
 			*root_names* (Fset 101) *root_macros* (Fset 31) *root_all* (Fset 101)
+			;the code of each +char_ name, +char_lf 10
+			*char_codes* (Fmap 31)
 			;the functions of each file imported, as read, (import-defuns)
 			*import_defuns* (Fmap 31))
 		(each (lambda ((name val))
@@ -1394,7 +1420,8 @@
 			(defq is_macro (macro-func? val))
 			(. *root_all* :insert (str name))
 			(if (or (func? val) (lambda-func? val) is_macro) (. *root_names* :insert (str name)))
-			(if is_macro (. *root_macros* :insert (str name))))
+			(if is_macro (. *root_macros* :insert (str name)))
+			(and (num? val) (starts-with "+char_" (str name)) (. *char_codes* :insert (str name) val)))
 			(tolist *root_env*))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))

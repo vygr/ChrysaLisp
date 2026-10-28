@@ -194,7 +194,7 @@
 (defun vp-entry-text (entry)
 	; (vp-entry-text entry) -> str
 	;an entry as a bundle in obj/vp/ has it
-	(cat (const (cat "(" (ascii-char 34))) (first entry) (const (cat (ascii-char 34) "\n"))
+	(cat "(\q" (first entry) "\q\n"
 		(vp-code-text entry) ")\n"))
 
 (defun def-func-end ()

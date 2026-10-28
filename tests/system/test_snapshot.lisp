@@ -9,7 +9,7 @@
 ;a file of src/host in order, its path and its sha256, and the sha256 of
 ;all of that. A change to src/host with no new snapshot fails here
 (defq sn_files (sort (filter (# (not (starts-with "." (last (split %0 "/"))))) (files-all "src/host")))
-	sn_lines (apply (const cat) (map (# (cat %0 " " (to-lower (hex-encode (sha256 (load %0)))) (ascii-char 10))) sn_files))
+	sn_lines (apply (const cat) (map (# (cat %0 " " (to-lower (hex-encode (sha256 (load %0)))) "\n")) sn_files))
 	sn_now (to-lower (hex-encode (sha256 sn_lines)))
 	sn_made (trim (ifn (load "snapshot_host") "") (const (char-class " \t\r\n"))))
 (assert-true "there are host sources" (> (length sn_files) 10))

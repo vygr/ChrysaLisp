@@ -25,7 +25,7 @@
 	;as those in sync_from, a system id each, with a space between: what
 	;started it is this machine's own, a test starts one that takes from
 	;the machine it is on
-	(bind '(name root &optional also) (split (mail-read (task-mbox)) (ascii-char 10)))
+	(bind '(name root &optional also) (split (mail-read (task-mbox)) "\n"))
 	(defq also (filter (# (= (length %0) 32)) (split (ifn also "") " ")))
 	;one for a machine. The name is a * one, seen from every machine, so it
 	;is this machine's own that is looked for, by its system id. It is here
@@ -50,7 +50,7 @@
 		;take a sync it has seen, by mailbox
 		spread (open-child "service/sync/spread.lisp" +kn_call_pin)
 		seen (Fset 31) looked (- (pii-time) +sync_look))
-	(mail-send spread (cat name (ascii-char 10) root))
+	(mail-send spread (cat name "\n" root))
 	;the root is the system's own tree, or a folder in it. Nowhere else, and
 	;not by way of a link, whatever it was started with. If it is not, the
 	;service takes nothing
@@ -98,7 +98,7 @@
 						;offers it on
 						(setq held :nil)
 						(when (defq said (. said_at :find node))
-							(defq lines (map (# (trim %0)) (split said (ascii-char 10))))
+							(defq lines (map (# (trim %0)) (split said "\n")))
 							(cond
 								((eql (sync-top root kept) (third lines))
 									;one new to it is offered on
@@ -118,7 +118,7 @@
 							(setq status -5)))
 					(+sync_type_put
 						(setq held :nil)
-						(defq nl (find (ascii-char 10) data)
+						(defq nl (find "\n" data)
 							path (slice data 0 (ifn nl 0)) body (slice data (inc (ifn nl -1)) -1))
 						(cond
 							((not (and nl (sync-safe? path) (sync-inside? root path real))) (setq status -2))

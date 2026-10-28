@@ -3,7 +3,7 @@
 (import "lib/streams/lisp_stream.inc")
 
 ;a stream of pieces, that a function gives one at a time, and of where it is
-(defq ls_parts (list "hello " "wor" "ld" (cat (ascii-char 10) "second line" (ascii-char 10)) "third")
+(defq ls_parts (list "hello " "wor" "ld" "\nsecond line\n" "third")
 	ls_all (apply (const cat) ls_parts))
 
 (defun ls-pieces (pieces)

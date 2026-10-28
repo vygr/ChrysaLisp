@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;
 
 (defq
+	+char_nul 0
 	+char_backspace 8
 	+char_delete 127
 	+char_tab 9

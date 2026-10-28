@@ -105,7 +105,7 @@
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(window-resize)
-	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) (get :terminal_prompt *env*)))
+	(action-insert (cat "ChrysaLisp Terminal" "\n" (get :terminal_prompt *env*)))
 	(defq *margin_x* *cursor_x*)
 	(while *running*
 		(and *needs_refresh* (not (input-poll)) (refresh))
@@ -118,7 +118,7 @@
 						;pipe finished
 						(. *pipe* :close)
 						(setq *pipe* :nil *key* :t)
-						(action-insert (cat (ascii-char +char_lf) (get :terminal_prompt *env*))))
+						(action-insert (cat "\n" (get :terminal_prompt *env*))))
 					((action-insert *msg* +line_wrap_len)))
 				(setq *margin_x* *cursor_x*))
 			((= idx +select_tip)

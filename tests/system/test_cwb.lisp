@@ -178,7 +178,7 @@
 		((and wb_on (starts-with "```" line)) (setq wb_on :nil))
 		(wb_on (push wb_page line))) :nil)
 	(file-stream "docs/ai_digest/whiteboard.md"))
-(defq wb_shown (cwb-load (string-stream (join wb_page (ascii-char 10)))))
+(defq wb_shown (cwb-load (string-stream (join wb_page "\n"))))
 (assert-true "the file shown in the page about this loads" wb_shown)
 (when wb_shown
 	(assert-list-eq "and is what the page says it is" '(640 420 (1 2) "M 40 360 L 220 360" "Start")

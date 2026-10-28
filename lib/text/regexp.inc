@@ -11,7 +11,7 @@
 	+op_chars "+*?|" +op_presidence "+*?'|`()")
 (defmacro is-bracket-char? (%0) (static-qq (find ,%0 +bracket_chars)))
 (defmacro is-assert-char? (%0) (static-qq (find ,%0 +assert_chars)))
-(defmacro is-esc-char? (%0) (static-qq (eql ,%0 (ascii-char 92))))
+(defmacro is-esc-char? (%0) (static-qq (eql ,%0 "\\")))
 (defmacro is-op-char? (%0) (static-qq (find ,%0 +op_chars)))
 
 (defun output (op token) (push out_types op) (push out_tokens token))

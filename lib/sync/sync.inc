@@ -82,7 +82,7 @@
 			(defq segs (split line "/"))
 			(if (nempty? segs)
 				(push out (list (or anchored (> (length segs) 1)) dir_only segs)))))
-		(split text (ascii-char 10)))
+		(split text "\n"))
 	out)
 
 (defun sync-seg? (pat seg)
@@ -114,7 +114,7 @@
 	;is the machine's own, whatever the rules of one that sends say: its
 	;key in use and its keyring, who it takes a sync from, its waypoint
 	(and (str? path) (nempty? path) (not (starts-with "/" path)) (not (starts-with "~" path))
-		(not (find ":" path)) (not (find (ascii-char 92) path)) (not (found? path "//"))
+		(not (find ":" path)) (not (find "\\" path)) (not (found? path "//"))
 		(not (some (# (< (code %0) 32)) path))
 		(not (some (# (or (eql %0 "..") (eql %0 ".") (eql %0 ".git"))) (split path "/")))
 		(notany (# (eql path %0)) '("mesh_key" "sync_from" "waypoint"))
@@ -200,7 +200,7 @@
 			(when (>= (length (defq parts (split line " "))) 4)
 				(. cache :insert (join (slice parts 3 -1) " ")
 					(list (str-as-num (first parts)) (str-as-num (second parts)) (third parts)))))
-			(split text (ascii-char 10))))
+			(split text "\n")))
 	(defq lines (list) out (list))
 	(each (lambda (path)
 		(when (defq info (pii-fstat (cat root "/" path)))
@@ -214,7 +214,7 @@
 			;the mode is who may read, write and run it, the low 9 bits
 			(push out (list path size (third hit) (logand (third info) 511)))))
 		(sync-walk root rules))
-	(and kept dirty (save (join lines (ascii-char 10)) kept))
+	(and kept dirty (save (join lines "\n") kept))
 	out)
 
 (defun sync-tree (root rules &optional kept no_modes live)
@@ -234,13 +234,13 @@
 	;the waypoint a tree was last at, as its file waypoint says: the commit,
 	;when it was made, and the top of the tree of hashes it had then
 	(when (defq text (load (cat root "/waypoint")))
-		(defq lines (map (# (trim %0)) (split text (ascii-char 10))))
+		(defq lines (map (# (trim %0)) (split text "\n")))
 		(if (>= (length lines) 3)
 			(list (first lines) (str-as-num (second lines)) (third lines)))))
 
 (defun sync-waypoint-text (commit time top)
 	; (sync-waypoint-text commit time top) -> str
-	(cat commit (ascii-char 10) (str time) (ascii-char 10) top (ascii-char 10)))
+	(cat commit "\n" (str time) "\n" top "\n"))
 
 (defun sync-kept (root)
 	; (sync-kept root) -> :nil | path
@@ -265,8 +265,8 @@
 	;and not the tree's: its waypoint, who it takes a sync from, its key
 	;and its keyring
 	(sync-rules (cat (sync-rules-text root)
-		(const (cat (ascii-char 10) "/waypoint" (ascii-char 10) "/sync_from" (ascii-char 10) "/mesh_key"
-			(ascii-char 10) "/keys/" (ascii-char 10))))))
+		(const (cat "\n" "/waypoint" "\n" "/sync_from" "\n" "/mesh_key"
+			"\n" "/keys/" "\n")))))
 
 (defun sync-top (root &optional kept)
 	; (sync-top root [kept]) -> hash
@@ -287,7 +287,7 @@
 	;32 hex digits of a system id on a line of its own
 	(filter (# (= (length %0) 32))
 		(map (# (to-upper (trim %0 (const (char-class " \t\r")))))
-			(split (ifn (load (ifn file "sync_from")) "") (ascii-char 10)))))
+			(split (ifn (load (ifn file "sync_from")) "") "\n"))))
 
 (defun sync-of? (node systems)
 	; (sync-of? node systems) -> :t | :nil
@@ -304,7 +304,7 @@
 	(cond
 		((and (not herd_only) (sync-of? node (cat (list me) (ifn named (sync-named))))) :rig)
 		((and (nempty? said) (not (pii-fstat (cat root "/.git")))
-				(defq there (map (# (trim %0)) (split said (ascii-char 10))))
+				(defq there (map (# (trim %0)) (split said "\n")))
 				(>= (length there) 3)
 				(defq top (sync-top root kept))
 				;not one it is at already
@@ -414,7 +414,7 @@
 					(while (and ok (or (< at total) (= at 0)))
 						(defq end (min total (+ at +sync_chunk)))
 						(sync-tell svc reply_mbox +sync_type_put
-							(cat path (ascii-char 10) (slice data at end)) at total mode)
+							(cat path "\n" (slice data at end)) at total mode)
 						(setq ok (and (defq reply (sync-hear reply_mbox)) (= (first reply) 0))
 							at (if (= end at) (inc total) end)))
 					(if ok (setq sent (inc sent) bytes (+ bytes total)) (setq failed (inc failed))))

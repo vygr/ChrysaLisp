@@ -8,7 +8,7 @@
 		(scene-say sc "Putting, at all five at once.")
 		(defq said (mail-mbox) farm (open-child "apps/system/storage/tree.lisp" +kn_call_run) result :nil)
 		(mail-send farm (join (list (hex-encode said) "." "tree/" (join (map (# (hex-encode (second %0))) (. sc :find :svcs)) " "))
-			(ascii-char 10)))
+			"\n"))
 		(while (not result)
 			(defq msg (mail-read said))
 			(cond

@@ -151,7 +151,7 @@
 				(:t (throw "Invalid src parameter !" (list %0 %1))))) src dst)))
 
 (defun print-inst (%0)
-	(and (list?? %0) (not (lambda? (first %0))) (print (ascii-char 9) %0)))
+	(and (list?? %0) (not (lambda? (first %0))) (print "\t" %0)))
 
 (defun assign-asm-to-script (src dst %2)
 	(unless (= (length src) (length (setq dst (script-items dst))))

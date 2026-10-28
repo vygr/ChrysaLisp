@@ -92,13 +92,13 @@
 ;follows it, a newline read with it from a file, a space, was taken as
 ;digits, "5\n" was 44
 (test-cases
-	(str-as-num (cat "5" (ascii-char 10))) 5
-	(str-as-num (cat "12" (ascii-char 10))) 12
+	(str-as-num "5\n") 5
+	(str-as-num "12\n") 12
 	(str-as-num "12 ") 12
 	(str-as-num "12:3") 12
 	(str-as-num "0x1Fg") 31
 	(str-as-num "0b102") 2
-	(str-to-num (cat "3.25" (ascii-char 10))) 3.25)
+	(str-to-num "3.25\n") 3.25)
 
 ; --- a shift is by the low 6 bits of its count, on every CPU and on the emulator ---
 (assert-eq "left by 64 is by 0" 1 (<< 1 64))

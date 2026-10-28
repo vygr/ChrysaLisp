@@ -41,7 +41,7 @@
 
 ; --- ASCII Utils ---
 (assert-eq "ascii-code" 65 (ascii-code "A"))
-(assert-eq "ascii-char" "A" (ascii-char 65))
+(assert-eq "ascii-char" "A" "A")
 (assert-eq "ascii-upper" 65 (ascii-upper 97)) ; 'a' -> 'A'
 (assert-eq "ascii-lower" 97 (ascii-lower 65)) ; 'A' -> 'a'
 

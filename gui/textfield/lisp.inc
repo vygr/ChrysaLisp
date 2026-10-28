@@ -110,7 +110,7 @@
 							(setq clear_text (erase clear_text sx sx1)
 								cursor sx anchor cursor))
 						(unless (eql (defq data (clip-get-rpc)) "")
-							(unless (defq lf (find (ascii-char +char_lf) data))
+							(unless (defq lf (find "\n" data))
 								(setq lf (length data)))
 							(setq clear_text (insert clear_text cursor (slice data 0 lf))
 								cursor (+ cursor lf) anchor cursor)))))

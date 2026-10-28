@@ -257,7 +257,7 @@
 		(assert-eq "sought from the end" (- (length sn_big) 50) (stream-seek sn_stream -50 2))
 		(assert-true "and read from there, to the end" (eql (slice sn_big -51 -1) (read-blk sn_stream 50)))
 		(assert-eq "and there is no more" :nil (read-char sn_stream)))
-	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) (ascii-char 10))) (range 0 2000))) :nil (sn-of "m-b"))
+	(storage-put "text" (apply (const cat) (map (# (cat "line " (str %0) "\n")) (range 0 2000))) :nil (sn-of "m-b"))
 	(sn-settle)
 	(defq sn_stream (storage-stream "text" +file_open_read (sn-of "m-d") 2) sn_count 0 sn_last "")
 	(when sn_stream (lines! (lambda (sn_line) (++ sn_count) (setq sn_last sn_line) :nil) sn_stream))

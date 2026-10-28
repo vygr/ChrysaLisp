@@ -63,4 +63,4 @@
 ;a checkout on Windows may have a return before each end of line, the
 ;names are what is held to
 (assert-true "lib/consts/symbols.inc is the names the symbols make"
-	(eql (join (split (load "lib/consts/symbols.inc") (ascii-char 13)) "") (sym-names-text)))
+	(eql (join (split (load "lib/consts/symbols.inc") "\r") "") (sym-names-text)))

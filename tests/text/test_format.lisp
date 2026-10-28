@@ -2,7 +2,7 @@
 
 (import "lib/text/format.inc")
 
-(defq fm_lf (ascii-char 10))
+(defq fm_lf "\n")
 
 (defun fm-src (&rest lines)
 	;source text from its lines
@@ -192,7 +192,7 @@
 
 ; --- on real source, only white space changes, and a second pass does nothing ---
 ;a Windows checkout may have CR LF line ends, the formatter works in LF
-(defun fm-load (file) (apply (const cat) (split (load file) (ascii-char 13))))
+(defun fm-load (file) (apply (const cat) (split (load file) "\r")))
 (each (lambda (file)
 		(defq text (fm-load file) once (format-lisp text :nil (ends-with ".vp" file)))
 		(assert-eq (cat file ", same tokens") :t (eql (fm-squash text) (fm-squash once)))

@@ -64,7 +64,7 @@
 		(when rk_node
 			;it takes from this machine, as a rig takes from the one worked on
 			(open-task (str `(mail-send (open-child "service/sync/app.lisp" +kn_call_pin)
-					(cat "*Sync" (ascii-char 10) ,rk_dst (ascii-char 10) ,rk_me)))
+					(cat "*Sync" "\n" ,rk_dst "\n" ,rk_me)))
 				rk_node +kn_call_pin 0 (mail-mbox))
 			;its own, and no other: a real machine that takes a sync, come into
 			;reach since the test began, is never sent this tree, nor run on

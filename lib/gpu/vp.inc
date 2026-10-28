@@ -785,8 +785,8 @@
 
 (defun sv-code-text ()
 	;the code so far as lines of VP source
-	(defq lf (ascii-char 10))
-	(join (map (# (if (eql (first %0) 'vp-label) (str %0) (cat (ascii-char 9) (str %0)))) code) lf))
+	(defq lf "\n")
+	(join (map (# (if (eql (first %0) 'vp-label) (str %0) (cat "\t" (str %0)))) code) lf))
 
 (defun sv-vertex-source (program name)
 	; -> (text frame_size attr_slots out_slots)
@@ -807,7 +807,7 @@
 		*sv_maps* (list (list attr_at vary_at :r11 0) (list vary_at frame_size :r10 32)))
 	(bind '(s_n) (map (lambda (&) (sv-slots :int)) (range 0 1)))
 	(bind '(& ret) (sv-program program "v"))
-	(defq lf (ascii-char 10) text (cat
+	(defq lf "\n" text (cat
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
@@ -1236,7 +1236,7 @@
 	(defq funcs_text (sv-code-text))
 	(setq code (list))
 	(sv-fill-code)
-	(defq lf (ascii-char 10) text (cat
+	(defq lf "\n" text (cat
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
@@ -1309,7 +1309,7 @@
 	(bind '(s_x0 s_x1 s_x s_y s_y1 s_mode s_height s_out s_skip s_work)
 		(map (lambda (&) (sv-slots :int)) (range 0 10)))
 	(bind '((frag) ret) (sv-program program "s"))
-	(defq lf (ascii-char 10) text (cat
+	(defq lf "\n" text (cat
 {(include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "class/num/class.inc")
@@ -1567,7 +1567,7 @@
 	(bind '(offsets ret) (sv-program program "u" fname))
 	;above the frame, what it gives, and the args
 	(defq frame (logand (+ frame_size 15) -16) s_gives frame s_args (+ frame 8)
-		lf (ascii-char 10) tab (ascii-char 9)
+		lf "\n" tab "\t"
 		;an arg that is a reals has to be the right length
 		checks (map (lambda ((pname ptype)) (if (> (shader-size ptype) 1)
 			(cat tab "(vp-cpy-ir :r1 +array_begin :r2)" lf

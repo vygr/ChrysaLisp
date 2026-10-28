@@ -528,8 +528,8 @@
 				(defq my_name (get :clear_text *chat_name*)
 					name (path-name path)
 					is_dm (and *current_sys_id* (nql *current_name* "global"))
-					msg (cat "FILE:" (if is_dm *current_name* "") (ascii-char 10) my_name (ascii-char 10)
-						name (ascii-char 10) data)
+					msg (cat "FILE:" (if is_dm *current_name* "") "\n" my_name "\n"
+						name "\n" data)
 					entry (cat "<" my_name "> @file " path "\n"))
 				(cond
 					(is_dm
@@ -554,7 +554,7 @@
 (defun parse-file-msg (msg)
 	; (parse-file-msg msg) -> :nil | (target sender name data)
 	;the three lines after FILE: and then the bytes, which may have any
-	(defq nl (ascii-char 10) a (find nl msg))
+	(defq nl "\n" a (find nl msg))
 	(when a
 		(defq rest1 (slice msg (inc a) -1) b (find nl rest1))
 		(when b

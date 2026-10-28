@@ -67,7 +67,7 @@
 	;a new key made, 32 bytes at random, 64 hex digits. :nil if there is
 	;one of that name
 	(unless (pii-fstat (keys-file name root))
-		(keys-save (cat (to-lower (hex-encode (random-bytes 32))) (ascii-char 10)) (keys-file name root))
+		(keys-save (cat (to-lower (hex-encode (random-bytes 32))) "\n") (keys-file name root))
 		:t))
 
 (defun keys-use (name &optional root)
@@ -99,7 +99,7 @@
 	;a key given as its words, 64 hex digits or a passphrase, into the
 	;keyring. :nil if it is no key, or there is a key of that name
 	(unless (pii-fstat (keys-file name root))
-		(keys-save (cat (trim text (const (char-class " \t\r\n"))) (ascii-char 10)) (keys-file name root))
+		(keys-save (cat (trim text (const (char-class " \t\r\n"))) "\n") (keys-file name root))
 		(cond
 			((door-key (keys-file name root)) :t)
 			(:t (pii-remove (keys-file name root)) :nil))))

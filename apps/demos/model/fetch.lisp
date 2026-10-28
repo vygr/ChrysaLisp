@@ -23,7 +23,7 @@
 
 (defun main ()
 	(defq msg (mail-read (task-mbox)) reply (slice msg 0 +net_id_size)
-		ask (split (slice msg +net_id_size -1) (ascii-char 10))
+		ask (split (slice msg +net_id_size -1) "\n")
 		path (first ask) picture (if (> (length ask) 1) (second ask) "") got (list)
 		;each address the once
 		take (lambda (url)
@@ -49,4 +49,4 @@
 		(if (nempty? picture) (take picture)))
 	(mail-send reply (if (empty? got) (cat "!" *why*)
 		(apply (const cat) (map (lambda ((url data))
-			(cat url (ascii-char 10) (str (length data)) (ascii-char 10) data)) got)))))
+			(cat url "\n" (str (length data)) "\n" data)) got)))))

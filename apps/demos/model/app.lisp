@@ -109,7 +109,7 @@
 	(elem-set select +select_fetch (defq reply (mail-mbox)))
 	(setq fetching (list pick address picture))
 	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin)
-		(cat reply address (ascii-char 10) (ifn picture ""))))
+		(cat reply address "\n" (ifn picture ""))))
 
 (defun model-source (path)
 	; (model-source path) -> :nil | (obj_text fetch pictures)
@@ -199,7 +199,7 @@
 	;made of them
 	(bind '(pick address picture) fetching)
 	(setq fetching :nil *fetched* (Fmap 11))
-	(defq at 0 nl (ascii-char 10) why (if (starts-with "!" msg) (slice msg 1 -1)))
+	(defq at 0 nl "\n" why (if (starts-with "!" msg) (slice msg 1 -1)))
 	(while (and (not why) (< at (length msg)))
 		(defq e (find nl msg at) url (slice msg at e)
 			e1 (find nl msg (inc e)) n (str-as-num (slice msg (inc e) e1)))

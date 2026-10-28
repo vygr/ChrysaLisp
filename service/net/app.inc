@@ -231,7 +231,7 @@
 			(reduce (lambda (out line)
 				(when (= (length (defq parts (split line " "))) 3)
 					(push out (list (first parts) (hex-decode (to-upper (second parts))) (str-as-num (third parts)))))
-				out) (split (slice reply +net_rpc_reply_size -1) (ascii-char 10)) (list)))))
+				out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))
 
 (defun net-peers-rpc ()
 	; (net-peers-rpc) -> :nil | ((system_id ip port linked build link) ...)
@@ -248,4 +248,4 @@
 		(when (defq reply (mail-read-timeout reply_mbox))
 			(reduce (lambda (out line)
 				(if (= (length (defq parts (split line " "))) 6) (push out parts))
-				out) (split (slice reply +net_rpc_reply_size -1) (ascii-char 10)) (list)))))
+				out) (split (slice reply +net_rpc_reply_size -1) "\n") (list)))))

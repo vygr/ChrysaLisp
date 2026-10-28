@@ -17,8 +17,7 @@
 (env-push)
 
 (defq +tab_width 4 +cls_space (char-class " \t\r")
-	+cls_sym_end (char-class " \t\r()")
-	+cls_dq (char-class (ascii-char +char_double_quote))
+	+cls_sym_end (char-class " \t\r()") +cls_dq (char-class "\q")
 	+cls_rcb (char-class "}")
 	+quote_codes `'(,+char_quote ,+char_tick ,+char_comma ,+char_tilde))
 
@@ -134,8 +133,8 @@
 					"def-bit *key_map_control*")))
 
 ;what the source scanners split a line with, to get its first word
-(defq +cls_docs (char-class (cat " ()'\t\r" (ascii-char 34)))
-	+cls_info (char-class (cat " ()'\t\r{@}<>" (ascii-char 34))) +keep (Fmap 61))
+(defq +cls_docs (char-class " ()'\t\r\q")
+	+cls_info (char-class " ()'\t\r{@}<>\q") +keep (Fmap 61))
 (each (# (. +keep :insert %0 :t)) +scanned)
 (. +blocks :each (# (. +keep :insert %0 %1)))
 
@@ -833,7 +832,7 @@
 								note (and (empty? stack) (or (not is_cmt) note)))))))))
 	;one newline at the end
 	(while (and (nempty? out) (eql (last out) "")) (pop out))
-	(if (empty? out) "" (cat (join out (ascii-char +char_lf)) (ascii-char +char_lf))))
+	(if (empty? out) "" (cat (join out "\n") "\n")))
 
 ;module
 (export-symbols '(format-lisp))

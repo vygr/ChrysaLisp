@@ -10,7 +10,7 @@
 			(each (lambda (line)
 					;a tab as the editor has it, to the next of each 4
 					(defq out "")
-					(each (# (setq out (if (eql %0 (ascii-char 9))
+					(each (# (setq out (if (eql %0 "\t")
 						(cat out (pad "" (- 4 (% (length out) 4))))
 						(cat out %0)))) line)
 					;cut to what fits, its glyphs are not all of a width

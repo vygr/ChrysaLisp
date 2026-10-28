@@ -6,7 +6,7 @@
 ;would, the same to the byte, and run. The bundle is put in the folder of
 ;each mode, a test can not tell a normal image from a validate one
 (bind '(& bt_cpu bt_abi) (map (const sym) (split (load-path) "/")))
-(defq bt_lf (ascii-char 10) bt_id (str (pii-time))
+(defq bt_lf "\n" bt_id (str (pii-time))
 	bt_a (cat "tests/bt_" bt_id "_a") bt_b (cat "tests/bt_" bt_id "_b")
 	bt_obj (cat "obj/" bt_cpu "/" bt_abi "/") bt_src (cat bt_obj "tests/bt_" bt_id ".vp")
 	bt_vpb (map (# (cat %0 "tests/bt_" bt_id ".vpb")) '("obj/vp/" "obj/vp_validate/"))

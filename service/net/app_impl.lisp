@@ -238,7 +238,7 @@
 							(mail-send reply_id (cat (setf-> (str-alloc +net_rpc_reply_size)
 									(+net_rpc_reply_handle 0) (+net_rpc_reply_status 0))
 								(apply (const cat) (cat (list "") (map (lambda ((where head time))
-									(cat where " " (hex-encode head) " " (str (/ (- (pii-time) time) 1000000)) (ascii-char 10)))
+									(cat where " " (hex-encode head) " " (str (/ (- (pii-time) time) 1000000)) "\n"))
 									refusals))))))
 						(+net_rpc_type_hello
 							(if mesh (mesh-heard mesh_peers my_sys_id (slice msg +net_rpc_hello_text -1) (pii-time))))

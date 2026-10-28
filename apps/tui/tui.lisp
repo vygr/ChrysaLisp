@@ -7,7 +7,7 @@
 (defq tmbox (mail-mbox)
 	+LF "\n"
 	+CR "\r"
-	+ESC (ascii-char 27)
+	+ESC "\x1b"
 	+CSI (cat +ESC "[")
 	+state_filename "terminal.tre"
 	+tab_spaces 4

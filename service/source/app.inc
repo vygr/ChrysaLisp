@@ -45,8 +45,8 @@
 	;note away, and the tree is noted at that waypoint still, the first line
 	;of the file waypoint. Of two systems at the same, each has what the
 	;other has, nothing is asked or sent, lib/sync/sync.inc
-	(defq made (first (split (ifn (load "obj/installed") "") (ascii-char 10)))
-		at (first (split (ifn (load "waypoint") "") (ascii-char 10))))
+	(defq made (first (split (ifn (load "obj/installed") "") "\n"))
+		at (first (split (ifn (load "waypoint") "") "\n")))
 	(and made (nempty? made) (eql made at) at))
 
 (defun source-service ()
@@ -96,12 +96,12 @@
 	;files, (path tag text) each, one after another: its path, its tag and
 	;the length of its text on lines of their own, then the text
 	(apply (const cat) (cat (list "") (map (lambda ((path tag text))
-			(cat path (ascii-char 10) tag (ascii-char 10) (str (length text)) (ascii-char 10) text))
+			(cat path "\n" tag "\n" (str (length text)) "\n" text))
 		entries))))
 
 (defun source-unpack (data)
 	; (source-unpack str) -> ((path tag text) ...)
-	(defq out (list) at 0 lf (ascii-char 10))
+	(defq out (list) at 0 lf "\n")
 	(while (< at (length data))
 		(defq a (find lf data at) b (find lf data (inc a)) c (find lf data (inc b))
 			n (str-as-num (slice data (inc b) c)))
@@ -117,7 +117,7 @@
 	;is the one of then, one started again since has another mailbox. :nil
 	;if no node of it is known
 	(when (defq node (first (lisp-nodes (hex-decode sid))))
-		(open-task (cat "(mail-send (hex-decode {" (hex-encode reply) "}) (cat {?" sid "} (ascii-char 10)"
+		(open-task (cat "(mail-send (hex-decode {" (hex-encode reply) "}) (cat {?" sid "} \q\\n\q"
 				" (if (defq s (mail-lowest {@Source})) (hex-encode s) {})))")
 			node +kn_call_pin 0 (mail-mbox))
 		:t))
@@ -130,7 +130,7 @@
 		(mail-timeout (second select) (task-timeout +source_wait) 0)
 		(when (= (mail-select select) 0)
 			(mail-timeout (second select) 0 0)
-			(if (nempty? (defq got (second (split (mail-read (first select)) (ascii-char 10)))))
+			(if (nempty? (defq got (second (split (mail-read (first select)) "\n"))))
 				(hex-decode got)))))
 
 (defun source-stream (sid svc path)
@@ -171,8 +171,8 @@
 	(defq sid (get '*source_system*) svc (get '*source_service*) wp (get '*source_waypoint*))
 	(unless sid (setq sid (hex-encode (system-id)) svc (source-service) wp (source-waypoint)))
 	(ifn svc path
-		(cat "(import {service/source/app.inc})" (ascii-char 10)
-			"(source-import {" sid "} {" (hex-encode svc) "} {" (ifn wp "") "})" (ascii-char 10)
+		(cat "(import {service/source/app.inc})" "\n"
+			"(source-import {" sid "} {" (hex-encode svc) "} {" (ifn wp "") "})" "\n"
 			"(import {" path "})")))
 
 (defun source-mode ()

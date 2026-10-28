@@ -30,7 +30,7 @@
 	; (gopher-lines) -> (state visit)
 	(list 0 '(lambda (n data at count)
 		(defq from 0)
-		(while (and (< from (length data)) (defq i (find (ascii-char 10) data from)))
+		(while (and (< from (length data)) (defq i (find "\n" data from)))
 			(setq n (inc n) from (inc i)))
 		(list n (inc at)))))
 
@@ -65,7 +65,7 @@
 	;the longest line, and how long the one that has not ended yet is
 	(list (list 0 0) '(lambda ((best now) data at count)
 		(defq from 0)
-		(while (and (< from (length data)) (defq i (find (ascii-char 10) data from)))
+		(while (and (< from (length data)) (defq i (find "\n" data from)))
 			(setq best (max best (+ now (- i from))) now 0 from (inc i)))
 		(list (list best (+ now (- (length data) from))) (inc at)))))
 

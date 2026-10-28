@@ -115,8 +115,8 @@
 (assert-eq "a predicate with two asks if it is that class itself" :t (list?? (list)))
 (assert-eq "and a map is not" :nil (list?? (Fmap 1)))
 
-(assert-eq "trim with characters not in order trims nothing" 6 (length (trim (cat "  ab " (ascii-char 10)) " \t\r\n"))) ;check off, the trap itself
-(assert-eq "with a class of them it does" "ab" (trim (cat "  ab " (ascii-char 10)) (char-class " \t\r\n")))
+(assert-eq "trim with characters not in order trims nothing" 6 (length (trim "  ab \n" " \t\r\n"))) ;check off, the trap itself
+(assert-eq "with a class of them it does" "ab" (trim "  ab \n" (char-class " \t\r\n")))
 (assert-error "find of a str of more than one character in a str is an error" (find "elx" "hello"))
 (assert-list-eq "substr is the one for a str in a str" '(2 4) (first (first (substr "hello" "ll"))))
 (assert-error "sort of numbers with nothing said" (sort (list 3 1 2)))

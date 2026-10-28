@@ -108,7 +108,7 @@
 (assert-list-eq "of an object of nothing, nothing is read" '(:start)
 	(store-walk so "a/none" :start (lambda (state data at count) (list :read :nil))))
 ;a search of a sorted object by halves reads few of its blocks
-(defq so_sorted (apply (const cat) (map (# (cat (pad (str %0) 7 "0") (ascii-char 10))) (range 0 4096))))
+(defq so_sorted (apply (const cat) (map (# (cat (pad (str %0) 7 "0") "\n")) (range 0 4096))))
 (store-put so "a/sorted" so_sorted)
 (defun so-search (want)
 	;the block of 512 numbers in order that a number is in: (found reads)

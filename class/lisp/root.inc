@@ -1470,7 +1470,7 @@
 
 (defun get-cstr (obj idx)
 	; (get-cstr str idx) -> str
-	(slice obj idx (find (const (ascii-char 0)) obj idx)))
+	(slice obj idx (find "\x00" obj idx)))
 
 (defmacro set-byte (obj idx val)
 	; (set-byte str idx num) -> str
@@ -1724,6 +1724,7 @@
 ; Boot extension imports
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "lib/consts/chars.inc")
 (import "lib/class/struct.inc")
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")

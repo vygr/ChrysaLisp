@@ -5,13 +5,13 @@
 (defun tt-read (text) (tree-read (string-stream text)))
 
 (bind '(tt_nodes tt_open &ignore) (tt-read (cat
-	";a file" (ascii-char 10)
-	(ascii-char 10)
-	"(defun add (a b)" (ascii-char 10)
-	"	; (add a b) -> num" (ascii-char 10)
-	"	;both of them" (ascii-char 10)
-	"	(+ a b)) ;after" (ascii-char 10)
-	"(defq s \q(not ; a form)\q k :key n 12)" (ascii-char 10))))
+	";a file" "\n"
+	"\n"
+	"(defun add (a b)" "\n"
+	"	; (add a b) -> num" "\n"
+	"	;both of them" "\n"
+	"	(+ a b)) ;after" "\n"
+	"(defq s \q(not ; a form)\q k :key n 12)" "\n")))
 (assert-eq "nothing left open" 0 tt_open)
 (assert-eq "a comment, an empty line, a form, a comment after it, a form" "(:comment :blank :form :comment :form)" (str (map (const first) tt_nodes)))
 (assert-eq "the lines a form is on" "(3 6)" (str (list (second (third tt_nodes)) (elem-get (third tt_nodes) 3))))
@@ -22,9 +22,9 @@
 (assert-eq "its parameters" "(a b)" (tree-text (third tt_fn)))
 (assert-eq "what is said of it" "(\q; (add a b) -> num\q \q;both of them\q)" (str (map (const third) (tree-said (third tt_nodes) tt_nodes 2))))
 (assert-eq "and the lines that is on" "(4 5)" (str (map (const second) (tree-said (third tt_nodes) tt_nodes 2))))
-(bind '(tt_one &ignore) (tt-read (cat "(ffi path name) ;a note" (ascii-char 10) ";of it" (ascii-char 10) ";more" (ascii-char 10) (ascii-char 10) ";not of it")))
+(bind '(tt_one &ignore) (tt-read "(ffi path name) ;a note\n;of it\n;more\n\n;not of it"))
 (assert-eq "of a form on one line, the lines after it" "(\q;of it\q \q;more\q)" (str (map (const third) (tree-said (first tt_one) tt_one 0))))
-(bind '(tt_one &ignore) (tt-read (cat "(defun f (a) ;a note" (ascii-char 10) "	(g a)" (ascii-char 10) "	;later" (ascii-char 10) "	a)")))
+(bind '(tt_one &ignore) (tt-read "(defun f (a) ;a note\n	(g a)\n	;later\n	a)"))
 (assert-eq "a note on its first line, and a comment after its code, are not of it" "()" (str (tree-said (first tt_one) tt_one 0)))
 (assert-eq "it on a line" "(defun add (a b) (+ a b))" (tree-text (third tt_nodes)))
 (assert-eq "brackets and a ; in a string are of the string" "(:symbol :symbol :string1 :symbol :keysym :symbol :number)"
@@ -32,7 +32,7 @@
 (assert-eq "one not closed" 2 (second (tt-read "(a (b c")))
 (assert-eq "one closed that was not open is left out" "(0 1)" (str (list (second (defq tt_r (tt-read "a) (b)"))) (length (filter (# (eql (first %0) :form)) (first tt_r))))))
 ;a string in braces that goes over lines and ends with the first character of one
-(bind '(tt_nodes tt_open &ignore) (tt-read (cat "(cat {one (" (ascii-char 10) "} x {two" (ascii-char 10) "})" (ascii-char 10) "(b)")))
+(bind '(tt_nodes tt_open &ignore) (tt-read "(cat {one (\n} x {two\n})\n(b)"))
 (assert-eq "it ends there, and what is after is code" "(0 2)" (str (list tt_open (length tt_nodes))))
 ;every source file of the system is whole
 (import "lib/files/files.inc")
@@ -57,10 +57,10 @@
 	;run that was stopped part way leaves behind
 	(filter (# (and (nempty? %0) (not (starts-with "tests/scratch/" %0)) (not (starts-with "./tests/scratch/" %0))
 			(not (starts-with "obj/tmp_check_test." %0))))
-		(split (join tt_said "") (ascii-char 10))))
+		(split (join tt_said "") "\n")))
 
 ;the check command, cmd/check.lisp, reads the tree: what can be seen to be wrong from the source
-(defq tt_file "obj/tmp_check_test.lisp" tt_lf (ascii-char 10))
+(defq tt_file "obj/tmp_check_test.lisp" tt_lf "\n")
 (defun tt-check (checks &rest lines)
 	;what check says of a file of these lines, each line it says less the name of the file
 	(save (apply (const cat) (map (# (cat %0 tt_lf)) lines)) tt_file)
@@ -79,11 +79,11 @@
 	(tt-check "progn" "(if a `(progn ~e))" "(if a `(progn b) `(progn c))" "(if a b 'x (progn c))" "(when a `(progn ,b))"
 		"(str `(if a b (progn c)))"))
 (assert-list-eq "class: a string of characters not in order, given where a class is looked up; one in order, one of one, and a (char-class) are not"
-	(list (cat "(2) class: " (ascii-char 34) "ba" (ascii-char 34) " given to (bskip) is not in order, (char-class " (ascii-char 34) "ba" (ascii-char 34) ")")
-		(cat "(5) class: " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) " given to (trim) is not in order, (char-class " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) ")"))
-	(tt-check "class" (cat "(bskip " (ascii-char 34) "ab" (ascii-char 34) " s 0)") (cat "(bskip " (ascii-char 34) "ba" (ascii-char 34) " s 0)")
-		(cat "(bfind c " (ascii-char 34) "x" (ascii-char 34) ")") (cat "(split s (char-class " (ascii-char 34) "ba" (ascii-char 34) "))")
-		(cat "(trim s " (ascii-char 34) " ;" (ascii-char 92) "t" (ascii-char 34) ")")))
+	(list "(2) class: \qba\q given to (bskip) is not in order, (char-class \qba\q)"
+		"(5) class: \q ;\\t\q given to (trim) is not in order, (char-class \q ;\\t\q)")
+	(tt-check "class" "(bskip \qab\q s 0)" "(bskip \qba\q s 0)"
+		"(bfind c \qx\q)" "(split s (char-class \qba\q))"
+		"(trim s \q ;\\t\q)"))
 (assert-list-eq "zero: a number with a point that is 0 as a fixed, and is not written 0"
 	'("(1) zero: 0.000001 is too small for a fixed, it is 0" "(3) zero: -0.00001 is too small for a fixed, it is 0")
 	(tt-check "zero" "(n2r 0.000001)" "(+ 0.0 0.5 0.00002 100 0)" "(* x -0.00001)"))
@@ -94,8 +94,8 @@
 	(tt-check "shadow" "(and first (> x 0))" "(or x list)" "(cond (cat 1) ((cat) 2) (mine 3))" "(if first 1 2)" "(and (first x) mine)"))
 (assert-list-eq "const: a + name given a list of strings or of numbers quoted once; not one quoted twice, nor one that begins with a name"
 	'("(1) const: +a is a list quoted once, ''(...)" "(4) const: +n is a list quoted once, ''(...)")
-	(tt-check "const" (cat "(defq +a '(" (ascii-char 34) ".md" (ascii-char 34) ") b '(1 2)")
-		(cat "	+c ''(" (ascii-char 34) ".md" (ascii-char 34) ")") "	+d '(lambda))" "(defq +n '(1 2 3))"))
+	(tt-check "const" "(defq +a '(\q.md\q) b '(1 2)"
+		"	+c ''(\q.md\q)" "	+d '(lambda))" "(defq +n '(1 2 3))"))
 (assert-list-eq "style: an if of a progn with no else, an if of a not with an else and with none, a cond of one clause"
 	'("(1) style: (if tst (progn ...)) with no else is a (when)" "(2) style: (if (not tst) form else ...) is an (ifn tst form else ...)"
 		"(3) style: a (cond) of one clause" "(7) style: (if (not tst) form) with no else is a (unless tst form)")
@@ -226,6 +226,12 @@
 (assert-list-eq "shift: a logical shift of a difference; not a signed one, nor of a sum"
 	'("(1) shift: (>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")
 	(tt-check "shift" "(>> (- psd m) 5)" "(>>> (- psd m) 5)" "(>> (+ a b) 1)"))
+(assert-list-eq "char: of a code, of a +char_ name and of one with no escape, each the char it is; not of a variable"
+	'("(1) char: (ascii-char 10) is a char, write it \q\\n\q"
+		"(2) char: (ascii-char +char_tab) is a char, write it \q\\t\q"
+		"(3) char: (ascii-char 4) is a char, write it \q\\x04\q"
+		"(4) char: (ascii-char 65) is a char, write it \qA\q")
+	(tt-check "char" "(ascii-char 10)" "(ascii-char +char_tab)" "(ascii-char 4)" "(ascii-char 65)" "(ascii-char x)"))
 ;(relies), where a function goes by more than is declared of what it calls:
 ;a function made up, as an assembled one is left. It calls :sys_mem :alloc,
 ;which takes :r0, gives :r0 and :r1 and is declared to trash :r0 to :r2,

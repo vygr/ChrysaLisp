@@ -8,7 +8,7 @@
 (defq sg_text (cat "a member, two members,\nand a member that is cut by the end of a block\n"
 	"with lines of all lengths\n\n\nand more members at the end member"))
 (defq sg_lines 0)
-(each (# (if (eql %0 (ascii-char 10)) (++ sg_lines))) sg_text)
+(each (# (if (eql %0 "\n") (++ sg_lines))) sg_text)
 (each (lambda (size)
 	(assert-eq (cat "bytes, blocks of " (str size)) (length sg_text) (gopher-fold (gopher-bytes) sg_text size))
 	(assert-eq (cat "lines, blocks of " (str size)) sg_lines (gopher-fold (gopher-lines) sg_text size))

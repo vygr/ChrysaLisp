@@ -75,8 +75,8 @@
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
 			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	(assert-list-eq "what it has can be a str with spaces and quotes in it, and comes back as it was"
-		(list (cat "a " (ascii-char 34) "b" (ascii-char 34) " c 3"))
-		(sg-walk "a/big" (cat "a " (ascii-char 34) "b" (ascii-char 34) " c")
+		(list "a \qb\q c 3")
+		(sg-walk "a/big" "a \qb\q c"
 			'(lambda (state data at count) (list (cat state " " (str count)) :nil)) :nil :nil sg_svc))
 	(assert-list-eq "and it says where it had been, the one member, from the first block" (list (list (hex-encode (system-id)) 0))
 		(second (storage-walk "a/big" 0 '(lambda (state data at count) (list state (inc at))) :nil :nil sg_svc)))
@@ -198,7 +198,7 @@
 		(first (storage-walk "a/big" 0 '(lambda (sum data at count)
 			(list (reduce (# (+ %0 (code data 1 %1))) (range 0 (length data)) sum) (inc at))) :nil :nil sg_svc)))
 	;a search by halves of 4096 numbers in order, 512 a block
-	(storage-put "a/sorted" (apply (const cat) (map (# (cat (pad (str %0) 7 "0") (ascii-char 10))) (range 0 4096))) :nil sg_svc)
+	(storage-put "a/sorted" (apply (const cat) (map (# (cat (pad (str %0) 7 "0") "\n")) (range 0 4096))) :nil sg_svc)
 	(defun sg-search (want)
 		(first (storage-walk "a/sorted" (list want :nil 0 0 7)
 			'(lambda ((want found reads lo hi) data at count)
@@ -283,7 +283,7 @@
 (defq sg_key (cat "tests/scratch/key_" (str (pii-pid))) sg_said (cat "tests/scratch/member_" (str (pii-pid)))
 	sg_claim (cat "tests/scratch/claim_" (str (pii-pid)) ".img"))
 (assert-eq "a machine with no key has no store of its mesh" :nil (storage-key-id sg_key))
-(save (cat "a pass phrase" (ascii-char 10)) sg_key)
+(save "a pass phrase\n" sg_key)
 (defq sg_id (storage-key-id sg_key))
 (assert-true "one with a key has: an id made from it" (and (str? sg_id) (starts-with "mesh-" sg_id) (= (length sg_id) 21)))
 (assert-true "which is not the key, nor has it in it" (not (found? sg_id "pass")))

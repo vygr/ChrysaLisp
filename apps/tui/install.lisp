@@ -19,7 +19,7 @@
 (print)
 (defq files (load (boot-files-file (cpu) (abi)))
 	built (and files (eql (trim (ifn (load (boot-id-file (cpu) (abi))) ""))
-		(boot-id-of (filter (const nempty?) (split files (ascii-char 10)))))))
+		(boot-id-of (filter (const nempty?) (split files "\n"))))))
 (when (or (> errors 0) (not built))
 	(save (if built "errors" "no image") "obj/install_failed")
 	(print "Install failed: " (if (> errors 0) (cat (str errors) " errors in the build") "no native boot image of this source"))

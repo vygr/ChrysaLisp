@@ -25,8 +25,8 @@
 	;name of each and the hash of what is in it, all hashed
 	(defq ctx (sha256-start))
 	(each (lambda (file)
-		(sha256-add ctx (cat file (ascii-char 10)
-			(sha256 (ifn (load file) "")) (ascii-char 10))))
+		(sha256-add ctx (cat file "\n"
+			(sha256 (ifn (load file) "")) "\n")))
 		(sort (cat files)))
 	(to-lower (hex-encode (sha256-end ctx))))
 
@@ -44,7 +44,7 @@
 	;has them now, :nil if it was made before their names were kept. Not
 	;the boot image's own id, it was made from other source than is here
 	(when (defq text (load (cat (load-path) "sys/boot_files")))
-		(boot-id-of (filter (const nempty?) (split text (ascii-char 10))))))
+		(boot-id-of (filter (const nempty?) (split text "\n")))))
 
 (defun boot-id ()
 	; (boot-id) -> hex | ""

@@ -115,7 +115,7 @@
 					(push lines (cat name " " hash))
 					(each (# (push todo %0)) (source-links-of mode name)))
 				((setq lines :nil todo (list))))))
-	(if lines (join lines (ascii-char 10))))
+	(if lines (join lines "\n")))
 
 (defun source-entries (mode names)
 	; (source-entries mode names) -> data
@@ -178,7 +178,7 @@
 						(if (and (source-caching?) (defq kept (load (source-cache theirs))))
 							(push natives kept)
 							(push missing name)))))
-			(split manifest (ascii-char 10)))
+			(split manifest "\n"))
 		;the node's own that link to theirs, and to those, till no more
 		(defq more :t)
 		(while more
@@ -235,14 +235,14 @@
 				(defq file (elem-get paths at))
 				(each (lambda (line)
 						(when (found? line "(import ")
-							(defq pieces (split line (const (cat (ascii-char 34) "{}"))))
+							(defq pieces (split line "\q{}"))
 							(each! (lambda (piece)
 									(and (ends-with "(import " (elem-get pieces (dec (!))))
 										(defq name (catch (path-to-absolute piece file) :nil))
 										(/= (age name) 0) (source-given? name) (not (find name paths))
 										(push paths name)))
 								(list pieces) 1)))
-					(split (ifn (load file) "") (ascii-char 10)))
+					(split (ifn (load file) "") "\n"))
 				(setq at (inc at)))
 			(. *source_trees* :insert root (list (map (# (list %0 (age %0))) paths) paths))
 			paths)))
@@ -291,7 +291,7 @@
 		((. *source_kept* :find key) (source-count :kept) (source-bundle svc (list path)))
 		(out (push (second out) (getf *source_msg* +source_rpc_reply_id)) :nil)
 		(:t (. *source_out* :insert key (list (pii-time) (list (getf *source_msg* +source_rpc_reply_id)) sid path :nil))
-			(source-tell svc (cat "&" key (ascii-char 10) path))
+			(source-tell svc (cat "&" key "\n" path))
 			:nil)))
 
 (defun source-beat ()
@@ -326,7 +326,7 @@
 							((defq there (. *source_out* :find key))
 								(each (# (push (second there) %0)) waiters))
 							(:t (. *source_out* :insert key (list (pii-time) waiters sid path :t))
-								(source-tell svc (cat "&" key (ascii-char 10) path))))))))
+								(source-tell svc (cat "&" key "\n" path))))))))
 		(. *source_out* :tolist))
 	(if (nempty? svc) (. *source_svcs* :insert sid svc)))
 
@@ -335,7 +335,7 @@
 	;those the same as the copy here are kept as L, and the text of the
 	;rest asked for. *: those texts, kept as T. Then the tasks that wait
 	;are given them. ?: which @Source a system has now, (source-seek)
-	(defq at (find (ascii-char 10) msg) key (slice msg 1 at) body (slice msg (inc at) -1)
+	(defq at (find "\n" msg) key (slice msg 1 at) body (slice msg (inc at) -1)
 		at (find " " key) svc (if at (slice key 0 at)))
 	(cond
 		((starts-with "?" msg) (source-found key body))
@@ -349,10 +349,10 @@
 							(if (eql theirs (source-file-hash path))
 								(. *source_kept* :insert (cat svc " " path) (list "L" ""))
 								(push want path)))
-						(split body (ascii-char 10)))
+						(split body "\n"))
 					(. *source_known* :insert key tree)
 					(if (empty? want) (source-done key)
-						(source-tell svc (cat "*" key (ascii-char 10) (join want (ascii-char 10))))))))
+						(source-tell svc (cat "*" key "\n" (join want "\n")))))))
 		((starts-with "*" msg)
 			(each (lambda ((path tag text)) (. *source_kept* :insert (cat svc " " path) (list tag text)))
 				(source-unpack body))
@@ -362,17 +362,17 @@
 	; (source-tree-answer args) -> answer
 	;"&key\npath" of a @Source elsewhere: the key back, then the path and
 	;hash of the file and each it imports, a line each, n if not given
-	(defq at (find (ascii-char 10) args) key (slice args 0 at) file (slice args (inc at) -1))
-	(cat "&" key (ascii-char 10)
+	(defq at (find "\n" args) key (slice args 0 at) file (slice args (inc at) -1))
+	(cat "&" key "\n"
 		(if (and (source-given? file) (/= (age file) 0))
-			(join (map (# (cat %0 " " (source-file-hash %0))) (source-tree file)) (ascii-char 10))
+			(join (map (# (cat %0 " " (source-file-hash %0))) (source-tree file)) "\n")
 			"n")))
 
 (defun source-texts-answer (args)
 	; (source-texts-answer args) -> answer
 	;"*key\npath..." of a @Source elsewhere: the key back, then those files
-	(defq paths (split args (ascii-char 10)) key (first paths))
-	(cat "*" key (ascii-char 10)
+	(defq paths (split args "\n") key (first paths))
+	(cat "*" key "\n"
 		(source-pack (map! (# (if (source-given? %0) (list %0 "T" (ifn (load %0) "")) (list %0 "n" "")))
 			(list paths) 1 -1))))
 

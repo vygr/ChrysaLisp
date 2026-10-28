@@ -6,7 +6,7 @@
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
-(defq sh_lf (ascii-char 10))
+(defq sh_lf "\n")
 
 (defun sh-src (&rest lines)
 	;a program from the lines of its source
@@ -1233,7 +1233,7 @@
 	si_use_bad (cat "obj/tmp_si_" si_tag "_use_bad.shader")
 	si_twice "(defun twice :float ((x :float)) (* x 2.0))"
 	si_body "(defun main :vec4 ((frag :vec2)) (vec4 (twice 0.25)))")
-(defun si-imp (file) (cat "(import " (str (ascii-char 34)) file (str (ascii-char 34)) ")" sh_lf))
+(defun si-imp (file) (cat "(import " (str "\q") file (str "\q") ")" sh_lf))
 (save si_twice si_lib)
 (defq si_thrice "(defun thrice :float ((x :float)) (+ x (twice x)))")
 (save (cat (si-imp si_lib) si_thrice) si_lib2)
@@ -1245,7 +1245,7 @@
 (defq si_key (elem-get (shader-load si_main) 5))
 (save "(defun twice :float ((x :float)) (+ x x))" si_lib)
 (assert-true "a change to a file it imports is a change of key" (not (eql si_key (elem-get (shader-load si_main) 5))))
-(save (cat "(import " (str (ascii-char 34)) "./" (slice si_lib 4 -1) (str (ascii-char 34)) ")" sh_lf si_body) si_dot)
+(save (cat "(import " (str "\q") "./" (slice si_lib 4 -1) (str "\q") ")" sh_lf si_body) si_dot)
 (assert-true "a path with ./ is from the folder of the file" (shader-load si_dot))
 (save (cat (si-imp si_b) "(defun fa :float ((x :float)) x)") si_a)
 (save (cat (si-imp si_a) "(defun fb :float ((x :float)) x)") si_b)

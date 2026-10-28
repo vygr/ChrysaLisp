@@ -11,7 +11,7 @@
 	"(defq a (load \qapps/demos/surface/surface.shader\q) b {cmd/tests.lisp})"
 	"(pipe-run \qsort -r | head -n 2\q print)"
 	"(defq me \qtests/system/test_suite_cache.lisp\q)"
-	"(defq no_string (+ 1 2) path lib/task/pipe.inc)") (ascii-char 10))))
+	"(defq no_string (+ 1 2) path lib/task/pipe.inc)") "\n")))
 (assert-list-eq "what a file names"
 	'("apps/demos/surface/surface.shader" "cmd/head.lisp" "cmd/sort.lisp" "cmd/tests.lisp"
 		"lib/files/files.inc" "tests/system/test_pipe.lisp")
@@ -28,7 +28,7 @@
 ;what calls it, by the function: a change to AES is not a change to SHA-256
 (assert-true "no library's native code is under every module"
 	(notany (# (and (starts-with "lib/" %0) (ends-with ".vp" %0))) (test-core)))
-(defq sc_aes (split (test-native-text "lib/crypto/lisp.vp" "aes_ctr_xor") (ascii-char 10)))
+(defq sc_aes (split (test-native-text "lib/crypto/lisp.vp" "aes_ctr_xor") "\n"))
 (assert-true "a native function is its own block, and not the others of its file"
 	(and (some (# (test-def-func? %0 "aes_ctr_xor")) sc_aes)
 		(notany (# (test-def-func? %0 "sha256_blocks")) sc_aes)))

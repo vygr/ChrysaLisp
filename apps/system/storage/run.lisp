@@ -16,7 +16,7 @@
 (import "service/storage/scene.inc")
 
 ;how long lines are kept before they are sent, and how many at most
-(defq +run_hold 100000 +run_most 400 +run_lf (ascii-char 10))
+(defq +run_hold 100000 +run_most 400 +run_lf "\n")
 
 (defun main ()
 	(bind '(to what) (split (mail-read (task-mbox)) +run_lf))

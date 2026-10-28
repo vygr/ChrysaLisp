@@ -44,7 +44,7 @@
 						((< (length parts) 2))
 						((eql (first parts) "link") (pii-remove (cat "/tmp/" (second parts))))
 						((find (first parts) '("pid" "front")) (push todo (str-as-num (second parts))))))
-					(split text (ascii-char 10)))
+					(split text "\n"))
 				(pii-remove file)))))
 
 (defun rack-fresh (phases &optional user gui asker)
@@ -59,12 +59,12 @@
 	;what a session says is mailed to it as it comes, "LINE text", and
 	;if its node has gone the session is let go, and stops
 	;the form has no space or tab in it, a node's args are split at those
-	(defq acc (list) tab (ascii-char 11) machine (cat (cpu) "/" (os)))
+	(defq acc (list) tab "\v" machine (cat (cpu) "/" (os)))
 	(each (lambda (cmds)
 		;the name of this run, the session is told it as it is told its user
 		(defq run (cat "_" (str (pii-pid)) "_" (str (pii-time)))
 			cmds_file (cat +rack_cmds run) out_file (cat +rack_out run) alive_file (cat +rack_alive run))
-		(save (join cmds (ascii-char 10)) cmds_file)
+		(save (join cmds "\n") cmds_file)
 		(save (str (pii-time)) alive_file)
 		;a desktop of a run is hidden, it draws and is grabbed but is never
 		;seen and never takes the input of whoever is at the machine, Chris:
@@ -83,9 +83,9 @@
 		;three times on a desktop of its own, tests -a, it is 310s to 370s,
 		;past the 340s this was. Under the 1770s the asker waits for the reply,
 		;only a run that has died: one that hangs shows where, line by line
-		(defq t0 (pii-time) res :nil done (cat "s]" (ascii-char 10)) told 0 beat 0 quiet 30
+		(defq t0 (pii-time) res :nil done "s]\n" told 0 beat 0 quiet 30
 			asker_node (if asker (slice asker +mailbox_id_size -1)) seen (pii-time)
-			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text (ascii-char 10))))))
+			said (lambda (text) (if asker (mail-send asker (cat "LINE " machine " RACK " text "\n")))))
 		;said at once either way: a run of tests may say nothing of its own
 		;for a minute, the first after a build on a small machine
 		(said (if (< pid 0) "session could not be started" "session started"))
@@ -108,9 +108,9 @@
 			;each with the machine it is of, as several come at once
 			(when (and asker res (> (length res) told)
 					;just past the last whole line, (rfind) is past what it finds
-					(defq cut (rfind (ascii-char 10) res)) (> cut told))
-				(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 (ascii-char 10)))
-					(split (slice res told (dec cut)) (ascii-char 10))))))
+					(defq cut (rfind "\n" res)) (> cut told))
+				(mail-send asker (cat "LINE " (apply (const cat) (map (# (cat machine " " %0 "\n"))
+					(split (slice res told (dec cut)) "\n")))))
 				(setq told cut))
 			(when (> (- (pii-time) beat) 1000000)
 				(save (str (setq beat (pii-time))) alive_file))
@@ -119,7 +119,7 @@
 			(and (> pid 0) (not (pii-alive pid)) (said "session ended with no result"))
 			(setq res :nil))
 		(each (# (if (pii-fstat %0) (pii-remove %0))) (list cmds_file out_file alive_file))
-		(push acc (ifn res (cat "NO RESULT" (ascii-char 10)))))
+		(push acc (ifn res "NO RESULT\n")))
 		phases)
 	(apply (const cat) (cat (list "") acc)))
 
@@ -183,7 +183,7 @@
 			(:t (open-task (str `(progn
 					(import "lib/rack/rack.inc")
 					(mail-send (hex-decode ,(hex-encode reply_mbox))
-						(cat ,machine (ascii-char 10) (rack-fresh (quote ,phases) ,user ,gui
+						(cat ,machine "\n" (rack-fresh (quote ,phases) ,user ,gui
 							(hex-decode ,(hex-encode reply_mbox)))))))
 					(first nodes) +kn_call_pin 0 (mail-mbox))
 				(setq asked (inc asked)))))
@@ -205,6 +205,6 @@
 					(or (found? %0 "Modules") (found? %0 "Passed") (found? %0 "Failed")
 					(found? %0 "FAIL") (found? %0 "rror") (found? %0 "boot_image") (found? %0 "/")
 					(found? %0 "RESULT") (starts-with "[" %0))))
-				(split reply (ascii-char 10))) " "))))))
+				(split reply "\n")) " "))))))
 		replies)
 	(push out (cat "DONE " (str (/ (- (pii-time) t0) 1000)) "ms")))

@@ -4,7 +4,7 @@
 
 ;the key of a machine, from its file
 (defq dr_file "tests/scratch/door_key_test" dr_hex "00112233445566778899aabbccddeeff00112233445566778899AABBCCDDEEFF")
-(save (cat dr_hex (ascii-char 10)) dr_file)
+(save (cat dr_hex "\n") dr_file)
 (assert-eq "64 hex digits are the 32 bytes" (hex-decode (to-upper dr_hex)) (door-key dr_file))
 (save "  " dr_file)
 (assert-eq "a file of nothing is no key" :nil (door-key dr_file))

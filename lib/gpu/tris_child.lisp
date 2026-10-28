@@ -93,7 +93,7 @@
 				(cat (shader-unpack pixel (slice msg (+ blocks vlen) (+ blocks vlen plen)))
 					(map (lambda ((name) named) (list name (picture named)))
 						(shader-textures pixel)
-						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) (ascii-char 10))))
+						(split (slice msg (+ blocks vlen plen) (+ blocks vlen plen tlen)) "\n")))
 				(elem-get '(:nil :t :front) cull) 3 0 y width y1 y))
 		(setq at (+ blocks vlen plen tlen)))
 	(unless gone

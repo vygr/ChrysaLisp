@@ -86,7 +86,7 @@
 	;32 bits, blue green red alpha, as a pixmap reads them
 	(defq channels (png-channels colour) bits (* channels depth)
 		row_len (/ (+ (* width bits) 7) 8) step (max 1 (/ bits 8))
-		prev (apply (const cat) (fill (list) row_len (ascii-char 0)))
+		prev (apply (const cat) (fill (list) row_len "\x00"))
 		most (dec (<< 1 depth)) row 0)
 	(while (< row height)
 		(task-slice)

@@ -14,7 +14,7 @@
 (defun main ()
 	;one with nothing to do for a while goes
 	(job-child 5000000 (lambda (msg mbox)
-		(bind '(what svc path file) (split (slice msg +job_size -1) (ascii-char 10)))
+		(bind '(what svc path file) (split (slice msg +job_size -1) "\n"))
 		(defq svc (hex-decode svc)
 			answer (catch (cond
 					((eql what "p")

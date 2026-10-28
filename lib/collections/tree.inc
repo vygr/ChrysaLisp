@@ -84,7 +84,7 @@
 	(when stream
 		(setd key_filters '())
 		(defq out (list) stack (list root out)
-			ws (const (pad "" 8 (ascii-char 9))) wc 1)
+			ws (const (pad "" 8 "\t")) wc 1)
 		;convert to typed list tree
 		(while (defq l (pop stack) c (pop stack))
 			(push l (list (defq type (tree-type c)) (tree-buckets c type)))

@@ -36,7 +36,7 @@
 	(defq out (list) t0 (pii-time))
 	(pipe-run cmd (# (push out %0)))
 	(if opt_v (print cmd ": " (/ (- (pii-time) t0) 1000) "ms"))
-	(filter (# (nempty? (trim %0))) (split (apply (const cat) (cat (list "") out)) (ascii-char 10))))
+	(filter (# (nempty? (trim %0))) (split (apply (const cat) (cat (list "") out)) "\n")))
 
 (defun build-errors (cmd said)
 	; (build-errors cmd said) -> said

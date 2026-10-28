@@ -7,7 +7,7 @@
 (import "lib/gpu/cpu.inc")
 (import "lib/gpu/vp.inc")
 
-(defq tx_lf (ascii-char 10))
+(defq tx_lf "\n")
 
 (defun tx-src (&rest lines)
 	;a program from the lines of its source

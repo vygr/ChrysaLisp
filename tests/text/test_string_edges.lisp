@@ -23,7 +23,7 @@
 	(code "AB" 2) 16961
 	(code "ABC" 1 1) 66
 	(ascii-code "A") 65
-	(ascii-char 97) "a"
+	"a" "a"
 	(ascii-upper 97) 65		(ascii-lower 65) 97
 	;not a letter, left alone
 	(ascii-upper 33) 33)

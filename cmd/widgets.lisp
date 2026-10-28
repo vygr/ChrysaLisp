@@ -58,7 +58,7 @@
 	(defq todo (list (list tree 0)))
 	(while (defq next (pop todo))
 		(bind '(view depth) next)
-		(defq line (list (pad "" depth (ascii-char 9)) (slice (str (. view :find :type)) 1 -1)
+		(defq line (list (pad "" depth "\t") (slice (str (. view :find :type)) 1 -1)
 			" " (join (map (const str) (. view :find :bounds)) " ")))
 		(. view :each (lambda (k v)
 			(unless (or (find k '(:type :bounds :children)) (and (not all) (find k +working)))
