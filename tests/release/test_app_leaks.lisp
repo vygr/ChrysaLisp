@@ -1,32 +1,78 @@
-(report-header "Apps on a desktop: each, opened and closed, leaves its node as it was")
+(report-header "Apps on a desktop: each opens its window and draws its words, and opened and closed, leaves its node as it was")
 
 ;A release test, tests -a. A desktop of its own is started, hidden and
 ;silent, and each app is opened on its node and closed as a user would,
-;five times. What the node holds is read after each, with what a task's
-;end lets go of let go of first, (kernel-stats :t). The first time may
-;leave what is kept once. After it, one that leaves more each of the four
-;times, by more than a little, leaks each time it is used: a view that
-;holds its own frame, a buffer never given back. On a slow machine what an
-;app let go of is still being let go of as the node is read, and it reads
-;more one time and less the next: that is not a leak, and it goes down as
-;often as up. What tests -e finds of a module this finds of an app on a
-;desktop
+;four times. The first time its window is looked at, as widgets gives it,
+;not a picture: a window is to come, its words to be drawn, and no view of
+;it to have a plain property found as nothing. What only a desktop shows:
+;the chess game's default config broke its board and it had no window,
+;every Text failed to draw, the words of a text field in a page of Docs
+;had no ink, and no test of the suite could see any of those.
+;
+;What the node holds is read after each open, with what a task's end lets
+;go of let go of first, (kernel-stats :t). The first time may leave what
+;is kept once. After it, one that leaves more each of the three times, by
+;more than a little, leaks each time it is used: a view that holds its own
+;frame, a buffer never given back. On a slow machine what an app let go of
+;is still being let go of as the node is read, and it reads more one time
+;and less the next: that is not a leak, and it goes down as often as up.
+;What tests -e finds of a module this finds of an app on a desktop
 
 (import "usr/env.inc")
 (import "lib/files/files.inc")
 (import "service/gui/lisp.inc")
 
 ;not those that are the desktop's own, nor those that end it or log in.
-;Not Raymarch: it makes its whole film, seconds of the GPU or every node.
-;Not Benchmark: its work is a build of the whole system, spread over the
-;nodes, whose passing allocations move the node by tens of KB either way;
-;four builds in one task hold no more than one
-(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch" "tools/benchmark")
+;Not Raymarch: it makes its whole film, seconds of the GPU or every node,
+;and its window draws only that. Benchmark is opened once, for its window:
+;its work is a build of the whole system, spread over the nodes, whose
+;passing allocations move the node by tens of KB either way; three builds
+;in one task hold no more than one
+(defq al_skip (cat (list "system/login" "system/logout" "system/launcher" "system/wallpaper" "demos/raymarch")
 		(get :launcher_auto_apps *env*))
+	al_once (list "tools/benchmark")
 	al_apps (sort (filter (lambda (app) (not (find app al_skip)))
 		(map (# (slice %0 5 -10)) (filter (# (= (length (split %0 "/")) 4)) (files-all "apps" '("app.lisp"))))))
 	al_before (lisp-nodes :t) al_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp"))
-	al_t0 (pii-time) al_began (pii-time) al_gui :nil al_node :nil al_probe :nil)
+	al_t0 (pii-time) al_began (pii-time) al_gui :nil al_node :nil al_probe :nil
+	al_undrawn (list) al_nothing (list) al_keys (list :type :text :text_cache :paper :ink :font))
+
+(defun al-screen (&optional depth keys)
+	; (al-screen [depth keys]) -> :nil | tree
+	;the screen and its windows, a level down if not said
+	(and (str?? (defq text (gui-tree-rpc "" :nil :nil (ifn depth 1) (ifn keys (list :type)))))
+		(starts-with "(" text)
+		(tree-load (string-stream text))))
+
+(defun al-nodes (tree)
+	; (al-nodes tree) -> (node ...)
+	;each view of a tree as widgets gives it, no function here calls itself
+	(defq out (list) todo (list tree))
+	(while (defq node (pop todo))
+		(push out node)
+		(each (# (push todo %0)) (ifn (. node :find :children) (list))))
+	out)
+
+(defun al-title (nodes)
+	; (al-title nodes) -> str
+	(ifn (some (# (if (eql (str (. %0 :find :type)) ":Title") (. %0 :find :text))) nodes) "?"))
+
+(defun al-look ()
+	;the window in front, the app's, as widgets gives it: its words drawn,
+	;and no plain property found as nothing. A Text has a :text_cache once
+	;drawn, its words are its label's, found up the tree
+	(defq front (some (# (if (nql (al-title (al-nodes %0)) "?") %0))
+			(ifn (. (ifn (al-screen 6 (list :type :text)) (Emap)) :find :children) (list)))
+		title (if front (al-title (al-nodes front)) "?"))
+	(when (and (nql title "?") (str?? (defq text (gui-tree-rpc title :nil :nil 100 al_keys)))
+			(starts-with "(" text))
+		(defq nodes (al-nodes (tree-load (string-stream text)))
+			texts (filter (# (eql (str (. %0 :find :type)) ":Text")) nodes))
+		(and (nempty? texts) (notany (# (. %0 :find :text_cache)) texts)
+			(push al_undrawn title))
+		(if (some (lambda (node) (some (# (and (. node :find %0) (eql (. node :find %0) :nil)))
+				'(:paper :ink :font))) nodes)
+			(push al_nothing title))))
 
 (defun al-probe-start ()
 	; (al-probe-start) -> :nil | mbox
@@ -86,18 +132,20 @@
 	; (al-windows) -> num
 	(length (ifn (gui-owners-rpc) (list))))
 
-(defun al-run (app desk)
-	; (al-run app desk)
-	;the app opened on the desktop's node, its window waited for, closed as
-	;a user would, and waited for till its task and its window have gone,
-	;and the tasks it started there: a child that finishes what it was
-	;doing first, a build or a farm's part, still holds what it uses
+(defun al-run (app desk &optional look)
+	; (al-run app desk [look])
+	;the app opened on the desktop's node, its window waited for, looked at
+	;if asked, (al-look), closed as a user would, and waited for till its
+	;task and its window have gone, and the tasks it started there: a child
+	;that finishes what it was doing first, a build or a farm's part, still
+	;holds what it uses
 	(test-note (cat app " opened, " (str (/ (- (pii-time) al_began) 1000000)) "s in"))
 	(defq tasks (al-tasks)
 		mbox (open-remote (cat "apps/" app "/app.lisp") al_node +kn_call_pin))
 	(while (<= (al-windows) desk) (task-sleep 50000))
 	(test-note (cat app " up, closing, " (str (/ (- (pii-time) al_began) 1000000)) "s in"))
 	(task-sleep 300000)
+	(if look (al-look))
 	(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 		(+ev_msg_type +ev_type_action)
 		(+ev_msg_target_id +event_close)
@@ -132,14 +180,18 @@
 			(setq was desk desk (al-windows)))
 		(defq al_grew (list))
 		(each (lambda (app)
-				(al-run app desk)
-				(defq was (al-settled) grew (list))
-				(times 4
-					(al-run app desk)
-					(push grew (- (defq now (al-settled)) was))
-					(setq was now))
-				(if (every (# (> %0 4096)) grew) (push al_grew (cat app " " (str grew)))))
+				(al-run app desk :t)
+				(unless (find app al_once)
+					(defq was (al-settled) grew (list))
+					(times 3
+						(al-run app desk)
+						(push grew (- (defq now (al-settled)) was))
+						(setq was now))
+					(if (every (# (> %0 4096)) grew) (push al_grew (cat app " " (str grew))))))
 			al_apps)
+		(assert-true "there were apps to try" (> (length al_apps) 40))
+		(assert-list-eq "every window draws its words" '() al_undrawn)
+		(assert-list-eq "no view of a window has :paper :ink or :font as nothing" '() al_nothing)
 		(assert-list-eq "no app leaves its node holding more each time it is opened and closed" '() al_grew)))
 
 ;the desktop goes, and the network is as it was
