@@ -7,7 +7,10 @@
 ;to a task that is sent, it is said to nobody else
 ;one. Tests at once may each start one where a session has none up, as
 ;a rack one has no terminal to: two started together give way to the
-;lowest, (mail-single), within a second, so this waits for that
+;lowest, (mail-single), within a second, so this waits for that. The
+;session's own may come up later still, and be the lowest, so the one
+;there is now is looked up each time one is written into a task or a
+;request, as any task does; an ask finds it again by itself
 (open-child "service/source/app.lisp" +kn_call_run)
 (until (= 1 (length (mail-enquire "@Source,"))) (task-sleep 10000))
 (defq so_svc (source-service))
@@ -28,11 +31,11 @@
 
 ;a stream of a file of a system: of the file on this one, asked of the
 ;service where the system is another, the same either way
-(defq so_here (source-stream (hex-encode (system-id)) so_svc so_inc)
-	so_there (source-stream "0" so_svc so_inc))
+(defq so_here (source-stream (hex-encode (system-id)) (source-service) so_inc)
+	so_there (source-stream "0" (source-service) so_inc))
 (assert-eq "a file of this system is read as a file" (load so_inc) (read-blk so_here 100000))
 (assert-eq "of another, asked of its service, the same" (load so_inc) (read-blk so_there 100000))
-(assert-eq "and none if it will not give it" :nil (source-stream "0" so_svc "mesh_key"))
+(assert-eq "and none if it will not give it" :nil (source-stream "0" (source-service) "mesh_key"))
 
 ;a system at the same waypoint as this one: what it has this one has, a
 ;file of it is read here and nothing is asked of a @Source, not even of
@@ -63,7 +66,7 @@
 (assert-true "it runs, and replies" (> (so-child so_task) 0))
 (assert-true "and from another system, its imports asked of the service"
 	(> (so-child (cat "(import {service/source/app.inc})" (ascii-char 10)
-		"(source-import {0} {" (hex-encode so_svc) "})" (ascii-char 10)
+		"(source-import {0} {" (hex-encode (source-service)) "})" (ascii-char 10)
 		"(import {apps/system/netmon/child.lisp})")) 0))
 
 ;and from another system at the same waypoint as this one, its @Source a
@@ -93,7 +96,7 @@
 	;what a task of the other system has of its servers, and of the native
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" (ascii-char 10)
-		"(source-import {" so_sid "} {" (hex-encode so_svc) "})" (ascii-char 10)
+		"(source-import {" so_sid "} {" (hex-encode (source-service)) "})" (ascii-char 10)
 		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (list (task-server)"
 		" (catch (progn (ffi {" fn "} f) (length (f))) :failed))))") +kn_call_pin)
 	(mail-read mbox))
@@ -127,8 +130,7 @@
 
 ;a task of another system linked as that system: the node's functions that
 ;call one of its own, all the way down, linked again for its tasks
-(defq sl_svc so_svc
-	sl_dir "obj/vp/tests/source_lk/"
+(defq sl_dir "obj/vp/tests/source_lk/"
 	sl_f "tests/source_lk/f" sl_g "tests/source_lk/g"
 	sl_sender (cat sl_dir "sender.txt"))
 
@@ -172,7 +174,7 @@
 ;task of a system that has the same VP as the node
 (save (cat (str (sl-f)) (ascii-char 10) (str (sl-g 1))) (cat sl_dir "lisp.vp"))
 (when (source-caching?)
-	(assert-eq "the node's f calls the node's g" "1" (sl-run "Tlk" sl_svc sl_f))
+	(assert-eq "the node's f calls the node's g" "1" (sl-run "Tlk" (source-service) sl_f))
 
 	;another system, its @Source a task here that answers as one: its f is
 	;the same VP as the node's, its g its own way, it gives 2. The name is
@@ -190,7 +192,7 @@
 		+kn_call_run)
 	(defq sl_other (hex-decode (mail-read mbox)))
 	(assert-eq "its task's f, the node's, links to its own g" "2" (sl-run "Ulk" sl_other sl_f))
-	(assert-eq "and the node's f still to the node's" "1" (sl-run "Tlk" sl_svc sl_f))
+	(assert-eq "and the node's f still to the node's" "1" (sl-run "Tlk" (source-service) sl_f))
 	(each (# (pii-remove (cat (load-path) %0))) (list sl_f sl_g))
 	(pii-remove sl_sender))
 (pii-remove (cat sl_dir "lisp.vp"))
@@ -199,7 +201,7 @@
 ;that system, which has its files, not as of the one it runs on
 (defq mbox (mail-mbox))
 (open-child (cat "(import {service/source/app.inc})" (ascii-char 10)
-	"(source-import {Ulk} {" (hex-encode sl_svc) "})" (ascii-char 10)
+	"(source-import {Ulk} {" (hex-encode (source-service)) "})" (ascii-char 10)
 	"(mail-send (hex-decode {" (hex-encode mbox) "}) (source-task {apps/system/netmon/child.lisp}))")
 	+kn_call_pin)
 (assert-true "a task it sends names its originator" (found? (mail-read mbox) "{Ulk}"))
@@ -210,13 +212,13 @@
 ;second task like it is answered from what was kept, that system not asked
 (defun so-stats ()
 	; (so-stats) -> (asked kept told sought)
-	(first (read (string-stream (source-ask so_svc "!")))))
+	(first (read (string-stream (source-ask (source-service) "!")))))
 (defun so-tree-task ()
 	;what a task of the other system was given, as it imports Mandelbrot's
 	;app.inc and so all that imports
 	(defq mbox (mail-mbox))
 	(open-child (cat "(import {service/source/app.inc})" (ascii-char 10)
-		"(source-import {0} {" (hex-encode so_svc) "})" (ascii-char 10)
+		"(source-import {0} {" (hex-encode (source-service)) "})" (ascii-char 10)
 		"(import {apps/science/mandelbrot/app.inc})" (ascii-char 10)
 		"(mail-send (hex-decode {" (hex-encode mbox) "}) (str (length (tolist *source_got*))))") +kn_call_pin)
 	(str-as-num (mail-read mbox)))
@@ -234,21 +236,27 @@
 ;system which it has now, and asks that one. A mailbox nobody reads is the
 ;one that has gone
 (setq so_was (so-stats))
-(defq so_gone (source-ask so_svc (cat "%" (hex-encode (system-id)) " " (hex-encode (mail-mbox)) " " so_inc)
+(defq so_gone (source-ask (source-service) (cat "%" (hex-encode (system-id)) " " (hex-encode (mail-mbox)) " " so_inc)
 	(* 3 +source_wait)))
 (assert-eq "a file asked of a @Source that has gone comes from the one there is now"
 	so_inc (first (first (source-unpack (ifn so_gone "")))))
 (assert-eq "found by asking a kernel of that system" 1 (- (elem-get (so-stats) 3) (elem-get so_was 3)))
 
 ;started twice at once, by two that each found none: every copy answers,
-;a request to one that gives way is sent on, and one of them stays, the
-;lowest, which every task picks, (mail-single)
+;one that gives way too, till nothing comes to it, and one of them stays,
+;the lowest, which every task picks, (mail-single)
 (open-child "service/source/app_impl.lisp" +kn_call_run)
 (open-child "service/source/app_impl.lisp" +kn_call_run)
 (until (> (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
 (defq so_all (map (const mail-entry-id) (mail-enquire "@Source,")))
-(assert-true "each copy answers, or sends on to the one that stays"
+(assert-true "each copy answers, the one that gives way too"
 	(every (# (eql (load so_inc) (source-ask %0 so_inc :t))) so_all))
 (until (= (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
 (assert-eq "and one stays" 1 (length (mail-enquire "@Source,")))
 (assert-eq "which answers" (load so_inc) (source-ask (source-service) so_inc :t))
+
+;a @Source of this system that has gone, a mailbox of it nobody reads: an
+;ask that hears nothing for +source_wait looks for the one there is now,
+;and asks it
+(assert-eq "an ask of one of this system that has gone is answered by the one there is"
+	(load so_inc) (source-ask (mail-mbox) so_inc (* 3 +source_wait)))

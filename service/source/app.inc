@@ -62,30 +62,33 @@
 	(until (source-service) (task-sleep 10000))
 	(source-service))
 
-(defun source-asked (svc path wait)
-	; (source-asked svc path wait) -> :nil | answer
-	;what a @Source says, "y" and the text or "n", :nil if it says nothing
-	;in wait seconds. A new mailbox each time: an answer that comes late is
-	;to a mailbox nobody reads
-	(defq select (list (mail-mbox) (mail-mbox)))
-	(mail-timeout (second select) (task-timeout wait) 0)
-	(mail-send svc (cat (setf-> (str-alloc +source_rpc_size)
-		(+source_rpc_reply_id (first select))) path))
-	(when (= (mail-select select) 0)
-		(mail-timeout (second select) 0 0)
-		(mail-read (first select))))
-
 (defun source-ask (svc path &optional wait)
 	; (source-ask svc path [wait]) -> :nil | text
 	;a file's text from a @Source, :nil if it has none it will give, or it
-	;says nothing in the time, +source_wait seconds or wait. With :t as long
-	;as it takes: one that says nothing for +source_wait is asked no more,
-	;the one of the system now is, (source-service). Two started at once,
-	;one gives way to the other and goes when nothing comes to it, so what
-	;is sent to it after is to a mailbox nobody reads
-	(defq answer (source-asked svc path (if (eql wait :t) +source_wait (ifn wait +source_wait))))
-	(while (and (not answer) (eql wait :t))
-		(setq svc (ifn (source-service) svc) answer (source-asked svc path +source_wait)))
+	;says nothing in the time, +source_wait seconds or wait, :t as long as
+	;it takes. A @Source can go: two started at once, one gives way to the
+	;other and goes when nothing comes to it. So one of this system that
+	;says nothing for +source_wait is looked for again, (source-service),
+	;and if that is another, it is asked, to the same mailbox: one that is
+	;still there is busy, and is not asked again. Another system's is
+	;asked once. A new mailbox each ask: an answer that comes late is to a
+	;mailbox nobody reads
+	(defq select (list (mail-mbox) (mail-mbox)) ask (cat (setf-> (str-alloc +source_rpc_size)
+			(+source_rpc_reply_id (first select))) path)
+		left (if (eql wait :t) :t (task-timeout (ifn wait +source_wait))) answer :nil)
+	(mail-send svc ask)
+	(while (and (not answer) (or (eql left :t) (> left 0)))
+		(defq beat (if (eql left :t) (task-timeout +source_wait) (min left (task-timeout +source_wait))))
+		(mail-timeout (second select) beat 0)
+		(cond
+			((= (mail-select select) 0)
+				(mail-timeout (second select) 0 0)
+				(setq answer (mail-read (first select))))
+			(:t (mail-read (second select))
+				(unless (eql left :t) (setq left (- left beat)))
+				(and (defq now (source-service)) (nql now svc)
+					(find (slice svc +mailbox_id_size -1) (lisp-nodes :t))
+					(mail-send (setq svc now) ask)))))
 	(and answer (starts-with "y" answer) (slice answer 1 -1)))
 
 (defun source-pack (entries)

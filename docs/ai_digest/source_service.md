@@ -19,6 +19,19 @@ Terminal. An `@` name is seen only by the tasks of its own system, so the
 service is not said to the mesh. A machine that sends a task gives that task
 the service's mailbox, and nobody else needs to find it.
 
+More than one can start: two that each found none, or the session's own come
+up after a test's. They give way to the lowest mailbox, `(mail-single)`; the
+one that gives way stops saying its name, answers what still comes to it
+itself, as any of the system's would, and goes when nothing has come for
+`+source_wait`. It sends nothing on: the one that stays, asking it and
+waiting, would be waiting on itself. So a mailbox held for a
+`@Source` can come to point nowhere, and nothing is fixed by a start order
+or a timer: whoever holds one finds it again when it says nothing. An ask
+of this system's, `(source-ask)`, that hears nothing for `+source_wait`
+looks up the one there is now and, if that is another, asks it, to the same
+mailbox; one still there is busy, and is not asked twice. Another system's
+is found again by asking a kernel of that system, `(source-seek)`.
+
 ## What is sent
 
 `(source-task path)` makes what is opened in place of a path, three lines of

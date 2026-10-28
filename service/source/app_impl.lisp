@@ -406,9 +406,9 @@
 (defun main ()
 	;one to a system: two started at once give way to the lowest, (mail-single).
 	;Each checks as a task asks it and each second; the other stops saying its
-	;name, sends on to the one that stays what still comes to it, answers the
-	;tasks it was asking for already, and goes when nothing has come for as
-	;long as a task waits
+	;name, answers what still comes to it, as any of this system's would, and
+	;goes when nothing has come for as long as a task waits. It sends nothing
+	;on: the one that stays, asking it and waiting, would wait on itself
 	(defq service (mail-declare (task-mbox) "@Source" "Source Service 0.2") *source_env* (env)
 		*source_hashes* (Fmap 101) *source_files* (Fmap 101) *source_out* (Fmap 31) *source_kept* (Fmap 101)
 		*source_known* (Fmap 31) *source_trees* (Fmap 31) *source_counts* (Fmap 11) *source_svcs* (Fmap 11)
@@ -429,6 +429,6 @@
 					(> (- (pii-time) heard) (task-timeout +source_wait))
 					(setq running :nil)))
 			((= idx 1) (source-fetched msg))
-			(winner (mail-send winner msg) (setq heard (pii-time)))
-			((defq *source_msg* msg answer (source-answer (slice msg +source_rpc_size -1)))
+			((progn (setq heard (pii-time))
+					(defq *source_msg* msg answer (source-answer (slice msg +source_rpc_size -1))))
 				(mail-send (getf msg +source_rpc_reply_id) answer)))))
