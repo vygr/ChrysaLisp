@@ -62,20 +62,31 @@
 	(until (source-service) (task-sleep 10000))
 	(source-service))
 
-(defun source-ask (svc path &optional wait)
-	; (source-ask svc path [wait]) -> :nil | text
-	;a file's text from a @Source, :nil if it has none it will give, or it
-	;says nothing in the time, +source_wait seconds or wait, :t for as long
-	;as it takes. A new mailbox each time: an answer that comes late is to
-	;a mailbox nobody reads
+(defun source-asked (svc path wait)
+	; (source-asked svc path wait) -> :nil | answer
+	;what a @Source says, "y" and the text or "n", :nil if it says nothing
+	;in wait seconds. A new mailbox each time: an answer that comes late is
+	;to a mailbox nobody reads
 	(defq select (list (mail-mbox) (mail-mbox)))
-	(unless (eql wait :t) (mail-timeout (second select) (task-timeout (ifn wait +source_wait)) 0))
+	(mail-timeout (second select) (task-timeout wait) 0)
 	(mail-send svc (cat (setf-> (str-alloc +source_rpc_size)
 		(+source_rpc_reply_id (first select))) path))
 	(when (= (mail-select select) 0)
 		(mail-timeout (second select) 0 0)
-		(defq answer (mail-read (first select)))
-		(if (starts-with "y" answer) (slice answer 1 -1))))
+		(mail-read (first select))))
+
+(defun source-ask (svc path &optional wait)
+	; (source-ask svc path [wait]) -> :nil | text
+	;a file's text from a @Source, :nil if it has none it will give, or it
+	;says nothing in the time, +source_wait seconds or wait. With :t as long
+	;as it takes: one that says nothing for +source_wait is asked no more,
+	;the one of the system now is, (source-service). Two started at once,
+	;one gives way to the other and goes when nothing comes to it, so what
+	;is sent to it after is to a mailbox nobody reads
+	(defq answer (source-asked svc path (if (eql wait :t) +source_wait (ifn wait +source_wait))))
+	(while (and (not answer) (eql wait :t))
+		(setq svc (ifn (source-service) svc) answer (source-asked svc path +source_wait)))
+	(and answer (starts-with "y" answer) (slice answer 1 -1)))
 
 (defun source-pack (entries)
 	; (source-pack entries) -> str
