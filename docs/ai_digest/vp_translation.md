@@ -312,8 +312,8 @@ Loads and stores take an offset of -256 to 255 as `ldur` and `stur`, then
 a whole number of the size, up to 4095 of them, as the scaled `ldr` and
 `str`. Any other offset goes to x29 and the register offset form,
 `[xn, x29]`. `-b`, `-s` and `-i` loads are `ldrsb`, `ldrsh` and `ldrsw`;
-`-ui` is `ldr w`. `-ub` and `-us` are `ldrb` and `ldrh`, with an `eor` of
-the destination before, or a `ubfx` after when it is the base. The
+`-ui` is `ldr w`. `-ub` and `-us` are `ldrb` and `ldrh`, which, as `ldr w`, zero
+the rest of the register, so nothing comes before or after them. The
 indexed forms are the register offset form. A float load or store takes
 -256 to 255, then 0 to 0x7ff8 in 8s, else x29 is made the address.
 

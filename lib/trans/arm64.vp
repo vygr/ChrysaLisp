@@ -47,11 +47,6 @@
 ; arm64 helps
 ;;;;;;;;;;;;;
 
-(vp-label 'e_ux)
-	;arm64-ux, :r0 = x, :r1 = s, :r2 = d
-	(w32 0xd3400000 '(:r0 10) '(:r1 5) '(:r2 0))
-	(vp-ret)
-
 (vp-label 'is_mask)
 	;:r0 = v, -> :r1 = 1 if a mask of ones from bit 0, trashes :r2
 	(vp-xor-rr :r1 :r1)
@@ -730,35 +725,10 @@
 	(emit-cpy-ir-b e_cpy_ir_b 0 0x38800000 :nil) (emit-cpy-ir-s e_cpy_ir_s 1 0x78800000 :nil)
 	(emit-cpy-ir-i e_cpy_ir_i 2 0xb8800000 :nil) (emit-cpy-ri-b e_cpy_ri_b 0 0x38000000 :t)
 	(emit-cpy-ri-s e_cpy_ri_s 1 0x78000000 :t) (emit-cpy-ri-i e_cpy_ri_i 2 0xb8000000 :t)
-	(emit-cpy-ir-ui e_cpy_ir_ui 2 0xb8400000 :nil)))
-
-(each (lambda ((op label w o x))
-		;arm64-iru, (s c d)
-		(vp-label label)
-		(vpif '(:r0 /= :r2))
-			(vp-push :r0 :r1 :r2)
-			(vp-cpy-rr :r2 :r0)
-			(vp-cpy-rr :r2 :r1)
-			(vp-call 'e_xor_rr)
-			(vp-pop :r0 :r1 :r2)
-		(endif)
-		(vp-push :r0 :r2)
-		(vp-cpy-rr :r1 :r5)
-		(vp-cpy-rr :r0 :r1)
-		(vp-cpy-rr :r2 :r0)
-		(vp-cpy-rr :r5 :r2)
-		(vp-cpy-cr o :r3)
-		(vp-cpy-cr w :r4)
-		(vp-call 'mem_ri)
-		(vp-pop :r0 :r2)
-		(vpif '(:r0 = :r2))
-			(vp-cpy-cr x :r0)
-			(vp-cpy-rr :r2 :r1)
-			(vp-jmp 'e_ux)
-		(endif)
-		(vp-ret)
-		(handler op label))
-	'((emit-cpy-ir-ub e_cpy_ir_ub 0 0x38400000 7) (emit-cpy-ir-us e_cpy_ir_us 1 0x78400000 15)))
+	;the unsigned loads are ldr w, ldrb and ldrh, which zero the rest of
+	;the register: nothing before or after them
+	(emit-cpy-ir-ui e_cpy_ir_ui 2 0xb8400000 :nil) (emit-cpy-ir-ub e_cpy_ir_ub 0 0x38400000 :nil)
+	(emit-cpy-ir-us e_cpy_ir_us 1 0x78400000 :nil)))
 
 ;the register offset forms, each as (o fields), the fields of :r0 :r1 :r2
 (each (lambda ((op label o f0 f1 f2))
@@ -770,34 +740,10 @@
 	(emit-cpy-rd-s e_cpy_rd_s 0x78206800 0 5 16) (emit-cpy-rd-i e_cpy_rd_i 0xb8206800 0 5 16)
 	(emit-cpy-dr e_cpy_dr 0xf8606800 16 5 0) (emit-cpy-dr-b e_cpy_dr_b 0x38a06800 16 5 0)
 	(emit-cpy-dr-s e_cpy_dr_s 0x78a06800 16 5 0) (emit-cpy-dr-i e_cpy_dr_i 0xb8a06800 16 5 0)
-	(emit-cpy-df e_cpy_df 0xfc606800 5 16 0) (emit-cpy-fd e_cpy_fd 0xfc206800 0 5 16)))
-
-(each (lambda ((op label o x))
-		;arm64-dru, (s1 s2 d)
-		(vp-label label)
-		(vpif '(:r0 /= :r2))
-			(vpif '(:r1 /= :r2))
-				(vp-push :r0 :r1 :r2)
-				(vp-cpy-rr :r2 :r0)
-				(vp-cpy-rr :r2 :r1)
-				(vp-call 'e_xor_rr)
-				(vp-pop :r0 :r1 :r2)
-			(endif)
-		(endif)
-		(w32 o '(:r1 16) '(:r0 5) '(:r2 0))
-		(vpif '(:r0 = :r2))
-			(vp-jmp (sym (cat label "_ux")))
-		(endif)
-		(vpif '(:r1 = :r2))
-		(vp-label (sym (cat label "_ux")))
-			(vp-cpy-cr x :r0)
-			(vp-cpy-rr :r2 :r1)
-			(vp-jmp 'e_ux)
-		(endif)
-		(vp-ret)
-		(handler op label))
-	'((emit-cpy-dr-ub e_cpy_dr_ub 0x38606800 7) (emit-cpy-dr-us e_cpy_dr_us 0x78606800 15)
-	(emit-cpy-dr-ui e_cpy_dr_ui 0xb8606800 31)))
+	(emit-cpy-df e_cpy_df 0xfc606800 5 16 0) (emit-cpy-fd e_cpy_fd 0xfc206800 0 5 16)
+	;the unsigned loads zero the rest of the register, as above
+	(emit-cpy-dr-ub e_cpy_dr_ub 0x38606800 16 5 0) (emit-cpy-dr-us e_cpy_dr_us 0x78606800 16 5 0)
+	(emit-cpy-dr-ui e_cpy_dr_ui 0xb8606800 16 5 0)))
 
 (each (lambda ((op label o1 o2 store))
 		;(s c d) loads, (s d c) stores, of a float
