@@ -275,10 +275,14 @@
 (defun test-file-scan (file text)
 	; (test-file-scan file text) -> paths
 	;the files a Lisp file names. What it imports or includes. Any word
-	;of a line with a string on it that is the path of a file. The native
-	;code of a line with an ffi on it. And the command a string starts
-	;with, or has after a |. It can name too much, which costs a run that
-	;was not needed, and that is the safe way to be wrong.
+	;of a line with a string on it that is the path of a file: a file, not
+	;a folder, nothing of .git/, and not a test module, which no module
+	;stands on, (test-module?). The native code of a line with an ffi on
+	;it. And the command a string starts with, or has after a |, on a line
+	;that runs a command line, (test-cmd-line?): a check named "key one" is
+	;prose, and named the key command and all it imports. It can still
+	;name too much, which costs a run that was not needed, and that is the
+	;safe way to be wrong.
 	(unless *test_cmds*
 		(setq *test_cmds* (map (# (slice %0 4 -6)) (files-all "cmd" '(".lisp")))))
 	(defq names (list))
@@ -286,7 +290,7 @@
 		(if (find "ffi" (split line " ()"))
 			(each (# (unless (find %0 names) (push names %0))) (test-natives file line)))
 		(when (or (find "\q" line) (find "{" line))
-			(defq pieces (split line "\q{}"))
+			(defq pieces (split line "\q{}") cmd_line (test-cmd-line? line))
 			(each (lambda (piece)
 				(cond
 					((and (> (!) 0)
@@ -296,23 +300,38 @@
 						(and name (/= (age name) 0) (not (find name names)) (push names name)))
 					(:t (each (lambda (part)
 							(when (nempty? (defq words (split part " ")))
-								(if (find (first words) *test_cmds*)
-									(unless (find (defq name (cat "cmd/" (first words) ".lisp")) names)
-										(push names name)))
+								(and cmd_line (find (first words) *test_cmds*)
+									(not (find (defq name (cat "cmd/" (first words) ".lisp")) names))
+									(push names name))
 								(each (lambda (word)
-									(and (find "/" word) (not (find word names))
-											(/= (age word) 0) (nql word file)
+									(and (find "/" word) (not (find word names)) (nql word file)
+											(not (starts-with ".git/" word)) (not (test-module? word))
+											(defq stat (pii-fstat word)) (not (folder-mode? (third stat)))
 										(push names word))) words)))
 						(split piece "|")))))
 				pieces)))
 		(split text "\n"))
 	names)
 
+(defun test-cmd-line? (line)
+	; (test-cmd-line? line) -> :t | :nil
+	;does this line run a command line: a string on it may start with a
+	;command, and all the command imports is stood on
+	(some (# (found? line %0)) '("(pipe-run " "(pipe-farm " "(rack-run " "(Pipe ")))
+
+(defun test-module? (path)
+	; (test-module? path) -> :t | :nil
+	;a module of the suite, tests/<category>/test_<name>.lisp, which no
+	;module stands on: one that names another is not run again for it.
+	;Not the suite's own files, nor the scenes of tests/storage/
+	(and (starts-with "tests/" path) (ends-with ".lisp" path)
+		(starts-with "test_" (slice path (ifn (rfind "/" path) 0) -1))))
+
 ;a file that is named and is longer than this is not read
 (defq +test_file_most 16777216
 	;the rules of what a file names, (test-file-scan): when they change,
 	;what a cache made by others says a file names is not kept
-	+test_scan_version "2")
+	+test_scan_version "3")
 
 (defun test-file-info (file)
 	; (test-file-info file) -> (age hash names)
