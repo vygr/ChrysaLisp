@@ -779,10 +779,9 @@ app, and sends it what happens in batches.
 | `tests/system/test_storage.lisp` | the service and its calls, streams, gophers |
 | `tests/system/test_storage_members.lisp` | five members on one node: shares, a split and heal, pins, a member stopped |
 | `tests/system/test_storage_record.lisp` | the recorder |
-| `tests/system/test_storage_scenes.lisp` | the scenes split and stop, run and recorded as `storage -t` does |
 | `tests/system/test_storage_snapshot.lisp` | the snapshot scene, five members |
 | `tests/system/test_storage_gophers.lisp` | the gopher library over blocks of many sizes, and the gophers scene |
-| `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, and a scene run by the app's runner |
+| `tests/system/test_storage_replay.lisp` | a recording played back, forward and back, the scenes listed, and the stop scene run by the app's runner and recorded |
 
 ## Not Done
 

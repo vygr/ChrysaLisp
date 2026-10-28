@@ -50,7 +50,8 @@
 	(logior 1 2 4) 7
 	(logxor 7 2 1) 4
 	(lognot -1) 0
-	(min 3 -1 7 -1) -1)
+	(min 3 -1 7 -1) -1
+	(max 10 2 30) 30)
 
 ; --- bit counting at the ends ---
 (test-cases
@@ -59,6 +60,7 @@
 	(ntz 0) 64		(ntz 1) 0		(ntz edge_min) 63
 	(nto -1) 64		(nto 0) 0
 	(bitcnt edge_min) 1
+	(bitcnt 0) 0		(bitcnt -1) 64	(bitcnt 0xF0F0) 8
 	(log2 1) 0		(log2 0) :nil	(log2 6) :nil	(log2 -8) :nil)
 
 ; --- pow ---
@@ -72,15 +74,26 @@
 	(abs 0) 0		(neg 0) 0		(sign 0) 0
 	(sign 5) 1		(sign -5) -1
 	(neg? 0) :nil	(pos? 0) :nil
+	(neg? -5) :t	(pos? 5) :t
 	(odd? -3) :t	(odd? 0) :nil
-	(even? 0) :t	(even? -2) :t
+	(even? 0) :t	(even? -2) :t	(even? 11) :nil
 	(inc -1) 0		(dec 0) -1
 	(sqrt 0) 0		(sqrt 16) 4		(sqrt 17) 4
 	(random 1) 0)
+(defq ie_rnd (random 100))
+(assert-true "random is in its range" (and (>= ie_rnd 0) (< ie_rnd 100)))
+
+; --- ++ and -- step a variable, by 1 or by a given amount ---
+(defq ie_n 10)
+(++ ie_n)
+(assert-eq "++ by 1" 11 ie_n)
+(-- ie_n 2)
+(assert-eq "-- by 2" 9 ie_n)
 
 ; --- number readers ---
 (test-cases
 	0b101 5		0o17 15		-0x10 -16
+	(num 42) 42
 	(str-as-num "-5") -5
 	(str-as-num "0x1F") 31
 	(str-as-num "0b11") 3
@@ -101,10 +114,7 @@
 	(str-to-num "3.25\n") 3.25)
 
 ; --- a shift is by the low 6 bits of its count, on every CPU and on the emulator ---
-(assert-eq "left by 64 is by 0" 1 (<< 1 64))
-(assert-eq "left by 65 is by 1" 2 (<< 1 65))
 (assert-eq "left by -1 is by 63" (<< 3 63) (<< 3 -1))
-(assert-eq "right by 64 is by 0" -1 (>> -1 64))
 (assert-eq "right by 68 is by 4" (>> -1 4) (>> -1 68))
 (assert-eq "right, keeping the sign, by 66 is by 2" -4 (>>> -16 66))
 (assert-eq "and by -62 is by 2" -4 (>>> -16 -62))

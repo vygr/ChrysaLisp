@@ -169,25 +169,6 @@
 (. b :add_found_cursors found) ; Should merge since they are identical
 (assert-eq "Add found cursors (merge)" 2 (length (. b :get_cursors)))
 
-; --- Pattern Search & Found Cursors ---
-(defq b (Buffer))
-(. b :insert "Hello World\nHello Lisp")
-(defq found (. b :find "Hello" :nil :nil :nil))
-(assert-eq "Find results length" 3 (length found)) ; 2 matches + terminal newline empty list
-(assert-eq "Find match line 0" 1 (length (first found)))
-(assert-eq "Find match line 1" 1 (length (second found)))
-
-(. b :set_found_cursors found)
-(assert-eq "Found cursors count" 2 (length (. b :get_cursors)))
-; Matches are "Hello" at (0,0) to (5,0) and (0,1) to (5,1)
-; Cursors are stored as (ax ay cx cy sx), :set_found_cursors sets them as (x y x1 y 0)
-; where x1 is start, x is end.
-(assert-eq "Found cursor 1" (nums 5 0 0 0 0) (first (. b :get_cursors_sorted)))
-(assert-eq "Found cursor 2" (nums 5 1 0 1 0) (second (. b :get_cursors_sorted)))
-
-(. b :add_found_cursors found) ; Should merge since they are identical
-(assert-eq "Add found cursors (merge)" 2 (length (. b :get_cursors)))
-
 ; --- Pattern Search Modes (wmode, xmode, imode) ---
 (report-header "Buffer Find Modes: Case, Regex, Whole-Word")
 

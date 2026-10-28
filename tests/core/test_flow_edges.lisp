@@ -42,7 +42,14 @@
 	(case 3 (1 :a) (:t :z)) :z
 	(case 2 ((1 2) :ab) (3 :c)) :ab
 	(case :k (:j 1) (:k 2)) 2
-	(case "b" ("a" 1) ("b" 2)) 2)
+	(case "b" ("a" 1) ("b" 2)) 2
+	(case 1.5 (1.0 "one") (1.5 "one-half") (:t "none")) "one-half")
+
+; --- condn, the first false clause runs ---
+(test-cases
+	(condn ((= 1 1) "A") ((= 1 2) "B") (:t "C")) "B"
+	(condn (456)) 456 ;check off, a (condn) of one clause is what is tried
+	(condn (123) (:nil)) :nil)
 
 ; --- and, or, with no and one argument ---
 (test-cases
@@ -50,6 +57,28 @@
 	(and 1 2 3) 3	(and 1 :nil 3) :nil
 	(or) :nil		(or :nil) :nil
 	(or :nil 2 3) 2	(or :nil :nil) :nil)
+
+; --- loops that accumulate ---
+(defq flow_i 0 flow_sum 0)
+(while (< flow_i 5)
+	(setq flow_sum (+ flow_sum flow_i))
+	(++ flow_i))
+(assert-eq "while loop" 10 flow_sum)
+
+(defq flow_i 0)
+(until (= flow_i 5)
+	(++ flow_i))
+(assert-eq "until loop" 5 flow_i)
+
+(defq flow_times 0)
+(times 5
+	(setq flow_times (+ flow_times (!))))
+(assert-eq "times index sum" 10 flow_times)
+
+(defq flow_for 0)
+(for 3 7
+	(setq flow_for (+ flow_for (!))))
+(assert-eq "for index sum" 18 flow_for)
 
 ; --- optional, rest and nested lambda arguments ---
 (test-cases

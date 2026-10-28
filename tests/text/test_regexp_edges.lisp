@@ -98,7 +98,9 @@
 	;a group that took no part in the match is empty
 	(replace-regex "abc" "(x)?b" "[$1]") "a[]c"
 	(replace-regex "abc" "b(x)?" "[$1]") "a[]c"
-	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc")
+	(replace-regex "abc" "(x)?(b)" "$1-$2") "a-bc"
+	;groups put back in another order
+	(replace-regex "John Doe" "(\\w+) (\\w+)" "$2, $1") "Doe, John")
 
 ; --- query, a search built from the find options ---
 (defun re-find (text pattern whole_words regexp)

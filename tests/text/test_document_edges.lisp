@@ -135,6 +135,18 @@
 	(de-at "ab" 1 0 '(:set_tab_width 2) :tab) '("a b\n\n" ((2 0 2 0)))
 	(. (Document) :get_tab_width) 4)
 
+; --- right_tab and left_tab, at two point cursors a line each ---
+(defq de_d (Document))
+(. de_d :insert "Line 1\nLine 2")
+(. de_d :set_cursor 0 0)
+(. de_d :add_cursor 0 1)
+(. de_d :right_tab)
+(assert-eq "right_tab at two cursors, line 0" "    Line 1\n" (. de_d :get_text_line 0))
+(assert-eq "right_tab at two cursors, line 1" "    Line 2\n" (. de_d :get_text_line 1))
+(. de_d :left_tab)
+(assert-eq "left_tab at two cursors, line 0" "Line 1\n" (. de_d :get_text_line 0))
+(assert-eq "left_tab at two cursors, line 1" "Line 2\n" (. de_d :get_text_line 1))
+
 ; --- right_tab and left_tab, on every line of the selection ---
 (test-cases
 	(de-text "a\nb\nc" 0 2 0 0 :right_tab) "    a\n    b\nc\n\n"

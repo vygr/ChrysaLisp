@@ -19,6 +19,7 @@
 	(reduce (# (push %0 %1)) "abc" (list)) '("a" "b" "c")
 	(rreduce (# (cat %0 (str %1))) (list 1 2 3) "") "321"
 	(rmap (# %0) (list)) '()
+	(rfilter (# (even? %0)) (list 1 2 3 4)) '(4 2)
 	(map (const str) (list 1 :a "b")) '("1" ":a" "b"))
 
 ; --- some, every and friends, and what they give on an empty sequence ---
@@ -45,7 +46,9 @@
 ; --- the loop index (!), in forward and reverse iteration ---
 (test-cases
 	(map (lambda (x) (!)) (list 7 8 9)) '(0 1 2)
-	(rmap (lambda (x) (!)) (list 7 8 9)) '(2 1 0))
+	(rmap (lambda (x) (!)) (list 7 8 9)) '(2 1 0)
+	;in rfilter (!) is the index in the whole sequence
+	(rfilter (lambda (&ignore) (odd? (!))) (list 10 20 30 40 50)) '(40 20))
 
 (defq it_out (list))
 (each (# (push it_out (!) %0)) "ab")
@@ -56,6 +59,11 @@
 (clear it_out)
 (each (# (push it_out %0)) (list))
 (assert-list-eq "each empty" '() it_out)
+
+;each-mergeable walks the list as each does
+(defq it_acc 0)
+(each-mergeable (lambda (x) (setq it_acc (+ it_acc x))) '(1 2 3))
+(assert-eq "each-mergeable" 6 it_acc)
 
 ; --- each! ranges, an end before the start runs backwards ---
 (defun it-range (&rest range)
@@ -90,6 +98,8 @@
 	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 1 3) 5
 	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 3 1) 5
 	(reduce! (# (+ %0 %1)) (list (list 1 2 3 4)) 0 2 2) 0
+	;reduce! over two sequences, the lambda takes the accumulator and one of each
+	(reduce! (lambda (acc x y) (push acc (list x y))) (list '(a b) (nums 10 20)) (list)) '((a 10) (b 20))
 	(filter! (# (> %0 2)) (list 1 2 3 4)) '(3 4))
 
 ; --- an error thrown inside an iteration must not upset the loop around it ---
@@ -141,6 +151,11 @@
 	(pivot (# (- %0 %1)) (list 1) 0 1) 0
 	(shuffle (list)) '()
 	(shuffle (list 1)) '(1))
+
+;shuffle keeps the length and the elements
+(defq it_shuf (shuffle (list 1 2 3 4 5)))
+(assert-eq "shuffle length" 5 (length it_shuf))
+(assert-true "shuffle elements" (every (# (find %0 it_shuf)) (list 1 2 3 4 5)))
 
 ;a compare function that throws stops the sort, and the default compare
 ;is for strings, so throws when given numbers

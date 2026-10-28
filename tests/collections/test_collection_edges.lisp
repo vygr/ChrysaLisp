@@ -142,4 +142,7 @@
 (test-cases
 	(gather (scatter (Fmap) 'a 1 'b 2) 'a 'b 'c) '(1 2 :nil)
 	(gather (Fmap) 'a) '(:nil)
-	(gather (scatter (Fmap) 'a 1)) '())
+	(gather (scatter (Fmap) 'a 1)) '()
+	;transfer copies the keys given, or a list of them, and gives the destination
+	(gather (transfer (scatter (Fmap 11) 'a 10 'b 20 'c 30 'd 40) (Fmap 11) 'b 'd) 'a 'b 'd) '(:nil 20 40)
+	(gather (transfer (scatter (Fmap 11) 'a 10 'b 20 'c 30 'd 40) (Fmap 11) '(a c)) 'a 'b 'c) '(10 :nil 30))

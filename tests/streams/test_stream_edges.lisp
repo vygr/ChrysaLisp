@@ -93,6 +93,15 @@
 (assert-list-eq "memory stream lines" '("a" "b" :nil)
 	(list (read-line se_m) (read-line se_m) (read-line se_m)))
 
+;bits written through a pool and flushed read back through another
+(defq se_m (memory-stream) se_wpool (array 0 0) se_rpool (array 0 0))
+(write-bits se_m se_wpool 0xA 4)
+(write-bits se_m se_wpool 0x5 4)
+(flush-bits se_m se_wpool)
+(stream-seek se_m 0 0)
+(assert-eq "read-bits 1" 0xA (read-bits se_m se_rpool 4))
+(assert-eq "read-bits 2" 0x5 (read-bits se_m se_rpool 4))
+
 ; --- lines!, stops when the function gives non :nil ---
 (defun se-lines (text &optional stop)
 	(defq out (list))

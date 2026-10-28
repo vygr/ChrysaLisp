@@ -38,6 +38,16 @@
 (defq idxs4 (nums 0 2 6 4 2 3))
 (assert-eq "Splice String: Same Mixed" "01542" (splice s3 s3 idxs4))
 
+; --- Negative indices, -1 is the end ---
+; s3[0,-2] -> "01234"
+; s3[-2,-1] -> "5"
+(defq idxs7 (nums 0 -2 -2 -1))
+(assert-eq "Splice String: Same Neg" "012345" (splice s3 s3 idxs7))
+; s1[0,-1] -> "ABC"
+; s2[-4,-1] -> "123" (-4 is length+1-4 = 3+1-4 = 0)
+(defq idxs8 (nums 0 -1 -4 -1))
+(assert-eq "Splice String: Dual Neg" "ABC123" (splice s1 s2 idxs8))
+
 ; --- Nums ---
 (defq n1 (nums 100 200 300) n2 (nums 1 2 3))
 ; n1[0,1] -> 100

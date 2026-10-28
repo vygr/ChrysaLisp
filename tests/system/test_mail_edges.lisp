@@ -87,3 +87,18 @@
 	(list (nempty? (mail-enquire "ZzGone,")) (mail-here "ZzGone") (mail-service "ZzGone")))
 (pii-remove "tests/scratch/zz_gone.lisp")
 (undef (env) 'me_said)
+
+; --- what a task can ask of its node ---
+(assert-true "load-path" (str? (load-path)))
+(assert-true "task-flags" (num? (task-flags)))
+(assert-true "task-count" (num? (task-count 0)))
+(assert-true "pii-dirlist" (str? (pii-dirlist ".")))
+(assert-true "mail-nodes" (seq? (mail-nodes)))
+(assert-true "abi" (sym? (abi)))
+;a top-level form run as a child replies by mail
+(defq me_reply (mail-mbox))
+(defq me_code (cat
+	"(mail-send (hex-decode \q" (hex-encode me_reply) "\q) \qworld\q)"))
+(defq me_child (open-child me_code +kn_call_run))
+(assert-true "open-child inline top-level started" (/= 0 (get-long me_child 0)))
+(assert-eq "open-child inline top-level message reply" "world" (mail-read me_reply))

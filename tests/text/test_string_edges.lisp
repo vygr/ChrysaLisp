@@ -13,6 +13,7 @@
 	(str 1.5) "1.50000"		(str -0.25) "-0.25000"
 	(eql (sym "abc") 'abc) :t
 	(length :nil) 4)
+(assert-true "gensym gives a sym" (sym? (gensym)))
 
 ; --- char and code ---
 (test-cases
@@ -27,6 +28,11 @@
 	(ascii-upper 97) 65		(ascii-lower 65) 97
 	;not a letter, left alone
 	(ascii-upper 33) 33)
+
+; --- hex, two digits per byte ---
+(test-cases
+	(hex-encode "ABC") "414243"
+	(hex-decode "414243") "ABC")
 
 ; --- cmp, 0 when equal, else the sign gives the order ---
 (test-cases
@@ -92,6 +98,18 @@
 	(to-upper "aBc1") "ABC1"
 	(to-lower "aBc1") "abc1"
 	(to-upper "") "")
+
+; --- tabs, (expand str tab_width idx) and (compress str tab_width idx), idx is the column the string starts at ---
+(test-cases
+	(expand "\tb" 4 0) "    b"
+	(expand "\t b" 4 1) "    b"
+	(compress "    a" 4 0) "\ta"
+	(compress "   b" 4 1) "\tb"
+	(compress "  c" 4 2) "\tc"
+	(compress " d" 4 3) " d"
+	(compress "e" 4 4) "e"
+	(compress "x   a" 4 0) "x\ta"
+	(compress "y    b" 4 3) "y\tb")
 
 ; --- char class scanning ---
 (test-cases

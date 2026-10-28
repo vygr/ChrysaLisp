@@ -106,6 +106,14 @@
 (replay-seek rl 3)
 (assert-eq "and before it, it is there again" 1 (length (second (replay-walk rl "G2"))))
 
+;the scenes of tests/storage/, run as storage -t runs them: listed, each
+;with what it is for, and one that is not there is not run
+(import "service/storage/scene.inc")
+(defq rp_scenes (map (const first) (scene-list)))
+(assert-true "the scenes are listed, each with what it is for"
+	(and (find "split" rp_scenes) (find "stop" rp_scenes) (every (# (nempty? (second %0))) (scene-list))))
+(assert-eq "a scene that is not there is not run" :nil (scene-run "no such scene" (lambda (line) line)))
+
 ;a scene run by the app's own runner, ./run.lisp, and played back
 (import "service/storage/app.inc")
 ;the end says how many lines it sent, the last of them can come after it
