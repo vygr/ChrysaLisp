@@ -84,3 +84,27 @@
 (assert-eq "and one flushed with nothing ever written is empty" 0 (length (ifn (load fl_file) "")))
 (pii-remove fl_file)
 
+
+;a read or write of more than a file stream's buffer goes to the host past
+;the buffer, class/fstream/class.vp :read_direct and :write_direct. What
+;the buffer holds goes first, and small reads and writes after are as they were
+(defq dr_file "obj/tmp_direct_test.bin"
+	dr_big (apply (const cat) (map (# (char (logand (* %0 7) 255))) (range 0 20000)))
+	dr_mid (apply (const cat) (map (# (char (logand (* %0 13) 255))) (range 0 9000)))
+	dr_all (cat "small" dr_big "tiny" dr_mid "end")
+	dr_stream (file-stream dr_file +file_open_write))
+(each (# (write-blk dr_stream %0)) (list "small" dr_big "tiny" dr_mid "end"))
+(setq dr_stream :nil)
+(assert-eq "small, big, small, big and small writes, a file of them in order" dr_all (load dr_file))
+(defq dr_stream (file-stream dr_file))
+(assert-eq "a small read" "sma" (read-blk dr_stream 3))
+(assert-eq "a big read, what was in the buffer first" (slice dr_all 3 15003) (read-blk dr_stream 15000))
+(assert-eq "a small read after it" (slice dr_all 15003 15010) (read-blk dr_stream 7))
+(assert-eq "a big read past the end is what there is" (slice dr_all 15010 -1) (read-blk dr_stream 50000))
+(assert-eq "and then the end" :nil (read-blk dr_stream 50000))
+(stream-seek dr_stream 100 0)
+(assert-eq "a big read after a seek" (slice dr_all 100 10100) (read-blk dr_stream 10000))
+(stream-seek dr_stream -5 1)
+(assert-eq "a relative seek after a big read" (slice dr_all 10095 10105) (read-blk dr_stream 10))
+(setq dr_stream :nil)
+(pii-remove dr_file)

@@ -9,6 +9,8 @@
 	(dec-method :deinit class/fstream/deinit :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :read_next class/fstream/read_next :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :write_next class/fstream/write_next :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
+	(dec-method :read_direct class/fstream/read_direct :final :nil :nil (:r1 :r3 :f0-:f15) (:r1 :r3 :f0-:f15))
+	(dec-method :write_direct class/fstream/write_direct :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15))
 	(dec-method :flush class/fstream/flush :final :nil :nil (:r1-:r2 :f0-:f15) (:r1-:r2 :f0-:f15))
 	(dec-method :seek class/fstream/seek :final :nil :nil (:r1-:r3 :f0-:f15) (:r1-:r3 :f0-:f15)))
 

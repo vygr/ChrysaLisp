@@ -188,6 +188,85 @@
 
 (def-func-end)
 
+;a read or write of a buffer or more goes to the host as one, not a buffer
+;at a time: on some mounts each call to the host costs far more than the
+;bytes do, an exFAT stick on macOS a hundred times more
+(def-method :fstream :read_direct)
+	;inputs
+	;:r0 = fstream object (ptr)
+	;:r1 = buffer (pubyte)
+	;:r2 = buffer length (uint)
+	;outputs
+	;:r0 = fstream object (ptr)
+	;:r1 = 0 if not done, else -1 for EOF or bytes read (int)
+	;trashes
+	;:r1, :r3, :f0-:f15
+
+	(entry :fstream :read_direct '(:r0 :r1 :r2))
+
+	(assign '((:r0 +fstream_buf_len)) '(:r3))
+	(vpif '(:r2 >= :r3))
+		;flush any read/write data, and set read mode
+		(vp-push :r1 :r2)
+		(call :fstream :flush '(:r0) '(:r0))
+		(vp-cpy-cr +file_open_read :r1)
+		(assign '(:r1) '((:r0 +fstream_mode)))
+		(vp-pop :r1 :r2)
+		(vp-cpy-rr :r0 :r3)
+		(call :host_os :pii_read '((:r3 +fstream_handle) :r1 :r2) '(:r1))
+		(vp-cpy-rr :r3 :r0)
+		(vpif '(:r1 <= 0))
+			;eof
+			(vp-cpy-cr -1 :r1)
+		(endif)
+	(else)
+		(vp-xor-rr :r1 :r1)
+	(endif)
+
+	(exit :fstream :read_direct '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :fstream :write_direct)
+	;inputs
+	;:r0 = fstream object (ptr)
+	;:r1 = buffer (pubyte)
+	;:r2 = buffer length (uint)
+	;outputs
+	;:r0 = fstream object (ptr)
+	;:r1 = 0 if not done, else done
+	;trashes
+	;:r1-:r3, :f0-:f15
+
+	(entry :fstream :write_direct '(:r0 :r1 :r2))
+
+	(assign '((:r0 +fstream_buf_len)) '(:r3))
+	(vpif '(:r2 >= :r3))
+		;flush any read/write data, and set write mode
+		(vp-push :r1 :r2)
+		(call :fstream :flush '(:r0) '(:r0))
+		(vp-cpy-cr +file_open_write :r1)
+		(assign '(:r1) '((:r0 +fstream_mode)))
+		(vp-pop :r1 :r2)
+		(vp-cpy-rr :r0 :r3)
+		;the host may take less than all of it
+		(loop-start)
+			(call :host_os :pii_write '((:r3 +fstream_handle) :r1 :r2) '(:r0))
+			(breakif '(:r0 <= 0))
+			(vp-add-rr :r0 :r1)
+			(vp-sub-rr :r0 :r2)
+		(loop-until '(:r2 = 0))
+		(assign '(:r3 1) '(:r0 :r1))
+	(else)
+		(vp-xor-rr :r1 :r1)
+	(endif)
+
+	(exit :fstream :write_direct '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method :fstream :seek)
 	;inputs
 	;:r0 = fstream object (ptr)

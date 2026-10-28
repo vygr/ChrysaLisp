@@ -9,6 +9,8 @@
 	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15) (:r1))
 	(dec-method :flush class/stream/flush :virtual (:r0) (:r0) (:r1-:r9 :f0-:f15) (:r1))
 	(dec-method :seek class/stream/seek :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r11 :r14 :f0-:f15) (:r1))
+	(dec-method :read_direct class/stream/read_direct :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1 :r3 :f0-:f15) (:r1))
+	(dec-method :write_direct class/stream/read_direct :virtual (:r0 :r1 :r2) (:r0 :r1) (:r1-:r3 :f0-:f15) (:r1))
 	(dec-method :fault class/stream/fault :virtual (:r0) (:r0 :r1) (:r1) (:r1))
 	(dec-method :init class/stream/init :static (:r0 :r1 :r2 :r3 :r4 :r5) :nil (:r1 :r5))
 	(dec-method :avail class/stream/avail :static (:r0) (:r0 :r1))
