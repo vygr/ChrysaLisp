@@ -54,9 +54,17 @@
 
 (defun replay-add (r line)
 	; (replay-add r line) -> r
-	;a line of a recording, at its end
+	;a line of a recording, in its place by its time: after the last that
+	;is not later. Lines are sent in batches, and mail is not in order, so
+	;a batch can come before one sent ahead of it. One whose place is
+	;before what has been done has the replay gone back to it first
 	(when (defq e (replay-event line))
-		(push (. r :find :events) e)
+		(defq events (. r :find :events) at_time (elem-get e +ev_time) i (length events))
+		(while (and (> i 0) (> (elem-get (elem-get events (dec i)) +ev_time) at_time)) (-- i))
+		(cond
+			((= i (length events)) (push events e))
+			(:t (if (< i (. r :find :at)) (replay-seek r i))
+				(. r :insert :events (cat (slice events 0 i) (list e) (slice events i -1)))))
 		(defq member (elem-get e +ev_member))
 		;- is the scene, that says what it does, not a member
 		(unless (or (eql member "-") (find member (. r :find :members)))

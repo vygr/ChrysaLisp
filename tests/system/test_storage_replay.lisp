@@ -57,6 +57,21 @@
 (replay-seek rp 0)
 (assert-eq "back to the first kept, what was done before stands" "M1" (replay-path rp "m-b" "docs/a file"))
 
+;a recording comes in batches, and mail is not in order: a batch that
+;comes before one sent ahead of it has its lines put in their places by
+;their times, and one whose place is before what has been done has the
+;replay gone back to it first
+(defq rp_late (replay-new))
+(each! (# (replay-add rp_late %0)) (list rp_lines) 6 -1)
+(replay-seek rp_late (length (. rp_late :find :events)))
+(each! (# (replay-add rp_late %0)) (list rp_lines) 0 6)
+(assert-list-eq "batches the wrong way round, the events are in the order of their times"
+	rp_lines (map (const replay-line) (. rp_late :find :events)))
+(assert-eq "and the replay went back to the first that came late" 0 (. rp_late :find :at))
+(replay-seek rp_late 12)
+(assert-eq "played on, the store is as if they came in order" "-" (replay-path rp_late "m-a" "docs/a file"))
+(assert-eq "m-b as it learnt it" "M1" (replay-path rp_late "m-b" "docs/a file"))
+
 ;each event is the line it was read from, so a recording saved is one that
 ;storage -r writes, and opens again the same
 (defq rp_again (replay-new))
