@@ -17,11 +17,13 @@
 ;it gives the Lisp of the tree, and nothing else of it: the keys are in
 ;the tree, mesh_key and keys/, and a user's own folder
 (defq so_inc "apps/system/netmon/app.inc")
-(assert-eq "it gives a file that is imported, as it is" (load so_inc) (source-ask so_svc so_inc))
-(assert-eq "and usr/env.inc, which is the system's" (load "usr/env.inc") (source-ask so_svc "usr/env.inc"))
+;what it gives is waited for: a service busy for other machines, as when
+;three are tested at once, is slow, and is not wrong
+(assert-eq "it gives a file that is imported, as it is" (load so_inc) (source-ask so_svc so_inc :t))
+(assert-eq "and usr/env.inc, which is the system's" (load "usr/env.inc") (source-ask so_svc "usr/env.inc" :t))
 (assert-list-eq "not the key, the keyring, a user's own, out of the tree, or one not there"
 	'(:nil :nil :nil :nil :nil :nil)
-	(map (# (source-ask so_svc %0))
+	(map (# (source-ask so_svc %0 :t))
 		'("mesh_key" "keys/rig" "usr/Test/env.inc" "apps/../usr/Test/env.inc" "/etc/hosts" "no/such.lisp")))
 
 ;a stream of a file of a system: of the file on this one, asked of the
@@ -246,7 +248,7 @@
 (until (> (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
 (defq so_all (map (const mail-entry-id) (mail-enquire "@Source,")))
 (assert-true "each copy answers, or sends on to the one that stays"
-	(every (# (eql (load so_inc) (source-ask %0 so_inc))) so_all))
+	(every (# (eql (load so_inc) (source-ask %0 so_inc :t))) so_all))
 (until (= (length (mail-enquire "@Source,")) 1) (task-sleep 10000))
 (assert-eq "and one stays" 1 (length (mail-enquire "@Source,")))
-(assert-eq "which answers" (load so_inc) (source-ask (source-service) so_inc))
+(assert-eq "which answers" (load so_inc) (source-ask (source-service) so_inc :t))

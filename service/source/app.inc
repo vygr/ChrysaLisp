@@ -65,10 +65,11 @@
 (defun source-ask (svc path &optional wait)
 	; (source-ask svc path [wait]) -> :nil | text
 	;a file's text from a @Source, :nil if it has none it will give, or it
-	;says nothing in the time, +source_wait seconds or wait. A new mailbox
-	;each time: an answer that comes late is to a mailbox nobody reads
+	;says nothing in the time, +source_wait seconds or wait, :t for as long
+	;as it takes. A new mailbox each time: an answer that comes late is to
+	;a mailbox nobody reads
 	(defq select (list (mail-mbox) (mail-mbox)))
-	(mail-timeout (second select) (task-timeout (ifn wait +source_wait)) 0)
+	(unless (eql wait :t) (mail-timeout (second select) (task-timeout (ifn wait +source_wait)) 0))
 	(mail-send svc (cat (setf-> (str-alloc +source_rpc_size)
 		(+source_rpc_reply_id (first select))) path))
 	(when (= (mail-select select) 0)
