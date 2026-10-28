@@ -30,6 +30,10 @@
 	(defq end (last said))
 	(if (eql (first end) :done) (list (elem-get end 1) (elem-get end 2) (elem-get end 3) (elem-get end 6))))
 
+(defun sw-read (file)
+	;what is in a file, read as it is now
+	(if (defq stream (file-stream file)) (ifn (read-blk stream 0x100000) "") ""))
+
 (defun sw-store (svc folder)
 	(list :store (hex-encode svc) folder))
 
@@ -53,6 +57,16 @@
 	(assert-list-eq "again, what is there is skipped" '(0 3 0 :nil)
 		(sw-end (sw-run :copy (list :host sw_host) (sw-store sw_a "in") :skip '(("Album" :t) ("loose.txt" :nil)))))
 
+	(assert-list-eq "and kept both, what is the same is left, and not kept again" '(0 3 0 :nil)
+		(sw-end (sw-run :copy (list :host sw_host) (sw-store sw_a "in") :both '(("Album" :t) ("loose.txt" :nil)))))
+	(assert-eq "by no name of its own" :nil (storage-stat "in/loose (2).txt" sw_a))
+	(save "loose, and changed" (cat sw_host "/loose.txt"))
+	(assert-list-eq "a file changed is not the same" '(1 0 0 :nil)
+		(sw-end (sw-run :copy (list :host sw_host) (sw-store sw_a "in") :both '(("loose.txt" :nil)))))
+	(assert-eq "and is kept by a name of its own" "loose, and changed" (storage-get "in/loose (2).txt" sw_a))
+	(storage-delete "in/loose (2).txt" :nil sw_a)
+	(save sw_loose (cat sw_host "/loose.txt"))
+
 	;from store to store, a folder merged into one of the same name
 	(storage-put "Album/t1.txt" "another track" :nil sw_b)
 	(assert-list-eq "to another store, what is not there copied, what is not the same skipped" '(1 1 0 :nil)
@@ -74,6 +88,16 @@
 	(assert-eq "under the folders of the paths" sw_t2 (load (cat sw_host "/out/Album/sub/t2.bin")))
 	(assert-list-eq "again, the files there are skipped" '(0 2 0 :nil)
 		(sw-end (sw-run :copy (sw-store sw_a "in") (list :host (cat sw_host "/out")) :skip '(("Album" :t)))))
+	(assert-list-eq "and kept both, the same are left" '(0 2 0 :nil)
+		(sw-end (sw-run :copy (sw-store sw_a "in") (list :host (cat sw_host "/out")) :both '(("Album" :t)))))
+	(assert-eq "by no name of their own" :nil (pii-fstat (cat sw_host "/out/Album/t1 (2).txt")))
+	(save "mine" (cat sw_host "/out/Album/t1.txt"))
+	(assert-list-eq "replaced, a file there told to stop" '(0 0 0 :t)
+		(sw-end (sw-run :copy (sw-store sw_a "in/Album") (list :host (cat sw_host "/out/Album")) :replace '(("t1.txt" :nil)) 0 :t)))
+	(assert-eq "is as it was" "mine" (sw-read (cat sw_host "/out/Album/t1.txt")))
+	(assert-list-eq "replaced, it is the object" '(1 0 0 :nil)
+		(sw-end (sw-run :copy (sw-store sw_a "in/Album") (list :host (cat sw_host "/out/Album")) :replace '(("t1.txt" :nil)))))
+	(assert-eq "all of it" sw_t1 (sw-read (cat sw_host "/out/Album/t1.txt")))
 
 	;how many keep, and deleted
 	(assert-list-eq "how many are to keep each under a folder, set" '(2 0 0 :nil)

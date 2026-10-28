@@ -134,7 +134,7 @@
 		(def (defq hint (Label)) :text (if *save* "Nothing here yet" "Nothing here") :ink +argb_grey8)
 		(. *list* :add_child hint))
 	;a row and its line, the sheet's lines from the bottom of the first,
-	;and the sheet made to fit, (fit-drawer)
+	;and the sheet made to fit, (. sheet :fit)
 	(when (nempty? *items*)
 		(defq row (second (. (first (. *list* :children)) :pref_size)))
 		(def *ruled* :spacing (inc row) :origin_y row))
@@ -217,29 +217,8 @@
 		*place_list* labels)
 	(.-> *places_scroll* :layout :dirty_all))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; what the two scrolls hold, made to fit them as they change
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun sheet-width (sheet)
-	;the width of a scroll less its slider
-	(bind '(w &ignore) (. sheet :get_size))
-	(bind '(sw &ignore) (. (get :vslider sheet) :get_constraint))
-	(max 0 (- w sw)))
-
-(defun fit-drawer (sheet)
-	;the rows the width of the scroll, the ruled sheet that too, and as
-	;long as the rows or the scroll, whichever is longer
-	(bind '(& h) (. sheet :get_size))
-	(defq w (sheet-width sheet) rows (second (. *list* :pref_size)))
-	(. *list* :change_dirty 0 0 w rows :t)
-	(. *ruled* :change_dirty 0 0 w (max rows h)))
-
-(defun fit-places (sheet)
-	(. *places* :change_dirty 0 0 (sheet-width sheet) (second (. *places* :pref_size)) :t))
-
-(def *scroll* :fit fit-drawer)
-(def *places_scroll* :fit fit-places)
+;the rows of the drawer, in its ruled sheet, made to fit the scroll
+(def *scroll* :rows *list*)
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")

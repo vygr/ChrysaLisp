@@ -27,14 +27,6 @@
 				(ui-backdrop ,(at "ruled") (:style :lines :paper +argb_white :ink +argb_grey14)
 					(ui-flow ,(at "list") (:flow_flags +flow_down_fill))))))))
 
-(defclass Sheet () (Scroll +scroll_flag_vertical)
-	; (Sheet) -> sheet
-	;a scroll up and down that, each time it is laid out, a new size of
-	;the window say, first has (fit sheet) make what it scrolls fit it
-	(defmethod :layout ()
-		(if (defq fit_fn (get :fit this)) (fit_fn this))
-		(.super this :layout)))
-
 ;two sides, each the files of the host or a store, and between them what
 ;is taken copied from one to the other, by the rule for what is there
 (ui-window *window* ()

@@ -173,26 +173,11 @@
 	;both sides as they are now, at the folders they were at
 	(each (# (go-to %1 (. %0 :find :folder))) *sides* (list 0 1)))
 
-(defun sheet-width (sheet)
-	;the width of a scroll less its slider
-	(bind '(w &ignore) (. sheet :get_size))
-	(bind '(sw &ignore) (. (get :vslider sheet) :get_constraint))
-	(max 0 (- w sw)))
-
-(defun fit-side (sheet)
-	;the rows the width of the scroll, the ruled sheet that too, and as
-	;long as the rows or the scroll, whichever is longer
-	(when (defq side (some (# (if (eql (. %0 :find :scroll) sheet) %0)) *sides*))
-		(bind '(& h) (. sheet :get_size))
-		(defq w (sheet-width sheet) rows_flow (. side :find :list) rows (second (. rows_flow :pref_size)))
-		(. rows_flow :change_dirty 0 0 w rows :t)
-		(. (. side :find :ruled) :change_dirty 0 0 w (max rows h))))
-
 (defun stores-start ()
 	;the two sides: the files of this machine, and its store if it has one
 	(setq *sources* (sources-find)
 		*sides* (map (lambda (path source scroll ruled rows_flow note)
-				(def scroll :fit (const fit-side))
+				(def scroll :rows rows_flow)
 				(scatter (Emap) :path path :source_button source :scroll scroll :ruled ruled
 					:list rows_flow :note note :folder "" :taken (list) :rows (list) :buttons (list) :source :nil))
 			(list *path_0* *path_1*) (list *source_0* *source_1*) (list *scroll_0* *scroll_1*)

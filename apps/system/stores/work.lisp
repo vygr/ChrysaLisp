@@ -18,7 +18,8 @@
 ; a file, or from a store to a store, with no file between: only the
 ; blocks the store it goes to has not got are sent, so what has been
 ; copied before, or is there by another name, is little sent. One that
-; is the same object at both is left. That is what a merge is, a folder
+; is the same at both, the same object, or a file and an object the same
+; byte for byte, is left. That is what a merge is, a folder
 ; copied to one of the same name: what is in one and not the other is
 ; copied, and what is in both is as the rule says.
 ;
@@ -100,15 +101,27 @@
 		(tell :at *bytes* *count* *name*))
 	(not (setq *stopped* (or *stopped* (and (mail-poll (list (task-mbox))) :t)))))
 
+(defun same-there? (path to_path was)
+	;what is at to is what would be copied there, so there is nothing to
+	;do. Two objects by their names, an object and a file byte for byte,
+	;once they are seen to be as long
+	(defq from_svc (side-svc *from*) to_svc (side-svc *to*))
+	(cond
+		((not from_svc)
+			(and (= (elem-get was +store_entry_bytes) (host-bytes path))
+				(storage-same-file? to_path path to_svc)))
+		((not (defq entry (storage-stat path from_svc))) :nil)
+		(to_svc (eql (elem-get entry +store_entry_hash) (elem-get was +store_entry_hash)))
+		((= (elem-get entry +store_entry_bytes) (second was))
+			(storage-same-file? path to_path from_svc))))
+
 (defun copy-one (path name bytes)
 	;one thing copied to its name in the folder of to, as the rule says if
 	;there is one there already
 	(defq to_path (side-path *to* name) was (side-there *to* to_path) start *bytes*
-		from_svc (side-svc *from*) to_svc (side-svc *to*)
-		same (and was from_svc to_svc (defq entry (storage-stat path from_svc))
-			(eql (elem-get entry +store_entry_hash) (elem-get was +store_entry_hash))))
+		from_svc (side-svc *from*) to_svc (side-svc *to*))
 	(cond
-		((or same (and was (eql *rule* :skip))) (++ *skipped*))
+		((and was (or (eql *rule* :skip) (same-there? path to_path was))) (++ *skipped*))
 		(:t (and was (eql *rule* :both) (setq to_path (free-name *to* to_path) was :nil))
 			;a store's path is set provided it is what was seen, so a write of
 			;another's in the meantime is not lost

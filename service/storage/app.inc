@@ -185,15 +185,26 @@
 		((storage-result (storage-ask svc +storage_type_commit
 			(join (list (storage-from from) (str bytes) name (hex-encode top)) +storage_lf))))))
 
+(defun storage-heard (mbox quiet)
+	;what a mailbox has been told: waited for, or if the service has been
+	;quiet already, only what is there now
+	(if quiet
+		(if (mail-poll (list mbox)) (mail-read mbox))
+		(mail-read-timeout mbox (task-timeout +storage_wait))))
+
 (defun storage-puts (svc blocks hashes)
 	; (storage-puts svc blocks hashes) -> :ok | :full | :lost
 	;blocks put to a service all at once, not one after the other, and
 	;then what it said of each looked at. :full if it said it had no room
-	;for one, :lost if it said nothing of one
-	(defq how :ok)
+	;for one, :lost if it said nothing of one. Once one has said nothing
+	;in the time, the rest are not waited for, only looked at
+	(defq how :ok quiet :nil)
 	(each (lambda (mbox hash)
-			(defq said (mail-read-timeout mbox (task-timeout +storage_wait)))
-			(cond ((eql said hash)) ((not said) (if (eql how :ok) (setq how :lost))) ((setq how :full))))
+			(defq said (storage-heard mbox quiet))
+			(cond
+				((eql said hash))
+				((not said) (setq quiet :t) (if (eql how :ok) (setq how :lost)))
+				((setq how :full))))
 		(map (# (storage-send svc +storage_type_block_put %0)) blocks) hashes)
 	how)
 
@@ -201,10 +212,14 @@
 	; (storage-gets svc hashes) -> (:nil | data ...)
 	;blocks by their names, asked of a service all at once, each checked
 	;against its name. One it has not got, or that is not what its name
-	;says, is had of another member that has it, (storage-block), or :nil
+	;says, is had of another member that has it, (storage-block), or :nil.
+	;Once one has said nothing in the time, the rest are only looked at
+	(defq quiet :nil)
 	(map (lambda (mbox hash)
-			(defq data (mail-read-timeout mbox (task-timeout +storage_wait)))
-			(if (and data (eql (sha256 data) hash)) data (storage-block hash svc)))
+			(defq data (storage-heard mbox quiet))
+			(cond
+				((and data (eql (sha256 data) hash)) data)
+				(:t (setq quiet (or quiet (not data))) (storage-block hash svc))))
 		(map (# (storage-send svc +storage_type_block_get %0)) hashes) hashes))
 
 (defun storage-put-stream (name stream &optional from svc tick)
@@ -252,16 +267,28 @@
 		(storage-put-stream name stream from svc tick)
 		(list :none :nil)))
 
+(defun storage-file-copy (from to)
+	; (storage-file-copy from to) -> :nil | :t
+	;a file of the host written over with what is in another
+	(when (and (defq in (file-stream from)) (defq out (file-stream to +file_open_write)))
+		(while (defq part (read-blk in 65536)) (write-blk out part))
+		(stream-flush out)
+		:t))
+
 (defun storage-get-file (name file &optional svc tick)
 	; (storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
 	; (tick bytes) -> :nil | :t
 	;what a path is, to a file of the host, read as a stream, so of any
 	;length. :none if there is no such object, :host if the host will not
 	;make the file, :lost if a block of it could not be had. tick as for
-	;(storage-put-stream). A file not written whole is taken away
+	;(storage-put-stream). A file not written whole is taken away. A file
+	;there already is only written over once all of it has been had, into
+	;a file of its own next to it, so it is as it was if it is not
+	(defq there (pii-fstat file) to file n 0)
+	(if there (while (pii-fstat (setq to (cat file ".part" (if (> (++ n) 1) (str n) ""))))))
 	(cond
 		((not (defq object (storage-stream name +file_open_read svc))) (list :none :nil))
-		((not (defq host (file-stream file +file_open_write))) (list :host :nil))
+		((not (defq host (file-stream to +file_open_write))) (list :host :nil))
 		(:t (defq bytes 0 how :ok)
 			(while (and (eql how :ok) (defq part (read-blk object 65536)))
 				(write-blk host part)
@@ -270,9 +297,9 @@
 			(stream-flush host)
 			(setq host :nil)
 			(and (eql how :ok) (stream-fault object) (setq how :lost))
-			(cond
-				((eql how :ok) (list :ok bytes))
-				(:t (pii-remove file) (list how :nil))))))
+			(and (eql how :ok) there (not (storage-file-copy to file)) (setq how :host))
+			(if (or there (not (eql how :ok))) (pii-remove to))
+			(if (eql how :ok) (list :ok bytes) (list how :nil)))))
 
 ;how many blocks a copy between stores has on their way at once
 (defq +storage_copy_ahead 8)

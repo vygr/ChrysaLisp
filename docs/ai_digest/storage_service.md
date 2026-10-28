@@ -569,7 +569,9 @@ none, so two writers of one path can not overwrite each other unknowing.
 A copy between stores sends only the blocks `dst` has not got, so one that
 was stopped goes on from where it was, and one of an object `dst` has much
 of already is little sent. `tick`, if given, is told the bytes as they go,
-and says `:nil` to stop: `:stopped`, and the path is as it was. The Stores
+and says `:nil` to stop: `:stopped`, and the path is as it was. A file
+`storage-get-file` writes over is written over only once all of the
+object has been had, so it is as it was if it is not. The Stores
 app, `apps/system/stores/`, does its copies so, in a task of its own.
 
 ## The Calls

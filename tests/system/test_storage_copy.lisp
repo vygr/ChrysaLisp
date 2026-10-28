@@ -27,6 +27,10 @@
 	(setq sc_told 0)
 	`(lambda (bytes) (setq sc_told (+ sc_told bytes)) (< sc_told ,(ifn most 0x7fffffffffffffff))))
 
+(defun sc-read (file)
+	;what is in a file, read as it is now
+	(if (defq stream (file-stream file)) (ifn (read-blk stream 0x100000) "") ""))
+
 (assert-true "three services, of stores they made" (and sc_a sc_b sc_c))
 (when (and sc_a sc_b sc_c)
 	;more blocks than a block of a manifest names, so its manifest is a tree
@@ -87,11 +91,24 @@
 	(assert-eq "it is the file" sc_big (storage-get "f/big" sc_b))
 	(assert-eq "a put told to stop" :stopped (first (storage-put-file "f/part" sc_file :nil sc_b (sc-ticks 1000))))
 	(assert-eq "sets no path" :nil (storage-stat "f/part" sc_b))
-	(assert-list-eq "a get told to stop" '(:stopped :nil) (storage-get-file "x/big" sc_file sc_a (sc-ticks 1000)))
+	(assert-list-eq "a get over a file there, told to stop" '(:stopped :nil) (storage-get-file "x/big" sc_file sc_a (sc-ticks 1000)))
+	(assert-eq "leaves the file as it was" sc_big (sc-read sc_file))
+	(assert-eq "and nothing next to it" 0 (age (cat sc_file ".part")))
+	(assert-list-eq "one over a file there" (list :ok (length sc_small)) (storage-get-file "x/small" sc_file sc_a))
+	(assert-eq "writes it over, all of it" sc_small (sc-read sc_file))
+	(assert-eq "and leaves nothing next to it" 0 (age (cat sc_file ".part")))
+	(pii-remove sc_file)
+	(assert-list-eq "a get to no file, told to stop" '(:stopped :nil) (storage-get-file "x/big" sc_file sc_a (sc-ticks 1000)))
 	(assert-eq "leaves no file" 0 (age sc_file))
 	(assert-list-eq "no object, no file" '(:none :nil) (storage-get-file "x/nothing" sc_file sc_a))
 	(assert-eq "an object of nothing, a file of nothing" "" (progn (storage-get-file "x/none" sc_file sc_a) (load sc_file)))
-	(pii-remove sc_file))
+	(pii-remove sc_file)
+
+	;a service that says nothing is waited for the once, not for each block
+	(defq sc_quiet (mail-mbox) sc_t0 (pii-time) sc_blocks (map (# (sc-bytes 64 %0)) (range 0 8)))
+	(assert-eq "blocks put to a service that says nothing are lost" :lost
+		(storage-puts sc_quiet sc_blocks (map (const sha256) sc_blocks)))
+	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000))))
 
 (each (lambda (svc image)
 		(when svc (storage-stop svc))

@@ -5,14 +5,6 @@
 ;the places down the side, and past them the rows of the drawer
 (defq +places_max 64 +event_item (+ +event_place +places_max))
 
-(defclass Sheet () (Scroll +scroll_flag_vertical)
-	; (Sheet) -> sheet
-	;a scroll up and down that, each time it is laid out, a new size of
-	;the window say, first has (fit sheet) make what it scrolls fit it
-	(defmethod :layout ()
-		(if (defq fit_fn (get :fit this)) (fit_fn this))
-		(.super this :layout)))
-
 ;a drawer: places to go to down the side, the folder it is open at above,
 ;what is in it below, a row a thing, folders first, and the name of the
 ;one taken at the foot

@@ -10,6 +10,7 @@
 (import "./slider/lisp.inc")
 (import "./progress/lisp.inc")
 (import "./scroll/lisp.inc")
+(import "./sheet/lisp.inc")
 (import "./textfield/lisp.inc")
 (import "./text/lisp.inc")
 (import "./title/lisp.inc")
