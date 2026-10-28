@@ -1038,17 +1038,21 @@
 	;the checksum of the boot sectors and of the upper case table, 32 bit
 	(static-qq (ror-sum ,data 32 ,skip)))
 
+(defun exfat-cluster-shift (size)
+	; (exfat-cluster-shift size) -> num
+	;the sectors of a cluster of a volume of that size, as a power of 2:
+	;4096 byte clusters up to 256MB, 32768 up to 32GB and 131072 over that
+	(cond ((<= size 0x10000000) 3) ((<= size 0x800000000) 6) (8)))
+
 (defun exfat-format (device size &optional label cluster_shift)
 	; (exfat-format path | stream size [label cluster_shift]) -> :nil | :t
 	;a new volume of that many bytes with nothing in it. A path is a new
 	;file of the host, the image of a disk. A stream is written where it
 	;is, and must be that long, a memory stream of zeros say.
-	;cluster_shift is the sectors of a cluster as a power of 2, it is 4096
-	;byte clusters up to 256MB, 32768 up to 32GB and 131072 over that if
-	;it is not given.
+	;cluster_shift is the sectors of a cluster as a power of 2,
+	;(exfat-cluster-shift) if it is not given.
 	(defq sectors (>> size 9)
-		cluster_shift (ifn cluster_shift (cond
-			((<= size 0x10000000) 3) ((<= size 0x800000000) 6) (:t 8)))
+		cluster_shift (ifn cluster_shift (exfat-cluster-shift size))
 		cluster_sectors (<< 1 cluster_shift) cluster_size (<< cluster_sectors 9)
 		fat_offset 128
 		;the table has an entry for a cluster, and two more

@@ -457,6 +457,16 @@
 			(sort out (# (cmp (first %0) (first %1)))))
 		((store-entries store))))
 
+(defun store-cluster-shift (size block_size)
+	; (store-cluster-shift size block_size) -> num
+	;the clusters of a store's volume no bigger than its blocks: a block is
+	;a file, and takes a cluster at least, so of 64KB blocks on clusters
+	;of 128KB, those of a volume over 32GB, half of it was never used. No
+	;smaller than exFAT's own for its size, nor than 4096 bytes
+	(defq shift 0)
+	(while (< (<< 512 (inc shift)) (inc block_size)) (++ shift))
+	(max 3 (min (exfat-cluster-shift size) shift)))
+
 (defun store-make (device size id member &optional block_size label copies)
 	; (store-make path | stream size id member [block_size label copies]) -> :nil | :t
 	;a new store with nothing in it, on a new volume of that many bytes.
@@ -464,7 +474,8 @@
 	;member whose it is, the system id of its machine in hex. A path is a
 	;new file of the host, a stream is written where it is and must be
 	;that long. copies is how many members keep a block, 3
-	(when (and (exfat-format device size (ifn label "STORE")) (defq vol (exfat-mount device)))
+	(when (and (exfat-format device size (ifn label "STORE") (store-cluster-shift size (ifn block_size +store_block_size)))
+			(defq vol (exfat-mount device)))
 		(def (defq store (env 1)) :vol vol :id id :member member
 			:block_size (ifn block_size +store_block_size) :copies (ifn copies +store_copies)
 			:map (Fmap 11) :objects 0 :paths 0 :members (list member) :retired (list) :pins (list) :pinned (Fmap 11) :held (Fmap 11) :held_saved :nil :blocks 0 :manifests (Fmap 11)
@@ -660,7 +671,7 @@
 	;has, vol and path, it is called from inside it and would have those
 	(store-close store)
 	(defq resize_from (get :vol store) id (get :id store) resize_ok :nil)
-	(when (and (exfat-format device size (slice id 0 (min 11 (length id))))
+	(when (and (exfat-format device size (slice id 0 (min 11 (length id))) (store-cluster-shift size (get :block_size store)))
 			(defq resize_to (exfat-mount device)))
 		(setq resize_ok :t)
 		(exfat-begin resize_to)
@@ -1463,7 +1474,7 @@
 	(list (get :objects store) (get :blocks store) (exfat-free (get :vol store))))
 
 ;module
-(export-symbols '(store-make store-open store-close store-resize store-save
+(export-symbols '(store-make store-cluster-shift store-open store-close store-resize store-save
 	store-members store-join store-most? store-other-name store-keeps store-meet store-digest
 	store-entries store-holders store-rank store-seen store-share store-since store-at store-later
 	store-block-put store-block-get store-block-has? store-block-drop store-blocks store-held store-block-file +store_folder_blocks
