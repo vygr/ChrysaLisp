@@ -31,7 +31,7 @@
 			'Media (scatter (Emap) :collapsed :nil
 				:apps '("images" "films" "whiteboard" "voice"))
 			'Games (scatter (Emap) :collapsed :nil
-				:apps '("chess" "minefield" "slider" "pairs" "solitaire" "onslaught"))
+				:apps '("chess" "minefield" "slider" "pairs" "solitaire" "onslaught" "spectrum"))
 			'Demos (scatter (Emap) :collapsed :nil
 				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "raymarch" "surface" "planets" "model"))
 			'Science (scatter (Emap) :collapsed :nil
