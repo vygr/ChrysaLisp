@@ -213,13 +213,15 @@
 	;blocks by their names, asked of a service all at once, each checked
 	;against its name. One it has not got, or that is not what its name
 	;says, is had of another member that has it, (storage-block), or :nil.
-	;Once one has said nothing in the time, the rest are only looked at
+	;Once one has said nothing in the time, the rest are only looked at,
+	;and those not there are :nil: there is no service to say who else has
 	(defq quiet :nil)
 	(map (lambda (mbox hash)
 			(defq data (storage-heard mbox quiet))
 			(cond
 				((and data (eql (sha256 data) hash)) data)
-				(:t (setq quiet (or quiet (not data))) (storage-block hash svc))))
+				((or quiet (not data)) (setq quiet :t) :nil)
+				((storage-block hash svc))))
 		(map (# (storage-send svc +storage_type_block_get %0)) hashes) hashes))
 
 (defun storage-put-stream (name stream &optional from svc tick)
@@ -269,11 +271,18 @@
 
 (defun storage-file-copy (from to)
 	; (storage-file-copy from to) -> :nil | :t
-	;a file of the host written over with what is in another
-	(when (and (defq in (file-stream from)) (defq out (file-stream to +file_open_write)))
-		(while (defq part (read-blk in 65536)) (write-blk out part))
+	;a file of the host written over with what is in another. :t only if
+	;all of it was read and the file is now as long, so a write the host
+	;did not take, a full disk say, is :nil
+	(when (and (defq info (pii-fstat from)) (defq in (file-stream from))
+			(defq out (file-stream to +file_open_write)))
+		(defq bytes 0)
+		(while (defq part (read-blk in 65536))
+			(write-blk out part)
+			(setq bytes (+ bytes (length part))))
 		(stream-flush out)
-		:t))
+		(setq out :nil)
+		(and (= bytes (second info)) (defq info (pii-fstat to)) (= bytes (second info)))))
 
 (defun storage-get-file (name file &optional svc tick)
 	; (storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
@@ -283,7 +292,9 @@
 	;make the file, :lost if a block of it could not be had. tick as for
 	;(storage-put-stream). A file not written whole is taken away. A file
 	;there already is only written over once all of it has been had, into
-	;a file of its own next to it, so it is as it was if it is not
+	;a file of its own next to it, so it is as it was if it is not. That
+	;file is only taken away once it is copied over whole: if the copy
+	;fails, :host, it is kept, the one whole copy there is
 	(defq there (pii-fstat file) to file n 0)
 	(if there (while (pii-fstat (setq to (cat file ".part" (if (> (++ n) 1) (str n) ""))))))
 	(cond
@@ -297,8 +308,11 @@
 			(stream-flush host)
 			(setq host :nil)
 			(and (eql how :ok) (stream-fault object) (setq how :lost))
-			(and (eql how :ok) there (not (storage-file-copy to file)) (setq how :host))
-			(if (or there (not (eql how :ok))) (pii-remove to))
+			(cond
+				((not there) (unless (eql how :ok) (pii-remove to)))
+				((not (eql how :ok)) (pii-remove to))
+				((storage-file-copy to file) (pii-remove to))
+				((setq how :host)))
 			(if (eql how :ok) (list :ok bytes) (list how :nil)))))
 
 ;how many blocks a copy between stores has on their way at once

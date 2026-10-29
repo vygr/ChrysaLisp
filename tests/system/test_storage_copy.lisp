@@ -97,6 +97,14 @@
 	(assert-list-eq "one over a file there" (list :ok (length sc_small)) (storage-get-file "x/small" sc_file sc_a))
 	(assert-eq "writes it over, all of it" sc_small (sc-read sc_file))
 	(assert-eq "and leaves nothing next to it" 0 (age (cat sc_file ".part")))
+	;a file there that the host will not write over: the copy over fails,
+	;and the whole one next to it is kept
+	(pii-chmod sc_file 292)
+	(assert-list-eq "one over a file the host will not write" '(:host :nil) (storage-get-file "x/big" sc_file sc_a))
+	(assert-eq "leaves the file as it was" sc_small (sc-read sc_file))
+	(assert-eq "and keeps the whole one next to it" sc_big (sc-read (cat sc_file ".part")))
+	(pii-chmod sc_file 420)
+	(pii-remove (cat sc_file ".part"))
 	(pii-remove sc_file)
 	(assert-list-eq "a get to no file, told to stop" '(:stopped :nil) (storage-get-file "x/big" sc_file sc_a (sc-ticks 1000)))
 	(assert-eq "leaves no file" 0 (age sc_file))
@@ -108,7 +116,11 @@
 	(defq sc_quiet (mail-mbox) sc_t0 (pii-time) sc_blocks (map (# (sc-bytes 64 %0)) (range 0 8)))
 	(assert-eq "blocks put to a service that says nothing are lost" :lost
 		(storage-puts sc_quiet sc_blocks (map (const sha256) sc_blocks)))
-	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000))))
+	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000)))
+	(setq sc_t0 (pii-time))
+	(assert-list-eq "blocks got of a service that says nothing are none" (quote (:nil :nil :nil :nil :nil :nil :nil :nil))
+		(storage-gets sc_quiet (map (const sha256) sc_blocks)))
+	(assert-true "in the time of one wait, not asked again for each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000))))
 
 (each (lambda (svc image)
 		(when svc (storage-stop svc))
