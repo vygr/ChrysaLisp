@@ -216,7 +216,11 @@
 	;pins, a sweep, a check
 	(assert-list-eq "a pin" '("b/") (storage-pin "b/" :nil sg_svc))
 	(assert-list-eq "all of what is pinned is here" '() (storage-pins-missing sg_svc))
+	(assert-list-eq "the store's info has the pins, one with a space" '("b/" "c d")
+		(progn (storage-pin "c d" :nil sg_svc) (sort (. (storage-info sg_svc) :find :pins))))
+	(storage-pin "c d" :t sg_svc)
 	(assert-list-eq "the pin off" '() (storage-pin "b/" :t sg_svc))
+	(assert-list-eq "and none in its info" '() (. (storage-info sg_svc) :find :pins))
 	(storage-delete "a/big" :nil sg_svc)
 	(storage-delete "a/sorted" :nil sg_svc)
 	(assert-true "a sweep lets go of the blocks of what was deleted" (> (storage-sweep sg_svc) 0))

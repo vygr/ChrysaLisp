@@ -103,21 +103,23 @@
 	;what a service said of its store, as (storage-info) gives it: for
 	;what asked with (storage-send), of several at once
 	(when answer
-		(defq info (Emap))
+		(defq info (Emap) pins (list))
 		(each (lambda (line)
 			(when (defq at (find " " line))
 				(defq key (sym (cat ":" (slice line 0 at))) val (slice line (inc at) -1))
-				(. info :insert key (cond
-					((eql key :members) (split val " "))
-					((find key '(:id :member)) val)
-					((str-as-num val))))))
+				(cond
+					((eql key :pin) (push pins val))
+					((. info :insert key (cond
+						((eql key :members) (split val " "))
+						((find key '(:id :member)) val)
+						((str-as-num val))))))))
 			(split answer +storage_lf))
-		info))
+		(. info :insert :pins pins)))
 
 (defun storage-info (&optional svc)
 	; (storage-info [svc]) -> :nil | emap
 	;what the store is: :id :member :members :block_size :copies :objects
-	;:blocks :free
+	;:blocks :free, and :pins, the prefixes this member holds all of
 	(storage-info-read (storage-ask (ifn svc (storage-service)) +storage_type_info)))
 
 (defun storage-stat (name &optional svc)

@@ -55,4 +55,4 @@
 	+sym_media_end 0xe087 +sym_media_record 0xe088 +sym_media_live 0xe089
 	+sym_media_join 0xe08a +sym_laptop 0xe08b +sym_palette 0xe08c
 	+sym_menu 0xe08d +sym_mic 0xe08e +sym_mute 0xe08f +sym_headphones 0xe090
-	+sym_insert 0xe091)
+	+sym_insert 0xe091 +sym_pin 0xe092 +sym_unpin 0xe093)

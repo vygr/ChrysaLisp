@@ -58,10 +58,12 @@
 
 (defun info-text (store)
 	(bind '(objects blocks free) (store-info store))
-	(join (list (cat "id " (get :id store)) (cat "member " (get :member store))
+	(join (cat (list (cat "id " (get :id store)) (cat "member " (get :member store))
 		(cat "members " (join (store-members store) " "))
 		(cat "block_size " (str (get :block_size store))) (cat "copies " (str (get :copies store)))
 		(cat "objects " (str objects)) (cat "blocks " (str blocks)) (cat "free " (str free)))
+		;a line a prefix this member has pinned, as one may have spaces in it
+		(map (# (cat "pin " %0)) (get :pins store)))
 		+storage_lf))
 
 ;how long what was learnt from another member may wait to be written

@@ -257,7 +257,12 @@
 	(list "headphones" (cat (s-arc 12 14 8 0 180) (s-rrect 3 14 7.5 21 1.5) (s-rrect 16.5 14 21 21 1.5)))
 	;what is in a file put in with what is there, a folder with a plus, as
 	;new is a document with one
-	(list "insert" (cat s_folder (s-line 9 13 15 13) (s-line 12 10 12 16)))))
+	(list "insert" (cat s_folder (s-line 9 13 15 13) (s-line 12 10 12 16)))
+	;a drawing pin, a cap flared at its foot over the point, for what is held
+	;here, and the same moved over with a cross beside it, as mute, for not
+	(list "pin" (cat (s-loop 9 3 15 3 15 9 18 13 6 13 9 9) (s-line 12 13 12 21)))
+	(list "unpin" (cat (s-loop 5 3 11 3 11 9 14 13 2 13 5 9) (s-line 8 13 8 21)
+		(s-line 17.5 2.5 22 7) (s-line 22 2.5 17.5 7)))))
 
 ;;;;;;;;;;;;
 ; the themes

@@ -1,6 +1,6 @@
 (enums +event 0
 	(enum close max min)
-	(enum to_right to_left delete refresh)
+	(enum to_right to_left delete pin unpin refresh)
 	(enum skip replace both)
 	(enum copies cancel)
 	(enum source_0 source_1 path_0 path_1 up_0 all_0 up_1 all_1))
@@ -32,7 +32,7 @@
 	(ui-title-bar *title* "Stores" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill :paper :paper_toolbar)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (+sym_go_forward +sym_go_back +sym_delete +sym_reset) +event_to_right))
+			(ui-buttons (+sym_go_forward +sym_go_back +sym_delete +sym_pin +sym_unpin +sym_reset) +event_to_right))
 		(ui-tool-bar *rule_toolbar* ()
 			(ui-buttons (+sym_step +sym_replace +sym_duplicate) +event_skip))
 		(ui-flow _ (:flow_flags +flow_right_fill :font :font_button)
@@ -50,7 +50,7 @@
 			(stores-side 0)
 			(stores-side 1))))
 
-(ui-tool-tips *main_toolbar* '("right" "left" "delete" "refresh"))
+(ui-tool-tips *main_toolbar* '("right" "left" "delete" "pin" "unpin" "refresh"))
 (ui-tool-tips *rule_toolbar* '("skip" "replace" "keep both"))
 (ui-tool-tips *cancel_toolbar* '("cancel"))
 (ui-tool-tips *tools_0* '("up" "all"))

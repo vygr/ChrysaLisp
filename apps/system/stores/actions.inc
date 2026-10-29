@@ -15,6 +15,8 @@
 	+event_to_right action-to-right
 	+event_to_left action-to-left
 	+event_delete action-delete
+	+event_pin action-pin
+	+event_unpin action-unpin
 	+event_refresh action-refresh
 	+event_skip action-skip
 	+event_replace action-replace

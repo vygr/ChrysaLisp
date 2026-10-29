@@ -75,8 +75,8 @@
 						((push files (list name :nil (defq bytes (host-bytes (host-path folder name))) (bytes-said bytes))))))
 				names kinds))
 		(:t (defq svc (side-svc side) start (if (empty? folder) "" (cat folder "/"))
-				members (ifn (storage-members :nil svc) (list))
-				dial (ifn (. (ifn (storage-info svc) (Emap)) :find :copies) 0) sums (Fmap))
+				members (ifn (storage-members :nil svc) (list)) info (ifn (storage-info svc) (Emap))
+				dial (ifn (. info :find :copies) 0) pins (ifn (. info :find :pins) (list)) sums (Fmap))
 			(each (lambda (entry)
 					(defq rest (slice (first entry) (length start) -1) bytes (elem-get entry +store_entry_bytes))
 					(cond
@@ -92,11 +92,17 @@
 								seen (length (filter (# (find %0 members)) (elem-get entry +store_entry_seen))))
 							(push files (list rest :nil bytes
 								(cat (bytes-said bytes) "  x" (str (if (> copies 0) copies dial)) (if (> copies 0) "" "*")
-									"  " (str seen) "/" (str (length members))))))))
+									"  " (str seen) "/" (str (length members))
+									(if (some (# (starts-with %0 (first entry))) pins) "  pinned" "")))))))
 				(ifn (storage-list start svc) (list)))
 			(setq folders (map (lambda (name)
 					(bind '(count bytes) (. sums :find name))
-					(list name :t bytes (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said bytes))))
+					(defq path (cat start name "/"))
+					(list name :t bytes (cat (str count) (if (= count 1) " object, " " objects, ") (bytes-said bytes)
+						(cond
+							((some (# (starts-with %0 path)) pins) ", pinned")
+							((some (# (starts-with path %0)) pins) ", some pinned")
+							("")))))
 				folders))))
 	(defq by_name (# (cmp (first %0) (first %1))))
 	(cat (sort folders by_name) (sort files by_name)))
@@ -115,7 +121,7 @@
 	(def note :text (cat (str (length rows)) " here"
 		(if (> (length rows) +rows_max) (cat ", the first " (str +rows_max) " shown") "")
 		(if (nempty? taken) (cat ", " (str (length taken)) " taken") "")
-		(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it")))
+		(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it, pinned if this member holds all of it")))
 	(.-> note :layout :dirty))
 
 (defun side-paint (s)
@@ -328,6 +334,30 @@
 		((empty? (. side :find :taken)) (say "Click the names of what to set the copies of first."))
 		((< copies 0) (say "Copies is a number, 0 for as many as the store says."))
 		((work-start :copies side side copies))))
+
+(defun action-pin-set (off)
+	;what is taken on the side last clicked held all of by the member that
+	;side is, wherever else it is kept, or with off no longer. A folder is
+	;all under it, now and to come. What is pinned by a folder above is
+	;unpinned only by that folder
+	(defq side (elem-get *sides* *active*) taken (. side :find :taken) rows (. side :find :rows)
+		folder (. side :find :folder) pins :nil)
+	(setq *delete* :nil)
+	(cond
+		(*work* (say "Busy: Cancel what is being done first."))
+		((side-host? side) (say "Pins are of what is in a store."))
+		((empty? taken) (say (cat "Click the names of what to " (if off "unpin" "pin") " first.")))
+		(:t (each (lambda (name)
+					(defq path (if (empty? folder) name (cat folder "/" name)))
+					(if (some (# (and (eql (first %0) name) (second %0))) rows) (setq path (cat path "/")))
+					(setq pins (storage-pin path off (side-svc side))))
+				taken)
+			(look-again)
+			(say (if pins (cat "This member has " (str (length pins)) (if (= (length pins) 1) " pin." " pins."))
+				"The store did not answer.")))))
+
+(defun action-pin () (action-pin-set :nil))
+(defun action-unpin () (action-pin-set :t))
 
 (defun action-cancel ()
 	(if *work* (mail-send *work* "stop") (say "Nothing is being done.")))
