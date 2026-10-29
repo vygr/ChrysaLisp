@@ -90,6 +90,11 @@
             written as one, \q\\n\q, with the escape the reader
             has for it, \\r \\f \\v \\n \\t \\q \\b \\\\, the
             char itself, or \\x and its code.
+    glyph   a number of the symbol font's, 0xe000 to 0xf8ff,
+            in the buttons of a (ui-title-bar) or (ui-buttons):
+            it is drawn as nothing if the font has no such
+            glyph, the +sym_ name of lib/consts/symbols.inc is
+            the one that is there.
     unbound a call of what is no function or macro of the
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
@@ -203,7 +208,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "glyph" "unbound")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -404,6 +409,20 @@
 			((eql (first (second forms)) :number) (catch (str-to-num text) :nil))
 			((starts-with "+char_" text) (. *char_codes* :find text)))))
 		(found file (second forms) "char" "(ascii-char " text ") is a char, write it " (char-literal code))))
+
+(defun check-glyph (file forms head)
+	;(ui-buttons (0xea19 ...)): a glyph of the symbol font by its number,
+	;drawn as nothing if the font has none, the +sym_ name is what is there
+	(when (find head '("ui-title-bar" "ui-buttons"))
+		(each (lambda (form)
+			(if (defq kids (tree-form? form))
+				(each (lambda (kid)
+					(and (eql (first kid) :number)
+						(num? (defq code (catch (str-to-num (third kid)) :nil)))
+						(<= 0xe000 code 0xf8ff)
+						(found file kid "glyph" (third kid) " is a glyph by its number, give its +sym_ name")))
+					(forms-of kids))))
+			(rest forms))))
 
 (defun char-literal (code)
 	; (char-literal code) -> str
@@ -1382,6 +1401,7 @@
 							(if (find "past" checks) (check-past file forms head))
 							(if (find "shift" checks) (check-shift file forms head))
 							(if (find "char" checks) (check-char file forms head))
+							(if (find "glyph" checks) (check-glyph file forms head))
 							(if (find "again" checks) (check-again file forms head))
 							(if (find "cut" checks) (check-cut file forms head))
 							(if (find "copy" checks) (check-copy file forms head))
