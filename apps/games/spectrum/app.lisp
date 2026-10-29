@@ -15,7 +15,7 @@
 ;stream of the audio service, each frame's samples written as it is run,
 ;and the frames are kept to it. What it was at when closed, the game,
 ;the zoom, the sound, and the machine itself, all of its memory and its
-;Z80, is where it opens again, paused
+;Z80, is kept in its config, and is where it opens again, paused
 
 (import "./widgets.inc")
 
@@ -26,8 +26,7 @@
 	*zoom* 2 *running* :t *paused* :nil *frame* 0 *file* :nil *tape* :nil *picker* :nil
 	*canvas* :nil *sound* :nil *quiet* :nil *held* (list) *script* (list) *key_map* (zx-key-map) *joy_map* (zx-joy-map)
 	*machine* (zx-machine (load (cat *app_root* "data/48.rom")))
-	+config_version 1 +config_file (cat (get :home *env*) "spectrum.tre")
-	+machine_file (cat (get :home *env*) "spectrum.zxm"))
+	+config_version 1 +config_file (cat (get :home *env*) "spectrum.tre"))
 
 (defun say ()
 	;what is shown, in the line at the foot
@@ -131,7 +130,7 @@
 			(eql (. config :find :version) +config_version))
 		(setq *zoom* (max +zoom_min (min +zoom_max (ifn (. config :find :zoom) *zoom*)))
 			*quiet* (. config :find :quiet))
-		(when (and (defq machine (load +machine_file)) (= (length machine) +zx_machine_size))
+		(when (and (defq machine (. config :find :machine)) (str? machine) (= (length machine) +zx_machine_size))
 			(defq file (. config :find :file) ext (if file (path-ext file)) data (if file (load file)))
 			(setq *machine* machine *frame* (ifn (. config :find :frame) 0) *paused* :t
 				*script* (ifn (. config :find :script) (list)))
@@ -147,8 +146,8 @@
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write)
 			(scatter (Emap) :version +config_version :zoom *zoom* :quiet *quiet*
-				:file *file* :tape_at (if *tape* (second *tape*) 0) :frame *frame* :script *script*)))
-	(save *machine* +machine_file))
+				:file *file* :tape_at (if *tape* (second *tape*) 0) :frame *frame* :script *script*
+				:machine *machine*))))
 
 (defun key (scode down)
 	; (key scode down) -> :t | :nil
