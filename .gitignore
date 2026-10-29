@@ -5,6 +5,7 @@ deps/
 /x64/
 /ai/
 /usr/*/*.tre
+/usr/*/*.zxm
 /usr/*/chat_*
 /usr/*/theme
 /usr/*/voice_notes/

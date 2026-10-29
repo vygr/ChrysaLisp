@@ -4,6 +4,7 @@
 (import "lib/consts/scodes.inc")
 (import "apps/system/files/picker.inc")
 (import "service/audio/app.inc")
+(import "service/lock/app.inc")
 (import "./machine.inc")
 
 ;A Spectrum 48K. The Z80 runs a frame at a time in native code, 50 frames
@@ -12,17 +13,21 @@
 ;host are the Spectrum's, Shift is CAPS SHIFT, Ctrl or Alt SYMBOL SHIFT,
 ;the arrows and Tab a Kempston joystick, Escape pauses. The beeper is a
 ;stream of the audio service, each frame's samples written as it is run,
-;and the frames are kept to it
+;and the frames are kept to it. What it was at when closed, the game,
+;the zoom, the sound, and the machine itself, all of its memory and its
+;Z80, is where it opens again, paused
 
 (import "./widgets.inc")
 
 (enums +select 0
 	(enum main timer tip picker))
 
-(defq +zoom_min 1 +zoom_max 4 +rate (/ 1000000 50) +file_types ''(".tap" ".tzx" ".z80" ".sna")
+(defq +zoom_min 1 +zoom_max 3 +rate (/ 1000000 50) +file_types ''(".tap" ".tzx" ".z80" ".sna")
 	*zoom* 2 *running* :t *paused* :nil *frame* 0 *file* :nil *tape* :nil *picker* :nil
 	*canvas* :nil *sound* :nil *quiet* :nil *held* (list) *script* (list) *key_map* (zx-key-map) *joy_map* (zx-joy-map)
-	*machine* (zx-machine (load (cat *app_root* "data/48.rom"))))
+	*machine* (zx-machine (load (cat *app_root* "data/48.rom")))
+	+config_version 1 +config_file (cat (get :home *env*) "spectrum.tre")
+	+machine_file (cat (get :home *env*) "spectrum.zxm"))
 
 (defun say ()
 	;what is shown, in the line at the foot
@@ -118,6 +123,33 @@
 	(keys)
 	(say))
 
+(defun state-load ()
+	;where it was when closed: the zoom and sound, and the game and the
+	;machine as they were, paused. A tape is had again from its file, at
+	;the block it was next to read, and what was left of LOAD "" typed
+	(when (and (defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
+			(eql (. config :find :version) +config_version))
+		(setq *zoom* (max +zoom_min (min +zoom_max (ifn (. config :find :zoom) *zoom*)))
+			*quiet* (. config :find :quiet))
+		(when (and (defq machine (load +machine_file)) (= (length machine) +zx_machine_size))
+			(defq file (. config :find :file) ext (if file (path-ext file)) data (if file (load file)))
+			(setq *machine* machine *frame* (ifn (. config :find :frame) 0) *paused* :t
+				*script* (ifn (. config :find :script) (list)))
+			(cond
+				((not data))
+				((find ext '(".tap" ".tzx"))
+					(setq *file* file *tape* (list (if (eql ext ".tap") (zx-tap-blocks data) (zx-tzx-blocks data))
+						(ifn (. config :find :tape_at) 0))))
+				((setq *file* file)))
+			(keys))))
+
+(defun state-save ()
+	(with-write-lock +config_file
+		(tree-save (file-stream +config_file +file_open_write)
+			(scatter (Emap) :version +config_version :zoom *zoom* :quiet *quiet*
+				:file *file* :tape_at (if *tape* (second *tape*) 0) :frame *frame* :script *script*)))
+	(save *machine* +machine_file))
+
 (defun key (scode down)
 	; (key scode down) -> :t | :nil
 	;a key of the Spectrum or the joystick held or let go
@@ -147,6 +179,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(def *window* :tip_mbox (elem-get select +select_tip))
+	(state-load)
 	(screen-new)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -202,4 +235,7 @@
 	;a picker still open goes with it
 	(if *picker* (mail-send *picker* ""))
 	(sound-stop)
+	(setq *held* (list))
+	(keys)
+	(state-save)
 	(gui-sub-rpc *window*))
