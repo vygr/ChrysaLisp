@@ -39,6 +39,29 @@
 	(join (cat (list (str (elem-get e +ev_time)) (elem-get e +ev_member) (elem-get e +ev_kind))
 		(elem-get e +ev_words) (if (elem-get e +ev_path) (list (elem-get e +ev_path)) (list))) " "))
 
+;a set or map of the replay has no more than so many to a bucket, made
+;twice as big, and again, when it has more. A store of a million blocks
+;seeds a million lines, and sets of a size fixed made the replay of them
+;take time as the square of how many
+(defq +replay_per_bucket 16 +replay_grow_every 4096)
+
+(defun replay-fit (table)
+	; (replay-fit table) -> table
+	(defq buckets (get :num_buckets table) n (. table :size) want buckets)
+	(while (> n (* want +replay_per_bucket)) (setq want (* want 2)))
+	(if (> want buckets) (. table :resize want))
+	table)
+
+(defun replay-grow (r)
+	; (replay-grow r) -> r
+	;each set and map that grows with the store fitted to what it has
+	(each (# (replay-fit (. r :find %0))) '(:objects :all_paths :gophers :path_gopher :path_done))
+	(each (lambda (member)
+			(replay-fit (. (. r :find :held) :find member))
+			(replay-fit (. (. r :find :paths) :find member)))
+		(. r :find :members))
+	r)
+
 (defun replay-new ()
 	; (replay-new) -> replay
 	(defq r (Emap))
@@ -73,7 +96,9 @@
 			(. (. r :find :paths) :insert member (Fmap 101))
 			(. (. r :find :peers) :insert member (list))
 			(. (. r :find :cut) :insert member ""))
-		(if (elem-get e +ev_path) (. (. r :find :all_paths) :insert (elem-get e +ev_path))))
+		(if (elem-get e +ev_path) (. (. r :find :all_paths) :insert (elem-get e +ev_path)))
+		;now and then, not at every line, what has grown made bigger
+		(if (= 0 (% (length events) +replay_grow_every)) (replay-grow r)))
 	r)
 
 (defun replay-do (r e)

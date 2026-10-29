@@ -26,7 +26,9 @@
 		(scene-say sc "What m-e wrote last is kept as " (if (nempty? aside) (first (first aside)) "nothing"))
 		(scene-check sc "under the other name, on a member that was never away"
 			(and (nempty? aside) (eql (scene-bytes 5 "plan away 2") (storage-get (first (first aside)) (scene-svc sc "m-c")))))
+		;a member that does not answer in time is not the same, :nil
 		(scene-check sc "the five are the same"
-			(every (# (eql (. (storage-state (scene-svc sc "m-a")) :find :digest) (. (storage-state (second %0)) :find :digest)))
-				(. sc :find :svcs))))
+			(and (defq digest (. (ifn (storage-state (scene-svc sc "m-a")) (Emap)) :find :digest))
+				(every (# (eql digest (. (ifn (storage-state (second %0)) (Emap)) :find :digest)))
+					(. sc :find :svcs)))))
 	(scene-end sc))

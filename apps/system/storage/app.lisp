@@ -56,7 +56,9 @@
 ;what is kept for the user, from one time it runs to the next: the scene
 ;chosen, trace, the object shown, and whether the store of this system is
 ;being recorded, which it opens on
-(defq +config_file (cat (get :home *env*) "storage.tre") +config_version 2)
+;Record is off till it is turned on: a store of a million blocks seeds a
+;million lines, and a recording keeps every one of them
+(defq +config_file (cat (get :home *env*) "storage.tre") +config_version 3)
 
 (defun config-of ()
 	;what is to be kept, as it is now
@@ -66,7 +68,7 @@
 (defun config-load ()
 	(defq config (with-read-lock +config_file (tree-load (file-stream +config_file))))
 	(if (or (not config) (/= (. config :find :version) +config_version))
-		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "" :record :t)))
+		(setq config (scatter (Emap) :version +config_version :scene "demo" :trace :nil :shown "" :record :nil)))
 	(if (defq at (find (. config :find :scene) *scenes*)) (. *scene* :set_selected at))
 	;the object that was shown is wanted, and shown when it is there
 	(setq *trace* (. config :find :trace) *want* (. config :find :shown) *record* (. config :find :record)
