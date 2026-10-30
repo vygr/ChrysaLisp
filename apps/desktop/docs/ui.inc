@@ -30,7 +30,7 @@
 	;or no name, and the page is left where it is
 	(when (and (nempty? place) (defq page (get :child *page_scroll*))
 			(defq view (some (# (and (Md? %0) (. %0 :find_anchor place))) (. page :flatten))))
-		(bind '(& y & &) (. page :get_relative view))
+		(bind '(& y &ignore) (. page :get_relative view))
 		(def (get :vslider *page_scroll*) :value y)
 		(.-> *page_scroll* :layout :dirty_all)))
 

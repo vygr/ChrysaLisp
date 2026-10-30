@@ -26,37 +26,37 @@
 (bind '(s u o) (pd-check (pd-track 1 5 5 0 0) (pd-track 2 6 6 0 0)))
 (assert-eq "two tracks 1 apart, clear" 0 (length s))
 (assert-list-eq "and each net joined" '() u)
-(bind '(s & &) (pd-check (pd-track 1 5 5 0 0) (pd-track 2 5.3 5.3 0 0)))
+(bind '(s &ignore) (pd-check (pd-track 1 5 5 0 0) (pd-track 2 5.3 5.3 0 0)))
 (assert-true "0.3 apart, a short" (> (length s) 0))
 (assert-list-eq "between the two nets" '(1 2) (sort (slice (first s) 0 2) (# (- %0 %1))))
-(bind '(s & &) (pd-check (pd-track 1 5 15 1 1) (pd-track 2 15 5 0 0)))
+(bind '(s &ignore) (pd-check (pd-track 1 5 15 1 1) (pd-track 2 15 5 0 0)))
 (assert-eq "crossing on two layers, clear" 0 (length s))
-(bind '(s & &) (pd-check (pd-track 1 5 15 0 0) (pd-track 2 15 5 0 0)))
+(bind '(s &ignore) (pd-check (pd-track 1 5 15 0 0) (pd-track 2 15 5 0 0)))
 (assert-true "crossing on one layer, a short" (> (length s) 0))
 
 ;a via goes through every layer
-(bind '(s u &) (pd-check
+(bind '(s u &ignore) (pd-check
 	(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))
 	(pd-track 2 10.3 10.3 1 1)))
 (assert-true "a via by a track of the other layer, a short" (> (length s) 0))
-(bind '(s u &) (pd-check
+(bind '(s u &ignore) (pd-check
 	(pd-net 1 (list (pd-pad 2 10 0) (pd-pad 18 10 1)) (list (list '(2 10 0) '(10 10 0) '(10 10 1) '(18 10 1))))))
 (assert-list-eq "and a net that changes layer by it is joined" '() u)
 
 ;an SMT pad is its shape filled
 (defq pd_smt "(0.0 0.127 (10.0 10.0 0.0) ((-1.0 -1.0)(1.0 -1.0)(1.0 1.0)(-1.0 1.0)(-1.0 -1.0)))")
-(bind '(s & &) (pd-check (pd-net 1 (list pd_smt) '()) (pd-track 2 10 10 0 0)))
+(bind '(s &ignore) (pd-check (pd-net 1 (list pd_smt) '()) (pd-track 2 10 10 0 0)))
 (assert-true "a track across the inside of another net's pad, a short" (> (length s) 0))
-(bind '(s & &) (pd-check (pd-net 1 (list pd_smt) '()) (pd-track 2 13 13 0 0)))
+(bind '(s &ignore) (pd-check (pd-net 1 (list pd_smt) '()) (pd-track 2 13 13 0 0)))
 (assert-eq "and 3 from its middle, 2 from its edge, clear" 0 (length s))
-(bind '(& u &) (pd-check (pd-net 1 (list pd_smt (pd-pad 18 10 0)) (list '((10 10 0) (18 10 0))))))
+(bind '(& u &ignore) (pd-check (pd-net 1 (list pd_smt (pd-pad 18 10 0)) (list '((10 10 0) (18 10 0))))))
 (assert-list-eq "a track from inside its own pad joins it" '() u)
 
-(bind '(& u &) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 18 5 0)) '())))
+(bind '(& u &ignore) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 18 5 0)) '())))
 (assert-list-eq "a net with no track between its pads, unjoined" '(1) u)
-(bind '(& u &) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 18 5 0)) (list '((2 5 0) (10 5 0))))))
+(bind '(& u &ignore) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 18 5 0)) (list '((2 5 0) (10 5 0))))))
 (assert-list-eq "and with half of one" '(1) u)
-(bind '(& u &) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 2 5 1) (pd-pad 18 5 1)) (list '((2 5 1) (18 5 1))))))
+(bind '(& u &ignore) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 2 5 1) (pd-pad 18 5 1)) (list '((2 5 1) (18 5 1))))))
 (assert-list-eq "a pad through the board, met on one layer, is joined by its hole" '() u)
 (bind '(& & o) (pd-check (pd-net 1 (list (pd-pad 2 5 0) (pd-pad 18 5 0)) (list '((2 5 0) (2 25 0) (18 5 0))))))
 (assert-list-eq "a track off the board" '(1) o)

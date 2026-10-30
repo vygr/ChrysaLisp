@@ -48,7 +48,7 @@
 		; "a/b/c/file"
 		; "a/b/c/."
 		(raise :file_tree :action_event)
-		(bind '(toggle_width &) (font-glyph-bounds (get :font_tiny_symbol *env*) +files_open))
+		(bind '(toggle_width &ignore) (font-glyph-bounds (get :font_tiny_symbol *env*) +files_open))
 		(defq route (split route "/") root file_tree)
 		(each! (lambda (branch)
 			(cond

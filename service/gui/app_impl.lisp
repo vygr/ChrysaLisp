@@ -130,7 +130,7 @@
 	;the reply to an at: (x y), as gui-at-rpc sends it, the title of the
 	;window in front at that place on the screen, "" if there is none
 	(bind '(x y) (first (read (string-stream request))))
-	(bind '(view & &) (. *screen* :hit_tree x y))
+	(bind '(view &ignore) (. *screen* :hit_tree x y))
 	(if (eql view *screen*) (setq view :nil))
 	(while (and view (nql (penv view) *screen*)) (setq view (penv view)))
 	(ifn (and view (window-title view)) ""))

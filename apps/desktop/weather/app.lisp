@@ -193,9 +193,9 @@
 		; Forecast cards
 		(when (>= (length forecast) 3)
 			(bind '(d1 d2 d3 &ignore) forecast)
-			(bind '(dt1 mx1 mn1 mxf1 mnf1 desc1 &) d1)
-			(bind '(dt2 mx2 mn2 mxf2 mnf2 desc2 &) d2)
-			(bind '(dt3 mx3 mn3 mxf3 mnf3 desc3 &) d3)
+			(bind '(dt1 mx1 mn1 mxf1 mnf1 desc1 &ignore) d1)
+			(bind '(dt2 mx2 mn2 mxf2 mnf2 desc2 &ignore) d2)
+			(bind '(dt3 mx3 mn3 mxf3 mnf3 desc3 &ignore) d3)
 			(def *fc_d1_date* :text (if (>= (length dt1) 5) (slice dt1 5 -1) dt1))
 			(def *fc_d1_desc* :text desc1)
 			(def *fc_d1_temp* :text (if *unit_c* (cat mx1 " / " mn1 " C") (cat mxf1 " / " mnf1 " F")))

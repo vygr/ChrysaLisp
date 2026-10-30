@@ -314,7 +314,7 @@
 	;was asked: kept, and each file asked of the old one is asked of it.
 	;None: the tasks that wait are told
 	(each (lambda ((key out))
-			(bind '(& waiters out_sid path &) out)
+			(bind '(& waiters out_sid path &ignore) out)
 			(when (eql out_sid sid)
 				(defq old (slice key 0 (find " " key)))
 				(cond

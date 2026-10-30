@@ -50,7 +50,7 @@
 	key)
 
 (defun set-mouse-id ()
-	(bind '(view & &) (. *screen* :hit_tree *mouse_x* *mouse_y*))
+	(bind '(view &ignore) (. *screen* :hit_tree *mouse_x* *mouse_y*))
 	(unless view (setq view *screen*))
 	(when (/= (defq mouse_id (. view :get_id)) *mouse_id*)
 		(and (defq old_view (. *screen* :find_id *mouse_id*))
@@ -233,7 +233,7 @@
 		x (getf msg +gui_event_x) y (getf msg +gui_event_y)
 		view (if (defq held (. *pointer_views* :find id)) (. *screen* :find_id held)))
 	(unless view
-		(bind '(view & &) (. *screen* :hit_tree x y))
+		(bind '(view &ignore) (. *screen* :hit_tree x y))
 		(unless view (setq view *screen*)))
 	(cond
 		((= type +gui_ev_pointer_down)

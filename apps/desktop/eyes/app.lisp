@@ -83,7 +83,7 @@
 (defun redraw (mx my)
 	(bind '(w h) (. *canvas* :pref_size))
 	; Relative mouse position within the canvas
-	(bind '(canvas_x canvas_y & &) (. (penv *window*) :get_relative *canvas*))
+	(bind '(canvas_x canvas_y &ignore) (. (penv *window*) :get_relative *canvas*))
 	(defq fw (n2f w) fh (n2f h) rel_mx (n2f (- mx canvas_x)) rel_my (n2f (- my canvas_y))
 		eye_r (* fh 0.48) eye_cy (* fh 0.5))
 	(shader-vp-draw eyes_native
@@ -120,7 +120,7 @@
 		(cond
 			((= idx +select_timer)
 				(defq start (pii-time))
-				(bind '(mx my & &) (gui-info))
+				(bind '(mx my &ignore) (gui-info))
 				(when (or (/= mx last_mx) (/= my last_my))
 					(setq last_mx mx last_my my)
 					(redraw mx my))

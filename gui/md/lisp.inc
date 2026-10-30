@@ -248,7 +248,7 @@
 				(setq link_end :nil)
 				(defq text (create-word word state search_widgets flow :nil link)
 					room (- max_width (ifn indent_width 0)))
-				(bind '(w &) (. text :pref_size))
+				(bind '(w &ignore) (. text :pref_size))
 				(defq texts (list text))
 				(when (and (> w room) (> (length word) 1))
 					;it would not fit a line of its own, so it is cut into
@@ -260,7 +260,7 @@
 						(setq texts (map (# (create-word %0 state search_widgets flow
 							(if (= (!) (dec (length parts))) " " "") link)) parts))))
 				(each (lambda (text)
-					(bind '(w &) (. text :pref_size))
+					(bind '(w &ignore) (. text :pref_size))
 					(when (> (++ cnt w) max_width)
 						(setq flow (line-flow this container font_size))
 						(when indent_width

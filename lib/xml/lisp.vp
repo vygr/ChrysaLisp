@@ -49,7 +49,7 @@
 		(class/obj/ref obj tmp))
 
 	(defun find_char_in (s)
-		(bind '(st ch &) (method-input :str :find))
+		(bind '(st ch &ignore) (method-input :str :find))
 		(assign `(,c) `(,ch))
 		(assign s `(,st))
 		(d-call :str :find `(,st ,ch 0) '(_ _ idx)))

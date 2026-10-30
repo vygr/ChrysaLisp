@@ -46,7 +46,7 @@
 	(defq mv (elem-get (get :sp_components this) +comp_move))
 	(when (and (>= (get :sp_y this) 52) (/= (get 'ay mv) 0))
 		(set mv 'ay 0 'vy 0)
-		(bind '(sx &) (. this :sp_get_pos))
+		(bind '(sx &ignore) (. this :sp_get_pos))
 		(. this :sp_set_pos sx 52)
 		(play-sfx *sfx_clash2* this)
 		(spawn-fizz-fx (+ sx 8) 84)

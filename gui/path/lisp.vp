@@ -282,7 +282,7 @@
 	(call :str :create_from_buffer (vpx "-0123456789" 11) (vpx num_start_chars))
 	(call :str :create_from_buffer (vpx ".0123456789" 11) (vpx num_mid_chars))
 
-	(bind '(st ch &) (method-input :str :find))
+	(bind '(st ch &ignore) (method-input :str :find))
 	(vp-xor-rr state state)
 	(loop-start)
 		(vp-cpy-ir-ub d 0 c)

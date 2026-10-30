@@ -16,7 +16,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(bind '(payload desc &) (method-input :lisp :repl_error))
+	(bind '(payload desc &ignore) (method-input :lisp :repl_error))
 	(list-bind-args :r1 `(,desc ,payload) '(:str :obj))
 	(jump :lisp :repl_error `(,payload ,desc 0))
 

@@ -68,7 +68,11 @@
     ignore  a name after &ignore in a (bind) list or a list
             of parameters, or a list in one: &ignore ends
             the list, and the name is never bound. & is the
-            place that takes a thing and binds nothing.
+            place that takes a thing and binds nothing. And a
+            (bind) list that ends in &, (bind '(a b & &) x):
+            what is not wanted to the end is &ignore. & at the
+            end says there are no more, an error if there are;
+            where that is meant, ;check off on the line.
     param   a list of parameters, or a list in one, whose
             first name is a macro of the system, (defun f
             (bits) ...): it is expanded as a call of it.
@@ -345,7 +349,18 @@
 		(each (# (if (defq inner (tree-form? %0)) (push todo inner))) names)
 		(and (defq at (some (# (and (eql (first %0) :symbol) (eql (third %0) "&ignore") (!))) names))
 			(< (inc at) (length names))
-			(found file (elem-get names at) "ignore" "names after &ignore are never bound, it ends the list; & takes one thing and binds nothing"))))
+			(found file (elem-get names at) "ignore" "names after &ignore are never bound, it ends the list; & takes one thing and binds nothing"))
+		;a bind of what is not wanted to the end of what it is given, its
+		;last places &, is &ignore there. & there says there is no more, an
+		;error if there is, which is seldom what is meant. Not with &most or
+		;&rest, where the & after is a place of its own
+		(and (eql head "bind") (nempty? names)
+			(defq amp (# (and (eql (first %0) :symbol) (eql (third %0) "&"))))
+			(amp (last names))
+			(notany (# (and (eql (first %0) :symbol) (find (third %0) '("&most" "&rest")))) names)
+			(defq at (length names))
+			(progn (while (and (> at 0) (amp (elem-get names (dec at)))) (setq at (dec at))) :t)
+			(found file (elem-get names at) "ignore" "a bind that ends in & is an error if given more, &ignore says the rest is not wanted; ;check off if more is an error"))))
 
 (defun check-param (file forms head)
 	;(defun f (bits) ...): a list of parameters is expanded as any list is,

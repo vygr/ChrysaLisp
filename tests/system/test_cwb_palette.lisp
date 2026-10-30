@@ -291,7 +291,7 @@
 	(:set :touch 0x1000000 :nil :mode :rect))
 (assert-eq "two devices bound, a square each, each the colour of its place, touch the second, a first pen a student's the fourth"
 	(str (list 0xff000000 0xffff0000)) (str (map (# (first (first (filter (lambda (d) (= (third d) %0)) (. pf :devices))))) '(1 3))))
-(defq pf_what (lambda (slot key) (bind '(& what &) (first (filter (# (= (third %0) slot)) (. pf :devices))))
+(defq pf_what (lambda (slot key) (bind '(& what &ignore) (first (filter (# (= (third %0) slot)) (. pf :devices))))
 	(elem-get what (ptr-at what key))))
 (assert-eq "a device bound shows what it bound itself: touch's mode, the pen's colour"
 	(str (list :rect 0xffe03131)) (str (list (pf_what 1 :mode) (pf_what 3 :color))))
