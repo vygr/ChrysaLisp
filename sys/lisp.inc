@@ -340,6 +340,44 @@
 		(>= (str-as-num (elem-get host 3)) 2)
 		((ffi "sys/pii/lisp_kill") pid)))
 
+(defun node-leave ()
+	; (node-leave) -> :nil | num
+	;as this node goes, the nodes it started, and those they started, the
+	;tree of their notes, stopped, and their notes and links cleared away,
+	;unless a front among them, a desktop or a terminal, is still up: the
+	;session lives on in that. A desktop the member started that started
+	;nodes of its own, nodes -a in a terminal on it, takes them with it. :nil
+	;if nothing went, else how many were told to. Each node of this machine
+	;is sent the processes that are to go, and goes if it is one; what is
+	;still up a moment on is ended by the host
+	(unless (eql (os) 'Windows)
+		(defq todo (list (pii-pid)) seen (list) pids (list) links (list) files (list) front :nil)
+		(while (defq pid (pop todo))
+			(unless (find pid seen)
+				(push seen pid)
+				(defq file (cat "/tmp/chrysalisp_" (str pid) ".session"))
+				(when (defq text (load file))
+					(push files file)
+					(each (lambda (line)
+						(defq parts (split line " "))
+						(cond
+							((< (length parts) 2))
+							((eql (first parts) "link") (push links (second parts)))
+							((find (first parts) '("pid" "front"))
+								(defq one (str-as-num (second parts)))
+								(and (eql (first parts) "front") (pii-alive one) (setq front :t))
+								(push pids one)
+								(push todo one))))
+						(split text "\n")))))
+		(unless (or front (empty? pids))
+			(each (# (open-task (str `(if (find (pii-pid) (quote ,pids)) (pii-exit)))
+				%0 +kn_call_pin 0 (mail-mbox))) (lisp-nodes :t))
+			(task-sleep (/ (task-timeout 1) 2))
+			(each (# (if (pii-alive %0) (pii-kill %0))) pids)
+			(each (# (pii-remove (cat "/tmp/" %0))) links)
+			(each (const pii-remove) files)
+			(length pids))))
+
 ;the bots of this node, and when they all rest next, and till when: a rest
 ;is of every bot of the node at once, one bot that rests while another
 ;works leaves the apps no turn. And the function that says if an app is

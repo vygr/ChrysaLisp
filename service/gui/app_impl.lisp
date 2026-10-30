@@ -305,5 +305,6 @@
 	(gui-deinit)
 	;the GUI has quit, and so this node goes with it, a desktop is a node.
 	;The rest of its session lives on while there is another desktop, or a
-	;terminal, see funcs.sh
+	;terminal, see funcs.sh; what it started that has neither goes with it
+	(node-leave)
 	(pii-exit))
