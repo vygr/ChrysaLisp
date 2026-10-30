@@ -119,9 +119,10 @@
 	;this node is node 0 of total, start the others, 1 on, linked as pairs
 	;has them, each a list of two node numbers. A pid of -1 is a node the
 	;host could not start. The first fronts of them, all if not given, are
-	;of kind, the host program, :gui or :tui, this node's own if not given,
-	;and run script. A node with a script is a front of its session, a way
-	;in to it, a desktop is service/gui/app.lisp. net is a line to head
+	;of kind, :gui, :gui_hidden or :tui, and run script. Every node is the
+	;one host program, which has a GUI if its machine has. A node with a
+	;script is a front of its session, a way in to it, a desktop is
+	;service/gui/app.lisp. net is a line to head
 	;the note of them with, so they can be found and stopped as one,
 	;(node-nets) and (node-stop). sid is a system id for them, in place
 	;of this machine's, 16 characters, the kernel's -sid option.
@@ -129,7 +130,7 @@
 	(defq links (map (lambda (&) (list)) (range 0 total)) names (list)
 		chars "0123456789abcdefghijklmnopqrstuvwxyz"
 		;a GUI that is never seen, its window hidden, -hidden, for a test
-		host (case kind (:gui "-gui ") (:gui_hidden "-gui -hidden ") (:tui "-tui ") (:t ""))
+		host (if (eql kind :gui_hidden) "-hidden " "")
 		;a session can have a user of its own, not the one the machine
 		;has. Each node of it has who in *env_node_user*, in the
 		;environment all its tasks share, and tells the nodes it starts as

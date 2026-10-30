@@ -5,6 +5,7 @@
 // drawn into a texture with SDL's GPU interface on the same device.
 
 #include <SDL3/SDL.h>
+#include "sdl3_load.h"
 #include <stdint.h>
 #include <string.h>
 #include "gui_sdl3_event.h"

@@ -36,6 +36,11 @@ extern void (*host_gui_funcs[]);
 extern void(*host_audio_funcs[]);
 #endif
 
+//a host on SDL3 loads it as it starts, see sdl3_load.h
+#if defined(_HOST_GUI) && (_HOST_GUI == 3 || _HOST_GUI == 4)
+extern bool host_sdl3_load(void);
+#endif
+
 extern void (*host_net_funcs[]);
 
 //how this host was started, so it can start another like itself
@@ -100,6 +105,11 @@ int main(int argc, char *argv[])
 			pii_shm_sweep();
 			return 0;
 		}
+
+	#if defined(_HOST_GUI) && (_HOST_GUI == 3 || _HOST_GUI == 4)
+		//no SDL3, no GUI and no audio, this node has neither
+		if (!host_sdl3_load()) host_calls[1] = host_calls[2] = nullptr;
+	#endif
 
 		//check for -e option, or -V, the emulator in validation mode
 		for (int i = 0; i < argc; ++i)

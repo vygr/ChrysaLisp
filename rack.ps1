@@ -28,7 +28,7 @@
 $T = (Split-Path -Qualifier $NHROOT) + "\tmp"
 New-Item -ItemType Directory -Force -Path $T | out-null
 $LOG = "$T\chrysalisp_rack.log"
-$EXE = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_tui.exe"
+$EXE = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\chrysalisp.exe"
 $IMAGE = "obj/$NHCPU/$NHABI/sys/boot_image"
 
 function say ($text) {
@@ -45,7 +45,7 @@ function alive ($id) {
 
 function tree_of ($root) {
     # a node and every node it started, by their parents
-    $nodes = @(Get-CimInstance Win32_Process -Filter "Name='main_gui.exe' OR Name='main_tui.exe'")
+    $nodes = @(Get-CimInstance Win32_Process -Filter "Name='chrysalisp.exe'")
     $ids = @{}
     $ids[[int]$root] = $TRUE
     do {
@@ -69,7 +69,7 @@ function tree_stop ($root) {
 function others_up ($root) {
     # nodes up on the machine that are not the member's, a desktop say
     $ours = tree_of $root
-    @(Get-CimInstance Win32_Process -Filter "Name='main_gui.exe' OR Name='main_tui.exe'" |
+    @(Get-CimInstance Win32_Process -Filter "Name='chrysalisp.exe'" |
         Where-Object { -not $ours.ContainsKey([int]$_.ProcessId) }).Count -gt 0
 }
 

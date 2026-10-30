@@ -122,7 +122,7 @@ lists every node there is.
   machine it can hear that is on a different build.
 
 * **The firewall.** Each machine must let in TCP port 3333 and UDP port
-  3334. macOS asks the first time, "Do you want the application main_gui
+  3334. macOS asks the first time, "Do you want the application chrysalisp
   to accept incoming network connections?", say Allow. Windows asks the
   same of Windows Defender Firewall, allow it on private networks.
 

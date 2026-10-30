@@ -701,7 +701,7 @@ All checks should be performed using standard TUI pipeline commands:
 	make -f Makefile.mingw
 	```
 
-	Must compile Windows `main_gui.exe` and `main_tui.exe` with zero errors.
+	Must compile the Windows host, `chrysalisp.exe`, with zero errors.
 
 11.	**Generate Release Snapshot (`make snapshot`):**
 	Only after ALL preceding pre-release tag tests have completed and are

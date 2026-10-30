@@ -108,7 +108,8 @@ no SDL at all, see [`docs/intro/framebuffer.md`](framebuffer.md).
 ## Windows
 
 `install.bat` fetches `SDL3.dll` if it is not in the ChrysaLisp folder, and
-the programs in the snapshot are built for it. The SDL2 DLLs, `SDL2.dll`,
+the program in the snapshot, `chrysalisp.exe`, loads it as it starts. With
+no `SDL3.dll` it runs as a terminal's node, with no GUI and no audio. The SDL2 DLLs, `SDL2.dll`,
 `SDL2_mixer.dll` and the rest, are not used any more and can be deleted.
 
 The Windows programs are built on a Mac. Martyn Blyss ran them on Windows,

@@ -15,9 +15,9 @@
 
 (defun main ()
 	;the service is only there if the host of this node has an audio
-	;driver, and it starts. The TUI host has none, nor has a GUI host
-	;built for the frame buffer, and with no service an app's sounds are
-	;quietly not played.
+	;driver, and it starts. A host that found no SDL3 as it started has
+	;none, nor has one built for the frame buffer, and with no service an
+	;app's sounds are quietly not played.
 	(when (= ((ffi "service/audio/lisp_init")) 0)
 		; Declare the audio service
 		(defq audio_service (mail-declare (task-mbox) "@Audio" "Audio Service 0.1")

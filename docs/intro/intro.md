@@ -92,8 +92,8 @@ sudo apt-get install libva2 libva-drm2 vainfo
 
 1. **Build Environment**: A C++ compiler is needed if you plan to build the host 
    executables from source (e.g., MinGW-w64 or Visual Studio). However, the 
-   release snapshot typically includes pre-built Windows executables 
-   (`main_tui.exe`, `main_gui.exe`).
+   release snapshot includes the pre-built Windows host program,
+   `chrysalisp.exe`.
 
 2. **Cross-Compiling from macOS**: If you are on a macOS machine and want to 
    build the Windows executables yourself, you can use the provided 
@@ -110,7 +110,7 @@ make -f Makefile.mingw windows_all
 ```
 
    This will automatically download the Windows SDL development libraries
-   into a `deps/` folder and build both `main_tui.exe` and `main_gui.exe` in
+   into a `deps/` folder and build `chrysalisp.exe` in
    `obj/x86_64/WIN64/Windows/`. The GUI driver is SDL3, add `GUI=sdl` for
    SDL2.
 
@@ -227,9 +227,11 @@ git clone https://github.com/vygr/ChrysaLisp.git
 
 The installation process involves two main stages:
 
-1. Building the host C/C++ executables (`main_tui`, `main_gui`).
+1. Building the host C/C++ program, `chrysalisp`. It is one program for a
+   terminal and a desktop: a node has a GUI if the host found SDL as it
+   started. With no SDL to build with, it is built with no GUI at all.
 
-2. Using these host executables with a pre-supplied VP64 boot image to run a Lisp 
+2. Using this host program with a pre-supplied VP64 boot image to run a Lisp 
    script (`apps/tui/install.lisp`) that compiles the entire ChrysaLisp system 
    and creates the native boot image.
 
@@ -239,7 +241,7 @@ Navigate to your ChrysaLisp directory before running these commands.
 
 1. **Build and Install**:
 
-    This command compiles the C/C++ host programs and then uses the TUI host in 
+    This command compiles the C/C++ host program and then uses it in 
     emulation mode (`-e`) with the pre-supplied VP64 boot image to run the 
     ChrysaLisp installation script. This script, in turn, compiles the ChrysaLisp 
     system, including generating the native boot image.
@@ -277,8 +279,8 @@ make install
 
 1. **The DLL**: `install.bat` fetches `SDL3.dll` into the root of your
    ChrysaLisp directory if it is not there, it needs `curl` and `tar`, which
-   Windows 10 and later have. The release snapshot includes pre-built
-   `main_tui.exe` and `main_gui.exe`.
+   Windows 10 and later have. The release snapshot includes the pre-built
+   `chrysalisp.exe`.
 
 2. **Build and Install (if pre-built executables are not used or need rebuilding)**:
 
@@ -289,7 +291,7 @@ make install
 
 3. **Run Installation Script**:
 
-    This uses the pre-built `main_tui.exe` in emulation mode with the VP64 boot 
+    This uses the pre-built `chrysalisp.exe` in emulation mode with the VP64 boot 
     image from the snapshot to compile the ChrysaLisp system and generate the 
     native boot image.
 
@@ -339,7 +341,7 @@ run.bat
 make GUI=fb install
 ```
 
-    This specifically builds the `main_gui` executable to use the Linux 
+    This specifically builds the host program to use the Linux 
     framebuffer instead of X11/SDL2. The rest of the installation process is 
     similar to the standard Linux install.
 
@@ -613,7 +615,7 @@ let in, not what is said. `service/net/door.inc`.
 
     Any machine acting as a server must allow incoming TCP traffic on port 3333.
 
-    On Intel macOS, always ensure host binaries are ad-hoc signed (`codesign -f -s - obj/.../main_tui`) so macOS firewall rules apply cleanly without silent blocking.
+    On Intel macOS, always ensure host binaries are ad-hoc signed (`codesign -f -s - obj/.../chrysalisp`) so macOS firewall rules apply cleanly without silent blocking.
 
 ## What's Next?
 

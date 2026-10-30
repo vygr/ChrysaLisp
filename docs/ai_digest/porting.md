@@ -157,8 +157,9 @@ The `src/host/Makefile` needs to be modified:
     * Define rules to place compiled objects in a new target-specific
       directory, e.g., `obj/$(CPU)/$(ABI)/$(OS)/`.
 
-    * Ensure the final `main_tui` (and `main_gui` if applicable) executables
-      are placed correctly.
+    * Ensure the host program, `chrysalisp`, is placed correctly. With no
+      SDL on the new machine, `GUI=none` builds it with no GUI and no audio,
+      which needs no library.
 
 4. **PII Source File Selection:**
 
@@ -297,7 +298,7 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
    (e.g., the `-e` flag in `run_tui.sh`), decide whether to JIT compile or
    emulate. For Phase 1, you'll force it to use the emulator.
 
-    * The Makefile rule for `main_tui` or `main_gui` might already have a
+    * The Makefile rule for `chrysalisp` might already have a
       way to build an emulator-only version, or you might need to add a
       compile-time flag (like the `run_emu` global in `main.cpp`).
 
@@ -310,11 +311,11 @@ files in `src/host/` for your target OS/architecture, or adapt existing ones.
 
 4. **Run:**
 
-    * Transfer `main_tui` (or `main_gui`), the `vp64` boot image, and the
+    * Transfer `chrysalisp`, the `vp64` boot image, and the
       necessary ChrysaLisp directory structure (`cmd/`, `lib/`, `apps/`
       etc.) to your target environment.
 
-    * Attempt to run it: `./main_tui obj/vp64/VP64/sys/boot_image -e ...
+    * Attempt to run it: `./chrysalisp obj/vp64/VP64/sys/boot_image -e ...
       [other args]`
 
 5. **Test Basic Functionality:**

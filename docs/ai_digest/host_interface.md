@@ -69,7 +69,7 @@ docs/diagrams/host_layers.cwb
           key as well, and the memory lasts till the last node has unmapped
           it. A node that is killed lets go of nothing, so on macOS and
           Linux each one is noted in `/tmp/chrysalisp_shm_<name>` with the
-          pid of its maker, and the host program run as `main_tui
+          pid of its maker, and the host program run as `chrysalisp
           -shm_sweep` lets go of those of the dead. `stop.sh` runs it.
 
         * `pii_host`: What the host program is, the text `cpu abi os`, as
@@ -416,10 +416,10 @@ bytecode interpreter.
 
     * `make install` triggers `run_tui.sh -e ... -i ...`.
 
-    * `run_tui.sh` launches one `main_tui` (or `main_tui.exe`), and that
-      node starts one more for each of the machine's other cores.
+    * `run_tui.sh` launches one `chrysalisp` (or `chrysalisp.exe`), and
+      that node starts one more for each of the machine's other cores.
 
-    * Each `main_tui` instance, due to the `-e` flag, loads
+    * Each `chrysalisp` instance, due to the `-e` flag, loads
       `obj/vp64/VP64/sys/boot_image` and starts the `vp64()` interpreter.
 
     * The primary node's `vp64()` interpreter, after initializing, receives
@@ -448,7 +448,7 @@ on Windows. They share `funcs.sh` or `funcs.ps1`.
 links, and gives it a line of Lisp to run:
 
 ```code
-./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $emu -run
+./obj/$CPU/$ABI/$OS/chrysalisp obj/$CPU/$ABI/sys/boot_image $emu -run
 	"(progn (node-net :ring 8) (import {service/gui/app.lisp}))"
 ```
 
@@ -477,7 +477,7 @@ name for each, six characters of base 36 from a random number, starts each
 other node with the names of its links, `(node-start)` and the host's
 `pii_spawn`, opens its own, and waits till the nodes are seen. Then the
 script it was given is run. The other desktops of `-g` are the first of the
-nodes it starts, GUI hosts that run the GUI service.
+nodes it starts, nodes that run the GUI service.
 
 There were launch scripts for each shape, `run_ring.sh`, `run_mesh.sh` and
 the rest, twenty one files that worked out the same links in bash and again
@@ -513,7 +513,7 @@ machine, the largest with no more than a node for each processor.
 
 * `-s <script>`: The script the first node runs.
 
-* `-e`: Run in emulator mode (passes `-e` to `main_gui`/`main_tui`, and a
+* `-e`: Run in emulator mode (passes `-e` to `chrysalisp`, and a
   node passes it on to those it starts).
 
 * `-f`: Run the primary node in the foreground.
@@ -532,22 +532,23 @@ machine, the largest with no more than a node for each processor.
   link and session files. So two sessions on one machine do not meet, and
   stopping one leaves the other alone.
 
-* **A desktop is a node.** `(node-spawn num kind script)` can start either
-  host program, `:gui` or `:tui`, whichever this node is, and give the new
-  node a script to run. `nodes -g 1` starts a GUI node that runs the GUI
-  service, a desktop, on a TUI network as well, and `nodes -t 1` adds a node
-  on the lighter TUI host to a GUI network. A node exits when its GUI quits.
+* **A desktop is a node.** There is one host program, `chrysalisp`, and
+  every node is it. A node has a GUI and audio if the host found them as it
+  started, SDL3 say, and a desktop is a node that runs the GUI service.
+  `(node-spawn num kind script)` starts nodes, `:gui`, `:gui_hidden` (a
+  desktop whose window is never seen, `-hidden`) or `:tui`, and gives each a
+  script to run. `nodes -g 1` starts a desktop, on a terminal's network as
+  well, and `nodes -t 1` adds a node with no front. A node exits when its
+  GUI quits.
 
-* **`stop.sh`:** Uses `killall main_gui -KILL` and `killall main_tui -KILL`
-  to forcefully terminate all ChrysaLisp node processes, whoever started
+* **`stop.sh`:** Uses `killall chrysalisp -KILL` to forcefully terminate
+  all ChrysaLisp node processes, whoever started
   them. It also removes link and session files from `/tmp/`. It is for when
   a session has not stopped itself.
 
-* **`stop.ps1`:** Uses `Stop-Process -Name main_gui -Force` and `Stop-Process
-  -Name main_tui -Force`.
+* **`stop.ps1`:** Uses `Stop-Process -Name chrysalisp -Force`.
 
-* **`stop.bat`:** Uses `taskkill /IM main_tui.exe /F` and `taskkill /IM
-  main_gui.exe /F`.
+* **`stop.bat`:** Uses `taskkill /IM chrysalisp.exe /F`.
 
 These scripts provide a simple way to clean up all running ChrysaLisp
 processes.
@@ -560,11 +561,14 @@ processes.
       scripts).
 
     * `GUI`: Set externally, `make GUI=sdl` say. One of `sdl3`, `sdl`,
-      `raw3`, `raw` and `fb`. Not given, it is `sdl3` if `pkg-config` knows
-      of SDL3 or there is an `sdl3_prefix` file, else `sdl`.
+      `raw3`, `raw`, `fb` and `none`. Not given, it is `sdl3` if
+      `pkg-config` knows of SDL3 or there is an `sdl3_prefix` file, else
+      `sdl` if `sdl2-config` is there, else `none`, a host with no GUI and
+      no audio, which needs no library to build or to run.
 
     * `HOST_GUI`: Preprocessor define set from `$(GUI)`, 0 for `sdl`, 1 for
-      `fb`, 2 for `raw`, 3 for `sdl3`, 4 for `raw3`.
+      `fb`, 2 for `raw`, 3 for `sdl3`, 4 for `raw3`, and not defined for
+      `none`.
 
     * `HOST_AUDIO`: Preprocessor define, 0 for the SDL2_mixer driver, 1 for
       the SDL3 driver, 2 for the ALSA driver. It follows the GUI driver,
@@ -577,41 +581,38 @@ processes.
 
 * **Targets:**
 
-    * `all`: Default, builds `hostenv`, `tui`, and `gui`.
+    * `all`: Default, builds `hostenv` and `host`.
 
-    * `gui`: Builds the GUI-enabled main executable
-      (`obj/$(CPU)/$(ABI)/$(OS)/main_gui`).
-
-    * `tui`: Builds the TUI-only main executable
-      (`obj/$(CPU)/$(ABI)/$(OS)/main_tui`).
+    * `host`: Builds the host program, `obj/$(CPU)/$(ABI)/$(OS)/chrysalisp`.
 
     * `hostenv`: Says which GUI driver is being built and makes the object
       directories. It removes the `cpu`, `os` and `abi` files an older
       build left, the host program now says what it is, `pii_host`.
 
-    * `install`: Runs `clean`, `hostenv`, `tui`, `gui`, then `inst`. The `inst`
+    * `install`: Runs `clean`, `hostenv`, `host`, then `inst`. The `inst`
       rule executes `./run_tui.sh -n 8 -i -e -f`, performing the initial
       system compilation using the emulator as described above.
 
     * `snapshot`: Creates `snapshot.zip` containing the VP64 boot image and
-      pre-built Windows executables, for distribution.
+      the pre-built Windows host program, `chrysalisp.exe`, for distribution.
 
     * `clean`: Removes all `obj` directories and unpacks `snapshot.zip` (to
       restore pre-built binaries and the VP64 boot image).
 
 * **Compilation & Linking:**
 
-    * Separate compilation rules for `.cpp` and `.c` files into GUI-specific
-      object files (in `$(OBJ_DIR_GUI)`) and TUI-specific object files (in
-      `$(OBJ_DIR_TUI)`).
-
     * Each GUI driver has an object folder of its own, so a change of `GUI=`
-      builds that driver and links `main_gui` again, and a change back does
+      builds that driver and links the host again, and a change back does
       not build it all a second time.
 
     * SDL2 builds take their flags from `sdl2-config`, and link SDL2 and
       SDL2_mixer. SDL3 builds take theirs from `pkg-config sdl3`, or from
-      `SDL3_PREFIX`. `GUI=fb` links no SDL.
+      `SDL3_PREFIX`, and do not link SDL3: the host loads it as it starts,
+      `src/host/sdl3_load.h`, the one it was built with first, then the one
+      the system finds by name, or only the one `CL_SDL3` names. Every call
+      the drivers make of SDL3 is a pointer it finds. With no SDL3 the host
+      runs on, with no GUI and no audio tables, as a terminal's node.
+      `GUI=fb` links no SDL.
 
     * The `_HOST_GUI` and `_HOST_AUDIO` defines are passed to the compiler
       to select the correct host driver code.

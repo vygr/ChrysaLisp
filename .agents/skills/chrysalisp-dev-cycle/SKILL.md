@@ -143,8 +143,8 @@ user's folder, `usr/Guest/`, their app settings and the like.
 	usual start.
 
 3.	Look for the user's own nodes before starting or stopping anything:
-	`pgrep -x main_gui | wc -l` and `pgrep -x main_tui | wc -l`. A member is
-	one `main_tui`, its pid is in `/tmp/chrysalisp_rack.pid`. Anything more
+	`pgrep -x chrysalisp | wc -l`. A member is one `chrysalisp`, its pid
+	is in `/tmp/chrysalisp_rack.pid`. Anything more
 	is the user's, or a run of yours that did not end.
 
 4.	Bring the members up, next section.
@@ -318,7 +318,7 @@ after it was let go of.
 	the image's tail; a function's name is before its code.
 3.	A guarded run that times out leaves its nodes up, and they take the
 	next run's batches. `pgrep -fl boot_image`, kill the VP64 and solo
-	ones, keep the standing member, `main_tui -shm_sweep`.
+	ones, keep the standing member, `chrysalisp -shm_sweep`.
 
 ## A Desktop For The User
 
@@ -470,7 +470,7 @@ for i in $(seq 1 20); do <the test wrapper> -a | tail -4; done
 
 *	Count the notes of shared pixels before and after, `ls
 	/tmp/chrysalisp_shm_* | wc -l` on each machine, they must not grow.
-	`./obj/*/*/*/main_tui -shm_sweep` lets go of what a process that has
+	`./obj/*/*/*/chrysalisp -shm_sweep` lets go of what a process that has
 	gone left. A test, or an app, that stops part way leaves one.
 
 *	A failure that comes once and not again is a fault to be found, not a
@@ -507,7 +507,7 @@ install` there stops no nodes of the machine.
 	is not a reproduction of anything.
 
 *	To find a session of yours: `ps -axo pid,ppid,lstart,command | grep
-	main_tui`. Yours has the start time of your run, and its nodes have its
+	chrysalisp`. Yours has the start time of your run, and its nodes have its
 	first node as their parent. Kill those pids. Do not kill by name.
 
 *	Its note, `/tmp/chrysalisp_<pid>.session`, is left behind by a kill,

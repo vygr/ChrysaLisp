@@ -9,8 +9,8 @@
         -a --add num: start num more nodes on this machine,
             linked to this node and to each other.
         -g --gui num: start num more nodes, each a GUI desktop.
-        -t --tui num: start num more nodes on the TUI host,
-            which is the lighter, it has no GUI.
+        -t --tui num: start num more nodes, with no desktop
+            and no terminal of their own.
         -s --shape name: add a network of that shape, hung from this
             node: full, ring, star, tree, mesh or cube. It is given a
             name to stop it by.

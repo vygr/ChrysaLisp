@@ -27,7 +27,7 @@ function session_scan {
     # and those they started in turn, (node-spawn), found by their parents.
     # A process id can be used again, so a node counts only if it was
     # started after the session was.
-    $nodes = @(Get-CimInstance Win32_Process -Filter "Name='main_gui.exe' OR Name='main_tui.exe'" |
+    $nodes = @(Get-CimInstance Win32_Process -Filter "Name='chrysalisp.exe'" |
         Where-Object { $_.CreationDate -ge $global:session_start })
     $ids = @{}
     foreach ($id in $global:session_pids) { $ids[[int]$id] = $TRUE }
@@ -99,12 +99,12 @@ function first_run {
 }
 
 function boot_gui {
-    $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_gui.exe"
+    $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\chrysalisp.exe"
     $boot = if ($global:emu -ne '') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }
     if ($global:ngui -eq 0) {
-        # no desktop, a script on the GUI host program
+        # no desktop, a script
         boot_first $global:front $cmd "$argstring -run $(first_run $global:script)"
     } elseif ($global:front -eq $FALSE) {
         boot_first $FALSE $cmd "$argstring -run $(first_run 'service/gui/app.lisp' ($global:ngui - 1))"
@@ -114,7 +114,7 @@ function boot_gui {
 }
 
 function boot_tui {
-    $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\main_tui.exe"
+    $cmd = "$NHROOT\obj\$NHCPU\$NHABI\$NHOS\chrysalisp.exe"
     $boot = if ($global:emu -ne '') { "obj/vp64/VP64/sys/boot_image" } else { "obj/$HCPU/$HABI/sys/boot_image" }
     $argstring = $boot
     if ($global:emu -ne '') { $argstring += " $global:emu" }

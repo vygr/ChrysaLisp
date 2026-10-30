@@ -54,7 +54,7 @@
 	;the host, so it is on the boot image as it is on disk now, which a
 	;phase before it may have made. With a user the session is theirs, and
 	;not whoever last signed on to the machine, as run.sh -u has it. With
-	;gui the session is on the GUI host, a desktop, its GUI up before the
+	;gui the session is a desktop, its GUI up before the
 	;command lines are run, as run.sh -f has it. With asker, a mailbox,
 	;what a session says is mailed to it as it comes, "LINE text", and
 	;if its node has gone the session is let go, and stops
@@ -70,7 +70,7 @@
 		;seen and never takes the input of whoever is at the machine, Chris:
 		;"It can come up and down as much as it wants and it never steals my
 		;input etc ? We get to work on the same desktop with no issues."
-		(defq pid (pii-spawn (cat (if gui "-gui -hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
+		(defq pid (pii-spawn (cat (if gui "-hidden " "") "-run (progn" tab "(def" tab "*root_env*" tab "'*rack_run*" tab "{" run "})"
 			(if gui (cat tab "(def" tab "*root_env*" tab "'*rack_gui*" tab ":t)") "")
 			(if user (cat tab "(def" tab "*root_env*" tab "'*env_node_user*" tab "{" user "})") "")
 			;a run keeps to itself, the member is what is in the mesh

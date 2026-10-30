@@ -406,7 +406,7 @@
 	;is a change to what calls it, not to everything
 	(test-hash-of (cat
 		(test-core)
-		(sort (files-all (slice (load-path) 0 -2) '("main_gui" "main_tui" "main_gui.exe" "main_tui.exe")))
+		(sort (files-all (slice (load-path) 0 -2) '("chrysalisp" "chrysalisp.exe")))
 		(test-stands-on (list "class/lisp/root.inc" "class/lisp/task.inc" "tests/suite.inc" "cmd/tests.lisp")))))
 
 (defun test-tree-files ()

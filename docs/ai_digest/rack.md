@@ -19,7 +19,7 @@ docs/diagrams/rack_run.cwb
 ## A member
 
 A machine is in the mesh while it has a node that is. `./rack.sh up` starts
-one that stays, a member, a single `main_tui` with no terminal, running
+one that stays, a member, a single node with no terminal, running
 `lib/rack/member.lisp`. It starts the Net service, listens for and looks
 for the other machines, `link -l 3333 -a` and `link -a`, and takes a sync,
 `sync -a`. Then it waits.
@@ -179,7 +179,7 @@ an app's settings say, goes to that user's folder.
 `arm64/Linux`, with a `,` between. For a machine someone is sat at.
 
 `-g` makes each session a desktop, on the machine's own screen: the session
-is a `main_gui` host, its GUI is up before the command is run, and the
+is a desktop, its GUI is up before the command is run, and the
 user's apps of `(get :launcher_auto_apps *env*)` open as at a log in. Command lines
 with a `;` between are run one after another in the one session, and `-v`
 brings back every line they said, not only those of how tests went. So a

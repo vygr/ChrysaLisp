@@ -33,6 +33,7 @@ uint32_t scr_stride = 0;
 //this code is just so we can see the output !
 #if _HOST_GUI == 4
 #include <SDL3/SDL.h>
+#include "sdl3_load.h"
 #include "gui_sdl3_event.h"
 #else
 #include <SDL.h>

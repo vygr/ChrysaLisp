@@ -8294,7 +8294,7 @@ lines, one after another, and what they said. A session is started by
 the host, so it is on the boot image as it is on disk now, which a
 phase before it may have made. With a user the session is theirs, and
 not whoever last signed on to the machine, as run.sh -u has it. With
-gui the session is on the GUI host, a desktop, its GUI up before the
+gui the session is a desktop, its GUI up before the
 command lines are run, as run.sh -f has it. With asker, a mailbox,
 what a session says is mailed to it as it comes, "LINE text", and
 if its node has gone the session is let go, and stops

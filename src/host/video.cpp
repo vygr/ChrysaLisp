@@ -16,12 +16,14 @@
 //
 // macOS: VideoToolbox, the hardware's decoder, H.264 and H.265 and Motion
 // JPEG, and MPEG-4 Part 2 by its own. Linux: VA-API, a PC's graphics, H.264
-// and Motion JPEG, if it was built with libva's headers and the machine has
-// a driver for them, else the stateful decoder of V4L2, /dev/video10, H.264
-// and Motion JPEG, the Raspberry Pi's. Windows: a
-// decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
+// and Motion JPEG, if the machine has libva and a driver for them, else
+// the stateful decoder of V4L2, /dev/video10, H.264 and Motion JPEG, the
+// Raspberry Pi's. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
 // Part 2 and Motion JPEG, not yet tried on Windows itself. Elsewhere none,
-// open is 0.
+// open is 0. A host built with no GUI driver has no table to call them by,
+// and none of this.
+
+#if defined(_HOST_GUI)
 
 #include <stdint.h>
 #include <string.h>
@@ -2834,5 +2836,7 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len) { r
 int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, int64_t shown) { return -1; }
 int64_t host_video_frame(uint64_t handle, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride, int64_t shown) { return -1; }
 void host_video_close(uint64_t handle) {}
+
+#endif
 
 #endif

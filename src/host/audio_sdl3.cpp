@@ -12,6 +12,7 @@
 // taken from what the microphone hears, see aec.h.
 
 #include <SDL3/SDL.h>
+#include "sdl3_load.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>

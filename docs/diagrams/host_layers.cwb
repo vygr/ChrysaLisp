@@ -447,7 +447,7 @@
 									:stroke
 									0
 									:text
-									"[main_tui or main_gui: loads the boot_image and hands it tables of functions]"
+									"[chrysalisp: loads the boot_image and hands it tables of functions]"
 									:font_size
 									11
 									:pos

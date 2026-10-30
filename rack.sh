@@ -130,7 +130,7 @@ function member_loop
 	while :
 	do
 		rm -f $TEMP/chrysalisp_rack_update
-		local host=$(ls obj/*/*/*/main_tui 2>/dev/null | head -1)
+		local host=$(ls obj/*/*/*/chrysalisp 2>/dev/null | head -1)
 		[ -z "$host" ] && break
 		./$host $(dirname $(dirname $host))/sys/boot_image -run lib/rack/member.lisp \
 			>> $TEMP/chrysalisp_rack.log 2>&1 < /dev/null &
@@ -161,7 +161,7 @@ function member_loop
 		cp -p $sys_dir/boot_image $TEMP/chrysalisp_rack_keep/boot_image
 		echo "update: make install, $(date)" >> $TEMP/chrysalisp_rack.log
 		if ! make install >> $TEMP/chrysalisp_rack.log 2>&1 || [ -f obj/install_failed ] \
-			|| [ -z "$(ls obj/*/*/*/main_tui 2>/dev/null)" ]
+			|| [ -z "$(ls obj/*/*/*/chrysalisp 2>/dev/null)" ]
 		then
 			if [ -n "$was" ]
 			then
@@ -172,7 +172,7 @@ function member_loop
 				git reset -q --hard $was >> $TEMP/chrysalisp_rack.log 2>&1
 			fi
 			if [ -z "$was" ] || ! make install >> $TEMP/chrysalisp_rack.log 2>&1 \
-				|| [ -f obj/install_failed ] || [ -z "$(ls obj/*/*/*/main_tui 2>/dev/null)" ]
+				|| [ -f obj/install_failed ] || [ -z "$(ls obj/*/*/*/chrysalisp 2>/dev/null)" ]
 			then
 				echo "update: make install failed, what was there is put back" >> $TEMP/chrysalisp_rack.log
 				mkdir -p $os_dir $sys_dir
@@ -207,7 +207,7 @@ case $what in
 			else
 				rm -f $TEMP/chrysalisp_rack_follow
 			fi
-			host=$(ls obj/*/*/*/main_tui 2>/dev/null | head -1)
+			host=$(ls obj/*/*/*/chrysalisp 2>/dev/null | head -1)
 			if [ -z "$host" ]
 			then
 				echo "no host program, make install"

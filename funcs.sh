@@ -111,7 +111,7 @@ function session_stop
 		#clear up can name a process number the machine has since given
 		#to something else
 		case "$(ps -p $pid -o comm= 2>/dev/null)" in
-			*main_tui*|*main_gui*) kill -KILL $pid 2>/dev/null ;;
+			*chrysalisp) kill -KILL $pid 2>/dev/null ;;
 		esac
 	done
 	for val in $scan_links
@@ -151,9 +151,9 @@ function session_sweep
 	#shared memory for pixels a killed node made is not a file to delete,
 	#and its :deinit never ran. The host program lets go of what dead
 	#nodes left, as stop.sh does
-	if [ -x "./obj/$CPU/$ABI/$OS/main_tui" ]
+	if [ -x "./obj/$CPU/$ABI/$OS/chrysalisp" ]
 	then
-		"./obj/$CPU/$ABI/$OS/main_tui" -shm_sweep 2>/dev/null
+		"./obj/$CPU/$ABI/$OS/chrysalisp" -shm_sweep 2>/dev/null
 	fi
 }
 
@@ -237,10 +237,10 @@ function boot_first
 
 function boot_gui
 {
-	local host="./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $emu -run"
+	local host="./obj/$CPU/$ABI/$OS/chrysalisp obj/$CPU/$ABI/sys/boot_image $emu -run"
 	if [ $num_gui -eq 0 ]
 	then
-		#no desktop, a script on the GUI host program
+		#no desktop, a script
 		boot_first nowait $host "$(first_run $script)"
 	elif [ "$front" == "" ]
 	then
@@ -253,7 +253,7 @@ function boot_gui
 function boot_tui
 {
 	#a TUI is always waited for, it has the terminal
-	boot_first wait ./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $emu -run "$(first_run $script)"
+	boot_first wait ./obj/$CPU/$ABI/$OS/chrysalisp obj/$CPU/$ABI/sys/boot_image $emu -run "$(first_run $script)"
 }
 
 function main
