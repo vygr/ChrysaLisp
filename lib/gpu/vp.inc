@@ -1,8 +1,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Shader language, VP back end.
 ; A program becomes VP source for a native function that shades a
-; tile of pixels with no GPU. The source is assembled once, for the
-; CPU the node runs on, and kept under obj/.
+; tile of pixels with no GPU, or runs a kernel over a range. The
+; source is assembled once, for the CPU the node runs on, and kept
+; under obj/.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
@@ -31,6 +32,8 @@
 	;and this many pixels of a tile of a pixel shader, they are far more
 	;work each
 	+sv_tile_work 4096
+	;and this many runs of a kernel's main
+	+sv_kernel_work 256
 	;the files this back end is written in, and the pixmap's layout, whose
 	;offsets the code it makes has in it. A hash of them is part of the
 	;name of every native function, so a change to any of them is a new
@@ -379,6 +382,7 @@
 			(:t (sv-emit 'vp-cpy-cr (cond ((eql type :int) a) (a 1) (0)) (defq r (sv-getr)))
 				(list r))))
 		(:var (sv-load type (sv-var a)))
+		(:buf (sv-emit 'vp-cpy-ir :r13 (sv-var a) (defq r (sv-getr))) (list r))
 		(:t ;parts of a variable, only the parts asked for are loaded
 			(defq offset (sv-var (third b)))
 			(map (# (bind '(base at) (sv-at (+ offset (* %0 8))))
@@ -392,6 +396,19 @@
 	(cond
 		((eql op 'texture)
 			(sv-texture (elem-get tex_at (elem-get (first args) 3)) a))
+		((eql op 'elem-get)
+			;an element of a buffer, 32 bits, a float made a real
+			(sv-emit 'vp-shl-cr 2 (first b))
+			(sv-emit 'vp-add-rr (first b) (first a))
+			(sv-puts b)
+			(cond
+				((eql ta :fbuf)
+					(sv-emit 'vp-cpy-if-i (first a) 0 (defq r (sv-getf)))
+					(sv-puts a) (list r))
+				(:t (sv-emit 'vp-cpy-ir-i (first a) 0 (first a)) a)))
+		((defq i (find op '(<< >>)))
+			(sv-emit (if (= i 0) 'vp-shl-rr 'vp-asr-rr) (first b) (first a))
+			(sv-puts b) a)
 		((eql op 'float)
 			(cond
 				((eql ta :int)
@@ -490,7 +507,7 @@
 	;the steps of an expression, those under it still to be laid out
 	(bind '(type tag a &optional b) node)
 	(case tag
-		((:lit :var) (list (list :leaf node)))
+		((:lit :var :buf) (list (list :leaf node)))
 		(:swz (if (eql (second b) :var) (list (list :leaf node))
 			(list (list :expr b) (list :swz node))))
 		(:user ;a call of a function of the shader, each arg and what is done with it
@@ -503,6 +520,10 @@
 				((find :mat4 types)
 					;matrices times a vector, the vector is last
 					(list (list :expr (last args)) (list :mat4 node)))
+				((defq i (find op '(logand logior logxor)))
+					(defq items (list (list :expr (first args))))
+					(each! (# (push items (list :expr %0) (list :bits i))) (list args) 1)
+					items)
 				((defq i (find op '(+ - * /)))
 					(cond
 						((> (length args) 1)
@@ -585,6 +606,9 @@
 				(push vs (sv-apply p0 a b c)))
 			(:arith (defq b (pop vs) a (pop vs))
 				(push vs (sv-arith p0 a p1 b p2)))
+			(:bits (defq b (pop vs) a (last vs))
+				(sv-emit (elem-get '(vp-and-rr vp-or-rr vp-xor-rr) p0) (first b) (first a))
+				(sv-puts b))
 			(:neg (defq a (last vs))
 				(cond
 					((eql p0 :int)
@@ -728,7 +752,15 @@
 						(push stack (list :next offset l_top l_exit))
 						(reach (# (push stack (list :stmt %0))) d))
 					(:break (sv-emit 'vp-jmp (sv-q (last loops))))
+					(:elemset ;an element of a buffer, the value then where it goes
+						(defq regs (sv-expr c) at (sv-expr b))
+						(sv-emit 'vp-shl-cr 2 (first at))
+						(sv-emit 'vp-cpy-ir :r13 (sv-var a) (defq r (sv-getr)))
+						(sv-emit 'vp-add-rr (first at) r)
+						(sv-emit (if (eql (first c) :float) 'vp-cpy-fi-i 'vp-cpy-ri-i) (first regs) r 0)
+						(sv-puts regs) (sv-puts at) (sv-put r))
 					(:return (cond
+							((not a))
 							;a matrix is copied to where what is given goes
 							((eql (first a) :mat4)
 								(defq at (sv-mat a ret_offset))
@@ -754,7 +786,7 @@
 		(defq label (sym (cat prefix "f_" name))
 			offsets (map (lambda ((pname ptype))
 				(push vars (list pname (defq offset (sv-slots ptype)))) offset) params))
-		(setq ret_offset (sv-slots type) ret_label (sv-new-label))
+		(setq ret_offset (if (eql type :void) 0 (sv-slots type)) ret_label (sv-new-label))
 		(push finfo (list name label offsets ret_offset))
 		;what the main of a vertex shader returns goes where the vertex
 		;is to be written
@@ -1504,7 +1536,7 @@
 (defun sv-name (letter program)
 	;the name of the native function of a program, from the hash of its
 	;source, and which make of this back end it is
-	(shader-sweep "fstv" (list (shader-make +sv_made_by)))
+	(shader-sweep "fstvk" (list (shader-make +sv_made_by)))
 	(cat "lib/gpu/jit/" letter (shader-make +sv_made_by) "_" (elem-get program 5)))
 
 (defun sv-kept (name)
@@ -1659,6 +1691,120 @@
 (def-func-end)
 }))
 	text)
+
+(defun sv-kernel-source (program name)
+	; -> (text frame_size)
+	;the VP source of the native function for a kernel. Its frame starts
+	;with the inputs, then where each buffer's elements are, then what
+	;the loop keeps
+	(bind '(inputs consts globals funcs &rest _) program)
+	(defq code (list) live (list) free_f (cat +sv_fregs) free_r (cat +sv_rregs)
+		vars (list) finfo (list) loops (list) frame_size 0 label_num 0
+		ret_offset 0 ret_label :nil)
+	(each (lambda ((name type &rest _)) (push vars (list name (sv-slots type)))) inputs)
+	(defq bufs_at frame_size)
+	(each (lambda ((name &rest _)) (push vars (list name (sv-slots :int)))) (shader-buffers program))
+	(bind '(s_i s_to s_work) (map (lambda (&) (sv-slots :int)) (range 0 3)))
+	(bind '((p_i) &ignore) (sv-program program "k"))
+	(defq text (cat
+{(include "lib/asm/func.inc")
+(include "sys/math/class.inc")
+(include "class/num/class.inc")
+(include "class/str/class.inc")
+(include "class/list/class.inc")
+(include "class/lisp/class.inc")
+(include "sys/task/class.inc")
+
+(def-func "} name {")
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(kernel from to frame bufs) -> :nil
+
+	(entry '(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r2 :r3 :r13 :r4) '(:num :num :str :obj))
+	(vp-lea-p 'fn_consts :r12)
+	(vp-cpy-ri :r2 :r13 } (str s_i) {)
+	(vp-cpy-ri :r3 :r13 } (str s_to) {)
+	(vp-xor-rr :r2 :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_work) {)
+	;where the elements of each buffer are, the strs of the list
+	(vp-cpy-ir :r4 +array_begin :r4)
+} (apply (const cat) (cat (list "") (map (lambda (_) (cat
+	"	(vp-cpy-ir :r4 " (str (* (!) +ptr_size)) " :r2)\n"
+	"	(vp-add-cr +str_data :r2)\n"
+	"	(vp-cpy-ri :r2 :r13 " (str (+ bufs_at (* (!) 8))) ")\n")) (shader-buffers program)))) {
+	(vp-call 'kh_init)
+(vp-label 'sk_loop)
+	(vp-cpy-ir :r13 } (str s_i) { :r2)
+	(vp-cpy-ir :r13 } (str s_to) { :r3)
+	(vp-bge-rr :r3 :r2 'sk_done)
+	(vp-cpy-ri :r2 :r13 } (str p_i) {)
+	(vp-add-cr 1 :r2)
+	(vp-cpy-ri :r2 :r13 } (str s_i) {)
+	(vp-call 'kf_main)
+	;after so many, the other tasks of the node have a turn if this one's
+	;slice is up, (task-slice). All that is kept is in the frame
+	(vp-cpy-ir :r13 } (str s_work) { :r2)
+	(vp-add-cr 1 :r2)
+	(vpif '(:r2 >= } (str +sv_kernel_work) {))
+		(vp-xor-rr :r2 :r2)
+		(vp-cpy-ri :r2 :r13 } (str s_work) {)
+		(vp-push :r13)
+		(call :sys_task :slice)
+		(vp-pop :r13)
+		(vp-lea-p 'fn_consts :r12)
+	(else)
+		(vp-cpy-ri :r2 :r13 } (str s_work) {)
+	(endif)
+	(vp-jmp 'sk_loop)
+(vp-label 'sk_done)
+	(vp-pop :r0)
+	(assign '((:r0 +lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+} (sv-code-text) {
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(kernel from to frame bufs)" +error_msg_wrong_types))
+	(signature '(:num :num :str :obj))
+
+(def-func-end)
+}))
+	(list text frame_size))
+
+(defun shader-vp-kernel (program)
+	; (shader-vp-kernel program) -> (kernel frame_size)
+	;the native function for a kernel, (shader-vp-run) runs it. It is
+	;assembled the first time this CPU meets it, and kept.
+	(unless (eql (shader-stage program) :kernel) (sh-err "not a kernel" 'main))
+	(defq name (sv-name "k" program))
+	(if (defq kept (sv-kept name)) (cat (list (first kept)) (second kept))
+		(bind '(text frame_size) (sv-kernel-source (shader-full program) name))
+		(sv-keep name (sv-native name text) (list frame_size))))
+
+(defun shader-vp-run (program native frame from to bufs)
+	; (shader-vp-run program native frame from to (str ...)) -> :nil
+	;run a kernel for each index from to to, in a frame (shader-vp-frame)
+	;made. The bufs are a str for each buffer, in the order the program
+	;has them, 4 bytes to an element, a 32 bit float or int. Nothing is
+	;bounds checked, as on a GPU, so each must be long enough
+	(unless (and (= (length bufs) (length (shader-buffers program))) (every (const str?) bufs))
+		(sh-err "a str for each buffer" 'main))
+	((first native) from to frame bufs))
 
 (defun shader-vp-func (program name)
 	; (shader-vp-func program name) -> func

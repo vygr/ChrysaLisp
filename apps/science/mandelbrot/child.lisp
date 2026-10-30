@@ -1,39 +1,27 @@
 (defq *app_root* (path-to-file))
-
 ;the canvas alone, a child draws on the app's pixels and nothing else of
 ;the GUI
 (import "lib/consts/colors.inc")
 (import "gui/canvas/lisp.inc")
+(import "lib/gpu/vp.inc")
+(import "service/source/app.inc")
 (import "./app.inc")
 
-;the colour of a point, -1 if it does not get out of the set in top turns
-(ffi (cat *app_root* "shade") shade)
-; (shade x0 y0 top palette) -> -1 | argb
+;the kernel the GPU runs, kernel.shader, as native code, the VP back end,
+;in reals. It is read from the app's system, by its @Source if this task
+;was sent by one, and assembled by the first child on this machine to
+;want it
+(defq program :nil native :nil)
 
-;the colour of a pixel, the mean of four points across it, a quarter of
-;the way in from each corner, so detail finer than a pixel does not
-;shimmer as the picture moves, into the square. A pixel none of whose
-;points get out of the set is inside it; one that is not, and the ring it
-;is on is not all inside, the scan goes on inwards
-(defun pixel (px py w h z cx cy top pal)
-	(defq r 0 g 0 b 0 in 0)
-	(each (lambda ((sx sy))
-			(defq d (shade (+ (real-offset (+ (n2r px) sx) w z) cx)
-				(+ (real-offset (+ (n2r py) sy) h z) cy) top pal))
-			(if (= d -1)
-				(setq in (inc in))
-				(setq r (+ r (logand (>> d 16) 0xff)) g (+ g (logand (>> d 8) 0xff)) b (+ b (logand d 0xff)))))
-		(list (list +real_1/4 +real_1/4) (list (n2r 0.75) +real_1/4)
-			(list +real_1/4 (n2r 0.75)) (list (n2r 0.75) (n2r 0.75))))
-	(if (= in 4) -1 (+ 0xff000000 (<< (>> r 2) 16) (<< (>> g 2) 8) (>> b 2))))
-
-(defmacro eval-px-py (px py)
-	`(progn
-		(defq d (pixel ,px ,py w h z cx cy top pal)
-			at (* (+ (- ,px x) (* (- ,py y) bw)) +int_size))
-		(cond
-			((= d -1) (set-int buf at +argb_black))
-			(:t (set-int buf at d) (setq solid :nil)))))
+(defun kernel ()
+	(unless program
+		(defq path (cat *app_root* "kernel.shader") text "" part ""
+			stream (if (defq sid (get '*source_system*))
+				(source-stream sid *source_service* path)
+				(file-stream path)))
+		(while (nempty? (setq part (ifn (read-blk stream 65536) ""))) (setq text (cat text part)))
+		(setq program (shader-from-text text) native (shader-vp-kernel program)))
+	native)
 
 ;the canvas of the app, on its pixels in shared memory, and the key they
 ;were found by
@@ -46,31 +34,45 @@
 		(setq shared_key key canvas (and (/= key 0) (canvas-shared w h 1 key))))
 	canvas)
 
+(defun run (sq ox oy ow n dx dy)
+	;n pixels of a square from ox oy, a step of dx dy each, worked out by
+	;the kernel into the square's pixels. :t if all of them are inside
+	(bind '(frame at_ox at_oy at_ow pal buf x y bw) sq)
+	(defq out (str-alloc (* n +int_size)) solid :t)
+	(set-long frame at_ox ox) (set-long frame at_oy oy) (set-long frame at_ow ow)
+	(shader-vp-run program native frame 0 n (list pal out))
+	(each (lambda (i)
+			(defq c (get-uint out (* i +int_size)))
+			(set-int buf (* (+ (- (+ ox (* i dx)) x) (* (- (+ oy (* i dy)) y) bw)) +int_size) c)
+			(if (/= c +argb_black) (setq solid :nil)))
+		(range 0 n))
+	solid)
+
 (defun mandel (key mbox x y x1 y1 w h canvas_key top pal_i cx cy z)
-	(defq found (attach canvas_key w h) pal (mandel-pal pal_i))
-	(bind '(w h) (map (const n2r) (list w h)))
-	(defq bw (- x1 x) bh (- y1 y) buf (str-alloc (* bw bh +int_size))
+	;a square of the picture, scanned a ring at a time from its edge in. A
+	;ring all inside the set is all there is within it, the set has no
+	;holes, and the rest is black. A row of a ring is a run of the kernel,
+	;as wide as the row, a column a run one wide, each index a row down
+	(kernel)
+	(defq found (attach canvas_key w h) bw (- x1 x) bh (- y1 y) pal (mandel-pal pal_i)
+		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
+		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
+		frame (shader-vp-frame program native (list
+			(list 'cx cx) (list 'cy cy) (list 'step (/ (* z +real_2) (n2r h)))
+			(list 'w w) (list 'h h) (list 'top top) (list 'base +mandel_pal_base)
+			(list 'rate +mandel_pal_rate) (list 'lbase +mandel_light_base)
+			(list 'lgain +mandel_light_gain) (list 'ss +mandel_samples)))
 		r 0 running :t inside 0 ix x iy y ix1 x1 iy1 y1)
-	;scan perimeters
+	(defq sq (list frame at_ox at_oy at_ow pal buf x y bw))
 	(while (and running (< (* r 2) bw) (< (* r 2) bh))
-		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) solid :t)
-		;top edge
-		(defq px (dec rx))
-		(while (< (++ px) rx1) (eval-px-py px ry))
-		;bottom edge (skips evaluating the same row if height is 1)
-		(when (> ry1 (inc ry))
-			(setq px (dec rx))
-			(while (< (++ px) rx1) (eval-px-py px (dec ry1))))
-		;left edge (skips corners)
-		(defq py ry)
-		(while (< (++ py) (dec ry1)) (eval-px-py rx py))
-		;right edge (skips corners, checks width)
-		(when (> rx1 (inc rx))
-			(setq py ry)
-			(while (< (++ py) (dec ry1)) (eval-px-py (dec rx1) py)))
+		(defq rx (+ x r) ry (+ y r) rx1 (- x1 r) ry1 (- y1 r) rw (- rx1 rx) rh (- ry1 ry)
+			solid (run sq rx ry rw rw 1 0))
+		;the bottom row, the left column and the right, each if there is one
+		(if (> rh 1) (setq solid (and (run sq rx (dec ry1) rw rw 1 0) solid)))
+		(when (> rh 2)
+			(setq solid (and (run sq rx (inc ry) 1 (- rh 2) 0 1) solid))
+			(if (> rw 1) (setq solid (and (run sq (dec rx1) (inc ry) 1 (- rh 2) 0 1) solid))))
 		(if solid
-			;a ring that is all inside the set, and so is all there is
-			;within it, the set has no holes
 			(setq inside 1 ix rx iy ry ix1 rx1 iy1 ry1 running :nil)
 			(++ r))
 		(task-slice))

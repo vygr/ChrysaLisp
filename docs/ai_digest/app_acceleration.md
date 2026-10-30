@@ -1,9 +1,19 @@
 # ChrysaLisp Native Acceleration Guide
 
-This is a detailed breakdown of the native code acceleration used in the
-Mandelbrot application. This guide explains how to write
+This is a detailed breakdown of the native code acceleration the Mandelbrot
+application used up to 7.5. This guide explains how to write
 `lisp.vp` files, handle floating-point mathematics in the Virtual Processor
 (VP), and integrate them into ChrysaLisp applications.
+
+Since 7.6 Mandelbrot has no VP of its own. Its picture is a kernel of the
+shader language, `apps/science/mandelbrot/kernel.shader`, which the GPU
+runs, and which the VP back end makes native code of for the CPU, see
+`docs/ai_digest/shader_language.md`. Work that is a function of an index,
+reading and writing buffers, is best written that way: one source, run on
+the GPU or the CPU. Hand written VP is for the rest. The shade below is the
+one Mandelbrot had, and it is still the best example there is of float
+work in VP. It is in the history, `git show
+6d7011fff:apps/science/mandelbrot/lisp.vp`.
 
 ## Analyzing Mandelbrot
 
@@ -12,7 +22,7 @@ interpreter to the Virtual Processor (VP) assembly. These files are typically
 named `lisp.vp`. They define native functions that can be called directly
 from Lisp code via the Foreign Function Interface (FFI).
 
-This guide analyzes `apps/science/mandelbrot/lisp.vp` to demonstrate
+This guide analyzes Mandelbrot's `lisp.vp`, as it was, to demonstrate
 register management, floating-point math, constant loading, and SIMD
 operations.
 
@@ -158,7 +168,7 @@ lists of registers. While VP64 is scalar, it generates the sequence of
 scalar instructions for you, which keeps the code short. A list shorter
 than the longest is made up to that length with its last register.
 
-**Examples from `apps/science/mandelbrot/lisp.vp`:**
+**Examples from Mandelbrot's `lisp.vp`:**
 
 ```vdu
 ; Zero cnt, then convert it into each of xc, yc, x2, y2, dx, dy (all 0.0)
@@ -200,8 +210,8 @@ docs/diagrams/app_native.cwb
 
 ### 7. Full Workflow Example: Mandelbrot Shade
 
-Here is the breakdown of the Mandelbrot set calculator
-(`apps/science/mandelbrot/lisp.vp`). One call works out the whole colour of
+Here is the breakdown of the Mandelbrot set calculator, its `lisp.vp` as it
+was. One call works out the whole colour of
 one pixel, so the Lisp that calls it only has to store the answer.
 
 1. **Signature**: Expects `x0` and `y0` (Reals), `top`, how many turns of the

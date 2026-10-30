@@ -35,6 +35,31 @@
 			(reals (* (n2r (logand (>> p 16) 0xff)) +cpu_255th) (* (n2r (logand (>> p 8) 0xff)) +cpu_255th)
 				(* (n2r (logand p 0xff)) +cpu_255th) (* (n2r (logand (>> p 24) 0xff)) +cpu_255th)))))
 
+(defun cpu-fget (buf i)
+	;the 32 bit float at i of a buffer, as a real, the double it is
+	(defq b (get-uint buf (* i 4)) e (logand (>> b 23) 0xff) m (logand b 0x7fffff)
+		sign (<< (logand (>> b 31) 1) 63))
+	(get-real (set-long (str-alloc 8) 0 (cond
+		((= e 255) (logior sign 0x7ff0000000000000 (<< m 29)))
+		((> e 0) (logior sign (<< (+ e 896) 52) (<< m 29)))
+		((= m 0) sign)
+		;one smaller than the least normal, made normal for the double
+		(:t (setq e 1)
+			(until (/= 0 (logand m 0x800000)) (setq m (<< m 1) e (dec e)))
+			(logior sign (<< (+ e 896) 52) (<< (logand m 0x7fffff) 29))))) 0))
+
+(defun cpu-fset (buf i r)
+	;the nearest 32 bit float to a real at i of a buffer
+	(set-int buf (* i 4) (sh-real-to-float r)))
+
+(defun cpu-iget (buf i)
+	;the 32 bit int at i of a buffer
+	(get-int buf (* i 4)))
+
+(defun cpu-iset (buf i n)
+	;an int at i of a buffer, its low 32 bits
+	(set-int buf (* i 4) n))
+
 (defun cpu-splat (f n)
 	(case n (2 (reals f f)) (3 (reals f f f)) (:t (reals f f f f))))
 
@@ -219,7 +244,13 @@
 		((eql op 'length) (list (if va (const cpu-length) (const abs)) a))
 		((eql op 'normalize) (list (const cpu-norm) a))
 		((eql op 'reflect) (list (const cpu-reflect) a b))
-		((eql op 'texture) (list (const cpu-texture) a b))))
+		((eql op 'texture) (list (const cpu-texture) a b))
+		;an element of a buffer, a float made a real, an int as it is
+		((eql op 'elem-get)
+			(list (if (eql ta :fbuf) (const cpu-fget) (const cpu-iget)) a b))
+		;>> keeps the sign, as a GPU's does
+		((defq i (find op '(logand logior logxor << >>)))
+			(cat (list (elem-get (static-q (logand logior logxor << >>>)) i)) args))))
 
 (defun cpu-expr (node)
 	(sh-fold node (lambda (node args)
@@ -227,8 +258,9 @@
 		(case tag
 			(:lit (if (eql type :float) (str-to-real a) a))
 			(:var (if (eql b :const) (second (some (# (if (eql (first %0) a) %0)) cvals)) a))
-			;a texture is a parameter of the lambda, by its name
+			;a texture, and a buffer, is a parameter of the lambda, by its name
 			(:tex a)
+			(:buf a)
 			(:swz (defq v (first args))
 				(cond
 					((= (length a) 1)
@@ -284,9 +316,14 @@
 				(:setsw (push into (list (const setq) a
 					(list (const cpu-swz-set) a (list (const quote) b) (cpu-expr c)))))
 				(:return (setq going :nil)
+					;the main of a kernel returns nothing
+					(defq v (if a (cpu-expr a)))
 					(push into (if flag
-						(list (const setq) '_rv (cpu-expr a) flag :ret)
-						(cpu-expr a))))
+						(list (const setq) '_rv v flag :ret)
+						v)))
+				(:elemset
+					(push into (list (if (eql (first c) :float) (const cpu-fset) (const cpu-iset))
+						a (cpu-expr b) (cpu-expr c))))
 				(:break (setq going :nil)
 					(push into (list (const setq) flag :t)))
 				(:if (setq going :nil)
@@ -395,6 +432,24 @@
 						(static-qq (reals (+ (n2r _xx) ,+cpu_1/2) (+ (n2r _yy) ,+cpu_1/2))))))
 				(static-qq (task-slice)))
 			'_out)))
+
+(defun shader-cpu-kernel (program)
+	; (shader-cpu-kernel program) -> lambda
+	; (lambda from to buffer ... input ...) -> :nil
+	;the lambda runs main of a kernel for each i of from to to, not to.
+	;A buffer is a str, 4 bytes an element, a float a 32 bit float, given
+	;in the order the kernel has them, then the inputs
+	(unless (eql (shader-stage program) :kernel) (sh-err "not a kernel" 'main))
+	(bind '(inputs consts globals funcs &rest _) (shader-full program))
+	(defq cvals (list) fvals (list) flag_num 0 main (cpu-funcs program))
+	(cat (list (const lambda) (cat '(_from _to) (map (const first) (shader-buffers program))
+			(map (const first) inputs)))
+		(map (lambda ((name type e)) (list (const defq) name (cpu-expr e))) globals)
+		(list
+			(static-qq (defq _i (- _from 1)))
+			(list (const while) (static-qq (< (setq _i (+ _i 1)) _to))
+				(list main '_i)
+				(static-qq (if (= 0 (logand _i 1023)) (task-slice)))))))
 
 (defun cpu-number-args (program vals)
 	(map (lambda ((name type &optional val lo hi))

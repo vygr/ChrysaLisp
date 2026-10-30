@@ -3,7 +3,9 @@
 ; The text is a fragment shader for Metal. The inputs are one
 ; uniform buffer, at [[buffer(0)]], laid out as the inputs block.
 ; A vertex shader and a pixel shader that go together are a vertex
-; function and a fragment function, (shader-msl-pair).
+; function and a fragment function, (shader-msl-pair). A kernel is
+; a kernel function, (shader-msl-kernel), its buffers after the
+; inputs, those it reads then those it writes, as SDL binds them.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
@@ -34,6 +36,7 @@
 				((msl-num a))))
 			(:var (msl-name a))
 			(:tex (msl-name a))
+			(:buf (msl-name a))
 			(:swz (cat (first args) "." (apply (const cat) (map (# (elem-get "xyzw" %0)) a))))
 			(:user (cat (msl-name a) "(" (join args ", ") ")"))
 			(:t (cond
@@ -46,6 +49,9 @@
 						(cat "(" (join args (elem-get
 							'(" + " " - " " * " " / " " < " " <= " " > " " >= " " == " " != " " && " " || ") i)) ")")))
 				((eql a 'not) (cat "(!" (first args) ")"))
+				((eql a 'elem-get) (cat (first args) "[" (second args) "]"))
+				((defq i (find a '(logand logior logxor << >>)))
+					(cat "(" (join args (elem-get '(" & " " | " " ^ " " << " " >> ") i)) ")"))
 				;a picture is two members, the texture and how it is read
 				((eql a 'texture) (cat (first args) ".sample(" (first args) "s, " (second args) ")"))
 				((find a '(vec2 vec3 vec4)) (cat (msl-type type) "(" (join args ", ") ")"))
@@ -84,7 +90,8 @@
 						(push stack (list :line (cat tab "}")))
 						(reach (# (push stack (list :stmt %0 (inc indent)))) d))
 					(:break (push lines (cat tab "break;")))
-					(:return (push lines (cat tab "return " (msl-expr a) ";"))))))))
+					(:elemset (push lines (cat tab (msl-name a) "[" (msl-expr b) "] = " (msl-expr c) ";")))
+					(:return (push lines (cat tab (if a (cat "return " (msl-expr a)) "return") ";"))))))))
 
 (defun msl-inputs (program lines)
 	;the inputs block, packed types and pad words give the std140 offsets.
@@ -99,8 +106,14 @@
 		(push lines (cat "\t" (if (shader-dim type) (cat "packed_" (msl-type type)) (msl-type type))
 			" " (msl-name name) ";"))
 		(setq offset (+ offset (* (shader-size type) 4)))) (list (shader-layout program)) 1)
+	;a kernel's range is two ints after the inputs, on a 4 byte boundary
+	(when (eql (shader-stage program) :kernel)
+		(while (< offset (sh-range-at program))
+			(push lines (cat "\tfloat pad_" (str (++ pads)) ";"))
+			(setq offset (+ offset 4)))
+		(push lines "\tint range_from;" "\tint range_to;"))
 	;a block with nothing in it is still a block
-	(if (empty? (first program)) (push lines "\tfloat pad_0;"))
+	(and (empty? (first program)) (nql (shader-stage program) :kernel) (push lines "\tfloat pad_0;"))
 	(push lines "};" ""))
 
 (defun msl-struct (program lines)
@@ -115,6 +128,9 @@
 	(each (lambda ((name))
 		(push lines (cat "\ttexture2d<float> " (msl-name name) ";") (cat "\tsampler " (msl-name name) "s;")))
 		(shader-textures program))
+	(each (lambda ((name type access))
+		(push lines (cat "\tdevice " (if (eql access :read) "const " "") (msl-type type) " *" (msl-name name) ";")))
+		(shader-buffers program))
 	(each (lambda ((name type e))
 		(push lines (cat "\t" (msl-type type) " " (msl-name name) " = " (msl-expr e) ";"))) consts)
 	(each (lambda ((name type params block))
@@ -170,6 +186,26 @@
 	(msl-set-inputs program lines)
 	(msl-set-textures program lines)
 	(push lines "\ts.shader_init();" "\treturn s.shader_main(in.frag);" "}" "")
+	(join lines "\n"))
+
+(defun shader-msl-kernel (program)
+	; (shader-msl-kernel program) -> str
+	;the entry point is kernel_main, a thread for each index of the range
+	;of the block, from the first, those past its end do nothing
+	(unless (eql (shader-stage program) :kernel) (sh-err "not a kernel" 'main))
+	(defq lines (cat *msl_head*))
+	(msl-inputs program lines)
+	(msl-struct program lines)
+	(push lines (cat "kernel void kernel_main(constant Inputs &inputs [[buffer(0)]]"
+		(apply (const cat) (map (lambda ((name type access))
+			(cat ", device " (if (eql access :read) "const " "") (msl-type type) " *buf_" (str (!))
+				" [[buffer(" (str (inc (!))) ")]]")) (sh-kernel-order program)))
+		", uint gid [[thread_position_in_grid]])")
+		"{" "\tint i = inputs.range_from + int(gid);" "\tif (i >= inputs.range_to) return;" "\tShader s;")
+	(msl-set-inputs program lines)
+	(each (lambda ((name &rest _)) (push lines (cat "\ts." (msl-name name) " = buf_" (str (!)) ";")))
+		(sh-kernel-order program))
+	(push lines "\ts.shader_init();" "\ts.shader_main(i);" "}" "")
 	(join lines "\n"))
 
 (defun shader-msl-pair (vertex pixel)

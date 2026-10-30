@@ -219,6 +219,16 @@
 		(def this :queue (list) :out 0 :tried (Fmap) :tries 0)
 		this)
 
+	(defmethod :renew (reply_mbox)
+		; (. jobs :renew reply_mbox) -> jobs
+		;the answers to come go to a new mailbox, and the jobs given and
+		;queued are forgotten. The children are left as they are: one part
+		;way through a job finishes it and answers to the mailbox it was
+		;given, which nobody reads now, then takes its next
+		(def this :reply_mbox reply_mbox :queue (list) :out 0 :tried (Fmap) :tries 0)
+		(. (get :farm this) :each (lambda (_ val) (undef val :job :timestamp)))
+		this)
+
 	(defmethod :refresh (&optional timeout)
 		; (. jobs :refresh [timeout]) -> :t | :nil
 		;start again any child that has gone, or has had its job for

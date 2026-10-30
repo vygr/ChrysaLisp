@@ -14,8 +14,10 @@
 ;	input, (name type default min max)
 ;	const and global, (name type expr)
 ;	func, (name type ((name type) ...) block)
-;	stage, (kind attrs varyings textures), kind is :pixel, :vertex or
-;	:func, an attr and a varying are (name type), a texture is (name)
+;	stage, (kind attrs varyings textures buffers), kind is :pixel,
+;	:vertex, :func or :kernel, an attr and a varying are (name type), a
+;	texture is (name), a buffer is (name type access), access :read or
+;	:write
 ;
 ;a file with no main is not a shader, it is functions, kind :func. Each
 ;can be made into a native function that Lisp calls, with numbers,
@@ -32,6 +34,13 @@
 ;attrs of the vertex, and what it sets its varyings to is what a pixel
 ;shader that has varyings of those names reads, spread over the triangle.
 ;Any vertex shader goes with any pixel shader whose varyings it has.
+;
+;a file with a buffer is a kernel, compute. Its main takes an index,
+;(defun main :void ((i :int)) ...), and is run once for each of a range of
+;them, reading and writing its buffers, (elem-get buf i) and (elem-set buf
+;i val), arrays of 32 bit floats or ints. Its inputs are a block of
+;uniforms. It gives nothing back, :void is the type of no value, and is
+;for the main of a kernel alone
 ;an expr is (type tag ...)
 ;	(type :lit value), a float value is a str of the decimal number
 ;	(type :var name kind), kind is :input :const :global :param :local :loop
@@ -41,6 +50,8 @@
 ;	(type :op name (expr ...))
 ;	(:texture :tex name index), a texture, only ever the first arg of
 ;		the op texture
+;	(:fbuf or :ibuf :buf name index), a buffer of floats or ints, only ever
+;		the first arg of the op elem-get
 ;a block is a list of statements
 ;	(:defq name expr)
 ;	(:setq name expr)
@@ -48,7 +59,8 @@
 ;	(:if expr block block)
 ;	(:for name expr expr block)
 ;	(:break)
-;	(:return expr)
+;	(:return expr), or (:return) in the main of a kernel
+;	(:elemset name expr expr), a buffer's element at an index given a value
 
 ; these lists are not + constants, a prebound list would be run as a form
 (defq *sh_types* '(:float :int :bool :vec2 :vec3 :vec4 :mat4)
@@ -61,9 +73,11 @@
 	*sh_ctors* '(vec2 vec3 vec4)
 	*sh_gen1* '(sin cos sqrt floor fract abs)
 	*sh_gen2* '(min max mod)
-	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect texture)
-	*sh_words* '(definput defconst defglobal defattr defvarying deftexture defun
-		defq setq if when progn for break return))
+	*sh_others* '(not float int pow clamp mix dot cross length normalize reflect texture elem-get)
+	;of ints, and >> keeps the sign, as a GPU's does
+	*sh_bits* '(logand logior logxor << >>)
+	*sh_words* '(definput defconst defglobal defattr defvarying deftexture defbuffer defun
+		defq setq if when progn for break return elem-set))
 
 (defun sh-err (msg form)
 	(throw (cat "Shader, " msg " !") form))
@@ -78,7 +92,7 @@
 	(cond ((eql type :mat4) 16) ((shader-dim type)) (1)))
 
 (defun shader-stage (program)
-	; (shader-stage program) -> :pixel | :vertex | :func
+	; (shader-stage program) -> :pixel | :vertex | :func | :kernel
 	(first (elem-get program 4)))
 
 (defun shader-funcs (program)
@@ -109,6 +123,12 @@
 	;the pictures a pixel shader reads from, in the order it has them
 	(elem-get (elem-get program 4) 3))
 
+(defun shader-buffers (program)
+	; (shader-buffers program) -> ((name type access) ...)
+	;the buffers of a kernel, in the order it has them, those it reads and
+	;then those it writes, as a GPU binds them
+	(elem-get (elem-get program 4) 4))
+
 (defun shader-texture (pixmap)
 	; (shader-texture pixmap) -> (width height pixels)
 	;a picture as the Lisp back end reads one, its pixels a str, row by
@@ -127,7 +147,7 @@
 
 (defun sh-op? (name)
 	(some (# (find name %0)) (list *sh_arith* *sh_order* *sh_equal* *sh_logic*
-		*sh_ctors* *sh_gen1* *sh_gen2* *sh_others*)))
+		*sh_ctors* *sh_gen1* *sh_gen2* *sh_others* *sh_bits*)))
 
 (defun sh-find (name)
 	(some (# (if (eql (first %0) name) %0)) syms))
@@ -174,6 +194,11 @@
 			(and (= n 2) (eql a b) (find a '(:float :int :bool)) :bool))
 		((find op *sh_logic*)
 			(and (> n 1) (every (# (eql %0 :bool)) types) :bool))
+		((find op *sh_bits*)
+			(and (if (find op '(<< >>)) (= n 2) (> n 1)) (every (# (eql %0 :int)) types) :int))
+		;an element of a buffer, at an int
+		((eql op 'elem-get)
+			(and (= n 2) (eql b :int) (case a (:fbuf :float) (:ibuf :int))))
 		((eql op 'not)
 			(and (= n 1) (eql a :bool) :bool))
 		((eql op 'float)
@@ -264,7 +289,11 @@
 			(:t (cond
 				((real? form) (sh-err "real number literal" form))
 				((fixed? form) (push vs (list :float :lit (sh-decimal form))))
-				((num? form) (push vs (list :int :lit form)))
+				;an int is 32 bits, one written as its bits, 0xff000000, is
+				;taken as them
+				((num? form)
+					(unless (<= -0x80000000 form 0xffffffff) (sh-err "int out of range" form))
+					(push vs (list :int :lit (if (> form 0x7fffffff) (- form 0x100000000) form))))
 				((eql form :t) (push vs (list :bool :lit :t)))
 				((eql form :nil) (push vs (list :bool :lit :nil)))
 				((and (str? form) (not (sym? form))) (push vs (list :float :lit (sh-decimal form))))
@@ -272,9 +301,10 @@
 					(unless (defq e (sh-find form)) (sh-err "unknown name" form))
 					(and const_only (not (eql (third e) :const))
 						(sh-err "not a constant" form))
-					(push vs (if (eql (third e) :texture)
-						(list :texture :tex form (elem-get e 3))
-						(list (second e) :var form (third e)))))
+					(push vs (case (third e)
+						(:texture (list :texture :tex form (elem-get e 3)))
+						(:buffer (list (if (eql (second e) :float) :fbuf :ibuf) :buf form (elem-get e 3)))
+						(:t (list (second e) :var form (third e))))))
 				((not (and (list? form) (nempty? form) (sym? (defq op (first form)))))
 					(sh-err "not an expression" form))
 				((eql (first op) ":")
@@ -318,6 +348,7 @@
 				(sh-name name form)
 				(defq e (sh-expr val))
 				(if (eql (first e) :texture) (sh-err "a texture is only for (texture name uv)" form))
+				(if (find (first e) '(:fbuf :ibuf)) (sh-err "a buffer is only for (elem-get buf i)" form))
 				(push syms (list name (first e) :local))
 				(push out (list :defq name e))) (sh-pairs form)))
 		((eql op 'setq)
@@ -366,10 +397,24 @@
 			(unless (and (= n 0) (> loop_depth 0)) (sh-err "break outside a loop" form))
 			(push out (list :break)))
 		((eql op 'return)
-			(unless (= n 1) (sh-err "wrong number of args" form))
-			(defq e (sh-expr (second form)))
-			(unless (eql (first e) ret_type) (sh-err "wrong return type" form))
-			(push out (list :return e)))
+			(cond
+				;the main of a kernel leaves early with nothing
+				((eql ret_type :void)
+					(unless (= n 0) (sh-err "a kernel's main returns nothing" form))
+					(push out (list :return)))
+				(:t (unless (= n 1) (sh-err "wrong number of args" form))
+					(defq e (sh-expr (second form)))
+					(unless (eql (first e) ret_type) (sh-err "wrong return type" form))
+					(push out (list :return e)))))
+		((eql op 'elem-set)
+			;a value into an element of a buffer the kernel writes
+			(unless (= n 3) (sh-err "wrong number of args" form))
+			(unless (and (sym? (defq name (second form))) (defq v (sh-find name)) (eql (third v) :buffer))
+				(sh-err "not a buffer" form))
+			(unless (eql (elem-get v 4) :write) (sh-err "a buffer the kernel only reads" form))
+			(defq i (sh-expr (third form)) e (sh-expr (elem-get form 3)))
+			(unless (and (eql (first i) :int) (eql (first e) (second v))) (sh-err "wrong types" form))
+			(push out (list :elemset name i e)))
 		((sh-err "unknown statement" form))))
 
 (defun sh-block (forms)
@@ -427,7 +472,7 @@
 				(when (> (length form) 1)
 					(elem-set held idx (defq arms (cat form)))
 					(push todo (list arms (dec (length arms))))))
-			((find (first form) '(defq setq when for break return)))
+			((find (first form) '(defq setq when for break return elem-set)))
 			((elem-set held idx (list 'return form)))))
 	(first top))
 
@@ -523,7 +568,7 @@
 	;function gives and takes. No body is read or checked, and the consts
 	;and globals are :lazy. (shader-full) reads the rest when it is wanted.
 	(defq syms (list) funcs (list) inputs (list) consts (list) globals (list)
-		attrs (list) varyings (list) textures (list) sets_varying :nil
+		attrs (list) varyings (list) textures (list) buffers (list) sets_varying :nil
 		const_only :nil ret_type :nil loop_depth 0)
 	(each (lambda (form)
 		(unless (and (list? form) (nempty? form)) (sh-err "not a declaration" form))
@@ -556,6 +601,15 @@
 				(sh-name name form)
 				(push syms (list name :texture :texture (length textures)))
 				(push textures (list name)))
+			((eql op 'defbuffer)
+				;an array of a kernel, of 32 bit floats or ints, that it reads,
+				;or reads and writes, given beside the inputs
+				(unless (= n 3) (sh-err "wrong number of args" form))
+				(sh-name name form)
+				(unless (find (defq type (third form)) '(:float :int)) (sh-err "a buffer is of :float or :int" form))
+				(unless (find (defq access (elem-get form 3)) '(:read :write)) (sh-err "a buffer is :read or :write" form))
+				(push syms (list name type :buffer (length buffers) access))
+				(push buffers (list name type access)))
 			((and head_only (find op '(defconst defglobal))))
 			((and head_only (eql op 'defun))
 				(unless (and (>= n 3) (list? (elem-get form 3))) (sh-err "wrong function header" form))
@@ -572,7 +626,8 @@
 				(unless (and (>= n 3) (list? (defq params (elem-get form 3))))
 					(sh-err "wrong function header" form))
 				(sh-name name form)
-				(setq ret_type (sh-type (third form) form))
+				;:void is the main of a kernel's, and no other function's
+				(setq ret_type (if (and (eql name 'main) (eql (third form) :void)) :void (sh-type (third form) form)))
 				(defq mark (length syms))
 				(each (# (unless (and (list? %0) (= (length %0) 2))
 						(sh-err "wrong parameter" form))
@@ -580,11 +635,11 @@
 					(sh-type (second %0) form)
 					(push syms (list (first %0) (second %0) :param))) params)
 				(defq body (slice form 4 -1))
-				(if (nempty? body)
+				(and (nempty? body) (nql ret_type :void)
 					(setq body (cat (slice body 0 -2) (list (sh-tail (last body))))))
 				(defq block (sh-block body))
 				(setq syms (slice syms 0 mark))
-				(unless (sh-returns? block) (sh-err "function does not return" form))
+				(and (nql ret_type :void) (not (sh-returns? block)) (sh-err "function does not return" form))
 				(push funcs (list name ret_type params block)))
 			((sh-err "unknown declaration" form)))) forms)
 	;main says which kind it is, a pixel shader's takes the frag coord, a
@@ -592,6 +647,14 @@
 	;to call
 	(defq f (sh-func 'main))
 	(cond
+		((nempty? buffers)
+			;a kernel, its main takes the index and gives nothing
+			(unless (and f (eql (second f) :void) (lmatch? (map (const second) (third f)) '(:int)))
+				(sh-err "no (defun main :void ((i :int)) ...) of a kernel" 'main))
+			(if (or (nempty? attrs) (nempty? varyings) (nempty? textures))
+				(sh-err "a kernel has no attrs, varyings or textures" 'main)))
+		((and f (eql (second f) :void))
+			(sh-err "only a kernel's main is :void, it has buffers" 'main))
 		((not f)
 			(if (empty? funcs) (sh-err "no functions" 'main))
 			(if (or (nempty? inputs) (nempty? attrs) (nempty? varyings))
@@ -605,15 +668,15 @@
 				(if (eql type :mat4) (sh-err "a function can not give a matrix" name))
 				(if (some (# (eql (second %0) :mat4)) params)
 					(sh-err "a function can not take a matrix" name))) funcs)))
-	(defq kind (cond ((not f) :func) ((empty? (third f)) :vertex) (:pixel)))
+	(defq kind (cond ((nempty? buffers) :kernel) ((not f) :func) ((empty? (third f)) :vertex) (:pixel)))
 	(and (nempty? textures) (nql kind :pixel)
 		(sh-err "only a pixel shader has textures" (first (first textures))))
 	(when (eql kind :pixel)
 		(if (nempty? attrs) (sh-err "a pixel shader has no attrs" (first (first attrs))))
 		(if sets_varying (sh-err "a pixel shader can not set a varying" 'main)))
 	(if head_only
-		(list inputs :lazy :lazy funcs (list kind attrs varyings textures) :nil :nil)
-		(list inputs consts globals funcs (list kind attrs varyings textures) (shader-key (str forms)) :nil)))
+		(list inputs :lazy :lazy funcs (list kind attrs varyings textures buffers) :nil :nil)
+		(list inputs consts globals funcs (list kind attrs varyings textures buffers) (shader-key (str forms)) :nil)))
 
 (defun shader-read (stream)
 	; (shader-read stream) -> forms
@@ -637,6 +700,8 @@
 	;pixel shaders with no varyings and no matrix in them
 	(if (eql (shader-stage program) :func)
 		(sh-err (cat "the " back_end " back end has no functions for Lisp yet") 'main))
+	(if (eql (shader-stage program) :kernel)
+		(sh-err (cat "a kernel is not a shader, of the " back_end " back end or any") 'main))
 	(when (or (eql (shader-stage program) :vertex) (nempty? (shader-varyings program))
 			(some (# (eql (second %0) :mat4)) (first program)))
 		(sh-err (cat "the " back_end " back end has no vertex stage, varyings or matrix yet") 'main)))
@@ -699,7 +764,12 @@
 	;is kept under. The rest is read and checked when a back end has to
 	;make something from it, (shader-full), so a file whose native code is
 	;there already costs a hash and a few lines
-	(defq text (shader-text file))
+	(shader-from-text (shader-text file)))
+
+(defun shader-from-text (text)
+	; (shader-from-text str) -> program
+	;as (shader-load), from the text of a file that imports nothing, one
+	;read from wherever it is, by @Source say
 	(defq program (shader-compile (shader-read (string-stream text)) :t))
 	(elem-set program 5 (shader-key text))
 	(elem-set program 6 text)
@@ -722,7 +792,33 @@
 		(defq d (shader-size type) a (if (= d 16) 16 (elem-get '(0 4 8 16 16) d)))
 		(setq offset (+ (defq o (align offset a)) (* d 4)))
 		(list name type o)) (first program)))
+	;a kernel's range, from and to, is two ints after the inputs
+	(if (eql (shader-stage program) :kernel) (setq offset (+ offset 8)))
 	(cat (list (align offset 16)) fields))
+
+(defun sh-range-at (program)
+	;the offset of a kernel's range in the inputs block
+	(defq at 0)
+	(each! (lambda ((_ type o)) (setq at (+ o (* (shader-size type) 4))))
+		(list (shader-layout program)) 1)
+	at)
+
+;a GPU runs a kernel in groups of this many threads
+(defq +sh_kernel_threads 64)
+
+(defun sh-kernel-order (program)
+	;a kernel's buffers as a GPU binds them, those it reads then those it
+	;writes, each in the order the program has them
+	(defq bufs (shader-buffers program))
+	(cat (filter (# (eql (third %0) :read)) bufs) (filter (# (eql (third %0) :write)) bufs)))
+
+(defun shader-range (program block from to)
+	; (shader-range program block from to) -> block
+	;the range of a kernel's run, its first index and the one past its last
+	(defq at (sh-range-at program))
+	(set-int block at from)
+	(set-int block (+ at 4) to)
+	block)
 
 (defun shader-real (val)
 	; (shader-real num) -> real

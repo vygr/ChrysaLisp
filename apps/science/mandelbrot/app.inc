@@ -22,11 +22,6 @@
 	(int ix iy ix1 iy1)
 	(int inside drawn))
 
-;math
-
-(defun real-offset (x w z)
-	(* z (/ (* (- x (/ w +real_2)) +real_2) w)))
-
 ;the colour of each depth. They go round and round, in the first of the
 ;palettes deep blue, to white, to gold, to near black, and a depth is so
 ;far round them as the base and its root times the rate, so the bands are
@@ -36,7 +31,10 @@
 ;it is
 
 (defq +mandel_pal_size 2048 +mandel_pal_rate 260.0 +mandel_pal_base 1560
-	+mandel_light_base 232.0 +mandel_light_gain 96.0)
+	+mandel_light_base 232.0 +mandel_light_gain 96.0
+	;points a pixel each way, the mean of them, so detail finer than a pixel
+	;does not shimmer as the picture moves
+	+mandel_samples 2)
 
 ;each palette, its name, the colour of its chip on the toolbar, and its
 ;stops, where round it each colour is and its red green and blue. The
@@ -75,7 +73,7 @@
 	(apply (const cat) out))
 
 ;each palette as it is wanted, made once. Nothing is made as this file is
-;read, the VP of the shade reads it too
+;read, the children read it too
 (defq mandel_pals :nil)
 
 (defun mandel-pal (i)

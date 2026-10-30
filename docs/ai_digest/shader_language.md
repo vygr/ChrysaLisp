@@ -38,6 +38,7 @@ rewrite of every shader.
 * `lib/gpu/cpu.inc`, the CPU back end, interpreted Lisp.
 * `lib/gpu/vp.inc`, the VP back end, native code.
 * `lib/gpu/gui.inc`, a shader on the GPU of the GUI.
+* `lib/gpu/kernel.inc`, a kernel on the GPU, see Kernels below.
 * `src/host/gui_sdl3.cpp`, the SDL3 GUI driver, which can draw one.
 * `apps/demos/surface/surface.shader`, the surface raymarch demo, a port of
   https://vygr.github.io/JS-Raymarch.
@@ -49,7 +50,9 @@ rewrite of every shader.
   GPU by the nodes, a tile each, as native code. Both apps use it.
 * `cmd/shader.lisp`, the `shader` command, a shader compiled from the command
   line.
-* `tests/gpu/test_shader.lisp`, the tests.
+* `apps/science/mandelbrot/kernel.shader`, a kernel, the Mandelbrot app's
+  picture, on the GPU or on the farm.
+* `tests/gpu/test_shader.lisp` and `tests/gpu/test_kernel.lisp`, the tests.
 
 ## A Shader
 
@@ -85,6 +88,12 @@ good to 4 decimal places, so a float literal is rounded to 4 places, `0.001`
 is 0.0010 and not the 0.00099 the fixed holds. A number that needs more digits
 is written as a string, `(defconst pi "3.1415926535898")`. Both back ends are
 given the same decimal text.
+
+An int is 32 bits, as on a GPU. An int literal from `0x80000000` to
+`0xffffffff` is taken as its bits, so `0xff000000` is the same word on every
+back end, and one wider than 32 bits is refused. On the CPU and VP back ends
+an int is worked on in 64 bits, so they agree with a GPU only while a value
+stays in 32.
 
 `:t` and `:nil` are the bool literals.
 
@@ -653,14 +662,79 @@ in, the product copied out twice, and one number worked out at a time.
 `shader -t vp file` shows the VP of each function of such a file, as it
 does of a shader, and `-t cpu` the Lisp.
 
-The GLSL, MSL and SPIR-V back ends have no functions for Lisp yet. That is
-compute on a GPU. The host side of it is here, `lib/gpu/compute.inc` over
-the host's GPU table, see [`docs/ai_digest/host_interface.md`](host_interface.md):
-buffers, kernels of MSL text or a SPIR-V module, a dispatch and a read
-back, on any node of a host on SDL3. The Mandelbrot app flies on it with
-a kernel written by hand, as MSL and as GLSL made SPIR-V. A compute stage
-of this language, a function run once for each of a range, to give both
-from one source and run it on the VP where there is no GPU, is to come.
+The GLSL, MSL and SPIR-V back ends have no functions for Lisp. Work for a
+GPU is a kernel.
+
+## Kernels
+
+A file with buffers is a kernel. Its `main` is run once for each index of a
+range, and reads and writes the buffers. On the GPU each index is a thread.
+On the CPU the VP back end makes it a native function that runs the range in
+a loop, and on the nodes of a farm each child runs a part of it.
+
+```vdu
+(defbuffer src :float :read)
+(defbuffer dst :float :write)
+(definput scale :float 2.0)
+
+(defun main :void ((i :int))
+	(elem-set dst i (* (elem-get src i) scale)))
+```
+
+* `(defbuffer name :float|:int :read|:write)`. A buffer, 4 bytes an
+  element, a 32 bit float or int. A kernel writes only those it has as
+  `:write`. A buffer is not a value, it is only read and written by these.
+* `(elem-get buf i)` is the element at i, `(elem-set buf i v)` sets it, a
+  statement.
+* `main` is `(defun main :void ((i :int)) ...)`. It gives nothing, and a
+  bare `(return)` leaves it early. `:void` is for a kernel's main only.
+* `logand`, `logior`, `logxor`, `<<` and `>>` are of ints. `>>` keeps the
+  sign. `logand`, `logior` and `logxor` take two or more.
+* `definput`, `defconst`, `defglobal` and the functions are as a shader
+  has them. A kernel has no attrs, varyings or textures.
+
+The range goes in the inputs block, two ints after the inputs,
+`(shader-range program block from to)`. A thread of an index past its end
+does nothing, so a range need not fill the last group.
+
+On the GPU, `lib/gpu/kernel.inc`, over `lib/gpu/compute.inc` and the host's
+GPU table, see [`docs/ai_digest/host_interface.md`](host_interface.md):
+
+* `(shader-gpu-kernel program) -> :nil | kernel`. MSL text or a SPIR-V
+  module, as `(gpu-format)` says, its entry `kernel_main`, in groups of 64
+  threads. :nil on a node with no GPU.
+* `(shader-gpu-run program kernel block from to bufs) -> :t | :nil`. The
+  range run and waited for, the node's other tasks have their turns
+  meanwhile. block is `(shader-pack program vals)`, bufs a GPU buffer for each
+  buffer in the order the program has them. A GPU binds those it reads before
+  those it writes, MSL after the block, SPIR-V at set 0 and set 1 with the
+  block at set 2, and that is sorted out here.
+
+On the CPU, `lib/gpu/vp.inc`:
+
+* `(shader-vp-kernel program) -> (kernel frame_size)`. Assembled the first
+  time a CPU meets it and kept, as a shader is.
+* `(shader-vp-run program native frame from to bufs)`. frame is
+  `(shader-vp-frame program native vals)`, bufs a str for each buffer. A float
+  is worked on as a real and stored as the nearest 32 bit float.
+* `(shader-cpu-kernel program)` is the reference, a lambda `(from to buf ...
+  input ...)`.
+
+Nothing is bounds checked, on the GPU or the CPU. Each buffer must be long
+enough for the range.
+
+The Mandelbrot app is a kernel, `apps/science/mandelbrot/kernel.shader`. On
+the GPU the whole picture is one run, a pixel a thread, in floats. With no GPU
+the children of its farm run it as native code in reals, so the farm can go
+deeper than a float can. Its inputs say where a square of the picture is and
+how wide, and a child scans its square a ring at a time from the edge in, a
+run of the kernel for each side, and stops at a ring that is all inside the
+set. A child reads the kernel's text from the app's system by its @Source,
+`(shader-from-text)`.
+
+`tests/gpu/test_kernel.lisp` runs one kernel on the CPU, on the VP and on
+the GPU of the machine, and the three give the same bytes, on the M4 and
+the x64 by MSL and on the Pi by SPIR-V.
 
 ## Using It
 
@@ -1221,6 +1295,9 @@ The app is in the Demos list of the launcher, as surface.
   build, where a GPU, and the VP back end, give an infinity. The raymarch
   shader at time 0.0 has the camera at the point it looks at. The CPU back end
   fails there, the other two give a black frame.
+* A kernel's native code is made on the machine that wants it, so a farm's
+  children are kept to the nodes of its own machine. For a child on another
+  machine the native is to come from the originator, by its @Source.
 * The VP back end has no register spill, an expression that needs more than
   16 float registers is refused.
 * The native functions are never removed from `obj/`, one is left for each
@@ -1246,8 +1323,6 @@ The app is in the Demos list of the launcher, as surface.
 * Rendering as a service for a node with no GPU is deferred.
 * No host draws triangles with the GLSL pair. They are drawn as native
   code, and on the GPU through Metal and Vulkan.
-* A compute stage, kernels of this language. The host's GPU table runs
-  kernels written by hand, `lib/gpu/compute.inc`.
 * A texture is read at its nearest pixel. No blend of neighbours, no mip
   levels.
 * The Mesh demo has no textures, and there is no viewer of `.obj` files with

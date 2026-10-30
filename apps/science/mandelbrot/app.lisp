@@ -3,16 +3,16 @@
 (import "gui/lisp.inc")
 (import "./app.inc")
 (import "service/source/app.inc")
-(import "lib/gpu/compute.inc")
-(import "lib/gpu/shader.inc")
+(import "lib/gpu/kernel.inc")
 
 ;Fly into and out of the set. The left button held flies in, the right
 ;flies out, and where the pointer is from the middle of the picture is
 ;where it goes, the further out the faster; at the middle it holds still.
 ;Nothing steps: each frame moves on by how long the last one took. On the
-;GPU a frame is the whole picture, a kernel a pixel a thread; with none the
-;children of the farm work it out, a square each, and are started on the
-;view of the moment each time a picture is done
+;GPU a frame is the whole picture, a pixel a thread; with none the children
+;of the farm work it out, a square each, and are started on the view of the
+;moment each time a picture is done. Both run the one kernel, kernel.shader,
+;the GPU in floats, the farm in reals as native code
 
 (enums +event +event_user
 	(enum home pal mode))
@@ -36,9 +36,6 @@
 	;speed comes up to what it is to be, the less the softer
 	+fly_rate +real_1 +pan_rate (n2r 0.6) +still (n2r 0.1) +ease (n2r 4)
 	+min_top 256 +level_top 64
-	;points a pixel each way, the mean of them, so detail finer than a pixel
-	;does not shimmer as the picture moves
-	+samples 2
 	+retry_timeout (task-timeout 5)
 	;the GPU if there is one, and it can be switched to the farm and back
 	id :t has_gpu (> (gpu-format) 0) gpu has_gpu
@@ -50,7 +47,8 @@
 	;where the picture is, how far it is from its middle to its top, the
 	;palette, the speeds of the moment, and the buttons held
 	cx +home_x cy +home_y z +home_z pal 0 zv +real_0 vx +real_0 vy +real_0 held 0
-	;the GPU's kernel, its buffers, and the farm
+	;the kernel, the GPU's of it, its buffers, and the farm
+	program (shader-load (cat *app_root* "kernel.shader"))
 	kernel :nil pal_buf :nil out_buf :nil jobs :nil dirty :nil busy :nil
 	last_t 0 last_show 0 changed :t
 	;how long the last whole picture took, and when the farm's was started
@@ -104,10 +102,8 @@
 ;;;;;;;;;;;;;;;;
 
 (defun gpu-init ()
-	;the kernel, of the language of this GPU, the palette, and the pixels
-	(when (setq kernel (gpu-kernel
-			(load (cat *app_root* (if (= (gpu-format) 1) "kernel.msl" "kernel.spv")))
-			'(1 1 1 8 8 1)))
+	;the kernel, in the language of this GPU, the palette, and the pixels
+	(when (setq kernel (shader-gpu-kernel program))
 		(setq pal_buf (gpu-buffer (* +mandel_pal_size +int_size))
 			out_buf (gpu-buffer (* +width +height +int_size)))
 		(gpu-palette)))
@@ -128,14 +124,13 @@
 	;long that took
 	(defq t0 (pii-time))
 	(bind '(gx gy step) (on-grid))
-	(defq u (str-alloc 48))
-	(each (# (set-int u (* (!) 4) (sh-real-to-float %0))) (list gx gy step))
-	(each (# (set-int u (* (+ (!) 3) 4) %0)) (list +width +height (top-of) +mandel_pal_base))
-	(each (# (set-int u (* (+ (!) 7) 4) (sh-real-to-float %0)))
-		(list +mandel_pal_rate +mandel_light_base +mandel_light_gain))
-	(set-int u 40 1)
-	(set-int u 44 +samples)
-	(when (gpu-run kernel (list pal_buf out_buf) u (list (/ (+ +width 7) 8) (/ (+ +height 7) 8) 1))
+	(when (shader-gpu-run program kernel
+			(shader-pack program (list (list 'cx gx) (list 'cy gy) (list 'step step)
+				(list 'w +width) (list 'h +height) (list 'ow +width) (list 'top (top-of))
+				(list 'base +mandel_pal_base) (list 'rate +mandel_pal_rate)
+				(list 'lbase +mandel_light_base) (list 'lgain +mandel_light_gain)
+				(list 'ss +mandel_samples)))
+			0 (* +width +height) (list pal_buf out_buf))
 		(. *canvas* :tile (gpu-read out_buf 0 (* +width +height +int_size)) 0 0 +width +height)
 		(setq dirty :nil took (- (pii-time) t0))
 		(. *canvas* :swap +swap_write)))
@@ -146,17 +141,27 @@
 
 (defun farm-start ()
 	;the children, started the first time the farm is wanted. Each is read
-	;from this system, by its @Source, its Lisp and the VP of its shade,
-	;translated where it runs
+	;from this system, by its @Source, its Lisp and the kernel, made native
+	;code where it runs
 	(setq jobs (Jobs (source-task (cat *app_root* "child.lisp"))
 		(elem-get select +select_task) (elem-get select +select_reply)
-		(* 2 (max 1 (length (lisp-nodes)))))
+		;two on each node of this machine, none on another
+		(list +max_int 2 2))
 		busy :nil))
 
+(defun farm-forget ()
+	;what the farm has still to answer of the last picture is not wanted.
+	;Its answers go to the mailbox they were asked for with, let go of, and
+	;a new one takes those from now on. The children are left as they are,
+	;one part way through a square finishes it and takes its next
+	(when jobs
+		(elem-set select +select_reply (mail-mbox))
+		(. jobs :renew (elem-get select +select_reply))
+		(setq busy :nil)))
+
 (defun farm-frame ()
-	;the picture of the moment, a square to each child. A child part way
-	;through a square of the last picture has its answer left alone
-	(. jobs :restart)
+	;the picture of the moment, a square to each child
+	(farm-forget)
 	(bind '(gx gy &ignore) (on-grid))
 	(defq work (list) top (top-of))
 	(each (lambda (y)
@@ -286,15 +291,17 @@
 							((= buttons 0) (setq held 0))
 							((> (getf msg +ev_msg_mouse_count) 0) (setq held buttons))))
 					((= id +event_home)
+						(farm-forget)
 						(home))
 					((= id +event_mode)
 						;the GPU or the farm, from the next frame
 						(setq gpu (and has_gpu (= (. *mode_toolbar* :get_selected) 1)) changed :t)
 						(. *mode_toolbar* :set_selected (if gpu 1 0))
-						;to the GPU, what the farm has not started on is not wanted
-						(when (and gpu jobs) (. jobs :restart) (setq busy :nil)))
+						;to the GPU, what the farm has not answered is not wanted
+						(if gpu (farm-forget)))
 					((= id +event_pal)
 						(setq pal (. *pal_toolbar* :get_selected) changed :t)
+						(farm-forget)
 						(if gpu (gpu-palette)))
 					((. *window* :event msg))))
 			(+select_task

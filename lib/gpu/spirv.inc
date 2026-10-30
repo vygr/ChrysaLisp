@@ -5,6 +5,7 @@
 ; out as the inputs block. No compiler is called on, the words of the
 ; module are made here. A vertex shader and a pixel shader that go
 ; together are a vertex module and a fragment module, (shader-spirv-pair).
+; A kernel is a compute module, (shader-spirv-kernel).
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./shader.inc")
@@ -174,6 +175,8 @@
 				((eql type :int) (spv-const :int a))
 				((spv-const :float (sh-real-to-float (str-to-real a))))))
 			(:var (spv-emit type 61 (first (spv-var a))))
+			;a buffer is the variable, an element of it is reached from that
+			(:buf (first (spv-var a)))
 			;a picture is loaded, as what it is, to be read from
 			(:tex (defq id (spv-id))
 				(spv-op spv_body 61 (spv-tex-type) id (first (spv-var a)))
@@ -215,6 +218,13 @@
 					((eql a 'and) (spv-fold :bool 167 ids types))
 					((eql a 'or) (spv-fold :bool 166 ids types))
 					((eql a 'not) (spv-emit :bool 168 ia))
+					((eql a 'elem-get) (defq p (spv-id))
+						(spv-op spv_body 65 (spv-ptr type (spv-type type) 2) p ia (spv-const :int 0) ib)
+						(spv-emit type 61 p))
+					((defq i (find a '(logand logior logxor)))
+						(spv-fold :int (elem-get '(199 197 198) i) ids types))
+					((defq i (find a '(<< >>)))
+						(spv-emit :int (elem-get '(196 195) i) ia ib))
 					((eql a 'float) (if (eql ta :int) (spv-emit :float 111 ia) ia))
 					((eql a 'int) (if (eql ta :float) (spv-emit :int 110 ia) ia))
 					((find a '(vec2 vec3 vec4))
@@ -306,7 +316,11 @@
 						(reach (# (push stack (list :stmt %0))) d))
 					(:break (spv-op spv_body 249 (last spv_loops))
 						(setq spv_term :t))
-					(:return (spv-op spv_body 254 (spv-expr a))
+					(:elemset (defq v (spv-expr c) at (spv-expr b) p (spv-id))
+						(spv-op spv_body 65 (spv-ptr (first c) (spv-type (first c)) 2) p
+							(first (spv-var a)) (spv-const :int 0) at)
+						(spv-op spv_body 62 p v))
+					(:return (if a (spv-op spv_body 254 (spv-expr a)) (spv-op spv_body 253))
 						(setq spv_term :t)))
 				;it left, the rest of its block is not done
 				(when spv_term
@@ -346,12 +360,19 @@
 	;the inputs block of a program, a variable for each of its inputs,
 	;constants and globals, and its functions
 	(bind '(inputs consts globals funcs &rest _) (shader-full program))
-	(defq layout (rest (shader-layout program)) block :nil)
-	(if (nempty? layout)
-		(setq block (spv-block-var (map (const second) layout) (map (const third) layout)
-			(if (eql (shader-stage program) :vertex) 1 3))))
+	(defq layout (rest (shader-layout program)) block :nil stage (shader-stage program))
+	;a kernel's block has its range after the inputs, from and to
+	(cond
+		((eql stage :kernel)
+			(defq at (sh-range-at program))
+			(setq block (spv-block-var (cat (map (const second) layout) '(:int :int))
+				(cat (map (const third) layout) (list at (+ at 4))) 2)))
+		((nempty? layout)
+			(setq block (spv-block-var (map (const second) layout) (map (const third) layout)
+				(if (eql stage :vertex) 1 3)))))
 	(each (lambda ((name type &rest _)) (spv-global name type)) (cat inputs consts globals))
 	(each (lambda ((name)) (spv-texture name (!))) (shader-textures program))
+	(if (eql stage :kernel) (spv-buffers program))
 	(each (lambda ((name &rest _)) (. spv_fmap :insert name (spv-id))) funcs)
 	(each (lambda ((name type params block))
 		;check off, the type it is called with is the type this was
@@ -359,9 +380,31 @@
 			(each (lambda ((pname ptype) pid)
 				(spv-op spv_body 62 (spv-local pname ptype) pid)) params pids)
 			(spv-block block)
-			(unless spv_term (spv-op spv_body 254 (spv-null type))))))
+			(unless spv_term
+				(if (eql type :void) (spv-op spv_body 253) (spv-op spv_body 254 (spv-null type)))))))
 		funcs)
 	block)
+
+(defun spv-buffers (program)
+	;the buffers of a kernel, each a variable of a block of a run time
+	;array, as SDL's GPU interface wants them, those it reads at set 0 and
+	;those it writes at set 1, each at the binding that is its number there
+	(defq reads 0 writes 0)
+	(each (lambda ((name type access))
+		(defq rt (spv-memo (cat "array " (str type)) (lambda ()
+				(defq id (spv-id))
+				(spv-op spv_types 29 id (spv-type type))
+				(spv-op spv_decor 71 id 6 4)
+				id))
+			sid (spv-id) id (spv-id))
+		(spv-op spv_types 30 sid rt)
+		(spv-op spv_decor 71 sid 3)
+		(spv-op spv_decor 72 sid 0 35 0)
+		(if (eql access :read) (spv-op spv_decor 72 sid 0 24))
+		(spv-op spv_types 59 (spv-ptr (cat "buffer " (str sid)) sid 2) id 2)
+		(spv-op spv_decor 71 id 34 (if (eql access :read) 0 1))
+		(spv-op spv_decor 71 id 33 (dec (if (eql access :read) (++ reads) (++ writes))))
+		(. spv_gvars :insert name (list id :buffer))) (shader-buffers program)))
 
 (defun spv-start (program block)
 	;at the start of the entry point the inputs are copied from the block,
@@ -391,8 +434,10 @@
 	(apply (const spv-op) (cat (list head 11 spv_glsl) (spv-str "GLSL.std.450")))
 	(spv-op head 14 0 1)
 	(apply (const spv-op) (cat (list head 15 model entry) (spv-str name) interface))
-	;a fragment has its origin at the upper left
+	;a fragment has its origin at the upper left, a compute module runs in
+	;groups of so many
 	(if (= model 4) (spv-op head 16 entry 7))
+	(if (= model 5) (spv-op head 16 entry 17 +sh_kernel_threads 1 1))
 	(each (lambda (part) (each (# (push words %0)) part))
 		(list head spv_decor spv_types spv_code))
 	(join (map (# (char %0 4)) words) ""))
@@ -414,6 +459,40 @@
 			(spv-emit :vec4 57 (. spv_fmap :find 'main) (spv-emit :vec2 61 frag_in)))
 		(spv-op spv_body 253)))
 	(spv-module 4 entry "fragment_main" (list frag_in colour_out)))
+
+(defun shader-spirv-kernel (program)
+	; (shader-spirv-kernel program) -> str
+	;the entry point is kernel_main, a thread for each index of the range
+	;of the block, from the first, those past its end do nothing. The
+	;block is set 2 binding 0
+	(unless (eql (shader-stage program) :kernel) (sh-err "not a kernel" 'main))
+	(spv-module-vars)
+	(setq spv_glsl (spv-id))
+	(defq entry (spv-id) n (length (first (shader-full program)))
+		ivec3 (spv-memo "ivec3" (lambda ()
+			(defq id (spv-id))
+			(spv-op spv_types 23 id (spv-type :int) 3)
+			id))
+		gid_in (spv-id))
+	(spv-op spv_types 59 (spv-ptr "ivec3" ivec3 1) gid_in 1)
+	(spv-op spv_decor 71 gid_in 11 28)
+	(defq block (spv-program program))
+	(spv-function entry :void (list) (lambda (pids)
+		(spv-start program block)
+		(defq gid (spv-id) pf (spv-id) pt (spv-id) lt (spv-id) lm (spv-id))
+		(spv-op spv_body 61 ivec3 gid gid_in)
+		(spv-op spv_body 65 (elem-get block (inc n)) pf (first block) (spv-const :int n))
+		(spv-op spv_body 65 (elem-get block (+ n 2)) pt (first block) (spv-const :int (inc n)))
+		(defq i (spv-emit :int 128 (spv-emit :int 61 pf) (spv-emit :int 81 gid 0))
+			in (spv-emit :bool 177 i (spv-emit :int 61 pt)))
+		(spv-op spv_body 247 lm 0)
+		(spv-op spv_body 250 in lt lm)
+		(spv-op spv_body 248 lt)
+		(spv-emit :void 57 (. spv_fmap :find 'main) i)
+		(spv-op spv_body 249 lm)
+		(spv-op spv_body 248 lm)
+		(spv-op spv_body 253)))
+	(spv-module 5 entry "kernel_main" (list gid_in)))
 
 (defun shader-spirv-pair (vertex pixel)
 	; (shader-spirv-pair vertex pixel) -> (vertex_module fragment_module)
