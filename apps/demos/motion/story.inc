@@ -75,6 +75,15 @@
 	(. fig :add (Tween :sx to secs (ifn fnc (const ease-in-out)) :nil (ifn wait 0.0))
 		(Tween :sy to secs (ifn fnc (const ease-in-out)) then (ifn wait 0.0))))
 
+(defun story-net (name)
+	;a group on the stage with a layer in it for each sort of thing, the later
+	;ones drawn over the earlier. What arrives late goes in with its own sort,
+	;the mail stays on top of it whenever it came
+	(defq net (Figure name))
+	(each (lambda (layer) (def net layer (story-add (Figure "layer") net)))
+		'(:lines :picture :chips :mail))
+	(story-add net))
+
 (defun story-chip (name x y w h colour &optional parent size)
 	;a box with a name in it, a group of the two. Its line draws round it
 	;and the rest comes up
@@ -245,9 +254,10 @@
 (defun story-transputers (f c)
 	(story-go (get :onslaught stage) 0.5)
 	;the first of the things that are not an ST or an Amiga, a row of them
-	(defq extras (list))
+	(defq extras (list) net (story-net "row"))
+	(def stage :net net)
 	(each (lambda (x)
-			(defq chip (story-chip "T800" x 560.0 62 30 +story_violet))
+			(defq chip (story-chip "T800" x 560.0 62 30 +story_violet (get :chips net)))
 			(story-to chip x 372.0 0.8 (const ease-back) :nil (* 0.15 (n2f (!))))
 			(push extras chip))
 		'(60.0 130.0 200.0 270.0))
@@ -267,12 +277,11 @@
 	;a kernel comes up on each, they are joined, and work goes between them.
 	;It is the mail of the network to come, with this row for its chips, in
 	;a group of its own that has not moved
-	(defq net (Figure "row") row (get :transputers stage))
-	(story-add net)
-	(def stage :net net :chips row :mailing :t)
+	(defq row (get :transputers stage) lines (get :lines (get :net stage)))
+	(def stage :chips row :mailing :t)
 	(each! (lambda (chip)
 			(defq next (elem-get row (inc (!))))
-			(story-link (get :x chip) 372.0 (get :x next) 372.0 net))
+			(story-link (get :x chip) 372.0 (get :x next) 372.0 lines))
 		(list row) 0 -2)
 	(each (lambda (chip) (story-kernel-mark chip (* 0.2 (n2f (!))) 22.0)) row)
 	(times 4 (story-dot))
@@ -289,14 +298,15 @@
 	;it has come, it has a kernel, it is joined to the last, and it is one of
 	;the chips now. The letters will find it for themselves
 	(story-kernel-mark pc 0.0 36.0)
-	(story-link from_x 372.0 (get :x pc) 372.0 (get :net stage))
+	(story-link from_x 372.0 (get :x pc) 372.0 (get :lines (get :net stage)))
 	(push (get :chips stage) pc)
 	(story-dot))
 
 (defun story-pc (f c)
 	;the PCs come in beside the transputers and start taking the work
-	(defq one (story-chip "PC 386" 760.0 372.0 92 30 +story_gold :nil 14)
-		two (story-chip "PC 386" 900.0 372.0 92 30 +story_gold :nil 14))
+	(defq chips (get :chips (get :net stage))
+		one (story-chip "PC 386" 760.0 372.0 92 30 +story_gold chips 14)
+		two (story-chip "PC 386" 900.0 372.0 92 30 +story_gold chips 14))
 	(story-to one 400.0 372.0 0.9 (const ease-back) (lambda (f c) (story-pc-joins f 270.0)))
 	(story-to two 530.0 372.0 0.9 (const ease-back) (lambda (f c) (story-pc-joins f 400.0)) 0.7)
 	(push (get :extras stage) one two (story-arrow 355.0 302.0 430.0 350.0 +story_gold 0.8))
@@ -320,19 +330,17 @@
 	(story-go (get :vp stage) 0.8)
 	(story-title "Taos" +story_blue)
 	;the network, a group, it floats in space, and all of it with it
-	(defq net (Figure "net") n (length +story_chips) chips (list))
+	(defq net (story-net "net") n (length +story_chips) chips (list))
 	(def net :x 320.0 :y 262.0)
 	(. net :add (Wave :ry 0.34 9.0) (Wave :rx 0.2 13.0))
-	(story-add net)
 	(def stage :net net)
-	;the lines first, under the chips
 	(each (lambda (name)
 			(defq a (* +fp_2pi (/ (n2f (!)) (n2f n))) b (* +fp_2pi (/ (n2f (inc (!))) (n2f n))))
-			(story-link (* 215.0 (cos a)) (* 128.0 (sin a)) (* 215.0 (cos b)) (* 128.0 (sin b)) net))
+			(story-link (* 215.0 (cos a)) (* 128.0 (sin a)) (* 215.0 (cos b)) (* 128.0 (sin b)) (get :lines net)))
 		+story_chips)
 	(each (lambda (name)
 			(defq a (* +fp_2pi (/ (n2f (!)) (n2f n)))
-				chip (story-chip name 0.0 0.0 78 26 +story_blue net))
+				chip (story-chip name 0.0 0.0 78 26 +story_blue (get :chips net)))
 			(story-to chip (* 215.0 (cos a)) (* 128.0 (sin a)) 0.9 (const ease-back) :nil (* 0.1 (n2f (!))))
 			(push chips chip))
 		+story_chips)
@@ -372,10 +380,10 @@
 (defun story-dot ()
 	;a letter, at a chip that is there
 	(when (and (get :mailing stage) (defq chip (story-any-chip :nil)))
-		(defq dot (Figure "letter") net (get :net stage))
+		(defq dot (Figure "letter"))
 		(. dot :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 5.0 5.0 (path)))))
 		(def dot :fill +story_gold :x (get :x chip) :y (get :y chip))
-		(story-add dot net)
+		(story-add dot (get :mail (get :net stage)))
 		(story-hop dot chip)))
 
 (defun story-any-chip (not_this)
@@ -406,11 +414,11 @@
 (defun story-tile ()
 	(when (nempty? (defq cells (ifn (get :cells stage) (list))))
 		(bind '(cx cy) (pop cells))
-		(defq tile (Figure "tile") net (get :net stage) s 7.0)
+		(defq tile (Figure "tile") s 7.0)
 		(. tile :set_outline (list (list :t (path 0.0 0.0 s 0.0 s s 0.0 s))))
 		(def tile :fill (story-trace cx cy) :x (* s (n2f cx)) :y (* s (n2f cy)) :alpha 0.0)
 		(story-show tile 0.25)
-		(story-add tile net)
+		(story-add tile (get :picture (get :net stage)))
 		(push (get :tiles stage) tile)
 		;the last tile of the picture is what brings on the next
 		(if (empty? cells)
@@ -439,7 +447,7 @@
 		(list chips) n)
 	(def stage :chips keep)
 	;the lines between the old ones go
-	(each (lambda (node) (if (eql (get :name node) "link") (story-go node 0.5))) (. (get :net stage) :children))
+	(story-go (get :lines (get :net stage)) 0.5)
 	(each (lambda (chip name)
 			(defq a (* +fp_2pi (/ (n2f (!)) (n2f n))))
 			(. (get :label chip) :add (Tween :outline (outline-centred (story-text name 12)) 1.0))
@@ -470,7 +478,7 @@
 (defun story-return (at)
 	;it comes up where the other was, and the letters find it for themselves
 	(bind '(x y) at)
-	(defq chip (story-chip "LoongArch 64" x y 78 26 +story_gold (get :net stage) 12))
+	(defq chip (story-chip "LoongArch 64" x y 78 26 +story_gold (get :chips (get :net stage)) 12))
 	(def chip :sx 0.0 :sy 0.0)
 	(story-size chip 1.0 0.6 (const ease-back))
 	(push (get :chips stage) chip))

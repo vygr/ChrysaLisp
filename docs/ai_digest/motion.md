@@ -109,7 +109,9 @@ the app keeps moving, so a touch is a meeting like any other.
 
 Each figure is flat, with a place in space. A `Rostrum` with a focus has a
 camera looking down z at the middle of the picture, and things further off are
-smaller. `:by_depth` draws the furthest first, else it is the order of the tree.
+smaller. `:by_depth` draws the furthest first, else it is the order of the tree,
+and a figure added late is on top. Empty groups added first are layers: what
+arrives late goes in the layer of its sort and stays under the layers above.
 
 With no focus a tilted figure is only narrower. Whichever it is, a figure that
 faces the camera, or any with no focus, is one matrix in native code,
