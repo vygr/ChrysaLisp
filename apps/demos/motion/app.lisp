@@ -41,8 +41,19 @@
 		(def label :text text)
 		(.-> label :layout :dirty)))
 
+(defun frame-draw ()
+	;the picture as it is now. What is round the canvas, as the window grows and
+	;before it is made again, is the colour of the picture
+	(bind '(w h) (. *canvas* :get_size))
+	(defq k (/ (n2f w) (n2f +width)) paper (ifn (get :paper_is stage) +argb_black))
+	(def *picture* :paper paper)
+	(. *canvas* :fill paper)
+	(. stage :draw *canvas* (fixeds k 0.0 0.0 0.0 k 0.0))
+	(. *canvas* :swap +swap_write))
+
 (defun action-layout ()
-	;the window is a new size, the canvas is made to fill the picture
+	;the window is a new size, the canvas is made to fill the picture and drawn
+	;at once, a new one has nothing to show until it is
 	(bind '(w h) (. *picture* :get_size))
 	(when (and (> w 0) (> h 0))
 		(. *canvas* :sub)
@@ -50,7 +61,8 @@
 		(def *canvas* :paper 0)
 		(. *picture* :add_child *canvas*)
 		(. *canvas* :change 0 0 w h)
-		(. *window* :layout)))
+		(. *window* :layout)
+		(frame-draw)))
 
 (import "./scene.inc")
 (import "./balls.inc")
@@ -78,11 +90,7 @@
 	(pointer-move)
 	(. stage :tick dt)
 	(defq t1 (pii-time))
-	(bind '(w h) (. *canvas* :get_size))
-	(defq k (/ (n2f w) (n2f +width)))
-	(. *canvas* :fill (ifn (get :paper_is stage) +argb_black))
-	(. stage :draw *canvas* (fixeds k 0.0 0.0 0.0 k 0.0))
-	(. *canvas* :swap +swap_write)
+	(frame-draw)
 	(setq tick_us (+ tick_us (- t1 now)) draw_us (+ draw_us (- (pii-time) t1)) frames (inc frames))
 	(when (>= (- now last_show) 500000)
 		(defq n (length (. stage :children)))
