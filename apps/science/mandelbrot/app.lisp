@@ -156,7 +156,7 @@
 	;one part way through a square finishes it and takes its next
 	(when jobs
 		(elem-set select +select_reply (mail-mbox))
-		(. jobs :renew (elem-get select +select_reply))
+		(. jobs :reply_to (elem-get select +select_reply))
 		(setq busy :nil)))
 
 (defun farm-frame ()
