@@ -67,7 +67,7 @@
 						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
 						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cpy-ff
 						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
-						emit-cpy-if emit-cpy-df emit-lnot-rr)) -2))))
+						emit-cpy-if emit-cpy-df emit-cpy-if-i emit-cpy-df-i emit-lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its

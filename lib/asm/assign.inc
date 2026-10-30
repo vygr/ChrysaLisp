@@ -129,12 +129,17 @@
 				(:d (pcase (assign-dst-type %1) +pkeys2
 					(:r (vp-cpy-dr (first %0) (second %0) %1))
 					(:f (vp-cpy-df (first %0) (second %0) %1))))
-				(:ii (vp-cpy-ir-i (first %0) (second %0) %1))
+				;of 32 bits to a float register, a single made a double
+				(:ii (pcase (assign-dst-type %1) +pkeys2
+					(:f (vp-cpy-if-i (first %0) (second %0) %1))
+					(:t (vp-cpy-ir-i (first %0) (second %0) %1))))
 				(:f (pcase (assign-dst-type %1) +pkeys2
 					(:r (vp-cpy-fr %0 %1))
 					(:d (vp-cpy-fd %0 (first %1) (second %1)))
 					(:f (vp-cpy-ff %0 %1))
 					(:i (vp-cpy-fi %0 (first %1) (second %1)))
+					(:ii (vp-cpy-fi-i %0 (first %1) (second %1)))
+					(:di (vp-cpy-fd-i %0 (first %1) (second %1)))
 					(:k (def *func_env* %1 %0))
 					(:t (throw "Invalid dst parameter !" (list %0 %1)))))
 				(:ius (vp-cpy-ir-us (first %0) (second %0) %1))
@@ -145,7 +150,9 @@
 				(:dus (vp-cpy-dr-us (first %0) (second %0) %1))
 				(:db (vp-cpy-dr-b (first %0) (second %0) %1))
 				(:ds (vp-cpy-dr-s (first %0) (second %0) %1))
-				(:di (vp-cpy-dr-i (first %0) (second %0) %1))
+				(:di (pcase (assign-dst-type %1) +pkeys2
+					(:f (vp-cpy-df-i (first %0) (second %0) %1))
+					(:t (vp-cpy-dr-i (first %0) (second %0) %1))))
 				(:is (vp-cpy-ir-s (first %0) (second %0) %1))
 				(:ib (vp-cpy-ir-b (first %0) (second %0) %1))
 				(:t (throw "Invalid src parameter !" (list %0 %1))))) src dst)))

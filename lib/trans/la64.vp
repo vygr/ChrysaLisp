@@ -9,7 +9,10 @@
 
 
 ;registers by la64's numbers
-(defq +la_zero 0 +la_ra 1 +la_sp 3 +la_t1 12 +la_t2 13 +la_t3 14 +la_t4 30 +la_t5 31)
+(defq +la_zero 0 +la_ra 1 +la_sp 3 +la_t1 12 +la_t2 13 +la_t3 14 +la_t4 30 +la_t5 31
+	;ft15, a float register the ABI does not keep and the VP has not, where
+	;a single is made to be stored
+	+la_ft 23)
 
 (defun laf (x shift &optional mask)
 	;a field of an instruction: a number put now, or a reg as vpb-emit has it
@@ -478,6 +481,22 @@
 	(emit-lea-d e_lea_d 0x00108000 :nil) (emit-cpy-df e_cpy_df 0x38340000 :nil)
 	(emit-cpy-fd e_cpy_fd 0x383c0000 :t)))
 
+;a single in memory: fldx.s then fcvt.d.s in the register, or fcvt.s.d to
+;+la_ft and fstx.s of that
+(vp-label 'e_cpy_df_i)
+	;(s1 s2 d)
+	(la-3r 0x38300000 :r2 :r0 :r1)
+	(la-3r 0x01192400 :r2 :r2 0)
+	(vp-ret)
+(handler 'emit-cpy-df-i 'e_cpy_df_i)
+
+(vp-label 'e_cpy_fd_i)
+	;(s d1 d2)
+	(la-3r 0x01191800 +la_ft :r0 0)
+	(la-3r 0x38380000 +la_ft :r1 :r2)
+	(vp-ret)
+(handler 'emit-cpy-fd-i 'e_cpy_fd_i)
+
 (vp-label 'e_lea_i)
 	;(s i d)
 	(vpif '(:r1 = 0))
@@ -781,6 +800,39 @@
 	(la-3r 0x383c0000 :r0 :r1 +la_t1)
 	(vp-ret)
 (handler 'emit-cpy-fi 'e_cpy_fi)
+
+(vp-label 'e_cpy_if_i)
+	;(s c d)
+	(within12? :r1 'e_cpy_if_i_big)
+	(la-2ri12 0x2b000000 :r2 :r0 :r1)
+	(la-3r 0x01192400 :r2 :r2 0)
+	(vp-ret)
+(vp-label 'e_cpy_if_i_big)
+	(vp-push :r0 :r2)
+	(vp-cpy-rr :r1 :r0)
+	(vp-cpy-cr +la_t1 :r1)
+	(vp-call 'e_cpy_cr)
+	(vp-pop :r0 :r2)
+	(la-3r 0x38300000 :r2 :r0 +la_t1)
+	(la-3r 0x01192400 :r2 :r2 0)
+	(vp-ret)
+(handler 'emit-cpy-if-i 'e_cpy_if_i)
+
+(vp-label 'e_cpy_fi_i)
+	;(s d c)
+	(la-3r 0x01191800 +la_ft :r0 0)
+	(within12? :r2 'e_cpy_fi_i_big)
+	(la-2ri12 0x2b400000 +la_ft :r1 :r2)
+	(vp-ret)
+(vp-label 'e_cpy_fi_i_big)
+	(vp-push :r1)
+	(vp-cpy-rr :r2 :r0)
+	(vp-cpy-cr +la_t1 :r1)
+	(vp-call 'e_cpy_cr)
+	(vp-pop :r1)
+	(la-3r 0x38380000 +la_ft :r1 +la_t1)
+	(vp-ret)
+(handler 'emit-cpy-fi-i 'e_cpy_fi_i)
 
 ;;;;;;;;;;;;;;;;;;;
 ; stack and the ABI

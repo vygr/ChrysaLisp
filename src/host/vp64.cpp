@@ -89,6 +89,9 @@ enum Opcodes {
 
 	// Group 15: Float Convert/Copy
 	vp64_cvt_rf, vp64_cvt_fr, vp64_cpy_rf, vp64_cpy_fr,
+
+	// Group 17: Float Memory, a 32 bit float, the register a double
+	vp64_cpy_if_i, vp64_cpy_if_i_w, vp64_cpy_fi_i, vp64_cpy_fi_i_w, vp64_cpy_df_i, vp64_cpy_fd_i,
 };
 
 
@@ -301,6 +304,10 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 #define vp_cpy_fi(sr, br, o) vp_mem_fi(sr, br, o, double)
 #define vp_cpy_df(br, ir, dr) vp_mem_df(br, ir, dr, double)
 #define vp_cpy_fd(sr, br, ir) vp_mem_fd(sr, br, ir, double)
+#define vp_cpy_if_i(br, o, dr) vp_mem_if(br, o, dr, float)
+#define vp_cpy_fi_i(sr, br, o) vp_mem_fi(sr, br, o, float)
+#define vp_cpy_df_i(br, ir, dr) vp_mem_df(br, ir, dr, float)
+#define vp_cpy_fd_i(sr, br, ir) vp_mem_fd(sr, br, ir, float)
 
 #define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
 #define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
@@ -455,7 +462,13 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 	case vp64_cpy_fi_w: vp_cpy_fi(vd_sr(), vd_dr(), vd_c3()); break; \
 	case vp64_cpy_df: vp_cpy_df(vd_sr(), vd_sc(), vd_dr()); break; \
 	case vp64_cpy_fd: vp_cpy_fd(vd_dr(), vd_sr(), vd_sc()); break; \
-	case vp64_cmp_f: vp_cmp_f(vd_sr(), vd_dr()); break;
+	case vp64_cmp_f: vp_cmp_f(vd_sr(), vd_dr()); break; \
+	case vp64_cpy_if_i: vp_cpy_if_i(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_cpy_if_i_w: vp_cpy_if_i(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_cpy_fi_i: vp_cpy_fi_i(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_cpy_fi_i_w: vp_cpy_fi_i(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_cpy_df_i: vp_cpy_df_i(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_cpy_fd_i: vp_cpy_fd_i(vd_dr(), vd_sr(), vd_sc()); break;
 
 #define VP_B_ALL \
 	VP_B_OP(beq) \

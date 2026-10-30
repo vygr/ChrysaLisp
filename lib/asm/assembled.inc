@@ -15,8 +15,8 @@
 	;what reads a place of the frame, what writes one, and what takes
 	;the address of one: each has the stack pointer as its base
 	+load_ops ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if)
-	+store_ops ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi)
+		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if emit-cpy-if-i)
+	+store_ops ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)
 	;what goes somewhere and does not come back here, and what calls
 	+leave_ops ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-i)
 	+call_ops ''(emit-call emit-call-p emit-call-r emit-call-i emit-call-abi)

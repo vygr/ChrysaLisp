@@ -29,7 +29,8 @@
 		'(call 2) '(jmp 2) '(call-p 2) '(jmp-p 2) '(call-r 1) '(jmp-r 1) '(call-i 1) '(jmp-i 1)
 		'(cpy-pr 1) '(lea-p 1) '(call-abi 1) '(ret 1) '(sync 1)
 		'(add-ff 1) '(sub-ff 1) '(mul-ff 1) '(div-ff 1) '(min-ff 1) '(max-ff 1) '(sqrt-ff 1)
-		'(abs-ff 1) '(neg-ff 1) '(cpy-ff 1) '(cvt-rf 1) '(cvt-fr 1) '(cpy-rf 1) '(cpy-fr 1))
+		'(abs-ff 1) '(neg-ff 1) '(cpy-ff 1) '(cvt-rf 1) '(cvt-fr 1) '(cpy-rf 1) '(cpy-fr 1)
+		'(cpy-if-i 2) '(cpy-fi-i 2) '(cpy-df-i 1) '(cpy-fd-i 1))
 	vp64_at (Fmap 101))
 (reduce (lambda (n (op k)) (. vp64_at :insert op n) (+ n k)) vp64_ops 0)
 (defun opn (op) (. vp64_at :find op))
@@ -184,7 +185,8 @@
 	(emit-cpy-ir-i cpy-ir-i :nil) (emit-cpy-ir-ub cpy-ir-ub :nil) (emit-cpy-ir-us cpy-ir-us :nil)
 	(emit-cpy-ir-ui cpy-ir-ui :nil) (emit-lea-i lea-i :nil) (emit-cpy-if cpy-if :nil)
 	(emit-cpy-ri cpy-ri :t) (emit-cpy-ri-b cpy-ri-b :t) (emit-cpy-ri-s cpy-ri-s :t)
-	(emit-cpy-ri-i cpy-ri-i :t) (emit-cpy-fi cpy-fi :t)))
+	(emit-cpy-ri-i cpy-ri-i :t) (emit-cpy-fi cpy-fi :t)
+	(emit-cpy-if-i cpy-if-i :nil) (emit-cpy-fi-i cpy-fi-i :t)))
 
 (each (lambda ((op name f0 f1 f2))
 		;the register forms, :r0 :r1 :r2 to 8 12 or the short after, 0
@@ -200,7 +202,7 @@
 	(emit-cpy-dr cpy-dr 12 0 8) (emit-cpy-dr-b cpy-dr-b 12 0 8) (emit-cpy-dr-s cpy-dr-s 12 0 8)
 	(emit-cpy-dr-i cpy-dr-i 12 0 8) (emit-cpy-dr-ub cpy-dr-ub 12 0 8) (emit-cpy-dr-us cpy-dr-us 12 0 8)
 	(emit-cpy-dr-ui cpy-dr-ui 12 0 8) (emit-lea-d lea-d 12 0 8) (emit-cpy-df cpy-df 12 0 8)
-	(emit-cpy-fd cpy-fd 8 12 0)))
+	(emit-cpy-fd cpy-fd 8 12 0) (emit-cpy-df-i cpy-df-i 12 0 8) (emit-cpy-fd-i cpy-fd-i 8 12 0)))
 
 (vp-label 'branch)
 	;vp64-branch, :r0 = op, :r1 = l, :r7 = the record

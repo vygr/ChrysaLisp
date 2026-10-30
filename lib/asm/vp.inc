@@ -208,6 +208,11 @@
 (defun vp-cpy-fi (s d c) (emit (static-qqp (emit-cpy-fi ,s ,d ,(eval c (penv))))))
 (defun vp-cpy-df (b i d) (emit `(emit-cpy-df ,b ,i ,d)))
 (defun vp-cpy-fd (s b i) (emit `(emit-cpy-fd ,s ,b ,i)))
+;a 32 bit float in memory, the register a double
+(defun vp-cpy-if-i (s c d) (emit (static-qqp (emit-cpy-if-i ,s ,(eval c (penv)) ,d))))
+(defun vp-cpy-fi-i (s d c) (emit (static-qqp (emit-cpy-fi-i ,s ,d ,(eval c (penv))))))
+(defun vp-cpy-df-i (b i d) (emit `(emit-cpy-df-i ,b ,i ,d)))
+(defun vp-cpy-fd-i (s b i) (emit `(emit-cpy-fd-i ,s ,b ,i)))
 
 ;puedo vp instructions
 (defun vp-simd (op &rest v)

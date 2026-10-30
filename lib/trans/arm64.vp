@@ -11,7 +11,10 @@
 ;decoded, before the passes.
 
 
-(defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31)
+(defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31
+	;the VP's :f0 to :f15 are v16 to v31. v7, a register the ABI does not
+	;keep and the VP has not, is where a single is made to be stored
+	+a64_ft 7)
 
 (defun w32 (&rest parts)
 	;an int into the output, the parts added: a number, or (reg shift
@@ -745,26 +748,36 @@
 	(emit-cpy-dr-ub e_cpy_dr_ub 0x38606800 16 5 0) (emit-cpy-dr-us e_cpy_dr_us 0x78606800 16 5 0)
 	(emit-cpy-dr-ui e_cpy_dr_ui 0xb8606800 16 5 0)))
 
-(each (lambda ((op label o1 o2 store))
-		;(s c d) loads, (s d c) stores, of a float
+(each (lambda ((op label o1 o2 store size))
+		;(s c d) loads, (s d c) stores, of a float of size bytes, 8 or 4. A
+		;4 is a single in memory: loaded into the low of the register and
+		;made a double there, fcvt d,s, or made one in +a64_ft, fcvt s,d,
+		;and that stored
+		(defq single (= size 4)
+			done (if (and single (not store))
+				(lambda () (w32 0x1e22c000 '(:r0 5 31) '(:r0 0 31)) (vp-ret))
+				(lambda () (vp-ret))))
 		(vp-label label)
 		(cond
 			(store (vp-cpy-rr :r1 :r5) (vp-cpy-rr :r2 :r1) (vp-cpy-rr :r5 :r2))
 			((vp-cpy-rr :r0 :r5) (vp-cpy-rr :r2 :r0) (vp-cpy-rr :r5 :r2)))
 		;:r0 = the float, :r1 = c, :r2 = the base
+		(when (and single store)
+			(w32 (+ 0x1e624000 +a64_ft) '(:r0 5 31))
+			(vp-cpy-cr +a64_ft :r0))
 		(vpif '(:r1 >= -0x100))
 			(vpif '(:r1 <= 0xff))
 				(w32 o1 '(:r1 12 0x1ff) '(:r2 5 31) '(:r0 0 31))
-				(vp-ret)
+				(done)
 			(endif)
 		(endif)
 		(vpif '(:r1 >= 0))
-			(vpif '(:r1 <= 0x7ff8))
+			(vpif `(:r1 <= ,(* 4095 size)))
 				(vp-cpy-rr :r1 :r3)
-				(vp-and-cr 7 :r3)
+				(vp-and-cr (dec size) :r3)
 				(vpif '(:r3 = 0))
-					(w32 o2 '(:r1 7) '(:r2 5 31) '(:r0 0 31))
-					(vp-ret)
+					(w32 o2 (list :r1 (if single 8 7)) '(:r2 5 31) '(:r0 0 31))
+					(done)
 				(endif)
 			(endif)
 		(endif)
@@ -777,9 +790,24 @@
 		(vp-call 'e_add_rr)
 		(vp-pop :r0 :r2)
 		(w32 (+ o1 (<< +a64_rt 5)) '(:r0 0 31))
-		(vp-ret)
+		(done)
 		(handler op label))
-	'((emit-cpy-if e_cpy_if_l 0xfc400000 0xfd400000 :nil) (emit-cpy-fi e_cpy_fi_l 0xfc000000 0xfd000000 :t)))
+	'((emit-cpy-if e_cpy_if_l 0xfc400000 0xfd400000 :nil 8) (emit-cpy-fi e_cpy_fi_l 0xfc000000 0xfd000000 :t 8)
+	(emit-cpy-if-i e_cpy_if_i_l 0xbc400000 0xbd400000 :nil 4) (emit-cpy-fi-i e_cpy_fi_i_l 0xbc000000 0xbd000000 :t 4)))
+
+;the register offset forms of a single, as the double's above, made a
+;double after the load, or made a single in +a64_ft before the store
+(vp-label 'e_cpy_df_i)
+	(w32 0xbc606800 '(:r0 5 31) '(:r1 16 31) '(:r2 0 31))
+	(w32 0x1e22c000 '(:r2 5 31) '(:r2 0 31))
+	(vp-ret)
+(handler 'emit-cpy-df-i 'e_cpy_df_i)
+
+(vp-label 'e_cpy_fd_i)
+	(w32 (+ 0x1e624000 +a64_ft) '(:r0 5 31))
+	(w32 (+ 0xbc206800 +a64_ft) '(:r1 5 31) '(:r2 16 31))
+	(vp-ret)
+(handler 'emit-cpy-fd-i 'e_cpy_fd_i)
 
 ;;;;;;;;;;;;;;
 ; push and pop
@@ -1890,8 +1918,8 @@
 			((find %0 '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f)) '(0 1))
 			((find %0 '(emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f)) '(2 3))
 			((find %0 '(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub
-				emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-if)) '(0 1))
-			((find %0 '(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi)) '(1 2))
+				emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-if emit-cpy-if-i)) '(0 1))
+			((find %0 '(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)) '(1 2))
 			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops)

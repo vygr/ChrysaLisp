@@ -128,6 +128,7 @@
 	'emit-cpy-rf '(:r :f) 'emit-cpy-fr '(:f :r) 'emit-cvt-rf '(:r :f) 'emit-cvt-fr '(:f :r)
 	; float memory
 	'emit-cpy-if '(:r :c :f) 'emit-cpy-fi '(:f :r :c) 'emit-cpy-df '(:r :r :f) 'emit-cpy-fd '(:f :r :r)
+	'emit-cpy-if-i '(:r :c :f) 'emit-cpy-fi-i '(:f :r :c) 'emit-cpy-df-i '(:r :r :f) 'emit-cpy-fd-i '(:f :r :r)
 	; control / call / jump
 	'emit-call '(:label) 'emit-call-p '(:label) 'emit-jmp '(:label) 'emit-jmp-p '(:label)
 	'emit-call-r '(:r &rest :any) 'emit-jmp-r '(:r &rest :any) 'emit-call-i '(:r :c &rest :any) 'emit-jmp-i '(:r :c &rest :any)
@@ -351,7 +352,7 @@
 						(pinsert trace_map (last inst)
 							(if (eql (catch (resolve-static-method insts (second inst)) :t)
 								"sys/statics/statics") :statics)))
-					((emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i)
+					((emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi-i)
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
@@ -456,7 +457,7 @@
 					(emit-trash
 						;simulate the trashing of listed regs
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) 1))
-					((emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-fd)
+					((emit-cpy-rd emit-cpy-rd-b emit-cpy-rd-s emit-cpy-rd-i emit-cpy-fd emit-cpy-fd-i)
 						;ignore as no reg writes
 						:ignore)
 					((emit-land-rr emit-div-rrr emit-div-rrr-u)

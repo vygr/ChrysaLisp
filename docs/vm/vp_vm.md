@@ -50,7 +50,11 @@ bytes and no more. A load or a store is at its natural alignment, a word at
 an address that is a whole number of words, an int of 4 bytes, a short of 2;
 one that is not is not defined, and `run_tui.sh -V`, the VP64 emulator in
 validation mode, says each place that is not, the function and where in it.
-The float registers hold IEEE doubles.
+The float registers hold IEEE doubles. In memory a float is a double, 8
+bytes, or with `-i` a single, 4 bytes, as a GPU has its floats:
+`vp-cpy-if-i` loads one and makes it a double, `vp-cpy-fi-i` stores the
+nearest single to a register, which is not changed. The `-i` is of the
+memory, as `vp-cpy-ir-i` is; the register is a double either way.
 
 A constant, and the offset of a load or a store, may be any 64 bit value: a
 translator makes one that does not fit an instruction of its CPU some other
@@ -300,6 +304,13 @@ more than was put there, and a function leaves the stack as it found it.
 
 (vp-cpy-if rb i fd)
 (vp-cpy-fi fs rb i)
+(vp-cpy-df rb ri fd)
+(vp-cpy-fd fs rb ri)
+
+(vp-cpy-if-i rb i fd)
+(vp-cpy-fi-i fs rb i)
+(vp-cpy-df-i rb ri fd)
+(vp-cpy-fd-i fs rb ri)
 
 (vp-beq-ff fs fd label)
 (vp-bne-ff fs fd label)

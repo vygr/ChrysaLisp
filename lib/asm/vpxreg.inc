@@ -38,8 +38,8 @@
 (env-push)
 
 (defq +keep_loads ''(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i
-		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if)
-	+keep_stores ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi)
+		emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-ui emit-cpy-if emit-cpy-if-i)
+	+keep_stores ''(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)
 	;what goes somewhere and does not come back here, and what calls
 	+keep_leaves ''(emit-ret emit-jmp-p emit-jmp-r emit-jmp-i)
 	+keep_calls ''(emit-call emit-call-p emit-call-r emit-call-i emit-call-abi)

@@ -167,4 +167,68 @@
 			(+ (* a 3) b) (vs_fuse a b)))
 	'((1 1000) (-5 77) (123456 -654321)))
 
-(undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse)
+;a single in memory, -i, loaded as a double by every form a translator has:
+;an offset small, of a scaled field, too big for a field, below the base,
+;and an index register. What comes back is the double's bits, the count of
+;those that differ from the first above them
+(import "lib/gpu/shader.inc")
+(defq vs_if (vs-native "tests/vp_spec_if" (cat (vs-head "tests/vp_spec_if")
+	"(vp-alloc 32)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-cpy-ri-i :r2 :rsp " (str %0) ")" vs_lf)) '(0 4 8 12 16)))
+	"(vp-cpy-if-i :rsp 0 :f0)" vs_lf
+	"(vp-lea-i :rsp -1000 :r6)" vs_lf "(vp-cpy-if-i :r6 1004 :f1)" vs_lf
+	"(vp-lea-i :rsp -100000 :r6)" vs_lf "(vp-cpy-if-i :r6 100008 :f2)" vs_lf
+	"(vp-lea-i :rsp 20 :r6)" vs_lf "(vp-cpy-if-i :r6 -8 :f3)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-cpy-df-i :rsp :r7 :f4)" vs_lf
+	"(vp-cpy-fr :f0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-cpy-fr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
+		"(vp-add-rr :r5 :r8)" vs_lf)) '(":f1" ":f2" ":f3" ":f4")))
+	"(vp-shl-cr 60 :r8)" vs_lf "(vp-xor-rr :r8 :r4)" vs_lf
+	"(vp-free 32)" vs_lf
+	(vs-tail))))
+
+(defun vs-double-of (s)
+	;the bits of the double a normal single, a zero or an infinity is
+	(defq e (logand (>> s 23) 0xff) sign (<< (logand (>> s 31) 1) 63))
+	(cond
+		((= e 0) sign)
+		((= e 255) (logior sign 0x7ff0000000000000))
+		((logior sign (<< (+ e 896) 52) (<< (logand s 0x7fffff) 29)))))
+
+(each (lambda (s)
+		(assert-eq (cat "a single " (int-to-hex-str s) " loaded, each way, is its double")
+			(vs-double-of s) (vs_if s 0)))
+	'(0x3f800000 0xc0200000 0x3eaaaaab 0x7f7fffff 0x00800000 0 0x80000000 0x7f800000 0xff800000))
+
+;the nearest single to a double stored by every form, and the register as
+;it was: the single's bits, with the count of stores that differ from the
+;first, and 1 if the register changed, above them
+(defq vs_fi (vs-native "tests/vp_spec_fi" (cat (vs-head "tests/vp_spec_fi")
+	"(vp-alloc 32)" vs_lf "(vp-cpy-rf :r3 :f0)" vs_lf
+	"(vp-cpy-fi-i :f0 :rsp 0)" vs_lf
+	"(vp-lea-i :rsp -1000 :r6)" vs_lf "(vp-cpy-fi-i :f0 :r6 1004)" vs_lf
+	"(vp-lea-i :rsp -100000 :r6)" vs_lf "(vp-cpy-fi-i :f0 :r6 100008)" vs_lf
+	"(vp-lea-i :rsp 20 :r6)" vs_lf "(vp-cpy-fi-i :f0 :r6 -8)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-cpy-fd-i :f0 :rsp :r7)" vs_lf
+	"(vp-cpy-ir-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-cpy-ir-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
+		"(vp-add-rr :r5 :r8)" vs_lf)) '(4 8 12 16)))
+	"(vp-cpy-fr :f0 :r5)" vs_lf "(vp-sne-rr :r3 :r5)" vs_lf "(vp-shl-cr 4 :r5)" vs_lf "(vp-add-rr :r5 :r8)" vs_lf
+	"(vp-shl-cr 32 :r8)" vs_lf "(vp-add-rr :r8 :r4)" vs_lf
+	"(vp-free 32)" vs_lf
+	(vs-tail))))
+
+;the bits of the double of a number, 1.0 is a fixed, shader-real makes it a real
+(defun vs-bits-of (n) (get-long (set-real (str-alloc 8) 0 (shader-real n)) 0))
+
+;1, a third, a tie to even down and one up, -2.5, too big for a single,
+;the largest and the smallest normal single, and 0
+(each (lambda (d)
+		(defq r (get-real (set-long (str-alloc 8) 0 d) 0))
+		(assert-eq (cat "the nearest single to " (long-to-hex-str d) " stored, each way, the register as it was")
+			(sh-real-to-float r) (vs_fi 0 d)))
+	(list (vs-bits-of 1.0) 0x3fd5555555555555 0x3ff0000010000000 0x3ff0000030000000 (vs-bits-of -2.5)
+		0x47f0000000000000 0x47efffffe0000000 0x3810000000000000 0))
+
+(undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
+	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of)

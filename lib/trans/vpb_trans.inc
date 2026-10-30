@@ -826,8 +826,8 @@
 (vp-label 'cf_sp)
 	(each (# (apply (const vp-byte) (cond
 			((find %0 '(emit-cpy-ir emit-cpy-ir-b emit-cpy-ir-s emit-cpy-ir-i emit-cpy-ir-ub
-				emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-if)) '(0 1))
-			((find %0 '(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi)) '(1 2))
+				emit-cpy-ir-us emit-cpy-ir-ui emit-lea-i emit-cpy-if emit-cpy-if-i)) '(0 1))
+			((find %0 '(emit-cpy-ri emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-i emit-cpy-fi emit-cpy-fi-i)) '(1 2))
 			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops))
