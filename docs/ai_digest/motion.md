@@ -25,8 +25,8 @@ A presentation is that with a story in it, a game is that with a player in it.
 
 (defq stage (Rostrum 640 480) ball (Figure "ball"))
 (. ball :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 20.0 20.0 (path)))))
-(def ball :fill 0xffe0a040 :x 320.0 :y 240.0)
-(. ball :add (Tween :x 500.0 1.5 (const ease-back)) (Rate :rz 2.0))
+(def ball :fig_fill 0xffe0a040 :fig_x 320.0 :fig_y 240.0)
+(. ball :add (Tween :fig_x 500.0 1.5 (const ease-back)) (Rate :fig_rz 2.0))
 (. stage :add_node ball)
 ```
 
@@ -42,25 +42,31 @@ and for each frame, by the seconds since the last:
 `view` is the 3x2 matrix from the picture to the canvas, `:nil` if they are the
 same size.
 
-A figure's attributes are properties. Anything can read them with `(get)`, and
-set them with `(def)`, with `:set_outline`, `:set_width` and `:set_trim` for
-those a kept flattening depends on.
+A figure's attributes are properties, all `:fig_`, and a rostrum's own are
+`:ros_`, so what an app keeps on a figure can't clash with them. Anything can
+read them with `(get)`, and set them with `(def)`, with `:set_outline`,
+`:set_width` and `:set_trim` for those a kept flattening depends on, and
+`(. figure :set_place :fig_x x ...)` for where it is, once it has been on a tick.
+
+As in the Whiteboard its matrix is made from these and kept, and made again only
+if one has changed or its parent's world has. An inverse is made when something
+needs one, nothing does yet.
 
 | Attribute | What it is |
 |---|---|
-| `:x :y :z` | Where its pivot is, in the space of its parent |
-| `:rx :ry :rz` | Turned about each axis, in radians |
-| `:sx :sy` | Its size |
-| `:px :py` | Its pivot, in its own space |
-| `:alpha` | How much it is seen, this and all under it |
-| `:fill :stroke` | Colours, 0 for none |
-| `:width :join :cap1 :cap2` | Of the stroke |
-| `:trim` | How much of each line of the stroke is drawn, 0.0 to 1.0 |
-| `:rule` | How it is filled, `+winding_odd_even` unless it is said |
-| `:outline` | A list of `(closed path)`, as `(path-gen-paths)` gives |
-| `:kinds :meets` | Bit masks, what it is and what it looks out for |
-| `:on_enter :on_stay :on_leave` | `(fnc this other)`, see below |
-| `:on_death` | `(fnc this)`, when it is taken out |
+| `:fig_x :fig_y :fig_z` | Where its pivot is, in the space of its parent |
+| `:fig_rx :fig_ry :fig_rz` | Turned about each axis, in radians |
+| `:fig_sx :fig_sy` | Its size |
+| `:fig_px :fig_py` | Its pivot, in its own space |
+| `:fig_alpha` | How much it is seen, this and all under it |
+| `:fig_fill :fig_stroke` | Colours, 0 for none |
+| `:fig_width :fig_join :fig_cap1 :fig_cap2` | Of the stroke |
+| `:fig_trim` | How much of each line of the stroke is drawn, 0.0 to 1.0 |
+| `:fig_rule` | How it is filled, `+winding_odd_even` unless it is said |
+| `:fig_outline` | A list of `(closed path)`, as `(path-gen-paths)` gives |
+| `:fig_kinds :fig_meets` | Bit masks, what it is and what it looks out for |
+| `:fig_on_enter :fig_on_stay :fig_on_leave` | `(fnc this other)`, see below |
+| `:fig_on_death` | `(fnc this)`, when it is taken out |
 
 A group is a figure with figures under it, `(. parent :add_node child)`. The
 tree has the method names of `Scene-node`, `lib/math/scene.inc`. A figure can
@@ -74,13 +80,22 @@ Each has its turn each tick, a parent before its children. Any can fire a
 routine when it is over, `(then figure comp)`, which can add components or
 figures, or kill the figure.
 
+A component is an env of its own, `(env 1)`, and a shared update routine, as in
+`apps/games/onslaught/sprite.inc`. It is pushed for its turn, so what it keeps
+are plain variables with no `raise` or `lower`, which only exist for its turn.
+Timed against classes doing the same work, a Rate or a Tween is about 30% less,
+and a whole tick of the demo's story about 2%, most of a tick is elsewhere.
+A name is free of a prefix if nothing run in its turn can clash with it, and
+what is run in it, an ease or a `Custom` routine, sees those names too.
+From outside, `(def comp 'rate 4.0)`, which is how a wall turns a ball.
+
 | Component | What it does |
 |---|---|
-| `(Tween key to secs [ease then wait])` | An attribute to a value. A number by its value, `:fill` and `:stroke` by each channel, `:outline` by a morph |
+| `(Tween key to secs [ease then wait])` | An attribute to a value. A number by its value, `:fig_fill` and `:fig_stroke` by each channel, `:fig_outline` by a morph |
 | `(Wait secs [then])` | Nothing, then it is over |
 | `(Rate key rate [accel secs then])` | So much a second, and that by so much a second |
 | `(Wave key size period [phase secs then])` | Swings about what it was |
-| `(Follow line secs [ease then wait])` | `:x :y` along a path |
+| `(Follow line secs [ease then wait])` | `:fig_x :fig_y` along a path |
 | `(Tie other keys [offset scale])` | Attributes taken from another figure, while it is there |
 | `(Cues comp ...)` | Each in turn, the cue list of the one figure |
 | `(Custom fnc [then])` | `(fnc figure dt)` says `:t` to go on |
@@ -92,13 +107,13 @@ and slow out, `ease-in-out`, `ease-in3`, `ease-out3`, `ease-back`,
 
 ## Meeting
 
-A figure is met if it has `:kinds` or `:meets`, and looks out for those whose
+A figure is met if it has `:fig_kinds` or `:fig_meets`, and looks out for those whose
 kinds are in its meets. Each tick the boxes round them are swept along x, then
 the boxes themselves are asked, then their polygons, by `(poly-hit?)`. A figure
 with children has all of theirs as well as its own.
 
-`:on_enter` is fired when two come to touch, `:on_stay` each tick they go on
-touching, and `:on_leave` when they part, each for a figure that looks out for
+`:fig_on_enter` is fired when two come to touch, `:fig_on_stay` each tick they go on
+touching, and `:fig_on_leave` when they part, each for a figure that looks out for
 the other. It is asked in the picture, as they look, not in 3D.
 
 A figure whose colour has no alpha, `0x00ffffff`, draws nothing and is met, a
@@ -109,7 +124,7 @@ the app keeps moving, so a touch is a meeting like any other.
 
 Each figure is flat, with a place in space. A `Rostrum` with a focus has a
 camera looking down z at the middle of the picture, and things further off are
-smaller. `:by_depth` draws the furthest first, else it is the order of the tree,
+smaller. `:ros_by_depth` draws the furthest first, else it is the order of the tree,
 and a figure added late is on top. Empty groups added first are layers: what
 arrives late goes in the layer of its sort and stays under the layers above.
 
@@ -125,7 +140,7 @@ with a hole if there is one. Each pair is made the same number of points evenly
 along its length and turned to start where the two lie closest. A line with no
 partner grows out of a point or shrinks into one. That is done once, it is a few
 ms for a line of words, and each frame after it is a sum over arrays in native
-code. `(Tween :outline to ...)` does all of it.
+code. `(Tween :fig_outline to ...)` does all of it.
 
 Outlines come from `(outline-svg d)`, `(outline-text text font size)` and
 `(outline-centred outline)`.

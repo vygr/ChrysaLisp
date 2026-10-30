@@ -54,26 +54,26 @@
 	;words in the middle of a place, seen through to start with
 	(defq fig (Figure "word"))
 	(. fig :set_outline (outline-centred (story-text text size font)))
-	(def fig :fill colour :x x :y y :alpha 0.0)
+	(def fig :fig_fill colour :fig_x x :fig_y y :fig_alpha 0.0)
 	(story-add fig parent))
 
 (defun story-show (fig &optional secs wait)
 	;it comes into view
-	(. fig :add (Tween :alpha 1.0 (ifn secs 0.5) (const ease-out) :nil (ifn wait 0.0))))
+	(. fig :add (Tween :fig_alpha 1.0 (ifn secs 0.5) (const ease-out) :nil (ifn wait 0.0))))
 
 (defun story-go (fig &optional secs)
 	;it goes out of view, and goes
-	(. fig :add (Tween :alpha 0.0 (ifn secs 0.5) (const ease-in) (lambda (f c) (. f :kill)))))
+	(. fig :add (Tween :fig_alpha 0.0 (ifn secs 0.5) (const ease-in) (lambda (f c) (. f :kill)))))
 
 (defun story-to (fig x y secs &optional fnc then wait)
 	;it goes to a place, by two tweens, what is then fired comes of the one
-	(. fig :add (Tween :x x secs (ifn fnc (const ease-in-out)) :nil (ifn wait 0.0))
-		(Tween :y y secs (ifn fnc (const ease-in-out)) then (ifn wait 0.0))))
+	(. fig :add (Tween :fig_x x secs (ifn fnc (const ease-in-out)) :nil (ifn wait 0.0))
+		(Tween :fig_y y secs (ifn fnc (const ease-in-out)) then (ifn wait 0.0))))
 
 (defun story-size (fig to secs &optional fnc then wait)
 	;it goes to a size, both ways
-	(. fig :add (Tween :sx to secs (ifn fnc (const ease-in-out)) :nil (ifn wait 0.0))
-		(Tween :sy to secs (ifn fnc (const ease-in-out)) then (ifn wait 0.0))))
+	(. fig :add (Tween :fig_sx to secs (ifn fnc (const ease-in-out)) :nil (ifn wait 0.0))
+		(Tween :fig_sy to secs (ifn fnc (const ease-in-out)) then (ifn wait 0.0))))
 
 (defun story-net (name)
 	;a group on the stage with a layer in it for each sort of thing, the later
@@ -90,38 +90,38 @@
 	(defq fig (Figure "chip") box (Figure "box") label (Figure "label")
 		hw (* 0.5 (n2f w)) hh (* 0.5 (n2f h)))
 	(. box :set_outline (list (list :t (path-gen-rect (neg hw) (neg hh) hw hh 5.0 5.0 (path)))))
-	(def box :fill +story_dark :stroke colour :width 2.0 :trim 0.0)
-	(. box :add (Tween :trim 1.0 0.7 (const ease-in-out)))
+	(def box :fig_fill +story_dark :fig_stroke colour :fig_width 2.0 :fig_trim 0.0)
+	(. box :add (Tween :fig_trim 1.0 0.7 (const ease-in-out)))
 	(. label :set_outline (outline-centred (story-text name (ifn size 13))))
-	(def label :fill +story_ink :alpha 0.0)
+	(def label :fig_fill +story_ink :fig_alpha 0.0)
 	(story-show label 0.4 0.3)
 	(. fig :add_node box)
 	(. fig :add_node label)
-	(def fig :x x :y y :box box :label label :name_is name)
+	(def fig :fig_x x :fig_y y :box box :label label :name_is name)
 	(story-add fig parent))
 
 (defun story-pulse (fig)
 	;a chip that has been given something swells a little
 	(unless (get :pulsing fig)
 		(def fig :pulsing :t)
-		(. fig :add (Cues (Tween :sx 1.25 0.08 (const ease-out)) (Tween :sx 1.0 0.25 (const ease-in-out)))
-			(Cues (Tween :sy 1.25 0.08 (const ease-out))
-				(Tween :sy 1.0 0.25 (const ease-in-out) (lambda (f c) (def f :pulsing :nil)))))))
+		(. fig :add (Cues (Tween :fig_sx 1.25 0.08 (const ease-out)) (Tween :fig_sx 1.0 0.25 (const ease-in-out)))
+			(Cues (Tween :fig_sy 1.25 0.08 (const ease-out))
+				(Tween :fig_sy 1.0 0.25 (const ease-in-out) (lambda (f c) (def f :pulsing :nil)))))))
 
 (defun story-arrow (x y x1 y1 colour secs &optional parent)
 	;a line that draws itself, with a head on it
 	(defq fig (Figure "arrow"))
 	(. fig :set_outline (list (list :nil (path x y x1 y1))))
-	(def fig :stroke colour :width 2.5 :trim 0.0 :cap2 +cap_arrow)
-	(. fig :add (Tween :trim 1.0 secs (const ease-in-out)))
+	(def fig :fig_stroke colour :fig_width 2.5 :fig_trim 0.0 :fig_cap2 +cap_arrow)
+	(. fig :add (Tween :fig_trim 1.0 secs (const ease-in-out)))
 	(story-add fig parent))
 
 (defun story-link (ax ay bx by parent)
 	;a line that draws itself between two chips, behind them
 	(defq fig (Figure "link"))
 	(. fig :set_outline (list (list :nil (path ax ay bx by))))
-	(def fig :stroke 0xff485058 :width 1.5 :trim 0.0)
-	(. fig :add (Tween :trim 1.0 0.8 (const ease-in-out)))
+	(def fig :fig_stroke 0xff485058 :fig_width 1.5 :fig_trim 0.0)
+	(. fig :add (Tween :fig_trim 1.0 0.8 (const ease-in-out)))
 	(story-add fig parent))
 
 (defun story-say (lines &optional secs then)
@@ -130,29 +130,29 @@
 	(if (defq old (get :caption stage)) (story-go old 0.3))
 	(defq fig (Figure "caption"))
 	(. fig :set_outline (story-lines lines 17))
-	(def fig :fill +story_ink :x 320.0 :y 448.0 :alpha 0.0)
+	(def fig :fig_fill +story_ink :fig_x 320.0 :fig_y 448.0 :fig_alpha 0.0)
 	(. fig :add (if secs
-		(Cues (Tween :alpha 1.0 0.4 (const ease-out) :nil 0.3) (Wait secs then))
-		(Tween :alpha 1.0 0.4 (const ease-out) :nil 0.3)))
+		(Cues (Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3) (Wait secs then))
+		(Tween :fig_alpha 1.0 0.4 (const ease-out) :nil 0.3)))
 	(def stage :caption fig)
 	(story-add fig))
 
 (defun story-title (text colour)
 	;the big word morphs on to the next, and its colour
 	(defq fig (get :title stage))
-	(. fig :add (Tween :outline (outline-centred (story-text text 54 +font)) 1.4 (const ease-in-out))
-		(Tween :fill colour 1.4)))
+	(. fig :add (Tween :fig_outline (outline-centred (story-text text 54 +font)) 1.4 (const ease-in-out))
+		(Tween :fig_fill colour 1.4)))
 
 ;;;;;;;
 ; games
 ;;;;;;;
 
 (defun story-new ()
-	(def stage :by_depth :nil :paper_is +story_paper)
+	(def stage :ros_by_depth :nil :paper_is +story_paper)
 	(defq title (Figure "title"))
 	(. title :set_outline (outline-centred (story-text "Games" 54 +font)))
-	(def title :fill +story_gold :x 320.0 :y 66.0 :alpha 0.0)
-	(. title :add (Wave :ry 0.22 8.0) (Wave :rx 0.1 11.0))
+	(def title :fig_fill +story_gold :fig_x 320.0 :fig_y 66.0 :fig_alpha 0.0)
+	(. title :add (Wave :fig_ry 0.22 8.0) (Wave :fig_rx 0.1 11.0))
 	(story-show title 0.8)
 	(story-add title)
 	(def stage :title title)
@@ -162,15 +162,15 @@
 (defun story-games (f c)
 	(defq names '("Automania" "Pyjamarama" "Everyone's a Wally" "Frost Byte" "Battle of the Planets")
 		machine (get :machine stage) words (list))
-	(. (get :label machine) :add (Tween :outline (outline-centred (story-text "ZX Spectrum" 15)) 0.8))
+	(. (get :label machine) :add (Tween :fig_outline (outline-centred (story-text "ZX Spectrum" 15)) 0.8))
 	;each comes in fast and settles slowly, one after another
 	(each (lambda (name)
 			(defq at (!) word (story-word name 19 (+ 760.0 (* 40.0 (n2f at)))
 				(+ 140.0 (* 42.0 (n2f at)))
 				(elem-get (list +story_blue +story_green +story_pink +story_gold +story_violet) at)))
 			(story-show word 0.4 (* 0.5 (n2f at)))
-			(. word :add (Tween :x (if (odd? at) 500.0 140.0) 1.0 (const ease-out3) :nil (* 0.5 (n2f at)))
-				(Wave :y 3.0 (+ 2.0 (* 0.4 (n2f at)))))
+			(. word :add (Tween :fig_x (if (odd? at) 500.0 140.0) 1.0 (const ease-out3) :nil (* 0.5 (n2f at)))
+				(Wave :fig_y 3.0 (+ 2.0 (* 0.4 (n2f at)))))
 			(push words word))
 		names)
 	(def stage :words words)
@@ -181,7 +181,7 @@
 ;;;;;;;;;;;;;;
 
 (defun story-twice (f c)
-	(each (lambda (word) (. word :add (Tween :y -40.0 0.6 (const ease-in))) (story-go word 0.6)) (get :words stage))
+	(each (lambda (word) (. word :add (Tween :fig_y -40.0 0.6 (const ease-in))) (story-go word 0.6)) (get :words stage))
 	(story-go (get :machine stage) 0.5)
 	(defq st (story-chip "Atari ST" -100.0 150.0 170 40 +story_blue :nil 17)
 		amiga (story-chip "Amiga" 740.0 150.0 170 40 +story_pink :nil 17) bars (list))
@@ -193,9 +193,9 @@
 			(times 7 (defq i (dec (length bars)) row (% (length bars) 7) bar (Figure "bar")
 					w (+ 60.0 (* 12.0 (n2f (% (* (inc row) 5) 7)))))
 				(. bar :set_outline (list (list :t (path-gen-rect (neg w) -5.0 w 5.0 3.0 3.0 (path)))))
-				(def bar :fill colour :x x :y (+ 196.0 (* 24.0 (n2f row))) :sx 0.0 :meets +story_zone
-					:on_enter (lambda (this other) (story-bar-in this)))
-				(. bar :add (Tween :sx 1.0 0.5 (const ease-out3) :nil (+ 0.8 (* 0.3 (n2f row)))))
+				(def bar :fig_fill colour :fig_x x :fig_y (+ 196.0 (* 24.0 (n2f row))) :fig_sx 0.0 :fig_meets +story_zone
+					:fig_on_enter (lambda (this other) (story-bar-in this)))
+				(. bar :add (Tween :fig_sx 1.0 0.5 (const ease-out3) :nil (+ 0.8 (* 0.3 (n2f row)))))
 				(push bars (story-add bar))))
 		'(150.0 490.0) (list +story_blue +story_pink))
 	(def stage :bars bars :bars_left (length bars))
@@ -206,7 +206,7 @@
 	;the zone they are making for is only there to be met
 	(defq zone (Figure "zone"))
 	(. zone :set_outline (list (list :t (path -24.0 -24.0 24.0 -24.0 24.0 24.0 -24.0 24.0))))
-	(def zone :fill 0x00ffffff :x 320.0 :y 270.0 :kinds +story_zone)
+	(def zone :fig_fill 0x00ffffff :fig_x 320.0 :fig_y 270.0 :fig_kinds +story_zone)
 	(story-add zone)
 	(def stage :zone zone)
 	(each (lambda (bar)
@@ -217,9 +217,9 @@
 
 (defun story-bar-in (this)
 	;a bar has reached the middle, it goes in a burst. The last brings on VP
-	(defq x (get :x this) y (get :y this))
-	(def this :meets 0)
-	(times 3 (spark-at x y (get :fill this)))
+	(defq x (get :fig_x this) y (get :fig_y this))
+	(def this :fig_meets 0)
+	(times 3 (spark-at x y (get :fig_fill this)))
 	(. this :kill)
 	(def stage :bars_left (dec (get :bars_left stage)))
 	(if (= 0 (get :bars_left stage)) (story-vp)))
@@ -232,7 +232,7 @@
 	(. (get :zone stage) :kill)
 	(story-title "VP" +story_green)
 	(defq vp (story-chip "VP" 320.0 270.0 110 60 +story_green :nil 26))
-	(def vp :sx 0.0 :sy 0.0)
+	(def vp :fig_sx 0.0 :fig_sy 0.0)
 	(story-size vp 1.0 0.7 (const ease-elastic))
 	(times 30 (spark-at 320.0 270.0 +story_green))
 	(def stage :vp vp)
@@ -243,7 +243,7 @@
 		(story-arrow 378.0 250.0 460.0 176.0 +story_green 0.8)))
 	;what came of it, the first thing written that way, for both machines
 	(defq word (story-word "Onslaught" 30 320.0 170.0 +story_gold :nil +font))
-	(def word :sx 0.0 :sy 0.0)
+	(def word :fig_sx 0.0 :fig_sy 0.0)
 	(story-show word 0.2)
 	(story-size word 1.0 0.7 (const ease-back))
 	(times 16 (spark-at 320.0 170.0 +story_gold))
@@ -269,7 +269,7 @@
 	;the kernel coming up on a chip
 	(defq mark (Figure "kernel"))
 	(. mark :set_outline (list (list :t (path-gen-ellipse x -9.0 3.5 3.5 (path)))))
-	(def mark :fill +story_gold :alpha 0.0)
+	(def mark :fig_fill +story_gold :fig_alpha 0.0)
 	(story-show mark 0.3 wait)
 	(. chip :add_node mark))
 
@@ -281,7 +281,7 @@
 	(def stage :chips row :mailing :t)
 	(each! (lambda (chip)
 			(defq next (elem-get row (inc (!))))
-			(story-link (get :x chip) 372.0 (get :x next) 372.0 lines))
+			(story-link (get :fig_x chip) 372.0 (get :fig_x next) 372.0 lines))
 		(list row) 0 -2)
 	(each (lambda (chip) (story-kernel-mark chip (* 0.2 (n2f (!))) 22.0)) row)
 	(times 4 (story-dot))
@@ -298,7 +298,7 @@
 	;it has come, it has a kernel, it is joined to the last, and it is one of
 	;the chips now. The letters will find it for themselves
 	(story-kernel-mark pc 0.0 36.0)
-	(story-link from_x 372.0 (get :x pc) 372.0 (get :lines (get :net stage)))
+	(story-link from_x 372.0 (get :fig_x pc) 372.0 (get :lines (get :net stage)))
 	(push (get :chips stage) pc)
 	(story-dot))
 
@@ -331,8 +331,8 @@
 	(story-title "Taos" +story_blue)
 	;the network, a group, it floats in space, and all of it with it
 	(defq net (story-net "net") n (length +story_chips) chips (list))
-	(def net :x 320.0 :y 262.0)
-	(. net :add (Wave :ry 0.34 9.0) (Wave :rx 0.2 13.0))
+	(def net :fig_x 320.0 :fig_y 262.0)
+	(. net :add (Wave :fig_ry 0.34 9.0) (Wave :fig_rx 0.2 13.0))
 	(def stage :net net)
 	(each (lambda (name)
 			(defq a (* +fp_2pi (/ (n2f (!)) (n2f n))) b (* +fp_2pi (/ (n2f (inc (!))) (n2f n))))
@@ -382,13 +382,13 @@
 	(when (and (get :mailing stage) (defq chip (story-any-chip :nil)))
 		(defq dot (Figure "letter"))
 		(. dot :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 5.0 5.0 (path)))))
-		(def dot :fill +story_gold :x (get :x chip) :y (get :y chip))
+		(def dot :fig_fill +story_gold :fig_x (get :fig_x chip) :fig_y (get :fig_y chip))
 		(story-add dot (get :mail (get :net stage)))
 		(story-hop dot chip)))
 
 (defun story-any-chip (not_this)
 	;any of the chips that are there, and not that one
-	(defq live (filter (lambda (chip) (not (or (get :dead chip) (eql chip not_this))))
+	(defq live (filter (lambda (chip) (not (or (get :fig_dead chip) (eql chip not_this))))
 		(ifn (get :chips stage) (list))))
 	(if (nempty? live) (elem-get live (random (length live)))))
 
@@ -396,7 +396,7 @@
 	;on to another chip. When it arrives it is that chip's to send on
 	(when (defq to (story-any-chip from))
 		(def dot :to to)
-		(. dot :add (Follow (path (get :x dot) (get :y dot) (get :x to) (get :y to))
+		(. dot :add (Follow (path (get :fig_x dot) (get :fig_y dot) (get :fig_x to) (get :fig_y to))
 			(+ 0.4 (/ (n2f (random 400)) 1000.0)) (const ease-in-out)
 			(lambda (dot c) (story-arrive dot))))))
 
@@ -407,7 +407,7 @@
 	(defq to (get :to dot))
 	(cond
 		((not (get :mailing stage)) (. dot :kill))
-		(:t (unless (get :dead to) (story-pulse to))
+		(:t (unless (get :fig_dead to) (story-pulse to))
 			(story-tile)
 			(story-hop dot to))))
 
@@ -416,7 +416,7 @@
 		(bind '(cx cy) (pop cells))
 		(defq tile (Figure "tile") s 7.0)
 		(. tile :set_outline (list (list :t (path 0.0 0.0 s 0.0 s s 0.0 s))))
-		(def tile :fill (story-trace cx cy) :x (* s (n2f cx)) :y (* s (n2f cy)) :alpha 0.0)
+		(def tile :fig_fill (story-trace cx cy) :fig_x (* s (n2f cx)) :fig_y (* s (n2f cy)) :fig_alpha 0.0)
 		(story-show tile 0.25)
 		(story-add tile (get :picture (get :net stage)))
 		(push (get :tiles stage) tile)
@@ -450,8 +450,8 @@
 	(story-go (get :lines (get :net stage)) 0.5)
 	(each (lambda (chip name)
 			(defq a (* +fp_2pi (/ (n2f (!)) (n2f n))))
-			(. (get :label chip) :add (Tween :outline (outline-centred (story-text name 12)) 1.0))
-			(. (get :box chip) :add (Tween :stroke +story_gold 1.0))
+			(. (get :label chip) :add (Tween :fig_outline (outline-centred (story-text name 12)) 1.0))
+			(. (get :box chip) :add (Tween :fig_stroke +story_gold 1.0))
 			(story-to chip (* 215.0 (cos a)) (* 128.0 (sin a)) 1.2 (const ease-in-out)))
 		keep +story_now)
 	(story-say '("9 February 2015: the first commit of ChrysaLisp," "a Virtual Processor, and a translator for each") 5.0 story-lisp))
@@ -463,12 +463,12 @@
 	;any of them may go. The letters are not told, they find another
 	(defq chip (elem-get (get :chips stage) 3))
 	(story-size chip 1.8 0.3 (const ease-out))
-	(. chip :add (Tween :alpha 0.0 0.3 (const ease-in) (lambda (f c)
-		(defq x (+ 320.0 (get :x f)) y (+ 262.0 (get :y f)))
+	(. chip :add (Tween :fig_alpha 0.0 0.3 (const ease-in) (lambda (f c)
+		(defq x (+ 320.0 (get :fig_x f)) y (+ 262.0 (get :fig_y f)))
 		(times 18 (spark-at x y +story_pink))
 		;a while on, another of the same is started in its place
 		(defq timer (Figure "timer"))
-		(def timer :back (list (get :x f) (get :y f)))
+		(def timer :back (list (get :fig_x f) (get :fig_y f)))
 		(. timer :add (Wait 2.5 (lambda (t c) (. t :kill) (story-return (get :back t)))))
 		(story-add timer)
 		(. f :kill))))
@@ -479,7 +479,7 @@
 	;it comes up where the other was, and the letters find it for themselves
 	(bind '(x y) at)
 	(defq chip (story-chip "LoongArch 64" x y 78 26 +story_gold (get :chips (get :net stage)) 12))
-	(def chip :sx 0.0 :sy 0.0)
+	(def chip :fig_sx 0.0 :fig_sy 0.0)
 	(story-size chip 1.0 0.6 (const ease-back))
 	(push (get :chips stage) chip))
 
@@ -493,7 +493,7 @@
 		(get :chips stage))
 	(defq shell (Figure "chrysalis"))
 	(. shell :set_outline (outline-svg +story_chrysalis))
-	(def shell :fill 0xff9a7030 :stroke 0xffe0c080 :width 1.5 :x 320.0 :y 250.0 :sx 0.0 :sy 0.0)
+	(def shell :fig_fill 0xff9a7030 :fig_stroke 0xffe0c080 :fig_width 1.5 :fig_x 320.0 :fig_y 250.0 :fig_sx 0.0 :fig_sy 0.0)
 	(story-size shell 1.0 0.9 (const ease-back)
 		(lambda (f c) (story-hatch)) 1.0)
 	(story-add shell)
@@ -504,32 +504,32 @@
 	;a wing and its mark, a group that flaps on its y axis about the body
 	(defq wing (Figure "wing") mark (Figure "mark"))
 	(. wing :set_outline (outline-svg +story_wing))
-	(def wing :fill colour :stroke 0xff201810 :width 2.0)
+	(def wing :fig_fill colour :fig_stroke 0xff201810 :fig_width 2.0)
 	(. mark :set_outline (outline-svg +story_wing_mark))
-	(def mark :fill 0xfff0e0a0)
+	(def mark :fig_fill 0xfff0e0a0)
 	(defq group (Figure "side"))
 	(. group :add_node wing)
 	(. group :add_node mark)
-	(def group :sx 0.0 :sy 0.0 :scale_to side)
-	(. group :add (Tween :sx side 0.9 (const ease-back)) (Tween :sy 1.0 0.9 (const ease-back))
-		(Wave :ry (* side 0.85) 0.55))
+	(def group :fig_sx 0.0 :fig_sy 0.0 :scale_to side)
+	(. group :add (Tween :fig_sx side 0.9 (const ease-back)) (Tween :fig_sy 1.0 0.9 (const ease-back))
+		(Wave :fig_ry (* side 0.85) 0.55))
 	(story-add group fly))
 
 (defun story-hatch ()
 	;the chrysalis morphs to a body, and the wings open from it
 	(defq shell (get :shell stage))
-	(. shell :add (Tween :outline (outline-svg +story_body) 0.9 (const ease-in-out))
-		(Tween :fill 0xff302418 0.9))
-	(def shell :x 0.0 :y 0.0)
+	(. shell :add (Tween :fig_outline (outline-svg +story_body) 0.9 (const ease-in-out))
+		(Tween :fig_fill 0xff302418 0.9))
+	(. shell :set_place :fig_x 0.0 :fig_y 0.0)
 	(defq fly (Figure "butterfly"))
-	(def fly :x 320.0 :y 250.0)
+	(def fly :fig_x 320.0 :fig_y 250.0)
 	(story-add fly)
 	(def stage :fly fly)
 	(story-wing fly 1.0 +story_gold)
 	(story-wing fly -1.0 +story_gold)
 	;the body goes on top of them
 	(. fly :add_node shell)
-	(. fly :add (Wave :rz 0.08 2.3)))
+	(. fly :add (Wave :fig_rz 0.08 2.3)))
 
 (defun story-fly (f c)
 	;off it goes, in a long curve, and when it has gone it starts again

@@ -68,7 +68,7 @@
 	(bind '(w &ignore) (. *canvas* :get_size))
 	(defq k (/ (n2f +width) (n2f (max w 1))))
 	(if (defq pointer (get :pointer stage))
-		(def pointer :x (* k (n2f (- mx px))) :y (* k (n2f (- my py))))))
+		(. pointer :set_place :fig_x (* k (n2f (- mx px))) :fig_y (* k (n2f (- my py))))))
 
 (defun frame ()
 	;the time since the last, it all goes on by that, then the picture
@@ -120,12 +120,12 @@
 					((or (= id +event_home) (= id +event_scene))
 						(scene-new))
 					((= id +event_play)
-						(def stage :speed 1.0))
+						(def stage :ros_speed 1.0))
 					((= id +event_pause)
 						;all stands still where it is
-						(def stage :speed 0.0))
+						(def stage :ros_speed 0.0))
 					((= id +event_depth)
-						(def stage :focus (if (= (. *depth_toolbar* :get_selected) 1) +focus)))
+						(def stage :ros_focus (if (= (. *depth_toolbar* :get_selected) 1) +focus)))
 					((. *window* :event msg))))
 			(+select_tip
 				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
