@@ -10,12 +10,26 @@
 (ffi (cat *app_root* "shade") shade)
 ; (shade x0 y0 top palette) -> -1 | argb
 
-;the colour of a pixel, into the square. One that is not inside the set
-;and the ring it is on is not all inside, the scan goes on inwards
+;the colour of a pixel, the mean of four points across it, a quarter of
+;the way in from each corner, so detail finer than a pixel does not
+;shimmer as the picture moves, into the square. A pixel none of whose
+;points get out of the set is inside it; one that is not, and the ring it
+;is on is not all inside, the scan goes on inwards
+(defun pixel (px py w h z cx cy top pal)
+	(defq r 0 g 0 b 0 in 0)
+	(each (lambda ((sx sy))
+			(defq d (shade (+ (real-offset (+ (n2r px) sx) w z) cx)
+				(+ (real-offset (+ (n2r py) sy) h z) cy) top pal))
+			(if (= d -1)
+				(setq in (inc in))
+				(setq r (+ r (logand (>> d 16) 0xff)) g (+ g (logand (>> d 8) 0xff)) b (+ b (logand d 0xff)))))
+		(list (list +real_1/4 +real_1/4) (list (n2r 0.75) +real_1/4)
+			(list +real_1/4 (n2r 0.75)) (list (n2r 0.75) (n2r 0.75))))
+	(if (= in 4) -1 (+ 0xff000000 (<< (>> r 2) 16) (<< (>> g 2) 8) (>> b 2))))
+
 (defmacro eval-px-py (px py)
 	`(progn
-		(defq d (shade (+ (real-offset (n2r ,px) w z) cx)
-					(+ (real-offset (n2r ,py) h z) cy) top +mandel_pal)
+		(defq d (pixel ,px ,py w h z cx cy top pal)
 			at (* (+ (- ,px x) (* (- ,py y) bw)) +int_size))
 		(cond
 			((= d -1) (set-int buf at +argb_black))
@@ -32,8 +46,8 @@
 		(setq shared_key key canvas (and (/= key 0) (canvas-shared w h 1 key))))
 	canvas)
 
-(defun mandel (key mbox x y x1 y1 w h canvas_key top cx cy z)
-	(defq found (attach canvas_key w h))
+(defun mandel (key mbox x y x1 y1 w h canvas_key top pal_i cx cy z)
+	(defq found (attach canvas_key w h) pal (mandel-pal pal_i))
 	(bind '(w h) (map (const n2r) (list w h)))
 	(defq bw (- x1 x) bh (- y1 y) buf (str-alloc (* bw bh +int_size))
 		r 0 running :t inside 0 ix x iy y ix1 x1 iy1 y1)
@@ -83,4 +97,4 @@
 	(job-child 5000000 (lambda (msg mbox)
 		(apply mandel (getf-> msg +job_key +job_reply
 			+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
-			+rect_cx +rect_cy +rect_z)))))
+			+rect_pal +rect_cx +rect_cy +rect_z)))))

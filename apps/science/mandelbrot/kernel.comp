@@ -1,0 +1,66 @@
+// the picture on the GPU, as kernel.msl, in GLSL for a GPU that takes SPIR-V.
+// kernel.spv is made of it on a machine with glslangValidator:
+// glslangValidator -V --target-env vulkan1.0 -e kernel_main --source-entrypoint main kernel.comp -o kernel.spv
+
+#version 450
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0) readonly buffer Pal { uint pal[]; };
+layout(set = 1, binding = 0) buffer Out { uint outp[]; };
+layout(set = 2, binding = 0) uniform Block
+{
+	float cx; float cy; float step;
+	uint w; uint h; uint top; uint base;
+	float rate; float lbase; float lgain;
+	uint light; uint ss;
+};
+
+uint shade(float x0, float y0)
+{
+	float xq = x0 - 0.25, q = xq * xq + y0 * y0;
+	if (q * (q + xq) <= 0.25 * y0 * y0 || (x0 + 1.0) * (x0 + 1.0) + y0 * y0 <= 0.0625) return 0xff000000u;
+	float xc = 0.0, yc = 0.0, x2 = 0.0, y2 = 0.0, dx = 0.0, dy = 0.0, one = 1.0;
+	uint n = 0u;
+	for (; n < top && x2 + y2 < 65536.0; ++n)
+	{
+		float ndx = 2.0 * (xc * dx - yc * dy) + one;
+		dy = 2.0 * (xc * dy + yc * dx);
+		dx = ndx;
+		yc = 2.0 * xc * yc + y0;
+		xc = x2 - y2 + x0;
+		x2 = xc * xc;
+		y2 = yc * yc;
+		if (abs(dx) + abs(dy) > 1e20) { dx *= 1e-20; dy *= 1e-20; one *= 1e-20; }
+	}
+	if (n >= top) return 0xff000000u;
+	float depth = float(n) + 1.0 - log2(log2(x2 + y2) / 16.0);
+	uint col = pal[(uint(sqrt(depth) * rate) + base) & 2047u];
+	int lit = 256;
+	if (light != 0u)
+	{
+		float re = xc * dx + yc * dy, im = yc * dx - xc * dy, len = sqrt(re * re + im * im);
+		lit = int(len > 0.0 ? lbase - lgain * (re + im) / len : lbase);
+	}
+	uint r = min(255u, (((col >> 16) & 255u) * uint(lit)) >> 8);
+	uint g = min(255u, (((col >> 8) & 255u) * uint(lit)) >> 8);
+	uint b = min(255u, ((col & 255u) * uint(lit)) >> 8);
+	return 0xff000000u | (r << 16) | (g << 8) | b;
+}
+
+void main()
+{
+	uvec2 gid = gl_GlobalInvocationID.xy;
+	if (gid.x >= w || gid.y >= h) return;
+	uint n = max(1u, ss), r = 0u, g = 0u, b = 0u;
+	float sub = step / float(n);
+	float x0 = cx + (float(gid.x) - 0.5 * float(w)) * step + 0.5 * sub - 0.5 * step;
+	float y0 = cy + (float(gid.y) - 0.5 * float(h)) * step + 0.5 * sub - 0.5 * step;
+	for (uint j = 0u; j < n; ++j)
+		for (uint i = 0u; i < n; ++i)
+		{
+			uint c = shade(x0 + float(i) * sub, y0 + float(j) * sub);
+			r += (c >> 16) & 255u; g += (c >> 8) & 255u; b += c & 255u;
+		}
+	n = n * n;
+	outp[gid.y * w + gid.x] = 0xff000000u | ((r / n) << 16) | ((g / n) << 8) | (b / n);
+}

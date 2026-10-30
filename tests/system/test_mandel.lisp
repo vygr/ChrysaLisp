@@ -4,19 +4,25 @@
 (import "apps/science/mandelbrot/app.inc")
 (ffi "apps/science/mandelbrot/shade" mb_shade)
 
+(defq mb_pal (mandel-pal 0))
+
 (defun mb-at (x y &optional top)
-	(mb_shade (n2r x) (n2r y) (ifn top 256) +mandel_pal))
+	(mb_shade (n2r x) (n2r y) (ifn top 256) mb_pal))
 
 (defun mb-far (a b)
 	;how far apart two colours are, the most of red, green and blue
 	(reduce (lambda (m sh) (max m (abs (- (logand (>> a sh) 0xff) (logand (>> b sh) 0xff)))))
 		'(0 8 16) 0))
 
-;the palette
-(assert-eq "the palette is an int for each colour" (* +mandel_pal_size +int_size) (length +mandel_pal))
-(assert-true "and every one of them is solid"
-	(every (# (= (logand (get-int +mandel_pal (* %0 +int_size)) 0xff000000) 0xff000000))
-		(range 0 +mandel_pal_size)))
+;the palettes, each made from its stops
+(each (lambda (p)
+		(defq name (first p) pal (mandel-pal (!)))
+		(assert-eq (cat "the palette " name " is an int for each colour") (* +mandel_pal_size +int_size) (length pal))
+		(assert-true (cat "and every one of them is solid")
+			(every (# (= (logand (get-int pal (* %0 +int_size)) 0xff000000) 0xff000000))
+				(range 0 +mandel_pal_size))))
+	+mandel_palettes)
+(assert-eq "the first is made once" (mandel-pal 0) mb_pal)
 
 ;inside the set
 (assert-eq "the middle of the heart is inside" -1 (mb-at 0.0 0.0))
