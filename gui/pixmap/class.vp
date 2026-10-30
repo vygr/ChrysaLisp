@@ -148,7 +148,7 @@
 	;:r0 = user data
 
 	(def-vars
-		(ptr user this)
+		(ptr user this statics)
 		(long tex_id))
 
 	(push-scope)
@@ -165,13 +165,18 @@
 		(vpx tex_id))
 
 	;the driver may not make one, of pixels wider or taller than it can
-	;hold. What is drawn with it then is nothing, and nothing else says so
+	;hold. What is drawn with it then is nothing, and nothing else says so.
+	;A node with no screen, its GUI never started, makes none, and that is
+	;not worth saying
 	(vpifnot (vpx tex_id))
-		(call :host_os :pii_write_str (vpx 2 "A texture was not made by the driver, of "))
-		(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_width) 10))
-		(call :host_os :pii_write_str (vpx 2 " by "))
-		(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_height) 10))
-		(call :host_os :pii_write_str (vpx 2 " pixels\n"))
+		(assign (vpx (@ sys/statics/statics)) (vpx statics))
+		(vpif (vpx (.> statics statics_gui_screen)))
+			(call :host_os :pii_write_str (vpx 2 "A texture was not made by the driver, of "))
+			(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_width) 10))
+			(call :host_os :pii_write_str (vpx 2 " by "))
+			(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_height) 10))
+			(call :host_os :pii_write_str (vpx 2 " pixels\n"))
+		(endif)
 	(endif)
 
 	;new texture
