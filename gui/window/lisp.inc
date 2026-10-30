@@ -5,6 +5,23 @@
 (import "././scroll/lisp.inc")
 (import "././textfield/lisp.inc")
 
+(defun window-aspect (x y x1 y1 mode cw ch aw ah min_w min_h)
+	; (window-aspect x y x1 y1 mode cw ch aw ah min_w min_h) -> (x y x1 y1)
+	;where a window being dragged goes for a view of it to stay aw to ah. cw
+	;and ch are how much bigger the window is than the view. mode is the drag's,
+	;the edges held, 1 left, 2 top, 4 right, 8 bottom. A side held says how
+	;big, the top or the bottom only if no side is, and the far edges stay put
+	(defq w (- x1 x) h (- y1 y))
+	(if (/= 0 (logand mode 5))
+		(setq h (+ ch (/ (* (- w cw) ah) aw)))
+		(setq w (+ cw (/ (* (- h ch) aw) ah))))
+	(when (or (< w min_w) (< h min_h))
+		(setq w (max min_w (+ cw (/ (* (- min_h ch) aw) ah)))
+			h (+ ch (/ (* (- w cw) ah) aw))))
+	(if (bits? mode 1) (setq x (- x1 w)))
+	(if (bits? mode 2) (setq y (- y1 h)))
+	(list x y (+ x w) (+ y h)))
+
 (defclass Window () (View)
 	; (Window) -> window
 	(def this :child :nil :last_buttons 0 :is_window :t :resizable :t
@@ -96,6 +113,13 @@
 				(setq x1 (max (- ax drag_offx) (+ x w))))
 			(if (bits? drag_mode 8)
 				(setq y1 (max (- ay drag_offy) (+ y h))))
+			;a view of it that is to keep its shape
+			(when (defq view (def? :aspect_view this))
+				(bind '(aw ah) (get :aspect this))
+				(bind '(ww wh) (. this :get_size))
+				(bind '(vw vh) (. view :get_size))
+				(bind '(x y x1 y1) (window-aspect x y x1 y1 drag_mode
+					(- ww vw) (- wh vh) aw ah w h)))
 			(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit)))
 
 	(defmethod :theme (name)

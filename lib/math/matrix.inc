@@ -97,6 +97,43 @@
 	(defq c (cos (n2f angle)) s (sin (n2f angle)))
 	(fixeds c (neg s) (- cx (- (* c cx) (* s cy))) s c (- cy (+ (* s cx) (* c cy)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; the 3x4 matrix of a flat thing in space, twelve fixeds, by rows. A point of
+; the thing has z 0:
+;
+;	x' = m0*x + m1*y + m3
+;	y' = m4*x + m5*y + m7
+;	z' = m8*x + m9*y + m11
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun Mat3x4-mul (ma mb)
+	; (Mat3x4-mul ma mb) -> matrix
+	;the one matrix that does what mb does and then what ma does
+	(bind '(a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11) ma)
+	(bind '(b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11) mb)
+	(fixeds
+		(+ (* a0 b0) (* a1 b4) (* a2 b8)) (+ (* a0 b1) (* a1 b5) (* a2 b9))
+		(+ (* a0 b2) (* a1 b6) (* a2 b10)) (+ (* a0 b3) (* a1 b7) (* a2 b11) a3)
+		(+ (* a4 b0) (* a5 b4) (* a6 b8)) (+ (* a4 b1) (* a5 b5) (* a6 b9))
+		(+ (* a4 b2) (* a5 b6) (* a6 b10)) (+ (* a4 b3) (* a5 b7) (* a6 b11) a7)
+		(+ (* a8 b0) (* a9 b4) (* a10 b8)) (+ (* a8 b1) (* a9 b5) (* a10 b9))
+		(+ (* a8 b2) (* a9 b6) (* a10 b10)) (+ (* a8 b3) (* a9 b7) (* a10 b11) a11)))
+
+(defun Mat3x4-place (x y z rx ry rz sx sy px py)
+	; (Mat3x4-place x y z rx ry rz sx sy px py) -> matrix
+	;where a flat thing is: scaled and turned about its pivot, px py, about
+	;x then y then z in radians, and its pivot put at x y z
+	(defq cx (cos rx) ax (sin rx) cy (cos ry) ay (sin ry) cz (cos rz) az (sin rz)
+		;the turn, by z by y by x
+		r0 (* cz cy) r1 (- (* cz ay ax) (* az cx)) r2 (+ (* cz ay cx) (* az ax))
+		r4 (* az cy) r5 (+ (* az ay ax) (* cz cx)) r6 (- (* az ay cx) (* cz ax))
+		r8 (neg ay) r9 (* cy ax) r10 (* cy cx)
+		;its columns scaled, and the pivot taken off first
+		m0 (* r0 sx) m1 (* r1 sy) m4 (* r4 sx) m5 (* r5 sy) m8 (* r8 sx) m9 (* r9 sy))
+	(fixeds m0 m1 r2 (- x (+ (* m0 px) (* m1 py)))
+		m4 m5 r6 (- y (+ (* m4 px) (* m5 py)))
+		m8 m9 r10 (- z (+ (* m8 px) (* m9 py)))))
+
 (defun Mat3x2-invert (m)
 	; (Mat3x2-invert m) -> matrix | :nil
 	;the matrix that undoes it. One that flattens everything to a line

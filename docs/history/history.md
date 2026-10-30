@@ -113,7 +113,8 @@ Edge magazine, in June 1994, told it the same way:
 > machine."
 
 That is the Virtual Processor, the VP. It was a way to write one game for two
-computers before it was anything else.
+computers before it was anything else. By Chris Hinsley's account, Onslaught, on the ST and the
+Amiga, was the first program coded in it.
 
 ## 4. Taos
 

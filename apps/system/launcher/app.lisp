@@ -12,7 +12,7 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil +config_version 21 +config_file (cat (get :home *env*) "launcher.tre"))
+(defq *config* :nil +config_version 22 +config_file (cat (get :home *env*) "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
@@ -33,7 +33,7 @@
 			'Games (scatter (Emap) :collapsed :nil
 				:apps '("chess" "minefield" "slider" "pairs" "solitaire" "onslaught" "spectrum"))
 			'Demos (scatter (Emap) :collapsed :nil
-				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "raymarch" "surface" "planets" "model"))
+				:apps '("boing" "freeball" "bubbles" "opcodes" "canvas" "motion" "raymarch" "surface" "planets" "model"))
 			'Science (scatter (Emap) :collapsed :nil
 				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
 
