@@ -414,7 +414,7 @@
 	;(ui-buttons (0xea19 ...)): a glyph of the symbol font by its number,
 	;drawn as nothing if the font has none, the +sym_ name is what is there
 	(when (find head '("ui-title-bar" "ui-buttons"))
-		(each (lambda (form)
+		(each! (lambda (form)
 			(if (defq kids (tree-form? form))
 				(each (lambda (kid)
 					(and (eql (first kid) :number)
@@ -422,7 +422,7 @@
 						(<= 0xe000 code 0xf8ff)
 						(found file kid "glyph" (third kid) " is a glyph by its number, give its +sym_ name")))
 					(forms-of kids))))
-			(rest forms))))
+			(list forms) 1 -1)))
 
 (defun char-literal (code)
 	; (char-literal code) -> str
