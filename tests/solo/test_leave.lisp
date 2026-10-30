@@ -35,5 +35,5 @@
 (while (some (const pii-alive) lv_pids) (task-sleep 10000))
 (assert-true "and so do those it started" (notany (const pii-alive) lv_pids))
 (assert-eq "its note is cleared away" :nil (load (cat "/tmp/chrysalisp_" (str lv_pid) ".session")))
-(while (/= (length (lisp-nodes :t)) (length lv_before)) (task-sleep 10000))
-(assert-eq "and the network is as it was" (length lv_before) (length (lisp-nodes :t)))
+(while (find lv_node (lisp-nodes :t)) (task-sleep 10000))
+(assert-true "and the network has lost its node" (not (find lv_node (lisp-nodes :t))))

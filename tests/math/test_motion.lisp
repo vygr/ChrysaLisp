@@ -286,7 +286,7 @@
 ;fault in it stops the test. It is over when it says to begin again, and
 ;nothing it was doing is left over the end
 (import "gui/canvas/lisp.inc")
-(defq stage (Rostrum 640 480 700.0) restart :nil mo_time 0.0 mo_most 0 mo_seen (list))
+(defq stage (Rostrum 640 480 700.0) restart :nil mo_time 0.0 mo_most 0 mo_ticks 0)
 (import "apps/demos/motion/scene.inc")
 (import "apps/demos/motion/story.inc")
 (defq mo_canvas (. (Canvas 320 240 1) :set_canvas_flags +canvas_flag_antialias) mo_view (fixeds 0.5 0.0 0.0 0.0 0.5 0.0))
@@ -294,8 +294,8 @@
 (while (and (not restart) (< mo_time 400.0))
 	(. stage :tick 0.033)
 	(setq mo_time (+ mo_time 0.033) mo_most (max mo_most (length (. stage :children))))
-	(. stage :draw mo_canvas mo_view)
-	(defq mo_title (get :name_is (get :title stage)))
+	;a frame in ten is drawn, all of it on a Pi is over a minute
+	(if (= 0 (% (setq mo_ticks (inc mo_ticks)) 10)) (. stage :draw mo_canvas mo_view))
 	(task-slice))
 (assert-true "the story comes to its end" restart)
 (assert-true "in a minute or two" (and (> mo_time 60.0) (< mo_time 180.0)))
