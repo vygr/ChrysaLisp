@@ -99,6 +99,9 @@
 		(throw "Abi methods must be virtual !" (list %0 %1)))
 	(if (or (find %2 s) (find %5 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list %2 %5 s)))
+	;the x86_64 translator moves no more than six, so no CPU is given more
+	(if (> (length s) 6)
+		(throw "A host call takes at most six args !" (list %0 %1)))
 	;a call of the host takes its args in :r0 :r1 ... in order, gives its
 	;answer in :r0, and keeps every other register, the same VP on every
 	;platform. The translator does the rest, (emit-call-abi): moves the

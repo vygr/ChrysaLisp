@@ -175,43 +175,18 @@ static SDL_Texture *create_backbuffer(uint64_t w, uint64_t h)
 // driver is built without it, the GUI runs, and it can not draw a shader.
 #define HOST_GUI_GPU SDL_VERSION_ATLEAST(3, 4, 0)
 
-// the GPU device is made here, not by the renderer, to ask for no more
-// than is used. A device SDL makes for itself wants depth clamping and the
-// like, which a small GPU may not have, the Raspberry Pi 4 has no depth
-// clamp, and SDL then picks a software device in its place.
+// the GPU device is the GPU driver's, gpu_sdl3.cpp, made with no more asked
+// of it than is used, and shared, so what a kernel makes a shader can draw
 
-// a thing SDL finds wrong is said, once, where what the desktop says goes,
-// and the desktop carries on. A box that stops it till it is answered is no
-// use to who is at it, and can not be seen at all with no desktop
-
-static SDL_AssertState SDLCALL quiet_assertion(const SDL_AssertData *data, void *userdata)
-{
-	(void)userdata;
-	SDL_Log("SDL assertion, ignored from now: %s, %s (%s:%d)", data->condition, data->function, data->filename, data->linenum);
-	return SDL_ASSERTION_ALWAYS_IGNORE;
-}
+SDL_GPUDevice *host_gpu_device();
+void host_gpu_quiet();
 
 static SDL_GPUDevice *create_device()
 {
 #if !HOST_GUI_GPU
 	return nullptr;
 #else
-	auto props = SDL_CreateProperties();
-	// SDL makes a device that checks every call unless told not to, and what
-	// it finds wrong it stops the program for, a box to be answered: a window
-	// that goes to the whole screen has, for a frame, a viewport bigger than
-	// what it is drawn to, and the desktop stopped there. That is for work on
-	// this driver, CL_GPU_DEBUG asks for it
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN, SDL_getenv("CL_GPU_DEBUG") != nullptr);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_MSL_BOOLEAN, true);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN, false);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN, false);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN, false);
-	SDL_SetBooleanProperty(props, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_ANISOTROPY_BOOLEAN, false);
-	auto dev = SDL_CreateGPUDeviceWithProperties(props);
-	SDL_DestroyProperties(props);
-	return dev;
+	return host_gpu_device();
 #endif
 }
 
@@ -247,7 +222,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 	// a trackpad gives SDL no fingers unless it is told to, before it
 	// starts, and then it gives no mouse. CL_TOUCH_TRACKPAD asks for that
 	if (host_gui_sdl3_trackpad()) SDL_SetHint(SDL_HINT_TRACKPAD_IS_TOUCH_ONLY, "1");
-	if (!SDL_getenv("CL_GPU_DEBUG")) SDL_SetAssertionHandler(quiet_assertion, nullptr);
+	host_gpu_quiet();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	// with no desktop, SDL on the bare display, a Raspberry Pi with no
 	// window system say, the window is the whole screen. Vulkan can only
@@ -273,7 +248,7 @@ void host_gui_init(host_gui_rect *rect, uint64_t flags)
 #endif
 	if (!renderer)
 	{
-		if (device) SDL_DestroyGPUDevice(device);
+		//the device is the GPU driver's, this driver just does not draw with it
 		device = nullptr;
 		if (bare)
 		{
@@ -332,7 +307,7 @@ void host_gui_deinit()
 		while (SDL_GetAtomicInt(&shader_builds) > 0) SDL_Delay(10);
 		if (pair_sampler) SDL_ReleaseGPUSampler(device, pair_sampler);
 		pair_sampler = nullptr;
-		SDL_DestroyGPUDevice(device);
+		//the device is the GPU driver's, it lasts as long as the host
 		device = nullptr;
 	}
 	if (window)

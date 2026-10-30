@@ -12,8 +12,11 @@
 #define SDL3_CALLS(X) \
 	X(SDL_AcquireGPUCommandBuffer) \
 	X(SDL_AddAtomicInt) \
+	X(SDL_BeginGPUComputePass) \
 	X(SDL_BeginGPUCopyPass) \
 	X(SDL_BeginGPURenderPass) \
+	X(SDL_BindGPUComputePipeline) \
+	X(SDL_BindGPUComputeStorageBuffers) \
 	X(SDL_BindGPUFragmentSamplers) \
 	X(SDL_BindGPUGraphicsPipeline) \
 	X(SDL_BindGPUVertexBuffers) \
@@ -22,6 +25,7 @@
 	X(SDL_ConvertAudioSamples) \
 	X(SDL_ConvertPixels) \
 	X(SDL_CreateGPUBuffer) \
+	X(SDL_CreateGPUComputePipeline) \
 	X(SDL_CreateGPUDeviceWithProperties) \
 	X(SDL_CreateGPUGraphicsPipeline) \
 	X(SDL_CreateGPURenderer) \
@@ -45,17 +49,20 @@
 	X(SDL_DestroyTexture) \
 	X(SDL_DestroyWindow) \
 	X(SDL_DetachThread) \
+	X(SDL_DispatchGPUCompute) \
+	X(SDL_DownloadFromGPUBuffer) \
 	X(SDL_DrawGPUPrimitives) \
+	X(SDL_EndGPUComputePass) \
 	X(SDL_EndGPUCopyPass) \
 	X(SDL_EndGPURenderPass) \
 	X(SDL_FlushRenderer) \
-	X(SDL_free) \
+	X(SDL_GPUTextureSupportsFormat) \
+	X(SDL_GPUTextureSupportsSampleCount) \
 	X(SDL_GetAtomicInt) \
 	X(SDL_GetAudioStreamData) \
 	X(SDL_GetClipboardText) \
 	X(SDL_GetCurrentVideoDriver) \
 	X(SDL_GetDesktopDisplayMode) \
-	X(SDL_getenv) \
 	X(SDL_GetError) \
 	X(SDL_GetGPUShaderFormats) \
 	X(SDL_GetKeyboardFocus) \
@@ -72,18 +79,17 @@
 	X(SDL_GetWindowFromID) \
 	X(SDL_GetWindowProperties) \
 	X(SDL_GetWindowSize) \
-	X(SDL_GPUTextureSupportsFormat) \
-	X(SDL_GPUTextureSupportsSampleCount) \
 	X(SDL_HideCursor) \
 	X(SDL_Init) \
+	X(SDL_InitSubSystem) \
 	X(SDL_LoadWAV) \
 	X(SDL_LockAudioStream) \
 	X(SDL_Log) \
-	X(SDL_malloc) \
 	X(SDL_MapGPUTransferBuffer) \
 	X(SDL_OpenAudioDeviceStream) \
 	X(SDL_PollEvent) \
 	X(SDL_PumpEvents) \
+	X(SDL_PushGPUComputeUniformData) \
 	X(SDL_PushGPUFragmentUniformData) \
 	X(SDL_PushGPUVertexUniformData) \
 	X(SDL_PutAudioStreamData) \
@@ -91,6 +97,7 @@
 	X(SDL_QuitSubSystem) \
 	X(SDL_RaiseWindow) \
 	X(SDL_ReleaseGPUBuffer) \
+	X(SDL_ReleaseGPUComputePipeline) \
 	X(SDL_ReleaseGPUFence) \
 	X(SDL_ReleaseGPUGraphicsPipeline) \
 	X(SDL_ReleaseGPUSampler) \
@@ -123,12 +130,17 @@
 	X(SDL_SetTextureScaleMode) \
 	X(SDL_SetWindowFullscreen) \
 	X(SDL_ShowCursor) \
-	X(SDL_strcmp) \
 	X(SDL_SubmitGPUCommandBuffer) \
 	X(SDL_SubmitGPUCommandBufferAndAcquireFence) \
 	X(SDL_UnlockAudioStream) \
 	X(SDL_UnmapGPUTransferBuffer) \
-	X(SDL_UploadToGPUBuffer)
+	X(SDL_UploadToGPUBuffer) \
+	X(SDL_WaitForGPUFences) \
+	X(SDL_WasInit) \
+	X(SDL_free) \
+	X(SDL_getenv) \
+	X(SDL_malloc) \
+	X(SDL_strcmp)
 
 #define SDL3_DECLARE(name) extern decltype(&name) cl_##name;
 SDL3_CALLS(SDL3_DECLARE)
@@ -136,8 +148,11 @@ SDL3_CALLS(SDL3_DECLARE)
 
 #define SDL_AcquireGPUCommandBuffer cl_SDL_AcquireGPUCommandBuffer
 #define SDL_AddAtomicInt cl_SDL_AddAtomicInt
+#define SDL_BeginGPUComputePass cl_SDL_BeginGPUComputePass
 #define SDL_BeginGPUCopyPass cl_SDL_BeginGPUCopyPass
 #define SDL_BeginGPURenderPass cl_SDL_BeginGPURenderPass
+#define SDL_BindGPUComputePipeline cl_SDL_BindGPUComputePipeline
+#define SDL_BindGPUComputeStorageBuffers cl_SDL_BindGPUComputeStorageBuffers
 #define SDL_BindGPUFragmentSamplers cl_SDL_BindGPUFragmentSamplers
 #define SDL_BindGPUGraphicsPipeline cl_SDL_BindGPUGraphicsPipeline
 #define SDL_BindGPUVertexBuffers cl_SDL_BindGPUVertexBuffers
@@ -146,6 +161,7 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_ConvertAudioSamples cl_SDL_ConvertAudioSamples
 #define SDL_ConvertPixels cl_SDL_ConvertPixels
 #define SDL_CreateGPUBuffer cl_SDL_CreateGPUBuffer
+#define SDL_CreateGPUComputePipeline cl_SDL_CreateGPUComputePipeline
 #define SDL_CreateGPUDeviceWithProperties cl_SDL_CreateGPUDeviceWithProperties
 #define SDL_CreateGPUGraphicsPipeline cl_SDL_CreateGPUGraphicsPipeline
 #define SDL_CreateGPURenderer cl_SDL_CreateGPURenderer
@@ -169,17 +185,20 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_DestroyTexture cl_SDL_DestroyTexture
 #define SDL_DestroyWindow cl_SDL_DestroyWindow
 #define SDL_DetachThread cl_SDL_DetachThread
+#define SDL_DispatchGPUCompute cl_SDL_DispatchGPUCompute
+#define SDL_DownloadFromGPUBuffer cl_SDL_DownloadFromGPUBuffer
 #define SDL_DrawGPUPrimitives cl_SDL_DrawGPUPrimitives
+#define SDL_EndGPUComputePass cl_SDL_EndGPUComputePass
 #define SDL_EndGPUCopyPass cl_SDL_EndGPUCopyPass
 #define SDL_EndGPURenderPass cl_SDL_EndGPURenderPass
 #define SDL_FlushRenderer cl_SDL_FlushRenderer
-#define SDL_free cl_SDL_free
+#define SDL_GPUTextureSupportsFormat cl_SDL_GPUTextureSupportsFormat
+#define SDL_GPUTextureSupportsSampleCount cl_SDL_GPUTextureSupportsSampleCount
 #define SDL_GetAtomicInt cl_SDL_GetAtomicInt
 #define SDL_GetAudioStreamData cl_SDL_GetAudioStreamData
 #define SDL_GetClipboardText cl_SDL_GetClipboardText
 #define SDL_GetCurrentVideoDriver cl_SDL_GetCurrentVideoDriver
 #define SDL_GetDesktopDisplayMode cl_SDL_GetDesktopDisplayMode
-#define SDL_getenv cl_SDL_getenv
 #define SDL_GetError cl_SDL_GetError
 #define SDL_GetGPUShaderFormats cl_SDL_GetGPUShaderFormats
 #define SDL_GetKeyboardFocus cl_SDL_GetKeyboardFocus
@@ -196,18 +215,17 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_GetWindowFromID cl_SDL_GetWindowFromID
 #define SDL_GetWindowProperties cl_SDL_GetWindowProperties
 #define SDL_GetWindowSize cl_SDL_GetWindowSize
-#define SDL_GPUTextureSupportsFormat cl_SDL_GPUTextureSupportsFormat
-#define SDL_GPUTextureSupportsSampleCount cl_SDL_GPUTextureSupportsSampleCount
 #define SDL_HideCursor cl_SDL_HideCursor
 #define SDL_Init cl_SDL_Init
+#define SDL_InitSubSystem cl_SDL_InitSubSystem
 #define SDL_LoadWAV cl_SDL_LoadWAV
 #define SDL_LockAudioStream cl_SDL_LockAudioStream
 #define SDL_Log cl_SDL_Log
-#define SDL_malloc cl_SDL_malloc
 #define SDL_MapGPUTransferBuffer cl_SDL_MapGPUTransferBuffer
 #define SDL_OpenAudioDeviceStream cl_SDL_OpenAudioDeviceStream
 #define SDL_PollEvent cl_SDL_PollEvent
 #define SDL_PumpEvents cl_SDL_PumpEvents
+#define SDL_PushGPUComputeUniformData cl_SDL_PushGPUComputeUniformData
 #define SDL_PushGPUFragmentUniformData cl_SDL_PushGPUFragmentUniformData
 #define SDL_PushGPUVertexUniformData cl_SDL_PushGPUVertexUniformData
 #define SDL_PutAudioStreamData cl_SDL_PutAudioStreamData
@@ -215,6 +233,7 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_QuitSubSystem cl_SDL_QuitSubSystem
 #define SDL_RaiseWindow cl_SDL_RaiseWindow
 #define SDL_ReleaseGPUBuffer cl_SDL_ReleaseGPUBuffer
+#define SDL_ReleaseGPUComputePipeline cl_SDL_ReleaseGPUComputePipeline
 #define SDL_ReleaseGPUFence cl_SDL_ReleaseGPUFence
 #define SDL_ReleaseGPUGraphicsPipeline cl_SDL_ReleaseGPUGraphicsPipeline
 #define SDL_ReleaseGPUSampler cl_SDL_ReleaseGPUSampler
@@ -247,12 +266,17 @@ SDL3_CALLS(SDL3_DECLARE)
 #define SDL_SetTextureScaleMode cl_SDL_SetTextureScaleMode
 #define SDL_SetWindowFullscreen cl_SDL_SetWindowFullscreen
 #define SDL_ShowCursor cl_SDL_ShowCursor
-#define SDL_strcmp cl_SDL_strcmp
 #define SDL_SubmitGPUCommandBuffer cl_SDL_SubmitGPUCommandBuffer
 #define SDL_SubmitGPUCommandBufferAndAcquireFence cl_SDL_SubmitGPUCommandBufferAndAcquireFence
 #define SDL_UnlockAudioStream cl_SDL_UnlockAudioStream
 #define SDL_UnmapGPUTransferBuffer cl_SDL_UnmapGPUTransferBuffer
 #define SDL_UploadToGPUBuffer cl_SDL_UploadToGPUBuffer
+#define SDL_WaitForGPUFences cl_SDL_WaitForGPUFences
+#define SDL_WasInit cl_SDL_WasInit
+#define SDL_free cl_SDL_free
+#define SDL_getenv cl_SDL_getenv
+#define SDL_malloc cl_SDL_malloc
+#define SDL_strcmp cl_SDL_strcmp
 
 //load SDL3 and find its calls, true if every one is there
 bool host_sdl3_load(void);

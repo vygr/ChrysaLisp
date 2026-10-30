@@ -1,0 +1,109 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+(include "./class.inc")
+
+(def-method :host_gpu :lisp_call)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f15
+	;info
+	;(gpu-call op a b c d e f g) -> num, a call of the host's GPU table,
+	;src/host/gpu_sdl3.cpp, op its place in it, made on the stack of the
+	;kernel task. A num arg is given as it is, a str as where its bytes are;
+	;those a call does not take are 0. What the call gives, -1 if this node
+	;has no GPU table, 0 of one that gives nothing
+
+	(structure local 0
+		(ptr this args)
+		(long op a b c d e f g out))
+
+	(entry :host_gpu :lisp_call '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 8)
+
+	(vp-alloc local_size)
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(list-bind-args :r1 '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9) '(:num :obj :obj :obj :obj :obj :obj :obj))
+	;an op of the table, :format 0 to :dispatch 9
+	(gotoif '(:r0 < 0) 'error1)
+	(gotoif '(:r0 > 9) 'error1)
+	(assign '(:r0 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
+		'((:rsp local_op) (:rsp local_a) (:rsp local_b) (:rsp local_c) (:rsp local_d)
+		(:rsp local_e) (:rsp local_f) (:rsp local_g)))
+	;each arg, a num as it is, a str as where its bytes are
+	(each (lambda (slot)
+			(assign `((:rsp ,slot)) '(:r0))
+			(call :obj :inst_of `(:r0 (@ ,(f-path :num :vtable))) '(_ :r1))
+			(vpif '(:r1 /= 0))
+				(assign '((:r0 +num_value)) '(:r0))
+			(else)
+				(call :obj :inst_of `(:r0 (@ ,(f-path :str :vtable))) '(_ :r1))
+				(gotoif '(:r1 = 0) 'error1)
+				(vp-add-cr +str_data :r0)
+			(endif)
+			(assign '(:r0) `((:rsp ,slot))))
+		'(local_a local_b local_c local_d local_e local_f local_g))
+	(vp-cpy-cr -1 :r0)
+	(assign '(:r0) '((:rsp local_out)))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_load_host_gpu_funcs)) '(:r1))
+	(vpif '(:r1 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
+	(endif)
+	(call :num :create '((:rsp local_out)) '(:r1))
+
+	(exit :host_gpu :lisp_call '((:rsp local_this) :r1))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'callback)
+	;inputs
+	;:r0 = user data (ptr)
+
+	(entry :sys_task :task_callback '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 local_op)) '(:r1))
+	(vpif '(:r1 = 0))
+		(host-gpu-call :host_gpu :format '() '(:r0))
+	(elseif '(:r1 = 1))
+		(host-gpu-call :host_gpu :buffer_create '((:r0 local_a)) '(:r0))
+	(elseif '(:r1 = 2))
+		(host-gpu-call :host_gpu :buffer_destroy '((:r0 local_a)))
+		(vp-xor-rr :r0 :r0)
+	(elseif '(:r1 = 3))
+		(host-gpu-call :host_gpu :buffer_write
+			'((:r0 local_a) (:r0 local_b) (:r0 local_c) (:r0 local_d)) '(:r0))
+	(elseif '(:r1 = 4))
+		(host-gpu-call :host_gpu :buffer_read '((:r0 local_a) (:r0 local_b) (:r0 local_c)) '(:r0))
+	(elseif '(:r1 = 5))
+		(host-gpu-call :host_gpu :done '((:r0 local_a)) '(:r0))
+	(elseif '(:r1 = 6))
+		(host-gpu-call :host_gpu :take '((:r0 local_a) (:r0 local_b) (:r0 local_c)))
+		(vp-xor-rr :r0 :r0)
+	(elseif '(:r1 = 7))
+		(host-gpu-call :host_gpu :kernel_create '((:r0 local_a) (:r0 local_b) (:r0 local_c)) '(:r0))
+	(elseif '(:r1 = 8))
+		(host-gpu-call :host_gpu :kernel_destroy '((:r0 local_a)))
+		(vp-xor-rr :r0 :r0)
+	(else)
+		(host-gpu-call :host_gpu :dispatch
+			'((:r0 local_a) (:r0 local_b) (:r0 local_c) (:r0 local_d) (:r0 local_e)) '(:r0))
+	(endif)
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 local_out)))
+	(vp-ret)
+
+(vp-label 'error1)
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
+	(vp-free local_size)
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(gpu-call op a b c d e f g)" +error_msg_wrong_types))
+	(signature '(:NUM :obj :obj :obj :obj :obj :obj :obj))
+
+(def-func-end)

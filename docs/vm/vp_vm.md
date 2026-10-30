@@ -91,7 +91,9 @@ and a translator may join calls that follow each other on the one word.
 `:r0`, keeps every other general register of the VP but `rt`, which is left
 with anything in it, and keeps no float register, as a change of task keeps
 none. It lines the stack up as the host's ABI wants at the call, so the VP
-never does.
+never does. It takes at most six args, in `:r0` to `:r5`, the most the
+x86_64 translator moves; a host function that wants more takes a pointer to
+them.
 
 ### VP Assembler instructions
 

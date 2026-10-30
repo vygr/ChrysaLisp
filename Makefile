@@ -87,7 +87,7 @@ SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
 OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
 
 SRC_FILES_CORE := src/host/main.cpp src/host/vp64.cpp src/host/net.cpp src/host/pii_linux.cpp src/host/pii_windows.cpp src/host/pii_darwin.cpp
-SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/audio_alsa.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c src/host/video.cpp src/host/sdl3_load.cpp
+SRC_FILES_DRIVERS := src/host/audio_sdl.cpp src/host/audio_sdl3.cpp src/host/audio_alsa.cpp src/host/gui_sdl.cpp src/host/gui_sdl3.cpp src/host/gui_raw.cpp src/host/gui_fb.c src/host/video.cpp src/host/sdl3_load.cpp src/host/gpu_sdl3.cpp
 
 OBJ_FILES_CORE_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_CORE))
 OBJ_FILES_DRIVERS_GUI := $(patsubst src/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES_DRIVERS))

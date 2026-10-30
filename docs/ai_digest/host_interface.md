@@ -9,8 +9,10 @@ ChrysaLisp `sys/load/init` function when a boot image is started.
 
 ## Host ABI Vtables
 
-At boot time, `main.cpp` passes pointers to three main "vtables" (arrays of
-function pointers) to the ChrysaLisp environment. These tables define the Host
+At boot time, `main.cpp` passes pointers to five "vtables" (arrays of
+function pointers) to the ChrysaLisp environment, in this order: OS, GUI,
+audio, net and GPU. One the host does not have, or did not find as it
+started, is 0. These tables define the Host
 Application Binary Interface (ABI) that ChrysaLisp code uses to interact with
 the host.
 
@@ -306,6 +308,58 @@ docs/diagrams/host_layers.cwb
 
         * `host_audio_remove_sfx`: Frees a loaded sound effect.
 
+4. **`host_gpu_funcs` (GPU Compute):**
+
+    * `src/host/gpu_sdl3.cpp`, in a host whose GUI driver is SDL3, `GUI=sdl3`.
+      Any node of such a host has it, a desktop or not; 0 if SDL3 was not
+      found as the host started. Its Lisp is `lib/gpu/compute.inc`, by one
+      VP function, `sys/gpu/lisp_call`, `(gpu-call op ...)`, which makes the
+      call on the kernel task's stack.
+
+    * The device is made the first time it is wanted, with no window. SDL
+      makes none till its video is up: a desktop has it up, a node with none
+      has it up with no window, Cocoa as an app in the background on a Mac,
+      which Metal wants, and the offscreen driver elsewhere. The GUI driver
+      draws with the same device, `host_gpu_device()`, so a buffer and a
+      texture are of one device, and a node that is to be a desktop starts
+      its GUI before it is given work.
+
+    * Work goes on the device's one queue in the order it is given: a
+      write, a dispatch and a read of what it wrote follow one another with
+      no wait between. A dispatch and a read give a ticket, polled.
+
+    * Functions:
+
+        * `host_gpu_format`: 1 MSL, 2 SPIR-V, 0 no GPU.
+
+        * `host_gpu_buffer_create`, `host_gpu_buffer_destroy`: a buffer of
+          so many bytes a kernel reads and writes.
+
+        * `host_gpu_buffer_write`: bytes into a buffer at an offset, queued.
+
+        * `host_gpu_buffer_read`: bytes of a buffer at an offset, a ticket.
+
+        * `host_gpu_done`: 1 if a ticket's work is over.
+
+        * `host_gpu_take`: a ticket let go of, waited for if not over, and
+          what a read read copied out.
+
+        * `host_gpu_kernel_create`, `host_gpu_kernel_destroy`: a kernel of
+          MSL text or a SPIR-V module, its function `kernel_main`, and its
+          layout, six numbers of 32 bits: how many buffers it reads, how many
+          it reads and writes, 1 if it has a block of uniforms, and its
+          threads x y z. It is built on a thread of its own, as a shader is.
+
+        * `host_gpu_dispatch`: a kernel run over groups of its threads, with
+          its buffers and uniforms. A ticket, 0 while the kernel is still
+          being built, -1 if it did not build. The groups are three numbers
+          of 32 bits by a pointer: a host call takes at most six args.
+
+    * Resources are where SDL has them for compute: MSL `[[buffer]]` is the
+      uniform block first, then the buffers read, then those written;
+      SPIR-V has the buffers read in set 0, those written in set 1, and the
+      uniforms in set 2.
+
 ## Bootstrapping, Emulation, and the Install Process
 
 ChrysaLisp has a clever bootstrapping mechanism that can involve a VP64
@@ -349,8 +403,7 @@ bytecode interpreter.
             * The original `argv` (with the potentially modified boot image
               path).
 
-            * Pointers to `host_os_funcs`, `host_gui_funcs`, and
-              `host_audio_funcs`.
+            * The host's tables, `host_os_funcs` to `host_gpu_funcs`.
 
         * `vp64()` then interprets the VP64 bytecode instructions from the
           boot image. When the bytecode executes a `VP64_CALL_ABI`
@@ -385,8 +438,7 @@ bytecode interpreter.
   host's memory space).
 
 * The `VP64_CALL_ABI` opcode is special: it looks up a function pointer in the
-  `host_os_funcs`, `host_gui_funcs`, or `host_audio_funcs` (the table is
-  likely implied by the specific ABI call number) and calls it, marshalling
+  host's tables, the one the VP code took it from and calls it, marshalling
   arguments from the virtual registers and placing the return value back into
   a virtual register.
 

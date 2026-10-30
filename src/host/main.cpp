@@ -43,6 +43,11 @@ extern bool host_sdl3_load(void);
 
 extern void (*host_net_funcs[]);
 
+//the GPU, of a host whose GUI is on SDL3, see gpu_sdl3.cpp
+#if defined(_HOST_GUI) && _HOST_GUI == 3
+extern void (*host_gpu_funcs[]);
+#endif
+
 //how this host was started, so it can start another like itself
 char **host_argv = nullptr;
 
@@ -90,7 +95,12 @@ void *host_calls[] = {
 #else
 	nullptr,
 #endif
-	(void*)host_net_funcs
+	(void*)host_net_funcs,
+#if defined(_HOST_GUI) && _HOST_GUI == 3
+	(void*)host_gpu_funcs,
+#else
+	nullptr,
+#endif
 };
 
 int main(int argc, char *argv[])
@@ -107,8 +117,8 @@ int main(int argc, char *argv[])
 		}
 
 	#if defined(_HOST_GUI) && (_HOST_GUI == 3 || _HOST_GUI == 4)
-		//no SDL3, no GUI and no audio, this node has neither
-		if (!host_sdl3_load()) host_calls[1] = host_calls[2] = nullptr;
+		//no SDL3, no GUI, no audio and no GPU, this node has none of them
+		if (!host_sdl3_load()) host_calls[1] = host_calls[2] = host_calls[4] = nullptr;
 	#endif
 
 		//check for -e option, or -V, the emulator in validation mode

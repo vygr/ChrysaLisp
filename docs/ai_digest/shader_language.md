@@ -654,7 +654,13 @@ in, the product copied out twice, and one number worked out at a time.
 does of a shader, and `-t cpu` the Lisp.
 
 The GLSL, MSL and SPIR-V back ends have no functions for Lisp yet. That is
-compute on a GPU, and is to come.
+compute on a GPU. The host side of it is here, `lib/gpu/compute.inc` over
+the host's GPU table, see [`docs/ai_digest/host_interface.md`](host_interface.md):
+buffers, kernels of MSL text or a SPIR-V module, a dispatch and a read
+back, on any node of a host on SDL3. The Mandelbrot app flies on it with
+a kernel written by hand, as MSL and as GLSL made SPIR-V. A compute stage
+of this language, a function run once for each of a range, to give both
+from one source and run it on the VP where there is no GPU, is to come.
 
 ## Using It
 
@@ -1237,10 +1243,11 @@ The app is in the Demos list of the launcher, as surface.
   Martyn Blyss, and the surface demo draws on the GPU there.
 * Raylib is the fall back if SDL3 will not do for a host.
 * The GLSL back end does not guard names against the reserved words of GLSL.
-* Compute, and rendering as a service for a node with no GPU, are deferred.
+* Rendering as a service for a node with no GPU is deferred.
 * No host draws triangles with the GLSL pair. They are drawn as native
   code, and on the GPU through Metal and Vulkan.
-* Compute.
+* A compute stage, kernels of this language. The host's GPU table runs
+  kernels written by hand, `lib/gpu/compute.inc`.
 * A texture is read at its nearest pixel. No blend of neighbours, no mip
   levels.
 * The Mesh demo has no textures, and there is no viewer of `.obj` files with
