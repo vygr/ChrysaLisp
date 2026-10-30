@@ -540,6 +540,7 @@ struct VADRMPRIMESurfaceDescriptor
 extern "C"
 {
 	VAStatus vaInitialize(VADisplay dpy, int *major_version, int *minor_version);
+	VAStatus vaTerminate(VADisplay dpy);
 	VAMessageCallback vaSetInfoCallback(VADisplay dpy, VAMessageCallback callback, void *user_context);
 	VAMessageCallback vaSetErrorCallback(VADisplay dpy, VAMessageCallback callback, void *user_context);
 	int vaMaxNumProfiles(VADisplay dpy);
@@ -572,7 +573,7 @@ extern "C"
 }
 
 //the calls of libva, found as it is loaded
-#define VA_CALLS(X) X(vaInitialize) X(vaSetInfoCallback) X(vaSetErrorCallback) \
+#define VA_CALLS(X) X(vaInitialize) X(vaTerminate) X(vaSetInfoCallback) X(vaSetErrorCallback) \
 	X(vaMaxNumProfiles) X(vaQueryConfigProfiles) X(vaMaxNumEntrypoints) X(vaQueryConfigEntrypoints) \
 	X(vaCreateConfig) X(vaDestroyConfig) X(vaCreateSurfaces) X(vaDestroySurfaces) \
 	X(vaCreateContext) X(vaDestroyContext) X(vaCreateBuffer) X(vaDestroyBuffer) \
@@ -614,7 +615,11 @@ static VADisplay va_display()
 		//libva says what it does on stderr, the host's own output
 		if (d) va::vaSetInfoCallback(d, va_quiet, nullptr), va::vaSetErrorCallback(d, va_quiet, nullptr);
 		if (d && va::vaInitialize(d, &major, &minor) == VA_STATUS_SUCCESS) display = d;
-		else close(fd);
+		else
+		{
+			if (d) va::vaTerminate(d);
+			close(fd);
+		}
 	}
 	return display;
 }
@@ -645,8 +650,10 @@ struct Va_Bits
 	uint32_t u(int k) { uint32_t v = 0; while (k--) v = (v << 1) | bit(); return v; }
 	uint32_t ue()
 	{
+		//no field of H.264 needs more than 20 zeros before its 1, so a
+		//stream with more is broken, its bits over: every value fits an int
 		int zeros = 0;
-		while (!bit()) if (++zeros == 32) return 0;
+		while (!bit()) if (++zeros > 20) { at = n * 8 + 1; return 0; }
 		return ((1u << zeros) - 1) + u(zeros);
 	}
 	int32_t se() { uint32_t k = ue(); return (k & 1) ? (int32_t)((k + 1) >> 1) : -(int32_t)(k >> 1); }
@@ -775,17 +782,24 @@ static bool va_sps(const std::vector<uint8_t> &rbsp, Va_Sps *all)
 	if (std::find(high, high + 13, s.profile_idc) != high + 13)
 	{
 		s.chroma_format_idc = b.ue();
+		if (s.chroma_format_idc > 3) return false;
 		if (s.chroma_format_idc == 3) s.separate_colour_plane = b.u(1);
 		s.bit_depth_luma = b.ue() + 8;
 		s.bit_depth_chroma = b.ue() + 8;
 		b.u(1);
 		if ((s.scaling = b.u(1))) va_scaling(b, s.chroma_format_idc != 3 ? 8 : 12, s.lists4, s.lists8, nullptr);
 	}
+	//of the standard, 4 to 16 bits, and an order of type 0, 1 or 2
 	s.log2_max_frame_num = b.ue() + 4;
 	s.poc_type = b.ue();
+	if (s.log2_max_frame_num > 16 || s.poc_type > 2) return false;
 	s.log2_max_poc_lsb = s.delta_pic_order_always_zero = s.offset_for_non_ref_pic = 0;
 	s.offset_for_top_to_bottom_field = s.cycle = 0;
-	if (s.poc_type == 0) s.log2_max_poc_lsb = b.ue() + 4;
+	if (s.poc_type == 0)
+	{
+		s.log2_max_poc_lsb = b.ue() + 4;
+		if (s.log2_max_poc_lsb > 16) return false;
+	}
 	else if (s.poc_type == 1)
 	{
 		s.delta_pic_order_always_zero = b.u(1);
@@ -822,7 +836,9 @@ static bool va_sps(const std::vector<uint8_t> &rbsp, Va_Sps *all)
 		if (b.u(1)) b.u(1);
 		if (b.u(1)) { b.u(3); s.full = b.u(1); }
 	}
-	if (b.over() || s.max_num_ref_frames > 16 || s.width_mbs * 16 <= s.crop_left + s.crop_right
+	//no bigger than 16384 pixels each way, of any level of the standard
+	if (b.over() || s.max_num_ref_frames > 16 || s.width_mbs > 1024 || s.height_mbs > 1024
+		|| s.width_mbs * 16 <= s.crop_left + s.crop_right
 		|| s.height_mbs * 16 <= s.crop_top + s.crop_bottom) return false;
 	s.valid = true;
 	all[id] = s;
@@ -930,6 +946,8 @@ struct Va_Decoder
 	int cur_ref_idc = 0, cur_poc_msb = 0, cur_frame_num_offset = 0;
 	bool cur_idr = false;
 	Va_Slice first;
+	//the SPS the picture was started with, as it was then
+	Va_Sps pic_sps;
 	std::vector<VABufferID> buffers;
 	//the slices of the picture, each its parameters and its data, given
 	//the driver together at its end: Intel's takes more than one no other way
@@ -1098,7 +1116,10 @@ static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, ui
 	uint32_t pitch = desc.layers[0].pitch[0], rows = pitch ? desc.layers[0].offset[1] / pitch : 0;
 	bool ok = desc.fourcc == VA_FOURCC_NV12 && desc.num_objects == 1 && desc.num_layers == 1
 		&& desc.layers[0].num_planes == 2 && desc.layers[0].pitch[1] == pitch && rows >= y + pic.height
-		&& desc.layers[0].offset[0] == 0 && (size_t)pitch * rows * 3 / 2 <= desc.objects[0].size;
+		&& pitch >= x + pic.width && desc.layers[0].offset[0] == 0 && (size_t)pitch * rows * 3 / 2 <= desc.objects[0].size;
+	//Y tiles are read whole, of U and V too, so its rows to a whole tile
+	size_t uv_rows = mod == linear ? rows / 2 : (rows / 2 + 31) & ~31u;
+	ok = ok && desc.layers[0].offset[1] + (size_t)pitch * uv_rows <= desc.objects[0].size;
 #if defined(__x86_64__)
 	//Intel's I915_FORMAT_MOD_Y_TILED
 	ok = ok && (mod == linear || (mod == ((1ull << 56) | 2) && pitch % 128 == 0 && rows % 32 == 0 && __builtin_cpu_supports("sse4.1")));
@@ -1110,8 +1131,8 @@ static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, ui
 	{
 		dma_buf_sync sync = {DMA_BUF_SYNC_START | DMA_BUF_SYNC_READ};
 		ioctl(desc.objects[0].fd, DMA_BUF_IOCTL_SYNC, &sync);
-		pic.data.resize((size_t)pitch * rows * 3 / 2);
-		if (mod == linear) memcpy(pic.data.data(), map, pic.data.size());
+		pic.data.resize((size_t)pitch * (rows + uv_rows));
+		if (mod == linear) memcpy(pic.data.data(), map, (size_t)pitch * rows * 3 / 2);
 #if defined(__x86_64__)
 		else
 		{
@@ -1327,8 +1348,11 @@ static bool va_slice(Va_Decoder *d, const std::vector<uint8_t> &rbsp, int type, 
 	int chroma = sp.separate_colour_plane ? 0 : sp.chroma_format_idc;
 	if ((p.weighted_pred && ps) || (p.weighted_bipred_idc == 1 && bs))
 	{
-		param.luma_log2_weight_denom = b.ue();
-		if (chroma) param.chroma_log2_weight_denom = b.ue();
+		//0 to 7, of the standard, each a shift
+		uint32_t luma = b.ue(), chroma_denom = chroma ? b.ue() : 0;
+		if (luma > 7 || chroma_denom > 7) return false;
+		param.luma_log2_weight_denom = luma;
+		param.chroma_log2_weight_denom = chroma_denom;
 		for (int list = 0; list < (bs ? 2 : 1); list++)
 		{
 			auto lw = list ? param.luma_weight_l1 : param.luma_weight_l0;
@@ -1578,6 +1602,7 @@ static bool va_start(Va_Decoder *d, const Va_Slice &s, bool idr, int ref_idc)
 	profile = d->chosen;
 	int count = std::max(sp.max_num_ref_frames, 1) + 2;
 	if (!va_setup(d, profile, VA_RT_FORMAT_YUV420, sp.width_mbs * 16, sp.height_mbs * 16, count)) return false;
+	d->pic_sps = sp;
 	d->full = sp.full;
 	d->cur_idr = idr;
 	d->cur_ref_idc = ref_idc;
@@ -1751,7 +1776,7 @@ static bool va_finish(Va_Decoder *d, int64_t shown)
 	ok = va::vaEndPicture(dpy, d->context) == VA_STATUS_SUCCESS && ok;
 	d->slices.clear();
 	va_buffers_free(d);
-	const Va_Sps &sp = d->sps[d->pps[d->first.pps_id].sps_id];
+	const Va_Sps &sp = d->pic_sps;
 	if (ok) ok = va_read(d, d->cur.surface, sp.crop_left, sp.crop_top,
 		sp.width_mbs * 16 - sp.crop_left - sp.crop_right, sp.height_mbs * 16 - sp.crop_top - sp.crop_bottom, shown);
 	va_mark(d, sp);
@@ -1773,6 +1798,9 @@ static int64_t va_h264_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 		int type = nal[0] & 31, ref_idc = (nal[0] >> 5) & 3;
 		if (type == 7 || type == 8)
 		{
+			//a parameter set starts a new access unit, so ends the picture
+			//before it, which is not to be read by the new set's size
+			if (d->started) ok &= va_finish(d, shown);
 			va_rbsp(nal, n, d->rbsp);
 			if (type == 7) va_sps(d->rbsp, d->sps);
 			else va_pps(d->rbsp, d->pps, d->sps);
@@ -1792,7 +1820,9 @@ static int64_t va_h264_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 			ok = false;
 			continue;
 		}
-		const Va_Sps &sp = d->sps[d->pps[s.pps_id].sps_id];
+		//a slice of the picture of another SPS is broken
+		if (d->pps[s.pps_id].sps_id != d->pps[d->first.pps_id].sps_id) { ok = false; continue; }
+		const Va_Sps &sp = d->pic_sps;
 		va_lists(d, sp, s, param);
 		param.slice_data_size = n;
 		param.slice_data_offset = 0;
@@ -1920,6 +1950,9 @@ static int64_t va_jpeg_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 				pic.components[i].h_sampling_factor = s[7 + i * 3] >> 4;
 				pic.components[i].v_sampling_factor = s[7 + i * 3] & 15;
 				pic.components[i].quantiser_table_selector = s[8 + i * 3] & 3;
+				//1 to 4 each way, of the standard
+				if (pic.components[i].h_sampling_factor < 1 || pic.components[i].h_sampling_factor > 4
+					|| pic.components[i].v_sampling_factor < 1 || pic.components[i].v_sampling_factor > 4) return -1;
 			}
 			sof = true;
 			break;
@@ -1938,6 +1971,8 @@ static int64_t va_jpeg_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 				slice.components[i].component_selector = s[1 + i * 2];
 				slice.components[i].dc_table_selector = s[2 + i * 2] >> 4;
 				slice.components[i].ac_table_selector = s[2 + i * 2] & 15;
+				//of the two tables of each kind there are
+				if (slice.components[i].dc_table_selector > 1 || slice.components[i].ac_table_selector > 1) return -1;
 			}
 			scan = at + 2 + n;
 			break;
@@ -2016,6 +2051,7 @@ static Va_Decoder *va_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	bool ok = jpeg ? va_has(dpy, VAProfileJPEGBaseline) : false;
 	for (size_t i = 0; i < sets.size(); i++)
 	{
+		if (!sizes[i]) continue;
 		va_rbsp(sets[i], sizes[i], d->rbsp);
 		if ((sets[i][0] & 31) == 7) va_sps(d->rbsp, d->sps);
 		else va_pps(d->rbsp, d->pps, d->sps);
