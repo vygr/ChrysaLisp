@@ -142,7 +142,8 @@
 	;is made by hand, of the blocks of w/lines with one in it never put, and
 	;tries for a second here
 	(defq sg_names (second (storage-manifest "w/lines" sg_svc)))
-	(defq sg_st (list sg_svc (list (first sg_names) (sha256 "never put") (second sg_names)) 4096 12288 0 0 (list) 4 "" 1 (list -1 "") :nil)
+	(defq sg_st (list sg_svc (list sg_svc 0 (list (first sg_names) (sha256 "never put") (second sg_names)) 3 (list) (list) :nil 12288)
+			4096 12288 0 0 (list) 4 1 (list -1 "") :nil)
 		sg_in (lisp-stream `(lambda () (,storage-stream-fill ',sg_st))))
 	(assert-eq "a stream of a lost block reads what is before it" 4096 (length (read-blk sg_in 4096)))
 	(assert-eq "then the end" :nil (read-blk sg_in 4096))
@@ -268,6 +269,36 @@
 	(assert-eq "read as a stream, it is all there" sg_t_big (read-blk sg_t_in (length sg_t_big)))
 	(stream-seek sg_t_in (- (length sg_t_big) 20) 0)
 	(assert-eq "and from near its end" (slice sg_t_big -21 -1) (read-blk sg_t_in 20))
+	;its manifest is had a part at a time as it is read: the top when it is
+	;opened, a block below it when a block it names is wanted
+	(defq sg_t_at (* 64 +store_manifest_names))
+	(stream-seek sg_t_in (- sg_t_at 10) 0)
+	(assert-eq "across the names of one block of the manifest to the next" (slice sg_t_big (- sg_t_at 10) (+ sg_t_at 10))
+		(read-blk sg_t_in 20))
+	(stream-seek sg_t_in 5 0)
+	(assert-eq "and back to the first" (slice sg_t_big 5 15) (read-blk sg_t_in 10))
+	(assert-eq "part of it read, across them too" (slice sg_t_big (- sg_t_at 3) (+ sg_t_at 3))
+		(storage-read "t/big" (- sg_t_at 3) 6 sg_t_svc))
+	(defq sg_t_p (storage-pages (elem-get (storage-stat "t/big" sg_t_svc) +store_entry_hash) 64 sg_t_svc))
+	(assert-list-eq "opened, only its top is had" (list (length sg_t_big) (length (second sg_t_m)) 1 0)
+		(list (elem-get sg_t_p +storage_pages_bytes) (elem-get sg_t_p +storage_pages_count) (elem-get sg_t_p +storage_pages_height)
+			(length (elem-get sg_t_p +storage_pages_nodes))))
+	(assert-list-eq "the names of its blocks, of either block below the top"
+		(map (# (elem-get (second sg_t_m) %0)) '(0 999 1000 1001))
+		(map (# (storage-pages-name sg_t_p %0)) '(0 999 1000 1001)))
+	(assert-list-eq "and the service has them" '(:t :t) (map (# (storage-pages-has? sg_t_p %0)) '(3 1001)))
+	(assert-eq "a block past the end has no name" :nil (storage-pages-name sg_t_p 5000))
+	;a manifest of one block of before the tree, of more names than a
+	;block of a tree has, is read in parts of it the same
+	(defq sg_t_old (storage-ask sg_t_svc +storage_type_block_put (store-manifest-text (length sg_t_big) (second sg_t_m)))
+		sg_t_p (storage-pages sg_t_old 64 sg_t_svc))
+	(assert-list-eq "a manifest of one block of more names, its names had in parts"
+		(map (# (elem-get (second sg_t_m) %0)) '(0 999 1000 1001))
+		(map (# (storage-pages-name sg_t_p %0)) '(0 999 1000 1001)))
+	(assert-eq "a block of the manifest that is not had, the name of it" (sha256 "not put")
+		(progn (setq sg_t_p (storage-pages (storage-ask sg_t_svc +storage_type_block_put
+				(store-tree-text (length sg_t_big) 1 (list (sha256 "not put")))) 64 sg_t_svc))
+			(storage-pages-name sg_t_p 0) (elem-get sg_t_p +storage_pages_lost)))
 	(defq sg_t_out (storage-stream "t/big" +file_open_append sg_t_svc))
 	(write-blk sg_t_out "more")
 	(stream-flush sg_t_out)

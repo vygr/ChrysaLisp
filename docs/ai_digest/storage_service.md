@@ -521,7 +521,10 @@ An object as a stream, for code written for a file. The modes are those of
   `ahead`, are asked for, each of a member that has it, a different one in
   turn, so they come from several machines at once. A seek asks again from
   the new place. A block that does not come in 2 seconds, or is not what its
-  name says, is had from any member that has it.
+  name says, is had from any member that has it. Only the top of its
+  manifest is had when it is opened, the rest a block of 1000 names at a
+  time as the blocks they name are wanted, so an object of any size opens
+  at once, `(storage-pages)`.
 * `+file_open_write`, a new object, of nothing to begin with.
 * `+file_open_append`, on the end of the object that is there, or a new one.
   Its whole blocks are had by their names and not read.

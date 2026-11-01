@@ -398,42 +398,118 @@
 		(if (every (# (if (defq data (storage-block %0 svc)) (push parts data))) (second object))
 			(apply (const cat) parts))))
 
+;the manifest of an object had a part at a time, as it is read: the top
+;when it is opened, and the rest a block of it at a time, when a block of
+;the object it names is wanted. A film of 86 GB has 1.3 million blocks,
+;and to have all their names, and ask which the service has, before the
+;first byte, took 27 seconds. What it keeps: the service, the height of
+;the top, its names, how many blocks the object is, the blocks of the
+;manifest had lately (hash names), the last two chunks of a manifest
+;block's worth of names (chunk names has), the name of a block of the
+;manifest that could not be had, and how long the object is
+(enums +storage_pages 0
+	(enum svc height top count nodes chunks lost bytes))
+
+(defun storage-pages (hash block svc)
+	; (storage-pages hash block_size svc) -> :nil | pages
+	;the manifest of that name, its top had now, :nil if it can not be
+	(when (and (defq data (storage-block hash svc)) (defq top (store-manifest-read data)))
+		(bind '(bytes height names) top)
+		(list svc height names (if (= height 0) (length names) (/ (+ bytes (dec block)) block))
+			(list) (list) :nil bytes)))
+
+(defun storage-pages-node (pages hash height)
+	; (storage-pages-node pages hash height) -> :nil | names
+	;the names of a block of the manifest below the top, kept a while
+	(defq nodes (elem-get pages +storage_pages_nodes))
+	(cond
+		((defq hit (some (# (if (eql (first %0) hash) %0)) nodes)) (second hit))
+		((and (defq data (storage-block hash (elem-get pages +storage_pages_svc)))
+				(defq node (store-manifest-read data)) (= (second node) height))
+			(elem-set pages +storage_pages_nodes (cat (list (list hash (third node))) (slice nodes 0 (min 7 (length nodes)))))
+			(third node))
+		(:t (elem-set pages +storage_pages_lost hash) :nil)))
+
+(defun storage-pages-chunk (pages c)
+	; (storage-pages-chunk pages chunk) -> :nil | (chunk names has)
+	;the names of the blocks of a chunk, +store_manifest_names of them from
+	;chunk times that, and which the service has. A child of a block of the
+	;manifest of height h is over the names of 1000^(h - 1) chunks
+	(bind '(svc height top &ignore) pages)
+	(defq chunks (elem-get pages +storage_pages_chunks))
+	(cond
+		((some (# (if (= (first %0) c) %0)) chunks))
+		((= height 0)
+			;a manifest of one block, of before the tree, may have any number
+			(defq at (min (* c +store_manifest_names) (length top))
+				names (slice top at (min (+ at +store_manifest_names) (length top))))
+			(storage-pages-keep pages (list c names (storage-has svc names))))
+		(:t (defq names top h height span 1 rest c)
+			(times (dec height) (setq span (* span +store_manifest_names)))
+			(while (and names (> h 0))
+				(defq k (/ rest span))
+				(setq names (if (< k (length names)) (storage-pages-node pages (elem-get names k) (dec h)))
+					rest (% rest span) span (/ span +store_manifest_names) h (dec h)))
+			(if names (storage-pages-keep pages (list c names (storage-has svc names)))))))
+
+(defun storage-pages-keep (pages chunk)
+	; (storage-pages-keep pages chunk) -> chunk
+	;the last two kept: the blocks asked for ahead may be of the next
+	(defq was (first (elem-get pages +storage_pages_chunks)))
+	(elem-set pages +storage_pages_chunks (if was (list chunk was) (list chunk)))
+	chunk)
+
+(defun storage-pages-name (pages at)
+	; (storage-pages-name pages at) -> :nil | hash
+	;the name of block at of the object, :nil if its part of the manifest
+	;can not be had, (elem-get pages +storage_pages_lost)
+	(if (defq chunk (storage-pages-chunk pages (/ at +store_manifest_names)))
+		(elem-get (second chunk) (% at +store_manifest_names))))
+
+(defun storage-pages-has? (pages at)
+	; (storage-pages-has? pages at) -> :t | :nil
+	;the service has block at
+	(and (defq chunk (storage-pages-chunk pages (/ at +store_manifest_names)))
+		(eql (elem-get (third chunk) (% at +store_manifest_names)) "1")))
+
 (defun storage-read (name offset len &optional svc)
 	; (storage-read path offset len [svc]) -> :nil | data
-	;part of an object, only the blocks that part is in are asked for
+	;part of an object, only the blocks that part is in, and the blocks of
+	;the manifest that name them, are asked for
 	(setd svc (storage-service))
-	(when (and (defq object (storage-manifest name svc)) (defq info (storage-info svc)))
-		(defq size (. info :find :block_size) end (min (first object) (+ offset len))
+	(when (and (defq entry (storage-stat name svc)) (defq info (storage-info svc))
+			(defq size (. info :find :block_size) pages (storage-pages (elem-get entry +store_entry_hash) size svc)))
+		(defq end (min (elem-get pages +storage_pages_bytes) (+ offset len))
 			offset (clamp offset 0 end) parts (list "") lost :nil at (/ offset size))
 		(while (and (not lost) (< (* at size) end))
-			(if (defq data (storage-block (elem-get (second object) at) svc))
+			(if (and (defq hash (storage-pages-name pages at)) (defq data (storage-block hash svc)))
 				(push parts (slice data (max 0 (- offset (* at size))) (min (length data) (- end (* at size)))))
 				(setq lost :t))
 			(++ at))
 		(unless lost (apply (const cat) parts))))
 
-;a stream of an object. What it keeps as it is read: the service, the
-;names of the blocks, how long a block is, how long the object is, the
-;block that is next, how much of that one is not wanted, the blocks asked
-;for and not yet read, how many are asked for ahead, and which of the
-;blocks the service has, and for how many seconds one that can not be
-;had is asked for again; the last block read, (index data), and where in
-;it the next read is from when a seek went back into it
+;a stream of an object. What it keeps as it is read: the service, its
+;manifest as it is had, (storage-pages), how long a block is, how long the
+;object is, the block that is next, how much of that one is not wanted,
+;the blocks asked for and not yet read, how many are asked for ahead, and
+;for how many seconds one that can not be had is asked for again; the
+;last block read, (index data), and where in it the next read is from
+;when a seek went back into it
 (enums +storage_stream 0
-	(enum svc names block bytes at drop flight ahead has retry kept again))
+	(enum svc pages block bytes at drop flight ahead retry kept again))
 
 (defun storage-stream-ask (st at)
 	; (storage-stream-ask st at) -> mbox
 	;a block is asked for, and not waited for: of the service if it has
 	;it, and if not of a member that keeps it, one after another of them
 	;as the blocks go, so that what is ahead comes from several at once.
-	;Where the answer will be
-	(defq svc (elem-get st +storage_stream_svc) hash (elem-get (elem-get st +storage_stream_names) at)
-		has (elem-get st +storage_stream_has))
-	(unless (and (< at (length has)) (eql (elem-get has at) "1"))
-		(if (nempty? (defq holders (storage-where hash svc)))
-			(setq svc (elem-get holders (% at (length holders))))))
-	(storage-send svc +storage_type_block_get hash))
+	;Where the answer will be, :nil if its part of the manifest can not be had
+	(defq svc (elem-get st +storage_stream_svc) pages (elem-get st +storage_stream_pages))
+	(when (defq hash (storage-pages-name pages at))
+		(unless (storage-pages-has? pages at)
+			(if (nempty? (defq holders (storage-where hash svc)))
+				(setq svc (elem-get holders (% at (length holders))))))
+		(storage-send svc +storage_type_block_get hash)))
 
 ;how long a stream that is read tries for a block it can not get
 (defq +storage_retry 30)
@@ -450,13 +526,16 @@
 (defun storage-stream-next (st)
 	; (storage-stream-next st) -> :nil | data | (:lost hex)
 	;the next block, had of the service, (storage-stream-fill)
-	(bind '(svc names size bytes at drop flight ahead has retry &ignore) st)
-	(defq next (+ at (length flight)))
-	(while (and (< (length flight) ahead) (< next (length names)))
-		(push flight (storage-stream-ask st next))
+	(bind '(svc pages size bytes at drop flight ahead retry &ignore) st)
+	(defq next (+ at (length flight)) count (elem-get pages +storage_pages_count) mbox :nil)
+	(while (and (< (length flight) ahead) (< next count) (setq mbox (storage-stream-ask st next)))
+		(push flight mbox)
 		(++ next))
-	(when (nempty? flight)
-		(defq hash (elem-get names at) data (mail-read-timeout (first flight) (task-timeout 2)))
+	(cond
+		((empty? flight)
+			;the end, or a block of the manifest that could not be had
+			(if (< at count) (list :lost (hex-encode (ifn (elem-get pages +storage_pages_lost) "")))))
+		(:t (defq hash (storage-pages-name pages at) data (mail-read-timeout (first flight) (task-timeout 2)))
 		(elem-set st +storage_stream_flight (rest flight))
 		(unless (and data (eql (sha256 data) hash))
 			(setq data (storage-block-retry hash svc retry)))
@@ -465,7 +544,7 @@
 			(:t (elem-set st +storage_stream_at (inc at))
 				(elem-set st +storage_stream_drop 0)
 				(elem-set st +storage_stream_kept (list at data))
-				(if (> drop 0) (slice data (min drop (length data)) -1) data)))))
+				(if (> drop 0) (slice data (min drop (length data)) -1) data))))))
 
 (defun storage-stream-fill (st)
 	; (storage-stream-fill st) -> :nil | data | (:lost hex)
@@ -477,7 +556,7 @@
 	;that dropped is made again in a few seconds. One that can not be had
 	;is the stream's fault, (:lost hex) with its name, so that a reader can
 	;know it is not the end of the object, (stream-fault)
-	(bind '(svc names size bytes at drop flight ahead has retry kept again) st)
+	(bind '(svc pages size bytes at drop flight ahead retry kept again) st)
 	(cond
 		;a seek back into the block last read: it is read again from there,
 		;nothing asked for
@@ -493,7 +572,7 @@
 	;place is asked for at the next read. That read waits for a block,
 	;Chris: "a seek, pays the cost, but it allways does in any streaming
 	;object"
-	(bind '(svc names size bytes at drop flight ahead has retry kept &ignore) st)
+	(bind '(svc pages size bytes at drop flight ahead retry kept &ignore) st)
 	(defq pos (max 0 (min bytes (cond
 		((= whence 0) offset)
 		((= whence 1) (+ offset (min bytes (+ (* at size) drop))))
@@ -598,11 +677,11 @@
 	(cond
 		((not (and svc (defq info (storage-info svc)))) :nil)
 		((= mode +file_open_read)
-			(when (defq object (storage-manifest name svc))
-				(defq names (second object)
-					st (list svc names (. info :find :block_size) (first object) 0 0 (list) (max 1 ahead)
-						(storage-has svc names) +storage_retry
-						(list -1 "") :nil))
+			;only the top of its manifest now, the rest as it is read
+			(when (and (defq entry (storage-stat name svc))
+					(defq pages (storage-pages (elem-get entry +store_entry_hash) (. info :find :block_size) svc)))
+				(defq st (list svc pages (. info :find :block_size) (elem-get pages +storage_pages_bytes)
+						0 0 (list) (max 1 ahead) +storage_retry (list -1 "") :nil))
 				;the state is in the functions, a function has only what it is given
 				(lisp-stream `(lambda () (,storage-stream-fill ',st))
 					`(lambda (offset whence) (,storage-stream-seek ',st offset whence)))))

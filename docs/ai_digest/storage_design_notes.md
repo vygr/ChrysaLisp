@@ -694,6 +694,17 @@ but it allways does in any streaming object". A block that did not come in
 2 seconds, or is not what its name says, is had from any member that has
 it, as `(storage-block)` does.
 
+Its manifest, 2026-11-01, is had as it is read too. It had all the names
+of the object's blocks, and asked the service which it had, before the
+first byte: 27 s for an 86 GB film. `(storage-pages)` has the top when it
+is opened, and a block of the manifest below it, 1000 names, and which of
+them the service has, when a block it names is wanted. The last two such
+parts are kept, as the blocks asked for ahead may be of the next, and the
+last few blocks of the manifest, so a seek back costs nothing. A manifest
+that is one block, of before the tree, is had 1000 names at a time the
+same. A block of the manifest that can not be had is the stream's fault,
+`(:lost hex)` with its name, as a lost block of the object is.
+
 It is made of a new VP class, `:lstream`, `class/lstream/`, a stream that
 is read from Lisp functions, `(lisp-stream fill [seek write])` in
 `lib/streams/lisp_stream.inc`. That is all the VP there is of it: how far
