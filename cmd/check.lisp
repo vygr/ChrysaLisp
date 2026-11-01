@@ -965,10 +965,10 @@
 				(each (# (found file arg "capture" %0 " in the function given to (" head ") is a name of (" head "), it is that one it has")) taken)))
 			(list forms) 1 -1)))
 
-(defun hash-arity (node)
-	; (hash-arity node) -> :nil | num
-	;of a (# ...), how many it takes, as root.inc's (#) makes it: one a %n
-	;that is in it, %1 alone is one, none of no %n at all; called with
+(defun hash-used (node)
+	; (hash-used node) -> :nil | nums
+	;of a (# ...), the %n in it, as root.inc's (#) makes it: it takes one for
+	;each that is in it, %1 alone is one, none of no %n at all; called with
 	;another number is an error. A (# ) inside it has its own. :nil if not
 	;one, or if a part of it is put in as it is made, ,x or ~x in a macro:
 	;what that part has in it is not here to be seen, and it may be the %n
@@ -989,7 +989,17 @@
 							(not (and (nempty? (defq in (forms-of (third form)))) (eql (first (first in)) :symbol) (eql (third (first in)) "#"))))
 						(push todo (third form)))))
 				nodes))
-		(if known (length used))))
+		(if known used)))
+
+(defun hash-arity (node)
+	; (hash-arity node) -> :nil | num
+	(if (defq used (hash-used node)) (length used)))
+
+(defun check-gap (file node)
+	;(# (f %1)): it takes those it has in the order of their numbers, so %1
+	;with no %0 is what it is given first, whatever is meant by the number
+	(and (defq used (hash-used node)) (some (# (not (find %0 used))) (range 0 (reduce (const max) used 0)))
+		(found file node "args" "a (# ) with a %n missing takes those it has in order, the first it is given is the lowest of them, (lambda (x y) ...)")))
 
 (defun check-args (file forms head)
 	;(map (# (f)) seq): a (# ) takes one a %n in it, none of no %n, and
@@ -1430,6 +1440,7 @@
 							(if (find "capture" checks) (check-capture file forms head))
 							(if (find "held" checks) (check-held file forms head))
 							(if (find "args" checks) (check-args file forms head))
+							(and (find "args" checks) (eql head "#") (check-gap file node))
 							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov))
 							(and (find "struct" checks) (eql head "structure") (check-root-struct file forms)))))
 					nodes))
