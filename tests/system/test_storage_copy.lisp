@@ -116,11 +116,11 @@
 	(defq sc_quiet (mail-mbox) sc_t0 (pii-time) sc_blocks (map (# (sc-bytes 64 %0)) (range 0 8)))
 	(assert-eq "blocks put to a service that says nothing are lost" :lost
 		(storage-puts sc_quiet sc_blocks (map (const sha256) sc_blocks)))
-	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000)))
+	(assert-true "in the time of one wait, not of each" (< (- (pii-time) sc_t0) (task-timeout (* 2 +storage_wait))))
 	(setq sc_t0 (pii-time))
 	(assert-list-eq "blocks got of a service that says nothing are none" (quote (:nil :nil :nil :nil :nil :nil :nil :nil))
 		(storage-gets sc_quiet (map (const sha256) sc_blocks)))
-	(assert-true "in the time of one wait, not asked again for each" (< (- (pii-time) sc_t0) (* 2 +storage_wait 1000000))))
+	(assert-true "in the time of one wait, not asked again for each" (< (- (pii-time) sc_t0) (task-timeout (* 2 +storage_wait)))))
 
 (each (lambda (svc image)
 		(when svc (storage-stop svc))
