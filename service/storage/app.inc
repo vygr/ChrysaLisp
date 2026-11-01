@@ -430,6 +430,13 @@
 			(third node))
 		(:t (elem-set pages +storage_pages_lost hash) :nil)))
 
+(defun storage-pages-keep (pages chunk)
+	; (storage-pages-keep pages chunk) -> chunk
+	;the last two kept: the blocks asked for ahead may be of the next
+	(defq was (first (elem-get pages +storage_pages_chunks)))
+	(elem-set pages +storage_pages_chunks (if was (list chunk was) (list chunk)))
+	chunk)
+
 (defun storage-pages-chunk (pages c)
 	; (storage-pages-chunk pages chunk) -> :nil | (chunk names has)
 	;the names of the blocks of a chunk, +store_manifest_names of them from
@@ -444,20 +451,13 @@
 			(defq at (min (* c +store_manifest_names) (length top))
 				names (slice top at (min (+ at +store_manifest_names) (length top))))
 			(storage-pages-keep pages (list c names (storage-has svc names))))
-		(:t (defq names top h height span 1 rest c)
+		(:t (defq names top h height span 1 left c)
 			(times (dec height) (setq span (* span +store_manifest_names)))
 			(while (and names (> h 0))
-				(defq k (/ rest span))
+				(defq k (/ left span))
 				(setq names (if (< k (length names)) (storage-pages-node pages (elem-get names k) (dec h)))
-					rest (% rest span) span (/ span +store_manifest_names) h (dec h)))
+					left (% left span) span (/ span +store_manifest_names) h (dec h)))
 			(if names (storage-pages-keep pages (list c names (storage-has svc names)))))))
-
-(defun storage-pages-keep (pages chunk)
-	; (storage-pages-keep pages chunk) -> chunk
-	;the last two kept: the blocks asked for ahead may be of the next
-	(defq was (first (elem-get pages +storage_pages_chunks)))
-	(elem-set pages +storage_pages_chunks (if was (list chunk was) (list chunk)))
-	chunk)
 
 (defun storage-pages-name (pages at)
 	; (storage-pages-name pages at) -> :nil | hash
@@ -499,7 +499,7 @@
 	(enum svc pages block bytes at drop flight ahead retry kept again))
 
 (defun storage-stream-ask (st at)
-	; (storage-stream-ask st at) -> mbox
+	; (storage-stream-ask st at) -> :nil | mbox
 	;a block is asked for, and not waited for: of the service if it has
 	;it, and if not of a member that keeps it, one after another of them
 	;as the blocks go, so that what is ahead comes from several at once.
@@ -536,15 +536,15 @@
 			;the end, or a block of the manifest that could not be had
 			(if (< at count) (list :lost (hex-encode (ifn (elem-get pages +storage_pages_lost) "")))))
 		(:t (defq hash (storage-pages-name pages at) data (mail-read-timeout (first flight) (task-timeout 2)))
-		(elem-set st +storage_stream_flight (rest flight))
-		(unless (and data (eql (sha256 data) hash))
-			(setq data (storage-block-retry hash svc retry)))
-		(cond
-			((not data) (list :lost (hex-encode hash)))
-			(:t (elem-set st +storage_stream_at (inc at))
-				(elem-set st +storage_stream_drop 0)
-				(elem-set st +storage_stream_kept (list at data))
-				(if (> drop 0) (slice data (min drop (length data)) -1) data))))))
+			(elem-set st +storage_stream_flight (rest flight))
+			(unless (and data (eql (sha256 data) hash))
+				(setq data (storage-block-retry hash svc retry)))
+			(cond
+				((not data) (list :lost (hex-encode hash)))
+				(:t (elem-set st +storage_stream_at (inc at))
+					(elem-set st +storage_stream_drop 0)
+					(elem-set st +storage_stream_kept (list at data))
+					(if (> drop 0) (slice data (min drop (length data)) -1) data))))))
 
 (defun storage-stream-fill (st)
 	; (storage-stream-fill st) -> :nil | data | (:lost hex)
