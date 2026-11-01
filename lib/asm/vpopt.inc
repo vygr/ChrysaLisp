@@ -18,10 +18,11 @@
 		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-s)
 	+opt_write_ops_signed
 		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s)
-	+opt_read_ops_signed
-		''(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-b emit-cpy-ir-s)
-	+opt_read_ops_unsigned
-		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub emit-cpy-ir-us)
+	;those of a float, with an offset where an int op has it
+	+opt_read_ops_float
+		''(emit-cpy-if emit-cpy-if-i)
+	+opt_write_ops_float
+		''(emit-cpy-fi emit-cpy-fi-i)
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr))
 
@@ -113,17 +114,19 @@
 	;fewer bytes, or another, ends the search: the load extends what is
 	;stored, and before the store there was something else
 	(find-past
-		((and (find (first inst) +opt_write_ops) (eql b (third inst)) (= i (last inst)))
+		((and (or (find (first inst) +opt_write_ops) (find (first inst) +opt_write_ops_float))
+				(eql b (third inst)) (= i (last inst)))
 			(if (and (eql wop (first inst)) (eql wop 'emit-cpy-ri)) (progn (setq c 1) (!)) -1))
 		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((second info))))
 
-(defun find-past-w (_ rop1 rop2 wop b i)
+(defun find-past-w (_ wop b i)
+	;a read of it first, of any width, wants what is stored
 	(find-past
 		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst))) (!))
-		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
+		((and (or (find (first inst) +opt_read_ops) (find (first inst) +opt_read_ops_float))
 			(eql b (second inst)) (nql b (last inst)) (= i (third inst))) -1)
 		((trashes? b inst (defq info (pfind +opt_info_map (first inst)))) -1)
 		((third info))))
@@ -171,8 +174,6 @@
 
 (defun opt-write-after-write ()
 	(if (defq i (find-past-w (!)
-			(elem-get +opt_read_ops_signed c)
-			(elem-get +opt_read_ops_unsigned c)
 			(elem-get +opt_write_ops_signed c)
 			(third inst) (last inst)))
 		(elem-set emit_list i +opt_nop)))

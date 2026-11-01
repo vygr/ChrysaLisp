@@ -85,3 +85,27 @@
 	'(("1:b" :r3 3 1))
 	(second (vr-keep '((emit-cpy-ri :r0 :rsp 0) (emit-cpy-ri :r0 :rsp 8) (emit-cpy-ir :rsp 0 :r1) (emit-cpy-ir :rsp 0 :r2)
 		(emit-cpy-ir :rsp 8 :r1) (emit-cpy-ir :rsp 8 :r2) (emit-cpy-ir :rsp 8 :r1)) :nil '(:r1 :r2 :r3))))
+
+;the VP optimizer, lib/asm/vpopt.inc, over a list of emits: what it knows of
+;memory it must not take for what was last stored there
+(import "lib/asm/ops.inc")
+(import "lib/asm/vpopt.inc")
+(defun vo-opt (&rest emits)
+	(defq emit_list (map (# (cat %0)) emits))
+	(opt-emit-list emit_list 0 (length emit_list))
+	(filter (# (nql (first %0) 'emit-vp-nop)) emit_list))
+(assert-list-eq "a load of what was just stored is that register"
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-rr :r0 :r2))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ir :r1 8 :r2)))
+(assert-list-eq "but not past a float stored there"
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-fi :f0 :r1 8) (emit-cpy-ir :r1 8 :r2))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-fi :f0 :r1 8) '(emit-cpy-ir :r1 8 :r2)))
+(assert-list-eq "a store nothing reads goes"
+	'((emit-cpy-ri :r2 :r1 8))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ri :r2 :r1 8)))
+(assert-list-eq "but not one a float loads"
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-if :r1 8 :f0) (emit-cpy-ri :r2 :r1 8))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-if :r1 8 :f0) '(emit-cpy-ri :r2 :r1 8)))
+(assert-list-eq "or a load of another width does"
+	'((emit-cpy-ri :r0 :r1 8) (emit-cpy-ir-ub :r1 8 :r3) (emit-cpy-ri :r2 :r1 8))
+	(vo-opt '(emit-cpy-ri :r0 :r1 8) '(emit-cpy-ir-ub :r1 8 :r3) '(emit-cpy-ri :r2 :r1 8)))
