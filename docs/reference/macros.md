@@ -86,6 +86,12 @@ a triangle with no area adds nothing to a smooth normal
 (case key [(key|(key ...) body)] ...)
 ```
 
+### comp-turn
+
+```code
+(comp-turn comp figure dt) -> :t | :nil
+```
+
 ### const
 
 ```code

@@ -156,6 +156,20 @@ trashes
 :r1-:r2, :f0-:f15
 ```
 
+### :read_direct -> class/stream/read_direct
+
+```code
+inputs
+:r0 = stream object (ptr)
+:r1 = buffer (pubyte)
+:r2 = buffer length (uint)
+outputs
+:r0 = stream object (ptr)
+:r1 = 0 if not done, else -1 for EOF or bytes done (int)
+trashes
+:r1
+```
+
 ### :read_line -> class/stream/read_line
 
 ```code
@@ -260,6 +274,20 @@ outputs
 :r0 = stream object (ptr)
 trashes
 :r1-:r5, :f0-:f15
+```
+
+### :write_direct -> class/stream/read_direct
+
+```code
+inputs
+:r0 = stream object (ptr)
+:r1 = buffer (pubyte)
+:r2 = buffer length (uint)
+outputs
+:r0 = stream object (ptr)
+:r1 = 0 if not done, else -1 for EOF or bytes done (int)
+trashes
+:r1
 ```
 
 ### :write_next -> class/stream/flush

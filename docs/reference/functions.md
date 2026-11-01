@@ -32,6 +32,23 @@
 each pixel is scale by scale samples, default 1
 ```
 
+### Cues
+
+```code
+(Cues comp ...) -> comp
+
+the components each in turn, the next when the last is over. The cue
+list of the one figure, what it is to do and in what order
+```
+
+### Custom
+
+```code
+(Custom fnc [then]) -> comp
+
+a routine, (fnc figure dt), that says :t to go on
+```
+
 ### FLM-info
 
 ```code
@@ -42,6 +59,15 @@ each pixel is scale by scale samples, default 1
 
 ```code
 (FLM-load stream) -> :nil | canvas
+```
+
+### Follow
+
+```code
+(Follow line secs [ease then wait]) -> comp
+
+x and y go along a path, x y x y, over those seconds by that ease, after
+waiting so many. An ease that goes past the ends stays on the line
 ```
 
 ### JPG-info
@@ -117,6 +143,32 @@ about a point, default the origin
 (Mat3x2-translate tx ty) -> matrix
 ```
 
+### Mat3x4-mul
+
+```code
+(Mat3x4-mul ma mb) -> matrix
+
+the one matrix that does what mb does and then what ma does
+```
+
+### Mat3x4-place
+
+```code
+(Mat3x4-place x y z rx ry rz sx sy px py) -> matrix
+
+where a flat thing is: scaled and turned about its pivot, px py, about
+x then y then z in radians, and its pivot put at x y z
+```
+
+### Morph
+
+```code
+(Morph from to) -> morph
+
+the two outlines made ready, a list of (closed start change) for each
+line. (morph-at) gives the outline at a part of the way
+```
+
 ### PNG-info
 
 ```code
@@ -137,6 +189,16 @@ about a point, default the origin
 the canvas as a PNG of 8 bits of red, green, blue and alpha, the rows
 filtered by none, a stage of a pipeline each as the load is: its rows,
 deflate and the chunks
+```
+
+### Rate
+
+```code
+(Rate key rate [accel secs then]) -> comp
+
+the attribute changes by so much a second, and that by so much a second.
+For ever, or for so many seconds. Its rate can be changed as it goes,
+(def comp 'rate rate)
 ```
 
 ### SVG-info
@@ -174,6 +236,24 @@ bytes before them, so it is quick, and most things that show
 pictures show it
 ```
 
+### Tie
+
+```code
+(Tie other keys [offset scale]) -> comp
+
+each of these attributes is that of another figure, times scale and
+plus offset, as long as the other is there. When it goes this is over
+```
+
+### Tween
+
+```code
+(Tween key to secs [ease then wait]) -> comp
+
+the attribute goes from what it is when this starts to that value, over
+those seconds by that ease, after waiting so many seconds
+```
+
 ### WAV-head
 
 ```code
@@ -196,6 +276,23 @@ the stream is left at the first sample
 (WAV-tail stream rate bytes) -> stream
 
 the length put in the head, once it is known
+```
+
+### Wait
+
+```code
+(Wait secs [then]) -> comp
+
+nothing for so many seconds, then it is over
+```
+
+### Wave
+
+```code
+(Wave key size period [phase secs then]) -> comp
+
+the attribute swings about what it was by size, each swing so many
+seconds. For ever, or for so many seconds and then back where it was
 ```
 
 ### XML-parse
@@ -1267,7 +1364,7 @@ bytes of the file, as many as it has from at
 ### avi-reel
 
 ```code
-(avi-reel stream) -> :nil | reel
+(avi-reel stream [few]) -> :nil | reel
 
 the reel of the first stream of pictures of an AVI, every stream in
 :tracks. Its chunks from the OpenDML index if there is one, else idx1,
@@ -2343,6 +2440,14 @@ protocol of the net has them; (code) has the low first, and reads them,
 of 1 to 8
 ```
 
+### comp-over
+
+```code
+(comp-over comp figure)
+
+what it was told to do when it is over
+```
+
 ### cpu
 
 ```code
@@ -2385,10 +2490,22 @@ does this block hold a return, or a break of the loop it is in ? The
 blocks in it are asked in turn, from a list of those still to ask
 ```
 
+### cpu-fget
+
+```code
+the 32 bit float at i of a buffer, as a real, the double it is
+```
+
 ### cpu-fold
 
 ```code
 run it now if all the args are constants
+```
+
+### cpu-fset
+
+```code
+the nearest 32 bit float to a real at i of a buffer
 ```
 
 ### cpu-funcs
@@ -2397,6 +2514,18 @@ run it now if all the args are constants
 -> the lambda of main, or of the function named
 
 the constants worked out, and each function a lambda
+```
+
+### cpu-iget
+
+```code
+the 32 bit int at i of a buffer
+```
+
+### cpu-iset
+
+```code
+an int at i of a buffer, its low 32 bits
 ```
 
 ### cpu-loop-return?
@@ -3448,6 +3577,86 @@ that is not there
 (each-mergeable lambda seq) -> seq
 ```
 
+### ease-anticipate
+
+```code
+(ease-anticipate u) -> fixed
+
+draws back first, then goes
+```
+
+### ease-back
+
+```code
+(ease-back u) -> fixed
+
+goes past the end and settles back
+```
+
+### ease-bounce
+
+```code
+(ease-bounce u) -> fixed
+
+drops to the end and bounces on it, each bounce smaller
+```
+
+### ease-elastic
+
+```code
+(ease-elastic u) -> fixed
+
+shoots past and rings about the end, dying away
+```
+
+### ease-in
+
+```code
+(ease-in u) -> fixed
+
+slow in, fast out
+```
+
+### ease-in-out
+
+```code
+(ease-in-out u) -> fixed
+
+slow in, slow out
+```
+
+### ease-in3
+
+```code
+(ease-in3 u) -> fixed
+
+slower in, faster out
+```
+
+### ease-linear
+
+```code
+(ease-linear u) -> fixed
+
+the same speed all the way
+```
+
+### ease-out
+
+```code
+(ease-out u) -> fixed
+
+fast in, slow out
+```
+
+### ease-out3
+
+```code
+(ease-out3 u) -> fixed
+
+faster in, slower out
+```
+
 ### ec-add
 
 ```code
@@ -3843,6 +4052,15 @@ the clusters of a file or a directory. A len of :nil is all of the chain
 where a cluster is on the device, the first is cluster 2
 ```
 
+### exfat-cluster-shift
+
+```code
+(exfat-cluster-shift size) -> num
+
+the sectors of a cluster of a volume of that size, as a power of 2:
+4096 byte clusters up to 256MB, 32768 up to 32GB and 131072 over that
+```
+
 ### exfat-data
 
 ```code
@@ -3943,9 +4161,8 @@ it, and those that are next to each other as one write
 a new volume of that many bytes with nothing in it. A path is a new
 file of the host, the image of a disk. A stream is written where it
 is, and must be that long, a memory stream of zeros say.
-cluster_shift is the sectors of a cluster as a power of 2, it is 4096
-byte clusters up to 256MB, 32768 up to 32GB and 131072 over that if
-it is not given.
+cluster_shift is the sectors of a cluster as a power of 2,
+(exfat-cluster-shift) if it is not given.
 ```
 
 ### exfat-free
@@ -4633,7 +4850,7 @@ one of one on both
 ### flac-reel
 
 ```code
-(flac-reel stream) -> :nil | reel
+(flac-reel stream [few]) -> :nil | reel
 
 a file of FLAC as a reel of its frames, each found as it is wanted, of
 STREAMINFO's block size, :rate of them a second. Its :tracks the one of
@@ -4808,7 +5025,7 @@ a packet, its length and its bytes
 ### flm-reel
 
 ```code
-(flm-reel stream) -> :nil | reel
+(flm-reel stream [few]) -> :nil | reel
 
 a film to be read from a stream that can seek: its header, and where
 each packet is and how long, found by their lengths. :nil if it is no
@@ -5016,6 +5233,89 @@ of a program, onto the lines of whoever calls
 a child has said it has gone, :t if msg is that. The job it had is
 
 put back on the queue, not counted as tried, and it is started again
+```
+
+### gpu-buffer
+
+```code
+(gpu-buffer size) -> :nil | buffer
+
+a buffer of size bytes on the GPU
+```
+
+### gpu-buffer-free
+
+```code
+(gpu-buffer-free buffer) -> :nil
+```
+
+### gpu-dispatch
+
+```code
+(gpu-dispatch kernel (buffer ...) uniforms (x y z)) -> :nil | ticket
+
+the kernel run over groups of its threads, the buffers it reads then
+those it writes, uniforms a str of its block or :nil. Waits for the
+kernel to be built, :nil if it did not build
+```
+
+### gpu-format
+
+```code
+(gpu-format) -> 0 | 1 | 2
+
+the language a kernel is given in, 1 MSL, 2 SPIR-V, 0 if no GPU
+```
+
+### gpu-kernel
+
+```code
+(gpu-kernel code (reads writes uniforms tx ty tz)) -> :nil | kernel
+
+a kernel of code, MSL text or a SPIR-V module, of the language
+(gpu-format) says, its function kernel_main. It reads buffers, reads
+and writes buffers, has a block of uniforms if uniforms is 1, and runs
+in groups of tx ty tz threads. It is built on a thread of the host,
+(gpu-dispatch) waits for that
+```
+
+### gpu-kernel-free
+
+```code
+(gpu-kernel-free kernel) -> :nil
+```
+
+### gpu-read
+
+```code
+(gpu-read buffer offset len) -> :nil | str
+
+len bytes of the buffer at offset, once what was given before is done
+```
+
+### gpu-run
+
+```code
+(gpu-run kernel (buffer ...) uniforms (x y z)) -> :t | :nil
+
+(gpu-dispatch) and wait for it to be over
+```
+
+### gpu-wait
+
+```code
+(gpu-wait ticket) -> ticket
+
+once the work of the ticket is over, giving way to other tasks till then
+```
+
+### gpu-write
+
+```code
+(gpu-write buffer offset str) -> :t | :nil
+
+the bytes of data into the buffer at offset, in order after what was
+given before, not waited for
 ```
 
 ### gui-at-rpc
@@ -6125,6 +6425,21 @@ from corner to corner and a ball of faces is round
 (min-length list) -> min
 ```
 
+### mkv-any-codec
+
+```code
+(mkv-any-codec reel [scale]) -> :nil | codec
+
+of a reel read as it is played, (mkv-reel), the codec that finds each
+frame's Cluster as it is wanted, else this file's
+```
+
+### mkv-any-frame
+
+```code
+(mkv-any-frame codec n) -> :nil | canvas
+```
+
 ### mkv-asc
 
 ```code
@@ -6132,6 +6447,15 @@ from corner to corner and a ball of faces is round
 
 an AudioSpecificConfig of AAC-LC of a rate and channels, or if the
 name ends /SBR, of type 5, SBR on a core of half the rate
+```
+
+### mkv-before?
+
+```code
+(mkv-before? a b) -> :nil | :t
+
+is one place of a reel read as it is played before another, each
+(cluster index), a Cluster by where it is in the file
 ```
 
 ### mkv-block
@@ -6163,12 +6487,68 @@ recording, ends where the next element of the top is, and that may be
 the file's end. Its end
 ```
 
+### mkv-cluster-at
+
+```code
+(mkv-cluster-at reel at) -> :nil | (end tracks)
+
+the frames of the Cluster at at, each track's as a reel's tracks have
+them, and where it ends: read the once and kept, the last few, as a
+film is played through them. :nil if there is no Cluster there
+```
+
+### mkv-codec
+
+```code
+(mkv-codec reel [scale]) -> :nil | codec
+
+the host's decoder of the pictures of a reel read as it is played, on
+a canvas of its own, as an mp4's is, lib/media/mp4.inc: :fed is the
+place of the packet it is to be given next, (cluster index)
+```
+
+### mkv-cues
+
+```code
+(mkv-cues str at end number seg) -> ((time at) ...)
+
+the Cues of a track: each key's time, and where in the file the Cluster
+it is in begins, seg the start of the Segment's data, in time order
+```
+
 ### mkv-element
 
 ```code
 (mkv-element str body stop start tracks id)
 
 an element of a Cluster, of a str from start: its time, or a block
+```
+
+### mkv-feed
+
+```code
+packets given the host till the picture shown nth is out: from the key
+
+before it, or on from where it was given to if that is no further back
+than the key and the film goes on. Each is had by its Cluster, read as
+it is come to, (mkv-cluster-at)
+```
+
+### mkv-frame
+
+```code
+(mkv-frame codec n) -> :nil | canvas
+
+the picture shown nth on the canvas, as it is if it is there already
+```
+
+### mkv-frame-time
+
+```code
+(mkv-frame-time reel n) -> seconds
+
+when frame n is shown, of a reel read as it is played, by its number:
+its ms made a fixed, a film of more than 2^31 us is 36 minutes
 ```
 
 ### mkv-head
@@ -6189,14 +6569,50 @@ the frames of a block from at, its lacing: none, Xiph's, fixed, or
 EBML's, each where it begins and how long
 ```
 
+### mkv-locate
+
+```code
+(mkv-locate reel which n) -> :nil | (chain index place)
+
+frame n of track which, as it is shown: the Clusters from the one of
+the key before it to the one it is in, (at end tracks) each, which of
+them it is in, and where it is in that one's frames. From the Cues: its
+time is its number by the length of a frame
+```
+
+### mkv-number
+
+```code
+(mkv-number track shown) -> n
+
+the frame of a track shown at a time, of a film of frames of one length
+```
+
 ### mkv-reel
 
 ```code
-(mkv-reel stream) -> :nil | reel
+(mkv-reel stream [few]) -> :nil | reel
 
 the reel of the first video track of a Matroska file, every track in
 :tracks: its EBML header, then its Segment's Info, Tracks and
-Clusters, the rest stepped over
+Clusters, the rest stepped over. With few, of one that is not read
+as it is played, the first Cluster and no more, enough to show its
+start, the reel :partial.
+
+Every Cluster read is the whole of a big film, and so a film whose
+Cues say where its keys are, and whose frames are each of one length,
+its Duration said, is read as it is played: the first Cluster now, the
+reel :lazy, and a frame's Cluster found by its time when it is wanted,
+(mkv-locate). Of any other every Cluster is read now
+```
+
+### mkv-seeks
+
+```code
+(mkv-seeks str at end) -> ((id at) ...)
+
+the SeekHead: of each element of the top it names, where it is from the
+start of the Segment's data
 ```
 
 ### mkv-track
@@ -6206,6 +6622,15 @@ Clusters, the rest stepped over
 
 a TrackEntry: its number, kind as an mp4's, its codec named as an mp4
 names it, its setup, size or sound
+```
+
+### mkv-track-packet
+
+```code
+(mkv-track-packet reel track n) -> :nil | str
+
+packet n of a track of a reel read as it is played, by its time, as a
+sound is had: :nil if there is none
 ```
 
 ### mkv-vint
@@ -6222,6 +6647,129 @@ its value with it, as an id is. All ones is a size not known, -1
 
 ```code
 (month-of-the-year month) -> str
+```
+
+### morph-align
+
+```code
+(morph-align a b) -> path
+
+b, a closed line of as many points as a, turned to start where it lies
+closest to a, looked for by a few of its points at a few starts
+```
+
+### morph-area
+
+```code
+(morph-area p) -> fixed
+
+the area inside a closed line, by the way it goes round, one way
+round less than 0, the other more
+```
+
+### morph-at
+
+```code
+(morph-at morph u) -> outline
+
+the outline at that part of the way, 0.0 the one, 1.0 the other. It
+can go past either, for an ease that does
+```
+
+### morph-centre
+
+```code
+(morph-centre p) -> (x y)
+
+the mean of its points, near enough the middle of a line
+```
+
+### morph-length
+
+```code
+(morph-length p closed) -> fixed
+
+how long a line is, with the way back to its start if it is closed
+```
+
+### morph-marks
+
+```code
+(morph-marks outline) -> ((closed path x y sign) ...)
+
+each line, its centre as far across and down the box of all of them,
+and which way round it goes, so a hole looks for a hole
+```
+
+### morph-pair
+
+```code
+(morph-pair from to) -> ((mark_a | :nil mark_b | :nil) ...)
+
+the lines of the two paired, the nearest first as a line of the one
+takes its pick of the lines of the other. Those left over have none
+```
+
+### morph-point
+
+```code
+(morph-point mark marks) -> (x y)
+
+where a line with no partner grows from: the centre of the nearest of
+the lines on the other side, or if there are none its own
+```
+
+### morph-point-path
+
+```code
+(morph-point-path (x y) count) -> path
+
+a line of count points, all the one point
+```
+
+### morph-resample
+
+```code
+(morph-resample p closed count) -> path
+
+count points, evenly along the line. A closed line's come back round
+to one step short of the first, an open line's end on its last
+```
+
+### morph-reverse
+
+```code
+(morph-reverse p) -> path
+
+the line going the other way round
+```
+
+### morph-trim
+
+```code
+(morph-trim p closed u) -> path
+
+the first part of a line, as far along it as u says, as an open line.
+A closed line goes on round to its start
+```
+
+### motion-mix
+
+```code
+(motion-mix a b u) -> colour
+
+a part of the way from one 32 bit colour to another, each of its
+channels. A colour of none is that colour but seen through, so the
+fade to or from it does not go by black
+```
+
+### motion-set
+
+```code
+(motion-set figure key val) -> figure
+
+an attribute set, and what is kept of what it was made from let go. A
+colour has no part in the shape but for being there or not
 ```
 
 ### mp3-alias
@@ -6406,7 +6954,7 @@ at an even
 ### mp3-reel
 
 ```code
-(mp3-reel stream) -> :nil | reel
+(mp3-reel stream [few]) -> :nil | reel
 
 a file of MP3 as a reel of its frames, each found as it is wanted, not
 all now: a book of 40 hours is 2GB. They are counted by a first frame
@@ -6645,7 +7193,7 @@ gives them, the frames of a reel of another kind re-framed for the host
 ### mp4-reel
 
 ```code
-(mp4-reel stream) -> :nil | reel
+(mp4-reel stream [few]) -> :nil | reel
 
 the reel of the first video track of a file, every track in :tracks
 ```
@@ -6981,6 +7529,21 @@ them to be seen, so what is started next can spread over them. One
 for each is where a full build is quickest, more only share them out.
 ```
 
+### node-leave
+
+```code
+(node-leave) -> :nil | num
+
+as this node goes, the nodes it started, and those they started, the
+tree of their notes, stopped, and their notes and links cleared away,
+unless a front among them, a desktop or a terminal, is still up: the
+session lives on in that. A desktop the member started that started
+nodes of its own, nodes -a in a terminal on it, takes them with it. :nil
+if nothing went, else how many were told to. Each node of this machine
+is sent the processes that are to go, and goes if it is one; what is
+still up a moment on is ended by the host
+```
+
 ### node-link
 
 ```code
@@ -7067,9 +7630,10 @@ one.
 this node is node 0 of total, start the others, 1 on, linked as pairs
 has them, each a list of two node numbers. A pid of -1 is a node the
 host could not start. The first fronts of them, all if not given, are
-of kind, the host program, :gui or :tui, this node's own if not given,
-and run script. A node with a script is a front of its session, a way
-in to it, a desktop is service/gui/app.lisp. net is a line to head
+of kind, :gui, :gui_hidden or :tui, and run script. Every node is the
+one host program, which has a GUI if its machine has. A node with a
+script is a front of its session, a way in to it, a desktop is
+service/gui/app.lisp. net is a line to head
 the note of them with, so they can be found and stopped as one,
 (node-nets) and (node-stop). sid is a system id for them, in place
 of this machine's, 16 characters, the kernel's -sid option.
@@ -7366,6 +7930,39 @@ names here are long, fn is called with them about it
 
 ```code
 (out-set-state out num) -> out
+```
+
+### outline-box
+
+```code
+(outline-box outline) -> :nil | (x y x1 y1)
+
+the box round all of its lines
+```
+
+### outline-centred
+
+```code
+(outline-centred outline) -> outline
+
+a new one, the middle of its box at 0 0
+```
+
+### outline-svg
+
+```code
+(outline-svg d) -> outline
+
+an outline from the d of an SVG path
+```
+
+### outline-text
+
+```code
+(outline-text text font_name size) -> outline
+
+the letters of some words, the left of them at 0 and the line they sit
+on at their foot. The outlines a font gives are twice its size
 ```
 
 ### pad
@@ -8406,7 +9003,7 @@ frame n, in the order they are shown, on the codec's canvas
 ```code
 (reel-kind ext open packet codec frame [close])
 
-files whose names end ext are reels: (open stream) -> :nil | reel,
+files whose names end ext are reels: (open stream [few]) -> :nil | reel,
 (packet reel n), (codec reel scale), (frame codec n), (close codec). The
 kinds are of the shared root of a GUI's node, gui/canvas/lisp.inc
 imports them, and one of a name already there is replaced: a kind
@@ -8417,10 +9014,12 @@ after it had gone
 ### reel-open
 
 ```code
-(reel-open file [stream]) -> :nil | reel
+(reel-open file [stream few]) -> :nil | reel
 
 the reel of a file, its kind by its name, read from the stream if
-given, as for an object of a store, lib/files/names.inc
+given, as for an object of a store, lib/files/names.inc. With few,
+only as much as shows its start, if its kind can: a preview, or a
+look at what it is. Such a reel is :partial, its :frames those read
 ```
 
 ### reel-packet
@@ -8557,6 +9156,79 @@ restart a child
 the checksum of the FAT file systems: the sum turned right a bit and
 each byte added, bits wide, the bytes at the indices of skip left out.
 exFAT's entries and its boot sectors, FAT32's long names
+```
+
+### rostrum-faded
+
+```code
+(rostrum-faded col alpha) -> col
+
+a colour with its alpha times that
+```
+
+### rostrum-fire
+
+```code
+(rostrum-fire this other what)
+
+what a figure is to do, if it looks out for the other and is not going
+```
+
+### rostrum-mover
+
+```code
+(rostrum-mover rostrum mover) -> paths
+
+the polygons of one the sweep has come to, worked out the first time
+```
+
+### rostrum-pair
+
+```code
+(rostrum-pair a b) -> num
+
+the one number of two figures, which ever way round
+```
+
+### rostrum-paths
+
+```code
+(rostrum-paths m cx cy focus paths) -> paths
+```
+
+### rostrum-picture
+
+```code
+(rostrum-picture m cx cy focus p) -> path
+
+a new path of the points of a path of a figure in the picture, by its
+matrix to space and the camera
+```
+
+### rostrum-place
+
+```code
+(rostrum-place node) -> node
+
+where a figure is, by where its parent is. A parent nothing has worked
+out, one just made, is worked out first, and those above it
+```
+
+### rostrum-place-one
+
+```code
+(rostrum-place-one node world alpha) -> world
+
+by the world and alpha of its parent. Its alpha each time, its world only
+if it or what it is placed by has changed
+```
+
+### rostrum-view
+
+```code
+(rostrum-view view paths) -> paths
+
+the paths moved by the view, which are new ones and can be moved in place
 ```
 
 ### rpad
@@ -9240,7 +9912,22 @@ list as the stack of what is still to do, as (flatten) does it
 the text of each file a file imports, and of what they import, before
 
 its own, onto out, each file once. A file of a library, lib, has only
-functions, consts and globals and no main
+functions, consts and globals and no main. todo is the files that are
+on their way, each importing the next
+```
+
+### sh-gather-open
+
+```code
+(sh-gather-open file lib) -> a file on its way, +sh_gather
+```
+
+### sh-kernel-order
+
+```code
+a kernel's buffers as a GPU binds them, those it reads then those it
+
+writes, each in the order the program has them
 ```
 
 ### sh-literal
@@ -9267,6 +9954,12 @@ result type of a built in op, or :nil if the types are wrong
 for a back end that has not got the vertex stage yet. It has only
 
 pixel shaders with no varyings and no matrix in them
+```
+
+### sh-range-at
+
+```code
+the offset of a kernel's range in the inputs block
 ```
 
 ### sh-real-to-float
@@ -9413,6 +10106,15 @@ do not yet make a block, and how many bytes there have been.
 what a vertex shader reads of each vertex
 ```
 
+### shader-buffers
+
+```code
+(shader-buffers program) -> ((name type access) ...)
+
+the buffers of a kernel, in the order it has them, those it reads and
+then those it writes, as a GPU binds them
+```
+
 ### shader-compile
 
 ```code
@@ -9460,6 +10162,17 @@ native code of (shader-vp-func) is checked by. A float is a real, a
 vector a reals, and a matrix a reals of 16, a row at a time.
 ```
 
+### shader-cpu-kernel
+
+```code
+(shader-cpu-kernel program) -> lambda
+
+(lambda from to buffer ... input ...) -> :nil
+the lambda runs main of a kernel for each i of from to to, not to.
+A buffer is a str, 4 bytes an element, a float a 32 bit float, given
+in the order the kernel has them, then the inputs
+```
+
 ### shader-cpu-tris
 
 ```code
@@ -9488,6 +10201,15 @@ as, in the order the shader has them. A varying that is not set is 0.
 
 ```code
 (shader-dim type) -> :nil | 2 | 3 | 4
+```
+
+### shader-from-text
+
+```code
+(shader-from-text str) -> program
+
+as (shader-load), from the text of a file that imports nothing, one
+read from wherever it is, by @Source say
 ```
 
 ### shader-full
@@ -9541,6 +10263,27 @@ alpha multiplied in, for a target that is blended that way.
 
 An input the two both have, of the one name, is the one uniform, as
 GL links them, and both are given the same precision so that it can.
+```
+
+### shader-gpu-kernel
+
+```code
+(shader-gpu-kernel program) -> :nil | kernel
+
+the kernel for this node's GPU, :nil if it has none. It is built on
+a thread of the host, (shader-gpu-run) waits for that
+```
+
+### shader-gpu-run
+
+```code
+(shader-gpu-run program kernel block from to (buffer ...)) -> :t | :nil
+
+the kernel run for each index from to to, and waited for, the other
+tasks of the node have their turns meanwhile. block is the inputs, as
+(shader-pack) makes them, and bufs a GPU buffer for each buffer, in
+the order the program has them. Nothing is bounds checked, so each
+must be long enough, 4 bytes to an element
 ```
 
 ### shader-gui
@@ -9684,6 +10427,15 @@ mailbox, verts the vertices of the mesh as a str, (shader-verts-str)
 the entry point is fragment_main
 ```
 
+### shader-msl-kernel
+
+```code
+(shader-msl-kernel program) -> str
+
+the entry point is kernel_main, a thread for each index of the range
+of the block, from the first, those past its end do nothing
+```
+
 ### shader-msl-pair
 
 ```code
@@ -9735,6 +10487,14 @@ the pixel shader reads must be one the vertex shader has, of the same
 type. The vertex shader may have more, they are not used.
 ```
 
+### shader-range
+
+```code
+(shader-range program block from to) -> block
+
+the range of a kernel's run, its first index and the one past its last
+```
+
 ### shader-read
 
 ```code
@@ -9763,6 +10523,16 @@ how many numbers a value of the type is
 (shader-spirv program) -> str
 
 the entry point is fragment_main
+```
+
+### shader-spirv-kernel
+
+```code
+(shader-spirv-kernel program) -> str
+
+the entry point is kernel_main, a thread for each index of the range
+of the block, from the first, those past its end do nothing. The
+block is set 2 binding 0
 ```
 
 ### shader-spirv-pair
@@ -9801,7 +10571,7 @@ entry point is vertex_main.
 ### shader-stage
 
 ```code
-(shader-stage program) -> :pixel | :vertex | :func
+(shader-stage program) -> :pixel | :vertex | :func | :kernel
 ```
 
 ### shader-strip
@@ -10012,6 +10782,15 @@ what comes back is one of those, made new. It is assembled the first
 time this CPU meets it, and kept.
 ```
 
+### shader-vp-kernel
+
+```code
+(shader-vp-kernel program) -> (kernel frame_size)
+
+the native function for a kernel, (shader-vp-run) runs it. It is
+assembled the first time this CPU meets it, and kept.
+```
+
 ### shader-vp-pipeline
 
 ```code
@@ -10042,6 +10821,17 @@ after vertex. The result is a reals, for each vertex where it is, 4
 numbers, then its varyings. The vertices can be a str, the bytes of
 such a reals, 8 to a number, as (shader-verts-str) makes, which is
 how they are when they have come in a message.
+```
+
+### shader-vp-run
+
+```code
+(shader-vp-run program native frame from to (str ...)) -> :nil
+
+run a kernel for each index from to to, in a frame (shader-vp-frame)
+made. The bufs are a str for each buffer, in the order the program
+has them, 4 bytes to an element, a 32 bit float or int. Nothing is
+bounds checked, as on a GPU, so each must be long enough
 ```
 
 ### shader-vp-vertex
@@ -10419,8 +11209,14 @@ a piece passed on now: a stream holds what is written till it has some
 (source-ask svc path [wait]) -> :nil | text
 
 a file's text from a @Source, :nil if it has none it will give, or it
-says nothing in the time, +source_wait seconds or wait. A new mailbox
-each time: an answer that comes late is to a mailbox nobody reads
+says nothing in the time, +source_wait seconds or wait, :t as long as
+it takes. A @Source can go: two started at once, one gives way to the
+other and goes when nothing comes to it. So one of this system that
+says nothing for +source_wait is looked for again, (source-service),
+and if that is another, it is asked, to the same mailbox: one that is
+still there is busy, and is not asked again. Another system's is
+asked once. A new mailbox each ask: an answer that comes late is to a
+mailbox nobody reads
 ```
 
 ### source-caching?
@@ -10607,6 +11403,15 @@ a uniform block of these members, -> (var_id ptr_type_id ...) the
 
 pointer types are those of the members. A matrix is a column at a
 time, each 16 bytes on from the last
+```
+
+### spv-buffers
+
+```code
+the buffers of a kernel, each a variable of a block of a run time
+
+array, as SDL's GPU interface wants them, those it reads at set 0 and
+those it writes at set 1, each at the binding that is its number there
 ```
 
 ### spv-const
@@ -10915,6 +11720,37 @@ write of the path, and the members come to it as they hear. Without
 copies, how many it is now, :nil if there is no such object
 ```
 
+### storage-copy-dial
+
+```code
+what a copy did, with the dial of how many keep it, if it was said,
+
+set at the new path as it was at the old
+```
+
+### storage-copy-object
+
+```code
+(storage-copy-object from to src dst [was tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
+
+(tick bytes) -> :nil | :t
+the object the path from is in the store of the service src, set at
+the path to in the store of dst, provided to is now was, as
+(storage-put-stream) has it, with its dial of how many keep it. The
+stores need not be of one mesh, and it passes through no file: only
+the blocks dst has not got are had of src and put, a few at once, so
+an object much of which dst has already is little sent, and a copy
+that was stopped goes on from where it was. Stores of blocks of other
+sizes have it read as a stream and put. tick as for
+(storage-put-stream). :none if there is no object at from
+```
+
+### storage-copy-tick
+
+```code
+a copy read as a stream goes on while no block of it is lost
+```
+
 ### storage-cut
 
 ```code
@@ -10932,6 +11768,16 @@ its tender does not look at them. None, and it can reach all again
 there is no object of that name from now, provided it is from
 ```
 
+### storage-file-copy
+
+```code
+(storage-file-copy from to) -> :nil | :t
+
+a file of the host written over with what is in another. :t only if
+all of it was read and the file is now as long, so a write the host
+did not take, a full disk say, is :nil
+```
+
 ### storage-from
 
 ```code
@@ -10946,6 +11792,34 @@ what a path is said to be now, as it is sent: ? not said, - none
 all of an object. :nil if there is none, or a block of it can not be had
 ```
 
+### storage-get-file
+
+```code
+(storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
+
+(tick bytes) -> :nil | :t
+what a path is, to a file of the host, read as a stream, so of any
+length. :none if there is no such object, :host if the host will not
+make the file, :lost if a block of it could not be had. tick as for
+(storage-put-stream). A file not written whole is taken away. A file
+there already is only written over once all of it has been had, into
+a file of its own next to it, so it is as it was if it is not. That
+file is only taken away once it is copied over whole: if the copy
+fails, :host, it is kept, the one whole copy there is
+```
+
+### storage-gets
+
+```code
+(storage-gets svc hashes) -> (:nil | data ...)
+
+blocks by their names, asked of a service all at once, each checked
+against its name. One it has not got, or that is not what its name
+says, is had of another member that has it, (storage-block), or :nil.
+Once one has said nothing in the time, the rest are only looked at,
+and those not there are :nil: there is no service to say who else has
+```
+
 ### storage-has
 
 ```code
@@ -10956,13 +11830,21 @@ manifest block's worth at a time, so no one ask is big. "0" for those
 it did not answer
 ```
 
+### storage-heard
+
+```code
+what a mailbox has been told: waited for, or if the service has been
+
+quiet already, only what is there now
+```
+
 ### storage-info
 
 ```code
 (storage-info [svc]) -> :nil | emap
 
 what the store is: :id :member :members :block_size :copies :objects
-:blocks :free
+:blocks :free, and :pins, the prefixes this member holds all of
 ```
 
 ### storage-info-read
@@ -11072,6 +11954,57 @@ long a member is not heard from before what it kept is kept by
 others, from now on
 ```
 
+### storage-pages
+
+```code
+(storage-pages hash block_size svc) -> :nil | pages
+
+the manifest of that name, its top had now, :nil if it can not be
+```
+
+### storage-pages-chunk
+
+```code
+(storage-pages-chunk pages chunk) -> :nil | (chunk names has)
+
+the names of the blocks of a chunk, +store_manifest_names of them from
+chunk times that, and which the service has. A child of a block of the
+manifest of height h is over the names of 1000^(h - 1) chunks
+```
+
+### storage-pages-has?
+
+```code
+(storage-pages-has? pages at) -> :t | :nil
+
+the service has block at
+```
+
+### storage-pages-keep
+
+```code
+(storage-pages-keep pages chunk) -> chunk
+
+the last two kept: the blocks asked for ahead may be of the next
+```
+
+### storage-pages-name
+
+```code
+(storage-pages-name pages at) -> :nil | hash
+
+the name of block at of the object, :nil if its part of the manifest
+can not be had, (elem-get pages +storage_pages_lost)
+```
+
+### storage-pages-node
+
+```code
+(storage-pages-node pages hash height) -> :nil | names
+
+the names of a block of the manifest below the top, kept a while
+```
+
 ### storage-pin
 
 ```code
@@ -11110,22 +12043,36 @@ a path is set to an object of this data, as (storage-put-stream)
 ### storage-put-file
 
 ```code
-(storage-put-file path file [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil)
+(storage-put-file path file [from svc tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
 
 a path is set to an object of what is in a file of the host, of any
-length. :none if there is no such file
+length, as (storage-put-stream). :none if there is no such file
 ```
 
 ### storage-put-stream
 
 ```code
-(storage-put-stream path stream [from svc]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil)
+(storage-put-stream path stream [from svc tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:stopped :nil)
 
+(tick bytes) -> :nil | :t
 a path is set to an object of what is read from a stream, to its
 end, provided it is now the object from: its name, "" for none, and
 not given, not to say. :stale with what it is if it is not that. It
 is read a few blocks at a time, so what is put can be of any length,
-and only the blocks the service has not got are sent
+and only the blocks the service has not got are sent, those few at
+once. tick, if given, is told how many bytes more have been read each
+time, and says :nil to stop: :stopped, and the path is as it was
+```
+
+### storage-puts
+
+```code
+(storage-puts svc blocks hashes) -> :ok | :full | :lost
+
+blocks put to a service all at once, not one after the other, and
+then what it said of each looked at. :full if it said it had no room
+for one, :lost if it said nothing of one. Once one has said nothing
+in the time, the rest are not waited for, only looked at
 ```
 
 ### storage-read
@@ -11133,7 +12080,8 @@ and only the blocks the service has not got are sent
 ```code
 (storage-read path offset len [svc]) -> :nil | data
 
-part of an object, only the blocks that part is in are asked for
+part of an object, only the blocks that part is in, and the blocks of
+the manifest that name them, are asked for
 ```
 
 ### storage-record
@@ -11475,12 +12423,12 @@ nothing, as a file would be. :nil if there is no service
 ### storage-stream-ask
 
 ```code
-(storage-stream-ask st at) -> mbox
+(storage-stream-ask st at) -> :nil | mbox
 
 a block is asked for, and not waited for: of the service if it has
 it, and if not of a member that keeps it, one after another of them
 as the blocks go, so that what is ahead comes from several at once.
-Where the answer will be
+Where the answer will be, :nil if its part of the manifest can not be had
 ```
 
 ### storage-stream-fill
@@ -11747,6 +12695,17 @@ another member that has them right
 (store-close store) -> :nil
 
 all that it has is on the device
+```
+
+### store-cluster-shift
+
+```code
+(store-cluster-shift size block_size) -> num
+
+the clusters of a store's volume no bigger than its blocks: a block is
+a file, and takes a cluster at least, so of 64KB blocks on clusters
+of 128KB, those of a volume over 32GB, half of it was never used. No
+smaller than exFAT's own for its size, nor than 4096 bytes
 ```
 
 ### store-commit
@@ -12779,6 +13738,16 @@ the native function of that name if it is there from before, and
 the numbers that were kept with it. Nothing of the program is read
 to find out. The numbers are written last, after the function is
 whole, so if they are there it is
+```
+
+### sv-kernel-source
+
+```code
+-> (text frame_size)
+
+the VP source of the native function for a kernel. Its frame starts
+with the inputs, then where each buffer's elements are, then what
+the loop keeps
 ```
 
 ### sv-ld
@@ -14322,6 +15291,17 @@ a turn not running on from the one before: the other way, or bigger
 (wheel-view view) -> view
 
 what takes a turn over view, the nearest up with a :mouse_wheel, else it
+```
+
+### window-aspect
+
+```code
+(window-aspect x y x1 y1 mode cw ch aw ah min_w min_h) -> (x y x1 y1)
+
+where a window being dragged goes for a view of it to stay aw to ah. cw
+and ch are how much bigger the window is than the view. mode is the drag's,
+the edges held, 1 left, 2 top, 4 right, 8 bottom. A side held says how
+big, the top or the bottom only if no side is, and the far edges stay put
 ```
 
 ### window-attach

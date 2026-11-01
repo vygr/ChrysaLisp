@@ -123,7 +123,11 @@ Usage: check [options] [path] ...
     ignore  a name after &ignore in a (bind) list or a list
             of parameters, or a list in one: &ignore ends
             the list, and the name is never bound. & is the
-            place that takes a thing and binds nothing.
+            place that takes a thing and binds nothing. And a
+            (bind) list that ends in &, (bind '(a b & &) x):
+            what is not wanted to the end is &ignore. & at the
+            end says there are no more, an error if there are;
+            where that is meant, ;check off on the line.
     param   a list of parameters, or a list in one, whose
             first name is a macro of the system, (defun f
             (bits) ...): it is expanded as a call of it.
@@ -140,6 +144,16 @@ Usage: check [options] [path] ...
             one less than 0 is made a large number, the place
             in a table of an AC-3 decoder 15 bits not 0.
             (>>>) shifts it as a signed number.
+    char    (ascii-char 10) of a code, or of a +char_ name:
+            it is a char known as the file is read, and is
+            written as one, "\n", with the escape the reader
+            has for it, \r \f \v \n \t \q \b \\, the
+            char itself, or \x and its code.
+    glyph   a number of the symbol font's, 0xe000 to 0xf8ff,
+            in the buttons of a (ui-title-bar) or (ui-buttons):
+            it is drawn as nothing if the font has no such
+            glyph, the +sym_ name of lib/consts/symbols.inc is
+            the one that is there.
     unbound a call of what is no function or macro of the
             system, nor named by the file or anything it
             imports, at any depth: a program, or a module.
@@ -578,6 +592,9 @@ Usage: forward [options] [path] ...
     list is the stack to use, as (flatten) does.
 
     What is in a comment or a string is not looked at.
+    A test of the very thing has a comment that begins
+    ;check off on its line, or on the line before, and
+    nothing is said of it.
 
     If no paths given on command line
     then will test files from stdin.

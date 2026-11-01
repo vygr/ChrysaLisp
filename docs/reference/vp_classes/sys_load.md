@@ -48,7 +48,7 @@ of the node's own functions, then of each server's
 ```code
 inputs
 :r0 = argv of the host (pptr)
-:r1 = the host's function tables, os gui audio net (pptr)
+:r1 = the host's function tables, os gui audio net gpu (pptr)
 outputs
 :r0 return code
 trashes

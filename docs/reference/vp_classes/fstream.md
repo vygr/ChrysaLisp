@@ -57,6 +57,20 @@ trashes
 :r1-:r5, :f0-:f15
 ```
 
+### :read_direct -> class/fstream/read_direct
+
+```code
+inputs
+:r0 = fstream object (ptr)
+:r1 = buffer (pubyte)
+:r2 = buffer length (uint)
+outputs
+:r0 = fstream object (ptr)
+:r1 = 0 if not done, else -1 for EOF or bytes read (int)
+trashes
+:r1, :r3, :f0-:f15
+```
+
 ### :read_next -> class/fstream/read_next
 
 ```code
@@ -96,6 +110,20 @@ trashes
 ```
 
 ### :vtable -> class/fstream/vtable
+
+### :write_direct -> class/fstream/write_direct
+
+```code
+inputs
+:r0 = fstream object (ptr)
+:r1 = buffer (pubyte)
+:r2 = buffer length (uint)
+outputs
+:r0 = fstream object (ptr)
+:r1 = 0 if not done, else done
+trashes
+:r1-:r3, :f0-:f15
+```
 
 ### :write_next -> class/fstream/write_next
 
