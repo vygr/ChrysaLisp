@@ -15,7 +15,8 @@
             level and not run on, a guest's in the mesh say, the same way.
         -o --only ids: the only machines to touch, the start of the
             system id of each, mesh lists them, with a , between: one's
-            own rig, with machines of others in the mesh.
+            own rig, with machines of others in the mesh. This machine
+            runs the command as well, -l leaves it out.
         -d --delete paths: files to remove on the other machines, with
             a : between.
         -u --user name: the sessions are that user's, a folder of usr/,

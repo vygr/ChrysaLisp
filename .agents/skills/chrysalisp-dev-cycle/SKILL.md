@@ -249,7 +249,8 @@ From the machine the work is on:
 	For a machine the user is sat at.
 
 *	`-o ids` touches only those machines, every other is left alone, not
-	brought level and not run on. Use it whenever the mesh has a machine
+	brought level and not run on. The machine it is run from still runs
+	the command, `-l` leaves that out. Use it whenever the mesh has a machine
 	that is not the user's, Who Takes A Sync above.
 
 *	A file deleted here is not deleted on the others unless named with
@@ -445,7 +446,8 @@ run too far without a good known milestone."
 
 *	After any change under `src/host/`: `make` here, the host built on the
 	other machines too, and `make -f Makefile.mingw`, which builds the
-	Windows host here with mingw. It can be compiled, it can not be run.
+	Windows host here with mingw. Where Wine is installed it can be run
+	there too, `make install` and `tests -a` have been.
 	A new host function is put at the end of the table, the host says how
 	new it is in the fourth word of `(pii-host)`, and the kernel asks
 	before it calls one an older host has not.

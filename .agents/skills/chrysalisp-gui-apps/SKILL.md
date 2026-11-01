@@ -489,11 +489,11 @@ desktop of the agent's own:
 	Pens and fingers too: `finger n down x y`, `finger n to x y`, `finger n
 	up`, `pen down x y [barrel]`, `pen to`, `pen up`, `eraser ...`.
 
-*	**Driving a desktop, what goes wrong.** A Test desktop opens its own
-	Terminal and Eyes a moment after it starts: an app launched at once can
-	end up behind them. Wait for them first, `widgets -w 15 -t Terminal -d
-	0 ; widgets -w 15 -t Eyes -d 0`, then `launch`, so the app is the front
-	window. `-t` finds a window to measure places from, but a click lands
+*	**Driving a desktop, what goes wrong.** A desktop of any user but Test
+	opens its own Terminal and Eyes a moment after it starts: an app launched
+	at once can end up behind them. There, wait for them first, `widgets -w
+	15 -t Terminal -d 0 ; widgets -w 15 -t Eyes -d 0`, then `launch`, so the
+	app is the front window. `-t` finds a window to measure places from, but a click lands
 	on whatever is in front at that point of the screen, as a user's does:
 	with two windows of one title, or one window over another, act only
 	where the one wanted is seen. `-f key=value` finds the first match only.
