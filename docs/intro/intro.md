@@ -67,7 +67,7 @@ sudo apt-get install libsdl2-dev libsdl2-mixer-dev
 ```
 
 4. Optional, **VA-API**, so that Films has a PC's graphics hardware decode
-   H.264 and Motion JPEG. Every Linux host has it, nothing is needed to
+   H.264, H.265 and Motion JPEG. Every Linux host has it, nothing is needed to
    build it, and at run time it is used only if libva and a driver are
    there, so the one host program still starts on a machine without them:
 

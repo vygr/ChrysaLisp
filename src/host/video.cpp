@@ -15,8 +15,8 @@
 // close: the decoder gone.
 //
 // macOS: VideoToolbox, the hardware's decoder, H.264 and H.265 and Motion
-// JPEG, and MPEG-4 Part 2 by its own. Linux: VA-API, a PC's graphics, H.264
-// and Motion JPEG, if the machine has libva and a driver for them, else
+// JPEG, and MPEG-4 Part 2 by its own. Linux: VA-API, a PC's graphics, H.264,
+// H.265 and Motion JPEG, if the machine has libva and a driver for them, else
 // the stateful decoder of V4L2, /dev/video10, H.264 and Motion JPEG, the
 // Raspberry Pi's. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
 // Part 2 and Motion JPEG, not yet tried on Windows itself. Elsewhere none,
@@ -31,6 +31,7 @@
 
 #include "video.h"
 #include <vector>
+#include <memory>
 #include <algorithm>
 
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN64)
@@ -276,12 +277,12 @@ void host_video_close(uint64_t handle)
 #elif defined(__linux__)
 
 // Linux, first: VA-API, the decoder of a PC's graphics, Intel's or AMD's,
-// H.264 and Motion JPEG. It is in every Linux build, no libva-dev needed,
+// H.264, H.265 of 8 bits and 10, and Motion JPEG. It is in every Linux build, no libva-dev needed,
 // and libva is loaded as it is wanted, so the host starts on a machine
 // without it, and it is used only for a profile its driver lists. Its decoding is
 // stateless: the stream's headers are read here, and what each picture is
 // made from is kept and told it, as the standard has it. The pictures come
-// back NV12, or as a JPEG's sampling has them, and are made blue green red
+// back NV12, P010 of 10 bits, or as a JPEG's sampling has them, and are made blue green red
 // alpha as they are asked for. What it can not, and on a Raspberry Pi, goes
 // to the V4L2 decoder below.
 
@@ -292,9 +293,11 @@ void host_video_close(uint64_t handle)
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
+#include <thread>
+#include <math.h>
 
 //what is used of VA-API, as libva 2.x has it, libva.so.2 and libva-drm.so.2:
-//its types and constants, the buffers of H.264 and of baseline JPEG, the
+//its types and constants, the buffers of H.264, H.265 and baseline JPEG, the
 //DRM PRIME descriptor, and the calls, which are found by dlsym. Declared
 //here and not included, so every Linux build has it, with or without
 //libva-dev, and the host still starts where there is no libva
@@ -315,7 +318,9 @@ enum VAProfile
 	VAProfileH264Main = 6,
 	VAProfileH264High = 7,
 	VAProfileJPEGBaseline = 12,
-	VAProfileH264ConstrainedBaseline = 13
+	VAProfileH264ConstrainedBaseline = 13,
+	VAProfileHEVCMain = 17,
+	VAProfileHEVCMain10 = 18
 };
 enum VAEntrypoint { VAEntrypointVLD = 1 };
 enum VAConfigAttribType { VAConfigAttribRTFormat = 0 };
@@ -337,10 +342,16 @@ enum VABufferType
 #define VA_RT_FORMAT_YUV444 0x00000004
 #define VA_RT_FORMAT_YUV411 0x00000008
 #define VA_RT_FORMAT_YUV400 0x00000010
+#define VA_RT_FORMAT_YUV420_10 0x00000100
 #define VA_SLICE_DATA_FLAG_ALL 0x00
 #define VA_PICTURE_H264_INVALID 0x00000001
 #define VA_PICTURE_H264_SHORT_TERM_REFERENCE 0x00000008
 #define VA_PICTURE_H264_LONG_TERM_REFERENCE 0x00000010
+#define VA_PICTURE_HEVC_INVALID 0x00000001
+#define VA_PICTURE_HEVC_LONG_TERM_REFERENCE 0x00000008
+#define VA_PICTURE_HEVC_RPS_ST_CURR_BEFORE 0x00000010
+#define VA_PICTURE_HEVC_RPS_ST_CURR_AFTER 0x00000020
+#define VA_PICTURE_HEVC_RPS_LT_CURR 0x00000040
 #define VA_EXPORT_SURFACE_READ_ONLY 0x0001
 #define VA_EXPORT_SURFACE_COMPOSED_LAYERS 0x0008
 #define VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2 0x40000000
@@ -359,6 +370,7 @@ enum VABufferType
 #define VA_FOURCC_422V 0x56323234
 #define VA_FOURCC_444P 0x50343434
 #define VA_FOURCC_Y800 0x30303859
+#define VA_FOURCC_P010 0x30313050
 
 struct VAConfigAttrib
 {
@@ -471,6 +483,137 @@ struct VASliceParameterBufferH264
 	uint8_t chroma_weight_l1_flag;
 	int16_t chroma_weight_l1[32][2], chroma_offset_l1[32][2];
 	uint32_t va_reserved[4];
+};
+
+struct VAPictureHEVC
+{
+	VASurfaceID picture_id;
+	int32_t pic_order_cnt;
+	uint32_t flags;
+	uint32_t va_reserved[4];
+};
+
+struct VAPictureParameterBufferHEVC
+{
+	VAPictureHEVC CurrPic;
+	VAPictureHEVC ReferenceFrames[15];
+	uint16_t pic_width_in_luma_samples, pic_height_in_luma_samples;
+	union
+	{
+		struct
+		{
+			uint32_t chroma_format_idc : 2;
+			uint32_t separate_colour_plane_flag : 1;
+			uint32_t pcm_enabled_flag : 1;
+			uint32_t scaling_list_enabled_flag : 1;
+			uint32_t transform_skip_enabled_flag : 1;
+			uint32_t amp_enabled_flag : 1;
+			uint32_t strong_intra_smoothing_enabled_flag : 1;
+			uint32_t sign_data_hiding_enabled_flag : 1;
+			uint32_t constrained_intra_pred_flag : 1;
+			uint32_t cu_qp_delta_enabled_flag : 1;
+			uint32_t weighted_pred_flag : 1;
+			uint32_t weighted_bipred_flag : 1;
+			uint32_t transquant_bypass_enabled_flag : 1;
+			uint32_t tiles_enabled_flag : 1;
+			uint32_t entropy_coding_sync_enabled_flag : 1;
+			uint32_t pps_loop_filter_across_slices_enabled_flag : 1;
+			uint32_t loop_filter_across_tiles_enabled_flag : 1;
+			uint32_t pcm_loop_filter_disabled_flag : 1;
+			uint32_t NoPicReorderingFlag : 1;
+			uint32_t NoBiPredFlag : 1;
+			uint32_t ReservedBits : 11;
+		} bits;
+		uint32_t value;
+	} pic_fields;
+	uint8_t sps_max_dec_pic_buffering_minus1, bit_depth_luma_minus8, bit_depth_chroma_minus8;
+	uint8_t pcm_sample_bit_depth_luma_minus1, pcm_sample_bit_depth_chroma_minus1;
+	uint8_t log2_min_luma_coding_block_size_minus3, log2_diff_max_min_luma_coding_block_size;
+	uint8_t log2_min_transform_block_size_minus2, log2_diff_max_min_transform_block_size;
+	uint8_t log2_min_pcm_luma_coding_block_size_minus3, log2_diff_max_min_pcm_luma_coding_block_size;
+	uint8_t max_transform_hierarchy_depth_intra, max_transform_hierarchy_depth_inter;
+	int8_t init_qp_minus26;
+	uint8_t diff_cu_qp_delta_depth;
+	int8_t pps_cb_qp_offset, pps_cr_qp_offset;
+	uint8_t log2_parallel_merge_level_minus2, num_tile_columns_minus1, num_tile_rows_minus1;
+	uint16_t column_width_minus1[19], row_height_minus1[21];
+	union
+	{
+		struct
+		{
+			uint32_t lists_modification_present_flag : 1;
+			uint32_t long_term_ref_pics_present_flag : 1;
+			uint32_t sps_temporal_mvp_enabled_flag : 1;
+			uint32_t cabac_init_present_flag : 1;
+			uint32_t output_flag_present_flag : 1;
+			uint32_t dependent_slice_segments_enabled_flag : 1;
+			uint32_t pps_slice_chroma_qp_offsets_present_flag : 1;
+			uint32_t sample_adaptive_offset_enabled_flag : 1;
+			uint32_t deblocking_filter_override_enabled_flag : 1;
+			uint32_t pps_disable_deblocking_filter_flag : 1;
+			uint32_t slice_segment_header_extension_present_flag : 1;
+			uint32_t RapPicFlag : 1;
+			uint32_t IdrPicFlag : 1;
+			uint32_t IntraPicFlag : 1;
+			uint32_t ReservedBits : 18;
+		} bits;
+		uint32_t value;
+	} slice_parsing_fields;
+	uint8_t log2_max_pic_order_cnt_lsb_minus4, num_short_term_ref_pic_sets, num_long_term_ref_pic_sps;
+	uint8_t num_ref_idx_l0_default_active_minus1, num_ref_idx_l1_default_active_minus1;
+	int8_t pps_beta_offset_div2, pps_tc_offset_div2;
+	uint8_t num_extra_slice_header_bits;
+	uint32_t st_rps_bits;
+	uint32_t va_reserved[8];
+};
+
+struct VAIQMatrixBufferHEVC
+{
+	uint8_t ScalingList4x4[6][16];
+	uint8_t ScalingList8x8[6][64];
+	uint8_t ScalingList16x16[6][64];
+	uint8_t ScalingList32x32[2][64];
+	uint8_t ScalingListDC16x16[6];
+	uint8_t ScalingListDC32x32[2];
+	uint32_t va_reserved[4];
+};
+
+struct VASliceParameterBufferHEVC
+{
+	uint32_t slice_data_size, slice_data_offset, slice_data_flag, slice_data_byte_offset;
+	uint32_t slice_segment_address;
+	uint8_t RefPicList[2][15];
+	union
+	{
+		struct
+		{
+			uint32_t LastSliceOfPic : 1;
+			uint32_t dependent_slice_segment_flag : 1;
+			uint32_t slice_type : 2;
+			uint32_t color_plane_id : 2;
+			uint32_t slice_sao_luma_flag : 1;
+			uint32_t slice_sao_chroma_flag : 1;
+			uint32_t mvd_l1_zero_flag : 1;
+			uint32_t cabac_init_flag : 1;
+			uint32_t slice_temporal_mvp_enabled_flag : 1;
+			uint32_t slice_deblocking_filter_disabled_flag : 1;
+			uint32_t collocated_from_l0_flag : 1;
+			uint32_t slice_loop_filter_across_slices_enabled_flag : 1;
+			uint32_t reserved : 18;
+		} fields;
+		uint32_t value;
+	} LongSliceFlags;
+	uint8_t collocated_ref_idx, num_ref_idx_l0_active_minus1, num_ref_idx_l1_active_minus1;
+	int8_t slice_qp_delta, slice_cb_qp_offset, slice_cr_qp_offset, slice_beta_offset_div2, slice_tc_offset_div2;
+	uint8_t luma_log2_weight_denom;
+	int8_t delta_chroma_log2_weight_denom;
+	int8_t delta_luma_weight_l0[15], luma_offset_l0[15];
+	int8_t delta_chroma_weight_l0[15][2], ChromaOffsetL0[15][2];
+	int8_t delta_luma_weight_l1[15], luma_offset_l1[15];
+	int8_t delta_chroma_weight_l1[15][2], ChromaOffsetL1[15][2];
+	uint8_t five_minus_max_num_merge_cand;
+	uint16_t num_entry_point_offsets, entry_offset_to_subset_array, slice_data_num_emu_prevn_bytes;
+	uint32_t va_reserved[2];
 };
 
 struct VARectangle
@@ -652,7 +795,7 @@ struct Va_Bits
 	uint32_t u(int k) { uint32_t v = 0; while (k--) v = (v << 1) | bit(); return v; }
 	uint32_t ue()
 	{
-		//no field of H.264 needs more than 20 zeros before its 1, so a
+		//no field of H.264 or H.265 needs more than 20 zeros before its 1, so a
 		//stream with more is broken, its bits over: every value fits an int
 		int zeros = 0;
 		while (!bit()) if (++zeros > 20) { at = n * 8 + 1; return 0; }
@@ -702,6 +845,16 @@ static const uint8_t va_default8[2][64] = {
 	24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 27, 27, 27, 27, 27,
 	27, 28, 28, 28, 28, 28, 30, 30, 30, 30, 32, 32, 32, 33, 33, 35}};
 
+static int va_matrix(int coefficients, uint32_t height)
+{
+	//the colours of a stream's VUI: BT.709 1, BT.601 5 and 6, BT.2020 9 and
+	//10; not said, by its size, HD's 709
+	if (coefficients == 1) return 1;
+	if (coefficients == 5 || coefficients == 6) return 0;
+	if (coefficients == 9 || coefficients == 10) return 2;
+	return height >= 720 ? 1 : 0;
+}
+
 struct Va_Sps
 {
 	bool valid = false;
@@ -715,6 +868,7 @@ struct Va_Sps
 	int max_num_ref_frames, gaps, width_mbs, height_mbs, frame_mbs_only, mb_adaptive, direct_8x8;
 	int crop_left, crop_right, crop_top, crop_bottom;
 	bool full;
+	int matrix;
 };
 
 struct Va_Pps
@@ -830,18 +984,26 @@ static bool va_sps(const std::vector<uint8_t> &rbsp, Va_Sps *all)
 		s.crop_top = b.ue() * cy;
 		s.crop_bottom = b.ue() * cy;
 	}
-	//of the VUI only the range, video's 16 to 235 unless it says all
+	//of the VUI only the range and the colours, video's 16 to 235 unless
+	//it says all
 	s.full = false;
+	int coefficients = 2;
 	if (b.u(1))
 	{
 		if (b.u(1) && b.u(8) == 255) b.u(32);
 		if (b.u(1)) b.u(1);
-		if (b.u(1)) { b.u(3); s.full = b.u(1); }
+		if (b.u(1))
+		{
+			b.u(3);
+			s.full = b.u(1);
+			if (b.u(1)) { b.u(8); b.u(8); coefficients = b.u(8); }
+		}
 	}
 	//no bigger than 16384 pixels each way, of any level of the standard
 	if (b.over() || s.max_num_ref_frames > 16 || s.width_mbs > 1024 || s.height_mbs > 1024
 		|| s.width_mbs * 16 <= s.crop_left + s.crop_right
 		|| s.height_mbs * 16 <= s.crop_top + s.crop_bottom) return false;
+	s.matrix = va_matrix(coefficients, s.height_mbs * 16 - s.crop_top - s.crop_bottom);
 	s.valid = true;
 	all[id] = s;
 	return true;
@@ -900,9 +1062,10 @@ struct Va_Held
 	int64_t shown;
 	uint32_t width, height, sx, sy;
 	//where Y U and V start in the data, how far apart their rows are, and
-	//of U and V their samples, 2 of NV12, which has them side by side
+	//of U and V their samples, 2 of NV12, which has them side by side, and
+	//the bytes of each sample, 2 of P010, its 10 bits high
 	size_t y_at, u_at, v_at;
-	uint32_t y_pitch, c_pitch, step;
+	uint32_t y_pitch, c_pitch, step, bytes = 1;
 	std::vector<uint8_t> data;
 };
 
@@ -924,10 +1087,95 @@ struct Va_Slice
 	size_t header_bits;
 };
 
+//of H.265, a set of the pictures a picture keeps, by how far each is
+//before it in the order shown, then after it, and if it is made from it
+struct Va_Rps
+{
+	int negative = 0, positive = 0;
+	int delta[32];
+	bool used[32];
+};
+
+//the scaling lists of H.265, of 4x4 8x8 16x16 and 32x32, each of 6 kinds,
+//in the order the stream has them, and of 16x16 and 32x32 their DC
+struct Va_Hlists
+{
+	uint8_t lists[4][6][64], dc[4][6];
+};
+
+struct Va_Hsps
+{
+	bool valid = false;
+	int width, height, crop_left, crop_right, crop_top, crop_bottom;
+	int chroma_format_idc, bit_depth_luma, bit_depth_chroma, log2_max_poc_lsb, max_dec_pic_buffering, num_reorder;
+	int log2_min_cb, log2_diff_cb, log2_min_tb, log2_diff_tb, depth_inter, depth_intra;
+	int scaling, amp, sao, pcm, pcm_depth_luma, pcm_depth_chroma, log2_min_pcm, log2_diff_pcm, pcm_loop_filter_disabled;
+	int long_term_present, num_lt, temporal_mvp, strong_intra;
+	int lt_poc_lsb[32];
+	bool lt_used[32];
+	int num_rps;
+	Va_Rps rps[64];
+	Va_Hlists lists;
+	bool full;
+	int matrix, primaries, transfer;
+};
+
+struct Va_Hpps
+{
+	bool valid = false;
+	int sps_id, dependent_slices, output_flag_present, extra_bits, sign_hiding, cabac_init_present;
+	int num_ref_idx_default[2], init_qp, constrained_intra, transform_skip, cu_qp_delta, diff_cu_qp_delta_depth;
+	int cb_qp_offset, cr_qp_offset, slice_chroma_qp_offsets, weighted_pred, weighted_bipred, transquant_bypass;
+	int tiles, entropy_sync, columns, rows, uniform, loop_filter_across_tiles, loop_filter_across_slices;
+	int column_width[20], row_height[22];
+	int deblocking_override, deblocking_disabled, beta, tc, lists_modification, log2_parallel_merge_level, header_extension;
+	bool scaling;
+	Va_Hlists lists;
+};
+
+struct Va_Hslice
+{
+	int first, dependent, pps_id, address, type, output, poc_lsb;
+	//its short term set, and the bits it takes if it is the slice's own
+	Va_Rps rps;
+	int rps_bits;
+	//of each long term picture, the low bits of its order or all of
+	//them, by its high bits, if it is made from it
+	int num_lt;
+	int lt_lsb[32], lt_cycle[32];
+	bool lt_used[32], lt_msb[32];
+	int temporal_mvp, sao_luma, sao_chroma, num_ref_idx[2], mods[2], entries[2][16];
+	int mvd_l1_zero, cabac_init, collocated_from_l0, collocated_ref_idx, five_minus_max_merge;
+	int qp_delta, cb_qp_offset, cr_qp_offset, deblocking_disabled, beta, tc, loop_filter_across_slices;
+	size_t header_bytes;
+};
+
+//of a picture of 10 bits of BT.2020's primaries, PQ or HLG of HDR or of
+//SDR: its R'G'B' made light as it is to be shown, to the SDR display's
+//white at most, BT.2390's tone map from the brightest of the film to
+//it, then of BT.709's primaries, and the display's 8 bits. By tables,
+//each of 1D: Y'CbCr to R'G'B' of 12 bits, 16.16, its light of 14 bits
+//by each, the primaries by a matrix of 14 bits, and 8 bits of the light.
+//Of 32 bits each, as AVX2 gathers them
+struct Va_Tone
+{
+	int transfer = -1, peak = -1, full = -1;
+	int32_t oy, ky, kr, kgu, kgv, kb;
+	int32_t gamut[9];
+	int32_t light[4096];
+	int32_t out[16384];
+};
+
 struct Va_Decoder
 {
 	bool jpeg = false;
 	bool full = false;
+	//the colours of its pictures, BT.601 0, BT.709 1, BT.2020 2, and of
+	//H.265 their primaries and transfer as the VUI has them, 16 PQ, 18
+	//HLG, and the light of the brightest, of its SEI, and what a picture
+	//of BT.2020 is made 8 bits by
+	int matrix = 0, primaries = 2, transfer = 2, peak = 0;
+	std::unique_ptr<Va_Tone> tone;
 	int nal_length = 4;
 	VAProfile profile = VAProfileNone, asked = VAProfileNone, chosen = VAProfileNone;
 	VAConfigID config = VA_INVALID_ID;
@@ -935,6 +1183,9 @@ struct Va_Decoder
 	std::vector<VASurfaceID> surfaces;
 	uint32_t format = 0, coded_w = 0, coded_h = 0;
 	std::vector<Va_Held> held;
+	//the memory of pictures gone, for those to come: a new one of 4K is
+	//as long to be given as to fill
+	std::vector<std::vector<uint8_t>> spare;
 	std::vector<uint8_t> rbsp;
 	//of H.264, the parameter sets, the pictures kept, and what the next
 	//picture's order and numbers follow on from
@@ -954,6 +1205,20 @@ struct Va_Decoder
 	//the slices of the picture, each its parameters and its data, given
 	//the driver together at its end: Intel's takes more than one no other way
 	std::vector<VABufferID> slices;
+	//of H.265, its parameter sets; of the picture being decoded, its
+	//order and what of those kept it is made from, by their index, and the
+	//slice before, the last of the picture once it is ended; and what the
+	//next picture's order follows on from
+	bool hevc = false;
+	std::vector<Va_Hsps> hsps;
+	std::vector<Va_Hpps> hpps;
+	bool hfirst = true, no_rasl = true, hskip = false, hout = true, hpending = false;
+	int prev_tid0_poc = 0, cur_poc = 0, hpic_pps = 0;
+	int hbefore[16], hafter[16], hlt[16], nbefore = 0, nafter = 0, nlt = 0;
+	Va_Hsps hpic_sps;
+	Va_Hslice hlast;
+	VASliceParameterBufferHEVC hlast_param, hpend_param;
+	VABufferID hpend_data = VA_INVALID_ID;
 };
 
 static void va_release(Va_Decoder *d)
@@ -1021,12 +1286,46 @@ static void va_buffers_free(Va_Decoder *d)
 	d->buffers.clear();
 }
 
+template <typename F> static void va_rows(uint32_t rows, uint32_t align, F f)
+{
+	//rows of a picture of 4K and the like each a part of the CPU's threads,
+	//as many as it has to 4, each from a whole number of align
+	uint32_t n = std::min(4u, std::max(1u, std::thread::hardware_concurrency()));
+	if (rows < 1024 || n < 2)
+	{
+		f(0, rows);
+		return;
+	}
+	std::vector<std::thread> threads;
+	auto at = [&](uint32_t i) { return std::min(rows, (rows * i / n + align - 1) / align * align); };
+	for (uint32_t i = 1; i < n; i++) threads.emplace_back(f, at(i), at(i + 1));
+	f(0, at(1));
+	for (auto &t : threads) t.join();
+}
+
 static bool va_planes(Va_Held &pic, const VAImage &image, const uint8_t *at, uint32_t x, uint32_t y)
 {
 	//of an image of the driver's, the planes as they are, each a row at a
 	//time, its memory read as it must be, uncached, once
 	int u_plane = 1, v_plane = 2, u_at = 0, v_at = 0;
 	pic.step = 1;
+	if (image.format.fourcc == VA_FOURCC_P010)
+	{
+		//of 2 bytes a sample, U and V side by side
+		uint32_t cw = (pic.width + 1) / 2, ch = (pic.height + 1) / 2;
+		pic.sx = pic.sy = 1;
+		pic.step = pic.bytes = 2;
+		pic.y_pitch = pic.width * 2;
+		pic.c_pitch = cw * 4;
+		pic.u_at = (size_t)pic.y_pitch * pic.height;
+		pic.v_at = pic.u_at + 2;
+		pic.data.resize(pic.u_at + (size_t)pic.c_pitch * ch);
+		for (uint32_t r = 0; r < pic.height; r++)
+			memcpy(&pic.data[(size_t)r * pic.y_pitch], at + image.offsets[0] + (size_t)(y + r) * image.pitches[0] + (size_t)x * 2, pic.y_pitch);
+		for (uint32_t r = 0; r < ch; r++)
+			memcpy(&pic.data[pic.u_at + (size_t)r * pic.c_pitch], at + image.offsets[1] + (size_t)(y / 2 + r) * image.pitches[1] + (size_t)(x / 2) * 4, pic.c_pitch);
+		return true;
+	}
 	switch (image.format.fourcc)
 	{
 	case VA_FOURCC_NV12: pic.sx = 1; pic.sy = 1; v_plane = 1; pic.step = 2; v_at = 1; break;
@@ -1105,7 +1404,7 @@ __attribute__((target("sse4.1"))) static void va_untile(const uint8_t *from, uin
 
 static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, uint32_t y)
 {
-	//an NV12 surface as the driver gave it to the GPU, its memory mapped,
+	//an NV12 or P010 surface as the driver gave it to the GPU, its memory mapped,
 	//linear or of Y tiles: Intel's, faster than an image of it, which is
 	//read uncached. Anything else, compressed, AMD's tiles, is not
 	static auto exporter = (decltype(&vaExportSurfaceHandle))dlsym(dlopen("libva.so.2", RTLD_NOW | RTLD_NOLOAD), "vaExportSurfaceHandle");
@@ -1116,9 +1415,10 @@ static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, ui
 	const uint64_t linear = 0;
 	uint64_t mod = desc.objects[0].drm_format_modifier;
 	uint32_t pitch = desc.layers[0].pitch[0], rows = pitch ? desc.layers[0].offset[1] / pitch : 0;
-	bool ok = desc.fourcc == VA_FOURCC_NV12 && desc.num_objects == 1 && desc.num_layers == 1
+	uint32_t bytes = desc.fourcc == VA_FOURCC_P010 ? 2 : 1;
+	bool ok = (desc.fourcc == VA_FOURCC_NV12 || bytes == 2) && desc.num_objects == 1 && desc.num_layers == 1
 		&& desc.layers[0].num_planes == 2 && desc.layers[0].pitch[1] == pitch && rows >= y + pic.height
-		&& pitch >= x + pic.width && desc.layers[0].offset[0] == 0 && (size_t)pitch * rows * 3 / 2 <= desc.objects[0].size;
+		&& pitch >= (x + pic.width) * bytes && desc.layers[0].offset[0] == 0 && (size_t)pitch * rows * 3 / 2 <= desc.objects[0].size;
 	//Y tiles are read whole, of U and V too, so its rows to a whole tile
 	size_t uv_rows = mod == linear ? rows / 2 : (rows / 2 + 31) & ~31u;
 	ok = ok && desc.layers[0].offset[1] + (size_t)pitch * uv_rows <= desc.objects[0].size;
@@ -1138,8 +1438,18 @@ static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, ui
 #if defined(__x86_64__)
 		else
 		{
-			va_untile((const uint8_t*)map, pic.data.data(), pitch, rows);
-			va_untile((const uint8_t*)map + desc.layers[0].offset[1], pic.data.data() + (size_t)pitch * rows, pitch, rows / 2);
+			//Y's tiles and U and V's, by rows of tiles from each thread
+			auto from = (const uint8_t*)map;
+			uint8_t *to = pic.data.data();
+			uint32_t uv_at = desc.layers[0].offset[1];
+			va_rows(rows + rows / 2, 32, [=](uint32_t r0, uint32_t r1) {
+				if (r0 < rows) va_untile(from + (size_t)r0 * pitch, to + (size_t)r0 * pitch, pitch, std::min(r1, rows) - r0);
+				if (r1 > rows)
+				{
+					uint32_t c0 = std::max(r0, rows) - rows, c1 = r1 - rows;
+					va_untile(from + uv_at + (size_t)c0 * pitch, to + (size_t)(rows + c0) * pitch, pitch, c1 - c0);
+				}
+			});
 		}
 #endif
 		sync.flags = DMA_BUF_SYNC_END | DMA_BUF_SYNC_READ;
@@ -1148,10 +1458,11 @@ static bool va_export(Va_Decoder *, VASurfaceID id, Va_Held &pic, uint32_t x, ui
 		//the picture where it is in the surface, a frame cropped
 		pic.sx = pic.sy = 1;
 		pic.step = 2;
+		pic.bytes = bytes;
 		pic.y_pitch = pic.c_pitch = pitch;
-		pic.y_at = (size_t)y * pitch + x;
-		pic.u_at = (size_t)pitch * rows + (size_t)(y / 2) * pitch + (x & ~1u);
-		pic.v_at = pic.u_at + 1;
+		pic.y_at = (size_t)y * pitch + (size_t)x * bytes;
+		pic.u_at = (size_t)pitch * rows + (size_t)(y / 2) * pitch + (size_t)(x & ~1u) * bytes;
+		pic.v_at = pic.u_at + bytes;
 	}
 	else ok = false;
 	for (uint32_t i = 0; i < desc.num_objects; i++) close(desc.objects[i].fd);
@@ -1167,6 +1478,11 @@ static bool va_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t
 	VASurfaceID id = d->surfaces[surface];
 	if (va::vaSyncSurface(dpy, id) != VA_STATUS_SUCCESS) return false;
 	Va_Held pic;
+	if (!d->spare.empty())
+	{
+		pic.data.swap(d->spare.back());
+		d->spare.pop_back();
+	}
 	pic.shown = shown;
 	pic.width = w;
 	pic.height = h;
@@ -1198,9 +1514,10 @@ static bool va_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t
 	return ok;
 }
 
-//BT.601, limited, or of JPEG and of a stream that says so full, as the
-//V4L2 decoder has it: the numbers of Y, of red of V, green of U and V, and
-//blue of U, and what is taken from Y
+//the colours of BT.601, BT.709 and BT.2020, limited, or of JPEG and of a
+//stream that says so full, BT.601's as the V4L2 decoder has it: the
+//numbers of Y, of red of V, green of U and V, and blue of U, and what is
+//taken from Y
 struct Va_Matrix
 {
 	int ky, oy, kr, kgu, kgv, kb;
@@ -1220,11 +1537,13 @@ static inline uint32_t va_pixel(const Va_Matrix &m, int yy, int u, int v)
 
 #if defined(__x86_64__)
 #include <emmintrin.h>
-static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu, const uint8_t *pv, uint32_t step, uint32_t *out, uint32_t n)
+static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu, const uint8_t *pv, uint32_t step,
+	uint32_t bytes, uint32_t *out, uint32_t n)
 {
 	//8 pixels at a time, two to a U and V, by SSE2, which every x86_64 has:
 	//each sum of two products at 32 bits, as the scalar does, and made 8
-	//bits with saturation, its clamp. The pixels done
+	//bits with saturation, its clamp. Of P010 the top 8 bits of each. The
+	//pixels done
 	const __m128i zero = _mm_setzero_si128(), c128 = _mm_set1_epi16(128), oy = _mm_set1_epi16(m.oy);
 	const __m128i kr = _mm_set_epi16(m.kr, m.ky, m.kr, m.ky, m.kr, m.ky, m.kr, m.ky);
 	const __m128i kgu = _mm_set_epi16(-m.kgu, m.ky, -m.kgu, m.ky, -m.kgu, m.ky, -m.kgu, m.ky);
@@ -1234,18 +1553,27 @@ static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu,
 	uint32_t x = 0;
 	for (; x + 8 <= n; x += 8)
 	{
-		__m128i y16 = _mm_sub_epi16(_mm_unpacklo_epi8(_mm_loadl_epi64((const __m128i*)(py + x)), zero), oy);
-		//U and V of 4 pairs, as U V U V
-		__m128i uv8;
-		if (step == 2) uv8 = _mm_loadl_epi64((const __m128i*)(pu + x));
+		//Y, and U and V of 4 pairs, as U V U V
+		__m128i y16, uv;
+		if (bytes == 2)
+		{
+			y16 = _mm_sub_epi16(_mm_srli_epi16(_mm_loadu_si128((const __m128i*)(py + x * 2)), 8), oy);
+			uv = _mm_sub_epi16(_mm_srli_epi16(_mm_loadu_si128((const __m128i*)(pu + x * 2)), 8), c128);
+		}
 		else
 		{
-			int32_t u4, v4;
-			memcpy(&u4, pu + x / 2, 4);
-			memcpy(&v4, pv + x / 2, 4);
-			uv8 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(u4), _mm_cvtsi32_si128(v4));
+			y16 = _mm_sub_epi16(_mm_unpacklo_epi8(_mm_loadl_epi64((const __m128i*)(py + x)), zero), oy);
+			__m128i uv8;
+			if (step == 2) uv8 = _mm_loadl_epi64((const __m128i*)(pu + x));
+			else
+			{
+				int32_t u4, v4;
+				memcpy(&u4, pu + x / 2, 4);
+				memcpy(&v4, pv + x / 2, 4);
+				uv8 = _mm_unpacklo_epi8(_mm_cvtsi32_si128(u4), _mm_cvtsi32_si128(v4));
+			}
+			uv = _mm_sub_epi16(_mm_unpacklo_epi8(uv8, zero), c128);
 		}
-		__m128i uv = _mm_sub_epi16(_mm_unpacklo_epi8(uv8, zero), c128);
 		__m128i u = _mm_shufflehi_epi16(_mm_shufflelo_epi16(uv, 0xa0), 0xa0);
 		__m128i v = _mm_shufflehi_epi16(_mm_shufflelo_epi16(uv, 0xf5), 0xf5);
 		__m128i yv_lo = _mm_unpacklo_epi16(y16, v), yv_hi = _mm_unpackhi_epi16(y16, v);
@@ -1269,24 +1597,213 @@ static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu,
 }
 #endif
 
-static void va_convert(const Va_Held &pic, bool full, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride)
+static const Va_Matrix va_matrices[2][3] = {
+	{{298, 16, 409, 100, 208, 516}, {298, 16, 459, 55, 136, 541}, {298, 16, 430, 48, 167, 548}},
+	{{256, 0, 359, 88, 183, 454}, {256, 0, 403, 48, 120, 475}, {256, 0, 377, 42, 146, 482}}};
+
+static void va_convert(const Va_Held &pic, bool full, int matrix, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride)
 {
-	//the picture into the pixels given, as much as there is room for
-	Va_Matrix m = full ? Va_Matrix{256, 0, 359, 88, 183, 454} : Va_Matrix{298, 16, 409, 100, 208, 516};
+	//the picture into the pixels given, as much as there is room for. Of
+	//10 bits, the top 8 of each, the high byte of P010's
+	const Va_Matrix &m = va_matrices[full][matrix];
 	uint32_t cols = std::min((uint64_t)pic.width, w), rows = std::min((uint64_t)pic.height, h);
-	for (uint32_t y = 0; y < rows; y++)
-	{
-		const uint8_t *py = &pic.data[pic.y_at + (size_t)y * pic.y_pitch];
-		const uint8_t *pu = &pic.data[pic.u_at + (size_t)(y >> pic.sy) * pic.c_pitch];
-		const uint8_t *pv = &pic.data[pic.v_at + (size_t)(y >> pic.sy) * pic.c_pitch];
-		auto out = (uint32_t*)((uint8_t*)pixels + y * stride);
-		uint32_t x = 0;
+	uint32_t b = pic.bytes, hi = b - 1;
+	va_rows(rows, 2, [&](uint32_t y0, uint32_t y1) {
+		for (uint32_t y = y0; y < y1; y++)
+		{
+			const uint8_t *py = &pic.data[pic.y_at + (size_t)y * pic.y_pitch];
+			const uint8_t *pu = &pic.data[pic.u_at + (size_t)(y >> pic.sy) * pic.c_pitch];
+			const uint8_t *pv = &pic.data[pic.v_at + (size_t)(y >> pic.sy) * pic.c_pitch];
+			auto out = (uint32_t*)((uint8_t*)pixels + y * stride);
+			uint32_t x = 0;
 #if defined(__x86_64__)
-		if (pic.sx == 1) x = va_row(m, py, pu, pv, pic.step, out, cols);
+			if (pic.sx == 1) x = va_row(m, py, pu, pv, pic.step, b, out, cols);
 #endif
-		for (; x < cols; x++)
-			out[x] = va_pixel(m, py[x], (int)pu[(x >> pic.sx) * pic.step] - 128, (int)pv[(x >> pic.sx) * pic.step] - 128);
+			for (; x < cols; x++)
+				out[x] = va_pixel(m, py[x * b + hi], (int)pu[(x >> pic.sx) * pic.step * b + hi] - 128,
+					(int)pv[(x >> pic.sx) * pic.step * b + hi] - 128);
+		}
+	});
+}
+
+//////////////////////
+// HDR and BT.2020
+//////////////////////
+
+//SMPTE ST 2084, PQ: a signal of 0 to 1 to nits and back
+static const double va_m1 = 2610.0 / 16384, va_m2 = 2523.0 / 4096 * 128;
+static const double va_c1 = 3424.0 / 4096, va_c2 = 2413.0 / 4096 * 32, va_c3 = 2392.0 / 4096 * 32;
+
+static double va_pq_nits(double e)
+{
+	double p = pow(e, 1 / va_m2);
+	return 10000 * pow(std::max(p - va_c1, 0.0) / (va_c2 - va_c3 * p), 1 / va_m1);
+}
+
+static double va_pq_signal(double nits)
+{
+	double p = pow(std::max(nits, 0.0) / 10000, va_m1);
+	return pow((va_c1 + va_c2 * p) / (1 + va_c3 * p), va_m2);
+}
+
+static void va_tone_make(Va_Tone &t, int transfer, int peak, bool full)
+{
+	//SDR's white, BT.2408's of HDR, 203 nits; of HLG its display of 1000
+	//nits and the gamma of the system 1.2, of each of R G and B
+	const double white = 203;
+	t.transfer = transfer;
+	t.peak = peak;
+	t.full = full;
+	double sy = full ? 4095.0 / 1023 : 4095.0 / 876, sc = full ? 4095.0 / 1023 : 4095.0 / 896;
+	t.oy = full ? 0 : 64;
+	t.ky = lround(sy * 65536);
+	t.kr = lround(1.4746 * sc * 65536);
+	t.kgu = lround(0.164553 * sc * 65536);
+	t.kgv = lround(0.571353 * sc * 65536);
+	t.kb = lround(1.8814 * sc * 65536);
+	bool hdr = transfer == 16 || transfer == 18;
+	double lw = transfer == 18 ? 1000 : std::max(peak, 400);
+	double pw = va_pq_signal(lw), most = va_pq_signal(white) / pw, ks = 1.5 * most - 0.5;
+	for (int i = 0; i < 4096; i++)
+	{
+		double e = i / 4095.0, nits;
+		if (transfer == 16) nits = va_pq_nits(e);
+		else if (transfer == 18)
+		{
+			double scene = e <= 0.5 ? e * e / 3 : (exp((e - 0.55991073) / 0.17883277) + 0.28466892) / 12;
+			nits = 1000 * pow(scene, 1.2);
+		}
+		else nits = white * pow(e, 2.2);
+		if (hdr)
+		{
+			//BT.2390's EETF, of PQ's signal: as it is to the knee, then a
+			//spline to the white at the film's brightest
+			double x = std::min(va_pq_signal(nits) / pw, 1.0);
+			if (ks < 1 && x > ks)
+			{
+				double k = (x - ks) / (1 - ks), k2 = k * k, k3 = k2 * k;
+				x = (2 * k3 - 3 * k2 + 1) * ks + (k3 - 2 * k2 + k) * (1 - ks) + (-2 * k3 + 3 * k2) * most;
+			}
+			nits = va_pq_nits(x * pw);
+		}
+		t.light[i] = lround(std::min(nits / white, 1.0) * 16383);
 	}
+	//BT.2087's, of BT.2020's primaries to BT.709's, of light
+	static const double gamut[9] = {
+		1.6605, -0.5876, -0.0728,
+		-0.1246, 1.1329, -0.0083,
+		-0.0182, -0.1006, 1.1187};
+	for (int i = 0; i < 9; i++) t.gamut[i] = lround(gamut[i] * 16384);
+	//to the display, a PC's of 2.2, so the light is as it was mapped:
+	//BT.1886's 2.4, of a TV in the dark, shows it lighter, washed out
+	for (int i = 0; i < 16384; i++) t.out[i] = lround(255 * pow(i / 16383.0, 1 / 2.2));
+}
+
+static const Va_Tone &va_tone_of(Va_Decoder *d)
+{
+	//made again only when what it is made by changes
+	if (!d->tone) d->tone = std::make_unique<Va_Tone>();
+	Va_Tone &t = *d->tone;
+	int peak = d->peak > 0 && d->peak <= 10000 ? d->peak : 1000;
+	if (t.transfer != d->transfer || t.peak != peak || t.full != d->full) va_tone_make(t, d->transfer, peak, d->full);
+	return t;
+}
+
+static inline int va_clamp(int v, int most) { return v < 0 ? 0 : v > most ? most : v; }
+
+#if defined(__x86_64__)
+__attribute__((target("avx2"))) static inline __m256i va_code(__m256i sum)
+{
+	//of 16.16 to R'G'B' of 12 bits
+	return _mm256_min_epi32(_mm256_max_epi32(_mm256_srai_epi32(_mm256_add_epi32(sum, _mm256_set1_epi32(32768)), 16),
+		_mm256_setzero_si256()), _mm256_set1_epi32(4095));
+}
+
+__attribute__((target("avx2"))) static inline __m256i va_mix(const Va_Tone &t, const __m256i *g, __m256i rg, __m256i b1)
+{
+	//a primary of BT.709, of the light of BT.2020's, to 8 bits: R and G,
+	//and B and 1, each two of 16 bits, by theirs and its rounding
+	__m256i sum = _mm256_add_epi32(_mm256_madd_epi16(rg, g[0]), _mm256_madd_epi16(b1, g[1]));
+	return _mm256_i32gather_epi32(t.out, _mm256_min_epi32(_mm256_max_epi32(_mm256_srai_epi32(sum, 14),
+		_mm256_setzero_si256()), _mm256_set1_epi32(16383)), 4);
+}
+
+__attribute__((target("avx2"))) static uint32_t va_row_wide(const Va_Tone &t, const uint16_t *py, const uint16_t *pc,
+	uint32_t *out, uint32_t n)
+{
+	//8 pixels at a time, as the scalar does, its tables gathered. The
+	//pixels done
+	const __m256i oy = _mm256_set1_epi32(t.oy), ky = _mm256_set1_epi32(t.ky), c512 = _mm256_set1_epi32(512);
+	const __m256i kr = _mm256_set1_epi32(t.kr), kgu = _mm256_set1_epi32(t.kgu), kgv = _mm256_set1_epi32(t.kgv);
+	const __m256i kb = _mm256_set1_epi32(t.kb);
+	const __m256i alpha = _mm256_set1_epi32((int)0xff000000);
+	const __m256i us = _mm256_setr_epi32(0, 0, 2, 2, 4, 4, 6, 6), vs = _mm256_setr_epi32(1, 1, 3, 3, 5, 5, 7, 7);
+	__m256i g[6];
+	for (int i = 0; i < 3; i++)
+	{
+		g[i * 2] = _mm256_set1_epi32((int)(((uint32_t)t.gamut[i * 3] & 0xffff) | ((uint32_t)t.gamut[i * 3 + 1] << 16)));
+		g[i * 2 + 1] = _mm256_set1_epi32((int)(((uint32_t)t.gamut[i * 3 + 2] & 0xffff) | (8192u << 16)));
+	}
+	const __m256i one = _mm256_set1_epi32(1 << 16);
+	uint32_t x = 0;
+	for (; x + 8 <= n; x += 8)
+	{
+		__m256i yy = _mm256_srli_epi32(_mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i*)(py + x))), 6);
+		yy = _mm256_mullo_epi32(_mm256_sub_epi32(yy, oy), ky);
+		__m256i uv = _mm256_sub_epi32(_mm256_srli_epi32(_mm256_cvtepu16_epi32(_mm_loadu_si128((const __m128i*)(pc + x))), 6), c512);
+		__m256i u = _mm256_permutevar8x32_epi32(uv, us), v = _mm256_permutevar8x32_epi32(uv, vs);
+		__m256i r = va_code(_mm256_add_epi32(yy, _mm256_mullo_epi32(kr, v)));
+		__m256i gg = va_code(_mm256_sub_epi32(_mm256_sub_epi32(yy, _mm256_mullo_epi32(kgu, u)), _mm256_mullo_epi32(kgv, v)));
+		__m256i b = va_code(_mm256_add_epi32(yy, _mm256_mullo_epi32(kb, u)));
+		r = _mm256_i32gather_epi32(t.light, r, 4);
+		gg = _mm256_i32gather_epi32(t.light, gg, 4);
+		b = _mm256_i32gather_epi32(t.light, b, 4);
+		__m256i rg = _mm256_or_si256(r, _mm256_slli_epi32(gg, 16)), b1 = _mm256_or_si256(b, one);
+		__m256i pix = _mm256_or_si256(_mm256_or_si256(alpha, _mm256_slli_epi32(va_mix(t, g, rg, b1), 16)),
+			_mm256_or_si256(_mm256_slli_epi32(va_mix(t, g + 2, rg, b1), 8), va_mix(t, g + 4, rg, b1)));
+		_mm256_storeu_si256((__m256i*)(out + x), pix);
+	}
+	return x;
+}
+#endif
+
+static void va_convert_wide(const Va_Held &pic, const Va_Tone &t, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride)
+{
+	//a picture of P010 into the pixels given, as much as there is room
+	//for, each pixel by the tables
+	uint32_t cols = std::min((uint64_t)pic.width, w), rows = std::min((uint64_t)pic.height, h);
+#if defined(__x86_64__)
+	static bool avx2 = __builtin_cpu_supports("avx2");
+#endif
+	va_rows(rows, 2, [&](uint32_t y0, uint32_t y1) {
+		for (uint32_t y = y0; y < y1; y++)
+		{
+			auto py = (const uint16_t*)&pic.data[pic.y_at + (size_t)y * pic.y_pitch];
+			auto pc = (const uint16_t*)&pic.data[pic.u_at + (size_t)(y >> 1) * pic.c_pitch];
+			auto out = (uint32_t*)((uint8_t*)pixels + y * stride);
+			uint32_t x = 0;
+#if defined(__x86_64__)
+			if (avx2) x = va_row_wide(t, py, pc, out, cols);
+#endif
+			for (; x < cols; x += 2)
+			{
+				//U and V of two pixels, then each its Y
+				int u = (pc[x] >> 6) - 512, v = (pc[x + 1] >> 6) - 512;
+				int dr = t.kr * v + 32768, dg = 32768 - t.kgu * u - t.kgv * v, db = t.kb * u + 32768;
+				for (uint32_t k = x; k < std::min(x + 2, cols); k++)
+				{
+					int yy = ((py[k] >> 6) - t.oy) * t.ky;
+					int r = t.light[va_clamp((yy + dr) >> 16, 4095)];
+					int g = t.light[va_clamp((yy + dg) >> 16, 4095)];
+					int b = t.light[va_clamp((yy + db) >> 16, 4095)];
+					int r2 = va_clamp((t.gamut[0] * r + t.gamut[1] * g + t.gamut[2] * b + 8192) >> 14, 16383);
+					int g2 = va_clamp((t.gamut[3] * r + t.gamut[4] * g + t.gamut[5] * b + 8192) >> 14, 16383);
+					int b2 = va_clamp((t.gamut[6] * r + t.gamut[7] * g + t.gamut[8] * b + 8192) >> 14, 16383);
+					out[k] = 0xff000000 | (t.out[r2] << 16) | (t.out[g2] << 8) | t.out[b2];
+				}
+			}
+		}
+	});
 }
 
 /////////
@@ -1606,6 +2123,7 @@ static bool va_start(Va_Decoder *d, const Va_Slice &s, bool idr, int ref_idc)
 	if (!va_setup(d, profile, VA_RT_FORMAT_YUV420, sp.width_mbs * 16, sp.height_mbs * 16, count)) return false;
 	d->pic_sps = sp;
 	d->full = sp.full;
+	d->matrix = sp.matrix;
 	d->cur_idr = idr;
 	d->cur_ref_idc = ref_idc;
 	d->cur.frame_num = s.frame_num;
@@ -1849,6 +2367,1068 @@ static int64_t va_h264_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 	return ok ? 0 : -1;
 }
 
+/////////
+// H.265
+/////////
+
+//the default scaling lists of 8x8 and up, the standard's table 7-6, in
+//the order the stream has them, intra and inter
+static const uint8_t va_hdefault[2][64] = {
+	{16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 16, 17, 16, 17, 18,
+	17, 18, 18, 17, 18, 21, 19, 20, 21, 20, 19, 21, 24, 22, 22, 24,
+	24, 22, 22, 24, 25, 25, 27, 30, 27, 25, 25, 29, 31, 35, 35, 31,
+	29, 36, 41, 44, 41, 36, 47, 54, 54, 47, 65, 70, 65, 88, 88, 115},
+	{16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 18,
+	18, 18, 18, 18, 18, 20, 20, 20, 20, 20, 20, 20, 24, 24, 24, 24,
+	24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 28, 28, 28, 28, 28,
+	28, 33, 33, 33, 33, 33, 41, 41, 41, 41, 54, 54, 54, 71, 71, 91}};
+
+static void va_hdefault_list(Va_Hlists &l, int size, int m)
+{
+	if (size == 0) memset(l.lists[0][m], 16, 64);
+	else memcpy(l.lists[size][m], va_hdefault[m >= 3], 64);
+	l.dc[size][m] = 16;
+}
+
+static void va_hdefaults(Va_Hlists &l)
+{
+	for (int size = 0; size < 4; size++)
+		for (int m = 0; m < 6; m++) va_hdefault_list(l, size, m);
+}
+
+static bool va_hscaling(Va_Bits &b, Va_Hlists &l)
+{
+	//the lists of an SPS or a PPS, each said, or as one before it, or the
+	//default. Of 32x32 only intra's and inter's of luma, of 4:2:0
+	va_hdefaults(l);
+	for (int size = 0; size < 4; size++)
+	{
+		int step = size == 3 ? 3 : 1, count = size ? 64 : 16;
+		for (int m = 0; m < 6; m += step)
+		{
+			uint8_t *list = l.lists[size][m];
+			if (!b.u(1))
+			{
+				uint32_t delta = b.ue() * step;
+				if (delta > (uint32_t)m) return false;
+				if (!delta) va_hdefault_list(l, size, m);
+				else
+				{
+					memcpy(list, l.lists[size][m - delta], 64);
+					l.dc[size][m] = l.dc[size][m - delta];
+				}
+				continue;
+			}
+			int next = 8;
+			if (size > 1)
+			{
+				int dc = b.se() + 8;
+				if (dc < 1 || dc > 255) return false;
+				next = l.dc[size][m] = dc;
+			}
+			for (int i = 0; i < count; i++)
+			{
+				int delta = b.se();
+				if (delta < -128 || delta > 127) return false;
+				next = (next + delta + 256) % 256;
+				//none of 0, the standard's, so none scales to nothing
+				if (!next) return false;
+				list[i] = next;
+			}
+		}
+	}
+	return !b.over();
+}
+
+static void va_hraster(uint8_t *to, const uint8_t *from, int n)
+{
+	//a list from the order the stream has it, up-right diagonal, the
+	//standard's 6.5.3, to rows: as Intel's driver takes them, as
+	//GStreamer gives them, and not as va_dec_hevc.h says
+	int i = 0;
+	for (int line = 0; i < n * n; line++)
+		for (int y = line, x = 0; y >= 0; y--, x++)
+			if (x < n && y < n) to[y * n + x] = from[i++];
+}
+
+static void va_hhrd(Va_Bits &b, int sub_layers)
+{
+	//hrd_parameters(), passed by
+	int nal = b.u(1), vcl = b.u(1), sub_pic = 0;
+	if (nal || vcl)
+	{
+		if ((sub_pic = b.u(1))) { b.u(8); b.u(5); b.u(1); b.u(5); }
+		b.u(8);
+		if (sub_pic) b.u(4);
+		b.u(15);
+	}
+	for (int i = 0; i <= sub_layers && !b.over(); i++)
+	{
+		int fixed = b.u(1), low_delay = 0;
+		if (!fixed) fixed = b.u(1);
+		if (fixed) b.ue();
+		else low_delay = b.u(1);
+		uint32_t count = low_delay ? 1 : b.ue() + 1;
+		if (count > 32) { b.at = b.n * 8 + 1; return; }
+		for (int k = 0; k < nal + vcl; k++)
+			for (uint32_t j = 0; j < count; j++)
+			{
+				b.ue();
+				b.ue();
+				if (sub_pic) { b.ue(); b.ue(); }
+				b.u(1);
+			}
+	}
+}
+
+static bool va_hrps(Va_Bits &b, int idx, int num, const Va_Rps *sets, Va_Rps &out)
+{
+	//a short term set, of the SPS's, idx below num, or of a slice, idx of
+	//num: as it is, or as one before it moved by a delta, those of it it
+	//keeps, the standard's 7-61 and 7-62
+	out.negative = out.positive = 0;
+	if (idx && b.u(1))
+	{
+		uint32_t back = idx == num ? b.ue() + 1 : 1;
+		if (back > (uint32_t)idx) return false;
+		const Va_Rps &r = sets[idx - back];
+		int sign = b.u(1);
+		int delta_rps = (1 - 2 * sign) * (int)(b.ue() + 1);
+		int count = r.negative + r.positive;
+		bool used[33], use[33];
+		for (int j = 0; j <= count; j++) use[j] = (used[j] = b.u(1)) ? true : b.u(1);
+		int i = 0;
+		for (int j = r.positive - 1; j >= 0; j--)
+		{
+			int poc = r.delta[r.negative + j] + delta_rps;
+			if (poc < 0 && use[r.negative + j]) { out.delta[i] = poc; out.used[i++] = used[r.negative + j]; }
+		}
+		if (delta_rps < 0 && use[count]) { out.delta[i] = delta_rps; out.used[i++] = used[count]; }
+		for (int j = 0; j < r.negative; j++)
+		{
+			int poc = r.delta[j] + delta_rps;
+			if (poc < 0 && use[j]) { out.delta[i] = poc; out.used[i++] = used[j]; }
+		}
+		out.negative = i;
+		for (int j = r.negative - 1; j >= 0; j--)
+		{
+			int poc = r.delta[j] + delta_rps;
+			if (poc > 0 && use[j]) { out.delta[i] = poc; out.used[i++] = used[j]; }
+		}
+		if (delta_rps > 0 && use[count]) { out.delta[i] = delta_rps; out.used[i++] = used[count]; }
+		for (int j = 0; j < r.positive; j++)
+		{
+			int poc = r.delta[r.negative + j] + delta_rps;
+			if (poc > 0 && use[r.negative + j]) { out.delta[i] = poc; out.used[i++] = used[r.negative + j]; }
+		}
+		out.positive = i - out.negative;
+	}
+	else
+	{
+		uint32_t negative = b.ue(), positive = b.ue();
+		if (negative > 16 || positive > 16 - negative) return false;
+		int poc = 0;
+		for (uint32_t i = 0; i < negative; i++)
+		{
+			out.delta[i] = poc -= b.ue() + 1;
+			out.used[i] = b.u(1);
+		}
+		poc = 0;
+		for (uint32_t i = 0; i < positive; i++)
+		{
+			out.delta[negative + i] = poc += b.ue() + 1;
+			out.used[negative + i] = b.u(1);
+		}
+		out.negative = negative;
+		out.positive = positive;
+	}
+	return !b.over() && out.negative + out.positive <= 16;
+}
+
+static int va_bits_for(uint32_t n)
+{
+	//Ceil(Log2(n)), the bits of a number below n
+	int bits = 0;
+	while (bits < 32 && (1u << bits) < n) bits++;
+	return bits;
+}
+
+static void va_hsei(Va_Decoder *d, const std::vector<uint8_t> &rbsp)
+{
+	//of a prefix SEI, the light of HDR: its content's brightest, MaxCLL,
+	//or else its mastering display's, in nits
+	Va_Bits b = {rbsp.data(), rbsp.size(), 16};
+	while (b.more() && !b.over())
+	{
+		uint32_t type = 0, size = 0, k;
+		while ((k = b.u(8)) == 255 && !b.over()) type += 255;
+		type += k;
+		while ((k = b.u(8)) == 255 && !b.over()) size += 255;
+		size += k;
+		size_t next = b.at + size * 8;
+		if (type == 144 && size >= 4)
+		{
+			int cll = b.u(16);
+			if (cll) d->peak = cll;
+		}
+		else if (type == 137 && size >= 24 && !d->peak)
+		{
+			for (int i = 0; i < 8; i++) b.u(16);
+			d->peak = b.u(32) / 10000;
+		}
+		b.at = next;
+	}
+}
+
+static bool va_hsps(const std::vector<uint8_t> &rbsp, std::vector<Va_Hsps> &all)
+{
+	Va_Bits b = {rbsp.data(), rbsp.size(), 16};
+	auto s = std::make_unique<Va_Hsps>();
+	b.u(4);
+	int sub_layers = b.u(3);
+	if (sub_layers > 6) return false;
+	b.u(1);
+	//profile_tier_level: of the whole stream its profile, Main or Main 10,
+	//or Main Still Picture, by its number or that it is compatible with
+	//one, or of the range extensions, if it is 4:2:0 of 8 or 10 bits and
+	//has none of their tools, as Main Intra and Main 10 Intra
+	int space = b.u(2);
+	b.u(1);
+	int profile = b.u(5);
+	uint32_t compatible = b.u(32);
+	b.u(32);
+	b.u(16);
+	b.u(8);
+	if (space || ((profile < 1 || profile > 4) && !(compatible & 0x78000000))) return false;
+	bool profile_present[8], level_present[8];
+	for (int i = 0; i < sub_layers; i++)
+	{
+		profile_present[i] = b.u(1);
+		level_present[i] = b.u(1);
+	}
+	if (sub_layers) for (int i = sub_layers; i < 8; i++) b.u(2);
+	for (int i = 0; i < sub_layers; i++)
+	{
+		if (profile_present[i]) { b.u(32); b.u(32); b.u(24); }
+		if (level_present[i]) b.u(8);
+	}
+	uint32_t id = b.ue();
+	if (id > 15) return false;
+	//4:2:0, the planes together, of the same depth, 8 or 10 bits
+	s->chroma_format_idc = b.ue();
+	if (s->chroma_format_idc != 1) return false;
+	s->width = b.ue();
+	s->height = b.ue();
+	s->crop_left = s->crop_right = s->crop_top = s->crop_bottom = 0;
+	if (b.u(1))
+	{
+		//in chroma samples, 2 each way
+		s->crop_left = b.ue() * 2;
+		s->crop_right = b.ue() * 2;
+		s->crop_top = b.ue() * 2;
+		s->crop_bottom = b.ue() * 2;
+	}
+	s->bit_depth_luma = b.ue() + 8;
+	s->bit_depth_chroma = b.ue() + 8;
+	if (s->bit_depth_luma != s->bit_depth_chroma || (s->bit_depth_luma != 8 && s->bit_depth_luma != 10)) return false;
+	s->log2_max_poc_lsb = b.ue() + 4;
+	if (s->log2_max_poc_lsb > 16) return false;
+	//the DPB of the highest sub-layer, all of them
+	bool ordering = b.u(1);
+	for (int i = ordering ? 0 : sub_layers; i <= sub_layers; i++)
+	{
+		s->max_dec_pic_buffering = b.ue() + 1;
+		s->num_reorder = b.ue();
+		b.ue();
+	}
+	if (s->max_dec_pic_buffering > 16 || s->num_reorder >= s->max_dec_pic_buffering) return false;
+	s->log2_min_cb = b.ue() + 3;
+	s->log2_diff_cb = b.ue();
+	s->log2_min_tb = b.ue() + 2;
+	s->log2_diff_tb = b.ue();
+	s->depth_inter = b.ue();
+	s->depth_intra = b.ue();
+	//of the standard: a CTB 16 to 64, a transform 4 to 32 and smaller than
+	//a CTB, smaller than a coding block at its least, and so deep only
+	int ctb = s->log2_min_cb + s->log2_diff_cb, max_tb = s->log2_min_tb + s->log2_diff_tb;
+	if (s->log2_min_cb > 6 || ctb < 4 || ctb > 6 || s->log2_min_tb >= s->log2_min_cb || max_tb > std::min(ctb, 5)
+		|| s->depth_inter > ctb - s->log2_min_tb || s->depth_intra > ctb - s->log2_min_tb) return false;
+	if ((s->scaling = b.u(1)))
+	{
+		if (b.u(1)) { if (!va_hscaling(b, s->lists)) return false; }
+		else va_hdefaults(s->lists);
+	}
+	s->amp = b.u(1);
+	s->sao = b.u(1);
+	s->pcm_depth_luma = s->pcm_depth_chroma = s->log2_min_pcm = s->log2_diff_pcm = s->pcm_loop_filter_disabled = 0;
+	if ((s->pcm = b.u(1)))
+	{
+		s->pcm_depth_luma = b.u(4) + 1;
+		s->pcm_depth_chroma = b.u(4) + 1;
+		s->log2_min_pcm = b.ue() + 3;
+		s->log2_diff_pcm = b.ue();
+		s->pcm_loop_filter_disabled = b.u(1);
+		if (s->pcm_depth_luma > s->bit_depth_luma || s->pcm_depth_chroma > s->bit_depth_chroma
+			|| s->log2_min_pcm < std::min(s->log2_min_cb, 5) || s->log2_min_pcm + s->log2_diff_pcm > std::min(ctb, 5)) return false;
+	}
+	s->num_rps = b.ue();
+	if (s->num_rps > 64) return false;
+	for (int i = 0; i < s->num_rps; i++) if (!va_hrps(b, i, s->num_rps, s->rps, s->rps[i])) return false;
+	s->num_lt = 0;
+	if ((s->long_term_present = b.u(1)))
+	{
+		s->num_lt = b.ue();
+		if (s->num_lt > 32) return false;
+		for (int i = 0; i < s->num_lt; i++)
+		{
+			s->lt_poc_lsb[i] = b.u(s->log2_max_poc_lsb);
+			s->lt_used[i] = b.u(1);
+		}
+	}
+	s->temporal_mvp = b.u(1);
+	s->strong_intra = b.u(1);
+	//of the VUI the range and the colours, video's 16 to 235 unless it
+	//says all, the rest passed by to the extensions after it
+	s->full = false;
+	int coefficients = 2, primaries = 2, transfer = 2;
+	if (b.u(1))
+	{
+		if (b.u(1) && b.u(8) == 255) b.u(32);
+		if (b.u(1)) b.u(1);
+		if (b.u(1))
+		{
+			b.u(3);
+			s->full = b.u(1);
+			if (b.u(1)) { primaries = b.u(8); transfer = b.u(8); coefficients = b.u(8); }
+		}
+		if (b.u(1)) { b.ue(); b.ue(); }
+		b.u(3);
+		if (b.u(1)) { b.ue(); b.ue(); b.ue(); b.ue(); }
+		if (b.u(1))
+		{
+			b.u(32);
+			b.u(32);
+			if (b.u(1)) b.ue();
+			if (b.u(1)) va_hhrd(b, sub_layers);
+		}
+		if (b.u(1)) { b.u(3); b.ue(); b.ue(); b.ue(); b.ue(); b.ue(); }
+	}
+	//of the extensions, the range extensions' with none of their tools
+	if (b.u(1))
+	{
+		int extensions = b.u(8);
+		if ((extensions & 0x7f) || ((extensions & 0x80) && b.u(9))) return false;
+	}
+	//no bigger than 8192 each way, of the levels VA-API has, a whole
+	//number of coding blocks, and some of it left once cropped
+	int cb = 1 << s->log2_min_cb;
+	if (b.over() || s->width <= 0 || s->height <= 0 || s->width > 8192 || s->height > 8192
+		|| s->width % cb || s->height % cb || s->width <= s->crop_left + s->crop_right
+		|| s->height <= s->crop_top + s->crop_bottom) return false;
+	s->matrix = va_matrix(coefficients, s->height - s->crop_top - s->crop_bottom);
+	s->primaries = primaries;
+	s->transfer = transfer;
+	s->valid = true;
+	all[id] = *s;
+	return true;
+}
+
+static bool va_hpps(const std::vector<uint8_t> &rbsp, std::vector<Va_Hpps> &all)
+{
+	//what can be checked of it alone; what is of its SPS as a picture
+	//starts with them
+	Va_Bits b = {rbsp.data(), rbsp.size(), 16};
+	auto p = std::make_unique<Va_Hpps>();
+	uint32_t id = b.ue();
+	p->sps_id = b.ue();
+	if (id > 63 || p->sps_id > 15) return false;
+	p->dependent_slices = b.u(1);
+	p->output_flag_present = b.u(1);
+	p->extra_bits = b.u(3);
+	p->sign_hiding = b.u(1);
+	p->cabac_init_present = b.u(1);
+	p->num_ref_idx_default[0] = b.ue() + 1;
+	p->num_ref_idx_default[1] = b.ue() + 1;
+	p->init_qp = 26 + b.se();
+	p->constrained_intra = b.u(1);
+	p->transform_skip = b.u(1);
+	p->diff_cu_qp_delta_depth = (p->cu_qp_delta = b.u(1)) ? b.ue() : 0;
+	p->cb_qp_offset = b.se();
+	p->cr_qp_offset = b.se();
+	p->slice_chroma_qp_offsets = b.u(1);
+	p->weighted_pred = b.u(1);
+	p->weighted_bipred = b.u(1);
+	p->transquant_bypass = b.u(1);
+	p->tiles = b.u(1);
+	p->entropy_sync = b.u(1);
+	p->columns = p->rows = 1;
+	p->uniform = 1;
+	p->loop_filter_across_tiles = 1;
+	if (p->tiles)
+	{
+		//as many as VA-API is told of
+		p->columns = b.ue() + 1;
+		p->rows = b.ue() + 1;
+		if (p->columns > 19 || p->rows > 21) return false;
+		if (!(p->uniform = b.u(1)))
+		{
+			for (int i = 0; i < p->columns - 1; i++) p->column_width[i] = b.ue() + 1;
+			for (int i = 0; i < p->rows - 1; i++) p->row_height[i] = b.ue() + 1;
+		}
+		p->loop_filter_across_tiles = b.u(1);
+	}
+	p->loop_filter_across_slices = b.u(1);
+	p->deblocking_override = p->deblocking_disabled = p->beta = p->tc = 0;
+	if (b.u(1))
+	{
+		p->deblocking_override = b.u(1);
+		if (!(p->deblocking_disabled = b.u(1)))
+		{
+			p->beta = b.se();
+			p->tc = b.se();
+		}
+	}
+	if ((p->scaling = b.u(1)) && !va_hscaling(b, p->lists)) return false;
+	p->lists_modification = b.u(1);
+	p->log2_parallel_merge_level = b.ue() + 2;
+	p->header_extension = b.u(1);
+	//of the extensions, the range extensions' with none of their tools
+	if (b.u(1))
+	{
+		int range = b.u(1);
+		if (b.u(7)) return false;
+		if (range && ((p->transform_skip && b.ue()) || b.u(1) || b.u(1) || b.ue() || b.ue())) return false;
+	}
+	if (b.over() || p->num_ref_idx_default[0] > 15 || p->num_ref_idx_default[1] > 15
+		|| p->init_qp < -12 || p->init_qp > 51 || p->cb_qp_offset < -12 || p->cb_qp_offset > 12
+		|| p->cr_qp_offset < -12 || p->cr_qp_offset > 12 || p->beta < -6 || p->beta > 6
+		|| p->tc < -6 || p->tc > 6 || p->log2_parallel_merge_level > 6) return false;
+	p->valid = true;
+	all[id] = *p;
+	return true;
+}
+
+static bool va_hweights(Va_Bits &b, const Va_Hslice &s, VASliceParameterBufferHEVC &param)
+{
+	//pred_weight_table: the weights, those not said as if none, and of
+	//chroma its offset as the standard works it out, 7-56, of 8 bits
+	uint32_t luma = b.ue();
+	int chroma = (int)luma + b.se();
+	if (luma > 7 || chroma < 0 || chroma > 7) return false;
+	param.luma_log2_weight_denom = luma;
+	param.delta_chroma_log2_weight_denom = chroma - (int)luma;
+	for (int list = 0; list < (s.type == 0 ? 2 : 1); list++)
+	{
+		auto lw = list ? param.delta_luma_weight_l1 : param.delta_luma_weight_l0;
+		auto lo = list ? param.luma_offset_l1 : param.luma_offset_l0;
+		auto cw = list ? param.delta_chroma_weight_l1 : param.delta_chroma_weight_l0;
+		auto co = list ? param.ChromaOffsetL1 : param.ChromaOffsetL0;
+		bool lf[15], cf[15];
+		int n = s.num_ref_idx[list];
+		for (int i = 0; i < n; i++) lf[i] = b.u(1);
+		for (int i = 0; i < n; i++) cf[i] = b.u(1);
+		for (int i = 0; i < n; i++)
+		{
+			if (lf[i])
+			{
+				int w = b.se(), o = b.se();
+				if (w < -128 || w > 127 || o < -128 || o > 127) return false;
+				lw[i] = w;
+				lo[i] = o;
+			}
+			if (cf[i]) for (int j = 0; j < 2; j++)
+			{
+				int w = b.se(), o = b.se();
+				if (w < -128 || w > 127 || o < -512 || o > 511) return false;
+				int offset = 128 - ((128 * ((1 << chroma) + w)) >> chroma) + o;
+				cw[i][j] = w;
+				co[i][j] = std::max(-128, std::min(127, offset));
+			}
+		}
+	}
+	return !b.over();
+}
+
+static bool va_hslice(Va_Decoder *d, const std::vector<uint8_t> &rbsp, int type, Va_Hslice &s,
+	VASliceParameterBufferHEVC &param)
+{
+	//a slice segment's header, what VA-API is told of it into its
+	//parameters, and its bytes from the start of the NAL, its header. Of
+	//a dependent segment the rest as the one before it has it
+	Va_Bits b = {rbsp.data(), rbsp.size(), 16};
+	int first = b.u(1);
+	if (type >= 16 && type <= 23) b.u(1);
+	uint32_t pps_id = b.ue();
+	if (pps_id > 63 || !d->hpps[pps_id].valid) return false;
+	const Va_Hpps &p = d->hpps[pps_id];
+	const Va_Hsps &sp = d->hsps[p.sps_id];
+	if (!sp.valid) return false;
+	int ctb = sp.log2_min_cb + sp.log2_diff_cb;
+	uint32_t ctbs = ((sp.width + (1 << ctb) - 1) >> ctb) * ((sp.height + (1 << ctb) - 1) >> ctb);
+	int dependent = 0, address = 0;
+	if (!first)
+	{
+		if (p.dependent_slices) dependent = b.u(1);
+		address = b.u(va_bits_for(ctbs));
+		if ((uint32_t)address >= ctbs) return false;
+	}
+	if (dependent)
+	{
+		if (!d->started || d->hlast.pps_id != (int)pps_id) return false;
+		s = d->hlast;
+		param = d->hlast_param;
+	}
+	else
+	{
+		memset(&param, 0, sizeof(param));
+		s.pps_id = pps_id;
+		b.u(p.extra_bits);
+		s.type = b.ue();
+		if (s.type > 2) return false;
+		s.output = p.output_flag_present ? b.u(1) : 1;
+		s.poc_lsb = s.rps_bits = s.num_lt = s.temporal_mvp = 0;
+		s.rps.negative = s.rps.positive = 0;
+		if (type != 19 && type != 20)
+		{
+			s.poc_lsb = b.u(sp.log2_max_poc_lsb);
+			if (!b.u(1))
+			{
+				size_t at = b.at;
+				if (!va_hrps(b, sp.num_rps, sp.num_rps, sp.rps, s.rps)) return false;
+				s.rps_bits = b.at - at;
+			}
+			else
+			{
+				if (!sp.num_rps) return false;
+				uint32_t i = b.u(va_bits_for(sp.num_rps));
+				if (i >= (uint32_t)sp.num_rps) return false;
+				s.rps = sp.rps[i];
+			}
+			if (sp.long_term_present)
+			{
+				uint32_t of_sps = sp.num_lt ? b.ue() : 0, own = b.ue();
+				if (of_sps > (uint32_t)sp.num_lt || own > 32 || of_sps + own > 32) return false;
+				s.num_lt = of_sps + own;
+				int cycle = 0;
+				for (int i = 0; i < s.num_lt; i++)
+				{
+					if (i < (int)of_sps)
+					{
+						uint32_t k = sp.num_lt > 1 ? b.u(va_bits_for(sp.num_lt)) : 0;
+						if (k >= (uint32_t)sp.num_lt) return false;
+						s.lt_lsb[i] = sp.lt_poc_lsb[k];
+						s.lt_used[i] = sp.lt_used[k];
+					}
+					else
+					{
+						s.lt_lsb[i] = b.u(sp.log2_max_poc_lsb);
+						s.lt_used[i] = b.u(1);
+					}
+					uint32_t delta = (s.lt_msb[i] = b.u(1)) ? b.ue() : 0;
+					//DeltaPocMsbCycleLt, after the first of each kind a sum
+					cycle = i == 0 || i == (int)of_sps ? delta : cycle + delta;
+					s.lt_cycle[i] = cycle;
+				}
+			}
+			if (s.rps.negative + s.rps.positive + s.num_lt > 16) return false;
+			s.temporal_mvp = sp.temporal_mvp ? b.u(1) : 0;
+		}
+		s.sao_luma = s.sao_chroma = 0;
+		if (sp.sao)
+		{
+			s.sao_luma = b.u(1);
+			s.sao_chroma = b.u(1);
+		}
+		bool ps = s.type == 1, bs = s.type == 0;
+		s.num_ref_idx[0] = s.num_ref_idx[1] = s.mods[0] = s.mods[1] = 0;
+		s.mvd_l1_zero = s.cabac_init = s.collocated_ref_idx = s.five_minus_max_merge = 0;
+		s.collocated_from_l0 = 1;
+		if (ps || bs)
+		{
+			//of those it keeps, how many it is made from
+			int total = 0;
+			for (int i = 0; i < s.rps.negative + s.rps.positive; i++) total += s.rps.used[i];
+			for (int i = 0; i < s.num_lt; i++) total += s.lt_used[i];
+			s.num_ref_idx[0] = p.num_ref_idx_default[0];
+			s.num_ref_idx[1] = bs ? p.num_ref_idx_default[1] : 0;
+			if (b.u(1))
+			{
+				s.num_ref_idx[0] = b.ue() + 1;
+				if (bs) s.num_ref_idx[1] = b.ue() + 1;
+			}
+			if (s.num_ref_idx[0] > 15 || s.num_ref_idx[1] > 15 || !total) return false;
+			if (p.lists_modification && total > 1)
+			{
+				for (int list = 0; list < (bs ? 2 : 1); list++)
+				{
+					if (!(s.mods[list] = b.u(1))) continue;
+					for (int i = 0; i < s.num_ref_idx[list]; i++)
+					{
+						s.entries[list][i] = b.u(va_bits_for(total));
+						if (s.entries[list][i] >= total) return false;
+					}
+				}
+			}
+			if (bs) s.mvd_l1_zero = b.u(1);
+			if (p.cabac_init_present) s.cabac_init = b.u(1);
+			if (s.temporal_mvp)
+			{
+				if (bs) s.collocated_from_l0 = b.u(1);
+				int n = s.num_ref_idx[s.collocated_from_l0 ? 0 : 1];
+				if (n > 1) s.collocated_ref_idx = b.ue();
+				if (s.collocated_ref_idx >= n) return false;
+			}
+			if (((p.weighted_pred && ps) || (p.weighted_bipred && bs)) && !va_hweights(b, s, param)) return false;
+			s.five_minus_max_merge = b.ue();
+			if (s.five_minus_max_merge > 4) return false;
+		}
+		s.qp_delta = b.se();
+		int qp = p.init_qp + s.qp_delta;
+		if (qp < -6 * (sp.bit_depth_luma - 8) || qp > 51) return false;
+		s.cb_qp_offset = s.cr_qp_offset = 0;
+		if (p.slice_chroma_qp_offsets)
+		{
+			s.cb_qp_offset = b.se();
+			s.cr_qp_offset = b.se();
+			if (s.cb_qp_offset < -12 || s.cb_qp_offset > 12 || s.cr_qp_offset < -12 || s.cr_qp_offset > 12
+				|| p.cb_qp_offset + s.cb_qp_offset < -12 || p.cb_qp_offset + s.cb_qp_offset > 12
+				|| p.cr_qp_offset + s.cr_qp_offset < -12 || p.cr_qp_offset + s.cr_qp_offset > 12) return false;
+		}
+		s.deblocking_disabled = p.deblocking_disabled;
+		s.beta = p.beta;
+		s.tc = p.tc;
+		if (p.deblocking_override && b.u(1) && !(s.deblocking_disabled = b.u(1)))
+		{
+			s.beta = b.se();
+			s.tc = b.se();
+			if (s.beta < -6 || s.beta > 6 || s.tc < -6 || s.tc > 6) return false;
+		}
+		s.loop_filter_across_slices = p.loop_filter_across_slices;
+		if (p.loop_filter_across_slices && (s.sao_luma || s.sao_chroma || !s.deblocking_disabled))
+			s.loop_filter_across_slices = b.u(1);
+	}
+	s.first = first;
+	s.dependent = dependent;
+	s.address = address;
+	//where the tiles and rows of WPP start, which the hardware finds itself
+	if (p.tiles || p.entropy_sync)
+	{
+		uint32_t n = b.ue();
+		if (n > ctbs) return false;
+		if (n)
+		{
+			uint32_t bits = b.ue() + 1;
+			if (bits > 32) return false;
+			for (uint32_t i = 0; i < n && !b.over(); i++) b.u(bits);
+		}
+	}
+	if (p.header_extension)
+	{
+		uint32_t n = b.ue();
+		if (n > 256) return false;
+		for (uint32_t i = 0; i < n; i++) b.u(8);
+	}
+	//byte_alignment(), a 1 then 0s
+	if (!b.u(1)) return false;
+	while (b.at & 7) b.u(1);
+	s.header_bytes = b.at / 8;
+	return !b.over();
+}
+
+static int va_hstart(Va_Decoder *d, const Va_Hslice &s, int type, int tid)
+{
+	//a new picture: 1 if it is started, 0 if it is not to be decoded, -1
+	//if it can not be. Its order, those it keeps of the pictures kept, its
+	//surface, and what VA-API is told of the picture and its scaling
+	const Va_Hpps &p = d->hpps[s.pps_id];
+	const Va_Hsps &sp = d->hsps[p.sps_id];
+	bool irap = type >= 16 && type <= 23, idr = type == 19 || type == 20;
+	//the first picture, or the first after an end of the stream, of IDR
+	//BLA or CRA, and the pictures of RASL after it, made from those before
+	//it, are not decoded: as after a seek
+	if (irap)
+	{
+		d->no_rasl = idr || type <= 18 || d->hfirst;
+		d->hfirst = false;
+	}
+	else if (d->hfirst) return 0;
+	if ((type == 8 || type == 9) && d->no_rasl) return 0;
+	//of the PPS, what is of its SPS
+	int ctb = sp.log2_min_cb + sp.log2_diff_cb;
+	int across = (sp.width + (1 << ctb) - 1) >> ctb, down = (sp.height + (1 << ctb) - 1) >> ctb;
+	int columns[20], rows[22], left = across, up = down;
+	for (int i = 0; i < p.columns; i++)
+		left -= columns[i] = p.uniform ? ((i + 1) * across) / p.columns - (i * across) / p.columns
+			: i < p.columns - 1 ? p.column_width[i] : left;
+	for (int i = 0; i < p.rows; i++)
+		up -= rows[i] = p.uniform ? ((i + 1) * down) / p.rows - (i * down) / p.rows
+			: i < p.rows - 1 ? p.row_height[i] : up;
+	bool tiles_ok = left == 0 && up == 0;
+	for (int i = 0; i < p.columns; i++) tiles_ok &= columns[i] > 0;
+	for (int i = 0; i < p.rows; i++) tiles_ok &= rows[i] > 0;
+	if (!tiles_ok || p.init_qp < -6 * (sp.bit_depth_luma - 8) || p.diff_cu_qp_delta_depth > sp.log2_diff_cb
+		|| p.log2_parallel_merge_level > ctb) return -1;
+	VADisplay dpy = va_display();
+	VAProfile profile = sp.bit_depth_luma == 10 ? VAProfileHEVCMain10 : VAProfileHEVCMain;
+	if (profile != d->asked) d->chosen = va_has(dpy, d->asked = profile) ? profile : VAProfileNone;
+	if (d->chosen == VAProfileNone) return -1;
+	if (!va_setup(d, profile, sp.bit_depth_luma == 10 ? VA_RT_FORMAT_YUV420_10 : VA_RT_FORMAT_YUV420,
+		sp.width, sp.height, sp.max_dec_pic_buffering + 2)) return -1;
+	//its order, by the last of the lowest sub-layer that is to be made from
+	int max_lsb = 1 << sp.log2_max_poc_lsb, msb = 0;
+	if (!irap || !d->no_rasl)
+	{
+		int prev_lsb = d->prev_tid0_poc & (max_lsb - 1), prev_msb = d->prev_tid0_poc - prev_lsb;
+		msb = s.poc_lsb < prev_lsb && prev_lsb - s.poc_lsb >= max_lsb / 2 ? prev_msb + max_lsb
+			: s.poc_lsb > prev_lsb && s.poc_lsb - prev_lsb > max_lsb / 2 ? prev_msb - max_lsb : prev_msb;
+	}
+	d->cur_poc = msb + s.poc_lsb;
+	if (tid == 0 && !(type >= 6 && type <= 9) && !(type <= 14 && type % 2 == 0)) d->prev_tid0_poc = d->cur_poc;
+	//those it keeps, of long term first, of those before it, and short
+	//term; the rest let go. Those it is made from by their index, -1 if
+	//not there, and then it can not be decoded
+	if (irap && d->no_rasl) d->dpb.clear();
+	std::vector<int> kept(d->dpb.size(), 0);
+	int before[16], after[16], lt[16], nb = 0, na = 0, nl = 0;
+	bool missing = false;
+	for (int i = 0; i < s.num_lt; i++)
+	{
+		int poc = s.lt_lsb[i];
+		if (s.lt_msb[i]) poc += d->cur_poc - s.lt_cycle[i] * max_lsb - (d->cur_poc & (max_lsb - 1));
+		int found = -1;
+		for (int j = 0; j < (int)d->dpb.size() && found < 0; j++)
+			if (s.lt_msb[i] ? d->dpb[j].top == poc : (d->dpb[j].top & (max_lsb - 1)) == poc) found = j;
+		if (found >= 0)
+		{
+			kept[found] = 1;
+			d->dpb[found].long_ref = true;
+			d->dpb[found].short_ref = false;
+		}
+		if (s.lt_used[i]) found < 0 ? (void)(missing = true) : (void)(lt[nl++] = found);
+	}
+	for (int i = 0; i < s.rps.negative + s.rps.positive; i++)
+	{
+		int poc = d->cur_poc + s.rps.delta[i], found = -1;
+		for (int j = 0; j < (int)d->dpb.size() && found < 0; j++)
+			if (d->dpb[j].short_ref && d->dpb[j].top == poc) found = j;
+		if (found >= 0) kept[found] = 1;
+		if (!s.rps.used[i]) continue;
+		if (found < 0) missing = true;
+		else if (i < s.rps.negative) before[nb++] = found;
+		else after[na++] = found;
+	}
+	//those kept, their indexes as they are after the rest go
+	std::vector<Va_Ref> dpb;
+	for (int j = 0; j < (int)d->dpb.size(); j++)
+	{
+		if (!kept[j]) continue;
+		kept[j] = dpb.size();
+		dpb.push_back(d->dpb[j]);
+	}
+	d->dpb.swap(dpb);
+	d->nbefore = nb;
+	d->nafter = na;
+	d->nlt = nl;
+	for (int i = 0; i < nb; i++) d->hbefore[i] = kept[before[i]];
+	for (int i = 0; i < na; i++) d->hafter[i] = kept[after[i]];
+	for (int i = 0; i < nl; i++) d->hlt[i] = kept[lt[i]];
+	if (missing || d->dpb.size() > 15) return -1;
+	d->cur.surface = -1;
+	for (int i = 0; i < (int)d->surfaces.size() && d->cur.surface < 0; i++)
+	{
+		bool used = false;
+		for (auto &r : d->dpb) used |= r.surface == i;
+		if (!used) d->cur.surface = i;
+	}
+	if (d->cur.surface < 0) return -1;
+	d->hpic_sps = sp;
+	d->hpic_pps = s.pps_id;
+	d->full = sp.full;
+	d->matrix = sp.matrix;
+	d->hout = s.output;
+	d->primaries = sp.primaries;
+	d->transfer = sp.transfer;
+	auto pic = std::make_unique<VAPictureParameterBufferHEVC>();
+	memset(pic.get(), 0, sizeof(*pic));
+	pic->CurrPic.picture_id = d->surfaces[d->cur.surface];
+	pic->CurrPic.pic_order_cnt = d->cur_poc;
+	for (int i = 0; i < 15; i++)
+	{
+		auto &f = pic->ReferenceFrames[i];
+		if (i >= (int)d->dpb.size())
+		{
+			f.picture_id = VA_INVALID_SURFACE;
+			f.flags = VA_PICTURE_HEVC_INVALID;
+			continue;
+		}
+		f.picture_id = d->surfaces[d->dpb[i].surface];
+		f.pic_order_cnt = d->dpb[i].top;
+		f.flags = d->dpb[i].long_ref ? VA_PICTURE_HEVC_LONG_TERM_REFERENCE : 0;
+		for (int j = 0; j < nb; j++) if (d->hbefore[j] == i) f.flags |= VA_PICTURE_HEVC_RPS_ST_CURR_BEFORE;
+		for (int j = 0; j < na; j++) if (d->hafter[j] == i) f.flags |= VA_PICTURE_HEVC_RPS_ST_CURR_AFTER;
+		for (int j = 0; j < nl; j++) if (d->hlt[j] == i) f.flags |= VA_PICTURE_HEVC_RPS_LT_CURR;
+	}
+	pic->pic_width_in_luma_samples = sp.width;
+	pic->pic_height_in_luma_samples = sp.height;
+	auto &f = pic->pic_fields.bits;
+	f.chroma_format_idc = sp.chroma_format_idc;
+	f.pcm_enabled_flag = sp.pcm;
+	f.scaling_list_enabled_flag = sp.scaling;
+	f.transform_skip_enabled_flag = p.transform_skip;
+	f.amp_enabled_flag = sp.amp;
+	f.strong_intra_smoothing_enabled_flag = sp.strong_intra;
+	f.sign_data_hiding_enabled_flag = p.sign_hiding;
+	f.constrained_intra_pred_flag = p.constrained_intra;
+	f.cu_qp_delta_enabled_flag = p.cu_qp_delta;
+	f.weighted_pred_flag = p.weighted_pred;
+	f.weighted_bipred_flag = p.weighted_bipred;
+	f.transquant_bypass_enabled_flag = p.transquant_bypass;
+	f.tiles_enabled_flag = p.tiles;
+	f.entropy_coding_sync_enabled_flag = p.entropy_sync;
+	f.pps_loop_filter_across_slices_enabled_flag = p.loop_filter_across_slices;
+	f.loop_filter_across_tiles_enabled_flag = p.loop_filter_across_tiles;
+	f.pcm_loop_filter_disabled_flag = sp.pcm_loop_filter_disabled;
+	pic->sps_max_dec_pic_buffering_minus1 = sp.max_dec_pic_buffering - 1;
+	pic->bit_depth_luma_minus8 = sp.bit_depth_luma - 8;
+	pic->bit_depth_chroma_minus8 = sp.bit_depth_chroma - 8;
+	pic->pcm_sample_bit_depth_luma_minus1 = sp.pcm ? sp.pcm_depth_luma - 1 : 0;
+	pic->pcm_sample_bit_depth_chroma_minus1 = sp.pcm ? sp.pcm_depth_chroma - 1 : 0;
+	pic->log2_min_luma_coding_block_size_minus3 = sp.log2_min_cb - 3;
+	pic->log2_diff_max_min_luma_coding_block_size = sp.log2_diff_cb;
+	pic->log2_min_transform_block_size_minus2 = sp.log2_min_tb - 2;
+	pic->log2_diff_max_min_transform_block_size = sp.log2_diff_tb;
+	pic->log2_min_pcm_luma_coding_block_size_minus3 = sp.pcm ? sp.log2_min_pcm - 3 : 0;
+	pic->log2_diff_max_min_pcm_luma_coding_block_size = sp.log2_diff_pcm;
+	pic->max_transform_hierarchy_depth_intra = sp.depth_intra;
+	pic->max_transform_hierarchy_depth_inter = sp.depth_inter;
+	pic->init_qp_minus26 = p.init_qp - 26;
+	pic->diff_cu_qp_delta_depth = p.diff_cu_qp_delta_depth;
+	pic->pps_cb_qp_offset = p.cb_qp_offset;
+	pic->pps_cr_qp_offset = p.cr_qp_offset;
+	pic->log2_parallel_merge_level_minus2 = p.log2_parallel_merge_level - 2;
+	if (p.tiles)
+	{
+		pic->num_tile_columns_minus1 = p.columns - 1;
+		pic->num_tile_rows_minus1 = p.rows - 1;
+		for (int i = 0; i < p.columns; i++) pic->column_width_minus1[i] = columns[i] - 1;
+		for (int i = 0; i < p.rows; i++) pic->row_height_minus1[i] = rows[i] - 1;
+	}
+	auto &g = pic->slice_parsing_fields.bits;
+	g.lists_modification_present_flag = p.lists_modification;
+	g.long_term_ref_pics_present_flag = sp.long_term_present;
+	g.sps_temporal_mvp_enabled_flag = sp.temporal_mvp;
+	g.cabac_init_present_flag = p.cabac_init_present;
+	g.output_flag_present_flag = p.output_flag_present;
+	g.dependent_slice_segments_enabled_flag = p.dependent_slices;
+	g.pps_slice_chroma_qp_offsets_present_flag = p.slice_chroma_qp_offsets;
+	g.sample_adaptive_offset_enabled_flag = sp.sao;
+	g.deblocking_filter_override_enabled_flag = p.deblocking_override;
+	g.pps_disable_deblocking_filter_flag = p.deblocking_disabled;
+	g.slice_segment_header_extension_present_flag = p.header_extension;
+	g.RapPicFlag = irap;
+	g.IdrPicFlag = idr;
+	g.IntraPicFlag = irap;
+	pic->log2_max_pic_order_cnt_lsb_minus4 = sp.log2_max_poc_lsb - 4;
+	pic->num_short_term_ref_pic_sets = sp.num_rps;
+	pic->num_long_term_ref_pic_sps = sp.num_lt;
+	pic->num_ref_idx_l0_default_active_minus1 = p.num_ref_idx_default[0] - 1;
+	pic->num_ref_idx_l1_default_active_minus1 = p.num_ref_idx_default[1] - 1;
+	pic->pps_beta_offset_div2 = p.beta;
+	pic->pps_tc_offset_div2 = p.tc;
+	pic->num_extra_slice_header_bits = p.extra_bits;
+	pic->st_rps_bits = s.rps_bits;
+	//the lists, of 32x32 those of luma, intra and inter
+	auto iq = std::make_unique<VAIQMatrixBufferHEVC>();
+	memset(iq.get(), 0, sizeof(*iq));
+	const Va_Hlists &l = p.scaling ? p.lists : sp.lists;
+	for (int i = 0; i < 6; i++)
+	{
+		va_hraster(iq->ScalingList4x4[i], l.lists[0][i], 4);
+		va_hraster(iq->ScalingList8x8[i], l.lists[1][i], 8);
+		va_hraster(iq->ScalingList16x16[i], l.lists[2][i], 8);
+		iq->ScalingListDC16x16[i] = l.dc[2][i];
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		va_hraster(iq->ScalingList32x32[i], l.lists[3][i * 3], 8);
+		iq->ScalingListDC32x32[i] = l.dc[3][i * 3];
+	}
+	if (va::vaBeginPicture(dpy, d->context, d->surfaces[d->cur.surface]) != VA_STATUS_SUCCESS) return -1;
+	d->started = true;
+	d->hpending = false;
+	return va_render(d, VAPictureParameterBufferType, pic.get(), sizeof(*pic))
+		&& (!sp.scaling || va_render(d, VAIQMatrixBufferType, iq.get(), sizeof(*iq))) ? 1 : -1;
+}
+
+static void va_hlists(Va_Decoder *d, const Va_Hslice &s, VASliceParameterBufferHEVC &param)
+{
+	//the lists of a slice, each of the index of a picture kept, made by
+	//the standard's 8.3.4 from those the picture is made from, in turn till
+	//there are enough, and as the slice changes them
+	memset(param.RefPicList, 0xff, sizeof(param.RefPicList));
+	int total = d->nbefore + d->nafter + d->nlt;
+	for (int list = 0; list < (s.type == 0 ? 2 : s.type == 1 ? 1 : 0); list++)
+	{
+		const int *a = list ? d->hafter : d->hbefore, *b = list ? d->hbefore : d->hafter;
+		int na = list ? d->nafter : d->nbefore, nb = list ? d->nbefore : d->nafter;
+		int temp[32], n = 0, want = std::max(s.num_ref_idx[list], total);
+		while (n < want)
+		{
+			for (int i = 0; i < na && n < want; i++) temp[n++] = a[i];
+			for (int i = 0; i < nb && n < want; i++) temp[n++] = b[i];
+			for (int i = 0; i < d->nlt && n < want; i++) temp[n++] = d->hlt[i];
+		}
+		for (int i = 0; i < s.num_ref_idx[list]; i++) param.RefPicList[list][i] = temp[s.mods[list] ? s.entries[list][i] : i];
+	}
+}
+
+static bool va_hpend(Va_Decoder *d, bool last)
+{
+	//the slice before given its parameters, now it is known if it is the
+	//last of the picture
+	if (!d->hpending) return true;
+	d->hpending = false;
+	d->hpend_param.LongSliceFlags.fields.LastSliceOfPic = last;
+	VABufferID id;
+	if (!va_buffer(d, VASliceParameterBufferType, &d->hpend_param, sizeof(d->hpend_param), id)) return false;
+	d->slices.push_back(id);
+	d->slices.push_back(d->hpend_data);
+	return true;
+}
+
+static bool va_hfinish(Va_Decoder *d, int64_t shown)
+{
+	//the picture decoded, held to be shown if it is, and kept: every
+	//picture is, till the next says it is not
+	if (!d->started) return true;
+	d->started = false;
+	VADisplay dpy = va_display();
+	bool ok = va_hpend(d, true);
+	ok = ok && !d->slices.empty() && va::vaRenderPicture(dpy, d->context, d->slices.data(), d->slices.size()) == VA_STATUS_SUCCESS;
+	ok = va::vaEndPicture(dpy, d->context) == VA_STATUS_SUCCESS && ok;
+	d->slices.clear();
+	va_buffers_free(d);
+	const Va_Hsps &sp = d->hpic_sps;
+	if (ok && d->hout) ok = va_read(d, d->cur.surface, sp.crop_left, sp.crop_top,
+		sp.width - sp.crop_left - sp.crop_right, sp.height - sp.crop_top - sp.crop_bottom, shown);
+	Va_Ref r = {};
+	r.surface = d->cur.surface;
+	r.top = r.bottom = d->cur_poc;
+	r.short_ref = true;
+	d->dpb.push_back(r);
+	return ok;
+}
+
+static int64_t va_h265_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, int64_t shown)
+{
+	//each NAL of the packet, of the base layer: parameter sets kept,
+	//slices given the hardware, those of a picture not decoded passed by
+	bool ok = true;
+	for (uint64_t k = 0; k + d->nal_length <= len;)
+	{
+		size_t n = 0;
+		for (int i = 0; i < d->nal_length; i++) n = (n << 8) | data[k + i];
+		k += d->nal_length;
+		if (n == 0 || k + n > len) break;
+		const uint8_t *nal = data + k;
+		k += n;
+		if (n < 3) continue;
+		int type = (nal[0] >> 1) & 63, layer = ((nal[0] & 1) << 5) | (nal[1] >> 3), tid = (nal[1] & 7) - 1;
+		if (layer || tid < 0) continue;
+		if (type == 33 || type == 34)
+		{
+			//a parameter set starts a new access unit, so ends the picture
+			//before it, which is not to be read by the new set's size
+			if (d->started) ok &= va_hfinish(d, shown);
+			va_rbsp(nal, n, d->rbsp);
+			if (type == 33) va_hsps(d->rbsp, d->hsps);
+			else va_hpps(d->rbsp, d->hpps);
+			continue;
+		}
+		if (type == 36 || type == 37)
+		{
+			//the end of a stream: the next picture starts again
+			if (d->started) ok &= va_hfinish(d, shown);
+			d->hfirst = true;
+			continue;
+		}
+		if (type == 39)
+		{
+			va_rbsp(nal, n, d->rbsp);
+			va_hsei(d, d->rbsp);
+			continue;
+		}
+		if (type > 21 || (type > 9 && type < 16)) continue;
+		//the header, all there is to read of it, in the first bytes
+		va_rbsp(nal, std::min(n, (size_t)8192), d->rbsp);
+		if (d->rbsp.size() < 3) continue;
+		bool first = d->rbsp[2] & 0x80;
+		if (!first && (d->hskip || !d->started))
+		{
+			ok &= d->hskip;
+			continue;
+		}
+		if (first && d->started) ok &= va_hfinish(d, shown);
+		Va_Hslice s;
+		VASliceParameterBufferHEVC param;
+		if (!va_hslice(d, d->rbsp, type, s, param))
+		{
+			ok = false;
+			if (first) d->hskip = true;
+			continue;
+		}
+		if (first)
+		{
+			int started = va_hstart(d, s, type, tid);
+			d->hskip = started <= 0;
+			if (started < 0)
+			{
+				if (d->started) va_hfinish(d, shown);
+				ok = false;
+			}
+			if (started <= 0) continue;
+		}
+		//a slice of the picture of another PPS is broken
+		else if (s.pps_id != d->hpic_pps) { ok = false; continue; }
+		d->hlast = s;
+		d->hlast_param = param;
+		va_hlists(d, s, param);
+		param.slice_data_size = n;
+		param.slice_data_offset = 0;
+		param.slice_data_flag = VA_SLICE_DATA_FLAG_ALL;
+		param.slice_data_byte_offset = s.header_bytes;
+		param.slice_segment_address = s.address;
+		auto &f = param.LongSliceFlags.fields;
+		f.dependent_slice_segment_flag = s.dependent;
+		f.slice_type = s.type;
+		f.slice_sao_luma_flag = s.sao_luma;
+		f.slice_sao_chroma_flag = s.sao_chroma;
+		f.mvd_l1_zero_flag = s.mvd_l1_zero;
+		f.cabac_init_flag = s.cabac_init;
+		f.slice_temporal_mvp_enabled_flag = s.temporal_mvp;
+		f.slice_deblocking_filter_disabled_flag = s.deblocking_disabled;
+		f.collocated_from_l0_flag = s.collocated_from_l0;
+		f.slice_loop_filter_across_slices_enabled_flag = s.loop_filter_across_slices;
+		param.collocated_ref_idx = s.temporal_mvp ? s.collocated_ref_idx : 0xff;
+		param.num_ref_idx_l0_active_minus1 = s.num_ref_idx[0] ? s.num_ref_idx[0] - 1 : 0;
+		param.num_ref_idx_l1_active_minus1 = s.num_ref_idx[1] ? s.num_ref_idx[1] - 1 : 0;
+		param.slice_qp_delta = s.qp_delta;
+		param.slice_cb_qp_offset = s.cb_qp_offset;
+		param.slice_cr_qp_offset = s.cr_qp_offset;
+		param.slice_beta_offset_div2 = s.beta;
+		param.slice_tc_offset_div2 = s.tc;
+		param.five_minus_max_num_merge_cand = s.five_minus_max_merge;
+		//its data now, its parameters once it is known if it is the last
+		VABufferID id;
+		if (!va_hpend(d, false) || !va_buffer(d, VASliceDataBufferType, nal, n, id)) { ok = false; continue; }
+		d->hpend_param = param;
+		d->hpend_data = id;
+		d->hpending = true;
+	}
+	ok &= va_hfinish(d, shown);
+	return ok ? 0 : -1;
+}
+
 ////////////////
 // Motion JPEG
 ////////////////
@@ -2037,28 +3617,51 @@ static int64_t va_jpeg_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 
 static Va_Decoder *va_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
-	//of H.264 its parameter sets read now, the surfaces made with its first
-	//picture; of Motion JPEG, each frame says what it is
-	bool jpeg = codec == 0x6a706567;
+	//of H.264 and H.265 their parameter sets read now, the surfaces made
+	//with the first picture; of Motion JPEG, each frame says what it is
+	bool jpeg = codec == 0x6a706567, hevc = codec == 0x68766331;
 	std::vector<const uint8_t*> sets;
 	std::vector<size_t> sizes;
 	int nal_length = 4;
 	if (jpeg) { if (len < 8) return nullptr; }
+	else if (hevc) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return nullptr; }
 	else if (codec != 0x61766331 || !video_avcc(setup, len, sets, sizes, nal_length)) return nullptr;
 	VADisplay dpy = va_display();
 	if (!dpy) return nullptr;
 	auto d = new Va_Decoder();
 	d->jpeg = jpeg;
+	d->hevc = hevc;
 	d->nal_length = nal_length;
 	bool ok = jpeg ? va_has(dpy, VAProfileJPEGBaseline) : false;
+	if (hevc)
+	{
+		d->hsps.resize(16);
+		d->hpps.resize(64);
+	}
 	for (size_t i = 0; i < sets.size(); i++)
 	{
-		if (!sizes[i]) continue;
+		if (sizes[i] < 2) continue;
 		va_rbsp(sets[i], sizes[i], d->rbsp);
-		if ((sets[i][0] & 31) == 7) va_sps(d->rbsp, d->sps);
+		if (hevc)
+		{
+			int type = (sets[i][0] >> 1) & 63;
+			if (type == 33) va_hsps(d->rbsp, d->hsps);
+			else if (type == 34) va_hpps(d->rbsp, d->hpps);
+		}
+		else if ((sets[i][0] & 31) == 7) va_sps(d->rbsp, d->sps);
 		else va_pps(d->rbsp, d->pps, d->sps);
 	}
-	if (!jpeg)
+	if (hevc)
+	{
+		//of the first SPS, 8 bits Main, 10 Main 10, if the driver has it
+		for (auto &sp : d->hsps)
+		{
+			if (!sp.valid) continue;
+			ok = va_has(dpy, sp.bit_depth_luma == 10 ? VAProfileHEVCMain10 : VAProfileHEVCMain);
+			break;
+		}
+	}
+	else if (!jpeg)
 	{
 		//a profile it can, of the first SPS, 4:2:0 of 8 bits
 		for (auto &sp : d->sps)
@@ -2084,7 +3687,8 @@ static int64_t va_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, int64
 {
 	//nothing: the end, and this holds none back
 	if (len == 0) return 0;
-	return d->jpeg ? va_jpeg_decode(d, data, len, shown) : va_h264_decode(d, data, len, shown);
+	return d->jpeg ? va_jpeg_decode(d, data, len, shown) : d->hevc ? va_h265_decode(d, data, len, shown)
+		: va_h264_decode(d, data, len, shown);
 }
 
 static int64_t va_frame(Va_Decoder *d, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride, int64_t shown)
@@ -2096,9 +3700,12 @@ static int64_t va_frame(Va_Decoder *d, uint32_t *pixels, uint64_t w, uint64_t h,
 		if (it->shown > shown) { ++it; continue; }
 		if (it->shown == shown)
 		{
-			va_convert(*it, d->full, pixels, w, h, stride);
+			if (it->bytes == 2 && (d->transfer == 16 || d->transfer == 18 || d->primaries == 9))
+				va_convert_wide(*it, va_tone_of(d), pixels, w, h, stride);
+			else va_convert(*it, d->full, d->matrix, pixels, w, h, stride);
 			got = shown;
 		}
+		if (d->spare.size() < 4) d->spare.push_back(std::move(it->data));
 		it = d->held.erase(it);
 	}
 	return got;
@@ -2328,7 +3935,16 @@ static void video_drain(Video_Decoder *d, int wait)
 uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
 	//H.264, avc1, its parameter sets each after a start code, or Motion
-	//JPEG, jpeg, its frames as they are, a nal_length of 0
+	//JPEG, jpeg, its frames as they are, a nal_length of 0. H.265, hvc1,
+	//only by VA-API
+	if (codec == 0x68766331)
+	{
+		auto va = va_open(codec, setup, len);
+		if (!va) return 0;
+		auto d = new Video_Decoder();
+		d->va = va;
+		return (uint64_t)d;
+	}
 	std::vector<const uint8_t*> sets;
 	std::vector<size_t> sizes;
 	int nal_length = 4;
