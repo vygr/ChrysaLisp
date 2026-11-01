@@ -18,6 +18,7 @@
 	'(1 2 5 7 16 4096))
 
 ;all of them out at once, to members all round
-(defq sg_result (scene-run "gophers" (lambda (line) line) :nil :t))
+(defq sg_said (list) sg_result (scene-run "gophers" (lambda (line) (push sg_said line) line) :nil :t))
 (assert-true "the gophers scene ran to its end" sg_result)
-(if sg_result (assert-eq "and every gopher came back right" 0 (second sg_result)))
+;what it said is what shows why, if one did not
+(if sg_result (assert-eq "and every gopher came back right" "" (if (/= 0 (second sg_result)) (join sg_said " | ") "")))

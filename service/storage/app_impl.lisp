@@ -103,9 +103,6 @@
 	(+ pins (length changed)))
 
 (defun child-run (said)
-	;a bot: it runs before the apps of its node, so a store at work is not
-	;held up by them, (task-band)
-	(task-band :bot)
 	;what it is to keep
 	(defq opts (Emap))
 	(each (lambda (line)
@@ -360,5 +357,8 @@
 			(if stopped (mail-send stopped "ok")))))
 
 (defun main ()
+	;a bot: it runs before the apps of its node, so a store at work is not
+	;held up by them, (task-band)
+	(task-band :bot)
 	;who started it may be gone before it says what is wanted
 	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))
