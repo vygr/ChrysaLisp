@@ -1138,7 +1138,7 @@
 ; it has done a thing asked of it, all of it in one mail to each. With no
 ; recorder nothing is said, and nothing is made to be said.
 
-(defq +storage_record_lease 5000000)
+(defq +storage_record_lease 5)
 
 (defun storage-record-new ()
 	; (storage-record-new) -> rec
@@ -1158,7 +1158,7 @@
 			(setq them (filter (# (nql (first %0) mbox)) them)))
 		(:t (defq mbox (hex-decode text))
 			(setq them (cat (filter (# (nql (first %0) mbox)) them)
-				(list (list mbox (+ (pii-time) +storage_record_lease)))))))
+				(list (list mbox (+ (pii-time) (task-timeout +storage_record_lease))))))))
 	(elem-set rec 0 them))
 
 (defun storage-recording? (rec)
