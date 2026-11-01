@@ -66,7 +66,7 @@ static bool video_avcc(const uint8_t *setup, uint64_t len, std::vector<const uin
 }
 
 __attribute__((unused)) static bool video_hvcc(const uint8_t *setup, uint64_t len, std::vector<const uint8_t*> &sets,
-	std::vector<size_t> &sizes, int &nal_length)
+	std::vector<size_t> &sizes, int &nal_length, bool sei = false)
 {
 	//hvcC: 21 bytes of what the stream is, the bytes of a length less 1,
 	//then arrays, each the kind of its units, VPS SPS PPS and others, how
@@ -85,8 +85,9 @@ __attribute__((unused)) static bool video_hvcc(const uint8_t *setup, uint64_t le
 			size_t size = (setup[at] << 8) | setup[at + 1];
 			at += 2;
 			if (at + size > len) return false;
-			//the parameter sets, VPS SPS PPS
-			if (kind >= 32 && kind <= 34)
+			//the parameter sets, VPS SPS PPS, and prefix SEI if asked for,
+			//as that of HDR's light may be kept here
+			if ((kind >= 32 && kind <= 34) || (sei && kind == 39))
 			{
 				sets.push_back(setup + at);
 				sizes.push_back(size);
@@ -1474,7 +1475,7 @@ static bool va_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t
 {
 	//the picture of a surface, from x y and w by h of it, held: by its
 	//memory, or the image the driver has of it, or one of NV12 it is
-	//copied to
+	//copied to, P010 of 10 bits
 	VADisplay dpy = va_display();
 	VASurfaceID id = d->surfaces[surface];
 	if (va::vaSyncSurface(dpy, id) != VA_STATUS_SUCCESS) return false;
@@ -1496,11 +1497,12 @@ static bool va_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t
 	VAImage image;
 	if (va::vaDeriveImage(dpy, id, &image) != VA_STATUS_SUCCESS)
 	{
-		VAImageFormat nv12 = {};
-		nv12.fourcc = VA_FOURCC_NV12;
-		nv12.byte_order = VA_LSB_FIRST;
-		nv12.bits_per_pixel = 12;
-		if (va::vaCreateImage(dpy, &nv12, d->coded_w, d->coded_h, &image) != VA_STATUS_SUCCESS) return false;
+		bool ten = d->format == VA_RT_FORMAT_YUV420_10;
+		VAImageFormat copy = {};
+		copy.fourcc = ten ? VA_FOURCC_P010 : VA_FOURCC_NV12;
+		copy.byte_order = VA_LSB_FIRST;
+		copy.bits_per_pixel = ten ? 24 : 12;
+		if (va::vaCreateImage(dpy, &copy, d->coded_w, d->coded_h, &image) != VA_STATUS_SUCCESS) return false;
 		if (va::vaGetImage(dpy, id, 0, 0, d->coded_w, d->coded_h, image.image_id) != VA_STATUS_SUCCESS)
 		{
 			va::vaDestroyImage(dpy, image.image_id);
@@ -2566,7 +2568,7 @@ static void va_hsei(Va_Decoder *d, const std::vector<uint8_t> &rbsp)
 		type += k;
 		while ((k = b.u(8)) == 255 && !b.over()) size += 255;
 		size += k;
-		size_t next = b.at + size * 8;
+		size_t next = b.at + (size_t)size * 8;
 		if (type == 144 && size >= 4)
 		{
 			int cll = b.u(16);
@@ -3261,13 +3263,18 @@ static int va_hstart(Va_Decoder *d, const Va_Hslice &s, int type, int tid)
 		&& (!sp.scaling || va_render(d, VAIQMatrixBufferType, iq.get(), sizeof(*iq))) ? 1 : -1;
 }
 
-static void va_hlists(Va_Decoder *d, const Va_Hslice &s, VASliceParameterBufferHEVC &param)
+static bool va_hlists(Va_Decoder *d, const Va_Hslice &s, VASliceParameterBufferHEVC &param)
 {
 	//the lists of a slice, each of the index of a picture kept, made by
 	//the standard's 8.3.4 from those the picture is made from, in turn till
-	//there are enough, and as the slice changes them
+	//there are enough, and as the slice changes them. Every slice of a
+	//picture is made from the same pictures, those its first slice says,
+	//so one that says other than that is broken
 	memset(param.RefPicList, 0xff, sizeof(param.RefPicList));
-	int total = d->nbefore + d->nafter + d->nlt;
+	int total = d->nbefore + d->nafter + d->nlt, own = 0;
+	for (int i = 0; i < s.rps.negative + s.rps.positive; i++) own += s.rps.used[i];
+	for (int i = 0; i < s.num_lt; i++) own += s.lt_used[i];
+	if (own != total || (s.type != 2 && !total)) return false;
 	for (int list = 0; list < (s.type == 0 ? 2 : s.type == 1 ? 1 : 0); list++)
 	{
 		const int *a = list ? d->hafter : d->hbefore, *b = list ? d->hbefore : d->hafter;
@@ -3281,6 +3288,7 @@ static void va_hlists(Va_Decoder *d, const Va_Hslice &s, VASliceParameterBufferH
 		}
 		for (int i = 0; i < s.num_ref_idx[list]; i++) param.RefPicList[list][i] = temp[s.mods[list] ? s.entries[list][i] : i];
 	}
+	return true;
 }
 
 static bool va_hpend(Va_Decoder *d, bool last)
@@ -3391,9 +3399,15 @@ static int64_t va_h265_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 		}
 		//a slice of the picture of another PPS is broken
 		else if (s.pps_id != d->hpic_pps) { ok = false; continue; }
+		if (!va_hlists(d, s, param))
+		{
+			//broken, as is the picture of its first slice
+			ok = false;
+			if (first) d->hskip = true;
+			continue;
+		}
 		d->hlast = s;
 		d->hlast_param = param;
-		va_hlists(d, s, param);
 		param.slice_data_size = n;
 		param.slice_data_offset = 0;
 		param.slice_data_flag = VA_SLICE_DATA_FLAG_ALL;
@@ -3625,7 +3639,7 @@ static Va_Decoder *va_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	std::vector<size_t> sizes;
 	int nal_length = 4;
 	if (jpeg) { if (len < 8) return nullptr; }
-	else if (hevc) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return nullptr; }
+	else if (hevc) { if (!video_hvcc(setup, len, sets, sizes, nal_length, true)) return nullptr; }
 	else if (codec != 0x61766331 || !video_avcc(setup, len, sets, sizes, nal_length)) return nullptr;
 	VADisplay dpy = va_display();
 	if (!dpy) return nullptr;
@@ -3648,6 +3662,7 @@ static Va_Decoder *va_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 			int type = (sets[i][0] >> 1) & 63;
 			if (type == 33) va_hsps(d->rbsp, d->hsps);
 			else if (type == 34) va_hpps(d->rbsp, d->hpps);
+			else if (type == 39) va_hsei(d, d->rbsp);
 		}
 		else if ((sets[i][0] & 31) == 7) va_sps(d->rbsp, d->sps);
 		else va_pps(d->rbsp, d->pps, d->sps);
