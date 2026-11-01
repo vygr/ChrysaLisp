@@ -21,9 +21,9 @@
 			(setq *why* (cat (str (pfind resp :status)) " " (ifn (pfind resp :reason) ""))) :nil)
 		((http-body-str resp))))
 
-(defun main ()
-	(defq msg (mail-read (task-mbox)) reply (slice msg 0 +net_id_size)
-		ask (split (slice msg +net_id_size -1) "\n")
+(defun child-run (said)
+	(defq reply (slice said 0 +net_id_size)
+		ask (split (slice said +net_id_size -1) "\n")
 		path (first ask) picture (if (> (length ask) 1) (second ask) "") got (list)
 		;each address the once
 		take (lambda (url)
@@ -50,3 +50,7 @@
 	(mail-send reply (if (empty? got) (cat "!" *why*)
 		(apply (const cat) (map (lambda ((url data))
 			(cat url "\n" (str (length data)) "\n" data)) got)))))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

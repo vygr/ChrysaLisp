@@ -102,7 +102,7 @@
 		changed)
 	(+ pins (length changed)))
 
-(defun main ()
+(defun child-run (said)
 	;a bot: it runs before the apps of its node, so a store at work is not
 	;held up by them, (task-band)
 	(task-band :bot)
@@ -110,7 +110,7 @@
 	(defq opts (Emap))
 	(each (lambda (line)
 		(if (defq at (find " " line)) (. opts :insert (sym (cat ":" (slice line 0 at))) (slice line (inc at) -1))))
-		(split (mail-read (task-mbox)) +storage_lf))
+		(split said +storage_lf))
 	(bind '(ready image name size id block force group member tick grace copies)
 		(gather opts :ready :image :name :size :id :block :force :group :member :tick :grace :copies))
 	(defq ready (hex-decode ready) size (if size (str-as-num size) 0) block (if block (str-as-num block) 0)
@@ -358,3 +358,7 @@
 			(store-close store)
 			(setq store :nil)
 			(if stopped (mail-send stopped "ok")))))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

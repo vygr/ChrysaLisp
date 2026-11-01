@@ -267,11 +267,11 @@
 		(:t (storage-record recorder member "gopher-none" (cat tag " " name))
 			(mail-send asker "none") :drop)))
 
-(defun main ()
+(defun child-run (said)
 	;a bot, as its service is: the gophers here run before the apps of the
 	;node, and after the GUI
 	(task-band :bot)
-	(defq first_msg (split (mail-read (task-mbox)) +storage_lf) svc (hex-decode (first first_msg))
+	(defq first_msg (split said +storage_lf) svc (hex-decode (first first_msg))
 		select (list (task-mbox) (mail-mbox))
 		gophers (list) kept (Fmap 31) member "?" copies 3 running :t asked :nil
 		;the slow lane: a runner of its own, that this starts, and that a
@@ -355,3 +355,7 @@
 				(mail-send lane_hold (if busy "1" "0"))))
 		(storage-record-send recorder))
 	(mail-timeout (second select) 0 0))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

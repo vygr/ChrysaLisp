@@ -20,12 +20,12 @@
 
 (import "lib/sync/sync.inc")
 
-(defun main ()
+(defun child-run (said)
 	;its name, the root it writes under, and machines to take from as well
 	;as those in sync_from, a system id each, with a space between: what
 	;started it is this machine's own, a test starts one that takes from
 	;the machine it is on
-	(bind '(name root &optional also) (split (mail-read (task-mbox)) "\n"))
+	(bind '(name root &optional also) (split said "\n"))
 	(defq also (filter (# (= (length %0) 32)) (split (ifn also "") " ")))
 	;one for a machine. The name is a * one, seen from every machine, so it
 	;is this machine's own that is looked for, by its system id. It is here
@@ -155,3 +155,7 @@
 				(+sync_reply_status status)) back))))
 	(mail-send spread "")
 	(mail-forget service)))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

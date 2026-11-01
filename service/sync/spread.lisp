@@ -15,9 +15,9 @@
 
 (import "lib/sync/sync.inc")
 
-(defun main ()
+(defun child-run (said)
 	;the name of the service, and the root of its tree
-	(bind '(name root) (split (mail-read (task-mbox)) "\n"))
+	(bind '(name root) (split said "\n"))
 	(defq kept (sync-kept root)
 		me (hex-encode (system-id)) running :t select (list (task-mbox)))
 	(while running
@@ -36,3 +36,7 @@
 						(unless (or (eql id me) (sync-no-modes? machine))
 							(sync-push svc root rules_text :nil :t kept :nil :t)))
 					(sync-services name))))))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

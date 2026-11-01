@@ -18,8 +18,8 @@
 ;how long lines are kept before they are sent, and how many at most
 (defq +run_hold 100000 +run_most 400 +run_lf "\n")
 
-(defun main ()
-	(bind '(to what) (split (mail-read (task-mbox)) +run_lf))
+(defun child-run (said)
+	(bind '(to what) (split said +run_lf))
 	(defq to (hex-decode to) pending (list) sent (pii-time) told 0)
 	(defun pass (line)
 		;a line kept, and what is kept sent when it has waited or is many,
@@ -37,3 +37,7 @@
 		(mail-send to (cat "lines" +run_lf (join pending +run_lf)))
 		(++ told))
 	(mail-send to (cat "end " (if result (join (map (const str) result) " ") "- -") " " (str told))))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

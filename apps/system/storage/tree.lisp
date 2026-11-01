@@ -34,9 +34,9 @@
 ;tens of megabytes is one
 (defq +look_rate 1000000 +job_timeout 120000000 +lf "\n")
 
-(defun main ()
+(defun child-run (said)
 	(defq select (task-mboxes +select_size))
-	(bind '(reply root prefix members) (split (mail-read (task-mbox)) +lf))
+	(bind '(reply root prefix members) (split said +lf))
 	(defq reply (hex-decode reply) svcs (map (const hex-decode) (split members " "))
 		;not what the tests make and take away as they run: a file that was
 		;there when the folder was listed and gone when its turn came was the
@@ -93,3 +93,7 @@
 						(. jobs :refresh +job_timeout))))
 			(mail-timeout (elem-get select +select_timer) 0 0)))
 	(. jobs :close))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

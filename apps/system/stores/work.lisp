@@ -137,8 +137,8 @@
 	;all of it gone past, whatever was told of it, unless it was stopped
 	(unless *stopped* (setq *bytes* (+ start bytes))))
 
-(defun main ()
-	(bind '(reply what from to rule names copies) (first (read (string-stream (mail-read (task-mbox))))))
+(defun child-run (said)
+	(bind '(reply what from to rule names copies) (first (read (string-stream said))))
 	(defq *reply* (hex-decode reply) *rule* rule *bytes* 0 *count* 0 *name* "" *told* 0
 		*done* 0 *skipped* 0 *failed* 0 *stopped* :nil t0 (pii-time)
 		*from* (if (eql (first from) :store) (list :store (hex-decode (second from)) (last from)) from)
@@ -161,3 +161,7 @@
 				(unless (eql what :copy) (work-tick 1))))
 		things)
 	(tell :done *done* *skipped* *failed* *bytes* (/ (- (pii-time) t0) 1000) *stopped*))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))
