@@ -720,30 +720,44 @@
 		(shader-varyings pixel))
 	(list vertex pixel))
 
-(defun sh-gather (file seen stack out lib)
+(enums +sh_gather 0
+	(enum file text forms at heading lib))
+
+(defun sh-gather-open (file lib)
+	; (sh-gather-open file lib) -> a file on its way, +sh_gather
+	(unless (defq text (load file)) (sh-err "no such file" file))
+	(list file text (shader-read (string-stream text)) 0 :t lib))
+
+(defun sh-gather (file out)
 	;the text of each file a file imports, and of what they import, before
 	;its own, onto out, each file once. A file of a library, lib, has only
-	;functions, consts and globals and no main
-	(unless (defq text (load file)) (sh-err "no such file" file))
-	(defq heading :t folder (slice file 0 (ifn (rfind "/" file) 0)))
-	(each (lambda (form)
-			(cond
-				((and (list? form) (eql (first form) 'import))
-					(unless heading (sh-err "an import comes before any other declaration" form))
-					(unless (and (= (length form) 2) (str? (second form))) (sh-err "wrong import" form))
-					(defq path (second form))
-					(if (starts-with "./" path) (setq path (cat folder (slice path 2 -1))))
-					(if (find path stack) (sh-err "a loop of imports" form))
-					(unless (find path seen)
-						(push seen path)
-						(sh-gather path seen (cat stack (list path)) out :t)))
-				(:t (setq heading :nil)
-					(when lib
-						(unless (and (list? form) (find (first form) '(defun defconst defglobal)))
-							(sh-err "an imported file has only functions, consts and globals" form))
-						(if (eql (second form) 'main) (sh-err "an imported file has no main" form))))))
-		(shader-read (string-stream text)))
-	(push out text))
+	;functions, consts and globals and no main. todo is the files that are
+	;on their way, each importing the next
+	(defq todo (list (sh-gather-open file :nil)) seen (list file))
+	(while (nempty? todo)
+		(bind '(at_file text forms at heading lib) (last todo))
+		(cond
+			((>= at (length forms))
+				(push out text)
+				(pop todo))
+			(:t (elem-set (last todo) +sh_gather_at (inc at))
+				(defq form (elem-get forms at))
+				(cond
+					((and (list? form) (eql (first form) 'import))
+						(unless heading (sh-err "an import comes before any other declaration" form))
+						(unless (and (= (length form) 2) (str? (second form))) (sh-err "wrong import" form))
+						(defq path (second form))
+						(if (starts-with "./" path)
+							(setq path (cat (slice at_file 0 (ifn (rfind "/" at_file) 0)) (slice path 2 -1))))
+						(if (some (# (eql (first %0) path)) todo) (sh-err "a loop of imports" form))
+						(unless (find path seen)
+							(push seen path)
+							(push todo (sh-gather-open path :t))))
+					(:t (elem-set (last todo) +sh_gather_heading :nil)
+						(when lib
+							(unless (and (list? form) (find (first form) '(defconst defglobal defun)))
+								(sh-err "an imported file has only functions, consts and globals" form))
+							(if (eql (second form) 'main) (sh-err "an imported file has no main" form)))))))))
 
 (defun shader-text (file)
 	; (shader-text file) -> str
@@ -752,19 +766,10 @@
 	;from the root, or with ./ from the folder of the file. Its hash is
 	;its key, so a change to a file it imports is a change of key
 	(defq out (list))
-	(sh-gather file (list file) (list file) out :nil)
+	(sh-gather file out)
 	(defq text (first out))
 	(each! (# (setq text (cat text "\n" %0))) (list out) 1)
 	text)
-
-(defun shader-load (file)
-	; (shader-load file) -> program
-	;a program from a file, and what it imports, (shader-text). Only its
-	;head is read, and a hash of it taken, which is what its native code
-	;is kept under. The rest is read and checked when a back end has to
-	;make something from it, (shader-full), so a file whose native code is
-	;there already costs a hash and a few lines
-	(shader-from-text (shader-text file)))
 
 (defun shader-from-text (text)
 	; (shader-from-text str) -> program
@@ -785,6 +790,15 @@
 ;boundary, a vec3 or vec4 on a 16 byte boundary. A mat4 is its 4 columns,
 ;each a vec4. A matrix is given, and comes back, as ChrysaLisp has one, 16
 ;numbers a row at a time, as lib/math/matrix.inc makes them.
+
+(defun shader-load (file)
+	; (shader-load file) -> program
+	;a program from a file, and what it imports, (shader-text). Only its
+	;head is read, and a hash of it taken, which is what its native code
+	;is kept under. The rest is read and checked when a back end has to
+	;make something from it, (shader-full), so a file whose native code is
+	;there already costs a hash and a few lines
+	(shader-from-text (shader-text file)))
 
 (defun shader-layout (program)
 	; (shader-layout program) -> (size (name type offset) ...)

@@ -24,6 +24,9 @@
     list is the stack to use, as (flatten) does.
 
     What is in a comment or a string is not looked at.
+    A test of the very thing has a comment that begins
+    ;check off on its line, or on the line before, and
+    nothing is said of it.
 
     If no paths given on command line
     then will test files from stdin.")
@@ -42,10 +45,11 @@
 			(defq tok_state :text line_no 0 depth 0 defs_map (Fmap 11) uses (list)
 				;the definitions that are open, the innermost last, each
 				;(name depth kind), and what the next symbol is
-				open (list) after_open :nil want :nil after_const :nil)
+				open (list) after_open :nil want :nil after_const :nil off (list))
 			(lines! (lambda (raw_line)
 				(task-slice)
 				(++ line_no)
+				(if (nempty? (substr raw_line ";check off")) (push off line_no))
 				;the name of a definition is on the line its defun is on. A
 				;defun with none after it is a word of something else, a key
 				;of a case
@@ -83,7 +87,7 @@
 					toks states)
 				:nil) in)
 			(each (lambda ((name at inside head))
-				(when (defq n (. defs_map :find name))
+				(and (defq n (. defs_map :find name)) (not (find at off)) (not (find (dec at) off))
 					(cond
 						;used above where it is defined, as the head of a form.
 						;Anywhere else it may be a name of something else, an

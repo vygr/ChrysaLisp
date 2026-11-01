@@ -39,10 +39,10 @@
 (assert-eq "a function can setq a local of its caller" 99 (tr-caller))
 
 (env-push)
-(defun tr-mod-self (n) (if (> n 0) (tr-mod-self (dec n)) :bottom))
-(defun tr-mod-first (n) (tr-mod-second n))
+(defun tr-mod-self (n) (if (> n 0) (tr-mod-self (dec n)) :bottom)) ;check off
+(defun tr-mod-first (n) (tr-mod-second n)) ;check off
 (defun tr-mod-second (n) n)
-(defun tr-mod-inner (n) (if (> n 0) (tr-mod-inner (dec n)) :bottom))
+(defun tr-mod-inner (n) (if (> n 0) (tr-mod-inner (dec n)) :bottom)) ;check off
 (defun tr-mod-outer (n) (tr-mod-inner n))
 (export-symbols '(tr-mod-self tr-mod-first tr-mod-outer))
 (env-pop)

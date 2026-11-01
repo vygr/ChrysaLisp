@@ -48,6 +48,30 @@
 		(defq x (* 0.5 (+ (get :fig_x this) (get :fig_x other))) y (* 0.5 (+ (get :fig_y this) (get :fig_y other))))
 		(times 5 (spark-at x y (get :colour this)))))
 
+(defun ball-new (x y r)
+	;a ball, grown from nothing. It comes on as something it can meet only
+	;when it is grown, or two made together would part at once
+	(defq fig (Figure "ball") colour (elem-get +colours (random (length +colours)))
+		comp_x (Rate :fig_x 0.0) comp_y (Rate :fig_y 0.0))
+	(. fig :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 r r (path)))))
+	(def fig :fig_fill colour :colour colour :fig_stroke 0xffffffff :fig_width 1.5 :radius r
+		:fig_x x :fig_y y :fig_sx 0.0 :fig_sy 0.0 :rate_x comp_x :rate_y comp_y :on_pointer ball-hit-pointer
+		:fig_on_enter (lambda (this other)
+			(defq kinds (get :fig_kinds other))
+			(cond
+				((/= 0 (logand kinds +kind_wall)) (ball-hit-wall this other))
+				((/= 0 (logand kinds +kind_ball)) (ball-hit-ball this other))
+				((/= 0 (logand kinds +kind_pointer)) ((get :on_pointer this) this other))))
+		;another ball can send it back out while it is still in a wall
+		:fig_on_stay (lambda (this other)
+			(if (/= 0 (logand (get :fig_kinds other) +kind_wall)) (ball-hit-wall this other))))
+	(set-speed fig (random-fixed -120.0 120.0) (random-fixed -120.0 120.0))
+	(. fig :add comp_x comp_y (Wave :fig_z 120.0 (random-fixed 3.0 7.0) (random-fixed 0.0 6.0))
+		(Tween :fig_sx 1.0 0.5 (const ease-back))
+		(Tween :fig_sy 1.0 0.5 (const ease-back) (lambda (f c)
+			(def f :fig_kinds +kind_ball :fig_meets (const (logior +kind_wall +kind_ball +kind_pointer))))))
+	(. stage :add_node fig))
+
 (defun ball-hit-pointer (this other)
 	;it swells, bursts into sparks, and two smaller are thrown out. A small
 	;one only goes
@@ -61,39 +85,19 @@
 					(times 2 (ball-new x y (* r 0.65))))
 				(. f :kill))))))
 
-(defun ball-new (x y r)
-	;a ball, grown from nothing. It comes on as something it can meet only
-	;when it is grown, or two made together would part at once
-	(defq fig (Figure "ball") colour (elem-get +colours (random (length +colours)))
-		comp_x (Rate :fig_x 0.0) comp_y (Rate :fig_y 0.0))
-	(. fig :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 r r (path)))))
-	(def fig :fig_fill colour :colour colour :fig_stroke 0xffffffff :fig_width 1.5 :radius r
-		:fig_x x :fig_y y :fig_sx 0.0 :fig_sy 0.0 :rate_x comp_x :rate_y comp_y
-		:fig_on_enter (lambda (this other)
-			(defq kinds (get :fig_kinds other))
-			(cond
-				((/= 0 (logand kinds +kind_wall)) (ball-hit-wall this other))
-				((/= 0 (logand kinds +kind_ball)) (ball-hit-ball this other))
-				((/= 0 (logand kinds +kind_pointer)) (ball-hit-pointer this other))))
-		;another ball can send it back out while it is still in a wall
-		:fig_on_stay (lambda (this other)
-			(if (/= 0 (logand (get :fig_kinds other) +kind_wall)) (ball-hit-wall this other))))
-	(set-speed fig (random-fixed -120.0 120.0) (random-fixed -120.0 120.0))
-	(. fig :add comp_x comp_y (Wave :fig_z 120.0 (random-fixed 3.0 7.0) (random-fixed 0.0 6.0))
-		(Tween :fig_sx 1.0 0.5 (const ease-back))
-		(Tween :fig_sy 1.0 0.5 (const ease-back) (lambda (f c)
-			(def f :fig_kinds +kind_ball :fig_meets (const (logior +kind_wall +kind_ball +kind_pointer))))))
-	(. stage :add_node fig))
-
-(defun spawner-look (this comp)
-	(if (< (count-kind +kind_ball) +min_balls)
-		(ball-new (random-fixed 60.0 580.0) (random-fixed 60.0 420.0) (random-fixed 14.0 34.0)))
-	(. this :add (Wait 0.4 spawner-look)))
+(defun spawner-look (this dt)
+	(when (<= (defq left (- (get :look_in this) dt)) 0.0)
+		(setq left 0.4)
+		(if (< (count-kind +kind_ball) +min_balls)
+			(ball-new (random-fixed 60.0 580.0) (random-fixed 60.0 420.0) (random-fixed 14.0 34.0))))
+	(def this :look_in left)
+	:t)
 
 (defun spawner ()
 	;it has no shape, every so often it looks how many balls there are
 	(defq fig (Figure "spawner"))
-	(. fig :add (Wait 0.4 spawner-look))
+	(def fig :look_in 0.4)
+	(. fig :add (Custom spawner-look))
 	(. stage :add_node fig))
 
 (defun ring-new (colour)
@@ -106,21 +110,29 @@
 		(Tween :fig_alpha 0.0 1.4 (const ease-in) (lambda (f c) (. f :kill))))
 	(. stage :add_node fig))
 
-(defun word-next (this comp)
+(defun word-next (this)
 	;a morph is over. A ring goes out, it rests, then it morphs on to the next
 	(ring-new (get :fig_fill this))
 	(setq word_at (% (inc word_at) (length words)))
 	(. this :add (Cues (Wait 1.2)
-		(Tween :fig_outline (elem-get words word_at) 1.4 (const ease-in-out) word-next)))
+		(Tween :fig_outline (elem-get words word_at) 1.4 (const ease-in-out))))
 	(. this :add (Cues (Wait 1.2)
 		(Tween :fig_fill (elem-get +colours (% word_at (length +colours))) 1.4))))
+
+(defun word-look (this dt)
+	;each 2.6 seconds, the rest and the morph of (word-next), the next word
+	(when (<= (defq left (- (get :next_in this) dt)) 0.0)
+		(setq left (+ left 2.6))
+		(word-next this))
+	(def this :next_in left)
+	:t)
 
 (defun word-new ()
 	;the word in the middle, and it tilts this way and that
 	(defq fig (Figure "word"))
 	(. fig :set_outline (elem-get words 0))
-	(def fig :fig_fill (first +colours) :fig_x 320.0 :fig_y 240.0)
-	(. fig :add (Wave :fig_ry 0.6 7.0) (Wave :fig_rx 0.3 11.0) (Wait 1.0 word-next))
+	(def fig :fig_fill (first +colours) :fig_x 320.0 :fig_y 240.0 :next_in 1.0)
+	(. fig :add (Wave :fig_ry 0.6 7.0) (Wave :fig_rx 0.3 11.0) (Custom word-look))
 	(. stage :add_node fig))
 
 (defun wall-new (x y x1 y1 sx sy)

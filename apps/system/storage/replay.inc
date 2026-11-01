@@ -75,32 +75,6 @@
 		:path_gopher (Fmap 101) :path_done (Fmap 101))
 	r)
 
-(defun replay-add (r line)
-	; (replay-add r line) -> r
-	;a line of a recording, in its place by its time: after the last that
-	;is not later. Lines are sent in batches, and mail is not in order, so
-	;a batch can come before one sent ahead of it. One whose place is
-	;before what has been done has the replay gone back to it first
-	(when (defq e (replay-event line))
-		(defq events (. r :find :events) at_time (elem-get e +ev_time) i (length events))
-		(while (and (> i 0) (> (elem-get (elem-get events (dec i)) +ev_time) at_time)) (-- i))
-		(cond
-			((= i (length events)) (push events e))
-			(:t (if (< i (. r :find :at)) (replay-seek r i))
-				(. r :insert :events (cat (slice events 0 i) (list e) (slice events i -1)))))
-		(defq member (elem-get e +ev_member))
-		;- is the scene, that says what it does, not a member
-		(unless (or (eql member "-") (find member (. r :find :members)))
-			(push (. r :find :members) member)
-			(. (. r :find :held) :insert member (Fset 101))
-			(. (. r :find :paths) :insert member (Fmap 101))
-			(. (. r :find :peers) :insert member (list))
-			(. (. r :find :cut) :insert member ""))
-		(if (elem-get e +ev_path) (. (. r :find :all_paths) :insert (elem-get e +ev_path)))
-		;now and then, not at every line, what has grown made bigger
-		(if (= 0 (% (length events) +replay_grow_every)) (replay-grow r)))
-	r)
-
 (defun replay-do (r e)
 	;what an event changes, and what it was, kept in the event
 	(defq member (elem-get e +ev_member) words (elem-get e +ev_words) path (elem-get e +ev_path)
@@ -178,6 +152,32 @@
 	(while (< now at) (replay-do r (elem-get events now)) (++ now))
 	(while (> now at) (-- now) (replay-undo r (elem-get events now)))
 	(. r :insert :at at)
+	r)
+
+(defun replay-add (r line)
+	; (replay-add r line) -> r
+	;a line of a recording, in its place by its time: after the last that
+	;is not later. Lines are sent in batches, and mail is not in order, so
+	;a batch can come before one sent ahead of it. One whose place is
+	;before what has been done has the replay gone back to it first
+	(when (defq e (replay-event line))
+		(defq events (. r :find :events) at_time (elem-get e +ev_time) i (length events))
+		(while (and (> i 0) (> (elem-get (elem-get events (dec i)) +ev_time) at_time)) (-- i))
+		(cond
+			((= i (length events)) (push events e))
+			(:t (if (< i (. r :find :at)) (replay-seek r i))
+				(. r :insert :events (cat (slice events 0 i) (list e) (slice events i -1)))))
+		(defq member (elem-get e +ev_member))
+		;- is the scene, that says what it does, not a member
+		(unless (or (eql member "-") (find member (. r :find :members)))
+			(push (. r :find :members) member)
+			(. (. r :find :held) :insert member (Fset 101))
+			(. (. r :find :paths) :insert member (Fmap 101))
+			(. (. r :find :peers) :insert member (list))
+			(. (. r :find :cut) :insert member ""))
+		(if (elem-get e +ev_path) (. (. r :find :all_paths) :insert (elem-get e +ev_path)))
+		;now and then, not at every line, what has grown made bigger
+		(if (= 0 (% (length events) +replay_grow_every)) (replay-grow r)))
 	r)
 
 (defun replay-trim (r keep)

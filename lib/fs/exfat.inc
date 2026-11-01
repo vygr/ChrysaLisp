@@ -357,17 +357,6 @@
 			i (+ i w)))
 	ascii)
 
-(defun exfat-name (data units)
-	;a name is 16 bit characters, low byte first, here made UTF-8. One of
-	;ASCII, as the names of a store's blocks are, is its low bytes, which
-	;are what is left of it when it is split at each 0: none of them is 0
-	;if there are as many as it has characters
-	(defq n (* units 2))
-	(if (and (exfat-ascii? data n)
-			(= (length (defq out (apply (const cat) (cat (list "") (split (slice data 0 n) (const (char 0))))))) units))
-		out
-		(exfat-name-units data units)))
-
 (defun exfat-name-units (data units)
 	;a name of any characters, a character at a time
 	(defq out (list) i 0)
@@ -381,6 +370,17 @@
 				(setq c (+ 0x10000 (<< (- c 0xd800) 10) (- d 0xdc00)) i (inc i))))
 		(push out (num-to-utf8 c)))
 	(apply (const cat) (cat (list "") out)))
+
+(defun exfat-name (data units)
+	;a name is 16 bit characters, low byte first, here made UTF-8. One of
+	;ASCII, as the names of a store's blocks are, is its low bytes, which
+	;are what is left of it when it is split at each 0: none of them is 0
+	;if there are as many as it has characters
+	(defq n (* units 2))
+	(if (and (exfat-ascii? data n)
+			(= (length (defq out (apply (const cat) (cat (list "") (split (slice data 0 n) (const (char 0))))))) units))
+		out
+		(exfat-name-units data units)))
 
 (defun exfat-units (name)
 	; (exfat-units name) -> (unit ...)
@@ -410,6 +410,9 @@
 				(setq c (+ c (get-ushort data (* i 2))) i (inc i)))
 			(:t (if (/= u c) (. map :insert c u))
 				(setq c (inc c))))))
+
+(defun exfat-upper (vol unit)
+	(ifn (. (get :upcase vol) :find unit) unit))
 
 (defun exfat-mount (device)
 	; (exfat-mount path | stream) -> :nil | vol
@@ -450,9 +453,6 @@
 			;its upper case of ASCII is ASCII's own, a to z and nothing else
 			(def vol :ascii (every (# (= (exfat-upper vol %0) (if (<= 97 %0 122) (- %0 32) %0))) (range 0 128)))
 			(if (get :bitmap vol) vol))))
-
-(defun exfat-upper (vol unit)
-	(ifn (. (get :upcase vol) :find unit) unit))
 
 (defun exfat-hash (vol units)
 	;the hash of a name, of its upper case, a byte at a time
@@ -520,6 +520,9 @@
 
 (defq +exfat_ascii (apply (const cat) (map (const char) (range 1 128))))
 
+(defun exfat-key-units (vol name)
+	(apply (const cat) (cat (list "") (map (# (char (exfat-upper vol %0) 2)) (exfat-units name)))))
+
 (defun exfat-key (vol name)
 	;a name as the volume sees it, with no regard to case. Of a volume
 	;whose upper case of ASCII is ASCII's own, a name of ASCII is its own
@@ -529,9 +532,6 @@
 		((not (get :ascii vol)) (exfat-key-units vol name))
 		((= (bskip +exfat_ascii name 0) (length name)) (to-upper name))
 		((cat (char 0) (exfat-key-units vol name)))))
-
-(defun exfat-key-units (vol name)
-	(apply (const cat) (cat (list "") (map (# (char (exfat-upper vol %0) 2)) (exfat-units name)))))
 
 (defun exfat-dir-read (vol entry)
 	; (exfat-dir-read vol entry) -> (entries index)

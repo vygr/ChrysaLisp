@@ -22,8 +22,8 @@
 ; children has all of theirs as well as its own.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/collections/collections.inc")
-(import "lib/math/polygon.inc")
+(import "././collections/collections.inc")
+(import "././math/polygon.inc")
 (import "./comps.inc")
 
 (defun rostrum-picture (m cx cy focus p)

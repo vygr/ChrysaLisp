@@ -272,6 +272,20 @@
 		(split (ifn (load vp) "") "\n"))
 	(join (cat head block) "\n"))
 
+(defun test-cmd-line? (line)
+	; (test-cmd-line? line) -> :t | :nil
+	;does this line run a command line: a string on it may start with a
+	;command, and all the command imports is stood on
+	(some (# (found? line %0)) '("(pipe-run " "(pipe-farm " "(rack-run " "(Pipe ")))
+
+(defun test-module? (path)
+	; (test-module? path) -> :t | :nil
+	;a module of the suite, tests/<category>/test_<name>.lisp, which no
+	;module stands on: one that names another is not run again for it.
+	;Not the suite's own files, nor the scenes of tests/storage/
+	(and (starts-with "tests/" path) (ends-with ".lisp" path)
+		(starts-with "test_" (slice path (ifn (rfind "/" path) 0) -1))))
+
 (defun test-file-scan (file text)
 	; (test-file-scan file text) -> paths
 	;the files a Lisp file names. What it imports or includes. Any word
@@ -312,20 +326,6 @@
 				pieces)))
 		(split text "\n"))
 	names)
-
-(defun test-cmd-line? (line)
-	; (test-cmd-line? line) -> :t | :nil
-	;does this line run a command line: a string on it may start with a
-	;command, and all the command imports is stood on
-	(some (# (found? line %0)) '("(pipe-run " "(pipe-farm " "(rack-run " "(Pipe ")))
-
-(defun test-module? (path)
-	; (test-module? path) -> :t | :nil
-	;a module of the suite, tests/<category>/test_<name>.lisp, which no
-	;module stands on: one that names another is not run again for it.
-	;Not the suite's own files, nor the scenes of tests/storage/
-	(and (starts-with "tests/" path) (ends-with ".lisp" path)
-		(starts-with "test_" (slice path (ifn (rfind "/" path) 0) -1))))
 
 ;a file that is named and is longer than this is not read
 (defq +test_file_most 16777216

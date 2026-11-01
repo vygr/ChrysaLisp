@@ -415,6 +415,14 @@
 		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol) (eql (third (first in)) "-")
 		(found file (second forms) "shift" "(>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")))
 
+(defun char-literal (code)
+	; (char-literal code) -> str
+	;a char as the reader takes it in a string
+	(cat "\q" (cond
+		((defq at (find code '(13 12 11 10 9 34 8 92))) (cat "\\" (elem-get "rfvntqb\\" at)))
+		((< 31 code 127) (char code))
+		((cat "\\x" (slice (hex-encode (char code)) 0 2)))) "\q"))
+
 (defun check-char (file forms head)
 	;(ascii-char 10), (ascii-char +char_lf): a char known as the file is read,
 	;written as one, "\n". Of a number, or a + name of the system's that is one
@@ -438,14 +446,6 @@
 						(found file kid "glyph" (third kid) " is a glyph by its number, give its +sym_ name")))
 					(forms-of kids))))
 			(list forms) 1 -1)))
-
-(defun char-literal (code)
-	; (char-literal code) -> str
-	;a char as the reader takes it in a string
-	(cat "\q" (cond
-		((defq at (find code '(13 12 11 10 9 34 8 92))) (cat "\\" (elem-get "rfvntqb\\" at)))
-		((< 31 code 127) (char code))
-		((cat "\\x" (slice (hex-encode (char code)) 0 2)))) "\q"))
 
 (defun check-empty (file forms head)
 	;(f a () b): an empty list as a thing given to a call is run as a form,

@@ -355,6 +355,27 @@
 	(spv-op spv_decor 71 vid 33 (ifn binding 0))
 	(cat (list vid) (map (# (spv-ptr %0 %1 2)) types tids)))
 
+(defun spv-buffers (program)
+	;the buffers of a kernel, each a variable of a block of a run time
+	;array, as SDL's GPU interface wants them, those it reads at set 0 and
+	;those it writes at set 1, each at the binding that is its number there
+	(defq reads 0 writes 0)
+	(each (lambda ((name type access))
+		(defq rt (spv-memo (cat "array " (str type)) (lambda ()
+				(defq id (spv-id))
+				(spv-op spv_types 29 id (spv-type type))
+				(spv-op spv_decor 71 id 6 4)
+				id))
+			sid (spv-id) id (spv-id))
+		(spv-op spv_types 30 sid rt)
+		(spv-op spv_decor 71 sid 3)
+		(spv-op spv_decor 72 sid 0 35 0)
+		(if (eql access :read) (spv-op spv_decor 72 sid 0 24))
+		(spv-op spv_types 59 (spv-ptr (cat "buffer " (str sid)) sid 2) id 2)
+		(spv-op spv_decor 71 id 34 (if (eql access :read) 0 1))
+		(spv-op spv_decor 71 id 33 (dec (if (eql access :read) (++ reads) (++ writes))))
+		(. spv_gvars :insert name (list id :buffer))) (shader-buffers program)))
+
 (defun spv-program (program)
 	; (spv-program program) -> block
 	;the inputs block of a program, a variable for each of its inputs,
@@ -384,27 +405,6 @@
 				(if (eql type :void) (spv-op spv_body 253) (spv-op spv_body 254 (spv-null type)))))))
 		funcs)
 	block)
-
-(defun spv-buffers (program)
-	;the buffers of a kernel, each a variable of a block of a run time
-	;array, as SDL's GPU interface wants them, those it reads at set 0 and
-	;those it writes at set 1, each at the binding that is its number there
-	(defq reads 0 writes 0)
-	(each (lambda ((name type access))
-		(defq rt (spv-memo (cat "array " (str type)) (lambda ()
-				(defq id (spv-id))
-				(spv-op spv_types 29 id (spv-type type))
-				(spv-op spv_decor 71 id 6 4)
-				id))
-			sid (spv-id) id (spv-id))
-		(spv-op spv_types 30 sid rt)
-		(spv-op spv_decor 71 sid 3)
-		(spv-op spv_decor 72 sid 0 35 0)
-		(if (eql access :read) (spv-op spv_decor 72 sid 0 24))
-		(spv-op spv_types 59 (spv-ptr (cat "buffer " (str sid)) sid 2) id 2)
-		(spv-op spv_decor 71 id 34 (if (eql access :read) 0 1))
-		(spv-op spv_decor 71 id 33 (dec (if (eql access :read) (++ reads) (++ writes))))
-		(. spv_gvars :insert name (list id :buffer))) (shader-buffers program)))
 
 (defun spv-start (program block)
 	;at the start of the entry point the inputs are copied from the block,

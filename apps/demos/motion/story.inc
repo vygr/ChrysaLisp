@@ -194,7 +194,7 @@
 					w (+ 60.0 (* 12.0 (n2f (% (* (inc row) 5) 7)))))
 				(. bar :set_outline (list (list :t (path-gen-rect (neg w) -5.0 w 5.0 3.0 3.0 (path)))))
 				(def bar :fig_fill colour :fig_x x :fig_y (+ 196.0 (* 24.0 (n2f row))) :fig_sx 0.0 :fig_meets +story_zone
-					:fig_on_enter (lambda (this other) (story-bar-in this)))
+					:fig_on_enter story-bar-in)
 				(. bar :add (Tween :fig_sx 1.0 0.5 (const ease-out3) :nil (+ 0.8 (* 0.3 (n2f row)))))
 				(push bars (story-add bar))))
 		'(150.0 490.0) (list +story_blue +story_pink))
@@ -215,15 +215,6 @@
 		(get :bars stage))
 	(story-say '("So he stopped writing for either: a machine of his own," "registers r0 upward, and instructions like copy")))
 
-(defun story-bar-in (this)
-	;a bar has reached the middle, it goes in a burst. The last brings on VP
-	(defq x (get :fig_x this) y (get :fig_y this))
-	(def this :fig_meets 0)
-	(times 3 (spark-at x y (get :fig_fill this)))
-	(. this :kill)
-	(def stage :bars_left (dec (get :bars_left stage)))
-	(if (= 0 (get :bars_left stage)) (story-vp)))
-
 ;;;;
 ; vp
 ;;;;
@@ -237,6 +228,15 @@
 	(times 30 (spark-at 320.0 270.0 +story_green))
 	(def stage :vp vp)
 	(story-say '("A way to write one game for two computers," "before it was anything else: the Virtual Processor") 4.5 story-arrows))
+
+(defun story-bar-in (this other)
+	;a bar has reached the middle, it goes in a burst. The last brings on VP
+	(defq x (get :fig_x this) y (get :fig_y this))
+	(def this :fig_meets 0)
+	(times 3 (spark-at x y (get :fig_fill this)))
+	(. this :kill)
+	(def stage :bars_left (dec (get :bars_left stage)))
+	(if (= 0 (get :bars_left stage)) (story-vp)))
 
 (defun story-arrows (f c)
 	(def stage :arrows (list (story-arrow 262.0 250.0 180.0 176.0 +story_green 0.8)
@@ -264,6 +264,69 @@
 	(def stage :extras extras :transputers (cat extras))
 	(story-say '("Tim Moore's ray tracer, and the wish to speed it up:"
 		"plug in more processors, Inmos transputers") 5.0 story-kernel))
+
+(defun story-any-chip (not_this)
+	;any of the chips that are there, and not that one
+	(defq live (filter (lambda (chip) (not (or (get :fig_dead chip) (eql chip not_this))))
+		(ifn (get :chips stage) (list))))
+	(if (nempty? live) (elem-get live (random (length live)))))
+
+(defun story-hop (dot from)
+	;on to another chip. When it arrives it is that chip's to send on
+	(when (defq to (story-any-chip from))
+		(def dot :to to)
+		(. dot :add (Follow (path (get :fig_x dot) (get :fig_y dot) (get :fig_x to) (get :fig_y to))
+			(+ 0.4 (/ (n2f (random 400)) 1000.0)) (const ease-in-out)
+			story-arrive))))
+
+(defun story-trace (cx cy)
+	;a tile of the picture, by the way a ray tracer would have it: a ball, a
+	;checked floor and a sky. cx and cy are from the middle, in tiles
+	(defq nx (/ (+ (n2f cx) 0.5) 3.4) ny (/ (+ (n2f cy) 0.5) 3.4) d (+ (* nx nx) (* ny ny)))
+	(cond
+		((< d 1.0)
+			(defq nz (sqrt (- 1.0 d))
+				lit (max 0.12 (+ (* nx -0.5) (* ny -0.6) (* nz 0.62)))
+				spec (max 0.0 (- lit 0.86)))
+			(+ 0xff000000 (<< (min 255 (n2i (+ (* 230.0 lit) (* 900.0 spec)))) 16)
+				(<< (min 255 (n2i (+ (* 60.0 lit) (* 900.0 spec)))) 8)
+				(min 255 (n2i (+ (* 50.0 lit) (* 900.0 spec))))))
+		((> cy 1)
+			(if (odd? (+ cx cy 100)) 0xfff0f0f0 0xff303848))
+		(:t (+ 0xff000000 (<< (+ 30 (* 8 (+ cy 5))) 16) (<< (+ 70 (* 10 (+ cy 5))) 8) 200))))
+
+(defun story-tile ()
+	(when (nempty? (defq cells (ifn (get :cells stage) (list))))
+		(bind '(cx cy) (pop cells))
+		(defq tile (Figure "tile") s 7.0)
+		(. tile :set_outline (list (list :t (path 0.0 0.0 s 0.0 s s 0.0 s))))
+		(def tile :fig_fill (story-trace cx cy) :fig_x (* s (n2f cx)) :fig_y (* s (n2f cy)) :fig_alpha 0.0)
+		(story-show tile 0.25)
+		(story-add tile (get :picture (get :net stage)))
+		(push (get :tiles stage) tile)
+		;the last tile of the picture is what brings on the next
+		(if (empty? cells)
+			(story-say '("A ray tracer, in parallel on a 486," "four transputers and four R3000s at once") 4.5 story-tao))))
+
+(defun story-arrive (dot c)
+	;it has come to a chip, which swells, a tile of the picture is done if
+	;there is one to do, and it goes on. If there are no more letters to go
+	;it goes. The chip it was going to may have gone: it finds another
+	(defq to (get :to dot))
+	(cond
+		((not (get :mailing stage)) (. dot :kill))
+		(:t (unless (get :fig_dead to) (story-pulse to))
+			(story-tile)
+			(story-hop dot to))))
+
+(defun story-dot ()
+	;a letter, at a chip that is there
+	(when (and (get :mailing stage) (defq chip (story-any-chip :nil)))
+		(defq dot (Figure "letter"))
+		(. dot :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 5.0 5.0 (path)))))
+		(def dot :fig_fill +story_gold :fig_x (get :fig_x chip) :fig_y (get :fig_y chip))
+		(story-add dot (get :mail (get :net stage)))
+		(story-hop dot chip)))
 
 (defun story-kernel-mark (chip wait x)
 	;the kernel coming up on a chip
@@ -347,22 +410,6 @@
 	(def stage :chips chips)
 	(story-say '("Taos: one file on disc, on any processor," "any mix of them in the one network") 5.0 story-mail))
 
-(defun story-trace (cx cy)
-	;a tile of the picture, by the way a ray tracer would have it: a ball, a
-	;checked floor and a sky. cx and cy are from the middle, in tiles
-	(defq nx (/ (+ (n2f cx) 0.5) 3.4) ny (/ (+ (n2f cy) 0.5) 3.4) d (+ (* nx nx) (* ny ny)))
-	(cond
-		((< d 1.0)
-			(defq nz (sqrt (- 1.0 d))
-				lit (max 0.12 (+ (* nx -0.5) (* ny -0.6) (* nz 0.62)))
-				spec (max 0.0 (- lit 0.86)))
-			(+ 0xff000000 (<< (min 255 (n2i (+ (* 230.0 lit) (* 900.0 spec)))) 16)
-				(<< (min 255 (n2i (+ (* 60.0 lit) (* 900.0 spec)))) 8)
-				(min 255 (n2i (+ (* 50.0 lit) (* 900.0 spec))))))
-		((> cy 1)
-			(if (odd? (+ cx cy 100)) 0xfff0f0f0 0xff303848))
-		(:t (+ 0xff000000 (<< (+ 30 (* 8 (+ cy 5))) 16) (<< (+ 70 (* 10 (+ cy 5))) 8) 200))))
-
 (defun story-mail (f c)
 	;the picture is worked out a tile at a time, in any order, a tile for
 	;each letter that arrives. Eight letters go round
@@ -376,53 +423,6 @@
 	(def stage :cells cells :mailing :t :tiles (list))
 	(times 8 (story-dot))
 	(story-say '("Mail, never shared memory: work spreads over the processors" "as a liquid spreads out over a surface")))
-
-(defun story-dot ()
-	;a letter, at a chip that is there
-	(when (and (get :mailing stage) (defq chip (story-any-chip :nil)))
-		(defq dot (Figure "letter"))
-		(. dot :set_outline (list (list :t (path-gen-ellipse 0.0 0.0 5.0 5.0 (path)))))
-		(def dot :fig_fill +story_gold :fig_x (get :fig_x chip) :fig_y (get :fig_y chip))
-		(story-add dot (get :mail (get :net stage)))
-		(story-hop dot chip)))
-
-(defun story-any-chip (not_this)
-	;any of the chips that are there, and not that one
-	(defq live (filter (lambda (chip) (not (or (get :fig_dead chip) (eql chip not_this))))
-		(ifn (get :chips stage) (list))))
-	(if (nempty? live) (elem-get live (random (length live)))))
-
-(defun story-hop (dot from)
-	;on to another chip. When it arrives it is that chip's to send on
-	(when (defq to (story-any-chip from))
-		(def dot :to to)
-		(. dot :add (Follow (path (get :fig_x dot) (get :fig_y dot) (get :fig_x to) (get :fig_y to))
-			(+ 0.4 (/ (n2f (random 400)) 1000.0)) (const ease-in-out)
-			(lambda (dot c) (story-arrive dot))))))
-
-(defun story-arrive (dot)
-	;it has come to a chip, which swells, a tile of the picture is done if
-	;there is one to do, and it goes on. If there are no more letters to go
-	;it goes. The chip it was going to may have gone: it finds another
-	(defq to (get :to dot))
-	(cond
-		((not (get :mailing stage)) (. dot :kill))
-		(:t (unless (get :fig_dead to) (story-pulse to))
-			(story-tile)
-			(story-hop dot to))))
-
-(defun story-tile ()
-	(when (nempty? (defq cells (ifn (get :cells stage) (list))))
-		(bind '(cx cy) (pop cells))
-		(defq tile (Figure "tile") s 7.0)
-		(. tile :set_outline (list (list :t (path 0.0 0.0 s 0.0 s s 0.0 s))))
-		(def tile :fig_fill (story-trace cx cy) :fig_x (* s (n2f cx)) :fig_y (* s (n2f cy)) :fig_alpha 0.0)
-		(story-show tile 0.25)
-		(story-add tile (get :picture (get :net stage)))
-		(push (get :tiles stage) tile)
-		;the last tile of the picture is what brings on the next
-		(if (empty? cells)
-			(story-say '("A ray tracer, in parallel on a 486," "four transputers and four R3000s at once") 4.5 story-tao))))
 
 (defun story-tao (f c)
 	(story-say '("Tao Group, 1991 to 2007: Elate, then intent,"
@@ -459,6 +459,14 @@
 (defun story-lisp (f c)
 	(story-say '("A Lisp on the VP, Darren Pegg's doing," "and a system that assembles itself") 4.5 story-vanish))
 
+(defun story-return (at)
+	;it comes up where the other was, and the letters find it for themselves
+	(bind '(x y) at)
+	(defq chip (story-chip "LoongArch 64" x y 78 26 +story_gold (get :chips (get :net stage)) 12))
+	(def chip :fig_sx 0.0 :fig_sy 0.0)
+	(story-size chip 1.0 0.6 (const ease-back))
+	(push (get :chips stage) chip))
+
 (defun story-vanish (f c)
 	;any of them may go. The letters are not told, they find another
 	(defq chip (elem-get (get :chips stage) 3))
@@ -474,31 +482,6 @@
 		(. f :kill))))
 	(def stage :chips (filter (lambda (c) (nql c chip)) (get :chips stage)))
 	(story-say '("And what Taos could not do: any node may vanish," "and the work finds its way round") 5.5 story-gather2))
-
-(defun story-return (at)
-	;it comes up where the other was, and the letters find it for themselves
-	(bind '(x y) at)
-	(defq chip (story-chip "LoongArch 64" x y 78 26 +story_gold (get :chips (get :net stage)) 12))
-	(def chip :fig_sx 0.0 :fig_sy 0.0)
-	(story-size chip 1.0 0.6 (const ease-back))
-	(push (get :chips stage) chip))
-
-(defun story-gather2 (f c)
-	;the letters stop going on, the chips come together
-	(def stage :mailing :nil)
-	(defq net (get :net stage))
-	(each (lambda (chip)
-			(story-to chip 0.0 0.0 1.3 (const ease-anticipate) (lambda (f c) (. f :kill)) (* 0.1 (n2f (!))))
-			(story-size chip 0.2 1.3 (const ease-in)))
-		(get :chips stage))
-	(defq shell (Figure "chrysalis"))
-	(. shell :set_outline (outline-svg +story_chrysalis))
-	(def shell :fig_fill 0xff9a7030 :fig_stroke 0xffe0c080 :fig_width 1.5 :fig_x 320.0 :fig_y 250.0 :fig_sx 0.0 :fig_sy 0.0)
-	(story-size shell 1.0 0.9 (const ease-back)
-		(lambda (f c) (story-hatch)) 1.0)
-	(story-add shell)
-	(def stage :shell shell)
-	(story-say '("The same idea, again and again, since the early 1980s") 6.0 story-fly))
 
 (defun story-wing (fly side colour)
 	;a wing and its mark, a group that flaps on its y axis about the body
@@ -531,6 +514,31 @@
 	(. fly :add_node shell)
 	(. fly :add (Wave :fig_rz 0.08 2.3)))
 
+(defun story-gather2 (f c)
+	;the letters stop going on, the chips come together
+	(def stage :mailing :nil)
+	(defq net (get :net stage))
+	(each (lambda (chip)
+			(story-to chip 0.0 0.0 1.3 (const ease-anticipate) (lambda (f c) (. f :kill)) (* 0.1 (n2f (!))))
+			(story-size chip 0.2 1.3 (const ease-in)))
+		(get :chips stage))
+	(defq shell (Figure "chrysalis"))
+	(. shell :set_outline (outline-svg +story_chrysalis))
+	(def shell :fig_fill 0xff9a7030 :fig_stroke 0xffe0c080 :fig_width 1.5 :fig_x 320.0 :fig_y 250.0 :fig_sx 0.0 :fig_sy 0.0)
+	(story-size shell 1.0 0.9 (const ease-back)
+		(lambda (f c) (story-hatch)) 1.0)
+	(story-add shell)
+	(def stage :shell shell)
+	(story-say '("The same idea, again and again, since the early 1980s") 6.0 story-fly))
+
+(defun story-end ()
+	;all goes, and a moment later it all begins again
+	(story-go (get :title stage) 1.0)
+	(story-go (get :caption stage) 1.0)
+	(defq clock (Figure "clock"))
+	(. clock :add (Wait 2.0 (lambda (f c) (setq restart :t))))
+	(story-add clock))
+
 (defun story-fly (f c)
 	;off it goes, in a long curve, and when it has gone it starts again
 	(defq fly (get :fly stage) points (path))
@@ -542,11 +550,3 @@
 	(. fly :add (Follow points 5.0 (const ease-in) (lambda (f c) (story-end))))
 	(story-size fly 0.5 5.0 (const ease-in))
 	(story-say '("The whole story is in docs/history/history.md")))
-
-(defun story-end ()
-	;all goes, and a moment later it all begins again
-	(story-go (get :title stage) 1.0)
-	(story-go (get :caption stage) 1.0)
-	(defq clock (Figure "clock"))
-	(. clock :add (Wait 2.0 (lambda (f c) (setq restart :t))))
-	(story-add clock))

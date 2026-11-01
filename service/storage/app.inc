@@ -286,101 +286,6 @@
 		(setq out :nil)
 		(and (= bytes (second info)) (defq info (pii-fstat to)) (= bytes (second info)))))
 
-(defun storage-get-file (name file &optional svc tick)
-	; (storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
-	; (tick bytes) -> :nil | :t
-	;what a path is, to a file of the host, read as a stream, so of any
-	;length. :none if there is no such object, :host if the host will not
-	;make the file, :lost if a block of it could not be had. tick as for
-	;(storage-put-stream). A file not written whole is taken away. A file
-	;there already is only written over once all of it has been had, into
-	;a file of its own next to it, so it is as it was if it is not. That
-	;file is only taken away once it is copied over whole: if the copy
-	;fails, :host, it is kept, the one whole copy there is
-	(defq there (pii-fstat file) to file n 0)
-	(if there (while (pii-fstat (setq to (cat file ".part" (if (> (++ n) 1) (str n) ""))))))
-	(cond
-		((not (defq object (storage-stream name +file_open_read svc))) (list :none :nil))
-		((not (defq host (file-stream to +file_open_write))) (list :host :nil))
-		(:t (defq bytes 0 how :ok)
-			(while (and (eql how :ok) (defq part (read-blk object 65536)))
-				(write-blk host part)
-				(setq bytes (+ bytes (length part)))
-				(and tick (not (tick (length part))) (setq how :stopped)))
-			(stream-flush host)
-			(setq host :nil)
-			(and (eql how :ok) (stream-fault object) (setq how :lost))
-			(cond
-				((not there) (unless (eql how :ok) (pii-remove to)))
-				((not (eql how :ok)) (pii-remove to))
-				((storage-file-copy to file) (pii-remove to))
-				((setq how :host)))
-			(if (eql how :ok) (list :ok bytes) (list how :nil)))))
-
-;how many blocks a copy between stores has on their way at once
-(defq +storage_copy_ahead 8)
-
-(defun storage-copy-tick (stream tick bytes)
-	;a copy read as a stream goes on while no block of it is lost
-	(if (stream-fault stream) :nil (tick bytes)))
-
-(defun storage-copy-dial (result entry svc)
-	;what a copy did, with the dial of how many keep it, if it was said,
-	;set at the new path as it was at the old
-	(and (eql (first result) :ok) (> (defq copies (elem-get entry +store_entry_copies)) 0)
-		(eql (first (defq dialled (storage-copies (first (second result)) copies svc))) :ok)
-		(setq result dialled))
-	result)
-
-(defun storage-copy-object (from to src dst &optional was tick)
-	; (storage-copy-object from to src dst [was tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
-	; (tick bytes) -> :nil | :t
-	;the object the path from is in the store of the service src, set at
-	;the path to in the store of dst, provided to is now was, as
-	;(storage-put-stream) has it, with its dial of how many keep it. The
-	;stores need not be of one mesh, and it passes through no file: only
-	;the blocks dst has not got are had of src and put, a few at once, so
-	;an object much of which dst has already is little sent, and a copy
-	;that was stopped goes on from where it was. Stores of blocks of other
-	;sizes have it read as a stream and put. tick as for
-	;(storage-put-stream). :none if there is no object at from
-	(setd tick (lambda (bytes) :t))
-	(cond
-		((not (and (defq info (storage-info src)) (defq there (storage-info dst)))) (list :lost :nil))
-		((not (defq entry (storage-stat from src))) (list :none :nil))
-		((/= (defq size (. info :find :block_size)) (. there :find :block_size))
-			;a block that can not be had ends the stream, which is not its end:
-			;the path is not set
-			(cond
-				((not (defq stream (storage-stream from +file_open_read src))) (list :none :nil))
-				((eql (first (defq result (storage-put-stream to stream was dst
-						`(lambda (bytes) (,storage-copy-tick ',stream ',tick bytes))))) :stopped)
-					(list (if (stream-fault stream) :lost :stopped) :nil))
-				((storage-copy-dial result entry dst))))
-		((not (defq object (store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 src)))))
-			(list :lost :nil))
-		(:t (bind '(bytes names &ignore) object)
-			(defq how :ok at 0)
-			(while (and (eql how :ok) (< at (length names)))
-				(defq part (slice names at (min (length names) (+ at +store_manifest_names)))
-					has (storage-has dst part) want (list) done 0 i 0)
-				;the blocks it has are gone through at once, the rest a few at a time
-				(each (lambda (hash had)
-						(defq n (min size (- bytes (* (+ at (!)) size))))
-						(if (eql had "1") (setq done (+ done n)) (push want (list hash n))))
-					part has)
-				(and (> done 0) (not (tick done)) (setq how :stopped))
-				(while (and (eql how :ok) (< i (length want)))
-					(defq few (slice want i (min (length want) (+ i +storage_copy_ahead)))
-						hashes (map (const first) few) blocks (storage-gets src hashes))
-					(setq how (if (some (# (not %0)) blocks) :lost (storage-puts dst blocks hashes)))
-					(and (eql how :ok) (not (tick (reduce (# (+ %0 (second %1))) few 0))) (setq how :stopped))
-					(setq i (+ i +storage_copy_ahead)))
-				(setq at (+ at +store_manifest_names)))
-			(if (eql how :ok)
-				(storage-copy-dial (storage-commit dst to was bytes names) entry dst)
-				(list how :nil)))))
-
 (defun storage-manifest (name &optional svc)
 	;the blocks of the object a path is, (bytes names tree), :nil if there
 	;is none. Its manifest is had a block at a time, a big one's is a tree
@@ -737,6 +642,101 @@
 		((defq entry (storage-stat name svc))
 			(if (> (defq said (elem-get entry +store_entry_copies)) 0) said
 				(and (defq info (storage-info svc)) (. info :find :copies))))))
+
+(defun storage-get-file (name file &optional svc tick)
+	; (storage-get-file path file [svc tick]) -> (:ok bytes) | (:none :nil) | (:lost :nil) | (:host :nil) | (:stopped :nil)
+	; (tick bytes) -> :nil | :t
+	;what a path is, to a file of the host, read as a stream, so of any
+	;length. :none if there is no such object, :host if the host will not
+	;make the file, :lost if a block of it could not be had. tick as for
+	;(storage-put-stream). A file not written whole is taken away. A file
+	;there already is only written over once all of it has been had, into
+	;a file of its own next to it, so it is as it was if it is not. That
+	;file is only taken away once it is copied over whole: if the copy
+	;fails, :host, it is kept, the one whole copy there is
+	(defq there (pii-fstat file) to file n 0)
+	(if there (while (pii-fstat (setq to (cat file ".part" (if (> (++ n) 1) (str n) ""))))))
+	(cond
+		((not (defq object (storage-stream name +file_open_read svc))) (list :none :nil))
+		((not (defq host (file-stream to +file_open_write))) (list :host :nil))
+		(:t (defq bytes 0 how :ok)
+			(while (and (eql how :ok) (defq part (read-blk object 65536)))
+				(write-blk host part)
+				(setq bytes (+ bytes (length part)))
+				(and tick (not (tick (length part))) (setq how :stopped)))
+			(stream-flush host)
+			(setq host :nil)
+			(and (eql how :ok) (stream-fault object) (setq how :lost))
+			(cond
+				((not there) (unless (eql how :ok) (pii-remove to)))
+				((not (eql how :ok)) (pii-remove to))
+				((storage-file-copy to file) (pii-remove to))
+				((setq how :host)))
+			(if (eql how :ok) (list :ok bytes) (list how :nil)))))
+
+;how many blocks a copy between stores has on their way at once
+(defq +storage_copy_ahead 8)
+
+(defun storage-copy-tick (stream tick bytes)
+	;a copy read as a stream goes on while no block of it is lost
+	(if (stream-fault stream) :nil (tick bytes)))
+
+(defun storage-copy-dial (result entry svc)
+	;what a copy did, with the dial of how many keep it, if it was said,
+	;set at the new path as it was at the old
+	(and (eql (first result) :ok) (> (defq copies (elem-get entry +store_entry_copies)) 0)
+		(eql (first (defq dialled (storage-copies (first (second result)) copies svc))) :ok)
+		(setq result dialled))
+	result)
+
+(defun storage-copy-object (from to src dst &optional was tick)
+	; (storage-copy-object from to src dst [was tick]) -> (:ok entry) | (:stale entry) | (:full :nil) | (:lost :nil) | (:none :nil) | (:stopped :nil)
+	; (tick bytes) -> :nil | :t
+	;the object the path from is in the store of the service src, set at
+	;the path to in the store of dst, provided to is now was, as
+	;(storage-put-stream) has it, with its dial of how many keep it. The
+	;stores need not be of one mesh, and it passes through no file: only
+	;the blocks dst has not got are had of src and put, a few at once, so
+	;an object much of which dst has already is little sent, and a copy
+	;that was stopped goes on from where it was. Stores of blocks of other
+	;sizes have it read as a stream and put. tick as for
+	;(storage-put-stream). :none if there is no object at from
+	(setd tick (lambda (bytes) :t))
+	(cond
+		((not (and (defq info (storage-info src)) (defq there (storage-info dst)))) (list :lost :nil))
+		((not (defq entry (storage-stat from src))) (list :none :nil))
+		((/= (defq size (. info :find :block_size)) (. there :find :block_size))
+			;a block that can not be had ends the stream, which is not its end:
+			;the path is not set
+			(cond
+				((not (defq stream (storage-stream from +file_open_read src))) (list :none :nil))
+				((eql (first (defq result (storage-put-stream to stream was dst
+						`(lambda (bytes) (,storage-copy-tick ',stream ',tick bytes))))) :stopped)
+					(list (if (stream-fault stream) :lost :stopped) :nil))
+				((storage-copy-dial result entry dst))))
+		((not (defq object (store-manifest-walk (elem-get entry +store_entry_hash) (# (storage-block %0 src)))))
+			(list :lost :nil))
+		(:t (bind '(bytes names &ignore) object)
+			(defq how :ok at 0)
+			(while (and (eql how :ok) (< at (length names)))
+				(defq part (slice names at (min (length names) (+ at +store_manifest_names)))
+					has (storage-has dst part) want (list) done 0 i 0)
+				;the blocks it has are gone through at once, the rest a few at a time
+				(each (lambda (hash had)
+						(defq n (min size (- bytes (* (+ at (!)) size))))
+						(if (eql had "1") (setq done (+ done n)) (push want (list hash n))))
+					part has)
+				(and (> done 0) (not (tick done)) (setq how :stopped))
+				(while (and (eql how :ok) (< i (length want)))
+					(defq few (slice want i (min (length want) (+ i +storage_copy_ahead)))
+						hashes (map (const first) few) blocks (storage-gets src hashes))
+					(setq how (if (some (# (not %0)) blocks) :lost (storage-puts dst blocks hashes)))
+					(and (eql how :ok) (not (tick (reduce (# (+ %0 (second %1))) few 0))) (setq how :stopped))
+					(setq i (+ i +storage_copy_ahead)))
+				(setq at (+ at +store_manifest_names)))
+			(if (eql how :ok)
+				(storage-copy-dial (storage-commit dst to was bytes names) entry dst)
+				(list how :nil)))))
 
 (defun storage-walk-send (name state visit &optional at svc)
 	; (storage-walk-send path state visit [at svc]) -> :nil | mbox

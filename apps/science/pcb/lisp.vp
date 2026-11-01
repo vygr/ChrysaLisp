@@ -993,6 +993,20 @@
 	(vp-mul-rr :r3 :r0)
 	(vp-add-rr :r4 :r0))
 
+(defun pcb-to-front ()
+	;the node of index :r0 on the next front, if it is not on it already
+	(assign '((:rsp local_stamp) (:rsp local_gen)) '(:r1 :r2))
+	(vp-cpy-rr :r0 :r3)
+	(vp-shl-cr (log2 +long_size) :r3)
+	(vp-add-rr :r3 :r1)
+	(assign '((:r1 0)) '(:r3))
+	(vpif '(:r3 /= :r2))
+		(assign '(:r2) '((:r1 0)))
+		(vp-cpy-rr :r0 :r1)
+		(assign '((:rsp local_next)) '(:r0))
+		(call :array :push_back '(:r0 :r1) '(_ _ _ _))
+	(endif))
+
 (defun pcb-wave-moves (vecs vias)
 	;the moves round the node of the front, local_n*: those that do not short
 	;with a hard line, and their delay; a layer move with none to the next
@@ -1061,20 +1075,6 @@
 		(vp-add-cr +ptr_size :r0)
 		(assign '(:r0) '((:rsp local_vec_iter)))
 	(loop-end))
-
-(defun pcb-to-front ()
-	;the node of index :r0 on the next front, if it is not on it already
-	(assign '((:rsp local_stamp) (:rsp local_gen)) '(:r1 :r2))
-	(vp-cpy-rr :r0 :r3)
-	(vp-shl-cr (log2 +long_size) :r3)
-	(vp-add-rr :r3 :r1)
-	(assign '((:r1 0)) '(:r3))
-	(vpif '(:r3 /= :r2))
-		(assign '(:r2) '((:r1 0)))
-		(vp-cpy-rr :r0 :r1)
-		(assign '((:rsp local_next)) '(:r0))
-		(call :array :push_back '(:r0 :r1) '(_ _ _ _))
-	(endif))
 
 (def-func (path-to-absolute "./flood_wave"))
 	;inputs

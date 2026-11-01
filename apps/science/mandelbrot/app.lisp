@@ -101,15 +101,15 @@
 ; the GPU's frame
 ;;;;;;;;;;;;;;;;
 
+(defun gpu-palette ()
+	(gpu-write pal_buf 0 (mandel-pal pal)))
+
 (defun gpu-init ()
 	;the kernel, in the language of this GPU, the palette, and the pixels
 	(when (setq kernel (shader-gpu-kernel program))
 		(setq pal_buf (gpu-buffer (* +mandel_pal_size +int_size))
 			out_buf (gpu-buffer (* +width +height +int_size)))
 		(gpu-palette)))
-
-(defun gpu-palette ()
-	(gpu-write pal_buf 0 (mandel-pal pal)))
 
 (defun on-grid ()
 	; (on-grid) -> (x y step)
@@ -201,6 +201,10 @@
 		oy (/ (n2r (- my py (/ +height 2))) (n2r (/ +height 2))))
 	(and (<= +real_-1 ox +real_1) (<= +real_-1 oy +real_1) (list ox oy)))
 
+(defun near-end (r)
+	;1 more than an octave from an end, r its ratio to it, and down to 0 at it
+	(max +real_0 (min +real_1 (- r +real_1))))
+
 (defun pan-speed (o at lo hi)
 	;none in the still part, then up to the rate at the edge. Going toward
 	;an end of where the middle may go, it slows over the last half of a
@@ -211,10 +215,6 @@
 			(if (< o +real_0)
 				(* (neg v) (near-end (+ +real_1 (/ (- at lo) (* z +real_1/2)))))
 				(* v (near-end (+ +real_1 (/ (- hi at) (* z +real_1/2)))))))))
-
-(defun near-end (r)
-	;1 more than an octave from an end, r its ratio to it, and down to 0 at it
-	(max +real_0 (min +real_1 (- r +real_1))))
 
 (defun fly (dt)
 	;the speeds brought on, and the picture moved by them. The zoom comes

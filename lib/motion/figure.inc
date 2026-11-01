@@ -19,7 +19,7 @@
 ; thing in 3D with meshes on it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/math/matrix.inc")
+(import "././math/matrix.inc")
 (import "gui/canvas/struct.inc")
 (import "./morph.inc")
 
