@@ -50,17 +50,19 @@
 (defun dispatch (msg type)
 	(and (defq action (. *event_map* :find type)) (action)))
 
+(defun close-app (child)
+	;send quit action to a GUI app
+	;close is one of the events every app has, service/gui/lisp.inc
+	(when (and (nql child *mouse*) (defq mbox (. child :find_owner)))
+		(defq source_id (. child :get_id))
+		(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+			(+ev_msg_type +ev_type_action)
+			(+ev_msg_target_id +event_close)
+			(+ev_msg_action_source_id source_id)))))
+
 (defun close-apps (quit)
 	;send quit action to all GUI apps
-	;close is one of the events every app has, service/gui/lisp.inc
-	(each (lambda (child)
-		(when (and (nql child *mouse*) (defq mbox (. child :find_owner)))
-			(defq source_id (. child :get_id))
-			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-				(+ev_msg_type +ev_type_action)
-				(+ev_msg_target_id +event_close)
-				(+ev_msg_action_source_id source_id)))))
-		(screen-children))
+	(each (const close-app) (screen-children))
 	;run login app or quit ?
 	(if quit
 		(setq *quitting* :t)
@@ -220,7 +222,9 @@
 							;it only if it moves, and it may be in front already
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
-							(.-> view :to_front (:set_flags +view_flag_dirty_all +view_flag_dirty_all)))
+							(.-> view :to_front (:set_flags +view_flag_dirty_all +view_flag_dirty_all))
+							;an app that was still starting when the quit came
+							(if *quitting* (close-app view)))
 						(+gui_rpc_type_theme
 							;the screen has the theme's fonts, and every window is
 							;told, each finds them again and swaps its own
@@ -239,7 +243,8 @@
 							;add view at back
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
-							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all))
+							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)
+							(if *quitting* (close-app view)))
 						(+gui_rpc_type_grab
 							;what is on the screen, the reply
 							(setq msg (grab (slice msg +gui_rpc_size -1))))

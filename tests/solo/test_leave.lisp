@@ -37,3 +37,15 @@
 (assert-eq "its note is cleared away" :nil (load (cat "/tmp/chrysalisp_" (str lv_pid) ".session")))
 (while (find lv_node (lisp-nodes :t)) (task-sleep 10000))
 (assert-true "and the network has lost its node" (not (find lv_node (lisp-nodes :t))))
+
+;told to quit as soon as its GUI is up: the apps it starts are still on their
+;way, and each is closed as its window comes, or it would never go
+(setq lv_before (lisp-nodes :t) lv_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp")) lv_node :nil)
+(until (setq lv_node (lv-find)) (task-sleep 10000))
+(open-task (str `(progn (until (mail-first "Gui") (task-sleep 10000))
+		(import "service/gui/lisp.inc") (gui-quit-rpc)))
+	lv_node +kn_call_pin 0 (mail-mbox))
+(while (pii-alive lv_pid) (task-sleep 10000))
+(assert-eq "a desktop told to quit as it starts ends" :nil (pii-alive lv_pid))
+(while (find lv_node (lisp-nodes :t)) (task-sleep 10000))
+(assert-true "and the network has lost its node" (not (find lv_node (lisp-nodes :t))))
