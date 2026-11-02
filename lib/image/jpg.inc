@@ -150,43 +150,6 @@
 		lens)
 	(list maxcode valptr mincode (apply (const nums) vals)))
 
-(defun jpg-bit (reader)
-	; (jpg-bit reader) -> 0 | 1
-	;the next bit of the packed data, the high bit of each byte first. A
-	;0xFF is followed by a 0 that is not data; anything else after it is
-	;a marker, and from there on there are only 0 bits. The reader is the
-	;stream and (byte bits marker), a nums the native block reads too
-	(defq st (second reader))
-	(when (= (elem-get st 1) 0)
-		(defq b (if (/= (elem-get st 2) 0) 0 (ifn (read-char (first reader)) 0)))
-		(when (= b 0xff)
-			(defq b2 (ifn (read-char (first reader)) 0))
-			(when (/= b2 0) (elem-set st 2 b2) (setq b 0)))
-		(elem-set st 0 b)
-		(elem-set st 1 8))
-	(elem-set st 1 (dec (elem-get st 1)))
-	(logand (>> (elem-get st 0) (elem-get st 1)) 1))
-
-(defun jpg-bits (reader n)
-	(defq v 0)
-	(times n (setq v (logior (<< v 1) (jpg-bit reader))))
-	v)
-
-(defun jpg-decode-symbol (reader table)
-	; (jpg-decode-symbol reader table) -> value
-	(bind '(maxcode valptr mincode vals) table)
-	(defq v (jpg-bit reader) len 0 found -1)
-	(while (and (< found 0) (< len 16))
-		(cond
-			((and (>= (elem-get maxcode len) 0) (<= v (elem-get maxcode len)))
-				(setq found (elem-get vals (+ (elem-get valptr len) (- v (elem-get mincode len))))))
-			(:t (setq v (logior (<< v 1) (jpg-bit reader)) len (inc len)))))
-	(max found 0))
-
-(defun jpg-extend (v n)
-	;a number of n reader, as the standard has the negative ones
-	(if (and (> n 0) (< v (<< 1 (dec n)))) (+ v (- 1 (<< 1 n))) v))
-
 (defun jpg-geometry (width height comps)
 	; (jpg-geometry width height comps) -> (hmax vmax mcus_x mcus_y)
 	(defq hmax (reduce (# (max %0 (second %1))) comps 1) vmax (reduce (# (max %0 (third %1))) comps 1))

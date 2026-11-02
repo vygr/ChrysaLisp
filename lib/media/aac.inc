@@ -46,44 +46,11 @@
 ; the Huffman books
 ;;;;;;;;;;;;;;;;;
 
-(defun aac-book (codes)
-	; (aac-book codes) -> (fmap longest)
-	;a book to read codes of: each code, its length high, to what it stands for
-	(defq lookup (Fmap 101) longest 0)
-	(each (lambda ((n v))
-			(. lookup :insert (+ (<< n 24) v) (!))
-			(setq longest (max longest n)))
-		(partition codes 2))
-	(list lookup longest))
-
-(defq *aac_sf* (aac-book *aac_sf_book*) *aac_spectral* (map (const aac-book) *aac_books*))
-
 (defun aac-huff (in table)
 	; (aac-huff reader table) -> index
 	;the code next, what it stands for, by the native reader of a book's
 	;table, lib/media/lisp.vp media_huff
 	(bits-huff in table))
-
-(defun aac-huff-lisp (in book)
-	; (aac-huff-lisp reader book) -> index
-	;the same in Lisp, the bits of the longest code looked at, one more
-	;each time till one is a code: what the native one is checked against
-	(bind '(lookup longest) book)
-	(defq at (bits-at in) s (bits-str in) byte (>> at 3) shift (logand at 7)
-		;the next 32 bits, and those after the first byte
-		window (logior (<< (code-be s 4 byte) 8) (code s 1 (+ byte 4)))
-		len 0 found :nil)
-	(while (not found)
-		(setq len (inc len))
-		(setq found (. lookup :find (+ (<< len 24)
-			(logand (>> window (- 40 shift len)) (dec (<< 1 len))))))
-		(if (> len longest) (throw "aac: no such code" len)))
-	(bits-seek in (+ at len))
-	found)
-
-;;;;;;;;;;;
-; the setup
-;;;;;;;;;;;
 
 (defun aac-descriptor (s at)
 	; (aac-descriptor str at) -> (tag len body_at)
@@ -676,7 +643,7 @@
 
 ;what the functions read as they run
 (scatter +aac :rates *aac_rates* :sf (huff-table *aac_sf_book*) :spectral (map (const huff-table) *aac_books*)
-	:sf_lisp *aac_sf* :spectral_lisp *aac_spectral* :kinds *aac_book_kinds*
+	:kinds *aac_book_kinds*
 	:book_values (map (const aac-book-values) *aac_book_kinds*)
 	:bands_long *aac_bands_long* :bands_short *aac_bands_short*
 	:tns_long *aac_tns_long* :tns_short *aac_tns_short* :made :nil :pi (mdct-pi)
