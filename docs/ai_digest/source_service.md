@@ -177,7 +177,8 @@ each time it is wanted, and the node's own are placed as the rest are.
 
 ## What the service gives
 
-Lisp that can be imported, `.lisp` and `.inc`, by a path from the root of
+Lisp that can be imported, `.lisp` and `.inc`, or a shader a task reads to
+run, `.shader`, by a path from the root of
 the tree, and the manifest and VP of functions. Not a path that starts with `/`
 or has `..` in it, and nothing in a user's own folder, `usr/<name>/`:
 `usr/env.inc` is the system's. The keys are files of the tree, `mesh_key` and

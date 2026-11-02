@@ -24,10 +24,16 @@
 ;three are tested at once, is slow, and is not wrong
 (assert-eq "it gives a file that is imported, as it is" (load so_inc) (source-ask so_svc so_inc :t))
 (assert-eq "and usr/env.inc, which is the system's" (load "usr/env.inc") (source-ask so_svc "usr/env.inc" :t))
+(assert-eq "and a shader a task reads to run" (load "apps/science/mandelbrot/kernel.shader")
+	(source-ask so_svc "apps/science/mandelbrot/kernel.shader" :t))
+;a function made as it ran is the node's own, a kernel say, none of this system's
+;to send. It was once a hash of ":" and a link to "n", and the node asked went down
+(assert-eq "no manifest of a function this system did not build" :nil
+	(source-ask so_svc "#normal lib/gpu/jit/not_a_function" :t))
 (assert-list-eq "not the key, the keyring, a user's own, out of the tree, or one not there"
-	'(:nil :nil :nil :nil :nil :nil)
+	'(:nil :nil :nil :nil :nil :nil :nil)
 	(map (# (source-ask so_svc %0 :t))
-		'("mesh_key" "keys/rig" "usr/Test/env.inc" "apps/../usr/Test/env.inc" "/etc/hosts" "no/such.lisp")))
+		'("mesh_key" "keys/rig" "usr/Test/env.inc" "usr/Test/my.shader" "apps/../usr/Test/env.inc" "/etc/hosts" "no/such.lisp")))
 
 ;a stream of a file of a system: of the file on this one, asked of the
 ;service where the system is another, the same either way

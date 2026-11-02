@@ -30,11 +30,12 @@
 
 (defun source-given? (path)
 	; (source-given? path) -> :t | :nil
-	;a file that can be imported, Lisp, by a path from the root of the tree:
-	;none above it, none in a user's own folder, usr/env.inc is the
-	;system's. Nothing else of the tree is given, its keys are in it
+	;a file that can be imported, Lisp, or a shader that a task reads to run,
+	;by a path from the root of the tree: none above it, none in a user's own
+	;folder, usr/env.inc is the system's. Nothing else of the tree is given,
+	;its keys are in it
 	(defq parts (split path "/"))
-	(and (or (ends-with ".lisp" path) (ends-with ".inc" path))
+	(and (or (ends-with ".lisp" path) (ends-with ".inc" path) (ends-with ".shader" path))
 		(not (or (starts-with "/" path) (find ".." parts)
 			(and (eql (first parts) "usr") (> (length parts) 2))))))
 
