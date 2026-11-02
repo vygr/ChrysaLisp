@@ -77,8 +77,7 @@
 	(. game_grid :change 0 0 w h)
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun clicked-blank (cell)
 	(defq work (list cell))
@@ -125,8 +124,7 @@
 	(. game_grid :change 0 0 w h)
 	(def view :min_width w :min_height h)
 	(. view :add_child game_grid)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun main ()
 	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list)

@@ -91,10 +91,7 @@
 		(campaign-resize *zoom*)
 		(mind-resize *zoom*)
 		(when *player_man* (update-camera *player_man*))
-		(bind '(x y) (. *window* :get_pos))
-		(bind '(w h) (. *window* :pref_size))
-		(bind '(x y w h) (view-fit x y w h))
-		(.-> *window* (:change_dirty x y w h :t))))
+		(. *window* :fit :t)))
 
 (enums +select 0
 	(enum main timer service))

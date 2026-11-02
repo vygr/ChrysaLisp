@@ -312,10 +312,7 @@
 		(def btn :text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
 		(range 0 6))
 
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y w h))
-	(. *window* :change_dirty x y w h :t))
+	(. *window* :fit :t))
 
 (defun main ()
 	(config-load)

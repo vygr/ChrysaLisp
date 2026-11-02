@@ -23,9 +23,7 @@
 
 (defun set-size (size)
 	(def (defq parent (penv *main_widget*)) :min_width size :min_height size)
-	(bind '(x y w h) (apply view-fit
-		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h)
+	(. *window* :fit)
 	(def parent :min_width +min_size :min_height +min_size)
 	(set-canvas size))
 

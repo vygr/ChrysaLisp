@@ -295,9 +295,7 @@
 					((= id +event_close)
 						(setq *running* :nil))
 					((= id +event_min)
-						(bind '(x y w h)
-							(apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-						(. *window* :change_dirty x y w h)
+						(. *window* :fit)
 						(when *selected_story*
 							(render-detail-pane *selected_story* (. *post_content_cache* :find *selected_id*) (. *comments_cache* :find *selected_id*))))
 					((= id +event_max)

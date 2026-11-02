@@ -247,6 +247,12 @@
 						(fnc target :action event)))))
 		this)
 
+	(defmethod :fit (&optional flag)
+		; (. window :fit [flag]) -> window
+		;the size it would have, where it is, as far as the screen lets it
+		(bind '(x y w h) (apply view-fit (cat (. this :get_pos) (. this :pref_size))))
+		(. this :change_dirty x y w h flag))
+
 	(defmethod :tip (event)
 		; (. window :tip event) -> window
 		;a view's time for showing its tip has come, the mail of its timer

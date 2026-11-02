@@ -33,8 +33,7 @@
 	(. *status* :set_text (apply (const cat) (map (const str) text))))
 
 (defun layout ()
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun rows ()
 	;a row for each key, made again from the keyring

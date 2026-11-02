@@ -92,8 +92,7 @@
 		(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
 		(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
 	(. *window_title* :set_text (cat "Films -> " (path-name file)))
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun played-load ()
 	;the films that have played, the last first, as the user's films.tre has

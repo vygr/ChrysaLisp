@@ -77,10 +77,7 @@
 	(. *canvas* :swap +swap_write))
 
 (defun window-fit ()
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y w h))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun screen-new ()
 	;a canvas the size of the zoom, the old one let go

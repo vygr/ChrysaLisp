@@ -62,10 +62,7 @@
 	(setq *canvas* (Canvas pw ph 1))
 	(. *backdrop* :add_child *canvas*)
 	; Get current position then fit window to screen
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(fw fh) (. *window* :pref_size))
-	(bind '(x y fw fh) (view-fit x y fw fh))
-	(. *window* :change_dirty x y fw fh :t)
+	(. *window* :fit :t)
 	(setq last_mx -1 last_my -1))
 
 (defun look (cx cy r mx my)

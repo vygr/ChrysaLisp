@@ -3,9 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-minimise ()
-	(bind '(x y w h) (apply view-fit
-		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun action-maximise ()
 	(bind '(x y) (. *window* :get_pos))

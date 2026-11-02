@@ -124,9 +124,7 @@
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
 					(show-nodes)
-					(bind '(x y w h) (apply view-fit
-						(cat (. *window* :get_pos) (. *window* :pref_size))))
-					(. *window* :change_dirty x y w h)
+					(. *window* :fit)
 					(each (# (. %0 :layout_bars)) charts))
 				;set scales
 				(update-net-result)

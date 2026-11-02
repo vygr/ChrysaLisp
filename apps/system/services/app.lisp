@@ -26,8 +26,7 @@
 	(bind '(w h) (. right_flow :get_size))
 	(setq h (min h mh))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun populate ()
 	(sort (defq new_services (mail-enquire "")))

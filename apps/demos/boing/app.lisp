@@ -33,8 +33,7 @@
 						(setq id :nil))
 					((= id +event_min)
 						;min button
-						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-						(. *window* :change_dirty x y w h))
+						(. *window* :fit))
 					((= id +event_max)
 						;max button
 						(bind '(x y) (. *window* :get_pos))

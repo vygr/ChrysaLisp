@@ -207,10 +207,7 @@
 			(def *fc_d3_temp* :text (if *unit_c* (cat mx3 " / " mn3 " C") (cat mxf3 " / " mnf3 " F"))))
 		(render-weather-icon *icon_canvas* code)
 		(def *status_label* :text (cat "Updated for " area))
-		(bind '(x y) (. *window* :get_pos))
-		(bind '(w h) (. *window* :pref_size))
-		(bind '(x y w h) (view-fit x y w h))
-		(. *window* :change_dirty x y w h :t)))
+		(. *window* :fit :t)))
 
 (defun trigger-fetch (worker_mbox trash_mbox city)
 	(. *status_label* :set_text (cat "Fetching weather for " city "..."))

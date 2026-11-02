@@ -51,8 +51,7 @@
 	(. symbol_grid :change 0 0 w h)
 	(def *symbol_scroll* :min_width w :min_height (min h 720))
 	(. *symbol_scroll* :add_child symbol_grid)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 ;the font shown, opened by the file picker, which keeps where fonts were
 ;taken from and the last one, shown again as it starts; the second of the

@@ -11,8 +11,7 @@
 	;what it shows, it always is
 	(bind '(cw ch) (canvas-size))
 	(def *image_scroll* :min_width (+ cw room room) :min_height (+ ch room room))
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h)
+	(. *window* :fit)
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	(.-> *image_scroll* :layout :dirty_all))
 

@@ -165,13 +165,11 @@
 				(setq id :nil))
 			((= id +event_min)
 				;min button
-				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-				(. *window* :change_dirty x y w h))
+				(. *window* :fit))
 			((= id +event_max)
 				;max button
 				(def *image_scroll* :min_width +width :min_height +height)
-				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-				(. *window* :change_dirty x y w h)
+				(. *window* :fit)
 				(def *image_scroll* :min_width +min_width :min_height +min_height))
 			((= id +event_reset)
 				;new bubbles, another seed

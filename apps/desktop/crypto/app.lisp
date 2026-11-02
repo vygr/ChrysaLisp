@@ -191,10 +191,7 @@
 				(def (elem-get btns %0) :text (cat csym " " (format-price cprice)))))
 			(range 0 (min 6 (length *coins_data*))))
 		(def *status_label* :text (cat "Tracking " (str (length *coins_data*)) " assets"))
-		(bind '(x y) (. *window* :get_pos))
-		(bind '(w h) (. *window* :pref_size))
-		(bind '(x y w h) (view-fit x y w h))
-		(. *window* :change_dirty x y w h :t)))
+		(. *window* :fit :t)))
 
 (defun trigger-fetch (worker_mbox trash_mbox)
 	(. *status_label* :set_text "Updating prices...")

@@ -270,9 +270,7 @@ Key points:
 		(def (. *b1* :dirty) :paper +argb_red))
 
 	(defun action-minimise ()
-		(bind '(x y w h) (apply view-fit
-			(cat (. *window* :get_pos) (. *window* :pref_size))))
-		(. *window* :change_dirty x y w h))
+		(. *window* :fit))
 
 Key points:
 

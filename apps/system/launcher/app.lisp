@@ -109,10 +109,7 @@
 	; (window-fit)
 	;the window its size again after categories are shown or hidden, all
 	;laid out again, a toggle is a new size and the row it is in is not
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y w h))
-	(. *window* :change_dirty x y w h :t))
+	(. *window* :fit :t))
 
 (defun build-ui ()
 	(defq categories (. *config* :find :categories)
