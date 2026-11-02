@@ -75,6 +75,22 @@
 (view-resolve th_w)
 (assert-eq "changed, it is found again from where it is, the bar first" 5 (get :border th_in_bar))
 (assert-eq "and the one beside it" 3 (get :border th_plain))
+;the forms: each says what it is, a bar one of them or each on or off, a
+;sheet as a scroll is, and a view given nothing, or a default erased, has no more
+(ui-window th_f_w ()
+	(ui-radio-bar th_radio ("a" "b"))
+	(ui-toggle-bar th_toggle ("a" "b"))
+	(ui-sheet th_sheet (:min_width 10)
+		(ui-flow th_in_sheet ()))
+	(ui-flow th_bare ()))
+(assert-eq "a radio bar is one of them" :nil (get :mode th_radio))
+(assert-eq "a toggle bar is each on or off" :t (get :mode th_toggle))
+(assert-eq "the two have the one look" (get :paper th_radio) (get :paper th_toggle))
+(assert-true "a sheet is a Sheet" (Sheet? th_sheet))
+(assert-eq "with a scroll's paper" (get :paper_slider *env*) (def? :paper th_sheet))
+(assert-eq "and what it was given" 10 (def? :min_width th_sheet))
+(assert-true "what is in it is" (find th_in_sheet (. th_sheet :children)))
+(assert-eq "a form given nothing sets nothing" :nil (def? :flow_flags th_bare))
 ;a default erased, it finds what is above it
 (ui-window th_x ()
 	(ui-flow th_f (:border 4)

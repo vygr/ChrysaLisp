@@ -173,35 +173,25 @@
 	; (ui-props props [props]) -> props
 	(static-qq (setq ,p (cat ',x (ifn ,p '())))))
 
+(defun ui-sets (n p e)
+	; (ui-sets name props erased) -> forms
+	;what gives a view its properties, and takes away those erased
+	(cat (if (nempty? p) (list (cat (list 'def n) p)) (list))
+		(if (nempty? e) (list (cat (list 'undef n) e)) (list))))
+
 (defmacro ui-root (n c &optional p &rest x)
 	; (ui-root name constructor [props] [body]) -> view
 	(bind '(p e) (ui-merge-props p))
-	(if (= 0 (length p))
-		(if (= 0 (length e))
-			(static-qq (progn (defq _ui (list (defq ,n ,c)))
-				~x (setq _ui :nil)))
-			(static-qq (progn (defq _ui (list (defq ,n ,c)))
-				(undef ,n ~e) ~x (setq _ui :nil))))
-		(if (= 0 (length e))
-			(static-qq (progn (defq _ui (list (defq ,n ,c)))
-				(def ,n ~p) ~x (setq _ui :nil)))
-			(static-qq (progn (defq _ui (list (defq ,n ,c)))
-				(def ,n ~p) (undef ,n ~e) ~x (setq _ui :nil))))))
+	(defq sets (ui-sets n p e))
+	(static-qq (progn (defq _ui (list (defq ,n ,c)))
+		~sets ~x (setq _ui :nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
 	; (ui-element name constructor [props] [body]) -> view
 	(bind '(p e) (ui-merge-props p))
-	(if (= 0 (length p))
-		(if (= 0 (length e))
-			(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
-				~x (pop _ui)))
-			(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
-				(undef ,n ~e) ~x (pop _ui))))
-		(if (= 0 (length e))
-			(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
-				(def ,n ~p) ~x (pop _ui)))
-			(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
-				(def ,n ~p) (undef ,n ~e) ~x (pop _ui))))))
+	(defq sets (ui-sets n p e))
+	(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n)
+		~sets ~x (pop _ui))))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
@@ -273,7 +263,9 @@
 	(static-qqp (each! (# (. (ui-button __ ,p) :connect (if (< ,e 0) ,e (+ (!) ,e)))) (list '(~s)))))
 
 (defmacro ui-title-bar (n s b e &optional p)
-	; (ui-title-bar name title symbols event [props]) -> flow
+	; (ui-title-bar title_name title symbols event [props]) -> flow
+	;the name is of its title, what an app changes, and it says what a
+	;button is in it, the role its buttons name, :border_button
 	(ui-props p
 		:flow_flags +flow_left_fill
 		:paper :paper_title
@@ -298,23 +290,23 @@
 		:border :border_label)
 	(static-qqp (ui-element ,n (Label) ,p ~x)))
 
-(defmacro ui-radio-bar (n s &optional p)
-	; (ui-radio-bar name symbols [props])
+(defmacro ui-bar (n s mode &optional p)
+	; (ui-bar name symbols mode [props])
+	;a bar of buttons, one of them selected, or with mode each on or off
 	(ui-props p
 		:paper :paper_toolbar
 		:font :font_symbol
 		:border :border_button)
 	(setq s (ui-symbols s))
-	(static-qqp (ui-element ,n (Radiobar '(~s)) ,p)))
+	(static-qqp (ui-element ,n (Radiobar '(~s) ,mode) ,p)))
+
+(defmacro ui-radio-bar (n s &optional p)
+	; (ui-radio-bar name symbols [props])
+	(static-qqp (ui-bar ,n ,s :nil ,p)))
 
 (defmacro ui-toggle-bar (n s &optional p)
 	; (ui-toggle-bar name symbols [props])
-	(ui-props p
-		:paper :paper_toolbar
-		:font :font_symbol
-		:border :border_button)
-	(setq s (ui-symbols s))
-	(static-qqp (ui-element ,n (Radiobar '(~s) :t) ,p)))
+	(static-qqp (ui-bar ,n ,s :t ,p)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
@@ -322,19 +314,6 @@
 		:flow_flags +flow_right
 		:paper :paper_toolbar :font :font_symbol)
 	(static-qqp (ui-flow ,n ,p ~x)))
-
-(defun toolbar-states (toolbar states)
-	; (toolbar-states toolbar states)
-	;each button of a toolbar lit, or not, by its state in a list
-	(defq radio_col (canvas-brighter (get :paper toolbar)))
-	(each (# (undef (. %0 :dirty) :paper)
-			(if %1 (def %0 :paper radio_col)))
-		(. toolbar :children) states))
-
-(defun page-scale (s)
-	; (page-scale size) -> size
-	;a size by the zoom of the app's *window*
-	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
@@ -354,6 +333,12 @@
 	(ui-props p
 		:paper :paper_slider)
 	(static-qqp (ui-element ,n (Scroll ,f) ,p ~x)))
+
+(defmacro ui-sheet (n &optional p &rest x)
+	; (ui-sheet name [props] [body]) -> sheet
+	(ui-props p
+		:paper :paper_slider)
+	(static-qqp (ui-element ,n (Sheet) ,p ~x)))
 
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
@@ -385,6 +370,19 @@
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
 	(static-qqp (ui-element ,n (View) ,p ~x)))
+
+(defun toolbar-states (toolbar states)
+	; (toolbar-states toolbar states)
+	;each button of a toolbar lit, or not, by its state in a list
+	(defq radio_col (canvas-brighter (get :paper toolbar)))
+	(each (# (undef (. %0 :dirty) :paper)
+			(if %1 (def %0 :paper radio_col)))
+		(. toolbar :children) states))
+
+(defun page-scale (s)
+	; (page-scale size) -> size
+	;a size by the zoom of the app's *window*
+	(n2i (* (n2f s) (n2f (get :zoom *window*)))))
 
 (defun ui-tool-tips (view tips)
 	; (ui-tool-tips view tips)

@@ -14,7 +14,7 @@
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-title _ (:text "Places" :paper :paper_title))
-				(ui-element *places_scroll* (Sheet) (:paper :paper_slider :min_width 160 :min_height 360)
+				(ui-sheet *places_scroll* (:min_width 160 :min_height 360)
 					(ui-flow *places* (:flow_flags +flow_down_fill))))
 			;from the right, the preview, then the drawer, which takes the width there is
 			(ui-flow _ (:flow_flags +flow_left_fill)
@@ -44,6 +44,6 @@
 							(. (ui-textfield *name* (:clear_text "" :hint_text "name" :paper +argb_white))
 								:connect +event_ok))
 						;the rows on a white sheet ruled at their spacing
-						(ui-element *scroll* (Sheet) (:paper :paper_slider :min_width 420 :min_height 360)
+						(ui-sheet *scroll* (:min_width 420 :min_height 360)
 							(ui-backdrop *ruled* (:style :lines :paper +argb_white :ink +argb_grey14)
 								(ui-flow *list* (:flow_flags +flow_down_fill))))))))))
