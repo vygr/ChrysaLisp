@@ -628,8 +628,9 @@ int64_t pii_host(char *buf, size_t len)
 
 int64_t pii_chmod(const char *path, uint64_t mode)
 {
-	//a file has no such mode here, what runs is told by its name
-	return 0;
+	//what runs is told by its name here, of a mode all there is to set
+	//is whether a file may be written
+	return _chmod(path, (mode & 0200) ? _S_IREAD | _S_IWRITE : _S_IREAD);
 }
 
 int64_t pii_tick()
