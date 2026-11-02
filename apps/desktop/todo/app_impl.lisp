@@ -73,8 +73,7 @@
 	(layout-items *min_width* *min_height*)
 	(. *stack_flow* :show_tab 0)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (.-> *window* (:change x y w h) (:connect +event_layout)))
+	(.-> *window* (:connect +event_layout) :show)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

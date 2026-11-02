@@ -114,8 +114,7 @@
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another

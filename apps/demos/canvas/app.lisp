@@ -83,8 +83,7 @@
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(.-> *canvas* (:set_canvas_flags +canvas_flag_antialias) (:fill +argb_black) (:swap +swap_write))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them

@@ -97,8 +97,7 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 	(defun main ()
 		(defq select (task-mboxes +select_size) *running* :t)
 		(def *window* :tip_mbox (elem-get select +select_tip))
-		(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-		(gui-add-front-rpc (. *window* :change x y w h))
+		(. *window* :show)
 		(mail-timeout (elem-get select +select_timer) +rate 0)
 		(while *running*
 			(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -134,9 +133,9 @@ Key points:
 *	The window is registered with the GUI compositor via
 	`gui-add-front-rpc` and unregistered on exit with `gui-sub-rpc`.
 
-*	Window placement: `view-locate` centers a window of its preferred
-	size on screen; `view-fit` clamps an explicit position and size to
-	the screen.
+*	Window placement: `:show` and `:fit` do it for the size a window
+	wants. For another size, `view-locate` centers a window at the mouse,
+	and `view-fit` clamps an explicit position and size to the screen.
 
 *	The debug header, `(case 0` in place of `(case :nil`, imports stack
 	frames, so an error says which function and line was running. To time
@@ -277,8 +276,8 @@ Key points:
 *	`(def (. *widget* :dirty) :prop val)` — the `:dirty` marker tells
 	the GUI to redraw that widget on the next frame.
 
-*	Window resizes go through `view-fit`/`view-locate` then
-	`:change_dirty`.
+*	`(. *window* :show [place])` puts a window on the screen, and
+	`(. *window* :fit [flag])` gives it the size it wants where it is.
 
 ## Advanced Patterns
 
@@ -584,8 +583,7 @@ what the user did. `tests/scratch/gui_probe.lisp`:
 		:connect +event_click))
 
 (defq select (task-mboxes +select_size) running :t)
-(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-(gui-add-front-rpc (. *window* :change x y w h))
+(. *window* :show)
 (mail-timeout (elem-get select +select_timer) 15000000 0)
 (while running
 	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))

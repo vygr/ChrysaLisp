@@ -62,8 +62,7 @@
 	;add window
 	(bind '(w h) (. right_flow :get_size))
 	(def info_scroll :min_width w :min_height h)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;app event loop
 	(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0)
 	(while id

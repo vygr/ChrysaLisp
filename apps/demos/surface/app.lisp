@@ -178,8 +178,7 @@
 	(setq select (task-mboxes +select_size))
 	(make-controls)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(setq jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program))

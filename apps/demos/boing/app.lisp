@@ -20,8 +20,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) id :t index 0 xv 4 yv 0
 		handle (audio-add-rpc (cat *app_root* "data/boing.wav")))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))

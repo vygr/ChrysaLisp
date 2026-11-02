@@ -223,11 +223,11 @@
 			+left +right +top +bottom +near +far :nil)))
 
 (defun main ()
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
+	(. *window* :connect +event_layout)
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
 	(. *style_toolbar* :set_selected 0)
 	(. *gpu_toolbar* :set_selected (if *use_gpu* 1 0))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
 		;the farm that draws the faces, a frame is out with it, it has

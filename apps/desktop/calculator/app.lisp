@@ -278,8 +278,7 @@
 	(. base_bar :set_selected (find *base* '(10 16 2 8)))
 	(update-display)
 	(update-button-states)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select))))
 			  id (getf msg +ev_msg_target_id))

@@ -34,8 +34,7 @@
 		*work* :nil *doing* :nil *plan* (list 0 0) *faults* 0 *delete* :nil)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(stores-start)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

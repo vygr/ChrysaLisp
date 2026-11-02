@@ -264,8 +264,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;a GPU that could not take the kernel, the farm does it
 	(and gpu (not (gpu-init)) (setq gpu :nil has_gpu :nil))
 	(. *mode_toolbar* :set_selected (if gpu 1 0))

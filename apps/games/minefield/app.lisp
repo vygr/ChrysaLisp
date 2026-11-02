@@ -129,8 +129,7 @@
 (defun main ()
 	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list)
 		first_click :t difficulty (list) game_grid :nil click_offset 4 game_over :nil mouse_down 0)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_close)
 			:nil)

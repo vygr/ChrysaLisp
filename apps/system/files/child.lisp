@@ -244,8 +244,7 @@
 			(go-to (if (folder? folder) folder "."))
 			(. *name* :set_text (name-last root))))
 	(preview-show (path-in *folder* (trim (. *name* :get_text))))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;the places and the sheet sized again now the window has its size
 	(places-show)
 	(go-to *folder*)

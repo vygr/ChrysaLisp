@@ -103,8 +103,7 @@
 	(load-wav-assets)
 	(config-load)
 	(window-resize)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 
 	; start game loop timer
 	(mail-timeout (elem-get select +select_timer) +rate 0)

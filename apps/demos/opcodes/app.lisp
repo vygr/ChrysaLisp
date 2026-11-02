@@ -189,8 +189,7 @@
 		(:set_flags +view_flag_opaque +view_flag_opaque)
 		(:swap +swap_write))
 	(set-count)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them

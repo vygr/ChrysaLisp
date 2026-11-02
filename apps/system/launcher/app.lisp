@@ -136,8 +136,7 @@
 	(build-ui)
 
 	; Position and show window
-	(bind '(x y w h) (apply view-locate (push (. *window* :pref_size) (get :launcher_position *env*))))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show (get :launcher_position *env*))
 
 	; Main Event Loop
 	(while running

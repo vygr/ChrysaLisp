@@ -268,9 +268,9 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
+	(. *window* :connect +event_layout)
 	(. *style_toolbar* :set_selected 1)
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(tooltips)
 	(reset)
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)

@@ -130,8 +130,7 @@
 	(populate-page *current_file*)
 	(. *file_selector* :select_node *current_file*)
 	(setq *history* (list *current_file*) *history_idx* 0)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

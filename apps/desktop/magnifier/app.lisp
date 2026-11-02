@@ -45,8 +45,7 @@
 	(defq id :t select (task-mboxes +select_size) *zoom* 3 *small* :nil *small_w* 0 *small_h* 0)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(zoom 0)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(mail-timeout (elem-get select +select_timer) +tick 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))

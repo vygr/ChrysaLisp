@@ -102,8 +102,7 @@
 	(. *scene_toolbar* :set_selected 0)
 	(. *depth_toolbar* :set_selected 1)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(.-> *window* (:connect +event_layout) :show)
 	;from now on it can be half that, and keeps its shape
 	(def *picture* :min_width (/ +width 2) :min_height (/ +height 2))
 	(def *window* :aspect_view *picture* :aspect (list +width +height))

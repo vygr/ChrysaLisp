@@ -156,8 +156,7 @@
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)
 		jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))

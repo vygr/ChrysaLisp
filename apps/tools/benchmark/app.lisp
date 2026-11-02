@@ -65,8 +65,7 @@
 	(each (# (def %0 :min_height 32)) *bar_list*)
 
 	; Position window
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 
 	; Start the child benchmark task
 	(setq *child* (open-child (cat *app_root* "child.lisp") +kn_call_run))

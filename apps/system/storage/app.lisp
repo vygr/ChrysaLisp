@@ -503,8 +503,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *log* :set_canvas_flags +canvas_flag_antialias)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(mail-timeout (elem-get select +select_timer) +tick 0)
 	;the store this system is a member of, as it is and then as it works,
 	;or of none, those of the other machines of the mesh, as a client: what

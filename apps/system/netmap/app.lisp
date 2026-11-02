@@ -256,9 +256,9 @@
 	(defq global_tasks (Global create destroy))
 	(set-auto :t)
 	(tooltips (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
+	(. *window* :connect +event_layout)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	;it opens at its full size, and can then be made smaller
 	(def (penv *canvas*) :min_width +min_size :min_height +min_size)
 	(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)

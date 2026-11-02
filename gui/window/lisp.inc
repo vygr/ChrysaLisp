@@ -247,6 +247,14 @@
 						(fnc target :action event)))))
 		this)
 
+	(defmethod :show (&optional place)
+		; (. window :show [place]) -> window
+		;on the screen at the size it wants, where view-locate says
+		(bind '(w h) (. this :pref_size))
+		(bind '(x y w h) (view-locate w h place))
+		(gui-add-front-rpc (. this :change x y w h))
+		this)
+
 	(defmethod :fit (&optional flag)
 		; (. window :fit [flag]) -> window
 		;the size it would have, where it is, as far as the screen lets it

@@ -125,8 +125,7 @@
 		*picker* :nil *picker_save* :nil *take_name* :nil *give_name* :nil)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(rows)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(. *window* :show)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
