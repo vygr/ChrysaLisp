@@ -75,7 +75,12 @@ function member_stop
 				done < "$TEMP/chrysalisp_$one.session"
 				rm -f "$TEMP/chrysalisp_$one.session"
 			fi
-			kill -KILL $one 2>/dev/null
+			#only a node of ChrysaLisp. A note left by a session that did not
+			#clear up can name a process number the machine has since given
+			#to something else
+			case "$(ps -p $one -o comm= 2>/dev/null)" in
+				*chrysalisp) kill -KILL $one 2>/dev/null ;;
+			esac
 		fi
 	done
 }
