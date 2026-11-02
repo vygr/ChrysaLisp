@@ -75,7 +75,7 @@
 						(setq id :nil))
 					((= id +event_min)
 						;min button
-						(resize 256))
+						(resize 128))
 					((= id +event_max)
 						;max button
 						(resize 640))
