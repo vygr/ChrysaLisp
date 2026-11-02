@@ -57,6 +57,18 @@
 	(catch (progn (. nd_field :mouse_down nd_click) (. nd_field :mouse_move nd_click) (. nd_field :mouse_up nd_click) :ok) :threw))
 (assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))
 
+;an app with no dispatch-action of its own has its actions called, and one that
+;fails is told of and the app goes on
+(defq nd_acted 0 *event_map* (scatter (Fmap)
+		7001 (lambda () (setq nd_acted (inc nd_acted)))
+		7002 (lambda () (setq nd_acted (inc nd_acted)) (throw "this action fails, as it is meant to" 0)))
+	nd_event (# (setf-> (str-alloc +ev_msg_mouse_size) (+ev_msg_type +ev_type_action) (+ev_msg_target_id %0))))
+(assert-eq "an action is called, and is an event dealt with" :t (. nd_form :dispatch (nd_event 7001)))
+(assert-eq "it was called" 1 nd_acted)
+(assert-eq "one that fails is dealt with too" :t (. nd_form :dispatch (nd_event 7002)))
+(assert-eq "it was called, and here we are" 2 nd_acted)
+(assert-eq "no action of that id is not" :nil (. nd_form :dispatch (nd_event 7003)))
+
 ;a canvas has no paper, whatever is above it, as it is made by a form or not
 (ui-window nd_cw (:paper +argb_white) (ui-canvas nd_c 8 8 1))
 (assert-eq "a canvas has no paper" 0 (get :paper nd_c))

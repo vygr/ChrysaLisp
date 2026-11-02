@@ -112,7 +112,8 @@ application. A developer would typically follow these steps:
     messages. The `cond` block inside the loop is the main dispatcher:
 
     1. It first checks if the event is a known GUI action by looking up the
-        `target_id` in `*event_map*`. If found, it calls `(dispatch-action)`.
+        `target_id` in `*event_map*`. If found, it calls the action, by
+        `dispatch-action` if the app has its own.
 
     2. If it's a keyboard event, it checks the modifier keys and looks up the
         key code in the appropriate `*key_map*`.

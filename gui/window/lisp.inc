@@ -22,6 +22,12 @@
 	(if (bits? mode 2) (setq y (- y1 h)))
 	(list x y (+ x w) (+ y h)))
 
+(defun window-action (&rest action)
+	; (window-action func [arg ...]) -> val | :t
+	;an action of an app that says nothing of its own, (dispatch-action): an
+	;error is printed, and the app goes on
+	(catch (eval action) (progn (prin _) (print) :t)))
+
 (defclass Window () (View)
 	; (Window) -> window
 	(def this :child :nil :last_buttons 0 :is_window :t :resizable :t
@@ -272,7 +278,7 @@
 		; (. window :dispatch event) -> :t | :nil
 		; standard action and keyboard event dispatching
 		(defq id (getf event +ev_msg_target_id)
-			dispatch_fnc (get 'dispatch-action) insert_fnc (get 'action-insert)
+			dispatch_fnc (ifn (get 'dispatch-action) window-action) insert_fnc (get 'action-insert)
 			emap (get '*event_map*) kcmap (get '*key_map_control*)
 			ksmap (get '*key_map_shift*) kmap (get '*key_map*))
 		(cond

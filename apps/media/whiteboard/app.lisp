@@ -1303,9 +1303,6 @@
 (import "./actions.inc")
 (import "./config.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	;the mailboxes of the stripes are waited on after this task's own
 	(defq select (cat (task-mboxes +select_size) (. *stripes* :mboxes)) *id* :t)

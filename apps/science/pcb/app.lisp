@@ -127,9 +127,6 @@
 	(with-write-lock +config_file
 		(tree-save (file-stream +config_file +file_open_write) *config*)))
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(tooltips)

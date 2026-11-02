@@ -219,9 +219,6 @@
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun picker-run (msg)
 	;the parameters from its parent
 	(defq reply_mbox (slice msg 0 +net_id_size))

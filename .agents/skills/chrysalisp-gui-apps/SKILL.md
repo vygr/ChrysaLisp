@@ -91,9 +91,6 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 	;import actions and bindings
 	(import "./actions.inc")
 
-	(defun dispatch-action (&rest action)
-		(catch (eval action) (progn (prin _) (print) :t)))
-
 	(defun main ()
 		(defq select (task-mboxes +select_size) *running* :t)
 		(def *window* :tip_mbox (elem-get select +select_tip))
@@ -123,8 +120,10 @@ Key points:
 	handlers can inspect it, e.g. `(getf *msg* +ev_msg_action_source_id)`.
 
 *	`(. *window* :dispatch *msg*)` looks up the event's target widget
-	and its `:connect` event in `*event_map*`, then calls
-	`dispatch-action`. The final clause, `(. *window* :event *msg*)`,
+	and its `:connect` event in `*event_map*`, then calls the action. An
+	app defines `dispatch-action` only to do more than that: without
+	one, an error in an action is printed and the app goes on. The final
+	clause, `(. *window* :event *msg*)`,
 	handles everything else at the window level.
 
 *	`tip_mbox` receives hover-timeout messages from the GUI; pass them
@@ -254,7 +253,7 @@ Key points:
 	arguments and returns the popped environment, which the module ignores.
 
 *	Map values are action function *names*, not calls:
-	`dispatch-action` evaluates the list.
+	the action is evaluated as a list.
 
 *	Key maps split by modifier state: plain, shift, control. Use
 	`(ascii-code "x")` for characters and `0x4000xxxx` hex codes for

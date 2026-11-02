@@ -121,9 +121,6 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun strips (draws rows)
 	;a job for each child of the farm, a strip of the frame, or with no
 	;rows, which a child answers when it has the shaders and the meshes

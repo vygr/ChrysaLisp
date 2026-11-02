@@ -88,9 +88,6 @@
 	(when (defq child (get :child val)) (mail-send child ""))
 	(elem-set select +select_reply (mail-mbox)))
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	(defq select (task-mboxes +select_size) farm :nil)
 	(config-load)

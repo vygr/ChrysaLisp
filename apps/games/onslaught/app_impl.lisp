@@ -52,9 +52,6 @@
 (import "./campaign.inc")
 (import "./remote.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun window-resize ()
 	; load assets
 	(when (/= *zoom* *old_zoom*)

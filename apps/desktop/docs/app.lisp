@@ -110,9 +110,6 @@
 ;import actions
 (import "./actions.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	(defq select (task-mboxes +select_size) handlers (Emap) syntax (Syntax)
 		scroll_pos (Fmap) *running* :t *config* :nil *current_file* (cat +doc_root "/ai_digest/summary.md")

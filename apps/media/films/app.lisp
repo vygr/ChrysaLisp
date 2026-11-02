@@ -213,9 +213,6 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun tick (select)
 	;the next frame when it is due, round again after the last
 	(defq period (if *reel* (n2i (/ 1000000.0 (. *reel* :find :rate))) 33333) wait :nil start (pii-time))

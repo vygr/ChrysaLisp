@@ -169,9 +169,6 @@
 	+event_max action-maximise
 	+event_min action-minimise))
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(def *window* :tip_mbox (elem-get select +select_tip))

@@ -263,9 +263,6 @@
 ;import actions and bindings
 (import "./actions.inc")
 
-(defun dispatch-action (&rest action)
-	(catch (eval action) (progn (prin _) (print) :t)))
-
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(. *window* :connect +event_layout)
