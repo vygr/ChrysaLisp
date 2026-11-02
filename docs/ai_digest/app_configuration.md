@@ -9,9 +9,10 @@ size, application settings, and user-generated content, between sessions.
 
 The core philosophies behind this standard are:
 
-*   **Modularity:** The entire configuration logic is encapsulated in a single,
-    self-contained `config.inc` file, making it easy to add to any
-    application.
+*   **Modularity:** The configuration logic is a few functions of the
+    application, `config-default`, `config-load` and `config-save`. Most apps
+    keep them in `app.lisp`, and a larger one in a `config.inc` of its own,
+    as `apps/media/whiteboard/config.inc` and `apps/games/chess/config.inc` do.
 
 *   **Per-User Storage:** Each user's settings are stored in their own home
     directory (`(get :home *env*)`), ensuring that configurations are isolated and do
@@ -30,11 +31,11 @@ The core philosophies behind this standard are:
 
 The standard is built upon a few key components that work together.
 
-### The `config.inc` File
+### The Configuration Functions
 
 This is the heart of the pattern. Every application implementing this
-standard has a `config.inc` file that defines a consistent set of global
-variables and functions.
+standard defines a consistent set of global variables and functions, in
+`app.lisp` or, for a larger one, in a `config.inc` of its own.
 
 *   `*config*`: A global variable that holds the application's configuration
     data in an `Emap` during runtime.
@@ -53,7 +54,7 @@ inspection and manual editing if necessary.
 
 ### The Standard Function Interface
 
-The `config.inc` file provides a standard API for managing the
+These provide a standard API for managing the
 configuration lifecycle:
 
 *   **`(config-default)`**: Creates and returns a new `Emap` containing the
