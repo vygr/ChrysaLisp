@@ -7,10 +7,11 @@
 ;document does not have is caught. It says a node of its own, made up, so
 ;it changes the network for a moment, and is in tests/solo/
 (import "service/net/door.inc")
+(import "tests/net/listen.inc")
 ((ffi "service/net/lisp_init"))
 
-(defq lw_key (sha256 "link wire") lw_port 31573 lw_listener (net-listen lw_port)
-	lw_reply (mail-mbox) lw_node (random-bytes 16) lw_system (random-bytes 16))
+(bind '(lw_port lw_listener) (test-listen 31573))
+(defq lw_key (sha256 "link wire") lw_reply (mail-mbox) lw_node (random-bytes 16) lw_system (random-bytes 16))
 (assert-true "a listener" (> lw_listener 0))
 
 (defun lw-uint (s at) (code s 4 at))

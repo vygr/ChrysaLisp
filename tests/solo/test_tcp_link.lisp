@@ -10,6 +10,7 @@
 (import "lib/net/links.inc")
 (import "lib/crypto/random.inc")
 (import "service/net/app.inc")
+(import "tests/net/listen.inc")
 
 ;a machine with no key has no links. One that has never been installed,
 ;a tree of cross built images say, is given one for the test, and the
@@ -20,8 +21,13 @@
 	(task-sleep 3000000))
 
 (defq tl_before (lisp-nodes :t) tl_reply (mail-mbox) tl_new :nil)
-(pipe-run "link -l 34581" (const identity))
-(defq tl_pid (pii-spawn "-run tests/solo/tcp_peer.lisp"))
+;the port is another's if a session beside this has it: the first free,
+;and the other network told which. A node's args are split at spaces
+(bind '(tl_port tl_probe) (test-listen 34581))
+(if (> tl_probe 0) (net-close tl_probe))
+(pipe-run (cat "link -l " (str tl_port)) (const identity))
+(defq tl_pid (pii-spawn (cat "-run (progn\v(defq\vtp_port\v" (str tl_port)
+	")\v(import\v{tests/solo/tcp_peer.lisp}))")))
 
 (defun tl-find ()
 	;the node that is the process started, :nil if it is not seen yet
@@ -116,8 +122,10 @@
 	(defq said (mail-mbox) gate (open-child "service/net/gate.lisp" +kn_call_pin))
 	(mail-send gate (cat (door-key) (str port) " " (hex-encode said)))
 	(list gate (mail-read said)))
-(bind '(tl_gate1 tl_has1) (tl-gate 34582))
-(bind '(tl_gate2 tl_has2) (tl-gate 34582))
+(bind '(tl_gate_port tl_probe) (test-listen (inc tl_port)))
+(if (> tl_probe 0) (net-close tl_probe))
+(bind '(tl_gate1 tl_has1) (tl-gate tl_gate_port))
+(bind '(tl_gate2 tl_has2) (tl-gate tl_gate_port))
 (assert-eq "the first to listen on a port has it" "1" tl_has1)
 (assert-eq "the second has not" "0" tl_has2)
 (mail-send tl_gate1 "")
@@ -125,7 +133,7 @@
 (defq tl_gate3 :nil tl_has3 :nil)
 (until (eql tl_has3 "1")
 	(task-sleep 20000)
-	(bind '(tl_gate3 tl_has3) (tl-gate 34582)))
+	(bind '(tl_gate3 tl_has3) (tl-gate tl_gate_port)))
 (assert-eq "the first told to go, the next has it" "1" tl_has3)
 (mail-send tl_gate3 "")
 (task-sleep 200000)

@@ -1,5 +1,6 @@
 (report-header "Net: the door of a link, two machines prove they have the key")
 (import "service/net/door.inc")
+(import "tests/net/listen.inc")
 ((ffi "service/net/lisp_init"))
 
 ;the key of a machine, from its file
@@ -58,8 +59,8 @@
 ;a test fails for what is wrong, not for how long a busy machine took. One
 ;that never comes is the test runner's to say, the module is lost. A door
 ;that is to give up on what is wrong gives up as it did, those are timed
-(defq dr_port 31571 dr_listener (net-listen dr_port) dr_reply (mail-mbox) dr_said :nil dr_heard (list)
-	dr_long (task-timeout 600))
+(bind '(dr_port dr_listener) (test-listen 31571))
+(defq dr_reply (mail-mbox) dr_said :nil dr_heard (list) dr_long (task-timeout 600))
 (assert-true "a listener" (> dr_listener 0))
 
 (defun dr-dial (code)
@@ -84,9 +85,9 @@
 (defun dr-meet (key code &optional wait)
 	;what the listener made of a connection, and what the child did, (listener
 	;child), through or not, and in dr_said all they said. The listener waits
-	;as long as it takes unless given a wait. With no listener another suite
-	;has the port: a dial would be its listener's to answer, and spoil its
-	;test, and nothing would come here to wait for
+	;as long as it takes unless given a wait. With no listener every port
+	;tried has another's: a dial would be its listener's to answer, and spoil
+	;its test, and nothing would come here to wait for
 	(setq dr_said '("none" "none"))
 	(when (> dr_listener 0)
 		(dr-dial code)
