@@ -69,4 +69,5 @@
 								(open-child (app-path "system/launcher") +kn_call_pin)
 								(setq mouse_state :u))
 							(:u ;was up last time
-								))))))))
+								)))))))
+	(gui-sub-rpc wallpaper))
