@@ -64,6 +64,14 @@ a child on a node that refused is not there to be found, it is
 all the nodes there are that a child is looked for in
 ```
 
+### :refuse
+
+```code
+(. farm :refuse node) -> farm
+
+a node is not asked again while this farm lasts
+```
+
 ### :refused
 
 ```code

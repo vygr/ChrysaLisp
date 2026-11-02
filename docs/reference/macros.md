@@ -720,6 +720,14 @@ a number as so many bytes, the high first, as TLS has its numbers
 (ui-backdrop name [props] [body]) -> backdrop
 ```
 
+### ui-bar
+
+```code
+(ui-bar name symbols mode [props])
+
+a bar of buttons, one of them selected, or with mode each on or off
+```
+
 ### ui-button
 
 ```code
@@ -810,6 +818,12 @@ a number as so many bytes, the high first, as TLS has its numbers
 (ui-scroll name flags [props] [body]) -> scroll
 ```
 
+### ui-sheet
+
+```code
+(ui-sheet name [props] [body]) -> sheet
+```
+
 ### ui-slider
 
 ```code
@@ -855,7 +869,10 @@ a number as so many bytes, the high first, as TLS has its numbers
 ### ui-title-bar
 
 ```code
-(ui-title-bar name title symbols event [props]) -> flow
+(ui-title-bar title_name title symbols event [props]) -> flow
+
+the name is of its title, what an app changes, and it says what a
+button is in it, the role its buttons name, :border_button
 ```
 
 ### ui-toggle-bar

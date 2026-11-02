@@ -39,6 +39,18 @@ from a child that has since been started again, its job went
 back on the queue and the answer is to be left alone.
 ```
 
+### :cannot
+
+```code
+(. jobs :cannot msg) -> jobs
+
+a child can not do this work where it is, msg its answer. Its job
+goes back on the queue, not counted as tried, its node is not asked
+again while this farm lasts, and it is started again on another.
+Only the fast path: without this word (:refresh) does the same for
+the job and the child when its time is up
+```
+
 ### :clear
 
 ```code

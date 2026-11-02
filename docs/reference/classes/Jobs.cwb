@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 43
+	:next_id 44
 	:items
 	((:list 1)
 		((:list 7)
@@ -25,7 +25,7 @@
 							:id
 							5
 							:items
-							((:list 32)
+							((:list 33)
 								((:list 11)
 									:shape
 									:id
@@ -399,7 +399,7 @@
 									:stroke
 									0
 									:text
-									:clear
+									:cannot
 									:font_size
 									12
 									:pos
@@ -419,7 +419,7 @@
 									:stroke
 									0
 									:text
-									:close
+									:clear
 									:font_size
 									12
 									:pos
@@ -439,7 +439,7 @@
 									:stroke
 									0
 									:text
-									:failed
+									:close
 									:font_size
 									12
 									:pos
@@ -459,7 +459,7 @@
 									:stroke
 									0
 									:text
-									:give
+									:failed
 									:font_size
 									12
 									:pos
@@ -479,7 +479,7 @@
 									:stroke
 									0
 									:text
-									:heard
+									:give
 									:font_size
 									12
 									:pos
@@ -499,7 +499,7 @@
 									:stroke
 									0
 									:text
-									:job
+									:heard
 									:font_size
 									12
 									:pos
@@ -519,7 +519,7 @@
 									:stroke
 									0
 									:text
-									:launched
+									:job
 									:font_size
 									12
 									:pos
@@ -539,7 +539,7 @@
 									:stroke
 									0
 									:text
-									:out
+									:launched
 									:font_size
 									12
 									:pos
@@ -559,7 +559,7 @@
 									:stroke
 									0
 									:text
-									:refresh
+									:out
 									:font_size
 									12
 									:pos
@@ -579,7 +579,7 @@
 									:stroke
 									0
 									:text
-									:reply_to
+									:refresh
 									:font_size
 									12
 									:pos
@@ -599,7 +599,7 @@
 									:stroke
 									0
 									:text
-									:restart
+									:reply_to
 									:font_size
 									12
 									:pos
@@ -619,7 +619,7 @@
 									:stroke
 									0
 									:text
-									:size
+									:restart
 									:font_size
 									12
 									:pos
@@ -639,13 +639,33 @@
 									:stroke
 									0
 									:text
-									:tries
+									:size
 									:font_size
 									12
 									:pos
 									((:list 2)
 										87.90039
 										304.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									39
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:tries
+									:font_size
+									12
+									:pos
+									((:list 2)
+										87.90039
+										321.00000
 									)
 								)
 							)
@@ -689,19 +709,19 @@
 								((:list 5)
 									:group
 									:id
-									39
+									40
 									:items
 									((:list 1)
 										((:list 5)
 											:group
 											:id
-											40
+											41
 											:items
 											((:list 2)
 												((:list 11)
 													:shape
 													:id
-													41
+													42
 													:d
 													"[M 6 0 L 67.51513 0 A 6 6 0 0 1 73.51513 6 L 73.51513 18 A 6 6 0 0 1 67.51513 24 L 6 24 A 6 6 0 0 1 0 18 L 0 6 A 6 6 0 0 1 6 0 Z]"
 													:fill
@@ -714,7 +734,7 @@
 												((:list 15)
 													:shape
 													:id
-													42
+													43
 													:kind
 													:text
 													:fill

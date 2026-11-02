@@ -331,14 +331,6 @@ the channels of a raw data block, the elements read till END, and how
 many bits it took
 ```
 
-### aac-book
-
-```code
-(aac-book codes) -> (fmap longest)
-
-a book to read codes of: each code, its length high, to what it stands for
-```
-
 ### aac-book-values
 
 ```code
@@ -432,15 +424,6 @@ the AudioSpecificConfig of what is in an esds box, past its version
 
 the code next, what it stands for, by the native reader of a book's
 table, lib/media/lisp.vp media_huff
-```
-
-### aac-huff-lisp
-
-```code
-(aac-huff-lisp reader book) -> index
-
-the same in Lisp, the bits of the longest code looked at, one more
-each time till one is a code: what the native one is checked against
 ```
 
 ### aac-ics-info
@@ -5827,17 +5810,6 @@ its farm, so a job sent to it as it went is not lost
 (join seqs seq [mode]) -> seq
 ```
 
-### jpg-bit
-
-```code
-(jpg-bit reader) -> 0 | 1
-
-the next bit of the packed data, the high bit of each byte first. A
-0xFF is followed by a 0 that is not data; anything else after it is
-a marker, and from there on there are only 0 bits. The reader is the
-stream and (byte bits marker), a nums the native block reads too
-```
-
 ### jpg-code
 
 ```code
@@ -5853,18 +5825,6 @@ the canonical code of a table, as the standard's F.2.2.3 has it
 
 a baseline scan, from where the stream is, a row of MCUs at a time,
 each row of pixels written blue green red alpha
-```
-
-### jpg-decode-symbol
-
-```code
-(jpg-decode-symbol reader table) -> value
-```
-
-### jpg-extend
-
-```code
-a number of n reader, as the standard has the negative ones
 ```
 
 ### jpg-geometry
@@ -11251,9 +11211,10 @@ the @Source a system has now, (source-seek) and its answer waited for
 ```code
 (source-given? path) -> :t | :nil
 
-a file that can be imported, Lisp, by a path from the root of the tree:
-none above it, none in a user's own folder, usr/env.inc is the
-system's. Nothing else of the tree is given, its keys are in it
+a file that can be imported, Lisp, or a shader that a task reads to run,
+by a path from the root of the tree: none above it, none in a user's own
+folder, usr/env.inc is the system's. Nothing else of the tree is given,
+its keys are in it
 ```
 
 ### source-here
@@ -14908,6 +14869,14 @@ and could not read back
 (ui-save-atom atom) -> atom
 ```
 
+### ui-sets
+
+```code
+(ui-sets name props erased) -> forms
+
+what gives a view its properties, and takes away those erased
+```
+
 ### ui-symbols
 
 ```code
@@ -15127,7 +15096,8 @@ check off, View? is the GUI's, there when there are views to look at
 
 each view of it, it too, given a variant for a plain property has the
 variant's value, found from where it is. Which variant it was is
-kept, :variants, so a new theme or user can be found again by it
+kept, :variants, so a new theme or user can be found again by it. Those
+above first, a composite says what a role is for those in it
 ```
 
 ### view-variant
