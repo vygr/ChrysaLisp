@@ -144,8 +144,9 @@
 				(. this :flatten)))
 		(bind '(x y) (. this :get_pos))
 		(bind '(w h) (. this :get_size))
-		(. this :change_dirty x y w h :t)
-		this)
+		;and the app told, as of a window sized by hand, what is in it may have
+		;a new size: a vdu has to count its columns and rows again
+		(.-> this (:change_dirty x y w h :t) :emit))
 
 	(defmethod :event (event)
 		; (. window :event event) -> window

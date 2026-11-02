@@ -54,6 +54,20 @@
 (assert-true "the smallest symbols are the bold font, whatever the theme"
 	(eql (get :font_tiny_symbol *env*) (create-font "fonts/Symbols-Bold.ctf" 10)))
 
+;a new theme tells the app, as a window sized by hand does: what is in the window
+;may have a new size, and a vdu has to count its columns and rows again
+(defq th_told 0)
+(defclass Th-window () (Window)
+	(defmethod :emit ()
+		(setq th_told (inc th_told))
+		this))
+(ui-root th_tw (Th-window) (:font :font_window :ink :ink_window :paper :paper_window
+		:border :border_window :shadow :shadow_window)
+	(ui-flow _ (:flow_flags +flow_down_fill)))
+(window-attach th_tw)
+(. th_tw :theme "Light")
+(assert-eq "a new theme tells the app" 1 th_told)
+
 ;a composite says what a role is for those in it. A button names :border_button,
 ;its title bar says that is :border_title_buttons, and a button of a bar finds
 ;that from where it is, one beside it what the user has. A value no other has, so
