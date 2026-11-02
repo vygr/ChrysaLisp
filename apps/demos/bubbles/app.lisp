@@ -35,7 +35,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_reset) +event_reset))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper (get :paper_toolbar2 *env*))) :connect +event_style)
+			(:paper :paper_toolbar2)) :connect +event_style)
 		(. (ui-radio-bar *mode* ("One task" "All nodes") (:font :font_body)) :connect +event_mode)
 		(ui-label _ (:text "Bubbles" :font :font_body))
 		(. (ui-slider *count* (:maximum (- +max_bubbles +min_bubbles) :portion 300

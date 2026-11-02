@@ -69,7 +69,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_prev +sym_next +sym_auto) +event_prev))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper (get :paper_toolbar2 *env*))) :connect +event_style)
+			(:paper :paper_toolbar2)) :connect +event_style)
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font :font_body)

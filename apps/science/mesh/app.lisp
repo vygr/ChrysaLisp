@@ -40,7 +40,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (+sym_mode +sym_auto) +event_mode))
 		(. (ui-radio-bar *style_toolbar* (+sym_plain +sym_grid +sym_axis)
-			(:paper (get :paper_toolbar2 *env*))) :connect +event_style)
+			(:paper :paper_toolbar2)) :connect +event_style)
 		;what draws the faces, the nodes, a strip each, or the GPU of the GUI
 		(. (ui-radio-bar *gpu_toolbar* ("CPU" "GPU") (:font :font_body)) :connect +event_gpu)
 		(ui-backdrop _ (:paper :paper_toolbar)))

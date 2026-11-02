@@ -101,7 +101,7 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (+sym_close +sym_max +sym_min) +event_close)
 	(. (ui-radio-bar base_bar ("dec" "hex" "bin" "oct")
-			(:paper (const (get :paper_toolbar2 *env*)) :font +calculator_font))
+			(:paper :paper_toolbar2 :font +calculator_font))
 		:connect +event_base_change)
 	(ui-label *display* (:text "0" :paper +argb_white :flow_flags +flow_flag_align_hright :font +calculator_font))
 	(ui-grid button_grid (:grid_width 4 :grid_height 0 :paper :paper_toolbar :font +calculator_font)
