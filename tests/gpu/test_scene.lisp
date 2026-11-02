@@ -4,6 +4,13 @@
 (import "lib/math/mesh.inc")
 (import "lib/math/scene.inc")
 
+;a node taken out of its parent by itself, not only when it is given another
+(defq sc_top (Scene-node "top") sc_kid (Scene-node "kid"))
+(. sc_top :add_node sc_kid)
+(. sc_kid :sub_node)
+(assert-eq "it is out of its parent" 0 (length (. sc_top :children)))
+(assert-eq "and has none" :nil (. sc_kid :get_parent))
+
 (defun sc-pixels (canvas size)
 	;the pixels of a canvas, as bytes
 	(defq stream (memory-stream))

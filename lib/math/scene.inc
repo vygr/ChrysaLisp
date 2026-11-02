@@ -173,9 +173,9 @@
 
 	(defmethod :sub_node ()
 		; (. scene_node :sub_node) -> scene_node
-		(when (defq parent (. child :get_parent))
-			(. child :set_parent :nil)
-			(defq children (get :children parent) idx (find child children))
+		(when (defq parent (. this :get_parent))
+			(. this :set_parent :nil)
+			(defq children (get :children parent) idx (find this children))
 			(set parent :children (erase children idx (inc idx))))
 		this)
 
