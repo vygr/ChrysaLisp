@@ -119,6 +119,13 @@
 					(. this :restart key val))
 				:nil)))
 
+	(defmethod :refuse (node)
+		; (. farm :refuse node) -> farm
+		;a node is not asked again while this farm lasts
+		(defq refused (get :refused this))
+		(unless (find node refused) (push refused (cat node)))
+		this)
+
 	(defmethod :refused ()
 		; (. farm :refused) -> nodes
 		;the nodes that could not start a child

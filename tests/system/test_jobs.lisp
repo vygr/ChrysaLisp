@@ -138,3 +138,20 @@
 	(jt-run (list) :nil (task-timeout 10)))
 (assert-eq "it was not counted as tried" 0 (. jobs :tries))
 (. jobs :close)
+
+;a child that says it can not do the work where it is: the node is left out,
+;and the job is done by the one started after it, not counted as tried
+(defq jt_select (list (mail-mbox) (mail-mbox) (mail-mbox)))
+(defq jobs (Jobs "tests/system/data/jobs_child.lisp"
+	(elem-get jt_select +jt_task) (elem-get jt_select +jt_reply) 1))
+(defq jt_up (mail-read (elem-get jt_select +jt_task)) jt_key (getf jt_up +kn_msg_key)
+	jt_node (task-nodeid (getf jt_up +kn_msg_reply_id)))
+(. jobs :launched jt_up)
+(. jobs :add (list (jt-work 8)))
+(. jobs :cannot (setf-> (str-alloc +job_reply_size) (+job_reply_key jt_key)))
+(assert-true "its node is not asked again" (find jt_node (. (get :farm jobs) :refused)))
+(assert-eq "its job is still out" 1 (. jobs :out))
+(assert-list-eq "and is done by the one started after it" '(16)
+	(jt-run (list) :nil (task-timeout 10)))
+(assert-eq "it was not counted as tried" 0 (. jobs :tries))
+(. jobs :close)

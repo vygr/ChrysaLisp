@@ -16,11 +16,12 @@
 ;its answer. The square, and the part of it that is all inside the set,
 ;if inside is not 0. drawn says the child has drawn it on the shared
 ;pixels. If it has not, and not all of it is inside, the colour of every
-;pixel follows, an int each
+;pixel follows, an int each. failed says it could not have the kernel where
+;it is, and none of the rest is to be read
 (structure +rect_reply +job_reply_size
 	(int x y x1 y1)
 	(int ix iy ix1 iy1)
-	(int inside drawn))
+	(int inside drawn failed))
 
 ;the colour of each depth. They go round and round, in the first of the
 ;palettes deep blue, to white, to gold, to near black, and a depth is so

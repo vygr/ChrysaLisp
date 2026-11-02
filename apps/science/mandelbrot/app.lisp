@@ -310,20 +310,26 @@
 				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
 					(. view :show_tip)))
 			(+select_reply
-				;a square is done, one of an old picture is left alone
-				(when (defq out (. jobs :answered msg))
-					(setq dirty :t)
-					(when (= (getf msg +rect_reply_drawn) 0)
-						(apply draw-rect (cat (list *canvas* (slice msg +rect_reply_size -1))
-							(getf-> msg +rect_reply_x +rect_reply_y +rect_reply_x1 +rect_reply_y1
-								+rect_reply_ix +rect_reply_iy +rect_reply_ix1 +rect_reply_iy1
-								+rect_reply_inside))))
-					(when (= out 0)
-						;the picture is whole, shown, how long it took, and the
-						;next may start
-						(setq busy :nil dirty :nil took (- (pii-time) farm_t))
-						(. *canvas* :swap +swap_write)
-						(status))))
+				;a square is done, one of an old picture is left alone. A child
+				;saying it has gone is shorter than an answer, (:answered) has it
+				(cond
+					((and (>= (length msg) +rect_reply_size) (/= (getf msg +rect_reply_failed) 0))
+						;its node could not have the kernel, another does the square
+						(print "Mandelbrot: a child could not have the kernel, its node is left out")
+						(. jobs :cannot msg))
+					((defq out (. jobs :answered msg))
+						(setq dirty :t)
+						(when (= (getf msg +rect_reply_drawn) 0)
+							(apply draw-rect (cat (list *canvas* (slice msg +rect_reply_size -1))
+								(getf-> msg +rect_reply_x +rect_reply_y +rect_reply_x1 +rect_reply_y1
+									+rect_reply_ix +rect_reply_iy +rect_reply_ix1 +rect_reply_iy1
+									+rect_reply_inside))))
+						(when (= out 0)
+							;the picture is whole, shown, how long it took, and the
+							;next may start
+							(setq busy :nil dirty :nil took (- (pii-time) farm_t))
+							(. *canvas* :swap +swap_write)
+							(status)))))
 			(:t ;a frame, the next one a frame from when this one started
 				(defq start (pii-time))
 				(if jobs (. jobs :refresh +retry_timeout))

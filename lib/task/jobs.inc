@@ -208,6 +208,22 @@
 		(def this :queue (list) :out n :tried (Fmap) :tries 0)
 		this)
 
+	(defmethod :cannot (msg)
+		; (. jobs :cannot msg) -> jobs
+		;a child can not do this work where it is, msg its answer. Its job
+		;goes back on the queue, not counted as tried, its node is not asked
+		;again while this farm lasts, and it is started again on another.
+		;Only the fast path: without this word (:refresh) does the same for
+		;the job and the child when its time is up
+		(defq farm (get :farm this))
+		(when (defq val (. farm :find (getf msg +job_reply_key)))
+			(if (defq child (get :child val)) (. farm :refuse (task-nodeid child)))
+			(when (defq job (get :job val))
+				(push (get :queue this) job)
+				(undef val :job :timestamp))
+			(. farm :restart (getf msg +job_reply_key) val))
+		this)
+
 	(defmethod :restart ()
 		; (. jobs :restart) -> jobs
 		;every child is started again, and the queue is emptied. A child

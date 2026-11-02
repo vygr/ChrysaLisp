@@ -10,7 +10,7 @@
 ;the kernel the GPU runs, kernel.shader, as native code, the VP back end,
 ;in reals. It is read from the app's system, by its @Source if this task
 ;was sent by one, and assembled by the first child on this machine to
-;want it
+;want it, :nil if it can not be had
 (defq program :nil native :nil)
 
 (defun kernel ()
@@ -19,8 +19,9 @@
 			stream (if (defq sid (get '*source_system*))
 				(source-stream sid *source_service* path)
 				(file-stream path)))
-		(while (nempty? (setq part (ifn (read-blk stream 65536) ""))) (setq text (cat text part)))
-		(setq program (shader-from-text text) native (shader-vp-kernel program)))
+		(when stream
+			(while (nempty? (setq part (ifn (read-blk stream 65536) ""))) (setq text (cat text part)))
+			(setq program (shader-from-text text) native (shader-vp-kernel program))))
 	native)
 
 ;the canvas of the app, on its pixels in shared memory, and the key they
@@ -53,7 +54,6 @@
 	;ring all inside the set is all there is within it, the set has no
 	;holes, and the rest is black. A row of a ring is a run of the kernel,
 	;as wide as the row, a column a run one wide, each index a row down
-	(kernel)
 	(defq found (attach canvas_key w h) bw (- x1 x) bh (- y1 y) pal (mandel-pal pal_i)
 		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
 		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
@@ -87,7 +87,8 @@
 			(+rect_reply_ix ix) (+rect_reply_iy iy)
 			(+rect_reply_ix1 ix1) (+rect_reply_iy1 iy1)
 			(+rect_reply_inside inside)
-			(+rect_reply_drawn (if found 1 0))))
+			(+rect_reply_drawn (if found 1 0))
+			(+rect_reply_failed 0)))
 	(cond
 		(found
 			(draw-rect found buf x y x1 y1 ix iy ix1 iy1 inside)
@@ -97,6 +98,13 @@
 
 (defun main ()
 	(job-child 5000000 (lambda (msg mbox)
-		(apply mandel (getf-> msg +job_key +job_reply
-			+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
-			+rect_pal +rect_cx +rect_cy +rect_z)))))
+		(if (kernel)
+			(apply mandel (getf-> msg +job_key +job_reply
+				+rect_x +rect_y +rect_x1 +rect_y1 +rect_w +rect_h +rect_shared +rect_top
+				+rect_pal +rect_cx +rect_cy +rect_z))
+			;a courtesy, so the farm need not wait: if this is lost its patience,
+			;(:refresh), has the child started again and the square back on the
+			;queue all the same
+			(mail-send (getf msg +job_reply) (setf-> (str-alloc +rect_reply_size)
+				(+job_reply_key (getf msg +job_key))
+				(+rect_reply_failed 1)))))))
