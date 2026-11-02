@@ -75,11 +75,6 @@
 
 (ui-tool-tips *tools* '("open a model, an .obj or a .zip of one"))
 
-(defun say (text)
-	(unless (eql (get :text *status*) text)
-		(def *status* :text text)
-		(.-> *status* :layout :dirty)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a model, from files or a zip
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,7 +100,7 @@
 	;the files of a model fetched by a task of its own, the window drawn
 	;meanwhile. A new mailbox each time, what a fetch asked before says is
 	;not heard, the last picked is the one shown
-	(say (cat "Fetching " (ifn pick address) " ..."))
+	(. *status* :set_text (cat "Fetching " (ifn pick address) " ..."))
 	(elem-set select +select_fetch (defq reply (mail-mbox)))
 	(setq fetching (list pick address picture))
 	(mail-send (open-child (cat *app_root* "fetch.lisp") +kn_call_pin)
@@ -210,11 +205,11 @@
 	(setq *fetched* :nil)
 	(cond
 		((and loaded pick)
-			(say (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
+			(. *status* :set_text (cat pick ", " name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched from the internet.")))
 		(loaded
-			(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
-		(pick (say (cat "Could not fetch " pick why)))
-		((say (cat "Could not fetch a model from " address why)))))
+			(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials, fetched.")))
+		(pick (. *status* :set_text (cat "Could not fetch " pick why)))
+		((. *status* :set_text (cat "Could not fetch a model from " address why)))))
 
 ;;;;;;;;;;;
 ; drawing
@@ -280,7 +275,7 @@
 	(. *mode* :set_selected 1)
 	(. *model* :set_selected 0)
 	(if (model-load (cat *app_root* "data/cube.obj"))
-		(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer.")))
+		(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer.")))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -303,7 +298,7 @@
 						(cond
 							((not address)
 								(if (model-load (cat *app_root* "data/cube.obj"))
-									(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
+									(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials."))))
 							((fetch-start pick address picture))))
 					((= (getf msg +ev_msg_type) +ev_type_wheel)
 						;nearer or further
@@ -327,8 +322,8 @@
 				(cond
 					((eql msg ""))
 					((model-load msg)
-						(say (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials.")))
-					((say (cat "Could not read a model from " msg ".")))))
+						(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials.")))
+					((. *status* :set_text (cat "Could not read a model from " msg ".")))))
 			(:t ;the timer, a frame
 				(defq start (pii-time))
 				(draw-frame)

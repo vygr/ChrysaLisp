@@ -230,9 +230,7 @@
 (defun show-status ()
 	(defq text (cat (str (. global_tasks :size)) " nodes, " (str (. links :size)) " links, "
 		(str (length machines)) (if (= (length machines) 1) " machine" " machines")))
-	(unless (eql (get :text *status*) text)
-		(def *status* :text text)
-		(.-> *status* :layout :dirty)))
+	(. *status* :set_text text))
 
 (defun main ()
 	;each node's child is read from this system, by its @Source, the

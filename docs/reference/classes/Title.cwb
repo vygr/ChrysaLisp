@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 220
-	:height 363
+	:height 380
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 41
+	:next_id 42
 	:items
 	((:list 1)
 		((:list 7)
@@ -252,13 +252,13 @@
 							:id
 							15
 							:items
-							((:list 19)
+							((:list 20)
 								((:list 11)
 									:shape
 									:id
 									22
 									:d
-									"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 289 A 8 8 0 0 1 143.42114 297 L 8 297 A 8 8 0 0 1 0 289 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 306 A 8 8 0 0 1 143.42114 314 L 8 314 A 8 8 0 0 1 0 306 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -455,12 +455,32 @@
 										151.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:text]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										168.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									34
 									:d
-									"[M 0 165 L 151.42114 165]"
+									"[M 0 182 L 151.42114 182]"
 									:stroke
 									4282140240
 									:width
@@ -473,7 +493,7 @@
 								((:list 17)
 									:shape
 									:id
-									34
+									35
 									:kind
 									:text
 									:fill
@@ -489,27 +509,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										181.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									35
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:drag_offx]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										200.00000
+										198.00000
 									)
 								)
 								((:list 15)
@@ -523,7 +523,7 @@
 									:stroke
 									0
 									:text
-									"[:drag_offy]"
+									"[:drag_offx]"
 									:font_size
 									12
 									:pos
@@ -532,12 +532,32 @@
 										217.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:drag_offy]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										234.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									38
 									:d
-									"[M 0 231 L 151.42114 231]"
+									"[M 0 248 L 151.42114 248]"
 									:stroke
 									4282140240
 									:width
@@ -550,7 +570,7 @@
 								((:list 17)
 									:shape
 									:id
-									38
+									39
 									:kind
 									:text
 									:fill
@@ -566,27 +586,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										247.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									39
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									:mouse_down
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										266.00000
+										264.00000
 									)
 								)
 								((:list 15)
@@ -600,13 +600,33 @@
 									:stroke
 									0
 									:text
-									:mouse_move
+									:mouse_down
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
 										283.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									41
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:mouse_move
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										300.00000
 									)
 								)
 							)

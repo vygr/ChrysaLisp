@@ -30,8 +30,7 @@
 (ui-tool-tips *tools* '("use" "new" "take in" "give" "rename" "forget"))
 
 (defun say (&rest text)
-	(set *status* :text (apply (const cat) (map (const str) text)))
-	(.-> *status* :layout :dirty))
+	(. *status* :set_text (apply (const cat) (map (const str) text))))
 
 (defun layout ()
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -103,7 +102,7 @@
 						(cond
 							((keys-take-text name words)
 								(setq *chosen* name)
-								(.-> *words* (:set_text "") :layout :dirty_all))
+								(. *words* :set_text ""))
 							((say "Those words are no key."))))
 					((and (door-key) (not (keys-in-use)))
 						;none pasted: the one in use, in no keyring file, kept
@@ -139,7 +138,7 @@
 					((and (>= id +event_pick) (< id (+ +event_pick (length *names*)))
 							(= (getf msg +ev_msg_type) +ev_type_action))
 						(setq *chosen* (elem-get *names* (- id +event_pick)))
-						(.-> *name* (:set_text *chosen*) :layout :dirty_all)
+						(. *name* :set_text *chosen*)
 						(rows))
 					((and (>= id +event_use) (<= id +event_forget)
 							(= (getf msg +ev_msg_type) +ev_type_action))

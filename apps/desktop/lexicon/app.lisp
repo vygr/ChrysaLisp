@@ -151,8 +151,7 @@
 	(.-> *left_scroll* :layout :dirty_all))
 
 (defun trigger-fetch-word (word worker_mbox trash_mbox)
-	(def (. *status_label* :dirty) :text (cat "Looking up " word "..."))
-	(. *status_label* :layout)
+	(. *status_label* :set_text (cat "Looking up " word "..."))
 	(defq enc_word (url-encode word)
 		def_url (cat "http://api.datamuse.com/words?sp=" enc_word "&md=dpr&max=1")
 		syn_url (cat "http://api.datamuse.com/words?rel_syn=" enc_word "&max=10")
@@ -214,16 +213,15 @@
 		(setq *history* (slice new_hist 0 (min (length new_hist) 15)))
 		(config-save)
 		(when *search_input*
-			(.-> *search_input* (:set_text word) :layout :dirty))
+			(. *search_input* :set_text word))
 		(defq cached (. *word_cache* :find word))
 		(if cached
 			(progn
 				(bind '(phonetic defs syns ants) cached)
 				(setq *current_phonetic* phonetic *current_defs* defs
 					*current_syns* syns *current_ants* ants)
-				(def (. *status_label* :dirty) :text "Cached")
-				(def (. *info_label* :dirty) :text (cat word " | " (str (length defs)) " defs, " (str (length syns)) " syns"))
-				(. *status_label* :layout) (. *info_label* :layout)
+				(. *status_label* :set_text "Cached")
+				(. *info_label* :set_text (cat word " | " (str (length defs)) " defs, " (str (length syns)) " syns"))
 				(render-left-pane)
 				(render-detail-pane word phonetic defs syns ants))
 			(setq *current_phonetic* "" *current_defs* (list)
@@ -279,13 +277,11 @@
 									*current_defs* defs
 									*current_syns* syns
 									*current_ants* ants)
-								(def (. *status_label* :dirty) :text "Ready")
-								(def (. *info_label* :dirty) :text (cat word " | " (str (length defs)) " defs, " (str (length syns)) " syns"))
-								(. *status_label* :layout) (. *info_label* :layout)
+								(. *status_label* :set_text "Ready")
+								(. *info_label* :set_text (cat word " | " (str (length defs)) " defs, " (str (length syns)) " syns"))
 								(render-left-pane)
 								(render-detail-pane word phonetic defs syns ants))))
-					(def (. *status_label* :dirty) :text "Lookup failed")
-					(.-> *status_label* :layout :dirty)))
+					(. *status_label* :set_text "Lookup failed")))
 			(+select_timer)
 			(+select_tip
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))

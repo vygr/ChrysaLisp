@@ -213,8 +213,7 @@
 		(. *window* :change_dirty x y w h :t)))
 
 (defun trigger-fetch (worker_mbox trash_mbox city)
-	(def *status_label* :text (cat "Fetching weather for " city "..."))
-	(.-> *status_label* :layout :dirty)
+	(. *status_label* :set_text (cat "Fetching weather for " city "..."))
 	(defq task_code (str `(progn
 		(import "service/net/app.inc")
 		(import "lib/net/http.inc")
@@ -290,8 +289,7 @@
 					(progn
 						(setq *weather_data* parsed_data)
 						(update-ui-labels))
-					(def *status_label* :text (cat "Location not found: " *city*))
-					(.-> *status_label* :layout :dirty)))
+					(. *status_label* :set_text (cat "Location not found: " *city*))))
 			(+select_timer
 				; Re-arm 15m timer and trigger refresh
 				(mail-timeout (elem-get select +select_timer) refresh_interval 0)
@@ -310,8 +308,7 @@
 						(config-save))
 					((= id +event_unit_toggle)
 						(setq *unit_c* (not *unit_c*))
-						(def *btn_unit* :text (if *unit_c* "F" "C"))
-						(.-> *btn_unit* :layout :dirty)
+						(. *btn_unit* :set_text (if *unit_c* "F" "C"))
 						(update-ui-labels)
 						(config-save))
 					((<= +event_city_0 id (const (inc +event_city_5)))
@@ -319,7 +316,7 @@
 							chosen_city (elem-get *quick_cities* city_idx))
 						(when (and chosen_city (> (length chosen_city) 0))
 							(setq *city* chosen_city)
-							(.-> *search_input* (:set_text *city*) :layout :dirty)
+							(. *search_input* :set_text *city*)
 							(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)
 							(config-save)))
 					((. *window* :event *msg*))))))

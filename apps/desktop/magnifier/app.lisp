@@ -39,8 +39,7 @@
 (defun zoom (by)
 	(defq at (find *zoom* +zooms))
 	(setq *zoom* (elem-get +zooms (max 0 (min (dec (length +zooms)) (+ at by)))))
-	(set *title* :text (cat "Magnifier " (str *zoom*) "x"))
-	(.-> *title* :layout :dirty))
+	(. *title* :set_text (cat "Magnifier " (str *zoom*) "x")))
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size) *zoom* 3 *small* :nil *small_w* 0 *small_h* 0)

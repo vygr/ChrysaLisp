@@ -223,8 +223,7 @@
 
 (defun sdf-file (index)
 	(when (defq stream (file-stream (defq file (elem-get sdf_files index))))
-		(def (.-> *title* :layout :dirty) :text
-			(cat "Molecule -> " (path-name file)))
+		(. *title* :set_text (cat "Molecule -> " (path-name file)))
 		(clear *verts* *radii* *colors*)
 		(times 3 (read-line stream))
 		(setq *num_atoms* (str-as-num (slice (read-line stream) 0 3)))

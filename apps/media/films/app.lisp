@@ -49,11 +49,6 @@
 				(if (<= (frame-time mid) time) (setq low mid) (setq high (dec mid))))
 			low)))
 
-(defun say (text)
-	;what is shown, in the line at the foot
-	(set *status* :text text)
-	(.-> *status* :layout :dirty))
-
 (defun sound-on? ()
 	(and *sound* *playing* (. *sound* :find :handle)))
 
@@ -74,7 +69,7 @@
 	(. *canvas* :swap +swap_write)
 	(def *timeline* :value *at*)
 	(. *timeline* :dirty)
-	(say (cat (if (. *reel* :find :audio)
+	(. *status* :set_text (cat (if (. *reel* :find :audio)
 			(cat (reel-clock (frame-time *at*)) " of " (reel-clock (frame-time (. *reel* :find :frames))))
 			(cat (str (inc *at*)) " of " (str (. *reel* :find :frames))
 				", " (str (n2i (. *reel* :find :rate))) " a second"))
@@ -93,11 +88,10 @@
 (defun say-what (reel file)
 	;a film there is no codec for yet: what it is, and no picture
 	(setq *reel* :nil)
-	(say (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
+	(. *status* :set_text (cat (path-name file) ": " (. reel :find :codec) " " (str (. reel :find :width)) "x"
 		(str (. reel :find :height)) ", " (str (. reel :find :frames)) " frames, "
 		(str (/ (n2f (n2i (* (. reel :find :rate) 100.0))) 100.0)) " a second, no codec for it here yet"))
-	(def *window_title* :text (cat "Films -> " (path-name file)))
-	(. *window_title* :layout)
+	(. *window_title* :set_text (cat "Films -> " (path-name file)))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
@@ -179,9 +173,8 @@
 		(bind '(w h) (. *canvas* :pref_size))
 		(def *image_scroll* :min_width w :min_height h)
 		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
-		(def *window_title* :text (cat "Films -> " (path-name file)))
+		(. *window_title* :set_text (cat "Films -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
-		(. *window_title* :layout)
 		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 		(def *image_scroll* :min_width 128 :min_height 128)
 		(. *window* :change_dirty x y w h))))
@@ -209,13 +202,13 @@
 	(cond
 		((not (find (path-ext file) *file_types*))
 			(played file :nil)
-			(say (cat file ": not a kind of film this plays")))
+			(. *status* :set_text (cat file ": not a kind of film this plays")))
 		((not (name-size file))
 			(played file :nil)
-			(say (cat file ": not there")))
+			(. *status* :set_text (cat file ": not there")))
 		((not (reel-open file (name-stream file) :t))
 			(played file :nil)
-			(say (cat file ": not a film it can read")))
+			(. *status* :set_text (cat file ": not a film it can read")))
 		((win-refresh file))))
 
 ;import actions and bindings
@@ -275,7 +268,7 @@
 				;the film taken, or "" none, its path in the field
 				(setq *picker* :nil)
 				(unless (eql (defq file (trim *msg*)) "")
-					(.-> *path* (:set_text file) :layout :dirty)
+					(. *path* :set_text file)
 					(open-path file)))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_open)
 				;the picker, at the film shown, its places those films were taken from,

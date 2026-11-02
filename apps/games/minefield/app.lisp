@@ -36,8 +36,7 @@
 		((= (length (filter (# (or (eql %0 "f") (eql %0 "b"))) game_map)) (last difficulty))
 			(setq message "You Won!" game_over :t))
 		(:t :nil))
-	(set status_bar :text message)
-	(.-> status_bar :layout :dirty))
+	(. status_bar :set_text message))
 
 (defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)

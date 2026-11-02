@@ -34,3 +34,11 @@ docs/reference/classes/Label.cwb
 (. label :layout) -> label
 ```
 
+### :set_text
+
+```code
+(. label :set_text text) -> label
+
+a label lays its text out once, so lay it out again for a new one
+```
+

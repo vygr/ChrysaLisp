@@ -533,7 +533,7 @@
 	(def *board* :zoom *zoom*)
 	(def *board_view* :zoom *zoom* :margin *margin* :inv (Mat3x2-invert (over-matrix)))
 	(defq doc (. *board* :get_doc))
-	(.-> *size_field* (:set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height)))) :layout :dirty)
+	(. *size_field* :set_text (cat (str (. doc :find :width)) "x" (str (. doc :find :height))))
 	(. *board_stack* :change 0 0 (+ w *margin* *margin*) (+ h *margin* *margin*))
 	(each (# (. %0 :set_bounds *margin* *margin* w h)) (list *committed* *flight_clip* *flight_b* *paper*))
 	(.-> *image_scroll* :layout :dirty_all)

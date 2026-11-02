@@ -73,7 +73,7 @@
 	(defmethod :set_text (text)
 		; (. textfield :set_text text) -> textfield
 		(def this :clear_text text :cursor (length text) :anchor 0)
-		this)
+		(.-> this :layout :dirty))
 
 	(defmethod :get_text ()
 		; (. textfield :get_text) -> text

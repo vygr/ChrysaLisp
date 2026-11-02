@@ -133,8 +133,7 @@
 (ui-tool-tips *scene* (map (const second) *scene_list*))
 
 (defun say (&rest text)
-	(set *status* :text (apply (const cat) (map (const str) text)))
-	(.-> *status* :layout :dirty))
+	(. *status* :set_text (apply (const cat) (map (const str) text))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; what the store was, at the event the timeline is at
@@ -420,7 +419,7 @@
 			(cond
 				((defq count (storage-snapshot name "" svc))
 					(say "Snapshot " name ", of " count " objects.")
-					(.-> *snap_name* (:set_text "") :layout :dirty_all))
+					(. *snap_name* :set_text ""))
 				((say "Not a name a snapshot may have, no / or space: " name))))
 		((not *snap*) (say "Pick a snapshot first, above the objects."))
 		((= id +event_snap_restore)

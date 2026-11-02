@@ -25,8 +25,7 @@
 		;file does not exist ?
 		(if (= (age file) 0)
 			(with-write-lock file (save "" file)))
-		(def *name_text* :cursor 0 :anchor 0 :clear_text "")
-		(.-> *name_text* :layout :dirty_all)
+		(. *name_text* :set_text "")
 		(open-file file)))
 
 (defun action-next-buffer ()

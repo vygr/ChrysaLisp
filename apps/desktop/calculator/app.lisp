@@ -183,14 +183,14 @@
 			op)))
 
 (defun update-display ()
-	(if *error_state*
-		(set *display* :text "Error")
-		(if *new_entry*
-			(if (nempty? *operands*)
-				(set *display* :text (format-number (first *operands*) *base*))
-				(set *display* :text "0"))
-			(set *display* :text (format-number (str-to-num-base *current_number* *base*) *base*))))
-	(.-> *display* :layout :dirty))
+	(. *display* :set_text
+		(if *error_state*
+			"Error"
+			(if *new_entry*
+				(if (nempty? *operands*)
+					(format-number (first *operands*) *base*)
+					"0")
+				(format-number (str-to-num-base *current_number* *base*) *base*)))))
 
 (defun update-button-states ()
 	(defq is_hex (= *base* 16))

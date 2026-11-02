@@ -39,10 +39,6 @@
 	;see if there is any wanted in each, before the rest are shown unlooked
 	+filter_most 20000)
 
-(defun say (text)
-	(def *note* :text text)
-	(.-> *note* :layout :dirty))
-
 (defun folder? (path)
 	(name-folder? path))
 
@@ -139,8 +135,8 @@
 		(defq row (second (. (first (. *list* :children)) :pref_size)))
 		(def *ruled* :spacing (inc row) :origin_y row))
 	(.-> *scroll* :layout :dirty_all)
-	(.-> *path* (:set_text (folder-said folder)) :layout :dirty)
-	(if (and (nempty? *pattern*) (not meta)) (say "The filter is no regexp.") (say "")))
+	(. *path* :set_text (folder-said folder))
+	(if (and (nempty? *pattern*) (not meta)) (. *note* :set_text "The filter is no regexp.") (. *note* :set_text "")))
 
 ;;;;;;;;;
 ; preview

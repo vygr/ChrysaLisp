@@ -30,9 +30,7 @@
 	;its text out once, so it is laid out again for the new text.
 	(defq num (length (lisp-nodes))
 		text (cat (str num) (if (= num 1) " node" " nodes")))
-	(unless (eql (get :text *status*) text)
-		(def *status* :text text)
-		(.-> *status* :layout :dirty)))
+	(. *status* :set_text text))
 
 (defun create (key now)
 	; (create key now) -> val

@@ -54,10 +54,6 @@
 	(cat (slice name 0 10) " " (join (split (slice name 11 -1) "-") ":")
 		"  " (clock-text (sound-seconds file))))
 
-(defun status (text)
-	(def (. *status* :dirty) :text text)
-	(. *status* :layout))
-
 (defun level (value)
 	;how loud, green while it runs, a grey trough when it does not
 	(def (. *level* :dirty) :value (clamp value 0 100)
@@ -139,8 +135,8 @@
 				(talks "talking")
 				((and (eql inbox me) muted) "muted")
 				("")))
-		(unless (eql left (get :text name)) (def (. name :dirty) :text left) (. name :layout))
-		(unless (eql right (get :text doing)) (def (. doing :dirty) :text right) (. doing :layout)))))
+		(. name :set_text left)
+		(. doing :set_text right))))
 
 (defun call-show-now ()
 	(each (# (. %0 :sub)) (. *call_area* :children))
@@ -207,23 +203,23 @@
 			(sound-stage 'sound-level (stage-mbox (elem-get select +select_level)))
 			(sound-stage 'sound-to-file *saving*))
 		(elem-get select +select_done))
-	(status (if *tap* "Recording the call 0:00" "Recording 0:00")))
+	(. *status* :set_text (if *tap* "Recording the call 0:00" "Recording 0:00")))
 
 (defun play-start (select)
 	;in a call, the note to the others in place of the microphone
 	(cond
-		((not *selected*) (status "Select a note to play"))
+		((not *selected*) (. *status* :set_text "Select a note to play"))
 		((call-in?)
 			(call-play *selected*)
 			(setq *into_call* (+ (pii-time) (* (inc (sound-seconds *selected*)) 1000000)))
-			(status (cat "Playing " (note-text *selected*) " into the call")))
+			(. *status* :set_text (cat "Playing " (note-text *selected*) " into the call")))
 		(:t (setq *ctl* (mail-mbox) *running_pipe* :play *started* (pii-time))
 			(stages-run (list
 					(sound-stage 'sound-from-file *selected* (stage-mbox *ctl*))
 					(sound-stage 'sound-level (stage-mbox (elem-get select +select_level)))
 					(sound-stage 'sound-speaker))
 				(elem-get select +select_done))
-			(status (cat "Playing " (note-text *selected*))))))
+			(. *status* :set_text (cat "Playing " (note-text *selected*))))))
 
 (defun pipe-done ()
 	;the sink has finished, a note saved if it was recording
@@ -239,18 +235,18 @@
 			(cond
 				((> (sound-seconds *saving*) 0)
 					(setq *selected* *saving*)
-					(status (cat "Saved " (note-text *saving*))))
+					(. *status* :set_text (cat "Saved " (note-text *saving*))))
 				(:t (pii-remove *saving*)
-					(status "Nothing was heard, is the microphone allowed ?")))
+					(. *status* :set_text "Nothing was heard, is the microphone allowed ?")))
 			(setq *saving* :nil)
 			(notes-refresh))
-		((status "Ready"))))
+		((. *status* :set_text "Ready"))))
 
 (defun note-delete ()
 	(when *selected*
 		(pii-remove *selected*)
 		(setq *selected* :nil)
-		(status "Deleted")
+		(. *status* :set_text "Deleted")
 		(notes-refresh)))
 
 (defun main ()
@@ -280,10 +276,10 @@
 			((= idx +select_timer)
 				(when (and *into_call* (> (pii-time) *into_call*))
 					(setq *into_call* :nil)
-					(status "Ready"))
+					(. *status* :set_text "Ready"))
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(if (eql *running_pipe* :record)
-					(status (cat (if *tap* "Recording the call " "Recording ") (clock-text (/ (- (pii-time) *started*) 1000000)))))
+					(. *status* :set_text (cat (if *tap* "Recording the call " "Recording ") (clock-text (/ (- (pii-time) *started*) 1000000)))))
 				;the call watched again within its lease, and the calls of the
 				;mesh looked at again
 				(when (> (- (pii-time) *beat*) +call_beat)
@@ -315,7 +311,7 @@
 				(when *into_call*
 					(call-play "")
 					(setq *into_call* :nil)
-					(status "Ready"))
+					(. *status* :set_text "Ready"))
 				(pipe-stop))
 			;in a call, play is into the call, by the service, and goes with a
 			;recording of the call

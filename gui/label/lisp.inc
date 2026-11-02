@@ -17,6 +17,14 @@
 		(bind '(w h) (. this :get_size))
 		(. this :ctx_panel (get :paper this) 1 (get :border this) 0 0 w h))
 
+	(defmethod :set_text (text)
+		; (. label :set_text text) -> label
+		;a label lays its text out once, so lay it out again for a new one
+		(unless (eql (def? :text this) text)
+			(def this :text text)
+			(.-> this :layout :dirty))
+		this)
+
 	(defmethod :add_child (child)
 		; (. label :add_child child) -> label
 		(. (get :label_flow this) :add_child child)

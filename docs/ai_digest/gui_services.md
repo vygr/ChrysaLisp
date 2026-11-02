@@ -680,6 +680,10 @@ are made available via `gui/lisp.inc`.
     * `(:add_child child)`: Adds a child to its internal `Flow` (can be used
       to add icons next to text).
 
+    * `(:set_text text)`: A new text, fitted and drawn. The same text again
+      does nothing. Set `:text` by hand only with other changes that a layout
+      follows.
+
 *Example:*
 
 ```vdu
@@ -1057,7 +1061,8 @@ are made available via `gui/lisp.inc`.
 
     * `(:get_text)`: Returns the current text content (`:clear_text`).
 
-    * `(:set_text text)`: Sets the text content.
+    * `(:set_text text)`: Sets the text content, puts the cursor at its end,
+      fits and draws it.
 
 *Example:*
 

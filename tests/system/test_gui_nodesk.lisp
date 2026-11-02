@@ -57,6 +57,26 @@
 	(catch (progn (. nd_field :mouse_down nd_click) (. nd_field :mouse_move nd_click) (. nd_field :mouse_up nd_click) :ok) :threw))
 (assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))
 
+;a label given a new text fits it to it, the same text is nothing to do
+(defq nd_laid 0)
+(defclass Nd-label () (Label)
+	(defmethod :layout ()
+		(setq nd_laid (inc nd_laid))
+		(.super this :layout)))
+(ui-window nd_said () (ui-element nd_label (Nd-label) (:text "short" :min_width 300
+	:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter))))
+(bind '(w h) (. nd_said :pref_size))
+(. nd_said :change 0 0 w h)
+(bind '(nd_w _) (. (get :label_text nd_label) :get_size))
+(setq nd_laid 0)
+(assert-eq "a label's new text gives the label back" nd_label (. nd_label :set_text "a good deal longer than it was"))
+(assert-eq "it has the text" "a good deal longer than it was" (get :text nd_label))
+(assert-eq "it is laid out for it" 1 nd_laid)
+(bind '(nd_w2 _) (. (get :label_text nd_label) :get_size))
+(assert-true "and the text has the room" (> nd_w2 nd_w))
+(assert-eq "the same text gives the label back" nd_label (. nd_label :set_text "a good deal longer than it was"))
+(assert-eq "and is not laid out again" 1 nd_laid)
+
 ;a window says how much of itself is solid each time it is laid out. One with
 ;no shadow is all solid, and has the flag that says so. Given a shadow again
 ;it is not, what is behind its shadow shows, and the flag has to go: it was

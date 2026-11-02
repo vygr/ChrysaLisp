@@ -197,8 +197,7 @@
 		(. *window* :change_dirty x y w h :t)))
 
 (defun trigger-fetch (worker_mbox trash_mbox)
-	(def *status_label* :text "Updating prices...")
-	(.-> *status_label* :layout :dirty)
+	(. *status_label* :set_text "Updating prices...")
 	(defq task_code (str `(progn
 		(import "service/net/app.inc")
 		(import "lib/net/http.inc")
@@ -245,8 +244,7 @@
 					(progn
 						(setq *coins_data* parsed_data)
 						(update-ui))
-					(def *status_label* :text "Failed to update prices")
-					(.-> *status_label* :layout :dirty)))
+					(. *status_label* :set_text "Failed to update prices")))
 			(+select_timer
 				(mail-timeout (elem-get select +select_timer) refresh_interval 0)
 				(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash)))

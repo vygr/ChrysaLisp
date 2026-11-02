@@ -53,8 +53,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(toolbar-states *find_toolbar* (list :nil *whole_words* *regexp* :nil :nil))
-	(def *title* :text (cat "Hexview" (if file (cat " -> " file) "")))
-	(.-> *title* :layout :dirty)
+	(. *title* :set_text (cat "Hexview" (if file (cat " -> " file) "")))
 	(refresh))
 
 ;import actions, bindings and app ui classes

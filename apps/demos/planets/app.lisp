@@ -64,12 +64,6 @@
 		;this machine then draw on them, a strip each
 		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)) (:paper 0))))
 
-(defun set-label (label text)
-	;a label lays its text out once, so lay it out again for the new text
-	(unless (eql (get :text label) text)
-		(def label :text text)
-		(.-> label :layout :dirty)))
-
 (defun globe-verts (segs rings)
 	; (globe-verts segs rings) -> reals
 	;a ball of radius 1 as triangles, three vertices each, a vertex its
@@ -277,7 +271,7 @@
 					;the timer holds either to 30 a second, so for the frames
 					;drawn here it says how long one took
 					(defq tenths (if (> cpu_frames 0) (/ cpu_time cpu_frames 100) 0))
-					(set-label *status* (cat (first (elem-get +planets which)) ", "
+					(. *status* :set_text (cat (first (elem-get +planets which)) ", "
 						(str (/ (* frames 1000000) (- now since))) " frames a second, "
 						(if (> cpu_frames 0)
 							(cat "native code, " (if (and farm farm_ready (not no_farm))

@@ -54,8 +54,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(update-find-toolbar)
-	(def *title* :text (cat "Viewer" (if file (cat " -> " file) "")))
-	(.-> *title* :layout :dirty)
+	(. *title* :set_text (cat "Viewer" (if file (cat " -> " file) "")))
 	(refresh))
 
 ;import actions, bindings and app ui classes

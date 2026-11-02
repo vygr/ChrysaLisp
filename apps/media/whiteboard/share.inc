@@ -40,14 +40,13 @@
 
 (defun share-title ()
 	;the title says if the board is shared, and how
-	(def *title* :text (cat "Whiteboard" (case *share*
+	(. *title* :set_text (cat "Whiteboard" (case *share*
 		(:host (cat ", shared" (if *share_may_save* ", copies may be saved" "") (if *share_trust* ", all teachers" "")
 			(if *share_voice* ", voice" "")))
 		(:joined (cat ", joined" (if *share_may_save* ", may save a copy" "") (if *share_trust* ", a teacher" "")
 			(if *share_voice* ", voice" "")))
 		(:asking ", joining")
-		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) "")))))
-	(.-> *title* :layout :dirty_all))
+		(:t (if *share_invite* (cat ", invited by " *share_invite_name*) ""))))))
 
 (defun share-own ()
 	; (share-own) -> hex
@@ -126,8 +125,7 @@
 		(defq was (ifn (load (cat kept ".name")) ""))
 		(setq *file* (if (nempty? was) was :nil))
 		(share-kept-forget)
-		(def *title* :text "Whiteboard, brought back from before a share")
-		(.-> *title* :layout :dirty_all)))
+		(. *title* :set_text "Whiteboard, brought back from before a share")))
 
 (defun share-switch-show (sym on)
 	;a switch beside Share lit while it is on, as a toggle is

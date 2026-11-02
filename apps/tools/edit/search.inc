@@ -54,7 +54,7 @@
 (defun action-set-find-text ()
 	(when (defq text (. *edit* :get_primary_text))
 		(if *regexp* (setq text (escape-regexp text)))
-		(.-> *find_text* (:set_text text) :layout :dirty)
+		(. *find_text* :set_text text)
 		(. *edit* :find text *whole_words* *regexp* *ignore_case*)
 		(refresh)))
 

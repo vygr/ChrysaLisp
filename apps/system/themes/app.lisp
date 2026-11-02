@@ -23,8 +23,7 @@
 
 (defun show-current ()
 	(defq text (cat "The theme is " (theme-current (get :home *env*))))
-	(def *status* :text text)
-	(.-> *status* :layout :dirty))
+	(. *status* :set_text text))
 
 (defun main ()
 	;a row is a button with the name, and the symbols beside it

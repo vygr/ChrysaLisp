@@ -44,12 +44,6 @@
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))
 
-(defun set-label (label text)
-	;a label lays its text out once, so lay it out again for the new text
-	(unless (eql (get :text label) text)
-		(def label :text text)
-		(.-> label :layout :dirty)))
-
 (defun frame-inputs ()
 	;the inputs block for the frame, where the camera and the light are
 	(defq fraction (/ (n2r frame_idx) (const (n2r +num_frames))))
@@ -95,7 +89,7 @@
 			(flm-close film)
 			(film-keep)
 			(setq film :nil first_frame :nil mode :done)
-			(set-label *status* (cat "The film is made, " (str +num_frames) " frames in "
+			(. *status* :set_text (cat "The film is made, " (str +num_frames) " frames in "
 				(str (/ (- (pii-time) film_time) 1000)) "ms, by the "
 				(if gpu_shader "GPU" "nodes") ", " (str (/ save_us 1000)) "ms of it writing the film")))
 		((eql mode :cpu)
@@ -119,7 +113,7 @@
 	(setf pixmap +pixmap_type -32 0)
 	(setq save_us (+ save_us (- (pii-time) now))
 		frame_us (- (pii-time) frame_time) frame_idx (inc frame_idx))
-	(set-label *status* (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes))) " nodes"))
+	(. *status* :set_text (cat (if (eql mode :gpu) "GPU" (cat (str (length (lisp-nodes))) " nodes"))
 		", frame " (str frame_idx) " of " (str +num_frames) ", "
 		(str (/ frame_us 1000)) "ms to draw and save it"))
 	(start-frame))
@@ -128,7 +122,7 @@
 	;the nodes draw the film, there is no GPU for it
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(setq gpu_shader :nil mode :cpu)
-	(set-label *status* why)
+	(. *status* :set_text why)
 	(. jobs :restart)
 	(start-frame))
 
@@ -169,7 +163,7 @@
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program) film_time (pii-time))
 	(if gpu_shader
-		(set-label *status* "GPU, the driver is building the shader")
+		(. *status* :set_text "GPU, the driver is building the shader")
 		(to-cpu "No GPU, the nodes draw it"))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(defq id :t)

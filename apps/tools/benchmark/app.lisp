@@ -112,8 +112,7 @@
 					; Update UI with consolidated list of values
 					(update-display (list mean_val *best_val* *worst_val*))
 					; Update title bar with formatted elapsed seconds
-					(def *title* :text (cat "Benchmark -> " (time-in-seconds mean_val) " seconds"))
-					(.-> *title* :layout :dirty))
+					(. *title* :set_text (cat "Benchmark -> " (time-in-seconds mean_val) " seconds")))
 				; Poll for the next run if the parent is still active
 				(mail-send *child* (elem-get select +select_child_reply)))
 			((= idx +select_main)

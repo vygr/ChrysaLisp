@@ -18,7 +18,7 @@
 (defun action-path ()
 	;the folder written, if it is one
 	(defq folder (folder-of (trim (. *path* :get_text))))
-	(if (folder? folder) (go-to folder) (say (cat "No folder " folder "."))))
+	(if (folder? folder) (go-to folder) (. *note* :set_text (cat "No folder " folder "."))))
 
 (defun action-kinds ()
 	(setq *exts* (split (. *kinds* :get_text) " "))
@@ -38,11 +38,11 @@
 		(setq name (cat name (first *exts*))))
 	(defq path (if (or (starts-with "/" name) (and *names* (name-in-store name))) name (path-in *folder* name)))
 	(cond
-		((eql name "") (say (if *save* "Write a name." "Take a file, or write its name.")))
-		((folder? path) (.-> *name* (:set_text "") :layout :dirty) (go-to (folder-of path)))
-		((not *save*) (if (name-size path) (answer path) (say (cat "No file " name " here."))))
+		((eql name "") (. *note* :set_text (if *save* "Write a name." "Take a file, or write its name.")))
+		((folder? path) (. *name* :set_text "") (go-to (folder-of path)))
+		((not *save*) (if (name-size path) (answer path) (. *note* :set_text (cat "No file " name " here."))))
 		((or (not (name-size path)) (eql path *replace*)) (answer path))
-		(:t (setq *replace* path) (say (cat name " is here. OK again to replace it.")))))
+		(:t (setq *replace* path) (. *note* :set_text (cat name " is here. OK again to replace it.")))))
 
 (defun action-item (n)
 	;a folder is gone into; a file taken, and taken again opened
@@ -50,4 +50,4 @@
 	(cond
 		((ends-with "/" name) (go-to (path-in *folder* (slice name 0 -2))))
 		((eql name (trim (. *name* :get_text))) (action-ok))
-		((.-> *name* (:set_text name) :layout :dirty) (say "") (preview-show (path-in *folder* name)))))
+		((. *name* :set_text name) (. *note* :set_text "") (preview-show (path-in *folder* name)))))

@@ -30,9 +30,8 @@
 
 (defun say ()
 	;what is shown, in the line at the foot
-	(set *status* :text (cat (if *file* (path-stem *file*) "BASIC")
-		(if *paused* ", paused" "") (if *quiet* ", quiet" "") ", x" (str *zoom*)))
-	(.-> *status* :layout :dirty))
+	(. *status* :set_text (cat (if *file* (path-stem *file*) "BASIC")
+		(if *paused* ", paused" "") (if *quiet* ", quiet" "") ", x" (str *zoom*))))
 
 (defun keys ()
 	;the matrix of the keys held, and those a script holds

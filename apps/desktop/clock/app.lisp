@@ -146,7 +146,6 @@
 					(view-analog-time clock (float-time) (* (n2f clock_size) (n2f clock_scale)))
 					(. clock :swap +swap_write))
 				(when *display*
-					(set *display* :text (view-digital-time (date)))
-					(.-> *display* :layout :dirty)))
+					(. *display* :set_text (view-digital-time (date)))))
 			(:t (. *window* :event msg))))
 	(gui-sub-rpc *window*))

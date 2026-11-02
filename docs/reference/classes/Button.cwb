@@ -1,11 +1,11 @@
 ((:Emap 1)
 	:version 1
 	:width 234
-	:height 565
+	:height 582
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 53
+	:next_id 54
 	:items
 	((:list 1)
 		((:list 7)
@@ -252,13 +252,13 @@
 							:id
 							15
 							:items
-							((:list 31)
+							((:list 32)
 								((:list 11)
 									:shape
 									:id
 									22
 									:d
-									"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 491 A 8 8 0 0 1 143.42114 499 L 8 499 A 8 8 0 0 1 0 491 L 0 8 A 8 8 0 0 1 8 0 Z]"
+									"[M 8 0 L 143.42114 0 A 8 8 0 0 1 151.42114 8 L 151.42114 508 A 8 8 0 0 1 143.42114 516 L 8 516 A 8 8 0 0 1 0 508 L 0 8 A 8 8 0 0 1 8 0 Z]"
 									:fill
 									4294967295
 									:stroke
@@ -455,12 +455,32 @@
 										151.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									33
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:text]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										168.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									34
 									:d
-									"[M 0 165 L 151.42114 165]"
+									"[M 0 182 L 151.42114 182]"
 									:stroke
 									4282140240
 									:width
@@ -473,7 +493,7 @@
 								((:list 17)
 									:shape
 									:id
-									34
+									35
 									:kind
 									:text
 									:fill
@@ -489,27 +509,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										181.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									35
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:state]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										200.00000
+										198.00000
 									)
 								)
 								((:list 15)
@@ -523,7 +523,7 @@
 									:stroke
 									0
 									:text
-									"[:tip_window]"
+									"[:state]"
 									:font_size
 									12
 									:pos
@@ -532,12 +532,32 @@
 										217.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									37
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:tip_window]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										234.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									38
 									:d
-									"[M 0 231 L 151.42114 231]"
+									"[M 0 248 L 151.42114 248]"
 									:stroke
 									4282140240
 									:width
@@ -550,7 +570,7 @@
 								((:list 17)
 									:shape
 									:id
-									38
+									39
 									:kind
 									:text
 									:fill
@@ -566,27 +586,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										247.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									39
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									"[:border]"
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										266.00000
+										264.00000
 									)
 								)
 								((:list 15)
@@ -600,7 +600,7 @@
 									:stroke
 									0
 									:text
-									"[:paper]"
+									"[:border]"
 									:font_size
 									12
 									:pos
@@ -620,7 +620,7 @@
 									:stroke
 									0
 									:text
-									"[:tip_mbox]"
+									"[:paper]"
 									:font_size
 									12
 									:pos
@@ -640,7 +640,7 @@
 									:stroke
 									0
 									:text
-									"[:tip_text]"
+									"[:tip_mbox]"
 									:font_size
 									12
 									:pos
@@ -649,12 +649,32 @@
 										317.00000
 									)
 								)
-								((:list 13)
+								((:list 15)
 									:shape
 									:id
 									43
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									"[:tip_text]"
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										334.00000
+									)
+								)
+								((:list 13)
+									:shape
+									:id
+									44
 									:d
-									"[M 0 331 L 151.42114 331]"
+									"[M 0 348 L 151.42114 348]"
 									:stroke
 									4282140240
 									:width
@@ -667,7 +687,7 @@
 								((:list 17)
 									:shape
 									:id
-									44
+									45
 									:kind
 									:text
 									:fill
@@ -683,27 +703,7 @@
 									:pos
 									((:list 2)
 										12.00000
-										347.00000
-									)
-								)
-								((:list 15)
-									:shape
-									:id
-									45
-									:kind
-									:text
-									:fill
-									4280296488
-									:stroke
-									0
-									:text
-									:draw
-									:font_size
-									12
-									:pos
-									((:list 2)
-										12.00000
-										366.00000
+										364.00000
 									)
 								)
 								((:list 15)
@@ -717,7 +717,7 @@
 									:stroke
 									0
 									:text
-									:layout
+									:draw
 									:font_size
 									12
 									:pos
@@ -737,7 +737,7 @@
 									:stroke
 									0
 									:text
-									:mouse_down
+									:layout
 									:font_size
 									12
 									:pos
@@ -757,7 +757,7 @@
 									:stroke
 									0
 									:text
-									:mouse_enter
+									:mouse_down
 									:font_size
 									12
 									:pos
@@ -777,7 +777,7 @@
 									:stroke
 									0
 									:text
-									:mouse_exit
+									:mouse_enter
 									:font_size
 									12
 									:pos
@@ -797,7 +797,7 @@
 									:stroke
 									0
 									:text
-									:mouse_move
+									:mouse_exit
 									:font_size
 									12
 									:pos
@@ -817,7 +817,7 @@
 									:stroke
 									0
 									:text
-									:mouse_up
+									:mouse_move
 									:font_size
 									12
 									:pos
@@ -837,13 +837,33 @@
 									:stroke
 									0
 									:text
-									:show_tip
+									:mouse_up
 									:font_size
 									12
 									:pos
 									((:list 2)
 										12.00000
 										485.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									53
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:show_tip
+									:font_size
+									12
+									:pos
+									((:list 2)
+										12.00000
+										502.00000
 									)
 								)
 							)

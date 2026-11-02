@@ -4,10 +4,6 @@
 
 (import "service/storage/app.inc")
 
-(defun say (text)
-	(def *status* :text text)
-	(.-> *status* :layout :dirty))
-
 (defun bytes-said (n)
 	;so many bytes as a person says them, to a tenth
 	(defq units (list "B" "KB" "MB" "GB" "TB" "PB") u 0 tenths (* n 10))
@@ -118,11 +114,10 @@
 (defun side-note (s)
 	(defq side (elem-get *sides* s) rows (. side :find :rows) taken (. side :find :taken)
 		note (. side :find :note))
-	(def note :text (cat (str (length rows)) " here"
+	(. note :set_text (cat (str (length rows)) " here"
 		(if (> (length rows) +rows_max) (cat ", the first " (str +rows_max) " shown") "")
 		(if (nempty? taken) (cat ", " (str (length taken)) " taken") "")
-		(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it, pinned if this member holds all of it")))
-	(.-> note :layout :dirty))
+		(if (side-host? side) "" ".  Objects: size, copies kept (* the store's), members that have it, pinned if this member holds all of it"))))
 
 (defun side-paint (s)
 	;the rows taken lit, the others not
@@ -170,9 +165,8 @@
 	(. side :insert :folder folder)
 	(. side :insert :taken (list))
 	(. side :insert :rows (side-rows side))
-	(.-> (. side :find :path) (:set_text (if (side-host? side) folder (cat "/" folder))) :layout :dirty)
-	(def (defq source (. side :find :source_button)) :text (first (side-source side)))
-	(.-> source :layout :dirty)
+	(. (. side :find :path) :set_text (if (side-host? side) folder (cat "/" folder)))
+	(. (. side :find :source_button) :set_text (first (side-source side)))
 	(side-show s))
 
 (defun look-again ()
@@ -193,7 +187,7 @@
 	(go-to 0 "/")
 	(go-to 1 (if (side-host? (second *sides*)) "/" ""))
 	(toolbar-states *rule_toolbar* (list :t :nil :nil))
-	(say "Click names to take them, then copy them across."))
+	(. *status* :set_text "Click names to take them, then copy them across."))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; what a side is asked
@@ -237,7 +231,7 @@
 			(while (and (> (length text) 1) (ends-with "/" text)) (setq text (slice text 0 -2)))
 			(if (and (defq info (pii-fstat text)) (folder-mode? (third info)))
 				(go-to s text)
-				(say (cat "No folder " text " here."))))
+				(. *status* :set_text (cat "No folder " text " here."))))
 		(:t (go-to s (trim text "/")))))
 
 (defun action-all (s)
@@ -266,7 +260,7 @@
 	(mail-send *work* (str (list (hex-encode *work_mbox*) what (side-said from) (side-said to) *rule* names (ifn copies 0))))
 	(def *progress* :value 0)
 	(.-> *progress* :dirty)
-	(say "Looking at what there is to do ..."))
+	(. *status* :set_text "Looking at what there is to do ..."))
 
 (defun work-heard (msg)
 	;what the task said: what there is, how far it has got, what it could
@@ -278,7 +272,7 @@
 			(bind '(all total) *plan*)
 			(def *progress* :value (if (> total 0) (/ (* (min bytes total) 1000) total) 0))
 			(.-> *progress* :dirty)
-			(say (cat (str (inc count)) " of " (str all)
+			(. *status* :set_text (cat (str (inc count)) " of " (str all)
 				(if (eql *doing* :copy) (cat ", " (bytes-said bytes) " of " (bytes-said total)) "") ": " name)))
 		(:not (++ *faults*)
 			(bind '(name why) (rest said))
@@ -288,7 +282,7 @@
 			(def *progress* :value (if stopped 0 1000))
 			(.-> *progress* :dirty)
 			(look-again)
-			(say (cat (if stopped "Stopped. " "Done. ") (str done) " done"
+			(. *status* :set_text (cat (if stopped "Stopped. " "Done. ") (str done) " done"
 				(if (> skipped 0) (cat ", " (str skipped) " there already, left") "")
 				(if (> failed 0) (cat ", " (str failed) " not done (the terminal says which)") "")
 				(if (eql *doing* :copy) (cat ", " (bytes-said bytes)) "") " in " (str (/ ms 1000)) " s.")))))
@@ -301,9 +295,9 @@
 	(defq from (elem-get *sides* s) to (elem-get *sides* (- 1 s)))
 	(setq *delete* :nil)
 	(cond
-		(*work* (say "Busy: Cancel what is being done first."))
-		((empty? (. from :find :taken)) (say "Click the names of what to copy first."))
-		((and (side-host? from) (side-host? to)) (say "Files to files is not what this is for: one side is to be a store."))
+		(*work* (. *status* :set_text "Busy: Cancel what is being done first."))
+		((empty? (. from :find :taken)) (. *status* :set_text "Click the names of what to copy first."))
+		((and (side-host? from) (side-host? to)) (. *status* :set_text "Files to files is not what this is for: one side is to be a store."))
 		((work-start :copy from to))))
 
 (defun action-to-right () (action-copy 0))
@@ -314,14 +308,14 @@
 	;is pressed twice
 	(defq side (elem-get *sides* *active*) taken (. side :find :taken))
 	(cond
-		(*work* (say "Busy: Cancel what is being done first."))
-		((side-host? side) (say "Only what is in a store is deleted here, not files."))
-		((empty? taken) (say "Click the names of what to delete first."))
+		(*work* (. *status* :set_text "Busy: Cancel what is being done first."))
+		((side-host? side) (. *status* :set_text "Only what is in a store is deleted here, not files."))
+		((empty? taken) (. *status* :set_text "Click the names of what to delete first."))
 		((eql *delete* (list *active* taken))
 			(setq *delete* :nil)
 			(work-start :delete side side))
 		(:t (setq *delete* (list *active* taken))
-			(say (cat "Delete " (str (length taken)) " taken, and all under a folder, from "
+			(. *status* :set_text (cat "Delete " (str (length taken)) " taken, and all under a folder, from "
 				(first (side-source side)) "? Delete again to do it.")))))
 
 (defun action-copies ()
@@ -329,10 +323,10 @@
 	(defq side (elem-get *sides* *active*) copies (str-as-num (trim (. *copies* :get_text))))
 	(setq *delete* :nil)
 	(cond
-		(*work* (say "Busy: Cancel what is being done first."))
-		((side-host? side) (say "Copies are of what is in a store."))
-		((empty? (. side :find :taken)) (say "Click the names of what to set the copies of first."))
-		((< copies 0) (say "Copies is a number, 0 for as many as the store says."))
+		(*work* (. *status* :set_text "Busy: Cancel what is being done first."))
+		((side-host? side) (. *status* :set_text "Copies are of what is in a store."))
+		((empty? (. side :find :taken)) (. *status* :set_text "Click the names of what to set the copies of first."))
+		((< copies 0) (. *status* :set_text "Copies is a number, 0 for as many as the store says."))
 		((work-start :copies side side copies))))
 
 (defun action-pin-set (off)
@@ -344,23 +338,23 @@
 		folder (. side :find :folder) pins :nil)
 	(setq *delete* :nil)
 	(cond
-		(*work* (say "Busy: Cancel what is being done first."))
-		((side-host? side) (say "Pins are of what is in a store."))
-		((empty? taken) (say (cat "Click the names of what to " (if off "unpin" "pin") " first.")))
+		(*work* (. *status* :set_text "Busy: Cancel what is being done first."))
+		((side-host? side) (. *status* :set_text "Pins are of what is in a store."))
+		((empty? taken) (. *status* :set_text (cat "Click the names of what to " (if off "unpin" "pin") " first.")))
 		(:t (each (lambda (name)
 					(defq path (if (empty? folder) name (cat folder "/" name)))
 					(if (some (# (and (eql (first %0) name) (second %0))) rows) (setq path (cat path "/")))
 					(setq pins (storage-pin path off (side-svc side))))
 				taken)
 			(look-again)
-			(say (if pins (cat "This member has " (str (length pins)) (if (= (length pins) 1) " pin." " pins."))
+			(. *status* :set_text (if pins (cat "This member has " (str (length pins)) (if (= (length pins) 1) " pin." " pins."))
 				"The store did not answer.")))))
 
 (defun action-pin () (action-pin-set :nil))
 (defun action-unpin () (action-pin-set :t))
 
 (defun action-cancel ()
-	(if *work* (mail-send *work* "stop") (say "Nothing is being done.")))
+	(if *work* (mail-send *work* "stop") (. *status* :set_text "Nothing is being done.")))
 
 (defun action-refresh ()
 	(setq *sources* (sources-find) *delete* :nil)

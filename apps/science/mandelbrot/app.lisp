@@ -93,9 +93,8 @@
 (defun status ()
 	;how far in, and if it is as far as it goes
 	(defq k (n2i (/ +home_z z)))
-	(set *status* :text (cat " x" (str k) (if (<= z +z_min) " deepest" "")
-		"  " (str (/ took 1000)) "." (str (/ (% took 1000) 100)) " ms "))
-	(.-> *status* :layout :dirty))
+	(. *status* :set_text (cat " x" (str k) (if (<= z +z_min) " deepest" "")
+		"  " (str (/ took 1000)) "." (str (/ (% took 1000) 100)) " ms ")))
 
 ;;;;;;;;;;;;;;;;
 ; the GPU's frame

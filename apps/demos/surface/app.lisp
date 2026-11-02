@@ -65,12 +65,6 @@
 (defun control-text (type val)
 	(if (eql type :int) (str val) (real-to-str val 4)))
 
-(defun set-label (label text)
-	;a label lays its text out once, so lay it out again for the new text
-	(unless (eql (get :text label) text)
-		(def label :text text)
-		(.-> label :layout :dirty)))
-
 (defun make-label (text)
 	(defq label (Label))
 	(def label :text text :min_width 64
@@ -105,7 +99,7 @@
 		(bind '(name type lo hi slider label &rest _) control)
 		(defq val (control-value control))
 		(push vals (list name val))
-		(set-label label (control-text type val))) controls)
+		(. label :set_text (control-text type val))) controls)
 	(shader-pack program vals))
 
 (defun start-frame ()
@@ -140,7 +134,7 @@
 			(. *mode* :set_selected 0)
 			(if (or gpu_mode (not cpu_running)) (to-cpu))
 			(setq notice_until (+ (pii-time) +notice_time))
-			(set-label *status* "No GPU, the driver could not build the shader"))
+			(. *status* :set_text "No GPU, the driver could not build the shader"))
 		(drawn
 			(unless gpu_mode
 				;the shader is built, the GPU draws the frames from here on. What
@@ -175,7 +169,7 @@
 		((not gpu_shader)
 			(. *mode* :set_selected 0)
 			(setq notice_until (+ (pii-time) +notice_time))
-			(set-label *status* "No GPU, this host GUI driver can not draw a shader, see docs/intro/sdl3.md"))
+			(. *status* :set_text "No GPU, this host GUI driver can not draw a shader, see docs/intro/sdl3.md"))
 		((not gpu_want)
 			;the GPU takes over when the driver has built the shader
 			(setq gpu_want :t gpu_inputs :nil gpu_y 0 gpu_wait 0))))
@@ -195,7 +189,7 @@
 		(gpu_shader
 			(. *mode* :set_selected 1)
 			(setq gpu_want :t)
-			(set-label *status* "GPU, the driver is building the shader"))
+			(. *status* :set_text "GPU, the driver is building the shader"))
 		(:t (. *mode* :set_selected 0)
 			(start-frame)))
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
@@ -223,7 +217,7 @@
 						;the frame is done, show it and start the next
 						(. *canvas* :swap +swap_write)
 						(if (> (pii-time) notice_until)
-							(set-label *status* (cat "Frame "
+							(. *status* :set_text (cat "Frame "
 								(str (/ (- (pii-time) frame_time) 1000)) "ms, "
 								(str (length (lisp-nodes))) " nodes, native code on the CPU"
 								(if gpu_want ", while the driver builds the shader for the GPU" ""))))
@@ -235,7 +229,7 @@
 					(cond
 						(gpu_mode
 							(defq now (pii-time) rate (/ (* gpu_frames 10000000) (- now gpu_time)))
-							(set-label *status* (cat "GPU, "
+							(. *status* :set_text (cat "GPU, "
 								(str (/ rate 10)) "." (str (% rate 10)) " frames a second"
 								(if (< gpu_strip +height) (cat ", in strips of " (str gpu_strip) " lines") "")))
 							(setq gpu_frames 0 gpu_time now))

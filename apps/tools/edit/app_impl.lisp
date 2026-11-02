@@ -67,8 +67,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(update-find-toolbar)
-	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
-	(.-> *title* :layout :dirty)
+	(. *title* :set_text (cat "Edit -> " (if file file "<scratch pad>")))
 	(refresh))
 
 (defun populate-file-trees ()

@@ -35,12 +35,6 @@
 			:min_width +width :min_height +height)
 		(ui-element *canvas* (make-canvas +width +height) (:paper 0))))
 
-(defun set-label (label text)
-	;a label lays its text out once, so lay it out again for the new text
-	(unless (eql (get :text label) text)
-		(def label :text text)
-		(.-> label :layout :dirty)))
-
 (defun frame-draw ()
 	;the picture as it is now. What is round the canvas, as the window grows and
 	;before it is made again, is the colour of the picture
@@ -94,7 +88,7 @@
 	(setq tick_us (+ tick_us (- t1 now)) draw_us (+ draw_us (- (pii-time) t1)) frames (inc frames))
 	(when (>= (- now last_show) 500000)
 		(defq n (length (. stage :children)))
-		(set-label *status* (cat " " (str n) " figures  "
+		(. *status* :set_text (cat " " (str n) " figures  "
 			(str (/ tick_us frames 1000)) "." (str (/ (% (/ tick_us frames) 1000) 100)) " tick  "
 			(str (/ draw_us frames 1000)) "." (str (/ (% (/ draw_us frames) 1000) 100)) " draw "))
 		(setq tick_us 0 draw_us 0 frames 0 last_show now)))

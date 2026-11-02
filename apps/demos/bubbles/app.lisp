@@ -46,12 +46,6 @@
 		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)
 			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))))
 
-(defun set-label (label text)
-	;a label lays its text out once, so lay it out again for the new text
-	(unless (eql (get :text label) text)
-		(def label :text text)
-		(.-> label :layout :dirty)))
-
 (defun bubble-count ()
 	(+ +min_bubbles (get :value *count*)))
 
@@ -64,7 +58,7 @@
 	(. *canvas* :swap +swap_write)
 	(setq frames (inc frames) frames_us (+ frames_us (- (pii-time) frame_time)))
 	(when (>= frames_us 500000)
-		(set-label *status* (cat (str (/ frames_us frames 1000)) "."
+		(. *status* :set_text (cat (str (/ frames_us frames 1000)) "."
 			(str (% (/ frames_us frames 100) 10)) "ms a frame, "
 			(str (bubble-count)) " bubbles, " how))
 		(setq frames 0 frames_us 0)))
@@ -189,7 +183,7 @@
 					((/= (. *mode* :get_selected) 1))
 					((not shared_canvas)
 						(. *mode* :set_selected 0)
-						(set-label *status* "No shared memory on this host"))
+						(. *status* :set_text "No shared memory on this host"))
 					((not farming) (warm-farm))))
 			((= id +event_style)
 				;styles
