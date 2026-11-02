@@ -3,10 +3,10 @@
 //
 // open: a decoder for a codec, its 4 letters high first, from its setup as
 // the film has it, avcC of avc1, H.264, hvcC of hvc1, H.265, 0 if this host
-// has none for it. Of mp4v, MPEG-4 Part 2, div3, DivX 3, and jpeg, Motion
-// JPEG, the setup is the picture's width and height, four bytes each low
-// first, and of mp4v then its headers, VOS, VO and VOL, as the start of its
-// first frame has them: their packets are given as they are. decode: one packet of the
+// has none for it. Of mp4v, MPEG-4 Part 2, and jpeg, Motion JPEG, the setup
+// is the picture's width and height, four bytes each low first, and of
+// mp4v then its headers, VOS, VO and VOL, as the start of its first frame
+// has them: their packets are given as they are. decode: one packet of the
 // film, in the order they are decoded, and when it is shown, -1 if it could
 // not be. The pictures are held till asked for. frame: the picture shown at
 // a time, its pixels of 32 bits, blue green red alpha, into the buffer
@@ -18,8 +18,7 @@
 // JPEG, and MPEG-4 Part 2 by its own. Linux: VA-API, a PC's graphics, H.264,
 // H.265 and Motion JPEG, if the machine has libva and a driver for them, else
 // the stateful decoder of V4L2, /dev/video10, H.264 and Motion JPEG, the
-// Raspberry Pi's, else FFmpeg's libavcodec, the CPU's, if the machine has
-// it, which has MPEG-4 Part 2 and DivX 3 too. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
+// Raspberry Pi's. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
 // Part 2 and Motion JPEG, not yet tried on Windows itself. Elsewhere none,
 // open is 0. A host built with no GUI driver has no table to call them by,
 // and none of this.
@@ -3739,260 +3738,7 @@ static void va_close(Va_Decoder *d)
 	delete d;
 }
 
-// Linux, then: FFmpeg's libavcodec, the CPU's, if the machine has it, as
-// GStreamer's avdec and most players have: MPEG-4 Part 2, mp4v, as Xvid
-// and DivX 5 have it, and DivX 3, Microsoft's MPEG-4 v3, div3, which no
-// PC's graphics decodes, and H.264, H.265 and Motion JPEG where neither
-// VA-API nor V4L2 can. Loaded as it is wanted, as libva is, of any
-// version of the last few, so it is in every Linux build and the host
-// still starts without it. Of what it is given only what has been the
-// same for many versions is used: the decoders found by name, the size by
-// the option video_size, packets of memory of its own, and of a frame its
-// planes, size and format. Of H.264 and H.265 the packets are given as
-// Annex B, the parameter sets before the first, and of MPEG-4 its headers
-// before the first. A picture out takes the soonest time shown not yet
-// taken: an AVI has no times of its own, and its B-frames come out a
-// packet late. Its pictures are held, and made pixels, as VA-API's are.
-
-//of libavcodec and libavutil, what is used: the calls, and of an AVFrame
-//its first fields
-#define AV_CALLS(X) X(avcodec_find_decoder_by_name, void*, (const char*)) \
-	X(avcodec_alloc_context3, void*, (const void*)) X(avcodec_open2, int, (void*, const void*, void*)) \
-	X(avcodec_free_context, void, (void**)) X(avcodec_send_packet, int, (void*, const void*)) \
-	X(avcodec_receive_frame, int, (void*, void*)) X(avcodec_flush_buffers, void, (void*)) \
-	X(av_packet_alloc, void*, (void)) X(av_packet_free, void, (void**)) \
-	X(av_packet_from_data, int, (void*, uint8_t*, int)) X(av_packet_unref, void, (void*))
-#define AV_UTIL_CALLS(X) X(av_frame_alloc, void*, (void)) X(av_frame_free, void, (void**)) \
-	X(av_frame_unref, void, (void*)) X(av_malloc, void*, (size_t)) X(av_free, void, (void*)) \
-	X(av_opt_set_image_size, int, (void*, const char*, int, int, int)) X(av_log_set_level, void, (int))
-namespace av
-{
-#define AV_POINTER(f, r, a) static r (*f)a = nullptr;
-	AV_CALLS(AV_POINTER)
-	AV_UTIL_CALLS(AV_POINTER)
-#undef AV_POINTER
-}
-
-struct Av_Frame
-{
-	uint8_t *data[8];
-	int linesize[8];
-	uint8_t **extended_data;
-	int width, height, nb_samples, format;
-};
-
-//of AVPixelFormat: YUV 4:2:0, and of JPEG the same of the full range
-static const int av_yuv420p = 0, av_yuvj420p = 12;
-//what a packet has after it, read past by the decoder, 0s
-static const int av_padding = 64;
-
-static bool av_load()
-{
-	//once: libavcodec and libavutil, of a version they say they are, false
-	//if either is not there
-	static int loaded = 0;
-	if (loaded) return loaded > 0;
-	loaded = -1;
-	void *codec = nullptr, *util = nullptr;
-	static const char *codecs[] = {"libavcodec.so.62", "libavcodec.so.61", "libavcodec.so.60", "libavcodec.so.59", "libavcodec.so.58"};
-	static const char *utils[] = {"libavutil.so.60", "libavutil.so.59", "libavutil.so.58", "libavutil.so.57", "libavutil.so.56"};
-	for (int i = 0; i < 5 && !codec; i++) if ((codec = dlopen(codecs[i], RTLD_NOW | RTLD_LOCAL))) util = dlopen(utils[i], RTLD_NOW | RTLD_LOCAL);
-	if (!codec || !util) return false;
-#define AV_LOAD(f, r, a) if (!(av::f = (decltype(av::f))dlsym(codec, #f))) return false;
-	AV_CALLS(AV_LOAD)
-#undef AV_LOAD
-#define AV_LOAD(f, r, a) if (!(av::f = (decltype(av::f))dlsym(util, #f))) return false;
-	AV_UTIL_CALLS(AV_LOAD)
-#undef AV_LOAD
-	//it says what it does on stderr, the host's own output: only if it is
-	//to stop, AV_LOG_PANIC
-	av::av_log_set_level(0);
-	loaded = 1;
-	return true;
-}
-
-struct Av_Decoder
-{
-	void *context = nullptr, *packet = nullptr, *frame = nullptr;
-	//of H.264 and H.265 the bytes of a length, made a start code, and what
-	//goes before the first packet, their parameter sets or MPEG-4's headers
-	int nal_length = 0;
-	std::vector<uint8_t> first;
-	//the times shown of the packets given, not yet taken by a picture
-	std::vector<int64_t> times;
-	std::vector<Va_Held> held, spare;
-	int matrix = 0;
-	bool full = false;
-};
-
-static void av_close(Av_Decoder *d)
-{
-	if (d->frame) av::av_frame_free(&d->frame);
-	if (d->packet) av::av_packet_free(&d->packet);
-	if (d->context) av::avcodec_free_context(&d->context);
-	delete d;
-}
-
-static Av_Decoder *av_open(uint64_t codec, const uint8_t *setup, uint64_t len)
-{
-	//a decoder of the codec, of its setup as the film has it, nullptr if
-	//there is none
-	const char *name = codec == 0x61766331 ? "h264" : codec == 0x68766331 ? "hevc" : codec == 0x6a706567 ? "mjpeg"
-		: codec == 0x6d703476 ? "mpeg4" : codec == 0x64697633 ? "msmpeg4" : nullptr;
-	if (!name || !av_load()) return nullptr;
-	std::vector<const uint8_t*> sets;
-	std::vector<size_t> sizes;
-	int nal_length = 0, w = 0, h = 0;
-	if (codec == 0x61766331) { if (!video_avcc(setup, len, sets, sizes, nal_length)) return nullptr; }
-	else if (codec == 0x68766331) { if (!video_hvcc(setup, len, sets, sizes, nal_length)) return nullptr; }
-	else
-	{
-		//the size, four bytes each low first, then of MPEG-4 its headers
-		if (len < 8) return nullptr;
-		w = setup[0] | (setup[1] << 8) | (setup[2] << 16) | (setup[3] << 24);
-		h = setup[4] | (setup[5] << 8) | (setup[6] << 16) | (setup[7] << 24);
-		if (w <= 0 || h <= 0 || w > 16384 || h > 16384) return nullptr;
-	}
-	const void *decoder = av::avcodec_find_decoder_by_name(name);
-	if (!decoder) return nullptr;
-	auto d = new Av_Decoder();
-	d->nal_length = nal_length;
-	d->full = codec == 0x6a706567;
-	for (size_t i = 0; i < sets.size(); i++)
-	{
-		static const uint8_t start[] = {0, 0, 0, 1};
-		d->first.insert(d->first.end(), start, start + 4);
-		d->first.insert(d->first.end(), sets[i], sets[i] + sizes[i]);
-	}
-	if (codec == 0x6d703476) d->first.assign(setup + 8, setup + len);
-	//DivX 3 says nothing of its size, the film does
-	if (!(d->context = av::avcodec_alloc_context3(decoder)) || (w && av::av_opt_set_image_size(d->context, "video_size", w, h, 0) < 0)
-		|| av::avcodec_open2(d->context, decoder, nullptr) < 0 || !(d->packet = av::av_packet_alloc())
-		|| !(d->frame = av::av_frame_alloc()))
-	{
-		av_close(d);
-		return nullptr;
-	}
-	return d;
-}
-
-static void av_take(Av_Decoder *d)
-{
-	//the pictures out, each held with the soonest time not yet taken, of
-	//YUV 4:2:0 of 8 bits, any other let go
-	auto f = (Av_Frame*)d->frame;
-	while (av::avcodec_receive_frame(d->context, d->frame) == 0)
-	{
-		bool ok = !d->times.empty() && (f->format == av_yuv420p || f->format == av_yuvj420p)
-			&& f->width > 0 && f->height > 0 && f->width <= 16384 && f->height <= 16384
-			&& f->data[0] && f->data[1] && f->data[2] && f->linesize[0] >= f->width && f->linesize[1] >= (f->width + 1) / 2
-			&& f->linesize[2] == f->linesize[1];
-		if (ok)
-		{
-			auto least = std::min_element(d->times.begin(), d->times.end());
-			Va_Held pic;
-			if (!d->spare.empty())
-			{
-				pic.data.swap(d->spare.back().data);
-				d->spare.pop_back();
-			}
-			pic.shown = *least;
-			d->times.erase(least);
-			pic.width = f->width;
-			pic.height = f->height;
-			pic.sx = pic.sy = 1;
-			pic.step = pic.bytes = 1;
-			uint32_t cw = (f->width + 1) / 2, ch = (f->height + 1) / 2;
-			pic.y_pitch = f->width;
-			pic.c_pitch = cw;
-			pic.y_at = 0;
-			pic.u_at = (size_t)f->width * f->height;
-			pic.v_at = pic.u_at + (size_t)cw * ch;
-			pic.data.resize(pic.v_at + (size_t)cw * ch);
-			for (int r = 0; r < f->height; r++) memcpy(&pic.data[(size_t)r * f->width], f->data[0] + (size_t)r * f->linesize[0], f->width);
-			for (uint32_t r = 0; r < ch; r++)
-			{
-				memcpy(&pic.data[pic.u_at + (size_t)r * cw], f->data[1] + (size_t)r * f->linesize[1], cw);
-				memcpy(&pic.data[pic.v_at + (size_t)r * cw], f->data[2] + (size_t)r * f->linesize[2], cw);
-			}
-			d->full = d->full || f->format == av_yuvj420p;
-			d->matrix = va_matrix(2, f->height);
-			d->held.push_back(std::move(pic));
-		}
-		av::av_frame_unref(d->frame);
-	}
-}
-
-static int64_t av_decode(Av_Decoder *d, const uint8_t *data, uint64_t len, int64_t shown)
-{
-	//a packet given, of Annex B if it is H.264 or H.265, and the pictures
-	//out taken. Nothing: the end, what is held back given up, and the
-	//decoder as new
-	if (len == 0)
-	{
-		av::avcodec_send_packet(d->context, nullptr);
-		av_take(d);
-		av::avcodec_flush_buffers(d->context);
-		d->times.clear();
-		return 0;
-	}
-	std::vector<uint8_t> bytes;
-	bytes.swap(d->first);
-	if (d->nal_length)
-		for (uint64_t k = 0; k + d->nal_length <= len;)
-		{
-			size_t n = 0;
-			for (int i = 0; i < d->nal_length; i++) n = (n << 8) | data[k + i];
-			k += d->nal_length;
-			if (n == 0 || k + n > len) break;
-			static const uint8_t start[] = {0, 0, 0, 1};
-			bytes.insert(bytes.end(), start, start + 4);
-			bytes.insert(bytes.end(), data + k, data + k + n);
-			k += n;
-		}
-	else bytes.insert(bytes.end(), data, data + len);
-	if (bytes.empty() || bytes.size() > (1u << 30)) return -1;
-	//of its own memory, with the 0s after it it reads past
-	auto mem = (uint8_t*)av::av_malloc(bytes.size() + av_padding);
-	if (!mem) return -1;
-	memcpy(mem, bytes.data(), bytes.size());
-	memset(mem + bytes.size(), 0, av_padding);
-	if (av::av_packet_from_data(d->packet, mem, bytes.size()) < 0)
-	{
-		av::av_free(mem);
-		return -1;
-	}
-	//full, EAGAIN: the pictures out first, then again
-	int r = av::avcodec_send_packet(d->context, d->packet);
-	if (r < 0) { av_take(d); r = av::avcodec_send_packet(d->context, d->packet); }
-	av::av_packet_unref(d->packet);
-	if (r < 0) return -1;
-	d->times.push_back(shown);
-	//a decoder that keeps back more than any does has lost some: the oldest go
-	if (d->times.size() > 32) d->times.erase(std::min_element(d->times.begin(), d->times.end()));
-	av_take(d);
-	return 0;
-}
-
-static int64_t av_frame(Av_Decoder *d, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride, int64_t shown)
-{
-	//the picture shown at that time; those to be shown before it are gone
-	int64_t got = -1;
-	for (auto it = d->held.begin(); it != d->held.end();)
-	{
-		if (it->shown > shown) { ++it; continue; }
-		if (it->shown == shown)
-		{
-			va_convert(*it, d->full, d->matrix, pixels, w, h, stride);
-			got = shown;
-		}
-		if (d->spare.size() < 4) d->spare.push_back(std::move(*it));
-		it = d->held.erase(it);
-	}
-	return got;
-}
-
-// Linux, last: the stateful decoder of V4L2, a memory to memory device, the
+// Linux: the stateful decoder of V4L2, a memory to memory device, the
 // Raspberry Pi's bcm2835-codec-decode. Packets are given it as Annex B,
 // each NAL after a start code, the parameter sets before the first, and
 // the time it is shown as its timestamp; pictures come back with it, in
@@ -4020,9 +3766,8 @@ struct Video_Buffer
 
 struct Video_Decoder
 {
-	//one of VA-API or of libavcodec, which does all of what is asked
+	//one of VA-API, which does all of what is asked
 	Va_Decoder *va = nullptr;
-	Av_Decoder *av = nullptr;
 	int fd = -1;
 	int nal_length = 4;
 	std::vector<uint8_t> sets;
@@ -4205,21 +3950,12 @@ static void video_drain(Video_Decoder *d, int wait)
 uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 {
 	//H.264, avc1, its parameter sets each after a start code, or Motion
-	//JPEG, jpeg, its frames as they are, a nal_length of 0: by VA-API, or
-	//V4L2, or libavcodec. H.265, hvc1, by VA-API or libavcodec, and
-	//MPEG-4 Part 2, mp4v, and DivX 3, div3, by libavcodec
-	auto by_av = [&]() -> uint64_t {
-		auto av = av_open(codec, setup, len);
-		if (!av) return 0;
-		auto d = new Video_Decoder();
-		d->av = av;
-		return (uint64_t)d;
-	};
-	if (codec == 0x6d703476 || codec == 0x64697633) return by_av();
+	//JPEG, jpeg, its frames as they are, a nal_length of 0. H.265, hvc1,
+	//only by VA-API
 	if (codec == 0x68766331)
 	{
 		auto va = va_open(codec, setup, len);
-		if (!va) return by_av();
+		if (!va) return 0;
 		auto d = new Video_Decoder();
 		d->va = va;
 		return (uint64_t)d;
@@ -4246,20 +3982,20 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 		d->sets.insert(d->sets.end(), sets[i], sets[i] + sizes[i]);
 	}
 	d->fd = open("/dev/video10", O_RDWR | O_NONBLOCK);
-	if (d->fd < 0) { video_free(d); return by_av(); }
+	if (d->fd < 0) { video_free(d); return 0; }
 	v4l2_format fmt = {};
 	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	fmt.fmt.pix_mp.pixelformat = jpeg ? V4L2_PIX_FMT_MJPEG : V4L2_PIX_FMT_H264;
 	fmt.fmt.pix_mp.num_planes = 1;
 	fmt.fmt.pix_mp.plane_fmt[0].sizeimage = 1 << 20;
-	if (video_ioctl(d->fd, VIDIOC_S_FMT, &fmt) < 0) { video_free(d); return by_av(); }
+	if (video_ioctl(d->fd, VIDIOC_S_FMT, &fmt) < 0) { video_free(d); return 0; }
 	v4l2_event_subscription sub = {};
 	sub.type = V4L2_EVENT_SOURCE_CHANGE;
 	video_ioctl(d->fd, VIDIOC_SUBSCRIBE_EVENT, &sub);
-	if (!video_buffers(d, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, 8, d->outs)) { video_free(d); return by_av(); }
+	if (!video_buffers(d, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE, 8, d->outs)) { video_free(d); return 0; }
 	d->out_free.assign(d->outs.size(), true);
 	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	if (video_ioctl(d->fd, VIDIOC_STREAMON, &type) < 0) { video_free(d); return by_av(); }
+	if (video_ioctl(d->fd, VIDIOC_STREAMON, &type) < 0) { video_free(d); return 0; }
 	return (uint64_t)d;
 }
 
@@ -4268,7 +4004,6 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 	auto d = (Video_Decoder*)handle;
 	if (!d) return -1;
 	if (d->va) return va_decode(d->va, data, len, shown);
-	if (d->av) return av_decode(d->av, data, len, shown);
 	//nothing: the end, what the decoder holds back given up
 	if (len == 0)
 	{
@@ -4338,7 +4073,6 @@ int64_t host_video_frame(uint64_t handle, uint32_t *pixels, uint64_t w, uint64_t
 	auto d = (Video_Decoder*)handle;
 	if (!d) return -1;
 	if (d->va) return va_frame(d->va, pixels, w, h, stride, shown);
-	if (d->av) return av_frame(d->av, pixels, w, h, stride, shown);
 	for (int round = 0; round < 2; round++)
 	{
 		int64_t got = -1;
@@ -4365,10 +4099,9 @@ void host_video_close(uint64_t handle)
 {
 	auto d = (Video_Decoder*)handle;
 	if (!d) return;
-	if (d->va || d->av)
+	if (d->va)
 	{
-		if (d->va) va_close(d->va);
-		if (d->av) av_close(d->av);
+		va_close(d->va);
 		delete d;
 		return;
 	}

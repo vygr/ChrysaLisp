@@ -528,14 +528,13 @@
 				(. track :insert :times (. track :find :shown)))
 			tracks)
 		(scatter reel :tracks tracks :stream stream)
-		;the setup the host's decoder is given: of MPEG-4 Part 2, DivX 3 and
-		;Motion JPEG the size, and of MPEG-4 its headers before its first
-		;picture
+		;the setup the host's decoder is given: of MPEG-4 Part 2 and Motion
+		;JPEG the size, and of MPEG-4 its headers before its first picture
 		;of H.264 its avcC, the order shown, and its packets re-framed
 		(when (and video (eql (. video :find :codec) "avc1"))
 			(avi-avc stream video)
 			(. reel :insert :packet_fn (const avi-avc-packet)))
-		(when (and video (find (. video :find :codec) '("mp4v" "div3" "jpeg")))
+		(when (and video (find (. video :find :codec) '("mp4v" "jpeg")))
 			(defq size (cat (char (. video :find :width) 4) (char (. video :find :height) 4)))
 			(. video :insert :config (list (list "setup" (if (eql (. video :find :codec) "mp4v")
 				(cat size (avi-mp4v-headers stream video)) size)))))
