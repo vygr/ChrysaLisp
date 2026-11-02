@@ -114,3 +114,31 @@
 (assert-true "an mp4 is a kind of reel" (some (# (eql (first %0) ".mp4")) *reel_kinds*))
 (assert-eq "with no host decoder for it, a setup that is not avcC, no codec" :nil
 	(mp4-codec (mp4-reel (string-stream (m4-file :nil :nil)))))
+
+;H.265 by the host's decoder, the machine's own hardware, where it has one, of
+;8 and 10 bits, the same little picture: each frame is what it is by what is in
+;it, not its bytes, one decoder and another are not the same to the bit once
+;made pixels. Not all have one, and then there is nothing to see
+(defun m4-green (canvas)
+	;the mean of the green of a picture
+	(defq out (string-stream (cat "")))
+	(pixmap-write (getf canvas +canvas_pixmap 0) out 32)
+	(defq px (str out) n 0 sum 0 i 1)
+	(while (< i (length px)) (setq sum (+ sum (code px 1 i)) n (inc n) i (+ i 412)))
+	(/ sum (max 1 n)))
+(each (lambda (name)
+		(defq reel (mp4-reel (file-stream (cat "tests/streams/data/" name))) codec (mp4-codec reel))
+		(assert-list-eq (cat "the reel of " name) '(320 180 "hvc1" 10)
+			(list (. reel :find :width) (. reel :find :height) (. reel :find :codec) (length (. reel :find :times))))
+		(cond
+			(codec
+				(defq first_green (m4-green (mp4-frame codec 0)) n 0 all :t)
+				(while (< (++ n) 10) (setq all (and all (mp4-frame codec n))))
+				(assert-true (cat "every frame of " name " comes") all)
+				;122 or 123 by each decoder there is, of either depth
+				(assert-true (cat "and it is the picture that was made, its green is " (str first_green))
+					(< 116 first_green 129))
+				(assert-true (cat "going back to one before, it is had again, " name)
+					(mp4-frame codec 3)))
+			((test-skip (cat "the frames of " name) "this host has no decoder for it"))))
+	'("hevc_8.mp4" "hevc_10.mp4"))

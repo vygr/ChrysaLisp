@@ -18,7 +18,7 @@
 // JPEG, and MPEG-4 Part 2 by its own. Linux: VA-API, a PC's graphics, H.264,
 // H.265 and Motion JPEG, if the machine has libva and a driver for them, else
 // the stateful decoder of V4L2, /dev/video10, H.264 and Motion JPEG, the
-// Raspberry Pi's. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
+// Raspberry Pi's, and its stateless one of H.265. Windows: a decoder of Media Foundation, H.264, and H.265 if one is installed, MPEG-4
 // Part 2 and Motion JPEG, not yet tried on Windows itself. Elsewhere none,
 // open is 0. A host built with no GUI driver has no table to call them by,
 // and none of this.
@@ -294,6 +294,10 @@ void host_video_close(uint64_t handle)
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
+#include <linux/videodev2.h>
+#include <linux/media.h>
+#include <poll.h>
+#include <errno.h>
 #include <thread>
 #include <math.h>
 
@@ -1220,6 +1224,8 @@ struct Va_Decoder
 	Va_Hslice hlast;
 	VASliceParameterBufferHEVC hlast_param, hpend_param;
 	VABufferID hpend_data = VA_INVALID_ID;
+	//of H.265 by the V4L2 stateless decoder, not VA-API
+	struct Hv *hv = nullptr;
 };
 
 static void va_release(Va_Decoder *d)
@@ -3037,6 +3043,582 @@ static bool va_hslice(Va_Decoder *d, const std::vector<uint8_t> &rbsp, int type,
 	return !b.over();
 }
 
+//////////////////////////////////////////////////////////////////
+// H.265 by V4L2's stateless decoder, the Raspberry Pi 4's rpi-hevc-dec
+//////////////////////////////////////////////////////////////////
+
+// The hardware reads a picture's slices, and is told all the rest. So what
+// is parsed for VA-API is used here, the parameter sets, the slices, the
+// pictures kept and their lists, and only what is told differs: the kernel's
+// controls, by a media request, a picture at a time and all its slices
+// together. A picture comes back in columns 128 bytes wide, made rows here,
+// of 8 bits NV12, of 10 as P010. A buffer of the pictures it is told of is
+// known by the time it was given, so each is given one of its own.
+
+#ifdef V4L2_CID_STATELESS_HEVC_SPS
+
+//Y/CbCr 4:2:0 in columns 128 bytes wide, two planes, in the Pi's kernel's
+//headers only. Of 10 bits, 3 samples in each 32 bits of a column, so 96 of
+//them across it
+static const uint32_t hv_fourcc = v4l2_fourcc('N', 'c', '1', '2');
+static const uint32_t hv_fourcc_10 = v4l2_fourcc('N', 'c', '3', '0');
+static const size_t hv_col = 128, hv_col_10 = 96;
+
+struct Hv
+{
+	int fd = -1, media = -1;
+	void *src = nullptr;
+	size_t src_size = 0, src_used = 0;
+	struct Cap
+	{
+		void *at[2];
+		size_t size[2];
+		uint64_t stamp;
+	};
+	std::vector<Cap> caps;
+	uint32_t w = 0, h = 0, line = 0;
+	uint64_t given = 0, stamp = 0;
+	bool streaming = false, has_lists = false, ten = false;
+	std::vector<v4l2_ctrl_hevc_slice_params> slices;
+	v4l2_ctrl_hevc_sps sps;
+	v4l2_ctrl_hevc_pps pps;
+	v4l2_ctrl_hevc_decode_params decode;
+	v4l2_ctrl_hevc_scaling_matrix lists;
+};
+
+static int hv_ioctl(int fd, unsigned long what, void *arg)
+{
+	int r;
+	do r = ioctl(fd, what, arg); while (r < 0 && errno == EINTR);
+	return r;
+}
+
+static bool hv_find(Hv *hv)
+{
+	//the first decoder that takes parsed slices and gives columns, and the
+	//media device of its driver
+	for (int i = 0; i < 64 && hv->fd < 0; i++)
+	{
+		char name[32];
+		snprintf(name, sizeof(name), "/dev/video%d", i);
+		int fd = open(name, O_RDWR | O_NONBLOCK | O_CLOEXEC);
+		if (fd < 0) continue;
+		bool in = false, out = false;
+		v4l2_fmtdesc f = {};
+		f.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+		for (f.index = 0; hv_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) in |= f.pixelformat == V4L2_PIX_FMT_HEVC_SLICE;
+		f.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		for (f.index = 0; hv_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) out |= f.pixelformat == hv_fourcc;
+		v4l2_capability cap = {};
+		if (!in || !out || hv_ioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) { close(fd); continue; }
+		for (int m = 0; m < 16 && hv->media < 0; m++)
+		{
+			snprintf(name, sizeof(name), "/dev/media%d", m);
+			int mfd = open(name, O_RDWR | O_NONBLOCK | O_CLOEXEC);
+			if (mfd < 0) continue;
+			media_device_info info = {};
+			if (hv_ioctl(mfd, MEDIA_IOC_DEVICE_INFO, &info) == 0
+				&& !strncmp(info.driver, (const char*)cap.driver, sizeof(info.driver))) hv->media = mfd;
+			else close(mfd);
+		}
+		if (hv->media < 0) { close(fd); continue; }
+		hv->fd = fd;
+	}
+	return hv->fd >= 0;
+}
+
+static void hv_stop(Hv *hv)
+{
+	//what is had for one size of picture let go
+	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	if (hv->streaming)
+	{
+		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		hv->streaming = false;
+	}
+	for (auto &c : hv->caps) for (int i = 0; i < 2; i++) if (c.at[i] && c.at[i] != MAP_FAILED) munmap(c.at[i], c.size[i]);
+	hv->caps.clear();
+	if (hv->src && hv->src != MAP_FAILED) munmap(hv->src, hv->src_size);
+	hv->src = nullptr;
+	v4l2_requestbuffers req = {};
+	req.memory = V4L2_MEMORY_MMAP;
+	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
+	req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
+	hv->w = hv->h = 0;
+}
+
+static void hv_fill_sps(v4l2_ctrl_hevc_sps &to, const Va_Hsps &sp, int id)
+{
+	memset(&to, 0, sizeof(to));
+	to.seq_parameter_set_id = id;
+	to.pic_width_in_luma_samples = sp.width;
+	to.pic_height_in_luma_samples = sp.height;
+	to.bit_depth_luma_minus8 = sp.bit_depth_luma - 8;
+	to.bit_depth_chroma_minus8 = sp.bit_depth_chroma - 8;
+	to.log2_max_pic_order_cnt_lsb_minus4 = sp.log2_max_poc_lsb - 4;
+	to.sps_max_dec_pic_buffering_minus1 = sp.max_dec_pic_buffering - 1;
+	to.sps_max_num_reorder_pics = sp.num_reorder;
+	to.log2_min_luma_coding_block_size_minus3 = sp.log2_min_cb - 3;
+	to.log2_diff_max_min_luma_coding_block_size = sp.log2_diff_cb;
+	to.log2_min_luma_transform_block_size_minus2 = sp.log2_min_tb - 2;
+	to.log2_diff_max_min_luma_transform_block_size = sp.log2_diff_tb;
+	to.max_transform_hierarchy_depth_inter = sp.depth_inter;
+	to.max_transform_hierarchy_depth_intra = sp.depth_intra;
+	if (sp.pcm)
+	{
+		to.pcm_sample_bit_depth_luma_minus1 = sp.pcm_depth_luma - 1;
+		to.pcm_sample_bit_depth_chroma_minus1 = sp.pcm_depth_chroma - 1;
+		to.log2_min_pcm_luma_coding_block_size_minus3 = sp.log2_min_pcm - 3;
+		to.log2_diff_max_min_pcm_luma_coding_block_size = sp.log2_diff_pcm;
+	}
+	to.num_short_term_ref_pic_sets = sp.num_rps;
+	to.num_long_term_ref_pics_sps = sp.num_lt;
+	to.chroma_format_idc = sp.chroma_format_idc;
+	to.flags = (sp.scaling ? V4L2_HEVC_SPS_FLAG_SCALING_LIST_ENABLED : 0)
+		| (sp.amp ? V4L2_HEVC_SPS_FLAG_AMP_ENABLED : 0)
+		| (sp.sao ? V4L2_HEVC_SPS_FLAG_SAMPLE_ADAPTIVE_OFFSET : 0)
+		| (sp.pcm ? V4L2_HEVC_SPS_FLAG_PCM_ENABLED : 0)
+		| (sp.pcm_loop_filter_disabled ? V4L2_HEVC_SPS_FLAG_PCM_LOOP_FILTER_DISABLED : 0)
+		| (sp.long_term_present ? V4L2_HEVC_SPS_FLAG_LONG_TERM_REF_PICS_PRESENT : 0)
+		| (sp.temporal_mvp ? V4L2_HEVC_SPS_FLAG_SPS_TEMPORAL_MVP_ENABLED : 0)
+		| (sp.strong_intra ? V4L2_HEVC_SPS_FLAG_STRONG_INTRA_SMOOTHING_ENABLED : 0);
+}
+
+static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
+{
+	//its buffers, for this size of picture, kept while it is. The SPS is
+	//told first, the driver has the format of what comes back by it
+	Hv *hv = d->hv;
+	int count = sp.max_dec_pic_buffering + 2;
+	bool ten = sp.bit_depth_luma == 10;
+	uint32_t fourcc = ten ? hv_fourcc_10 : hv_fourcc;
+	if (hv->w == (uint32_t)sp.width && hv->h == (uint32_t)sp.height && hv->ten == ten && (int)hv->caps.size() >= count) return true;
+	hv_stop(hv);
+	v4l2_format fmt = {};
+	fmt.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	fmt.fmt.pix_mp.pixelformat = V4L2_PIX_FMT_HEVC_SLICE;
+	fmt.fmt.pix_mp.width = sp.width;
+	fmt.fmt.pix_mp.height = sp.height;
+	fmt.fmt.pix_mp.num_planes = 1;
+	fmt.fmt.pix_mp.plane_fmt[0].sizeimage = std::max(1u << 21, (uint32_t)sp.width * sp.height);
+	if (hv_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0) return false;
+	v4l2_requestbuffers req = {};
+	req.count = 1;
+	req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	req.memory = V4L2_MEMORY_MMAP;
+	if (hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || req.count < 1) return false;
+	v4l2_plane planes[2];
+	v4l2_buffer buf = {};
+	memset(planes, 0, sizeof(planes));
+	buf.type = req.type;
+	buf.memory = V4L2_MEMORY_MMAP;
+	buf.m.planes = planes;
+	buf.length = 1;
+	if (hv_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
+	hv->src_size = planes[0].length;
+	hv->src = mmap(nullptr, hv->src_size, PROT_READ | PROT_WRITE, MAP_SHARED, hv->fd, planes[0].m.mem_offset);
+	if (hv->src == MAP_FAILED) { hv->src = nullptr; return false; }
+	hv_fill_sps(hv->sps, sp, sps_id);
+	v4l2_ext_control c = {};
+	c.id = V4L2_CID_STATELESS_HEVC_SPS;
+	c.size = sizeof(hv->sps);
+	c.ptr = &hv->sps;
+	v4l2_ext_controls ctrls = {};
+	ctrls.count = 1;
+	ctrls.controls = &c;
+	if (hv_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0) return false;
+	memset(&fmt, 0, sizeof(fmt));
+	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	fmt.fmt.pix_mp.pixelformat = fourcc;
+	fmt.fmt.pix_mp.width = sp.width;
+	fmt.fmt.pix_mp.height = sp.height;
+	fmt.fmt.pix_mp.num_planes = 2;
+	if (hv_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0 || fmt.fmt.pix_mp.pixelformat != fourcc
+		|| fmt.fmt.pix_mp.num_planes != 2) return false;
+	hv->line = fmt.fmt.pix_mp.plane_fmt[0].bytesperline;
+	if (!hv->line) return false;
+	memset(&req, 0, sizeof(req));
+	req.count = count;
+	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	req.memory = V4L2_MEMORY_MMAP;
+	if (hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || (int)req.count < count) return false;
+	hv->caps.resize(req.count);
+	for (uint32_t i = 0; i < req.count; i++)
+	{
+		auto &cap = hv->caps[i];
+		cap.at[0] = cap.at[1] = nullptr;
+		cap.stamp = 0;
+		memset(&buf, 0, sizeof(buf));
+		memset(planes, 0, sizeof(planes));
+		buf.type = req.type;
+		buf.memory = V4L2_MEMORY_MMAP;
+		buf.index = i;
+		buf.m.planes = planes;
+		buf.length = 2;
+		if (hv_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
+		for (int p = 0; p < 2; p++)
+		{
+			cap.size[p] = planes[p].length;
+			cap.at[p] = mmap(nullptr, cap.size[p], PROT_READ | PROT_WRITE, MAP_SHARED, hv->fd, planes[p].m.mem_offset);
+			if (cap.at[p] == MAP_FAILED) { cap.at[p] = nullptr; return false; }
+		}
+	}
+	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	if (hv_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
+	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	if (hv_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
+	hv->streaming = true;
+	hv->ten = ten;
+	hv->w = sp.width;
+	hv->h = sp.height;
+	d->surfaces.assign(hv->caps.size(), VA_INVALID_ID);
+	return true;
+}
+
+static int hv_begin(Va_Decoder *d, const Va_Hslice &s, const Va_Hsps &sp, const Va_Hpps &p, bool irap, bool idr,
+	const int *columns, const int *rows)
+{
+	//a new picture: what is told of it, its slices to come
+	Hv *hv = d->hv;
+	if (d->dpb.size() > V4L2_HEVC_DPB_ENTRIES_NUM_MAX) return -1;
+	hv_fill_sps(hv->sps, sp, p.sps_id);
+	auto &q = hv->pps;
+	memset(&q, 0, sizeof(q));
+	q.pic_parameter_set_id = s.pps_id;
+	q.num_extra_slice_header_bits = p.extra_bits;
+	q.num_ref_idx_l0_default_active_minus1 = p.num_ref_idx_default[0] - 1;
+	q.num_ref_idx_l1_default_active_minus1 = p.num_ref_idx_default[1] - 1;
+	q.init_qp_minus26 = p.init_qp - 26;
+	q.diff_cu_qp_delta_depth = p.diff_cu_qp_delta_depth;
+	q.pps_cb_qp_offset = p.cb_qp_offset;
+	q.pps_cr_qp_offset = p.cr_qp_offset;
+	if (p.tiles)
+	{
+		q.num_tile_columns_minus1 = p.columns - 1;
+		q.num_tile_rows_minus1 = p.rows - 1;
+		for (int i = 0; i < p.columns; i++) q.column_width_minus1[i] = columns[i] - 1;
+		for (int i = 0; i < p.rows; i++) q.row_height_minus1[i] = rows[i] - 1;
+	}
+	q.pps_beta_offset_div2 = p.beta;
+	q.pps_tc_offset_div2 = p.tc;
+	q.log2_parallel_merge_level_minus2 = p.log2_parallel_merge_level - 2;
+	q.flags = (p.dependent_slices ? V4L2_HEVC_PPS_FLAG_DEPENDENT_SLICE_SEGMENT_ENABLED : 0)
+		| (p.output_flag_present ? V4L2_HEVC_PPS_FLAG_OUTPUT_FLAG_PRESENT : 0)
+		| (p.sign_hiding ? V4L2_HEVC_PPS_FLAG_SIGN_DATA_HIDING_ENABLED : 0)
+		| (p.cabac_init_present ? V4L2_HEVC_PPS_FLAG_CABAC_INIT_PRESENT : 0)
+		| (p.constrained_intra ? V4L2_HEVC_PPS_FLAG_CONSTRAINED_INTRA_PRED : 0)
+		| (p.transform_skip ? V4L2_HEVC_PPS_FLAG_TRANSFORM_SKIP_ENABLED : 0)
+		| (p.cu_qp_delta ? V4L2_HEVC_PPS_FLAG_CU_QP_DELTA_ENABLED : 0)
+		| (p.slice_chroma_qp_offsets ? V4L2_HEVC_PPS_FLAG_PPS_SLICE_CHROMA_QP_OFFSETS_PRESENT : 0)
+		| (p.weighted_pred ? V4L2_HEVC_PPS_FLAG_WEIGHTED_PRED : 0)
+		| (p.weighted_bipred ? V4L2_HEVC_PPS_FLAG_WEIGHTED_BIPRED : 0)
+		| (p.transquant_bypass ? V4L2_HEVC_PPS_FLAG_TRANSQUANT_BYPASS_ENABLED : 0)
+		| (p.tiles ? V4L2_HEVC_PPS_FLAG_TILES_ENABLED : 0)
+		| (p.entropy_sync ? V4L2_HEVC_PPS_FLAG_ENTROPY_CODING_SYNC_ENABLED : 0)
+		| (p.loop_filter_across_tiles ? V4L2_HEVC_PPS_FLAG_LOOP_FILTER_ACROSS_TILES_ENABLED : 0)
+		| (p.loop_filter_across_slices ? V4L2_HEVC_PPS_FLAG_PPS_LOOP_FILTER_ACROSS_SLICES_ENABLED : 0)
+		| (p.deblocking_override ? V4L2_HEVC_PPS_FLAG_DEBLOCKING_FILTER_OVERRIDE_ENABLED : 0)
+		| (p.deblocking_disabled ? V4L2_HEVC_PPS_FLAG_PPS_DISABLE_DEBLOCKING_FILTER : 0)
+		| (p.lists_modification ? V4L2_HEVC_PPS_FLAG_LISTS_MODIFICATION_PRESENT : 0)
+		| (p.header_extension ? V4L2_HEVC_PPS_FLAG_SLICE_SEGMENT_HEADER_EXTENSION_PRESENT : 0)
+		| (p.uniform ? V4L2_HEVC_PPS_FLAG_UNIFORM_SPACING : 0);
+	auto &k = hv->decode;
+	memset(&k, 0, sizeof(k));
+	k.pic_order_cnt_val = d->cur_poc;
+	k.short_term_ref_pic_set_size = s.rps_bits;
+	k.num_active_dpb_entries = d->dpb.size();
+	k.num_poc_st_curr_before = d->nbefore;
+	k.num_poc_st_curr_after = d->nafter;
+	k.num_poc_lt_curr = d->nlt;
+	for (int i = 0; i < d->nbefore; i++) k.poc_st_curr_before[i] = d->hbefore[i];
+	for (int i = 0; i < d->nafter; i++) k.poc_st_curr_after[i] = d->hafter[i];
+	for (int i = 0; i < d->nlt; i++) k.poc_lt_curr[i] = d->hlt[i];
+	for (size_t i = 0; i < d->dpb.size(); i++)
+	{
+		//one of a size of picture before this one is no use
+		if (d->dpb[i].surface >= (int)hv->caps.size()) return -1;
+		k.dpb[i].timestamp = hv->caps[d->dpb[i].surface].stamp;
+		k.dpb[i].flags = d->dpb[i].long_ref ? V4L2_HEVC_DPB_ENTRY_LONG_TERM_REFERENCE : 0;
+		k.dpb[i].pic_order_cnt_val = d->dpb[i].top;
+	}
+	k.flags = (irap ? V4L2_HEVC_DECODE_PARAM_FLAG_IRAP_PIC : 0) | (idr ? V4L2_HEVC_DECODE_PARAM_FLAG_IDR_PIC : 0);
+	hv->has_lists = sp.scaling;
+	if (sp.scaling)
+	{
+		const Va_Hlists &l = p.scaling ? p.lists : sp.lists;
+		auto &m = hv->lists;
+		for (int i = 0; i < 6; i++)
+		{
+			va_hraster(m.scaling_list_4x4[i], l.lists[0][i], 4);
+			va_hraster(m.scaling_list_8x8[i], l.lists[1][i], 8);
+			va_hraster(m.scaling_list_16x16[i], l.lists[2][i], 8);
+			m.scaling_list_dc_coef_16x16[i] = l.dc[2][i];
+		}
+		for (int i = 0; i < 2; i++)
+		{
+			va_hraster(m.scaling_list_32x32[i], l.lists[3][i * 3], 8);
+			m.scaling_list_dc_coef_32x32[i] = l.dc[3][i * 3];
+		}
+	}
+	hv->slices.clear();
+	hv->src_used = 0;
+	//known by this from now on, as what is made from it knows it
+	hv->given++;
+	hv->stamp = hv->given * 1000;
+	hv->caps[d->cur.surface].stamp = hv->stamp;
+	d->started = true;
+	return 1;
+}
+
+static bool hv_slice(Va_Decoder *d, const Va_Hslice &s, const VASliceParameterBufferHEVC &param,
+	const uint8_t *nal, size_t n, int type, int tid)
+{
+	//a slice, its data after those before it, its parameters for the end
+	Hv *hv = d->hv;
+	if (hv->src_used + n > hv->src_size || hv->slices.size() >= 600) return false;
+	memcpy((uint8_t*)hv->src + hv->src_used, nal, n);
+	//the header's bytes are of it with the emulation prevention bytes out
+	size_t at = 0, rbsp = 0;
+	int zeros = 0;
+	while (rbsp < s.header_bytes && at < n)
+	{
+		if (zeros >= 2 && nal[at] == 3) { zeros = 0; at++; continue; }
+		zeros = nal[at] ? 0 : zeros + 1;
+		at++;
+		rbsp++;
+	}
+	v4l2_ctrl_hevc_slice_params q;
+	memset(&q, 0, sizeof(q));
+	//its bits are of what follows the offset, its header not among them
+	q.bit_size = (n - at) * 8;
+	q.data_byte_offset = hv->src_used + at;
+	q.nal_unit_type = type;
+	q.nuh_temporal_id_plus1 = tid + 1;
+	q.slice_type = s.type;
+	q.slice_pic_order_cnt = d->cur_poc;
+	q.num_ref_idx_l0_active_minus1 = s.num_ref_idx[0] ? s.num_ref_idx[0] - 1 : 0;
+	q.num_ref_idx_l1_active_minus1 = s.num_ref_idx[1] ? s.num_ref_idx[1] - 1 : 0;
+	q.collocated_ref_idx = s.temporal_mvp ? s.collocated_ref_idx : 0;
+	q.five_minus_max_num_merge_cand = s.five_minus_max_merge;
+	q.slice_qp_delta = s.qp_delta;
+	q.slice_cb_qp_offset = s.cb_qp_offset;
+	q.slice_cr_qp_offset = s.cr_qp_offset;
+	q.slice_beta_offset_div2 = s.beta;
+	q.slice_tc_offset_div2 = s.tc;
+	q.slice_segment_addr = s.address;
+	for (int i = 0; i < 15; i++)
+	{
+		q.ref_idx_l0[i] = param.RefPicList[0][i];
+		q.ref_idx_l1[i] = param.RefPicList[1][i];
+	}
+	q.short_term_ref_pic_set_size = s.rps_bits;
+	auto &w = q.pred_weight_table;
+	w.luma_log2_weight_denom = param.luma_log2_weight_denom;
+	w.delta_chroma_log2_weight_denom = param.delta_chroma_log2_weight_denom;
+	for (int i = 0; i < 15; i++)
+	{
+		w.delta_luma_weight_l0[i] = param.delta_luma_weight_l0[i];
+		w.luma_offset_l0[i] = param.luma_offset_l0[i];
+		w.delta_luma_weight_l1[i] = param.delta_luma_weight_l1[i];
+		w.luma_offset_l1[i] = param.luma_offset_l1[i];
+		for (int j = 0; j < 2; j++)
+		{
+			w.delta_chroma_weight_l0[i][j] = param.delta_chroma_weight_l0[i][j];
+			w.chroma_offset_l0[i][j] = param.ChromaOffsetL0[i][j];
+			w.delta_chroma_weight_l1[i][j] = param.delta_chroma_weight_l1[i][j];
+			w.chroma_offset_l1[i][j] = param.ChromaOffsetL1[i][j];
+		}
+	}
+	q.flags = (s.sao_luma ? V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_SAO_LUMA : 0)
+		| (s.sao_chroma ? V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_SAO_CHROMA : 0)
+		| (s.temporal_mvp ? V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_TEMPORAL_MVP_ENABLED : 0)
+		| (s.mvd_l1_zero ? V4L2_HEVC_SLICE_PARAMS_FLAG_MVD_L1_ZERO : 0)
+		| (s.cabac_init ? V4L2_HEVC_SLICE_PARAMS_FLAG_CABAC_INIT : 0)
+		| (s.collocated_from_l0 ? V4L2_HEVC_SLICE_PARAMS_FLAG_COLLOCATED_FROM_L0 : 0)
+		| (s.deblocking_disabled ? V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_DEBLOCKING_FILTER_DISABLED : 0)
+		| (s.loop_filter_across_slices ? V4L2_HEVC_SLICE_PARAMS_FLAG_SLICE_LOOP_FILTER_ACROSS_SLICES_ENABLED : 0)
+		| (s.dependent ? V4L2_HEVC_SLICE_PARAMS_FLAG_DEPENDENT_SLICE_SEGMENT : 0);
+	hv->src_used += n;
+	hv->slices.push_back(q);
+	return true;
+}
+
+static bool hv_end(Va_Decoder *d)
+{
+	//the picture given the hardware, all of it by one request, and waited
+	//for. No slices of it, nothing to give
+	Hv *hv = d->hv;
+	if (hv->slices.empty()) return false;
+	int req = -1;
+	if (hv_ioctl(hv->media, MEDIA_IOC_REQUEST_ALLOC, &req) < 0) return false;
+	bool ok = false;
+	v4l2_ext_control c[5];
+	memset(c, 0, sizeof(c));
+	unsigned n = 0;
+	c[n].id = V4L2_CID_STATELESS_HEVC_SPS, c[n].size = sizeof(hv->sps), c[n++].ptr = &hv->sps;
+	c[n].id = V4L2_CID_STATELESS_HEVC_PPS, c[n].size = sizeof(hv->pps), c[n++].ptr = &hv->pps;
+	c[n].id = V4L2_CID_STATELESS_HEVC_DECODE_PARAMS, c[n].size = sizeof(hv->decode), c[n++].ptr = &hv->decode;
+	c[n].id = V4L2_CID_STATELESS_HEVC_SLICE_PARAMS;
+	c[n].size = hv->slices.size() * sizeof(hv->slices[0]);
+	c[n++].ptr = hv->slices.data();
+	if (hv->has_lists) c[n].id = V4L2_CID_STATELESS_HEVC_SCALING_MATRIX, c[n].size = sizeof(hv->lists), c[n++].ptr = &hv->lists;
+	v4l2_ext_controls ctrls = {};
+	ctrls.which = V4L2_CTRL_WHICH_REQUEST_VAL;
+	ctrls.request_fd = req;
+	ctrls.count = n;
+	ctrls.controls = c;
+	v4l2_plane planes[2];
+	v4l2_buffer cap = {}, src = {};
+	memset(planes, 0, sizeof(planes));
+	cap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+	cap.memory = V4L2_MEMORY_MMAP;
+	cap.index = d->cur.surface;
+	cap.m.planes = planes;
+	cap.length = 2;
+	v4l2_plane in = {};
+	in.bytesused = hv->src_used;
+	src.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+	src.memory = V4L2_MEMORY_MMAP;
+	src.index = 0;
+	src.m.planes = &in;
+	src.length = 1;
+	src.flags = V4L2_BUF_FLAG_REQUEST_FD;
+	src.request_fd = req;
+	src.timestamp.tv_sec = hv->stamp / 1000000000;
+	src.timestamp.tv_usec = (hv->stamp % 1000000000) / 1000;
+	if (hv_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) == 0
+		&& hv_ioctl(hv->fd, VIDIOC_QBUF, &cap) == 0
+		&& hv_ioctl(hv->fd, VIDIOC_QBUF, &src) == 0
+		&& hv_ioctl(req, MEDIA_REQUEST_IOC_QUEUE, nullptr) == 0)
+	{
+		//a stuck decoder is not waited on for ever
+		pollfd wait = {req, POLLPRI, 0};
+		ok = poll(&wait, 1, 2000) > 0;
+		memset(&src, 0, sizeof(src));
+		memset(&in, 0, sizeof(in));
+		src.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+		src.memory = V4L2_MEMORY_MMAP;
+		src.m.planes = &in;
+		src.length = 1;
+		ok = hv_ioctl(hv->fd, VIDIOC_DQBUF, &src) == 0 && ok;
+		memset(&cap, 0, sizeof(cap));
+		memset(planes, 0, sizeof(planes));
+		cap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		cap.memory = V4L2_MEMORY_MMAP;
+		cap.m.planes = planes;
+		cap.length = 2;
+		ok = hv_ioctl(hv->fd, VIDIOC_DQBUF, &cap) == 0 && !(cap.flags & V4L2_BUF_FLAG_ERROR) && ok;
+	}
+	close(req);
+	//what is still queued of a picture that failed, or the next one fails
+	//too. The buffers stay, as do those it is made from
+	if (!ok)
+	{
+		int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
+		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		hv_ioctl(hv->fd, VIDIOC_STREAMON, &type);
+		type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
+		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		hv_ioctl(hv->fd, VIDIOC_STREAMON, &type);
+	}
+	return ok;
+}
+
+static bool hv_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t w, uint32_t h, int64_t shown)
+{
+	//the picture of a buffer held, from columns to rows, as NV12, or P010 of
+	//10 bits. Each plane is its columns one after another, each as high as
+	//its plane is long for the width it has
+	Hv *hv = d->hv;
+	auto &cap = hv->caps[surface];
+	//what is asked for is in the buffers, a crop that says otherwise is broken
+	if (!w || !h || x + w > hv->w || y + h > hv->h) return false;
+	Va_Held pic;
+	if (!d->spare.empty())
+	{
+		pic.data.swap(d->spare.back());
+		d->spare.pop_back();
+	}
+	uint32_t cw = (w + 1) / 2, ch = (h + 1) / 2, size = hv->ten ? 2 : 1;
+	pic.shown = shown;
+	pic.width = w;
+	pic.height = h;
+	pic.sx = pic.sy = 1;
+	pic.step = 2;
+	pic.bytes = size;
+	pic.y_pitch = w * size;
+	pic.c_pitch = cw * 2 * size;
+	pic.y_at = 0;
+	pic.u_at = (size_t)pic.y_pitch * h;
+	pic.v_at = pic.u_at + size;
+	pic.data.resize(pic.u_at + (size_t)pic.c_pitch * ch);
+	for (int p = 0; p < 2; p++)
+	{
+		uint32_t rows = p ? ch : h, top = p ? y / 2 : y, left = p ? x & ~1u : x, across = p ? cw * 2 : w;
+		size_t high = cap.size[p] / hv->line, per = hv->ten ? hv_col_10 : hv_col;
+		const uint8_t *from = (const uint8_t*)cap.at[p];
+		uint8_t *to = pic.data.data() + (p ? pic.u_at : 0);
+		size_t pitch = p ? pic.c_pitch : pic.y_pitch;
+		if (top + rows > high || (left + across + per - 1) / per * hv_col * high > cap.size[p]) return false;
+		for (uint32_t r = 0; r < rows; r++)
+		{
+			uint32_t at = left, done = 0;
+			uint8_t *row = to + r * pitch;
+			while (done < across)
+			{
+				size_t col = at / per, in = at % per, take = std::min<size_t>(per - in, across - done);
+				const uint8_t *src = from + col * hv_col * high + (size_t)(r + top) * hv_col;
+				if (!hv->ten) memcpy(row + done, src + in, take);
+				else
+				{
+					//all of it read the once, its memory is not cached
+					uint32_t words[hv_col / 4];
+					memcpy(words, src, hv_col);
+					auto out = (uint16_t*)row + done;
+					for (size_t i = 0; i < take; i++)
+					{
+						size_t n = in + i;
+						out[i] = ((words[n / 3] >> (n % 3 * 10)) & 0x3ff) << 6;
+					}
+				}
+				done += take;
+				at += take;
+			}
+		}
+	}
+	d->held.push_back(std::move(pic));
+	return true;
+}
+
+static void hv_close(Va_Decoder *d)
+{
+	Hv *hv = d->hv;
+	hv_stop(hv);
+	close(hv->fd);
+	close(hv->media);
+	delete hv;
+	d->hv = nullptr;
+}
+
+#else
+
+struct Hv {};
+static bool hv_find(Hv *hv) { return false; }
+static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id) { return false; }
+static int hv_begin(Va_Decoder *d, const Va_Hslice &s, const Va_Hsps &sp, const Va_Hpps &p, bool irap, bool idr,
+	const int *columns, const int *rows) { return -1; }
+static bool hv_slice(Va_Decoder *d, const Va_Hslice &s, const VASliceParameterBufferHEVC &param,
+	const uint8_t *nal, size_t n, int type, int tid) { return false; }
+static bool hv_end(Va_Decoder *d) { return false; }
+static bool hv_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t w, uint32_t h, int64_t shown) { return false; }
+static void hv_close(Va_Decoder *d) { delete d->hv; d->hv = nullptr; }
+
+#endif
+
 static int va_hstart(Va_Decoder *d, const Va_Hslice &s, int type, int tid)
 {
 	//a new picture: 1 if it is started, 0 if it is not to be decoded, -1
@@ -3070,12 +3652,19 @@ static int va_hstart(Va_Decoder *d, const Va_Hslice &s, int type, int tid)
 	for (int i = 0; i < p.rows; i++) tiles_ok &= rows[i] > 0;
 	if (!tiles_ok || p.init_qp < -6 * (sp.bit_depth_luma - 8) || p.diff_cu_qp_delta_depth > sp.log2_diff_cb
 		|| p.log2_parallel_merge_level > ctb) return -1;
-	VADisplay dpy = va_display();
-	VAProfile profile = sp.bit_depth_luma == 10 ? VAProfileHEVCMain10 : VAProfileHEVCMain;
-	if (profile != d->asked) d->chosen = va_has(dpy, d->asked = profile) ? profile : VAProfileNone;
-	if (d->chosen == VAProfileNone) return -1;
-	if (!va_setup(d, profile, sp.bit_depth_luma == 10 ? VA_RT_FORMAT_YUV420_10 : VA_RT_FORMAT_YUV420,
-		sp.width, sp.height, sp.max_dec_pic_buffering + 2)) return -1;
+	VADisplay dpy = d->hv ? nullptr : va_display();
+	if (d->hv)
+	{
+		if (!hv_setup(d, sp, p.sps_id)) return -1;
+	}
+	else
+	{
+		VAProfile profile = sp.bit_depth_luma == 10 ? VAProfileHEVCMain10 : VAProfileHEVCMain;
+		if (profile != d->asked) d->chosen = va_has(dpy, d->asked = profile) ? profile : VAProfileNone;
+		if (d->chosen == VAProfileNone) return -1;
+		if (!va_setup(d, profile, sp.bit_depth_luma == 10 ? VA_RT_FORMAT_YUV420_10 : VA_RT_FORMAT_YUV420,
+			sp.width, sp.height, sp.max_dec_pic_buffering + 2)) return -1;
+	}
 	//its order, by the last of the lowest sub-layer that is to be made from
 	int max_lsb = 1 << sp.log2_max_poc_lsb, msb = 0;
 	if (!irap || !d->no_rasl)
@@ -3150,6 +3739,7 @@ static int va_hstart(Va_Decoder *d, const Va_Hslice &s, int type, int tid)
 	d->hout = s.output;
 	d->primaries = sp.primaries;
 	d->transfer = sp.transfer;
+	if (d->hv) return hv_begin(d, s, sp, p, irap, idr, columns, rows);
 	auto pic = std::make_unique<VAPictureParameterBufferHEVC>();
 	memset(pic.get(), 0, sizeof(*pic));
 	pic->CurrPic.picture_id = d->surfaces[d->cur.surface];
@@ -3310,14 +3900,19 @@ static bool va_hfinish(Va_Decoder *d, int64_t shown)
 	//picture is, till the next says it is not
 	if (!d->started) return true;
 	d->started = false;
-	VADisplay dpy = va_display();
-	bool ok = va_hpend(d, true);
-	ok = ok && !d->slices.empty() && va::vaRenderPicture(dpy, d->context, d->slices.data(), d->slices.size()) == VA_STATUS_SUCCESS;
-	ok = va::vaEndPicture(dpy, d->context) == VA_STATUS_SUCCESS && ok;
-	d->slices.clear();
-	va_buffers_free(d);
+	bool ok;
+	if (d->hv) ok = hv_end(d);
+	else
+	{
+		VADisplay dpy = va_display();
+		ok = va_hpend(d, true);
+		ok = ok && !d->slices.empty() && va::vaRenderPicture(dpy, d->context, d->slices.data(), d->slices.size()) == VA_STATUS_SUCCESS;
+		ok = va::vaEndPicture(dpy, d->context) == VA_STATUS_SUCCESS && ok;
+		d->slices.clear();
+		va_buffers_free(d);
+	}
 	const Va_Hsps &sp = d->hpic_sps;
-	if (ok && d->hout) ok = va_read(d, d->cur.surface, sp.crop_left, sp.crop_top,
+	if (ok && d->hout) ok = (d->hv ? hv_read : va_read)(d, d->cur.surface, sp.crop_left, sp.crop_top,
 		sp.width - sp.crop_left - sp.crop_right, sp.height - sp.crop_top - sp.crop_bottom, shown);
 	Va_Ref r = {};
 	r.surface = d->cur.surface;
@@ -3432,6 +4027,11 @@ static int64_t va_h265_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 		param.slice_beta_offset_div2 = s.beta;
 		param.slice_tc_offset_div2 = s.tc;
 		param.five_minus_max_num_merge_cand = s.five_minus_max_merge;
+		if (d->hv)
+		{
+			if (!hv_slice(d, s, param, nal, n, type, tid)) ok = false;
+			continue;
+		}
 		//its data now, its parameters once it is known if it is the last
 		VABufferID id;
 		if (!va_hpend(d, false) || !va_buffer(d, VASliceDataBufferType, nal, n, id)) { ok = false; continue; }
@@ -3726,8 +4326,57 @@ static int64_t va_frame(Va_Decoder *d, uint32_t *pixels, uint64_t w, uint64_t h,
 	return got;
 }
 
+static Va_Decoder *hv_open(uint64_t codec, const uint8_t *setup, uint64_t len)
+{
+	//H.265 of 8 or 10 bits 4:2:0 by the V4L2 stateless decoder, if the machine has
+	//one, nullptr if not. Its parameter sets read now, its buffers made with
+	//the first picture
+	std::vector<const uint8_t*> sets;
+	std::vector<size_t> sizes;
+	int nal_length = 4;
+	if (codec != 0x68766331 || !video_hvcc(setup, len, sets, sizes, nal_length, true)) return nullptr;
+	auto hv = new Hv();
+	if (!hv_find(hv)) { delete hv; return nullptr; }
+	auto d = new Va_Decoder();
+	d->hv = hv;
+	d->hevc = true;
+	d->nal_length = nal_length;
+	d->hsps.resize(16);
+	d->hpps.resize(64);
+	for (size_t i = 0; i < sets.size(); i++)
+	{
+		if (sizes[i] < 2) continue;
+		va_rbsp(sets[i], sizes[i], d->rbsp);
+		int type = (sets[i][0] >> 1) & 63;
+		if (type == 33) va_hsps(d->rbsp, d->hsps);
+		else if (type == 34) va_hpps(d->rbsp, d->hpps);
+		else if (type == 39) va_hsei(d, d->rbsp);
+	}
+	bool ok = false;
+	for (auto &sp : d->hsps)
+	{
+		if (!sp.valid) continue;
+		ok = sp.bit_depth_luma == sp.bit_depth_chroma && (sp.bit_depth_luma == 8 || sp.bit_depth_luma == 10)
+			&& sp.chroma_format_idc == 1;
+		break;
+	}
+	if (!ok)
+	{
+		hv_close(d);
+		delete d;
+		return nullptr;
+	}
+	return d;
+}
+
 static void va_close(Va_Decoder *d)
 {
+	if (d->hv)
+	{
+		hv_close(d);
+		delete d;
+		return;
+	}
 	if (d->started)
 	{
 		va::vaEndPicture(va_display(), d->context);
@@ -3954,7 +4603,9 @@ uint64_t host_video_open(uint64_t codec, const uint8_t *setup, uint64_t len)
 	//only by VA-API
 	if (codec == 0x68766331)
 	{
+		//VA-API, a PC's, or the Pi's stateless decoder
 		auto va = va_open(codec, setup, len);
+		if (!va) va = hv_open(codec, setup, len);
 		if (!va) return 0;
 		auto d = new Video_Decoder();
 		d->va = va;
