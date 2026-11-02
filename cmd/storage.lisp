@@ -307,19 +307,19 @@
 							((print "Not put: " what))))))
 			(opt_g
 				(cond
-					((not (defq object (storage-stream name +file_open_read svc))) (print "No object " name))
 					((eql opt_g "-")
-						(while (defq part (read-blk object 65536)) (prin part))
-						(stream-flush (io-stream 'stdout))
-						(got-all object))
-					((defq host (file-stream opt_g +file_open_write) bytes 0)
-						(while (defq part (read-blk object 65536))
-							(write-blk host part)
-							(setq bytes (+ bytes (length part))))
-						(stream-flush host)
-						(print bytes " bytes to " opt_g)
-						(got-all object))
-					((print "No file " opt_g " to write."))))
+						(cond
+							((defq object (storage-stream name +file_open_read svc))
+								(while (defq part (read-blk object 65536)) (prin part))
+								(stream-flush (io-stream 'stdout))
+								(got-all object))
+							((print "No object " name))))
+					(:t (bind '(what bytes) (storage-get-file name opt_g svc))
+						(cond
+							((eql what :ok) (print bytes " bytes to " opt_g))
+							((eql what :none) (print "No object " name))
+							((eql what :host) (print "No file " opt_g " to write."))
+							((print "Error: not all of it, a block of it could not be had"))))))
 			((or opt_T opt_V)
 				;not the files of a folder of deps, nor one whose name begins with a dot
 				(defq files (filter (# (not (or (starts-with "./deps/" %0) (starts-with "." (last (split %0 "/"))))))
