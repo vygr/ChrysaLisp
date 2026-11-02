@@ -11,8 +11,8 @@
 (import "./door.inc")
 (import "./app.inc")
 
-(defun main ()
-	(defq msg (mail-read (task-mbox)) kind (slice msg 0 1) key (slice msg 1 33)
+(defun child-run (msg)
+	(defq kind (slice msg 0 1) key (slice msg 1 33)
 		what (slice msg 33 -1) handle 0 host "")
 	(when (= (length key) 32)
 		(cond
@@ -41,3 +41,7 @@
 			;is said to the Net service, mesh says it: not other traffic
 			(and (nempty? heard) (starts-with "CLDOOR" (first heard))
 				(net-refused (if (eql kind "A") "dialled-in" what) (first heard))))))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))

@@ -11,8 +11,8 @@
 
 (import "./door.inc")
 
-(defun main ()
-	(defq msg (mail-read (task-mbox)) key (slice msg 0 32)
+(defun child-run (msg)
+	(defq key (slice msg 0 32)
 		what (split (slice msg 32 -1) " ")
 		port (str-as-num (first what)) listener (net-listen port)
 		select (list (task-mbox)))
@@ -33,3 +33,7 @@
 							(net-close handle))))
 				(:t (task-sleep 10000))))
 		(task-count 1)))
+
+(defun main ()
+	;who started it may be gone before it says what is wanted
+	(if (defq said (mail-read-timeout (task-mbox) (task-timeout 10))) (child-run said)))
