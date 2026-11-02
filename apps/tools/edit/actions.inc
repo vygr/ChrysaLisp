@@ -214,5 +214,5 @@
 	select-word action-select-word action-insert context-words
 	macro-record config-load config-save find-count update-find-toolbar))
 (export-classes
-	'(Editor-edit))
+	'(Viewer-edit Editor-edit))
 (env-pop)

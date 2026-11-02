@@ -71,7 +71,8 @@
 ; main edit subclass
 ;;;;;;;;;;;;;;;;;;;;
 
-(defclass Editor-edit () (Edit)
+;the view of the text, of Edit, Viewer, Hexview and Terminal
+(defclass Viewer-edit () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :ink +argb_white)
 
@@ -92,15 +93,26 @@
 	(defmethod :mouse_move (event)
 		; (. vdu :mouse_move event) -> vdu
 		(.super this :mouse_move event)
-		(clear-matches)
 		(refresh) this)
 
 	(defmethod :mouse_wheel (event)
 		; (. vdu :mouse_wheel event) -> vdu
 		(.super this :mouse_wheel event)
-		(clear-matches)
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy) (. this :get_scroll))
 		(scatter meta :sx sx :sy sy)
 		(refresh-sliders) (refresh-display) this)
+	)
+
+;Edit's, which has a list of matches up to take down
+(defclass Editor-edit () (Viewer-edit)
+	(defmethod :mouse_move (event)
+		; (. vdu :mouse_move event) -> vdu
+		(clear-matches)
+		(.super this :mouse_move event))
+
+	(defmethod :mouse_wheel (event)
+		; (. vdu :mouse_wheel event) -> vdu
+		(clear-matches)
+		(.super this :mouse_wheel event))
 	)

@@ -4,55 +4,10 @@
 
 (import "././edit/ui.inc")
 
-(redefun action-scale-up ()
-	;scale font up
-	(defq old_size (get :zoom *window*)
-		new_size (min 1.5 (+ old_size 0.125)))
-	(when (/= old_size new_size)
-		(def *window* :zoom new_size)
-		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(set *vdu_lines* :font (get :font *edit*))
-		(.-> *scale_flow* :constrain :dirty_all)
-		(window-resize)))
-
-(redefun action-scale-down ()
-	;scale font down
-	(defq old_size (get :zoom *window*)
-		new_size (max 0.75 (- old_size 0.125)))
-	(when (/= old_size new_size)
-		(def *window* :zoom new_size)
-		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(set *vdu_lines* :font (get :font *edit*))
-		(.-> *scale_flow* :constrain :dirty_all)
-		(window-resize)))
-
 (redefun action-file-leaf-action ()
 	;load the file selected
 	(switch-file (defq file (. *file_selector* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
-
-(redefun action-whole-words ()
-	(setq *whole_words* (not *whole_words*))
-	(update-find-toolbar)
-	(refresh-display))
-
-(redefun action-ignore-case ()
-	(setq *ignore_case* (not *ignore_case*))
-	(update-find-toolbar)
-	(refresh-display))
-
-(redefun action-regexp ()
-	(setq *regexp* (not *regexp*))
-	(update-find-toolbar)
-	(refresh-display))
-
-(redefun action-region ()
-	(if (nql (. *edit* :get_focus) +invalid_focus)
-		(. *edit* :set_focus +invalid_focus)
-		(bind '(& sy & sy1) (. *edit* :get_cursors_extent))
-		(. *edit* :set_focus (nums 0 sy 0 sy1)))
-	(update-find-toolbar)
-	(refresh-display))
 
 (redefun action-pop ()
 	(when (defq pos (pop *cursor_stack*))
@@ -60,41 +15,5 @@
 		(when (/= 0 (age file))
 			;file exists
 			(switch-file file)
-			(. *edit* (:set_cursor cx cy))
+			(. *edit* :set_cursor cx cy)
 			(refresh))))
-
-;;;;;;;;;;;;;;;;;;;;
-; main edit subclass
-;;;;;;;;;;;;;;;;;;;;
-
-(defclass Viewer-edit () (Edit)
-	(def this :min_width +vdu_min_width :min_height +vdu_min_height
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :ink +argb_white)
-
-	(defmethod :mouse_down (event)
-		; (. vdu :mouse_down event) -> vdu
-		(.super this :mouse_down event)
-		(refresh) this)
-
-	(defmethod :mouse_up (event)
-		; (. vdu :mouse_up event) -> vdu
-		(.super this :mouse_up event)
-		(case (getf event +ev_msg_mouse_count)
-			(2 (action-select-word))
-			(3 (action-select-line))
-			(4 (action-select-paragraph)))
-		(refresh) this)
-
-	(defmethod :mouse_move (event)
-		; (. vdu :mouse_move event) -> vdu
-		(.super this :mouse_move event)
-		(refresh) this)
-
-	(defmethod :mouse_wheel (event)
-		; (. vdu :mouse_wheel event) -> vdu
-		(.super this :mouse_wheel event)
-		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
-		(bind '(sx sy) (. this :get_scroll))
-		(scatter meta :sx sx :sy sy)
-		(refresh-sliders) (refresh-display) this)
-	)
