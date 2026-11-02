@@ -38,7 +38,7 @@
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
 		(raise :font :text :cursor :anchor :label_text)
-		(when (and font text)
+		(when text
 			(defq offset (get :offset label_text))
 			(bind '(tw th) (font-glyph-bounds font (slice text 0 cursor)))
 			(when (/= cursor anchor)

@@ -91,6 +91,13 @@
 (assert-eq "and what it was given" 10 (def? :min_width th_sheet))
 (assert-true "what is in it is" (find th_in_sheet (. th_sheet :children)))
 (assert-eq "a form given nothing sets nothing" :nil (def? :flow_flags th_bare))
+;a look a widget needs is the user's or a form's, it has no default of its own.
+;With nothing above it to find one, a Text says so, it does not take up no room
+(defq th_alone (Text))
+(def th_alone :text "words")
+(assert-error "a Text with no font and nothing above it is a fault" (. th_alone :pref_size))
+(defq th_quiet (Text))
+(assert-list-eq "and one with no text has nothing to measure" '(0 0) (. th_quiet :pref_size))
 ;a default erased, it finds what is above it
 (ui-window th_x ()
 	(ui-flow th_f (:border 4)
