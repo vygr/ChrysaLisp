@@ -7,7 +7,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Services" (+sym_close +sym_max +sym_min) +event_close)
-	(ui-scroll info_scroll +scroll_flag_vertical (:font :font_terminal)
+	(ui-scroll info_scroll +scroll_flag_vertical (:font :font_terminal :min_height 128)
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Service" :paper +argb_white
@@ -25,7 +25,7 @@
 (defun resize (mh)
 	(bind '(w h) (. right_flow :get_size))
 	(setq h (min h mh))
-	(def info_scroll :min_width w :min_height h)
+	(def info_scroll :min_width w :want_height h)
 	(. *window* :fit))
 
 (defun populate ()
@@ -61,7 +61,7 @@
 	(populate)
 	;add window
 	(bind '(w h) (. right_flow :get_size))
-	(def info_scroll :min_width w :min_height h)
+	(def info_scroll :min_width w :want_height h)
 	(. *window* :show)
 	;app event loop
 	(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0)

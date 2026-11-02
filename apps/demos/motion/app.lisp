@@ -32,7 +32,7 @@
 			:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-backdrop *picture* (:style :plain :paper +argb_black :ink +argb_black
-			:min_width +width :min_height +height)
+			:min_width (/ +width 2) :min_height (/ +height 2) :want_width +width :want_height +height)
 		(ui-element *canvas* (make-canvas +width +height))))
 
 (defun frame-draw ()
@@ -103,8 +103,7 @@
 	(. *depth_toolbar* :set_selected 1)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(.-> *window* (:connect +event_layout) :show)
-	;from now on it can be half that, and keeps its shape
-	(def *picture* :min_width (/ +width 2) :min_height (/ +height 2))
+	;it keeps its shape
 	(def *window* :aspect_view *picture* :aspect (list +width +height))
 	(scene-new)
 	(setq last_t (pii-time) last_show last_t)

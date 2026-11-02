@@ -49,7 +49,7 @@
 	(view-variant symbol_grid :paper :paper_toolbar)
 	(bind '(w h) (. symbol_grid :pref_size))
 	(. symbol_grid :change 0 0 w h)
-	(def *symbol_scroll* :min_width w :min_height (min h 720))
+	(def *symbol_scroll* :min_width w :want_height (min h 720))
 	(. *symbol_scroll* :add_child symbol_grid)
 	(. *window* :fit))
 
@@ -62,7 +62,7 @@
 	(ui-title-bar *window_title* "" (+sym_close) +event_close)
 	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (+sym_open) +event_open))
-	(ui-scroll *symbol_scroll* +scroll_flag_vertical))
+	(ui-scroll *symbol_scroll* +scroll_flag_vertical (:min_height 128)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))

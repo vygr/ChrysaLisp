@@ -49,7 +49,7 @@
 		(ui-label _ (:text "odd_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(ui-spinner odd_spinner (:value 1 :maximum 2 :minimum 1)))
 	(ui-progress progress (:value 100 :maximum 100))
-	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
+	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 32 :min_height 32 :want_width 512 :want_height 256)))
 
 ;a PCB is drawn once and then only ever shown, so the pixmap of its
 ;canvas is freed once it is a texture. A file, or an object of the store,
@@ -58,20 +58,16 @@
 	(defq stream (name-whole-stream file))
 	(setq pcb_data (read-blk stream (ifn (name-size file) 0)) pcb (pcb-read pcb_data) *file* file)
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
-	(def pcb_scroll :min_width w :min_height h)
+	(def pcb_scroll :want_width w :want_height h)
 	(. *window_title* :set_text (cat "Pcb -> " (path-name file)))
 	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(def pcb_scroll :min_width 32 :min_height 32)
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun win-zoom ()
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
-	(def pcb_scroll :min_width w :min_height h)
+	(def pcb_scroll :want_width w :want_height h)
 	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(def pcb_scroll :min_width 32 :min_height 32)
-	(. *window* :change_dirty x y w h))
+	(. *window* :fit))
 
 (defun win-show ()
 	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale) :swap +swap_flag_free)) :layout))
@@ -133,8 +129,8 @@
 	(config-load)
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
-	(bind '(x y w h) (apply view-locate (. (win-load *file*) :get_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(win-load *file*)
+	(. *window* :show)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

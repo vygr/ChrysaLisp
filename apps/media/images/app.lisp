@@ -19,12 +19,10 @@
 	(when (defq new_canvas (canvas-load file +load_flag_free :nil (name-whole-stream file)))
 		(setq *canvas* new_canvas *file* file)
 		(bind '(w h) (. *canvas* :pref_size))
-		(def *image_scroll* :min_width w :min_height h)
+		(def *image_scroll* :want_width w :want_height h)
 		(. *window_title* :set_text (cat "Images -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
-		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-		(def *image_scroll* :min_width 128 :min_height 128)
-		(. *window* :change_dirty x y w h)))
+		(. *window* :fit)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -32,9 +30,8 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate
-		(. (win-refresh (cat *app_root* "data/background.cpm")) :get_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(win-refresh (cat *app_root* "data/background.cpm"))
+	(. *window* :show)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

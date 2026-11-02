@@ -256,7 +256,7 @@
 	(defmethod :show (&optional place)
 		; (. window :show [place]) -> window
 		;on the screen at the size it wants, where view-locate says
-		(bind '(w h) (. this :pref_size))
+		(bind '(w h) (. this :want_size))
 		(bind '(x y w h) (view-locate w h place))
 		(gui-add-front-rpc (. this :change x y w h))
 		this)
@@ -264,7 +264,7 @@
 	(defmethod :fit (&optional flag)
 		; (. window :fit [flag]) -> window
 		;the size it would have, where it is, as far as the screen lets it
-		(bind '(x y w h) (apply view-fit (cat (. this :get_pos) (. this :pref_size))))
+		(bind '(x y w h) (apply view-fit (cat (. this :get_pos) (. this :want_size))))
 		(. this :change_dirty x y w h flag))
 
 	(defmethod :tip (event)

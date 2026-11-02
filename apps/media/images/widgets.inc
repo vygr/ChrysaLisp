@@ -6,6 +6,6 @@
 	(ui-title-bar *window_title* "" (+sym_close +sym_max +sym_min) +event_close)
 	(ui-tool-bar *tools* ()
 		(ui-buttons (+sym_open) +event_open))
-	(ui-scroll *image_scroll* +scroll_flag_both))
+	(ui-scroll *image_scroll* +scroll_flag_both (:min_width 128 :min_height 128)))
 
 (ui-tool-tips *tools* '("open"))

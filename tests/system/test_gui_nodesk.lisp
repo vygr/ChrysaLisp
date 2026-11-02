@@ -69,6 +69,27 @@
 (assert-eq "it was called, and here we are" 2 nd_acted)
 (assert-eq "no action of that id is not" :nil (. nd_form :dispatch (nd_event 7003)))
 
+;a view says the least it may be and what it would like. A window opens at what is
+;wanted, and may be dragged down to the least
+(ui-window nd_ww (:min_width 10)
+	(ui-backdrop nd_wv (:min_width 32 :min_height 32 :want_width 400 :want_height 300))
+	(ui-vdu nd_wd (:vdu_width 8 :vdu_height 2 :want_width 20)))
+(bind '(nd_pw nd_ph) (. nd_ww :pref_size))
+(bind '(nd_ww2 nd_wh) (. nd_ww :want_size))
+(assert-true "what is wanted is more than the least" (and (> nd_ww2 nd_pw) (> nd_wh nd_ph)))
+(assert-eq "the least a view may be is as it was" 32 (get :min_width nd_wv))
+(assert-eq "one that had no least has none" :nil (def? :min_width nd_wd))
+(assert-list-eq "the least is measured as before" (list nd_pw nd_ph) (. nd_ww :pref_size))
+(. nd_ww :want_size)
+(assert-list-eq "and measuring what is wanted leaves it so" (list nd_pw nd_ph) (. nd_ww :get_constraint))
+(bind '(nd_cw nd_ch) (. nd_wd :char_size))
+(def nd_wv :want_width 0 :want_height 0)
+(def nd_wd :want_width 40)
+(bind '(nd_a _) (. nd_ww :want_size))
+(def nd_wd :want_width 41)
+(bind '(nd_b _) (. nd_ww :want_size))
+(assert-eq "a vdu wants characters, not pixels" nd_cw (- nd_b nd_a))
+
 ;a canvas has no paper, whatever is above it, as it is made by a form or not
 (ui-window nd_cw (:paper +argb_white) (ui-canvas nd_c 8 8 1))
 (assert-eq "a canvas has no paper" 0 (get :paper nd_c))

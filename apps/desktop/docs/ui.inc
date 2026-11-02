@@ -52,13 +52,12 @@
 	(setq *running* :nil))
 
 (redefun action-minimise ()
+	(def *page_scroll* :want_height 800)
 	(. *window* :fit))
 
 (redefun action-maximise ()
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y w (* h 2)))
-	(. *window* :change_dirty x y w h))
+	(def *page_scroll* :want_height 1600)
+	(. *window* :fit))
 
 (redefun action-scale-up ()
 	;scale font up

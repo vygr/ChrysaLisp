@@ -101,7 +101,7 @@
 				(filter (const Md?) (. page :children)) (list)))
 		(bind '(w h) (. page_flow :pref_size))
 		(. page_flow :change 0 0 w h)
-		(def *page_scroll* :min_width w)
+		(def *page_scroll* :want_width w)
 		(def (get :vslider *page_scroll*)
 			:value (if (defq pos (. scroll_pos :find file)) pos 0))
 		(.-> *page_scroll* (:add_child page_flow) :layout)
@@ -119,7 +119,7 @@
 	(.-> *file_selector* (:populate +doc_root +doc_types) :pref_size)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(config-load)
-	(def *page_scroll* :min_height 800)
+	(def *page_scroll* :want_height 800)
 	;pictures are shared by every reader on the node, from a cache. One
 	;that no reader is showing is let go of here, so a picture that was
 	;drawn again since, a diagram of make docs, is read again

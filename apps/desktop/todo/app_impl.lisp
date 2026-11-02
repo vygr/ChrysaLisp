@@ -31,7 +31,7 @@
 		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*)
 		max_childs_width 0 max_childs_height 0)
 	(each (lambda (scroll scroll_child)
-			(def scroll :min_width min_width :min_height min_height)
+			(def scroll :want_width min_width :want_height min_height)
 			(def scroll_child :min_width min_width :min_height min_height)
 			(bind '(w h) (. scroll_child :pref_size))
 			(setq max_childs_width (max max_childs_width w))

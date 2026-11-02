@@ -278,6 +278,12 @@ Key points:
 *	`(. *window* :show [place])` puts a window on the screen, and
 	`(. *window* :fit [flag])` gives it the size it wants where it is.
 
+*	`:min_width` and `:min_height` are the least a view may be, what a
+	drag is held to. `:want_width` and `:want_height` are what it would
+	like, which `:show` and `:fit` use, in the units of its `:min_width`,
+	characters on a Vdu. A scroll that is to open showing its child wants
+	the child's size. Do not set a minimum to measure and put it back.
+
 ## Advanced Patterns
 
 *	**Single instance per node.** Guard the import in `app.lisp` (see

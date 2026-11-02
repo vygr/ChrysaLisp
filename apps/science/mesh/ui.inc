@@ -22,9 +22,8 @@
 	(setq *dirty* :t))
 
 (defun set-size (size)
-	(def (defq parent (penv *main_widget*)) :min_width size :min_height size)
+	(def (penv *main_widget*) :want_width size :want_height size)
 	(. *window* :fit)
-	(def parent :min_width +min_size :min_height +min_size)
 	(set-canvas size))
 
 (defun action-minimise ()

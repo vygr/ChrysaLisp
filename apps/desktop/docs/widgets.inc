@@ -18,7 +18,7 @@
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow *doc_flow* (:flow_flags +flow_right_fill :paper :paper_toolbar)
 		(ui-files *file_selector* "Project" +event_file_folder_action :nil)
-		(ui-scroll *page_scroll* +scroll_flag_both)))
+		(ui-scroll *page_scroll* +scroll_flag_both (:min_width 128 :min_height 128))))
 
 (ui-tool-tips *find_toolbar*
 	'("whole words" "regexp" "ignore case" "find down" "find up"))

@@ -78,11 +78,8 @@
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
-	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(bind '(x y w h) (apply view-fit
-		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(. *window* :change_dirty x y w h)
+	(def *edit* :vdu_width w :vdu_height h :want_width w :want_height h)
+	(. *window* :fit)
 	(window-resize))
 
 ;import actions, bindings and app ui classes

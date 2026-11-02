@@ -14,9 +14,8 @@
 
 (defun set-size (size)
 	(setq canvas_size size *dirty* :t)
-	(def *main_widget* :min_width size :min_height size)
-	(. *window* :fit)
-	(def *main_widget* :min_width +min_size :min_height +min_size))
+	(def *main_widget* :want_width size :want_height size)
+	(. *window* :fit))
 
 (defun action-minimise ()
 	(set-size +min_size))

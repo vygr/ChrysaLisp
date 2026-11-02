@@ -170,13 +170,11 @@
 		(setq *sound* (sound-of reel))
 		(and *sound* *playing* (sound-start *sound* (frame-time *at*)))
 		(bind '(w h) (. *canvas* :pref_size))
-		(def *image_scroll* :min_width w :min_height h)
+		(def *image_scroll* :want_width w :want_height h)
 		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
 		(. *window_title* :set_text (cat "Films -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
-		(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-		(def *image_scroll* :min_width 128 :min_height 128)
-		(. *window* :change_dirty x y w h))))
+		(. *window* :fit))))
 
 (defun zoom (scale)
 	;the film at another scale, from the frame it is at. A codec that can
@@ -188,12 +186,10 @@
 			(setq *canvas* (. *codec* :find :canvas) *scale* scale)
 			(show *at*)
 			(bind '(w h) (. *canvas* :pref_size))
-			(def *image_scroll* :min_width w :min_height h)
+			(def *image_scroll* :want_width w :want_height h)
 			;the scroll lets go of the canvas it had as it is given the new one
 			(. *image_scroll* :add_child *canvas*)
-			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-			(def *image_scroll* :min_width 128 :min_height 128)
-			(. *window* :change_dirty x y w h))
+			(. *window* :fit))
 		((win-refresh *file* scale *at* *reel*))))
 
 (defun open-path (file)
@@ -248,10 +244,10 @@
 	;the window the size the film has made it
 	;the film shown last, where it was left, else Raymarch's. Its reel read
 	;the once, a film of two hours takes a second
-	(bind '(x y w h) (apply view-locate (. (if (and *last* (defq reel (reel-open *last* (name-stream *last*))))
+	(if (and *last* (defq reel (reel-open *last* (name-stream *last*))))
 		(win-refresh *last* :nil :nil reel)
-		(win-refresh (cat *app_root* "data/raymarch.flm"))) :get_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+		(win-refresh (cat *app_root* "data/raymarch.flm")))
+	(. *window* :show)
 	(tick select)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))

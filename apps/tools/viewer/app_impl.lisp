@@ -83,8 +83,7 @@
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)
 		(:set_region_color +argb_grey3))
-	(def *edit* :min_width 0 :min_height 0
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+	(def *edit* :vdu_width +vdu_min_width :vdu_height +vdu_min_height
 		:font (create-font +edit_font (page-scale +edit_size)))
 	(set *vdu_lines* :font (get :font *edit*))
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -92,8 +91,7 @@
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-vdu *current_file*)
 	(action-minimise)
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(.-> *window* (:connect +event_layout) :show)
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))

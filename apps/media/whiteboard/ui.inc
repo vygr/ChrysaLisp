@@ -10,9 +10,8 @@
 	;or as much of that as the screen has. The paper is in the middle of
 	;what it shows, it always is
 	(bind '(cw ch) (canvas-size))
-	(def *image_scroll* :min_width (+ cw room room) :min_height (+ ch room room))
+	(def *image_scroll* :want_width (+ cw room room) :want_height (+ ch room room))
 	(. *window* :fit)
-	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	(.-> *image_scroll* :layout :dirty_all))
 
 (defun menus-renew ()
@@ -36,7 +35,7 @@
 		(defq doc (. *board* :get_doc))
 		(setq *full* (list (. *window* :get_bounds) (. doc :find :width) (. doc :find :height)))
 		;no bars, and it is to be the size of the screen
-		(def *image_scroll* :bare :t :min_width sw :min_height sh)
+		(def *image_scroll* :bare :t :want_width sw :want_height sh)
 		;the paper is the size of the screen as it is seen, turned or not
 		(if (= (logand *turn* 1) 1)
 			(.-> doc (:insert :width sh) (:insert :height sw))
@@ -48,11 +47,10 @@
 		(menus-renew)
 		;laid out at the size that makes it so, to find where the frame
 		;is in it, and put so the frame is at the corner of the screen
-		(bind '(w h) (. *window* :pref_size))
+		(bind '(w h) (. *window* :want_size))
 		(. *window* :change 0 0 w h)
 		(bind '(fx fy &ignore) (. *window* :get_relative *image_scroll*))
 		(. *window* :change_dirty (neg fx) (neg fy) w h)
-		(def *image_scroll* :min_width +min_width :min_height +min_height)
 		(board-resized)
 		(view-changed)
 		(if (empty? (palettes *board*)) (apply (const palette-float) (cat (list *board*) (view-middle))))))

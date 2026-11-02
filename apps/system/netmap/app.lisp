@@ -60,7 +60,8 @@
 				:connect +event_zrot)))
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font :font_body))
-		(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
+		(ui-backdrop _ (:style :plain :paper +argb_black :min_width +min_size :min_height +min_size
+				:want_width +size :want_height +size)
 			(ui-element *canvas* (Canvas +size +size +scale)))))
 
 (defun tooltips (mbox)
@@ -259,8 +260,6 @@
 	(. *window* :connect +event_layout)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *window* :show)
-	;it opens at its full size, and can then be made smaller
-	(def (penv *canvas*) :min_width +min_size :min_height +min_size)
 	(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 	(mail-timeout (elem-get select +select_poll_timer) 1 0)
 	(while id

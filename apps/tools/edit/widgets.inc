@@ -63,7 +63,7 @@
 					(ui-text _ (:text "fc: ")) (ui-text *fc* (:min_width +status_min_size)))
 				(ui-backdrop _))
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
-				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
+				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height +vdu_min_height
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
 						:ink +argb_grey12 :font (get :font_editor *env*)))
 				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))

@@ -269,6 +269,26 @@
 	; layouts
 	;;;;;;;;;
 
+	(defmethod :want_size ()
+		; (. view :want_size) -> (width height)
+		;the size it would like, those in it having said, :want_width and
+		;:want_height, in what their :min_width is in. They are measured at that,
+		;only for now, as :min_width and :min_height are the least a view may
+		;be, what the window can be dragged down to, and they stay so
+		(defq wanting (filter (# (or (def? :want_width %0) (def? :want_height %0))) (. this :flatten))
+			floors (map (# (list (def? :min_width %0) (def? :min_height %0))) wanting))
+		(each (lambda (view)
+				(if (defq w (def? :want_width view)) (def view :min_width w))
+				(if (defq h (def? :want_height view)) (def view :min_height h)))
+			wanting)
+		(bind '(w h) (. this :pref_size))
+		(each (lambda (view (mw mh))
+				(if mw (def view :min_width mw) (undef view :min_width))
+				(if mh (def view :min_height mh) (undef view :min_height)))
+			wanting floors)
+		(if (nempty? wanting) (. this :constraints))
+		(list w h))
+
 	(defmethod :constrain (&optional flag)
 		; (. view :constrain [flag]) -> view
 		(defq nodes (. this :flatten))

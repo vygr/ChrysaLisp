@@ -186,8 +186,7 @@
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)
 		(:set_region_color +argb_grey3))
-	(def *edit* :min_width 0 :min_height 0
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+	(def *edit* :vdu_width +vdu_min_width :vdu_height +vdu_min_height
 		:font (create-font +edit_font (page-scale +edit_size)))
 	(set *vdu_lines* :font (get :font *edit*))
 	(. *edit_flow* :add_back *edit*)
@@ -201,10 +200,7 @@
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
-	;the saved size is used, but not below the minimum size, which is
-	;what a drag is then held to, as it is after action-minimise
-	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_lines* :min_height +vdu_min_height)
+	;the saved size is used, but not below the minimum size
 	(bind '(w h) (. *window* :pref_size))
 	(bind '(x y w h) (view-fit *x* *y* (max w *width*) (max h *height*)))
 	(.-> *window* (:change x y w h) (:connect +event_layout))

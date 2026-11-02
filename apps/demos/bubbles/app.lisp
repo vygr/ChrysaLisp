@@ -42,7 +42,7 @@
 			:value 450 :min_width 128)) :connect +event_count))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width +width :min_height +height)
+			(:min_width +min_width :min_height +min_height :want_width +width :want_height +height)
 		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)
 			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))))
 
@@ -115,7 +115,6 @@
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
 	(. *window* :show)
-	(def *image_scroll* :min_width +min_width :min_height +min_height)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
@@ -164,12 +163,12 @@
 				(setq id :nil))
 			((= id +event_min)
 				;min button
+				(def *image_scroll* :want_width +min_width :want_height +min_height)
 				(. *window* :fit))
 			((= id +event_max)
 				;max button
-				(def *image_scroll* :min_width +width :min_height +height)
-				(. *window* :fit)
-				(def *image_scroll* :min_width +min_width :min_height +min_height))
+				(def *image_scroll* :want_width +width :want_height +height)
+				(. *window* :fit))
 			((= id +event_reset)
 				;new bubbles, another seed
 				(setq seed (logand (pii-time) 0xffffff)))
