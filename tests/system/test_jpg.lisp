@@ -31,5 +31,20 @@
 (defun tj-same (a b)
 	(and (defq ca (canvas-load a +load_flag_noswap)) (defq cb (canvas-load b +load_flag_noswap))
 		(eql (tj-pixels ca) (tj-pixels cb))))
+;a file with no codes of its own has the standard's. These two were made with
+;those, so with their DHT cut out they read the same
+(defun tj-no-dht (file)
+	; (tj-no-dht file) -> canvas | :nil
+	(defq data (load file) at 2 out (slice data 0 2))
+	(while (/= (code data 1 (inc at)) 0xda)
+		(defq len (+ 2 (<< (code data 1 (+ at 2)) 8) (code data 1 (+ at 3))))
+		(if (/= (code data 1 (inc at)) 0xc4) (setq out (cat out (slice data at (+ at len)))))
+		(setq at (+ at len)))
+	(JPG-load (string-stream (cat out (slice data at -1)))))
+(each (lambda (file)
+		(defq none (tj-no-dht file) with (canvas-load file +load_flag_noswap))
+		(assert-true (cat file " with no DHT reads the same") (and none (eql (tj-pixels none) (tj-pixels with)))))
+	'("tests/system/data/jpg_grey.jpg" "tests/system/data/jpg_420.jpg"))
+
 (assert-true "progressive grey, the pixels of the baseline" (tj-same "tests/system/data/jpg_grey_prog.jpg" "tests/system/data/jpg_grey.jpg"))
 (assert-true "progressive 4:2:0, the pixels of the baseline" (tj-same "tests/system/data/jpg_420_prog.jpg" "tests/system/data/jpg_420.jpg"))
