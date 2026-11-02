@@ -106,7 +106,7 @@
 			;not in symbol table so figure out what it is
 			(defq type_sym (sym (str %0 "_t")) type_str (get type_sym))
 			(cond
-				((find (first type_str) "0123456789")
+				((and type_str (find (first type_str) "0123456789"))
 					;struct/member
 					(compile-const %0))
 				(type_str

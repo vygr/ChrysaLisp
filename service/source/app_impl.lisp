@@ -40,14 +40,11 @@
 
 (defun source-hash (mode name)
 	; (source-hash mode name) -> :nil | hex
-	;none of a function this system did not build, one made as it ran, a
-	;kernel say. :nil is a symbol, (first :nil) would be ":", and every such
-	;function the same as every other
-	(if (defq known (source-known mode name)) (first known)))
+	(first (source-known mode name)))
 
 (defun source-links-of (mode name)
 	; (source-links-of mode name) -> (name ...)
-	(if (defq known (source-known mode name)) (second known)))
+	(second (source-known mode name)))
 
 (defun source-file-hash (path)
 	; (source-file-hash path) -> :nil | hex
