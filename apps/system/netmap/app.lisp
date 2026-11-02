@@ -61,7 +61,7 @@
 	(ui-flow _ (:flow_flags +flow_up_fill)
 		(ui-label *status* (:text "..." :font :font_body))
 		(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
-			(ui-element *canvas* (Canvas +size +size +scale) (:paper 0)))))
+			(ui-element *canvas* (Canvas +size +size +scale)))))
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)

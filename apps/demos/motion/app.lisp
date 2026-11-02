@@ -33,7 +33,7 @@
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-backdrop *picture* (:style :plain :paper +argb_black :ink +argb_black
 			:min_width +width :min_height +height)
-		(ui-element *canvas* (make-canvas +width +height) (:paper 0))))
+		(ui-element *canvas* (make-canvas +width +height))))
 
 (defun frame-draw ()
 	;the picture as it is now. What is round the canvas, as the window grows and

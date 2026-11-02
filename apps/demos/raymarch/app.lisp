@@ -42,7 +42,7 @@
 (ui-window *window* (:resizable :nil)
 	(ui-title-bar _ "Raymarch" (+sym_close) +event_close)
 	(ui-label *status* (:text "..." :font :font_body))
-	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
 
 (defun frame-inputs ()
 	;the inputs block for the frame, where the camera and the light are

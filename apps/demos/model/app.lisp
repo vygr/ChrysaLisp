@@ -71,7 +71,7 @@
 		(ui-backdrop _ (:paper :paper_toolbar)))
 	(ui-label *status* (:text "..." :font :font_body))
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
-		(ui-element *canvas* (Canvas +size +size 1) (:paper 0))))
+		(ui-element *canvas* (Canvas +size +size 1))))
 
 (ui-tool-tips *tools* '("open a model, an .obj or a .zip of one"))
 

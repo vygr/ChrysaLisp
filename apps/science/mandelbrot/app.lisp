@@ -67,7 +67,7 @@
 		(ui-label *status* (:text " x20000 deepest  10000.0 ms " :font :font_body
 			:flow_flags +flow_flag_align_vcenter))
 		(ui-backdrop _ (:paper :paper_toolbar)))
-	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))
 
 ;each palette's chip in its colour
 (each (lambda (button palette)

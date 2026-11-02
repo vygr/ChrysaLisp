@@ -58,7 +58,7 @@
 				:connect +event_zrot)))
 	(ui-backdrop *main_backdrop* (:style :plain :paper +argb_black :ink +argb_grey8
 			:min_width +min_size :min_height +min_size)
-		(ui-element *main_widget* (make-canvas canvas_size) (:paper 0))))
+		(ui-element *main_widget* (make-canvas canvas_size))))
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)

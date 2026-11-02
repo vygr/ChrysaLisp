@@ -30,7 +30,7 @@
 		(. (ui-slider *shapes* (:maximum (- +max_shapes +min_shapes) :portion 100
 			:value 180 :min_width 256)) :connect +event_shapes))
 	(ui-label *status* (:text "..." :font :font_body))
-	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1)) (:paper 0)))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1))))
 
 (defun shape-count ()
 	(+ +min_shapes (get :value *shapes*)))

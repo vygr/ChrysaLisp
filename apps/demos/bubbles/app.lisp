@@ -44,7 +44,7 @@
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
 		(ui-backdrop *backdrop* (:paper +argb_black :ink +argb_grey8)
-			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1)) (:paper 0)))))
+			(ui-element *canvas* (ifn shared_canvas (Canvas +width +height 1))))))
 
 (defun bubble-count ()
 	(+ +min_bubbles (get :value *count*)))

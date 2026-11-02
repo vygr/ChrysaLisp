@@ -57,6 +57,10 @@
 	(catch (progn (. nd_field :mouse_down nd_click) (. nd_field :mouse_move nd_click) (. nd_field :mouse_up nd_click) :ok) :threw))
 (assert-true "and its cursor is in the text it has" (<= (get :cursor nd_field) 7))
 
+;a canvas has no paper, whatever is above it, as it is made by a form or not
+(ui-window nd_cw (:paper +argb_white) (ui-canvas nd_c 8 8 1))
+(assert-eq "a canvas has no paper" 0 (get :paper nd_c))
+
 ;a label given a new text fits it to it, the same text is nothing to do
 (defq nd_laid 0)
 (defclass Nd-label () (Label)

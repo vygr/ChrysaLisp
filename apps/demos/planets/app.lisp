@@ -62,7 +62,7 @@
 	(ui-backdrop _ (:style :plain :paper +argb_black :min_width +size :min_height +size)
 		;its pixels are in shared memory if the host has it, the nodes of
 		;this machine then draw on them, a strip each
-		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)) (:paper 0))))
+		(ui-element *canvas* (ifn (canvas-shared +size +size 1) (Canvas +size +size 1)))))
 
 (defun globe-verts (segs rings)
 	; (globe-verts segs rings) -> reals

@@ -68,7 +68,7 @@
 		(. (ui-slider *count* (:maximum (- +max_opcodes +min_opcodes) :portion 30
 			:value 15 :min_width 256)) :connect +event_count))
 	(ui-label *status* (:text "..." :font :font_body))
-	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1)) (:paper 0)))
+	(ui-element *canvas* (ifn shared_canvas (Canvas +scene_width +scene_height 1))))
 
 (defun set-count ()
 	;as many opcodes as the slider says, the first of them stay

@@ -50,7 +50,7 @@
 	;the pixels of the canvas are in shared memory, the nodes of this
 	;machine draw their tiles straight onto them
 	(ui-element *canvas* (if shared_pixmap (Canvas-pixmap shared_pixmap)
-		(Canvas +width +height +scale)) (:paper 0)))
+		(Canvas +width +height +scale))))
 
 (defun control-value ((name type lo hi slider label val init))
 	;the value of the input, from where its slider is, and the

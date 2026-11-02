@@ -356,8 +356,6 @@
 
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
-	(ui-props p
-		:paper 0)
 	(static-qqp (ui-element ,n (Canvas ,w ,h ,s) ,p)))
 
 (defmacro ui-vdu (n &optional p)
