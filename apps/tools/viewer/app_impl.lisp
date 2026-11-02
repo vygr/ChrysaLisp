@@ -100,8 +100,7 @@
 		(cond
 			((= idx +select_tip)
 				;tip time mail
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
 				;key up event
 				)

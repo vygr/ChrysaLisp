@@ -40,8 +40,7 @@
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= idx +select_work)
 				(dispatch-action work-heard *msg*))
 			;a row of a side, its name or its open button

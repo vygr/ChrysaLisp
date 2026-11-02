@@ -105,8 +105,7 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 			(cond
 				((= idx +select_tip)
 					;tip event
-					(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-						(. view :show_tip)))
+					(. *window* :tip *msg*))
 				((= idx +select_timer)
 					;timer event, re-arm and do periodic work here
 					(mail-timeout (elem-get select +select_timer) +rate 0))
@@ -129,8 +128,8 @@ Key points:
 	`dispatch-action`. The final clause, `(. *window* :event *msg*)`,
 	handles everything else at the window level.
 
-*	`tip_mbox` receives hover-timeout messages from the GUI; look up
-	the hovered widget with `find_id` and call `:show_tip`.
+*	`tip_mbox` receives hover-timeout messages from the GUI; pass them
+	to `(. *window* :tip *msg*)`, which shows that widget's tip.
 
 *	The window is registered with the GUI compositor via
 	`gui-add-front-rpc` and unregistered on exit with `gui-sub-rpc`.

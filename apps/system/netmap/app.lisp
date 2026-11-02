@@ -289,8 +289,7 @@
 					(push poll_que child)))
 			(+select_reply (node-heard msg))
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(+select_poll_timer
 				(mail-timeout (elem-get select +select_poll_timer) +poll_rate 0)
 				(. global_tasks :refresh +retry_timeout)

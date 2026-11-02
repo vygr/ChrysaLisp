@@ -594,8 +594,7 @@
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			(+select_heartbeat
 				(mail-timeout (elem-get select +select_heartbeat) +heartbeat_us 0)
 				(when *connected* (send-heartbeat))

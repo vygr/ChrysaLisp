@@ -256,8 +256,7 @@
 		(cond
 			((= idx 1)
 				;what a place is, its path
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((eql *msg* "")
 				(setq *running* :nil))
 			;a row of the drawer, or a place

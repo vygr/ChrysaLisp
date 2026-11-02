@@ -285,8 +285,7 @@
 			  id (getf msg +ev_msg_target_id))
 		(case idx
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(+select_main
 				(cond
 					((= id +event_close)

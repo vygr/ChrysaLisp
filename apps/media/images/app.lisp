@@ -43,8 +43,7 @@
 		(cond
 			((= idx +select_tip)
 				;tip event
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= idx +select_picker)
 				;the picture taken, or "" none
 				(setq *picker* :nil)

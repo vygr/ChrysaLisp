@@ -247,6 +247,13 @@
 						(fnc target :action event)))))
 		this)
 
+	(defmethod :tip (event)
+		; (. window :tip event) -> window
+		;a view's time for showing its tip has come, the mail of its timer
+		(if (defq view (. this :find_id (getf event +mail_timeout_id)))
+			(. view :show_tip))
+		this)
+
 	(defmethod :dispatch (event)
 		; (. window :dispatch event) -> :t | :nil
 		; standard action and keyboard event dispatching

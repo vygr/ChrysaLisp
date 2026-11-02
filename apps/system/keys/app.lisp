@@ -151,8 +151,7 @@
 					((. *window* :event msg))))
 			(+select_tip
 				;what a button is for
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(+select_picker
 				;the file chosen, or "" closed
 				(mail-send *picker* "")

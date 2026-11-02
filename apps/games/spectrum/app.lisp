@@ -198,8 +198,7 @@
 					(draw))
 				(mail-timeout (elem-get select +select_timer) (max 2000 (- +rate (- (pii-time) start))) 0))
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= idx +select_picker)
 				;the game taken, or "" none
 				(setq *picker* :nil)

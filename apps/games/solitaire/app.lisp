@@ -213,8 +213,7 @@
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			((= (getf msg +ev_msg_type) +ev_type_action)
 				(dispatch-action (getf msg +ev_msg_target_id)))
 			((. *window* :event msg))))

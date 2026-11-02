@@ -306,8 +306,7 @@
 			(+select_task
 				(. jobs :launched msg))
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(+select_reply
 				;a square is done, one of an old picture is left alone. A child
 				;saying it has gone is shorter than an answer, (:answered) has it

@@ -59,8 +59,7 @@
 					((and (= id +event_smaller) (= (getf msg +ev_msg_type) +ev_type_action)) (zoom -1))
 					((. *window* :event msg))))
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(+select_timer
 				(look)
 				(mail-timeout (elem-get select +select_timer) +tick 0))))

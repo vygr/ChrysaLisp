@@ -82,8 +82,7 @@
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			((= idx +select_child_reply)
 				; Received a new benchmark result from the child
 				(defq duration (str-as-num msg))

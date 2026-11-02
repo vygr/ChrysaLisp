@@ -130,8 +130,7 @@
 						(def stage :ros_focus (if (= (. *depth_toolbar* :get_selected) 1) +focus)))
 					((. *window* :event msg))))
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			(:t ;a frame, the next one a frame from when this one started
 				(defq start (pii-time))
 				(frame)

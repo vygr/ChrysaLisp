@@ -147,8 +147,7 @@
 		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(cond
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip msg))
 			;must be +select_main !
 			((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 				(setq running :nil))

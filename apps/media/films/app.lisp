@@ -261,8 +261,7 @@
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= idx +select_timer) (tick select))
 			((= idx +select_picker)
 				;the film taken, or "" none, its path in the field

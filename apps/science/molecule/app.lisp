@@ -279,8 +279,7 @@
 		(cond
 			((= idx +select_tip)
 				;tip event
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)

@@ -338,8 +338,7 @@
 				(mail-timeout (elem-get select +select_timer) 0 0)
 				(mail-timeout (elem-get select +select_timer) next_interval 0))
 			(+select_tip
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			(+select_main
 				(defq id (getf *msg* +ev_msg_target_id))
 				(cond

@@ -160,8 +160,7 @@
 									(str frame_drawn) " drawn over the slices")))))))
 			((= idx +select_tip)
 				;tip time mail
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id :nil))
 			((= id +event_min)

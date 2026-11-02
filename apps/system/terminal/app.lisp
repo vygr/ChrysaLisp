@@ -123,8 +123,7 @@
 				(setq *margin_x* *cursor_x*))
 			((= idx +select_tip)
 				;tip time mail
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
+				(. *window* :tip *msg*))
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	;nobody is left to read what it says
