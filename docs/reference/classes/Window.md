@@ -48,6 +48,14 @@ standard action and keyboard event dispatching
 (. window :event event) -> window
 ```
 
+### :fit
+
+```code
+(. window :fit [flag]) -> window
+
+the size it would have, where it is, as far as the screen lets it
+```
+
 ### :layout
 
 ```code
@@ -66,6 +74,14 @@ standard action and keyboard event dispatching
 (. window :mouse_move event) -> window
 ```
 
+### :show
+
+```code
+(. window :show [place]) -> window
+
+on the screen at the size it wants, where view-locate says
+```
+
 ### :theme
 
 ```code
@@ -81,5 +97,13 @@ the user's *env* has the theme's fonts, the screen has them already,
 and each view given a variant finds it again, (view-resolve). One
 given a font of the theme by hand, not by its variant, is found by
 which font it is
+```
+
+### :tip
+
+```code
+(. window :tip event) -> window
+
+a view's time for showing its tip has come, the mail of its timer
 ```
 

@@ -328,3 +328,14 @@ draws of it and the views in it kept, their :draw not run
 (. view :trans_dirty rx ry) -> view
 ```
 
+### :want_size
+
+```code
+(. view :want_size) -> (width height)
+
+the size it would like, those in it having said, :want_width and
+:want_height, in what their :min_width is in. They are measured at that,
+only for now, as :min_width and :min_height are the least a view may
+be, what the window can be dragged down to, and they stay so
+```
+

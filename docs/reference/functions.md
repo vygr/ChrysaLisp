@@ -15263,6 +15263,15 @@ a turn not running on from the one before: the other way, or bigger
 what takes a turn over view, the nearest up with a :mouse_wheel, else it
 ```
 
+### window-action
+
+```code
+(window-action func [arg ...]) -> val | :t
+
+an action of an app that says nothing of its own, (dispatch-action): an
+error is printed, and the app goes on
+```
+
 ### window-aspect
 
 ```code
