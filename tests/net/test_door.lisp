@@ -84,17 +84,21 @@
 (defun dr-meet (key code &optional wait)
 	;what the listener made of a connection, and what the child did, (listener
 	;child), through or not, and in dr_said all they said. The listener waits
-	;as long as it takes unless given a wait
-	(dr-dial code)
-	;the child is a task that starts and imports before it dials, which on
-	;a Pi with the suite beside it has taken over 3s
-	(defq until (+ (pii-time) dr_long) handle 0)
-	(while (and (<= handle 0) (< (pii-time) until))
-		(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
-	(defq mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait dr_long) (setq dr_heard (list))) :nil)) "none")
-		theirs (ifn (mail-read-timeout dr_reply dr_long) "silent"))
-	(if (> handle 0) (net-close handle))
-	(setq dr_said (list mine theirs))
+	;as long as it takes unless given a wait. With no listener another suite
+	;has the port: a dial would be its listener's to answer, and spoil its
+	;test, and nothing would come here to wait for
+	(setq dr_said '("none" "none"))
+	(when (> dr_listener 0)
+		(dr-dial code)
+		;the child is a task that starts and imports before it dials, which on
+		;a Pi with the suite beside it has taken over 3s
+		(defq until (+ (pii-time) dr_long) handle 0)
+		(while (and (<= handle 0) (< (pii-time) until))
+			(if (/= 0 (logand (net-poll dr_listener) 1)) (setq handle (net-accept dr_listener)) (task-sleep 5000)))
+		(defq mine (if (> handle 0) (dr-said (catch (door-shake handle key :nil :nil (ifn wait dr_long) (setq dr_heard (list))) :nil)) "none")
+			theirs (ifn (mail-read-timeout dr_reply dr_long) "silent"))
+		(if (> handle 0) (net-close handle))
+		(setq dr_said (list mine theirs)))
 	(map (# (slice %0 0 (min 3 (length %0)))) dr_said))
 
 (assert-list-eq "the same key, both ends are through" '("yes" "yes")
