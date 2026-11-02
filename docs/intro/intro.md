@@ -88,6 +88,17 @@ sudo apt-get install libva2 libva-drm2 vainfo
    these, Films decodes as it did, by V4L2 on a Raspberry Pi. MP3 and the
    other sounds are ChrysaLisp's own decoders and need nothing.
 
+5. Optional, **libavcodec**, FFmpeg's decoders on the CPU, so that Films
+   plays the AVIs of Xvid and DivX, MPEG-4 Part 2 and DivX 3, which no PC's
+   graphics decodes, and H.264, H.265 and Motion JPEG where neither VA-API
+   nor V4L2 can. As with VA-API, nothing is needed to build it, and it is
+   used only if it is there. Most desktops have it already, with FFmpeg or
+   GStreamer's `gstreamer1.0-libav`; else:
+
+| Ubuntu and Debian | Fedora | Arch |
+|---|---|---|
+| `libavcodec62` (or the version the release has, `apt-cache search libavcodec`) | `libavcodec-free` | `ffmpeg` |
+
 ### Windows (64-bit)
 
 1. **Build Environment**: A C++ compiler is needed if you plan to build the host 

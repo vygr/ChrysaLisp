@@ -145,6 +145,10 @@ older Mac or Pi, and for what each gives you.
     that name, shows what a machine can decode. Without them Films is as it
     was, see `docs/intro/intro.md`.
 
+  * Optional, the AVIs of Xvid and DivX, and films no hardware decodes, by
+    FFmpeg's `libavcodec` on the CPU: nothing to build it, and most desktops
+    have it already; else `libavcodec62` or the version the release has.
+
 * **Windows**:
 
   * Nothing to install, `install.bat` fetches `SDL3.dll`.
