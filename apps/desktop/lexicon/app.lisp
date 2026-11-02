@@ -260,8 +260,7 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips header_bar '("" "" "lookup word" "random word" "" ""))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
+	(. *window* :show)
 	(select-word *current_word* (elem-get select +select_worker) (elem-get select +select_trash))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))

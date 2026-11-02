@@ -251,14 +251,14 @@
 			((= *sim_offset_sec* 0) "")
 			((> *sim_offset_sec* 0) (cat " [+" (str (/ *sim_offset_sec* 3600)) "h]"))
 			(:t (cat " [" (str (/ *sim_offset_sec* 3600)) "h]"))))
-	(def *utc_time_label* :text (cat utc_str sim_note))
-	(def *btn_play* :text (if *animating* "Pause" "Play"))
+	(. *utc_time_label* :set_text (cat utc_str sim_note))
+	(. *btn_play* :set_text (if *animating* "Pause" "Play"))
 
 	; Solar Ephemeris
 	(bind '(sun_lon_deg sun_lat_deg eot_min season) (solar-ephemeris now_sec))
-	(def *subsolar_label* :text (cat "Sun Zenith: " (format-geo-coord sun_lat_deg :t) " "
+	(. *subsolar_label* :set_text (cat "Sun Zenith: " (format-geo-coord sun_lat_deg :t) " "
 		(format-geo-coord sun_lon_deg :nil) " (EoT " (str (n2i (floor (+ eot_min 0.5)))) "m)"))
-	(def *season_label* :text (cat "Season: " season))
+	(. *season_label* :set_text (cat "Season: " season))
 
 	; Selected City Details
 	(bind '(cname ccountry clat clon coff) (elem-get *cities* *selected_city_id*))
@@ -269,31 +269,31 @@
 		is_day (> elev 0.0)
 		elev_int (n2i (floor (+ (abs elev) 0.5)))
 		elev_str (if (>= elev 0.0) (cat "+" (str elev_int)) (cat "-" (str elev_int))))
-	(def *hero_city* :text (cat cname ", " ccountry " (" local_time_str ")"))
-	(def *hero_status_badge* :text (if is_day
-			(cat "Daylight (" elev_str "o)")
-			(cat "Night (" elev_str "o)"))
-		:paper (if is_day 0xff00e676 0xff253a5c)
+	(. *hero_city* :set_text (cat cname ", " ccountry " (" local_time_str ")"))
+	(def (. *hero_status_badge* :dirty) :paper (if is_day 0xff00e676 0xff253a5c)
 		:ink (if is_day +argb_black +argb_white))
+	(. *hero_status_badge* :set_text (if is_day
+		(cat "Daylight (" elev_str "o)")
+		(cat "Night (" elev_str "o)")))
 
 	; Solar Times for Selected City
 	(bind '(sunrise_utc noon_utc sunset_utc day_len state)
 		(solar-times clat clon sun_lat_deg eot_min))
 	(cond
 		((eql state :polar_day)
-			(def *hero_times* :text "Midnight Sun - 24h Daylight")
-			(def *hero_day_len* :text "Day: 24h 00m"))
+			(. *hero_times* :set_text "Midnight Sun - 24h Daylight")
+			(. *hero_day_len* :set_text "Day: 24h 00m"))
 		((eql state :polar_night)
-			(def *hero_times* :text "Polar Night - 24h Darkness")
-			(def *hero_day_len* :text "Day: 0h 00m"))
+			(. *hero_times* :set_text "Polar Night - 24h Darkness")
+			(. *hero_day_len* :set_text "Day: 0h 00m"))
 		(:t
 			(defq sunrise_local (+ sunrise_utc coff)
 				noon_local (+ noon_utc coff)
 				sunset_local (+ sunset_utc coff))
-			(def *hero_times* :text (cat "Rise " (format-hours sunrise_local)
+			(. *hero_times* :set_text (cat "Rise " (format-hours sunrise_local)
 				"  Noon " (format-hours noon_local)
 				"  Set " (format-hours sunset_local)))
-			(def *hero_day_len* :text (cat "Day: " (format-duration day_len)))))
+			(. *hero_day_len* :set_text (cat "Day: " (format-duration day_len)))))
 
 	; Map Canvas
 	(render-world-map *map_canvas* now_sec *canvas_width* *canvas_height*)
@@ -309,10 +309,8 @@
 		(defq day? (daylight? la lo sun_lat_deg sun_lon_deg)
 			badge (if day? "Day " "Night ")
 			btn (elem-get btns i))
-		(def btn :text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
-		(range 0 6))
-
-	(. *window* :fit :t))
+		(. btn :set_text (cat badge cn " " (pad h 2 "0") ":" (pad m 2 "0"))))
+		(range 0 6)))
 
 (defun main ()
 	(config-load)
@@ -320,9 +318,9 @@
 		tick_interval 1000000) ; 1 second normal tick
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *time_bar* '("step back 1 day" "step back 1 hour" "jump to now" "step forward 1 hour" "step forward 1 day" "animate daylight"))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (.-> *window* (:change x y w h :t) :dirty_all))
+	;what it shows first, so the window is the size for it
 	(update-ui)
+	(. *window* :show)
 	(mail-timeout (elem-get select +select_timer) tick_interval 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
