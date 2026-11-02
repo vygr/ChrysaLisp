@@ -96,8 +96,9 @@
 	; (view-resolve view) -> view
 	;each view of it, it too, given a variant for a plain property has the
 	;variant's value, found from where it is. Which variant it was is
-	;kept, :variants, so a new theme or user can be found again by it
-	(each (lambda (v)
+	;kept, :variants, so a new theme or user can be found again by it. Those
+	;above first, a composite says what a role is for those in it
+	(reach (lambda (v)
 			(defq kept (ifn (def? :variants v) (list)))
 			(each (lambda (key)
 					(and (defq val (def? key v)) (sym? val) (starts-with (cat (str key) "_") (str val))
@@ -151,10 +152,16 @@
 		(if p (partition p 2) '()))
 	;a variant given for a plain property, (:paper :paper_toolbar), is the
 	;user's, (get :paper_toolbar *env*), as the view is made, and which it
-	;was is kept, :variants, for a theme to find it again, (view-resolve)
+	;was is kept, :variants, for a theme to find it again, (view-resolve).
+	;So is one given for a variant, (:border_button :border_title_buttons): a
+	;composite saying what a role is for those in it, which they find from
+	;where they are
 	(defq kept (list))
 	(each (lambda (s v)
-			(when (and (find s +variant_keys) (sym? v) (starts-with (cat (str s) "_") (str v)))
+			(when (and (sym? v) (some (lambda (plain)
+						(and (or (eql s plain) (starts-with (cat (str plain) "_") (str s)))
+							(starts-with (cat (str plain) "_") (str v))))
+					+variant_keys))
 				(elem-set pv (!) (list 'get v '*env*))
 				(push kept s v)))
 		ps pv)
@@ -270,7 +277,7 @@
 	(ui-props p
 		:flow_flags +flow_left_fill
 		:paper :paper_title
-		:border :border_title_buttons
+		:border_button :border_title_buttons
 		:font :font_title_buttons)
 	(static-qqp (ui-flow _ ,p
 		(ui-buttons ,b ,e)

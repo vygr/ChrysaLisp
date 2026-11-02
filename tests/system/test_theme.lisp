@@ -53,3 +53,31 @@
 (assert-true "the event does it" (eql (get :font th_bar) (create-font "fonts/Symbols-Light.ctf" 28)))
 (assert-true "the smallest symbols are the bold font, whatever the theme"
 	(eql (get :font_tiny_symbol *env*) (create-font "fonts/Symbols-Bold.ctf" 10)))
+
+;a composite says what a role is for those in it. A button names :border_button,
+;its title bar says that is :border_title_buttons, and a button of a bar finds
+;that from where it is, one beside it what the user has. A value no other has, so
+;it is seen where it went, and as a new one is had when it is found again
+(defq th_b_was (get :border_button *env*) th_t_was (get :border_title_buttons *env*))
+(defun th-borders (button title)
+	;the user's, in *env* for what is made, on the root for what finds it
+	(def *env* :border_button button :border_title_buttons title)
+	(def (env-root) :border_button button :border_title_buttons title))
+(th-borders 2 7)
+(ui-window th_w ()
+	(ui-title-bar th_tb "x" (+sym_close) +event_close)
+	(ui-button th_plain (:text "y")))
+(defq th_in_bar (ui-find th_w :type "Button"))
+(assert-eq "a button of a title bar has what the bar says it is" 7 (get :border th_in_bar))
+(assert-eq "and one beside it what the user has" 2 (get :border th_plain))
+(assert-eq "the bar has no border of its own to hand down" :nil (def? :border (penv th_in_bar)))
+(th-borders 3 5)
+(view-resolve th_w)
+(assert-eq "changed, it is found again from where it is, the bar first" 5 (get :border th_in_bar))
+(assert-eq "and the one beside it" 3 (get :border th_plain))
+;a default erased, it finds what is above it
+(ui-window th_x ()
+	(ui-flow th_f (:border 4)
+		(ui-button th_e (:text "z" :border :erase))))
+(assert-eq "a default erased, it finds what is above it" 4 (get :border th_e))
+(th-borders th_b_was th_t_was)
