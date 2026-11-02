@@ -3,13 +3,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun set-canvas (size)
+	;a new size of picture, a canvas of that size. It is drawn before it is put
+	;on show, the old one stays till then, or what is behind them is seen. Its
+	;pixels may be shared, and are let go of
 	(defq parent (penv *main_widget*))
-	(. *main_widget* :sub)
-	(setq *main_widget* (make-canvas size) canvas_size size *dirty* :t)
+	(unless (= size canvas_size)
+		(defq old *main_widget*)
+		(setq *main_widget* (make-canvas size) canvas_size size)
+		(. *main_widget* :set_canvas_flags +canvas_mode)
+		(frame-now)
+		(.-> old :sub :free)
+		(. parent :add_child *main_widget*))
+	;the same picture still fills what it is in, that may be a new size. And drawn
+	;again now it is laid out, if nothing is turning there is no next frame
 	(bind '(w h) (. parent :get_size))
-	(. parent :add_child *main_widget*)
-	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:change 0 0 w h))
-	(. *window* :layout))
+	(. *main_widget* :change 0 0 w h)
+	(. *window* :layout)
+	(setq *dirty* :t))
 
 (defun set-size (size)
 	(def (defq parent (penv *main_widget*)) :min_width size :min_height size)

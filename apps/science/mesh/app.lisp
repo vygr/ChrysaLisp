@@ -204,6 +204,24 @@
 			(.-> scene (:draw *main_widget* draws))
 			(. *main_widget* :swap +swap_write))))
 
+(defun frame-rotate ()
+	(. scene :set_rotation +real_0 +real_0 *rotz*)
+	(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children)))
+
+(defun frame-now ()
+	;a frame here and now, not by the farm, which answers later. By the GPU if
+	;it takes it, it may be busy, and if not on this node
+	(frame-rotate)
+	(setq *dirty* :nil)
+	(if *render_mode*
+		(progn
+			(defq draws (. scene :draws +left +right +top +bottom +near +far (* canvas_size canvas_scale)))
+			(unless (and (draw-faces-gpu draws) (not *dirty*))
+				(.-> scene (:draw *main_widget* draws))
+				(. *main_widget* :swap +swap_write)))
+		(. scene :render *main_widget* (* canvas_size canvas_scale)
+			+left +right +top +bottom +near +far :nil)))
+
 (defun main ()
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
@@ -268,8 +286,7 @@
 				;the next frame, if the last is not still out with the farm
 				(when (and *dirty* (not farming))
 					(setq *dirty* :nil)
-					(. scene :set_rotation +real_0 +real_0 *rotz*)
-					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
+					(frame-rotate)
 					(if *render_mode*
 						(draw-faces)
 						(. scene :render *main_widget* (* canvas_size canvas_scale)
