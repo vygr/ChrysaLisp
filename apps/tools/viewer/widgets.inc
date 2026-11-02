@@ -31,7 +31,7 @@
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-						:ink +argb_grey12 :font :font_editor))
+						:ink +argb_grey12 :font (get :font_editor *env*)))
 				(ui-backdrop _ (:paper (get :ink *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)

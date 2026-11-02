@@ -118,3 +118,17 @@
 		(ui-button th_e (:text "z" :border :erase))))
 (assert-eq "a default erased, it finds what is above it" 4 (get :border th_e))
 (th-borders th_b_was th_t_was)
+
+;a font an app makes for itself, by its zoom, is the app's. A new theme leaves it
+(bind '(th_ef th_es) (font-info (get :font_editor *env*)))
+(ui-root th_zw (Window) (:font :font_window :ink :ink_window :paper :paper_window
+		:border :border_window :shadow :shadow_window)
+	(ui-flow _ (:flow_flags +flow_down_fill)
+		(ui-element th_zv (Vdu) (:vdu_width 8 :vdu_height 2 :ink +argb_white
+			:font (get :font_editor *env*)))))
+(window-attach th_zw)
+(def th_zv :font (defq th_zf (create-font th_ef (+ th_es 4))))
+(. th_zw :theme "Bold")
+(assert-eq "a new theme leaves an app's own font" th_zf (get :font th_zv))
+(. th_zw :theme "Light")
+(assert-eq "and the next" th_zf (get :font th_zv))
