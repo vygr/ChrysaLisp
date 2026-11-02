@@ -247,7 +247,7 @@
 	(if (and *last* (defq reel (reel-open *last* (name-stream *last*))))
 		(win-refresh *last* :nil :nil reel)
 		(win-refresh (cat *app_root* "data/raymarch.flm")))
-	(. *window* :show)
+	(. *window* :open)
 	(tick select)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -301,4 +301,4 @@
 	(played-save)
 	(sound-stop *sound*)
 	(if *codec* (reel-close *codec*))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

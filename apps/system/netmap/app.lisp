@@ -259,7 +259,7 @@
 	(tooltips (elem-get select +select_tip))
 	(. *window* :connect +event_layout)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_frame_timer) +frame_rate 0)
 	(mail-timeout (elem-get select +select_poll_timer) 1 0)
 	(while id
@@ -314,4 +314,4 @@
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
 	(if gpu_shiny (canvas-shader-destroy gpu_shiny))
 	(if gpu_matte (canvas-shader-destroy gpu_matte))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

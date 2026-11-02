@@ -94,7 +94,7 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 	(defun main ()
 		(defq select (task-mboxes +select_size) *running* :t)
 		(def *window* :tip_mbox (elem-get select +select_tip))
-		(. *window* :show)
+		(. *window* :open)
 		(mail-timeout (elem-get select +select_timer) +rate 0)
 		(while *running*
 			(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -108,7 +108,7 @@ Reference apps: `apps/desktop/docs/` (good but simple),
 				;must be +select_main
 				((. *window* :dispatch *msg*))
 				((. *window* :event *msg*))))
-		(gui-sub-rpc *window*))
+		(. *window* :close))
 
 Key points:
 
@@ -129,10 +129,10 @@ Key points:
 *	`tip_mbox` receives hover-timeout messages from the GUI; pass them
 	to `(. *window* :tip *msg*)`, which shows that widget's tip.
 
-*	The window is registered with the GUI compositor via
-	`gui-add-front-rpc` and unregistered on exit with `gui-sub-rpc`.
+*	The window goes on the screen by `:open` and comes off on exit by
+	`:close`. A window that has placed itself opens with `:here`.
 
-*	Window placement: `:show` and `:fit` do it for the size a window
+*	Window placement: `:open` and `:fit` do it for the size a window
 	wants. For another size, `view-locate` centers a window at the mouse,
 	and `view-fit` clamps an explicit position and size to the screen.
 
@@ -275,12 +275,12 @@ Key points:
 *	`(def (. *widget* :dirty) :prop val)` — the `:dirty` marker tells
 	the GUI to redraw that widget on the next frame.
 
-*	`(. *window* :show [place])` puts a window on the screen, and
+*	`(. *window* :open [place])` puts a window on the screen, and
 	`(. *window* :fit [flag])` gives it the size it wants where it is.
 
 *	`:min_width` and `:min_height` are the least a view may be, what a
 	drag is held to. `:want_width` and `:want_height` are what it would
-	like, which `:show` and `:fit` use, in the units of its `:min_width`,
+	like, which `:open` and `:fit` use, in the units of its `:min_width`,
 	characters on a Vdu. A scroll that is to open showing its child wants
 	the child's size. Do not set a minimum to measure and put it back.
 
@@ -566,7 +566,7 @@ A dump does not draw anything or handle events. To check those, open a real
 window from a `lisp -r` script under `./run.sh -n 1 -f` and let the user
 interact with it. A command's stdin stream has its own mailbox, so
 `(task-mbox)` is free in the `lisp` command's task. The GUI service sends
-events to the `(task-mbox)` of the task that called `gui-add-front-rpc`, so
+events to the `(task-mbox)` of the task that opened it, by `gui-add-front-rpc`, so
 a normal `(task-mboxes +select_size)` event loop works unchanged.
 
 Anything the script prints comes back on the host stdout, so the agent sees
@@ -588,7 +588,7 @@ what the user did. `tests/scratch/gui_probe.lisp`:
 		:connect +event_click))
 
 (defq select (task-mboxes +select_size) running :t)
-(. *window* :show)
+(. *window* :open)
 (mail-timeout (elem-get select +select_timer) 15000000 0)
 (while running
 	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -599,7 +599,7 @@ what the user did. `tests/scratch/gui_probe.lisp`:
 				(print "button clicked")
 				(stream-flush (io-stream 'stdout)))
 			(. *window* :event msg))))
-(gui-sub-rpc *window*)
+(. *window* :close)
 ```
 
 ```sh
@@ -633,7 +633,7 @@ echo 'lisp -r (import {tests/scratch/gui_probe.lisp})' | ./run.sh -n 1 -f
 	echo 'lisp -r ...' | perl -e 'alarm 30; exec @ARGV' ./run.sh -n 1 -f; ./stop.sh
 	```
 
-*	**Always `gui-sub-rpc` the window** before the script ends.
+*	**Always `:close` the window** before the script ends.
 
 ### Multi-Node: Run the GUI Code on the GUI Node
 

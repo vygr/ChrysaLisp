@@ -35,7 +35,7 @@
 
 (defun ask ()
 	;add centered
-	(gui-add-front-rpc *window*)
+	(. *window* :open :here)
 	(position-window)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
@@ -66,7 +66,7 @@
 					:nil)
 				(:t :t)))
 		((. *window* :event msg))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))
 
 (defun main ()
 	;a session that was started as some user's, run.sh -u name, has no one

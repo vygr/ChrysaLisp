@@ -125,7 +125,7 @@
 		*picker* :nil *picker_save* :nil *take_name* :nil *give_name* :nil)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(rows)
-	(. *window* :show)
+	(. *window* :open)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
@@ -164,4 +164,4 @@
 						(rows))
 					((say "No key in " msg "."))))))
 	(if *picker* (mail-send *picker* ""))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

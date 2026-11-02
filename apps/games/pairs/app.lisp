@@ -173,7 +173,7 @@
 	(defq select (task-mboxes +select_size))
 	(config-load)
 	(tooltips)
-	(. *window* :show)
+	(. *window* :open)
 	(update-view)
 
 	(while *running*
@@ -193,4 +193,4 @@
 			((. *window* :event msg))))
 
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

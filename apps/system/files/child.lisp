@@ -241,7 +241,7 @@
 			(go-to (if (folder? folder) folder "."))
 			(. *name* :set_text (name-last root))))
 	(preview-show (path-in *folder* (trim (. *name* :get_text))))
-	(. *window* :show)
+	(. *window* :open)
 	;the places and the sheet sized again now the window has its size
 	(places-show)
 	(go-to *folder*)
@@ -266,7 +266,7 @@
 			((. *window* :dispatch *msg*))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))
 
 (defun main ()
 	;its parent may be gone before it says what is wanted

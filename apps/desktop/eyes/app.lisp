@@ -110,7 +110,7 @@
 	; Position and display the window
 	(. *window* :set_pos x y)
 	(resize-window w h)
-	(gui-add-front-rpc *window*)
+	(. *window* :open :here)
 	(mail-timeout (elem-get select +select_timer) 1 0)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -137,4 +137,4 @@
 				(resize-window +max_width +max_height))
 			((. *window* :event msg))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

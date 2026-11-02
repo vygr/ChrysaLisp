@@ -264,7 +264,7 @@
 	(calls-refresh)
 	(call-show)
 	(call-watch (elem-get select +select_call))
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -331,4 +331,4 @@
 	(call-unwatch (elem-get select +select_call))
 	(if (call-in?) (call-put-away))
 	(mail-forget entry)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

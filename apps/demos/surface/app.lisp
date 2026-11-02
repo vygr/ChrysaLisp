@@ -178,7 +178,7 @@
 	(setq select (task-mboxes +select_size))
 	(make-controls)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *window* :show)
+	(. *window* :open)
 	(setq jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
 		gpu_shader (shader-gui program))
@@ -238,4 +238,4 @@
 	;close window and children
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. jobs :close)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

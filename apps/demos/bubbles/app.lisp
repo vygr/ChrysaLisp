@@ -114,7 +114,7 @@
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
-	(. *window* :show)
+	(. *window* :open)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
@@ -197,4 +197,4 @@
 			((. *window* :event *msg*))))
 	;close window and children
 	(. jobs :close)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

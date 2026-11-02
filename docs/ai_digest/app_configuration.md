@@ -172,7 +172,7 @@ The main application logic uses these functions to manage its state.
 	)
 	; 4. Save the final state on exit
 	(config-save)
-	(gui-sub-rpc *window*)
+	(. *window* :close)
 	...)
 ```
 

@@ -253,12 +253,21 @@
 						(fnc target :action event)))))
 		this)
 
-	(defmethod :show (&optional place)
-		; (. window :show [place]) -> window
-		;on the screen at the size it wants, where view-locate says
-		(bind '(w h) (. this :want_size))
-		(bind '(x y w h) (view-locate w h place))
-		(gui-add-front-rpc (. this :change x y w h))
+	(defmethod :open (&optional place)
+		; (. window :open [place]) -> window
+		;on the screen, at the front, the size it wants where view-locate says.
+		;One that has placed itself, a place of its own to go back to, says :here
+		(unless (eql place :here)
+			(bind '(w h) (. this :want_size))
+			(bind '(x y w h) (view-locate w h place))
+			(. this :change x y w h))
+		(gui-add-front-rpc this)
+		this)
+
+	(defmethod :close ()
+		; (. window :close) -> window
+		;off the screen, as :open put it on
+		(gui-sub-rpc this)
 		this)
 
 	(defmethod :fit (&optional flag)

@@ -264,7 +264,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *window* :show)
+	(. *window* :open)
 	;a GPU that could not take the kernel, the farm does it
 	(and gpu (not (gpu-init)) (setq gpu :nil has_gpu :nil))
 	(. *mode_toolbar* :set_selected (if gpu 1 0))
@@ -337,4 +337,4 @@
 	(if kernel (gpu-kernel-free kernel))
 	(if pal_buf (gpu-buffer-free pal_buf))
 	(if out_buf (gpu-buffer-free out_buf))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

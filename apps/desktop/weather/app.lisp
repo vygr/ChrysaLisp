@@ -271,7 +271,7 @@
 	(each (lambda (i)
 		(def (elem-get city_btns i) :text (elem-get *quick_cities* i)))
 		(range 0 6))
-	(. *window* :show)
+	(. *window* :open)
 	(render-weather-icon *icon_canvas* 116)
 	(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash) *city*)
 	(mail-timeout (elem-get select +select_timer) refresh_interval 0)
@@ -315,5 +315,5 @@
 							(config-save)))
 					((. *window* :event *msg*))))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))
 

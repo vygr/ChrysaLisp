@@ -130,7 +130,7 @@
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
 	(win-load *file*)
-	(. *window* :show)
+	(. *window* :open)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -161,4 +161,4 @@
 	(if *picker* (mail-send *picker* ""))
 	(stop-route)
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

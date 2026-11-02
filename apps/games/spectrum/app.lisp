@@ -174,7 +174,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(state-load)
 	(screen-new)
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -229,4 +229,4 @@
 	(setq *held* (list))
 	(keys)
 	(state-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

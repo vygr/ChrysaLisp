@@ -136,7 +136,7 @@
 	(build-ui)
 
 	; Position and show window
-	(. *window* :show (get :launcher_position *env*))
+	(. *window* :open (get :launcher_position *env*))
 
 	; Main Event Loop
 	(while running
@@ -162,4 +162,4 @@
 			((. *window* :event msg))))
 
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

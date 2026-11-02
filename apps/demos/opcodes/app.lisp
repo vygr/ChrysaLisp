@@ -189,7 +189,7 @@
 		(:set_flags +view_flag_opaque +view_flag_opaque)
 		(:swap +swap_write))
 	(set-count)
-	(. *window* :show)
+	(. *window* :open)
 	;the children are on the nodes of this machine, and no other. They draw
 	;on the pixels of the canvas, in shared memory, and a node of another
 	;machine, there is one when the machines are a mesh, can not reach them
@@ -243,4 +243,4 @@
 				(when (= (setq ticks (% (inc ticks) +slow_ticks)) 0)
 					(. jobs :refresh +retry_timeout)))))
 	(. jobs :close)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

@@ -86,7 +86,7 @@
 	(. *file_selector* :select_node file))
 
 (defun clear-matches ()
-	(if match_window (gui-sub-rpc match_window))
+	(if match_window (. match_window :close))
 	(setq match_window :nil match_flow :nil match_index -1))
 
 (defun show-matches ()
@@ -115,7 +115,8 @@
 			(if (> (+ x w) sw) (setq x (+ (- x w) cw)))
 			(if (> (+ y h) sh) (setq y (- y h ch)))
 			(. window :change x y w h)
-			(gui-add-front-rpc (setq match_flow flow match_window window)))))
+			(setq match_flow flow match_window window)
+			(. window :open :here))))
 
 (defun select-match (dir)
 	(when match_window
@@ -205,7 +206,7 @@
 	(bind '(x y w h) (view-fit *x* *y* (max w *width*) (max h *height*)))
 	(.-> *window* (:change x y w h) (:connect +event_layout))
 	(window-resize)
-	(gui-add-front-rpc *window*)
+	(. *window* :open :here)
 	(select-node *current_file*)
 	(refresh)
 	(while *running*
@@ -245,5 +246,5 @@
 		(update-meta-data))
 	(action-save-all)
 	(clear-matches)
-	(gui-sub-rpc *window*)
+	(. *window* :close)
 	(mail-forget edit_service))

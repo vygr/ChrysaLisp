@@ -16,6 +16,14 @@ docs/reference/classes/Window.cwb
 (. window :add_child child) -> window
 ```
 
+### :close
+
+```code
+(. window :close) -> window
+
+off the screen, as :open put it on
+```
+
 ### :constraint
 
 ```code
@@ -74,12 +82,13 @@ the size it would have, where it is, as far as the screen lets it
 (. window :mouse_move event) -> window
 ```
 
-### :show
+### :open
 
 ```code
-(. window :show [place]) -> window
+(. window :open [place]) -> window
 
-on the screen at the size it wants, where view-locate says
+on the screen, at the front, the size it wants where view-locate says.
+One that has placed itself, a place of its own to go back to, says :here
 ```
 
 ### :theme

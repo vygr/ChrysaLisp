@@ -21,7 +21,7 @@
 
 (defun main ()
 	;add centered
-	(gui-add-front-rpc *window*)
+	(. *window* :open :here)
 	(position-window)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_layout)
@@ -46,4 +46,4 @@
 			(task-sleep 200000)
 			(pii-exit))
 		((. *window* :event msg))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

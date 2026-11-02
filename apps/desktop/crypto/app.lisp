@@ -226,7 +226,7 @@
 		refresh_interval (* 60 1000000)) ; 60 seconds
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *ctrl_bar* '("refresh market data" ""))
-	(. *window* :show)
+	(. *window* :open)
 	(render-sparkline *chart_canvas* :nil "0")
 	(trigger-fetch (elem-get select +select_worker) (elem-get select +select_trash))
 	(mail-timeout (elem-get select +select_timer) refresh_interval 0)
@@ -261,5 +261,5 @@
 							(config-save)))
 					((. *window* :event *msg*))))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))
 

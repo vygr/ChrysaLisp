@@ -100,7 +100,7 @@
 	(load-wav-assets)
 	(config-load)
 	(window-resize)
-	(. *window* :show)
+	(. *window* :open)
 
 	; start game loop timer
 	(mail-timeout (elem-get select +select_timer) +rate 0)
@@ -224,4 +224,4 @@
 	(config-save)
 	(mail-forget game_service)
 	(unload-wav-assets)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

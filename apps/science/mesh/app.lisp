@@ -224,7 +224,7 @@
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap +swap_write))
 	(. *style_toolbar* :set_selected 0)
 	(. *gpu_toolbar* :set_selected (if *use_gpu* 1 0))
-	(. *window* :show)
+	(. *window* :open)
 	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		meshes (list) scene (create-scene meshes)
 		;the farm that draws the faces, a frame is out with it, it has
@@ -321,4 +321,4 @@
 	;what was kept on the GPU
 	(each (# (if %0 (canvas-mesh-destroy %0))) gpu_meshes)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

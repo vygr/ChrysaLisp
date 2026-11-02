@@ -584,7 +584,7 @@ Always define all functions with `defun` at the top level of your file.
 	(defun main ()
 		(defq select (task-mboxes +select_size) *running* :t)
 		; ... setup widgets / window ...
-		(gui-add-front-rpc *window*)
+		(. *window* :open :here)
 		(while *running*
 			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 			(cond
@@ -593,7 +593,7 @@ Always define all functions with `defun` at the top level of your file.
 						(setq *running* :nil)
 						(. *window* :event msg)))
 				(:t (. *window* :event msg))))
-		(gui-sub-rpc *window*))
+		(. *window* :close))
 
 ## NEVER Run GUI Code from TUI or Test Environment
 

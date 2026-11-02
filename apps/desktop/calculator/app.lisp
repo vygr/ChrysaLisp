@@ -278,7 +278,7 @@
 	(. base_bar :set_selected (find *base* '(10 16 2 8)))
 	(update-display)
 	(update-button-states)
-	(. *window* :show)
+	(. *window* :open)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select))))
 			  id (getf msg +ev_msg_target_id))
@@ -314,4 +314,4 @@
 							(. *window* :event msg)))
 					((. *window* :event msg))))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

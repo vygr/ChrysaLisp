@@ -73,7 +73,7 @@
 	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(win-refresh *file*)
-	(. *window* :show)
+	(. *window* :open)
 	(while id
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -97,4 +97,4 @@
 			((. *window* :event *msg*))))
 	;a picker still open goes with it
 	(if *picker* (mail-send *picker* ""))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

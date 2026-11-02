@@ -70,7 +70,7 @@
 	(layout-items *min_width* *min_height*)
 	(. *stack_flow* :show_tab 0)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(.-> *window* (:connect +event_layout) :show)
+	(.-> *window* (:connect +event_layout) :open)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -80,5 +80,5 @@
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
 	(config-save)
-	(gui-sub-rpc *window*)
+	(. *window* :close)
 	(mail-forget todo_service))

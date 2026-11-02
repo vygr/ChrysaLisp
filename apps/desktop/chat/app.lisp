@@ -587,7 +587,7 @@
 	(config-load)
 	(render-channel-list)
 	(render-chat-history)
-	(. *window* :show)
+	(. *window* :open)
 	(defq running :t)
 	(while running
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -678,4 +678,4 @@
 		(broadcast (cat "<" my_name "> Has left the chat !"))
 		(mail-forget *chat_entry*))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

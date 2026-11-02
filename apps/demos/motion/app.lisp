@@ -102,7 +102,7 @@
 	(. *scene_toolbar* :set_selected 0)
 	(. *depth_toolbar* :set_selected 1)
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(.-> *window* (:connect +event_layout) :show)
+	(.-> *window* (:connect +event_layout) :open)
 	;it keeps its shape
 	(def *window* :aspect_view *picture* :aspect (list +width +height))
 	(scene-new)
@@ -134,4 +134,4 @@
 				(frame)
 				(mail-timeout (elem-get select +select_timer)
 					(max 1000 (- +rate (- (pii-time) start))) 0))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

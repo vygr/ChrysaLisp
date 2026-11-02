@@ -34,7 +34,7 @@
 		*work* :nil *doing* :nil *plan* (list 0 0) *faults* 0 *delete* :nil)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(stores-start)
-	(. *window* :show)
+	(. *window* :open)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -50,4 +50,4 @@
 			;must be +select_main
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

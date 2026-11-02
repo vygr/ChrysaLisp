@@ -65,7 +65,7 @@
 	(each (# (def %0 :min_height 32)) *bar_list*)
 
 	; Position window
-	(. *window* :show)
+	(. *window* :open)
 
 	; Start the child benchmark task
 	(setq *child* (open-child (cat *app_root* "child.lisp") +kn_call_run))
@@ -119,4 +119,4 @@
 					(. *window* :event msg)))))
 	; Clean up and signal child to terminate
 	(if *child* (mail-send *child* ""))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

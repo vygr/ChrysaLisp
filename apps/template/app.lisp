@@ -20,7 +20,7 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -34,4 +34,4 @@
 			;must be +select_main
 			((. *window* :dispatch *msg*))
 			((. *window* :event *msg*))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

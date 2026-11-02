@@ -276,7 +276,7 @@
 	(. *model* :set_selected 0)
 	(if (model-load (cat *app_root* "data/cube.obj"))
 		(. *status* :set_text (cat name ", " (str triangles) " triangles, " (str (length parts)) " materials. Drag to turn, the wheel for nearer.")))
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -336,4 +336,4 @@
 	(if picker (mail-send picker ""))
 	(each (# (if (elem-get %0 4) (canvas-mesh-destroy (elem-get %0 4)))) parts)
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

@@ -131,7 +131,7 @@
 	(when *display*
 		(set *display* :text (view-digital-time (date))))
 	(bind '(w h) (. *window* :pref_size))
-	(gui-add-front-rpc (. *window* :change 0 0 w h))
+	(.-> *window* (:change 0 0 w h) (:open :here))
 	(mail-timeout (elem-get select +select_timer) (next-sec-delay) 0)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -148,4 +148,4 @@
 				(when *display*
 					(. *display* :set_text (view-digital-time (date)))))
 			(:t (. *window* :event msg))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

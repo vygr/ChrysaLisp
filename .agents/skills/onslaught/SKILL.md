@@ -431,9 +431,9 @@ ChrysaLisp compositor:
 	gives the peak stack use.
 
 	To exercise the `:draw` methods too, call `(config-load)` and
-	`(window-resize)`, add `*window*` with `gui-add-front-rpc`, run frames
+	`(window-resize)`, open `*window*` with `:open :here`, run frames
 	with `(update-frame)` and `(task-sleep 50000)` for a few seconds, then
-	`gui-sub-rpc`. Tell the user a window will appear.
+	`:close`. Tell the user a window will appear.
 
 	**Keep probes off the user's config.** `map-state-init` saves the
 	campaign with `config-save`, and a finished battle can save a demo. Add

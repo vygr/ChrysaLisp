@@ -1328,7 +1328,7 @@
 				(view-fit cx cy (max cw pw) (max ch ph)))
 			(apply view-locate (. *window* :pref_size))))
 	(bind '(x y w h) place)
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(.-> *window* (:change x y w h) (:open :here))
 	;it opens where the view was, or on the corner of the document, a
 	;little of what is round it showing
 	(.-> *image_scroll* :layout :dirty_all)
@@ -1399,5 +1399,5 @@
 	(catch (progn (full-window) (config-save)) (progn (prin _) (print) :t))
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(. *stripes* :close)
-	(gui-sub-rpc *window*)
+	(. *window* :close)
 	(if *committed* (. *committed* :free)))

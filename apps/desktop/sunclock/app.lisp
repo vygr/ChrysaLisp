@@ -320,7 +320,7 @@
 	(ui-tool-tips *time_bar* '("step back 1 day" "step back 1 hour" "jump to now" "step forward 1 hour" "step forward 1 day" "animate daylight"))
 	;what it shows first, so the window is the size for it
 	(update-ui)
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) tick_interval 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -365,4 +365,4 @@
 						(config-save))
 					((. *window* :event *msg*))))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

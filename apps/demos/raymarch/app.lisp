@@ -156,7 +156,7 @@
 (defun main ()
 	(setq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
-	(. *window* :show)
+	(. *window* :open)
 	(setq film (flm-open (file-stream +film_part +file_open_write) +film_bits)
 		jobs (Jobs +shader_tile_child
 			(elem-get select +select_task) (elem-get select +select_reply))
@@ -199,4 +199,4 @@
 	(film-drop)
 	(if gpu_shader (canvas-shader-destroy gpu_shader))
 	(. jobs :close)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

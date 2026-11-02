@@ -257,7 +257,7 @@
 		refresh_interval (* 300 1000000)) ; 5 minutes
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips header_bar '("" "" "refresh stories" ""))
-	(. *window* :show)
+	(. *window* :open)
 	(. *cat_bar* :set_selected (category-to-idx *selected_category*))
 	(render-loading-stories)
 	(trigger-fetch-feed *selected_category* (elem-get select +select_worker) (elem-get select +select_trash))
@@ -316,4 +316,4 @@
 						(select-story (- id +event_story_0) (elem-get select +select_worker) (elem-get select +select_trash)))
 					((. *window* :event *msg*))))))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

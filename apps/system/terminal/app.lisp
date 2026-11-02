@@ -99,7 +99,7 @@
 		:font (create-font +edit_font (page-scale +edit_size)))
 	(. *edit_flow* :add_back *edit*)
 	(def *window* :tip_mbox (elem-get *select* +select_tip))
-	(.-> *window* (:connect +event_layout) :show)
+	(.-> *window* (:connect +event_layout) :open)
 	(window-resize)
 	(action-insert (cat "ChrysaLisp Terminal" "\n" (get :terminal_prompt *env*)))
 	(defq *margin_x* *cursor_x*)
@@ -125,4 +125,4 @@
 	;nobody is left to read what it says
 	(if *pipe* (. *pipe* :abort))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

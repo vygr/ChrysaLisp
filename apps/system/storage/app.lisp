@@ -503,7 +503,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *log* :set_canvas_flags +canvas_flag_antialias)
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +tick 0)
 	;the store this system is a member of, as it is and then as it works,
 	;or of none, those of the other machines of the mesh, as a client: what
@@ -692,7 +692,7 @@
 							(*follow* (go-to (length (. *replay* :find :events))))
 							(:t (timeline) (draw))))))))
 	(config-save)
-	(gui-sub-rpc *window*)
+	(. *window* :close)
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(if *picker* (mail-send *picker* ""))
 	(if *run* (mail-send *run* "stop")))

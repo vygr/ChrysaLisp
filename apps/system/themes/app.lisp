@@ -39,7 +39,7 @@
 		(. *rows* :add_child row))
 		*themes*)
 	(show-current)
-	(. *window* :show)
+	(. *window* :open)
 	(defq id :t)
 	(while id
 		(defq msg (mail-read (task-mbox)))
@@ -54,4 +54,4 @@
 				(gui-theme-rpc name)
 				(show-current))
 			((. *window* :event msg))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

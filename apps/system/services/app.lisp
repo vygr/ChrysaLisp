@@ -62,7 +62,7 @@
 	;add window
 	(bind '(w h) (. right_flow :get_size))
 	(def info_scroll :min_width w :want_height h)
-	(. *window* :show)
+	(. *window* :open)
 	;app event loop
 	(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0)
 	(while id
@@ -84,4 +84,4 @@
 				(populate)
 				(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0))))
 	;close window
-	(gui-sub-rpc *window*))
+	(. *window* :close))

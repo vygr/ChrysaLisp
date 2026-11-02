@@ -5,7 +5,7 @@
 	:background 0
 	:style :plain
 	:grid 32
-	:next_id 57
+	:next_id 58
 	:items
 	((:list 1)
 		((:list 7)
@@ -164,7 +164,7 @@
 							:id
 							10
 							:items
-							((:list 42)
+							((:list 43)
 								((:list 11)
 									:shape
 									:id
@@ -752,7 +752,7 @@
 									:stroke
 									0
 									:text
-									:constraint
+									:close
 									:font_size
 									12
 									:pos
@@ -772,7 +772,7 @@
 									:stroke
 									0
 									:text
-									:dispatch
+									:constraint
 									:font_size
 									12
 									:pos
@@ -792,7 +792,7 @@
 									:stroke
 									0
 									:text
-									:drag_mode
+									:dispatch
 									:font_size
 									12
 									:pos
@@ -812,7 +812,7 @@
 									:stroke
 									0
 									:text
-									:draw
+									:drag_mode
 									:font_size
 									12
 									:pos
@@ -832,7 +832,7 @@
 									:stroke
 									0
 									:text
-									:event
+									:draw
 									:font_size
 									12
 									:pos
@@ -852,7 +852,7 @@
 									:stroke
 									0
 									:text
-									:fit
+									:event
 									:font_size
 									12
 									:pos
@@ -872,7 +872,7 @@
 									:stroke
 									0
 									:text
-									:layout
+									:fit
 									:font_size
 									12
 									:pos
@@ -892,7 +892,7 @@
 									:stroke
 									0
 									:text
-									:mouse_down
+									:layout
 									:font_size
 									12
 									:pos
@@ -912,7 +912,7 @@
 									:stroke
 									0
 									:text
-									:mouse_move
+									:mouse_down
 									:font_size
 									12
 									:pos
@@ -932,7 +932,7 @@
 									:stroke
 									0
 									:text
-									:show
+									:mouse_move
 									:font_size
 									12
 									:pos
@@ -952,7 +952,7 @@
 									:stroke
 									0
 									:text
-									:theme
+									:open
 									:font_size
 									12
 									:pos
@@ -972,13 +972,33 @@
 									:stroke
 									0
 									:text
-									:tip
+									:theme
 									:font_size
 									12
 									:pos
 									((:list 2)
 										96.25292
 										487.00000
+									)
+								)
+								((:list 15)
+									:shape
+									:id
+									57
+									:kind
+									:text
+									:fill
+									4280296488
+									:stroke
+									0
+									:text
+									:tip
+									:font_size
+									12
+									:pos
+									((:list 2)
+										96.25292
+										504.00000
 									)
 								)
 							)

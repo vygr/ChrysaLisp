@@ -94,7 +94,7 @@
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(display-board brd)
 	(setq farm (Farm create destroy 1))
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -178,4 +178,4 @@
 				(if farm (. farm :refresh (+ max_move_time 2000000))))))
 	(if farm (. farm :close))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

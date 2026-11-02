@@ -206,7 +206,7 @@
 	(defq select (task-mboxes +select_size))
 	(config-load)
 	(tooltips)
-	(. *window* :show)
+	(. *window* :open)
 
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -218,4 +218,4 @@
 			((. *window* :event msg))))
 
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

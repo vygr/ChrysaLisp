@@ -210,7 +210,7 @@
 	(.-> *canvas* (:fill +argb_black) (:swap +swap_write))
 	(. *planet* :set_selected 0)
 	(. *mode* :set_selected 1)
-	(. *window* :show)
+	(. *window* :open)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -281,4 +281,4 @@
 	(if farm (. farm :close))
 	(if gpu_mesh (canvas-mesh-destroy gpu_mesh))
 	(if gpu_pair (canvas-shader-destroy gpu_pair))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

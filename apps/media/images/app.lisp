@@ -31,7 +31,7 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(win-refresh (cat *app_root* "data/background.cpm"))
-	(. *window* :show)
+	(. *window* :open)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -46,4 +46,4 @@
 			((. *window* :event *msg*))))
 	;a picker still open goes with it
 	(if *picker* (mail-send *picker* ""))
-	(gui-sub-rpc *window*))
+	(. *window* :close))

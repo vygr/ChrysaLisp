@@ -61,7 +61,7 @@
 	(show-nodes)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
-	(gui-add-front-rpc (. *window* :change_dirty x y w h))
+	(.-> *window* (:change_dirty x y w h) (:open :here))
 	(mail-timeout (elem-get select +select_nodes) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -105,4 +105,4 @@
 				(clear poll_que))))
 	;close window and children
 	(. global_tasks :close)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

@@ -91,7 +91,7 @@
 	(. *file_selector* :populate "." +file_types 2)
 	(populate-vdu *current_file*)
 	(action-minimise)
-	(.-> *window* (:connect +event_layout) :show)
+	(.-> *window* (:connect +event_layout) :open)
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -107,4 +107,4 @@
 		;update meta data
 		(update-meta-data))
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

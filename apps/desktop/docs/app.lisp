@@ -127,7 +127,7 @@
 	(populate-page *current_file*)
 	(. *file_selector* :select_node *current_file*)
 	(setq *history* (list *current_file*) *history_idx* 0)
-	(. *window* :show)
+	(. *window* :open)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -148,4 +148,4 @@
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
 	(undef (penv) '*handler_env*)
 	(config-save)
-	(gui-sub-rpc *window*))
+	(. *window* :close))

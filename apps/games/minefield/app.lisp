@@ -129,7 +129,7 @@
 (defun main ()
 	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list)
 		first_click :t difficulty (list) game_grid :nil click_offset 4 game_over :nil mouse_down 0)
-	(. *window* :show)
+	(. *window* :open)
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_close)
 			:nil)
@@ -161,4 +161,4 @@
 				(/= 0 (getf msg +ev_msg_mouse_buttons))
 				(setq mouse_down (getf msg +ev_msg_mouse_buttons)))
 			(. *window* :event msg))))
-	(gui-sub-rpc *window*))
+	(. *window* :close))
