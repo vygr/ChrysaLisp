@@ -99,9 +99,9 @@
 
 (defun open-file (file)
 	;a game, a tape typed in as LOAD "" once the ROM is ready, or a snapshot
-	(defq data (load file) ext (path-ext file))
+	(defq data (load file) ext (path-ext file) wrong :nil)
 	(cond
-		((not data) (set *status* :text (cat file ": can not be read")))
+		((not data) (setq wrong (cat file ": can not be read")))
 		((find ext '(".tap" ".tzx"))
 			(setq *file* file *script* (list)
 				*tape* (list (if (eql ext ".tap") (zx-tap-blocks data) (zx-tzx-blocks data)) 0))
@@ -117,9 +117,10 @@
 			((eql ext ".z80") (zx-z80 *machine* data))
 			((eql ext ".sna") (zx-sna *machine* data)))
 			(setq *file* file *tape* :nil *script* (list)))
-		((set *status* :text (cat file ": not a snapshot of a 48K"))))
+		((setq wrong (cat file ": not a snapshot of a 48K"))))
 	(keys)
-	(say))
+	;what was wrong stays in the line till the next thing to say
+	(if wrong (. *status* :set_text wrong) (say)))
 
 (defun state-load ()
 	;where it was when closed: the zoom and sound, and the game and the
