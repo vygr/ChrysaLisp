@@ -177,3 +177,13 @@
 (ui-save md_out md_scroll)
 (assert-true "a page in a Scroll is saved without its children"
 	(and (nempty? (substr (str md_out) ":children_count")) (empty? (substr (str md_out) "[(file-stream) ]"))))
+
+;the preview of a markdown file in the Files app is on white paper: a page
+;is a flow, which draws no paper, so a backdrop behind it does
+(import "apps/system/files/preview.inc")
+(import "apps/system/files/previewers/markdown.inc")
+(defq md_pv (file-preview "docs/history/history.md" 212 212))
+(assert-true "a markdown preview is its page in front of white paper"
+	(and md_pv (Md? (first (. md_pv :children)))
+		(Backdrop? (defq md_pv_paper (second (. md_pv :children))))
+		(= (get :paper md_pv_paper) +argb_white)))
