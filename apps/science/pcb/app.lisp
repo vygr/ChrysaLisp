@@ -87,9 +87,8 @@
 
 (defun route ()
 	(stop-route)
-	;the bar the color of the theme again, till it ends short
-	(if (def? :paper progress) (undef progress :paper))
-	(. progress :dirty)
+	;the bar grey while it routes
+	(. (def progress :paper +argb_grey8) :dirty)
 	(mail-send (setq child (open-child (const (cat *app_root* "child.lisp")) +kn_call_run))
 		(setf-> (cat (str-alloc +pcb_job_size) pcb_data)
 			(+pcb_job_grid_res (get :value res_spinner))
@@ -148,8 +147,12 @@
 				;progress report mail
 				(bind '(total current state)
 					(getf-> *msg* +pcb_progress_total +pcb_progress_current +pcb_progress_state))
-				;red if it ended with nets not routed, or a fault the check found
-				(if (or (= state +pcb_state_short) (= state +pcb_state_drc)) (def progress :paper +argb_red))
+				;green if every net is routed and the check found no fault, red if
+				;it ended with nets not routed, or a fault, grey while it routes
+				(def progress :paper (cond
+					((= state +pcb_state_routed) +argb_green)
+					((or (= state +pcb_state_short) (= state +pcb_state_drc)) +argb_red)
+					(+argb_grey8)))
 				(set (. progress :dirty) :value current :maximum total))
 			;must be gui event to main mailbox
 			((. *window* :dispatch *msg*))
