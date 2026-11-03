@@ -904,12 +904,13 @@
 	;process that is still there has said it is its own. It says so, in
 	;a file beside the image, waits a moment, and looks again: of two
 	;that say so at once the last to write is what both read, so one of
-	;them goes on and the other does not
+	;them goes on and the other does not. Not if the note can not be
+	;written, the volume of the image not there, a stick taken out
 	(defq note (cat image ".member") me (str (pii-pid))
 		held (if (defq text (load note)) (trim text (const (char-class " \t\r\n"))) ""))
 	(cond
 		((and (nempty? held) (nql held me) (pii-alive (str-as-num held))) :nil)
-		(:t (save me note)
+		((eql (catch (save me note) :lost) me)
 			(task-sleep 50000)
 			(eql (if (defq text (load note)) (trim text (const (char-class " \t\r\n"))) "") me))))
 

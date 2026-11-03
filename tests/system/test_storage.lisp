@@ -364,6 +364,8 @@
 (assert-eq "one that a process that has gone had is nobody's, and is taken" :t (storage-claim sg_claim))
 (storage-unclaim sg_claim)
 (assert-eq "let go of, the note of it is gone" 0 (age (cat sg_claim ".member")))
+(assert-eq "one on a volume that is not there, a stick taken out, is not taken, and nothing thrown"
+	:nil (storage-claim "tests/system/test_storage.lisp/store/store.img"))
 
 ;how many keep a block: three, or as many members as there are
 (assert-eq "three are to keep a block: of five members three do, of two both, of one that one" "(3 2 1)"
