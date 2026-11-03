@@ -105,6 +105,11 @@
 	'("(3) progn: a (progn) round the else of an (if)")
 	(tt-check "progn" "(if a `(progn ~e))" "(if a `(progn b) `(progn c))" "(if a b 'x (progn c))" "(when a `(progn ,b))"
 		"(str `(if a b (progn c)))"))
+(assert-list-eq "scan: a ( beginning a line inside a form that opens a head read at the top, and one at the top that files-scan looks for that does not begin its line; not one of another head, one in a string, nor a (defq) at the top not beginning its line"
+	'("(2) scan: (defq) begins a line inside a form, (tree-read) of heads takes it for one at the top"
+		"(7) scan: (import) at the top does not begin its line, (tree-read) of heads does not see it")
+	(tt-check "scan" "(defun f ()" "(defq a 1)" "(bind '(x) y)" "	(print \q" "(defq b 2)\q)" "	a)"
+		" (import \qx.inc\q)" "	(defq c 3)"))
 (assert-list-eq "class: a string of characters not in order, given where a class is looked up; one in order, one of one, and a (char-class) are not"
 	(list "(2) class: \qba\q given to (bskip) is not in order, (char-class \qba\q)"
 		"(5) class: \q ;\\t\q given to (trim) is not in order, (char-class \q ;\\t\q)")

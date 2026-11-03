@@ -163,13 +163,11 @@
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
-    scan    a form at the top that (files-scan) looks for, an
-            (import), (include), (def-func), (def-method) or
-            a (gen-) of the assembler, that it does not see,
-            as it does not begin its line, or a ( that begins
-            a line inside a form, that it takes to be one. It
-            reads a line that begins with a ( as a form at the
-            top, as the source is laid out.
+    scan    a form at the top that does not begin its line,
+            or a ( that begins a line inside a form. A line
+            that begins with a ( is a form at the top, as the
+            source is laid out, to (tree-read) of heads, and
+            so to (files-scan), includes and make docs.
     override a (defun) or a (defmacro) of a name that every
             task has from root.inc, in a file root.inc does
             not import: the file is refused as it is read,
@@ -225,7 +223,11 @@
 ))
 
 (defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "glyph" "unbound" "scan" "override")
-	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
+	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789")
+	+char_class_opens (char-class "\q;{")
+	;the heads (tree-read) is given, by (files-scan), includes and make docs
+	+tree_heads (list quote (cat +scan_kinds '("defq" "defcvar" "defun" "defmacro" "enums" "bits"
+		"def-class" "structure" "def-struct"))))
 
 ;where a class of characters is, of what a function is given, from 1
 (defq *class_at* (scatter (Fmap 11) "bskip" 1 "bskipn" 1 "rbskip" 1 "rbskipn" 1
@@ -606,7 +608,7 @@
 			(cond
 				((eql head "env-push") (setq in :t region (list) exported (Fset 31) quoted_all :t))
 				((and in (eql head "env-pop"))
-					(and quoted_all (find "global" checks) (check-global file region exported))
+					(and quoted_all (pfindi checks "global") (check-global file region exported))
 					(when quoted_all
 						(defq own (Fset 31))
 						(each (lambda (k)
@@ -632,7 +634,7 @@
 												((defq nk (tree-form? next))
 													(defq nf (forms-of nk))
 													(and (nempty? nf) (eql (first (first nf)) :symbol) (third (first nf))))))
-											(and name (. own :find name) (find "unquote" checks)
+											(and name (. own :find name) (pfindi checks "unquote")
 												(found file n "unquote" "," name " in a backquote of the module, not exported, is looked for when the form is made, and is gone by then"))
 											;a (static-qq) is made as it is read, while the module is there
 											(and (defq sub (tree-form? n)) (not (tree-form? n "static-qq")) (not (tree-form? n "static-qqp"))
@@ -1364,29 +1366,44 @@
 			top)))
 
 (defun check-scan (file top)
-	;the forms at the top of the tree whose head (files-scan) looks for,
-	;an import or include of a string, against those it found, by kind
-	;and line
-	(defq tree_has (list) scan_has (map (# (cat (first %0) " " (str (second %0)))) (files-scan file)))
-	(each (lambda (node)
-			(and (defq kids (tree-form? node))
-				(> (length (defq forms (forms-of kids))) 1)
-				(eql (first (first forms)) :symbol)
-				(find (defq head (third (first forms))) +scan_kinds)
-				(or (not (find head '("import" "include")))
-					(find (first (second forms)) '(:string1 :string2)))
-				(push tree_has (cat head " " (str (second node))))))
-		top)
-	(each (lambda (entry)
-			(bind '(kind line) (split entry " "))
-			(found file (list :form (str-as-num line)) "scan"
-				"(" kind ") read by (files-scan) as a form at the top, it is not one: a ( that begins a line inside a form"))
-		(filter (# (not (find %0 tree_has))) scan_has))
-	(each (lambda (entry)
-			(bind '(kind line) (split entry " "))
-			(found file (list :form (str-as-num line)) "scan"
-				"(" kind ") at the top not seen by (files-scan): it does not begin its line"))
-		(filter (# (not (find %0 scan_has))) tree_has)))
+	;a form at the top that (files-scan) looks for begins its line, and a
+	;( that begins a line inside a form is not of a head (tree-read) is
+	;given: (files-scan) of the default heads, includes of what is
+	;defined, make docs of the structures, take a line that begins with a
+	;( to be a form at the top. A line's string state is read only when a
+	;" or { is before any ; on it, or it is in a string, as they read it
+	(defq starts (Fset 31) state :text todo (list top) seen (Fset 31))
+	(when (defq in (file-stream file))
+		(lines! (lambda (line)
+				(and (eql state :text) (eql (first line) "(") (. starts :insert (inc (!))))
+				(and (or (nql state :text)
+						(and (< (defq c (bskipn +char_class_opens line 0)) (length line))
+							(nql (elem-get line c) ";")))
+					(setq state (third (tokenize-line line state))))
+				:nil)
+			in))
+	;the first form that opens on a line is the one its ( begins
+	(while (defq nodes (pop todo))
+		(each (lambda (node)
+				(when (defq kids (tree-form? node))
+					(and (not (. seen :find (defq line (second node))))
+						(. seen :insert line)
+						(defq forms (forms-of kids))
+						(eql (first (first forms)) :symbol)
+						(find (third (first forms)) +tree_heads)
+						(cond
+							;a VP function's body is at the top, a (defq) of it too
+							((and (eql nodes top) (not (. starts :find line))
+									(find (third (first forms)) +scan_kinds))
+								(found file node "scan" "(" (third (first forms))
+									") at the top does not begin its line, (tree-read) of heads does not see it"))
+							;in VP a label begins its line, inside the function that
+							;makes it, lib/trans/x86_64.vp's (x64-body) say
+							((and (not (eql nodes top)) (. starts :find line) (not (ends-with ".vp" file)))
+								(found file node "scan" "(" (third (first forms))
+									") begins a line inside a form, (tree-read) of heads takes it for one at the top"))))
+					(push todo kids)))
+			nodes)))
 
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
@@ -1407,31 +1424,31 @@
 							(eql (third (first forms)) "defun") (eql (first (second forms)) :symbol)
 							(. *inner_defuns* :insert (third (second forms))))))
 					nodes))
-			(if (or (find "unquote" checks) (find "global" checks)) (check-unquote file top))
+			(if (or (pfindi checks "unquote") (pfindi checks "global")) (check-unquote file top))
 			;a file that stands by itself: a program, or a module
-			(and (find "unbound" checks) (not (ends-with ".vp" file)) (notany (# (starts-with %0 file)) +unbound_skip)
+			(and (pfindi checks "unbound") (not (ends-with ".vp" file)) (notany (# (starts-with %0 file)) +unbound_skip)
 				(or (ends-with ".lisp" file) (some (# (tree-form? %0 "env-push")) (forms-of top)))
 				(check-unbound file top))
-			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
-			(if (find "scan" checks) (check-scan file top))
-			(if (find "override" checks) (check-override file top))
-			(and (find "vpname" checks) (ends-with ".vp" file) (check-vpname file top))
+			(and (pfindi checks "self") (ends-with ".vp" file) (check-self file top))
+			(if (pfindi checks "scan") (check-scan file top))
+			(if (pfindi checks "override") (check-override file top))
+			(and (pfindi checks "vpname") (ends-with ".vp" file) (check-vpname file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so
-			(when (find "bracket" checks)
+			(when (pfindi checks "bracket")
 				(if (> (second whole) 0)
 					(push *found* (list 0 (cat file " (1) bracket: " (str (second whole)) " not closed by the end of the file"))))
 				(if (> (third whole) 0)
 					(push *found* (list 0 (cat file " (1) bracket: " (str (third whole)) " that close nothing")))))
 			;what the file can see of structures and constants, its own, what it
 			;imports at any depth, and what every task has from root.inc
-			(defq prov (when (and (find "struct" checks) (not (ends-with ".vp" file))
+			(defq prov (when (and (pfindi checks "struct") (not (ends-with ".vp" file))
 					;a module stands by itself, a part of a file, as an app's
 					;actions.inc, has what the file it is put in has
 					(some (# (tree-form? %0 "env-push")) (forms-of top)))
 				(bind '(p n &ignore) (provides-from (list file)))
 				(list (cat p (first (root-provides))) (cat n (second (root-provides))))))
-			(when (find "capture" checks)
+			(when (pfindi checks "capture")
 				;the functions of the files it imports, and its own after, which
 				;are the ones a name is had of if both have it
 				(each (lambda (path) (. (import-defuns path) :each (# (. *defuns* :insert %0 %1))))
@@ -1455,48 +1472,48 @@
 					;a name by itself, not in any form, at the top of a file: a
 					;bracket closed a form before its end, and what was to be
 					;the rest of it is now run by itself
-					(and (find "stray" checks) (eql nodes top) (eql (first node) :symbol) (not quoted) (not was)
+					(and (pfindi checks "stray") (eql nodes top) (eql (first node) :symbol) (not quoted) (not was)
 						(= 0 (bskip +char_class_quote (third node) 0))
 						(found file node "stray" "a name by itself at the top of the file, " (third node)
 							", was a form closed before its end ?"))
-					(if (find "zero" checks) (check-zero file node))
+					(if (pfindi checks "zero") (check-zero file node))
 					(when (defq kids (tree-form? node))
 						(push todo kids)
 						(defq forms (forms-of kids)
 							head (and (nempty? forms) (eql (first (first forms)) :symbol) (third (first forms))))
 						(when head
-							(if (find "progn" checks) (check-progn file forms head))
-							(if (find "class" checks) (check-class file forms head))
-							(if (find "shadow" checks) (check-shadow file forms head))
-							(and (find "const" checks) (eql head "defq") (check-const file kids))
-							(and (find "early" checks) (eql head "defq") (check-early file kids))
-							(and (find "made" checks) (eql head "defq") (check-made file kids))
-							(if (find "inner" checks) (check-inner file forms head))
-							(if (find "eqlist" checks) (check-eqlist file forms head))
-							(if (find "ignore" checks) (check-ignore file forms head))
-							(if (find "param" checks) (check-param file forms head))
-							(if (find "called" checks) (check-called file forms head))
-							(if (find "empty" checks) (check-empty file forms head))
-							(if (find "past" checks) (check-past file forms head))
-							(if (find "shift" checks) (check-shift file forms head))
-							(if (find "char" checks) (check-char file forms head))
-							(if (find "glyph" checks) (check-glyph file forms head))
-							(if (find "again" checks) (check-again file forms head))
-							(if (find "cut" checks) (check-cut file forms head))
-							(if (find "copy" checks) (check-copy file forms head))
-							(if (find "index" checks) (check-index file forms head))
-							(if (find "collect" checks) (check-collect file forms))
-							(if (find "reverse" checks) (check-reverse file forms head))
-							(if (find "width" checks) (check-width file forms head))
-							(if (find "style" checks) (check-style file node forms head))
-							(if (find "doc" checks) (check-doc file node forms head nodes at))
-							(and (find "enum" checks) (eql head "enums") (check-enum file node forms))
-							(if (find "capture" checks) (check-capture file forms head))
-							(if (find "held" checks) (check-held file forms head))
-							(if (find "args" checks) (check-args file forms head))
-							(and (find "args" checks) (eql head "#") (check-gap file node))
+							(if (pfindi checks "progn") (check-progn file forms head))
+							(if (pfindi checks "class") (check-class file forms head))
+							(if (pfindi checks "shadow") (check-shadow file forms head))
+							(and (pfindi checks "const") (eql head "defq") (check-const file kids))
+							(and (pfindi checks "early") (eql head "defq") (check-early file kids))
+							(and (pfindi checks "made") (eql head "defq") (check-made file kids))
+							(if (pfindi checks "inner") (check-inner file forms head))
+							(if (pfindi checks "eqlist") (check-eqlist file forms head))
+							(if (pfindi checks "ignore") (check-ignore file forms head))
+							(if (pfindi checks "param") (check-param file forms head))
+							(if (pfindi checks "called") (check-called file forms head))
+							(if (pfindi checks "empty") (check-empty file forms head))
+							(if (pfindi checks "past") (check-past file forms head))
+							(if (pfindi checks "shift") (check-shift file forms head))
+							(if (pfindi checks "char") (check-char file forms head))
+							(if (pfindi checks "glyph") (check-glyph file forms head))
+							(if (pfindi checks "again") (check-again file forms head))
+							(if (pfindi checks "cut") (check-cut file forms head))
+							(if (pfindi checks "copy") (check-copy file forms head))
+							(if (pfindi checks "index") (check-index file forms head))
+							(if (pfindi checks "collect") (check-collect file forms))
+							(if (pfindi checks "reverse") (check-reverse file forms head))
+							(if (pfindi checks "width") (check-width file forms head))
+							(if (pfindi checks "style") (check-style file node forms head))
+							(if (pfindi checks "doc") (check-doc file node forms head nodes at))
+							(and (pfindi checks "enum") (eql head "enums") (check-enum file node forms))
+							(if (pfindi checks "capture") (check-capture file forms head))
+							(if (pfindi checks "held") (check-held file forms head))
+							(if (pfindi checks "args") (check-args file forms head))
+							(and (pfindi checks "args") (eql head "#") (check-gap file node))
 							(and prov (find head '("getf" "setf" "setf->")) (check-struct file forms head prov))
-							(and (find "struct" checks) (eql head "structure") (check-root-struct file forms)))))
+							(and (pfindi checks "struct") (eql head "structure") (check-root-struct file forms)))))
 					nodes))
 			;in the order of the lines they are on
 			(each (lambda ((line text)) (unless (. off :find line) (print text)))
@@ -1507,7 +1524,9 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_j 1 opt_c :nil args (options stdio usage)))
-		(defq checks (if opt_c (filter (# (find %0 +check_names)) (split opt_c ",")) +check_names)
+		;a pset, each check's name is a string of the code, its str_hashslot
+		;says where it is after the first look
+		(defq checks (apply (const pset) (if opt_c (filter (# (find %0 +check_names)) (split opt_c ",")) (cat +check_names)))
 			;the names of the system, what a function, a macro or a form is
 			;bound to in the environment every task starts with
 			*root_names* (Fset 101) *root_macros* (Fset 31) *root_all* (Fset 101)
