@@ -511,9 +511,10 @@ media_aac_values, as aac-values reads them one code at a time
 ```code
 (aac-stereo left right l_lines r_lines tables)
 
-of a pair with a common window: M/S, L = M + S and R = M - S, and
-intensity, R the L of the band by its position, its sign by its book
-and by the M/S mask
+of a pair: M/S, L = M + S and R = M - S, sent only with a common
+window, :ms :nil without one; and intensity, R the L of the band by
+its position, its sign by its book and by the M/S mask, by the right's
+window, which is the left's when common
 ```
 
 ### aac-tables
