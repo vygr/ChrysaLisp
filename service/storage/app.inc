@@ -60,16 +60,27 @@
 				svc))
 		(mail-enquire (cat +storage_group ","))))
 
+(defun storage-there? (svc)
+	; (storage-there? svc) -> :nil | :t
+	;is the task of a service there still: one of this node can be asked,
+	;one of another only if its node is
+	(if (if (eql (task-nodeid svc) (task-nodeid)) (mail-validate svc) (find (task-nodeid svc) (lisp-nodes))) :t))
+
 (defun storage-ask (svc type &optional body wait)
 	; (storage-ask svc type [body wait]) -> :nil | answer
 	;one thing asked of a service, and what it says. :nil if it says
-	;nothing in the time, seconds. A new mailbox each time: an answer that
-	;comes late is to a mailbox nobody reads
+	;nothing in the time, seconds, or with :t, as long as it takes while
+	;the service is there: a sweep or a check of a big store is minutes.
+	;A new mailbox each time: an answer that comes late is to a mailbox
+	;nobody reads
 	(when svc
-		(defq mbox (mail-mbox))
+		(defq mbox (mail-mbox) answer :nil)
 		(mail-send svc (cat (setf-> (str-alloc +storage_rpc_size)
 			(+storage_rpc_reply_id mbox) (+storage_rpc_type type)) (ifn body "")))
-		(mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
+		(if (eql wait :t)
+			(until (or (setq answer (mail-read-timeout mbox (task-timeout 1))) (not (storage-there? svc))))
+			(setq answer (mail-read-timeout mbox (task-timeout (ifn wait +storage_wait)))))
+		answer))
 
 (defun storage-send (svc type &optional body)
 	; (storage-send svc type [body]) -> mbox
@@ -943,14 +954,16 @@
 
 (defun storage-sweep (&optional svc)
 	; (storage-sweep [svc]) -> :nil | num
-	;the blocks no object is made of are let go of, how many
-	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_sweep "" 60)) (str-as-num answer)))
+	;the blocks no object is made of are let go of, how many. Waited for
+	;while the service is there, it reads every folder of blocks
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_sweep "" :t)) (str-as-num answer)))
 
 (defun storage-check (&optional mend svc)
 	; (storage-check [mend svc]) -> :nil | (name ...)
 	;the blocks that are not what their names say, in hex. With mend they
-	;are let go of
-	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_check (if mend "mend" "") 120))
+	;are let go of. Waited for while the service is there, it reads every
+	;block it keeps
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_check (if mend "mend" "") :t))
 		(filter (const nempty?) (split answer +storage_lf))))
 
 (defun storage-start (image &rest opts)
@@ -987,7 +1000,7 @@
 	(defq opts (apply (const scatter) (cat (list (Emap)) opts)) name (ifn (. opts :find :name) +storage_name))
 	(cond
 		((storage-service name))
-		(:t (defq said (mail-mbox) here (task-nodeid) node (. opts :find :node)
+		(:t (defq said (mail-mbox) node (. opts :find :node)
 				task (if node (open-remote "service/storage/app.lisp" node +kn_call_pin)
 					(open-child "service/storage/app.lisp" +kn_call_pin)))
 			(when (/= 0 (get-long task 0))
@@ -997,16 +1010,13 @@
 					'(:size :id :block :force :group :member :tick :grace :copies))
 				(mail-send task (join lines +storage_lf))
 				(defq wait (ifn (. opts :find :wait) 30) answer :nil stop (. opts :find :stop))
-				;a task of this node can be asked if it is there, one of
-				;another only if its node is
 				(until (or (progn
 							(when (and stop (not (mail-poll (list said))) (mail-poll (list stop)))
 								(mail-send task "stop")
 								(setq stop :nil))
 							(setq answer (mail-read-timeout said (task-timeout (if (eql wait :t) 1 wait)))))
 					(nql wait :t)
-					(if (eql (task-nodeid task) here) (not (mail-validate task))
-						(not (find (task-nodeid task) (lisp-nodes))))))
+					(not (storage-there? task))))
 				;the task's mailbox is the service's. Its name, from another
 				;node, is known here a moment after, a second or more: it is
 				;waited for, a start that asks again by the name finds this

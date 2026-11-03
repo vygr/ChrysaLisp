@@ -11605,8 +11605,10 @@ stop a child
 (storage-ask svc type [body wait]) -> :nil | answer
 
 one thing asked of a service, and what it says. :nil if it says
-nothing in the time, seconds. A new mailbox each time: an answer that
-comes late is to a mailbox nobody reads
+nothing in the time, seconds, or with :t, as long as it takes while
+the service is there: a sweep or a check of a big store is minutes.
+A new mailbox each time: an answer that comes late is to a mailbox
+nobody reads
 ```
 
 ### storage-block
@@ -11644,7 +11646,8 @@ second till there is one, or for secs seconds
 (storage-check [mend svc]) -> :nil | (name ...)
 
 the blocks that are not what their names say, in hex. With mend they
-are let go of
+are let go of. Waited for while the service is there, it reads every
+block it keeps
 ```
 
 ### storage-claim
@@ -12457,7 +12460,17 @@ object"
 ```code
 (storage-sweep [svc]) -> :nil | num
 
-the blocks no object is made of are let go of, how many
+the blocks no object is made of are let go of, how many. Waited for
+while the service is there, it reads every folder of blocks
+```
+
+### storage-there?
+
+```code
+(storage-there? svc) -> :nil | :t
+
+is the task of a service there still: one of this node can be asked,
+one of another only if its node is
 ```
 
 ### storage-unclaim

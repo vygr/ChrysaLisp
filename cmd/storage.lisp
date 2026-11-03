@@ -200,8 +200,13 @@
 	;the members have it, who wrote it, its path
 	(bind '(name hash bytes vv writer seen deleted copies) entry)
 	(print (pad (str bytes) 12) " " (pad (str (store-vv-total vv)) 4) " "
-		(pad (cat (str (length (filter (# (find %0 members)) seen))) "/" (str (length members))) 6) " "
+		;? if who the members are was not answered
+		(pad (if members (cat (str (length (filter (# (find %0 members)) seen))) "/" (str (length members))) "?") 6) " "
 		(slice writer 0 8) " " (if (> copies 0) (cat "x" (str copies)) "  ") " " name))
+
+(defun busy ()
+	;what was asked was not answered in the time, a big store at work
+	(print "The store did not answer in time, it may be busy: try again."))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -250,7 +255,7 @@
 				((defq pinned (storage-user-pin))
 					(print "This machine travels, and holds all of " pinned " from now on."))
 				((print "This machine travels. Its user's area is pinned as its store starts."))))
-		(defq svc (if opt_o (storage-service-on opt_o) (storage-service)) members (if svc (ifn (storage-members :nil svc) (list)) (list)))
+		(defq svc (if opt_o (storage-service-on opt_o) (storage-service)) members (if svc (storage-members :nil svc)))
 		(cond
 			((and opt_t (eql name ""))
 				(each (lambda ((scene what)) (print scene (pad "" (max 1 (- 12 (length scene)))) what)) (scene-list)))
@@ -360,30 +365,43 @@
 							(:none (print "No member's id starts " want ", none retired."))
 							(:many (print want " starts more than one member's id, none retired: " (join (rest got) " ")))))
 					((starts-with "+" name) (setq members (storage-members name svc))))
-				(print "Store:   " (. (storage-info svc) :find :id))
-				(store-say svc members))
-			(opt_w (print (storage-sweep svc) " blocks let go of."))
+				(cond
+					((and members (defq info (storage-info svc)))
+						(print "Store:   " (. info :find :id))
+						(store-say svc members))
+					((busy))))
+			;as long as they take, while the service is there
+			(opt_w
+				(if (defq swept (storage-sweep svc))
+					(print swept " blocks let go of.")
+					(print "The store did not answer, its service has gone.")))
 			((or opt_c opt_C)
-				(defq bad (storage-check opt_C svc))
-				(each (const print) bad)
-				(print (length bad) " blocks are not what their names say" (if opt_C ", let go of." ".")))
+				(cond
+					((defq bad (storage-check opt_C svc))
+						(each (const print) bad)
+						(print (length bad) " blocks are not what their names say" (if opt_C ", let go of." ".")))
+					((print "The store did not answer, its service has gone."))))
 			((and (>= opt_k 0) (not opt_s))
 				;the one object, or every one whose path begins so
-				(defq entries (if (storage-stat name svc) (list (storage-stat name svc)) (ifn (storage-list name svc) (list))))
-				(each (lambda (entry)
-					(bind '(what now) (storage-copies (first entry) opt_k svc))
-					(if (eql what :ok) (show now) (print "Not set: " (first entry))))
-					entries)
-				(if (empty? entries) (print "No object at " name)))
+				(defq entries (if (defq one (storage-stat name svc)) (list one) (storage-list name svc)))
+				(cond
+					((not entries) (busy))
+					((empty? entries) (print "No object at " name))
+					((each (lambda (entry)
+						(bind '(what now) (storage-copies (first entry) opt_k svc))
+						(if (eql what :ok) (show now) (print "Not set: " (first entry))))
+						entries))))
 			((or opt_P opt_U)
 				(each (const print) (storage-pin name opt_U svc))
 				(print (length (storage-pins-missing svc)) " blocks of what is pinned are not here yet."))
-			(:t (unless opt_l
-					(defq info (storage-info svc))
-					(print "Store:   " (. info :find :id))
-					(print "Member:  " (. info :find :member) ", of " (length (. info :find :members)))
-					(each (# (print "         with " %0)) (filter (# (nql %0 (. info :find :member))) (. info :find :members)))
-					(print "Blocks:  " (. info :find :blocks) " of " (. info :find :block_size) " bytes or less")
-					(print "Free:    " (/ (. info :find :free) 1048576) "MB")
-					(print "Objects: " (. info :find :objects)))
-				(each (const show) (storage-list name svc))))))
+			(:t (cond
+					(opt_l)
+					((defq info (storage-info svc))
+						(print "Store:   " (. info :find :id))
+						(print "Member:  " (. info :find :member) ", of " (length (. info :find :members)))
+						(each (# (print "         with " %0)) (filter (# (nql %0 (. info :find :member))) (. info :find :members)))
+						(print "Blocks:  " (. info :find :blocks) " of " (. info :find :block_size) " bytes or less")
+						(print "Free:    " (/ (. info :find :free) 1048576) "MB")
+						(print "Objects: " (. info :find :objects))))
+				;:nil not answered, and not walked as the letters of :nil
+				(if (defq entries (storage-list name svc)) (each (const show) entries) (busy))))))

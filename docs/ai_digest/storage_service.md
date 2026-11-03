@@ -606,7 +606,9 @@ this system's, if not given.
 
 `(storage-sweep)` lets go of blocks no object is made of. `(storage-check)`
 names the blocks that are not what their names say, and with `mend` lets go
-of them too, to be fetched again. `(storage-settle)`, `(storage-pace)` and
+of them too, to be fetched again. Both are waited for as long as the
+service is there, `(storage-ask)` with a wait of `:t`: of a store of a
+million blocks each is minutes. `(storage-settle)`, `(storage-pace)` and
 `(storage-cut)` are for tests: have the tender look now, change how often it
 looks, and make a member as if it could not reach some others.
 
