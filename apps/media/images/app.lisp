@@ -18,8 +18,6 @@
 	;A file, or an object of the store, lib/files/names.inc
 	(when (defq new_canvas (canvas-load file +load_flag_free :nil (name-whole-stream file)))
 		(setq *canvas* new_canvas *file* file)
-		(bind '(w h) (. *canvas* :pref_size))
-		(def *image_scroll* :want_width w :want_height h)
 		(. *window_title* :set_text (cat "Images -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
 		(. *window* :fit)))

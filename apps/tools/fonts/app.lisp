@@ -47,10 +47,8 @@
 		:grid_height grid_height
 		:font font)
 	(view-variant symbol_grid :paper :paper_toolbar)
-	(bind '(w h) (. symbol_grid :pref_size))
-	(. symbol_grid :change 0 0 w h)
-	(def *symbol_scroll* :min_width w :want_height (min h 720))
 	(. *symbol_scroll* :add_child symbol_grid)
+	(def *symbol_scroll* :want_height (min (second (. symbol_grid :get_size)) 720))
 	(. *window* :fit))
 
 ;the font shown, opened by the file picker, which keeps where fonts were
@@ -62,7 +60,7 @@
 	(ui-title-bar *window_title* "" (+sym_close) +event_close)
 	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (+sym_open) +event_open))
-	(ui-scroll *symbol_scroll* +scroll_flag_vertical (:min_height 128)))
+	(ui-scroll *symbol_scroll* +scroll_flag_vertical (:min_height 128 :fit_width 100)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get select +select_tip))

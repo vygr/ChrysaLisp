@@ -169,8 +169,6 @@
 		;its sound, heard from the frame shown if it is playing
 		(setq *sound* (sound-of reel))
 		(and *sound* *playing* (sound-start *sound* (frame-time *at*)))
-		(bind '(w h) (. *canvas* :pref_size))
-		(def *image_scroll* :want_width w :want_height h)
 		(def *timeline* :value *at* :maximum (dec (. reel :find :frames)))
 		(. *window_title* :set_text (cat "Films -> " (path-name file)))
 		(. *image_scroll* :add_child *canvas*)
@@ -185,8 +183,6 @@
 		((reel-rescale *codec* scale)
 			(setq *canvas* (. *codec* :find :canvas) *scale* scale)
 			(show *at*)
-			(bind '(w h) (. *canvas* :pref_size))
-			(def *image_scroll* :want_width w :want_height h)
 			;the scroll lets go of the canvas it had as it is given the new one
 			(. *image_scroll* :add_child *canvas*)
 			(. *window* :fit))

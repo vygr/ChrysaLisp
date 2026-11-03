@@ -15,16 +15,10 @@
 	(defmethod :fit ()
 		; (. sheet :fit) -> sheet
 		(when (defq child (get :child this))
-			(bind '(w h) (. this :get_size))
-			(bind '(sw &ignore) (. (get :vslider this) :get_constraint))
-			(defq w (max 0 (- w sw)) rows (ifn (get :rows this) child)
-				rh (second (. rows :pref_size)))
+			(bind '(w &ignore) (. this :view_size))
+			(bind '(& h) (. this :get_size))
+			(defq rows (ifn (get :rows this) child) rh (second (. rows :pref_size)))
 			(. rows :change_dirty 0 0 w rh :t)
 			(unless (eql rows child) (. child :change_dirty 0 0 w (max rh h))))
 		this)
-
-	(defmethod :layout ()
-		; (. sheet :layout) -> sheet
-		(. this :fit)
-		(.super this :layout))
 	)

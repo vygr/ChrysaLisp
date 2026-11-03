@@ -352,11 +352,10 @@
 			(when (> tw page_width)
 				(. table :sub)
 				(def (defq scroll (Scroll +scroll_flag_horizontal))
-					:min_width page_width :min_height th)
-				;in the page before it is laid out, its words find their font there
+					:min_width page_width :fit_height 100)
+				;in the page before it is sized, its words find their font there
 				(. this :add_child scroll)
-				(. scroll :add_child table)
-				(. table :change 0 0 tw th))
+				(. scroll :add_child table))
 			(blank-line this)
 			:t)))
 

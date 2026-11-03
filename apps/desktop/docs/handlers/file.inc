@@ -75,8 +75,8 @@
 			(when (> rw tw)
 				(def (defq scroll (Scroll +scroll_flag_horizontal))
 					:min_width tw
-					:min_height rh)
-				(. scroll :add_child (. backdrop :change 0 0 rw rh))
+					:fit_height 100)
+				(. scroll :add_child backdrop)
 				(setq backdrop scroll))
 			(.-> page (:add_child backdrop) (:add_child text))
 

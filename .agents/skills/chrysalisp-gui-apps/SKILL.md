@@ -281,8 +281,18 @@ Key points:
 *	`:min_width` and `:min_height` are the least a view may be, what a
 	drag is held to. `:want_width` and `:want_height` are what it would
 	like, which `:open` and `:fit` use, in the units of its `:min_width`,
-	characters on a Vdu. A scroll that is to open showing its child wants
-	the child's size. Do not set a minimum to measure and put it back.
+	characters on a Vdu. Do not set a minimum to measure and put it back.
+
+*	A scroll sizes its child, and itself from it, when told how:
+	`:child_fill` the flags of the ways the child fills the view, else it
+	is its own `:pref_size`; `:fit_width` and `:fit_height` a percentage
+	of the child the scroll is to be, a minimum on a way it has no slider,
+	a want on a way it has one, and a minimum on both with `:fit_min :t`,
+	for a scroll that is not what fills its flow (the Files column). It is
+	done by `:add_child` and every `:layout`; `:place` only moves the
+	child, as scrolling does, and `:view_size` is the view less the
+	sliders. Add the child first, then change what it holds, then
+	`(.-> scroll :layout :dirty_all)` or the window's `:fit`.
 
 ## Advanced Patterns
 
@@ -344,7 +354,7 @@ Key points:
 
 	;; IDIOMATIC: Compact forms on a single line:
 	(def (defq backdrop (Backdrop)) :paper +argb_grey1 :min_width (max pad_w page_w) :min_height rh)
-	(def (defq scroll (Scroll +scroll_flag_horizontal)) :min_width page_w :min_height rh)
+	(def (defq scroll (Scroll +scroll_flag_horizontal)) :min_width page_w :fit_height 100)
 	```
 
 *	**Widget Borders (`:border`):**
@@ -372,13 +382,15 @@ Key points:
 *	**Overloading.** Import another app's `ui.inc` and `redefun` the
 	actions you need to change (see `apps/desktop/docs/ui.inc`).
 
-*	**Scroll Panes and Subtrees:** Children of `(Scroll)` widgets are marked with `+view_flag_subtree`. ChrysaLisp's view layout and flattening system does **not** recurse into subtrees. Therefore, content inside a scroll pane must be sized directly:
+*	**Scroll Panes and Subtrees:** Children of `(Scroll)` widgets are marked with `+view_flag_subtree`. ChrysaLisp's view layout and flattening system does **not** recurse into subtrees, so the scroll sizes its child. Give it `:child_fill` or a `:fit_width`/`:fit_height` and it does so on every `:layout`:
 	```lisp
-	(bind '(w h) (. child :pref_size))
-	(. child :change_dirty 0 0 w h :t)
-	(.-> scroll :layout :dirty_all)
+	(ui-scroll list_scroll +scroll_flag_vertical (:min_height 128 :child_fill +scroll_flag_horizontal :fit_width 100)
+		(ui-flow list_flow (:flow_flags +flow_down_fill)))
+	...
+	(. list_flow :add_child row)
+	(.-> list_scroll :layout :dirty_all)
 	```
-	Without explicitly calling `:change` or `:change_dirty` with `:t` directly on the scroll child, the subtree will remain `(0 0)` in size and will not render.
+	A scroll given none of them leaves its child the size it has, and a child that was never sized stays `(0 0)` and does not render.
 
 *	**Bottom-Pinned Bars & Expanding Panes (`+flow_up_fill`):** In windows with fixed bottom bars (such as an input textfield or a footer status bar) and an expanding body/scroll area, wrap them in `(ui-flow _ (:flow_flags +flow_up_fill))` inside the window:
 	```lisp

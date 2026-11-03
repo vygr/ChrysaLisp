@@ -701,7 +701,15 @@ forms.
 
 #### Properties
 
-`:vslider :hslider :child :min_width :min_height`
+`:vslider :hslider :child :min_width :min_height :child_fill :fit_width
+:fit_height :fit_min`
+
+`:child_fill` is the scroll flags of the ways its child fills the view, at
+least the view less a slider; else the child is its own `:pref_size`.
+`:fit_width` and `:fit_height` are a percentage of the child the scroll is
+to be: a minimum on a way it has no slider, a want on a way it has one, and
+a minimum on both with `:fit_min`. Given any of them, the scroll sizes its
+child as it is given it and each time it is laid out, `(. scroll :fit)`.
 
 Scroll flags defined in `gui/scroll/class.inc`.
 

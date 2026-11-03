@@ -49,7 +49,7 @@
 		(ui-label _ (:text "odd_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(ui-spinner odd_spinner (:value 1 :maximum 2 :minimum 1)))
 	(ui-progress progress (:value 100 :maximum 100))
-	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 32 :min_height 32 :want_width 512 :want_height 256)))
+	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 32 :min_height 32 :want_width 512 :want_height 256 :fit_width 100 :fit_height 100)))
 
 ;a PCB is drawn once and then only ever shown, so the pixmap of its
 ;canvas is freed once it is a texture. A file, or an object of the store,
@@ -57,16 +57,13 @@
 (defun win-load (file)
 	(defq stream (name-whole-stream file))
 	(setq pcb_data (read-blk stream (ifn (name-size file) 0)) pcb (pcb-read pcb_data) *file* file)
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
-	(def pcb_scroll :want_width w :want_height h)
+	(defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale))
 	(. *window_title* :set_text (cat "Pcb -> " (path-name file)))
 	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
 	(. *window* :fit))
 
 (defun win-zoom ()
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale)) :pref_size))
-	(def pcb_scroll :want_width w :want_height h)
-	(. pcb_scroll :add_child (. canvas :swap +swap_flag_free))
+	(. pcb_scroll :add_child (. (pcb-canvas pcb *mode* *show* (get :zoom *window*) canvas_scale) :swap +swap_flag_free))
 	(. *window* :fit))
 
 (defun win-show ()

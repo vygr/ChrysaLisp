@@ -20,6 +20,6 @@
 				(. (ui-textfield *path* (:paper +argb_white :clear_text "" :hint_text "a film's path, /Users/... or apps/..."))
 					:connect +event_path))
 			(. (ui-slider *timeline* (:value 0 :maximum 0 :portion 1 :min_height 14)) :connect +event_timeline)
-			(ui-scroll *image_scroll* +scroll_flag_both (:min_width 128 :min_height 128)))))
+			(ui-scroll *image_scroll* +scroll_flag_both (:min_width 128 :min_height 128 :fit_width 100 :fit_height 100)))))
 
 (ui-tool-tips *player* '("open" "play" "pause" "step" "start" "smaller" "bigger" "sound sooner" "sound later"))

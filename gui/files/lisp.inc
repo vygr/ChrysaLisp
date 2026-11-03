@@ -19,7 +19,7 @@
 	(defq my_id (. this :get_id))
 	(ui-root root (Flow) (:flow_flags +flow_down_fill :paper +argb_grey14)
 		(ui-title-bar _ title (+sym_next +sym_up) my_id)
-		(ui-scroll file_tree_scroll +scroll_flag_both :nil
+		(ui-scroll file_tree_scroll +scroll_flag_both (:fit_width 75 :fit_min :t)
 			(ui-flow file_tree (:flow_flags +flow_down :min_width 0 :paper +argb_white :font :font_medium_terminal))))
 	(ui-root backdrop (Backdrop) (:paper +argb_white))
 	(. this :add_child root)
@@ -28,11 +28,7 @@
 
 	(defmethod :layout_tree ()
 		; (. files :layout_tree) -> files
-		(raise :file_tree :file_tree_scroll)
-		(bind '(w h) (. file_tree :pref_size))
-		(def file_tree :min_width w)
-		(def file_tree_scroll :min_width (/ (* w 75) 100))
-		(. file_tree :change 0 0 w h :t)
+		(raise :file_tree_scroll)
 		(.-> file_tree_scroll :layout :dirty_all)
 		this)
 

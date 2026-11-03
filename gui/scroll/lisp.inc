@@ -13,6 +13,8 @@
 
 (defclass Scroll (flags) (View)
 	; (Scroll flags) -> scroll
+	;what it scrolls, its child, is the size it has, unless the scroll is
+	;given how to size it, and how to be sized by it, (. scroll :fit)
 	(def this :vslider :nil :hslider :nil :child :nil)
 	(when (bits? flags +scroll_flag_vertical)
 		(def this :vslider (defq slider (Slider)))
@@ -25,17 +27,18 @@
 
 	(defmethod :add_child (child)
 		; (. scroll :add_child child) -> scroll
+		;and sized by it, if it is to be, (. scroll :fit)
 		(. child :set_flags +view_flag_subtree +view_flag_subtree)
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
-		(. this :add_back (set this :child child)))
+		(.-> this (:add_back (set this :child child)) :fit))
 
 	(defmethod :action (data)
 		; (. scroll :action data) -> scroll
 		;scrolled, what is in it moved and drawn again where it now is, its
 		;lists of draws kept; the sliders are what changed
 		(defq redraw (logand (. this :get_flags) +view_flag_redraw))
-		(.-> this :layout (:set_flags +view_flag_dirty_all +view_flag_dirty_all)
+		(.-> this :place (:set_flags +view_flag_dirty_all +view_flag_dirty_all)
 			(:set_flags redraw +view_flag_redraw))
 		(raise :hslider :vslider)
 		(if hslider (. hslider :dirty))
@@ -50,8 +53,50 @@
 		(if hslider (setq mh (+ mh (pop (. hslider :get_constraint)))))
 		(list mw mh))
 
+	(defmethod :view_size ()
+		; (. scroll :view_size) -> (width height)
+		;what of it shows what it scrolls, its size less its sliders
+		(raise :hslider :vslider)
+		(bind '(w h) (. this :get_size))
+		(if vslider (setq w (- w (first (. vslider :get_constraint)))))
+		(if hslider (setq h (- h (second (. hslider :get_constraint)))))
+		(list (max 0 w) (max 0 h)))
+
+	(defmethod :fit ()
+		; (. scroll :fit) -> scroll
+		;of a scroll given :child_fill, :fit_width or :fit_height, what it
+		;scrolls is sized and laid out: its own size, and on a way of the
+		;flags of :child_fill, at least the view less the slider. And the
+		;scroll is sized by it, a percentage of its own size, :fit_width of
+		;its width: the least the scroll may be on a way it has no slider,
+		;what it would like, :want_width, on a way it has one. With :fit_min
+		;the least on both: a scroll that is not what fills its flow is laid
+		;out at its least, what it would like sizes only the window. Done as it is
+		;laid out, and by its owner once what it scrolls has changed, before
+		;the window is fitted to what it would like
+		(raise :child :hslider :vslider)
+		(defq fills (def? :child_fill this) fw (def? :fit_width this) fh (def? :fit_height this)
+			least (def? :fit_min this))
+		(when (and child (or fills fw fh))
+			(bind '(pw ph) (. child :pref_size))
+			;of its own size, not of what it fills, which is of the scroll's
+			(if fw (def this (if (and hslider (not least)) :want_width :min_width) (/ (* pw fw) 100)))
+			(if fh (def this (if (and vslider (not least)) :want_height :min_height) (/ (* ph fh) 100)))
+			(when fills
+				(bind '(w h) (. this :view_size))
+				(if (bits? fills +scroll_flag_horizontal) (setq pw (max pw w)))
+				(if (bits? fills +scroll_flag_vertical) (setq ph (max ph h))))
+			(. child :change 0 0 pw ph :t))
+		this)
+
 	(defmethod :layout ()
 		; (. scroll :layout) -> scroll
+		(.-> this :fit :place))
+
+	(defmethod :place ()
+		; (. scroll :place) -> scroll
+		;the sliders and what it scrolls where they are now, nothing sized:
+		;a scroll that is scrolled is only this
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			child (get :child this) sw 0 sh 0)
 
@@ -104,7 +149,7 @@
 				(when (> (+ y h) (+ val sh))
 					(def vslider :value (- (+ y h) sh))
 					 (setq flag :t))))
-		(if flag (.-> this :layout :dirty_all) this))
+		(if flag (.-> this :place :dirty_all) this))
 
 	(defmethod :mouse_wheel (event)
 		; (. scroll :mouse_wheel event) -> scroll

@@ -22,9 +22,3 @@ long as the rows or the sheet, whichever is longer
 (. sheet :fit) -> sheet
 ```
 
-### :layout
-
-```code
-(. sheet :layout) -> sheet
-```
-

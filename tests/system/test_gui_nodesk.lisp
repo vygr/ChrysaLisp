@@ -163,3 +163,43 @@
 (times 3 (. nd_child :sub))
 (assert-eq "and taken out again and again, held the same" (dec nd_held) (getf nd_child +obj_count 0))
 (undef (env) 'nd_parent 'nd_child 'nd_held)
+;a scroll sizes what it scrolls and is sized by it, as it is given: of a
+;percentage of its child, the least it may be on a way it has no slider,
+;what it would like on a way it has one
+(defq nd_sv (Scroll +scroll_flag_vertical) nd_sc (Backdrop))
+(def nd_sv :paper 0)
+(def nd_sc :min_width 300 :min_height 900 :paper 0)
+(def nd_sv :fit_width 100 :fit_height 50)
+(. nd_sv :add_child nd_sc)
+(assert-list-eq "given its child, a scroll up and down is at least as wide as it, and would like half its height"
+	'(300 450) (list (def? :min_width nd_sv) (def? :want_height nd_sv)))
+(assert-list-eq "and has no least height, nor wants a width" '(:nil :nil) (list (def? :min_height nd_sv) (def? :want_width nd_sv)))
+(assert-list-eq "what it scrolls is its own size" '(300 900) (. nd_sc :get_size))
+(defq nd_sb (Scroll +scroll_flag_both) nd_sbc (Backdrop))
+(def nd_sb :paper 0)
+(def nd_sbc :min_width 400 :min_height 100 :paper 0)
+(def nd_sb :fit_width 75)
+(. nd_sb :add_child nd_sbc)
+(assert-list-eq "a scroll both ways would like three quarters of its child's width, and is not held to it"
+	'(300 :nil) (list (def? :want_width nd_sb) (def? :min_width nd_sb)))
+(def nd_sb :fit_min :t)
+(. nd_sb :fit)
+(assert-eq "unless told its fit is the least it may be, as one that does not fill its flow is" 300 (def? :min_width nd_sb))
+;what it scrolls fills it, at least the view less its slider, and the
+;scroll is sized by what it scrolls alone, not by what it fills
+(defq nd_sf (Scroll +scroll_flag_vertical) nd_sfc (Backdrop))
+(def nd_sf :paper 0)
+(def nd_sfc :min_width 100 :min_height 50 :paper 0)
+(def nd_sf :child_fill +scroll_flag_horizontal :fit_width 100)
+(. nd_sf :add_child nd_sfc)
+(. nd_sf :change 0 0 400 300)
+(bind '(nd_vw _) (. nd_sf :view_size))
+(assert-true "the view of a scroll is it less its slider" (< 0 nd_vw 400))
+(assert-list-eq "what fills it is as wide as the view and its own height" (list nd_vw 50) (. nd_sfc :get_size))
+(assert-eq "and the scroll's least width is still its child's own" 100 (def? :min_width nd_sf))
+(def nd_sfc :min_width 1000)
+(. nd_sf :place)
+(assert-list-eq "scrolled, nothing is sized" (list nd_vw 50) (. nd_sfc :get_size))
+(. nd_sf :layout)
+(assert-list-eq "laid out, what is wider than the view is its own width" '(1000 50) (. nd_sfc :get_size))
+(undef (env) 'nd_sv 'nd_sc 'nd_sb 'nd_sbc 'nd_sf 'nd_sfc 'nd_vw)
