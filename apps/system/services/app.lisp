@@ -26,7 +26,16 @@
 	(def info_scroll :want_height (min (second (. right_flow :get_size)) mh))
 	(. *window* :fit))
 
+(defun widen ()
+	;as wide as the columns are now, if they are wider than the window: its
+	;height and where it is as they were set, by a drag or the buttons
+	(bind '(x y w h) (. *window* :get_bounds))
+	(bind '(pw &ignore) (. *window* :pref_size))
+	(if (> pw w) (. *window* :change_dirty x y pw h)))
+
 (defun populate ()
+	; (populate) -> :nil | :t
+	;:t if the services are not as they were
 	(sort (defq new_services (mail-enquire "")))
 	(when (or (/= (length new_services) (length *services*))
 			(notevery (const eql) new_services *services*))
@@ -48,7 +57,7 @@
 			(def (defq _ (Label)) :border -1 :text i3)
 			(. info_flow :add_child _) (push *info_labels* _)) new_services)
 		(.-> info_scroll :layout :dirty_all)
-		(resize 256)))
+		:t))
 
 (defun main ()
 	(defq id :t select (task-mboxes +select_size)
@@ -76,7 +85,7 @@
 						(resize 640))
 					((. *window* :event msg))))
 			(+select_timer
-				(populate)
+				(if (populate) (widen))
 				(mail-timeout (elem-get select +select_timer) (/ 1000000 1) 0))))
 	;close window
 	(. *window* :close))
