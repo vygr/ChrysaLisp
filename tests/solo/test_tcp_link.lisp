@@ -10,7 +10,7 @@
 (import "lib/net/links.inc")
 (import "lib/crypto/random.inc")
 (import "service/net/app.inc")
-(import "tests/net/listen.inc")
+(import "././net/listen.inc")
 
 ;a machine with no key has no links. One that has never been installed,
 ;a tree of cross built images say, is given one for the test, and the

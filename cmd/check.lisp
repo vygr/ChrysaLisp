@@ -1,6 +1,7 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/text/tree.inc")
+(import "lib/files/files.inc")
 (import "service/lock/app.inc")
 
 (defq usage `(
@@ -162,6 +163,17 @@
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
+    scan    a form at the top that (files-scan) looks for, an
+            (import), (include), (def-func), (def-method) or
+            a (gen-) of the assembler, that it does not see,
+            as it does not begin its line, or a ( that begins
+            a line inside a form, that it takes to be one. It
+            reads a line that begins with a ( as a form at the
+            top, as the source is laid out.
+    override a (defun) or a (defmacro) of a name that every
+            task has from root.inc, in a file root.inc does
+            not import: the file is refused as it is read,
+            Function override !
     args    a (# ...) given to (map), (each), (filter), (some),
             (reduce), (sort), (lines!) or the like, or the :each
             of a map or a set, that takes another number than
@@ -212,7 +224,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "glyph" "unbound")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "glyph" "unbound" "scan" "override")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789"))
 
 ;where a class of characters is, of what a function is given, from 1
@@ -1336,6 +1348,46 @@
 		(ifn fields (list))))
 
 ;do the work on a file
+(defun check-override (file top)
+	;a (defun) or (defmacro) at the top of a file of a name root.inc
+	;gives every task, not of a file root.inc imports itself
+	(unless (. (third (root-provides)) :find file)
+		(each (lambda (node)
+				(and (defq kids (tree-form? node))
+					(> (length (defq forms (forms-of kids))) 1)
+					(eql (first (first forms)) :symbol)
+					(find (defq head (third (first forms))) '("defun" "defmacro"))
+					(eql (first (second forms)) :symbol)
+					(. *root_names* :find (defq name (third (second forms))))
+					(found file node "override" "(" head " " name ") of a name every task has from root.inc,"
+						" it is refused as the file is read: another name, or a redefun")))
+			top)))
+
+(defun check-scan (file top)
+	;the forms at the top of the tree whose head (files-scan) looks for,
+	;an import or include of a string, against those it found, by kind
+	;and line
+	(defq tree_has (list) scan_has (map (# (cat (first %0) " " (str (second %0)))) (files-scan file)))
+	(each (lambda (node)
+			(and (defq kids (tree-form? node))
+				(> (length (defq forms (forms-of kids))) 1)
+				(eql (first (first forms)) :symbol)
+				(find (defq head (third (first forms))) +scan_kinds)
+				(or (not (find head '("import" "include")))
+					(find (first (second forms)) '(:string1 :string2)))
+				(push tree_has (cat head " " (str (second node))))))
+		top)
+	(each (lambda (entry)
+			(bind '(kind line) (split entry " "))
+			(found file (list :form (str-as-num line)) "scan"
+				"(" kind ") read by (files-scan) as a form at the top, it is not one: a ( that begins a line inside a form"))
+		(filter (# (not (find %0 tree_has))) scan_has))
+	(each (lambda (entry)
+			(bind '(kind line) (split entry " "))
+			(found file (list :form (str-as-num line)) "scan"
+				"(" kind ") at the top not seen by (files-scan): it does not begin its line"))
+		(filter (# (not (find %0 scan_has))) tree_has)))
+
 (defun work (file)
 	;The file is read as a tree, and every form of it looked at, those
 	;inside others too. A list of the lists of nodes still to look at, no
@@ -1361,6 +1413,8 @@
 				(or (ends-with ".lisp" file) (some (# (tree-form? %0 "env-push")) (forms-of top)))
 				(check-unbound file top))
 			(and (find "self" checks) (ends-with ".vp" file) (check-self file top))
+			(if (find "scan" checks) (check-scan file top))
+			(if (find "override" checks) (check-override file top))
 			(and (find "vpname" checks) (ends-with ".vp" file) (check-vpname file top))
 			;brackets that do not pair: the file does not load at all, and
 			;if it is one a task is started from, nothing says so

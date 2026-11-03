@@ -38,14 +38,14 @@
 	;never with nothing on the screen to say so
 	showing (Fmap 11))
 
-(defun tree-text (data)
+(defun state-text (data)
 	(defq out (string-stream (cat "")))
 	(tree-save out data)
 	(str out))
 
 (defun state-push (&optional only)
 	;the watchers told the state of the call here
-	(defq text (tree-text (scatter (Emap) :id call_id :name call_name :muted muted :members roster
+	(defq text (state-text (scatter (Emap) :id call_id :name call_name :muted muted :members roster
 		:inbox (if voice (voice-inbox voice)) :recording recording :headphones headphones
 		:talking talking_said)))
 	(if only
@@ -71,7 +71,7 @@
 	;its own watchers too
 	(setq roster (list (list user (voice-inbox voice) (if recording 1 0))))
 	(. members :each (lambda (inbox (svc who due rec)) (push roster (list who inbox rec))))
-	(defq text (cat "m" own "," (tree-text (scatter (Emap) :name call_name :members roster))))
+	(defq text (cat "m" own "," (state-text (scatter (Emap) :name call_name :members roster))))
 	(. members :each (lambda (inbox (svc &ignore)) (mail-send (hex-decode svc) text)))
 	(when changed
 		(targets-set)

@@ -42,6 +42,13 @@ trashes
 
 ### :double_free -> sys/heap/double_free
 
+```code
+trashes
+none
+info
+a cell being freed is already free, report and dump
+```
+
 ### :free -> sys/heap/free
 
 ```code
@@ -69,4 +76,11 @@ trashes
 ```
 
 ### :overrun -> sys/heap/overrun
+
+```code
+trashes
+none
+info
+a cell being freed has had its guard word written on, report and dump
+```
 

@@ -2,7 +2,7 @@
 (import "lib/task/cmd.inc")
 (import "lib/files/files.inc")
 (import "service/lock/app.inc")
-(import "lib/text/tokenize.inc")
+(import "lib/text/tree.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -35,57 +35,50 @@
 
 ;do the work on a file
 (defun work (file)
-	;The file is read as the highlighter reads it, a token at a time, so
-	;what is in a comment or a string is not looked at, and it is known
-	;which definition each line is in. A function calls itself if its
-	;name is anywhere in its own definition, as the head of a form or
-	;handed to another function, (some my-self list)
+	;The file is read as the highlighter reads it, (tree-read), so what is
+	;in a comment or a string is not looked at, and it is known which
+	;definition each thing is in. A function calls itself if its name is
+	;anywhere in its own definition, as the head of a form or handed to
+	;another function, (some my-self list)
 	(with-read-lock file
 		(when (defq in (file-stream file))
-			(defq tok_state :text line_no 0 depth 0 defs_map (Fmap 11) uses (list)
-				;the definitions that are open, the innermost last, each
-				;(name depth kind), and what the next symbol is
-				open (list) after_open :nil want :nil after_const :nil off (list))
-			(lines! (lambda (raw_line)
-				(task-slice)
-				(++ line_no)
-				(if (nempty? (substr raw_line ";check off")) (push off line_no))
-				;the name of a definition is on the line its defun is on. A
-				;defun with none after it is a word of something else, a key
-				;of a case
-				(setq want :nil)
-				(bind '(toks states tok_next) (tokenize-line (trim-end raw_line "\r") tok_state))
-				(setq tok_state tok_next)
-				(each (lambda (tok state)
-					(case state
-						(:text (each (lambda (ch)
-							(cond
-								((eql ch "(") (++ depth) (setq after_open :t after_const :nil))
-								((eql ch ")") (-- depth) (setq after_open :nil after_const :nil)
-									;the end of a definition
-									(and (nempty? open) (<= depth (second (last open))) (pop open)))
-								((find ch " \t"))
-								((setq after_open :nil)))) tok))
-						(:symbol
-							(cond
-								(want ;the name of a definition, the first of it is the one
-									(unless (. defs_map :find tok) (. defs_map :insert tok line_no))
-									(push open (list tok (dec depth) want))
-									(setq want :nil))
-								((and after_open (or (eql tok "defun") (eql tok "defmacro")))
-									(setq want tok))
+			(defq defs_map (Fmap 11) uses (list) off (list)
+				;what is left to look at, each (node inside head): the
+				;definition it is in, (name kind), and if it is the head of
+				;its form, a list of them, it does not call itself
+				stack (rmap (# (list %0 :nil :nil)) (first (tree-read in))))
+			(setq in :nil)
+			(while (defq item (pop stack))
+				(bind '(node inside head) item)
+				(case (first node)
+					(:form
+						(task-slice)
+						(defq kids (filter (# (nql (first %0) :blank)) (third node))
+							word (if (eql (first (first kids)) :symbol) (third (first kids)))
+							from 0 named :nil)
+						(cond
+							((find word '("defun" "defmacro"))
+								;the name of a definition is on the line its defun is
+								;on, the first of it is the one. A defun with none
+								;after it is a word of something else, a key of a case
+								(setq from 1)
+								(when (and (defq name (second kids)) (eql (first name) :symbol)
+										(= (second name) (second (first kids))))
+									(unless (. defs_map :find (third name)) (. defs_map :insert (third name) (second name)))
+									(setq inside (list (third name) word) from 2)))
+							((eql word "const")
 								;a function named in (const), its value is taken as the
 								;code is read, as a head of a form is bound then
-								(after_const
-									(push uses (list tok line_no (if (nempty? open) (last open)) :t))
-									(setq after_const :nil))
-								((and after_open (eql tok "const"))
-									(setq after_const :t))
-								((push uses (list tok line_no (if (nempty? open) (last open)) after_open))))
-							(setq after_open :nil))
-						(:t (setq after_open :nil))))
-					toks states)
-				:nil) in)
+								(setq from 1)
+								(and (defq name (second kids)) (eql (first name) :symbol)
+									(setq from 2 named name))))
+						(each! (lambda (kid) (push stack (list kid inside (and (= (!) 0) (= from 0)))))
+							(list kids) -1 from)
+						(if named (push stack (list named inside :t))))
+					(:symbol
+						(push uses (list (third node) (second node) inside head)))
+					(:comment
+						(if (nempty? (substr (third node) ";check off")) (push off (second node))))))
 			(each (lambda ((name at inside head))
 				(and (defq n (. defs_map :find name)) (not (find at off)) (not (find (dec at) off))
 					(cond
@@ -94,7 +87,7 @@
 						;enum called main in a file that has a main
 						((and head (< at n)) (print file " (" at ") " name))
 						;a function used in its own definition, it calls itself
-						((and inside (eql (first inside) name) (eql (third inside) "defun"))
+						((and inside (eql (first inside) name) (eql (second inside) "defun"))
 							(print file " (" at ") " name " calls itself")))))
 				uses))))
 

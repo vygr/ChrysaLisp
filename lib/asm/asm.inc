@@ -157,27 +157,19 @@
 	(include "sys/statics/class.inc")
 	(each include classes))
 
-(defun make-scan (%0)
-	;what make goes by of a file, read from it: its includes, as paths,
-	;and the lines that name what it makes, kind and names, made paths of
-	;by (make-products) with the classes declared
-	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" %0) p (list))
-	(lines! (lambda (%0)
-		(and (> (length %0) 10) (eql "(" (first %0))
-				(<= 2 (length (defq s (split %0 (const (char-class " '()\q\r"))))) 4)
-			(case (first s)
-				(("include" "import")
-					(push d (path-to-absolute (second s) file)))
-				(("def-method" "gen-host-call" "gen-vtable" "gen-type" "gen-create")
-					(push p (slice s 0 (min 3 (length s)))))
-				("def-func"
-					(push p (list "def-func" (if (eql (second s) "path-to-absolute")
-						(path-to-absolute (third s) file) (second s)))))))
-		:nil)
-		(if (= (age %0) 0)
-			(throw "No such file !" %0)
-			(file-stream (defq file %0))))
-	(list d p))
+(defun make-scan (file)
+	;what make goes by of a file, read from it by (files-scan): its
+	;includes and imports, as paths, and the forms that name what it
+	;makes, kind and names, made paths of by (make-products) with the
+	;classes declared
+	(if (= (age file) 0) (throw "No such file !" file))
+	(reduce (lambda ((d p) (kind & &rest names))
+			(if (find kind '("include" "import"))
+				(push d (path-to-absolute (first names) file))
+				(push p (cat (list kind) names)))
+			(list d p))
+		(files-scan file)
+		(list (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" file) (list))))
 
 (defun make-products (p)
 	;the paths of the functions the lines of (make-scan) name
@@ -193,16 +185,22 @@
 ;what make read of each file is kept, by its age, and read again only of
 ;a file that has changed. One that changed in the second the keep is
 ;written is not kept, the age is of a second; and none is kept of an
-;asm.inc not as this one is, it says how a file is read
-(defq +make_scans "obj/make_scans")
+;asm.inc, files.inc or tree.inc not as these are, they say how a file is
+;read
+(defq +make_scans "obj/make_scans"
+	+scans_by ''("lib/asm/asm.inc" "lib/files/files.inc" "lib/text/tree.inc" "lib/text/tokenize.inc"))
+
+(defun scans-key ()
+	;how a file is read, the ages of what says so
+	(map (const age) +scans_by))
 
 (defun scans-load ()
 	;the scans kept, an env of file to (age scan)
 	(defq scans (env 101))
 	(catch (progn
 		(when (and (defq data (load +make_scans)) (nempty? data))
-			(bind '(asm_age entries) (first (read (string-stream data))))
-			(when (= asm_age (age "lib/asm/asm.inc"))
+			(bind '(key entries) (first (read (string-stream data))))
+			(when (eql (str key) (str (scans-key)))
 				(each (lambda ((f a d p)) (def scans (sym f) (list a (list d p)))) entries)))
 		:t) :t)
 	scans)
@@ -213,7 +211,7 @@
 	(each (lambda ((k v))
 		(if (< (first v) now) (push entries (list (str k) (first v) (first (second v)) (second (second v))))))
 		(tolist scans))
-	(save (str (list (age "lib/asm/asm.inc") entries)) +make_scans))
+	(save (str (list (scans-key) entries)) +make_scans))
 
 (defun file-age (%0)
 	;modification time of a file, cached

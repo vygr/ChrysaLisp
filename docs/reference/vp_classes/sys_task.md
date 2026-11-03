@@ -129,6 +129,15 @@ trashes
 
 ### :stack -> sys/task/stack
 
+```code
+inputs
+none
+outputs
+none
+trashes
+none
+```
+
 ### :stacks -> sys/task/stacks
 
 ```code

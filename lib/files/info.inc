@@ -69,7 +69,7 @@
 			(setq current (. c_entry :find :parent))))
 	sig)
 
-(defun flush-metadata (class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs)
+(defun flush-metadata (class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs docs)
 	(unless (defq f_entry (. func_db :find func_name))
 		(setq f_entry (scatter (Emap) :implements (list)))
 		(. func_db :insert func_name f_entry))
@@ -89,7 +89,8 @@
 		:outputs formatted_outputs
 		:trashes trashes
 		:file file
-		:trashes_line trashes_line))
+		:trashes_line trashes_line
+		:docs docs))
 
 (defun node-name (node file)
 	; (node-name node file) -> :nil | str
@@ -134,14 +135,27 @@
 					(when (or (starts-with ":" content) (eql (to-lower content) "none"))
 						(setq trashes content state :header trashes_line (dec line)))))))
 		said)
-	(flush-metadata class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs))
+	;and every line said, as the reference shows it
+	(flush-metadata class_db func_db func_name file inputs outputs trashes trashes_line seen_inputs seen_outputs
+		(map (lambda ((& & text)) (trim-start (trim text +char_class_space) " ;")) said)))
+
+(defun first-string (nodes)
+	; (first-string nodes) -> :nil | str
+	;the first string in nodes, at any depth, without its quotes. A list of
+	;what is left to look at, last first
+	(defq todo (reverse (cat nodes)) out :nil)
+	(while (and (not out) (defq node (pop todo)))
+		(case (first node)
+			(:string1 (setq out (trim (third node) "\q")))
+			(:form (each! (# (push todo %0)) (list (third node)) -1 0))))
+	out)
 
 (defun unified-pass (files class_db func_db)
 	;Each file is read as a tree, lib/text/tree.inc, and every form of it
 	;looked at in the order they are written, those inside others too, a
 	;(def-func) in a (validatecase) say. A list of where it is in each list
 	;of nodes it is part way through, each (nodes at)
-	(defq active_class :nil)
+	(defq active_class :nil last_func :nil)
 	(each (lambda (file)
 		(with-read-lock file
 			(defq todo (list (list (first (tree-read (file-stream file))) -1)))
@@ -177,6 +191,7 @@
 									(defq subclasses (. parent_entry :find :subclasses))
 									(unless (find class_name subclasses)
 										(push subclasses class_name)))
+								(. class_entry :insert :file file)
 								(setq active_class class_name))
 							((and (eql op "dec-method") active_class (>= n 3) (first names) (second names))
 								;its name, the function that is it, what kind it is, :static
@@ -236,12 +251,20 @@
 										((second names) (sym (cat ":create_" (second names))))
 										(:t :create)))
 								(header-pass class_db func_db
-									(or (db-f-path class_db class_name method_name)
-										(sym (cat class_name ":" method_name)))
+									(setq last_func (or (db-f-path class_db class_name method_name)
+										(sym (cat class_name ":" method_name))))
 									file (tree-said node nodes at)))
 							((and (find op '("def-func" "defun")) (first names)
 									(or (eql op "def-func") (. func_db :find (first names))))
-								(header-pass class_db func_db (first names) file (tree-said node nodes at)))))
+								(header-pass class_db func_db (setq last_func (first names)) file (tree-said node nodes at)))
+							;the first error a function says of a call from Lisp, what it
+							;is called with, "(lines! lambda stream [start end])"
+							((and (find op '("call" "jump")) last_func
+									(eql (first names) ":lisp") (eql (second names) ":repl_error")
+									(defq f_entry (. func_db :find last_func))
+									(not (. f_entry :find :sig))
+									(defq sig (first-string (slice kids 3 -1))))
+								(. f_entry :insert :sig sig))))
 					(if kids (push todo (list kids -1))))))) files))
 
 (defun link-databases (class_db func_db)
@@ -254,7 +277,7 @@
 			(when (or f_entry t_entry)
 				(if (and f_entry t_entry)
 					(progn
-						(transfer t_entry f_entry '(:file :trashes_line))
+						(transfer t_entry f_entry '(:file :trashes_line :docs :sig))
 						(. func_db :erase temp_key))
 					(if t_entry
 						(.-> func_db (:insert func_name (setq f_entry t_entry)) (:erase temp_key))))

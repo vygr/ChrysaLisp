@@ -1,6 +1,6 @@
 (report-header "Net: the door of a link, two machines prove they have the key")
 (import "service/net/door.inc")
-(import "tests/net/listen.inc")
+(import "./listen.inc")
 ((ffi "service/net/lisp_init"))
 
 ;the key of a machine, from its file

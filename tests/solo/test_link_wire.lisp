@@ -7,7 +7,7 @@
 ;document does not have is caught. It says a node of its own, made up, so
 ;it changes the network for a moment, and is in tests/solo/
 (import "service/net/door.inc")
-(import "tests/net/listen.inc")
+(import "././net/listen.inc")
 ((ffi "service/net/lisp_init"))
 
 (bind '(lw_port lw_listener) (test-listen 31573))

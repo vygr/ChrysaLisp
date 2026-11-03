@@ -2,6 +2,8 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 (import "lib/task/pipe.inc")
+(import "lib/files/info.inc")
+(import "lib/text/tree.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -67,47 +69,37 @@
 			'("lib/asm/" "lib/trans/" "lib/keys/"))
 			(push out %0)))) out)
 
-(defun chop (%0)
-	(when (defq i (find (char 0x22) %0))
-		(slice %0 (inc i) (find (char 0x22) %0 (inc i)))))
+(defq +field_types ''("byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr" "pptr"
+	"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "real"))
 
-(defun struct-beside (file)
-	; (struct-beside file) -> :nil | stream
-	;the struct.inc beside a class.inc, which has the structures of its class
-	(file-stream (cat (path-dir file) (if (find "/" file) "/" "") "struct.inc")))
+(defun struct-of (file name)
+	; (struct-of file name) -> :nil | nodes
+	;what is in the structure of a VP class, (structure +name ...), in the
+	;struct.inc beside its class.inc, read as a tree of those heads
+	(when (defq stream (file-stream (cat (path-dir file) (if (find "/" file) "/" "") "struct.inc")))
+		(some (lambda (node)
+				(and (defq kids (filter (# (not (find (first %0) '(:comment :blank)))) (third node)))
+					(> (length kids) 1) (eql (third (second kids)) (cat "+" name))
+					kids))
+			(first (tree-read stream :nil '("structure" "def-struct"))))))
 
 (defun vp-fields (file name)
 	; (vp-fields file name) -> (str ...)
-	;the fields of a VP class, each as its type and its name, from the
-	;structure of that name in the struct.inc beside its class.inc. The
-	;form is taken from its first line to the bracket that closes it,
-	;with what is said after a ; left out, and each bracketed part of it
-	;is a type and the names that are of that type, on as many lines as
-	;they are
-	(defq out (list) state :nil depth 0 text (list) stream (struct-beside file))
-	(when stream
-		(lines! (lambda (line)
-			(defq note (find ";" line) code (if note (slice line 0 note) line))
-			(and (not state)
-					(or (starts-with (cat "(structure +" name " ") code) (starts-with (cat "(def-struct +" name " ") code))
-				(setq state :in))
-			(when (eql state :in)
-				(push text code)
-				(each (# (cond ((eql %0 "(") (setq depth (inc depth))) ((eql %0 ")") (setq depth (dec depth))))) code)
-				(if (<= depth 0) (setq state :done)))
-			:nil) stream)
-		(each (lambda (part)
-			(defq words (split part (const (char-class " \t\r\n"))))
-			(cond
-				((empty? words))
-				;a struct has a name and then how big it is, which may be worked out
-				((eql (first words) "struct") (if (> (length words) 1) (push out (cat "struct " (second words)))))
-				;only what is a type is a field: the rest is the form's own first
-				;line, an offset, or part of what works a size out
-				((find (first words) '("byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr" "pptr"
-						"pbyte" "pubyte" "pshort" "pushort" "pint" "puint" "plong" "pulong" "netid" "nodeid" "fixed" "real"))
-					(each! (# (push out (cat (first words) " " %0))) (list words) 1 -1))))
-			(split (join text " ") "()")))
+	;the fields of a VP class, each as its type and its name, from its
+	;structure: each form in it of a type and the names of that type, and
+	;a struct's name, the size after it may be worked out
+	(defq out (list))
+	(each (lambda (part)
+			(and (defq words (tree-form? part)) (nempty? words)
+				(eql (first (first words)) :symbol)
+				(defq type (third (first words)))
+				(cond
+					((eql type "struct")
+						(if (> (length words) 1) (push out (cat "struct " (third (second words))))))
+					((find type +field_types)
+						(each! (lambda (word) (if (eql (first word) :symbol) (push out (cat type " " (third word)))))
+							(list words) 1)))))
+		(ifn (struct-of file name) '()))
 	out)
 
 (defun vp-over (file name)
@@ -115,16 +107,12 @@
 	;a VP class whose fields do not go after those of the class it comes
 	;of, but begin at one of them and lie over it, :hmap is one: that
 	;field, as "elems of :array". From what its structure begins at
-	(defq out :nil stream (struct-beside file))
-	(when stream
-		(lines! (lambda (line)
-			(when (starts-with (cat "(structure +" name " +") line)
-				(defq from (trim (slice line (length (cat "(structure +" name " +")) -1) (const (char-class " \t\r)")))
-					cut (find "_" from))
-				(and cut (not (ends-with "_size" from))
-					(setq out (cat (slice from (inc cut) -1) " of :" (slice from 0 cut)))))
-			:nil) stream))
-	out)
+	(and (defq kids (struct-of file name)) (> (length kids) 2)
+		(eql (first (defq at (third kids))) :symbol)
+		(starts-with "+" (defq from (third at)))
+		(defq from (rest from) cut (find "_" from))
+		(not (ends-with "_size" from))
+		(cat (slice from (inc cut) -1) " of :" (slice from 0 cut))))
 
 (defun chain-of (name supers)
 	; (chain-of name supers) -> (name ...)
@@ -347,60 +335,21 @@
 			(# (cmp (first %0) (first %1)))))
 	(if (> *build_verb* 0) (print "-> " document))
 
-	;scan for VP classes info
-	(defq *abi* (abi) *cpu* (cpu) *imports* (all-vp-files) classes (list) class_files (Fmap 31)
-		functions (list) docs (list) state :nil ffi_list (. docs_map :find :ffis))
-	(within-compile-env (lambda ()
-		(include "lib/asm/func.inc")
-		(each include (all-class-files))
-		(each-mergeable (lambda (file)
-			(lines! (lambda (line)
-				(when (eql state :info)
-					(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
-						(push (last docs) (trim-start line_trim " ;"))
-						(setq state :nil)))
-				(when (eql state :nil)
-					(defq line_split (split line (const (char-class " ()'\t\r\q")))
-						type (sym (first line_split)) name (second line_split))
-					(case type
-						(include
-							(merge *imports* (list (path-to-absolute name file))))
-						(def-class
-							(. class_files :insert (sym name) file)
-							(push classes (list (sym name) (third line_split))))
-						(dec-method
-							;its name, the function that is it, and what kind it is,
-							;:static, :override, :final or :virtual, a virtual one if not said
-							(push (last classes) (list (sym name) (sym (third line_split))
-								(if (and (> (length line_split) 3)
-										(find (elem-get line_split 3) '(":static" ":override" ":final" ":virtual")))
-									(sym (elem-get line_split 3)) :virtual))))
-						((def-method gen-host-call)
-							(setq state :info)
-							(push docs (list))
-							(push functions (f-path (sym name) (sym (third line_split)))))
-						((gen-create gen-type)
-							;generated functions, documented at the (gen-xxx :class) call
-							(when (starts-with ":" name)
-								(setq state :info)
-								(push docs (list))
-								(push functions (f-path (sym name) (cond
-									((eql type 'gen-type) :type)
-									((> (length line_split) 2) (sym (cat ":create_" (third line_split))))
-									(:t :create))))))
-						((def-func defun)
-							(setq state :info)
-							(push docs (list))
-							(defq func_name (if (eql name "path-to-absolute")
-									(sym (path-to-absolute (third line_split) file))
-									(sym name)))
-							(push functions func_name))
-						((call jump)
-							(and (eql (third line_split) ":repl_error")
-								(setq line (chop line))
-								(push ffi_list (list (last functions) (list line)))))))
-				:nil)
-			(file-stream file))) *imports*)))
+	;the VP classes as the class database has them, lib/files/info.inc, read
+	;from the source as trace reads it: each class declared, what it comes
+	;of and the methods it declares, its file, and each function's comment
+	;and what Lisp calls it with
+	(defq class_db (files-classes-info) func_db (files-function-info class_db)
+		classes (list) class_files (Fmap 31) ffi_list (. docs_map :find :ffis))
+	(. class_db :each (lambda (cls entry)
+		(when (defq file (. entry :find :file))
+			(. class_files :insert cls file)
+			(push classes (defq cls_info (list cls (str (. entry :find :parent)))))
+			(. (. entry :find :methods) :each (lambda (mthd m_entry)
+				(if (. m_entry :find :dec_file)
+					(push cls_info (list mthd (sym (. m_entry :find :function)) (. m_entry :find :type)))))))))
+	(. func_db :each (lambda (function f_entry)
+		(if (defq sig (. f_entry :find :sig)) (push ffi_list (list (sym function) (list sig))))))
 
 	;create VP classes docs, each with its diagram: what it comes of, its
 	;fields, its methods by kind, and what comes of it
@@ -467,8 +416,8 @@
 			(write-line stream (cat "## VP methods" +LF))
 			(each (lambda ((mthd function &ignore))
 				(write-line stream (cat "### " mthd " -> " function +LF))
-				(when (and (defq i (find function functions))
-						(/= 0 (length (defq info (elem-get docs i)))))
+				(when (and (defq f_entry (. func_db :find (str function)))
+						(list? (defq info (. f_entry :find :docs))) (nempty? info))
 					(write-line stream "```code")
 					(each (# (write-line stream %0)) info)
 					(write-line stream (const (str "```" +LF))))) mthds))

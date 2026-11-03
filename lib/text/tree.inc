@@ -22,36 +22,61 @@
 ;module
 (env-push)
 
-(defq +char_class_bracket (char-class "()"))
+(defq +char_class_bracket (char-class "()") +char_class_opens (char-class "\q;{")
+	+char_class_head_end (char-class " \r\f\v\n\t()"))
 
-(defun tree-read (stream)
-	; (tree-read stream) -> (nodes open stray)
+(defun tree-read (stream &optional end heads)
+	; (tree-read stream [end heads]) -> (nodes open stray)
 	;the nodes of a file, how many brackets were not closed, 0 for one
-	;that is whole, and how many closed nothing: those are left out
-	(defq tok_state :text line_no 0 top (list) stack (list) into top stray 0)
+	;that is whole, and how many closed nothing: those are left out. Only
+	;its first end lines, if given. Given heads, ("import" "defun") say,
+	;only the forms at the top whose first thing is one of them: a form at
+	;the top opens at the start of a line, as the source is laid out, and
+	;the lines between those wanted are read only for a string they leave
+	;open, nothing of them is kept
+	(defq tok_state :text top (list) stack (list) into top stray 0
+		bracket (lambda (ch)
+			;a bracket, a form opened or closed. One at the top not of heads,
+			;on a line with one that is, is let go of as it closes
+			(cond
+				((eql ch "(")
+					(push stack into)
+					(push into (list :form line_no (setq into (list)) line_no)))
+				((nempty? stack)
+					(setq into (pop stack))
+					(elem-set (last into) 3 line_no)
+					(and heads (empty? stack)
+						(defq head (first (third (last into))))
+						(not (and (eql (first head) :symbol) (find (third head) heads)))
+						(pop into)))
+				((++ stray)))))
 	(lines! (lambda (line)
-		(++ line_no)
-		(bind '(toks states tok_next) (tokenize-line (trim-end line "\r") tok_state))
-		(setq tok_state tok_next)
-		(if (empty? toks) (push into (list :blank line_no)))
-		(each (lambda (tok state)
-			(if (eql state :text)
-				(progn
-					;from bracket to bracket, the spaces between passed over
-					(defq j 0 n (length tok))
-					(while (< (setq j (bskipn +char_class_bracket tok j)) n)
-						(cond
-							((eql (elem-get tok j) "(")
-								(push stack into)
-								(push into (list :form line_no (setq into (list)) line_no)))
-							((nempty? stack)
-								(setq into (pop stack))
-								(elem-set (last into) 3 line_no))
-							((++ stray)))
-						(++ j)))
-				(push into (list state line_no tok))))
-			toks states)
-		:nil) stream)
+		(cond
+			((and heads (empty? stack)
+					(not (and (eql tok_state :text) (eql (first line) "(")
+						(find (slice line 1 (bskipn +char_class_head_end line 1)) heads))))
+				;a line between those wanted, only a string it opens or closes,
+				;a " or a { before any ;
+				(and (or (nql tok_state :text)
+						(and (< (defq c (bskipn +char_class_opens line 0)) (length line))
+							(nql (elem-get line c) ";")))
+					(setq tok_state (third (tokenize-line line tok_state)))))
+			((empty? (setq line (trim-end line "\r")))
+				(push into (list :blank (inc (!)))))
+			(:t (defq line_no (inc (!)))
+				(bind '(toks states tok_next) (tokenize-line line tok_state))
+				(setq tok_state tok_next)
+				(each (lambda (tok state)
+					(if (eql state :text)
+						(progn
+							;from bracket to bracket, the spaces between passed over
+							(defq k 0 m (length tok))
+							(while (< (setq k (bskipn +char_class_bracket tok k)) m)
+								(bracket (elem-get tok k))
+								(++ k)))
+						(if (or (not heads) (nempty? stack)) (push into (list state line_no tok)))))
+					toks states)))
+		:nil) stream 0 (ifn end +max_long))
 	(list top (length stack) stray))
 
 (defun tree-form? (node &optional head)

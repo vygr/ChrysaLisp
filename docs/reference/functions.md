@@ -4643,7 +4643,7 @@ create list of all dependencies, with implicit options
 ```code
 (files-depends path [end]) -> paths
 
-create list of immediate dependencies
+create list of immediate dependencies, what it imports and includes
 ```
 
 ### files-dirs
@@ -4658,6 +4658,22 @@ return all the dir paths
 
 ```code
 (files-function-info [forced]) -> :nil | func_db
+```
+
+### files-scan
+
+```code
+(files-scan path [end heads]) -> ((kind line name ...) ...)
+
+what a file imports and includes, and the functions it makes, read as
+the highlighter reads it, (tree-read) of these heads: each form at the
+top of it that is an (import) (include) (def-func) (def-method)
+(gen-host-call) (gen-vtable) (gen-type) or (gen-create), as its kind,
+the line it is on and the first two names it is given, (scan-name).
+Such a form begins its line, as the source is laid out, check -c scan
+says where one does not. One inside another form is made as the code
+runs, it is not of the file. Only the first end lines, if given, and
+the forms of other heads, if given, ("def-class" "defun") say
 ```
 
 ### find-break
@@ -4675,6 +4691,15 @@ where to break a line, by the rules of the forms on it. The gaps are
 only gathered up if the line is too long, or collect is given, as most
 lines are not, and need no more than a look for a break that must be.
 :again if such a break was found, and the gaps are needed to look ahead.
+```
+
+### first-string
+
+```code
+(first-string nodes) -> :nil | str
+
+the first string in nodes, at any depth, without its quotes. A list of
+what is left to look at, last first
 ```
 
 ### fixed?
@@ -9744,6 +9769,14 @@ hybrid filters of PS: the low band, and the high band made, of the
 frame before for the slots its last envelope runs into this one
 ```
 
+### scan-kids
+
+```code
+(scan-kids node) -> nodes
+
+what is in a form, its comments and empty lines left out
+```
+
 ### scan-line
 
 ```code
@@ -9751,6 +9784,15 @@ frame before for the slots its last envelope runs into this one
 
 the tokens of a line as (kind start end), as the Lisp reader would see
 them. instr is the class of the closing char if in a string.
+```
+
+### scan-name
+
+```code
+(scan-name node path) -> str
+
+a name a form is given: a string without its quotes, a quoted symbol
+without its quote, the path of a (path-to-absolute "name")
 ```
 
 ### scatter
@@ -11659,7 +11701,8 @@ is the store in that file this process's to serve. It is if no
 process that is still there has said it is its own. It says so, in
 a file beside the image, waits a moment, and looks again: of two
 that say so at once the last to write is what both read, so one of
-them goes on and the other does not
+them goes on and the other does not. Not if the note can not be
+written, the volume of the image not there, a stick taken out
 ```
 
 ### storage-commit
@@ -14772,10 +14815,15 @@ thing in it is that symbol, "defun" say
 ### tree-read
 
 ```code
-(tree-read stream) -> (nodes open stray)
+(tree-read stream [end heads]) -> (nodes open stray)
 
 the nodes of a file, how many brackets were not closed, 0 for one
-that is whole, and how many closed nothing: those are left out
+that is whole, and how many closed nothing: those are left out. Only
+its first end lines, if given. Given heads, ("import" "defun") say,
+only the forms at the top whose first thing is one of them: a form at
+the top opens at the start of a line, as the source is laid out, and
+the lines between those wanted are read only for a string they leave
+open, nothing of them is kept
 ```
 
 ### tree-said

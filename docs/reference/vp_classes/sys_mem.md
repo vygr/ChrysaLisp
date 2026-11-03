@@ -29,6 +29,13 @@ trashes
 
 ### :bad_free -> sys/mem/bad_free
 
+```code
+trashes
+none
+info
+a block being freed is not one that was given out, report and dump
+```
+
 ### :calloc -> sys/mem/calloc
 
 ```code

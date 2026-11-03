@@ -60,25 +60,27 @@
 		("lib/consts/chars.inc" "+char_")
 		("lib/consts/colors.inc" "+argb_")
 		("lib/consts/scodes.inc" "+sc_")))
-(defq +known_files (list quote (cat (list +implicit_file) (map (const first) +require_prefixes))))
+(defq +char_class_quote (char-class "'`,~")
+	+define_heads ''("defq" "defcvar" "defun" "defmacro" "enums" "bits")
+	+defs_heads ''("def-class" "defun" "defmacro")
+	+known_files (list quote (cat (list +implicit_file) (map (const first) +require_prefixes))))
 
 ;lookup the file the class was defined in
 ;else just use one they all need
 (defun find-file (cls)
 	(if (defq file (. defs_map :find cls)) file +implicit_file))
 
+;what is in a form, its comments and empty lines left out
+(defun words-of (node)
+	(filter (# (not (find (first %0) '(:comment :blank)))) (third node)))
+
 ;what a file includes, its (include) lines alone: an (import) is made
 ;once, in the environment that first asks for it, so what it defines
 ;need not be in the one this file is made in
 (defun includes-of (file)
-	(defq files (list))
-	(when (defq stream (file-stream file))
-		(lines! (# (and (starts-with "(include \q" %0)
-					(push files (path-to-absolute
-						(slice %0 (defq i (inc (find "\q" %0))) (find "\q" %0 i)) file)))
-				:nil)
-			stream))
-	files)
+	(reduce (lambda (files (kind & name &ignore))
+			(if (eql kind "include") (push files (path-to-absolute name file)) files))
+		(files-scan file) (list)))
 
 ;the kept includes in an order each comes after those whose names it
 ;uses, as it is read where it is put: vpb_trans.inc after vpb_ops.inc
@@ -100,27 +102,37 @@
 	(each-mergeable (# (merge files (includes-of %0))) files)
 	files)
 
-;the names a file that is not a class.inc defines at the start of a line,
-;none if it defines them some other way, a struct say. An (enums) or a
-;(bits) at the start of a line defines its name and _size, and its name
-;and _ and each word of its (enum) or (bit) lines
+;the names a file that is not a class.inc defines at the top of it, none
+;if it defines them some other way, a struct say. Each name of a (defq)
+;or (defcvar), the name of a (defun) or (defmacro), and of an (enums) or
+;(bits) its name and _size, and its name and _ and each word of its
+;(enum) or (bit) forms
 (defun defines-of (file)
-	(defq names (list) prefix :nil)
+	(defq names (list))
 	(with-read-lock file
 		(when (defq in_s (file-stream file))
-			(lines! (lambda (line)
-					(defq input (split line +split_class))
-					(when (and (starts-with "(" line) (second input))
-						(setq prefix :nil)
-						(cond
-							((find (first input) '("defun" "defmacro" "defq" "defcvar"))
-								(push names (second input)))
-							((find (first input) '("enums" "bits"))
-								(push names (cat (setq prefix (second input)) "_size")))))
-					(and prefix (defq i (some (# (if (find %0 '("enum" "bit")) (!))) input))
-						(each! (lambda (word) (push names (cat prefix "_" word))) (list input) (inc i)))
-					:nil)
-				in_s)))
+			(each (lambda (node)
+					(defq kids (words-of node) head (third (first kids)))
+					(cond
+						((find head '("defq" "defcvar"))
+							;a name and its value in turn, a ' before a form is of it
+							(defq at 0)
+							(each! (lambda ((kind & text &ignore))
+									(unless (and (eql kind :symbol) (= (bskip +char_class_quote text 0) (length text)))
+										(and (odd? (++ at)) (eql kind :symbol) (push names text))))
+								(list kids) 1))
+						((find head '("defun" "defmacro"))
+							(push names (third (second kids))))
+						((defq prefix (third (second kids)))
+							(push names (cat prefix "_size"))
+							(each (lambda (kid)
+									(and (eql (first kid) :form)
+										(find (third (first (defq words (words-of kid)))) '("enum" "bit"))
+										(each! (lambda (word) (push names (cat prefix "_" (third word))))
+											(list words) 1)))
+								kids))))
+				(first (tree-read in_s :nil +define_heads)))
+			(setq in_s :nil)))
 	names)
 
 ;read a file for what it includes, the classes and the files its words
@@ -255,22 +267,14 @@
 				(each (# (bind '(cls file) (split %0 "|"))
 						(. defs_map :insert cls file))
 					(split opt_d "[]")))
-			(:t ;must build a defs map
+			(:t ;must build a defs map, of the classes and the inline functions
+				;and macros of each class.inc, but not those of the assembler,
+				;every file has them
 				(each (lambda (file)
-						(with-read-lock file
-							(when (defq in_s (file-stream file))
-								(lines! (# (defq input (split %0 +split_class))
-										(cond
-											((eql (first input) "def-class")
-												(. defs_map :insert (second input) file))
-											;the inline functions and macros it defines, but
-											;not those of the assembler, every file has them
-											((and (not (starts-with "./lib/asm/" file)) (not (starts-with "lib/asm/" file))
-													(or (starts-with "(defun " %0) (starts-with "(defmacro " %0)))
-												(. defs_map :insert (second input) file)))
-										:nil)
-									in_s)
-								(setq in_s :nil))))
+						(each (lambda ((kind & name &ignore))
+								(if (or (eql kind "def-class") (not (starts-with "lib/asm/" file)))
+									(. defs_map :insert name file)))
+							(with-read-lock file (files-scan file :nil +defs_heads))))
 					(files-all "." '("class.inc") 2))
 
 				(setq opt_d (list))

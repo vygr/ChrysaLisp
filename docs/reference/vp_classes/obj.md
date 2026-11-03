@@ -26,6 +26,13 @@ docs/reference/vp_classes/obj.cwb
 
 ### :dead -> class/obj/dead
 
+```code
+trashes
+none
+info
+a ref or deref of an object that is not alive, report and dump
+```
+
 ### :deinit -> class/obj/null
 
 ### :deref -> class/obj/deref

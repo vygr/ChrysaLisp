@@ -34,8 +34,35 @@
 ;a string in braces that goes over lines and ends with the first character of one
 (bind '(tt_nodes tt_open &ignore) (tt-read "(cat {one (\n} x {two\n})\n(b)"))
 (assert-eq "it ends there, and what is after is code" "(0 2)" (str (list tt_open (length tt_nodes))))
+;given heads, the forms at the top of them alone, each at the start of its
+;line, and the lines between read only for a string they leave open
+(bind '(tt_nodes tt_open &ignore) (tree-read (string-stream (cat
+	"(import \qa.inc\q)" "\n"
+	";a comment" "\n"
+	"(defun f ()" "\n"
+	"	(import \qb.inc\q))" "\n"
+	"(include {c.inc}) (defq y 1)" "\n"
+	"(defq s {" "\n"
+	"(import \qin a string\q)" "\n"
+	"})" "\n"
+	"(import \qd.inc\q)")) :nil '("import" "include")))
+(assert-eq "only the forms of the heads at the top, not in a string" "(1 5 9)" (str (map (const second) tt_nodes)))
+(assert-eq "each whole" "(import \qa.inc\q)" (tree-text (first tt_nodes)))
+(assert-eq "and nothing left open" 0 tt_open)
 ;every source file of the system is whole
 (import "lib/files/files.inc")
+;what a file imports, includes and makes, by those heads
+(assert-true "a method a file makes" (some (# (and (eql (first %0) "def-method") (eql (third %0) ":list") (eql (elem-get %0 3) ":deinit")))
+	(files-scan "class/list/class.vp")))
+(assert-eq "a name made by (path-to-absolute)" "lib/crypto/sha256_blocks"
+	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "lib/crypto/lisp.vp"))) 2))
+(assert-eq "a name of a quoted symbol" "class/lisp/run"
+	(elem-get (first (filter (# (eql (first %0) "def-func")) (files-scan "class/lisp/run.vp"))) 2))
+(assert-true "what a file imports" (find "gui/lisp.inc" (files-depends "cmd/input.lisp")))
+(assert-eq "not an import of a path worked out as it runs" (length (filter (# (eql (first %0) "import")) (files-scan "cmd/input.lisp")))
+	(length (files-depends "cmd/input.lisp")))
+(assert-eq "files-scan of other heads, the class a class.inc makes" "def-class :lisp"
+	(join (map (# (elem-get (first (files-scan "class/lisp/class.inc" :nil '("def-class"))) %0)) '(0 2)) " "))
 (defq tt_bad (list))
 (each (lambda (file)
 	(when (defq s (file-stream file))
