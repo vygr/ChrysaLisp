@@ -132,13 +132,13 @@
 		(. (ui-button *btn_refresh* (:text "Refresh")) :connect +event_refresh)
 		(ui-label *status_label* (:text "Connecting..." :flow_flags +flow_flag_align_vcenter :paper +argb_grey15)))
 	; Hero Card: Coin Header
-	(ui-flow _ (:flow_flags +flow_right_fill)
+	(ui-flow *hero_head* (:flow_flags +flow_right_fill)
 		(ui-label *hero_symbol* (:text "#1  BTC" :font :font_sub_title))
 		(ui-label *hero_name* (:text "Bitcoin" :font :font_bold :flow_flags +flow_flag_align_vcenter))
 		(ui-label *hero_change* (:text "+0.00%" :font :font_bold :border 0
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
 	; Hero Card: Big Price & 24h Range
-	(ui-flow _ (:flow_flags +flow_right_fill)
+	(ui-flow *hero_body* (:flow_flags +flow_right_fill)
 		(ui-label *hero_price* (:text "$0.00" :font :font_display))
 		(ui-label *range_label* (:text "24h: $0.00 - $0.00" :font :font_small
 			:flow_flags (logior +flow_flag_align_hright +flow_flag_align_vcenter))))
@@ -179,6 +179,9 @@
 					mx (max mx %0)))
 				flts)
 			(. *range_label* :set_text (cat "24h: " (format-price (str mn)) " - " (format-price (str mx)))))
+		;the two rows of the card laid out again for what they now say, the
+		;window as it is
+		(each (# (.-> %0 (:constrain :t) :dirty_all)) (list *hero_head* *hero_body*))
 		(render-sparkline *chart_canvas* spark change)
 		(defq btns (list
 			*btn_coin_0* *btn_coin_1* *btn_coin_2*

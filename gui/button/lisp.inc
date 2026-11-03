@@ -21,7 +21,8 @@
 		(if (/= 1 state)
 			(setq pos (* pos 2)))
 		(bind '(w h) (. this :get_size))
-		(. flow :set_bounds pos pos (- w (* border 2)) (- h (* border 2)))
+		;and its text laid out again, as a label's is, a new text a new size
+		(.-> flow (:set_bounds pos pos (- w (* border 2)) (- h (* border 2))) (:constrain :t))
 		(. this :set_flags +view_flag_opaque +view_flag_opaque))
 
 	(defmethod :mouse_down (event)
