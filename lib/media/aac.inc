@@ -344,7 +344,7 @@
 			((or (= kind +aac_sce) (= kind +aac_lfe))
 				(push channels (scatter (aac-channel in :nil rate_index) :element element :kind 0)))
 			((= kind +aac_cpe)
-				(defq common (bits-1 in) info :nil ms 0 ms_mask :nil)
+				(defq common (bits-1 in) info :nil ms :nil ms_mask :nil)
 				(when (= common 1)
 					(setq info (aac-ics-info in rate_index) ms (bits-get in 2))
 					(if (= ms 1)
@@ -480,17 +480,18 @@
 
 (defun aac-stereo (left right l r tables)
 	; (aac-stereo left right l_lines r_lines tables)
-	;of a pair with a common window: M/S, L = M + S and R = M - S, and
-	;intensity, R the L of the band by its position, its sign by its book
-	;and by the M/S mask
-	(defq info (. left :find :info) bands (. info :find :bands) window 0
+	;of a pair: M/S, L = M + S and R = M - S, sent only with a common
+	;window, :ms :nil without one; and intensity, R the L of the band by
+	;its position, its sign by its book and by the M/S mask, by the right's
+	;window, which is the left's when common
+	(defq info (. right :find :info) bands (. info :find :bands) window 0
 		size (if (= (. info :find :sequence) +aac_eight_short) 128 1024)
 		ms (. left :find :ms) mask (. left :find :ms_mask) gain (. tables :find :gain))
-	(each (lambda (count lbooks rbooks rscales)
+	(each (lambda (count rbooks rscales)
 			(defq g (!))
 			(each (lambda (sfb)
-					(defq lbook (elem-get lbooks sfb) rbook (elem-get rbooks sfb)
-						used (or (= ms 2) (and (= ms 1) (= 1 (elem-get (elem-get mask g) sfb)))) w window)
+					(defq rbook (elem-get rbooks sfb)
+						used (and ms (or (= ms 2) (and (= ms 1) (= 1 (elem-get (elem-get mask g) sfb))))) w window)
 					(times count
 						(defq from (+ (* w size) (elem-get bands sfb)) to (+ (* w size) (elem-get bands (inc sfb))))
 						(cond
@@ -499,7 +500,7 @@
 								(if (= rbook +aac_intensity2) (setq scale (neg scale)))
 								(and (= ms 1) used (setq scale (neg scale)))
 								(each (# (elem-set r %0 (* (elem-get l %0) scale))) (range from to)))
-							((and used (< lbook +aac_noise) (< rbook +aac_noise))
+							((and used (< (elem-get (elem-get (. left :find :sections) g) sfb) +aac_noise) (< rbook +aac_noise))
 								(each (lambda (k)
 										(defq m (elem-get l k) s (elem-get r k))
 										(elem-set l k (+ m s))
@@ -508,7 +509,7 @@
 						(setq w (inc w))))
 				(range 0 (. info :find :max_sfb)))
 			(setq window (+ window count)))
-		(. info :find :lengths) (. left :find :sections) (. right :find :sections) (. right :find :scales)))
+		(. info :find :lengths) (. right :find :sections) (. right :find :scales)))
 
 (defun aac-tns-apply (ch out rate_index)
 	; (aac-tns-apply channel lines rate_index)
@@ -614,7 +615,7 @@
 			channels))
 	;the pairs, M/S and intensity, before TNS
 	(each (lambda (ch l)
-			(and (eql (. ch :find :pair) :left) (. ch :find :ms)
+			(and (eql (. ch :find :pair) :left)
 				(aac-stereo ch (elem-get channels (inc (!))) l (elem-get lines (inc (!))) tables)))
 		channels lines)
 	(each (# (aac-tns-apply %0 %1 rate_index)) channels lines)

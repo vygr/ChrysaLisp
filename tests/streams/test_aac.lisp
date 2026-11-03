@@ -102,3 +102,37 @@
 (assert-true "HE-AAC v2: the left with little of the right's 660" (< (he-tone ps_left 660) (n2r 1000)))
 (assert-true "HE-AAC v2: the right's 660" (< (n2r 7500) (he-tone ps_right 660) (n2r 9000)))
 (assert-true "HE-AAC v2: the right with little of the left's 440" (< (he-tone ps_right 440) (n2r 1000)))
+
+;windows.m4a is half a second of 440 on the left, and 660 on the right in
+;bursts, on for 1440 samples of each 4800 by blocks of 1024, both 1024
+;high, at 48000, made AAC-LC by ffmpeg's own coder at 96 kbit/s. The
+;bursts give the right short windows where the left has a long one, so
+;most of its pairs have no common window: no M/S, and each side read by
+;its own bands. It starts 1024 in
+(defq wi_reel (mp4-reel (file-stream "tests/streams/data/windows.m4a"))
+	wi_track (some (# (if (eql (. %0 :find :kind) "soun") %0)) (. wi_reel :find :tracks)))
+(mp4-tables wi_track)
+(defq wi_decoder (aac-decoder (aac-track-config wi_track)) wi_stream (. wi_reel :find :stream)
+	wi_left (list) wi_right (list) wi_bad 0)
+(each (lambda (i)
+		(stream-seek wi_stream (elem-get (. wi_track :find :offsets) i) 0)
+		(defq chans (catch (aac-decode wi_decoder (read-blk wi_stream (elem-get (. wi_track :find :sizes) i))) (progn (++ wi_bad) :t)))
+		(when (list? chans)
+			(push wi_left (first chans))
+			(push wi_right (second chans))))
+	(range 0 (. wi_track :find :samples)))
+(assert-eq "a pair without a common window: every packet decodes" 0 wi_bad)
+(setq wi_left (apply (const cat) wi_left) wi_right (apply (const cat) wi_right))
+(defun wi-ratio (got hz bursts)
+	; (wi-ratio samples hz bursts) -> real
+	;what was coded over what differs from it, the tone on in its bursts
+	;if bursts
+	(defq sig (n2r 0) err (n2r 0) w (/ (* (n2r 2) (n2r 3.14159265) (n2r hz)) (n2r 48000)))
+	(each (lambda (i)
+			(defq want (* (n2r 1024) (sin (* w (n2r i)))) x (elem-get got (+ i 1024)))
+			(and bursts (>= (% (* (/ i 1024) 1024) 4800) 1440) (setq want (n2r 0)))
+			(setq sig (+ sig (* want want)) err (+ err (* (- x want) (- x want)))))
+		(range 2048 22528))
+	(/ sig err))
+(assert-true "a pair without a common window: the left's 440 as it was" (> (wi-ratio wi_left 440 :nil) (n2r 1000)))
+(assert-true "a pair without a common window: the right's bursts of 660 as they were" (> (wi-ratio wi_right 660 :t) (n2r 100)))
