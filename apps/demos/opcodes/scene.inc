@@ -90,7 +90,7 @@
 		hh (+ (* (- max_y min_y) 0.5) (* f_scale 4.0)))
 	; Center all glyph paths symmetrically around (0, 0)
 	(defq core_paths (map (#
-			(path-transform (fixeds
+			(mat3x2-vec2-mul (fixeds
 				1.0 0.0 (neg cx)
 				0.0 1.0 (neg cy))
 				%0 (cat %0))) raw_paths))
@@ -153,13 +153,13 @@
 			;is filled by the none zero rule, odd even would leave holes there
 			; 1. Outer Translucent Neon Glow
 			(.-> canvas (:set_color col_glow) (:fpoly 0.0 0.0 +winding_none_zero
-				(map (# (path-transform tx_matrix %0 (cat %0))) glow_paths)))
+				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) glow_paths)))
 			; 2. Crisp Neon Outline Hull
 			(.-> canvas (:set_color col_outline) (:fpoly 0.0 0.0 +winding_none_zero
-				(map (# (path-transform tx_matrix %0 (cat %0))) outline_paths)))
+				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) outline_paths)))
 			; 3. High-Contrast Luminescent Core
 			(.-> canvas (:set_color col_core) (:fpoly 0.0 0.0 +winding_odd_even
-				(map (# (path-transform tx_matrix %0 (cat %0))) core_paths)))
+				(map (# (mat3x2-vec2-mul tx_matrix %0 (cat %0))) core_paths)))
 			(setq drawn (inc drawn))))
 		(range 0 (length packed) +bouncer_size))
 	drawn)

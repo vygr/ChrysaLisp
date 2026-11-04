@@ -571,10 +571,15 @@ Macros for assembling declarative widget hierarchies.
 
 	*	`(path-stroke-polylines dst radius join cap1 cap2 src) -> dst`
 
-*	**`path-transform`**: Multiplies path vertices by a 3x2 transformation
+*	**`mat3x2-mul`**: Multiplies two 3x2 fixed point matrices, the one on
+	the right first; the output may be either input.
+
+	*	`(mat3x2-mul ma mb [out]) -> out`
+
+*	**`mat3x2-vec2-mul`**: Multiplies path vertices by a 3x2 transformation
 	matrix.
 
-	*	`(path-transform m3x2 src dst) -> dst`
+	*	`(mat3x2-vec2-mul m3x2 src dst) -> dst`
 
 *	**`path-svg`**: Tokenizes SVG path commands and coordinate tokens.
 

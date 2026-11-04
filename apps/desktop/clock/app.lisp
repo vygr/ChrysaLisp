@@ -40,7 +40,7 @@
 
 (defun transform (%0 a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (ifn x 0.0) y (ifn y 0.0))
-	(path-transform (fixeds
+	(mat3x2-vec2-mul (fixeds
 		(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
 		(* s sa) (* s ca) (* s (+ y 0.5))) %0 %0))
 
@@ -78,7 +78,7 @@
 					ty (+ ny (* (n2f h) 0.5))
 					mat (fixeds 1.0 0.0 tx 0.0 1.0 ty))
 				(each (lambda (p)
-					(push clock_face (path-transform mat p p)))
+					(push clock_face (mat3x2-vec2-mul mat p p)))
 					(font-glyph-paths font text)))
 				(range 1 13)))))
 

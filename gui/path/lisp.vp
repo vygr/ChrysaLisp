@@ -4,7 +4,53 @@
 (include "class/fixed/class.inc")
 (include "./class.inc")
 
-(def-method :path :lisp_transform)
+(def-method :path :lisp_mat3x2_mul)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r13, :f0-:f15
+
+	(vp-rdef (dst iter_begin ma mb this args argc len)
+		'(:r0 :r6 :r7 :r8 :r9 :r1 :r11 :r12))
+
+	(entry :path :lisp_mat3x2_mul `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2 3)
+
+	(assign `((,args +array_begin) (,args +array_length)) `(,iter_begin ,argc))
+	(array-get-args iter_begin `(,ma ,mb))
+	(assign `((,ma +array_length)) `(,len))
+	(gotoif `(,len < 6) 'error)
+	(assign `((,mb +array_length)) `(,len))
+	(gotoif `(,len < 6) 'error)
+	(vpif `(,argc = 2))
+		(call :fixeds :create :nil `(,dst))
+		(call :fixeds :set_cap `(,dst 6) `(,dst))
+		(call :fixeds :set_length `(,dst 6) `(,dst _))
+	(else)
+		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
+		(assign `((,dst +array_length)) `(,len))
+		(gotoif `(,len < 6) 'error)
+		(call :obj :ref `(,dst) `(,dst))
+	(endif)
+	(vp-push this)
+	(call :path :mat3x2_mul `(,dst ,ma ,mb) `(,dst))
+	(vp-pop this)
+
+	(exit :path :lisp_mat3x2_mul `(,this ,dst))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error `(,args "(mat3x2-mul ma mb [out])" +error_msg_wrong_types))
+	(signature '(:FIXEDS :FIXEDS :FIXEDS))
+
+(def-func-end)
+
+(def-method :path :lisp_mat3x2_v2_mul)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -14,26 +60,26 @@
 	;trashes
 	;:r1-:r14
 
-	(entry :path :lisp_transform '(:r0 :r1))
+	(entry :path :lisp_mat3x2_v2_mul '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0 :r1)
-	(bind '(dst sp m3x2) (method-input :path :transform))
+	(bind '(dst sp m3x2) (method-input :path :mat3x2_v2_mul))
 	(list-bind-args :r1 `(,m3x2 ,sp ,dst) '(:fixeds :path :path))
 	(assign `((,m3x2 +array_length)) '(:r14))
 	(gotoif '(:r14 < 6) 'error1)
-	(call :path :transform `(,dst ,sp ,m3x2) '(:r0))
+	(call :path :mat3x2_v2_mul `(,dst ,sp ,m3x2) '(:r0))
 	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0 :r2)
 
-	(exit :path :lisp_transform '(:r0 :r1))
+	(exit :path :lisp_mat3x2_v2_mul '(:r0 :r1))
 	(vp-ret)
 
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump :lisp :repl_error '(:r1 "(path-transform m3x2 src dst)" +error_msg_wrong_types))
+	(jump :lisp :repl_error '(:r1 "(mat3x2-vec2-mul m3x2 src dst)" +error_msg_wrong_types))
 	(signature '(:FIXEDS :PATH :PATH))
 
 (def-func-end)

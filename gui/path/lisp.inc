@@ -15,8 +15,10 @@
 ; (path-stroke-polygon path radius join) -> paths
 (ffi "gui/path/lisp_stroke_polyline" path-stroke-polyline)
 ; (path-stroke-polyline path radius join cap1 cap2) -> path
-(ffi "gui/path/lisp_transform" path-transform)
-; (path-transform m3x2 src dst) -> dst
+(ffi "gui/path/lisp_mat3x2_mul" mat3x2-mul)
+; (mat3x2-mul ma mb [out]) -> out
+(ffi "gui/path/lisp_mat3x2_v2_mul" mat3x2-vec2-mul)
+; (mat3x2-vec2-mul m3x2 src dst) -> dst
 (ffi "gui/path/lisp_svg" path-svg)
 ; (path-svg d) -> commands
 

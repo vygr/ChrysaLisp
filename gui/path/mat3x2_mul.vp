@@ -1,0 +1,40 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+
+(def-method :path :mat3x2_mul)
+	;inputs
+	;:r0 = output fixeds object, can be ma or mb (ptr)
+	;:r1 = ma fixeds object (ptr)
+	;:r2 = mb fixeds object (ptr)
+	;outputs
+	;:r0 = output fixeds object (ptr)
+	;trashes
+	;:r1-:r13
+	;info
+	;the matrix that does what mb does and then what ma does, each
+	;product shifted as (:fixeds :dot) shifts it. mb is read first and a
+	;row of ma before that row is written, so out can be either
+
+	(vp-rdef (this ma mb b0 b1 b2 b3 b4 b5 a0 a1 a2 t0 t1))
+
+	(entry :path :mat3x2_mul `(,this ,ma ,mb))
+
+	(array-bind-args mb `(,b0 ,b1 ,b2 ,b3 ,b4 ,b5))
+	(assign `((,ma +array_begin) (,this +array_begin)) `(,ma ,mb))
+	(each (lambda (row)
+			(defq o (* row +long_size))
+			(vp-simd vp-cpy-ir `(,ma) `(,o ,(+ o +long_size) ,(+ o (* 2 +long_size))) `(,a0 ,a1 ,a2))
+			(each (lambda (col bt bb)
+					(vp-simd vp-cpy-rr `(,a0 ,a1) `(,t0 ,t1))
+					(vp-simd vp-mul-rr `(,bt ,bb) `(,t0 ,t1))
+					(vp-simd vp-asr-cr `(,+fp_shift) `(,t0 ,t1))
+					(vp-add-rr t1 t0)
+					(if (= col 2) (vp-add-rr a2 t0))
+					(vp-cpy-ri t0 mb (+ o (* col +long_size))))
+				'(0 1 2) (list b0 b1 b2) (list b3 b4 b5)))
+		'(0 3))
+
+	(exit :path :mat3x2_mul `(,this))
+	(vp-ret)
+
+(def-func-end)

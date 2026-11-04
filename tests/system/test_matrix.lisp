@@ -25,6 +25,15 @@
 (assert-true "an eighth of a skew along x moves a point across by its height" (mx-near? (Mat3x2-point (Mat3x2-skew (/ +fp_pi 4.0)) 2 3) (list 5.0 3.0)))
 (assert-true "and along y up by how far across it is" (mx-near? (Mat3x2-point (Mat3x2-skew 0.0 (/ +fp_pi 4.0)) 2 3) (list 2.0 5.0)))
 (assert-true "a skew of nothing is no change" (mx-near? (Mat3x2-skew 0.0) (Mat3x2)))
+;the native multiply of :path, (mat3x2-mul), what (Mat3x2-mul) uses: the
+;one on the right first, and the one it gives can be either it was given
+(assert-eq "the one on the right first" "(12.00000 7.00000)" (str (Mat3x2-point (mat3x2-mul (Mat3x2-translate 10 5) (Mat3x2-scale 2)) 1 1)))
+(defq mx_a (Mat3x2 1.5 -0.25 7.0 0.5 2.0 -3.0) mx_b (Mat3x2 0.75 0.5 -2.0 -0.5 1.25 4.0)
+	mx_ab (str (mat3x2-mul mx_a mx_b)) mx_l (cat mx_a) mx_r (cat mx_b))
+(assert-eq "it can be given back as the one on the left" mx_ab (str (mat3x2-mul mx_l mx_b mx_l)))
+(assert-eq "or as the one on the right" mx_ab (str (mat3x2-mul mx_a mx_r mx_r)))
+(assert-eq "a path of points is moved by the same matrix" "(12.00000 7.00000 14.00000 9.00000)"
+	(str (mat3x2-vec2-mul (mat3x2-mul (Mat3x2-translate 10 5) (Mat3x2-scale 2)) (path 1.0 1.0 2.0 2.0) (path 0.0 0.0 0.0 0.0))))
 (assert-eq "mul does the second given first" "(26.00000 48.00000)"
 	(str (Mat3x2-point (Mat3x2-mul (Mat3x2-scale 2) mx_t) 3 4)))
 (defq mx_m (Mat3x2-mul (Mat3x2-rot 0.7 3 4) (Mat3x2-scale 2.5 0.5 1 1)))

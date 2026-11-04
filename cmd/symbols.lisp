@@ -35,7 +35,7 @@
 	(each (lambda (code)
 		(.-> canvas (:set_color +pic_ink)
 			(:fpoly (n2f (+ x (* (!) step))) (n2f y) +winding_none_zero
-				(map (# (path-transform (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0))
+				(map (# (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0))
 					(font-glyph-paths font (num-to-utf8 code))))))
 		codes))
 

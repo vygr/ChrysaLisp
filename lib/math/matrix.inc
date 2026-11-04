@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;
 
 (import "./vector.inc")
+(import "gui/path/lisp.inc")
 
 (defun Mat4x4-unity ()
 	(reals +real_1 +real_0 +real_0 +real_0
@@ -58,7 +59,7 @@
 ;	x' = a*x + b*y + tx
 ;	y' = c*x + d*y + ty
 ;
-; It is what (path-transform) takes. :nil is a matrix too, that of no
+; It is what (mat3x2-vec2-mul) takes. :nil is a matrix too, that of no
 ; change, and every function here takes it as one and does no work for it.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -72,10 +73,7 @@
 	(cond
 		((not ma) mb)
 		((not mb) ma)
-		(:t (bind '(a0 a1 a2 a3 a4 a5) ma)
-			(bind '(b0 b1 b2 b3 b4 b5) mb)
-			(fixeds (+ (* a0 b0) (* a1 b3)) (+ (* a0 b1) (* a1 b4)) (+ (* a0 b2) (* a1 b5) a2)
-				(+ (* a3 b0) (* a4 b3)) (+ (* a3 b1) (* a4 b4)) (+ (* a3 b2) (* a4 b5) a5)))))
+		(:t (mat3x2-mul ma mb))))
 
 (defun Mat3x2-translate (tx ty)
 	; (Mat3x2-translate tx ty) -> matrix

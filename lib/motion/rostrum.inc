@@ -33,11 +33,11 @@
 	(bind '(a b & tx d e & ty g h & tz) m)
 	(cond
 		((not focus)
-			(path-transform (fixeds a b tx d e ty) p (cat p)))
+			(mat3x2-vec2-mul (fixeds a b tx d e ty) p (cat p)))
 		((and (= g 0.0) (= h 0.0))
 			;it faces the camera, all of it is the one way off
 			(defq k (/ focus (+ focus tz)))
-			(path-transform (fixeds (* a k) (* b k) (+ cx (* (- tx cx) k))
+			(mat3x2-vec2-mul (fixeds (* a k) (* b k) (+ cx (* (- tx cx) k))
 				(* d k) (* e k) (+ cy (* (- ty cy) k))) p (cat p)))
 		(:t (defq out (path) i 0 n (length p))
 			(while (< i n)
@@ -76,7 +76,7 @@
 (defun rostrum-view (view paths)
 	; (rostrum-view view paths) -> paths
 	;the paths moved by the view, which are new ones and can be moved in place
-	(when view (each (# (path-transform view %0 %0)) paths))
+	(when view (each (# (mat3x2-vec2-mul view %0 %0)) paths))
 	paths)
 
 (defun rostrum-mover (rostrum mover)

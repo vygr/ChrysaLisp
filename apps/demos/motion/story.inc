@@ -30,7 +30,7 @@
 	;the letters made big and brought down, so that they stay smooth drawn
 	;at more than the picture's size
 	(map (lambda ((closed p))
-			(list closed (path-transform (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) p p)))
+			(list closed (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) p p)))
 		(outline-text text (ifn font +story_regular) (* size 2))))
 
 (defun story-lines (lines size)
@@ -39,7 +39,7 @@
 	(defq out (list) step (n2f (+ size (/ size 4))) y (* step (* -0.5 (n2f (dec (length lines))))))
 	(each (lambda (line)
 			(defq m (fixeds 1.0 0.0 0.0 0.0 1.0 y))
-			(each (lambda ((closed p)) (push out (list closed (path-transform m p p))))
+			(each (lambda ((closed p)) (push out (list closed (mat3x2-vec2-mul m p p))))
 				(outline-centred (story-text line size)))
 			(setq y (+ y step)))
 		lines)

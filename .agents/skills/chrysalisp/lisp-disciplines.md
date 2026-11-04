@@ -560,7 +560,7 @@ the form `(!)` evaluates to the current zero-based loop index:
 
 Always use `(# ...)` when using positional arguments (`%0`, `%1`, etc.):
 
-	(map (# (path-transform m %0 (cat %0))) paths)
+	(map (# (mat3x2-vec2-mul m %0 (cat %0))) paths)
 
 NEVER write `(lambda (%0) ...)`. The `lambda` form is strictly reserved for
 explicitly named parameter lists: `(lambda (item) ...)`.

@@ -130,7 +130,7 @@ arrives late goes in the layer of its sort and stays under the layers above.
 
 With no focus a tilted figure is only narrower. Whichever it is, a figure that
 faces the camera, or any with no focus, is one matrix in native code,
-`(path-transform)`. A figure tilted with a focus is a divide for each point in
+`(mat3x2-vec2-mul)`. A figure tilted with a focus is a divide for each point in
 Lisp, measured at about 17 times the cost for a line of big words.
 
 ## Morphing

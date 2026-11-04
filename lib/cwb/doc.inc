@@ -69,12 +69,12 @@
 ;;;;;;;;;;
 
 ;a matrix is the 3x2 of lib/math/matrix.inc, (Mat3x2), six numbers, as
-;(path-transform) takes it. :nil where a matrix can be is no change
+;(mat3x2-vec2-mul) takes it. :nil where a matrix can be is no change
 
 (defun cwb-mat-paths (m paths)
 	; (cwb-mat-paths m paths) -> paths
 	;new paths, each moved by the matrix, the same ones if it is :nil
-	(if m (map (# (path-transform m %0 (cat %0))) paths) paths))
+	(if m (map (# (mat3x2-vec2-mul m %0 (cat %0))) paths) paths))
 
 ;;;;;;;;
 ; places
@@ -360,7 +360,7 @@
 		;canvas that is drawn at twice its size and made small wants them.
 		;Here a size is a size, words of 24 are as big as words of 24 are
 		;on a button
-		(map (# (list :t (path-transform (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
+		(map (# (list :t (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
 			(if (nempty? (elem-get shape +cwb_text))
 				(font-glyph-paths (create-font (elem-get shape +cwb_font) (n2i (elem-get shape +cwb_font_size)))
 					(elem-get shape +cwb_text))

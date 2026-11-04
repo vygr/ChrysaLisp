@@ -34,7 +34,7 @@
 	;and a couple of pixels wide when a shape is small
 	scene-word (lambda (text)
 		(defq m (fixeds 1.5 0.0 0.0 0.0 1.5 0.0)
-			raw (map (# (path-transform m %0 (cat %0))) (font-glyph-paths font text)))
+			raw (map (# (mat3x2-vec2-mul m %0 (cat %0))) (font-glyph-paths font text)))
 		(cat raw (path-stroke-polygons (list) 2.5 +join_round raw)))
 	fp1 (scene-word "Vectors!")
 	fp2 (scene-word "Beziers!")
@@ -188,7 +188,7 @@
 	;a shape turned, sized and moved to where it is in the scene
 	(defq sa (* scale (sin rot)) ca (* scale (cos rot))
 		m (fixeds ca (* sa -1.0) tx sa ca ty))
-	(map (# (path-transform m %0 (cat %0))) paths))
+	(map (# (mat3x2-vec2-mul m %0 (cat %0))) paths))
 
 (defun shape-sway (angle speed i mul)
 	; (shape-sway angle speed i mul) -> -1.0 to 1.0

@@ -28,7 +28,7 @@
 	; (outline-text text font_name size) -> outline
 	;the letters of some words, the left of them at 0 and the line they sit
 	;on at their foot. The outlines a font gives are twice its size
-	(map (# (list :t (path-transform (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
+	(map (# (list :t (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
 		(if (nempty? text) (font-glyph-paths (create-font font_name size) text) (list))))
 
 (defun outline-box (outline)
@@ -51,7 +51,7 @@
 		((defq box (outline-box outline))
 			(bind '(x y x1 y1) box)
 			(defq m (fixeds 1.0 0.0 (neg (* 0.5 (+ x x1))) 0.0 1.0 (neg (* 0.5 (+ y y1)))))
-			(map (lambda ((closed p)) (list closed (path-transform m p (cat p)))) outline))
+			(map (lambda ((closed p)) (list closed (mat3x2-vec2-mul m p (cat p)))) outline))
 		(outline)))
 
 (defun morph-length (p closed)

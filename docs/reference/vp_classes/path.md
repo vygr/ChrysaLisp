@@ -16,6 +16,10 @@ docs/reference/vp_classes/path.cwb
 
 ### (path-gen-quadratic p1x p1y p2x p2y p3x p3y dst) -> dst
 
+### (mat3x2-mul ma mb [out]) -> out
+
+### (mat3x2-vec2-mul m3x2 src dst) -> dst
+
 ### (path-simplify tol src dst) -> dst
 
 ### (path-stroke-polygon path radius join) -> paths
@@ -23,8 +27,6 @@ docs/reference/vp_classes/path.cwb
 ### (path-stroke-polyline path radius join cap1 cap2) -> path
 
 ### (path-svg d) -> commands
-
-### (path-transform m3x2 src dst) -> dst
 
 ## VP methods
 
@@ -133,6 +135,36 @@ trashes
 :r1-:r7, :f0-:f15
 ```
 
+### :mat3x2_mul -> gui/path/mat3x2_mul
+
+```code
+inputs
+:r0 = output fixeds object, can be ma or mb (ptr)
+:r1 = ma fixeds object (ptr)
+:r2 = mb fixeds object (ptr)
+outputs
+:r0 = output fixeds object (ptr)
+trashes
+:r1-:r13
+info
+the matrix that does what mb does and then what ma does, each
+product shifted as (:fixeds :dot) shifts it. mb is read first and a
+row of ma before that row is written, so out can be either
+```
+
+### :mat3x2_v2_mul -> gui/path/mat3x2_v2_mul
+
+```code
+inputs
+:r0 = path object (ptr)
+:r1 = source path object, can be same (ptr)
+:r2 = m3x2 fixeds object (ptr)
+outputs
+:r0 = path object (ptr)
+trashes
+:r1-:r13
+```
+
 ### :simplify -> gui/path/simplify
 
 ```code
@@ -194,19 +226,6 @@ outputs
 :r1 = output path object (ptr)
 trashes
 :r1-:r14, :f0-:f15
-```
-
-### :transform -> gui/path/transform
-
-```code
-inputs
-:r0 = path object (ptr)
-:r1 = source path object, can be same (ptr)
-:r2 = m3x2 fixeds object (ptr)
-outputs
-:r0 = path object (ptr)
-trashes
-:r1-:r13
 ```
 
 ### :type -> gui/path/type

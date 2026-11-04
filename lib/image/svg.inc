@@ -150,12 +150,12 @@
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
-				(map (lambda ((f p)) (path-transform transform p (cat p))) paths))))
+				(map (lambda ((f p)) (mat3x2-vec2-mul transform p (cat p))) paths))))
 	(and (/= stroke 0) (/= stroke_opacity 0.0)
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
-				(map (lambda (p) (path-transform transform p p))
+				(map (lambda (p) (mat3x2-vec2-mul transform p p))
 					(reduce (lambda (l (f p))
 						(cond
 							(f	;closed
@@ -262,7 +262,7 @@
 						("middle" (* (n2f h) 0.5))
 						("hanging" (n2f h))
 						(:t 0.0))
-					d (map (# (list :t (path-transform
+					d (map (# (list :t (mat3x2-vec2-mul
 							(Mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
