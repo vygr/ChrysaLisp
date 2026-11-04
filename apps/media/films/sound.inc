@@ -224,6 +224,14 @@
 			(. sound :insert :drop 0))
 		(scatter sound :written written :next next)))
 
+(defun sound-done? (sound)
+	; (sound-done? sound) -> :t | :nil
+	;all of the track written and heard, nothing left in the stream: its
+	;clock goes no further, though the pictures may have a frame or two
+	;more than the sound has time for
+	(and (>= (. sound :find :next) (. (. sound :find :track) :find :samples))
+		(<= (. sound :find :left) 0)))
+
 (defun sound-kept (sound n)
 	; (sound-kept sound n) -> :nil | (left right)
 	;the samples of packet n, of a sound that keeps them, if it decoded it
