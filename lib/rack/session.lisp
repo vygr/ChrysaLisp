@@ -18,10 +18,9 @@
 		;a desktop: the GUI on this node, the host's, as run.sh -f has it,
 		;and up before the command lines, which may look at it
 		(when (get '*rack_gui*)
+			;its own, on this node, not another desktop's of the machine
 			(open-child "service/gui/app.lisp" +kn_call_pin)
-			(defq gui_t0 (pii-time))
-			(while (and (empty? (mail-enquire "@Gui,")) (< (- (pii-time) gui_t0) (task-timeout 20)))
-				(task-sleep 100000)))
+			(mail-await (# (mail-here "@Gui")) :nil :nil (task-timeout 20)))
 		(each (lambda (cmdline)
 			(when (nempty? cmdline)
 				(pipe-run cmdline (const said))))

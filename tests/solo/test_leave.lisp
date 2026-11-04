@@ -24,8 +24,8 @@
 		(until (setq lv_node (lv-find)) (task-sleep 10000))
 
 		;once its GUI is up, three nodes started by the desktop's node, noted as
-		;its own. "Gui" is the desktop's node's own, so that is looked for there
-		(open-task (str `(progn (until (mail-first "Gui") (task-sleep 10000))
+		;its own. The @Gui of the desktop's node is looked for there
+		(open-task (str `(progn (mail-await (# (mail-here "@Gui")))
 				(mail-send (hex-decode ,(hex-encode lv_reply)) (str (node-spawn 3)))))
 			lv_node +kn_call_pin 0 (mail-mbox))
 		(setq lv_pids (first (read (string-stream (mail-read lv_reply)))))
@@ -46,7 +46,7 @@
 		;way, and each is closed as its window comes, or it would never go
 		(setq lv_before (lisp-nodes :t) lv_pid (first (node-spawn 1 :gui_hidden "service/gui/app.lisp")) lv_node :nil)
 		(until (setq lv_node (lv-find)) (task-sleep 10000))
-		(open-task (str `(progn (until (mail-first "Gui") (task-sleep 10000))
+		(open-task (str `(progn (mail-await (# (mail-here "@Gui")))
 				(import "service/gui/lisp.inc") (gui-quit-rpc)))
 			lv_node +kn_call_pin 0 (mail-mbox))
 		(while (pii-alive lv_pid) (task-sleep 10000))

@@ -9,7 +9,7 @@
 ;How it works. 'link -a' finds the other machines. Each node known has the
 ;system id of its machine, so (lisp-systems) is the machines, and (lisp-nodes
 ;system) the nodes of one. A probe task on each node of the other machines
-;says if it can see a Gui service. One task is then pinned on that GUI node. It starts the audio service if needed, opens the game, and mails back
+;says if it has a GUI of its own. One task is then pinned on that GUI node. It starts the audio service if needed, opens the game, and mails back
 ;the mailbox id of the game's service.
 ;
 ;That id is the trick. The game declares itself as @Onslaught, a system wide
@@ -33,10 +33,10 @@
 	probe_mbox (mail-mbox) reply_mbox (mail-mbox) launch_mbox (mail-mbox) gui_node :nil)
 (print "local nodes " (length (lisp-nodes :t)))
 (each (# (print "machine " (slice (hex-encode %0) 0 8) ", nodes " (length (lisp-nodes %0)))) systems)
-;ask the nodes of the other machines if they can see a Gui service
+;ask the nodes of the other machines if they has a GUI of its own
 (each (lambda (node)
 	(open-task (str `(mail-send (hex-decode ,(hex-encode probe_mbox))
-			(str (list (hex-encode (task-nodeid)) (length (mail-enquire "Gui,"))))))
+			(str (list (hex-encode (task-nodeid)) (if (mail-here "@Gui") 1 0)))))
 		node +kn_call_pin 0 launch_mbox)) remote_nodes)
 (times (length remote_nodes)
 	(when (defq msg (mail-read-timeout probe_mbox 3000000))

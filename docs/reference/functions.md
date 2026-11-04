@@ -6162,6 +6162,18 @@ over, not looked at
 (macro? form) -> :t | :nil
 ```
 
+### mail-await
+
+```code
+(mail-await lookup [path mode wait]) -> :nil | net_id
+
+(lookup) -> :nil | net_id
+a service, as lookup finds it, waited for: it may not have said its name
+yet, in the first moments of a session or just started. With a path,
+one is started on this node, (open-child) in that mode, if lookup has
+none at first. For wait us at most, as long as it takes if not given
+```
+
 ### mail-entry-id
 
 ```code

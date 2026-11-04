@@ -170,11 +170,10 @@
 (defun main ()
 	;declare service and vars
 	(defq select (task-mboxes +select_size)
-		service (mail-declare (task-mbox) "Gui" "GUI Service 0.2")
-		;and to every node of this system, for what does not draw on it, a
-		;grab or a tree of widgets from a command on another node; an app
-		;finds "Gui", which only its own node has, as its views are there
-		sys_service (mail-declare (task-mbox) "@Gui" "GUI Service 0.2")
+		;said to every node of this system. An app finds the one of its own
+		;node, (mail-here), its views are there; a grab or a tree of widgets
+		;from a command takes that node's if it has one, (mail-service)
+		service (mail-declare (task-mbox) "@Gui" "GUI Service 0.2")
 		*running* :t *quitting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
@@ -303,7 +302,6 @@
 					(mail-timeout (elem-get select +select_timer)
 						(max +min_gap took (- +rate took)) 0)))))
 	(mail-forget service)
-	(mail-forget sys_service)
 	(mail-timeout (elem-get select +select_timer) 0 0)
 	(each (# (. %0 :sub)) (screen-children))
 	(setq *mouse* :nil *screen* :nil)

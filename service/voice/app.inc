@@ -36,10 +36,7 @@
 	;as (call-ask), the service of this desktop started first if it has
 	;none: it is there only once a call is started or joined, a desktop
 	;that never calls has none
-	(unless (mail-here "@Voice")
-		(open-child "service/voice/app.lisp" +kn_call_pin)
-		(defq until_up (+ (pii-time) 2000000))
-		(while (and (not (mail-here "@Voice")) (< (pii-time) until_up)) (task-sleep 20000)))
+	(mail-await (# (mail-here "@Voice")) "service/voice/app.lisp" +kn_call_pin 2000000)
 	(call-ask text))
 
 (defun call-user ()

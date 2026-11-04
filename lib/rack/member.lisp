@@ -21,10 +21,10 @@
 ;install does not mend is not built for ever
 (import "./rack.inc")
 (import "././boot/id.inc")
-(when (empty? (mail-enquire "@Net,")) (open-child "service/net/app.lisp" +kn_call_run) (task-sleep 200000))
+(mail-await (# (mail-first "@Net")) "service/net/app.lisp" +kn_call_run (task-timeout 2))
 ;and a lock, as any session has: a kernel a child sent here builds is
 ;made under one, two children building it at once would collide
-(when (empty? (mail-enquire "@Lock,")) (open-child "service/lock/app.lisp" +kn_call_run))
+(mail-await lock-service "service/lock/app.lisp" +kn_call_run (task-timeout 2))
 (net-quiet 300000 4)
 (save (str (pii-pid)) "/tmp/chrysalisp_rack.pid")
 ;the Net service joins the mesh by itself, if this is the first session

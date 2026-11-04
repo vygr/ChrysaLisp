@@ -59,9 +59,7 @@
 	; (source-here) -> netid
 	;this system's @Source, started if it has none, as a node that only
 	;runs what it is sent may not
-	(unless (source-service) (open-child "service/source/app.lisp" +kn_call_run))
-	(until (source-service) (task-sleep 10000))
-	(source-service))
+	(mail-await source-service "service/source/app.lisp" +kn_call_run))
 
 (defun source-ask (svc path &optional wait)
 	; (source-ask svc path [wait]) -> :nil | text

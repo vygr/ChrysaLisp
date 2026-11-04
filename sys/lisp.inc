@@ -106,6 +106,20 @@
 	; (task-timeout s) -> ns
 	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
 
+(defun mail-await (lookup &optional path mode wait)
+	; (mail-await lookup [path mode wait]) -> :nil | net_id
+	; (lookup) -> :nil | net_id
+	;a service, as lookup finds it, waited for: it may not have said its name
+	;yet, in the first moments of a session or just started. With a path,
+	;one is started on this node, (open-child) in that mode, if lookup has
+	;none at first. For wait us at most, as long as it takes if not given
+	(unless (defq svc (lookup))
+		(if path (open-child path (ifn mode +kn_call_run)))
+		(defq start (pii-time))
+		(until (or (setq svc (lookup)) (and wait (>= (- (pii-time) start) wait)))
+			(task-sleep 10000)))
+	svc)
+
 (defun node-link (name)
 	; (node-link name) -> net_id
 	;start a shared memory link on this node. The node at the other end

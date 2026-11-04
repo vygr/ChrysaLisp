@@ -661,10 +661,10 @@ The launcher, run with `lisp -r (import {tests/scratch/gui_remote.lisp})`:
 ```lisp
 (defq nodes (net-quiet) probe_mbox (mail-mbox) reply_mbox (mail-mbox)
 	launch_mbox (mail-mbox) gui_node :nil)
-;ask every node if it can see a Gui service
+;ask every node if it has a GUI of its own
 (each (lambda (node)
 	(open-task (str `(mail-send (hex-decode ,(hex-encode probe_mbox))
-			(str (list (hex-encode (task-nodeid)) (length (mail-enquire "Gui,"))))))
+			(str (list (hex-encode (task-nodeid)) (if (mail-here "@Gui") 1 0)))))
 		node +kn_call_pin 0 launch_mbox)) nodes)
 (times (length nodes)
 	(when (defq msg (mail-read-timeout probe_mbox 2000000))
