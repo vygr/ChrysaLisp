@@ -8,9 +8,12 @@
 (defun window-round (room)
 	;the window is made to show the paper with that much room round it,
 	;or as much of that as the screen has. The paper is in the middle of
-	;what it shows, it always is
+	;what it shows, it always is. Never less than the frame's floor, what
+	;a hand can size it down to and a window is opened at the least: one
+	;tighter is not what it is next time
 	(bind '(cw ch) (canvas-size))
-	(def *image_scroll* :want_width (+ cw room room) :want_height (+ ch room room))
+	(def *image_scroll* :want_width (max +min_width (+ cw room room))
+		:want_height (max +min_height (+ ch room room)))
 	(. *window* :fit)
 	(.-> *image_scroll* :layout :dirty_all))
 
@@ -32,7 +35,10 @@
 	;the window back
 	(unless (and sw sh) (bind '(& & sw sh) (gui-info)))
 	(unless *full*
-		(defq doc (. *board* :get_doc))
+		;what is in the middle of what is seen stays there, and what lies
+		;on the glass where it is, as for a hand resize, (view-follow)
+		(bind '(mx my) (view-middle))
+		(defq doc (. *board* :get_doc) held (tools-held))
 		(setq *full* (list (. *window* :get_bounds) (. doc :find :width) (. doc :find :height)))
 		;no bars, and it is to be the size of the screen
 		(def *image_scroll* :bare :t :want_width sw :want_height sh)
@@ -41,6 +47,7 @@
 			(.-> doc (:insert :width sh) (:insert :height sw))
 			(.-> doc (:insert :width sw) (:insert :height sh)))
 		(setq *view_size* :nil)
+		(view-centre mx my)
 		(def *board* :on_window (# (setq *full_go* :t)))
 		;there are no toolbars to make a menu from: one is made, in the
 		;middle, if none is open, and those open have the window cell
@@ -52,25 +59,34 @@
 		(bind '(fx fy &ignore) (. *window* :get_relative *image_scroll*))
 		(. *window* :change_dirty (neg fx) (neg fy) w h)
 		(board-resized)
+		(tools-hold held)
 		(view-changed)
-		(if (empty? (palettes *board*)) (apply (const palette-float) (cat (list *board*) (view-middle))))))
+		;the one made is kept, to be shut as the window comes back
+		(push *full* (if (empty? (palettes *board*)) (apply (const palette-float) (cat (list *board*) (view-middle)))))))
 
 (defun full-window ()
 	;it is a window again, where it was, the size it was, and the paper
-	;the size it was
+	;the size it was. What is in the middle of what is seen stays there,
+	;as going to all of the screen, so there and back is where it was
 	(when *full*
-		(bind '(bounds pw ph) *full*)
+		(bind '(mx my) (view-middle))
+		(bind '(bounds pw ph menu) *full*)
+		;the menu made when there were no toolbars, they are back
+		(if menu (. menu :close))
+		(defq held (tools-held))
 		(setq *full* :nil)
 		(def *image_scroll* :bare :nil)
 		(.-> (. *board* :get_doc) (:insert :width pw) (:insert :height ph))
 		;the paper is the frame's again, (view-follow), from the document's
 		(setq *view_size* :nil)
+		(view-centre mx my)
 		(undef *board* :on_window)
 		(menus-renew)
 		(bind '(x y w h) bounds)
 		(. *window* :change_dirty x y w h)
 		(. *window* :dirty_all)
 		(board-resized)
+		(tools-hold held)
 		(view-changed)))
 
 (defun action-minimise ()

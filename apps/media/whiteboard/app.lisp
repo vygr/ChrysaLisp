@@ -611,6 +611,12 @@
 		(if angle (def tool :angle (- angle (turn-angle)))))
 		held))
 
+(defun view-centre (mx my)
+	;the point mx my of the document is in the middle of the paper, as big
+	;as the paper is now
+	(bind '(uw uh) (paper-size))
+	(setq *pan_x* (- mx (/ (n2f uw) (* 2.0 *zoom*))) *pan_y* (- my (/ (n2f uh) (* 2.0 *zoom*)))))
+
 (defun view-follow ()
 	;the paper is the size of the frame, Chris: "a hand resize should
 	;resize it too". What is in the middle of what is seen stays there,
@@ -621,8 +627,7 @@
 		(bind '(mx my) (view-middle))
 		(defq held (tools-held))
 		(setq *view_size* (if (= (logand *turn* 1) 1) (list fh fw) (list fw fh)))
-		(bind '(uw uh) *view_size*)
-		(setq *pan_x* (- mx (/ (n2f uw) (* 2.0 *zoom*))) *pan_y* (- my (/ (n2f uh) (* 2.0 *zoom*))))
+		(view-centre mx my)
 		(tools-hold held)
 		(view-changed)))
 
