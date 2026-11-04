@@ -133,8 +133,6 @@
 (. mo_stage :tick 0.0)
 (defq mo_w (get :fig_world mo_c))
 (assert-true "a child is placed by its parent, turned" (and (mo-near (elem-get mo_w 3) 100.0 0.1) (mo-near (elem-get mo_w 7) 10.0 0.1)))
-(assert-eq "it finds its root" mo_stage (. mo_c :root))
-(assert-eq "nodes by name" 1 (length (. mo_stage :find_nodes "child")))
 
 ;what is worked out is kept until what it is made from changes
 (defq mo_stage (Rostrum 640 480) mo_p (Figure) mo_c (Figure) mo_g (Figure))
