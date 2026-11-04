@@ -98,10 +98,9 @@
 				;two rows can shade the one it is not in. What of the
 				;document those rows show is the box round them taken back
 				;by the matrix, moved, zoomed and turned, its bands' items
-				(defq m (if (and (= a 1.0) (= b 0.0) (= tx 0.0) (= c 0.0) (= d 1.0) (= ty 0.0)) :nil
-						(fixeds a b tx c d ty))
+				(defq m (fixeds a b tx c d ty)
 					clip (list 0.0 (n2f (dec y)) (n2f width) (n2f (inc y1)))
-					seen (if m (Mat3x2-box clip (Mat3x2-invert m)) clip))
+					seen (mat3x2-box clip (mat3x2-invert m)))
 				(reduce (lambda (count (flags rows none))
 						(if (bits? flags 1) count
 							(defq found (band-items rows none (second seen) (elem-get seen 3)))

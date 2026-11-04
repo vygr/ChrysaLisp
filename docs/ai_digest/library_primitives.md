@@ -640,32 +640,32 @@ Macros for assembling declarative widget hierarchies.
 
 3D matrices, camera frustums, marching-cubes isosurfaces, and scene graphs.
 
-*	**`Mat3x2-f` / `Mat3x2-rotz-f` / `Mat3x2-skewx-f` / `Mat3x2-skewy-f`**: 3x2
+*	**`mat3x2-f` / `mat3x2-rotz-f` / `mat3x2-skewx-f` / `mat3x2-skewy-f`**: 3x2
 	transformation matrix constructors.
 
 *	**`mat3x2-mul-f`**: Multiplies two 3x2 fixed-point matrices.
 
 	*	`(mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f`
 
-*	**`Mat4x4-unity` / `Mat4x4-rotx` / `Mat4x4-roty` / `Mat4x4-rotz`**: 4x4
+*	**`mat4x4-unity` / `mat4x4-rotx` / `mat4x4-roty` / `mat4x4-rotz`**: 4x4
 	rotation constructors.
 
-	*	`(Mat4x4-unity) -> reals`
+	*	`(mat4x4-unity) -> reals`
 
-	*	`(Mat4x4-rotx a) -> reals`
+	*	`(mat4x4-rotx a) -> reals`
 
-	*	`(Mat4x4-roty a) -> reals`
+	*	`(mat4x4-roty a) -> reals`
 
-	*	`(Mat4x4-rotz a) -> reals`
+	*	`(mat4x4-rotz a) -> reals`
 
-*	**`Mat4x4-translate` / `Mat4x4-scale` / `Mat4x4-frustum`**: 4x4 transformation
+*	**`mat4x4-translate` / `mat4x4-scale` / `mat4x4-frustum`**: 4x4 transformation
 	and perspective frustum constructors.
 
-	*	`(Mat4x4-translate x y z) -> reals`
+	*	`(mat4x4-translate x y z) -> reals`
 
-	*	`(Mat4x4-scale x y z) -> reals`
+	*	`(mat4x4-scale x y z) -> reals`
 
-	*	`(Mat4x4-frustum left right top bottom near far) -> reals`
+	*	`(mat4x4-frustum left right top bottom near far) -> reals`
 
 *	**`Mesh` / `Mesh-sphere` / `Mesh-cylinder` / `Mesh-torus` / `Mesh-iso` / `Mesh-obj` / `Mesh-data`**:
 	3D triangle mesh representations.

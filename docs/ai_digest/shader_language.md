@@ -268,7 +268,7 @@ a list. `(shader-stage program)` is `:vertex` or `:pixel`,
 `(name type)`.
 
 A matrix is given to `(shader-pack)` as ChrysaLisp has one, 16 numbers a row
-at a time, as `lib/math/matrix.inc` makes them, `(Mat4x4-frustum)` and the
+at a time, as `lib/math/matrix.inc` makes them, `(mat4x4-frustum)` and the
 rest. In the inputs block it is its 4 columns, each a `vec4`, as a GPU wants
 it.
 
@@ -346,7 +346,7 @@ pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
   every `tri_size`, a mesh of `lib/math/mesh.inc` has 4.
 * Where the vertex shader puts a vertex, x and y of -1 to 1 are the edges of
   the pixmap, y up, as the frag coord has it, and z of -1 to 1 is in view,
-  the nearest seen. That is where `(Mat4x4-frustum)` puts things.
+  the nearest seen. That is where `(mat4x4-frustum)` puts things.
 * A varying is spread over a triangle with the perspective right.
 * With `cull`, a triangle whose vertices go round clockwise, as seen, faces
   away and is left out.
@@ -373,7 +373,7 @@ pixmap depth [vvals pvals cull tri_size x y x1 y1])` draws.
 * Calls add up, the depth buffer is what is nearest so far.
 
 The spaces are those of OpenGL, which is what `lib/math/matrix.inc` makes
-matrices for, `(Mat4x4-frustum)` is its `glFrustum`.
+matrices for, `(mat4x4-frustum)` is its `glFrustum`.
 
 * The eye is at the origin and looks down -z, x to the right, y up.
 * After the divide by w, x and y of -1 to 1 are the edges of the pixmap, y

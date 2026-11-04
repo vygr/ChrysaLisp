@@ -68,13 +68,13 @@
 ; matrices
 ;;;;;;;;;;
 
-;a matrix is the 3x2 of lib/math/matrix.inc, (Mat3x2), six numbers, as
-;(mat3x2-vec2-mul) takes it. :nil where a matrix can be is no change
+;a matrix is the 3x2 of lib/math/matrix.inc, (mat3x2), six numbers, as
+;(mat3x2-vec2-mul) takes it. That of no change is +mat3x2_unity
 
 (defun cwb-mat-paths (m paths)
 	; (cwb-mat-paths m paths) -> paths
-	;new paths, each moved by the matrix, the same ones if it is :nil
-	(if m (map (# (mat3x2-vec2-mul m %0 (cat %0))) paths) paths))
+	;new paths, each moved by the matrix
+	(map (# (mat3x2-vec2-mul m %0 (cat %0))) paths))
 
 ;;;;;;;;
 ; places
@@ -88,31 +88,30 @@
 (defq +cwb_no_place ''(0.0 0.0 0.0 1.0 1.0))
 
 (defun cwb-place-mat (place)
-	; (cwb-place-mat place) -> matrix | :nil
+	; (cwb-place-mat place) -> matrix
 	;the matrix that does what a place says: sized, turned, then moved
-	(when place
-		(bind '(x y a sx sy) place)
-		(defq c (cos a) s (sin a))
-		(fixeds (* c sx) (* (neg s) sy) x (* s sx) (* c sy) y)))
+	(cond
+		(place (bind '(x y a sx sy) place)
+			(defq c (cos a) s (sin a))
+			(fixeds (* c sx) (* (neg s) sy) x (* s sx) (* c sy) y))
+		(+mat3x2_unity)))
 
 (defun cwb-mat-place (m)
 	; (cwb-mat-place m) -> (place slant)
 	;a matrix as a place, and the slant that is left over, the part of it a
 	;place can not say: m is the place's matrix by (1 slant 0 0 1 0). It is
 	;0.0 for a matrix made of moves, turns and sizes alone
+	(bind '(a b tx c d ty) m)
+	(defq sx (sqrt (+ (* a a) (* c c))))
 	(cond
-		((not m) (list :nil 0.0))
-		(:t (bind '(a b tx c d ty) m)
-			(defq sx (sqrt (+ (* a a) (* c c))))
-			(cond
-				((= sx 0.0) (list (list tx ty 0.0 0.0 0.0) 0.0))
-				(:t (defq cs (/ a sx) sn (/ c sx)
-						sy (- (* cs d) (* sn b)) slant (/ (+ (* cs b) (* sn d)) sx)
-						;a turn's cos and sin are rounded, and its size not quite
-						;1: that much from 1 is 1
-						one (# (if (< (abs (- (abs %0) 1.0)) 0.0002) (if (< %0 0.0) -1.0 1.0) %0)))
-					(list (list tx ty (path-angle cs sn) (one sx) (one sy))
-						(if (< (abs slant) 0.0002) 0.0 slant)))))))
+		((= sx 0.0) (list (list tx ty 0.0 0.0 0.0) 0.0))
+		(:t (defq cs (/ a sx) sn (/ c sx)
+				sy (- (* cs d) (* sn b)) slant (/ (+ (* cs b) (* sn d)) sx)
+				;a turn's cos and sin are rounded, and its size not quite
+				;1: that much from 1 is 1
+				one (# (if (< (abs (- (abs %0) 1.0)) 0.0002) (if (< %0 0.0) -1.0 1.0) %0)))
+			(list (list tx ty (path-angle cs sn) (one sx) (one sy))
+				(if (< (abs slant) 0.0002) 0.0 slant)))))
 
 (defun scatter-place (place &rest index_vals)
 	; (scatter-place place [index val] ...) -> place
@@ -131,11 +130,11 @@
 	(defq m (cwb-place-mat place))
 	(elem-set item +cwb_place place)
 	(elem-set item +cwb_m m)
-	(elem-set item +cwb_inv (if m (Mat3x2-invert m)))
+	(elem-set item +cwb_inv (mat3x2-invert m))
 	item)
 
 (defun cwb-inv (item)
-	; (cwb-inv item) -> matrix | :nil
+	; (cwb-inv item) -> matrix
 	;the inverse of an item's matrix, kept with it
 	(elem-get item +cwb_inv))
 
@@ -190,10 +189,9 @@
 	;moved by a matrix: by as much, if it only moves, or else to where the
 	;matrix and the place's together put it, what of that a place can say
 	(cond
-		((not m) place)
 		((and (= (elem-get m 0) 1.0) (= (elem-get m 1) 0.0) (= (elem-get m 3) 0.0) (= (elem-get m 4) 1.0))
 			(place-move place (elem-get m 2) (elem-get m 5)))
-		((first (cwb-mat-place (Mat3x2-mul m (cwb-place-mat place)))))))
+		((first (cwb-mat-place (mat3x2-mul m (cwb-place-mat place)))))))
 (defun cwb-slot (key)
 	; (cwb-slot key) -> index
 	(ifn (find key +cwb_keys) (throw "No such key of a whiteboard item !" key)))
@@ -225,6 +223,9 @@
 	; (cwb-item type key_vals) -> item
 	(defq item (cat +cwb_defaults))
 	(elem-set item +cwb_type type)
+	;no place, the matrix of no change and its inverse
+	(elem-set item +cwb_m +mat3x2_unity)
+	(elem-set item +cwb_inv +mat3x2_unity)
 	(if (eql type :group) (elem-set item +cwb_items (list)))
 	(apply (const cwb-set) (cat (list item) key_vals))
 	(elem-set item +cwb_cache :nil)
@@ -439,7 +440,7 @@
 				(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) kids (list) old (elem-get item +cwb_items))
 				(elem-set item +cwb_items kids)
 				(push into (cwb-place! item place))
-				(reach (lambda (kid) (push todo (list kid (Mat3x2-mul k (elem-get kid +cwb_m)) kids))) old))
+				(reach (lambda (kid) (push todo (list kid (mat3x2-mul k (elem-get kid +cwb_m)) kids))) old))
 			(:t (bind '(fills strokes &ignore) (cwb-flat item))
 				(defq k (fixeds 1.0 slant 0.0 0.0 1.0 0.0) made (list))
 				(each (lambda (polys color)
@@ -465,12 +466,12 @@
 	;call (fnc shape matrix) for each shape of the items, and of the
 	;groups in them, the one at the back first. The matrix is the one that
 	;puts the shape where it is in the space the items are in, given one
-	;for that space, or :nil. A list of what is left to do, no function
+	;for that space, +mat3x2_unity for none. A list of what is left to do, no function
 	;here calls itself
 	(defq todo (rmap (# (list %0 m)) items))
 	(while (defq next (pop todo))
 		(bind '(item m) next)
-		(defq m (Mat3x2-mul m (elem-get item +cwb_m)))
+		(defq m (mat3x2-mul m (elem-get item +cwb_m)))
 		(if (cwb-group? item)
 			(reach (# (push todo (list %0 m))) (elem-get item +cwb_items))
 			(fnc item m))))
@@ -478,10 +479,11 @@
 (defun cwb-bounds (items &optional m)
 	; (cwb-bounds items [m]) -> (x y x1 y1) | :nil
 	;the box round all that the items draw, :nil if they draw nothing
+	(setd m +mat3x2_unity)
 	(defq box :nil)
 	(cwb-walk items m (lambda (shape m)
 		(if (defq flat_box (third (cwb-flat shape)))
-			(setq box (vector-box-join-2d box (Mat3x2-box flat_box m))))))
+			(setq box (vector-box-join-2d box (mat3x2-box flat_box m))))))
 	box)
 
 ;;;;;;;;;;;
@@ -741,15 +743,16 @@
 ; drawing
 ;;;;;;;;;
 
-(defun cwb-draw-items (canvas items m &optional clip)
-	; (cwb-draw-items canvas items m [clip]) -> count
-	;draw items on a canvas, by a matrix, :nil for as they are. With a
-	;clip, a box in the canvas's space, a shape that is nowhere in it is
-	;not drawn. How many shapes were drawn
+(defun cwb-draw-items (canvas items &optional m clip)
+	; (cwb-draw-items canvas items [m clip]) -> count
+	;draw items on a canvas, by a matrix, as they are if not given. With
+	;a clip, a box in the canvas's space, a shape that is nowhere in it
+	;is not drawn. How many shapes were drawn
+	(setd m +mat3x2_unity)
 	(defq count 0)
 	(cwb-walk items m (lambda (shape m)
 		(bind '(fills strokes box &ignore) (cwb-flat shape))
-		(when (and box (or (not clip) (vector-collide-boxes-2d clip (Mat3x2-box box m))))
+		(when (and box (or (not clip) (vector-collide-boxes-2d clip (mat3x2-box box m))))
 			(++ count)
 			(if (nempty? fills)
 				(.-> canvas (:set_color (elem-get shape +cwb_fill))
@@ -765,6 +768,7 @@
 	;draw every layer that is not hidden, the first at the back. skip is
 	;ids, of items of the layers, that are not drawn, those being moved
 	;about, which are drawn over the rest
+	(setd m +mat3x2_unity)
 	(defq count 0 skip (and skip (nempty? skip) (cwb-id-set skip)))
 	(each (lambda ((name flags items))
 		(unless (bits? flags 1)
@@ -866,7 +870,7 @@
 		(bind '(a b &ignore) m)
 		(defq c (elem-get m 3) d (elem-get m 4))
 		(setq size (max 0.001 (sqrt (abs (- (* a d) (* b c)))))))
-	(bind '(lx ly) (Mat3x2-point inv x y))
+	(bind '(lx ly) (mat3x2-point inv x y))
 	;as near as its own edge, half its width more than its middle
 	(defq lr (+ (/ (n2f r) size) (* 0.5 (n2f (elem-get item +cwb_width))))
 		pieces (list) cut :nil)
@@ -905,15 +909,15 @@
 	(setq x (n2f x) y (n2f y))
 	(defq tol (n2f (ifn tol 0)))
 	(when (and box (progn
-			(bind '(bx by bx1 by1) (Mat3x2-box box m))
+			(bind '(bx by bx1 by1) (mat3x2-box box m))
 			(and (>= x (- bx tol)) (<= x (+ bx1 tol)) (>= y (- by tol)) (<= y (+ by1 tol)))))
 		;the point is taken into the shape's own space, what it is drawn
 		;with is not moved. By the inverse it keeps, when m is its own
-		(defq inv (if (eql m (elem-get shape +cwb_m)) (cwb-inv shape) (Mat3x2-invert m))
+		(defq inv (if (eql m (elem-get shape +cwb_m)) (cwb-inv shape) (mat3x2-invert m))
 			pts (if (> tol 0.0)
-				(map (lambda ((dx dy)) (Mat3x2-point inv (+ x (* dx tol)) (+ y (* dy tol))))
+				(map (lambda ((dx dy)) (mat3x2-point inv (+ x (* dx tol)) (+ y (* dy tol))))
 					'((0.0 0.0) (1.0 0.0) (-1.0 0.0) (0.0 1.0) (0.0 -1.0) (0.7 0.7) (-0.7 0.7) (0.7 -0.7) (-0.7 -0.7)))
-				(list (Mat3x2-point inv x y)))
+				(list (mat3x2-point inv x y)))
 			rule (if (eql (elem-get shape +cwb_rule) :evenodd) +winding_odd_even +winding_none_zero))
 		(some (lambda ((px py))
 			(defq p (path px py))
@@ -927,6 +931,7 @@
 	;not hidden or locked. The item is one of the layer's own, a group if
 	;the shape that was hit is in one. m is the matrix the document is
 	;seen by, if the point is in the space of a view of it
+	(setd m +mat3x2_unity)
 	(defq found :nil)
 	(each! (lambda ((name flags items))
 		(unless (or found (bits? flags 1) (bits? flags 2))
@@ -949,7 +954,7 @@
 	;not touched by a box in one of the other corners
 	(bind '(fills strokes sbox &ignore) (cwb-flat shape))
 	(when sbox
-		(bind '(sx sy sx1 sy1) (Mat3x2-box sbox m))
+		(bind '(sx sy sx1 sy1) (mat3x2-box sbox m))
 		(bind '(bx by bx1 by1) (map (const n2f) box))
 		(cond
 			;nowhere near
@@ -979,6 +984,7 @@
 	;the items of the layers that a box touches, as a box dragged out to
 	;select has it: an item any shape of which is in it, crosses it or has
 	;it inside. Not those of a layer that is hidden or locked
+	(setd m +mat3x2_unity)
 	(defq out (list))
 	(each (lambda ((name flags items))
 		(unless (or (bits? flags 1) (bits? flags 2))
@@ -996,6 +1002,7 @@
 	; (cwb-in-box doc box [m]) -> ((item layer_index) ...)
 	;the items of the layers that are wholly in a box, as a drag round
 	;them has it, not those of a layer that is hidden or locked
+	(setd m +mat3x2_unity)
 	(defq out (list))
 	(each (lambda ((name flags items))
 		(unless (or (bits? flags 1) (bits? flags 2))

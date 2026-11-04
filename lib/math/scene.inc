@@ -148,7 +148,7 @@
 		:rot_x +real_0 :rot_y +real_0 :rot_z +real_0
 		:trans_x +real_0 :trans_y +real_0 :trans_z +real_0
 		:scale_x +real_1 :scale_y +real_1 :scale_z +real_1
-		:matrix (Mat4x4-unity) :imatrix (Mat4x4-unity)
+		:matrix (mat4x4-unity) :imatrix (mat4x4-unity)
 		:dirty :nil :name (ifn name ""))
 
 	(defmethod :get_parent ()
@@ -201,11 +201,11 @@
 				:trans_x :trans_y :trans_z
 				:scale_x :scale_y :scale_z)
 			(set this :dirty :nil :matrix
-				(mat4x4-mul (Mat4x4-translate trans_x trans_y trans_z)
-				(mat4x4-mul (Mat4x4-rotz rot_z)
-				(mat4x4-mul (Mat4x4-roty rot_y)
-				(mat4x4-mul (Mat4x4-rotx rot_x)
-				(Mat4x4-scale scale_x scale_y scale_z)))))))
+				(mat4x4-mul (mat4x4-translate trans_x trans_y trans_z)
+				(mat4x4-mul (mat4x4-rotz rot_z)
+				(mat4x4-mul (mat4x4-roty rot_y)
+				(mat4x4-mul (mat4x4-rotx rot_x)
+				(mat4x4-scale scale_x scale_y scale_z)))))))
 		(get :matrix this))
 
 	(defmethod :walk_nodes (fi fo)
@@ -292,8 +292,8 @@
 		;:shaders, the files of a vertex and a pixel shader, is drawn with
 		;those, they have the inputs of the scene's own, and its draw has
 		;the files on the end, for what draws it to choose them by.
-		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity)) draws (list) thin (list)
+		(defq mat4x4_frust (mat4x4-frustum left right top bottom near far)
+			matrix_stack (list (mat4x4-unity)) draws (list) thin (list)
 			pipeline (scene-pipeline (get :shaders this)))
 		(raise :meshes)
 		(. this :walk_nodes
@@ -361,8 +361,8 @@
 		(cond
 			(mode (. this :draw canvas (. this :draws left right top bottom near far size)))
 			(:t (. canvas :fill 0)
-				(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-					matrix_stack (list (Mat4x4-unity)))
+				(defq mat4x4_frust (mat4x4-frustum left right top bottom near far)
+					matrix_stack (list (mat4x4-unity)))
 				(raise :poly_buckets)
 				(. this :walk_nodes
 					(lambda (object children)

@@ -199,7 +199,7 @@
 		;what is left is in the shape's own space and has its matrix, so it
 		;is turned and placed as it was and its handles are too: a bite
 		;changes what it is, not how it lies
-		(defq out (list) back (Mat3x2-invert full)
+		(defq out (list) back (mat3x2-invert full)
 			;the hull of what it was has what is left of it in it, and
 			;does for that: not worked out again for each bite
 			hull (board-hull item))
@@ -278,7 +278,7 @@
 		;bigger than it is
 		swept_hull (list (poly-hull swept)))
 	(each (lambda ((name flags items))
-		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items :nil))))
+		(unless (or (bits? flags 1) (bits? flags 2)) (push todo (list items +mat3x2_unity))))
 		(cwb-layers doc))
 	(while (defq job (pop todo))
 		(bind '(items m) job)
@@ -290,12 +290,12 @@
 				((and but (find (elem-get item +cwb_id) but)))
 				((cwb-group? item)
 					;what is in it, in its own space, later
-					(push todo (list (elem-get item +cwb_items) (Mat3x2-mul m (elem-get item +cwb_m)))))
+					(push todo (list (elem-get item +cwb_items) (mat3x2-mul m (elem-get item +cwb_m)))))
 				((and lines (cwb-rub? item)))
 				((not (board-may-rub? user item)))
 				((defq box (third (cwb-flat item)))
-					(defq full (Mat3x2-mul m (elem-get item +cwb_m)))
-					(and (vector-collide-boxes-2d reach (Mat3x2-box box full))
+					(defq full (mat3x2-mul m (elem-get item +cwb_m)))
+					(and (vector-collide-boxes-2d reach (mat3x2-box box full))
 							(poly-hit? (cwb-mat-paths full (list (board-hull item))) swept_hull)
 						(setq pieces (board-bite-shape item full m swept tol)))))
 			(cond
@@ -328,7 +328,7 @@
 	(defq m (elem-get group +cwb_m) size 1.0 touched :nil out (list))
 	(when m
 		(setq size (max 0.001 (sqrt (abs (- (* (elem-get m 0) (elem-get m 4)) (* (elem-get m 1) (elem-get m 3))))))))
-	(bind '(lx ly) (Mat3x2-point (cwb-inv group) x y))
+	(bind '(lx ly) (mat3x2-point (cwb-inv group) x y))
 	(each (lambda (item)
 		(cond
 			((and (cwb-rub? item) (defq pieces (cwb-rub item lx ly (/ (n2f r) size))))
@@ -345,7 +345,7 @@
 	;rectangle: a place has no slant, lib/cwb/doc.inc. :nil if it draws
 	;nothing
 	(when (defq box (if (cwb-group? item) (cwb-bounds (elem-get item +cwb_items)) (third (cwb-flat item))))
-		(list (ifn (elem-get item +cwb_m) (Mat3x2)) box)))
+		(list (elem-get item +cwb_m) box)))
 
 (defun board-item-corners (item)
 	; (board-item-corners item) -> :nil | (x y x y x y x y)
@@ -353,7 +353,7 @@
 	;they are in the space it is in. :nil if it draws nothing
 	(when (defq frame (board-item-frame item))
 		(bind '(m (x y x1 y1)) frame)
-		(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
+		(cat (mat3x2-point m x y) (mat3x2-point m x1 y) (mat3x2-point m x1 y1) (mat3x2-point m x y1))))
 
 (defun board-tool-of (board event)
 	; (board-tool-of board event) -> tool
@@ -902,7 +902,7 @@
 			(when box
 				(setq mx (- (. board :snap_x (+ (first box) mx) id) (first box))
 					my (- (. board :snap_y (+ (second box) my) id) (second box))))
-			(defq move (Mat3x2-translate mx my))
+			(defq move (mat3x2-translate mx my))
 			(each (lambda ((thing p0)) (cwb-place! thing (place-move p0 mx my))) item)
 			(if (or (/= x sx) (/= y sy)) (elem-set state +stroke_moved :t))
 			(. board :touch +board_dirty_overlay))
@@ -1104,7 +1104,7 @@
 						items)
 					(when (nempty? pts)
 						(defq xs (map (const first) pts) ys (map (const second) pts))
-						(list (Mat3x2) (list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
+						(list (mat3x2) (list (reduce min xs) (reduce min ys) (reduce max xs) (reduce max ys))))))))
 
 	(defmethod :ends ()
 		; (. handles :ends) -> :nil | (item (x y x1 y1))
@@ -1122,7 +1122,7 @@
 		;the four corners of the frame, where they are on the board
 		(when (defq frame (. this :frame))
 			(bind '(m (x y x1 y1)) frame)
-			(cat (Mat3x2-point m x y) (Mat3x2-point m x1 y) (Mat3x2-point m x1 y1) (Mat3x2-point m x y1))))
+			(cat (mat3x2-point m x y) (mat3x2-point m x1 y) (mat3x2-point m x1 y1) (mat3x2-point m x y1))))
 
 	(defmethod :spots ()
 		; (. handles :spots) -> ((kind x y fx fy) ...)
@@ -1134,20 +1134,20 @@
 			((defq ends (. this :ends))
 				(bind '(item (x y x1 y1)) ends)
 				(defq m (elem-get item +cwb_m))
-				(list (cat (list :end) (Mat3x2-point m x y) (list 0 0))
-					(cat (list :end) (Mat3x2-point m x1 y1) (list 1 0))))
+				(list (cat (list :end) (mat3x2-point m x y) (list 0 0))
+					(cat (list :end) (mat3x2-point m x1 y1) (list 1 0))))
 			;a loose group has none, (Handles)
 			((and (= (length (. board :selected_items)) 1) (defq frame (. this :frame)))
 				(bind '(m (x y x1 y1)) frame)
 				(defq mx (* 0.5 (+ x x1)) my (* 0.5 (+ y y1))
-					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (Mat3x2-point m lx ly) (list fx fy)))
+					spots (map (lambda ((lx ly fx fy)) (cat (list :size) (mat3x2-point m lx ly) (list fx fy)))
 						(list (list x y -1 -1) (list mx y 0 -1) (list x1 y 1 -1)
 							(list x my -1 0) (list x1 my 1 0)
 							(list x y1 -1 1) (list mx y1 0 1) (list x1 y1 1 1))))
 				;the one to turn it by is out from the middle of its top side,
 				;the way that side faces
-				(bind '(tx ty) (Mat3x2-point m mx y))
-				(bind '(cx cy) (Mat3x2-point m mx my))
+				(bind '(tx ty) (mat3x2-point m mx y))
+				(bind '(cx cy) (mat3x2-point m mx my))
 				(defq ux (- tx cx) uy (- ty cy) len (sqrt (+ (* ux ux) (* uy uy)))
 					gap (/ +board_turn_gap (get :zoom board)))
 				(if (= len 0.0) (setq ux 0.0 uy -1.0 len 1.0))
@@ -1199,13 +1199,13 @@
 							(bind '(item (lx ly lx1 ly1)) ends)
 							(defq m0 (cwb-place-mat (second (first things))))
 							;from the other end, as a line is drawn, (:snap_end)
-							(bind '(ox oy) (if (= fx 0) (Mat3x2-point m0 lx1 ly1) (Mat3x2-point m0 lx ly)))
+							(bind '(ox oy) (if (= fx 0) (mat3x2-point m0 lx1 ly1) (mat3x2-point m0 lx ly)))
 							(bind '(px py) (. board :snap_end ox oy x y id))
-							(bind '(qx qy) (Mat3x2-point (Mat3x2-invert m0) px py))
+							(bind '(qx qy) (mat3x2-point (mat3x2-invert m0) px py))
 							(cwb-set item :d (if (= fx 0) (cwb-d-line qx qy lx1 ly1) (cwb-d-line lx ly qx qy))))
 						(:turn ;about the middle of the frame
 							(bind '(fm (bx by bx1 by1)) frame)
-							(bind '(cx cy) (Mat3x2-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
+							(bind '(cx cy) (mat3x2-point fm (* 0.5 (+ bx bx1)) (* 0.5 (+ by by1))))
 							(defq angle (- (path-angle (- x cx) (- y cy)) (path-angle (- dx cx) (- dy cy))))
 							(while (> angle +fp_pi) (setq angle (- angle +fp_2pi)))
 							(while (<= angle (neg +fp_pi)) (setq angle (+ angle +fp_2pi)))
@@ -1219,8 +1219,8 @@
 						(:t ;sized in the frame: the pointer is taken into it, and the
 							;side or corner across from the handle stays where it is
 							(bind '(fm (bx by bx1 by1)) frame)
-							(defq inv (Mat3x2-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
-							(bind '(qx qy) (Mat3x2-point inv px py))
+							(defq inv (mat3x2-invert fm) cx (* 0.5 (+ bx bx1)) cy (* 0.5 (+ by by1)))
+							(bind '(qx qy) (mat3x2-point inv px py))
 							(defq ax (cond ((< fx 0) bx1) ((> fx 0) bx) (:t cx))
 								ay (cond ((< fy 0) by1) ((> fy 0) by) (:t cy))
 								w0 (- (cond ((< fx 0) bx) ((> fx 0) bx1) (:t cx)) ax)
@@ -1311,8 +1311,8 @@
 			(bind '(ax ay) (. actor :to_own 0.0 0.0))
 			(bind '(bx by) (. actor :to_own 1.0 0.0))
 			(bind '(cx cy) (. actor :to_own 0.0 1.0))
-			(defq back (Mat3x2-invert (fixeds (- bx ax) (- cx ax) ax (- by ay) (- cy ay) ay))
-				pts (map (lambda ((x y)) (Mat3x2-point back x y)) (list (list ox oy) (list ox1 oy) (list ox1 oy1) (list ox oy1)))
+			(defq back (mat3x2-invert (fixeds (- bx ax) (- cx ax) ax (- by ay) (- cy ay) ay))
+				pts (map (lambda ((x y)) (mat3x2-point back x y)) (list (list ox oy) (list ox1 oy) (list ox1 oy1) (list ox oy1)))
 				xs (map (const first) pts) ys (map (const second) pts)
 				pad (/ 8.0 (get :zoom this)))
 			(bind '(sx sy sx1 sy1) seen)
@@ -1994,7 +1994,7 @@
 				(= (elem-get (defq under (elem-get items -3)) +cwb_id) (elem-get before 1)))
 			(cond
 				((and (cwb-group? under) (eql (elem-get under +cwb_name) "written")
-						(or (not (defq gm (elem-get under +cwb_m))) (every (const =) gm (Mat3x2))))
+						(every (const =) (elem-get under +cwb_m) +mat3x2_unity))
 					(pop items)
 					(push (elem-get under +cwb_items) item)
 					(setq target (elem-get under +cwb_id)))
@@ -2259,7 +2259,7 @@
 		(when (nempty? (defq items (. this :selected_items)))
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
-			(cwb-walk items :nil (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
+			(cwb-walk items +mat3x2_unity (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
@@ -2270,7 +2270,7 @@
 		(when (nempty? items)
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
-			(cwb-walk items :nil (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
+			(cwb-walk items +mat3x2_unity (lambda (shape m) (apply (const cwb-set) (cat (list shape) key_vals))))
 			(. this :touch (+ +board_dirty_doc +board_dirty_overlay)))
 		this)
 
@@ -2287,7 +2287,7 @@
 		(when (nempty? items)
 			(. this :snapshot)
 			(. this :changed (map (# (elem-get %0 +cwb_id)) items))
-			(cwb-walk items :nil (lambda (shape m)
+			(cwb-walk items +mat3x2_unity (lambda (shape m)
 				(defq part (cond
 					((eql (elem-get shape +cwb_kind) :text) :fill)
 					((eql key :ink) (if (and (= (ifn (cwb-get shape :stroke) 0) 0) (/= (ifn (cwb-get shape :fill) 0) 0)) :fill :stroke))
@@ -2341,7 +2341,7 @@
 										(push ids (elem-get piece +cwb_id))
 										(if who (push carried (list (elem-get piece +cwb_id) who)))
 										(push out piece))
-									(cwb-unslant kid (Mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))))
+									(cwb-unslant kid (mat3x2-mul (elem-get group +cwb_m) (elem-get kid +cwb_m)))))
 								(elem-get group +cwb_items))
 							(push out item))
 						out) holder (list)))
@@ -2586,11 +2586,12 @@
 		;the back one first. After (:draw_overlay), it is over that. With
 		;pick, a function of an actor, only those it says: an app that has
 		;some of them drawn another way, the Whiteboard its instruments
+		(setd m +mat3x2_unity)
 		(each (# (if (or (not pick) (pick %0)) (. %0 :draw canvas m))) (. (get :stage this) :get_actors))
 		;the catch of an edge that would have a pen that is near, if it went down
 		(each (lambda ((actor edge))
 			(and (find actor (. (get :stage this) :get_actors)) (defq shape (. actor :catch_shape edge))
-				(cwb-draw-items canvas (list shape) (Mat3x2-mul m (. actor :matrix)))))
+				(cwb-draw-items canvas (list shape) (mat3x2-mul m (. actor :matrix)))))
 			(partition (get :hover_shown this) 2))
 		;and over them all, a ring where each finger is on the board,
 		;:show_contacts. A finger hides what is under it on a screen, and
@@ -2626,6 +2627,7 @@
 	(defmethod :draw (canvas &optional m clip)
 		; (. board :draw canvas [m clip]) -> count
 		;the document, on a canvas, by the matrix it is seen by
+		(setd m +mat3x2_unity)
 		(cwb-draw canvas (get :doc this) m clip (get :floating this)))
 
 	(defmethod :in_flight? ()
@@ -2639,6 +2641,7 @@
 		;what is in flight and nothing else: the items being moved about,
 		;and what is being drawn and not yet kept. Of one side, :front or
 		;:back, if said: what is being drawn is in front
+		(setd m +mat3x2_unity)
 		(defq floating (get :floating this) back (cwb-id-set (get :back_ids this)))
 		(case side
 			(:front (setq floating (filter (# (not (cwb-id? back %0))) floating)))
@@ -2661,6 +2664,7 @@
 		;the box being dragged out, and the handles of what is selected.
 		;With no_selected the last is left out, whoever shows the board
 		;draws it where what is selected is, (:draw_selected)
+		(setd m +mat3x2_unity)
 		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
 		;what is in flight, unless it is not wanted here: whoever shows the
 		;board may have a picture of its own for it, to put in front of
@@ -2697,6 +2701,7 @@
 		;what they are of: a thing taken to the back has its box and its
 		;handles at the back with it, behind what it is behind, and is
 		;still turned and sized by them there
+		(setd m +mat3x2_unity)
 		(defq zoom (get :zoom this) thin (/ 1.0 zoom))
 		(when (nempty? (defq items (. this :selected_items)))
 			(defq handles (get :handles this))

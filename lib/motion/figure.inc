@@ -189,7 +189,7 @@
 		;where it is in the space of its parent. Worked out once and kept
 		(unless (defq local (get :fig_local this))
 			(raise :fig_x :fig_y :fig_z :fig_rx :fig_ry :fig_rz :fig_sx :fig_sy :fig_px :fig_py)
-			(setq local (Mat3x4-place fig_x fig_y fig_z fig_rx fig_ry fig_rz fig_sx fig_sy fig_px fig_py))
+			(setq local (mat3x4-place fig_x fig_y fig_z fig_rx fig_ry fig_rz fig_sx fig_sy fig_px fig_py))
 			(def this :fig_local local))
 		local)
 

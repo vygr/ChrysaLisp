@@ -27,7 +27,7 @@
 	pixel (shader-load (cat *app_root* "model_lit.shader"))
 	;the light is up, to the left, and round to our side
 	sun (reals (n2r -0.4) (n2r 0.5) (n2r 0.77))
-	lens (Mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
+	lens (mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
 	select :nil id :t picker :nil
 	;what a fetch, a task of its own, fetched: each address and its bytes,
 	;read in place of the internet as a model is made of them, and what was
@@ -217,8 +217,8 @@
 
 (defun model-matrix ()
 	;how the model is turned, and it is away down the view
-	(mat4x4-mul (Mat4x4-translate +real_0 +real_0 (neg away))
-		(mat4x4-mul (Mat4x4-rotx pitch) (Mat4x4-roty yaw))))
+	(mat4x4-mul (mat4x4-translate +real_0 +real_0 (neg away))
+		(mat4x4-mul (mat4x4-rotx pitch) (mat4x4-roty yaw))))
 
 (defun draw-gpu (vvals)
 	; (draw-gpu vvals) -> :t | :nil

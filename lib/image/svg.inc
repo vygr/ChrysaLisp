@@ -35,25 +35,25 @@
 			mb (case key
 			("matrix"
 				(bind '(m00 m01 m10 m11 tx ty) vals)
-				(Mat3x2 m00 m01 tx m10 m11 ty))
+				(mat3x2 m00 m01 tx m10 m11 ty))
 			("translate"
 				(bind '(tx &optional ty) vals)
-				(Mat3x2-translate tx (ifn ty 0.0)))
+				(mat3x2-translate tx (ifn ty 0.0)))
 			("scale"
 				(bind '(sx &optional sy) vals)
-				(Mat3x2-scale sx sy))
+				(mat3x2-scale sx sy))
 			("rotate"
 				;about a point, default the origin
 				(bind '(a &optional cx cy) vals)
-				(Mat3x2-rot (deg-to-rad a) cx cy))
+				(mat3x2-rot (deg-to-rad a) cx cy))
 			("skewX"
 				(bind '(a) vals)
-				(Mat3x2-skew (deg-to-rad a)))
+				(mat3x2-skew (deg-to-rad a)))
 			("skewY"
 				(bind '(a) vals)
-				(Mat3x2-skew 0.0 (deg-to-rad a)))
+				(mat3x2-skew 0.0 (deg-to-rad a)))
 			(:t (throw "Unknown transform !" key))))
-		(setq ma (Mat3x2-mul ma mb)))
+		(setq ma (mat3x2-mul ma mb)))
 	ma)
 
 (defun read-attribute (entry key val)
@@ -181,7 +181,7 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" (Mat3x2-scale scale)
+			"transform" (mat3x2-scale scale)
 			;this block can be any order
 			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
@@ -199,7 +199,7 @@
 					(if vb (bind '(x y w h) vb))
 					(. (setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias)
-					(. entry :insert "transform" (Mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
+					(. entry :insert "transform" (mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "r"))
@@ -263,7 +263,7 @@
 						("hanging" (n2f h))
 						(:t 0.0))
 					d (map (# (list :t (mat3x2-vec2-mul
-							(Mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
+							(mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
 	;resize to final output

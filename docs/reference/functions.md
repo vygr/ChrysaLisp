@@ -82,93 +82,6 @@ waiting so many. An ease that goes past the ends stays on the line
 (JPG-load stream) -> :nil | canvas
 ```
 
-### Mat3x2
-
-```code
-(Mat3x2 [a b tx c d ty]) -> matrix
-```
-
-### Mat3x2-box
-
-```code
-(Mat3x2-box box m) -> (x y x1 y1)
-
-the box round a box that a matrix has moved. Each side is the least
-or the most of what each of its two parts can come to
-```
-
-### Mat3x2-invert
-
-```code
-(Mat3x2-invert m) -> matrix | :nil
-
-the matrix that undoes it. One that flattens everything to a line
-has none, and that of no change is given
-```
-
-### Mat3x2-mul
-
-```code
-(Mat3x2-mul ma mb) -> matrix | :nil
-
-the one matrix that does what mb does and then what ma does
-```
-
-### Mat3x2-point
-
-```code
-(Mat3x2-point m x y) -> (x y)
-```
-
-### Mat3x2-rot
-
-```code
-(Mat3x2-rot angle [cx cy]) -> matrix
-
-by an angle in radians, the way from the x axis to the y axis, about
-a point, default the origin
-```
-
-### Mat3x2-scale
-
-```code
-(Mat3x2-scale sx [sy cx cy]) -> matrix
-
-about a point, default the origin
-```
-
-### Mat3x2-skew
-
-```code
-(Mat3x2-skew ax [ay]) -> matrix
-
-by angles in radians, x leaning along y by ax and y along x by ay,
-default 0, as svg's skewX and skewY: x' = x + tan(ax)*y
-```
-
-### Mat3x2-translate
-
-```code
-(Mat3x2-translate tx ty) -> matrix
-```
-
-### Mat3x4-mul
-
-```code
-(Mat3x4-mul ma mb) -> matrix
-
-the one matrix that does what mb does and then what ma does
-```
-
-### Mat3x4-place
-
-```code
-(Mat3x4-place x y z rx ry rz sx sy px py) -> matrix
-
-where a flat thing is: scaled and turned about its pivot, px py, about
-x then y then z in radians, and its pivot put at x y z
-```
-
 ### Morph
 
 ```code
@@ -2787,11 +2700,11 @@ about, which are drawn over the rest
 ### cwb-draw-items
 
 ```code
-(cwb-draw-items canvas items m [clip]) -> count
+(cwb-draw-items canvas items [m clip]) -> count
 
-draw items on a canvas, by a matrix, :nil for as they are. With a
-clip, a box in the canvas's space, a shape that is nowhere in it is
-not drawn. How many shapes were drawn
+draw items on a canvas, by a matrix, as they are if not given. With
+a clip, a box in the canvas's space, a shape that is nowhere in it
+is not drawn. How many shapes were drawn
 ```
 
 ### cwb-each
@@ -2897,7 +2810,7 @@ them has it, not those of a layer that is hidden or locked
 ### cwb-inv
 
 ```code
-(cwb-inv item) -> matrix | :nil
+(cwb-inv item) -> matrix
 
 the inverse of an item's matrix, kept with it
 ```
@@ -2960,7 +2873,7 @@ are errors to throw
 ```code
 (cwb-mat-paths m paths) -> paths
 
-new paths, each moved by the matrix, the same ones if it is :nil
+new paths, each moved by the matrix, the same ones if it is no change
 ```
 
 ### cwb-mat-place
@@ -3042,7 +2955,7 @@ put an item in a place, and work out its matrix and the inverse of that
 ### cwb-place-mat
 
 ```code
-(cwb-place-mat place) -> matrix | :nil
+(cwb-place-mat place) -> matrix
 
 the matrix that does what a place says: sized, turned, then moved
 ```
@@ -3205,7 +3118,7 @@ matrix and the list what it makes goes into
 call (fnc shape matrix) for each shape of the items, and of the
 groups in them, the one at the back first. The matrix is the one that
 puts the shape where it is in the space the items are in, given one
-for that space, or :nil. A list of what is left to do, no function
+for that space, +mat3x2_unity for none. A list of what is left to do, no function
 here calls itself
 ```
 
@@ -6280,6 +6193,85 @@ by its pings, so a service checks each time it wakes; one that has to
 give way stops saying its name, sends on what still comes to it, and
 goes. Only for a service a task may use any one of: two networks on
 one machine each have a Net service of their own
+```
+
+### mat3x2
+
+```code
+(mat3x2 [a b tx c d ty]) -> matrix
+```
+
+### mat3x2-box
+
+```code
+(mat3x2-box box m) -> (x y x1 y1)
+
+the box round a box that a matrix has moved. Each side is the least
+or the most of what each of its two parts can come to
+```
+
+### mat3x2-invert
+
+```code
+(mat3x2-invert m) -> matrix
+
+the matrix that undoes it. One that flattens everything to a line
+has none, and that of no change is given
+```
+
+### mat3x2-point
+
+```code
+(mat3x2-point m x y) -> (x y)
+```
+
+### mat3x2-rot
+
+```code
+(mat3x2-rot angle [cx cy]) -> matrix
+
+by an angle in radians, the way from the x axis to the y axis, about
+a point, default the origin
+```
+
+### mat3x2-scale
+
+```code
+(mat3x2-scale sx [sy cx cy]) -> matrix
+
+about a point, default the origin
+```
+
+### mat3x2-skew
+
+```code
+(mat3x2-skew ax [ay]) -> matrix
+
+by angles in radians, x leaning along y by ax and y along x by ay,
+default 0, as svg's skewX and skewY: x' = x + tan(ax)*y
+```
+
+### mat3x2-translate
+
+```code
+(mat3x2-translate tx ty) -> matrix
+```
+
+### mat3x4-mul
+
+```code
+(mat3x4-mul ma mb) -> matrix
+
+the one matrix that does what mb does and then what ma does
+```
+
+### mat3x4-place
+
+```code
+(mat3x4-place x y z rx ry rz sx sy px py) -> matrix
+
+where a flat thing is: scaled and turned about its pivot, px py, about
+x then y then z in radians, and its pivot put at x y z
 ```
 
 ### match

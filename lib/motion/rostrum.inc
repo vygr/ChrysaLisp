@@ -94,7 +94,7 @@
 	(cond
 		((and (get :fig_local node) (eql world (get :fig_world_by node)))
 			(get :fig_world node))
-		(:t (defq out (if world (Mat3x4-mul world (. node :local)) (. node :local)))
+		(:t (defq out (if world (mat3x4-mul world (. node :local)) (. node :local)))
 			(def node :fig_world out :fig_world_by world)
 			out)))
 

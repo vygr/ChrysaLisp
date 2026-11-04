@@ -364,10 +364,10 @@
 		(text (slice line 0 (min 58 (length line))) lx yy 11 (if (< index at) +ink +dim) log_items))
 		log_shown)
 	(.-> *canvas* (:fill +paper))
-	(cwb-draw-items *canvas* items :nil)
+	(cwb-draw-items *canvas* items)
 	(. *canvas* :swap +swap_write)
 	(.-> *log* (:fill +paper))
-	(cwb-draw-items *log* log_items :nil)
+	(cwb-draw-items *log* log_items)
 	(. *log* :swap +swap_write))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;

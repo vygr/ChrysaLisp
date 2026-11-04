@@ -104,11 +104,11 @@
 	;nothing
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
 		:board board :zoom 1.0 :margin 0 :held 0 :drag :nil :paper 0
-		;the matrix from a point of this to a point of the document, :nil
-		;for they are the same. The fingers that are down, each where it is in the view. The two that
+		;the matrix from a point of this to a point of the document,
+		;+mat3x2_unity for they are the same. The fingers that are down, each where it is in the view. The two that
 		;have hold of what is seen, and how they and it were when they
 		;took it. And what the app is called by, see above
-		:inv :nil :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil :on_turn :nil
+		:inv +mat3x2_unity :fingers (Fmap 11) :grip :nil :on_pan :nil :on_wheel :nil :on_zoom :nil :on_rest :nil :on_turn :nil
 		;every pointer that is down, the mouse too: its kind, what it
 		;holds, where it is in the view and how hard it is pressed
 		:down (Fmap 11))
@@ -119,7 +119,7 @@
 		;from the corner of the view by :margin
 		;by the matrix the app has for it, the other way to the one it
 		;draws by: moved, zoomed and turned
-		(Mat3x2-point (get :inv this) rx ry))
+		(mat3x2-point (get :inv this) rx ry))
 
 	(defmethod :mouse_pointer (event buttons)
 		; (. board_view :mouse_pointer event buttons) -> board_view

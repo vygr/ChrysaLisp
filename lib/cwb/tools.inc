@@ -242,8 +242,8 @@
 				(map (lambda ((what d &ignore)) (cwb-shape d :fill 0x30000000 :stroke 0x80000000 :width 0.75 :join :miter))
 					(filter (# (not (or (find (first %0) '(:move :close :mode)) (eql (last %0) :quiet)))) (get :parts this)))
 				(map (lambda (glyph)
-					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (Mat3x2-mul (Mat3x2-translate (second glyph) (third glyph))
-						(Mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
+					(cwb-group (tool-glyph (first glyph) (get :mode this)) :m (mat3x2-mul (mat3x2-translate (second glyph) (third glyph))
+						(mat3x2-rot (if (> (length glyph) 3) (elem-get glyph 3) 0.0)))))
 					(get :glyphs this))))
 		(def this :dotted :nil)
 		(. this :zones_changed)
@@ -293,8 +293,8 @@
 		; (. instrument :matrix) -> matrix
 		;from its own space to the board's
 		(bind '(ox oy) (get :origin this))
-		(Mat3x2-mul (Mat3x2-translate ox oy)
-			(Mat3x2-mul (Mat3x2-rot (get :angle this)) (Mat3x2-scale (get :size this)))))
+		(mat3x2-mul (mat3x2-translate ox oy)
+			(mat3x2-mul (mat3x2-rot (get :angle this)) (mat3x2-scale (get :size this)))))
 
 	(defmethod :snap_zero (&optional event)
 		; (. instrument :snap_zero [event]) -> instrument
@@ -315,11 +315,11 @@
 
 	(defmethod :to_own (x y)
 		; (. instrument :to_own x y) -> (x y)
-		(Mat3x2-point (Mat3x2-invert (. this :matrix)) x y))
+		(mat3x2-point (mat3x2-invert (. this :matrix)) x y))
 
 	(defmethod :to_board (x y)
 		; (. instrument :to_board x y) -> (x y)
-		(Mat3x2-point (. this :matrix) x y))
+		(mat3x2-point (. this :matrix) x y))
 
 	(defmethod :edge_near (x y)
 		; (. instrument :edge_near x y) -> :nil | (edge px py)
@@ -352,7 +352,7 @@
 	(defmethod :part_at (x y)
 		; (. instrument :part_at x y) -> :nil | (what shape pivot)
 		;the part a point, in its own space, is in
-		(some (lambda (region) (if (cwb-shape-hit? (second region) :nil x y) region)) (get :regions this)))
+		(some (lambda (region) (if (cwb-shape-hit? (second region) +mat3x2_unity x y) region)) (get :regions this)))
 
 
 	(defmethod :edge_d (state x y)
@@ -499,16 +499,16 @@
 			(:turn
 				(when (and (= (. this :body_held) 1) (not (get :grab this)))
 					;about a point of it, which stays where it is on the board
-					(defq pivot (third region) m0 (Mat3x2-mul (Mat3x2-translate (first origin) (second origin))
-						(Mat3x2-mul (Mat3x2-rot angle) (Mat3x2-scale (get :size this)))))
-					(bind '(bx by) (if (nempty? pivot) (Mat3x2-point m0 (first pivot) (second pivot)) origin))
+					(defq pivot (third region) m0 (mat3x2-mul (mat3x2-translate (first origin) (second origin))
+						(mat3x2-mul (mat3x2-rot angle) (mat3x2-scale (get :size this)))))
+					(bind '(bx by) (if (nempty? pivot) (mat3x2-point m0 (first pivot) (second pivot)) origin))
 					(defq turn (vector-angle-wrap (- (path-angle (- x bx) (- y by)) (path-angle (- sx bx) (- sy by))))
 						snap (. board :angle_step id))
 					;with angles that snap it is at a step and nowhere else. If
 					;not, it is free, but for the pull of the angles that matter
 					(setq turn (- (if (/= snap 0.0) (board-snap (+ angle turn) snap) (tool-magnet (+ angle turn))) angle))
 					(def this :angle (+ angle turn)
-						:origin (Mat3x2-point (Mat3x2-rot turn bx by) (first origin) (second origin)))
+						:origin (mat3x2-point (mat3x2-rot turn bx by) (first origin) (second origin)))
 					(. board :touch +board_dirty_overlay)))
 			(:size
 				(when (and (= (. this :body_held) 1) (not (get :grab this)) (= (length (third region)) 1))
@@ -674,16 +674,17 @@
 					turn (- (tool-magnet (+ angle turn)) angle)
 					m0x (* 0.5 (+ (first pa0) (first pb0))) m0y (* 0.5 (+ (second pa0) (second pb0)))
 					m1x (* 0.5 (+ (first pa) (first pb))) m1y (* 0.5 (+ (second pa) (second pb)))
-					m (Mat3x2-mul (Mat3x2-translate (- m1x m0x) (- m1y m0y))
-						(Mat3x2-mul (Mat3x2-rot turn m0x m0y) (Mat3x2-scale by by m0x m0y))))
-				(def this :angle (+ angle turn) :origin (Mat3x2-point m (first origin) (second origin)))
+					m (mat3x2-mul (mat3x2-translate (- m1x m0x) (- m1y m0y))
+						(mat3x2-mul (mat3x2-rot turn m0x m0y) (mat3x2-scale by by m0x m0y))))
+				(def this :angle (+ angle turn) :origin (mat3x2-point m (first origin) (second origin)))
 				(. (obj-ref (get :board this)) :touch +board_dirty_overlay))))
 
 	(defmethod :draw (canvas &optional m)
 		; (. instrument :draw canvas [m]) -> instrument
 		;on a canvas, by the matrix the board is seen by
+		(setd m +mat3x2_unity)
 		(unless (get :body this) (. this :built))
-		(defq m (Mat3x2-mul m (. this :matrix)))
+		(defq m (mat3x2-mul m (. this :matrix)))
 		(cwb-draw-items canvas (list (get :body this)) m)
 		(cwb-draw-items canvas (get :shades this) m)
 		(cwb-draw-items canvas (get :marks this) m)

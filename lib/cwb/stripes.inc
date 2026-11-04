@@ -173,7 +173,7 @@
 	(defmethod :job (key width height y y1 zoom back style gap skip &optional m)
 		; (. stripes :job key width height y y1 zoom back style gap skip [m]) -> job
 		;m the matrix from the document to the canvas, the zoom's if not given
-		(bind '(a b tx c d ty) (ifn m (Mat3x2-scale zoom)))
+		(bind '(a b tx c d ty) (ifn m (mat3x2-scale zoom)))
 		(cat (setf-> (str-alloc +stripe_size)
 				(+stripe_shared (ifn key 0)) (+stripe_version (get :version this))
 				(+stripe_zoom (n2f zoom)) (+stripe_back back)

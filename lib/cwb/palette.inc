@@ -240,7 +240,7 @@
 			(:color (setq items (pal-ink-cell x0 y0 x1 y1 val)))
 			(:t (push items (cwb-shape (cwb-d-rect (+ x0 1.0) (+ y0 1.0) (- x1 1.0) (- y1 1.0) 3.0) :fill 0xf0384048 :stroke 0))
 				(if (nempty? (defq icon (pal-icon what val)))
-					(push items (cwb-group icon :m (Mat3x2-translate cx cy))))))
+					(push items (cwb-group icon :m (mat3x2-translate cx cy))))))
 		(cond
 			(devices
 				(defq key (case what (:tool :mode) (:color :color) (:pen :pen) (:width :width) (:action (if (eql val :snap) :snap))))

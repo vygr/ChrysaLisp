@@ -443,7 +443,7 @@
 (. wt_canvas :set_canvas_flags +canvas_flag_antialias)
 (. wt_canvas :fill 0)
 (. (Ruler wt_board 400 300) :draw wt_canvas)
-(. (Protractor wt_board 400 300) :draw wt_canvas (Mat3x2-scale 0.5))
+(. (Protractor wt_board 400 300) :draw wt_canvas (mat3x2-scale 0.5))
 (. wt_set :draw wt_canvas)
 (assert-true "each draws on a canvas" :t)
 
@@ -657,7 +657,7 @@
 (defq er_was (er-d) er_during (list (eql (er-d) er_was) (. er_ruler :drawing?)))
 (defq er_c (Canvas 800 600 1))
 (. er_c :fill 0)
-(assert-true "an eraser along a ruler's edge is shown, as it goes" (catch (progn (. er_ruler :draw er_c (Mat3x2)) :t) :nil))
+(assert-true "an eraser along a ruler's edge is shown, as it goes" (catch (progn (. er_ruler :draw er_c (mat3x2)) :t) :nil))
 (er-go (list 0x4000000 :eraser 0 (+ er_x 60.0) (- er_y 3.0)))
 (defq er_after (er-d))
 (assert-eq "nothing is rubbed out while it goes, the line along the edge is bitten as it lets go"

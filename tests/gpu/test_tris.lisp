@@ -35,10 +35,10 @@
 	(:t (defq tf_pixmap (getf tf_canvas +canvas_pixmap 0)
 			tf_meshes (list (tf-corners (Mesh-sphere +real_1/2 8)) (tf-corners (Mesh-torus +real_1 +real_1/3 8)))
 			tf_packed (map (const shader-verts-str) tf_meshes)
-			tf_lens (Mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) (n2r 1) (n2r 6))
+			tf_lens (mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) (n2r 1) (n2r 6))
 			tf_vvals (map (# (list (list 'model %0) (list 'lens tf_lens)))
-				(list (mat4x4-mul (Mat4x4-translate (n2r 0.3) (n2r 0) (n2r -2.2)) (Mat4x4-rotx (n2r 0.4)))
-					(mat4x4-mul (Mat4x4-translate (n2r -0.2) (n2r 0.1) (n2r -3)) (Mat4x4-rotx (n2r 1.1)))))
+				(list (mat4x4-mul (mat4x4-translate (n2r 0.3) (n2r 0) (n2r -2.2)) (mat4x4-rotx (n2r 0.4)))
+					(mat4x4-mul (mat4x4-translate (n2r -0.2) (n2r 0.1) (n2r -3)) (mat4x4-rotx (n2r 1.1)))))
 			tf_pvals (map (# (list (list 'color %0))) '((1.0 0.2 0.2 1.0) (0.2 1.0 0.3 0.5)))
 			tf_draws (map (# (list (!) (shader-pack tf_vertex %0) (shader-pack tf_pixel %1))) tf_vvals tf_pvals)
 			;three children, whatever the nodes, so the frame is three strips

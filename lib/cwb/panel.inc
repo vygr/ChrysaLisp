@@ -90,7 +90,7 @@
 		;screen, the right way up whichever way the board is turned
 		(bind '(ox oy) (get :origin this))
 		(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
-		(Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot turn)) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
+		(mat3x2-point (if (and turn (/= turn 0.0)) (mat3x2-rot turn) +mat3x2_unity) (* (- (n2f x) ox) zoom) (* (- (n2f y) oy) zoom)))
 
 	(defmethod :cell_at (px py)
 		; (. panel :cell_at px py) -> :nil | :bar | cell
@@ -114,7 +114,7 @@
 			(bind '(ox oy) (get :origin this))
 			(bind '(& & x0 y0 x1 y1) cell)
 			(defq zoom (get :zoom (obj-ref (get :board this))) turn (get :view_turn (obj-ref (get :board this))))
-			(bind '(px py) (Mat3x2-point (and turn (/= turn 0.0) (Mat3x2-rot (neg turn)))
+			(bind '(px py) (mat3x2-point (if (and turn (/= turn 0.0)) (mat3x2-rot (neg turn)) +mat3x2_unity)
 				(* 0.5 (+ x0 x1)) (* 0.5 (+ y0 y1))))
 			(list (+ ox (/ px zoom)) (+ oy (/ py zoom)))))
 
@@ -193,12 +193,13 @@
 
 	(defmethod :draw (canvas &optional m)
 		; (. panel :draw canvas [m]) -> panel
+		(setd m +mat3x2_unity)
 		(defq board (obj-ref (get :board this)) hover (get :hover this)
 			turn (get :view_turn board) cells (. this :get_cells) state (. this :draw_state))
 		(bind '(ox oy) (get :origin this))
 		(bind '(w h) (get :size this))
-		(defq base (Mat3x2-mul m (Mat3x2-mul (Mat3x2-translate ox oy)
-				(Mat3x2-mul (and turn (/= turn 0.0) (Mat3x2-rot (neg turn))) (Mat3x2-scale (/ 1.0 (get :zoom board))))))
+		(defq base (mat3x2-mul m (mat3x2-mul (mat3x2-translate ox oy)
+				(mat3x2-mul (if (and turn (/= turn 0.0)) (mat3x2-rot (neg turn)) +mat3x2_unity) (mat3x2-scale (/ 1.0 (get :zoom board))))))
 			items (list (cwb-shape (cwb-d-rect (* -0.5 w) (* -0.5 h) (* 0.5 w) (* 0.5 h) 6.0)
 				:fill +pal_back :stroke +pal_ink :width 1.0)))
 		;the bar to drag it by, lighter, with a grip of three lines

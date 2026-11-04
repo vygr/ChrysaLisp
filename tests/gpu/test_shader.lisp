@@ -681,8 +681,8 @@
 ;the reference, the Lisp back end. The matrices are those of the matrix
 ;library, and where it puts a vertex is where the library does
 (defq place (shader-cpu-vertex vert)
-	model (mat4x4-mul (Mat4x4-translate (n2r 1) (n2r 2) (n2r 3)) (Mat4x4-rotx (n2r 0.5)))
-	view (Mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 10))
+	model (mat4x4-mul (mat4x4-translate (n2r 1) (n2r 2) (n2r 3)) (mat4x4-rotx (n2r 0.5)))
+	view (mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 10))
 	verts (list (list (reals (n2r 0.5) (n2r -0.25) (n2r 2)) (reals (n2r 0) (n2r 0) (n2r 1)))
 		(list (reals (n2r -3) (n2r 1) (n2r 0.75)) (reals (n2r 0) (n2r 1) (n2r 0))))
 	placed (apply place (cat (list verts)
@@ -1068,8 +1068,8 @@
 	"(defun bend :float ((x :float)) (wave x twice))"
 	"(defun count :int ((n :int) (x :float)) (defq c n) (for (i 0 5) (if (> x 0.5) (setq c (+ c i)))) c)"
 	"(defun none :float () (* half twice))")
-	fn_a (Mat4x4-rotx (n2r 0.5))
-	fn_b (Mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 6))
+	fn_a (mat4x4-rotx (n2r 0.5))
+	fn_b (mat4x4-frustum (n2r -1) (n2r 1) (n2r 1) (n2r -1) (n2r 2) (n2r 6))
 	fn_p (reals (n2r 0.1) (n2r 0.2) (n2r -3) (n2r 1))
 	fn_n (reals (n2r 0) (n2r 0.6) (n2r 0.8)))
 (assert-eq "no main, so it is functions" :func (shader-stage fn_prog))

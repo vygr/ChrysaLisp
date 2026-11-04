@@ -189,10 +189,10 @@
 	(bind '(w h) (. *main_widget* :get_size))
 	(defq out (shader-vp-place place_native
 			(shader-vp-frame place_program place_native (list
-				(list 'spin (mat4x4-mul (mat4x4-mul (Mat4x4-rotx *rotx*) (Mat4x4-roty *roty*))
-					(Mat4x4-rotz *rotz*)))
-				(list 'move (const (Mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
-				(list 'lens (const (Mat4x4-frustum +left +right +top +bottom +near +far)))
+				(list 'spin (mat4x4-mul (mat4x4-mul (mat4x4-rotx *rotx*) (mat4x4-roty *roty*))
+					(mat4x4-rotz *rotz*)))
+				(list 'move (const (mat4x4-translate +real_0 +real_0 (- +real_0 +focal_dist +real_2))))
+				(list 'lens (const (mat4x4-frustum +left +right +top +bottom +near +far)))
 				(list 'centre (list (>> w 1) (>> h 1)))
 				(list 'half (* +real_1/2 (n2r (dec canvas_size))))))
 			*atoms*)

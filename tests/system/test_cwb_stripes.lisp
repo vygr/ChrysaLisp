@@ -16,7 +16,7 @@
 	(defq canvas (Canvas w h 1) doc (. board :get_doc))
 	(. canvas :set_canvas_flags +canvas_flag_antialias)
 	(cwb-paper canvas w h (. doc :find :background) style (max 2 (n2i (* (n2f (. doc :find :grid)) zoom))))
-	(. board :draw canvas (if (= zoom 1.0) :nil (Mat3x2-scale zoom)))
+	(. board :draw canvas (if (= zoom 1.0) :nil (mat3x2-scale zoom)))
 	(st-bytes canvas))
 
 ;what a copy needs to be in step, with no nodes at all
@@ -32,7 +32,7 @@
 (assert-list-eq "and the size" '(400 300) (list (. st_copy :find :width) (. st_copy :find :height)))
 ;one item is moved
 (. st_board :select (list 2))
-(. st_board :transform (Mat3x2-translate 50 0))
+(. st_board :transform (mat3x2-translate 50 0))
 (push st_log (list 2 (. st_board :take_changes)))
 (assert-list-eq "the board says which item changed" '(2) (second (last st_log)))
 (defq st_kept (first (cwb-items st_copy)) st_delta (stripes-delta st_doc st_log 1 2))
@@ -124,7 +124,7 @@
 		(assert-true "and it is, to the pixel, what one task draws"
 			(eql (st-bytes st_shared) (st-local st_board 640 480 1.0 :grid)))
 		;changed: one moved, one restyled, one gone, one new. The children are sent only those
-		(. st_board :select (list 10 11)) (. st_board :transform (Mat3x2-translate 33 21))
+		(. st_board :select (list 10 11)) (. st_board :transform (mat3x2-translate 33 21))
 		(. st_board :select (list 20)) (. st_board :style :stroke 0xff00ff00 :fill 0xffff00ff)
 		(. st_board :remove (list 30 31 32))
 		(. st_board :add (cwb-shape (cwb-d-rect 100 100 300 200 20) :fill 0xc0ffffff :stroke 0xff000000 :width 5))
@@ -158,7 +158,7 @@
 		;a view moved, zoomed and turned, as the app has one: no paper, the
 		;matrix to each node, the rows of the canvas of what of the document
 		;they show
-		(defq st_m (Mat3x2-mul (Mat3x2-rot 0.5 160 120) (Mat3x2-mul (Mat3x2-scale 0.75) (Mat3x2-translate -40 -30))))
+		(defq st_m (mat3x2-mul (mat3x2-rot 0.5 160 120) (mat3x2-mul (mat3x2-scale 0.75) (mat3x2-translate -40 -30))))
 		(. st_shared :fill 0)
 		(assert-eq "a view moved, zoomed and turned is drawn by them" :done
 			(and (. st_stripes :frame st_shared 0.75 :nil st_m) (st-pump (lambda () :nil))))

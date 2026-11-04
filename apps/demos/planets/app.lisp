@@ -30,7 +30,7 @@
 	pixel (shader-load (cat *app_root* "globe_lit.shader"))
 	;the sun is up, to the left, and well round to our side of the globe
 	sun (reals (n2r -0.4) (n2r 0.4) (n2r 0.8246))
-	lens (Mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
+	lens (mat4x4-frustum (n2r -0.5) (n2r 0.5) (n2r 0.5) (n2r -0.5) +near +far)
 	select :nil id :t which 0 turn +real_0
 	;on the GPU, the pair of shaders, the ball, and has a frame been drawn
 	gpu_pair :nil gpu_mesh :nil gpu_drawn :nil gpu_want :t
@@ -111,8 +111,8 @@
 	;how the globe is turned and where it is: it turns about its own
 	;axis, which leans, and it is away down the view
 	(bind '(& & lean &rest _) (elem-get +planets which))
-	(mat4x4-mul (Mat4x4-translate +real_0 +real_0 +away)
-		(mat4x4-mul (Mat4x4-rotz (n2r lean)) (Mat4x4-roty turn))))
+	(mat4x4-mul (mat4x4-translate +real_0 +real_0 +away)
+		(mat4x4-mul (mat4x4-rotz (n2r lean)) (mat4x4-roty turn))))
 
 (defun draw-gpu (vvals)
 	; (draw-gpu vvals) -> :t | :nil

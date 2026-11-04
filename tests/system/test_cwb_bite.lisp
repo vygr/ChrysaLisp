@@ -20,7 +20,7 @@
 (defun bt-area (board color)
 	; the area that is filled with a colour
 	(defq sum 0.0)
-	(cwb-walk (cwb-items (. board :get_doc)) :nil (lambda (shape m)
+	(cwb-walk (cwb-items (. board :get_doc)) +mat3x2_unity (lambda (shape m)
 		(if (= (elem-get shape +cwb_fill) color)
 			(setq sum (+ sum (poly-area (poly-union (cwb-mat-paths m (first (cwb-flat shape))) (list) 0)))))))
 	sum)
@@ -73,7 +73,7 @@
 (defq bt (bt-board) bt_doc (. bt :get_doc))
 (def bt :rub_mode :bite)
 (defq bt_g (cwb-group (list (cwb-shape (cwb-d-rect 300 150 360 190) :fill 0xffff8080 :stroke 0))))
-(cwb-set bt_g :m (Mat3x2-rot 0.5 330 170))
+(cwb-set bt_g :m (mat3x2-rot 0.5 330 170))
 (cwb-add bt_doc bt_g)
 (defq bt_all (bt-area bt 0xffff8080))
 (assert-true "the box in the group is 60 by 40 where it lies turned" (< 2399.9 bt_all 2400.1))
@@ -196,7 +196,7 @@
 ;a turned thing bitten keeps its turn: what is left is in its own space,
 ;with its matrix, so it lies as it did and its handles are turned as it is
 (defq bt_doc (cwb-doc 400 300) bt_box (cwb-shape (cwb-d-rect -60 -20 60 20) :fill 0xff0070ff :stroke 0))
-(cwb-set bt_box :m (Mat3x2-mul (Mat3x2-translate 200 150) (Mat3x2-rot 0.5)))
+(cwb-set bt_box :m (mat3x2-mul (mat3x2-translate 200 150) (mat3x2-rot 0.5)))
 (cwb-add bt_doc bt_box)
 (defq bt_t (Board bt_doc) bt_m (elem-get bt_box +cwb_m))
 (def bt_t :rub_mode :bite)

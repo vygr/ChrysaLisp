@@ -320,6 +320,7 @@
 		; (. actor :draw canvas [m]) -> actor
 		;on a canvas, over the document, by the matrix the board is seen
 		;by, one that has anything to draw
+		(setd m +mat3x2_unity)
 		this)
 
 	(defmethod :state (id)
