@@ -384,9 +384,15 @@
 	(task-slice))
 (defq mo_balls (. stage :find_nodes "ball") mo_wall (first (. stage :find_nodes "wall")))
 (assert-true "there are balls" (>= (length mo_balls) +min_balls))
-(assert-true "the walls keep them in" (every (lambda (b)
-		(and (< -100.0 (get :fig_x b) 740.0) (< -100.0 (get :fig_y b) 580.0)))
-	mo_balls))
+;a ball out is rare, the balls are made at random: each out is said, so a
+;run that has one says what it was
+(defq mo_out (filter (lambda (b) (not (and (< -100.0 (get :fig_x b) 740.0) (< -100.0 (get :fig_y b) 580.0)))) mo_balls))
+(each (lambda (b)
+		(print "a ball out of " (length mo_balls) ": at " (get :fig_x b) " " (get :fig_y b)
+			", rate " (get 'rate (get :rate_x b)) " " (get 'rate (get :rate_y b)) ", size " (get :fig_sx b)
+			", walls " (map (# (get :axis %0)) (. stage :find_nodes "wall"))))
+	mo_out)
+(assert-true "the walls keep them in" (empty? mo_out))
 (assert-true "and meeting each other does not speed them up" (every (lambda (b)
 		(defq vx (get 'rate (get :rate_x b)) vy (get 'rate (get :rate_y b)))
 		(< (sqrt (+ (* vx vx) (* vy vy))) 180.0))
