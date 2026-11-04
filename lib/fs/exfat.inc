@@ -35,6 +35,9 @@
 (import "././date/date.inc")
 (import "./upcase.inc")
 
+;the first run of so many clear bits of a bitmap, lib/fs/lisp.vp
+(ffi "lib/fs/fs_bit_run" fs-bit-run)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the structures on the disk
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -328,10 +331,16 @@
 	(cond
 		((< start 2) clusters)
 		(no_fat (range start (+ start (/ (+ len (dec size)) size))))
-		(:t (defq want (if len (/ (+ len (dec size)) size) limit))
+		(:t ;the table a block of it at a time, the next of each cluster read
+			;from the block it is in, not asked of the cache one by one
+			(defq want (if len (/ (+ len (dec size)) size) limit)
+				fat (<< (get :fat_offset vol) (get :sector_shift vol)) at_block -1 block "")
 			(while (and (>= start 2) (< start limit) (< (length clusters) want))
 				(push clusters start)
-				(setq start (exfat-next vol start)))
+				(defq at (+ fat (<< start 2)))
+				(unless (= (>> at +exfat_block_shift) at_block)
+					(setq at_block (>> at +exfat_block_shift) block (exfat-block vol at_block)))
+				(setq start (get-uint block (logand at (const (dec +exfat_block_size))))))
 			clusters)))
 
 (defun exfat-data (vol start len no_fat &optional keep)
@@ -672,22 +681,17 @@
 		(char next 4)))
 
 (defun exfat-scan (vol from to want loose)
-	;look for a run of free clusters from one cluster up to another. The
-	;first few free ones are noted on the way, in case there is no run.
-	;A byte of the bitmap that is all in use is stepped over in one.
-	(defq cluster from run 0 found :nil bitmap (get :bitmap vol))
-	(while (and (< cluster to) (not found))
-		(cond
-			((and (= (logand (- cluster 2) 7) 0) (<= (+ cluster 8) to)
-					(= (logand (code bitmap 1 (>>> (- cluster 2) 3)) 0xff) 0xff))
-				(setq run 0 cluster (+ cluster 8)))
-			((exfat-used? vol cluster)
-				(setq run 0 cluster (inc cluster)))
-			(:t (setq run (inc run))
-				(if (< (length loose) want) (push loose cluster))
-				(if (= run want) (setq found (- cluster (dec want))))
-				(setq cluster (inc cluster)))))
-	found)
+	;look for a run of free clusters from one cluster up to another, of the
+	;bitmap, cluster 2 its bit 0, (fs-bit-run). If there is none the first
+	;few free ones are noted, for clusters had with a chain through them
+	(defq bitmap (get :bitmap vol) found (fs-bit-run bitmap (- from 2) (- to 2) want))
+	(cond
+		(found (+ found 2))
+		(:t (defq bit (- from 2))
+			(while (and (< (length loose) want) (setq bit (fs-bit-run bitmap bit (- to 2) 1)))
+				(push loose (+ bit 2))
+				(setq bit (inc bit)))
+			:nil)))
 
 (defun exfat-alloc (vol want)
 	; (exfat-alloc vol want) -> :nil | (clusters no_fat)

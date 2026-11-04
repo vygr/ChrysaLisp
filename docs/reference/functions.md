@@ -4306,10 +4306,10 @@ as it was if there is no room for the new data.
 ### exfat-scan
 
 ```code
-look for a run of free clusters from one cluster up to another. The
+look for a run of free clusters from one cluster up to another, of the
 
-first few free ones are noted on the way, in case there is no run.
-A byte of the bitmap that is all in use is stepped over in one.
+bitmap, cluster 2 its bit 0, (fs-bit-run). If there is none the first
+few free ones are noted, for clusters had with a chain through them
 ```
 
 ### exfat-set

@@ -1,0 +1,84 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func (path-to-absolute "./fs_bit_run"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r9, :r14, :f0-:f15
+	;info
+	;(fs-bit-run bitmap from to n) -> :nil | bit, the first of n clear bits
+	;one after another, at or after the bit from and before the bit to, of
+	;a str of bits, bit 0 the low bit of its first byte, as the bitmap of a
+	;volume has its clusters, a set bit one in use. A byte all set or all
+	;clear, at the start of a byte, is gone past in one: a volume that is
+	;full in places is read a byte at a time there, not a bit
+
+	(vp-rdef (bm at to n run v x y)
+		'(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9))
+
+	(entry `(:r0 :r1))
+
+	(errorif-lisp-args-sig 'error :r1 4)
+
+	(vp-push :r0)
+	(list-bind-args :r1 `(,bm ,at ,to ,n) '(:obj :num :num :num))
+	(vp-lea-i bm +str_data bm)
+	(vp-xor-rr run run)
+	(vpif `(,at < ,to))
+	(loop-start 'bits)
+		;the byte the bit is in, where in it the bit is, and the bit 8 on
+		(vp-cpy-rr at x)
+		(vp-shr-cr 3 x)
+		(vp-add-rr bm x)
+		(vp-cpy-ir-ub x 0 v)
+		(vp-cpy-rr at x)
+		(vp-and-cr 7 x)
+		(vp-cpy-rr at y)
+		(vp-add-cr 8 y)
+		(vpif `(,x = 0) `(,y <= ,to) `(,v = 0xff))
+			;a byte all in use
+			(vp-xor-rr run run)
+			(vp-cpy-rr y at)
+		(elseif `(,x = 0) `(,y <= ,to) `(,v = 0))
+			;a byte all free
+			(vp-add-cr 8 run)
+			(vp-cpy-rr y at)
+		(else)
+			;a bit at a time
+			(vp-shr-rr x v)
+			(vp-and-cr 1 v)
+			(vp-add-cr 1 run)
+			(vpif `(,v /= 0))
+				(vp-xor-rr run run)
+			(endif)
+			(vp-add-cr 1 at)
+		(endif)
+		(breakif `(,run >= ,n) 'bits)
+	(loop-until `(,at >= ,to))
+	(endif)
+
+	;the run, where it began, or none
+	(vp-pop :r0)
+	(vpif `(,run >= ,n) `(,n > 0))
+		(vp-sub-rr run at)
+		(vp-push :r0)
+		(call :num :create `(,at) '(:r1))
+		(vp-pop :r0)
+	(else)
+		(assign '((:r0 +lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
+	(exit `(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error)
+	(jump :lisp :repl_error '(:r1 "(fs-bit-run bitmap from to n)" +error_msg_wrong_types))
+	(signature '(:str :num :num :num))
+
+(def-func-end)
