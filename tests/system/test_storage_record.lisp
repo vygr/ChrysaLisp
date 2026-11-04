@@ -39,6 +39,11 @@
 	(sr-take)
 	(assert-eq "with no recorder nothing is said" 0 (length sr_lines))
 	(assert-true "each is asked to tell this mailbox" (every (lambda (svc) (storage-record-ask svc sr_box)) sr_svcs))
+	;and asked again each second from now, as a recorder is, by a task of
+	;its own: one asked once is told for +storage_record_lease, which a
+	;slow machine went past between the steps
+	(defq sr_said (mail-mbox) sr_keeper (open-child "tests/system/record_keeper.lisp" +kn_call_pin))
+	(mail-send sr_keeper (join (map (const hex-encode) (cat (list sr_said sr_box) sr_svcs)) " "))
 	;a put at one, and the others meet it
 	(defq sr_data (apply (const cat) (map (# (cat (sha256 (str "rec" %0)) (pad "" 4064 "."))) (range 0 3))))
 	(storage-put "doc/one" sr_data :nil (sr-of "r-a"))
@@ -89,6 +94,10 @@
 	(sr-take (lambda () (nempty? (sr-did "r-a" "set" "one"))))
 	(assert-true "one that stops is not told, the other still is"
 		(and (nempty? (sr-did "r-a" "set" "one")) (not (mail-read-timeout sr_box2 300000))))
+	;the keeper stops, and has told each to tell this mailbox no more,
+	;before each is told to tell nobody
+	(mail-send sr_keeper "stop")
+	(mail-read sr_said)
 	(each (lambda (svc) (storage-record-ask svc :nil)) sr_svcs)
 	;what they have now, as a recording from the start would have left it,
 	;once they have all met
