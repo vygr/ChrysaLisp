@@ -89,6 +89,20 @@
 (view-resolve th_w)
 (assert-eq "changed, it is found again from where it is, the bar first" 5 (get :border th_in_bar))
 (assert-eq "and the one beside it" 3 (get :border th_plain))
+;a value given by hand is the view's own, a new theme or user leaves it,
+;and given its variant again it finds it again
+(def th_plain :border 9)
+(th-borders 4 6)
+(view-resolve th_w)
+(assert-eq "a value given by hand stays" 9 (get :border th_plain))
+(assert-eq "one beside it not given one finds it again" 6 (get :border th_in_bar))
+(th-borders 8 6)
+(view-resolve th_w)
+(assert-eq "and stays as the user changes" 9 (get :border th_plain))
+(view-variant th_plain :border :border_button)
+(th-borders 1 6)
+(view-resolve th_w)
+(assert-eq "given its variant again, it is the user's" 1 (get :border th_plain))
 ;the forms: each says what it is, a bar one of them or each on or off, a
 ;sheet as a scroll is, and a view given nothing, or a default erased, has no more
 (ui-window th_f_w ()

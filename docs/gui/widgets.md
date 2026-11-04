@@ -191,6 +191,9 @@ other widgets in the tree.
 A variant given for a plain property, `(:paper :paper_toolbar)`, is the user's
 value of that variant, `(get :paper_toolbar *env*)`, as the view is made, and
 which variant it was is kept in `:variants`, so a new theme can find it again.
+A value given by hand after it, `(def view :paper +argb_white)`, is the view's
+own: a new theme or user leaves it, and `(view-variant)` gives it its variant
+back.
 `*env*` is the user's environment, each app task its own: `usr/env.inc` has the
 defaults of the system, and a user's own `usr/<user>/env.inc` gives only what
 they have otherwise, `(def *env* :paper_window 0xff00c000 ...)`. The GUI puts

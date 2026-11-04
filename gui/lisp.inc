@@ -96,19 +96,25 @@
 	; (view-resolve view) -> view
 	;each view of it, it too, given a variant for a plain property has the
 	;variant's value, found from where it is. Which variant it was is
-	;kept, :variants, so a new theme or user can be found again by it. Those
-	;above first, a composite says what a role is for those in it
+	;kept, :variants, with the value it gave, so a new theme or user can be
+	;found again by it. A value given by hand since, not the one it gave,
+	;is the view's own, the variant is let go. Those above first, a
+	;composite says what a role is for those in it
 	(reach (lambda (v)
-			(defq kept (ifn (def? :variants v) (list)))
+			(defq given (cat (ifn (def? :variants v) '())) kept (list))
+			;a variant given by hand, (def v :font :font_small), is one more
 			(each (lambda (key)
 					(and (defq val (def? key v)) (sym? val) (starts-with (cat (str key) "_") (str val))
-						(push kept key val)))
+						(push given key val val)))
 				+variant_keys)
-			(when (nempty? kept)
-				(def v :variants kept)
-				(each (lambda ((key variant))
-						(if (defq found (get variant v)) (def v key found) (undef v key)))
-					(partition kept 2))))
+			(each (lambda ((key variant was))
+					(when (eql (def? key v) was)
+						(if (defq found (get variant v)) (def v key found) (undef v key))
+						(push kept key variant found)))
+				(partition given 3))
+			(cond
+				((nempty? kept) (def v :variants kept))
+				((def? :variants v) (undef v :variants))))
 		(. view :flatten))
 	view)
 
@@ -118,10 +124,10 @@
 	;variant's value, the user's, as a ui- form gives it, and which variant
 	;it was kept, :variants, so a theme or a user finds it again by it,
 	;(view-resolve). (view-variant label :font :font_small)
-	(defq kept (list))
-	(each (lambda ((k v)) (unless (eql k key) (push kept k v)))
-		(partition (ifn (def? :variants view) (list)) 2))
-	(def view key (get variant *env*) :variants (push kept key variant))
+	(defq kept (list) val (get variant *env*))
+	(each (lambda ((k v w)) (unless (eql k key) (push kept k v w)))
+		(partition (ifn (def? :variants view) (list)) 3))
+	(def view key val :variants (push kept key variant val))
 	view)
 
 (defun window-attach (window)
@@ -152,7 +158,8 @@
 		(if p (partition p 2) '()))
 	;a variant given for a plain property, (:paper :paper_toolbar), is the
 	;user's, (get :paper_toolbar *env*), as the view is made, and which it
-	;was is kept, :variants, for a theme to find it again, (view-resolve).
+	;was is kept, :variants, with the value it gave, for a theme to find it
+	;again, (view-resolve).
 	;So is one given for a variant, (:border_button :border_title_buttons): a
 	;composite saying what a role is for those in it, which they find from
 	;where they are
@@ -162,11 +169,11 @@
 						(and (or (eql s plain) (starts-with (cat (str plain) "_") (str s)))
 							(starts-with (cat (str plain) "_") (str v))))
 					+variant_keys))
-				(elem-set pv (!) (list 'get v '*env*))
-				(push kept s v)))
+				(elem-set pv (!) (defq given (list 'get v '*env*)))
+				(push kept s v given)))
 		ps pv)
 	(when (nempty? kept)
-		(push ps :variants) (push pv (list 'quote kept)))
+		(push ps :variants) (push pv (cat '(list) kept)))
 	(list (zip ps pv) pe))
 
 (defmacro ui-props (p &rest x)

@@ -197,7 +197,9 @@ Key points:
 	its `(def)`. Either keeps which variant it was, `:variants`, so a theme
 	or another user finds it again, `(view-resolve)`. Not `:font (get
 	:font_button *env*)`: that is a copy, and nothing follows it. A
-	colour of the app's own, `+argb_white`, is a value as before.
+	colour of the app's own, `+argb_white`, is a value as before, and one
+	given by hand over a variant is the view's own from then: a theme
+	leaves it, `(view-variant)` hands it back to the theme.
 
 ## Two-Pass GUI Layout & Constraint Primitives
 

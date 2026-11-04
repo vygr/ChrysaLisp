@@ -217,13 +217,11 @@ Usage: check [options] [path] ...
     stray   a name by itself at the top of a file, in no form.
             A bracket closed a form before its end, and the
             rest of it is run by itself.
-    scan    a form at the top that (files-scan) looks for, an
-            (import), (include), (def-func), (def-method) or
-            a (gen-) of the assembler, that it does not see,
-            as it does not begin its line, or a ( that begins
-            a line inside a form, that it takes to be one. It
-            reads a line that begins with a ( as a form at the
-            top, as the source is laid out.
+    scan    a form at the top that does not begin its line,
+            or a ( that begins a line inside a form. A line
+            that begins with a ( is a form at the top, as the
+            source is laid out, to (tree-read) of heads, and
+            so to (files-scan), includes and make docs.
     override a (defun) or a (defmacro) of a name that every
             task has from root.inc, in a file root.inc does
             not import: the file is refused as it is read,

@@ -15158,8 +15158,10 @@ check off, View? is the GUI's, there when there are views to look at
 
 each view of it, it too, given a variant for a plain property has the
 variant's value, found from where it is. Which variant it was is
-kept, :variants, so a new theme or user can be found again by it. Those
-above first, a composite says what a role is for those in it
+kept, :variants, with the value it gave, so a new theme or user can be
+found again by it. A value given by hand since, not the one it gave,
+is the view's own, the variant is let go. Those above first, a
+composite says what a role is for those in it
 ```
 
 ### view-variant
