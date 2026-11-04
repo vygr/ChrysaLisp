@@ -2873,7 +2873,7 @@ are errors to throw
 ```code
 (cwb-mat-paths m paths) -> paths
 
-new paths, each moved by the matrix, the same ones if it is no change
+new paths, each moved by the matrix
 ```
 
 ### cwb-mat-place
@@ -3950,6 +3950,41 @@ out, or the power goes, whoever mounts it next can tell.
 (exfat-chain vol start len no_fat) -> (cluster ...)
 
 the clusters of a file or a directory. A len of :nil is all of the chain
+```
+
+### exfat-check
+
+```code
+(exfat-check vol) -> (line ...)
+
+what is wrong with the volume, a line each, none if nothing is. Of
+each file and directory, as the device has it: clusters that are not
+of the volume, clusters in use that the bitmap says are free, a chain
+that ends before its length does, and a directory as it is kept here,
+(exfat-dir-read), that is not as the device has it. Then each cluster
+that two have, and who has it, and how many clusters are marked in use
+that nothing has: room lost, no harm. It only reads
+```
+
+### exfat-check-text
+
+```code
+the entries of a directory, in the order they are in it, to compare
+```
+
+### exfat-check-walk
+
+```code
+(exfat-check-walk vol fnc) -> vol
+
+(fnc path clusters want entry)
+every file and directory as the device has it, not as it was kept,
+the root, the bitmap and the upper case table first. Each is given
+to fnc with its clusters, how many its length wants, :nil for the
+root, which keeps no length, and its entry, :nil for the bitmap and
+the table. fnc is called from inside it, so the names it uses are
+not these: vol fnc root csize data i n e type start len todo dir path
+name is_dir no_fat child
 ```
 
 ### exfat-cluster-offset
@@ -12529,6 +12564,17 @@ usr/<user>/, is pinned here, so that when it is taken away it has all
 of it. The user is the session's own, run.sh -u name, or the one the
 machine has, usr/current. :nil if it does not travel, or there is no
 user, or no service
+```
+
+### storage-volume-check
+
+```code
+(storage-volume-check [svc]) -> :nil | (line ...)
+
+what is wrong with the volume the store is on, a line each, (exfat-check):
+a cluster two files have, one in use marked free, a chain cut short, a
+directory kept that is not as the device has it. Waited for while the
+service is there, it reads every directory
 ```
 
 ### storage-wait

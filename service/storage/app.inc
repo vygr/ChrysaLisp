@@ -967,6 +967,15 @@
 	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_check (if mend "mend" "") :t))
 		(filter (const nempty?) (split answer +storage_lf))))
 
+(defun storage-volume-check (&optional svc)
+	; (storage-volume-check [svc]) -> :nil | (line ...)
+	;what is wrong with the volume the store is on, a line each, (exfat-check):
+	;a cluster two files have, one in use marked free, a chain cut short, a
+	;directory kept that is not as the device has it. Waited for while the
+	;service is there, it reads every directory
+	(if (defq answer (storage-ask (ifn svc (storage-service)) +storage_type_check "volume" :t))
+		(filter (const nempty?) (split answer +storage_lf))))
+
 (defun storage-start (image &rest opts)
 	; (storage-start image [:size bytes :id str :name str :block bytes :force :t
 	;	:group str :member str :tick us :grace us :copies num :node node :wait s

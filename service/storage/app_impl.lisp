@@ -231,7 +231,9 @@
 							(storage-record recorder member "sweep" (str swept))
 							(str swept))
 						(+storage_type_check
-							(join (map (const hex-encode) (store-check store (eql body "mend"))) +storage_lf))
+							;the volume the store is on, or its blocks
+							(join (if (eql body "volume") (exfat-check (get :vol store))
+								(map (const hex-encode) (store-check store (eql body "mend")))) +storage_lf))
 						(+storage_type_walk
 							;a gopher. The task that runs them here is given it, with
 							;who is to be answered: who asked, or the member that

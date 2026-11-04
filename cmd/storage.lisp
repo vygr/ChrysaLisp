@@ -72,6 +72,10 @@
         -w --sweep: let go of the blocks no object is made of.
         -c --check: say which blocks are not what their names
             say. -C to let go of them too.
+        -v --volume: with -c, the volume the store is on in
+            place of its blocks: a cluster two files have, one
+            in use marked free, a chain cut short, a folder kept
+            that is not as the disk has it.
         -T --tree dir: every file under that folder of the
             host is put, as a stream, at path and its own
             path, and then each is read back as a stream and
@@ -128,6 +132,7 @@
 (("-w" "--sweep") ,(opt-flag 'opt_w))
 (("-c" "--check") ,(opt-flag 'opt_c))
 (("-C" "--mend") ,(opt-flag 'opt_C))
+(("-v" "--volume") ,(opt-flag 'opt_v))
 (("-P" "--pin") ,(opt-flag 'opt_P))
 (("-U" "--unpin") ,(opt-flag 'opt_U))
 (("-T" "--tree") ,(opt-str 'opt_T))
@@ -213,7 +218,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_o :nil opt_j :nil opt_f :nil opt_s :nil opt_m 0 opt_i :nil opt_F :nil opt_k -1 opt_q :nil opt_M :nil opt_e :nil opt_x :nil opt_l :nil opt_p :nil opt_g :nil
-				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
+				opt_d :nil opt_w :nil opt_c :nil opt_C :nil opt_v :nil opt_P :nil opt_U :nil opt_T :nil opt_V :nil
 				opt_r :nil opt_S 60 opt_G :nil opt_z 0 opt_L :nil opt_t :nil opt_n :nil opt_N :nil opt_R :nil opt_D :nil
 				args (options stdio usage)))
 		(defq name (if (> (length args) 1) (second args) ""))
@@ -375,6 +380,12 @@
 				(if (defq swept (storage-sweep svc))
 					(print swept " blocks let go of.")
 					(print "The store did not answer, its service has gone.")))
+			((and opt_c opt_v)
+				(cond
+					((defq faults (storage-volume-check svc))
+						(each (const print) faults)
+						(print (if (empty? faults) "Nothing is wrong with the volume." (cat (str (length faults)) " things are wrong with the volume."))))
+					((print "The store did not answer, its service has gone."))))
 			((or opt_c opt_C)
 				(cond
 					((defq bad (storage-check opt_C svc))

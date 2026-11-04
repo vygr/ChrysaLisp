@@ -1038,6 +1038,96 @@
 	;the checksum of the boot sectors and of the upper case table, 32 bit
 	(static-qq (ror-sum ,data 32 ,skip)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; checking, the volume as it stands
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun exfat-check-walk (vol fnc)
+	; (exfat-check-walk vol fnc) -> vol
+	; (fnc path clusters want entry)
+	;every file and directory as the device has it, not as it was kept,
+	;the root, the bitmap and the upper case table first. Each is given
+	;to fnc with its clusters, how many its length wants, :nil for the
+	;root, which keeps no length, and its entry, :nil for the bitmap and
+	;the table. fnc is called from inside it, so the names it uses are
+	;not these: vol fnc root csize data i n e type start len todo dir path
+	;name is_dir no_fat child
+	(defq root (get :root vol) csize (exfat-cluster-size vol)
+		data (exfat-data vol root :nil :nil) i 0 n (/ (length data) +exfat_entry_size))
+	(fnc "/" (exfat-chain vol root :nil :nil) :nil (exfat-root vol))
+	(while (< i n)
+		(defq e (slice data (* i +exfat_entry_size) (* (inc i) +exfat_entry_size)) type (getf e +exfat_entry_type))
+		(cond
+			((= type +exfat_type_bitmap)
+				(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
+				(fnc "(bitmap)" (exfat-chain vol start len :nil) (/ (+ len (dec csize)) csize) :nil))
+			((= type +exfat_type_upcase)
+				(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
+				(fnc "(upcase)" (exfat-chain vol start len :nil) (/ (+ len (dec csize)) csize) :nil)))
+		(setq i (if (= type +exfat_type_end) n (inc i))))
+	;what is still to do is a list, nothing here calls itself
+	(defq todo (list (list "" root :nil :nil)))
+	(while (defq dir (pop todo))
+		(bind '(path start len no_fat) dir)
+		(each (lambda ((name is_dir len start no_fat &ignore))
+				(defq child (cat path "/" name))
+				(fnc child (if (> len 0) (exfat-chain vol start len no_fat) (list))
+					(/ (+ len (dec csize)) csize) (list name is_dir len start no_fat))
+				(if is_dir (push todo (list child start len no_fat))))
+			(exfat-entries vol start len no_fat)))
+	vol)
+
+(defun exfat-check-text (entries)
+	;the entries of a directory, in the order they are in it, to compare
+	(str (sort (cat entries) (# (- (elem-get %0 5) (elem-get %1 5))))))
+
+(defun exfat-check (vol)
+	; (exfat-check vol) -> (line ...)
+	;what is wrong with the volume, a line each, none if nothing is. Of
+	;each file and directory, as the device has it: clusters that are not
+	;of the volume, clusters in use that the bitmap says are free, a chain
+	;that ends before its length does, and a directory as it is kept here,
+	;(exfat-dir-read), that is not as the device has it. Then each cluster
+	;that two have, and who has it, and how many clusters are marked in use
+	;that nothing has: room lost, no harm. It only reads
+	(defq ck_vol vol ck_lines (list) ck_bitmap (get :bitmap vol) ck_limit (+ (get :cluster_count vol) 2)
+		ck_seen (exfat-zeros (length ck_bitmap)) ck_twice (Fmap 31) ck_lost 0)
+	(exfat-check-walk vol (lambda (ck_path ck_clusters ck_want ck_entry)
+		(task-breathe)
+		(defq ck_out 0 ck_free 0)
+		(each (lambda (ck_c)
+				(cond
+					((or (< ck_c 2) (>= ck_c ck_limit)) (++ ck_out))
+					(:t (defq ck_bit (- ck_c 2) ck_i (>> ck_bit 3) ck_m (<< 1 (logand ck_bit 7)))
+						(if (/= 0 (logand (code ck_seen 1 ck_i) ck_m))
+							(. ck_twice :insert ck_c (list))
+							(set-byte ck_seen ck_i (logior (code ck_seen 1 ck_i) ck_m)))
+						(unless (exfat-used? ck_vol ck_c) (++ ck_free)))))
+			ck_clusters)
+		(if (> ck_out 0) (push ck_lines (cat ck_path ": " (str ck_out) " clusters not of the volume")))
+		(if (> ck_free 0) (push ck_lines (cat ck_path ": " (str ck_free) " clusters in use marked free")))
+		(and ck_want (< (length ck_clusters) ck_want)
+			(push ck_lines (cat ck_path ": a chain of " (str (length ck_clusters))
+				" clusters, its length wants " (str ck_want))))
+		(and ck_entry (second ck_entry)
+			(defq ck_kept (. (get :dirs ck_vol) :find (elem-get ck_entry 3)))
+			(nql (exfat-check-text (first ck_kept))
+				(exfat-check-text (exfat-entries ck_vol (elem-get ck_entry 3) (elem-get ck_entry 2) (elem-get ck_entry 4))))
+			(push ck_lines (cat ck_path ": the directory as it is kept is not as the device has it")))))
+	;who has each cluster that two have, a second walk, only if there are any
+	(unless (. ck_twice :empty?)
+		(exfat-check-walk vol (lambda (ck_path ck_clusters &ignore)
+			(each (# (if (defq ck_who (. ck_twice :find %0)) (push ck_who ck_path))) ck_clusters)))
+		(. ck_twice :each (lambda (ck_c ck_who)
+			(push ck_lines (cat "cluster " (str ck_c) " is had by " (join ck_who ", "))))))
+	;in use, and had by nothing
+	(each (lambda (ck_i)
+			(defq ck_b (logand (code ck_bitmap 1 ck_i) (logxor (code ck_seen 1 ck_i) 0xff)))
+			(while (/= ck_b 0) (setq ck_lost (+ ck_lost (logand ck_b 1)) ck_b (>> ck_b 1))))
+		(range 0 (length ck_bitmap)))
+	(if (> ck_lost 0) (push ck_lines (cat (str ck_lost) " clusters marked in use are had by nothing")))
+	ck_lines)
+
 (defun exfat-cluster-shift (size)
 	; (exfat-cluster-shift size) -> num
 	;the sectors of a cluster of a volume of that size, as a power of 2:

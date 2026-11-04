@@ -1532,6 +1532,10 @@ Usage: storage [options] [path]
         -w --sweep: let go of the blocks no object is made of.
         -c --check: say which blocks are not what their names
             say. -C to let go of them too.
+        -v --volume: with -c, the volume the store is on in
+            place of its blocks: a cluster two files have, one
+            in use marked free, a chain cut short, a folder kept
+            that is not as the disk has it.
         -T --tree dir: every file under that folder of the
             host is put, as a stream, at path and its own
             path, and then each is read back as a stream and

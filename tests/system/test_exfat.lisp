@@ -241,3 +241,35 @@
 (defq xf_n_again (exfat-mount xf_n_stream))
 (assert-list-eq "mounted again, the same names" (xf-names xf_n "") (xf-names xf_n_again ""))
 (assert-eq "and found" "cjk" (exfat-load xf_n_again xf_cjk))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; the volume checked
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun xc-has (lines start &optional also)
+	;is there a line that begins so, with also in it if given
+	(some (# (and (starts-with start %0) (or (not also) (found? %0 also)))) lines))
+
+(bind '(xc_vol &ignore) (xf-volume 0x200000))
+(exfat-save xc_vol "a.bin" (xf-bytes 10000 3))
+(exfat-mkdir xc_vol "d")
+;more than a cluster of entries, so the folder is grown
+(each (# (exfat-save xc_vol (cat "d/f" (str %0)) (xf-bytes 3000 %0))) (range 0 60))
+(assert-true "the folder grew past a cluster" (> (third (exfat-find xc_vol "d")) 4096))
+(assert-list-eq "a sound volume says nothing" '() (exfat-check xc_vol))
+;a cluster of a file marked free, and another file then given it
+(defq xc_a (exfat-find xc_vol "a.bin"))
+(exfat-mark xc_vol (elem-get xc_a 3) :nil)
+(assert-true "in use, marked free" (xc-has (exfat-check xc_vol) "/a.bin: 1 clusters in use marked free"))
+(exfat-save xc_vol "b.bin" "b")
+(defq xc_lines (exfat-check xc_vol))
+(assert-true "a cluster two files have" (xc-has xc_lines "cluster " "/b.bin"))
+(assert-true "and who has it" (xc-has xc_lines "cluster " "/a.bin"))
+;a cluster marked in use that nothing has
+(exfat-alloc xc_vol 1)
+(assert-true "had by nothing" (xc-has (exfat-check xc_vol) "1 clusters marked in use are had by nothing"))
+;a folder as it is kept that is not as the device has it
+(defq xc_d (exfat-find xc_vol "d"))
+(exfat-list xc_vol "d")
+(. (get :dirs xc_vol) :insert (elem-get xc_d 3) (list (list) (Fmap 1)))
+(assert-true "a folder kept wrong" (xc-has (exfat-check xc_vol) "/d: the directory as it is kept"))
