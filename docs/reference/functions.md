@@ -14859,10 +14859,10 @@ thing in it is that symbol, "defun" say
 :nil if there is no stream, or nothing in it to read
 ```
 
-### tree-node
+### tree-make
 
 ```code
-(tree-node ((type [buckets])) -> collection
+(tree-make ((type [buckets])) -> collection
 ```
 
 ### tree-read

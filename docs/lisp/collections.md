@@ -126,6 +126,43 @@ Here again is the `Editor` save state routine.
 apps/tools/edit/state.inc "state-save" ""
 ```
 
+## Tree nodes
+
+`Tree-node`, `lib/collections/tree_node.inc`, is a node of a tree of objects,
+not a form to save. A node has its children, in the order they were added, and
+a weak link to its parent. The tree is owned from the top: letting go of the top
+lets go of all of it, and a parent must outlive its children, a weak link to one
+that has gone is not safe to follow.
+
+A class that is a tree of things is made of it and adds what it is. `Scene-node`
+of `lib/math/scene.inc` adds where an object is and its matrix, `Figure` of
+`lib/motion/figure.inc` how it looks and moves. Its keys begin `:node_`, so a
+class made of it can keep more in the same place.
+
+```lisp
+(import "lib/collections/tree_node.inc")
+(defq top (Tree-node "top") a (Tree-node "a") b (Tree-node "b"))
+(.-> top (:add_node a) (:add_node b))
+(. a :add_node (Tree-node "a2"))
+(map (# (. %0 :get_name)) (. top :find_nodes "a"))
+```
+
+* `:add_node` adds a child last, out of the parent it had.
+* `:sub_node` takes a node out of its parent.
+* `:set_children` sets all of its children, each given it as its parent.
+* `:root` is the top of the tree a node is in.
+* `:each_node` calls a function of a node and of every one under it, a parent
+  before its children, they in order. What is still to come is a stack, the
+  depth of the tree costs nothing.
+* `:walk_nodes` calls one function going in to a node and another coming out of
+  it, so a walk can keep a state per level, a matrix say. The first giving
+  anything but `:nil` does not step into that node's children.
+* `:find_nodes` is those whose names begin so.
+
+```file
+lib/collections/tree_node.inc
+```
+
 ## Scatter and gather functions
 
 As you can see in the two examples above, functions are provided that enable you

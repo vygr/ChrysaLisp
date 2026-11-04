@@ -355,7 +355,7 @@
 	;in a group of chips, nothing that came later is drawn over the mail
 	(defq seen :nil)
 	(each (lambda (node)
-			(defq name (get :fig_name node))
+			(defq name (. node :get_name))
 			(cond
 				((eql name "letter") (setq seen :t mo_letters (inc mo_letters)))
 				((or (eql name "row") (eql name "net")) (setq seen :nil))

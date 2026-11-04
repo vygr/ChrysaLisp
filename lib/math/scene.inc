@@ -6,6 +6,7 @@
 (import "././gpu/vp.inc")
 (import "gui/canvas/struct.inc")
 (import "gui/path/lisp.inc")
+(import "././collections/tree_node.inc")
 
 ;the two shaders the faces of a scene are drawn with. And the two for a
 ;scene, or an object, that is to shine, a highlight as Phong has it, and
@@ -141,43 +142,15 @@
 			(list (max 0 (- (n2i (* (- +real_1 (+ mid reach)) half)) 2))
 				(min height (+ (n2i (* (- +real_1 (- mid reach)) half)) 3))))))
 
-(defclass Scene-node (&optional name) :nil
+(defclass Scene-node (&optional name) (Tree-node name)
 	; (Scene-node [name]) -> scene_node
+	;a node of the tree of a scene, Tree-node, and where it is
 	(def this
-		:children (list) :parent :nil
 		:rot_x +real_0 :rot_y +real_0 :rot_z +real_0
 		:trans_x +real_0 :trans_y +real_0 :trans_z +real_0
 		:scale_x +real_1 :scale_y +real_1 :scale_z +real_1
 		:matrix (mat4x4-unity) :imatrix (mat4x4-unity)
-		:dirty :nil :name (ifn name ""))
-
-	(defmethod :get_parent ()
-		; (. scene_node :get_parent) -> scene_node | :nil
-		(obj-ref (get :parent this)))
-
-	(defmethod :set_parent (parent)
-		; (. scene_node :set_parent parent) -> scene_node
-		(set this :parent (weak-ref parent))
-		this)
-
-	(defmethod :children ()
-		; (. scene_node :children) -> children
-		(get :children this))
-
-	(defmethod :add_node (child)
-		; (. scene_node :add_node child) -> scene_node
-		(if (. child :get_parent) (. child :sub_node))
-		(push (get :children this) child)
-		(. child :set_parent this)
-		this)
-
-	(defmethod :sub_node ()
-		; (. scene_node :sub_node) -> scene_node
-		(when (defq parent (. this :get_parent))
-			(. this :set_parent :nil)
-			(defq children (get :children parent) idx (find this children))
-			(set parent :children (erase children idx (inc idx))))
-		this)
+		:dirty :nil)
 
 	(defmethod :set_rotation (x y z)
 		; (. scene_node :set_rotation x y z) -> scene_node
@@ -207,35 +180,6 @@
 				(mat4x4-mul (mat4x4-rotx rot_x)
 				(mat4x4-scale scale_x scale_y scale_z)))))))
 		(get :matrix this))
-
-	(defmethod :walk_nodes (fi fo)
-		; (. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
-		;if fnc_in returns :nil, it'll step down into that nodes children.
-		;fnc_out is always called to balance calls to fnc_in.
-		(defq stack (list this (get :children this) 0))
-		(while (defq idx (pop stack) children (pop stack) this (pop stack))
-			(cond
-				((and (= idx 0) (callback fi (penv) this children))
-					;not stepping in
-					(callback fo (penv) this children))
-				((< idx (length children))
-					;step into child node
-					(push stack this children (inc idx)
-						(defq this (elem-get children idx)) (get :children this) 0))
-				(:t ;step out
-					(callback fo (penv) this children))))
-		this)
-
-	(defmethod :find_nodes (name)
-		; (. scene_node :find_nodes name) -> nodes
-		(defq nodes (list))
-		(. this :walk_nodes
-			(lambda (object children)
-				(if (starts-with name (get :name object))
-					(push nodes object))
-				:nil)
-			(lambda (object children)))
-		nodes)
 	)
 
 (defclass Scene-object (mesh color &optional name) (Scene-node name)

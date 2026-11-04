@@ -956,7 +956,7 @@ Object-oriented container hierarchy implementing maps, sets, and trees.
 
 	*	`(tree-save stream tree [key_filters]) -> tree`
 
-*	**`tree-type` / `tree-collection?` / `tree-decode` / `tree-encode` / `tree-node` / `tree-buckets`**:
+*	**`tree-type` / `tree-collection?` / `tree-decode` / `tree-encode` / `tree-make` / `tree-buckets`**:
 	Tree serialization helpers.
 
 ## Binary Structures, Bitfields, and Enumerations

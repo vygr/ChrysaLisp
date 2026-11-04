@@ -64,8 +64,8 @@
 		(if (find type '(:Lmap :Lset)) 1
 			(get :num_buckets collection))))
 
-(defun tree-node ((type &optional buckets))
-	; (tree-node ((type [buckets])) -> collection
+(defun tree-make ((type &optional buckets))
+	; (tree-make ((type [buckets])) -> collection
 	(setd buckets 1)
 	(case type
 		(:Lset (Lset))
@@ -156,25 +156,25 @@
 	; (tree-load stream) -> tree | :nil
 	;:nil if there is no stream, or nothing in it to read
 	(when (and stream (defq items (first (read stream))))
-		(defq root (tree-node (first items))
+		(defq root (tree-make (first items))
 			stack (list (rest items) root))
 		(while (defq node (pop stack) items (pop stack))
 			(case (tree-type node)
 				((:Emap :Lmap :Fmap)
 					(each (lambda ((k v))
 						(if (and (list?? v) (nql (first v) :cat))
-							(push stack (rest v) (setq v (tree-node (first v))))
+							(push stack (rest v) (setq v (tree-make (first v))))
 							(setq v (tree-decode v)))
 						(. node :insert (tree-decode k) v)) (partition items 2)))
 				((:Fset :Lset)
 					(each (lambda (k)
 						(if (and (list?? k) (nql (first k) :cat))
-							(push stack (rest k) (setq k (tree-node (first k))))
+							(push stack (rest k) (setq k (tree-make (first k))))
 							(setq k (tree-decode k)))
 						(. node :insert k)) items))
 				(:t (each (lambda (k)
 						(if (and (list?? k) (nql (first k) :cat))
-							(push stack (rest k) (setq k (tree-node (first k))))
+							(push stack (rest k) (setq k (tree-make (first k))))
 							(setq k (tree-decode k)))
 						(push node k)) items))))
 		root))

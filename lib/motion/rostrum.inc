@@ -128,7 +128,7 @@
 		;dt seconds have gone
 		(setq dt (* (n2f dt) (get :ros_speed this)))
 		(def this :ros_time (+ (get :ros_time this) dt))
-		(defq order (list) todo (reverse (cat (get :fig_children this))))
+		(defq order (list) todo (reverse (cat (get :node_children this))))
 		(. this :update dt)
 		(def this :fig_world (const (fixeds 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0))
 			:fig_world_alpha (get :fig_alpha this))
@@ -146,7 +146,7 @@
 				(. node :update dt)
 				(rostrum-place node)
 				(push order node)
-				(defq kids (get :fig_children node) i (length kids))
+				(defq kids (get :node_children node) i (length kids))
 				(while (> i 0) (push todo (elem-get kids (setq i (dec i)))))))
 		(def this :ros_order order)
 		(. this :collide order)
@@ -164,14 +164,12 @@
 		; (. rostrum :polygons figure) -> paths
 		;all that it is drawn with in the picture, what is under it too
 		(raise :ros_width :ros_height :ros_focus)
-		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out (list) todo (list node))
-		(while (defq n (pop todo))
+		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out (list))
+		(. node :each_node (lambda (n)
 			(bind '(fills strokes &ignore) (. n :flat))
-			(defq m (get :fig_world n))
-			(when m
+			(when (defq m (get :fig_world n))
 				(each (# (push out (rostrum-picture m cx cy ros_focus %0))) fills)
-				(each (# (push out (rostrum-picture m cx cy ros_focus %0))) strokes))
-			(each (# (push todo %0)) (get :fig_children n)))
+				(each (# (push out (rostrum-picture m cx cy ros_focus %0))) strokes))))
 		out)
 
 	(defmethod :box (node)
@@ -179,8 +177,8 @@
 		;the box in the picture round all it is drawn with, what is under it
 		;too. A tilted figure's is by the corners of its box
 		(raise :ros_width :ros_height :ros_focus)
-		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out :nil todo (list node))
-		(while (defq n (pop todo))
+		(defq cx (* ros_width 0.5) cy (* ros_height 0.5) out :nil)
+		(. node :each_node (lambda (n)
 			(bind '(& & box) (. n :flat))
 			(defq m (get :fig_world n))
 			(when (and box m)
@@ -190,8 +188,7 @@
 						(min (elem-get c 1) (elem-get c 3) (elem-get c 5) (elem-get c 7))
 						(max (elem-get c 0) (elem-get c 2) (elem-get c 4) (elem-get c 6))
 						(max (elem-get c 1) (elem-get c 3) (elem-get c 5) (elem-get c 7))))
-				(setq out (if out (vector-box-join-2d out b) b)))
-			(each (# (push todo %0)) (get :fig_children n)))
+				(setq out (if out (vector-box-join-2d out b) b)))))
 		out)
 
 	(defmethod :collide (order)

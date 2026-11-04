@@ -22,6 +22,7 @@
 (import "././math/matrix.inc")
 (import "gui/canvas/struct.inc")
 (import "./morph.inc")
+(import "././collections/tree_node.inc")
 
 ;a component's turn, its env pushed so what it keeps are plain variables
 (defmacro comp-turn (comp figure dt)
@@ -42,10 +43,11 @@
 ;each figure's own number, to know a pair of them by
 (defq *figure_ids* 0)
 
-(defclass Figure (&optional name) :nil
+(defclass Figure (&optional name) (Tree-node name)
 	; (Figure [name]) -> figure
+	;a node of a tree of figures, Tree-node, and how it looks and moves
 	(def this
-		:fig_children (list) :fig_parent :nil :fig_name (ifn name "") :fig_id (++ *figure_ids*)
+		:fig_id (++ *figure_ids*)
 		:fig_comps (list) :fig_dead :nil :fig_on_death :nil
 		;where it is
 		:fig_x 0.0 :fig_y 0.0 :fig_z 0.0 :fig_rx 0.0 :fig_ry 0.0 :fig_rz 0.0 :fig_sx 1.0 :fig_sy 1.0 :fig_px 0.0 :fig_py 0.0
@@ -57,71 +59,6 @@
 		:fig_kinds 0 :fig_meets 0 :fig_on_enter :nil :fig_on_stay :nil :fig_on_leave :nil
 		;worked out by the rostrum, each tick
 		:fig_world :nil :fig_world_alpha 1.0 :fig_world_by :nil :fig_local :nil)
-
-	(defmethod :get_parent ()
-		; (. figure :get_parent) -> figure | :nil
-		(obj-ref (get :fig_parent this)))
-
-	(defmethod :set_parent (parent)
-		; (. figure :set_parent parent) -> figure
-		(def this :fig_parent (weak-ref parent))
-		this)
-
-	(defmethod :children ()
-		; (. figure :children) -> children
-		(get :fig_children this))
-
-	(defmethod :add_node (child)
-		; (. figure :add_node child) -> figure
-		(if (. child :get_parent) (. child :sub_node))
-		(push (get :fig_children this) child)
-		(. child :set_parent this)
-		this)
-
-	(defmethod :sub_node ()
-		; (. figure :sub_node) -> figure
-		;this one taken out of its parent
-		(when (defq parent (. this :get_parent))
-			(. this :set_parent :nil)
-			(defq children (get :fig_children parent) idx (find this children))
-			(if idx (def parent :fig_children (erase children idx (inc idx)))))
-		this)
-
-	(defmethod :root ()
-		; (. figure :root) -> figure
-		;the top of the tree it is in, the rostrum if it is on one
-		(defq node this)
-		(while (defq up (. node :get_parent)) (setq node up))
-		node)
-
-	(defmethod :walk_nodes (fi fo)
-		; (. figure :walk_nodes fnc_in fnc_out) -> figure
-		;if fnc_in returns :nil, it'll step down into that nodes children.
-		;fnc_out is always called to balance calls to fnc_in.
-		(defq stack (list this (get :fig_children this) 0))
-		(while (defq idx (pop stack) children (pop stack) this (pop stack))
-			(cond
-				((and (= idx 0) (callback fi (penv) this children))
-					;not stepping in
-					(callback fo (penv) this children))
-				((< idx (length children))
-					;step into child node
-					(push stack this children (inc idx)
-						(defq this (elem-get children idx)) (get :fig_children this) 0))
-				(:t ;step out
-					(callback fo (penv) this children))))
-		this)
-
-	(defmethod :find_nodes (name)
-		; (. figure :find_nodes name) -> nodes
-		(defq nodes (list))
-		(. this :walk_nodes
-			(lambda (object children)
-				(if (starts-with name (get :fig_name object))
-					(push nodes object))
-				:nil)
-			(lambda (object children)))
-		nodes)
 
 	(defmethod :add (&rest comps)
 		; (. figure :add comp ...) -> figure

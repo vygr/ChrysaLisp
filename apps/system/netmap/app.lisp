@@ -192,7 +192,7 @@
 					(n2f (+ (* cool (const (n2r 0.35))) (* red (const (n2r 0.2))) (* white (const (n2r 0.8)))))
 					(n2f (+ (* cool (const (n2r 0.6))) (* red (const (n2r 0.1))) (* white (const (n2r 0.9)))))))
 			(push objs bar))))
-	(set world :children objs)
+	(. world :set_children objs)
 	(.-> world (:set_scale zoom zoom zoom) (:set_rotation rotx roty rotz)))
 
 (defun draw-frame ()
