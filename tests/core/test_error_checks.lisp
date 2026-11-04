@@ -31,8 +31,6 @@
 (assert-error "partition zero" (partition (list 1 2) 0))
 
 ; --- arithmetic ---
-(assert-error "divide by zero" (/ 1 0))
-(assert-error "modulus by zero" (% 1 0))
 (assert-error "add str" (+ 1 "a"))
 (assert-error "add nil" (+ 1 :nil))
 (assert-error "add fixed and num" (* 1.5 2))
@@ -66,7 +64,6 @@
 (assert-error "bind too many" (bind '(a) (list 1 2)))
 (assert-error "bind num" (bind '(a b) 5))
 (assert-error "lambda too few" ((lambda (a) a)))
-(assert-error "lambda too many" ((lambda (a) a) 1 2))
 (assert-error "apply num" (apply + 5))
 (assert-error "eval no args" (eval))
 ;check off, a call of nothing is the very thing

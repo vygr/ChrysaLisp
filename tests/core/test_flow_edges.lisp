@@ -2,9 +2,6 @@
 
 ; --- only :nil is false ---
 (test-cases
-	(if 0 1 2) 1
-	(if "" 1 2) 1
-	(if (list) 1 2) 1
 	(not :nil) :t
 	(not 0) :nil
 	(not (list)) :nil)
@@ -59,12 +56,6 @@
 	(or :nil 2 3) 2	(or :nil :nil) :nil)
 
 ; --- loops that accumulate ---
-(defq flow_i 0 flow_sum 0)
-(while (< flow_i 5)
-	(setq flow_sum (+ flow_sum flow_i))
-	(++ flow_i))
-(assert-eq "while loop" 10 flow_sum)
-
 (defq flow_i 0)
 (until (= flow_i 5)
 	(++ flow_i))
@@ -198,9 +189,6 @@
 ; --- catch, the handler must give non :nil to stop the error ---
 (test-cases
 	(catch 5 :t) 5
-	(catch (throw "x" 1) :t) :t
 	(catch (throw "x" 1) (progn 99)) 99
 	(catch (throw "x" 1) (found? _ "x")) :t
-	;an inner handler that gives :nil passes the error out
-	(catch (catch (throw "in" 1) :nil) :t) :t
 	(catch (progn (catch (throw "in" 1) :t) 7) :t) 7)

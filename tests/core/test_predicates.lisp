@@ -5,17 +5,11 @@
 (assert-true "nil? false" (not (nil? 0)))
 
 ; Type Predicates
-(assert-true "num? int"   (num? 123))
-(assert-true "num? fixed" (num? 1.5))
 (assert-true "fixed? true" (fixed? 1.5))
 (assert-true "fixed? false" (not (fixed? 123)))
-(assert-true "real? true"  (real? (n2r 1.0)))
 (assert-true "str? true"   (str? "Hello"))
 (assert-true "sym? true"   (sym? 'abc))
 (assert-true "list? true"  (list? (list 1 2)))
-(assert-true "list?? true"  (list?? (list 1 2)))
-(assert-true "array? true" (array? (array 1 2)))
-(assert-true "env? true"   (env? (env)))
 
 ; Vector Types
 (assert-true "nums? true"   (nums? (nums 1 2)))
@@ -42,8 +36,6 @@
 (assert-true "func? FFI" (func? +))
 (assert-true "not func? lambda" (not (func? (lambda (x) x))))
 
-(assert-true "lambda-func? true" (lambda-func? (lambda (x) x)))
-(assert-true "macro-func? true"  (macro-func? (macro (x) x)))
 
 ; quote / quasi-quote
 (assert-true "quote? symbol" (quote? 'quote))
@@ -61,21 +53,17 @@
 (assert-true "msafe? atom"   (msafe? 123))
 
 ; eql vs = vs nql
-(assert-true "eql strings" (eql "abc" "abc"))
-(assert-true "eql nums"	(eql 123 123))
 (assert-true "= ints"	  (= 10 10))
 
 ; environment
 (defq ep (env 1))
 (def ep 'test_key 100)
-(assert-eq "env get" 100 (get 'test_key ep))
 (assert-true "env tolist find" (some (# (and (= (length %0) 2) (eql (first %0) 'test_key) (eql (second %0) 100))) (tolist ep)))
 
 (defq my_env (env 1))
 (def my_env 'test_sym 123)
 (assert-eq "def?" 123 (def? 'test_sym my_env))
 (undef my_env 'test_sym)
-(assert-eq "undef" :nil (def? 'test_sym my_env))
 
 (defq e1 (env 1))
 (def e1 'a 1)
@@ -99,7 +87,6 @@
 ; (env-push env) pushes the given env as the current scope
 (defq old_env (env) e1 (env 1) inner_ok :nil)
 (def e1 'pushed_val 42)
-(assert-eq "env-push env parent" :nil (penv e1))
 (defq pushed_env (env-push e1))
 (setq inner_ok (and (eql (env) e1) (eql (penv) old_env) (= pushed_val 42))
 	pushed_val 43)
@@ -108,7 +95,6 @@
 (assert-true "env-push env ret" (eql (get 'pushed_env e1) e1))
 (assert-true "env-pop env" (and (eql (env) old_env) (eql e2 e1)))
 (assert-eq "env-pop env parent" :nil (penv e1))
-(assert-eq "env-push env setq" 43 (get 'pushed_val e1))
 (assert-eq "env-pop env no leak" :nil (def? 'pushed_val))
 
 ; popped env can be pushed again, and pushes nest

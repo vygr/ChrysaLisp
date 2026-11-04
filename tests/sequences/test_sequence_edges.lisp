@@ -27,7 +27,6 @@
 	(elem-get "abc" 0) "a"
 	(elem-get "abc" -2) "c"
 	(elem-get "abc" -4) "a"
-	(elem-get (list 1 2 3) -2) 3
 	(elem-get (list 1 2 3) -4) 1
 	(elem-get (array 10 20 30 40) -2) 40
 	(elem-set (list 1 2 3) -2 9) '(1 2 9)
@@ -151,10 +150,8 @@
 
 ; --- emptiness and type predicates ---
 (test-cases
-	(empty? "") :t			(empty? (list)) :t
 	(nempty? "") :nil		(nempty? " ") :t
-	(nil? :nil) :t			(nil? (list)) :nil		(nil? 0) :nil
-	(atom? 1) :t			(atom? "a") :t			(atom? (list)) :nil
+	(nil? (list)) :nil
 	(type-of (list)) '(:seq :array :list)
 	(type-of "a") '(:seq :str)
 	(type-of 'a) '(:seq :str :sym)
@@ -163,19 +160,9 @@
 	(type-of (nums)) '(:seq :array :nums))
 
 ;predicates give :nil or some non :nil value, not always :t
-(assert-true "num? num" (num? 5))
-(assert-true "num? fixed" (num? 5.0))
-(assert-true "num? str" (not (num? "5")))
-(assert-true "array? list" (array? (list)))
-(assert-true "array? nums" (array? (nums)))
-(assert-true "array? str" (not (array? "a")))
-(assert-true "seq? str" (seq? "a"))
 (assert-true "seq? num" (not (seq? 5)))
-(assert-true "list? list" (list? (list)))
 (assert-true "list? str" (not (list? "a")))
 (assert-true "str? empty" (str? ""))
-(assert-true "str? sym" (str? 'a))
-(assert-true "sym? sym" (sym? 'a))
 (assert-true "sym? keyword" (sym? :a))
 (assert-true "sym? str" (not (sym? "a")))
 

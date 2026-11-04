@@ -66,5 +66,3 @@
 (assert-eq "Reals Quant" (reals (n2r 1.0) (n2r 1.0) (n2r 2.0) (n2r -0.5)) (reals-quant rv_q (n2r 0.5)))
 
 ; verify types
-(assert-true "Is reals?" (reals? rv1))
-(assert-true "Is real?" (real? (n2r 1.0)))

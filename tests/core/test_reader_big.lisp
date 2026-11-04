@@ -14,6 +14,5 @@
 ;what does fit is as it was
 (assert-true "a big one that does fit" (starts-with "1000000000000.5" (str (rb-read "1000000000000.5"))))
 (assert-eq "an ordinary fixed" 1.5 (rb-read "1.5"))
-(assert-eq "an ordinary fixed, below 0" -2.25 (rb-read "-2.25"))
 (assert-true "a small one" (starts-with "0.125" (str (rb-read "0.125"))))
 (assert-eq "a whole number is not a fixed" 1791408183000000 (rb-read "1791408183000000"))

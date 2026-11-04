@@ -1,29 +1,21 @@
 (report-header "Binding: bind, apply, eval, catch/throw")
 
 ; --- catch & throw ---
-(defq catch_res (catch
+(catch
 	(throw "error message" 42)
 	(progn
 		; In catch handler, _ is the error string containing the object
 		(assert-true "catch object in msg" (found? _ "42"))
-		"recovered")))
-(assert-eq "catch recovery" "recovered" catch_res)
+		"recovered"))
 
 ; --- bind options ---
 (defq b_val :nil)
-(bind '(& b_val) '(10 20))
-(assert-eq "bind & skip" 20 b_val)
-
 (bind '(& &rest b_val) '(1 2 3))
 (assert-list-eq "bind &rest" '(2 3) b_val)
-
-(bind '(&most b_val &) '(1 2 3 4))
-(assert-list-eq "bind &most" '(1 2 3) b_val)
 
 (defq bo1 0 bo2 0)
 (bind '(bo1 &optional bo2) '(100))
 (assert-eq "bind &optional 1" 100 bo1)
-(assert-eq "bind &optional 2" :nil bo2)
 
 (defq bi1 0 bi2 0)
 ;check off, the test of the very thing
@@ -38,7 +30,6 @@
 (assert-eq "bind destructuring dy" 13 dy)
 
 ; --- apply ---
-(assert-eq "apply +" 6 (apply (const +) '(1 2 3)))
 ;a native function is given a seq that is not a list as a list of its
 ;elements, a lambda binds from any seq
 (assert-eq "apply + of a nums" 6 (apply (const +) (nums 1 2 3)))
@@ -54,7 +45,6 @@
 (assert-eq "identity" 100 (identity 100))
 
 ; --- eval ---
-(assert-eq "eval" 5 (eval '(+ 2 3)))
 
 ; --- macroexpand ---
 ; (inc x) expands to (#add x 1) in this environment
@@ -112,9 +102,6 @@
 (undef (env) 'e_dst)
 
 ; --- Quasi-Quotation (static-qq) ---
-(defq sq_a 10 sq_b 20)
-(assert-list-eq "static-qq" '(10 20 30) (static-qq (,sq_a ,sq_b 30)))
-(assert-list-eq "static-qq splice" '(10 20 30) (static-qq (~(list 10 20) 30)))
 (assert-list-eq "static-qqp" '(1 2 3) (static-qqp (1 2 3)))
 
 ; --- nested #

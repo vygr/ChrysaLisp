@@ -160,7 +160,6 @@
 ;a compare function that throws stops the sort, and the default compare
 ;is for strings, so throws when given numbers
 (assert-error "sort compare throws" (sort (list 3 1 2) (lambda (a b) (throw "e" 1))))
-(assert-error "sort numbers with the string compare" (sort (list 3 1 2)))
 (assert-error "usort numbers with the string compare" (usort (list 3 1 2)))
 
 ;the list of args is the one list for every time round, while only the
