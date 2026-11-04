@@ -6,37 +6,13 @@
 (import "././consts/colors.inc")
 (import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
+(import "././math/matrix.inc")
 
 ;module
 (env-push)
 
 (defun deg-to-rad (d)
 	(/ (* d +fp_pi) 180.0))
-
-(defmacro Mat3x2-f (m00 m01 m02 m10 m11 m12)
-	`(fixeds ,m00 ,m01 ,m02 ,m10 ,m11 ,m12))
-
-(defun Mat3x2-rotz-f (a)
-	(defq ca (cos a) sa (sin a))
-	(Mat3x2-f ca (* sa -1.0) 0.0 sa ca 0.0))
-
-(defun Mat3x2-skewx-f (a)
-	(defq ca (cos a) sa (sin a))
-	(Mat3x2-f ca (* sa -1.0) 0.0 0.0 1.0 0.0))
-
-(defun Mat3x2-skewy-f (a)
-	(defq ca (cos a) sa (sin a))
-	(Mat3x2-f 1.0 0.0 0.0 sa ca 0.0))
-
-(defun mat3x2-mul-f (ma mb)
-	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
-	(defq mar0 (slice ma 0 3) mar1 (slice ma 3 -1)
-		mbr0 (slice mb 0 3) mbr1 (slice mb 3 -1)
-		mbc0 (fixeds (first mbr0) (first mbr1))
-		mbc1 (fixeds (second mbr0) (second mbr1))
-		mbc2 (fixeds (third mbr0) (third mbr1) 1.0))
-	(Mat3x2-f (nums-dot mbc0 mar0) (nums-dot mbc1 mar0) (nums-dot mbc2 mar0)
-		(nums-dot mbc0 mar1) (nums-dot mbc1 mar1) (nums-dot mbc2 mar1)))
 
 (defun read-col (val)
 	(case (length val)
@@ -59,30 +35,25 @@
 			mb (case key
 			("matrix"
 				(bind '(m00 m01 m10 m11 tx ty) vals)
-				(Mat3x2-f m00 m01 tx m10 m11 ty))
+				(Mat3x2 m00 m01 tx m10 m11 ty))
 			("translate"
 				(bind '(tx &optional ty) vals)
-				(setd ty 0.0)
-				(Mat3x2-f 1.0 0.0 tx 0.0 1.0 ty))
+				(Mat3x2-translate tx (ifn ty 0.0)))
 			("scale"
 				(bind '(sx &optional sy) vals)
-				(setd sy sx)
-				(Mat3x2-f sx 0.0 0.0 0.0 sy 0.0))
+				(Mat3x2-scale sx sy))
 			("rotate"
-				(bind '(a &optional tx ty) vals)
-				(setd tx 0.0 ty 0.0)
-				(defq mb (Mat3x2-rotz-f (deg-to-rad a)))
-				(bind '(m00 m01 m02 m10 m11 m12) mb)
-				(bind '(rx ry) (path-transform mb (path tx ty) (path 0 0)))
-				(Mat3x2-f m00 m01 (- tx rx) m10 m11 (- ty ry)))
+				;about a point, default the origin
+				(bind '(a &optional cx cy) vals)
+				(Mat3x2-rot (deg-to-rad a) cx cy))
 			("skewX"
 				(bind '(a) vals)
-				(Mat3x2-skewx-f (* (deg-to-rad a) -1.0)))
+				(Mat3x2-skew (deg-to-rad a)))
 			("skewY"
 				(bind '(a) vals)
-				(Mat3x2-skewy-f (deg-to-rad a)))
+				(Mat3x2-skew 0.0 (deg-to-rad a)))
 			(:t (throw "Unknown transform !" key))))
-		(setq ma (mat3x2-mul-f ma mb)))
+		(setq ma (Mat3x2-mul ma mb)))
 	ma)
 
 (defun read-attribute (entry key val)
@@ -210,7 +181,7 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" (Mat3x2-f scale 0.0 0.0 0.0 scale 0.0)
+			"transform" (Mat3x2-scale scale)
 			;this block can be any order
 			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
@@ -228,7 +199,7 @@
 					(if vb (bind '(x y w h) vb))
 					(. (setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias)
-					(. entry :insert "transform" (Mat3x2-f scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
+					(. entry :insert "transform" (Mat3x2 scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "r"))
@@ -292,7 +263,7 @@
 						("hanging" (n2f h))
 						(:t 0.0))
 					d (map (# (list :t (path-transform
-							(Mat3x2-f 1.0 0.0 (+ x ox) 0.0 1.0 (+ y oy)) %0 %0)))
+							(Mat3x2-translate (+ x ox) (+ y oy)) %0 %0)))
 						(font-glyph-paths font text)))
 				(path-fill-and-stroke canvas entry d))))
 	;resize to final output

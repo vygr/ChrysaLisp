@@ -97,6 +97,14 @@
 	(defq c (cos (n2f angle)) s (sin (n2f angle)))
 	(fixeds c (neg s) (- cx (- (* c cx) (* s cy))) s c (- cy (+ (* s cx) (* c cy)))))
 
+(defun Mat3x2-skew (ax &optional ay)
+	; (Mat3x2-skew ax [ay]) -> matrix
+	;by angles in radians, x leaning along y by ax and y along x by ay,
+	;default 0, as svg's skewX and skewY: x' = x + tan(ax)*y
+	(setd ay 0.0)
+	(setq ax (n2f ax) ay (n2f ay))
+	(fixeds 1.0 (/ (sin ax) (cos ax)) 0.0 (/ (sin ay) (cos ay)) 1.0 0.0))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; the 3x4 matrix of a flat thing in space, twelve fixeds, by rows. A point of
 ; the thing has z 0:

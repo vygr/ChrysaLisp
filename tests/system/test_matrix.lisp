@@ -20,6 +20,11 @@
 (assert-eq "scaled about a point" "(5.00000 7.00000)" (str (Mat3x2-point (Mat3x2-scale 2 3 1 1) 3 3)))
 (assert-true "a quarter turn is from x to y" (mx-near? (Mat3x2-point (Mat3x2-rot +fp_hpi) 1 0) (list 0.0 1.0)))
 (assert-true "about a point" (mx-near? (Mat3x2-point (Mat3x2-rot +fp_hpi 10 10) 20 10) (list 10.0 20.0)))
+;a skew leans one way along the other, svg's skewX and skewY: a point
+;keeps its height and moves across by tan of the angle for each of it
+(assert-true "an eighth of a skew along x moves a point across by its height" (mx-near? (Mat3x2-point (Mat3x2-skew (/ +fp_pi 4.0)) 2 3) (list 5.0 3.0)))
+(assert-true "and along y up by how far across it is" (mx-near? (Mat3x2-point (Mat3x2-skew 0.0 (/ +fp_pi 4.0)) 2 3) (list 2.0 5.0)))
+(assert-true "a skew of nothing is no change" (mx-near? (Mat3x2-skew 0.0) (Mat3x2)))
 (assert-eq "mul does the second given first" "(26.00000 48.00000)"
 	(str (Mat3x2-point (Mat3x2-mul (Mat3x2-scale 2) mx_t) 3 4)))
 (defq mx_m (Mat3x2-mul (Mat3x2-rot 0.7 3 4) (Mat3x2-scale 2.5 0.5 1 1)))

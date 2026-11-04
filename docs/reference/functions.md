@@ -137,6 +137,15 @@ a point, default the origin
 about a point, default the origin
 ```
 
+### Mat3x2-skew
+
+```code
+(Mat3x2-skew ax [ay]) -> matrix
+
+by angles in radians, x leaning along y by ax and y along x by ay,
+default 0, as svg's skewX and skewY: x' = x + tan(ax)*y
+```
+
 ### Mat3x2-translate
 
 ```code
@@ -6271,12 +6280,6 @@ by its pings, so a service checks each time it wakes; one that has to
 give way stops saying its name, sends on what still comes to it, and
 goes. Only for a service a task may use any one of: two networks on
 one machine each have a Net service of their own
-```
-
-### mat3x2-mul-f
-
-```code
-(mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
 ```
 
 ### match
