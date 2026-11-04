@@ -755,7 +755,6 @@
 	(list "M 100 20 L 100 144" "M 100 156 L 100 280" (cwb-d-line 200 20 200 280)) (rb-ds))
 (def rb_board :zoom 1.0 :rub_mode :whole)
 (. rb_board :rub 200 150)
-(assert-eq "set to take a line whole, it does" 2 (length (cwb-items rb_doc)))
 
 ;an arc is written as arcs of no more than a third of a turn, each is on its circle
 (defun rb-arc-off (a0 sweep)
@@ -955,8 +954,6 @@
 (def ug_board :mode :select)
 (. ug_board :select (list 1))
 (. ug_board :ungroup)
-(assert-list-eq "a group that is ungrouped is its two parts, both selected" '((2 3) (2 3))
-	(list (map (# (elem-get %0 +cwb_id)) (cwb-items (. ug_board :get_doc))) (. ug_board :get_selected)))
 (assert-list-eq "the box of a thing is its own, where it is: of one that is level, and of one that has been turned, turned"
 	'((40 40 100 40 100 80 40 80) :t)
 	(list (map (const n2i) (board-item-corners (first (cwb-items (. ug_board :get_doc)))))

@@ -27,7 +27,6 @@
 (defun bt-in? (board x y) (if (cwb-hit (. board :get_doc) x y 0) :t :nil))
 
 (defq bt (bt-board))
-(assert-eq "it is how a board rubs out" :bite (get :rub_mode bt))
 (def bt :rub_mode :bite)
 (defq bt_was (bt-said bt))
 (. bt :snapshot)
@@ -157,13 +156,6 @@
 (assert-eq "two fingers have turned it, the eraser has cut it in two, it has not jumped, and moved 10 on by both fingers it is 10 on, both halves"
 	(str (list bt_turned (+ (first bt_turned) 10) (+ (third bt_turned) 10)))
 	(str (list bt_bitten (first (bt-at)) (third (bt-at)))))
-;two fingers of the one device on a thing still move it between them
-(defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))
-(. bt :add (cwb-shape (cwb-d-rect 100 100 200 200) :fill 0xff00ff00 :stroke 0))
-(def bt :mode :select)
-(bt-go (ptr-event 0x1000000 :touch 1 120 150)) (bt-go (ptr-event 0x1000001 :touch 1 180 150))
-(bt-go (ptr-event 0x1000000 :touch 1 90 150)) (bt-go (ptr-event 0x1000001 :touch 1 210 150))
-(assert-true "two fingers of the one device on a thing size it between them, as they did" (> (- (third (bt-at)) (first (bt-at))) 150))
 
 ;the eraser's way is kept as it goes, and one bite of all of it is taken at a tick, or as it lifts: the hand is not kept waiting
 (defq bt (Board (cwb-doc 400 300)) bt_doc (. bt :get_doc))

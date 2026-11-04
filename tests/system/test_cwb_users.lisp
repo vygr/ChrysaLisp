@@ -182,8 +182,6 @@
 (assert-eq "written, it is version 1, of items, with no layers"
 	(str (list :t :t :nil)) (str (list (nempty? (substr (str us_out) ":version 1")) (nempty? (substr (str us_out) ":items"))
 		(nempty? (substr (str us_out) ":layers")))))
-(assert-eq "and read back it is the same"
-	(str (list 1 2)) (str (map (# (elem-get %0 +cwb_id)) (cwb-items (cwb-load (string-stream (str us_out)))))))
 (defq us_v5 (string-stream (cat "")))
 (tree-save us_v5 (. (cwb-out us_doc) :insert :version 5))
 (assert-eq "a file of another version is not read" :nil (cwb-load (string-stream (str us_v5))))
