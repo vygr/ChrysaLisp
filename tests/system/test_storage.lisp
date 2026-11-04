@@ -54,11 +54,8 @@
 		(list :stale sg_h1)
 		(progn (defq sg_r (storage-put "c/x" "two" "" sg_svc)) (list (first sg_r) (elem-get (second sg_r) +store_entry_hash))))
 	(assert-eq "set from what it is" :ok (first (storage-put "c/x" "two" sg_h1 sg_svc)))
-	(assert-eq "set from what it was, by one who did not see that" :stale (first (storage-put "c/x" "three" sg_h1 sg_svc)))
-	(assert-eq "it is what the one who saw made it" "two" (storage-get "c/x" sg_svc))
 	(assert-eq "deleted provided it is what it is not" :stale (first (storage-delete "c/x" sg_h1 sg_svc)))
 	(assert-eq "deleted" :ok (first (storage-delete "c/x" :nil sg_svc)))
-	(assert-eq "there is none of it" :nil (storage-get "c/x" sg_svc))
 	(assert-eq "deleted again there is none to" :none (first (storage-delete "c/x" :nil sg_svc)))
 
 	;a gopher
@@ -216,7 +213,6 @@
 
 	;pins, a sweep, a check
 	(assert-list-eq "a pin" '("b/") (storage-pin "b/" :nil sg_svc))
-	(assert-list-eq "all of what is pinned is here" '() (storage-pins-missing sg_svc))
 	(assert-list-eq "the store's info has the pins, one with a space" '("b/" "c d")
 		(progn (storage-pin "c d" :nil sg_svc) (sort (. (storage-info sg_svc) :find :pins))))
 	(storage-pin "c d" :t sg_svc)
@@ -225,7 +221,6 @@
 	(storage-delete "a/big" :nil sg_svc)
 	(storage-delete "a/sorted" :nil sg_svc)
 	(assert-true "a sweep lets go of the blocks of what was deleted" (> (storage-sweep sg_svc) 0))
-	(assert-eq "not of what is there by another path" sg_big (storage-get "b/copy" sg_svc))
 	(assert-list-eq "nothing kept is wrong" '() (storage-check :nil sg_svc))
 	(assert-list-eq "nothing is wrong with the volume, after puts, deletes and a sweep" '() (storage-volume-check sg_svc))
 

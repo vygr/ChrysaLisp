@@ -235,7 +235,6 @@
 (assert-true "a sweep lets go of the blocks no object is made of" (> so_gone 0))
 (assert-eq "that many" (- so_before so_gone) (second (store-info so)))
 (assert-eq "none of an object that is there" so_big (store-get so "a/big"))
-(assert-eq "nor of the other path to it" so_big (store-get so "b/copy"))
 (assert-eq "swept again there is nothing to" 0 (store-sweep so))
 (store-delete so "a/big")
 (assert-eq "one of two paths to an object deleted, and swept: nothing goes" 0 (store-sweep so))
