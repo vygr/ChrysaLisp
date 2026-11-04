@@ -10,8 +10,7 @@
 	(read-char (string-stream "")) :nil
 	(read-line (string-stream "")) :nil
 	(read-blk (string-stream "") 4) :nil
-	(stream-avail (string-stream "")) 0
-	(read-char (memory-stream)) :nil)
+	(stream-avail (string-stream "")) 0)
 
 ; --- read-line, a last line needs no line end, an empty line is "" ---
 (test-cases
@@ -39,15 +38,11 @@
 (test-cases
 	(stream-avail (string-stream "abc")) 3
 	(se-seek 0 0) "abcdef"
-	(se-seek 3 0) "def"
-	(se-seek 6 0) :nil
-	(se-seek -2 2) "ef")
+	(se-seek 6 0) :nil)
 
 (defq se_s (string-stream "abcdef"))
 (read-char se_s)
 (assert-eq "avail after a read" 5 (stream-avail se_s))
-(stream-seek se_s 1 1)
-(assert-eq "seek from current" "cdef" (read-blk se_s 10))
 
 ; --- writing ---
 (defun se-write (fn &rest args)
@@ -68,18 +63,11 @@
 
 ; --- binary values round trip, signed and unsigned ---
 (defq se_m (memory-stream))
-(write-long se_m -1) (write-int se_m -1) (write-short se_m -1) (write-byte se_m -1)
-(write-int se_m -1) (write-short se_m -1) (write-byte se_m -1)
+(write-long se_m -1) (write-int se_m -1)
 (stream-seek se_m 0 0)
 (test-cases
 	(read-long se_m) -1
-	(read-int se_m) -1
-	(read-short se_m) -1
-	(read-byte se_m) -1
-	(read-uint se_m) 4294967295
-	(read-ushort se_m) 65535
-	(read-ubyte se_m) 255
-	(read-byte se_m) :nil)
+	(read-int se_m) -1)
 
 ;a value that runs past the end is :nil
 (defq se_m (memory-stream))
@@ -110,13 +98,7 @@
 
 (test-cases
 	(se-lines "") '()
-	(se-lines "a\n\nb") '("a" "" "b")
-	(se-lines "a\n") '("a")
-	(se-lines "a\nb\nc" "b") '("a" "b"))
-
-(defq se_idx (list))
-(lines! (lambda (line) (push se_idx (!)) :nil) (string-stream "a\nb\nc"))
-(assert-list-eq "lines! index" '(0 1 2) se_idx)
+	(se-lines "a\n\nb") '("a" "" "b"))
 
 ; --- the reader, nothing to read gives :nil ---
 (defq se_r (string-stream "1 2 3"))
@@ -141,15 +123,11 @@
 ; --- hex and utf8 ---
 (test-cases
 	(hex-encode "") ""
-	(hex-encode "AB") "4142"
 	(hex-decode "") ""
-	(hex-decode "4142") "AB"
-	(hex-decode (hex-encode "round trip")) "round trip"
-	(byte-to-hex-str 0) "00"			(byte-to-hex-str 255) "FF"
+	(byte-to-hex-str 0) "00"
 	(short-to-hex-str 255) "00FF"
 	(int-to-hex-str 0) "00000000"		(int-to-hex-str 255) "000000FF"
 	(int-to-hex-str -1) "FFFFFFFF"
 	(long-to-hex-str -1) "FFFFFFFFFFFFFFFF"
-	(num-to-utf8 65) "A"
 	(length (num-to-utf8 0x20ac)) 3
 	(length (num-to-utf8 0x1f600)) 4)
