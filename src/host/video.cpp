@@ -100,6 +100,56 @@ __attribute__((unused)) static bool video_hvcc(const uint8_t *setup, uint64_t le
 
 #endif
 
+#if defined(__linux__) || defined(_WIN64)
+
+struct Video_Nals
+{
+	//each NAL of a packet, after its size in nal_length bytes, the high
+	//byte first, as MP4 and Matroska keep them. It ends at the end of the
+	//packet, and at one of no size or that runs past the end
+	const uint8_t *data;
+	uint64_t len, at;
+	int nal_length;
+	bool next(const uint8_t *&nal, size_t &n)
+	{
+		if (at + nal_length > len) return false;
+		n = 0;
+		for (int i = 0; i < nal_length; i++) n = (n << 8) | data[at + i];
+		at += nal_length;
+		if (n == 0 || at + n > len) return false;
+		nal = data + at;
+		at += n;
+		return true;
+	}
+};
+
+//the colours of BT.601, BT.709 and BT.2020, limited, or of JPEG and of a
+//stream that says so full: the numbers of Y, of red of V, green of U and
+//V, and blue of U, and what is taken from Y
+struct Video_Matrix
+{
+	int ky, oy, kr, kgu, kgv, kb;
+};
+
+static const Video_Matrix video_matrices[2][3] = {
+	{{298, 16, 409, 100, 208, 516}, {298, 16, 459, 55, 136, 541}, {298, 16, 430, 48, 167, 548}},
+	{{256, 0, 359, 88, 183, 454}, {256, 0, 403, 48, 120, 475}, {256, 0, 377, 42, 146, 482}}};
+
+static inline uint32_t video_pixel(const Video_Matrix &m, int yy, int u, int v)
+{
+	//a pixel, blue green red alpha, of Y, and U and V less 128
+	int c = m.ky * (yy - m.oy);
+	int r = (c + m.kr * v + 128) >> 8;
+	int g = (c - m.kgu * u - m.kgv * v + 128) >> 8;
+	int b = (c + m.kb * u + 128) >> 8;
+	r = r < 0 ? 0 : r > 255 ? 255 : r;
+	g = g < 0 ? 0 : g > 255 ? 255 : g;
+	b = b < 0 ? 0 : b > 255 ? 255 : b;
+	return 0xff000000 | (r << 16) | (g << 8) | b;
+}
+
+#endif
+
 #ifdef __APPLE__
 
 #include <VideoToolbox/VideoToolbox.h>
@@ -300,6 +350,14 @@ void host_video_close(uint64_t handle)
 #include <errno.h>
 #include <thread>
 #include <math.h>
+
+static int video_ioctl(int fd, unsigned long what, void *arg)
+{
+	//an ioctl, again if a signal broke into it
+	int r;
+	do r = ioctl(fd, what, arg); while (r == -1 && errno == EINTR);
+	return r;
+}
 
 //what is used of VA-API, as libva 2.x has it, libva.so.2 and libva-drm.so.2:
 //its types and constants, the buffers of H.264, H.265 and baseline JPEG, the
@@ -1522,30 +1580,9 @@ static bool va_read(Va_Decoder *d, int surface, uint32_t x, uint32_t y, uint32_t
 	return ok;
 }
 
-//the colours of BT.601, BT.709 and BT.2020, limited, or of JPEG and of a
-//stream that says so full, BT.601's as the V4L2 decoder has it: the
-//numbers of Y, of red of V, green of U and V, and blue of U, and what is
-//taken from Y
-struct Va_Matrix
-{
-	int ky, oy, kr, kgu, kgv, kb;
-};
-
-static inline uint32_t va_pixel(const Va_Matrix &m, int yy, int u, int v)
-{
-	int c = m.ky * (yy - m.oy);
-	int r = (c + m.kr * v + 128) >> 8;
-	int g = (c - m.kgu * u - m.kgv * v + 128) >> 8;
-	int b = (c + m.kb * u + 128) >> 8;
-	r = r < 0 ? 0 : r > 255 ? 255 : r;
-	g = g < 0 ? 0 : g > 255 ? 255 : g;
-	b = b < 0 ? 0 : b > 255 ? 255 : b;
-	return 0xff000000 | (r << 16) | (g << 8) | b;
-}
-
 #if defined(__x86_64__)
 #include <emmintrin.h>
-static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu, const uint8_t *pv, uint32_t step,
+static uint32_t va_row(const Video_Matrix &m, const uint8_t *py, const uint8_t *pu, const uint8_t *pv, uint32_t step,
 	uint32_t bytes, uint32_t *out, uint32_t n)
 {
 	//8 pixels at a time, two to a U and V, by SSE2, which every x86_64 has:
@@ -1605,15 +1642,11 @@ static uint32_t va_row(const Va_Matrix &m, const uint8_t *py, const uint8_t *pu,
 }
 #endif
 
-static const Va_Matrix va_matrices[2][3] = {
-	{{298, 16, 409, 100, 208, 516}, {298, 16, 459, 55, 136, 541}, {298, 16, 430, 48, 167, 548}},
-	{{256, 0, 359, 88, 183, 454}, {256, 0, 403, 48, 120, 475}, {256, 0, 377, 42, 146, 482}}};
-
 static void va_convert(const Va_Held &pic, bool full, int matrix, uint32_t *pixels, uint64_t w, uint64_t h, uint64_t stride)
 {
 	//the picture into the pixels given, as much as there is room for. Of
 	//10 bits, the top 8 of each, the high byte of P010's
-	const Va_Matrix &m = va_matrices[full][matrix];
+	const Video_Matrix &m = video_matrices[full][matrix];
 	uint32_t cols = std::min((uint64_t)pic.width, w), rows = std::min((uint64_t)pic.height, h);
 	uint32_t b = pic.bytes, hi = b - 1;
 	va_rows(rows, 2, [&](uint32_t y0, uint32_t y1) {
@@ -1628,7 +1661,7 @@ static void va_convert(const Va_Held &pic, bool full, int matrix, uint32_t *pixe
 			if (pic.sx == 1) x = va_row(m, py, pu, pv, pic.step, b, out, cols);
 #endif
 			for (; x < cols; x++)
-				out[x] = va_pixel(m, py[x * b + hi], (int)pu[(x >> pic.sx) * pic.step * b + hi] - 128,
+				out[x] = video_pixel(m, py[x * b + hi], (int)pu[(x >> pic.sx) * pic.step * b + hi] - 128,
 					(int)pv[(x >> pic.sx) * pic.step * b + hi] - 128);
 		}
 	});
@@ -2315,14 +2348,10 @@ static int64_t va_h264_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 {
 	//each NAL of the packet: parameter sets kept, slices given the hardware
 	bool ok = true;
-	for (uint64_t k = 0; k + d->nal_length <= len;)
+	const uint8_t *nal;
+	size_t n;
+	for (Video_Nals nals = {data, len, 0, d->nal_length}; nals.next(nal, n);)
 	{
-		size_t n = 0;
-		for (int i = 0; i < d->nal_length; i++) n = (n << 8) | data[k + i];
-		k += d->nal_length;
-		if (n == 0 || k + n > len) break;
-		const uint8_t *nal = data + k;
-		k += n;
 		int type = nal[0] & 31, ref_idc = (nal[0] >> 5) & 3;
 		if (type == 7 || type == 8)
 		{
@@ -3086,13 +3115,6 @@ struct Hv
 	v4l2_ctrl_hevc_scaling_matrix lists;
 };
 
-static int hv_ioctl(int fd, unsigned long what, void *arg)
-{
-	int r;
-	do r = ioctl(fd, what, arg); while (r < 0 && errno == EINTR);
-	return r;
-}
-
 static bool hv_find(Hv *hv)
 {
 	//the first decoder that takes parsed slices and gives columns, and the
@@ -3106,18 +3128,18 @@ static bool hv_find(Hv *hv)
 		bool in = false, out = false;
 		v4l2_fmtdesc f = {};
 		f.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-		for (f.index = 0; hv_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) in |= f.pixelformat == V4L2_PIX_FMT_HEVC_SLICE;
+		for (f.index = 0; video_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) in |= f.pixelformat == V4L2_PIX_FMT_HEVC_SLICE;
 		f.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-		for (f.index = 0; hv_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) out |= f.pixelformat == hv_fourcc;
+		for (f.index = 0; video_ioctl(fd, VIDIOC_ENUM_FMT, &f) == 0; f.index++) out |= f.pixelformat == hv_fourcc;
 		v4l2_capability cap = {};
-		if (!in || !out || hv_ioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) { close(fd); continue; }
+		if (!in || !out || video_ioctl(fd, VIDIOC_QUERYCAP, &cap) < 0) { close(fd); continue; }
 		for (int m = 0; m < 16 && hv->media < 0; m++)
 		{
 			snprintf(name, sizeof(name), "/dev/media%d", m);
 			int mfd = open(name, O_RDWR | O_NONBLOCK | O_CLOEXEC);
 			if (mfd < 0) continue;
 			media_device_info info = {};
-			if (hv_ioctl(mfd, MEDIA_IOC_DEVICE_INFO, &info) == 0
+			if (video_ioctl(mfd, MEDIA_IOC_DEVICE_INFO, &info) == 0
 				&& !strncmp(info.driver, (const char*)cap.driver, sizeof(info.driver))) hv->media = mfd;
 			else close(mfd);
 		}
@@ -3133,9 +3155,9 @@ static void hv_stop(Hv *hv)
 	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	if (hv->streaming)
 	{
-		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
 		type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
 		hv->streaming = false;
 	}
 	for (auto &c : hv->caps) for (int i = 0; i < 2; i++) if (c.at[i] && c.at[i] != MAP_FAILED) munmap(c.at[i], c.size[i]);
@@ -3145,9 +3167,9 @@ static void hv_stop(Hv *hv)
 	v4l2_requestbuffers req = {};
 	req.memory = V4L2_MEMORY_MMAP;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
+	video_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
 	req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
+	video_ioctl(hv->fd, VIDIOC_REQBUFS, &req);
 	hv->w = hv->h = 0;
 }
 
@@ -3205,12 +3227,12 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 	fmt.fmt.pix_mp.height = sp.height;
 	fmt.fmt.pix_mp.num_planes = 1;
 	fmt.fmt.pix_mp.plane_fmt[0].sizeimage = std::max(1u << 21, (uint32_t)sp.width * sp.height);
-	if (hv_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0) return false;
+	if (video_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0) return false;
 	v4l2_requestbuffers req = {};
 	req.count = 1;
 	req.type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
 	req.memory = V4L2_MEMORY_MMAP;
-	if (hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || req.count < 1) return false;
+	if (video_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || req.count < 1) return false;
 	v4l2_plane planes[2];
 	v4l2_buffer buf = {};
 	memset(planes, 0, sizeof(planes));
@@ -3218,7 +3240,7 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 	buf.memory = V4L2_MEMORY_MMAP;
 	buf.m.planes = planes;
 	buf.length = 1;
-	if (hv_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
+	if (video_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
 	hv->src_size = planes[0].length;
 	hv->src = mmap(nullptr, hv->src_size, PROT_READ | PROT_WRITE, MAP_SHARED, hv->fd, planes[0].m.mem_offset);
 	if (hv->src == MAP_FAILED) { hv->src = nullptr; return false; }
@@ -3230,14 +3252,14 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 	v4l2_ext_controls ctrls = {};
 	ctrls.count = 1;
 	ctrls.controls = &c;
-	if (hv_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0) return false;
+	if (video_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) < 0) return false;
 	memset(&fmt, 0, sizeof(fmt));
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	fmt.fmt.pix_mp.pixelformat = fourcc;
 	fmt.fmt.pix_mp.width = sp.width;
 	fmt.fmt.pix_mp.height = sp.height;
 	fmt.fmt.pix_mp.num_planes = 2;
-	if (hv_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0 || fmt.fmt.pix_mp.pixelformat != fourcc
+	if (video_ioctl(hv->fd, VIDIOC_S_FMT, &fmt) < 0 || fmt.fmt.pix_mp.pixelformat != fourcc
 		|| fmt.fmt.pix_mp.num_planes != 2) return false;
 	hv->line = fmt.fmt.pix_mp.plane_fmt[0].bytesperline;
 	if (!hv->line) return false;
@@ -3245,7 +3267,7 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 	req.count = count;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 	req.memory = V4L2_MEMORY_MMAP;
-	if (hv_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || (int)req.count < count) return false;
+	if (video_ioctl(hv->fd, VIDIOC_REQBUFS, &req) < 0 || (int)req.count < count) return false;
 	hv->caps.resize(req.count);
 	for (uint32_t i = 0; i < req.count; i++)
 	{
@@ -3259,7 +3281,7 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 		buf.index = i;
 		buf.m.planes = planes;
 		buf.length = 2;
-		if (hv_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
+		if (video_ioctl(hv->fd, VIDIOC_QUERYBUF, &buf) < 0) return false;
 		for (int p = 0; p < 2; p++)
 		{
 			cap.size[p] = planes[p].length;
@@ -3268,9 +3290,9 @@ static bool hv_setup(Va_Decoder *d, const Va_Hsps &sp, int sps_id)
 		}
 	}
 	int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-	if (hv_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
+	if (video_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-	if (hv_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
+	if (video_ioctl(hv->fd, VIDIOC_STREAMON, &type) < 0) return false;
 	hv->streaming = true;
 	hv->ten = ten;
 	hv->w = sp.width;
@@ -3454,7 +3476,7 @@ static bool hv_end(Va_Decoder *d)
 	Hv *hv = d->hv;
 	if (hv->slices.empty()) return false;
 	int req = -1;
-	if (hv_ioctl(hv->media, MEDIA_IOC_REQUEST_ALLOC, &req) < 0) return false;
+	if (video_ioctl(hv->media, MEDIA_IOC_REQUEST_ALLOC, &req) < 0) return false;
 	bool ok = false;
 	v4l2_ext_control c[5];
 	memset(c, 0, sizeof(c));
@@ -3490,10 +3512,10 @@ static bool hv_end(Va_Decoder *d)
 	src.request_fd = req;
 	src.timestamp.tv_sec = hv->stamp / 1000000000;
 	src.timestamp.tv_usec = (hv->stamp % 1000000000) / 1000;
-	if (hv_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) == 0
-		&& hv_ioctl(hv->fd, VIDIOC_QBUF, &cap) == 0
-		&& hv_ioctl(hv->fd, VIDIOC_QBUF, &src) == 0
-		&& hv_ioctl(req, MEDIA_REQUEST_IOC_QUEUE, nullptr) == 0)
+	if (video_ioctl(hv->fd, VIDIOC_S_EXT_CTRLS, &ctrls) == 0
+		&& video_ioctl(hv->fd, VIDIOC_QBUF, &cap) == 0
+		&& video_ioctl(hv->fd, VIDIOC_QBUF, &src) == 0
+		&& video_ioctl(req, MEDIA_REQUEST_IOC_QUEUE, nullptr) == 0)
 	{
 		//a stuck decoder is not waited on for ever
 		pollfd wait = {req, POLLPRI, 0};
@@ -3504,14 +3526,14 @@ static bool hv_end(Va_Decoder *d)
 		src.memory = V4L2_MEMORY_MMAP;
 		src.m.planes = &in;
 		src.length = 1;
-		ok = hv_ioctl(hv->fd, VIDIOC_DQBUF, &src) == 0 && ok;
+		ok = video_ioctl(hv->fd, VIDIOC_DQBUF, &src) == 0 && ok;
 		memset(&cap, 0, sizeof(cap));
 		memset(planes, 0, sizeof(planes));
 		cap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 		cap.memory = V4L2_MEMORY_MMAP;
 		cap.m.planes = planes;
 		cap.length = 2;
-		ok = hv_ioctl(hv->fd, VIDIOC_DQBUF, &cap) == 0 && !(cap.flags & V4L2_BUF_FLAG_ERROR) && ok;
+		ok = video_ioctl(hv->fd, VIDIOC_DQBUF, &cap) == 0 && !(cap.flags & V4L2_BUF_FLAG_ERROR) && ok;
 	}
 	close(req);
 	//what is still queued of a picture that failed, or the next one fails
@@ -3519,11 +3541,11 @@ static bool hv_end(Va_Decoder *d)
 	if (!ok)
 	{
 		int type = V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE;
-		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
-		hv_ioctl(hv->fd, VIDIOC_STREAMON, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMON, &type);
 		type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
-		hv_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
-		hv_ioctl(hv->fd, VIDIOC_STREAMON, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMOFF, &type);
+		video_ioctl(hv->fd, VIDIOC_STREAMON, &type);
 	}
 	return ok;
 }
@@ -3927,14 +3949,10 @@ static int64_t va_h265_decode(Va_Decoder *d, const uint8_t *data, uint64_t len, 
 	//each NAL of the packet, of the base layer: parameter sets kept,
 	//slices given the hardware, those of a picture not decoded passed by
 	bool ok = true;
-	for (uint64_t k = 0; k + d->nal_length <= len;)
+	const uint8_t *nal;
+	size_t n;
+	for (Video_Nals nals = {data, len, 0, d->nal_length}; nals.next(nal, n);)
 	{
-		size_t n = 0;
-		for (int i = 0; i < d->nal_length; i++) n = (n << 8) | data[k + i];
-		k += d->nal_length;
-		if (n == 0 || k + n > len) break;
-		const uint8_t *nal = data + k;
-		k += n;
 		if (n < 3) continue;
 		int type = (nal[0] >> 1) & 63, layer = ((nal[0] & 1) << 5) | (nal[1] >> 3), tid = (nal[1] & 7) - 1;
 		if (layer || tid < 0) continue;
@@ -4433,12 +4451,6 @@ struct Video_Decoder
 //timestamps are kept 0 or more, a time shown may be less than 0
 static const int64_t video_base = (int64_t)1 << 40;
 
-static int video_ioctl(int fd, unsigned long what, void *arg)
-{
-	int r;
-	do r = ioctl(fd, what, arg); while (r == -1 && errno == EINTR);
-	return r;
-}
 
 static void video_free(Video_Decoder *d)
 {
@@ -4522,25 +4534,12 @@ static void video_convert(Video_Decoder *d, const uint8_t *yuv, std::vector<uint
 	//or of JPEG full
 	uint32_t w = d->width, h = d->height, ys = d->stride, cs = d->stride / 2;
 	const uint8_t *py = yuv, *pu = yuv + ys * d->plane, *pv = pu + cs * (d->plane / 2);
-	int ky = d->full ? 256 : 298, oy = d->full ? 0 : 16, kr = d->full ? 359 : 409,
-		kgu = d->full ? 88 : 100, kgv = d->full ? 183 : 208, kb = d->full ? 454 : 516;
+	const Video_Matrix &m = video_matrices[d->full][0];
 	out.resize((size_t)w * h);
 	for (uint32_t y = 0; y < h; y++)
-	{
 		for (uint32_t x = 0; x < w; x++)
-		{
-			int c = ky * ((int)py[y * ys + x] - oy);
-			int u = (int)pu[(y / 2) * cs + x / 2] - 128;
-			int v = (int)pv[(y / 2) * cs + x / 2] - 128;
-			int r = (c + kr * v + 128) >> 8;
-			int g = (c - kgu * u - kgv * v + 128) >> 8;
-			int b = (c + kb * u + 128) >> 8;
-			r = r < 0 ? 0 : r > 255 ? 255 : r;
-			g = g < 0 ? 0 : g > 255 ? 255 : g;
-			b = b < 0 ? 0 : b > 255 ? 255 : b;
-			out[(size_t)y * w + x] = 0xff000000 | (r << 16) | (g << 8) | b;
-		}
-	}
+			out[(size_t)y * w + x] = video_pixel(m, py[y * ys + x],
+				(int)pu[(y / 2) * cs + x / 2] - 128, (int)pv[(y / 2) * cs + x / 2] - 128);
 }
 
 static void video_drain(Video_Decoder *d, int wait)
@@ -4689,16 +4688,16 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 		memcpy(at + used, data, len);
 		used += len;
 	}
-	else for (uint64_t k = 0; k + d->nal_length <= len;)
+	else
 	{
-		size_t n = 0;
-		for (int b = 0; b < d->nal_length; b++) n = (n << 8) | data[k + b];
-		k += d->nal_length;
-		if (k + n > len || used + 4 + n > room) break;
-		at[used++] = 0; at[used++] = 0; at[used++] = 0; at[used++] = 1;
-		memcpy(at + used, data + k, n);
-		used += n;
-		k += n;
+		const uint8_t *nal;
+		size_t n;
+		for (Video_Nals nals = {data, len, 0, d->nal_length}; nals.next(nal, n) && used + 4 + n <= room;)
+		{
+			at[used++] = 0; at[used++] = 0; at[used++] = 0; at[used++] = 1;
+			memcpy(at + used, nal, n);
+			used += n;
+		}
 	}
 	v4l2_buffer buf = {};
 	v4l2_plane planes[1] = {};
@@ -4885,23 +4884,12 @@ static void video_convert(Video_Decoder *d, const uint8_t *yuv, LONG pitch, std:
 	//NV12, a plane of Y, then U and V side by side a quarter, BT.601 limited
 	uint32_t w = d->width, h = d->height;
 	const uint8_t *py = yuv, *puv = yuv + (size_t)pitch * d->plane;
+	const Video_Matrix &m = video_matrices[0][0];
 	out.resize((size_t)w * h);
 	for (uint32_t y = 0; y < h; y++)
-	{
 		for (uint32_t x = 0; x < w; x++)
-		{
-			int c = 298 * ((int)py[y * pitch + x] - 16);
-			int u = (int)puv[(y / 2) * pitch + (x & ~1)] - 128;
-			int v = (int)puv[(y / 2) * pitch + (x & ~1) + 1] - 128;
-			int r = (c + 409 * v + 128) >> 8;
-			int g = (c - 100 * u - 208 * v + 128) >> 8;
-			int b = (c + 516 * u + 128) >> 8;
-			r = r < 0 ? 0 : r > 255 ? 255 : r;
-			g = g < 0 ? 0 : g > 255 ? 255 : g;
-			b = b < 0 ? 0 : b > 255 ? 255 : b;
-			out[(size_t)y * w + x] = 0xff000000 | (r << 16) | (g << 8) | b;
-		}
-	}
+			out[(size_t)y * w + x] = video_pixel(m, py[y * pitch + x],
+				(int)puv[(y / 2) * pitch + (x & ~1)] - 128, (int)puv[(y / 2) * pitch + (x & ~1) + 1] - 128);
 }
 
 static void video_drain(Video_Decoder *d)
@@ -5047,16 +5035,16 @@ int64_t host_video_decode(uint64_t handle, const uint8_t *data, uint64_t len, in
 		d->first = false;
 	}
 	if (d->nal_length == 0) annexb.insert(annexb.end(), data, data + len);
-	else for (uint64_t k = 0; k + d->nal_length <= len;)
+	else
 	{
-		size_t n = 0;
-		for (int b = 0; b < d->nal_length; b++) n = (n << 8) | data[k + b];
-		k += d->nal_length;
-		if (k + n > len) break;
 		static const uint8_t start[] = {0, 0, 0, 1};
-		annexb.insert(annexb.end(), start, start + 4);
-		annexb.insert(annexb.end(), data + k, data + k + n);
-		k += n;
+		const uint8_t *nal;
+		size_t n;
+		for (Video_Nals nals = {data, len, 0, d->nal_length}; nals.next(nal, n);)
+		{
+			annexb.insert(annexb.end(), start, start + 4);
+			annexb.insert(annexb.end(), nal, nal + n);
+		}
 	}
 	IMFMediaBuffer *buffer = nullptr;
 	IMFSample *sample = nullptr;
