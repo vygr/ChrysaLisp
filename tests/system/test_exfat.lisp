@@ -261,6 +261,8 @@
 (defq xc_a (exfat-find xc_vol "a.bin"))
 (exfat-mark xc_vol (elem-get xc_a 3) :nil)
 (assert-true "in use, marked free" (xc-has (exfat-check xc_vol) "/a.bin: 1 clusters in use marked free"))
+;one let go is given out only once the bitmap that has it free is written
+(exfat-sync xc_vol)
 (exfat-save xc_vol "b.bin" "b")
 (defq xc_lines (exfat-check xc_vol))
 (assert-true "a cluster two files have" (xc-has xc_lines "cluster " "/b.bin"))
@@ -273,3 +275,23 @@
 (exfat-list xc_vol "d")
 (. (get :dirs xc_vol) :insert (elem-get xc_d 3) (list (list) (Fmap 1)))
 (assert-true "a folder kept wrong" (xc-has (exfat-check xc_vol) "/d: the directory as it is kept"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; let go of part way
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;a batch whose cache is written as a full one is, then its task killed:
+;what is on the device has no cluster had and marked free, and a cluster
+;let go in it is not given out again in it
+(bind '(xk_vol xk_stream) (xf-volume 0x200000))
+(exfat-save xk_vol "old.bin" (xf-bytes 5000 1))
+(defq xk_old (exfat-find xk_vol "old.bin") xk_old (exfat-chain xk_vol (elem-get xk_old 3) (elem-get xk_old 2) (elem-get xk_old 4)))
+(exfat-begin xk_vol)
+(exfat-delete xk_vol "old.bin")
+(exfat-save xk_vol "new.bin" (xf-bytes 9000 2))
+(exfat-flush xk_vol)
+(assert-list-eq "a batch cut short leaves the device sound" '() (exfat-check (exfat-mount xk_stream)))
+(defq xk_new (exfat-find xk_vol "new.bin"))
+(assert-true "one let go is not given out in the same batch"
+	(notany (# (find %0 xk_old)) (exfat-chain xk_vol (elem-get xk_new 3) (elem-get xk_new 2) (elem-get xk_new 4))))
+(exfat-end xk_vol)

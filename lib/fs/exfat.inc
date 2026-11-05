@@ -16,6 +16,9 @@
 ;	:bitmap, a bit for each cluster that is in use, and where it is kept,
 ;	:dirty_lo :dirty_hi the bytes of it that have changed, :hint where
 ;	the next free cluster is looked for
+;	:marks, the bitmap as it is written first, the clusters let go since
+;	it was last written still in use, :freed if there are any. A free
+;	cluster is looked for in it, not in the bitmap
 ;	:cache :cached, the blocks of the device last read, :dirty those of
 ;	them that were changed and are still to be written
 ;	:depth, how many (exfat-begin) are open, :unclean if the volume was
@@ -169,7 +172,15 @@
 (defun exfat-flush (vol)
 	; (exfat-flush vol) -> vol
 	;the blocks that were changed, to the device, in the order they are on
-	;it, and those that are next to each other as one write
+	;it, and those that are next to each other as one write. A volume let
+	;go of part way, its task killed, has at worst room lost, never a
+	;cluster that is had and marked free: first the bitmap with the
+	;clusters given out in use and those let go still in use, the marks,
+	;then what has them or let them go, then the bitmap as it is
+	(defq lo (get :dirty_lo vol))
+	(when (>= lo 0)
+		(exfat-bitmap-write vol (get :marks vol))
+		(exfat-stream-flush vol))
 	(exfat-pending-write vol)
 	(defq cache (get :cache vol) dirty (list))
 	(. (get :dirty vol) :each (lambda (index _) (push dirty index)))
@@ -183,6 +194,12 @@
 			(apply (const cat) (cat (list "") (map! (# (. cache :find %0)) (list dirty) i j))))
 		(setq i j))
 	(. (get :dirty vol) :empty)
+	(when (>= lo 0)
+		(when (get :freed vol)
+			(exfat-stream-flush vol)
+			(exfat-bitmap-write vol (get :bitmap vol))
+			(def vol :marks (cat (get :bitmap vol)) :freed :nil))
+		(def vol :dirty_lo -1 :dirty_hi -1))
 	vol)
 
 (defun exfat-keep (vol index block)
@@ -287,6 +304,10 @@
 	;stream open would lose it. A memory stream is not flushed, a flush
 	;ends the string where it stands.
 	(exfat-flush vol)
+	(exfat-stream-flush vol))
+
+(defun exfat-stream-flush (vol)
+	;what the stream holds, to the device, if it is a file
 	(if (get :file vol) (stream-flush (get :stream vol)))
 	vol)
 
@@ -454,8 +475,9 @@
 				(cond
 					((= type +exfat_type_bitmap)
 						(bind '(start len) (getf-> e +exfat_bitmap_first_cluster +exfat_bitmap_data_length))
-						(def vol :bitmap_first start
-							:bitmap (cat (exfat-data vol start len :nil))))
+						(def vol :bitmap_first start :bitmap_clusters (exfat-chain vol start len :nil)
+							:bitmap (cat (exfat-data vol start len :nil)))
+						(def vol :marks (cat (get :bitmap vol)) :freed :nil))
 					((= type +exfat_type_upcase)
 						(bind '(start len) (getf-> e +exfat_upcase_first_cluster +exfat_upcase_data_length))
 						(exfat-upcase-load vol (exfat-data vol start len :nil)))))
@@ -630,8 +652,11 @@
 
 (defun exfat-mark (vol cluster used)
 	(defq bit (- cluster 2) bitmap (get :bitmap vol) i (>> bit 3)
-		mask (<< 1 (logand bit 7)) old (code bitmap 1 i))
+		mask (<< 1 (logand bit 7)) old (code bitmap 1 i) marks (get :marks vol))
 	(set-byte bitmap i (if used (logior old mask) (logand old (logxor mask 0xff))))
+	;one given out is in use in the marks too, one let go is still in use
+	;there till the bitmap that has it free is written
+	(if used (set-byte marks i (logior (code marks 1 i) mask)) (def vol :freed :t))
 	;the count of the clusters that are free, once it has been counted
 	(when (defq free (get :free vol))
 		(defq was (/= 0 (logand old mask)))
@@ -643,18 +668,19 @@
 	;a cluster that is free again is where to look next
 	(unless used (def vol :hint (min (get :hint vol) cluster))))
 
-(defun exfat-bitmap-save (vol)
-	;the bitmap back to the clusters it is kept in, the ones that changed
-	(defq bitmap (get :bitmap vol) size (exfat-cluster-size vol)
-		lo (get :dirty_lo vol) hi (get :dirty_hi vol))
-	(when (>= lo 0)
-		(defq clusters (exfat-chain vol (get :bitmap_first vol) (length bitmap) :nil))
-		(each (lambda (i)
-			(defq at (* i size))
-			(exfat-write vol (exfat-cluster-offset vol (elem-get clusters i))
-				(slice bitmap at (min (length bitmap) (+ at size)))))
-			(range (/ lo size) (inc (/ hi size))))
-		(def vol :dirty_lo -1 :dirty_hi -1)))
+(defun exfat-bitmap-write (vol bitmap)
+	;the clusters of a bitmap, of the bytes of it that have changed, to the
+	;device now, whole sectors, as they are not kept: the blocks of them
+	;that are kept are let go
+	(defq size (exfat-cluster-size vol) clusters (get :bitmap_clusters vol))
+	(each (lambda (i)
+		(defq at (* i size) part (slice bitmap at (min (length bitmap) (+ at size)))
+			offset (exfat-cluster-offset vol (elem-get clusters i)))
+		(each (# (exfat-drop vol %0)) (range (>> offset +exfat_block_shift)
+			(>> (+ offset (length part) (const (dec +exfat_block_size))) +exfat_block_shift)))
+		(exfat-raw-write vol offset
+			(cat part (exfat-zeros (- (logand (+ (length part) 511) -512) (length part))))))
+		(range (/ (get :dirty_lo vol) size) (inc (/ (get :dirty_hi vol) size)))))
 
 (defun exfat-begin (vol)
 	; (exfat-begin vol) -> vol
@@ -670,7 +696,6 @@
 	; (exfat-end vol) -> vol
 	(def vol :depth (dec (get :depth vol)))
 	(when (= (get :depth vol) 0)
-		(exfat-bitmap-save vol)
 		(exfat-sync vol)
 		(exfat-busy vol :nil))
 	vol)
@@ -680,11 +705,11 @@
 	(exfat-write vol (+ (<< (get :fat_offset vol) (get :sector_shift vol)) (* cluster 4))
 		(char next 4)))
 
-(defun exfat-scan (vol from to want loose)
-	;look for a run of free clusters from one cluster up to another, of the
+(defun exfat-scan (bitmap from to want loose)
+	;look for a run of free clusters from one cluster up to another, of a
 	;bitmap, cluster 2 its bit 0, (fs-bit-run). If there is none the first
 	;few free ones are noted, for clusters had with a chain through them
-	(defq bitmap (get :bitmap vol) found (fs-bit-run bitmap (- from 2) (- to 2) want))
+	(defq found (fs-bit-run bitmap (- from 2) (- to 2) want))
 	(cond
 		(found (+ found 2))
 		(:t (defq bit (- from 2))
@@ -693,17 +718,20 @@
 				(setq bit (inc bit)))
 			:nil)))
 
-(defun exfat-alloc (vol want)
-	; (exfat-alloc vol want) -> :nil | (clusters no_fat)
+(defun exfat-alloc (vol want &optional bitmap)
+	; (exfat-alloc vol want [bitmap]) -> :nil | (clusters no_fat)
 	;clusters for a file. A run of free clusters if there is one long
 	;enough, and the file then needs no chain. If not, the first free
 	;clusters there are, with a chain through them. :nil if there are
-	;too few. The clusters are marked as used.
+	;too few. The clusters are marked as used. They are free in the marks,
+	;one let go is not given out again till that is written, unless the
+	;bitmap is given to look in
 	(defq limit (+ (get :cluster_count vol) 2) hint (max 2 (min (get :hint vol) limit))
-		loose (list) found (exfat-scan vol hint limit want loose))
+		bitmap (ifn bitmap (get :marks vol))
+		loose (list) found (exfat-scan bitmap hint limit want loose))
 	;nothing after where the last was found, so from the start
 	(unless found
-		(setq loose (list) found (exfat-scan vol 2 limit want loose)))
+		(setq loose (list) found (exfat-scan bitmap 2 limit want loose)))
 	(cond
 		(found
 			(defq clusters (range found (+ found want)))
@@ -833,7 +861,6 @@
 					(slice eset (const (* 2 +exfat_entry_size)) -1)))
 			(set-short eset +exfat_file_checksum (exfat-checksum eset))
 			(exfat-dir-put vol parent index eset))
-		(exfat-bitmap-save vol)
 		(cat (slice found 0 -2) (list (list name dir size start no_fat index count)))))
 
 (defun exfat-slot (vol found want)
@@ -949,7 +976,7 @@
 	(defq got (if (> want 0) (exfat-alloc vol want) (list (list) :nil)))
 	(unless got
 		(each (# (exfat-mark vol %0 :nil)) old)
-		(if (setq got (exfat-alloc vol want))
+		(if (setq got (exfat-alloc vol want (get :bitmap vol)))
 			(setq old (list))
 			(each (# (exfat-mark vol %0 :t)) old)))
 	(when got

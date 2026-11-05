@@ -3898,12 +3898,14 @@ a new file or directory, of this data, in the directory it names
 ### exfat-alloc
 
 ```code
-(exfat-alloc vol want) -> :nil | (clusters no_fat)
+(exfat-alloc vol want [bitmap]) -> :nil | (clusters no_fat)
 
 clusters for a file. A run of free clusters if there is one long
 enough, and the file then needs no chain. If not, the first free
 clusters there are, with a chain through them. :nil if there are
-too few. The clusters are marked as used.
+too few. The clusters are marked as used. They are free in the marks,
+one let go is not given out again till that is written, unless the
+bitmap is given to look in
 ```
 
 ### exfat-ascii?
@@ -3923,10 +3925,13 @@ device at the last (exfat-end), so many small files cost little more
 than one.
 ```
 
-### exfat-bitmap-save
+### exfat-bitmap-write
 
 ```code
-the bitmap back to the clusters it is kept in, the ones that changed
+the clusters of a bitmap, of the bytes of it that have changed, to the
+
+device now, whole sectors, as they are not kept: the blocks of them
+that are kept are let go
 ```
 
 ### exfat-block
@@ -4091,7 +4096,11 @@ the cluster that follows a cluster, to the allocation table
 (exfat-flush vol) -> vol
 
 the blocks that were changed, to the device, in the order they are on
-it, and those that are next to each other as one write
+it, and those that are next to each other as one write. A volume let
+go of part way, its task killed, has at worst room lost, never a
+cluster that is had and marked free: first the bitmap with the
+clusters given out in use and those let go still in use, the marks,
+then what has them or let them go, then the bitmap as it is
 ```
 
 ### exfat-format
@@ -4306,7 +4315,7 @@ as it was if there is no room for the new data.
 ### exfat-scan
 
 ```code
-look for a run of free clusters from one cluster up to another, of the
+look for a run of free clusters from one cluster up to another, of a
 
 bitmap, cluster 2 its bit 0, (fs-bit-run). If there is none the first
 few free ones are noted, for clusters had with a chain through them
@@ -4350,6 +4359,12 @@ data to clusters, a run is one write. What is left of the last block
 
 is made zero. The rest of the last cluster is not written, nobody is
 given it to read, and a directory is always whole clusters
+```
+
+### exfat-stream-flush
+
+```code
+what the stream holds, to the device, if it is a file
 ```
 
 ### exfat-sync
