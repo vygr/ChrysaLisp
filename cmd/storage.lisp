@@ -75,7 +75,8 @@
         -v --volume: with -c, the volume the store is on in
             place of its blocks: a cluster two files have, one
             in use marked free, a chain cut short, a folder kept
-            that is not as the disk has it.
+            that is not as the disk has it. With -C, one in use
+            is marked in use, one nothing has is let go of.
         -T --tree dir: every file under that folder of the
             host is put, as a stream, at path and its own
             path, and then each is read back as a stream and
@@ -380,10 +381,11 @@
 				(if (defq swept (storage-sweep svc))
 					(print swept " blocks let go of.")
 					(print "The store did not answer, its service has gone.")))
-			((and opt_c opt_v)
+			((and (or opt_c opt_C) opt_v)
 				(cond
-					((defq faults (storage-volume-check svc))
+					((defq faults (storage-volume-check svc opt_C))
 						(each (const print) faults)
+						(defq faults (filter (# (not (starts-with "mended:" %0))) faults))
 						(print (if (empty? faults) "Nothing is wrong with the volume." (cat (str (length faults)) " things are wrong with the volume."))))
 					((print "The store did not answer, its service has gone."))))
 			((or opt_c opt_C)

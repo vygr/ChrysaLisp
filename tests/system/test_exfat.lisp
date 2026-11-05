@@ -250,7 +250,7 @@
 	;is there a line that begins so, with also in it if given
 	(some (# (and (starts-with start %0) (or (not also) (found? %0 also)))) lines))
 
-(bind '(xc_vol &ignore) (xf-volume 0x200000))
+(bind '(xc_vol xc_stream) (xf-volume 0x200000))
 (exfat-save xc_vol "a.bin" (xf-bytes 10000 3))
 (exfat-mkdir xc_vol "d")
 ;more than a cluster of entries, so the folder is grown
@@ -270,11 +270,23 @@
 ;a cluster marked in use that nothing has
 (exfat-alloc xc_vol 1)
 (assert-true "had by nothing" (xc-has (exfat-check xc_vol) "1 clusters marked in use are had by nothing"))
+;a file's cluster marked free, for the mend below
+(exfat-mark xc_vol (elem-get (exfat-find xc_vol "d/f0") 3) :nil)
 ;a folder as it is kept that is not as the device has it
 (defq xc_d (exfat-find xc_vol "d"))
 (exfat-list xc_vol "d")
 (. (get :dirs xc_vol) :insert (elem-get xc_d 3) (list (list) (Fmap 1)))
 (assert-true "a folder kept wrong" (xc-has (exfat-check xc_vol) "/d: the directory as it is kept"))
+(defun xc-mendable (lines)
+	;the lines a mend puts right
+	(some (# (or (found? %0 "marked free") (found? %0 "had by nothing") (found? %0 "as it is kept"))) lines))
+;mended: one in use marked free is marked in use, one nothing has is let
+;go of, the folder is read again, and the cluster two have is only said
+(assert-true "a mend says what it did"
+	(xc-has (exfat-check xc_vol :t) "mended: 1 clusters marked in use, 1 free, 1 directories read again"))
+(defq xc_lines (exfat-check xc_vol))
+(assert-true "after it, only what a mend can not put right" (and (xc-has xc_lines "cluster ") (not (xc-mendable xc_lines))))
+(assert-true "and so the device has it" (not (xc-mendable (exfat-check (exfat-mount xc_stream)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; let go of part way

@@ -223,6 +223,7 @@
 	(assert-true "a sweep lets go of the blocks of what was deleted" (> (storage-sweep sg_svc) 0))
 	(assert-list-eq "nothing kept is wrong" '() (storage-check :nil sg_svc))
 	(assert-list-eq "nothing is wrong with the volume, after puts, deletes and a sweep" '() (storage-volume-check sg_svc))
+	(assert-list-eq "and a mend of it has nothing to do" '() (storage-volume-check sg_svc :t))
 
 	;a has of a name and a byte more, as a peer of another build may send,
 	;is of the whole name alone, and the service is still there after

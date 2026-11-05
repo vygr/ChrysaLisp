@@ -1112,17 +1112,22 @@
 	;the entries of a directory, in the order they are in it, to compare
 	(str (sort (cat entries) (# (- (elem-get %0 5) (elem-get %1 5))))))
 
-(defun exfat-check (vol)
-	; (exfat-check vol) -> (line ...)
+(defun exfat-check (vol &optional mend)
+	; (exfat-check vol [mend]) -> (line ...)
 	;what is wrong with the volume, a line each, none if nothing is. Of
 	;each file and directory, as the device has it: clusters that are not
 	;of the volume, clusters in use that the bitmap says are free, a chain
 	;that ends before its length does, and a directory as it is kept here,
 	;(exfat-dir-read), that is not as the device has it. Then each cluster
 	;that two have, and who has it, and how many clusters are marked in use
-	;that nothing has: room lost, no harm. It only reads
+	;that nothing has: room lost, no harm. It only reads, unless mend is
+	;asked for and nothing is being written: then a cluster in use is
+	;marked in use, one that nothing has is free, a directory is read
+	;again, and a last line says so. A cluster two have, a chain cut short
+	;and one not of the volume are only said
 	(defq ck_vol vol ck_lines (list) ck_bitmap (get :bitmap vol) ck_limit (+ (get :cluster_count vol) 2)
-		ck_seen (exfat-zeros (length ck_bitmap)) ck_twice (Fmap 31) ck_lost 0)
+		ck_seen (exfat-zeros (length ck_bitmap)) ck_twice (Fmap 31) ck_lost 0
+		ck_mend (and mend (= (get :depth vol) 0)) ck_used (list) ck_freed (list) ck_reread (list))
 	(exfat-check-walk vol (lambda (ck_path ck_clusters ck_want ck_entry)
 		(task-breathe)
 		(defq ck_out 0 ck_free 0)
@@ -1133,7 +1138,7 @@
 						(if (/= 0 (logand (code ck_seen 1 ck_i) ck_m))
 							(. ck_twice :insert ck_c (list))
 							(set-byte ck_seen ck_i (logior (code ck_seen 1 ck_i) ck_m)))
-						(unless (exfat-used? ck_vol ck_c) (++ ck_free)))))
+						(unless (exfat-used? ck_vol ck_c) (++ ck_free) (push ck_used ck_c)))))
 			ck_clusters)
 		(if (> ck_out 0) (push ck_lines (cat ck_path ": " (str ck_out) " clusters not of the volume")))
 		(if (> ck_free 0) (push ck_lines (cat ck_path ": " (str ck_free) " clusters in use marked free")))
@@ -1144,6 +1149,7 @@
 			(defq ck_kept (. (get :dirs ck_vol) :find (elem-get ck_entry 3)))
 			(nql (exfat-check-text (first ck_kept))
 				(exfat-check-text (exfat-entries ck_vol (elem-get ck_entry 3) (elem-get ck_entry 2) (elem-get ck_entry 4))))
+			(push ck_reread (elem-get ck_entry 3))
 			(push ck_lines (cat ck_path ": the directory as it is kept is not as the device has it")))))
 	;who has each cluster that two have, a second walk, only if there are any
 	(unless (. ck_twice :empty?)
@@ -1153,10 +1159,22 @@
 			(push ck_lines (cat "cluster " (str ck_c) " is had by " (join ck_who ", "))))))
 	;in use, and had by nothing
 	(each (lambda (ck_i)
-			(defq ck_b (logand (code ck_bitmap 1 ck_i) (logxor (code ck_seen 1 ck_i) 0xff)))
-			(while (/= ck_b 0) (setq ck_lost (+ ck_lost (logand ck_b 1)) ck_b (>> ck_b 1))))
+			(defq ck_b (logand (code ck_bitmap 1 ck_i) (logxor (code ck_seen 1 ck_i) 0xff)) ck_c (+ (<< ck_i 3) 2))
+			(while (/= ck_b 0)
+				(when (/= (logand ck_b 1) 0)
+					(++ ck_lost)
+					(if ck_mend (push ck_freed ck_c)))
+				(setq ck_b (>> ck_b 1) ck_c (inc ck_c))))
 		(range 0 (length ck_bitmap)))
 	(if (> ck_lost 0) (push ck_lines (cat (str ck_lost) " clusters marked in use are had by nothing")))
+	(when (and ck_mend (or (nempty? ck_used) (nempty? ck_freed) (nempty? ck_reread)))
+		(exfat-begin vol)
+		(each (# (exfat-mark vol %0 :t)) ck_used)
+		(each (# (exfat-mark vol %0 :nil)) ck_freed)
+		(each (# (. (get :dirs vol) :erase %0)) ck_reread)
+		(exfat-end vol)
+		(push ck_lines (cat "mended: " (str (length ck_used)) " clusters marked in use, "
+			(str (length ck_freed)) " free, " (str (length ck_reread)) " directories read again")))
 	ck_lines)
 
 (defun exfat-cluster-shift (size)

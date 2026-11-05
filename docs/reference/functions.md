@@ -3960,7 +3960,7 @@ the clusters of a file or a directory. A len of :nil is all of the chain
 ### exfat-check
 
 ```code
-(exfat-check vol) -> (line ...)
+(exfat-check vol [mend]) -> (line ...)
 
 what is wrong with the volume, a line each, none if nothing is. Of
 each file and directory, as the device has it: clusters that are not
@@ -3968,7 +3968,11 @@ of the volume, clusters in use that the bitmap says are free, a chain
 that ends before its length does, and a directory as it is kept here,
 (exfat-dir-read), that is not as the device has it. Then each cluster
 that two have, and who has it, and how many clusters are marked in use
-that nothing has: room lost, no harm. It only reads
+that nothing has: room lost, no harm. It only reads, unless mend is
+asked for and nothing is being written: then a cluster in use is
+marked in use, one that nothing has is free, a directory is read
+again, and a last line says so. A cluster two have, a chain cut short
+and one not of the volume are only said
 ```
 
 ### exfat-check-text
@@ -12596,12 +12600,13 @@ user, or no service
 ### storage-volume-check
 
 ```code
-(storage-volume-check [svc]) -> :nil | (line ...)
+(storage-volume-check [svc mend]) -> :nil | (line ...)
 
 what is wrong with the volume the store is on, a line each, (exfat-check):
 a cluster two files have, one in use marked free, a chain cut short, a
-directory kept that is not as the device has it. Waited for while the
-service is there, it reads every directory
+directory kept that is not as the device has it. With mend, a cluster
+in use is marked so, one nothing has is free, and a last line says
+so. Waited for while the service is there, it reads every directory
 ```
 
 ### storage-wait
