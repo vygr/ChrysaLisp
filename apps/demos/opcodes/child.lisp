@@ -1,28 +1,19 @@
 (import "gui/lisp.inc")
 (import "./scene.inc")
 
-;the canvas of the app, on its pixels in shared memory, and the key they
-;were found by
-(defq shared_key 0 canvas :nil)
-
-(defun attach (key)
-	;the app's canvas, found again if the key has changed. :nil if this
-	;node can not reach the pixels, it is on another machine say
-	(unless (= key shared_key)
-		(setq shared_key key canvas (and (/= key 0)
-			(defq found (canvas-shared +scene_width +scene_height 1 key))
-			(. found :set_canvas_flags +canvas_flag_antialias))))
-	canvas)
+;the canvas of the app, on its pixels in shared memory, (canvas-attach)
+(defq held (list))
 
 (defun draw-slice (key mbox canvas_key y y1 packed)
 	;draw the rows, and say how many opcodes it took, -1 if the canvas
 	;could not be reached. No rows at all is the app asking if this child
 	;is up, with the scene loaded and the canvas found
+	(defq canvas (canvas-attach held +scene_width +scene_height 1 canvas_key +canvas_flag_antialias))
 	(mail-send mbox (setf-> (str-alloc +slice_reply_size)
 		(+job_reply_key key)
 		(+slice_reply_y y)
 		(+slice_reply_drawn (cond
-			((not (attach canvas_key)) -1)
+			((not canvas) -1)
 			((>= y y1) 0)
 			((scene-draw canvas packed y y1)))))))
 

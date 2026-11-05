@@ -80,3 +80,17 @@
 (.-> whole (:set_color 0xff405060) (:fbox 0 8 64 8))
 (assert-eq "a draw is kept to the clip" (px-bytes (getf whole +canvas_pixmap 0)) (px-bytes (getf part +canvas_pixmap 0)))
 
+
+;a child keeps what it found of the app's pixels, found again only when
+;the key or the size it is asked for is not the one it was found by
+(defq made (pixmap-shared 16 8 0) key (pixmap-key made) held (list)
+	kept (pixmap-attach held 16 8 key))
+(assert-eq "attached by the key" key (pixmap-key kept))
+(assert-true "kept, not found again" (eql kept (pixmap-attach held 16 8 key)))
+(assert-eq "no key is none" :nil (pixmap-attach held 16 8 0))
+(assert-true "the key again, found again" (nql kept (pixmap-attach held 16 8 key)))
+(defq held (list) kept (canvas-attach held 16 8 1 key +canvas_flag_antialias))
+(assert-eq "a canvas attached by the key" key (canvas-key kept))
+(assert-eq "with the flags asked for" +canvas_flag_antialias (logand (getf kept +canvas_flags 0) +canvas_flag_antialias))
+(assert-true "a canvas kept" (eql kept (canvas-attach held 16 8 1 key +canvas_flag_antialias)))
+(assert-eq "a canvas of no key is none" :nil (canvas-attach held 16 8 1 0))

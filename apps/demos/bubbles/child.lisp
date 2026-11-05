@@ -1,21 +1,11 @@
 (import "gui/lisp.inc")
 (import "./scene.inc")
 
-;the canvas of the app, on its pixels in shared memory, and the key they
-;were found by
-(defq shared_key 0 canvas :nil)
+;the canvas of the app, on its pixels in shared memory, (canvas-attach)
+(defq held (list))
 
 ;the scene last asked for, and the seed and number of bubbles it is of
 (defq scene_seed -1 scene_count -1 scene :nil)
-
-(defun attach (key)
-	;the app's canvas, found again if the key has changed. :nil if this
-	;node can not reach the pixels, it is on another machine say
-	(unless (= key shared_key)
-		(setq shared_key key canvas (and (/= key 0)
-			(defq found (canvas-shared +width +height 1 key))
-			(. found :set_canvas_flags +canvas_flag_antialias))))
-	canvas)
 
 (defun draw-slice (key mbox canvas_key seed count time light_x light_y y y1)
 	;draw the rows, and say how many bubbles it took, -1 if the canvas
@@ -23,11 +13,12 @@
 	;is up, with the canvas found and the scene made
 	(unless (and (= seed scene_seed) (= count scene_count))
 		(setq scene_seed seed scene_count count scene (scene-make seed count)))
+	(defq canvas (canvas-attach held +width +height 1 canvas_key +canvas_flag_antialias))
 	(mail-send mbox (setf-> (str-alloc +slice_reply_size)
 		(+job_reply_key key)
 		(+slice_reply_y y)
 		(+slice_reply_drawn (cond
-			((not (attach canvas_key)) -1)
+			((not canvas) -1)
 			((>= y y1) 0)
 			((scene-draw canvas scene time
 				(/ (n2f light_x) 65536.0) (/ (n2f light_y) 65536.0) y y1)))))))

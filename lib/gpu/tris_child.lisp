@@ -26,16 +26,8 @@
 		(. pictures :insert named (setq pixmap (ifn (and (/= key 0) (pixmap-shared w h key)) :none))))
 	(if (nql pixmap :none) pixmap))
 
-;the pixels of the app's canvas, in shared memory, and the key they were
-;found by
-(defq shared_key 0 shared :nil)
-
-(defun attach (key width height)
-	;the app's pixels, found again if the key has changed. :nil if this
-	;node can not reach them
-	(unless (= key shared_key)
-		(setq shared_key key shared (and (/= key 0) (pixmap-shared width height key))))
-	shared)
+;the pixels of the app's canvas, in shared memory, (pixmap-attach)
+(defq held (list))
 
 (defun mesh (id ask)
 	;the vertices of a mesh, asked for of the app if this is the first it
@@ -71,7 +63,7 @@
 			vertex (shader-load (slice files 0 vfile_length))
 			pixel (shader-load (slice files vfile_length -1))
 			pipeline (shader-vp-pipeline vertex pixel)))
-	(defq pixmap (attach pixels_key width height)
+	(defq pixmap (pixmap-attach held width height pixels_key)
 		depth (and pixmap (> y1 y) (shader-vp-depth width (- y1 y)))
 		attrs (elem-get (third pipeline) 2))
 	(defq gone :nil)

@@ -24,16 +24,8 @@
 			(setq program (shader-from-text text) native (shader-vp-kernel program))))
 	native)
 
-;the canvas of the app, on its pixels in shared memory, and the key they
-;were found by
-(defq shared_key 0 canvas :nil)
-
-(defun attach (key w h)
-	;the app's canvas, found again if the key has changed. :nil if this
-	;node can not reach the pixels, it is on another machine say
-	(unless (= key shared_key)
-		(setq shared_key key canvas (and (/= key 0) (canvas-shared w h 1 key))))
-	canvas)
+;the canvas of the app, on its pixels in shared memory, (canvas-attach)
+(defq held (list))
 
 (defun run (sq ox oy ow n dx dy)
 	;n pixels of a square from ox oy, a step of dx dy each, worked out by
@@ -54,7 +46,7 @@
 	;ring all inside the set is all there is within it, the set has no
 	;holes, and the rest is black. A row of a ring is a run of the kernel,
 	;as wide as the row, a column a run one wide, each index a row down
-	(defq found (attach canvas_key w h) bw (- x1 x) bh (- y1 y) pal (mandel-pal pal_i)
+	(defq found (canvas-attach held w h 1 canvas_key) bw (- x1 x) bh (- y1 y) pal (mandel-pal pal_i)
 		buf (str-alloc (* bw bh +int_size)) names (map (const first) (first program))
 		at_ox (* (find 'ox names) 8) at_oy (* (find 'oy names) 8) at_ow (* (find 'ow names) 8)
 		frame (shader-vp-frame program native (list

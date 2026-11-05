@@ -408,6 +408,9 @@ A frame of triangles is drawn by a child on each node, a strip of the rows
 each, straight onto the pixels of the app's canvas, which are in shared
 memory, `(canvas-shared)`. `lib/gpu/tris.inc`, on the jobs library,
 `lib/task/jobs.inc`, as `lib/gpu/tile.inc` is for a pixel shader alone.
+A child keeps the pixels it found, `(pixmap-attach)`, and finds them again
+only for another key or size; a child that draws on a canvas does the same
+by `(canvas-attach)`.
 
 ```vdu
 (defq jobs (Jobs +shader_tris_child task_mbox reply_mbox '(64 3 0) :t))

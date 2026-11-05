@@ -9,15 +9,8 @@
 (defq shader_file "" program :nil native :nil)
 
 ;the pixels of the app's canvas, if they are in shared memory that this
-;node can reach, and the key they were found by
-(defq shared_key 0 shared :nil)
-
-(defun attach (key width height)
-	;the app's pixels, found again if the key has changed. :nil if this
-	;node can not reach them, it is on another machine say
-	(unless (= key shared_key)
-		(setq shared_key key shared (and (/= key 0) (pixmap-shared width height key))))
-	shared)
+;node can reach, (pixmap-attach)
+(defq held (list))
 
 (defun rect (key mbox x y x1 y1 height width file_length canvas_key tail)
 	;shade the tile, the canvas has y down, so the height is given. It is
@@ -28,7 +21,7 @@
 	(unless (eql file shader_file)
 		(setq shader_file file program (shader-load file) native (shader-vp program)))
 	(defq frame (shader-vp-frame program native (shader-unpack program (slice tail file_length -1)))
-		pixmap (attach canvas_key width height)
+		pixmap (pixmap-attach held width height canvas_key)
 		data (if (and pixmap (shader-vp-draw native frame pixmap x y x1 y1 height)) ""
 			(shader-vp-argb native frame x y x1 y1 height)))
 	(mail-send mbox (cat (setf-> (str-alloc +tile_reply_size)

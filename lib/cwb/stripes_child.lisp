@@ -10,7 +10,7 @@
 (import "gui/lisp.inc")
 (import "./stripes.inc")
 
-(defq shared_key 0 shared_size :nil canvas :nil
+(defq held (list)
 	doc (cwb-doc) items (Fmap 101) have -1 sync_mbox (mail-mbox)
 	bands :nil +band 64.0)
 
@@ -53,16 +53,6 @@
 			(each! (lambda (band) (each (lambda ((place item)) (elem-set places place item)) band)) (list rows) b0 (inc b1))
 			(filter (const identity) places))))
 
-(defun attach (key width height)
-	;the app's canvas, found again if it is another, or another size. :nil
-	;if this node can not reach the pixels
-	(unless (and (= key shared_key) (eql shared_size (list width height)))
-		(setq shared_key key shared_size (list width height)
-			canvas (and (/= key 0)
-				(defq found (canvas-shared width height 1 key))
-				(. found :set_canvas_flags +canvas_flag_antialias))))
-	canvas)
-
 (defun in-step (version sync)
 	;have the document at that version, or a newer, asking for it if not.
 	;:nil if no answer comes
@@ -88,7 +78,7 @@
 				(cond
 					((in-step version sync) (unless bands (setq bands (make-bands))) 0)
 					(:t -1)))
-			((not (attach shared width height)) -1)
+			((not (defq canvas (canvas-attach held width height 1 shared +canvas_flag_antialias))) -1)
 			((not (in-step version sync)) -1)
 			(:t (. canvas :set_clip 0 y width y1)
 				;no gap between the lines of the paper is no paper

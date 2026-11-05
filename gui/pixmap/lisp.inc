@@ -22,3 +22,14 @@
 	; (pixmap-key pixmap) -> 0 | key
 	;the key of the shared memory its pixels are in, 0 if they are its own
 	(getf pixmap +pixmap_key 0))
+
+(defun pixmap-attach (held width height key)
+	; (pixmap-attach held width height key) -> :nil | pixmap
+	;the pixmap of the shared pixels of a key, (pixmap-shared), kept in
+	;held, a list of the caller's, empty at first, and found again only
+	;when the key or the size is not the one it was found by. :nil if the
+	;key is 0 or the pixels can not be reached, from another machine say
+	(unless (eql (first held) (defq want (list key width height)))
+		(clear held)
+		(push held want (and (/= key 0) (pixmap-shared width height key))))
+	(second held))

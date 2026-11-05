@@ -232,6 +232,18 @@
 	;they are its own
 	(if (defq pixmap (getf canvas +canvas_pixmap 0)) (pixmap-key pixmap) 0))
 
+(defun canvas-attach (held width height scale key &optional flags)
+	; (canvas-attach held width height scale key [flags]) -> :nil | canvas
+	;the canvas of the shared pixels of a key, (canvas-shared), given the
+	;canvas flags, kept in held as (pixmap-attach) keeps a pixmap, and
+	;found again only when the key or the size is not the one it was
+	;found by. :nil if the key is 0 or the pixels can not be reached
+	(unless (eql (first held) (defq want (list key width height scale)))
+		(clear held)
+		(push held want (and (/= key 0) (defq canvas (canvas-shared width height scale key))
+			(if flags (. canvas :set_canvas_flags flags) canvas))))
+	(second held))
+
 (defun canvas-info (file)
 	; (canvas-info file) -> (width height type) | (-1 -1 -1)
 	(or (and (defq kind (canvas-loader-of file)) (defq stream (file-stream file))

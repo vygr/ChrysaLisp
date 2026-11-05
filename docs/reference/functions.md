@@ -2100,6 +2100,17 @@ the call as its own, a Whiteboard in its session's call: then the call
 is not left when another that showed it is put away, (call-put-away)
 ```
 
+### canvas-attach
+
+```code
+(canvas-attach held width height scale key [flags]) -> :nil | canvas
+
+the canvas of the shared pixels of a key, (canvas-shared), given the
+canvas flags, kept in held as (pixmap-attach) keeps a pixmap, and
+found again only when the key or the size is not the one it was
+found by. :nil if the key is 0 or the pixels can not be reached
+```
+
 ### canvas-brighter
 
 ```code
@@ -8318,6 +8329,17 @@ nothing for retry_timeout, not when it is slow
 a command is started as a form that loads its file, not as the file,
 so that a load that throws can be caught there and the pipe told,
 (import-cmd) in class/lisp/root.inc
+```
+
+### pixmap-attach
+
+```code
+(pixmap-attach held width height key) -> :nil | pixmap
+
+the pixmap of the shared pixels of a key, (pixmap-shared), kept in
+held, a list of the caller's, empty at first, and found again only
+when the key or the size is not the one it was found by. :nil if the
+key is 0 or the pixels can not be reached, from another machine say
 ```
 
 ### pixmap-key
