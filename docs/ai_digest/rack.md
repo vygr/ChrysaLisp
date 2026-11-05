@@ -47,7 +47,13 @@ member runs it as a terminal would, and what it said comes back. Any
 command, `./rack.sh run sync` lists who takes a sync.
 
 `./stop.sh` stops every node of a machine, its member too. `./rack.sh down`
-stops the member and nothing else.
+stops the member and nothing else. It asks first, by leaving the file
+`/tmp/chrysalisp_rack_stop`: the member closes each store kept on its node,
+`(storage-stop-here)`, so no volume is left part written, and ends. One
+that has not ended in `CHRYSALISP_STOP_WAIT` seconds, 60, busy with a job
+or hung, is killed; its volume may then want `storage -C -v`. A member
+that ends to be updated, and one stopped to follow a commit, close their
+stores the same way.
 
 A member builds nothing and tests nothing. It runs the boot image and the
 Lisp it was started on, and goes on doing so while the tree changes under

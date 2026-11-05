@@ -66,6 +66,18 @@ function tree_stop ($root) {
     }
 }
 
+function member_leave ($id) {
+    # ask a member to stop, its stores closed first so no volume is left
+    # part written, and give it that long to: busy with a job it sees the
+    # ask once the job is done. Then it, if it has not ended, and the nodes
+    # it started are stopped
+    $wait = if ($env:CHRYSALISP_STOP_WAIT) { [int]$env:CHRYSALISP_STOP_WAIT } else { 60 }
+    Set-Content -Path "$T\chrysalisp_rack_stop" -Value ""
+    for ($n = 0; ($n -lt $wait) -and (alive $id); $n++) { Start-Sleep -Seconds 1 }
+    Remove-Item "$T\chrysalisp_rack_stop" -ErrorAction SilentlyContinue
+    tree_stop $id
+}
+
 function others_up ($root) {
     # nodes up on the machine that are not the member's, a desktop say
     $ours = tree_of $root
@@ -126,7 +138,7 @@ function member_wait ($member) {
                     say "follow: $new waits, other nodes are up and hold the host programs"
                 } else {
                     Set-Content -Path "$T\chrysalisp_rack_update" -Value "follow $new"
-                    tree_stop $member.Id
+                    member_leave $member.Id
                     break
                 }
             }
@@ -138,7 +150,7 @@ function member_wait ($member) {
 function member_loop {
     # the member, started again each time it asks to be after an install
     while ($TRUE) {
-        Remove-Item "$T\chrysalisp_rack_update" -ErrorAction SilentlyContinue
+        Remove-Item "$T\chrysalisp_rack_update", "$T\chrysalisp_rack_stop" -ErrorAction SilentlyContinue
         if (-not (Test-Path $EXE)) { break }
         $member = Start-Process -FilePath $EXE -WorkingDirectory $NHROOT -WindowStyle Hidden -PassThru `
             -RedirectStandardOutput "$T\chrysalisp_rack_member.log" -RedirectStandardError "$T\chrysalisp_rack_member.err" `
@@ -235,7 +247,7 @@ switch ($what) {
         if ($up) {
             # the loop first, so it does not start it again
             if (alive $loop_id) { Stop-Process -Id $loop_id -Force -ErrorAction SilentlyContinue }
-            if (alive $member_id) { tree_stop $member_id }
+            if (alive $member_id) { member_leave $member_id }
             Remove-Item "$T\chrysalisp_rack.pid", "$T\chrysalisp_rack_loop.pid", "$T\chrysalisp_rack_update", `
                 "$T\chrysalisp_rack_follow" -ErrorAction SilentlyContinue
             Write-Output "stopped, pid $member_id"

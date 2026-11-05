@@ -12466,6 +12466,16 @@ what a service said of itself, as (storage-state) gives it
 the service puts what it has on the volume and goes
 ```
 
+### storage-stop-here
+
+```code
+(storage-stop-here) -> (netid ...)
+
+each store kept on this node puts what it has on its volume and goes,
+(storage-stop), those of the *Storage group: a node that is to end
+ends with no volume part written
+```
+
 ### storage-stream
 
 ```code

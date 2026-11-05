@@ -85,6 +85,24 @@ function member_stop
 	done
 }
 
+#ask a member to stop, its stores closed first so no volume is left part
+#written, and give it that long to: busy with a job it sees the ask once
+#the job is done. Then it, if it has not ended, and the nodes it started
+#are stopped as above
+function member_leave
+{
+	local member=$1
+	: > $TEMP/chrysalisp_rack_stop
+	local n=0
+	while kill -0 $member 2>/dev/null && [ $n -lt ${CHRYSALISP_STOP_WAIT:-60} ]
+	do
+		sleep 1
+		n=$((n+1))
+	done
+	rm -f $TEMP/chrysalisp_rack_stop
+	member_stop $member
+}
+
 #followed, the commit the tree's branch is at, if the tree is to be taken
 #to it: newer, it follows from the tree's, the tree is clean, and it was
 #not tried and failed. Nothing if not
@@ -120,7 +138,7 @@ function member_wait
 			if [ -n "$new" ]
 			then
 				echo "follow $new" > $TEMP/chrysalisp_rack_update
-				member_stop $member
+				member_leave $member
 				break
 			fi
 		fi
@@ -134,7 +152,7 @@ function member_loop
 {
 	while :
 	do
-		rm -f $TEMP/chrysalisp_rack_update
+		rm -f $TEMP/chrysalisp_rack_update $TEMP/chrysalisp_rack_stop
 		local host=$(ls obj/*/*/*/chrysalisp 2>/dev/null | head -1)
 		[ -z "$host" ] && break
 		./$host $(dirname $(dirname $host))/sys/boot_image -run lib/rack/member.lisp \
@@ -237,7 +255,7 @@ case $what in
 		then
 			#the loop first, so it does not start it again
 			[ -n "$loop" ] && kill -KILL $loop 2>/dev/null
-			[ -n "$pid" ] && member_stop $pid
+			[ -n "$pid" ] && member_leave $pid
 			rm -f $TEMP/chrysalisp_rack.pid $TEMP/chrysalisp_rack_loop.pid $TEMP/chrysalisp_rack_update \
 				$TEMP/chrysalisp_rack_follow
 			echo "stopped, pid $pid"

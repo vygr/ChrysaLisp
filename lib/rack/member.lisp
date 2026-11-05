@@ -8,6 +8,11 @@
 ;/tmp/chrysalisp_rack_job is run here, and what it said is left in
 ;/tmp/chrysalisp_rack_result, with DONE as its last line.
 ;
+;It is stopped by leaving /tmp/chrysalisp_rack_stop, as rack.sh does: the
+;stores it keeps put what they have on their volumes first, and so does
+;it when it ends to be updated. A node killed part way through a write
+;leaves its volume to be mended.
+;
 ;A tree with no .git that the herd has taken to a newer waypoint is run
 ;by what was built before it: the member leaves /tmp/chrysalisp_rack_update
 ;and ends, and rack.sh does make install and starts it again. One with a
@@ -21,6 +26,15 @@
 ;install does not mend is not built for ever
 (import "./rack.inc")
 (import "././boot/id.inc")
+(import "service/storage/app.inc")
+
+(defun member-leave (&optional update)
+	;the stores kept here are closed, then what rack.sh is to do, if
+	;anything, is left for it, and the node ends
+	(storage-stop-here)
+	(if update (save update "/tmp/chrysalisp_rack_update"))
+	(pii-exit))
+
 (mail-await (# (mail-first "@Net")) "service/net/app.lisp" +kn_call_run (task-timeout 2))
 ;and a lock, as any session has: a kernel a child sent here builds is
 ;made under one, two children building it at once would collide
@@ -44,15 +58,18 @@
 		((eql want (load "/tmp/chrysalisp_rack_tried"))
 			(print "The boot image is not of this tree's VP source, and make install did not mend it."))
 		(:t (save want "/tmp/chrysalisp_rack_tried")
-			(save (cat "build " want) "/tmp/chrysalisp_rack_update")
-			(pii-exit))))
+			(member-leave (cat "build " want)))))
 (while :t
 	;a newer waypoint taken by the herd, looked for each few seconds
 	(when (> (- (pii-time) looked) 5000000)
 		(setq looked (pii-time))
 		(and (not (pii-fstat ".git")) (defq at (sync-waypoint "."))
 			(nql (first at) at_start) (sync-clean "." kept)
-			(progn (save (first at) "/tmp/chrysalisp_rack_update") (pii-exit))))
+			(member-leave (first at))))
+	;asked to stop, rack.sh down or a commit followed
+	(when (pii-fstat "/tmp/chrysalisp_rack_stop")
+		(pii-remove "/tmp/chrysalisp_rack_stop")
+		(member-leave))
 	(when (defq text (load "/tmp/chrysalisp_rack_job"))
 		(pii-remove "/tmp/chrysalisp_rack_job")
 		;what it says is written as it is said, so rack.sh run shows a long

@@ -1043,6 +1043,14 @@
 	;the service puts what it has on the volume and goes
 	(if (storage-ask (ifn svc (storage-service)) +storage_type_stop) :t))
 
+(defun storage-stop-here ()
+	; (storage-stop-here) -> (netid ...)
+	;each store kept on this node puts what it has on its volume and goes,
+	;(storage-stop), those of the *Storage group: a node that is to end
+	;ends with no volume part written
+	(defq here (task-nodeid))
+	(filter (# (and (eql (task-nodeid %0) here) (storage-stop %0))) (storage-record-members)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; a store of more than one member
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
