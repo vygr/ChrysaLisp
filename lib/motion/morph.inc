@@ -14,6 +14,7 @@
 
 (import "gui/path/lisp.inc")
 (import "gui/font/lisp.inc")
+(import "././math/vector.inc")
 
 ;the fewest points a line of a morph is made of, a short line morphing to a
 ;long one still needs some to bend with, and the most
@@ -53,6 +54,39 @@
 			(defq m (fixeds 1.0 0.0 (neg (* 0.5 (+ x x1))) 0.0 1.0 (neg (* 0.5 (+ y y1)))))
 			(map (lambda ((closed p)) (list closed (mat3x2-vec2-mul m p (cat p)))) outline))
 		(outline)))
+
+(defun outline-flat (outline fill stroke radius join cap1 cap2 &optional trim)
+	; (outline-flat outline fill stroke radius join cap1 cap2 [trim]) -> (fills strokes box)
+	;the polygons an outline is drawn with, and the box they are all in,
+	;:nil if there are none. Its closed lines are filled if fill is not 0,
+	;and all of them stroked radius either side if stroke is not 0, a line
+	;whose points are all the one point as a dot. trim, under 1.0, is how
+	;much of each line is stroked, from its start. A stroke too short to
+	;have a width, the first hair of a line being drawn, is left out
+	(defq fills (list) strokes (list) trim (ifn trim 1.0))
+	(if (/= fill 0)
+		(each (lambda ((closed p)) (if (>= (length p) 6) (push fills p))) outline))
+	(and (/= stroke 0) (> radius 0.0)
+		(each (lambda ((closed p))
+				(when (>= (length p) 2)
+					(defq pts (partition p 2) at (first pts))
+					(cond
+						((every (# (eql %0 at)) pts)
+							(push strokes (path-gen-arc (first p) (second p) 0.0 +fp_2pi radius (path))))
+						((< (length p) 4))
+						((< trim 1.0)
+							(push strokes (path-stroke-polyline (morph-trim p closed (max trim 0.0)) radius join cap1 cap2)))
+						(closed
+							(bind '(p1 p2) (path-stroke-polygon p radius join))
+							(push strokes p1 p2))
+						(:t (push strokes (path-stroke-polyline p radius join cap1 cap2))))))
+			outline))
+	(setq strokes (filter (# (>= (length %0) 6)) strokes))
+	(defq polys (cat fills strokes))
+	(list fills strokes
+		(when (nempty? polys)
+			(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
+			(list x y x1 y1))))
 
 (defun morph-length (p closed)
 	; (morph-length p closed) -> fixed

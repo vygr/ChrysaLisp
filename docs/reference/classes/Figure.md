@@ -26,7 +26,8 @@ components, run from the next time this figure has its turn
 (. figure :flat) -> (fills strokes box)
 
 the polygons it is drawn with, in its own space, and the box they
-are all in, :nil if there is nothing. Worked out once and kept
+are all in, :nil if there is nothing, (outline-flat). Worked out
+once and kept
 ```
 
 ### :kill

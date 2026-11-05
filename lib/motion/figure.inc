@@ -98,27 +98,12 @@
 	(defmethod :flat ()
 		; (. figure :flat) -> (fills strokes box)
 		;the polygons it is drawn with, in its own space, and the box they
-		;are all in, :nil if there is nothing. Worked out once and kept
+		;are all in, :nil if there is nothing, (outline-flat). Worked out
+		;once and kept
 		(unless (defq flat (get :fig_flat this))
 			(raise :fig_outline :fig_width :fig_trim :fig_join :fig_cap1 :fig_cap2 :fig_fill :fig_stroke)
-			(defq fills (list) strokes (list) radius (* 0.5 fig_width))
-			(if (/= fig_fill 0)
-				(each (lambda ((closed p)) (if (>= (length p) 6) (push fills p))) fig_outline))
-			(and (/= fig_stroke 0) (> radius 0.0)
-				(each (lambda ((closed p))
-						(when (>= (length p) 4)
-							(cond
-								((< fig_trim 1.0)
-									(push strokes (path-stroke-polyline
-										(morph-trim p closed (max fig_trim 0.0)) radius fig_join fig_cap1 fig_cap2)))
-								(closed
-									(bind '(p1 p2) (path-stroke-polygon p radius fig_join))
-									(push strokes p1 p2))
-								(:t (push strokes (path-stroke-polyline p radius fig_join fig_cap1 fig_cap2))))))
-					fig_outline))
-			(setq flat (list fills strokes
-				(outline-box (map (# (list :t %0)) (cat fills strokes)))))
-			(def this :fig_flat flat))
+			(def this :fig_flat (setq flat (outline-flat fig_outline fig_fill fig_stroke (* 0.5 fig_width)
+				fig_join fig_cap1 fig_cap2 fig_trim))))
 		flat)
 
 	(defmethod :local ()

@@ -2744,8 +2744,9 @@ document with nothing in it, which is left as it is
 there may be more after those three, kept with them: take it apart
 with &ignore last. (board-hull) keeps the hull of a shape there
 the polygons a shape is drawn with, those of its fill and those of
-its stroke, and the box they are all in, in its own space. :nil for
-the box of a shape that draws nothing. Worked out once and kept
+its stroke, and the box they are all in, in its own space, as
+(outline-flat) gives them. :nil for the box of a shape that draws
+nothing. Worked out once and kept
 ```
 
 ### cwb-get
@@ -7993,6 +7994,19 @@ the box round all of its lines
 (outline-centred outline) -> outline
 
 a new one, the middle of its box at 0 0
+```
+
+### outline-flat
+
+```code
+(outline-flat outline fill stroke radius join cap1 cap2 [trim]) -> (fills strokes box)
+
+the polygons an outline is drawn with, and the box they are all in,
+:nil if there are none. Its closed lines are filled if fill is not 0,
+and all of them stroked radius either side if stroke is not 0, a line
+whose points are all the one point as a dot. trim, under 1.0, is how
+much of each line is stroked, from its start. A stroke too short to
+have a width, the first hair of a line being drawn, is left out
 ```
 
 ### outline-svg

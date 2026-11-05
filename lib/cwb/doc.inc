@@ -33,6 +33,7 @@
 (import "gui/font/lisp.inc")
 (import "././math/matrix.inc")
 (import "././collections/collections.inc")
+(import "././motion/morph.inc")
 
 ;the version of the file. The format is not yet kept for files of before
 ;it: from v8.0 a file of an older version is to be read too
@@ -357,15 +358,9 @@
 	;letters of a :text are closed. A line of less than two points is
 	;left out
 	(if (eql (elem-get shape +cwb_kind) :text)
-		;the outlines a font gives are twice the size of the font, as a
-		;canvas that is drawn at twice its size and made small wants them.
-		;Here a size is a size, words of 24 are as big as words of 24 are
-		;on a button
-		(map (# (list :t (mat3x2-vec2-mul (const (fixeds 0.5 0.0 0.0 0.0 0.5 0.0)) %0 %0)))
-			(if (nempty? (elem-get shape +cwb_text))
-				(font-glyph-paths (create-font (elem-get shape +cwb_font) (n2i (elem-get shape +cwb_font_size)))
-					(elem-get shape +cwb_text))
-				(list)))
+		;a size is a size, words of 24 are as big as words of 24 are on a
+		;button, (outline-text)
+		(outline-text (elem-get shape +cwb_text) (elem-get shape +cwb_font) (n2i (elem-get shape +cwb_font_size)))
 		(filter (# (>= (length (second %0)) 4))
 			(if (nempty? (elem-get shape +cwb_d)) (path-gen-paths (elem-get shape +cwb_d)) (list)))))
 
@@ -374,34 +369,14 @@
 	;there may be more after those three, kept with them: take it apart
 	;with &ignore last. (board-hull) keeps the hull of a shape there
 	;the polygons a shape is drawn with, those of its fill and those of
-	;its stroke, and the box they are all in, in its own space. :nil for
-	;the box of a shape that draws nothing. Worked out once and kept
+	;its stroke, and the box they are all in, in its own space, as
+	;(outline-flat) gives them. :nil for the box of a shape that draws
+	;nothing. Worked out once and kept
 	(unless (defq cache (elem-get shape +cwb_cache))
-		(defq outline (cwb-outline shape) fills (list) strokes (list)
-			radius (* 0.5 (n2f (elem-get shape +cwb_width)))
-			join (cwb-join-of (elem-get shape +cwb_join))
-			cap1 (cwb-cap-of (elem-get shape +cwb_cap1)) cap2 (cwb-cap-of (elem-get shape +cwb_cap2)))
-		(if (/= (elem-get shape +cwb_fill) 0)
-			(each (lambda ((closed p)) (if (>= (length p) 6) (push fills p))) outline))
-		(and (/= (elem-get shape +cwb_stroke) 0) (> radius 0.0)
-			(each (lambda ((closed p))
-				(cond
-					((every (# (eql %0 (first (partition p 2)))) (partition p 2))
-						;a dot, all its points the one point
-						(push strokes (path-gen-arc (first p) (second p) 0.0 +fp_2pi radius (path))))
-					(closed
-						(bind '(p1 p2) (path-stroke-polygon p radius join))
-						(push strokes p1 p2))
-					(:t (push strokes (path-stroke-polyline p radius join cap1 cap2)))))
-				outline))
-		;a line too short to have a width, the first hair of one that is
-		;being drawn, is stroked to nothing at all, and is left out
-		(setq strokes (filter (# (>= (length %0) 6)) strokes))
-		(defq polys (cat fills strokes))
-		(elem-set shape +cwb_cache (setq cache (list fills strokes
-			(when (nempty? polys)
-				(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
-				(list x y x1 y1))))))
+		(elem-set shape +cwb_cache (setq cache (outline-flat (cwb-outline shape)
+			(elem-get shape +cwb_fill) (elem-get shape +cwb_stroke) (* 0.5 (n2f (elem-get shape +cwb_width)))
+			(cwb-join-of (elem-get shape +cwb_join))
+			(cwb-cap-of (elem-get shape +cwb_cap1)) (cwb-cap-of (elem-get shape +cwb_cap2))))))
 	cache)
 
 (defun cwb-text-mid (text x y &rest key_vals)
