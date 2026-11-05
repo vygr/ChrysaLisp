@@ -49,41 +49,17 @@
 
 (defun trashes-of (class_db)
 	; (trashes-of class_db) -> (by_function class_db ledger)
-	;what the methods are declared to trash, by the function a method
-	;is, for a call that is bound to it: what the function itself does,
-	;if that is said, a virtual method's. And a ledger, of what each
-	;method called costs those that call it, to be filled in
-	(defq by_function (Fmap 1021))
-	(. class_db :each (lambda (class entry)
-		(.-> entry (:find :methods) (:each (lambda (method m)
-			(if (defq said (ifn (. m :find :declared_own) (. m :find :declared)))
-				(. by_function :insert (str (. m :find :function)) (regs-of said))))))))
-	(list by_function class_db (Fmap 101)))
+	;what the methods are declared to trash, (methods-of), and a ledger,
+	;of what each method called costs those that call it, to be filled in
+	(cat (methods-of class_db) (list (Fmap 101))))
 
 (defun call-trashes (inst all labels trashes)
 	; (call-trashes inst all labels trashes) -> :nil | (name (num ...))
-	;what a call is of, and the general registers it may leave not as
-	;they were, if what it calls is a method that says: one bound to its
-	;function, through a link to its path, or a virtual one, which has
-	;its class and name with it. :nil if it is not known
-	(bind '(by_function class_db &ignore) trashes)
-	(case (first inst)
-		(emit-call-p
-			(and (defq at (. labels :find (second inst))) (< (inc at) (length all))
-				(list? (defq to (second (elem-get all (inc at))))) (> (length to) 1)
-				(defq at (. labels :find (second to))) (< (inc at) (length all))
-				(str? (defq path (second (elem-get all (inc at)))))
-				(defq regs (. by_function :find path))
-				(list path regs)))
-		(emit-call-i
-			(when (> (length inst) 4)
-				(defq class (elem-get inst 3) method (elem-get inst 4) said :nil
-					name (cat (str class) " " (str method) ", by its vtable"))
-				;said by the class, or the nearest above it that does
-				(while (and (not said) class (nql class :nil) (defq entry (. class_db :find class)))
-					(if (defq m (.-> entry (:find :methods) (:find method))) (setq said (. m :find :declared)))
-					(setq class (. entry :find :parent)))
-				(if said (list name (regs-of said)))))))
+	;what a call is of, (called-of), and the numbers of the general
+	;registers it may leave not as they were. :nil if it is not known
+	(when (defq called (called-of inst all labels trashes))
+		(defq mask (second called))
+		(list (first called) (filter (# (/= 0 (logand mask (<< 1 %0)))) (range 0 15)))))
 
 (defun place-of (stack sizes offset)
 	; (place-of stack sizes offset) -> :nil | (which offset)

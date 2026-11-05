@@ -58,7 +58,7 @@
 (("-s" "--saves") ,(opt-flag 'opt_s))
 ))
 
-(defq +regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+(defq
 	;an instruction of two registers that reads both and writes the second
 	+both_ops ''(emit-add-rr emit-sub-rr emit-mul-rr emit-and-rr emit-or-rr emit-xor-rr emit-shl-rr emit-shr-rr
 		emit-asr-rr emit-min-rr emit-max-rr emit-seq-rr emit-sne-rr emit-slt-rr emit-sgt-rr emit-sle-rr emit-sge-rr)
@@ -80,16 +80,6 @@
 		emit-alloc emit-free emit-ret emit-sync emit-nop emit-vp-nop emit-jmp
 		emit-cpy-ff emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff emit-sqrt-ff
 		emit-abs-ff emit-neg-ff emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff))
-
-(defun bit-of (reg)
-	; (bit-of reg) -> num
-	;a general register as a bit, 0 if it is not one
-	(if (and (sym? reg) (defq i (find reg +regs))) (<< 1 i) 0))
-
-(defun bits-of (regs)
-	; (bits-of regs) -> num
-	;registers, or their numbers, as bits
-	(reduce (# (logior %0 (if (num? %1) (<< 1 %1) (bit-of %1)))) regs 0))
 
 (defun regs-in (mask)
 	; (regs-in mask) -> (reg ...)
@@ -131,80 +121,6 @@
 		((eql op 'emit-push) (list (bits-of (rest inst)) 0))
 		((find op '(emit-pop emit-trash)) (list 0 (bits-of (rest inst))))
 		((list (bits-of (rest inst)) 0))))
-
-(defun declared-of (class_db class method key)
-	; (declared-of class_db class method key) -> num
-	;what a method takes, :dec_inputs, or gives, :dec_outputs, as bits:
-	;as its class declares it, or the nearest class above that says
-	;
-	;If none of them says, what the comment of the function that is the
-	;method says: a create is declared with neither, and its comment has
-	;what it gives
-	(defq said "none" from class static :nil)
-	;a static method of a class is not the one of that name in the class
-	;above, a create: only a virtual one takes and gives what that does
-	(while (and (eql said "none") (not static) class (nql class :nil) (defq entry (. class_db :find class)))
-		(when (defq m (.-> entry (:find :methods) (:find method)))
-			(setq said (ifn (. m :find key) "none") static (eql (. m :find :type) :static)))
-		(setq class (. entry :find :parent)))
-	(and (eql said "none") (defq entry (. class_db :find from))
-		(defq m (.-> entry (:find :methods) (:find method)))
-		(setq said (ifn (. m :find (if (eql key :dec_inputs) :inputs :outputs)) "none")))
-	;a create that says nothing gives the object, as they all do
-	(and (eql said "none") (eql key :dec_outputs) (starts-with ":create" (str method)) (setq said ":r0"))
-	(bits-of (regs-of said)))
-
-(defun methods-of (class_db)
-	; (methods-of class_db) -> (by_function class_db)
-	;what is declared of each method, by the function it is: (trashes
-	;takes gives), as bits. trashes is what the function itself does if
-	;that is said, a virtual method's, and :nil if nothing is said
-	(defq by_function (Fmap 1021))
-	(. class_db :each (lambda (class entry)
-		(.-> entry (:find :methods) (:each (lambda (method m)
-			(when (. m :find :dec_line)
-				(defq said (ifn (. m :find :declared_own) (. m :find :declared)) path (str (. m :find :function))
-					now (list (if said (bits-of (regs-of said)))
-						(declared-of class_db class method :dec_inputs)
-						(declared-of class_db class method :dec_outputs))
-					was (. by_function :find path))
-				;a function may be more than one method, a create that is a
-				;vcreate too, and a call bound to it does not say which. What
-				;it trashes is what any of them says, what it gives what any
-				;does, and what it takes only what they all do: so less is
-				;said to be gone by here than may be, never more
-				(. by_function :insert path (if was
-					(list (if (or (first was) (first now)) (logior (ifn (first was) 0) (ifn (first now) 0)))
-						(logand (second was) (second now)) (logior (third was) (third now)))
-					now))))))))
-	(list by_function class_db))
-
-(defun called-of (inst all labels methods)
-	; (called-of inst all labels methods) -> :nil | (name trashes takes gives)
-	;what a call or a jump out is of, and what is declared of it: one
-	;bound to its function, through a link to its path, and what that
-	;function trashes; or one through a vtable, which has its class and
-	;name with it, and what any class called so may. :nil if not known
-	(bind '(by_function class_db) methods)
-	(case (first inst)
-		((emit-call-p emit-jmp-p)
-			(and (defq at (. labels :find (second inst))) (< (inc at) (length all))
-				(list? (defq to (second (elem-get all (inc at))))) (> (length to) 1)
-				(defq at (. labels :find (second to))) (< (inc at) (length all))
-				(str? (defq path (second (elem-get all (inc at)))))
-				(defq m (. by_function :find path)) (first m)
-				(cat (list path) m)))
-		((emit-call-i emit-jmp-i)
-			(when (> (length inst) 4)
-				(defq class (elem-get inst 3) method (elem-get inst 4) found :nil of class
-					name (cat (str class) " " (str method) ", by its vtable"))
-				;said by the class, or the nearest above it that does
-				(while (and (not found) class (nql class :nil) (defq entry (. class_db :find class)))
-					(and (defq m (.-> entry (:find :methods) (:find method))) (. m :find :declared) (setq found m))
-					(setq class (. entry :find :parent)))
-				(if found (list name (bits-of (regs-of (. found :find :declared)))
-					(declared-of class_db of method :dec_inputs)
-					(declared-of class_db of method :dec_outputs)))))))
 
 (defun relies-of (function methods)
 	; (relies-of function methods) -> :nil | ((at name regs) ...)
