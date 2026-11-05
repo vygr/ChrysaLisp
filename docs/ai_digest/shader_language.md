@@ -31,7 +31,9 @@ rewrite of every shader.
 
 ## The Files
 
-* `lib/gpu/shader.inc`, the reader, the type checker, and the inputs block.
+* `lib/gpu/shader.inc`, the reader, the type checker, and the inputs block,
+  and what the back ends share: `(sh-fold)`, the walk of an expression, and
+  `(sh-text-block)`, the lines of a block for the two of C like text.
 * `lib/gpu/glsl.inc`, the GLSL text back end.
 * `lib/gpu/msl.inc`, the Metal Shading Language text back end.
 * `lib/gpu/spirv.inc`, the SPIR-V binary back end, for Vulkan.

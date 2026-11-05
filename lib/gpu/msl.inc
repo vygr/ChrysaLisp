@@ -61,38 +61,6 @@
 						(eql (first %1) :float)) (cat (msl-type type) "(" %0 ")") %0)) args b) ", ") ")"))
 				((cat (str a) "(" (join args ", ") ")"))))))))
 
-(defun msl-block (block indent)
-	;the lines of a block. An if and a for have blocks in them: what is
-	;still to come is a list, the next thing last, a statement and how far
-	;in it is, or a line that closes what was opened before it
-	(defq stack (rmap (# (list :stmt %0 indent)) block))
-	(while (defq item (pop stack))
-		(bind '(kind p0 &optional indent) item)
-		(cond
-			((eql kind :line) (push lines p0))
-			(:t (defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
-				(bind '(tag &optional a b c d) p0)
-				(case tag
-					(:defq (push lines (cat tab (msl-type (first b)) " " (msl-name a) " = " (msl-expr b) ";")))
-					(:setq (push lines (cat tab (msl-name a) " = " (msl-expr b) ";")))
-					(:setsw (push lines (cat tab (msl-name a) "."
-						(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (msl-expr c) ";")))
-					(:if (push lines (cat tab "if (" (msl-expr a) ")") (cat tab "{"))
-						(when (nempty? c)
-							(push stack (list :line (cat tab "}")))
-							(reach (# (push stack (list :stmt %0 (inc indent)))) c)
-							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
-						(push stack (list :line (cat tab "}")))
-						(reach (# (push stack (list :stmt %0 (inc indent)))) b))
-					(:for (defq i (msl-name a))
-						(push lines (cat tab "for (int " i " = " (msl-expr b) "; " i " < " (msl-expr c) "; " i "++)")
-							(cat tab "{"))
-						(push stack (list :line (cat tab "}")))
-						(reach (# (push stack (list :stmt %0 (inc indent)))) d))
-					(:break (push lines (cat tab "break;")))
-					(:elemset (push lines (cat tab (msl-name a) "[" (msl-expr b) "] = " (msl-expr c) ";")))
-					(:return (push lines (cat tab (if a (cat "return " (msl-expr a)) "return") ";"))))))))
-
 (defun msl-inputs (program lines)
 	;the inputs block, packed types and pad words give the std140 offsets.
 	;A matrix is on a 16 byte boundary as it is, and is its columns
@@ -136,7 +104,7 @@
 	(each (lambda ((name type params block))
 		(push lines "" (cat "\t" (msl-type type) " " (msl-name name) "("
 			(join (map (# (cat (msl-type (second %0)) " " (msl-name (first %0)))) params) ", ") ")") "\t{")
-		(msl-block block 2)
+		(sh-text-block block 2 msl-type msl-name msl-expr)
 		(push lines "\t}")) funcs)
 	;the globals are set from the inputs, then main is called
 	(push lines "" "\tvoid shader_init()" "\t{")

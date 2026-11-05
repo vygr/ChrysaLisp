@@ -43,37 +43,6 @@
 				((eql a 'texture) (cat "texture2D(" (first args) ", " (second args) ")"))
 				((cat (str a) "(" (join args ", ") ")"))))))))
 
-(defun glsl-block (block indent)
-	;the lines of a block. An if and a for have blocks in them: what is
-	;still to come is a list, the next thing last, a statement and how far
-	;in it is, or a line that closes what was opened before it
-	(defq stack (rmap (# (list :stmt %0 indent)) block))
-	(while (defq item (pop stack))
-		(bind '(kind p0 &optional indent) item)
-		(cond
-			((eql kind :line) (push lines p0))
-			(:t (defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
-				(bind '(tag &optional a b c d) p0)
-				(case tag
-					(:defq (push lines (cat tab (glsl-type (first b)) " " (glsl-name a) " = " (glsl-expr b) ";")))
-					(:setq (push lines (cat tab (glsl-name a) " = " (glsl-expr b) ";")))
-					(:setsw (push lines (cat tab (glsl-name a) "."
-						(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (glsl-expr c) ";")))
-					(:if (push lines (cat tab "if (" (glsl-expr a) ")") (cat tab "{"))
-						(when (nempty? c)
-							(push stack (list :line (cat tab "}")))
-							(reach (# (push stack (list :stmt %0 (inc indent)))) c)
-							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
-						(push stack (list :line (cat tab "}")))
-						(reach (# (push stack (list :stmt %0 (inc indent)))) b))
-					(:for (defq i (glsl-name a))
-						(push lines (cat tab "for (int " i " = " (glsl-expr b) "; " i " < " (glsl-expr c) "; " i "++)")
-							(cat tab "{"))
-						(push stack (list :line (cat tab "}")))
-						(reach (# (push stack (list :stmt %0 (inc indent)))) d))
-					(:break (push lines (cat tab "break;")))
-					(:return (push lines (cat tab "return " (glsl-expr a) ";"))))))))
-
 (defun glsl-decls (program)
 	;the inputs as uniforms, the constants, the globals and the functions
 	;of a program, onto the lines of whoever calls
@@ -91,7 +60,7 @@
 	(each (lambda ((name type params block))
 		(push lines "" (cat (glsl-type type) " " (glsl-name name) "("
 			(join (map (# (cat (glsl-type (second %0)) " " (glsl-name (first %0)))) params) ", ") ")") "{")
-		(glsl-block block 1)
+		(sh-text-block block 1 glsl-type glsl-name glsl-expr)
 		(push lines "}")) funcs)
 	globals)
 

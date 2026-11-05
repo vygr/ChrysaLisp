@@ -5196,15 +5196,6 @@ the data taken into the hash, the last block made up with zeros
 (get-cstr str idx) -> str
 ```
 
-### glsl-block
-
-```code
-the lines of a block. An if and a for have blocks in them: what is
-
-still to come is a list, the next thing last, a statement and how far
-in it is, or a line that closes what was opened before it
-```
-
 ### glsl-decls
 
 ```code
@@ -7294,15 +7285,6 @@ samples it has and where it begins
 
 ```code
 (msafe? o) -> :t | :nil
-```
-
-### msl-block
-
-```code
-the lines of a block. An if and a for have blocks in them: what is
-
-still to come is a list, the next thing last, a statement and how far
-in it is, or a line that closes what was opened before it
 ```
 
 ### msl-inputs
@@ -10080,6 +10062,18 @@ if that is last, and of a progn that is last. The back ends still see
 a return, they are statement languages.
 An arm can be an if again. Each form that is to be looked at is a
 place, a list and where in it, on a list of those still to do
+```
+
+### sh-text-block
+
+```code
+(sh-text-block block indent type name expr)
+
+the lines of a block, for a back end of C like text, onto the lines
+of whoever calls. type, name and expr are the back end's own, of a
+type, a name and an expression. An if and a for have blocks in them:
+what is still to come is a list, the next thing last, a statement and
+how far in it is, or a line that closes what was opened before it
 ```
 
 ### sha256

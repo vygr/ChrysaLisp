@@ -509,6 +509,41 @@
 				(each! (# (push stack (list %0 :nil))) (list kids) -1 0))))
 	(first vs))
 
+(defun sh-text-block (block indent type name expr)
+	; (sh-text-block block indent type name expr)
+	;the lines of a block, for a back end of C like text, onto the lines
+	;of whoever calls. type, name and expr are the back end's own, of a
+	;type, a name and an expression. An if and a for have blocks in them:
+	;what is still to come is a list, the next thing last, a statement and
+	;how far in it is, or a line that closes what was opened before it
+	(defq stack (rmap (# (list :stmt %0 indent)) block))
+	(while (defq item (pop stack))
+		(bind '(kind p0 &optional indent) item)
+		(cond
+			((eql kind :line) (push lines p0))
+			(:t (defq tab (pad "" indent "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"))
+				(bind '(tag &optional a b c d) p0)
+				(case tag
+					(:defq (push lines (cat tab (type (first b)) " " (name a) " = " (expr b) ";")))
+					(:setq (push lines (cat tab (name a) " = " (expr b) ";")))
+					(:setsw (push lines (cat tab (name a) "."
+						(apply (const cat) (map (# (elem-get "xyzw" %0)) b)) " = " (expr c) ";")))
+					(:if (push lines (cat tab "if (" (expr a) ")") (cat tab "{"))
+						(when (nempty? c)
+							(push stack (list :line (cat tab "}")))
+							(reach (# (push stack (list :stmt %0 (inc indent)))) c)
+							(push stack (list :line (cat tab "{")) (list :line (cat tab "else"))))
+						(push stack (list :line (cat tab "}")))
+						(reach (# (push stack (list :stmt %0 (inc indent)))) b))
+					(:for (defq i (name a))
+						(push lines (cat tab "for (int " i " = " (expr b) "; " i " < " (expr c) "; " i "++)")
+							(cat tab "{"))
+						(push stack (list :line (cat tab "}")))
+						(reach (# (push stack (list :stmt %0 (inc indent)))) d))
+					(:break (push lines (cat tab "break;")))
+					(:elemset (push lines (cat tab (name a) "[" (expr b) "] = " (expr c) ";")))
+					(:return (push lines (cat tab (if a (cat "return " (expr a)) "return") ";"))))))))
+
 (defun sh-literal (type val form)
 	;default, min or max of an input
 	(cond
