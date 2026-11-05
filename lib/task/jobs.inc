@@ -295,6 +295,39 @@
 		(.super this :answered msg))
 	)
 
+(defun jobs-farm (path units size retry_timeout on_reply &optional on_tries told)
+	; (jobs-farm path units size retry_timeout on_reply [on_tries told]) -> tries
+	;a farm run to its end by a task with nothing else to do: (Jobs path
+	;task_mbox reply_mbox size), or (Monitored) with told, given the units.
+	;Each answer is (on_reply msg jobs) -> :nil | num, what (:answered) or
+	;(:failed) says, and at 0 the farm is done. Each second told hears
+	;(told :tick), the jobs it gives back are heard from, then a job not
+	;answered in retry_timeout is given out again, (:refresh), and if that
+	;was more than before (on_tries tries). Three times and the farm stops,
+	;and so does a read that gives nothing, the task told to go
+	(defq select (list (mail-mbox) (mail-mbox) (mail-mbox)) working :t tried 0
+		jobs (if told (Monitored path (first select) (second select) told size)
+			(Jobs path (first select) (second select) size)))
+	(. jobs :add units)
+	(mail-timeout (third select) 1000000 0)
+	(while working
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
+		(cond
+			((not msg) (setq working :nil))
+			((= idx 0) (. jobs :launched msg))
+			((= idx 1) (if (eql 0 (on_reply msg jobs)) (setq working :nil)))
+			(:t (mail-timeout (third select) 1000000 0)
+				(and told (list? (defq heard (told :tick)))
+					(each (# (. jobs :heard %0)) heard))
+				(. jobs :refresh retry_timeout)
+				(when (> (defq tries (. jobs :tries)) tried)
+					(setq tried tries)
+					(if on_tries (on_tries tries))
+					(if (>= tries 3) (setq working :nil))))))
+	(. jobs :close)
+	tried)
+
 ;module
 (export-classes '(Jobs Monitored))
+(export-symbols '(jobs-farm))
 (env-pop)

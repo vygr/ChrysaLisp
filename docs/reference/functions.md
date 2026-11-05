@@ -5809,6 +5809,21 @@ timeout. Going of its own accord, a child that has had a job tells
 its farm, so a job sent to it as it went is not lost
 ```
 
+### jobs-farm
+
+```code
+(jobs-farm path units size retry_timeout on_reply [on_tries told]) -> tries
+
+a farm run to its end by a task with nothing else to do: (Jobs path
+task_mbox reply_mbox size), or (Monitored) with told, given the units.
+Each answer is (on_reply msg jobs) -> :nil | num, what (:answered) or
+(:failed) says, and at 0 the farm is done. Each second told hears
+(told :tick), the jobs it gives back are heard from, then a job not
+answered in retry_timeout is given out again, (:refresh), and if that
+was more than before (on_tries tries). Three times and the farm stops,
+and so does a read that gives nothing, the task told to go
+```
+
 ### join
 
 ```code

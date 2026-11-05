@@ -7,9 +7,6 @@
 ;module
 (env-push)
 
-(enums +select 0
-	(enum task reply timer))
-
 (defun pipe-farm (cmds &optional retry_timeout told)
 	; (pipe-farm jobs [retry_timeout told]) -> ((job result) ...)
 	;run pipe farm and collect output. A job that is not answered within
@@ -24,39 +21,17 @@
 	;nothing for retry_timeout, not when it is slow
 	(task-count -1) ;we will be only collating results !
 	(setd retry_timeout 60000000)
-	(defq timer_rate (/ 1000000 1) working (nempty? cmds) results (cap (length cmds) (list))
+	(defq results (cap (length cmds) (list))
 		;the timeout is longer on the emulator, as (task-timeout) has it
-		retry_timeout (* retry_timeout (/ (task-timeout 1) 1000000))
-		select (list (mail-mbox) (mail-mbox) (mail-mbox))
-		jobs (if told
-			(Monitored "lib/task/cmd.lisp" (elem-get select +select_task)
-				(elem-get select +select_reply) told (list (length cmds) 10))
-			(Jobs "lib/task/cmd.lisp" (elem-get select +select_task)
-				(elem-get select +select_reply) (list (length cmds) 10))))
-	(. jobs :add (map (# (cat (const (str-alloc +job_size)) %0)) cmds))
-	(mail-timeout (elem-get select +select_timer) timer_rate 0)
-	(while working
-		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-		(cond
-			((not msg)
-				;task aborted
-				(setq working :nil))
-			((= idx +select_task)
-				;child launch response
-				(. jobs :launched msg))
-			((= idx +select_reply)
-				;child worker response
+		retry_timeout (* retry_timeout (/ (task-timeout 1) 1000000)))
+	(if (nempty? cmds)
+		(jobs-farm "lib/task/cmd.lisp" (map (# (cat (const (str-alloc +job_size)) %0)) cmds)
+			(list (length cmds) 10) retry_timeout
+			(lambda (msg jobs)
 				(when (defq job (. jobs :job msg))
 					(push results (list (slice job +job_size -1) (slice msg +job_reply_size -1)))
-					;all jobs done ?
-					(if (= 0 (. jobs :answered msg)) (setq working :nil))))
-			(:t ;timer event
-				(mail-timeout (elem-get select +select_timer) timer_rate 0)
-				(and told (list? (defq heard (told :tick)))
-					(each (# (. jobs :heard %0)) heard))
-				(. jobs :refresh retry_timeout)
-				(if (>= (. jobs :tries) 3) (setq working :nil)))))
-	(. jobs :close)
+					(. jobs :answered msg)))
+			:nil told))
 	(task-count 1)	;we where only collating results !
 	results)
 

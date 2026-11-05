@@ -10,9 +10,6 @@
 ;module
 (env-push)
 
-(enums +select 0
-	(enum reply launch timer))
-
 ;the build modes, 1 normal and 2 validate, a normal build and more checks
 ;as it runs
 (defun vp-dir (mode)
@@ -42,50 +39,30 @@
 		;a job is started again if its node goes. The timeout is only for a
 		;worker that dies and its node does not, so it is long, a slow job
 		;must not be taken for a dead one.
-		(defq timer_rate (/ 1000000 1) working :t retry_timeout (task-timeout 60) told 0
-			select (list (mail-mbox) (mail-mbox) (mail-mbox))
-			jobs (Jobs "lib/asm/asm.lisp" (elem-get select +select_launch)
-				(elem-get select +select_reply) (list (length units) 1 1)))
-		(. jobs :add (map (# (cat (const (str-alloc +job_size))
-			(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*
-				(vp-dir *build_mode*))))) units))
-		(mail-timeout (elem-get select +select_timer) timer_rate 0)
-		(while working
-			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-			(cond
-				((not msg)
-					;task aborted
-					(setq working :nil))
-				((= idx +select_launch)
-					;child launch response
-					(. jobs :launched msg))
-				((= idx +select_reply)
-					;child worker response, the key it was given, then
-					;what it said. A job with an error is not tried again.
-					(defq error_flag :nil)
-					(each (# (cond
-						((starts-with "Error:" %0)
-							(push errors %0)
-							(setq error_flag :t))
-						((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
-					(stream-flush (io-stream 'stdout))
-					;all jobs done ?
-					(if (eql 0 (if error_flag (. jobs :failed msg) (. jobs :answered msg)))
-						(setq working :nil)))
-				(:t ;timer event
-					(mail-timeout (elem-get select +select_timer) timer_rate 0)
-					(. jobs :refresh retry_timeout)
-					;a job that has gone out and not come back, again and
-					;again, is not waited on for ever
-					(when (> (defq tries (. jobs :tries)) told)
-						(setq told tries)
-						(cond
-							((< tries 3)
-								(print "No answer from a worker, trying again")
-								(stream-flush (io-stream 'stdout)))
-							(:t (push errors "Error: no answer from the workers, the build is stopped")
-								(setq working :nil)))))))
-		(. jobs :close))
+		(jobs-farm "lib/asm/asm.lisp"
+			(map (# (cat (const (str-alloc +job_size))
+				(str (list kind %0 *abi* *cpu* *build_mode* *build_emit* *build_inst* *build_verb*
+					(vp-dir *build_mode*))))) units)
+			(list (length units) 1 1) (task-timeout 60)
+			(lambda (msg jobs)
+				;the key it was given, then what it said. A job with an
+				;error is not tried again.
+				(defq error_flag :nil)
+				(each (# (cond
+					((starts-with "Error:" %0)
+						(push errors %0)
+						(setq error_flag :t))
+					((nempty? %0) (print %0)))) (split (slice msg +job_reply_size -1) "\n"))
+				(stream-flush (io-stream 'stdout))
+				(if error_flag (. jobs :failed msg) (. jobs :answered msg)))
+			;a job that has gone out and not come back, again and again,
+			;is not waited on for ever
+			(lambda (tries)
+				(cond
+					((< tries 3)
+						(print "No answer from a worker, trying again")
+						(stream-flush (io-stream 'stdout)))
+					(:t (push errors "Error: no answer from the workers, the build is stopped"))))))
 	(list made errors))
 
 (defun vp-stage (files *abi* *cpu* &optional kind)

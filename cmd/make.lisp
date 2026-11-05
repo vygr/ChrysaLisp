@@ -185,29 +185,16 @@
 	;layout and a save of their own, and they were most of the time of make
 	;docs, one after another. What went wrong with any is printed
 	(when (nempty? jobs)
-		(defq select (list (mail-mbox) (mail-mbox) (mail-mbox)) working :t told 0
-			units (partition jobs 4)
-			herd (Jobs "lib/cwb/diagram_child.lisp" (first select) (second select)
-				(list (length units) 1 1)))
-		(. herd :add (map (# (cat (const (str-alloc +job_size)) (str %0))) units))
-		(mail-timeout (third select) 1000000 0)
-		(while working
-			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
-			(cond
-				((not msg) (setq working :nil))
-				((= idx 0) (. herd :launched msg))
-				((= idx 1)
-					(if (nempty? (defq said (slice msg +job_reply_size -1))) (print said))
-					(if (eql 0 (. herd :answered msg)) (setq working :nil)))
-				(:t ;a child that died, its job again, and not for ever
-					(mail-timeout (third select) 1000000 0)
-					(. herd :refresh (task-timeout 60))
-					(when (> (defq tries (. herd :tries)) told)
-						(setq told tries)
-						(when (>= tries 3)
-							(print "Error: no answer from the diagram makers")
-							(setq working :nil))))))
-		(. herd :close)))
+		(defq units (partition jobs 4))
+		(jobs-farm "lib/cwb/diagram_child.lisp"
+			(map (# (cat (const (str-alloc +job_size)) (str %0))) units)
+			(list (length units) 1 1) (task-timeout 60)
+			(lambda (msg herd)
+				(if (nempty? (defq said (slice msg +job_reply_size -1))) (print said))
+				(. herd :answered msg))
+			;a child that died has its job again, and not for ever
+			(lambda (tries)
+				(if (>= tries 3) (print "Error: no answer from the diagram makers"))))))
 
 (defun make-docs ()
 	(print "Scanning source files...")

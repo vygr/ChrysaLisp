@@ -138,17 +138,21 @@ file-dependent tasks to remote machines.
 
 ### Real-World Examples
 
-* **`lib/asm/asm.inc` (The VP Assembler)**: Uses `(Local (const create) (const
-  destroy) max_workers init_workers new_workers)`. When you run `make`, the
-  build system needs to read `.vp` files and write object files to disk. `Local`
-  guarantees these compile jobs stay on the machine that actually holds the
-  source code.
+* **`lib/task/jobs.inc` (`Jobs`)**: a queue of jobs handed out to a `Local`
+  farm of children, a child on each node of the machine. A task with nothing
+  else to do runs one to its end with `(jobs-farm path units size
+  retry_timeout on_reply [on_tries told])`: the mailboxes, the loop, a
+  `:refresh` each second, and a stop after a job has gone out three times.
+
+* **`lib/asm/asm.inc` (The VP Assembler)**: When you run `make`, the build
+  system needs to read `.vp` files and write object files to disk. Its
+  `(jobs-farm)` keeps these compile jobs on the machine that actually holds
+  the source code. `make docs` makes its diagrams the same way.
 
 * **`lib/task/cmd.inc` (`pipe-farm`)**: System commands like `docs`, `imports`,
   `grep`, and `wc` use `pipe-farm`. Since these commands process local text and
-  source files, they internally wrap a `Local` farm to map shell commands
-  efficiently across local cores without breaking due to missing files on remote
-  nodes.
+  source files, it is a `(jobs-farm)` of shell commands across local cores
+  that does not break on missing files on remote nodes.
 
 ---
 
