@@ -728,7 +728,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this)
 		(uint x y x1 y1))
 
@@ -739,12 +739,12 @@
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
-	(push-scope)
-	(assign `(,this) (vpx this))
+	(vp-alloc slot_size)
+	(assign `(,this) '((:rsp slot_this)))
 
 	(list-bind-args args `(,this ,data ,xp ,y ,x1 ,y1)
 		'(:canvas :str :num :num :num :num))
-	(assign `(,xp ,y ,x1 ,y1) (vpx x y x1 y1))
+	(save-fields :rsp '(slot_x slot_y slot_x1 slot_y1) `(,xp ,y ,x1 ,y1))
 	(loop-start)
 		(vp-cpy-rr xp x)
 		(loop-start)
@@ -757,12 +757,15 @@
 		(vp-add-cr 1 y)
 	(loop-until `(,y = ,y1))
 
-	(call :num :create (vpx (* (- x1 x) (- y1 y))) `(,args))
+	(load-fields :rsp '(slot_x slot_y slot_x1 slot_y1) '(:r2 :r3 :r0 :r1))
+	(vp-sub-rr :r2 :r0)
+	(vp-sub-rr :r3 :r1)
+	(vp-mul-rr :r1 :r0)
+	(call :num :create '(:r0) `(,args))
 
-	(assign (vpx this) `(,this))
-	(exit :canvas :lisp_tile `(,this ,args))
-	(pop-scope)
-	(return)
+	(exit :canvas :lisp_tile `((:rsp slot_this) ,args))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(canvas-tile canvas data x1 y1 x2 y2)" +error_msg_wrong_types))
