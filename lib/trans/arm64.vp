@@ -11,10 +11,7 @@
 ;decoded, before the passes.
 
 
-(defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31
-	;the VP's :d0 to :d15 are v16 to v31. v7, a register the ABI does not
-	;keep and the VP has not, is where a single is made to be stored
-	+a64_ft 7)
+(defq +a64_rt 29 +a64_rl 30 +a64_vrsp 28 +a64_sp 31)
 
 (defun w32 (&rest parts)
 	;an int into the output, the parts added: a number, or (reg shift
@@ -321,7 +318,11 @@
 	(emit-asr-rr e_asr_rr 0x9ac02800 :nil)
 	(emit-add-dd e_add_ff 0x1e602800 :nil) (emit-sub-dd e_sub_ff 0x1e603800 :nil)
 	(emit-mul-dd e_mul_ff 0x1e600800 :nil) (emit-div-dd e_div_ff 0x1e601800 :nil)
-	(emit-min-dd e_min_ff 0x1e605800 :nil) (emit-max-dd e_max_ff 0x1e604800 :nil)))
+	(emit-min-dd e_min_ff 0x1e605800 :nil) (emit-max-dd e_max_ff 0x1e604800 :nil)
+	;a single's are a double's with the type 0, the s view of the register
+	(emit-add-ff e_add_ss 0x1e202800 :nil) (emit-sub-ff e_sub_ss 0x1e203800 :nil)
+	(emit-mul-ff e_mul_ss 0x1e200800 :nil) (emit-div-ff e_div_ss 0x1e201800 :nil)
+	(emit-min-ff e_min_ss 0x1e205800 :nil) (emit-max-ff e_max_ss 0x1e204800 :nil)))
 
 (vp-label 'cmp_rr)
 	;arm64-cmp-rr
@@ -336,7 +337,12 @@
 	'((emit-cpy-dd e_cpy_ff 0x1e604000) (emit-cpy-rd e_cpy_rf 0x9e670000)
 	(emit-cpy-dr e_cpy_fr 0x9e660000) (emit-cvt-rd e_cvt_rf 0x9e620000)
 	(emit-cvt-dr e_cvt_fr 0x9e780000) (emit-sqrt-dd e_sqrt_ff 0x1e61c000)
-	(emit-abs-dd e_abs_ff 0x1e60c000) (emit-neg-dd e_neg_ff 0x1e614000)))
+	(emit-abs-dd e_abs_ff 0x1e60c000) (emit-neg-dd e_neg_ff 0x1e614000)
+	(emit-sqrt-ff e_sqrt_ss 0x1e21c000) (emit-abs-ff e_abs_ss 0x1e20c000)
+	(emit-neg-ff e_neg_ss 0x1e214000) (emit-cvt-rf e_cvt_rs 0x9e220000)
+	(emit-cvt-fr e_cvt_sr 0x9e380000) (emit-cvt-fd e_cvt_sf 0x1e22c000)
+	(emit-cvt-df e_cvt_fs 0x1e624000) (emit-cpy-rf e_cpy_rs 0x1e270000)
+	(emit-cpy-fr e_cpy_sr 0x1e260000)))
 
 (vp-label 'e_mul_rr)
 	(w32 (+ 0x9b000000 (<< 31 10)) '(:r1 16) '(:r0 5) '(:r1 0))
@@ -757,22 +763,14 @@
 	(emit-load-rrr-ui e_cpy_dr_ui 0xb8606800 16 5 0)))
 
 (each (lambda ((op label o1 o2 store size))
-		;(s c d) loads, (s d c) stores, of a float of size bytes, 8 or 4. A
-		;4 is a single in memory: loaded into the low of the register and
-		;made a double there, fcvt d,s, or made one in +a64_ft, fcvt s,d,
-		;and that stored
-		(defq single (= size 4)
-			done (if (and single (not store))
-				(lambda () (w32 0x1e22c000 '(:r0 5 31) '(:r0 0 31)) (vp-ret))
-				(lambda () (vp-ret))))
+		;(s c d) loads, (s d c) stores, of a float of size bytes, 8 for a
+		;double, 4 for a single, the s view of the register
+		(defq single (= size 4) done (lambda () (vp-ret)))
 		(vp-label label)
 		(cond
 			(store (vp-cpy-rr :r1 :r5) (vp-cpy-rr :r2 :r1) (vp-cpy-rr :r5 :r2))
 			((vp-cpy-rr :r0 :r5) (vp-cpy-rr :r2 :r0) (vp-cpy-rr :r5 :r2)))
 		;:r0 = the float, :r1 = c, :r2 = the base
-		(when (and single store)
-			(w32 (+ 0x1e624000 +a64_ft) '(:r0 5 31))
-			(vp-cpy-cr +a64_ft :r0))
 		(vpif '(:r1 >= -0x100))
 			(vpif '(:r1 <= 0xff))
 				(w32 o1 '(:r1 12 0x1ff) '(:r2 5 31) '(:r0 0 31))
@@ -801,21 +799,18 @@
 		(done)
 		(handler op label))
 	'((emit-load-rcd e_cpy_if_l 0xfc400000 0xfd400000 :nil 8) (emit-store-drc e_cpy_fi_l 0xfc000000 0xfd000000 :t 8)
-	(emit-load-rcd-i e_cpy_if_i_l 0xbc400000 0xbd400000 :nil 4) (emit-store-drc-i e_cpy_fi_i_l 0xbc000000 0xbd000000 :t 4)))
+	(emit-load-rcf e_cpy_is_l 0xbc400000 0xbd400000 :nil 4) (emit-store-frc e_cpy_si_l 0xbc000000 0xbd000000 :t 4)))
 
-;the register offset forms of a single, as the double's above, made a
-;double after the load, or made a single in +a64_ft before the store
-(vp-label 'e_cpy_df_i)
+;the register offset forms of a single, as the double's above
+(vp-label 'e_cpy_ds)
 	(w32 0xbc606800 '(:r0 5 31) '(:r1 16 31) '(:r2 0 31))
-	(w32 0x1e22c000 '(:r2 5 31) '(:r2 0 31))
 	(vp-ret)
-(handler 'emit-load-rrd-i 'e_cpy_df_i)
+(handler 'emit-load-rrf 'e_cpy_ds)
 
-(vp-label 'e_cpy_fd_i)
-	(w32 (+ 0x1e624000 +a64_ft) '(:r0 5 31))
-	(w32 (+ 0xbc206800 +a64_ft) '(:r1 5 31) '(:r2 16 31))
+(vp-label 'e_cpy_sd)
+	(w32 0xbc206800 '(:r0 0 31) '(:r1 5 31) '(:r2 16 31))
 	(vp-ret)
-(handler 'emit-store-drr-i 'e_cpy_fd_i)
+(handler 'emit-store-frr 'e_cpy_sd)
 
 ;;;;;;;;;;;;;;
 ; push and pop
@@ -977,10 +972,17 @@
 	(emit-bgt-rr e_bgt_rr 0xc cmp_rr) (emit-ble-rr e_ble_rr 0xd cmp_rr)
 	(emit-beq-dd e_beq_ff 0x0 cmp_ff) (emit-bne-dd e_bne_ff 0x1 cmp_ff)
 	(emit-bge-dd e_bge_ff 0xa cmp_ff) (emit-bgt-dd e_bgt_ff 0xc cmp_ff)
-	(emit-ble-dd e_ble_ff 0x9 cmp_ff) (emit-blt-dd e_blt_ff 0x4 cmp_ff)))
+	(emit-ble-dd e_ble_ff 0x9 cmp_ff) (emit-blt-dd e_blt_ff 0x4 cmp_ff)
+	(emit-beq-ff e_beq_ss 0x0 cmp_ss) (emit-bne-ff e_bne_ss 0x1 cmp_ss)
+	(emit-bge-ff e_bge_ss 0xa cmp_ss) (emit-bgt-ff e_bgt_ss 0xc cmp_ss)
+	(emit-ble-ff e_ble_ss 0x9 cmp_ss) (emit-blt-ff e_blt_ss 0x4 cmp_ss)))
 
 (vp-label 'cmp_ff)
 	(w32 0x1e602000 '(:r0 16) '(:r1 5))
+	(vp-ret)
+
+(vp-label 'cmp_ss)
+	(w32 0x1e202000 '(:r0 16) '(:r1 5))
 	(vp-ret)
 
 (each (lambda ((op label cc cmp))
@@ -1336,7 +1338,8 @@
 (defq +pp_barrier 1 +pp_call 2 +pp_pair 3 +pp_rr 4 +pp_cr 5 +pp_add_cr 6 +pp_mul_cr 7 +pp_limm 8
 	pp_branches '(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 		emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd)
+		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd
+		emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff)
 	pp_calls '(emit-call emit-call-r emit-call-rc emit-call-p)
 	pp_hs '(emit-arm64-call-h emit-arm64-call-r-h emit-arm64-call-rc-h emit-arm64-call-p-h)
 	pp_ms '(emit-arm64-call-m emit-arm64-call-r-m emit-arm64-call-rc-m emit-arm64-call-p-m)
@@ -1926,8 +1929,8 @@
 			((find %0 '(emit-arm64-ldp emit-arm64-ldp-i emit-arm64-ldp-ui emit-arm64-ldp-f)) '(0 1))
 			((find %0 '(emit-arm64-stp emit-arm64-stp-i emit-arm64-stp-f)) '(2 3))
 			((find %0 '(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub
-				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcd-i)) '(0 1))
-			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-drc-i)) '(1 2))
+				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcf)) '(0 1))
+			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)) '(1 2))
 			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops)

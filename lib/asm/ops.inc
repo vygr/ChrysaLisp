@@ -23,7 +23,12 @@
 	emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd emit-sqrt-dd
 	emit-abs-dd emit-neg-dd emit-cpy-dd emit-cvt-rd emit-cvt-dr emit-cpy-rd
 	emit-cpy-dr emit-load-rcd emit-store-drc emit-load-rrd emit-store-drr
-	emit-load-rcd-i emit-store-drc-i emit-load-rrd-i emit-store-drr-i emit-rem-rr emit-rem-rr-u
+	emit-load-rcf emit-store-frc emit-load-rrf emit-store-frr emit-rem-rr emit-rem-rr-u
+	;the single float ops, a register given as the double it is of
+	emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
+	emit-sqrt-ff emit-abs-ff emit-neg-ff emit-beq-ff emit-bne-ff emit-bge-ff
+	emit-blt-ff emit-ble-ff emit-bgt-ff emit-cvt-rf emit-cvt-fr emit-cvt-fd
+	emit-cvt-df emit-cpy-rf emit-cpy-fr
 	;the nop the VP optimiser puts in place of an instruction it removes. It
 	;is never emitted, but it is looked up, so it has its slot in every map
 	;of the ops, or each lookup of it would search the whole map, and miss.

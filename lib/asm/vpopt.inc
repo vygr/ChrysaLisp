@@ -20,9 +20,9 @@
 		''(emit-store-rrc emit-store-rrc-i emit-store-rrc-b emit-store-rrc-s)
 	;those of a float, with an offset where an int op has it
 	+opt_read_ops_float
-		''(emit-load-rcd emit-load-rcd-i)
+		''(emit-load-rcd emit-load-rcf)
 	+opt_write_ops_float
-		''(emit-store-drc emit-store-drc-i)
+		''(emit-store-drc emit-store-frc)
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr))
 
@@ -50,7 +50,8 @@
 					emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
 					emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
 					emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-rc emit-beq-dd emit-bne-dd
-					emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd)) -1)))
+					emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd
+					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)) -1)))
 			+vp_emit_ops (pmap))
 	+opt_out_idx_map
 		(reduce (# (pinsert %0 %1
@@ -69,7 +70,10 @@
 						emit-add-dd emit-sub-dd emit-mul-dd emit-div-dd emit-min-dd emit-max-dd
 						emit-sqrt-dd emit-abs-dd emit-neg-dd emit-cpy-dd
 						emit-cvt-rd emit-cvt-dr emit-cpy-rd emit-cpy-dr
-						emit-load-rcd emit-load-rrd emit-load-rcd-i emit-load-rrd-i emit-lnot-rr)) -2))))
+						emit-add-ff emit-sub-ff emit-mul-ff emit-div-ff emit-min-ff emit-max-ff
+						emit-sqrt-ff emit-abs-ff emit-neg-ff emit-cvt-fd emit-cvt-df
+						emit-cvt-rf emit-cvt-fr emit-cpy-rf emit-cpy-fr
+						emit-load-rcd emit-load-rrd emit-load-rcf emit-load-rrf emit-lnot-rr)) -2))))
 			+vp_emit_ops (pmap)))
 
 ;one lookup an instruction. For the sweep, the pass an op is for, and its

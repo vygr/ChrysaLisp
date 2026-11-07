@@ -21,6 +21,8 @@
 ;where it is.
 
 (defq +sv_fregs ''(:d0 :d1 :d2 :d3 :d4 :d5 :d6 :d7 :d8 :d9 :d10 :d11 :d12 :d13 :d14 :d15)
+	;each as a single, what a buffer's floats are
+	+sv_sregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15)
 	+sv_rregs ''(:r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10)
 	+sv_sin_trash ''(:d0 :d1 :d2 :d3)
 	+sv_1 (n2r 1) +sv_hpi (str-to-real "1.5707963267948966")
@@ -401,7 +403,9 @@
 			(sv-puts b)
 			(cond
 				((eql ta :fbuf)
-					(sv-emit 'vp-load-rcd-i (first a) 0 (defq r (sv-getf)))
+					(sv-emit 'vp-load-rcf (first a) 0
+						(defq s (elem-get +sv_sregs (find (defq r (sv-getf)) +sv_fregs))))
+					(sv-emit 'vp-cvt-fd s r)
 					(sv-puts a) (list r))
 				(:t (sv-emit 'vp-load-rcr-i (first a) 0 (first a)) a)))
 		((defq i (find op '(<< >>)))
@@ -755,7 +759,14 @@
 						(sv-emit 'vp-shl-cr 2 (first at))
 						(sv-emit 'vp-load-rcr :r13 (sv-var a) (defq r (sv-getr)))
 						(sv-emit 'vp-add-rr (first at) r)
-						(sv-emit (if (eql (first c) :float) 'vp-store-drc-i 'vp-store-rrc-i) (first regs) r 0)
+						(cond
+							((eql (first c) :float)
+								;the nearest single, in a register of its own
+								(defq ft (sv-getf) s (elem-get +sv_sregs (find ft +sv_fregs)))
+								(sv-emit 'vp-cvt-df (first regs) s)
+								(sv-emit 'vp-store-frc s r 0)
+								(sv-put ft))
+							((sv-emit 'vp-store-rrc-i (first regs) r 0)))
 						(sv-puts regs) (sv-puts at) (sv-put r))
 					(:return (cond
 							((not a))

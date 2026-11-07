@@ -49,15 +49,16 @@
 		emit-call-abi emit-jmp emit-jmp-r emit-jmp-rc emit-jmp-p emit-ret emit-sync
 		emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 		emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd)
+		emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd emit-ble-dd emit-bgt-dd
+		emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff emit-ble-ff emit-bgt-ff)
 	+x_dead_ops ''(emit-cpy-cr emit-load-rcr emit-load-rcr-b emit-load-rcr-s
 		emit-load-rcr-i emit-load-rcr-ub emit-load-rcr-us emit-load-rcr-ui
 		emit-lea-rcr emit-lea-pr emit-load-pr emit-xor-rr)
 	+op_cpy_ir (find 'emit-load-rcr +vpb_all_ops)
 	+op_cpy_fi (find 'emit-store-drc +vpb_all_ops)
-	+op_cpy_fi_i (find 'emit-store-drc-i +vpb_all_ops)
+	+op_cpy_si (find 'emit-store-frc +vpb_all_ops)
 	+op_cpy_fd (find 'emit-store-drr +vpb_all_ops)
-	+op_cpy_fd_i (find 'emit-store-drr-i +vpb_all_ops)
+	+op_cpy_sd (find 'emit-store-frr +vpb_all_ops)
 	+op_lea_d (find 'emit-lea-rrr +vpb_all_ops)
 	+op_alu_ir (find 'emit-x64-alu-ir +vpb_all_ops))
 
@@ -378,9 +379,9 @@
 						(assign '((:r9 +vpbr_op)) '(:r1))
 						(vpif `(:r1 /= ,+op_nop))
 							(gotoif `(:r1 = ,+op_cpy_fi) 'fl_fail_pop)
-							(gotoif `(:r1 = ,+op_cpy_fi_i) 'fl_fail_pop)
+							(gotoif `(:r1 = ,+op_cpy_si) 'fl_fail_pop)
 							(gotoif `(:r1 = ,+op_cpy_fd) 'fl_fail_pop)
-							(gotoif `(:r1 = ,+op_cpy_fd_i) 'fl_fail_pop)
+							(gotoif `(:r1 = ,+op_cpy_sd) 'fl_fail_pop)
 							(assign '((:r9 +vpbr_cnt)) '(:r2))
 							(vpif '(:r2 /= 0))
 								(vp-cpy-rr :r2 :r7)
@@ -962,39 +963,9 @@
 	(emit-store-rrr-i e_cpy_rd_i :dstore 4 0x89 0)
 	(emit-load-rcd e_cpy_if :load 8 ,(op2 0x0f 0x10) 0xf2)
 	(emit-store-drc e_cpy_fi :store 8 ,(op2 0x0f 0x11) 0xf2)
-	;a single loaded is made a double as it is, cvtss2sd
-	(emit-load-rcd-i e_cpy_if_i :load 8 ,(op2 0x0f 0x5a) 0xf3)))
-
-(defun xmm-self (r o &optional p)
-	;an op of xmm register r with itself, 0x0f o, with the prefix p if given
-	(if p (eb p))
-	(eb 0x40 (list r -1 8) (list r -3 8))
-	(eb 0x0f)
-	(eb o)
-	(eb 0xc0 (list r 3 7) (list r 0 7)))
-
-(defun to-single (r)
-	;the double of xmm register r made a single in its low 32 bits, and kept
-	;whole in its high 64, movlhps then cvtsd2ss, the VP having no xmm spare
-	(xmm-self r 0x16)
-	(xmm-self r 0x5a 0xf2))
-
-(vp-label 'e_cpy_fi_i)
-	;(s d c), a single stored, movss, and the double back, movhlps
-	(vp-push :r0)
-	(to-single :r0)
-	(vp-load-rcr :rsp 0 :r0)
-	(vp-cpy-rr :r2 :r4)
-	(vp-cpy-rr :r1 :r3)
-	(vp-cpy-rr :r0 :r2)
-	(vp-cpy-cr 8 :r0)
-	(vp-cpy-cr (op2 0x0f 0x11) :r1)
-	(vp-cpy-cr 0xf3 :r5)
-	(vp-call 'mem_ir)
-	(vp-pop :r0)
-	(xmm-self :r0 0x12)
-	(vp-ret)
-(handler 'emit-store-drc-i 'e_cpy_fi_i)
+	;a single, movss, the low 32 bits of the xmm register
+	(emit-load-rcf e_cpy_is :load 8 ,(op2 0x0f 0x10) 0xf3)
+	(emit-store-frc e_cpy_si :store 8 ,(op2 0x0f 0x11) 0xf3)))
 
 (vp-label 'e_lea_i)
 	;(s c d)
@@ -1022,9 +993,8 @@
 (handler 'emit-lea-pr 'e_lea_p)
 
 (each (lambda ((op label form o pfx))
-		;of the floats, the double memory forms, the index not :rsp, and a
-		;single's: loaded by cvtss2sd, or stored as e_cpy_fi_i does
-		(defq single (and (eql form :dstore) (= pfx 0xf3)))
+		;of the floats, the memory forms, the index not :rsp, movsd of a
+		;double and movss of a single
 		(vp-label label)
 		(cond
 			((eql form :dload) (vp-cpy-rr :r1 :r4) (vp-cpy-rr :r0 :r3))
@@ -1041,18 +1011,10 @@
 		(vp-xor-rr :r0 :r0)
 		(vp-cpy-cr o :r1)
 		(vp-cpy-cr pfx :r5)
-		(cond
-			(single
-				(vp-push :r2)
-				(to-single :r2)
-				(vp-call 'mem_dr)
-				(vp-pop :r0)
-				(xmm-self :r0 0x12)
-				(vp-ret))
-			((vp-jmp 'mem_dr)))
+		(vp-jmp 'mem_dr)
 		(handler op label))
 	`((emit-load-rrd e_cpy_df :dload ,(op2 0x0f 0x10) 0xf2) (emit-store-drr e_cpy_fd :dstore ,(op2 0x0f 0x11) 0xf2)
-	(emit-load-rrd-i e_cpy_df_i :dload ,(op2 0x0f 0x5a) 0xf3) (emit-store-drr-i e_cpy_fd_i :dstore ,(op2 0x0f 0x11) 0xf3)))
+	(emit-load-rrf e_cpy_ds :dload ,(op2 0x0f 0x10) 0xf3) (emit-store-frr e_cpy_sd :dstore ,(op2 0x0f 0x11) 0xf3)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; swaps, shifts and logic
@@ -1495,13 +1457,21 @@
 ; floating point
 ;;;;;;;;;;;;;;;;
 
+(vp-label 'shift_xmm_d)
+	;x64-shift-xmm-d, as shift_xmm, of each 32 bits
+	(vp-cpy-cr 0x72 :r3)
+	(vp-jmp 'shift_xmm_o)
+
 (vp-label 'shift_xmm)
-	;x64-shift-xmm, :r0 = d, :r1 = digit, :r2 = i
+	;x64-shift-xmm, :r0 = d, :r1 = digit, :r2 = i, of each 64 bits
+	(vp-cpy-cr 0x73 :r3)
+(vp-label 'shift_xmm_o)
 	(eb 0x66)
 	(vpif '(:r0 >= 8))
 		(eb 0x41)
 	(endif)
-	(ebs 0x0f 0x73)
+	(eb 0x0f)
+	(eb '(:r3 0))
 	(eb 0xc0 '(:r1 3) '(:r0 0 7))
 	(eb '(:r2 0))
 	(vp-ret)
@@ -1529,6 +1499,15 @@
 	(emit-div-dd e_div_ff 0x5e) (emit-min-dd e_min_ff 0x5d) (emit-max-dd e_max_ff 0x5f)
 	(emit-sqrt-dd e_sqrt_ff 0x51)))
 
+(each (lambda ((op label p o))
+		;a single's as a double's, 0xf3 for 0xf2, and between them
+		(vp-label label)
+		(to-xmm 'xmm_rr p o :nil)
+		(handler op label))
+	'((emit-add-ff e_add_ss 0xf3 0x58) (emit-sub-ff e_sub_ss 0xf3 0x5c) (emit-mul-ff e_mul_ss 0xf3 0x59)
+	(emit-div-ff e_div_ss 0xf3 0x5e) (emit-min-ff e_min_ss 0xf3 0x5d) (emit-max-ff e_max_ss 0xf3 0x5f)
+	(emit-sqrt-ff e_sqrt_ss 0xf3 0x51) (emit-cvt-fd e_cvt_sf 0xf3 0x5a) (emit-cvt-df e_cvt_fs 0xf2 0x5a)))
+
 (vp-label 'e_cpy_rf)
 	(to-xmm 'gpr_xmm 0x66 0x6e :nil)
 (handler 'emit-cpy-rd 'e_cpy_rf)
@@ -1551,33 +1530,69 @@
 	(to-xmm 'gpr_xmm 0xf2 0x2c :nil)
 (handler 'emit-cvt-dr 'e_cvt_fr)
 
-(vp-label 'e_abs_ff)
-	(vp-push :r1)
-	(vp-call 'e_cpy_ff)
-	(vp-load-rcr :rsp 0 :r0)
-	(vp-cpy-cr 6 :r1)
-	(vp-cpy-cr 1 :r2)
-	(vp-call 'shift_xmm)
-	(vp-pop :r0)
-	(vp-cpy-cr 2 :r1)
-	(vp-cpy-cr 1 :r2)
-	(vp-jmp 'shift_xmm)
-(handler 'emit-abs-dd 'e_abs_ff)
+(vp-label 'e_cvt_rs)
+	(to-xmm 'gpr_xmm 0xf3 0x2a :nil)
+(handler 'emit-cvt-rf 'e_cvt_rs)
 
-(vp-label 'e_neg_ff)
-	(vp-push :r0 :r1)
-	(x-regs 'h_push +x64_rax)
-	(vp-load-rcr :rsp 8 :r0)
-	(vp-cpy-cr +x64_rax :r1)
+(vp-label 'e_cvt_sr)
+	(to-xmm 'gpr_xmm 0xf3 0x2c :nil)
+(handler 'emit-cvt-fr 'e_cvt_sr)
+
+;a single's bits are the low 32 of the xmm register, movq both ways, and
+;to a general register the top 32 made 0, mov r32, r32
+(handler 'emit-cpy-rf 'e_cpy_rf)
+
+(vp-label 'e_cpy_sr)
+	(vp-push :r1)
 	(vp-call 'e_cpy_fr)
-	(ebs 0x48 0x0f 0xba 0xf8 63)
-	(vp-cpy-cr +x64_rax :r0)
-	(vp-load-rcr :rsp 0 :r1)
-	(vp-call 'e_cpy_rf)
-	(vp-pop :r0 :r1)
-	(x-regs 'h_pop +x64_rax)
+	(vp-pop :r1)
+	(eb 0x40 '(:r1 -1 8) '(:r1 -3 8))
+	(eb 0x89)
+	(eb 0xc0 '(:r1 3 7) '(:r1 0 7))
 	(vp-ret)
-(handler 'emit-neg-dd 'e_neg_ff)
+(handler 'emit-cpy-fr 'e_cpy_sr)
+
+(each (lambda ((op label shift))
+		;the sign bit made 0, a shift left then right of 1
+		(vp-label label)
+		(vp-push :r1)
+		(vp-call 'e_cpy_ff)
+		(vp-load-rcr :rsp 0 :r0)
+		(vp-cpy-cr 6 :r1)
+		(vp-cpy-cr 1 :r2)
+		(vp-call shift)
+		(vp-pop :r0)
+		(vp-cpy-cr 2 :r1)
+		(vp-cpy-cr 1 :r2)
+		(vp-jmp shift)
+		(handler op label))
+	'((emit-abs-dd e_abs_ff shift_xmm) (emit-abs-ff e_abs_ss shift_xmm_d)))
+
+(each (lambda ((op label bit))
+		;the sign bit flipped in rax, btc
+		(vp-label label)
+		(vp-push :r0 :r1)
+		(x-regs 'h_push +x64_rax)
+		(vp-load-rcr :rsp 8 :r0)
+		(vp-cpy-cr +x64_rax :r1)
+		(vp-call 'e_cpy_fr)
+		(ebs 0x48 0x0f 0xba 0xf8 bit)
+		(vp-cpy-cr +x64_rax :r0)
+		(vp-load-rcr :rsp 0 :r1)
+		(vp-call 'e_cpy_rf)
+		(vp-pop :r0 :r1)
+		(x-regs 'h_pop +x64_rax)
+		(vp-ret)
+		(handler op label))
+	'((emit-neg-dd e_neg_ff 63) (emit-neg-ff e_neg_ss 31)))
+
+(vp-label 'cmp_ss)
+	;x64-cmp-ss, (s d), ucomiss, no prefix
+	(eb 0x40 '(:r1 -1 8) '(:r0 -3 8))
+	(eb 0x0f)
+	(eb 0x2e)
+	(eb 0xc0 '(:r1 3 7) '(:r0 0 7))
+	(vp-ret)
 
 (vp-label 'cmp_ff)
 	;x64-cmp-ff, (s d)
@@ -1601,47 +1616,53 @@
 (vp-label 'branch_size_6)
 	(vp-ret)
 
-(vp-label 'e_beq_ff)
-	;not parity, then equal
-	(vp-push :r2 :r7)
-	(vp-call 'cmp_ff)
-	(vp-load-rcr :rsp 8 :r1)
-	(vp-load-rcr :rsp 0 :r7)
-	(vp-sub-cr 2 :r1)
-	(vp-call 'branch_size)
-	(vp-push :r0)
-	(eb 0x7a)
-	(vp-pop :r0)
-	(eb '(:r0 0))
-	(vp-pop :r1 :r7)
-	(vp-cpy-cr 0x74 :r0)
-	(vp-jmp 'branch)
-(handler 'emit-beq-dd 'e_beq_ff)
+(each (lambda ((op label cmp))
+		;not parity, then equal
+		(vp-label label)
+		(vp-push :r2 :r7)
+		(vp-call cmp)
+		(vp-load-rcr :rsp 8 :r1)
+		(vp-load-rcr :rsp 0 :r7)
+		(vp-sub-cr 2 :r1)
+		(vp-call 'branch_size)
+		(vp-push :r0)
+		(eb 0x7a)
+		(vp-pop :r0)
+		(eb '(:r0 0))
+		(vp-pop :r1 :r7)
+		(vp-cpy-cr 0x74 :r0)
+		(vp-jmp 'branch)
+		(handler op label))
+	'((emit-beq-dd e_beq_ff cmp_ff) (emit-beq-ff e_beq_ss cmp_ss)))
 
-(vp-label 'e_bne_ff)
-	;parity, then not equal
-	(vp-push :r2 :r7)
-	(vp-call 'cmp_ff)
-	(vp-load-rcr :rsp 8 :r1)
-	(vp-load-rcr :rsp 0 :r7)
-	(vp-cpy-cr 0x7a :r0)
-	(vp-call 'branch)
-	(vp-pop :r1 :r7)
-	(vp-cpy-cr 0x75 :r0)
-	(vp-jmp 'branch)
-(handler 'emit-bne-dd 'e_bne_ff)
+(each (lambda ((op label cmp))
+		;parity, then not equal
+		(vp-label label)
+		(vp-push :r2 :r7)
+		(vp-call cmp)
+		(vp-load-rcr :rsp 8 :r1)
+		(vp-load-rcr :rsp 0 :r7)
+		(vp-cpy-cr 0x7a :r0)
+		(vp-call 'branch)
+		(vp-pop :r1 :r7)
+		(vp-cpy-cr 0x75 :r0)
+		(vp-jmp 'branch)
+		(handler op label))
+	'((emit-bne-dd e_bne_ff cmp_ff) (emit-bne-ff e_bne_ss cmp_ss)))
 
-(each (lambda ((op label o swap))
+(each (lambda ((op label o swap cmp))
 		(vp-label label)
 		(vp-push :r2 :r7)
 		(when swap (vp-cpy-rr :r0 :r2) (vp-cpy-rr :r1 :r0) (vp-cpy-rr :r2 :r1))
-		(vp-call 'cmp_ff)
+		(vp-call cmp)
 		(vp-pop :r1 :r7)
 		(vp-cpy-cr o :r0)
 		(vp-jmp 'branch)
 		(handler op label))
-	'((emit-blt-dd e_blt_ff 0x77 :t) (emit-bgt-dd e_bgt_ff 0x77 :nil)
-	(emit-ble-dd e_ble_ff 0x73 :t) (emit-bge-dd e_bge_ff 0x73 :nil)))
+	'((emit-blt-dd e_blt_ff 0x77 :t cmp_ff) (emit-bgt-dd e_bgt_ff 0x77 :nil cmp_ff)
+	(emit-ble-dd e_ble_ff 0x73 :t cmp_ff) (emit-bge-dd e_bge_ff 0x73 :nil cmp_ff)
+	(emit-blt-ff e_blt_ss 0x77 :t cmp_ss) (emit-bgt-ff e_bgt_ss 0x77 :nil cmp_ss)
+	(emit-ble-ff e_ble_ss 0x73 :t cmp_ss) (emit-bge-ff e_bge_ss 0x73 :nil cmp_ss)))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; stack and ABI links

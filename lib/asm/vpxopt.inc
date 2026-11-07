@@ -13,10 +13,10 @@
 	+opt_sxx_rr_ops
 		''(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
 	+opt_read_ops
-		''(vp-load-rcr vp-load-rcd vp-load-rcd-i vp-load-rcr-b vp-load-rcr-s vp-load-rcr-i
+		''(vp-load-rcr vp-load-rcd vp-load-rcf vp-load-rcr-b vp-load-rcr-s vp-load-rcr-i
 			vp-load-rcr-ub vp-load-rcr-us vp-load-rcr-ui)
 	+opt_write_ops
-		''(vp-store-rrc vp-store-drc vp-store-drc-i vp-store-rrc-b vp-store-rrc-s vp-store-rrc-i)
+		''(vp-store-rrc vp-store-drc vp-store-frc vp-store-rrc-b vp-store-rrc-s vp-store-rrc-i)
 	+opt_rr_ops
 		''(vp-add-rr vp-sub-rr vp-mul-rr vp-and-rr vp-or-rr vp-xor-rr vp-shl-rr vp-shr-rr vp-asr-rr)
 	+opt_cr_ops

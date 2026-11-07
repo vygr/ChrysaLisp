@@ -90,11 +90,16 @@ enum Opcodes {
 	// Group 15: Float Convert/Copy
 	vp64_cvt_rf, vp64_cvt_fr, vp64_cpy_rf, vp64_cpy_fr,
 
-	// Group 17: Float Memory, a 32 bit float, the register a double
-	vp64_cpy_if_i, vp64_cpy_if_i_w, vp64_cpy_fi_i, vp64_cpy_fi_i_w, vp64_cpy_df_i, vp64_cpy_fd_i,
+	// Group 17: Float Memory, a single
+	vp64_cpy_is, vp64_cpy_is_w, vp64_cpy_si, vp64_cpy_si_w, vp64_cpy_ds, vp64_cpy_sd,
 
 	// Group 18: Remainder
 	vp64_rem_rr, vp64_rem_rr_u,
+
+	// Group 19: Single Float
+	vp64_add_ss, vp64_sub_ss, vp64_mul_ss, vp64_div_ss, vp64_min_ss,
+	vp64_max_ss, vp64_sqrt_ss, vp64_abs_ss, vp64_neg_ss, vp64_cmp_s,
+	vp64_cvt_rs, vp64_cvt_sr, vp64_cvt_sf, vp64_cvt_fs, vp64_cpy_rs, vp64_cpy_sr,
 };
 
 
@@ -308,10 +313,49 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 #define vp_cpy_fi(sr, br, o) vp_mem_fi(sr, br, o, double)
 #define vp_cpy_df(br, ir, dr) vp_mem_df(br, ir, dr, double)
 #define vp_cpy_fd(sr, br, ir) vp_mem_fd(sr, br, ir, double)
-#define vp_cpy_if_i(br, o, dr) vp_mem_if(br, o, dr, float)
-#define vp_cpy_fi_i(sr, br, o) vp_mem_fi(sr, br, o, float)
-#define vp_cpy_df_i(br, ir, dr) vp_mem_df(br, ir, dr, float)
-#define vp_cpy_fd_i(sr, br, ir) vp_mem_fd(sr, br, ir, float)
+
+//a single is the low 32 bits of a float register, the high 32 bits 0, its
+//bits as they are, by memcpy
+static inline float vp_sget(const double *f)
+{
+	float s;
+	memcpy(&s, f, sizeof(float));
+	return s;
+}
+
+static inline void vp_sset(double *f, float s)
+{
+	uint32_t w;
+	memcpy(&w, &s, sizeof(float));
+	uint64_t b = w;
+	memcpy(f, &b, sizeof(uint64_t));
+}
+
+#define vp_mem_is(br, o, dr) { int64_t _m = regs[br] + (o); vp_al(_m, float) vp_sset(&fregs[dr], *(float*)_m); }
+#define vp_mem_si(sr, br, o) { int64_t _m = regs[br] + (o); vp_al(_m, float) *(float*)_m = vp_sget(&fregs[sr]); }
+#define vp_cpy_is(br, o, dr) vp_mem_is(br, o, dr)
+#define vp_cpy_si(sr, br, o) vp_mem_si(sr, br, o)
+#define vp_cpy_ds(br, ir, dr) vp_mem_is(br, regs[ir], dr)
+#define vp_cpy_sd(sr, br, ir) vp_mem_si(sr, br, regs[ir])
+
+#define vp_op_ss(op, sr, dr) vp_sset(&fregs[dr], vp_sget(&fregs[dr]) op vp_sget(&fregs[sr]))
+#define vp_add_ss(sr, dr) vp_op_ss(+, sr, dr)
+#define vp_sub_ss(sr, dr) vp_op_ss(-, sr, dr)
+#define vp_mul_ss(sr, dr) vp_op_ss(*, sr, dr)
+#define vp_div_ss(sr, dr) vp_op_ss(/, sr, dr)
+#define vp_min_ss(sr, dr) vp_sset(&fregs[dr], std::fmin(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
+#define vp_max_ss(sr, dr) vp_sset(&fregs[dr], std::fmax(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
+#define vp_sqrt_ss(sr, dr) vp_sset(&fregs[dr], std::sqrt(vp_sget(&fregs[sr])))
+#define vp_abs_ss(sr, dr) vp_sset(&fregs[dr], std::abs(vp_sget(&fregs[sr])))
+#define vp_neg_ss(sr, dr) vp_sset(&fregs[dr], -vp_sget(&fregs[sr]))
+//a single is a double exactly, so the compare is of the doubles
+#define vp_cmp_s(sr, dr) { compare_f1 = vp_sget(&fregs[sr]); compare_f2 = vp_sget(&fregs[dr]); }
+#define vp_cvt_rs(sr, dr) vp_sset(&fregs[dr], (float)regs[sr])
+#define vp_cvt_sr(sr, dr) regs[dr] = vp_f2i(vp_sget(&fregs[sr]))
+#define vp_cvt_sf(sr, dr) fregs[dr] = vp_sget(&fregs[sr])
+#define vp_cvt_fs(sr, dr) vp_sset(&fregs[dr], (float)fregs[sr])
+#define vp_cpy_rs(sr, dr) { uint32_t _w = (uint32_t)regs[sr]; float _s; memcpy(&_s, &_w, sizeof(float)); vp_sset(&fregs[dr], _s); }
+#define vp_cpy_sr(sr, dr) { uint32_t _w; float _s = vp_sget(&fregs[sr]); memcpy(&_w, &_s, sizeof(float)); regs[dr] = _w; }
 
 #define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
 #define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
@@ -469,12 +513,12 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 	case vp64_cpy_df: vp_cpy_df(vd_sr(), vd_sc(), vd_dr()); break; \
 	case vp64_cpy_fd: vp_cpy_fd(vd_dr(), vd_sr(), vd_sc()); break; \
 	case vp64_cmp_f: vp_cmp_f(vd_sr(), vd_dr()); break; \
-	case vp64_cpy_if_i: vp_cpy_if_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_cpy_if_i_w: vp_cpy_if_i(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_cpy_fi_i: vp_cpy_fi_i(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_cpy_fi_i_w: vp_cpy_fi_i(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_cpy_df_i: vp_cpy_df_i(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_cpy_fd_i: vp_cpy_fd_i(vd_dr(), vd_sr(), vd_sc()); break;
+	case vp64_cpy_is: vp_cpy_is(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_cpy_is_w: vp_cpy_is(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_cpy_si: vp_cpy_si(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_cpy_si_w: vp_cpy_si(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_cpy_ds: vp_cpy_ds(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_cpy_sd: vp_cpy_sd(vd_dr(), vd_sr(), vd_sc()); break;
 
 #define VP_B_ALL \
 	VP_B_OP(beq) \
@@ -527,6 +571,24 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 	VP_OP_RR(cpy, rf) \
 	VP_OP_RR(cpy, fr)
 
+#define VP_S_ALL \
+	VP_OP_RR(add, ss) \
+	VP_OP_RR(sub, ss) \
+	VP_OP_RR(mul, ss) \
+	VP_OP_RR(div, ss) \
+	VP_OP_RR(min, ss) \
+	VP_OP_RR(max, ss) \
+	VP_OP_RR(sqrt, ss) \
+	VP_OP_RR(abs, ss) \
+	VP_OP_RR(neg, ss) \
+	VP_OP_RR(cmp, s) \
+	VP_OP_RR(cvt, rs) \
+	VP_OP_RR(cvt, sr) \
+	VP_OP_RR(cvt, sf) \
+	VP_OP_RR(cvt, fs) \
+	VP_OP_RR(cpy, rs) \
+	VP_OP_RR(cpy, sr)
+
 template <bool V>
 static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_calls)
 {
@@ -554,7 +616,7 @@ static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_ca
 		{
 			VP_CR_ALL VP_RR_ALL VP_SHIFT_ALL VP_DIV_ALL VP_M_ALL VP_CMP_ALL
 			VP_IR_ALL VP_RI_ALL VP_RD_ALL VP_DR_ALL VP_F_MEM_ALL VP_B_ALL
-			VP_F_BRANCH_ALL VP_JC_ALL VP_SYS_ALL VP_F_ALU_ALL VP_F_CVT_ALL
+			VP_F_BRANCH_ALL VP_JC_ALL VP_SYS_ALL VP_F_ALU_ALL VP_F_CVT_ALL VP_S_ALL
 			default: printf("Unrecognised opcode %d\n", (int)(ir & 0xff)); break;
 		}
 	}

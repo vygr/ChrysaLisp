@@ -90,6 +90,25 @@
 		(throw "Copy cycle detected !" (list s d))
 		(setq src s dst d)))
 
+(defun assign-single-in (op b o d)
+	;a single from memory to a float register, to a double by its single
+	(cond
+		((vp-sreg? d) (op b o d))
+		((op b o (defq f (elem-get +vp_sregs (vp-freg? d)))) (vp-cvt-fd f d))))
+
+(defun assign-single-out (s)
+	;a float register to 32 bits is a single
+	(if (vp-sreg? s) s (throw "A double to 32 bits, (vp-cvt-df) it to a single first !" s)))
+
+(defun assign-ff (s d)
+	;a float register to another, of its width, or made the other's
+	(defq fs (vp-sreg? s) fd (vp-sreg? d))
+	(cond
+		((and fs fd) (vp-cpy-ff s d))
+		(fs (vp-cvt-fd s d))
+		(fd (vp-cvt-df s d))
+		((vp-cpy-dd s d))))
+
 (defun assign-asm-to-asm (src dst)
 	(when (/= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
@@ -107,7 +126,7 @@
 					(:d (vp-store-rrr %0 (first %1) (second %1)))
 					(:iub (vp-store-rrc-b %0 (first %1) (second %1)))
 					(:ib (vp-store-rrc-b %0 (first %1) (second %1)))
-					(:f (vp-cpy-rd %0 %1))
+					(:f (if (vp-sreg? %1) (vp-cpy-rf %0 %1) (vp-cpy-rd %0 %1)))
 					(:ds (vp-store-rrr-s %0 (first %1) (second %1)))
 					(:dub (vp-store-rrr-b %0 (first %1) (second %1)))
 					(:db (vp-store-rrr-b %0 (first %1) (second %1)))
@@ -129,17 +148,17 @@
 				(:d (pcase (assign-dst-type %1) +pkeys2
 					(:r (vp-load-rrr (first %0) (second %0) %1))
 					(:f (vp-load-rrd (first %0) (second %0) %1))))
-				;of 32 bits to a float register, a single made a double
+				;of 32 bits to a float register, a single, made a double for a double
 				(:ii (pcase (assign-dst-type %1) +pkeys2
-					(:f (vp-load-rcd-i (first %0) (second %0) %1))
+					(:f (assign-single-in (const vp-load-rcf) (first %0) (second %0) %1))
 					(:t (vp-load-rcr-i (first %0) (second %0) %1))))
 				(:f (pcase (assign-dst-type %1) +pkeys2
-					(:r (vp-cpy-dr %0 %1))
+					(:r (if (vp-sreg? %0) (vp-cpy-fr %0 %1) (vp-cpy-dr %0 %1)))
 					(:d (vp-store-drr %0 (first %1) (second %1)))
-					(:f (vp-cpy-dd %0 %1))
+					(:f (assign-ff %0 %1))
 					(:i (vp-store-drc %0 (first %1) (second %1)))
-					(:ii (vp-store-drc-i %0 (first %1) (second %1)))
-					(:di (vp-store-drr-i %0 (first %1) (second %1)))
+					(:ii (vp-store-frc (assign-single-out %0) (first %1) (second %1)))
+					(:di (vp-store-frr (assign-single-out %0) (first %1) (second %1)))
 					(:k (def *func_env* %1 %0))
 					(:t (throw "Invalid dst parameter !" (list %0 %1)))))
 				(:ius (vp-load-rcr-us (first %0) (second %0) %1))
@@ -151,7 +170,7 @@
 				(:db (vp-load-rrr-b (first %0) (second %0) %1))
 				(:ds (vp-load-rrr-s (first %0) (second %0) %1))
 				(:di (pcase (assign-dst-type %1) +pkeys2
-					(:f (vp-load-rrd-i (first %0) (second %0) %1))
+					(:f (assign-single-in (const vp-load-rrf) (first %0) (second %0) %1))
 					(:t (vp-load-rrr-i (first %0) (second %0) %1))))
 				(:is (vp-load-rcr-s (first %0) (second %0) %1))
 				(:ib (vp-load-rcr-b (first %0) (second %0) %1))

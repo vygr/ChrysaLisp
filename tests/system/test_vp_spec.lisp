@@ -167,19 +167,20 @@
 			(+ (* a 3) b) (vs_fuse a b)))
 	'((1 1000) (-5 77) (123456 -654321)))
 
-;a single in memory, -i, loaded as a double by every form a translator has:
-;an offset small, of a scaled field, too big for a field, below the base,
-;and an index register. What comes back is the double's bits, the count of
-;those that differ from the first above them
+;a single in memory, loaded by every form a translator has, an offset
+;small, of a scaled field, too big for a field, below the base, and an
+;index register, then made a double. What comes back is the double's
+;bits, the count of those that differ from the first above them
 (import "lib/gpu/shader.inc")
 (defq vs_if (vs-native "tests/vp_spec_if" (cat (vs-head "tests/vp_spec_if")
 	"(vp-alloc 32)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-store-rrc-i :r2 :rsp " (str %0) ")" vs_lf)) '(0 4 8 12 16)))
-	"(vp-load-rcd-i :rsp 0 :d0)" vs_lf
-	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-load-rcd-i :r6 1004 :d1)" vs_lf
-	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-load-rcd-i :r6 100008 :d2)" vs_lf
-	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-load-rcd-i :r6 -8 :d3)" vs_lf
-	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrd-i :rsp :r7 :d4)" vs_lf
+	"(vp-load-rcf :rsp 0 :f0)" vs_lf
+	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-load-rcf :r6 1004 :f1)" vs_lf
+	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-load-rcf :r6 100008 :f2)" vs_lf
+	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-load-rcf :r6 -8 :f3)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-load-rrf :rsp :r7 :f4)" vs_lf
+	(apply (const cat) (map (# (cat "(vp-cvt-fd :f" (str %0) " :d" (str %0) ")" vs_lf)) (range 0 5)))
 	"(vp-cpy-dr :d0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-cpy-dr " %0 " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(":d1" ":d2" ":d3" ":d4")))
@@ -200,16 +201,16 @@
 			(vs-double-of s) (vs_if s 0)))
 	'(0x3f800000 0xc0200000 0x3eaaaaab 0x7f7fffff 0x00800000 0 0x80000000 0x7f800000 0xff800000))
 
-;the nearest single to a double stored by every form, and the register as
-;it was: the single's bits, with the count of stores that differ from the
-;first, and 1 if the register changed, above them
+;the nearest single to a double, in another register, stored by every
+;form, and the double as it was: the single's bits, with the count of
+;stores that differ from the first, and 1 if the double changed, above them
 (defq vs_fi (vs-native "tests/vp_spec_fi" (cat (vs-head "tests/vp_spec_fi")
-	"(vp-alloc 32)" vs_lf "(vp-cpy-rd :r3 :d0)" vs_lf
-	"(vp-store-drc-i :d0 :rsp 0)" vs_lf
-	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 1004)" vs_lf
-	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 100008)" vs_lf
-	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-store-drc-i :d0 :r6 -8)" vs_lf
-	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-store-drr-i :d0 :rsp :r7)" vs_lf
+	"(vp-alloc 32)" vs_lf "(vp-cpy-rd :r3 :d0)" vs_lf "(vp-cvt-df :d0 :f1)" vs_lf
+	"(vp-store-frc :f1 :rsp 0)" vs_lf
+	"(vp-lea-rcr :rsp -1000 :r6)" vs_lf "(vp-store-frc :f1 :r6 1004)" vs_lf
+	"(vp-lea-rcr :rsp -100000 :r6)" vs_lf "(vp-store-frc :f1 :r6 100008)" vs_lf
+	"(vp-lea-rcr :rsp 20 :r6)" vs_lf "(vp-store-frc :f1 :r6 -8)" vs_lf
+	"(vp-cpy-cr 16 :r7)" vs_lf "(vp-store-frr :f1 :rsp :r7)" vs_lf
 	"(vp-load-rcr-ui :rsp 0 :r4)" vs_lf "(vp-xor-rr :r8 :r8)" vs_lf
 	(apply (const cat) (map (# (cat "(vp-load-rcr-ui :rsp " (str %0) " :r5)" vs_lf "(vp-sne-rr :r4 :r5)" vs_lf
 		"(vp-add-rr :r5 :r8)" vs_lf)) '(4 8 12 16)))
@@ -230,5 +231,66 @@
 	(list (vs-bits-of 1.0) 0x3fd5555555555555 0x3ff0000010000000 0x3ff0000030000000 (vs-bits-of -2.5)
 		0x47f0000000000000 0x47efffffe0000000 0x3810000000000000 0))
 
+;each single op, of a and b made singles, the answer made an int toward 0.
+;2^24 and 1 more are the one single, as they are not the one double
+(defq vs_s_ops (list
+	(list "add" "(vp-add-ff :f1 :f0)" (lambda (a b) (+ a b)))
+	(list "sub" "(vp-sub-ff :f1 :f0)" (lambda (a b) (- a b)))
+	(list "mul" "(vp-mul-ff :f1 :f0)" (lambda (a b) (* a b)))
+	(list "div" "(vp-div-ff :f1 :f0)" (lambda (a b) (/ a b)))
+	(list "min" "(vp-min-ff :f1 :f0)" (lambda (a b) (min a b)))
+	(list "max" "(vp-max-ff :f1 :f0)" (lambda (a b) (max a b)))
+	(list "sqrt" "(vp-mul-ff :f0 :f0) (vp-sqrt-ff :f0 :f2) (vp-cpy-ff :f2 :f0)" (lambda (a b) (abs a)))
+	(list "abs" "(vp-abs-ff :f0 :f0)" (lambda (a b) (abs a)))
+	(list "neg" "(vp-neg-ff :f0 :f3) (vp-cpy-ff :f3 :f0)" (lambda (a b) (neg a)))
+	(list "round" "(vp-cvt-fd :f0 :d5) (vp-cvt-df :d5 :f6) (vp-cpy-ff :f6 :f0)" (lambda (a b) a))))
+(each (lambda ((name code want))
+		(defq f (vs-native (cat "tests/vp_spec_s" name) (cat (vs-head (cat "tests/vp_spec_s" name))
+			"(vp-cvt-rf :r2 :f0)" vs_lf "(vp-cvt-rf :r3 :f1)" vs_lf code vs_lf "(vp-cvt-fr :f0 :r4)" vs_lf
+			(vs-tail))))
+		(each (lambda ((a b))
+				(assert-eq (cat "the single " name " of " (str a) " and " (str b)) (want a b) (f a b)))
+			'((3 4) (-7 2) (100 -9) (0 5) (1000 1000))))
+	vs_s_ops)
+(defq vs_s (vs-native "tests/vp_spec_s" (cat (vs-head "tests/vp_spec_s")
+	"(vp-cvt-rf :r2 :f0)" vs_lf "(vp-cvt-rf :r3 :f1)" vs_lf "(vp-add-ff :f1 :f0)" vs_lf "(vp-cvt-fr :f0 :r4)" vs_lf
+	(vs-tail))))
+(assert-eq "2^24 + 1 a single is 2^24" 16777216 (vs_s 16777217 0))
+(assert-eq "and 2^24 and 1 added as singles is 2^24" 16777216 (vs_s 16777216 1))
+
+;a single's bits to a general register and back, 32 of them, the top made 0
+(defq vs_sb (vs-native "tests/vp_spec_sb" (cat (vs-head "tests/vp_spec_sb")
+	"(vp-cpy-rf :r2 :f7)" vs_lf "(vp-cpy-fr :f7 :r4)" vs_lf
+	(vs-tail))))
+(each (lambda (a)
+		(assert-eq (cat "the 32 bits of " (int-to-hex-str a) " a single and back") (logand a 0xffffffff) (vs_sb a 0)))
+	'(0x3f800000 0xbf800000 0x7fc00000 -1 0x123456789))
+
+;each single branch, as the double's above
+(defq vs_sf (vs-native "tests/vp_spec_sf" (cat (vs-head "tests/vp_spec_sf")
+	"(vp-cvt-rf :r2 :f0)" vs_lf "(vp-cvt-rf :r3 :f1)" vs_lf
+	"(vp-bne-cr 999 :r2 'real)" vs_lf "(vp-xor-rr :r5 :r5)" vs_lf "(vp-cvt-rf :r5 :f0)" vs_lf
+	"(vp-div-ff :f0 :f0)" vs_lf "(vp-label 'real)" vs_lf
+	(apply (const cat) (map (lambda (op i)
+		(cat "(vp-b" (slice op 1 -1) "-ff :f1 :f0 'took" (str i) ")" vs_lf "(vp-jmp 'next" (str i) ")" vs_lf
+			"(vp-label 'took" (str i) ")" vs_lf "(vp-or-cr " (str (<< 1 i)) " :r4)" vs_lf "(vp-label 'next" (str i) ")" vs_lf))
+		vs_ops (range 0 6)))
+	(vs-tail))))
+(each (lambda ((a b))
+		(assert-eq (cat "the single branches of " (str a) " and " (str b))
+			(vs-long-want a b) (vs_sf a b)))
+	'((3 3) (2 7) (7 2) (-4 -4) (-4 1)))
+(assert-eq "2^24 + 1 and 2^24 are the one single" (vs-long-want 0 0) (vs_sf 16777217 16777216))
+(assert-eq "of a single NaN, only bne is taken" 2 (vs_sf 999 1))
+
+;a register not of the width an op is of is an error of the assembler
+(assert-error "a double's op of a single"
+	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-add-dd :f1 :d0)" vs_lf (vs-tail))))
+(assert-error "a single's op of a double"
+	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-mul-ff :f1 :d0)" vs_lf (vs-tail))))
+(assert-error "a convert of a single to a double, of a double"
+	(vs-native "tests/vp_spec_sx" (cat (vs-head "tests/vp_spec_sx") "(vp-cvt-fd :d1 :d0)" vs_lf (vs-tail))))
+(pii-remove (cat (load-path) "tests/vp_spec_sx.vp"))
+
 (undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
-	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of)
+	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf)

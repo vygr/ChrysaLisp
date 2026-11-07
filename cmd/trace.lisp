@@ -121,14 +121,21 @@
 	'emit-cpy-dd '(:f :f) 'emit-add-dd '(:f :f) 'emit-sub-dd '(:f :f) 'emit-mul-dd '(:f :f)
 	'emit-div-dd '(:f :f) 'emit-min-dd '(:f :f) 'emit-max-dd '(:f :f) 'emit-sqrt-dd '(:f :f)
 	'emit-abs-dd '(:f :f) 'emit-neg-dd '(:f :f)
+	'emit-add-ff '(:f :f) 'emit-sub-ff '(:f :f) 'emit-mul-ff '(:f :f) 'emit-div-ff '(:f :f)
+	'emit-min-ff '(:f :f) 'emit-max-ff '(:f :f) 'emit-sqrt-ff '(:f :f) 'emit-abs-ff '(:f :f)
+	'emit-neg-ff '(:f :f)
 	; float branches
 	'emit-beq-dd '(:f :f :label) 'emit-bne-dd '(:f :f :label) 'emit-blt-dd '(:f :f :label)
 	'emit-bgt-dd '(:f :f :label) 'emit-ble-dd '(:f :f :label) 'emit-bge-dd '(:f :f :label)
+	'emit-beq-ff '(:f :f :label) 'emit-bne-ff '(:f :f :label) 'emit-blt-ff '(:f :f :label)
+	'emit-bgt-ff '(:f :f :label) 'emit-ble-ff '(:f :f :label) 'emit-bge-ff '(:f :f :label)
 	; conversions & mixed
 	'emit-cpy-rd '(:r :f) 'emit-cpy-dr '(:f :r) 'emit-cvt-rd '(:r :f) 'emit-cvt-dr '(:f :r)
+	'emit-cpy-rf '(:r :f) 'emit-cpy-fr '(:f :r) 'emit-cvt-rf '(:r :f) 'emit-cvt-fr '(:f :r)
+	'emit-cvt-fd '(:f :f) 'emit-cvt-df '(:f :f)
 	; float memory
 	'emit-load-rcd '(:r :c :f) 'emit-store-drc '(:f :r :c) 'emit-load-rrd '(:r :r :f) 'emit-store-drr '(:f :r :r)
-	'emit-load-rcd-i '(:r :c :f) 'emit-store-drc-i '(:f :r :c) 'emit-load-rrd-i '(:r :r :f) 'emit-store-drr-i '(:f :r :r)
+	'emit-load-rcf '(:r :c :f) 'emit-store-frc '(:f :r :c) 'emit-load-rrf '(:r :r :f) 'emit-store-frr '(:f :r :r)
 	; control / call / jump
 	'emit-call '(:label) 'emit-call-p '(:label) 'emit-jmp '(:label) 'emit-jmp-p '(:label)
 	'emit-call-r '(:r &rest :any) 'emit-jmp-r '(:r &rest :any) 'emit-call-rc '(:r :c &rest :any) 'emit-jmp-rc '(:r :c &rest :any)
@@ -294,7 +301,8 @@
 							((setq *pc* +max_long))))
 					((emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr
 					emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr emit-blt-rr emit-bgt-rr
-					emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd)
+					emit-beq-dd emit-bne-dd emit-blt-dd emit-bgt-dd emit-ble-dd emit-bge-dd
+					emit-beq-ff emit-bne-ff emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
 						;if branch would carry new state then create new trace
 						(defq pc (get (last inst))
 							key (str pc ":" (ifn (last call_stack) 0))
@@ -352,7 +360,7 @@
 						(pinsert trace_map (last inst)
 							(if (eql (catch (resolve-static-method insts (second inst)) :t)
 								"sys/statics/statics") :statics)))
-					((emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc-i)
+					((emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-frc)
 						;quantize offset down to the nearest 8-byte
 						;boundary and erase the slot
 						(when (eql (third inst) :rsp)
@@ -457,7 +465,7 @@
 					(emit-trash
 						;simulate the trashing of listed regs
 						(each! (# (pinsert trace_map %0 :nil)) (list inst) 1))
-					((emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i emit-store-drr emit-store-drr-i)
+					((emit-store-rrr emit-store-rrr-b emit-store-rrr-s emit-store-rrr-i emit-store-drr emit-store-frr)
 						;ignore as no reg writes
 						:ignore)
 					((emit-land-rr)

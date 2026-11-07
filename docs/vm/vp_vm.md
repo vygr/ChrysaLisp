@@ -22,7 +22,12 @@ simple load/store addressing modes.
 ```vdu
 :r0,:r1,:r2,:r3,:r4,:r5,:r6,:r7,:r8,:r9,:r10,:r11,:r12,:r13,:r14,:rsp
 :d0,:d1,:d2,:d3,:d4,:d5,:d6,:d7,:d8,:d9,:d10,:d11,:d12,:d13,:d14,:d15
+:f0,:f1,:f2,:f3,:f4,:f5,:f6,:f7,:f8,:f9,:f10,:f11,:f12,:f13,:f14,:f15
 ```
+
+A float register holds a double or a single: `:dN` is the register as a
+double, `:fN` the same register as a single. They are one register, so a
+trash list names `:d0` to `:d15` and a write of `:f3` is a write of `:d3`.
 
 These are mapped to real physical registers by the target processor's
 translator, the `reg_map` of `lib/trans/x86_64.vp` and `lib/trans/arm64.vp`. On certain
@@ -50,11 +55,16 @@ bytes and no more. A load or a store is at its natural alignment, a word at
 an address that is a whole number of words, an int of 4 bytes, a short of 2;
 one that is not is not defined, and `run_tui.sh -V`, the VP64 emulator in
 validation mode, says each place that is not, the function and where in it.
-The float registers hold IEEE doubles. In memory a float is a double, 8
-bytes, or with `-i` a single, 4 bytes, as a GPU has its floats:
-`vp-load-rcd-i` loads one and makes it a double, `vp-store-drc-i` stores the
-nearest single to a register, which is not changed. The `-i` is of the
-memory, as `vp-load-rcr-i` is; the register is a double either way.
+A float op says the width it is of, as every op says its operands: `-ff`
+of IEEE singles and `-dd` of IEEE doubles, and the assembler checks that
+each register is of it, `(vp-add-ff :f1 :f0)` adds singles and `(vp-add-dd
+:d1 :d0)` doubles. In memory a single is 4 bytes and a double 8, as a GPU
+has its floats, and a load or a store keeps the bits: `vp-load-rcf` and
+`vp-store-frc` of a single, `vp-load-rcd` and `vp-store-drc` of a double.
+`(vp-cvt-fd :f1 :d1)` makes a single a double, exactly, and `(vp-cvt-df :d1
+:f1)` a double the nearest single. What a single holds, read as a double,
+or a double as a single, is not defined. `vp-cpy-ff` and `vp-cpy-dd` copy
+the register whole.
 
 A constant, and the offset of a load or a store, may be any 64 bit value: a
 translator makes one that does not fit an instruction of its CPU some other
@@ -79,8 +89,10 @@ remainder of a copy first, then the quotient.
 made two. `(vp-swp-rr rs rd)` swaps them. `vp-min` and `vp-max` of words are
 signed. `(vp-cvt-dr fs rd)` takes the whole part, towards 0, of a float in the
 range of a word; of one outside it, or of a NaN, what it gives is not defined.
-`(vp-cvt-rd rs fd)` is the nearest float. `vp-cpy-rd` and `vp-cpy-dr` copy the
-bits as they are. `vp-min-dd` and `vp-max-dd` of a NaN are not defined. Of the float
+`(vp-cvt-rd rs fd)` is the nearest float, and `vp-cvt-fr` and `vp-cvt-rf` the
+same of a single. `vp-cpy-rd` and `vp-cpy-dr` copy the bits as they are, all
+64 of a double; `vp-cpy-rf` the low 32 of a word to a single and `vp-cpy-fr`
+the 32 of a single to a word, its top 32 bits 0. `vp-min-dd` and `vp-max-dd` of a NaN are not defined. Of the float
 branches, as IEEE has it, every compare with a NaN is false but `vp-bne-dd`.
 `(vp-sync c)` is a full barrier of memory, whatever `c`.
 
@@ -295,6 +307,8 @@ more than was put there, and a function leaves the stack as it found it.
 (vp-cpy-dr fs rd)
 (vp-cvt-rd rs fd)
 (vp-cvt-dr fs rd)
+(vp-cvt-fd fs fd)
+(vp-cvt-df fs fd)
 
 (vp-add-dd fs fd)
 (vp-sub-dd fs fd)
@@ -312,17 +326,45 @@ more than was put there, and a function leaves the stack as it found it.
 (vp-load-rrd rb ri fd)
 (vp-store-drr fs rb ri)
 
-(vp-load-rcd-i rb i fd)
-(vp-store-drc-i fs rb i)
-(vp-load-rrd-i rb ri fd)
-(vp-store-drr-i fs rb ri)
-
 (vp-beq-dd fs fd label)
 (vp-bne-dd fs fd label)
 (vp-blt-dd fs fd label)
 (vp-ble-dd fs fd label)
 (vp-bgt-dd fs fd label)
 (vp-bge-dd fs fd label)
+```
+
+Of singles, the same with `f` for `d`:
+
+```
+(vp-cpy-ff fs fd)
+(vp-cpy-rf rs fd)
+(vp-cpy-fr fs rd)
+(vp-cvt-rf rs fd)
+(vp-cvt-fr fs rd)
+
+(vp-add-ff fs fd)
+(vp-sub-ff fs fd)
+(vp-mul-ff fs fd)
+(vp-div-ff fs fd)
+
+(vp-abs-ff fs fd)
+(vp-neg-ff fs fd)
+(vp-min-ff fs fd)
+(vp-max-ff fs fd)
+(vp-sqrt-ff fs fd)
+
+(vp-load-rcf rb i fd)
+(vp-store-frc fs rb i)
+(vp-load-rrf rb ri fd)
+(vp-store-frr fs rb ri)
+
+(vp-beq-ff fs fd label)
+(vp-bne-ff fs fd label)
+(vp-blt-ff fs fd label)
+(vp-ble-ff fs fd label)
+(vp-bgt-ff fs fd label)
+(vp-bge-ff fs fd label)
 ```
 
 #### Pseudo ops
@@ -351,6 +393,8 @@ the op alone says what is done and with what:
 * r, a register, `:r0` to `:r14`, `:rsp`
 
 * d, a float register as a double, `:d0` to `:d15`
+
+* f, a float register as a single, `:f0` to `:f15`
 
 * p, a label, of a place by the program counter
 
@@ -488,7 +532,10 @@ A bundle is a run of forms, one a function, as `(read)` reads them:
 
 The first item is the function's path, the second the `progn` of its
 instructions. Each instruction is a call of the `emit-` of a VP instruction,
-`(emit-add-cr 1 :r0)` for `(vp-add-cr 1 :r0)`. Labels are symbols, `_0` and
+`(emit-add-cr 1 :r0)` for `(vp-add-cr 1 :r0)`. A single's op names its
+registers as the doubles they are of, `(emit-add-ff :d1 :d0)` for
+`(vp-add-ff :f1 :f0)`: the width is in the op, and a register is one of 32
+to every tool after the assembler. Labels are symbols, `_0` and
 on, set by `(emit-label)` and used before or after it. The header and the
 tail are in it too, as data: `emit-byte`, `emit-short`, `emit-int`,
 `emit-long`, `emit-string` and `emit-align`, so that a translator makes the

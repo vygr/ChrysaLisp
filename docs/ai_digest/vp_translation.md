@@ -38,7 +38,12 @@ docs/diagrams/vp_translate.cwb
 
     * `:rsp`: Stack Pointer.
 
-    * `:d0` through `:d15`: IEEE float registers.
+    * `:d0` through `:d15`: IEEE float registers, as doubles.
+
+    * `:f0` through `:f15`: the same registers as singles. A single's op,
+      `-ff`, names its registers in the emit list as the doubles they are
+      of, so a translator decodes 32 registers as before and the op alone
+      says the width.
 
     These are symbolic names used in VP assembly; the translation system maps
     them to native registers.
@@ -338,8 +343,10 @@ x29 from `[b, #c]` and `call-p` by `ldr` literal (±1MB), then they are a
 the CPU gives; a remainder is that into x29 then an `msub` of it, the
 dividend itself by 0. A shift by a
 constant is `ubfm` or `sbfm`, 0 nothing, below 0 or above 63 fails.
-`min` and `max` are `cmp` and `csel`. The float ops are the `d` forms;
-`cvt-rd` is `scvtf`, `cvt-dr` `fcvtzs`.
+`min` and `max` are `cmp` and `csel`. The float ops are the `d` forms,
+a single's the `s` forms, the type field 0; `cvt-rd` is `scvtf`, `cvt-dr`
+`fcvtzs`, `cvt-fd` and `cvt-df` `fcvt`, `cpy-rf` and `cpy-fr` `fmov` of
+`s` and `w`. A single in memory is `ldr s` or `str s`, offsets in 4s.
 
 `e_entry_abi` copies sp to x28. `e_call_abi`, `(r b c n)`, takes up to 8
 args, already in x0 to x7. It pushes x1 to x7 and x19, sets sp to x28
@@ -404,7 +411,7 @@ relative `lea` and `mov`, ±2GB.
 
 A conditional branch is `cmp` or `test` and a `jcc`: rel8 if the most it
 has reached fits, else rel32. `jmp` is `eb` rel8 or `e9` rel32. Out of
-32 bits fails. A float branch is `ucomisd` then: `beq-dd` a `jp` over a
+32 bits fails. A float branch is `ucomisd`, of singles `ucomiss`, then: `beq-dd` a `jp` over a
 `je`, `bne-dd` a `jp` and a `jne`, `bgt-dd` and `bge-dd` `ja` and `jae`,
 `blt-dd` and `ble-dd` the same with the operands swapped. `seq` to `sge`
 are the compare, `setcc` and `movzx`.
@@ -424,9 +431,12 @@ a register is by cl, with an `xchg` either side if the destination is
 rcx, else the operands, rax and rcx pushed and the shift done in rax.
 `min-rr` and `max-rr` are `cmp` and `cmovg` or `cmovl`, the constant
 forms a `jcc` over a `mov`. `abs-rr` is `test`, `jns`, `neg`. `ext-rr`
-from rax to rdx is `cqo`. The float ops are the `sd` forms, `cvt-rd`
-`cvtsi2sd`, `cvt-dr` `cvttsd2si`. `abs-dd` shifts the xmm left 1 and
-right 1, `neg-dd` flips bit 63 with `btc` through rax.
+from rax to rdx is `cqo`. The float ops are the `sd` forms, a single's
+the `ss`, `cvt-rd` `cvtsi2sd`, `cvt-dr` `cvttsd2si`, `cvt-fd` `cvtss2sd`
+and `cvt-df` `cvtsd2ss`. `abs-dd` shifts the xmm left 1 and right 1 by 64
+bits, `abs-ff` by 32, `neg-dd` flips bit 63 with `btc` through rax and
+`neg-ff` bit 31. A single in memory is `movss`; `cpy-rf` is `movq`, and
+`cpy-fr` a `movq` and a `mov r32` to make the top 32 bits 0.
 
 The two bodies differ only in the ABI. `vp_args`, `:r0` to `:r5`, go to
 `rdi rsi rdx rcx r8 r9` on AMD64, `rcx rdx r8 r9` on WIN64:
@@ -512,8 +522,10 @@ remainder is `rem` or `remu`, which gives the dividend itself by 0. A shift by a
 `seqz` or `snez`, `slt` and `sgt` `slt`, `sle` and `sge` an `slt`, a
 `seqz` and an `or`. `lnot` is `seqz`, `land` two `snez` and an `and`.
 `min`, `max` and `abs` branch over a copy or a negate. The float ops are
-the `.d` forms; `cvt-dr` is `fcvt.l.d` rounding towards 0, `abs-dd` and
-`neg-dd` `fsgnjx.d` and `fsgnjn.d`.
+the `.d` forms, a single's the `.s`, which NaN box what they write; `cvt-dr`
+is `fcvt.l.d` rounding towards 0, `abs-dd` and `neg-dd` `fsgnjx.d` and
+`fsgnjn.d`. A single in memory is `flw` or `fsw`; `cpy-fr` is `fmv.x.w`,
+which sign extends, then `slli` and `srli` of 32.
 
 `e_entry_abi` is nothing, the args already in a0 on. `e_call_abi`, `(r b
 c n)`, takes up to 8 args. It pushes `:r1` to `:r8`, keeps sp in x27 and
@@ -577,8 +589,12 @@ constant is `slli.d`, `srli.d` or `srai.d`, 0 to 63, any other fails. The
 sets are as on riscv64, with `sltui` for `seqz`, `sltu` from zero for
 `snez`, and `sle` and `sge` an `slt` and an `xori` of 1. `min`, `max`
 and `abs` branch over a copy or a negate. The float ops are the `.d`
-forms. `cvt-rd` is `movgr2fr.d` and `ffint.d.l`; `cvt-dr` keeps `s` in
-r12, does `ftintrz.l.d` in place, moves the result out and puts `s` back.
+forms, a single's the `.s`, `fcmp.cond.s` for its branches. `cvt-rd` is
+`movgr2fr.d` and `ffint.d.l`; `cvt-dr` keeps `s` in r12, does
+`ftintrz.l.d` in place, moves the result out and puts `s` back, and the
+single's are the same of `ffint.s.l` and `ftintrz.l.s`. A single in
+memory is `fld.s`, `fst.s`, `fldx.s` or `fstx.s`; `cpy-fr` is
+`movfr2gr.s`, which sign extends, then `bstrpick.d` of bits 0 to 31.
 
 `e_entry_abi` is nothing. `e_call_abi` is as on riscv64, pushing `:r1` to
 `:r8`, keeping sp and ra in r30 and r31, sp `and`ed with -16 made in r12,
@@ -595,7 +611,7 @@ There is no native CPU: the output is VP64 code for the emulator,
 `:r0` to `:r14` 0 to 14, `:rsp` 15, the floats 0 to 15. There is no
 prepass.
 
-The op numbers are the order of `enum Opcodes` in `vp64.cpp`, 191 of them,
+The op numbers are the order of `enum Opcodes` in `vp64.cpp`, 215 of them,
 which `vp64_ops` in `vp64.vp` follows by name, an op of 2 or 4 forms
 taking as many numbers. The first word is the op in its low 8 bits, then
 a register at bits 8 to 11 and another, or 4 bits of a constant, at bits

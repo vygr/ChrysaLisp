@@ -819,15 +819,16 @@
 						emit-jmp-p emit-ret emit-sync emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr
 						emit-blt-cr emit-bgt-cr emit-beq-rr emit-bne-rr emit-bge-rr emit-ble-rr
 						emit-blt-rr emit-bgt-rr emit-beq-dd emit-bne-dd emit-bge-dd emit-blt-dd
-						emit-ble-dd emit-bgt-dd))
+						emit-ble-dd emit-bgt-dd emit-beq-ff emit-bne-ff emit-bge-ff emit-blt-ff
+						emit-ble-ff emit-bgt-ff))
 					'(1 0 0 0))
 				('(0 0 0 0)))))
 		+vpb_all_ops)
 (vp-label 'cf_sp)
 	(each (# (apply (const vp-byte) (cond
 			((find %0 '(emit-load-rcr emit-load-rcr-b emit-load-rcr-s emit-load-rcr-i emit-load-rcr-ub
-				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcd-i)) '(0 1))
-			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-drc-i)) '(1 2))
+				emit-load-rcr-us emit-load-rcr-ui emit-lea-rcr emit-load-rcd emit-load-rcf)) '(0 1))
+			((find %0 '(emit-store-rrc emit-store-rrc-b emit-store-rrc-s emit-store-rrc-i emit-store-drc emit-store-frc)) '(1 2))
 			((eql %0 'emit-cpy-rr) '(0xfe 0xfe))
 			('(0xff 0xff)))))
 		+vpb_all_ops))

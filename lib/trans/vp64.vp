@@ -30,8 +30,11 @@
 		'(cpy-pr 1) '(lea-p 1) '(call-abi 1) '(ret 1) '(sync 1)
 		'(add-ff 1) '(sub-ff 1) '(mul-ff 1) '(div-ff 1) '(min-ff 1) '(max-ff 1) '(sqrt-ff 1)
 		'(abs-ff 1) '(neg-ff 1) '(cpy-ff 1) '(cvt-rf 1) '(cvt-fr 1) '(cpy-rf 1) '(cpy-fr 1)
-		'(cpy-if-i 2) '(cpy-fi-i 2) '(cpy-df-i 1) '(cpy-fd-i 1)
-		'(rem-rr 1) '(rem-rr-u 1))
+		'(cpy-is 2) '(cpy-si 2) '(cpy-ds 1) '(cpy-sd 1)
+		'(rem-rr 1) '(rem-rr-u 1)
+		'(add-ss 1) '(sub-ss 1) '(mul-ss 1) '(div-ss 1) '(min-ss 1) '(max-ss 1) '(sqrt-ss 1)
+		'(abs-ss 1) '(neg-ss 1) '(cmp-s 1) '(cvt-rs 1) '(cvt-sr 1) '(cvt-sf 1) '(cvt-fs 1)
+		'(cpy-rs 1) '(cpy-sr 1))
 	vp64_at (Fmap 101))
 (reduce (lambda (n (op k)) (. vp64_at :insert op n) (+ n k)) vp64_ops 0)
 (defun opn (op) (. vp64_at :find op))
@@ -116,7 +119,12 @@
 	(emit-cpy-dd cpy-ff :t) (emit-cvt-rd cvt-rf :nil) (emit-cvt-dr cvt-fr :nil)
 	(emit-cpy-rd cpy-rf :nil) (emit-cpy-dr cpy-fr :nil)
 	(emit-div-rr div-rr :nil) (emit-div-rr-u div-rr-u :nil)
-	(emit-rem-rr rem-rr :nil) (emit-rem-rr-u rem-rr-u :nil)))
+	(emit-rem-rr rem-rr :nil) (emit-rem-rr-u rem-rr-u :nil)
+	(emit-add-ff add-ss :nil) (emit-sub-ff sub-ss :nil) (emit-mul-ff mul-ss :nil)
+	(emit-div-ff div-ss :nil) (emit-min-ff min-ss :nil) (emit-max-ff max-ss :nil)
+	(emit-sqrt-ff sqrt-ss :nil) (emit-abs-ff abs-ss :nil) (emit-neg-ff neg-ss :nil)
+	(emit-cvt-rf cvt-rs :nil) (emit-cvt-fr cvt-sr :nil) (emit-cvt-fd cvt-sf :nil)
+	(emit-cvt-df cvt-fs :nil) (emit-cpy-rf cpy-rs :nil) (emit-cpy-fr cpy-sr :nil)))
 
 (vp-label 'cmp_r)
 	(es (opn 'cmp-r) '(:r1 8) '(:r0 12))
@@ -124,6 +132,11 @@
 
 (vp-label 'cmp_f)
 	(es (opn 'cmp-f) '(:r1 8) '(:r0 12))
+	(vp-ret)
+
+(vp-label 'cmp_s)
+	;the singles as doubles, exactly, so the branch is a double's
+	(es (opn 'cmp-s) '(:r1 8) '(:r0 12))
 	(vp-ret)
 
 (vp-label 'cmp_cr)
@@ -179,7 +192,7 @@
 	(emit-load-rcr-ui cpy-ir-ui :nil) (emit-lea-rcr lea-i :nil) (emit-load-rcd cpy-if :nil)
 	(emit-store-rrc cpy-ri :t) (emit-store-rrc-b cpy-ri-b :t) (emit-store-rrc-s cpy-ri-s :t)
 	(emit-store-rrc-i cpy-ri-i :t) (emit-store-drc cpy-fi :t)
-	(emit-load-rcd-i cpy-if-i :nil) (emit-store-drc-i cpy-fi-i :t)))
+	(emit-load-rcf cpy-is :nil) (emit-store-frc cpy-si :t)))
 
 (each (lambda ((op name f0 f1 f2))
 		;the register forms, :r0 :r1 :r2 to 8 12 or the short after, 0
@@ -195,7 +208,7 @@
 	(emit-load-rrr cpy-dr 12 0 8) (emit-load-rrr-b cpy-dr-b 12 0 8) (emit-load-rrr-s cpy-dr-s 12 0 8)
 	(emit-load-rrr-i cpy-dr-i 12 0 8) (emit-load-rrr-ub cpy-dr-ub 12 0 8) (emit-load-rrr-us cpy-dr-us 12 0 8)
 	(emit-load-rrr-ui cpy-dr-ui 12 0 8) (emit-lea-rrr lea-d 12 0 8) (emit-load-rrd cpy-df 12 0 8)
-	(emit-store-drr cpy-fd 8 12 0) (emit-load-rrd-i cpy-df-i 12 0 8) (emit-store-drr-i cpy-fd-i 8 12 0)))
+	(emit-store-drr cpy-fd 8 12 0) (emit-load-rrf cpy-ds 12 0 8) (emit-store-frr cpy-sd 8 12 0)))
 
 (vp-label 'branch)
 	;vp64-branch, :r0 = op, :r1 = l, :r7 = the record
@@ -238,7 +251,9 @@
 	(emit-beq-rr e_beq_rr cmp_r beq) (emit-bne-rr e_bne_rr cmp_r bne) (emit-bge-rr e_bge_rr cmp_r bge)
 	(emit-blt-rr e_blt_rr cmp_r blt) (emit-ble-rr e_ble_rr cmp_r ble) (emit-bgt-rr e_bgt_rr cmp_r bgt)
 	(emit-beq-dd e_beq_ff cmp_f beq-ff) (emit-bne-dd e_bne_ff cmp_f bne-ff) (emit-bge-dd e_bge_ff cmp_f bge-ff)
-	(emit-blt-dd e_blt_ff cmp_f blt-ff) (emit-ble-dd e_ble_ff cmp_f ble-ff) (emit-bgt-dd e_bgt_ff cmp_f bgt-ff)))
+	(emit-blt-dd e_blt_ff cmp_f blt-ff) (emit-ble-dd e_ble_ff cmp_f ble-ff) (emit-bgt-dd e_bgt_ff cmp_f bgt-ff)
+	(emit-beq-ff e_beq_ss cmp_s beq-ff) (emit-bne-ff e_bne_ss cmp_s bne-ff) (emit-bge-ff e_bge_ss cmp_s bge-ff)
+	(emit-blt-ff e_blt_ss cmp_s blt-ff) (emit-ble-ff e_ble_ss cmp_s ble-ff) (emit-bgt-ff e_bgt_ss cmp_s bgt-ff)))
 
 (vp-label 'call_jmp_p)
 	;vp64-call-jmp-p, :r0 = op, :r1 = l
