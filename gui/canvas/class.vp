@@ -245,64 +245,66 @@
 
 	(structure slot 0
 		(ptr this pixmap)
-		(long handle ok))
-
-	(def-vars
-		(struct frame slot_size)
-		(ptr this texture pixmap old)
+		(long handle ok)
+		(ptr old)
 		(uint w h))
 
-	(push-scope)
-	(entry :canvas :read (vpx this))
+	(vp-alloc slot_size)
+	(entry :canvas :read '((:rsp slot_this)))
 
-	(assign (vpx (.> this +canvas_texture)) (vpx texture))
-	(vpif (vpx texture))
-		;a pixmap the size of the texture, for the host GUI driver to fill
-		(assign (vpx (.> texture +texture_width) (.> texture +texture_height)) (vpx w h))
-		(call :pixmap :create (vpx w h (- 32)) (vpx pixmap))
-		(assign (vpx this pixmap (.> texture +texture_handle) 0)
-			(vpx (. frame slot_this) (. frame slot_pixmap) (. frame slot_handle) (. frame slot_ok)))
-		(call :sys_task :callback (vpx (& frame) ($ callback)))
-		(vpif (vpx (. frame slot_ok)))
+	(assign '((:r0 +canvas_texture)) '(:r1))
+	(vpif '(:r1 /= 0))
+		;a pixmap the size of the texture, for the host GUI driver to fill,
+		;the callback is given the frame
+		(load-fields :r1 '(+texture_width +texture_height +texture_handle) '(:r0 :r2 :r3))
+		(vp-xor-rr :r4 :r4)
+		(save-fields :rsp '(slot_w slot_h slot_handle slot_ok) '(:r0 :r2 :r3 :r4))
+		(call :pixmap :create '(:r0 :r2 -32) '(:r0))
+		(assign '(:r0) '((:rsp slot_pixmap)))
+		(call :sys_task :callback '(:rsp ($ callback)))
+		(assign '((:rsp slot_ok)) '(:r0))
+		(vpif '(:r0 /= 0))
 			;the pixmap of a canvas is its texture times the scale
-			(vpif (vpx (/= (.> this +canvas_scale) 1)))
-				(assign (vpx pixmap) (vpx old))
-				(call :pixmap :create (vpx (* w (.> this +canvas_scale)) (* h (.> this +canvas_scale)) (- 32)) (vpx pixmap))
-				(call :pixmap :resize (vpx pixmap old))
-				(call :pixmap :deref (vpx old))
+			(load-fields :rsp '(slot_this slot_pixmap) '(:r0 :r1))
+			(assign '((:r0 +canvas_scale)) '(:r2))
+			(vpif '(:r2 /= 1))
+				(assign '(:r1) '((:rsp slot_old)))
+				(load-fields :rsp '(slot_w slot_h) '(:r0 :r1))
+				(vp-mul-rr :r2 :r0)
+				(vp-mul-rr :r2 :r1)
+				(call :pixmap :create '(:r0 :r1 -32) '(:r0))
+				(assign '(:r0) '((:rsp slot_pixmap)))
+				(call :pixmap :resize '(:r0 (:rsp slot_old)))
+				(call :pixmap :deref '((:rsp slot_old)))
 			(endif)
-			(call :pixmap :deref_if (vpx (.> this +canvas_pixmap)))
-			(assign (vpx pixmap) (vpx (.> this +canvas_pixmap)))
+			(assign '((:rsp slot_this)) '(:r0))
+			(call :pixmap :deref_if '((:r0 +canvas_pixmap)))
+			(load-fields :rsp '(slot_this slot_pixmap) '(:r0 :r1))
+			(assign '(:r1) '((:r0 +canvas_pixmap)))
 			;and all of it can be drawn on
-			(call :canvas :set_clip (vpx this 0 0 (.> pixmap +pixmap_width) (.> pixmap +pixmap_height)))
+			(call :canvas :set_clip '(:r0 0 0 (:r1 +pixmap_width) (:r1 +pixmap_height)))
 		(else)
-			(call :pixmap :deref (vpx pixmap))
+			(call :pixmap :deref '((:rsp slot_pixmap)))
 		(endif)
 	(endif)
 
-	(exit :canvas :read (vpx this))
-	(pop-scope)
-	(return)
+	(exit :canvas :read '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'callback)
 	;inputs
-	;:r0 = user data
+	;:r0 = user data, the frame above
 
-	(def-vars
-		(ptr user pixmap)
-		(long ok))
-
-	(push-scope)
-	(entry (vpx user))
-
-	(assign (vpx (.> user slot_pixmap)) (vpx pixmap))
-	(host-gui-call :host_gui :read_texture (vpx (.> user slot_handle) (.> pixmap +pixmap_data)
-			(.> pixmap +pixmap_width) (.> pixmap +pixmap_height) (.> pixmap +pixmap_stride))
-		(vpx ok))
-	(assign (vpx ok) (vpx (.> user slot_ok)))
-
-	(pop-scope)
-	(return)
+	(entry '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 slot_handle) (:r0 slot_pixmap)) '(:r0 :r1))
+	(host-gui-call :host_gui :read_texture '(:r0 (:r1 +pixmap_data)
+			(:r1 +pixmap_width) (:r1 +pixmap_height) (:r1 +pixmap_stride))
+		'(:r0))
+	(vp-pop :r1)
+	(assign '(:r0) '((:r1 slot_ok)))
+	(vp-ret)
 
 (def-func-end)
 
