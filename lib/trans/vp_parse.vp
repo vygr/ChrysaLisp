@@ -30,8 +30,10 @@
 ;operand, :r9 how many of them, :r8 how many labels, :r7 where strings go
 
 ;the ops by a hash of their names, each slot the op, the length of its name
-;and where the name is in the names after them, a slot of length 0 empty
-(defq +ph_size 512)
+;and where the name is in the names after them, a slot of length 0 empty.
+;An op is found by its name with emit- before it, as text was written, or
+;without, as it is to be
+(defq +ph_size 1024)
 
 (defun ph-hash (s)
 	;as (p-op) works it out, 32 bits of h * 33 + c
@@ -40,9 +42,12 @@
 (defun ph-table ()
 	(defq slots (map (lambda (_) :nil) (range 0 +ph_size)))
 	(each (lambda (op)
-			(defq name (str op) i (logand (ph-hash name) (dec +ph_size)))
-			(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))
-			(elem-set slots i (list (!) name)))
+			(defq n (!))
+			(each (lambda (name)
+					(defq i (logand (ph-hash name) (dec +ph_size)))
+					(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))
+					(elem-set slots i (list n name)))
+				(list (str op) (slice (str op) 5 -1))))
 		+vp_emit_ops)
 	slots)
 
