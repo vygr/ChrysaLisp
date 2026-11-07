@@ -334,41 +334,55 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this args value)
 		(long offset whence pos))
 
-	(push-scope)
-	(entry :lstream :seek_to (vpx this offset whence))
+	(vp-alloc slot_size)
+	(entry :lstream :seek_to '(:r0 :r1 :r2))
+	(assign '(-1) '(:r3))
+	(save-fields :rsp '(slot_this slot_offset slot_whence slot_pos) '(:r0 :r1 :r2 :r3))
 
-	(assign (vpx (- 1)) (vpx pos))
-	(vpif (vpx (.> this +lstream_seek)))
+	(assign '((:r0 +lstream_seek)) '(:r3))
+	(vpif '(:r3 /= 0))
 		;from where it is: that is what has been read of it, which is less
 		;than what has been asked for by what is left of the last str
-		(vpif (vpx (= whence 1)))
-			(assign (vpx (- offset (- (.> this +stream_bufe) (.> this +stream_bufp)))) (vpx offset))
+		(vpif '(:r2 = 1))
+			(load-fields :r0 '(+stream_bufp +stream_bufe) '(:r3 :r4))
+			(vp-sub-rr :r3 :r4)
+			(vp-sub-rr :r4 :r1)
+			(assign '(:r1) '((:rsp slot_offset)))
 		(endif)
 
-		(call :list :create :nil (vpx args))
-		(call :num :create (vpx offset) (vpx value))
-		(call :list :push_back (vpx args value))
-		(call :num :create (vpx whence) (vpx value))
-		(call :list :push_back (vpx args value))
-		(call :lisp :repl_apply (vpx (.> this +lstream_lisp) args (.> this +lstream_seek)) (vpx _ value))
-		(call :obj :deref (vpx args))
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) '((:rsp slot_args)))
+		(call :num :create '((:rsp slot_offset)) '(:r1))
+		(call :list :push_back '((:rsp slot_args) :r1))
+		(call :num :create '((:rsp slot_whence)) '(:r1))
+		(call :list :push_back '((:rsp slot_args) :r1))
+		(load-fields :rsp '(slot_this slot_args) '(:r0 :r1))
+		(call :lisp :repl_apply '((:r0 +lstream_lisp) :r1 (:r0 +lstream_seek)) '(_ :r1))
+		(assign '(:r1) '((:rsp slot_value)))
+		(call :obj :deref '((:rsp slot_args)))
 
 		;a number is where it is now, anything else and it did not
-		(vpif (vpx (= (.> value +obj_vtable) (@ ,(f-path :num :vtable)))))
-			(assign (vpx (.> value +num_value)) (vpx pos))
+		(assign '((:rsp slot_value)) '(:r1))
+		(assign `((:r1 +obj_vtable) (@ ,(f-path :num :vtable))) '(:r2 :r3))
+		(vpif '(:r2 = :r3))
+			(assign '((:r1 +num_value)) '(:r1))
+			(assign '(:r1) '((:rsp slot_pos)))
 			;what was read is let go of, the next read is from there
-			(call :obj :deref_if (vpx (.> this +stream_object)))
-			(assign (vpx 0 0 0) (vpx (.> this +stream_object) (.> this +stream_bufp) (.> this +stream_bufe)))
+			(assign '((:rsp slot_this)) '(:r0))
+			(call :obj :deref_if '((:r0 +stream_object)))
+			(assign '((:rsp slot_this)) '(:r0))
+			(vp-xor-rr :r1 :r1)
+			(save-fields :r0 '(+stream_object +stream_bufp +stream_bufe) '(:r1 :r1 :r1))
 		(endif)
-		(call :obj :deref (vpx value))
+		(call :obj :deref '((:rsp slot_value)))
 	(endif)
 
-	(exit :lstream :seek_to (vpx this pos))
-	(pop-scope)
-	(return)
+	(exit :lstream :seek_to '((:rsp slot_this) (:rsp slot_pos)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
