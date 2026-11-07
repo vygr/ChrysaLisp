@@ -268,16 +268,15 @@
 	;trashes
 	;:r1-:r3, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this)
 		(pptr iter))
 
-	(push-scope)
-	(entry :lisp :deinit (vpx this))
+	(vp-alloc slot_size)
+	(entry :lisp :deinit '((:rsp slot_this)))
 
 	;free the chain of args lists, each is empty, and holds the next in
 	;its first element
-	(assign (vpx this) '(:r0))
 	(loop-start)
 		(assign '((:r0 +lisp_args_pool)) '(:r1))
 		(breakif '(:r1 = 0))
@@ -285,7 +284,7 @@
 		(assign '((:r2 0)) '(:r2))
 		(assign '(:r2) '((:r0 +lisp_args_pool)))
 		(call :obj :deref '(:r1))
-		(assign (vpx this) '(:r0))
+		(assign '((:rsp slot_this)) '(:r0))
 	(loop-end)
 
 	;and the chain of environments, each is empty, and holds the next as
@@ -297,18 +296,23 @@
 		(assign '((:r1 +hmap_parent)) '(:r2))
 		(assign '(:r2 :r3) '((:r0 +lisp_env_pool) (:r1 +hmap_parent)))
 		(call :obj :deref '(:r1))
-		(assign (vpx this) '(:r0))
+		(assign '((:rsp slot_this)) '(:r0))
 	(loop-end)
 
 	;deinit myself
-	(assign (vpx (& (.> this +lisp_stdin))) (vpx iter))
+	(vp-add-cr +lisp_stdin :r0)
+	(assign '(:r0) '((:rsp slot_iter)))
 	(loop-start)
-		(call :obj :deref (vpx (* iter)))
-	(loop-until (vpx (= (=> (+ iter +ptr_size) iter) (& (.> this +lisp_error)))))
+		(call :obj :deref '((:r0 0)))
+		(assign '((:rsp slot_iter) (:rsp slot_this)) '(:r0 :r1))
+		(vp-add-cr +ptr_size :r0)
+		(vp-add-cr +lisp_error :r1)
+		(assign '(:r0) '((:rsp slot_iter)))
+	(loop-until '(:r0 = :r1))
 
 	;deinit parent
-	(s-jump :lisp :deinit (vpx this))
-
-	(pop-scope-syms)
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
+	(s-jump :lisp :deinit '(:r0))
 
 (def-func-end)

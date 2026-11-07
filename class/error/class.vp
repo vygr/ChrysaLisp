@@ -82,20 +82,24 @@
 	;trashes
 	;:r1-:r2, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this))
 
-	(push-scope)
-	(entry :error :deinit (vpx this))
+	(vp-alloc slot_size)
+	(entry :error :deinit '((:rsp slot_this)))
 
-	(call :obj :deref (vpx (.> this +error_description)))
-	(call :obj :deref (vpx (.> this +error_script)))
-	(call :obj :deref (vpx (.> this +error_file)))
-	(call :obj :deref (vpx (.> this +error_object)))
-	(call :obj :deref (vpx (.> this +error_frame)))
-	(s-jump :error :deinit (vpx this))
-
-	(pop-scope-syms)
+	(call :obj :deref '((:r0 +error_description)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :obj :deref '((:r0 +error_script)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :obj :deref '((:r0 +error_file)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :obj :deref '((:r0 +error_object)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :obj :deref '((:r0 +error_frame)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
+	(s-jump :error :deinit '(:r0))
 
 (def-func-end)
 
