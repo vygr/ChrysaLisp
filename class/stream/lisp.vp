@@ -480,7 +480,7 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this buf))
 
 	(vp-rdef (stream buf len this args) '(:r7 :r8 :r9))
@@ -489,22 +489,22 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign `(,this) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign `(,this) '((:rsp slot_this)))
 	(list-bind-args args `(,stream ,len) '(:stream :num))
 	(call :str :create_from_buffer `(0 ,len) '(tmp))
-	(assign `(,tmp) '((:rsp local_buf)))
+	(assign `(,tmp) '((:rsp slot_buf)))
 	(call :stream :read `(,stream (& ,tmp +str_data) ,len) '(_ tmp))
 	(vpif `(,tmp = -1))
-		(call :obj :deref '((:rsp local_buf)))
-		(assign '((:rsp local_this)) `(,this))
+		(call :obj :deref '((:rsp slot_buf)))
+		(assign '((:rsp slot_this)) `(,this))
 		(assign `((,this +lisp_sym_nil)) `(,buf))
 		(class/obj/ref buf stream)
 	(else)
-		(assign '((:rsp local_this) (:rsp local_buf)) `(,this ,buf))
+		(assign '((:rsp slot_this) (:rsp slot_buf)) `(,this ,buf))
 		(assign `(,tmp) `((,buf +str_length)))
 	(endif)
-	(vp-free local_size)
+	(vp-free slot_size)
 
 	(exit :stream :lisp_readblk `(,this ,buf))
 	(vp-ret)
@@ -525,23 +525,23 @@
 	;trashes
 	;:r1-:r6, :r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this buf))
 
 	(entry :stream :lisp_writeblk '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj &&))
-	(assign `(,(second in)) '((:rsp local_buf)))
+	(assign `(,(second in)) '((:rsp slot_buf)))
 	(call :stream :write `(,(first in) (& ,(second in) +str_data) (,(second in) +str_length)))
-	(assign '((:rsp local_buf)) '(:r0))
+	(assign '((:rsp slot_buf)) '(:r0))
 	(call :num :create '((:r0 +str_length)) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :stream :lisp_writeblk '(:r0 :r1))
 	(vp-ret)
@@ -634,15 +634,15 @@
 	;trashes
 	;:r1-:r6, :r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args stream iter_begin))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :stream :lisp_read_bits '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
 (assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
@@ -650,23 +650,23 @@
 (assign '((:r3 +array_length)) '(:r4))
 (gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) '((:rsp local_stream)))
+	(assign '(:r0) '((:rsp slot_stream)))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) '((:rsp local_iter_begin)))
+	(assign '(:r3) '((:rsp slot_iter_begin)))
 	(call :stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
-	(assign '((:rsp local_iter_begin)) '(:r4))
+	(assign '((:rsp slot_iter_begin)) '(:r4))
 	(assign '(:r2 :r3) '((:r4 0) (:r4 +long_size)))
 	(call :num :create '(:r1) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 
 	(exit :stream :lisp_read_bits '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
+	(assign '((:rsp slot_this) (:rsp slot_args)) '(:r0 :r1))
 (vp-label 'error)
-	(vp-free local_size)
+	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM))
 
@@ -683,15 +683,15 @@
 	;trashes
 	;:r1-:r6, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args stream iter_begin))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :stream :lisp_write_bits '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
 (assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
@@ -699,23 +699,23 @@
 (assign '((:r3 +array_length)) '(:r4))
 (gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) '((:rsp local_stream)))
+	(assign '(:r0) '((:rsp slot_stream)))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) '((:rsp local_iter_begin)))
+	(assign '(:r3) '((:rsp slot_iter_begin)))
 	(call :stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
-	(assign '((:rsp local_iter_begin)) '(:r3))
+	(assign '((:rsp slot_iter_begin)) '(:r3))
 	(assign '(:r1 :r2) '((:r3 0) (:r3 +long_size)))
-	(assign '((:rsp local_this) (:rsp local_stream)) '(:r0 :r1))
+	(assign '((:rsp slot_this) (:rsp slot_stream)) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :stream :lisp_write_bits '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
+	(assign '((:rsp slot_this) (:rsp slot_args)) '(:r0 :r1))
 (vp-label 'error)
-	(vp-free local_size)
+	(vp-free slot_size)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM))
 

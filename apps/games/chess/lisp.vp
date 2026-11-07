@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args yield))
 
 	(vp-rdef (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors)
@@ -22,11 +22,11 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 
 	(call :str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
-	(assign '(:r0 (& :r0 +str_data) (:rsp local_args)) `((:rsp local_yield) ,yield_data :r0))
+	(assign '(:r0 (& :r0 +str_data) (:rsp slot_args)) `((:rsp slot_yield) ,yield_data :r0))
 	(list-bind-args :r0 `(,brd ,cx ,vectors) '(:str :num :list))
 
 	(assign `(,cx) `(,cy))
@@ -55,13 +55,13 @@
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
 
-	(assign '((:rsp local_yield) 0) '(:r1 :r0))
+	(assign '((:rsp slot_yield) 0) '(:r1 :r0))
 	(assign `((& :r1 +str_data) :r0) `(:r2 (,yield_data 0 ub)))
 	(vp-sub-rr :r2 yield_data)
 	(assign `(,yield_data) '((:r1 +str_length)))
 
-	(exit '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error)

@@ -428,18 +428,18 @@
 		;trashes
 		;...
 
-	(structure local 0
+	(structure slot 0
 		(ptr this data down up))
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp local_this) (:rsp local_data) (:rsp local_down) (:rsp local_up) :r1))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
 
 		;down callback
-		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-rc :rsp local_down)
+		(assign '((:rsp slot_data)) '(:r1))
+		(vp-call-rc :rsp slot_down)
 		(breakif '(:r1 = 0))
 
 		;down to child
@@ -450,11 +450,11 @@
 	(loop-until '(:r2 = 0))
 	(loop-start)
 		;up callback
-		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-rc :rsp local_up)
+		(assign '((:rsp slot_data)) '(:r1))
+		(vp-call-rc :rsp slot_up)
 
 		;back at root ?
-		(assign '((:rsp local_this)) '(:r2))
+		(assign '((:rsp slot_this)) '(:r2))
 		(breakif '(:r0 = :r2))
 
 		;across to sibling
@@ -467,9 +467,9 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -494,18 +494,18 @@
 		;trashes
 		;...
 
-	(structure local 0
+	(structure slot 0
 		(ptr this data down up))
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp local_this) (:rsp local_data) (:rsp local_down) (:rsp local_up) :r1))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1 :r2 :r3 :r0) '((:rsp slot_this) (:rsp slot_data) (:rsp slot_down) (:rsp slot_up) :r1))
 	(loop-start)
 	(vp-label 'down_loop_ctx)
 		(vp-cpy-rr :r1 :r0)
 
 		;down callback
-		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-rc :rsp local_down)
+		(assign '((:rsp slot_data)) '(:r1))
+		(vp-call-rc :rsp slot_down)
 		(breakif '(:r1 = 0))
 
 		;down to child
@@ -516,11 +516,11 @@
 	(loop-until '(:r2 = 0))
 	(loop-start)
 		;up callback
-		(assign '((:rsp local_data)) '(:r1))
-		(vp-call-rc :rsp local_up)
+		(assign '((:rsp slot_data)) '(:r1))
+		(vp-call-rc :rsp slot_up)
 
 		;back at root ?
-		(assign '((:rsp local_this)) '(:r2))
+		(assign '((:rsp slot_this)) '(:r2))
 		(breakif '(:r0 = :r2))
 
 		;across to sibling
@@ -533,9 +533,9 @@
 		;up to parent
 		(assign '((:r0 +hmap_parent)) '(:r0))
 	(loop-end)
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -548,15 +548,15 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args))
 
-	(vp-alloc local_size)
-	(entry :view :draw '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(entry :view :draw '((:rsp slot_this)))
 
 	(fn-bind 'sys/statics/statics :r1)
 	(assign `((:r1 ,(+ statics_static_syms static_sym_vtable))) '(:r1))
-	(call :view :pfind '((:rsp local_this) :r1) '(_ :r2 _))
+	(call :view :pfind '((:rsp slot_this) :r1) '(_ :r2 _))
 	(vpif '(:r2 /= 0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign `((:r1 ,(+ statics_static_syms static_sym_draw))) '(:r1))
@@ -568,32 +568,32 @@
 			(assign '((:r1 +obj_vtable)) '(:r2))
 			(vpif '(:r0 = :r2))
 				;VP :draw method
-				(assign '((:rsp local_this)) '(:r0))
+				(assign '((:rsp slot_this)) '(:r0))
 				(vp-call-rc :r1 +num_value)
 			(else)
 				;Lisp :draw method
 				(assign '(:r1) '(:r13))
 				(call :list :create :nil '(:r0))
 				(fn-bind 'sys/statics/statics :r6)
-				(assign '((:rsp local_this)) '(:r1))
+				(assign '((:rsp slot_this)) '(:r1))
 				(assign `((:r6 ,(+ statics_static_syms static_sym_draw))) '(:r2))
 				(class/obj/ref :r1 :r3)
 				(class/obj/ref :r2 :r3)
 				(call :list :push_back2 '(:r0 :r1 :r2) '(:r1 _ _ _ _))
-				(assign '(:r1) '((:rsp local_args)))
+				(assign '(:r1) '((:rsp slot_args)))
 				(assign '((:r6 statics_sys_task_current_tcb)) '(:r0))
 				(assign '((:r0 +tk_node_lisp)) '(:r0))
 				(vpif '(:r0 /= 0))
 					(call :lisp :repl_apply '(:r0 :r1 :r13) '(_ :r1))
 					(call :obj :deref '(:r1))
 				(endif)
-				(call :obj :deref '((:rsp local_args)))
+				(call :obj :deref '((:rsp slot_args)))
 			(endif)
 		(endif)
 	(endif)
 
-	(exit :view :draw '((:rsp local_this)))
-	(vp-free local_size)
+	(exit :view :draw '((:rsp slot_this)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -608,31 +608,31 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this view)
 		(long id))
 
 	;save inputs
-	(vp-alloc local_size)
-	(entry :view :find_id '((:rsp local_this) (:rsp local_id)))
+	(vp-alloc slot_size)
+	(entry :view :find_id '((:rsp slot_this) (:rsp slot_id)))
 	(vp-xor-rr :r1 :r1)
-	(assign '(:r1) '((:rsp local_view)))
+	(assign '(:r1) '((:rsp slot_view)))
 
 	;iterate through views front to back
 	(call :view :forward_tree '(:r0 :rsp ($ down_callback) ($ up_callback)))
 
-	(exit :view :find_id '((:rsp local_this) (:rsp local_view)))
-	(vp-free local_size)
+	(exit :view :find_id '((:rsp slot_this) (:rsp slot_view)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'down_callback)
 	(entry :view :forward_tree_callback '(:r0 :r1))
 
-	(assign '((:r1 local_view)) '(:r2))
+	(assign '((:r1 slot_view)) '(:r2))
 	(gotoif '(:r2 /= 0) 'down_exit)
-	(assign '((:r0 +view_id) (:r1 local_id)) '(:r2 :r3))
+	(assign '((:r0 +view_id) (:r1 slot_id)) '(:r2 :r3))
 	(vpif '(:r2 = :r3))
-		(assign '(:r0) '((:r1 local_view)))
+		(assign '(:r0) '((:r1 slot_view)))
 	(vp-label 'down_exit)
 		(vp-xor-rr :r1 :r1)
 	(endif)
@@ -684,20 +684,20 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this hit))
 
 	;save inputs
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(vp-xor-rr :r1 :r1)
-	(assign '(:r1) '((:rsp local_hit)))
+	(assign '(:r1) '((:rsp slot_hit)))
 
 	;iterate through views front to back
 	(call :view :forward_tree '(:r0 :rsp ($ hit_down_callback) ($ hit_up_callback)))
 
-	(assign '((:rsp local_this) (:rsp local_hit)) '(:r0 :r1))
-	(vp-free local_size)
+	(assign '((:rsp slot_this) (:rsp slot_hit)) '(:r0 :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'hit_down_callback)
@@ -708,11 +708,11 @@
 	(d-jump :view :hit '(:r0 :r7 :r8))
 
 (vp-label 'hit_up_callback)
-	(assign '(:r1 (:r1 local_hit)) '(:r2 :r1))
+	(assign '(:r1 (:r1 slot_hit)) '(:r2 :r1))
 	(vpif '(:r1 = 0))
 		(call :view :hit '(:r0 :r7 :r8) '(:r0 :r1))
 		(vpif '(:r1 /= 0))
-			(assign '(:r0) '((:r2 local_hit)))
+			(assign '(:r0) '((:r2 slot_hit)))
 			(vp-ret)
 		(endif)
 		(assign '((:r0 +view_x)) '(:r1))

@@ -597,18 +597,18 @@
 	;trashes
 	;:r0-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr prefix entries))
 
-	(vp-alloc local_size)
-	(entry :sys_mail :enquire '((:rsp local_prefix)))
+	(vp-alloc slot_size)
+	(entry :sys_mail :enquire '((:rsp slot_prefix)))
 
-	(call :list :create :nil '((:rsp local_entries)))
+	(call :list :create :nil '((:rsp slot_entries)))
 	(fn-bind 'sys/statics/statics :r0)
 	(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ callback1) :rsp))
 
-	(exit :sys_mail :enquire '((:rsp local_entries)))
-	(vp-free local_size)
+	(exit :sys_mail :enquire '((:rsp slot_entries)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback1)
@@ -641,11 +641,11 @@
 
 	(assign '((:r1 0)) '(:r1))
 	(vp-push :r0 :r1)
-	(call :str :starts_with '((:r0 local_prefix) :r1) '(_ :r2))
+	(call :str :starts_with '((:r0 slot_prefix) :r1) '(_ :r2))
 	(vp-pop :r0 :r1)
 	(vpif '(:r2 = 0))
 		(class/obj/ref :r1 :r2)
-		(jump :list :push_back '((:r0 local_entries) :r1))
+		(jump :list :push_back '((:r0 slot_entries) :r1))
 	(endif)
 	(vp-ret)
 

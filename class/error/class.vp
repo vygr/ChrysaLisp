@@ -45,13 +45,13 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this))
 
 	;save inputs
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(assign '(:r0 :r2 :r3 :r4 :r5 :r6 :r7 :r8)
-		'((:rsp local_this) (:r0 +error_description) (:r0 +error_msg i) (:r0 +error_object)
+		'((:rsp slot_this) (:r0 +error_description) (:r0 +error_msg i) (:r0 +error_object)
 		(:r0 +error_script) (:r0 +error_file) (:r0 +error_line i) (:r0 +error_frame)))
 
 	;init parent
@@ -59,17 +59,17 @@
 	(vpif '(:r1 /= 0))
 		;init self
 		(call :str :create_from_cstr '((:r0 +error_description)) '(:r0))
-		(assign '((:rsp local_this)) '(:r1))
+		(assign '((:rsp slot_this)) '(:r1))
 		(assign '(:r0) '((:r1 +error_description)))
 		(call :obj :ref '((:r1 +error_script)))
-		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:rsp slot_this)) '(:r0))
 		(call :obj :ref '((:r0 +error_file)))
-		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:rsp slot_this)) '(:r0))
 		(call :obj :ref '((:r0 +error_object)))
-		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:rsp slot_this)) '(:r0))
 	(endif)
 
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

@@ -32,25 +32,25 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this vtable path buf))
 
-	(vp-alloc local_size)
-	(entry :fstream :init '((:rsp local_this) (:rsp local_vtable) (:rsp local_path) (:r0 +fstream_mode)))
+	(vp-alloc slot_size)
+	(entry :fstream :init '((:rsp slot_this) (:rsp slot_vtable) (:rsp slot_path) (:r0 +fstream_mode)))
 
 	;init parent
 	(call :sys_mem :alloc '(fstream_buf_size) '(:r3 :r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(assign '(:r3 :r1) '((:rsp local_buf) (:r0 +fstream_buf_len)))
-	(s-call :fstream :init '(:r0 (:rsp local_vtable) 0 :r3 :r3 0) '(:r0 :r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(assign '(:r3 :r1) '((:rsp slot_buf) (:r0 +fstream_buf_len)))
+	(s-call :fstream :init '(:r0 (:rsp slot_vtable) 0 :r3 :r3 0) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
-		(call :host_os :pii_open '((:rsp local_path) (:r0 +fstream_mode)) '(:r1))
-		(assign '((:rsp local_this)) '(:r0))
+		(call :host_os :pii_open '((:rsp slot_path) (:r0 +fstream_mode)) '(:r1))
+		(assign '((:rsp slot_this)) '(:r0))
 		(vpif '(:r1 >= 3))
 			(assign '((:r0 +fstream_mode) :r1) '(:r2 (:r0 +fstream_handle)))
 			(breakif '(:r2 = +file_open_read))
-			(assign '((:rsp local_buf) (:r0 +fstream_buf_len)) '(:r1 :r2))
+			(assign '((:rsp slot_buf) (:r0 +fstream_buf_len)) '(:r1 :r2))
 			(vp-add-rr :r2 :r1)
 			(assign '(:r1) '((:r0 +stream_bufe)))
 		(else)
@@ -59,12 +59,12 @@
 		(endif)
 	(else)
 		;error
-		(call :sys_mem :free '((:rsp local_buf)))
-		(assign '((:rsp local_this) 0) '(:r0 :r1))
+		(call :sys_mem :free '((:rsp slot_buf)))
+		(assign '((:rsp slot_this) 0) '(:r0 :r1))
 	(endif)
 
 	(exit :fstream :init '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -278,15 +278,15 @@
 	;trashes
 	;:r1-:r3, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long off)
 		(uint pos)
 		(align))
 
-	(vp-alloc local_size)
-	(entry :fstream :seek '(:r0 (:rsp local_off) (:rsp local_pos)))
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(entry :fstream :seek '(:r0 (:rsp slot_off) (:rsp slot_pos)))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	; if whence is 1 (relative) and we are in read mode
 	; adjust offset by unread buffer size
@@ -297,16 +297,16 @@
 			(vpif '(:r2 /= 0))
 				(vp-sub-rr :r3 :r2)
 				(vp-sub-rr :r2 :r1)
-				(assign '(:r1) '((:rsp local_off)))
+				(assign '(:r1) '((:rsp slot_off)))
 			(endif)
 		(endif)
 	(endif)
 
 	(call :fstream :flush '(:r0) '(:r0))
-	(call :host_os :pii_seek '((:r0 +fstream_handle) (:rsp local_off) (:rsp local_pos)) '(:r1))
+	(call :host_os :pii_seek '((:r0 +fstream_handle) (:rsp slot_off) (:rsp slot_pos)) '(:r1))
 
-	(exit :fstream :seek '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :fstream :seek '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

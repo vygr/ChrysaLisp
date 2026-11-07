@@ -65,7 +65,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this))
 
 	(entry :host_gui :lisp_deinit '(:r0 :r1))
@@ -73,10 +73,10 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;the frame after the check, an error goes with the stack as it came
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 
 	;kernel callback for deinit ?
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_init) (:r1 statics_gui_screen)) '(:r2 :r3))
 	(vp-or-rr :r3 :r2)
@@ -84,12 +84,12 @@
 		(call :sys_task :callback '(:rsp ($ deinit_callback)))
 	(endif)
 
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :host_gui :lisp_deinit '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'deinit_callback)
@@ -190,7 +190,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this event))
 
 	(entry :host_gui :lisp_event '(:r0 :r1))
@@ -198,15 +198,15 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;the frame after the check, an error goes with the stack as it came
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 
 	;kernel callback for event
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ event_callback)))
-	(assign '((:rsp local_this) (:rsp local_event)) '(:r0 :r1))
+	(assign '((:rsp slot_this) (:rsp slot_event)) '(:r0 :r1))
 
 	(exit :host_gui :lisp_event '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 	(structure local1 0
@@ -222,14 +222,14 @@
 	(vpif '(:r0 /= 0))
 		(call :str :create_from_buffer '(0 256) '(:r0))
 		(assign '((:rsp local1_user)) '(:r1))
-		(assign '(:r0) '((:r1 local_event)))
+		(assign '(:r0) '((:r1 slot_event)))
 		(host-gui-call :host_gui :poll_event '((& :r0 +str_data)))
 	(else)
 		(assign '((:rsp local1_user)) '(:r0))
-		(assign '((:r0 local_this)) '(:r1))
+		(assign '((:r0 slot_this)) '(:r1))
 		(assign '((:r1 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
-		(assign '(:r1) '((:r0 local_event)))
+		(assign '(:r1) '((:r0 slot_event)))
 	(endif)
 	(vp-free local1_size)
 	(vp-ret)
@@ -303,12 +303,12 @@
 	;if the host can not read it. As :canvas :read, it is read on the
 	;stack of the host
 
-	(structure local 0
+	(structure slot 0
 		(ptr data)
 		(long x y w h ok))
 
 	(def-vars
-		(struct frame local_size)
+		(struct frame slot_size)
 		(ptr this args out)
 		(long init))
 
@@ -319,16 +319,16 @@
 
 	(assign '(:r0 :r1) (vpx this args))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :num :num))
-	(assign '(:r0 :r1 :r2 :r3) (vpx (. frame local_x) (. frame local_y) (. frame local_w) (. frame local_h)))
+	(assign '(:r0 :r1 :r2 :r3) (vpx (. frame slot_x) (. frame slot_y) (. frame slot_w) (. frame slot_h)))
 	(assign (vpx 0) (vpx out))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_init)) '(:r1))
 	(assign '(:r1) (vpx init))
-	(vpif (vpx (&& (/= init 0) (> (. frame local_w) 0) (> (. frame local_h) 0))))
-		(call :str :create_from_buffer (vpx 0 (* (. frame local_w) (. frame local_h) 4)) (vpx out))
-		(assign (vpx (& (.> out +str_data)) 0) (vpx (. frame local_data) (. frame local_ok)))
+	(vpif (vpx (&& (/= init 0) (> (. frame slot_w) 0) (> (. frame slot_h) 0))))
+		(call :str :create_from_buffer (vpx 0 (* (. frame slot_w) (. frame slot_h) 4)) (vpx out))
+		(assign (vpx (& (.> out +str_data)) 0) (vpx (. frame slot_data) (. frame slot_ok)))
 		(call :sys_task :callback (vpx (& frame) ($ callback)))
-		(vpif (vpx (= (. frame local_ok) 0)))
+		(vpif (vpx (= (. frame slot_ok) 0)))
 			(call :str :deref (vpx out))
 			(assign (vpx 0) (vpx out))
 		(endif)
@@ -360,10 +360,10 @@
 	(push-scope)
 	(entry (vpx user))
 
-	(host-gui-call :host_gui :read_screen (vpx (.> user local_data) (.> user local_x) (.> user local_y)
-			(.> user local_w) (.> user local_h) (* (.> user local_w) 4))
+	(host-gui-call :host_gui :read_screen (vpx (.> user slot_data) (.> user slot_x) (.> user slot_y)
+			(.> user slot_w) (.> user slot_h) (* (.> user slot_w) 4))
 		(vpx ok))
-	(assign (vpx ok) (vpx (.> user local_ok)))
+	(assign (vpx ok) (vpx (.> user slot_ok)))
 
 	(pop-scope)
 	(return)
@@ -389,7 +389,7 @@
 	;	if that is not out yet
 	;op 3, close: the decoder gone, data any, gives 0
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args data)
 		(long op handle len n w h stride out))
 
@@ -397,8 +397,8 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :num :obj :num))
 ;a frame is put in a pixmap, the rest are given a str
 (vp-push :r0 :r1 :r2 :r3)
@@ -409,23 +409,23 @@
 (endif)
 (vp-pop :r0 :r1 :r2 :r3)
 (gotoif '(:r4 = 0) 'error1)
-	(assign '(:r0 :r1 :r3) '((:rsp local_op) (:rsp local_handle) (:rsp local_n)))
+	(assign '(:r0 :r1 :r3) '((:rsp slot_op) (:rsp slot_handle) (:rsp slot_n)))
 	(vpif '(:r0 = 2))
 		(assign '((:r2 +pixmap_data) (:r2 +pixmap_width ui) (:r2 +pixmap_height ui) (:r2 +pixmap_stride ui))
 			'(:r0 :r1 :r3 :r4))
-		(assign '(:r0 :r1 :r3 :r4) '((:rsp local_data) (:rsp local_w) (:rsp local_h) (:rsp local_stride)))
+		(assign '(:r0 :r1 :r3 :r4) '((:rsp slot_data) (:rsp slot_w) (:rsp slot_h) (:rsp slot_stride)))
 	(else)
 		(assign '((:r2 +str_length ui) (& :r2 +str_data)) '(:r1 :r0))
-		(assign '(:r0 :r1) '((:rsp local_data) (:rsp local_len)))
+		(assign '(:r0 :r1) '((:rsp slot_data) (:rsp slot_len)))
 	(endif)
 	(vp-cpy-cr -1 :r0)
-	(assign '(:r0) '((:rsp local_out)))
+	(assign '(:r0) '((:rsp slot_out)))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_sys_load_host_gui_funcs)) '(:r1))
 	(vpif '(:r1 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(assign '((:rsp local_out) (:rsp local_op)) '(:r0 :r1))
+	(assign '((:rsp slot_out) (:rsp slot_op)) '(:r0 :r1))
 	(vpif '(:r1 = 0))
 		;no decoder is 0
 		(vpif '(:r0 < 0))
@@ -434,8 +434,8 @@
 	(endif)
 	(call :num :create '(:r0) '(:r1))
 
-	(exit :host_gui :lisp_video '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_gui :lisp_video '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -444,27 +444,27 @@
 
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(assign '((:r0 local_op)) '(:r1))
+	(assign '((:r0 slot_op)) '(:r1))
 	(vpif '(:r1 = 0))
-		(host-gui-call :host_gui :video_open '((:r0 local_handle) (:r0 local_data) (:r0 local_len)) '(:r0))
+		(host-gui-call :host_gui :video_open '((:r0 slot_handle) (:r0 slot_data) (:r0 slot_len)) '(:r0))
 	(elseif '(:r1 = 1))
 		(host-gui-call :host_gui :video_decode
-			'((:r0 local_handle) (:r0 local_data) (:r0 local_len) (:r0 local_n)) '(:r0))
+			'((:r0 slot_handle) (:r0 slot_data) (:r0 slot_len) (:r0 slot_n)) '(:r0))
 	(elseif '(:r1 = 2))
 		(host-gui-call :host_gui :video_frame
-			'((:r0 local_handle) (:r0 local_data) (:r0 local_w) (:r0 local_h) (:r0 local_stride) (:r0 local_n))
+			'((:r0 slot_handle) (:r0 slot_data) (:r0 slot_w) (:r0 slot_h) (:r0 slot_stride) (:r0 slot_n))
 			'(:r0))
 	(else)
-		(host-gui-call :host_gui :video_close '((:r0 local_handle)))
+		(host-gui-call :host_gui :video_close '((:r0 slot_handle)))
 		(vp-xor-rr :r0 :r0)
 	(endif)
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_out)))
+	(assign '(:r0) '((:r1 slot_out)))
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
-	(vp-free local_size)
+	(assign '((:rsp slot_this) (:rsp slot_args)) '(:r0 :r1))
+	(vp-free slot_size)
 (vp-label 'error)
 	(jump :lisp :repl_error '(:r1 "(gui-video op handle data n)" +error_msg_wrong_types))
 	(signature '(:NUM :NUM :obj :NUM))

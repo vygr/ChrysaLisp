@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this cstr))
 
 	(entry :host_clipboard :lisp_put '(:r0 :r1))
@@ -20,21 +20,21 @@
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	;kernel callback for host call
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(list-bind-args :r1 '(:r1) '(:str))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_cstr)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_cstr)))
 	(call :sys_task :callback '(:rsp ($ put_callback)))
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 	(assign '((:r0 +lisp_sym_t)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(vp-free local_size)
+	(vp-free slot_size)
 
 	(exit :host_clipboard :lisp_put '(:r0 :r1))
 	(vp-ret)
 
 (vp-label 'put_callback)
 	(entry :sys_task :task_callback '(:r0))
-	(host-gui-call :host_gui :clip_put '((:r0 local_cstr)))
+	(host-gui-call :host_gui :clip_put '((:r0 slot_cstr)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -53,7 +53,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this text))
 
 	(entry :host_clipboard :lisp_get '(:r0 :r1))
@@ -61,11 +61,11 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;kernel callback for host call
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ get_callback)))
-	(assign '((:rsp local_this) (:rsp local_text)) '(:r0 :r1))
-	(vp-free local_size)
+	(assign '((:rsp slot_this) (:rsp slot_text)) '(:r0 :r1))
+	(vp-free slot_size)
 
 	(exit :host_clipboard :lisp_get '(:r0 :r1))
 	(vp-ret)
@@ -78,12 +78,12 @@
 	(vp-pop :r13)
 	(vp-cpy-rr tmp :r12)
 	(vpif `(,tmp = 0))
-		(assign '((:r13 local_this)) '(:r0))
+		(assign '((:r13 slot_this)) '(:r0))
 		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r1))
 	(else)
 		(call :str :create_from_cstr `(,tmp) '(:r1))
 	(endif)
-	(assign '(:r1) '((:r13 local_text)))
+	(assign '(:r1) '((:r13 slot_text)))
 	(host-gui-call :host_gui :clip_free '(:r12))
 	(vp-ret)
 

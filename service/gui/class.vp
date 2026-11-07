@@ -194,24 +194,24 @@
 	;the dirty regions of the frame freed, its views let go of, and its
 	;list, here, not on the host, as a view let go of may be the last of it
 
-	(structure local 0
+	(structure slot 0
 		(ptr iter iter_end))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_gui_draws)) '(:r0))
 	(class/array/get_both :r0 :r1 :r2)
-	(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_iter_end)))
+	(assign '(:r1 :r2) '((:rsp slot_iter) (:rsp slot_iter_end)))
 	(loop-start)
-		(assign '((:rsp local_iter) (:rsp local_iter_end)) '(:r0 :r1))
+		(assign '((:rsp slot_iter) (:rsp slot_iter_end)) '(:r0 :r1))
 		(breakif '(:r0 >= :r1))
 		(fn-bind 'sys/statics/statics :r1)
 		(vp-add-cr statics_gui_rect_heap :r1)
 		(vp-lea-rcr :r0 +long_size :r2)
 		(call :region :free '(:r1 :r2))
-		(assign '((:rsp local_iter)) '(:r0))
+		(assign '((:rsp slot_iter)) '(:r0))
 		(vp-lea-rcr :r0 (* 2 +long_size) :r1)
-		(assign '(:r1) '((:rsp local_iter)))
+		(assign '(:r1) '((:rsp slot_iter)))
 		(call :view :deref '((:r0 0)))
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r1)
@@ -219,7 +219,7 @@
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r2) '((:r1 statics_gui_draws)))
 	(call :array :deref '(:r0))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -240,7 +240,7 @@
 	(vp-rdef (root heap region x y x1 y1 tmp)
 		'(:r0 :r0 :r1 :r7 :r8 :r9 :r10 :r1))
 
-	(structure local 0
+	(structure slot 0
 		(ptr root ctx_flist ctx_next)
 		(ptr damaged_region)
 		(uint index)
@@ -248,9 +248,9 @@
 		(align))
 
 	;save inputs
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :host_gui :composite `(,root))
-	(assign `(,root) '((:rsp local_root)))
+	(assign `(,root) '((:rsp slot_root)))
 
 	;iterate through views back to front
 	;setting abs cords, plus
@@ -265,19 +265,19 @@
 	(vp-simd vp-store-rrc-i
 		`(,x ,y ,x1 ,y1)
 		`(:rsp)
-		`(,local_x ,local_y ,local_w ,local_h))
+		`(,slot_x ,slot_y ,slot_w ,slot_h))
 
 	;iterate through views front to back
 	;distribute visible region
 	(vp-xor-rr tmp tmp)
-	(assign `(,tmp) '((:rsp local_ctx_flist)))
+	(assign `(,tmp) '((:rsp slot_ctx_flist)))
 	(call :view :forward_tree `(,root :rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;each view on the draw list draws, its kept list of draws, else its :draw
 	;run into a new one, if it has not drawn or is a new size. Each goes in
 	;the frame, given its dirty region, freed once the frame is on the host
-	(loop-flist :rsp local_ctx_flist root root)
-		(assign `(,root) '((:rsp local_ctx_next)))
+	(loop-flist :rsp slot_ctx_flist root root)
+		(assign `(,root) '((:rsp slot_ctx_next)))
 		(vp-sub-cr +view_ctx_node root)
 		(assign `((,root +view_flags) (,root +view_w) (,root +view_h) (,root +view_draws_w) (,root +view_draws_h))
 			'(:r1 :r2 :r3 :r4 :r5))
@@ -308,16 +308,16 @@
 		(fn-bind 'sys/statics/statics :r0)
 		(assign '((:r0 statics_gui_draws)) '(:r0))
 		(call :array :push_back2 '(:r0 :r1 :r2))
-		(assign '((:rsp local_ctx_next)) `(,root))
+		(assign '((:rsp slot_ctx_next)) `(,root))
 	(loop-end)
 
 	(vp-simd vp-load-rcr-i
 		`(:rsp)
-		`(,local_x ,local_y ,local_w ,local_h)
+		`(,slot_x ,slot_y ,slot_w ,slot_h)
 		`(,x ,y ,x1 ,y1))
 
 	(exit :host_gui :composite `(,x ,y ,x1 ,y1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'visible_down_callback)
@@ -520,7 +520,7 @@
 	(assign `(,view2 ,view1) '((:rsp dist_this) (:rsp dist_data)))
 
 	;if not root
-	(assign `((,view1 local_root)) `(,tmp))
+	(assign `((,view1 slot_root)) `(,tmp))
 	(vpif `(,view2 /= ,tmp))
 		;region heap
 		(fn-bind 'sys/statics/statics heap)
@@ -563,7 +563,7 @@
 						,x ,y ,x1 ,y1) `(,heap))
 
 					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view1 ,view2))
-					(assign `((,view1 local_root)) `(,view1))
+					(assign `((,view1 slot_root)) `(,view1))
 				(loop-until `(,view1 = ,view2))
 			(else)
 				;use views opaque region
@@ -603,7 +603,7 @@
 						(& ,view2 +view_dirty_region) 0 0) `(,heap))
 
 					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view2 ,view1))
-					(assign `((,view2 local_root)) `(,view2))
+					(assign `((,view2 slot_root)) `(,view2))
 				(loop-until `(,view1 = ,view2))
 
 				;free any temp region
@@ -631,7 +631,7 @@
 	(assign `((,view +view_dirty_region)) `(,node))
 	(vpif `(,node /= 0))
 		(vp-lea-rcr view +view_ctx_node node)
-		(vp-add-cr local_ctx_flist user)
+		(vp-add-cr slot_ctx_flist user)
 		(ln-add-fnode user 0 node tmp)
 	(endif)
 

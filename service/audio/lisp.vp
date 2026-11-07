@@ -25,7 +25,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_ret))
 
@@ -35,19 +35,19 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_init '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_init '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -67,7 +67,7 @@
 		(vp-cpy-cr -1 :r0)
 	(endif)
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -85,7 +85,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_ret))
 
@@ -95,19 +95,19 @@
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_deinit '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_deinit '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -119,7 +119,7 @@
 	(vp-push :r0)
 	(host-audio-call :host_audio :deinit)
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -137,7 +137,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(pubyte c_path)
 		(long c_ret))
@@ -148,22 +148,22 @@
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	;cast input string args to C style char*
 	(list-bind-args :r1 '(:r0) '(:str))
 	;save them so kernel callback can see them
-	(assign '(:r0) '((:rsp local_c_path)))
+	(assign '(:r0) '((:rsp slot_c_path)))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_add '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_add '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -173,9 +173,9 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :add '((:r0 local_c_path)) '(:r0))
+	(host-audio-call :host_audio :add '((:r0 slot_c_path)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -194,7 +194,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle c_state c_ret))
 
@@ -204,22 +204,22 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	;cast input numeric args
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
 	;save them so kernel callback can see them
-	(assign '(:r1 :r2) '((:rsp local_c_handle) (:rsp local_c_state)))
+	(assign '(:r1 :r2) '((:rsp slot_c_handle) (:rsp slot_c_state)))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_change '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_change '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -229,9 +229,9 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :change '((:r0 local_c_handle) (:r0 local_c_state)) '(:r0))
+	(host-audio-call :host_audio :change '((:r0 slot_c_handle) (:r0 slot_c_state)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -250,7 +250,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle c_ret))
 
@@ -260,22 +260,22 @@
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	;cast input numeric arg
 	(list-bind-args :r1 '(:r1) '(:num))
 	;save it so kernel callback can see it
-	(assign '(:r1) '((:rsp local_c_handle)))
+	(assign '(:r1) '((:rsp slot_c_handle)))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_remove '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_remove '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -285,9 +285,9 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :remove '((:r0 local_c_handle)) '(:r0))
+	(host-audio-call :host_audio :remove '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -306,7 +306,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle c_pan c_ret))
 
@@ -316,22 +316,22 @@
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	;allocate stack for locals
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	;save lisp `this`
-	(assign '(:r0) '((:rsp local_this)))
+	(assign '(:r0) '((:rsp slot_this)))
 	;cast input numeric args
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
 	;save them so kernel callback can see them
-	(assign '(:r1 :r2) '((:rsp local_c_handle) (:rsp local_c_pan)))
+	(assign '(:r1 :r2) '((:rsp slot_c_handle) (:rsp slot_c_pan)))
 	;callback in kernel thread/stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 	;convert C return value to number
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
 	;return lisp `this` and return value
-	(exit :host_audio :lisp_play '((:rsp local_this) :r1))
+	(exit :host_audio :lisp_play '((:rsp slot_this) :r1))
 	;free local stack
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -341,9 +341,9 @@
 	;kernel callback
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :play '((:r0 local_c_handle) (:r0 local_c_pan)) '(:r0))
+	(host-audio-call :host_audio :play '((:r0 slot_c_handle) (:r0 slot_c_pan)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -362,7 +362,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_ret))
 
@@ -370,13 +370,13 @@
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_mic_open '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_mic_open '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -387,7 +387,7 @@
 	(vp-push :r0)
 	(host-audio-call :host_audio :mic_open '() '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -408,7 +408,7 @@
 	;what the microphone has heard written into the string, 16 bit mono,
 	;as many samples as it holds at most, how many it wrote returned
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(pubyte c_data)
 		(long c_max c_ret))
@@ -417,17 +417,17 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0) '(:obj))
 	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
 	(vp-shr-cr 1 :r1)
-	(assign '(:r0 :r1) '((:rsp local_c_data) (:rsp local_c_max)))
+	(assign '(:r0 :r1) '((:rsp slot_c_data) (:rsp slot_c_max)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_mic_read '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_mic_read '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -436,9 +436,9 @@
 
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :mic_read '((:r0 local_c_data) (:r0 local_c_max)) '(:r0))
+	(host-audio-call :host_audio :mic_read '((:r0 slot_c_data) (:r0 slot_c_max)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -457,7 +457,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_ret))
 
@@ -465,13 +465,13 @@
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_mic_close '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_mic_close '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -482,7 +482,7 @@
 	(vp-push :r0)
 	(host-audio-call :host_audio :mic_close '() '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -504,7 +504,7 @@
 	;(audio-stream-open rate channels) -> handle, 0 if there is no room or
 	;no sound, of 1 or 2 channels at a rate of 8000 to 48000, 16 bit
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_rate c_channels c_ret))
 
@@ -512,15 +512,15 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r1 :r2) '(:num :num))
-	(assign '(:r1 :r2) '((:rsp local_c_rate) (:rsp local_c_channels)))
+	(assign '(:r1 :r2) '((:rsp slot_c_rate) (:rsp slot_c_channels)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_stream_open '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_stream_open '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -529,9 +529,9 @@
 
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :stream_open '((:r0 local_c_rate) (:r0 local_c_channels)) '(:r0))
+	(host-audio-call :host_audio :stream_open '((:r0 slot_c_rate) (:r0 slot_c_channels)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -553,7 +553,7 @@
 	;the samples of the string, 16 bit mono, given to the stream to play,
 	;how many it took returned
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle)
 		(pubyte c_data)
@@ -563,18 +563,18 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r1 :r0) '(:num :obj))
-	(assign '(:r1) '((:rsp local_c_handle)))
+	(assign '(:r1) '((:rsp slot_c_handle)))
 	(assign '((:r0 +str_length) (& :r0 +str_data)) '(:r1 :r0))
 	(vp-shr-cr 1 :r1)
-	(assign '(:r0 :r1) '((:rsp local_c_data) (:rsp local_c_frames)))
+	(assign '(:r0 :r1) '((:rsp slot_c_data) (:rsp slot_c_frames)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_stream_write '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_stream_write '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -584,9 +584,9 @@
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
 	(host-audio-call :host_audio :stream_write
-		'((:r0 local_c_handle) (:r0 local_c_data) (:r0 local_c_frames)) '(:r0))
+		'((:r0 slot_c_handle) (:r0 slot_c_data) (:r0 slot_c_frames)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -605,7 +605,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle c_ret))
 
@@ -613,15 +613,15 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r1) '(:num))
-	(assign '(:r1) '((:rsp local_c_handle)))
+	(assign '(:r1) '((:rsp slot_c_handle)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_stream_close '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_stream_close '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -630,9 +630,9 @@
 
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :stream_close '((:r0 local_c_handle)) '(:r0))
+	(host-audio-call :host_audio :stream_close '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -654,7 +654,7 @@
 	;(audio-stream-left handle) -> frames, how many of a stream are still to
 	;be played, -1 if there is no such stream
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_handle c_ret))
 
@@ -662,15 +662,15 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r1) '(:num))
-	(assign '(:r1) '((:rsp local_c_handle)))
+	(assign '(:r1) '((:rsp slot_c_handle)))
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_ret)) '(:r1))
+	(call :num :create '((:rsp slot_c_ret)) '(:r1))
 
-	(exit :host_audio :lisp_stream_left '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_audio :lisp_stream_left '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -679,9 +679,9 @@
 
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-audio-call :host_audio :stream_left '((:r0 local_c_handle)) '(:r0))
+	(host-audio-call :host_audio :stream_left '((:r0 slot_c_handle)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_ret)))
+	(assign '(:r0) '((:r1 slot_c_ret)))
 	(vp-ret)
 
 (vp-label 'error)

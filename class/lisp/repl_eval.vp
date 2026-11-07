@@ -13,7 +13,7 @@
 	;info
 	;emit the eval of the args of a form, into a list, that takes each
 	;value as it is given, with no ref. The frame, of the caller, holds the
-	;form, in local_form, and the list, in local_args, and no more, the
+	;form, in slot_form, and the list, in slot_args, and no more, the
 	;place in the form is found from the length of the list so far.
 	;
 	;The list is taken from the chain of empty ones the lisp object keeps,
@@ -24,7 +24,7 @@
 		(vp-cpy-rr :r0 :r10)
 		(call :list :create :nil '(:r2))
 		(vp-cpy-rr :r10 :r0)
-		(assign '((:rsp local_form)) '(:r1))
+		(assign '((:rsp slot_form)) '(:r1))
 		(assign '((:r1 +array_length)) '(:r3))
 		(vp-sub-cr 1 :r3)
 	(else)
@@ -32,14 +32,14 @@
 		(assign '((:r4 0)) '(:r4))
 		(assign '(:r4) '((:r0 +lisp_args_pool)))
 	(endif)
-	(assign '(:r2) '((:rsp local_args)))
+	(assign '(:r2) '((:rsp slot_args)))
 	(vpif '(:r3 /= 0))
 		(assign '((:r2 +array_capacity)) '(:r4))
 		(vpif '(:r3 > :r4))
 			(vp-cpy-rr :r0 :r10)
 			(call :array :set_cap '(:r2 :r3))
 			(vp-cpy-rr :r10 :r0)
-			(assign '((:rsp local_form)) '(:r1))
+			(assign '((:rsp slot_form)) '(:r1))
 		(endif)
 		(assign '((:r1 +array_begin)) '(:r2))
 		(vp-cpy-cr +ptr_size :r6)
@@ -47,7 +47,7 @@
 			(call :lisp :repl_eval '(:r0 (:r2 :r6)) '(:r0 :r1))
 		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) err)
-			(assign '((:rsp local_args) (:rsp local_form)) '(:r7 :r2))
+			(assign '((:rsp slot_args) (:rsp slot_form)) '(:r7 :r2))
 			(assign '((:r7 +array_length) (:r7 +array_begin)) '(:r4 :r5))
 			(assign '((:r2 +array_length) (:r2 +array_begin)) '(:r3 :r2))
 			(vp-cpy-rr :r4 :r6)
@@ -136,10 +136,10 @@
 	;from the form when wanted, with no slot of its own. Only a function
 	;that has to be evaluated, the general case, has a slot, and a ref.
 
-	(structure local 0
+	(structure slot 0
 		(ptr form args func))
 
-	(defq frame local_func frame_general local_size)
+	(defq frame slot_func frame_general slot_size)
 
 	(entry :lisp :repl_eval '(:r0 :r1))
 
@@ -193,15 +193,15 @@
 			(endif)
 			;built in function
 			(vp-alloc frame)
-			(assign '(:r1) '((:rsp local_form)))
+			(assign '(:r1) '((:rsp slot_form)))
 			(eval-args 'error_args)
-			(assign '((:rsp local_form) (:rsp local_args)) '(:r2 :r1))
+			(assign '((:rsp slot_form) (:rsp slot_args)) '(:r2 :r1))
 			(assign '((:r2 +array_begin)) '(:r2))
 			(assign '((:r2 0)) '(:r2))
 			(assign '((:r2 +num_value)) '(:r2))
 			(vp-and-cr (neg +ptr_size) :r2)
 			;only the args are held while it runs
-			(vp-free local_args)
+			(vp-free slot_args)
 			(r-call :lisp :repl_eval '(:r0 :r1 :r2) '(_ :r1) :r2)
 			(assign '((:rsp 0)) '(:r0))
 		(vp-label 'drop_args)
@@ -213,8 +213,8 @@
 			(drop-args-slow 0)
 		(vp-label 'error_args)
 			;an arg gave an error, it is the value
-			(assign '((:rsp local_args)) '(:r0))
-			(vp-free local_args)
+			(assign '((:rsp slot_args)) '(:r0))
+			(vp-free slot_args)
 			(goto 'drop_args)
 		(endif)
 		(vpif '(:r3 = :r4))
@@ -225,14 +225,14 @@
 			(breakif '(:r3 /= :r5))
 			;a prebound lambda
 			(vp-alloc frame)
-			(assign '(:r1) '((:rsp local_form)))
+			(assign '(:r1) '((:rsp slot_form)))
 			(eval-args 'error_args)
 			(call :lisp :env_push '(:r0) '(:r0 _))
-			(assign '((:rsp local_form)) '(:r1))
+			(assign '((:rsp slot_form)) '(:r1))
 			(assign '((:r1 +array_begin)) '(:r1))
 			(assign '((:r1 0)) '(:r1))
 			(assign '((:r1 +array_begin)) '(:r1))
-			(assign `((:r1 ,+ptr_size) (:rsp local_args)) '(:r1 :r2))
+			(assign `((:r1 ,+ptr_size) (:rsp slot_args)) '(:r1 :r2))
 			;the values move from the args to the environment, so the args
 			;are empty, and can go, before the body runs
 			(lisp-bind-fresh :t 'bind_bail 'bind_general)
@@ -241,7 +241,7 @@
 			(assign '((:r0 +lisp_args_pool)) '(:r3))
 			(assign '(:r3 :r13) '((:r2 0) (:r0 +lisp_args_pool)))
 		(vp-label 'bound)
-			(assign '((:rsp local_form)) '(:r2))
+			(assign '((:rsp slot_form)) '(:r2))
 			(vp-free frame)
 			(assign '((:r2 +array_begin)) '(:r2))
 			(assign '((:r2 0)) '(:r2))
@@ -256,28 +256,28 @@
 		(vp-label 'bind_general)
 			;not the usual case, so :env_bind, which gives each value a ref
 			(call :lisp :env_bind '(:r0 :r1 :r2) '(_ :r1))
-			(assign '((:rsp local_args)) '(:r0))
-			(assign '(:r1) '((:rsp local_args)))
+			(assign '((:rsp slot_args)) '(:r0))
+			(assign '(:r1) '((:rsp slot_args)))
 			(drop-args 1)
-			(assign '((:rsp local_args)) '(:r1))
+			(assign '((:rsp slot_args)) '(:r1))
 			(goto 'bound)
 		(vp-label 'args_grown)
-			(assign '(:r1) '((:rsp local_args)))
+			(assign '(:r1) '((:rsp slot_args)))
 			(call :obj :deref '(:r13))
 			(lisp-this :r0)
-			(assign '((:rsp local_args)) '(:r1))
+			(assign '((:rsp slot_args)) '(:r1))
 			(goto 'bound)
 			(lisp-bind-fresh-bail :t 'bind_bail 'bind_general)
 			(drop-args-slow 1)
 		(endif)
 		;the general case, the function has to be evaluated
 		(vp-alloc frame_general)
-		(assign '(:r1) '((:rsp local_form)))
+		(assign '(:r1) '((:rsp slot_form)))
 		(call :lisp :repl_eval '(:r0 :r2) '(:r0 :r1))
 		(assign '((:r1 +obj_vtable)) '(:r2))
 	(assign '((:r0 +lisp_error)) '(:r3))
 	(gotoif '(:r2 = :r3) 'funcall_exit)
-		(assign '(:r1) '((:rsp local_func)))
+		(assign '(:r1) '((:rsp slot_func)))
 		(f-bind :func :vtable :r3)
 		(vpif '(:r2 = :r3))
 			(assign '((:r1 +num_value)) '(:r2))
@@ -285,22 +285,22 @@
 			(vpif '(:r2 /= 0))
 				;special form
 				(vp-cpy-rr :r1 :r2)
-				(call :lisp :repl_apply '(:r0 (:rsp local_form) :r2) '(_ :r1))
-				(assign '(:r1) '((:rsp local_form)))
+				(call :lisp :repl_apply '(:r0 (:rsp slot_form) :r2) '(_ :r1))
+				(assign '(:r1) '((:rsp slot_form)))
 				(goto 'drop_func)
 			(endif)
 		(endif)
-		(assign '((:rsp local_form)) '(:r1))
+		(assign '((:rsp slot_form)) '(:r1))
 		(eval-args 'error_general)
-		(assign '((:rsp local_args) (:rsp local_func)) '(:r1 :r2))
+		(assign '((:rsp slot_args) (:rsp slot_func)) '(:r1 :r2))
 		(call :lisp :repl_apply '(:r0 :r1 :r2) '(_ :r1))
 	(vp-label 'error_general)
-		(assign '(:r1) '((:rsp local_form)))
-		(call :obj :deref '((:rsp local_args)))
+		(assign '(:r1) '((:rsp slot_form)))
+		(call :obj :deref '((:rsp slot_args)))
 	(vp-label 'drop_func)
-		(call :obj :deref '((:rsp local_func)))
+		(call :obj :deref '((:rsp slot_func)))
 		(lisp-this :r0)
-		(assign '((:rsp local_form)) '(:r1))
+		(assign '((:rsp slot_form)) '(:r1))
 	(vp-label 'funcall_exit)
 		(exit :lisp :repl_eval '(:r0 :r1))
 		(vp-free frame_general)
@@ -330,7 +330,7 @@
 	;each element is replaced by its value, in place. The frame is the two
 	;iterators, the lisp object stays in :r0, each eval gives it back.
 
-	(structure local 0
+	(structure slot 0
 		(pptr iter_begin iter_end))
 
 	(entry :lisp :repl_eval_list '(:r0 :r1))
@@ -339,22 +339,22 @@
 	(vpif '(:r2 /= 0))
 		(vp-shl-cr (log2 +long_size) :r2)
 		(vp-add-rr :r3 :r2)
-		(vp-alloc local_size)
-		(assign '(:r2) '((:rsp local_iter_end)))
+		(vp-alloc slot_size)
+		(assign '(:r2) '((:rsp slot_iter_end)))
 		(loop-start)
-			(assign '(:r3) '((:rsp local_iter_begin)))
+			(assign '(:r3) '((:rsp slot_iter_begin)))
 			(call :lisp :repl_eval '(:r0 (:r3 0)) '(:r0 :r1))
 		(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r3 :r2))
 		(gotoif '(:r2 = :r3) 'error_exit)
-			(assign '((:rsp local_iter_begin)) '(:r3))
+			(assign '((:rsp slot_iter_begin)) '(:r3))
 			(assign '((:r3 0) :r1) '(:r2 (:r3 0)))
 			(class/obj/deref-live :r2 :r4 'last_ref)
 		(vp-label 'derefed)
-			(assign '((:rsp local_iter_end)) '(:r2))
+			(assign '((:rsp slot_iter_end)) '(:r2))
 			(vp-add-cr +ptr_size :r3)
 		(loop-until '(:r3 = :r2))
 		(vp-load-rcr :r3 (neg +ptr_size) :r1)
-		(vp-free local_size)
+		(vp-free slot_size)
 	(endif)
 	;the last value, or :nil if there were none
 	(class/obj/ref :r1 :r2)
@@ -366,12 +366,12 @@
 	;the last ref of the form replaced, so a call, and all is trashed
 	(call :obj :deref '(:r2))
 	(lisp-this :r0)
-	(assign '((:rsp local_iter_begin)) '(:r3))
+	(assign '((:rsp slot_iter_begin)) '(:r3))
 	(goto 'derefed)
 
 (vp-label 'error_exit)
 	(exit :lisp :repl_eval_list '(:r0 :r1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

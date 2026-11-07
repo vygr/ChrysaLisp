@@ -17,17 +17,17 @@
 	;trashes
 	;:r0-:r2, :r13-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr buf lk_node)
 		(long handle remaining))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :host_net :send_all '(:r0 :r1 :r2 :r3))
 	(gotoif '(:r2 <= 0) 'send_done)
-	(assign '(:r0 :r1 :r2 :r3) '((:rsp local_handle) (:rsp local_buf) (:rsp local_remaining) (:rsp local_lk_node)))
+	(assign '(:r0 :r1 :r2 :r3) '((:rsp slot_handle) (:rsp slot_buf) (:rsp slot_remaining) (:rsp slot_lk_node)))
 
 (vp-label 'send_loop)
-	(host-net-call :host_net :send '((:rsp local_handle) (:rsp local_buf) (:rsp local_remaining)) '(:r0))
+	(host-net-call :host_net :send '((:rsp slot_handle) (:rsp slot_buf) (:rsp slot_remaining)) '(:r0))
 	(vpif '(:r0 < 0))
 		(assign '(-1) '(:r0))
 		(goto 'send_exit)
@@ -36,7 +36,7 @@
 		;socket send buffer full, sleep 100 µs, unless the link is closed:
 		;a peer that reads no more would keep it full for ever
 		(call :sys_task :sleep '(100))
-		(assign '((:rsp local_lk_node)) '(:r1))
+		(assign '((:rsp slot_lk_node)) '(:r1))
 		(assign '((:r1 lk_node_task_count i)) '(:r2))
 		(gotoif '(:r2 /= -1) 'send_loop)
 		(assign '(-1) '(:r0))
@@ -44,10 +44,10 @@
 	(endif)
 
 	(vp-rdef (sent buf remaining))
-	(assign '((:rsp local_buf) (:rsp local_remaining)) `(,buf ,remaining))
+	(assign '((:rsp slot_buf) (:rsp slot_remaining)) `(,buf ,remaining))
 	(vp-add-rr sent buf)
 	(vp-sub-rr sent remaining)
-	(assign `(,buf ,remaining) '((:rsp local_buf) (:rsp local_remaining)))
+	(assign `(,buf ,remaining) '((:rsp slot_buf) (:rsp slot_remaining)))
 	(gotoif `(,remaining > 0) 'send_loop)
 
 (vp-label 'send_done)
@@ -55,7 +55,7 @@
 
 (vp-label 'send_exit)
 	(exit :host_net :send_all '(:r0))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

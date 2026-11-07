@@ -210,7 +210,7 @@
 	;With a shader of 0 the block is a frame of triangles, and all of the
 	;texture is drawn.
 
-	(structure local 0
+	(structure slot 0
 		(ptr this block lisp)
 		(long shader x y x1 y1 result))
 
@@ -218,30 +218,30 @@
 
 	(errorif-lisp-args-sig 'error :r1 7)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_lisp)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_lisp)))
 	(list-bind-args :r1 '(:r0 :r2 :r4 :r5 :r6 :r7 :r8) '(:canvas :num :obj :num :num :num :num))
 	(vp-xor-rr :r9 :r9)
 	(assign '(:r0 :r2 :r4 :r5 :r6 :r7 :r8 :r9)
-		'((:rsp local_this) (:rsp local_shader) (:rsp local_block) (:rsp local_x)
-		(:rsp local_y) (:rsp local_x1) (:rsp local_y1) (:rsp local_result)))
+		'((:rsp slot_this) (:rsp slot_shader) (:rsp slot_block) (:rsp slot_x)
+		(:rsp slot_y) (:rsp slot_x1) (:rsp slot_y1) (:rsp slot_result)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(assign '((:rsp local_this) (:rsp local_result)) '(:r0 :r8))
+	(assign '((:rsp slot_this) (:rsp slot_result)) '(:r0 :r8))
 	(vpif '(:r8 > 0))
 		(call :obj :ref '(:r0) '(:r1))
 	(elseif '(:r8 < 0))
 		;the shader did not build
 		(call :num :create '(:r8) '(:r1))
 	(else)
-		(assign '((:rsp local_lisp)) '(:r1))
+		(assign '((:rsp slot_lisp)) '(:r1))
 		(assign '((:r1 +lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
-	(assign '((:rsp local_lisp)) '(:r0))
-	(vp-free local_size)
+	(assign '((:rsp slot_lisp)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_shade '(:r0 :r1))
 	(vp-ret)
@@ -259,7 +259,7 @@
 	(push-scope)
 	(entry (vpx user))
 
-	(assign (vpx (.> user local_this)) (vpx this))
+	(assign (vpx (.> user slot_this)) (vpx this))
 	(vpifnot (vpx (& (.> this +canvas_flags) +canvas_flag_shader)))
 		;no texture a shader can draw into, so make one, the size the canvas is shown at
 		(assign (vpx (.> this +canvas_pixmap) (.> this +canvas_texture) 0 0) (vpx pixmap texture tex_id w))
@@ -280,21 +280,21 @@
 		(endif)
 	(endif)
 	(vpif (vpx (& (.> this +canvas_flags) +canvas_flag_shader)))
-		(assign (vpx (.> user local_block) (.> this +canvas_texture)) (vpx block texture))
+		(assign (vpx (.> user slot_block) (.> this +canvas_texture)) (vpx block texture))
 		;the part to draw, no rect is all of it
 		(assign (vpx 0) (vpx part))
-		(vpif (vpx (> (.> user local_x1) (.> user local_x))))
-			(assign (vpx (.> user local_x) (.> user local_y)
-				(- (.> user local_x1) (.> user local_x)) (- (.> user local_y1) (.> user local_y)) (& rect))
+		(vpif (vpx (> (.> user slot_x1) (.> user slot_x))))
+			(assign (vpx (.> user slot_x) (.> user slot_y)
+				(- (.> user slot_x1) (.> user slot_x)) (- (.> user slot_y1) (.> user slot_y)) (& rect))
 				(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h) part))
 		(endif)
-		(vpif (vpx (.> user local_shader)))
-			(host-gui-call :host_gui :shader_draw (vpx (.> user local_shader) (.> texture +texture_handle)
-				(& (.> block +str_data)) (.> block +str_length) part) (vpx (.> user local_result)))
+		(vpif (vpx (.> user slot_shader)))
+			(host-gui-call :host_gui :shader_draw (vpx (.> user slot_shader) (.> texture +texture_handle)
+				(& (.> block +str_data)) (.> block +str_length) part) (vpx (.> user slot_result)))
 		(else)
 			;no shader, the block is a frame of triangles, each with its pair
 			(host-gui-call :host_gui :tris_draw (vpx (.> texture +texture_handle)
-				(& (.> block +str_data)) (.> block +str_length)) (vpx (.> user local_result)))
+				(& (.> block +str_data)) (.> block +str_length)) (vpx (.> user slot_result)))
 		(endif)
 	(endif)
 
@@ -317,7 +317,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long result))
 
@@ -325,16 +325,16 @@
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(vp-xor-rr :r1 :r1)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_result)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_result)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(call :num :create '((:rsp local_result)) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(call :num :create '((:rsp slot_result)) '(:r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_shader_format '(:r0 :r1))
 	(vp-ret)
@@ -342,7 +342,7 @@
 	(shader-callback-begin)
 	(host-gui-call :host_gui :shader_format '() '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '(:r0) '((:r1 local_result)))
+	(assign '(:r0) '((:r1 slot_result)))
 	(shader-callback-end)
 
 (vp-label 'error)
@@ -360,7 +360,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this vertex fragment)
 		(long result))
 
@@ -368,29 +368,29 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2 :r3) '(:obj :obj))
 	(vp-xor-rr :r4 :r4)
-	(assign '(:r2 :r3 :r4) '((:rsp local_vertex) (:rsp local_fragment) (:rsp local_result)))
+	(assign '(:r2 :r3 :r4) '((:rsp slot_vertex) (:rsp slot_fragment) (:rsp slot_result)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(call :num :create '((:rsp local_result)) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(call :num :create '((:rsp slot_result)) '(:r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_shader_create '(:r0 :r1))
 	(vp-ret)
 
 	(shader-callback-begin)
-	(assign '((:r0 local_vertex) (:r0 local_fragment)) '(:r5 :r6))
+	(assign '((:r0 slot_vertex) (:r0 slot_fragment)) '(:r5 :r6))
 	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r7 :r8))
 	(host-gui-call :host_gui :shader_create
 		'((& :r5 +str_data) :r7 (& :r6 +str_data) :r8) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '(:r0) '((:r1 local_result)))
+	(assign '(:r0) '((:r1 slot_result)))
 	(shader-callback-end)
 
 (vp-label 'error)
@@ -409,7 +409,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args)
 		(long shader))
 
@@ -417,26 +417,26 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r2) '(:num))
-	(assign '(:r2) '((:rsp local_shader)))
+	(assign '(:r2) '((:rsp slot_shader)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(assign '((:rsp local_args)) '(:r1))
+	(assign '((:rsp slot_args)) '(:r1))
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign '((:r1 0)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_shader_destroy '(:r0 :r1))
 	(vp-ret)
 
 	(shader-callback-begin)
-	(host-gui-call :host_gui :shader_destroy '((:r0 local_shader)))
+	(host-gui-call :host_gui :shader_destroy '((:r0 slot_shader)))
 	(shader-callback-end)
 
 (vp-label 'error)
@@ -459,7 +459,7 @@
 	;is how many attrs a vertex has, the cull, and the floats of each
 	;attr, a byte each. 0 if the driver can not.
 
-	(structure local 0
+	(structure slot 0
 		(ptr this vertex fragment layout)
 		(long result))
 
@@ -467,30 +467,30 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2 :r3 :r4) '(:obj :obj :obj))
 	(vp-xor-rr :r5 :r5)
 	(assign '(:r2 :r3 :r4 :r5)
-		'((:rsp local_vertex) (:rsp local_fragment) (:rsp local_layout) (:rsp local_result)))
+		'((:rsp slot_vertex) (:rsp slot_fragment) (:rsp slot_layout) (:rsp slot_result)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(call :num :create '((:rsp local_result)) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(call :num :create '((:rsp slot_result)) '(:r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_pair_create '(:r0 :r1))
 	(vp-ret)
 
 	(shader-callback-begin)
-	(assign '((:r0 local_vertex) (:r0 local_fragment) (:r0 local_layout)) '(:r5 :r6 :r9))
+	(assign '((:r0 slot_vertex) (:r0 slot_fragment) (:r0 slot_layout)) '(:r5 :r6 :r9))
 	(assign '((:r5 +str_length) (:r6 +str_length)) '(:r7 :r8))
 	(host-gui-call :host_gui :pair_create
 		'((& :r5 +str_data) :r7 (& :r6 +str_data) :r8 (& :r9 +str_data)) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '(:r0) '((:r1 local_result)))
+	(assign '(:r0) '((:r1 slot_result)))
 	(shader-callback-end)
 
 (vp-label 'error)
@@ -512,7 +512,7 @@
 	;the vertices of a mesh, kept on the GPU. They are given as the bytes
 	;of a reals. 0 if the driver can not.
 
-	(structure local 0
+	(structure slot 0
 		(ptr this verts)
 		(long result))
 
@@ -520,28 +520,28 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(vp-xor-rr :r4 :r4)
-	(assign '(:r2 :r4) '((:rsp local_verts) (:rsp local_result)))
+	(assign '(:r2 :r4) '((:rsp slot_verts) (:rsp slot_result)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(call :num :create '((:rsp local_result)) '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(call :num :create '((:rsp slot_result)) '(:r1))
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_mesh_create '(:r0 :r1))
 	(vp-ret)
 
 	(shader-callback-begin)
-	(assign '((:r0 local_verts)) '(:r5))
+	(assign '((:r0 slot_verts)) '(:r5))
 	(assign '((:r5 +str_length)) '(:r7))
 	(host-gui-call :host_gui :mesh_create '((& :r5 +str_data) :r7) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
-	(assign '(:r0) '((:r1 local_result)))
+	(assign '(:r0) '((:r1 slot_result)))
 	(shader-callback-end)
 
 (vp-label 'error)
@@ -560,7 +560,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this args)
 		(long mesh))
 
@@ -568,26 +568,26 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r2) '(:num))
-	(assign '(:r2) '((:rsp local_mesh)))
+	(assign '(:r2) '((:rsp slot_mesh)))
 	(shader-on-gui-node)
 	(vpif '(:r3 /= 0))
 		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
-	(assign '((:rsp local_args)) '(:r1))
+	(assign '((:rsp slot_args)) '(:r1))
 	(assign '((:r1 +array_begin)) '(:r1))
 	(assign '((:r1 0)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(assign '((:rsp local_this)) '(:r0))
-	(vp-free local_size)
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :canvas :lisp_mesh_destroy '(:r0 :r1))
 	(vp-ret)
 
 	(shader-callback-begin)
-	(host-gui-call :host_gui :mesh_destroy '((:r0 local_mesh)))
+	(host-gui-call :host_gui :mesh_destroy '((:r0 slot_mesh)))
 	(shader-callback-end)
 
 (vp-label 'error)

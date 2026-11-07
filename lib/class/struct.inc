@@ -9,7 +9,7 @@
 	(defq field_name (sym (cat name "_" field)) field_type (sym (cat field_name "_t"))
 		field_value (get field_name (penv)) field_type_value (get field_type (penv)))
 	(setq base (align base (ifn alignment alloc)))
-	(unless (starts-with "local_" field_name)
+	(unless (starts-with "slot_" field_name)
 		(if (or (and field_value (nql field_value base))
 				(and field_type_value (nql field_type_value type)))
 			(throw "Field redefined !" field_name)))
@@ -88,19 +88,19 @@
 
 (defmacro structure (name base &rest lines)
 	; (structure name base [(byte field ...)] ...)
-	;the frame of a function's locals, local, says its fields as well,
-	;local_fields, ((field offset type) ...), for (vp-alloc) to note
+	;a function's frame, slot, says its fields as well,
+	;slot_fields, ((field offset type) ...), for (vp-alloc) to note
 	(defq syms (list) values (list) fields (list) base (eval base))
 	(each (lambda (line)
 		(setq base (_structure base line))) lines)
 	(defq field_name (sym (cat name "_size")) field_value (get field_name (penv)))
-	(unless (starts-with "local_" field_name)
+	(unless (starts-with "slot_" field_name)
 		(and field_value (nql field_value base)
 			(throw "Field redefined !" field_name)))
 	(push syms field_name)
 	(push values (num base))
-	(when (eql name 'local)
-		(push syms 'local_fields)
+	(when (eql name 'slot)
+		(push syms 'slot_fields)
 		(push values fields))
 	(static-qq (bind ',syms ',values)))
 

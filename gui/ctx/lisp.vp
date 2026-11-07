@@ -111,7 +111,7 @@
 	;trashes
 	;:r1-:r10, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this view rect))
 
 	(vp-rdef (view x y w h rect) (method-input :ctx :filled_box))
@@ -121,26 +121,26 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(vp-alloc local_size)
-	(assign `(,this) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign `(,this) '((:rsp slot_this)))
 	(list-bind-args :r1 `(,view ,rect) '(:view & :num))
-	(assign `(,view) '((:rsp local_view)))
+	(assign `(,view) '((:rsp slot_view)))
 	(assign `((& ,view ,rect)) `(,rect))
 	(loop-flist rect 0 rect rect)
-		(assign `(,rect) '((:rsp local_rect)))
+		(assign `(,rect) '((:rsp slot_rect)))
 		(load-fields rect
 			'(rect_x rect_y rect_x1 rect_y1)
 			`(,x ,y ,w ,h))
 		(vp-sub-rr x w)
 		(vp-sub-rr y h)
 		(call :ctx :filled_box `(,view ,x ,y ,w ,h))
-		(assign '((:rsp local_view) (:rsp local_rect)) `(,view ,rect))
+		(assign '((:rsp slot_view) (:rsp slot_rect)) `(,view ,rect))
 	(loop-end)
-	(assign '((:rsp local_this) (:rsp local_view)) `(,this ,args))
+	(assign '((:rsp slot_this) (:rsp slot_view)) `(,this ,args))
 	(class/obj/ref args x)
 
 	(exit :ctx :lisp_filled_region `(,this ,args))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error)

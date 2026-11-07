@@ -31,45 +31,45 @@
 	;trashes
 	;:r1-:r5, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this stream tmp)
 		(long value))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :fixed :print '(:r0 :r1))
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_stream)))
 
 	(assign '((:r0 +num_value)) '(:r0))
-	(assign '(:r0) '((:rsp local_value)))
+	(assign '(:r0) '((:rsp slot_value)))
 	(vpif '(:r0 < 0))
 		(vp-mul-cr -1 :r0)
-		(assign '(:r0) '((:rsp local_value)))
-		(call :stream :write_char '((:rsp local_stream) +char_minus))
+		(assign '(:r0) '((:rsp slot_value)))
+		(call :stream :write_char '((:rsp slot_stream) +char_minus))
 	(endif)
 
-	(assign '((:rsp local_value)) '(:r0))
+	(assign '((:rsp slot_value)) '(:r0))
 	(vp-shr-cr +fp_shift :r0)
 	(call :str :create_from_long '(:r0 10) '(:r0))
-	(assign '(:r0) '((:rsp local_tmp)))
-	(call :stream :write '((:rsp local_stream) (& :r0 +str_data) (:r0 +str_length)) '(:r0))
+	(assign '(:r0) '((:rsp slot_tmp)))
+	(call :stream :write '((:rsp slot_stream) (& :r0 +str_data) (:r0 +str_length)) '(:r0))
 	(call :stream :write_char '(:r0 +char_dot))
-	(call :obj :deref '((:rsp local_tmp)))
+	(call :obj :deref '((:rsp slot_tmp)))
 
-	(assign '((:rsp local_value)) '(:r0))
+	(assign '((:rsp slot_value)) '(:r0))
 	(vp-and-cr +fp_frac_mask :r0)
 	(vp-mul-cr 100000 :r0)
 	(vp-shr-cr +fp_shift :r0)
 	(call :str :create_from_long '(:r0 10) '(:r0))
-	(assign '(:r0) '((:rsp local_tmp)))
+	(assign '(:r0) '((:rsp slot_tmp)))
 	(assign '((:r0 +str_length) 5) '(:r0 :r2))
 	(vp-sub-rr :r0 :r2)
-	(call :stream :write '((:rsp local_stream) "00000" :r2) '(:r0))
-	(assign '((:rsp local_tmp)) '(:r1))
+	(call :stream :write '((:rsp slot_stream) "00000" :r2) '(:r0))
+	(assign '((:rsp slot_tmp)) '(:r1))
 	(call :stream :write '(:r0 (& :r1 +str_data) (:r1 +str_length)))
-	(call :obj :deref '((:rsp local_tmp)))
+	(call :obj :deref '((:rsp slot_tmp)))
 
-	(exit :fixed :print '((:rsp local_this)))
-	(vp-free local_size)
+	(exit :fixed :print '((:rsp slot_this)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

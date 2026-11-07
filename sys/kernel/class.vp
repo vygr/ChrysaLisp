@@ -914,15 +914,15 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(structure local 0
+	(structure slot 0
 		(ptr bucket)
 		(pptr iter))
 
 	(vp-rdef (data iter bucket key tuple kid1 kid2 did1 did2))
 
-	(vp-alloc local_size)
+	(vp-alloc slot_size)
 	(entry :hmap :each_callback `(,data ,iter ,bucket))
-	(assign `(,iter ,bucket) '((:rsp local_iter) (:rsp local_bucket)))
+	(assign `(,iter ,bucket) '((:rsp slot_iter) (:rsp slot_bucket)))
 
 	(assign `((,iter 0) (,iter ,+ptr_size)) `(,key ,tuple))
 	(load-node-id key +str_data kid1 kid2)
@@ -952,10 +952,10 @@
 	(loop-end)
 	(default)
 		(call :hset :deref `((,tuple ,(* +node_set +ptr_size))))
-		(call :list :erase2 '((:rsp local_bucket) (:rsp local_iter)))
+		(call :list :erase2 '((:rsp slot_bucket) (:rsp slot_iter)))
 	(endif)
 
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (defun kn-purge-mail (name id)

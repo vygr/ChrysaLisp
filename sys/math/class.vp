@@ -303,18 +303,18 @@
 
 	;fixed point, whole words: they were held as ints, and the optimizer gave
 	;the whole word back from a store of 4 bytes, which it no longer does
-	(structure local 0
+	(structure slot 0
 		(long px py p1x p1y p2x p2y))
 
-	(vp-alloc local_size)
-	(entry :sys_math :f_dist_sqd '((:rsp local_px) (:rsp local_py) (:rsp local_p1x) (:rsp local_p1y) (:rsp local_p2x) (:rsp local_p2y)))
+	(vp-alloc slot_size)
+	(entry :sys_math :f_dist_sqd '((:rsp slot_px) (:rsp slot_py) (:rsp slot_p1x) (:rsp slot_p1y) (:rsp slot_p2x) (:rsp slot_p2y)))
 
 	(vec-set 0)
-	(vec-load 2 '((:rsp local_px) (:rsp local_py)))
+	(vec-load 2 '((:rsp slot_px) (:rsp slot_py)))
 	(defq p (vec-top 2))
-	(vec-load 2 '((:rsp local_p1x) (:rsp local_p1y)))
+	(vec-load 2 '((:rsp slot_p1x) (:rsp slot_p1y)))
 	(defq p1 (vec-top 2))
-	(vec-load 2 '((:rsp local_p2x) (:rsp local_p2y)))
+	(vec-load 2 '((:rsp slot_p2x) (:rsp slot_p2y)))
 	(defq p2 (vec-top 2))
 
 	(vec-dup 2)
@@ -343,7 +343,7 @@
 	(vec-fdistance-squared 2)
 
 	(exit :sys_math :f_dist_sqd (vec-pop 1))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

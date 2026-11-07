@@ -72,13 +72,13 @@
 (defun vp-trash (&rest b) (emit `(trash ~b)))
 (defun vp-alloc (c)
 	;a frame is whole longs, the stack pointer stays aligned. One that is
-	;the size of the function's (structure local ...) is that frame, and
+	;the size of the function's (structure slot ...) is that frame, and
 	;its fields are noted with the function, *locals*, for the keeping of
 	;locals in registers and the (locals) command: which of the
 	;function's allocs it is, counted from 1, its size, and each field,
 	;its name, offset and type, "" for a struct
 	(emit (static-qqp (alloc ,(setq c (align (eval c (penv)) +long_size)))))
-	(and (defq fields (get 'local_fields)) (= c (align local_size +long_size))
+	(and (defq fields (get 'slot_fields)) (= c (align slot_size +long_size))
 		(push *locals* (list
 			(reduce (# (if (eql (first %1) 'alloc) (inc %0) %0)) *emit_list* 0) c
 			(map (lambda ((field offset type))

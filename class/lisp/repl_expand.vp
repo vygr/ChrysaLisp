@@ -11,7 +11,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this form args macro stack)
 		(pptr iter root))
 
@@ -22,12 +22,12 @@
 	(f-bind :list :vtable :r3)
 	(assign '((:r2 +obj_vtable)) '(:r4))
 	(vpif '(:r4 = :r3))
-		(vp-alloc local_size)
-		(assign '(:r0 :r1 :r1 :r2) '((:rsp local_this) (:rsp local_iter) (:rsp local_root) (:rsp local_form)))
-		(call :array :create :nil '((:rsp local_stack)))
-		(assign '((:rsp local_iter) (:rsp local_form)) '(:r1 :r2))
+		(vp-alloc slot_size)
+		(assign '(:r0 :r1 :r1 :r2) '((:rsp slot_this) (:rsp slot_iter) (:rsp slot_root) (:rsp slot_form)))
+		(call :array :create :nil '((:rsp slot_stack)))
+		(assign '((:rsp slot_iter) (:rsp slot_form)) '(:r1 :r2))
 		(loop-start 'try_expand)
-			(assign '((:rsp local_this)) '(:r0))
+			(assign '((:rsp slot_this)) '(:r0))
 			(switch 'next_iter)
 				;check if a macro
 				(switch)
@@ -42,7 +42,7 @@
 				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
 				;is a symbol ?
-				(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_form)))
+				(assign '(:r1 :r2) '((:rsp slot_iter) (:rsp slot_form)))
 				(f-bind :sym :vtable :r4)
 				(assign '((:r3 +obj_vtable)) '(:r5))
 				(breakif '(:r4 /= :r5))
@@ -58,7 +58,7 @@
 				(assign '((:r1 +array_length)) '(:r2))
 				(breakif '(:r2 = 0))
 				;is a macro ?
-				(assign '((:rsp local_this)) '(:r0))
+				(assign '((:rsp slot_this)) '(:r0))
 				(array-bind-args :r1 '(:r2))
 				(assign '((:r0 +lisp_sym_macro)) '(:r3))
 				(gotoif '(:r2 = :r3) 'macro_expand)
@@ -67,29 +67,29 @@
 				(default)
 				(vp-label 'macro_expand)
 					;replace form with macro expansion
-					(assign '((:rsp local_form)) '(:r0))
-					(assign '(:r1) '((:rsp local_macro)))
-					(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp local_args)))
-					(call :obj :deref '((:rsp local_form)))
-					(call :lisp :repl_apply '((:rsp local_this) (:rsp local_args) (:rsp local_macro)) '(_ :r1))
-					(assign '((:rsp local_iter)) '(:r2))
+					(assign '((:rsp slot_form)) '(:r0))
+					(assign '(:r1) '((:rsp slot_macro)))
+					(d-call :list :slice '(:r0 1 (:r0 +array_length)) '((:rsp slot_args)))
+					(call :obj :deref '((:rsp slot_form)))
+					(call :lisp :repl_apply '((:rsp slot_this) (:rsp slot_args) (:rsp slot_macro)) '(_ :r1))
+					(assign '((:rsp slot_iter)) '(:r2))
 					(assign '(:r1) '((:r2 0)))
-					(call :obj :deref '((:rsp local_args)))
+					(call :obj :deref '((:rsp slot_args)))
 				;a macro that threw: the error is the whole form, so the repl
 				;stops on it now, not when a body it was in is called
-				(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
+				(assign '((:rsp slot_iter) (:rsp slot_this)) '(:r1 :r0))
 				(assign '((:r1 0)) '(:r1))
 				(assign '((:r1 +obj_vtable) (:r0 +lisp_error)) '(:r2 :r3))
 				(vpif '(:r2 = :r3))
 					(class/obj/ref :r1 :r2)
-					(assign '(:r1) '((:rsp local_form)))
-					(assign '((:rsp local_root)) '(:r0))
+					(assign '(:r1) '((:rsp slot_form)))
+					(assign '((:rsp slot_root)) '(:r0))
 					(call :obj :deref '((:r0 0)))
-					(assign '((:rsp local_root) (:rsp local_form)) '(:r0 :r1))
+					(assign '((:rsp slot_root) (:rsp slot_form)) '(:r0 :r1))
 					(assign '(:r1) '((:r0 0)))
 					(break 'try_expand)
 				(endif)
-					(assign '((:rsp local_iter) (:rsp local_this)) '(:r1 :r0))
+					(assign '((:rsp slot_iter) (:rsp slot_this)) '(:r1 :r0))
 					(vp-load-rcr :r1 0 :r2)
 					(f-bind :list :vtable :r3)
 					(assign '((:r2 +obj_vtable)) '(:r4))
@@ -99,7 +99,7 @@
 
 				;down this lists branches, the stack grows as it must: it holds
 				;the lists still to look at, so a wide form fills it as a deep one
-				(assign '((:rsp local_stack) (:rsp local_form)) '(:r0 :r6))
+				(assign '((:rsp slot_stack) (:rsp slot_form)) '(:r0 :r6))
 				;push in reverse so as we pop we traverse left to right !
 				(class/array/get_both :r6 :r6 :r1)
 				(f-bind :list :vtable :r7)
@@ -114,7 +114,7 @@
 			(endswitch)
 
 			;pop back stack
-			(assign '((:rsp local_stack)) '(:r2))
+			(assign '((:rsp slot_stack)) '(:r2))
 			(assign '((:r2 +array_length)) '(:r1))
 			(breakif '(:r1 = 0))
 			(vp-sub-cr 1 :r1)
@@ -122,9 +122,9 @@
 			(class/array/get_elem :r2 :r1 :r1 :r2)
 			(vp-load-rcr :r1 0 :r2)
 		(loop-end)
-		(call :array :deref '((:rsp local_stack)))
-		(assign '((:rsp local_this)) '(:r0))
-		(vp-free local_size)
+		(call :array :deref '((:rsp slot_stack)))
+		(assign '((:rsp slot_this)) '(:r0))
+		(vp-free slot_size)
 	(endif)
 
 	(exit :lisp :repl_expand '(:r0))

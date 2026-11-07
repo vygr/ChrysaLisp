@@ -120,16 +120,16 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(uint flags))
 
 	(def-vars
-		(struct frame local_size)
+		(struct frame slot_size)
 		(ptr statics))
 
 	(push-scope)
-	(entry :pixmap :upload (vpx (. frame local_this) (. frame local_flags)))
+	(entry :pixmap :upload (vpx (. frame slot_this) (. frame slot_flags)))
 
 	;a node with no GUI has no driver to make a texture with. The pixmap
 	;is left with none, as one that was never uploaded, and whoever asked
@@ -139,7 +139,7 @@
 		(call :sys_task :callback (vpx (& frame) ($ callback)))
 	(endif)
 
-	(exit :pixmap :upload (vpx (. frame local_this)))
+	(exit :pixmap :upload (vpx (. frame slot_this)))
 	(pop-scope)
 	(return)
 
@@ -155,13 +155,13 @@
 	(entry (vpx user))
 
 	;free any texture
-	(assign (vpx (.> user local_this)) (vpx this))
+	(assign (vpx (.> user slot_this)) (vpx this))
 	(call :texture :deref_if (vpx (.> this +pixmap_texture)))
 
 	;create SDL surface from pixel buffer, convert to texture
 	(host-gui-call :host_gui :create_texture (vpx (.> this +pixmap_data)
 			(.> this +pixmap_width) (.> this +pixmap_height)
-			(.> this +pixmap_stride) (.> user local_flags))
+			(.> this +pixmap_stride) (.> user slot_flags))
 		(vpx tex_id))
 
 	;the driver may not make one, of pixels wider or taller than it can

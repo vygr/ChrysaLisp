@@ -14,22 +14,22 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_result))
 
 	(entry :host_net :lisp_init '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 
 	;WSAStartup / SIGPIPE on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_result)) '(:r1))
+	(call :num :create '((:rsp slot_c_result)) '(:r1))
 
-	(exit :host_net :lisp_init '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_init '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -37,7 +37,7 @@
 	(vp-push :r0)
 	(host-net-call :host_net :init '() '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_result)))
+	(assign '(:r0) '((:r1 slot_c_result)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -55,22 +55,22 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long c_result))
 
 	(entry :host_net :lisp_deinit '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 
 	;WSACleanup / close all fds on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_result)) '(:r1))
+	(call :num :create '((:rsp slot_c_result)) '(:r1))
 
-	(exit :host_net :lisp_deinit '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_deinit '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
@@ -78,7 +78,7 @@
 	(vp-push :r0)
 	(host-net-call :host_net :deinit '() '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_result)))
+	(assign '(:r0) '((:r1 slot_c_result)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -96,7 +96,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(pubyte host)
 		(long port c_handle))
@@ -104,25 +104,25 @@
 	(entry :host_net :lisp_connect '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:str :num))
-	(assign '(:r0 :r1) '((:rsp local_host) (:rsp local_port)))
+	(assign '(:r0 :r1) '((:rsp slot_host) (:rsp slot_port)))
 
 	;getaddrinfo + connect on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_handle)) '(:r1))
+	(call :num :create '((:rsp slot_c_handle)) '(:r1))
 
-	(exit :host_net :lisp_connect '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_connect '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-net-call :host_net :connect '((:r0 local_host) (:r0 local_port)) '(:r0))
+	(host-net-call :host_net :connect '((:r0 slot_host) (:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_handle)))
+	(assign '(:r0) '((:r1 slot_c_handle)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -141,32 +141,32 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long port c_handle))
 
 	(entry :host_net :lisp_listen '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0) '(:num))
-	(assign '(:r0) '((:rsp local_port)))
+	(assign '(:r0) '((:rsp slot_port)))
 
 	;socket / bind / listen on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_handle)) '(:r1))
+	(call :num :create '((:rsp slot_c_handle)) '(:r1))
 
-	(exit :host_net :lisp_listen '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_listen '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-net-call :host_net :listen '((:r0 local_port)) '(:r0))
+	(host-net-call :host_net :listen '((:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_handle)))
+	(assign '(:r0) '((:r1 slot_c_handle)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -185,32 +185,32 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long handle c_handle))
 
 	(entry :host_net :lisp_accept '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0) '(:num))
-	(assign '(:r0) '((:rsp local_handle)))
+	(assign '(:r0) '((:rsp slot_handle)))
 
 	;accept on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_handle)) '(:r1))
+	(call :num :create '((:rsp slot_c_handle)) '(:r1))
 
-	(exit :host_net :lisp_accept '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_accept '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-net-call :host_net :accept '((:r0 local_handle)) '(:r0))
+	(host-net-call :host_net :accept '((:r0 slot_handle)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_handle)))
+	(assign '(:r0) '((:r1 slot_c_handle)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -260,48 +260,48 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this buf ret)
 		(long handle max_len ret_bytes))
 
 	(entry :host_net :lisp_recv '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(assign '(:r0 :r1) '((:rsp local_handle) (:rsp local_max_len)))
+	(assign '(:r0 :r1) '((:rsp slot_handle) (:rsp slot_max_len)))
 
-	(call :str :create_from_buffer '(0 (:rsp local_max_len)) '(:r0))
-	(assign '(:r0) '((:rsp local_buf)))
+	(call :str :create_from_buffer '(0 (:rsp slot_max_len)) '(:r0))
+	(assign '(:r0) '((:rsp slot_buf)))
 
 	;recv into the pre-allocated str on the host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 
-	(assign '((:rsp local_ret_bytes)) '(:r0))
+	(assign '((:rsp slot_ret_bytes)) '(:r0))
 	(vpif '(:r0 >= 0))
-		(assign '((:rsp local_buf)) '(:r1))
+		(assign '((:rsp slot_buf)) '(:r1))
 		(assign '(:r0) '((:r1 +str_length)))
-		(assign '(:r1) '((:rsp local_ret)))
+		(assign '(:r1) '((:rsp slot_ret)))
 	(else)
-		(call :str :destroy '((:rsp local_buf)))
-		(assign '((:rsp local_this)) '(:r0))
+		(call :str :destroy '((:rsp slot_buf)))
+		(assign '((:rsp slot_this)) '(:r0))
 		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
-		(assign '(:r0) '((:rsp local_ret)))
+		(assign '(:r0) '((:rsp slot_ret)))
 	(endif)
 
-	(exit :host_net :lisp_recv '((:rsp local_this) (:rsp local_ret)))
-	(vp-free local_size)
+	(exit :host_net :lisp_recv '((:rsp slot_this) (:rsp slot_ret)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(assign '((:r0 local_buf)) '(:r1))
+	(assign '((:r0 slot_buf)) '(:r1))
 	(host-net-call :host_net :recv
-		'((:r0 local_handle) (& :r1 +str_data) (:r0 local_max_len)) '(:r0))
+		'((:r0 slot_handle) (& :r1 +str_data) (:r0 slot_max_len)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(assign '(:r0) '((:r1 slot_ret_bytes)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -378,32 +378,32 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(long port c_handle))
 
 	(entry :host_net :lisp_udp_bind '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0) '(:num))
-	(assign '(:r0) '((:rsp local_port)))
+	(assign '(:r0) '((:rsp slot_port)))
 
 	;udp socket / bind on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_c_handle)) '(:r1))
+	(call :num :create '((:rsp slot_c_handle)) '(:r1))
 
-	(exit :host_net :lisp_udp_bind '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_udp_bind '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(host-net-call :host_net :udp_bind '((:r0 local_port)) '(:r0))
+	(host-net-call :host_net :udp_bind '((:r0 slot_port)) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_c_handle)))
+	(assign '(:r0) '((:r1 slot_c_handle)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -422,7 +422,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this)
 		(pubyte host buf)
 		(long handle port len ret_bytes))
@@ -430,29 +430,29 @@
 	(entry :host_net :lisp_udp_send '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1 :r2 :r3) '(:num :str :num :obj))
 	(assign '((:r3 +str_length) (& :r3 +str_data)) '(:r4 :r3))
 	(assign '(:r0 :r1 :r2 :r3 :r4)
-		'((:rsp local_handle) (:rsp local_host) (:rsp local_port) (:rsp local_buf) (:rsp local_len)))
+		'((:rsp slot_handle) (:rsp slot_host) (:rsp slot_port) (:rsp slot_buf) (:rsp slot_len)))
 
 	;sendto on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
-	(call :num :create '((:rsp local_ret_bytes)) '(:r1))
+	(call :num :create '((:rsp slot_ret_bytes)) '(:r1))
 
-	(exit :host_net :lisp_udp_send '((:rsp local_this) :r1))
-	(vp-free local_size)
+	(exit :host_net :lisp_udp_send '((:rsp slot_this) :r1))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(assign '((:r0 local_host) (:r0 local_port) (:r0 local_buf) (:r0 local_len) (:r0 local_handle))
+	(assign '((:r0 slot_host) (:r0 slot_port) (:r0 slot_buf) (:r0 slot_len) (:r0 slot_handle))
 		'(:r1 :r2 :r3 :r4 :r0))
 	(host-net-call :host_net :udp_send '(:r0 :r1 :r2 :r3 :r4) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(assign '(:r0) '((:r1 slot_ret_bytes)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -471,7 +471,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this buf ip_str port_num ret)
 		(long handle max_len port ret_bytes)
 		(struct ip_buf 64))
@@ -479,54 +479,54 @@
 	(entry :host_net :lisp_udp_recv '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(assign '(:r0 :r1) '((:rsp local_handle) (:rsp local_max_len)))
+	(assign '(:r0 :r1) '((:rsp slot_handle) (:rsp slot_max_len)))
 
-	(call :str :create_from_buffer '(0 (:rsp local_max_len)) '(:r0))
-	(assign '(:r0) '((:rsp local_buf)))
+	(call :str :create_from_buffer '(0 (:rsp slot_max_len)) '(:r0))
+	(assign '(:r0) '((:rsp slot_buf)))
 
 	;recvfrom on host stack
 	(call :sys_task :callback '(:rsp ($ callback)))
 
-	(assign '((:rsp local_ret_bytes)) '(:r0))
+	(assign '((:rsp slot_ret_bytes)) '(:r0))
 	(vpif '(:r0 > 0))
-		(assign '((:rsp local_buf)) '(:r1))
+		(assign '((:rsp slot_buf)) '(:r1))
 		(assign '(:r0) '((:r1 +str_length)))
 
-		(call :str :create_from_cstr '((& :rsp local_ip_buf)) '(:r0))
-		(assign '(:r0) '((:rsp local_ip_str)))
+		(call :str :create_from_cstr '((& :rsp slot_ip_buf)) '(:r0))
+		(assign '(:r0) '((:rsp slot_ip_str)))
 
-		(call :num :create '((:rsp local_port)) '(:r0))
-		(assign '(:r0) '((:rsp local_port_num)))
+		(call :num :create '((:rsp slot_port)) '(:r0))
+		(assign '(:r0) '((:rsp slot_port_num)))
 
 		(call :list :create :nil '(:r0))
-		(assign '(:r0) '((:rsp local_ret)))
+		(assign '(:r0) '((:rsp slot_ret)))
 
-		(call :list :push_back '((:rsp local_ret) (:rsp local_buf)))
-		(call :list :push_back '((:rsp local_ret) (:rsp local_ip_str)))
-		(call :list :push_back '((:rsp local_ret) (:rsp local_port_num)))
+		(call :list :push_back '((:rsp slot_ret) (:rsp slot_buf)))
+		(call :list :push_back '((:rsp slot_ret) (:rsp slot_ip_str)))
+		(call :list :push_back '((:rsp slot_ret) (:rsp slot_port_num)))
 	(else)
-		(call :str :destroy '((:rsp local_buf)))
-		(assign '((:rsp local_this)) '(:r0))
+		(call :str :destroy '((:rsp slot_buf)))
+		(assign '((:rsp slot_this)) '(:r0))
 		(call :obj :ref '((:r0 +lisp_sym_nil)) '(:r0))
-		(assign '(:r0) '((:rsp local_ret)))
+		(assign '(:r0) '((:rsp slot_ret)))
 	(endif)
 
-	(exit :host_net :lisp_udp_recv '((:rsp local_this) (:rsp local_ret)))
-	(vp-free local_size)
+	(exit :host_net :lisp_udp_recv '((:rsp slot_this) (:rsp slot_ret)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'callback)
 	(entry :sys_task :task_callback '(:r0))
 	(vp-push :r0)
-	(assign '((:r0 local_buf) (:r0 local_max_len) (& :r0 local_ip_buf) (& :r0 local_port) (:r0 local_handle))
+	(assign '((:r0 slot_buf) (:r0 slot_max_len) (& :r0 slot_ip_buf) (& :r0 slot_port) (:r0 slot_handle))
 		'(:r1 :r2 :r3 :r4 :r5))
 	(assign '((& :r1 +str_data) :r5) '(:r1 :r0))
 	(host-net-call :host_net :udp_recv '(:r0 :r1 :r2 :r3 :r4) '(:r0))
 	(vp-pop :r1)
-	(assign '(:r0) '((:r1 local_ret_bytes)))
+	(assign '(:r0) '((:r1 slot_ret_bytes)))
 	(vp-ret)
 
 (vp-label 'error)
@@ -550,33 +550,33 @@
 	;peer, the peer's load, and the bytes of mail sent on it. A link whose
 	;peer has yet to say who it is gives ids of zeros
 
-	(structure local 0
+	(structure slot 0
 		(ptr this ret iter_begin iter_end))
 
 	(entry :host_net :lisp_links '(:r0 :r1))
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
-	(vp-alloc local_size)
-	(assign '(:r0) '((:rsp local_this)))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(call :list :create :nil '(:r0))
-	(assign '(:r0) '((:rsp local_ret)))
+	(assign '(:r0) '((:rsp slot_ret)))
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_mail_links_array)) '(:r0))
 	(call :array :get_both '(:r0) '(_ :r1 :r2))
-	(assign '(:r2) '((:rsp local_iter_end)))
+	(assign '(:r2) '((:rsp slot_iter_end)))
 	(loop-start)
-		(assign '((:rsp local_iter_end)) '(:r2))
+		(assign '((:rsp slot_iter_end)) '(:r2))
 		(breakif '(:r1 = :r2))
 		(assign '((:r1 0)) '(:r0))
 		(vp-add-cr +ptr_size :r1)
-		(assign '(:r1) '((:rsp local_iter_begin)))
+		(assign '(:r1) '((:rsp slot_iter_begin)))
 		(call :str :create_from_buffer `((& :r0 0) ,lk_node_size) '(:r0))
-		(call :list :push_back '((:rsp local_ret) :r0))
-		(assign '((:rsp local_iter_begin)) '(:r1))
+		(call :list :push_back '((:rsp slot_ret) :r0))
+		(assign '((:rsp slot_iter_begin)) '(:r1))
 	(loop-end)
 
-	(exit :host_net :lisp_links '((:rsp local_this) (:rsp local_ret)))
-	(vp-free local_size)
+	(exit :host_net :lisp_links '((:rsp slot_this) (:rsp slot_ret)))
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error)

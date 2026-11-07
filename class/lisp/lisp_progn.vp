@@ -210,24 +210,24 @@
 	;eval gives it back. The body of the clause chosen is a jump, with
 	;nothing left on the stack.
 
-	(structure local 0
+	(structure slot 0
 		(pptr iter_begin iter_end)
 		(ptr args))
 
-	(defq frame (if (>= *build_mode* 1) local_size local_args))
+	(defq frame (if (>= *build_mode* 1) slot_size slot_args))
 
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_cond `(,this ,value))
 
 	(vp-alloc frame)
-	(assign `(,value) '((:rsp local_args)))
+	(assign `(,value) '((:rsp slot_args)))
 	(class/array/get_both value iter_begin iter_end)
-	(assign `(,iter_end) '((:rsp local_iter_end)))
+	(assign `(,iter_end) '((:rsp slot_iter_end)))
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
 		(breakif `(,iter_begin = ,iter_end))
-		(assign `(,iter_begin) '((:rsp local_iter_begin)))
+		(assign `(,iter_begin) '((:rsp slot_iter_begin)))
 		(vp-load-rcr iter_begin 0 value)
 	(assign `((,value +obj_vtable) (@ ,(f-path :list :vtable))) `(,vtable ,tmp))
 	(gotoif `(,vtable /= ,tmp) 'error2)
@@ -237,14 +237,14 @@
 		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(vpif `(,value /= ,tmp))
-			(assign '((:rsp local_iter_begin)) `(,tmp))
+			(assign '((:rsp slot_iter_begin)) `(,tmp))
 			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
 			(vp-free frame)
 			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(class/obj/ref value tmp -1)
-		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
+		(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) `(,iter_begin ,iter_end))
 	(loop-end)
 	(assign `((,this +lisp_sym_nil)) `(,value))
 	(class/obj/ref value tmp)
@@ -254,10 +254,10 @@
 	(vp-ret)
 
 (vp-label 'error1)
-	(assign '((:rsp local_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
+	(assign '((:rsp slot_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '((:rsp local_args) +error_msg_not_a_list) '(:r1 :r3))
+	(assign '((:rsp slot_args) +error_msg_not_a_list) '(:r1 :r3))
 (vp-label 'error)
 	(vp-free frame)
 	(jump :lisp :repl_error '(:r1 "(cond [(tst [body])] ...)" :r3))
@@ -279,26 +279,26 @@
 	;eval gives it back. The body of the clause chosen is a jump, with
 	;nothing left on the stack.
 
-	(structure local 0
+	(structure slot 0
 		(pptr iter_begin iter_end)
 		(ptr args))
 
-	(defq frame (if (>= *build_mode* 1) local_size local_args))
+	(defq frame (if (>= *build_mode* 1) slot_size slot_args))
 
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(entry :lisp :lisp_condn `(,this ,value))
 
 	(vp-alloc frame)
-	(assign `(,value) '((:rsp local_args)))
+	(assign `(,value) '((:rsp slot_args)))
 	(class/array/get_both value iter_begin iter_end)
-	(assign `(,iter_end) '((:rsp local_iter_end)))
+	(assign `(,iter_end) '((:rsp slot_iter_end)))
 	(assign `((,this +lisp_sym_t)) `(,value))
 	(class/obj/ref value tmp)
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
 		(breakif `(,iter_begin = ,iter_end))
-		(assign `(,iter_begin) '((:rsp local_iter_begin)))
+		(assign `(,iter_begin) '((:rsp slot_iter_begin)))
 		(class/obj/deref-live value tmp 'last_ref)
 	(vp-label 'derefed)
 		(vp-load-rcr iter_begin 0 value)
@@ -310,7 +310,7 @@
 		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this +lisp_sym_nil)) `(,tmp))
 		(vpif `(,value = ,tmp))
-			(assign '((:rsp local_iter_begin)) `(,tmp))
+			(assign '((:rsp slot_iter_begin)) `(,tmp))
 			(assign `((,tmp 0)) `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
 			(vp-free frame)
@@ -318,7 +318,7 @@
 		(endif)
 	(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
 	(breakif `(,vtable = ,tmp))
-		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
+		(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) `(,iter_begin ,iter_end))
 	(loop-end)
 
 	(exit :lisp :lisp_condn `(,this ,value))
@@ -329,14 +329,14 @@
 	;the last ref of the last test's value, so a call, and all is trashed
 	(call :obj :deref `(,value))
 	(lisp-this this)
-	(assign '((:rsp local_iter_begin)) `(,iter_begin))
+	(assign '((:rsp slot_iter_begin)) `(,iter_begin))
 	(goto 'derefed)
 
 (vp-label 'error1)
-	(assign '((:rsp local_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
+	(assign '((:rsp slot_args) +error_msg_wrong_num_of_args) '(:r1 :r3))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '((:rsp local_args) +error_msg_not_a_list) '(:r1 :r3))
+	(assign '((:rsp slot_args) +error_msg_not_a_list) '(:r1 :r3))
 (vp-label 'error)
 	(vp-free frame)
 	(jump :lisp :repl_error '(:r1 "(condn [(tst [body])] ...)" :r3))
@@ -380,7 +380,7 @@
 	;The frame is only for the forms before it, and has no slot for the
 	;lisp object, it stays in :r0, each eval gives it back.
 
-	(structure local 0
+	(structure slot 0
 		(pptr iter_begin iter_end))
 
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
@@ -393,19 +393,19 @@
 	(vp-sub-cr +ptr_size iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		;the forms before the last
-		(vp-alloc local_size)
-		(assign `(,iter_end) '((:rsp local_iter_end)))
+		(vp-alloc slot_size)
+		(assign `(,iter_end) '((:rsp slot_iter_end)))
 	(vp-label 'next_form)
-		(assign `(,iter_begin) '((:rsp local_iter_begin)))
+		(assign `(,iter_begin) '((:rsp slot_iter_begin)))
 		(class/obj/deref-live value tmp 'last_ref1)
 	(vp-label 'derefed1)
 		(call :lisp :repl_eval `(,this (,iter_begin 0)) `(,this ,value))
 	(assign `((,value +obj_vtable) (,this +lisp_error)) `(,vtable ,tmp))
 	(gotoif `(,vtable = ,tmp) 'prognexit1)
-		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
+		(assign '((:rsp slot_iter_begin) (:rsp slot_iter_end)) `(,iter_begin ,iter_end))
 		(vp-add-cr +ptr_size iter_begin)
 		(gotoif `(,iter_begin /= ,iter_end) 'next_form)
-		(vp-free local_size)
+		(vp-free slot_size)
 	(endif)
 	;the last form
 	(class/obj/deref-live value tmp 'last_ref2)
@@ -418,14 +418,14 @@
 
 (vp-label 'prognexit1)
 	(exit :lisp :repl_progn `(,this ,value))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'last_ref1)
 	;the last ref of the old value, so a call, and all is trashed
 	(call :obj :deref `(,value))
 	(lisp-this this)
-	(assign '((:rsp local_iter_begin)) `(,iter_begin))
+	(assign '((:rsp slot_iter_begin)) `(,iter_begin))
 	(goto 'derefed1)
 
 (vp-label 'last_ref2)

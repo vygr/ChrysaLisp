@@ -1557,7 +1557,7 @@
 	;the screen and its border onto the canvas, each pixel zoom square.
 	;FLASH swaps ink and paper while flash is 0x80, never if 0. A canvas too small
 	;for it, or a machine too small, is not drawn on
-	(structure local 0
+	(structure slot 0
 		(ptr this args)
 		(long row stride lines flash border))
 
@@ -1565,8 +1565,8 @@
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(vp-alloc slot_size)
+	(assign '(:r0 :r1) '((:rsp slot_this) (:rsp slot_args)))
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5) '(:obj :obj :num :num))
 	(assign '((:r3 +str_length)) '(:r0))
 	(gotoif `(:r0 < ,+zx_machine_size) 'done)
@@ -1584,22 +1584,22 @@
 	(gotoif '(:r0 < :r1) 'done)
 
 	(vp-load-rcr-ui :r2 +pixmap_stride :r0)
-	(assign '(:r0 :r4) '((:rsp local_stride) (:rsp local_flash)))
+	(assign '(:r0 :r4) '((:rsp slot_stride) (:rsp slot_flash)))
 	(vp-load-rcr :r2 +pixmap_data :r0)
-	(assign '(:r0) '((:rsp local_row)))
+	(assign '(:r0) '((:rsp slot_row)))
 	(vp-lea-pr 'palette :r13)
 	(vp-load-rcr-ub :r3 (+ +str_data +zx_border) :r0)
 	(vp-shl-cr 2 :r0)
 	(vp-load-rrr-ui :r13 :r0 :r0)
-	(assign '(:r0) '((:rsp local_border)))
+	(assign '(:r0) '((:rsp slot_border)))
 	(vp-lea-rcr :r3 (+ +str_data +zx_size) :r12)
 	(vp-xor-rr :r7 :r7)
 
 	;:r5 zoom, :r6 where a pixel goes, :r7 the line, :r12 memory, :r13
 	;the palette
 	(loop-start)
-		(assign '((:rsp local_row)) '(:r6))
-		(assign '((:rsp local_border)) '(:r2))
+		(assign '((:rsp slot_row)) '(:r6))
+		(assign '((:rsp slot_border)) '(:r2))
 		(vpif '(:r7 >= 32) '(:r7 < 224))
 			(vp-cpy-cr 32 :r1)
 			(vp-call 'fill)
@@ -1639,7 +1639,7 @@
 				(vp-shl-cr 2 :r9)
 				(vp-load-rrr-ui :r13 :r2 :r2)
 				(vp-load-rrr-ui :r13 :r9 :r9)
-				(assign '((:rsp local_flash)) '(:r0))
+				(assign '((:rsp slot_flash)) '(:r0))
 				(vp-and-rr :r0 :r1)
 				(vpif '(:r1 /= 0))
 					(vp-swp-rr :r2 :r9)
@@ -1667,7 +1667,7 @@
 				(vp-add-cr 1 :r4)
 				(vp-sub-cr 1 :r11)
 			(loop-until '(:r11 = 0))
-			(assign '((:rsp local_border)) '(:r2))
+			(assign '((:rsp slot_border)) '(:r2))
 			(vp-cpy-cr 32 :r1)
 			(vp-call 'fill)
 		(else)
@@ -1675,7 +1675,7 @@
 			(vp-call 'fill)
 		(endif)
 		;the line again for the rest of its zoom
-		(assign '((:rsp local_row) (:rsp local_stride)) '(:r0 :r1))
+		(assign '((:rsp slot_row) (:rsp slot_stride)) '(:r0 :r1))
 		(vp-cpy-rr :r5 :r2)
 		(loop-start)
 			(vp-sub-cr 1 :r2)
@@ -1694,15 +1694,15 @@
 			(vp-add-rr :r1 :r0)
 		(loop-end)
 		(vp-add-rr :r1 :r0)
-		(assign '(:r0) '((:rsp local_row)))
+		(assign '(:r0) '((:rsp slot_row)))
 		(vp-add-cr 1 :r7)
 	(loop-until `(:r7 = ,+zx_height))
 
 (vp-label 'done)
-	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:rsp slot_this)) '(:r0))
 	(assign '((:r0 +lisp_sym_nil)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(vp-free local_size)
+	(vp-free slot_size)
 	(exit '(:r0 :r1))
 	(vp-ret)
 

@@ -824,7 +824,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr dlist)
 		(int dx dy))
 
@@ -832,19 +832,19 @@
 		'(:r0 :r1 :r6 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
-	(vp-alloc local_size)
-	(entry :region :remove_region `(,heap ,region (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
+	(vp-alloc slot_size)
+	(entry :region :remove_region `(,heap ,region (:rsp slot_dlist) (:rsp slot_dx) (:rsp slot_dy)))
 
 	;run through source region list
 	(loop-flist region 0 rec rec)
-		(vp-simd vp-load-rcr-i '(:rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(vp-simd vp-load-rcr-i '(:rsp) `(,slot_dx ,slot_dy) `(,dx ,dy))
 		(vp-simd vp-load-rcr-i `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1) `(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
-		(call :region :remove_rect `(,heap (:rsp local_dlist) ,x ,y ,x1 ,y1))
+		(call :region :remove_rect `(,heap (:rsp slot_dlist) ,x ,y ,x1 ,y1))
 	(loop-end)
 
 	(exit :region :remove_region `(,heap))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -862,7 +862,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr slist)
 		(int dx dy))
 
@@ -870,19 +870,19 @@
 		'(:r0 :r6 :r3 :r5 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
-	(vp-alloc local_size)
-	(entry :region :copy_region `(,heap (:rsp local_slist) ,dregion ,cregion (:rsp local_dx) (:rsp local_dy)))
+	(vp-alloc slot_size)
+	(entry :region :copy_region `(,heap (:rsp slot_slist) ,dregion ,cregion (:rsp slot_dx) (:rsp slot_dy)))
 
 	;run through copy region list
 	(loop-flist cregion 0 rec rec)
-		(vp-simd vp-load-rcr-i '(:rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(vp-simd vp-load-rcr-i '(:rsp) `(,slot_dx ,slot_dy) `(,dx ,dy))
 		(vp-simd vp-load-rcr-i `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1) `(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
-		(call :region :copy_rect `(,heap (:rsp local_slist) ,dregion ,x ,y ,x1 ,y1))
+		(call :region :copy_rect `(,heap (:rsp slot_slist) ,dregion ,x ,y ,x1 ,y1))
 	(loop-end)
 
 	(exit :region :copy_region `(,heap))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)
@@ -899,7 +899,7 @@
 	;trashes
 	;:r1-:r2, :r4-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr node dlist)
 		(int dx dy))
 
@@ -907,21 +907,21 @@
 		'(:r0 :r1 :r1 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
-	(vp-alloc local_size)
-	(entry :region :paste_region `(,heap ,region (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
+	(vp-alloc slot_size)
+	(entry :region :paste_region `(,heap ,region (:rsp slot_dlist) (:rsp slot_dx) (:rsp slot_dy)))
 
 	;run through source region list
 	(loop-flist region 0 rec rec)
-		(assign `(,rec) '((:rsp local_node)))
-		(vp-simd vp-load-rcr-i '(:rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(assign `(,rec) '((:rsp slot_node)))
+		(vp-simd vp-load-rcr-i '(:rsp) `(,slot_dx ,slot_dy) `(,dx ,dy))
 		(vp-simd vp-load-rcr-i `(,rec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1) `(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
-		(call :region :paste_rect `(,heap (:rsp local_dlist) ,x ,y ,x1 ,y1))
-		(assign '((:rsp local_node)) `(,rec))
+		(call :region :paste_rect `(,heap (:rsp slot_dlist) ,x ,y ,x1 ,y1))
+		(assign '((:rsp slot_node)) `(,rec))
 	(loop-end)
 
 	(exit :region :paste_region `(,heap))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (def-func-end)

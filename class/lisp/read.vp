@@ -41,7 +41,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(structure local 0
+	(structure slot 0
 		(ptr this stream list stack)
 		(long c))
 
@@ -49,43 +49,43 @@
 
 	(entry :lisp :read `(,this ,stream ,c))
 
-	(vp-alloc local_size)
-	(assign `(,this ,stream ,c) '((:rsp local_this) (:rsp local_stream) (:rsp local_c)))
-	(call :list :create :nil '((:rsp local_list)))
-	(call :array :create :nil '((:rsp local_stack)))
+	(vp-alloc slot_size)
+	(assign `(,this ,stream ,c) '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)))
+	(call :list :create :nil '((:rsp slot_list)))
+	(call :array :create :nil '((:rsp slot_stack)))
 	(loop-start)
 		;skip white space and comments
-		(assign '((:rsp local_this) (:rsp local_stream) (:rsp local_c)) `(,this ,stream ,c))
+		(assign '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)) `(,this ,stream ,c))
 		(loop-start)
 			(loop-while `(,c <= +char_space) `(,c /= -1))
 				(call :lisp :read_char `(,this ,stream ,c) `(,this ,c))
-				(assign '((:rsp local_stream)) `(,stream))
+				(assign '((:rsp slot_stream)) `(,stream))
 			(loop-end)
 			(breakif `(,c /= +char_semi))
 			(call 'skip_not `(,stream +char_lf) '(s))
 			(call :stream :read_char `(,s) `(,stream ,c))
-			(assign '((:rsp local_this)) `(,this))
+			(assign '((:rsp slot_this)) `(,this))
 		(loop-end)
-		(assign `(,c) '((:rsp local_c)))
+		(assign `(,c) '((:rsp slot_c)))
 
 		;what are we reading ?
 		(switch)
 		(vpcase `(,c = +char_lrb))
 			;a new list, it goes in the current one, and becomes it
-			(call :lisp :read_char `(,this ,stream ,c) '(_ (:rsp local_c)))
-			(call :array :push_back '((:rsp local_stack) (:rsp local_list)))
+			(call :lisp :read_char `(,this ,stream ,c) '(_ (:rsp slot_c)))
+			(call :array :push_back '((:rsp slot_stack) (:rsp slot_list)))
 			(call :list :create :nil '(:r1))
-			(assign '((:rsp local_list)) '(:r0))
-			(assign '(:r1) '((:rsp local_list)))
+			(assign '((:rsp slot_list)) '(:r0))
+			(assign '(:r1) '((:rsp slot_list)))
 			(call :list :push_back '(:r0 :r1))
 			(break)
 		(vpcase `(,c = +char_rrb))
 			;back to the list this one is in
-			(call :lisp :read_char `(,this ,stream ,c) '(_ (:rsp local_c)))
-		(assign '((:rsp local_stack)) '(:r0))
+			(call :lisp :read_char `(,this ,stream ,c) '(_ (:rsp slot_c)))
+		(assign '((:rsp slot_stack)) '(:r0))
 		(assign '((:r0 +array_length)) '(:r1))
 		(gotoif '(:r1 = 0) 'error1)
-			(call :array :pop_back '((:rsp local_stack)) '(_ (:rsp local_list)))
+			(call :array :pop_back '((:rsp slot_stack)) '(_ (:rsp slot_list)))
 			(break)
 		(vpcase `(,c >= +char_0) `(,c <= +char_9))
 			(call :lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
@@ -112,7 +112,7 @@
 			(call :lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
 			(goto 'push_item)
 		(vpcase `(,c = -1))
-		(assign '((:rsp local_stack)) '(:r3))
+		(assign '((:rsp slot_stack)) '(:r3))
 		(assign '((:r3 +array_length)) '(:r3))
 		(gotoif '(:r3 /= 0) 'error2)
 			(assign `((,this +lisp_sym_nil)) `(,item))
@@ -121,41 +121,41 @@
 		(default)
 			(call :lisp :read_sym `(,this ,stream ,c) `(_ ,item ,c))
 		(vp-label 'push_item)
-			(assign `(,c) '((:rsp local_c)))
+			(assign `(,c) '((:rsp slot_c)))
 		(vp-label 'push_item1)
-			(call :list :push_back `((:rsp local_list) ,item))
+			(call :list :push_back `((:rsp slot_list) ,item))
 		(endswitch)
 
 		;reached start point ?
-		(assign '((:rsp local_stack)) '(:r0))
+		(assign '((:rsp slot_stack)) '(:r0))
 		(assign '((:r0 +array_length)) '(:r0))
 	(loop-until '(:r0 = 0))
 
 	;the form read is the one element of the list, it takes the slot of
 	;the stream
-	(call :list :pop_back '((:rsp local_list)) '(_ (:rsp local_stream)))
+	(call :list :pop_back '((:rsp slot_list)) '(_ (:rsp slot_stream)))
 
 (vp-label 'funcexit1)
-	(call :list :deref '((:rsp local_list)))
-	(call :array :deref '((:rsp local_stack)))
-	(assign '((:rsp local_this) (:rsp local_stream) (:rsp local_c)) `(,this ,item ,c))
+	(call :list :deref '((:rsp slot_list)))
+	(call :array :deref '((:rsp slot_stack)))
+	(assign '((:rsp slot_this) (:rsp slot_stream) (:rsp slot_c)) `(,this ,item ,c))
 
 	(exit :lisp :read `(,this ,item ,c))
-	(vp-free local_size)
+	(vp-free slot_size)
 	(vp-ret)
 
 (vp-label 'error2)
-	(call :lisp :repl_error '((:rsp local_list) "missing )" +error_msg_wrong_types) '(_ (:rsp local_stream)))
+	(call :lisp :repl_error '((:rsp slot_list) "missing )" +error_msg_wrong_types) '(_ (:rsp slot_stream)))
 	(goto 'error)
 (vp-label 'error1)
-	(call :lisp :repl_error '((:rsp local_list) "unexpected )" +error_msg_wrong_types) '(_ (:rsp local_stream)))
+	(call :lisp :repl_error '((:rsp slot_list) "unexpected )" +error_msg_wrong_types) '(_ (:rsp slot_stream)))
 (vp-label 'error)
 	;free the whole of the part read form, from its root list,
 	;the error holds its own ref to the payload list
-	(assign '((:rsp local_stack)) '(:r0))
+	(assign '((:rsp slot_stack)) '(:r0))
 	(assign '((:r0 +array_length)) '(:r1))
 	(vpif '(:r1 /= 0))
-		(call :array :get_first '(:r0) '(_ (:rsp local_list)))
+		(call :array :get_first '(:r0) '(_ (:rsp slot_list)))
 	(endif)
 	(goto 'funcexit1)
 
