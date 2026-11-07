@@ -157,7 +157,7 @@
 		(pubyte host)
 		(long port handle))
 
-	(def-vars
+	(structure slot 0
 		(struct cb cb_link_size)
 		(ptr params pdata msg data)
 		(long listen_handle conn_handle port is_server retries))
@@ -168,11 +168,11 @@
 	(vp-rdef (parse_scan) '(:r0))
 	(vp-rdef (poll_res) (method-output :host_net :poll))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;read params msg from kernel
 	(call :sys_mail :mymail :nil `(,params_msg ,params_data))
-	(assign `(,params_msg ,params_data) (vpx params pdata))
+	(save-fields :rsp '(slot_params slot_pdata) `(,params_msg ,params_data))
 
 	;default port = 3333, is_server = 0
 	(vp-simd vp-cpy-cr '(3333 0) `(,parse_port ,parse_server))
@@ -224,34 +224,36 @@
 	(goto 'scan_loop)
 
 (vp-label 'parse_done)
-	(assign `(,parse_port ,parse_server) (vpx port is_server))
+	(save-fields :rsp '(slot_port slot_is_server) `(,parse_port ,parse_server))
 
-	(vpif (vpx (/= is_server 0)))
+	(vpif `(,parse_server /= 0))
 		;server mode
 		;decrement task count for listener
 		(call :sys_task :count '(-1))
 
 		;listen on port
-		(assign (vpx (& cb) port) `(,cb ,func))
+		(assign '((& :rsp slot_cb) (:rsp slot_port)) `(,cb ,func))
 		(assign `(,func) `((,cb cb_link_port)))
 		(call :sys_task :callback `(,cb ($ listen_callback)))
-		(assign (vpx (. cb cb_link_handle)) (vpx listen_handle))
-		(gotoif (vpx (<= listen_handle 0)) 'link_server_exit)
+		(assign '((:rsp (+ slot_cb cb_link_handle))) '(:r0))
+		(assign '(:r0) '((:rsp slot_listen_handle)))
+		(gotoif '(:r0 <= 0) 'link_server_exit)
 
 		;persistent accept loop
 	(vp-label 'accept_loop)
-		(assign (vpx (& cb) listen_handle) `(,cb ,func))
+		(assign '((& :rsp slot_cb) (:rsp slot_listen_handle)) `(,cb ,func))
 		(assign `(,func) `((,cb cb_link_handle)))
 		(call :sys_task :callback `(,cb ($ accept_callback)))
-		(assign (vpx (. cb cb_link_handle)) (vpx conn_handle))
-		(vpif (vpx (> conn_handle 0)))
+		(assign '((:rsp (+ slot_cb cb_link_handle))) '(:r0))
+		(assign '(:r0) '((:rsp slot_conn_handle)))
+		(vpif '(:r0 > 0))
 			;spawn connection worker task
 			;all :conn reads, the handle, the seal flag and two keys, 0 but
 			;the handle: not sealed
-			(call :sys_mail :alloc '(80) (vpx msg data))
-			(call :sys_mem :fill (vpx data 80 0))
-			(call :sys_task :start (vpx (@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
-			(assign (vpx msg data conn_handle) '(:r0 :r1 :r5))
+			(call :sys_mail :alloc '(80) '((:rsp slot_msg) (:rsp slot_data)))
+			(call :sys_mem :fill '((:rsp slot_data) 80 0))
+			(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
+			(load-fields :rsp '(slot_msg slot_data slot_conn_handle) '(:r0 :r1 :r5))
 			(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 			(assign '(:r5) '((:r1 0)))
 			(call :sys_mail :send '(:r0))
@@ -260,21 +262,23 @@
 		(goto 'accept_loop)
 
 		;close listening socket
-		(host-net-call :host_net :close (vpx listen_handle))
+		(host-net-call :host_net :close '((:rsp slot_listen_handle)))
 	(vp-label 'link_server_exit)
 		(call :sys_task :count '(1))
 	(else)
 		;client mode: connect to host:port
-		(assign (vpx (& cb) pdata port) `(,cb ,func ,tmp))
+		(assign '((& :rsp slot_cb) (:rsp slot_pdata) (:rsp slot_port)) `(,cb ,func ,tmp))
 		(assign `(,func ,tmp) `((,cb cb_link_host) (,cb cb_link_port)))
 		(call :sys_task :callback `(,cb ($ connect_callback)))
-		(assign (vpx (. cb cb_link_handle)) (vpx conn_handle))
-		(gotoif (vpx (<= conn_handle 0)) 'link_exit)
+		(assign '((:rsp (+ slot_cb cb_link_handle))) '(:r0))
+		(assign '(:r0) '((:rsp slot_conn_handle)))
+		(gotoif '(:r0 <= 0) 'link_exit)
 
 		;wait for connect to complete
-		(assign (vpx 0) (vpx retries))
+		(vp-xor-rr :r0 :r0)
+		(assign '(:r0) '((:rsp slot_retries)))
 	(vp-label 'poll_loop)
-		(host-net-call :host_net :poll (vpx conn_handle) `(,poll_res))
+		(host-net-call :host_net :poll '((:rsp slot_conn_handle)) `(,poll_res))
 		;bit 1 (POLLOUT) = connected
 		(vp-cpy-rr poll_res tmp)
 		(vp-and-cr 2 tmp)
@@ -283,25 +287,25 @@
 		(vp-cpy-rr poll_res tmp)
 		(vp-and-cr 4 tmp)
 		(vpif `(,tmp /= 0))
-			(host-net-call :host_net :close (vpx conn_handle))
+			(host-net-call :host_net :close '((:rsp slot_conn_handle)))
 			(goto 'link_exit)
 		(endif)
-		(assign (vpx retries) '(:r6))
+		(assign '((:rsp slot_retries)) '(:r6))
 		(vp-add-cr 1 :r6)
 		(vpif '(:r6 > 500)) ; 5s timeout
-			(host-net-call :host_net :close (vpx conn_handle))
+			(host-net-call :host_net :close '((:rsp slot_conn_handle)))
 			(goto 'link_exit)
 		(endif)
-		(assign '(:r6) (vpx retries))
+		(assign '(:r6) '((:rsp slot_retries)))
 		(call :sys_task :sleep '(10000)) ; 10ms
 		(goto 'poll_loop)
 
 	(vp-label 'poll_connected)
 		;spawn connection worker task, not sealed, as above
-		(call :sys_mail :alloc '(80) (vpx msg data))
-		(call :sys_mem :fill (vpx data 80 0))
-		(call :sys_task :start (vpx (@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
-		(assign (vpx msg data conn_handle) '(:r0 :r1 :r5))
+		(call :sys_mail :alloc '(80) '((:rsp slot_msg) (:rsp slot_data)))
+		(call :sys_mem :fill '((:rsp slot_data) 80 0))
+		(call :sys_task :start `((@ ,(f-path :host_net :conn))) '(_ _ :r2 :r3 :r4))
+		(load-fields :rsp '(slot_msg slot_data slot_conn_handle) '(:r0 :r1 :r5))
 		(save-net-id :r0 +msg_dest :r2 :r3 :r4)
 		(assign '(:r5) '((:r1 0)))
 		(call :sys_mail :send '(:r0))
@@ -309,9 +313,9 @@
 
 (vp-label 'link_exit)
 	;free params msg
-	(call :sys_mail :free (vpx params))
-	(pop-scope)
-	(return)
+	(call :sys_mail :free '((:rsp slot_params)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'listen_callback)
 	(entry :sys_task :task_callback '(:r0))
