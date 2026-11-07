@@ -595,25 +595,26 @@
 	;trashes
 	;:r1-:r6, :r14, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this buf))
 
 	(entry :stream :lisp_writeline '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(push-scope)
-	(assign '(:r0) (vpx this))
+	(vp-alloc slot_size)
+	(assign '(:r0) '((:rsp slot_this)))
 	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj &&))
-	(assign `(,(second in)) (vpx buf))
+	(assign `(,(second in)) '((:rsp slot_buf)))
 	(call :stream :write `(,(first in) (& ,(second in) +str_data) (,(second in) +str_length)) '(tmp))
 	(call :stream :write_char `(,tmp 10))
-	(assign (vpx (.> buf +str_length)) '(:r0))
+	(assign '((:rsp slot_buf)) '(:r0))
+	(assign '((:r0 +str_length)) '(:r0))
 	(vp-add-cr 1 :r0)
 	(call :num :create '(:r0) '(:r1))
-	(assign (vpx this) '(:r0))
-	(pop-scope)
+	(assign '((:rsp slot_this)) '(:r0))
+	(vp-free slot_size)
 
 	(exit :stream :lisp_writeline '(:r0 :r1))
 	(vp-ret)
