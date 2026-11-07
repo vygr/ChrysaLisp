@@ -9,25 +9,38 @@
 	;trashes
 	;:r0-:r7, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(struct lk_node lk_node_size)
 		(ptr statics params msg data mem)
-		(pptr iter_begin iter_end)
 		(pubyte pdata)
 		(long handle is_owner live)
 		(nodeid node_id))
 
-	(push-scope)
+	(defmacro link-start (task)
+		;start the in or out link and send it its params: lk_node, the shared
+		;memory, is_owner, and where to say it has gone
+		`(progn
+			(call :sys_mail :alloc '(32) '(:r0 :r1))
+			(save-fields :rsp '(slot_msg slot_data) '(:r0 :r1))
+			(call :sys_task :start '((@ ,(f-path :sys_link task))) '(_ _ :r2 :r3 :r4))
+			(load-fields :rsp '(slot_msg slot_data slot_mem slot_is_owner) '(:r0 :r1 :r6 :r7))
+			(save-net-id :r0 +msg_dest)
+			(vp-lea-rcr :rsp slot_lk_node :r5)
+			(vp-lea-rcr :rsp slot_live :r2)
+			(save-fields :r1 '(0 +ptr_size (* 2 +ptr_size) (* 3 +ptr_size)) '(:r5 :r6 :r7 :r2))
+			(call :sys_mail :send '(:r0))))
+
+	(vp-alloc slot_size)
 
 	;decrement task count
 	;don't count links in load balancing
 	(call :sys_task :count '(-3))
 
 	;init and add link node to link array
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
+	(call :sys_kernel :id :nil '(:r0 :r1))
+	(save-node-id :rsp slot_node_id :r0 :r1)
 	(vp-rdef (node zero))
-	(assign (vpx (& lk_node) 0) `(,node ,zero))
+	(assign '((& :rsp slot_lk_node) 0) `(,node ,zero))
 	(save-fields node
 			`(lk_node_task_count lk_node_peer_pid lk_node_sent lk_node_remote
 			,(+ lk_node_peer_node_id +node_id_node1)
@@ -35,65 +48,60 @@
 			,(+ lk_node_peer_system_id +node_id_node1)
 			,(+ lk_node_peer_system_id +node_id_node2))
 		`(,zero ,zero ,zero ,zero ,zero ,zero ,zero ,zero))
-	(call :array :push_back (vpx (.> statics statics_sys_mail_links_array) (& lk_node)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '(:r0) '((:rsp slot_statics)))
+	(call :array :push_back '((:r0 statics_sys_mail_links_array) (& :rsp slot_lk_node)))
 
 	;read params msg from kernel
-	(call :sys_mail :mymail :nil (vpx params pdata))
+	(call :sys_mail :mymail :nil '(:r0 :r1))
+	(save-fields :rsp '(slot_params slot_pdata) '(:r0 :r1))
 
 	;open shared memory file
-	(call :host_os :pii_open_shared (vpx pdata lk_shmem_size) (vpx handle))
+	(call :host_os :pii_open_shared `(:r1 ,lk_shmem_size) '(:r0))
+	(assign '(:r0) '((:rsp slot_handle)))
 
 	;map shared object
-	(call :host_os :pii_mmap (vpx lk_shmem_size handle +mmap_shared) (vpx mem))
+	(call :host_os :pii_mmap `(,lk_shmem_size :r0 ,+mmap_shared) '(:r0))
+	(assign '(:r0) '((:rsp slot_mem)))
 
 	;no shared memory, no link. The host gives 0 or -1 for one it could
 	;not make or map, and there is nothing at either to claim
-	(vpif (vpx (> (+ mem 1) 1)))
+	(vp-lea-rcr :r0 1 :r1)
+	(vpif '(:r1 > 1))
 		;try to claim host_a (embedded in chan_1 alignment padding)
-		(vpifnot (vpx (. (.> mem lk_shmem_host_a) +node_id_node1)))
-			(assign (vpx (. node_id +node_id_node1) (. node_id +node_id_node2))
-				(vpx (. (.> mem lk_shmem_host_a) +node_id_node1) (. (.> mem lk_shmem_host_a) +node_id_node2)))
+		(assign `((:r0 ,(+ lk_shmem_host_a +node_id_node1))) '(:r1))
+		(vpif '(:r1 = 0))
+			(load-node-id :rsp slot_node_id :r1 :r2)
+			(save-node-id :r0 lk_shmem_host_a :r1 :r2)
 			;wait a fraction for bus propagation / simultaneous write collisions
 			(call :sys_task :sleep '(100))
 		(endif)
 
 		;verify who won host_a
-		(assign (vpx 1) (vpx is_owner))
-		(vpif (vpx (/= (. (.> mem lk_shmem_host_a) +node_id_node1) (. node_id +node_id_node1))))
-			(assign (vpx 0) (vpx is_owner))
+		(assign `((:rsp slot_mem) (:rsp ,(+ slot_node_id +node_id_node1))) '(:r0 :r1))
+		(assign `((:r0 ,(+ lk_shmem_host_a +node_id_node1))) '(:r2))
+		(vp-cpy-cr 1 :r3)
+		(vpif '(:r2 /= :r1))
+			(vp-xor-rr :r3 :r3)
 			;register as guest in host_b
-			(assign (vpx (. node_id +node_id_node1) (. node_id +node_id_node2))
-				(vpx (. (.> mem lk_shmem_host_b) +node_id_node1) (. (.> mem lk_shmem_host_b) +node_id_node2)))
+			(load-node-id :rsp slot_node_id :r1 :r2)
+			(save-node-id :r0 lk_shmem_host_b :r1 :r2)
 		(endif)
 
 		;the in and out links have lk_node, here, and the shared memory till
 		;each says it has gone, live, the last thing it does
-		(assign (vpx 2) (vpx live))
+		(vp-cpy-cr 2 :r4)
+		(save-fields :rsp '(slot_is_owner slot_live) '(:r3 :r4))
 
-		;start out link and send params
-		(call :sys_mail :alloc (vpx 32) (vpx msg data))
-		(call :sys_task :start (vpx (@ ,(f-path :sys_link :out))) '(_ _ :r2 :r3 :r4))
-		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
-		(save-net-id :r0 +msg_dest)
-		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
-		(assign (vpx (& live)) '(:r5))
-		(assign '(:r5) '((:r1 (* 3 +ptr_size))))
-		(call :sys_mail :send '(:r0))
-
-		;start in link and send params
-		(call :sys_mail :alloc (vpx 32) (vpx msg data))
-		(call :sys_task :start (vpx (@ ,(f-path :sys_link :in))) '(_ _ :r2 :r3 :r4))
-		(assign (vpx msg data (& lk_node) mem is_owner) '(:r0 :r1 :r5 :r6 :r7))
-		(save-net-id :r0 +msg_dest)
-		(assign '(:r5 :r6 :r7) '((:r1 0) (:r1 +ptr_size) (:r1 (* 2 +ptr_size))))
-		(assign (vpx (& live)) '(:r5))
-		(assign '(:r5) '((:r1 (* 3 +ptr_size))))
-		(call :sys_mail :send '(:r0))
+		;start out link and in link
+		(link-start :out)
+		(link-start :in)
 
 		;wait till link dies or told to quit...
 		(loop-start)
 			(call :sys_task :sleep '(100000))
-			(breakif (vpx (= (. lk_node lk_node_task_count) (- 1))))
+			(assign `((:rsp ,(+ slot_lk_node lk_node_task_count) ui)) '(:r0))
+			(breakif '(:r0 = -1))
 		(loop-end)
 
 		;wait for the in and out links to go before the memory is unmapped
@@ -101,40 +109,48 @@
 		;waits on its peer's process for some of it. The link is said to be
 		;closed again each time, a ping read can undo it
 		(loop-start)
-			(assign (vpx (- 1)) (vpx (. lk_node lk_node_task_count)))
+			(vp-cpy-cr -1 :r0)
+			(assign '(:r0) `((:rsp ,(+ slot_lk_node lk_node_task_count) ui)))
 			(call :sys_task :sleep '(1000))
-		(loop-until (vpx (= live 0)))
+			(assign '((:rsp slot_live)) '(:r0))
+		(loop-until '(:r0 = 0))
 
 		;unmap object
-		(call :host_os :pii_munmap (vpx mem lk_shmem_size +mmap_shared))
+		(call :host_os :pii_munmap `((:rsp slot_mem) ,lk_shmem_size ,+mmap_shared))
 	(else)
 		(call :host_os :pii_write_str '(2 "Link: no shared memory, or the other end's is another size, another build !\n"))
 	(endif)
 
 	;remove link node from link array, and once it is gone the walk is over:
 	;the array is one shorter than its end says
-	(call :array :get_both (vpx (.> statics statics_sys_mail_links_array)) (vpx _ iter_begin iter_end))
-	(loop-while (vpx (/= iter_begin iter_end)))
-		(vpif (vpx (= (* iter_begin) (& lk_node))))
-			(call :array :erase (vpx (.> statics statics_sys_mail_links_array) iter_begin))
+	(assign '((:rsp slot_statics)) '(:r0))
+	(call :array :get_both '((:r0 statics_sys_mail_links_array)) '(_ :r1 :r2))
+	(vp-lea-rcr :rsp slot_lk_node :r3)
+	(loop-while '(:r1 /= :r2))
+		(assign '((:r1 0)) '(:r0))
+		(vpif '(:r0 = :r3))
+			(assign '((:rsp slot_statics)) '(:r0))
+			(call :array :erase '((:r0 statics_sys_mail_links_array) :r1))
 			(goto 'link_removed)
 		(endif)
-		(assign (vpx (+ iter_begin +ptr_size)) (vpx iter_begin))
+		(vp-add-cr +ptr_size :r1)
 	(loop-end)
 (vp-label 'link_removed)
 
 	;close it
-	(vpif (vpx (> (+ handle 1) 1)))
-		(call :host_os :pii_close_shared (vpx pdata handle))
+	(load-fields :rsp '(slot_pdata slot_handle) '(:r0 :r1))
+	(vp-lea-rcr :r1 1 :r2)
+	(vpif '(:r2 > 1))
+		(call :host_os :pii_close_shared '(:r0 :r1))
 	(endif)
 
 	;free params msg
-	(call :sys_mail :free (vpx params))
+	(call :sys_mail :free '((:rsp slot_params)))
 
 	;restore task count
 	(call :sys_task :count '(3))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
