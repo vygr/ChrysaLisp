@@ -55,6 +55,42 @@
 			(map (lambda ((closed p)) (list closed (mat3x2-vec2-mul m p (cat p)))) outline))
 		(outline)))
 
+(defun morph-length (p closed)
+	; (morph-length p closed) -> fixed
+	;how long a line is, with the way back to its start if it is closed
+	(defq n (length p) i 2 len 0.0)
+	(when (>= n 4)
+		(while (< i n)
+			(defq dx (- (elem-get p i) (elem-get p (- i 2)))
+				dy (- (elem-get p (inc i)) (elem-get p (dec i))))
+			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))) i (+ i 2)))
+		(when closed
+			(defq dx (- (elem-get p 0) (elem-get p (- n 2)))
+				dy (- (elem-get p 1) (elem-get p (dec n))))
+			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))))))
+	len)
+
+(defun morph-trim (p closed u)
+	; (morph-trim p closed u) -> path
+	;the first part of a line, as far along it as u says, as an open line.
+	;A closed line goes on round to its start
+	(defq n (length p) out (path) want (* (morph-length p closed) u))
+	(when (>= n 2)
+		(push out (elem-get p 0) (elem-get p 1))
+		(defq at 2 gone 0.0 x (elem-get p 0) y (elem-get p 1) going :t)
+		(while (and going (or (< at n) (and closed (= at n))))
+			(defq nx (if (< at n) (elem-get p at) (elem-get p 0))
+				ny (if (< at n) (elem-get p (inc at)) (elem-get p 1))
+				dx (- nx x) dy (- ny y) seg (sqrt (+ (* dx dx) (* dy dy))))
+			(cond
+				((>= (+ gone seg) want)
+					(defq f (if (> seg 0.0) (/ (- want gone) seg) 0.0))
+					(push out (+ x (* f dx)) (+ y (* f dy)))
+					(setq going :nil))
+				(:t (push out nx ny)
+					(setq gone (+ gone seg) x nx y ny at (+ at 2))))))
+	out)
+
 (defun outline-flat (outline fill stroke radius join cap1 cap2 &optional trim)
 	; (outline-flat outline fill stroke radius join cap1 cap2 [trim]) -> (fills strokes box)
 	;the polygons an outline is drawn with, and the box they are all in,
@@ -87,21 +123,6 @@
 		(when (nempty? polys)
 			(bind '((x y) (x1 y1)) (vector-bounds-2d polys))
 			(list x y x1 y1))))
-
-(defun morph-length (p closed)
-	; (morph-length p closed) -> fixed
-	;how long a line is, with the way back to its start if it is closed
-	(defq n (length p) i 2 len 0.0)
-	(when (>= n 4)
-		(while (< i n)
-			(defq dx (- (elem-get p i) (elem-get p (- i 2)))
-				dy (- (elem-get p (inc i)) (elem-get p (dec i))))
-			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))) i (+ i 2)))
-		(when closed
-			(defq dx (- (elem-get p 0) (elem-get p (- n 2)))
-				dy (- (elem-get p 1) (elem-get p (dec n))))
-			(setq len (+ len (sqrt (+ (* dx dx) (* dy dy)))))))
-	len)
 
 (defun morph-area (p)
 	; (morph-area p) -> fixed
@@ -277,23 +298,3 @@
 			(list closed (nums-add a p p)))
 		morph))
 
-(defun morph-trim (p closed u)
-	; (morph-trim p closed u) -> path
-	;the first part of a line, as far along it as u says, as an open line.
-	;A closed line goes on round to its start
-	(defq n (length p) out (path) want (* (morph-length p closed) u))
-	(when (>= n 2)
-		(push out (elem-get p 0) (elem-get p 1))
-		(defq at 2 gone 0.0 x (elem-get p 0) y (elem-get p 1) going :t)
-		(while (and going (or (< at n) (and closed (= at n))))
-			(defq nx (if (< at n) (elem-get p at) (elem-get p 0))
-				ny (if (< at n) (elem-get p (inc at)) (elem-get p 1))
-				dx (- nx x) dy (- ny y) seg (sqrt (+ (* dx dx) (* dy dy))))
-			(cond
-				((>= (+ gone seg) want)
-					(defq f (if (> seg 0.0) (/ (- want gone) seg) 0.0))
-					(push out (+ x (* f dx)) (+ y (* f dy)))
-					(setq going :nil))
-				(:t (push out nx ny)
-					(setq gone (+ gone seg) x nx y ny at (+ at 2))))))
-	out)

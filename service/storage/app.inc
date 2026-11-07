@@ -1043,6 +1043,12 @@
 	;the service puts what it has on the volume and goes
 	(if (storage-ask (ifn svc (storage-service)) +storage_type_stop) :t))
 
+(defun storage-record-members (&optional group)
+	; (storage-record-members [group]) -> (netid ...)
+	;the services of every member of a store of that group that is there,
+	;on every machine, *Storage if not given
+	(map (const mail-entry-id) (mail-enquire (cat (ifn group +storage_group) ","))))
+
 (defun storage-stop-here ()
 	; (storage-stop-here) -> (netid ...)
 	;each store kept on this node puts what it has on its volume and goes,
@@ -1226,12 +1232,6 @@
 	;stop, not to. With :nil for the mailbox, it is to tell nobody
 	(if (storage-ask svc +storage_type_record
 		(cond ((not mbox) "-") (stop (cat "-" (hex-encode mbox))) ((hex-encode mbox)))) :t))
-
-(defun storage-record-members (&optional group)
-	; (storage-record-members [group]) -> (netid ...)
-	;the services of every member of a store of that group that is there,
-	;on every machine, *Storage if not given
-	(map (const mail-entry-id) (mail-enquire (cat (ifn group +storage_group) ","))))
 
 (defun storage-record-run (write until &optional group stop)
 	; (storage-record-run write until [group stop]) -> lines

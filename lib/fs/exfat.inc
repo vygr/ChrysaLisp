@@ -169,6 +169,47 @@
 	(stream-seek stream offset 0)
 	(and (defq data (read-blk stream len)) (= (length data) len) data))
 
+(defun exfat-drop (vol index)
+	;a block is no longer kept, and is not to be written
+	(when (. (defq cache (get :cache vol)) :find index)
+		(. cache :erase index)
+		(. (get :dirty vol) :erase index)
+		(def vol :cached (dec (get :cached vol)))))
+
+(defun exfat-zeros (len)
+	; (exfat-zeros len) -> str
+	;always a string of its own, it is often changed in place
+	(defq z (const (char 0 8)))
+	(while (<= (length z) len) (setq z (cat z z)))
+	(slice z 0 len))
+
+(defun exfat-cluster-size (vol)
+	(<< 1 (get :cluster_shift vol)))
+
+(defun exfat-cluster-offset (vol cluster)
+	;where a cluster is on the device, the first is cluster 2
+	(+ (<< (get :heap_offset vol) (get :sector_shift vol))
+		(<< (- cluster 2) (get :cluster_shift vol))))
+
+(defun exfat-stream-flush (vol)
+	;what the stream holds, to the device, if it is a file
+	(if (get :file vol) (stream-flush (get :stream vol)))
+	vol)
+
+(defun exfat-bitmap-write (vol bitmap)
+	;the clusters of a bitmap, of the bytes of it that have changed, to the
+	;device now, whole sectors, as they are not kept: the blocks of them
+	;that are kept are let go
+	(defq size (exfat-cluster-size vol) clusters (get :bitmap_clusters vol))
+	(each (lambda (i)
+		(defq at (* i size) part (slice bitmap at (min (length bitmap) (+ at size)))
+			offset (exfat-cluster-offset vol (elem-get clusters i)))
+		(each (# (exfat-drop vol %0)) (range (>> offset +exfat_block_shift)
+			(>> (+ offset (length part) (const (dec +exfat_block_size))) +exfat_block_shift)))
+		(exfat-raw-write vol offset
+			(cat part (exfat-zeros (- (logand (+ (length part) 511) -512) (length part))))))
+		(range (/ (get :dirty_lo vol) size) (inc (/ (get :dirty_hi vol) size)))))
+
 (defun exfat-flush (vol)
 	; (exfat-flush vol) -> vol
 	;the blocks that were changed, to the device, in the order they are on
@@ -214,13 +255,6 @@
 		(def vol :cached (inc (get :cached vol))))
 	(. cache :insert index block)
 	block)
-
-(defun exfat-drop (vol index)
-	;a block is no longer kept, and is not to be written
-	(when (. (defq cache (get :cache vol)) :find index)
-		(. cache :erase index)
-		(. (get :dirty vol) :erase index)
-		(def vol :cached (dec (get :cached vol)))))
 
 (defun exfat-block (vol index)
 	;a block of the device, from those kept if it is there
@@ -306,18 +340,6 @@
 	(exfat-flush vol)
 	(exfat-stream-flush vol))
 
-(defun exfat-stream-flush (vol)
-	;what the stream holds, to the device, if it is a file
-	(if (get :file vol) (stream-flush (get :stream vol)))
-	vol)
-
-(defun exfat-zeros (len)
-	; (exfat-zeros len) -> str
-	;always a string of its own, it is often changed in place
-	(defq z (const (char 0 8)))
-	(while (<= (length z) len) (setq z (cat z z)))
-	(slice z 0 len))
-
 (defun exfat-busy (vol busy)
 	;the volume says of itself that it is being written, and that goes to
 	;the device at once, before anything else does. If the device is pulled
@@ -330,14 +352,6 @@
 	(. (get :cache vol) :insert 0 boot)
 	(if (get :file vol) (stream-flush (get :stream vol)))
 	vol)
-
-(defun exfat-cluster-size (vol)
-	(<< 1 (get :cluster_shift vol)))
-
-(defun exfat-cluster-offset (vol cluster)
-	;where a cluster is on the device, the first is cluster 2
-	(+ (<< (get :heap_offset vol) (get :sector_shift vol))
-		(<< (- cluster 2) (get :cluster_shift vol))))
 
 (defun exfat-next (vol cluster)
 	;the cluster that follows this one, from the allocation table
@@ -667,20 +681,6 @@
 	(def vol :dirty_lo (if (< lo 0) i (min lo i)) :dirty_hi (max (get :dirty_hi vol) i))
 	;a cluster that is free again is where to look next
 	(unless used (def vol :hint (min (get :hint vol) cluster))))
-
-(defun exfat-bitmap-write (vol bitmap)
-	;the clusters of a bitmap, of the bytes of it that have changed, to the
-	;device now, whole sectors, as they are not kept: the blocks of them
-	;that are kept are let go
-	(defq size (exfat-cluster-size vol) clusters (get :bitmap_clusters vol))
-	(each (lambda (i)
-		(defq at (* i size) part (slice bitmap at (min (length bitmap) (+ at size)))
-			offset (exfat-cluster-offset vol (elem-get clusters i)))
-		(each (# (exfat-drop vol %0)) (range (>> offset +exfat_block_shift)
-			(>> (+ offset (length part) (const (dec +exfat_block_size))) +exfat_block_shift)))
-		(exfat-raw-write vol offset
-			(cat part (exfat-zeros (- (logand (+ (length part) 511) -512) (length part))))))
-		(range (/ (get :dirty_lo vol) size) (inc (/ (get :dirty_hi vol) size)))))
 
 (defun exfat-begin (vol)
 	; (exfat-begin vol) -> vol
