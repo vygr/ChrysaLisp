@@ -385,8 +385,22 @@
 				(cond
 					((defq faults (storage-volume-check svc opt_C))
 						(each (const print) faults)
-						(defq faults (filter (# (not (starts-with "mended:" %0))) faults))
-						(print (if (empty? faults) "Nothing is wrong with the volume." (cat (str (length faults)) " things are wrong with the volume."))))
+						;with a mend, what was wrong and how much of it is mended: a
+						;cluster two have, a chain cut short and one not of the
+						;volume are only said, lib/fs/exfat.inc (exfat-check)
+						(defq mended (some (# (starts-with "mended:" %0)) faults)
+							faults (filter (# (not (starts-with "mended:" %0))) faults)
+							left (filter (# (not (or (ends-with " clusters in use marked free" %0)
+								(ends-with " clusters marked in use are had by nothing" %0)
+								(ends-with " is not as the device has it" %0)))) faults))
+						(print (cond
+							((empty? faults) "Nothing is wrong with the volume.")
+							((and mended (empty? left))
+								(cat (str (length faults)) " things were wrong with the volume, all mended."))
+							(mended (cat (str (length faults)) " things were wrong with the volume, "
+								(str (- (length faults) (length left))) " mended, "
+								(str (length left)) " that -C can not mend."))
+							((cat (str (length faults)) " things are wrong with the volume.")))))
 					((print "The store did not answer, its service has gone."))))
 			((or opt_c opt_C)
 				(cond
