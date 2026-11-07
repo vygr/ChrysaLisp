@@ -525,22 +525,23 @@
 	;trashes
 	;:r1-:r6, :r14, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this buf))
 
 	(entry :stream :lisp_writeblk '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(push-scope)
-	(assign '(:r0) (vpx this))
+	(vp-alloc local_size)
+	(assign '(:r0) '((:rsp local_this)))
 	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj &&))
-	(assign `(,(second in)) (vpx buf))
+	(assign `(,(second in)) '((:rsp local_buf)))
 	(call :stream :write `(,(first in) (& ,(second in) +str_data) (,(second in) +str_length)))
-	(call :num :create (vpx (.> buf +str_length)) '(:r1))
-	(assign (vpx this) '(:r0))
-	(pop-scope)
+	(assign '((:rsp local_buf)) '(:r0))
+	(call :num :create '((:r0 +str_length)) '(:r1))
+	(assign '((:rsp local_this)) '(:r0))
+	(vp-free local_size)
 
 	(exit :stream :lisp_writeblk '(:r0 :r1))
 	(vp-ret)

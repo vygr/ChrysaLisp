@@ -140,31 +140,25 @@
 
 ;debug helpers
 (defun debug-num (s n)
+	;:r0 to :r2 as they were round the calls, and n of them as they were
 	(when (> *build_mode* 0)
-		(def-vars
-			(ptr _a _b _c))
-		(push-scope)
-		(assign '(:r0 :r1 :r2) (vpx _a _b _c))
+		(vp-push :r0 :r1 :r2)
 		(fn-string (cat s ": ") :r1)
 		(call :host_os :pii_write_str '(2 :r1))
-		(assign (vpx _a _b _c) '(:r0 :r1 :r2))
+		(assign '((:rsp 16) (:rsp 8) (:rsp 0)) '(:r0 :r1 :r2))
 		(assign n '(:r1))
 		(call :host_os :pii_write_num '(2 :r1 16))
 		(call :host_os :pii_write_char '(2 10))
-		(assign (vpx _a _b _c) '(:r0 :r1 :r2))
-		(pop-scope)))
+		(vp-pop :r0 :r1 :r2)))
 
 (defun debug-str (s)
+	;:r0 and :r1 as they were round the calls
 	(when (> *build_mode* 0)
-		(def-vars
-			(ptr _a _b))
-		(push-scope)
-		(assign '(:r0 :r1) (vpx _a _b))
+		(vp-push :r0 :r1)
 		(assign s '(:r1))
 		(call :host_os :pii_write_str '(2 :r1))
 		(call :host_os :pii_write_char '(2 10))
-		(assign (vpx _a _b) '(:r0 :r1))
-		(pop-scope)))
+		(vp-pop :r0 :r1)))
 
 (defcvar 's_ifmt 0xf000)
 (defcvar 's_ifdir 0x4000)
