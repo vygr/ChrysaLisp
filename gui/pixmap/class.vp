@@ -124,66 +124,73 @@
 		(ptr this)
 		(uint flags))
 
-	(def-vars
-		(struct frame slot_size)
-		(ptr statics))
+	(structure cb 0
+		(ptr user this)
+		(long tex_id))
 
-	(push-scope)
-	(entry :pixmap :upload (vpx (. frame slot_this) (. frame slot_flags)))
+	(vp-alloc slot_size)
+	(entry :pixmap :upload '(:r0 :r1))
+	(save-fields :rsp '(slot_this slot_flags) '(:r0 :r1))
 
 	;a node with no GUI has no driver to make a texture with. The pixmap
 	;is left with none, as one that was never uploaded, and whoever asked
-	;finds none: a font gives no glyphs, a canvas shows nothing
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(vpif (vpx (.> statics statics_sys_load_host_gui_funcs)))
-		(call :sys_task :callback (vpx (& frame) ($ callback)))
+	;finds none: a font gives no glyphs, a canvas shows nothing. The
+	;callback is given the frame
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_load_host_gui_funcs)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(call :sys_task :callback '(:rsp ($ callback)))
 	(endif)
 
-	(exit :pixmap :upload (vpx (. frame slot_this)))
-	(pop-scope)
-	(return)
+	(exit :pixmap :upload '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'callback)
 	;inputs
-	;:r0 = user data
+	;:r0 = user data, the frame above
 
-	(def-vars
-		(ptr user this statics)
-		(long tex_id))
-
-	(push-scope)
-	(entry (vpx user))
+	(entry '(:r0))
+	(vp-alloc cb_size)
+	(assign '((:r0 slot_this)) '(:r1))
+	(save-fields :rsp '(cb_user cb_this) '(:r0 :r1))
 
 	;free any texture
-	(assign (vpx (.> user slot_this)) (vpx this))
-	(call :texture :deref_if (vpx (.> this +pixmap_texture)))
+	(call :texture :deref_if '((:r1 +pixmap_texture)))
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call :host_gui :create_texture (vpx (.> this +pixmap_data)
-			(.> this +pixmap_width) (.> this +pixmap_height)
-			(.> this +pixmap_stride) (.> user slot_flags))
-		(vpx tex_id))
+	(load-fields :rsp '(cb_user cb_this) '(:r0 :r1))
+	(host-gui-call :host_gui :create_texture '((:r1 +pixmap_data)
+			(:r1 +pixmap_width) (:r1 +pixmap_height)
+			(:r1 +pixmap_stride) (:r0 slot_flags))
+		'(:r0))
+	(assign '(:r0) '((:rsp cb_tex_id)))
 
 	;the driver may not make one, of pixels wider or taller than it can
 	;hold. What is drawn with it then is nothing, and nothing else says so.
 	;A node with no screen, its GUI never started, makes none, and that is
 	;not worth saying
-	(vpifnot (vpx tex_id))
-		(assign (vpx (@ sys/statics/statics)) (vpx statics))
-		(vpif (vpx (.> statics statics_gui_screen)))
-			(call :host_os :pii_write_str (vpx 2 "A texture was not made by the driver, of "))
-			(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_width) 10))
-			(call :host_os :pii_write_str (vpx 2 " by "))
-			(call :host_os :pii_write_num (vpx 2 (.> this +pixmap_height) 10))
-			(call :host_os :pii_write_str (vpx 2 " pixels\n"))
+	(vpif '(:r0 = 0))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '((:r0 statics_gui_screen)) '(:r0))
+		(vpif '(:r0 /= 0))
+			(call :host_os :pii_write_str '(2 "A texture was not made by the driver, of "))
+			(assign '((:rsp cb_this)) '(:r1))
+			(call :host_os :pii_write_num '(2 (:r1 +pixmap_width) 10))
+			(call :host_os :pii_write_str '(2 " by "))
+			(assign '((:rsp cb_this)) '(:r1))
+			(call :host_os :pii_write_num '(2 (:r1 +pixmap_height) 10))
+			(call :host_os :pii_write_str '(2 " pixels\n"))
 		(endif)
 	(endif)
 
 	;new texture
-	(call :texture :create (vpx tex_id (.> this +pixmap_width) (.> this +pixmap_height)) (vpx (.> this +pixmap_texture)))
-
-	(pop-scope)
-	(return)
+	(load-fields :rsp '(cb_this cb_tex_id) '(:r1 :r0))
+	(call :texture :create '(:r0 (:r1 +pixmap_width) (:r1 +pixmap_height)) '(:r0))
+	(assign '((:rsp cb_this)) '(:r1))
+	(assign '(:r0) '((:r1 +pixmap_texture)))
+	(vp-free cb_size)
+	(vp-ret)
 
 (def-func-end)
 
