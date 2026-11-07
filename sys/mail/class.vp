@@ -844,38 +844,45 @@
 	(structure kick 0
 		(long limit count))
 
-	(def-vars
-		(ptr statics)
-		(long now spread rnd)
+	(structure slot 0
+		(long now spread)
 		(struct kick kick_size))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;count the nodes, with a limit that changes none of them
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(call :host_os :pii_time :nil (vpx now))
-	(assign (vpx 2000000000) (vpx spread))
-	(assign (vpx (+ now spread) 0) (vpx (. kick kick_limit) (. kick kick_count)))
-	(call :hmap :each (vpx (.> statics statics_sys_mail_node_map) ($ callback) (& kick)))
-	(assign (vpx (* (. kick kick_count) ping_stagger)) (vpx spread))
-	(vpif (vpx (< spread ping_stagger_min)))
-		(assign (vpx ping_stagger_min) (vpx spread))
-	(endif)
+	(call :host_os :pii_time :nil '(:r0))
+	(assign '(2000000000) '(:r1))
+	(vp-lea-rrr :r0 :r1 :r2)
+	(vp-xor-rr :r3 :r3)
+	(save-fields :rsp (list 'slot_now (+ slot_kick kick_limit) (+ slot_kick kick_count)) '(:r0 :r2 :r3))
+	(fn-bind 'sys/statics/statics :r0)
+	(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ callback) (& :rsp slot_kick)))
+	(assign '((:rsp (+ slot_kick kick_count))) '(:r0))
+	(vp-mul-cr ping_stagger :r0)
+	(vp-max-cr ping_stagger_min :r0)
+	(assign '(:r0) '((:rsp slot_spread)))
 
 	;my ping
-	(call :sys_math :i_rand (vpx spread) (vpx rnd))
-	(assign (vpx (+ now rnd)) (vpx rnd))
-	(vpif (vpx (< rnd (.> statics statics_sys_mail_ping_next))))
-		(assign (vpx rnd) (vpx (.> statics statics_sys_mail_ping_next)))
+	(call :sys_math :i_rand '(:r0) '(:r0))
+	(load-fields :rsp '(slot_now slot_spread) '(:r1 :r2))
+	(vp-add-rr :r1 :r0)
+	(fn-bind 'sys/statics/statics :r3)
+	(assign '((:r3 statics_sys_mail_ping_next)) '(:r4))
+	(vpif '(:r0 < :r4))
+		(assign '(:r0) '((:r3 statics_sys_mail_ping_next)))
 	(endif)
-	(assign (vpx ping_period_min) (vpx (.> statics statics_sys_mail_ping_interval)))
+	(assign `(,ping_period_min) '(:r4))
+	(assign '(:r4) '((:r3 statics_sys_mail_ping_interval)))
 
 	;and when theirs must be here by
-	(assign (vpx (+ now spread ping_window)) (vpx (. kick kick_limit)))
-	(call :hmap :each (vpx (.> statics statics_sys_mail_node_map) ($ callback) (& kick)))
+	(vp-add-rr :r2 :r1)
+	(vp-add-cr ping_window :r1)
+	(assign '(:r1) '((:rsp (+ slot_kick kick_limit))))
+	(call :hmap :each '((:r3 statics_sys_mail_node_map) ($ callback) (& :rsp slot_kick)))
 
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'callback)
 	;inputs
