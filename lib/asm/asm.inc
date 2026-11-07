@@ -19,6 +19,15 @@
 	;file's own name
 	(if (= mode 2) "obj/vp_validate/" "obj/vp/"))
 
+(defun bundles-gone (dir)
+	; (bundles-gone dir)
+	;the bundles in dir, (vp-dir), of source files there are no more: a
+	;file taken away leaves its bundle, and trace, lint and the loader go
+	;by what is in dir. The code of its functions is left, a function of
+	;that name may be another file's now
+	(each (# (if (= (age %0) 0) (pii-remove (cat dir %0))))
+		(files-all dir '(".vp") (length dir))))
+
 (defun biggest-first (units sizes)
 	;the units in the order the queue gives them out, the biggest first,
 	;the queue goes from the end. With the small ones last the workers all
@@ -245,6 +254,7 @@
 	;gave, if it has been asked already
 	(bind '(vps classes) (ifn walk (all-build-files)))
 	(setd files (copy vps) *abi* (abi) *cpu* (cpu))
+	(bundles-gone (vp-dir *build_mode*))
 	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
 		dir (vp-dir *build_mode*) files (make-newest files classes))
 	;the translators first, this platform's, the one that runs this, of
@@ -304,6 +314,7 @@
 	;reads of a mode the platforms here are not built in
 	(if mode (defq *build_mode* mode))
 	(bind '(vps classes) (all-build-files))
+	(bundles-gone (vp-dir *build_mode*))
 	(defq ages (env 31) info (env 31) newest (env 31) scans (scans-load) scanned :nil
 		dir (vp-dir *build_mode*) files (make-newest (cat vps (all-app-files)) classes))
 	(bind '(& errors) (vp-stage (filter (# (>= (get (sym %0) newest) (age (cat dir %0)))) files)
