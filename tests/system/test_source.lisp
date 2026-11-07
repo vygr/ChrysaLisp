@@ -142,7 +142,7 @@
 
 (defun sl-f ()
 	;VP of a Lisp function that returns what g gives
-	(first (read (string-stream (str `(,sl_f (progn
+	(first (read (string-stream (str `(,sl_f (
 		(label '_0) (long -1) (short _9 _2 _5 _6 256)
 		(label '_1) (string ,sl_f) (byte 0)
 		(byte (- _2 _1)) (align 8 (- _2 _1))
@@ -155,7 +155,7 @@
 
 (defun sl-g (n)
 	;VP of a function that gives the number n
-	(first (read (string-stream (str `(,sl_g (progn
+	(first (read (string-stream (str `(,sl_g (
 		(label '_0) (long -1) (short _9 _2 _5 _6 256)
 		(label '_1) (string ,sl_g) (byte 0)
 		(byte (- _2 _1)) (align 8 (- _2 _1))

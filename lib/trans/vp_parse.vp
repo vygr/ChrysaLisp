@@ -16,8 +16,6 @@
 ;...)
 ;...)
 ;
-;and as it was, with progn first in the list of instructions.
-;
 ;An operand is a register, :r0 to :r14 :rsp :d0 to :d15, a name, a keyword
 ;that is not a register, a number, a string, a label, _0 _1 ..., quoted or
 ;not, or (- a b) of two labels or a label and *pc*. What is after the
@@ -30,10 +28,8 @@
 ;operand, :r9 how many of them, :r8 how many labels, :r7 where strings go
 
 ;the ops by a hash of their names, each slot the op, the length of its name
-;and where the name is in the names after them, a slot of length 0 empty.
-;An op is found by its name, or with emit- before it, as text was written
-;before
-(defq +ph_size 1024)
+;and where the name is in the names after them, a slot of length 0 empty
+(defq +ph_size 512)
 
 (defun ph-hash (s)
 	;as (p-op) works it out, 32 bits of h * 33 + c
@@ -42,12 +38,9 @@
 (defun ph-table ()
 	(defq slots (map (lambda (_) :nil) (range 0 +ph_size)))
 	(each (lambda (op)
-			(defq n (!))
-			(each (lambda (name)
-					(defq i (logand (ph-hash name) (dec +ph_size)))
-					(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))
-					(elem-set slots i (list n name)))
-				(list (str op) (cat "emit-" (str op)))))
+			(defq name (str op) i (logand (ph-hash name) (dec +ph_size)))
+			(while (elem-get slots i) (setq i (logand (inc i) (dec +ph_size))))
+			(elem-set slots i (list (!) name)))
 		+vp_emit_ops)
 	slots)
 
@@ -346,7 +339,7 @@
 	(load-fields :r14 '(+vpbt_recs +vpbt_ops +vpbt_strs) '(:r11 :r10 :r7))
 	(vp-xor-rr :r8 :r8)
 
-	;("name" (, and progn as was
+	;("name" (
 	(p-ws)
 	(p-expect "(")
 	(p-expect "\q")
@@ -355,12 +348,6 @@
 	(loop-until `(:r0 = ,(ascii-code "\q")))
 	(p-ws)
 	(p-expect "(")
-	(p-ws)
-	(gotoif '(:r12 >= :r13) 'fail)
-	(vp-load-rcr-ub :r12 0 :r0)
-	(vpif `(:r0 = ,(ascii-code "p")))
-		(each p-expect '("p" "r" "o" "g" "n"))
-	(endif)
 
 	;each instruction
 	(loop-start)
