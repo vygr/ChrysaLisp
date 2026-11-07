@@ -12,73 +12,89 @@
 	;trashes
 	;:r1-:r10, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this that stack)
 		(union
 			(long span :span)
 			(uint first last index rlast))
-		(long eps max dist)
-		(int p1x p1y p2x p2y p3x p3y)
+		(long eps max)
+		(int p2x p2y p3x p3y)
 		(uint length))
 
-	(push-scope)
-	(entry :path :simplify (vpx this that eps))
+	(vp-alloc slot_size)
+	(entry :path :simplify '(:r0 :r1 :r2))
 
 	;distances are compared squared, as the filters do
-	(assign (vpx (*> eps eps)) (vpx eps))
+	(vp-cpy-rr :r2 :r3)
+	(vp-mul-rr :r2 :r3)
+	(vp-asr-cr +fp_shift :r3)
+	(save-fields :rsp '(slot_this slot_that slot_eps) '(:r0 :r1 :r3))
 
 	;any point doing anything ?
-	(d-call :path :get_length (vpx that) (vpx _ length))
-	(vpif (vpx (<= length 4)))
+	(d-call :path :get_length '(:r1) '(_ :r1))
+	(vpif '(:r1 <= 4))
 		;just append to output
-		(d-call :path :append (vpx this that 0 length))
+		(d-call :path :append '((:rsp slot_this) (:rsp slot_that) 0 :r1))
 	(else)
 		;first span
-		(assign (vpx 0 (- length 2)) (vpx first last))
+		(vp-sub-cr 2 :r1)
+		(vp-xor-rr :r0 :r0)
+		(save-fields :rsp '(slot_first slot_last) '(:r0 :r1))
 
 		;output first point
-		(call :path :get_first2 (vpx that) (vpx _ p1x p1y))
-		(call :path :push_back2 (vpx this p1x p1y))
+		(call :path :get_first2 '((:rsp slot_that)) '(_ :r1 :r2))
+		(call :path :push_back2 '((:rsp slot_this) :r1 :r2))
 
-		(call :array :create :nil (vpx stack))
+		(call :array :create :nil '((:rsp slot_stack)))
 		(loop-start)
+			(load-fields :rsp '(slot_first slot_last) '(:r0 :r1))
+			(vp-sub-rr :r0 :r1)
 			(switch 'out)
-			(vpcase (vpx (> (- last first) 2)))
+			(vpcase '(:r1 > 2))
 				;find max distance point
-				(assign (vpx eps (+ first 2)) (vpx max length))
-				(call :path :get_elem2 (vpx that first) (vpx _ p2x p2y))
-				(call :path :get_elem2 (vpx that last) (vpx _ p3x p3y))
+				(load-fields :rsp '(slot_first slot_eps) '(:r0 :r1))
+				(vp-add-cr 2 :r0)
+				(save-fields :rsp '(slot_max slot_length) '(:r1 :r0))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_first)) '(_ :r1 :r2))
+				(save-fields :rsp '(slot_p2x slot_p2y) '(:r1 :r2))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(_ :r1 :r2))
+				(save-fields :rsp '(slot_p3x slot_p3y) '(:r1 :r2))
 				(loop-start)
-					(call :path :get_elem2 (vpx that length) (vpx _ p1x p1y))
-					(call :sys_math :f_dist_sqd (vpx p1x p1y p2x p2y p3x p3y) (vpx dist))
-					(vpif (vpx (> dist max)))
-						(assign (vpx dist length) (vpx max index))
+					(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_length)) '(_ :r0 :r1))
+					(load-fields :rsp '(slot_p2x slot_p2y slot_p3x slot_p3y) '(:r2 :r3 :r4 :r5))
+					(call :sys_math :f_dist_sqd '(:r0 :r1 :r2 :r3 :r4 :r5) '(:r0))
+					(load-fields :rsp '(slot_last slot_max slot_length) '(:r3 :r1 :r2))
+					(vpif '(:r0 > :r1))
+						(save-fields :rsp '(slot_index slot_max) '(:r2 :r0))
 					(endif)
-				(loop-until (vpx (= (=> (+ length 2) length) last)))
+					(vp-add-cr 2 :r2)
+					(assign '(:r2) '((:rsp slot_length)))
+				(loop-until '(:r2 = :r3))
 
 				;continue subdivision ?
-				(vpif (vpx (> max eps)))
-					(assign (vpx last) (vpx rlast))
-					(assign (vpx index) (vpx last))
-					(call :path :push_back2 (vpx stack :span span))
+				(load-fields :rsp '(slot_eps slot_max) '(:r0 :r1))
+				(vpif '(:r1 > :r0))
+					(load-fields :rsp '(slot_last slot_index) '(:r0 :r1))
+					(save-fields :rsp '(slot_last slot_rlast) '(:r1 :r0))
+					(call :path :push_back2 '((:rsp slot_stack) (:rsp slot_:span) (:rsp slot_span)))
 					(break 'out)
 				(endif)
 			(default)
 				;output point
-				(call :path :get_elem2 (vpx that last) (vpx _ p1x p1y))
-				(call :path :push_back2 (vpx this p1x p1y))
+				(call :path :get_elem2 '((:rsp slot_that) (:rsp slot_last)) '(_ :r1 :r2))
+				(call :path :push_back2 '((:rsp slot_this) :r1 :r2))
 			(endswitch)
 
 			;next span
-			(d-call :array :get_length (vpx stack) (vpx _ length))
-			(breakifnot (vpx length))
-			(call :array :pop_back (vpx stack) (vpx _ span))
+			(d-call :array :get_length '((:rsp slot_stack)) '(_ :r1))
+			(breakif '(:r1 = 0))
+			(call :array :pop_back '((:rsp slot_stack)) '(_ (:rsp slot_span)))
 		(loop-end)
-		(call :array :deref (vpx stack))
+		(call :array :deref '((:rsp slot_stack)))
 	(endif)
 
-	(exit :path :simplify (vpx this))
-	(pop-scope)
-	(return)
+	(exit :path :simplify '((:rsp slot_this)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
