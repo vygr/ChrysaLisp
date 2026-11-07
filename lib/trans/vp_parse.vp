@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "sys/mem/class.inc")
+(include "class/obj/class.inc")
 (include "././asm/ops.inc")
 (include "./vpb_ops.inc")
 (include "./vpb_trans.inc")
@@ -106,7 +107,8 @@
 	(vp-cpy-cr kind :r0)
 	(assign '(:r0) '((:r10 +vpbo_kind)))
 	(if a (assign `(,a) '((:r10 +vpbo_a))))
-	(if b (assign `(,b) '((:r10 +vpbo_b)))))
+	(unless b (vp-xor-rr :r0 :r0) (setq b :r0))
+	(assign `(,b) '((:r10 +vpbo_b))))
 
 (defun p-op ()
 	;an op's name, to its number in :r1, trashes :r0 :r2-:r6 :r9
@@ -301,25 +303,20 @@
 	(vp-cpy-rr :r0 :r13)
 	(vp-add-rr :r1 :r13)
 
-	;at most an instruction a ( and an operand a space, and the most a
-	;prepass makes, 4 operands an instruction
-	(vp-xor-rr :r2 :r2)
-	(vp-xor-rr :r3 :r3)
-	(vp-cpy-rr :r12 :r4)
-	(loop-while '(:r4 < :r13))
-		(vp-load-rcr-ub :r4 0 :r5)
-		(vp-add-cr 1 :r4)
-		(vp-cpy-rr :r5 :r6)
-		(vp-seq-cr (ascii-code "(") :r6)
-		(vp-add-rr :r6 :r2)
-		(vp-seq-cr (ascii-code " ") :r5)
-		(vp-add-rr :r5 :r3)
-	(loop-end)
+	;at most an instruction in 10 bytes, (emit-ret), and an operand in 2, and
+	;the most a prepass makes, 4 operands an instruction. None of it is made
+	;0 or looked at here, what is read of it is written, the record past the
+	;last is 0
+	(vp-cpy-rr :r1 :r2)
+	(vp-cpy-cr 10 :r0)
+	(vp-div-rr-u :r0 :r2)
+	(vp-cpy-rr :r1 :r3)
+	(vp-shr-cr 1 :r3)
 	(vp-add-cr 1 :r2)
 	(vp-push :r12 :r13 :r2 :r3)
 	(vp-cpy-rr :r2 :r0)
 	(vp-mul-cr +vpbr_size :r0)
-	(vp-call 'alloc0)
+	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(assign '(:r0) '((:r14 +vpbt_recs)))
 	(assign '((:rsp 8) (:rsp 0)) '(:r2 :r3))
 	(vp-shl-cr 2 :r2)
@@ -327,7 +324,7 @@
 	(vp-add-cr 1 :r3)
 	(vp-cpy-rr :r3 :r0)
 	(vp-mul-cr +vpbo_size :r0)
-	(vp-call 'alloc0)
+	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(assign '(:r0) '((:r14 +vpbt_ops)))
 	(vp-load-rcr :rsp 8 :r0)
 	(vp-shl-cr 3 :r0)
@@ -341,7 +338,7 @@
 	(assign '(:r0) '((:r14 +vpbt_strs)))
 	(vp-pop :r12 :r13 :r2 :r3)
 	(assign '(:r2) '((:r14 +vpbt_ninsts)))
-	(assign '((:r14 +vpbt_recs) (:r14 +vpbt_ops) (:r14 +vpbt_strs)) '(:r11 :r10 :r7))
+	(load-fields :r14 '(+vpbt_recs +vpbt_ops +vpbt_strs) '(:r11 :r10 :r7))
 	(vp-xor-rr :r8 :r8)
 
 	;("name" (, and progn as was
@@ -367,8 +364,8 @@
 		(breakif `(:r0 = ,(ascii-code ")")))
 		(gotoif `(:r0 /= ,(ascii-code "(")) 'fail)
 		(p-op)
-		(assign '(:r1 :r10) '((:r11 +vpbr_op) (:r11 +vpbr_ops)))
 		(vp-xor-rr :r9 :r9)
+		(save-fields :r11 '(+vpbr_op +vpbr_ops +vpbr_m) '(:r1 :r10 :r9))
 		(loop-start)
 			(p-getc)
 			(breakif `(:r0 = ,(ascii-code ")")))
@@ -382,11 +379,13 @@
 	(loop-end)
 
 	;how many, and the labels
+	(vp-xor-rr :r0 :r0)
+	(save-fields :r11 '(+vpbr_op +vpbr_cnt +vpbr_ops +vpbr_m) '(:r0 :r0 :r0 :r0))
 	(assign '((:r14 +vpbt_recs)) '(:r0))
 	(vp-sub-rr :r0 :r11)
 	(vp-cpy-cr +vpbr_size :r0)
 	(vp-div-rr-u :r0 :r11)
-	(assign '(:r11 :r10 :r8) '((:r14 +vpbt_ninsts) (:r14 +vpbt_free) (:r14 +vpbt_nlabels)))
+	(save-fields :r14 '(+vpbt_ninsts +vpbt_free +vpbt_nlabels) '(:r11 :r10 :r8))
 	(vp-cpy-rr :r8 :r0)
 	(vp-shl-cr 3 :r0)
 	(vp-add-cr +long_size :r0)
