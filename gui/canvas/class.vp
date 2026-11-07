@@ -526,37 +526,34 @@
 	;trashes
 	;:r1-:r9
 
-	(def-vars
-		(ptr this)
-		(int x y w h))
+	(structure slot 0
+		(int x y x1 y1))
 
-	(push-scope)
-	(entry :canvas :fbox (vpx this x y w h))
+	(vp-alloc slot_size)
+	(entry :canvas :fbox '(:r0 :r7 :r8 :r9 :r10))
 
-	;clip check
+	;clip check, the box to its ends, x1 and y1, and to the clip
 	(switch)
-	(breakif (vpx (|| (<= w 0) (<= h 0))))
-	(assign (vpx (+ x w) (+ y h)) (vpx w h))
-	(breakif (vpx (|| (>= x (.> this +canvas_cx1)) (<= w (.> this +canvas_cx)) (>= y (.> this +canvas_cy1)) (<= h (.> this +canvas_cy)))))
-		(vpif (vpx (< x (.> this +canvas_cx))))
-			(assign (vpx (.> this +canvas_cx)) (vpx x))
-		(endif)
-		(vpif (vpx (> w (.> this +canvas_cx1))))
-			(assign (vpx (.> this +canvas_cx1)) (vpx w))
-		(endif)
-		(vpif (vpx (< y (.> this +canvas_cy))))
-			(assign (vpx (.> this +canvas_cy)) (vpx y))
-		(endif)
-		(vpif (vpx (> h (.> this +canvas_cy1))))
-			(assign (vpx (.> this +canvas_cy1)) (vpx h))
-		(endif)
+	(breakif '(:r9 <= 0) '(:r10 <= 0))
+	(vp-add-rr :r7 :r9)
+	(vp-lea-rrr :r8 :r10 :r6)
+	(load-fields :r0 '(+canvas_cx +canvas_cy +canvas_cx1 +canvas_cy1) '(:r1 :r2 :r3 :r4))
+	(breakif '(:r7 >= :r3) '(:r9 <= :r1) '(:r8 >= :r4) '(:r6 <= :r2))
+		(vp-max-rr :r1 :r7)
+		(vp-min-rr :r3 :r9)
+		(vp-max-rr :r2 :r8)
+		(vp-min-rr :r4 :r6)
+		(save-fields :rsp '(slot_x slot_y slot_x1 slot_y1) '(:r7 :r8 :r9 :r6))
 		(loop-start)
-			(call :canvas :span_noclip (vpx this 0x80 x y w))
-		(loop-until (vpx (= (=> (+ y 1) y) h)))
+			(call :canvas :span_noclip '(:r0 0x80 :r7 :r8 :r9))
+			(load-fields :rsp '(slot_x slot_y slot_x1 slot_y1) '(:r7 :r8 :r9 :r6))
+			(vp-add-cr 1 :r8)
+			(assign '(:r8) '((:rsp slot_y)))
+		(loop-until '(:r8 = :r6))
 	(endswitch)
 
-	(exit :canvas :fbox (vpx this))
-	(pop-scope)
-	(return)
+	(exit :canvas :fbox '(:r0))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
