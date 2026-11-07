@@ -28,6 +28,8 @@ simple load/store addressing modes.
 A float register holds a double or a single: `:dN` is the register as a
 double, `:fN` the same register as a single. They are one register, so a
 trash list names `:d0` to `:d15` and a write of `:f3` is a write of `:d3`.
+A trash of either is a trash of both: a list that names `:f3` is taken as
+`:d3`, and one that names `:d3` trashes the single too.
 
 These are mapped to real physical registers by the target processor's
 translator, the `reg_map` of `lib/trans/x86_64.vp` and `lib/trans/arm64.vp`. On certain

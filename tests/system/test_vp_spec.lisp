@@ -284,5 +284,14 @@
 (assert-eq "of a single NaN, only bne is taken" 2 (vs_sf 999 1))
 
 
+;a single and its double are one register, a trash of either is of both:
+;what a method is declared to trash, of :fN, is the register :dN
+(defq vs_trash :nil)
+(within-compile-env (lambda ()
+	(include "lib/asm/class.inc")
+	(setq vs_trash (trash-regs '(:r1 :f0-:f2 :d5 :f7)))))
+(assert-list-eq "a trash of a single is of its double, one register"
+	'(:r1 :d0 :d1 :d2 :d5 :d7) vs_trash)
+
 (undef (env) 'vs_ops 'vs_lf 'vs_sets 'vs_long 'vs_ff 'vs_big 'vs_big_c 'vs_pairs 'vs_lea 'vs_lea_c 'vs_fuse
-	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf)
+	'vs_if 'vs_fi 'vs-double-of 'vs-bits-of 'vs_s_ops 'vs_s 'vs_sb 'vs_sf 'vs_trash)
