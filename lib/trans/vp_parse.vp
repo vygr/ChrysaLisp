@@ -32,7 +32,8 @@
 (defq +ph_size 512)
 
 (defun ph-hash (s)
-	;as (p-op) works it out, 32 bits of h * 33 + c
+	;h * 33 + c, of which (p-op), and the table, use the low bits alone, the
+	;same whatever the width it is worked out in
 	(reduce (# (logand (+ (* %0 33) (code %1)) 0xffffffff)) s 0))
 
 (defun ph-table ()
@@ -130,7 +131,6 @@
 		(breakif `(:r0 = ,(ascii-code " ")) `(:r0 = ,(ascii-code ")")))
 		(vp-mul-cr 33 :r3)
 		(vp-add-rr :r0 :r3)
-		(vp-and-cr 0xffffffff :r3)
 		(vp-add-cr 1 :r12)
 	(loop-end)
 	;:r2 = the name, :r4 = its length, the slots from where it hashes to
