@@ -77,61 +77,17 @@
 	(structure pdata 0
 		(ptr this func params error))
 
-	(def-vars
+	;the first four of the frame are a pdata, the callback is given it
+	(structure slot 0
 		(ptr this func)
 		(union
 			(ptr args)
 			(ptr params))
 		(ptr value list)
-		(pptr iter_begin liter hiter)
+		(pptr iter_begin liter)
 		(int start end))
-(def-vars
-	(int length))
 
-	(push-scope)
-	(entry :list :lisp_pivot (vpx this args))
-
-	(errorif-lisp-args-sig 'error1 :r1 4)
-
-	(call :list :get_begin (vpx args) (vpx _ iter_begin))
-	(assign (vpx (elem iter_begin 0)) (vpx func))
-	(assign (vpx (elem iter_begin +ptr_size)) (vpx list))
-	(call :num :get_value (vpx (elem iter_begin (* +ptr_size 2))) (vpx _ start))
-	(call :num :get_value (vpx (elem iter_begin (* +ptr_size 3))) (vpx _ end))
-(d-call :array :get_length (vpx list) (vpx _ length))
-(gotoif (vpx (|| (< start 0) (>= start end) (> end length))) 'error2)
-
-	(call :list :create :nil (vpx params))
-(assign (vpx 0) (vpx value))
-	(call :list :get_iter (vpx list start) (vpx _ liter))
-	(call :list :get_iter (vpx list end) (vpx _ hiter))
-	(call :list :pivot (vpx list liter hiter ($ callback) (& this)) (vpx _ liter))
-(gotoif (vpx value) 'error3)
-	(call :list :get_begin (vpx list) (vpx _ iter_begin))
-	(call :num :create (vpx (>> (- liter iter_begin) 3)) (vpx value))
-	(call :list :deref (vpx params))
-	;the other tasks of the node have a turn if this one's slice is up, a
-	;sort is many of these
-	(call :sys_task :slice)
-
-	(exit :list :lisp_pivot (vpx this value))
-	(return)
-
-(vp-label 'error1)
-	(jump :lisp :repl_error (vpx args "(pivot lambda list start end)" +error_msg_wrong_types))
-(vp-label 'error2)
-	(jump :lisp :repl_error (vpx args "(pivot lambda list start end)" +error_msg_not_valid_index))
-(vp-label 'error3)
-	;the compare function threw, pass its error on
-	(call :list :deref (vpx params))
-	(exit :list :lisp_pivot (vpx this value))
-	(return)
-	(signature '(:obj :LIST :NUM :NUM))
-
-	(pop-scope-syms)
-
-(vp-label 'callback)
-	(def-vars
+	(structure cb 0
 		(ptr pdata)
 		(union
 			(pptr liter)
@@ -139,32 +95,105 @@
 		(union
 			(pptr hiter)
 			(long result)))
-(def-vars
-	(ptr lisp))
 
-	(push-scope)
-	(entry :array :sort_callback (vpx pdata liter hiter))
+	(vp-alloc slot_size)
+	(entry :list :lisp_pivot '(:r0 :r1))
+	(save-fields :rsp '(slot_this slot_args) '(:r0 :r1))
 
-	(call :obj :ref (vpx (* liter)) (vpx liter))
-	(call :obj :ref (vpx (* hiter)) (vpx hiter))
-	(d-call :list :clear (vpx (.> pdata pdata_params)))
-	(call :list :push_back2 (vpx (.> pdata pdata_params) liter hiter))
-	(call :lisp :repl_apply (vpx (.> pdata pdata_this) (.> pdata pdata_params) (.> pdata pdata_func)) (vpx _ value))
-(assign (vpx (.> pdata pdata_this)) (vpx lisp))
-(vpif (vpx (&& (= (.> value +obj_vtable) (.> lisp +lisp_error)) (= (.> pdata pdata_error) 0))))
-	(call :obj :ref (vpx value))
-	(assign (vpx value) (vpx (.> pdata pdata_error)))
-(endif)
-	(assign (vpx 0) (vpx result))
-	(call :obj :inst_of (vpx value (@ ,(f-path :num :vtable))) '(val tmp))
+	(errorif-lisp-args-sig 'error1 :r1 4)
+
+	(call :list :get_begin '(:r1) '(_ :r1))
+	(load-fields :r1 (list 0 +ptr_size (* 2 +ptr_size) (* 3 +ptr_size)) '(:r2 :r3 :r4 :r5))
+	(save-fields :rsp '(slot_func slot_list) '(:r2 :r3))
+	(call :num :get_value '(:r4) '(_ :r4))
+	(call :num :get_value '(:r5) '(_ :r5))
+	(save-fields :rsp '(slot_start slot_end) '(:r4 :r5))
+	(d-call :array :get_length '(:r3) '(_ :r1))
+	(gotoif '(:r4 < 0) 'error2)
+	(gotoif '(:r4 >= :r5) 'error2)
+	(gotoif '(:r5 > :r1) 'error2)
+
+	(call :list :create :nil '(:r0))
+	(vp-xor-rr :r1 :r1)
+	(save-fields :rsp '(slot_params slot_value) '(:r0 :r1))
+	(load-fields :rsp '(slot_list slot_start) '(:r0 :r1))
+	(call :list :get_iter '(:r0 :r1) '(_ :r1))
+	(assign '(:r1) '((:rsp slot_liter)))
+	(load-fields :rsp '(slot_list slot_end) '(:r0 :r1))
+	(call :list :get_iter '(:r0 :r1) '(_ :r2))
+	(load-fields :rsp '(slot_list slot_liter) '(:r0 :r1))
+	(call :list :pivot '(:r0 :r1 :r2 ($ callback) :rsp) '(_ :r1))
+	(assign '(:r1) '((:rsp slot_liter)))
+	(assign '((:rsp slot_value)) '(:r0))
+	(gotoif '(:r0 /= 0) 'error3)
+	(call :list :get_begin '((:rsp slot_list)) '(_ :r0))
+	(assign '((:rsp slot_liter)) '(:r1))
+	(vp-sub-rr :r0 :r1)
+	(vp-shr-cr (log2 +ptr_size) :r1)
+	(call :num :create '(:r1) '((:rsp slot_value)))
+	(call :list :deref '((:rsp slot_params)))
+	;the other tasks of the node have a turn if this one's slice is up, a
+	;sort is many of these
+	(call :sys_task :slice)
+
+	(exit :list :lisp_pivot '((:rsp slot_this) (:rsp slot_value)))
+	(vp-free slot_size)
+	(vp-ret)
+
+(vp-label 'error1)
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(pivot lambda list start end)" +error_msg_wrong_types))
+(vp-label 'error2)
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(pivot lambda list start end)" +error_msg_not_valid_index))
+(vp-label 'error3)
+	;the compare function threw, pass its error on
+	(call :list :deref '((:rsp slot_params)))
+	(exit :list :lisp_pivot '((:rsp slot_this) (:rsp slot_value)))
+	(vp-free slot_size)
+	(vp-ret)
+	(signature '(:obj :LIST :NUM :NUM))
+
+(vp-label 'callback)
+	(entry :array :sort_callback '(:r0 :r1 :r2))
+	(vp-alloc cb_size)
+	(save-fields :rsp '(cb_pdata cb_hiter) '(:r0 :r2))
+
+	(call :obj :ref '((:r1 0)) '(:r0))
+	(assign '(:r0) '((:rsp cb_liter)))
+	(assign '((:rsp cb_hiter)) '(:r1))
+	(call :obj :ref '((:r1 0)) '(:r0))
+	(assign '(:r0) '((:rsp cb_hiter)))
+	(assign '((:rsp cb_pdata)) '(:r0))
+	(d-call :list :clear '((:r0 pdata_params)))
+	(assign '((:rsp cb_pdata)) '(:r0))
+	(call :list :push_back2 '((:r0 pdata_params) (:rsp cb_liter) (:rsp cb_hiter)))
+	(assign '((:rsp cb_pdata)) '(:r2))
+	(call :lisp :repl_apply '((:r2 pdata_this) (:r2 pdata_params) (:r2 pdata_func)) '(_ :r1))
+	(assign '(:r1) '((:rsp cb_value)))
+	;the first error the compare throws is kept, to be passed on
+	(assign '((:rsp cb_pdata)) '(:r0))
+	(assign '((:r0 pdata_this)) '(:r2))
+	(assign '((:r1 +obj_vtable) (:r2 +lisp_error) (:r0 pdata_error)) '(:r3 :r4 :r5))
+	(vpif '(:r3 = :r4) '(:r5 = 0))
+		(call :obj :ref '(:r1))
+		(load-fields :rsp '(cb_pdata cb_value) '(:r0 :r1))
+		(assign '(:r1) '((:r0 pdata_error)))
+	(endif)
+	(vp-xor-rr :r0 :r0)
+	(assign '(:r0) '((:rsp cb_result)))
+	(call :obj :inst_of `((:rsp cb_value) (@ ,(f-path :num :vtable))) '(val tmp))
 	(vpif `(,tmp /= 0))
-		(call :num :get_value `(,val) (vpx _ result))
+		(call :num :get_value `(,val) '(_ :r1))
+		(assign '(:r1) '((:rsp cb_result)))
 	(endif)
 	(call :obj :deref `(,val))
 
-	(exit :array :sort_callback (vpx result))
-	(pop-scope)
-	(return)
+	(exit :array :sort_callback '((:rsp cb_result)))
+	(vp-free cb_size)
+	(vp-ret)
 
 (def-func-end)
 
