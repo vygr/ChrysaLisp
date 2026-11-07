@@ -18,8 +18,7 @@
 	;lists, Lisp or VP, the others' kept lists used, then the frame put on
 	;the back buffer and the screen
 
-	(def-vars
-		(ptr statics)
+	(structure slot 0
 		(struct rect host_gui_rect_size))
 
 	(entry :host_gui :update '(:r0 :r1 :r2))
@@ -30,46 +29,58 @@
 	(jump :sys_task :callback '(0 ($ update_callback)))
 
 (vp-label 'update_callback)
-	(push-scope)
+	(vp-alloc slot_size)
 
 	;inited gui compositor ?
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(vpifnot (vpx (.> statics statics_gui_screen)))
-		(return)
-	(endif)
-
-	(vpifnot (vpx (.> statics statics_gui_init)))
-		;init
-		(assign (vpx 0 0 (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h))
-			(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
-		(host-gui-call :host_gui :init (vpx (& rect) 1))
-		(assign (vpx 1 (. rect host_gui_rect_w) (. rect host_gui_rect_h))
-			(vpx (.> statics statics_gui_init) (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h)))
+	(fn-bind 'sys/statics/statics :r0)
+	(load-fields :r0 '(statics_gui_screen statics_gui_init) '(:r1 :r2))
+	(gotoif '(:r1 = 0) 'update_done)
+	(vpif '(:r2 = 0))
+		;init, the rect the screen's size
+		(vp-xor-rr :r2 :r2)
+		(load-fields :r1 '(+view_w +view_h) '(:r3 :r4))
+		(assign '(:r2 :r2 :r3 :r4) '((:rsp (+ slot_rect host_gui_rect_x) i) (:rsp (+ slot_rect host_gui_rect_y) i) (:rsp (+ slot_rect host_gui_rect_w) i) (:rsp (+ slot_rect host_gui_rect_h) i)))
+		(host-gui-call :host_gui :init '((& :rsp slot_rect) 1))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '((:r0 statics_gui_screen) (:rsp (+ slot_rect host_gui_rect_w) i) (:rsp (+ slot_rect host_gui_rect_h) i) 1) '(:r1 :r3 :r4 :r2))
+		(assign '(:r2) '((:r0 statics_gui_init)))
+		(save-fields :r1 '(+view_w +view_h) '(:r3 :r4))
 	(endif)
 
 	;resize back buffer etc ?
-	(vpif (vpx (.> statics statics_gui_flags)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_gui_flags)) '(:r2))
+	(vpif '(:r2 /= 0))
 		;resize back buffer and redraw in full
-		(host-gui-call :host_gui :resize (vpx (.> statics statics_gui_screen +view_w) (.> statics statics_gui_screen +view_h)))
+		(assign '((:r0 statics_gui_screen)) '(:r1))
+		(host-gui-call :host_gui :resize '((:r1 +view_w) (:r1 +view_h)))
 	(endif)
 
 	;update screen
-	(vpif (vpx (.> statics statics_gui_dirty_flag)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_gui_dirty_flag)) '(:r1))
+	(vpif '(:r1 /= 0))
 		;the views to draw, each with its list, in the frame
-		(call :array :create :nil (vpx (.> statics statics_gui_draws)))
-		(call :host_gui :composite (vpx (.> statics statics_gui_screen))
-			(vpx (. rect host_gui_rect_x) (. rect host_gui_rect_y) (. rect host_gui_rect_w) (. rect host_gui_rect_h)))
+		(call :array :create :nil '(:r1))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '(:r1) '((:r0 statics_gui_draws)))
+		(call :host_gui :composite '((:r0 statics_gui_screen)) '(:r7 :r8 :r9 :r10))
+		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ slot_rect host_gui_rect_x) i) (:rsp (+ slot_rect host_gui_rect_y) i) (:rsp (+ slot_rect host_gui_rect_w) i) (:rsp (+ slot_rect host_gui_rect_h) i)))
 
 		;put it on the back buffer and the screen, let go of the views of the
 		;frame, clear temps and dirty flag
-		(call :host_gui :replay (vpx (& rect)))
+		(call :host_gui :replay '((& :rsp slot_rect)))
 		(call :host_gui :frame_free)
-		(call :list :clear (vpx (.> statics statics_gui_temps)))
-		(assign (vpx 0) (vpx (.> statics statics_gui_dirty_flag)))
+		(fn-bind 'sys/statics/statics :r0)
+		(call :list :clear '((:r0 statics_gui_temps)))
+		(fn-bind 'sys/statics/statics :r0)
+		(vp-xor-rr :r1 :r1)
+		(assign '(:r1) '((:r0 statics_gui_dirty_flag)))
 	(endif)
 
-	(pop-scope)
-	(return)
+(vp-label 'update_done)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
