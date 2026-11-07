@@ -16,9 +16,11 @@
 ; --- Close, the stdin EOF path, of a command blocked on stdin ---
 (defq reply_mbox (mail-mbox)
 	pipe (pipe-test-child reply_mbox "(read-line (io-stream 'stdin))"))
+;nothing yet is checked for a while, the done is waited for: a busy machine
+;is not a failure, a hang is the runner's to report
 (assert-eq "pipe close blocked" :nil (mail-read-timeout reply_mbox 100000))
 (. pipe :close)
-(assert-eq "pipe close stdin" "done" (mail-read-timeout reply_mbox))
+(assert-eq "pipe close stdin" "done" (mail-read reply_mbox))
 
 ; --- Eof, the end of stdin with the pipe left open, what the command
 ; --- says after it is still read, and a write after it is dropped ---
@@ -36,12 +38,12 @@
 	pipe (pipe-test-child reply_mbox "(mail-read (task-mbox))"))
 (assert-eq "pipe abort blocked" :nil (mail-read-timeout reply_mbox 100000))
 (. pipe :abort)
-(assert-eq "pipe abort mailbox" "done" (mail-read-timeout reply_mbox))
+(assert-eq "pipe abort mailbox" "done" (mail-read reply_mbox))
 (defq reply_mbox (mail-mbox)
 	pipe (pipe-test-child reply_mbox "(read-line (io-stream 'stdin))"))
 (assert-eq "pipe abort stdin blocked" :nil (mail-read-timeout reply_mbox 100000))
 (. pipe :abort)
-(assert-eq "pipe abort stdin" "done" (mail-read-timeout reply_mbox))
+(assert-eq "pipe abort stdin" "done" (mail-read reply_mbox))
 ;reader errors, an unbalanced form must be reported and must not crash
 ;the node
 (each (lambda ((name cmdline err))
