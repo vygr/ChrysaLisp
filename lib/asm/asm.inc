@@ -143,18 +143,18 @@
 	(include "sys/statics/class.inc")
 	(each include classes))
 
-(defun make-scan (file)
-	;what make goes by of a file, read from it by (files-scan): its
-	;includes and imports, as paths, and the forms that name what it
-	;makes, kind and names, made paths of by (make-products) with the
-	;classes declared
+(defun make-scan (file &optional scan)
+	;what make goes by of a file, read from it by (files-scan), or of the
+	;scan given, made by a worker of (scans-farm): its includes and
+	;imports, as paths, and the forms that name what it makes, kind and
+	;names, made paths of by (make-products) with the classes declared
 	(if (= (age file) 0) (throw "No such file !" file))
 	(reduce (lambda ((d p) (kind & &rest names))
 			(if (find kind '("include" "import"))
 				(push d (path-to-absolute (first names) file))
 				(push p (cat (list kind) names)))
 			(list d p))
-		(files-scan file)
+		(ifn scan (files-scan file))
 		(list (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" file) (list))))
 
 (defun make-products (p)
@@ -174,7 +174,9 @@
 ;asm.inc, files.inc or tree.inc not as these are, they say how a file is
 ;read
 (defq +make_scans "obj/make_scans"
-	+scans_by ''("lib/asm/asm.inc" "lib/files/files.inc" "lib/text/tree.inc" "lib/text/tokenize.inc"))
+	+scans_by ''("lib/asm/asm.inc" "lib/files/files.inc" "lib/text/tree.inc" "lib/text/tokenize.inc")
+	;fewer files than this to scan are scanned here, a herd costs more
+	+scans_farm_min 16)
 
 (defun scans-key ()
 	;how a file is read, the ages of what says so
@@ -213,6 +215,33 @@
 	(bind '(d p) (second c))
 	(list (copy d) (make-products p)))
 
+(defun scans-stale (files)
+	;those of the files with no scan kept, or one of an older file
+	(filter (lambda (f)
+		(not (and (defq c (get (sym f) scans)) (= (first c) (file-age f))))) files))
+
+(defun scans-farm (files)
+	;if many of the files have no scan kept, or one of an older file, as a
+	;fresh tree has, as an install has, those of them and of every .inc and
+	;.vp file of the tree, what they include and what make apps asks,
+	;scanned by a herd of lib/asm/scan.lisp on the nodes of this machine,
+	;all at once, and kept as (make-info) keeps one. One after another the
+	;scan was the most of a make on one node. A file the herd does not
+	;answer for is scanned when it is asked for. Of the caller's ages,
+	;scans and scanned
+	(when (and (> (length (scans-stale files)) +scans_farm_min)
+			(defq todo (scans-stale (merge (cat files) (files-all "." '(".inc" ".vp") 2)))))
+		;a herd that grows as the nodes come, an install starts them as it makes
+		(setq scanned :t)
+		(defq units (map (# (cat (const (str-alloc +job_size)) (str %0))) (partition todo 8)))
+		(jobs-farm "lib/asm/scan.lisp" units
+			(list (length units) 1 1) (task-timeout 60)
+			(lambda (msg jobs)
+				(when (. jobs :job msg)
+					(each (lambda ((f scan)) (def scans (sym f) (list (file-age f) (make-scan f scan))))
+						(first (read (string-stream (slice msg +job_reply_size -1)))))
+					(. jobs :answered msg))))))
+
 (defun newest-ages (files)
 	;the newest modification time of each file and all it includes and
 	;imports, and all they do. Each starts as its own, and takes the
@@ -233,6 +262,7 @@
 	;the files and all they include and import, each with the newest age of
 	;all it is made of in newest, and the .vp files of them given back. Of
 	;the caller's ages, info, newest, scans and scanned
+	(scans-farm files)
 	(within-compile-env (lambda ()
 		(class-env classes)
 		(each-mergeable (#
