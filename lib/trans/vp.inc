@@ -13,14 +13,10 @@
 (import "././boot/image.inc")
 ;the translator, of its file or of the boot image. A constant, put in where
 ;it is used: a variable of :nil is not prebound, and a task that calls
-;(emit-translate) from its own environment would not find it. Till a build
-;has made the translator by its name, the one built of before, vpb_ and its
-;name, which the build then makes again by the name it has now
+;(emit-translate) from its own environment would not find it
 (defq +trans_native (progn
-	(defq trans_name (trans-name *cpu* *abi*) was_name (trans-was-name *cpu* *abi*))
-	(cond
-		((or (> (age (cat (load-path) trans_name)) 0) (image-has? trans_name)) (ffi trans_name))
-		((> (age (cat (load-path) was_name)) 0) (ffi was_name)))))
+	(defq trans_name (trans-name *cpu* *abi*))
+	(if (or (> (age (cat (load-path) trans_name)) 0) (image-has? trans_name)) (ffi trans_name))))
 
 (defun vp-portable (form)
 	; (vp-portable form) -> form

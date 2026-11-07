@@ -14885,16 +14885,6 @@ each button of a toolbar lit, or not, by its state in a list
 the function that translates VP to the code of that CPU and ABI
 ```
 
-### trans-was-name
-
-```code
-(trans-was-name cpu abi) -> str
-
-the name that translator had before, lib/trans/vpb_ and the CPU, which
-a build made before it has one by its name translates with, and makes
-it by its name
-```
-
 ### transfer
 
 ```code

@@ -59,13 +59,6 @@
 	;the function that translates VP to the code of that CPU and ABI
 	(cat "lib/trans/" (if (eql cpu 'x86_64) (cat "x86_64_" (to-lower (str abi))) (str cpu))))
 
-(defun trans-was-name (cpu abi)
-	; (trans-was-name cpu abi) -> str
-	;the name that translator had before, lib/trans/vpb_ and the CPU, which
-	;a build made before it has one by its name translates with, and makes
-	;it by its name
-	(cat "lib/trans/vpb_" (slice (trans-name cpu abi) (length "lib/trans/") -1)))
-
 (defun image-has? (fn_path &optional target)
 	; (image-has? fn_path [target]) -> :nil | :t
 	;does the boot image of a CPU hold this function, by default the one
@@ -150,5 +143,5 @@
 	:nil)
 
 ;module
-(export-symbols '(boot-image boot-funcs image-funcs image-has? trans-name trans-was-name func-obj-path))
+(export-symbols '(boot-image boot-funcs image-funcs image-has? trans-name func-obj-path))
 (env-pop)
