@@ -733,21 +733,21 @@
 	;trashes
 	;:r1-:r8, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this args stream parray)
 		(long data)
 		(uint num_bits cnt))
 
 	(vp-rdef (this args stream parray data num_bits cnt pool_state len))
 
-	(push-scope)
+	(vp-alloc slot_size)
 	(entry :stream :lisp_fill_bits `(,this ,args))
-	(assign `(,this ,args) (vpx this args))
+	(assign `(,this ,args) '((:rsp slot_this) (:rsp slot_args)))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	(list-bind-args args `(,stream ,parray ,data ,num_bits ,cnt) '(:stream :array :num :num :num))
-	(assign `(,stream ,parray ,data ,num_bits ,cnt) (vpx stream parray data num_bits cnt))
+	(assign `(,stream ,parray ,data ,num_bits ,cnt) '((:rsp slot_stream) (:rsp slot_parray) (:rsp slot_data) (:rsp slot_num_bits) (:rsp slot_cnt)))
 
 (assign `((,parray +array_length)) `(,len))
 (gotoif `(,len < 2) 'error)
@@ -758,33 +758,36 @@
 	(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,bit_pool ,bit_pool_size))
 
 	;loop for fill
-	(assign (vpx stream) `(,stream))
+	(assign '((:rsp slot_stream)) `(,stream))
 	(loop-while `(,cnt /= 0))
-		(assign `(,cnt) (vpx cnt))
+		(assign `(,cnt) '((:rsp slot_cnt)))
 
 		;write data
-		(assign (vpx data num_bits) `(,data ,num_bits))
+		(assign '((:rsp slot_data) (:rsp slot_num_bits)) `(,data ,num_bits))
 		(call :stream :write_bits `(,stream ,data ,num_bits ,bit_pool ,bit_pool_size)
 			`(,stream ,bit_pool ,bit_pool_size))
 
-		(assign (vpx cnt) `(,cnt))
+		(assign '((:rsp slot_cnt)) `(,cnt))
 		(vp-sub-cr 1 cnt)
 	(loop-end)
 
 	;save write pool state
-	(assign (vpx (.> parray +array_begin)) `(,pool_state))
+	(assign '((:rsp slot_parray)) `(,pool_state))
+	(assign `((,pool_state +array_begin)) `(,pool_state))
 	(vp-simd vp-store-rrc `(,bit_pool ,bit_pool_size) `(,pool_state) `(0 ,+long_size))
 
-	(assign (vpx this stream) `(,this ,args))
+	(assign '((:rsp slot_this) (:rsp slot_stream)) `(,this ,args))
 	(class/obj/ref args cnt)
 	(exit :stream :lisp_fill_bits `(,this ,args))
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error (vpx args "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(fill-bits stream parray data num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -798,16 +801,16 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(def-vars
+	(structure slot 0
 		(ptr this args wstream rstream)
 		(plong wparray rparray)
 		(uint num_bits cnt))
 
 	(vp-rdef (this args wstream rstream wparray rparray num_bits cnt pool_state len))
 
-	(push-scope)
+	(vp-alloc slot_size)
 	(entry :stream :lisp_copy_bits `(,this ,args))
-	(assign `(,this ,args) (vpx this args))
+	(assign `(,this ,args) '((:rsp slot_this) (:rsp slot_args)))
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
@@ -821,44 +824,46 @@
 
 	(vp-simd vp-load-rcr `(,wparray ,rparray) `(,+array_begin) `(,wparray ,rparray))
 	(assign `(,wstream ,rstream ,wparray ,rparray ,num_bits ,cnt)
-		(vpx wstream rstream wparray rparray num_bits cnt))
+		'((:rsp slot_wstream) (:rsp slot_rstream) (:rsp slot_wparray) (:rsp slot_rparray) (:rsp slot_num_bits) (:rsp slot_cnt)))
 
 	;loop for copy
 	(vp-rdef (wstream wval wnum_bits wbit_pool wbit_pool_size) (method-input :stream :write_bits))
 	(vp-rdef (rstream rnum_bits rbit_pool rbit_pool_size) (method-input :stream :read_bits))
 	(loop-while `(,cnt /= 0))
-		(assign `(,cnt) (vpx cnt))
+		(assign `(,cnt) '((:rsp slot_cnt)))
 
 		;read data
-		(assign (vpx rparray rstream num_bits) `(,pool_state ,rstream ,rnum_bits))
+		(assign '((:rsp slot_rparray) (:rsp slot_rstream) (:rsp slot_num_bits)) `(,pool_state ,rstream ,rnum_bits))
 		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,rbit_pool ,rbit_pool_size))
 		(call :stream :read_bits `(,rstream ,rnum_bits ,rbit_pool ,rbit_pool_size)
 			`(_ rval rbit_pool rbit_pool_size))
-		(assign (vpx rparray) `(,pool_state))
+		(assign '((:rsp slot_rparray)) `(,pool_state))
 		(vp-simd vp-store-rrc `(,rbit_pool ,rbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
 		;write data
-		(assign (vpx wparray wstream num_bits) `(,pool_state ,wstream ,wnum_bits))
+		(assign '((:rsp slot_wparray) (:rsp slot_wstream) (:rsp slot_num_bits)) `(,pool_state ,wstream ,wnum_bits))
 		(vp-simd vp-load-rcr `(,pool_state) `(0 ,+long_size) `(,wbit_pool ,wbit_pool_size))
 		(call :stream :write_bits `(,wstream ,rval ,wnum_bits ,wbit_pool ,wbit_pool_size)
 			`(_ wbit_pool wbit_pool_size))
-		(assign (vpx wparray) `(,pool_state))
+		(assign '((:rsp slot_wparray)) `(,pool_state))
 		(vp-simd vp-store-rrc `(,wbit_pool ,wbit_pool_size) `(,pool_state) `(0 ,+long_size))
 
-		(assign (vpx cnt) `(,cnt))
+		(assign '((:rsp slot_cnt)) `(,cnt))
 		(vp-sub-cr 1 cnt)
 	(loop-end)
 
-	(assign (vpx this wstream) `(,this ,args))
+	(assign '((:rsp slot_this) (:rsp slot_wstream)) `(,this ,args))
 	(class/obj/ref args cnt)
 	(exit :stream :lisp_copy_bits `(,this ,args))
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
-	(jump :lisp :repl_error (vpx args "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
+	(assign '((:rsp slot_args)) '(:r1))
+	(vp-free slot_size)
+	(jump :lisp :repl_error '(:r1 "(copy-bits wstream rstream parray parray num_bits cnt)" +error_msg_wrong_types))
 	(signature '(:stream :stream :ARRAY :ARRAY :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
