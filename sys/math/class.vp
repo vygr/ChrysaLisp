@@ -280,7 +280,7 @@
 	(else)
 		(vec-set 4)
 		(vec-add 2)
-		(vec-load 1 (vpx 0.5))
+		(vec-load 1 (list (<< 1 (dec +fp_shift))))
 		(vec-fscale 2)
 		(exit :sys_math :f_intersect (vec-pop 2))
 	(endif)

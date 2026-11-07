@@ -215,8 +215,8 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
-		(ptr saved_this saved_args))
+	(structure slot 0
+		(ptr saved_this))
 
 	(vp-rdef (this args))
 	;persistent state: survives ALL calls (requires :r9 to :r14)
@@ -227,9 +227,9 @@
 	(entry `(,this ,args))
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(push-scope)
-	;spill this and args to the stack of locals
-	(assign `(,this ,args) (vpx saved_this saved_args))
+	(vp-alloc slot_size)
+	;this to the frame, it is wanted at the end
+	(assign `(,this) '((:rsp slot_saved_this)))
 
 	(list-bind-args args `(,buf ,pos ,chunk) '(:obj :num :obj))
 	(assign `((,chunk +str_length) (,buf +str_length) (& ,chunk +str_data) (& ,buf +str_data))
@@ -342,13 +342,12 @@
 	(loop-end)
 	(call :num :create `(,pos) `(,args))
 
-	(assign (vpx saved_this) `(,this))
-	(exit `(,this ,args))
-	(pop-scope)
-	(return)
+	(exit `((:rsp slot_saved_this) ,args))
+	(vp-free slot_size)
+	(vp-ret)
 
 (vp-label 'error)
-	;error path didn't trash `this` or `args`, or create a scope
+	;error path didn't trash `this` or `args`, or make the frame
 	(jump :lisp :repl_error `(,args "(lz4-decode buf pos chunk)" +error_msg_wrong_types))
 	(signature '(:str :NUM :str))
 
