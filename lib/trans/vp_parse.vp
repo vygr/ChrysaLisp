@@ -16,7 +16,7 @@
 ;...)
 ;...)
 ;
-;An operand is a register, :r0 to :r14 :rsp :d0 to :d15, a name, a keyword
+;An operand is a register, :r0 to :r14 :rsp :d0 to :d15 :f0 to :f15, a name, a keyword
 ;that is not a register, a number, a string, a label, _0 _1 ..., quoted or
 ;not, or (- a b) of two labels or a label and *pc*. What is after the
 ;instructions, its locals and the like, is no translator's.
@@ -179,9 +179,12 @@
 			(vp-cpy-cr 15 :r6)
 		(elseif `(:r0 = ,(ascii-code "d")))
 			(vp-cpy-cr 16 :r6)
+		(elseif `(:r0 = ,(ascii-code "f")))
+			(vp-cpy-cr 16 :r6)
 		(endif)
-		;:r1 = the number after :r or :d, of 1 or 2 digits and no 0 first of 2,
-		;below 15 of :r and 16 of :d
+		;:r1 = the number after :r, :d or :f, of 1 or 2 digits and no 0 first of
+		;2, below 15 of :r and 16 of :d and :f, a single the register of its
+		;double
 		(gotoif '(:r6 = 0) 'p_name)
 		(vpif '(:r5 = 3))
 			(vp-load-rcr-ub :r4 2 :r1)
