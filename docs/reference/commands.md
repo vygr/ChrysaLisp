@@ -144,6 +144,9 @@ Usage: check [options] [path] ...
             one less than 0 is made a large number, the place
             in a table of an AC-3 decoder 15 bits not 0.
             (>>>) shifts it as a signed number.
+    def     (. (def env k v) :method): (def) and (set) give
+            the last value they set, not the env, so the method
+            goes to that. (def (. env :method) k v) instead.
     char    (ascii-char 10) of a code, or of a +char_ name:
             it is a char known as the file is read, and is
             written as one, "\n", with the escape the reader

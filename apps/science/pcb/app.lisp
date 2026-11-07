@@ -88,7 +88,7 @@
 (defun route ()
 	(stop-route)
 	;the bar grey while it routes
-	(. (def progress :paper +argb_grey8) :dirty)
+	(def (. progress :dirty) :paper +argb_grey8)
 	(mail-send (setq child (open-child (const (cat *app_root* "child.lisp")) +kn_call_run))
 		(setf-> (cat (str-alloc +pcb_job_size) pcb_data)
 			(+pcb_job_grid_res (get :value res_spinner))

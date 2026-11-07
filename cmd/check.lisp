@@ -90,6 +90,9 @@
             one less than 0 is made a large number, the place
             in a table of an AC-3 decoder 15 bits not 0.
             (>>>) shifts it as a signed number.
+    def     (. (def env k v) :method): (def) and (set) give
+            the last value they set, not the env, so the method
+            goes to that. (def (. env :method) k v) instead.
     char    (ascii-char 10) of a code, or of a +char_ name:
             it is a char known as the file is read, and is
             written as one, \q\\n\q, with the escape the reader
@@ -222,7 +225,7 @@
 (("-c" "--checks") ,(opt-str 'opt_c))
 ))
 
-(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "char" "glyph" "unbound" "scan" "override")
+(defq +check_names ''("global" "progn" "class" "zero" "shadow" "const" "style" "doc" "enum" "capture" "held" "stray" "bracket" "args" "early" "cut" "made" "inner" "eqlist" "again" "unquote" "ignore" "self" "copy" "index" "collect" "reverse" "width" "struct" "vpname" "param" "called" "empty" "past" "shift" "def" "char" "glyph" "unbound" "scan" "override")
 	+char_class_quote (char-class "'`,~") +char_class_nonzero (char-class "123456789")
 	+char_class_opens (char-class "\q;{")
 	;the heads (tree-read) is given, by (files-scan), includes and make docs
@@ -428,6 +431,15 @@
 	(and (eql head ">>") (not (ends-with ".vp" file)) (> (length forms) 1) (defq inner (tree-form? (second forms)))
 		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol) (eql (third (first in)) "-")
 		(found file (second forms) "shift" "(>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")))
+
+(defun check-def (file forms head)
+	;(. (def env ...) :method): (def) and (set) give the last value they
+	;set, not the env, the method goes to that, a colour of a view say
+	(and (eql head ".") (> (length forms) 1) (defq inner (tree-form? (second forms)))
+		(nempty? (defq in (forms-of inner))) (eql (first (first in)) :symbol)
+		(find (third (first in)) '("def" "set"))
+		(found file (second forms) "def" "a method of what (" (third (first in))
+			") gives, the last value it set, not the env: (def (. env :method) ...)")))
 
 (defun char-literal (code)
 	; (char-literal code) -> str
@@ -1495,6 +1507,7 @@
 							(if (pfind checks "empty") (check-empty file forms head))
 							(if (pfind checks "past") (check-past file forms head))
 							(if (pfind checks "shift") (check-shift file forms head))
+							(if (pfind checks "def") (check-def file forms head))
 							(if (pfind checks "char") (check-char file forms head))
 							(if (pfind checks "glyph") (check-glyph file forms head))
 							(if (pfind checks "again") (check-again file forms head))

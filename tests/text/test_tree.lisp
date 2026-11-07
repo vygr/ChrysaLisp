@@ -264,6 +264,10 @@
 (assert-list-eq "shift: a logical shift of a difference; not a signed one, nor of a sum"
 	'("(1) shift: (>>) of a difference, a logical shift: one less than 0 is made large, (>>>) shifts it signed")
 	(tt-check "shift" "(>> (- psd m) 5)" "(>>> (- psd m) 5)" "(>> (+ a b) 1)"))
+(assert-list-eq "def: a method of what def or set gives; not a def of what a method gives"
+	'("(1) def: a method of what (def) gives, the last value it set, not the env: (def (. env :method) ...)"
+		"(2) def: a method of what (set) gives, the last value it set, not the env: (def (. env :method) ...)")
+	(tt-check "def" "(. (def v :paper 1) :dirty)" "(. (set v :value 2) :dirty)" "(def (. v :dirty) :paper 1)"))
 (assert-list-eq "char: of a code, of a +char_ name and of one with no escape, each the char it is; not of a variable"
 	'("(1) char: (ascii-char 10) is a char, write it \q\\n\q"
 		"(2) char: (ascii-char +char_tab) is a char, write it \q\\t\q"
