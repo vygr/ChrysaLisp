@@ -50,19 +50,19 @@ enum Opcodes {
 	vp64_sle_rr, vp64_sgt_rr, vp64_sge_rr,
 
 	// Group 11: Load/Store (Indexed I), each with an offset of 16 bits, then of 64, _w
-	vp64_cpy_ir, vp64_cpy_ir_w, vp64_cpy_ir_b, vp64_cpy_ir_b_w, vp64_cpy_ir_s, vp64_cpy_ir_s_w,
-	vp64_cpy_ir_i, vp64_cpy_ir_i_w, vp64_cpy_ir_ub, vp64_cpy_ir_ub_w, vp64_cpy_ir_us, vp64_cpy_ir_us_w,
-	vp64_cpy_ir_ui, vp64_cpy_ir_ui_w, vp64_lea_i, vp64_lea_i_w,
-	vp64_cpy_ri, vp64_cpy_ri_w, vp64_cpy_ri_b, vp64_cpy_ri_b_w, vp64_cpy_ri_s, vp64_cpy_ri_s_w,
-	vp64_cpy_ri_i, vp64_cpy_ri_i_w,
+	vp64_load_rcr, vp64_load_rcr_w, vp64_load_rcr_b, vp64_load_rcr_b_w, vp64_load_rcr_s, vp64_load_rcr_s_w,
+	vp64_load_rcr_i, vp64_load_rcr_i_w, vp64_load_rcr_ub, vp64_load_rcr_ub_w, vp64_load_rcr_us, vp64_load_rcr_us_w,
+	vp64_load_rcr_ui, vp64_load_rcr_ui_w, vp64_lea_rcr, vp64_lea_rcr_w,
+	vp64_store_rrc, vp64_store_rrc_w, vp64_store_rrc_b, vp64_store_rrc_b_w, vp64_store_rrc_s, vp64_store_rrc_s_w,
+	vp64_store_rrc_i, vp64_store_rrc_i_w,
 
 	// Group 12: Load/Store (Indexed D)
-	vp64_cpy_rd, vp64_cpy_rd_b, vp64_cpy_rd_s, vp64_cpy_rd_i,
-	vp64_cpy_dr, vp64_cpy_dr_b, vp64_cpy_dr_s, vp64_cpy_dr_i,
-	vp64_cpy_dr_ub, vp64_cpy_dr_us, vp64_cpy_dr_ui, vp64_lea_d,
+	vp64_store_rrr, vp64_store_rrr_b, vp64_store_rrr_s, vp64_store_rrr_i,
+	vp64_load_rrr, vp64_load_rrr_b, vp64_load_rrr_s, vp64_load_rrr_i,
+	vp64_load_rrr_ub, vp64_load_rrr_us, vp64_load_rrr_ui, vp64_lea_rrr,
 
 	// Group 16: Float Memory/Cmp
-	vp64_cpy_if, vp64_cpy_if_w, vp64_cpy_fi, vp64_cpy_fi_w, vp64_cpy_df, vp64_cpy_fd, vp64_cmp_f,
+	vp64_load_rcd, vp64_load_rcd_w, vp64_store_drc, vp64_store_drc_w, vp64_load_rrd, vp64_store_drr, vp64_cmp_dd,
 
 	// Group 8: Branch (Conditional)
 	vp64_beq_0, vp64_beq_1, vp64_bne_0, vp64_bne_1,
@@ -78,28 +78,28 @@ enum Opcodes {
 	vp64_call_0, vp64_call_1, vp64_jmp_0, vp64_jmp_1,
 	vp64_call_p_0, vp64_call_p_1, vp64_jmp_p_0, vp64_jmp_p_1,
 	vp64_call_r, vp64_jmp_r,
-	vp64_call_i, vp64_jmp_i,
+	vp64_call_rc, vp64_jmp_rc,
 
 	// Group 13: PC Relative / System
-	vp64_cpy_pr, vp64_lea_p, vp64_call_abi, vp64_ret, vp64_sync,
+	vp64_load_pr, vp64_lea_pr, vp64_call_abi, vp64_ret, vp64_sync,
 
 	// Group 14: Float ALU
-	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff, vp64_min_ff,
-	vp64_max_ff, vp64_sqrt_ff, vp64_abs_ff, vp64_neg_ff, vp64_cpy_ff,
+	vp64_add_dd, vp64_sub_dd, vp64_mul_dd, vp64_div_dd, vp64_min_dd,
+	vp64_max_dd, vp64_sqrt_dd, vp64_abs_dd, vp64_neg_dd, vp64_cpy_dd,
 
 	// Group 15: Float Convert/Copy
-	vp64_cvt_rf, vp64_cvt_fr, vp64_cpy_rf, vp64_cpy_fr,
+	vp64_cvt_rd, vp64_cvt_dr, vp64_cpy_rd, vp64_cpy_dr,
 
 	// Group 17: Float Memory, a single
-	vp64_cpy_is, vp64_cpy_is_w, vp64_cpy_si, vp64_cpy_si_w, vp64_cpy_ds, vp64_cpy_sd,
+	vp64_load_rcf, vp64_load_rcf_w, vp64_store_frc, vp64_store_frc_w, vp64_load_rrf, vp64_store_frr,
 
 	// Group 18: Remainder
 	vp64_rem_rr, vp64_rem_rr_u,
 
 	// Group 19: Single Float
-	vp64_add_ss, vp64_sub_ss, vp64_mul_ss, vp64_div_ss, vp64_min_ss,
-	vp64_max_ss, vp64_sqrt_ss, vp64_abs_ss, vp64_neg_ss, vp64_cmp_s,
-	vp64_cvt_rs, vp64_cvt_sr, vp64_cvt_sf, vp64_cvt_fs, vp64_cpy_rs, vp64_cpy_sr,
+	vp64_add_ff, vp64_sub_ff, vp64_mul_ff, vp64_div_ff, vp64_min_ff,
+	vp64_max_ff, vp64_sqrt_ff, vp64_abs_ff, vp64_neg_ff, vp64_cmp_ff,
+	vp64_cvt_rf, vp64_cvt_fr, vp64_cvt_fd, vp64_cvt_df, vp64_cpy_rf, vp64_cpy_fr,
 };
 
 
@@ -107,7 +107,7 @@ enum Opcodes {
 #define vp_op(op, s, d) d = d op s
 #define vp_op_cr(op, c, dr) vp_op(op, c, regs[dr])
 #define vp_op_rr(op, sr, dr) vp_op(op, regs[sr], regs[dr])
-#define vp_op_ff(op, sr, dr) vp_op(op, fregs[sr], fregs[dr])
+#define vp_op_dd(op, sr, dr) vp_op(op, fregs[sr], fregs[dr])
 
 #define vp_cpy_cr(c, dr) regs[dr] = (c)
 #define vp_add_cr(c, dr) vp_op_cr(+, c, dr)
@@ -210,33 +210,33 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 
 #define vp_mem_ir(sr, o, dr, t) { int64_t _m = regs[sr] + (o); vp_al(_m, t) regs[dr] = (int64_t)*(t*)_m; }
 #define vp_mem_ri(sr, dr, o, t) { int64_t _m = regs[dr] + (o); vp_al(_m, t) *(t*)_m = (t)regs[sr]; }
-#define vp_lea_i(sr, o, dr) regs[dr] = regs[sr] + o
-#define vp_cpy_ir_b(sr, o, dr) vp_mem_ir(sr, o, dr, int8_t)
-#define vp_cpy_ir_s(sr, o, dr) vp_mem_ir(sr, o, dr, int16_t)
-#define vp_cpy_ir_i(sr, o, dr) vp_mem_ir(sr, o, dr, int32_t)
-#define vp_cpy_ir(sr, o, dr) vp_mem_ir(sr, o, dr, int64_t)
-#define vp_cpy_ir_ub(sr, o, dr) vp_mem_ir(sr, o, dr, uint8_t)
-#define vp_cpy_ir_us(sr, o, dr) vp_mem_ir(sr, o, dr, uint16_t)
-#define vp_cpy_ir_ui(sr, o, dr) vp_mem_ir(sr, o, dr, uint32_t)
-#define vp_cpy_ri_b(sr, dr, o) vp_mem_ri(sr, dr, o, int8_t)
-#define vp_cpy_ri_s(sr, dr, o) vp_mem_ri(sr, dr, o, int16_t)
-#define vp_cpy_ri_i(sr, dr, o) vp_mem_ri(sr, dr, o, int32_t)
-#define vp_cpy_ri(sr, dr, o) vp_mem_ri(sr, dr, o, int64_t)
+#define vp_lea_rcr(sr, o, dr) regs[dr] = regs[sr] + o
+#define vp_load_rcr_b(sr, o, dr) vp_mem_ir(sr, o, dr, int8_t)
+#define vp_load_rcr_s(sr, o, dr) vp_mem_ir(sr, o, dr, int16_t)
+#define vp_load_rcr_i(sr, o, dr) vp_mem_ir(sr, o, dr, int32_t)
+#define vp_load_rcr(sr, o, dr) vp_mem_ir(sr, o, dr, int64_t)
+#define vp_load_rcr_ub(sr, o, dr) vp_mem_ir(sr, o, dr, uint8_t)
+#define vp_load_rcr_us(sr, o, dr) vp_mem_ir(sr, o, dr, uint16_t)
+#define vp_load_rcr_ui(sr, o, dr) vp_mem_ir(sr, o, dr, uint32_t)
+#define vp_store_rrc_b(sr, dr, o) vp_mem_ri(sr, dr, o, int8_t)
+#define vp_store_rrc_s(sr, dr, o) vp_mem_ri(sr, dr, o, int16_t)
+#define vp_store_rrc_i(sr, dr, o) vp_mem_ri(sr, dr, o, int32_t)
+#define vp_store_rrc(sr, dr, o) vp_mem_ri(sr, dr, o, int64_t)
 
 #define vp_mem_dr(b, sr, dr, t) { int64_t _m = regs[b] + regs[sr]; vp_al(_m, t) regs[dr] = (int64_t)*(t*)_m; }
 #define vp_mem_rd(sr, b, dr, t) { int64_t _m = regs[b] + regs[dr]; vp_al(_m, t) *(t*)_m = (t)regs[sr]; }
-#define vp_lea_d(b, sr, dr) regs[dr] = regs[b] + regs[sr]
-#define vp_cpy_rd_b(sr, b, dr) vp_mem_rd(sr, b, dr, uint8_t)
-#define vp_cpy_rd_s(sr, b, dr) vp_mem_rd(sr, b, dr, uint16_t)
-#define vp_cpy_rd_i(sr, b, dr) vp_mem_rd(sr, b, dr, uint32_t)
-#define vp_cpy_rd(sr, b, dr) vp_mem_rd(sr, b, dr, uint64_t)
-#define vp_cpy_dr_b(b, sr, dr) vp_mem_dr(b, sr, dr, int8_t)
-#define vp_cpy_dr_s(b, sr, dr) vp_mem_dr(b, sr, dr, int16_t)
-#define vp_cpy_dr_i(b, sr, dr) vp_mem_dr(b, sr, dr, int32_t)
-#define vp_cpy_dr(b, sr, dr) vp_mem_dr(b, sr, dr, int64_t)
-#define vp_cpy_dr_ub(b, sr, dr) vp_mem_dr(b, sr, dr, uint8_t)
-#define vp_cpy_dr_us(b, sr, dr) vp_mem_dr(b, sr, dr, uint16_t)
-#define vp_cpy_dr_ui(b, sr, dr) vp_mem_dr(b, sr, dr, uint32_t)
+#define vp_lea_rrr(b, sr, dr) regs[dr] = regs[b] + regs[sr]
+#define vp_store_rrr_b(sr, b, dr) vp_mem_rd(sr, b, dr, uint8_t)
+#define vp_store_rrr_s(sr, b, dr) vp_mem_rd(sr, b, dr, uint16_t)
+#define vp_store_rrr_i(sr, b, dr) vp_mem_rd(sr, b, dr, uint32_t)
+#define vp_store_rrr(sr, b, dr) vp_mem_rd(sr, b, dr, uint64_t)
+#define vp_load_rrr_b(b, sr, dr) vp_mem_dr(b, sr, dr, int8_t)
+#define vp_load_rrr_s(b, sr, dr) vp_mem_dr(b, sr, dr, int16_t)
+#define vp_load_rrr_i(b, sr, dr) vp_mem_dr(b, sr, dr, int32_t)
+#define vp_load_rrr(b, sr, dr) vp_mem_dr(b, sr, dr, int64_t)
+#define vp_load_rrr_ub(b, sr, dr) vp_mem_dr(b, sr, dr, uint8_t)
+#define vp_load_rrr_us(b, sr, dr) vp_mem_dr(b, sr, dr, uint16_t)
+#define vp_load_rrr_ui(b, sr, dr) vp_mem_dr(b, sr, dr, uint32_t)
 
 #define vp_pc_rel(o) (int16_t*)((char*)pc + (o))
 #define vp_pc_ind(a) *(int16_t**)(a)
@@ -256,10 +256,10 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 #define vp_jmp_p(o) { int64_t _o = (o); pc = vp_pc_ind(vp_pc_rel(_o)); }
 #define vp_call_r(dr) { vp_push_pc(); pc = (int16_t*)regs[dr]; }
 #define vp_jmp_r(dr) pc = (int16_t*)regs[dr]
-#define vp_call_i(br, o) { int64_t b = regs[br], _o = (o); vp_push_pc(); pc = vp_pc_ind(b + _o); }
-#define vp_jmp_i(br, o) { int64_t b = regs[br], _o = (o); pc = vp_pc_ind(b + _o); }
-#define vp_cpy_pr(o, dr) { int64_t _o = (o); regs[dr] = *(int64_t*)vp_pc_rel(_o); }
-#define vp_lea_p(o, dr) { int64_t _o = (o); regs[dr] = (int64_t)vp_pc_rel(_o); }
+#define vp_call_rc(br, o) { int64_t b = regs[br], _o = (o); vp_push_pc(); pc = vp_pc_ind(b + _o); }
+#define vp_jmp_rc(br, o) { int64_t b = regs[br], _o = (o); pc = vp_pc_ind(b + _o); }
+#define vp_load_pr(o, dr) { int64_t _o = (o); regs[dr] = *(int64_t*)vp_pc_rel(_o); }
+#define vp_lea_pr(o, dr) { int64_t _o = (o); regs[dr] = (int64_t)vp_pc_rel(_o); }
 #define vp_ret() vp_pop_pc()
 
 #define vp_sync(c) sync.store((c), std::memory_order_seq_cst)
@@ -286,15 +286,15 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 	} \
 }
 
-#define vp_add_ff(sr, dr) vp_op_ff(+, sr, dr)
-#define vp_sub_ff(sr, dr) vp_op_ff(-, sr, dr)
-#define vp_mul_ff(sr, dr) vp_op_ff(*, sr, dr)
-#define vp_div_ff(sr, dr) vp_op_ff(/, sr, dr)
-#define vp_min_ff(sr, dr) fregs[dr] = std::fmin(fregs[dr], fregs[sr])
-#define vp_max_ff(sr, dr) fregs[dr] = std::fmax(fregs[dr], fregs[sr])
-#define vp_sqrt_ff(sr, dr) fregs[dr] = std::sqrt(fregs[sr])
-#define vp_abs_ff(sr, dr) fregs[dr] = std::abs(fregs[sr])
-#define vp_neg_ff(sr, dr) fregs[dr] = -fregs[sr]
+#define vp_add_dd(sr, dr) vp_op_dd(+, sr, dr)
+#define vp_sub_dd(sr, dr) vp_op_dd(-, sr, dr)
+#define vp_mul_dd(sr, dr) vp_op_dd(*, sr, dr)
+#define vp_div_dd(sr, dr) vp_op_dd(/, sr, dr)
+#define vp_min_dd(sr, dr) fregs[dr] = std::fmin(fregs[dr], fregs[sr])
+#define vp_max_dd(sr, dr) fregs[dr] = std::fmax(fregs[dr], fregs[sr])
+#define vp_sqrt_dd(sr, dr) fregs[dr] = std::sqrt(fregs[sr])
+#define vp_abs_dd(sr, dr) fregs[dr] = std::abs(fregs[sr])
+#define vp_neg_dd(sr, dr) fregs[dr] = -fregs[sr]
 
 #define vp_fbranch(c, o) { int64_t _o = (o); if (c) pc = vp_pc_rel(_o); }
 #define vp_fbeq(o) vp_fbranch(compare_f1 == compare_f2, o)
@@ -309,10 +309,10 @@ static void vp64_unaligned(int16_t* pc, int64_t ir, int64_t a, int size)
 #define vp_mem_df(br, ix, dr, t) { int64_t _m = regs[br] + regs[ix]; vp_al(_m, t) fregs[dr] = (double)*(t*)_m; }
 #define vp_mem_fd(sr, br, ix, t) { int64_t _m = regs[br] + regs[ix]; vp_al(_m, t) *(t*)_m = (t)fregs[sr]; }
 
-#define vp_cpy_if(br, o, dr) vp_mem_if(br, o, dr, double)
-#define vp_cpy_fi(sr, br, o) vp_mem_fi(sr, br, o, double)
-#define vp_cpy_df(br, ir, dr) vp_mem_df(br, ir, dr, double)
-#define vp_cpy_fd(sr, br, ir) vp_mem_fd(sr, br, ir, double)
+#define vp_load_rcd(br, o, dr) vp_mem_if(br, o, dr, double)
+#define vp_store_drc(sr, br, o) vp_mem_fi(sr, br, o, double)
+#define vp_load_rrd(br, ir, dr) vp_mem_df(br, ir, dr, double)
+#define vp_store_drr(sr, br, ir) vp_mem_fd(sr, br, ir, double)
 
 //a single is the low 32 bits of a float register, the high 32 bits 0, its
 //bits as they are, by memcpy
@@ -333,38 +333,38 @@ static inline void vp_sset(double *f, float s)
 
 #define vp_mem_is(br, o, dr) { int64_t _m = regs[br] + (o); vp_al(_m, float) vp_sset(&fregs[dr], *(float*)_m); }
 #define vp_mem_si(sr, br, o) { int64_t _m = regs[br] + (o); vp_al(_m, float) *(float*)_m = vp_sget(&fregs[sr]); }
-#define vp_cpy_is(br, o, dr) vp_mem_is(br, o, dr)
-#define vp_cpy_si(sr, br, o) vp_mem_si(sr, br, o)
-#define vp_cpy_ds(br, ir, dr) vp_mem_is(br, regs[ir], dr)
-#define vp_cpy_sd(sr, br, ir) vp_mem_si(sr, br, regs[ir])
+#define vp_load_rcf(br, o, dr) vp_mem_is(br, o, dr)
+#define vp_store_frc(sr, br, o) vp_mem_si(sr, br, o)
+#define vp_load_rrf(br, ir, dr) vp_mem_is(br, regs[ir], dr)
+#define vp_store_frr(sr, br, ir) vp_mem_si(sr, br, regs[ir])
 
-#define vp_op_ss(op, sr, dr) vp_sset(&fregs[dr], vp_sget(&fregs[dr]) op vp_sget(&fregs[sr]))
-#define vp_add_ss(sr, dr) vp_op_ss(+, sr, dr)
-#define vp_sub_ss(sr, dr) vp_op_ss(-, sr, dr)
-#define vp_mul_ss(sr, dr) vp_op_ss(*, sr, dr)
-#define vp_div_ss(sr, dr) vp_op_ss(/, sr, dr)
-#define vp_min_ss(sr, dr) vp_sset(&fregs[dr], std::fmin(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
-#define vp_max_ss(sr, dr) vp_sset(&fregs[dr], std::fmax(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
-#define vp_sqrt_ss(sr, dr) vp_sset(&fregs[dr], std::sqrt(vp_sget(&fregs[sr])))
-#define vp_abs_ss(sr, dr) vp_sset(&fregs[dr], std::abs(vp_sget(&fregs[sr])))
-#define vp_neg_ss(sr, dr) vp_sset(&fregs[dr], -vp_sget(&fregs[sr]))
+#define vp_op_ff(op, sr, dr) vp_sset(&fregs[dr], vp_sget(&fregs[dr]) op vp_sget(&fregs[sr]))
+#define vp_add_ff(sr, dr) vp_op_ff(+, sr, dr)
+#define vp_sub_ff(sr, dr) vp_op_ff(-, sr, dr)
+#define vp_mul_ff(sr, dr) vp_op_ff(*, sr, dr)
+#define vp_div_ff(sr, dr) vp_op_ff(/, sr, dr)
+#define vp_min_ff(sr, dr) vp_sset(&fregs[dr], std::fmin(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
+#define vp_max_ff(sr, dr) vp_sset(&fregs[dr], std::fmax(vp_sget(&fregs[dr]), vp_sget(&fregs[sr])))
+#define vp_sqrt_ff(sr, dr) vp_sset(&fregs[dr], std::sqrt(vp_sget(&fregs[sr])))
+#define vp_abs_ff(sr, dr) vp_sset(&fregs[dr], std::abs(vp_sget(&fregs[sr])))
+#define vp_neg_ff(sr, dr) vp_sset(&fregs[dr], -vp_sget(&fregs[sr]))
 //a single is a double exactly, so the compare is of the doubles
-#define vp_cmp_s(sr, dr) { compare_f1 = vp_sget(&fregs[sr]); compare_f2 = vp_sget(&fregs[dr]); }
-#define vp_cvt_rs(sr, dr) vp_sset(&fregs[dr], (float)regs[sr])
-#define vp_cvt_sr(sr, dr) regs[dr] = vp_f2i(vp_sget(&fregs[sr]))
-#define vp_cvt_sf(sr, dr) fregs[dr] = vp_sget(&fregs[sr])
-#define vp_cvt_fs(sr, dr) vp_sset(&fregs[dr], (float)fregs[sr])
-#define vp_cpy_rs(sr, dr) { uint32_t _w = (uint32_t)regs[sr]; float _s; memcpy(&_s, &_w, sizeof(float)); vp_sset(&fregs[dr], _s); }
-#define vp_cpy_sr(sr, dr) { uint32_t _w; float _s = vp_sget(&fregs[sr]); memcpy(&_w, &_s, sizeof(float)); regs[dr] = _w; }
+#define vp_cmp_ff(sr, dr) { compare_f1 = vp_sget(&fregs[sr]); compare_f2 = vp_sget(&fregs[dr]); }
+#define vp_cvt_rf(sr, dr) vp_sset(&fregs[dr], (float)regs[sr])
+#define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(vp_sget(&fregs[sr]))
+#define vp_cvt_fd(sr, dr) fregs[dr] = vp_sget(&fregs[sr])
+#define vp_cvt_df(sr, dr) vp_sset(&fregs[dr], (float)fregs[sr])
+#define vp_cpy_rf(sr, dr) { uint32_t _w = (uint32_t)regs[sr]; float _s; memcpy(&_s, &_w, sizeof(float)); vp_sset(&fregs[dr], _s); }
+#define vp_cpy_fr(sr, dr) { uint32_t _w; float _s = vp_sget(&fregs[sr]); memcpy(&_w, &_s, sizeof(float)); regs[dr] = _w; }
 
-#define vp_cvt_rf(sr, dr) fregs[dr] = (double)regs[sr]
-#define vp_cvt_fr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
-#define vp_cpy_ff(sr, dr) fregs[dr] = fregs[sr]
+#define vp_cvt_rd(sr, dr) fregs[dr] = (double)regs[sr]
+#define vp_cvt_dr(sr, dr) regs[dr] = vp_f2i(fregs[sr])
+#define vp_cpy_dd(sr, dr) fregs[dr] = fregs[sr]
 //the bits as they are, by memcpy, which is a move, a cast of the pointer
 //is not to be relied on at -O3
-#define vp_cpy_rf(sr, dr) memcpy(&fregs[dr], &regs[sr], sizeof(int64_t))
-#define vp_cpy_fr(sr, dr) memcpy(&regs[dr], &fregs[sr], sizeof(int64_t))
-#define vp_cmp_f(sr, dr) { compare_f1 = fregs[sr]; compare_f2 = fregs[dr]; }
+#define vp_cpy_rd(sr, dr) memcpy(&fregs[dr], &regs[sr], sizeof(int64_t))
+#define vp_cpy_dr(sr, dr) memcpy(&regs[dr], &fregs[sr], sizeof(int64_t))
+#define vp_cmp_dd(sr, dr) { compare_f1 = fregs[sr]; compare_f2 = fregs[dr]; }
 
 #define vd_dr() ((ir >> 8) & 0xf)
 #define vd_sr() ((ir >> 12) & 0xf)
@@ -388,42 +388,42 @@ static inline void vp_sset(double *f, float s)
 	case vp64_##op##_0: vp_##op(vd_o0()); break; \
 	case vp64_##op##_1: vp_##op(vd_o1()); break;
 #define VP_IR_OP(op) \
-	case vp64_##op##_ir: vp_##op##_ir(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_w: vp_##op##_ir(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_b: vp_##op##_ir_b(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_b_w: vp_##op##_ir_b(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_s: vp_##op##_ir_s(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_s_w: vp_##op##_ir_s(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_i: vp_##op##_ir_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_i_w: vp_##op##_ir_i(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_ub: vp_##op##_ir_ub(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_ub_w: vp_##op##_ir_ub(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_us: vp_##op##_ir_us(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_us_w: vp_##op##_ir_us(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_##op##_ir_ui: vp_##op##_ir_ui(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_##op##_ir_ui_w: vp_##op##_ir_ui(vd_sr(), vd_c3(), vd_dr()); break;
+	case vp64_load_rcr: vp_load_rcr(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_w: vp_load_rcr(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_b: vp_load_rcr_b(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_b_w: vp_load_rcr_b(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_s: vp_load_rcr_s(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_s_w: vp_load_rcr_s(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_i: vp_load_rcr_i(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_i_w: vp_load_rcr_i(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_ub: vp_load_rcr_ub(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_ub_w: vp_load_rcr_ub(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_us: vp_load_rcr_us(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_us_w: vp_load_rcr_us(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_load_rcr_ui: vp_load_rcr_ui(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcr_ui_w: vp_load_rcr_ui(vd_sr(), vd_c3(), vd_dr()); break;
 #define VP_RI_OP(op) \
-	case vp64_##op##_ri: vp_##op##_ri(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_w: vp_##op##_ri(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_##op##_ri_b: vp_##op##_ri_b(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_b_w: vp_##op##_ri_b(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_##op##_ri_s: vp_##op##_ri_s(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_s_w: vp_##op##_ri_s(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_##op##_ri_i: vp_##op##_ri_i(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_##op##_ri_i_w: vp_##op##_ri_i(vd_sr(), vd_dr(), vd_c3()); break;
+	case vp64_store_rrc: vp_store_rrc(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_rrc_w: vp_store_rrc(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_store_rrc_b: vp_store_rrc_b(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_rrc_b_w: vp_store_rrc_b(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_store_rrc_s: vp_store_rrc_s(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_rrc_s_w: vp_store_rrc_s(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_store_rrc_i: vp_store_rrc_i(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_rrc_i_w: vp_store_rrc_i(vd_sr(), vd_dr(), vd_c3()); break;
 #define VP_RD_OP(op) \
-	case vp64_##op##_rd: vp_##op##_rd(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_##op##_rd_b: vp_##op##_rd_b(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_##op##_rd_s: vp_##op##_rd_s(vd_sc(), vd_dr(), vd_sr()); break; \
-	case vp64_##op##_rd_i: vp_##op##_rd_i(vd_sc(), vd_dr(), vd_sr()); break;
+	case vp64_store_rrr: vp_store_rrr(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_store_rrr_b: vp_store_rrr_b(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_store_rrr_s: vp_store_rrr_s(vd_sc(), vd_dr(), vd_sr()); break; \
+	case vp64_store_rrr_i: vp_store_rrr_i(vd_sc(), vd_dr(), vd_sr()); break;
 #define VP_DR_OP(op) \
-	case vp64_##op##_dr: vp_##op##_dr(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_b: vp_##op##_dr_b(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_s: vp_##op##_dr_s(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_i: vp_##op##_dr_i(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_ub: vp_##op##_dr_ub(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_us: vp_##op##_dr_us(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_##op##_dr_ui: vp_##op##_dr_ui(vd_sr(), vd_sc(), vd_dr()); break;
+	case vp64_load_rrr: vp_load_rrr(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_b: vp_load_rrr_b(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_s: vp_load_rrr_s(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_i: vp_load_rrr_i(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_ub: vp_load_rrr_ub(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_us: vp_load_rrr_us(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_load_rrr_ui: vp_load_rrr_ui(vd_sr(), vd_sc(), vd_dr()); break;
 
 #define VP_CR_ALL \
 	VP_CR_OP(cpy) \
@@ -492,8 +492,8 @@ static inline void vp_sset(double *f, float s)
 
 #define VP_IR_ALL \
 	VP_IR_OP(cpy) \
-	case vp64_lea_i: vp_lea_i(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_lea_i_w: vp_lea_i(vd_sr(), vd_c3(), vd_dr()); break;
+	case vp64_lea_rcr: vp_lea_rcr(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_lea_rcr_w: vp_lea_rcr(vd_sr(), vd_c3(), vd_dr()); break;
 
 #define VP_RI_ALL \
 	VP_RI_OP(cpy)
@@ -503,22 +503,22 @@ static inline void vp_sset(double *f, float s)
 
 #define VP_DR_ALL \
 	VP_DR_OP(cpy) \
-	case vp64_lea_d: vp_lea_d(vd_sr(), vd_sc(), vd_dr()); break;
+	case vp64_lea_rrr: vp_lea_rrr(vd_sr(), vd_sc(), vd_dr()); break;
 
 #define VP_F_MEM_ALL \
-	case vp64_cpy_if: vp_cpy_if(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_cpy_if_w: vp_cpy_if(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_cpy_fi: vp_cpy_fi(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_cpy_fi_w: vp_cpy_fi(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_cpy_df: vp_cpy_df(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_cpy_fd: vp_cpy_fd(vd_dr(), vd_sr(), vd_sc()); break; \
-	case vp64_cmp_f: vp_cmp_f(vd_sr(), vd_dr()); break; \
-	case vp64_cpy_is: vp_cpy_is(vd_sr(), vd_i(), vd_dr()); break; \
-	case vp64_cpy_is_w: vp_cpy_is(vd_sr(), vd_c3(), vd_dr()); break; \
-	case vp64_cpy_si: vp_cpy_si(vd_sr(), vd_dr(), vd_i()); break; \
-	case vp64_cpy_si_w: vp_cpy_si(vd_sr(), vd_dr(), vd_c3()); break; \
-	case vp64_cpy_ds: vp_cpy_ds(vd_sr(), vd_sc(), vd_dr()); break; \
-	case vp64_cpy_sd: vp_cpy_sd(vd_dr(), vd_sr(), vd_sc()); break;
+	case vp64_load_rcd: vp_load_rcd(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcd_w: vp_load_rcd(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_store_drc: vp_store_drc(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_drc_w: vp_store_drc(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_load_rrd: vp_load_rrd(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_store_drr: vp_store_drr(vd_dr(), vd_sr(), vd_sc()); break; \
+	case vp64_cmp_dd: vp_cmp_dd(vd_sr(), vd_dr()); break; \
+	case vp64_load_rcf: vp_load_rcf(vd_sr(), vd_i(), vd_dr()); break; \
+	case vp64_load_rcf_w: vp_load_rcf(vd_sr(), vd_c3(), vd_dr()); break; \
+	case vp64_store_frc: vp_store_frc(vd_sr(), vd_dr(), vd_i()); break; \
+	case vp64_store_frc_w: vp_store_frc(vd_sr(), vd_dr(), vd_c3()); break; \
+	case vp64_load_rrf: vp_load_rrf(vd_sr(), vd_sc(), vd_dr()); break; \
+	case vp64_store_frr: vp_store_frr(vd_dr(), vd_sr(), vd_sc()); break;
 
 #define VP_B_ALL \
 	VP_B_OP(beq) \
@@ -543,17 +543,35 @@ static inline void vp_sset(double *f, float s)
 	VP_B_OP(jmp_p) \
 	case vp64_call_r: vp_call_r(vd_dr()); break; \
 	case vp64_jmp_r: vp_jmp_r(vd_dr()); break; \
-	case vp64_call_i: vp_call_i(vd_dr(), vd_c1()); break; \
-	case vp64_jmp_i: vp_jmp_i(vd_dr(), vd_c1()); break;
+	case vp64_call_rc: vp_call_rc(vd_dr(), vd_c1()); break; \
+	case vp64_jmp_rc: vp_jmp_rc(vd_dr(), vd_c1()); break;
 
 #define VP_SYS_ALL \
-	case vp64_cpy_pr: vp_cpy_pr(vd_c1(), vd_dr()); break; \
-	case vp64_lea_p: vp_lea_p(vd_c1(), vd_dr()); break; \
+	case vp64_load_pr: vp_load_pr(vd_c1(), vd_dr()); break; \
+	case vp64_lea_pr: vp_lea_pr(vd_c1(), vd_dr()); break; \
 	case vp64_call_abi: vp_call_abi(vd_sr(), vd_dr(), vd_sc()); break; \
 	case vp64_ret: vp_ret(); break; \
 	case vp64_sync: vp_sync(ir >> 8); break;
 
 #define VP_F_ALU_ALL \
+	VP_OP_RR(add, dd) \
+	VP_OP_RR(sub, dd) \
+	VP_OP_RR(mul, dd) \
+	VP_OP_RR(div, dd) \
+	VP_OP_RR(min, dd) \
+	VP_OP_RR(max, dd) \
+	VP_OP_RR(sqrt, dd) \
+	VP_OP_RR(abs, dd) \
+	VP_OP_RR(neg, dd) \
+	VP_OP_RR(cpy, dd)
+
+#define VP_F_CVT_ALL \
+	VP_OP_RR(cvt, rd) \
+	VP_OP_RR(cvt, dr) \
+	VP_OP_RR(cpy, rd) \
+	VP_OP_RR(cpy, dr)
+
+#define VP_S_ALL \
 	VP_OP_RR(add, ff) \
 	VP_OP_RR(sub, ff) \
 	VP_OP_RR(mul, ff) \
@@ -563,31 +581,13 @@ static inline void vp_sset(double *f, float s)
 	VP_OP_RR(sqrt, ff) \
 	VP_OP_RR(abs, ff) \
 	VP_OP_RR(neg, ff) \
-	VP_OP_RR(cpy, ff)
-
-#define VP_F_CVT_ALL \
+	VP_OP_RR(cmp, ff) \
 	VP_OP_RR(cvt, rf) \
 	VP_OP_RR(cvt, fr) \
+	VP_OP_RR(cvt, fd) \
+	VP_OP_RR(cvt, df) \
 	VP_OP_RR(cpy, rf) \
 	VP_OP_RR(cpy, fr)
-
-#define VP_S_ALL \
-	VP_OP_RR(add, ss) \
-	VP_OP_RR(sub, ss) \
-	VP_OP_RR(mul, ss) \
-	VP_OP_RR(div, ss) \
-	VP_OP_RR(min, ss) \
-	VP_OP_RR(max, ss) \
-	VP_OP_RR(sqrt, ss) \
-	VP_OP_RR(abs, ss) \
-	VP_OP_RR(neg, ss) \
-	VP_OP_RR(cmp, s) \
-	VP_OP_RR(cvt, rs) \
-	VP_OP_RR(cvt, sr) \
-	VP_OP_RR(cvt, sf) \
-	VP_OP_RR(cvt, fs) \
-	VP_OP_RR(cpy, rs) \
-	VP_OP_RR(cpy, sr)
 
 template <bool V>
 static int vp64_run(uint8_t *data, int64_t *stack, int64_t *argv, void **host_calls)
