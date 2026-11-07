@@ -154,8 +154,10 @@
 (if (< (- (pii-time) ga_t) 300000)
 	(assert-list-eq "the mouse moves over another view and a turn comes at once: it is nobody's, it ran on" '() ga_got)
 	(test-skip "the mouse moves over another view and a turn comes at once" ga_slow))
+;dropped only if the one before ran on from the first, so all three are to
+;have come within the gap of the first
 (setq ga_got (ga-wheel 150 240))
-(if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "and the next, while they keep coming" '() ga_got)
+(if (< (- (pii-time) ga_t) 300000) (assert-list-eq "and the next, while they keep coming" '() ga_got)
 	(test-skip "and the next, while they keep coming" ga_slow))
 (setq ga_t (pii-time) ga_got (ga-wheel 150 240 -1))
 (if (< (- (pii-time) ga_t1) 300000) (assert-list-eq "but one the other way is a new push, that view's" '(:second) ga_got)
