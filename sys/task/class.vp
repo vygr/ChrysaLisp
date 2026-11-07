@@ -344,28 +344,37 @@
 	;trashes
 	;:r0-:r6, :d0-:d15
 
-	(def-vars
-		(ptr func statics tcb)
+	(structure slot 0
+		(ptr func tcb)
 		(long tcb_size))
 
-	(push-scope)
-	(entry :sys_task :start (vpx func))
+	(vp-alloc slot_size)
+	(entry :sys_task :start '((:rsp slot_func)))
 
 	;increment task count
 	(call :sys_task :count '(1))
 
 	;create new task control block and stack
-	(call :sys_mem :alloc (vpx (+ (ushort (- func (ubyte (- func +byte_size)) +short_size)) +tk_node_size)) (vpx tcb tcb_size))
+	;the stack the function asks for, a ushort before its name
+	(assign '((:rsp slot_func)) '(:r0))
+	(vp-load-rcr-ub :r0 (neg +byte_size) :r1)
+	(vp-sub-rr :r1 :r0)
+	(vp-load-rcr-us :r0 (neg +short_size) :r0)
+	(vp-add-cr +tk_node_size :r0)
+	(call :sys_mem :alloc '(:r0) '((:rsp slot_tcb) (:rsp slot_tcb_size)))
 ;fill with test pattern so we can show max extent in netmon
-(call :sys_mem :fill (vpx tcb tcb_size tk_stack_canary))
+(call :sys_mem :fill `((:rsp slot_tcb) (:rsp slot_tcb_size) ,tk_stack_canary))
 
 	;alloc task mailbox and set its owner to itself
-	(call :sys_mail :alloc_mbox :nil (vpx (.> tcb +tk_node_mbox_id) (.> tcb +tk_node_mbox_addr)))
-	(assign (vpx 0 tcb) (vpx (.> tcb +tk_node_lisp) (.> tcb +tk_node_mbox_addr +mbox_owner_tcb)))
-	(assign (vpx 0 0 0) (vpx (.> tcb +tk_node_dying) (.> tcb +tk_node_print) (.> tcb +tk_node_server)))
+	(call :sys_mail :alloc_mbox :nil '(:r0 :r1))
+	(assign '((:rsp slot_tcb)) '(:r2))
+	(vp-xor-rr :r3 :r3)
+	(assign '(:r0 :r1 :r2 :r3 :r3 :r3 :r3) '((:r2 +tk_node_mbox_id) (:r2 +tk_node_mbox_addr)
+		(:r1 +mbox_owner_tcb) (:r2 +tk_node_lisp) (:r2 +tk_node_dying) (:r2 +tk_node_print) (:r2 +tk_node_server)))
 
 	;init task control block stack, pc and stop address's
-	(assign (vpx func tcb (+ tcb tcb_size) (- 1) tk_app_priority 0) '(:r1 :r4 :r0 :r2 :r3 :r6))
+	(assign `((:rsp slot_func) (:rsp slot_tcb) (:rsp slot_tcb_size) -1 ,tk_app_priority 0) '(:r1 :r4 :r0 :r2 :r3 :r6))
+	(vp-add-rr :r4 :r0)
 	(fn-bind 'sys/statics/statics :r5)
 	(assign '(:r2) '((:r4 +tk_node_time)))
 	(vp-add-cr statics_sys_task_suspend_list :r5)
@@ -373,19 +382,20 @@
 	(save-fields :r4 '(+tk_node_priority +tk_node_stack_top +tk_node_flags) '(:r3 :r0 :r6))
 	(f-bind :sys_task :stop :r2)
 	(vp-stack-init :r0 :r1 :r2)
-	(assign '(:r0) (vpx (.> tcb +tk_node_stack)))
+	(assign '((:rsp slot_tcb)) '(:r1))
+	(assign '(:r0) '((:r1 +tk_node_stack)))
 
 	;resume new task
-	(call :sys_task :resume (vpx tcb))
+	(call :sys_task :resume '((:rsp slot_tcb)))
 
 	;return tcb and mailbox info
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
-	(exit :sys_task :start
-		(vpx tcb (.> tcb +tk_node_mbox_addr) (.> tcb +tk_node_mbox_id)
-		(. (.> statics statics_sys_task_kernel_node_id) +node_id_node1)
-		(. (.> statics statics_sys_task_kernel_node_id) +node_id_node2)))
-	(pop-scope)
-	(return)
+	(fn-bind 'sys/statics/statics :r5)
+	(assign '((:rsp slot_tcb)) '(:r0))
+	(assign '((:r0 +tk_node_mbox_addr) (:r0 +tk_node_mbox_id)) '(:r1 :r2))
+	(load-node-id :r5 statics_sys_task_kernel_node_id :r3 :r4)
+	(exit :sys_task :start '(:r0 :r1 :r2 :r3 :r4))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
