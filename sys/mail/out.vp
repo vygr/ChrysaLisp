@@ -10,35 +10,45 @@
 	;info
 	;never breaks out
 
-	(def-vars
+	(structure slot 0
 		(ptr msg data statics)
+		(align)
 		(nodeid node_id))
 
 	(vp-rdef (id0 id1 id2 heap msg offchip data obj frag time len off amount tot))
 
-	(push-scope)
+	(vp-alloc slot_size)
 
 	(call :sys_task :set_priority '(tk_out_link_priority))
-	(call :sys_kernel :id :nil (vpx (. node_id +node_id_node1) (. node_id +node_id_node2)))
-	(assign (vpx (@ sys/statics/statics)) (vpx statics))
+	(call :sys_kernel :id :nil '(:r0 :r1))
+	(save-node-id :rsp slot_node_id :r0 :r1)
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '(:r0) '((:rsp slot_statics)))
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
-		(call :sys_mail :mymail :nil (vpx msg data))
-		(vpifnot (vpx (| (- (. (.> msg +msg_dest) +net_id_node_id +node_id_node1) (. node_id +node_id_node1)) (- (. (.> msg +msg_dest) +net_id_node_id +node_id_node2) (. node_id +node_id_node2)))))
+		(call :sys_mail :mymail :nil '((:rsp slot_msg) (:rsp slot_data)))
+		(assign '((:rsp slot_msg)) '(:r0))
+		(load-node-id :r0 (+ +msg_dest +net_id_node_id) :r1 :r2)
+		(load-node-id :rsp slot_node_id :r3 :r4)
+		(vpif '(:r1 = :r3) '(:r2 = :r4))
 			;we got some junk mail, just free it for now
-			(call :sys_mail :free (vpx msg))
+			(call :sys_mail :free '((:rsp slot_msg)))
 			(continue 'mail_loop)
 		(endif)
 
 		;create next parcel id
-		(assign (vpx (+ (.> statics statics_sys_mail_session) 1)) (vpx (.> statics statics_sys_mail_session)))
+		(assign '((:rsp slot_statics)) '(:r0))
+		(assign '((:r0 statics_sys_mail_session)) '(:r1))
+		(vp-add-cr 1 :r1)
+		(assign '(:r1) '((:r0 statics_sys_mail_session)))
 
 		;for each fragment
 		(call :host_os :pii_time :nil `(,time))
-		(assign (vpx msg (& (.> statics statics_sys_mail_msg_heap))
-				(& (.> statics statics_sys_mail_outbound_list))
-				0 data) `(,msg ,heap ,offchip ,off ,data))
+		(assign '((:rsp slot_statics)) `(,heap))
+		(assign `((:rsp slot_msg) (& ,heap statics_sys_mail_outbound_list) 0 (:rsp slot_data))
+			`(,msg ,offchip ,off ,data))
+		(vp-add-cr statics_sys_mail_msg_heap heap)
 		(load-fields msg '(+msg_obj +msg_length) `(,obj ,tot))
 		(vp-cpy-rr tot amount)
 		(loop-start)
@@ -49,8 +59,9 @@
 			;fill in fragment
 			(vp-cpy-rr amount len)
 			(vp-min-cr lk_data_size len)
-			(assign (vpx (.> statics statics_sys_mail_session) (. node_id +node_id_node1)
-				(. node_id +node_id_node2)) `(,id0 ,id1 ,id2))
+			(assign '((:rsp slot_statics)) `(,id0))
+			(assign `((,id0 statics_sys_mail_session)) `(,id0))
+			(load-node-id :rsp slot_node_id id1 id2)
 			(save-net-id frag +msg_src id0 id1 id2)
 			(assign-net-id msg +msg_dest frag +msg_dest id0 id1 id2)
 			(save-fields
@@ -79,7 +90,7 @@
 		;exit if signaled by kernel...
 	(loop-end)
 
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
