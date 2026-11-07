@@ -1,9 +1,9 @@
-(report-header "Source: VP another system has, not this node, comes as VP binary and is translated here")
+(report-header "Source: VP another system has, not this node, comes as VP text and is translated here")
 
 ;@Source's own functions, called from here: a manifest kept as if another
 ;system had sent it says its VP of a function is not what this node has,
 ;so (source-translate) asks that system's @Source for its VP, "$mode name",
-;which is answered with VP binary, and translates it. The other system is
+;which is answered with the text of its entry, and translates it. The other system is
 ;this one's @Source, so the native must be what the build made
 (defq main :nil)
 (import "service/source/app_impl.lisp")
@@ -19,7 +19,7 @@
 	(pii-remove (source-cache sb_hash))
 	(source-translate (cat "Tsb " sb_svc " " sb_mode " " name)))
 
-(assert-eq "fetched as VP binary, translated here, the same as the build's"
+(assert-eq "fetched as VP text, translated here, the same as the build's"
 	(load (cat (load-path) sb_name)) (sb-translate sb_name))
 (if (source-caching?)
 	(assert-eq "and kept by the hash the manifest gave it" (load (cat (load-path) sb_name)) (load (source-cache sb_hash)))

@@ -1305,6 +1305,8 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r13 :r6 :r7 :r8 :r9) '(:str :obj :obj :obj :str))
+	;a constant, so that there is a table of them, a shader may have none
+	(fn-const 0)
 	(vp-lea-pr 'fn_consts :r12)
 	(vp-load-rcr :r6 +array_begin :r6)
 	(vp-load-rcr :r7 +array_begin :r7)
@@ -1377,6 +1379,8 @@
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r4 :r5 :r13 :r6 :r7 :r8)
 		'(:num :num :num :num :str :obj :num :num))
+	;a constant, so that there is a table of them, a shader may have none
+	(fn-const 0)
 	(vp-lea-pr 'fn_consts :r12)
 	;where the pixels go, and what is skipped at the end of each row. A
 	;string is filled row after row. In modes 2 and 3 out is a pixmap,
@@ -1742,6 +1746,8 @@
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2 :r3 :r13 :r4) '(:num :num :str :obj))
+	;a constant, so that there is a table of them, a shader may have none
+	(fn-const 0)
 	(vp-lea-pr 'fn_consts :r12)
 	(vp-store-rrc :r2 :r13 } (str s_i) {)
 	(vp-store-rrc :r3 :r13 } (str s_to) {)

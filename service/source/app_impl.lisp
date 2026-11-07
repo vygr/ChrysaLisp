@@ -70,7 +70,8 @@
 	(unless (get 'emit-translate *source_env*)
 		(bind '(& cpu abi) (map (const sym) (split (load-path) "/")))
 		(defq files (list "lib/asm/regs.inc" "lib/asm/ops.inc" "lib/trans/vp.inc"
-			"lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc" (cat "lib/trans/" cpu ".vp")))
+			"lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc" "lib/trans/vp_parse.vp"
+			(cat "lib/trans/" cpu ".vp")))
 		(def *source_env* '*cpu* cpu '*abi* abi '*build_mode* 1
 			'validatecase (macro (&rest e) (if (>= *build_mode* 2) `(progn ~e)))
 			'*source_trans_id* (hex-encode (sha256 (apply (const cat) (cat (list "") (map (# (ifn (load %0) "")) files))))))
@@ -84,21 +85,14 @@
 	(source-translator)
 	(cat (load-path) "cache/" (hex-encode (sha256 (cat hash " " (get '*source_trans_id* *source_env*))))))
 
-(defun source-make (entry)
-	; (source-make entry) -> native
-	;a function's VP translated for this CPU, kept in the cache if it may be
+(defun source-make (entry &optional hash)
+	; (source-make entry [hash]) -> native
+	;a function's VP translated for this CPU, kept in the cache if it may be,
+	;by the hash its manifest gave, as another system sends it, else of its
+	;text
 	(source-translator)
 	(defq out ((get 'emit-translate *source_env*) (second entry)))
-	(if (source-caching?) (save out (source-cache (hex-encode (sha256 (str entry))))))
-	out)
-
-(defun source-make-bin (bin hash)
-	; (source-make-bin bin hash) -> native
-	;a function's VP binary, as another system sends it, translated for this
-	;CPU, kept in the cache by the hash its manifest gave if it may be
-	(source-translator)
-	(defq out ((get 'vp-translate-bin *source_env*) bin))
-	(if (source-caching?) (save out (source-cache hash)))
+	(if (source-caching?) (save out (source-cache (ifn hash (hex-encode (sha256 (str entry)))))))
 	out)
 
 (defun source-manifest (mode name)
@@ -120,14 +114,11 @@
 
 (defun source-entries (mode names)
 	; (source-entries mode names) -> data
-	;the VP of those functions of this system that it has, as VP binary,
-	;lib/trans/vpb.inc, one bundle of them: compact, and read where it
-	;lands with no parse
-	(source-translator)
-	(defq encode (get 'vpb-encode *source_env*))
-	((get 'vpb-bundle *source_env*)
-		(reduce (# (if (defq found (source-entry mode %1)) (push %0 (encode (first found))) %0))
-			names (list))))
+	;the VP of those functions of this system that it has, the text of
+	;their entries one after another, as a bundle has them
+	(apply (const cat) (cat (list "")
+		(reduce (# (if (defq found (source-entry mode %1)) (push %0 (str (first found)) "\n") %0))
+			names (list)))))
 
 (defun source-ask-again (sid svc request)
 	; (source-ask-again sid svc request) -> (svc answer)
@@ -197,26 +188,16 @@
 			(defq data (ifn (if self (source-entries mode missing)
 					(source-ask svc (cat "$" mode " " (join missing " ")))) "")
 				got 0)
-			;VP binary, or if it is not that, the text of the entries, from a
-			;@Source of before VP binary was sent, a system not at this one's
-			;version. One that is neither, cut short, is none, not the end of
-			;the service
+			;the text of the entries. What is not that, or cut short, is none,
+			;not the end of the service
 			(defq made (list))
-			(catch (each (lambda (bin)
-					(when (find (defq name ((get 'vpb-name *source_env*) bin)) missing)
-						(++ got)
-						(push made (source-make-bin bin (. hashes :find name)))))
-					((get 'vpb-unbundle *source_env*) data))
+			(catch (progn
+					(defq stream (string-stream data))
+					(while (defq entry (first (read stream)))
+						(when (find (first entry) missing)
+							(++ got)
+							(push made (source-make entry (. hashes :find (first entry)))))))
 				(setq got -1))
-			(when (/= got (length missing))
-				(setq got 0 made (list))
-				(catch (progn
-						(defq stream (string-stream data))
-						(while (defq entry (first (read stream)))
-							(when (find (first entry) missing)
-								(++ got)
-								(push made (source-make entry)))))
-					(setq got -1)))
 			(setq natives (cat natives made))
 			(if (/= got (length missing)) (setq manifest :nil))))
 	(if manifest (apply (const cat) (cat (list "") natives))))
@@ -393,7 +374,7 @@
 		((starts-with "#" request)
 			(bind '(mode name) (split (slice request 1 -1) " "))
 			(if (defq text (source-manifest mode name)) (cat "y" text) "n"))
-		;the VP binary of functions, "$mode name ..."
+		;the VP text of functions, "$mode name ..."
 		((starts-with "$" request)
 			(defq names (split (slice request 1 -1) " "))
 			(cat "y" (source-entries (first names) (rest names))))

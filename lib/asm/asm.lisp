@@ -66,20 +66,16 @@
 					(setq *msg* (list))
 					(catch (cond
 							((find *kind* '(:vp :bundle))
-								;the compile gives the VP, this keeps it: the bundle,
-								;and of a VP job each function translated as it goes,
-								;by name
+								;the compile gives the VP, this keeps it: the bundle of
+								;its text, and of a VP job each function translated
+								;from its text as it goes, by name
 								(each (lambda (file)
-										(defq bundle (list) bins (list))
+										(defq bundle (list))
 										(each (lambda (entry)
-												(push bundle (vp-entry-text entry))
-												(push bins (if (eql *kind* :vp)
-													(vp-translate-save entry) (vpb-encode entry))))
+												(push bundle (defq text (vp-entry-text entry)))
+												(if (eql *kind* :vp) (vp-translate-save entry text)))
 											(vp-compile file))
 										(save (apply (const cat) (cat (list "") bundle)) (cat *build_vp* file))
-										;and the VP binary of them, for the translate stage to
-										;read with no parse, lib/trans/vpb.inc
-										(save (vpb-bundle bins) (cat *build_vp* file "b"))
 										(if (eql *kind* :vp) (save "" (cat "obj/" *cpu* "/" *abi* "/" file))))
 									*files*))
 							(:t (include "lib/asm/func.inc")

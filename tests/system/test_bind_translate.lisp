@@ -1,7 +1,7 @@
 (report-header "Bind: a function with no native is translated from its VP by the loader, and kept")
 
-;two functions there is only VP of, the binary bundle of their file in
-;obj/vp/, one calling the other: a bind of the first has the loader
+;two functions there is only VP of, the bundle of their file in obj/vp/,
+;one calling the other: a bind of the first has the loader
 ;find and translate both, closure first, keep their natives where a build
 ;would, the same to the byte, and run. The bundle is put in the folder of
 ;each mode, a test can not tell a normal image from a validate one
@@ -9,7 +9,7 @@
 (defq bt_lf "\n" bt_id (str (pii-time))
 	bt_a (cat "tests/bt_" bt_id "_a") bt_b (cat "tests/bt_" bt_id "_b")
 	bt_obj (cat "obj/" bt_cpu "/" bt_abi "/") bt_src (cat bt_obj "tests/bt_" bt_id ".vp")
-	bt_vpb (map (# (cat %0 "tests/bt_" bt_id ".vpb")) '("obj/vp/" "obj/vp_validate/"))
+	bt_vpb (map (# (cat %0 "tests/bt_" bt_id ".vp")) '("obj/vp/" "obj/vp_validate/"))
 	bt_bins (list))
 
 ;b adds 3 to :r0, a is called from Lisp with a num and gives a num, of b of it
@@ -20,14 +20,14 @@
 	"(fn-call '" bt_b ")" bt_lf "(call :num :create '(:r0) '(:r1))" bt_lf
 	"(vp-pop :r0)" bt_lf "(vp-ret)" bt_lf "(def-func-end)" bt_lf) bt_src)
 (defun bt-make ()
-	;the VP binary of each, and what a build makes of it
+	;the VP text of each, and what a build makes of it
 	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
 	(within-compile-env (lambda ()
 		(each (lambda (entry)
-				(defq bin (vpb-encode entry))
-				(push bt_bins (list (first entry) (vp-translate-bin bin) bin)))
+				(defq text (vp-entry-text entry))
+				(push bt_bins (list (first entry) (vp-translate-text text) text)))
 			(vp-compile bt_src))
-		(defq bundle (vpb-bundle (map (const third) bt_bins)))
+		(defq bundle (apply (const cat) (cat (list "") (map (const third) bt_bins))))
 		(each (# (save bundle %0)) bt_vpb))))
 (bt-make)
 (pii-remove bt_src)

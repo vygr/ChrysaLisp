@@ -154,49 +154,6 @@
 		(each (# (push *emit_list* %0)) (first got))
 		(setq *kept* (second got))))
 
-(defun vp-portable (form)
-	; (vp-portable form) -> form
-	;an arg of an instruction as it can be written and read back. A constant
-	;the Lisp that made it left as a call of a function, (+ 24 1) with +
-	;the function and not the symbol, would be written #add: it is worked
-	;out. One with anything but numbers in it can not be, and is thrown
-	;each list of it copied, with the list it is in and where, outer ones
-	;first, then each worked out after all those in it, from the last
-	(if (list? form)
-		(progn
-			(defq lists (list (list (defq top (cat form)) :nil 0)) i -1)
-			(while (< (++ i) (length lists))
-				(defq l (first (elem-get lists i)))
-				(each (lambda (e)
-						(when (list? e)
-							(elem-set l (!) (defq c (cat e)))
-							(push lists (list c l (!)))))
-					l))
-			(reach (lambda ((l up at))
-					(when (and (nempty? l) (func? (first l)))
-						(unless (some! (const num?) (list l) :t 1)
-							(throw "VP not portable, a call of a function in an instruction !" l))
-						(setq l (eval l)))
-					(if up (elem-set up at l) (setq top l)))
-				lists)
-			top)
-		form))
-
-(defun vp-code-text (entry)
-	; (vp-code-text entry) -> str
-	;an entry's instructions and the forms after them, as text that reads
-	;back the same: a constant the Lisp left as a call is worked out
-	(cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
-			(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
-			(second entry)) "\n") ")"
-		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
-
-(defun vp-entry-text (entry)
-	; (vp-entry-text entry) -> str
-	;an entry as a bundle in obj/vp/ has it
-	(cat "(\q" (first entry) "\q\n"
-		(vp-code-text entry) ")\n"))
-
 (defun def-func-end ()
 	(env-pop)
 	(undef *compile_env* '*func_env*)

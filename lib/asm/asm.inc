@@ -283,7 +283,7 @@
 	;build may write both in the same second, and the age is of a second
 	(defq trans_age (reduce (# (max %0 (age %1)))
 		(list "lib/trans/vp.inc" "lib/trans/vpb.inc" "lib/trans/vpb_ops.inc" "lib/trans/vpb_trans.inc"
-			(cat "lib/trans/" *cpu* ".vp")) 0))
+			"lib/trans/vp_parse.vp" (cat "lib/trans/" *cpu* ".vp")) 0))
 	(defq to_translate (filter (lambda (file)
 		(and (not (find file vp_files))
 			(or force
