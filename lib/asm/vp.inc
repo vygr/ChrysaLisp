@@ -10,13 +10,15 @@
 	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
 (defmacro vp-ddef (%0 &optional %1)
-	;names of the float registers as doubles, :d0 on, those given first
+	;names of the float registers as doubles, :d0 on, those given first.
+	;The same registers as vp-fdef, from the same first one
 	(setq %1 (if %1 (merge (cat (eval %1)) +vp_fregs) +vp_fregs))
 	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 
 (defmacro vp-fdef (%0 &optional %1)
 	;names of the float registers as singles, :f0 on, those given first. A
-	;single and its double are one register
+	;single and its double are one register: with vp-ddef in the same code,
+	;as two vp-rdef, one of them is given the registers it is to have
 	(setq %1 (if %1 (merge (cat (eval %1)) +vp_sregs) +vp_sregs))
 	(static-qq (bind ',(push %0 '&ignore) ',%1)))
 

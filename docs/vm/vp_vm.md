@@ -44,7 +44,11 @@ docs/diagrams/vp_registers.cwb
 
 You can use the `(vp-rdef)`, `(vp-ddef)` and `(vp-fdef)` macros to assign
 register equated symbols to help your source look nice: general registers,
-and the float registers as doubles or as singles. Or bind symbols to registers, via
+and the float registers as doubles or as singles. Each starts at register 0
+of its file unless given the registers to use, so `(vp-ddef)` and
+`(vp-fdef)` name the same registers, as two `(vp-rdef)` do: code with both
+gives one of them its registers, `(vp-fdef (c d) '(:f2 :f3))`, or a name of
+each is the same register. Or bind symbols to registers, via
 `(method-input)` and `(method-output)`, that match function entry/exit
 parameters if you desire. A great example of this is the `:canvas :fpoly`, or
 the `:pixmap :resize_2` functions.

@@ -79,7 +79,9 @@ automatically.
   (`:d0` - `:d15`).
 
 * **`vp-fdef` (Singles):** Maps symbols to the same registers as singles
-  (`:f0` - `:f15`). A single and its double are one register.
+  (`:f0` - `:f15`). A single and its double are one register. Both start at
+  register 0, as two `vp-rdef` do: code with both gives one its registers,
+  `(vp-fdef (c d) '(:f2 :f3))`, or a name of each is the same register.
 
 **Example from Mandelbrot:**
 
