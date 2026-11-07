@@ -564,40 +564,51 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
-		(ptr this sym txt chars)
+	(structure slot 0
+		(ptr this sym chars)
 		(uint code))
 
 	;save inputs
-	(push-scope)
-	(entry :font :ascii_textures (vpx this))
+	(vp-alloc slot_size)
+	(entry :font :ascii_textures '((:rsp slot_this)))
 
 	;lazy create char textures
-	(vpifnot (vpx (.> this +font_chars)))
+	(assign '((:r0 +font_chars)) '(:r1))
+	(vpif '(:r1 = 0))
 		;note, don't write to member var yet in case flush gets called !
-		(call :list :create :nil (vpx chars))
-		(call :list :set_cap (vpx chars (- 127 33)))
-		(assign (vpx 33) (vpx code))
+		(call :list :create :nil '(:r0))
+		(assign '(:r0) '((:rsp slot_chars)))
+		(call :list :set_cap `(:r0 ,(- 127 33)))
+		;the code is a C string of one char, the bytes above it 0
+		(assign '(33) '(:r0))
+		(assign '(:r0) '((:rsp slot_code)))
 		(loop-start)
-			(call :sym :intern_cstr (vpx (& code)) (vpx sym))
-			(call :font :sym_texture (vpx this sym) (vpx _ txt))
-			(vpif (vpx txt))
-				(call :list :push_back (vpx chars txt))
+			(call :sym :intern_cstr '((& :rsp slot_code)) '((:rsp slot_sym)))
+			(call :font :sym_texture '((:rsp slot_this) (:rsp slot_sym)) '(_ :r1))
+			(vpif '(:r1 /= 0))
+				(call :list :push_back '((:rsp slot_chars) :r1))
 			(endif)
-			(call :sym :deref (vpx sym))
-		(loop-until (vpx (= (=> (+ code 1) code) 127)))
-		(vpif (vpx (.> this +font_chars)))
+			(call :sym :deref '((:rsp slot_sym)))
+			(assign '((:rsp slot_code)) '(:r0))
+			(vp-add-cr 1 :r0)
+			(assign '(:r0) '((:rsp slot_code)))
+		(loop-until '(:r0 = 127))
+		(load-fields :rsp '(slot_this slot_chars) '(:r0 :r1))
+		(assign '((:r0 +font_chars)) '(:r2))
+		(vpif '(:r2 /= 0))
 			;another thread got to it during a flush !
-			(call :list :deref (vpx chars))
+			(call :list :deref '(:r1))
 		(else)
-			(assign (vpx chars) (vpx (.> this +font_chars)))
+			(assign '(:r1) '((:r0 +font_chars)))
 		(endif)
 	(endif)
-	(call :list :ref (vpx (.> this +font_chars)))
+	(assign '((:rsp slot_this)) '(:r0))
+	(call :list :ref '((:r0 +font_chars)))
 
-	(exit :font :ascii_textures (vpx this (.> this +font_chars)))
-	(pop-scope)
-	(return)
+	(assign '((:rsp slot_this)) '(:r0))
+	(exit :font :ascii_textures '(:r0 (:r0 +font_chars)))
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
