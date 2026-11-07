@@ -64,8 +64,8 @@
 
 (defun range? (r lo hi l)
 	;goto l if r is not lo to hi
-	(vpif `(,r < ,lo)) (vp-jmp l) (endif)
-	(vpif `(,r > ,hi)) (vp-jmp l) (endif))
+	(gotoif `(,r < ,lo) l)
+	(gotoif `(,r > ,hi) l))
 
 ;goto l if r is not a signed field of 12 or 32 bits
 (defun within12? (r l) (range? r -0x800 0x7ff l))
@@ -137,14 +137,10 @@
 		;the VP text, ("name" and on, to the records, lib/trans/vp_parse.vp
 		(assign '((:rsp 0) (:rsp +ptr_size)) '(:r1 :r0))
 		(fn-call 'lib/trans/vp_parse)
-		(vpif '(:r0 /= 0))
-			(vp-jmp 'fail)
-		(endif)
+		(gotoif '(:r0 /= 0) 'fail)
 		(vp-call 'prepass)
 		(assign '((:r14 +trs_err)) '(:r0))
-		(vpif '(:r0 /= 0))
-			(vp-jmp 'fail)
-		(endif)
+		(gotoif '(:r0 /= 0) 'fail)
 
 		;what no pass changes, once: each operand's value, a register as this
 		;CPU's, 4 more past the last for the routines' first 4
@@ -253,9 +249,7 @@
 					(vp-cpy-rr :r8 :r7)
 					(vp-call-r :r10)
 					(assign '((:r14 +trs_err)) '(:r0))
-					(vpif '(:r0 /= 0))
-						(vp-jmp 'fail_pop)
-					(endif)
+					(gotoif '(:r0 /= 0) 'fail_pop)
 				(endif)
 				(vp-pop :r8 :r10)
 				(vp-add-cr +tri_size :r8)
@@ -281,9 +275,6 @@
 			(assign '((:r14 +trs_pass)) '(:r0))
 			(vp-add-cr 1 :r0)
 			(assign '(:r0) '((:r14 +trs_pass)))
-			(vpif '(:r0 > 1000))
-				(vp-jmp 'fail)
-			(endif)
 			(vpif '(:r0 < 2))
 				(vp-xor-rr :r3 :r3)
 			(endif)

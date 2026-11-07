@@ -299,9 +299,7 @@
 (each (lambda ((op label rr))
 		;(c d l), c 0 the zero register, else c in t1
 		(vp-label label)
-		(vpif '(:r0 = 0))
-			(vp-jmp rr)
-		(endif)
+		(gotoif '(:r0 = 0) rr)
 		(vp-push :r1 :r2)
 		(vp-cpy-cr +la_t1 :r1)
 		(vp-call 'e_cpy_cr)
@@ -910,9 +908,7 @@
 
 (vp-label 'e_call_abi)
 	;(r b c n), the args all in registers, 8 at most
-	(vpif '(:r3 > 8))
-		(vp-jmp 'h_none)
-	(endif)
+	(gotoif '(:r3 > 8) 'h_none)
 	(vp-push :r1 :r2)
 	(la-regs 'h_push 5 6 7 8 9 10 11 23)
 	(to 'e_cpy_rr +la_sp +la_t4)

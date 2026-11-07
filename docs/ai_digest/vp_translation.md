@@ -260,8 +260,9 @@ operand's value worked out from the labels as the pass before left them.
 A branch that may take a short or a long form keeps in its record, `+tri_m`,
 the most it has had to reach on any pass, and is sized by that, so it only
 ever grows, and the passes settle. They stop when no label has moved from
-the pass before, after 2 passes at the least. After 1000 passes the
-translator gives up and gives back `:nil`.
+the pass before, after 2 passes at the least. The passes are not counted:
+that they end is the design's, every length that hangs on where a label is
+only grows, or is one fixed length, so there is no limit to give up at.
 
 A routine that is given something it cannot make, an op it has no routine
 for, a shift by a constant outside 0 to 63, a branch out of reach, marks the
