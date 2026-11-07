@@ -110,22 +110,25 @@
 	;trashes
 	;:r0-:r11, :d0-:d15
 
-	(def-vars
-		(ptr intern)
+	(structure slot 0
 		(pubyte str_begin str_end)
 		(uint hcode))
 
 	(vp-rdef (iter_begin iter_end str_begin str_end str_size bucket symbol str_len)
 		'(:r6 :r7 :r8 :r9 :r10 :r11))
 
-	(push-scope)
-	(entry :sym :intern_pstr (vpx str_begin str_end))
+	(vp-alloc slot_size)
+	(entry :sym :intern_pstr '((:rsp slot_str_begin) (:rsp slot_str_end)))
 
-	(call :str :hash_pstr (vpx str_begin str_end) (vpx hcode))
-	(assign (vpx (. (@ sys/statics/statics) statics_sym_intern)) (vpx intern))
-	(call :hset :get_elem (vpx intern (% hcode (.> intern +array_num_buckets))) `(_ ,bucket))
+	(call :str :hash_pstr '((:rsp slot_str_begin) (:rsp slot_str_end)) '(:r1))
+	(assign '(:r1) '((:rsp slot_hcode)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sym_intern)) '(:r0))
+	(assign '((:r0 +array_num_buckets)) '(:r2))
+	(vp-rem-rr-u :r2 :r1)
+	(call :hset :get_elem '(:r0 :r1) `(_ ,bucket))
 
-	(assign (vpx str_end str_begin) `(,str_end ,str_begin))
+	(assign '((:rsp slot_str_end) (:rsp slot_str_begin)) `(,str_end ,str_begin))
 	(class/array/get_both bucket iter_begin iter_end)
 	(vp-cpy-rr str_end str_size)
 	(vp-sub-rr str_begin str_size)
@@ -143,15 +146,15 @@
 
 	(call :sym :create_from_buffer `(,str_begin ,str_size) `(,symbol))
 	(assign `((@ ,(f-path :sym :vtable))) `(,str_len))
-	(assign (vpx hcode) `(,str_size))
+	(assign '((:rsp slot_hcode)) `(,str_size))
 	(assign `(,str_len ,str_size) `((,symbol +obj_vtable) (,symbol +str_hashcode)))
 	(call :list :push_back `(,bucket ,symbol) `(_ ,symbol _ _))
 
 (vp-label 'exit)
 	(class/obj/ref symbol str_len)
 	(exit :sym :intern_pstr `(,symbol))
-	(pop-scope)
-	(return)
+	(vp-free slot_size)
+	(vp-ret)
 
 (def-func-end)
 
