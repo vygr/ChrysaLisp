@@ -103,7 +103,7 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this args pixmap stream)
 		(puint data data_end)
 		(long bit_pool last_col)
@@ -115,10 +115,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(push-scope)
-	(assign `(,this ,args) (vpx this args))
+	(vp-alloc local_size)
+	(assign `(,this ,args) '((:rsp local_this) (:rsp local_args)))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) (vpx pixmap stream type))
+	(assign `(,pixmap ,stream ,type) '((:rsp local_pixmap) (:rsp local_stream) (:rsp local_type)))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -128,22 +128,22 @@
 	(vpif `(,type = 15))
 		(vp-cpy-cr 16 num_bits)
 	(endif)
-	(assign `(,num_bits) (vpx num_bits))
+	(assign `(,num_bits) '((:rsp local_num_bits)))
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) (vpx bit_pool bit_pool_size last_conv))
+	(assign `(,args ,args ,args) '((:rsp local_bit_pool) (:rsp local_bit_pool_size) (:rsp local_last_conv)))
 	(vp-sub-cr 1 args)
-	(assign `(,args) (vpx last_col))
+	(assign `(,args) '((:rsp local_last_col)))
 
 	;data region
-	(assign (vpx pixmap) `(,data))
+	(assign '((:rsp local_pixmap)) `(,data))
 	(assign `((,data +pixmap_width) (,data +pixmap_height)) `(,w ,h))
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
 	(vp-lea-rrr data w data_end)
-	(assign `(,data_end) (vpx data_end))
+	(assign `(,data_end) '((:rsp local_data_end)))
 
 	;loop for pixels
 	(loop-while `(,data /= ,data_end))
@@ -151,44 +151,44 @@
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :from_argb32))
 		(vp-load-rcr-ui data 0 col)
 		(vp-add-cr +int_size data)
-		(assign `(,data) (vpx data))
+		(assign `(,data) '((:rsp local_data)))
 
 		;convert pixel, with cache
-		(assign (vpx last_col) `(,last_col))
+		(assign '((:rsp local_last_col)) `(,last_col))
 		(vpif `(,col = ,last_col))
-			(assign (vpx last_conv) `(,col))
+			(assign '((:rsp local_last_conv)) `(,col))
 		(else)
-			(assign (vpx type) `(,type))
-			(assign `(,col) (vpx last_col))
+			(assign '((:rsp local_type)) `(,type))
+			(assign `(,col) '((:rsp local_last_col)))
 			(call :pixmap :from_argb32 `(,col ,type) `(,col))
-			(assign `(,col) (vpx last_conv))
+			(assign `(,col) '((:rsp local_last_conv)))
 		(endif)
 
 		;write pixel
 		(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
 		(assign `(,col) `(,val))
-		(assign (vpx stream num_bits bit_pool bit_pool_size)
+		(assign '((:rsp local_stream) (:rsp local_num_bits) (:rsp local_bit_pool) (:rsp local_bit_pool_size))
 			`(,stream ,num_bits ,bit_pool ,bit_pool_size))
 		(call :stream :write_bits `(,stream ,val ,num_bits ,bit_pool ,bit_pool_size)
-			(vpx _ bit_pool bit_pool_size))
+			'(_ (:rsp local_bit_pool) (:rsp local_bit_pool_size)))
 
-		(assign (vpx data data_end) `(,data ,data_end))
+		(assign '((:rsp local_data) (:rsp local_data_end)) `(,data ,data_end))
 	(loop-end)
 
 	; flush bits
 	(vp-rdef (stream val num_bits bit_pool bit_pool_size) (method-input :stream :write_bits))
-	(assign (vpx stream bit_pool bit_pool_size) `(,stream ,bit_pool ,bit_pool_size))
+	(assign '((:rsp local_stream) (:rsp local_bit_pool) (:rsp local_bit_pool_size)) `(,stream ,bit_pool ,bit_pool_size))
 	(vpif `(,bit_pool_size > 0))
 		(vp-cpy-cr 8 num_bits)
 		(vp-sub-rr bit_pool_size num_bits)
 		(call :stream :write_bits `(,stream 0 ,num_bits ,bit_pool ,bit_pool_size))
 	(endif)
 
-	(assign (vpx this pixmap) `(,this ,args))
+	(assign '((:rsp local_this) (:rsp local_pixmap)) `(,this ,args))
 	(class/obj/ref args w)
 	(exit :pixmap :lisp_write `(,this ,args))
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(pixmap-write pixmap stream type)" +error_msg_wrong_types))
@@ -206,7 +206,7 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this args pixmap stream)
 		(puint data data_end)
 		(long bit_pool last_col)
@@ -218,10 +218,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(push-scope)
-	(assign `(,this ,args) (vpx this args))
+	(vp-alloc local_size)
+	(assign `(,this ,args) '((:rsp local_this) (:rsp local_args)))
 	(list-bind-args args `(,pixmap ,stream ,type) '(:pixmap :stream :num))
-	(assign `(,pixmap ,stream ,type) (vpx pixmap stream type))
+	(assign `(,pixmap ,stream ,type) '((:rsp local_pixmap) (:rsp local_stream) (:rsp local_type)))
 
 	;num bits
 	(vp-cpy-rr type num_bits)
@@ -231,67 +231,67 @@
 	(vpif `(,type = 15))
 		(vp-cpy-cr 16 num_bits)
 	(endif)
-	(assign `(,num_bits) (vpx num_bits))
+	(assign `(,num_bits) '((:rsp local_num_bits)))
 
 	;set state
 	(vp-xor-rr args args)
-	(assign `(,args ,args ,args) (vpx bit_pool bit_pool_size last_conv))
+	(assign `(,args ,args ,args) '((:rsp local_bit_pool) (:rsp local_bit_pool_size) (:rsp local_last_conv)))
 	(vp-sub-cr 1 args)
-	(assign `(,args) (vpx last_col))
+	(assign `(,args) '((:rsp local_last_col)))
 
 	;data region
-	(assign (vpx pixmap) `(,data))
+	(assign '((:rsp local_pixmap)) `(,data))
 	(assign `((,data +pixmap_width) (,data +pixmap_height)) `(,w ,h))
 	(vp-mul-rr h w)
 	(assign `((,data +pixmap_data)) `(,data))
 	(vp-shl-cr (log2 +int_size) w)
 	(vp-lea-rrr data w data_end)
-	(assign `(,data_end) (vpx data_end))
+	(assign `(,data_end) '((:rsp local_data_end)))
 
 	;loop for pixels
 	(loop-while `(,data /= ,data_end))
-		(assign `(,data) (vpx data))
+		(assign `(,data) '((:rsp local_data)))
 
 		;read pixel
 		(vp-rdef (stream val bit_pool bit_pool_size) (method-input :stream :read_bits))
-		(assign (vpx stream num_bits bit_pool bit_pool_size)
+		(assign '((:rsp local_stream) (:rsp local_num_bits) (:rsp local_bit_pool) (:rsp local_bit_pool_size))
 			`(,stream ,val ,bit_pool ,bit_pool_size))
 		(call :stream :read_bits `(,stream ,val ,bit_pool ,bit_pool_size)
 			`(,stream ,val ,bit_pool ,bit_pool_size))
 		(gotoif `(,val = -1) 'eof)
-		(assign `(,bit_pool ,bit_pool_size) (vpx bit_pool bit_pool_size))
+		(assign `(,bit_pool ,bit_pool_size) '((:rsp local_bit_pool) (:rsp local_bit_pool_size)))
 
 		;convert pixel, with cache
 		(vp-rdef (col type last_col last_conv) (method-input :pixmap :to_argb32))
 		(assign `(,val) `(,col))
 
-		(assign (vpx last_col) `(,last_col))
+		(assign '((:rsp local_last_col)) `(,last_col))
 		(vpif `(,col = ,last_col))
-			(assign (vpx last_conv) `(,col))
+			(assign '((:rsp local_last_conv)) `(,col))
 		(else)
-			(assign (vpx type) `(,type))
-			(assign `(,col) (vpx last_col))
+			(assign '((:rsp local_type)) `(,type))
+			(assign `(,col) '((:rsp local_last_col)))
 			(call :pixmap :to_argb32 `(,col ,type) `(,col))
-			(assign `(,col) (vpx last_conv))
+			(assign `(,col) '((:rsp local_last_conv)))
 		(endif)
 
 		;write pixel
-		(assign (vpx data data_end) `(,data ,data_end))
+		(assign '((:rsp local_data) (:rsp local_data_end)) `(,data ,data_end))
 		(vp-store-rrc-i col data 0)
 		(vp-add-cr +int_size data)
 	(loop-end)
 
-	(assign (vpx this pixmap) `(,this ,args))
+	(assign '((:rsp local_this) (:rsp local_pixmap)) `(,this ,args))
 	(goto 'exit)
 
 (vp-label 'eof)
-	(assign (vpx this) `(,this))
+	(assign '((:rsp local_this)) `(,this))
 	(assign `((,this +lisp_sym_nil)) `(,args))
 (vp-label 'exit)
 	(class/obj/ref args w)
 	(exit :pixmap :lisp_read `(,this ,args))
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'error)
 	(jump :lisp :repl_error `(,args "(pixmap-read pixmap stream type)" +error_msg_wrong_types))

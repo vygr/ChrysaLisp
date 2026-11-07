@@ -681,7 +681,7 @@
 	;trashes
 	;:r1-:r14, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this lst)
 		(uint len))
 
@@ -692,8 +692,8 @@
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(push-scope)
-	(assign `(,this) (vpx this))
+	(vp-alloc local_size)
+	(assign `(,this) '((:rsp local_this)))
 	(assign `((,args +array_length)) `(,len))
 	(vpif `(,len = 1) 'exit)
 		(list-bind-args args `(,string) '(:obj))
@@ -705,10 +705,10 @@
 			(call :str :split `(,string (,cls +str_data ub)) `(_ ,args))
 			(break 'exit)
 		(endif)
-		(call :list :create :nil (vpx lst))
+		(call :list :create :nil '((:rsp local_lst)))
 		(assign `((,string +str_length) 0) `(,len ,i))
 		(loop-while `(,i < ,len))
-			(assign `(,len) (vpx len))
+			(assign `(,len) '((:rsp local_len)))
 			(call :str :bskip  `(,string ,cls ,i) `(_ _ ,j))
 			(vpif `(,i /= ,j))
 				(vp-cpy-rr j i)
@@ -716,16 +716,16 @@
 			(call :str :bskipn `(,string ,cls ,i) `(_ _ ,j))
 			(vpif `(,i /= ,j))
 				(d-call :str :slice `(,string ,i ,j) '(:r1))
-				(assign (vpx lst) '(:r0))
+				(assign '((:rsp local_lst)) '(:r0))
 				(call :list :push_back '(:r0 :r1))
 				(vp-cpy-rr j i)
 			(endif)
-			(assign (vpx len) `(,len))
+			(assign '((:rsp local_len)) `(,len))
 		(loop-end)
-		(assign (vpx lst) `(,args))
+		(assign '((:rsp local_lst)) `(,args))
 	(endif)
-	(assign (vpx this) `(,this))
-	(pop-scope)
+	(assign '((:rsp local_this)) `(,this))
+	(vp-free local_size)
 
 	(exit :str :lisp_split `(,this ,args))
 	(vp-ret)

@@ -480,7 +480,7 @@
 	;trashes
 	;:r1-:r9, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this buf))
 
 	(vp-rdef (stream buf len this args) '(:r7 :r8 :r9))
@@ -489,22 +489,22 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(push-scope)
-	(assign `(,this) (vpx this))
+	(vp-alloc local_size)
+	(assign `(,this) '((:rsp local_this)))
 	(list-bind-args args `(,stream ,len) '(:stream :num))
 	(call :str :create_from_buffer `(0 ,len) '(tmp))
-	(assign `(,tmp) (vpx buf))
+	(assign `(,tmp) '((:rsp local_buf)))
 	(call :stream :read `(,stream (& ,tmp +str_data) ,len) '(_ tmp))
 	(vpif `(,tmp = -1))
-		(call :obj :deref (vpx buf))
-		(assign (vpx this) `(,this))
+		(call :obj :deref '((:rsp local_buf)))
+		(assign '((:rsp local_this)) `(,this))
 		(assign `((,this +lisp_sym_nil)) `(,buf))
 		(class/obj/ref buf stream)
 	(else)
-		(assign (vpx this buf) `(,this ,buf))
+		(assign '((:rsp local_this) (:rsp local_buf)) `(,this ,buf))
 		(assign `(,tmp) `((,buf +str_length)))
 	(endif)
-	(pop-scope)
+	(vp-free local_size)
 
 	(exit :stream :lisp_readblk `(,this ,buf))
 	(vp-ret)
@@ -634,15 +634,15 @@
 	;trashes
 	;:r1-:r6, :r14, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this args stream iter_begin))
 
-	(push-scope)
+	(vp-alloc local_size)
 	(entry :stream :lisp_read_bits '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(assign '(:r0 :r1) (vpx this args))
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 	(list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
 (assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
@@ -650,25 +650,26 @@
 (assign '((:r3 +array_length)) '(:r4))
 (gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) (vpx stream))
+	(assign '(:r0) '((:rsp local_stream)))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) (vpx iter_begin))
+	(assign '(:r3) '((:rsp local_iter_begin)))
 	(call :stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
-	(assign (vpx iter_begin) '(:r4))
+	(assign '((:rsp local_iter_begin)) '(:r4))
 	(assign '(:r2 :r3) '((:r4 0) (:r4 +long_size)))
 	(call :num :create '(:r1) '(:r1))
-	(assign (vpx this) '(:r0))
+	(assign '((:rsp local_this)) '(:r0))
 
 	(exit :stream :lisp_read_bits '(:r0 :r1))
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'error1)
-	(assign (vpx this args) '(:r0 :r1))
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
 (vp-label 'error)
+	(vp-free local_size)
 	(jump :lisp :repl_error '(:r1 "(read-bits stream parray num_bits" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 
@@ -682,15 +683,15 @@
 	;trashes
 	;:r1-:r6, :d0-:d15
 
-	(def-vars
+	(structure local 0
 		(ptr this args stream iter_begin))
 
-	(push-scope)
+	(vp-alloc local_size)
 	(entry :stream :lisp_write_bits '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
-	(assign '(:r0 :r1) (vpx this args))
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 	(list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
 (assign `((:r3 +obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
@@ -698,25 +699,26 @@
 (assign '((:r3 +array_length)) '(:r4))
 (gotoif '(:r4 < 2) 'error1)
 
-	(assign '(:r0) (vpx stream))
+	(assign '(:r0) '((:rsp local_stream)))
 	(assign '((:r3 +array_begin)) '(:r3))
-	(assign '(:r3) (vpx iter_begin))
+	(assign '(:r3) '((:rsp local_iter_begin)))
 	(call :stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
-	(assign (vpx iter_begin) '(:r3))
+	(assign '((:rsp local_iter_begin)) '(:r3))
 	(assign '(:r1 :r2) '((:r3 0) (:r3 +long_size)))
-	(assign (vpx this stream) '(:r0 :r1))
+	(assign '((:rsp local_this) (:rsp local_stream)) '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit :stream :lisp_write_bits '(:r0 :r1))
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (vp-label 'error1)
-	(assign (vpx this args) '(:r0 :r1))
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
 (vp-label 'error)
+	(vp-free local_size)
 	(jump :lisp :repl_error '(:r1 "(write-bits stream parray data num_bits)" +error_msg_wrong_types))
 	(signature '(:stream :ARRAY :NUM :NUM))
 
-	(pop-scope-syms)
 
 (def-func-end)
 

@@ -194,24 +194,24 @@
 	;the dirty regions of the frame freed, its views let go of, and its
 	;list, here, not on the host, as a view let go of may be the last of it
 
-	(def-vars
+	(structure local 0
 		(ptr iter iter_end))
 
-	(push-scope)
+	(vp-alloc local_size)
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_gui_draws)) '(:r0))
 	(class/array/get_both :r0 :r1 :r2)
-	(assign '(:r1 :r2) (vpx iter iter_end))
+	(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_iter_end)))
 	(loop-start)
-		(assign (vpx iter iter_end) '(:r0 :r1))
+		(assign '((:rsp local_iter) (:rsp local_iter_end)) '(:r0 :r1))
 		(breakif '(:r0 >= :r1))
 		(fn-bind 'sys/statics/statics :r1)
 		(vp-add-cr statics_gui_rect_heap :r1)
 		(vp-lea-rcr :r0 +long_size :r2)
 		(call :region :free '(:r1 :r2))
-		(assign (vpx iter) '(:r0))
+		(assign '((:rsp local_iter)) '(:r0))
 		(vp-lea-rcr :r0 (* 2 +long_size) :r1)
-		(assign '(:r1) (vpx iter))
+		(assign '(:r1) '((:rsp local_iter)))
 		(call :view :deref '((:r0 0)))
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r1)
@@ -219,8 +219,8 @@
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r2) '((:r1 statics_gui_draws)))
 	(call :array :deref '(:r0))
-	(pop-scope)
-	(return)
+	(vp-free local_size)
+	(vp-ret)
 
 (def-func-end)
 
