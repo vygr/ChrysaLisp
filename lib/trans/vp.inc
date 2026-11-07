@@ -53,9 +53,14 @@
 (defun vp-code-text (entry)
 	; (vp-code-text entry) -> str
 	;an entry's instructions and the forms after them, as text that reads
-	;back the same: a constant the Lisp left as a call is worked out
-	(cat "(" (join (map (# (str (if (and (list? %0) (some (const list?) %0))
-			(cat (list (first %0)) (map! (const vp-portable) (list %0) 1 -1)) %0)))
+	;back the same: a constant the Lisp left as a call is worked out. Only
+	;a function prints with a #, so an instruction is printed once, and
+	;again from its portable form only if it has one
+	(cat "(" (join (map (lambda (inst)
+				(defq text (str inst))
+				(if (and (list? inst) (find "#" text))
+					(str (cat (list (first inst)) (map! (const vp-portable) (list inst) 1 -1)))
+					text))
 			(second entry)) "\n") ")"
 		(apply (const cat) (cat (list "") (map! (# (cat "\n" (str %0))) (list entry) 2 -1)))))
 
